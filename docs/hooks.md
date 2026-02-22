@@ -170,9 +170,13 @@ The `metadata.moltbot` object supports:
 The `handler.ts` file exports a `HookHandler` function:
 
 ```typescript
+<<<<<<< HEAD:docs/hooks.md
 import type { HookHandler } from '../../src/hooks/hooks.js';
 
 const myHandler: HookHandler = async (event) => {
+=======
+const myHandler = async (event) => {
+>>>>>>> 06b4baf67 (docs: remove internal hook import paths from examples):docs/automation/hooks.md
   // Only trigger on 'new' command
   if (event.type !== 'command' || event.action !== 'new') {
     return;
@@ -236,6 +240,75 @@ Triggered when the gateway starts:
 
 - **`gateway:startup`**: After channels start and hooks are loaded
 
+<<<<<<< HEAD:docs/hooks.md
+=======
+### Message Events
+
+Triggered when messages are received or sent:
+
+- **`message`**: All message events (general listener)
+- **`message:received`**: When an inbound message is received from any channel
+- **`message:sent`**: When an outbound message is successfully sent
+
+#### Message Event Context
+
+Message events include rich context about the message:
+
+```typescript
+// message:received context
+{
+  from: string,           // Sender identifier (phone number, user ID, etc.)
+  content: string,        // Message content
+  timestamp?: number,     // Unix timestamp when received
+  channelId: string,      // Channel (e.g., "whatsapp", "telegram", "discord")
+  accountId?: string,     // Provider account ID for multi-account setups
+  conversationId?: string, // Chat/conversation ID
+  messageId?: string,     // Message ID from the provider
+  metadata?: {            // Additional provider-specific data
+    to?: string,
+    provider?: string,
+    surface?: string,
+    threadId?: string,
+    senderId?: string,
+    senderName?: string,
+    senderUsername?: string,
+    senderE164?: string,
+  }
+}
+
+// message:sent context
+{
+  to: string,             // Recipient identifier
+  content: string,        // Message content that was sent
+  success: boolean,       // Whether the send succeeded
+  error?: string,         // Error message if sending failed
+  channelId: string,      // Channel (e.g., "whatsapp", "telegram", "discord")
+  accountId?: string,     // Provider account ID
+  conversationId?: string, // Chat/conversation ID
+  messageId?: string,     // Message ID returned by the provider
+}
+```
+
+#### Example: Message Logger Hook
+
+```typescript
+const isMessageReceivedEvent = (event: { type: string; action: string }) =>
+  event.type === "message" && event.action === "received";
+const isMessageSentEvent = (event: { type: string; action: string }) =>
+  event.type === "message" && event.action === "sent";
+
+const handler = async (event) => {
+  if (isMessageReceivedEvent(event as { type: string; action: string })) {
+    console.log(`[message-logger] Received from ${event.context.from}: ${event.context.content}`);
+  } else if (isMessageSentEvent(event as { type: string; action: string })) {
+    console.log(`[message-logger] Sent to ${event.context.to}: ${event.context.content}`);
+  }
+};
+
+export default handler;
+```
+
+>>>>>>> 06b4baf67 (docs: remove internal hook import paths from examples):docs/automation/hooks.md
 ### Tool Result Hooks (Plugin API)
 
 These hooks are not event-stream listeners; they let plugins synchronously adjust tool results before Moltbot persists them.
@@ -283,10 +356,15 @@ This hook does something useful when you issue `/new`.
 ### 4. Create handler.ts
 
 ```typescript
+<<<<<<< HEAD:docs/hooks.md
 import type { HookHandler } from '../../src/hooks/hooks.js';
 
 const handler: HookHandler = async (event) => {
   if (event.type !== 'command' || event.action !== 'new') {
+=======
+const handler = async (event) => {
+  if (event.type !== "command" || event.action !== "new") {
+>>>>>>> 06b4baf67 (docs: remove internal hook import paths from examples):docs/automation/hooks.md
     return;
   }
 
@@ -699,6 +777,7 @@ tail -f ~/.clawdbot/gateway.log
 Test your handlers in isolation:
 
 ```typescript
+<<<<<<< HEAD:docs/hooks.md
 import { test } from 'vitest';
 import { createHookEvent } from './src/hooks/hooks.js';
 import myHandler from './hooks/my-hook/handler.js';
@@ -707,6 +786,20 @@ test('my handler works', async () => {
   const event = createHookEvent('command', 'new', 'test-session', {
     foo: 'bar'
   });
+=======
+import { test } from "vitest";
+import myHandler from "./hooks/my-hook/handler.js";
+
+test("my handler works", async () => {
+  const event = {
+    type: "command",
+    action: "new",
+    sessionKey: "test-session",
+    timestamp: new Date(),
+    messages: [],
+    context: { foo: "bar" },
+  };
+>>>>>>> 06b4baf67 (docs: remove internal hook import paths from examples):docs/automation/hooks.md
 
   await myHandler(event);
 
