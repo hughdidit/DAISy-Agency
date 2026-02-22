@@ -176,6 +176,12 @@ export {
 } from "../infra/device-pairing.js";
 export { createDedupeCache } from "../infra/dedupe.js";
 export type { DedupeCache } from "../infra/dedupe.js";
+export { createPersistentDedupe } from "./persistent-dedupe.js";
+export type {
+  PersistentDedupe,
+  PersistentDedupeCheckOptions,
+  PersistentDedupeOptions,
+} from "./persistent-dedupe.js";
 export { formatErrorMessage } from "../infra/errors.js";
 <<<<<<< HEAD
 =======
