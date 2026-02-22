@@ -353,10 +353,18 @@ async function extractFileBlocks(params: {
     const forcedTextMimeResolved = forcedTextMime ?? resolveTextMimeFromName(nameHint ?? "");
     const utf16Charset = resolveUtf16Charset(bufferResult?.buffer);
     const textSample = decodeTextSample(bufferResult?.buffer);
+<<<<<<< HEAD
     const textLike = Boolean(utf16Charset) || looksLikeUtf8Text(bufferResult?.buffer);
     if (!forcedTextMimeResolved && kind === "audio" && !textLike) {
       continue;
     }
+=======
+    // Do not coerce real PDFs into text/plain via printable-byte heuristics.
+    // PDFs have a dedicated extraction path in extractFileContentFromSource.
+    const allowTextHeuristic = normalizedRawMime !== "application/pdf";
+    const textLike =
+      allowTextHeuristic && (Boolean(utf16Charset) || looksLikeUtf8Text(bufferResult?.buffer));
+>>>>>>> 6d11b4699 (Media: preserve PDF MIME classification in file extraction)
     const guessedDelimited = textLike ? guessDelimitedMime(textSample) : undefined;
     const textHint =
       forcedTextMimeResolved ?? guessedDelimited ?? (textLike ? "text/plain" : undefined);

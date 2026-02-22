@@ -861,6 +861,7 @@ describe("applyMediaUnderstanding", () => {
   });
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   // Windows NTFS disallows < and > in filenames; XML escaping is
   // platform-independent string logic tested adequately on Linux/macOS.
   it.skipIf(process.platform === "win32")(
@@ -906,6 +907,40 @@ describe("applyMediaUnderstanding", () => {
     const filePath = path.join(dir, "data.txt");
     await fs.writeFile(filePath, "test content");
 =======
+=======
+  it("does not reclassify PDF attachments as text/plain", async () => {
+    const pseudoPdf = Buffer.from("%PDF-1.7\n1 0 obj\n<< /Type /Catalog >>\nendobj\n", "utf8");
+    const filePath = await createTempMediaFile({
+      fileName: "report.pdf",
+      content: pseudoPdf,
+    });
+
+    const cfg: OpenClawConfig = {
+      ...createMediaDisabledConfig(),
+      gateway: {
+        http: {
+          endpoints: {
+            responses: {
+              files: { allowedMimes: ["text/plain"] },
+            },
+          },
+        },
+      },
+    };
+
+    const { ctx, result } = await applyWithDisabledMedia({
+      body: "<media:file>",
+      mediaPath: filePath,
+      mediaType: "application/pdf",
+      cfg,
+    });
+
+    expect(result.appliedFile).toBe(false);
+    expect(ctx.Body).toBe("<media:file>");
+    expect(ctx.Body).not.toContain("<file");
+  });
+
+>>>>>>> 6d11b4699 (Media: preserve PDF MIME classification in file extraction)
   it("respects configured allowedMimes for text-like attachments", async () => {
     const tsvText = "a\tb\tc\n1\t2\t3";
     const tsvPath = await createTempMediaFile({
