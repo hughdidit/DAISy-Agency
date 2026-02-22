@@ -1,6 +1,20 @@
 import { getMSTeamsRuntime } from "../runtime.js";
 import { downloadMSTeamsAttachments } from "./download.js";
+<<<<<<< HEAD
 import { GRAPH_ROOT, inferPlaceholder, isRecord, normalizeContentType, resolveAllowedHosts } from "./shared.js";
+=======
+import { downloadAndStoreMSTeamsRemoteMedia } from "./remote-media.js";
+import {
+  GRAPH_ROOT,
+  inferPlaceholder,
+  isRecord,
+  isUrlAllowed,
+  normalizeContentType,
+  resolveRequestUrl,
+  resolveAllowedHosts,
+  safeFetch,
+} from "./shared.js";
+>>>>>>> 26644c4b8 (fix(msteams): add SSRF protection to attachment downloads via redirect and DNS validation (#23598))
 import type {
   MSTeamsAccessTokenProvider,
   MSTeamsAttachmentLike,
@@ -236,9 +250,32 @@ export async function downloadMSTeamsGraphMedia(params: {
           const encodedUrl = Buffer.from(shareUrl).toString("base64url");
           const sharesUrl = `${GRAPH_ROOT}/shares/u!${encodedUrl}/driveItem/content`;
 
+<<<<<<< HEAD
           const spRes = await fetchFn(sharesUrl, {
             headers: { Authorization: `Bearer ${accessToken}` },
             redirect: "follow",
+=======
+          const media = await downloadAndStoreMSTeamsRemoteMedia({
+            url: sharesUrl,
+            filePathHint: name,
+            maxBytes: params.maxBytes,
+            contentTypeHint: "application/octet-stream",
+            preserveFilenames: params.preserveFilenames,
+            fetchImpl: async (input, init) => {
+              const requestUrl = resolveRequestUrl(input);
+              const headers = new Headers(init?.headers);
+              headers.set("Authorization", `Bearer ${accessToken}`);
+              return await safeFetch({
+                url: requestUrl,
+                allowHosts,
+                fetchFn,
+                requestInit: {
+                  ...init,
+                  headers,
+                },
+              });
+            },
+>>>>>>> 26644c4b8 (fix(msteams): add SSRF protection to attachment downloads via redirect and DNS validation (#23598))
           });
 
           if (spRes.ok) {

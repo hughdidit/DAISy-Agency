@@ -436,7 +436,12 @@ Docs: https://docs.openclaw.ai
 - Security/Media: enforce inbound media byte limits during download/read across Discord, Telegram, Zalo, Microsoft Teams, and BlueBubbles to prevent oversized payload memory spikes before rejection. This ships in the next npm release. Thanks @tdjackey for reporting.
 - Security/Control UI: block symlink-based out-of-root static file reads by enforcing realpath containment and file-identity checks when serving Control UI assets and SPA fallback `index.html`. This ships in the next npm release. Thanks @tdjackey for reporting.
 - Security/MSTeams media: enforce allowlist checks for SharePoint reference attachment URLs and redirect targets during Graph-backed media fetches so redirect chains cannot escape configured media host boundaries. This ships in the next npm release. Thanks @tdjackey for reporting.
+<<<<<<< HEAD
 >>>>>>> dea154cca (docs(changelog): add control-ui symlink hardening entry)
+=======
+- Security/MSTeams media: route attachment auth-retry and Graph SharePoint download redirects through shared `safeFetch` so each hop is validated with allowlist + DNS/IP checks across the full redirect chain. (#23598) Thanks @Asm3r96 and @lewiswigmore.
+- Security/macOS discovery: fail closed for unresolved discovery endpoints by clearing stale remote selection values, use resolved service host only for SSH target derivation, and keep remote URL config aligned with resolved endpoint availability. (#21618) Thanks @bmendonca3.
+>>>>>>> 26644c4b8 (fix(msteams): add SSRF protection to attachment downloads via redirect and DNS validation (#23598))
 - Chat/Usage/TUI: strip synthetic inbound metadata blocks (including `Conversation info` and trailing `Untrusted context` channel metadata wrappers) from displayed conversation history so internal prompt context no longer leaks into user-visible logs.
 - Security/Browser relay: harden extension relay auth token handling for `/extension` and `/cdp` pathways.
 - Cron: persist `delivered` state in cron job records so delivery failures remain visible in status and logs. (#19174) Thanks @simonemacario.
