@@ -244,6 +244,7 @@ const runDefaultEmbeddedTurn = async (sessionFile: string, prompt: string, sessi
 };
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 describe("runEmbeddedPiAgent", () => {
 <<<<<<< HEAD
   it("persists the user message when prompt fails before assistant output", async () => {
@@ -289,6 +290,9 @@ describe("runEmbeddedPiAgent", () => {
 =======
 describe.concurrent("runEmbeddedPiAgent", () => {
 >>>>>>> 568973e5a (perf(test): trim embedded/bash runtime fixture overhead)
+=======
+describe("runEmbeddedPiAgent", () => {
+>>>>>>> 7b229decd (test(perf): dedupe fixtures and reduce flaky waits)
   it("handles prompt error paths without dropping user state", async () => {
     for (const testCase of [
       {
