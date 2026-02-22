@@ -302,21 +302,13 @@ describe("browser control server", () => {
 =======
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
+  cleanupBrowserControlServerTestContext,
   getBrowserControlServerBaseUrl,
-  getBrowserControlServerTestState,
-  getCdpMocks,
-  getFreePort,
   installBrowserControlServerHooks,
   makeResponse,
-  getPwMocks,
-  restoreGatewayPortEnv,
+  resetBrowserControlServerTestContext,
   startBrowserControlServerFromConfig,
-  stopBrowserControlServer,
 } from "./server.control-server.test-harness.js";
-
-const state = getBrowserControlServerTestState();
-const cdpMocks = getCdpMocks();
-const pwMocks = getPwMocks();
 
 describe("browser control server", () => {
   installBrowserControlServerHooks();
@@ -353,6 +345,7 @@ describe("browser control server", () => {
 
 describe("profile CRUD endpoints", () => {
   beforeEach(async () => {
+<<<<<<< HEAD
     state.reachable = false;
     state.cfgAttachOnly = false;
 
@@ -387,6 +380,9 @@ describe("profile CRUD endpoints", () => {
     state.prevGatewayPassword = process.env.OPENCLAW_GATEWAY_PASSWORD;
     delete process.env.OPENCLAW_GATEWAY_TOKEN;
     delete process.env.OPENCLAW_GATEWAY_PASSWORD;
+=======
+    await resetBrowserControlServerTestContext();
+>>>>>>> 78220db2b (refactor(browser): dedupe control-server test harness)
 
 >>>>>>> 9b23e5ce1 (test: fix flaky auth tests when OPENCLAW_GATEWAY_TOKEN is present)
     vi.stubGlobal(
@@ -402,6 +398,7 @@ describe("profile CRUD endpoints", () => {
   });
 
   afterEach(async () => {
+<<<<<<< HEAD
     vi.unstubAllGlobals();
     vi.restoreAllMocks();
 <<<<<<< HEAD
@@ -434,6 +431,9 @@ describe("profile CRUD endpoints", () => {
     }
 >>>>>>> 9b23e5ce1 (test: fix flaky auth tests when OPENCLAW_GATEWAY_TOKEN is present)
     await stopBrowserControlServer();
+=======
+    await cleanupBrowserControlServerTestContext();
+>>>>>>> 78220db2b (refactor(browser): dedupe control-server test harness)
   });
 
   it("validates profile create/delete endpoints", async () => {
