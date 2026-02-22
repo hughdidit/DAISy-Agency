@@ -6,12 +6,16 @@ import type { MoltbotConfig } from "../config/config.js";
 import type { ExecApprovalsResolved } from "../infra/exec-approvals.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { createMoltbotCodingTools } from "./pi-tools.js";
 =======
 import { captureEnv } from "../test-utils/env.js";
 =======
 import { captureEnv, withEnvAsync } from "../test-utils/env.js";
 >>>>>>> a410dad60 (refactor(test): simplify env setup in safe bins and skills status)
+=======
+import { captureEnv } from "../test-utils/env.js";
+>>>>>>> 7ccf62fb4 (test(agents): remove dead shell-timeout override in safeBins suite)
 
 const bundledPluginsDirSnapshot = captureEnv(["OPENCLAW_BUNDLED_PLUGINS_DIR"]);
 
@@ -154,14 +158,10 @@ describe("createOpenClawCodingTools safeBins", () => {
       },
       async ({ tmpDir, execTool }) => {
         const marker = `safe-bins-${Date.now()}`;
-        const result = await withEnvAsync(
-          { OPENCLAW_SHELL_ENV_TIMEOUT_MS: "1000" },
-          async () =>
-            await execTool.execute("call1", {
-              command: `echo ${marker}`,
-              workdir: tmpDir,
-            }),
-        );
+        const result = await execTool.execute("call1", {
+          command: `echo ${marker}`,
+          workdir: tmpDir,
+        });
         const text = result.content.find((content) => content.type === "text")?.text ?? "";
 
 <<<<<<< HEAD
