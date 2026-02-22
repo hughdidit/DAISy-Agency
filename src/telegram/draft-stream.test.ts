@@ -1,6 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { createTelegramDraftStream } from "./draft-stream.js";
 
+type TelegramDraftStreamParams = Parameters<typeof createTelegramDraftStream>[0];
+
 function createMockDraftApi(sendMessageImpl?: () => Promise<{ message_id: number }>) {
   return {
     sendMessage: vi.fn(sendMessageImpl ?? (async () => ({ message_id: 17 }))),
@@ -17,11 +19,18 @@ function createThreadedDraftStream(
   api: ReturnType<typeof createMockDraftApi>,
   thread: { id: number; scope: "forum" | "dm" },
 ) {
+  return createDraftStream(api, { thread });
+}
+
+function createDraftStream(
+  api: ReturnType<typeof createMockDraftApi>,
+  overrides: Omit<Partial<TelegramDraftStreamParams>, "api" | "chatId"> = {},
+) {
   return createTelegramDraftStream({
     // oxlint-disable-next-line typescript/no-explicit-any
     api: api as any,
     chatId: 123,
-    thread,
+    ...overrides,
   });
 }
 
@@ -32,6 +41,18 @@ async function expectInitialForumSend(
   await vi.waitFor(() =>
     expect(api.sendMessage).toHaveBeenCalledWith(123, text, { message_thread_id: 99 }),
   );
+}
+
+function createForceNewMessageHarness(params: { throttleMs?: number } = {}) {
+  const api = createMockDraftApi();
+  api.sendMessage
+    .mockResolvedValueOnce({ message_id: 17 })
+    .mockResolvedValueOnce({ message_id: 42 });
+  const stream = createDraftStream(
+    api,
+    params.throttleMs != null ? { throttleMs: params.throttleMs } : {},
+  );
+  return { api, stream };
 }
 
 describe("createTelegramDraftStream", () => {
@@ -125,6 +146,7 @@ describe("createTelegramDraftStream", () => {
   });
 
   it("creates new message after forceNewMessage is called", async () => {
+<<<<<<< HEAD
     const api = {
       sendMessage: vi
         .fn()
@@ -138,6 +160,9 @@ describe("createTelegramDraftStream", () => {
       api: api as any,
       chatId: 123,
     });
+=======
+    const { api, stream } = createForceNewMessageHarness();
+>>>>>>> bdbbcbcc1 (test: dedupe telegram draft stream setup and extend state-dir env coverage)
 
     // First message
     stream.update("Hello");
@@ -164,6 +189,7 @@ describe("createTelegramDraftStream", () => {
   it("sends first update immediately after forceNewMessage within throttle window", async () => {
     vi.useFakeTimers();
     try {
+<<<<<<< HEAD
       const api = {
         sendMessage: vi
           .fn()
@@ -178,6 +204,9 @@ describe("createTelegramDraftStream", () => {
         chatId: 123,
         throttleMs: 1000,
       });
+=======
+      const { api, stream } = createForceNewMessageHarness({ throttleMs: 1000 });
+>>>>>>> bdbbcbcc1 (test: dedupe telegram draft stream setup and extend state-dir env coverage)
 
       stream.update("Hello");
       await vi.waitFor(() => expect(api.sendMessage).toHaveBeenCalledTimes(1));
