@@ -11,7 +11,7 @@ import type { FeishuMessageContext, FeishuMediaInfo, ResolvedFeishuAccount } fro
 import type { DynamicAgentCreationConfig } from "./types.js";
 import { resolveFeishuAccount } from "./accounts.js";
 import { createFeishuClient } from "./client.js";
-import { tryRecordMessage } from "./dedup.js";
+import { tryRecordMessagePersistent } from "./dedup.js";
 import { maybeCreateDynamicAgent } from "./dynamic-agent.js";
 <<<<<<< HEAD
 import { downloadImageFeishu, downloadMessageResourceFeishu } from "./media.js";
@@ -547,9 +547,9 @@ export async function handleFeishuMessage(params: {
   const log = runtime?.log ?? console.log;
   const error = runtime?.error ?? console.error;
 
-  // Dedup check: skip if this message was already processed
+  // Dedup check: skip if this message was already processed (memory + disk).
   const messageId = event.message.message_id;
-  if (!tryRecordMessage(messageId)) {
+  if (!(await tryRecordMessagePersistent(messageId, account.accountId, log))) {
     log(`feishu: skipping duplicate message ${messageId}`);
     return;
   }
