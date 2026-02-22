@@ -61,12 +61,19 @@ describe("dispatchTelegramMessage draft streaming", () => {
   type TelegramMessageContext = Parameters<typeof dispatchTelegramMessage>[0]["context"];
 
   beforeEach(() => {
+<<<<<<< HEAD
     createTelegramDraftStream.mockReset();
     dispatchReplyWithBufferedBlockDispatcher.mockReset();
     deliverReplies.mockReset();
     editMessageTelegram.mockReset();
 <<<<<<< HEAD
 =======
+=======
+    createTelegramDraftStream.mockClear();
+    dispatchReplyWithBufferedBlockDispatcher.mockClear();
+    deliverReplies.mockClear();
+    editMessageTelegram.mockClear();
+>>>>>>> 6e253096e (test(core): use lightweight clears in command and dispatch setup)
     loadSessionStore.mockClear();
     resolveStorePath.mockClear();
     resolveStorePath.mockReturnValue("/tmp/sessions.json");
