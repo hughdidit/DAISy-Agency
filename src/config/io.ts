@@ -1402,6 +1402,7 @@ let configCache: {
   config: MoltbotConfig;
 } | null = null;
 let runtimeConfigSnapshot: OpenClawConfig | null = null;
+let runtimeConfigSourceSnapshot: OpenClawConfig | null = null;
 
 function resolveConfigCacheMs(env: NodeJS.ProcessEnv): number {
 <<<<<<< HEAD
@@ -1440,15 +1441,24 @@ export function clearConfigCache(): void {
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 export function loadConfig(): MoltbotConfig {
 =======
 export function setRuntimeConfigSnapshot(config: OpenClawConfig): void {
+=======
+export function setRuntimeConfigSnapshot(
+  config: OpenClawConfig,
+  sourceConfig?: OpenClawConfig,
+): void {
+>>>>>>> e4915cb10 (Secrets: preserve runtime snapshot source refs on write)
   runtimeConfigSnapshot = config;
+  runtimeConfigSourceSnapshot = sourceConfig ?? null;
   clearConfigCache();
 }
 
 export function clearRuntimeConfigSnapshot(): void {
   runtimeConfigSnapshot = null;
+  runtimeConfigSourceSnapshot = null;
   clearConfigCache();
 }
 
@@ -1502,9 +1512,14 @@ export async function writeConfigFile(
   options: ConfigWriteOptions = {},
 ): Promise<void> {
   const io = createConfigIO();
+  let nextCfg = cfg;
+  if (runtimeConfigSnapshot && runtimeConfigSourceSnapshot) {
+    const runtimePatch = createMergePatch(runtimeConfigSnapshot, cfg);
+    nextCfg = coerceConfig(applyMergePatch(runtimeConfigSourceSnapshot, runtimePatch));
+  }
   const sameConfigPath =
     options.expectedConfigPath === undefined || options.expectedConfigPath === io.configPath;
-  await io.writeConfigFile(cfg, {
+  await io.writeConfigFile(nextCfg, {
     envSnapshotForRestore: sameConfigPath ? options.envSnapshotForRestore : undefined,
     unsetPaths: options.unsetPaths,
   });
