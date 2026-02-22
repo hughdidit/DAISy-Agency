@@ -50,6 +50,7 @@ Docs: https://docs.openclaw.ai
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 - Memory/QMD: add optional `memory.qmd.mcporter` search routing so QMD `query/search/vsearch` can run through mcporter keep-alive flows (including multi-collection paths) to reduce cold starts, while keeping searches on agent-scoped QMD state for consistent recall. (#19617) Thanks @vignesh07.
 =======
 =======
@@ -60,6 +61,9 @@ Docs: https://docs.openclaw.ai
 - Auth/Profiles: prevent cooldown deadline from being reset on every retry when the backoff is already saturated. Previously each failed request overwrote `cooldownUntil` with `now + backoffMs`, so a 60-minute cooldown was perpetually extended by cron or inbound retries, trapping the gateway in an unrecoverable loop that required manual `usageStats` deletion to resolve. (#23516)
 =======
 =======
+=======
+- Providers/OpenRouter: preserve the required `openrouter/` prefix for OpenRouter-native model IDs during model-ref normalization. (#12942) Thanks @omair445.
+>>>>>>> 3891ba4bb (fix(providers): preserve openrouter/ prefix for native models (#12942))
 - Telegram/Webhook: keep webhook monitors alive until gateway abort signals fire, preventing false channel exits and immediate webhook auto-restart loops.
 - Telegram/Polling: retry recoverable setup-time network failures in monitor startup and await runner teardown before retry to avoid overlapping polling sessions.
 - Telegram/Polling: clear Telegram webhooks (`deleteWebhook`) before starting long-poll `getUpdates`, including retry handling for transient cleanup failures.
