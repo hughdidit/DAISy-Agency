@@ -5,6 +5,7 @@ import type { SessionSystemPromptReport } from "../../../config/sessions/types.j
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { ExecElevatedDefaults, ExecToolDefaults } from "../../bash-tools.js";
 =======
 >>>>>>> 0dbe087ef (refactor(pi-embedded-runner): dedupe attempt params)
@@ -13,6 +14,9 @@ import type { PluginHookBeforeAgentStartResult } from "../../../plugins/types.js
 >>>>>>> b90eb5152 (feat(plugins): add modelOverride/providerOverride to before_agent_start hook)
 =======
 >>>>>>> 0c1c34c95 (refactor(plugins): split before-agent hooks by model and prompt phases)
+=======
+import type { PluginHookBeforeAgentStartResult } from "../../../plugins/types.js";
+>>>>>>> 542fc169d (Plugins/Hooks: avoid duplicate before_agent_start executions)
 import type { MessagingToolSend } from "../../pi-embedded-messaging.js";
 import type { AuthStorage, ModelRegistry } from "../../pi-model-discovery.js";
 import type { NormalizedUsage } from "../../usage.js";
@@ -30,6 +34,7 @@ export type EmbeddedRunAttemptParams = EmbeddedRunAttemptBase & {
   authStorage: AuthStorage;
   modelRegistry: ModelRegistry;
   thinkLevel: ThinkLevel;
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -75,6 +80,9 @@ export type EmbeddedRunAttemptParams = EmbeddedRunAttemptBase & {
 >>>>>>> b90eb5152 (feat(plugins): add modelOverride/providerOverride to before_agent_start hook)
 =======
 >>>>>>> 0c1c34c95 (refactor(plugins): split before-agent hooks by model and prompt phases)
+=======
+  legacyBeforeAgentStartResult?: PluginHookBeforeAgentStartResult;
+>>>>>>> 542fc169d (Plugins/Hooks: avoid duplicate before_agent_start executions)
 };
 
 export type EmbeddedRunAttemptResult = {
