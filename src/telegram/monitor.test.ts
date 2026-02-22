@@ -28,12 +28,32 @@ const { initSpy, runSpy, loadConfig } = vi.hoisted(() => ({
   runSpy: vi.fn(() => ({
     task: () => Promise.resolve(),
     stop: vi.fn(),
+    isRunning: () => false,
   })),
   loadConfig: vi.fn(() => ({
     agents: { defaults: { maxConcurrent: 2 } },
     channels: { telegram: {} },
   })),
 }));
+
+const { registerUnhandledRejectionHandlerMock, emitUnhandledRejection, resetUnhandledRejection } =
+  vi.hoisted(() => {
+    let handler: ((reason: unknown) => boolean) | undefined;
+    return {
+      registerUnhandledRejectionHandlerMock: vi.fn((next: (reason: unknown) => boolean) => {
+        handler = next;
+        return () => {
+          if (handler === next) {
+            handler = undefined;
+          }
+        };
+      }),
+      emitUnhandledRejection: (reason: unknown) => handler?.(reason) ?? false,
+      resetUnhandledRejection: () => {
+        handler = undefined;
+      },
+    };
+  });
 
 const { computeBackoff, sleepWithAbort } = vi.hoisted(() => ({
   computeBackoff: vi.fn(() => 0),
@@ -85,7 +105,14 @@ vi.mock("../infra/backoff.js", () => ({
 }));
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+vi.mock("../infra/unhandled-rejections.js", () => ({
+  registerUnhandledRejectionHandler: registerUnhandledRejectionHandlerMock,
+}));
+
+>>>>>>> 4d0ca7c31 (fix(telegram): restart stalled polling after unhandled network errors)
 vi.mock("./webhook.js", () => ({
   startTelegramWebhook: startTelegramWebhookSpy,
 }));
@@ -107,6 +134,12 @@ describe("monitorTelegramProvider (grammY)", () => {
     runSpy.mockClear();
     computeBackoff.mockClear();
     sleepWithAbort.mockClear();
+<<<<<<< HEAD
+=======
+    startTelegramWebhookSpy.mockClear();
+    registerUnhandledRejectionHandlerMock.mockClear();
+    resetUnhandledRejection();
+>>>>>>> 4d0ca7c31 (fix(telegram): restart stalled polling after unhandled network errors)
   });
 
   it("processes a DM and sends reply", async () => {
@@ -199,4 +232,89 @@ describe("monitorTelegramProvider (grammY)", () => {
 
     await expect(monitorTelegramProvider({ token: "tok" })).rejects.toThrow("bad token");
   });
+<<<<<<< HEAD
+=======
+
+  it("force-restarts polling when unhandled network rejection stalls runner", async () => {
+    let running = true;
+    let releaseTask: (() => void) | undefined;
+    const stop = vi.fn(async () => {
+      running = false;
+      releaseTask?.();
+    });
+
+    runSpy
+      .mockImplementationOnce(() => ({
+        task: () =>
+          new Promise<void>((resolve) => {
+            releaseTask = resolve;
+          }),
+        stop,
+        isRunning: () => running,
+      }))
+      .mockImplementationOnce(() => ({
+        task: () => Promise.resolve(),
+        stop: vi.fn(),
+        isRunning: () => false,
+      }));
+
+    const monitor = monitorTelegramProvider({ token: "tok" });
+    await vi.waitFor(() => expect(runSpy).toHaveBeenCalledTimes(1));
+
+    expect(emitUnhandledRejection(new TypeError("fetch failed"))).toBe(true);
+    await monitor;
+
+    expect(stop).toHaveBeenCalledTimes(1);
+    expect(computeBackoff).toHaveBeenCalled();
+    expect(sleepWithAbort).toHaveBeenCalled();
+    expect(runSpy).toHaveBeenCalledTimes(2);
+  });
+
+  it("passes configured webhookHost to webhook listener", async () => {
+    await monitorTelegramProvider({
+      token: "tok",
+      useWebhook: true,
+      webhookUrl: "https://example.test/telegram",
+      webhookSecret: "secret",
+      config: {
+        agents: { defaults: { maxConcurrent: 2 } },
+        channels: {
+          telegram: {
+            webhookHost: "0.0.0.0",
+          },
+        },
+      },
+    });
+
+    expect(startTelegramWebhookSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        host: "0.0.0.0",
+      }),
+    );
+    expect(runSpy).not.toHaveBeenCalled();
+  });
+
+  it("falls back to configured webhookSecret when not passed explicitly", async () => {
+    await monitorTelegramProvider({
+      token: "tok",
+      useWebhook: true,
+      webhookUrl: "https://example.test/telegram",
+      config: {
+        agents: { defaults: { maxConcurrent: 2 } },
+        channels: {
+          telegram: {
+            webhookSecret: "secret-from-config",
+          },
+        },
+      },
+    });
+
+    expect(startTelegramWebhookSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        secret: "secret-from-config",
+      }),
+    );
+    expect(runSpy).not.toHaveBeenCalled();
+  });
+>>>>>>> 4d0ca7c31 (fix(telegram): restart stalled polling after unhandled network errors)
 });

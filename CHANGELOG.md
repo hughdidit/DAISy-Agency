@@ -89,7 +89,11 @@ Docs: https://docs.openclaw.ai
 - Telegram/Replies: extract forwarded-origin context from unified reply targets (`reply_to_message` and `external_reply`) so forward+comment metadata is preserved across partial reply shapes. (#9720) thanks @mcaxtr.
 >>>>>>> 337eef55d (fix(telegram): link forwarded messages with comments (#9720))
 - Telegram/Polling: persist a safe update-offset watermark bounded by pending updates so crash/restart cannot skip queued lower `update_id` updates after out-of-order completion. (#23284) thanks @frankekn.
+<<<<<<< HEAD
 >>>>>>> e33d7fcd1 (fix(telegram): prevent update offset skipping queued updates (#23284))
+=======
+- Telegram/Polling: force-restart stuck runner instances when recoverable unhandled network rejections escape the polling task path, so polling resumes instead of silently stalling. (#19721) Thanks @jg-noncelogic.
+>>>>>>> 4d0ca7c31 (fix(telegram): restart stalled polling after unhandled network errors)
 - Slack/Slash commands: preserve the Bolt app receiver when registering external select options handlers so monitor startup does not crash on runtimes that require bound `app.options` calls. (#23209) Thanks @0xgaia.
 <<<<<<< HEAD
 >>>>>>> c51c2a2dc (Slack: preserve slash options receiver binding)
