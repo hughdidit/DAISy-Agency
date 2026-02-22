@@ -28,6 +28,7 @@ import { readLoggingConfig } from "./config.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 import type { ConsoleStyle } from "./console.js";
+<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
@@ -39,6 +40,9 @@ import type { ConsoleStyle } from "./console.js";
 =======
 import type { ConsoleStyle } from "./console.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
+=======
+import { resolveEnvLogLevelOverride } from "./env-log-level.js";
+>>>>>>> 98a03c490 (Feat/logger support log level validation0222 (#23436))
 import { type LogLevel, levelToMinLevel, normalizeLogLevel } from "./levels.js";
 <<<<<<< HEAD
 import { readLoggingConfig } from "./config.js";
@@ -121,7 +125,9 @@ function resolveSettings(): ResolvedSettings {
   }
   const defaultLevel =
     process.env.VITEST === "true" && process.env.OPENCLAW_TEST_FILE_LOG !== "1" ? "silent" : "info";
-  const level = normalizeLogLevel(cfg?.level, defaultLevel);
+  const fromConfig = normalizeLogLevel(cfg?.level, defaultLevel);
+  const envLevel = resolveEnvLogLevelOverride();
+  const level = envLevel ?? fromConfig;
   const file = cfg?.file ?? defaultRollingPathForToday();
   return { level, file };
 }

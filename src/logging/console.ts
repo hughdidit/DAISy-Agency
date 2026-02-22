@@ -3,6 +3,11 @@ import util from "node:util";
 import type { MoltbotConfig } from "../config/types.js";
 import { isVerbose } from "../globals.js";
 import { stripAnsi } from "../terminal/ansi.js";
+<<<<<<< HEAD
+=======
+import { readLoggingConfig } from "./config.js";
+import { resolveEnvLogLevelOverride } from "./env-log-level.js";
+>>>>>>> 98a03c490 (Feat/logger support log level validation0222 (#23436))
 import { type LogLevel, normalizeLogLevel } from "./levels.js";
 import { getLogger, type LoggerSettings } from "./logger.js";
 <<<<<<< HEAD
@@ -84,7 +89,8 @@ function resolveConsoleSettings(): ConsoleSettings {
       }
     }
   }
-  const level = normalizeConsoleLevel(cfg?.consoleLevel);
+  const envLevel = resolveEnvLogLevelOverride();
+  const level = envLevel ?? normalizeConsoleLevel(cfg?.consoleLevel);
   const style = normalizeConsoleStyle(cfg?.consoleStyle);
   return { level, style };
 }

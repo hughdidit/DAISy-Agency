@@ -6,8 +6,12 @@ import { hasFlag, hasRootVersionAlias } from "../argv.js";
 import { formatCliBannerLine, hasEmittedCliBanner } from "../banner.js";
 import { replaceCliName, resolveCliName } from "../cli-name.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { ProgramContext } from "./context.js";
 =======
+=======
+import { CLI_LOG_LEVEL_VALUES, parseCliLogLevelOption } from "../log-level-option.js";
+>>>>>>> 98a03c490 (Feat/logger support log level validation0222 (#23436))
 import { getCoreCliCommandsWithSubcommands } from "./command-registry.js";
 import type { ProgramContext } from "./context.js";
 import { getSubCliCommandsWithSubcommands } from "./register.subclis.js";
@@ -57,7 +61,16 @@ export function configureProgramHelp(program: Command, ctx: ProgramContext) {
     )
     .option(
       "--profile <name>",
+<<<<<<< HEAD
       "Use a named profile (isolates CLAWDBOT_STATE_DIR/CLAWDBOT_CONFIG_PATH under ~/.clawdbot-<name>)",
+=======
+      "Use a named profile (isolates OPENCLAW_STATE_DIR/OPENCLAW_CONFIG_PATH under ~/.openclaw-<name>)",
+    )
+    .option(
+      "--log-level <level>",
+      `Global log level override for file + console (${CLI_LOG_LEVEL_VALUES})`,
+      parseCliLogLevelOption,
+>>>>>>> 98a03c490 (Feat/logger support log level validation0222 (#23436))
     );
 
   program.option("--no-color", "Disable ANSI colors", false);
