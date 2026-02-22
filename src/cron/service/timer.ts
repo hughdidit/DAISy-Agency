@@ -655,8 +655,34 @@ export async function executeJobCore(
   job: CronJob,
   abortSignal?: AbortSignal,
 ): Promise<CronRunOutcome & CronRunTelemetry & { delivered?: boolean }> {
+  const resolveAbortError = () => ({
+    status: "error" as const,
+    error: timeoutErrorMessage(),
+  });
+  const waitWithAbort = async (ms: number) => {
+    if (!abortSignal) {
+      await new Promise<void>((resolve) => setTimeout(resolve, ms));
+      return;
+    }
+    if (abortSignal.aborted) {
+      return;
+    }
+    await new Promise<void>((resolve) => {
+      const timer = setTimeout(() => {
+        abortSignal.removeEventListener("abort", onAbort);
+        resolve();
+      }, ms);
+      const onAbort = () => {
+        clearTimeout(timer);
+        abortSignal.removeEventListener("abort", onAbort);
+        resolve();
+      };
+      abortSignal.addEventListener("abort", onAbort, { once: true });
+    });
+  };
+
   if (abortSignal?.aborted) {
-    return { status: "error", error: timeoutErrorMessage() };
+    return resolveAbortError();
   }
   if (job.sessionTarget === "main") {
     const text = resolveJobPayloadTextForMain(job);
@@ -677,7 +703,6 @@ export async function executeJobCore(
     });
     if (job.wakeMode === "now" && state.deps.runHeartbeatOnce) {
       const reason = `cron:${job.id}`;
-      const delay = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
       const maxWaitMs = state.deps.wakeNowHeartbeatBusyMaxWaitMs ?? 2 * 60_000;
       const retryDelayMs = state.deps.wakeNowHeartbeatBusyRetryDelayMs ?? 250;
       const waitStartedAt = state.deps.nowMs();
@@ -685,7 +710,7 @@ export async function executeJobCore(
       let heartbeatResult: HeartbeatRunResult;
       for (;;) {
         if (abortSignal?.aborted) {
-          return { status: "error", error: timeoutErrorMessage() };
+          return resolveAbortError();
         }
         heartbeatResult = await state.deps.runHeartbeatOnce({
           reason,
@@ -698,7 +723,13 @@ export async function executeJobCore(
         ) {
           break;
         }
+        if (abortSignal?.aborted) {
+          return resolveAbortError();
+        }
         if (state.deps.nowMs() - waitStartedAt > maxWaitMs) {
+          if (abortSignal?.aborted) {
+            return resolveAbortError();
+          }
           state.deps.requestHeartbeatNow({
             reason,
             agentId: job.agentId,
@@ -706,7 +737,7 @@ export async function executeJobCore(
           });
           return { status: "ok", summary: text };
         }
-        await delay(retryDelayMs);
+        await waitWithAbort(retryDelayMs);
       }
 
       if (heartbeatResult.status === "ran") {
@@ -717,6 +748,9 @@ export async function executeJobCore(
         return { status: "error", error: heartbeatResult.reason, summary: text };
       }
     } else {
+      if (abortSignal?.aborted) {
+        return resolveAbortError();
+      }
       state.deps.requestHeartbeatNow({
         reason: `cron:${job.id}`,
         agentId: job.agentId,
@@ -730,7 +764,7 @@ export async function executeJobCore(
     return { status: "skipped", error: "isolated job requires payload.kind=agentTurn" };
   }
   if (abortSignal?.aborted) {
-    return { status: "error", error: timeoutErrorMessage() };
+    return resolveAbortError();
   }
 
   const res = await state.deps.runIsolatedAgentJob({

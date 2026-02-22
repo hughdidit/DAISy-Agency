@@ -13,6 +13,7 @@ import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } 
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 912693036 (test(cron): remove flaky real-timer polling)
 import type { CronJob } from "./types.js";
 =======
@@ -28,6 +29,9 @@ import type { CronJob, CronJobState } from "./types.js";
 import type { CronJob, CronJobState } from "./types.js";
 =======
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
+=======
+import type { HeartbeatRunResult } from "../infra/heartbeat-wake.js";
+>>>>>>> 3efe63d1a (Cron: respect aborts in main wake-now retries (#23967))
 import * as schedule from "./schedule.js";
 >>>>>>> c26cf6aa8 (feat(cron): add default stagger controls for scheduled jobs)
 import { CronService } from "./service.js";
@@ -41,7 +45,7 @@ import { createDeferred, createRunningCronServiceState } from "./service.test-ha
 import { computeJobNextRunAtMs } from "./service/jobs.js";
 >>>>>>> 50e5413c1 (refactor(cron-test): share running-state fixture)
 import { createCronServiceState, type CronEvent } from "./service/state.js";
-import { onTimer, runMissedJobs } from "./service/timer.js";
+import { executeJobCore, onTimer, runMissedJobs } from "./service/timer.js";
 import type { CronJob, CronJobState } from "./types.js";
 
 const noopLogger = {
@@ -1065,6 +1069,55 @@ describe("Cron issue regressions", () => {
     const job = state.store?.jobs.find((entry) => entry.id === "startup-timeout");
     expect(job?.state.lastStatus).toBe("error");
     expect(job?.state.lastError).toContain("timed out");
+  });
+
+  it("respects abort signals while retrying main-session wake-now heartbeat runs", async () => {
+    vi.useRealTimers();
+    const abortController = new AbortController();
+    const runHeartbeatOnce = vi.fn(
+      async (): Promise<HeartbeatRunResult> => ({
+        status: "skipped",
+        reason: "requests-in-flight",
+      }),
+    );
+    const enqueueSystemEvent = vi.fn();
+    const requestHeartbeatNow = vi.fn();
+    const mainJob: CronJob = {
+      id: "main-abort",
+      name: "main abort",
+      enabled: true,
+      createdAtMs: Date.now(),
+      updatedAtMs: Date.now(),
+      schedule: { kind: "every", everyMs: 60_000, anchorMs: Date.now() },
+      sessionTarget: "main",
+      wakeMode: "now",
+      payload: { kind: "systemEvent", text: "tick" },
+      state: {},
+    };
+    const state = createCronServiceState({
+      cronEnabled: true,
+      storePath: "/tmp/openclaw-cron-abort-test/jobs.json",
+      log: noopLogger,
+      nowMs: () => Date.now(),
+      enqueueSystemEvent,
+      requestHeartbeatNow,
+      runHeartbeatOnce,
+      wakeNowHeartbeatBusyMaxWaitMs: 30,
+      wakeNowHeartbeatBusyRetryDelayMs: 5,
+      runIsolatedAgentJob: createDefaultIsolatedRunner(),
+    });
+
+    setTimeout(() => {
+      abortController.abort();
+    }, 10);
+
+    const result = await executeJobCore(state, mainJob, abortController.signal);
+
+    expect(result.status).toBe("error");
+    expect(result.error).toContain("timed out");
+    expect(enqueueSystemEvent).toHaveBeenCalledTimes(1);
+    expect(runHeartbeatOnce).toHaveBeenCalled();
+    expect(requestHeartbeatNow).not.toHaveBeenCalled();
   });
 
   it("retries cron schedule computation from the next second when the first attempt returns undefined (#17821)", () => {
