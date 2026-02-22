@@ -793,7 +793,7 @@ let skillsSnapshot = cronSession.sessionEntry.skillsSnapshot;
         return withRunSession({ status: "ok", summary, outputText, ...telemetry });
       }
       if (synthesizedText.toUpperCase() === SILENT_REPLY_TOKEN.toUpperCase()) {
-        return withRunSession({ status: "ok", summary, outputText, ...telemetry });
+        return withRunSession({ status: "ok", summary, outputText, delivered: true, ...telemetry });
       }
       try {
         const didAnnounce = await runSubagentAnnounceFlow({
