@@ -8,7 +8,12 @@ import type { MoltbotConfig } from "../config/config.js";
 =======
 import type { OpenClawConfig } from "../config/config.js";
 import { resolveControlUiRootSync } from "../infra/control-ui-assets.js";
+<<<<<<< HEAD
 >>>>>>> 5935c4d23 (fix(ui): fix web UI after tsdown migration and typing changes)
+=======
+import { isWithinDir } from "../infra/path-safety.js";
+import { AVATAR_MAX_BYTES } from "../shared/avatar-policy.js";
+>>>>>>> 6970c2c2d (fix(gateway): harden control-ui avatar reads)
 import { DEFAULT_ASSISTANT_IDENTITY, resolveAssistantIdentity } from "./assistant-identity.js";
 import { authorizeGatewayConnect, isLocalDirectRequest, type ResolvedGatewayAuth } from "./auth.js";
 import {
@@ -196,16 +201,25 @@ export async function handleControlUiAvatarRequest(
     return true;
   }
 
-  if (req.method === "HEAD") {
-    res.statusCode = 200;
-    res.setHeader("Content-Type", contentTypeForExt(path.extname(resolved.filePath).toLowerCase()));
-    res.setHeader("Cache-Control", "no-cache");
-    res.end();
+  const safeAvatar = resolveSafeAvatarFile(resolved.filePath);
+  if (!safeAvatar) {
+    respondNotFound(res);
     return true;
   }
+  try {
+    if (req.method === "HEAD") {
+      res.statusCode = 200;
+      res.setHeader("Content-Type", contentTypeForExt(path.extname(safeAvatar.path).toLowerCase()));
+      res.setHeader("Cache-Control", "no-cache");
+      res.end();
+      return true;
+    }
 
-  serveFile(res, resolved.filePath);
-  return true;
+    serveResolvedFile(res, safeAvatar.path, fs.readFileSync(safeAvatar.fd));
+    return true;
+  } finally {
+    fs.closeSync(safeAvatar.fd);
+  }
 }
 
 function respondNotFound(res: ServerResponse) {
@@ -228,6 +242,7 @@ function setStaticFileHeaders(res: ServerResponse, filePath: string) {
   res.setHeader("Cache-Control", "no-cache");
 }
 
+<<<<<<< HEAD
 function serveFile(res: ServerResponse, filePath: string) {
   setStaticFileHeaders(res, filePath);
   res.end(fs.readFileSync(filePath));
@@ -240,6 +255,8 @@ interface ControlUiInjectionOpts {
   assistantName?: string;
   assistantAvatar?: string;
 =======
+=======
+>>>>>>> 6970c2c2d (fix(gateway): harden control-ui avatar reads)
 function serveResolvedFile(res: ServerResponse, filePath: string, body: Buffer) {
   setStaticFileHeaders(res, filePath);
   res.end(body);
@@ -319,6 +336,42 @@ function isExpectedSafePathError(error: unknown): boolean {
 
 function areSameFileIdentity(preOpen: fs.Stats, opened: fs.Stats): boolean {
   return preOpen.dev === opened.dev && preOpen.ino === opened.ino;
+}
+
+function resolveSafeAvatarFile(filePath: string): { path: string; fd: number } | null {
+  let fd: number | null = null;
+  try {
+    const candidateStat = fs.lstatSync(filePath);
+    if (candidateStat.isSymbolicLink()) {
+      return null;
+    }
+    const fileReal = fs.realpathSync(filePath);
+    const preOpenStat = fs.lstatSync(fileReal);
+    if (!preOpenStat.isFile() || preOpenStat.size > AVATAR_MAX_BYTES) {
+      return null;
+    }
+    const openFlags =
+      fs.constants.O_RDONLY |
+      (typeof fs.constants.O_NOFOLLOW === "number" ? fs.constants.O_NOFOLLOW : 0);
+    fd = fs.openSync(fileReal, openFlags);
+    const openedStat = fs.fstatSync(fd);
+    if (
+      !openedStat.isFile() ||
+      openedStat.size > AVATAR_MAX_BYTES ||
+      !areSameFileIdentity(preOpenStat, openedStat)
+    ) {
+      return null;
+    }
+    const safeFile = { path: fileReal, fd };
+    fd = null;
+    return safeFile;
+  } catch {
+    return null;
+  } finally {
+    if (fd !== null) {
+      fs.closeSync(fd);
+    }
+  }
 }
 
 function resolveSafeControlUiFile(
