@@ -35,6 +35,7 @@ which stores `tools.web.search.apiKey`. Docs: [Web tools](/tools/web).
 
 The wizard starts with **QuickStart** (defaults) vs **Advanced** (full control).
 
+<<<<<<< HEAD
 **QuickStart** keeps the defaults:
 - Local gateway (loopback)
 - Workspace default (or existing workspace)
@@ -42,6 +43,22 @@ The wizard starts with **QuickStart** (defaults) vs **Advanced** (full control).
 - Gateway auth **Token** (auto‑generated, even on loopback)
 - Tailscale exposure **Off**
 - Telegram + WhatsApp DMs default to **allowlist** (you’ll be prompted for your phone number)
+=======
+<Tabs>
+  <Tab title="QuickStart (defaults)">
+    - Local gateway (loopback)
+    - Workspace default (or existing workspace)
+    - Gateway port **18789**
+    - Gateway auth **Token** (auto‑generated, even on loopback)
+    - DM isolation default: `session.dmScope: "per-channel-peer"` (existing explicit `session.dmScope` values are preserved)
+    - Tailscale exposure **Off**
+    - Telegram + WhatsApp DMs default to **allowlist** (you'll be prompted for your phone number)
+  </Tab>
+  <Tab title="Advanced (full control)">
+    - Exposes every step (mode, workspace, gateway, channels, daemon, skills).
+  </Tab>
+</Tabs>
+>>>>>>> 65dccbdb4 (fix: document onboarding dmScope default as breaking change (#23468) (thanks @bmendonca3))
 
 **Advanced** exposes every step (mode, workspace, gateway, channels, daemon, skills).
 
