@@ -1,4 +1,9 @@
+<<<<<<< HEAD
 import { normalizeMattermostBaseUrl, type MattermostUser } from "./client.js";
+=======
+import type { BaseProbeResult } from "openclaw/plugin-sdk";
+import { normalizeMattermostBaseUrl, readMattermostError, type MattermostUser } from "./client.js";
+>>>>>>> e80c66a57 (fix(mattermost): refine probe and onboarding flows)
 
 export type MattermostProbe = {
   ok: boolean;
@@ -7,18 +12,6 @@ export type MattermostProbe = {
   elapsedMs?: number | null;
   bot?: MattermostUser;
 };
-
-async function readMattermostError(res: Response): Promise<string> {
-  const contentType = res.headers.get("content-type") ?? "";
-  if (contentType.includes("application/json")) {
-    const data = (await res.json()) as { message?: string } | undefined;
-    if (data?.message) {
-      return data.message;
-    }
-    return JSON.stringify(data);
-  }
-  return await res.text();
-}
 
 export async function probeMattermost(
   baseUrl: string,
