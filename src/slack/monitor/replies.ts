@@ -46,9 +46,13 @@ export async function deliverReplies(params: {
   runtime: RuntimeEnv;
   textLimit: number;
   replyThreadTs?: string;
+  replyToMode: "off" | "first" | "all";
 }) {
   for (const payload of params.replies) {
-    const threadTs = payload.replyToId ?? params.replyThreadTs;
+    // Keep reply tags opt-in: when replyToMode is off, explicit reply tags
+    // must not force threading.
+    const inlineReplyToId = params.replyToMode === "off" ? undefined : payload.replyToId;
+    const threadTs = inlineReplyToId ?? params.replyThreadTs;
     const mediaList = payload.mediaUrls ?? (payload.mediaUrl ? [payload.mediaUrl] : []);
     const text = payload.text ?? "";
     if (!text && mediaList.length === 0) {
@@ -118,19 +122,11 @@ function createSlackReplyReferencePlanner(params: {
   incomingThreadTs: string | undefined;
   messageTs: string | undefined;
   hasReplied?: boolean;
-  chatType?: "direct" | "channel" | "group";
   isThreadReply?: boolean;
 }) {
-  // When already inside a Slack thread, stay in it — but for DMs where the
-  // "thread" was created by the typing indicator (not a real thread reply),
-  // respect the user's replyToMode setting.
-  // See: https://github.com/openclaw/openclaw/issues/16868
-  const effectiveMode =
-    params.chatType === "direct" && !params.isThreadReply
-      ? params.replyToMode
-      : params.incomingThreadTs
-        ? "all"
-        : params.replyToMode;
+  // Only force threading for real user thread replies. If Slack auto-populates
+  // thread_ts on top-level messages, preserve the configured reply mode.
+  const effectiveMode = params.isThreadReply ? "all" : params.replyToMode;
   return createReplyReferencePlanner({
     replyToMode: effectiveMode,
     existingId: params.incomingThreadTs,
@@ -144,7 +140,6 @@ export function createSlackReplyDeliveryPlan(params: {
   incomingThreadTs: string | undefined;
   messageTs: string | undefined;
   hasRepliedRef: { value: boolean };
-  chatType?: "direct" | "channel" | "group";
   isThreadReply?: boolean;
 }): SlackReplyDeliveryPlan {
   const replyReference = createSlackReplyReferencePlanner({
@@ -152,7 +147,6 @@ export function createSlackReplyDeliveryPlan(params: {
     incomingThreadTs: params.incomingThreadTs,
     messageTs: params.messageTs,
     hasReplied: params.hasRepliedRef.value,
-    chatType: params.chatType,
     isThreadReply: params.isThreadReply,
   });
   return {
