@@ -1,6 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
@@ -16,6 +17,9 @@ import { resolveApiKeyForProvider } from "../agents/model-auth.js";
 =======
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 >>>>>>> 9ebfc99c1 (refactor(test): dedupe temp media fixture setup in apply e2e)
+=======
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+>>>>>>> c964d21d7 (perf(test): prebuild download archives and cache apply module)
 import { resolveApiKeyForProvider } from "../agents/model-auth.js";
 import type { MsgContext } from "../auto-reply/templating.js";
 import type { OpenClawConfig } from "../config/config.js";
@@ -68,9 +72,7 @@ vi.mock("../process/exec.js", () => ({
   runExec: vi.fn(),
 }));
 
-async function loadApply() {
-  return await import("./apply.js");
-}
+let applyMediaUnderstanding: typeof import("./apply.js").applyMediaUnderstanding;
 
 const TEMP_MEDIA_PREFIX = "openclaw-media-";
 const tempMediaDirs: string[] = [];
@@ -176,7 +178,6 @@ async function applyWithDisabledMedia(params: {
   mediaType?: string;
   cfg?: OpenClawConfig;
 }) {
-  const { applyMediaUnderstanding } = await loadApply();
   const ctx: MsgContext = {
     Body: params.body,
     MediaPath: params.mediaPath,
@@ -203,6 +204,10 @@ describe("applyMediaUnderstanding", () => {
   const mockedResolveApiKey = vi.mocked(resolveApiKeyForProvider);
   const mockedFetchRemoteMedia = vi.mocked(fetchRemoteMedia);
 
+  beforeAll(async () => {
+    ({ applyMediaUnderstanding } = await import("./apply.js"));
+  });
+
   beforeEach(() => {
     mockedResolveApiKey.mockClear();
     mockedFetchRemoteMedia.mockClear();
@@ -222,6 +227,7 @@ describe("applyMediaUnderstanding", () => {
   });
 
   it("sets Transcript and replaces Body when audio transcription succeeds", async () => {
+<<<<<<< HEAD
     const { applyMediaUnderstanding } = await loadApply();
 <<<<<<< HEAD
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-media-"));
@@ -246,6 +252,8 @@ describe("applyMediaUnderstanding", () => {
     };
 
 =======
+=======
+>>>>>>> c964d21d7 (perf(test): prebuild download archives and cache apply module)
     const ctx = await createAudioCtx();
 >>>>>>> 93ca0ed54 (refactor(channels): dedupe transport and gateway test scaffolds)
     const result = await applyMediaUnderstanding({
@@ -290,7 +298,6 @@ describe("applyMediaUnderstanding", () => {
 
 =======
   it("skips file blocks for text-like audio when transcription succeeds", async () => {
-    const { applyMediaUnderstanding } = await loadApply();
     const ctx = await createAudioCtx({
       fileName: "data.mp3",
       mediaType: "audio/mpeg",
@@ -309,7 +316,6 @@ describe("applyMediaUnderstanding", () => {
   });
 
   it("keeps caption for command parsing when audio has user text", async () => {
-    const { applyMediaUnderstanding } = await loadApply();
     const ctx = await createAudioCtx({
       body: "<media:audio> /capture status",
     });
@@ -330,7 +336,6 @@ describe("applyMediaUnderstanding", () => {
   });
 
   it("handles URL-only attachments for audio transcription", async () => {
-    const { applyMediaUnderstanding } = await loadApply();
     const ctx: MsgContext = {
       Body: "<media:audio>",
       MediaUrl: "https://example.com/note.ogg",
@@ -370,6 +375,7 @@ describe("applyMediaUnderstanding", () => {
   });
 
   it("skips audio transcription when attachment exceeds maxBytes", async () => {
+<<<<<<< HEAD
     const { applyMediaUnderstanding } = await loadApply();
 <<<<<<< HEAD
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-media-"));
@@ -382,6 +388,8 @@ describe("applyMediaUnderstanding", () => {
       MediaType: "audio/wav",
     };
 =======
+=======
+>>>>>>> c964d21d7 (perf(test): prebuild download archives and cache apply module)
     const ctx = await createAudioCtx({
       fileName: "large.wav",
       mediaType: "audio/wav",
@@ -413,6 +421,7 @@ describe("applyMediaUnderstanding", () => {
   });
 
   it("falls back to CLI model when provider fails", async () => {
+<<<<<<< HEAD
     const { applyMediaUnderstanding } = await loadApply();
 <<<<<<< HEAD
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-media-"));
@@ -426,6 +435,8 @@ describe("applyMediaUnderstanding", () => {
     };
     const cfg: MoltbotConfig = {
 =======
+=======
+>>>>>>> c964d21d7 (perf(test): prebuild download archives and cache apply module)
     const ctx = await createAudioCtx();
     const cfg: OpenClawConfig = {
 >>>>>>> 93ca0ed54 (refactor(channels): dedupe transport and gateway test scaffolds)
@@ -471,6 +482,7 @@ describe("applyMediaUnderstanding", () => {
   });
 
   it("uses CLI image understanding and preserves caption for commands", async () => {
+<<<<<<< HEAD
     const { applyMediaUnderstanding } = await loadApply();
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -481,6 +493,8 @@ describe("applyMediaUnderstanding", () => {
     const imagePath = path.join(dir, "photo.jpg");
     await fs.writeFile(imagePath, "image-bytes");
 =======
+=======
+>>>>>>> c964d21d7 (perf(test): prebuild download archives and cache apply module)
     const imagePath = await createTempMediaFile({
       fileName: "photo.jpg",
       content: "image-bytes",
@@ -529,6 +543,7 @@ describe("applyMediaUnderstanding", () => {
   });
 
   it("uses shared media models list when capability config is missing", async () => {
+<<<<<<< HEAD
     const { applyMediaUnderstanding } = await loadApply();
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -539,6 +554,8 @@ describe("applyMediaUnderstanding", () => {
     const imagePath = path.join(dir, "shared.jpg");
     await fs.writeFile(imagePath, "image-bytes");
 =======
+=======
+>>>>>>> c964d21d7 (perf(test): prebuild download archives and cache apply module)
     const imagePath = await createTempMediaFile({
       fileName: "shared.jpg",
       content: "image-bytes",
@@ -581,6 +598,7 @@ describe("applyMediaUnderstanding", () => {
   });
 
   it("uses active model when enabled and models are missing", async () => {
+<<<<<<< HEAD
     const { applyMediaUnderstanding } = await loadApply();
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -591,6 +609,8 @@ describe("applyMediaUnderstanding", () => {
     const audioPath = path.join(dir, "fallback.ogg");
     await fs.writeFile(audioPath, Buffer.from([0, 255, 0, 1, 2, 3, 4, 5, 6]));
 =======
+=======
+>>>>>>> c964d21d7 (perf(test): prebuild download archives and cache apply module)
     const audioPath = await createTempMediaFile({
       fileName: "fallback.ogg",
       content: Buffer.from([0, 255, 0, 1, 2, 3, 4, 5, 6]),
@@ -629,6 +649,7 @@ describe("applyMediaUnderstanding", () => {
   });
 
   it("handles multiple audio attachments when attachment mode is all", async () => {
+<<<<<<< HEAD
     const { applyMediaUnderstanding } = await loadApply();
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -637,6 +658,8 @@ describe("applyMediaUnderstanding", () => {
     const dir = await createMediaTempDir();
 >>>>>>> 8588183ab (test: stabilize docker e2e suites for pairing and model updates)
 =======
+=======
+>>>>>>> c964d21d7 (perf(test): prebuild download archives and cache apply module)
     const dir = await createTempMediaDir();
     const audioBytes = Buffer.from([200, 201, 202, 203, 204, 205, 206, 207, 208]);
 >>>>>>> 9ebfc99c1 (refactor(test): dedupe temp media fixture setup in apply e2e)
@@ -681,6 +704,7 @@ describe("applyMediaUnderstanding", () => {
   });
 
   it("orders mixed media outputs as image, audio, video", async () => {
+<<<<<<< HEAD
     const { applyMediaUnderstanding } = await loadApply();
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -689,6 +713,8 @@ describe("applyMediaUnderstanding", () => {
     const dir = await createMediaTempDir();
 >>>>>>> 8588183ab (test: stabilize docker e2e suites for pairing and model updates)
 =======
+=======
+>>>>>>> c964d21d7 (perf(test): prebuild download archives and cache apply module)
     const dir = await createTempMediaDir();
 >>>>>>> 9ebfc99c1 (refactor(test): dedupe temp media fixture setup in apply e2e)
     const imagePath = path.join(dir, "photo.jpg");
