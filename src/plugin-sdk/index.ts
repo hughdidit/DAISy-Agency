@@ -163,6 +163,7 @@ export {
   clearHistoryEntries,
   clearHistoryEntriesIfEnabled,
   DEFAULT_GROUP_HISTORY_LIMIT,
+  evictOldHistoryKeys,
   recordPendingHistoryEntry,
   recordPendingHistoryEntryIfEnabled,
 } from "../auto-reply/reply/history.js";
