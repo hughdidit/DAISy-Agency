@@ -15,8 +15,21 @@ import {
   loadCron,
   refreshActiveTab,
   setLastActiveSessionKey,
+<<<<<<< HEAD
 } from "./app-settings";
 import { handleChatEvent, type ChatEventPayload } from "./controllers/chat";
+=======
+} from "./app-settings.ts";
+import { handleAgentEvent, resetToolStream, type AgentEventPayload } from "./app-tool-stream.ts";
+import type { OpenClawApp } from "./app.ts";
+import { shouldReloadHistoryForFinalEvent } from "./chat-event-reload.ts";
+import { loadAgents } from "./controllers/agents.ts";
+import { loadAssistantIdentity } from "./controllers/assistant-identity.ts";
+import { loadChatHistory } from "./controllers/chat.ts";
+import { handleChatEvent, type ChatEventPayload } from "./controllers/chat.ts";
+import { loadDevices } from "./controllers/devices.ts";
+import type { ExecApprovalRequest } from "./controllers/exec-approval.ts";
+>>>>>>> dc6afeb4f (perf(webchat): skip unnecessary full history reloads on final events (#20588))
 import {
   addExecApproval,
   parseExecApprovalRequested,
@@ -209,7 +222,13 @@ function handleGatewayEventUnsafe(host: GatewayHost, evt: GatewayEventFrame) {
       }
 >>>>>>> 0b7aa8cf1 (feat(ui): refresh session list after chat commands in Web UI)
     }
+<<<<<<< HEAD
     if (state === "final") void loadChatHistory(host as unknown as MoltbotApp);
+=======
+    if (state === "final" && shouldReloadHistoryForFinalEvent(payload)) {
+      void loadChatHistory(host as unknown as OpenClawApp);
+    }
+>>>>>>> dc6afeb4f (perf(webchat): skip unnecessary full history reloads on final events (#20588))
     return;
   }
 
