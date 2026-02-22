@@ -129,6 +129,10 @@ Docs: https://docs.openclaw.ai
 
 ### Fixes
 
+<<<<<<< HEAD
+=======
+- Memory/QMD: add optional `memory.qmd.mcporter` search routing so QMD `query/search/vsearch` can run through mcporter keep-alive flows (including multi-collection paths) to reduce cold starts, while keeping searches on agent-scoped QMD state for consistent recall. (#19617) Thanks @nicole-luxe and @vignesh07.
+>>>>>>> a37e12eab (docs(changelog): credit nicole-luxe for mcporter QMD work)
 - Chat/UI: strip inline reply/audio directive tags (`[[reply_to_current]]`, `[[reply_to:<id>]]`, `[[audio_as_voice]]`) from displayed chat history, live chat event output, and session preview snippets so control tags no longer leak into user-visible surfaces.
 <<<<<<< HEAD
 =======
