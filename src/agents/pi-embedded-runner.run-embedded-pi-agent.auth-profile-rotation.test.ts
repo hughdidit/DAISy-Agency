@@ -122,10 +122,66 @@ const writeAuthStore = async (
 };
 
 describe("runEmbeddedPiAgent auth profile rotation", () => {
+<<<<<<< HEAD
   it("rotates for auto-pinned profiles", async () => {
     const agentDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-agent-"));
     const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-workspace-"));
     try {
+=======
+  it("rotates for auto-pinned profiles across retryable stream failures", async () => {
+    const cases = [
+      {
+        errorMessage: "rate limit",
+        sessionKey: "agent:test:auto",
+        runId: "run:auto",
+      },
+      {
+        errorMessage: "request ended without sending any chunks",
+        sessionKey: "agent:test:empty-chunk-stream",
+        runId: "run:empty-chunk-stream",
+      },
+    ] as const;
+
+    for (const testCase of cases) {
+      runEmbeddedAttemptMock.mockClear();
+      await withAgentWorkspace(async ({ agentDir, workspaceDir }) => {
+        await writeAuthStore(agentDir);
+        mockFailedThenSuccessfulAttempt(testCase.errorMessage);
+        await runAutoPinnedOpenAiTurn({
+          agentDir,
+          workspaceDir,
+          sessionKey: testCase.sessionKey,
+          runId: testCase.runId,
+        });
+
+        expect(runEmbeddedAttemptMock).toHaveBeenCalledTimes(2);
+        await expectProfileP2UsageUpdated(agentDir);
+      });
+    }
+  });
+
+  it("rotates on timeout without cooling down the timed-out profile", async () => {
+    await withAgentWorkspace(async ({ agentDir, workspaceDir }) => {
+      await writeAuthStore(agentDir);
+      mockFailedThenSuccessfulAttempt("request ended without sending any chunks");
+
+      await runAutoPinnedOpenAiTurn({
+        agentDir,
+        workspaceDir,
+        sessionKey: "agent:test:timeout-no-cooldown",
+        runId: "run:timeout-no-cooldown",
+      });
+
+      expect(runEmbeddedAttemptMock).toHaveBeenCalledTimes(2);
+      const usageStats = await readUsageStats(agentDir);
+      expect(typeof usageStats["openai:p2"]?.lastUsed).toBe("number");
+      expect(usageStats["openai:p1"]?.cooldownUntil).toBeUndefined();
+    });
+  });
+
+  it("does not rotate for compaction timeouts", async () => {
+    await withAgentWorkspace(async ({ agentDir, workspaceDir }) => {
+>>>>>>> 3e2849c57 (fix: align timeout cooldown behavior docs/tests (#22622) (thanks @vageeshkumar))
       await writeAuthStore(agentDir);
 
       runEmbeddedAttemptMock
