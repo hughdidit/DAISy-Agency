@@ -291,6 +291,7 @@ async function runTurnWithCooldownSeed(params: {
 }
 
 describe("runEmbeddedPiAgent auth profile rotation", () => {
+<<<<<<< HEAD
   it("rotates for auto-pinned profiles", async () => {
     const agentDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-agent-"));
     const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-workspace-"));
@@ -300,36 +301,42 @@ describe("runEmbeddedPiAgent auth profile rotation", () => {
       await runAutoPinnedOpenAiTurn({
         agentDir,
         workspaceDir,
+=======
+  it("rotates for auto-pinned profiles across retryable stream failures", async () => {
+    const cases = [
+      {
+        errorMessage: "rate limit",
+>>>>>>> cfb3cee7a (test(core): dedupe auth rotation and credential injection specs)
         sessionKey: "agent:test:auto",
         runId: "run:auto",
-      });
-
-      expect(runEmbeddedAttemptMock).toHaveBeenCalledTimes(2);
-      await expectProfileP2UsageUpdated(agentDir);
-    } finally {
-      await fs.rm(agentDir, { recursive: true, force: true });
-      await fs.rm(workspaceDir, { recursive: true, force: true });
-    }
-  });
-
-  it("rotates when stream ends without sending chunks", async () => {
-    const agentDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-agent-"));
-    const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-workspace-"));
-    try {
-      await writeAuthStore(agentDir);
-      mockFailedThenSuccessfulAttempt("request ended without sending any chunks");
-      await runAutoPinnedOpenAiTurn({
-        agentDir,
-        workspaceDir,
+      },
+      {
+        errorMessage: "request ended without sending any chunks",
         sessionKey: "agent:test:empty-chunk-stream",
         runId: "run:empty-chunk-stream",
-      });
+      },
+    ] as const;
 
-      expect(runEmbeddedAttemptMock).toHaveBeenCalledTimes(2);
-      await expectProfileP2UsageUpdated(agentDir);
-    } finally {
-      await fs.rm(agentDir, { recursive: true, force: true });
-      await fs.rm(workspaceDir, { recursive: true, force: true });
+    for (const testCase of cases) {
+      runEmbeddedAttemptMock.mockClear();
+      const agentDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-agent-"));
+      const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-workspace-"));
+      try {
+        await writeAuthStore(agentDir);
+        mockFailedThenSuccessfulAttempt(testCase.errorMessage);
+        await runAutoPinnedOpenAiTurn({
+          agentDir,
+          workspaceDir,
+          sessionKey: testCase.sessionKey,
+          runId: testCase.runId,
+        });
+
+        expect(runEmbeddedAttemptMock).toHaveBeenCalledTimes(2);
+        await expectProfileP2UsageUpdated(agentDir);
+      } finally {
+        await fs.rm(agentDir, { recursive: true, force: true });
+        await fs.rm(workspaceDir, { recursive: true, force: true });
+      }
     }
   });
 
