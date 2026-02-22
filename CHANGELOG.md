@@ -156,6 +156,17 @@ Docs: https://docs.openclaw.ai
 =======
 =======
 - Slack/Extension: forward `message read` `threadId` to `readMessages` and use delivery-context `threadId` as outbound `thread_ts` fallback so extension replies/reads stay in the correct Slack thread. (#22216, #22485, #23836) Thanks @vincentkoc, @lan17 and @dorukardahan.
+<<<<<<< HEAD
+=======
+- Channels/Group policy: fail closed when `groupPolicy: "allowlist"` is set without explicit `groups`, honor account-level `groupPolicy` overrides, and enforce `groupPolicy: "disabled"` as a hard group block. (#22215) Thanks @etereo.
+- Sandbox/Media: map container workspace paths (`/workspace/...` and `file:///workspace/...`) back to the host sandbox root for outbound media validation, preventing false deny errors for sandbox-generated local media. (#23083) Thanks @echo931.
+- Sandbox/Docker: apply custom bind mounts after workspace mounts and prioritize bind-source resolution on overlapping paths, so explicit workspace binds are no longer ignored. (#22669) Thanks @tasaankaeris.
+- Exec approvals/Forwarding: restore Discord text forwarding when component approvals are not configured, and carry request snapshots through resolve events so resolved notices still forward after cache misses/restarts. (#22988) Thanks @bubmiller.
+- Security/Elevated: match `tools.elevated.allowFrom` against sender identities only (not recipient `ctx.To`), closing a recipient-token bypass for `/elevated` authorization. (#11022) Thanks @coygeek.
+- Webchat/Sessions: preserve external session routing metadata when internal `chat.send` turns run under `webchat`, so explicit channel-keyed sessions (for example Telegram) no longer get rewritten to `webchat` and misroute follow-up delivery. (#23258) Thanks @binary64.
+- Webchat/Sessions: preserve existing session `label` across `/new` and `/reset` rollovers so reset sessions remain discoverable in session history lists. (#23755) Thanks @ThunderStormer.
+- Control UI/WebSocket: stop and clear the browser gateway client on UI teardown so remounts cannot leave orphan websocket clients that create duplicate active connections. (#23422) Thanks @floatinggball-design.
+>>>>>>> 02dc0c875 (fix(control-ui): stop websocket client on lifecycle teardown (#23422))
 - Config/Memory: allow `"mistral"` in `agents.defaults.memorySearch.provider` and `agents.defaults.memorySearch.fallback` schema validation. (#14934) Thanks @ThomsenDrake.
 >>>>>>> 9f7c1686b (fix(slack extension): preserve thread IDs for read + outbound delivery (#23836))
 - Security/Feishu: enforce ID-only allowlist matching for DM/group sender authorization, normalize Feishu ID prefixes during checks, and ignore mutable display names so display-name collisions cannot satisfy allowlist entries. This ships in the next npm release. Thanks @jiseoung for reporting.
