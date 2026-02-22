@@ -194,9 +194,42 @@ export async function handleSystemRunInvoke(opts: {
   const cmdInvocation = shellCommand
     ? opts.isCmdExeInvocation(segments[0]?.argv ?? [])
     : opts.isCmdExeInvocation(argv);
+<<<<<<< HEAD
   if (security === "allowlist" && isWindows && cmdInvocation) {
     analysisOk = false;
     allowlistSatisfied = false;
+=======
+  const policy = evaluateSystemRunPolicy({
+    security,
+    ask,
+    analysisOk,
+    allowlistSatisfied,
+    approvalDecision,
+    approved: opts.params.approved === true,
+    isWindows,
+    cmdInvocation,
+    shellWrapperInvocation: shellCommand !== null,
+  });
+  analysisOk = policy.analysisOk;
+  allowlistSatisfied = policy.allowlistSatisfied;
+  if (!policy.allowed) {
+    await opts.sendNodeEvent(
+      opts.client,
+      "exec.denied",
+      opts.buildExecEventPayload({
+        sessionKey,
+        runId,
+        host: "node",
+        command: cmdText,
+        reason: policy.eventReason,
+      }),
+    );
+    await opts.sendInvokeResult({
+      ok: false,
+      error: { code: "UNAVAILABLE", message: policy.errorMessage },
+    });
+    return;
+>>>>>>> 3f0b9dbb3 (fix(security): block shell-wrapper line-continuation allowlist bypass)
   }
 
   const useMacAppExec = process.platform === "darwin";
@@ -269,6 +302,7 @@ export async function handleSystemRunInvoke(opts: {
     }
   }
 
+<<<<<<< HEAD
   if (security === "deny") {
     await opts.sendNodeEvent(
       opts.client,
@@ -320,6 +354,10 @@ export async function handleSystemRunInvoke(opts: {
   }
   if (approvalDecision === "allow-always" && security === "allowlist") {
     if (analysisOk) {
+=======
+  if (policy.approvalDecision === "allow-always" && security === "allowlist") {
+    if (policy.analysisOk) {
+>>>>>>> 3f0b9dbb3 (fix(security): block shell-wrapper line-continuation allowlist bypass)
       const patterns = resolveAllowAlwaysPatterns({
         segments,
         cwd: opts.params.cwd ?? undefined,

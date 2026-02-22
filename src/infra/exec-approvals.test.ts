@@ -178,10 +178,43 @@ describe("exec approvals shell parsing", () => {
 <<<<<<< HEAD
 =======
 
+<<<<<<< HEAD
   it("rejects command substitution inside double quotes", () => {
     const res = analyzeShellCommand({ command: 'echo "output: $(whoami)"' });
     expect(res.ok).toBe(false);
     expect(res.reason).toBe("unsupported shell token: $()");
+=======
+  it("rejects unsupported shell constructs", () => {
+    const cases: Array<{ command: string; reason: string; platform?: NodeJS.Platform }> = [
+      { command: 'echo "output: $(whoami)"', reason: "unsupported shell token: $()" },
+      { command: 'echo "output: `id`"', reason: "unsupported shell token: `" },
+      { command: "echo $(whoami)", reason: "unsupported shell token: $()" },
+      { command: "cat < input.txt", reason: "unsupported shell token: <" },
+      { command: "echo ok > output.txt", reason: "unsupported shell token: >" },
+      {
+        command: "/usr/bin/echo first line\n/usr/bin/echo second line",
+        reason: "unsupported shell token: \n",
+      },
+      {
+        command: 'echo "ok $\\\n(id -u)"',
+        reason: "unsupported shell token: newline",
+      },
+      {
+        command: 'echo "ok $\\\r\n(id -u)"',
+        reason: "unsupported shell token: newline",
+      },
+      {
+        command: "ping 127.0.0.1 -n 1 & whoami",
+        reason: "unsupported windows shell token: &",
+        platform: "win32",
+      },
+    ];
+    for (const testCase of cases) {
+      const res = analyzeShellCommand({ command: testCase.command, platform: testCase.platform });
+      expect(res.ok).toBe(false);
+      expect(res.reason).toBe(testCase.reason);
+    }
+>>>>>>> 3f0b9dbb3 (fix(security): block shell-wrapper line-continuation allowlist bypass)
   });
 
   it("rejects backticks inside double quotes", () => {
@@ -439,6 +472,17 @@ describe("exec approvals shell allowlist (chained commands)", () => {
     });
     expect(result.analysisOk).toBe(true);
     expect(result.allowlistSatisfied).toBe(true);
+  });
+
+  it("fails allowlist analysis for shell line continuations", () => {
+    const result = evaluateShellAllowlist({
+      command: 'echo "ok $\\\n(id -u)"',
+      allowlist: [{ pattern: "/usr/bin/echo" }],
+      safeBins: new Set(),
+      cwd: "/tmp",
+    });
+    expect(result.analysisOk).toBe(false);
+    expect(result.allowlistSatisfied).toBe(false);
   });
 });
 
