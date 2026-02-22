@@ -71,7 +71,31 @@ function restoreRedactedValues<TOriginal>(
   return result.result as TOriginal;
 }
 
+<<<<<<< HEAD
 >>>>>>> 0cf443afe (chore: Fix types in tests 1/N.)
+=======
+function expectNestedLevelPairValue(
+  source: Record<string, Record<string, Record<string, unknown>>>,
+  field: string,
+  expected: readonly [unknown, unknown],
+): void {
+  const values = source.nested.level[field] as unknown[];
+  expect(values[0]).toBe(expected[0]);
+  expect(values[1]).toBe(expected[1]);
+}
+
+function expectGatewayAuthFieldValue(
+  result: ReturnType<typeof redactConfigSnapshot>,
+  field: "token" | "password",
+  expected: string,
+): void {
+  const gateway = result.config.gateway as Record<string, Record<string, string>>;
+  const resolved = result.resolved as Record<string, Record<string, Record<string, string>>>;
+  expect(gateway.auth[field]).toBe(expected);
+  expect(resolved.gateway.auth[field]).toBe(expected);
+}
+
+>>>>>>> 34ea33f05 (refactor: dedupe core config and runtime helpers)
 describe("redactConfigSnapshot", () => {
   it("redacts common secret field patterns across config sections", () => {
     const snapshot = makeSnapshot({
@@ -600,12 +624,10 @@ describe("redactConfigSnapshot", () => {
         }),
         assert: ({ redacted, restored }) => {
           const cfg = redacted as Record<string, Record<string, Record<string, unknown>>>;
-          expect((cfg.nested.level.token as unknown[])[0]).toBe(42);
-          expect((cfg.nested.level.token as unknown[])[1]).toBe(815);
+          expectNestedLevelPairValue(cfg, "token", [42, 815]);
 
           const out = restored as Record<string, Record<string, Record<string, unknown>>>;
-          expect((out.nested.level.token as unknown[])[0]).toBe(42);
-          expect((out.nested.level.token as unknown[])[1]).toBe(815);
+          expectNestedLevelPairValue(out, "token", [42, 815]);
         },
       },
       {
@@ -644,12 +666,10 @@ describe("redactConfigSnapshot", () => {
         }),
         assert: ({ redacted, restored }) => {
           const cfg = redacted as Record<string, Record<string, Record<string, unknown>>>;
-          expect((cfg.nested.level.custom as unknown[])[0]).toBe(42);
-          expect((cfg.nested.level.custom as unknown[])[1]).toBe(815);
+          expectNestedLevelPairValue(cfg, "custom", [42, 815]);
 
           const out = restored as Record<string, Record<string, Record<string, unknown>>>;
-          expect((out.nested.level.custom as unknown[])[0]).toBe(42);
-          expect((out.nested.level.custom as unknown[])[1]).toBe(815);
+          expectNestedLevelPairValue(out, "custom", [42, 815]);
         },
       },
     ];
@@ -676,9 +696,47 @@ describe("redactConfigSnapshot", () => {
       gateway: { auth: { token: "not-actually-secret-value" } },
     });
     const result = redactConfigSnapshot(snapshot, hints);
+<<<<<<< HEAD
 >>>>>>> 0cf443afe (chore: Fix types in tests 1/N.)
     const gw = result.config.gateway as Record<string, Record<string, string>>;
     expect(gw.auth.token).toBe(REDACTED_SENTINEL);
+=======
+    expectGatewayAuthFieldValue(result, "token", "not-actually-secret-value");
+  });
+
+  it("does not redact paths absent from uiHints (schema is single source of truth)", () => {
+    const hints: ConfigUiHints = {
+      "some.other.path": { sensitive: true },
+    };
+    const snapshot = makeSnapshot({
+      gateway: { auth: { password: "not-in-hints-value" } },
+    });
+    const result = redactConfigSnapshot(snapshot, hints);
+    expectGatewayAuthFieldValue(result, "password", "not-in-hints-value");
+  });
+
+  it("uses wildcard hints for array items", () => {
+    const hints: ConfigUiHints = {
+      "channels.slack.accounts[].botToken": { sensitive: true },
+    };
+    const snapshot = makeSnapshot({
+      channels: {
+        slack: {
+          accounts: [
+            { botToken: "first-account-token-value-here" },
+            { botToken: "second-account-token-value-here" },
+          ],
+        },
+      },
+    });
+    const result = redactConfigSnapshot(snapshot, hints);
+    const channels = result.config.channels as Record<
+      string,
+      Record<string, Array<Record<string, string>>>
+    >;
+    expect(channels.slack.accounts[0].botToken).toBe(REDACTED_SENTINEL);
+    expect(channels.slack.accounts[1].botToken).toBe(REDACTED_SENTINEL);
+>>>>>>> 34ea33f05 (refactor: dedupe core config and runtime helpers)
   });
 });
 

@@ -629,8 +629,9 @@ let skillsSnapshot = cronSession.sessionEntry.skillsSnapshot;
       logWarn(`[cron:${params.job.id}] ${resolvedDelivery.error.message}`);
       return withRunSession({ status: "ok", summary, outputText, ...telemetry });
     }
-    if (!resolvedDelivery.to) {
-      const message = "cron delivery target is missing";
+<<<<<<< HEAD
+=======
+    const failOrWarnMissingDeliveryField = (message: string) => {
       if (!deliveryBestEffort) {
         return withRunSession({
           status: "error",
@@ -642,6 +643,13 @@ let skillsSnapshot = cronSession.sessionEntry.skillsSnapshot;
       }
       logWarn(`[cron:${params.job.id}] ${message}`);
       return withRunSession({ status: "ok", summary, outputText, ...telemetry });
+    };
+    if (!resolvedDelivery.channel) {
+      return failOrWarnMissingDeliveryField("cron delivery channel is missing");
+    }
+>>>>>>> 34ea33f05 (refactor: dedupe core config and runtime helpers)
+    if (!resolvedDelivery.to) {
+      return failOrWarnMissingDeliveryField("cron delivery target is missing");
     }
     const identity = resolveAgentOutboundIdentity(cfgWithAgentDefaults, agentId);
 
