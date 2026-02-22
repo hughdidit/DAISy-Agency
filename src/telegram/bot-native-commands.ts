@@ -76,6 +76,7 @@ import { createReplyPrefixOptions } from "../channels/reply-prefix.js";
 import type { OpenClawConfig } from "../config/config.js";
 import type { ChannelGroupPolicy } from "../config/group-policy.js";
 import { resolveMarkdownTableMode } from "../config/markdown-tables.js";
+<<<<<<< HEAD
 >>>>>>> 5d82c8231 (feat: per-channel responsePrefix override (#9001))
 import { resolveTelegramCustomCommands } from "../config/telegram-custom-commands.js";
 <<<<<<< HEAD
@@ -87,6 +88,9 @@ import { finalizeInboundContext } from "../auto-reply/reply/inbound-context.js";
 import { danger, logVerbose } from "../globals.js";
 import { resolveMarkdownTableMode } from "../config/markdown-tables.js";
 import { withTelegramApiErrorLogging } from "./api-logging.js";
+=======
+import { recordSessionMetaFromInbound, resolveStorePath } from "../config/sessions.js";
+>>>>>>> daf036a4f (fix(slash): persist channel metadata from slash command sessions (#23065))
 import {
   normalizeTelegramCommandName,
   TELEGRAM_COMMAND_NAME_PATTERN,
@@ -773,6 +777,19 @@ export const registerTelegramNativeCommands = ({
             OriginatingChannel: "telegram" as const,
             OriginatingTo: `telegram:${chatId}`,
           });
+
+          const storePath = resolveStorePath(cfg.session?.store, {
+            agentId: route.agentId,
+          });
+          try {
+            await recordSessionMetaFromInbound({
+              storePath,
+              sessionKey: ctxPayload.SessionKey ?? route.sessionKey,
+              ctx: ctxPayload,
+            });
+          } catch (err) {
+            runtime.error?.(danger(`telegram slash: failed updating session meta: ${String(err)}`));
+          }
 
           const disableBlockStreaming =
             typeof telegramCfg.blockStreaming === "boolean"
