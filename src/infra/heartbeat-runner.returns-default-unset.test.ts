@@ -976,7 +976,7 @@ describe("runHeartbeatOnce", () => {
           }),
         );
 
-        replySpy.mockReset();
+        replySpy.mockClear();
         replySpy.mockResolvedValue([{ text: testCase.message }]);
         const sendWhatsApp = vi
           .fn<NonNullable<HeartbeatDeps["sendWhatsApp"]>>()
@@ -1202,7 +1202,7 @@ describe("runHeartbeatOnce", () => {
           }),
         );
 
-        replySpy.mockReset();
+        replySpy.mockClear();
         replySpy.mockResolvedValue(testCase.replies);
         const sendWhatsApp = vi
           .fn<NonNullable<HeartbeatDeps["sendWhatsApp"]>>()
