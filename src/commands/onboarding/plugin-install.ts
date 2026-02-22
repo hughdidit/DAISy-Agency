@@ -17,7 +17,7 @@ import type { OpenClawConfig } from "../../config/config.js";
 import { createSubsystemLogger } from "../../logging/subsystem.js";
 import { enablePluginInConfig } from "../../plugins/enable.js";
 import { installPluginFromNpmSpec } from "../../plugins/install.js";
-import { recordPluginInstall } from "../../plugins/installs.js";
+import { buildNpmResolutionInstallFields, recordPluginInstall } from "../../plugins/installs.js";
 import { loadOpenClawPlugins } from "../../plugins/loader.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -211,6 +211,10 @@ export async function ensureOnboardingPluginInstalled(params: {
       spec: entry.install.npmSpec,
       installPath: result.targetDir,
       version: result.version,
+<<<<<<< HEAD
+=======
+      ...buildNpmResolutionInstallFields(result.npmResolution),
+>>>>>>> 2081b3a3c (refactor(channels): dedupe hook and monitor execution paths)
     });
     return { cfg: next, installed: true };
   }

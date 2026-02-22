@@ -133,7 +133,7 @@ import {
 import type { TelegramContext, TelegramMessage } from "./bot/types.js";
 =======
 import { createSubsystemLogger } from "../logging/subsystem.js";
-import type { RuntimeEnv } from "../runtime.js";
+import { createNonExitingRuntime, type RuntimeEnv } from "../runtime.js";
 import { resolveTelegramAccount } from "./accounts.js";
 >>>>>>> a69e82765 (fix(telegram): stream replies in-place without duplicate final sends)
 import { registerTelegramHandlers } from "./bot-handlers.js";
@@ -227,13 +227,7 @@ export function getTelegramSequentialKey(ctx: {
 }
 
 export function createTelegramBot(opts: TelegramBotOptions) {
-  const runtime: RuntimeEnv = opts.runtime ?? {
-    log: console.log,
-    error: console.error,
-    exit: (code: number): never => {
-      throw new Error(`exit ${code}`);
-    },
-  };
+  const runtime: RuntimeEnv = opts.runtime ?? createNonExitingRuntime();
   const cfg = opts.config ?? loadConfig();
   const account = resolveTelegramAccount({
     cfg,
