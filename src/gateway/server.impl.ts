@@ -71,6 +71,7 @@ import {
 <<<<<<< HEAD
 =======
 import { applyPluginAutoEnable } from "../config/plugin-auto-enable.js";
+import { resolveMainSessionKey } from "../config/sessions.js";
 import { clearAgentRunContext, onAgentEvent } from "../infra/agent-events.js";
 import {
   ensureControlUiAssetsBuilt,
@@ -91,6 +92,7 @@ import {
   refreshRemoteBinsForConnectedNodes,
   setSkillsRemoteRegistry,
 } from "../infra/skills-remote.js";
+import { enqueueSystemEvent } from "../infra/system-events.js";
 import { scheduleGatewayUpdateCheck } from "../infra/update-startup.js";
 import { setGatewaySigusr1RestartPolicy } from "../infra/restart.js";
 import { startDiagnosticHeartbeat, stopDiagnosticHeartbeat } from "../logging/diagnostic.js";
@@ -386,6 +388,16 @@ export async function startGatewayServer(
   const cfgAtStart = loadConfig();
 =======
   let secretsDegraded = false;
+  const emitSecretsStateEvent = (
+    code: "SECRETS_RELOADER_DEGRADED" | "SECRETS_RELOADER_RECOVERED",
+    message: string,
+    cfg: OpenClawConfig,
+  ) => {
+    enqueueSystemEvent(`[${code}] ${message}`, {
+      sessionKey: resolveMainSessionKey(cfg),
+      contextKey: code,
+    });
+  };
   const activateRuntimeSecrets = async (
     config: OpenClawConfig,
     params: { reason: "startup" | "reload" | "restart-check"; activate: boolean },
@@ -399,9 +411,10 @@ export async function startGatewayServer(
         logSecrets.warn(`[${warning.code}] ${warning.message}`);
       }
       if (secretsDegraded) {
-        logSecrets.info(
-          "[SECRETS_RELOADER_RECOVERED] Secret resolution recovered; runtime remained on last-known-good during the outage.",
-        );
+        const recoveredMessage =
+          "Secret resolution recovered; runtime remained on last-known-good during the outage.";
+        logSecrets.info(`[SECRETS_RELOADER_RECOVERED] ${recoveredMessage}`);
+        emitSecretsStateEvent("SECRETS_RELOADER_RECOVERED", recoveredMessage, prepared.config);
       }
       secretsDegraded = false;
       return prepared;
@@ -409,6 +422,13 @@ export async function startGatewayServer(
       const details = String(err);
       if (!secretsDegraded) {
         logSecrets.error(`[SECRETS_RELOADER_DEGRADED] ${details}`);
+        if (params.reason !== "startup") {
+          emitSecretsStateEvent(
+            "SECRETS_RELOADER_DEGRADED",
+            `Secret resolution failed; runtime remains on last-known-good snapshot. ${details}`,
+            config,
+          );
+        }
       } else {
         logSecrets.warn(`[SECRETS_RELOADER_DEGRADED] ${details}`);
       }
