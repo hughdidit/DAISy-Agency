@@ -5,6 +5,7 @@ import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import { getDeterministicFreePortBlock } from "../test-utils/ports.js";
 =======
@@ -14,6 +15,8 @@ import { getFreePortBlockWithPermissionFallback } from "../test-utils/ports.js";
 =======
 import type { GatewayAuthConfig } from "../config/config.js";
 >>>>>>> 6264c5e84 (chore: Fix types in tests 41/N.)
+=======
+>>>>>>> 648d2daf6 (test: drop duplicate timeout-fallback e2e and trim onboarding auth overlap)
 import { makeTempWorkspace } from "../test-helpers/workspace.js";
 import { captureEnv } from "../test-utils/env.js";
 import {
@@ -114,19 +117,6 @@ function getPseudoPort(base: number): number {
 
 const runtime = createThrowingRuntime();
 
-async function expectGatewayTokenAuth(params: {
-  authConfig: GatewayAuthConfig | null | undefined;
-  token: string;
-  env: NodeJS.ProcessEnv;
-}) {
-  const { authorizeGatewayConnect, resolveGatewayAuth } = await import("../gateway/auth.js");
-  const auth = resolveGatewayAuth({ authConfig: params.authConfig, env: params.env });
-  const resNoToken = await authorizeGatewayConnect({ auth, connectAuth: { token: undefined } });
-  expect(resNoToken.ok).toBe(false);
-  const resToken = await authorizeGatewayConnect({ auth, connectAuth: { token: params.token } });
-  expect(resToken.ok).toBe(true);
-}
-
 describe("onboard (non-interactive): gateway and remote auth", () => {
 <<<<<<< HEAD
   const prev = {
@@ -225,12 +215,16 @@ describe("onboard (non-interactive): gateway and remote auth", () => {
 >>>>>>> dda9e9f09 (refactor(test): snapshot onboarding gateway env via helper)
   });
 
+<<<<<<< HEAD
   it("writes gateway token auth into config and gateway enforces it", async () => {
 <<<<<<< HEAD
     const stateDir = await initStateDir("state-noninteractive-");
     const token = "tok_test_123";
     const workspace = path.join(stateDir, "clawd");
 =======
+=======
+  it("writes gateway token auth into config", async () => {
+>>>>>>> 648d2daf6 (test: drop duplicate timeout-fallback e2e and trim onboarding auth overlap)
     await withStateDir("state-noninteractive-", async (stateDir) => {
       const token = "tok_test_123";
       const workspace = path.join(stateDir, "openclaw");
@@ -255,19 +249,13 @@ describe("onboard (non-interactive): gateway and remote auth", () => {
       const { resolveConfigPath } = await import("../config/paths.js");
       const configPath = resolveConfigPath(process.env, stateDir);
       const cfg = await readJsonFile<{
-        gateway?: { auth?: GatewayAuthConfig };
+        gateway?: { auth?: { mode?: string; token?: string } };
         agents?: { defaults?: { workspace?: string } };
       }>(configPath);
 
       expect(cfg?.agents?.defaults?.workspace).toBe(workspace);
       expect(cfg?.gateway?.auth?.mode).toBe("token");
       expect(cfg?.gateway?.auth?.token).toBe(token);
-
-      await expectGatewayTokenAuth({
-        authConfig: cfg.gateway?.auth,
-        token,
-        env: process.env,
-      });
     });
   }, 60_000);
 
@@ -348,21 +336,14 @@ describe("onboard (non-interactive): gateway and remote auth", () => {
         gateway?: {
           bind?: string;
           port?: number;
-          auth?: GatewayAuthConfig;
+          auth?: { mode?: string; token?: string };
         };
       }>(configPath);
 
       expect(cfg.gateway?.bind).toBe("lan");
       expect(cfg.gateway?.port).toBe(port);
       expect(cfg.gateway?.auth?.mode).toBe("token");
-      const token = cfg.gateway?.auth?.token ?? "";
-      expect(token.length).toBeGreaterThan(8);
-
-      await expectGatewayTokenAuth({
-        authConfig: cfg.gateway?.auth,
-        token,
-        env: process.env,
-      });
+      expect((cfg.gateway?.auth?.token ?? "").length).toBeGreaterThan(8);
     });
   }, 60_000);
 });
