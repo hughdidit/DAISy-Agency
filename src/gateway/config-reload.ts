@@ -42,6 +42,8 @@ const DEFAULT_RELOAD_SETTINGS: GatewayReloadSettings = {
   mode: "hybrid",
   debounceMs: 300,
 };
+const MISSING_CONFIG_RETRY_DELAY_MS = 150;
+const MISSING_CONFIG_MAX_RETRIES = 2;
 
 const BASE_RELOAD_RULES: ReloadRule[] = [
   { prefix: "gateway.remote", kind: "none" },
@@ -265,14 +267,28 @@ export function startGatewayConfigReloader(opts: {
   let running = false;
   let stopped = false;
   let restartQueued = false;
+  let missingConfigRetries = 0;
 
+<<<<<<< HEAD
   const schedule = () => {
     if (stopped) return;
     if (debounceTimer) clearTimeout(debounceTimer);
     const wait = settings.debounceMs;
+=======
+  const scheduleAfter = (wait: number) => {
+    if (stopped) {
+      return;
+    }
+    if (debounceTimer) {
+      clearTimeout(debounceTimer);
+    }
+>>>>>>> 4e65e6161 (fix: retry missing config snapshots before skip (#23343) (thanks @lbo728))
     debounceTimer = setTimeout(() => {
       void runReload();
     }, wait);
+  };
+  const schedule = () => {
+    scheduleAfter(settings.debounceMs);
   };
 
   const runReload = async () => {
@@ -288,6 +304,22 @@ export function startGatewayConfigReloader(opts: {
     }
     try {
       const snapshot = await opts.readSnapshot();
+<<<<<<< HEAD
+=======
+      if (!snapshot.exists) {
+        if (missingConfigRetries < MISSING_CONFIG_MAX_RETRIES) {
+          missingConfigRetries += 1;
+          opts.log.info(
+            `config reload retry (${missingConfigRetries}/${MISSING_CONFIG_MAX_RETRIES}): config file not found`,
+          );
+          scheduleAfter(MISSING_CONFIG_RETRY_DELAY_MS);
+          return;
+        }
+        opts.log.warn("config reload skipped (config file not found)");
+        return;
+      }
+      missingConfigRetries = 0;
+>>>>>>> 4e65e6161 (fix: retry missing config snapshots before skip (#23343) (thanks @lbo728))
       if (!snapshot.valid) {
         const issues = snapshot.issues.map((issue) => `${issue.path}: ${issue.message}`).join(", ");
         opts.log.warn(`config reload skipped (invalid config): ${issues}`);
