@@ -108,12 +108,14 @@ export function resolveSlackStreamingThreadHint(params: {
   replyToMode: "off" | "first" | "all";
   incomingThreadTs: string | undefined;
   messageTs: string | undefined;
+  isThreadReply?: boolean;
 }): string | undefined {
   return resolveSlackThreadTs({
     replyToMode: params.replyToMode,
     incomingThreadTs: params.incomingThreadTs,
     messageTs: params.messageTs,
     hasReplied: false,
+    isThreadReply: params.isThreadReply,
   });
 }
 
@@ -247,6 +249,7 @@ export async function dispatchPreparedSlackMessage(prepared: PreparedSlackMessag
     replyToMode: ctx.replyToMode,
     incomingThreadTs,
     messageTs,
+    isThreadReply,
   });
 >>>>>>> 2c14b0cf4 (refactor(config): unify streaming config across channels)
   const useStreaming = shouldUseStreaming({
