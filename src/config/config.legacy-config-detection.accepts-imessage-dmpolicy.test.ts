@@ -344,6 +344,16 @@ describe("legacy config detection", () => {
       expect(parsed.bindings?.[0]?.match?.accountID).toBe("work");
     });
   });
+  it("accepts bindings[].comment on load", () => {
+    expectValidConfigValue({
+      config: {
+        bindings: [{ agentId: "main", comment: "primary route", match: { channel: "telegram" } }],
+      },
+      readValue: (config) =>
+        (config as { bindings?: Array<{ comment?: string }> }).bindings?.[0]?.comment,
+      expectedValue: "primary route",
+    });
+  });
   it("rejects session.sendPolicy.rules[].match.provider on load", async () => {
     await withTempHome(async (home) => {
       const configPath = path.join(home, ".clawdbot", "moltbot.json");
