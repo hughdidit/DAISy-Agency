@@ -58,6 +58,38 @@ function dataUrlToBase64(dataUrl: string): { content: string; mimeType: string }
   return { mimeType: match[1], content: match[2] };
 }
 
+<<<<<<< HEAD
+=======
+function normalizeAbortedAssistantMessage(message: unknown): Record<string, unknown> | null {
+  if (!message || typeof message !== "object") {
+    return null;
+  }
+  const candidate = message as Record<string, unknown>;
+  if (candidate.role !== "assistant") {
+    return null;
+  }
+  if (!("content" in candidate) || !Array.isArray(candidate.content)) {
+    return null;
+  }
+  return candidate;
+}
+
+function normalizeFinalAssistantMessage(message: unknown): Record<string, unknown> | null {
+  if (!message || typeof message !== "object") {
+    return null;
+  }
+  const candidate = message as Record<string, unknown>;
+  const role = typeof candidate.role === "string" ? candidate.role.toLowerCase() : "";
+  if (role && role !== "assistant") {
+    return null;
+  }
+  if (!("content" in candidate) && !("text" in candidate)) {
+    return null;
+  }
+  return candidate;
+}
+
+>>>>>>> 8264d4521 (fix(webchat): render final assistant payloads without history wait (#14928))
 export async function sendChatMessage(
   state: ChatState,
   message: string,
@@ -194,6 +226,10 @@ export function handleChatEvent(state: ChatState, payload?: ChatEventPayload) {
       }
     }
   } else if (payload.state === "final") {
+    const finalMessage = normalizeFinalAssistantMessage(payload.message);
+    if (finalMessage) {
+      state.chatMessages = [...state.chatMessages, finalMessage];
+    }
     state.chatStream = null;
     state.chatRunId = null;
     state.chatStreamStartedAt = null;
