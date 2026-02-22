@@ -364,7 +364,11 @@
 >>>>>>> 8fad4c284 (chore(deps): update dependencies, remove hono pinning)
 =======
     "https-proxy-agent": "^7.0.6",
+<<<<<<< HEAD
 >>>>>>> 0cb69b0f2 (Discord: add gateway proxy support)
+=======
+    "ipaddr.js": "^2.3.0",
+>>>>>>> 333fbb863 (refactor(net): consolidate IP checks with ipaddr.js)
     "jiti": "^2.6.1",
     "json5": "^2.2.3",
     "jszip": "^3.10.1",

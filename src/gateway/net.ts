@@ -1,14 +1,25 @@
 import net from "node:net";
 
 import { pickPrimaryTailnetIPv4, pickPrimaryTailnetIPv6 } from "../infra/tailnet.js";
+import {
+  isCanonicalDottedDecimalIPv4,
+  isIpInCidr,
+  isLoopbackIpAddress,
+  isPrivateOrLoopbackIpAddress,
+  normalizeIpAddress,
+} from "../shared/net/ip.js";
 
 export function isLoopbackAddress(ip: string | undefined): boolean {
+<<<<<<< HEAD
   if (!ip) return false;
   if (ip === "127.0.0.1") return true;
   if (ip.startsWith("127.")) return true;
   if (ip === "::1") return true;
   if (ip.startsWith("::ffff:127.")) return true;
   return false;
+=======
+  return isLoopbackIpAddress(ip);
+>>>>>>> 333fbb863 (refactor(net): consolidate IP checks with ipaddr.js)
 }
 
 /**
@@ -16,6 +27,7 @@ export function isLoopbackAddress(ip: string | undefined): boolean {
  * Private ranges: RFC1918, link-local, ULA IPv6, and CGNAT (100.64/10), plus loopback.
  */
 export function isPrivateOrLoopbackAddress(ip: string | undefined): boolean {
+<<<<<<< HEAD
   if (!ip) {
     return false;
   }
@@ -64,6 +76,13 @@ function normalizeIp(ip: string | undefined): string | undefined {
   const trimmed = ip?.trim();
   if (!trimmed) return undefined;
   return normalizeIPv4MappedAddress(trimmed.toLowerCase());
+=======
+  return isPrivateOrLoopbackIpAddress(ip);
+}
+
+function normalizeIp(ip: string | undefined): string | undefined {
+  return normalizeIpAddress(ip);
+>>>>>>> 333fbb863 (refactor(net): consolidate IP checks with ipaddr.js)
 }
 
 function stripOptionalPort(ip: string): string {
@@ -87,15 +106,63 @@ export function parseForwardedForClientIp(forwardedFor?: string): string | undef
 }
 
 function parseRealIp(realIp?: string): string | undefined {
+<<<<<<< HEAD
   const raw = realIp?.trim();
   if (!raw) return undefined;
   return normalizeIp(stripOptionalPort(raw));
+=======
+  return parseIpLiteral(realIp);
+}
+
+function resolveForwardedClientIp(params: {
+  forwardedFor?: string;
+  trustedProxies?: string[];
+}): string | undefined {
+  const { forwardedFor, trustedProxies } = params;
+  if (!trustedProxies?.length) {
+    return undefined;
+  }
+
+  const forwardedChain: string[] = [];
+  for (const entry of forwardedFor?.split(",") ?? []) {
+    const normalized = parseIpLiteral(entry);
+    if (normalized) {
+      forwardedChain.push(normalized);
+    }
+  }
+  if (forwardedChain.length === 0) {
+    return undefined;
+  }
+
+  // Walk right-to-left and return the first untrusted hop.
+  for (let index = forwardedChain.length - 1; index >= 0; index -= 1) {
+    const hop = forwardedChain[index];
+    if (!isTrustedProxyAddress(hop, trustedProxies)) {
+      return hop;
+    }
+  }
+  return undefined;
+>>>>>>> 333fbb863 (refactor(net): consolidate IP checks with ipaddr.js)
 }
 
 export function isTrustedProxyAddress(ip: string | undefined, trustedProxies?: string[]): boolean {
   const normalized = normalizeIp(ip);
+<<<<<<< HEAD
   if (!normalized || !trustedProxies || trustedProxies.length === 0) return false;
   return trustedProxies.some((proxy) => normalizeIp(proxy) === normalized);
+=======
+  if (!normalized || !trustedProxies || trustedProxies.length === 0) {
+    return false;
+  }
+
+  return trustedProxies.some((proxy) => {
+    const candidate = proxy.trim();
+    if (!candidate) {
+      return false;
+    }
+    return isIpInCidr(normalized, candidate);
+  });
+>>>>>>> 333fbb863 (refactor(net): consolidate IP checks with ipaddr.js)
 }
 
 export function resolveGatewayClientIp(params: {
@@ -111,9 +178,22 @@ export function resolveGatewayClientIp(params: {
 }
 
 export function isLocalGatewayAddress(ip: string | undefined): boolean {
+<<<<<<< HEAD
   if (isLoopbackAddress(ip)) return true;
   if (!ip) return false;
   const normalized = normalizeIPv4MappedAddress(ip.trim().toLowerCase());
+=======
+  if (isLoopbackAddress(ip)) {
+    return true;
+  }
+  if (!ip) {
+    return false;
+  }
+  const normalized = normalizeIp(ip);
+  if (!normalized) {
+    return false;
+  }
+>>>>>>> 333fbb863 (refactor(net): consolidate IP checks with ipaddr.js)
   const tailnetIPv4 = pickPrimaryTailnetIPv4();
   if (tailnetIPv4 && normalized === tailnetIPv4.toLowerCase()) return true;
   const tailnetIPv6 = pickPrimaryTailnetIPv6();
@@ -211,6 +291,7 @@ export async function resolveGatewayListenHosts(
  * @param host - The string to validate
  * @returns True if valid IPv4 format
  */
+<<<<<<< HEAD
 function isValidIPv4(host: string): boolean {
   const parts = host.split(".");
   if (parts.length !== 4) return false;
@@ -218,6 +299,10 @@ function isValidIPv4(host: string): boolean {
     const n = parseInt(part, 10);
     return !Number.isNaN(n) && n >= 0 && n <= 255 && part === String(n);
   });
+=======
+export function isValidIPv4(host: string): boolean {
+  return isCanonicalDottedDecimalIPv4(host);
+>>>>>>> 333fbb863 (refactor(net): consolidate IP checks with ipaddr.js)
 }
 
 export function isLoopbackHost(host: string): boolean {
