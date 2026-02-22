@@ -158,6 +158,7 @@ describe("web auto-reply", () => {
   });
   it("forces reconnect when watchdog closes without onClose", async () => {
     vi.useFakeTimers();
+<<<<<<< HEAD
     const sleep = vi.fn(async () => {});
     const closeResolvers: Array<(reason: unknown) => void> = [];
     let capturedOnMessage:
@@ -196,6 +197,38 @@ describe("web auto-reply", () => {
       {
         heartbeatSeconds: 1,
         reconnect: { initialMs: 10, maxMs: 10, maxAttempts: 3, factor: 1.1 },
+=======
+    try {
+      const sleep = vi.fn(async () => {});
+      const closeResolvers: Array<(reason: unknown) => void> = [];
+      const signalCloseSpy = vi.fn();
+      let capturedOnMessage:
+        | ((msg: import("./inbound.js").WebInboundMessage) => Promise<void>)
+        | undefined;
+      const listenerFactory = vi.fn(
+        async (opts: {
+          onMessage: (msg: import("./inbound.js").WebInboundMessage) => Promise<void>;
+        }) => {
+          capturedOnMessage = opts.onMessage;
+          let resolveClose: (reason: unknown) => void = () => {};
+          const onClose = new Promise<unknown>((res) => {
+            resolveClose = res;
+            closeResolvers.push(res);
+          });
+          return {
+            close: vi.fn(),
+            onClose,
+            signalClose: (reason?: unknown) => {
+              signalCloseSpy(reason);
+              resolveClose(reason);
+            },
+          };
+        },
+      );
+      const { runtime, controller, run } = startMonitorWebChannel({
+        monitorWebChannelFn: monitorWebChannel as never,
+        listenerFactory,
+>>>>>>> 7c109f573 (fix: resolve ci type errors and reconnect test flake)
         sleep,
       },
     );
@@ -223,10 +256,31 @@ describe("web auto-reply", () => {
     await Promise.resolve();
     expect(listenerFactory).toHaveBeenCalledTimes(2);
 
+<<<<<<< HEAD
     controller.abort();
     closeResolvers[1]?.({ status: 499, isLoggedOut: false });
     await Promise.resolve();
     await run;
+=======
+      await vi.advanceTimersByTimeAsync(1);
+      expect(signalCloseSpy).toHaveBeenCalledWith(
+        expect.objectContaining({ status: 499, isLoggedOut: false, error: "watchdog-timeout" }),
+      );
+      for (let i = 0; i < 20 && listenerFactory.mock.calls.length < 2; i += 1) {
+        await vi.advanceTimersByTimeAsync(50);
+        await Promise.resolve();
+      }
+      expect(listenerFactory.mock.calls.length).toBeGreaterThanOrEqual(2);
+      expect(runtime.error).toHaveBeenCalledWith(expect.stringContaining("Retry 1"));
+
+      controller.abort();
+      closeResolvers[1]?.({ status: 499, isLoggedOut: false });
+      await Promise.resolve();
+      await run;
+    } finally {
+      vi.useRealTimers();
+    }
+>>>>>>> 7c109f573 (fix: resolve ci type errors and reconnect test flake)
   }, 15_000);
 
   it("stops after hitting max reconnect attempts", { timeout: 60_000 }, async () => {
