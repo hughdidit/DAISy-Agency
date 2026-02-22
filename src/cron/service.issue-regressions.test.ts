@@ -32,8 +32,12 @@ import * as schedule from "./schedule.js";
 >>>>>>> c26cf6aa8 (feat(cron): add default stagger controls for scheduled jobs)
 import { CronService } from "./service.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import { createRunningCronServiceState } from "./service.test-harness.js";
+=======
+import { createDeferred, createRunningCronServiceState } from "./service.test-harness.js";
+>>>>>>> 5e8b1f5ac (refactor(test): centralize trigger and cron test helpers)
 import { computeJobNextRunAtMs } from "./service/jobs.js";
 >>>>>>> 50e5413c1 (refactor(cron-test): share running-state fixture)
 import { createCronServiceState, type CronEvent } from "./service/state.js";
@@ -61,16 +65,6 @@ async function makeStorePath() {
   return {
     storePath,
   };
-}
-
-function createDeferred<T>() {
-  let resolve!: (value: T) => void;
-  let reject!: (reason?: unknown) => void;
-  const promise = new Promise<T>((res, rej) => {
-    resolve = res;
-    reject = rej;
-  });
-  return { promise, resolve, reject };
 }
 
 function createDueIsolatedJob(params: {
@@ -717,7 +711,6 @@ describe("Cron issue regressions", () => {
 
     let now = scheduledAt;
     let fireCount = 0;
-    const events: CronEvent[] = [];
     const state = createCronServiceState({
       cronEnabled: true,
       storePath: store.storePath,
@@ -725,9 +718,6 @@ describe("Cron issue regressions", () => {
       nowMs: () => now,
       enqueueSystemEvent: vi.fn(),
       requestHeartbeatNow: vi.fn(),
-      onEvent: (evt) => {
-        events.push(evt);
-      },
       runIsolatedAgentJob: vi.fn(async () => {
         // Job completes very quickly (7ms) — still within the same second
         now += 7;

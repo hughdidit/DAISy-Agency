@@ -1,14 +1,18 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+<<<<<<< HEAD
 import { telegramPlugin } from "../../extensions/telegram/src/channel.js";
 import { setTelegramRuntime } from "../../extensions/telegram/src/runtime.js";
 <<<<<<< HEAD
 =======
+=======
+>>>>>>> 5e8b1f5ac (refactor(test): centralize trigger and cron test helpers)
 import * as replyModule from "../auto-reply/reply.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 import type { OpenClawConfig } from "../config/config.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
@@ -36,6 +40,14 @@ import { seedSessionStore } from "./heartbeat-runner.test-utils.js";
 =======
 import { seedMainSessionStore, withTempHeartbeatSandbox } from "./heartbeat-runner.test-utils.js";
 >>>>>>> 694a9eb6d (test(heartbeat): reuse shared sandbox for ghost reminder scenarios)
+=======
+import { runHeartbeatOnce } from "./heartbeat-runner.js";
+import {
+  seedMainSessionStore,
+  setupTelegramHeartbeatPluginRuntimeForTests,
+  withTempHeartbeatSandbox,
+} from "./heartbeat-runner.test-utils.js";
+>>>>>>> 5e8b1f5ac (refactor(test): centralize trigger and cron test helpers)
 import { enqueueSystemEvent, resetSystemEventsForTest } from "./system-events.js";
 import { runHeartbeatOnce } from "./heartbeat-runner.js";
 
@@ -43,12 +55,16 @@ import { runHeartbeatOnce } from "./heartbeat-runner.js";
 vi.mock("jiti", () => ({ createJiti: () => () => ({}) }));
 
 beforeEach(() => {
+<<<<<<< HEAD
   const runtime = createPluginRuntime();
   setTelegramRuntime(runtime);
   setActivePluginRegistry(
     createTestRegistry([{ pluginId: "telegram", plugin: telegramPlugin, source: "test" }]),
   );
   // Reset system events queue to avoid cross-test pollution
+=======
+  setupTelegramHeartbeatPluginRuntimeForTests();
+>>>>>>> 5e8b1f5ac (refactor(test): centralize trigger and cron test helpers)
   resetSystemEventsForTest();
 });
 
