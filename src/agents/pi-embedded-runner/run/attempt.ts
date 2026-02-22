@@ -728,7 +728,12 @@ export async function runEmbeddedAttempt(
       skillsPrompt,
       tools,
     });
+<<<<<<< HEAD
     const systemPrompt = createSystemPromptOverride(appendPrompt);
+=======
+    const systemPromptOverride = createSystemPromptOverride(appendPrompt);
+    let systemPromptText = systemPromptOverride();
+>>>>>>> a66b98a9d (fix(plugins): hook systemPrompt gets collected then thrown away (#14583) (#14602))
 
     const sessionLock = await acquireSessionWriteLock({
       sessionFile: params.sessionFile,
@@ -1242,6 +1247,13 @@ export async function runEmbeddedAttempt(
               `hooks: prepended context to prompt (${hookResult.prependContext.length} chars)`,
 >>>>>>> b90eb5152 (feat(plugins): add modelOverride/providerOverride to before_agent_start hook)
             );
+          }
+          const legacySystemPrompt =
+            typeof hookResult?.systemPrompt === "string" ? hookResult.systemPrompt.trim() : "";
+          if (legacySystemPrompt) {
+            applySystemPromptOverrideToSession(activeSession, legacySystemPrompt);
+            systemPromptText = legacySystemPrompt;
+            log.debug(`hooks: applied systemPrompt override (${legacySystemPrompt.length} chars)`);
           }
         }
 
