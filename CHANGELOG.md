@@ -170,7 +170,11 @@ Docs: https://docs.openclaw.ai
 >>>>>>> 02dc0c875 (fix(control-ui): stop websocket client on lifecycle teardown (#23422))
 =======
 - Webchat/Chat: apply assistant `final` payload messages directly to chat state so sent turns render without waiting for a full history refresh cycle. (#14928) Thanks @BradGroux.
+<<<<<<< HEAD
 >>>>>>> 8264d4521 (fix(webchat): render final assistant payloads without history wait (#14928))
+=======
+- Webchat/Chat: for out-of-band final events (for example tool-call side runs), append provided final assistant payloads directly instead of forcing a transient history reset. (#11139) Thanks @AkshayNavle.
+>>>>>>> f2e998681 (fix(webchat): append out-of-band final payloads in active chat (#11139))
 - Config/Memory: allow `"mistral"` in `agents.defaults.memorySearch.provider` and `agents.defaults.memorySearch.fallback` schema validation. (#14934) Thanks @ThomsenDrake.
 >>>>>>> 9f7c1686b (fix(slack extension): preserve thread IDs for read + outbound delivery (#23836))
 - Security/Feishu: enforce ID-only allowlist matching for DM/group sender authorization, normalize Feishu ID prefixes during checks, and ignore mutable display names so display-name collisions cannot satisfy allowlist entries. This ships in the next npm release. Thanks @jiseoung for reporting.

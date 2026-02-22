@@ -195,6 +195,7 @@ export function handleChatEvent(
   if (payload.sessionKey !== state.sessionKey) return null;
 
   // Final from another run (e.g. sub-agent announce): refresh history to show new message.
+<<<<<<< HEAD
   // See https://github.com/moltbot/moltbot/issues/1909
   if (
     payload.runId &&
@@ -202,6 +203,18 @@ export function handleChatEvent(
     payload.runId !== state.chatRunId
   ) {
     if (payload.state === "final") return "final";
+=======
+  // See https://github.com/openclaw/openclaw/issues/1909
+  if (payload.runId && state.chatRunId && payload.runId !== state.chatRunId) {
+    if (payload.state === "final") {
+      const finalMessage = normalizeFinalAssistantMessage(payload.message);
+      if (finalMessage) {
+        state.chatMessages = [...state.chatMessages, finalMessage];
+        return null;
+      }
+      return "final";
+    }
+>>>>>>> f2e998681 (fix(webchat): append out-of-band final payloads in active chat (#11139))
     return null;
   }
 
