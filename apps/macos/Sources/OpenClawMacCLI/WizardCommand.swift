@@ -250,7 +250,12 @@ actor GatewayWizardClient {
         let clientId = "openclaw-macos"
         let clientMode = "ui"
         let role = "operator"
+<<<<<<< HEAD
         let scopes: [String] = []
+=======
+        // Explicit scopes; gateway no longer defaults empty scopes to admin.
+        let scopes = defaultOperatorConnectScopes
+>>>>>>> 6f7e5f92c (fix: add operator.read and operator.write to default CLI scopes (#22582))
         let client: [String: ProtoAnyCodable] = [
             "id": ProtoAnyCodable(clientId),
             "displayName": ProtoAnyCodable(Host.current().localizedName ?? "OpenClaw macOS Wizard CLI"),
