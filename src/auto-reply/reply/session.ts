@@ -48,13 +48,31 @@ import { createSubsystemLogger } from "../../logging/subsystem.js";
 import { getGlobalHookRunner } from "../../plugins/hook-runner-global.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { normalizeMainKey } from "../../routing/session-key.js";
+import { parseAgentSessionKey } from "../../sessions/session-key-utils.js";
 import { normalizeSessionDeliveryFields } from "../../utils/delivery-context.js";
+import {
+  INTERNAL_MESSAGE_CHANNEL,
+  isDeliverableMessageChannel,
+  normalizeMessageChannel,
+} from "../../utils/message-channel.js";
 import { resolveCommandAuthorization } from "../command-auth.js";
 import type { MsgContext, TemplateContext } from "../templating.js";
 import { normalizeInboundTextNewlines } from "./inbound-text.js";
 import { stripMentions, stripStructuralPrefixes } from "./mentions.js";
 
 const log = createSubsystemLogger("session-init");
+
+function resolveSessionKeyChannelHint(sessionKey?: string): string | undefined {
+  const parsed = parseAgentSessionKey(sessionKey);
+  if (!parsed?.rest) {
+    return undefined;
+  }
+  const head = parsed.rest.split(":")[0]?.trim().toLowerCase();
+  if (!head || head === "main" || head === "cron" || head === "subagent" || head === "acp") {
+    return undefined;
+  }
+  return normalizeMessageChannel(head);
+}
 
 export type SessionInitResult = {
   sessionCtx: TemplateContext;
@@ -285,7 +303,28 @@ export async function initSessionState(params: {
 
   const baseEntry = !isNewSession && freshEntry ? entry : undefined;
   // Track the originating channel/to for announce routing (subagent announce-back).
-  const lastChannelRaw = (ctx.OriginatingChannel as string | undefined) || baseEntry?.lastChannel;
+  const originatingChannelRaw = ctx.OriginatingChannel as string | undefined;
+  const originatingChannel = normalizeMessageChannel(originatingChannelRaw);
+  const persistedChannel = normalizeMessageChannel(baseEntry?.lastChannel);
+  const sessionKeyChannelHint = resolveSessionKeyChannelHint(sessionKey);
+  let lastChannelRaw = originatingChannelRaw || baseEntry?.lastChannel;
+  // Internal webchat/system turns should not overwrite previously known external
+  // delivery routes (or explicit channel hints encoded in the session key).
+  if (originatingChannel === INTERNAL_MESSAGE_CHANNEL) {
+    if (
+      persistedChannel &&
+      persistedChannel !== INTERNAL_MESSAGE_CHANNEL &&
+      isDeliverableMessageChannel(persistedChannel)
+    ) {
+      lastChannelRaw = persistedChannel;
+    } else if (
+      sessionKeyChannelHint &&
+      sessionKeyChannelHint !== INTERNAL_MESSAGE_CHANNEL &&
+      isDeliverableMessageChannel(sessionKeyChannelHint)
+    ) {
+      lastChannelRaw = sessionKeyChannelHint;
+    }
+  }
   const lastToRaw = ctx.OriginatingTo || ctx.To || baseEntry?.lastTo;
   const lastAccountIdRaw = ctx.AccountId || baseEntry?.lastAccountId;
   // Only fall back to persisted threadId for thread sessions.  Non-thread
