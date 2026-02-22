@@ -126,7 +126,7 @@ vi.mock("@mariozechner/pi-ai", async () => {
   };
 });
 
-let runEmbeddedPiAgent: typeof import("./pi-embedded-runner.js").runEmbeddedPiAgent;
+let runEmbeddedPiAgent: typeof import("./pi-embedded-runner/run.js").runEmbeddedPiAgent;
 let tempRoot: string | undefined;
 let agentDir: string;
 let workspaceDir: string;
@@ -135,8 +135,13 @@ let runCounter = 0;
 
 beforeAll(async () => {
   vi.useRealTimers();
+<<<<<<< HEAD
   ({ runEmbeddedPiAgent } = await import("./pi-embedded-runner.js"));
   tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-embedded-agent-"));
+=======
+  ({ runEmbeddedPiAgent } = await import("./pi-embedded-runner/run.js"));
+  tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-embedded-agent-"));
+>>>>>>> a9b26d83d (perf(test): narrow pi-embedded runner e2e import path)
   agentDir = path.join(tempRoot, "agent");
   workspaceDir = path.join(tempRoot, "workspace");
   await fs.mkdir(agentDir, { recursive: true });
