@@ -2,6 +2,7 @@ import { formatCliCommand } from "../cli/command-format.js";
 <<<<<<< HEAD
 =======
 import { loadConfig } from "../config/config.js";
+import { isLoopbackHost } from "../gateway/net.js";
 import { getBridgeAuthForPort } from "./bridge-auth-registry.js";
 import { resolveBrowserControlAuth } from "./control-auth.js";
 >>>>>>> 6dd6bce99 (fix(security): enforce sandbox bridge auth)
@@ -19,8 +20,12 @@ function isAbsoluteHttp(url: string): boolean {
 =======
 function isLoopbackHttpUrl(url: string): boolean {
   try {
+<<<<<<< HEAD
     const host = new URL(url).hostname.trim().toLowerCase();
     return host === "127.0.0.1" || host === "localhost" || host === "::1";
+=======
+    return isLoopbackHost(new URL(url).hostname);
+>>>>>>> f14ebd743 (refactor(security): unify local-host and tailnet CIDR checks)
   } catch {
     return false;
   }
