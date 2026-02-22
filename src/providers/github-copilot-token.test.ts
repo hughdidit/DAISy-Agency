@@ -26,6 +26,7 @@ describe("github-copilot token", () => {
   const cachePath = "/tmp/openclaw-state/credentials/github-copilot.token.json";
 
   beforeEach(() => {
+<<<<<<< HEAD
     loadJsonFile.mockReset();
     saveJsonFile.mockReset();
 <<<<<<< HEAD
@@ -33,6 +34,10 @@ describe("github-copilot token", () => {
     resolveStateDir.mockReturnValue("/tmp/moltbot-state");
 =======
 >>>>>>> b272158fe (perf(test): eliminate resetModules via injectable seams)
+=======
+    loadJsonFile.mockClear();
+    saveJsonFile.mockClear();
+>>>>>>> 1f0695ba4 (test(core): use lightweight clears in update, child adapter, and copilot token setup)
   });
 
   it("derives baseUrl from token", async () => {
