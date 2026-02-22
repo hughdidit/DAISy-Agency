@@ -25,9 +25,15 @@ moltbot voicecall end --call-id <id>
 ## Exposing webhooks (Tailscale)
 
 ```bash
+<<<<<<< HEAD
 moltbot voicecall expose --mode serve
 moltbot voicecall expose --mode funnel
 moltbot voicecall unexpose
+=======
+openclaw voicecall expose --mode serve
+openclaw voicecall expose --mode funnel
+openclaw voicecall expose --mode off
+>>>>>>> 3461dda88 (docs: fix voicecall expose disable example)
 ```
 
 Security note: only expose the webhook endpoint to networks you trust. Prefer Tailscale Serve over Funnel when possible.
