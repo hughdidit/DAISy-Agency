@@ -5,6 +5,7 @@ Docs: https://docs.openclaw.ai
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ## 2026.2.6-4
 =======
 ## 2026.2.10
@@ -12,6 +13,11 @@ Docs: https://docs.openclaw.ai
 ## 2026.2.13 (Unreleased)
 =======
 ## Unreleased
+=======
+## Unreleased
+
+## 2026.2.22 (Unreleased)
+>>>>>>> 042947b94 (fix: add mistral to MemorySearchSchema provider/fallback unions (#14934))
 
 <<<<<<< HEAD
 =======
@@ -75,6 +81,7 @@ Docs: https://docs.openclaw.ai
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 =======
@@ -103,6 +110,9 @@ Docs: https://docs.openclaw.ai
 =======
 =======
 =======
+=======
+- Config/Memory: allow `"mistral"` in `agents.defaults.memorySearch.provider` and `agents.defaults.memorySearch.fallback` schema validation. (#14934) Thanks @ThomsenDrake.
+>>>>>>> 042947b94 (fix: add mistral to MemorySearchSchema provider/fallback unions (#14934))
 - Security/Feishu: enforce ID-only allowlist matching for DM/group sender authorization, normalize Feishu ID prefixes during checks, and ignore mutable display names so display-name collisions cannot satisfy allowlist entries. This ships in the next npm release. Thanks @jiseoung for reporting.
 - Feishu/Commands: in group chats, command authorization now falls back to top-level `channels.feishu.allowFrom` when per-group `allowFrom` is not set, so `/command` no longer gets blocked by an unintended empty allowlist. (#23756)
 - Feishu/Plugins: restore bundled Feishu SDK availability for global installs and strip `openclaw: workspace:*` from plugin `devDependencies` during plugin-version sync so npm-installed Feishu plugins do not fail dependency install. (#23611, #23645, #23603)
