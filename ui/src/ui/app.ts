@@ -23,6 +23,7 @@ import type {
   SkillStatusReport,
   StatusSummary,
   NostrProfile,
+<<<<<<< HEAD
 } from "./types";
 import { type ChatAttachment, type ChatQueueItem, type CronFormState } from "./ui-types";
 import type { EventLogEntry } from "./app-events";
@@ -78,6 +79,12 @@ import {
 } from "./app-channels";
 import type { NostrProfileFormState } from "./views/channels.nostr-profile-form";
 import { loadAssistantIdentity as loadAssistantIdentityInternal } from "./controllers/assistant-identity";
+=======
+} from "./types.ts";
+import { type ChatAttachment, type ChatQueueItem, type CronFormState } from "./ui-types.ts";
+import { generateUUID } from "./uuid.ts";
+import type { NostrProfileFormState } from "./views/channels.nostr-profile-form.ts";
+>>>>>>> d57405676 (fix(control-ui): send stable websocket instance IDs (#23616))
 
 declare global {
   interface Window {
@@ -96,8 +103,15 @@ function resolveOnboardingMode(): boolean {
   return normalized === "1" || normalized === "true" || normalized === "yes" || normalized === "on";
 }
 
+<<<<<<< HEAD
 @customElement("moltbot-app")
 export class MoltbotApp extends LitElement {
+=======
+@customElement("openclaw-app")
+export class OpenClawApp extends LitElement {
+  private i18nController = new I18nController(this);
+  clientInstanceId = generateUUID();
+>>>>>>> d57405676 (fix(control-ui): send stable websocket instance IDs (#23616))
   @state() settings: UiSettings = loadSettings();
   @state() password = "";
   @state() tab: Tab = "chat";

@@ -43,6 +43,7 @@ import { loadAssistantIdentity } from "./controllers/assistant-identity";
 type GatewayHost = {
   settings: UiSettings;
   password: string;
+  clientInstanceId: string;
   client: GatewayBrowserClient | null;
   connected: boolean;
   hello: GatewayHelloOk | null;
@@ -139,6 +140,7 @@ export function connectGateway(host: GatewayHost) {
     password: host.password.trim() ? host.password : undefined,
     clientName: "moltbot-control-ui",
     mode: "webchat",
+    instanceId: host.clientInstanceId,
     onHello: (hello) => {
       host.connected = true;
       host.lastError = null;

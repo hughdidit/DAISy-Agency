@@ -178,7 +178,11 @@ Docs: https://docs.openclaw.ai
 >>>>>>> f2e998681 (fix(webchat): append out-of-band final payloads in active chat (#11139))
 =======
 - Webchat/Performance: reload `chat.history` after final events only when the final payload lacks a renderable assistant message, avoiding expensive full-history refreshes on normal turns. (#20588) Thanks @amzzzzzzz.
+<<<<<<< HEAD
 >>>>>>> dc6afeb4f (perf(webchat): skip unnecessary full history reloads on final events (#20588))
+=======
+- Control UI/WebSocket: send a stable per-tab `instanceId` in websocket connect frames so reconnect cycles keep a consistent client identity for diagnostics and presence tracking. (#23616) Thanks @zq58855371-ui.
+>>>>>>> d57405676 (fix(control-ui): send stable websocket instance IDs (#23616))
 - Config/Memory: allow `"mistral"` in `agents.defaults.memorySearch.provider` and `agents.defaults.memorySearch.fallback` schema validation. (#14934) Thanks @ThomsenDrake.
 >>>>>>> 9f7c1686b (fix(slack extension): preserve thread IDs for read + outbound delivery (#23836))
 - Security/Feishu: enforce ID-only allowlist matching for DM/group sender authorization, normalize Feishu ID prefixes during checks, and ignore mutable display names so display-name collisions cannot satisfy allowlist entries. This ships in the next npm release. Thanks @jiseoung for reporting.
