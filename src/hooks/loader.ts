@@ -6,7 +6,6 @@
  */
 
 import path from "node:path";
-import { pathToFileURL } from "node:url";
 import type { OpenClawConfig } from "../config/config.js";
 <<<<<<< HEAD
 import type { InternalHookHandler } from "./internal-hooks.js";
@@ -17,6 +16,7 @@ import { isPathInsideWithRealpath } from "../security/scan-paths.js";
 import { resolveHookConfig } from "./config.js";
 import { shouldIncludeHook } from "./config.js";
 import { registerInternalHook } from "./internal-hooks.js";
+import { importFileModule, resolveFunctionModuleExport } from "./module-loader.js";
 import { loadWorkspaceHookEntries } from "./workspace.js";
 
 /**
@@ -75,19 +75,26 @@ export async function loadInternalHooks(
           );
           continue;
         }
-        // Import handler module with cache-busting
-        const url = pathToFileURL(entry.hook.handlerPath).href;
-        const cacheBustedUrl = `${url}?t=${Date.now()}`;
-        const mod = (await import(cacheBustedUrl)) as Record<string, unknown>;
-
         // Get handler function (default or named export)
         const exportName = entry.metadata?.export ?? "default";
-        const handler = mod[exportName];
+        const mod = await importFileModule({
+          modulePath: entry.hook.handlerPath,
+          cacheBust: true,
+        });
+        const handler = resolveFunctionModuleExport<InternalHookHandler>({
+          mod,
+          exportName,
+        });
 
+<<<<<<< HEAD
         if (typeof handler !== "function") {
           console.error(
             `Hook error: Handler '${exportName}' from ${entry.hook.name} is not a function`,
           );
+=======
+        if (!handler) {
+          log.error(`Handler '${exportName}' from ${entry.hook.name} is not a function`);
+>>>>>>> 9f97555b5 (refactor(security): unify hook rate-limit and hook module loading)
           continue;
         }
 
@@ -99,7 +106,7 @@ export async function loadInternalHooks(
         }
 
         for (const event of events) {
-          registerInternalHook(event, handler as InternalHookHandler);
+          registerInternalHook(event, handler);
         }
 
         console.log(
@@ -154,15 +161,18 @@ export async function loadInternalHooks(
         continue;
       }
 
-      // Import the module with cache-busting to ensure fresh reload
-      const url = pathToFileURL(modulePath).href;
-      const cacheBustedUrl = `${url}?t=${Date.now()}`;
-      const mod = (await import(cacheBustedUrl)) as Record<string, unknown>;
-
       // Get the handler function
       const exportName = handlerConfig.export ?? "default";
-      const handler = mod[exportName];
+      const mod = await importFileModule({
+        modulePath,
+        cacheBust: true,
+      });
+      const handler = resolveFunctionModuleExport<InternalHookHandler>({
+        mod,
+        exportName,
+      });
 
+<<<<<<< HEAD
       if (typeof handler !== "function") {
         console.error(`Hook error: Handler '${exportName}' from ${modulePath} is not a function`);
         continue;
@@ -171,6 +181,15 @@ export async function loadInternalHooks(
       // Register the handler
       registerInternalHook(handlerConfig.event, handler as InternalHookHandler);
       console.log(
+=======
+      if (!handler) {
+        log.error(`Handler '${exportName}' from ${modulePath} is not a function`);
+        continue;
+      }
+
+      registerInternalHook(handlerConfig.event, handler);
+      log.info(
+>>>>>>> 9f97555b5 (refactor(security): unify hook rate-limit and hook module loading)
         `Registered hook (legacy): ${handlerConfig.event} -> ${modulePath}${exportName !== "default" ? `#${exportName}` : ""}`,
       );
       loadedCount++;

@@ -26,11 +26,20 @@ import { safeEqualSecret } from "../security/secret-equal.js";
 import { handleSlackHttpRequest } from "../slack/http/index.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { authorizeGatewayConnect, isLocalDirectRequest, type ResolvedGatewayAuth } from "./auth.js";
 =======
 =======
 import { normalizeRateLimitClientIp, type AuthRateLimiter } from "./auth-rate-limit.js";
 >>>>>>> 3284d2eb2 (fix(security): normalize hook auth rate-limit client keys)
+=======
+import {
+  AUTH_RATE_LIMIT_SCOPE_HOOK_AUTH,
+  createAuthRateLimiter,
+  normalizeRateLimitClientIp,
+  type AuthRateLimiter,
+} from "./auth-rate-limit.js";
+>>>>>>> 9f97555b5 (refactor(security): unify hook rate-limit and hook module loading)
 import {
   authorizeGatewayConnect,
   isLocalDirectRequest,
@@ -76,11 +85,9 @@ import { GATEWAY_CLIENT_MODES, normalizeGatewayClientMode } from "./protocol/cli
 import { handleToolsInvokeHttpRequest } from "./tools-invoke-http.js";
 
 type SubsystemLogger = ReturnType<typeof createSubsystemLogger>;
-type HookAuthFailure = { count: number; windowStartedAtMs: number };
 
 const HOOK_AUTH_FAILURE_LIMIT = 20;
 const HOOK_AUTH_FAILURE_WINDOW_MS = 60_000;
-const HOOK_AUTH_FAILURE_TRACK_MAX = 2048;
 
 type HookDispatchers = {
   dispatchWakeHook: (value: { text: string; mode: "now" | "next-heartbeat" }) => void;
@@ -232,12 +239,20 @@ export function createHooksRequestHandler(
   } & HookDispatchers,
 ): HooksRequestHandler {
   const { getHooksConfig, bindHost, port, logHooks, dispatchAgentHook, dispatchWakeHook } = opts;
-  const hookAuthFailures = new Map<string, HookAuthFailure>();
+  const hookAuthLimiter = createAuthRateLimiter({
+    maxAttempts: HOOK_AUTH_FAILURE_LIMIT,
+    windowMs: HOOK_AUTH_FAILURE_WINDOW_MS,
+    lockoutMs: HOOK_AUTH_FAILURE_WINDOW_MS,
+    exemptLoopback: false,
+    // Handler lifetimes are tied to gateway runtime/tests; skip background timer fanout.
+    pruneIntervalMs: 0,
+  });
 
   const resolveHookClientKey = (req: IncomingMessage): string => {
     return normalizeRateLimitClientIp(req.socket?.remoteAddress);
   };
 
+<<<<<<< HEAD
   const recordHookAuthFailure = (
     clientKey: string,
     nowMs: number,
@@ -265,6 +280,8 @@ export function createHooksRequestHandler(
     hookAuthFailures.delete(clientKey);
   };
 
+=======
+>>>>>>> 9f97555b5 (refactor(security): unify hook rate-limit and hook module loading)
   return async (req, res) => {
     const hooksConfig = getHooksConfig();
     if (!hooksConfig) {
@@ -288,9 +305,9 @@ export function createHooksRequestHandler(
     const token = extractHookToken(req);
     const clientKey = resolveHookClientKey(req);
     if (!safeEqualSecret(token, hooksConfig.token)) {
-      const throttle = recordHookAuthFailure(clientKey, Date.now());
-      if (throttle.throttled) {
-        const retryAfter = throttle.retryAfterSeconds ?? 1;
+      const throttle = hookAuthLimiter.check(clientKey, AUTH_RATE_LIMIT_SCOPE_HOOK_AUTH);
+      if (!throttle.allowed) {
+        const retryAfter = throttle.retryAfterMs > 0 ? Math.ceil(throttle.retryAfterMs / 1000) : 1;
         res.statusCode = 429;
         res.setHeader("Retry-After", String(retryAfter));
         res.setHeader("Content-Type", "text/plain; charset=utf-8");
@@ -298,12 +315,13 @@ export function createHooksRequestHandler(
         logHooks.warn(`hook auth throttled for ${clientKey}; retry-after=${retryAfter}s`);
         return true;
       }
+      hookAuthLimiter.recordFailure(clientKey, AUTH_RATE_LIMIT_SCOPE_HOOK_AUTH);
       res.statusCode = 401;
       res.setHeader("Content-Type", "text/plain; charset=utf-8");
       res.end("Unauthorized");
       return true;
     }
-    clearHookAuthFailure(clientKey);
+    hookAuthLimiter.reset(clientKey, AUTH_RATE_LIMIT_SCOPE_HOOK_AUTH);
 
     if (req.method !== "POST") {
       res.statusCode = 405;
