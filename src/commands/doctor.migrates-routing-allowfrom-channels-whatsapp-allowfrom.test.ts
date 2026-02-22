@@ -18,6 +18,7 @@ import {
 const DOCTOR_MIGRATION_TIMEOUT_MS = 20_000;
 
 describe("doctor command", () => {
+<<<<<<< HEAD
   it(
     "migrates routing.allowFrom to channels.whatsapp.allowFrom",
     { timeout: DOCTOR_MIGRATION_TIMEOUT_MS },
@@ -52,6 +53,8 @@ describe("doctor command", () => {
   it("skips legacy gateway services migration", { timeout: 60_000 }, async () => {
     mockDoctorConfigSnapshot();
 =======
+=======
+>>>>>>> 06d93cc12 (test: dedupe doctor routing allowFrom migration coverage)
   it("does not add a new gateway auth token while fixing legacy issues on invalid config", async () => {
     mockDoctorConfigSnapshot({
       config: {
@@ -85,7 +88,12 @@ describe("doctor command", () => {
     const gateway = (written.gateway as Record<string, unknown>) ?? {};
     const auth = gateway.auth as Record<string, unknown> | undefined;
     const remote = gateway.remote as Record<string, unknown>;
+    const channels = (written.channels as Record<string, unknown>) ?? {};
 
+    expect(channels.whatsapp).toEqual({
+      allowFrom: ["+15555550123"],
+    });
+    expect(written.routing).toBeUndefined();
     expect(remote.token).toBe("legacy-remote-token");
     expect(auth).toBeUndefined();
   });
