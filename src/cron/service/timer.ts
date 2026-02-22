@@ -87,7 +87,7 @@ const MIN_REFIRE_GAP_MS = 2_000;
  * on top of the per-provider / per-agent timeouts to prevent one stuck job
  * from wedging the entire cron lane.
  */
-const DEFAULT_JOB_TIMEOUT_MS = 10 * 60_000; // 10 minutes
+export const DEFAULT_JOB_TIMEOUT_MS = 10 * 60_000; // 10 minutes
 
 type TimedCronRunOutcome = CronRunOutcome &
   CronRunTelemetry & {
@@ -126,7 +126,7 @@ function errorBackoffMs(consecutiveErrors: number): number {
  * Handles consecutive error tracking, exponential backoff, one-shot disable,
  * and nextRunAtMs computation. Returns `true` if the job should be deleted.
  */
-function applyJobResult(
+export function applyJobResult(
   state: CronServiceState,
   job: CronJob,
   result: {
@@ -595,8 +595,12 @@ export async function runDueJobs(state: CronServiceState) {
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 async function executeJobCore(
+=======
+export async function executeJobCore(
+>>>>>>> 5db1ee4ec (fix(cron): keep manual runs non-blocking)
   state: CronServiceState,
   job: CronJob,
   abortSignal?: AbortSignal,
