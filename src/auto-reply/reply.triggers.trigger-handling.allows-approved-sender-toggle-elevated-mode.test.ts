@@ -1,13 +1,13 @@
 import fs from "node:fs/promises";
 import { beforeAll, describe, expect, it } from "vitest";
 import {
+  expectDirectElevatedToggleOn,
   getRunEmbeddedPiAgentMock,
   installTriggerHandlingE2eTestHooks,
   loadGetReplyFromConfig,
   MAIN_SESSION_KEY,
   makeWhatsAppElevatedCfg,
   requireSessionStorePath,
-  runDirectElevatedToggleAndLoadStore,
   withTempHome,
 } from "./reply.triggers.trigger-handling.test-harness.js";
 
@@ -67,6 +67,7 @@ installTriggerHandlingE2eTestHooks();
 
 describe("trigger handling", () => {
   it("allows approved sender to toggle elevated mode", async () => {
+<<<<<<< HEAD
     await withTempHome(async (home) => {
 <<<<<<< HEAD
       const cfg = {
@@ -109,6 +110,9 @@ describe("trigger handling", () => {
       expect(text).toContain("Elevated mode set to ask");
       expect(store[MAIN_SESSION_KEY]?.elevatedLevel).toBe("on");
     });
+=======
+    await expectDirectElevatedToggleOn({ getReplyFromConfig });
+>>>>>>> 5e8b1f5ac (refactor(test): centralize trigger and cron test helpers)
   });
   it("rejects elevated toggles when disabled", async () => {
     await withTempHome(async (home) => {

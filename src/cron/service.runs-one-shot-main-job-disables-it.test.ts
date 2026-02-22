@@ -28,7 +28,7 @@ import type { CronEvent } from "./service.js";
 import type { CronEvent, CronServiceDeps } from "./service.js";
 >>>>>>> 058eb8576 (chore: Fix types in tests 10/N.)
 import { CronService } from "./service.js";
-import { createNoopLogger, installCronTestHooks } from "./service.test-harness.js";
+import { createDeferred, createNoopLogger, installCronTestHooks } from "./service.test-harness.js";
 
 <<<<<<< HEAD
 const noopLogger = {
@@ -257,16 +257,6 @@ beforeEach(() => {
   fsState.fixtureCount = 0;
   ensureDir(fixturesRoot);
 });
-
-function createDeferred<T>() {
-  let resolve!: (value: T) => void;
-  let reject!: (reason?: unknown) => void;
-  const promise = new Promise<T>((res, rej) => {
-    resolve = res;
-    reject = rej;
-  });
-  return { promise, resolve, reject };
-}
 
 function createCronEventHarness() {
   const events: CronEvent[] = [];
