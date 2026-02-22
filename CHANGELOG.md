@@ -190,7 +190,11 @@ Docs: https://docs.openclaw.ai
 =======
 =======
 - Telegram/Replies: scope messaging-tool text/media dedupe to same-target sends only, so cross-target tool sends can no longer silently suppress Telegram final replies.
+<<<<<<< HEAD
 >>>>>>> 0342bed28 (fix(replies): keep finals for cross-target messaging sends)
+=======
+- Telegram/Replies: normalize `file://` and local-path media variants during messaging dedupe so equivalent media paths do not produce duplicate Telegram replies.
+>>>>>>> 95d7b0bbe (fix(replies): normalize media path variants for dedupe)
 - Telegram/Replies: extract forwarded-origin context from unified reply targets (`reply_to_message` and `external_reply`) so forward+comment metadata is preserved across partial reply shapes. (#9720) thanks @mcaxtr.
 >>>>>>> 337eef55d (fix(telegram): link forwarded messages with comments (#9720))
 - Telegram/Polling: persist a safe update-offset watermark bounded by pending updates so crash/restart cannot skip queued lower `update_id` updates after out-of-order completion. (#23284) thanks @frankekn.
