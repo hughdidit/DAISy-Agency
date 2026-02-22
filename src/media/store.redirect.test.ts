@@ -69,7 +69,7 @@ describe("media store redirects", () => {
   });
 
   beforeEach(() => {
-    mockRequest.mockReset();
+    mockRequest.mockClear();
     setMediaStoreNetworkDepsForTest({
       httpRequest: (...args) => mockRequest(...args),
       httpsRequest: (...args) => mockRequest(...args),
