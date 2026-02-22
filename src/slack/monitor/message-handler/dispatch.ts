@@ -158,7 +158,6 @@ export async function dispatchPreparedSlackMessage(prepared: PreparedSlackMessag
     incomingThreadTs,
     messageTs,
     hasRepliedRef,
-    chatType: prepared.isDirectMessage ? "direct" : "channel",
     isThreadReply,
   });
 
@@ -243,11 +242,29 @@ export async function dispatchPreparedSlackMessage(prepared: PreparedSlackMessag
   let streamSession: SlackStreamSession | null = null;
   let streamFailed = false;
 
+<<<<<<< HEAD
   /**
    * Deliver a payload via Slack native text streaming when possible.
    * Falls back to normal delivery for media payloads, errors, or if the
    * streaming API call itself fails.
    */
+=======
+  const deliverNormally = async (payload: ReplyPayload, forcedThreadTs?: string): Promise<void> => {
+    const replyThreadTs = forcedThreadTs ?? replyPlan.nextThreadTs();
+    await deliverReplies({
+      replies: [payload],
+      target: prepared.replyTarget,
+      token: ctx.botToken,
+      accountId: account.accountId,
+      runtime,
+      textLimit: ctx.textLimit,
+      replyThreadTs,
+      replyToMode: ctx.replyToMode,
+    });
+    replyPlan.markSent();
+  };
+
+>>>>>>> 71c2c59c6 (fix(slack): enforce replyToMode for auto-thread_ts and inline reply tags (#23839))
   const deliverWithStreaming = async (payload: ReplyPayload): Promise<void> => {
     const effectiveThreadTs = replyPlan.nextThreadTs();
 
