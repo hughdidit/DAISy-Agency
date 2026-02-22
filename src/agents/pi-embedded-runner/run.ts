@@ -558,7 +558,26 @@ export async function runEmbeddedPiAgent(
 >>>>>>> 957b88308 (fix(agents): stabilize overflow compaction retries and session context accounting (openclaw#14102) thanks @vpesh)
 =======
       let runLoopIterations = 0;
+<<<<<<< HEAD
 >>>>>>> b25d3652e (fix(agents): cap embedded runner retry loop)
+=======
+      const maybeMarkAuthProfileFailure = async (params: {
+        profileId?: string;
+        reason?: Parameters<typeof markAuthProfileFailure>[0]["reason"] | null;
+      }) => {
+        const { profileId, reason } = params;
+        if (!profileId || !reason || reason === "timeout") {
+          return;
+        }
+        await markAuthProfileFailure({
+          store: authStore,
+          profileId,
+          reason,
+          cfg: params.config,
+          agentDir: params.agentDir,
+        });
+      };
+>>>>>>> d0b59270a (refactor: dedupe auth-profile failure marking and rotation test setup)
       try {
         while (true) {
           if (runLoopIterations >= MAX_RUN_LOOP_ITERATIONS) {
@@ -1002,15 +1021,10 @@ export async function runEmbeddedPiAgent(
               };
             }
             const promptFailoverReason = classifyFailoverReason(errorText);
-            if (promptFailoverReason && promptFailoverReason !== "timeout" && lastProfileId) {
-              await markAuthProfileFailure({
-                store: authStore,
-                profileId: lastProfileId,
-                reason: promptFailoverReason,
-                cfg: params.config,
-                agentDir: params.agentDir,
-              });
-            }
+            await maybeMarkAuthProfileFailure({
+              profileId: lastProfileId,
+              reason: promptFailoverReason,
+            });
             if (
               isFailoverErrorMessage(errorText) &&
               promptFailoverReason !== "timeout" &&
@@ -1096,15 +1110,10 @@ export async function runEmbeddedPiAgent(
               // Skip cooldown for timeouts: a timeout is model/network-specific,
               // not an auth issue. Marking the profile would poison fallback models
               // on the same provider (e.g. gpt-5.3 timeout blocks gpt-5.2).
-              if (reason !== "timeout") {
-                await markAuthProfileFailure({
-                  store: authStore,
-                  profileId: lastProfileId,
-                  reason,
-                  cfg: params.config,
-                  agentDir: params.agentDir,
-                });
-              }
+              await maybeMarkAuthProfileFailure({
+                profileId: lastProfileId,
+                reason,
+              });
               if (timedOut && !isProbeSession) {
                 log.warn(
                   `Profile ${lastProfileId} timed out (possible rate limit). Trying next account...`,
