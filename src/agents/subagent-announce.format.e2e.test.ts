@@ -162,8 +162,12 @@ describe("subagent announce formatting", () => {
     sendSpy
       .mockReset()
       .mockImplementation(async (_req: AgentCallRequest) => ({ runId: "send-main", status: "ok" }));
+<<<<<<< HEAD
     sessionsDeleteSpy.mockReset().mockImplementation((_req: AgentCallRequest) => undefined);
 >>>>>>> 8178ea472 (feat: thread-bound subagents on Discord (#21805))
+=======
+    sessionsDeleteSpy.mockClear().mockImplementation((_req: AgentCallRequest) => undefined);
+>>>>>>> 5e9cbdc1a (test(subagents): lighten session delete mock reset in announce spec)
     embeddedRunMock.isEmbeddedPiRunActive.mockReset().mockReturnValue(false);
 <<<<<<< HEAD
     embeddedRunMock.isEmbeddedPiRunStreaming.mockReset().mockReturnValue(false);
