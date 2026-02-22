@@ -30,6 +30,10 @@ async function withTempHome<T>(fn: (home: string) => Promise<T>): Promise<T> {
 >>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 afterEach(() => {
   vi.restoreAllMocks();
+<<<<<<< HEAD
+=======
+  childProcessMocks.spawn.mockClear();
+>>>>>>> d6d73d0ed (test(core): trim redundant test resets and use mockClear)
 });
 
 describe("stageSandboxMedia", () => {

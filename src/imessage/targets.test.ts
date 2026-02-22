@@ -84,7 +84,7 @@ describe("imessage targets", () => {
 
 describe("createIMessageRpcClient", () => {
   beforeEach(() => {
-    spawnMock.mockReset();
+    spawnMock.mockClear();
     vi.stubEnv("VITEST", "true");
   });
 

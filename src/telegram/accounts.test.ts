@@ -31,7 +31,7 @@ vi.mock("../logging/subsystem.js", () => ({
 
 describe("resolveTelegramAccount", () => {
   afterEach(() => {
-    warnMock.mockReset();
+    warnMock.mockClear();
   });
 
   it("falls back to the first configured account when accountId is omitted", () => {
