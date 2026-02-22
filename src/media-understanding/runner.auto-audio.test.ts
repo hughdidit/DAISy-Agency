@@ -80,8 +80,32 @@ function createOpenAiAudioCfg(extra?: Partial<OpenClawConfig>): OpenClawConfig {
   } as unknown as OpenClawConfig;
 }
 
+async function runAutoAudioCase(params: {
+  transcribeAudio: (req: { model?: string }) => Promise<{ text: string; model: string }>;
+  cfgExtra?: Partial<OpenClawConfig>;
+}) {
+  let runResult: Awaited<ReturnType<typeof runCapability>> | undefined;
+  await withAudioFixture("openclaw-auto-audio", async ({ ctx, media, cache }) => {
+    const providerRegistry = createOpenAiAudioProvider(params.transcribeAudio);
+    const cfg = createOpenAiAudioCfg(params.cfgExtra);
+    runResult = await runCapability({
+      capability: "audio",
+      cfg,
+      ctx,
+      attachments: cache,
+      media,
+      providerRegistry,
+    });
+  });
+  if (!runResult) {
+    throw new Error("Expected auto audio case result");
+  }
+  return runResult;
+}
+
 describe("runCapability auto audio entries", () => {
   it("uses provider keys to auto-enable audio transcription", async () => {
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
     const originalPath = process.env.PATH;
@@ -140,10 +164,22 @@ describe("runCapability auto audio entries", () => {
       expect(result.outputs[0]?.text).toBe("ok");
       expect(seenModel).toBe("gpt-4o-mini-transcribe");
       expect(result.decision.outcome).toBe("success");
+=======
+    let seenModel: string | undefined;
+    const result = await runAutoAudioCase({
+      transcribeAudio: async (req) => {
+        seenModel = req.model;
+        return { text: "ok", model: req.model ?? "unknown" };
+      },
+>>>>>>> 296b19e41 (test: dedupe gateway browser discord and channel coverage)
     });
+    expect(result.outputs[0]?.text).toBe("ok");
+    expect(seenModel).toBe("gpt-4o-mini-transcribe");
+    expect(result.decision.outcome).toBe("success");
   });
 
   it("skips auto audio when disabled", async () => {
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
     const originalPath = process.env.PATH;
@@ -185,10 +221,14 @@ describe("runCapability auto audio entries", () => {
     await withAudioFixture("openclaw-auto-audio", async ({ ctx, media, cache }) => {
 >>>>>>> 01f42a037 (refactor(test): share media audio fixture across runner tests)
       const providerRegistry = createOpenAiAudioProvider(async () => ({
+=======
+    const result = await runAutoAudioCase({
+      transcribeAudio: async () => ({
+>>>>>>> 296b19e41 (test: dedupe gateway browser discord and channel coverage)
         text: "ok",
         model: "whisper-1",
-      }));
-      const cfg = createOpenAiAudioCfg({
+      }),
+      cfgExtra: {
         tools: {
           media: {
             audio: {
@@ -196,6 +236,7 @@ describe("runCapability auto audio entries", () => {
             },
           },
         },
+<<<<<<< HEAD
       });
 >>>>>>> f4db58a5f (test(media): dedupe auto-audio fixture wiring)
 
@@ -209,17 +250,22 @@ describe("runCapability auto audio entries", () => {
       });
       expect(result.outputs).toHaveLength(0);
       expect(result.decision.outcome).toBe("disabled");
+=======
+      },
+>>>>>>> 296b19e41 (test: dedupe gateway browser discord and channel coverage)
     });
+    expect(result.outputs).toHaveLength(0);
+    expect(result.decision.outcome).toBe("disabled");
   });
 
   it("prefers explicitly configured audio model entries", async () => {
-    await withAudioFixture("openclaw-auto-audio", async ({ ctx, media, cache }) => {
-      let seenModel: string | undefined;
-      const providerRegistry = createOpenAiAudioProvider(async (req) => {
+    let seenModel: string | undefined;
+    const result = await runAutoAudioCase({
+      transcribeAudio: async (req) => {
         seenModel = req.model;
         return { text: "ok", model: req.model ?? "unknown" };
-      });
-      const cfg = createOpenAiAudioCfg({
+      },
+      cfgExtra: {
         tools: {
           media: {
             audio: {
@@ -227,19 +273,10 @@ describe("runCapability auto audio entries", () => {
             },
           },
         },
-      });
-
-      const result = await runCapability({
-        capability: "audio",
-        cfg,
-        ctx,
-        attachments: cache,
-        media,
-        providerRegistry,
-      });
-
-      expect(result.outputs[0]?.text).toBe("ok");
-      expect(seenModel).toBe("whisper-1");
+      },
     });
+
+    expect(result.outputs[0]?.text).toBe("ok");
+    expect(seenModel).toBe("whisper-1");
   });
 });

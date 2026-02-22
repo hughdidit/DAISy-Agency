@@ -171,6 +171,68 @@ function createDefaultThreadConfig(): LoadedConfig {
   } as LoadedConfig;
 }
 
+function createMentionRequiredGuildConfig(
+  params: {
+    messages?: LoadedConfig["messages"];
+  } = {},
+): LoadedConfig {
+  return {
+    agents: {
+      defaults: {
+        model: "anthropic/claude-opus-4-5",
+        workspace: "/tmp/openclaw",
+      },
+    },
+    session: { store: "/tmp/openclaw-sessions.json" },
+    channels: {
+      discord: {
+        dm: { enabled: true, policy: "open" },
+        groupPolicy: "open",
+        guilds: { "*": { requireMention: true } },
+      },
+    },
+    ...(params.messages ? { messages: params.messages } : {}),
+  } as LoadedConfig;
+}
+
+function createGuildTextClient() {
+  return {
+    fetchChannel: vi.fn().mockResolvedValue({
+      type: ChannelType.GuildText,
+      name: "general",
+    }),
+  } as unknown as Client;
+}
+
+function createGuildMessageEvent(params: {
+  messageId: string;
+  content: string;
+  messagePatch?: Record<string, unknown>;
+  eventPatch?: Record<string, unknown>;
+}) {
+  return {
+    message: {
+      id: params.messageId,
+      content: params.content,
+      channelId: "c1",
+      timestamp: new Date().toISOString(),
+      type: MessageType.Default,
+      attachments: [],
+      embeds: [],
+      mentionedEveryone: false,
+      mentionedUsers: [],
+      mentionedRoles: [],
+      author: { id: "u1", bot: false, username: "Ada" },
+      ...params.messagePatch,
+    },
+    author: { id: "u1", bot: false, username: "Ada" },
+    member: { nickname: "Ada" },
+    guild: { id: "g1", name: "Guild" },
+    guild_id: "g1",
+    ...params.eventPatch,
+  };
+}
+
 function createThreadChannel(params: { includeStarter?: boolean } = {}) {
   return {
     type: ChannelType.GuildText,
@@ -242,6 +304,7 @@ describe("discord tool result dispatch", () => {
   it(
     "accepts guild messages when mentionPatterns match",
     async () => {
+<<<<<<< HEAD
       const cfg = {
         agents: {
           defaults: {
@@ -264,6 +327,14 @@ describe("discord tool result dispatch", () => {
         groupChat: { mentionPatterns: ["\\bclawd\\b"] },
       },
     } as ReturnType<typeof import("../config/config.js").loadConfig>;
+=======
+      const cfg = createMentionRequiredGuildConfig({
+        messages: {
+          responsePrefix: "PFX",
+          groupChat: { mentionPatterns: ["\\bopenclaw\\b"] },
+        },
+      });
+>>>>>>> 296b19e41 (test: dedupe gateway browser discord and channel coverage)
 
 <<<<<<< HEAD
     const handler = createDiscordMessageHandler({
@@ -290,6 +361,7 @@ describe("discord tool result dispatch", () => {
     });
 =======
       const handler = await createHandler(cfg);
+<<<<<<< HEAD
 >>>>>>> 384a2f6a1 (refactor(test): dedupe discord handler setup)
 
     const client = {
@@ -321,6 +393,14 @@ describe("discord tool result dispatch", () => {
       },
       client,
     );
+=======
+      const client = createGuildTextClient();
+
+      await handler(
+        createGuildMessageEvent({ messageId: "m2", content: "openclaw: hello" }),
+        client,
+      );
+>>>>>>> 296b19e41 (test: dedupe gateway browser discord and channel coverage)
 
     expect(dispatchMock).toHaveBeenCalledTimes(1);
     expect(sendMock).toHaveBeenCalledTimes(1);
@@ -463,6 +543,7 @@ describe("discord tool result dispatch", () => {
 >>>>>>> 9131b22a2 (test: migrate suites to e2e coverage layout):src/discord/monitor.tool-result.accepts-guild-messages-mentionpatterns-match.e2e.test.ts
 
   it("accepts guild reply-to-bot messages as implicit mentions", async () => {
+<<<<<<< HEAD
     const cfg = {
       agents: {
         defaults: {
@@ -479,30 +560,18 @@ describe("discord tool result dispatch", () => {
         },
       },
     } as ReturnType<typeof import("../config/config.js").loadConfig>;
+=======
+    const cfg = createMentionRequiredGuildConfig();
+>>>>>>> 296b19e41 (test: dedupe gateway browser discord and channel coverage)
 
     const handler = await createHandler(cfg);
-
-    const client = {
-      fetchChannel: vi.fn().mockResolvedValue({
-        type: ChannelType.GuildText,
-        name: "general",
-      }),
-    } as unknown as Client;
+    const client = createGuildTextClient();
 
     await handler(
-      {
-        message: {
-          id: "m3",
-          content: "following up",
-          channelId: "c1",
-          timestamp: new Date().toISOString(),
-          type: MessageType.Default,
-          attachments: [],
-          embeds: [],
-          mentionedEveryone: false,
-          mentionedUsers: [],
-          mentionedRoles: [],
-          author: { id: "u1", bot: false, username: "Ada" },
+      createGuildMessageEvent({
+        messageId: "m3",
+        content: "following up",
+        messagePatch: {
           referencedMessage: {
             id: "m2",
             channelId: "c1",
@@ -517,21 +586,19 @@ describe("discord tool result dispatch", () => {
             author: { id: "bot-id", bot: true, username: "Moltbot" },
           },
         },
-        author: { id: "u1", bot: false, username: "Ada" },
-        member: { nickname: "Ada" },
-        guild: { id: "g1", name: "Guild" },
-        guild_id: "g1",
-        channel: { id: "c1", type: ChannelType.GuildText },
-        client,
-        data: {
-          id: "m3",
-          content: "following up",
-          channel_id: "c1",
-          guild_id: "g1",
-          type: MessageType.Default,
-          mentions: [],
+        eventPatch: {
+          channel: { id: "c1", type: ChannelType.GuildText },
+          client,
+          data: {
+            id: "m3",
+            content: "following up",
+            channel_id: "c1",
+            guild_id: "g1",
+            type: MessageType.Default,
+            mentions: [],
+          },
         },
-      },
+      }),
       client,
     );
 

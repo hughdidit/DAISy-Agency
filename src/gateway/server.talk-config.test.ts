@@ -10,7 +10,12 @@ import { withServer } from "./test-with-server.js";
 installGatewayTestHooks({ scope: "suite" });
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+type GatewaySocket = Parameters<Parameters<typeof withServer>[0]>[0];
+
+>>>>>>> 296b19e41 (test: dedupe gateway browser discord and channel coverage)
 async function createFreshOperatorDevice(scopes: string[], nonce: string) {
   const { randomUUID } = await import("node:crypto");
   const { tmpdir } = await import("node:os");
@@ -43,7 +48,25 @@ async function createFreshOperatorDevice(scopes: string[], nonce: string) {
   };
 }
 
+<<<<<<< HEAD
 >>>>>>> 8887f41d7 (refactor(gateway)!: remove legacy v1 device-auth handshake)
+=======
+async function connectOperator(ws: GatewaySocket, scopes: string[]) {
+  const nonce = await readConnectChallengeNonce(ws);
+  expect(nonce).toBeTruthy();
+  await connectOk(ws, {
+    token: "secret",
+    scopes,
+    device: await createFreshOperatorDevice(scopes, String(nonce)),
+  });
+}
+
+async function writeTalkConfig(config: { apiKey?: string; voiceId?: string }) {
+  const { writeConfigFile } = await import("../config/config.js");
+  await writeConfigFile({ talk: config });
+}
+
+>>>>>>> 296b19e41 (test: dedupe gateway browser discord and channel coverage)
 describe("gateway talk.config", () => {
   it("returns redacted talk config for read scope", async () => {
     const { writeConfigFile } = await import("../config/config.js");
@@ -62,6 +85,7 @@ describe("gateway talk.config", () => {
 
     await withServer(async (ws) => {
 <<<<<<< HEAD
+<<<<<<< HEAD
       await connectOk(ws, { token: "secret", scopes: ["operator.read"] });
 =======
       const nonce = await readConnectChallengeNonce(ws);
@@ -72,6 +96,9 @@ describe("gateway talk.config", () => {
         device: await createFreshOperatorDevice(["operator.read"], String(nonce)),
       });
 >>>>>>> 8887f41d7 (refactor(gateway)!: remove legacy v1 device-auth handshake)
+=======
+      await connectOperator(ws, ["operator.read"]);
+>>>>>>> 296b19e41 (test: dedupe gateway browser discord and channel coverage)
       const res = await rpcReq<{ config?: { talk?: { apiKey?: string; voiceId?: string } } }>(
         ws,
         "talk.config",
@@ -84,14 +111,10 @@ describe("gateway talk.config", () => {
   });
 
   it("requires operator.talk.secrets for includeSecrets", async () => {
-    const { writeConfigFile } = await import("../config/config.js");
-    await writeConfigFile({
-      talk: {
-        apiKey: "secret-key-abc",
-      },
-    });
+    await writeTalkConfig({ apiKey: "secret-key-abc" });
 
     await withServer(async (ws) => {
+<<<<<<< HEAD
 <<<<<<< HEAD
       await connectOk(ws, { token: "secret", scopes: ["operator.read"] });
 =======
@@ -103,6 +126,9 @@ describe("gateway talk.config", () => {
         device: await createFreshOperatorDevice(["operator.read"], String(nonce)),
       });
 >>>>>>> 8887f41d7 (refactor(gateway)!: remove legacy v1 device-auth handshake)
+=======
+      await connectOperator(ws, ["operator.read"]);
+>>>>>>> 296b19e41 (test: dedupe gateway browser discord and channel coverage)
       const res = await rpcReq(ws, "talk.config", { includeSecrets: true });
       expect(res.ok).toBe(false);
       expect(res.error?.message).toContain("missing scope: operator.talk.secrets");
@@ -110,14 +136,10 @@ describe("gateway talk.config", () => {
   });
 
   it("returns secrets for operator.talk.secrets scope", async () => {
-    const { writeConfigFile } = await import("../config/config.js");
-    await writeConfigFile({
-      talk: {
-        apiKey: "secret-key-abc",
-      },
-    });
+    await writeTalkConfig({ apiKey: "secret-key-abc" });
 
     await withServer(async (ws) => {
+<<<<<<< HEAD
       const nonce = await readConnectChallengeNonce(ws);
       expect(nonce).toBeTruthy();
       await connectOk(ws, {
@@ -131,6 +153,9 @@ describe("gateway talk.config", () => {
         ),
 >>>>>>> 8887f41d7 (refactor(gateway)!: remove legacy v1 device-auth handshake)
       });
+=======
+      await connectOperator(ws, ["operator.read", "operator.write", "operator.talk.secrets"]);
+>>>>>>> 296b19e41 (test: dedupe gateway browser discord and channel coverage)
       const res = await rpcReq<{ config?: { talk?: { apiKey?: string } } }>(ws, "talk.config", {
         includeSecrets: true,
       });
