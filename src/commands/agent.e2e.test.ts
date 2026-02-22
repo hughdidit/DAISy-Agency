@@ -39,7 +39,6 @@ import type { RuntimeEnv } from "../runtime.js";
 =======
 >>>>>>> 23e07bc49 (test(agent): reuse isolated agent mock setup)
 import { telegramPlugin } from "../../extensions/telegram/src/channel.js";
-import "../cron/isolated-agent.mocks.js";
 import { setTelegramRuntime } from "../../extensions/telegram/src/runtime.js";
 import { withTempHome as withTempHomeBase } from "../../test/helpers/temp-home.js";
 import * as cliRunnerModule from "../agents/cli-runner.js";
@@ -72,6 +71,22 @@ import { createTestRegistry } from "../test-utils/channel-plugins.js";
 import { agentCommand } from "./agent.js";
 import { telegramPlugin } from "../../extensions/telegram/src/channel.js";
 import { setTelegramRuntime } from "../../extensions/telegram/src/runtime.js";
+
+vi.mock("../agents/pi-embedded.js", () => ({
+  runEmbeddedPiAgent: vi.fn(),
+}));
+
+vi.mock("../agents/model-catalog.js", () => ({
+  loadModelCatalog: vi.fn(),
+}));
+
+vi.mock("../agents/model-selection.js", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../agents/model-selection.js")>();
+  return {
+    ...actual,
+    isCliProvider: vi.fn(() => false),
+  };
+});
 
 const runtime: RuntimeEnv = {
   log: vi.fn(),
