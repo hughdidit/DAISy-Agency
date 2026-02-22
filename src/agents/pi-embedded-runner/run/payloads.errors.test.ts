@@ -111,10 +111,17 @@ describe("buildEmbeddedRunPayloads", () => {
       lastToolError: { toolName: "browser", error: "tab not found" },
     });
 
+<<<<<<< HEAD
     expect(payloads).toHaveLength(1);
     expect(payloads[0]?.isError).toBe(true);
     expect(payloads[0]?.text).toContain("Browser");
     expect(payloads[0]?.text).toContain("tab not found");
+=======
+    expectSingleToolErrorPayload(payloads, {
+      title: "Browser",
+      absentDetail: "tab not found",
+    });
+>>>>>>> 4c355a28a (refactor: centralize tool-error visibility policy)
   });
 
   it("does not add tool error fallback when assistant output exists", () => {
@@ -244,6 +251,7 @@ describe("buildEmbeddedRunPayloads", () => {
     expect(payloads).toHaveLength(0);
   });
 
+<<<<<<< HEAD
   it("still shows mutating tool errors when messages.suppressToolErrors is enabled", () => {
     const payloads = buildPayloads({
       lastToolError: { toolName: "write", error: "connection timeout" },
@@ -255,6 +263,8 @@ describe("buildEmbeddedRunPayloads", () => {
     expect(payloads[0]?.text).toContain("connection timeout");
   });
 
+=======
+>>>>>>> 4c355a28a (refactor: centralize tool-error visibility policy)
   it("suppresses mutating tool errors when suppressToolErrorWarnings is enabled", () => {
     const payloads = buildPayloads({
       lastToolError: { toolName: "exec", error: "command not found" },
@@ -264,6 +274,7 @@ describe("buildEmbeddedRunPayloads", () => {
     expect(payloads).toHaveLength(0);
   });
 
+<<<<<<< HEAD
   it("shows recoverable tool errors for mutating tools", () => {
 <<<<<<< HEAD
 >>>>>>> 2c8b92105 (feat: add messages.suppressToolErrors config option (#16620))
@@ -279,6 +290,37 @@ describe("buildEmbeddedRunPayloads", () => {
 
     // Recoverable errors should not be sent to the user
     expect(payloads).toHaveLength(0);
+=======
+  it.each([
+    {
+      name: "still shows mutating tool errors when messages.suppressToolErrors is enabled",
+      payload: {
+        lastToolError: { toolName: "write", error: "connection timeout" },
+        config: { messages: { suppressToolErrors: true } },
+      },
+      title: "Write",
+      absentDetail: "connection timeout",
+    },
+    {
+      name: "shows recoverable tool errors for mutating tools",
+      payload: {
+        lastToolError: { toolName: "message", meta: "reply", error: "text required" },
+      },
+      title: "Message",
+      absentDetail: "required",
+    },
+    {
+      name: "shows non-recoverable tool failure summaries to the user",
+      payload: {
+        lastToolError: { toolName: "browser", error: "connection timeout" },
+      },
+      title: "Browser",
+      absentDetail: "connection timeout",
+    },
+  ])("$name", ({ payload, title, absentDetail }) => {
+    const payloads = buildPayloads(payload);
+    expectSingleToolErrorPayload(payloads, { title, absentDetail });
+>>>>>>> 4c355a28a (refactor: centralize tool-error visibility policy)
   });
 
 <<<<<<< HEAD
@@ -362,6 +404,7 @@ describe("buildEmbeddedRunPayloads", () => {
     expect(payloads).toHaveLength(0);
   });
 
+<<<<<<< HEAD
   it("shows non-recoverable tool errors to the user", () => {
     const payloads = buildPayloads({
       lastToolError: { toolName: "browser", error: "connection timeout" },
@@ -371,5 +414,17 @@ describe("buildEmbeddedRunPayloads", () => {
     expect(payloads).toHaveLength(1);
     expect(payloads[0]?.isError).toBe(true);
     expect(payloads[0]?.text).toContain("connection timeout");
+=======
+  it("includes non-recoverable tool error details when verbose mode is on", () => {
+    const payloads = buildPayloads({
+      lastToolError: { toolName: "browser", error: "connection timeout" },
+      verboseLevel: "on",
+    });
+
+    expectSingleToolErrorPayload(payloads, {
+      title: "Browser",
+      detail: "connection timeout",
+    });
+>>>>>>> 4c355a28a (refactor: centralize tool-error visibility policy)
   });
 });
