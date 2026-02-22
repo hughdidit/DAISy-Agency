@@ -72,6 +72,7 @@ describe("models-config", () => {
         globalThis.fetch = fetchMock as unknown as typeof fetch;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
       try {
 <<<<<<< HEAD
         vi.resetModules();
@@ -102,6 +103,9 @@ describe("models-config", () => {
 
         expect(parsed.providers["github-copilot"]?.baseUrl).toBe(DEFAULT_COPILOT_API_BASE_URL);
 =======
+=======
+        const { agentDir } = await ensureOpenClawModelsJson({ models: { providers: {} } });
+>>>>>>> 4b0fddc07 (fix(test): prevent env leak causing models.json CI flake)
         expect(await readCopilotBaseUrl(agentDir)).toBe(DEFAULT_COPILOT_API_BASE_URL);
 >>>>>>> ad1072842 (test: dedupe agent tests and session helpers)
       });
