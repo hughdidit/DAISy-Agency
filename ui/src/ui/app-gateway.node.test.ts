@@ -13,6 +13,17 @@ type GatewayClientMock = {
 const gatewayClientInstances: GatewayClientMock[] = [];
 
 vi.mock("./gateway.ts", () => {
+  function resolveGatewayErrorDetailCode(
+    error: { details?: unknown } | null | undefined,
+  ): string | null {
+    const details = error?.details;
+    if (!details || typeof details !== "object") {
+      return null;
+    }
+    const code = (details as { code?: unknown }).code;
+    return typeof code === "string" ? code : null;
+  }
+
   class GatewayBrowserClient {
     readonly start = vi.fn();
     readonly stop = vi.fn();
@@ -40,7 +51,7 @@ vi.mock("./gateway.ts", () => {
     }
   }
 
-  return { GatewayBrowserClient };
+  return { GatewayBrowserClient, resolveGatewayErrorDetailCode };
 });
 
 function createHost() {
