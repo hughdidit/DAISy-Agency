@@ -111,7 +111,50 @@ describe("device pairing tokens", () => {
     expect(paired?.tokens?.operator?.scopes).toEqual(["operator.read"]);
   });
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+
+  test("preserves existing token scopes when approving a repair without requested scopes", async () => {
+    const baseDir = await mkdtemp(join(tmpdir(), "openclaw-device-pairing-"));
+    await setupPairedOperatorDevice(baseDir, ["operator.admin"]);
+
+    const repair = await requestDevicePairing(
+      {
+        deviceId: "device-1",
+        publicKey: "public-key-1",
+        role: "operator",
+      },
+      baseDir,
+    );
+    await approveDevicePairing(repair.request.requestId, baseDir);
+
+    const paired = await getPairedDevice("device-1", baseDir);
+    expect(paired?.scopes).toEqual(["operator.admin"]);
+    expect(paired?.approvedScopes).toEqual(["operator.admin"]);
+    expect(paired?.tokens?.operator?.scopes).toEqual(["operator.admin"]);
+  });
+
+  test("rejects scope escalation when rotating a token and leaves state unchanged", async () => {
+    const baseDir = await mkdtemp(join(tmpdir(), "openclaw-device-pairing-"));
+    await setupPairedOperatorDevice(baseDir, ["operator.read"]);
+    const before = await getPairedDevice("device-1", baseDir);
+
+    const rotated = await rotateDeviceToken({
+      deviceId: "device-1",
+      role: "operator",
+      scopes: ["operator.admin"],
+      baseDir,
+    });
+    expect(rotated).toBeNull();
+
+    const after = await getPairedDevice("device-1", baseDir);
+    expect(after?.tokens?.operator?.token).toEqual(before?.tokens?.operator?.token);
+    expect(after?.tokens?.operator?.scopes).toEqual(["operator.read"]);
+    expect(after?.scopes).toEqual(["operator.read"]);
+    expect(after?.approvedScopes).toEqual(["operator.read"]);
+  });
+>>>>>>> 483c464b6 (Gateway: preserve token scopes on scope-less repair approvals)
 
   test("verifies token and rejects mismatches", async () => {
     const baseDir = await mkdtemp(join(tmpdir(), "openclaw-device-pairing-"));
