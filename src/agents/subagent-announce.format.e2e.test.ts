@@ -157,10 +157,10 @@ describe("subagent announce formatting", () => {
 >>>>>>> 289f215b3 (fix(agents): make manual subagent completion announce deterministic)
 =======
     agentSpy
-      .mockReset()
+      .mockClear()
       .mockImplementation(async (_req: AgentCallRequest) => ({ runId: "run-main", status: "ok" }));
     sendSpy
-      .mockReset()
+      .mockClear()
       .mockImplementation(async (_req: AgentCallRequest) => ({ runId: "send-main", status: "ok" }));
 <<<<<<< HEAD
     sessionsDeleteSpy.mockReset().mockImplementation((_req: AgentCallRequest) => undefined);

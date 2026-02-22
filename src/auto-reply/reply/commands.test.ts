@@ -227,6 +227,7 @@ function buildParams(commandBody: string, cfg: OpenClawConfig, ctxOverrides?: Pa
 }
 
 describe("handleCommands gating", () => {
+<<<<<<< HEAD
   it("blocks /bash when disabled or not elevated-allowlisted", async () => {
     resetBashChatCommandForTests();
 <<<<<<< HEAD
@@ -259,27 +260,35 @@ describe("handleCommands gating", () => {
 =======
     const cases = [
 =======
+=======
+  it("blocks gated commands when disabled or not elevated-allowlisted", async () => {
+>>>>>>> d625f888a (test(core): dedupe command gating and trim announce reset overhead)
     const cases = typedCases<{
       name: string;
-      cfg: OpenClawConfig;
+      commandBody: string;
+      makeCfg: () => OpenClawConfig;
       applyParams?: (params: ReturnType<typeof buildParams>) => void;
       expectedText: string;
     }>([
 >>>>>>> 843a03753 (fix(test): repair readonly case table typing)
       {
         name: "disabled bash command",
-        cfg: {
-          commands: { bash: false, text: true },
-          whatsapp: { allowFrom: ["*"] },
-        } as OpenClawConfig,
+        commandBody: "/bash echo hi",
+        makeCfg: () =>
+          ({
+            commands: { bash: false, text: true },
+            whatsapp: { allowFrom: ["*"] },
+          }) as OpenClawConfig,
         expectedText: "bash is disabled",
       },
       {
         name: "missing elevated allowlist",
-        cfg: {
-          commands: { bash: true, text: true },
-          whatsapp: { allowFrom: ["*"] },
-        } as OpenClawConfig,
+        commandBody: "/bash echo hi",
+        makeCfg: () =>
+          ({
+            commands: { bash: true, text: true },
+            whatsapp: { allowFrom: ["*"] },
+          }) as OpenClawConfig,
         applyParams: (params: ReturnType<typeof buildParams>) => {
           params.elevated = {
             enabled: true,
@@ -289,9 +298,79 @@ describe("handleCommands gating", () => {
         },
         expectedText: "elevated is not available",
       },
+      {
+        name: "disabled config command",
+        commandBody: "/config show",
+        makeCfg: () =>
+          ({
+            commands: { config: false, debug: false, text: true },
+            channels: { whatsapp: { allowFrom: ["*"] } },
+          }) as OpenClawConfig,
+        expectedText: "/config is disabled",
+      },
+      {
+        name: "disabled debug command",
+        commandBody: "/debug show",
+        makeCfg: () =>
+          ({
+            commands: { config: false, debug: false, text: true },
+            channels: { whatsapp: { allowFrom: ["*"] } },
+          }) as OpenClawConfig,
+        expectedText: "/debug is disabled",
+      },
+      {
+        name: "inherited bash flag does not enable command",
+        commandBody: "/bash echo hi",
+        makeCfg: () => {
+          const inheritedCommands = Object.create({
+            bash: true,
+            config: true,
+            debug: true,
+          }) as Record<string, unknown>;
+          return {
+            commands: inheritedCommands as never,
+            channels: { whatsapp: { allowFrom: ["*"] } },
+          } as OpenClawConfig;
+        },
+        expectedText: "bash is disabled",
+      },
+      {
+        name: "inherited config flag does not enable command",
+        commandBody: "/config show",
+        makeCfg: () => {
+          const inheritedCommands = Object.create({
+            bash: true,
+            config: true,
+            debug: true,
+          }) as Record<string, unknown>;
+          return {
+            commands: inheritedCommands as never,
+            channels: { whatsapp: { allowFrom: ["*"] } },
+          } as OpenClawConfig;
+        },
+        expectedText: "/config is disabled",
+      },
+      {
+        name: "inherited debug flag does not enable command",
+        commandBody: "/debug show",
+        makeCfg: () => {
+          const inheritedCommands = Object.create({
+            bash: true,
+            config: true,
+            debug: true,
+          }) as Record<string, unknown>;
+          return {
+            commands: inheritedCommands as never,
+            channels: { whatsapp: { allowFrom: ["*"] } },
+          } as OpenClawConfig;
+        },
+        expectedText: "/debug is disabled",
+      },
     ]);
+
     for (const testCase of cases) {
-      const params = buildParams("/bash echo hi", testCase.cfg);
+      resetBashChatCommandForTests();
+      const params = buildParams(testCase.commandBody, testCase.makeCfg());
       testCase.applyParams?.(params);
       const result = await handleCommands(params);
       expect(result.shouldContinue, testCase.name).toBe(false);
@@ -299,6 +378,7 @@ describe("handleCommands gating", () => {
     }
 >>>>>>> 0e39371dc (test: dedupe command gating coverage tables)
   });
+<<<<<<< HEAD
 
   it("blocks /config and /debug when disabled", async () => {
     const cfg = {
@@ -361,6 +441,8 @@ describe("handleCommands gating", () => {
     }
 >>>>>>> 0e39371dc (test: dedupe command gating coverage tables)
   });
+=======
+>>>>>>> d625f888a (test(core): dedupe command gating and trim announce reset overhead)
 });
 
 describe("/approve command", () => {
