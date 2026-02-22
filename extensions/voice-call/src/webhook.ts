@@ -80,6 +80,10 @@ export class VoiceCallWebhookServer {
 
     const streamConfig: MediaStreamConfig = {
       sttProvider,
+      preStartTimeoutMs: this.config.streaming?.preStartTimeoutMs,
+      maxPendingConnections: this.config.streaming?.maxPendingConnections,
+      maxPendingConnectionsPerIp: this.config.streaming?.maxPendingConnectionsPerIp,
+      maxConnections: this.config.streaming?.maxConnections,
       shouldAcceptStream: ({ callId, token }) => {
         const call = this.manager.getCallByProviderCallId(callId);
         if (!call) {
@@ -199,6 +203,7 @@ export class VoiceCallWebhookServer {
       // Handle WebSocket upgrades for media streams
       if (this.mediaStreamHandler) {
         this.server.on("upgrade", (request, socket, head) => {
+<<<<<<< HEAD
           const url = new URL(
             request.url || "/",
             `http://${request.headers.host}`,
@@ -206,6 +211,11 @@ export class VoiceCallWebhookServer {
 
           if (url.pathname === streamPath) {
             this.logger.info("[voice-call] WebSocket upgrade for media stream");
+=======
+          const path = this.getUpgradePathname(request);
+          if (path === streamPath) {
+            console.log("[voice-call] WebSocket upgrade for media stream");
+>>>>>>> 1d8968c8a (fix(voice-call): harden media stream pre-start websocket handling)
             this.mediaStreamHandler?.handleUpgrade(request, socket, head);
           } else {
             socket.destroy();
@@ -242,6 +252,15 @@ export class VoiceCallWebhookServer {
         resolve();
       }
     });
+  }
+
+  private getUpgradePathname(request: http.IncomingMessage): string | null {
+    try {
+      const host = request.headers.host || "localhost";
+      return new URL(request.url || "/", `http://${host}`).pathname;
+    } catch {
+      return null;
+    }
   }
 
   /**
