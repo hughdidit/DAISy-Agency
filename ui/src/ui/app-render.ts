@@ -73,6 +73,10 @@ import { t } from "../i18n/index.ts";
 import { refreshChatAvatar } from "./app-chat.ts";
 import { renderUsageTab } from "./app-render-usage-tab.ts";
 import { renderChatControls, renderTab, renderThemeToggle } from "./app-render.helpers.ts";
+<<<<<<< HEAD
+=======
+import type { AppViewState } from "./app-view-state.ts";
+>>>>>>> 26ab93f0e (revert(ui): remove recent UI dashboard/theme commits from main)
 import { loadAgentFileContent, loadAgentFiles, saveAgentFile } from "./controllers/agent-files.ts";
 import { loadAgentIdentities, loadAgentIdentity } from "./controllers/agent-identity.ts";
 import { loadAgentSkills } from "./controllers/agent-skills.ts";
@@ -114,6 +118,7 @@ import {
 import { icons } from "./icons.ts";
 import { normalizeBasePath, TAB_GROUPS, subtitleForTab, titleForTab } from "./navigation.ts";
 import { renderAgents } from "./views/agents.ts";
+import { renderBottomTabs } from "./views/bottom-tabs.ts";
 import { renderChannels } from "./views/channels.ts";
 import { renderChat } from "./views/chat.ts";
 import { renderConfig } from "./views/config.ts";
@@ -192,6 +197,7 @@ export function renderApp(state: AppViewState) {
 >>>>>>> 9822985ea (fix(web ui): agent model selection)
 
   return html`
+<<<<<<< HEAD
     <div class="shell ${isChat ? "shell--chat" : ""} ${chatFocus ? "shell--chat-focus" : ""} ${state.settings.navCollapsed ? "shell--nav-collapsed" : ""} ${state.onboarding ? "shell--onboarding" : ""}">
       <header class="topbar">
         <div class="topbar-left">
@@ -222,10 +228,68 @@ export function renderApp(state: AppViewState) {
             <span class="statusDot ${state.connected ? "ok" : ""}"></span>
             <span>Health</span>
             <span class="mono">${state.connected ? "OK" : "Offline"}</span>
+=======
+    ${renderCommandPalette({
+      open: state.paletteOpen,
+      query: (state as unknown as { paletteQuery?: string }).paletteQuery ?? "",
+      activeIndex: (state as unknown as { paletteActiveIndex?: number }).paletteActiveIndex ?? 0,
+      onToggle: () => {
+        state.paletteOpen = !state.paletteOpen;
+      },
+      onQueryChange: (q) => {
+        (state as unknown as { paletteQuery: string }).paletteQuery = q;
+      },
+      onActiveIndexChange: (i) => {
+        (state as unknown as { paletteActiveIndex: number }).paletteActiveIndex = i;
+      },
+      onNavigate: (tab) => {
+        state.setTab(tab as import("./navigation.ts").Tab);
+      },
+      onSlashCommand: (_cmd) => {
+        state.setTab("chat" as import("./navigation.ts").Tab);
+      },
+    })}
+    <div class="shell ${isChat ? "shell--chat" : ""} ${chatFocus ? "shell--chat-focus" : ""} ${state.settings.navCollapsed ? "shell--nav-collapsed" : ""} ${state.onboarding ? "shell--onboarding" : ""}">
+      <header class="topbar">
+        <dashboard-header .tab=${state.tab}></dashboard-header>
+        <button
+          class="topbar-search"
+          @click=${() => {
+            state.paletteOpen = !state.paletteOpen;
+          }}
+          title="Search or jump to… (⌘K)"
+          aria-label="Open command palette"
+        >
+          <span class="topbar-search__label">${t("common.search")}</span>
+          <kbd class="topbar-search__kbd">⌘K</kbd>
+        </button>
+        <div class="topbar-status">
+          <button
+            class="topbar-redact ${state.streamMode ? "topbar-redact--active" : ""}"
+            @click=${() => {
+              state.streamMode = !state.streamMode;
+              try {
+                localStorage.setItem("openclaw:stream-mode", String(state.streamMode));
+              } catch {
+                /* */
+              }
+            }}
+            title="${state.streamMode ? "Sensitive data hidden — click to reveal" : "Sensitive data visible — click to hide"}"
+            aria-label="Toggle redaction"
+            aria-pressed=${state.streamMode}
+          >
+            ${state.streamMode ? icons.eye : icons.eyeOff}
+          </button>
+          <span class="topbar-divider"></span>
+          <div class="topbar-connection ${state.connected ? "topbar-connection--ok" : ""}">
+            <span class="topbar-connection__dot"></span>
+            <span class="topbar-connection__label">${state.connected ? t("common.ok") : t("common.offline")}</span>
+>>>>>>> 26ab93f0e (revert(ui): remove recent UI dashboard/theme commits from main)
           </div>
           ${renderThemeToggle(state)}
         </div>
       </header>
+<<<<<<< HEAD
       <aside class="nav ${state.settings.navCollapsed ? "nav--collapsed" : ""}">
         ${TAB_GROUPS.map((group) => {
           const isGroupCollapsed = state.settings.navGroupsCollapsed[group.label] ?? false;
@@ -269,13 +333,119 @@ export function renderApp(state: AppViewState) {
               <span class="nav-item__text">Docs</span>
             </a>
           </div>
+=======
+      <aside class="sidebar ${state.settings.navCollapsed ? "sidebar--collapsed" : ""}">
+      <div class="sidebar-header">
+        ${
+          state.settings.navCollapsed
+            ? nothing
+            : html`
+          <div class="sidebar-brand">
+            <img class="sidebar-brand__logo" src="${basePath ? `${basePath}/favicon.svg` : "/favicon.svg"}" alt="OpenClaw" />
+            <span class="sidebar-brand__title">OpenClaw</span>
+          </div>
+        `
+        }
+        <button
+          class="sidebar-collapse-btn"
+          @click=${() =>
+            state.applySettings({
+              ...state.settings,
+              navCollapsed: !state.settings.navCollapsed,
+            })}
+          title="${state.settings.navCollapsed ? t("nav.expand") : t("nav.collapse")}"
+          aria-label="${state.settings.navCollapsed ? t("nav.expand") : t("nav.collapse")}"
+        >
+          ${state.settings.navCollapsed ? icons.panelLeftOpen : icons.panelLeftClose}
+        </button>
+      </div>
+ 
+          
+          <nav class="sidebar-nav">
+          ${TAB_GROUPS.map((group) => {
+            const isGroupCollapsed = state.settings.navGroupsCollapsed[group.label] ?? false;
+            const hasActiveTab = group.tabs.some((tab) => tab === state.tab);
+            const showItems = hasActiveTab || !isGroupCollapsed;
+
+            return html`
+              <div class="nav-group ${!showItems ? "nav-group--collapsed" : ""}">
+                ${
+                  !state.settings.navCollapsed
+                    ? html`
+                  <button
+                    class="nav-group__label"
+                    @click=${() => {
+                      const next = { ...state.settings.navGroupsCollapsed };
+                      next[group.label] = !isGroupCollapsed;
+                      state.applySettings({
+                        ...state.settings,
+                        navGroupsCollapsed: next,
+                      });
+                    }}
+                    aria-expanded=${showItems}
+                  >
+                    <span class="nav-group__label-text">${t(`nav.${group.label}`)}</span>
+                    <span class="nav-group__chevron">${showItems ? icons.chevronDown : icons.chevronRight}</span>
+                  </button>
+                `
+                    : nothing
+                }
+                <div class="nav-group__items">
+                  ${group.tabs.map((tab) => renderTab(state, tab))}
+                </div>
+              </div>
+            `;
+          })}
+        </nav>
+
+        <div class="sidebar-footer">
+          <a
+            class="nav-item nav-item--external"
+            href="https://docs.openclaw.ai"
+            target="_blank"
+            rel="noreferrer"
+            title="${t("common.docs")} (opens in new tab)"
+          >
+            <span class="nav-item__icon" aria-hidden="true">${icons.book}</span>
+            ${
+              !state.settings.navCollapsed
+                ? html`
+              <span class="nav-item__text">${t("common.docs")}</span>
+              <span class="nav-item__external-icon">${icons.externalLink}</span>
+            `
+                : nothing
+            }
+          </a>
+          ${(() => {
+            const snapshot = state.hello?.snapshot as { server?: { version?: string } } | undefined;
+            const version = snapshot?.server?.version ?? "";
+            return version
+              ? html`
+                <div class="sidebar-version" title=${`v${version}`}>
+                  ${
+                    !state.settings.navCollapsed
+                      ? html`<span class="sidebar-version__text">v${version}</span>`
+                      : html`
+                          <span class="sidebar-version__dot"></span>
+                        `
+                  }
+                </div>
+              `
+              : nothing;
+          })()}
+>>>>>>> 26ab93f0e (revert(ui): remove recent UI dashboard/theme commits from main)
         </div>
       </aside>
       <main class="content ${isChat ? "content--chat" : ""}">
         <section class="content-header">
           <div>
+<<<<<<< HEAD
             <div class="page-title">${titleForTab(state.tab)}</div>
             <div class="page-sub">${subtitleForTab(state.tab)}</div>
+=======
+            ${state.tab === "usage" ? nothing : html`<div class="page-title">${titleForTab(state.tab)}</div>`}
+            ${state.tab === "usage" ? nothing : html`<div class="page-sub">${subtitleForTab(state.tab)}</div>`}
+>>>>>>> 26ab93f0e (revert(ui): remove recent UI dashboard/theme commits from main)
           </div>
           <div class="page-meta">
             ${state.lastError
@@ -485,11 +655,25 @@ export function renderApp(state: AppViewState) {
                 agentIdentityLoading: state.agentIdentityLoading,
                 agentIdentityError: state.agentIdentityError,
                 agentIdentityById: state.agentIdentityById,
+<<<<<<< HEAD
                 agentSkillsLoading: state.agentSkillsLoading,
                 agentSkillsReport: state.agentSkillsReport,
                 agentSkillsError: state.agentSkillsError,
                 agentSkillsAgentId: state.agentSkillsAgentId,
                 skillsFilter: state.skillsFilter,
+=======
+                agentSkills: {
+                  report: state.agentSkillsReport,
+                  loading: state.agentSkillsLoading,
+                  error: state.agentSkillsError,
+                  agentId: state.agentSkillsAgentId,
+                  filter: state.skillsFilter,
+                },
+                sidebarFilter: state.agentsSidebarFilter,
+                onSidebarFilterChange: (value) => {
+                  state.agentsSidebarFilter = value;
+                },
+>>>>>>> 26ab93f0e (revert(ui): remove recent UI dashboard/theme commits from main)
                 onRefresh: async () => {
                   await loadAgents(state);
                   const agentIds = state.agentsList?.agents?.map((entry) => entry.id) ?? [];
@@ -1211,6 +1395,13 @@ export function renderApp(state: AppViewState) {
       </main>
       ${renderExecApprovalPrompt(state)}
       ${renderGatewayUrlConfirmation(state)}
+<<<<<<< HEAD
+=======
+      ${renderBottomTabs({
+        activeTab: state.tab,
+        onTabChange: (tab) => state.setTab(tab),
+      })}
+>>>>>>> 26ab93f0e (revert(ui): remove recent UI dashboard/theme commits from main)
     </div>
   `;
 }

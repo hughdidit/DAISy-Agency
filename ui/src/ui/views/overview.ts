@@ -213,6 +213,7 @@ export function renderOverview(props: OverviewProps) {
       </div>
     </section>
 
+<<<<<<< HEAD
     <section class="grid grid-cols-3" style="margin-top: 18px;">
       <div class="card stat-card">
         <div class="stat-label">Instances</div>
@@ -236,6 +237,45 @@ export function renderOverview(props: OverviewProps) {
         <div class="muted">Next wake ${formatNextRun(props.cronNext)}</div>
       </div>
     </section>
+=======
+    ${
+      props.streamMode
+        ? html`<div class="callout ov-stream-banner" style="margin-top: 18px;">
+          <span class="nav-item__icon">${icons.radio}</span>
+          ${t("overview.streamMode.active")}
+          <button class="btn btn--sm" style="margin-left: auto;" @click=${() => props.onToggleStreamMode()}>
+            ${t("overview.streamMode.disable")}
+          </button>
+        </div>`
+        : nothing
+    }
+
+    ${renderOverviewCards({
+      usageResult: props.usageResult,
+      sessionsResult: props.sessionsResult,
+      skillsReport: props.skillsReport,
+      cronJobs: props.cronJobs,
+      cronStatus: props.cronStatus,
+      presenceCount: props.presenceCount,
+      redacted: props.streamMode,
+      onNavigate: props.onNavigate,
+    })}
+
+    ${renderOverviewAttention({ items: props.attentionItems })}
+
+    <div class="ov-bottom-grid" style="margin-top: 18px;">
+      ${renderOverviewEventLog({
+        events: props.eventLog,
+        redacted: props.streamMode,
+      })}
+
+      ${renderOverviewLogTail({
+        lines: props.overviewLogLines,
+        redacted: props.streamMode,
+        onRefreshLogs: props.onRefreshLogs,
+      })}
+    </div>
+>>>>>>> 26ab93f0e (revert(ui): remove recent UI dashboard/theme commits from main)
 
     <section class="card" style="margin-top: 18px;">
       <div class="card-title">Notes</div>

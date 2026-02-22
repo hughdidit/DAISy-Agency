@@ -39,14 +39,59 @@ export function renderTab(state: AppViewState, tab: Tab) {
 }
 
 export function renderChatControls(state: AppViewState) {
+<<<<<<< HEAD
   const sessionOptions = resolveSessionOptions(state.sessionKey, state.sessionsResult);
+=======
+  const mainSessionKey = resolveMainSessionKey(state.hello, state.sessionsResult);
+  const sessionOptions = resolveSessionOptions(
+    state.sessionKey,
+    state.sessionsResult,
+    mainSessionKey,
+  );
+>>>>>>> 26ab93f0e (revert(ui): remove recent UI dashboard/theme commits from main)
   const disableThinkingToggle = state.onboarding;
   const disableFocusToggle = state.onboarding;
   const showThinking = state.onboarding ? false : state.settings.chatShowThinking;
   const focusActive = state.onboarding ? true : state.settings.chatFocusMode;
   // Refresh icon
+<<<<<<< HEAD
   const refreshIcon = html`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"></path><path d="M21 3v5h-5"></path></svg>`;
   const focusIcon = html`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7V4h3"></path><path d="M20 7V4h-3"></path><path d="M4 17v3h3"></path><path d="M20 17v3h-3"></path><circle cx="12" cy="12" r="3"></circle></svg>`;
+=======
+  const refreshIcon = html`
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"></path>
+      <path d="M21 3v5h-5"></path>
+    </svg>
+  `;
+  const focusIcon = html`
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <path d="M4 7V4h3"></path>
+      <path d="M20 7V4h-3"></path>
+      <path d="M4 17v3h3"></path>
+      <path d="M20 17v3h-3"></path>
+      <circle cx="12" cy="12" r="3"></circle>
+    </svg>
+  `;
+>>>>>>> 26ab93f0e (revert(ui): remove recent UI dashboard/theme commits from main)
   return html`
     <div class="chat-controls">
       <label class="field chat-controls__session">
@@ -58,25 +103,45 @@ export function renderChatControls(state: AppViewState) {
             state.sessionKey = next;
             state.chatMessage = "";
             state.chatStream = null;
+<<<<<<< HEAD
             state.chatStreamStartedAt = null;
             state.chatRunId = null;
             state.resetToolStream();
             state.resetChatScroll();
+=======
+            (state as unknown as OpenClawApp).chatStreamStartedAt = null;
+            state.chatRunId = null;
+            (state as unknown as OpenClawApp).resetToolStream();
+            (state as unknown as OpenClawApp).resetChatScroll();
+>>>>>>> 26ab93f0e (revert(ui): remove recent UI dashboard/theme commits from main)
             state.applySettings({
               ...state.settings,
               sessionKey: next,
               lastActiveSessionKey: next,
             });
             void state.loadAssistantIdentity();
+<<<<<<< HEAD
             syncUrlWithSessionKey(state, next, true);
             void loadChatHistory(state);
+=======
+            syncUrlWithSessionKey(
+              state as unknown as Parameters<typeof syncUrlWithSessionKey>[0],
+              next,
+              true,
+            );
+            void loadChatHistory(state as unknown as ChatState);
+>>>>>>> 26ab93f0e (revert(ui): remove recent UI dashboard/theme commits from main)
           }}
         >
           ${repeat(
             sessionOptions,
             (entry) => entry.key,
             (entry) =>
+<<<<<<< HEAD
               html`<option value=${entry.key}>
+=======
+              html`<option value=${entry.key} title=${entry.key}>
+>>>>>>> 26ab93f0e (revert(ui): remove recent UI dashboard/theme commits from main)
                 ${entry.displayName ?? entry.key}
               </option>`,
           )}
@@ -175,10 +240,25 @@ function resolveSessionOptions(sessionKey: string, sessions: SessionsListResult 
   return options;
 }
 
+<<<<<<< HEAD
 const THEME_ORDER: ThemeMode[] = ["system", "light", "dark"];
 
 export function renderThemeToggle(state: AppViewState) {
   const index = Math.max(0, THEME_ORDER.indexOf(state.theme));
+=======
+type ThemeOption = { id: ThemeMode; label: string; iconKey: keyof typeof icons };
+const THEME_OPTIONS: ThemeOption[] = [
+  { id: "dark", label: "Dark", iconKey: "monitor" },
+  { id: "light", label: "Light", iconKey: "book" },
+  { id: "openknot", label: "Knot", iconKey: "zap" },
+  { id: "fieldmanual", label: "Field", iconKey: "terminal" },
+  { id: "openai", label: "Ember", iconKey: "loader" },
+  { id: "clawdash", label: "Chrome", iconKey: "settings" },
+];
+
+export function renderThemeToggle(state: AppViewState) {
+  const app = state as unknown as OpenClawApp;
+>>>>>>> 26ab93f0e (revert(ui): remove recent UI dashboard/theme commits from main)
   const applyTheme = (next: ThemeMode) => (event: MouseEvent) => {
     const element = event.currentTarget as HTMLElement;
     const context: ThemeTransitionContext = { element };
@@ -189,6 +269,7 @@ export function renderThemeToggle(state: AppViewState) {
     state.setTheme(next, context);
   };
 
+<<<<<<< HEAD
   return html`
     <div class="theme-toggle" style="--theme-index: ${index};">
       <div class="theme-toggle__track" role="group" aria-label="Theme">
@@ -258,5 +339,36 @@ function renderMonitorIcon() {
       <line x1="8" x2="16" y1="21" y2="21"></line>
       <line x1="12" x2="12" y1="17" y2="21"></line>
     </svg>
+=======
+  const handleCollapse = () => app.handleThemeToggleCollapse();
+
+  return html`
+    <div
+      class="theme-toggle"
+      @mouseleave=${handleCollapse}
+      @focusout=${(e: FocusEvent) => {
+        const toggle = e.currentTarget as HTMLElement;
+        requestAnimationFrame(() => {
+          if (!toggle.contains(document.activeElement)) {
+            handleCollapse();
+          }
+        });
+      }}
+    >
+      ${state.themeOrder.map((id) => {
+        const opt = THEME_OPTIONS.find((o) => o.id === id)!;
+        return html`
+          <button
+            class="theme-btn ${state.theme === id ? "active" : ""}"
+            @click=${applyTheme(id)}
+            aria-pressed=${state.theme === id}
+            title=${opt.label}
+          >
+            ${icons[opt.iconKey]}
+          </button>
+        `;
+      })}
+    </div>
+>>>>>>> 26ab93f0e (revert(ui): remove recent UI dashboard/theme commits from main)
   `;
 }

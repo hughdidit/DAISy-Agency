@@ -42,6 +42,21 @@ export function renderSkills(props: SkillsProps) {
         <button class="btn" ?disabled=${props.loading} @click=${props.onRefresh}>
           ${props.loading ? "Loading…" : "Refresh"}
         </button>
+<<<<<<< HEAD
+=======
+      </div>
+
+      <div class="filters" style="margin-top: 14px;">
+        <label class="field" style="flex: 1;">
+          <span>Filter</span>
+          <input
+            .value=${props.filter}
+            @input=${(e: Event) => props.onFilterChange((e.target as HTMLInputElement).value)}
+            placeholder="Search skills"
+          />
+        </label>
+        <div class="muted">${filtered.length} shown</div>
+>>>>>>> 26ab93f0e (revert(ui): remove recent UI dashboard/theme commits from main)
       </div>
 
       <div class="filters" style="margin-top: 14px;">

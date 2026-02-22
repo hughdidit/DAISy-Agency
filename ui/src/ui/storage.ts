@@ -76,9 +76,13 @@ export function loadSettings(): UiSettings {
           ? parsed.splitRatio
           : defaults.splitRatio,
       navCollapsed:
+<<<<<<< HEAD
         typeof parsed.navCollapsed === "boolean"
           ? parsed.navCollapsed
           : defaults.navCollapsed,
+=======
+        typeof parsed.navCollapsed === "boolean" ? parsed.navCollapsed : defaults.navCollapsed,
+>>>>>>> 26ab93f0e (revert(ui): remove recent UI dashboard/theme commits from main)
       navGroupsCollapsed:
         typeof parsed.navGroupsCollapsed === "object" &&
         parsed.navGroupsCollapsed !== null

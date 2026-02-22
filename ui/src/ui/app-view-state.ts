@@ -117,6 +117,26 @@ export type AppViewState = {
   agentsLoading: boolean;
   agentsList: AgentsListResult | null;
   agentsError: string | null;
+<<<<<<< HEAD
+=======
+  agentsSelectedId: string | null;
+  agentsPanel: "overview" | "files" | "tools" | "skills" | "channels" | "cron";
+  agentFilesLoading: boolean;
+  agentFilesError: string | null;
+  agentFilesList: AgentsFilesListResult | null;
+  agentFileContents: Record<string, string>;
+  agentFileDrafts: Record<string, string>;
+  agentFileActive: string | null;
+  agentFileSaving: boolean;
+  agentIdentityLoading: boolean;
+  agentIdentityError: string | null;
+  agentIdentityById: Record<string, AgentIdentityResult>;
+  agentSkillsLoading: boolean;
+  agentSkillsError: string | null;
+  agentSkillsReport: SkillStatusReport | null;
+  agentSkillsAgentId: string | null;
+  agentsSidebarFilter: string;
+>>>>>>> 26ab93f0e (revert(ui): remove recent UI dashboard/theme commits from main)
   sessionsLoading: boolean;
   sessionsResult: SessionsListResult | null;
   sessionsError: string | null;
@@ -124,6 +144,44 @@ export type AppViewState = {
   sessionsFilterLimit: string;
   sessionsIncludeGlobal: boolean;
   sessionsIncludeUnknown: boolean;
+<<<<<<< HEAD
+=======
+  usageLoading: boolean;
+  usageResult: SessionsUsageResult | null;
+  usageCostSummary: CostUsageSummary | null;
+  usageError: string | null;
+  usageStartDate: string;
+  usageEndDate: string;
+  usageSelectedSessions: string[];
+  usageSelectedDays: string[];
+  usageSelectedHours: number[];
+  usageChartMode: "tokens" | "cost";
+  usageDailyChartMode: "total" | "by-type";
+  usageTimeSeriesMode: "cumulative" | "per-turn";
+  usageTimeSeriesBreakdownMode: "total" | "by-type";
+  usageTimeSeries: SessionUsageTimeSeries | null;
+  usageTimeSeriesLoading: boolean;
+  usageTimeSeriesCursorStart: number | null;
+  usageTimeSeriesCursorEnd: number | null;
+  usageSessionLogs: SessionLogEntry[] | null;
+  usageSessionLogsLoading: boolean;
+  usageSessionLogsExpanded: boolean;
+  usageQuery: string;
+  usageQueryDraft: string;
+  usageQueryDebounceTimer: number | null;
+  usageSessionSort: "tokens" | "cost" | "recent" | "messages" | "errors";
+  usageSessionSortDir: "asc" | "desc";
+  usageRecentSessions: string[];
+  usageTimeZone: "local" | "utc";
+  usageContextExpanded: boolean;
+  usageHeaderPinned: boolean;
+  usageSessionsTab: "all" | "recent";
+  usageVisibleColumns: string[];
+  usageLogFilterRoles: import("./views/usage.js").SessionLogRole[];
+  usageLogFilterTools: string[];
+  usageLogFilterHasTools: boolean;
+  usageLogFilterQuery: string;
+>>>>>>> 26ab93f0e (revert(ui): remove recent UI dashboard/theme commits from main)
   cronLoading: boolean;
   cronJobs: CronJob[];
   cronStatus: CronStatus | null;

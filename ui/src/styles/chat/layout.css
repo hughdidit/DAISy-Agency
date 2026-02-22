@@ -52,11 +52,23 @@
   flex: 1 1 0; /* Grow, shrink, and use 0 base for proper scrolling */
   overflow-y: auto;
   overflow-x: hidden;
+<<<<<<< HEAD
   padding: 12px 4px;
   margin: 0 -4px;
   min-height: 0; /* Allow shrinking for flex scroll behavior */
   border-radius: 12px;
   background: transparent;
+=======
+  padding: 14px 8px;
+  margin: 0 -4px;
+  min-height: 0; /* Allow shrinking for flex scroll behavior */
+  border-radius: var(--radius-lg);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--panel) 72%, transparent),
+    transparent
+  );
+>>>>>>> 26ab93f0e (revert(ui): remove recent UI dashboard/theme commits from main)
 }
 
 /* Focus mode exit button */
@@ -106,8 +118,14 @@
   flex-direction: column;
   gap: 12px;
   margin-top: auto; /* Push to bottom of flex container */
+<<<<<<< HEAD
   padding: 12px 4px 4px;
   background: linear-gradient(to bottom, transparent, var(--bg) 20%);
+=======
+  padding: 14px 6px 6px;
+  background: linear-gradient(to bottom, transparent, color-mix(in srgb, var(--bg) 94%, black) 22%);
+  backdrop-filter: blur(4px);
+>>>>>>> 26ab93f0e (revert(ui): remove recent UI dashboard/theme commits from main)
   z-index: 10;
 }
 
@@ -292,6 +310,10 @@
 
 .chat-controls__session {
   min-width: 140px;
+<<<<<<< HEAD
+=======
+  max-width: 300px;
+>>>>>>> 26ab93f0e (revert(ui): remove recent UI dashboard/theme commits from main)
 }
 
 .chat-controls__thinking {
@@ -315,6 +337,7 @@
 
 /* Controls separator */
 .chat-controls__separator {
+<<<<<<< HEAD
   color: rgba(255, 255, 255, 0.4);
   font-size: 18px;
   margin: 0 8px;
@@ -323,6 +346,12 @@
 
 :root[data-theme="light"] .chat-controls__separator {
   color: rgba(16, 24, 40, 0.3);
+=======
+  color: var(--border);
+  font-size: 18px;
+  margin: 0 8px;
+  font-weight: 300;
+>>>>>>> 26ab93f0e (revert(ui): remove recent UI dashboard/theme commits from main)
 }
 
 .btn--icon:hover {
@@ -358,6 +387,12 @@
 .chat-controls__session select {
   padding: 6px 10px;
   font-size: 13px;
+<<<<<<< HEAD
+=======
+  max-width: 300px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+>>>>>>> 26ab93f0e (revert(ui): remove recent UI dashboard/theme commits from main)
 }
 
 .chat-controls__thinking {
@@ -366,6 +401,7 @@
   gap: 4px;
   font-size: 12px;
   padding: 4px 10px;
+<<<<<<< HEAD
   background: rgba(255, 255, 255, 0.04);
   border-radius: 6px;
   border: 1px solid var(--border);
@@ -375,6 +411,11 @@
 :root[data-theme="light"] .chat-controls__thinking {
   background: rgba(255, 255, 255, 0.9);
   border-color: rgba(16, 24, 40, 0.15);
+=======
+  background: color-mix(in srgb, var(--secondary) 90%, transparent);
+  border-radius: var(--radius-sm);
+  border: 1px solid color-mix(in srgb, var(--border) 88%, transparent);
+>>>>>>> 26ab93f0e (revert(ui): remove recent UI dashboard/theme commits from main)
 }
 
 @media (max-width: 640px) {

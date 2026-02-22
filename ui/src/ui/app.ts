@@ -196,6 +196,27 @@ export class MoltbotApp extends LitElement {
   @state() agentsLoading = false;
   @state() agentsList: AgentsListResult | null = null;
   @state() agentsError: string | null = null;
+<<<<<<< HEAD
+=======
+  @state() agentsSelectedId: string | null = null;
+  @state() agentsPanel: "overview" | "files" | "tools" | "skills" | "channels" | "cron" =
+    "overview";
+  @state() agentFilesLoading = false;
+  @state() agentFilesError: string | null = null;
+  @state() agentFilesList: AgentsFilesListResult | null = null;
+  @state() agentFileContents: Record<string, string> = {};
+  @state() agentFileDrafts: Record<string, string> = {};
+  @state() agentFileActive: string | null = null;
+  @state() agentFileSaving = false;
+  @state() agentIdentityLoading = false;
+  @state() agentIdentityError: string | null = null;
+  @state() agentIdentityById: Record<string, AgentIdentityResult> = {};
+  @state() agentSkillsLoading = false;
+  @state() agentSkillsError: string | null = null;
+  @state() agentSkillsReport: SkillStatusReport | null = null;
+  @state() agentSkillsAgentId: string | null = null;
+  @state() agentsSidebarFilter = "";
+>>>>>>> 26ab93f0e (revert(ui): remove recent UI dashboard/theme commits from main)
 
   @state() sessionsLoading = false;
   @state() sessionsResult: SessionsListResult | null = null;
@@ -204,6 +225,64 @@ export class MoltbotApp extends LitElement {
   @state() sessionsFilterLimit = "120";
   @state() sessionsIncludeGlobal = true;
   @state() sessionsIncludeUnknown = false;
+<<<<<<< HEAD
+=======
+
+  @state() usageLoading = false;
+  @state() usageResult: import("./types.js").SessionsUsageResult | null = null;
+  @state() usageCostSummary: import("./types.js").CostUsageSummary | null = null;
+  @state() usageError: string | null = null;
+  @state() usageStartDate = (() => {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  })();
+  @state() usageEndDate = (() => {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  })();
+  @state() usageSelectedSessions: string[] = [];
+  @state() usageSelectedDays: string[] = [];
+  @state() usageSelectedHours: number[] = [];
+  @state() usageChartMode: "tokens" | "cost" = "tokens";
+  @state() usageDailyChartMode: "total" | "by-type" = "by-type";
+  @state() usageTimeSeriesMode: "cumulative" | "per-turn" = "per-turn";
+  @state() usageTimeSeriesBreakdownMode: "total" | "by-type" = "by-type";
+  @state() usageTimeSeries: import("./types.js").SessionUsageTimeSeries | null = null;
+  @state() usageTimeSeriesLoading = false;
+  @state() usageTimeSeriesCursorStart: number | null = null;
+  @state() usageTimeSeriesCursorEnd: number | null = null;
+  @state() usageSessionLogs: import("./views/usage.js").SessionLogEntry[] | null = null;
+  @state() usageSessionLogsLoading = false;
+  @state() usageSessionLogsExpanded = false;
+  // Applied query (used to filter the already-loaded sessions list client-side).
+  @state() usageQuery = "";
+  // Draft query text (updates immediately as the user types; applied via debounce or "Search").
+  @state() usageQueryDraft = "";
+  @state() usageSessionSort: "tokens" | "cost" | "recent" | "messages" | "errors" = "recent";
+  @state() usageSessionSortDir: "desc" | "asc" = "desc";
+  @state() usageRecentSessions: string[] = [];
+  @state() usageTimeZone: "local" | "utc" = "local";
+  @state() usageContextExpanded = false;
+  @state() usageHeaderPinned = false;
+  @state() usageSessionsTab: "all" | "recent" = "all";
+  @state() usageVisibleColumns: string[] = [
+    "channel",
+    "agent",
+    "provider",
+    "model",
+    "messages",
+    "tools",
+    "errors",
+    "duration",
+  ];
+  @state() usageLogFilterRoles: import("./views/usage.js").SessionLogRole[] = [];
+  @state() usageLogFilterTools: string[] = [];
+  @state() usageLogFilterHasTools = false;
+  @state() usageLogFilterQuery = "";
+
+  // Non-reactive (don’t trigger renders just for timer bookkeeping).
+  usageQueryDebounceTimer: number | null = null;
+>>>>>>> 26ab93f0e (revert(ui): remove recent UI dashboard/theme commits from main)
 
   @state() cronLoading = false;
   @state() cronJobs: CronJob[] = [];
@@ -369,6 +448,12 @@ export class MoltbotApp extends LitElement {
       next,
       context,
     );
+  }
+
+  handleThemeToggleCollapse() {
+    setTimeout(() => {
+      this.themeOrder = this.buildThemeOrder(this.theme);
+    }, 80);
   }
 
   async loadOverview() {

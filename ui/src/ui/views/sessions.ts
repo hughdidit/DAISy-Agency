@@ -1,9 +1,16 @@
 import { html, nothing } from "lit";
+<<<<<<< HEAD
 
 import { formatAgo } from "../format";
 import { formatSessionTokens } from "../presenter";
 import { pathForTab } from "../navigation";
 import type { GatewaySessionRow, SessionsListResult } from "../types";
+=======
+import { formatRelativeTimestamp } from "../format.ts";
+import { pathForTab } from "../navigation.ts";
+import { formatSessionTokens } from "../presenter.ts";
+import type { GatewaySessionRow, SessionsListResult } from "../types.ts";
+>>>>>>> 26ab93f0e (revert(ui): remove recent UI dashboard/theme commits from main)
 
 export type SessionsProps = {
   loading: boolean;
@@ -141,9 +148,17 @@ export function renderSessions(props: SessionsProps) {
         </label>
       </div>
 
+<<<<<<< HEAD
       ${props.error
         ? html`<div class="callout danger" style="margin-top: 12px;">${props.error}</div>`
         : nothing}
+=======
+      ${
+        props.error
+          ? html`<div class="callout danger" style="margin-top: 12px;">${props.error}</div>`
+          : nothing
+      }
+>>>>>>> 26ab93f0e (revert(ui): remove recent UI dashboard/theme commits from main)
 
       <div class="muted" style="margin-top: 12px;">
         ${props.result ? `Store: ${props.result.path}` : ""}
@@ -161,11 +176,23 @@ export function renderSessions(props: SessionsProps) {
           <div>Reasoning</div>
           <div>Actions</div>
         </div>
+<<<<<<< HEAD
         ${rows.length === 0
           ? html`<div class="muted">No sessions found.</div>`
           : rows.map((row) =>
               renderRow(row, props.basePath, props.onPatch, props.onDelete, props.loading),
             )}
+=======
+        ${
+          rows.length === 0
+            ? html`
+                <div class="muted">No sessions found.</div>
+              `
+            : rows.map((row) =>
+                renderRow(row, props.basePath, props.onPatch, props.onDelete, props.loading),
+              )
+        }
+>>>>>>> 26ab93f0e (revert(ui): remove recent UI dashboard/theme commits from main)
       </div>
     </section>
   `;
@@ -185,7 +212,17 @@ function renderRow(
   const thinkLevels = resolveThinkLevelOptions(row.modelProvider);
   const verbose = row.verboseLevel ?? "";
   const reasoning = row.reasoningLevel ?? "";
+<<<<<<< HEAD
   const displayName = row.displayName ?? row.key;
+=======
+  const reasoningLevels = withCurrentOption(REASONING_LEVELS, reasoning);
+  const displayName =
+    typeof row.displayName === "string" && row.displayName.trim().length > 0
+      ? row.displayName.trim()
+      : null;
+  const label = typeof row.label === "string" ? row.label.trim() : "";
+  const showDisplayName = Boolean(displayName && displayName !== row.key && displayName !== label);
+>>>>>>> 26ab93f0e (revert(ui): remove recent UI dashboard/theme commits from main)
   const canLink = row.kind !== "global";
   const chatUrl = canLink
     ? `${pathForTab("chat", basePath)}?session=${encodeURIComponent(row.key)}`
@@ -193,9 +230,16 @@ function renderRow(
 
   return html`
     <div class="table-row">
+<<<<<<< HEAD
       <div class="mono">${canLink
         ? html`<a href=${chatUrl} class="session-link">${displayName}</a>`
         : displayName}</div>
+=======
+      <div class="mono session-key-cell">
+        ${canLink ? html`<a href=${chatUrl} class="session-link">${row.key}</a>` : row.key}
+        ${showDisplayName ? html`<span class="muted session-key-display-name">${displayName}</span>` : nothing}
+      </div>
+>>>>>>> 26ab93f0e (revert(ui): remove recent UI dashboard/theme commits from main)
       <div>
         <input
           .value=${row.label ?? ""}

@@ -118,6 +118,45 @@ export function toSanitizedMarkdownHtml(markdown: string): string {
   return sanitized;
 }
 
+<<<<<<< HEAD
+=======
+// Prevent raw HTML in chat messages from being rendered as formatted HTML.
+// Display it as escaped text so users see the literal markup.
+// Security is handled by DOMPurify, but rendering pasted HTML (e.g. error
+// pages) as formatted output is confusing UX (#13937).
+const htmlEscapeRenderer = new marked.Renderer();
+htmlEscapeRenderer.html = ({ text }: { text: string }) => escapeHtml(text);
+
+htmlEscapeRenderer.code = ({
+  text,
+  lang,
+  escaped,
+}: {
+  text: string;
+  lang?: string;
+  escaped: boolean;
+}) => {
+  const langClass = lang ? ` class="language-${lang}"` : "";
+  const safeText = escaped ? text : escapeHtml(text);
+  const codeBlock = `<pre><code${langClass}>${safeText}</code></pre>`;
+
+  const trimmed = text.trim();
+  const isJson =
+    lang === "json" ||
+    (!lang &&
+      ((trimmed.startsWith("{") && trimmed.endsWith("}")) ||
+        (trimmed.startsWith("[") && trimmed.endsWith("]"))));
+
+  if (isJson) {
+    const lineCount = text.split("\n").length;
+    const label = lineCount > 1 ? `JSON &middot; ${lineCount} lines` : "JSON";
+    return `<details class="json-collapse"><summary>${label}</summary>${codeBlock}</details>`;
+  }
+
+  return codeBlock;
+};
+
+>>>>>>> 26ab93f0e (revert(ui): remove recent UI dashboard/theme commits from main)
 function escapeHtml(value: string): string {
   return value
     .replace(/&/g, "&amp;")
