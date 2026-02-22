@@ -10,6 +10,7 @@ import {
 =======
   recordPendingHistoryEntryIfEnabled,
   resolveOpenProviderRuntimeGroupPolicy,
+  resolveDefaultGroupPolicy,
   warnMissingProviderGroupPolicyFallbackOnce,
 >>>>>>> 85e5ed3f7 (refactor(channels): centralize runtime group policy handling)
 } from "openclaw/plugin-sdk";
@@ -601,9 +602,13 @@ export async function handleFeishuMessage(params: {
 
   if (isGroup) {
 <<<<<<< HEAD
+<<<<<<< HEAD
     const groupPolicy = feishuCfg?.groupPolicy ?? "open";
 =======
     const defaultGroupPolicy = cfg.channels?.defaults?.groupPolicy;
+=======
+    const defaultGroupPolicy = resolveDefaultGroupPolicy(cfg);
+>>>>>>> 6dd36a6b7 (refactor(channels): reuse runtime group policy helpers)
     const { groupPolicy, providerMissingFallbackApplied } = resolveOpenProviderRuntimeGroupPolicy({
       providerConfigPresent: cfg.channels?.feishu !== undefined,
       groupPolicy: feishuCfg?.groupPolicy,

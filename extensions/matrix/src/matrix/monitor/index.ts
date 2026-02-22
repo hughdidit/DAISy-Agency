@@ -2,11 +2,16 @@ import { format } from "node:util";
 
 <<<<<<< HEAD
 import {
+  GROUP_POLICY_BLOCKED_LABEL,
   mergeAllowlist,
 <<<<<<< HEAD
 =======
   resolveAllowlistProviderRuntimeGroupPolicy,
+<<<<<<< HEAD
 >>>>>>> 85e5ed3f7 (refactor(channels): centralize runtime group policy handling)
+=======
+  resolveDefaultGroupPolicy,
+>>>>>>> 6dd36a6b7 (refactor(channels): reuse runtime group policy helpers)
   summarizeMapping,
   warnMissingProviderGroupPolicyFallbackOnce,
   type RuntimeEnv,
@@ -283,10 +288,14 @@ export async function monitorMatrixProvider(opts: MonitorMatrixOpts = {}): Promi
   setActiveMatrixClient(client);
 
   const mentionRegexes = core.channel.mentions.buildMentionRegexes(cfg);
+<<<<<<< HEAD
   const defaultGroupPolicy = cfg.channels?.defaults?.groupPolicy;
 <<<<<<< HEAD
   const groupPolicyRaw = cfg.channels?.matrix?.groupPolicy ?? defaultGroupPolicy ?? "allowlist";
 =======
+=======
+  const defaultGroupPolicy = resolveDefaultGroupPolicy(cfg);
+>>>>>>> 6dd36a6b7 (refactor(channels): reuse runtime group policy helpers)
   const { groupPolicy: groupPolicyRaw, providerMissingFallbackApplied } =
     resolveAllowlistProviderRuntimeGroupPolicy({
       providerConfigPresent: cfg.channels?.matrix !== undefined,
@@ -297,7 +306,7 @@ export async function monitorMatrixProvider(opts: MonitorMatrixOpts = {}): Promi
     providerMissingFallbackApplied,
     providerKey: "matrix",
     accountId: account.accountId,
-    blockedLabel: "room messages",
+    blockedLabel: GROUP_POLICY_BLOCKED_LABEL.room,
     log: (message) => logVerboseMessage(message),
   });
 >>>>>>> 85e5ed3f7 (refactor(channels): centralize runtime group policy handling)

@@ -10,6 +10,7 @@ import type { OpenClawConfig } from "openclaw/plugin-sdk";
 import { createReplyPrefixOptions, resolveMentionGatingWithBypass } from "openclaw/plugin-sdk";
 =======
 import {
+  GROUP_POLICY_BLOCKED_LABEL,
   createReplyPrefixOptions,
   readJsonBodyWithLimit,
   registerWebhookTarget,
@@ -17,6 +18,7 @@ import {
 <<<<<<< HEAD
 =======
   resolveAllowlistProviderRuntimeGroupPolicy,
+  resolveDefaultGroupPolicy,
   resolveSingleWebhookTargetAsync,
 >>>>>>> 85e5ed3f7 (refactor(channels): centralize runtime group policy handling)
   resolveWebhookPath,
@@ -531,10 +533,14 @@ async function processMessageWithPipeline(params: {
     return;
   }
 
+<<<<<<< HEAD
   const defaultGroupPolicy = config.channels?.defaults?.groupPolicy;
 <<<<<<< HEAD
   const groupPolicy = account.config.groupPolicy ?? defaultGroupPolicy ?? "allowlist";
 =======
+=======
+  const defaultGroupPolicy = resolveDefaultGroupPolicy(config);
+>>>>>>> 6dd36a6b7 (refactor(channels): reuse runtime group policy helpers)
   const { groupPolicy, providerMissingFallbackApplied } =
     resolveAllowlistProviderRuntimeGroupPolicy({
       providerConfigPresent: config.channels?.googlechat !== undefined,
@@ -545,7 +551,7 @@ async function processMessageWithPipeline(params: {
     providerMissingFallbackApplied,
     providerKey: "googlechat",
     accountId: account.accountId,
-    blockedLabel: "space messages",
+    blockedLabel: GROUP_POLICY_BLOCKED_LABEL.space,
     log: (message) => logVerbose(core, runtime, message),
   });
 >>>>>>> 85e5ed3f7 (refactor(channels): centralize runtime group policy handling)
