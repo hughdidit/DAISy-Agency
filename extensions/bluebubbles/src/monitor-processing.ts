@@ -268,6 +268,10 @@ export async function processMessage(
   target: WebhookTarget,
 ): Promise<void> {
   const { account, config, runtime, core, statusSink } = target;
+<<<<<<< HEAD
+=======
+  const privateApiEnabled = getCachedBlueBubblesPrivateApiStatus(account.accountId) === true;
+>>>>>>> 888b6bc94 (fix(bluebubbles): treat null privateApiStatus as disabled, not enabled)
 
   const groupFlag = resolveGroupFlagFromChatGuid(message.chatGuid);
   const isGroup = typeof groupFlag === "boolean" ? groupFlag : message.isGroup;
