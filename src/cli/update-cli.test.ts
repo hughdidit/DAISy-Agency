@@ -383,6 +383,23 @@ describe("update-cli", () => {
     expect(defaultRuntime.log).toHaveBeenCalled();
   });
 
+  it("updateCommand --dry-run previews without mutating", async () => {
+    vi.mocked(defaultRuntime.log).mockClear();
+    serviceLoaded.mockResolvedValue(true);
+
+    await updateCommand({ dryRun: true, channel: "beta" });
+
+    expect(writeConfigFile).not.toHaveBeenCalled();
+    expect(runGatewayUpdate).not.toHaveBeenCalled();
+    expect(runDaemonInstall).not.toHaveBeenCalled();
+    expect(runRestartScript).not.toHaveBeenCalled();
+    expect(runDaemonRestart).not.toHaveBeenCalled();
+
+    const logs = vi.mocked(defaultRuntime.log).mock.calls.map((call) => String(call[0]));
+    expect(logs.join("\n")).toContain("Update dry-run");
+    expect(logs.join("\n")).toContain("No changes were applied.");
+  });
+
   it("updateStatusCommand prints table output", async () => {
     await updateStatusCommand({ json: false });
 
@@ -1028,6 +1045,16 @@ describe("update-cli", () => {
 =======
     expect(vi.mocked(runGatewayUpdate).mock.calls.length > 0).toBe(shouldRunUpdate);
 >>>>>>> a1cb700a0 (test: dedupe and optimize test suites)
+  });
+
+  it("dry-run bypasses downgrade confirmation checks in non-interactive mode", async () => {
+    await setupNonInteractiveDowngrade();
+    vi.mocked(defaultRuntime.exit).mockClear();
+
+    await updateCommand({ dryRun: true });
+
+    expect(vi.mocked(defaultRuntime.exit).mock.calls.some((call) => call[0] === 1)).toBe(false);
+    expect(runGatewayUpdate).not.toHaveBeenCalled();
   });
 
   it("updateWizardCommand requires a TTY", async () => {

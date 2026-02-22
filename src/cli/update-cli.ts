@@ -1337,12 +1337,14 @@ export function registerUpdateCli(program: Command) {
 >>>>>>> b25f334fa (CLI: improve command descriptions in help output (#18486))
     .option("--json", "Output result as JSON", false)
     .option("--no-restart", "Skip restarting the gateway service after a successful update")
+    .option("--dry-run", "Preview update actions without making changes", false)
     .option("--channel <stable|beta|dev>", "Persist update channel (git + npm)")
     .option("--tag <dist-tag|version>", "Override npm dist-tag or version for this update")
     .option("--timeout <seconds>", "Timeout for each update step in seconds (default: 1200)")
     .option("--yes", "Skip confirmation prompts (non-interactive)", false)
     .addHelpText("after", () => {
       const examples = [
+<<<<<<< HEAD
         ["moltbot update", "Update a source checkout (git)"],
         ["moltbot update --channel beta", "Switch to beta channel (git + npm)"],
         ["moltbot update --channel dev", "Switch to dev channel (git + npm)"],
@@ -1352,6 +1354,18 @@ export function registerUpdateCli(program: Command) {
         ["moltbot update --yes", "Non-interactive (accept downgrade prompts)"],
         ["moltbot update wizard", "Interactive update wizard"],
         ["moltbot --update", "Shorthand for moltbot update"],
+=======
+        ["openclaw update", "Update a source checkout (git)"],
+        ["openclaw update --channel beta", "Switch to beta channel (git + npm)"],
+        ["openclaw update --channel dev", "Switch to dev channel (git + npm)"],
+        ["openclaw update --tag beta", "One-off update to a dist-tag or version"],
+        ["openclaw update --dry-run", "Preview actions without changing anything"],
+        ["openclaw update --no-restart", "Update without restarting the service"],
+        ["openclaw update --json", "Output result as JSON"],
+        ["openclaw update --yes", "Non-interactive (accept downgrade prompts)"],
+        ["openclaw update wizard", "Interactive update wizard"],
+        ["openclaw --update", "Shorthand for openclaw update"],
+>>>>>>> f442a3539 (feat(update): add core auto-updater and dry-run preview)
       ] as const;
       const fmtExamples = examples
         .map(([cmd, desc]) => `  ${theme.command(cmd)} ${theme.muted(`# ${desc}`)}`)
@@ -1369,6 +1383,7 @@ ${theme.heading("Switch channels:")}
 ${theme.heading("Non-interactive:")}
   - Use --yes to accept downgrade prompts
   - Combine with --channel/--tag/--restart/--json/--timeout as needed
+  - Use --dry-run to preview actions without writing config/installing/restarting
 
 ${theme.heading("Examples:")}
 ${fmtExamples}
@@ -1386,6 +1401,7 @@ ${theme.muted("Docs:")} ${formatDocsLink("/cli/update", "docs.molt.bot/cli/updat
         await updateCommand({
           json: Boolean(opts.json),
           restart: Boolean(opts.restart),
+          dryRun: Boolean(opts.dryRun),
           channel: opts.channel as string | undefined,
           tag: opts.tag as string | undefined,
           timeout: opts.timeout as string | undefined,
