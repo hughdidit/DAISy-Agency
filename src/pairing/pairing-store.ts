@@ -362,9 +362,14 @@ type AllowFromStoreEntryUpdateParams = {
   env?: NodeJS.ProcessEnv;
 };
 
+type ChannelAllowFromStoreEntryMutation = (
+  current: string[],
+  normalized: string,
+) => string[] | null;
+
 async function updateChannelAllowFromStore(
   params: {
-    apply: (current: string[], normalized: string) => string[] | null;
+    apply: ChannelAllowFromStoreEntryMutation;
   } & AllowFromStoreEntryUpdateParams,
 ): Promise<{ changed: boolean; allowFrom: string[] }> {
   return await updateAllowFromStoreEntry({
@@ -376,6 +381,7 @@ async function updateChannelAllowFromStore(
   });
 }
 
+<<<<<<< HEAD
 export async function addChannelAllowFromStoreEntry(params: {
   channel: PairingChannel;
   entry: string | number;
@@ -420,6 +426,38 @@ export async function removeChannelAllowFromStoreEntry(params: {
       }
       return next;
     },
+=======
+async function mutateChannelAllowFromStoreEntry(
+  params: AllowFromStoreEntryUpdateParams,
+  apply: ChannelAllowFromStoreEntryMutation,
+): Promise<{ changed: boolean; allowFrom: string[] }> {
+  return await updateChannelAllowFromStore({
+    ...params,
+    apply,
+  });
+}
+
+export async function addChannelAllowFromStoreEntry(
+  params: AllowFromStoreEntryUpdateParams,
+): Promise<{ changed: boolean; allowFrom: string[] }> {
+  return await mutateChannelAllowFromStoreEntry(params, (current, normalized) => {
+    if (current.includes(normalized)) {
+      return null;
+    }
+    return [...current, normalized];
+  });
+}
+
+export async function removeChannelAllowFromStoreEntry(
+  params: AllowFromStoreEntryUpdateParams,
+): Promise<{ changed: boolean; allowFrom: string[] }> {
+  return await mutateChannelAllowFromStoreEntry(params, (current, normalized) => {
+    const next = current.filter((entry) => entry !== normalized);
+    if (next.length === current.length) {
+      return null;
+    }
+    return next;
+>>>>>>> 06b0a60be (refactor(daemon): share runtime and service probe helpers)
   });
 }
 
