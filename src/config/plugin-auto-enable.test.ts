@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { applyPluginAutoEnable } from "./plugin-auto-enable.js";
 
 describe("applyPluginAutoEnable", () => {
-  it("auto-enables built-in channels without touching plugins allowlist", () => {
+  it("auto-enables built-in channels and appends to existing allowlist", () => {
     const result = applyPluginAutoEnable({
       config: {
         channels: { slack: { botToken: "x" } },
@@ -13,10 +13,44 @@ describe("applyPluginAutoEnable", () => {
 
     expect(result.config.channels?.slack?.enabled).toBe(true);
     expect(result.config.plugins?.entries?.slack).toBeUndefined();
-    expect(result.config.plugins?.allow).toEqual(["telegram"]);
+    expect(result.config.plugins?.allow).toEqual(["telegram", "slack"]);
     expect(result.changes.join("\n")).toContain("Slack configured, enabled automatically.");
   });
 
+<<<<<<< HEAD
+=======
+  it("does not create plugins.allow when allowlist is unset", () => {
+    const result = applyPluginAutoEnable({
+      config: {
+        channels: { slack: { botToken: "x" } },
+      },
+      env: {},
+    });
+
+    expect(result.config.channels?.slack?.enabled).toBe(true);
+    expect(result.config.plugins?.allow).toBeUndefined();
+  });
+
+  it("ignores channels.modelByChannel for plugin auto-enable", () => {
+    const result = applyPluginAutoEnable({
+      config: {
+        channels: {
+          modelByChannel: {
+            openai: {
+              whatsapp: "openai/gpt-5.2",
+            },
+          },
+        },
+      },
+      env: {},
+    });
+
+    expect(result.config.plugins?.entries?.modelByChannel).toBeUndefined();
+    expect(result.config.plugins?.allow).toBeUndefined();
+    expect(result.changes).toEqual([]);
+  });
+
+>>>>>>> 40680432b (fix(config): allowlist auto-enabled built-in channels when restricted)
   it("respects explicit disable", () => {
     const result = applyPluginAutoEnable({
       config: {
