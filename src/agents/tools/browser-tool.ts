@@ -1,3 +1,17 @@
+<<<<<<< HEAD
+=======
+import crypto from "node:crypto";
+import type { AgentToolResult } from "@mariozechner/pi-agent-core";
+import {
+  browserAct,
+  browserArmDialog,
+  browserArmFileChooser,
+  browserConsoleMessages,
+  browserNavigate,
+  browserPdfSave,
+  browserScreenshotAction,
+} from "../../browser/client-actions.js";
+>>>>>>> 7c109f573 (fix: resolve ci type errors and reconnect test flake)
 import {
   browserCloseTab,
   browserFocusTab,
@@ -28,6 +42,58 @@ import { listNodes, resolveNodeIdFromList, type NodeListNode } from "./nodes-uti
 import { BrowserToolSchema } from "./browser-tool.schema.js";
 import { type AnyAgentTool, imageResultFromFile, jsonResult, readStringParam } from "./common.js";
 import { callGatewayTool } from "./gateway.js";
+<<<<<<< HEAD
+=======
+import { listNodes, resolveNodeIdFromList, type NodeListNode } from "./nodes-utils.js";
+
+function wrapBrowserExternalJson(params: {
+  kind: "snapshot" | "console" | "tabs";
+  payload: unknown;
+  includeWarning?: boolean;
+}): { wrappedText: string; safeDetails: Record<string, unknown> } {
+  const extractedText = JSON.stringify(params.payload, null, 2);
+  const wrappedText = wrapExternalContent(extractedText, {
+    source: "browser",
+    includeWarning: params.includeWarning ?? true,
+  });
+  return {
+    wrappedText,
+    safeDetails: {
+      ok: true,
+      externalContent: {
+        untrusted: true,
+        source: "browser",
+        kind: params.kind,
+        wrapped: true,
+      },
+    },
+  };
+}
+
+function formatTabsToolResult(tabs: unknown[]): AgentToolResult<unknown> {
+  const wrapped = wrapBrowserExternalJson({
+    kind: "tabs",
+    payload: { tabs },
+    includeWarning: false,
+  });
+  const content: AgentToolResult<unknown>["content"] = [
+    { type: "text", text: wrapped.wrappedText },
+  ];
+  return {
+    content,
+    details: { ...wrapped.safeDetails, tabCount: tabs.length },
+  };
+}
+
+function readOptionalTargetAndTimeout(params: Record<string, unknown>) {
+  const targetId = typeof params.targetId === "string" ? params.targetId.trim() : undefined;
+  const timeoutMs =
+    typeof params.timeoutMs === "number" && Number.isFinite(params.timeoutMs)
+      ? params.timeoutMs
+      : undefined;
+  return { targetId, timeoutMs };
+}
+>>>>>>> 7c109f573 (fix: resolve ci type errors and reconnect test flake)
 
 type BrowserProxyFile = {
   path: string;

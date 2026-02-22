@@ -261,12 +261,26 @@ export async function rejectNodePairing(
   baseDir?: string,
 ): Promise<{ requestId: string; nodeId: string } | null> {
   return await withLock(async () => {
+<<<<<<< HEAD
     const state = await loadState(baseDir);
     const pending = state.pendingById[requestId];
     if (!pending) return null;
     delete state.pendingById[requestId];
     await persistState(state, baseDir);
     return { requestId, nodeId: pending.nodeId };
+=======
+    return await rejectPendingPairingRequest<
+      NodePairingPendingRequest,
+      NodePairingStateFile,
+      "nodeId"
+    >({
+      requestId,
+      idKey: "nodeId",
+      loadState: () => loadState(baseDir),
+      persistState: (state) => persistState(state, baseDir),
+      getId: (pending) => pending.nodeId,
+    });
+>>>>>>> 7c109f573 (fix: resolve ci type errors and reconnect test flake)
   });
 }
 

@@ -380,6 +380,28 @@ export async function rejectDevicePairing(
   baseDir?: string,
 ): Promise<{ requestId: string; deviceId: string } | null> {
   return await withLock(async () => {
+<<<<<<< HEAD
+=======
+    return await rejectPendingPairingRequest<
+      DevicePairingPendingRequest,
+      DevicePairingStateFile,
+      "deviceId"
+    >({
+      requestId,
+      idKey: "deviceId",
+      loadState: () => loadState(baseDir),
+      persistState: (state) => persistState(state, baseDir),
+      getId: (pending) => pending.deviceId,
+    });
+  });
+}
+
+export async function removePairedDevice(
+  deviceId: string,
+  baseDir?: string,
+): Promise<{ deviceId: string } | null> {
+  return await withLock(async () => {
+>>>>>>> 7c109f573 (fix: resolve ci type errors and reconnect test flake)
     const state = await loadState(baseDir);
     const pending = state.pendingById[requestId];
     if (!pending) return null;
