@@ -1,15 +1,11 @@
 import type { ChannelId } from "../channels/plugins/types.js";
+import type { AgentModelConfig, AgentSandboxConfig } from "./types.agents-shared.js";
 import type {
   BlockStreamingChunkConfig,
   BlockStreamingCoalesceConfig,
   HumanDelayConfig,
   TypingMode,
 } from "./types.base.js";
-import type {
-  SandboxBrowserSettings,
-  SandboxDockerSettings,
-  SandboxPruneSettings,
-} from "./types.sandbox.js";
 import type { MemorySearchConfig } from "./types.tools.js";
 
 export type AgentModelEntryConfig = {
@@ -220,11 +216,12 @@ export type AgentDefaultsConfig = {
     /** Auto-archive sub-agent sessions after N minutes (default: 60). */
     archiveAfterMinutes?: number;
     /** Default model selection for spawned sub-agents (string or {primary,fallbacks}). */
-    model?: string | { primary?: string; fallbacks?: string[] };
+    model?: AgentModelConfig;
     /** Default thinking level for spawned sub-agents (e.g. "off", "low", "medium", "high"). */
     thinking?: string;
   };
   /** Optional sandbox settings for non-main sessions. */
+<<<<<<< HEAD
   sandbox?: {
     /** Enable sandboxing for sessions. */
     mode?: "off" | "non-main" | "all";
@@ -254,6 +251,9 @@ export type AgentDefaultsConfig = {
     /** Auto-prune sandbox containers. */
     prune?: SandboxPruneSettings;
   };
+=======
+  sandbox?: AgentSandboxConfig;
+>>>>>>> 4a88c579b (refactor: dedupe shared config type definitions)
 };
 
 export type AgentCompactionMode = "default" | "safeguard";
