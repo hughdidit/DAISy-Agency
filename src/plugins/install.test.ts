@@ -69,6 +69,7 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vites
 import * as skillScanner from "../security/skill-scanner.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> c2f7b66d2 (perf(test): replace module resets with direct spies and runtime seams)
 =======
 import { expectSingleNpmInstallIgnoreScriptsCall } from "../test-utils/exec-assertions.js";
@@ -79,6 +80,15 @@ import {
   expectSingleNpmPackIgnoreScriptsCall,
 } from "../test-utils/exec-assertions.js";
 >>>>>>> f05395ae0 (refactor(test): share internal hook and npm pack assertions)
+=======
+import { expectSingleNpmPackIgnoreScriptsCall } from "../test-utils/exec-assertions.js";
+import {
+  expectInstallUsesIgnoreScripts,
+  expectIntegrityDriftRejected,
+  expectUnsupportedNpmSpec,
+  mockNpmPackMetadataResult,
+} from "../test-utils/npm-spec-install-test-helpers.js";
+>>>>>>> 12635de1c (test: cover shared installer flow helpers)
 
 vi.mock("../process/exec.js", () => ({
   runCommandWithTimeout: vi.fn(),
@@ -250,20 +260,37 @@ async function expectArchiveInstallReservedSegmentRejection(params: {
   packageName: string;
   outName: string;
 }) {
-  const stateDir = makeTempDir();
-  const workDir = makeTempDir();
-  const pkgDir = path.join(workDir, "package");
-  fs.mkdirSync(path.join(pkgDir, "dist"), { recursive: true });
-  fs.writeFileSync(
-    path.join(pkgDir, "package.json"),
-    JSON.stringify({
+  const result = await installArchivePackageAndReturnResult({
+    packageJson: {
       name: params.packageName,
       version: "0.0.1",
       openclaw: { extensions: ["./dist/index.js"] },
-    }),
-    "utf-8",
-  );
-  fs.writeFileSync(path.join(pkgDir, "dist", "index.js"), "export {};", "utf-8");
+    },
+    outName: params.outName,
+    withDistIndex: true,
+  });
+
+  expect(result.ok).toBe(false);
+  if (result.ok) {
+    return;
+  }
+  expect(result.error).toContain("reserved path segment");
+}
+
+async function installArchivePackageAndReturnResult(params: {
+  packageJson: Record<string, unknown>;
+  outName: string;
+  withDistIndex?: boolean;
+}) {
+  const stateDir = makeTempDir();
+  const workDir = makeTempDir();
+  const pkgDir = path.join(workDir, "package");
+  fs.mkdirSync(pkgDir, { recursive: true });
+  if (params.withDistIndex) {
+    fs.mkdirSync(path.join(pkgDir, "dist"), { recursive: true });
+    fs.writeFileSync(path.join(pkgDir, "dist", "index.js"), "export {};", "utf-8");
+  }
+  fs.writeFileSync(path.join(pkgDir, "package.json"), JSON.stringify(params.packageJson), "utf-8");
 
   const archivePath = await packToArchive({
     pkgDir,
@@ -276,12 +303,7 @@ async function expectArchiveInstallReservedSegmentRejection(params: {
     archivePath,
     extensionsDir,
   });
-
-  expect(result.ok).toBe(false);
-  if (result.ok) {
-    return;
-  }
-  expect(result.error).toContain("reserved path segment");
+  return result;
 }
 
 afterAll(() => {
@@ -553,6 +575,7 @@ describe("installPluginFromArchive", () => {
   });
 
   it("rejects packages without openclaw.extensions", async () => {
+<<<<<<< HEAD
 >>>>>>> 93dc3bb79 (perf(test): avoid npm pack in plugin install e2e fixtures)
     const stateDir = makeTempDir();
     const workDir = makeTempDir();
@@ -580,6 +603,12 @@ describe("installPluginFromArchive", () => {
       extensionsDir,
     });
 >>>>>>> 5c8f0b5a7 (test: tighten plugin e2e matrix coverage)
+=======
+    const result = await installArchivePackageAndReturnResult({
+      packageJson: { name: "@openclaw/nope", version: "0.0.1" },
+      outName: "bad.tgz",
+    });
+>>>>>>> 12635de1c (test: cover shared installer flow helpers)
     expect(result.ok).toBe(false);
 <<<<<<< HEAD
     if (result.ok) return;
@@ -685,26 +714,13 @@ describe("installPluginFromDir", () => {
     fs.writeFileSync(path.join(pluginDir, "dist", "index.js"), "export {};", "utf-8");
 
     const run = vi.mocked(runCommandWithTimeout);
-    run.mockResolvedValue({
-      code: 0,
-      stdout: "",
-      stderr: "",
-      signal: null,
-      killed: false,
-      termination: "exit",
-    });
-
-    const res = await installPluginFromDir({
-      dirPath: pluginDir,
-      extensionsDir: path.join(stateDir, "extensions"),
-    });
-    expect(res.ok).toBe(true);
-    if (!res.ok) {
-      return;
-    }
-    expectSingleNpmInstallIgnoreScriptsCall({
-      calls: run.mock.calls as Array<[unknown, { cwd?: string } | undefined]>,
-      expectedCwd: res.targetDir,
+    await expectInstallUsesIgnoreScripts({
+      run,
+      install: async () =>
+        await installPluginFromDir({
+          dirPath: pluginDir,
+          extensionsDir: path.join(stateDir, "extensions"),
+        }),
     });
   });
 
@@ -805,34 +821,20 @@ describe("installPluginFromNpmSpec", () => {
   });
 
   it("rejects non-registry npm specs", async () => {
-    const result = await installPluginFromNpmSpec({ spec: "github:evil/evil" });
-    expect(result.ok).toBe(false);
-    if (result.ok) {
-      return;
-    }
-    expect(result.error).toContain("unsupported npm spec");
+    await expectUnsupportedNpmSpec((spec) => installPluginFromNpmSpec({ spec }));
   });
 <<<<<<< HEAD
 =======
 
   it("aborts when integrity drift callback rejects the fetched artifact", async () => {
     const run = vi.mocked(runCommandWithTimeout);
-    run.mockResolvedValue({
-      code: 0,
-      stdout: JSON.stringify([
-        {
-          id: "@openclaw/voice-call@0.0.1",
-          name: "@openclaw/voice-call",
-          version: "0.0.1",
-          filename: "voice-call-0.0.1.tgz",
-          integrity: "sha512-new",
-          shasum: "newshasum",
-        },
-      ]),
-      stderr: "",
-      signal: null,
-      killed: false,
-      termination: "exit",
+    mockNpmPackMetadataResult(run, {
+      id: "@openclaw/voice-call@0.0.1",
+      name: "@openclaw/voice-call",
+      version: "0.0.1",
+      filename: "voice-call-0.0.1.tgz",
+      integrity: "sha512-new",
+      shasum: "newshasum",
     });
 
     const onIntegrityDrift = vi.fn(async () => false);
@@ -841,18 +843,12 @@ describe("installPluginFromNpmSpec", () => {
       expectedIntegrity: "sha512-old",
       onIntegrityDrift,
     });
-
-    expect(onIntegrityDrift).toHaveBeenCalledWith(
-      expect.objectContaining({
-        expectedIntegrity: "sha512-old",
-        actualIntegrity: "sha512-new",
-      }),
-    );
-    expect(result.ok).toBe(false);
-    if (result.ok) {
-      return;
-    }
-    expect(result.error).toContain("integrity drift");
+    expectIntegrityDriftRejected({
+      onIntegrityDrift,
+      result,
+      expectedIntegrity: "sha512-old",
+      actualIntegrity: "sha512-new",
+    });
   });
 >>>>>>> 5c8f0b5a7 (test: tighten plugin e2e matrix coverage)
 });
