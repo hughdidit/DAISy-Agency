@@ -94,7 +94,23 @@ async function expectUnsupportedNpmSpec(
   expect(result.error).toContain("unsupported npm spec");
 }
 
+<<<<<<< HEAD
 >>>>>>> 9ec440d1f (test(hooks): dedupe unsupported npm spec assertion)
+=======
+function expectInstallFailureContains(
+  result: Awaited<ReturnType<typeof installHooksFromArchive>>,
+  snippets: string[],
+) {
+  expect(result.ok).toBe(false);
+  if (result.ok) {
+    throw new Error("expected install failure");
+  }
+  for (const snippet of snippets) {
+    expect(result.error).toContain(snippet);
+  }
+}
+
+>>>>>>> b109fa53e (refactor(core): dedupe gateway runtime and config tests)
 describe("installHooksFromArchive", () => {
   it.each([
     {
@@ -161,6 +177,7 @@ describe("installHooksFromArchive", () => {
       archivePath: fixture.archivePath,
       hooksDir: fixture.hooksDir,
     });
+<<<<<<< HEAD
 >>>>>>> 616d4692a (refactor(hooks): share install temp-dir and archive fixtures)
 
     expect(result.ok).toBe(false);
@@ -169,6 +186,9 @@ describe("installHooksFromArchive", () => {
     }
     expect(result.error).toContain("failed to extract archive");
     expect(result.error).toContain(tc.expectedDetail);
+=======
+    expectInstallFailureContains(result, ["failed to extract archive", tc.expectedDetail]);
+>>>>>>> b109fa53e (refactor(core): dedupe gateway runtime and config tests)
   });
 
 <<<<<<< HEAD
@@ -251,6 +271,7 @@ describe("installHooksFromArchive", () => {
       archivePath: fixture.archivePath,
       hooksDir: fixture.hooksDir,
     });
+<<<<<<< HEAD
 >>>>>>> 616d4692a (refactor(hooks): share install temp-dir and archive fixtures)
 
     expect(result.ok).toBe(false);
@@ -258,6 +279,9 @@ describe("installHooksFromArchive", () => {
       return;
     }
     expect(result.error).toContain("reserved path segment");
+=======
+    expectInstallFailureContains(result, ["reserved path segment"]);
+>>>>>>> b109fa53e (refactor(core): dedupe gateway runtime and config tests)
   });
 });
 
