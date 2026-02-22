@@ -30,6 +30,7 @@ describe("config view", () => {
     searchQuery: "",
     activeSection: null,
     activeSubsection: null,
+    streamMode: false,
     onRawChange: vi.fn(),
     onFormModeChange: vi.fn(),
     onFormPatch: vi.fn(),
@@ -42,7 +43,7 @@ describe("config view", () => {
     onSubsectionChange: vi.fn(),
   });
 
-  it("allows save when form is unsafe", () => {
+  it("allows save with mixed union schemas", () => {
     const container = document.createElement("div");
     render(
       renderConfig({

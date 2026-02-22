@@ -17,6 +17,8 @@ Thumbs.db
 ui/src/ui/__screenshots__/
 ui/playwright-report/
 ui/test-results/
+packages/dashboard-next/.next/
+packages/dashboard-next/out/
 
 # Mise configuration files
 mise.toml
@@ -147,4 +149,8 @@ apps/ios/LocalSigning.xcconfig
 =======
 # Generated protocol schema (produced via pnpm protocol:gen)
 dist/protocol.schema.json
+<<<<<<< HEAD
 >>>>>>> 3317b49d3 (feat(memory): allow QMD searches via mcporter keep-alive (openclaw#19617) thanks @vignesh07)
+=======
+.ant-colony/
+>>>>>>> 3bbbe33a1 (UI: gateway dashboard with glassmorphism theme system)

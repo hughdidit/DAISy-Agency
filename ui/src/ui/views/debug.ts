@@ -6,13 +6,17 @@ import type { EventLogEntry } from "../app-events";
 =======
 import type { EventLogEntry } from "../app-events.ts";
 import { formatEventPayload } from "../presenter.ts";
+<<<<<<< HEAD
 >>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
+=======
+import type { HealthSummary, ModelCatalogEntry } from "../types.ts";
+>>>>>>> 3bbbe33a1 (UI: gateway dashboard with glassmorphism theme system)
 
 export type DebugProps = {
   loading: boolean;
   status: Record<string, unknown> | null;
-  health: Record<string, unknown> | null;
-  models: unknown[];
+  health: HealthSummary | null;
+  models: ModelCatalogEntry[];
   heartbeat: unknown;
   eventLog: EventLogEntry[];
   callMethod: string;

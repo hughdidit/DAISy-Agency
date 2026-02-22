@@ -202,7 +202,7 @@ describe("config form renderer", () => {
     expect(container.textContent).toContain("Plugin Enabled");
   });
 
-  it("flags unsupported unions", () => {
+  it("passes mixed unions through for JSON fallback rendering", () => {
     const schema = {
       type: "object",
       properties: {
@@ -212,7 +212,7 @@ describe("config form renderer", () => {
       },
     };
     const analysis = analyzeConfigSchema(schema);
-    expect(analysis.unsupportedPaths).toContain("mixed");
+    expect(analysis.unsupportedPaths).not.toContain("mixed");
   });
 
   it("supports nullable types", () => {

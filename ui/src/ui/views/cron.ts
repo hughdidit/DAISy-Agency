@@ -396,8 +396,13 @@ export function renderCron(props: CronProps) {
                 <div class="muted" style="margin-top: 12px">No runs yet.</div>
               `
             : html`
+<<<<<<< HEAD
               <div class="list" style="margin-top: 12px;">
                 ${props.runs.map((entry) => renderRun(entry))}
+=======
+              <div class="list list-scroll" style="margin-top: 12px;">
+                ${orderedRuns.map((entry) => renderRun(entry, props.basePath))}
+>>>>>>> 3bbbe33a1 (UI: gateway dashboard with glassmorphism theme system)
               </div>
             `
       }
