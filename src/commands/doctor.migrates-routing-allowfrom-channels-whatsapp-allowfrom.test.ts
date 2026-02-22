@@ -254,6 +254,7 @@ import {
 import "./doctor.fast-path-mocks.js";
 
 const DOCTOR_MIGRATION_TIMEOUT_MS = 20_000;
+const { doctorCommand } = await import("./doctor.js");
 
 describe("doctor command", () => {
 <<<<<<< HEAD
@@ -348,7 +349,6 @@ describe("doctor command", () => {
     serviceInstall.mockClear();
 =======
 
-    const { doctorCommand } = await import("./doctor.js");
     const runtime = createDoctorRuntime();
 
     migrateLegacyConfig.mockReturnValue({
@@ -393,7 +393,6 @@ describe("doctor command", () => {
       serviceInstall.mockClear();
 >>>>>>> 8cc3a5e46 (test(doctor): tighten legacy migration e2e timeout budgets)
 
-      const { doctorCommand } = await import("./doctor.js");
       await doctorCommand(createDoctorRuntime());
 
 <<<<<<< HEAD
@@ -442,7 +441,6 @@ describe("doctor command", () => {
     mockDoctorConfigSnapshot();
 >>>>>>> 3a2fffefd (refactor(test): centralize doctor e2e runtime and snapshot scaffolding)
 
-    const { doctorCommand } = await import("./doctor.js");
     await doctorCommand(createDoctorRuntime());
 
     expect(runGatewayUpdate).toHaveBeenCalledWith(expect.objectContaining({ cwd: root }));
