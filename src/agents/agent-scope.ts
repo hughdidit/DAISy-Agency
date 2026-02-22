@@ -89,15 +89,27 @@ export function resolveDefaultAgentId(cfg: OpenClawConfig): string {
   return normalizeAgentId(chosen || DEFAULT_AGENT_ID);
 }
 
+<<<<<<< HEAD
 export function resolveSessionAgentIds(params: { sessionKey?: string; config?: MoltbotConfig }): {
+=======
+export function resolveSessionAgentIds(params: {
+  sessionKey?: string;
+  config?: OpenClawConfig;
+  agentId?: string;
+}): {
+>>>>>>> 394a1af70 (fix(exec): apply per-agent exec defaults for opaque session keys)
   defaultAgentId: string;
   sessionAgentId: string;
 } {
   const defaultAgentId = resolveDefaultAgentId(params.config ?? {});
+  const explicitAgentIdRaw =
+    typeof params.agentId === "string" ? params.agentId.trim().toLowerCase() : "";
+  const explicitAgentId = explicitAgentIdRaw ? normalizeAgentId(explicitAgentIdRaw) : null;
   const sessionKey = params.sessionKey?.trim();
   const normalizedSessionKey = sessionKey ? sessionKey.toLowerCase() : undefined;
   const parsed = normalizedSessionKey ? parseAgentSessionKey(normalizedSessionKey) : null;
-  const sessionAgentId = parsed?.agentId ? normalizeAgentId(parsed.agentId) : defaultAgentId;
+  const sessionAgentId =
+    explicitAgentId ?? (parsed?.agentId ? normalizeAgentId(parsed.agentId) : defaultAgentId);
   return { defaultAgentId, sessionAgentId };
 }
 

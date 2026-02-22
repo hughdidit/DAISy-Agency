@@ -288,7 +288,12 @@ export const __testing = {
   assertRequiredParams,
 } as const;
 
+<<<<<<< HEAD
 export function createMoltbotCodingTools(options?: {
+=======
+export function createOpenClawCodingTools(options?: {
+  agentId?: string;
+>>>>>>> 394a1af70 (fix(exec): apply per-agent exec defaults for opaque session keys)
   exec?: ExecToolDefaults & ProcessToolDefaults;
   messageProvider?: string;
   agentAccountId?: string;
@@ -356,6 +361,7 @@ export function createMoltbotCodingTools(options?: {
   } = resolveEffectiveToolPolicy({
     config: options?.config,
     sessionKey: options?.sessionKey,
+    agentId: options?.agentId,
     modelProvider: options?.modelProvider,
     modelId: options?.modelId,
   });

@@ -107,11 +107,7 @@ import type {
   PluginHookBeforeAgentStartResult,
   PluginHookBeforePromptBuildResult,
 } from "../../../plugins/types.js";
-import {
-  isCronSessionKey,
-  isSubagentSessionKey,
-  normalizeAgentId,
-} from "../../../routing/session-key.js";
+import { isCronSessionKey, isSubagentSessionKey } from "../../../routing/session-key.js";
 import { resolveSignalReactionLevel } from "../../../signal/reaction-level.js";
 import { resolveTelegramInlineButtonsScope } from "../../../telegram/inline-buttons.js";
 import { resolveTelegramReactionLevel } from "../../../telegram/reaction-level.js";
@@ -515,11 +511,21 @@ export async function runEmbeddedAttempt(
 
     const agentDir = params.agentDir ?? resolveMoltbotAgentDir();
 
+    const { defaultAgentId, sessionAgentId } = resolveSessionAgentIds({
+      sessionKey: params.sessionKey,
+      config: params.config,
+      agentId: params.agentId,
+    });
     // Check if the model supports native image input
     const modelHasVision = params.model.input?.includes("image") ?? false;
     const toolsRaw = params.disableTools
       ? []
+<<<<<<< HEAD
       : createMoltbotCodingTools({
+=======
+      : createOpenClawCodingTools({
+          agentId: sessionAgentId,
+>>>>>>> 394a1af70 (fix(exec): apply per-agent exec defaults for opaque session keys)
           exec: {
             ...params.execOverrides,
             elevated: params.bashElevated,
@@ -609,10 +615,6 @@ export async function runEmbeddedAttempt(
             return undefined;
           })()
         : undefined;
-    const { defaultAgentId, sessionAgentId } = resolveSessionAgentIds({
-      sessionKey: params.sessionKey,
-      config: params.config,
-    });
     const sandboxInfo = buildEmbeddedSandboxInfo(sandbox, params.bashElevated);
     const reasoningTagHint = isReasoningTagProvider(params.provider);
     // Resolve channel-specific message actions for system prompt
@@ -1124,8 +1126,13 @@ export async function runEmbeddedAttempt(
         }
       }
 
+<<<<<<< HEAD
       // Get hook runner once for both before_agent_start and agent_end hooks
       const hookRunner = getGlobalHookRunner();
+=======
+      // Hook runner was already obtained earlier before tool creation
+      const hookAgentId = sessionAgentId;
+>>>>>>> 394a1af70 (fix(exec): apply per-agent exec defaults for opaque session keys)
 
       let promptError: unknown = null;
       try {
