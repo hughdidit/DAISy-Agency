@@ -516,6 +516,7 @@ export async function agentCommand(
     }
     let sessionFile = resolveSessionFilePath(sessionId, sessionEntry, {
       agentId: sessionAgentId,
+      sessionsDir: path.dirname(storePath),
     });
     if (sessionStore && sessionKey) {
       const threadIdFromSessionKey = parseSessionThreadInfo(sessionKey).threadId;
