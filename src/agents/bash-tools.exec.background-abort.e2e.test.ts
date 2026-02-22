@@ -21,9 +21,12 @@ import { createExecTool } from "./bash-tools.exec.js";
 import { killProcessTree } from "./shell-utils.js";
 >>>>>>> 2e375a549 (chore: Fix types in tests 32/N.)
 
-const BACKGROUND_HOLD_CMD = 'node -e "setTimeout(() => {}, 1000)"';
+const BACKGROUND_HOLD_CMD = 'node -e "setTimeout(() => {}, 500)"';
 const ABORT_SETTLE_MS = process.platform === "win32" ? 200 : 60;
-const ABORT_WAIT_TIMEOUT_MS = process.platform === "win32" ? 1_500 : 600;
+const ABORT_WAIT_TIMEOUT_MS = process.platform === "win32" ? 1_500 : 450;
+const POLL_INTERVAL_MS = 15;
+const FINISHED_WAIT_TIMEOUT_MS = process.platform === "win32" ? 8_000 : 1_200;
+const BACKGROUND_TIMEOUT_SEC = process.platform === "win32" ? 0.2 : 0.12;
 
 afterEach(() => {
   resetProcessRegistryForTests();
@@ -38,8 +41,8 @@ async function waitForFinishedSession(sessionId: string) {
         return Boolean(finished);
       },
       {
-        timeout: process.platform === "win32" ? 10_000 : 2_000,
-        interval: 20,
+        timeout: FINISHED_WAIT_TIMEOUT_MS,
+        interval: POLL_INTERVAL_MS,
       },
     )
     .toBe(true);
@@ -77,7 +80,7 @@ async function expectBackgroundSessionSurvivesAbort(params: {
         const finished = getFinishedSession(sessionId);
         return Date.now() - startedAt >= ABORT_SETTLE_MS && !finished && running?.exited === false;
       },
-      { timeout: ABORT_WAIT_TIMEOUT_MS, interval: 20 },
+      { timeout: ABORT_WAIT_TIMEOUT_MS, interval: POLL_INTERVAL_MS },
     )
     .toBe(true);
 
@@ -142,7 +145,7 @@ test("background exec still times out after tool signal abort", async () => {
     executeParams: {
       command: BACKGROUND_HOLD_CMD,
       background: true,
-      timeout: 0.2,
+      timeout: BACKGROUND_TIMEOUT_SEC,
     },
     abortAfterStart: true,
   });
@@ -163,7 +166,7 @@ test("yielded background exec still times out", async () => {
     executeParams: {
       command: BACKGROUND_HOLD_CMD,
       yieldMs: 5,
-      timeout: 0.2,
+      timeout: BACKGROUND_TIMEOUT_SEC,
     },
   });
 });
