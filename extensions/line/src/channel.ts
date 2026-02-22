@@ -3,6 +3,7 @@ import {
   DEFAULT_ACCOUNT_ID,
   LineConfigSchema,
   processLineMessage,
+  resolveRuntimeGroupPolicy,
   type ChannelPlugin,
   type MoltbotConfig,
   type LineConfig,
@@ -169,10 +170,25 @@ export const linePlugin: ChannelPlugin<ResolvedLineAccount> = {
       };
     },
     collectWarnings: ({ account, cfg }) => {
+<<<<<<< HEAD
       const defaultGroupPolicy =
         (cfg.channels?.defaults as { groupPolicy?: string } | undefined)?.groupPolicy;
       const groupPolicy = account.config.groupPolicy ?? defaultGroupPolicy ?? "allowlist";
       if (groupPolicy !== "open") return [];
+=======
+      const defaultGroupPolicy = (cfg.channels?.defaults as { groupPolicy?: string } | undefined)
+        ?.groupPolicy;
+      const { groupPolicy } = resolveRuntimeGroupPolicy({
+        providerConfigPresent: cfg.channels?.line !== undefined,
+        groupPolicy: account.config.groupPolicy,
+        defaultGroupPolicy,
+        configuredFallbackPolicy: "allowlist",
+        missingProviderFallbackPolicy: "allowlist",
+      });
+      if (groupPolicy !== "open") {
+        return [];
+      }
+>>>>>>> 777817392 (fix: fail closed missing provider group policy across message channels (#23367) (thanks @bmendonca3))
       return [
         `- LINE groups: groupPolicy="open" allows any member in groups to trigger. Set channels.line.groupPolicy="allowlist" + channels.line.groupAllowFrom to restrict senders.`,
       ];

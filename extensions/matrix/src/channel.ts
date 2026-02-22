@@ -6,6 +6,7 @@ import {
   formatPairingApproveHint,
   normalizeAccountId,
   PAIRING_APPROVED_MESSAGE,
+  resolveRuntimeGroupPolicy,
   setAccountEnabledInConfigSection,
   type ChannelPlugin,
 } from "clawdbot/plugin-sdk";
@@ -188,9 +189,22 @@ export const matrixPlugin: ChannelPlugin<ResolvedMatrixAccount> = {
 >>>>>>> 1a17466a6 (fix: use account-aware config paths in resolveDmPolicy and resolveAllowFrom)
     collectWarnings: ({ account, cfg }) => {
       const defaultGroupPolicy = (cfg as CoreConfig).channels?.defaults?.groupPolicy;
+<<<<<<< HEAD
       const groupPolicy =
         account.config.groupPolicy ?? defaultGroupPolicy ?? "allowlist";
       if (groupPolicy !== "open") return [];
+=======
+      const { groupPolicy } = resolveRuntimeGroupPolicy({
+        providerConfigPresent: (cfg as CoreConfig).channels?.matrix !== undefined,
+        groupPolicy: account.config.groupPolicy,
+        defaultGroupPolicy,
+        configuredFallbackPolicy: "allowlist",
+        missingProviderFallbackPolicy: "allowlist",
+      });
+      if (groupPolicy !== "open") {
+        return [];
+      }
+>>>>>>> 777817392 (fix: fail closed missing provider group policy across message channels (#23367) (thanks @bmendonca3))
       return [
         "- Matrix rooms: groupPolicy=\"open\" allows any room to trigger (mention-gated). Set channels.matrix.groupPolicy=\"allowlist\" + channels.matrix.groups (and optionally channels.matrix.groupAllowFrom) to restrict rooms.",
       ];

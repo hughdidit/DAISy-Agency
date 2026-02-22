@@ -115,9 +115,188 @@ Draft streaming is DM-only; Telegram does not support it in groups or channels.
 - Raw HTML from models is escaped to avoid Telegram parse errors.
 - If Telegram rejects the HTML payload, Moltbot retries the same message as plain text.
 
+<<<<<<< HEAD
 ## Commands (native + custom)
 Moltbot registers native commands (like `/status`, `/reset`, `/model`) with Telegram’s bot menu on startup.
 You can add custom commands to the menu via config:
+=======
+    Admin bots receive all group messages, which is useful for always-on group behavior.
+
+  </Accordion>
+
+  <Accordion title="Helpful BotFather toggles">
+
+    - `/setjoingroups` to allow/deny group adds
+    - `/setprivacy` for group visibility behavior
+
+  </Accordion>
+</AccordionGroup>
+
+## Access control and activation
+
+<Tabs>
+  <Tab title="DM policy">
+    `channels.telegram.dmPolicy` controls direct message access:
+
+    - `pairing` (default)
+    - `allowlist`
+    - `open` (requires `allowFrom` to include `"*"`)
+    - `disabled`
+
+    `channels.telegram.allowFrom` accepts numeric Telegram user IDs. `telegram:` / `tg:` prefixes are accepted and normalized.
+    The onboarding wizard accepts `@username` input and resolves it to numeric IDs.
+    If you upgraded and your config contains `@username` allowlist entries, run `openclaw doctor --fix` to resolve them (best-effort; requires a Telegram bot token).
+
+    ### Finding your Telegram user ID
+
+    Safer (no third-party bot):
+
+    1. DM your bot.
+    2. Run `openclaw logs --follow`.
+    3. Read `from.id`.
+
+    Official Bot API method:
+
+```bash
+curl "https://api.telegram.org/bot<bot_token>/getUpdates"
+```
+
+    Third-party method (less private): `@userinfobot` or `@getidsbot`.
+
+  </Tab>
+
+  <Tab title="Group policy and allowlists">
+    There are two independent controls:
+
+    1. **Which groups are allowed** (`channels.telegram.groups`)
+       - no `groups` config: all groups allowed
+       - `groups` configured: acts as allowlist (explicit IDs or `"*"`)
+
+    2. **Which senders are allowed in groups** (`channels.telegram.groupPolicy`)
+       - `open`
+       - `allowlist` (default)
+       - `disabled`
+
+    `groupAllowFrom` is used for group sender filtering. If not set, Telegram falls back to `allowFrom`.
+    `groupAllowFrom` entries must be numeric Telegram user IDs.
+    Runtime note: if `channels.telegram` is completely missing, runtime falls back to `groupPolicy="allowlist"` for group policy evaluation (even if `channels.defaults.groupPolicy` is set).
+
+    Example: allow any member in one specific group:
+
+```json5
+{
+  channels: {
+    telegram: {
+      groups: {
+        "-1001234567890": {
+          groupPolicy: "open",
+          requireMention: false,
+        },
+      },
+    },
+  },
+}
+```
+
+  </Tab>
+
+  <Tab title="Mention behavior">
+    Group replies require mention by default.
+
+    Mention can come from:
+
+    - native `@botusername` mention, or
+    - mention patterns in:
+      - `agents.list[].groupChat.mentionPatterns`
+      - `messages.groupChat.mentionPatterns`
+
+    Session-level command toggles:
+
+    - `/activation always`
+    - `/activation mention`
+
+    These update session state only. Use config for persistence.
+
+    Persistent config example:
+
+```json5
+{
+  channels: {
+    telegram: {
+      groups: {
+        "*": { requireMention: false },
+      },
+    },
+  },
+}
+```
+
+    Getting the group chat ID:
+
+    - forward a group message to `@userinfobot` / `@getidsbot`
+    - or read `chat.id` from `openclaw logs --follow`
+    - or inspect Bot API `getUpdates`
+
+  </Tab>
+</Tabs>
+
+## Runtime behavior
+
+- Telegram is owned by the gateway process.
+- Routing is deterministic: Telegram inbound replies back to Telegram (the model does not pick channels).
+- Inbound messages normalize into the shared channel envelope with reply metadata and media placeholders.
+- Group sessions are isolated by group ID. Forum topics append `:topic:<threadId>` to keep topics isolated.
+- DM messages can carry `message_thread_id`; OpenClaw routes them with thread-aware session keys and preserves thread ID for replies.
+- Long polling uses grammY runner with per-chat/per-thread sequencing. Overall runner sink concurrency uses `agents.defaults.maxConcurrent`.
+- Telegram Bot API has no read-receipt support (`sendReadReceipts` does not apply).
+
+## Feature reference
+
+<AccordionGroup>
+  <Accordion title="Live stream preview (message edits)">
+    OpenClaw can stream partial replies by sending a temporary Telegram message and editing it as text arrives.
+
+    Requirement:
+
+    - `channels.telegram.streaming` is `off | partial | block | progress` (default: `off`)
+    - `progress` maps to `partial` on Telegram (compat with cross-channel naming)
+    - legacy `channels.telegram.streamMode` and boolean `streaming` values are auto-mapped
+
+    This works in direct chats and groups/topics.
+
+    For text-only replies, OpenClaw keeps the same preview message and performs a final edit in place (no second message).
+
+    For complex replies (for example media payloads), OpenClaw falls back to normal final delivery and then cleans up the preview message.
+
+    Preview streaming is separate from block streaming. When block streaming is explicitly enabled for Telegram, OpenClaw skips the preview stream to avoid double-streaming.
+
+    Telegram-only reasoning stream:
+
+    - `/reasoning stream` sends reasoning to the live preview while generating
+    - final answer is sent without reasoning text
+
+  </Accordion>
+
+  <Accordion title="Formatting and HTML fallback">
+    Outbound text uses Telegram `parse_mode: "HTML"`.
+
+    - Markdown-ish text is rendered to Telegram-safe HTML.
+    - Raw model HTML is escaped to reduce Telegram parse failures.
+    - If Telegram rejects parsed HTML, OpenClaw retries as plain text.
+
+    Link previews are enabled by default and can be disabled with `channels.telegram.linkPreview: false`.
+
+  </Accordion>
+
+  <Accordion title="Native commands and custom commands">
+    Telegram command menu registration is handled at startup with `setMyCommands`.
+
+    Native command defaults:
+
+    - `commands.native: "auto"` enables native commands for Telegram
+
+    Add custom command menu entries:
+>>>>>>> 777817392 (fix: fail closed missing provider group policy across message channels (#23367) (thanks @bmendonca3))
 
 ```json5
 {

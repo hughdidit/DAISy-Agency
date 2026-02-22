@@ -19,6 +19,11 @@ import {
   normalizeWhatsAppTarget,
   readStringParam,
   resolveDefaultWhatsAppAccountId,
+<<<<<<< HEAD
+=======
+  resolveWhatsAppOutboundTarget,
+  resolveRuntimeGroupPolicy,
+>>>>>>> 777817392 (fix: fail closed missing provider group policy across message channels (#23367) (thanks @bmendonca3))
   resolveWhatsAppAccount,
   resolveWhatsAppGroupRequireMention,
   resolveWhatsAppGroupToolPolicy,
@@ -140,8 +145,21 @@ export const whatsappPlugin: ChannelPlugin<ResolvedWhatsAppAccount> = {
     },
     collectWarnings: ({ account, cfg }) => {
       const defaultGroupPolicy = cfg.channels?.defaults?.groupPolicy;
+<<<<<<< HEAD
       const groupPolicy = account.groupPolicy ?? defaultGroupPolicy ?? "allowlist";
       if (groupPolicy !== "open") return [];
+=======
+      const { groupPolicy } = resolveRuntimeGroupPolicy({
+        providerConfigPresent: cfg.channels?.whatsapp !== undefined,
+        groupPolicy: account.groupPolicy,
+        defaultGroupPolicy,
+        configuredFallbackPolicy: "allowlist",
+        missingProviderFallbackPolicy: "allowlist",
+      });
+      if (groupPolicy !== "open") {
+        return [];
+      }
+>>>>>>> 777817392 (fix: fail closed missing provider group policy across message channels (#23367) (thanks @bmendonca3))
       const groupAllowlistConfigured =
         Boolean(account.groups) && Object.keys(account.groups ?? {}).length > 0;
       if (groupAllowlistConfigured) {

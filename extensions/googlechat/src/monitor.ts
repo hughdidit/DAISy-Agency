@@ -4,8 +4,23 @@ import type { MoltbotConfig } from "clawdbot/plugin-sdk";
 import { resolveMentionGatingWithBypass } from "clawdbot/plugin-sdk";
 
 import {
+<<<<<<< HEAD
   type ResolvedGoogleChatAccount
 } from "./accounts.js";
+=======
+  createReplyPrefixOptions,
+  readJsonBodyWithLimit,
+  registerWebhookTarget,
+  rejectNonPostWebhookRequest,
+  resolveRuntimeGroupPolicy,
+  resolveSingleWebhookTargetAsync,
+  resolveWebhookPath,
+  resolveWebhookTargets,
+  requestBodyErrorToText,
+  resolveMentionGatingWithBypass,
+} from "openclaw/plugin-sdk";
+import { type ResolvedGoogleChatAccount } from "./accounts.js";
+>>>>>>> 777817392 (fix: fail closed missing provider group policy across message channels (#23367) (thanks @bmendonca3))
 import {
   downloadGoogleChatMedia,
   deleteGoogleChatMessage,
@@ -60,12 +75,25 @@ function logVerbose(core: GoogleChatCoreRuntime, runtime: GoogleChatRuntimeEnv, 
   }
 }
 
+<<<<<<< HEAD
 function normalizeWebhookPath(raw: string): string {
   const trimmed = raw.trim();
   if (!trimmed) return "/";
   const withSlash = trimmed.startsWith("/") ? trimmed : `/${trimmed}`;
   if (withSlash.length > 1 && withSlash.endsWith("/")) {
     return withSlash.slice(0, -1);
+=======
+const warnedDeprecatedUsersEmailAllowFrom = new Set<string>();
+const warnedMissingProviderGroupPolicy = new Set<string>();
+function warnDeprecatedUsersEmailEntries(
+  core: GoogleChatCoreRuntime,
+  runtime: GoogleChatRuntimeEnv,
+  entries: string[],
+) {
+  const deprecated = entries.map((v) => String(v).trim()).filter((v) => /^users\/.+@.+/i.test(v));
+  if (deprecated.length === 0) {
+    return;
+>>>>>>> 777817392 (fix: fail closed missing provider group policy across message channels (#23367) (thanks @bmendonca3))
   }
   return withSlash;
 }
@@ -413,7 +441,21 @@ async function processMessageWithPipeline(params: {
   if (!rawBody) return;
 
   const defaultGroupPolicy = config.channels?.defaults?.groupPolicy;
-  const groupPolicy = account.config.groupPolicy ?? defaultGroupPolicy ?? "allowlist";
+  const { groupPolicy, providerMissingFallbackApplied } = resolveRuntimeGroupPolicy({
+    providerConfigPresent: config.channels?.googlechat !== undefined,
+    groupPolicy: account.config.groupPolicy,
+    defaultGroupPolicy,
+    configuredFallbackPolicy: "allowlist",
+    missingProviderFallbackPolicy: "allowlist",
+  });
+  if (providerMissingFallbackApplied && !warnedMissingProviderGroupPolicy.has(account.accountId)) {
+    warnedMissingProviderGroupPolicy.add(account.accountId);
+    logVerbose(
+      core,
+      runtime,
+      'googlechat: channels.googlechat is missing; defaulting groupPolicy to "allowlist" (space messages blocked until explicitly configured).',
+    );
+  }
   const groupConfigResolved = resolveGroupConfig({
     groupId: spaceId,
     groupName: space.displayName ?? null,

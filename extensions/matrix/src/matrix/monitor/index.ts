@@ -1,10 +1,21 @@
 import { format } from "node:util";
+<<<<<<< HEAD
 
 import {
   mergeAllowlist,
   summarizeMapping,
   type RuntimeEnv,
 } from "clawdbot/plugin-sdk";
+=======
+import {
+  mergeAllowlist,
+  resolveRuntimeGroupPolicy,
+  summarizeMapping,
+  type RuntimeEnv,
+} from "openclaw/plugin-sdk";
+import { resolveMatrixTargets } from "../../resolve-targets.js";
+import { getMatrixRuntime } from "../../runtime.js";
+>>>>>>> 777817392 (fix: fail closed missing provider group policy across message channels (#23367) (thanks @bmendonca3))
 import type { CoreConfig, ReplyToMode } from "../../types.js";
 import { setActiveMatrixClient } from "../active-client.js";
 import {
@@ -186,7 +197,24 @@ export async function monitorMatrixProvider(opts: MonitorMatrixOpts = {}): Promi
 
   const mentionRegexes = core.channel.mentions.buildMentionRegexes(cfg);
   const defaultGroupPolicy = cfg.channels?.defaults?.groupPolicy;
+<<<<<<< HEAD
   const groupPolicyRaw = cfg.channels?.matrix?.groupPolicy ?? defaultGroupPolicy ?? "allowlist";
+=======
+  const { groupPolicy: groupPolicyRaw, providerMissingFallbackApplied } = resolveRuntimeGroupPolicy(
+    {
+      providerConfigPresent: cfg.channels?.matrix !== undefined,
+      groupPolicy: accountConfig.groupPolicy,
+      defaultGroupPolicy,
+      configuredFallbackPolicy: "allowlist",
+      missingProviderFallbackPolicy: "allowlist",
+    },
+  );
+  if (providerMissingFallbackApplied) {
+    logVerboseMessage(
+      'matrix: channels.matrix is missing; defaulting groupPolicy to "allowlist" (room messages blocked until explicitly configured).',
+    );
+  }
+>>>>>>> 777817392 (fix: fail closed missing provider group policy across message channels (#23367) (thanks @bmendonca3))
   const groupPolicy = allowlistOnly && groupPolicyRaw === "open" ? "allowlist" : groupPolicyRaw;
   const replyToMode = opts.replyToMode ?? cfg.channels?.matrix?.replyToMode ?? "off";
   const threadReplies = cfg.channels?.matrix?.threadReplies ?? "inbound";

@@ -18,6 +18,11 @@ import {
 } from "../../config/commands.js";
 import type { MoltbotConfig, ReplyToMode } from "../../config/config.js";
 import { loadConfig } from "../../config/config.js";
+<<<<<<< HEAD
+=======
+import { resolveRuntimeGroupPolicy } from "../../config/runtime-group-policy.js";
+import type { GroupPolicy } from "../../config/types.base.js";
+>>>>>>> 777817392 (fix: fail closed missing provider group policy across message channels (#23367) (thanks @bmendonca3))
 import { danger, logVerbose, shouldLogVerbose, warn } from "../../globals.js";
 import { formatErrorMessage } from "../../infra/errors.js";
 import { createDiscordRetryRunner } from "../../infra/retry-policy.js";
@@ -125,6 +130,101 @@ function summarizeGuilds(entries?: Record<string, unknown>) {
   return `${sample.join(", ")}${suffix}`;
 }
 
+<<<<<<< HEAD
+=======
+const DEFAULT_THREAD_BINDING_TTL_HOURS = 24;
+
+function normalizeThreadBindingTtlHours(raw: unknown): number | undefined {
+  if (typeof raw !== "number" || !Number.isFinite(raw)) {
+    return undefined;
+  }
+  if (raw < 0) {
+    return undefined;
+  }
+  return raw;
+}
+
+function resolveThreadBindingSessionTtlMs(params: {
+  channelTtlHoursRaw: unknown;
+  sessionTtlHoursRaw: unknown;
+}): number {
+  const ttlHours =
+    normalizeThreadBindingTtlHours(params.channelTtlHoursRaw) ??
+    normalizeThreadBindingTtlHours(params.sessionTtlHoursRaw) ??
+    DEFAULT_THREAD_BINDING_TTL_HOURS;
+  return Math.floor(ttlHours * 60 * 60 * 1000);
+}
+
+function normalizeThreadBindingsEnabled(raw: unknown): boolean | undefined {
+  if (typeof raw !== "boolean") {
+    return undefined;
+  }
+  return raw;
+}
+
+function resolveThreadBindingsEnabled(params: {
+  channelEnabledRaw: unknown;
+  sessionEnabledRaw: unknown;
+}): boolean {
+  return (
+    normalizeThreadBindingsEnabled(params.channelEnabledRaw) ??
+    normalizeThreadBindingsEnabled(params.sessionEnabledRaw) ??
+    true
+  );
+}
+
+function formatThreadBindingSessionTtlLabel(ttlMs: number): string {
+  if (ttlMs <= 0) {
+    return "off";
+  }
+  if (ttlMs < 60_000) {
+    return "<1m";
+  }
+  const totalMinutes = Math.floor(ttlMs / 60_000);
+  if (totalMinutes % 60 === 0) {
+    return `${Math.floor(totalMinutes / 60)}h`;
+  }
+  return `${totalMinutes}m`;
+}
+
+function dedupeSkillCommandsForDiscord(
+  skillCommands: ReturnType<typeof listSkillCommandsForAgents>,
+) {
+  const seen = new Set<string>();
+  const deduped: ReturnType<typeof listSkillCommandsForAgents> = [];
+  for (const command of skillCommands) {
+    const key = command.skillName.trim().toLowerCase();
+    if (!key) {
+      deduped.push(command);
+      continue;
+    }
+    if (seen.has(key)) {
+      continue;
+    }
+    seen.add(key);
+    deduped.push(command);
+  }
+  return deduped;
+}
+
+function resolveDiscordRuntimeGroupPolicy(params: {
+  providerConfigPresent: boolean;
+  groupPolicy?: GroupPolicy;
+  defaultGroupPolicy?: GroupPolicy;
+}): {
+  groupPolicy: GroupPolicy;
+  providerMissingFallbackApplied: boolean;
+} {
+  return resolveRuntimeGroupPolicy({
+    providerConfigPresent: params.providerConfigPresent,
+    groupPolicy: params.groupPolicy,
+    defaultGroupPolicy: params.defaultGroupPolicy,
+    configuredFallbackPolicy: "open",
+    missingProviderFallbackPolicy: "allowlist",
+  });
+}
+
+>>>>>>> 777817392 (fix: fail closed missing provider group policy across message channels (#23367) (thanks @bmendonca3))
 async function deployDiscordCommands(params: {
   client: Client;
   runtime: RuntimeEnv;
@@ -209,6 +309,7 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
     },
   };
 
+<<<<<<< HEAD
   const discordCfg = account.config;
   const dmConfig = discordCfg.dm;
   let guildEntries = discordCfg.guilds;
@@ -220,6 +321,25 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
     defaultGroupPolicy === undefined &&
     groupPolicy === "open"
   ) {
+=======
+  const rawDiscordCfg = account.config;
+  const discordRootThreadBindings = cfg.channels?.discord?.threadBindings;
+  const discordAccountThreadBindings =
+    cfg.channels?.discord?.accounts?.[account.accountId]?.threadBindings;
+  const discordRestFetch = resolveDiscordRestFetch(rawDiscordCfg.proxy, runtime);
+  const dmConfig = rawDiscordCfg.dm;
+  let guildEntries = rawDiscordCfg.guilds;
+  const defaultGroupPolicy = cfg.channels?.defaults?.groupPolicy;
+  const providerConfigPresent = cfg.channels?.discord !== undefined;
+  const { groupPolicy, providerMissingFallbackApplied } = resolveDiscordRuntimeGroupPolicy({
+    providerConfigPresent,
+    groupPolicy: rawDiscordCfg.groupPolicy,
+    defaultGroupPolicy,
+  });
+  const discordCfg =
+    rawDiscordCfg.groupPolicy === groupPolicy ? rawDiscordCfg : { ...rawDiscordCfg, groupPolicy };
+  if (providerMissingFallbackApplied) {
+>>>>>>> 777817392 (fix: fail closed missing provider group policy across message channels (#23367) (thanks @bmendonca3))
     runtime.log?.(
       warn(
         'discord: groupPolicy defaults to "open" when channels.discord is missing; set channels.discord.groupPolicy (or channels.defaults.groupPolicy) or add channels.discord.guilds to restrict access.',

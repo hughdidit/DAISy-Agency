@@ -6,6 +6,7 @@ import {
   formatPairingApproveHint,
   migrateBaseNameToDefaultAccount,
   normalizeAccountId,
+  resolveRuntimeGroupPolicy,
   setAccountEnabledInConfigSection,
   type ChannelPlugin,
 } from "clawdbot/plugin-sdk";
@@ -138,8 +139,21 @@ export const mattermostPlugin: ChannelPlugin<ResolvedMattermostAccount> = {
     },
     collectWarnings: ({ account, cfg }) => {
       const defaultGroupPolicy = cfg.channels?.defaults?.groupPolicy;
+<<<<<<< HEAD
       const groupPolicy = account.config.groupPolicy ?? defaultGroupPolicy ?? "allowlist";
       if (groupPolicy !== "open") return [];
+=======
+      const { groupPolicy } = resolveRuntimeGroupPolicy({
+        providerConfigPresent: cfg.channels?.mattermost !== undefined,
+        groupPolicy: account.config.groupPolicy,
+        defaultGroupPolicy,
+        configuredFallbackPolicy: "allowlist",
+        missingProviderFallbackPolicy: "allowlist",
+      });
+      if (groupPolicy !== "open") {
+        return [];
+      }
+>>>>>>> 777817392 (fix: fail closed missing provider group policy across message channels (#23367) (thanks @bmendonca3))
       return [
         `- Mattermost channels: groupPolicy="open" allows any member to trigger (mention-gated). Set channels.mattermost.groupPolicy="allowlist" + channels.mattermost.groupAllowFrom to restrict senders.`,
       ];

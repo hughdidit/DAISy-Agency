@@ -1,7 +1,19 @@
 import type { ChildProcess } from "node:child_process";
+<<<<<<< HEAD
 
 import type { MoltbotConfig, MarkdownTableMode, RuntimeEnv } from "clawdbot/plugin-sdk";
 import { mergeAllowlist, summarizeMapping } from "clawdbot/plugin-sdk";
+=======
+import type { OpenClawConfig, MarkdownTableMode, RuntimeEnv } from "openclaw/plugin-sdk";
+import {
+  createReplyPrefixOptions,
+  mergeAllowlist,
+  resolveRuntimeGroupPolicy,
+  resolveSenderCommandAuthorization,
+  summarizeMapping,
+} from "openclaw/plugin-sdk";
+import { getZalouserRuntime } from "./runtime.js";
+>>>>>>> 777817392 (fix: fail closed missing provider group policy across message channels (#23367) (thanks @bmendonca3))
 import { sendMessageZalouser } from "./send.js";
 import type {
   ResolvedZalouserAccount,
@@ -164,7 +176,20 @@ async function processMessage(
   const chatId = threadId;
 
   const defaultGroupPolicy = config.channels?.defaults?.groupPolicy;
-  const groupPolicy = account.config.groupPolicy ?? defaultGroupPolicy ?? "open";
+  const { groupPolicy, providerMissingFallbackApplied } = resolveRuntimeGroupPolicy({
+    providerConfigPresent: config.channels?.zalouser !== undefined,
+    groupPolicy: account.config.groupPolicy,
+    defaultGroupPolicy,
+    configuredFallbackPolicy: "open",
+    missingProviderFallbackPolicy: "allowlist",
+  });
+  if (providerMissingFallbackApplied) {
+    logVerbose(
+      core,
+      runtime,
+      'zalouser: channels.zalouser is missing; defaulting groupPolicy to "allowlist" (group messages blocked until explicitly configured).',
+    );
+  }
   const groups = account.config.groups ?? {};
   if (isGroup) {
     if (groupPolicy === "disabled") {

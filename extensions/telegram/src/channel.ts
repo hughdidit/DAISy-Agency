@@ -15,6 +15,7 @@ import {
   normalizeTelegramMessagingTarget,
   PAIRING_APPROVED_MESSAGE,
   resolveDefaultTelegramAccountId,
+  resolveRuntimeGroupPolicy,
   resolveTelegramAccount,
   resolveTelegramGroupRequireMention,
   resolveTelegramGroupToolPolicy,
@@ -139,8 +140,21 @@ export const telegramPlugin: ChannelPlugin<ResolvedTelegramAccount> = {
     },
     collectWarnings: ({ account, cfg }) => {
       const defaultGroupPolicy = cfg.channels?.defaults?.groupPolicy;
+<<<<<<< HEAD
       const groupPolicy = account.config.groupPolicy ?? defaultGroupPolicy ?? "allowlist";
       if (groupPolicy !== "open") return [];
+=======
+      const { groupPolicy } = resolveRuntimeGroupPolicy({
+        providerConfigPresent: cfg.channels?.telegram !== undefined,
+        groupPolicy: account.config.groupPolicy,
+        defaultGroupPolicy,
+        configuredFallbackPolicy: "allowlist",
+        missingProviderFallbackPolicy: "allowlist",
+      });
+      if (groupPolicy !== "open") {
+        return [];
+      }
+>>>>>>> 777817392 (fix: fail closed missing provider group policy across message channels (#23367) (thanks @bmendonca3))
       const groupAllowlistConfigured =
         account.config.groups && Object.keys(account.config.groups).length > 0;
       if (groupAllowlistConfigured) {

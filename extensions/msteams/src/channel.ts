@@ -4,8 +4,14 @@ import {
   DEFAULT_ACCOUNT_ID,
   MSTeamsConfigSchema,
   PAIRING_APPROVED_MESSAGE,
+<<<<<<< HEAD
 } from "clawdbot/plugin-sdk";
 
+=======
+  resolveRuntimeGroupPolicy,
+} from "openclaw/plugin-sdk";
+import { listMSTeamsDirectoryGroupsLive, listMSTeamsDirectoryPeersLive } from "./directory-live.js";
+>>>>>>> 777817392 (fix: fail closed missing provider group policy across message channels (#23367) (thanks @bmendonca3))
 import { msteamsOnboardingAdapter } from "./onboarding.js";
 import { msteamsOutbound } from "./outbound.js";
 import { probeMSTeams } from "./probe.js";
@@ -128,8 +134,21 @@ export const msteamsPlugin: ChannelPlugin<ResolvedMSTeamsAccount> = {
   security: {
     collectWarnings: ({ cfg }) => {
       const defaultGroupPolicy = cfg.channels?.defaults?.groupPolicy;
+<<<<<<< HEAD
       const groupPolicy = cfg.channels?.msteams?.groupPolicy ?? defaultGroupPolicy ?? "allowlist";
       if (groupPolicy !== "open") return [];
+=======
+      const { groupPolicy } = resolveRuntimeGroupPolicy({
+        providerConfigPresent: cfg.channels?.msteams !== undefined,
+        groupPolicy: cfg.channels?.msteams?.groupPolicy,
+        defaultGroupPolicy,
+        configuredFallbackPolicy: "allowlist",
+        missingProviderFallbackPolicy: "allowlist",
+      });
+      if (groupPolicy !== "open") {
+        return [];
+      }
+>>>>>>> 777817392 (fix: fail closed missing provider group policy across message channels (#23367) (thanks @bmendonca3))
       return [
         `- MS Teams groups: groupPolicy="open" allows any member to trigger (mention-gated). Set channels.msteams.groupPolicy="allowlist" + channels.msteams.groupAllowFrom to restrict senders.`,
       ];

@@ -150,7 +150,12 @@ Once verified, the bot can decrypt messages in encrypted rooms.
 ## Rooms (groups)
 
 - Default: `channels.matrix.groupPolicy = "allowlist"` (mention-gated). Use `channels.defaults.groupPolicy` to override the default when unset.
+<<<<<<< HEAD
 - Allowlist rooms with `channels.matrix.groups` (room IDs, aliases, or names):
+=======
+- Runtime note: if `channels.matrix` is completely missing, runtime falls back to `groupPolicy="allowlist"` for room checks (even if `channels.defaults.groupPolicy` is set).
+- Allowlist rooms with `channels.matrix.groups` (room IDs or aliases; names are resolved to IDs when directory search finds a single exact match):
+>>>>>>> 777817392 (fix: fail closed missing provider group policy across message channels (#23367) (thanks @bmendonca3))
 
 ```json5
 {

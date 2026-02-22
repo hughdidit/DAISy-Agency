@@ -366,6 +366,7 @@ Example:
 }
 ```
 
+<<<<<<< HEAD
 Notes:
 - `requireMention: true` means the bot only replies when mentioned (recommended for shared channels).
 - `agents.list[].groupChat.mentionPatterns` (or `messages.groupChat.mentionPatterns`) also count as mentions for guild messages.
@@ -376,6 +377,9 @@ Notes:
 - Owner hint: when a per-guild or per-channel `users` allowlist matches the sender, OpenClaw treats that sender as the owner in the system prompt. For a global owner across channels, set `commands.ownerAllowFrom`.
 - Bot-authored messages are ignored by default; set `channels.discord.allowBots=true` to allow them (own messages remain filtered).
 - Warning: If you allow replies to other bots (`channels.discord.allowBots=true`), prevent bot-to-bot reply loops with `requireMention`, `channels.discord.guilds.*.channels.<id>.users` allowlists, and/or clear guardrails in `AGENTS.md` and `SOUL.md`.
+=======
+    If you only set `DISCORD_BOT_TOKEN` and do not create a `channels.discord` block, runtime fallback is `groupPolicy="allowlist"` (with a warning in logs), even if `channels.defaults.groupPolicy` is `open`.
+>>>>>>> 777817392 (fix: fail closed missing provider group policy across message channels (#23367) (thanks @bmendonca3))
 
 ### 6) Verify it works
 1. Start the gateway.

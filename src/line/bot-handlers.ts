@@ -8,7 +8,12 @@ import type {
   PostbackEvent,
   EventSource,
 } from "@line/bot-sdk";
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
+=======
+import type { OpenClawConfig } from "../config/config.js";
+import { resolveRuntimeGroupPolicy } from "../config/runtime-group-policy.js";
+>>>>>>> 777817392 (fix: fail closed missing provider group policy across message channels (#23367) (thanks @bmendonca3))
 import { danger, logVerbose } from "../globals.js";
 import { resolvePairingIdLabel } from "../pairing/pairing-labels.js";
 import { buildPairingReply } from "../pairing/pairing-messages.js";
@@ -40,6 +45,7 @@ export interface LineHandlerContext {
   processMessage: (ctx: LineInboundContext) => Promise<void>;
 }
 
+<<<<<<< HEAD
 type LineSourceInfo = {
   userId?: string;
   groupId?: string;
@@ -61,6 +67,9 @@ function getSourceInfo(source: EventSource): LineSourceInfo {
   const isGroup = source.type === "group" || source.type === "room";
   return { userId, groupId, roomId, isGroup };
 }
+=======
+let lineGroupPolicyFallbackWarned = false;
+>>>>>>> 777817392 (fix: fail closed missing provider group policy across message channels (#23367) (thanks @bmendonca3))
 
 function resolveLineGroupConfig(params: {
   config: ResolvedLineAccount["config"];
@@ -153,7 +162,19 @@ async function shouldProcessLineEvent(
     dmPolicy,
   });
   const defaultGroupPolicy = cfg.channels?.defaults?.groupPolicy;
-  const groupPolicy = account.config.groupPolicy ?? defaultGroupPolicy ?? "allowlist";
+  const { groupPolicy, providerMissingFallbackApplied } = resolveRuntimeGroupPolicy({
+    providerConfigPresent: cfg.channels?.line !== undefined,
+    groupPolicy: account.config.groupPolicy,
+    defaultGroupPolicy,
+    configuredFallbackPolicy: "allowlist",
+    missingProviderFallbackPolicy: "allowlist",
+  });
+  if (providerMissingFallbackApplied && !lineGroupPolicyFallbackWarned) {
+    lineGroupPolicyFallbackWarned = true;
+    logVerbose(
+      'line: channels.line is missing; defaulting groupPolicy to "allowlist" (group messages blocked until explicitly configured).',
+    );
+  }
 
   if (isGroup) {
     if (groupConfig?.enabled === false) {

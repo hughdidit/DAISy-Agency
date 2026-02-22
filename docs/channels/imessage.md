@@ -163,7 +163,93 @@ Architecture:
         user@gateway-host
 ```
 
+<<<<<<< HEAD
 Concrete config example (Tailscale hostname):
+=======
+</Tip>
+
+## Access control and routing
+
+<Tabs>
+  <Tab title="DM policy">
+    `channels.imessage.dmPolicy` controls direct messages:
+
+    - `pairing` (default)
+    - `allowlist`
+    - `open` (requires `allowFrom` to include `"*"`)
+    - `disabled`
+
+    Allowlist field: `channels.imessage.allowFrom`.
+
+    Allowlist entries can be handles or chat targets (`chat_id:*`, `chat_guid:*`, `chat_identifier:*`).
+
+  </Tab>
+
+  <Tab title="Group policy + mentions">
+    `channels.imessage.groupPolicy` controls group handling:
+
+    - `allowlist` (default when configured)
+    - `open`
+    - `disabled`
+
+    Group sender allowlist: `channels.imessage.groupAllowFrom`.
+
+    Runtime fallback: if `groupAllowFrom` is unset, iMessage group sender checks fall back to `allowFrom` when available.
+    Runtime note: if `channels.imessage` is completely missing, runtime falls back to `groupPolicy="allowlist"` and logs a warning (even if `channels.defaults.groupPolicy` is set).
+
+    Mention gating for groups:
+
+    - iMessage has no native mention metadata
+    - mention detection uses regex patterns (`agents.list[].groupChat.mentionPatterns`, fallback `messages.groupChat.mentionPatterns`)
+    - with no configured patterns, mention gating cannot be enforced
+
+    Control commands from authorized senders can bypass mention gating in groups.
+
+  </Tab>
+
+  <Tab title="Sessions and deterministic replies">
+    - DMs use direct routing; groups use group routing.
+    - With default `session.dmScope=main`, iMessage DMs collapse into the agent main session.
+    - Group sessions are isolated (`agent:<agentId>:imessage:group:<chat_id>`).
+    - Replies route back to iMessage using originating channel/target metadata.
+
+    Group-ish thread behavior:
+
+    Some multi-participant iMessage threads can arrive with `is_group=false`.
+    If that `chat_id` is explicitly configured under `channels.imessage.groups`, OpenClaw treats it as group traffic (group gating + group session isolation).
+
+  </Tab>
+</Tabs>
+
+## Deployment patterns
+
+<AccordionGroup>
+  <Accordion title="Dedicated bot macOS user (separate iMessage identity)">
+    Use a dedicated Apple ID and macOS user so bot traffic is isolated from your personal Messages profile.
+
+    Typical flow:
+
+    1. Create/sign in a dedicated macOS user.
+    2. Sign into Messages with the bot Apple ID in that user.
+    3. Install `imsg` in that user.
+    4. Create SSH wrapper so OpenClaw can run `imsg` in that user context.
+    5. Point `channels.imessage.accounts.<id>.cliPath` and `.dbPath` to that user profile.
+
+    First run may require GUI approvals (Automation + Full Disk Access) in that bot user session.
+
+  </Accordion>
+
+  <Accordion title="Remote Mac over Tailscale (example)">
+    Common topology:
+
+    - gateway runs on Linux/VM
+    - iMessage + `imsg` runs on a Mac in your tailnet
+    - `cliPath` wrapper uses SSH to run `imsg`
+    - `remoteHost` enables SCP attachment fetches
+
+    Example:
+
+>>>>>>> 777817392 (fix: fail closed missing provider group policy across message channels (#23367) (thanks @bmendonca3))
 ```json5
 {
   channels: {
