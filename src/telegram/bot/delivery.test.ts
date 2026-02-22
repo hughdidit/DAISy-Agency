@@ -78,7 +78,7 @@ function createSendMessageHarness(messageId = 4) {
 
 describe("deliverReplies", () => {
   beforeEach(() => {
-    loadWebMedia.mockReset();
+    loadWebMedia.mockClear();
   });
 
   it("skips audioAsVoice-only payloads without logging an error", async () => {
