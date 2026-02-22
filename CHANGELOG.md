@@ -281,7 +281,11 @@ Docs: https://docs.openclaw.ai
 =======
 =======
 - Memory/Index: detect memory source-set changes (for example enabling `sessions` after an existing memory-only index) and trigger a full reindex so existing session transcripts are indexed without requiring `--force`. (#17576) Thanks @TarsAI-Agent.
+<<<<<<< HEAD
 >>>>>>> d7747148d (fix(memory): reindex when sources change)
+=======
+- Memory/Embeddings: enforce a per-input 8k safety cap before embedding batching and apply a conservative 2k fallback limit for local providers without declared input limits, preventing oversized session/memory chunks from triggering provider context-size failures during sync/indexing. (#6016) Thanks @batumilove.
+>>>>>>> 1000ff04e (fix(memory): hard-cap embedding inputs before batch)
 - Memory/QMD: on Windows, resolve bare `qmd`/`mcporter` command names to npm shim executables (`.cmd`) before spawning, so qmd boot updates and mcporter-backed searches no longer fail with `spawn ... ENOENT` on default npm installs. (#23899) Thanks @arcbuilder-ai.
 <<<<<<< HEAD
 - Install/Discord Voice: make `@discordjs/opus` an optional dependency so `openclaw` install/update no longer hard-fails when native Opus builds fail, while keeping `opusscript` as the runtime fallback decoder for Discord voice flows. (#23737, #23733, #23703) Thanks @jeadland, @Sheetaa, and @Breakyman.
