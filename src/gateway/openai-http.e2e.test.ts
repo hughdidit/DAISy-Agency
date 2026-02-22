@@ -59,6 +59,22 @@ async function postChatCompletions(port: number, body: unknown, headers?: Record
   return res;
 }
 
+async function expectChatCompletionsDisabled(
+  start: (port: number) => Promise<{ close: (opts?: { reason?: string }) => Promise<void> }>,
+) {
+  const port = await getFreePort();
+  const server = await start(port);
+  try {
+    const res = await postChatCompletions(port, {
+      model: "openclaw",
+      messages: [{ role: "user", content: "hi" }],
+    });
+    expect(res.status).toBe(404);
+  } finally {
+    await server.close({ reason: "test done" });
+  }
+}
+
 function parseSseDataLines(text: string): string[] {
   return text
     .split("\n")
@@ -69,6 +85,7 @@ function parseSseDataLines(text: string): string[] {
 
 describe("OpenAI-compatible HTTP API (e2e)", () => {
   it("rejects when disabled (default + config)", { timeout: 120_000 }, async () => {
+<<<<<<< HEAD
     {
       const port = await getFreePort();
       const server = await startServerWithDefaultConfig(port);
@@ -98,6 +115,14 @@ describe("OpenAI-compatible HTTP API (e2e)", () => {
         await server.close({ reason: "test done" });
       }
     }
+=======
+    await expectChatCompletionsDisabled(startServerWithDefaultConfig);
+    await expectChatCompletionsDisabled((port) =>
+      startServer(port, {
+        openAiChatCompletionsEnabled: false,
+      }),
+    );
+>>>>>>> b109fa53e (refactor(core): dedupe gateway runtime and config tests)
   });
 
   it("handles request validation and routing", async () => {
@@ -134,6 +159,15 @@ describe("OpenAI-compatible HTTP API (e2e)", () => {
         expect(message).toContain(line);
       }
     };
+    const getFirstAgentCall = () =>
+      (agentCommand.mock.calls[0] as unknown[] | undefined)?.[0] as
+        | {
+            sessionKey?: string;
+            message?: string;
+            extraSystemPrompt?: string;
+          }
+        | undefined;
+    const getFirstAgentMessage = () => getFirstAgentCall()?.message ?? "";
 
     try {
       {
@@ -290,8 +324,7 @@ describe("OpenAI-compatible HTTP API (e2e)", () => {
         });
         expect(res.status).toBe(200);
 
-        const opts = (agentCommand.mock.calls[0] as unknown[] | undefined)?.[0];
-        const message = (opts as { message?: string } | undefined)?.message ?? "";
+        const message = getFirstAgentMessage();
         expectMessageContext(message, {
           history: ["User: Hello, who are you?", "Assistant: I am Claude."],
           current: ["User: What did I just ask you?"],
@@ -310,8 +343,7 @@ describe("OpenAI-compatible HTTP API (e2e)", () => {
         });
         expect(res.status).toBe(200);
 
-        const opts = (agentCommand.mock.calls[0] as unknown[] | undefined)?.[0];
-        const message = (opts as { message?: string } | undefined)?.message ?? "";
+        const message = getFirstAgentMessage();
         expect(message).not.toContain(HISTORY_CONTEXT_MARKER);
         expect(message).not.toContain(CURRENT_MESSAGE_MARKER);
         expect(message).toBe("Hello");
@@ -329,9 +361,7 @@ describe("OpenAI-compatible HTTP API (e2e)", () => {
         });
         expect(res.status).toBe(200);
 
-        const opts = (agentCommand.mock.calls[0] as unknown[] | undefined)?.[0];
-        const extraSystemPrompt =
-          (opts as { extraSystemPrompt?: string } | undefined)?.extraSystemPrompt ?? "";
+        const extraSystemPrompt = getFirstAgentCall()?.extraSystemPrompt ?? "";
         expect(extraSystemPrompt).toBe("You are a helpful assistant.");
         await res.text();
       }
@@ -349,8 +379,7 @@ describe("OpenAI-compatible HTTP API (e2e)", () => {
         });
         expect(res.status).toBe(200);
 
-        const opts = (agentCommand.mock.calls[0] as unknown[] | undefined)?.[0];
-        const message = (opts as { message?: string } | undefined)?.message ?? "";
+        const message = getFirstAgentMessage();
         expectMessageContext(message, {
           history: ["User: What's the weather?", "Assistant: Checking the weather."],
           current: ["Tool: Sunny, 70F."],

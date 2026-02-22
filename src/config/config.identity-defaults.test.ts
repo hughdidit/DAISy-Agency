@@ -7,6 +7,7 @@ import { withTempHome } from "./home-env.test-harness.js";
 
 describe("config identity defaults", () => {
 <<<<<<< HEAD
+<<<<<<< HEAD
   let fixtureRoot = "";
   let fixtureCount = 0;
 
@@ -49,6 +50,26 @@ describe("config identity defaults", () => {
 =======
 =======
 >>>>>>> d8da64261 (refactor(test): share temp home env harness)
+=======
+  const defaultIdentity = {
+    name: "Samantha",
+    theme: "helpful sloth",
+    emoji: "🦥",
+  };
+
+  const configWithDefaultIdentity = (messages: Record<string, unknown>) => ({
+    agents: {
+      list: [
+        {
+          id: "main",
+          identity: defaultIdentity,
+        },
+      ],
+    },
+    messages,
+  });
+
+>>>>>>> b109fa53e (refactor(core): dedupe gateway runtime and config tests)
   const writeAndLoadConfig = async (home: string, config: Record<string, unknown>) => {
     const configDir = path.join(home, ".openclaw");
     await fs.mkdir(configDir, { recursive: true });
@@ -63,21 +84,7 @@ describe("config identity defaults", () => {
 
   it("does not derive mention defaults and only sets ackReactionScope when identity is present", async () => {
     await withTempHome("openclaw-config-identity-", async (home) => {
-      const cfg = await writeAndLoadConfig(home, {
-        agents: {
-          list: [
-            {
-              id: "main",
-              identity: {
-                name: "Samantha",
-                theme: "helpful sloth",
-                emoji: "🦥",
-              },
-            },
-          ],
-        },
-        messages: {},
-      });
+      const cfg = await writeAndLoadConfig(home, configWithDefaultIdentity({}));
 
       expect(cfg.messages?.responsePrefix).toBeUndefined();
       expect(cfg.messages?.groupChat?.mentionPatterns).toBeUndefined();
@@ -369,6 +376,7 @@ describe("config identity defaults", () => {
 =======
 =======
     await withTempHome("openclaw-config-identity-", async (home) => {
+<<<<<<< HEAD
 >>>>>>> d8da64261 (refactor(test): share temp home env harness)
       const cfg = await writeAndLoadConfig(home, {
         agents: {
@@ -386,6 +394,9 @@ describe("config identity defaults", () => {
         },
         messages: { responsePrefix: "" },
       });
+=======
+      const cfg = await writeAndLoadConfig(home, configWithDefaultIdentity({ responsePrefix: "" }));
+>>>>>>> b109fa53e (refactor(core): dedupe gateway runtime and config tests)
 
       expect(cfg.messages?.responsePrefix).toBe("");
     });
