@@ -57,11 +57,15 @@ import JSZip from "jszip";
 >>>>>>> f76f98b26 (chore: fix formatting drift and stabilize cron tool mocks)
 import * as tar from "tar";
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 93dc3bb79 (perf(test): avoid npm pack in plugin install e2e fixtures)
 import { afterEach, describe, expect, it, vi } from "vitest";
 =======
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 >>>>>>> 5c8f0b5a7 (test: tighten plugin e2e matrix coverage)
+=======
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+>>>>>>> 407f7017e (test: cache plugin install archive fixtures)
 import * as skillScanner from "../security/skill-scanner.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -158,14 +162,55 @@ async function createVoiceCallArchive(params: {
   return { pkgDir, archivePath };
 }
 
-async function setupVoiceCallArchiveInstall(params: { outName: string; version: string }) {
-  const stateDir = makeTempDir();
+async function createVoiceCallArchiveBuffer(version: string): Promise<Buffer> {
   const workDir = makeTempDir();
   const { archivePath } = await createVoiceCallArchive({
     workDir,
-    outName: params.outName,
-    version: params.version,
+    outName: `plugin-${version}.tgz`,
+    version,
   });
+  return fs.readFileSync(archivePath);
+}
+
+function writeArchiveBuffer(params: { outName: string; buffer: Buffer }): string {
+  const workDir = makeTempDir();
+  const archivePath = path.join(workDir, params.outName);
+  fs.writeFileSync(archivePath, params.buffer);
+  return archivePath;
+}
+
+async function createZipperArchiveBuffer(): Promise<Buffer> {
+  const zip = new JSZip();
+  zip.file(
+    "package/package.json",
+    JSON.stringify({
+      name: "@openclaw/zipper",
+      version: "0.0.1",
+      openclaw: { extensions: ["./dist/index.js"] },
+    }),
+  );
+  zip.file("package/dist/index.js", "export {};");
+  return zip.generateAsync({ type: "nodebuffer" });
+}
+
+const VOICE_CALL_ARCHIVE_V1_BUFFER_PROMISE = createVoiceCallArchiveBuffer("0.0.1");
+const VOICE_CALL_ARCHIVE_V2_BUFFER_PROMISE = createVoiceCallArchiveBuffer("0.0.2");
+const ZIPPER_ARCHIVE_BUFFER_PROMISE = createZipperArchiveBuffer();
+
+async function getVoiceCallArchiveBuffer(version: string): Promise<Buffer> {
+  if (version === "0.0.1") {
+    return VOICE_CALL_ARCHIVE_V1_BUFFER_PROMISE;
+  }
+  if (version === "0.0.2") {
+    return VOICE_CALL_ARCHIVE_V2_BUFFER_PROMISE;
+  }
+  return createVoiceCallArchiveBuffer(version);
+}
+
+async function setupVoiceCallArchiveInstall(params: { outName: string; version: string }) {
+  const stateDir = makeTempDir();
+  const archiveBuffer = await getVoiceCallArchiveBuffer(params.version);
+  const archivePath = writeArchiveBuffer({ outName: params.outName, buffer: archiveBuffer });
   return {
     stateDir,
     archivePath,
@@ -239,7 +284,7 @@ async function expectArchiveInstallReservedSegmentRejection(params: {
   expect(result.error).toContain("reserved path segment");
 }
 
-afterEach(() => {
+afterAll(() => {
   for (const dir of tempDirs.splice(0)) {
     try {
       fs.rmSync(dir, { recursive: true, force: true });
@@ -370,6 +415,7 @@ describe("installPluginFromArchive", () => {
 
   it("installs from a zip archive", async () => {
     const stateDir = makeTempDir();
+<<<<<<< HEAD
     const workDir = makeTempDir();
     const archivePath = path.join(workDir, "plugin.zip");
 
@@ -385,6 +431,12 @@ describe("installPluginFromArchive", () => {
     zip.file("package/dist/index.js", "export {};");
     const buffer = await zip.generateAsync({ type: "nodebuffer" });
     fs.writeFileSync(archivePath, buffer);
+=======
+    const archivePath = writeArchiveBuffer({
+      outName: "plugin.zip",
+      buffer: await ZIPPER_ARCHIVE_BUFFER_PROMISE,
+    });
+>>>>>>> 407f7017e (test: cache plugin install archive fixtures)
 
     const extensionsDir = path.join(stateDir, "extensions");
 <<<<<<< HEAD
@@ -407,6 +459,7 @@ describe("installPluginFromArchive", () => {
 
   it("allows updates when mode is update", async () => {
     const stateDir = makeTempDir();
+<<<<<<< HEAD
     const workDir = makeTempDir();
 <<<<<<< HEAD
     const pkgDir = path.join(workDir, "package");
@@ -429,13 +482,15 @@ describe("installPluginFromArchive", () => {
     const { archivePath: archiveV1 } = await createVoiceCallArchive({
       workDir,
 >>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
+=======
+    const archiveV1 = writeArchiveBuffer({
+>>>>>>> 407f7017e (test: cache plugin install archive fixtures)
       outName: "plugin-v1.tgz",
-      version: "0.0.1",
+      buffer: await VOICE_CALL_ARCHIVE_V1_BUFFER_PROMISE,
     });
-    const { archivePath: archiveV2 } = await createVoiceCallArchive({
-      workDir,
+    const archiveV2 = writeArchiveBuffer({
       outName: "plugin-v2.tgz",
-      version: "0.0.2",
+      buffer: await VOICE_CALL_ARCHIVE_V2_BUFFER_PROMISE,
     });
 <<<<<<< HEAD
 
@@ -658,32 +713,20 @@ describe("installPluginFromDir", () => {
 
 describe("installPluginFromNpmSpec", () => {
   it("uses --ignore-scripts for npm pack and cleans up temp dir", async () => {
-    const workDir = makeTempDir();
     const stateDir = makeTempDir();
-    const pkgDir = path.join(workDir, "package");
-    fs.mkdirSync(path.join(pkgDir, "dist"), { recursive: true });
-    fs.writeFileSync(
-      path.join(pkgDir, "package.json"),
-      JSON.stringify({
-        name: "@openclaw/voice-call",
-        version: "0.0.1",
-        openclaw: { extensions: ["./dist/index.js"] },
-      }),
-      "utf-8",
-    );
-    fs.writeFileSync(path.join(pkgDir, "dist", "index.js"), "export {};", "utf-8");
 
     const extensionsDir = path.join(stateDir, "extensions");
     fs.mkdirSync(extensionsDir, { recursive: true });
 
     const run = vi.mocked(runCommandWithTimeout);
+    const voiceCallArchiveBuffer = await VOICE_CALL_ARCHIVE_V1_BUFFER_PROMISE;
 
     let packTmpDir = "";
     const packedName = "voice-call-0.0.1.tgz";
     run.mockImplementation(async (argv, opts) => {
       if (argv[0] === "npm" && argv[1] === "pack") {
         packTmpDir = String(typeof opts === "number" ? "" : (opts.cwd ?? ""));
-        await packToArchive({ pkgDir, outDir: packTmpDir, outName: packedName });
+        fs.writeFileSync(path.join(packTmpDir, packedName), voiceCallArchiveBuffer);
         return {
           code: 0,
           stdout: `${packedName}\n`,
