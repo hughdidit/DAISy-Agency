@@ -4,8 +4,12 @@ import path from "node:path";
 
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import "./test-helpers/fast-coding-tools.js";
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
 import { ensureMoltbotModelsJson } from "./models-config.js";
+=======
+import type { OpenClawConfig } from "../config/config.js";
+>>>>>>> 47514e35a (test: dedupe pi embedded runner setup and orphan case)
 
 vi.mock("@mariozechner/pi-coding-agent", async () => {
   const actual = await vi.importActual<typeof import("@mariozechner/pi-coding-agent")>(
@@ -178,8 +182,11 @@ const makeOpenAiConfig = (modelIds: string[]) =>
     },
   }) satisfies MoltbotConfig;
 
+<<<<<<< HEAD
 const ensureModels = (cfg: MoltbotConfig) => ensureMoltbotModelsJson(cfg, agentDir) as unknown;
 
+=======
+>>>>>>> 47514e35a (test: dedupe pi embedded runner setup and orphan case)
 const nextSessionFile = () => {
   sessionCounter += 1;
   return path.join(workspaceDir, `session-${sessionCounter}.jsonl`);
@@ -200,7 +207,6 @@ const runWithOrphanedSingleUserMessage = async (text: string) => {
   });
 
   const cfg = makeOpenAiConfig(["mock-1"]);
-  await ensureModels(cfg);
   return await runEmbeddedPiAgent({
     sessionId: "session:test",
     sessionKey: testSessionKey,
@@ -245,7 +251,6 @@ const readSessionMessages = async (sessionFile: string) => {
 
 const runDefaultEmbeddedTurn = async (sessionFile: string, prompt: string) => {
   const cfg = makeOpenAiConfig(["mock-1"]);
-  await ensureModels(cfg);
   await runEmbeddedPiAgent({
     sessionId: "session:test",
     sessionKey: testSessionKey,
@@ -329,7 +334,6 @@ describe("runEmbeddedPiAgent", () => {
         },
       },
     } satisfies OpenClawConfig;
-    await ensureModels(cfg);
 
     const result = await runEmbeddedPiAgent({
       sessionId: "session:test-fallback",
@@ -366,7 +370,6 @@ describe("runEmbeddedPiAgent", () => {
         ],
       },
     } satisfies OpenClawConfig;
-    await ensureModels(cfg);
 
     await expect(
       runEmbeddedPiAgent({
@@ -425,7 +428,6 @@ describe("runEmbeddedPiAgent", () => {
   it("persists the user message when prompt fails before assistant output", async () => {
     const sessionFile = nextSessionFile();
     const cfg = makeOpenAiConfig(["mock-error"]);
-    await ensureModels(cfg);
 
     const result = await runEmbeddedPiAgent({
       sessionId: "session:test",
@@ -459,7 +461,6 @@ describe("runEmbeddedPiAgent", () => {
 >>>>>>> eda941f39 (perf(test): remove flaky transport timeout and dedupe safeBins checks)
     const sessionFile = nextSessionFile();
     const cfg = makeOpenAiConfig(["mock-throw"]);
-    await ensureModels(cfg);
 
     await expect(
       runEmbeddedPiAgent({
@@ -544,7 +545,6 @@ describe("runEmbeddedPiAgent", () => {
   it("persists multi-turn user/assistant ordering across runs", async () => {
     const sessionFile = nextSessionFile();
     const cfg = makeOpenAiConfig(["mock-1"]);
-    await ensureModels(cfg);
 
     await runEmbeddedPiAgent({
       sessionId: "session:test",
@@ -601,13 +601,6 @@ describe("runEmbeddedPiAgent", () => {
 
   it("repairs orphaned user messages and continues", async () => {
     const result = await runWithOrphanedSingleUserMessage("orphaned user");
-
-    expect(result.meta.error).toBeUndefined();
-    expect(result.payloads?.length ?? 0).toBeGreaterThan(0);
-  });
-
-  it("repairs orphaned single-user sessions and continues", async () => {
-    const result = await runWithOrphanedSingleUserMessage("solo user");
 
     expect(result.meta.error).toBeUndefined();
     expect(result.payloads?.length ?? 0).toBeGreaterThan(0);
