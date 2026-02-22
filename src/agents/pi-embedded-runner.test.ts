@@ -268,6 +268,7 @@ const runDefaultEmbeddedTurn = async (sessionFile: string, prompt: string) => {
 };
 
 describe("runEmbeddedPiAgent", () => {
+<<<<<<< HEAD
   it("writes models.json into the provided agentDir", async () => {
     const sessionFile = nextSessionFile();
 
@@ -428,6 +429,8 @@ describe("runEmbeddedPiAgent", () => {
 
 =======
 >>>>>>> bd6be417e (test: trim duplicate smoke and embedded runner cases)
+=======
+>>>>>>> 1437f371f (test: trim duplicate embedded runner setup cases)
   it("persists the user message when prompt fails before assistant output", async () => {
     const sessionFile = nextSessionFile();
     const cfg = makeOpenAiConfig(["mock-error"]);
