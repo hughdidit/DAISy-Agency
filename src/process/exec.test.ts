@@ -47,6 +47,7 @@ describe("runCommandWithTimeout", () => {
 
       expect(result.code).toBe(0);
       expect(result.stdout).toBe("base|ok");
+<<<<<<< HEAD
     } finally {
       if (previous === undefined) {
         delete process.env.OPENCLAW_BASE_ENV;
@@ -54,5 +55,66 @@ describe("runCommandWithTimeout", () => {
         process.env.OPENCLAW_BASE_ENV = previous;
       }
     }
+=======
+      expect(result.termination).toBe("exit");
+    });
+  });
+
+  it("kills command when no output timeout elapses", async () => {
+    const result = await runCommandWithTimeout(
+      [process.execPath, "-e", "setTimeout(() => {}, 40)"],
+      {
+        timeoutMs: 500,
+        noOutputTimeoutMs: 20,
+      },
+    );
+
+    expect(result.termination).toBe("no-output-timeout");
+    expect(result.noOutputTimedOut).toBe(true);
+    expect(result.code).not.toBe(0);
+  });
+
+  it("resets no output timer when command keeps emitting output", async () => {
+    const result = await runCommandWithTimeout(
+      [
+        process.execPath,
+        "-e",
+        [
+          'process.stdout.write(".");',
+          "let count = 0;",
+          'const ticker = setInterval(() => { process.stdout.write(".");',
+          "count += 1;",
+          "if (count === 4) {",
+          "clearInterval(ticker);",
+          "process.exit(0);",
+          "}",
+          "}, 180);",
+        ].join(" "),
+      ],
+      {
+        timeoutMs: 5_000,
+        noOutputTimeoutMs: 500,
+      },
+    );
+
+    expect(result.signal).toBeNull();
+    expect(result.code ?? 0).toBe(0);
+    expect(result.termination).toBe("exit");
+    expect(result.noOutputTimedOut).toBe(false);
+    expect(result.stdout.length).toBeGreaterThanOrEqual(5);
+  });
+
+  it("reports global timeout termination when overall timeout elapses", async () => {
+    const result = await runCommandWithTimeout(
+      [process.execPath, "-e", "setTimeout(() => {}, 40)"],
+      {
+        timeoutMs: 15,
+      },
+    );
+
+    expect(result.termination).toBe("timeout");
+    expect(result.noOutputTimedOut).toBe(false);
+    expect(result.code).not.toBe(0);
+>>>>>>> 427b4360b (build: update deps and stabilize tests)
   });
 });
