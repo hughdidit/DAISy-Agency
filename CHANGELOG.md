@@ -65,6 +65,7 @@ Docs: https://docs.openclaw.ai
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 =======
@@ -119,6 +120,9 @@ Docs: https://docs.openclaw.ai
 >>>>>>> 3e1ed0032 (Docs: add Discord forum thread docs)
 =======
 =======
+=======
+- Docs/Subagents: make thread-bound session guidance channel-first instead of Discord-specific, and list thread-supporting channels explicitly. (#23589) Thanks @osolmaz.
+>>>>>>> f39a66de2 (docs: make subagents thread guidance channel-first (#23589) (thanks @osolmaz))
 - Channels/Config: unify channel preview streaming config handling with a shared resolver and canonical migration path.
 - Discord/Allowlist: canonicalize resolved Discord allowlist names to IDs and split resolution flow for clearer fail-closed behavior.
 - iOS/Talk: prefetch TTS segments and suppress expected speech-cancellation errors for smoother talk playback. (#22833) Thanks @ngutman.
