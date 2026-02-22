@@ -564,8 +564,36 @@ export function createBrowserTool(opts?: {
               });
             }
             return {
+<<<<<<< HEAD
               content: [{ type: "text", text: snapshot.snapshot }],
               details: snapshot,
+=======
+              content: [{ type: "text" as const, text: wrappedSnapshot }],
+              details: safeDetails,
+            };
+          }
+          {
+            const wrapped = wrapBrowserExternalJson({
+              kind: "snapshot",
+              payload: snapshot,
+            });
+            return {
+              content: [{ type: "text" as const, text: wrapped.wrappedText }],
+              details: {
+                ...wrapped.safeDetails,
+                format: "aria",
+                targetId: snapshot.targetId,
+                url: snapshot.url,
+                nodeCount: snapshot.nodes.length,
+                externalContent: {
+                  untrusted: true,
+                  source: "browser",
+                  kind: "snapshot",
+                  format: "aria",
+                  wrapped: true,
+                },
+              },
+>>>>>>> 08fb38f72 (Fix: resolve pnpm check type regressions)
             };
           }
           return jsonResult(snapshot);
@@ -641,7 +669,34 @@ export function createBrowserTool(opts?: {
                 targetId,
               },
             });
+<<<<<<< HEAD
             return jsonResult(result);
+=======
+            return {
+              content: [{ type: "text" as const, text: wrapped.wrappedText }],
+              details: {
+                ...wrapped.safeDetails,
+                targetId: typeof result.targetId === "string" ? result.targetId : undefined,
+                messageCount: Array.isArray(result.messages) ? result.messages.length : undefined,
+              },
+            };
+          }
+          {
+            const result = await browserConsoleMessages(baseUrl, { level, targetId, profile });
+            const wrapped = wrapBrowserExternalJson({
+              kind: "console",
+              payload: result,
+              includeWarning: false,
+            });
+            return {
+              content: [{ type: "text" as const, text: wrapped.wrappedText }],
+              details: {
+                ...wrapped.safeDetails,
+                targetId: result.targetId,
+                messageCount: result.messages.length,
+              },
+            };
+>>>>>>> 08fb38f72 (Fix: resolve pnpm check type regressions)
           }
           return jsonResult(await browserConsoleMessages(baseUrl, { level, targetId, profile }));
         }
@@ -656,7 +711,7 @@ export function createBrowserTool(opts?: {
               })) as Awaited<ReturnType<typeof browserPdfSave>>)
             : await browserPdfSave(baseUrl, { targetId, profile });
           return {
-            content: [{ type: "text", text: `FILE:${result.path}` }],
+            content: [{ type: "text" as const, text: `FILE:${result.path}` }],
             details: result,
           };
         }
