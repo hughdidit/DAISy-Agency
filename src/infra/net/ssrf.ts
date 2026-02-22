@@ -251,6 +251,8 @@ const BLOCKED_IPV4_SPECIAL_USE_CIDRS: readonly Ipv4Cidr[] = [
   { base: [240, 0, 0, 0], prefixLength: 4 },
 ];
 
+// Keep this table as the single source of IPv4 non-global policy.
+// Both plain IPv4 literals and IPv6-embedded IPv4 forms flow through it.
 const BLOCKED_IPV4_SPECIAL_USE_RANGES = BLOCKED_IPV4_SPECIAL_USE_CIDRS.map(ipv4RangeFromCidr);
 
 function isBlockedIpv4SpecialUse(parts: number[]): boolean {
@@ -364,6 +366,35 @@ export function isBlockedHostname(hostname: string): boolean {
   );
 }
 
+<<<<<<< HEAD
+=======
+export function isBlockedHostnameOrIp(hostname: string): boolean {
+  const normalized = normalizeHostname(hostname);
+  if (!normalized) {
+    return false;
+  }
+  return isBlockedHostnameNormalized(normalized) || isPrivateIpAddress(normalized);
+}
+
+const BLOCKED_HOST_OR_IP_MESSAGE = "Blocked hostname or private/internal/special-use IP address";
+const BLOCKED_RESOLVED_IP_MESSAGE = "Blocked: resolves to private/internal/special-use IP address";
+
+function assertAllowedHostOrIpOrThrow(hostnameOrIp: string): void {
+  if (isBlockedHostnameOrIp(hostnameOrIp)) {
+    throw new SsrFBlockedError(BLOCKED_HOST_OR_IP_MESSAGE);
+  }
+}
+
+function assertAllowedResolvedAddressesOrThrow(results: readonly LookupAddress[]): void {
+  for (const entry of results) {
+    // Reuse the exact same host/IP classifier as the pre-DNS check to avoid drift.
+    if (isBlockedHostnameOrIp(entry.address)) {
+      throw new SsrFBlockedError(BLOCKED_RESOLVED_IP_MESSAGE);
+    }
+  }
+}
+
+>>>>>>> 44dfbd23d (fix(ssrf): centralize host/ip block checks)
 export function createPinnedLookup(params: {
   hostname: string;
   addresses: string[];
@@ -436,6 +467,7 @@ export async function resolvePinnedHostname(
     throw new Error("Invalid hostname");
   }
 
+<<<<<<< HEAD
   if (isBlockedHostname(normalized)) {
     throw new SsrFBlockedError(`Blocked hostname: ${hostname}`);
   }
@@ -447,6 +479,21 @@ export async function resolvePinnedHostname(
   if (!allowPrivateNetwork && !isExplicitAllowed && isBlockedHostnameOrIp(normalized)) {
     throw new SsrFBlockedError("Blocked hostname or private/internal/special-use IP address");
 >>>>>>> 71bd15bb4 (fix(ssrf): block special-use ipv4 ranges)
+=======
+  const allowPrivateNetwork = Boolean(params.policy?.allowPrivateNetwork);
+  const allowedHostnames = normalizeHostnameSet(params.policy?.allowedHostnames);
+  const hostnameAllowlist = normalizeHostnameAllowlist(params.policy?.hostnameAllowlist);
+  const isExplicitAllowed = allowedHostnames.has(normalized);
+  const skipPrivateNetworkChecks = allowPrivateNetwork || isExplicitAllowed;
+
+  if (!matchesHostnameAllowlist(normalized, hostnameAllowlist)) {
+    throw new SsrFBlockedError(`Blocked hostname (not in allowlist): ${hostname}`);
+  }
+
+  if (!skipPrivateNetworkChecks) {
+    // Phase 1: fail fast for literal hosts/IPs before any DNS lookup side-effects.
+    assertAllowedHostOrIpOrThrow(normalized);
+>>>>>>> 44dfbd23d (fix(ssrf): centralize host/ip block checks)
   }
 
   const results = await lookupFn(normalized, { all: true });
@@ -454,6 +501,7 @@ export async function resolvePinnedHostname(
     throw new Error(`Unable to resolve hostname: ${hostname}`);
   }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
   for (const entry of results) {
     if (isPrivateIpAddress(entry.address)) {
@@ -466,6 +514,11 @@ export async function resolvePinnedHostname(
       }
 >>>>>>> 71bd15bb4 (fix(ssrf): block special-use ipv4 ranges)
     }
+=======
+  if (!skipPrivateNetworkChecks) {
+    // Phase 2: re-check DNS answers so public hostnames cannot pivot to private targets.
+    assertAllowedResolvedAddressesOrThrow(results);
+>>>>>>> 44dfbd23d (fix(ssrf): centralize host/ip block checks)
   }
 
   const addresses = Array.from(new Set(results.map((entry) => entry.address)));
