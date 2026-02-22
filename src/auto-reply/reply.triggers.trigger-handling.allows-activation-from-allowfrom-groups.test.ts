@@ -1,4 +1,3 @@
-import { join } from "node:path";
 import { beforeAll, describe, expect, it } from "vitest";
 import {
   getRunEmbeddedPiAgentMock,
@@ -93,6 +92,17 @@ describe("trigger handling", () => {
           agentMeta: { sessionId: "s", provider: "p", model: "m" },
         },
       });
+      const cfg = makeCfg(home);
+      cfg.channels ??= {};
+      cfg.channels.whatsapp = {
+        ...cfg.channels.whatsapp,
+        allowFrom: ["*"],
+        groups: { "*": { requireMention: false } },
+      };
+      cfg.messages = {
+        ...cfg.messages,
+        groupChat: {},
+      };
 
       const res = await getReplyFromConfig(
         {
@@ -106,6 +116,7 @@ describe("trigger handling", () => {
           GroupMembers: "Alice (+1), Bob (+2)",
         },
         {},
+<<<<<<< HEAD
         {
           agents: {
             defaults: {
@@ -129,6 +140,9 @@ describe("trigger handling", () => {
           },
           session: { store: join(home, "sessions.json") },
         },
+=======
+        cfg,
+>>>>>>> 829236afa (test: reuse trigger harness defaults in custom configs)
       );
 
       const text = Array.isArray(res) ? res[0]?.text : res?.text;
