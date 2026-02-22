@@ -8,7 +8,9 @@ const isGatewaySigusr1RestartExternallyAllowed = vi.fn(() => false);
 const getActiveTaskCount = vi.fn(() => 0);
 const waitForActiveTasks = vi.fn(async () => ({ drained: true }));
 const resetAllLanes = vi.fn();
-const restartGatewayProcessWithFreshPid = vi.fn(() => ({ mode: "skipped" as const }));
+const restartGatewayProcessWithFreshPid = vi.fn<
+  () => { mode: "spawned" | "supervised" | "disabled" | "failed"; pid?: number; detail?: string }
+>(() => ({ mode: "disabled" }));
 const DRAIN_TIMEOUT_LOG = "drain timeout reached; proceeding with restart";
 const gatewayLog = {
   info: vi.fn(),
@@ -29,9 +31,13 @@ vi.mock("../../infra/restart.js", () => ({
 }));
 
 vi.mock("../../infra/process-respawn.js", () => ({
+<<<<<<< HEAD
   restartGatewayProcessWithFreshPid: (...args: unknown[]) =>
     restartGatewayProcessWithFreshPid(...args),
 >>>>>>> 01bd83d64 (fix: release gateway lock before process.exit in run-loop)
+=======
+  restartGatewayProcessWithFreshPid: () => restartGatewayProcessWithFreshPid(),
+>>>>>>> dd07c06d0 (fix: tighten gateway restart loop handling (#23416) (thanks @jeffwnli))
 }));
 
 vi.mock("../../process/command-queue.js", () => ({
@@ -120,6 +126,7 @@ describe("runGatewayLoop", () => {
         restartExpectedMs: 1500,
       });
       expect(resetAllLanes).toHaveBeenCalledTimes(2);
+      expect(acquireGatewayLock).toHaveBeenCalledTimes(3);
     } finally {
       removeNewSignalListeners("SIGTERM", beforeSigterm);
       removeNewSignalListeners("SIGINT", beforeSigint);
@@ -133,8 +140,6 @@ describe("runGatewayLoop", () => {
     const lockRelease = vi.fn(async () => {});
     acquireGatewayLock.mockResolvedValueOnce({
       release: lockRelease,
-      lockPath: "/tmp/test.lock",
-      configPath: "/test/openclaw.json",
     });
 
     // Override process-respawn to return "spawned" mode

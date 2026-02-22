@@ -24,7 +24,7 @@ export async function runGatewayLoop(params: {
   start: () => Promise<Awaited<ReturnType<typeof startGatewayServer>>>;
   runtime: typeof defaultRuntime;
 }) {
-  const lock = await acquireGatewayLock();
+  let lock = await acquireGatewayLock();
   let server: Awaited<ReturnType<typeof startGatewayServer>> | null = null;
   let shuttingDown = false;
   let restartResolver: (() => void) | null = null;
@@ -64,6 +64,7 @@ export async function runGatewayLoop(params: {
         if (isRestart) {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
           shuttingDown = false;
           restartResolver?.();
 =======
@@ -71,6 +72,14 @@ export async function runGatewayLoop(params: {
           // Release the lock BEFORE spawning so the child can acquire it immediately.
           await lock?.release();
 >>>>>>> 9c30243c8 (fix: release gateway lock before spawning restart child)
+=======
+          const hadLock = lock != null;
+          // Release the lock BEFORE spawning so the child can acquire it immediately.
+          if (lock) {
+            await lock.release();
+            lock = null;
+          }
+>>>>>>> dd07c06d0 (fix: tighten gateway restart loop handling (#23416) (thanks @jeffwnli))
           const respawn = restartGatewayProcessWithFreshPid();
           if (respawn.mode === "spawned" || respawn.mode === "supervised") {
             const modeLabel =
@@ -88,12 +97,30 @@ export async function runGatewayLoop(params: {
             } else {
               gatewayLog.info("restart mode: in-process restart (OPENCLAW_NO_RESPAWN)");
             }
-            shuttingDown = false;
-            restartResolver?.();
+            let canContinueInProcessRestart = true;
+            if (hadLock) {
+              try {
+                lock = await acquireGatewayLock();
+              } catch (err) {
+                gatewayLog.error(
+                  `failed to reacquire gateway lock for in-process restart: ${String(err)}`,
+                );
+                cleanupSignals();
+                params.runtime.exit(1);
+                canContinueInProcessRestart = false;
+              }
+            }
+            if (canContinueInProcessRestart) {
+              shuttingDown = false;
+              restartResolver?.();
+            }
           }
 >>>>>>> 01bd83d64 (fix: release gateway lock before process.exit in run-loop)
         } else {
-          await lock?.release();
+          if (lock) {
+            await lock.release();
+            lock = null;
+          }
           cleanupSignals();
           params.runtime.exit(0);
         }
@@ -147,7 +174,10 @@ export async function runGatewayLoop(params: {
       });
     }
   } finally {
-    await lock?.release();
+    if (lock) {
+      await lock.release();
+      lock = null;
+    }
     cleanupSignals();
   }
 }
