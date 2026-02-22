@@ -377,6 +377,7 @@ export async function runPreparedReply(
 =======
   const threadStarterBody = ctx.ThreadStarterBody?.trim();
   const threadHistoryBody = ctx.ThreadHistoryBody?.trim();
+<<<<<<< HEAD
   const threadContextNote =
     isNewSession && threadHistoryBody
       ? `[Thread history - for context]\n${threadHistoryBody}`
@@ -384,6 +385,13 @@ export async function runPreparedReply(
         ? `[Thread starter - for context]\n${threadStarterBody}`
         : undefined;
 >>>>>>> b93ad2cd4 (fix(slack): populate thread session with existing thread history (#7610))
+=======
+  const threadContextNote = threadHistoryBody
+    ? `[Thread history - for context]\n${threadHistoryBody}`
+    : threadStarterBody
+      ? `[Thread starter - for context]\n${threadStarterBody}`
+      : undefined;
+>>>>>>> 5e73f3344 (fix(slack): keep thread session fork/history context after first turn (#23843))
   const skillResult = await ensureSkillSnapshot({
     sessionEntry,
     sessionStore,

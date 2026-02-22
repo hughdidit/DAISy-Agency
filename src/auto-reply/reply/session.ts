@@ -416,11 +416,12 @@ export async function initSessionState(params: {
     sessionEntry.displayName = threadLabel;
   }
   const parentSessionKey = ctx.ParentSessionKey?.trim();
+  const alreadyForked = sessionEntry.forkedFromParent === true;
   if (
-    isNewSession &&
     parentSessionKey &&
     parentSessionKey !== sessionKey &&
-    sessionStore[parentSessionKey]
+    sessionStore[parentSessionKey] &&
+    !alreadyForked
   ) {
 <<<<<<< HEAD
 =======
@@ -437,7 +438,11 @@ export async function initSessionState(params: {
       sessionEntry.sessionId = forked.sessionId;
       sessionEntry.sessionFile = forked.sessionFile;
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+      sessionEntry.forkedFromParent = true;
+>>>>>>> 5e73f3344 (fix(slack): keep thread session fork/history context after first turn (#23843))
       log.warn(`forked session created: file=${forked.sessionFile}`);
 >>>>>>> 2f46308d5 (refactor(logging): migrate non-agent internal console calls to subsystem logger (#22964))
     }
