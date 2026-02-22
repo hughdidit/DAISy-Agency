@@ -26,6 +26,7 @@ describe("createMoltbotCodingTools", () => {
       expect(readTool).toBeDefined();
 =======
 describe("createOpenClawCodingTools", () => {
+<<<<<<< HEAD
   it("uses workspaceDir for read/write/edit path resolution", async () => {
     const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-ws-"));
     try {
@@ -109,6 +110,8 @@ describe("createOpenClawCodingTools", () => {
       await fs.rm(tmpDir, { recursive: true, force: true });
     }
   });
+=======
+>>>>>>> dc356ae1c (test: remove duplicate workspace path-resolution case)
   it("accepts Claude Code parameter aliases for read/write/edit", async () => {
     const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-alias-"));
     try {
