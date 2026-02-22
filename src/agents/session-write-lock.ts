@@ -56,7 +56,18 @@ type WatchdogState = {
   timer?: NodeJS.Timeout;
 };
 
+<<<<<<< HEAD
 function resolveHeldLocks(): Map<string, HeldLock> {
+=======
+type LockInspectionDetails = Pick<
+  SessionLockInspection,
+  "pid" | "pidAlive" | "createdAt" | "ageMs" | "stale" | "staleReasons"
+>;
+
+const HELD_LOCKS = resolveProcessScopedMap<HeldLock>(HELD_LOCKS_KEY);
+
+function resolveCleanupState(): CleanupState {
+>>>>>>> 1becebe18 (fix: harden session lock contention and cleanup)
   const proc = process as NodeJS.Process & {
     [HELD_LOCKS_KEY]?: Map<string, HeldLock>;
   };
@@ -272,10 +283,7 @@ function inspectLockPayload(
   payload: LockFilePayload | null,
   staleMs: number,
   nowMs: number,
-): Pick<
-  SessionLockInspection,
-  "pid" | "pidAlive" | "createdAt" | "ageMs" | "stale" | "staleReasons"
-> {
+): LockInspectionDetails {
   const pid = typeof payload?.pid === "number" ? payload.pid : null;
   const pidAlive = pid !== null ? isPidAlive(pid) : false;
   const createdAt = typeof payload?.createdAt === "string" ? payload.createdAt : null;
@@ -302,6 +310,37 @@ function inspectLockPayload(
     stale: staleReasons.length > 0,
     staleReasons,
   };
+}
+
+function lockInspectionNeedsMtimeStaleFallback(details: LockInspectionDetails): boolean {
+  return (
+    details.stale &&
+    details.staleReasons.every(
+      (reason) => reason === "missing-pid" || reason === "invalid-createdAt",
+    )
+  );
+}
+
+async function shouldReclaimContendedLockFile(
+  lockPath: string,
+  details: LockInspectionDetails,
+  staleMs: number,
+  nowMs: number,
+): Promise<boolean> {
+  if (!details.stale) {
+    return false;
+  }
+  if (!lockInspectionNeedsMtimeStaleFallback(details)) {
+    return true;
+  }
+  try {
+    const stat = await fs.stat(lockPath);
+    const ageMs = Math.max(0, nowMs - stat.mtimeMs);
+    return ageMs > staleMs;
+  } catch (error) {
+    const code = (error as { code?: string } | null)?.code;
+    return code !== "ENOENT";
+  }
 }
 
 export async function cleanStaleLockFiles(params: {
@@ -413,8 +452,9 @@ export async function acquireSessionWriteLock(params: {
   let attempt = 0;
   while (Date.now() - startedAt < timeoutMs) {
     attempt += 1;
+    let handle: fs.FileHandle | null = null;
     try {
-      const handle = await fs.open(lockPath, "wx");
+      handle = await fs.open(lockPath, "wx");
       const createdAt = new Date().toISOString();
       await handle.writeFile(JSON.stringify({ pid: process.pid, createdAt }, null, 2), "utf8");
       const createdHeld: HeldLock = {
@@ -445,11 +485,24 @@ export async function acquireSessionWriteLock(params: {
         },
       };
     } catch (err) {
+      if (handle) {
+        try {
+          await handle.close();
+        } catch {
+          // Ignore cleanup errors on failed lock initialization.
+        }
+        try {
+          await fs.rm(lockPath, { force: true });
+        } catch {
+          // Ignore cleanup errors on failed lock initialization.
+        }
+      }
       const code = (err as { code?: unknown }).code;
       if (code !== "EEXIST") {
         throw err;
       }
       const payload = await readLockPayload(lockPath);
+<<<<<<< HEAD
 <<<<<<< HEAD
       const createdAt = payload?.createdAt ? Date.parse(payload.createdAt) : NaN;
       const stale = !Number.isFinite(createdAt) || Date.now() - createdAt > staleMs;
@@ -459,6 +512,11 @@ export async function acquireSessionWriteLock(params: {
       const inspected = inspectLockPayload(payload, staleMs, Date.now());
       if (inspected.stale) {
 >>>>>>> e91a5b021 (fix: release stale session locks and add watchdog for hung API calls (#18060))
+=======
+      const nowMs = Date.now();
+      const inspected = inspectLockPayload(payload, staleMs, nowMs);
+      if (await shouldReclaimContendedLockFile(lockPath, inspected, staleMs, nowMs)) {
+>>>>>>> 1becebe18 (fix: harden session lock contention and cleanup)
         await fs.rm(lockPath, { force: true });
         continue;
       }
