@@ -81,6 +81,7 @@ describe("media understanding auto-detect (e2e)", () => {
     tempPaths = [];
   });
 
+<<<<<<< HEAD
   it("uses sherpa-onnx-offline when available", async () => {
 <<<<<<< HEAD
     const snapshot = envSnapshot();
@@ -89,6 +90,9 @@ describe("media understanding auto-detect (e2e)", () => {
       const modelDir = await makeTempDir("moltbot-sherpa-model-");
       tempPaths.push(binDir, modelDir);
 =======
+=======
+  it.skipIf(process.platform === "win32")("uses sherpa-onnx-offline when available", async () => {
+>>>>>>> c5be45dfd (test: skip CLI auto-detect e2e tests on Windows (#23626))
     await withEnvSnapshot(async () => {
       const binDir = await createTrackedTempDir(tempPaths, "openclaw-bin-sherpa-");
       const modelDir = await createTrackedTempDir(tempPaths, "openclaw-sherpa-model-");
@@ -123,6 +127,7 @@ describe("media understanding auto-detect (e2e)", () => {
     });
   });
 
+<<<<<<< HEAD
   it("uses whisper-cli when sherpa is missing", async () => {
 <<<<<<< HEAD
     const snapshot = envSnapshot();
@@ -131,6 +136,9 @@ describe("media understanding auto-detect (e2e)", () => {
       const modelDir = await makeTempDir("moltbot-whispercpp-model-");
       tempPaths.push(binDir, modelDir);
 =======
+=======
+  it.skipIf(process.platform === "win32")("uses whisper-cli when sherpa is missing", async () => {
+>>>>>>> c5be45dfd (test: skip CLI auto-detect e2e tests on Windows (#23626))
     await withEnvSnapshot(async () => {
       const binDir = await createTrackedTempDir(tempPaths, "openclaw-bin-whispercpp-");
       const modelDir = await createTrackedTempDir(tempPaths, "openclaw-whispercpp-model-");
@@ -170,6 +178,7 @@ describe("media understanding auto-detect (e2e)", () => {
     });
   });
 
+<<<<<<< HEAD
   it("uses gemini CLI for images when available", async () => {
 <<<<<<< HEAD
     const snapshot = envSnapshot();
@@ -177,6 +186,9 @@ describe("media understanding auto-detect (e2e)", () => {
       const binDir = await makeTempDir("moltbot-bin-gemini-");
       tempPaths.push(binDir);
 =======
+=======
+  it.skipIf(process.platform === "win32")("uses gemini CLI for images when available", async () => {
+>>>>>>> c5be45dfd (test: skip CLI auto-detect e2e tests on Windows (#23626))
     await withEnvSnapshot(async () => {
       const binDir = await createTrackedTempDir(tempPaths, "openclaw-bin-gemini-");
 >>>>>>> a20c77325 (test(media): dedupe auto-e2e temp/env setup and cover no-binary path)
