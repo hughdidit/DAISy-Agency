@@ -52,6 +52,16 @@ describe("sessions", () => {
   const withStateDir = <T>(stateDir: string, fn: () => T): T =>
     withEnv({ OPENCLAW_STATE_DIR: stateDir }, fn);
 
+  async function createSessionStoreFixture(params: {
+    prefix: string;
+    entries: Record<string, Record<string, unknown>>;
+  }): Promise<{ storePath: string }> {
+    const dir = await createCaseDir(params.prefix);
+    const storePath = path.join(dir, "sessions.json");
+    await fs.writeFile(storePath, JSON.stringify(params.entries, null, 2), "utf-8");
+    return { storePath };
+  }
+
   const deriveSessionKeyCases = [
     {
       name: "returns normalized per-sender key",
@@ -337,6 +347,7 @@ describe("sessions", () => {
   it("updateSessionStoreEntry preserves existing fields when patching", async () => {
     const sessionKey = "agent:main:main";
 <<<<<<< HEAD
+<<<<<<< HEAD
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-sessions-"));
 =======
     const dir = await createCaseDir("updateSessionStoreEntry");
@@ -351,12 +362,18 @@ describe("sessions", () => {
             updatedAt: 100,
             reasoningLevel: "on",
           },
+=======
+    const { storePath } = await createSessionStoreFixture({
+      prefix: "updateSessionStoreEntry",
+      entries: {
+        [sessionKey]: {
+          sessionId: "sess-1",
+          updatedAt: 100,
+          reasoningLevel: "on",
+>>>>>>> 9f2b25426 (test(core): increase coverage for sessions, auth choice, and model listing)
         },
-        null,
-        2,
-      ),
-      "utf-8",
-    );
+      },
+    });
 
     await updateSessionStoreEntry({
       storePath,
@@ -367,6 +384,44 @@ describe("sessions", () => {
     const store = loadSessionStore(storePath);
     expect(store[sessionKey]?.updatedAt).toBeGreaterThanOrEqual(200);
     expect(store[sessionKey]?.reasoningLevel).toBe("on");
+  });
+
+  it("updateSessionStoreEntry returns null when session key does not exist", async () => {
+    const { storePath } = await createSessionStoreFixture({
+      prefix: "updateSessionStoreEntry-missing",
+      entries: {},
+    });
+    const update = async () => ({ thinkingLevel: "high" as const });
+    const result = await updateSessionStoreEntry({
+      storePath,
+      sessionKey: "agent:main:missing",
+      update,
+    });
+    expect(result).toBeNull();
+  });
+
+  it("updateSessionStoreEntry keeps existing entry when patch callback returns null", async () => {
+    const sessionKey = "agent:main:main";
+    const { storePath } = await createSessionStoreFixture({
+      prefix: "updateSessionStoreEntry-noop",
+      entries: {
+        [sessionKey]: {
+          sessionId: "sess-1",
+          updatedAt: 123,
+          thinkingLevel: "low",
+        },
+      },
+    });
+
+    const result = await updateSessionStoreEntry({
+      storePath,
+      sessionKey,
+      update: async () => null,
+    });
+    expect(result).toEqual(expect.objectContaining({ sessionId: "sess-1", thinkingLevel: "low" }));
+
+    const store = loadSessionStore(storePath);
+    expect(store[sessionKey]?.thinkingLevel).toBe("low");
   });
 
   it("updateSessionStore preserves concurrent additions", async () => {
@@ -620,6 +675,7 @@ describe("sessions", () => {
   it("updateSessionStoreEntry merges concurrent patches", async () => {
     const mainSessionKey = "agent:main:main";
 <<<<<<< HEAD
+<<<<<<< HEAD
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-sessions-"));
 =======
     const dir = await createCaseDir("updateSessionStoreEntry");
@@ -634,12 +690,18 @@ describe("sessions", () => {
             updatedAt: 123,
             thinkingLevel: "low",
           },
+=======
+    const { storePath } = await createSessionStoreFixture({
+      prefix: "updateSessionStoreEntry",
+      entries: {
+        [mainSessionKey]: {
+          sessionId: "sess-1",
+          updatedAt: 123,
+          thinkingLevel: "low",
+>>>>>>> 9f2b25426 (test(core): increase coverage for sessions, auth choice, and model listing)
         },
-        null,
-        2,
-      ),
-      "utf-8",
-    );
+      },
+    });
 
     const createDeferred = <T>() => {
       let resolve!: (value: T) => void;
@@ -683,23 +745,16 @@ describe("sessions", () => {
 
   it("updateSessionStoreEntry re-reads disk inside lock instead of using stale cache", async () => {
     const mainSessionKey = "agent:main:main";
-    const dir = await createCaseDir("updateSessionStoreEntry-cache-bypass");
-    const storePath = path.join(dir, "sessions.json");
-    await fs.writeFile(
-      storePath,
-      JSON.stringify(
-        {
-          [mainSessionKey]: {
-            sessionId: "sess-1",
-            updatedAt: 123,
-            thinkingLevel: "low",
-          },
+    const { storePath } = await createSessionStoreFixture({
+      prefix: "updateSessionStoreEntry-cache-bypass",
+      entries: {
+        [mainSessionKey]: {
+          sessionId: "sess-1",
+          updatedAt: 123,
+          thinkingLevel: "low",
         },
-        null,
-        2,
-      ),
-      "utf-8",
-    );
+      },
+    });
 
     // Prime the in-process cache with the original entry.
     expect(loadSessionStore(storePath)[mainSessionKey]?.thinkingLevel).toBe("low");
