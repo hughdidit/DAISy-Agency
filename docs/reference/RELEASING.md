@@ -19,8 +19,13 @@ When the operator says “release”, immediately do this preflight (no extra qu
 1) **Version & metadata**
 - [ ] Bump `package.json` version (e.g., `2026.1.27-beta.1`).
 - [ ] Run `pnpm plugins:sync` to align extension package versions + changelogs.
+<<<<<<< HEAD
 - [ ] Update CLI/version strings: [`src/cli/program.ts`](https://github.com/moltbot/moltbot/blob/main/src/cli/program.ts) and the Baileys user agent in [`src/provider-web.ts`](https://github.com/moltbot/moltbot/blob/main/src/provider-web.ts).
 - [ ] Confirm package metadata (name, description, repository, keywords, license) and `bin` map points to [`moltbot.mjs`](https://github.com/moltbot/moltbot/blob/main/moltbot.mjs) for `moltbot`.
+=======
+- [ ] Update CLI/version strings in [`src/version.ts`](https://github.com/openclaw/openclaw/blob/main/src/version.ts) and the Baileys user agent in [`src/web/session.ts`](https://github.com/openclaw/openclaw/blob/main/src/web/session.ts).
+- [ ] Confirm package metadata (name, description, repository, keywords, license) and `bin` map points to [`openclaw.mjs`](https://github.com/openclaw/openclaw/blob/main/openclaw.mjs) for `openclaw`.
+>>>>>>> 30e8f41cf (docs: fix stale release checklist source paths)
 - [ ] If dependencies changed, run `pnpm install` so `pnpm-lock.yaml` is current.
 
 <<<<<<< HEAD
