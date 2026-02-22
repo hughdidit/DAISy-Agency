@@ -200,11 +200,37 @@ function computeNextProfileUsageStats(params: {
       baseMs: params.cfgResolved.billingBackoffMs,
       maxMs: params.cfgResolved.billingMaxMs,
     });
+<<<<<<< HEAD
     updatedStats.disabledUntil = params.now + backoffMs;
     updatedStats.disabledReason = "billing";
   } else {
     const backoffMs = calculateAuthProfileCooldownMs(nextErrorCount);
     updatedStats.cooldownUntil = params.now + backoffMs;
+=======
+    const existingDisabledUntil = params.existing.disabledUntil;
+    const hasActiveDisabledWindow =
+      typeof existingDisabledUntil === "number" &&
+      Number.isFinite(existingDisabledUntil) &&
+      existingDisabledUntil > params.now;
+    // Keep active disable windows immutable so retries within the window cannot
+    // extend recovery time indefinitely.
+    updatedStats.disabledUntil = hasActiveDisabledWindow
+      ? existingDisabledUntil
+      : params.now + backoffMs;
+    updatedStats.disabledReason = "billing";
+  } else {
+    const backoffMs = calculateAuthProfileCooldownMs(nextErrorCount);
+    const existingCooldownUntil = params.existing.cooldownUntil;
+    const hasActiveCooldownWindow =
+      typeof existingCooldownUntil === "number" &&
+      Number.isFinite(existingCooldownUntil) &&
+      existingCooldownUntil > params.now;
+    // Keep active cooldown windows immutable so retries within the window
+    // cannot push recovery further out.
+    updatedStats.cooldownUntil = hasActiveCooldownWindow
+      ? existingCooldownUntil
+      : params.now + backoffMs;
+>>>>>>> 7c3c406a3 (fix: keep auth-profile cooldown windows immutable in-window (#23536) (thanks @arosstale))
   }
 
   return updatedStats;
