@@ -5,6 +5,10 @@ import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { afterEach, describe, expect, it } from "vitest";
 
+const nodeMajor = Number.parseInt(process.versions.node.split(".")[0] ?? "0", 10);
+// tsx currently crashes with "__name is not a function" on Node 25 in child bootstrap mode.
+const runSigtermTest = nodeMajor >= 25 ? it.skip : it;
+
 const waitForReady = async (
   proc: ReturnType<typeof spawn>,
   chunksOut: string[],
@@ -78,8 +82,13 @@ describe("gateway SIGTERM", () => {
     child = null;
   });
 
+<<<<<<< HEAD
   it("exits 0 on SIGTERM", { timeout: 180_000 }, async () => {
     const stateDir = fs.mkdtempSync(path.join(os.tmpdir(), "moltbot-gateway-test-"));
+=======
+  runSigtermTest("exits 0 on SIGTERM", { timeout: 180_000 }, async () => {
+    const stateDir = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-gateway-test-"));
+>>>>>>> 3f0ab7642 (test: stabilize remaining e2e gateway suites)
     const out: string[] = [];
     const err: string[] = [];
 

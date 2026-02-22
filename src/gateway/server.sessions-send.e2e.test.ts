@@ -35,8 +35,28 @@ beforeAll(async () => {
   envSnapshot = captureEnv(["OPENCLAW_GATEWAY_PORT", "OPENCLAW_GATEWAY_TOKEN"]);
 >>>>>>> 31980bcaf (refactor(test): dedupe gateway env restores)
   gatewayPort = await getFreePort();
+<<<<<<< HEAD
   process.env.CLAWDBOT_GATEWAY_PORT = String(gatewayPort);
   process.env.CLAWDBOT_GATEWAY_TOKEN = "test-token";
+=======
+  testState.gatewayAuth = { mode: "token", token: gatewayToken };
+  process.env.OPENCLAW_GATEWAY_PORT = String(gatewayPort);
+  process.env.OPENCLAW_GATEWAY_TOKEN = gatewayToken;
+  const { approveDevicePairing, requestDevicePairing } = await import("../infra/device-pairing.js");
+  const { loadOrCreateDeviceIdentity, publicKeyRawBase64UrlFromPem } =
+    await import("../infra/device-identity.js");
+  const identity = loadOrCreateDeviceIdentity();
+  const pending = await requestDevicePairing({
+    deviceId: identity.deviceId,
+    publicKey: publicKeyRawBase64UrlFromPem(identity.publicKeyPem),
+    clientId: "openclaw-cli",
+    clientMode: "cli",
+    role: "operator",
+    scopes: ["operator.admin", "operator.read", "operator.write", "operator.approvals"],
+    silent: false,
+  });
+  await approveDevicePairing(pending.request.requestId);
+>>>>>>> 3f0ab7642 (test: stabilize remaining e2e gateway suites)
   server = await startGatewayServer(gatewayPort);
 });
 
