@@ -62,9 +62,34 @@ export async function runGatewayLoop(params: {
         clearTimeout(forceExitTimer);
         server = null;
         if (isRestart) {
+<<<<<<< HEAD
           shuttingDown = false;
           restartResolver?.();
+=======
+          const respawn = restartGatewayProcessWithFreshPid();
+          if (respawn.mode === "spawned" || respawn.mode === "supervised") {
+            const modeLabel =
+              respawn.mode === "spawned"
+                ? `spawned pid ${respawn.pid ?? "unknown"}`
+                : "supervisor restart";
+            gatewayLog.info(`restart mode: full process restart (${modeLabel})`);
+            await lock?.release();
+            cleanupSignals();
+            params.runtime.exit(0);
+          } else {
+            if (respawn.mode === "failed") {
+              gatewayLog.warn(
+                `full process restart failed (${respawn.detail ?? "unknown error"}); falling back to in-process restart`,
+              );
+            } else {
+              gatewayLog.info("restart mode: in-process restart (OPENCLAW_NO_RESPAWN)");
+            }
+            shuttingDown = false;
+            restartResolver?.();
+          }
+>>>>>>> 01bd83d64 (fix: release gateway lock before process.exit in run-loop)
         } else {
+          await lock?.release();
           cleanupSignals();
           params.runtime.exit(0);
         }
