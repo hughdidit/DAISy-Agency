@@ -56,6 +56,7 @@ Docs: https://docs.openclaw.ai
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 - Memory/QMD: add optional `memory.qmd.mcporter` search routing so QMD `query/search/vsearch` can run through mcporter keep-alive flows (including multi-collection paths) to reduce cold starts, while keeping searches on agent-scoped QMD state for consistent recall. (#19617) Thanks @vignesh07.
 =======
 =======
@@ -70,6 +71,10 @@ Docs: https://docs.openclaw.ai
 =======
 =======
 =======
+=======
+- OpenRouter/Anthropic: inject `cache_control` on system prompts for OpenRouter Anthropic models to improve prompt-cache reuse. (#17473) Thanks @rrenamed.
+
+>>>>>>> c52b2ad5c (fix(cache): inject cache_control into system prompt for OpenRouter Anthropic (#15151) (#17473))
 - Providers/OpenRouter: allow pass-through OpenRouter and Opencode model IDs in live model filtering so custom routed model IDs are treated as modern refs. (#14312) Thanks @Joly0.
 >>>>>>> ded9a59f7 (OpenRouter: allow any model ID instead of restricting to static catalog (#14312))
 - Providers/OpenRouter: default reasoning to enabled when the selected model advertises `reasoning: true` and no session/directive override is set. (#22513) Thanks @zwffff.
