@@ -11,6 +11,12 @@ import {
 import { getCustomProviderApiKey, resolveEnvApiKey } from "../agents/model-auth.js";
 import { normalizeProviderId } from "../agents/model-selection.js";
 import { loadConfig } from "../config/config.js";
+<<<<<<< HEAD
+=======
+import { normalizeSecretInput } from "../utils/normalize-secret-input.js";
+import { resolveRequiredHomeDir } from "./home-dir.js";
+import type { UsageProviderId } from "./provider-usage.types.js";
+>>>>>>> c7ff12ef2 (fix: use effective home for legacy zai auth fallback)
 
 export type ProviderAuth = {
   provider: UsageProviderId;
@@ -63,7 +69,12 @@ function resolveZaiApiKey(): string | undefined {
   }
 
   try {
-    const authPath = path.join(os.homedir(), ".pi", "agent", "auth.json");
+    const authPath = path.join(
+      resolveRequiredHomeDir(process.env, os.homedir),
+      ".pi",
+      "agent",
+      "auth.json",
+    );
     if (!fs.existsSync(authPath)) {
       return undefined;
     }
