@@ -41,6 +41,16 @@ vi.mock("./runtime.js", () => ({
 import { downloadImageFeishu, downloadMessageResourceFeishu, sendMediaFeishu } from "./media.js";
 >>>>>>> c82109915 (Feishu: harden temp media download paths)
 
+function expectPathIsolatedToTmpRoot(pathValue: string, key: string): void {
+  expect(pathValue).not.toContain(key);
+  expect(pathValue).not.toContain("..");
+
+  const tmpRoot = path.resolve(os.tmpdir());
+  const resolved = path.resolve(pathValue);
+  const rel = path.relative(tmpRoot, resolved);
+  expect(rel === ".." || rel.startsWith(`..${path.sep}`)).toBe(false);
+}
+
 describe("sendMediaFeishu msg_type routing", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -224,6 +234,7 @@ describe("sendMediaFeishu msg_type routing", () => {
 
     expect(result.buffer).toEqual(Buffer.from("image-data"));
     expect(capturedPath).toBeDefined();
+<<<<<<< HEAD
     expect(capturedPath).not.toContain(maliciousImageKey);
     expect(capturedPath).not.toContain("..");
 
@@ -231,6 +242,9 @@ describe("sendMediaFeishu msg_type routing", () => {
     const resolved = path.resolve(capturedPath as string);
     const rel = path.relative(tmpRoot, resolved);
     expect(rel === ".." || rel.startsWith(`..${path.sep}`)).toBe(false);
+=======
+    expectPathIsolatedToTmpRoot(capturedPath as string, imageKey);
+>>>>>>> 5574eb6b3 (fix(feishu): harden onboarding and webhook validation)
   });
 
   it("does not include fileKey path segments in temp file path", async () => {
@@ -253,6 +267,7 @@ describe("sendMediaFeishu msg_type routing", () => {
 
     expect(result.buffer).toEqual(Buffer.from("resource-data"));
     expect(capturedPath).toBeDefined();
+<<<<<<< HEAD
     expect(capturedPath).not.toContain(maliciousFileKey);
     expect(capturedPath).not.toContain("..");
 
@@ -260,6 +275,9 @@ describe("sendMediaFeishu msg_type routing", () => {
     const resolved = path.resolve(capturedPath as string);
     const rel = path.relative(tmpRoot, resolved);
     expect(rel === ".." || rel.startsWith(`..${path.sep}`)).toBe(false);
+=======
+    expectPathIsolatedToTmpRoot(capturedPath as string, fileKey);
+>>>>>>> 5574eb6b3 (fix(feishu): harden onboarding and webhook validation)
   });
 >>>>>>> c82109915 (Feishu: harden temp media download paths)
 });
