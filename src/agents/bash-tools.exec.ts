@@ -295,6 +295,7 @@ export function createExecTool(
         logInfo(`exec: elevated command ${truncateMiddle(params.command, 120)}`);
       }
       const configuredHost = defaults?.host ?? "sandbox";
+      const sandboxHostConfigured = defaults?.host === "sandbox";
       const requestedHost = normalizeExecHost(params.host) ?? null;
       let host: ExecHost = requestedHost ?? configuredHost;
       if (!elevatedRequested && requestedHost && requestedHost !== configuredHost) {
@@ -322,6 +323,18 @@ export function createExecTool(
       }
 
       const sandbox = host === "sandbox" ? defaults?.sandbox : undefined;
+      if (
+        host === "sandbox" &&
+        !sandbox &&
+        (sandboxHostConfigured || requestedHost === "sandbox")
+      ) {
+        throw new Error(
+          [
+            "exec host=sandbox is configured, but sandbox runtime is unavailable for this session.",
+            'Enable sandbox mode (`agents.defaults.sandbox.mode="non-main"` or `"all"`) or set tools.exec.host to "gateway"/"node".',
+          ].join("\n"),
+        );
+      }
       const rawWorkdir = params.workdir?.trim() || defaults?.cwd || process.cwd();
       let workdir = rawWorkdir;
       let containerWorkdir = sandbox?.containerWorkdir;
