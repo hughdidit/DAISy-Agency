@@ -102,12 +102,117 @@ type ConfigWriteAuditRecord = {
 };
 
 export type ParseConfigJson5Result = { ok: true; parsed: unknown } | { ok: false; error: string };
+<<<<<<< HEAD
+=======
+export type ConfigWriteOptions = {
+  /**
+   * Read-time env snapshot used to validate `${VAR}` restoration decisions.
+   * If omitted, write falls back to current process env.
+   */
+  envSnapshotForRestore?: Record<string, string | undefined>;
+  /**
+   * Optional safety check: only use envSnapshotForRestore when writing the
+   * same config file path that produced the snapshot.
+   */
+  expectedConfigPath?: string;
+  /**
+   * Paths that must be explicitly removed from the persisted file payload,
+   * even if schema/default normalization reintroduces them.
+   */
+  unsetPaths?: string[][];
+};
+
+export type ReadConfigFileSnapshotForWriteResult = {
+  snapshot: ConfigFileSnapshot;
+  writeOptions: ConfigWriteOptions;
+};
+>>>>>>> 73b4330d4 (CLI/Config: keep explicitly unset keys removed)
 
 function hashConfigRaw(raw: string | null): string {
   return crypto
     .createHash("sha256")
     .update(raw ?? "")
     .digest("hex");
+}
+
+function isNumericPathSegment(raw: string): boolean {
+  return /^[0-9]+$/.test(raw);
+}
+
+function isWritePlainObject(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
+
+function unsetPathForWrite(root: Record<string, unknown>, pathSegments: string[]): boolean {
+  if (pathSegments.length === 0) {
+    return false;
+  }
+
+  const traversal: Array<{ container: unknown; key: string | number }> = [];
+  let cursor: unknown = root;
+
+  for (let i = 0; i < pathSegments.length - 1; i += 1) {
+    const segment = pathSegments[i];
+    if (Array.isArray(cursor)) {
+      if (!isNumericPathSegment(segment)) {
+        return false;
+      }
+      const index = Number.parseInt(segment, 10);
+      if (!Number.isFinite(index) || index < 0 || index >= cursor.length) {
+        return false;
+      }
+      traversal.push({ container: cursor, key: index });
+      cursor = cursor[index];
+      continue;
+    }
+    if (!isWritePlainObject(cursor) || !(segment in cursor)) {
+      return false;
+    }
+    traversal.push({ container: cursor, key: segment });
+    cursor = cursor[segment];
+  }
+
+  const leaf = pathSegments[pathSegments.length - 1];
+  if (Array.isArray(cursor)) {
+    if (!isNumericPathSegment(leaf)) {
+      return false;
+    }
+    const index = Number.parseInt(leaf, 10);
+    if (!Number.isFinite(index) || index < 0 || index >= cursor.length) {
+      return false;
+    }
+    cursor.splice(index, 1);
+  } else {
+    if (!isWritePlainObject(cursor) || !(leaf in cursor)) {
+      return false;
+    }
+    delete cursor[leaf];
+  }
+
+  // Prune now-empty object branches after unsetting to avoid dead config scaffolding.
+  for (let i = traversal.length - 1; i >= 0; i -= 1) {
+    const { container, key } = traversal[i];
+    let child: unknown;
+    if (Array.isArray(container)) {
+      child = typeof key === "number" ? container[key] : undefined;
+    } else if (isWritePlainObject(container)) {
+      child = container[String(key)];
+    } else {
+      break;
+    }
+    if (!isWritePlainObject(child) || Object.keys(child).length > 0) {
+      break;
+    }
+    if (Array.isArray(container) && typeof key === "number") {
+      if (key >= 0 && key < container.length) {
+        container.splice(key, 1);
+      }
+    } else if (isWritePlainObject(container)) {
+      delete container[String(key)];
+    }
+  }
+
+  return true;
 }
 
 export function resolveConfigSnapshotHash(snapshot: {
@@ -902,8 +1007,21 @@ export function createConfigIO(overrides: ConfigIoDeps = {}) {
     await deps.fs.promises.mkdir(dir, { recursive: true, mode: 0o700 });
     const outputConfig =
       envRefMap && changedPaths
+<<<<<<< HEAD
         ? (restoreEnvRefsFromMap(validated.config, "", envRefMap, changedPaths) as OpenClawConfig)
         : validated.config;
+=======
+        ? (restoreEnvRefsFromMap(cfgToWrite, "", envRefMap, changedPaths) as OpenClawConfig)
+        : cfgToWrite;
+    if (options.unsetPaths?.length) {
+      for (const unsetPath of options.unsetPaths) {
+        if (!Array.isArray(unsetPath) || unsetPath.length === 0) {
+          continue;
+        }
+        unsetPathForWrite(outputConfig as Record<string, unknown>, unsetPath);
+      }
+    }
+>>>>>>> 73b4330d4 (CLI/Config: keep explicitly unset keys removed)
     // Do NOT apply runtime defaults when writing — user config should only contain
     // explicitly set values. Runtime defaults are applied when loading (issue #6070).
     const stampedOutputConfig = stampConfigVersion(outputConfig);
@@ -1146,6 +1264,7 @@ export async function writeConfigFile(
     options.expectedConfigPath === undefined || options.expectedConfigPath === io.configPath;
   await io.writeConfigFile(cfg, {
     envSnapshotForRestore: sameConfigPath ? options.envSnapshotForRestore : undefined,
+    unsetPaths: options.unsetPaths,
   });
 >>>>>>> e18f94a34 (refactor(config): simplify env snapshot write context)
 }
