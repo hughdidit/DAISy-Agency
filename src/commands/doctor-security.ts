@@ -1,4 +1,3 @@
-import { resolveChannelDefaultAccountId } from "../channels/plugins/helpers.js";
 import { listChannelPlugins } from "../channels/plugins/index.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -25,6 +24,12 @@ import { formatCliCommand } from "../cli/command-format.js";
 import type { OpenClawConfig, GatewayBindMode } from "../config/config.js";
 import { resolveGatewayAuth } from "../gateway/auth.js";
 import { isLoopbackHost, resolveGatewayBindHost } from "../gateway/net.js";
+<<<<<<< HEAD
+=======
+import { resolveDmAllowState } from "../security/dm-policy-shared.js";
+import { note } from "../terminal/note.js";
+import { resolveDefaultChannelAccountContext } from "./channel-account-context.js";
+>>>>>>> 4bf67ab69 (refactor(commands): centralize shared command formatting helpers)
 
 export async function noteSecurityWarnings(cfg: MoltbotConfig) {
   const warnings: string[] = [];
@@ -162,20 +167,11 @@ export async function noteSecurityWarnings(cfg: MoltbotConfig) {
     if (!plugin.security) {
       continue;
     }
-    const accountIds = plugin.config.listAccountIds(cfg);
-    const defaultAccountId = resolveChannelDefaultAccountId({
-      plugin,
-      cfg,
-      accountIds,
-    });
-    const account = plugin.config.resolveAccount(cfg, defaultAccountId);
-    const enabled = plugin.config.isEnabled ? plugin.config.isEnabled(account, cfg) : true;
+    const { defaultAccountId, account, enabled, configured } =
+      await resolveDefaultChannelAccountContext(plugin, cfg);
     if (!enabled) {
       continue;
     }
-    const configured = plugin.config.isConfigured
-      ? await plugin.config.isConfigured(account, cfg)
-      : true;
     if (!configured) {
       continue;
     }

@@ -30,7 +30,19 @@ export type RemovalResult = {
   skipped?: boolean;
 };
 
+<<<<<<< HEAD
 export function collectWorkspaceDirs(cfg: MoltbotConfig | undefined): string[] {
+=======
+export type CleanupResolvedPaths = {
+  stateDir: string;
+  configPath: string;
+  oauthDir: string;
+  configInsideState: boolean;
+  oauthInsideState: boolean;
+};
+
+export function collectWorkspaceDirs(cfg: OpenClawConfig | undefined): string[] {
+>>>>>>> 4bf67ab69 (refactor(commands): centralize shared command formatting helpers)
   const dirs = new Set<string>();
   const defaults = cfg?.agents?.defaults;
   if (typeof defaults?.workspace === "string" && defaults.workspace.trim()) {
@@ -113,6 +125,42 @@ export async function removePath(
   } catch (err) {
     runtime.error(`Failed to remove ${displayLabel}: ${String(err)}`);
     return { ok: false };
+  }
+}
+
+export async function removeStateAndLinkedPaths(
+  cleanup: CleanupResolvedPaths,
+  runtime: RuntimeEnv,
+  opts?: { dryRun?: boolean },
+): Promise<void> {
+  await removePath(cleanup.stateDir, runtime, {
+    dryRun: opts?.dryRun,
+    label: cleanup.stateDir,
+  });
+  if (!cleanup.configInsideState) {
+    await removePath(cleanup.configPath, runtime, {
+      dryRun: opts?.dryRun,
+      label: cleanup.configPath,
+    });
+  }
+  if (!cleanup.oauthInsideState) {
+    await removePath(cleanup.oauthDir, runtime, {
+      dryRun: opts?.dryRun,
+      label: cleanup.oauthDir,
+    });
+  }
+}
+
+export async function removeWorkspaceDirs(
+  workspaceDirs: readonly string[],
+  runtime: RuntimeEnv,
+  opts?: { dryRun?: boolean },
+): Promise<void> {
+  for (const workspace of workspaceDirs) {
+    await removePath(workspace, runtime, {
+      dryRun: opts?.dryRun,
+      label: workspace,
+    });
   }
 }
 

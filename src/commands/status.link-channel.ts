@@ -1,6 +1,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { ChannelAccountSnapshot, ChannelPlugin } from "../channels/plugins/types.js";
 <<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
@@ -30,6 +31,12 @@ import { listChannelPlugins } from "../channels/plugins/index.js";
 import type { ChannelAccountSnapshot, ChannelPlugin } from "../channels/plugins/types.js";
 import type { OpenClawConfig } from "../config/config.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
+=======
+import { listChannelPlugins } from "../channels/plugins/index.js";
+import type { ChannelAccountSnapshot, ChannelPlugin } from "../channels/plugins/types.js";
+import type { OpenClawConfig } from "../config/config.js";
+import { resolveDefaultChannelAccountContext } from "./channel-account-context.js";
+>>>>>>> 4bf67ab69 (refactor(commands): centralize shared command formatting helpers)
 
 export type LinkChannelContext = {
   linked: boolean;
@@ -43,17 +50,8 @@ export async function resolveLinkChannelContext(
   cfg: MoltbotConfig,
 ): Promise<LinkChannelContext | null> {
   for (const plugin of listChannelPlugins()) {
-    const accountIds = plugin.config.listAccountIds(cfg);
-    const defaultAccountId = resolveChannelDefaultAccountId({
-      plugin,
-      cfg,
-      accountIds,
-    });
-    const account = plugin.config.resolveAccount(cfg, defaultAccountId);
-    const enabled = plugin.config.isEnabled ? plugin.config.isEnabled(account, cfg) : true;
-    const configured = plugin.config.isConfigured
-      ? await plugin.config.isConfigured(account, cfg)
-      : true;
+    const { defaultAccountId, account, enabled, configured } =
+      await resolveDefaultChannelAccountContext(plugin, cfg);
     const snapshot = plugin.config.describeAccount
       ? plugin.config.describeAccount(account, cfg)
       : ({

@@ -56,8 +56,17 @@ import { selectStyled } from "../terminal/prompt-select-styled.js";
 import { stylePromptMessage, stylePromptTitle } from "../terminal/prompt-style.js";
 >>>>>>> 005e1d5fd (refactor(cli): share styled select prompt helper)
 import { resolveCleanupPlanFromDisk } from "./cleanup-plan.js";
+<<<<<<< HEAD
 import { listAgentSessionDirs, removePath } from "./cleanup-utils.js";
 >>>>>>> 813b96a80 (refactor(commands): share cleanup plan resolver)
+=======
+import {
+  listAgentSessionDirs,
+  removePath,
+  removeStateAndLinkedPaths,
+  removeWorkspaceDirs,
+} from "./cleanup-utils.js";
+>>>>>>> 4bf67ab69 (refactor(commands): centralize shared command formatting helpers)
 
 export type ResetScope = "config" | "config+creds+sessions" | "full";
 
@@ -180,6 +189,7 @@ export async function resetCommand(runtime: RuntimeEnv, opts: ResetOptions) {
   }
 
   if (scope === "full") {
+<<<<<<< HEAD
     await removePath(stateDir, runtime, { dryRun, label: stateDir });
     if (!configInsideState) {
       await removePath(configPath, runtime, { dryRun, label: configPath });
@@ -191,6 +201,15 @@ export async function resetCommand(runtime: RuntimeEnv, opts: ResetOptions) {
       await removePath(workspace, runtime, { dryRun, label: workspace });
     }
     runtime.log(`Next: ${formatCliCommand("moltbot onboard --install-daemon")}`);
+=======
+    await removeStateAndLinkedPaths(
+      { stateDir, configPath, oauthDir, configInsideState, oauthInsideState },
+      runtime,
+      { dryRun },
+    );
+    await removeWorkspaceDirs(workspaceDirs, runtime, { dryRun });
+    runtime.log(`Next: ${formatCliCommand("openclaw onboard --install-daemon")}`);
+>>>>>>> 4bf67ab69 (refactor(commands): centralize shared command formatting helpers)
     return;
   }
 }
