@@ -104,7 +104,11 @@ beforeAll(async () => {
   workspaceDir = path.join(tempRoot, "workspace");
   await fs.mkdir(agentDir, { recursive: true });
   await fs.mkdir(workspaceDir, { recursive: true });
+<<<<<<< HEAD
 }, 20_000);
+=======
+}, 180_000);
+>>>>>>> 401106b96 (fix: harden flaky tests and cover native google thought signatures (#23457) (thanks @echoVic))
 
 afterAll(async () => {
   if (!tempRoot) return;
