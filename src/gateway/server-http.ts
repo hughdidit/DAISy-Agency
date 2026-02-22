@@ -25,8 +25,12 @@ import { loadConfig } from "../config/config.js";
 import { safeEqualSecret } from "../security/secret-equal.js";
 import { handleSlackHttpRequest } from "../slack/http/index.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { authorizeGatewayConnect, isLocalDirectRequest, type ResolvedGatewayAuth } from "./auth.js";
 =======
+=======
+import { normalizeRateLimitClientIp, type AuthRateLimiter } from "./auth-rate-limit.js";
+>>>>>>> 3284d2eb2 (fix(security): normalize hook auth rate-limit client keys)
 import {
   authorizeGatewayConnect,
   isLocalDirectRequest,
@@ -231,7 +235,7 @@ export function createHooksRequestHandler(
   const hookAuthFailures = new Map<string, HookAuthFailure>();
 
   const resolveHookClientKey = (req: IncomingMessage): string => {
-    return req.socket?.remoteAddress?.trim() || "unknown";
+    return normalizeRateLimitClientIp(req.socket?.remoteAddress);
   };
 
   const recordHookAuthFailure = (
