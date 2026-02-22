@@ -56,9 +56,13 @@ describe("memory search async sync", () => {
 
   beforeEach(async () => {
 <<<<<<< HEAD
+<<<<<<< HEAD
     workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-mem-async-"));
 =======
     embedBatch.mockReset();
+=======
+    embedBatch.mockClear();
+>>>>>>> 8a0a28763 (test(core): reduce mock reset overhead across unit and e2e specs)
     embedBatch.mockImplementation(async (input: string[]) => input.map(() => [0.2, 0.2, 0.2]));
     workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-mem-async-"));
 >>>>>>> be756b9a8 (Memory: fix async sync close race)
