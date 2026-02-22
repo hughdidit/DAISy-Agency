@@ -32,9 +32,6 @@ describe("registerTelegramNativeCommands (plugin auth)", () => {
       description: `Command ${i}`,
     }));
     getPluginCommandSpecs.mockReturnValue(specs);
-    matchPluginCommand.mockReset();
-    executePluginCommand.mockReset();
-    deliverReplies.mockReset();
 
     const handlers: Record<string, (ctx: unknown) => Promise<void>> = {};
     const setMyCommands = vi.fn().mockResolvedValue(undefined);
