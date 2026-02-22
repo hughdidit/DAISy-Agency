@@ -9,24 +9,34 @@ import {
 } from "../plugins/config-state.js";
 import { loadPluginManifestRegistry } from "../plugins/manifest-registry.js";
 import { validateJsonSchemaValue } from "../plugins/schema-validator.js";
+<<<<<<< HEAD
+=======
+import {
+  hasAvatarUriScheme,
+  isAvatarDataUrl,
+  isAvatarHttpUrl,
+  isPathWithinRoot,
+  isWindowsAbsolutePath,
+} from "../shared/avatar-policy.js";
+import { isRecord } from "../utils.js";
+>>>>>>> e0db04a50 (fix(security): harden avatar validation and size limits)
 import { findDuplicateAgentDirs, formatDuplicateAgentDirError } from "./agent-dirs.js";
 import { applyAgentDefaults, applyModelDefaults, applySessionDefaults } from "./defaults.js";
 import { findLegacyConfigIssues } from "./legacy.js";
 import type { OpenClawConfig, ConfigValidationIssue } from "./types.js";
 import { OpenClawSchema } from "./zod-schema.js";
 
-const AVATAR_SCHEME_RE = /^[a-z][a-z0-9+.-]*:/i;
-const AVATAR_DATA_RE = /^data:/i;
-const AVATAR_HTTP_RE = /^https?:\/\//i;
-const WINDOWS_ABS_RE = /^[a-zA-Z]:[\\/]/;
-
 function isWorkspaceAvatarPath(value: string, workspaceDir: string): boolean {
   const workspaceRoot = path.resolve(workspaceDir);
   const resolved = path.resolve(workspaceRoot, value);
+<<<<<<< HEAD
   const relative = path.relative(workspaceRoot, resolved);
   if (relative === "") return true;
   if (relative.startsWith("..")) return false;
   return !path.isAbsolute(relative);
+=======
+  return isPathWithinRoot(workspaceRoot, resolved);
+>>>>>>> e0db04a50 (fix(security): harden avatar validation and size limits)
 }
 
 function validateIdentityAvatar(config: OpenClawConfig): ConfigValidationIssue[] {
@@ -38,8 +48,17 @@ function validateIdentityAvatar(config: OpenClawConfig): ConfigValidationIssue[]
     const avatarRaw = entry.identity?.avatar;
     if (typeof avatarRaw !== "string") continue;
     const avatar = avatarRaw.trim();
+<<<<<<< HEAD
     if (!avatar) continue;
     if (AVATAR_DATA_RE.test(avatar) || AVATAR_HTTP_RE.test(avatar)) continue;
+=======
+    if (!avatar) {
+      continue;
+    }
+    if (isAvatarDataUrl(avatar) || isAvatarHttpUrl(avatar)) {
+      continue;
+    }
+>>>>>>> e0db04a50 (fix(security): harden avatar validation and size limits)
     if (avatar.startsWith("~")) {
       issues.push({
         path: `agents.list.${index}.identity.avatar`,
@@ -47,8 +66,8 @@ function validateIdentityAvatar(config: OpenClawConfig): ConfigValidationIssue[]
       });
       continue;
     }
-    const hasScheme = AVATAR_SCHEME_RE.test(avatar);
-    if (hasScheme && !WINDOWS_ABS_RE.test(avatar)) {
+    const hasScheme = hasAvatarUriScheme(avatar);
+    if (hasScheme && !isWindowsAbsolutePath(avatar)) {
       issues.push({
         path: `agents.list.${index}.identity.avatar`,
         message: "identity.avatar must be a workspace-relative path, http(s) URL, or data URI.",

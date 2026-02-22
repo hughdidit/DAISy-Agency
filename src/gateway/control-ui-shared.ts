@@ -1,3 +1,9 @@
+import {
+  isAvatarHttpUrl,
+  isAvatarImageDataUrl,
+  looksLikeAvatarPath,
+} from "../shared/avatar-policy.js";
+
 const CONTROL_UI_AVATAR_PREFIX = "/avatar";
 
 export function normalizeControlUiBasePath(basePath?: string): string {
@@ -16,19 +22,31 @@ export function buildControlUiAvatarUrl(basePath: string, agentId: string): stri
     : `${CONTROL_UI_AVATAR_PREFIX}/${agentId}`;
 }
 
+<<<<<<< HEAD
 function looksLikeLocalAvatarPath(value: string): boolean {
   if (/[\\/]/.test(value)) return true;
   return /\.(png|jpe?g|gif|webp|svg|ico)$/i.test(value);
 }
 
+=======
+>>>>>>> e0db04a50 (fix(security): harden avatar validation and size limits)
 export function resolveAssistantAvatarUrl(params: {
   avatar?: string | null;
   agentId?: string | null;
   basePath?: string;
 }): string | undefined {
   const avatar = params.avatar?.trim();
+<<<<<<< HEAD
   if (!avatar) return undefined;
   if (/^https?:\/\//i.test(avatar) || /^data:image\//i.test(avatar)) return avatar;
+=======
+  if (!avatar) {
+    return undefined;
+  }
+  if (isAvatarHttpUrl(avatar) || isAvatarImageDataUrl(avatar)) {
+    return avatar;
+  }
+>>>>>>> e0db04a50 (fix(security): harden avatar validation and size limits)
 
   const basePath = normalizeControlUiBasePath(params.basePath);
   const baseAvatarPrefix = basePath
@@ -39,8 +57,15 @@ export function resolveAssistantAvatarUrl(params: {
   }
   if (avatar.startsWith(baseAvatarPrefix)) return avatar;
 
+<<<<<<< HEAD
   if (!params.agentId) return avatar;
   if (looksLikeLocalAvatarPath(avatar)) {
+=======
+  if (!params.agentId) {
+    return avatar;
+  }
+  if (looksLikeAvatarPath(avatar)) {
+>>>>>>> e0db04a50 (fix(security): harden avatar validation and size limits)
     return buildControlUiAvatarUrl(basePath, params.agentId);
   }
   return avatar;

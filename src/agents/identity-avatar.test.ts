@@ -5,6 +5,7 @@ import path from "node:path";
 import { describe, expect, it } from "vitest";
 
 import type { OpenClawConfig } from "../config/config.js";
+import { AVATAR_MAX_BYTES } from "../shared/avatar-policy.js";
 import { resolveAgentAvatar } from "./identity-avatar.js";
 
 async function writeFile(filePath: string, contents = "avatar") {
@@ -90,6 +91,26 @@ describe("resolveAgentAvatar", () => {
     if (resolved.kind === "local") {
       const resolvedReal = await fs.realpath(resolved.filePath);
       expect(path.relative(workspaceReal, resolvedReal)).toBe(path.join("avatars", "fallback.png"));
+    }
+  });
+
+  it("rejects local avatars larger than max bytes", async () => {
+    const root = await createTempAvatarRoot();
+    const workspace = path.join(root, "work");
+    const avatarPath = path.join(workspace, "avatars", "too-big.png");
+    await fs.mkdir(path.dirname(avatarPath), { recursive: true });
+    await fs.writeFile(avatarPath, Buffer.alloc(AVATAR_MAX_BYTES + 1));
+
+    const cfg: OpenClawConfig = {
+      agents: {
+        list: [{ id: "main", workspace, identity: { avatar: "avatars/too-big.png" } }],
+      },
+    };
+
+    const resolved = resolveAgentAvatar(cfg, "main");
+    expect(resolved.kind).toBe("none");
+    if (resolved.kind === "none") {
+      expect(resolved.reason).toBe("too_large");
     }
   });
 
