@@ -157,7 +157,7 @@ import { resolveAgentRoute } from "../routing/resolve-route.js";
 import { resolveThreadSessionKeys } from "../routing/session-key.js";
 import type { RuntimeEnv } from "../runtime.js";
 import { withTelegramApiErrorLogging } from "./api-logging.js";
-import { firstDefined, isSenderAllowed, normalizeAllowFromWithStore } from "./bot-access.js";
+import { isSenderAllowed, normalizeAllowFromWithStore } from "./bot-access.js";
 import {
   buildCappedTelegramMenuCommands,
   buildPluginTelegramMenuCommands,
@@ -208,7 +208,11 @@ import {
   evaluateTelegramGroupBaseAccess,
   evaluateTelegramGroupPolicyAccess,
 } from "./group-access.js";
+<<<<<<< HEAD
 >>>>>>> b6a9741ba (refactor(telegram): simplify send/dispatch/target handling (#17819))
+=======
+import { resolveTelegramGroupPromptSettings } from "./group-config-helpers.js";
+>>>>>>> 75c1bfbae (refactor(channels): dedupe message routing and telegram helpers)
 import { buildInlineKeyboard } from "./send.js";
 
 const EMPTY_RESPONSE_FALLBACK = "No response generated. Please try again.";
@@ -735,13 +739,10 @@ export const registerTelegramNativeCommands = ({
                 })
               : null;
           const sessionKey = threadKeys?.sessionKey ?? baseSessionKey;
-          const skillFilter = firstDefined(topicConfig?.skills, groupConfig?.skills);
-          const systemPromptParts = [
-            groupConfig?.systemPrompt?.trim() || null,
-            topicConfig?.systemPrompt?.trim() || null,
-          ].filter((entry): entry is string => Boolean(entry));
-          const groupSystemPrompt =
-            systemPromptParts.length > 0 ? systemPromptParts.join("\n\n") : undefined;
+          const { skillFilter, groupSystemPrompt } = resolveTelegramGroupPromptSettings({
+            groupConfig,
+            topicConfig,
+          });
           const conversationLabel = isGroup
             ? msg.chat.title
               ? `${msg.chat.title} id:${chatId}`

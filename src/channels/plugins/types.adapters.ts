@@ -57,7 +57,7 @@ export type ChannelConfigAdapter<ResolvedAccount> = {
   resolveAllowFrom?: (params: {
     cfg: MoltbotConfig;
     accountId?: string | null;
-  }) => string[] | undefined;
+  }) => Array<string | number> | undefined;
   formatAllowFrom?: (params: {
     cfg: MoltbotConfig;
     accountId?: string | null;

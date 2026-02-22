@@ -1,7 +1,10 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
 =======
 import type { OpenClawConfig } from "../config/config.js";
+=======
+>>>>>>> 75c1bfbae (refactor(channels): dedupe message routing and telegram helpers)
 import {
   resolveChannelGroupRequireMention,
   resolveChannelGroupToolsPolicy,
@@ -51,6 +54,7 @@ import { normalizeSignalMessagingTarget } from "./plugins/normalize/signal.js";
 import type {
   ChannelCapabilities,
   ChannelCommandAdapter,
+  ChannelConfigAdapter,
   ChannelElevatedAdapter,
   ChannelGroupAdapter,
   ChannelId,
@@ -99,6 +103,7 @@ export type ChannelDock = {
   };
   streaming?: ChannelDockStreaming;
   elevated?: ChannelElevatedAdapter;
+<<<<<<< HEAD
   config?: {
     resolveAllowFrom?: (params: {
       cfg: MoltbotConfig;
@@ -114,6 +119,12 @@ export type ChannelDock = {
       accountId?: string | null;
     }) => string | undefined;
   };
+=======
+  config?: Pick<
+    ChannelConfigAdapter<unknown>,
+    "resolveAllowFrom" | "formatAllowFrom" | "resolveDefaultTo"
+  >;
+>>>>>>> 75c1bfbae (refactor(channels): dedupe message routing and telegram helpers)
   groups?: ChannelGroupAdapter;
   mentions?: ChannelMentionAdapter;
   threading?: ChannelThreadingAdapter;
@@ -135,8 +146,17 @@ const formatLower = (allowFrom: Array<string | number>) =>
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
+=======
+const stringifyAllowFrom = (allowFrom: Array<string | number>) =>
+  allowFrom.map((entry) => String(entry));
+
+const trimAllowFromEntries = (allowFrom: Array<string | number>) =>
+  allowFrom.map((entry) => String(entry).trim()).filter(Boolean);
+
+>>>>>>> 75c1bfbae (refactor(channels): dedupe message routing and telegram helpers)
 const formatDiscordAllowFrom = (allowFrom: Array<string | number>) =>
   allowFrom
     .map((entry) =>
@@ -191,6 +211,18 @@ function buildIMessageThreadToolContext(params: {
 >>>>>>> d9c891eb9 (refactor(channels): share threading tool context)
 =======
 
+function buildThreadToolContextFromMessageThreadOrReply(params: {
+  context: ChannelThreadingContext;
+  hasRepliedRef: ChannelThreadingToolContext["hasRepliedRef"];
+}): ChannelThreadingToolContext {
+  const threadId = params.context.MessageThreadId ?? params.context.ReplyToId;
+  return {
+    currentChannelId: params.context.To?.trim() || undefined,
+    currentThreadTs: threadId != null ? String(threadId) : undefined,
+    hasRepliedRef: params.hasRepliedRef,
+  };
+}
+
 function resolveCaseInsensitiveAccount<T>(
   accounts: Record<string, T> | undefined,
   accountId?: string | null,
@@ -244,13 +276,9 @@ const DOCKS: Record<ChatChannelId, ChannelDock> = {
     outbound: { textChunkLimit: 4000 },
     config: {
       resolveAllowFrom: ({ cfg, accountId }) =>
-        (resolveTelegramAccount({ cfg, accountId }).config.allowFrom ?? []).map((entry) =>
-          String(entry),
-        ),
+        stringifyAllowFrom(resolveTelegramAccount({ cfg, accountId }).config.allowFrom ?? []),
       formatAllowFrom: ({ allowFrom }) =>
-        allowFrom
-          .map((entry) => String(entry).trim())
-          .filter(Boolean)
+        trimAllowFromEntries(allowFrom)
           .map((entry) => entry.replace(/^(telegram|tg):/i, ""))
           .map((entry) => entry.toLowerCase()),
       resolveDefaultTo: ({ cfg, accountId }) => {
@@ -263,6 +291,7 @@ const DOCKS: Record<ChatChannelId, ChannelDock> = {
       resolveToolPolicy: resolveTelegramGroupToolPolicy,
     },
     threading: {
+<<<<<<< HEAD
       resolveReplyToMode: ({ cfg }) => cfg.channels?.telegram?.replyToMode ?? "first",
       buildToolContext: ({ context, hasRepliedRef }) => {
         const threadId = context.MessageThreadId ?? context.ReplyToId;
@@ -272,6 +301,11 @@ const DOCKS: Record<ChatChannelId, ChannelDock> = {
           hasRepliedRef,
         };
       },
+=======
+      resolveReplyToMode: ({ cfg }) => cfg.channels?.telegram?.replyToMode ?? "off",
+      buildToolContext: ({ context, hasRepliedRef }) =>
+        buildThreadToolContextFromMessageThreadOrReply({ context, hasRepliedRef }),
+>>>>>>> 75c1bfbae (refactor(channels): dedupe message routing and telegram helpers)
     },
   },
   whatsapp: {
@@ -491,14 +525,8 @@ const DOCKS: Record<ChatChannelId, ChannelDock> = {
     },
     threading: {
       resolveReplyToMode: ({ cfg }) => cfg.channels?.googlechat?.replyToMode ?? "off",
-      buildToolContext: ({ context, hasRepliedRef }) => {
-        const threadId = context.MessageThreadId ?? context.ReplyToId;
-        return {
-          currentChannelId: context.To?.trim() || undefined,
-          currentThreadTs: threadId != null ? String(threadId) : undefined,
-          hasRepliedRef,
-        };
-      },
+      buildToolContext: ({ context, hasRepliedRef }) =>
+        buildThreadToolContextFromMessageThreadOrReply({ context, hasRepliedRef }),
     },
   },
   slack: {
@@ -552,13 +580,9 @@ const DOCKS: Record<ChatChannelId, ChannelDock> = {
     },
     config: {
       resolveAllowFrom: ({ cfg, accountId }) =>
-        (resolveSignalAccount({ cfg, accountId }).config.allowFrom ?? []).map((entry) =>
-          String(entry),
-        ),
+        stringifyAllowFrom(resolveSignalAccount({ cfg, accountId }).config.allowFrom ?? []),
       formatAllowFrom: ({ allowFrom }) =>
-        allowFrom
-          .map((entry) => String(entry).trim())
-          .filter(Boolean)
+        trimAllowFromEntries(allowFrom)
           .map((entry) => (entry === "*" ? "*" : normalizeE164(entry.replace(/^signal:/i, ""))))
           .filter(Boolean),
       resolveDefaultTo: ({ cfg, accountId }) =>
