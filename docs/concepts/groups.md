@@ -236,7 +236,10 @@ Notes:
 Some channel configs support restricting which tools are available **inside a specific group/room/channel**.
 
 - `tools`: allow/deny tools for the whole group.
-- `toolsBySender`: per-sender overrides within the group (keys are sender IDs/usernames/emails/phone numbers depending on the channel). Use `"*"` as a wildcard.
+- `toolsBySender`: per-sender overrides within the group.
+  Use explicit key prefixes:
+  `id:<senderId>`, `e164:<phone>`, `username:<handle>`, `name:<displayName>`, and `"*"` wildcard.
+  Legacy unprefixed keys are still accepted and matched as `id:` only.
 
 Resolution order (most specific wins):
 1) group/channel `toolsBySender` match
@@ -255,12 +258,21 @@ Example (Telegram):
         "-1001234567890": {
           tools: { deny: ["exec", "read", "write"] },
           toolsBySender: {
+<<<<<<< HEAD:docs/concepts/groups.md
             "123456789": { alsoAllow: ["exec"] }
           }
         }
       }
     }
   }
+=======
+            "id:123456789": { alsoAllow: ["exec"] },
+          },
+        },
+      },
+    },
+  },
+>>>>>>> 5547a2275 (fix(security): harden toolsBySender sender-key matching):docs/channels/groups.md
 }
 ```
 
