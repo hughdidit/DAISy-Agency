@@ -23,6 +23,7 @@ import { stripMarkdown } from "openclaw/plugin-sdk";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { resolveBlueBubblesAccount } from "./accounts.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import {
   extractHandleFromChatGuid,
   normalizeBlueBubblesHandle,
@@ -31,6 +32,13 @@ import {
 import type { MoltbotConfig } from "clawdbot/plugin-sdk";
 =======
 import { getCachedBlueBubblesPrivateApiStatus } from "./probe.js";
+=======
+import {
+  getCachedBlueBubblesPrivateApiStatus,
+  isBlueBubblesPrivateApiStatusEnabled,
+} from "./probe.js";
+import { warnBlueBubbles } from "./runtime.js";
+>>>>>>> 296b3f49e (refactor(bluebubbles): centralize private-api status handling)
 import { extractBlueBubblesMessageId, resolveBlueBubblesSendTarget } from "./send-helpers.js";
 import { extractHandleFromChatGuid, normalizeBlueBubblesHandle } from "./targets.js";
 >>>>>>> 811e0c579 (refactor(bluebubbles): share send helpers)
@@ -98,6 +106,38 @@ function resolveEffectId(raw?: string): string | undefined {
     return EFFECT_MAP[compact];
   }
   return raw;
+}
+
+type PrivateApiDecision = {
+  canUsePrivateApi: boolean;
+  throwEffectDisabledError: boolean;
+  warningMessage?: string;
+};
+
+function resolvePrivateApiDecision(params: {
+  privateApiStatus: boolean | null;
+  wantsReplyThread: boolean;
+  wantsEffect: boolean;
+}): PrivateApiDecision {
+  const { privateApiStatus, wantsReplyThread, wantsEffect } = params;
+  const needsPrivateApi = wantsReplyThread || wantsEffect;
+  const canUsePrivateApi =
+    needsPrivateApi && isBlueBubblesPrivateApiStatusEnabled(privateApiStatus);
+  const throwEffectDisabledError = wantsEffect && privateApiStatus === false;
+  if (!needsPrivateApi || privateApiStatus !== null) {
+    return { canUsePrivateApi, throwEffectDisabledError };
+  }
+  const requested = [
+    wantsReplyThread ? "reply threading" : null,
+    wantsEffect ? "message effects" : null,
+  ]
+    .filter(Boolean)
+    .join(" + ");
+  return {
+    canUsePrivateApi,
+    throwEffectDisabledError,
+    warningMessage: `Private API status unknown; sending without ${requested}. Run a status probe to restore private-api features.`,
+  };
 }
 
 type BlueBubblesChatRecord = Record<string, unknown>;
@@ -397,31 +437,48 @@ export async function sendMessageBlueBubbles(
 =======
   const wantsReplyThread = Boolean(opts.replyToMessageGuid?.trim());
   const wantsEffect = Boolean(effectId);
-  const needsPrivateApi = wantsReplyThread || wantsEffect;
-  const canUsePrivateApi = needsPrivateApi && privateApiStatus === true;
-  if (wantsEffect && privateApiStatus === false) {
+  const privateApiDecision = resolvePrivateApiDecision({
+    privateApiStatus,
+    wantsReplyThread,
+    wantsEffect,
+  });
+  if (privateApiDecision.throwEffectDisabledError) {
     throw new Error(
       "BlueBubbles send failed: reply/effect requires Private API, but it is disabled on the BlueBubbles server.",
     );
   }
+<<<<<<< HEAD
 >>>>>>> 888b6bc94 (fix(bluebubbles): treat null privateApiStatus as disabled, not enabled)
+=======
+  if (privateApiDecision.warningMessage) {
+    warnBlueBubbles(privateApiDecision.warningMessage);
+  }
+>>>>>>> 296b3f49e (refactor(bluebubbles): centralize private-api status handling)
   const payload: Record<string, unknown> = {
     chatGuid,
     tempGuid: crypto.randomUUID(),
     message: trimmedText,
   };
+<<<<<<< HEAD
   if (needsPrivateApi) {
+=======
+  if (privateApiDecision.canUsePrivateApi) {
+>>>>>>> 296b3f49e (refactor(bluebubbles): centralize private-api status handling)
     payload.method = "private-api";
   }
 
   // Add reply threading support
+<<<<<<< HEAD
   if (opts.replyToMessageGuid) {
+=======
+  if (wantsReplyThread && privateApiDecision.canUsePrivateApi) {
+>>>>>>> 296b3f49e (refactor(bluebubbles): centralize private-api status handling)
     payload.selectedMessageGuid = opts.replyToMessageGuid;
     payload.partIndex = typeof opts.replyToPartIndex === "number" ? opts.replyToPartIndex : 0;
   }
 
   // Add message effects support
-  if (effectId && canUsePrivateApi) {
+  if (effectId && privateApiDecision.canUsePrivateApi) {
     payload.effectId = effectId;
   }
 

@@ -47,6 +47,7 @@ import type {
 } from "./monitor-shared.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -57,6 +58,9 @@ import type {
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { getCachedBlueBubblesPrivateApiStatus } from "./probe.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import { isBlueBubblesPrivateApiEnabled } from "./probe.js";
+>>>>>>> 296b3f49e (refactor(bluebubbles): centralize private-api status handling)
 import { normalizeBlueBubblesReactionInput, sendBlueBubblesReaction } from "./reactions.js";
 import { resolveChatGuidForTarget, sendMessageBlueBubbles } from "./send.js";
 import { formatBlueBubblesChatTarget, isAllowedBlueBubblesSender } from "./targets.js";
@@ -269,9 +273,13 @@ export async function processMessage(
 ): Promise<void> {
   const { account, config, runtime, core, statusSink } = target;
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   const privateApiEnabled = getCachedBlueBubblesPrivateApiStatus(account.accountId) === true;
 >>>>>>> 888b6bc94 (fix(bluebubbles): treat null privateApiStatus as disabled, not enabled)
+=======
+  const privateApiEnabled = isBlueBubblesPrivateApiEnabled(account.accountId);
+>>>>>>> 296b3f49e (refactor(bluebubbles): centralize private-api status handling)
 
   const groupFlag = resolveGroupFlagFromChatGuid(message.chatGuid);
   const isGroup = typeof groupFlag === "boolean" ? groupFlag : message.isGroup;
