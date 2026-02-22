@@ -4,6 +4,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { requireApiKey, resolveApiKeyForProvider } from "../agents/model-auth.js";
 import type { EmbeddingProvider, EmbeddingProviderOptions } from "./embeddings.js";
 =======
@@ -12,6 +13,9 @@ import { resolveRemoteEmbeddingBearerClient } from "./embeddings-remote-client.j
 import { fetchRemoteEmbeddingVectors } from "./embeddings-remote-fetch.js";
 >>>>>>> 9bfd3ca19 (refactor(memory): consolidate embeddings and batch helpers)
 =======
+=======
+import type { SsrFPolicy } from "../infra/net/ssrf.js";
+>>>>>>> f87db7c62 (fix(memory): enforce guarded remote policy for embeddings)
 import { resolveRemoteEmbeddingBearerClient } from "./embeddings-remote-client.js";
 import { fetchRemoteEmbeddingVectors } from "./embeddings-remote-fetch.js";
 import type { EmbeddingProvider, EmbeddingProviderOptions } from "./embeddings.js";
@@ -40,6 +44,7 @@ import type { EmbeddingProvider, EmbeddingProviderOptions } from "./embeddings.j
 export type OpenAiEmbeddingClient = {
   baseUrl: string;
   headers: Record<string, string>;
+  ssrfPolicy?: SsrFPolicy;
   model: string;
 };
 
@@ -75,6 +80,7 @@ export async function createOpenAiEmbeddingProvider(
     return await fetchRemoteEmbeddingVectors({
       url,
       headers: client.headers,
+      ssrfPolicy: client.ssrfPolicy,
       body: { model: client.model, input },
       errorPrefix: "openai embeddings failed",
     });
@@ -98,11 +104,11 @@ export async function createOpenAiEmbeddingProvider(
 export async function resolveOpenAiEmbeddingClient(
   options: EmbeddingProviderOptions,
 ): Promise<OpenAiEmbeddingClient> {
-  const { baseUrl, headers } = await resolveRemoteEmbeddingBearerClient({
+  const { baseUrl, headers, ssrfPolicy } = await resolveRemoteEmbeddingBearerClient({
     provider: "openai",
     options,
     defaultBaseUrl: DEFAULT_OPENAI_BASE_URL,
   });
   const model = normalizeOpenAiModel(options.model);
-  return { baseUrl, headers, model };
+  return { baseUrl, headers, ssrfPolicy, model };
 }
