@@ -8,7 +8,17 @@ import { parseAgentSessionKey } from "../../../src/routing/session-key.js";
 import { t } from "../i18n/index.ts";
 import { refreshChatAvatar } from "./app-chat.ts";
 import { renderUsageTab } from "./app-render-usage-tab.ts";
+<<<<<<< HEAD
 import { renderChatControls, renderTab, renderThemeToggle } from "./app-render.helpers.ts";
+=======
+import {
+  renderChatControls,
+  renderChatSessionSelect,
+  renderTab,
+  renderThemeToggle,
+} from "./app-render.helpers.ts";
+import type { AppViewState } from "./app-view-state.ts";
+>>>>>>> e697ec273 (UI: polish dashboard — agents overview, chat toolbar, debug & login UX (#23553))
 import { loadAgentFileContent, loadAgentFiles, saveAgentFile } from "./controllers/agent-files.ts";
 import { loadAgentIdentities, loadAgentIdentity } from "./controllers/agent-identity.ts";
 import { loadAgentSkills } from "./controllers/agent-skills.ts";
@@ -124,6 +134,33 @@ import { renderSkills } from "./views/skills.ts";
 const AVATAR_DATA_RE = /^data:/i;
 const AVATAR_HTTP_RE = /^https?:\/\//i;
 
+const NAV_WIDTH_MIN = 180;
+const NAV_WIDTH_MAX = 400;
+
+function handleNavResizeStart(e: MouseEvent, state: AppViewState) {
+  e.preventDefault();
+  const startX = e.clientX;
+  const startWidth = state.settings.navWidth;
+
+  const onMove = (ev: MouseEvent) => {
+    const delta = ev.clientX - startX;
+    const next = Math.round(Math.min(NAV_WIDTH_MAX, Math.max(NAV_WIDTH_MIN, startWidth + delta)));
+    state.applySettings({ ...state.settings, navWidth: next });
+  };
+
+  const onUp = () => {
+    document.removeEventListener("mousemove", onMove);
+    document.removeEventListener("mouseup", onUp);
+    document.body.style.cursor = "";
+    document.body.style.userSelect = "";
+  };
+
+  document.body.style.cursor = "col-resize";
+  document.body.style.userSelect = "none";
+  document.addEventListener("mousemove", onMove);
+  document.addEventListener("mouseup", onUp);
+}
+
 function resolveAssistantAvatarUrl(state: AppViewState): string | undefined {
   const list = state.agentsList?.agents ?? [];
   const parsed = parseAgentSessionKey(state.sessionKey);
@@ -151,6 +188,7 @@ export function renderApp(state: AppViewState) {
   const chatAvatarUrl = state.chatAvatarUrl ?? assistantAvatarUrl ?? null;
 
   return html`
+<<<<<<< HEAD
     <div class="shell ${isChat ? "shell--chat" : ""} ${chatFocus ? "shell--chat-focus" : ""} ${state.settings.navCollapsed ? "shell--nav-collapsed" : ""} ${state.onboarding ? "shell--onboarding" : ""}">
       <header class="topbar">
         <div class="topbar-left">
@@ -181,10 +219,55 @@ export function renderApp(state: AppViewState) {
             <span class="statusDot ${state.connected ? "ok" : ""}"></span>
             <span>Health</span>
             <span class="mono">${state.connected ? "OK" : "Offline"}</span>
+=======
+    ${renderCommandPalette({
+      open: state.paletteOpen,
+      query: (state as unknown as { paletteQuery?: string }).paletteQuery ?? "",
+      activeIndex: (state as unknown as { paletteActiveIndex?: number }).paletteActiveIndex ?? 0,
+      onToggle: () => {
+        state.paletteOpen = !state.paletteOpen;
+      },
+      onQueryChange: (q) => {
+        (state as unknown as { paletteQuery: string }).paletteQuery = q;
+      },
+      onActiveIndexChange: (i) => {
+        (state as unknown as { paletteActiveIndex: number }).paletteActiveIndex = i;
+      },
+      onNavigate: (tab) => {
+        state.setTab(tab as import("./navigation.ts").Tab);
+      },
+      onSlashCommand: (cmd) => {
+        state.setTab("chat" as import("./navigation.ts").Tab);
+        state.chatMessage = cmd.endsWith(" ") ? cmd : `${cmd} `;
+      },
+    })}
+    <div
+      class="shell ${isChat ? "shell--chat" : ""} ${chatFocus ? "shell--chat-focus" : ""} ${state.settings.navCollapsed ? "shell--nav-collapsed" : ""} ${state.onboarding ? "shell--onboarding" : ""}"
+      style="--shell-nav-width: ${state.settings.navWidth}px"
+    >
+      <header class="topbar">
+        <dashboard-header .tab=${state.tab}></dashboard-header>
+        <button
+          class="topbar-search"
+          @click=${() => {
+            state.paletteOpen = !state.paletteOpen;
+          }}
+          title="Search or jump to… (⌘K)"
+          aria-label="Open command palette"
+        >
+          <span class="topbar-search__label">${t("common.search")}</span>
+          <kbd class="topbar-search__kbd">⌘K</kbd>
+        </button>
+        <div class="topbar-status">
+          <div class="topbar-connection ${state.connected ? "topbar-connection--ok" : ""}">
+            <span class="topbar-connection__dot"></span>
+            <span class="topbar-connection__label">${state.connected ? t("common.ok") : t("common.offline")}</span>
+>>>>>>> e697ec273 (UI: polish dashboard — agents overview, chat toolbar, debug & login UX (#23553))
           </div>
           ${renderThemeToggle(state)}
         </div>
       </header>
+<<<<<<< HEAD
       <aside class="nav ${state.settings.navCollapsed ? "nav--collapsed" : ""}">
         ${TAB_GROUPS.map((group) => {
           const isGroupCollapsed = state.settings.navGroupsCollapsed[group.label] ?? false;
@@ -227,14 +310,145 @@ export function renderApp(state: AppViewState) {
               <span class="nav-item__icon" aria-hidden="true">${icons.book}</span>
               <span class="nav-item__text">Docs</span>
             </a>
+=======
+      <div class="shell-nav">
+      <aside class="sidebar ${state.settings.navCollapsed ? "sidebar--collapsed" : ""}">
+      <div class="sidebar-header">
+        ${
+          state.settings.navCollapsed
+            ? nothing
+            : html`
+          <div class="sidebar-brand">
+            <img class="sidebar-brand__logo" src="${basePath ? `${basePath}/favicon.svg` : "/favicon.svg"}" alt="OpenClaw" />
+            <span class="sidebar-brand__title">OpenClaw</span>
+          </div>
+        `
+        }
+        <button
+          class="sidebar-collapse-btn"
+          @click=${() =>
+            state.applySettings({
+              ...state.settings,
+              navCollapsed: !state.settings.navCollapsed,
+            })}
+          title="${state.settings.navCollapsed ? t("nav.expand") : t("nav.collapse")}"
+          aria-label="${state.settings.navCollapsed ? t("nav.expand") : t("nav.collapse")}"
+        >
+          ${state.settings.navCollapsed ? icons.panelLeftOpen : icons.panelLeftClose}
+        </button>
+      </div>
+ 
+          
+          <nav class="sidebar-nav">
+          ${TAB_GROUPS.map((group) => {
+            const isGroupCollapsed = state.settings.navGroupsCollapsed[group.label] ?? false;
+            const hasActiveTab = group.tabs.some((tab) => tab === state.tab);
+            const showItems = hasActiveTab || !isGroupCollapsed;
+
+            return html`
+              <div class="nav-group ${!showItems ? "nav-group--collapsed" : ""}">
+                ${
+                  !state.settings.navCollapsed
+                    ? html`
+                  <button
+                    class="nav-group__label"
+                    @click=${() => {
+                      const next = { ...state.settings.navGroupsCollapsed };
+                      next[group.label] = !isGroupCollapsed;
+                      state.applySettings({
+                        ...state.settings,
+                        navGroupsCollapsed: next,
+                      });
+                    }}
+                    aria-expanded=${showItems}
+                  >
+                    <span class="nav-group__label-text">${t(`nav.${group.label}`)}</span>
+                    <span class="nav-group__chevron">${showItems ? icons.chevronDown : icons.chevronRight}</span>
+                  </button>
+                `
+                    : nothing
+                }
+                <div class="nav-group__items">
+                  ${group.tabs.map((tab) => renderTab(state, tab))}
+                </div>
+              </div>
+            `;
+          })}
+        </nav>
+
+        <div class="sidebar-footer">
+          <div class="sidebar-footer__docs-block">
+            <a
+              class="nav-item nav-item--external"
+              href="https://docs.openclaw.ai"
+              target="_blank"
+              rel="noreferrer"
+              title="${t("common.docs")} (opens in new tab)"
+            >
+              <span class="nav-item__icon" aria-hidden="true">${icons.book}</span>
+              ${
+                !state.settings.navCollapsed
+                  ? html`
+              <span class="nav-item__text">${t("common.docs")}</span>
+              <span class="nav-item__external-icon">${icons.externalLink}</span>
+            `
+                  : nothing
+              }
+            </a>
+            ${(() => {
+              const snapshot = state.hello?.snapshot as
+                | { server?: { version?: string } }
+                | undefined;
+              const version = snapshot?.server?.version ?? "";
+              return version
+                ? html`
+                  <div class="sidebar-version" title=${`v${version}`}>
+                    ${
+                      !state.settings.navCollapsed
+                        ? html`<span class="sidebar-version__text">v${version}</span>`
+                        : html`
+                            <span class="sidebar-version__dot"></span>
+                          `
+                    }
+                  </div>
+                `
+                : nothing;
+            })()}
+>>>>>>> e697ec273 (UI: polish dashboard — agents overview, chat toolbar, debug & login UX (#23553))
           </div>
         </div>
       </aside>
+      ${
+        !state.settings.navCollapsed && !chatFocus
+          ? html`
+          <div
+            class="sidebar-resizer"
+            role="separator"
+            aria-orientation="vertical"
+            aria-label="${t("nav.resize")}"
+            title="${t("nav.resize")}"
+            @mousedown=${(ev: MouseEvent) => handleNavResizeStart(ev, state)}
+          ></div>
+        `
+          : nothing
+      }
+      </div>
       <main class="content ${isChat ? "content--chat" : ""}">
         <section class="content-header">
           <div>
+<<<<<<< HEAD
             <div class="page-title">${titleForTab(state.tab)}</div>
             <div class="page-sub">${subtitleForTab(state.tab)}</div>
+=======
+            ${
+              isChat
+                ? renderChatSessionSelect(state)
+                : state.tab === "skills"
+                  ? nothing
+                  : html`<div class="page-title">${titleForTab(state.tab)}</div>`
+            }
+            ${isChat || state.tab === "skills" ? nothing : html`<div class="page-sub">${subtitleForTab(state.tab)}</div>`}
+>>>>>>> e697ec273 (UI: polish dashboard — agents overview, chat toolbar, debug & login UX (#23553))
           </div>
           <div class="page-meta">
             ${state.lastError
@@ -321,6 +535,7 @@ export function renderApp(state: AppViewState) {
             })
           : nothing}
 
+<<<<<<< HEAD
         ${state.tab === "sessions"
           ? renderSessions({
               loading: state.sessionsLoading,
@@ -342,6 +557,56 @@ export function renderApp(state: AppViewState) {
 	              onDelete: (key) => deleteSession(state, key),
 	            })
 	          : nothing}
+=======
+        ${
+          state.tab === "sessions"
+            ? renderSessions({
+                loading: state.sessionsLoading,
+                result: state.sessionsResult,
+                error: state.sessionsError,
+                activeMinutes: state.sessionsFilterActive,
+                limit: state.sessionsFilterLimit,
+                includeGlobal: state.sessionsIncludeGlobal,
+                includeUnknown: state.sessionsIncludeUnknown,
+                basePath: state.basePath,
+                searchQuery: state.sessionsSearchQuery,
+                sortColumn: state.sessionsSortColumn,
+                sortDir: state.sessionsSortDir,
+                page: state.sessionsPage,
+                pageSize: state.sessionsPageSize,
+                actionsOpenKey: state.sessionsActionsOpenKey,
+                onFiltersChange: (next) => {
+                  state.sessionsFilterActive = next.activeMinutes;
+                  state.sessionsFilterLimit = next.limit;
+                  state.sessionsIncludeGlobal = next.includeGlobal;
+                  state.sessionsIncludeUnknown = next.includeUnknown;
+                },
+                onSearchChange: (q) => {
+                  state.sessionsSearchQuery = q;
+                  state.sessionsPage = 0;
+                },
+                onSortChange: (col, dir) => {
+                  state.sessionsSortColumn = col;
+                  state.sessionsSortDir = dir;
+                  state.sessionsPage = 0;
+                },
+                onPageChange: (p) => {
+                  state.sessionsPage = p;
+                },
+                onPageSizeChange: (s) => {
+                  state.sessionsPageSize = s;
+                  state.sessionsPage = 0;
+                },
+                onActionsOpenChange: (key) => {
+                  state.sessionsActionsOpenKey = key;
+                },
+                onRefresh: () => loadSessions(state),
+                onPatch: (key, patch) => patchSession(state, key, patch),
+                onDelete: (key) => deleteSessionAndRefresh(state, key),
+              })
+            : nothing
+        }
+>>>>>>> e697ec273 (UI: polish dashboard — agents overview, chat toolbar, debug & login UX (#23553))
 
         ${state.tab === "cron"
           ? renderCron({
@@ -610,7 +875,7 @@ export function renderApp(state: AppViewState) {
         ${
           state.tab === "agents"
             ? renderAgents({
-                basePath: state.basePath,
+                basePath: state.basePath ?? "",
                 loading: state.agentsLoading,
                 error: state.agentsError,
                 agentsList: state.agentsList,
@@ -652,10 +917,6 @@ export function renderApp(state: AppViewState) {
                   error: state.agentSkillsError,
                   agentId: state.agentSkillsAgentId,
                   filter: state.skillsFilter,
-                },
-                sidebarFilter: state.agentsSidebarFilter,
-                onSidebarFilterChange: (value) => {
-                  state.agentsSidebarFilter = value;
                 },
                 onRefresh: async () => {
                   await loadAgents(state);
@@ -997,6 +1258,7 @@ export function renderApp(state: AppViewState) {
             })
           : nothing}
 
+<<<<<<< HEAD
         ${state.tab === "logs"
           ? renderLogs({
               loading: state.logsLoading,
@@ -1020,6 +1282,295 @@ export function renderApp(state: AppViewState) {
       </main>
       ${renderExecApprovalPrompt(state)}
       ${renderGatewayUrlConfirmation(state)}
+=======
+        ${
+          state.tab === "nodes"
+            ? renderNodes({
+                loading: state.nodesLoading,
+                nodes: state.nodes,
+                devicesLoading: state.devicesLoading,
+                devicesError: state.devicesError,
+                devicesList: state.devicesList,
+                configForm:
+                  state.configForm ??
+                  (state.configSnapshot?.config as Record<string, unknown> | null),
+                configLoading: state.configLoading,
+                configSaving: state.configSaving,
+                configDirty: state.configFormDirty,
+                configFormMode: state.configFormMode,
+                execApprovalsLoading: state.execApprovalsLoading,
+                execApprovalsSaving: state.execApprovalsSaving,
+                execApprovalsDirty: state.execApprovalsDirty,
+                execApprovalsSnapshot: state.execApprovalsSnapshot,
+                execApprovalsForm: state.execApprovalsForm,
+                execApprovalsSelectedAgent: state.execApprovalsSelectedAgent,
+                execApprovalsTarget: state.execApprovalsTarget,
+                execApprovalsTargetNodeId: state.execApprovalsTargetNodeId,
+                onRefresh: () => loadNodes(state),
+                onDevicesRefresh: () => loadDevices(state),
+                onDeviceApprove: (requestId) => approveDevicePairing(state, requestId),
+                onDeviceReject: (requestId) => rejectDevicePairing(state, requestId),
+                onDeviceRotate: (deviceId, role, scopes) =>
+                  rotateDeviceToken(state, { deviceId, role, scopes }),
+                onDeviceRevoke: (deviceId, role) => revokeDeviceToken(state, { deviceId, role }),
+                onLoadConfig: () => loadConfig(state),
+                onLoadExecApprovals: () => {
+                  const target =
+                    state.execApprovalsTarget === "node" && state.execApprovalsTargetNodeId
+                      ? { kind: "node" as const, nodeId: state.execApprovalsTargetNodeId }
+                      : { kind: "gateway" as const };
+                  return loadExecApprovals(state, target);
+                },
+                onBindDefault: (nodeId) => {
+                  if (nodeId) {
+                    updateConfigFormValue(state, ["tools", "exec", "node"], nodeId);
+                  } else {
+                    removeConfigFormValue(state, ["tools", "exec", "node"]);
+                  }
+                },
+                onBindAgent: (agentIndex, nodeId) => {
+                  const basePath = ["agents", "list", agentIndex, "tools", "exec", "node"];
+                  if (nodeId) {
+                    updateConfigFormValue(state, basePath, nodeId);
+                  } else {
+                    removeConfigFormValue(state, basePath);
+                  }
+                },
+                onSaveBindings: () => saveConfig(state),
+                onExecApprovalsTargetChange: (kind, nodeId) => {
+                  state.execApprovalsTarget = kind;
+                  state.execApprovalsTargetNodeId = nodeId;
+                  state.execApprovalsSnapshot = null;
+                  state.execApprovalsForm = null;
+                  state.execApprovalsDirty = false;
+                  state.execApprovalsSelectedAgent = null;
+                },
+                onExecApprovalsSelectAgent: (agentId) => {
+                  state.execApprovalsSelectedAgent = agentId;
+                },
+                onExecApprovalsPatch: (path, value) =>
+                  updateExecApprovalsFormValue(state, path, value),
+                onExecApprovalsRemove: (path) => removeExecApprovalsFormValue(state, path),
+                onSaveExecApprovals: () => {
+                  const target =
+                    state.execApprovalsTarget === "node" && state.execApprovalsTargetNodeId
+                      ? { kind: "node" as const, nodeId: state.execApprovalsTargetNodeId }
+                      : { kind: "gateway" as const };
+                  return saveExecApprovals(state, target);
+                },
+              })
+            : nothing
+        }
+
+        ${
+          state.tab === "chat"
+            ? renderChat({
+                sessionKey: state.sessionKey,
+                onSessionKeyChange: (next) => {
+                  state.sessionKey = next;
+                  state.chatMessage = "";
+                  state.chatAttachments = [];
+                  state.chatStream = null;
+                  state.chatStreamStartedAt = null;
+                  state.chatRunId = null;
+                  state.chatQueue = [];
+                  state.resetToolStream();
+                  state.resetChatScroll();
+                  state.applySettings({
+                    ...state.settings,
+                    sessionKey: next,
+                    lastActiveSessionKey: next,
+                  });
+                  void state.loadAssistantIdentity();
+                  void loadChatHistory(state);
+                  void refreshChatAvatar(state);
+                },
+                thinkingLevel: state.chatThinkingLevel,
+                showThinking,
+                loading: state.chatLoading,
+                sending: state.chatSending,
+                compactionStatus: state.compactionStatus,
+                fallbackStatus: state.fallbackStatus,
+                assistantAvatarUrl: chatAvatarUrl,
+                messages: state.chatMessages,
+                toolMessages: state.chatToolMessages,
+                stream: state.chatStream,
+                streamStartedAt: state.chatStreamStartedAt,
+                draft: state.chatMessage,
+                queue: state.chatQueue,
+                connected: state.connected,
+                canSend: state.connected,
+                disabledReason: chatDisabledReason,
+                error: state.lastError,
+                sessions: state.sessionsResult,
+                focusMode: chatFocus,
+                onRefresh: () => {
+                  state.resetToolStream();
+                  return Promise.all([loadChatHistory(state), refreshChatAvatar(state)]);
+                },
+                onToggleFocusMode: () => {
+                  if (state.onboarding) {
+                    return;
+                  }
+                  state.applySettings({
+                    ...state.settings,
+                    chatFocusMode: !state.settings.chatFocusMode,
+                  });
+                },
+                onChatScroll: (event) => state.handleChatScroll(event),
+                onDraftChange: (next) => (state.chatMessage = next),
+                attachments: state.chatAttachments,
+                onAttachmentsChange: (next) => (state.chatAttachments = next),
+                onSend: () => state.handleSendChat(),
+                canAbort: Boolean(state.chatRunId),
+                onAbort: () => void state.handleAbortChat(),
+                onQueueRemove: (id) => state.removeQueuedMessage(id),
+                onNewSession: () => state.handleSendChat("/new", { restoreDraft: true }),
+                onClearHistory: async () => {
+                  if (!state.client || !state.connected) {
+                    return;
+                  }
+                  try {
+                    await state.client.request("sessions.reset", { key: state.sessionKey });
+                    state.chatMessages = [];
+                    state.chatStream = null;
+                    state.chatRunId = null;
+                    await loadChatHistory(state);
+                  } catch (err) {
+                    state.lastError = String(err);
+                  }
+                },
+                agentsList: state.agentsList,
+                currentAgentId: resolvedAgentId ?? "main",
+                onAgentChange: (agentId: string) => {
+                  state.sessionKey = buildAgentMainSessionKey({ agentId });
+                  state.chatMessages = [];
+                  state.chatStream = null;
+                  state.chatRunId = null;
+                  state.applySettings({
+                    ...state.settings,
+                    sessionKey: state.sessionKey,
+                    lastActiveSessionKey: state.sessionKey,
+                  });
+                  void loadChatHistory(state);
+                  void state.loadAssistantIdentity();
+                },
+                onNavigateToAgent: () => {
+                  state.agentsSelectedId = resolvedAgentId;
+                  state.setTab("agents" as import("./navigation.ts").Tab);
+                },
+                onSessionSelect: (key: string) => {
+                  state.setSessionKey(key);
+                  state.chatMessages = [];
+                  void loadChatHistory(state);
+                  void state.loadAssistantIdentity();
+                },
+                showNewMessages: state.chatNewMessagesBelow && !state.chatManualRefreshInFlight,
+                onScrollToBottom: () => state.scrollToBottom(),
+                // Sidebar props for tool output viewing
+                sidebarOpen: state.sidebarOpen,
+                sidebarContent: state.sidebarContent,
+                sidebarError: state.sidebarError,
+                splitRatio: state.splitRatio,
+                onOpenSidebar: (content: string) => state.handleOpenSidebar(content),
+                onCloseSidebar: () => state.handleCloseSidebar(),
+                onSplitRatioChange: (ratio: number) => state.handleSplitRatioChange(ratio),
+                assistantName: state.assistantName,
+                assistantAvatar: state.assistantAvatar,
+                basePath: state.basePath ?? "",
+              })
+            : nothing
+        }
+
+        ${
+          state.tab === "config"
+            ? renderConfig({
+                raw: state.configRaw,
+                originalRaw: state.configRawOriginal,
+                valid: state.configValid,
+                issues: state.configIssues,
+                loading: state.configLoading,
+                saving: state.configSaving,
+                applying: state.configApplying,
+                updating: state.updateRunning,
+                connected: state.connected,
+                schema: state.configSchema,
+                schemaLoading: state.configSchemaLoading,
+                uiHints: state.configUiHints,
+                formMode: state.configFormMode,
+                formValue: state.configForm,
+                originalValue: state.configFormOriginal,
+                searchQuery: state.configSearchQuery,
+                activeSection: state.configActiveSection,
+                activeSubsection: state.configActiveSubsection,
+                streamMode: state.streamMode,
+                onRawChange: (next) => {
+                  state.configRaw = next;
+                },
+                onFormModeChange: (mode) => (state.configFormMode = mode),
+                onFormPatch: (path, value) => updateConfigFormValue(state, path, value),
+                onSearchChange: (query) => (state.configSearchQuery = query),
+                onSectionChange: (section) => {
+                  state.configActiveSection = section;
+                  state.configActiveSubsection = null;
+                },
+                onSubsectionChange: (section) => (state.configActiveSubsection = section),
+                onReload: () => loadConfig(state),
+                onSave: () => saveConfig(state),
+                onApply: () => applyConfig(state),
+                onUpdate: () => runUpdate(state),
+              })
+            : nothing
+        }
+
+        ${
+          state.tab === "debug"
+            ? renderDebug({
+                loading: state.debugLoading,
+                status: state.debugStatus,
+                health: state.debugHealth,
+                models: state.debugModels,
+                heartbeat: state.debugHeartbeat,
+                eventLog: state.eventLog,
+                callMethod: state.debugCallMethod,
+                callParams: state.debugCallParams,
+                callResult: state.debugCallResult,
+                callError: state.debugCallError,
+                onCallMethodChange: (next) => (state.debugCallMethod = next),
+                onCallParamsChange: (next) => (state.debugCallParams = next),
+                onRefresh: () => loadDebug(state),
+                onCall: () => callDebugMethod(state),
+              })
+            : nothing
+        }
+
+        ${
+          state.tab === "logs"
+            ? renderLogs({
+                loading: state.logsLoading,
+                error: state.logsError,
+                file: state.logsFile,
+                entries: state.logsEntries,
+                filterText: state.logsFilterText,
+                levelFilters: state.logsLevelFilters,
+                autoFollow: state.logsAutoFollow,
+                truncated: state.logsTruncated,
+                onFilterTextChange: (next) => (state.logsFilterText = next),
+                onLevelToggle: (level, enabled) => {
+                  state.logsLevelFilters = { ...state.logsLevelFilters, [level]: enabled };
+                },
+                onToggleAutoFollow: (next) => (state.logsAutoFollow = next),
+                onRefresh: () => loadLogs(state, { reset: true }),
+                onExport: (lines, label) => state.exportLogs(lines, label),
+                onScroll: (event) => state.handleLogsScroll(event),
+              })
+            : nothing
+        }
+      </main>
+      ${renderExecApprovalPrompt(state)}
+      ${renderGatewayUrlConfirmation(state)}
+      ${nothing}
+>>>>>>> e697ec273 (UI: polish dashboard — agents overview, chat toolbar, debug & login UX (#23553))
     </div>
   `;
 }

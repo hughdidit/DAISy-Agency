@@ -13,9 +13,30 @@ import {
   renderMessageGroup,
   renderReadingIndicatorGroup,
   renderStreamingGroup,
+<<<<<<< HEAD
 } from "../chat/grouped-render";
 import { renderMarkdownSidebar } from "./markdown-sidebar";
 import "../components/resizable-divider";
+=======
+} from "../chat/grouped-render.ts";
+import { InputHistory } from "../chat/input-history.ts";
+import { normalizeMessage, normalizeRoleForGrouping } from "../chat/message-normalizer.ts";
+import { PinnedMessages } from "../chat/pinned-messages.ts";
+import {
+  CATEGORY_LABELS,
+  getSlashCommandCompletions,
+  type SlashCommandCategory,
+  type SlashCommandDef,
+} from "../chat/slash-commands.ts";
+import { icons } from "../icons.ts";
+import { detectTextDirection } from "../text-direction.ts";
+import type { SessionsListResult } from "../types.ts";
+import type { ChatItem, MessageGroup } from "../types/chat-types.ts";
+import type { ChatAttachment, ChatQueueItem } from "../ui-types.ts";
+import { agentLogoUrl } from "./agents-utils.ts";
+import { renderMarkdownSidebar } from "./markdown-sidebar.ts";
+import "../components/resizable-divider.ts";
+>>>>>>> e697ec273 (UI: polish dashboard — agents overview, chat toolbar, debug & login UX (#23553))
 
 export type CompactionIndicatorStatus = {
   active: boolean;
@@ -68,9 +89,54 @@ export type ChatProps = {
   onCloseSidebar?: () => void;
   onSplitRatioChange?: (ratio: number) => void;
   onChatScroll?: (event: Event) => void;
+  basePath?: string;
 };
 
 const COMPACTION_TOAST_DURATION_MS = 5000;
+<<<<<<< HEAD
+=======
+const FALLBACK_TOAST_DURATION_MS = 8000;
+
+// Persistent instances keyed by session
+const inputHistories = new Map<string, InputHistory>();
+const pinnedMessagesMap = new Map<string, PinnedMessages>();
+const deletedMessagesMap = new Map<string, DeletedMessages>();
+
+function getInputHistory(sessionKey: string): InputHistory {
+  let h = inputHistories.get(sessionKey);
+  if (!h) {
+    h = new InputHistory();
+    inputHistories.set(sessionKey, h);
+  }
+  return h;
+}
+
+function getPinnedMessages(sessionKey: string): PinnedMessages {
+  let p = pinnedMessagesMap.get(sessionKey);
+  if (!p) {
+    p = new PinnedMessages(sessionKey);
+    pinnedMessagesMap.set(sessionKey, p);
+  }
+  return p;
+}
+
+function getDeletedMessages(sessionKey: string): DeletedMessages {
+  let d = deletedMessagesMap.get(sessionKey);
+  if (!d) {
+    d = new DeletedMessages(sessionKey);
+    deletedMessagesMap.set(sessionKey, d);
+  }
+  return d;
+}
+
+// Module-level ephemeral UI state (reset on navigation away)
+let slashMenuOpen = false;
+let slashMenuItems: SlashCommandDef[] = [];
+let slashMenuIndex = 0;
+let searchOpen = false;
+let searchQuery = "";
+let pinnedExpanded = false;
+>>>>>>> e697ec273 (UI: polish dashboard — agents overview, chat toolbar, debug & login UX (#23553))
 
 function adjustTextareaHeight(el: HTMLTextAreaElement) {
   el.style.height = "auto";
@@ -180,6 +246,222 @@ function renderAttachmentPreview(props: ChatProps) {
   `;
 }
 
+<<<<<<< HEAD
+=======
+function updateSlashMenu(value: string, requestUpdate: () => void): void {
+  const match = value.match(/^\/(\S*)$/);
+  if (match) {
+    const items = getSlashCommandCompletions(match[1]);
+    slashMenuItems = items;
+    slashMenuOpen = items.length > 0;
+    slashMenuIndex = 0;
+  } else {
+    slashMenuOpen = false;
+    slashMenuItems = [];
+  }
+  requestUpdate();
+}
+
+function selectSlashCommand(
+  cmd: SlashCommandDef,
+  props: ChatProps,
+  requestUpdate: () => void,
+): void {
+  const text = `/${cmd.name} `;
+  props.onDraftChange(text);
+  slashMenuOpen = false;
+  slashMenuItems = [];
+  requestUpdate();
+}
+
+function tokenEstimate(draft: string): string | null {
+  if (draft.length < 100) {
+    return null;
+  }
+  return `~${Math.ceil(draft.length / 4)} tokens`;
+}
+
+function exportMarkdown(props: ChatProps): void {
+  const history = Array.isArray(props.messages) ? props.messages : [];
+  if (history.length === 0) {
+    return;
+  }
+  const lines: string[] = [`# Chat with ${props.assistantName}`, ""];
+  for (const msg of history) {
+    const m = msg as Record<string, unknown>;
+    const role = m.role === "user" ? "You" : m.role === "assistant" ? props.assistantName : "Tool";
+    const content = typeof m.content === "string" ? m.content : "";
+    const ts = typeof m.timestamp === "number" ? new Date(m.timestamp).toISOString() : "";
+    lines.push(`## ${role}${ts ? ` (${ts})` : ""}`, "", content, "");
+  }
+  const blob = new Blob([lines.join("\n")], { type: "text/markdown" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `chat-${props.assistantName}-${Date.now()}.md`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function renderWelcomeState(props: ChatProps): TemplateResult {
+  const name = props.assistantName || "Assistant";
+  const avatar = props.assistantAvatar ?? props.assistantAvatarUrl;
+  const logoUrl = agentLogoUrl(props.basePath ?? "");
+
+  return html`
+    <div class="agent-chat__welcome" style="--agent-color: var(--accent)">
+      <div class="agent-chat__welcome-glow"></div>
+      ${
+        avatar
+          ? html`<img src=${avatar} alt=${name} style="width:56px; height:56px; border-radius:50%; object-fit:cover;" />`
+          : html`<div class="agent-chat__avatar agent-chat__avatar--logo"><img src=${logoUrl} alt="OpenClaw" /></div>`
+      }
+      <h2>${name}</h2>
+      <div class="agent-chat__badges">
+        <span class="agent-chat__badge"><img src=${logoUrl} alt="" /> Ready to chat</span>
+      </div>
+      <p class="agent-chat__hint">
+        Type a message below &middot; <kbd>/</kbd> for commands
+      </p>
+    </div>
+  `;
+}
+
+function renderSearchBar(requestUpdate: () => void): TemplateResult | typeof nothing {
+  if (!searchOpen) {
+    return nothing;
+  }
+  return html`
+    <div class="agent-chat__search-bar">
+      ${icons.search}
+      <input
+        type="text"
+        placeholder="Search messages..."
+        .value=${searchQuery}
+        @input=${(e: Event) => {
+          searchQuery = (e.target as HTMLInputElement).value;
+          requestUpdate();
+        }}
+      />
+      <button class="btn-ghost" @click=${() => {
+        searchOpen = false;
+        searchQuery = "";
+        requestUpdate();
+      }}>
+        ${icons.x}
+      </button>
+    </div>
+  `;
+}
+
+function renderPinnedSection(
+  props: ChatProps,
+  pinned: PinnedMessages,
+  requestUpdate: () => void,
+): TemplateResult | typeof nothing {
+  const messages = Array.isArray(props.messages) ? props.messages : [];
+  const entries: Array<{ index: number; text: string; role: string }> = [];
+  for (const idx of pinned.indices) {
+    const msg = messages[idx] as Record<string, unknown> | undefined;
+    if (!msg) {
+      continue;
+    }
+    const text = typeof msg.content === "string" ? msg.content : "";
+    const role = typeof msg.role === "string" ? msg.role : "unknown";
+    entries.push({ index: idx, text, role });
+  }
+  if (entries.length === 0) {
+    return nothing;
+  }
+  return html`
+    <div class="agent-chat__pinned">
+      <button class="agent-chat__pinned-toggle" @click=${() => {
+        pinnedExpanded = !pinnedExpanded;
+        requestUpdate();
+      }}>
+        ${icons.bookmark}
+        ${entries.length} pinned
+        ${pinnedExpanded ? icons.chevronDown : icons.chevronRight}
+      </button>
+      ${
+        pinnedExpanded
+          ? html`
+            <div class="agent-chat__pinned-list">
+              ${entries.map(
+                ({ index, text, role }) => html`
+                <div class="agent-chat__pinned-item">
+                  <span class="agent-chat__pinned-role">${role === "user" ? "You" : "Assistant"}</span>
+                  <span class="agent-chat__pinned-text">${text.slice(0, 100)}${text.length > 100 ? "..." : ""}</span>
+                  <button class="btn-ghost" @click=${() => {
+                    pinned.unpin(index);
+                    requestUpdate();
+                  }} title="Unpin">
+                    ${icons.x}
+                  </button>
+                </div>
+              `,
+              )}
+            </div>
+          `
+          : nothing
+      }
+    </div>
+  `;
+}
+
+function renderSlashMenu(
+  requestUpdate: () => void,
+  props: ChatProps,
+): TemplateResult | typeof nothing {
+  if (!slashMenuOpen || slashMenuItems.length === 0) {
+    return nothing;
+  }
+
+  const grouped = new Map<
+    SlashCommandCategory,
+    Array<{ cmd: SlashCommandDef; globalIdx: number }>
+  >();
+  for (let i = 0; i < slashMenuItems.length; i++) {
+    const cmd = slashMenuItems[i];
+    const cat = cmd.category ?? "session";
+    let list = grouped.get(cat);
+    if (!list) {
+      list = [];
+      grouped.set(cat, list);
+    }
+    list.push({ cmd, globalIdx: i });
+  }
+
+  const sections: TemplateResult[] = [];
+  for (const [cat, entries] of grouped) {
+    sections.push(html`
+      <div class="slash-menu-group">
+        <div class="slash-menu-group__label">${CATEGORY_LABELS[cat]}</div>
+        ${entries.map(
+          ({ cmd, globalIdx }) => html`
+            <div
+              class="slash-menu-item ${globalIdx === slashMenuIndex ? "slash-menu-item--active" : ""}"
+              @click=${() => selectSlashCommand(cmd, props, requestUpdate)}
+              @mouseenter=${() => {
+                slashMenuIndex = globalIdx;
+                requestUpdate();
+              }}
+            >
+              ${cmd.icon ? html`<span class="slash-menu-icon">${icons[cmd.icon]}</span>` : nothing}
+              <span class="slash-menu-name">/${cmd.name}</span>
+              ${cmd.args ? html`<span class="slash-menu-args">${cmd.args}</span>` : nothing}
+              <span class="slash-menu-desc">${cmd.description}</span>
+            </div>
+          `,
+        )}
+      </div>
+    `);
+  }
+
+  return html`<div class="slash-menu">${sections}</div>`;
+}
+
+>>>>>>> e697ec273 (UI: polish dashboard — agents overview, chat toolbar, debug & login UX (#23553))
 export function renderChat(props: ChatProps) {
   const canCompose = props.connected;
   const isBusy = props.sending || props.stream !== null;
@@ -195,7 +477,13 @@ export function renderChat(props: ChatProps) {
   };
 
   const hasAttachments = (props.attachments?.length ?? 0) > 0;
+<<<<<<< HEAD
   const composePlaceholder = props.connected
+=======
+  const tokens = tokenEstimate(props.draft);
+
+  const placeholder = props.connected
+>>>>>>> e697ec273 (UI: polish dashboard — agents overview, chat toolbar, debug & login UX (#23553))
     ? hasAttachments
       ? "Add a message or paste more images..."
       : "Message (↩ to send, Shift+↩ for line breaks, paste images)"
@@ -210,6 +498,7 @@ export function renderChat(props: ChatProps) {
       aria-live="polite"
       @scroll=${props.onChatScroll}
     >
+<<<<<<< HEAD
       ${props.loading ? html`<div class="muted">Loading chat…</div>` : nothing}
       ${repeat(buildChatItems(props), (item) => item.key, (item) => {
         if (item.kind === "reading-indicator") {
@@ -236,6 +525,67 @@ export function renderChat(props: ChatProps) {
 
         return nothing;
       })}
+=======
+      ${
+        props.loading
+          ? html`
+              <div class="muted">Loading chat...</div>
+            `
+          : nothing
+      }
+      ${isEmpty && !searchOpen ? renderWelcomeState(props) : nothing}
+      ${
+        isEmpty && searchOpen
+          ? html`
+              <div class="agent-chat__empty">No matching messages</div>
+            `
+          : nothing
+      }
+      ${repeat(
+        chatItems,
+        (item) => item.key,
+        (item) => {
+          if (item.kind === "divider") {
+            return html`
+              <div class="chat-divider" role="separator" data-ts=${String(item.timestamp)}>
+                <span class="chat-divider__line"></span>
+                <span class="chat-divider__label">${item.label}</span>
+                <span class="chat-divider__line"></span>
+              </div>
+            `;
+          }
+          if (item.kind === "reading-indicator") {
+            return renderReadingIndicatorGroup(assistantIdentity, props.basePath);
+          }
+          if (item.kind === "stream") {
+            return renderStreamingGroup(
+              item.text,
+              item.startedAt,
+              props.onOpenSidebar,
+              assistantIdentity,
+              props.basePath,
+            );
+          }
+          if (item.kind === "group") {
+            if (deleted.has(item.key)) {
+              return nothing;
+            }
+            return renderMessageGroup(item, {
+              onOpenSidebar: props.onOpenSidebar,
+              showReasoning,
+              assistantName: props.assistantName,
+              assistantAvatar: assistantIdentity.avatar,
+              basePath: props.basePath,
+              onDelete: () => {
+                deleted.delete(item.key);
+                requestUpdate();
+              },
+            });
+          }
+          return nothing;
+        },
+      )}
+>>>>>>> e697ec273 (UI: polish dashboard — agents overview, chat toolbar, debug & login UX (#23553))
     </div>
   `;
 
@@ -271,9 +621,16 @@ export function renderChat(props: ChatProps) {
           `
         : nothing}
 
+<<<<<<< HEAD
       <div
         class="chat-split-container ${sidebarOpen ? "chat-split-container--open" : ""}"
       >
+=======
+      ${renderSearchBar(requestUpdate)}
+      ${renderPinnedSection(props, pinned, requestUpdate)}
+
+      <div class="chat-split-container ${sidebarOpen ? "chat-split-container--open" : ""}">
+>>>>>>> e697ec273 (UI: polish dashboard — agents overview, chat toolbar, debug & login UX (#23553))
         <div
           class="chat-main"
           style="flex: ${sidebarOpen ? `0 0 ${splitRatio * 100}%` : "1 1 100%"}"
@@ -388,6 +745,7 @@ export function renderChat(props: ChatProps) {
             >
               ${canAbort ? "Stop" : "New session"}
             </button>
+<<<<<<< HEAD
             <button
               class="btn primary"
               ?disabled=${!props.connected}
@@ -395,6 +753,43 @@ export function renderChat(props: ChatProps) {
             >
               ${isBusy ? "Queue" : "Send"}<kbd class="btn-kbd">↵</kbd>
             </button>
+=======
+
+            ${nothing /* mic hidden for now */}
+
+            ${tokens ? html`<span class="agent-chat__token-count">${tokens}</span>` : nothing}
+          </div>
+
+          <div class="agent-chat__toolbar-right">
+            ${nothing /* search hidden for now */}
+            <button class="btn-ghost" @click=${() => exportMarkdown(props)} title="Export" ?disabled=${props.messages.length === 0}>
+              ${icons.download}
+            </button>
+
+            ${
+              canAbort && isBusy
+                ? html`
+                  <button class="chat-send-btn chat-send-btn--stop" @click=${props.onAbort} title="Stop">
+                    ${icons.stop}
+                  </button>
+                `
+                : html`
+                  <button
+                    class="chat-send-btn"
+                    @click=${() => {
+                      if (props.draft.trim()) {
+                        inputHistory.push(props.draft);
+                      }
+                      props.onSend();
+                    }}
+                    ?disabled=${!props.connected || props.sending}
+                    title=${isBusy ? "Queue" : "Send"}
+                  >
+                    ${icons.send}
+                  </button>
+                `
+            }
+>>>>>>> e697ec273 (UI: polish dashboard — agents overview, chat toolbar, debug & login UX (#23553))
           </div>
         </div>
       </div>

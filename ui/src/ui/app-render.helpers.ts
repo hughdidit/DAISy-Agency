@@ -38,12 +38,65 @@ export function renderTab(state: AppViewState, tab: Tab) {
   `;
 }
 
+<<<<<<< HEAD
 export function renderChatControls(state: AppViewState) {
   const sessionOptions = resolveSessionOptions(state.sessionKey, state.sessionsResult);
+=======
+export function renderChatSessionSelect(state: AppViewState) {
+  const mainSessionKey = resolveMainSessionKey(state.hello, state.sessionsResult);
+  const sessionOptions = resolveSessionOptions(
+    state.sessionKey,
+    state.sessionsResult,
+    mainSessionKey,
+  );
+  return html`
+    <label class="field chat-controls__session">
+      <select
+        .value=${state.sessionKey}
+        ?disabled=${!state.connected}
+        @change=${(e: Event) => {
+          const next = (e.target as HTMLSelectElement).value;
+          state.sessionKey = next;
+          state.chatMessage = "";
+          state.chatStream = null;
+          (state as unknown as OpenClawApp).chatStreamStartedAt = null;
+          state.chatRunId = null;
+          (state as unknown as OpenClawApp).resetToolStream();
+          (state as unknown as OpenClawApp).resetChatScroll();
+          state.applySettings({
+            ...state.settings,
+            sessionKey: next,
+            lastActiveSessionKey: next,
+          });
+          void state.loadAssistantIdentity();
+          syncUrlWithSessionKey(
+            state as unknown as Parameters<typeof syncUrlWithSessionKey>[0],
+            next,
+            true,
+          );
+          void loadChatHistory(state as unknown as ChatState);
+        }}
+      >
+        ${repeat(
+          sessionOptions,
+          (entry) => entry.key,
+          (entry) =>
+            html`<option value=${entry.key} title=${entry.key}>
+              ${entry.displayName ?? entry.key}
+            </option>`,
+        )}
+      </select>
+    </label>
+  `;
+}
+
+export function renderChatControls(state: AppViewState) {
+>>>>>>> e697ec273 (UI: polish dashboard — agents overview, chat toolbar, debug & login UX (#23553))
   const disableThinkingToggle = state.onboarding;
   const disableFocusToggle = state.onboarding;
   const showThinking = state.onboarding ? false : state.settings.chatShowThinking;
   const focusActive = state.onboarding ? true : state.settings.chatFocusMode;
+<<<<<<< HEAD
   // Refresh icon
   const refreshIcon = html`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"></path><path d="M21 3v5h-5"></path></svg>`;
   const focusIcon = html`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7V4h3"></path><path d="M20 7V4h-3"></path><path d="M4 17v3h3"></path><path d="M20 17v3h-3"></path><circle cx="12" cy="12" r="3"></circle></svg>`;
@@ -82,6 +135,43 @@ export function renderChatControls(state: AppViewState) {
           )}
         </select>
       </label>
+=======
+  const refreshIcon = html`
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"></path>
+      <path d="M21 3v5h-5"></path>
+    </svg>
+  `;
+  const focusIcon = html`
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <path d="M4 7V4h3"></path>
+      <path d="M20 7V4h-3"></path>
+      <path d="M4 17v3h3"></path>
+      <path d="M20 17v3h-3"></path>
+      <circle cx="12" cy="12" r="3"></circle>
+    </svg>
+  `;
+  return html`
+    <div class="chat-controls">
+>>>>>>> e697ec273 (UI: polish dashboard — agents overview, chat toolbar, debug & login UX (#23553))
       <button
         class="btn btn--sm btn--icon"
         ?disabled=${state.chatLoading || !state.connected}
@@ -199,6 +289,7 @@ function resolveSessionOptions(
   return options;
 }
 
+<<<<<<< HEAD
 const THEME_ORDER: ThemeMode[] = ["system", "light", "dark"];
 
 export function renderThemeToggle(state: AppViewState) {
@@ -246,6 +337,33 @@ export function renderThemeToggle(state: AppViewState) {
         </button>
       </div>
     </div>
+=======
+type ThemeOption = { id: ThemeMode; label: string };
+const THEME_OPTIONS: ThemeOption[] = [
+  { id: "dark", label: "Claw" },
+  { id: "light", label: "Light" },
+  { id: "openknot", label: "Knot" },
+  { id: "fieldmanual", label: "Field" },
+  { id: "clawdash", label: "Chrome" },
+];
+
+export function renderThemeToggle(state: AppViewState) {
+  return html`
+    <select
+      class="theme-select"
+      .value=${state.theme}
+      aria-label="Theme"
+      title="Theme"
+      @change=${(e: Event) => {
+        const select = e.target as HTMLSelectElement;
+        const next = select.value as ThemeMode;
+        const context: ThemeTransitionContext = { element: select };
+        state.setTheme(next, context);
+      }}
+    >
+      ${THEME_OPTIONS.map((opt) => html`<option value=${opt.id}>${opt.label}</option>`)}
+    </select>
+>>>>>>> e697ec273 (UI: polish dashboard — agents overview, chat toolbar, debug & login UX (#23553))
   `;
 }
 

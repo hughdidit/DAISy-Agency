@@ -121,9 +121,18 @@ export function renderDebug(props: DebugProps) {
     <section class="card" style="margin-top: 18px;">
       <div class="card-title">Event Log</div>
       <div class="card-sub">Latest gateway events.</div>
+<<<<<<< HEAD
       ${props.eventLog.length === 0
         ? html`<div class="muted" style="margin-top: 12px;">No events yet.</div>`
         : html`
+=======
+      ${
+        props.eventLog.length === 0
+          ? html`
+              <div class="muted" style="margin-top: 12px">No events yet.</div>
+            `
+          : html`
+>>>>>>> e697ec273 (UI: polish dashboard — agents overview, chat toolbar, debug & login UX (#23553))
             <div class="list" style="margin-top: 12px;">
               ${props.eventLog.map(
                 (evt) => html`

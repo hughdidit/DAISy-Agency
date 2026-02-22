@@ -195,6 +195,26 @@ export class MoltbotApp extends LitElement {
   @state() agentsLoading = false;
   @state() agentsList: AgentsListResult | null = null;
   @state() agentsError: string | null = null;
+<<<<<<< HEAD
+=======
+  @state() agentsSelectedId: string | null = null;
+  @state() agentsPanel: "overview" | "files" | "tools" | "skills" | "channels" | "cron" =
+    "overview";
+  @state() agentFilesLoading = false;
+  @state() agentFilesError: string | null = null;
+  @state() agentFilesList: AgentsFilesListResult | null = null;
+  @state() agentFileContents: Record<string, string> = {};
+  @state() agentFileDrafts: Record<string, string> = {};
+  @state() agentFileActive: string | null = null;
+  @state() agentFileSaving = false;
+  @state() agentIdentityLoading = false;
+  @state() agentIdentityError: string | null = null;
+  @state() agentIdentityById: Record<string, AgentIdentityResult> = {};
+  @state() agentSkillsLoading = false;
+  @state() agentSkillsError: string | null = null;
+  @state() agentSkillsReport: SkillStatusReport | null = null;
+  @state() agentSkillsAgentId: string | null = null;
+>>>>>>> e697ec273 (UI: polish dashboard — agents overview, chat toolbar, debug & login UX (#23553))
 
   @state() sessionsLoading = false;
   @state() sessionsResult: SessionsListResult | null = null;
@@ -203,6 +223,12 @@ export class MoltbotApp extends LitElement {
   @state() sessionsFilterLimit = "120";
   @state() sessionsIncludeGlobal = true;
   @state() sessionsIncludeUnknown = false;
+  @state() sessionsSearchQuery = "";
+  @state() sessionsSortColumn: "key" | "kind" | "updated" | "tokens" = "updated";
+  @state() sessionsSortDir: "asc" | "desc" = "desc";
+  @state() sessionsPage = 0;
+  @state() sessionsPageSize = 10;
+  @state() sessionsActionsOpenKey: string | null = null;
 
   @state() cronLoading = false;
   @state() cronJobs: CronJob[] = [];
@@ -348,11 +374,22 @@ export class MoltbotApp extends LitElement {
   }
 
   setTheme(next: ThemeMode, context?: Parameters<typeof setThemeInternal>[2]) {
+<<<<<<< HEAD
     setThemeInternal(
       this as unknown as Parameters<typeof setThemeInternal>[0],
       next,
       context,
     );
+=======
+    setThemeInternal(this as unknown as Parameters<typeof setThemeInternal>[0], next, context);
+    this.themeOrder = this.buildThemeOrder(next);
+  }
+
+  buildThemeOrder(active: ThemeMode): ThemeMode[] {
+    const all = [...VALID_THEMES];
+    const rest = all.filter((id) => id !== active);
+    return [active, ...rest];
+>>>>>>> e697ec273 (UI: polish dashboard — agents overview, chat toolbar, debug & login UX (#23553))
   }
 
   async loadOverview() {

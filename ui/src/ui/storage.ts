@@ -12,6 +12,7 @@ export type UiSettings = {
   chatShowThinking: boolean;
   splitRatio: number; // Sidebar split ratio (0.4 to 0.7, default 0.6)
   navCollapsed: boolean; // Collapsible sidebar state
+  navWidth: number; // Sidebar width when expanded (180–400px)
   navGroupsCollapsed: Record<string, boolean>; // Which nav groups are collapsed
 };
 
@@ -31,6 +32,7 @@ export function loadSettings(): UiSettings {
     chatShowThinking: true,
     splitRatio: 0.6,
     navCollapsed: false,
+    navWidth: 220,
     navGroupsCollapsed: {},
   };
 
@@ -76,9 +78,17 @@ export function loadSettings(): UiSettings {
           ? parsed.splitRatio
           : defaults.splitRatio,
       navCollapsed:
+<<<<<<< HEAD
         typeof parsed.navCollapsed === "boolean"
           ? parsed.navCollapsed
           : defaults.navCollapsed,
+=======
+        typeof parsed.navCollapsed === "boolean" ? parsed.navCollapsed : defaults.navCollapsed,
+      navWidth:
+        typeof parsed.navWidth === "number" && parsed.navWidth >= 180 && parsed.navWidth <= 400
+          ? parsed.navWidth
+          : defaults.navWidth,
+>>>>>>> e697ec273 (UI: polish dashboard — agents overview, chat toolbar, debug & login UX (#23553))
       navGroupsCollapsed:
         typeof parsed.navGroupsCollapsed === "object" &&
         parsed.navGroupsCollapsed !== null

@@ -20,6 +20,7 @@ const createHost = (tab: Tab): SettingsHost => ({
     splitRatio: 0.6,
     navCollapsed: false,
     navGroupsCollapsed: {},
+    navWidth: 220,
   },
   theme: "system",
   themeResolved: "dark",
