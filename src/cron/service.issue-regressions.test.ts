@@ -96,6 +96,59 @@ function createDefaultIsolatedRunner(): CronServiceOptions["runIsolatedAgentJob"
   }) as CronServiceOptions["runIsolatedAgentJob"];
 }
 
+<<<<<<< HEAD
+=======
+function createAbortAwareIsolatedRunner(summary = "late") {
+  let observedAbortSignal: AbortSignal | undefined;
+  const runIsolatedAgentJob = vi.fn(async ({ abortSignal }) => {
+    observedAbortSignal = abortSignal;
+    await new Promise<void>((resolve) => {
+      if (!abortSignal) {
+        return;
+      }
+      if (abortSignal.aborted) {
+        resolve();
+        return;
+      }
+      abortSignal.addEventListener("abort", () => resolve(), { once: true });
+    });
+    return { status: "ok" as const, summary };
+  }) as CronServiceOptions["runIsolatedAgentJob"];
+
+  return {
+    runIsolatedAgentJob,
+    getObservedAbortSignal: () => observedAbortSignal,
+  };
+}
+
+function createIsolatedRegressionJob(params: {
+  id: string;
+  name: string;
+  scheduledAt: number;
+  schedule: CronJob["schedule"];
+  payload: CronJob["payload"];
+  state?: CronJobState;
+}): CronJob {
+  return {
+    id: params.id,
+    name: params.name,
+    enabled: true,
+    createdAtMs: params.scheduledAt - 86_400_000,
+    updatedAtMs: params.scheduledAt - 86_400_000,
+    schedule: params.schedule,
+    sessionTarget: "isolated",
+    wakeMode: "next-heartbeat",
+    payload: params.payload,
+    delivery: { mode: "announce" },
+    state: params.state ?? {},
+  };
+}
+
+async function writeCronJobs(storePath: string, jobs: CronJob[]) {
+  await fs.writeFile(storePath, JSON.stringify({ version: 1, jobs }, null, 2), "utf-8");
+}
+
+>>>>>>> 5d90e3180 (refactor(cron): share timed job-execution helper)
 async function startCronForStore(params: {
   storePath: string;
   cronEnabled?: boolean;
@@ -862,7 +915,7 @@ describe("Cron issue regressions", () => {
     await writeCronJobs(store.storePath, [cronJob]);
 
     let now = scheduledAt;
-    let observedAbortSignal: AbortSignal | undefined;
+    const abortAwareRunner = createAbortAwareIsolatedRunner();
     const state = createCronServiceState({
       cronEnabled: true,
       storePath: store.storePath,
@@ -870,27 +923,17 @@ describe("Cron issue regressions", () => {
       nowMs: () => now,
       enqueueSystemEvent: vi.fn(),
       requestHeartbeatNow: vi.fn(),
-      runIsolatedAgentJob: vi.fn(async ({ abortSignal }) => {
-        observedAbortSignal = abortSignal;
-        await new Promise<void>((resolve) => {
-          if (!abortSignal) {
-            return;
-          }
-          if (abortSignal.aborted) {
-            resolve();
-            return;
-          }
-          abortSignal.addEventListener("abort", () => resolve(), { once: true });
-        });
+      runIsolatedAgentJob: vi.fn(async (params) => {
+        const result = await abortAwareRunner.runIsolatedAgentJob(params);
         now += 5;
-        return { status: "ok" as const, summary: "late" };
+        return result;
       }),
     });
 
     await onTimer(state);
 
-    expect(observedAbortSignal).toBeDefined();
-    expect(observedAbortSignal?.aborted).toBe(true);
+    expect(abortAwareRunner.getObservedAbortSignal()).toBeDefined();
+    expect(abortAwareRunner.getObservedAbortSignal()?.aborted).toBe(true);
     const job = state.store?.jobs.find((entry) => entry.id === "abort-on-timeout");
     expect(job?.state.lastStatus).toBe("error");
     expect(job?.state.lastError).toContain("timed out");
@@ -899,24 +942,11 @@ describe("Cron issue regressions", () => {
   it("applies timeoutSeconds to manual cron.run isolated executions", async () => {
     vi.useRealTimers();
     const store = await makeStorePath();
-    let observedAbortSignal: AbortSignal | undefined;
+    const abortAwareRunner = createAbortAwareIsolatedRunner();
 
     const cron = await startCronForStore({
       storePath: store.storePath,
-      runIsolatedAgentJob: vi.fn(async ({ abortSignal }) => {
-        observedAbortSignal = abortSignal;
-        await new Promise<void>((resolve) => {
-          if (!abortSignal) {
-            return;
-          }
-          if (abortSignal.aborted) {
-            resolve();
-            return;
-          }
-          abortSignal.addEventListener("abort", () => resolve(), { once: true });
-        });
-        return { status: "ok" as const, summary: "late" };
-      }),
+      runIsolatedAgentJob: abortAwareRunner.runIsolatedAgentJob,
     });
 
     const job = await cron.add({
@@ -931,8 +961,8 @@ describe("Cron issue regressions", () => {
 
     const result = await cron.run(job.id, "force");
     expect(result).toEqual({ ok: true, ran: true });
-    expect(observedAbortSignal).toBeDefined();
-    expect(observedAbortSignal?.aborted).toBe(true);
+    expect(abortAwareRunner.getObservedAbortSignal()).toBeDefined();
+    expect(abortAwareRunner.getObservedAbortSignal()?.aborted).toBe(true);
 
     const updated = (await cron.list({ includeDisabled: true })).find(
       (entry) => entry.id === job.id,

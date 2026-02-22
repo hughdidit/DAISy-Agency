@@ -16,11 +16,10 @@ import { ensureLoaded, persist, warnIfDisabled } from "./store.js";
 import { armTimer, emit, executeJob, stopTimer, wake } from "./timer.js";
 =======
 import {
-  DEFAULT_JOB_TIMEOUT_MS,
   applyJobResult,
   armTimer,
   emit,
-  executeJobCore,
+  executeJobCoreWithTimeout,
   runMissedJobs,
   stopTimer,
   wake,
@@ -295,41 +294,9 @@ export async function run(state: CronServiceState, id: string, mode?: "due" | "f
   const startedAt = prepared.startedAt;
   const jobId = prepared.jobId;
 
-  let coreResult: Awaited<ReturnType<typeof executeJobCore>>;
-  const configuredTimeoutMs =
-    executionJob.payload.kind === "agentTurn" &&
-    typeof executionJob.payload.timeoutSeconds === "number"
-      ? Math.floor(executionJob.payload.timeoutSeconds * 1_000)
-      : undefined;
-  const jobTimeoutMs =
-    configuredTimeoutMs !== undefined
-      ? configuredTimeoutMs <= 0
-        ? undefined
-        : configuredTimeoutMs
-      : DEFAULT_JOB_TIMEOUT_MS;
+  let coreResult: Awaited<ReturnType<typeof executeJobCoreWithTimeout>>;
   try {
-    const runAbortController = typeof jobTimeoutMs === "number" ? new AbortController() : undefined;
-    coreResult =
-      typeof jobTimeoutMs === "number"
-        ? await (async () => {
-            let timeoutId: NodeJS.Timeout | undefined;
-            try {
-              return await Promise.race([
-                executeJobCore(state, executionJob, runAbortController?.signal),
-                new Promise<never>((_, reject) => {
-                  timeoutId = setTimeout(() => {
-                    runAbortController?.abort(new Error("cron: job execution timed out"));
-                    reject(new Error("cron: job execution timed out"));
-                  }, jobTimeoutMs);
-                }),
-              ]);
-            } finally {
-              if (timeoutId) {
-                clearTimeout(timeoutId);
-              }
-            }
-          })()
-        : await executeJobCore(state, executionJob);
+    coreResult = await executeJobCoreWithTimeout(state, executionJob);
   } catch (err) {
     coreResult = { status: "error", error: String(err) };
   }
