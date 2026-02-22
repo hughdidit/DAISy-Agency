@@ -10,6 +10,7 @@ import type { MoltbotConfig } from "../config/config.js";
 =======
 import type { OpenClawConfig } from "../config/config.js";
 import type { ToolLoopDetectionConfig } from "../config/types.tools.js";
+import { resolveMergedSafeBinProfileFixtures } from "../infra/exec-safe-bin-runtime-policy.js";
 import { logWarn } from "../logger.js";
 import { getPluginToolMeta } from "../plugins/tools.js";
 >>>>>>> 076df941a (feat: add configurable tool loop detection)
@@ -187,6 +188,7 @@ function resolveExecConfig(cfg: MoltbotConfig | undefined) {
 =======
   const agentExec =
     cfg && params.agentId ? resolveAgentConfig(cfg, params.agentId)?.tools?.exec : undefined;
+<<<<<<< HEAD
   const mergedSafeBinProfiles =
     globalExec?.safeBinProfiles || agentExec?.safeBinProfiles
       ? {
@@ -195,6 +197,8 @@ function resolveExecConfig(cfg: MoltbotConfig | undefined) {
         }
       : undefined;
 >>>>>>> 47c3f742b (fix(exec): require explicit safe-bin profiles)
+=======
+>>>>>>> 0d0f4c699 (refactor(exec): centralize safe-bin policy checks)
   return {
 <<<<<<< HEAD
     host: globalExec?.host,
@@ -216,7 +220,10 @@ function resolveExecConfig(cfg: MoltbotConfig | undefined) {
     node: agentExec?.node ?? globalExec?.node,
     pathPrepend: agentExec?.pathPrepend ?? globalExec?.pathPrepend,
     safeBins: agentExec?.safeBins ?? globalExec?.safeBins,
-    safeBinProfiles: mergedSafeBinProfiles,
+    safeBinProfiles: resolveMergedSafeBinProfileFixtures({
+      global: globalExec,
+      local: agentExec,
+    }),
     backgroundMs: agentExec?.backgroundMs ?? globalExec?.backgroundMs,
     timeoutSec: agentExec?.timeoutSec ?? globalExec?.timeoutSec,
     approvalRunningNoticeMs:

@@ -11,15 +11,19 @@ import {
   requiresExecApproval,
   resolveAllowAlwaysPatterns,
   resolveExecApprovals,
-  resolveSafeBins,
   type ExecAllowlistEntry,
   type ExecAsk,
   type ExecCommandSegment,
   type ExecSecurity,
 } from "../infra/exec-approvals.js";
 import type { ExecHostRequest, ExecHostResponse, ExecHostRunResult } from "../infra/exec-host.js";
+<<<<<<< HEAD
 import { resolveSafeBinProfiles } from "../infra/exec-safe-bin-policy.js";
 import { getTrustedSafeBinDirs } from "../infra/exec-safe-bin-trust.js";
+=======
+import { resolveExecSafeBinRuntimePolicy } from "../infra/exec-safe-bin-runtime-policy.js";
+import { sanitizeSystemRunEnvOverrides } from "../infra/host-env-security.js";
+>>>>>>> 0d0f4c699 (refactor(exec): centralize safe-bin policy checks)
 import { resolveSystemRunCommand } from "../infra/system-run-command.js";
 import type {
   ExecEventPayload,
@@ -110,13 +114,23 @@ export async function handleSystemRunInvoke(opts: {
   const autoAllowSkills = approvals.agent.autoAllowSkills;
   const sessionKey = opts.params.sessionKey?.trim() || "node";
   const runId = opts.params.runId?.trim() || crypto.randomUUID();
+<<<<<<< HEAD
   const env = opts.sanitizeEnv(opts.params.env ?? undefined);
   const safeBins = resolveSafeBins(agentExec?.safeBins ?? cfg.tools?.exec?.safeBins);
   const safeBinProfiles = resolveSafeBinProfiles({
     ...cfg.tools?.exec?.safeBinProfiles,
     ...agentExec?.safeBinProfiles,
+=======
+  const envOverrides = sanitizeSystemRunEnvOverrides({
+    overrides: opts.params.env ?? undefined,
+    shellWrapper: shellCommand !== null,
   });
-  const trustedSafeBinDirs = getTrustedSafeBinDirs();
+  const env = opts.sanitizeEnv(envOverrides);
+  const { safeBins, safeBinProfiles, trustedSafeBinDirs } = resolveExecSafeBinRuntimePolicy({
+    global: cfg.tools?.exec,
+    local: agentExec,
+>>>>>>> 0d0f4c699 (refactor(exec): centralize safe-bin policy checks)
+  });
   const bins = autoAllowSkills ? await opts.skillBins.current() : new Set<string>();
   let analysisOk = false;
   let allowlistMatches: ExecAllowlistEntry[] = [];
