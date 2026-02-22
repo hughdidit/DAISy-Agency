@@ -354,11 +354,12 @@ export async function initSessionState(params: {
     sessionEntry.displayName = threadLabel;
   }
   const parentSessionKey = ctx.ParentSessionKey?.trim();
+  const alreadyForked = sessionEntry.forkedFromParent === true;
   if (
-    isNewSession &&
     parentSessionKey &&
     parentSessionKey !== sessionKey &&
-    sessionStore[parentSessionKey]
+    sessionStore[parentSessionKey] &&
+    !alreadyForked
   ) {
     log.warn(
       `forking from parent session: parentKey=${parentSessionKey} → sessionKey=${sessionKey} ` +
@@ -371,6 +372,7 @@ export async function initSessionState(params: {
       sessionId = forked.sessionId;
       sessionEntry.sessionId = forked.sessionId;
       sessionEntry.sessionFile = forked.sessionFile;
+      sessionEntry.forkedFromParent = true;
       log.warn(`forked session created: file=${forked.sessionFile}`);
     }
   }
