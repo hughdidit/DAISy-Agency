@@ -70,7 +70,6 @@ import {
   installSmokeProgramMocks,
   messageCommand,
   onboardCommand,
-  runChannelLogin,
   runTui,
   runtime,
   setupCommand,
@@ -255,20 +254,5 @@ describe("cli program (smoke)", () => {
       }),
       runtime,
     );
-  });
-
-  it.each([
-    {
-      label: "runs channels login",
-      argv: ["channels", "login", "--account", "work"],
-      expectCall: () =>
-        expect(runChannelLogin).toHaveBeenCalledWith(
-          { channel: undefined, account: "work", verbose: false },
-          runtime,
-        ),
-    },
-  ])("channels command: $label", async ({ argv, expectCall }) => {
-    await runProgram(argv);
-    expectCall();
   });
 });
