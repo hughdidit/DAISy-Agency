@@ -199,8 +199,15 @@ export function buildBootstrapContextFiles(
     if (remainingTotalChars <= 0) {
       break;
     }
+    const pathValue = typeof file.path === "string" ? file.path.trim() : "";
+    if (!pathValue) {
+      opts?.warn?.(
+        `skipping bootstrap file "${file.name}" — missing or invalid "path" field (hook may have used "filePath" instead)`,
+      );
+      continue;
+    }
     if (file.missing) {
-      const missingText = `[MISSING] Expected at: ${file.path}`;
+      const missingText = `[MISSING] Expected at: ${pathValue}`;
       const cappedMissingText = clampToBudget(missingText, remainingTotalChars);
       if (!cappedMissingText) {
         break;
@@ -208,10 +215,14 @@ export function buildBootstrapContextFiles(
       remainingTotalChars = Math.max(0, remainingTotalChars - cappedMissingText.length);
       result.push({
 <<<<<<< HEAD
+<<<<<<< HEAD
         path: file.name,
         content: `[MISSING] Expected at: ${file.path}`,
 =======
         path: file.path,
+=======
+        path: pathValue,
+>>>>>>> 51e9c54f0 (fix(agents): skip bootstrap files with undefined path (#22698))
         content: cappedMissingText,
 >>>>>>> dec685970 (agents: reduce prompt token bloat from exec and context (#16539))
       });
@@ -237,10 +248,14 @@ export function buildBootstrapContextFiles(
     remainingTotalChars = Math.max(0, remainingTotalChars - contentWithinBudget.length);
     result.push({
 <<<<<<< HEAD
+<<<<<<< HEAD
       path: file.name,
       content: trimmed.content,
 =======
       path: file.path,
+=======
+      path: pathValue,
+>>>>>>> 51e9c54f0 (fix(agents): skip bootstrap files with undefined path (#22698))
       content: contentWithinBudget,
 >>>>>>> dec685970 (agents: reduce prompt token bloat from exec and context (#16539))
     });
