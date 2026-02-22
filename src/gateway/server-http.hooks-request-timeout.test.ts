@@ -65,7 +65,7 @@ function createResponse(): {
 
 describe("createHooksRequestHandler timeout status mapping", () => {
   beforeEach(() => {
-    readJsonBodyMock.mockReset();
+    readJsonBodyMock.mockClear();
   });
 
   test("returns 408 for request body timeout", async () => {
