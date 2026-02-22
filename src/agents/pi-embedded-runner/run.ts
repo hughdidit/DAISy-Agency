@@ -559,13 +559,17 @@ export async function runEmbeddedPiAgent(
 =======
       let runLoopIterations = 0;
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> b25d3652e (fix(agents): cap embedded runner retry loop)
 =======
       const maybeMarkAuthProfileFailure = async (params: {
+=======
+      const maybeMarkAuthProfileFailure = async (failure: {
+>>>>>>> 6268ed57e (fix(agents): stop param shadowing in auth failure marker)
         profileId?: string;
         reason?: Parameters<typeof markAuthProfileFailure>[0]["reason"] | null;
       }) => {
-        const { profileId, reason } = params;
+        const { profileId, reason } = failure;
         if (!profileId || !reason || reason === "timeout") {
           return;
         }
@@ -574,7 +578,7 @@ export async function runEmbeddedPiAgent(
           profileId,
           reason,
           cfg: params.config,
-          agentDir: params.agentDir,
+          agentDir,
         });
       };
 >>>>>>> d0b59270a (refactor: dedupe auth-profile failure marking and rotation test setup)
