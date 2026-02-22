@@ -1,5 +1,9 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+import { isIP } from "node:net";
+>>>>>>> 29e41d4c0 (fix: land security audit severity + temp-path guard fixes (#23428) (thanks @bmendonca3))
 import { resolveSandboxConfigForAgent } from "../agents/sandbox.js";
 import { execDockerRaw } from "../agents/sandbox/docker.js";
 >>>>>>> 1835dec20 (fix(security): force sandbox browser hash migration and audit stale labels)
@@ -15,6 +19,11 @@ import type { OpenClawConfig } from "../config/config.js";
 import { resolveConfigPath, resolveStateDir } from "../config/paths.js";
 import { resolveGatewayAuth } from "../gateway/auth.js";
 import { buildGatewayConnectionDetails } from "../gateway/call.js";
+<<<<<<< HEAD
+=======
+import { isLoopbackAddress } from "../gateway/net.js";
+import { resolveGatewayProbeAuth } from "../gateway/probe-auth.js";
+>>>>>>> 29e41d4c0 (fix: land security audit severity + temp-path guard fixes (#23428) (thanks @bmendonca3))
 import { probeGateway } from "../gateway/probe.js";
 import { collectChannelSecurityFindings } from "./audit-channel.js";
 import {
@@ -350,7 +359,11 @@ function collectGatewayConfigFindings(
   }
 
   if (allowRealIpFallback) {
-    const exposed = bind !== "loopback" || auth.mode === "trusted-proxy";
+    const hasNonLoopbackTrustedProxy = trustedProxies.some(
+      (proxy) => !isLoopbackOnlyTrustedProxyEntry(proxy),
+    );
+    const exposed =
+      bind !== "loopback" || (auth.mode === "trusted-proxy" && hasNonLoopbackTrustedProxy);
     findings.push({
       checkId: "gateway.real_ip_fallback_enabled",
       severity: exposed ? "critical" : "warn",
@@ -431,7 +444,45 @@ function collectGatewayConfigFindings(
   return findings;
 }
 
+<<<<<<< HEAD
 function collectBrowserControlFindings(cfg: OpenClawConfig): SecurityAuditFinding[] {
+=======
+function isLoopbackOnlyTrustedProxyEntry(entry: string): boolean {
+  const candidate = entry.trim();
+  if (!candidate) {
+    return false;
+  }
+  if (!candidate.includes("/")) {
+    return isLoopbackAddress(candidate);
+  }
+
+  const [rawIp, rawPrefix] = candidate.split("/", 2);
+  if (!rawIp || !rawPrefix) {
+    return false;
+  }
+  const ipVersion = isIP(rawIp.trim());
+  const prefix = Number.parseInt(rawPrefix.trim(), 10);
+  if (!Number.isInteger(prefix)) {
+    return false;
+  }
+  if (ipVersion === 4) {
+    if (prefix < 8 || prefix > 32) {
+      return false;
+    }
+    const firstOctet = Number.parseInt(rawIp.trim().split(".")[0] ?? "", 10);
+    return firstOctet === 127;
+  }
+  if (ipVersion === 6) {
+    return prefix === 128 && rawIp.trim().toLowerCase() === "::1";
+  }
+  return false;
+}
+
+function collectBrowserControlFindings(
+  cfg: OpenClawConfig,
+  env: NodeJS.ProcessEnv,
+): SecurityAuditFinding[] {
+>>>>>>> 29e41d4c0 (fix: land security audit severity + temp-path guard fixes (#23428) (thanks @bmendonca3))
   const findings: SecurityAuditFinding[] = [];
 
   let resolved: ReturnType<typeof resolveBrowserConfig>;
