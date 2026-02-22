@@ -13,6 +13,7 @@ const SKIP_PATTERNS = [
   /[\\/](?:__tests__|tests)[\\/]/,
   /[\\/][^\\/]*test-helpers(?:\.[^\\/]+)?\.ts$/,
 ];
+const QUICK_TMPDIR_JOIN_PATTERN = /\bpath\.join\s*\(\s*os\.tmpdir\s*\(\s*\)/;
 
 function shouldSkip(relativePath: string): boolean {
   return SKIP_PATTERNS.some((pattern) => pattern.test(relativePath));
@@ -60,7 +61,14 @@ describe("temp path guard", () => {
           continue;
         }
         const source = await fs.readFile(file, "utf-8");
+<<<<<<< HEAD
         if (DYNAMIC_TMPDIR_JOIN_RE.test(source)) {
+=======
+        if (!QUICK_TMPDIR_JOIN_PATTERN.test(source)) {
+          continue;
+        }
+        if (hasDynamicTmpdirJoin(source, relativePath)) {
+>>>>>>> 401106b96 (fix: harden flaky tests and cover native google thought signatures (#23457) (thanks @echoVic))
           offenders.push(relativePath);
         }
       }
