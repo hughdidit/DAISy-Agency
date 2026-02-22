@@ -208,6 +208,7 @@ describe("update-cli", () => {
 
   beforeEach(() => {
 <<<<<<< HEAD
+<<<<<<< HEAD
     vi.clearAllMocks();
 <<<<<<< HEAD
     const { resolveMoltbotPackageRoot } = await import("../infra/moltbot-root.js");
@@ -221,6 +222,11 @@ describe("update-cli", () => {
     confirm.mockReset();
     select.mockReset();
     vi.mocked(runGatewayUpdate).mockReset();
+=======
+    confirm.mockClear();
+    select.mockClear();
+    vi.mocked(runGatewayUpdate).mockClear();
+>>>>>>> 42f27ca39 (test(cli): seed stable defaults while replacing setup resets)
     vi.mocked(resolveOpenClawPackageRoot).mockClear();
     vi.mocked(readConfigFileSnapshot).mockClear();
     vi.mocked(writeConfigFile).mockClear();
@@ -317,6 +323,9 @@ describe("update-cli", () => {
     vi.mocked(runDaemonInstall).mockResolvedValue(undefined);
     vi.mocked(runDaemonRestart).mockResolvedValue(true);
     vi.mocked(doctorCommand).mockResolvedValue(undefined);
+    confirm.mockResolvedValue(false);
+    select.mockResolvedValue("stable");
+    vi.mocked(runGatewayUpdate).mockResolvedValue(makeOkUpdateResult());
     setTty(false);
     setStdoutTty(false);
   });
