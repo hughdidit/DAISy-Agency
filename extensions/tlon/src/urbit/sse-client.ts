@@ -1,3 +1,8 @@
+<<<<<<< HEAD
+=======
+import { randomUUID } from "node:crypto";
+import { Readable } from "node:stream";
+>>>>>>> ae8d4a8ee (fix(security): harden channel token and id generation)
 import type { LookupFn, SsrFPolicy } from "openclaw/plugin-sdk";
 import { Readable } from "node:stream";
 import { validateUrbitBaseUrl } from "./base-url.js";
@@ -54,6 +59,7 @@ export class UrbitSSEClient {
   streamRelease: (() => Promise<void>) | null = null;
 
   constructor(url: string, cookie: string, options: UrbitSseOptions = {}) {
+<<<<<<< HEAD
     const validated = validateUrbitBaseUrl(url);
     if (!validated.ok) {
       throw new Error(validated.error);
@@ -63,6 +69,13 @@ export class UrbitSSEClient {
     this.cookie = cookie.split(";")[0];
     this.ship = options.ship?.replace(/^~/, "") ?? this.resolveShipFromHostname(validated.hostname);
     this.channelId = `${Math.floor(Date.now() / 1000)}-${Math.random().toString(36).substring(2, 8)}`;
+=======
+    const ctx = getUrbitContext(url, options.ship);
+    this.url = ctx.baseUrl;
+    this.cookie = normalizeUrbitCookie(cookie);
+    this.ship = ctx.ship;
+    this.channelId = `${Math.floor(Date.now() / 1000)}-${randomUUID()}`;
+>>>>>>> ae8d4a8ee (fix(security): harden channel token and id generation)
     this.channelUrl = new URL(`/~/channel/${this.channelId}`, this.url).toString();
     this.onReconnect = options.onReconnect ?? null;
     this.autoReconnect = options.autoReconnect !== false;
@@ -467,7 +480,7 @@ export class UrbitSSEClient {
     await new Promise((resolve) => setTimeout(resolve, delay));
 
     try {
-      this.channelId = `${Math.floor(Date.now() / 1000)}-${Math.random().toString(36).substring(2, 8)}`;
+      this.channelId = `${Math.floor(Date.now() / 1000)}-${randomUUID()}`;
       this.channelUrl = new URL(`/~/channel/${this.channelId}`, this.url).toString();
 
       if (this.onReconnect) {

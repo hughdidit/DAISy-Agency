@@ -1,4 +1,3 @@
-import crypto from "node:crypto";
 import fs from "node:fs";
 import { lookupContextTokens } from "../../agents/context.js";
 import { DEFAULT_CONTEXT_TOKENS } from "../../agents/defaults.js";
@@ -15,6 +14,13 @@ import {
   updateSessionStoreEntry,
 } from "../../config/sessions.js";
 import type { TypingMode } from "../../config/types.js";
+<<<<<<< HEAD
+=======
+import { emitAgentEvent } from "../../infra/agent-events.js";
+import { emitDiagnosticEvent, isDiagnosticsEnabled } from "../../infra/diagnostic-events.js";
+import { generateSecureUuid } from "../../infra/secure-random.js";
+import { enqueueSystemEvent } from "../../infra/system-events.js";
+>>>>>>> ae8d4a8ee (fix(security): harden channel token and id generation)
 import { defaultRuntime } from "../../runtime.js";
 import { estimateUsageCost, resolveModelCostConfig } from "../../utils/usage-format.js";
 import type { OriginatingChannelType, TemplateContext } from "../templating.js";
@@ -240,7 +246,7 @@ export async function runReplyAgent(params: {
     const prevEntry = activeSessionStore[sessionKey] ?? activeSessionEntry;
     if (!prevEntry) return false;
     const prevSessionId = cleanupTranscripts ? prevEntry.sessionId : undefined;
-    const nextSessionId = crypto.randomUUID();
+    const nextSessionId = generateSecureUuid();
     const nextEntry: SessionEntry = {
       ...prevEntry,
       sessionId: nextSessionId,

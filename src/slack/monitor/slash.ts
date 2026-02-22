@@ -15,6 +15,7 @@ import { finalizeInboundContext } from "../../auto-reply/reply/inbound-context.j
 import { resolveNativeCommandsEnabled, resolveNativeSkillsEnabled } from "../../config/commands.js";
 import { resolveMarkdownTableMode } from "../../config/markdown-tables.js";
 import { danger, logVerbose } from "../../globals.js";
+import { generateSecureToken } from "../../infra/secure-random.js";
 import { buildPairingReply } from "../../pairing/pairing-messages.js";
 import {
   readChannelAllowFromStore,
@@ -47,6 +48,18 @@ type SlackBlock = { type: string; [key: string]: unknown };
 
 const SLACK_COMMAND_ARG_ACTION_ID = "openclaw_cmdarg";
 const SLACK_COMMAND_ARG_VALUE_PREFIX = "cmdarg";
+<<<<<<< HEAD
+=======
+const SLACK_COMMAND_ARG_BUTTON_ROW_SIZE = 5;
+const SLACK_COMMAND_ARG_OVERFLOW_MIN = 3;
+const SLACK_COMMAND_ARG_OVERFLOW_MAX = 5;
+const SLACK_COMMAND_ARG_SELECT_OPTIONS_MAX = 100;
+const SLACK_COMMAND_ARG_SELECT_OPTION_VALUE_MAX = 75;
+const SLACK_COMMAND_ARG_EXTERNAL_PREFIX = "openclaw_cmdarg_ext:";
+const SLACK_COMMAND_ARG_EXTERNAL_TTL_MS = 10 * 60 * 1000;
+const SLACK_COMMAND_ARG_EXTERNAL_TOKEN_PATTERN = /^[A-Za-z0-9_-]{24}$/;
+const SLACK_HEADER_TEXT_MAX = 150;
+>>>>>>> ae8d4a8ee (fix(security): harden channel token and id generation)
 
 function chunkItems<T>(items: T[], size: number): T[][] {
   if (size <= 0) return [items];
@@ -54,7 +67,76 @@ function chunkItems<T>(items: T[], size: number): T[][] {
   for (let i = 0; i < items.length; i += size) {
     rows.push(items.slice(i, i + size));
   }
+<<<<<<< HEAD
   return rows;
+=======
+  if (max <= 1) {
+    return trimmed.slice(0, max);
+  }
+  return `${trimmed.slice(0, max - 1)}…`;
+}
+
+function buildSlackArgMenuConfirm(params: { command: string; arg: string }) {
+  const command = escapeSlackMrkdwn(params.command);
+  const arg = escapeSlackMrkdwn(params.arg);
+  return {
+    title: { type: "plain_text", text: "Confirm selection" },
+    text: {
+      type: "mrkdwn",
+      text: `Run */${command}* with *${arg}* set to this value?`,
+    },
+    confirm: { type: "plain_text", text: "Run command" },
+    deny: { type: "plain_text", text: "Cancel" },
+  };
+}
+
+function pruneSlackExternalArgMenuStore(now = Date.now()) {
+  for (const [token, entry] of slackExternalArgMenuStore.entries()) {
+    if (entry.expiresAt <= now) {
+      slackExternalArgMenuStore.delete(token);
+    }
+  }
+}
+
+function createSlackExternalArgMenuToken(): string {
+  // 18 bytes -> 24 base64url chars; loop avoids replacing an existing live token.
+  let token = "";
+  do {
+    token = generateSecureToken(18);
+  } while (slackExternalArgMenuStore.has(token));
+  return token;
+}
+
+function storeSlackExternalArgMenu(params: {
+  choices: EncodedMenuChoice[];
+  userId: string;
+}): string {
+  pruneSlackExternalArgMenuStore();
+  const token = createSlackExternalArgMenuToken();
+  slackExternalArgMenuStore.set(token, {
+    choices: params.choices,
+    userId: params.userId,
+    expiresAt: Date.now() + SLACK_COMMAND_ARG_EXTERNAL_TTL_MS,
+  });
+  return token;
+}
+
+function readSlackExternalArgMenuToken(raw: unknown): string | undefined {
+  if (typeof raw !== "string" || !raw.startsWith(SLACK_COMMAND_ARG_EXTERNAL_PREFIX)) {
+    return undefined;
+  }
+  const token = raw.slice(SLACK_COMMAND_ARG_EXTERNAL_PREFIX.length).trim();
+  return SLACK_COMMAND_ARG_EXTERNAL_TOKEN_PATTERN.test(token) ? token : undefined;
+}
+
+type CommandsRegistry = typeof import("../../auto-reply/commands-registry.js");
+let commandsRegistry: CommandsRegistry | undefined;
+async function getCommandsRegistry(): Promise<CommandsRegistry> {
+  if (!commandsRegistry) {
+    commandsRegistry = await import("../../auto-reply/commands-registry.js");
+  }
+  return commandsRegistry;
+>>>>>>> ae8d4a8ee (fix(security): harden channel token and id generation)
 }
 
 function encodeSlackCommandArgValue(parts: {
@@ -532,7 +614,63 @@ export function registerSlackMonitorSlashCommands(params: {
     logVerbose("slack: slash commands disabled");
   }
 
+<<<<<<< HEAD
   if (nativeCommands.length === 0 || !supportsInteractiveArgMenus) return;
+=======
+  if (nativeCommands.length === 0 || !supportsInteractiveArgMenus) {
+    return;
+  }
+
+  const registerArgOptions = () => {
+    const appWithOptions = ctx.app as unknown as {
+      options?: (
+        actionId: string,
+        handler: (args: {
+          ack: (payload: { options: unknown[] }) => Promise<void>;
+          body: unknown;
+        }) => Promise<void>,
+      ) => void;
+    };
+    if (typeof appWithOptions.options !== "function") {
+      return;
+    }
+    appWithOptions.options(SLACK_COMMAND_ARG_ACTION_ID, async ({ ack, body }) => {
+      const typedBody = body as {
+        value?: string;
+        user?: { id?: string };
+        actions?: Array<{ block_id?: string }>;
+        block_id?: string;
+      };
+      pruneSlackExternalArgMenuStore();
+      const blockId = typedBody.actions?.[0]?.block_id ?? typedBody.block_id;
+      const token = readSlackExternalArgMenuToken(blockId);
+      if (!token) {
+        await ack({ options: [] });
+        return;
+      }
+      const entry = slackExternalArgMenuStore.get(token);
+      if (!entry) {
+        await ack({ options: [] });
+        return;
+      }
+      const requesterUserId = typedBody.user?.id?.trim();
+      if (!requesterUserId || requesterUserId !== entry.userId) {
+        await ack({ options: [] });
+        return;
+      }
+      const query = typedBody.value?.trim().toLowerCase() ?? "";
+      const options = entry.choices
+        .filter((choice) => !query || choice.label.toLowerCase().includes(query))
+        .slice(0, SLACK_COMMAND_ARG_SELECT_OPTIONS_MAX)
+        .map((choice) => ({
+          text: { type: "plain_text", text: choice.label.slice(0, 75) },
+          value: choice.value,
+        }));
+      await ack({ options });
+    });
+  };
+  registerArgOptions();
+>>>>>>> ae8d4a8ee (fix(security): harden channel token and id generation)
 
   const registerArgAction = (actionId: string) => {
     (
@@ -590,7 +728,7 @@ export function registerSlackMonitorSlashCommands(params: {
         user_name: userName,
         channel_id: body.channel?.id ?? "",
         channel_name: body.channel?.name ?? body.channel?.id ?? "",
-        trigger_id: triggerId ?? String(Date.now()),
+        trigger_id: triggerId,
       } as SlackCommandMiddlewareArgs["command"];
       await handleSlashCommand({
         command: commandPayload,
