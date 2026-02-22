@@ -102,10 +102,16 @@ export function resolveTranscriptPolicy(params: {
       ? "strict"
       : undefined;
   const repairToolUseResultPairing = isGoogle || isAnthropic;
+<<<<<<< HEAD
   const sanitizeThoughtSignatures = isOpenRouterGemini
     ? { allowBase64Only: true, includeCamelCase: true }
     : undefined;
   const normalizeAntigravityThinkingBlocks = isAntigravityClaudeModel;
+=======
+  const sanitizeThoughtSignatures =
+    isOpenRouterGemini || isGoogle ? { allowBase64Only: true, includeCamelCase: true } : undefined;
+  const sanitizeThinkingSignatures = isAntigravityClaudeModel;
+>>>>>>> 9176571ec (fix(gemini): sanitize thoughtSignatures for native Google provider)
 
   return {
     sanitizeMode: isOpenAi ? "images-only" : needsNonImageSanitize ? "full" : "images-only",
