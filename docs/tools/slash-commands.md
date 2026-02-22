@@ -115,6 +115,7 @@ Notes:
 - Discord thread-binding commands (`/focus`, `/unfocus`, `/agents`, `/session ttl`) require effective thread bindings to be enabled (`session.threadBindings.enabled` and/or `channels.discord.threadBindings.enabled`).
 >>>>>>> 817905f3a (docs: document thread-bound subagent sessions and remove plan)
 - `/verbose` is meant for debugging and extra visibility; keep it **off** in normal use.
+- Tool failure summaries are still shown when relevant, but detailed failure text is only included when `/verbose` is `on` or `full`.
 - `/reasoning` (and `/verbose`) are risky in group settings: they may reveal internal reasoning or tool output you did not intend to expose. Prefer leaving them off, especially in group chats.
 - **Fast path:** command-only messages from allowlisted senders are handled immediately (bypass queue + model).
 - **Group mention gating:** command-only messages from allowlisted senders bypass mention requirements.
