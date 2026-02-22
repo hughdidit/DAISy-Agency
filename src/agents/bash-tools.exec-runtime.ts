@@ -382,7 +382,7 @@ export async function runExecProcess(opts: {
   notifyOnExitEmptySuccess?: boolean;
   scopeKey?: string;
   sessionKey?: string;
-  timeoutSec: number;
+  timeoutSec: number | null;
   onUpdate?: (partialResult: AgentToolResult<ExecToolDetails>) => void;
 }): Promise<ExecProcessHandle> {
   const startedAt = Date.now();
@@ -703,6 +703,7 @@ export async function runExecProcess(opts: {
       if (settled) {
         return;
       }
+<<<<<<< HEAD
       const aggregated = session.aggregated.trim();
       if (!isSuccess) {
         const reason = timedOut
@@ -728,6 +729,22 @@ export async function runExecProcess(opts: {
         status: "completed",
         exitCode: code ?? 0,
         exitSignal: exitSignal ?? null,
+=======
+      const reason =
+        exit.reason === "overall-timeout"
+          ? typeof opts.timeoutSec === "number" && opts.timeoutSec > 0
+            ? `Command timed out after ${opts.timeoutSec} seconds`
+            : "Command timed out"
+          : exit.reason === "no-output-timeout"
+            ? "Command timed out waiting for output"
+            : exit.exitSignal != null
+              ? `Command aborted by signal ${exit.exitSignal}`
+              : "Command aborted before exit code was captured";
+      return {
+        status: "failed",
+        exitCode: exit.exitCode,
+        exitSignal: exit.exitSignal,
+>>>>>>> c677be9d5 (fix(exec): skip default timeout for background sessions)
         durationMs,
         aggregated,
         timedOut: false,
