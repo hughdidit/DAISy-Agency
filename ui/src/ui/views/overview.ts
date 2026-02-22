@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { html } from "lit";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -38,6 +39,10 @@ import { html, nothing } from "lit";
 =======
 import { html } from "lit";
 >>>>>>> 629869800 (revert(ui): remove UI portions of mixed commits from main)
+=======
+import { html } from "lit";
+import { ConnectErrorDetailCodes } from "../../../../src/gateway/protocol/connect-error-details.js";
+>>>>>>> 078e1a7fc (fix(ui): remove unused Lit import in overview view)
 import { t, i18n, type Locale } from "../../i18n/index.ts";
 import { formatRelativeTimestamp, formatDurationHuman } from "../format.ts";
 import type { GatewayHelloOk } from "../gateway.ts";
