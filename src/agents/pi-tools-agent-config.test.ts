@@ -500,6 +500,13 @@ describe("Agent-specific tool filtering", () => {
     const cfg: MoltbotConfig = {
       tools: {
         deny: ["process"],
+<<<<<<< HEAD:src/agents/pi-tools-agent-config.test.ts
+=======
+        exec: {
+          security: "full",
+          ask: "off",
+        },
+>>>>>>> 1b327da6e (fix: harden exec sandbox fallback semantics (#23398) (thanks @bmendonca3)):src/agents/pi-tools-agent-config.e2e.test.ts
       },
     };
 
