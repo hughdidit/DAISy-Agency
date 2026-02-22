@@ -19,6 +19,7 @@ describe("node-host sanitizeEnv", () => {
   });
 
   it("blocks dangerous env keys/prefixes", () => {
+<<<<<<< HEAD
     const prevPythonPath = process.env.PYTHONPATH;
     const prevLdPreload = process.env.LD_PRELOAD;
     const prevBashEnv = process.env.BASH_ENV;
@@ -53,6 +54,27 @@ describe("node-host sanitizeEnv", () => {
         process.env.BASH_ENV = prevBashEnv;
       }
     }
+=======
+    withEnv(
+      { PYTHONPATH: undefined, LD_PRELOAD: undefined, BASH_ENV: undefined, SHELLOPTS: undefined },
+      () => {
+        const env = sanitizeEnv({
+          PYTHONPATH: "/tmp/pwn",
+          LD_PRELOAD: "/tmp/pwn.so",
+          BASH_ENV: "/tmp/pwn.sh",
+          SHELLOPTS: "xtrace",
+          PS4: "$(touch /tmp/pwned)",
+          FOO: "bar",
+        });
+        expect(env.FOO).toBe("bar");
+        expect(env.PYTHONPATH).toBeUndefined();
+        expect(env.LD_PRELOAD).toBeUndefined();
+        expect(env.BASH_ENV).toBeUndefined();
+        expect(env.SHELLOPTS).toBeUndefined();
+        expect(env.PS4).toBeUndefined();
+      },
+    );
+>>>>>>> e80c803fa (fix(security): block shell env allowlist bypass in system.run)
   });
 
   it("blocks dangerous override-only env keys", () => {
