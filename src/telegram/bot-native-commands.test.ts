@@ -33,7 +33,20 @@ vi.mock("./bot/delivery.js", () => ({
 
 describe("registerTelegramNativeCommands", () => {
   beforeEach(() => {
+<<<<<<< HEAD
     listSkillCommandsForAgents.mockReset();
+=======
+    listSkillCommandsForAgents.mockClear();
+    listSkillCommandsForAgents.mockReturnValue([]);
+    pluginCommandMocks.getPluginCommandSpecs.mockClear();
+    pluginCommandMocks.getPluginCommandSpecs.mockReturnValue([]);
+    pluginCommandMocks.matchPluginCommand.mockClear();
+    pluginCommandMocks.matchPluginCommand.mockReturnValue(null);
+    pluginCommandMocks.executePluginCommand.mockClear();
+    pluginCommandMocks.executePluginCommand.mockResolvedValue({ text: "ok" });
+    deliveryMocks.deliverReplies.mockClear();
+    deliveryMocks.deliverReplies.mockResolvedValue({ delivered: true });
+>>>>>>> e14af1a34 (test(telegram): use lightweight mock clears in native command setup)
   });
 
   const buildParams = (cfg: OpenClawConfig, accountId = "default") => ({
