@@ -12,6 +12,7 @@ import {
   piSdkMock,
   rpcReq,
   testState,
+  trackConnectChallengeNonce,
   writeSessionStore,
 } from "./test-helpers.js";
 
@@ -1035,4 +1036,56 @@ describe("gateway server sessions", () => {
 
     ws.close();
   });
+<<<<<<< HEAD:src/gateway/server.sessions.gateway-server-sessions-a.e2e.test.ts
+=======
+
+  test("webchat clients cannot patch or delete sessions", async () => {
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-sessions-webchat-"));
+    const storePath = path.join(dir, "sessions.json");
+    testState.sessionStorePath = storePath;
+
+    await writeSessionStore({
+      entries: {
+        main: {
+          sessionId: "sess-main",
+          updatedAt: Date.now(),
+        },
+        "discord:group:dev": {
+          sessionId: "sess-group",
+          updatedAt: Date.now(),
+        },
+      },
+    });
+
+    const ws = new WebSocket(`ws://127.0.0.1:${harness.port}`, {
+      headers: { origin: `http://127.0.0.1:${harness.port}` },
+    });
+    trackConnectChallengeNonce(ws);
+    await new Promise<void>((resolve) => ws.once("open", resolve));
+    await connectOk(ws, {
+      client: {
+        id: GATEWAY_CLIENT_IDS.WEBCHAT_UI,
+        version: "1.0.0",
+        platform: "test",
+        mode: GATEWAY_CLIENT_MODES.UI,
+      },
+      scopes: ["operator.admin"],
+    });
+
+    const patched = await rpcReq(ws, "sessions.patch", {
+      key: "agent:main:discord:group:dev",
+      label: "should-fail",
+    });
+    expect(patched.ok).toBe(false);
+    expect(patched.error?.message ?? "").toMatch(/webchat clients cannot patch sessions/i);
+
+    const deleted = await rpcReq(ws, "sessions.delete", {
+      key: "agent:main:discord:group:dev",
+    });
+    expect(deleted.ok).toBe(false);
+    expect(deleted.error?.message ?? "").toMatch(/webchat clients cannot delete sessions/i);
+
+    ws.close();
+  });
+>>>>>>> aa1483560 (test: reclassify gateway local suites from e2e):src/gateway/server.sessions.gateway-server-sessions-a.test.ts
 });
