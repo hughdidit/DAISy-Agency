@@ -173,19 +173,26 @@ async function readUtf8File(filePath: string): Promise<string | null> {
   }
 }
 
-async function scanLaunchdDir(params: {
-  dir: string;
-  scope: "user" | "system";
-}): Promise<ExtraGatewayService[]> {
-  const results: ExtraGatewayService[] = [];
-  const entries = await readDirEntries(params.dir);
+type ServiceFileEntry = {
+  entry: string;
+  name: string;
+  fullPath: string;
+  contents: string;
+};
 
+async function collectServiceFiles(params: {
+  dir: string;
+  extension: string;
+  isIgnoredName: (name: string) => boolean;
+}): Promise<ServiceFileEntry[]> {
+  const out: ServiceFileEntry[] = [];
+  const entries = await readDirEntries(params.dir);
   for (const entry of entries) {
-    if (!entry.endsWith(".plist")) {
+    if (!entry.endsWith(params.extension)) {
       continue;
     }
-    const labelFromName = entry.replace(/\.plist$/, "");
-    if (isIgnoredLaunchdLabel(labelFromName)) {
+    const name = entry.slice(0, -params.extension.length);
+    if (params.isIgnoredName(name)) {
       continue;
     }
     const fullPath = path.join(params.dir, entry);
@@ -193,7 +200,28 @@ async function scanLaunchdDir(params: {
     if (contents === null) {
       continue;
     }
+<<<<<<< HEAD
     if (!containsMarker(contents)) continue;
+=======
+    out.push({ entry, name, fullPath, contents });
+  }
+  return out;
+}
+
+async function scanLaunchdDir(params: {
+  dir: string;
+  scope: "user" | "system";
+}): Promise<ExtraGatewayService[]> {
+  const results: ExtraGatewayService[] = [];
+  const candidates = await collectServiceFiles({
+    dir: params.dir,
+    extension: ".plist",
+    isIgnoredName: isIgnoredLaunchdLabel,
+  });
+
+  for (const { name: labelFromName, fullPath, contents } of candidates) {
+    const marker = detectMarker(contents);
+>>>>>>> 06b0a60be (refactor(daemon): share runtime and service probe helpers)
     const label = tryExtractPlistLabel(contents) ?? labelFromName;
 <<<<<<< HEAD
     if (isIgnoredLaunchdLabel(label)) continue;
@@ -237,8 +265,13 @@ async function scanSystemdDir(params: {
   scope: "user" | "system";
 }): Promise<ExtraGatewayService[]> {
   const results: ExtraGatewayService[] = [];
-  const entries = await readDirEntries(params.dir);
+  const candidates = await collectServiceFiles({
+    dir: params.dir,
+    extension: ".service",
+    isIgnoredName: isIgnoredSystemdName,
+  });
 
+<<<<<<< HEAD
   for (const entry of entries) {
     if (!entry.endsWith(".service")) {
       continue;
@@ -256,6 +289,9 @@ async function scanSystemdDir(params: {
     if (!containsMarker(contents)) continue;
     if (isMoltbotGatewaySystemdService(name, contents)) continue;
 =======
+=======
+  for (const { entry, name, fullPath, contents } of candidates) {
+>>>>>>> 06b0a60be (refactor(daemon): share runtime and service probe helpers)
     const marker = detectMarker(contents);
     if (!marker) {
       continue;

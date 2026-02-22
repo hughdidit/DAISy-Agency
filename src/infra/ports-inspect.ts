@@ -1,4 +1,3 @@
-import net from "node:net";
 import { runCommandWithTimeout } from "../process/exec.js";
 <<<<<<< HEAD
 =======
@@ -11,9 +10,13 @@ import { resolveLsofCommand } from "./ports-lsof.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { buildPortHints } from "./ports-format.js";
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import { tryListenOnPort } from "./ports-probe.js";
+>>>>>>> 06b0a60be (refactor(daemon): share runtime and service probe helpers)
 import type { PortListener, PortUsage, PortUsageStatus } from "./ports-types.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
@@ -248,15 +251,7 @@ async function readWindowsListeners(
 
 async function tryListenOnHost(port: number, host: string): Promise<PortUsageStatus | "skip"> {
   try {
-    await new Promise<void>((resolve, reject) => {
-      const tester = net
-        .createServer()
-        .once("error", (err) => reject(err))
-        .once("listening", () => {
-          tester.close(() => resolve());
-        })
-        .listen({ port, host, exclusive: true });
-    });
+    await tryListenOnPort({ port, host, exclusive: true });
     return "free";
   } catch (err) {
     if (isErrno(err) && err.code === "EADDRINUSE") {
