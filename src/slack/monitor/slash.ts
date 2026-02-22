@@ -271,6 +271,13 @@ function parseSlackCommandArgValue(raw?: string | null): {
   };
 }
 
+function buildSlackArgMenuOptions(choices: EncodedMenuChoice[]) {
+  return choices.map((choice) => ({
+    text: { type: "plain_text", text: choice.label.slice(0, 75) },
+    value: choice.value,
+  }));
+}
+
 function buildSlackCommandArgMenuBlocks(params: {
   title: string;
   command: string;
@@ -309,10 +316,7 @@ function buildSlackCommandArgMenuBlocks(params: {
               type: "overflow",
               action_id: SLACK_COMMAND_ARG_ACTION_ID,
               confirm: buildSlackArgMenuConfirm({ command: params.command, arg: params.arg }),
-              options: encodedChoices.map((choice) => ({
-                text: { type: "plain_text", text: choice.label.slice(0, 75) },
-                value: choice.value,
-              })),
+              options: buildSlackArgMenuOptions(encodedChoices),
             },
           ],
         },
@@ -362,10 +366,7 @@ function buildSlackCommandArgMenuBlocks(params: {
                     text:
                       index === 0 ? `Choose ${params.arg}` : `Choose ${params.arg} (${index + 1})`,
                   },
-                  options: choices.map((choice) => ({
-                    text: { type: "plain_text", text: choice.label.slice(0, 75) },
-                    value: choice.value,
-                  })),
+                  options: buildSlackArgMenuOptions(choices),
                 },
               ],
             }),

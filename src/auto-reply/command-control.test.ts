@@ -63,25 +63,36 @@ afterEach(() => {
 });
 
 describe("resolveCommandAuthorization", () => {
-  it("falls back from empty SenderId to SenderE164", () => {
+  function resolveWhatsAppAuthorization(params: {
+    from: string;
+    senderId?: string;
+    senderE164?: string;
+    allowFrom: string[];
+  }) {
     const cfg = {
+<<<<<<< HEAD
       channels: { whatsapp: { allowFrom: ["+123"] } },
     } as MoltbotConfig;
 
+=======
+      channels: { whatsapp: { allowFrom: params.allowFrom } },
+    } as OpenClawConfig;
+>>>>>>> d116bcfb1 (refactor(runtime): consolidate followup, gateway, and provider dedupe paths)
     const ctx = {
       Provider: "whatsapp",
       Surface: "whatsapp",
-      From: "whatsapp:+999",
-      SenderId: "",
-      SenderE164: "+123",
+      From: params.from,
+      SenderId: params.senderId,
+      SenderE164: params.senderE164,
     } as MsgContext;
-
-    const auth = resolveCommandAuthorization({
+    return resolveCommandAuthorization({
       ctx,
       cfg,
       commandAuthorized: true,
     });
+  }
 
+<<<<<<< HEAD
     expect(auth.senderId).toBe("+123");
     expect(auth.isAuthorizedSender).toBe(true);
   });
@@ -175,6 +186,58 @@ describe("resolveCommandAuthorization", () => {
     });
 
     expect(auth.senderId).toBe("+41796666864");
+=======
+  it.each([
+    {
+      name: "falls back from empty SenderId to SenderE164",
+      from: "whatsapp:+999",
+      senderId: "",
+      senderE164: "+123",
+      allowFrom: ["+123"],
+      expectedSenderId: "+123",
+    },
+    {
+      name: "falls back from whitespace SenderId to SenderE164",
+      from: "whatsapp:+999",
+      senderId: "   ",
+      senderE164: "+123",
+      allowFrom: ["+123"],
+      expectedSenderId: "+123",
+    },
+    {
+      name: "falls back to From when SenderId and SenderE164 are whitespace",
+      from: "whatsapp:+999",
+      senderId: "   ",
+      senderE164: "   ",
+      allowFrom: ["+999"],
+      expectedSenderId: "+999",
+    },
+    {
+      name: "falls back from un-normalizable SenderId to SenderE164",
+      from: "whatsapp:+999",
+      senderId: "wat",
+      senderE164: "+123",
+      allowFrom: ["+123"],
+      expectedSenderId: "+123",
+    },
+    {
+      name: "prefers SenderE164 when SenderId does not match allowFrom",
+      from: "whatsapp:120363401234567890@g.us",
+      senderId: "123@lid",
+      senderE164: "+41796666864",
+      allowFrom: ["+41796666864"],
+      expectedSenderId: "+41796666864",
+    },
+  ])("$name", ({ from, senderId, senderE164, allowFrom, expectedSenderId }) => {
+    const auth = resolveWhatsAppAuthorization({
+      from,
+      senderId,
+      senderE164,
+      allowFrom,
+    });
+
+    expect(auth.senderId).toBe(expectedSenderId);
+>>>>>>> d116bcfb1 (refactor(runtime): consolidate followup, gateway, and provider dedupe paths)
     expect(auth.isAuthorizedSender).toBe(true);
   });
 <<<<<<< HEAD

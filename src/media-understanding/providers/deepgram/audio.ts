@@ -1,9 +1,18 @@
 import type { AudioTranscriptionRequest, AudioTranscriptionResult } from "../../types.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { fetchWithTimeout, normalizeBaseUrl, readErrorResponse } from "../shared.js";
 =======
 import { assertOkOrThrowHttpError, fetchWithTimeoutGuarded, normalizeBaseUrl } from "../shared.js";
 >>>>>>> 652318e56 (refactor(media): share http error handling)
+=======
+import {
+  assertOkOrThrowHttpError,
+  normalizeBaseUrl,
+  postTranscriptionRequest,
+  requireTranscriptionText,
+} from "../shared.js";
+>>>>>>> d116bcfb1 (refactor(runtime): consolidate followup, gateway, and provider dedupe paths)
 
 export const DEFAULT_DEEPGRAM_AUDIO_BASE_URL = "https://api.deepgram.com/v1";
 export const DEFAULT_DEEPGRAM_AUDIO_MODEL = "nova-3";
@@ -53,6 +62,7 @@ export async function transcribeDeepgramAudio(
   }
 
   const body = new Uint8Array(params.buffer);
+<<<<<<< HEAD
   const res = await fetchWithTimeout(
     url.toString(),
     {
@@ -63,6 +73,16 @@ export async function transcribeDeepgramAudio(
     params.timeoutMs,
     fetchFn,
   );
+=======
+  const { response: res, release } = await postTranscriptionRequest({
+    url: url.toString(),
+    headers,
+    body,
+    timeoutMs: params.timeoutMs,
+    fetchFn,
+    allowPrivateNetwork: allowPrivate,
+  });
+>>>>>>> d116bcfb1 (refactor(runtime): consolidate followup, gateway, and provider dedupe paths)
 
 <<<<<<< HEAD
   if (!res.ok) {
@@ -74,10 +94,10 @@ export async function transcribeDeepgramAudio(
     await assertOkOrThrowHttpError(res, "Audio transcription failed");
 
     const payload = (await res.json()) as DeepgramTranscriptResponse;
-    const transcript = payload.results?.channels?.[0]?.alternatives?.[0]?.transcript?.trim();
-    if (!transcript) {
-      throw new Error("Audio transcription response missing transcript");
-    }
+    const transcript = requireTranscriptionText(
+      payload.results?.channels?.[0]?.alternatives?.[0]?.transcript,
+      "Audio transcription response missing transcript",
+    );
     return { text: transcript, model };
   } finally {
     await release();

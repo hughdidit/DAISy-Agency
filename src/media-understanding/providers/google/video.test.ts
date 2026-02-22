@@ -8,20 +8,14 @@ import * as ssrf from "../../../infra/net/ssrf.js";
 >>>>>>> 991ed3ab5 (Tests: stub SSRF DNS pinning (#6619) (thanks @joshp123))
 =======
 import { withFetchPreconnect } from "../../../test-utils/fetch-mock.js";
+<<<<<<< HEAD
 >>>>>>> cc359d338 (test: add fetch mock helper and reaction coverage)
+=======
+import { createRequestCaptureJsonFetch } from "../audio.test-helpers.js";
+>>>>>>> d116bcfb1 (refactor(runtime): consolidate followup, gateway, and provider dedupe paths)
 import { describeGeminiVideo } from "./video.js";
 
 const TEST_NET_IP = "203.0.113.10";
-
-const resolveRequestUrl = (input: RequestInfo | URL) => {
-  if (typeof input === "string") {
-    return input;
-  }
-  if (input instanceof URL) {
-    return input.toString();
-  }
-  return input.url;
-};
 
 function stubPinnedHostname(hostname: string) {
   const normalized = hostname.trim().toLowerCase().replace(/\.$/, "");
@@ -85,23 +79,14 @@ describe("describeGeminiVideo", () => {
   });
 
   it("builds the expected request payload", async () => {
-    let seenUrl: string | null = null;
-    let seenInit: RequestInit | undefined;
-    const fetchFn = withFetchPreconnect(async (input: RequestInfo | URL, init?: RequestInit) => {
-      seenUrl = resolveRequestUrl(input);
-      seenInit = init;
-      return new Response(
-        JSON.stringify({
-          candidates: [
-            {
-              content: {
-                parts: [{ text: "first" }, { text: " second " }, { text: "" }],
-              },
-            },
-          ],
-        }),
-        { status: 200, headers: { "content-type": "application/json" } },
-      );
+    const { fetchFn, getRequest } = createRequestCaptureJsonFetch({
+      candidates: [
+        {
+          content: {
+            parts: [{ text: "first" }, { text: " second " }, { text: "" }],
+          },
+        },
+      ],
     });
 
     const result = await describeGeminiVideo({
@@ -114,6 +99,7 @@ describe("describeGeminiVideo", () => {
       headers: { "X-Other": "1" },
       fetchFn,
     });
+    const { url: seenUrl, init: seenInit } = getRequest();
 
     expect(result.model).toBe("gemini-3-pro-preview");
     expect(result.text).toBe("first\nsecond");

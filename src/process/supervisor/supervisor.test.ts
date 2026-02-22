@@ -6,13 +6,23 @@ import {
 } from "../test-timeouts.js";
 import { createProcessSupervisor } from "./supervisor.js";
 
+type ProcessSupervisor = ReturnType<typeof createProcessSupervisor>;
+type SpawnOptions = Parameters<ProcessSupervisor["spawn"]>[0];
+type ChildSpawnOptions = Omit<Extract<SpawnOptions, { mode: "child" }>, "backendId" | "mode">;
+
+async function spawnChild(supervisor: ProcessSupervisor, options: ChildSpawnOptions) {
+  return supervisor.spawn({
+    ...options,
+    backendId: "test",
+    mode: "child",
+  });
+}
+
 describe("process supervisor", () => {
   it("spawns child runs and captures output", async () => {
     const supervisor = createProcessSupervisor();
-    const run = await supervisor.spawn({
+    const run = await spawnChild(supervisor, {
       sessionId: "s1",
-      backendId: "test",
-      mode: "child",
       argv: [process.execPath, "-e", 'process.stdout.write("ok")'],
 <<<<<<< HEAD
       timeoutMs: 800,
@@ -29,14 +39,17 @@ describe("process supervisor", () => {
 
   it("enforces no-output timeout for silent processes", async () => {
     const supervisor = createProcessSupervisor();
-    const run = await supervisor.spawn({
+    const run = await spawnChild(supervisor, {
       sessionId: "s1",
+<<<<<<< HEAD
       backendId: "test",
       mode: "child",
 <<<<<<< HEAD
 <<<<<<< HEAD
       argv: [process.execPath, "-e", "setTimeout(() => {}, 120)"],
 =======
+=======
+>>>>>>> d116bcfb1 (refactor(runtime): consolidate followup, gateway, and provider dedupe paths)
       argv: [process.execPath, "-e", "setTimeout(() => {}, 60)"],
 >>>>>>> 00eb2541d (test: shorten idle child timers in timeout assertions)
       timeoutMs: 1_000,
@@ -60,15 +73,17 @@ describe("process supervisor", () => {
 
   it("cancels prior scoped run when replaceExistingScope is enabled", async () => {
     const supervisor = createProcessSupervisor();
-    const first = await supervisor.spawn({
+    const first = await spawnChild(supervisor, {
       sessionId: "s1",
-      backendId: "test",
       scopeKey: "scope:a",
+<<<<<<< HEAD
       mode: "child",
 <<<<<<< HEAD
 <<<<<<< HEAD
       argv: [process.execPath, "-e", "setTimeout(() => {}, 120)"],
 =======
+=======
+>>>>>>> d116bcfb1 (refactor(runtime): consolidate followup, gateway, and provider dedupe paths)
       argv: [process.execPath, "-e", "setTimeout(() => {}, 60)"],
 >>>>>>> 00eb2541d (test: shorten idle child timers in timeout assertions)
       timeoutMs: 1_000,
@@ -83,12 +98,10 @@ describe("process supervisor", () => {
       stdinMode: "pipe-open",
     });
 
-    const second = await supervisor.spawn({
+    const second = await spawnChild(supervisor, {
       sessionId: "s1",
-      backendId: "test",
       scopeKey: "scope:a",
       replaceExistingScope: true,
-      mode: "child",
       argv: [process.execPath, "-e", 'process.stdout.write("new")'],
 <<<<<<< HEAD
       timeoutMs: 800,
@@ -107,14 +120,17 @@ describe("process supervisor", () => {
 
   it("applies overall timeout even for near-immediate timer firing", async () => {
     const supervisor = createProcessSupervisor();
-    const run = await supervisor.spawn({
+    const run = await spawnChild(supervisor, {
       sessionId: "s-timeout",
+<<<<<<< HEAD
       backendId: "test",
       mode: "child",
 <<<<<<< HEAD
 <<<<<<< HEAD
       argv: [process.execPath, "-e", "setTimeout(() => {}, 120)"],
 =======
+=======
+>>>>>>> d116bcfb1 (refactor(runtime): consolidate followup, gateway, and provider dedupe paths)
       argv: [process.execPath, "-e", "setTimeout(() => {}, 60)"],
 >>>>>>> 00eb2541d (test: shorten idle child timers in timeout assertions)
       timeoutMs: 1,
@@ -136,10 +152,8 @@ describe("process supervisor", () => {
   it("can stream output without retaining it in RunExit payload", async () => {
     const supervisor = createProcessSupervisor();
     let streamed = "";
-    const run = await supervisor.spawn({
+    const run = await spawnChild(supervisor, {
       sessionId: "s-capture",
-      backendId: "test",
-      mode: "child",
       argv: [process.execPath, "-e", 'process.stdout.write("streamed")'],
 <<<<<<< HEAD
       timeoutMs: 800,

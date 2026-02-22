@@ -2,10 +2,19 @@ import path from "node:path";
 
 import type { AudioTranscriptionRequest, AudioTranscriptionResult } from "../../types.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { fetchWithTimeout, normalizeBaseUrl, readErrorResponse } from "../shared.js";
 =======
 import { assertOkOrThrowHttpError, fetchWithTimeoutGuarded, normalizeBaseUrl } from "../shared.js";
 >>>>>>> 652318e56 (refactor(media): share http error handling)
+=======
+import {
+  assertOkOrThrowHttpError,
+  normalizeBaseUrl,
+  postTranscriptionRequest,
+  requireTranscriptionText,
+} from "../shared.js";
+>>>>>>> d116bcfb1 (refactor(runtime): consolidate followup, gateway, and provider dedupe paths)
 
 export const DEFAULT_OPENAI_AUDIO_BASE_URL = "https://api.openai.com/v1";
 const DEFAULT_OPENAI_AUDIO_MODEL = "gpt-4o-mini-transcribe";
@@ -43,16 +52,22 @@ export async function transcribeOpenAiCompatibleAudio(
     headers.set("authorization", `Bearer ${params.apiKey}`);
   }
 
+<<<<<<< HEAD
   const res = await fetchWithTimeout(
+=======
+  const { response: res, release } = await postTranscriptionRequest({
+>>>>>>> d116bcfb1 (refactor(runtime): consolidate followup, gateway, and provider dedupe paths)
     url,
-    {
-      method: "POST",
-      headers,
-      body: form,
-    },
-    params.timeoutMs,
+    headers,
+    body: form,
+    timeoutMs: params.timeoutMs,
     fetchFn,
+<<<<<<< HEAD
   );
+=======
+    allowPrivateNetwork: allowPrivate,
+  });
+>>>>>>> d116bcfb1 (refactor(runtime): consolidate followup, gateway, and provider dedupe paths)
 
 <<<<<<< HEAD
   if (!res.ok) {
@@ -64,10 +79,10 @@ export async function transcribeOpenAiCompatibleAudio(
     await assertOkOrThrowHttpError(res, "Audio transcription failed");
 
     const payload = (await res.json()) as { text?: string };
-    const text = payload.text?.trim();
-    if (!text) {
-      throw new Error("Audio transcription response missing text");
-    }
+    const text = requireTranscriptionText(
+      payload.text,
+      "Audio transcription response missing text",
+    );
     return { text, model };
   } finally {
     await release();
