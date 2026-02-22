@@ -1,9 +1,13 @@
 import type { IncomingMessage } from "node:http";
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
 import type { ChannelPlugin } from "../channels/plugins/types.js";
+=======
+import type { OpenClawConfig } from "../config/config.js";
+>>>>>>> 2dcb24498 (refactor(test): dedupe gateway and web scaffolding)
 import { setActivePluginRegistry } from "../plugins/runtime.js";
-import { createTestRegistry } from "../test-utils/channel-plugins.js";
+import { createMSTeamsTestPlugin, createTestRegistry } from "../test-utils/channel-plugins.js";
 import { createIMessageTestPlugin } from "../test-utils/imessage-test-plugin.js";
 import {
   extractHookToken,
@@ -138,7 +142,7 @@ describe("gateway hooks helpers", () => {
         {
           pluginId: "msteams",
           source: "test",
-          plugin: createMSTeamsPlugin({ aliases: ["teams"] }),
+          plugin: createMSTeamsTestPlugin({ aliases: ["teams"] }),
         },
       ]),
     );
@@ -212,20 +216,3 @@ describe("gateway hooks helpers", () => {
 });
 
 const emptyRegistry = createTestRegistry([]);
-
-const createMSTeamsPlugin = (params: { aliases?: string[] }): ChannelPlugin => ({
-  id: "msteams",
-  meta: {
-    id: "msteams",
-    label: "Microsoft Teams",
-    selectionLabel: "Microsoft Teams (Bot Framework)",
-    docsPath: "/channels/msteams",
-    blurb: "Bot Framework; enterprise support.",
-    aliases: params.aliases,
-  },
-  capabilities: { chatTypes: ["direct"] },
-  config: {
-    listAccountIds: () => [],
-    resolveAccount: () => ({}),
-  },
-});

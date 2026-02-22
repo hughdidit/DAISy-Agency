@@ -1,8 +1,7 @@
 import { afterAll, beforeAll, describe, expect, test, vi } from "vitest";
 import type { ChannelPlugin } from "../channels/plugins/types.js";
-import type { PluginRegistry } from "../plugins/registry.js";
-import { setActivePluginRegistry } from "../plugins/runtime.js";
 import { createChannelTestPluginBase } from "../test-utils/channel-plugins.js";
+import { setRegistry } from "./server.agent.gateway-server-agent.mocks.js";
 import { createRegistry } from "./server.e2e-registry-helpers.js";
 import {
   connectOk,
@@ -14,34 +13,6 @@ import {
 const loadConfigHelpers = async () => await import("../config/config.js");
 
 installGatewayTestHooks({ scope: "suite" });
-
-const registryState = vi.hoisted(() => ({
-  registry: {
-    plugins: [],
-    tools: [],
-    channels: [],
-    providers: [],
-    gatewayHandlers: {},
-    httpHandlers: [],
-    httpRoutes: [],
-    cliRegistrars: [],
-    services: [],
-    diagnostics: [],
-  } as unknown as PluginRegistry,
-}));
-
-vi.mock("./server-plugins.js", async () => {
-  const { setActivePluginRegistry } = await import("../plugins/runtime.js");
-  return {
-    loadGatewayPlugins: (params: { baseMethods: string[] }) => {
-      setActivePluginRegistry(registryState.registry);
-      return {
-        pluginRegistry: registryState.registry,
-        gatewayMethods: params.baseMethods ?? [],
-      };
-    },
-  };
-});
 
 const createStubChannelPlugin = (params: {
   id: ChannelPlugin["id"];
@@ -129,11 +100,6 @@ afterAll(async () => {
   ws.close();
   await server.close();
 });
-
-function setRegistry(registry: PluginRegistry) {
-  registryState.registry = registry;
-  setActivePluginRegistry(registry);
-}
 
 describe("gateway server channels", () => {
   test("channels.status returns snapshot without probe", async () => {

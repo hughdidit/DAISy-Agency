@@ -597,6 +597,15 @@ export async function startServerWithClient(
 >>>>>>> 31980bcaf (refactor(test): dedupe gateway env restores)
 }
 
+export async function startConnectedServerWithClient(
+  token?: string,
+  opts?: GatewayServerOptions & { wsHeaders?: Record<string, string> },
+) {
+  const started = await startServerWithClient(token, opts);
+  await connectOk(started.ws);
+  return started;
+}
+
 type ConnectResponse = {
   type: "res";
   id: string;

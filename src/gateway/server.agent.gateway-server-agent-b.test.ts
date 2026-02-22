@@ -62,11 +62,12 @@ import { createRegistry } from "./server.e2e-registry-helpers.js";
 >>>>>>> c3812a1ff (refactor(test): share gateway e2e registry helper)
 import {
   agentCommand,
-  connectWebchatClient,
   connectOk,
+  connectWebchatClient,
   installGatewayTestHooks,
   onceMessage,
   rpcReq,
+  startConnectedServerWithClient,
   startServerWithClient,
   testState,
   trackConnectChallengeNonce,
@@ -81,11 +82,10 @@ let ws: Awaited<ReturnType<typeof startServerWithClient>>["ws"];
 let port: number;
 
 beforeAll(async () => {
-  const started = await startServerWithClient();
+  const started = await startConnectedServerWithClient();
   server = started.server;
   ws = started.ws;
   port = started.port;
-  await connectOk(ws);
 });
 
 afterAll(async () => {
