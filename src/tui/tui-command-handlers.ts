@@ -497,7 +497,12 @@ export function createCommandHandlers(context: CommandHandlerContext) {
       chatLog.addUser(text);
       tui.requestRender();
       setActivityStatus("sending");
+<<<<<<< HEAD
       const { runId } = await client.sendChat({
+=======
+      tui.requestRender();
+      await client.sendChat({
+>>>>>>> 68cb4fc8a (TUI: render sending and waiting indicators immediately)
         sessionKey: state.currentSessionKey,
         message: text,
         thinking: opts.thinking,
@@ -506,11 +511,12 @@ export function createCommandHandlers(context: CommandHandlerContext) {
       });
       state.activeChatRunId = runId;
       setActivityStatus("waiting");
+      tui.requestRender();
     } catch (err) {
       chatLog.addSystem(`send failed: ${String(err)}`);
       setActivityStatus("error");
+      tui.requestRender();
     }
-    tui.requestRender();
   };
 
   return {
