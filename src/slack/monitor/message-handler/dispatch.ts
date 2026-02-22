@@ -141,7 +141,7 @@ export async function dispatchPreparedSlackMessage(prepared: PreparedSlackMessag
     });
   }
 
-  const { statusThreadTs } = resolveSlackThreadTargets({
+  const { statusThreadTs, isThreadReply } = resolveSlackThreadTargets({
     message,
     replyToMode: ctx.replyToMode,
   });
@@ -158,6 +158,8 @@ export async function dispatchPreparedSlackMessage(prepared: PreparedSlackMessag
     incomingThreadTs,
     messageTs,
     hasRepliedRef,
+    chatType: prepared.isDirectMessage ? "direct" : "channel",
+    isThreadReply,
   });
 
   const typingTarget = statusThreadTs ? `${message.channel}/${statusThreadTs}` : message.channel;

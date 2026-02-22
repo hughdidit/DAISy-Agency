@@ -201,11 +201,15 @@ Docs: https://docs.openclaw.ai
 - Slack/Telegram slash sessions: await session metadata persistence before dispatch so first-turn native slash runs do not race session-origin metadata updates. (#23065) thanks @hydro13.
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> daf036a4f (fix(slash): persist channel metadata from slash command sessions (#23065))
 =======
 =======
 - Slack/Queue routing: preserve string `thread_ts` values through collect-mode queue drain and DM `deliveryContext` updates so threaded follow-ups do not leak to the main channel when Slack thread IDs are strings. (#11934) Thanks @sandieman2.
 >>>>>>> cd7b2814a (fix(slack): preserve string thread context in queue + DM route (#23804))
+=======
+- Slack/Queue routing: preserve string `thread_ts` values through collect-mode queue drain and DM `deliveryContext` updates so threaded follow-ups do not leak to the main channel when Slack thread IDs are strings. (#11934) Thanks @sandieman2 and @vincentkoc.
+>>>>>>> 89a1e9981 (fix(slack): finalize replyToMode off threading behavior (#23799))
 - Telegram/Native commands: set `ctx.Provider="telegram"` for native slash-command context so elevated gate checks resolve provider correctly (fixes `provider (ctx.Provider)` failures in `/elevated` flows). (#23748) Thanks @serhii12.
 >>>>>>> 0efe2cab7 (fix(telegram): set provider on native command context)
 - Agents/Ollama: preserve unsafe integer tool-call arguments as exact strings during NDJSON parsing, preventing large numeric IDs from being rounded before tool execution. (#23170) Thanks @BestJoester.
