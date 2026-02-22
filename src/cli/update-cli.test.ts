@@ -221,16 +221,17 @@ describe("update-cli", () => {
     confirm.mockReset();
     select.mockReset();
     vi.mocked(runGatewayUpdate).mockReset();
-    vi.mocked(resolveOpenClawPackageRoot).mockReset();
-    vi.mocked(readConfigFileSnapshot).mockReset();
-    vi.mocked(writeConfigFile).mockReset();
-    vi.mocked(checkUpdateStatus).mockReset();
-    vi.mocked(fetchNpmTagVersion).mockReset();
-    vi.mocked(resolveNpmChannelTag).mockReset();
-    vi.mocked(runCommandWithTimeout).mockReset();
+    vi.mocked(resolveOpenClawPackageRoot).mockClear();
+    vi.mocked(readConfigFileSnapshot).mockClear();
+    vi.mocked(writeConfigFile).mockClear();
+    vi.mocked(checkUpdateStatus).mockClear();
+    vi.mocked(fetchNpmTagVersion).mockClear();
+    vi.mocked(resolveNpmChannelTag).mockClear();
+    vi.mocked(runCommandWithTimeout).mockClear();
     vi.mocked(runDaemonRestart).mockReset();
-    vi.mocked(mockedRunDaemonInstall).mockReset();
+    vi.mocked(mockedRunDaemonInstall).mockClear();
     vi.mocked(doctorCommand).mockReset();
+<<<<<<< HEAD
     vi.mocked(defaultRuntime.log).mockReset();
     vi.mocked(defaultRuntime.error).mockReset();
     vi.mocked(defaultRuntime.exit).mockReset();
@@ -244,6 +245,21 @@ describe("update-cli", () => {
     prepareRestartScript.mockReset();
     runRestartScript.mockReset();
 >>>>>>> 0a188ee49 (test(ci): stabilize update and discord process tests)
+=======
+    vi.mocked(defaultRuntime.log).mockClear();
+    vi.mocked(defaultRuntime.error).mockClear();
+    vi.mocked(defaultRuntime.exit).mockClear();
+    readPackageName.mockClear();
+    readPackageVersion.mockClear();
+    resolveGlobalManager.mockClear();
+    serviceLoaded.mockClear();
+    serviceReadRuntime.mockClear();
+    prepareRestartScript.mockClear();
+    runRestartScript.mockClear();
+    inspectPortUsage.mockClear();
+    classifyPortListener.mockClear();
+    formatPortDiagnostics.mockClear();
+>>>>>>> 67aef3118 (test(cli): replace setup mock resets with clears in update suite)
     vi.mocked(resolveOpenClawPackageRoot).mockResolvedValue(process.cwd());
 >>>>>>> 2086cdfb9 (perf(test): reduce hot-suite import and setup overhead)
     vi.mocked(readConfigFileSnapshot).mockResolvedValue(baseSnapshot);
