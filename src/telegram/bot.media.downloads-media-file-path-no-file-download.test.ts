@@ -16,8 +16,12 @@ const TELEGRAM_TEST_TIMINGS = {
   textFragmentGapMs: 30,
 } as const;
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> e746a67cc (perf: speed up telegram media e2e flush timing)
 =======
+=======
+const TELEGRAM_BOT_IMPORT_TIMEOUT_MS = process.platform === "win32" ? 180_000 : 150_000;
+>>>>>>> 285890144 (test(flaky): harden slow vmFork unit suites)
 let createTelegramBot: typeof import("./bot.js").createTelegramBot;
 let replySpy: ReturnType<typeof vi.fn>;
 >>>>>>> 58254b3b5 (test: dedupe channel and transport adapters)
@@ -118,7 +122,7 @@ beforeAll(async () => {
   ({ createTelegramBot } = await import("./bot.js"));
   const replyModule = await import("../auto-reply/reply.js");
   replySpy = (replyModule as unknown as { __replySpy: ReturnType<typeof vi.fn> }).__replySpy;
-});
+}, TELEGRAM_BOT_IMPORT_TIMEOUT_MS);
 
 vi.mock("./sticker-cache.js", () => ({
   cacheSticker: (...args: unknown[]) => cacheStickerSpy(...args),
