@@ -19,6 +19,7 @@ export {
   collectHooksHardeningFindings,
   collectMinimalProfileOverrideFindings,
   collectModelHygieneFindings,
+  collectNodeDangerousAllowCommandFindings,
   collectNodeDenyCommandPatternFindings,
   collectSandboxDangerousConfigFindings,
   collectSandboxDockerNoopFindings,
