@@ -28,7 +28,14 @@ async function ensureLoadedForRead(state: CronServiceState) {
 }
 
 export async function start(state: CronServiceState) {
+  if (!state.deps.cronEnabled) {
+    state.deps.log.info({ enabled: false }, "cron: disabled");
+    return;
+  }
+
+  const startupInterruptedJobIds = new Set<string>();
   await locked(state, async () => {
+<<<<<<< HEAD
     if (!state.deps.cronEnabled) {
       state.deps.log.info({ enabled: false }, "cron: disabled");
       return;
@@ -36,9 +43,10 @@ export async function start(state: CronServiceState) {
 <<<<<<< HEAD
     await ensureLoaded(state);
 =======
+=======
+>>>>>>> 2830dafbe (Cron: keep list/status responsive during startup catch-up)
     await ensureLoaded(state, { skipRecompute: true });
     const jobs = state.store?.jobs ?? [];
-    const startupInterruptedJobIds = new Set<string>();
     for (const job of jobs) {
       if (typeof job.state.runningAtMs === "number") {
         state.deps.log.warn(
@@ -49,8 +57,18 @@ export async function start(state: CronServiceState) {
         startupInterruptedJobIds.add(job.id);
       }
     }
+<<<<<<< HEAD
     await runMissedJobs(state, { skipJobIds: startupInterruptedJobIds });
 >>>>>>> 7b89e68d1 (fix (cron): skip startup replay for interrupted running jobs)
+=======
+    await persist(state);
+  });
+
+  await runMissedJobs(state, { skipJobIds: startupInterruptedJobIds });
+
+  await locked(state, async () => {
+    await ensureLoaded(state, { forceReload: true, skipRecompute: true });
+>>>>>>> 2830dafbe (Cron: keep list/status responsive during startup catch-up)
     recomputeNextRuns(state);
     await persist(state);
     armTimer(state);
