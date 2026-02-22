@@ -1,6 +1,20 @@
 import { lookup as dnsLookupCb, type LookupAddress } from "node:dns";
 import { lookup as dnsLookup } from "node:dns/promises";
 import { Agent, type Dispatcher } from "undici";
+<<<<<<< HEAD
+=======
+import {
+  extractEmbeddedIpv4FromIpv6,
+  isBlockedSpecialUseIpv4Address,
+  isCanonicalDottedDecimalIPv4,
+  isIpv4Address,
+  isLegacyIpv4Literal,
+  isPrivateOrLoopbackIpAddress,
+  parseCanonicalIpAddress,
+  parseLooseIpAddress,
+} from "../../shared/net/ip.js";
+import { normalizeHostname } from "./hostname.js";
+>>>>>>> 333fbb863 (refactor(net): consolidate IP checks with ipaddr.js)
 
 type LookupCallback = (
   err: NodeJS.ErrnoException | null,
@@ -72,6 +86,7 @@ function matchesHostnameAllowlist(hostname: string, allowlist: string[]): boolea
   return allowlist.some((pattern) => isHostnameAllowedByPattern(hostname, pattern));
 }
 
+<<<<<<< HEAD
 function parseStrictIpv4Octet(part: string): number | null {
   if (!/^[0-9]+$/.test(part)) {
     return null;
@@ -115,6 +130,9 @@ function classifyIpv4Part(part: string): "decimal" | "hex" | "invalid-hex" | "no
 }
 
 function isUnsupportedLegacyIpv4Literal(address: string): boolean {
+=======
+function looksLikeUnsupportedIpv4Literal(address: string): boolean {
+>>>>>>> 333fbb863 (refactor(net): consolidate IP checks with ipaddr.js)
   const parts = address.split(".");
   if (parts.length === 0 || parts.length > 4) {
     return false;
@@ -122,6 +140,7 @@ function isUnsupportedLegacyIpv4Literal(address: string): boolean {
   if (parts.some((part) => part.length === 0)) {
     return true;
   }
+<<<<<<< HEAD
 
   const partKinds = parts.map(classifyIpv4Part);
   if (partKinds.some((kind) => kind === "non-numeric")) {
@@ -291,6 +310,11 @@ function isPrivateIpv4(parts: number[]): boolean {
     return true;
   }
   return false;
+=======
+  // Tighten only "ipv4-ish" literals (numbers + optional 0x prefix). Hostnames like
+  // "example.com" must stay in hostname policy handling and not be treated as malformed IPs.
+  return parts.every((part) => /^[0-9]+$/.test(part) || /^0x/i.test(part));
+>>>>>>> 333fbb863 (refactor(net): consolidate IP checks with ipaddr.js)
 }
 
 export function isPrivateIpAddress(address: string): boolean {
@@ -302,37 +326,17 @@ export function isPrivateIpAddress(address: string): boolean {
     return false;
   }
 
-  if (normalized.includes(":")) {
-    const hextets = parseIpv6Hextets(normalized);
-    if (!hextets) {
-      // Security-critical parse failures should fail closed.
+  const strictIp = parseCanonicalIpAddress(normalized);
+  if (strictIp) {
+    if (isIpv4Address(strictIp)) {
+      return isBlockedSpecialUseIpv4Address(strictIp);
+    }
+    if (isPrivateOrLoopbackIpAddress(strictIp.toString())) {
       return true;
     }
-
-    const isUnspecified =
-      hextets[0] === 0 &&
-      hextets[1] === 0 &&
-      hextets[2] === 0 &&
-      hextets[3] === 0 &&
-      hextets[4] === 0 &&
-      hextets[5] === 0 &&
-      hextets[6] === 0 &&
-      hextets[7] === 0;
-    const isLoopback =
-      hextets[0] === 0 &&
-      hextets[1] === 0 &&
-      hextets[2] === 0 &&
-      hextets[3] === 0 &&
-      hextets[4] === 0 &&
-      hextets[5] === 0 &&
-      hextets[6] === 0 &&
-      hextets[7] === 1;
-    if (isUnspecified || isLoopback) {
-      return true;
-    }
-
-    const embeddedIpv4 = extractIpv4FromEmbeddedIpv6(hextets);
+    const embeddedIpv4 = extractEmbeddedIpv4FromIpv6(strictIp);
     if (embeddedIpv4) {
+<<<<<<< HEAD
       return isPrivateIpv4(embeddedIpv4);
     }
 
@@ -349,16 +353,28 @@ export function isPrivateIpAddress(address: string): boolean {
     }
     if ((first & 0xfe00) === 0xfc00) {
       return true;
+=======
+      return isBlockedSpecialUseIpv4Address(embeddedIpv4);
+>>>>>>> 333fbb863 (refactor(net): consolidate IP checks with ipaddr.js)
     }
     return false;
   }
 
+<<<<<<< HEAD
   const ipv4 = parseIpv4(normalized);
   if (ipv4) {
     return isPrivateIpv4(ipv4);
+=======
+  // Security-critical parse failures should fail closed for any malformed IPv6 literal.
+  if (normalized.includes(":") && !parseLooseIpAddress(normalized)) {
+    return true;
+>>>>>>> 333fbb863 (refactor(net): consolidate IP checks with ipaddr.js)
   }
-  // Reject non-canonical IPv4 literal forms (octal/hex/short/packed) by default.
-  if (isUnsupportedLegacyIpv4Literal(normalized)) {
+
+  if (!isCanonicalDottedDecimalIPv4(normalized) && isLegacyIpv4Literal(normalized)) {
+    return true;
+  }
+  if (looksLikeUnsupportedIpv4Literal(normalized)) {
     return true;
   }
   return false;
