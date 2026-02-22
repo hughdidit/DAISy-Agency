@@ -6,6 +6,7 @@ import { resolveControlUiRootSync } from "../infra/control-ui-assets.js";
 <<<<<<< HEAD
 =======
 import { isWithinDir } from "../infra/path-safety.js";
+import { openVerifiedFileSync } from "../infra/safe-open-sync.js";
 import { AVATAR_MAX_BYTES } from "../shared/avatar-policy.js";
 >>>>>>> 6970c2c2d (fix(gateway): harden control-ui avatar reads)
 import { DEFAULT_ASSISTANT_IDENTITY, resolveAssistantIdentity } from "./assistant-identity.js";
@@ -237,84 +238,40 @@ function isExpectedSafePathError(error: unknown): boolean {
   return code === "ENOENT" || code === "ENOTDIR" || code === "ELOOP";
 }
 
-function areSameFileIdentity(preOpen: fs.Stats, opened: fs.Stats): boolean {
-  return preOpen.dev === opened.dev && preOpen.ino === opened.ino;
-}
-
 function resolveSafeAvatarFile(filePath: string): { path: string; fd: number } | null {
-  let fd: number | null = null;
-  try {
-    const candidateStat = fs.lstatSync(filePath);
-    if (candidateStat.isSymbolicLink()) {
-      return null;
-    }
-    const fileReal = fs.realpathSync(filePath);
-    const preOpenStat = fs.lstatSync(fileReal);
-    if (!preOpenStat.isFile() || preOpenStat.size > AVATAR_MAX_BYTES) {
-      return null;
-    }
-    const openFlags =
-      fs.constants.O_RDONLY |
-      (typeof fs.constants.O_NOFOLLOW === "number" ? fs.constants.O_NOFOLLOW : 0);
-    fd = fs.openSync(fileReal, openFlags);
-    const openedStat = fs.fstatSync(fd);
-    if (
-      !openedStat.isFile() ||
-      openedStat.size > AVATAR_MAX_BYTES ||
-      !areSameFileIdentity(preOpenStat, openedStat)
-    ) {
-      return null;
-    }
-    const safeFile = { path: fileReal, fd };
-    fd = null;
-    return safeFile;
-  } catch {
+  const opened = openVerifiedFileSync({
+    filePath,
+    rejectPathSymlink: true,
+    maxBytes: AVATAR_MAX_BYTES,
+  });
+  if (!opened.ok) {
     return null;
-  } finally {
-    if (fd !== null) {
-      fs.closeSync(fd);
-    }
   }
+  return { path: opened.path, fd: opened.fd };
 }
 
 function resolveSafeControlUiFile(
   rootReal: string,
   filePath: string,
 ): { path: string; fd: number } | null {
-  let fd: number | null = null;
   try {
     const fileReal = fs.realpathSync(filePath);
     if (!isContainedPath(rootReal, fileReal)) {
       return null;
     }
-
-    const preOpenStat = fs.lstatSync(fileReal);
-    if (!preOpenStat.isFile()) {
+    const opened = openVerifiedFileSync({ filePath: fileReal, resolvedPath: fileReal });
+    if (!opened.ok) {
+      if (opened.reason === "io") {
+        throw opened.error;
+      }
       return null;
     }
-
-    const openFlags =
-      fs.constants.O_RDONLY |
-      (typeof fs.constants.O_NOFOLLOW === "number" ? fs.constants.O_NOFOLLOW : 0);
-    fd = fs.openSync(fileReal, openFlags);
-    const openedStat = fs.fstatSync(fd);
-    // Compare inode identity so swaps between validation and open are rejected.
-    if (!openedStat.isFile() || !areSameFileIdentity(preOpenStat, openedStat)) {
-      return null;
-    }
-
-    const resolved = { path: fileReal, fd };
-    fd = null;
-    return resolved;
+    return { path: opened.path, fd: opened.fd };
   } catch (error) {
     if (isExpectedSafePathError(error)) {
       return null;
     }
     throw error;
-  } finally {
-    if (fd !== null) {
-      fs.closeSync(fd);
-    }
   }
 >>>>>>> 4ef4aa3c1 (refactor(gateway): streamline control-ui secure file serving)
 }
