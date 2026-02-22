@@ -874,6 +874,217 @@ describe("security audit", () => {
     );
   });
 
+<<<<<<< HEAD
+=======
+  it("warns when insecure/dangerous debug flags are enabled", async () => {
+    const cfg: OpenClawConfig = {
+      hooks: {
+        gmail: { allowUnsafeExternalContent: true },
+        mappings: [{ allowUnsafeExternalContent: true }],
+      },
+      tools: {
+        exec: {
+          applyPatch: {
+            workspaceOnly: false,
+          },
+        },
+      },
+    };
+
+    const res = await audit(cfg);
+    const finding = res.findings.find((f) => f.checkId === "config.insecure_or_dangerous_flags");
+
+    expect(finding).toBeTruthy();
+    expect(finding?.severity).toBe("warn");
+    expect(finding?.detail).toContain("hooks.gmail.allowUnsafeExternalContent=true");
+    expect(finding?.detail).toContain("hooks.mappings[0].allowUnsafeExternalContent=true");
+    expect(finding?.detail).toContain("tools.exec.applyPatch.workspaceOnly=false");
+  });
+
+  it("scores X-Real-IP fallback risk by gateway exposure", async () => {
+    const cases: Array<{
+      name: string;
+      cfg: OpenClawConfig;
+      expectedSeverity: "warn" | "critical";
+    }> = [
+      {
+        name: "loopback gateway",
+        cfg: {
+          gateway: {
+            bind: "loopback",
+            allowRealIpFallback: true,
+            trustedProxies: ["127.0.0.1"],
+            auth: {
+              mode: "token",
+              token: "very-long-token-1234567890",
+            },
+          },
+        },
+        expectedSeverity: "warn",
+      },
+      {
+        name: "lan gateway",
+        cfg: {
+          gateway: {
+            bind: "lan",
+            allowRealIpFallback: true,
+            trustedProxies: ["10.0.0.1"],
+            auth: {
+              mode: "token",
+              token: "very-long-token-1234567890",
+            },
+          },
+        },
+        expectedSeverity: "critical",
+      },
+    ];
+
+    for (const testCase of cases) {
+      const res = await audit(testCase.cfg);
+      expect(
+        hasFinding(res, "gateway.real_ip_fallback_enabled", testCase.expectedSeverity),
+        testCase.name,
+      ).toBe(true);
+    }
+  });
+
+  it("scores mDNS full mode risk by gateway bind mode", async () => {
+    const cases: Array<{
+      name: string;
+      cfg: OpenClawConfig;
+      expectedSeverity: "warn" | "critical";
+    }> = [
+      {
+        name: "loopback gateway with full mDNS",
+        cfg: {
+          gateway: {
+            bind: "loopback",
+            auth: {
+              mode: "token",
+              token: "very-long-token-1234567890",
+            },
+          },
+          discovery: {
+            mdns: { mode: "full" },
+          },
+        },
+        expectedSeverity: "warn",
+      },
+      {
+        name: "lan gateway with full mDNS",
+        cfg: {
+          gateway: {
+            bind: "lan",
+            auth: {
+              mode: "token",
+              token: "very-long-token-1234567890",
+            },
+          },
+          discovery: {
+            mdns: { mode: "full" },
+          },
+        },
+        expectedSeverity: "critical",
+      },
+    ];
+
+    for (const testCase of cases) {
+      const res = await audit(testCase.cfg);
+      expect(
+        hasFinding(res, "discovery.mdns_full_mode", testCase.expectedSeverity),
+        testCase.name,
+      ).toBe(true);
+    }
+  });
+
+  it("evaluates trusted-proxy auth guardrails", async () => {
+    const cases: Array<{
+      name: string;
+      cfg: OpenClawConfig;
+      expectedCheckId: string;
+      expectedSeverity: "warn" | "critical";
+      suppressesGenericSharedSecretFindings?: boolean;
+    }> = [
+      {
+        name: "trusted-proxy base mode",
+        cfg: {
+          gateway: {
+            bind: "lan",
+            trustedProxies: ["10.0.0.1"],
+            auth: {
+              mode: "trusted-proxy",
+              trustedProxy: { userHeader: "x-forwarded-user" },
+            },
+          },
+        },
+        expectedCheckId: "gateway.trusted_proxy_auth",
+        expectedSeverity: "critical",
+        suppressesGenericSharedSecretFindings: true,
+      },
+      {
+        name: "missing trusted proxies",
+        cfg: {
+          gateway: {
+            bind: "lan",
+            trustedProxies: [],
+            auth: {
+              mode: "trusted-proxy",
+              trustedProxy: { userHeader: "x-forwarded-user" },
+            },
+          },
+        },
+        expectedCheckId: "gateway.trusted_proxy_no_proxies",
+        expectedSeverity: "critical",
+      },
+      {
+        name: "missing user header",
+        cfg: {
+          gateway: {
+            bind: "lan",
+            trustedProxies: ["10.0.0.1"],
+            auth: {
+              mode: "trusted-proxy",
+              trustedProxy: {} as never,
+            },
+          },
+        },
+        expectedCheckId: "gateway.trusted_proxy_no_user_header",
+        expectedSeverity: "critical",
+      },
+      {
+        name: "missing user allowlist",
+        cfg: {
+          gateway: {
+            bind: "lan",
+            trustedProxies: ["10.0.0.1"],
+            auth: {
+              mode: "trusted-proxy",
+              trustedProxy: {
+                userHeader: "x-forwarded-user",
+                allowUsers: [],
+              },
+            },
+          },
+        },
+        expectedCheckId: "gateway.trusted_proxy_no_allowlist",
+        expectedSeverity: "warn",
+      },
+    ];
+
+    for (const testCase of cases) {
+      const res = await audit(testCase.cfg);
+      expect(
+        hasFinding(res, testCase.expectedCheckId, testCase.expectedSeverity),
+        testCase.name,
+      ).toBe(true);
+      if (testCase.suppressesGenericSharedSecretFindings) {
+        expect(hasFinding(res, "gateway.bind_no_auth"), testCase.name).toBe(false);
+        expect(hasFinding(res, "gateway.auth_no_rate_limit"), testCase.name).toBe(false);
+      }
+    }
+  });
+
+>>>>>>> bc78b343b (Security: expand audit checks for mDNS and real-IP fallback)
   it("warns when multiple DM senders share the main session", async () => {
     const cfg: OpenClawConfig = { session: { dmScope: "main" } };
     const plugins: ChannelPlugin[] = [

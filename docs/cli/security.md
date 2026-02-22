@@ -50,7 +50,11 @@ It also warns when sandbox Docker settings are configured while sandbox mode is 
 >>>>>>> 049b8b14b (fix(security): flag open-group runtime/fs exposure in audit)
 =======
 It also warns when sandbox Docker settings are configured while sandbox mode is off, when `gateway.nodes.denyCommands` uses ineffective pattern-like/unknown entries, when `gateway.nodes.allowCommands` explicitly enables dangerous node commands, when global `tools.profile="minimal"` is overridden by agent tool profiles, when open groups expose runtime/filesystem tools without sandbox/workspace guards, and when installed extension plugin tools may be reachable under permissive tool policy.
+<<<<<<< HEAD
 >>>>>>> 265da4dd2 (fix(security): harden gateway command/audit guardrails)
+=======
+It also flags `gateway.allowRealIpFallback=true` (header-spoofing risk if proxies are misconfigured) and `discovery.mdns.mode="full"` (metadata leakage via mDNS TXT records).
+>>>>>>> bc78b343b (Security: expand audit checks for mDNS and real-IP fallback)
 It also warns when sandbox browser uses Docker `bridge` network without `sandbox.browser.cdpSourceRange`.
 >>>>>>> f48698a50 (fix(security): harden sandbox browser network defaults)
 It also warns when existing sandbox browser Docker containers have missing/stale hash labels (for example pre-migration containers missing `openclaw.browserConfigEpoch`) and recommends `openclaw sandbox recreate --browser --all`.
