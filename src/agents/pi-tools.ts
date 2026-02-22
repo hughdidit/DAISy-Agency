@@ -198,6 +198,7 @@ export const __testing = {
 } as const;
 
 export function createOpenClawCodingTools(options?: {
+  agentId?: string;
   exec?: ExecToolDefaults & ProcessToolDefaults;
   messageProvider?: string;
   agentAccountId?: string;
@@ -267,6 +268,7 @@ export function createOpenClawCodingTools(options?: {
   } = resolveEffectiveToolPolicy({
     config: options?.config,
     sessionKey: options?.sessionKey,
+    agentId: options?.agentId,
     modelProvider: options?.modelProvider,
     modelId: options?.modelId,
   });
