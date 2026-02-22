@@ -72,6 +72,7 @@ export type CronServiceDeps = {
   /** WakeMode=now: delay between runHeartbeatOnce retries while busy. */
   wakeNowHeartbeatBusyRetryDelayMs?: number;
 <<<<<<< HEAD
+<<<<<<< HEAD
   runIsolatedAgentJob: (params: { job: CronJob; message: string }) => Promise<{
     status: "ok" | "error" | "skipped";
     summary?: string;
@@ -99,6 +100,13 @@ export type CronServiceDeps = {
   }>;
 =======
   runIsolatedAgentJob: (params: { job: CronJob; message: string }) => Promise<
+=======
+  runIsolatedAgentJob: (params: {
+    job: CronJob;
+    message: string;
+    abortSignal?: AbortSignal;
+  }) => Promise<
+>>>>>>> 1051f42f9 (fix(stability): patch regex retries and timeout abort handling)
     {
       summary?: string;
       /** Last non-empty agent text output (not truncated). */

@@ -153,6 +153,7 @@ export async function runCronIsolatedAgentTurn(params: {
   deps: CliDeps;
   job: CronJob;
   message: string;
+  abortSignal?: AbortSignal;
   sessionKey: string;
   agentId?: string;
   lane?: string;
@@ -458,6 +459,9 @@ let skillsSnapshot = cronSession.sessionEntry.skillsSnapshot;
       agentDir,
       fallbacksOverride: resolveAgentModelFallbacksOverride(params.cfg, agentId),
       run: (providerOverride, modelOverride) => {
+        if (params.abortSignal?.aborted) {
+          throw new Error("cron: isolated run aborted");
+        }
         if (isCliProvider(providerOverride, cfgWithAgentDefaults)) {
           const cliSessionId = getCliSessionId(cronSession.sessionEntry, providerOverride);
           return runCliAgent({
@@ -496,6 +500,7 @@ let skillsSnapshot = cronSession.sessionEntry.skillsSnapshot;
           runId: cronSession.sessionEntry.sessionId,
           requireExplicitMessageTarget: true,
           disableMessageTool: deliveryRequested,
+          abortSignal: params.abortSignal,
         });
       },
     });
