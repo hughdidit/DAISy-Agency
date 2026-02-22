@@ -328,7 +328,19 @@ export const MemorySearchSchema = z
       })
       .strict()
       .optional(),
+<<<<<<< HEAD
     provider: z.union([z.literal("openai"), z.literal("local"), z.literal("gemini")]).optional(),
+=======
+    provider: z
+      .union([
+        z.literal("openai"),
+        z.literal("local"),
+        z.literal("gemini"),
+        z.literal("voyage"),
+        z.literal("mistral"),
+      ])
+      .optional(),
+>>>>>>> 042947b94 (fix: add mistral to MemorySearchSchema provider/fallback unions (#14934))
     remote: z
       .object({
         baseUrl: z.string().optional(),
@@ -348,7 +360,18 @@ export const MemorySearchSchema = z
       .strict()
       .optional(),
     fallback: z
+<<<<<<< HEAD
       .union([z.literal("openai"), z.literal("gemini"), z.literal("local"), z.literal("none")])
+=======
+      .union([
+        z.literal("openai"),
+        z.literal("gemini"),
+        z.literal("local"),
+        z.literal("voyage"),
+        z.literal("mistral"),
+        z.literal("none"),
+      ])
+>>>>>>> 042947b94 (fix: add mistral to MemorySearchSchema provider/fallback unions (#14934))
       .optional(),
     model: z.string().optional(),
     local: z
