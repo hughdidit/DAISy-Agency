@@ -75,4 +75,49 @@ describe("noteSecurityWarnings gateway exposure", () => {
     expect(message).toContain("No channel security warnings detected");
     expect(message).not.toContain("Gateway bound");
   });
+<<<<<<< HEAD
+=======
+
+  it("shows explicit dmScope config command for multi-user DMs", async () => {
+    pluginRegistry.list = [
+      {
+        id: "whatsapp",
+        meta: { label: "WhatsApp" },
+        config: {
+          listAccountIds: () => ["default"],
+          resolveAccount: () => ({}),
+          isEnabled: () => true,
+          isConfigured: () => true,
+        },
+        security: {
+          resolveDmPolicy: () => ({
+            policy: "allowlist",
+            allowFrom: ["alice", "bob"],
+            allowFromPath: "channels.whatsapp.",
+            approveHint: "approve",
+          }),
+        },
+      },
+    ];
+    const cfg = { session: { dmScope: "main" } } as OpenClawConfig;
+    await noteSecurityWarnings(cfg);
+    const message = lastMessage();
+    expect(message).toContain('config set session.dmScope "per-channel-peer"');
+  });
+
+  it("clarifies approvals.exec forwarding-only behavior", async () => {
+    const cfg = {
+      approvals: {
+        exec: {
+          enabled: false,
+        },
+      },
+    } as OpenClawConfig;
+    await noteSecurityWarnings(cfg);
+    const message = lastMessage();
+    expect(message).toContain("disables approval forwarding only");
+    expect(message).toContain("exec-approvals.json");
+    expect(message).toContain("openclaw approvals get --gateway");
+  });
+>>>>>>> 3b0e62d5b (fix(doctor): warn that approvals.exec.enabled only disables forwarding)
 });

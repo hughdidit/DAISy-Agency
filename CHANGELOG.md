@@ -102,7 +102,11 @@ Docs: https://docs.openclaw.ai
 >>>>>>> 394a1af70 (fix(exec): apply per-agent exec defaults for opaque session keys)
 =======
 - Sandbox/Docker: default sandbox container user to the workspace owner `uid:gid` when `agents.*.sandbox.docker.user` is unset, fixing non-root gateway file-tool permissions under capability-dropped containers. (#20979)
+<<<<<<< HEAD
 >>>>>>> a30f9c867 (fix(sandbox): fallback docker user to workspace owner uid/gid)
+=======
+- Doctor/Security: add an explicit warning that `approvals.exec.enabled=false` disables forwarding only, while enforcement remains driven by host-local `exec-approvals.json` policy. (#15047)
+>>>>>>> 3b0e62d5b (fix(doctor): warn that approvals.exec.enabled only disables forwarding)
 - Telegram/Discord extensions: propagate trusted `mediaLocalRoots` through extension outbound `sendMedia` options so extension direct-send media paths honor agent-scoped local-media allowlists. (#20029, #21903, #23227)
 - Exec/Background: stop applying the default exec timeout to background sessions (`background: true` or explicit `yieldMs`) when no explicit timeout is set, so long-running background jobs are no longer terminated at the default timeout boundary. (#23303)
 >>>>>>> c677be9d5 (fix(exec): skip default timeout for background sessions)
