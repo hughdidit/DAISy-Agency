@@ -75,6 +75,18 @@ vi.mock("./common.js", async () => {
 import { DEFAULT_AI_SNAPSHOT_MAX_CHARS } from "../../browser/constants.js";
 import { createBrowserTool } from "./browser-tool.js";
 
+function mockSingleBrowserProxyNode() {
+  nodesUtilsMocks.listNodes.mockResolvedValue([
+    {
+      nodeId: "node-1",
+      displayName: "Browser Node",
+      connected: true,
+      caps: ["browser"],
+      commands: ["browser.proxy"],
+    },
+  ]);
+}
+
 describe("browser tool snapshot maxChars", () => {
   afterEach(() => {
     vi.clearAllMocks();
@@ -189,15 +201,7 @@ describe("browser tool snapshot maxChars", () => {
   });
 
   it("routes to node proxy when target=node", async () => {
-    nodesUtilsMocks.listNodes.mockResolvedValue([
-      {
-        nodeId: "node-1",
-        displayName: "Browser Node",
-        connected: true,
-        caps: ["browser"],
-        commands: ["browser.proxy"],
-      },
-    ]);
+    mockSingleBrowserProxyNode();
     const tool = createBrowserTool();
     await tool.execute?.("call-1", { action: "status", target: "node" });
 
@@ -213,15 +217,7 @@ describe("browser tool snapshot maxChars", () => {
   });
 
   it("keeps sandbox bridge url when node proxy is available", async () => {
-    nodesUtilsMocks.listNodes.mockResolvedValue([
-      {
-        nodeId: "node-1",
-        displayName: "Browser Node",
-        connected: true,
-        caps: ["browser"],
-        commands: ["browser.proxy"],
-      },
-    ]);
+    mockSingleBrowserProxyNode();
     const tool = createBrowserTool({ sandboxBridgeUrl: "http://127.0.0.1:9999" });
     await tool.execute?.("call-1", { action: "status" });
 
@@ -233,15 +229,7 @@ describe("browser tool snapshot maxChars", () => {
   });
 
   it("keeps chrome profile on host when node proxy is available", async () => {
-    nodesUtilsMocks.listNodes.mockResolvedValue([
-      {
-        nodeId: "node-1",
-        displayName: "Browser Node",
-        connected: true,
-        caps: ["browser"],
-        commands: ["browser.proxy"],
-      },
-    ]);
+    mockSingleBrowserProxyNode();
     const tool = createBrowserTool();
     await tool.execute?.("call-1", { action: "status", profile: "chrome" });
 
