@@ -65,6 +65,13 @@ describe("dispatchTelegramMessage draft streaming", () => {
     dispatchReplyWithBufferedBlockDispatcher.mockReset();
     deliverReplies.mockReset();
     editMessageTelegram.mockReset();
+<<<<<<< HEAD
+=======
+    loadSessionStore.mockClear();
+    resolveStorePath.mockClear();
+    resolveStorePath.mockReturnValue("/tmp/sessions.json");
+    loadSessionStore.mockReturnValue({});
+>>>>>>> 342cd19e9 (test(telegram): keep session-store mocks on clear in dispatch setup)
   });
 
   function createDraftStream(messageId?: number) {
