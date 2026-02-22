@@ -10,10 +10,22 @@ import type { GatewayAuthConfig, GatewayTailscaleMode } from "../config/config.j
 import { readTailscaleWhoisIdentity, type TailscaleWhoisIdentity } from "../infra/tailscale.js";
 import { safeEqualSecret } from "../security/secret-equal.js";
 import {
+<<<<<<< HEAD
   isLoopbackAddress,
   isTrustedProxyAddress,
   parseForwardedForClientIp,
   resolveGatewayClientIp,
+=======
+  AUTH_RATE_LIMIT_SCOPE_SHARED_SECRET,
+  type AuthRateLimiter,
+  type RateLimitCheckResult,
+} from "./auth-rate-limit.js";
+import {
+  isLocalishHost,
+  isLoopbackAddress,
+  isTrustedProxyAddress,
+  resolveClientIp,
+>>>>>>> f14ebd743 (refactor(security): unify local-host and tailnet CIDR checks)
 } from "./net.js";
 <<<<<<< HEAD
 >>>>>>> 113ebfd6a (fix(security): harden hook and device token auth)
@@ -117,10 +129,13 @@ export function isLocalDirectRequest(req?: IncomingMessage, trustedProxies?: str
   const clientIp = resolveRequestClientIp(req, trustedProxies) ?? "";
   if (!isLoopbackAddress(clientIp)) return false;
 
+<<<<<<< HEAD
   const host = getHostName(req.headers?.host);
   const hostIsLocal = host === "localhost" || host === "127.0.0.1" || host === "::1";
   const hostIsTailscaleServe = host.endsWith(".ts.net");
 
+=======
+>>>>>>> f14ebd743 (refactor(security): unify local-host and tailnet CIDR checks)
   const hasForwarded = Boolean(
     req.headers?.["x-forwarded-for"] ||
     req.headers?.["x-real-ip"] ||
@@ -128,7 +143,7 @@ export function isLocalDirectRequest(req?: IncomingMessage, trustedProxies?: str
   );
 
   const remoteIsTrustedProxy = isTrustedProxyAddress(req.socket?.remoteAddress, trustedProxies);
-  return (hostIsLocal || hostIsTailscaleServe) && (!hasForwarded || remoteIsTrustedProxy);
+  return isLocalishHost(req.headers?.host) && (!hasForwarded || remoteIsTrustedProxy);
 }
 
 function getTailscaleUser(req?: IncomingMessage): TailscaleUser | null {

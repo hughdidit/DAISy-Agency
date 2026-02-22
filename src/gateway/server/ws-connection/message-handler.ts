@@ -44,7 +44,16 @@ import {
 import { authorizeGatewayConnect, isLocalDirectRequest } from "../../auth.js";
 import { loadConfig } from "../../../config/config.js";
 import { buildDeviceAuthPayload } from "../../device-auth.js";
+<<<<<<< HEAD
 import { isLoopbackAddress, isTrustedProxyAddress, resolveGatewayClientIp } from "../../net.js";
+=======
+import {
+  isLocalishHost,
+  isLoopbackAddress,
+  isTrustedProxyAddress,
+  resolveClientIp,
+} from "../../net.js";
+>>>>>>> f14ebd743 (refactor(security): unify local-host and tailnet CIDR checks)
 import { resolveNodeCommandAllowlist } from "../../node-command-policy.js";
 import {
   type ConnectParams,
@@ -225,11 +234,16 @@ export function attachGatewayWsMessageHandler(params: {
   const hasProxyHeaders = Boolean(forwardedFor || realIp);
   const remoteIsTrustedProxy = isTrustedProxyAddress(remoteAddr, trustedProxies);
   const hasUntrustedProxyHeaders = hasProxyHeaders && !remoteIsTrustedProxy;
+<<<<<<< HEAD
   const hostName = resolveHostName(requestHost);
   const hostIsLocal = hostName === "localhost" || hostName === "127.0.0.1" || hostName === "::1";
   const hostIsTailscaleServe = hostName.endsWith(".ts.net");
   const hostIsLocalish = hostIsLocal || hostIsTailscaleServe;
   const isLocalClient = isLocalDirectRequest(upgradeReq, trustedProxies);
+=======
+  const hostIsLocalish = isLocalishHost(requestHost);
+  const isLocalClient = isLocalDirectRequest(upgradeReq, trustedProxies, allowRealIpFallback);
+>>>>>>> f14ebd743 (refactor(security): unify local-host and tailnet CIDR checks)
   const reportedClientIp =
     isLocalClient || hasUntrustedProxyHeaders
       ? undefined
