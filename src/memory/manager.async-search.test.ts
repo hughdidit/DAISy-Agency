@@ -9,6 +9,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { OpenClawConfig } from "../config/config.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 7b31e8fc5 (chore: Fix types in tests 36/N.)
 import { getMemorySearchManager, type MemoryIndexManager } from "./index.js";
 =======
@@ -17,6 +18,9 @@ import type { MemoryIndexManager } from "./index.js";
 =======
 import { getMemorySearchManager, type MemoryIndexManager } from "./index.js";
 >>>>>>> be756b9a8 (Memory: fix async sync close race)
+=======
+import type { MemoryIndexManager } from "./index.js";
+>>>>>>> 572daed45 (test: trim duplicate async-search status reopen check)
 import { createOpenAIEmbeddingProviderMock } from "./test-embeddings-mock.js";
 import { createMemoryManagerOrThrow } from "./test-manager.js";
 
@@ -121,15 +125,5 @@ describe("memory search async sync", () => {
     releaseSync();
     await closePromise;
     manager = null;
-
-    const reopened = await getMemorySearchManager({ cfg, agentId: "main", purpose: "status" });
-    expect(reopened.manager).not.toBeNull();
-    if (!reopened.manager) {
-      throw new Error("reopened manager missing");
-    }
-    const status = reopened.manager.status();
-    expect(status.files).toBeGreaterThan(0);
-    expect(status.dirty).toBe(false);
-    await reopened.manager.close?.();
   });
 });
