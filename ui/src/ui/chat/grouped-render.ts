@@ -4,6 +4,10 @@ import type { AssistantIdentity } from "../assistant-identity.ts";
 import type { MessageGroup } from "../types/chat-types.ts";
 import { toSanitizedMarkdownHtml } from "../markdown.ts";
 import { detectTextDirection } from "../text-direction.ts";
+<<<<<<< HEAD
+=======
+import type { MessageGroup, ToolCard } from "../types/chat-types.ts";
+>>>>>>> 26ab93f0e (revert(ui): remove recent UI dashboard/theme commits from main)
 import { renderCopyAsMarkdownButton } from "./copy-as-markdown.ts";
 import {
   extractTextCached,
@@ -111,6 +115,10 @@ export function renderMessageGroup(
     showReasoning: boolean;
     assistantName?: string;
     assistantAvatar?: string | null;
+<<<<<<< HEAD
+=======
+    onDelete?: () => void;
+>>>>>>> 26ab93f0e (revert(ui): remove recent UI dashboard/theme commits from main)
   },
 ) {
   const normalizedRole = normalizeRoleForGrouping(group.role);

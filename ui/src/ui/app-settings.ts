@@ -273,6 +273,7 @@ export function applyResolvedTheme(host: SettingsHost, resolved: ResolvedTheme) 
   }
   const root = document.documentElement;
   root.dataset.theme = resolved;
+<<<<<<< HEAD
   root.style.colorScheme = resolved;
 }
 
@@ -311,6 +312,9 @@ export function detachThemeListener(host: SettingsHost) {
   legacy.removeListener(host.themeMediaHandler);
   host.themeMedia = null;
   host.themeMediaHandler = null;
+=======
+  root.style.colorScheme = "dark";
+>>>>>>> 26ab93f0e (revert(ui): remove recent UI dashboard/theme commits from main)
 }
 
 export function syncTabWithLocation(host: SettingsHost, replace: boolean) {

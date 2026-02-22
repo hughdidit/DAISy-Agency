@@ -117,7 +117,11 @@ export function renderChatControls(state: AppViewState) {
             sessionOptions,
             (entry) => entry.key,
             (entry) =>
+<<<<<<< HEAD
               html`<option value=${entry.key}>
+=======
+              html`<option value=${entry.key} title=${entry.key}>
+>>>>>>> 26ab93f0e (revert(ui): remove recent UI dashboard/theme commits from main)
                 ${entry.displayName ?? entry.key}
               </option>`,
           )}
@@ -276,10 +280,25 @@ function resolveSessionOptions(
   return options;
 }
 
+<<<<<<< HEAD
 const THEME_ORDER: ThemeMode[] = ["system", "light", "dark"];
 
 export function renderThemeToggle(state: AppViewState) {
   const index = Math.max(0, THEME_ORDER.indexOf(state.theme));
+=======
+type ThemeOption = { id: ThemeMode; label: string; iconKey: keyof typeof icons };
+const THEME_OPTIONS: ThemeOption[] = [
+  { id: "dark", label: "Dark", iconKey: "monitor" },
+  { id: "light", label: "Light", iconKey: "book" },
+  { id: "openknot", label: "Knot", iconKey: "zap" },
+  { id: "fieldmanual", label: "Field", iconKey: "terminal" },
+  { id: "openai", label: "Ember", iconKey: "loader" },
+  { id: "clawdash", label: "Chrome", iconKey: "settings" },
+];
+
+export function renderThemeToggle(state: AppViewState) {
+  const app = state as unknown as OpenClawApp;
+>>>>>>> 26ab93f0e (revert(ui): remove recent UI dashboard/theme commits from main)
   const applyTheme = (next: ThemeMode) => (event: MouseEvent) => {
     const element = event.currentTarget as HTMLElement;
     const context: ThemeTransitionContext = { element };
@@ -290,6 +309,7 @@ export function renderThemeToggle(state: AppViewState) {
     state.setTheme(next, context);
   };
 
+<<<<<<< HEAD
   return html`
     <div class="theme-toggle" style="--theme-index: ${index};">
       <div class="theme-toggle__track" role="group" aria-label="Theme">
@@ -359,5 +379,36 @@ function renderMonitorIcon() {
       <line x1="8" x2="16" y1="21" y2="21"></line>
       <line x1="12" x2="12" y1="17" y2="21"></line>
     </svg>
+=======
+  const handleCollapse = () => app.handleThemeToggleCollapse();
+
+  return html`
+    <div
+      class="theme-toggle"
+      @mouseleave=${handleCollapse}
+      @focusout=${(e: FocusEvent) => {
+        const toggle = e.currentTarget as HTMLElement;
+        requestAnimationFrame(() => {
+          if (!toggle.contains(document.activeElement)) {
+            handleCollapse();
+          }
+        });
+      }}
+    >
+      ${state.themeOrder.map((id) => {
+        const opt = THEME_OPTIONS.find((o) => o.id === id)!;
+        return html`
+          <button
+            class="theme-btn ${state.theme === id ? "active" : ""}"
+            @click=${applyTheme(id)}
+            aria-pressed=${state.theme === id}
+            title=${opt.label}
+          >
+            ${icons[opt.iconKey]}
+          </button>
+        `;
+      })}
+    </div>
+>>>>>>> 26ab93f0e (revert(ui): remove recent UI dashboard/theme commits from main)
   `;
 }

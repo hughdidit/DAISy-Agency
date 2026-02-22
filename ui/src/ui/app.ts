@@ -219,6 +219,7 @@ export class OpenClawApp extends LitElement {
   @state() agentSkillsError: string | null = null;
   @state() agentSkillsReport: SkillStatusReport | null = null;
   @state() agentSkillsAgentId: string | null = null;
+  @state() agentsSidebarFilter = "";
 
   @state() sessionsLoading = false;
   @state() sessionsResult: SessionsListResult | null = null;
@@ -419,6 +420,12 @@ export class OpenClawApp extends LitElement {
 
   setTheme(next: ThemeMode, context?: Parameters<typeof setThemeInternal>[2]) {
     setThemeInternal(this as unknown as Parameters<typeof setThemeInternal>[0], next, context);
+  }
+
+  handleThemeToggleCollapse() {
+    setTimeout(() => {
+      this.themeOrder = this.buildThemeOrder(this.theme);
+    }, 80);
   }
 
   async loadOverview() {

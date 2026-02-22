@@ -7,6 +7,7 @@ describe("formatAgo", () => {
   });
 
   it("returns 'Xm from now' for future timestamps", () => {
+<<<<<<< HEAD
     expect(formatRelativeTimestamp(Date.now() + 5 * 60_000)).toBe("5m from now");
   });
 
@@ -20,6 +21,21 @@ describe("formatAgo", () => {
 
   it("returns 'Xs ago' for recent past timestamps", () => {
     expect(formatRelativeTimestamp(Date.now() - 10_000)).toBe("10s ago");
+=======
+    expect(formatRelativeTimestamp(Date.now() + 5 * 60_000)).toBe("in 5m");
+  });
+
+  it("returns 'Xh from now' for future timestamps", () => {
+    expect(formatRelativeTimestamp(Date.now() + 3 * 60 * 60_000)).toBe("in 3h");
+  });
+
+  it("returns 'Xd from now' for future timestamps beyond 48h", () => {
+    expect(formatRelativeTimestamp(Date.now() + 3 * 24 * 60 * 60_000)).toBe("in 3d");
+  });
+
+  it("returns 'Xs ago' for recent past timestamps", () => {
+    expect(formatRelativeTimestamp(Date.now() - 10_000)).toBe("just now");
+>>>>>>> 26ab93f0e (revert(ui): remove recent UI dashboard/theme commits from main)
   });
 
   it("returns 'Xm ago' for past timestamps", () => {
