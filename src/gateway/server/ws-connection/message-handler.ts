@@ -25,12 +25,28 @@ import { upsertPresence } from "../../../infra/system-presence.js";
 import { loadVoiceWakeConfig } from "../../../infra/voicewake.js";
 import { rawDataToString } from "../../../infra/ws.js";
 import { isGatewayCliClient, isWebchatClient } from "../../../utils/message-channel.js";
+<<<<<<< HEAD
 import { authorizeGatewayConnect, isLocalDirectRequest } from "../../auth.js";
+=======
+import { resolveRuntimeServiceVersion } from "../../../version.js";
+import type { AuthRateLimiter } from "../../auth-rate-limit.js";
+import type { GatewayAuthResult, ResolvedGatewayAuth } from "../../auth.js";
+import { isLocalDirectRequest } from "../../auth.js";
+import {
+  buildCanvasScopedHostUrl,
+  CANVAS_CAPABILITY_TTL_MS,
+  mintCanvasCapabilityToken,
+} from "../../canvas-capability.js";
+>>>>>>> bbdfba569 (fix: harden connect auth flow and exec policy diagnostics)
 import { buildDeviceAuthPayload } from "../../device-auth.js";
 import { isLoopbackAddress, isTrustedProxyAddress, resolveGatewayClientIp } from "../../net.js";
 import { resolveNodeCommandAllowlist } from "../../node-command-policy.js";
 import { checkBrowserOrigin } from "../../origin-check.js";
 import { GATEWAY_CLIENT_IDS } from "../../protocol/client-info.js";
+import {
+  ConnectErrorDetailCodes,
+  resolveAuthConnectErrorDetailCode,
+} from "../../protocol/connect-error-details.js";
 import {
   type ConnectParams,
   ErrorCodes,
@@ -53,6 +69,17 @@ import {
   incrementPresenceVersion,
   refreshGatewayHealthSnapshot,
 } from "../health-state.js";
+<<<<<<< HEAD
+=======
+import type { GatewayWsClient } from "../ws-types.js";
+import { resolveConnectAuthDecision, resolveConnectAuthState } from "./auth-context.js";
+import { formatGatewayAuthFailureMessage, type AuthProvidedKind } from "./auth-messages.js";
+import {
+  evaluateMissingDeviceIdentity,
+  resolveControlUiAuthPolicy,
+  shouldSkipControlUiPairing,
+} from "./connect-policy.js";
+>>>>>>> bbdfba569 (fix: harden connect auth flow and exec policy diagnostics)
 
 type SubsystemLogger = ReturnType<typeof createSubsystemLogger>;
 
@@ -448,6 +475,7 @@ export function attachGatewayWsMessageHandler(params: {
             reason: authResult.reason,
             client: connectParams.client,
           });
+<<<<<<< HEAD
           setCloseCause("unauthorized", {
             authMode: resolvedAuth.mode,
             authProvided,
@@ -463,6 +491,13 @@ export function attachGatewayWsMessageHandler(params: {
             id: frame.id,
             ok: false,
             error: errorShape(ErrorCodes.INVALID_REQUEST, authMessage),
+=======
+          sendHandshakeErrorResponse(ErrorCodes.INVALID_REQUEST, authMessage, {
+            details: {
+              code: resolveAuthConnectErrorDetailCode(failedAuth.reason),
+              authReason: failedAuth.reason,
+            },
+>>>>>>> bbdfba569 (fix: harden connect auth flow and exec policy diagnostics)
           });
           close(1008, truncateCloseReason(authMessage));
         };
@@ -489,8 +524,14 @@ export function attachGatewayWsMessageHandler(params: {
             markHandshakeFailure("control-ui-insecure-auth", {
               insecureAuthConfigured: allowInsecureControlUi,
             });
+<<<<<<< HEAD
             sendHandshakeErrorResponse(ErrorCodes.INVALID_REQUEST, errorMessage);
 >>>>>>> 40a292619 (fix: Control UI Insecure Auth Bypass Allows Token-Only Auth Over HTTP (#20684))
+=======
+            sendHandshakeErrorResponse(ErrorCodes.INVALID_REQUEST, errorMessage, {
+              details: { code: ConnectErrorDetailCodes.CONTROL_UI_DEVICE_IDENTITY_REQUIRED },
+            });
+>>>>>>> bbdfba569 (fix: harden connect auth flow and exec policy diagnostics)
             close(1008, errorMessage);
             return;
           }
@@ -517,6 +558,19 @@ export function attachGatewayWsMessageHandler(params: {
             close(1008, "device identity required");
             return;
           }
+<<<<<<< HEAD
+=======
+
+          markHandshakeFailure("device-required");
+          sendHandshakeErrorResponse(ErrorCodes.NOT_PAIRED, "device identity required", {
+            details: { code: ConnectErrorDetailCodes.DEVICE_IDENTITY_REQUIRED },
+          });
+          close(1008, "device identity required");
+          return false;
+        };
+        if (!handleMissingDeviceIdentity()) {
+          return;
+>>>>>>> bbdfba569 (fix: harden connect auth flow and exec policy diagnostics)
         }
         if (device) {
           const derivedId = deriveDeviceIdFromPublicKey(device.publicKey);
@@ -531,7 +585,16 @@ export function attachGatewayWsMessageHandler(params: {
               type: "res",
               id: frame.id,
               ok: false,
+<<<<<<< HEAD
               error: errorShape(ErrorCodes.INVALID_REQUEST, "device identity mismatch"),
+=======
+              error: errorShape(ErrorCodes.INVALID_REQUEST, message, {
+                details: {
+                  code: ConnectErrorDetailCodes.DEVICE_AUTH_INVALID,
+                  reason,
+                },
+              }),
+>>>>>>> bbdfba569 (fix: harden connect auth flow and exec policy diagnostics)
             });
             close(1008, "device identity mismatch");
             return;
@@ -667,6 +730,7 @@ export function attachGatewayWsMessageHandler(params: {
           }
         }
 
+<<<<<<< HEAD
         if (!authOk && connectParams.auth?.token && device) {
           const tokenCheck = await verifyDeviceToken({
             deviceId: device.id,
@@ -679,6 +743,26 @@ export function attachGatewayWsMessageHandler(params: {
             authMethod = "device-token";
           }
         }
+=======
+        ({ authResult, authOk, authMethod } = await resolveConnectAuthDecision({
+          state: {
+            authResult,
+            authOk,
+            authMethod,
+            sharedAuthOk,
+            sharedAuthProvided: hasSharedAuth,
+            deviceTokenCandidate,
+            deviceTokenCandidateSource,
+          },
+          hasDeviceIdentity: Boolean(device),
+          deviceId: device?.id,
+          role,
+          scopes,
+          rateLimiter,
+          clientIp,
+          verifyDeviceToken,
+        }));
+>>>>>>> bbdfba569 (fix: harden connect auth flow and exec policy diagnostics)
         if (!authOk) {
           rejectUnauthorized();
           return;
@@ -732,7 +816,11 @@ export function attachGatewayWsMessageHandler(params: {
                 id: frame.id,
                 ok: false,
                 error: errorShape(ErrorCodes.NOT_PAIRED, "pairing required", {
-                  details: { requestId: pairing.request.requestId },
+                  details: {
+                    code: ConnectErrorDetailCodes.PAIRING_REQUIRED,
+                    requestId: pairing.request.requestId,
+                    reason,
+                  },
                 }),
               });
               close(1008, "pairing required");
