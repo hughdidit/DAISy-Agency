@@ -64,6 +64,7 @@ Docs: https://docs.openclaw.ai
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 =======
@@ -86,6 +87,9 @@ Docs: https://docs.openclaw.ai
 =======
 =======
 =======
+=======
+- Gateway/Chat UI: strip inline reply/audio directive tags from non-streaming final webchat broadcasts (including `chat.inject`) while preserving empty-string message content when tags are the entire reply. (#23298) Thanks @SidQin-cyber.
+>>>>>>> 5c57a45a5 (fix: add non-streaming directive-tag regression tests (#23298) (thanks @SidQin-cyber))
 - Gateway/Restart: fix restart-loop edge cases by keeping `openclaw.mjs -> dist/entry.js` bootstrap detection explicit, reacquiring the gateway lock for in-process restart fallback paths, and tightening restart-loop regression coverage. (#23416) Thanks @jeffwnli.
 <<<<<<< HEAD
 <<<<<<< HEAD
