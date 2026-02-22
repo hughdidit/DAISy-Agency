@@ -589,6 +589,8 @@ export async function runEmbeddedPiAgent(
 >>>>>>> 6268ed57e (fix(agents): stop param shadowing in auth failure marker)
         profileId?: string;
         reason?: Parameters<typeof markAuthProfileFailure>[0]["reason"] | null;
+        config?: RunEmbeddedPiAgentParams["config"];
+        agentDir?: RunEmbeddedPiAgentParams["agentDir"];
       }) => {
         const { profileId, reason } = failure;
         if (!profileId || !reason || reason === "timeout") {
