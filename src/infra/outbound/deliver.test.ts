@@ -108,19 +108,23 @@ describe("deliverOutboundPayloads", () => {
   beforeEach(() => {
     setActivePluginRegistry(defaultRegistry);
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
     hookMocks.runner.hasHooks.mockReset();
+=======
+    hookMocks.runner.hasHooks.mockClear();
+>>>>>>> b3c5b532a (test(outbound): replace setup mock resets with clears)
     hookMocks.runner.hasHooks.mockReturnValue(false);
-    hookMocks.runner.runMessageSent.mockReset();
+    hookMocks.runner.runMessageSent.mockClear();
     hookMocks.runner.runMessageSent.mockResolvedValue(undefined);
-    internalHookMocks.createInternalHookEvent.mockReset();
+    internalHookMocks.createInternalHookEvent.mockClear();
     internalHookMocks.createInternalHookEvent.mockImplementation(createInternalHookEventPayload);
     internalHookMocks.triggerInternalHook.mockClear();
-    queueMocks.enqueueDelivery.mockReset();
+    queueMocks.enqueueDelivery.mockClear();
     queueMocks.enqueueDelivery.mockResolvedValue("mock-queue-id");
-    queueMocks.ackDelivery.mockReset();
+    queueMocks.ackDelivery.mockClear();
     queueMocks.ackDelivery.mockResolvedValue(undefined);
-    queueMocks.failDelivery.mockReset();
+    queueMocks.failDelivery.mockClear();
     queueMocks.failDelivery.mockResolvedValue(undefined);
 >>>>>>> f07bb8e8f (fix(hooks): backport internal message hook bridge with safe delivery semantics)
   });
