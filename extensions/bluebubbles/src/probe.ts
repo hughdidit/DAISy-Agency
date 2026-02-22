@@ -86,6 +86,29 @@ export function getCachedBlueBubblesServerInfo(accountId?: string): BlueBubblesS
 }
 
 /**
+<<<<<<< HEAD
+=======
+ * Read cached private API capability for a BlueBubbles account.
+ * Returns null when capability is unknown (for example, before first probe).
+ */
+export function getCachedBlueBubblesPrivateApiStatus(accountId?: string): boolean | null {
+  const info = getCachedBlueBubblesServerInfo(accountId);
+  if (!info || typeof info.private_api !== "boolean") {
+    return null;
+  }
+  return info.private_api;
+}
+
+export function isBlueBubblesPrivateApiStatusEnabled(status: boolean | null): boolean {
+  return status === true;
+}
+
+export function isBlueBubblesPrivateApiEnabled(accountId?: string): boolean {
+  return isBlueBubblesPrivateApiStatusEnabled(getCachedBlueBubblesPrivateApiStatus(accountId));
+}
+
+/**
+>>>>>>> 296b3f49e (refactor(bluebubbles): centralize private-api status handling)
  * Parse macOS version string (e.g., "15.0.1" or "26.0") into major version number.
  */
 export function parseMacOSMajorVersion(version?: string | null): number | null {

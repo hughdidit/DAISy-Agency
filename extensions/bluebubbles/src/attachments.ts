@@ -28,6 +28,7 @@ import type { OpenClawConfig } from "openclaw/plugin-sdk";
 import { resolveBlueBubblesServerAccount } from "./account-resolve.js";
 >>>>>>> 544ffbcf7 (refactor(extensions): dedupe connector helper usage)
 import { postMultipartFormData } from "./multipart.js";
+<<<<<<< HEAD
 >>>>>>> 719280d73 (refactor(bluebubbles): share multipart helpers)
 import { getCachedBlueBubblesPrivateApiStatus } from "./probe.js";
 <<<<<<< HEAD
@@ -35,6 +36,14 @@ import { getCachedBlueBubblesPrivateApiStatus } from "./probe.js";
 import { resolveRequestUrl } from "./request-url.js";
 import { getBlueBubblesRuntime } from "./runtime.js";
 >>>>>>> 61dc7ac67 (refactor(msteams,bluebubbles): dedupe inbound media download helpers)
+=======
+import {
+  getCachedBlueBubblesPrivateApiStatus,
+  isBlueBubblesPrivateApiStatusEnabled,
+} from "./probe.js";
+import { resolveRequestUrl } from "./request-url.js";
+import { getBlueBubblesRuntime, warnBlueBubbles } from "./runtime.js";
+>>>>>>> 296b3f49e (refactor(bluebubbles): centralize private-api status handling)
 import { extractBlueBubblesMessageId, resolveBlueBubblesSendTarget } from "./send-helpers.js";
 >>>>>>> 811e0c579 (refactor(bluebubbles): share send helpers)
 import { resolveChatGuidForTarget } from "./send.js";
@@ -202,7 +211,13 @@ export async function sendBlueBubblesAttachment(params: {
   const fallbackName = wantsVoice ? "Audio Message" : "attachment";
   filename = sanitizeFilename(filename, fallbackName);
   contentType = contentType?.trim() || undefined;
+<<<<<<< HEAD
   const { baseUrl, password } = resolveAccount(opts);
+=======
+  const { baseUrl, password, accountId } = resolveAccount(opts);
+  const privateApiStatus = getCachedBlueBubblesPrivateApiStatus(accountId);
+  const privateApiEnabled = isBlueBubblesPrivateApiStatusEnabled(privateApiStatus);
+>>>>>>> 296b3f49e (refactor(bluebubbles): centralize private-api status handling)
 
   // Validate voice memo format when requested (BlueBubbles converts MP3 -> CAF when isAudioMessage).
   const isAudioMessage = wantsVoice;
@@ -272,9 +287,13 @@ export async function sendBlueBubblesAttachment(params: {
   addField("name", filename);
   addField("tempGuid", `temp-${Date.now()}-${crypto.randomUUID().slice(0, 8)}`);
 <<<<<<< HEAD
+<<<<<<< HEAD
   addField("method", "private-api");
 =======
   if (privateApiStatus === true) {
+=======
+  if (privateApiEnabled) {
+>>>>>>> 296b3f49e (refactor(bluebubbles): centralize private-api status handling)
     addField("method", "private-api");
   }
 >>>>>>> 888b6bc94 (fix(bluebubbles): treat null privateApiStatus as disabled, not enabled)
@@ -286,12 +305,20 @@ export async function sendBlueBubblesAttachment(params: {
 
   const trimmedReplyTo = replyToMessageGuid?.trim();
 <<<<<<< HEAD
+<<<<<<< HEAD
   if (trimmedReplyTo) {
 =======
   if (trimmedReplyTo && privateApiStatus === true) {
 >>>>>>> 888b6bc94 (fix(bluebubbles): treat null privateApiStatus as disabled, not enabled)
+=======
+  if (trimmedReplyTo && privateApiEnabled) {
+>>>>>>> 296b3f49e (refactor(bluebubbles): centralize private-api status handling)
     addField("selectedMessageGuid", trimmedReplyTo);
     addField("partIndex", typeof replyToPartIndex === "number" ? String(replyToPartIndex) : "0");
+  } else if (trimmedReplyTo && privateApiStatus === null) {
+    warnBlueBubbles(
+      "Private API status unknown; sending attachment without reply threading metadata. Run a status probe to restore private-api reply features.",
+    );
   }
 
   // Add optional caption
