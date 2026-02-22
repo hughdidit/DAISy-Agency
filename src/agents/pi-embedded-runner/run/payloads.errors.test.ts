@@ -135,20 +135,23 @@ describe("buildEmbeddedRunPayloads", () => {
   });
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   it("adds tool error fallback when the assistant only invoked tools", () => {
 =======
   it("adds completion fallback when tools run successfully without final assistant text", () => {
+=======
+  it("does not add synthetic completion text when tools run without final assistant text", () => {
+>>>>>>> f79e3d5f0 (fix(agents): remove synthetic done fallback reply)
     const payloads = buildPayloads({
       sessionKey: "agent:main:discord:direct:u123",
       toolMetas: [{ toolName: "write", meta: "/tmp/out.md" }],
       lastAssistant: makeStoppedAssistant(),
     });
 
-    expectSinglePayloadText(payloads, "✅ Done.");
-    expect(payloads[0]?.isError).toBeUndefined();
+    expect(payloads).toHaveLength(0);
   });
 
-  it("does not add completion fallback for channel sessions", () => {
+  it("does not add synthetic completion text for channel sessions", () => {
     const payloads = buildPayloads({
       sessionKey: "agent:main:discord:channel:c123",
       toolMetas: [{ toolName: "write", meta: "/tmp/out.md" }],
@@ -162,7 +165,7 @@ describe("buildEmbeddedRunPayloads", () => {
     expect(payloads).toHaveLength(0);
   });
 
-  it("does not add completion fallback for group sessions", () => {
+  it("does not add synthetic completion text for group sessions", () => {
     const payloads = buildPayloads({
       sessionKey: "agent:main:telegram:group:g123",
       toolMetas: [{ toolName: "write", meta: "/tmp/out.md" }],
@@ -176,7 +179,7 @@ describe("buildEmbeddedRunPayloads", () => {
     expect(payloads).toHaveLength(0);
   });
 
-  it("does not add completion fallback when messaging tool already delivered output", () => {
+  it("does not add synthetic completion text when messaging tool already delivered output", () => {
     const payloads = buildPayloads({
       sessionKey: "agent:main:discord:direct:u123",
       toolMetas: [{ toolName: "message_send", meta: "sent to #ops" }],
@@ -191,7 +194,7 @@ describe("buildEmbeddedRunPayloads", () => {
     expect(payloads).toHaveLength(0);
   });
 
-  it("does not add completion fallback when the run still has a tool error", () => {
+  it("does not add synthetic completion text when the run still has a tool error", () => {
     const payloads = buildPayloads({
       toolMetas: [{ toolName: "browser", meta: "open https://example.com" }],
       lastToolError: { toolName: "browser", error: "url required" },
@@ -200,7 +203,7 @@ describe("buildEmbeddedRunPayloads", () => {
     expect(payloads).toHaveLength(0);
   });
 
-  it("does not add completion fallback when no tools ran", () => {
+  it("does not add synthetic completion text when no tools ran", () => {
     const payloads = buildPayloads({
       lastAssistant: makeStoppedAssistant(),
     });
