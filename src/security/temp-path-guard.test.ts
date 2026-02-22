@@ -125,7 +125,7 @@ describe("temp path guard", () => {
         if (shouldSkip(relativePath)) {
           continue;
         }
-        const source = await fs.readFile(file, "utf-8");
+        const source = await fs.readFile(file, "utf8");
         if (hasDynamicTmpdirJoin(source, relativePath)) {
           offenders.push(relativePath);
         }
