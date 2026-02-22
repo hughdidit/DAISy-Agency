@@ -32,7 +32,11 @@ Shelley, [exe.dev](https://exe.dev)'s agent, can install Moltbot instantly with 
 prompt. The prompt used is as below:
 
 ```
+<<<<<<< HEAD
 Set up Moltbot (https://docs.molt.bot/install) on this VM. Use the non-interactive and accept-risk flags for moltbot onboarding. Add the supplied auth or token as needed. Configure nginx to forward from the default port 18789 to the root location on the default enabled site config, making sure to enable Websocket support. Pairing is done by "moltbot devices list" and "moltbot device approve <request id>". Make sure the dashboard shows that Moltbot's health is OK. exe.dev handles forwarding from port 8000 to port 80/443 and HTTPS for us, so the final "reachable" should be <vm-name>.exe.xyz, without port specification.
+=======
+Set up OpenClaw (https://docs.openclaw.ai/install) on this VM. Use the non-interactive and accept-risk flags for openclaw onboarding. Add the supplied auth or token as needed. Configure nginx to forward from the default port 18789 to the root location on the default enabled site config, making sure to enable Websocket support. Pairing is done by "openclaw devices list" and "openclaw devices approve <request id>". Make sure the dashboard shows that OpenClaw's health is OK. exe.dev handles forwarding from port 8000 to port 80/443 and HTTPS for us, so the final "reachable" should be <vm-name>.exe.xyz, without port specification.
+>>>>>>> 0d4c80640 (docs: fix devices approve command in exe.dev guide)
 ```
 
 ## Manual installation
