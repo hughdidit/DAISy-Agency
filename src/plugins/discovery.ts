@@ -223,6 +223,23 @@ function isExtensionFile(filePath: string): boolean {
   return !filePath.endsWith(".d.ts");
 }
 
+function shouldIgnoreScannedDirectory(dirName: string): boolean {
+  const normalized = dirName.trim().toLowerCase();
+  if (!normalized) {
+    return true;
+  }
+  if (normalized.endsWith(".bak")) {
+    return true;
+  }
+  if (normalized.includes(".backup-")) {
+    return true;
+  }
+  if (normalized.includes(".disabled")) {
+    return true;
+  }
+  return false;
+}
+
 function readPackageManifest(dir: string): PackageManifest | null {
   const manifestPath = path.join(dir, "package.json");
   if (!fs.existsSync(manifestPath)) {
@@ -355,6 +372,9 @@ function discoverInDirectory(params: {
       });
     }
     if (!entry.isDirectory()) {
+      continue;
+    }
+    if (shouldIgnoreScannedDirectory(entry.name)) {
       continue;
     }
 
