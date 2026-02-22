@@ -49,6 +49,7 @@ import { buildBatchHeaders, normalizeBatchBaseUrl } from "./batch-utils.js";
 >>>>>>> 9bfd3ca19 (refactor(memory): consolidate embeddings and batch helpers)
 =======
 import type { OpenAiEmbeddingClient } from "./embeddings-openai.js";
+<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
@@ -60,6 +61,9 @@ import type { OpenAiEmbeddingClient } from "./embeddings-openai.js";
 =======
 import type { OpenAiEmbeddingClient } from "./embeddings-openai.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
+=======
+import { withRemoteHttpResponse } from "./remote-http.js";
+>>>>>>> eb041daee (fix(memory): route batch APIs through guarded remote HTTP)
 
 export type OpenAiBatchRequest = {
   custom_id: string;
@@ -144,6 +148,7 @@ async function submitOpenAiBatch(params: {
   return await postJsonWithRetry<OpenAiBatchStatus>({
     url: `${baseUrl}/batches`,
     headers: buildBatchHeaders(params.openAi, { json: true }),
+    ssrfPolicy: params.openAi.ssrfPolicy,
     body: {
       input_file_id: inputFileId,
       endpoint: OPENAI_BATCH_ENDPOINT,
@@ -163,14 +168,20 @@ async function fetchOpenAiBatchStatus(params: {
   batchId: string;
 }): Promise<OpenAiBatchStatus> {
   const baseUrl = normalizeBatchBaseUrl(params.openAi);
-  const res = await fetch(`${baseUrl}/batches/${params.batchId}`, {
-    headers: buildBatchHeaders(params.openAi, { json: true }),
+  return await withRemoteHttpResponse({
+    url: `${baseUrl}/batches/${params.batchId}`,
+    ssrfPolicy: params.openAi.ssrfPolicy,
+    init: {
+      headers: buildBatchHeaders(params.openAi, { json: true }),
+    },
+    onResponse: async (res) => {
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(`openai batch status failed: ${res.status} ${text}`);
+      }
+      return (await res.json()) as OpenAiBatchStatus;
+    },
   });
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(`openai batch status failed: ${res.status} ${text}`);
-  }
-  return (await res.json()) as OpenAiBatchStatus;
 }
 
 async function fetchOpenAiFileContent(params: {
@@ -178,14 +189,20 @@ async function fetchOpenAiFileContent(params: {
   fileId: string;
 }): Promise<string> {
   const baseUrl = normalizeBatchBaseUrl(params.openAi);
-  const res = await fetch(`${baseUrl}/files/${params.fileId}/content`, {
-    headers: buildBatchHeaders(params.openAi, { json: true }),
+  return await withRemoteHttpResponse({
+    url: `${baseUrl}/files/${params.fileId}/content`,
+    ssrfPolicy: params.openAi.ssrfPolicy,
+    init: {
+      headers: buildBatchHeaders(params.openAi, { json: true }),
+    },
+    onResponse: async (res) => {
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(`openai batch file content failed: ${res.status} ${text}`);
+      }
+      return await res.text();
+    },
   });
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(`openai batch file content failed: ${res.status} ${text}`);
-  }
-  return await res.text();
 }
 
 function parseOpenAiBatchOutput(text: string): OpenAiBatchOutputLine[] {
