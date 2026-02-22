@@ -128,7 +128,7 @@ describe("OpenAI-compatible HTTP API (e2e)", () => {
   it("handles request validation and routing", async () => {
     const port = enabledPort;
     const mockAgentOnce = (payloads: Array<{ text: string }>) => {
-      agentCommand.mockReset();
+      agentCommand.mockClear();
       agentCommand.mockResolvedValueOnce({ payloads } as never);
     };
     const expectAgentSessionKeyMatch = async (request: {
@@ -467,7 +467,7 @@ describe("OpenAI-compatible HTTP API (e2e)", () => {
     const port = enabledPort;
     try {
       {
-        agentCommand.mockReset();
+        agentCommand.mockClear();
         agentCommand.mockImplementationOnce((async (opts: unknown) =>
           buildAssistantDeltaResult({
             opts,
@@ -501,7 +501,7 @@ describe("OpenAI-compatible HTTP API (e2e)", () => {
       }
 
       {
-        agentCommand.mockReset();
+        agentCommand.mockClear();
         agentCommand.mockImplementationOnce((async (opts: unknown) =>
           buildAssistantDeltaResult({
             opts,
@@ -530,7 +530,7 @@ describe("OpenAI-compatible HTTP API (e2e)", () => {
       }
 
       {
-        agentCommand.mockReset();
+        agentCommand.mockClear();
         agentCommand.mockResolvedValueOnce({
           payloads: [{ text: "hello" }],
         } as never);
