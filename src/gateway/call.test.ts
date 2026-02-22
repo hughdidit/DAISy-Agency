@@ -72,10 +72,10 @@ vi.mock("./client.js", () => ({
 const { buildGatewayConnectionDetails, callGateway } = await import("./call.js");
 
 function resetGatewayCallMocks() {
-  loadConfig.mockReset();
-  resolveGatewayPort.mockReset();
-  pickPrimaryTailnetIPv4.mockReset();
-  pickPrimaryLanIPv4.mockReset();
+  loadConfig.mockClear();
+  resolveGatewayPort.mockClear();
+  pickPrimaryTailnetIPv4.mockClear();
+  pickPrimaryLanIPv4.mockClear();
   lastClientOptions = null;
   startMode = "hello";
   closeCode = 1006;
@@ -127,6 +127,7 @@ describe("callGateway url resolution", () => {
   });
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   it("uses tailnet IP when local bind is tailnet and tailnet is present", async () => {
 =======
   it("uses loopback with TLS when local bind is tailnet", async () => {
@@ -162,14 +163,53 @@ describe("callGateway url resolution", () => {
 
   it("uses loopback with TLS when bind is lan", async () => {
     loadConfig.mockReturnValue({
+=======
+  it.each([
+    {
+      label: "tailnet with TLS",
+      gateway: { mode: "local", bind: "tailnet", tls: { enabled: true } },
+      tailnetIp: "100.64.0.1",
+      lanIp: undefined,
+      expectedUrl: "wss://127.0.0.1:18800",
+    },
+    {
+      label: "tailnet without TLS",
+      gateway: { mode: "local", bind: "tailnet" },
+      tailnetIp: "100.64.0.1",
+      lanIp: undefined,
+      expectedUrl: "ws://127.0.0.1:18800",
+    },
+    {
+      label: "lan with TLS",
+>>>>>>> ba2790222 (test(gateway): dedupe loopback cases and trim setup resets)
       gateway: { mode: "local", bind: "lan", tls: { enabled: true } },
-    });
+      tailnetIp: undefined,
+      lanIp: "192.168.1.42",
+      expectedUrl: "wss://127.0.0.1:18800",
+    },
+    {
+      label: "lan without TLS",
+      gateway: { mode: "local", bind: "lan" },
+      tailnetIp: undefined,
+      lanIp: "192.168.1.42",
+      expectedUrl: "ws://127.0.0.1:18800",
+    },
+    {
+      label: "lan without discovered LAN IP",
+      gateway: { mode: "local", bind: "lan" },
+      tailnetIp: undefined,
+      lanIp: undefined,
+      expectedUrl: "ws://127.0.0.1:18800",
+    },
+  ])("uses loopback for $label", async ({ gateway, tailnetIp, lanIp, expectedUrl }) => {
+    loadConfig.mockReturnValue({ gateway });
     resolveGatewayPort.mockReturnValue(18800);
-    pickPrimaryTailnetIPv4.mockReturnValue(undefined);
-    pickPrimaryLanIPv4.mockReturnValue("192.168.1.42");
+    pickPrimaryTailnetIPv4.mockReturnValue(tailnetIp);
+    pickPrimaryLanIPv4.mockReturnValue(lanIp);
 
     await callGateway({ method: "health" });
 
+<<<<<<< HEAD
     expect(lastClientOptions?.url).toBe("wss://127.0.0.1:18800");
   });
 
@@ -198,6 +238,9 @@ describe("callGateway url resolution", () => {
     await callGateway({ method: "health" });
 
     expect(lastClientOptions?.url).toBe("ws://127.0.0.1:18800");
+=======
+    expect(lastClientOptions?.url).toBe(expectedUrl);
+>>>>>>> ba2790222 (test(gateway): dedupe loopback cases and trim setup resets)
   });
 
   it("uses url override in remote mode even when remote url is missing", async () => {
@@ -288,23 +331,38 @@ describe("buildGatewayConnectionDetails", () => {
   });
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   it("uses LAN IP and reports lan source when bind is lan", () => {
 =======
   it("uses loopback URL and loopback source when bind is lan", () => {
     loadConfig.mockReturnValue({
+=======
+  it.each([
+    {
+      label: "with TLS",
+>>>>>>> ba2790222 (test(gateway): dedupe loopback cases and trim setup resets)
       gateway: { mode: "local", bind: "lan", tls: { enabled: true } },
-    });
+      expectedUrl: "wss://127.0.0.1:18800",
+    },
+    {
+      label: "without TLS",
+      gateway: { mode: "local", bind: "lan" },
+      expectedUrl: "ws://127.0.0.1:18800",
+    },
+  ])("uses loopback URL for bind=lan $label", ({ gateway, expectedUrl }) => {
+    loadConfig.mockReturnValue({ gateway });
     resolveGatewayPort.mockReturnValue(18800);
     pickPrimaryTailnetIPv4.mockReturnValue(undefined);
     pickPrimaryLanIPv4.mockReturnValue("10.0.0.5");
 
     const details = buildGatewayConnectionDetails();
 
-    expect(details.url).toBe("wss://127.0.0.1:18800");
+    expect(details.url).toBe(expectedUrl);
     expect(details.urlSource).toBe("local loopback");
     expect(details.bindDetail).toBe("Bind: lan");
   });
 
+<<<<<<< HEAD
   it("uses loopback URL for bind=lan without TLS", () => {
 >>>>>>> 47f397975 (Gateway: force loopback self-connections for local binds)
     loadConfig.mockReturnValue({
@@ -326,6 +384,8 @@ describe("buildGatewayConnectionDetails", () => {
 >>>>>>> 47f397975 (Gateway: force loopback self-connections for local binds)
   });
 
+=======
+>>>>>>> ba2790222 (test(gateway): dedupe loopback cases and trim setup resets)
   it("prefers remote url when configured", () => {
     loadConfig.mockReturnValue({
       gateway: {
