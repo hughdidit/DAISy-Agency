@@ -51,6 +51,7 @@ import {
   startServerWithClient,
   testState,
   testTailnetIPv4,
+  trackConnectChallengeNonce,
 } from "./test-helpers.js";
 
 installGatewayTestHooks({ scope: "suite" });
@@ -355,6 +356,7 @@ describe("gateway server models + voicewake", () => {
     await withTempHome(async () => {
 >>>>>>> b43aadc34 (refactor(test): dedupe temp-home setup in voicewake suite)
       const nodeWs = new WebSocket(`ws://127.0.0.1:${port}`);
+      trackConnectChallengeNonce(nodeWs);
       await new Promise<void>((resolve) => nodeWs.once("open", resolve));
       const firstEventP = onceMessage(
         nodeWs,
@@ -591,7 +593,12 @@ describe("gateway server misc", () => {
             type: "req",
             id,
             method: "send",
-            params: { to: "+15550000000", message: "hi", idempotencyKey: idem },
+            params: {
+              to: "+15550000000",
+              channel: "whatsapp",
+              message: "hi",
+              idempotencyKey: idem,
+            },
           }),
         );
       sendReq("a1");
