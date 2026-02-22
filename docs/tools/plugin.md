@@ -330,21 +330,39 @@ Plugins export either:
 
 ## Plugin hooks
 
-Plugins can ship hooks and register them at runtime. This lets a plugin bundle
-event-driven automation without a separate hook pack install.
+Plugins can register hooks at runtime. This lets a plugin bundle event-driven
+automation without a separate hook pack install.
 
 ### Example
 
+<<<<<<< HEAD
 ```
 import { registerPluginHooksFromDir } from "moltbot/plugin-sdk";
 
+=======
+```ts
+>>>>>>> 121d02722 (chore: remove dead plugin hook loader)
 export default function register(api) {
-  registerPluginHooksFromDir(api, "./hooks");
+  api.registerHook(
+    "command:new",
+    async () => {
+      // Hook logic here.
+    },
+    {
+      name: "my-plugin.command-new",
+      description: "Runs when /new is invoked",
+    },
+  );
 }
 ```
 
 Notes:
+<<<<<<< HEAD
 - Hook directories follow the normal hook structure (`HOOK.md` + `handler.ts`).
+=======
+
+- Register hooks explicitly via `api.registerHook(...)`.
+>>>>>>> 121d02722 (chore: remove dead plugin hook loader)
 - Hook eligibility rules still apply (OS/bins/env/config requirements).
 - Plugin-managed hooks show up in `moltbot hooks list` with `plugin:<id>`.
 - You cannot enable/disable plugin-managed hooks via `moltbot hooks`; enable/disable the plugin instead.
