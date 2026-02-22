@@ -69,7 +69,12 @@ describe("cli credentials", () => {
 
   afterEach(() => {
     vi.useRealTimers();
+<<<<<<< HEAD:src/agents/cli-credentials.e2e.test.ts
     execSyncMock.mockReset();
+=======
+    execSyncMock.mockClear().mockImplementation(() => undefined);
+    execFileSyncMock.mockClear().mockImplementation(() => undefined);
+>>>>>>> cf570d3b4 (test(agents): avoid full mock resets in cli credential specs):src/agents/cli-credentials.test.ts
     delete process.env.CODEX_HOME;
     resetCliCredentialCachesForTest();
   });
