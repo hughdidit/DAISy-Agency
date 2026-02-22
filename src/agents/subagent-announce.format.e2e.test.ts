@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { SILENT_REPLY_TOKEN } from "../auto-reply/tokens.js";
 import {
   __testing as sessionBindingServiceTesting,
@@ -65,7 +65,7 @@ let configOverride: ReturnType<(typeof import("../config/config.js"))["loadConfi
 };
 const defaultOutcomeAnnounce = {
   task: "do thing",
-  timeoutMs: 1000,
+  timeoutMs: 10,
   cleanup: "keep" as const,
   waitForCompletion: false,
   startedAt: 10,
@@ -144,7 +144,22 @@ vi.mock("../config/config.js", async (importOriginal) => {
 });
 
 describe("subagent announce formatting", () => {
+  let previousFastTestEnv: string | undefined;
+
+  beforeAll(() => {
+    previousFastTestEnv = process.env.OPENCLAW_TEST_FAST;
+  });
+
+  afterAll(() => {
+    if (previousFastTestEnv === undefined) {
+      delete process.env.OPENCLAW_TEST_FAST;
+      return;
+    }
+    process.env.OPENCLAW_TEST_FAST = previousFastTestEnv;
+  });
+
   beforeEach(() => {
+<<<<<<< HEAD
 <<<<<<< HEAD
     agentSpy.mockClear();
 <<<<<<< HEAD
@@ -156,6 +171,9 @@ describe("subagent announce formatting", () => {
     sessionsDeleteSpy.mockClear();
 >>>>>>> 289f215b3 (fix(agents): make manual subagent completion announce deterministic)
 =======
+=======
+    vi.stubEnv("OPENCLAW_TEST_FAST", "1");
+>>>>>>> c3e13175d (perf(test): bypass queue debounce in fast mode and tighten announce defaults)
     agentSpy
       .mockClear()
       .mockImplementation(async (_req: AgentCallRequest) => ({ runId: "run-main", status: "ok" }));
