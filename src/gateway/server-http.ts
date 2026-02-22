@@ -58,7 +58,7 @@ import {
   extractHookToken,
   getHookAgentPolicyError,
   getHookChannelError,
-  type HookMessageChannel,
+  type HookAgentDispatchPayload,
   type HooksConfigResolved,
   isHookAgentAllowed,
   normalizeAgentPayload,
@@ -90,20 +90,7 @@ type SubsystemLogger = ReturnType<typeof createSubsystemLogger>;
 
 type HookDispatchers = {
   dispatchWakeHook: (value: { text: string; mode: "now" | "next-heartbeat" }) => void;
-  dispatchAgentHook: (value: {
-    message: string;
-    name: string;
-    agentId?: string;
-    wakeMode: "now" | "next-heartbeat";
-    sessionKey: string;
-    deliver: boolean;
-    channel: HookMessageChannel;
-    to?: string;
-    model?: string;
-    thinking?: string;
-    timeoutSeconds?: number;
-    allowUnsafeExternalContent?: boolean;
-  }) => string;
+  dispatchAgentHook: (value: HookAgentDispatchPayload) => string;
 };
 
 function sendJson(res: ServerResponse, status: number, body: unknown) {

@@ -7,7 +7,7 @@ import type { CronJob } from "../../cron/types.js";
 import { requestHeartbeatNow } from "../../infra/heartbeat-wake.js";
 import { enqueueSystemEvent } from "../../infra/system-events.js";
 import type { createSubsystemLogger } from "../../logging/subsystem.js";
-import type { HookMessageChannel, HooksConfigResolved } from "../hooks.js";
+import type { HookAgentDispatchPayload, HooksConfigResolved } from "../hooks.js";
 import { createHooksRequestHandler } from "../server-http.js";
 
 type SubsystemLogger = ReturnType<typeof createSubsystemLogger>;
@@ -29,6 +29,7 @@ export function createGatewayHooksRequestHandler(params: {
     }
   };
 
+<<<<<<< HEAD
   const dispatchAgentHook = (value: {
     message: string;
     name: string;
@@ -44,6 +45,10 @@ export function createGatewayHooksRequestHandler(params: {
     allowUnsafeExternalContent?: boolean;
   }) => {
     const sessionKey = value.sessionKey.trim() ? value.sessionKey.trim() : `hook:${randomUUID()}`;
+=======
+  const dispatchAgentHook = (value: HookAgentDispatchPayload) => {
+    const sessionKey = value.sessionKey.trim();
+>>>>>>> 2081b3a3c (refactor(channels): dedupe hook and monitor execution paths)
     const mainSessionKey = resolveMainSessionKeyFromConfig();
     const jobId = randomUUID();
     const now = Date.now();
