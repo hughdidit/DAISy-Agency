@@ -1,12 +1,34 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { vi } from "vitest";
 
 =======
 >>>>>>> fdfc34fa1 (perf(test): stabilize e2e harness and reduce flaky gateway coverage)
+=======
+import fs from "node:fs/promises";
+import path from "node:path";
+>>>>>>> 34ea33f05 (refactor: dedupe core config and runtime helpers)
 import { withTempHome as withTempHomeBase } from "../../test/helpers/temp-home.js";
 
 export async function withTempHome<T>(fn: (home: string) => Promise<T>): Promise<T> {
   return withTempHomeBase(fn, { prefix: "moltbot-config-" });
+}
+
+export async function writeOpenClawConfig(home: string, config: unknown): Promise<string> {
+  const configPath = path.join(home, ".openclaw", "openclaw.json");
+  await fs.mkdir(path.dirname(configPath), { recursive: true });
+  await fs.writeFile(configPath, JSON.stringify(config, null, 2), "utf-8");
+  return configPath;
+}
+
+export async function withTempHomeConfig<T>(
+  config: unknown,
+  fn: (params: { home: string; configPath: string }) => Promise<T>,
+): Promise<T> {
+  return withTempHome(async (home) => {
+    const configPath = await writeOpenClawConfig(home, config);
+    return fn({ home, configPath });
+  });
 }
 
 /**

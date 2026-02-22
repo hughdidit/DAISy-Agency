@@ -146,15 +146,34 @@ describe("Ghost reminder bug (issue #13317)", () => {
     sendTelegram: ReturnType<typeof vi.fn>;
     calledCtx: { Provider?: string; Body?: string } | null;
   }> => {
+    return runHeartbeatCase({
+      tmpPrefix,
+      replyText: "Relay this reminder now",
+      reason: "cron:reminder-job",
+      enqueue,
+    });
+  };
+
+  const runHeartbeatCase = async (params: {
+    tmpPrefix: string;
+    replyText: string;
+    reason: string;
+    enqueue: (sessionKey: string) => void;
+  }): Promise<{
+    result: Awaited<ReturnType<typeof runHeartbeatOnce>>;
+    sendTelegram: ReturnType<typeof vi.fn>;
+    calledCtx: { Provider?: string; Body?: string } | null;
+    replyCallCount: number;
+  }> => {
     return withTempHeartbeatSandbox(
       async ({ tmpDir, storePath }) => {
-        const { sendTelegram, getReplySpy } = createHeartbeatDeps("Relay this reminder now");
+        const { sendTelegram, getReplySpy } = createHeartbeatDeps(params.replyText);
         const { cfg, sessionKey } = await createConfig({ tmpDir, storePath });
-        enqueue(sessionKey);
+        params.enqueue(sessionKey);
         const result = await runHeartbeatOnce({
           cfg,
           agentId: "main",
-          reason: "cron:reminder-job",
+          reason: params.reason,
           deps: {
             sendTelegram,
           },
@@ -163,13 +182,19 @@ describe("Ghost reminder bug (issue #13317)", () => {
           Provider?: string;
           Body?: string;
         } | null;
-        return { result, sendTelegram, calledCtx };
+        return {
+          result,
+          sendTelegram,
+          calledCtx,
+          replyCallCount: getReplySpy.mock.calls.length,
+        };
       },
-      { prefix: tmpPrefix },
+      { prefix: params.tmpPrefix },
     );
   };
 
   it("does not use CRON_EVENT_PROMPT when only a HEARTBEAT_OK event is present", async () => {
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> 2b143de55 (refactor(test): dedupe ghost reminder assertions)
@@ -271,28 +296,28 @@ describe("Ghost reminder bug (issue #13317)", () => {
       async ({ tmpDir, storePath }) => {
         const { sendTelegram, getReplySpy } = createHeartbeatDeps("Heartbeat check-in");
         const { cfg, sessionKey } = await createConfig({ tmpDir, storePath });
+=======
+    const { result, sendTelegram, calledCtx, replyCallCount } = await runHeartbeatCase({
+      tmpPrefix: "openclaw-ghost-",
+      replyText: "Heartbeat check-in",
+      reason: "cron:test-job",
+      enqueue: (sessionKey) => {
+>>>>>>> 34ea33f05 (refactor: dedupe core config and runtime helpers)
         enqueueSystemEvent("HEARTBEAT_OK", { sessionKey });
-
-        const result = await runHeartbeatOnce({
-          cfg,
-          agentId: "main",
-          reason: "cron:test-job",
-          deps: {
-            sendTelegram,
-          },
-        });
-
-        expect(result.status).toBe("ran");
-        expect(getReplySpy).toHaveBeenCalledTimes(1);
-        const calledCtx = getReplySpy.mock.calls[0]?.[0];
-        expect(calledCtx?.Provider).toBe("heartbeat");
-        expect(calledCtx?.Body).not.toContain("scheduled reminder has been triggered");
-        expect(calledCtx?.Body).not.toContain("relay this reminder");
-        expect(sendTelegram).toHaveBeenCalled();
       },
+<<<<<<< HEAD
       { prefix: "openclaw-ghost-" },
     );
 >>>>>>> 694a9eb6d (test(heartbeat): reuse shared sandbox for ghost reminder scenarios)
+=======
+    });
+    expect(result.status).toBe("ran");
+    expect(replyCallCount).toBe(1);
+    expect(calledCtx?.Provider).toBe("heartbeat");
+    expect(calledCtx?.Body).not.toContain("scheduled reminder has been triggered");
+    expect(calledCtx?.Body).not.toContain("relay this reminder");
+    expect(sendTelegram).toHaveBeenCalled();
+>>>>>>> 34ea33f05 (refactor: dedupe core config and runtime helpers)
   });
 
 <<<<<<< HEAD
@@ -414,6 +439,7 @@ describe("Ghost reminder bug (issue #13317)", () => {
   it("uses CRON_EVENT_PROMPT for tagged cron events on interval wake", async () => {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-cron-interval-"));
     const sendTelegram = vi.fn().mockResolvedValue({
       messageId: "m1",
@@ -439,10 +465,18 @@ describe("Ghost reminder bug (issue #13317)", () => {
       async ({ tmpDir, storePath }) => {
         const { sendTelegram, getReplySpy } = createHeartbeatDeps("Relay this cron update now");
         const { cfg, sessionKey } = await createConfig({ tmpDir, storePath });
+=======
+    const { result, sendTelegram, calledCtx, replyCallCount } = await runHeartbeatCase({
+      tmpPrefix: "openclaw-cron-interval-",
+      replyText: "Relay this cron update now",
+      reason: "interval",
+      enqueue: (sessionKey) => {
+>>>>>>> 34ea33f05 (refactor: dedupe core config and runtime helpers)
         enqueueSystemEvent("Cron: QMD maintenance completed", {
           sessionKey,
           contextKey: "cron:qmd-maintenance",
         });
+<<<<<<< HEAD
 >>>>>>> 694a9eb6d (test(heartbeat): reuse shared sandbox for ghost reminder scenarios)
 
         const result = await runHeartbeatOnce({
@@ -462,8 +496,16 @@ describe("Ghost reminder bug (issue #13317)", () => {
         expect(calledCtx?.Body).toContain("Cron: QMD maintenance completed");
         expect(calledCtx?.Body).not.toContain("Read HEARTBEAT.md");
         expect(sendTelegram).toHaveBeenCalled();
+=======
+>>>>>>> 34ea33f05 (refactor: dedupe core config and runtime helpers)
       },
-      { prefix: "openclaw-cron-interval-" },
-    );
+    });
+    expect(result.status).toBe("ran");
+    expect(replyCallCount).toBe(1);
+    expect(calledCtx?.Provider).toBe("cron-event");
+    expect(calledCtx?.Body).toContain("scheduled reminder has been triggered");
+    expect(calledCtx?.Body).toContain("Cron: QMD maintenance completed");
+    expect(calledCtx?.Body).not.toContain("Read HEARTBEAT.md");
+    expect(sendTelegram).toHaveBeenCalled();
   });
 });

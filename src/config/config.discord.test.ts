@@ -1,8 +1,6 @@
-import fs from "node:fs/promises";
-import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { loadConfig, validateConfigObject } from "./config.js";
-import { withTempHome } from "./test-helpers.js";
+import { withTempHomeConfig } from "./test-helpers.js";
 
 describe("config discord", () => {
   let previousHome: string | undefined;
@@ -16,6 +14,7 @@ describe("config discord", () => {
   });
 
   it("loads discord guild map + dm group settings", async () => {
+<<<<<<< HEAD
     await withTempHome(async (home) => {
       const configDir = path.join(home, ".clawdbot");
       await fs.mkdir(configDir, { recursive: true });
@@ -46,16 +45,41 @@ describe("config discord", () => {
                       general: { allow: true },
                     },
                   },
+=======
+    await withTempHomeConfig(
+      {
+        channels: {
+          discord: {
+            enabled: true,
+            dm: {
+              enabled: true,
+              allowFrom: ["steipete"],
+              groupEnabled: true,
+              groupChannels: ["openclaw-dm"],
+            },
+            actions: {
+              emojiUploads: true,
+              stickerUploads: false,
+              channels: true,
+            },
+            guilds: {
+              "123": {
+                slug: "friends-of-openclaw",
+                requireMention: false,
+                users: ["steipete"],
+                channels: {
+                  general: { allow: true },
+>>>>>>> 34ea33f05 (refactor: dedupe core config and runtime helpers)
                 },
               },
             },
           },
-          null,
-          2,
-        ),
-        "utf-8",
-      );
+        },
+      },
+      async () => {
+        const cfg = loadConfig();
 
+<<<<<<< HEAD
       const cfg = loadConfig();
 
       expect(cfg.channels?.discord?.enabled).toBe(true);
@@ -67,6 +91,18 @@ describe("config discord", () => {
       expect(cfg.channels?.discord?.guilds?.["123"]?.slug).toBe("friends-of-clawd");
       expect(cfg.channels?.discord?.guilds?.["123"]?.channels?.general?.allow).toBe(true);
     });
+=======
+        expect(cfg.channels?.discord?.enabled).toBe(true);
+        expect(cfg.channels?.discord?.dm?.groupEnabled).toBe(true);
+        expect(cfg.channels?.discord?.dm?.groupChannels).toEqual(["openclaw-dm"]);
+        expect(cfg.channels?.discord?.actions?.emojiUploads).toBe(true);
+        expect(cfg.channels?.discord?.actions?.stickerUploads).toBe(false);
+        expect(cfg.channels?.discord?.actions?.channels).toBe(true);
+        expect(cfg.channels?.discord?.guilds?.["123"]?.slug).toBe("friends-of-openclaw");
+        expect(cfg.channels?.discord?.guilds?.["123"]?.channels?.general?.allow).toBe(true);
+      },
+    );
+>>>>>>> 34ea33f05 (refactor: dedupe core config and runtime helpers)
   });
 
   it("rejects numeric discord allowlist entries", () => {

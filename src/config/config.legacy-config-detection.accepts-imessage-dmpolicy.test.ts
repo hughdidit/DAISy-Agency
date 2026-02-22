@@ -26,6 +26,22 @@ async function expectLoadRejectionPreservesField(params: {
   });
 }
 
+type ConfigSnapshot = Awaited<ReturnType<typeof readConfigFileSnapshot>>;
+
+async function withSnapshotForConfig(
+  config: unknown,
+  run: (params: { snapshot: ConfigSnapshot; parsed: unknown; configPath: string }) => Promise<void>,
+) {
+  await withTempHome(async (home) => {
+    const configPath = path.join(home, ".openclaw", "openclaw.json");
+    await fs.mkdir(path.dirname(configPath), { recursive: true });
+    await fs.writeFile(configPath, JSON.stringify(config, null, 2), "utf-8");
+    const snapshot = await readConfigFileSnapshot();
+    const parsed = JSON.parse(await fs.readFile(configPath, "utf-8")) as unknown;
+    await run({ snapshot, parsed, configPath });
+  });
+}
+
 function expectValidConfigValue(params: {
   config: unknown;
   readValue: (config: unknown) => unknown;
@@ -45,6 +61,20 @@ function expectInvalidIssuePath(config: unknown, expectedPath: string) {
   if (!res.ok) {
     expect(res.issues[0]?.path).toBe(expectedPath);
   }
+}
+
+function expectRoutingAllowFromLegacySnapshot(
+  ctx: { snapshot: ConfigSnapshot; parsed: unknown },
+  expectedAllowFrom: string[],
+) {
+  expect(ctx.snapshot.valid).toBe(false);
+  expect(ctx.snapshot.legacyIssues.some((issue) => issue.path === "routing.allowFrom")).toBe(true);
+  const parsed = ctx.parsed as {
+    routing?: { allowFrom?: string[] };
+    channels?: unknown;
+  };
+  expect(parsed.routing?.allowFrom).toEqual(expectedAllowFrom);
+  expect(parsed.channels).toBeUndefined();
 }
 
 describe("legacy config detection", () => {
@@ -224,6 +254,7 @@ describe("legacy config detection", () => {
     expect((res.config as { agent?: unknown } | undefined)?.agent).toBeUndefined();
   });
   it("flags legacy config in snapshot", async () => {
+<<<<<<< HEAD
     await withTempHome(async (home) => {
       const configPath = path.join(home, ".clawdbot", "moltbot.json");
       await fs.mkdir(path.dirname(configPath), { recursive: true });
@@ -245,22 +276,32 @@ describe("legacy config detection", () => {
       };
       expect(parsed.routing?.allowFrom).toEqual(["+15555550123"]);
       expect(parsed.channels).toBeUndefined();
+=======
+    await withSnapshotForConfig({ routing: { allowFrom: ["+15555550123"] } }, async (ctx) => {
+      expectRoutingAllowFromLegacySnapshot(ctx, ["+15555550123"]);
+>>>>>>> 34ea33f05 (refactor: dedupe core config and runtime helpers)
     });
   });
   it("flags top-level memorySearch as legacy in snapshot", async () => {
-    await withTempHome(async (home) => {
-      const configPath = path.join(home, ".openclaw", "openclaw.json");
-      await fs.mkdir(path.dirname(configPath), { recursive: true });
-      await fs.writeFile(
-        configPath,
-        JSON.stringify({ memorySearch: { provider: "local", fallback: "none" } }),
-        "utf-8",
-      );
+    await withSnapshotForConfig(
+      { memorySearch: { provider: "local", fallback: "none" } },
+      async (ctx) => {
+        expect(ctx.snapshot.valid).toBe(false);
+        expect(ctx.snapshot.legacyIssues.some((issue) => issue.path === "memorySearch")).toBe(true);
+      },
+    );
+  });
+  it("flags legacy provider sections in snapshot", async () => {
+    await withSnapshotForConfig({ whatsapp: { allowFrom: ["+1555"] } }, async (ctx) => {
+      expect(ctx.snapshot.valid).toBe(false);
+      expect(ctx.snapshot.legacyIssues.some((issue) => issue.path === "whatsapp")).toBe(true);
 
-      const snap = await readConfigFileSnapshot();
-
-      expect(snap.valid).toBe(false);
-      expect(snap.legacyIssues.some((issue) => issue.path === "memorySearch")).toBe(true);
+      const parsed = ctx.parsed as {
+        channels?: unknown;
+        whatsapp?: unknown;
+      };
+      expect(parsed.channels).toBeUndefined();
+      expect(parsed.whatsapp).toBeTruthy();
     });
   });
   it("does not auto-migrate claude-cli auth profile mode on load", async () => {
@@ -293,6 +334,7 @@ describe("legacy config detection", () => {
       expect(parsed.auth?.profiles?.["anthropic:claude-cli"]?.mode).toBe("token");
     });
   });
+<<<<<<< HEAD
   it("flags legacy provider sections in snapshot", async () => {
     await withTempHome(async (home) => {
       const configPath = path.join(home, ".clawdbot", "moltbot.json");
@@ -339,6 +381,11 @@ describe("legacy config detection", () => {
       };
       expect(parsed.channels).toBeUndefined();
       expect(parsed.routing?.allowFrom).toEqual(["+1666"]);
+=======
+  it("flags routing.allowFrom in snapshot", async () => {
+    await withSnapshotForConfig({ routing: { allowFrom: ["+1666"] } }, async (ctx) => {
+      expectRoutingAllowFromLegacySnapshot(ctx, ["+1666"]);
+>>>>>>> 34ea33f05 (refactor: dedupe core config and runtime helpers)
     });
   });
   it("rejects bindings[].match.provider on load", async () => {
@@ -420,6 +467,7 @@ describe("legacy config detection", () => {
     });
   });
   it("rejects session.sendPolicy.rules[].match.provider on load", async () => {
+<<<<<<< HEAD
     await withTempHome(async (home) => {
       const configPath = path.join(home, ".clawdbot", "moltbot.json");
       await fs.mkdir(path.dirname(configPath), { recursive: true });
@@ -432,26 +480,28 @@ describe("legacy config detection", () => {
                 rules: [{ action: "deny", match: { provider: "telegram" } }],
               },
             },
+=======
+    await withSnapshotForConfig(
+      {
+        session: {
+          sendPolicy: {
+            rules: [{ action: "deny", match: { provider: "telegram" } }],
+>>>>>>> 34ea33f05 (refactor: dedupe core config and runtime helpers)
           },
-          null,
-          2,
-        ),
-        "utf-8",
-      );
-
-      const snap = await readConfigFileSnapshot();
-
-      expect(snap.valid).toBe(false);
-      expect(snap.issues.length).toBeGreaterThan(0);
-
-      const raw = await fs.readFile(configPath, "utf-8");
-      const parsed = JSON.parse(raw) as {
-        session?: { sendPolicy?: { rules?: Array<{ match?: { provider?: string } }> } };
-      };
-      expect(parsed.session?.sendPolicy?.rules?.[0]?.match?.provider).toBe("telegram");
-    });
+        },
+      },
+      async (ctx) => {
+        expect(ctx.snapshot.valid).toBe(false);
+        expect(ctx.snapshot.issues.length).toBeGreaterThan(0);
+        const parsed = ctx.parsed as {
+          session?: { sendPolicy?: { rules?: Array<{ match?: { provider?: string } }> } };
+        };
+        expect(parsed.session?.sendPolicy?.rules?.[0]?.match?.provider).toBe("telegram");
+      },
+    );
   });
   it("rejects messages.queue.byProvider on load", async () => {
+<<<<<<< HEAD
     await withTempHome(async (home) => {
       const configPath = path.join(home, ".clawdbot", "moltbot.json");
       await fs.mkdir(path.dirname(configPath), { recursive: true });
@@ -460,21 +510,23 @@ describe("legacy config detection", () => {
         JSON.stringify({ messages: { queue: { byProvider: { whatsapp: "queue" } } } }, null, 2),
         "utf-8",
       );
+=======
+    await withSnapshotForConfig(
+      { messages: { queue: { byProvider: { whatsapp: "queue" } } } },
+      async (ctx) => {
+        expect(ctx.snapshot.valid).toBe(false);
+        expect(ctx.snapshot.issues.length).toBeGreaterThan(0);
+>>>>>>> 34ea33f05 (refactor: dedupe core config and runtime helpers)
 
-      const snap = await readConfigFileSnapshot();
-
-      expect(snap.valid).toBe(false);
-      expect(snap.issues.length).toBeGreaterThan(0);
-
-      const raw = await fs.readFile(configPath, "utf-8");
-      const parsed = JSON.parse(raw) as {
-        messages?: {
-          queue?: {
-            byProvider?: Record<string, unknown>;
+        const parsed = ctx.parsed as {
+          messages?: {
+            queue?: {
+              byProvider?: Record<string, unknown>;
+            };
           };
         };
-      };
-      expect(parsed.messages?.queue?.byProvider?.whatsapp).toBe("queue");
-    });
+        expect(parsed.messages?.queue?.byProvider?.whatsapp).toBe("queue");
+      },
+    );
   });
 });
