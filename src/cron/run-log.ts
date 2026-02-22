@@ -1,6 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import type { CronRunStatus, CronRunTelemetry } from "./types.js";
+import type { CronDeliveryStatus, CronRunStatus, CronRunTelemetry } from "./types.js";
 
 export type CronRunLogEntry = {
   ts: number;
@@ -12,6 +12,8 @@ export type CronRunLogEntry = {
 <<<<<<< HEAD
 =======
   delivered?: boolean;
+  deliveryStatus?: CronDeliveryStatus;
+  deliveryError?: string;
   sessionId?: string;
   sessionKey?: string;
 >>>>>>> 09d5f508b (fix(cron): persist delivered flag in job state to surface delivery failures (openclaw#19174) thanks @simonemacario)
@@ -138,6 +140,17 @@ export async function readCronRunLogEntries(
       };
       if (typeof obj.delivered === "boolean") {
         entry.delivered = obj.delivered;
+      }
+      if (
+        obj.deliveryStatus === "delivered" ||
+        obj.deliveryStatus === "not-delivered" ||
+        obj.deliveryStatus === "unknown" ||
+        obj.deliveryStatus === "not-requested"
+      ) {
+        entry.deliveryStatus = obj.deliveryStatus;
+      }
+      if (typeof obj.deliveryError === "string") {
+        entry.deliveryError = obj.deliveryError;
       }
       if (typeof obj.sessionId === "string" && obj.sessionId.trim().length > 0) {
         entry.sessionId = obj.sessionId;

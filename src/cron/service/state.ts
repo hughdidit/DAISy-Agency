@@ -1,5 +1,6 @@
 import type { HeartbeatRunResult } from "../../infra/heartbeat-wake.js";
 import type {
+  CronDeliveryStatus,
   CronJob,
   CronJobCreate,
   CronJobPatch,
@@ -20,6 +21,8 @@ export type CronEvent = {
 <<<<<<< HEAD
 =======
   delivered?: boolean;
+  deliveryStatus?: CronDeliveryStatus;
+  deliveryError?: string;
   sessionId?: string;
   sessionKey?: string;
 >>>>>>> 09d5f508b (fix(cron): persist delivered flag in job state to surface delivery failures (openclaw#19174) thanks @simonemacario)
