@@ -3,10 +3,14 @@ import { applyPluginAutoEnable } from "./plugin-auto-enable.js";
 
 describe("applyPluginAutoEnable", () => {
 <<<<<<< HEAD
+<<<<<<< HEAD
   it("enables configured channel plugins and updates allowlist", () => {
 =======
   it("auto-enables channel plugins and updates allowlist", () => {
 >>>>>>> 9769b96fb (fix(config): auto-enable configured plugins)
+=======
+  it("auto-enables built-in channels without touching plugins allowlist", () => {
+>>>>>>> 8839162b9 (fix(config): persist built-in channel enable state in channels)
     const result = applyPluginAutoEnable({
       config: {
         channels: { slack: { botToken: "x" } },
@@ -15,8 +19,9 @@ describe("applyPluginAutoEnable", () => {
       env: {},
     });
 
-    expect(result.config.plugins?.entries?.slack?.enabled).toBe(true);
-    expect(result.config.plugins?.allow).toEqual(["telegram", "slack"]);
+    expect(result.config.channels?.slack?.enabled).toBe(true);
+    expect(result.config.plugins?.entries?.slack).toBeUndefined();
+    expect(result.config.plugins?.allow).toEqual(["telegram"]);
     expect(result.changes.join("\n")).toContain("Slack configured, enabled automatically.");
   });
 
@@ -34,8 +39,24 @@ describe("applyPluginAutoEnable", () => {
   });
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   it("enables provider auth plugins when profiles exist", () => {
 =======
+=======
+  it("respects built-in channel explicit disable via channels.<id>.enabled", () => {
+    const result = applyPluginAutoEnable({
+      config: {
+        channels: { slack: { botToken: "x", enabled: false } },
+      },
+      env: {},
+    });
+
+    expect(result.config.channels?.slack?.enabled).toBe(false);
+    expect(result.config.plugins?.entries?.slack).toBeUndefined();
+    expect(result.changes).toEqual([]);
+  });
+
+>>>>>>> 8839162b9 (fix(config): persist built-in channel enable state in channels)
   it("auto-enables irc when configured via env", () => {
     const result = applyPluginAutoEnable({
       config: {},
@@ -45,7 +66,7 @@ describe("applyPluginAutoEnable", () => {
       },
     });
 
-    expect(result.config.plugins?.entries?.irc?.enabled).toBe(true);
+    expect(result.config.channels?.irc?.enabled).toBe(true);
     expect(result.changes.join("\n")).toContain("IRC configured, enabled automatically.");
   });
 
@@ -130,10 +151,14 @@ describe("applyPluginAutoEnable", () => {
       });
 
       expect(result.config.plugins?.entries?.bluebubbles?.enabled).toBe(false);
+<<<<<<< HEAD
       expect(result.config.plugins?.entries?.imessage?.enabled).toBe(true);
 <<<<<<< HEAD
       expect(result.changes.join("\n")).toContain("iMessage configured, not enabled yet.");
 =======
+=======
+      expect(result.config.channels?.imessage?.enabled).toBe(true);
+>>>>>>> 8839162b9 (fix(config): persist built-in channel enable state in channels)
       expect(result.changes.join("\n")).toContain("iMessage configured, enabled automatically.");
 >>>>>>> 9769b96fb (fix(config): auto-enable configured plugins)
     });
@@ -151,7 +176,7 @@ describe("applyPluginAutoEnable", () => {
       });
 
       expect(result.config.plugins?.entries?.bluebubbles?.enabled).toBeUndefined();
-      expect(result.config.plugins?.entries?.imessage?.enabled).toBe(true);
+      expect(result.config.channels?.imessage?.enabled).toBe(true);
     });
 
 <<<<<<< HEAD
@@ -166,10 +191,14 @@ describe("applyPluginAutoEnable", () => {
         env: {},
       });
 
+<<<<<<< HEAD
       expect(result.config.plugins?.entries?.imessage?.enabled).toBe(true);
 <<<<<<< HEAD
       expect(result.changes.join("\n")).toContain("iMessage configured, not enabled yet.");
 =======
+=======
+      expect(result.config.channels?.imessage?.enabled).toBe(true);
+>>>>>>> 8839162b9 (fix(config): persist built-in channel enable state in channels)
       expect(result.changes.join("\n")).toContain("iMessage configured, enabled automatically.");
 >>>>>>> 9769b96fb (fix(config): auto-enable configured plugins)
     });

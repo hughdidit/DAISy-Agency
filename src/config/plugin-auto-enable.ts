@@ -350,7 +350,7 @@ function resolveConfiguredPlugins(
       if (key === "defaults" || key === "modelByChannel") {
         continue;
       }
-      channelIds.add(key);
+      channelIds.add(normalizeChatChannelId(key) ?? key);
     }
   }
   for (const channelId of channelIds) {
@@ -375,7 +375,24 @@ function resolveConfiguredPlugins(
   return changes;
 }
 
+<<<<<<< HEAD
 function isPluginExplicitlyDisabled(cfg: MoltbotConfig, pluginId: string): boolean {
+=======
+function isPluginExplicitlyDisabled(cfg: OpenClawConfig, pluginId: string): boolean {
+  const builtInChannelId = normalizeChatChannelId(pluginId);
+  if (builtInChannelId) {
+    const channels = cfg.channels as Record<string, unknown> | undefined;
+    const channelConfig = channels?.[builtInChannelId];
+    if (
+      channelConfig &&
+      typeof channelConfig === "object" &&
+      !Array.isArray(channelConfig) &&
+      (channelConfig as { enabled?: unknown }).enabled === false
+    ) {
+      return true;
+    }
+  }
+>>>>>>> 8839162b9 (fix(config): persist built-in channel enable state in channels)
   const entry = cfg.plugins?.entries?.[pluginId];
   return entry?.enabled === false;
 }
@@ -435,7 +452,29 @@ function ensureAllowlisted(cfg: MoltbotConfig, pluginId: string): MoltbotConfig 
 function enablePluginEntry(cfg: MoltbotConfig, pluginId: string): MoltbotConfig {
 =======
 function registerPluginEntry(cfg: OpenClawConfig, pluginId: string): OpenClawConfig {
+<<<<<<< HEAD
 >>>>>>> 519517915 (refactor: centralize plugin allowlist mutation)
+=======
+  const builtInChannelId = normalizeChatChannelId(pluginId);
+  if (builtInChannelId) {
+    const channels = cfg.channels as Record<string, unknown> | undefined;
+    const existing = channels?.[builtInChannelId];
+    const existingRecord =
+      existing && typeof existing === "object" && !Array.isArray(existing)
+        ? (existing as Record<string, unknown>)
+        : {};
+    return {
+      ...cfg,
+      channels: {
+        ...cfg.channels,
+        [builtInChannelId]: {
+          ...existingRecord,
+          enabled: true,
+        },
+      },
+    };
+  }
+>>>>>>> 8839162b9 (fix(config): persist built-in channel enable state in channels)
   const entries = {
     ...cfg.plugins?.entries,
     [pluginId]: {
@@ -481,6 +520,7 @@ export function applyPluginAutoEnable(params: {
   }
 
   for (const entry of configured) {
+    const builtInChannelId = normalizeChatChannelId(entry.pluginId);
     if (isPluginDenied(next, entry.pluginId)) {
       continue;
     }
@@ -491,8 +531,23 @@ export function applyPluginAutoEnable(params: {
       continue;
     }
     const allow = next.plugins?.allow;
-    const allowMissing = Array.isArray(allow) && !allow.includes(entry.pluginId);
-    const alreadyEnabled = next.plugins?.entries?.[entry.pluginId]?.enabled === true;
+    const allowMissing =
+      !builtInChannelId && Array.isArray(allow) && !allow.includes(entry.pluginId);
+    const alreadyEnabled =
+      builtInChannelId != null
+        ? (() => {
+            const channels = next.channels as Record<string, unknown> | undefined;
+            const channelConfig = channels?.[builtInChannelId];
+            if (
+              !channelConfig ||
+              typeof channelConfig !== "object" ||
+              Array.isArray(channelConfig)
+            ) {
+              return false;
+            }
+            return (channelConfig as { enabled?: unknown }).enabled === true;
+          })()
+        : next.plugins?.entries?.[entry.pluginId]?.enabled === true;
     if (alreadyEnabled && !allowMissing) {
       continue;
     }
@@ -501,8 +556,14 @@ export function applyPluginAutoEnable(params: {
     next = ensureAllowlisted(next, entry.pluginId);
 =======
     next = registerPluginEntry(next, entry.pluginId);
+<<<<<<< HEAD
     next = ensurePluginAllowlisted(next, entry.pluginId);
 >>>>>>> 519517915 (refactor: centralize plugin allowlist mutation)
+=======
+    if (!builtInChannelId) {
+      next = ensurePluginAllowlisted(next, entry.pluginId);
+    }
+>>>>>>> 8839162b9 (fix(config): persist built-in channel enable state in channels)
     changes.push(formatAutoEnableChange(entry));
   }
 
