@@ -116,6 +116,7 @@ describe("callGateway url resolution", () => {
     expect(lastClientOptions?.url).toBe("wss://override.example/ws");
   });
 
+<<<<<<< HEAD
   it("keeps legacy admin scopes when call scopes are omitted", async () => {
     loadConfig.mockReturnValue({ gateway: { mode: "local", bind: "loopback" } });
     resolveGatewayPort.mockReturnValue(18789);
@@ -128,6 +129,29 @@ describe("callGateway url resolution", () => {
       "operator.approvals",
       "operator.pairing",
     ]);
+=======
+  it.each([
+    {
+      label: "uses least-privilege scopes by default for non-CLI callers",
+      call: () => callGateway({ method: "health" }),
+      expectedScopes: ["operator.read"],
+    },
+    {
+      label: "keeps legacy admin scopes for explicit CLI callers",
+      call: () => callGatewayCli({ method: "health" }),
+      expectedScopes: [
+        "operator.admin",
+        "operator.read",
+        "operator.write",
+        "operator.approvals",
+        "operator.pairing",
+      ],
+    },
+  ])("scope selection: $label", async ({ call, expectedScopes }) => {
+    setLocalLoopbackGatewayConfig();
+    await call();
+    expect(lastClientOptions?.scopes).toEqual(expectedScopes);
+>>>>>>> 6f7e5f92c (fix: add operator.read and operator.write to default CLI scopes (#22582))
   });
 
   it("passes explicit scopes through, including empty arrays", async () => {

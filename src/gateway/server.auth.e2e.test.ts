@@ -477,7 +477,20 @@ describe("gateway server auth/connect", () => {
         const challenge = await challengePromise;
         const nonce = (challenge.payload as { nonce?: unknown } | undefined)?.nonce;
         expect(typeof nonce).toBe("string");
+<<<<<<< HEAD
         const scopes = ["operator.admin", "operator.approvals", "operator.pairing"];
+=======
+        const { randomUUID } = await import("node:crypto");
+        const os = await import("node:os");
+        const path = await import("node:path");
+        const scopes = [
+          "operator.admin",
+          "operator.read",
+          "operator.write",
+          "operator.approvals",
+          "operator.pairing",
+        ];
+>>>>>>> 6f7e5f92c (fix: add operator.read and operator.write to default CLI scopes (#22582))
         const { device } = await createSignedDevice({
           token: "secret",
           scopes,

@@ -11,11 +11,21 @@ export type OperatorScope =
   | typeof APPROVALS_SCOPE
   | typeof PAIRING_SCOPE;
 
+<<<<<<< HEAD
 const APPROVAL_METHODS = new Set([
   "exec.approval.request",
   "exec.approval.waitDecision",
   "exec.approval.resolve",
 ]);
+=======
+export const CLI_DEFAULT_OPERATOR_SCOPES: OperatorScope[] = [
+  ADMIN_SCOPE,
+  READ_SCOPE,
+  WRITE_SCOPE,
+  APPROVALS_SCOPE,
+  PAIRING_SCOPE,
+];
+>>>>>>> 6f7e5f92c (fix: add operator.read and operator.write to default CLI scopes (#22582))
 
 const NODE_ROLE_METHODS = new Set(["node.invoke.result", "node.event", "skills.bins"]);
 

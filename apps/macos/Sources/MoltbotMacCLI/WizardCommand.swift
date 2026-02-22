@@ -256,7 +256,12 @@ actor GatewayWizardClient {
         let clientId = "moltbot-macos"
         let clientMode = "ui"
         let role = "operator"
+<<<<<<< HEAD:apps/macos/Sources/MoltbotMacCLI/WizardCommand.swift
         let scopes: [String] = []
+=======
+        // Explicit scopes; gateway no longer defaults empty scopes to admin.
+        let scopes = defaultOperatorConnectScopes
+>>>>>>> 6f7e5f92c (fix: add operator.read and operator.write to default CLI scopes (#22582)):apps/macos/Sources/OpenClawMacCLI/WizardCommand.swift
         let client: [String: ProtoAnyCodable] = [
             "id": ProtoAnyCodable(clientId),
             "displayName": ProtoAnyCodable(Host.current().localizedName ?? "Moltbot macOS Wizard CLI"),
