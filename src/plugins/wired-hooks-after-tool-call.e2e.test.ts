@@ -67,9 +67,15 @@ describe("after_tool_call hook wiring", () => {
   });
 
   beforeEach(() => {
-    hookMocks.runner.hasHooks.mockReset();
+    hookMocks.runner.hasHooks.mockClear();
     hookMocks.runner.hasHooks.mockReturnValue(false);
+<<<<<<< HEAD
     hookMocks.runner.runAfterToolCall.mockReset();
+=======
+    hookMocks.runner.runBeforeToolCall.mockClear();
+    hookMocks.runner.runBeforeToolCall.mockResolvedValue(undefined);
+    hookMocks.runner.runAfterToolCall.mockClear();
+>>>>>>> 4ddaafee6 (test(plugins): use lightweight clears in wired hooks setup)
     hookMocks.runner.runAfterToolCall.mockResolvedValue(undefined);
   });
 
