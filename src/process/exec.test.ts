@@ -8,7 +8,15 @@ import { captureEnv } from "../test-utils/env.js";
 import { withEnvAsync } from "../test-utils/env.js";
 >>>>>>> ae70bf4dc (refactor(test): simplify env scoping in exec and usage tests)
 import { runCommandWithTimeout, shouldSpawnWithShell } from "./exec.js";
+<<<<<<< HEAD
 >>>>>>> ee2fa5f41 (refactor(test): reuse env snapshots in unit suites)
+=======
+import {
+  PROCESS_TEST_NO_OUTPUT_TIMEOUT_MS,
+  PROCESS_TEST_SCRIPT_DELAY_MS,
+  PROCESS_TEST_TIMEOUT_MS,
+} from "./test-timeouts.js";
+>>>>>>> a4607277a (test: consolidate sessions_spawn and guardrail helpers)
 
 describe("runCommandWithTimeout", () => {
 <<<<<<< HEAD
@@ -43,7 +51,7 @@ describe("runCommandWithTimeout", () => {
           'process.stdout.write((process.env.OPENCLAW_BASE_ENV ?? "") + "|" + (process.env.OPENCLAW_TEST_ENV ?? ""))',
         ],
         {
-          timeoutMs: 5_000,
+          timeoutMs: PROCESS_TEST_TIMEOUT_MS.medium,
           env: { OPENCLAW_TEST_ENV: "ok" },
         },
       );
@@ -64,10 +72,19 @@ describe("runCommandWithTimeout", () => {
 
   it("kills command when no output timeout elapses", async () => {
     const result = await runCommandWithTimeout(
-      [process.execPath, "-e", "setTimeout(() => {}, 120)"],
+      [
+        process.execPath,
+        "-e",
+        `setTimeout(() => {}, ${PROCESS_TEST_SCRIPT_DELAY_MS.silentProcess})`,
+      ],
       {
+<<<<<<< HEAD
         timeoutMs: 1_000,
         noOutputTimeoutMs: 35,
+=======
+        timeoutMs: PROCESS_TEST_TIMEOUT_MS.standard,
+        noOutputTimeoutMs: PROCESS_TEST_NO_OUTPUT_TIMEOUT_MS.exec,
+>>>>>>> a4607277a (test: consolidate sessions_spawn and guardrail helpers)
       },
     );
 
@@ -81,11 +98,19 @@ describe("runCommandWithTimeout", () => {
       [
         process.execPath,
         "-e",
+<<<<<<< HEAD
         'process.stdout.write("."); setTimeout(() => process.stdout.write("."), 30); setTimeout(() => process.exit(0), 60);',
       ],
       {
         timeoutMs: 1_000,
         noOutputTimeoutMs: 500,
+=======
+        `process.stdout.write(".\\n"); const interval = setInterval(() => process.stdout.write(".\\n"), ${PROCESS_TEST_SCRIPT_DELAY_MS.streamingInterval}); setTimeout(() => { clearInterval(interval); process.exit(0); }, ${PROCESS_TEST_SCRIPT_DELAY_MS.streamingDuration});`,
+      ],
+      {
+        timeoutMs: PROCESS_TEST_TIMEOUT_MS.extraLong,
+        noOutputTimeoutMs: PROCESS_TEST_NO_OUTPUT_TIMEOUT_MS.streamingAllowance,
+>>>>>>> a4607277a (test: consolidate sessions_spawn and guardrail helpers)
       },
     );
 
@@ -98,9 +123,17 @@ describe("runCommandWithTimeout", () => {
 
   it("reports global timeout termination when overall timeout elapses", async () => {
     const result = await runCommandWithTimeout(
-      [process.execPath, "-e", "setTimeout(() => {}, 120)"],
+      [
+        process.execPath,
+        "-e",
+        `setTimeout(() => {}, ${PROCESS_TEST_SCRIPT_DELAY_MS.silentProcess})`,
+      ],
       {
+<<<<<<< HEAD
         timeoutMs: 15,
+=======
+        timeoutMs: PROCESS_TEST_TIMEOUT_MS.short,
+>>>>>>> a4607277a (test: consolidate sessions_spawn and guardrail helpers)
       },
     );
 
