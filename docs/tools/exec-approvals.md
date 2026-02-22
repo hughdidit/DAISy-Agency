@@ -136,7 +136,12 @@ double quotes; use single quotes if you need literal `$()` text.
 On macOS companion-app approvals, raw shell text containing shell control or expansion syntax
 (`&&`, `||`, `;`, `|`, `` ` ``, `$`, `<`, `>`, `(`, `)`) is treated as an allowlist miss unless
 the shell binary itself is allowlisted.
+<<<<<<< HEAD
 >>>>>>> 4c1dd9d06 (fix(security): harden macos rawCommand allowlist resolution)
+=======
+For shell wrappers (`bash|sh|zsh ... -c/-lc`), request-scoped env overrides are reduced to a
+small explicit allowlist (`TERM`, `LANG`, `LC_*`, `COLORTERM`, `NO_COLOR`, `FORCE_COLOR`).
+>>>>>>> e80c803fa (fix(security): block shell env allowlist bypass in system.run)
 
 Default safe bins: `jq`, `cut`, `uniq`, `head`, `tail`, `tr`, `wc`.
 
