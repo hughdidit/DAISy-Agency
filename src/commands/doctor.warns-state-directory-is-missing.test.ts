@@ -4,6 +4,7 @@ import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 let originalIsTTY: boolean | undefined;
@@ -353,7 +354,13 @@ import { describe, expect, it } from "vitest";
 =======
 import { beforeAll, describe, expect, it } from "vitest";
 >>>>>>> 861718e4d (test: group remaining suite cleanups)
+=======
+import { beforeAll, describe, expect, it, vi } from "vitest";
+>>>>>>> b0a8b3beb (test: share fast-path mocks for targeted doctor suites)
 import { createDoctorRuntime, mockDoctorConfigSnapshot, note } from "./doctor.e2e-harness.js";
+import "./doctor.fast-path-mocks.js";
+
+vi.doUnmock("./doctor-state-integrity.js");
 
 let doctorCommand: typeof import("./doctor.js").doctorCommand;
 

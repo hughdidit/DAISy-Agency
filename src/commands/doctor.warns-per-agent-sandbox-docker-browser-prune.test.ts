@@ -345,6 +345,9 @@ describe("doctor command", () => {
 import { beforeAll, describe, expect, it, vi } from "vitest";
 >>>>>>> 861718e4d (test: group remaining suite cleanups)
 import { createDoctorRuntime, mockDoctorConfigSnapshot, note } from "./doctor.e2e-harness.js";
+import "./doctor.fast-path-mocks.js";
+
+vi.doUnmock("./doctor-sandbox.js");
 
 let doctorCommand: typeof import("./doctor.js").doctorCommand;
 
