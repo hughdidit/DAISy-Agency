@@ -145,12 +145,22 @@ describe("isCommandMessage", () => {
 });
 
 describe("sanitizeRenderableText", () => {
-  it("breaks very long unbroken tokens to avoid overflow", () => {
-    const input = "a".repeat(140);
+  function expectTokenWidthUnderLimit(input: string) {
     const sanitized = sanitizeRenderableText(input);
     const longestSegment = Math.max(...sanitized.split(/\s+/).map((segment) => segment.length));
+<<<<<<< HEAD
 
     expect(longestSegment).toBeLessThanOrEqual(64);
+=======
+    expect(longestSegment).toBeLessThanOrEqual(32);
+  }
+
+  it.each([
+    { label: "very long", input: "a".repeat(140) },
+    { label: "moderately long", input: "b".repeat(90) },
+  ])("breaks $label unbroken tokens to protect narrow terminals", ({ input }) => {
+    expectTokenWidthUnderLimit(input);
+>>>>>>> 38752338d (refactor(tui): dedupe handlers and formatter test setup)
   });
 
   it("preserves long filesystem paths verbatim for copy safety", () => {
