@@ -67,10 +67,18 @@ function expectReadAfterToolCallPayload(result: Awaited<ReturnType<typeof execut
 
 describe("pi tool definition adapter after_tool_call", () => {
   beforeEach(() => {
-    hookMocks.runner.hasHooks.mockReset();
-    hookMocks.runner.runAfterToolCall.mockReset();
+    hookMocks.runner.hasHooks.mockClear();
+    hookMocks.runner.runAfterToolCall.mockClear();
     hookMocks.runner.runAfterToolCall.mockResolvedValue(undefined);
+<<<<<<< HEAD
     hookMocks.runBeforeToolCallHook.mockReset();
+=======
+    hookMocks.isToolWrappedWithBeforeToolCallHook.mockClear();
+    hookMocks.isToolWrappedWithBeforeToolCallHook.mockReturnValue(false);
+    hookMocks.consumeAdjustedParamsForToolCall.mockClear();
+    hookMocks.consumeAdjustedParamsForToolCall.mockReturnValue(undefined);
+    hookMocks.runBeforeToolCallHook.mockClear();
+>>>>>>> 089270e76 (test(core): use lightweight clears in stable mock setup)
     hookMocks.runBeforeToolCallHook.mockImplementation(async ({ params }) => ({
       blocked: false,
       params,
