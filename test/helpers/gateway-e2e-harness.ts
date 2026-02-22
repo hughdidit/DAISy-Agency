@@ -1,34 +1,42 @@
+import { type ChildProcessWithoutNullStreams, spawn } from "node:child_process";
 import { randomUUID } from "node:crypto";
-import { afterAll, describe, expect, it } from "vitest";
-<<<<<<< HEAD
-=======
-import { GatewayClient } from "../src/gateway/client.js";
-import { connectGatewayClient } from "../src/gateway/test-helpers.e2e.js";
-<<<<<<< HEAD
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
-import { loadOrCreateDeviceIdentity } from "../src/infra/device-identity.js";
-<<<<<<< HEAD
-import { GatewayClient } from "../src/gateway/client.js";
-=======
-import { sleep } from "../src/utils.js";
->>>>>>> ec910a235 (refactor: consolidate duplicate utility functions (#12439))
-=======
->>>>>>> 13541864e (refactor: extract telegram lane delivery and e2e harness)
-import { GATEWAY_CLIENT_MODES, GATEWAY_CLIENT_NAMES } from "../src/utils/message-channel.js";
-import {
-  type ChatEventPayload,
-  type GatewayInstance,
-  connectNode,
-  extractFirstTextBlock,
-  postJson,
-  spawnGatewayInstance,
-  stopGatewayInstance,
-  waitForChatFinalEvent,
-  waitForNodeStatus,
-} from "./helpers/gateway-e2e-harness.js";
+import fs from "node:fs/promises";
+import { request as httpRequest } from "node:http";
+import net from "node:net";
+import os from "node:os";
+import path from "node:path";
+import { GatewayClient } from "../../src/gateway/client.js";
+import { connectGatewayClient } from "../../src/gateway/test-helpers.e2e.js";
+import { loadOrCreateDeviceIdentity } from "../../src/infra/device-identity.js";
+import { sleep } from "../../src/utils.js";
+import { GATEWAY_CLIENT_MODES, GATEWAY_CLIENT_NAMES } from "../../src/utils/message-channel.js";
 
-const E2E_TIMEOUT_MS = 120_000;
-<<<<<<< HEAD
+type NodeListPayload = {
+  nodes?: Array<{ nodeId?: string; connected?: boolean; paired?: boolean }>;
+};
+
+export type ChatEventPayload = {
+  runId?: string;
+  sessionKey?: string;
+  state?: string;
+  message?: unknown;
+};
+
+export type GatewayInstance = {
+  name: string;
+  port: number;
+  hookToken: string;
+  gatewayToken: string;
+  homeDir: string;
+  stateDir: string;
+  configPath: string;
+  child: ChildProcessWithoutNullStreams;
+  stdout: string[];
+  stderr: string[];
+};
+
+const GATEWAY_START_TIMEOUT_MS = 60_000;
+const GATEWAY_STOP_TIMEOUT_MS = 1_500;
 const GATEWAY_CONNECT_STATUS_TIMEOUT_MS = 2_000;
 const GATEWAY_NODE_STATUS_TIMEOUT_MS = 4_000;
 const GATEWAY_NODE_STATUS_POLL_MS = 20;
@@ -45,13 +53,13 @@ const getFreePort = async () => {
   return addr.port;
 };
 
-const waitForPortOpen = async (
+async function waitForPortOpen(
   proc: ChildProcessWithoutNullStreams,
   chunksOut: string[],
   chunksErr: string[],
   port: number,
   timeoutMs: number,
-) => {
+) {
   const startedAt = Date.now();
   while (Date.now() - startedAt < timeoutMs) {
     if (proc.exitCode !== null) {
@@ -88,19 +96,23 @@ const waitForPortOpen = async (
     `timeout waiting for gateway to listen on port ${port}\n` +
       `--- stdout ---\n${stdout}\n--- stderr ---\n${stderr}`,
   );
-};
+}
 
-const spawnGatewayInstance = async (name: string): Promise<GatewayInstance> => {
+export async function spawnGatewayInstance(name: string): Promise<GatewayInstance> {
   const port = await getFreePort();
   const hookToken = `token-${name}-${randomUUID()}`;
   const gatewayToken = `gateway-${name}-${randomUUID()}`;
-  const homeDir = await fs.mkdtemp(path.join(os.tmpdir(), `moltbot-e2e-${name}-`));
-  const configDir = path.join(homeDir, ".clawdbot");
+  const homeDir = await fs.mkdtemp(path.join(os.tmpdir(), `openclaw-e2e-${name}-`));
+  const configDir = path.join(homeDir, ".openclaw");
   await fs.mkdir(configDir, { recursive: true });
-  const configPath = path.join(configDir, "moltbot.json");
+  const configPath = path.join(configDir, "openclaw.json");
   const stateDir = path.join(configDir, "state");
   const config = {
-    gateway: { port, auth: { mode: "token", token: gatewayToken } },
+    gateway: {
+      port,
+      auth: { mode: "token", token: gatewayToken },
+      controlUi: { enabled: false },
+    },
     hooks: { enabled: true, token: hookToken, path: "/hooks" },
   };
   await fs.writeFile(configPath, JSON.stringify(config, null, 2), "utf8");
@@ -126,13 +138,18 @@ const spawnGatewayInstance = async (name: string): Promise<GatewayInstance> => {
         env: {
           ...process.env,
           HOME: homeDir,
-          CLAWDBOT_CONFIG_PATH: configPath,
-          CLAWDBOT_STATE_DIR: stateDir,
-          CLAWDBOT_GATEWAY_TOKEN: "",
-          CLAWDBOT_GATEWAY_PASSWORD: "",
-          CLAWDBOT_SKIP_CHANNELS: "1",
-          CLAWDBOT_SKIP_BROWSER_CONTROL_SERVER: "1",
-          CLAWDBOT_SKIP_CANVAS_HOST: "1",
+          OPENCLAW_CONFIG_PATH: configPath,
+          OPENCLAW_STATE_DIR: stateDir,
+          OPENCLAW_GATEWAY_TOKEN: "",
+          OPENCLAW_GATEWAY_PASSWORD: "",
+          OPENCLAW_SKIP_CHANNELS: "1",
+          OPENCLAW_SKIP_PROVIDERS: "1",
+          OPENCLAW_SKIP_GMAIL_WATCHER: "1",
+          OPENCLAW_SKIP_CRON: "1",
+          OPENCLAW_SKIP_BROWSER_CONTROL_SERVER: "1",
+          OPENCLAW_SKIP_CANVAS_HOST: "1",
+          OPENCLAW_TEST_MINIMAL_GATEWAY: "1",
+          VITEST: "1",
         },
         stdio: ["ignore", "pipe", "pipe"],
       },
@@ -168,9 +185,9 @@ const spawnGatewayInstance = async (name: string): Promise<GatewayInstance> => {
     await fs.rm(homeDir, { recursive: true, force: true });
     throw err;
   }
-};
+}
 
-const stopGatewayInstance = async (inst: GatewayInstance) => {
+export async function stopGatewayInstance(inst: GatewayInstance) {
   if (inst.child.exitCode === null && !inst.child.killed) {
     try {
       inst.child.kill("SIGTERM");
@@ -195,9 +212,13 @@ const stopGatewayInstance = async (inst: GatewayInstance) => {
     }
   }
   await fs.rm(inst.homeDir, { recursive: true, force: true });
-};
+}
 
-const postJson = async (url: string, body: unknown, headers?: Record<string, string>) => {
+export async function postJson(
+  url: string,
+  body: unknown,
+  headers?: Record<string, string>,
+): Promise<{ status: number; json: unknown }> {
   const payload = JSON.stringify(body);
   const parsed = new URL(url);
   return await new Promise<{ status: number; json: unknown }>((resolve, reject) => {
@@ -236,12 +257,12 @@ const postJson = async (url: string, body: unknown, headers?: Record<string, str
     req.write(payload);
     req.end();
   });
-};
+}
 
-const connectNode = async (
+export async function connectNode(
   inst: GatewayInstance,
   label: string,
-): Promise<{ client: GatewayClient; nodeId: string }> => {
+): Promise<{ client: GatewayClient; nodeId: string }> {
   const identityPath = path.join(inst.homeDir, `${label}-device.json`);
   const deviceIdentity = loadOrCreateDeviceIdentity(identityPath);
   const nodeId = deviceIdentity.deviceId;
@@ -261,12 +282,12 @@ const connectNode = async (
     timeoutMessage: `timeout waiting for ${label} to connect`,
   });
   return { client, nodeId };
-};
+}
 
-const connectStatusClient = async (
+async function connectStatusClient(
   inst: GatewayInstance,
   timeoutMs = GATEWAY_CONNECT_STATUS_TIMEOUT_MS,
-): Promise<GatewayClient> => {
+): Promise<GatewayClient> {
   let settled = false;
   let timer: NodeJS.Timeout | null = null;
 
@@ -310,39 +331,18 @@ const connectStatusClient = async (
 
     client.start();
   });
-};
+}
 
-const waitForNodeStatus = async (
+export async function waitForNodeStatus(
   inst: GatewayInstance,
   nodeId: string,
   timeoutMs = GATEWAY_NODE_STATUS_TIMEOUT_MS,
-) => {
+) {
   const deadline = Date.now() + timeoutMs;
-<<<<<<< HEAD
-<<<<<<< HEAD
-  while (Date.now() < deadline) {
-<<<<<<< HEAD
-    const list = (await runCliJson(
-      ["nodes", "status", "--json", "--url", `ws://127.0.0.1:${inst.port}`],
-      {
-        CLAWDBOT_GATEWAY_TOKEN: inst.gatewayToken,
-        CLAWDBOT_GATEWAY_PASSWORD: "",
-      },
-    )) as NodeListPayload;
-=======
-    const list = await fetchNodeList(inst);
->>>>>>> fdfc34fa1 (perf(test): stabilize e2e harness and reduce flaky gateway coverage)
-    const match = list.nodes?.find((n) => n.nodeId === nodeId);
-    if (match?.connected && match?.paired) {
-      return;
-=======
-  const client = await connectStatusClient(inst);
-=======
   const client = await connectStatusClient(
     inst,
     Math.min(GATEWAY_CONNECT_STATUS_TIMEOUT_MS, timeoutMs),
   );
->>>>>>> 4a2ff03f4 (test: dedupe channel/web cases and tighten gateway e2e waits)
   try {
     while (Date.now() < deadline) {
       const list = await client.request<NodeListPayload>("node.list", {});
@@ -350,20 +350,15 @@ const waitForNodeStatus = async (
       if (match?.connected && match?.paired) {
         return;
       }
-<<<<<<< HEAD
-      await sleep(50);
->>>>>>> b05c41f34 (perf: reduce gateway multi e2e websocket churn)
-=======
       await sleep(GATEWAY_NODE_STATUS_POLL_MS);
->>>>>>> 4a2ff03f4 (test: dedupe channel/web cases and tighten gateway e2e waits)
     }
   } finally {
     client.stop();
   }
   throw new Error(`timeout waiting for node status for ${nodeId}`);
-};
+}
 
-function extractFirstTextBlock(message: unknown): string | undefined {
+export function extractFirstTextBlock(message: unknown): string | undefined {
   if (!message || typeof message !== "object") {
     return undefined;
   }
@@ -379,12 +374,12 @@ function extractFirstTextBlock(message: unknown): string | undefined {
   return typeof text === "string" ? text : undefined;
 }
 
-const waitForChatFinalEvent = async (params: {
+export async function waitForChatFinalEvent(params: {
   events: ChatEventPayload[];
   runId: string;
   sessionKey: string;
   timeoutMs?: number;
-}): Promise<ChatEventPayload> => {
+}): Promise<ChatEventPayload> {
   const deadline = Date.now() + (params.timeoutMs ?? 15_000);
   while (Date.now() < deadline) {
     const match = params.events.find(
@@ -397,131 +392,4 @@ const waitForChatFinalEvent = async (params: {
     await sleep(20);
   }
   throw new Error(`timeout waiting for final chat event (runId=${params.runId})`);
-};
-=======
->>>>>>> 13541864e (refactor: extract telegram lane delivery and e2e harness)
-
-describe("gateway multi-instance e2e", () => {
-  const instances: GatewayInstance[] = [];
-  const nodeClients: GatewayClient[] = [];
-  const chatClients: GatewayClient[] = [];
-
-  afterAll(async () => {
-    for (const client of nodeClients) {
-      client.stop();
-    }
-    for (const client of chatClients) {
-      client.stop();
-    }
-    for (const inst of instances) {
-      await stopGatewayInstance(inst);
-    }
-  });
-
-  it(
-    "spins up two gateways and exercises WS + HTTP + node pairing",
-    { timeout: E2E_TIMEOUT_MS },
-    async () => {
-      const [gwA, gwB] = await Promise.all([spawnGatewayInstance("a"), spawnGatewayInstance("b")]);
-      instances.push(gwA, gwB);
-
-<<<<<<< HEAD
-      const [healthA, healthB] = (await Promise.all([
-        runCliJson(["health", "--json", "--timeout", "10000"], {
-          CLAWDBOT_GATEWAY_PORT: String(gwA.port),
-          CLAWDBOT_GATEWAY_TOKEN: gwA.gatewayToken,
-          CLAWDBOT_GATEWAY_PASSWORD: "",
-        }),
-        runCliJson(["health", "--json", "--timeout", "10000"], {
-          CLAWDBOT_GATEWAY_PORT: String(gwB.port),
-          CLAWDBOT_GATEWAY_TOKEN: gwB.gatewayToken,
-          CLAWDBOT_GATEWAY_PASSWORD: "",
-        }),
-      ])) as [HealthPayload, HealthPayload];
-      expect(healthA.ok).toBe(true);
-      expect(healthB.ok).toBe(true);
-
-=======
->>>>>>> 3c00a9e33 (perf: remove redundant cli health checks from gateway multi e2e)
-      const [hookResA, hookResB] = await Promise.all([
-        postJson(
-          `http://127.0.0.1:${gwA.port}/hooks/wake`,
-          {
-            text: "wake a",
-            mode: "now",
-          },
-          { "x-openclaw-token": gwA.hookToken },
-        ),
-        postJson(
-          `http://127.0.0.1:${gwB.port}/hooks/wake`,
-          {
-            text: "wake b",
-            mode: "now",
-          },
-          { "x-openclaw-token": gwB.hookToken },
-        ),
-      ]);
-      expect(hookResA.status).toBe(200);
-      expect((hookResA.json as { ok?: boolean } | undefined)?.ok).toBe(true);
-      expect(hookResB.status).toBe(200);
-      expect((hookResB.json as { ok?: boolean } | undefined)?.ok).toBe(true);
-
-      const [nodeA, nodeB] = await Promise.all([
-        connectNode(gwA, "node-a"),
-        connectNode(gwB, "node-b"),
-      ]);
-      nodeClients.push(nodeA.client, nodeB.client);
-
-      await Promise.all([
-        waitForNodeStatus(gwA, nodeA.nodeId),
-        waitForNodeStatus(gwB, nodeB.nodeId),
-      ]);
-    },
-  );
-
-  it(
-    "delivers final chat event for telegram-shaped session keys",
-    { timeout: E2E_TIMEOUT_MS },
-    async () => {
-      const gw = await spawnGatewayInstance("chat-telegram-fixture");
-      instances.push(gw);
-
-      const chatEvents: ChatEventPayload[] = [];
-      const chatClient = await connectGatewayClient({
-        url: `ws://127.0.0.1:${gw.port}`,
-        token: gw.gatewayToken,
-        clientName: GATEWAY_CLIENT_NAMES.CLI,
-        clientDisplayName: "chat-e2e-cli",
-        clientVersion: "1.0.0",
-        platform: "test",
-        mode: GATEWAY_CLIENT_MODES.CLI,
-        onEvent: (evt) => {
-          if (evt.event === "chat" && evt.payload && typeof evt.payload === "object") {
-            chatEvents.push(evt.payload as ChatEventPayload);
-          }
-        },
-      });
-      chatClients.push(chatClient);
-
-      const sessionKey = "agent:main:telegram:direct:123456";
-      const idempotencyKey = `idem-${randomUUID()}`;
-      const sendRes = await chatClient.request<{ runId?: string; status?: string }>("chat.send", {
-        sessionKey,
-        message: "/context list",
-        idempotencyKey,
-      });
-      expect(sendRes.status).toBe("started");
-      const runId = sendRes.runId;
-      expect(typeof runId).toBe("string");
-
-      const finalEvent = await waitForChatFinalEvent({
-        events: chatEvents,
-        runId: String(runId),
-        sessionKey,
-      });
-      const finalText = extractFirstTextBlock(finalEvent.message);
-      expect(typeof finalText).toBe("string");
-      expect(finalText?.length).toBeGreaterThan(0);
-    },
-  );
-});
+}
