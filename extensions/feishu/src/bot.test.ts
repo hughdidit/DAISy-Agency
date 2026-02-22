@@ -102,4 +102,190 @@ describe("handleFeishuMessage command authorization", () => {
       }),
     );
   });
+<<<<<<< HEAD
+=======
+
+  it("reads pairing allow store for non-command DMs when dmPolicy is pairing", async () => {
+    mockShouldComputeCommandAuthorized.mockReturnValue(false);
+    mockReadAllowFromStore.mockResolvedValue(["ou-attacker"]);
+
+    const cfg: ClawdbotConfig = {
+      commands: { useAccessGroups: true },
+      channels: {
+        feishu: {
+          dmPolicy: "pairing",
+          allowFrom: [],
+        },
+      },
+    } as ClawdbotConfig;
+
+    const event: FeishuMessageEvent = {
+      sender: {
+        sender_id: {
+          open_id: "ou-attacker",
+        },
+      },
+      message: {
+        message_id: "msg-read-store-non-command",
+        chat_id: "oc-dm",
+        chat_type: "p2p",
+        message_type: "text",
+        content: JSON.stringify({ text: "hello there" }),
+      },
+    };
+
+    await dispatchMessage({ cfg, event });
+
+    expect(mockReadAllowFromStore).toHaveBeenCalledWith("feishu");
+    expect(mockResolveCommandAuthorizedFromAuthorizers).not.toHaveBeenCalled();
+    expect(mockFinalizeInboundContext).toHaveBeenCalledTimes(1);
+    expect(mockDispatchReplyFromConfig).toHaveBeenCalledTimes(1);
+  });
+
+  it("creates pairing request and drops unauthorized DMs in pairing mode", async () => {
+    mockShouldComputeCommandAuthorized.mockReturnValue(false);
+    mockReadAllowFromStore.mockResolvedValue([]);
+    mockUpsertPairingRequest.mockResolvedValue({ code: "ABCDEFGH", created: true });
+
+    const cfg: ClawdbotConfig = {
+      channels: {
+        feishu: {
+          dmPolicy: "pairing",
+          allowFrom: [],
+        },
+      },
+    } as ClawdbotConfig;
+
+    const event: FeishuMessageEvent = {
+      sender: {
+        sender_id: {
+          open_id: "ou-unapproved",
+        },
+      },
+      message: {
+        message_id: "msg-pairing-flow",
+        chat_id: "oc-dm",
+        chat_type: "p2p",
+        message_type: "text",
+        content: JSON.stringify({ text: "hello" }),
+      },
+    };
+
+    await dispatchMessage({ cfg, event });
+
+    expect(mockUpsertPairingRequest).toHaveBeenCalledWith({
+      channel: "feishu",
+      id: "ou-unapproved",
+      meta: { name: undefined },
+    });
+    expect(mockBuildPairingReply).toHaveBeenCalledWith({
+      channel: "feishu",
+      idLine: "Your Feishu user id: ou-unapproved",
+      code: "ABCDEFGH",
+    });
+    expect(mockSendMessageFeishu).toHaveBeenCalledWith(
+      expect.objectContaining({
+        to: "user:ou-unapproved",
+        accountId: "default",
+      }),
+    );
+    expect(mockFinalizeInboundContext).not.toHaveBeenCalled();
+    expect(mockDispatchReplyFromConfig).not.toHaveBeenCalled();
+  });
+
+  it("computes group command authorization from group allowFrom", async () => {
+    mockShouldComputeCommandAuthorized.mockReturnValue(true);
+    mockResolveCommandAuthorizedFromAuthorizers.mockReturnValue(false);
+
+    const cfg: ClawdbotConfig = {
+      commands: { useAccessGroups: true },
+      channels: {
+        feishu: {
+          groups: {
+            "oc-group": {
+              requireMention: false,
+            },
+          },
+        },
+      },
+    } as ClawdbotConfig;
+
+    const event: FeishuMessageEvent = {
+      sender: {
+        sender_id: {
+          open_id: "ou-attacker",
+        },
+      },
+      message: {
+        message_id: "msg-group-command-auth",
+        chat_id: "oc-group",
+        chat_type: "group",
+        message_type: "text",
+        content: JSON.stringify({ text: "/status" }),
+      },
+    };
+
+    await dispatchMessage({ cfg, event });
+
+    expect(mockResolveCommandAuthorizedFromAuthorizers).toHaveBeenCalledWith({
+      useAccessGroups: true,
+      authorizers: [{ configured: false, allowed: false }],
+    });
+    expect(mockFinalizeInboundContext).toHaveBeenCalledWith(
+      expect.objectContaining({
+        ChatType: "group",
+        CommandAuthorized: false,
+        SenderId: "ou-attacker",
+      }),
+    );
+  });
+
+  it("falls back to top-level allowFrom for group command authorization", async () => {
+    mockShouldComputeCommandAuthorized.mockReturnValue(true);
+    mockResolveCommandAuthorizedFromAuthorizers.mockReturnValue(true);
+
+    const cfg: ClawdbotConfig = {
+      commands: { useAccessGroups: true },
+      channels: {
+        feishu: {
+          allowFrom: ["ou-admin"],
+          groups: {
+            "oc-group": {
+              requireMention: false,
+            },
+          },
+        },
+      },
+    } as ClawdbotConfig;
+
+    const event: FeishuMessageEvent = {
+      sender: {
+        sender_id: {
+          open_id: "ou-admin",
+        },
+      },
+      message: {
+        message_id: "msg-group-command-fallback",
+        chat_id: "oc-group",
+        chat_type: "group",
+        message_type: "text",
+        content: JSON.stringify({ text: "/status" }),
+      },
+    };
+
+    await dispatchMessage({ cfg, event });
+
+    expect(mockResolveCommandAuthorizedFromAuthorizers).toHaveBeenCalledWith({
+      useAccessGroups: true,
+      authorizers: [{ configured: true, allowed: true }],
+    });
+    expect(mockFinalizeInboundContext).toHaveBeenCalledWith(
+      expect.objectContaining({
+        ChatType: "group",
+        CommandAuthorized: true,
+        SenderId: "ou-admin",
+      }),
+    );
+  });
+>>>>>>> 95e85e627 (fix(feishu): restore group command fallback and plugin deps)
 });
