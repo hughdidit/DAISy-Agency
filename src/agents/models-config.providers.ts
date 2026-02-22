@@ -162,8 +162,22 @@ const OLLAMA_DEFAULT_COST = {
 };
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 const QIANFAN_BASE_URL = "https://qianfan.baidubce.com/v2";
 =======
+=======
+const OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1";
+const OPENROUTER_DEFAULT_MODEL_ID = "auto";
+const OPENROUTER_DEFAULT_CONTEXT_WINDOW = 200000;
+const OPENROUTER_DEFAULT_MAX_TOKENS = 8192;
+const OPENROUTER_DEFAULT_COST = {
+  input: 0,
+  output: 0,
+  cacheRead: 0,
+  cacheWrite: 0,
+};
+
+>>>>>>> ded9a59f7 (OpenRouter: allow any model ID instead of restricting to static catalog (#14312))
 const VLLM_BASE_URL = "http://127.0.0.1:8000/v1";
 const VLLM_DEFAULT_CONTEXT_WINDOW = 128000;
 const VLLM_DEFAULT_MAX_TOKENS = 8192;
@@ -698,6 +712,24 @@ function buildTogetherProvider(): ProviderConfig {
   };
 }
 
+function buildOpenrouterProvider(): ProviderConfig {
+  return {
+    baseUrl: OPENROUTER_BASE_URL,
+    api: "openai-completions",
+    models: [
+      {
+        id: OPENROUTER_DEFAULT_MODEL_ID,
+        name: "OpenRouter Auto",
+        reasoning: false,
+        input: ["text", "image"],
+        cost: OPENROUTER_DEFAULT_COST,
+        contextWindow: OPENROUTER_DEFAULT_CONTEXT_WINDOW,
+        maxTokens: OPENROUTER_DEFAULT_MAX_TOKENS,
+      },
+    ],
+  };
+}
+
 async function buildVllmProvider(params?: {
   baseUrl?: string;
   apiKey?: string;
@@ -710,6 +742,7 @@ async function buildVllmProvider(params?: {
     models,
   };
 }
+
 export function buildQianfanProvider(): ProviderConfig {
   return {
     baseUrl: QIANFAN_BASE_URL,
@@ -932,6 +965,13 @@ export async function resolveImplicitProviders(params: {
     resolveApiKeyFromProfiles({ provider: "qianfan", store: authStore });
   if (qianfanKey) {
     providers.qianfan = { ...buildQianfanProvider(), apiKey: qianfanKey };
+  }
+
+  const openrouterKey =
+    resolveEnvApiKeyVarName("openrouter") ??
+    resolveApiKeyFromProfiles({ provider: "openrouter", store: authStore });
+  if (openrouterKey) {
+    providers.openrouter = { ...buildOpenrouterProvider(), apiKey: openrouterKey };
   }
 
   const nvidiaKey =
