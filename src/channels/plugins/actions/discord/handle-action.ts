@@ -22,10 +22,26 @@ function readParentIdParam(params: Record<string, unknown>): string | null | und
 }
 
 export async function handleDiscordMessageAction(
+<<<<<<< HEAD
   ctx: Pick<ChannelMessageActionContext, "action" | "params" | "cfg" | "accountId">,
+=======
+  ctx: Pick<
+    ChannelMessageActionContext,
+    | "action"
+    | "params"
+    | "cfg"
+    | "accountId"
+    | "requesterSenderId"
+    | "toolContext"
+    | "mediaLocalRoots"
+  >,
+>>>>>>> 7bbd59738 (fix(media): enforce agent media roots in plugin send actions)
 ): Promise<AgentToolResult<unknown>> {
   const { action, params, cfg } = ctx;
   const accountId = ctx.accountId ?? readStringParam(params, "accountId");
+  const actionOptions = {
+    mediaLocalRoots: ctx.mediaLocalRoots,
+  } as const;
 
   const resolveChannelId = () =>
     resolveDiscordChannelId(
@@ -73,6 +89,7 @@ export async function handleDiscordMessageAction(
         __agentId: agentId ?? undefined,
       },
       cfg,
+      actionOptions,
     );
   }
 
@@ -98,6 +115,7 @@ export async function handleDiscordMessageAction(
         content: readStringParam(params, "message"),
       },
       cfg,
+      actionOptions,
     );
   }
 
@@ -115,6 +133,7 @@ export async function handleDiscordMessageAction(
         remove,
       },
       cfg,
+      actionOptions,
     );
   }
 
@@ -130,6 +149,7 @@ export async function handleDiscordMessageAction(
         limit,
       },
       cfg,
+      actionOptions,
     );
   }
 
@@ -146,6 +166,7 @@ export async function handleDiscordMessageAction(
         around: readStringParam(params, "around"),
       },
       cfg,
+      actionOptions,
     );
   }
 
@@ -161,6 +182,7 @@ export async function handleDiscordMessageAction(
         content,
       },
       cfg,
+      actionOptions,
     );
   }
 
@@ -174,6 +196,7 @@ export async function handleDiscordMessageAction(
         messageId,
       },
       cfg,
+      actionOptions,
     );
   }
 
@@ -188,6 +211,7 @@ export async function handleDiscordMessageAction(
         messageId,
       },
       cfg,
+      actionOptions,
     );
   }
 
@@ -199,6 +223,7 @@ export async function handleDiscordMessageAction(
         channelId: resolveChannelId(),
       },
       cfg,
+      actionOptions,
     );
   }
 
@@ -220,6 +245,7 @@ export async function handleDiscordMessageAction(
         autoArchiveMinutes,
       },
       cfg,
+      actionOptions,
     );
   }
 
@@ -238,6 +264,7 @@ export async function handleDiscordMessageAction(
         content: readStringParam(params, "message"),
       },
       cfg,
+      actionOptions,
     );
   }
 
@@ -253,6 +280,7 @@ export async function handleDiscordMessageAction(
         activityState: readStringParam(params, "activityState"),
       },
       cfg,
+      actionOptions,
     );
   }
 

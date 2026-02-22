@@ -62,6 +62,9 @@ const presenceActions = new Set(["setPresence"]);
 export async function handleDiscordAction(
   params: Record<string, unknown>,
   cfg: OpenClawConfig,
+  options?: {
+    mediaLocalRoots?: readonly string[];
+  },
 ): Promise<AgentToolResult<unknown>> {
   const action = readStringParam(params, "action", { required: true });
 <<<<<<< HEAD
@@ -72,7 +75,7 @@ export async function handleDiscordAction(
 >>>>>>> 2b3ecee7c (fix(actions): layer per-account gate fallback)
 
   if (messagingActions.has(action)) {
-    return await handleDiscordMessagingAction(action, params, isActionEnabled);
+    return await handleDiscordMessagingAction(action, params, isActionEnabled, options);
   }
   if (guildActions.has(action)) {
     return await handleDiscordGuildAction(action, params, isActionEnabled);

@@ -152,7 +152,7 @@ export const telegramMessageActions: ChannelMessageActionAdapter = {
   extractToolSend: ({ args }) => {
     return extractToolSend(args, "sendMessage");
   },
-  handleAction: async ({ action, params, cfg, accountId }) => {
+  handleAction: async ({ action, params, cfg, accountId, mediaLocalRoots }) => {
     if (action === "send") {
       const sendParams = readTelegramSendParams(params);
       return await handleTelegramAction(
@@ -162,6 +162,7 @@ export const telegramMessageActions: ChannelMessageActionAdapter = {
           accountId: accountId ?? undefined,
         },
         cfg,
+        { mediaLocalRoots },
       );
     }
 
@@ -181,6 +182,7 @@ export const telegramMessageActions: ChannelMessageActionAdapter = {
           accountId: accountId ?? undefined,
         },
         cfg,
+        { mediaLocalRoots },
       );
     }
 
@@ -195,6 +197,7 @@ export const telegramMessageActions: ChannelMessageActionAdapter = {
           accountId: accountId ?? undefined,
         },
         cfg,
+        { mediaLocalRoots },
       );
     }
 
@@ -213,6 +216,7 @@ export const telegramMessageActions: ChannelMessageActionAdapter = {
           accountId: accountId ?? undefined,
         },
         cfg,
+        { mediaLocalRoots },
       );
     }
 
@@ -234,6 +238,7 @@ export const telegramMessageActions: ChannelMessageActionAdapter = {
           accountId: accountId ?? undefined,
         },
         cfg,
+        { mediaLocalRoots },
       );
     }
 
@@ -248,6 +253,7 @@ export const telegramMessageActions: ChannelMessageActionAdapter = {
           accountId: accountId ?? undefined,
         },
         cfg,
+        { mediaLocalRoots },
       );
     }
 
@@ -266,6 +272,7 @@ export const telegramMessageActions: ChannelMessageActionAdapter = {
           accountId: accountId ?? undefined,
         },
         cfg,
+        { mediaLocalRoots },
       );
     }
 
