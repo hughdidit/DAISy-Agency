@@ -22,6 +22,7 @@ import {
   normalizeSafeBins,
   requiresExecApproval,
   resolveCommandResolution,
+  resolveAllowAlwaysPatterns,
   resolveExecApprovals,
   resolveExecApprovalsFromFile,
 <<<<<<< HEAD
@@ -1056,3 +1057,238 @@ describe("exec approvals default agent migration", () => {
     expect(resolved.file.agents?.default).toBeUndefined();
   });
 });
+<<<<<<< HEAD
+=======
+
+describe("normalizeExecApprovals handles string allowlist entries (#9790)", () => {
+  function getMainAllowlistPatterns(file: ExecApprovalsFile): string[] | undefined {
+    const normalized = normalizeExecApprovals(file);
+    return normalized.agents?.main?.allowlist?.map((entry) => entry.pattern);
+  }
+
+  function expectNoSpreadStringArtifacts(entries: ExecAllowlistEntry[]) {
+    for (const entry of entries) {
+      expect(entry).toHaveProperty("pattern");
+      expect(typeof entry.pattern).toBe("string");
+      expect(entry.pattern.length).toBeGreaterThan(0);
+      expect(entry).not.toHaveProperty("0");
+    }
+  }
+
+  it("converts bare string entries to proper ExecAllowlistEntry objects", () => {
+    // Simulates a corrupted or legacy config where allowlist contains plain
+    // strings (e.g. ["ls", "cat"]) instead of { pattern: "..." } objects.
+    const file = {
+      version: 1,
+      agents: {
+        main: {
+          mode: "allowlist",
+          allowlist: ["things", "remindctl", "memo", "which", "ls", "cat", "echo"],
+        },
+      },
+    } as unknown as ExecApprovalsFile;
+
+    const normalized = normalizeExecApprovals(file);
+    const entries = normalized.agents?.main?.allowlist ?? [];
+
+    // Spread-string corruption would create numeric keys — ensure none exist.
+    expectNoSpreadStringArtifacts(entries);
+
+    expect(entries.map((e) => e.pattern)).toEqual([
+      "things",
+      "remindctl",
+      "memo",
+      "which",
+      "ls",
+      "cat",
+      "echo",
+    ]);
+  });
+
+  it("preserves proper ExecAllowlistEntry objects unchanged", () => {
+    const file: ExecApprovalsFile = {
+      version: 1,
+      agents: {
+        main: {
+          allowlist: [{ pattern: "/usr/bin/ls" }, { pattern: "/usr/bin/cat", id: "existing-id" }],
+        },
+      },
+    };
+
+    const normalized = normalizeExecApprovals(file);
+    const entries = normalized.agents?.main?.allowlist ?? [];
+
+    expect(entries).toHaveLength(2);
+    expect(entries[0]?.pattern).toBe("/usr/bin/ls");
+    expect(entries[1]?.pattern).toBe("/usr/bin/cat");
+    expect(entries[1]?.id).toBe("existing-id");
+  });
+
+  it("sanitizes mixed and malformed allowlist shapes", () => {
+    const cases: Array<{
+      name: string;
+      allowlist: unknown;
+      expectedPatterns: string[] | undefined;
+    }> = [
+      {
+        name: "mixed entries",
+        allowlist: ["ls", { pattern: "/usr/bin/cat" }, "echo"],
+        expectedPatterns: ["ls", "/usr/bin/cat", "echo"],
+      },
+      {
+        name: "empty strings dropped",
+        allowlist: ["", "  ", "ls"],
+        expectedPatterns: ["ls"],
+      },
+      {
+        name: "malformed objects dropped",
+        allowlist: [{ pattern: "/usr/bin/ls" }, {}, { pattern: 123 }, { pattern: "   " }, "echo"],
+        expectedPatterns: ["/usr/bin/ls", "echo"],
+      },
+      {
+        name: "non-array dropped",
+        allowlist: "ls",
+        expectedPatterns: undefined,
+      },
+    ];
+
+    for (const testCase of cases) {
+      const patterns = getMainAllowlistPatterns({
+        version: 1,
+        agents: {
+          main: { allowlist: testCase.allowlist } as ExecApprovalsAgent,
+        },
+      });
+      expect(patterns, testCase.name).toEqual(testCase.expectedPatterns);
+      if (patterns) {
+        const entries = normalizeExecApprovals({
+          version: 1,
+          agents: {
+            main: { allowlist: testCase.allowlist } as ExecApprovalsAgent,
+          },
+        }).agents?.main?.allowlist;
+        expectNoSpreadStringArtifacts(entries ?? []);
+      }
+    }
+  });
+});
+
+describe("resolveAllowAlwaysPatterns", () => {
+  function makeExecutable(dir: string, name: string): string {
+    const fileName = process.platform === "win32" ? `${name}.exe` : name;
+    const exe = path.join(dir, fileName);
+    fs.writeFileSync(exe, "");
+    fs.chmodSync(exe, 0o755);
+    return exe;
+  }
+
+  it("returns direct executable paths for non-shell segments", () => {
+    const exe = path.join("/tmp", "openclaw-tool");
+    const patterns = resolveAllowAlwaysPatterns({
+      segments: [
+        {
+          raw: exe,
+          argv: [exe],
+          resolution: { rawExecutable: exe, resolvedPath: exe, executableName: "openclaw-tool" },
+        },
+      ],
+    });
+    expect(patterns).toEqual([exe]);
+  });
+
+  it("unwraps shell wrappers and persists the inner executable instead", () => {
+    if (process.platform === "win32") {
+      return;
+    }
+    const dir = makeTempDir();
+    const whoami = makeExecutable(dir, "whoami");
+    const patterns = resolveAllowAlwaysPatterns({
+      segments: [
+        {
+          raw: "/bin/zsh -lc 'whoami'",
+          argv: ["/bin/zsh", "-lc", "whoami"],
+          resolution: {
+            rawExecutable: "/bin/zsh",
+            resolvedPath: "/bin/zsh",
+            executableName: "zsh",
+          },
+        },
+      ],
+      cwd: dir,
+      env: makePathEnv(dir),
+      platform: process.platform,
+    });
+    expect(patterns).toEqual([whoami]);
+    expect(patterns).not.toContain("/bin/zsh");
+  });
+
+  it("extracts all inner binaries from shell chains and deduplicates", () => {
+    if (process.platform === "win32") {
+      return;
+    }
+    const dir = makeTempDir();
+    const whoami = makeExecutable(dir, "whoami");
+    const ls = makeExecutable(dir, "ls");
+    const patterns = resolveAllowAlwaysPatterns({
+      segments: [
+        {
+          raw: "/bin/zsh -lc 'whoami && ls && whoami'",
+          argv: ["/bin/zsh", "-lc", "whoami && ls && whoami"],
+          resolution: {
+            rawExecutable: "/bin/zsh",
+            resolvedPath: "/bin/zsh",
+            executableName: "zsh",
+          },
+        },
+      ],
+      cwd: dir,
+      env: makePathEnv(dir),
+      platform: process.platform,
+    });
+    expect(new Set(patterns)).toEqual(new Set([whoami, ls]));
+  });
+
+  it("does not persist broad shell binaries when no inner command can be derived", () => {
+    const patterns = resolveAllowAlwaysPatterns({
+      segments: [
+        {
+          raw: "/bin/zsh -s",
+          argv: ["/bin/zsh", "-s"],
+          resolution: {
+            rawExecutable: "/bin/zsh",
+            resolvedPath: "/bin/zsh",
+            executableName: "zsh",
+          },
+        },
+      ],
+      platform: process.platform,
+    });
+    expect(patterns).toEqual([]);
+  });
+
+  it("detects shell wrappers even when unresolved executableName is a full path", () => {
+    if (process.platform === "win32") {
+      return;
+    }
+    const dir = makeTempDir();
+    const whoami = makeExecutable(dir, "whoami");
+    const patterns = resolveAllowAlwaysPatterns({
+      segments: [
+        {
+          raw: "/usr/local/bin/zsh -lc whoami",
+          argv: ["/usr/local/bin/zsh", "-lc", "whoami"],
+          resolution: {
+            rawExecutable: "/usr/local/bin/zsh",
+            resolvedPath: undefined,
+            executableName: "/usr/local/bin/zsh",
+          },
+        },
+      ],
+      cwd: dir,
+      env: makePathEnv(dir),
+      platform: process.platform,
+    });
+    expect(patterns).toEqual([whoami]);
+  });
+});
+>>>>>>> 98b2b16ac (Security/Exec: persist inner commands for shell-wrapper approvals)
