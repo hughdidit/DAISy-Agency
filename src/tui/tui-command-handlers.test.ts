@@ -38,6 +38,7 @@ function createHarness(params?: {
     applySessionInfoFromPatch: vi.fn(),
     noteLocalRunId: vi.fn(),
     forgetLocalRunId: vi.fn(),
+    requestExit: vi.fn(),
   });
 
   return {
@@ -87,6 +88,7 @@ describe("tui command handlers", () => {
       formatSessionKey: vi.fn(),
       applySessionInfoFromPatch: vi.fn(),
       noteLocalRunId: vi.fn(),
+      requestExit: vi.fn(),
     });
 
     const pending = handleCommand("/context");
