@@ -676,7 +676,12 @@ Docs: https://docs.openclaw.ai
 >>>>>>> fbdae4998 (Changelog: fix unreleased thanks attribution placement)
 =======
 - Memory/QMD: on Windows, resolve bare `qmd`/`mcporter` command names to npm shim executables (`.cmd`) before spawning, so qmd boot updates and mcporter-backed searches no longer fail with `spawn ... ENOENT` on default npm installs. (#23899) Thanks @arcbuilder-ai.
+<<<<<<< HEAD
 >>>>>>> 5858de607 (docs: reorder 2026.2.22 changelog by user impact)
+=======
+- Memory/QMD: parse plain-text `qmd collection list --json` output when older qmd builds ignore JSON mode, and retry memory searches once after re-ensuring managed collections when qmd returns `Collection not found ...`. (#23613) Thanks @leozhucn.
+- iOS/Watch: normalize watch quick-action notification payloads, support mirrored indexed actions beyond primary/secondary, and fix iOS test-target signing/compile blockers for watch notify coverage. (#23636) Thanks @mbelinky.
+>>>>>>> 0121fa6f1 (Changelog: add PR 23636 iOS/watch notes)
 - Signal/RPC: guard malformed Signal RPC JSON responses with a clear status-scoped error and add regression coverage for invalid JSON responses. (#22995) Thanks @adhitShet.
 - Gateway/Subagents: guard gateway and subagent session-key/message trim paths against undefined inputs to prevent early `Cannot read properties of undefined (reading 'trim')` crashes during subagent spawn and wait flows.
 - Agents/Workspace: guard `resolveUserPath` against undefined/null input to prevent `Cannot read properties of undefined (reading 'trim')` crashes when workspace paths are missing in embedded runner flows.
