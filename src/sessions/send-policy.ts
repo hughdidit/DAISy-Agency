@@ -19,6 +19,7 @@ import { normalizeChatType } from "../channels/chat-type.js";
 import type { OpenClawConfig } from "../config/config.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { SessionChatType, SessionEntry } from "../config/sessions.js";
+import { deriveSessionChatType } from "./session-key-utils.js";
 
 export type SessionSendPolicyDecision = "allow" | "deny";
 
@@ -63,17 +64,8 @@ function deriveChannelFromKey(key?: string) {
 }
 
 function deriveChatTypeFromKey(key?: string): SessionChatType | undefined {
-  const normalizedKey = stripAgentSessionKeyPrefix(key);
-  if (!normalizedKey) {
-    return undefined;
-  }
-  if (normalizedKey.includes(":group:")) {
-    return "group";
-  }
-  if (normalizedKey.includes(":channel:")) {
-    return "channel";
-  }
-  return undefined;
+  const chatType = deriveSessionChatType(key);
+  return chatType === "unknown" ? undefined : chatType;
 }
 
 export function resolveSendPolicy(params: {
