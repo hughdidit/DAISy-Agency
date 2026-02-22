@@ -505,6 +505,7 @@ let skillsSnapshot = cronSession.sessionEntry.skillsSnapshot;
           messageChannel,
           agentAccountId: resolvedDelivery.accountId,
           sessionFile,
+          agentDir,
           workspaceDir,
           config: cfgWithAgentDefaults,
           skillsSnapshot,
