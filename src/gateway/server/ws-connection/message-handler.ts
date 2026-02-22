@@ -653,8 +653,12 @@ export function attachGatewayWsMessageHandler(params: {
               deviceId: device.id,
               publicKey: devicePublicKey,
               ...clientAccessMetadata,
+<<<<<<< HEAD
               silent: isLocalClient && reason === "not-paired",
 >>>>>>> d116bcfb1 (refactor(runtime): consolidate followup, gateway, and provider dedupe paths)
+=======
+              silent: isLocalClient && (reason === "not-paired" || reason === "scope-upgrade"),
+>>>>>>> 9165bd7f3 (fix(gateway): auto-approve loopback scope upgrades)
             });
             const context = buildRequestContext();
             if (pairing.request.silent === true) {
