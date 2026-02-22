@@ -347,6 +347,7 @@ describe("runEmbeddedPiAgent auth profile rotation", () => {
         workspaceDir,
 =======
   it("rotates for auto-pinned profiles across retryable stream failures", async () => {
+<<<<<<< HEAD
     const cases = [
       {
         errorMessage: "rate limit",
@@ -365,6 +366,14 @@ describe("runEmbeddedPiAgent auth profile rotation", () => {
       const { usageStats } = await runAutoPinnedRotationCase(testCase);
       expect(typeof usageStats["openai:p2"]?.lastUsed).toBe("number");
     }
+=======
+    const { usageStats } = await runAutoPinnedRotationCase({
+      errorMessage: "rate limit",
+      sessionKey: "agent:test:auto",
+      runId: "run:auto",
+    });
+    expect(typeof usageStats["openai:p2"]?.lastUsed).toBe("number");
+>>>>>>> 7b229decd (test(perf): dedupe fixtures and reduce flaky waits)
   });
 
 <<<<<<< HEAD

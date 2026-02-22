@@ -40,8 +40,13 @@ const _MODELS_CONFIG: MoltbotConfig = {
 =======
 import { describe, expect, it } from "vitest";
 import type { OpenClawConfig } from "../config/config.js";
+import { resolveOpenClawAgentDir } from "./agent-paths.js";
 import { installModelsConfigTestHooks, withModelsTempHome } from "./models-config.e2e-harness.js";
+<<<<<<< HEAD
 >>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
+=======
+import { ensureOpenClawModelsJson } from "./models-config.js";
+>>>>>>> 7b229decd (test(perf): dedupe fixtures and reduce flaky waits)
 
 describe("models-config", () => {
   installModelsConfigTestHooks();
@@ -56,12 +61,16 @@ describe("models-config", () => {
 =======
 =======
     await withModelsTempHome(async () => {
+<<<<<<< HEAD
 >>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
       const { ensureOpenClawModelsJson } = await import("./models-config.js");
       const { resolveOpenClawAgentDir } = await import("./agent-paths.js");
 >>>>>>> b272158fe (perf(test): eliminate resetModules via injectable seams)
 
       const cfg: MoltbotConfig = {
+=======
+      const cfg: OpenClawConfig = {
+>>>>>>> 7b229decd (test(perf): dedupe fixtures and reduce flaky waits)
         models: {
           providers: {
             google: {
