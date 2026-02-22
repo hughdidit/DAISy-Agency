@@ -140,7 +140,7 @@ export function resolveOutboundTarget(params: {
     };
   }
 
-  const allowFrom =
+  const allowFromRaw =
     params.allowFrom ??
     (params.cfg && plugin.config.resolveAllowFrom
       ? plugin.config.resolveAllowFrom({
@@ -148,6 +148,7 @@ export function resolveOutboundTarget(params: {
           accountId: params.accountId ?? undefined,
         })
       : undefined);
+  const allowFrom = allowFromRaw?.map((entry) => String(entry));
 
   const resolveTarget = plugin.outbound?.resolveTarget;
   if (resolveTarget) {
@@ -295,13 +296,21 @@ export function resolveHeartbeatSenderContext(params: {
 }): HeartbeatSenderContext {
   const provider =
     params.delivery.channel !== "none" ? params.delivery.channel : params.delivery.lastChannel;
+<<<<<<< HEAD
   const allowFrom = provider
+=======
+  const accountId =
+    params.delivery.accountId ??
+    (provider === params.delivery.lastChannel ? params.delivery.lastAccountId : undefined);
+  const allowFromRaw = provider
+>>>>>>> 0c1a52307 (fix: align draft/outbound typings and tests)
     ? (getChannelPlugin(provider)?.config.resolveAllowFrom?.({
         cfg: params.cfg,
         accountId:
           provider === params.delivery.lastChannel ? params.delivery.lastAccountId : undefined,
       }) ?? [])
     : [];
+  const allowFrom = allowFromRaw.map((entry) => String(entry));
 
   const sender = resolveHeartbeatSenderId({
     allowFrom,

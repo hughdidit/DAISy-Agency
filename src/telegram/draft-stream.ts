@@ -160,6 +160,7 @@ export function createTelegramDraftStream(params: {
     }
   };
 
+<<<<<<< HEAD
   const flush = async () => {
     if (timer) {
       clearTimeout(timer);
@@ -195,6 +196,27 @@ export function createTelegramDraftStream(params: {
     }
     if (pendingText) schedule();
   };
+=======
+  const { loop, update, stop, clear } = createFinalizableDraftLifecycle({
+    throttleMs,
+    state: streamState,
+    sendOrEditStreamMessage,
+    readMessageId: () => streamMessageId,
+    clearMessageId: () => {
+      streamMessageId = undefined;
+    },
+    isValidMessageId: (value): value is number =>
+      typeof value === "number" && Number.isFinite(value),
+    deleteMessage: async (messageId) => {
+      await params.api.deleteMessage(chatId, messageId);
+    },
+    onDeleteSuccess: (messageId) => {
+      params.log?.(`telegram stream preview deleted (chat=${chatId}, message=${messageId})`);
+    },
+    warn: params.warn,
+    warnPrefix: "telegram stream preview cleanup failed",
+  });
+>>>>>>> 0c1a52307 (fix: align draft/outbound typings and tests)
 
   const schedule = () => {
     if (timer) return;
