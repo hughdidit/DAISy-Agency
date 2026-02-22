@@ -3,6 +3,7 @@ import {
   createBlockReplyCollector,
   getRunEmbeddedPiAgentMock,
   installTriggerHandlingE2eTestHooks,
+  loadGetReplyFromConfig,
   makeCfg,
   mockRunEmbeddedPiAgentOk,
   withTempHome,
@@ -55,12 +56,41 @@ afterEach(() => {
 =======
 let getReplyFromConfig: typeof import("./reply.js").getReplyFromConfig;
 beforeAll(async () => {
-  ({ getReplyFromConfig } = await import("./reply.js"));
+  getReplyFromConfig = await loadGetReplyFromConfig();
 });
 
 >>>>>>> 043ae0044 (test(auto-reply): import reply after harness mocks)
 installTriggerHandlingE2eTestHooks();
 >>>>>>> eb594a090 (refactor(test): dedupe trigger-handling e2e setup)
+
+async function expectUnauthorizedCommandDropped(home: string, body: "/status" | "/whoami") {
+  const runEmbeddedPiAgentMock = getRunEmbeddedPiAgentMock();
+  const baseCfg = makeCfg(home);
+  const cfg = {
+    ...baseCfg,
+    channels: {
+      ...baseCfg.channels,
+      whatsapp: {
+        allowFrom: ["+1000"],
+      },
+    },
+  };
+
+  const res = await getReplyFromConfig(
+    {
+      Body: body,
+      From: "+2001",
+      To: "+2000",
+      Provider: "whatsapp",
+      SenderE164: "+2001",
+    },
+    {},
+    cfg,
+  );
+
+  expect(res).toBeUndefined();
+  expect(runEmbeddedPiAgentMock).not.toHaveBeenCalled();
+}
 
 describe("trigger handling", () => {
   it("handles inline /commands and strips it before the agent", async () => {
@@ -116,6 +146,7 @@ describe("trigger handling", () => {
 
   it("drops /status for unauthorized senders", async () => {
     await withTempHome(async (home) => {
+<<<<<<< HEAD
       const runEmbeddedPiAgentMock = getRunEmbeddedPiAgentMock();
       const baseCfg = makeCfg(home);
       const cfg = {
@@ -151,11 +182,15 @@ describe("trigger handling", () => {
 
       expect(res).toBeUndefined();
       expect(runEmbeddedPiAgentMock).not.toHaveBeenCalled();
+=======
+      await expectUnauthorizedCommandDropped(home, "/status");
+>>>>>>> 24ea941e2 (test: dedupe auto-reply web and signal flows)
     });
   });
 
   it("drops /whoami for unauthorized senders", async () => {
     await withTempHome(async (home) => {
+<<<<<<< HEAD
       const runEmbeddedPiAgentMock = getRunEmbeddedPiAgentMock();
       const baseCfg = makeCfg(home);
       const cfg = {
@@ -191,6 +226,9 @@ describe("trigger handling", () => {
 
       expect(res).toBeUndefined();
       expect(runEmbeddedPiAgentMock).not.toHaveBeenCalled();
+=======
+      await expectUnauthorizedCommandDropped(home, "/whoami");
+>>>>>>> 24ea941e2 (test: dedupe auto-reply web and signal flows)
     });
   });
 });

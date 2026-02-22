@@ -6,7 +6,9 @@ import {
   getCompactEmbeddedPiSessionMock,
   getRunEmbeddedPiAgentMock,
   installTriggerHandlingE2eTestHooks,
+  loadGetReplyFromConfig,
   makeCfg,
+  mockRunEmbeddedPiAgentOk,
   withTempHome,
 } from "./reply.triggers.trigger-handling.test-harness.js";
 
@@ -57,7 +59,7 @@ afterEach(() => {
 =======
 let getReplyFromConfig: typeof import("./reply.js").getReplyFromConfig;
 beforeAll(async () => {
-  ({ getReplyFromConfig } = await import("./reply.js"));
+  getReplyFromConfig = await loadGetReplyFromConfig();
 });
 
 >>>>>>> 043ae0044 (test(auto-reply): import reply after harness mocks)
@@ -183,13 +185,7 @@ describe("trigger handling", () => {
   });
   it("ignores think directives that only appear in the context wrapper", async () => {
     await withTempHome(async (home) => {
-      getRunEmbeddedPiAgentMock().mockResolvedValue({
-        payloads: [{ text: "ok" }],
-        meta: {
-          durationMs: 1,
-          agentMeta: { sessionId: "s", provider: "p", model: "m" },
-        },
-      });
+      mockRunEmbeddedPiAgentOk();
 
       const res = await getReplyFromConfig(
         {
@@ -218,13 +214,7 @@ describe("trigger handling", () => {
   });
   it("does not emit directive acks for heartbeats with /think", async () => {
     await withTempHome(async (home) => {
-      getRunEmbeddedPiAgentMock().mockResolvedValue({
-        payloads: [{ text: "ok" }],
-        meta: {
-          durationMs: 1,
-          agentMeta: { sessionId: "s", provider: "p", model: "m" },
-        },
-      });
+      mockRunEmbeddedPiAgentOk();
 
       const res = await getReplyFromConfig(
         {

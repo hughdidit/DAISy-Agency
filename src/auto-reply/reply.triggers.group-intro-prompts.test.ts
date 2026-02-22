@@ -2,7 +2,9 @@ import { beforeAll, describe, expect, it } from "vitest";
 import {
   getRunEmbeddedPiAgentMock,
   installTriggerHandlingE2eTestHooks,
+  loadGetReplyFromConfig,
   makeCfg,
+  mockRunEmbeddedPiAgentOk,
   withTempHome,
 } from "./reply.triggers.trigger-handling.test-harness.js";
 
@@ -99,11 +101,19 @@ afterEach(() => {
 =======
 let getReplyFromConfig: typeof import("./reply.js").getReplyFromConfig;
 beforeAll(async () => {
+<<<<<<< HEAD
   ({ getReplyFromConfig } = await import("./reply.js"));
 >>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
+=======
+  getReplyFromConfig = await loadGetReplyFromConfig();
+>>>>>>> 24ea941e2 (test: dedupe auto-reply web and signal flows)
 });
 
 installTriggerHandlingE2eTestHooks();
+
+function getLastExtraSystemPrompt() {
+  return getRunEmbeddedPiAgentMock().mock.calls.at(-1)?.[0]?.extraSystemPrompt ?? "";
+}
 
 describe("group intro prompts", () => {
   const groupParticipationNote =
@@ -111,13 +121,7 @@ describe("group intro prompts", () => {
 
   it("labels Discord groups using the surface metadata", async () => {
     await withTempHome(async (home) => {
-      getRunEmbeddedPiAgentMock().mockResolvedValue({
-        payloads: [{ text: "ok" }],
-        meta: {
-          durationMs: 1,
-          agentMeta: { sessionId: "s", provider: "p", model: "m" },
-        },
-      });
+      mockRunEmbeddedPiAgentOk();
 
       await getReplyFromConfig(
         {
@@ -134,8 +138,7 @@ describe("group intro prompts", () => {
       );
 
       expect(getRunEmbeddedPiAgentMock()).toHaveBeenCalledOnce();
-      const extraSystemPrompt =
-        getRunEmbeddedPiAgentMock().mock.calls.at(-1)?.[0]?.extraSystemPrompt ?? "";
+      const extraSystemPrompt = getLastExtraSystemPrompt();
       expect(extraSystemPrompt).toContain('"channel": "discord"');
       expect(extraSystemPrompt).toContain(
         `You are in the Discord group chat "Release Squad". Participants: Alice, Bob.`,
@@ -147,13 +150,7 @@ describe("group intro prompts", () => {
   });
   it("keeps WhatsApp labeling for WhatsApp group chats", async () => {
     await withTempHome(async (home) => {
-      getRunEmbeddedPiAgentMock().mockResolvedValue({
-        payloads: [{ text: "ok" }],
-        meta: {
-          durationMs: 1,
-          agentMeta: { sessionId: "s", provider: "p", model: "m" },
-        },
-      });
+      mockRunEmbeddedPiAgentOk();
 
       await getReplyFromConfig(
         {
@@ -169,8 +166,7 @@ describe("group intro prompts", () => {
       );
 
       expect(getRunEmbeddedPiAgentMock()).toHaveBeenCalledOnce();
-      const extraSystemPrompt =
-        getRunEmbeddedPiAgentMock().mock.calls.at(-1)?.[0]?.extraSystemPrompt ?? "";
+      const extraSystemPrompt = getLastExtraSystemPrompt();
       expect(extraSystemPrompt).toContain('"channel": "whatsapp"');
       expect(extraSystemPrompt).toContain(`You are in the WhatsApp group chat "Ops".`);
       expect(extraSystemPrompt).toContain(
@@ -183,13 +179,7 @@ describe("group intro prompts", () => {
   });
   it("labels Telegram groups using their own surface", async () => {
     await withTempHome(async (home) => {
-      getRunEmbeddedPiAgentMock().mockResolvedValue({
-        payloads: [{ text: "ok" }],
-        meta: {
-          durationMs: 1,
-          agentMeta: { sessionId: "s", provider: "p", model: "m" },
-        },
-      });
+      mockRunEmbeddedPiAgentOk();
 
       await getReplyFromConfig(
         {
@@ -205,8 +195,7 @@ describe("group intro prompts", () => {
       );
 
       expect(getRunEmbeddedPiAgentMock()).toHaveBeenCalledOnce();
-      const extraSystemPrompt =
-        getRunEmbeddedPiAgentMock().mock.calls.at(-1)?.[0]?.extraSystemPrompt ?? "";
+      const extraSystemPrompt = getLastExtraSystemPrompt();
       expect(extraSystemPrompt).toContain('"channel": "telegram"');
       expect(extraSystemPrompt).toContain(`You are in the Telegram group chat "Dev Chat".`);
       expect(extraSystemPrompt).toContain(
