@@ -5,6 +5,7 @@ import path from "node:path";
 import { isDeepStrictEqual } from "node:util";
 import JSON5 from "json5";
 import { loadDotEnv } from "../infra/dotenv.js";
+import { normalizeSafeBinProfileFixtures } from "../infra/exec-safe-bin-policy.js";
 import { resolveRequiredHomeDir } from "../infra/home-dir.js";
 import {
   loadShellEnvFallback,
@@ -556,6 +557,33 @@ function maybeLoadDotEnvForConfig(env: NodeJS.ProcessEnv): void {
   loadDotEnv({ quiet: true });
 }
 
+function normalizeExecSafeBinProfilesInConfig(cfg: OpenClawConfig): void {
+  const normalizeExec = (exec: unknown) => {
+    if (!exec || typeof exec !== "object" || Array.isArray(exec)) {
+      return;
+    }
+    const typedExec = exec as { safeBinProfiles?: Record<string, unknown> };
+    const normalized = normalizeSafeBinProfileFixtures(
+      typedExec.safeBinProfiles as Record<
+        string,
+        {
+          minPositional?: number;
+          maxPositional?: number;
+          allowedValueFlags?: readonly string[];
+          deniedFlags?: readonly string[];
+        }
+      >,
+    );
+    typedExec.safeBinProfiles = Object.keys(normalized).length > 0 ? normalized : undefined;
+  };
+
+  normalizeExec(cfg.tools?.exec);
+  const agents = Array.isArray(cfg.agents?.list) ? cfg.agents.list : [];
+  for (const agent of agents) {
+    normalizeExec(agent?.tools?.exec);
+  }
+}
+
 export function parseConfigJson5(
   raw: string,
   json5: { parse: (value: string) => unknown } = JSON5,
@@ -695,6 +723,7 @@ export function createConfigIO(overrides: ConfigIoDeps = {}) {
         ),
       );
       normalizeConfigPaths(cfg);
+      normalizeExecSafeBinProfilesInConfig(cfg);
 
       const duplicates = findDuplicateAgentDirs(cfg, {
         env: deps.env,
@@ -864,6 +893,16 @@ export function createConfigIO(overrides: ConfigIoDeps = {}) {
       }
 
       warnIfConfigFromFuture(validated.config, deps.logger);
+      const snapshotConfig = normalizeConfigPaths(
+        applyTalkApiKey(
+          applyModelDefaults(
+            applyAgentDefaults(
+              applySessionDefaults(applyLoggingDefaults(applyMessageDefaults(validated.config))),
+            ),
+          ),
+        ),
+      );
+      normalizeExecSafeBinProfilesInConfig(snapshotConfig);
       return {
         snapshot: {
           path: configPath,
@@ -874,17 +913,7 @@ export function createConfigIO(overrides: ConfigIoDeps = {}) {
           // for config set/unset operations (issue #6070)
           resolved: coerceConfig(resolvedConfigRaw),
           valid: true,
-          config: normalizeConfigPaths(
-            applyTalkApiKey(
-              applyModelDefaults(
-                applyAgentDefaults(
-                  applySessionDefaults(
-                    applyLoggingDefaults(applyMessageDefaults(validated.config)),
-                  ),
-                ),
-              ),
-            ),
-          ),
+          config: snapshotConfig,
           hash,
           issues: [],
           warnings: validated.warnings,

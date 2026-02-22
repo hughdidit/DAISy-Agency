@@ -3,6 +3,7 @@ import path from "node:path";
 import type { AgentTool, AgentToolResult } from "@mariozechner/pi-agent-core";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import {
   type ExecAsk,
   type ExecHost,
@@ -26,6 +27,10 @@ import { type ExecHost, maxAsk, minSecurity, resolveSafeBins } from "../infra/ex
 import { resolveSafeBinProfiles } from "../infra/exec-safe-bin-policy.js";
 import { getTrustedSafeBinDirs } from "../infra/exec-safe-bin-trust.js";
 >>>>>>> fec48a500 (refactor(exec): split host flows and harden safe-bin trust)
+=======
+import { type ExecHost, maxAsk, minSecurity } from "../infra/exec-approvals.js";
+import { resolveExecSafeBinRuntimePolicy } from "../infra/exec-safe-bin-runtime-policy.js";
+>>>>>>> 0d0f4c699 (refactor(exec): centralize safe-bin policy checks)
 import {
   getShellPathFromLoginShell,
   resolveShellEnvFallbackTimeoutMs,
@@ -180,15 +185,28 @@ export function createExecTool(
       ? defaults.timeoutSec
       : 1800;
   const defaultPathPrepend = normalizePathPrepend(defaults?.pathPrepend);
-  const safeBins = resolveSafeBins(defaults?.safeBins);
-  const safeBinProfiles = resolveSafeBinProfiles(defaults?.safeBinProfiles);
-  const unprofiledSafeBins = Array.from(safeBins).filter((entry) => !safeBinProfiles[entry]);
+  const {
+    safeBins,
+    safeBinProfiles,
+    trustedSafeBinDirs,
+    unprofiledSafeBins,
+    unprofiledInterpreterSafeBins,
+  } = resolveExecSafeBinRuntimePolicy({
+    local: {
+      safeBins: defaults?.safeBins,
+      safeBinProfiles: defaults?.safeBinProfiles,
+    },
+  });
   if (unprofiledSafeBins.length > 0) {
     logInfo(
       `exec: ignoring unprofiled safeBins entries (${unprofiledSafeBins.toSorted().join(", ")}); use allowlist or define tools.exec.safeBinProfiles.<bin>`,
     );
   }
-  const trustedSafeBinDirs = getTrustedSafeBinDirs();
+  if (unprofiledInterpreterSafeBins.length > 0) {
+    logInfo(
+      `exec: interpreter/runtime binaries in safeBins (${unprofiledInterpreterSafeBins.join(", ")}) are unsafe without explicit hardened profiles; prefer allowlist entries`,
+    );
+  }
   const notifyOnExit = defaults?.notifyOnExit !== false;
   const notifyOnExitEmptySuccess = defaults?.notifyOnExitEmptySuccess === true;
   const notifySessionKey = defaults?.sessionKey?.trim() || undefined;
