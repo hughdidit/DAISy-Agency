@@ -3,7 +3,12 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { pickFallbackThinkingLevel } from "../pi-embedded-helpers.js";
 import { compactEmbeddedPiSessionDirect } from "./compact.js";
 import { runEmbeddedPiAgent } from "./run.js";
+<<<<<<< HEAD
 import { mockOverflowRetrySuccess } from "./run.overflow-compaction.fixture.js";
+=======
+import { makeAttemptResult, mockOverflowRetrySuccess } from "./run.overflow-compaction.fixture.js";
+import { mockedGlobalHookRunner } from "./run.overflow-compaction.mocks.shared.js";
+>>>>>>> 542fc169d (Plugins/Hooks: avoid duplicate before_agent_start executions)
 import { runEmbeddedAttempt } from "./run/attempt.js";
 
 const mockedRunEmbeddedAttempt = vi.mocked(runEmbeddedAttempt);
@@ -20,6 +25,36 @@ const mockedPickFallbackThinkingLevel = vi.mocked(pickFallbackThinkingLevel);
 describe("runEmbeddedPiAgent overflow compaction trigger routing", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockedGlobalHookRunner.hasHooks.mockImplementation(() => false);
+  });
+
+  it("passes precomputed legacy before_agent_start result into the attempt", async () => {
+    const legacyResult = {
+      modelOverride: "legacy-model",
+      prependContext: "legacy context",
+    };
+    mockedGlobalHookRunner.hasHooks.mockImplementation(
+      (hookName) => hookName === "before_agent_start",
+    );
+    mockedGlobalHookRunner.runBeforeAgentStart.mockResolvedValueOnce(legacyResult);
+    mockedRunEmbeddedAttempt.mockResolvedValueOnce(makeAttemptResult({ promptError: null }));
+
+    await runEmbeddedPiAgent({
+      sessionId: "test-session",
+      sessionKey: "test-key",
+      sessionFile: "/tmp/session.json",
+      workspaceDir: "/tmp/workspace",
+      prompt: "hello",
+      timeoutMs: 30000,
+      runId: "run-legacy-pass-through",
+    });
+
+    expect(mockedGlobalHookRunner.runBeforeAgentStart).toHaveBeenCalledTimes(1);
+    expect(mockedRunEmbeddedAttempt).toHaveBeenCalledWith(
+      expect.objectContaining({
+        legacyBeforeAgentStartResult: legacyResult,
+      }),
+    );
   });
 
   it("passes trigger=overflow when retrying compaction after context overflow", async () => {

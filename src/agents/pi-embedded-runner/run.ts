@@ -25,6 +25,7 @@ import type { EmbeddedPiAgentMeta, EmbeddedPiRunResult } from "./types.js";
 =======
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { getGlobalHookRunner } from "../../plugins/hook-runner-global.js";
+<<<<<<< HEAD
 >>>>>>> b90eb5152 (feat(plugins): add modelOverride/providerOverride to before_agent_start hook)
 =======
 import { getGlobalHookRunner } from "../../plugins/hook-runner-global.js";
@@ -37,6 +38,9 @@ import type { EmbeddedPiAgentMeta, EmbeddedPiRunResult } from "./types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
 import { getGlobalHookRunner } from "../../plugins/hook-runner-global.js";
 >>>>>>> 0c1c34c95 (refactor(plugins): split before-agent hooks by model and prompt phases)
+=======
+import type { PluginHookBeforeAgentStartResult } from "../../plugins/types.js";
+>>>>>>> 542fc169d (Plugins/Hooks: avoid duplicate before_agent_start executions)
 import { enqueueCommandInLane } from "../../process/command-queue.js";
 import { resolveUserPath } from "../../utils.js";
 import { isMarkdownCapableMessageChannel } from "../../utils/message-channel.js";
@@ -286,6 +290,7 @@ export async function runEmbeddedPiAgent(
       // Legacy compatibility: before_agent_start is also checked for override
       // fields if present. New hook takes precedence when both are set.
       let modelResolveOverride: { providerOverride?: string; modelOverride?: string } | undefined;
+      let legacyBeforeAgentStartResult: PluginHookBeforeAgentStartResult | undefined;
       const hookRunner = getGlobalHookRunner();
       const hookCtx = {
         agentId: workspaceResolution.agentId,
@@ -306,14 +311,16 @@ export async function runEmbeddedPiAgent(
       }
       if (hookRunner?.hasHooks("before_agent_start")) {
         try {
-          const legacyResult = await hookRunner.runBeforeAgentStart(
+          legacyBeforeAgentStartResult = await hookRunner.runBeforeAgentStart(
             { prompt: params.prompt },
             hookCtx,
           );
           modelResolveOverride = {
             providerOverride:
-              modelResolveOverride?.providerOverride ?? legacyResult?.providerOverride,
-            modelOverride: modelResolveOverride?.modelOverride ?? legacyResult?.modelOverride,
+              modelResolveOverride?.providerOverride ??
+              legacyBeforeAgentStartResult?.providerOverride,
+            modelOverride:
+              modelResolveOverride?.modelOverride ?? legacyBeforeAgentStartResult?.modelOverride,
           };
         } catch (hookErr) {
           log.warn(
@@ -619,6 +626,11 @@ export async function runEmbeddedPiAgent(
             model,
             authStorage,
             modelRegistry,
+<<<<<<< HEAD
+=======
+            agentId: workspaceResolution.agentId,
+            legacyBeforeAgentStartResult,
+>>>>>>> 542fc169d (Plugins/Hooks: avoid duplicate before_agent_start executions)
             thinkLevel,
             verboseLevel: params.verboseLevel,
             reasoningLevel: params.reasoningLevel,
