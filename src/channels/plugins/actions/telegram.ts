@@ -49,6 +49,7 @@ import {
 } from "../../../telegram/accounts.js";
 import { isTelegramInlineButtonsEnabled } from "../../../telegram/inline-buttons.js";
 import type { ChannelMessageActionAdapter, ChannelMessageActionName } from "../types.js";
+import { createUnionActionGate, listTokenSourcedAccounts } from "./shared.js";
 
 const providerId = "telegram";
 
@@ -77,11 +78,28 @@ function readTelegramSendParams(params: Record<string, unknown>) {
   };
 }
 
+function readTelegramChatIdParam(params: Record<string, unknown>): string | number {
+  return (
+    readStringOrNumberParam(params, "chatId") ??
+    readStringOrNumberParam(params, "channelId") ??
+    readStringParam(params, "to", { required: true })
+  );
+}
+
+function readTelegramMessageIdParam(params: Record<string, unknown>): number {
+  const messageId = readNumberParam(params, "messageId", {
+    required: true,
+    integer: true,
+  });
+  if (typeof messageId !== "number") {
+    throw new Error("messageId is required.");
+  }
+  return messageId;
+}
+
 export const telegramMessageActions: ChannelMessageActionAdapter = {
   listActions: ({ cfg }) => {
-    const accounts = listEnabledTelegramAccounts(cfg).filter(
-      (account) => account.tokenSource !== "none",
-    );
+    const accounts = listTokenSourcedAccounts(listEnabledTelegramAccounts(cfg));
     if (accounts.length === 0) {
       return [];
     }
@@ -89,35 +107,41 @@ export const telegramMessageActions: ChannelMessageActionAdapter = {
     const gate = createActionGate(cfg.channels?.telegram?.actions);
 =======
     // Union of all accounts' action gates (any account enabling an action makes it available)
-    const gates = accounts.map((account) =>
-      createTelegramActionGate({ cfg, accountId: account.accountId }),
+    const gate = createUnionActionGate(accounts, (account) =>
+      createTelegramActionGate({
+        cfg,
+        accountId: account.accountId,
+      }),
     );
+<<<<<<< HEAD
     const gate = (key: keyof TelegramActionConfig, defaultValue = true) =>
       gates.some((g) => g(key, defaultValue));
 >>>>>>> 2b3ecee7c (fix(actions): layer per-account gate fallback)
+=======
+    const isEnabled = (key: keyof TelegramActionConfig, defaultValue = true) =>
+      gate(key, defaultValue);
+>>>>>>> 66f814a0a (refactor(channels): dedupe plugin routing and channel helpers)
     const actions = new Set<ChannelMessageActionName>(["send"]);
-    if (gate("reactions")) {
+    if (isEnabled("reactions")) {
       actions.add("react");
     }
-    if (gate("deleteMessage")) {
+    if (isEnabled("deleteMessage")) {
       actions.add("delete");
     }
-    if (gate("editMessage")) {
+    if (isEnabled("editMessage")) {
       actions.add("edit");
     }
-    if (gate("sticker", false)) {
+    if (isEnabled("sticker", false)) {
       actions.add("sticker");
       actions.add("sticker-search");
     }
-    if (gate("createForumTopic")) {
+    if (isEnabled("createForumTopic")) {
       actions.add("topic-create");
     }
     return Array.from(actions);
   },
   supportsButtons: ({ cfg }) => {
-    const accounts = listEnabledTelegramAccounts(cfg).filter(
-      (account) => account.tokenSource !== "none",
-    );
+    const accounts = listTokenSourcedAccounts(listEnabledTelegramAccounts(cfg));
     if (accounts.length === 0) {
       return false;
     }
@@ -150,10 +174,7 @@ export const telegramMessageActions: ChannelMessageActionAdapter = {
       return await handleTelegramAction(
         {
           action: "react",
-          chatId:
-            readStringOrNumberParam(params, "chatId") ??
-            readStringOrNumberParam(params, "channelId") ??
-            readStringParam(params, "to", { required: true }),
+          chatId: readTelegramChatIdParam(params),
           messageId,
           emoji,
           remove,
@@ -164,14 +185,8 @@ export const telegramMessageActions: ChannelMessageActionAdapter = {
     }
 
     if (action === "delete") {
-      const chatId =
-        readStringOrNumberParam(params, "chatId") ??
-        readStringOrNumberParam(params, "channelId") ??
-        readStringParam(params, "to", { required: true });
-      const messageId = readNumberParam(params, "messageId", {
-        required: true,
-        integer: true,
-      });
+      const chatId = readTelegramChatIdParam(params);
+      const messageId = readTelegramMessageIdParam(params);
       return await handleTelegramAction(
         {
           action: "deleteMessage",
@@ -184,14 +199,8 @@ export const telegramMessageActions: ChannelMessageActionAdapter = {
     }
 
     if (action === "edit") {
-      const chatId =
-        readStringOrNumberParam(params, "chatId") ??
-        readStringOrNumberParam(params, "channelId") ??
-        readStringParam(params, "to", { required: true });
-      const messageId = readNumberParam(params, "messageId", {
-        required: true,
-        integer: true,
-      });
+      const chatId = readTelegramChatIdParam(params);
+      const messageId = readTelegramMessageIdParam(params);
       const message = readStringParam(params, "message", { required: true, allowEmpty: false });
       const buttons = params.buttons;
       return await handleTelegramAction(
@@ -243,10 +252,7 @@ export const telegramMessageActions: ChannelMessageActionAdapter = {
     }
 
     if (action === "topic-create") {
-      const chatId =
-        readStringOrNumberParam(params, "chatId") ??
-        readStringOrNumberParam(params, "channelId") ??
-        readStringParam(params, "to", { required: true });
+      const chatId = readTelegramChatIdParam(params);
       const name = readStringParam(params, "name", { required: true });
       const iconColor = readNumberParam(params, "iconColor", { integer: true });
       const iconCustomEmojiId = readStringParam(params, "iconCustomEmojiId");
