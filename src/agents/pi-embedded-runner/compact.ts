@@ -80,6 +80,7 @@ import {
   buildEmbeddedSystemPrompt,
   createSystemPromptOverride,
 } from "./system-prompt.js";
+import { collectAllowedToolNames } from "./tool-name-allowlist.js";
 import { splitSdkTools } from "./tool-split.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -414,6 +415,7 @@ export async function compactEmbeddedPiSessionDirect(
       modelAuthMode: resolveModelAuthMode(model.provider, params.config),
     });
     const tools = sanitizeToolsForGoogle({ tools: toolsRaw, provider });
+    const allowedToolNames = collectAllowedToolNames({ tools });
     logToolSchemasForGoogle({ tools, provider });
     const machineName = await getMachineDisplayName();
     const runtimeChannel = normalizeMessageChannel(params.messageChannel ?? params.messageProvider);
@@ -563,6 +565,7 @@ export async function compactEmbeddedPiSessionDirect(
         agentId: sessionAgentId,
         sessionKey: params.sessionKey,
         allowSyntheticToolResults: transcriptPolicy.allowSyntheticToolResults,
+        allowedToolNames,
       });
       trackSessionManagerAccess(params.sessionFile);
       const settingsManager = SettingsManager.create(effectiveWorkspace, agentDir);
@@ -604,6 +607,7 @@ export async function compactEmbeddedPiSessionDirect(
           modelApi: model.api,
           modelId,
           provider,
+          allowedToolNames,
           config: params.config,
           sessionManager,
           sessionId: params.sessionId,

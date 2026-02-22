@@ -341,6 +341,7 @@ export async function sanitizeSessionHistory(params: {
   modelApi?: string | null;
   modelId?: string;
   provider?: string;
+  allowedToolNames?: Iterable<string>;
   config?: OpenClawConfig;
   sessionManager: SessionManager;
   sessionId: string;
@@ -380,7 +381,16 @@ export async function sanitizeSessionHistory(params: {
   const sanitizedThinking = policy.normalizeAntigravityThinkingBlocks
     ? sanitizeAntigravityThinkingBlocks(sanitizedImages)
     : sanitizedImages;
+<<<<<<< HEAD
   const sanitizedToolCalls = sanitizeToolCallInputs(sanitizedThinking);
+=======
+  const sanitizedThinking = policy.sanitizeThinkingSignatures
+    ? sanitizeAntigravityThinkingBlocks(droppedThinking)
+    : droppedThinking;
+  const sanitizedToolCalls = sanitizeToolCallInputs(sanitizedThinking, {
+    allowedToolNames: params.allowedToolNames,
+  });
+>>>>>>> cdfe45eeb (Agents: validate persisted tool-call names)
   const repairedTools = policy.repairToolUseResultPairing
     ? sanitizeToolUseResultPairing(sanitizedToolCalls)
     : sanitizedToolCalls;
