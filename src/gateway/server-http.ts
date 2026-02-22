@@ -35,10 +35,14 @@ import { safeEqualSecret } from "../security/secret-equal.js";
 >>>>>>> 113ebfd6a (fix(security): harden hook and device token auth)
 import { handleSlackHttpRequest } from "../slack/http/index.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { resolveAgentAvatar } from "../agents/identity-avatar.js";
 import { handleControlUiAvatarRequest, handleControlUiHttpRequest } from "./control-ui.js";
 import { setSecurityHeaders } from "./http-common.js";
 =======
+=======
+import { normalizeRateLimitClientIp, type AuthRateLimiter } from "./auth-rate-limit.js";
+>>>>>>> 3284d2eb2 (fix(security): normalize hook auth rate-limit client keys)
 import {
   authorizeGatewayConnect,
   isLocalDirectRequest,
@@ -257,7 +261,7 @@ export function createHooksRequestHandler(
   const hookAuthFailures = new Map<string, HookAuthFailure>();
 
   const resolveHookClientKey = (req: IncomingMessage): string => {
-    return req.socket?.remoteAddress?.trim() || "unknown";
+    return normalizeRateLimitClientIp(req.socket?.remoteAddress);
   };
 
   const recordHookAuthFailure = (
