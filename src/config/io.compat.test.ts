@@ -151,7 +151,7 @@ describe("config io paths", () => {
     });
   });
 
-  it("normalizes safeBinProfiles at config load time", async () => {
+  it("normalizes safe-bin config entries at config load time", async () => {
     await withTempHome(async (home) => {
       const configDir = path.join(home, ".openclaw");
       await fs.mkdir(configDir, { recursive: true });
@@ -162,6 +162,7 @@ describe("config io paths", () => {
           {
             tools: {
               exec: {
+                safeBinTrustedDirs: [" /custom/bin ", "", "/custom/bin", "/agent/bin"],
                 safeBinProfiles: {
                   " MyFilter ": {
                     allowedValueFlags: ["--limit", " --limit ", ""],
@@ -175,6 +176,7 @@ describe("config io paths", () => {
                   id: "ops",
                   tools: {
                     exec: {
+                      safeBinTrustedDirs: [" /ops/bin ", "/ops/bin"],
                       safeBinProfiles: {
                         " Custom ": {
                           deniedFlags: ["-f", " -f ", ""],
@@ -199,11 +201,13 @@ describe("config io paths", () => {
           allowedValueFlags: ["--limit"],
         },
       });
+      expect(cfg.tools?.exec?.safeBinTrustedDirs).toEqual(["/custom/bin", "/agent/bin"]);
       expect(cfg.agents?.list?.[0]?.tools?.exec?.safeBinProfiles).toEqual({
         custom: {
           deniedFlags: ["-f"],
         },
       });
+      expect(cfg.agents?.list?.[0]?.tools?.exec?.safeBinTrustedDirs).toEqual(["/ops/bin"]);
     });
   });
 });

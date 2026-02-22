@@ -761,7 +761,12 @@ export const FIELD_HELP: Record<string, string> = {
   "tools.exec.safeBins":
     "Allow stdin-only safe binaries to run without explicit allowlist entries.",
 <<<<<<< HEAD:src/config/schema.field-metadata.ts
+<<<<<<< HEAD:src/config/schema.field-metadata.ts
 =======
+=======
+  "tools.exec.safeBinTrustedDirs":
+    "Additional explicit directories trusted for safe-bin path checks (PATH entries are never auto-trusted).",
+>>>>>>> 64b273a71 (fix(exec): harden safe-bin trust and add explicit trusted dirs):src/config/schema.help.ts
   "tools.exec.safeBinProfiles":
     "Optional per-binary safe-bin profiles (positional limits + allowed/denied flags).",
   "tools.profile":
