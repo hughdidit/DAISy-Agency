@@ -131,7 +131,7 @@ export const agentHandlers: GatewayRequestHandlers = {
         }))
         .filter((a) => a.content) ?? [];
 
-    let message = request.message.trim();
+    let message = (request.message ?? "").trim();
     let images: Array<{ type: "image"; data: string; mimeType: string }> = [];
     if (normalizedAttachments.length > 0) {
       try {
@@ -511,8 +511,13 @@ export const agentHandlers: GatewayRequestHandlers = {
       );
       return;
     }
+<<<<<<< HEAD
     const p = params as AgentWaitParams;
     const runId = p.runId.trim();
+=======
+    const p = params;
+    const runId = (p.runId ?? "").trim();
+>>>>>>> 1152b2586 (fix(gateway): guard trim crashes in subagent flow)
     const timeoutMs =
       typeof p.timeoutMs === "number" && Number.isFinite(p.timeoutMs)
         ? Math.max(0, Math.floor(p.timeoutMs))

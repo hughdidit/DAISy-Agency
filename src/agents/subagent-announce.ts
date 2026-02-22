@@ -319,10 +319,23 @@ function resolveRequesterStoreKey(
   cfg: ReturnType<typeof loadConfig>,
   requesterSessionKey: string,
 ): string {
+<<<<<<< HEAD
   const raw = requesterSessionKey.trim();
   if (!raw) return raw;
   if (raw === "global" || raw === "unknown") return raw;
   if (raw.startsWith("agent:")) return raw;
+=======
+  const raw = (requesterSessionKey ?? "").trim();
+  if (!raw) {
+    return raw;
+  }
+  if (raw === "global" || raw === "unknown") {
+    return raw;
+  }
+  if (raw.startsWith("agent:")) {
+    return raw;
+  }
+>>>>>>> 1152b2586 (fix(gateway): guard trim crashes in subagent flow)
   const mainKey = normalizeMainKey(cfg.session?.mainKey);
   if (raw === "main" || raw === mainKey) {
     return resolveMainSessionKey(cfg);

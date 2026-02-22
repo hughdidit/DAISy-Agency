@@ -308,10 +308,25 @@ function resolveDefaultStoreAgentId(cfg: MoltbotConfig): string {
   return normalizeAgentId(resolveDefaultAgentId(cfg));
 }
 
+<<<<<<< HEAD
 export function resolveSessionStoreKey(params: { cfg: MoltbotConfig; sessionKey: string }): string {
   const raw = params.sessionKey.trim();
   if (!raw) return raw;
   if (raw === "global" || raw === "unknown") return raw;
+=======
+export function resolveSessionStoreKey(params: {
+  cfg: OpenClawConfig;
+  sessionKey: string;
+}): string {
+  const raw = (params.sessionKey ?? "").trim();
+  if (!raw) {
+    return raw;
+  }
+  const rawLower = raw.toLowerCase();
+  if (rawLower === "global" || rawLower === "unknown") {
+    return rawLower;
+  }
+>>>>>>> 1152b2586 (fix(gateway): guard trim crashes in subagent flow)
 
   const parsed = parseAgentSessionKey(raw);
   if (parsed) {
