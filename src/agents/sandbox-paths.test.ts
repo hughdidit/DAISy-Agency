@@ -62,6 +62,26 @@ describe("resolveSandboxedMediaSource", () => {
     });
   });
 
+  it("maps container /workspace absolute paths into sandbox root", async () => {
+    await withSandboxRoot(async (sandboxDir) => {
+      const result = await resolveSandboxedMediaSource({
+        media: "/workspace/media/pic.png",
+        sandboxRoot: sandboxDir,
+      });
+      expect(result).toBe(path.join(sandboxDir, "media", "pic.png"));
+    });
+  });
+
+  it("maps file:// URLs under /workspace into sandbox root", async () => {
+    await withSandboxRoot(async (sandboxDir) => {
+      const result = await resolveSandboxedMediaSource({
+        media: "file:///workspace/media/pic.png",
+        sandboxRoot: sandboxDir,
+      });
+      expect(result).toBe(path.join(sandboxDir, "media", "pic.png"));
+    });
+  });
+
   // Group 3: Rejections (security)
 <<<<<<< HEAD
   it("rejects paths outside sandbox root and tmpdir", async () => {
@@ -120,6 +140,11 @@ describe("resolveSandboxedMediaSource", () => {
     {
       name: "paths outside sandbox root and tmpdir",
       media: "/etc/passwd",
+      expected: /sandbox/i,
+    },
+    {
+      name: "paths under similarly named container roots",
+      media: "/workspace-two/secret.txt",
       expected: /sandbox/i,
     },
     {
