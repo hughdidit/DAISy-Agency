@@ -830,19 +830,15 @@ describe("runHeartbeatOnce", () => {
       await fs.writeFile(sessionFile, "", "utf-8");
       await fs.writeFile(
         storePath,
-        JSON.stringify(
-          {
-            [sessionKey]: {
-              sessionId,
-              sessionFile,
-              updatedAt: Date.now(),
-              lastChannel: "whatsapp",
-              lastTo: "+1555",
-            },
+        JSON.stringify({
+          [sessionKey]: {
+            sessionId,
+            sessionFile,
+            updatedAt: Date.now(),
+            lastChannel: "whatsapp",
+            lastTo: "+1555",
           },
-          null,
-          2,
-        ),
+        }),
       );
 
       replySpy.mockResolvedValue([{ text: "Final alert" }]);
@@ -1252,19 +1248,15 @@ describe("runHeartbeatOnce", () => {
       await fs.mkdir(path.dirname(storePath), { recursive: true });
       await fs.writeFile(
         storePath,
-        JSON.stringify(
-          {
-            [sessionKey]: {
-              sessionId: "sid",
-              updatedAt: Date.now(),
-              lastChannel: "whatsapp",
-              lastProvider: "whatsapp",
-              lastTo: "+1555",
-            },
+        JSON.stringify({
+          [sessionKey]: {
+            sessionId: "sid",
+            updatedAt: Date.now(),
+            lastChannel: "whatsapp",
+            lastProvider: "whatsapp",
+            lastTo: "+1555",
           },
-          null,
-          2,
-        ),
+        }),
       );
 
       replySpy.mockResolvedValue({ text: "Hello from heartbeat" });
@@ -1620,15 +1612,14 @@ describe("runHeartbeatOnce", () => {
     const sessionKey = resolveMainSessionKey(cfg);
     await fs.writeFile(
       storePath,
-      JSON.stringify(
-        {
-          [sessionKey]: {
-            sessionId: "sid",
-            updatedAt: Date.now(),
-            lastChannel: "whatsapp",
-            lastTo: "+1555",
-          },
+      JSON.stringify({
+        [sessionKey]: {
+          sessionId: "sid",
+          updatedAt: Date.now(),
+          lastChannel: "whatsapp",
+          lastTo: "+1555",
         },
+<<<<<<< HEAD
 <<<<<<< HEAD
         channels: { whatsapp: { allowFrom: ["*"] } },
         session: { store: storePath },
@@ -1679,6 +1670,9 @@ describe("runHeartbeatOnce", () => {
         null,
         2,
       ),
+=======
+      }),
+>>>>>>> 9882bfe18 (perf(test): compact remaining heartbeat fixture writes)
     );
     if (params.queueCronEvent) {
       enqueueSystemEvent("Cron: QMD maintenance completed", {
