@@ -77,7 +77,14 @@ import {
 } from "./exec-safe-bin-policy.js";
 >>>>>>> 2d485cd47 (refactor(security): extract safe-bin policy and dedupe tests)
 import { isTrustedSafeBinPath } from "./exec-safe-bin-trust.js";
+<<<<<<< HEAD
 >>>>>>> ac0db6823 (refactor(security): extract safeBins trust resolver)
+=======
+
+function hasShellLineContinuation(command: string): boolean {
+  return /\\(?:\r\n|\n|\r)/.test(command);
+}
+>>>>>>> 3f0b9dbb3 (fix(security): block shell-wrapper line-continuation allowlist bypass)
 
 export function normalizeSafeBins(entries?: string[]): Set<string> {
   if (!Array.isArray(entries)) {
@@ -441,6 +448,23 @@ export function evaluateShellAllowlist(params: {
   autoAllowSkills?: boolean;
   platform?: string | null;
 }): ExecAllowlistAnalysis {
+<<<<<<< HEAD
+=======
+  const analysisFailure = (): ExecAllowlistAnalysis => ({
+    analysisOk: false,
+    allowlistSatisfied: false,
+    allowlistMatches: [],
+    segments: [],
+    segmentSatisfiedBy: [],
+  });
+
+  // Keep allowlist analysis conservative: line-continuation semantics are shell-dependent
+  // and can rewrite token boundaries at runtime.
+  if (hasShellLineContinuation(params.command)) {
+    return analysisFailure();
+  }
+
+>>>>>>> 3f0b9dbb3 (fix(security): block shell-wrapper line-continuation allowlist bypass)
   const chainParts = isWindowsPlatform(params.platform) ? null : splitCommandChain(params.command);
   if (!chainParts) {
     const analysis = analyzeShellCommand({
