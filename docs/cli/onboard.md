@@ -29,6 +29,7 @@ Flow notes:
 
 - `quickstart`: minimal prompts, auto-generates a gateway token.
 - `manual`: full prompts for port/bind/auth (alias of `advanced`).
+- Local onboarding defaults `session.dmScope` to `per-channel-peer` unless `session.dmScope` is already set.
 - Fastest first chat: `openclaw dashboard` (Control UI, no channel setup).
 
 ## Common follow-up commands

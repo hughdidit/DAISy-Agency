@@ -247,6 +247,7 @@ This prevents cross-user context leakage while keeping group chats isolated.
 Treat the snippet above as **secure DM mode**:
 
 - Default: `session.dmScope: "main"` (all DMs share one session for continuity).
+- Local CLI onboarding default: writes `session.dmScope: "per-channel-peer"` when unset (keeps existing explicit values).
 - Secure DM mode: `session.dmScope: "per-channel-peer"` (each channel+sender pair gets an isolated DM context).
 
 If you run multiple accounts on the same channel, use `per-account-channel-peer` instead. If the same person contacts you on multiple channels, use `session.identityLinks` to collapse those DM sessions into one canonical identity. See [Session Management](/concepts/session) and [Configuration](/gateway/configuration).
