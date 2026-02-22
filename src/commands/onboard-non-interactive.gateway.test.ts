@@ -16,7 +16,6 @@ import type { GatewayAuthConfig } from "../config/config.js";
 >>>>>>> 6264c5e84 (chore: Fix types in tests 41/N.)
 import { makeTempWorkspace } from "../test-helpers/workspace.js";
 import { captureEnv } from "../test-utils/env.js";
-import { getFreePortBlockWithPermissionFallback } from "../test-utils/ports.js";
 import {
   createThrowingRuntime,
   readJsonFile,
@@ -31,6 +30,7 @@ const gatewayClientCalls: Array<{
   onHelloOk?: () => void;
   onClose?: (code: number, reason: string) => void;
 }> = [];
+const ensureWorkspaceAndSessionsMock = vi.fn(async (..._args: unknown[]) => {});
 
 vi.mock("../gateway/client.js", () => ({
   GatewayClient: class {
@@ -59,6 +59,7 @@ vi.mock("../gateway/client.js", () => ({
   },
 }));
 
+<<<<<<< HEAD
 async function getFreePort(): Promise<number> {
 <<<<<<< HEAD
   return await new Promise((resolve, reject) => {
@@ -97,6 +98,18 @@ async function getFreeGatewayPort(): Promise<number> {
     fallbackBase: 40_000,
   });
 >>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
+=======
+vi.mock("./onboard-helpers.js", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("./onboard-helpers.js")>();
+  return {
+    ...actual,
+    ensureWorkspaceAndSessions: ensureWorkspaceAndSessionsMock,
+  };
+});
+
+function getPseudoPort(base: number): number {
+  return base + (process.pid % 1000);
+>>>>>>> d236ded43 (test: speed up non-interactive gateway onboarding suite)
 }
 
 const runtime = createThrowingRuntime();
@@ -260,7 +273,7 @@ describe("onboard (non-interactive): gateway and remote auth", () => {
 
   it("writes gateway.remote url/token and callGateway uses them", async () => {
     await withStateDir("state-remote-", async () => {
-      const port = await getFreePort();
+      const port = getPseudoPort(30_000);
       const token = "tok_remote_123";
       await runNonInteractiveOnboarding(
         {
@@ -310,7 +323,7 @@ describe("onboard (non-interactive): gateway and remote auth", () => {
       process.env.OPENCLAW_STATE_DIR = stateDir;
       process.env.OPENCLAW_CONFIG_PATH = path.join(stateDir, "openclaw.json");
 
-      const port = await getFreeGatewayPort();
+      const port = getPseudoPort(40_000);
       const workspace = path.join(stateDir, "openclaw");
 >>>>>>> a948a3bd0 (refactor(test): share gateway onboarding state-dir lifecycle)
 
