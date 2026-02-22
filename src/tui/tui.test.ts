@@ -13,6 +13,7 @@ import { resolveFinalAssistantText, resolveTuiSessionKey } from "./tui.js";
 =======
 import {
   createBackspaceDeduper,
+  resolveCtrlCAction,
   resolveFinalAssistantText,
   resolveGatewayDisconnectState,
   resolveTuiSessionKey,
@@ -130,5 +131,28 @@ describe("createBackspaceDeduper", () => {
     const dedupe = createBackspaceDeduper();
     expect(dedupe("a")).toBe("a");
     expect(dedupe("\x1b[A")).toBe("\x1b[A");
+  });
+});
+
+describe("resolveCtrlCAction", () => {
+  it("clears input and arms exit on first ctrl+c when editor has text", () => {
+    expect(resolveCtrlCAction({ hasInput: true, now: 2000, lastCtrlCAt: 0 })).toEqual({
+      action: "clear",
+      nextLastCtrlCAt: 2000,
+    });
+  });
+
+  it("exits on second ctrl+c within the exit window", () => {
+    expect(resolveCtrlCAction({ hasInput: false, now: 2800, lastCtrlCAt: 2000 })).toEqual({
+      action: "exit",
+      nextLastCtrlCAt: 2000,
+    });
+  });
+
+  it("shows warning when exit window has elapsed", () => {
+    expect(resolveCtrlCAction({ hasInput: false, now: 3501, lastCtrlCAt: 2000 })).toEqual({
+      action: "warn",
+      nextLastCtrlCAt: 3501,
+    });
   });
 });

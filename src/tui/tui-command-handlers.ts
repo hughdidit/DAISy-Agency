@@ -84,6 +84,13 @@ type CommandHandlerContext = {
   abortActive: () => Promise<void>;
   setActivityStatus: (text: string) => void;
   formatSessionKey: (key: string) => string;
+<<<<<<< HEAD
+=======
+  applySessionInfoFromPatch: (result: SessionsPatchResult) => void;
+  noteLocalRunId: (runId: string) => void;
+  forgetLocalRunId?: (runId: string) => void;
+  requestExit: () => void;
+>>>>>>> b4cdffc7a (TUI: make Ctrl+C exit behavior reliably responsive)
 };
 
 export function createCommandHandlers(context: CommandHandlerContext) {
@@ -103,6 +110,13 @@ export function createCommandHandlers(context: CommandHandlerContext) {
     abortActive,
     setActivityStatus,
     formatSessionKey,
+<<<<<<< HEAD
+=======
+    applySessionInfoFromPatch,
+    noteLocalRunId,
+    forgetLocalRunId,
+    requestExit,
+>>>>>>> b4cdffc7a (TUI: make Ctrl+C exit behavior reliably responsive)
   } = context;
 
   const setAgent = async (id: string) => {
@@ -481,9 +495,7 @@ export function createCommandHandlers(context: CommandHandlerContext) {
         break;
       case "exit":
       case "quit":
-        client.stop();
-        tui.stop();
-        process.exit(0);
+        requestExit();
         break;
       default:
         await sendMessage(raw);
