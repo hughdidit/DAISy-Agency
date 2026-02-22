@@ -97,6 +97,10 @@ export type {
   MSTeamsTeamConfig,
 } from "../config/types.js";
 export {
+  resolveRuntimeGroupPolicy,
+  type RuntimeGroupPolicyResolution,
+} from "../config/runtime-group-policy.js";
+export {
   DiscordConfigSchema,
   GoogleChatConfigSchema,
   IMessageConfigSchema,

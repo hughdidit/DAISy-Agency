@@ -7,6 +7,12 @@ import { resolveTextChunkLimit } from "../../auto-reply/chunk.js";
 import { DEFAULT_GROUP_HISTORY_LIMIT } from "../../auto-reply/reply/history.js";
 import { mergeAllowlist, summarizeMapping } from "../../channels/allowlists/resolve-utils.js";
 import { loadConfig } from "../../config/config.js";
+<<<<<<< HEAD
+=======
+import { resolveRuntimeGroupPolicy } from "../../config/runtime-group-policy.js";
+import type { SessionScope } from "../../config/sessions.js";
+import type { GroupPolicy } from "../../config/types.base.js";
+>>>>>>> 777817392 (fix: fail closed missing provider group policy across message channels (#23367) (thanks @bmendonca3))
 import { warn } from "../../globals.js";
 import { normalizeMainKey } from "../../routing/session-key.js";
 import { resolveSlackAccount } from "../accounts.js";
@@ -30,6 +36,30 @@ const slackBoltModule = SlackBolt as typeof import("@slack/bolt") & {
 const slackBolt =
   (slackBoltModule.App ? slackBoltModule : slackBoltModule.default) ?? slackBoltModule;
 const { App, HTTPReceiver } = slackBolt;
+<<<<<<< HEAD
+=======
+
+const SLACK_WEBHOOK_MAX_BODY_BYTES = 1024 * 1024;
+const SLACK_WEBHOOK_BODY_TIMEOUT_MS = 30_000;
+
+function resolveSlackRuntimeGroupPolicy(params: {
+  providerConfigPresent: boolean;
+  groupPolicy?: GroupPolicy;
+  defaultGroupPolicy?: GroupPolicy;
+}): {
+  groupPolicy: GroupPolicy;
+  providerMissingFallbackApplied: boolean;
+} {
+  return resolveRuntimeGroupPolicy({
+    providerConfigPresent: params.providerConfigPresent,
+    groupPolicy: params.groupPolicy,
+    defaultGroupPolicy: params.defaultGroupPolicy,
+    configuredFallbackPolicy: "open",
+    missingProviderFallbackPolicy: "allowlist",
+  });
+}
+
+>>>>>>> 777817392 (fix: fail closed missing provider group policy across message channels (#23367) (thanks @bmendonca3))
 function parseApiAppIdFromAppToken(raw?: string) {
   const token = raw?.trim();
   if (!token) {

@@ -9,6 +9,7 @@ import {
   createInboundDebouncer,
   resolveInboundDebounceMs,
 } from "../../auto-reply/inbound-debounce.js";
+import { resolveRuntimeGroupPolicy } from "../../config/runtime-group-policy.js";
 import { danger } from "../../globals.js";
 import { preflightDiscordMessage } from "./message-handler.preflight.js";
 import { processDiscordMessage } from "./message-handler.process.js";
@@ -19,6 +20,7 @@ type DiscordConfig = NonNullable<
   import("../../config/config.js").OpenClawConfig["channels"]
 >["discord"];
 
+<<<<<<< HEAD
 export function createDiscordMessageHandler(params: {
   cfg: LoadedConfig;
   discordConfig: DiscordConfig;
@@ -38,6 +40,18 @@ export function createDiscordMessageHandler(params: {
   guildEntries?: Record<string, DiscordGuildEntryResolved>;
 }): DiscordMessageHandler {
   const groupPolicy = params.discordConfig?.groupPolicy ?? "open";
+=======
+export function createDiscordMessageHandler(
+  params: DiscordMessageHandlerParams,
+): DiscordMessageHandler {
+  const { groupPolicy } = resolveRuntimeGroupPolicy({
+    providerConfigPresent: params.cfg.channels?.discord !== undefined,
+    groupPolicy: params.discordConfig?.groupPolicy,
+    defaultGroupPolicy: params.cfg.channels?.defaults?.groupPolicy,
+    configuredFallbackPolicy: "open",
+    missingProviderFallbackPolicy: "allowlist",
+  });
+>>>>>>> 777817392 (fix: fail closed missing provider group policy across message channels (#23367) (thanks @bmendonca3))
   const ackReactionScope = params.cfg.messages?.ackReactionScope ?? "group-mentions";
   const debounceMs = resolveInboundDebounceMs({ cfg: params.cfg, channel: "discord" });
 

@@ -455,9 +455,13 @@ Outbound Discord API calls retry on rate limits (429) using Discord `retry_after
 }
 ```
 
+<<<<<<< HEAD
 Ack reactions are controlled globally via `messages.ackReaction` +
 `messages.ackReactionScope`. Use `messages.removeAckAfterReply` to clear the
 ack reaction after the bot replies.
+=======
+    If you only set `DISCORD_BOT_TOKEN` and do not create a `channels.discord` block, runtime fallback is `groupPolicy="allowlist"` (with a warning in logs), even if `channels.defaults.groupPolicy` is `open`.
+>>>>>>> 777817392 (fix: fail closed missing provider group policy across message channels (#23367) (thanks @bmendonca3))
 
 - `dm.enabled`: set `false` to ignore all DMs (default `true`).
 - `dm.policy`: DM access control (`pairing` recommended). `"open"` requires `dm.allowFrom=["*"]`.

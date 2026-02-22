@@ -1,7 +1,17 @@
 import type { ChildProcess } from "node:child_process";
 import type { OpenClawConfig, MarkdownTableMode, RuntimeEnv } from "openclaw/plugin-sdk";
+<<<<<<< HEAD
 import { createReplyPrefixOptions, mergeAllowlist, summarizeMapping } from "openclaw/plugin-sdk";
 import type { ResolvedZalouserAccount, ZcaFriend, ZcaGroup, ZcaMessage } from "./types.js";
+=======
+import {
+  createReplyPrefixOptions,
+  mergeAllowlist,
+  resolveRuntimeGroupPolicy,
+  resolveSenderCommandAuthorization,
+  summarizeMapping,
+} from "openclaw/plugin-sdk";
+>>>>>>> 777817392 (fix: fail closed missing provider group policy across message channels (#23367) (thanks @bmendonca3))
 import { getZalouserRuntime } from "./runtime.js";
 import { sendMessageZalouser } from "./send.js";
 import { parseJsonOutput, runZca, runZcaStreaming } from "./zca.js";
@@ -173,7 +183,20 @@ async function processMessage(
   const chatId = threadId;
 
   const defaultGroupPolicy = config.channels?.defaults?.groupPolicy;
-  const groupPolicy = account.config.groupPolicy ?? defaultGroupPolicy ?? "open";
+  const { groupPolicy, providerMissingFallbackApplied } = resolveRuntimeGroupPolicy({
+    providerConfigPresent: config.channels?.zalouser !== undefined,
+    groupPolicy: account.config.groupPolicy,
+    defaultGroupPolicy,
+    configuredFallbackPolicy: "open",
+    missingProviderFallbackPolicy: "allowlist",
+  });
+  if (providerMissingFallbackApplied) {
+    logVerbose(
+      core,
+      runtime,
+      'zalouser: channels.zalouser is missing; defaulting groupPolicy to "allowlist" (group messages blocked until explicitly configured).',
+    );
+  }
   const groups = account.config.groups ?? {};
   if (isGroup) {
     if (groupPolicy === "disabled") {
