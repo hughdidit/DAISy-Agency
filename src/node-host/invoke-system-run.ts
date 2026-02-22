@@ -87,6 +87,7 @@ export async function handleSystemRunInvoke(opts: {
       success?: boolean;
     };
   }) => Promise<void>;
+  preferMacAppExecHost: boolean;
 }): Promise<void> {
   const command = resolveSystemRunCommand({
     command: opts.params.command,
@@ -195,7 +196,7 @@ export async function handleSystemRunInvoke(opts: {
     allowlistSatisfied = false;
   }
 
-  const useMacAppExec = process.platform === "darwin";
+  const useMacAppExec = opts.preferMacAppExecHost;
   if (useMacAppExec) {
     const approvalDecision =
       opts.params.approvalDecision === "allow-once" ||
