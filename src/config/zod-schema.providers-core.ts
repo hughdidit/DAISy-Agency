@@ -164,6 +164,11 @@ export const TelegramAccountSchemaBase = z
     webhookUrl: z.string().optional(),
     webhookSecret: z.string().optional(),
     webhookPath: z.string().optional(),
+<<<<<<< HEAD
+=======
+    webhookHost: z.string().optional(),
+    webhookPort: z.number().int().positive().optional(),
+>>>>>>> d0e676326 (fix(telegram): wire webhookPort through config and startup)
     actions: z
       .object({
         reactions: z.boolean().optional(),

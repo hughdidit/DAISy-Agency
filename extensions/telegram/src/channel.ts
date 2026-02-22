@@ -429,6 +429,11 @@ export const telegramPlugin: ChannelPlugin<ResolvedTelegramAccount, TelegramProb
         webhookUrl: account.config.webhookUrl,
         webhookSecret: account.config.webhookSecret,
         webhookPath: account.config.webhookPath,
+<<<<<<< HEAD
+=======
+        webhookHost: account.config.webhookHost,
+        webhookPort: account.config.webhookPort,
+>>>>>>> d0e676326 (fix(telegram): wire webhookPort through config and startup)
       });
     },
     logoutAccount: async ({ accountId, cfg }) => {
