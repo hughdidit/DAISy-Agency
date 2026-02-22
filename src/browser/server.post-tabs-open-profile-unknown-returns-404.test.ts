@@ -376,11 +376,19 @@ describe("profile CRUD endpoints", () => {
 >>>>>>> dee3abfcd (refactor(test): share browser control server harness)
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     prevGatewayPort = process.env.CLAWDBOT_GATEWAY_PORT;
     process.env.CLAWDBOT_GATEWAY_PORT = String(testPort - 2);
 
 =======
 >>>>>>> caebe70e9 (perf(test): cut setup/import overhead in hot suites)
+=======
+    state.prevGatewayToken = process.env.OPENCLAW_GATEWAY_TOKEN;
+    state.prevGatewayPassword = process.env.OPENCLAW_GATEWAY_PASSWORD;
+    delete process.env.OPENCLAW_GATEWAY_TOKEN;
+    delete process.env.OPENCLAW_GATEWAY_PASSWORD;
+
+>>>>>>> 9b23e5ce1 (test: fix flaky auth tests when OPENCLAW_GATEWAY_TOKEN is present)
     vi.stubGlobal(
       "fetch",
       vi.fn(async (url: string) => {
@@ -411,7 +419,20 @@ describe("profile CRUD endpoints", () => {
     }
 =======
     restoreGatewayPortEnv(state.prevGatewayPort);
+<<<<<<< HEAD
 >>>>>>> dcd592a60 (refactor: eliminate jscpd clones and boost tests)
+=======
+    if (state.prevGatewayToken !== undefined) {
+      process.env.OPENCLAW_GATEWAY_TOKEN = state.prevGatewayToken;
+    } else {
+      delete process.env.OPENCLAW_GATEWAY_TOKEN;
+    }
+    if (state.prevGatewayPassword !== undefined) {
+      process.env.OPENCLAW_GATEWAY_PASSWORD = state.prevGatewayPassword;
+    } else {
+      delete process.env.OPENCLAW_GATEWAY_PASSWORD;
+    }
+>>>>>>> 9b23e5ce1 (test: fix flaky auth tests when OPENCLAW_GATEWAY_TOKEN is present)
     await stopBrowserControlServer();
   });
 
