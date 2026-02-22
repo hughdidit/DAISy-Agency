@@ -1,6 +1,3 @@
-import fs from "node:fs/promises";
-import os from "node:os";
-import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { telegramPlugin } from "../../extensions/telegram/src/channel.js";
 import { setTelegramRuntime } from "../../extensions/telegram/src/runtime.js";
@@ -13,6 +10,7 @@ import { setActivePluginRegistry } from "../plugins/runtime.js";
 import { createPluginRuntime } from "../plugins/runtime/index.js";
 import { createTestRegistry } from "../test-utils/channel-plugins.js";
 import { runHeartbeatOnce } from "./heartbeat-runner.js";
+import { seedSessionStore, withTempHeartbeatSandbox } from "./heartbeat-runner.test-utils.js";
 
 // Avoid pulling optional runtime deps during isolated runs.
 vi.mock("jiti", () => ({ createJiti: () => () => ({}) }));
@@ -30,6 +28,7 @@ async function withHeartbeatFixture(
     seedSession: (sessionKey: string, input: SeedSessionInput) => Promise<void>;
   }) => Promise<unknown>,
 ): Promise<unknown> {
+<<<<<<< HEAD
   const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-hb-model-"));
   const storePath = path.join(tmpDir, "sessions.json");
 
@@ -56,6 +55,22 @@ async function withHeartbeatFixture(
   } finally {
     await fs.rm(tmpDir, { recursive: true, force: true });
   }
+=======
+  return withTempHeartbeatSandbox(
+    async ({ tmpDir, storePath }) => {
+      const seedSession = async (sessionKey: string, input: SeedSessionInput) => {
+        await seedSessionStore(storePath, sessionKey, {
+          updatedAt: input.updatedAt,
+          lastChannel: input.lastChannel,
+          lastProvider: input.lastChannel,
+          lastTo: input.lastTo,
+        });
+      };
+      return run({ tmpDir, storePath, seedSession });
+    },
+    { prefix: "openclaw-hb-model-" },
+  );
+>>>>>>> c0995103a (test(heartbeat): reuse shared temp sandbox in model override suite)
 }
 
 beforeEach(() => {
