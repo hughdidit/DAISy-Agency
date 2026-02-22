@@ -298,8 +298,13 @@ type ConnectResponse = {
   type: "res";
   id: string;
   ok: boolean;
+<<<<<<< HEAD
   payload?: unknown;
   error?: { message?: string };
+=======
+  payload?: Record<string, unknown>;
+  error?: { message?: string; code?: string; details?: unknown };
+>>>>>>> bbdfba569 (fix: harden connect auth flow and exec policy diagnostics)
 };
 
 export async function connectReq(

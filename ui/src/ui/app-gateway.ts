@@ -22,10 +22,31 @@ import {
   parseExecApprovalRequested,
   parseExecApprovalResolved,
   removeExecApproval,
+<<<<<<< HEAD
 } from "./controllers/exec-approval";
 import type { MoltbotApp } from "./app";
 import type { ExecApprovalRequest } from "./controllers/exec-approval";
 import { loadAssistantIdentity } from "./controllers/assistant-identity";
+=======
+} from "./controllers/exec-approval.ts";
+import { loadNodes } from "./controllers/nodes.ts";
+import { loadSessions } from "./controllers/sessions.ts";
+import {
+  resolveGatewayErrorDetailCode,
+  type GatewayEventFrame,
+  type GatewayHelloOk,
+} from "./gateway.ts";
+import { GatewayBrowserClient } from "./gateway.ts";
+import type { Tab } from "./navigation.ts";
+import type { UiSettings } from "./storage.ts";
+import type {
+  AgentsListResult,
+  PresenceEntry,
+  HealthSnapshot,
+  StatusSummary,
+  UpdateAvailable,
+} from "./types.ts";
+>>>>>>> bbdfba569 (fix: harden connect auth flow and exec policy diagnostics)
 
 type GatewayHost = {
   settings: UiSettings;
@@ -34,6 +55,7 @@ type GatewayHost = {
   connected: boolean;
   hello: GatewayHelloOk | null;
   lastError: string | null;
+  lastErrorCode: string | null;
   onboarding?: boolean;
   eventLogBuffer: EventLogEntry[];
   eventLog: EventLogEntry[];
@@ -110,6 +132,7 @@ function applySessionDefaults(host: GatewayHost, defaults?: SessionDefaultsSnaps
 
 export function connectGateway(host: GatewayHost) {
   host.lastError = null;
+  host.lastErrorCode = null;
   host.hello = null;
   host.connected = false;
   host.execApprovalQueue = [];
@@ -125,6 +148,7 @@ export function connectGateway(host: GatewayHost) {
     onHello: (hello) => {
       host.connected = true;
       host.lastError = null;
+      host.lastErrorCode = null;
       host.hello = hello;
       applySnapshot(host, hello);
       // Reset orphaned chat run state from before disconnect.
@@ -139,16 +163,34 @@ export function connectGateway(host: GatewayHost) {
       void loadDevices(host as unknown as MoltbotApp, { quiet: true });
       void refreshActiveTab(host as unknown as Parameters<typeof refreshActiveTab>[0]);
     },
+<<<<<<< HEAD
     onClose: ({ code, reason }) => {
+=======
+    onClose: ({ code, reason, error }) => {
+      if (host.client !== client) {
+        return;
+      }
+>>>>>>> bbdfba569 (fix: harden connect auth flow and exec policy diagnostics)
       host.connected = false;
       // Code 1012 = Service Restart (expected during config saves, don't show as error)
+      host.lastErrorCode =
+        resolveGatewayErrorDetailCode(error) ??
+        (typeof error?.code === "string" ? error.code : null);
       if (code !== 1012) {
+        if (error?.message) {
+          host.lastError = error.message;
+          return;
+        }
         host.lastError = `disconnected (${code}): ${reason || "no reason"}`;
+      } else {
+        host.lastError = null;
+        host.lastErrorCode = null;
       }
     },
     onEvent: (evt) => handleGatewayEvent(host, evt),
     onGap: ({ expected, received }) => {
       host.lastError = `event gap detected (expected seq ${expected}, got ${received}); refresh recommended`;
+      host.lastErrorCode = null;
     },
   });
   host.client.start();

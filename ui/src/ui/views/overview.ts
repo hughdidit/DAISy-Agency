@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { html } from "lit";
 <<<<<<< HEAD
 
@@ -8,6 +9,10 @@ import type { UiSettings } from "../storage";
 =======
 import type { GatewayHelloOk } from "../gateway.ts";
 import type { UiSettings } from "../storage.ts";
+=======
+import { html, nothing } from "lit";
+import { ConnectErrorDetailCodes } from "../../../../src/gateway/protocol/connect-error-details.js";
+>>>>>>> bbdfba569 (fix: harden connect auth flow and exec policy diagnostics)
 import { t, i18n, type Locale } from "../../i18n/index.ts";
 import { formatRelativeTimestamp, formatDurationHuman } from "../format.ts";
 import { formatNextRun } from "../presenter.ts";
@@ -19,6 +24,7 @@ export type OverviewProps = {
   settings: UiSettings;
   password: string;
   lastError: string | null;
+  lastErrorCode: string | null;
   presenceCount: number;
   sessionsCount: number | null;
   cronEnabled: boolean | null;
@@ -42,19 +48,78 @@ export function renderOverview(props: OverviewProps) {
 >>>>>>> 075317ab1 (fix: correct function names in overview.ts and add type assertion in translate.ts)
   const tick = snapshot?.policy?.tickIntervalMs
     ? `${snapshot.policy.tickIntervalMs}ms`
+<<<<<<< HEAD
     : "n/a";
+=======
+    : t("common.na");
+  const authMode = snapshot?.authMode;
+  const isTrustedProxy = authMode === "trusted-proxy";
+
+  const pairingHint = (() => {
+    if (!shouldShowPairingHint(props.connected, props.lastError, props.lastErrorCode)) {
+      return null;
+    }
+    return html`
+      <div class="muted" style="margin-top: 8px">
+        ${t("overview.pairing.hint")}
+        <div style="margin-top: 6px">
+          <span class="mono">openclaw devices list</span><br />
+          <span class="mono">openclaw devices approve &lt;requestId&gt;</span>
+        </div>
+        <div style="margin-top: 6px; font-size: 12px;">
+          ${t("overview.pairing.mobileHint")}
+        </div>
+        <div style="margin-top: 6px">
+          <a
+            class="session-link"
+            href="https://docs.openclaw.ai/web/control-ui#device-pairing-first-connection"
+            target="_blank"
+            rel="noreferrer"
+            title="Device pairing docs (opens in new tab)"
+            >Docs: Device pairing</a
+          >
+        </div>
+      </div>
+    `;
+  })();
+
+>>>>>>> bbdfba569 (fix: harden connect auth flow and exec policy diagnostics)
   const authHint = (() => {
     if (props.connected || !props.lastError) {
       return null;
     }
     const lower = props.lastError.toLowerCase();
-    const authFailed = lower.includes("unauthorized") || lower.includes("connect failed");
+    const authRequiredCodes = new Set<string>([
+      ConnectErrorDetailCodes.AUTH_REQUIRED,
+      ConnectErrorDetailCodes.AUTH_TOKEN_MISSING,
+      ConnectErrorDetailCodes.AUTH_PASSWORD_MISSING,
+      ConnectErrorDetailCodes.AUTH_TOKEN_NOT_CONFIGURED,
+      ConnectErrorDetailCodes.AUTH_PASSWORD_NOT_CONFIGURED,
+    ]);
+    const authFailureCodes = new Set<string>([
+      ...authRequiredCodes,
+      ConnectErrorDetailCodes.AUTH_UNAUTHORIZED,
+      ConnectErrorDetailCodes.AUTH_TOKEN_MISMATCH,
+      ConnectErrorDetailCodes.AUTH_PASSWORD_MISMATCH,
+      ConnectErrorDetailCodes.AUTH_DEVICE_TOKEN_MISMATCH,
+      ConnectErrorDetailCodes.AUTH_RATE_LIMITED,
+      ConnectErrorDetailCodes.AUTH_TAILSCALE_IDENTITY_MISSING,
+      ConnectErrorDetailCodes.AUTH_TAILSCALE_PROXY_MISSING,
+      ConnectErrorDetailCodes.AUTH_TAILSCALE_WHOIS_FAILED,
+      ConnectErrorDetailCodes.AUTH_TAILSCALE_IDENTITY_MISMATCH,
+    ]);
+    const authFailed = props.lastErrorCode
+      ? authFailureCodes.has(props.lastErrorCode)
+      : lower.includes("unauthorized") || lower.includes("connect failed");
     if (!authFailed) {
       return null;
     }
     const hasToken = Boolean(props.settings.token.trim());
     const hasPassword = Boolean(props.password.trim());
-    if (!hasToken && !hasPassword) {
+    const isAuthRequired = props.lastErrorCode
+      ? authRequiredCodes.has(props.lastErrorCode)
+      : !hasToken && !hasPassword;
+    if (isAuthRequired) {
       return html`
         <div class="muted" style="margin-top: 8px;">
           This gateway requires auth. Add a token or password, then click Connect.
@@ -114,7 +179,14 @@ export function renderOverview(props: OverviewProps) {
       return null;
     }
     const lower = props.lastError.toLowerCase();
-    if (!lower.includes("secure context") && !lower.includes("device identity required")) {
+    const insecureContextCode =
+      props.lastErrorCode === ConnectErrorDetailCodes.CONTROL_UI_DEVICE_IDENTITY_REQUIRED ||
+      props.lastErrorCode === ConnectErrorDetailCodes.DEVICE_IDENTITY_REQUIRED;
+    if (
+      !insecureContextCode &&
+      !lower.includes("secure context") &&
+      !lower.includes("device identity required")
+    ) {
       return null;
     }
     return html`

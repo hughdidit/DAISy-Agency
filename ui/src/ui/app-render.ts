@@ -458,6 +458,7 @@ export function renderApp(state: AppViewState) {
           </div>
         </section>
 
+<<<<<<< HEAD
         ${state.tab === "overview"
           ? renderOverview({
               connected: state.connected,
@@ -487,6 +488,40 @@ export function renderApp(state: AppViewState) {
               onRefresh: () => state.loadOverview(),
             })
           : nothing}
+=======
+        ${
+          state.tab === "overview"
+            ? renderOverview({
+                connected: state.connected,
+                hello: state.hello,
+                settings: state.settings,
+                password: state.password,
+                lastError: state.lastError,
+                lastErrorCode: state.lastErrorCode,
+                presenceCount,
+                sessionsCount,
+                cronEnabled: state.cronStatus?.enabled ?? null,
+                cronNext,
+                lastChannelsRefresh: state.channelsLastSuccess,
+                onSettingsChange: (next) => state.applySettings(next),
+                onPasswordChange: (next) => (state.password = next),
+                onSessionKeyChange: (next) => {
+                  state.sessionKey = next;
+                  state.chatMessage = "";
+                  state.resetToolStream();
+                  state.applySettings({
+                    ...state.settings,
+                    sessionKey: next,
+                    lastActiveSessionKey: next,
+                  });
+                  void state.loadAssistantIdentity();
+                },
+                onConnect: () => state.connect(),
+                onRefresh: () => state.loadOverview(),
+              })
+            : nothing
+        }
+>>>>>>> bbdfba569 (fix: harden connect auth flow and exec policy diagnostics)
 
         ${state.tab === "channels"
           ? renderChannels({
