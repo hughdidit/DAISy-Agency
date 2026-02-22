@@ -98,7 +98,11 @@ Docs: https://docs.openclaw.ai
 =======
 - Security/Elevated: match `tools.elevated.allowFrom` against sender identities only (not recipient `ctx.To`), closing a recipient-token bypass for `/elevated` authorization. (#11022) Thanks @coygeek.
 - Webchat/Sessions: preserve external session routing metadata when internal `chat.send` turns run under `webchat`, so explicit channel-keyed sessions (for example Telegram) no longer get rewritten to `webchat` and misroute follow-up delivery. (#23258) Thanks @binary64.
+<<<<<<< HEAD
 >>>>>>> 8a83ca54a (fix(webchat): preserve session channel routing on internal turns (#23258))
+=======
+- Webchat/Sessions: preserve existing session `label` across `/new` and `/reset` rollovers so reset sessions remain discoverable in session history lists. (#23755) Thanks @ThunderStormer.
+>>>>>>> 19046e0cf (fix(webchat): preserve session labels across /new resets (#23755))
 - Config/Memory: allow `"mistral"` in `agents.defaults.memorySearch.provider` and `agents.defaults.memorySearch.fallback` schema validation. (#14934) Thanks @ThomsenDrake.
 >>>>>>> 71c2c59c6 (fix(slack): enforce replyToMode for auto-thread_ts and inline reply tags (#23839))
 - Security/Feishu: enforce ID-only allowlist matching for DM/group sender authorization, normalize Feishu ID prefixes during checks, and ignore mutable display names so display-name collisions cannot satisfy allowlist entries. This ships in the next npm release. Thanks @jiseoung for reporting.
