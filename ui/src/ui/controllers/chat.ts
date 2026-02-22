@@ -58,20 +58,58 @@ function dataUrlToBase64(dataUrl: string): { content: string; mimeType: string }
   return { mimeType: match[1], content: match[2] };
 }
 
-function normalizeAbortedAssistantMessage(message: unknown): Record<string, unknown> | null {
+type AssistantMessageNormalizationOptions = {
+  roleRequirement: "required" | "optional";
+  roleCaseSensitive?: boolean;
+  requireContentArray?: boolean;
+  allowTextField?: boolean;
+};
+
+function normalizeAssistantMessage(
+  message: unknown,
+  options: AssistantMessageNormalizationOptions,
+): Record<string, unknown> | null {
   if (!message || typeof message !== "object") {
     return null;
   }
   const candidate = message as Record<string, unknown>;
-  if (candidate.role !== "assistant") {
+  const roleValue = candidate.role;
+  if (typeof roleValue === "string") {
+    const role = options.roleCaseSensitive ? roleValue : roleValue.toLowerCase();
+    if (role !== "assistant") {
+      return null;
+    }
+  } else if (options.roleRequirement === "required") {
     return null;
   }
-  if (!("content" in candidate) || !Array.isArray(candidate.content)) {
+
+  if (options.requireContentArray) {
+    return Array.isArray(candidate.content) ? candidate : null;
+  }
+  if (!("content" in candidate) && !(options.allowTextField && "text" in candidate)) {
     return null;
   }
   return candidate;
 }
 
+<<<<<<< HEAD
+=======
+function normalizeAbortedAssistantMessage(message: unknown): Record<string, unknown> | null {
+  return normalizeAssistantMessage(message, {
+    roleRequirement: "required",
+    roleCaseSensitive: true,
+    requireContentArray: true,
+  });
+}
+
+function normalizeFinalAssistantMessage(message: unknown): Record<string, unknown> | null {
+  return normalizeAssistantMessage(message, {
+    roleRequirement: "optional",
+    allowTextField: true,
+  });
+}
+
+>>>>>>> 382785c6c (refactor(webchat): extract shared chat state helpers)
 export async function sendChatMessage(
   state: ChatState,
   message: string,
