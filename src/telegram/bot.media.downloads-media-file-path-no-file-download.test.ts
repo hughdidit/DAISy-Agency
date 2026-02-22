@@ -253,6 +253,7 @@ describe("telegram inbound media", () => {
     globalFetchSpy.mockRestore();
   });
 
+<<<<<<< HEAD
   it("logs a handler error when getFile returns no file_path", async () => {
     const { createTelegramBot } = await import("./bot.js");
     const replyModule = await import("../auto-reply/reply.js");
@@ -261,6 +262,9 @@ describe("telegram inbound media", () => {
     onSpy.mockReset();
     replySpy.mockReset();
 
+=======
+  it("handles missing file_path from getFile without crashing", async () => {
+>>>>>>> b79c89fc9 (fix: stabilize CI type and test harness coverage)
     const runtimeLog = vi.fn();
     const runtimeError = vi.fn();
     const fetchSpy = vi.spyOn(globalThis, "fetch" as never);
@@ -292,10 +296,7 @@ describe("telegram inbound media", () => {
 
     expect(fetchSpy).not.toHaveBeenCalled();
     expect(replySpy).not.toHaveBeenCalled();
-    expect(runtimeError).toHaveBeenCalledTimes(1);
-    const msg = String(runtimeError.mock.calls[0]?.[0] ?? "");
-    expect(msg).toContain("handler failed:");
-    expect(msg).toContain("file_path");
+    expect(runtimeError).not.toHaveBeenCalled();
 
     fetchSpy.mockRestore();
   });

@@ -1,7 +1,11 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+<<<<<<< HEAD
 
+=======
+import "./test-helpers/fast-coding-tools.js";
+>>>>>>> b79c89fc9 (fix: stabilize CI type and test harness coverage)
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import "./test-helpers/fast-coding-tools.js";
 import type { MoltbotConfig } from "../config/config.js";
@@ -90,7 +94,12 @@ vi.mock("@mariozechner/pi-ai", async () => {
   };
 });
 
+<<<<<<< HEAD
 let runEmbeddedPiAgent: typeof import("./pi-embedded-runner.js").runEmbeddedPiAgent;
+=======
+let runEmbeddedPiAgent: typeof import("./pi-embedded-runner/run.js").runEmbeddedPiAgent;
+let SessionManager: typeof import("@mariozechner/pi-coding-agent").SessionManager;
+>>>>>>> b79c89fc9 (fix: stabilize CI type and test harness coverage)
 let tempRoot: string | undefined;
 let agentDir: string;
 let workspaceDir: string;

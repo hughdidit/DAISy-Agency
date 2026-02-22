@@ -354,6 +354,14 @@ function loadRequesterSessionEntry(requesterSessionKey: string) {
   return { cfg, entry, canonicalKey };
 }
 
+function buildAnnounceQueueKey(sessionKey: string, origin?: DeliveryContext): string {
+  const accountId = normalizeAccountId(origin?.accountId);
+  if (!accountId) {
+    return sessionKey;
+  }
+  return `${sessionKey}:acct:${accountId}`;
+}
+
 async function maybeQueueSubagentAnnounce(params: {
   requesterSessionKey: string;
   triggerMessage: string;
@@ -386,7 +394,7 @@ async function maybeQueueSubagentAnnounce(params: {
   if (isActive && (shouldFollowup || queueSettings.mode === "steer")) {
     const origin = resolveAnnounceOrigin(entry, params.requesterOrigin);
     enqueueAnnounce({
-      key: canonicalKey,
+      key: buildAnnounceQueueKey(canonicalKey, origin),
       item: {
         prompt: params.triggerMessage,
         summaryLine: params.summaryLine,
