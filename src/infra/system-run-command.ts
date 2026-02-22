@@ -1,4 +1,4 @@
-import path from "node:path";
+import { extractShellWrapperCommand } from "./exec-wrapper-resolution.js";
 
 export type SystemRunCommandValidation =
   | {
@@ -12,12 +12,28 @@ export type SystemRunCommandValidation =
       details?: Record<string, unknown>;
     };
 
+<<<<<<< HEAD
 function basenameLower(token: string): string {
   const win = path.win32.basename(token);
   const posix = path.posix.basename(token);
   const base = win.length < posix.length ? win : posix;
   return base.trim().toLowerCase();
 }
+=======
+export type ResolvedSystemRunCommand =
+  | {
+      ok: true;
+      argv: string[];
+      rawCommand: string | null;
+      shellCommand: string | null;
+      cmdText: string;
+    }
+  | {
+      ok: false;
+      message: string;
+      details?: Record<string, unknown>;
+    };
+>>>>>>> a96d89f34 (refactor: unify exec wrapper resolution and parity fixtures)
 
 export function formatExecCommand(argv: string[]): string {
   return argv
@@ -36,6 +52,7 @@ export function formatExecCommand(argv: string[]): string {
 }
 
 export function extractShellCommandFromArgv(argv: string[]): string | null {
+<<<<<<< HEAD
   const token0 = argv[0]?.trim();
   if (!token0) {
     return null;
@@ -70,6 +87,9 @@ export function extractShellCommandFromArgv(argv: string[]): string | null {
   }
 
   return null;
+=======
+  return extractShellWrapperCommand(argv).command;
+>>>>>>> a96d89f34 (refactor: unify exec wrapper resolution and parity fixtures)
 }
 
 export function validateSystemRunCommandConsistency(params: {
@@ -80,8 +100,13 @@ export function validateSystemRunCommandConsistency(params: {
     typeof params.rawCommand === "string" && params.rawCommand.trim().length > 0
       ? params.rawCommand.trim()
       : null;
+<<<<<<< HEAD
   const shellCommand = extractShellCommandFromArgv(params.argv);
   const inferred = shellCommand ? shellCommand.trim() : formatExecCommand(params.argv);
+=======
+  const shellCommand = extractShellWrapperCommand(params.argv).command;
+  const inferred = shellCommand !== null ? shellCommand.trim() : formatExecCommand(params.argv);
+>>>>>>> a96d89f34 (refactor: unify exec wrapper resolution and parity fixtures)
 
   if (raw && raw !== inferred) {
     return {
