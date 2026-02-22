@@ -18,6 +18,7 @@ import type { ExecAllowlistEntry } from "./exec-approvals.js";
 =======
 >>>>>>> 0e85380e5 (style: format files and fix safe-bins e2e typing)
 import { isTrustedSafeBinPath } from "./exec-safe-bin-trust.js";
+<<<<<<< HEAD
 >>>>>>> 4d3403b7a (chore: fix CI errors)
 
 function isPathLikeToken(value: string): boolean {
@@ -45,6 +46,8 @@ function defaultFileExists(filePath: string): boolean {
   }
 }
 
+=======
+>>>>>>> 3317b49d3 (feat(memory): allow QMD searches via mcporter keep-alive (openclaw#19617) thanks @vignesh07)
 export function normalizeSafeBins(entries?: string[]): Set<string> {
   if (!Array.isArray(entries)) {
     return new Set();

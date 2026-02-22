@@ -203,7 +203,14 @@ export async function createEmbeddingProvider(
           missingKeyErrors.push(message);
           continue;
         }
+<<<<<<< HEAD
         throw new Error(message, { cause: err });
+=======
+        // Non-auth errors (e.g., network) are still fatal
+        const wrapped = new Error(message) as Error & { cause?: unknown };
+        wrapped.cause = err;
+        throw wrapped;
+>>>>>>> 3317b49d3 (feat(memory): allow QMD searches via mcporter keep-alive (openclaw#19617) thanks @vignesh07)
       }
     }
 
@@ -229,6 +236,7 @@ export async function createEmbeddingProvider(
           fallbackReason: reason,
         };
       } catch (fallbackErr) {
+<<<<<<< HEAD
         // oxlint-disable-next-line preserve-caught-error
         throw new Error(
           `${reason}\n\nFallback to ${fallback} failed: ${formatErrorMessage(fallbackErr)}`,
@@ -237,6 +245,38 @@ export async function createEmbeddingProvider(
       }
     }
     throw new Error(reason, { cause: primaryErr });
+=======
+        // Both primary and fallback failed - check if it's auth-related
+        const fallbackReason = formatErrorMessage(fallbackErr);
+        const combinedReason = `${reason}\n\nFallback to ${fallback} failed: ${fallbackReason}`;
+        if (isMissingApiKeyError(primaryErr) && isMissingApiKeyError(fallbackErr)) {
+          // Both failed due to missing API keys - return null for FTS-only mode
+          return {
+            provider: null,
+            requestedProvider,
+            fallbackFrom: requestedProvider,
+            fallbackReason: reason,
+            providerUnavailableReason: combinedReason,
+          };
+        }
+        // Non-auth errors are still fatal
+        const wrapped = new Error(combinedReason) as Error & { cause?: unknown };
+        wrapped.cause = fallbackErr;
+        throw wrapped;
+      }
+    }
+    // No fallback configured - check if we should degrade to FTS-only
+    if (isMissingApiKeyError(primaryErr)) {
+      return {
+        provider: null,
+        requestedProvider,
+        providerUnavailableReason: reason,
+      };
+    }
+    const wrapped = new Error(reason) as Error & { cause?: unknown };
+    wrapped.cause = primaryErr;
+    throw wrapped;
+>>>>>>> 3317b49d3 (feat(memory): allow QMD searches via mcporter keep-alive (openclaw#19617) thanks @vignesh07)
   }
 }
 

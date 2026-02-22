@@ -142,4 +142,9 @@ package-lock.json
 
 # Local iOS signing overrides
 apps/ios/LocalSigning.xcconfig
+<<<<<<< HEAD
 >>>>>>> bfc973636 (feat: share to openclaw ios app (#19424))
+=======
+# Generated protocol schema (produced via pnpm protocol:gen)
+dist/protocol.schema.json
+>>>>>>> 3317b49d3 (feat(memory): allow QMD searches via mcporter keep-alive (openclaw#19617) thanks @vignesh07)
