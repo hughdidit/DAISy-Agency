@@ -141,6 +141,7 @@ import { wrapFetchWithAbortSignal } from "../../infra/fetch.js";
 =======
 >>>>>>> 3f617e33b (style(discord): format provider after proxy fetch changes)
 import { resolveDiscordAccount } from "../accounts.js";
+import { getDiscordGatewayEmitter } from "../monitor.gateway.js";
 import { fetchDiscordApplicationId } from "../probe.js";
 import { normalizeDiscordToken } from "../token.js";
 <<<<<<< HEAD
@@ -430,6 +431,33 @@ function isDiscordDisallowedIntentsError(err: unknown): boolean {
   return message.includes(String(DISCORD_DISALLOWED_INTENTS_CODE));
 }
 
+type EarlyGatewayErrorGuard = {
+  pendingErrors: unknown[];
+  release: () => void;
+};
+
+function attachEarlyGatewayErrorGuard(client: Client): EarlyGatewayErrorGuard {
+  const pendingErrors: unknown[] = [];
+  const gateway = client.getPlugin<GatewayPlugin>("gateway");
+  const emitter = getDiscordGatewayEmitter(gateway);
+  if (!emitter) {
+    return {
+      pendingErrors,
+      release: () => {},
+    };
+  }
+  const onGatewayError = (err: unknown) => {
+    pendingErrors.push(err);
+  };
+  emitter.on("error", onGatewayError);
+  return {
+    pendingErrors,
+    release: () => {
+      emitter.removeListener("error", onGatewayError);
+    },
+  };
+}
+
 export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
   const cfg = opts.config ?? loadConfig();
   const account = resolveDiscordAccount({
@@ -603,6 +631,7 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
       })
     : createNoopThreadBindingManager(account.accountId);
   let lifecycleStarted = false;
+  let releaseEarlyGatewayErrorGuard = () => {};
   try {
     const commands: BaseCommand[] = commandSpecs.map((spec) =>
       createDiscordNativeCommand({
@@ -979,6 +1008,8 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
       },
       clientPlugins,
     );
+    const earlyGatewayErrorGuard = attachEarlyGatewayErrorGuard(client);
+    releaseEarlyGatewayErrorGuard = earlyGatewayErrorGuard.release;
 
     await deployDiscordCommands({ client, runtime, enabled: nativeEnabled });
 
@@ -1080,8 +1111,11 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
       voiceManagerRef,
       execApprovalsHandler,
       threadBindings,
+      pendingGatewayErrors: earlyGatewayErrorGuard.pendingErrors,
+      releaseEarlyGatewayErrorGuard,
     });
   } finally {
+<<<<<<< HEAD
 <<<<<<< HEAD
     unregisterGateway(account.accountId);
     stopGatewayLogging();
@@ -1093,6 +1127,9 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
     if (execApprovalsHandler) {
       await execApprovalsHandler.stop();
 =======
+=======
+    releaseEarlyGatewayErrorGuard();
+>>>>>>> 7af6849c2 (Discord: handle early gateway startup errors)
     if (!lifecycleStarted) {
       threadBindings.stop();
 >>>>>>> 8178ea472 (feat: thread-bound subagents on Discord (#21805))
