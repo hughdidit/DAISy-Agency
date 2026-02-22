@@ -81,9 +81,9 @@ describe("channels command", () => {
   });
 
   beforeEach(() => {
-    configMocks.readConfigFileSnapshot.mockReset();
+    configMocks.readConfigFileSnapshot.mockClear();
     configMocks.writeConfigFile.mockClear();
-    authMocks.loadAuthProfileStore.mockReset();
+    authMocks.loadAuthProfileStore.mockClear();
     offsetMocks.deleteTelegramUpdateOffset.mockClear();
     runtime.log.mockClear();
     runtime.error.mockClear();
