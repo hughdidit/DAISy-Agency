@@ -259,6 +259,7 @@ Docs: https://docs.openclaw.ai
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 - Docker/Build: include `ownerDisplay` in `CommandsSchema` object-level defaults so Docker `pnpm build` no longer fails with `TS2769` during plugin SDK d.ts generation. (#22558) Thanks @obviyus.
@@ -276,6 +277,10 @@ Docs: https://docs.openclaw.ai
 >>>>>>> 9fc6c8b71 (fix: hide synthetic untrusted metadata in chat history)
 - Doctor/State integrity: only require/create the OAuth credentials directory when WhatsApp or pairing-backed channels are configured, and downgrade fresh-install missing-dir noise to an informational warning.
 - Agents/Sanitization: stop rewriting billing-shaped assistant text outside explicit error context so normal replies about billing/credits/payment are preserved across messaging channels. (#17834, fixes #11359)
+=======
+- Gateway/OpenRouter: preserve stored session provider when model IDs are vendor-prefixed (for example, `anthropic/...`) so follow-up turns do not incorrectly route to direct provider APIs. (#22753) Thanks @dndodson.
+- Agents/Bootstrap: skip malformed bootstrap files with missing/invalid paths instead of crashing agent sessions; hooks using `filePath` (or non-string `path`) are skipped with a warning. (#22693, #22698) Thanks @arosstale.
+>>>>>>> 4cad67438 (fix: preserve stored provider in resolveSessionModelRef for vendor-prefixed models (#22753))
 - Security/Agents: cap embedded Pi runner outer retry loop with a higher profile-aware dynamic limit (32-160 attempts) and return an explicit `retry_limit` error payload when retries never converge, preventing unbounded internal retry cycles (`GHSA-76m6-pj3w-v7mf`).
 - Telegram: detect duplicate bot-token ownership across Telegram accounts at startup/status time, mark secondary accounts as not configured with an explicit fix message, and block duplicate account startup before polling to avoid endless `getUpdates` conflict loops.
 - Agents/Tool images: include source filenames in `agents/tool-images` resize logs so compression events can be traced back to specific files.

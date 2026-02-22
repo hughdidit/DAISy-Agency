@@ -492,6 +492,33 @@ export function resolveSessionModelRef(
   });
   let provider = resolved.provider;
   let model = resolved.model;
+<<<<<<< HEAD
+=======
+  const runtimeModel = entry?.model?.trim();
+  const runtimeProvider = entry?.modelProvider?.trim();
+  if (runtimeModel) {
+    if (runtimeProvider) {
+      // Provider is explicitly recorded — use it directly. Re-parsing the
+      // model string through parseModelRef would incorrectly split OpenRouter
+      // vendor-prefixed model names (e.g. model="anthropic/claude-haiku-4.5"
+      // with provider="openrouter") into { provider: "anthropic" }, discarding
+      // the stored OpenRouter provider and causing direct API calls to a
+      // provider the user has no credentials for.
+      return { provider: runtimeProvider, model: runtimeModel };
+    }
+    const parsedRuntime = parseModelRef(runtimeModel, provider || DEFAULT_PROVIDER);
+    if (parsedRuntime) {
+      provider = parsedRuntime.provider;
+      model = parsedRuntime.model;
+    } else {
+      model = runtimeModel;
+    }
+    return { provider, model };
+  }
+
+  // Fall back to explicit per-session override (set at spawn/model-patch time),
+  // then finally to configured defaults.
+>>>>>>> 4cad67438 (fix: preserve stored provider in resolveSessionModelRef for vendor-prefixed models (#22753))
   const storedModelOverride = entry?.modelOverride?.trim();
   if (storedModelOverride) {
     provider = entry?.providerOverride?.trim() || provider;

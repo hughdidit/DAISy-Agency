@@ -92,6 +92,201 @@ describe("gateway session utils", () => {
     expect(target.storeKeys).toEqual(expect.arrayContaining(["agent:ops:main", "main"]));
     expect(target.storePath).toBe(path.resolve(storeTemplate.replace("{agentId}", "ops")));
   });
+<<<<<<< HEAD
+=======
+
+  test("resolveGatewaySessionStoreTarget includes legacy mixed-case store key", () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "session-utils-case-"));
+    const storePath = path.join(dir, "sessions.json");
+    // Simulate a legacy store with a mixed-case key
+    fs.writeFileSync(
+      storePath,
+      JSON.stringify({ "agent:ops:MySession": { sessionId: "s1", updatedAt: 1 } }),
+      "utf8",
+    );
+    const cfg = {
+      session: { mainKey: "main", store: storePath },
+      agents: { list: [{ id: "ops", default: true }] },
+    } as OpenClawConfig;
+    // Client passes the lowercased canonical key (as returned by sessions.list)
+    const target = resolveGatewaySessionStoreTarget({ cfg, key: "agent:ops:mysession" });
+    expect(target.canonicalKey).toBe("agent:ops:mysession");
+    // storeKeys must include the legacy mixed-case key from the on-disk store
+    expect(target.storeKeys).toEqual(
+      expect.arrayContaining(["agent:ops:mysession", "agent:ops:MySession"]),
+    );
+    // The legacy key must resolve to the actual entry in the store
+    const store = JSON.parse(fs.readFileSync(storePath, "utf8"));
+    const found = target.storeKeys.some((k) => Boolean(store[k]));
+    expect(found).toBe(true);
+  });
+
+  test("resolveGatewaySessionStoreTarget includes all case-variant duplicate keys", () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "session-utils-dupes-"));
+    const storePath = path.join(dir, "sessions.json");
+    // Simulate a store with both canonical and legacy mixed-case entries
+    fs.writeFileSync(
+      storePath,
+      JSON.stringify({
+        "agent:ops:mysession": { sessionId: "s-lower", updatedAt: 2 },
+        "agent:ops:MySession": { sessionId: "s-mixed", updatedAt: 1 },
+      }),
+      "utf8",
+    );
+    const cfg = {
+      session: { mainKey: "main", store: storePath },
+      agents: { list: [{ id: "ops", default: true }] },
+    } as OpenClawConfig;
+    const target = resolveGatewaySessionStoreTarget({ cfg, key: "agent:ops:mysession" });
+    // storeKeys must include BOTH variants so delete/reset/patch can clean up all duplicates
+    expect(target.storeKeys).toEqual(
+      expect.arrayContaining(["agent:ops:mysession", "agent:ops:MySession"]),
+    );
+  });
+
+  test("resolveGatewaySessionStoreTarget finds legacy main alias key when mainKey is customized", () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "session-utils-alias-"));
+    const storePath = path.join(dir, "sessions.json");
+    // Legacy store has entry under "agent:ops:MAIN" but mainKey is "work"
+    fs.writeFileSync(
+      storePath,
+      JSON.stringify({ "agent:ops:MAIN": { sessionId: "s1", updatedAt: 1 } }),
+      "utf8",
+    );
+    const cfg = {
+      session: { mainKey: "work", store: storePath },
+      agents: { list: [{ id: "ops", default: true }] },
+    } as OpenClawConfig;
+    const target = resolveGatewaySessionStoreTarget({ cfg, key: "agent:ops:main" });
+    expect(target.canonicalKey).toBe("agent:ops:work");
+    // storeKeys must include the legacy mixed-case alias key
+    expect(target.storeKeys).toEqual(expect.arrayContaining(["agent:ops:MAIN"]));
+  });
+
+  test("pruneLegacyStoreKeys removes alias and case-variant ghost keys", () => {
+    const store: Record<string, unknown> = {
+      "agent:ops:work": { sessionId: "canonical", updatedAt: 3 },
+      "agent:ops:MAIN": { sessionId: "legacy-upper", updatedAt: 1 },
+      "agent:ops:Main": { sessionId: "legacy-mixed", updatedAt: 2 },
+      "agent:ops:main": { sessionId: "legacy-lower", updatedAt: 4 },
+    };
+    pruneLegacyStoreKeys({
+      store,
+      canonicalKey: "agent:ops:work",
+      candidates: ["agent:ops:work", "agent:ops:main"],
+    });
+    expect(Object.keys(store).toSorted()).toEqual(["agent:ops:work"]);
+  });
+
+  test("listAgentsForGateway rejects avatar symlink escapes outside workspace", () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), "session-utils-avatar-outside-"));
+    const workspace = path.join(root, "workspace");
+    fs.mkdirSync(workspace, { recursive: true });
+    const outsideFile = path.join(root, "outside.txt");
+    fs.writeFileSync(outsideFile, "top-secret", "utf8");
+    const linkPath = path.join(workspace, "avatar-link.png");
+    if (!createSymlinkOrSkip(outsideFile, linkPath)) {
+      return;
+    }
+
+    const cfg = {
+      session: { mainKey: "main" },
+      agents: {
+        list: [{ id: "main", default: true, workspace, identity: { avatar: "avatar-link.png" } }],
+      },
+    } as OpenClawConfig;
+
+    const result = listAgentsForGateway(cfg);
+    expect(result.agents[0]?.identity?.avatarUrl).toBeUndefined();
+  });
+
+  test("listAgentsForGateway allows avatar symlinks that stay inside workspace", () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), "session-utils-avatar-inside-"));
+    const workspace = path.join(root, "workspace");
+    fs.mkdirSync(path.join(workspace, "avatars"), { recursive: true });
+    const targetPath = path.join(workspace, "avatars", "actual.png");
+    fs.writeFileSync(targetPath, "avatar", "utf8");
+    const linkPath = path.join(workspace, "avatar-link.png");
+    if (!createSymlinkOrSkip(targetPath, linkPath)) {
+      return;
+    }
+
+    const cfg = {
+      session: { mainKey: "main" },
+      agents: {
+        list: [{ id: "main", default: true, workspace, identity: { avatar: "avatar-link.png" } }],
+      },
+    } as OpenClawConfig;
+
+    const result = listAgentsForGateway(cfg);
+    expect(result.agents[0]?.identity?.avatarUrl).toBe(
+      `data:image/png;base64,${Buffer.from("avatar").toString("base64")}`,
+    );
+  });
+});
+
+describe("resolveSessionModelRef", () => {
+  test("prefers runtime model/provider from session entry", () => {
+    const cfg = {
+      agents: {
+        defaults: {
+          model: { primary: "anthropic/claude-opus-4-6" },
+        },
+      },
+    } as OpenClawConfig;
+
+    const resolved = resolveSessionModelRef(cfg, {
+      sessionId: "s1",
+      updatedAt: Date.now(),
+      modelProvider: "openai-codex",
+      model: "gpt-5.3-codex",
+      modelOverride: "claude-opus-4-6",
+      providerOverride: "anthropic",
+    });
+
+    expect(resolved).toEqual({ provider: "openai-codex", model: "gpt-5.3-codex" });
+  });
+
+  test("preserves openrouter provider when model contains vendor prefix", () => {
+    const cfg = {
+      agents: {
+        defaults: {
+          model: { primary: "openrouter/minimax/minimax-m2.5" },
+        },
+      },
+    } as OpenClawConfig;
+
+    const resolved = resolveSessionModelRef(cfg, {
+      sessionId: "s-or",
+      updatedAt: Date.now(),
+      modelProvider: "openrouter",
+      model: "anthropic/claude-haiku-4.5",
+    });
+
+    expect(resolved).toEqual({
+      provider: "openrouter",
+      model: "anthropic/claude-haiku-4.5",
+    });
+  });
+
+  test("falls back to override when runtime model is not recorded yet", () => {
+    const cfg = {
+      agents: {
+        defaults: {
+          model: { primary: "anthropic/claude-opus-4-6" },
+        },
+      },
+    } as OpenClawConfig;
+
+    const resolved = resolveSessionModelRef(cfg, {
+      sessionId: "s2",
+      updatedAt: Date.now(),
+      modelOverride: "openai-codex/gpt-5.3-codex",
+    });
+
+    expect(resolved).toEqual({ provider: "openai-codex", model: "gpt-5.3-codex" });
+  });
+>>>>>>> 4cad67438 (fix: preserve stored provider in resolveSessionModelRef for vendor-prefixed models (#22753))
 });
 
 describe("deriveSessionTitle", () => {
