@@ -151,6 +151,21 @@ describe("config plugin validation", () => {
     });
   });
 
+  it("accepts channels.modelByChannel", async () => {
+    const home = await createCaseHome();
+    const res = validateInHome(home, {
+      agents: { list: [{ id: "pi" }] },
+      channels: {
+        modelByChannel: {
+          openai: {
+            whatsapp: "openai/gpt-5.2",
+          },
+        },
+      },
+    });
+    expect(res.ok).toBe(true);
+  });
+
   it("accepts plugin heartbeat targets", async () => {
     await withTempHome(async (home) => {
       process.env.CLAWDBOT_STATE_DIR = path.join(home, ".clawdbot");
