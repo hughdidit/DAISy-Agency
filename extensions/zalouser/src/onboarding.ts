@@ -43,6 +43,45 @@ import type { ZcaFriend, ZcaGroup } from "./types.js";
 
 const channel = "zalouser" as const;
 
+function setZalouserAccountScopedConfig(
+  cfg: OpenClawConfig,
+  accountId: string,
+  defaultPatch: Record<string, unknown>,
+  accountPatch: Record<string, unknown> = defaultPatch,
+): OpenClawConfig {
+  if (accountId === DEFAULT_ACCOUNT_ID) {
+    return {
+      ...cfg,
+      channels: {
+        ...cfg.channels,
+        zalouser: {
+          ...cfg.channels?.zalouser,
+          enabled: true,
+          ...defaultPatch,
+        },
+      },
+    } as OpenClawConfig;
+  }
+  return {
+    ...cfg,
+    channels: {
+      ...cfg.channels,
+      zalouser: {
+        ...cfg.channels?.zalouser,
+        enabled: true,
+        accounts: {
+          ...cfg.channels?.zalouser?.accounts,
+          [accountId]: {
+            ...cfg.channels?.zalouser?.accounts?.[accountId],
+            enabled: cfg.channels?.zalouser?.accounts?.[accountId]?.enabled ?? true,
+            ...accountPatch,
+          },
+        },
+      },
+    },
+  } as OpenClawConfig;
+}
+
 function setZalouserDmPolicy(
   cfg: MoltbotConfig,
   dmPolicy: "pairing" | "allowlist" | "open" | "disabled",
@@ -143,6 +182,7 @@ async function promptZalouserAllowFrom(params: {
       continue;
     }
     const unique = mergeAllowFromEntries(existingAllowFrom, results.filter(Boolean) as string[]);
+<<<<<<< HEAD
     if (accountId === DEFAULT_ACCOUNT_ID) {
       return {
         ...cfg,
@@ -177,6 +217,12 @@ async function promptZalouserAllowFrom(params: {
         },
       },
     } as MoltbotConfig;
+=======
+    return setZalouserAccountScopedConfig(cfg, accountId, {
+      dmPolicy: "allowlist",
+      allowFrom: unique,
+    });
+>>>>>>> 49648daec (fix(zalouser): normalize send and onboarding flows)
   }
 }
 
@@ -184,6 +230,7 @@ function setZalouserGroupPolicy(
   cfg: MoltbotConfig,
   accountId: string,
   groupPolicy: "open" | "allowlist" | "disabled",
+<<<<<<< HEAD
 ): MoltbotConfig {
   if (accountId === DEFAULT_ACCOUNT_ID) {
     return {
@@ -216,6 +263,12 @@ function setZalouserGroupPolicy(
       },
     },
   } as MoltbotConfig;
+=======
+): OpenClawConfig {
+  return setZalouserAccountScopedConfig(cfg, accountId, {
+    groupPolicy,
+  });
+>>>>>>> 49648daec (fix(zalouser): normalize send and onboarding flows)
 }
 
 function setZalouserGroupAllowlist(
@@ -224,6 +277,7 @@ function setZalouserGroupAllowlist(
   groupKeys: string[],
 ): MoltbotConfig {
   const groups = Object.fromEntries(groupKeys.map((key) => [key, { allow: true }]));
+<<<<<<< HEAD
   if (accountId === DEFAULT_ACCOUNT_ID) {
     return {
       ...cfg,
@@ -255,6 +309,11 @@ function setZalouserGroupAllowlist(
       },
     },
   } as MoltbotConfig;
+=======
+  return setZalouserAccountScopedConfig(cfg, accountId, {
+    groups,
+  });
+>>>>>>> 49648daec (fix(zalouser): normalize send and onboarding flows)
 }
 
 async function resolveZalouserGroups(params: {
@@ -471,6 +530,7 @@ export const zalouserOnboardingAdapter: ChannelOnboardingAdapter = {
     }
 
     // Enable the channel
+<<<<<<< HEAD
     if (accountId === DEFAULT_ACCOUNT_ID) {
       next = {
         ...next,
@@ -503,6 +563,14 @@ export const zalouserOnboardingAdapter: ChannelOnboardingAdapter = {
         },
       } as MoltbotConfig;
     }
+=======
+    next = setZalouserAccountScopedConfig(
+      next,
+      accountId,
+      { profile: account.profile !== "default" ? account.profile : undefined },
+      { profile: account.profile, enabled: true },
+    );
+>>>>>>> 49648daec (fix(zalouser): normalize send and onboarding flows)
 
     if (forceAllowFrom) {
       next = await promptZalouserAllowFrom({
