@@ -129,6 +129,117 @@ export function sanitizeAntigravityThinkingBlocks(messages: AgentMessage[]): Age
   return touched ? out : messages;
 }
 
+<<<<<<< HEAD
+=======
+function buildInterSessionPrefix(message: AgentMessage): string {
+  const provenance = normalizeInputProvenance((message as { provenance?: unknown }).provenance);
+  if (!provenance) {
+    return INTER_SESSION_PREFIX_BASE;
+  }
+  const details = [
+    provenance.sourceSessionKey ? `sourceSession=${provenance.sourceSessionKey}` : undefined,
+    provenance.sourceChannel ? `sourceChannel=${provenance.sourceChannel}` : undefined,
+    provenance.sourceTool ? `sourceTool=${provenance.sourceTool}` : undefined,
+  ].filter(Boolean);
+  if (details.length === 0) {
+    return INTER_SESSION_PREFIX_BASE;
+  }
+  return `${INTER_SESSION_PREFIX_BASE} ${details.join(" ")}`;
+}
+
+function annotateInterSessionUserMessages(messages: AgentMessage[]): AgentMessage[] {
+  let touched = false;
+  const out: AgentMessage[] = [];
+  for (const msg of messages) {
+    if (!hasInterSessionUserProvenance(msg as { role?: unknown; provenance?: unknown })) {
+      out.push(msg);
+      continue;
+    }
+    const prefix = buildInterSessionPrefix(msg);
+    const user = msg as Extract<AgentMessage, { role: "user" }>;
+    if (typeof user.content === "string") {
+      if (user.content.startsWith(prefix)) {
+        out.push(msg);
+        continue;
+      }
+      touched = true;
+      out.push({
+        ...(msg as unknown as Record<string, unknown>),
+        content: `${prefix}\n${user.content}`,
+      } as AgentMessage);
+      continue;
+    }
+    if (!Array.isArray(user.content)) {
+      out.push(msg);
+      continue;
+    }
+
+    const textIndex = user.content.findIndex(
+      (block) =>
+        block &&
+        typeof block === "object" &&
+        (block as { type?: unknown }).type === "text" &&
+        typeof (block as { text?: unknown }).text === "string",
+    );
+
+    if (textIndex >= 0) {
+      const existing = user.content[textIndex] as { type: "text"; text: string };
+      if (existing.text.startsWith(prefix)) {
+        out.push(msg);
+        continue;
+      }
+      const nextContent = [...user.content];
+      nextContent[textIndex] = {
+        ...existing,
+        text: `${prefix}\n${existing.text}`,
+      };
+      touched = true;
+      out.push({
+        ...(msg as unknown as Record<string, unknown>),
+        content: nextContent,
+      } as AgentMessage);
+      continue;
+    }
+
+    touched = true;
+    out.push({
+      ...(msg as unknown as Record<string, unknown>),
+      content: [{ type: "text", text: prefix }, ...user.content],
+    } as AgentMessage);
+  }
+  return touched ? out : messages;
+}
+
+function stripStaleAssistantUsageBeforeLatestCompaction(messages: AgentMessage[]): AgentMessage[] {
+  let latestCompactionSummaryIndex = -1;
+  for (let i = 0; i < messages.length; i += 1) {
+    if (messages[i]?.role === "compactionSummary") {
+      latestCompactionSummaryIndex = i;
+    }
+  }
+  if (latestCompactionSummaryIndex <= 0) {
+    return messages;
+  }
+
+  const out = [...messages];
+  let touched = false;
+  for (let i = 0; i < latestCompactionSummaryIndex; i += 1) {
+    const candidate = out[i] as (AgentMessage & { usage?: unknown }) | undefined;
+    if (!candidate || candidate.role !== "assistant") {
+      continue;
+    }
+    if (!candidate.usage || typeof candidate.usage !== "object") {
+      continue;
+    }
+    const candidateRecord = candidate as unknown as Record<string, unknown>;
+    const { usage: _droppedUsage, ...rest } = candidateRecord;
+    out[i] = rest as unknown as AgentMessage;
+    touched = true;
+  }
+  return touched ? out : messages;
+}
+
+>>>>>>> 6bf5e76be (Agents: drop stale pre-compaction usage snapshots)
 function findUnsupportedSchemaKeywords(schema: unknown, path: string): string[] {
   if (!schema || typeof schema !== "object") {
     return [];
@@ -394,6 +505,12 @@ export async function sanitizeSessionHistory(params: {
   const repairedTools = policy.repairToolUseResultPairing
     ? sanitizeToolUseResultPairing(sanitizedToolCalls)
     : sanitizedToolCalls;
+<<<<<<< HEAD
+=======
+  const sanitizedToolResults = stripToolResultDetails(repairedTools);
+  const sanitizedCompactionUsage =
+    stripStaleAssistantUsageBeforeLatestCompaction(sanitizedToolResults);
+>>>>>>> 6bf5e76be (Agents: drop stale pre-compaction usage snapshots)
 
   const isOpenAIResponsesApi =
     params.modelApi === "openai-responses" || params.modelApi === "openai-codex-responses";
@@ -407,10 +524,16 @@ export async function sanitizeSessionHistory(params: {
         modelId: params.modelId,
       })
     : false;
+<<<<<<< HEAD
   const sanitizedOpenAI =
     isOpenAIResponsesApi && modelChanged
       ? downgradeOpenAIReasoningBlocks(repairedTools)
       : repairedTools;
+=======
+  const sanitizedOpenAI = isOpenAIResponsesApi
+    ? downgradeOpenAIReasoningBlocks(sanitizedCompactionUsage)
+    : sanitizedCompactionUsage;
+>>>>>>> 6bf5e76be (Agents: drop stale pre-compaction usage snapshots)
 
   if (hasSnapshot && (!priorSnapshot || modelChanged)) {
     appendModelSnapshot(params.sessionManager, {
