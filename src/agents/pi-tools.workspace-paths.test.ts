@@ -52,6 +52,7 @@ function getTextContent(result?: { content?: Array<{ type: string; text?: string
 describe.sequential("workspace path resolution", () => {
 =======
 describe("workspace path resolution", () => {
+<<<<<<< HEAD
 >>>>>>> ad1c07e7c (refactor: eliminate remaining duplicate blocks across draft streams and tests)
   it("reads relative paths against workspaceDir even after cwd changes", async () => {
     await withTempDir("moltbot-ws-", async (workspaceDir) => {
@@ -112,6 +113,43 @@ describe("workspace path resolution", () => {
 
         const updated = await fs.readFile(path.join(workspaceDir, testFile), "utf8");
         expect(updated).toBe("hello moltbot");
+=======
+  it("resolves relative read/write/edit paths against workspaceDir even after cwd changes", async () => {
+    await withTempDir("openclaw-ws-", async (workspaceDir) => {
+      await withTempDir("openclaw-cwd-", async (otherDir) => {
+        const cwdSpy = vi.spyOn(process, "cwd").mockReturnValue(otherDir);
+        try {
+          const tools = createOpenClawCodingTools({ workspaceDir });
+          const { readTool, writeTool, editTool } = expectReadWriteEditTools(tools);
+
+          const readFile = "read.txt";
+          await fs.writeFile(path.join(workspaceDir, readFile), "workspace read ok", "utf8");
+          const readResult = await readTool.execute("ws-read", { path: readFile });
+          expect(getTextContent(readResult)).toContain("workspace read ok");
+
+          const writeFile = "write.txt";
+          await writeTool.execute("ws-write", {
+            path: writeFile,
+            content: "workspace write ok",
+          });
+          expect(await fs.readFile(path.join(workspaceDir, writeFile), "utf8")).toBe(
+            "workspace write ok",
+          );
+
+          const editFile = "edit.txt";
+          await fs.writeFile(path.join(workspaceDir, editFile), "hello world", "utf8");
+          await editTool.execute("ws-edit", {
+            path: editFile,
+            oldText: "world",
+            newText: "openclaw",
+          });
+          expect(await fs.readFile(path.join(workspaceDir, editFile), "utf8")).toBe(
+            "hello openclaw",
+          );
+        } finally {
+          cwdSpy.mockRestore();
+        }
+>>>>>>> 60a0291bf (test: dedupe workspace path-resolution scenarios)
       });
     });
   });

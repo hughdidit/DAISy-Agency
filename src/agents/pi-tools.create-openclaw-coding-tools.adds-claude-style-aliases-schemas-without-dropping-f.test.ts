@@ -10,6 +10,7 @@ import { createOpenClawCodingTools } from "./pi-tools.js";
 import { expectReadWriteEditTools } from "./test-helpers/pi-tools-fs-helpers.js";
 >>>>>>> ad1c07e7c (refactor: eliminate remaining duplicate blocks across draft streams and tests)
 
+<<<<<<< HEAD
 describe("createMoltbotCodingTools", () => {
   it("uses workspaceDir for Read tool path resolution", async () => {
     const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-ws-"));
@@ -23,16 +24,26 @@ describe("createMoltbotCodingTools", () => {
       const tools = createMoltbotCodingTools({ workspaceDir: tmpDir });
       const readTool = tools.find((tool) => tool.name === "read");
       expect(readTool).toBeDefined();
+=======
+describe("createOpenClawCodingTools", () => {
+  it("uses workspaceDir for read/write/edit path resolution", async () => {
+    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-ws-"));
+    try {
+      const tools = createOpenClawCodingTools({ workspaceDir: tmpDir });
+      const { readTool, writeTool, editTool } = expectReadWriteEditTools(tools);
+>>>>>>> 60a0291bf (test: dedupe workspace path-resolution scenarios)
 
-      // Read using relative path - should resolve against workspaceDir
-      const result = await readTool?.execute("tool-ws-1", {
-        path: testFile,
+      const readPath = "test-workspace-file.txt";
+      const readContent = "workspace path resolution test";
+      await fs.writeFile(path.join(tmpDir, readPath), readContent, "utf8");
+      const readResult = await readTool?.execute("tool-ws-1", {
+        path: readPath,
       });
-
-      const textBlocks = result?.content?.filter((block) => block.type === "text") as
+      const textBlocks = readResult?.content?.filter((block) => block.type === "text") as
         | Array<{ text?: string }>
         | undefined;
       const combinedText = textBlocks?.map((block) => block.text ?? "").join("\n");
+<<<<<<< HEAD
       expect(combinedText).toContain(testContent);
     } finally {
       await fs.rm(tmpDir, { recursive: true, force: true });
@@ -50,11 +61,19 @@ describe("createMoltbotCodingTools", () => {
       expect(writeTool).toBeDefined();
 
       // Write using relative path - should resolve against workspaceDir
-      await writeTool?.execute("tool-ws-2", {
-        path: testFile,
-        content: testContent,
-      });
+=======
+      expect(combinedText).toContain(readContent);
 
+      const writePath = "test-write-file.txt";
+      const writeContent = "written via workspace path";
+>>>>>>> 60a0291bf (test: dedupe workspace path-resolution scenarios)
+      await writeTool?.execute("tool-ws-2", {
+        path: writePath,
+        content: writeContent,
+      });
+      expect(await fs.readFile(path.join(tmpDir, writePath), "utf8")).toBe(writeContent);
+
+<<<<<<< HEAD
       // Verify file was written to workspaceDir
       const written = await fs.readFile(path.join(tmpDir, testFile), "utf8");
       expect(written).toBe(testContent);
@@ -76,15 +95,16 @@ describe("createMoltbotCodingTools", () => {
       expect(editTool).toBeDefined();
 
       // Edit using relative path - should resolve against workspaceDir
+=======
+      const editPath = "test-edit-file.txt";
+      await fs.writeFile(path.join(tmpDir, editPath), "hello world", "utf8");
+>>>>>>> 60a0291bf (test: dedupe workspace path-resolution scenarios)
       await editTool?.execute("tool-ws-3", {
-        path: testFile,
+        path: editPath,
         oldText: "world",
         newText: "universe",
       });
-
-      // Verify file was edited in workspaceDir
-      const edited = await fs.readFile(path.join(tmpDir, testFile), "utf8");
-      expect(edited).toBe(expectedContent);
+      expect(await fs.readFile(path.join(tmpDir, editPath), "utf8")).toBe("hello universe");
     } finally {
       await fs.rm(tmpDir, { recursive: true, force: true });
     }
