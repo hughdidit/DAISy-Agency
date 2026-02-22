@@ -1,3 +1,5 @@
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import type { AgentToolResult } from "@mariozechner/pi-agent-core";
 import { createEditTool, createReadTool, createWriteTool } from "@mariozechner/pi-coding-agent";
 <<<<<<< HEAD
@@ -578,7 +580,61 @@ export function wrapToolParamNormalization(
 function wrapSandboxPathGuard(tool: AnyAgentTool, root: string): AnyAgentTool {
 =======
 export function wrapToolWorkspaceRootGuard(tool: AnyAgentTool, root: string): AnyAgentTool {
+<<<<<<< HEAD
 >>>>>>> 726ff36fd (Sandbox: honor bind mounts in file tools)
+=======
+  return wrapToolWorkspaceRootGuardWithOptions(tool, root);
+}
+
+function mapContainerPathToWorkspaceRoot(params: {
+  filePath: string;
+  root: string;
+  containerWorkdir?: string;
+}): string {
+  const containerWorkdir = params.containerWorkdir?.trim();
+  if (!containerWorkdir) {
+    return params.filePath;
+  }
+  const normalizedWorkdir = containerWorkdir.replace(/\\/g, "/").replace(/\/+$/, "");
+  if (!normalizedWorkdir.startsWith("/")) {
+    return params.filePath;
+  }
+  if (!normalizedWorkdir) {
+    return params.filePath;
+  }
+
+  let candidate = params.filePath;
+  if (/^file:\/\//i.test(candidate)) {
+    try {
+      candidate = fileURLToPath(candidate);
+    } catch {
+      return params.filePath;
+    }
+  }
+
+  const normalizedCandidate = candidate.replace(/\\/g, "/");
+  if (normalizedCandidate === normalizedWorkdir) {
+    return path.resolve(params.root);
+  }
+  const prefix = `${normalizedWorkdir}/`;
+  if (!normalizedCandidate.startsWith(prefix)) {
+    return candidate;
+  }
+  const relative = normalizedCandidate.slice(prefix.length);
+  if (!relative) {
+    return path.resolve(params.root);
+  }
+  return path.resolve(params.root, ...relative.split("/").filter(Boolean));
+}
+
+export function wrapToolWorkspaceRootGuardWithOptions(
+  tool: AnyAgentTool,
+  root: string,
+  options?: {
+    containerWorkdir?: string;
+  },
+): AnyAgentTool {
+>>>>>>> 73fab7e44 (fix(agents): map container workdir paths in workspace guard)
   return {
     ...tool,
     execute: async (toolCallId, args, signal, onUpdate) => {
@@ -588,7 +644,12 @@ export function wrapToolWorkspaceRootGuard(tool: AnyAgentTool, root: string): An
         (args && typeof args === "object" ? (args as Record<string, unknown>) : undefined);
       const filePath = record?.path;
       if (typeof filePath === "string" && filePath.trim()) {
-        await assertSandboxPath({ filePath, cwd: root, root });
+        const sandboxPath = mapContainerPathToWorkspaceRoot({
+          filePath,
+          root,
+          containerWorkdir: options?.containerWorkdir,
+        });
+        await assertSandboxPath({ filePath: sandboxPath, cwd: root, root });
       }
       return tool.execute(toolCallId, normalized ?? args, signal, onUpdate);
     },
