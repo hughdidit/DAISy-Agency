@@ -80,6 +80,11 @@ import { resolveInjectedAssistantIdentity } from "./assistant-identity.ts";
 import { loadAssistantIdentity as loadAssistantIdentityInternal } from "./controllers/assistant-identity.ts";
 import { loadSettings, type UiSettings } from "./storage.ts";
 import { type ChatAttachment, type ChatQueueItem, type CronFormState } from "./ui-types.ts";
+<<<<<<< HEAD
+=======
+import { generateUUID } from "./uuid.ts";
+import type { NostrProfileFormState } from "./views/channels.nostr-profile-form.ts";
+>>>>>>> d57405676 (fix(control-ui): send stable websocket instance IDs (#23616))
 
 declare global {
   interface Window {
@@ -104,6 +109,11 @@ function resolveOnboardingMode(): boolean {
 
 @customElement("openclaw-app")
 export class OpenClawApp extends LitElement {
+<<<<<<< HEAD
+=======
+  private i18nController = new I18nController(this);
+  clientInstanceId = generateUUID();
+>>>>>>> d57405676 (fix(control-ui): send stable websocket instance IDs (#23616))
   @state() settings: UiSettings = loadSettings();
   @state() password = "";
   @state() tab: Tab = "chat";
