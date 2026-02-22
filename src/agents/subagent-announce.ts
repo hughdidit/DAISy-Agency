@@ -55,6 +55,7 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { isEmbeddedPiRunActive, queueEmbeddedPiMessage } from "./pi-embedded.js";
 =======
 =======
@@ -63,6 +64,9 @@ import { isDeliverableMessageChannel } from "../utils/message-channel.js";
 =======
 import { isDeliverableMessageChannel } from "../utils/message-channel.js";
 >>>>>>> f555835b0 (Channels: add thread-aware model overrides)
+=======
+import { isDeliverableMessageChannel, isInternalMessageChannel } from "../utils/message-channel.js";
+>>>>>>> b2719d00f (fix(subagents): restore isInternalMessageChannel guard in resolveAnnounceOrigin)
 import {
   buildAnnounceIdFromChildRun,
   buildAnnounceIdempotencyKey,
@@ -438,9 +442,12 @@ function resolveAnnounceOrigin(
 =======
   const normalizedRequester = normalizeDeliveryContext(requesterOrigin);
   const normalizedEntry = deliveryContextFromSession(entry);
-  if (normalizedRequester?.channel && !isDeliverableMessageChannel(normalizedRequester.channel)) {
-    // Ignore internal/non-deliverable channel hints (for example webchat)
-    // so a valid persisted route can still be used for outbound delivery.
+  if (normalizedRequester?.channel && isInternalMessageChannel(normalizedRequester.channel)) {
+    // Ignore internal channel hints (webchat) so a valid persisted route
+    // can still be used for outbound delivery. Non-standard channels that
+    // are not in the deliverable list should NOT be stripped here — doing
+    // so causes the session entry's stale lastChannel (often WhatsApp) to
+    // override the actual requester origin, leading to delivery failures.
     return mergeDeliveryContext(
       {
         accountId: normalizedRequester.accountId,
