@@ -3,7 +3,15 @@ import crypto from "node:crypto";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+<<<<<<< HEAD
 import type { OpenClawConfig, ConfigFileSnapshot, LegacyConfigIssue } from "./types.js";
+=======
+import { isDeepStrictEqual } from "node:util";
+import JSON5 from "json5";
+import { ensureOwnerDisplaySecret } from "../agents/owner-display.js";
+import { loadDotEnv } from "../infra/dotenv.js";
+import { resolveRequiredHomeDir } from "../infra/home-dir.js";
+>>>>>>> c99e7696e (fix: decouple owner display secret from gateway auth token)
 import {
   loadShellEnvFallback,
   resolveShellEnvFallbackTimeoutMs,
@@ -341,7 +349,42 @@ export function createConfigIO(overrides: ConfigIoDeps = {}) {
         });
       }
 
-      return applyConfigOverrides(cfg);
+      const pendingSecret = AUTO_OWNER_DISPLAY_SECRET_BY_PATH.get(configPath);
+      const ownerDisplaySecretResolution = ensureOwnerDisplaySecret(
+        cfg,
+        () => pendingSecret ?? crypto.randomBytes(32).toString("hex"),
+      );
+      const cfgWithOwnerDisplaySecret = ownerDisplaySecretResolution.config;
+      if (ownerDisplaySecretResolution.generatedSecret) {
+        AUTO_OWNER_DISPLAY_SECRET_BY_PATH.set(
+          configPath,
+          ownerDisplaySecretResolution.generatedSecret,
+        );
+        if (!AUTO_OWNER_DISPLAY_SECRET_PERSIST_IN_FLIGHT.has(configPath)) {
+          AUTO_OWNER_DISPLAY_SECRET_PERSIST_IN_FLIGHT.add(configPath);
+          void writeConfigFile(cfgWithOwnerDisplaySecret, { expectedConfigPath: configPath })
+            .then(() => {
+              AUTO_OWNER_DISPLAY_SECRET_BY_PATH.delete(configPath);
+              AUTO_OWNER_DISPLAY_SECRET_PERSIST_WARNED.delete(configPath);
+            })
+            .catch((err) => {
+              if (!AUTO_OWNER_DISPLAY_SECRET_PERSIST_WARNED.has(configPath)) {
+                AUTO_OWNER_DISPLAY_SECRET_PERSIST_WARNED.add(configPath);
+                deps.logger.warn(
+                  `Failed to persist auto-generated commands.ownerDisplaySecret at ${configPath}: ${String(err)}`,
+                );
+              }
+            })
+            .finally(() => {
+              AUTO_OWNER_DISPLAY_SECRET_PERSIST_IN_FLIGHT.delete(configPath);
+            });
+        }
+      } else {
+        AUTO_OWNER_DISPLAY_SECRET_BY_PATH.delete(configPath);
+        AUTO_OWNER_DISPLAY_SECRET_PERSIST_WARNED.delete(configPath);
+      }
+
+      return applyConfigOverrides(cfgWithOwnerDisplaySecret);
     } catch (err) {
       if (err instanceof DuplicateAgentDirError) {
         deps.logger.error(err.message);
@@ -682,6 +725,9 @@ export function createConfigIO(overrides: ConfigIoDeps = {}) {
 // module scope. `OPENCLAW_CONFIG_PATH` (and friends) are expected to work even
 // when set after the module has been imported (tests, one-off scripts, etc.).
 const DEFAULT_CONFIG_CACHE_MS = 200;
+const AUTO_OWNER_DISPLAY_SECRET_BY_PATH = new Map<string, string>();
+const AUTO_OWNER_DISPLAY_SECRET_PERSIST_IN_FLIGHT = new Set<string>();
+const AUTO_OWNER_DISPLAY_SECRET_PERSIST_WARNED = new Set<string>();
 let configCache: {
   configPath: string;
   expiresAt: number;
