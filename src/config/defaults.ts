@@ -1,8 +1,12 @@
 import { DEFAULT_CONTEXT_TOKENS } from "../agents/defaults.js";
+<<<<<<< HEAD
 import { parseModelRef } from "../agents/model-selection.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
+=======
+import { normalizeProviderId, parseModelRef } from "../agents/model-selection.js";
+>>>>>>> 29a782b9c (Models/Config: default missing Anthropic model api fields)
 import { DEFAULT_AGENT_MAX_CONCURRENT, DEFAULT_SUBAGENT_MAX_CONCURRENT } from "./agent-limits.js";
 >>>>>>> f555835b0 (Channels: add thread-aware model overrides)
 import { resolveTalkApiKey } from "./talk.js";
@@ -70,6 +74,16 @@ const DEFAULT_MODEL_MAX_TOKENS = 8192;
 
 type ModelDefinitionLike = Partial<ModelDefinitionConfig> &
   Pick<ModelDefinitionConfig, "id" | "name">;
+
+function resolveDefaultProviderApi(
+  providerId: string,
+  providerApi: ModelDefinitionConfig["api"] | undefined,
+): ModelDefinitionConfig["api"] | undefined {
+  if (providerApi) {
+    return providerApi;
+  }
+  return normalizeProviderId(providerId) === "anthropic" ? "anthropic-messages" : undefined;
+}
 
 function isPositiveNumber(value: unknown): value is number {
   return typeof value === "number" && Number.isFinite(value) && value > 0;
@@ -215,6 +229,12 @@ export function applyModelDefaults(cfg: MoltbotConfig): MoltbotConfig {
       if (!Array.isArray(models) || models.length === 0) {
         continue;
       }
+      const providerApi = resolveDefaultProviderApi(providerId, provider.api);
+      let nextProvider = provider;
+      if (providerApi && provider.api !== providerApi) {
+        mutated = true;
+        nextProvider = { ...nextProvider, api: providerApi };
+      }
       let providerMutated = false;
       const nextModels = models.map((model) => {
         const raw = model as ModelDefinitionLike;
@@ -254,6 +274,10 @@ export function applyModelDefaults(cfg: MoltbotConfig): MoltbotConfig {
         if (raw.maxTokens !== maxTokens) {
           modelMutated = true;
         }
+        const api = raw.api ?? providerApi;
+        if (raw.api !== api) {
+          modelMutated = true;
+        }
 
         if (!modelMutated) {
           return model;
@@ -266,13 +290,17 @@ export function applyModelDefaults(cfg: MoltbotConfig): MoltbotConfig {
           cost,
           contextWindow,
           maxTokens,
+          api,
         } as ModelDefinitionConfig;
       });
 
       if (!providerMutated) {
+        if (nextProvider !== provider) {
+          nextProviders[providerId] = nextProvider;
+        }
         continue;
       }
-      nextProviders[providerId] = { ...provider, models: nextModels };
+      nextProviders[providerId] = { ...nextProvider, models: nextModels };
       mutated = true;
     }
 

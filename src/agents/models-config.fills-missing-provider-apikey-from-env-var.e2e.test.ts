@@ -11,6 +11,7 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { describe, expect, it } from "vitest";
 >>>>>>> 96f80d6d8 (refactor(test): share models-config e2e setup)
 import type { OpenClawConfig } from "../config/config.js";
+import { validateConfigObject } from "../config/validation.js";
 import { resolveOpenClawAgentDir } from "./agent-paths.js";
 import {
   CUSTOM_PROXY_MODELS_CONFIG,
@@ -53,6 +54,37 @@ installModelsConfigTestHooks();
 >>>>>>> 96f80d6d8 (refactor(test): share models-config e2e setup)
 
 describe("models-config", () => {
+  it("keeps anthropic api defaults when model entries omit api", async () => {
+    await withTempHome(async () => {
+      const validated = validateConfigObject({
+        models: {
+          providers: {
+            anthropic: {
+              baseUrl: "https://relay.example.com/api",
+              apiKey: "cr_xxxx",
+              models: [{ id: "claude-opus-4-6", name: "Claude Opus 4.6" }],
+            },
+          },
+        },
+      });
+      expect(validated.ok).toBe(true);
+      if (!validated.ok) {
+        throw new Error("expected config to validate");
+      }
+
+      await ensureOpenClawModelsJson(validated.config);
+
+      const modelPath = path.join(resolveOpenClawAgentDir(), "models.json");
+      const raw = await fs.readFile(modelPath, "utf8");
+      const parsed = JSON.parse(raw) as {
+        providers: Record<string, { api?: string; models?: Array<{ id: string; api?: string }> }>;
+      };
+
+      expect(parsed.providers.anthropic?.api).toBe("anthropic-messages");
+      expect(parsed.providers.anthropic?.models?.[0]?.api).toBe("anthropic-messages");
+    });
+  });
+
   it("fills missing provider.apiKey from env var name when models exist", async () => {
     await withTempHome(async () => {
       const prevKey = process.env.MINIMAX_API_KEY;
