@@ -63,9 +63,14 @@ export async function runGatewayLoop(params: {
         server = null;
         if (isRestart) {
 <<<<<<< HEAD
+<<<<<<< HEAD
           shuttingDown = false;
           restartResolver?.();
 =======
+=======
+          // Release the lock BEFORE spawning so the child can acquire it immediately.
+          await lock?.release();
+>>>>>>> 9c30243c8 (fix: release gateway lock before spawning restart child)
           const respawn = restartGatewayProcessWithFreshPid();
           if (respawn.mode === "spawned" || respawn.mode === "supervised") {
             const modeLabel =
@@ -73,7 +78,6 @@ export async function runGatewayLoop(params: {
                 ? `spawned pid ${respawn.pid ?? "unknown"}`
                 : "supervisor restart";
             gatewayLog.info(`restart mode: full process restart (${modeLabel})`);
-            await lock?.release();
             cleanupSignals();
             params.runtime.exit(0);
           } else {
