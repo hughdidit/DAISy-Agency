@@ -915,9 +915,12 @@ describe("handleCommands context", () => {
 });
 
 describe("handleCommands subagents", () => {
-  it("lists subagents when none exist", async () => {
+  beforeEach(() => {
     resetSubagentRegistryForTests();
     callGatewayMock.mockReset();
+  });
+
+  it("lists subagents when none exist", async () => {
     const cfg = {
       commands: { text: true },
       channels: { whatsapp: { allowFrom: ["*"] } },
@@ -933,8 +936,6 @@ describe("handleCommands subagents", () => {
   });
 
   it("truncates long subagent task text in /subagents list", async () => {
-    resetSubagentRegistryForTests();
-    callGatewayMock.mockReset();
     addSubagentRunForTests({
       runId: "run-long-task",
       childSessionKey: "agent:main:subagent:long-task",
@@ -960,8 +961,6 @@ describe("handleCommands subagents", () => {
   });
 
   it("lists subagents for the current command session over the target session", async () => {
-    resetSubagentRegistryForTests();
-    callGatewayMock.mockReset();
     addSubagentRunForTests({
       runId: "run-1",
       childSessionKey: "agent:main:subagent:abc",
@@ -999,8 +998,6 @@ describe("handleCommands subagents", () => {
   });
 
   it("formats subagent usage with io and prompt/cache breakdown", async () => {
-    resetSubagentRegistryForTests();
-    callGatewayMock.mockReset();
     addSubagentRunForTests({
       runId: "run-usage",
       childSessionKey: "agent:main:subagent:usage",
@@ -1036,7 +1033,6 @@ describe("handleCommands subagents", () => {
   });
 
   it("omits subagent status line when none exist", async () => {
-    resetSubagentRegistryForTests();
     const cfg = {
       commands: { text: true },
       channels: { whatsapp: { allowFrom: ["*"] } },
@@ -1050,8 +1046,6 @@ describe("handleCommands subagents", () => {
   });
 
   it("returns help/usage for invalid or incomplete subagents commands", async () => {
-    resetSubagentRegistryForTests();
-    callGatewayMock.mockReset();
     const cfg = {
       commands: { text: true },
       channels: { whatsapp: { allowFrom: ["*"] } },
@@ -1069,8 +1063,6 @@ describe("handleCommands subagents", () => {
   });
 
   it("includes subagent count in /status when active", async () => {
-    resetSubagentRegistryForTests();
-    callGatewayMock.mockReset();
     addSubagentRunForTests({
       runId: "run-1",
       childSessionKey: "agent:main:subagent:abc",
@@ -1093,8 +1085,6 @@ describe("handleCommands subagents", () => {
   });
 
   it("includes subagent details in /status when verbose", async () => {
-    resetSubagentRegistryForTests();
-    callGatewayMock.mockReset();
     addSubagentRunForTests({
       runId: "run-1",
       childSessionKey: "agent:main:subagent:abc",
@@ -1131,8 +1121,6 @@ describe("handleCommands subagents", () => {
   });
 
   it("returns info for a subagent", async () => {
-    resetSubagentRegistryForTests();
-    callGatewayMock.mockReset();
     const now = Date.now();
     addSubagentRunForTests({
       runId: "run-1",
@@ -1160,8 +1148,6 @@ describe("handleCommands subagents", () => {
   });
 
   it("kills subagents via /kill alias without a confirmation reply", async () => {
-    resetSubagentRegistryForTests();
-    callGatewayMock.mockReset();
     addSubagentRunForTests({
       runId: "run-1",
       childSessionKey: "agent:main:subagent:abc",
@@ -1183,8 +1169,6 @@ describe("handleCommands subagents", () => {
   });
 
   it("resolves numeric aliases in active-first display order", async () => {
-    resetSubagentRegistryForTests();
-    callGatewayMock.mockReset();
     const now = Date.now();
     addSubagentRunForTests({
       runId: "run-active",
@@ -1219,8 +1203,6 @@ describe("handleCommands subagents", () => {
   });
 
   it("sends follow-up messages to finished subagents", async () => {
-    resetSubagentRegistryForTests();
-    callGatewayMock.mockReset();
     callGatewayMock.mockImplementation(async (opts: unknown) => {
       const request = opts as { method?: string; params?: { runId?: string } };
       if (request.method === "agent") {
@@ -1278,8 +1260,6 @@ describe("handleCommands subagents", () => {
   });
 
   it("steers subagents via /steer alias", async () => {
-    resetSubagentRegistryForTests();
-    callGatewayMock.mockReset();
     callGatewayMock.mockImplementation(async (opts: unknown) => {
       const request = opts as { method?: string };
       if (request.method === "agent") {
@@ -1344,8 +1324,6 @@ describe("handleCommands subagents", () => {
   });
 
   it("restores announce behavior when /steer replacement dispatch fails", async () => {
-    resetSubagentRegistryForTests();
-    callGatewayMock.mockReset();
     callGatewayMock.mockImplementation(async (opts: unknown) => {
       const request = opts as { method?: string };
       if (request.method === "agent.wait") {
