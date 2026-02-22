@@ -29,6 +29,7 @@ Thread binding controls:
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 These commands work on channels that implement thread bindings. Current support is Discord.
 >>>>>>> 0b9b9d430 (docs: make subagents thread guidance channel-first)
 =======
@@ -37,6 +38,9 @@ These commands work on channels that support persistent thread bindings. See **T
 =======
 These commands work on channels that support persistent thread bindings. Currently only Discord is supported.
 >>>>>>> 418e4e32c (docs: clarify thread-bound subagents are Discord-only)
+=======
+These commands work on channels that support persistent thread bindings. See **Thread supporting channels** below.
+>>>>>>> 3308c8600 (docs: keep channel names only in thread-support list)
 
 - `/focus <subagent-label|session-key|session-id|session-label>`
 - `/unfocus`
@@ -124,7 +128,7 @@ When thread bindings are enabled for a channel, a sub-agent can stay bound to a 
 
 ### Thread supporting channels
 
-- Discord (currently the only supported channel): supports persistent thread-bound subagent sessions (`sessions_spawn` with `thread: true`) and manual thread controls (`/focus`, `/unfocus`, `/agents`, `/session ttl`).
+- Discord (currently the only supported channel): supports persistent thread-bound subagent sessions (`sessions_spawn` with `thread: true`), manual thread controls (`/focus`, `/unfocus`, `/agents`, `/session ttl`), and adapter keys `channels.discord.threadBindings.enabled`, `channels.discord.threadBindings.ttlHours`, and `channels.discord.threadBindings.spawnSubagentSessions`.
 
 Quick flow:
 
@@ -144,10 +148,9 @@ Manual controls:
 Config switches:
 
 - Global default: `session.threadBindings.enabled`, `session.threadBindings.ttlHours`
-- Channel override (Discord today): `channels.discord.threadBindings.enabled`, `channels.discord.threadBindings.ttlHours`
-- Spawn auto-bind opt-in (Discord today): `channels.discord.threadBindings.spawnSubagentSessions`
+- Channel override and spawn auto-bind keys are adapter-specific. See **Thread supporting channels** above.
 
-See [Configuration Reference](/gateway/configuration-reference), [Slash commands](/tools/slash-commands), and [Discord](/channels/discord) for current adapter details.
+See [Configuration Reference](/gateway/configuration-reference) and [Slash commands](/tools/slash-commands) for current adapter details.
 
 Allowlist:
 
@@ -505,8 +508,20 @@ Fully isolated auth per sub-agent is not currently supported.
 
 Sub-agents receive a reduced system prompt compared to the main agent:
 
+<<<<<<< HEAD
 - **Included:** Tooling, Workspace, Runtime sections, plus `AGENTS.md` and `TOOLS.md`
 - **Not included:** `SOUL.md`, `IDENTITY.md`, `USER.md`, `HEARTBEAT.md`, `BOOTSTRAP.md`
+=======
+- The announce step runs inside the sub-agent session (not the requester session).
+- If the sub-agent replies exactly `ANNOUNCE_SKIP`, nothing is posted.
+- Otherwise the announce reply is posted to the requester chat channel via a follow-up `agent` call (`deliver=true`).
+- Announce replies preserve thread/topic routing when available on channel adapters.
+- Announce messages are normalized to a stable template:
+  - `Status:` derived from the run outcome (`success`, `error`, `timeout`, or `unknown`).
+  - `Result:` the summary content from the announce step (or `(not available)` if missing).
+  - `Notes:` error details and other useful context.
+- `Status` is not inferred from model output; it comes from runtime outcome signals.
+>>>>>>> 3308c8600 (docs: keep channel names only in thread-support list)
 
 The sub-agent also receives a task-focused system prompt that instructs it to stay focused on the assigned task, complete it, and not act as the main agent.
 
