@@ -183,6 +183,18 @@ function isApplyPatchAllowedForModel(params: {
 
 function resolveExecConfig(cfg: MoltbotConfig | undefined) {
   const globalExec = cfg?.tools?.exec;
+<<<<<<< HEAD
+=======
+  const agentExec =
+    cfg && params.agentId ? resolveAgentConfig(cfg, params.agentId)?.tools?.exec : undefined;
+  const mergedSafeBinProfiles =
+    globalExec?.safeBinProfiles || agentExec?.safeBinProfiles
+      ? {
+          ...globalExec?.safeBinProfiles,
+          ...agentExec?.safeBinProfiles,
+        }
+      : undefined;
+>>>>>>> 47c3f742b (fix(exec): require explicit safe-bin profiles)
   return {
 <<<<<<< HEAD
     host: globalExec?.host,
@@ -204,6 +216,7 @@ function resolveExecConfig(cfg: MoltbotConfig | undefined) {
     node: agentExec?.node ?? globalExec?.node,
     pathPrepend: agentExec?.pathPrepend ?? globalExec?.pathPrepend,
     safeBins: agentExec?.safeBins ?? globalExec?.safeBins,
+    safeBinProfiles: mergedSafeBinProfiles,
     backgroundMs: agentExec?.backgroundMs ?? globalExec?.backgroundMs,
     timeoutSec: agentExec?.timeoutSec ?? globalExec?.timeoutSec,
     approvalRunningNoticeMs:
@@ -467,6 +480,7 @@ export function createMoltbotCodingTools(options?: {
     node: options?.exec?.node ?? execConfig.node,
     pathPrepend: options?.exec?.pathPrepend ?? execConfig.pathPrepend,
     safeBins: options?.exec?.safeBins ?? execConfig.safeBins,
+    safeBinProfiles: options?.exec?.safeBinProfiles ?? execConfig.safeBinProfiles,
     agentId,
     cwd: workspaceRoot,
     allowBackground,

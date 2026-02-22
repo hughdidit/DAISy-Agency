@@ -14,9 +14,17 @@ import {
 import type { ExecAllowlistEntry } from "./exec-approvals.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> 0e85380e5 (style: format files and fix safe-bins e2e typing)
+=======
+import {
+  SAFE_BIN_PROFILES,
+  type SafeBinProfile,
+  validateSafeBinArgv,
+} from "./exec-safe-bin-policy.js";
+>>>>>>> 47c3f742b (fix(exec): require explicit safe-bin profiles)
 import { isTrustedSafeBinPath } from "./exec-safe-bin-trust.js";
 <<<<<<< HEAD
 >>>>>>> 4d3403b7a (chore: fix CI errors)
@@ -69,8 +77,15 @@ export function isSafeBinUsage(params: {
   argv: string[];
   resolution: CommandResolution | null;
   safeBins: Set<string>;
+<<<<<<< HEAD
   cwd?: string;
   fileExists?: (filePath: string) => boolean;
+=======
+  platform?: string | null;
+  trustedSafeBinDirs?: ReadonlySet<string>;
+  safeBinProfiles?: Readonly<Record<string, SafeBinProfile>>;
+  isTrustedSafeBinPathFn?: typeof isTrustedSafeBinPath;
+>>>>>>> 47c3f742b (fix(exec): require explicit safe-bin profiles)
 }): boolean {
   if (params.safeBins.size === 0) {
     return false;
@@ -92,6 +107,7 @@ export function isSafeBinUsage(params: {
   const cwd = params.cwd ?? process.cwd();
   const exists = params.fileExists ?? defaultFileExists;
   const argv = params.argv.slice(1);
+<<<<<<< HEAD
   for (let i = 0; i < argv.length; i += 1) {
     const token = argv[i];
     if (!token) {
@@ -118,6 +134,14 @@ export function isSafeBinUsage(params: {
     }
   }
   return true;
+=======
+  const safeBinProfiles = params.safeBinProfiles ?? SAFE_BIN_PROFILES;
+  const profile = safeBinProfiles[execName];
+  if (!profile) {
+    return false;
+  }
+  return validateSafeBinArgv(argv, profile);
+>>>>>>> 47c3f742b (fix(exec): require explicit safe-bin profiles)
 }
 
 export type ExecAllowlistEvaluation = {
@@ -130,6 +154,7 @@ function evaluateSegments(
   params: {
     allowlist: ExecAllowlistEntry[];
     safeBins: Set<string>;
+    safeBinProfiles?: Readonly<Record<string, SafeBinProfile>>;
     cwd?: string;
     trustedSafeBinDirs?: ReadonlySet<string>;
     skillBins?: Set<string>;
@@ -153,7 +178,12 @@ function evaluateSegments(
       argv: segment.argv,
       resolution: segment.resolution,
       safeBins: params.safeBins,
+<<<<<<< HEAD
       cwd: params.cwd,
+=======
+      safeBinProfiles: params.safeBinProfiles,
+      platform: params.platform,
+>>>>>>> 47c3f742b (fix(exec): require explicit safe-bin profiles)
       trustedSafeBinDirs: params.trustedSafeBinDirs,
     });
     const skillAllow =
@@ -170,6 +200,7 @@ export function evaluateExecAllowlist(params: {
   analysis: ExecCommandAnalysis;
   allowlist: ExecAllowlistEntry[];
   safeBins: Set<string>;
+  safeBinProfiles?: Readonly<Record<string, SafeBinProfile>>;
   cwd?: string;
   trustedSafeBinDirs?: ReadonlySet<string>;
   skillBins?: Set<string>;
@@ -186,6 +217,7 @@ export function evaluateExecAllowlist(params: {
       const result = evaluateSegments(chainSegments, {
         allowlist: params.allowlist,
         safeBins: params.safeBins,
+        safeBinProfiles: params.safeBinProfiles,
         cwd: params.cwd,
         trustedSafeBinDirs: params.trustedSafeBinDirs,
         skillBins: params.skillBins,
@@ -203,6 +235,7 @@ export function evaluateExecAllowlist(params: {
   const result = evaluateSegments(params.analysis.segments, {
     allowlist: params.allowlist,
     safeBins: params.safeBins,
+    safeBinProfiles: params.safeBinProfiles,
     cwd: params.cwd,
     trustedSafeBinDirs: params.trustedSafeBinDirs,
     skillBins: params.skillBins,
@@ -225,6 +258,7 @@ export function evaluateShellAllowlist(params: {
   command: string;
   allowlist: ExecAllowlistEntry[];
   safeBins: Set<string>;
+  safeBinProfiles?: Readonly<Record<string, SafeBinProfile>>;
   cwd?: string;
   env?: NodeJS.ProcessEnv;
   trustedSafeBinDirs?: ReadonlySet<string>;
@@ -264,6 +298,7 @@ export function evaluateShellAllowlist(params: {
       analysis,
       allowlist: params.allowlist,
       safeBins: params.safeBins,
+      safeBinProfiles: params.safeBinProfiles,
       cwd: params.cwd,
       trustedSafeBinDirs: params.trustedSafeBinDirs,
       skillBins: params.skillBins,
@@ -305,6 +340,7 @@ export function evaluateShellAllowlist(params: {
       analysis,
       allowlist: params.allowlist,
       safeBins: params.safeBins,
+      safeBinProfiles: params.safeBinProfiles,
       cwd: params.cwd,
       trustedSafeBinDirs: params.trustedSafeBinDirs,
       skillBins: params.skillBins,

@@ -7,8 +7,12 @@ import type { ExecApprovalsResolved } from "../infra/exec-approvals.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { createMoltbotCodingTools } from "./pi-tools.js";
 =======
+=======
+import type { SafeBinProfileFixture } from "../infra/exec-safe-bin-policy.js";
+>>>>>>> 47c3f742b (fix(exec): require explicit safe-bin profiles)
 import { captureEnv } from "../test-utils/env.js";
 =======
 import { captureEnv, withEnvAsync } from "../test-utils/env.js";
@@ -101,6 +105,7 @@ type ExecTool = {
 async function createSafeBinsExecTool(params: {
   tmpPrefix: string;
   safeBins: string[];
+  safeBinProfiles?: Record<string, SafeBinProfileFixture>;
   files?: Array<{ name: string; contents: string }>;
 }): Promise<{ tmpDir: string; execTool: ExecTool }> {
   const { createOpenClawCodingTools } = await import("./pi-tools.js");
@@ -116,6 +121,7 @@ async function createSafeBinsExecTool(params: {
         security: "allowlist",
         ask: "off",
         safeBins: params.safeBins,
+        safeBinProfiles: params.safeBinProfiles,
       },
     },
   };
@@ -155,6 +161,9 @@ describe("createOpenClawCodingTools safeBins", () => {
       {
         tmpPrefix: "openclaw-safe-bins-",
         safeBins: ["echo"],
+        safeBinProfiles: {
+          echo: { maxPositional: 1 },
+        },
       },
       async ({ tmpDir, execTool }) => {
         const marker = `safe-bins-${Date.now()}`;
@@ -212,6 +221,23 @@ describe("createOpenClawCodingTools safeBins", () => {
   });
 <<<<<<< HEAD
 =======
+
+  it("rejects unprofiled custom safe-bin entries", async () => {
+    await withSafeBinsExecTool(
+      {
+        tmpPrefix: "openclaw-safe-bins-unprofiled-",
+        safeBins: ["echo"],
+      },
+      async ({ tmpDir, execTool }) => {
+        await expect(
+          execTool.execute("call1", {
+            command: "echo hello",
+            workdir: tmpDir,
+          }),
+        ).rejects.toThrow("exec denied: allowlist miss");
+      },
+    );
+  });
 
   it("does not allow env var expansion to smuggle file args via safeBins", async () => {
 <<<<<<< HEAD

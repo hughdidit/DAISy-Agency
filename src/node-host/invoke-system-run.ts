@@ -18,6 +18,7 @@ import {
   type ExecSecurity,
 } from "../infra/exec-approvals.js";
 import type { ExecHostRequest, ExecHostResponse, ExecHostRunResult } from "../infra/exec-host.js";
+import { resolveSafeBinProfiles } from "../infra/exec-safe-bin-policy.js";
 import { getTrustedSafeBinDirs } from "../infra/exec-safe-bin-trust.js";
 import { resolveSystemRunCommand } from "../infra/system-run-command.js";
 import type {
@@ -111,6 +112,10 @@ export async function handleSystemRunInvoke(opts: {
   const runId = opts.params.runId?.trim() || crypto.randomUUID();
   const env = opts.sanitizeEnv(opts.params.env ?? undefined);
   const safeBins = resolveSafeBins(agentExec?.safeBins ?? cfg.tools?.exec?.safeBins);
+  const safeBinProfiles = resolveSafeBinProfiles({
+    ...cfg.tools?.exec?.safeBinProfiles,
+    ...agentExec?.safeBinProfiles,
+  });
   const trustedSafeBinDirs = getTrustedSafeBinDirs();
   const bins = autoAllowSkills ? await opts.skillBins.current() : new Set<string>();
   let analysisOk = false;
@@ -122,6 +127,7 @@ export async function handleSystemRunInvoke(opts: {
       command: shellCommand,
       allowlist: approvals.allowlist,
       safeBins,
+      safeBinProfiles,
       cwd: opts.params.cwd ?? undefined,
       env,
       trustedSafeBinDirs,
@@ -140,6 +146,7 @@ export async function handleSystemRunInvoke(opts: {
       analysis,
       allowlist: approvals.allowlist,
       safeBins,
+      safeBinProfiles,
       cwd: opts.params.cwd ?? undefined,
       trustedSafeBinDirs,
       skillBins: bins,
