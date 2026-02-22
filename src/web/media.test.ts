@@ -19,20 +19,27 @@ import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from "vitest
 import { resolveStateDir } from "../config/paths.js";
 >>>>>>> a1cb700a0 (test: dedupe and optimize test suites)
 import { sendVoiceMessageDiscord } from "../discord/send.js";
+<<<<<<< HEAD
 >>>>>>> acb2a1ce3 (perf(test): fold discord voice hardening into web media suite)
 import * as ssrf from "../infra/net/ssrf.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> caebe70e9 (perf(test): cut setup/import overhead in hot suites)
 =======
+=======
+>>>>>>> 0e4f3ccbd (refactor: dedupe media and request-body test scaffolding)
 import { resolvePreferredOpenClawTmpDir } from "../infra/tmp-openclaw-dir.js";
 >>>>>>> 2dba150c1 (Fix path-root flaky tests and restore status emoji defaults (#22274))
 =======
 >>>>>>> f555835b0 (Channels: add thread-aware model overrides)
 import { optimizeImageToPng } from "../media/image-ops.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { loadWebMedia, optimizeImageToJpeg } from "./media.js";
 =======
+=======
+import { mockPinnedHostnameResolution } from "../test-helpers/ssrf.js";
+>>>>>>> 0e4f3ccbd (refactor: dedupe media and request-body test scaffolding)
 import { captureEnv } from "../test-utils/env.js";
 <<<<<<< HEAD
 import { loadWebMedia, loadWebMediaRaw, optimizeImageToJpeg } from "./media.js";
@@ -174,15 +181,7 @@ describe("web media loading", () => {
   });
 
   beforeAll(() => {
-    vi.spyOn(ssrf, "resolvePinnedHostname").mockImplementation(async (hostname) => {
-      const normalized = hostname.trim().toLowerCase().replace(/\.$/, "");
-      const addresses = ["93.184.216.34"];
-      return {
-        hostname: normalized,
-        addresses,
-        lookup: ssrf.createPinnedLookup({ hostname: normalized, addresses }),
-      };
-    });
+    mockPinnedHostnameResolution();
   });
 
 <<<<<<< HEAD
@@ -294,7 +293,22 @@ describe("web media loading", () => {
     fetchMock.mockRestore();
   });
 
+<<<<<<< HEAD
 >>>>>>> 7cc6add9b (test(web): add SSRF guard cases)
+=======
+  it("keeps raw mode when options object sets optimizeImages true", async () => {
+    const { buffer, file } = await createLargeTestJpeg();
+    const cap = Math.max(1, Math.floor(buffer.length * 0.8));
+
+    await expect(
+      loadWebMediaRaw(file, {
+        maxBytes: cap,
+        optimizeImages: true,
+      }),
+    ).rejects.toThrow(/Media exceeds/i);
+  });
+
+>>>>>>> 0e4f3ccbd (refactor: dedupe media and request-body test scaffolding)
   it("uses content-disposition filename when available", async () => {
     const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValueOnce({
       ok: true,

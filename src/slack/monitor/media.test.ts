@@ -30,11 +30,15 @@ import type { SavedMedia } from "../../media/store.js";
 import * as mediaStore from "../../media/store.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> ed11e93cf (chore(format))
 =======
 import { withFetchPreconnect } from "../../test-utils/fetch-mock.js";
 >>>>>>> cc359d338 (test: add fetch mock helper and reaction coverage)
 =======
+=======
+import { mockPinnedHostnameResolution } from "../../test-helpers/ssrf.js";
+>>>>>>> 0e4f3ccbd (refactor: dedupe media and request-body test scaffolding)
 import { type FetchMock, withFetchPreconnect } from "../../test-utils/fetch-mock.js";
 >>>>>>> f44e3b2a3 (revert: fix models set catalog validation (#19194))
 import {
@@ -214,6 +218,7 @@ describe("resolveSlackMedia", () => {
     globalThis.fetch = mockFetch as typeof fetch;
 =======
     globalThis.fetch = withFetchPreconnect(mockFetch);
+<<<<<<< HEAD
     vi.spyOn(ssrf, "resolvePinnedHostname").mockImplementation(async (hostname) => {
       const normalized = hostname.trim().toLowerCase().replace(/\.$/, "");
       const addresses = ["93.184.216.34"];
@@ -224,6 +229,9 @@ describe("resolveSlackMedia", () => {
       };
     });
 >>>>>>> cc359d338 (test: add fetch mock helper and reaction coverage)
+=======
+    mockPinnedHostnameResolution();
+>>>>>>> 0e4f3ccbd (refactor: dedupe media and request-body test scaffolding)
   });
 
   afterEach(() => {

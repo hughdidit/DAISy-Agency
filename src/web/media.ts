@@ -78,6 +78,27 @@ export function getDefaultLocalRoots(): string[] {
   readFile?: (filePath: string) => Promise<Buffer>;
 };
 
+function resolveWebMediaOptions(params: {
+  maxBytesOrOptions?: number | WebMediaOptions;
+  options?: { ssrfPolicy?: SsrFPolicy; localRoots?: readonly string[] | "any" };
+  optimizeImages: boolean;
+}): WebMediaOptions {
+  if (typeof params.maxBytesOrOptions === "number" || params.maxBytesOrOptions === undefined) {
+    return {
+      maxBytes: params.maxBytesOrOptions,
+      optimizeImages: params.optimizeImages,
+      ssrfPolicy: params.options?.ssrfPolicy,
+      localRoots: params.options?.localRoots,
+    };
+  }
+  return {
+    ...params.maxBytesOrOptions,
+    optimizeImages: params.optimizeImages
+      ? (params.maxBytesOrOptions.optimizeImages ?? true)
+      : false,
+  };
+}
+
 export type LocalMediaAccessErrorCode =
   | "path-not-allowed"
   | "invalid-root"
@@ -450,6 +471,7 @@ export async function loadWebMedia(
   options?: { ssrfPolicy?: SsrFPolicy; localRoots?: readonly string[] | "any" },
 >>>>>>> 683aa09b5 (refactor(media): harden localRoots bypass (#16739))
 ): Promise<WebMediaResult> {
+<<<<<<< HEAD
   return await loadWebMediaInternal(mediaUrl, {
     maxBytes,
     optimizeImages: true,
@@ -457,6 +479,12 @@ export async function loadWebMedia(
     localRoots: options?.localRoots,
 >>>>>>> 4baa43384 (fix(media): guard local media reads + accept all path types in MEDIA directive)
   });
+=======
+  return await loadWebMediaInternal(
+    mediaUrl,
+    resolveWebMediaOptions({ maxBytesOrOptions, options, optimizeImages: true }),
+  );
+>>>>>>> 0e4f3ccbd (refactor: dedupe media and request-body test scaffolding)
 }
 
 export async function loadWebMediaRaw(
@@ -472,6 +500,7 @@ export async function loadWebMediaRaw(
   options?: { ssrfPolicy?: SsrFPolicy; localRoots?: readonly string[] | "any" },
 >>>>>>> 683aa09b5 (refactor(media): harden localRoots bypass (#16739))
 ): Promise<WebMediaResult> {
+<<<<<<< HEAD
   return await loadWebMediaInternal(mediaUrl, {
     maxBytes,
     optimizeImages: false,
@@ -481,6 +510,12 @@ export async function loadWebMediaRaw(
     localRoots: options?.localRoots,
 >>>>>>> 4baa43384 (fix(media): guard local media reads + accept all path types in MEDIA directive)
   });
+=======
+  return await loadWebMediaInternal(
+    mediaUrl,
+    resolveWebMediaOptions({ maxBytesOrOptions, options, optimizeImages: false }),
+  );
+>>>>>>> 0e4f3ccbd (refactor: dedupe media and request-body test scaffolding)
 }
 
 export async function optimizeImageToJpeg(
