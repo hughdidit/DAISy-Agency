@@ -531,8 +531,7 @@ export function applyPluginAutoEnable(params: {
       continue;
     }
     const allow = next.plugins?.allow;
-    const allowMissing =
-      !builtInChannelId && Array.isArray(allow) && !allow.includes(entry.pluginId);
+    const allowMissing = Array.isArray(allow) && !allow.includes(entry.pluginId);
     const alreadyEnabled =
       builtInChannelId != null
         ? (() => {
@@ -557,10 +556,14 @@ export function applyPluginAutoEnable(params: {
 =======
     next = registerPluginEntry(next, entry.pluginId);
 <<<<<<< HEAD
+<<<<<<< HEAD
     next = ensurePluginAllowlisted(next, entry.pluginId);
 >>>>>>> 519517915 (refactor: centralize plugin allowlist mutation)
 =======
     if (!builtInChannelId) {
+=======
+    if (allowMissing || !builtInChannelId) {
+>>>>>>> 40680432b (fix(config): allowlist auto-enabled built-in channels when restricted)
       next = ensurePluginAllowlisted(next, entry.pluginId);
     }
 >>>>>>> 8839162b9 (fix(config): persist built-in channel enable state in channels)
