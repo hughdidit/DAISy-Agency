@@ -287,11 +287,25 @@ export const discordPlugin: ChannelPlugin<ResolvedDiscordAccount> = {
       });
       return { channel: "discord", ...result };
     },
+<<<<<<< HEAD
     sendMedia: async ({ to, text, mediaUrl, accountId, deps, replyToId }) => {
+=======
+    sendMedia: async ({
+      to,
+      text,
+      mediaUrl,
+      mediaLocalRoots,
+      accountId,
+      deps,
+      replyToId,
+      silent,
+    }) => {
+>>>>>>> 4adfe8002 (fix(extensions): preserve mediaLocalRoots in telegram/discord sendMedia)
       const send = deps?.sendDiscord ?? getDiscordRuntime().channel.discord.sendMessageDiscord;
       const result = await send(to, text, {
         verbose: false,
         mediaUrl,
+        mediaLocalRoots,
         replyTo: replyToId ?? undefined,
         accountId: accountId ?? undefined,
       });
