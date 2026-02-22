@@ -25,7 +25,11 @@ import type { ConfigUiHint, ConfigUiHints } from "./schema.hints.js";
 import type { ConfigUiHint, ConfigUiHints } from "./schema.hints.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { applySensitiveHints, buildBaseHints, mapSensitivePaths } from "./schema.hints.js";
+<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import { applyDerivedTags } from "./schema.tags.js";
+>>>>>>> f8171ffcd (Config UI: tag filters and complete schema help/labels coverage (#23796))
 import { OpenClawSchema } from "./zod-schema.js";
 >>>>>>> 6d9d4d04e (Memory/QMD: add configurable search mode)
 
@@ -120,7 +124,7 @@ export type PluginUiMetadata = {
   description?: string;
   configUiHints?: Record<
     string,
-    Pick<ConfigUiHint, "label" | "help" | "advanced" | "sensitive" | "placeholder">
+    Pick<ConfigUiHint, "label" | "help" | "tags" | "advanced" | "sensitive" | "placeholder">
   >;
   configSchema?: JsonSchemaNode;
 };
@@ -1254,8 +1258,13 @@ function buildBaseConfigSchema(): ConfigSchemaResponse {
     target: "draft-07",
     unrepresentable: "any",
   });
+<<<<<<< HEAD
   schema.title = "MoltbotConfig";
   const hints = applySensitiveHints(buildBaseHints());
+=======
+  schema.title = "OpenClawConfig";
+  const hints = applyDerivedTags(mapSensitivePaths(OpenClawSchema, "", buildBaseHints()));
+>>>>>>> f8171ffcd (Config UI: tag filters and complete schema help/labels coverage (#23796))
   const next = {
     schema: stripChannelSchema(schema),
     uiHints: hints,
@@ -1282,6 +1291,17 @@ export function buildConfigSchema(params?: {
       channels,
     ),
   );
+<<<<<<< HEAD
+=======
+  const extensionHintKeys = collectExtensionHintKeys(
+    mergedWithoutSensitiveHints,
+    plugins,
+    channels,
+  );
+  const mergedHints = applyDerivedTags(
+    applySensitiveHints(mergedWithoutSensitiveHints, extensionHintKeys),
+  );
+>>>>>>> f8171ffcd (Config UI: tag filters and complete schema help/labels coverage (#23796))
   const mergedSchema = applyChannelSchemas(applyPluginSchemas(base.schema, plugins), channels);
   return {
     ...base,

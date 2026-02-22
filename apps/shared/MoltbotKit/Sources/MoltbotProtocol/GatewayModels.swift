@@ -2225,6 +2225,14 @@ public struct CronRunLogEntry: Codable, Sendable {
     public let status: AnyCodable?
     public let error: String?
     public let summary: String?
+<<<<<<< HEAD:apps/shared/MoltbotKit/Sources/MoltbotProtocol/GatewayModels.swift
+=======
+    public let delivered: Bool?
+    public let deliverystatus: AnyCodable?
+    public let deliveryerror: String?
+    public let sessionid: String?
+    public let sessionkey: String?
+>>>>>>> f8171ffcd (Config UI: tag filters and complete schema help/labels coverage (#23796)):apps/shared/OpenClawKit/Sources/OpenClawProtocol/GatewayModels.swift
     public let runatms: Int?
     public let durationms: Int?
     public let nextrunatms: Int?
@@ -2236,6 +2244,14 @@ public struct CronRunLogEntry: Codable, Sendable {
         status: AnyCodable?,
         error: String?,
         summary: String?,
+<<<<<<< HEAD:apps/shared/MoltbotKit/Sources/MoltbotProtocol/GatewayModels.swift
+=======
+        delivered: Bool?,
+        deliverystatus: AnyCodable?,
+        deliveryerror: String?,
+        sessionid: String?,
+        sessionkey: String?,
+>>>>>>> f8171ffcd (Config UI: tag filters and complete schema help/labels coverage (#23796)):apps/shared/OpenClawKit/Sources/OpenClawProtocol/GatewayModels.swift
         runatms: Int?,
         durationms: Int?,
         nextrunatms: Int?
@@ -2246,6 +2262,14 @@ public struct CronRunLogEntry: Codable, Sendable {
         self.status = status
         self.error = error
         self.summary = summary
+<<<<<<< HEAD:apps/shared/MoltbotKit/Sources/MoltbotProtocol/GatewayModels.swift
+=======
+        self.delivered = delivered
+        self.deliverystatus = deliverystatus
+        self.deliveryerror = deliveryerror
+        self.sessionid = sessionid
+        self.sessionkey = sessionkey
+>>>>>>> f8171ffcd (Config UI: tag filters and complete schema help/labels coverage (#23796)):apps/shared/OpenClawKit/Sources/OpenClawProtocol/GatewayModels.swift
         self.runatms = runatms
         self.durationms = durationms
         self.nextrunatms = nextrunatms
@@ -2257,6 +2281,14 @@ public struct CronRunLogEntry: Codable, Sendable {
         case status
         case error
         case summary
+<<<<<<< HEAD:apps/shared/MoltbotKit/Sources/MoltbotProtocol/GatewayModels.swift
+=======
+        case delivered
+        case deliverystatus = "deliveryStatus"
+        case deliveryerror = "deliveryError"
+        case sessionid = "sessionId"
+        case sessionkey = "sessionKey"
+>>>>>>> f8171ffcd (Config UI: tag filters and complete schema help/labels coverage (#23796)):apps/shared/OpenClawKit/Sources/OpenClawProtocol/GatewayModels.swift
         case runatms = "runAtMs"
         case durationms = "durationMs"
         case nextrunatms = "nextRunAtMs"
