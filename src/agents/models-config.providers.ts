@@ -1064,6 +1064,7 @@ export async function resolveImplicitCopilotProvider(params: {
     }
   }
 
+<<<<<<< HEAD
   // pi-coding-agent's ModelRegistry marks a model "available" only if its
   // `AuthStorage` has auth configured for that provider (via auth.json/env/etc).
   // Our Copilot auth lives in Moltbot's auth-profiles store instead, so we also
@@ -1075,6 +1076,10 @@ export async function resolveImplicitCopilotProvider(params: {
   // Note: we deliberately do not write pi-coding-agent's `auth.json` here.
   // Moltbot uses its own auth store and exchanges tokens at runtime.
   // `models list` uses Moltbot's auth heuristics for availability.
+=======
+  // We deliberately do not write pi-coding-agent auth.json here.
+  // OpenClaw keeps auth in auth-profiles and resolves runtime availability from that store.
+>>>>>>> e1301c31e (Auth profiles: never persist plaintext when refs are present)
 
   // We intentionally do NOT define custom models for Copilot in models.json.
   // pi-coding-agent treats providers with models as replacements requiring apiKey.

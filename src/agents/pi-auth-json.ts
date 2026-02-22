@@ -31,6 +31,10 @@ import type { AuthProfileCredential } from "./auth-profiles/types.js";
 import { normalizeProviderId } from "./model-selection.js";
 >>>>>>> 4ca75bed5 (fix(models): sync auth-profiles before availability checks)
 
+/**
+ * @deprecated Legacy bridge for older flows that still expect `agentDir/auth.json`.
+ * Runtime auth resolution uses auth-profiles directly and should not depend on this module.
+ */
 type AuthJsonCredential =
   | {
       type: "api_key";
@@ -140,7 +144,13 @@ function credentialsEqual(a: AuthJsonCredential | undefined, b: AuthJsonCredenti
  * (a) consider the provider authenticated and (b) include built-in models in its
  * registry/catalog output.
  *
+<<<<<<< HEAD
  * Currently used for openai-codex.
+=======
+ * Syncs all credential types: api_key, token (as api_key), and oauth.
+ *
+ * @deprecated Runtime auth now comes from OpenClaw auth-profiles snapshots.
+>>>>>>> e1301c31e (Auth profiles: never persist plaintext when refs are present)
  */
 export async function ensurePiAuthJsonFromAuthProfiles(agentDir: string): Promise<{
   wrote: boolean;
