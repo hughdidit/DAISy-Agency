@@ -355,4 +355,27 @@ describe("classifyFailoverReason", () => {
       "rate_limit",
     );
   });
+<<<<<<< HEAD
+=======
+  it("classifies provider high-demand / service-unavailable messages as rate_limit", () => {
+    expect(
+      classifyFailoverReason(
+        "This model is currently experiencing high demand. Please try again later.",
+      ),
+    ).toBe("rate_limit");
+    expect(classifyFailoverReason("LLM error: service unavailable")).toBe("rate_limit");
+    expect(
+      classifyFailoverReason(
+        '{"error":{"code":503,"message":"The model is overloaded. Please try later","status":"UNAVAILABLE"}}',
+      ),
+    ).toBe("rate_limit");
+  });
+  it("classifies JSON api_error internal server failures as timeout", () => {
+    expect(
+      classifyFailoverReason(
+        '{"type":"error","error":{"type":"api_error","message":"Internal server error"}}',
+      ),
+    ).toBe("timeout");
+  });
+>>>>>>> 35fe33aa9 (Agents: classify Anthropic api_error internal server failures for fallback)
 });
