@@ -928,7 +928,32 @@ The agent sees reactions as **system notifications** in the conversation history
 - Node 22+ is stricter about `AbortSignal` instances; foreign signals can abort `fetch` calls right away.
 - Upgrade to a OpenClaw build that normalizes abort signals, or run the gateway on Node 20 until you can upgrade.
 
+<<<<<<< HEAD
 **Bot starts, then silently stops responding (or logs `HttpError: Network request ... failed`):**
+=======
+    - Node 22+ + custom fetch/proxy can trigger immediate abort behavior if AbortSignal types mismatch.
+    - Some hosts resolve `api.telegram.org` to IPv6 first; broken IPv6 egress can cause intermittent Telegram API failures.
+    - If logs include `TypeError: fetch failed` or `Network request for 'getUpdates' failed!`, OpenClaw now retries these as recoverable network errors.
+    - On VPS hosts with unstable direct egress/TLS, route Telegram API calls through `channels.telegram.proxy`:
+
+```yaml
+channels:
+  telegram:
+    proxy: socks5://user:pass@proxy-host:1080
+```
+
+    - If DNS/IPv6 selection is unstable, force Node family selection behavior explicitly:
+
+```yaml
+channels:
+  telegram:
+    network:
+      autoSelectFamily: false
+```
+
+    - Environment override (temporary): set `OPENCLAW_TELEGRAM_DISABLE_AUTO_SELECT_FAMILY=1`.
+    - Validate DNS answers:
+>>>>>>> 273932850 (fix(telegram): classify undici fetch errors as recoverable for retry (#16699))
 
 - Some hosts resolve `api.telegram.org` to IPv6 first. If your server does not have working IPv6 egress, grammY can get stuck on IPv6-only requests.
 - Fix by enabling IPv6 egress **or** forcing IPv4 resolution for `api.telegram.org` (for example, add an `/etc/hosts` entry using the IPv4 A record, or prefer IPv4 in your OS DNS stack), then restart the gateway.
