@@ -137,6 +137,7 @@ Docs: https://docs.openclaw.ai
 <<<<<<< HEAD
 =======
 - BlueBubbles/DM history: restore DM backfill context with account-scoped rolling history, bounded backfill retries, and safer history payload limits. (#20302) Thanks @Ryan-Haines.
+- BlueBubbles/Webhooks: accept inbound/reaction webhook payloads when BlueBubbles omits `handle` but provides DM `chatGuid`, and harden payload extraction for array/string-wrapped message bodies so valid webhook events no longer get rejected as unparseable. (#23275) Thanks @toph31.
 - Security/Config: block prototype-key traversal during config merge patch and legacy migration merge helpers (`__proto__`, `constructor`, `prototype`) to prevent prototype pollution during config mutation flows. (#22968) Thanks @Clawborn.
 >>>>>>> 7a6ff4c55 (docs(changelog): credit BlueBubbles DM history fix (#23095))
 - Security/Shell env: validate login-shell executable paths for shell-env fallback (`/etc/shells` + trusted prefixes) and block `SHELL` in dangerous env override policy paths so untrusted shell-path injection falls back safely to `/bin/sh`. Thanks @athuljayaram for reporting.
