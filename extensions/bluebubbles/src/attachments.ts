@@ -271,7 +271,13 @@ export async function sendBlueBubblesAttachment(params: {
   addField("chatGuid", chatGuid);
   addField("name", filename);
   addField("tempGuid", `temp-${Date.now()}-${crypto.randomUUID().slice(0, 8)}`);
+<<<<<<< HEAD
   addField("method", "private-api");
+=======
+  if (privateApiStatus === true) {
+    addField("method", "private-api");
+  }
+>>>>>>> 888b6bc94 (fix(bluebubbles): treat null privateApiStatus as disabled, not enabled)
 
   // Add isAudioMessage flag for voice memos
   if (isAudioMessage) {
@@ -279,7 +285,11 @@ export async function sendBlueBubblesAttachment(params: {
   }
 
   const trimmedReplyTo = replyToMessageGuid?.trim();
+<<<<<<< HEAD
   if (trimmedReplyTo) {
+=======
+  if (trimmedReplyTo && privateApiStatus === true) {
+>>>>>>> 888b6bc94 (fix(bluebubbles): treat null privateApiStatus as disabled, not enabled)
     addField("selectedMessageGuid", trimmedReplyTo);
     addField("partIndex", typeof replyToPartIndex === "number" ? String(replyToPartIndex) : "0");
   }
