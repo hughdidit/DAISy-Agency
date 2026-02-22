@@ -20,9 +20,15 @@ Sub-agents let you run background tasks without blocking the main conversation. 
 ## Quick Start
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 The simplest way to use sub-agents is to ask your agent naturally:
 =======
 Discord thread binding controls:
+=======
+Thread binding controls:
+
+These commands work on channels that implement thread bindings. Current support is Discord.
+>>>>>>> 0b9b9d430 (docs: make subagents thread guidance channel-first)
 
 - `/focus <subagent-label|session-key|session-id|session-label>`
 - `/unfocus`
@@ -104,14 +110,18 @@ Use a cheaper model for sub-agents to save on token costs:
   - `mode: "session"` requires `thread: true`
 - `cleanup?` (`delete|keep`, default `keep`)
 
-## Discord thread-bound sessions
+## Thread-bound sessions
 
-When thread bindings are enabled, a sub-agent can stay bound to a Discord thread so follow-up user messages in that thread keep routing to the same sub-agent session.
+When thread bindings are enabled for a channel, a sub-agent can stay bound to a thread so follow-up user messages in that thread keep routing to the same sub-agent session.
+
+Current implementation:
+
+- Discord supports persistent thread-bound subagent sessions.
 
 Quick flow:
 
 1. Spawn with `sessions_spawn` using `thread: true` (and optionally `mode: "session"`).
-2. OpenClaw creates or binds a Discord thread to that session target.
+2. OpenClaw creates or binds a thread to that session target in the active channel.
 3. Replies and follow-up messages in that thread route to the bound session.
 4. Use `/session ttl` to inspect/update auto-unfocus TTL.
 5. Use `/unfocus` to detach manually.
@@ -119,17 +129,17 @@ Quick flow:
 Manual controls:
 
 - `/focus <target>` binds the current thread (or creates one) to a sub-agent/session target.
-- `/unfocus` removes the binding for the current Discord thread.
+- `/unfocus` removes the binding for the current bound thread.
 - `/agents` lists active runs and binding state (`thread:<id>` or `unbound`).
-- `/session ttl` only works for focused Discord threads.
+- `/session ttl` only works for focused bound threads.
 
 Config switches:
 
 - Global default: `session.threadBindings.enabled`, `session.threadBindings.ttlHours`
-- Discord override: `channels.discord.threadBindings.enabled`, `channels.discord.threadBindings.ttlHours`
-- Spawn auto-bind opt-in: `channels.discord.threadBindings.spawnSubagentSessions`
+- Channel override (Discord today): `channels.discord.threadBindings.enabled`, `channels.discord.threadBindings.ttlHours`
+- Spawn auto-bind opt-in (Discord today): `channels.discord.threadBindings.spawnSubagentSessions`
 
-See [Discord](/channels/discord), [Configuration Reference](/gateway/configuration-reference), and [Slash commands](/tools/slash-commands).
+See [Configuration Reference](/gateway/configuration-reference), [Slash commands](/tools/slash-commands), and [Discord](/channels/discord) for current adapter details.
 
 Allowlist:
 
