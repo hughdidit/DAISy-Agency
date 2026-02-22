@@ -12,6 +12,9 @@ import {
 
 describe("buildAuthHealthSummary", () => {
   const now = 1_700_000_000_000;
+  const profileStatuses = (summary: ReturnType<typeof buildAuthHealthSummary>) =>
+    Object.fromEntries(summary.profiles.map((profile) => [profile.profileId, profile.status]));
+
   afterEach(() => {
     vi.restoreAllMocks();
   });
@@ -55,9 +58,7 @@ describe("buildAuthHealthSummary", () => {
       warnAfterMs: DEFAULT_OAUTH_WARN_MS,
     });
 
-    const statuses = Object.fromEntries(
-      summary.profiles.map((profile) => [profile.profileId, profile.status]),
-    );
+    const statuses = profileStatuses(summary);
 
     expect(statuses["anthropic:ok"]).toBe("ok");
     expect(statuses["anthropic:expiring"]).toBe("expiring");
@@ -65,7 +66,36 @@ describe("buildAuthHealthSummary", () => {
     expect(statuses["anthropic:api"]).toBe("static");
 
     const provider = summary.providers.find((entry) => entry.provider === "anthropic");
+<<<<<<< HEAD
     expect(provider?.status).toBe("expired");
+=======
+    expect(provider?.status).toBe("ok");
+  });
+
+  it("reports expired for OAuth without a refresh token", () => {
+    vi.spyOn(Date, "now").mockReturnValue(now);
+    const store = {
+      version: 1,
+      profiles: {
+        "google:no-refresh": {
+          type: "oauth" as const,
+          provider: "google-antigravity",
+          access: "access",
+          refresh: "",
+          expires: now - 10_000,
+        },
+      },
+    };
+
+    const summary = buildAuthHealthSummary({
+      store,
+      warnAfterMs: DEFAULT_OAUTH_WARN_MS,
+    });
+
+    const statuses = profileStatuses(summary);
+
+    expect(statuses["google:no-refresh"]).toBe("expired");
+>>>>>>> ad1072842 (test: dedupe agent tests and session helpers)
   });
 });
 

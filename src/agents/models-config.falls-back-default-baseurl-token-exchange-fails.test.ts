@@ -52,6 +52,14 @@ const _MODELS_CONFIG: MoltbotConfig = {
 installModelsConfigTestHooks({ restoreFetch: true });
 >>>>>>> 96f80d6d8 (refactor(test): share models-config e2e setup)
 
+async function readCopilotBaseUrl(agentDir: string) {
+  const raw = await fs.readFile(path.join(agentDir, "models.json"), "utf8");
+  const parsed = JSON.parse(raw) as {
+    providers: Record<string, { baseUrl?: string }>;
+  };
+  return parsed.providers["github-copilot"]?.baseUrl;
+}
+
 describe("models-config", () => {
   it("falls back to default baseUrl when token exchange fails", async () => {
     await withTempHome(async () => {
@@ -85,6 +93,7 @@ describe("models-config", () => {
         await ensureOpenClawModelsJson({ models: { providers: {} } });
 
         const agentDir = path.join(process.env.HOME ?? "", ".openclaw", "agents", "main", "agent");
+<<<<<<< HEAD
 >>>>>>> 02fe0c840 (perf(test): remove resetModules from auth/models/subagent suites)
         const raw = await fs.readFile(path.join(agentDir, "models.json"), "utf8");
         const parsed = JSON.parse(raw) as {
@@ -92,6 +101,9 @@ describe("models-config", () => {
         };
 
         expect(parsed.providers["github-copilot"]?.baseUrl).toBe(DEFAULT_COPILOT_API_BASE_URL);
+=======
+        expect(await readCopilotBaseUrl(agentDir)).toBe(DEFAULT_COPILOT_API_BASE_URL);
+>>>>>>> ad1072842 (test: dedupe agent tests and session helpers)
       });
     });
   });
@@ -138,12 +150,7 @@ describe("models-config", () => {
         await ensureOpenClawModelsJson({ models: { providers: {} } }, agentDir);
 >>>>>>> 02fe0c840 (perf(test): remove resetModules from auth/models/subagent suites)
 
-        const raw = await fs.readFile(path.join(agentDir, "models.json"), "utf8");
-        const parsed = JSON.parse(raw) as {
-          providers: Record<string, { baseUrl?: string }>;
-        };
-
-        expect(parsed.providers["github-copilot"]?.baseUrl).toBe("https://api.copilot.example");
+        expect(await readCopilotBaseUrl(agentDir)).toBe("https://api.copilot.example");
       });
     });
   });

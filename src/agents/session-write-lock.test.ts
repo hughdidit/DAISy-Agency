@@ -57,6 +57,22 @@ import {
 } from "./session-write-lock.js";
 >>>>>>> fb6e415d0 (fix(agents): align session lock hold budget with run timeouts)
 
+<<<<<<< HEAD
+=======
+async function expectLockRemovedOnlyAfterFinalRelease(params: {
+  lockPath: string;
+  firstLock: { release: () => Promise<void> };
+  secondLock: { release: () => Promise<void> };
+}) {
+  await expect(fs.access(params.lockPath)).resolves.toBeUndefined();
+  await params.firstLock.release();
+  await expect(fs.access(params.lockPath)).resolves.toBeUndefined();
+  await params.secondLock.release();
+  await expect(fs.access(params.lockPath)).rejects.toThrow();
+}
+
+describe("acquireSessionWriteLock", () => {
+>>>>>>> ad1072842 (test: dedupe agent tests and session helpers)
   it("reuses locks across symlinked session paths", async () => {
     if (process.platform === "win32") {
       expect(true).toBe(true);
@@ -87,6 +103,7 @@ import {
     const lockA = await acquireLock(sessionFile);
     const lockB = await acquireLock(sessionFile);
 
+<<<<<<< HEAD
     await expect(fs.access(lockPath)).resolves.toBeUndefined();
     await lockA.release();
     markLockAsReleased(lockA);
@@ -94,6 +111,16 @@ import {
     await lockB.release();
     markLockAsReleased(lockB);
     await expect(fs.access(lockPath)).rejects.toThrow();
+=======
+      await expectLockRemovedOnlyAfterFinalRelease({
+        lockPath,
+        firstLock: lockA,
+        secondLock: lockB,
+      });
+    } finally {
+      await fs.rm(root, { recursive: true, force: true });
+    }
+>>>>>>> ad1072842 (test: dedupe agent tests and session helpers)
   });
 
   it("reclaims stale lock files", async () => {
@@ -141,11 +168,11 @@ import {
       await expect(fs.access(lockPath)).resolves.toBeUndefined();
 
       // Old release handle must not affect the new lock.
-      await lockA.release();
-      await expect(fs.access(lockPath)).resolves.toBeUndefined();
-
-      await lockB.release();
-      await expect(fs.access(lockPath)).rejects.toThrow();
+      await expectLockRemovedOnlyAfterFinalRelease({
+        lockPath,
+        firstLock: lockA,
+        secondLock: lockB,
+      });
     } finally {
       warnSpy.mockRestore();
       await fs.rm(root, { recursive: true, force: true });
