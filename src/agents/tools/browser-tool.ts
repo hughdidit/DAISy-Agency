@@ -40,6 +40,27 @@ import { BrowserToolSchema } from "./browser-tool.schema.js";
 import { type AnyAgentTool, imageResultFromFile, jsonResult, readStringParam } from "./common.js";
 import { callGatewayTool } from "./gateway.js";
 
+function formatTabsToolResult(tabs: unknown[]) {
+  const wrapped = wrapBrowserExternalJson({
+    kind: "tabs",
+    payload: { tabs },
+    includeWarning: false,
+  });
+  return {
+    content: [{ type: "text", text: wrapped.wrappedText }],
+    details: { ...wrapped.safeDetails, tabCount: tabs.length },
+  };
+}
+
+function readOptionalTargetAndTimeout(params: Record<string, unknown>) {
+  const targetId = typeof params.targetId === "string" ? params.targetId.trim() : undefined;
+  const timeoutMs =
+    typeof params.timeoutMs === "number" && Number.isFinite(params.timeoutMs)
+      ? params.timeoutMs
+      : undefined;
+  return { targetId, timeoutMs };
+}
+
 type BrowserProxyFile = {
   path: string;
   base64: string;
@@ -345,7 +366,15 @@ export function createBrowserTool(opts?: {
               profile,
             });
             const tabs = (result as { tabs?: unknown[] }).tabs ?? [];
+<<<<<<< HEAD
             return jsonResult({ tabs });
+=======
+            return formatTabsToolResult(tabs);
+          }
+          {
+            const tabs = await browserTabs(baseUrl, { profile });
+            return formatTabsToolResult(tabs);
+>>>>>>> 06bdd5365 (refactor(agents): dedupe workspace and session tool flows)
           }
           return jsonResult({ tabs: await browserTabs(baseUrl, { profile }) });
         case "open": {
@@ -607,11 +636,7 @@ export function createBrowserTool(opts?: {
           const ref = readStringParam(params, "ref");
           const inputRef = readStringParam(params, "inputRef");
           const element = readStringParam(params, "element");
-          const targetId = typeof params.targetId === "string" ? params.targetId.trim() : undefined;
-          const timeoutMs =
-            typeof params.timeoutMs === "number" && Number.isFinite(params.timeoutMs)
-              ? params.timeoutMs
-              : undefined;
+          const { targetId, timeoutMs } = readOptionalTargetAndTimeout(params);
           if (proxyRequest) {
             const result = await proxyRequest({
               method: "POST",
@@ -643,11 +668,7 @@ export function createBrowserTool(opts?: {
         case "dialog": {
           const accept = Boolean(params.accept);
           const promptText = typeof params.promptText === "string" ? params.promptText : undefined;
-          const targetId = typeof params.targetId === "string" ? params.targetId.trim() : undefined;
-          const timeoutMs =
-            typeof params.timeoutMs === "number" && Number.isFinite(params.timeoutMs)
-              ? params.timeoutMs
-              : undefined;
+          const { targetId, timeoutMs } = readOptionalTargetAndTimeout(params);
           if (proxyRequest) {
             const result = await proxyRequest({
               method: "POST",

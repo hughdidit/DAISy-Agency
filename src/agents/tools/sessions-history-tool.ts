@@ -57,8 +57,12 @@ import {
   createSessionVisibilityGuard,
   createAgentToAgentPolicy,
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   isRequesterSpawnedSessionVisible,
+=======
+  isResolvedSessionVisibleToRequester,
+>>>>>>> 06bdd5365 (refactor(agents): dedupe workspace and session tool flows)
   resolveEffectiveSessionToolsVisibility,
 >>>>>>> 1a03aad24 (refactor(sessions): split access and resolution helpers)
   resolveSessionReference,
@@ -259,6 +263,7 @@ export function createSessionsHistoryTool(opts?: {
       const displayKey = resolvedSession.displayKey;
       const resolvedViaSessionId = resolvedSession.resolvedViaSessionId;
 <<<<<<< HEAD
+<<<<<<< HEAD
       if (restrictToSpawned && requesterInternalKey && !resolvedViaSessionId) {
         const ok = await isSpawnedSessionAllowed({
           requesterSessionKey: requesterInternalKey,
@@ -268,13 +273,20 @@ export function createSessionsHistoryTool(opts?: {
           requesterSessionKey: effectiveRequesterKey,
 >>>>>>> 1a03aad24 (refactor(sessions): split access and resolution helpers)
           targetSessionKey: resolvedKey,
+=======
+
+      const visible = await isResolvedSessionVisibleToRequester({
+        requesterSessionKey: effectiveRequesterKey,
+        targetSessionKey: resolvedKey,
+        restrictToSpawned,
+        resolvedViaSessionId,
+      });
+      if (!visible) {
+        return jsonResult({
+          status: "forbidden",
+          error: `Session not visible from this sandboxed agent session: ${sessionKeyParam}`,
+>>>>>>> 06bdd5365 (refactor(agents): dedupe workspace and session tool flows)
         });
-        if (!ok) {
-          return jsonResult({
-            status: "forbidden",
-            error: `Session not visible from this sandboxed agent session: ${sessionKeyParam}`,
-          });
-        }
       }
 
       const a2aPolicy = createAgentToAgentPolicy(cfg);

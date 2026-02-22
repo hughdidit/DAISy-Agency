@@ -44,10 +44,14 @@ import {
   createAgentToAgentPolicy,
   extractAssistantText,
 <<<<<<< HEAD
+<<<<<<< HEAD
   resolveInternalSessionKey,
   resolveMainSessionAlias,
 =======
   isRequesterSpawnedSessionVisible,
+=======
+  isResolvedSessionVisibleToRequester,
+>>>>>>> 06bdd5365 (refactor(agents): dedupe workspace and session tool flows)
   resolveEffectiveSessionToolsVisibility,
 >>>>>>> 1a03aad24 (refactor(sessions): split access and resolution helpers)
   resolveSessionReference,
@@ -224,6 +228,7 @@ export function createSessionsSendTool(opts?: {
       const resolvedViaSessionId = resolvedSession.resolvedViaSessionId;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
       if (restrictToSpawned && !resolvedViaSessionId) {
         const sessions = await listSessions({
           includeGlobal: false,
@@ -236,15 +241,21 @@ export function createSessionsSendTool(opts?: {
           requesterSessionKey: effectiveRequesterKey,
           targetSessionKey: resolvedKey,
 >>>>>>> 1a03aad24 (refactor(sessions): split access and resolution helpers)
+=======
+      const visible = await isResolvedSessionVisibleToRequester({
+        requesterSessionKey: effectiveRequesterKey,
+        targetSessionKey: resolvedKey,
+        restrictToSpawned,
+        resolvedViaSessionId,
+      });
+      if (!visible) {
+        return jsonResult({
+          runId: crypto.randomUUID(),
+          status: "forbidden",
+          error: `Session not visible from this sandboxed agent session: ${sessionKey}`,
+          sessionKey: displayKey,
+>>>>>>> 06bdd5365 (refactor(agents): dedupe workspace and session tool flows)
         });
-        if (!ok) {
-          return jsonResult({
-            runId: crypto.randomUUID(),
-            status: "forbidden",
-            error: `Session not visible from this sandboxed agent session: ${sessionKey}`,
-            sessionKey: displayKey,
-          });
-        }
       }
       const timeoutSeconds =
         typeof params.timeoutSeconds === "number" && Number.isFinite(params.timeoutSeconds)
