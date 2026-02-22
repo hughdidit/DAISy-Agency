@@ -278,5 +278,13 @@ describe("resolveUserPath", () => {
     expect(resolveUserPath("")).toBe("");
     expect(resolveUserPath("   ")).toBe("");
   });
+<<<<<<< HEAD
 >>>>>>> db137dd65 (fix(paths): respect OPENCLAW_HOME for all internal path resolution (#12091))
+=======
+
+  it("returns empty string for undefined/null input", () => {
+    expect(resolveUserPath(undefined as unknown as string)).toBe("");
+    expect(resolveUserPath(null as unknown as string)).toBe("");
+  });
+>>>>>>> eec3182cb (fix(utils): guard resolveUserPath for missing workspace input)
 });
