@@ -31,6 +31,7 @@ import { postJsonWithRetry } from "./batch-http.js";
 import { applyEmbeddingBatchOutputLine } from "./batch-output.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 7bd073340 (refactor(memory): share batch output parsing)
 =======
 import { buildBatchHeaders, normalizeBatchBaseUrl, splitBatchRequests } from "./batch-utils.js";
@@ -39,6 +40,18 @@ import { hashText, runWithConcurrency } from "./internal.js";
 >>>>>>> e707a7bd3 (refactor(memory): reuse runWithConcurrency)
 =======
 import { runEmbeddingBatchGroups } from "./batch-runner.js";
+=======
+import {
+  EMBEDDING_BATCH_ENDPOINT,
+  type EmbeddingBatchStatus,
+  type ProviderBatchOutputLine,
+} from "./batch-provider-common.js";
+import {
+  buildEmbeddingBatchGroupOptions,
+  runEmbeddingBatchGroups,
+  type EmbeddingBatchExecutionParams,
+} from "./batch-runner.js";
+>>>>>>> ad51372f7 (refactor(memory): share batch provider scaffolding)
 import { uploadBatchJsonlFile } from "./batch-upload.js";
 import { buildBatchHeaders, normalizeBatchBaseUrl } from "./batch-utils.js";
 <<<<<<< HEAD
@@ -75,26 +88,10 @@ export type OpenAiBatchRequest = {
   };
 };
 
-export type OpenAiBatchStatus = {
-  id?: string;
-  status?: string;
-  output_file_id?: string | null;
-  error_file_id?: string | null;
-};
+export type OpenAiBatchStatus = EmbeddingBatchStatus;
+export type OpenAiBatchOutputLine = ProviderBatchOutputLine;
 
-export type OpenAiBatchOutputLine = {
-  custom_id?: string;
-  response?: {
-    status_code?: number;
-    body?: {
-      data?: Array<{ embedding?: number[]; index?: number }>;
-      error?: { message?: string };
-    };
-  };
-  error?: { message?: string };
-};
-
-export const OPENAI_BATCH_ENDPOINT = "/v1/embeddings";
+export const OPENAI_BATCH_ENDPOINT = EMBEDDING_BATCH_ENDPOINT;
 const OPENAI_BATCH_COMPLETION_WINDOW = "24h";
 const OPENAI_BATCH_MAX_REQUESTS = 50000;
 
@@ -279,25 +276,18 @@ async function waitForOpenAiBatch(params: {
   }
 }
 
-export async function runOpenAiEmbeddingBatches(params: {
-  openAi: OpenAiEmbeddingClient;
-  agentId: string;
-  requests: OpenAiBatchRequest[];
-  wait: boolean;
-  pollIntervalMs: number;
-  timeoutMs: number;
-  concurrency: number;
-  debug?: (message: string, data?: Record<string, unknown>) => void;
-}): Promise<Map<string, number[]>> {
+export async function runOpenAiEmbeddingBatches(
+  params: {
+    openAi: OpenAiEmbeddingClient;
+    agentId: string;
+    requests: OpenAiBatchRequest[];
+  } & EmbeddingBatchExecutionParams,
+): Promise<Map<string, number[]>> {
   return await runEmbeddingBatchGroups({
-    requests: params.requests,
-    maxRequests: OPENAI_BATCH_MAX_REQUESTS,
-    wait: params.wait,
-    pollIntervalMs: params.pollIntervalMs,
-    timeoutMs: params.timeoutMs,
-    concurrency: params.concurrency,
-    debug: params.debug,
-    debugLabel: "memory embeddings: openai batch submit",
+    ...buildEmbeddingBatchGroupOptions(params, {
+      maxRequests: OPENAI_BATCH_MAX_REQUESTS,
+      debugLabel: "memory embeddings: openai batch submit",
+    }),
     runGroup: async ({ group, groupIndex, groups, byCustomId }) => {
       const batchInfo = await submitOpenAiBatch({
         openAi: params.openAi,
