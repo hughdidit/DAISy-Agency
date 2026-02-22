@@ -18,6 +18,10 @@ import { stageSandboxMedia } from "./reply/stage-sandbox-media.js";
 
 afterEach(() => {
   vi.restoreAllMocks();
+<<<<<<< HEAD
+=======
+  childProcessMocks.spawn.mockClear();
+>>>>>>> d6d73d0ed (test(core): trim redundant test resets and use mockClear)
 });
 
 describe("stageSandboxMedia", () => {
