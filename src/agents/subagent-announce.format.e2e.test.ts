@@ -167,6 +167,7 @@ describe("subagent announce formatting", () => {
 >>>>>>> 8178ea472 (feat: thread-bound subagents on Discord (#21805))
 =======
     sessionsDeleteSpy.mockClear().mockImplementation((_req: AgentCallRequest) => undefined);
+<<<<<<< HEAD
 >>>>>>> 5e9cbdc1a (test(subagents): lighten session delete mock reset in announce spec)
     embeddedRunMock.isEmbeddedPiRunActive.mockReset().mockReturnValue(false);
 <<<<<<< HEAD
@@ -179,6 +180,9 @@ describe("subagent announce formatting", () => {
     subagentRegistryMock.countActiveDescendantRuns.mockReset().mockReturnValue(0);
     subagentRegistryMock.resolveRequesterForChildSession.mockReset().mockReturnValue(null);
 =======
+=======
+    embeddedRunMock.isEmbeddedPiRunActive.mockClear().mockReturnValue(false);
+>>>>>>> d9a7b447f (test(agents): use lightweight clear for active-run announce mock)
     embeddedRunMock.isEmbeddedPiRunStreaming.mockClear().mockReturnValue(false);
     embeddedRunMock.queueEmbeddedPiMessage.mockClear().mockReturnValue(false);
     embeddedRunMock.waitForEmbeddedPiRunEnd.mockClear().mockResolvedValue(true);
