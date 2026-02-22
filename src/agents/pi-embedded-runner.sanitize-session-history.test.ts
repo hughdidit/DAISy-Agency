@@ -206,7 +206,59 @@ describe("sanitizeSessionHistory", () => {
     expect(result.map((msg) => msg.role)).toEqual(["user"]);
   });
 
+<<<<<<< HEAD
   it("does not downgrade openai reasoning when the model has not changed", async () => {
+=======
+  it("drops malformed tool calls with invalid/overlong names", async () => {
+    const messages = [
+      {
+        role: "assistant",
+        content: [
+          {
+            type: "toolCall",
+            id: "call_bad",
+            name: 'toolu_01mvznfebfuu <|tool_call_argument_begin|> {"command"',
+            arguments: {},
+          },
+          { type: "toolCall", id: "call_long", name: `read_${"x".repeat(80)}`, arguments: {} },
+        ],
+      },
+      { role: "user", content: "hello" },
+    ] as unknown as AgentMessage[];
+
+    const result = await sanitizeSessionHistory({
+      messages,
+      modelApi: "openai-responses",
+      provider: "openai",
+      sessionManager: mockSessionManager,
+      sessionId: TEST_SESSION_ID,
+    });
+
+    expect(result.map((msg) => msg.role)).toEqual(["user"]);
+  });
+
+  it("drops tool calls that are not in the allowed tool set", async () => {
+    const messages = [
+      {
+        role: "assistant",
+        content: [{ type: "toolCall", id: "call_1", name: "write", arguments: {} }],
+      },
+    ] as unknown as AgentMessage[];
+
+    const result = await sanitizeSessionHistory({
+      messages,
+      modelApi: "openai-responses",
+      provider: "openai",
+      allowedToolNames: ["read"],
+      sessionManager: mockSessionManager,
+      sessionId: TEST_SESSION_ID,
+    });
+
+    expect(result).toEqual([]);
+  });
+
+  it("downgrades orphaned openai reasoning even when the model has not changed", async () => {
+>>>>>>> cdfe45eeb (Agents: validate persisted tool-call names)
     const sessionEntries = [
       makeModelSnapshotEntry({
         provider: "openai",
