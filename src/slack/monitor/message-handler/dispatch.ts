@@ -351,6 +351,7 @@ export async function dispatchPreparedSlackMessage(prepared: PreparedSlackMessag
         hasStreamedMessage = false;
       }
 
+<<<<<<< HEAD
       const replyThreadTs = replyPlan.nextThreadTs();
 >>>>>>> bec974aba (feat(slack): stream partial replies via draft message updates)
       await deliverReplies({
@@ -446,6 +447,9 @@ export async function dispatchPreparedSlackMessage(prepared: PreparedSlackMessag
         });
         replyPlan.markSent();
       }
+=======
+      await deliverNormally(payload);
+>>>>>>> d116bcfb1 (refactor(runtime): consolidate followup, gateway, and provider dedupe paths)
     },
     onError: (err, info) => {
       runtime.error?.(danger(`slack ${info.kind} reply failed: ${String(err)}`));
@@ -505,6 +509,18 @@ export async function dispatchPreparedSlackMessage(prepared: PreparedSlackMessag
     draftStream.update(trimmed);
     hasStreamedMessage = true;
   };
+  const onDraftBoundary =
+    useStreaming || !previewStreamingEnabled
+      ? undefined
+      : async () => {
+          if (hasStreamedMessage) {
+            draftStream.forceNewMessage();
+            hasStreamedMessage = false;
+            appendRenderedText = "";
+            appendSourceText = "";
+            statusUpdateCount = 0;
+          }
+        };
 
   const { queuedFinal, counts } = await dispatchInboundMessage({
     ctx: prepared.ctxPayload,
@@ -561,6 +577,7 @@ export async function dispatchPreparedSlackMessage(prepared: PreparedSlackMessag
           : async (payload) => {
               updateDraftFromPartial(payload.text);
             },
+<<<<<<< HEAD
       onAssistantMessageStart: useStreaming
         ? undefined
         : !previewStreamingEnabled
@@ -588,6 +605,10 @@ export async function dispatchPreparedSlackMessage(prepared: PreparedSlackMessag
               }
             },
 >>>>>>> 2c14b0cf4 (refactor(config): unify streaming config across channels)
+=======
+      onAssistantMessageStart: onDraftBoundary,
+      onReasoningEnd: onDraftBoundary,
+>>>>>>> d116bcfb1 (refactor(runtime): consolidate followup, gateway, and provider dedupe paths)
     },
   });
   await draftStream.flush();

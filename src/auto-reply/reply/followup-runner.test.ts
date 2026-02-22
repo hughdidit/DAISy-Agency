@@ -209,6 +209,27 @@ describe("createFollowupRunner compaction", () => {
 });
 
 describe("createFollowupRunner messaging tool dedupe", () => {
+  function createMessagingDedupeRunner(
+    onBlockReply: (payload: unknown) => Promise<void>,
+    overrides: Partial<{
+      sessionEntry: SessionEntry;
+      sessionStore: Record<string, SessionEntry>;
+      sessionKey: string;
+      storePath: string;
+    }> = {},
+  ) {
+    return createFollowupRunner({
+      opts: { onBlockReply },
+      typing: createMockTypingController(),
+      typingMode: "instant",
+      defaultModel: "anthropic/claude-opus-4-5",
+      sessionEntry: overrides.sessionEntry,
+      sessionStore: overrides.sessionStore,
+      sessionKey: overrides.sessionKey,
+      storePath: overrides.storePath,
+    });
+  }
+
   it("drops payloads already sent via messaging tool", async () => {
     const onBlockReply = vi.fn(async () => {});
     runEmbeddedPiAgentMock.mockResolvedValueOnce({
@@ -217,12 +238,7 @@ describe("createFollowupRunner messaging tool dedupe", () => {
       meta: {},
     });
 
-    const runner = createFollowupRunner({
-      opts: { onBlockReply },
-      typing: createMockTypingController(),
-      typingMode: "instant",
-      defaultModel: "anthropic/claude-opus-4-5",
-    });
+    const runner = createMessagingDedupeRunner(onBlockReply);
 
     await runner(baseQueuedRun());
 
@@ -237,12 +253,7 @@ describe("createFollowupRunner messaging tool dedupe", () => {
       meta: {},
     });
 
-    const runner = createFollowupRunner({
-      opts: { onBlockReply },
-      typing: createMockTypingController(),
-      typingMode: "instant",
-      defaultModel: "anthropic/claude-opus-4-5",
-    });
+    const runner = createMessagingDedupeRunner(onBlockReply);
 
     await runner(baseQueuedRun());
 
@@ -258,12 +269,7 @@ describe("createFollowupRunner messaging tool dedupe", () => {
       meta: {},
     });
 
-    const runner = createFollowupRunner({
-      opts: { onBlockReply },
-      typing: createMockTypingController(),
-      typingMode: "instant",
-      defaultModel: "anthropic/claude-opus-4-5",
-    });
+    const runner = createMessagingDedupeRunner(onBlockReply);
 
     await runner(baseQueuedRun("slack"));
 
@@ -278,12 +284,7 @@ describe("createFollowupRunner messaging tool dedupe", () => {
       meta: {},
     });
 
-    const runner = createFollowupRunner({
-      opts: { onBlockReply },
-      typing: createMockTypingController(),
-      typingMode: "instant",
-      defaultModel: "anthropic/claude-opus-4-5",
-    });
+    const runner = createMessagingDedupeRunner(onBlockReply);
 
     await runner(baseQueuedRun());
 
@@ -299,12 +300,7 @@ describe("createFollowupRunner messaging tool dedupe", () => {
       meta: {},
     });
 
-    const runner = createFollowupRunner({
-      opts: { onBlockReply },
-      typing: createMockTypingController(),
-      typingMode: "instant",
-      defaultModel: "anthropic/claude-opus-4-5",
-    });
+    const runner = createMessagingDedupeRunner(onBlockReply);
 
     await runner(baseQueuedRun());
 
@@ -335,15 +331,11 @@ describe("createFollowupRunner messaging tool dedupe", () => {
       },
     });
 
-    const runner = createFollowupRunner({
-      opts: { onBlockReply },
-      typing: createMockTypingController(),
-      typingMode: "instant",
+    const runner = createMessagingDedupeRunner(onBlockReply, {
       sessionEntry,
       sessionStore,
       sessionKey,
       storePath,
-      defaultModel: "anthropic/claude-opus-4-5",
     });
 
     await runner(baseQueuedRun("slack"));

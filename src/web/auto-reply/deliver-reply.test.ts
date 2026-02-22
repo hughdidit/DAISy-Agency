@@ -52,6 +52,18 @@ function mockFirstSendMediaFailure(msg: WebInboundMsg, message: string) {
   ).mockRejectedValueOnce(new Error(message));
 }
 
+function mockFirstReplyFailure(msg: WebInboundMsg, message: string) {
+  (msg.reply as unknown as { mockRejectedValueOnce: (v: unknown) => void }).mockRejectedValueOnce(
+    new Error(message),
+  );
+}
+
+function mockSecondReplySuccess(msg: WebInboundMsg) {
+  (msg.reply as unknown as { mockResolvedValueOnce: (v: unknown) => void }).mockResolvedValueOnce(
+    undefined,
+  );
+}
+
 const replyLogger = {
   info: vi.fn(),
   warn: vi.fn(),
@@ -76,52 +88,30 @@ describe("deliverWebReply", () => {
     expect(replyLogger.info).toHaveBeenCalledWith(expect.any(Object), "auto-reply sent (text)");
   });
 
-  it("retries text send on transient failure", async () => {
-    const msg = makeMsg();
-    (msg.reply as unknown as { mockRejectedValueOnce: (v: unknown) => void }).mockRejectedValueOnce(
-      new Error("connection closed"),
-    );
-    (msg.reply as unknown as { mockResolvedValueOnce: (v: unknown) => void }).mockResolvedValueOnce(
-      undefined,
-    );
+  it.each(["connection closed", "operation timed out"])(
+    "retries text send on transient failure: %s",
+    async (errorMessage) => {
+      const msg = makeMsg();
+      mockFirstReplyFailure(msg, errorMessage);
+      mockSecondReplySuccess(msg);
 
-    await deliverWebReply({
-      replyResult: { text: "hi" },
-      msg,
-      maxMediaBytes: 1024 * 1024,
-      textLimit: 200,
-      replyLogger,
-      skipLog: true,
-    });
+      await deliverWebReply({
+        replyResult: { text: "hi" },
+        msg,
+        maxMediaBytes: 1024 * 1024,
+        textLimit: 200,
+        replyLogger,
+        skipLog: true,
+      });
 
-    expect(msg.reply).toHaveBeenCalledTimes(2);
-    expect(sleep).toHaveBeenCalledWith(500);
-  });
-
-  it("retries text send when error contains timed out", async () => {
-    const msg = makeMsg();
-    (msg.reply as unknown as { mockRejectedValueOnce: (v: unknown) => void }).mockRejectedValueOnce(
-      new Error("operation timed out"),
-    );
-    (msg.reply as unknown as { mockResolvedValueOnce: (v: unknown) => void }).mockResolvedValueOnce(
-      undefined,
-    );
-
-    await deliverWebReply({
-      replyResult: { text: "hi" },
-      msg,
-      maxMediaBytes: 1024 * 1024,
-      textLimit: 200,
-      replyLogger,
-      skipLog: true,
-    });
-
-    expect(msg.reply).toHaveBeenCalledTimes(2);
-    expect(sleep).toHaveBeenCalledWith(500);
-  });
+      expect(msg.reply).toHaveBeenCalledTimes(2);
+      expect(sleep).toHaveBeenCalledWith(500);
+    },
+  );
 
   it("sends image media with caption and then remaining text", async () => {
     const msg = makeMsg();
+<<<<<<< HEAD
     (
       loadWebMedia as unknown as { mockResolvedValueOnce: (v: unknown) => void }
     ).mockResolvedValueOnce({
@@ -129,6 +119,10 @@ describe("deliverWebReply", () => {
       contentType: "image/jpeg",
       kind: "image",
     });
+=======
+    const mediaLocalRoots = ["/tmp/workspace-work"];
+    mockLoadedImageMedia();
+>>>>>>> d116bcfb1 (refactor(runtime): consolidate followup, gateway, and provider dedupe paths)
 
     await deliverWebReply({
       replyResult: { text: "aaaaaa", mediaUrl: "http://example.com/img.jpg" },

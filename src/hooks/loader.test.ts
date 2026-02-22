@@ -33,6 +33,25 @@ describe("loader", () => {
     process.env.OPENCLAW_BUNDLED_HOOKS_DIR = "/nonexistent/bundled/hooks";
   });
 
+  async function writeHandlerModule(
+    fileName: string,
+    code = "export default async function() {}",
+  ): Promise<string> {
+    const handlerPath = path.join(tmpDir, fileName);
+    await fs.writeFile(handlerPath, code, "utf-8");
+    return handlerPath;
+  }
+
+  function createEnabledHooksConfig(
+    handlers?: Array<{ event: string; module: string; export?: string }>,
+  ): OpenClawConfig {
+    return {
+      hooks: {
+        internal: handlers ? { enabled: true, handlers } : { enabled: true },
+      },
+    };
+  }
+
   afterEach(async () => {
     clearInternalHooks();
     envSnapshot.restore();
@@ -67,12 +86,12 @@ describe("loader", () => {
 
     it("should load a handler from a module", async () => {
       // Create a test handler module
-      const handlerPath = path.join(tmpDir, "test-handler.js");
       const handlerCode = `
         export default async function(event) {
           // Test handler
         }
       `;
+<<<<<<< HEAD
       await fs.writeFile(handlerPath, handlerCode, "utf-8");
 
       const cfg: OpenClawConfig = {
@@ -86,8 +105,15 @@ describe("loader", () => {
               },
             ],
           },
+=======
+      const handlerPath = await writeHandlerModule("test-handler.js", handlerCode);
+      const cfg = createEnabledHooksConfig([
+        {
+          event: "command:new",
+          module: path.basename(handlerPath),
+>>>>>>> d116bcfb1 (refactor(runtime): consolidate followup, gateway, and provider dedupe paths)
         },
-      };
+      ]);
 
       const count = await loadInternalHooks(cfg, tmpDir);
       expect(count).toBe(1);
@@ -98,9 +124,10 @@ describe("loader", () => {
 
     it("should load multiple handlers", async () => {
       // Create test handler modules
-      const handler1Path = path.join(tmpDir, "handler1.js");
-      const handler2Path = path.join(tmpDir, "handler2.js");
+      const handler1Path = await writeHandlerModule("handler1.js");
+      const handler2Path = await writeHandlerModule("handler2.js");
 
+<<<<<<< HEAD
       await fs.writeFile(handler1Path, "export default async function() {}", "utf-8");
       await fs.writeFile(handler2Path, "export default async function() {}", "utf-8");
 
@@ -115,6 +142,12 @@ describe("loader", () => {
           },
         },
       };
+=======
+      const cfg = createEnabledHooksConfig([
+        { event: "command:new", module: path.basename(handler1Path) },
+        { event: "command:stop", module: path.basename(handler2Path) },
+      ]);
+>>>>>>> d116bcfb1 (refactor(runtime): consolidate followup, gateway, and provider dedupe paths)
 
       const count = await loadInternalHooks(cfg, tmpDir);
       expect(count).toBe(2);
@@ -126,14 +159,14 @@ describe("loader", () => {
 
     it("should support named exports", async () => {
       // Create a handler module with named export
-      const handlerPath = path.join(tmpDir, "named-export.js");
       const handlerCode = `
         export const myHandler = async function(event) {
           // Named export handler
         }
       `;
-      await fs.writeFile(handlerPath, handlerCode, "utf-8");
+      const handlerPath = await writeHandlerModule("named-export.js", handlerCode);
 
+<<<<<<< HEAD
       const cfg: OpenClawConfig = {
         hooks: {
           internal: {
@@ -146,14 +179,22 @@ describe("loader", () => {
               },
             ],
           },
+=======
+      const cfg = createEnabledHooksConfig([
+        {
+          event: "command:new",
+          module: path.basename(handlerPath),
+          export: "myHandler",
+>>>>>>> d116bcfb1 (refactor(runtime): consolidate followup, gateway, and provider dedupe paths)
         },
-      };
+      ]);
 
       const count = await loadInternalHooks(cfg, tmpDir);
       expect(count).toBe(1);
     });
 
     it("should handle module loading errors gracefully", async () => {
+<<<<<<< HEAD
       const cfg: OpenClawConfig = {
         hooks: {
           internal: {
@@ -165,8 +206,14 @@ describe("loader", () => {
               },
             ],
           },
+=======
+      const cfg = createEnabledHooksConfig([
+        {
+          event: "command:new",
+          module: "missing-handler.js",
+>>>>>>> d116bcfb1 (refactor(runtime): consolidate followup, gateway, and provider dedupe paths)
         },
-      };
+      ]);
 
       // Should not throw and should return 0 (handler failed to load)
       const count = await loadInternalHooks(cfg, tmpDir);
@@ -175,9 +222,12 @@ describe("loader", () => {
 
     it("should handle non-function exports", async () => {
       // Create a module with a non-function export
-      const handlerPath = path.join(tmpDir, "bad-export.js");
-      await fs.writeFile(handlerPath, 'export default "not a function";', "utf-8");
+      const handlerPath = await writeHandlerModule(
+        "bad-export.js",
+        'export default "not a function";',
+      );
 
+<<<<<<< HEAD
       const cfg: OpenClawConfig = {
         hooks: {
           internal: {
@@ -189,8 +239,14 @@ describe("loader", () => {
               },
             ],
           },
+=======
+      const cfg = createEnabledHooksConfig([
+        {
+          event: "command:new",
+          module: path.basename(handlerPath),
+>>>>>>> d116bcfb1 (refactor(runtime): consolidate followup, gateway, and provider dedupe paths)
         },
-      };
+      ]);
 
       // Should not throw and should return 0 (handler is not a function)
       const count = await loadInternalHooks(cfg, tmpDir);
@@ -199,25 +255,17 @@ describe("loader", () => {
 
     it("should handle relative paths", async () => {
       // Create a handler module
-      const handlerPath = path.join(tmpDir, "relative-handler.js");
-      await fs.writeFile(handlerPath, "export default async function() {}", "utf-8");
+      const handlerPath = await writeHandlerModule("relative-handler.js");
 
       // Get relative path from cwd
       const relativePath = path.relative(process.cwd(), handlerPath);
 
-      const cfg: OpenClawConfig = {
-        hooks: {
-          internal: {
-            enabled: true,
-            handlers: [
-              {
-                event: "command:new",
-                module: relativePath,
-              },
-            ],
-          },
+      const cfg = createEnabledHooksConfig([
+        {
+          event: "command:new",
+          module: relativePath,
         },
-      };
+      ]);
 
       const count = await loadInternalHooks(cfg, tmpDir);
       expect(count).toBe(1);
@@ -225,7 +273,6 @@ describe("loader", () => {
 
     it("should actually call the loaded handler", async () => {
       // Create a handler that we can verify was called
-      const handlerPath = path.join(tmpDir, "callable-handler.js");
       const handlerCode = `
         let callCount = 0;
         export default async function(event) {
@@ -235,8 +282,9 @@ describe("loader", () => {
           return callCount;
         }
       `;
-      await fs.writeFile(handlerPath, handlerCode, "utf-8");
+      const handlerPath = await writeHandlerModule("callable-handler.js", handlerCode);
 
+<<<<<<< HEAD
       const cfg: OpenClawConfig = {
         hooks: {
           internal: {
@@ -248,8 +296,14 @@ describe("loader", () => {
               },
             ],
           },
+=======
+      const cfg = createEnabledHooksConfig([
+        {
+          event: "command:new",
+          module: path.basename(handlerPath),
+>>>>>>> d116bcfb1 (refactor(runtime): consolidate followup, gateway, and provider dedupe paths)
         },
-      };
+      ]);
 
       await loadInternalHooks(cfg, tmpDir);
 
@@ -262,5 +316,63 @@ describe("loader", () => {
       // This test mainly verifies that loading and triggering doesn't crash
       expect(getRegisteredEventKeys()).toContain("command:new");
     });
+<<<<<<< HEAD
+=======
+
+    it("rejects directory hook handlers that escape hook dir via symlink", async () => {
+      const outsideHandlerPath = path.join(fixtureRoot, `outside-handler-${caseId}.js`);
+      await fs.writeFile(outsideHandlerPath, "export default async function() {}", "utf-8");
+
+      const hookDir = path.join(tmpDir, "hooks", "symlink-hook");
+      await fs.mkdir(hookDir, { recursive: true });
+      await fs.writeFile(
+        path.join(hookDir, "HOOK.md"),
+        [
+          "---",
+          "name: symlink-hook",
+          "description: symlink test",
+          'metadata: {"openclaw":{"events":["command:new"]}}',
+          "---",
+          "",
+          "# Symlink Hook",
+        ].join("\n"),
+        "utf-8",
+      );
+      try {
+        await fs.symlink(outsideHandlerPath, path.join(hookDir, "handler.js"));
+      } catch {
+        return;
+      }
+
+      const cfg = createEnabledHooksConfig();
+
+      const count = await loadInternalHooks(cfg, tmpDir);
+      expect(count).toBe(0);
+      expect(getRegisteredEventKeys()).not.toContain("command:new");
+    });
+
+    it("rejects legacy handler modules that escape workspace via symlink", async () => {
+      const outsideHandlerPath = path.join(fixtureRoot, `outside-legacy-${caseId}.js`);
+      await fs.writeFile(outsideHandlerPath, "export default async function() {}", "utf-8");
+
+      const linkedHandlerPath = path.join(tmpDir, "legacy-handler.js");
+      try {
+        await fs.symlink(outsideHandlerPath, linkedHandlerPath);
+      } catch {
+        return;
+      }
+
+      const cfg = createEnabledHooksConfig([
+        {
+          event: "command:new",
+          module: "legacy-handler.js",
+        },
+      ]);
+
+      const count = await loadInternalHooks(cfg, tmpDir);
+      expect(count).toBe(0);
+      expect(getRegisteredEventKeys()).not.toContain("command:new");
+    });
+>>>>>>> d116bcfb1 (refactor(runtime): consolidate followup, gateway, and provider dedupe paths)
   });
 });

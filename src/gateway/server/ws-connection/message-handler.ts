@@ -636,6 +636,7 @@ export function attachGatewayWsMessageHandler(params: {
 
         const skipPairing = shouldSkipControlUiPairing(controlUiAuthPolicy, sharedAuthOk);
         if (device && devicePublicKey && !skipPairing) {
+<<<<<<< HEAD
           const requirePairing = async (reason: string, _paired?: { deviceId: string }) => {
             const pairing = await requestDevicePairing({
               deviceId: device.id,
@@ -648,6 +649,50 @@ export function attachGatewayWsMessageHandler(params: {
               scopes,
               remoteIp: reportedClientIp,
               silent: isLocalClient,
+=======
+          const formatAuditList = (items: string[] | undefined): string => {
+            if (!items || items.length === 0) {
+              return "<none>";
+            }
+            const out = new Set<string>();
+            for (const item of items) {
+              const trimmed = item.trim();
+              if (trimmed) {
+                out.add(trimmed);
+              }
+            }
+            if (out.size === 0) {
+              return "<none>";
+            }
+            return [...out].toSorted().join(",");
+          };
+          const logUpgradeAudit = (
+            reason: "role-upgrade" | "scope-upgrade",
+            currentRoles: string[] | undefined,
+            currentScopes: string[] | undefined,
+          ) => {
+            logGateway.warn(
+              `security audit: device access upgrade requested reason=${reason} device=${device.id} ip=${reportedClientIp ?? "unknown-ip"} auth=${authMethod} roleFrom=${formatAuditList(currentRoles)} roleTo=${role} scopesFrom=${formatAuditList(currentScopes)} scopesTo=${formatAuditList(scopes)} client=${connectParams.client.id} conn=${connId}`,
+            );
+          };
+          const clientAccessMetadata = {
+            displayName: connectParams.client.displayName,
+            platform: connectParams.client.platform,
+            clientId: connectParams.client.id,
+            clientMode: connectParams.client.mode,
+            role,
+            scopes,
+            remoteIp: reportedClientIp,
+          };
+          const requirePairing = async (
+            reason: "not-paired" | "role-upgrade" | "scope-upgrade",
+          ) => {
+            const pairing = await requestDevicePairing({
+              deviceId: device.id,
+              publicKey: devicePublicKey,
+              ...clientAccessMetadata,
+              silent: isLocalClient && reason === "not-paired",
+>>>>>>> d116bcfb1 (refactor(runtime): consolidate followup, gateway, and provider dedupe paths)
             });
             const context = buildRequestContext();
             if (pairing.request.silent === true) {
@@ -782,15 +827,7 @@ export function attachGatewayWsMessageHandler(params: {
               }
             }
 
-            await updatePairedDeviceMetadata(device.id, {
-              displayName: connectParams.client.displayName,
-              platform: connectParams.client.platform,
-              clientId: connectParams.client.id,
-              clientMode: connectParams.client.mode,
-              role,
-              scopes,
-              remoteIp: reportedClientIp,
-            });
+            await updatePairedDeviceMetadata(device.id, clientAccessMetadata);
           }
         }
 
