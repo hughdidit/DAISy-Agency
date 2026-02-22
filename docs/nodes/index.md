@@ -243,6 +243,11 @@ Notes:
 - `system.notify` respects notification permission state on the macOS app.
 - `system.run` supports `--cwd`, `--env KEY=VAL`, `--command-timeout`, and `--needs-screen-recording`.
 - For shell wrappers (`bash|sh|zsh ... -c/-lc`), request-scoped `--env` values are reduced to an explicit allowlist (`TERM`, `LANG`, `LC_*`, `COLORTERM`, `NO_COLOR`, `FORCE_COLOR`).
+<<<<<<< HEAD
+=======
+- For allow-always decisions in allowlist mode, known dispatch wrappers (`env`, `nice`, `nohup`, `stdbuf`, `timeout`) persist inner executable paths instead of wrapper paths. If unwrapping is not safe, no allowlist entry is persisted automatically.
+- On Windows node hosts in allowlist mode, shell-wrapper runs via `cmd.exe /c` require approval (allowlist entry alone does not auto-allow the wrapper form).
+>>>>>>> 24c954d97 (fix(security): harden allow-always wrapper persistence)
 - `system.notify` supports `--priority <passive|active|timeSensitive>` and `--delivery <system|overlay|auto>`.
 <<<<<<< HEAD
 - macOS nodes drop `PATH` overrides; headless node hosts only accept `PATH` when it prepends the node host PATH.

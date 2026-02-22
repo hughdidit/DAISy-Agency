@@ -141,7 +141,13 @@ the shell binary itself is allowlisted.
 =======
 For shell wrappers (`bash|sh|zsh ... -c/-lc`), request-scoped env overrides are reduced to a
 small explicit allowlist (`TERM`, `LANG`, `LC_*`, `COLORTERM`, `NO_COLOR`, `FORCE_COLOR`).
+<<<<<<< HEAD
 >>>>>>> e80c803fa (fix(security): block shell env allowlist bypass in system.run)
+=======
+For allow-always decisions in allowlist mode, known dispatch wrappers
+(`env`, `nice`, `nohup`, `stdbuf`, `timeout`) persist inner executable paths instead of wrapper
+paths. If a wrapper cannot be safely unwrapped, no allowlist entry is persisted automatically.
+>>>>>>> 24c954d97 (fix(security): harden allow-always wrapper persistence)
 
 Default safe bins: `jq`, `cut`, `uniq`, `head`, `tail`, `tr`, `wc`.
 
