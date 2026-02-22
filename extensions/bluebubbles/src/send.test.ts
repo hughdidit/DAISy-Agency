@@ -572,6 +572,7 @@ describe("send", () => {
     });
 
     it("uses private-api when reply metadata is present", async () => {
+<<<<<<< HEAD
       mockFetch
         .mockResolvedValueOnce({
           ok: true,
@@ -594,6 +595,11 @@ describe("send", () => {
               }),
             ),
         });
+=======
+      vi.mocked(getCachedBlueBubblesPrivateApiStatus).mockReturnValueOnce(true);
+      mockResolvedHandleTarget();
+      mockSendResponse({ data: { guid: "msg-uuid-124" } });
+>>>>>>> 37f12eb7e (fix: align BlueBubbles private-api null fallback + warning (#23459) (thanks @echoVic))
 
       const result = await sendMessageBlueBubbles("+15551234567", "Replying", {
         serverUrl: "http://localhost:1234",
@@ -613,6 +619,7 @@ describe("send", () => {
     });
 
     it("normalizes effect names and uses private-api for effects", async () => {
+<<<<<<< HEAD
       mockFetch
         .mockResolvedValueOnce({
           ok: true,
@@ -635,6 +642,11 @@ describe("send", () => {
               }),
             ),
         });
+=======
+      vi.mocked(getCachedBlueBubblesPrivateApiStatus).mockReturnValueOnce(true);
+      mockResolvedHandleTarget();
+      mockSendResponse({ data: { guid: "msg-uuid-125" } });
+>>>>>>> 37f12eb7e (fix: align BlueBubbles private-api null fallback + warning (#23459) (thanks @echoVic))
 
       const result = await sendMessageBlueBubbles("+15551234567", "Hello", {
         serverUrl: "http://localhost:1234",
@@ -649,6 +661,34 @@ describe("send", () => {
       const body = JSON.parse(sendCall[1].body);
       expect(body.method).toBe("private-api");
       expect(body.effectId).toBe("com.apple.MobileSMS.expressivesend.invisibleink");
+    });
+
+    it("warns and downgrades private-api features when status is unknown", async () => {
+      const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+      mockResolvedHandleTarget();
+      mockSendResponse({ data: { guid: "msg-uuid-unknown" } });
+
+      try {
+        const result = await sendMessageBlueBubbles("+15551234567", "Reply fallback", {
+          serverUrl: "http://localhost:1234",
+          password: "test",
+          replyToMessageGuid: "reply-guid-123",
+          effectId: "invisible ink",
+        });
+
+        expect(result.messageId).toBe("msg-uuid-unknown");
+        expect(warnSpy).toHaveBeenCalledTimes(1);
+        expect(warnSpy.mock.calls[0]?.[0]).toContain("Private API status unknown");
+
+        const sendCall = mockFetch.mock.calls[1];
+        const body = JSON.parse(sendCall[1].body);
+        expect(body.method).toBeUndefined();
+        expect(body.selectedMessageGuid).toBeUndefined();
+        expect(body.partIndex).toBeUndefined();
+        expect(body.effectId).toBeUndefined();
+      } finally {
+        warnSpy.mockRestore();
+      }
     });
 
     it("sends message with chat_guid target directly", async () => {
