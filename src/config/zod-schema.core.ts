@@ -132,6 +132,12 @@ export const QueueDropSchema = z.union([
   z.literal("summarize"),
 ]);
 export const ReplyToModeSchema = z.union([z.literal("off"), z.literal("first"), z.literal("all")]);
+export const TypingModeSchema = z.union([
+  z.literal("never"),
+  z.literal("instant"),
+  z.literal("thinking"),
+  z.literal("message"),
+]);
 
 // GroupPolicySchema: controls how group messages are handled
 // Used with .default("allowlist").optional() pattern:

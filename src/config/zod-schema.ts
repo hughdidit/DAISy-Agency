@@ -79,6 +79,16 @@ const MemoryQmdMcporterSchema = z
   })
   .strict();
 
+const LoggingLevelSchema = z.union([
+  z.literal("silent"),
+  z.literal("fatal"),
+  z.literal("error"),
+  z.literal("warn"),
+  z.literal("info"),
+  z.literal("debug"),
+  z.literal("trace"),
+]);
+
 const MemoryQmdSchema = z
   .object({
     command: z.string().optional(),
@@ -177,30 +187,10 @@ export const OpenClawSchema = z
       .optional(),
     logging: z
       .object({
-        level: z
-          .union([
-            z.literal("silent"),
-            z.literal("fatal"),
-            z.literal("error"),
-            z.literal("warn"),
-            z.literal("info"),
-            z.literal("debug"),
-            z.literal("trace"),
-          ])
-          .optional(),
+        level: LoggingLevelSchema.optional(),
         file: z.string().optional(),
         maxFileBytes: z.number().int().positive().optional(),
-        consoleLevel: z
-          .union([
-            z.literal("silent"),
-            z.literal("fatal"),
-            z.literal("error"),
-            z.literal("warn"),
-            z.literal("info"),
-            z.literal("debug"),
-            z.literal("trace"),
-          ])
-          .optional(),
+        consoleLevel: LoggingLevelSchema.optional(),
         consoleStyle: z
           .union([z.literal("pretty"), z.literal("compact"), z.literal("json")])
           .optional(),
