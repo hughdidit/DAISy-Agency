@@ -78,7 +78,9 @@ import { loadConfig } from "../../config/config.js";
 import type { GroupPolicy } from "../../config/types.base.js";
 =======
 import {
+  GROUP_POLICY_BLOCKED_LABEL,
   resolveOpenProviderRuntimeGroupPolicy,
+  resolveDefaultGroupPolicy,
   warnMissingProviderGroupPolicyFallbackOnce,
 } from "../../config/runtime-group-policy.js";
 >>>>>>> 85e5ed3f7 (refactor(channels): centralize runtime group policy handling)
@@ -383,10 +385,17 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
   const discordRootThreadBindings = cfg.channels?.discord?.threadBindings;
   const discordAccountThreadBindings =
     cfg.channels?.discord?.accounts?.[account.accountId]?.threadBindings;
+<<<<<<< HEAD
   const discordRestFetch = resolveDiscordRestFetch(discordCfg.proxy, runtime);
   const dmConfig = discordCfg.dm;
   let guildEntries = discordCfg.guilds;
   const defaultGroupPolicy = cfg.channels?.defaults?.groupPolicy;
+=======
+  const discordRestFetch = resolveDiscordRestFetch(rawDiscordCfg.proxy, runtime);
+  const dmConfig = rawDiscordCfg.dm;
+  let guildEntries = rawDiscordCfg.guilds;
+  const defaultGroupPolicy = resolveDefaultGroupPolicy(cfg);
+>>>>>>> 6dd36a6b7 (refactor(channels): reuse runtime group policy helpers)
   const providerConfigPresent = cfg.channels?.discord !== undefined;
   const { groupPolicy, providerMissingFallbackApplied } = resolveOpenProviderRuntimeGroupPolicy({
     providerConfigPresent,
@@ -408,7 +417,7 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
     providerMissingFallbackApplied,
     providerKey: "discord",
     accountId: account.accountId,
-    blockedLabel: "guild messages",
+    blockedLabel: GROUP_POLICY_BLOCKED_LABEL.guild,
     log: (message) => runtime.log?.(warn(message)),
   });
 >>>>>>> 85e5ed3f7 (refactor(channels): centralize runtime group policy handling)
@@ -1046,6 +1055,7 @@ export const __testing = {
   createDiscordGatewayPlugin,
   dedupeSkillCommandsForDiscord,
   resolveDiscordRuntimeGroupPolicy: resolveOpenProviderRuntimeGroupPolicy,
+  resolveDefaultGroupPolicy,
   resolveDiscordRestFetch,
   resolveThreadBindingsEnabled,
 };

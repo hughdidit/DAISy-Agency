@@ -3,6 +3,7 @@ import { loadConfig } from "../../config/config.js";
 =======
 import {
   resolveOpenProviderRuntimeGroupPolicy,
+  resolveDefaultGroupPolicy,
   warnMissingProviderGroupPolicyFallbackOnce,
 } from "../../config/runtime-group-policy.js";
 >>>>>>> 85e5ed3f7 (refactor(channels): centralize runtime group policy handling)
@@ -107,10 +108,14 @@ export async function checkInboundAccessControl(params: {
   // - "open": groups bypass allowFrom, only mention-gating applies
   // - "disabled": block all group messages entirely
   // - "allowlist": only allow group messages from senders in groupAllowFrom/allowFrom
+<<<<<<< HEAD
   const defaultGroupPolicy = cfg.channels?.defaults?.groupPolicy;
 <<<<<<< HEAD
   const groupPolicy = account.groupPolicy ?? defaultGroupPolicy ?? "open";
 =======
+=======
+  const defaultGroupPolicy = resolveDefaultGroupPolicy(cfg);
+>>>>>>> 6dd36a6b7 (refactor(channels): reuse runtime group policy helpers)
   const { groupPolicy, providerMissingFallbackApplied } = resolveWhatsAppRuntimeGroupPolicy({
     providerConfigPresent: cfg.channels?.whatsapp !== undefined,
     groupPolicy: account.groupPolicy,

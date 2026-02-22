@@ -12,6 +12,7 @@ import type { OpenClawConfig } from "../config/config.js";
 =======
 import {
   resolveAllowlistProviderRuntimeGroupPolicy,
+  resolveDefaultGroupPolicy,
   warnMissingProviderGroupPolicyFallbackOnce,
 } from "../config/runtime-group-policy.js";
 >>>>>>> 85e5ed3f7 (refactor(channels): centralize runtime group policy handling)
@@ -136,11 +137,15 @@ async function shouldProcessLineEvent(
     allowFrom: groupAllowFrom,
     storeAllowFrom,
   });
+<<<<<<< HEAD
   const dmPolicy = account.config.dmPolicy ?? "pairing";
   const defaultGroupPolicy = cfg.channels?.defaults?.groupPolicy;
 <<<<<<< HEAD
   const groupPolicy = account.config.groupPolicy ?? defaultGroupPolicy ?? "allowlist";
 =======
+=======
+  const defaultGroupPolicy = resolveDefaultGroupPolicy(cfg);
+>>>>>>> 6dd36a6b7 (refactor(channels): reuse runtime group policy helpers)
   const { groupPolicy, providerMissingFallbackApplied } =
     resolveAllowlistProviderRuntimeGroupPolicy({
       providerConfigPresent: cfg.channels?.line !== undefined,

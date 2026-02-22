@@ -14,6 +14,7 @@ import { loadConfig } from "../../config/config.js";
 =======
 import {
   resolveOpenProviderRuntimeGroupPolicy,
+  resolveDefaultGroupPolicy,
   warnMissingProviderGroupPolicyFallbackOnce,
 } from "../../config/runtime-group-policy.js";
 >>>>>>> 85e5ed3f7 (refactor(channels): centralize runtime group policy handling)
@@ -129,7 +130,7 @@ export async function monitorSlackProvider(opts: MonitorSlackOpts = {}) {
   const groupDmEnabled = dmConfig?.groupEnabled ?? false;
   const groupDmChannels = dmConfig?.groupChannels;
   let channelsConfig = slackCfg.channels;
-  const defaultGroupPolicy = cfg.channels?.defaults?.groupPolicy;
+  const defaultGroupPolicy = resolveDefaultGroupPolicy(cfg);
   const providerConfigPresent = cfg.channels?.slack !== undefined;
   const { groupPolicy, providerMissingFallbackApplied } = resolveOpenProviderRuntimeGroupPolicy({
     providerConfigPresent,
@@ -380,4 +381,5 @@ export async function monitorSlackProvider(opts: MonitorSlackOpts = {}) {
 
 export const __testing = {
   resolveSlackRuntimeGroupPolicy: resolveOpenProviderRuntimeGroupPolicy,
+  resolveDefaultGroupPolicy,
 };

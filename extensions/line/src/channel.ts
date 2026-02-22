@@ -6,7 +6,11 @@ import {
 <<<<<<< HEAD
 =======
   resolveAllowlistProviderRuntimeGroupPolicy,
+<<<<<<< HEAD
 >>>>>>> 85e5ed3f7 (refactor(channels): centralize runtime group policy handling)
+=======
+  resolveDefaultGroupPolicy,
+>>>>>>> 6dd36a6b7 (refactor(channels): reuse runtime group policy helpers)
   type ChannelPlugin,
   type ChannelStatusIssue,
   type OpenClawConfig,
@@ -165,11 +169,15 @@ export const linePlugin: ChannelPlugin<ResolvedLineAccount> = {
     },
     collectWarnings: ({ account, cfg }) => {
 <<<<<<< HEAD
+<<<<<<< HEAD
       const defaultGroupPolicy = (cfg.channels?.defaults as { groupPolicy?: string } | undefined)
         ?.groupPolicy;
       const groupPolicy = account.config.groupPolicy ?? defaultGroupPolicy ?? "allowlist";
 =======
       const defaultGroupPolicy = cfg.channels?.defaults?.groupPolicy;
+=======
+      const defaultGroupPolicy = resolveDefaultGroupPolicy(cfg);
+>>>>>>> 6dd36a6b7 (refactor(channels): reuse runtime group policy helpers)
       const { groupPolicy } = resolveAllowlistProviderRuntimeGroupPolicy({
         providerConfigPresent: cfg.channels?.line !== undefined,
         groupPolicy: account.config.groupPolicy,

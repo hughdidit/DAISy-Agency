@@ -1,10 +1,12 @@
 import {
+  GROUP_POLICY_BLOCKED_LABEL,
   createReplyPrefixOptions,
   logInboundDrop,
   resolveControlCommandGate,
 <<<<<<< HEAD
 =======
   resolveAllowlistProviderRuntimeGroupPolicy,
+  resolveDefaultGroupPolicy,
   warnMissingProviderGroupPolicyFallbackOnce,
 >>>>>>> 85e5ed3f7 (refactor(channels): centralize runtime group policy handling)
   type OpenClawConfig,
@@ -90,6 +92,7 @@ export async function handleNextcloudTalkInbound(params: {
 
   const dmPolicy = account.config.dmPolicy ?? "pairing";
 <<<<<<< HEAD
+<<<<<<< HEAD
   const defaultGroupPolicy = (config.channels as Record<string, unknown> | undefined)?.defaults as
     | { groupPolicy?: string }
     | undefined;
@@ -102,6 +105,9 @@ export async function handleNextcloudTalkInbound(params: {
       | { groupPolicy?: string }
       | undefined
   )?.groupPolicy as GroupPolicy | undefined;
+=======
+  const defaultGroupPolicy = resolveDefaultGroupPolicy(config as OpenClawConfig);
+>>>>>>> 6dd36a6b7 (refactor(channels): reuse runtime group policy helpers)
   const { groupPolicy, providerMissingFallbackApplied } =
     resolveAllowlistProviderRuntimeGroupPolicy({
       providerConfigPresent:
@@ -114,7 +120,7 @@ export async function handleNextcloudTalkInbound(params: {
     providerMissingFallbackApplied,
     providerKey: "nextcloud-talk",
     accountId: account.accountId,
-    blockedLabel: "room messages",
+    blockedLabel: GROUP_POLICY_BLOCKED_LABEL.room,
     log: (message) => runtime.log?.(message),
   });
 >>>>>>> 85e5ed3f7 (refactor(channels): centralize runtime group policy handling)

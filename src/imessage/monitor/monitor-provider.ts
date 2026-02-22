@@ -22,6 +22,7 @@ import { danger, logVerbose, shouldLogVerbose } from "../../globals.js";
 =======
 import {
   resolveOpenProviderRuntimeGroupPolicy,
+  resolveDefaultGroupPolicy,
   warnMissingProviderGroupPolicyFallbackOnce,
 } from "../../config/runtime-group-policy.js";
 import { readSessionUpdatedAt, resolveStorePath } from "../../config/sessions.js";
@@ -147,10 +148,14 @@ export async function monitorIMessageProvider(opts: MonitorIMessageOpts = {}): P
       imessageCfg.groupAllowFrom ??
       (imessageCfg.allowFrom && imessageCfg.allowFrom.length > 0 ? imessageCfg.allowFrom : []),
   );
+<<<<<<< HEAD
   const defaultGroupPolicy = cfg.channels?.defaults?.groupPolicy;
 <<<<<<< HEAD
   const groupPolicy = imessageCfg.groupPolicy ?? defaultGroupPolicy ?? "open";
 =======
+=======
+  const defaultGroupPolicy = resolveDefaultGroupPolicy(cfg);
+>>>>>>> 6dd36a6b7 (refactor(channels): reuse runtime group policy helpers)
   const { groupPolicy, providerMissingFallbackApplied } = resolveOpenProviderRuntimeGroupPolicy({
     providerConfigPresent: cfg.channels?.imessage !== undefined,
     groupPolicy: imessageCfg.groupPolicy,
@@ -497,5 +502,6 @@ export async function monitorIMessageProvider(opts: MonitorIMessageOpts = {}): P
 
 export const __testing = {
   resolveIMessageRuntimeGroupPolicy: resolveOpenProviderRuntimeGroupPolicy,
+  resolveDefaultGroupPolicy,
 };
 >>>>>>> 85e5ed3f7 (refactor(channels): centralize runtime group policy handling)

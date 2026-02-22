@@ -20,7 +20,11 @@ import {
 <<<<<<< HEAD
 =======
   resolveAllowlistProviderRuntimeGroupPolicy,
+<<<<<<< HEAD
 >>>>>>> 85e5ed3f7 (refactor(channels): centralize runtime group policy handling)
+=======
+  resolveDefaultGroupPolicy,
+>>>>>>> 6dd36a6b7 (refactor(channels): reuse runtime group policy helpers)
   resolveTelegramAccount,
   resolveTelegramGroupRequireMention,
   resolveTelegramGroupToolPolicy,
@@ -145,10 +149,14 @@ export const telegramPlugin: ChannelPlugin<ResolvedTelegramAccount, TelegramProb
       };
     },
     collectWarnings: ({ account, cfg }) => {
+<<<<<<< HEAD
       const defaultGroupPolicy = cfg.channels?.defaults?.groupPolicy;
 <<<<<<< HEAD
       const groupPolicy = account.config.groupPolicy ?? defaultGroupPolicy ?? "allowlist";
 =======
+=======
+      const defaultGroupPolicy = resolveDefaultGroupPolicy(cfg);
+>>>>>>> 6dd36a6b7 (refactor(channels): reuse runtime group policy helpers)
       const { groupPolicy } = resolveAllowlistProviderRuntimeGroupPolicy({
         providerConfigPresent: cfg.channels?.telegram !== undefined,
         groupPolicy: account.config.groupPolicy,

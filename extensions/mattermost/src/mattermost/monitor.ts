@@ -19,7 +19,11 @@ import {
 <<<<<<< HEAD
 =======
   resolveAllowlistProviderRuntimeGroupPolicy,
+<<<<<<< HEAD
 >>>>>>> 85e5ed3f7 (refactor(channels): centralize runtime group policy handling)
+=======
+  resolveDefaultGroupPolicy,
+>>>>>>> 6dd36a6b7 (refactor(channels): reuse runtime group policy helpers)
   resolveChannelMediaMaxBytes,
   warnMissingProviderGroupPolicyFallbackOnce,
   type HistoryEntry,
@@ -251,8 +255,12 @@ export async function monitorMattermostProvider(opts: MonitorMattermostOpts = {}
   );
   const channelHistories = new Map<string, HistoryEntry[]>();
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   const defaultGroupPolicy = cfg.channels?.defaults?.groupPolicy;
+=======
+  const defaultGroupPolicy = resolveDefaultGroupPolicy(cfg);
+>>>>>>> 6dd36a6b7 (refactor(channels): reuse runtime group policy helpers)
   const { groupPolicy, providerMissingFallbackApplied } =
     resolveAllowlistProviderRuntimeGroupPolicy({
       providerConfigPresent: cfg.channels?.mattermost !== undefined,

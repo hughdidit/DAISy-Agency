@@ -6,7 +6,11 @@ import {
 <<<<<<< HEAD
 =======
   resolveOpenProviderRuntimeGroupPolicy,
+<<<<<<< HEAD
 >>>>>>> 85e5ed3f7 (refactor(channels): centralize runtime group policy handling)
+=======
+  resolveDefaultGroupPolicy,
+>>>>>>> 6dd36a6b7 (refactor(channels): reuse runtime group policy helpers)
   resolveSenderCommandAuthorization,
   summarizeMapping,
   warnMissingProviderGroupPolicyFallbackOnce,
@@ -182,10 +186,14 @@ async function processMessage(
   const groupName = metadata?.threadName ?? "";
   const chatId = threadId;
 
+<<<<<<< HEAD
   const defaultGroupPolicy = config.channels?.defaults?.groupPolicy;
 <<<<<<< HEAD
   const groupPolicy = account.config.groupPolicy ?? defaultGroupPolicy ?? "open";
 =======
+=======
+  const defaultGroupPolicy = resolveDefaultGroupPolicy(config);
+>>>>>>> 6dd36a6b7 (refactor(channels): reuse runtime group policy helpers)
   const { groupPolicy, providerMissingFallbackApplied } = resolveOpenProviderRuntimeGroupPolicy({
     providerConfigPresent: config.channels?.zalouser !== undefined,
     groupPolicy: account.config.groupPolicy,

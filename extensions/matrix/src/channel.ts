@@ -9,7 +9,11 @@ import {
 <<<<<<< HEAD
 =======
   resolveAllowlistProviderRuntimeGroupPolicy,
+<<<<<<< HEAD
 >>>>>>> 85e5ed3f7 (refactor(channels): centralize runtime group policy handling)
+=======
+  resolveDefaultGroupPolicy,
+>>>>>>> 6dd36a6b7 (refactor(channels): reuse runtime group policy helpers)
   setAccountEnabledInConfigSection,
   type ChannelPlugin,
 } from "openclaw/plugin-sdk";
@@ -160,10 +164,14 @@ export const matrixPlugin: ChannelPlugin<ResolvedMatrixAccount> = {
       normalizeEntry: (raw) => normalizeMatrixUserId(raw),
     }),
     collectWarnings: ({ account, cfg }) => {
+<<<<<<< HEAD
       const defaultGroupPolicy = (cfg as CoreConfig).channels?.defaults?.groupPolicy;
 <<<<<<< HEAD
       const groupPolicy = account.config.groupPolicy ?? defaultGroupPolicy ?? "allowlist";
 =======
+=======
+      const defaultGroupPolicy = resolveDefaultGroupPolicy(cfg as CoreConfig);
+>>>>>>> 6dd36a6b7 (refactor(channels): reuse runtime group policy helpers)
       const { groupPolicy } = resolveAllowlistProviderRuntimeGroupPolicy({
         providerConfigPresent: (cfg as CoreConfig).channels?.matrix !== undefined,
         groupPolicy: account.config.groupPolicy,
