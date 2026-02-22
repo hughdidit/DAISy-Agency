@@ -15,6 +15,7 @@ import type { OpenClawConfig } from "../config/config.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { RuntimeEnv } from "../runtime.js";
@@ -28,6 +29,12 @@ import type { LineGroupConfig, ResolvedLineAccount } from "./types.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 =======
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
+=======
+import {
+  resolveAllowlistProviderRuntimeGroupPolicy,
+  warnMissingProviderGroupPolicyFallbackOnce,
+} from "../config/runtime-group-policy.js";
+>>>>>>> 85e5ed3f7 (refactor(channels): centralize runtime group policy handling)
 import { danger, logVerbose } from "../globals.js";
 import { resolvePairingIdLabel } from "../pairing/pairing-labels.js";
 import { buildPairingReply } from "../pairing/pairing-messages.js";
@@ -169,7 +176,22 @@ async function shouldProcessLineEvent(
   });
   const dmPolicy = account.config.dmPolicy ?? "pairing";
   const defaultGroupPolicy = cfg.channels?.defaults?.groupPolicy;
+<<<<<<< HEAD
   const groupPolicy = account.config.groupPolicy ?? defaultGroupPolicy ?? "allowlist";
+=======
+  const { groupPolicy, providerMissingFallbackApplied } =
+    resolveAllowlistProviderRuntimeGroupPolicy({
+      providerConfigPresent: cfg.channels?.line !== undefined,
+      groupPolicy: account.config.groupPolicy,
+      defaultGroupPolicy,
+    });
+  warnMissingProviderGroupPolicyFallbackOnce({
+    providerMissingFallbackApplied,
+    providerKey: "line",
+    accountId: account.accountId,
+    log: (message) => logVerbose(message),
+  });
+>>>>>>> 85e5ed3f7 (refactor(channels): centralize runtime group policy handling)
 
   if (isGroup) {
     if (groupConfig?.enabled === false) {

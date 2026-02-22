@@ -22,7 +22,12 @@ import {
   DEFAULT_GROUP_HISTORY_LIMIT,
   recordPendingHistoryEntryIfEnabled,
   resolveControlCommandGate,
+<<<<<<< HEAD
+=======
+  resolveAllowlistProviderRuntimeGroupPolicy,
+>>>>>>> 85e5ed3f7 (refactor(channels): centralize runtime group policy handling)
   resolveChannelMediaMaxBytes,
+  warnMissingProviderGroupPolicyFallbackOnce,
   type HistoryEntry,
 <<<<<<< HEAD
 } from "clawdbot/plugin-sdk";
@@ -256,6 +261,22 @@ export async function monitorMattermostProvider(opts: MonitorMattermostOpts = {}
     cfg.messages?.groupChat?.historyLimit ?? DEFAULT_GROUP_HISTORY_LIMIT,
   );
   const channelHistories = new Map<string, HistoryEntry[]>();
+<<<<<<< HEAD
+=======
+  const defaultGroupPolicy = cfg.channels?.defaults?.groupPolicy;
+  const { groupPolicy, providerMissingFallbackApplied } =
+    resolveAllowlistProviderRuntimeGroupPolicy({
+      providerConfigPresent: cfg.channels?.mattermost !== undefined,
+      groupPolicy: account.config.groupPolicy,
+      defaultGroupPolicy,
+    });
+  warnMissingProviderGroupPolicyFallbackOnce({
+    providerMissingFallbackApplied,
+    providerKey: "mattermost",
+    accountId: account.accountId,
+    log: (message) => logVerboseMessage(message),
+  });
+>>>>>>> 85e5ed3f7 (refactor(channels): centralize runtime group policy handling)
 
   const fetchWithAuth: FetchLike = (input, init) => {
     const headers = new Headers(init?.headers);

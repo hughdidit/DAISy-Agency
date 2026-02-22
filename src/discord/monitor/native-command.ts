@@ -115,7 +115,11 @@ import { resolveCommandAuthorizedFromAuthorizers } from "../../channels/command-
 import { createReplyPrefixOptions } from "../../channels/reply-prefix.js";
 import type { OpenClawConfig, loadConfig } from "../../config/config.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+import { resolveOpenProviderRuntimeGroupPolicy } from "../../config/runtime-group-policy.js";
+>>>>>>> 85e5ed3f7 (refactor(channels): centralize runtime group policy handling)
 import { loadSessionStore, resolveStorePath } from "../../config/sessions.js";
 import { logVerbose } from "../../globals.js";
 import { createSubsystemLogger } from "../../logging/subsystem.js";
@@ -1387,6 +1391,14 @@ async function dispatchDiscordCommandInteraction(params: {
     const channelAllowlistConfigured =
       Boolean(guildInfo?.channels) && Object.keys(guildInfo?.channels ?? {}).length > 0;
     const channelAllowed = channelConfig?.allowed !== false;
+<<<<<<< HEAD
+=======
+    const { groupPolicy } = resolveOpenProviderRuntimeGroupPolicy({
+      providerConfigPresent: cfg.channels?.discord !== undefined,
+      groupPolicy: discordConfig?.groupPolicy,
+      defaultGroupPolicy: cfg.channels?.defaults?.groupPolicy,
+    });
+>>>>>>> 85e5ed3f7 (refactor(channels): centralize runtime group policy handling)
     const allowByPolicy = isDiscordGroupAllowedByPolicy({
       groupPolicy: discordConfig?.groupPolicy ?? "open",
       guildAllowlisted: Boolean(guildInfo),

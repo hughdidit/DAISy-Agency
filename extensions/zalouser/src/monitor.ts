@@ -13,8 +13,13 @@ import { createReplyPrefixOptions, mergeAllowlist, summarizeMapping } from "open
 import {
   createReplyPrefixOptions,
   mergeAllowlist,
+<<<<<<< HEAD
+=======
+  resolveOpenProviderRuntimeGroupPolicy,
+>>>>>>> 85e5ed3f7 (refactor(channels): centralize runtime group policy handling)
   resolveSenderCommandAuthorization,
   summarizeMapping,
+  warnMissingProviderGroupPolicyFallbackOnce,
 } from "openclaw/plugin-sdk";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -218,7 +223,21 @@ async function processMessage(
   const chatId = threadId;
 
   const defaultGroupPolicy = config.channels?.defaults?.groupPolicy;
+<<<<<<< HEAD
   const groupPolicy = account.config.groupPolicy ?? defaultGroupPolicy ?? "open";
+=======
+  const { groupPolicy, providerMissingFallbackApplied } = resolveOpenProviderRuntimeGroupPolicy({
+    providerConfigPresent: config.channels?.zalouser !== undefined,
+    groupPolicy: account.config.groupPolicy,
+    defaultGroupPolicy,
+  });
+  warnMissingProviderGroupPolicyFallbackOnce({
+    providerMissingFallbackApplied,
+    providerKey: "zalouser",
+    accountId: account.accountId,
+    log: (message) => logVerbose(core, runtime, message),
+  });
+>>>>>>> 85e5ed3f7 (refactor(channels): centralize runtime group policy handling)
   const groups = account.config.groups ?? {};
   if (isGroup) {
     if (groupPolicy === "disabled") {

@@ -6,8 +6,14 @@ import {
   DEFAULT_ACCOUNT_ID,
   MSTeamsConfigSchema,
   PAIRING_APPROVED_MESSAGE,
+<<<<<<< HEAD
 } from "clawdbot/plugin-sdk";
 
+=======
+  resolveAllowlistProviderRuntimeGroupPolicy,
+} from "openclaw/plugin-sdk";
+import { listMSTeamsDirectoryGroupsLive, listMSTeamsDirectoryPeersLive } from "./directory-live.js";
+>>>>>>> 85e5ed3f7 (refactor(channels): centralize runtime group policy handling)
 import { msteamsOnboardingAdapter } from "./onboarding.js";
 import { msteamsOutbound } from "./outbound.js";
 import { probeMSTeams } from "./probe.js";
@@ -129,7 +135,15 @@ export const msteamsPlugin: ChannelPlugin<ResolvedMSTeamsAccount> = {
   security: {
     collectWarnings: ({ cfg }) => {
       const defaultGroupPolicy = cfg.channels?.defaults?.groupPolicy;
+<<<<<<< HEAD
       const groupPolicy = cfg.channels?.msteams?.groupPolicy ?? defaultGroupPolicy ?? "allowlist";
+=======
+      const { groupPolicy } = resolveAllowlistProviderRuntimeGroupPolicy({
+        providerConfigPresent: cfg.channels?.msteams !== undefined,
+        groupPolicy: cfg.channels?.msteams?.groupPolicy,
+        defaultGroupPolicy,
+      });
+>>>>>>> 85e5ed3f7 (refactor(channels): centralize runtime group policy handling)
       if (groupPolicy !== "open") {
         return [];
       }

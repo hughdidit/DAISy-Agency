@@ -1,5 +1,9 @@
 import type { OpenClawConfig } from "../config/config.js";
 import type { ChannelGroupPolicy } from "../config/group-policy.js";
+<<<<<<< HEAD
+=======
+import { resolveOpenProviderRuntimeGroupPolicy } from "../config/runtime-group-policy.js";
+>>>>>>> 85e5ed3f7 (refactor(channels): centralize runtime group policy handling)
 import type {
   TelegramAccountConfig,
   TelegramGroupConfig,
@@ -72,6 +76,20 @@ export type TelegramGroupPolicyAccessResult =
       groupPolicy: "open" | "disabled" | "allowlist";
     };
 
+<<<<<<< HEAD
+=======
+export const resolveTelegramRuntimeGroupPolicy = (params: {
+  providerConfigPresent: boolean;
+  groupPolicy?: TelegramAccountConfig["groupPolicy"];
+  defaultGroupPolicy?: TelegramAccountConfig["groupPolicy"];
+}) =>
+  resolveOpenProviderRuntimeGroupPolicy({
+    providerConfigPresent: params.providerConfigPresent,
+    groupPolicy: params.groupPolicy,
+    defaultGroupPolicy: params.defaultGroupPolicy,
+  });
+
+>>>>>>> 85e5ed3f7 (refactor(channels): centralize runtime group policy handling)
 export const evaluateTelegramGroupPolicyAccess = (params: {
   isGroup: boolean;
   chatId: string | number;

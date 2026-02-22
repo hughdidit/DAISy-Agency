@@ -2,7 +2,13 @@ import {
   createReplyPrefixOptions,
   logInboundDrop,
   resolveControlCommandGate,
+<<<<<<< HEAD
   type MoltbotConfig,
+=======
+  resolveAllowlistProviderRuntimeGroupPolicy,
+  warnMissingProviderGroupPolicyFallbackOnce,
+  type OpenClawConfig,
+>>>>>>> 85e5ed3f7 (refactor(channels): centralize runtime group policy handling)
   type RuntimeEnv,
 } from "clawdbot/plugin-sdk";
 
@@ -124,12 +130,35 @@ export async function handleNextcloudTalkInbound(params: {
   statusSink?.({ lastInboundAt: message.timestamp });
 
   const dmPolicy = account.config.dmPolicy ?? "pairing";
+<<<<<<< HEAD
   const defaultGroupPolicy = (config.channels as Record<string, unknown> | undefined)?.defaults as
     | { groupPolicy?: string }
     | undefined;
   const groupPolicy = (account.config.groupPolicy ??
     defaultGroupPolicy?.groupPolicy ??
     "allowlist") as GroupPolicy;
+=======
+  const defaultGroupPolicy = (
+    (config.channels as Record<string, unknown> | undefined)?.defaults as
+      | { groupPolicy?: string }
+      | undefined
+  )?.groupPolicy as GroupPolicy | undefined;
+  const { groupPolicy, providerMissingFallbackApplied } =
+    resolveAllowlistProviderRuntimeGroupPolicy({
+      providerConfigPresent:
+        ((config.channels as Record<string, unknown> | undefined)?.["nextcloud-talk"] ??
+          undefined) !== undefined,
+      groupPolicy: account.config.groupPolicy as GroupPolicy | undefined,
+      defaultGroupPolicy,
+    });
+  warnMissingProviderGroupPolicyFallbackOnce({
+    providerMissingFallbackApplied,
+    providerKey: "nextcloud-talk",
+    accountId: account.accountId,
+    blockedLabel: "room messages",
+    log: (message) => runtime.log?.(message),
+  });
+>>>>>>> 85e5ed3f7 (refactor(channels): centralize runtime group policy handling)
 
   const configAllowFrom = normalizeNextcloudTalkAllowlist(account.config.allowFrom);
   const configGroupAllowFrom = normalizeNextcloudTalkAllowlist(account.config.groupAllowFrom);
