@@ -225,6 +225,7 @@ export const feishuPlugin: ChannelPlugin<ResolvedFeishuAccount> = {
     collectWarnings: ({ cfg, accountId }) => {
       const account = resolveFeishuAccount({ cfg, accountId });
       const feishuCfg = account.config;
+<<<<<<< HEAD
       const defaultGroupPolicy = (
         cfg.channels as Record<string, { groupPolicy?: string }> | undefined
       )?.defaults?.groupPolicy;
@@ -234,6 +235,9 @@ export const feishuPlugin: ChannelPlugin<ResolvedFeishuAccount> = {
         return [];
       }
 =======
+=======
+      const defaultGroupPolicy = cfg.channels?.defaults?.groupPolicy;
+>>>>>>> 26763d191 (fix: resolve extension type errors and harden probe mocks)
       const { groupPolicy } = resolveRuntimeGroupPolicy({
         providerConfigPresent: cfg.channels?.feishu !== undefined,
         groupPolicy: feishuCfg?.groupPolicy,
