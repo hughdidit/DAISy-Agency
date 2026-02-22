@@ -46,6 +46,27 @@ export function serveAcpGateway(opts: AcpServerOptions = {}): Promise<void> {
     onClosed = resolve;
   });
   let stopped = false;
+  let onGatewayReadyResolve!: () => void;
+  let onGatewayReadyReject!: (err: Error) => void;
+  let gatewayReadySettled = false;
+  const gatewayReady = new Promise<void>((resolve, reject) => {
+    onGatewayReadyResolve = resolve;
+    onGatewayReadyReject = reject;
+  });
+  const resolveGatewayReady = () => {
+    if (gatewayReadySettled) {
+      return;
+    }
+    gatewayReadySettled = true;
+    onGatewayReadyResolve();
+  };
+  const rejectGatewayReady = (err: unknown) => {
+    if (gatewayReadySettled) {
+      return;
+    }
+    gatewayReadySettled = true;
+    onGatewayReadyReject(err instanceof Error ? err : new Error(String(err)));
+  };
 
   const gateway = new GatewayClient({
     url: connection.url,
@@ -59,9 +80,16 @@ export function serveAcpGateway(opts: AcpServerOptions = {}): Promise<void> {
       void agent?.handleGatewayEvent(evt);
     },
     onHelloOk: () => {
+      resolveGatewayReady();
       agent?.handleGatewayReconnect();
     },
+    onConnectError: (err) => {
+      rejectGatewayReady(err);
+    },
     onClose: (code, reason) => {
+      if (!stopped) {
+        rejectGatewayReady(new Error(`gateway closed before ready (${code}): ${reason}`));
+      }
       agent?.handleGatewayDisconnect(`${code}: ${reason}`);
       // Resolve only on intentional shutdown (gateway.stop() sets closed
       // which skips scheduleReconnect, then fires onClose).  Transient
@@ -77,6 +105,7 @@ export function serveAcpGateway(opts: AcpServerOptions = {}): Promise<void> {
       return;
     }
     stopped = true;
+    resolveGatewayReady();
     gateway.stop();
     // If no WebSocket is active (e.g. between reconnect attempts),
     // gateway.stop() won't trigger onClose, so resolve directly.
@@ -86,6 +115,19 @@ export function serveAcpGateway(opts: AcpServerOptions = {}): Promise<void> {
   process.once("SIGINT", shutdown);
   process.once("SIGTERM", shutdown);
 
+<<<<<<< HEAD
+=======
+  // Start gateway first and wait for hello before accepting ACP requests.
+  gateway.start();
+  await gatewayReady.catch((err) => {
+    shutdown();
+    throw err;
+  });
+  if (stopped) {
+    return closed;
+  }
+
+>>>>>>> 9f0b6a8c9 (fix: harden ACP gateway startup sequencing (#23390) (thanks @janckerchen))
   const input = Writable.toWeb(process.stdout);
   const output = Readable.toWeb(process.stdin) as unknown as ReadableStream<Uint8Array>;
   const stream = ndJsonStream(input, output);
