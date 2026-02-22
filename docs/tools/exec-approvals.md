@@ -125,7 +125,14 @@ are treated as allowlisted on nodes (macOS node or headless node host). This use
 that can run in allowlist mode **without** explicit allowlist entries. Safe bins reject
 positional file args and path-like tokens, so they can only operate on the incoming stream.
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+Treat this as a narrow fast-path for stream filters, not a general trust list.
+Do **not** add interpreter or runtime binaries (for example `python3`, `node`, `ruby`, `bash`, `sh`, `zsh`) to `safeBins`.
+If a command can evaluate code, execute subcommands, or read files by design, prefer explicit allowlist entries and keep approval prompts enabled.
+Custom safe bins must define an explicit profile in `tools.exec.safeBinProfiles.<bin>`.
+>>>>>>> 47c3f742b (fix(exec): require explicit safe-bin profiles)
 Validation is deterministic from argv shape only (no host filesystem existence checks), which
 prevents file-existence oracle behavior from allow/deny differences.
 File-oriented options are denied for default safe bins (for example `sort -o`, `sort --output`,
@@ -157,6 +164,42 @@ Command substitution (`$()` / backticks) is rejected during allowlist parsing, i
 double quotes; use single quotes if you need literal `$()` text.
 
 Default safe bins: `jq`, `grep`, `cut`, `sort`, `uniq`, `head`, `tail`, `tr`, `wc`.
+
+### Safe bins versus allowlist
+
+| Topic            | `tools.exec.safeBins`                                  | Allowlist (`exec-approvals.json`)                            |
+| ---------------- | ------------------------------------------------------ | ------------------------------------------------------------ |
+| Goal             | Auto-allow narrow stdin filters                        | Explicitly trust specific executables                        |
+| Match type       | Executable name + safe-bin argv policy                 | Resolved executable path glob pattern                        |
+| Argument scope   | Restricted by safe-bin profile and literal-token rules | Path match only; arguments are otherwise your responsibility |
+| Typical examples | `jq`, `head`, `tail`, `wc`                             | `python3`, `node`, `ffmpeg`, custom CLIs                     |
+| Best use         | Low-risk text transforms in pipelines                  | Any tool with broader behavior or side effects               |
+
+Configuration location:
+
+- `safeBins` comes from config (`tools.exec.safeBins` or per-agent `agents.list[].tools.exec.safeBins`).
+- `safeBinProfiles` comes from config (`tools.exec.safeBinProfiles` or per-agent `agents.list[].tools.exec.safeBinProfiles`). Per-agent profile keys override global keys.
+- allowlist entries live in host-local `~/.openclaw/exec-approvals.json` under `agents.<id>.allowlist` (or via Control UI / `openclaw approvals allowlist ...`).
+
+Custom profile example:
+
+```json5
+{
+  tools: {
+    exec: {
+      safeBins: ["jq", "myfilter"],
+      safeBinProfiles: {
+        myfilter: {
+          minPositional: 0,
+          maxPositional: 0,
+          allowedValueFlags: ["-n", "--limit"],
+          deniedFlags: ["-f", "--file", "-c", "--command"],
+        },
+      },
+    },
+  },
+}
+```
 
 ## Control UI editing
 

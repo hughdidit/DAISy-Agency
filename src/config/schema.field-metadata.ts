@@ -436,6 +436,15 @@ export const FIELD_HELP: Record<string, string> = {
   "tools.exec.pathPrepend": "Directories to prepend to PATH for exec runs (gateway/sandbox).",
   "tools.exec.safeBins":
     "Allow stdin-only safe binaries to run without explicit allowlist entries.",
+<<<<<<< HEAD:src/config/schema.field-metadata.ts
+=======
+  "tools.exec.safeBinProfiles":
+    "Optional per-binary safe-bin profiles (positional limits + allowed/denied flags).",
+  "tools.fs.workspaceOnly":
+    "Restrict filesystem tools (read/write/edit/apply_patch) to the workspace directory (default: false).",
+  "tools.sessions.visibility":
+    'Controls which sessions can be targeted by sessions_list/sessions_history/sessions_send. ("tree" default = current session + spawned subagent sessions; "self" = only current; "agent" = any session in the current agent id; "all" = any session; cross-agent still requires tools.agentToAgent).',
+>>>>>>> 47c3f742b (fix(exec): require explicit safe-bin profiles):src/config/schema.help.ts
   "tools.message.allowCrossContextSend":
     "Legacy override: allow cross-context sends across all providers.",
   "tools.message.crossContext.allowWithinProvider":

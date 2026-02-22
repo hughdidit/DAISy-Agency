@@ -24,6 +24,14 @@ import {
   type ExecApprovalsAgent,
   type ExecApprovalsFile,
 } from "./exec-approvals.js";
+<<<<<<< HEAD
+=======
+import {
+  SAFE_BIN_PROFILE_FIXTURES,
+  SAFE_BIN_PROFILES,
+  resolveSafeBinProfiles,
+} from "./exec-safe-bin-policy.js";
+>>>>>>> 47c3f742b (fix(exec): require explicit safe-bin profiles)
 
 function makePathEnv(binDir: string): NodeJS.ProcessEnv {
   if (process.platform !== "win32") {
@@ -824,6 +832,53 @@ describe("exec approvals safe bins", () => {
     expect(defaults.has("jq")).toBe(true);
     expect(defaults.has("sort")).toBe(false);
     expect(defaults.has("grep")).toBe(false);
+  });
+
+  it("does not auto-allow unprofiled safe-bin entries", () => {
+    if (process.platform === "win32") {
+      return;
+    }
+    const result = evaluateShellAllowlist({
+      command: "python3 -c \"print('owned')\"",
+      allowlist: [],
+      safeBins: normalizeSafeBins(["python3"]),
+      cwd: "/tmp",
+    });
+    expect(result.analysisOk).toBe(true);
+    expect(result.allowlistSatisfied).toBe(false);
+  });
+
+  it("allows caller-defined custom safe-bin profiles", () => {
+    if (process.platform === "win32") {
+      return;
+    }
+    const safeBinProfiles = resolveSafeBinProfiles({
+      echo: {
+        maxPositional: 1,
+      },
+    });
+    const allow = isSafeBinUsage({
+      argv: ["echo", "hello"],
+      resolution: {
+        rawExecutable: "echo",
+        resolvedPath: "/bin/echo",
+        executableName: "echo",
+      },
+      safeBins: normalizeSafeBins(["echo"]),
+      safeBinProfiles,
+    });
+    const deny = isSafeBinUsage({
+      argv: ["echo", "hello", "world"],
+      resolution: {
+        rawExecutable: "echo",
+        resolvedPath: "/bin/echo",
+        executableName: "echo",
+      },
+      safeBins: normalizeSafeBins(["echo"]),
+      safeBinProfiles,
+    });
+    expect(allow).toBe(true);
+    expect(deny).toBe(false);
   });
 
   it("blocks sort output flags independent of file existence", () => {
