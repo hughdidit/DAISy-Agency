@@ -13,6 +13,7 @@ import {
   normalizeContentType,
   resolveAuthAllowedHosts,
   resolveAllowedHosts,
+  safeFetch,
 } from "./shared.js";
 
 type DownloadCandidate = {
@@ -88,9 +89,23 @@ async function fetchWithAuthFallback(params: {
   fetchFn?: typeof fetch;
   allowHosts: string[];
   authAllowHosts: string[];
+  resolveFn?: (hostname: string) => Promise<{ address: string }>;
 }): Promise<Response> {
   const fetchFn = params.fetchFn ?? fetch;
+<<<<<<< HEAD
   const firstAttempt = await fetchFn(params.url);
+=======
+
+  // Use safeFetch for the initial attempt — redirect: "manual" with
+  // allowlist + DNS/IP validation on every hop (prevents SSRF via redirect).
+  const firstAttempt = await safeFetch({
+    url: params.url,
+    allowHosts: params.allowHosts,
+    fetchFn,
+    requestInit: params.requestInit,
+    resolveFn: params.resolveFn,
+  });
+>>>>>>> 26644c4b8 (fix(msteams): add SSRF protection to attachment downloads via redirect and DNS validation (#23598))
   if (firstAttempt.ok) {
     return firstAttempt;
   }
@@ -108,13 +123,28 @@ async function fetchWithAuthFallback(params: {
   for (const scope of scopes) {
     try {
       const token = await params.tokenProvider.getAccessToken(scope);
+<<<<<<< HEAD
       const res = await fetchFn(params.url, {
         headers: { Authorization: `Bearer ${token}` },
         redirect: "manual",
+=======
+      const authHeaders = new Headers(params.requestInit?.headers);
+      authHeaders.set("Authorization", `Bearer ${token}`);
+      const authAttempt = await safeFetch({
+        url: params.url,
+        allowHosts: params.allowHosts,
+        fetchFn,
+        requestInit: {
+          ...params.requestInit,
+          headers: authHeaders,
+        },
+        resolveFn: params.resolveFn,
+>>>>>>> 26644c4b8 (fix(msteams): add SSRF protection to attachment downloads via redirect and DNS validation (#23598))
       });
-      if (res.ok) {
-        return res;
+      if (authAttempt.ok) {
+        return authAttempt;
       }
+<<<<<<< HEAD
       const redirectUrl = readRedirectUrl(params.url, res);
       if (redirectUrl && isUrlAllowed(redirectUrl, params.allowHosts)) {
         const redirectRes = await fetchFn(redirectUrl);
@@ -133,6 +163,29 @@ async function fetchWithAuthFallback(params: {
             return redirectAuthRes;
           }
         }
+=======
+      if (authAttempt.status !== 401 && authAttempt.status !== 403) {
+        continue;
+      }
+
+      const finalUrl =
+        typeof authAttempt.url === "string" && authAttempt.url ? authAttempt.url : "";
+      if (!finalUrl || finalUrl === params.url || !isUrlAllowed(finalUrl, params.authAllowHosts)) {
+        continue;
+      }
+      const redirectedAuthAttempt = await safeFetch({
+        url: finalUrl,
+        allowHosts: params.allowHosts,
+        fetchFn,
+        requestInit: {
+          ...params.requestInit,
+          headers: authHeaders,
+        },
+        resolveFn: params.resolveFn,
+      });
+      if (redirectedAuthAttempt.ok) {
+        return redirectedAuthAttempt;
+>>>>>>> 26644c4b8 (fix(msteams): add SSRF protection to attachment downloads via redirect and DNS validation (#23598))
       }
     } catch {
       // Try the next scope.
@@ -140,21 +193,6 @@ async function fetchWithAuthFallback(params: {
   }
 
   return firstAttempt;
-}
-
-function readRedirectUrl(baseUrl: string, res: Response): string | null {
-  if (![301, 302, 303, 307, 308].includes(res.status)) {
-    return null;
-  }
-  const location = res.headers.get("location");
-  if (!location) {
-    return null;
-  }
-  try {
-    return new URL(location, baseUrl).toString();
-  } catch {
-    return null;
-  }
 }
 
 /**
@@ -170,6 +208,8 @@ export async function downloadMSTeamsAttachments(params: {
   fetchFn?: typeof fetch;
   /** When true, embeds original filename in stored path for later extraction. */
   preserveFilenames?: boolean;
+  /** Override DNS resolver for testing (anti-SSRF IP validation). */
+  resolveFn?: (hostname: string) => Promise<{ address: string }>;
 }): Promise<MSTeamsInboundMedia[]> {
   const list = Array.isArray(params.attachments) ? params.attachments : [];
   if (list.length === 0) {
@@ -240,6 +280,7 @@ export async function downloadMSTeamsAttachments(params: {
     try {
       const res = await fetchWithAuthFallback({
         url: candidate.url,
+<<<<<<< HEAD
         tokenProvider: params.tokenProvider,
         fetchFn: params.fetchFn,
         allowHosts,
@@ -269,6 +310,23 @@ export async function downloadMSTeamsAttachments(params: {
         path: saved.path,
         contentType: saved.contentType,
         placeholder: candidate.placeholder,
+=======
+        filePathHint: candidate.fileHint ?? candidate.url,
+        maxBytes: params.maxBytes,
+        contentTypeHint: candidate.contentTypeHint,
+        placeholder: candidate.placeholder,
+        preserveFilenames: params.preserveFilenames,
+        fetchImpl: (input, init) =>
+          fetchWithAuthFallback({
+            url: resolveRequestUrl(input),
+            tokenProvider: params.tokenProvider,
+            fetchFn: params.fetchFn,
+            requestInit: init,
+            allowHosts,
+            authAllowHosts,
+            resolveFn: params.resolveFn,
+          }),
+>>>>>>> 26644c4b8 (fix(msteams): add SSRF protection to attachment downloads via redirect and DNS validation (#23598))
       });
     } catch {
       // Ignore download failures and continue with next candidate.
