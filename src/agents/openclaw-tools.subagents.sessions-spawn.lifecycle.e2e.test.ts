@@ -251,11 +251,11 @@ describe("openclaw-tools: subagents (sessions_spawn lifecycle)", () => {
 >>>>>>> 870b1d50d (perf(test): consolidate sessions_spawn e2e tests):src/agents/openclaw-tools.subagents.sessions-spawn.lifecycle.e2e.test.ts
   beforeEach(() => {
     resetSessionsSpawnConfigOverride();
+    resetSubagentRegistryForTests();
+    callGatewayMock.mockReset();
   });
 
   it("sessions_spawn runs cleanup flow after subagent completion", async () => {
-    resetSubagentRegistryForTests();
-    callGatewayMock.mockReset();
     const patchCalls: Array<{ key?: string; label?: string }> = [];
 
     const ctx = setupSessionsSpawnGatewayMock({
@@ -344,8 +344,6 @@ describe("openclaw-tools: subagents (sessions_spawn lifecycle)", () => {
   });
 
   it("sessions_spawn runs cleanup via lifecycle events", async () => {
-    resetSubagentRegistryForTests();
-    callGatewayMock.mockReset();
     let deletedKey: string | undefined;
     const ctx = setupSessionsSpawnGatewayMock({
       ...buildDiscordCleanupHooks((key) => {
@@ -445,8 +443,6 @@ describe("openclaw-tools: subagents (sessions_spawn lifecycle)", () => {
   });
 
   it("sessions_spawn deletes session when cleanup=delete via agent.wait", async () => {
-    resetSubagentRegistryForTests();
-    callGatewayMock.mockReset();
     let deletedKey: string | undefined;
     const ctx = setupSessionsSpawnGatewayMock({
       includeChatHistory: true,
@@ -505,8 +501,6 @@ describe("openclaw-tools: subagents (sessions_spawn lifecycle)", () => {
   });
 
   it("sessions_spawn reports timed out when agent.wait returns timeout", async () => {
-    resetSubagentRegistryForTests();
-    callGatewayMock.mockReset();
     const calls: Array<{ method?: string; params?: unknown }> = [];
     let agentCallCount = 0;
 
@@ -573,8 +567,6 @@ describe("openclaw-tools: subagents (sessions_spawn lifecycle)", () => {
   });
 
   it("sessions_spawn announces with requester accountId", async () => {
-    resetSubagentRegistryForTests();
-    callGatewayMock.mockReset();
     const calls: Array<{ method?: string; params?: unknown }> = [];
     let agentCallCount = 0;
     let childRunId: string | undefined;
