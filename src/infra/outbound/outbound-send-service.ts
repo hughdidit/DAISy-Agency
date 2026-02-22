@@ -11,6 +11,7 @@ import type { OpenClawConfig } from "../../config/config.js";
 <<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { appendAssistantMessageToSessionTranscript } from "../../config/sessions.js";
+<<<<<<< HEAD
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -21,6 +22,9 @@ import { appendAssistantMessageToSessionTranscript } from "../../config/sessions
 =======
 import { appendAssistantMessageToSessionTranscript } from "../../config/sessions.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
+=======
+import { getAgentScopedMediaLocalRoots } from "../../media/local-roots.js";
+>>>>>>> 7bbd59738 (fix(media): enforce agent media roots in plugin send actions)
 import type { GatewayClientMode, GatewayClientName } from "../../utils/message-channel.js";
 import { throwIfAborted } from "./abort.js";
 import type { OutboundSendDeps } from "./deliver.js";
@@ -99,11 +103,16 @@ async function tryHandleWithPluginAction(params: {
   if (params.ctx.dryRun) {
     return null;
   }
+  const mediaLocalRoots = getAgentScopedMediaLocalRoots(
+    params.ctx.cfg,
+    params.ctx.agentId ?? params.ctx.mirror?.agentId,
+  );
   const handled = await dispatchChannelMessageAction({
     channel: params.ctx.channel,
     action: params.action,
     cfg: params.ctx.cfg,
     params: params.ctx.params,
+    mediaLocalRoots,
     accountId: params.ctx.accountId ?? undefined,
     gateway: params.ctx.gateway,
     toolContext: params.ctx.toolContext,

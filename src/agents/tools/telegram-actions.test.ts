@@ -339,6 +339,7 @@ describe("handleTelegramAction", () => {
   });
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   it("sends a message with media", async () => {
     const cfg = {
       channels: { telegram: { botToken: "tok" } },
@@ -346,6 +347,25 @@ describe("handleTelegramAction", () => {
     await handleTelegramAction(
       {
 =======
+=======
+  it("forwards trusted mediaLocalRoots into sendMessageTelegram", async () => {
+    await handleTelegramAction(
+      {
+        action: "sendMessage",
+        to: "@testchannel",
+        content: "Hello with local media",
+      },
+      telegramConfig(),
+      { mediaLocalRoots: ["/tmp/agent-root"] },
+    );
+    expect(sendMessageTelegram).toHaveBeenCalledWith(
+      "@testchannel",
+      "Hello with local media",
+      expect.objectContaining({ mediaLocalRoots: ["/tmp/agent-root"] }),
+    );
+  });
+
+>>>>>>> 7bbd59738 (fix(media): enforce agent media roots in plugin send actions)
   it.each([
     {
       name: "media",
