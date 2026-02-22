@@ -171,6 +171,7 @@ export const linePlugin: ChannelPlugin<ResolvedLineAccount> = {
     },
     collectWarnings: ({ account, cfg }) => {
 <<<<<<< HEAD
+<<<<<<< HEAD
       const defaultGroupPolicy =
         (cfg.channels?.defaults as { groupPolicy?: string } | undefined)?.groupPolicy;
       const groupPolicy = account.config.groupPolicy ?? defaultGroupPolicy ?? "allowlist";
@@ -178,6 +179,9 @@ export const linePlugin: ChannelPlugin<ResolvedLineAccount> = {
 =======
       const defaultGroupPolicy = (cfg.channels?.defaults as { groupPolicy?: string } | undefined)
         ?.groupPolicy;
+=======
+      const defaultGroupPolicy = cfg.channels?.defaults?.groupPolicy;
+>>>>>>> 26763d191 (fix: resolve extension type errors and harden probe mocks)
       const { groupPolicy } = resolveRuntimeGroupPolicy({
         providerConfigPresent: cfg.channels?.line !== undefined,
         groupPolicy: account.config.groupPolicy,
