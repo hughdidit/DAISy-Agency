@@ -1,7 +1,13 @@
 import fs from "node:fs/promises";
 import type { ThinkLevel } from "../../auto-reply/thinking.js";
+<<<<<<< HEAD
 import type { RunEmbeddedPiAgentParams } from "./run/params.js";
 import type { EmbeddedPiAgentMeta, EmbeddedPiRunResult } from "./types.js";
+=======
+import { generateSecureToken } from "../../infra/secure-random.js";
+import { getGlobalHookRunner } from "../../plugins/hook-runner-global.js";
+import type { PluginHookBeforeAgentStartResult } from "../../plugins/types.js";
+>>>>>>> 6c2e99977 (refactor(security): unify secure id paths and guard weak patterns)
 import { enqueueCommandInLane } from "../../process/command-queue.js";
 import { isMarkdownCapableMessageChannel } from "../../utils/message-channel.js";
 import { resolveOpenClawAgentDir } from "../agent-paths.js";
@@ -90,6 +96,26 @@ const createUsageAccumulator = (): UsageAccumulator => ({
   total: 0,
 });
 
+<<<<<<< HEAD
+=======
+function createCompactionDiagId(): string {
+  return `ovf-${Date.now().toString(36)}-${generateSecureToken(4)}`;
+}
+
+// Defensive guard for the outer run loop across all retry branches.
+const BASE_RUN_RETRY_ITERATIONS = 24;
+const RUN_RETRY_ITERATIONS_PER_PROFILE = 8;
+const MIN_RUN_RETRY_ITERATIONS = 32;
+const MAX_RUN_RETRY_ITERATIONS = 160;
+
+function resolveMaxRunRetryIterations(profileCandidateCount: number): number {
+  const scaled =
+    BASE_RUN_RETRY_ITERATIONS +
+    Math.max(1, profileCandidateCount) * RUN_RETRY_ITERATIONS_PER_PROFILE;
+  return Math.min(MAX_RUN_RETRY_ITERATIONS, Math.max(MIN_RUN_RETRY_ITERATIONS, scaled));
+}
+
+>>>>>>> 6c2e99977 (refactor(security): unify secure id paths and guard weak patterns)
 const hasUsageValues = (
   usage: ReturnType<typeof normalizeUsage>,
 ): usage is NonNullable<ReturnType<typeof normalizeUsage>> =>
