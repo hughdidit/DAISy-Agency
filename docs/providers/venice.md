@@ -77,7 +77,11 @@ moltbot onboard --non-interactive \
 ### 3. Verify Setup
 
 ```bash
+<<<<<<< HEAD
 moltbot chat --model venice/llama-3.3-70b "Hello, are you working?"
+=======
+openclaw agent --model venice/llama-3.3-70b --message "Hello, are you working?"
+>>>>>>> 6fef318fd (docs: replace legacy chat examples in Venice provider guide)
 ```
 
 ## Model Selection
@@ -193,6 +197,7 @@ Venice uses a credit-based system. Check [venice.ai/pricing](https://venice.ai/p
 
 ```bash
 # Use default private model
+<<<<<<< HEAD
 moltbot chat --model venice/llama-3.3-70b
 
 # Use Claude via Venice (anonymized)
@@ -206,6 +211,21 @@ moltbot chat --model venice/qwen3-vl-235b-a22b
 
 # Use coding model
 moltbot chat --model venice/qwen3-coder-480b-a35b-instruct
+=======
+openclaw agent --model venice/llama-3.3-70b --message "Quick health check"
+
+# Use Claude via Venice (anonymized)
+openclaw agent --model venice/claude-opus-45 --message "Summarize this task"
+
+# Use uncensored model
+openclaw agent --model venice/venice-uncensored --message "Draft options"
+
+# Use vision model with image
+openclaw agent --model venice/qwen3-vl-235b-a22b --message "Review attached image"
+
+# Use coding model
+openclaw agent --model venice/qwen3-coder-480b-a35b-instruct --message "Refactor this function"
+>>>>>>> 6fef318fd (docs: replace legacy chat examples in Venice provider guide)
 ```
 
 ## Troubleshooting
