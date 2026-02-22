@@ -52,6 +52,48 @@ export class ExecApprovalManager {
     return record;
   }
 
+<<<<<<< HEAD
+=======
+  /**
+   * Register an approval record and return a promise that resolves when the decision is made.
+   * This separates registration (synchronous) from waiting (async), allowing callers to
+   * confirm registration before the decision is made.
+   */
+  register(record: ExecApprovalRecord, timeoutMs: number): Promise<ExecApprovalDecision | null> {
+    const existing = this.pending.get(record.id);
+    if (existing) {
+      // Idempotent: return existing promise if still pending
+      if (existing.record.resolvedAtMs === undefined) {
+        return existing.promise;
+      }
+      // Already resolved - don't allow re-registration
+      throw new Error(`approval id '${record.id}' already resolved`);
+    }
+    let resolvePromise: (decision: ExecApprovalDecision | null) => void;
+    let rejectPromise: (err: Error) => void;
+    const promise = new Promise<ExecApprovalDecision | null>((resolve, reject) => {
+      resolvePromise = resolve;
+      rejectPromise = reject;
+    });
+    // Create entry first so we can capture it in the closure (not re-fetch from map)
+    const entry: PendingEntry = {
+      record,
+      resolve: resolvePromise!,
+      reject: rejectPromise!,
+      timer: null as unknown as ReturnType<typeof setTimeout>,
+      promise,
+    };
+    entry.timer = setTimeout(() => {
+      this.expire(record.id);
+    }, timeoutMs);
+    this.pending.set(record.id, entry);
+    return promise;
+  }
+
+  /**
+   * @deprecated Use register() instead for explicit separation of registration and waiting.
+   */
+>>>>>>> d24f5c1e3 (fix(gateway): fail fast exec approvals when no approvers are reachable)
   async waitForDecision(
     record: ExecApprovalRecord,
     timeoutMs: number,
@@ -76,6 +118,27 @@ export class ExecApprovalManager {
     pending.record.resolvedBy = resolvedBy ?? null;
     this.pending.delete(recordId);
     pending.resolve(decision);
+    return true;
+  }
+
+  expire(recordId: string, resolvedBy?: string | null): boolean {
+    const pending = this.pending.get(recordId);
+    if (!pending) {
+      return false;
+    }
+    if (pending.record.resolvedAtMs !== undefined) {
+      return false;
+    }
+    clearTimeout(pending.timer);
+    pending.record.resolvedAtMs = Date.now();
+    pending.record.decision = undefined;
+    pending.record.resolvedBy = resolvedBy ?? null;
+    pending.resolve(null);
+    setTimeout(() => {
+      if (this.pending.get(recordId) === pending) {
+        this.pending.delete(recordId);
+      }
+    }, RESOLVED_ENTRY_GRACE_MS);
     return true;
   }
 
