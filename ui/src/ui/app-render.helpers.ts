@@ -485,7 +485,6 @@ const THEME_OPTIONS: ThemeOption[] = [
   { id: "light", label: "Light", iconKey: "book" },
   { id: "openknot", label: "Knot", iconKey: "zap" },
   { id: "fieldmanual", label: "Field", iconKey: "terminal" },
-  { id: "openai", label: "Ember", iconKey: "loader" },
   { id: "clawdash", label: "Chrome", iconKey: "settings" },
 ];
 
