@@ -21,7 +21,7 @@ import { createExecTool } from "./bash-tools.exec.js";
 import { killProcessTree } from "./shell-utils.js";
 >>>>>>> 2e375a549 (chore: Fix types in tests 32/N.)
 
-const BACKGROUND_HOLD_CMD = 'node -e "setTimeout(() => {}, 100)"';
+const BACKGROUND_HOLD_CMD = 'node -e "setTimeout(() => {}, 5000)"';
 const ABORT_SETTLE_MS = process.platform === "win32" ? 200 : 40;
 const ABORT_WAIT_TIMEOUT_MS = process.platform === "win32" ? 1_500 : 240;
 const POLL_INTERVAL_MS = 15;
