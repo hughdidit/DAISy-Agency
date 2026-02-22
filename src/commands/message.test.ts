@@ -13,7 +13,6 @@ import type { CliDeps } from "../cli/deps.js";
 import type { RuntimeEnv } from "../runtime.js";
 import { createTestRegistry } from "../test-utils/channel-plugins.js";
 import { captureEnv } from "../test-utils/env.js";
-const loadMessageCommand = async () => await import("./message.js");
 
 let testConfig: Record<string, unknown> = {};
 vi.mock("../config/config.js", async (importOriginal) => {
@@ -163,6 +162,8 @@ const createTelegramSendPluginRegistration = () => ({
   }),
 });
 
+const { messageCommand } = await import("./message.js");
+
 describe("messageCommand", () => {
   it("defaults channel when only one configured", async () => {
     process.env.TELEGRAM_BOT_TOKEN = "token-abc";
@@ -174,7 +175,6 @@ describe("messageCommand", () => {
       ]),
     );
     const deps = makeDeps();
-    const { messageCommand } = await loadMessageCommand();
     await messageCommand(
       {
         target: "123456",
@@ -200,7 +200,6 @@ describe("messageCommand", () => {
       ]),
     );
     const deps = makeDeps();
-    const { messageCommand } = await loadMessageCommand();
     await expect(
       messageCommand(
         {
@@ -231,7 +230,6 @@ describe("messageCommand", () => {
       ]),
     );
     const deps = makeDeps();
-    const { messageCommand } = await loadMessageCommand();
     await messageCommand(
       {
         action: "send",
@@ -254,7 +252,6 @@ describe("messageCommand", () => {
       ]),
     );
     const deps = makeDeps();
-    const { messageCommand } = await loadMessageCommand();
     await messageCommand(
       {
         action: "poll",
