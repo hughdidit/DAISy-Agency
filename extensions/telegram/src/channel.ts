@@ -320,14 +320,32 @@ export const telegramPlugin: ChannelPlugin<ResolvedTelegramAccount> = {
       });
       return { channel: "telegram", ...result };
     },
+<<<<<<< HEAD
     sendMedia: async ({ to, text, mediaUrl, accountId, deps, replyToId, threadId }) => {
       const send =
         deps?.sendTelegram ?? getTelegramRuntime().channel.telegram.sendMessageTelegram;
       const replyToMessageId = parseReplyToMessageId(replyToId);
       const messageThreadId = parseThreadId(threadId);
+=======
+    sendMedia: async ({
+      to,
+      text,
+      mediaUrl,
+      mediaLocalRoots,
+      accountId,
+      deps,
+      replyToId,
+      threadId,
+      silent,
+    }) => {
+      const send = deps?.sendTelegram ?? getTelegramRuntime().channel.telegram.sendMessageTelegram;
+      const replyToMessageId = parseTelegramReplyToMessageId(replyToId);
+      const messageThreadId = parseTelegramThreadId(threadId);
+>>>>>>> 4adfe8002 (fix(extensions): preserve mediaLocalRoots in telegram/discord sendMedia)
       const result = await send(to, text, {
         verbose: false,
         mediaUrl,
+        mediaLocalRoots,
         messageThreadId,
         replyToMessageId,
         accountId: accountId ?? undefined,
