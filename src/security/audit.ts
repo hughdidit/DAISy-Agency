@@ -48,6 +48,7 @@ import {
   formatPermissionRemediation,
   inspectPathPermissions,
 } from "./audit-fs.js";
+import { collectEnabledInsecureOrDangerousFlags } from "./dangerous-config-flags.js";
 import { DEFAULT_GATEWAY_HTTP_TOOL_DENY } from "./dangerous-tools.js";
 import type { ExecFn } from "./windows-acl.js";
 
