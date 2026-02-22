@@ -54,6 +54,21 @@ import { deliverReplies } from "./bot/delivery.js";
 import type { TelegramStreamMode } from "./bot/types.js";
 import type { TelegramInlineButtons } from "./button-types.js";
 import { createTelegramDraftStream } from "./draft-stream.js";
+<<<<<<< HEAD
+=======
+import { renderTelegramHtmlText } from "./format.js";
+import {
+  type ArchivedPreview,
+  createLaneDeliveryStateTracker,
+  createLaneTextDeliverer,
+  type DraftLaneState,
+  type LaneName,
+} from "./lane-delivery.js";
+import {
+  createTelegramReasoningStepState,
+  splitTelegramReasoningText,
+} from "./reasoning-lane-coordinator.js";
+>>>>>>> 13541864e (refactor: extract telegram lane delivery and e2e harness)
 import { editMessageTelegram } from "./send.js";
 import { cacheSticker, describeStickerImage } from "./sticker-cache.js";
 
@@ -166,6 +181,7 @@ export const dispatchTelegramMessage = async ({
     replyToMode !== "off" && typeof msg.message_id === "number" ? msg.message_id : undefined;
   const draftMinInitialChars = DRAFT_MIN_INITIAL_CHARS;
   const mediaLocalRoots = getAgentScopedMediaLocalRoots(cfg, route.agentId);
+<<<<<<< HEAD
   type LaneName = "answer" | "reasoning";
   type DraftLaneState = {
     stream: ReturnType<typeof createTelegramDraftStream> | undefined;
@@ -173,6 +189,11 @@ export const dispatchTelegramMessage = async ({
     hasStreamedMessage: boolean;
   };
   const createDraftLane = (enabled: boolean): DraftLaneState => {
+=======
+  const archivedAnswerPreviews: ArchivedPreview[] = [];
+  const archivedReasoningPreviewIds: number[] = [];
+  const createDraftLane = (laneName: LaneName, enabled: boolean): DraftLaneState => {
+>>>>>>> 13541864e (refactor: extract telegram lane delivery and e2e harness)
     const stream = enabled
       ? createTelegramDraftStream({
           api: bot.api,
@@ -398,6 +419,7 @@ export const dispatchTelegramMessage = async ({
     ctxPayload.ReplyToIsQuote && ctxPayload.ReplyToBody
       ? ctxPayload.ReplyToBody.trim() || undefined
       : undefined;
+<<<<<<< HEAD
   const deliveryState = {
     delivered: false,
     skippedNonSilent: 0,
@@ -419,6 +441,12 @@ export const dispatchTelegramMessage = async ({
     } catch (err) {
       logVerbose(`telegram: draft preview cleanup failed: ${String(err)}`);
     }
+=======
+  const deliveryState = createLaneDeliveryStateTracker();
+  const finalizedPreviewByLane: Record<LaneName, boolean> = {
+    answer: false,
+    reasoning: false,
+>>>>>>> 13541864e (refactor: extract telegram lane delivery and e2e harness)
   };
 
   const clearGroupHistory = () => {
@@ -440,6 +468,7 @@ export const dispatchTelegramMessage = async ({
     linkPreview: telegramCfg.linkPreview,
     replyQuoteText,
   };
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
   const getLanePreviewText = (lane: DraftLaneState) => lane.lastPartialText;
@@ -514,6 +543,8 @@ export const dispatchTelegramMessage = async ({
       return false;
     }
   };
+=======
+>>>>>>> 13541864e (refactor: extract telegram lane delivery and e2e harness)
   const applyTextToPayload = (payload: ReplyPayload, text: string): ReplyPayload => {
     if (payload.text === text) {
       return payload;
@@ -527,10 +558,11 @@ export const dispatchTelegramMessage = async ({
       onVoiceRecording: sendRecordVoice,
     });
     if (result.delivered) {
-      deliveryState.delivered = true;
+      deliveryState.markDelivered();
     }
     return result.delivered;
   };
+<<<<<<< HEAD
   type LaneDeliveryResult = "preview-finalized" | "preview-updated" | "sent" | "skipped";
   const deliverLaneText = async (params: {
     laneName: LaneName;
@@ -604,22 +636,28 @@ export const dispatchTelegramMessage = async ({
           `telegram: preview final too long for edit (${text.length} > ${draftMaxChars}); falling back to standard send`,
         );
       }
+=======
+  const deliverLaneText = createLaneTextDeliverer({
+    lanes,
+    archivedAnswerPreviews,
+    finalizedPreviewByLane,
+    draftMaxChars,
+    applyTextToPayload,
+    sendPayload,
+    flushDraftLane,
+    stopDraftLane: async (lane) => {
+>>>>>>> 13541864e (refactor: extract telegram lane delivery and e2e harness)
       await lane.stream?.stop();
-      const delivered = await sendPayload(applyTextToPayload(payload, text));
-      return delivered ? "sent" : "skipped";
-    }
-
-    if (allowPreviewUpdateForNonFinal && canEditViaPreview) {
-      const updated = await tryUpdatePreviewForLane({
-        lane,
-        laneName,
-        text,
-        previewButtons,
-        stopBeforeEdit: false,
-        updateLaneSnapshot: true,
-        skipRegressive: "always",
-        context: "update",
+    },
+    editPreview: async ({ messageId, text, previewButtons }) => {
+      await editMessageTelegram(chatId, messageId, text, {
+        api: bot.api,
+        cfg,
+        accountId: route.accountId,
+        linkPreview: telegramCfg.linkPreview,
+        buttons: previewButtons,
       });
+<<<<<<< HEAD
       if (updated) {
         return "preview-updated";
       }
@@ -629,6 +667,17 @@ export const dispatchTelegramMessage = async ({
     return delivered ? "sent" : "skipped";
   };
 >>>>>>> 677384c51 (refactor: simplify Telegram preview streaming to single boolean (#22012))
+=======
+    },
+    deletePreviewMessage: async (messageId) => {
+      await bot.api.deleteMessage(chatId, messageId);
+    },
+    log: logVerbose,
+    markDelivered: () => {
+      deliveryState.markDelivered();
+    },
+  });
+>>>>>>> 13541864e (refactor: extract telegram lane delivery and e2e harness)
 
   let queuedFinal = false;
 <<<<<<< HEAD
@@ -774,11 +823,15 @@ export const dispatchTelegramMessage = async ({
         },
         onSkip: (_payload, info) => {
           if (info.reason !== "silent") {
-            deliveryState.skippedNonSilent += 1;
+            deliveryState.markNonSilentSkip();
           }
         },
         onError: (err, info) => {
+<<<<<<< HEAD
           deliveryState.failedDeliveries += 1;
+=======
+          deliveryState.markNonSilentFailure();
+>>>>>>> 13541864e (refactor: extract telegram lane delivery and e2e harness)
           runtime.error?.(danger(`telegram ${info.kind} reply failed: ${String(err)}`));
         },
         onReplyStart: createTypingCallbacks({
@@ -905,7 +958,15 @@ export const dispatchTelegramMessage = async ({
   }
   let sentFallback = false;
 <<<<<<< HEAD
+<<<<<<< HEAD
   if (!deliveryState.delivered && deliveryState.skippedNonSilent > 0) {
+=======
+  const deliverySummary = deliveryState.snapshot();
+  if (
+    !deliverySummary.delivered &&
+    (deliverySummary.skippedNonSilent > 0 || deliverySummary.failedNonSilent > 0)
+  ) {
+>>>>>>> 13541864e (refactor: extract telegram lane delivery and e2e harness)
     const result = await deliverReplies({
       replies: [{ text: EMPTY_RESPONSE_FALLBACK }],
 <<<<<<< HEAD
