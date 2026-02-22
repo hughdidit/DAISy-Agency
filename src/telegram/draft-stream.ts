@@ -15,6 +15,12 @@ type TelegramDraftPreview = {
   parseMode?: "HTML";
 };
 
+type SupersededTelegramPreview = {
+  messageId: number;
+  textSnapshot: string;
+  parseMode?: "HTML";
+};
+
 export function createTelegramDraftStream(params: {
   api: Bot["api"];
   chatId: number;
@@ -28,7 +34,12 @@ export function createTelegramDraftStream(params: {
   minInitialChars?: number;
   /** Optional preview renderer (e.g. markdown -> HTML + parse mode). */
   renderText?: (text: string) => TelegramDraftPreview;
+<<<<<<< HEAD
 >>>>>>> ab256b8ec (fix: split telegram reasoning and answer draft streams (#20774))
+=======
+  /** Called when a late send resolves after forceNewMessage() switched generations. */
+  onSupersededPreview?: (preview: SupersededTelegramPreview) => void;
+>>>>>>> 63b4c500d (fix: prevent Telegram preview stream cross-edit race (#23202))
   log?: (message: string) => void;
   warn?: (message: string) => void;
 }): TelegramDraftStream {
@@ -49,6 +60,11 @@ export function createTelegramDraftStream(params: {
   let lastSentParseMode: "HTML" | undefined;
 >>>>>>> ab256b8ec (fix: split telegram reasoning and answer draft streams (#20774))
   let stopped = false;
+<<<<<<< HEAD
+=======
+  let isFinal = false;
+  let generation = 0;
+>>>>>>> 63b4c500d (fix: prevent Telegram preview stream cross-edit race (#23202))
 
   const sendDraft = async (text: string) => {
     if (stopped) return;
@@ -89,6 +105,7 @@ export function createTelegramDraftStream(params: {
     if (renderedText === lastSentText && renderedParseMode === lastSentParseMode) {
       return true;
     }
+    const sendGeneration = generation;
 
     // Debounce first preview send for better push notification quality.
     if (typeof streamMessageId !== "number" && minInitialChars != null && !isFinal) {
@@ -123,7 +140,16 @@ export function createTelegramDraftStream(params: {
         params.warn?.("telegram stream preview stopped (missing message id from sendMessage)");
         return false;
       }
-      streamMessageId = Math.trunc(sentMessageId);
+      const normalizedMessageId = Math.trunc(sentMessageId);
+      if (sendGeneration !== generation) {
+        params.onSupersededPreview?.({
+          messageId: normalizedMessageId,
+          textSnapshot: renderedText,
+          parseMode: renderedParseMode,
+        });
+        return true;
+      }
+      streamMessageId = normalizedMessageId;
       return true;
 >>>>>>> ab256b8ec (fix: split telegram reasoning and answer draft streams (#20774))
     } catch (err) {
@@ -207,6 +233,7 @@ export function createTelegramDraftStream(params: {
   );
 =======
   const forceNewMessage = () => {
+    generation += 1;
     streamMessageId = undefined;
     lastSentText = "";
     lastSentParseMode = undefined;

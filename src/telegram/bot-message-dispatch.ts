@@ -197,7 +197,10 @@ export const dispatchTelegramMessage = async ({
     hasStreamedMessage: boolean;
     chunker: EmbeddedBlockChunker | undefined;
   };
-  const createDraftLane = (enabled: boolean): DraftLaneState => {
+  type ArchivedPreview = { messageId: number; textSnapshot: string };
+  const archivedAnswerPreviews: ArchivedPreview[] = [];
+  const archivedReasoningPreviewIds: number[] = [];
+  const createDraftLane = (laneName: LaneName, enabled: boolean): DraftLaneState => {
     const stream = enabled
       ? createTelegramDraftStream({
           api: bot.api,
@@ -207,6 +210,21 @@ export const dispatchTelegramMessage = async ({
           replyToMessageId: draftReplyToMessageId,
           minInitialChars: draftMinInitialChars,
           renderText: renderDraftPreview,
+          onSupersededPreview:
+            laneName === "answer" || laneName === "reasoning"
+              ? (preview) => {
+                  if (laneName === "reasoning") {
+                    if (!archivedReasoningPreviewIds.includes(preview.messageId)) {
+                      archivedReasoningPreviewIds.push(preview.messageId);
+                    }
+                    return;
+                  }
+                  archivedAnswerPreviews.push({
+                    messageId: preview.messageId,
+                    textSnapshot: preview.textSnapshot,
+                  });
+                }
+              : undefined,
           log: logVerbose,
           warn: logVerbose,
         })
@@ -224,8 +242,8 @@ export const dispatchTelegramMessage = async ({
     };
   };
   const lanes: Record<LaneName, DraftLaneState> = {
-    answer: createDraftLane(canStreamAnswerDraft),
-    reasoning: createDraftLane(canStreamReasoningDraft),
+    answer: createDraftLane("answer", canStreamAnswerDraft),
+    reasoning: createDraftLane("reasoning", canStreamReasoningDraft),
   };
   const answerLane = lanes.answer;
   const reasoningLane = lanes.reasoning;
@@ -545,6 +563,43 @@ export const dispatchTelegramMessage = async ({
     return result.delivered;
   };
   type LaneDeliveryResult = "preview-finalized" | "preview-updated" | "sent" | "skipped";
+  const consumeArchivedAnswerPreviewForFinal = async (params: {
+    lane: DraftLaneState;
+    text: string;
+    payload: ReplyPayload;
+    previewButtons?: TelegramInlineButtons;
+    canEditViaPreview: boolean;
+  }): Promise<LaneDeliveryResult | undefined> => {
+    const archivedPreview = archivedAnswerPreviews.shift();
+    if (!archivedPreview) {
+      return undefined;
+    }
+    if (params.canEditViaPreview) {
+      const finalized = await tryUpdatePreviewForLane({
+        lane: params.lane,
+        laneName: "answer",
+        text: params.text,
+        previewButtons: params.previewButtons,
+        stopBeforeEdit: false,
+        skipRegressive: "existingOnly",
+        context: "final",
+        previewMessageId: archivedPreview.messageId,
+        previewTextSnapshot: archivedPreview.textSnapshot,
+      });
+      if (finalized) {
+        return "preview-finalized";
+      }
+    }
+    try {
+      await bot.api.deleteMessage(chatId, archivedPreview.messageId);
+    } catch (err) {
+      logVerbose(
+        `telegram: archived answer preview cleanup failed (${archivedPreview.messageId}): ${String(err)}`,
+      );
+    }
+    const delivered = await sendPayload(applyTextToPayload(params.payload, params.text));
+    return delivered ? "sent" : "skipped";
+  };
   const deliverLaneText = async (params: {
     laneName: LaneName;
     text: string;
@@ -567,8 +622,35 @@ export const dispatchTelegramMessage = async ({
       !hasMedia && text.length > 0 && text.length <= draftMaxChars && !payload.isError;
 
     if (infoKind === "final") {
+<<<<<<< HEAD
+=======
+      if (laneName === "answer") {
+        const archivedResult = await consumeArchivedAnswerPreviewForFinal({
+          lane,
+          text,
+          payload,
+          previewButtons,
+          canEditViaPreview,
+        });
+        if (archivedResult) {
+          return archivedResult;
+        }
+      }
+>>>>>>> 63b4c500d (fix: prevent Telegram preview stream cross-edit race (#23202))
       if (canEditViaPreview && !finalizedPreviewByLane[laneName]) {
         await flushDraftLane(lane);
+        if (laneName === "answer") {
+          const archivedResultAfterFlush = await consumeArchivedAnswerPreviewForFinal({
+            lane,
+            text,
+            payload,
+            previewButtons,
+            canEditViaPreview,
+          });
+          if (archivedResultAfterFlush) {
+            return archivedResultAfterFlush;
+          }
+        }
         const finalized = await tryUpdatePreviewForLane({
           lane,
           laneName,
@@ -935,6 +1017,27 @@ export const dispatchTelegramMessage = async ({
         await stream.clear();
       }
     }
+<<<<<<< HEAD
+=======
+    for (const archivedPreview of archivedAnswerPreviews) {
+      try {
+        await bot.api.deleteMessage(chatId, archivedPreview.messageId);
+      } catch (err) {
+        logVerbose(
+          `telegram: archived answer preview cleanup failed (${archivedPreview.messageId}): ${String(err)}`,
+        );
+      }
+    }
+    for (const messageId of archivedReasoningPreviewIds) {
+      try {
+        await bot.api.deleteMessage(chatId, messageId);
+      } catch (err) {
+        logVerbose(
+          `telegram: archived reasoning preview cleanup failed (${messageId}): ${String(err)}`,
+        );
+      }
+    }
+>>>>>>> 63b4c500d (fix: prevent Telegram preview stream cross-edit race (#23202))
   }
   let sentFallback = false;
   if (
