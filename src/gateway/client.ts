@@ -256,6 +256,12 @@ export class GatewayClient {
     if (this.connectSent) {
       return;
     }
+    const nonce = this.connectNonce?.trim() ?? "";
+    if (!nonce) {
+      this.opts.onConnectError?.(new Error("gateway connect challenge missing nonce"));
+      this.ws?.close(1008, "connect challenge missing nonce");
+      return;
+    }
     this.connectSent = true;
     if (this.connectTimer) {
       clearTimeout(this.connectTimer);
@@ -276,8 +282,12 @@ export class GatewayClient {
           }
         : undefined;
     const signedAtMs = Date.now();
+<<<<<<< HEAD
     const nonce = this.connectNonce ?? undefined;
     const scopes = this.opts.scopes ?? ["operator.read"];
+=======
+    const scopes = this.opts.scopes ?? ["operator.admin"];
+>>>>>>> 8887f41d7 (refactor(gateway)!: remove legacy v1 device-auth handshake)
     const device = (() => {
       if (!this.opts.deviceIdentity) {
         return undefined;
@@ -365,10 +375,13 @@ export class GatewayClient {
         if (evt.event === "connect.challenge") {
           const payload = evt.payload as { nonce?: unknown } | undefined;
           const nonce = payload && typeof payload.nonce === "string" ? payload.nonce : null;
-          if (nonce) {
-            this.connectNonce = nonce;
-            this.sendConnect();
+          if (!nonce || nonce.trim().length === 0) {
+            this.opts.onConnectError?.(new Error("gateway connect challenge missing nonce"));
+            this.ws?.close(1008, "connect challenge missing nonce");
+            return;
           }
+          this.connectNonce = nonce.trim();
+          this.sendConnect();
           return;
         }
         const seq = typeof evt.seq === "number" ? evt.seq : null;
@@ -411,16 +424,20 @@ export class GatewayClient {
     this.connectNonce = null;
     this.connectSent = false;
     const rawConnectDelayMs = this.opts.connectDelayMs;
-    const connectDelayMs =
+    const connectChallengeTimeoutMs =
       typeof rawConnectDelayMs === "number" && Number.isFinite(rawConnectDelayMs)
-        ? Math.max(0, Math.min(5_000, rawConnectDelayMs))
-        : 750;
+        ? Math.max(250, Math.min(10_000, rawConnectDelayMs))
+        : 2_000;
     if (this.connectTimer) {
       clearTimeout(this.connectTimer);
     }
     this.connectTimer = setTimeout(() => {
-      this.sendConnect();
-    }, connectDelayMs);
+      if (this.connectSent || this.ws?.readyState !== WebSocket.OPEN) {
+        return;
+      }
+      this.opts.onConnectError?.(new Error("gateway connect challenge timeout"));
+      this.ws?.close(1008, "connect challenge timeout");
+    }, connectChallengeTimeoutMs);
   }
 
   private scheduleReconnect() {

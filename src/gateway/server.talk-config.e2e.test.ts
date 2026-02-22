@@ -1,9 +1,49 @@
 import { describe, expect, it } from "vitest";
-import { connectOk, installGatewayTestHooks, rpcReq } from "./test-helpers.js";
+import {
+  connectOk,
+  installGatewayTestHooks,
+  readConnectChallengeNonce,
+  rpcReq,
+} from "./test-helpers.js";
 import { withServer } from "./test-with-server.js";
 
 installGatewayTestHooks({ scope: "suite" });
 
+<<<<<<< HEAD
+=======
+async function createFreshOperatorDevice(scopes: string[], nonce: string) {
+  const { randomUUID } = await import("node:crypto");
+  const { tmpdir } = await import("node:os");
+  const { join } = await import("node:path");
+  const { buildDeviceAuthPayload } = await import("./device-auth.js");
+  const { loadOrCreateDeviceIdentity, publicKeyRawBase64UrlFromPem, signDevicePayload } =
+    await import("../infra/device-identity.js");
+
+  const identity = loadOrCreateDeviceIdentity(
+    join(tmpdir(), `openclaw-talk-config-${randomUUID()}.json`),
+  );
+  const signedAtMs = Date.now();
+  const payload = buildDeviceAuthPayload({
+    deviceId: identity.deviceId,
+    clientId: "test",
+    clientMode: "test",
+    role: "operator",
+    scopes,
+    signedAtMs,
+    token: "secret",
+    nonce,
+  });
+
+  return {
+    id: identity.deviceId,
+    publicKey: publicKeyRawBase64UrlFromPem(identity.publicKeyPem),
+    signature: signDevicePayload(identity.privateKeyPem, payload),
+    signedAt: signedAtMs,
+    nonce,
+  };
+}
+
+>>>>>>> 8887f41d7 (refactor(gateway)!: remove legacy v1 device-auth handshake)
 describe("gateway talk.config", () => {
   it("returns redacted talk config for read scope", async () => {
     const { writeConfigFile } = await import("../config/config.js");
@@ -21,7 +61,17 @@ describe("gateway talk.config", () => {
     });
 
     await withServer(async (ws) => {
+<<<<<<< HEAD
       await connectOk(ws, { token: "secret", scopes: ["operator.read"] });
+=======
+      const nonce = await readConnectChallengeNonce(ws);
+      expect(nonce).toBeTruthy();
+      await connectOk(ws, {
+        token: "secret",
+        scopes: ["operator.read"],
+        device: await createFreshOperatorDevice(["operator.read"], String(nonce)),
+      });
+>>>>>>> 8887f41d7 (refactor(gateway)!: remove legacy v1 device-auth handshake)
       const res = await rpcReq<{ config?: { talk?: { apiKey?: string; voiceId?: string } } }>(
         ws,
         "talk.config",
@@ -42,7 +92,17 @@ describe("gateway talk.config", () => {
     });
 
     await withServer(async (ws) => {
+<<<<<<< HEAD
       await connectOk(ws, { token: "secret", scopes: ["operator.read"] });
+=======
+      const nonce = await readConnectChallengeNonce(ws);
+      expect(nonce).toBeTruthy();
+      await connectOk(ws, {
+        token: "secret",
+        scopes: ["operator.read"],
+        device: await createFreshOperatorDevice(["operator.read"], String(nonce)),
+      });
+>>>>>>> 8887f41d7 (refactor(gateway)!: remove legacy v1 device-auth handshake)
       const res = await rpcReq(ws, "talk.config", { includeSecrets: true });
       expect(res.ok).toBe(false);
       expect(res.error?.message).toContain("missing scope: operator.talk.secrets");
@@ -58,9 +118,18 @@ describe("gateway talk.config", () => {
     });
 
     await withServer(async (ws) => {
+      const nonce = await readConnectChallengeNonce(ws);
+      expect(nonce).toBeTruthy();
       await connectOk(ws, {
         token: "secret",
         scopes: ["operator.read", "operator.write", "operator.talk.secrets"],
+<<<<<<< HEAD
+=======
+        device: await createFreshOperatorDevice(
+          ["operator.read", "operator.write", "operator.talk.secrets"],
+          String(nonce),
+        ),
+>>>>>>> 8887f41d7 (refactor(gateway)!: remove legacy v1 device-auth handshake)
       });
       const res = await rpcReq<{ config?: { talk?: { apiKey?: string } } }>(ws, "talk.config", {
         includeSecrets: true,
