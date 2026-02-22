@@ -1,5 +1,4 @@
 import fs from "node:fs";
-import os from "node:os";
 import path from "node:path";
 <<<<<<< HEAD
 
@@ -7,13 +6,16 @@ import { describe, expect, it, vi } from "vitest";
 
 =======
 import { describe, expect, it } from "vitest";
+<<<<<<< HEAD
 >>>>>>> b73a2de9f (refactor(infra): reuse shared home prefix expansion)
+=======
+import { makePathEnv, makeTempDir } from "./exec-approvals-test-helpers.js";
+>>>>>>> cd919ebd2 (refactor(exec): unify wrapper resolution and split approvals tests)
 import {
   analyzeArgvCommand,
   analyzeShellCommand,
   evaluateExecAllowlist,
   evaluateShellAllowlist,
-  isSafeBinUsage,
   matchAllowlist,
   maxAsk,
   mergeExecApprovalsSocketDefaults,
@@ -22,6 +24,7 @@ import {
   normalizeSafeBins,
   requiresExecApproval,
   resolveCommandResolution,
+<<<<<<< HEAD
   resolveExecApprovals,
   resolveExecApprovalsFromFile,
   resolveExecApprovalsPath,
@@ -114,6 +117,13 @@ function loadWrapperResolutionParityFixtureCases(): WrapperResolutionParityFixtu
   ) as WrapperResolutionParityFixture;
   return fixture.cases;
 }
+=======
+  resolveCommandResolutionFromArgv,
+  resolveExecApprovalsPath,
+  resolveExecApprovalsSocketPath,
+  type ExecAllowlistEntry,
+} from "./exec-approvals.js";
+>>>>>>> cd919ebd2 (refactor(exec): unify wrapper resolution and split approvals tests)
 
 describe("exec approvals allowlist matching", () => {
   const baseResolution = {
@@ -461,36 +471,6 @@ describe("exec approvals shell parsing", () => {
 >>>>>>> 21b0eac91 (test: consolidate infra approval and heartbeat test matrices)
 });
 
-describe("exec approvals shell parser parity fixture", () => {
-  const fixtures = loadShellParserParityFixtureCases();
-
-  for (const fixture of fixtures) {
-    it(`matches fixture: ${fixture.id}`, () => {
-      const res = analyzeShellCommand({ command: fixture.command });
-      expect(res.ok).toBe(fixture.ok);
-      if (fixture.ok) {
-        const executables = res.segments.map((segment) =>
-          path.basename(segment.argv[0] ?? "").toLowerCase(),
-        );
-        expect(executables).toEqual(fixture.executables.map((entry) => entry.toLowerCase()));
-      } else {
-        expect(res.segments).toHaveLength(0);
-      }
-    });
-  }
-});
-
-describe("exec approvals wrapper resolution parity fixture", () => {
-  const fixtures = loadWrapperResolutionParityFixtureCases();
-
-  for (const fixture of fixtures) {
-    it(`matches wrapper fixture: ${fixture.id}`, () => {
-      const resolution = resolveCommandResolutionFromArgv(fixture.argv);
-      expect(resolution?.rawExecutable ?? null).toBe(fixture.expectedRawExecutable);
-    });
-  }
-});
-
 describe("exec approvals shell allowlist (chained commands)", () => {
   it("evaluates chained command allowlist scenarios", () => {
     const cases: Array<{
@@ -579,6 +559,7 @@ describe("exec approvals shell allowlist (chained commands)", () => {
   });
 });
 
+<<<<<<< HEAD
 describe("exec approvals safe bins", () => {
 <<<<<<< HEAD
   it("allows safe bins with non-path args", () => {
@@ -991,6 +972,8 @@ describe("exec approvals safe bins", () => {
   });
 });
 
+=======
+>>>>>>> cd919ebd2 (refactor(exec): unify wrapper resolution and split approvals tests)
 describe("exec approvals allowlist evaluation", () => {
   it("satisfies allowlist on exact match", () => {
     const analysis = {
@@ -1129,6 +1112,7 @@ describe("exec approvals policy helpers", () => {
     ).toBe(false);
   });
 });
+<<<<<<< HEAD
 
 describe("exec approvals wildcard agent", () => {
   it("merges wildcard allowlist entries with agent entries", () => {
@@ -1403,3 +1387,5 @@ describe("normalizeExecApprovals handles string allowlist entries (#9790)", () =
     }
   });
 });
+=======
+>>>>>>> cd919ebd2 (refactor(exec): unify wrapper resolution and split approvals tests)

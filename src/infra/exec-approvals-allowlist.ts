@@ -27,7 +27,16 @@ import {
 >>>>>>> 47c3f742b (fix(exec): require explicit safe-bin profiles)
 import { isTrustedSafeBinPath } from "./exec-safe-bin-trust.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 4d3403b7a (chore: fix CI errors)
+=======
+import {
+  extractShellWrapperInlineCommand,
+  isDispatchWrapperExecutable,
+  isShellWrapperExecutable,
+  unwrapKnownDispatchWrapperInvocation,
+} from "./exec-wrapper-resolution.js";
+>>>>>>> cd919ebd2 (refactor(exec): unify wrapper resolution and split approvals tests)
 
 function isPathLikeToken(value: string): boolean {
   const trimmed = value.trim();
@@ -251,6 +260,128 @@ export type ExecAllowlistAnalysis = {
   segments: ExecCommandSegment[];
 };
 
+<<<<<<< HEAD
+=======
+function hasSegmentExecutableMatch(
+  segment: ExecCommandSegment,
+  predicate: (token: string) => boolean,
+): boolean {
+  const candidates = [
+    segment.resolution?.executableName,
+    segment.resolution?.rawExecutable,
+    segment.argv[0],
+  ];
+  for (const candidate of candidates) {
+    const trimmed = candidate?.trim();
+    if (!trimmed) {
+      continue;
+    }
+    if (predicate(trimmed)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function isShellWrapperSegment(segment: ExecCommandSegment): boolean {
+  return hasSegmentExecutableMatch(segment, isShellWrapperExecutable);
+}
+
+function isDispatchWrapperSegment(segment: ExecCommandSegment): boolean {
+  return hasSegmentExecutableMatch(segment, isDispatchWrapperExecutable);
+}
+
+function collectAllowAlwaysPatterns(params: {
+  segment: ExecCommandSegment;
+  cwd?: string;
+  env?: NodeJS.ProcessEnv;
+  platform?: string | null;
+  depth: number;
+  out: Set<string>;
+}) {
+  if (params.depth >= 3) {
+    return;
+  }
+
+  if (isDispatchWrapperSegment(params.segment)) {
+    const dispatchUnwrap = unwrapKnownDispatchWrapperInvocation(params.segment.argv);
+    if (dispatchUnwrap.kind !== "unwrapped" || dispatchUnwrap.argv.length === 0) {
+      return;
+    }
+    collectAllowAlwaysPatterns({
+      segment: {
+        raw: dispatchUnwrap.argv.join(" "),
+        argv: dispatchUnwrap.argv,
+        resolution: resolveCommandResolutionFromArgv(dispatchUnwrap.argv, params.cwd, params.env),
+      },
+      cwd: params.cwd,
+      env: params.env,
+      platform: params.platform,
+      depth: params.depth + 1,
+      out: params.out,
+    });
+    return;
+  }
+
+  const candidatePath = resolveAllowlistCandidatePath(params.segment.resolution, params.cwd);
+  if (!candidatePath) {
+    return;
+  }
+  if (!isShellWrapperSegment(params.segment)) {
+    params.out.add(candidatePath);
+    return;
+  }
+  const inlineCommand = extractShellWrapperInlineCommand(params.segment.argv);
+  if (!inlineCommand) {
+    return;
+  }
+  const nested = analyzeShellCommand({
+    command: inlineCommand,
+    cwd: params.cwd,
+    env: params.env,
+    platform: params.platform,
+  });
+  if (!nested.ok) {
+    return;
+  }
+  for (const nestedSegment of nested.segments) {
+    collectAllowAlwaysPatterns({
+      segment: nestedSegment,
+      cwd: params.cwd,
+      env: params.env,
+      platform: params.platform,
+      depth: params.depth + 1,
+      out: params.out,
+    });
+  }
+}
+
+/**
+ * Derive persisted allowlist patterns for an "allow always" decision.
+ * When a command is wrapped in a shell (for example `zsh -lc "<cmd>"`),
+ * persist the inner executable(s) rather than the shell binary.
+ */
+export function resolveAllowAlwaysPatterns(params: {
+  segments: ExecCommandSegment[];
+  cwd?: string;
+  env?: NodeJS.ProcessEnv;
+  platform?: string | null;
+}): string[] {
+  const patterns = new Set<string>();
+  for (const segment of params.segments) {
+    collectAllowAlwaysPatterns({
+      segment,
+      cwd: params.cwd,
+      env: params.env,
+      platform: params.platform,
+      depth: 0,
+      out: patterns,
+    });
+  }
+  return Array.from(patterns);
+}
+
+>>>>>>> cd919ebd2 (refactor(exec): unify wrapper resolution and split approvals tests)
 /**
  * Evaluates allowlist for shell commands (including &&, ||, ;) and returns analysis metadata.
  */
