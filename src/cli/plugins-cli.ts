@@ -39,6 +39,7 @@ import type { MoltbotConfig } from "../config/config.js";
 import { resolveStateDir } from "../config/paths.js";
 >>>>>>> 57d0f65e7 (CLI: add plugins uninstall command (#5985) (openclaw#6141) thanks @JustasMonkev)
 import { resolveArchiveKind } from "../infra/archive.js";
+import { enablePluginInConfig } from "../plugins/enable.js";
 import { installPluginFromNpmSpec, installPluginFromPath } from "../plugins/install.js";
 import { recordPluginInstall } from "../plugins/installs.js";
 import { clearPluginManifestRegistryCache } from "../plugins/manifest-registry.js";
@@ -141,22 +142,6 @@ function createPluginInstallLogger(): { info: (msg: string) => void; warn: (msg:
   return {
     info: (msg) => defaultRuntime.log(msg),
     warn: (msg) => defaultRuntime.log(theme.warn(msg)),
-  };
-}
-
-function enablePluginInConfig(config: OpenClawConfig, pluginId: string): OpenClawConfig {
-  return {
-    ...config,
-    plugins: {
-      ...config.plugins,
-      entries: {
-        ...config.plugins?.entries,
-        [pluginId]: {
-          ...(config.plugins?.entries?.[pluginId] as object | undefined),
-          enabled: true,
-        },
-      },
-    },
   };
 }
 
@@ -365,6 +350,7 @@ export function registerPluginsCli(program: Command) {
     .argument("<id>", "Plugin id")
     .action(async (id: string) => {
       const cfg = loadConfig();
+<<<<<<< HEAD
       let next: MoltbotConfig = {
         ...cfg,
         plugins: {
@@ -378,11 +364,23 @@ export function registerPluginsCli(program: Command) {
           },
         },
       };
+=======
+      const enableResult = enablePluginInConfig(cfg, id);
+      let next: OpenClawConfig = enableResult.config;
+>>>>>>> 8920e281c (Plugins: allowlist plugins when enabling from CLI)
       const slotResult = applySlotSelectionForPlugin(next, id);
       next = slotResult.config;
       await writeConfigFile(next);
       logSlotWarnings(slotResult.warnings);
-      defaultRuntime.log(`Enabled plugin "${id}". Restart the gateway to apply.`);
+      if (enableResult.enabled) {
+        defaultRuntime.log(`Enabled plugin "${id}". Restart the gateway to apply.`);
+        return;
+      }
+      defaultRuntime.log(
+        theme.warn(
+          `Plugin "${id}" could not be enabled (${enableResult.reason ?? "unknown reason"}).`,
+        ),
+      );
     });
 
   plugins
@@ -590,7 +588,7 @@ export function registerPluginsCli(program: Command) {
               },
             },
             probe.pluginId,
-          );
+          ).config;
           next = recordPluginInstall(next, {
             pluginId: probe.pluginId,
             source: "path",
@@ -620,6 +618,7 @@ export function registerPluginsCli(program: Command) {
         clearPluginManifestRegistryCache();
 
 <<<<<<< HEAD
+<<<<<<< HEAD
         let next: MoltbotConfig = {
           ...cfg,
           plugins: {
@@ -636,6 +635,9 @@ export function registerPluginsCli(program: Command) {
 =======
         let next = enablePluginInConfig(cfg, result.pluginId);
 >>>>>>> 29bec2bfe (refactor(cli): dedupe plugin install config wiring)
+=======
+        let next = enablePluginInConfig(cfg, result.pluginId).config;
+>>>>>>> 8920e281c (Plugins: allowlist plugins when enabling from CLI)
         const source: "archive" | "path" = resolveArchiveKind(resolved) ? "archive" : "path";
         next = recordPluginInstall(next, {
           pluginId: result.pluginId,
@@ -687,6 +689,7 @@ export function registerPluginsCli(program: Command) {
       clearPluginManifestRegistryCache();
 
 <<<<<<< HEAD
+<<<<<<< HEAD
       let next: MoltbotConfig = {
         ...cfg,
         plugins: {
@@ -703,6 +706,19 @@ export function registerPluginsCli(program: Command) {
 =======
       let next = enablePluginInConfig(cfg, result.pluginId);
 >>>>>>> 29bec2bfe (refactor(cli): dedupe plugin install config wiring)
+=======
+      let next = enablePluginInConfig(cfg, result.pluginId).config;
+      const resolvedSpec = result.npmResolution?.resolvedSpec;
+      const recordSpec = opts.pin && resolvedSpec ? resolvedSpec : raw;
+      if (opts.pin && !resolvedSpec) {
+        defaultRuntime.log(
+          theme.warn("Could not resolve exact npm version for --pin; storing original npm spec."),
+        );
+      }
+      if (opts.pin && resolvedSpec) {
+        defaultRuntime.log(`Pinned npm install record to ${resolvedSpec}.`);
+      }
+>>>>>>> 8920e281c (Plugins: allowlist plugins when enabling from CLI)
       next = recordPluginInstall(next, {
         pluginId: result.pluginId,
         source: "npm",
