@@ -1,6 +1,7 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+<<<<<<< HEAD
 
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import "./test-helpers/fast-coding-tools.js";
@@ -8,6 +9,11 @@ import "./test-helpers/fast-coding-tools.js";
 import type { MoltbotConfig } from "../config/config.js";
 import { ensureMoltbotModelsJson } from "./models-config.js";
 =======
+=======
+import type { SessionManager as PiSessionManager } from "@mariozechner/pi-coding-agent";
+import "./test-helpers/fast-coding-tools.js";
+import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
+>>>>>>> 239f72c58 (perf(test): consolidate archive safety cases and cache session manager)
 import type { OpenClawConfig } from "../config/config.js";
 >>>>>>> 47514e35a (test: dedupe pi embedded runner setup and orphan case)
 
@@ -131,6 +137,7 @@ vi.mock("@mariozechner/pi-ai", async () => {
 });
 
 let runEmbeddedPiAgent: typeof import("./pi-embedded-runner/run.js").runEmbeddedPiAgent;
+let SessionManager: PiSessionManager;
 let tempRoot: string | undefined;
 let agentDir: string;
 let workspaceDir: string;
@@ -144,6 +151,7 @@ beforeAll(async () => {
   tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-embedded-agent-"));
 =======
   ({ runEmbeddedPiAgent } = await import("./pi-embedded-runner/run.js"));
+  ({ SessionManager } = await import("@mariozechner/pi-coding-agent"));
   tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-embedded-agent-"));
 >>>>>>> a9b26d83d (perf(test): narrow pi-embedded runner e2e import path)
   agentDir = path.join(tempRoot, "agent");
@@ -197,7 +205,6 @@ const testSessionKey = "agent:test:embedded";
 const immediateEnqueue = async <T>(task: () => Promise<T>) => task();
 
 const runWithOrphanedSingleUserMessage = async (text: string) => {
-  const { SessionManager } = await import("@mariozechner/pi-coding-agent");
   const sessionFile = nextSessionFile();
   const sessionManager = SessionManager.open(sessionFile);
   sessionManager.appendMessage({
@@ -492,7 +499,6 @@ describe("runEmbeddedPiAgent", () => {
     "appends new user + assistant after existing transcript entries",
     { timeout: 90_000 },
     async () => {
-      const { SessionManager } = await import("@mariozechner/pi-coding-agent");
       const sessionFile = nextSessionFile();
 
       const sessionManager = SessionManager.open(sessionFile);
