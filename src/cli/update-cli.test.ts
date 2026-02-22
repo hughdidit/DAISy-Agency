@@ -228,8 +228,9 @@ describe("update-cli", () => {
     vi.mocked(fetchNpmTagVersion).mockClear();
     vi.mocked(resolveNpmChannelTag).mockClear();
     vi.mocked(runCommandWithTimeout).mockClear();
-    vi.mocked(runDaemonRestart).mockReset();
+    vi.mocked(runDaemonRestart).mockClear();
     vi.mocked(mockedRunDaemonInstall).mockClear();
+<<<<<<< HEAD
     vi.mocked(doctorCommand).mockReset();
 <<<<<<< HEAD
     vi.mocked(defaultRuntime.log).mockReset();
@@ -246,6 +247,9 @@ describe("update-cli", () => {
     runRestartScript.mockReset();
 >>>>>>> 0a188ee49 (test(ci): stabilize update and discord process tests)
 =======
+=======
+    vi.mocked(doctorCommand).mockClear();
+>>>>>>> e36f857e4 (test(cli): seed restart and doctor defaults with lightweight clears)
     vi.mocked(defaultRuntime.log).mockClear();
     vi.mocked(defaultRuntime.error).mockClear();
     vi.mocked(defaultRuntime.exit).mockClear();
@@ -311,6 +315,8 @@ describe("update-cli", () => {
     prepareRestartScript.mockResolvedValue("/tmp/openclaw-restart-test.sh");
     runRestartScript.mockResolvedValue(undefined);
     vi.mocked(runDaemonInstall).mockResolvedValue(undefined);
+    vi.mocked(runDaemonRestart).mockResolvedValue(true);
+    vi.mocked(doctorCommand).mockResolvedValue(undefined);
     setTty(false);
     setStdoutTty(false);
   });
