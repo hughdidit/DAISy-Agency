@@ -232,8 +232,15 @@ async function noteChannelPrimer(
       "DM security: default is pairing; unknown DMs get a pairing code.",
       `Approve with: ${formatCliCommand("moltbot pairing approve <channel> <code>")}`,
       'Public DMs require dmPolicy="open" + allowFrom=["*"].',
+<<<<<<< HEAD
       'Multi-user DMs: set session.dmScope="per-channel-peer" (or "per-account-channel-peer" for multi-account channels) to isolate sessions.',
       `Docs: ${formatDocsLink("/start/pairing", "start/pairing")}`,
+=======
+      "Multi-user DMs: run: " +
+        formatCliCommand('openclaw config set session.dmScope "per-channel-peer"') +
+        ' (or "per-account-channel-peer" for multi-account channels) to isolate sessions.',
+      `Docs: ${formatDocsLink("/channels/pairing", "channels/pairing")}`,
+>>>>>>> 72446f419 (docs: align CLI docs and help surface)
       "",
       ...channelLines,
     ].join("\n"),
@@ -286,8 +293,15 @@ async function maybeConfigureDmPolicies(params: {
         `Approve: ${formatCliCommand(`moltbot pairing approve ${policy.channel} <code>`)}`,
         `Allowlist DMs: ${policy.policyKey}="allowlist" + ${policy.allowFromKey} entries.`,
         `Public DMs: ${policy.policyKey}="open" + ${policy.allowFromKey} includes "*".`,
+<<<<<<< HEAD
         'Multi-user DMs: set session.dmScope="per-channel-peer" (or "per-account-channel-peer" for multi-account channels) to isolate sessions.',
         `Docs: ${formatDocsLink("/start/pairing", "start/pairing")}`,
+=======
+        "Multi-user DMs: run: " +
+          formatCliCommand('openclaw config set session.dmScope "per-channel-peer"') +
+          ' (or "per-account-channel-peer" for multi-account channels) to isolate sessions.',
+        `Docs: ${formatDocsLink("/channels/pairing", "channels/pairing")}`,
+>>>>>>> 72446f419 (docs: align CLI docs and help surface)
       ].join("\n"),
       `${policy.label} DM access`,
     );
