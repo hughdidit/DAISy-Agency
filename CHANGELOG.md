@@ -124,7 +124,11 @@ Docs: https://docs.openclaw.ai
 >>>>>>> 40494d67f (fix(browser): harden extension relay reconnect race)
 =======
 - Browser/Extension Relay: refactor the MV3 worker to preserve debugger attachments across relay drops, auto-reconnect with bounded backoff+jitter, persist and rehydrate attached tab state via `chrome.storage.session`, recover from `target_closed` navigation detaches, guard stale socket handlers, enforce per-tab operation locks and per-request timeouts, and add lifecycle keepalive/badge refresh hooks (`alarms`, `webNavigation`). (#15099, #6175, #8468, #9807)
+<<<<<<< HEAD
 >>>>>>> 1fe204374 (fix(browser): harden extension relay worker recovery)
+=======
+- Browser/Remote CDP: extend stale-target recovery so `ensureTabAvailable()` now reuses the sole available tab for remote CDP profiles (same behavior as extension profiles) while preserving strict `tab not found` errors when multiple tabs exist; includes remote-profile regression tests. (#15989)
+>>>>>>> 9ea5228f4 (fix(browser): recover stale remote target ids)
 - Signal/RPC: guard malformed Signal RPC JSON responses with a clear status-scoped error and add regression coverage for invalid JSON responses. (#22995) Thanks @adhitShet.
 - Gateway/Subagents: guard gateway and subagent session-key/message trim paths against undefined inputs to prevent early `Cannot read properties of undefined (reading 'trim')` crashes during subagent spawn and wait flows.
 >>>>>>> 1a9b5840d (fix(telegram): keep webhook monitor alive until abort)
