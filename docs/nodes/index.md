@@ -278,6 +278,11 @@ Notes:
 - `system.run` returns stdout/stderr/exit code in the payload.
 - `system.notify` respects notification permission state on the macOS app.
 - `system.run` supports `--cwd`, `--env KEY=VAL`, `--command-timeout`, and `--needs-screen-recording`.
+<<<<<<< HEAD
+=======
+- For shell wrappers (`bash|sh|zsh ... -c/-lc`), request-scoped `--env` values are reduced to an explicit allowlist (`TERM`, `LANG`, `LC_*`, `COLORTERM`, `NO_COLOR`, `FORCE_COLOR`).
+- On Windows node hosts in allowlist mode, shell-wrapper runs via `cmd.exe /c` require approval (allowlist entry alone does not auto-allow the wrapper form).
+>>>>>>> 0c1f491a0 (fix(gateway): clarify pairing and node auth guidance)
 - `system.notify` supports `--priority <passive|active|timeSensitive>` and `--delivery <system|overlay|auto>`.
 - macOS nodes drop `PATH` overrides; headless node hosts only accept `PATH` when it prepends the node host PATH.
 - On macOS node mode, `system.run` is gated by exec approvals in the macOS app (Settings → Exec approvals).

@@ -165,11 +165,19 @@ Docs: https://docs.openclaw.ai
 - ACP/Gateway: wait for gateway hello before opening ACP requests, and fail fast on pre-hello connect failures to avoid startup hangs and early `gateway not connected` request races. (#23390) Thanks @janckerchen.
 - Gateway/Auth: preserve `OPENCLAW_GATEWAY_PASSWORD` env override precedence for remote gateway call credentials after shared resolver refactors, preventing stale configured remote passwords from overriding runtime secret rotation.
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 66529c7aa (refactor(gateway): unify auth credential resolution)
 =======
 - Gateway/Tools: when agent tools pass an allowlisted `gatewayUrl` override, resolve local override tokens from env/config fallback but keep remote overrides strict to `gateway.remote.token`, preventing local token leakage to remote targets.
 - Gateway/Client: keep cached device-auth tokens on `device token mismatch` closes when the client used explicit shared token/password credentials, avoiding accidental pairing-token churn during explicit-auth failures.
 >>>>>>> 08431da5d (refactor(gateway): unify credential precedence across entrypoints)
+=======
+- Gateway/Auth: preserve shared-token `gateway token mismatch` auth errors when `auth.token` fallback device-token checks fail, and reserve `device token mismatch` guidance for explicit `auth.deviceToken` failures.
+- Gateway/Tools: when agent tools pass an allowlisted `gatewayUrl` override, resolve local override tokens from env/config fallback but keep remote overrides strict to `gateway.remote.token`, preventing local token leakage to remote targets.
+- Gateway/Client: keep cached device-auth tokens on `device token mismatch` closes when the client used explicit shared token/password credentials, avoiding accidental pairing-token churn during explicit-auth failures.
+- Node host/Exec: keep strict Windows allowlist behavior for `cmd.exe /c` shell-wrapper runs, and return explicit approval guidance when blocked (`SYSTEM_RUN_DENIED: allowlist miss`).
+- Control UI: show pairing-required guidance (commands + mobile tokenized URL reminder) when the dashboard disconnects with `1008 pairing required`.
+>>>>>>> 0c1f491a0 (fix(gateway): clarify pairing and node auth guidance)
 - Security/Audit: add `openclaw security audit` detection for open group policies that expose runtime/filesystem tools without sandbox/workspace guards (`security.exposure.open_groups_with_runtime_or_fs`).
 - Security/Exec env: block request-scoped `HOME` and `ZDOTDIR` overrides in host exec env sanitizers (Node + macOS), preventing shell startup-file execution before allowlist-evaluated command bodies. This ships in the next npm release. Thanks @tdjackey for reporting.
 - Security/Gateway: emit a startup security warning when insecure/dangerous config flags are enabled (including `gateway.controlUi.dangerouslyDisableDeviceAuth=true`) and point operators to `openclaw security audit`.
