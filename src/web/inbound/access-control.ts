@@ -1,4 +1,11 @@
 import { loadConfig } from "../../config/config.js";
+<<<<<<< HEAD
+=======
+import {
+  resolveOpenProviderRuntimeGroupPolicy,
+  warnMissingProviderGroupPolicyFallbackOnce,
+} from "../../config/runtime-group-policy.js";
+>>>>>>> 85e5ed3f7 (refactor(channels): centralize runtime group policy handling)
 import { logVerbose } from "../../globals.js";
 import { buildPairingReply } from "../../pairing/pairing-messages.js";
 import {
@@ -17,6 +24,24 @@ export type InboundAccessControlResult = {
 
 const PAIRING_REPLY_HISTORY_GRACE_MS = 30_000;
 
+<<<<<<< HEAD
+=======
+function resolveWhatsAppRuntimeGroupPolicy(params: {
+  providerConfigPresent: boolean;
+  groupPolicy?: "open" | "allowlist" | "disabled";
+  defaultGroupPolicy?: "open" | "allowlist" | "disabled";
+}): {
+  groupPolicy: "open" | "allowlist" | "disabled";
+  providerMissingFallbackApplied: boolean;
+} {
+  return resolveOpenProviderRuntimeGroupPolicy({
+    providerConfigPresent: params.providerConfigPresent,
+    groupPolicy: params.groupPolicy,
+    defaultGroupPolicy: params.defaultGroupPolicy,
+  });
+}
+
+>>>>>>> 85e5ed3f7 (refactor(channels): centralize runtime group policy handling)
 export async function checkInboundAccessControl(params: {
   accountId: string;
   from: string;
@@ -83,7 +108,21 @@ export async function checkInboundAccessControl(params: {
   // - "disabled": block all group messages entirely
   // - "allowlist": only allow group messages from senders in groupAllowFrom/allowFrom
   const defaultGroupPolicy = cfg.channels?.defaults?.groupPolicy;
+<<<<<<< HEAD
   const groupPolicy = account.groupPolicy ?? defaultGroupPolicy ?? "open";
+=======
+  const { groupPolicy, providerMissingFallbackApplied } = resolveWhatsAppRuntimeGroupPolicy({
+    providerConfigPresent: cfg.channels?.whatsapp !== undefined,
+    groupPolicy: account.groupPolicy,
+    defaultGroupPolicy,
+  });
+  warnMissingProviderGroupPolicyFallbackOnce({
+    providerMissingFallbackApplied,
+    providerKey: "whatsapp",
+    accountId: account.accountId,
+    log: (message) => logVerbose(message),
+  });
+>>>>>>> 85e5ed3f7 (refactor(channels): centralize runtime group policy handling)
   if (params.group && groupPolicy === "disabled") {
     logVerbose("Blocked group message (groupPolicy: disabled)");
     return {

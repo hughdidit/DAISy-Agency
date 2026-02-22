@@ -17,6 +17,10 @@ import {
   parseTelegramReplyToMessageId,
   parseTelegramThreadId,
   resolveDefaultTelegramAccountId,
+<<<<<<< HEAD
+=======
+  resolveAllowlistProviderRuntimeGroupPolicy,
+>>>>>>> 85e5ed3f7 (refactor(channels): centralize runtime group policy handling)
   resolveTelegramAccount,
   resolveTelegramGroupRequireMention,
   resolveTelegramGroupToolPolicy,
@@ -142,7 +146,15 @@ export const telegramPlugin: ChannelPlugin<ResolvedTelegramAccount, TelegramProb
     },
     collectWarnings: ({ account, cfg }) => {
       const defaultGroupPolicy = cfg.channels?.defaults?.groupPolicy;
+<<<<<<< HEAD
       const groupPolicy = account.config.groupPolicy ?? defaultGroupPolicy ?? "allowlist";
+=======
+      const { groupPolicy } = resolveAllowlistProviderRuntimeGroupPolicy({
+        providerConfigPresent: cfg.channels?.telegram !== undefined,
+        groupPolicy: account.config.groupPolicy,
+        defaultGroupPolicy,
+      });
+>>>>>>> 85e5ed3f7 (refactor(channels): centralize runtime group policy handling)
       if (groupPolicy !== "open") {
         return [];
       }

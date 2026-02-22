@@ -74,7 +74,14 @@ import {
 } from "../../config/commands.js";
 import type { OpenClawConfig, ReplyToMode } from "../../config/config.js";
 import { loadConfig } from "../../config/config.js";
+<<<<<<< HEAD
 import type { GroupPolicy } from "../../config/types.base.js";
+=======
+import {
+  resolveOpenProviderRuntimeGroupPolicy,
+  warnMissingProviderGroupPolicyFallbackOnce,
+} from "../../config/runtime-group-policy.js";
+>>>>>>> 85e5ed3f7 (refactor(channels): centralize runtime group policy handling)
 import { danger, logVerbose, shouldLogVerbose, warn } from "../../globals.js";
 import { formatErrorMessage } from "../../infra/errors.js";
 import { createDiscordRetryRunner } from "../../infra/retry-policy.js";
@@ -275,6 +282,7 @@ function dedupeSkillCommandsForDiscord(
   return deduped;
 }
 
+<<<<<<< HEAD
 function resolveDiscordRuntimeGroupPolicy(params: {
   providerConfigPresent: boolean;
   groupPolicy?: GroupPolicy;
@@ -294,6 +302,8 @@ function resolveDiscordRuntimeGroupPolicy(params: {
   return { groupPolicy, providerMissingFallbackApplied };
 }
 
+=======
+>>>>>>> 85e5ed3f7 (refactor(channels): centralize runtime group policy handling)
 async function deployDiscordCommands(params: {
   client: Client;
   runtime: RuntimeEnv;
@@ -378,11 +388,12 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
   let guildEntries = discordCfg.guilds;
   const defaultGroupPolicy = cfg.channels?.defaults?.groupPolicy;
   const providerConfigPresent = cfg.channels?.discord !== undefined;
-  const { groupPolicy, providerMissingFallbackApplied } = resolveDiscordRuntimeGroupPolicy({
+  const { groupPolicy, providerMissingFallbackApplied } = resolveOpenProviderRuntimeGroupPolicy({
     providerConfigPresent,
     groupPolicy: discordCfg.groupPolicy,
     defaultGroupPolicy,
   });
+<<<<<<< HEAD
   if (providerMissingFallbackApplied) {
     runtime.log?.(
       warn(
@@ -390,6 +401,17 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
       ),
     );
   }
+=======
+  const discordCfg =
+    rawDiscordCfg.groupPolicy === groupPolicy ? rawDiscordCfg : { ...rawDiscordCfg, groupPolicy };
+  warnMissingProviderGroupPolicyFallbackOnce({
+    providerMissingFallbackApplied,
+    providerKey: "discord",
+    accountId: account.accountId,
+    blockedLabel: "guild messages",
+    log: (message) => runtime.log?.(warn(message)),
+  });
+>>>>>>> 85e5ed3f7 (refactor(channels): centralize runtime group policy handling)
   let allowFrom = discordCfg.allowFrom ?? dmConfig?.allowFrom;
   const mediaMaxBytes = (opts.mediaMaxMb ?? discordCfg.mediaMaxMb ?? 8) * 1024 * 1024;
   const textLimit = resolveTextChunkLimit(cfg, "discord", account.accountId, {
@@ -1023,7 +1045,7 @@ async function clearDiscordNativeCommands(params: {
 export const __testing = {
   createDiscordGatewayPlugin,
   dedupeSkillCommandsForDiscord,
-  resolveDiscordRuntimeGroupPolicy,
+  resolveDiscordRuntimeGroupPolicy: resolveOpenProviderRuntimeGroupPolicy,
   resolveDiscordRestFetch,
   resolveThreadBindingsEnabled,
 };

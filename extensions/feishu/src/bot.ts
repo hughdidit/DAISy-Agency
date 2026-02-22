@@ -6,6 +6,12 @@ import {
   clearHistoryEntriesIfEnabled,
   DEFAULT_GROUP_HISTORY_LIMIT,
   type HistoryEntry,
+<<<<<<< HEAD
+=======
+  recordPendingHistoryEntryIfEnabled,
+  resolveOpenProviderRuntimeGroupPolicy,
+  warnMissingProviderGroupPolicyFallbackOnce,
+>>>>>>> 85e5ed3f7 (refactor(channels): centralize runtime group policy handling)
 } from "openclaw/plugin-sdk";
 import type { FeishuMessageContext, FeishuMediaInfo, ResolvedFeishuAccount } from "./types.js";
 import type { DynamicAgentCreationConfig } from "./types.js";
@@ -594,7 +600,22 @@ export async function handleFeishuMessage(params: {
   );
 
   if (isGroup) {
+<<<<<<< HEAD
     const groupPolicy = feishuCfg?.groupPolicy ?? "open";
+=======
+    const defaultGroupPolicy = cfg.channels?.defaults?.groupPolicy;
+    const { groupPolicy, providerMissingFallbackApplied } = resolveOpenProviderRuntimeGroupPolicy({
+      providerConfigPresent: cfg.channels?.feishu !== undefined,
+      groupPolicy: feishuCfg?.groupPolicy,
+      defaultGroupPolicy,
+    });
+    warnMissingProviderGroupPolicyFallbackOnce({
+      providerMissingFallbackApplied,
+      providerKey: "feishu",
+      accountId: account.accountId,
+      log,
+    });
+>>>>>>> 85e5ed3f7 (refactor(channels): centralize runtime group policy handling)
     const groupAllowFrom = feishuCfg?.groupAllowFrom ?? [];
     // DEBUG: log(`feishu[${account.accountId}]: groupPolicy=${groupPolicy}`);
     const groupConfig = resolveFeishuGroupConfig({ cfg: feishuCfg, groupId: ctx.chatId });

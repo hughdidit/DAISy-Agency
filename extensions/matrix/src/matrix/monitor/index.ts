@@ -1,5 +1,15 @@
 import { format } from "node:util";
+<<<<<<< HEAD
 import { mergeAllowlist, summarizeMapping, type RuntimeEnv } from "openclaw/plugin-sdk";
+=======
+import {
+  mergeAllowlist,
+  resolveAllowlistProviderRuntimeGroupPolicy,
+  summarizeMapping,
+  warnMissingProviderGroupPolicyFallbackOnce,
+  type RuntimeEnv,
+} from "openclaw/plugin-sdk";
+>>>>>>> 85e5ed3f7 (refactor(channels): centralize runtime group policy handling)
 import { resolveMatrixTargets } from "../../resolve-targets.js";
 import { getMatrixRuntime } from "../../runtime.js";
 <<<<<<< HEAD
@@ -256,7 +266,23 @@ export async function monitorMatrixProvider(opts: MonitorMatrixOpts = {}): Promi
 
   const mentionRegexes = core.channel.mentions.buildMentionRegexes(cfg);
   const defaultGroupPolicy = cfg.channels?.defaults?.groupPolicy;
+<<<<<<< HEAD
   const groupPolicyRaw = cfg.channels?.matrix?.groupPolicy ?? defaultGroupPolicy ?? "allowlist";
+=======
+  const { groupPolicy: groupPolicyRaw, providerMissingFallbackApplied } =
+    resolveAllowlistProviderRuntimeGroupPolicy({
+      providerConfigPresent: cfg.channels?.matrix !== undefined,
+      groupPolicy: accountConfig.groupPolicy,
+      defaultGroupPolicy,
+    });
+  warnMissingProviderGroupPolicyFallbackOnce({
+    providerMissingFallbackApplied,
+    providerKey: "matrix",
+    accountId: account.accountId,
+    blockedLabel: "room messages",
+    log: (message) => logVerboseMessage(message),
+  });
+>>>>>>> 85e5ed3f7 (refactor(channels): centralize runtime group policy handling)
   const groupPolicy = allowlistOnly && groupPolicyRaw === "open" ? "allowlist" : groupPolicyRaw;
   const replyToMode = opts.replyToMode ?? cfg.channels?.matrix?.replyToMode ?? "off";
   const threadReplies = cfg.channels?.matrix?.threadReplies ?? "inbound";

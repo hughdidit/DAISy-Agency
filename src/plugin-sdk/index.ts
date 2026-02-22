@@ -128,6 +128,18 @@ export type {
   MSTeamsTeamConfig,
 } from "../config/types.js";
 export {
+<<<<<<< HEAD
+=======
+  resolveAllowlistProviderRuntimeGroupPolicy,
+  resolveOpenProviderRuntimeGroupPolicy,
+  resolveRuntimeGroupPolicy,
+  type RuntimeGroupPolicyResolution,
+  type RuntimeGroupPolicyParams,
+  type ResolveProviderRuntimeGroupPolicyParams,
+  warnMissingProviderGroupPolicyFallbackOnce,
+} from "../config/runtime-group-policy.js";
+export {
+>>>>>>> 85e5ed3f7 (refactor(channels): centralize runtime group policy handling)
   DiscordConfigSchema,
   GoogleChatConfigSchema,
   IMessageConfigSchema,
