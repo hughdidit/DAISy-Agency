@@ -130,6 +130,7 @@ High-signal `checkId` values you will most likely see in real deployments (not e
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 | `checkId`                                    | Severity      | Why it matters                                           | Primary fix key/path                             | Auto-fix |
 | -------------------------------------------- | ------------- | -------------------------------------------------------- | ------------------------------------------------ | -------- |
 | `fs.state_dir.perms_world_writable`          | critical      | Other users/processes can modify full OpenClaw state     | filesystem perms on `~/.openclaw`                | yes      |
@@ -151,6 +152,8 @@ High-signal `checkId` values you will most likely see in real deployments (not e
 | `plugins.tools_reachable_permissive_policy`  | warn          | Extension tools reachable in permissive contexts         | `tools.profile` + tool allow/deny                | no       |
 | `models.small_params`                        | critical/info | Small models + unsafe tool surfaces raise injection risk | model choice + sandbox/tool policy               | no       |
 =======
+=======
+>>>>>>> 008a8c9dc (chore(docs): normalize security finding table formatting)
 | `checkId`                                          | Severity      | Why it matters                                                            | Primary fix key/path                                                                              | Auto-fix |
 | -------------------------------------------------- | ------------- | ------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- | -------- |
 | `fs.state_dir.perms_world_writable`                | critical      | Other users/processes can modify full OpenClaw state                      | filesystem perms on `~/.openclaw`                                                                 | yes      |
@@ -160,6 +163,10 @@ High-signal `checkId` values you will most likely see in real deployments (not e
 | `gateway.loopback_no_auth`                         | critical      | Reverse-proxied loopback may become unauthenticated                       | `gateway.auth.*`, proxy setup                                                                     | no       |
 | `gateway.http.no_auth`                             | warn/critical | Gateway HTTP APIs reachable with `auth.mode="none"`                       | `gateway.auth.mode`, `gateway.http.endpoints.*`                                                   | no       |
 | `gateway.tools_invoke_http.dangerous_allow`        | warn/critical | Re-enables dangerous tools over HTTP API                                  | `gateway.tools.allow`                                                                             | no       |
+<<<<<<< HEAD
+=======
+| `gateway.nodes.allow_commands_dangerous`           | warn/critical | Enables high-impact node commands (camera/screen/contacts/calendar/SMS)   | `gateway.nodes.allowCommands`                                                                     | no       |
+>>>>>>> 008a8c9dc (chore(docs): normalize security finding table formatting)
 | `gateway.tailscale_funnel`                         | critical      | Public internet exposure                                                  | `gateway.tailscale.mode`                                                                          | no       |
 | `gateway.control_ui.insecure_auth`                 | warn          | Insecure-auth compatibility toggle enabled                                | `gateway.controlUi.allowInsecureAuth`                                                             | no       |
 | `gateway.control_ui.device_auth_disabled`          | critical      | Disables device identity check                                            | `gateway.controlUi.dangerouslyDisableDeviceAuth`                                                  | no       |
@@ -171,6 +178,7 @@ High-signal `checkId` values you will most likely see in real deployments (not e
 | `sandbox.docker_config_mode_off`                   | warn          | Sandbox Docker config present but inactive                                | `agents.*.sandbox.mode`                                                                           | no       |
 | `tools.exec.host_sandbox_no_sandbox_defaults`      | warn          | `exec host=sandbox` resolves to host exec when sandbox is off             | `tools.exec.host`, `agents.defaults.sandbox.mode`                                                 | no       |
 | `tools.exec.host_sandbox_no_sandbox_agents`        | warn          | Per-agent `exec host=sandbox` resolves to host exec when sandbox is off   | `agents.list[].tools.exec.host`, `agents.list[].sandbox.mode`                                     | no       |
+<<<<<<< HEAD
 | `security.exposure.open_groups_with_runtime_or_fs` | critical/warn | Open groups can reach command/file tools without sandbox/workspace guards | `channels.*.groupPolicy`, `tools.profile/deny`, `tools.fs.workspaceOnly`, `agents.*.sandbox.mode` | no       |
 | `tools.profile_minimal_overridden`                 | warn          | Agent overrides bypass global minimal profile                             | `agents.list[].tools.profile`                                                                     | no       |
 | `plugins.tools_reachable_permissive_policy`        | warn          | Extension tools reachable in permissive contexts                          | `tools.profile` + tool allow/deny                                                                 | no       |
@@ -203,6 +211,12 @@ High-signal `checkId` values you will most likely see in real deployments (not e
 | `plugins.tools_reachable_permissive_policy`        | warn          | Extension tools reachable in permissive contexts                          | `tools.profile` + tool allow/deny                                                                   | no       |
 | `models.small_params`                              | critical/info | Small models + unsafe tool surfaces raise injection risk                  | model choice + sandbox/tool policy                                                                  | no       |
 >>>>>>> 265da4dd2 (fix(security): harden gateway command/audit guardrails)
+=======
+| `security.exposure.open_groups_with_runtime_or_fs` | critical/warn | Open groups can reach command/file tools without sandbox/workspace guards | `channels.*.groupPolicy`, `tools.profile/deny`, `tools.fs.workspaceOnly`, `agents.*.sandbox.mode` | no       |
+| `tools.profile_minimal_overridden`                 | warn          | Agent overrides bypass global minimal profile                             | `agents.list[].tools.profile`                                                                     | no       |
+| `plugins.tools_reachable_permissive_policy`        | warn          | Extension tools reachable in permissive contexts                          | `tools.profile` + tool allow/deny                                                                 | no       |
+| `models.small_params`                              | critical/info | Small models + unsafe tool surfaces raise injection risk                  | model choice + sandbox/tool policy                                                                | no       |
+>>>>>>> 008a8c9dc (chore(docs): normalize security finding table formatting)
 
 ## Control UI over HTTP
 
