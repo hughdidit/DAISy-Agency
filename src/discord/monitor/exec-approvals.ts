@@ -213,6 +213,12 @@ function buildExecApprovalPayload(container: DiscordUiContainer): MessagePayload
   return { components };
 }
 
+function formatCommandPreview(commandText: string, maxChars: number): string {
+  const commandRaw =
+    commandText.length > maxChars ? `${commandText.slice(0, maxChars)}...` : commandText;
+  return commandRaw.replace(/`/g, "\u200b`");
+}
+
 function createExecApprovalRequestContainer(params: {
   request: ExecApprovalRequest;
   cfg: OpenClawConfig;
@@ -220,8 +226,12 @@ function createExecApprovalRequestContainer(params: {
   actionRow?: Row<Button>;
 }): ExecApprovalContainer {
   const commandText = params.request.request.command;
+<<<<<<< HEAD
   const commandPreview =
     commandText.length > 1000 ? `${commandText.slice(0, 1000)}...` : commandText;
+=======
+  const commandPreview = formatCommandPreview(commandText, 1000);
+>>>>>>> 296b19e41 (test: dedupe gateway browser discord and channel coverage)
   const expiresAtSeconds = Math.max(0, Math.floor(params.request.expiresAtMs / 1000));
 
   return new ExecApprovalContainer({
@@ -245,7 +255,11 @@ function createResolvedContainer(params: {
   accountId: string;
 }): ExecApprovalContainer {
   const commandText = params.request.request.command;
+<<<<<<< HEAD
   const commandPreview = commandText.length > 500 ? `${commandText.slice(0, 500)}...` : commandText;
+=======
+  const commandPreview = formatCommandPreview(commandText, 500);
+>>>>>>> 296b19e41 (test: dedupe gateway browser discord and channel coverage)
 
   const decisionLabel =
     params.decision === "allow-once"
@@ -278,7 +292,11 @@ function createExpiredContainer(params: {
   accountId: string;
 }): ExecApprovalContainer {
   const commandText = params.request.request.command;
+<<<<<<< HEAD
   const commandPreview = commandText.length > 500 ? `${commandText.slice(0, 500)}...` : commandText;
+=======
+  const commandPreview = formatCommandPreview(commandText, 500);
+>>>>>>> 296b19e41 (test: dedupe gateway browser discord and channel coverage)
 
   return new ExecApprovalContainer({
     cfg: params.cfg,

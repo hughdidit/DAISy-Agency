@@ -28,6 +28,54 @@ const gatewayToken = "test-token";
 let envSnapshot: ReturnType<typeof captureEnv>;
 >>>>>>> 31980bcaf (refactor(test): dedupe gateway env restores)
 
+type SessionSendTool = ReturnType<typeof createOpenClawTools>[number];
+
+function getSessionsSendTool(): SessionSendTool {
+  const tool = createOpenClawTools().find((candidate) => candidate.name === "sessions_send");
+  if (!tool) {
+    throw new Error("missing sessions_send tool");
+  }
+  return tool;
+}
+
+async function emitLifecycleAssistantReply(params: {
+  opts: unknown;
+  defaultSessionId: string;
+  includeTimestamp?: boolean;
+  resolveText: (extraSystemPrompt?: string) => string;
+}) {
+  const commandParams = params.opts as {
+    sessionId?: string;
+    runId?: string;
+    extraSystemPrompt?: string;
+  };
+  const sessionId = commandParams.sessionId ?? params.defaultSessionId;
+  const runId = commandParams.runId ?? sessionId;
+  const sessionFile = resolveSessionTranscriptPath(sessionId);
+  await fs.mkdir(path.dirname(sessionFile), { recursive: true });
+
+  const startedAt = Date.now();
+  emitAgentEvent({
+    runId,
+    stream: "lifecycle",
+    data: { phase: "start", startedAt },
+  });
+
+  const text = params.resolveText(commandParams.extraSystemPrompt);
+  const message = {
+    role: "assistant",
+    content: [{ type: "text", text }],
+    ...(params.includeTimestamp ? { timestamp: Date.now() } : {}),
+  };
+  await fs.appendFile(sessionFile, `${JSON.stringify({ message })}\n`, "utf8");
+
+  emitAgentEvent({
+    runId,
+    stream: "lifecycle",
+    data: { phase: "end", startedAt, endedAt: Date.now() },
+  });
+}
+
 beforeAll(async () => {
   envSnapshot = captureEnv(["OPENCLAW_GATEWAY_PORT", "OPENCLAW_GATEWAY_TOKEN"]);
   gatewayPort = await getFreePort();
@@ -62,52 +110,24 @@ afterAll(async () => {
 describe("sessions_send gateway loopback", () => {
   it("returns reply when lifecycle ends before agent.wait", async () => {
     const spy = agentCommand as unknown as Mock<(opts: unknown) => Promise<void>>;
-    spy.mockImplementation(async (opts: unknown) => {
-      const params = opts as {
-        sessionId?: string;
-        runId?: string;
-        extraSystemPrompt?: string;
-      };
-      const sessionId = params.sessionId ?? "main";
-      const runId = params.runId ?? sessionId;
-      const sessionFile = resolveSessionTranscriptPath(sessionId);
-      await fs.mkdir(path.dirname(sessionFile), { recursive: true });
-
-      const startedAt = Date.now();
-      emitAgentEvent({
-        runId,
-        stream: "lifecycle",
-        data: { phase: "start", startedAt },
-      });
-
-      let text = "pong";
-      if (params.extraSystemPrompt?.includes("Agent-to-agent reply step")) {
-        text = "REPLY_SKIP";
-      } else if (params.extraSystemPrompt?.includes("Agent-to-agent announce step")) {
-        text = "ANNOUNCE_SKIP";
-      }
-      const message = {
-        role: "assistant",
-        content: [{ type: "text", text }],
-        timestamp: Date.now(),
-      };
-      await fs.appendFile(sessionFile, `${JSON.stringify({ message })}\n`, "utf8");
-
-      emitAgentEvent({
-        runId,
-        stream: "lifecycle",
-        data: {
-          phase: "end",
-          startedAt,
-          endedAt: Date.now(),
+    spy.mockImplementation(async (opts: unknown) =>
+      emitLifecycleAssistantReply({
+        opts,
+        defaultSessionId: "main",
+        includeTimestamp: true,
+        resolveText: (extraSystemPrompt) => {
+          if (extraSystemPrompt?.includes("Agent-to-agent reply step")) {
+            return "REPLY_SKIP";
+          }
+          if (extraSystemPrompt?.includes("Agent-to-agent announce step")) {
+            return "ANNOUNCE_SKIP";
+          }
+          return "pong";
         },
-      });
-    });
+      }),
+    );
 
-    const tool = createOpenClawTools().find((candidate) => candidate.name === "sessions_send");
-    if (!tool) {
-      throw new Error("missing sessions_send tool");
-    }
+    const tool = getSessionsSendTool();
 
     const result = await tool.execute("call-loopback", {
       sessionKey: "main",
@@ -147,6 +167,7 @@ describe("sessions_send label lookup", () => {
     );
 
     const spy = agentCommand as unknown as Mock<(opts: unknown) => Promise<void>>;
+<<<<<<< HEAD
     spy.mockImplementation(async (opts: unknown) => {
 >>>>>>> 6e5df1dc0 (chore: Fix types in tests 25/N.)
       const params = opts as {
@@ -179,6 +200,15 @@ describe("sessions_send label lookup", () => {
         data: { phase: "end", startedAt, endedAt: Date.now() },
       });
     });
+=======
+    spy.mockImplementation(async (opts: unknown) =>
+      emitLifecycleAssistantReply({
+        opts,
+        defaultSessionId: "test-labeled",
+        resolveText: () => "labeled response",
+      }),
+    );
+>>>>>>> 296b19e41 (test: dedupe gateway browser discord and channel coverage)
 
     // First, create a session with a label via sessions.patch
     const { callGateway } = await import("./call.js");
@@ -188,10 +218,7 @@ describe("sessions_send label lookup", () => {
       timeoutMs: 5000,
     });
 
-    const tool = createOpenClawTools().find((candidate) => candidate.name === "sessions_send");
-    if (!tool) {
-      throw new Error("missing sessions_send tool");
-    }
+    const tool = getSessionsSendTool();
 
     // Send using label instead of sessionKey
     const result = await tool.execute("call-by-label", {
@@ -210,10 +237,7 @@ describe("sessions_send label lookup", () => {
   });
 
   it("returns error when label not found", { timeout: 60_000 }, async () => {
-    const tool = createOpenClawTools().find((candidate) => candidate.name === "sessions_send");
-    if (!tool) {
-      throw new Error("missing sessions_send tool");
-    }
+    const tool = getSessionsSendTool();
 
     const result = await tool.execute("call-missing-label", {
       label: "nonexistent-label",
@@ -226,10 +250,7 @@ describe("sessions_send label lookup", () => {
   });
 
   it("returns error when neither sessionKey nor label provided", { timeout: 60_000 }, async () => {
-    const tool = createOpenClawTools().find((candidate) => candidate.name === "sessions_send");
-    if (!tool) {
-      throw new Error("missing sessions_send tool");
-    }
+    const tool = getSessionsSendTool();
 
     const result = await tool.execute("call-no-key", {
       message: "hello",
