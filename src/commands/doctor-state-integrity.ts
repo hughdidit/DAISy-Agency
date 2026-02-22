@@ -34,6 +34,7 @@ import {
   loadSessionStore,
   resolveMainSessionKey,
   resolveSessionFilePath,
+  resolveSessionFilePathOptions,
   resolveSessionTranscriptsDirForAgent,
   resolveStorePath,
 } from "../config/sessions.js";
@@ -358,6 +359,7 @@ export async function noteStateIntegrity(
   }
 
   const store = loadSessionStore(storePath);
+  const sessionPathOpts = resolveSessionFilePathOptions({ agentId, storePath });
   const entries = Object.entries(store).filter(([, entry]) => entry && typeof entry === "object");
   if (entries.length > 0) {
     const recent = entries
@@ -373,9 +375,7 @@ export async function noteStateIntegrity(
       if (!sessionId) {
         return false;
       }
-      const transcriptPath = resolveSessionFilePath(sessionId, entry, {
-        agentId,
-      });
+      const transcriptPath = resolveSessionFilePath(sessionId, entry, sessionPathOpts);
       return !existsFile(transcriptPath);
     });
     if (missing.length > 0) {
@@ -387,7 +387,11 @@ export async function noteStateIntegrity(
     const mainKey = resolveMainSessionKey(cfg);
     const mainEntry = store[mainKey];
     if (mainEntry?.sessionId) {
-      const transcriptPath = resolveSessionFilePath(mainEntry.sessionId, mainEntry, { agentId });
+      const transcriptPath = resolveSessionFilePath(
+        mainEntry.sessionId,
+        mainEntry,
+        sessionPathOpts,
+      );
       if (!existsFile(transcriptPath)) {
         warnings.push(
           `- Main session transcript missing (${shortenHomePath(transcriptPath)}). History will appear to reset.`,
