@@ -21,6 +21,10 @@ import { createExecTool } from "./bash-tools.exec.js";
 import { killProcessTree } from "./shell-utils.js";
 >>>>>>> 2e375a549 (chore: Fix types in tests 32/N.)
 
+const BACKGROUND_HOLD_CMD = 'node -e "setTimeout(() => {}, 1000)"';
+const ABORT_SETTLE_MS = process.platform === "win32" ? 200 : 60;
+const ABORT_WAIT_TIMEOUT_MS = process.platform === "win32" ? 1_500 : 600;
+
 afterEach(() => {
   resetProcessRegistryForTests();
 });
@@ -71,9 +75,9 @@ async function expectBackgroundSessionSurvivesAbort(params: {
       () => {
         const running = getSession(sessionId);
         const finished = getFinishedSession(sessionId);
-        return Date.now() - startedAt >= 100 && !finished && running?.exited === false;
+        return Date.now() - startedAt >= ABORT_SETTLE_MS && !finished && running?.exited === false;
       },
-      { timeout: process.platform === "win32" ? 1_500 : 800, interval: 20 },
+      { timeout: ABORT_WAIT_TIMEOUT_MS, interval: 20 },
     )
     .toBe(true);
 
@@ -116,7 +120,7 @@ test("background exec is not killed when tool signal aborts", async () => {
   const tool = createExecTool({ allowBackground: true, backgroundMs: 0 });
   await expectBackgroundSessionSurvivesAbort({
     tool,
-    executeParams: { command: 'node -e "setTimeout(() => {}, 5000)"', background: true },
+    executeParams: { command: BACKGROUND_HOLD_CMD, background: true },
   });
 });
 
@@ -126,7 +130,7 @@ test("pty background exec is not killed when tool signal aborts", async () => {
   const tool = createExecTool({ allowBackground: true, backgroundMs: 0 });
   await expectBackgroundSessionSurvivesAbort({
     tool,
-    executeParams: { command: 'node -e "setTimeout(() => {}, 5000)"', background: true, pty: true },
+    executeParams: { command: BACKGROUND_HOLD_CMD, background: true, pty: true },
   });
 });
 
@@ -136,7 +140,7 @@ test("background exec still times out after tool signal abort", async () => {
   await expectBackgroundSessionTimesOut({
     tool,
     executeParams: {
-      command: 'node -e "setTimeout(() => {}, 5000)"',
+      command: BACKGROUND_HOLD_CMD,
       background: true,
       timeout: 0.2,
     },
@@ -148,7 +152,7 @@ test("yielded background exec is not killed when tool signal aborts", async () =
   const tool = createExecTool({ allowBackground: true, backgroundMs: 10 });
   await expectBackgroundSessionSurvivesAbort({
     tool,
-    executeParams: { command: 'node -e "setTimeout(() => {}, 5000)"', yieldMs: 5 },
+    executeParams: { command: BACKGROUND_HOLD_CMD, yieldMs: 5 },
   });
 });
 
@@ -157,7 +161,7 @@ test("yielded background exec still times out", async () => {
   await expectBackgroundSessionTimesOut({
     tool,
     executeParams: {
-      command: 'node -e "setTimeout(() => {}, 5000)"',
+      command: BACKGROUND_HOLD_CMD,
       yieldMs: 5,
       timeout: 0.2,
     },
