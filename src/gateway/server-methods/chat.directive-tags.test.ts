@@ -109,7 +109,14 @@ function createChatContext(): Pick<
     removeChatRun: vi.fn(),
     dedupe: new Map(),
     registerToolEventRecipient: vi.fn(),
+<<<<<<< HEAD
     logGateway: createSubsystemLogger("gateway/server-methods/chat.directive-tags.test"),
+=======
+    logGateway: {
+      warn: vi.fn(),
+      debug: vi.fn(),
+    } as unknown as GatewayRequestContext["logGateway"],
+>>>>>>> 5ffcc4b73 (test: fix logger stub typing in directive-tags test)
   };
 }
 
