@@ -13,6 +13,14 @@ const ABORT_WAIT_TIMEOUT_MS = process.platform === "win32" ? 1_500 : 450;
 const POLL_INTERVAL_MS = 15;
 const FINISHED_WAIT_TIMEOUT_MS = process.platform === "win32" ? 8_000 : 1_200;
 const BACKGROUND_TIMEOUT_SEC = process.platform === "win32" ? 0.2 : 0.12;
+const TEST_EXEC_DEFAULTS = {
+  security: "full" as const,
+  ask: "off" as const,
+};
+
+const createTestExecTool = (
+  defaults?: Parameters<typeof createExecTool>[0],
+): ReturnType<typeof createExecTool> => createExecTool({ ...TEST_EXEC_DEFAULTS, ...defaults });
 
 afterEach(() => {
   resetProcessRegistryForTests();
@@ -106,7 +114,7 @@ async function expectBackgroundSessionTimesOut(params: {
 }
 
 test("background exec is not killed when tool signal aborts", async () => {
-  const tool = createExecTool({ allowBackground: true, backgroundMs: 0 });
+  const tool = createTestExecTool({ allowBackground: true, backgroundMs: 0 });
   await expectBackgroundSessionSurvivesAbort({
     tool,
     executeParams: { command: BACKGROUND_HOLD_CMD, background: true },
@@ -116,7 +124,7 @@ test("background exec is not killed when tool signal aborts", async () => {
 <<<<<<< HEAD
 =======
 test("pty background exec is not killed when tool signal aborts", async () => {
-  const tool = createExecTool({ allowBackground: true, backgroundMs: 0 });
+  const tool = createTestExecTool({ allowBackground: true, backgroundMs: 0 });
   await expectBackgroundSessionSurvivesAbort({
     tool,
     executeParams: { command: BACKGROUND_HOLD_CMD, background: true, pty: true },
@@ -125,7 +133,7 @@ test("pty background exec is not killed when tool signal aborts", async () => {
 
 >>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 test("background exec still times out after tool signal abort", async () => {
-  const tool = createExecTool({ allowBackground: true, backgroundMs: 0 });
+  const tool = createTestExecTool({ allowBackground: true, backgroundMs: 0 });
   await expectBackgroundSessionTimesOut({
     tool,
     executeParams: {
@@ -138,7 +146,7 @@ test("background exec still times out after tool signal abort", async () => {
 });
 
 test("yielded background exec is not killed when tool signal aborts", async () => {
-  const tool = createExecTool({ allowBackground: true, backgroundMs: 10 });
+  const tool = createTestExecTool({ allowBackground: true, backgroundMs: 10 });
   await expectBackgroundSessionSurvivesAbort({
     tool,
     executeParams: { command: BACKGROUND_HOLD_CMD, yieldMs: 5 },
@@ -146,7 +154,7 @@ test("yielded background exec is not killed when tool signal aborts", async () =
 });
 
 test("yielded background exec still times out", async () => {
-  const tool = createExecTool({ allowBackground: true, backgroundMs: 10 });
+  const tool = createTestExecTool({ allowBackground: true, backgroundMs: 10 });
   await expectBackgroundSessionTimesOut({
     tool,
     executeParams: {
