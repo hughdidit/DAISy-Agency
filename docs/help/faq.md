@@ -3,6 +3,9 @@
 summary: "Frequently asked questions about Moltbot setup, configuration, and usage"
 =======
 summary: "Frequently asked questions about OpenClaw setup, configuration, and usage"
+read_when:
+  - Answering common setup, install, onboarding, or runtime support questions
+  - Triaging user-reported issues before deeper debugging
 title: "FAQ"
 >>>>>>> abcaa8c7a (Docs: add nav titles across docs (#5689))
 ---

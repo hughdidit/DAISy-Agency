@@ -1,6 +1,13 @@
 ---
 title: Formal Verification (Security Models)
+<<<<<<< HEAD
 summary: Machine-checked security models for Moltbot’s highest-risk paths.
+=======
+summary: Machine-checked security models for OpenClaw’s highest-risk paths.
+read_when:
+  - Reviewing formal security model guarantees or limits
+  - Reproducing or updating TLA+/TLC security model checks
+>>>>>>> e0d419486 (docs: add missing summary/read_when metadata)
 permalink: /security/formal-verification/
 ---
 

@@ -1,6 +1,13 @@
 ---
 summary: "Harden cron.add input handling, align schemas, and improve cron UI/agent tooling"
+<<<<<<< HEAD
 owner: "moltbot"
+=======
+read_when:
+  - Debugging invalid `cron.add` payloads
+  - Aligning cron schemas across gateway, CLI, and UI
+owner: "openclaw"
+>>>>>>> e0d419486 (docs: add missing summary/read_when metadata)
 status: "complete"
 last_updated: "2026-01-05"
 title: "Cron Add Hardening"

@@ -8,7 +8,14 @@ description: Deploy OpenClaw on Fly.io.
 >>>>>>> 348ea6be9 (docs: fix missing period in fly.io frontmatter description)
 =======
 description: Deploy OpenClaw on Fly.io
+<<<<<<< HEAD
 >>>>>>> ae82371d8 (revert(docs): undo accidental merge of #18516)
+=======
+summary: "Step-by-step Fly.io deployment for OpenClaw with persistent storage and HTTPS"
+read_when:
+  - Deploying OpenClaw on Fly.io
+  - Setting up Fly volumes, secrets, and first-run config
+>>>>>>> e0d419486 (docs: add missing summary/read_when metadata)
 ---
 
 # Fly.io Deployment

@@ -1,7 +1,15 @@
 ---
 title: "Showcase"
+<<<<<<< HEAD
 description: "Real-world Moltbot projects from the community"
 summary: "Community-built projects and integrations powered by Moltbot"
+=======
+description: "Real-world OpenClaw projects from the community"
+summary: "Community-built projects and integrations powered by OpenClaw"
+read_when:
+  - Looking for real OpenClaw usage examples
+  - Updating community project highlights
+>>>>>>> e0d419486 (docs: add missing summary/read_when metadata)
 ---
 
 # Showcase

@@ -1,6 +1,13 @@
 ---
 summary: "Plan: Add OpenResponses /v1/responses endpoint and deprecate chat completions cleanly"
+<<<<<<< HEAD
 owner: "moltbot"
+=======
+read_when:
+  - Designing or implementing `/v1/responses` gateway support
+  - Planning migration from Chat Completions compatibility
+owner: "openclaw"
+>>>>>>> e0d419486 (docs: add missing summary/read_when metadata)
 status: "draft"
 last_updated: "2026-01-19"
 title: "OpenResponses Gateway Plan"
