@@ -310,7 +310,7 @@ describe("trigger handling", () => {
     });
   });
 
-  it("enforces top-level command auth but keeps inline text for unauthorized senders", async () => {
+  it("enforces top-level command auth, keeps inline text, and handles direct /help", async () => {
     await withTempHome(async (home) => {
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -448,14 +448,18 @@ describe("trigger handling", () => {
         const prompt = runEmbeddedPiAgentMock.mock.calls.at(-1)?.[0]?.prompt ?? "";
         expect(prompt).toContain(command);
       }
+<<<<<<< HEAD
 >>>>>>> 67bccc1fa (test: merge allow-from trigger shard and dedupe inline cases)
     });
   });
 
   it("returns help without invoking the agent", async () => {
     await withTempHome(async (home) => {
+=======
+>>>>>>> ddc67aa4e (test: collapse duplicate trigger command coverage)
       const runEmbeddedPiAgentMock = getRunEmbeddedPiAgentMock();
-      const res = await getReplyFromConfig(
+      const callsBeforeHelp = runEmbeddedPiAgentMock.mock.calls.length;
+      const helpRes = await getReplyFromConfig(
         {
           Body: "/help",
           From: "+1002",
@@ -465,11 +469,11 @@ describe("trigger handling", () => {
         {},
         makeCfg(home),
       );
-      const text = Array.isArray(res) ? res[0]?.text : res?.text;
-      expect(text).toContain("Help");
-      expect(text).toContain("Session");
-      expect(text).toContain("More: /commands for full list");
-      expect(runEmbeddedPiAgentMock).not.toHaveBeenCalled();
+      const helpText = Array.isArray(helpRes) ? helpRes[0]?.text : helpRes?.text;
+      expect(helpText).toContain("Help");
+      expect(helpText).toContain("Session");
+      expect(helpText).toContain("More: /commands for full list");
+      expect(runEmbeddedPiAgentMock.mock.calls.length).toBe(callsBeforeHelp);
     });
   });
 
