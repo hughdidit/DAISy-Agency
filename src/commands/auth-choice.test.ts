@@ -1,6 +1,7 @@
 import fs from "node:fs/promises";
 import type { OAuthCredentials } from "@mariozechner/pi-ai";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { resolveAgentModelPrimaryValue } from "../config/model-input.js";
 import type { WizardPrompter } from "../wizard/prompts.js";
 import { applyAuthChoice, resolvePreferredProviderForAuthChoice } from "./auth-choice.js";
 <<<<<<< HEAD:src/commands/auth-choice.test.ts
@@ -376,7 +377,9 @@ describe("applyAuthChoice", () => {
       provider: "huggingface",
       mode: "api_key",
     });
-    expect(result.config.agents?.defaults?.model?.primary).toMatch(/^huggingface\/.+/);
+    expect(resolveAgentModelPrimaryValue(result.config.agents?.defaults?.model)).toMatch(
+      /^huggingface\/.+/,
+    );
 
     expect((await readAuthProfile("huggingface:default"))?.key).toBe("hf-test-token");
   });
@@ -408,7 +411,7 @@ describe("applyAuthChoice", () => {
       expect.objectContaining({ message: "Select Z.AI endpoint", initialValue: "global" }),
     );
     expect(result.config.models?.providers?.zai?.baseUrl).toBe(ZAI_CODING_CN_BASE_URL);
-    expect(result.config.agents?.defaults?.model?.primary).toBe("zai/glm-5");
+    expect(resolveAgentModelPrimaryValue(result.config.agents?.defaults?.model)).toBe("zai/glm-5");
 
     expect((await readAuthProfile("zai:default"))?.key).toBe("zai-test-key");
   });
@@ -466,7 +469,9 @@ describe("applyAuthChoice", () => {
       expect.objectContaining({ message: "Select Z.AI endpoint" }),
     );
     expect(result.config.models?.providers?.zai?.baseUrl).toBe(ZAI_CODING_GLOBAL_BASE_URL);
-    expect(result.config.agents?.defaults?.model?.primary).toBe("zai/glm-4.5");
+    expect(resolveAgentModelPrimaryValue(result.config.agents?.defaults?.model)).toBe(
+      "zai/glm-4.5",
+    );
   });
 
   it("maps apiKey + tokenProvider=huggingface to huggingface-api-key flow", async () => {
@@ -494,7 +499,9 @@ describe("applyAuthChoice", () => {
       provider: "huggingface",
       mode: "api_key",
     });
-    expect(result.config.agents?.defaults?.model?.primary).toMatch(/^huggingface\/.+/);
+    expect(resolveAgentModelPrimaryValue(result.config.agents?.defaults?.model)).toMatch(
+      /^huggingface\/.+/,
+    );
     expect(text).not.toHaveBeenCalled();
 
     expect((await readAuthProfile("huggingface:default"))?.key).toBe("hf-token-provider-test");
@@ -523,7 +530,9 @@ describe("applyAuthChoice", () => {
       provider: "together",
       mode: "api_key",
     });
-    expect(result.config.agents?.defaults?.model?.primary).toMatch(/^together\/.+/);
+    expect(resolveAgentModelPrimaryValue(result.config.agents?.defaults?.model)).toMatch(
+      /^together\/.+/,
+    );
     expect(text).not.toHaveBeenCalled();
     expect(confirm).not.toHaveBeenCalled();
     expect((await readAuthProfile("together:default"))?.key).toBe(
@@ -554,7 +563,9 @@ describe("applyAuthChoice", () => {
       provider: "kimi-coding",
       mode: "api_key",
     });
-    expect(result.config.agents?.defaults?.model?.primary).toMatch(/^kimi-coding\/.+/);
+    expect(resolveAgentModelPrimaryValue(result.config.agents?.defaults?.model)).toMatch(
+      /^kimi-coding\/.+/,
+    );
     expect(text).not.toHaveBeenCalled();
     expect(confirm).not.toHaveBeenCalled();
     expect((await readAuthProfile("kimi-coding:default"))?.key).toBe("sk-kimi-token-provider-test");
@@ -583,7 +594,9 @@ describe("applyAuthChoice", () => {
       provider: "google",
       mode: "api_key",
     });
-    expect(result.config.agents?.defaults?.model?.primary).toBe(GOOGLE_GEMINI_DEFAULT_MODEL);
+    expect(resolveAgentModelPrimaryValue(result.config.agents?.defaults?.model)).toBe(
+      GOOGLE_GEMINI_DEFAULT_MODEL,
+    );
     expect(text).not.toHaveBeenCalled();
     expect(confirm).not.toHaveBeenCalled();
     expect((await readAuthProfile("google:default"))?.key).toBe("sk-gemini-token-provider-test");
@@ -612,7 +625,9 @@ describe("applyAuthChoice", () => {
       provider: "litellm",
       mode: "api_key",
     });
-    expect(result.config.agents?.defaults?.model?.primary).toMatch(/^litellm\/.+/);
+    expect(resolveAgentModelPrimaryValue(result.config.agents?.defaults?.model)).toMatch(
+      /^litellm\/.+/,
+    );
     expect(text).not.toHaveBeenCalled();
     expect(confirm).not.toHaveBeenCalled();
     expect((await readAuthProfile("litellm:default"))?.key).toBe("sk-litellm-token-provider-test");
@@ -710,7 +725,11 @@ describe("applyAuthChoice", () => {
         provider,
         mode: "api_key",
       });
-      expect(result.config.agents?.defaults?.model?.primary?.startsWith(modelPrefix)).toBe(true);
+      expect(
+        resolveAgentModelPrimaryValue(result.config.agents?.defaults?.model)?.startsWith(
+          modelPrefix,
+        ),
+      ).toBe(true);
       expect((await readAuthProfile(profileId))?.key).toBe(token);
     },
   );
@@ -740,7 +759,9 @@ describe("applyAuthChoice", () => {
       provider: "google",
       mode: "api_key",
     });
-    expect(result.config.agents?.defaults?.model?.primary).toBe("openai/gpt-4o-mini");
+    expect(resolveAgentModelPrimaryValue(result.config.agents?.defaults?.model)).toBe(
+      "openai/gpt-4o-mini",
+    );
     expect(result.agentModelOverride).toBe(GOOGLE_GEMINI_DEFAULT_MODEL);
     expect((await readAuthProfile("google:default"))?.key).toBe("sk-gemini-test");
   });
@@ -804,7 +825,9 @@ describe("applyAuthChoice", () => {
       provider: "synthetic",
       mode: "api_key",
     });
-    expect(result.config.agents?.defaults?.model?.primary).toMatch(/^synthetic\/.+/);
+    expect(resolveAgentModelPrimaryValue(result.config.agents?.defaults?.model)).toMatch(
+      /^synthetic\/.+/,
+    );
 
     expect((await readAuthProfile("synthetic:default"))?.key).toBe("sk-synthetic-env");
   });
@@ -829,7 +852,9 @@ describe("applyAuthChoice", () => {
       provider: "xai",
       mode: "api_key",
     });
-    expect(result.config.agents?.defaults?.model?.primary).toBe("openai/gpt-4o-mini");
+    expect(resolveAgentModelPrimaryValue(result.config.agents?.defaults?.model)).toBe(
+      "openai/gpt-4o-mini",
+    );
     expect(result.agentModelOverride).toBe("xai/grok-4");
 
     expect((await readAuthProfile("xai:default"))?.key).toBe("sk-xai-test");
@@ -859,7 +884,9 @@ describe("applyAuthChoice", () => {
         setDefaultModel: true,
       });
 
-      expect(result.config.agents?.defaults?.model?.primary).toBe("github-copilot/gpt-4o");
+      expect(resolveAgentModelPrimaryValue(result.config.agents?.defaults?.model)).toBe(
+        "github-copilot/gpt-4o",
+      );
     } finally {
       if (previousIsTTYDescriptor) {
         Object.defineProperty(stdin, "isTTY", previousIsTTYDescriptor);
@@ -892,7 +919,9 @@ describe("applyAuthChoice", () => {
     expect(text).toHaveBeenCalledWith(
       expect.objectContaining({ message: "Enter OpenCode Zen API key" }),
     );
-    expect(result.config.agents?.defaults?.model?.primary).toBe("anthropic/claude-opus-4-5");
+    expect(resolveAgentModelPrimaryValue(result.config.agents?.defaults?.model)).toBe(
+      "anthropic/claude-opus-4-5",
+    );
     expect(result.config.models?.providers?.["opencode-zen"]).toBeUndefined();
     expect(result.agentModelOverride).toBe("opencode/claude-opus-4-6");
   });
@@ -975,7 +1004,9 @@ describe("applyAuthChoice", () => {
       provider: "openrouter",
       mode: "api_key",
     });
-    expect(result.config.agents?.defaults?.model?.primary).toBe("openrouter/auto");
+    expect(resolveAgentModelPrimaryValue(result.config.agents?.defaults?.model)).toBe(
+      "openrouter/auto",
+    );
 
     expect((await readAuthProfile("openrouter:default"))?.key).toBe("sk-openrouter-test");
 
@@ -1070,7 +1101,7 @@ describe("applyAuthChoice", () => {
       provider: "vercel-ai-gateway",
       mode: "api_key",
     });
-    expect(result.config.agents?.defaults?.model?.primary).toBe(
+    expect(resolveAgentModelPrimaryValue(result.config.agents?.defaults?.model)).toBe(
       "vercel-ai-gateway/anthropic/claude-opus-4.6",
     );
 
@@ -1108,7 +1139,7 @@ describe("applyAuthChoice", () => {
       provider: "cloudflare-ai-gateway",
       mode: "api_key",
     });
-    expect(result.config.agents?.defaults?.model?.primary).toBe(
+    expect(resolveAgentModelPrimaryValue(result.config.agents?.defaults?.model)).toBe(
       "cloudflare-ai-gateway/claude-sonnet-4-5",
     );
 
@@ -1285,7 +1316,9 @@ describe("applyAuthChoice", () => {
       provider: "qwen-portal",
       mode: "oauth",
     });
-    expect(result.config.agents?.defaults?.model?.primary).toBe("qwen-portal/coder-model");
+    expect(resolveAgentModelPrimaryValue(result.config.agents?.defaults?.model)).toBe(
+      "qwen-portal/coder-model",
+    );
     expect(result.config.models?.providers?.["qwen-portal"]).toMatchObject({
       baseUrl: "https://portal.qwen.ai/v1",
       apiKey: "qwen-oauth",
@@ -1359,7 +1392,9 @@ describe("applyAuthChoice", () => {
       provider: "minimax-portal",
       mode: "oauth",
     });
-    expect(result.config.agents?.defaults?.model?.primary).toBe("minimax-portal/MiniMax-M2.1");
+    expect(resolveAgentModelPrimaryValue(result.config.agents?.defaults?.model)).toBe(
+      "minimax-portal/MiniMax-M2.1",
+    );
     expect(result.config.models?.providers?.["minimax-portal"]).toMatchObject({
       baseUrl: "https://api.minimax.io/anthropic",
       apiKey: "minimax-oauth",

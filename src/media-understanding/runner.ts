@@ -10,6 +10,10 @@ import {
 } from "../agents/model-catalog.js";
 import type { MsgContext } from "../auto-reply/templating.js";
 import type { OpenClawConfig } from "../config/config.js";
+import {
+  resolveAgentModelFallbackValues,
+  resolveAgentModelPrimaryValue,
+} from "../config/model-input.js";
 import type {
   MediaUnderstandingConfig,
   MediaUnderstandingModelConfig,
@@ -391,6 +395,38 @@ async function resolveKeyEntry(params: {
   return null;
 }
 
+<<<<<<< HEAD
+=======
+function resolveImageModelFromAgentDefaults(cfg: OpenClawConfig): MediaUnderstandingModelConfig[] {
+  const refs: string[] = [];
+  const primary = resolveAgentModelPrimaryValue(cfg.agents?.defaults?.imageModel);
+  if (primary?.trim()) {
+    refs.push(primary.trim());
+  }
+  for (const fb of resolveAgentModelFallbackValues(cfg.agents?.defaults?.imageModel)) {
+    if (fb?.trim()) {
+      refs.push(fb.trim());
+    }
+  }
+  if (refs.length === 0) {
+    return [];
+  }
+  const entries: MediaUnderstandingModelConfig[] = [];
+  for (const ref of refs) {
+    const slashIdx = ref.indexOf("/");
+    if (slashIdx <= 0 || slashIdx >= ref.length - 1) {
+      continue;
+    }
+    entries.push({
+      type: "provider",
+      provider: ref.slice(0, slashIdx),
+      model: ref.slice(slashIdx + 1),
+    });
+  }
+  return entries;
+}
+
+>>>>>>> a4c373935 (fix(agents): fall back to agents.defaults.model when agent has no model config (#24210))
 async function resolveAutoEntries(params: {
   cfg: OpenClawConfig;
   agentDir?: string;
