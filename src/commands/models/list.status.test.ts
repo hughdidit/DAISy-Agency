@@ -34,8 +34,15 @@ const mocks = vi.hoisted(() => {
     resolveMoltbotAgentDir: vi.fn().mockReturnValue("/tmp/moltbot-agent"),
 =======
     resolveAgentDir: vi.fn().mockReturnValue("/tmp/openclaw-agent"),
+<<<<<<< HEAD
     resolveDefaultAgentId: vi.fn().mockReturnValue("main"),
 >>>>>>> dd4715a2c (CLI: add --agent flag to models status)
+=======
+    resolveAgentExplicitModelPrimary: vi.fn().mockReturnValue(undefined),
+    resolveAgentEffectiveModelPrimary: vi.fn().mockReturnValue(undefined),
+    resolveAgentModelFallbacksOverride: vi.fn().mockReturnValue(undefined),
+    listAgentIds: vi.fn().mockReturnValue(["main", "jeremiah"]),
+>>>>>>> a4c373935 (fix(agents): fall back to agents.defaults.model when agent has no model config (#24210))
     ensureAuthProfileStore: vi.fn().mockReturnValue(store),
     listProfilesForProvider: vi.fn((s: typeof store, provider: string) => {
       return Object.entries(s.profiles)
@@ -84,8 +91,15 @@ vi.mock("../../agents/agent-paths.js", () => ({
 =======
 vi.mock("../../agents/agent-scope.js", () => ({
   resolveAgentDir: mocks.resolveAgentDir,
+<<<<<<< HEAD
   resolveDefaultAgentId: mocks.resolveDefaultAgentId,
 >>>>>>> dd4715a2c (CLI: add --agent flag to models status)
+=======
+  resolveAgentExplicitModelPrimary: mocks.resolveAgentExplicitModelPrimary,
+  resolveAgentEffectiveModelPrimary: mocks.resolveAgentEffectiveModelPrimary,
+  resolveAgentModelFallbacksOverride: mocks.resolveAgentModelFallbacksOverride,
+  listAgentIds: mocks.listAgentIds,
+>>>>>>> a4c373935 (fix(agents): fall back to agents.defaults.model when agent has no model config (#24210))
 }));
 
 vi.mock("../../routing/session-key.js", async (importOriginal) => {
@@ -161,11 +175,13 @@ async function withAgentScopeOverrides<T>(
   },
   run: () => Promise<T>,
 ) {
-  const originalPrimary = mocks.resolveAgentModelPrimary.getMockImplementation();
+  const originalPrimary = mocks.resolveAgentExplicitModelPrimary.getMockImplementation();
+  const originalEffectivePrimary = mocks.resolveAgentEffectiveModelPrimary.getMockImplementation();
   const originalFallbacks = mocks.resolveAgentModelFallbacksOverride.getMockImplementation();
   const originalAgentDir = mocks.resolveAgentDir.getMockImplementation();
 
-  mocks.resolveAgentModelPrimary.mockReturnValue(overrides.primary);
+  mocks.resolveAgentExplicitModelPrimary.mockReturnValue(overrides.primary);
+  mocks.resolveAgentEffectiveModelPrimary.mockReturnValue(overrides.primary);
   mocks.resolveAgentModelFallbacksOverride.mockReturnValue(overrides.fallbacks);
   if (overrides.agentDir) {
     mocks.resolveAgentDir.mockReturnValue(overrides.agentDir);
@@ -175,9 +191,14 @@ async function withAgentScopeOverrides<T>(
     return await run();
   } finally {
     if (originalPrimary) {
-      mocks.resolveAgentModelPrimary.mockImplementation(originalPrimary);
+      mocks.resolveAgentExplicitModelPrimary.mockImplementation(originalPrimary);
     } else {
-      mocks.resolveAgentModelPrimary.mockReturnValue(undefined);
+      mocks.resolveAgentExplicitModelPrimary.mockReturnValue(undefined);
+    }
+    if (originalEffectivePrimary) {
+      mocks.resolveAgentEffectiveModelPrimary.mockImplementation(originalEffectivePrimary);
+    } else {
+      mocks.resolveAgentEffectiveModelPrimary.mockReturnValue(undefined);
     }
     if (originalFallbacks) {
       mocks.resolveAgentModelFallbacksOverride.mockImplementation(originalFallbacks);
@@ -284,6 +305,24 @@ describe("modelsStatusCommand auth overview", () => {
           .join("\n");
         expect(output).toContain("Default (defaults)");
         expect(output).toContain("Fallbacks (0) (defaults)");
+      },
+    );
+  });
+
+  it("reports defaults source in JSON when --agent has no overrides", async () => {
+    const localRuntime = createRuntime();
+    await withAgentScopeOverrides(
+      {
+        primary: undefined,
+        fallbacks: undefined,
+      },
+      async () => {
+        await modelsStatusCommand({ json: true, agent: "main" }, localRuntime as never);
+        const payload = JSON.parse(String((localRuntime.log as Mock).mock.calls[0]?.[0]));
+        expect(payload.modelConfig).toEqual({
+          defaultSource: "defaults",
+          fallbacksSource: "defaults",
+        });
       },
     );
   });

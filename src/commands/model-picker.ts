@@ -56,6 +56,7 @@ import type { WizardPrompter, WizardSelectOption } from "../wizard/prompts.js";
 >>>>>>> ed11e93cf (chore(format))
 =======
 import type { OpenClawConfig } from "../config/config.js";
+import { resolveAgentModelPrimaryValue } from "../config/model-input.js";
 import type { WizardPrompter, WizardSelectOption } from "../wizard/prompts.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
@@ -136,12 +137,16 @@ function createProviderAuthChecker(params: {
 }
 
 function resolveConfiguredModelRaw(cfg: OpenClawConfig): string {
+<<<<<<< HEAD
 >>>>>>> 95c986dee (refactor(models): share model picker auth checker)
   const raw = cfg.agents?.defaults?.model as { primary?: string } | string | undefined;
   if (typeof raw === "string") {
     return raw.trim();
   }
   return raw?.primary?.trim() ?? "";
+=======
+  return resolveAgentModelPrimaryValue(cfg.agents?.defaults?.model) ?? "";
+>>>>>>> a4c373935 (fix(agents): fall back to agents.defaults.model when agent has no model config (#24210))
 }
 
 function resolveConfiguredModelKeys(cfg: MoltbotConfig): string[] {

@@ -10,6 +10,12 @@ import {
   readConfigFileSnapshot,
   writeConfigFile,
 } from "../../config/config.js";
+<<<<<<< HEAD
+=======
+import { toAgentModelListLike } from "../../config/model-input.js";
+import type { AgentModelConfig } from "../../config/types.agents-shared.js";
+import { normalizeAgentId } from "../../routing/session-key.js";
+>>>>>>> a4c373935 (fix(agents): fall back to agents.defaults.model when agent has no model config (#24210))
 
 export const ensureFlagCompatibility = (opts: { json?: boolean; plain?: boolean }) => {
   if (opts.json && opts.plain) {
@@ -176,7 +182,8 @@ export function mergePrimaryFallbackConfig(
   existing: PrimaryFallbackConfig | undefined,
   patch: { primary?: string; fallbacks?: string[] },
 ): PrimaryFallbackConfig {
-  const next: PrimaryFallbackConfig = { ...existing };
+  const base = existing && typeof existing === "object" ? existing : undefined;
+  const next: PrimaryFallbackConfig = { ...base };
   if (patch.primary !== undefined) {
     next.primary = patch.primary;
   }
@@ -203,9 +210,9 @@ export function applyDefaultModelPrimaryUpdate(params: {
   }
 
   const defaults = params.cfg.agents?.defaults ?? {};
-  const existing = (defaults as Record<string, unknown>)[params.field] as
-    | PrimaryFallbackConfig
-    | undefined;
+  const existing = toAgentModelListLike(
+    (defaults as Record<string, unknown>)[params.field] as AgentModelConfig | undefined,
+  );
 
   return {
     ...params.cfg,

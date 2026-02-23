@@ -8,6 +8,7 @@ import type { ThinkLevel } from "../../auto-reply/thinking.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import type { PluginHookBeforeAgentStartResult } from "../../plugins/types.js";
 import type { RunEmbeddedPiAgentParams } from "./run/params.js";
@@ -28,6 +29,10 @@ import { getGlobalHookRunner } from "../../plugins/hook-runner-global.js";
 <<<<<<< HEAD
 >>>>>>> b90eb5152 (feat(plugins): add modelOverride/providerOverride to before_agent_start hook)
 =======
+=======
+import { resolveAgentModelFallbackValues } from "../../config/model-input.js";
+import { generateSecureToken } from "../../infra/secure-random.js";
+>>>>>>> a4c373935 (fix(agents): fall back to agents.defaults.model when agent has no model config (#24210))
 import { getGlobalHookRunner } from "../../plugins/hook-runner-global.js";
 import type { PluginHookBeforeAgentStartResult } from "../../plugins/types.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -282,8 +287,13 @@ export async function runEmbeddedPiAgent(
       const agentDir = params.agentDir ?? resolveOpenClawAgentDir();
 >>>>>>> b90eb5152 (feat(plugins): add modelOverride/providerOverride to before_agent_start hook)
       const fallbackConfigured =
+<<<<<<< HEAD
         (params.config?.agents?.defaults?.model?.fallbacks?.length ?? 0) > 0;
       await ensureMoltbotModelsJson(params.config, agentDir);
+=======
+        resolveAgentModelFallbackValues(params.config?.agents?.defaults?.model).length > 0;
+      await ensureOpenClawModelsJson(params.config, agentDir);
+>>>>>>> a4c373935 (fix(agents): fall back to agents.defaults.model when agent has no model config (#24210))
 
       // Run before_model_resolve hooks early so plugins can override the
       // provider/model before resolveModel().

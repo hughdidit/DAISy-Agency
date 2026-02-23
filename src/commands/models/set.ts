@@ -41,6 +41,7 @@ import type { RuntimeEnv } from "../../runtime.js";
 =======
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { logConfigUpdated } from "../../config/logging.js";
+import { resolveAgentModelPrimaryValue } from "../../config/model-input.js";
 import type { RuntimeEnv } from "../../runtime.js";
 import { applyDefaultModelPrimaryUpdate, updateConfig } from "./shared.js";
 >>>>>>> f44e3b2a3 (revert: fix models set catalog validation (#19194))
@@ -51,5 +52,7 @@ export async function modelsSetCommand(modelRaw: string, runtime: RuntimeEnv) {
   });
 
   logConfigUpdated(runtime);
-  runtime.log(`Default model: ${updated.agents?.defaults?.model?.primary ?? modelRaw}`);
+  runtime.log(
+    `Default model: ${resolveAgentModelPrimaryValue(updated.agents?.defaults?.model) ?? modelRaw}`,
+  );
 }

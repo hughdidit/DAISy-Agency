@@ -36,6 +36,7 @@ import type { SessionEntry, SessionScope } from "../../config/sessions.js";
 >>>>>>> 414754546 (Revert "feat: show transcript file size in session status")
 =======
 import type { OpenClawConfig } from "../../config/config.js";
+import { toAgentModelListLike } from "../../config/model-input.js";
 import type { SessionEntry, SessionScope } from "../../config/sessions.js";
 >>>>>>> 5dc898395 (chore: Fix types in tests 8/N.)
 =======
@@ -313,7 +314,7 @@ export async function buildStatusReply(params: {
     agent: {
       ...agentDefaults,
       model: {
-        ...agentDefaults.model,
+        ...toAgentModelListLike(agentDefaults.model),
         primary: `${provider}/${model}`,
       },
       contextTokens,

@@ -18,6 +18,10 @@ import type { ConfiguredEntry } from "./list.types.js";
 >>>>>>> ed11e93cf (chore(format))
 =======
 import type { OpenClawConfig } from "../../config/config.js";
+import {
+  resolveAgentModelFallbackValues,
+  resolveAgentModelPrimaryValue,
+} from "../../config/model-input.js";
 import type { ConfiguredEntry } from "./list.types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
@@ -57,16 +61,9 @@ export function resolveConfiguredEntries(cfg: MoltbotConfig) {
 
   addEntry(resolvedDefault, "default");
 
-  const modelConfig = cfg.agents?.defaults?.model as
-    | { primary?: string; fallbacks?: string[] }
-    | undefined;
-  const imageModelConfig = cfg.agents?.defaults?.imageModel as
-    | { primary?: string; fallbacks?: string[] }
-    | undefined;
-  const modelFallbacks = typeof modelConfig === "object" ? (modelConfig?.fallbacks ?? []) : [];
-  const imageFallbacks =
-    typeof imageModelConfig === "object" ? (imageModelConfig?.fallbacks ?? []) : [];
-  const imagePrimary = imageModelConfig?.primary?.trim() ?? "";
+  const modelFallbacks = resolveAgentModelFallbackValues(cfg.agents?.defaults?.model);
+  const imageFallbacks = resolveAgentModelFallbackValues(cfg.agents?.defaults?.imageModel);
+  const imagePrimary = resolveAgentModelPrimaryValue(cfg.agents?.defaults?.imageModel) ?? "";
 
   modelFallbacks.forEach((raw, idx) => {
     const resolved = resolveModelRefFromString({

@@ -26,6 +26,7 @@ import { logConfigUpdated } from "../../config/logging.js";
 >>>>>>> ed11e93cf (chore(format))
 =======
 import { logConfigUpdated } from "../../config/logging.js";
+import { resolveAgentModelPrimaryValue } from "../../config/model-input.js";
 import type { RuntimeEnv } from "../../runtime.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
@@ -45,5 +46,7 @@ export async function modelsSetImageCommand(modelRaw: string, runtime: RuntimeEn
   });
 
   logConfigUpdated(runtime);
-  runtime.log(`Image model: ${updated.agents?.defaults?.imageModel?.primary ?? modelRaw}`);
+  runtime.log(
+    `Image model: ${resolveAgentModelPrimaryValue(updated.agents?.defaults?.imageModel) ?? modelRaw}`,
+  );
 }

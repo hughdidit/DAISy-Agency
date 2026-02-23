@@ -34,6 +34,10 @@ import { captureEnv } from "../test-utils/env.js";
 import type { OpenClawConfig } from "../config/config.js";
 >>>>>>> ecf1c955a (chore: Fix types in tests 29/N.)
 import {
+  resolveAgentModelFallbackValues,
+  resolveAgentModelPrimaryValue,
+} from "../config/model-input.js";
+import {
   applyAuthProfileConfig,
   applyLitellmProviderConfig,
   applyMistralConfig,
@@ -134,11 +138,15 @@ function createConfigWithFallbacks() {
 }
 
 function expectFallbacksPreserved(cfg: ReturnType<typeof applyMinimaxApiConfig>) {
-  expect(cfg.agents?.defaults?.model?.fallbacks).toEqual([...EXPECTED_FALLBACKS]);
+  expect(resolveAgentModelFallbackValues(cfg.agents?.defaults?.model)).toEqual([
+    ...EXPECTED_FALLBACKS,
+  ]);
 }
 
 function expectPrimaryModelPreserved(cfg: ReturnType<typeof applyMinimaxApiProviderConfig>) {
-  expect(cfg.agents?.defaults?.model?.primary).toBe("anthropic/claude-opus-4-5");
+  expect(resolveAgentModelPrimaryValue(cfg.agents?.defaults?.model)).toBe(
+    "anthropic/claude-opus-4-5",
+  );
 }
 
 function expectAllowlistContains(
@@ -584,7 +592,7 @@ describe("applyZaiConfig", () => {
     for (const modelId of ["glm-4.7-flash", "glm-4.7-flashx"] as const) {
       const cfg = applyZaiConfig({}, { endpoint: "coding-cn", modelId });
       expect(cfg.models?.providers?.zai?.baseUrl).toBe(ZAI_CODING_CN_BASE_URL);
-      expect(cfg.agents?.defaults?.model?.primary).toBe(`zai/${modelId}`);
+      expect(resolveAgentModelPrimaryValue(cfg.agents?.defaults?.model)).toBe(`zai/${modelId}`);
     }
   });
 });
@@ -632,7 +640,7 @@ describe("primary model defaults", () => {
     ] as const;
     for (const { getConfig, primaryModel } of configCases) {
       const cfg = getConfig();
-      expect(cfg.agents?.defaults?.model?.primary).toBe(primaryModel);
+      expect(resolveAgentModelPrimaryValue(cfg.agents?.defaults?.model)).toBe(primaryModel);
     }
   });
 });
@@ -644,7 +652,7 @@ describe("applyXiaomiConfig", () => {
       baseUrl: "https://api.xiaomimimo.com/anthropic",
       api: "anthropic-messages",
     });
-    expect(cfg.agents?.defaults?.model?.primary).toBe("xiaomi/mimo-v2-flash");
+    expect(resolveAgentModelPrimaryValue(cfg.agents?.defaults?.model)).toBe("xiaomi/mimo-v2-flash");
   });
 
   it("merges Xiaomi models and keeps existing provider overrides", () => {
@@ -674,7 +682,7 @@ describe("applyXaiConfig", () => {
       baseUrl: "https://api.x.ai/v1",
       api: "openai-completions",
     });
-    expect(cfg.agents?.defaults?.model?.primary).toBe(XAI_DEFAULT_MODEL_REF);
+    expect(resolveAgentModelPrimaryValue(cfg.agents?.defaults?.model)).toBe(XAI_DEFAULT_MODEL_REF);
   });
 });
 
@@ -768,7 +776,9 @@ describe("applyMistralConfig", () => {
       baseUrl: "https://api.mistral.ai/v1",
       api: "openai-completions",
     });
-    expect(cfg.agents?.defaults?.model?.primary).toBe(MISTRAL_DEFAULT_MODEL_REF);
+    expect(resolveAgentModelPrimaryValue(cfg.agents?.defaults?.model)).toBe(
+      MISTRAL_DEFAULT_MODEL_REF,
+    );
   });
 });
 
@@ -911,7 +921,7 @@ describe("default-model config helpers", () => {
     ] as const;
     for (const { applyConfig, primaryModel } of configCases) {
       const cfg = applyConfig({});
-      expect(cfg.agents?.defaults?.model?.primary).toBe(primaryModel);
+      expect(resolveAgentModelPrimaryValue(cfg.agents?.defaults?.model)).toBe(primaryModel);
 
       const cfgWithFallbacks = applyConfig(createConfigWithFallbacks());
       expectFallbacksPreserved(cfgWithFallbacks);

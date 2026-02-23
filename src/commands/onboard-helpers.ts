@@ -53,6 +53,7 @@ import { DEFAULT_AGENT_WORKSPACE_DIR, ensureAgentWorkspace } from "../agents/wor
 import type { OpenClawConfig } from "../config/config.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { CONFIG_PATH } from "../config/config.js";
+import { resolveAgentModelPrimaryValue } from "../config/model-input.js";
 import { resolveSessionTranscriptsDirForAgent } from "../config/sessions.js";
 import { callGateway } from "../gateway/call.js";
 import { normalizeControlUiBasePath } from "../gateway/control-ui-shared.js";
@@ -90,7 +91,7 @@ export function summarizeExistingConfig(config: MoltbotConfig): string {
     rows.push(shortenHomeInString(`workspace: ${defaults.workspace}`));
   }
   if (defaults?.model) {
-    const model = typeof defaults.model === "string" ? defaults.model : defaults.model.primary;
+    const model = resolveAgentModelPrimaryValue(defaults.model);
     if (model) {
       rows.push(shortenHomeInString(`model: ${model}`));
     }

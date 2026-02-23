@@ -8,7 +8,11 @@ import { parseModelRef } from "../agents/model-selection.js";
 import { normalizeProviderId, parseModelRef } from "../agents/model-selection.js";
 >>>>>>> 29a782b9c (Models/Config: default missing Anthropic model api fields)
 import { DEFAULT_AGENT_MAX_CONCURRENT, DEFAULT_SUBAGENT_MAX_CONCURRENT } from "./agent-limits.js";
+<<<<<<< HEAD
 >>>>>>> f555835b0 (Channels: add thread-aware model overrides)
+=======
+import { resolveAgentModelPrimaryValue } from "./model-input.js";
+>>>>>>> a4c373935 (fix(agents): fall back to agents.defaults.model when agent has no model config (#24210))
 import { resolveTalkApiKey } from "./talk.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -465,7 +469,9 @@ export function applyContextPruningDefaults(cfg: MoltbotConfig): MoltbotConfig {
       modelsMutated = true;
     }
 
-    const primary = resolvePrimaryModelRef(defaults.model?.primary ?? undefined);
+    const primary = resolvePrimaryModelRef(
+      resolveAgentModelPrimaryValue(defaults.model) ?? undefined,
+    );
     if (primary) {
       const parsedPrimary = parseModelRef(primary, "anthropic");
       if (parsedPrimary?.provider === "anthropic") {

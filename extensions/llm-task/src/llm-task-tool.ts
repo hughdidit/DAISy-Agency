@@ -125,7 +125,11 @@ export function createLlmTaskTool(api: MoltbotPluginApi) {
 
       const pluginCfg = (api.pluginConfig ?? {}) as PluginCfg;
 
-      const primary = api.config?.agents?.defaults?.model?.primary;
+      const defaultsModel = api.config?.agents?.defaults?.model;
+      const primary =
+        typeof defaultsModel === "string"
+          ? defaultsModel.trim()
+          : (defaultsModel?.primary?.trim() ?? undefined);
       const primaryProvider = typeof primary === "string" ? primary.split("/")[0] : undefined;
       const primaryModel =
         typeof primary === "string" ? primary.split("/").slice(1).join("/") : undefined;
