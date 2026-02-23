@@ -150,6 +150,7 @@ export const SAFE_BIN_PROFILE_FIXTURES: Record<string, SafeBinProfileFixture> = 
       "--key",
       "--field-separator",
       "--buffer-size",
+<<<<<<< HEAD
       "--temporary-directory",
       "--compress-program",
       "--parallel",
@@ -164,6 +165,25 @@ export const SAFE_BIN_PROFILE_FIXTURES: Record<string, SafeBinProfileFixture> = 
       "-o",
     ],
     blockedFlags: ["--files0-from", "--output", "-o"],
+=======
+      "--parallel",
+      "--batch-size",
+      "-k",
+      "-t",
+      "-S",
+    ],
+    // --compress-program can invoke an external executable and breaks stdin-only guarantees.
+    // --random-source/--temporary-directory/-T are filesystem-dependent and not stdin-only.
+    deniedFlags: [
+      "--compress-program",
+      "--files0-from",
+      "--output",
+      "--random-source",
+      "--temporary-directory",
+      "-T",
+      "-o",
+    ],
+>>>>>>> 3b8e33037 (fix(security): harden safeBins long-option validation)
   },
   uniq: {
     maxPositional: 0,
@@ -212,6 +232,38 @@ function isInvalidValueToken(value: string | undefined): boolean {
   return !value || !isSafeLiteralToken(value);
 }
 
+function collectKnownLongFlags(
+  allowedValueFlags: ReadonlySet<string>,
+  deniedFlags: ReadonlySet<string>,
+): string[] {
+  const known = new Set<string>();
+  for (const flag of allowedValueFlags) {
+    if (flag.startsWith("--")) {
+      known.add(flag);
+    }
+  }
+  for (const flag of deniedFlags) {
+    if (flag.startsWith("--")) {
+      known.add(flag);
+    }
+  }
+  return Array.from(known);
+}
+
+function resolveCanonicalLongFlag(flag: string, knownLongFlags: string[]): string | null {
+  if (!flag.startsWith("--") || flag.length <= 2) {
+    return null;
+  }
+  if (knownLongFlags.includes(flag)) {
+    return flag;
+  }
+  const matches = knownLongFlags.filter((candidate) => candidate.startsWith(flag));
+  if (matches.length !== 1) {
+    return null;
+  }
+  return matches[0] ?? null;
+}
+
 function consumeLongOptionToken(
   args: string[],
   index: number,
@@ -220,13 +272,30 @@ function consumeLongOptionToken(
   valueFlags: ReadonlySet<string>,
   blockedFlags: ReadonlySet<string>,
 ): number {
+<<<<<<< HEAD
   if (blockedFlags.has(flag)) {
+=======
+  const knownLongFlags = collectKnownLongFlags(allowedValueFlags, deniedFlags);
+  const canonicalFlag = resolveCanonicalLongFlag(flag, knownLongFlags);
+  if (!canonicalFlag) {
+>>>>>>> 3b8e33037 (fix(security): harden safeBins long-option validation)
     return -1;
   }
+  if (deniedFlags.has(canonicalFlag)) {
+    return -1;
+  }
+  const expectsValue = allowedValueFlags.has(canonicalFlag);
   if (inlineValue !== undefined) {
+    if (!expectsValue) {
+      return -1;
+    }
     return isSafeLiteralToken(inlineValue) ? index + 1 : -1;
   }
+<<<<<<< HEAD
   if (!valueFlags.has(flag)) {
+=======
+  if (!expectsValue) {
+>>>>>>> 3b8e33037 (fix(security): harden safeBins long-option validation)
     return index + 1;
   }
   return isInvalidValueToken(args[index + 1]) ? -1 : index + 2;
