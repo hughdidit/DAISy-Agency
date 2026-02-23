@@ -371,6 +371,12 @@ export function resolveChannelGroupPolicy(params: {
   channel: GroupPolicyChannel;
   groupId?: string | null;
   accountId?: string | null;
+<<<<<<< HEAD
+=======
+  groupIdCaseInsensitive?: boolean;
+  /** When true, sender-level filtering (groupAllowFrom) is configured upstream. */
+  hasGroupAllowFrom?: boolean;
+>>>>>>> c6bb7b0c0 (fix(whatsapp): groupAllowFrom sender filter bypassed when groupPolicy is allowlist (#24670))
 }): ChannelGroupPolicy {
   const { cfg, channel } = params;
   const groups = resolveChannelGroups(cfg, channel, params.accountId);
@@ -381,7 +387,12 @@ export function resolveChannelGroupPolicy(params: {
   const groupConfig = normalizedId && groups ? groups[normalizedId] : undefined;
   const defaultConfig = groups?.["*"];
   const allowAll = allowlistEnabled && Boolean(groups && Object.hasOwn(groups, "*"));
+  // When groupPolicy is "allowlist" with groupAllowFrom but no explicit groups,
+  // allow the group through — sender-level filtering handles access control.
+  const senderFilterBypass =
+    groupPolicy === "allowlist" && !hasGroups && Boolean(params.hasGroupAllowFrom);
   const allowed =
+<<<<<<< HEAD
 <<<<<<< HEAD
     !allowlistEnabled ||
     allowAll ||
@@ -389,6 +400,11 @@ export function resolveChannelGroupPolicy(params: {
 =======
     groupPolicy === "disabled" ? false : !allowlistEnabled || allowAll || Boolean(groupConfig);
 >>>>>>> 0932adf36 (fix(config): fail closed allowlist-only group policy)
+=======
+    groupPolicy === "disabled"
+      ? false
+      : !allowlistEnabled || allowAll || Boolean(groupConfig) || senderFilterBypass;
+>>>>>>> c6bb7b0c0 (fix(whatsapp): groupAllowFrom sender filter bypassed when groupPolicy is allowlist (#24670))
   return {
     allowlistEnabled,
     allowed,
