@@ -1291,6 +1291,7 @@ Docs: https://docs.openclaw.ai
 >>>>>>> f7e75d2c5 (fix(doctor): repair googlechat open dm wildcard auto-fix)
 =======
 - CLI/Doctor: detect gateway service token drift when the gateway token is only provided via environment variables, keeping service repairs aligned after token rotation.
+- CLI/Doctor: clean up legacy Linux gateway services (`clawdbot`/`moltbot`) during `doctor --fix`, while keeping non-legacy user/system services untouched. (#21063) Thanks @Phineas1500.
 - Gateway/Update: prevent restart crash loops after failed self-updates by restarting only on successful updates, stopping early on failed install/build steps, and running `openclaw doctor --fix` during updates to sanitize config. (#18131) Thanks @RamiNoodle733.
 - CLI/Update: run a standalone restart helper after updates, honoring service-name overrides and reporting restart initiation separately from confirmed restarts. (#18050)
 - CLI/Daemon: warn when a gateway restart sees a stale service token so users can reinstall with `openclaw gateway install --force`, and skip drift warnings for non-gateway service restarts. (#18018)
