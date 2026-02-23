@@ -17,6 +17,8 @@ vi.mock("./hooks.js", async (importOriginal) => {
 
 import { createHooksRequestHandler } from "./server-http.js";
 
+type HooksHandlerDeps = Parameters<typeof createHooksRequestHandler>[0];
+
 function createHooksConfig(): HooksConfigResolved {
   return {
     basePath: "/hooks",
@@ -63,6 +65,30 @@ function createResponse(): {
   return { res, end, setHeader };
 }
 
+function createHandler(params?: {
+  dispatchWakeHook?: HooksHandlerDeps["dispatchWakeHook"];
+  dispatchAgentHook?: HooksHandlerDeps["dispatchAgentHook"];
+}) {
+  return createHooksRequestHandler({
+    getHooksConfig: () => createHooksConfig(),
+    bindHost: "127.0.0.1",
+    port: 18789,
+    logHooks: {
+      warn: vi.fn(),
+      debug: vi.fn(),
+      info: vi.fn(),
+      error: vi.fn(),
+    } as unknown as ReturnType<typeof createSubsystemLogger>,
+    dispatchWakeHook:
+      params?.dispatchWakeHook ??
+      ((() => {
+        return;
+      }) as HooksHandlerDeps["dispatchWakeHook"]),
+    dispatchAgentHook:
+      params?.dispatchAgentHook ?? ((() => "run-1") as HooksHandlerDeps["dispatchAgentHook"]),
+  });
+}
+
 describe("createHooksRequestHandler timeout status mapping", () => {
   beforeEach(() => {
     readJsonBodyMock.mockClear();
@@ -72,19 +98,7 @@ describe("createHooksRequestHandler timeout status mapping", () => {
     readJsonBodyMock.mockResolvedValue({ ok: false, error: "request body timeout" });
     const dispatchWakeHook = vi.fn();
     const dispatchAgentHook = vi.fn(() => "run-1");
-    const handler = createHooksRequestHandler({
-      getHooksConfig: () => createHooksConfig(),
-      bindHost: "127.0.0.1",
-      port: 18789,
-      logHooks: {
-        warn: vi.fn(),
-        debug: vi.fn(),
-        info: vi.fn(),
-        error: vi.fn(),
-      } as unknown as ReturnType<typeof createSubsystemLogger>,
-      dispatchWakeHook,
-      dispatchAgentHook,
-    });
+    const handler = createHandler({ dispatchWakeHook, dispatchAgentHook });
     const req = createRequest();
     const { res, end } = createResponse();
 
@@ -96,4 +110,33 @@ describe("createHooksRequestHandler timeout status mapping", () => {
     expect(dispatchWakeHook).not.toHaveBeenCalled();
     expect(dispatchAgentHook).not.toHaveBeenCalled();
   });
+<<<<<<< HEAD
+=======
+
+  test("shares hook auth rate-limit bucket across ipv4 and ipv4-mapped ipv6 forms", async () => {
+    const handler = createHandler();
+
+    for (let i = 0; i < 20; i++) {
+      const req = createRequest({
+        authorization: "Bearer wrong",
+        remoteAddress: "1.2.3.4",
+      });
+      const { res } = createResponse();
+      const handled = await handler(req, res);
+      expect(handled).toBe(true);
+      expect(res.statusCode).toBe(401);
+    }
+
+    const mappedReq = createRequest({
+      authorization: "Bearer wrong",
+      remoteAddress: "::ffff:1.2.3.4",
+    });
+    const { res: mappedRes, setHeader } = createResponse();
+    const handled = await handler(mappedReq, mappedRes);
+
+    expect(handled).toBe(true);
+    expect(mappedRes.statusCode).toBe(429);
+    expect(setHeader).toHaveBeenCalledWith("Retry-After", expect.any(String));
+  });
+>>>>>>> 1c753ea78 (test: dedupe fixtures and test harness setup)
 });

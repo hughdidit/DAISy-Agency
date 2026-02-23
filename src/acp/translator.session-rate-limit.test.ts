@@ -1,5 +1,4 @@
 import type {
-  AgentSideConnection,
   LoadSessionRequest,
   NewSessionRequest,
 } from "@agentclientprotocol/sdk";
@@ -7,6 +6,7 @@ import { describe, expect, it, vi } from "vitest";
 import type { GatewayClient } from "../gateway/client.js";
 import { createInMemorySessionStore } from "./session.js";
 import { AcpGatewayAgent } from "./translator.js";
+<<<<<<< HEAD
 
 function createConnection(): AgentSideConnection {
   return {
@@ -19,6 +19,9 @@ function createGateway(): GatewayClient {
     request: vi.fn(async () => ({ ok: true })),
   } as unknown as GatewayClient;
 }
+=======
+import { createAcpConnection, createAcpGateway } from "./translator.test-helpers.js";
+>>>>>>> 1c753ea78 (test: dedupe fixtures and test harness setup)
 
 function createNewSessionRequest(cwd = "/tmp"): NewSessionRequest {
   return {
@@ -54,7 +57,7 @@ function createPromptRequest(
 async function expectOversizedPromptRejected(params: { sessionId: string; text: string }) {
   const request = vi.fn(async () => ({ ok: true })) as GatewayClient["request"];
   const sessionStore = createInMemorySessionStore();
-  const agent = new AcpGatewayAgent(createConnection(), createGateway(request), {
+  const agent = new AcpGatewayAgent(createAcpConnection(), createAcpGateway(request), {
     sessionStore,
   });
   await agent.loadSession(createLoadSessionRequest(params.sessionId));
@@ -74,7 +77,7 @@ async function expectOversizedPromptRejected(params: { sessionId: string; text: 
 describe("acp session creation rate limit", () => {
   it("rate limits excessive newSession bursts", async () => {
     const sessionStore = createInMemorySessionStore();
-    const agent = new AcpGatewayAgent(createConnection(), createGateway(), {
+    const agent = new AcpGatewayAgent(createAcpConnection(), createAcpGateway(), {
       sessionStore,
       sessionCreateRateLimit: {
         maxRequests: 2,
@@ -93,7 +96,7 @@ describe("acp session creation rate limit", () => {
 
   it("does not count loadSession refreshes for an existing session ID", async () => {
     const sessionStore = createInMemorySessionStore();
-    const agent = new AcpGatewayAgent(createConnection(), createGateway(), {
+    const agent = new AcpGatewayAgent(createAcpConnection(), createAcpGateway(), {
       sessionStore,
       sessionCreateRateLimit: {
         maxRequests: 1,

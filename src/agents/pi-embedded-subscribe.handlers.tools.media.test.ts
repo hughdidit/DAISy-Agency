@@ -78,6 +78,21 @@ async function emitPngMediaToolResult(
   });
 }
 
+async function emitUntrustedToolMediaResult(
+  ctx: EmbeddedPiSubscribeContext,
+  mediaPathOrUrl: string,
+) {
+  await handleToolExecutionEnd(ctx, {
+    type: "tool_execution_end",
+    toolName: "plugin_tool",
+    toolCallId: "tc-1",
+    isError: false,
+    result: {
+      content: [{ type: "text", text: `MEDIA:${mediaPathOrUrl}` }],
+    },
+  });
+}
+
 describe("handleToolExecutionEnd media emission", () => {
   it("does not warn for read tool when path is provided via file_path alias", async () => {
     const ctx = createMockContext();
@@ -103,6 +118,29 @@ describe("handleToolExecutionEnd media emission", () => {
     });
   });
 
+<<<<<<< HEAD
+=======
+  it("does NOT emit local media for untrusted tools", async () => {
+    const onToolResult = vi.fn();
+    const ctx = createMockContext({ shouldEmitToolOutput: false, onToolResult });
+
+    await emitUntrustedToolMediaResult(ctx, "/tmp/secret.png");
+
+    expect(onToolResult).not.toHaveBeenCalled();
+  });
+
+  it("emits remote media for untrusted tools", async () => {
+    const onToolResult = vi.fn();
+    const ctx = createMockContext({ shouldEmitToolOutput: false, onToolResult });
+
+    await emitUntrustedToolMediaResult(ctx, "https://example.com/file.png");
+
+    expect(onToolResult).toHaveBeenCalledWith({
+      mediaUrls: ["https://example.com/file.png"],
+    });
+  });
+
+>>>>>>> 1c753ea78 (test: dedupe fixtures and test harness setup)
   it("does NOT emit media when verbose is full (emitToolOutput handles it)", async () => {
     const onToolResult = vi.fn();
     const ctx = createMockContext({ shouldEmitToolOutput: true, onToolResult });

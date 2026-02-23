@@ -93,12 +93,33 @@ describe("downloadBlueBubblesAttachment", () => {
     mockFetch.mockReset();
   });
 
+<<<<<<< HEAD
   afterEach(() => {
     vi.unstubAllGlobals();
   });
 
 =======
 >>>>>>> 544ffbcf7 (refactor(extensions): dedupe connector helper usage)
+=======
+  async function expectAttachmentTooLarge(params: { bufferBytes: number; maxBytes?: number }) {
+    const largeBuffer = new Uint8Array(params.bufferBytes);
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      headers: new Headers(),
+      arrayBuffer: () => Promise.resolve(largeBuffer.buffer),
+    });
+
+    const attachment: BlueBubblesAttachment = { guid: "att-large" };
+    await expect(
+      downloadBlueBubblesAttachment(attachment, {
+        serverUrl: "http://localhost:1234",
+        password: "test",
+        ...(params.maxBytes === undefined ? {} : { maxBytes: params.maxBytes }),
+      }),
+    ).rejects.toThrow("too large");
+  }
+
+>>>>>>> 1c753ea78 (test: dedupe fixtures and test harness setup)
   it("throws when guid is missing", async () => {
     const attachment: BlueBubblesAttachment = {};
     await expect(
@@ -210,38 +231,14 @@ describe("downloadBlueBubblesAttachment", () => {
   });
 
   it("throws when attachment exceeds max bytes", async () => {
-    const largeBuffer = new Uint8Array(10 * 1024 * 1024);
-    mockFetch.mockResolvedValueOnce({
-      ok: true,
-      headers: new Headers(),
-      arrayBuffer: () => Promise.resolve(largeBuffer.buffer),
+    await expectAttachmentTooLarge({
+      bufferBytes: 10 * 1024 * 1024,
+      maxBytes: 5 * 1024 * 1024,
     });
-
-    const attachment: BlueBubblesAttachment = { guid: "att-large" };
-    await expect(
-      downloadBlueBubblesAttachment(attachment, {
-        serverUrl: "http://localhost:1234",
-        password: "test",
-        maxBytes: 5 * 1024 * 1024,
-      }),
-    ).rejects.toThrow("too large");
   });
 
   it("uses default max bytes when not specified", async () => {
-    const largeBuffer = new Uint8Array(9 * 1024 * 1024);
-    mockFetch.mockResolvedValueOnce({
-      ok: true,
-      headers: new Headers(),
-      arrayBuffer: () => Promise.resolve(largeBuffer.buffer),
-    });
-
-    const attachment: BlueBubblesAttachment = { guid: "att-large" };
-    await expect(
-      downloadBlueBubblesAttachment(attachment, {
-        serverUrl: "http://localhost:1234",
-        password: "test",
-      }),
-    ).rejects.toThrow("too large");
+    await expectAttachmentTooLarge({ bufferBytes: 9 * 1024 * 1024 });
   });
 
   it("uses attachment mimeType as fallback when response has no content-type", async () => {

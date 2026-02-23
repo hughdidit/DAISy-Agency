@@ -1,10 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { captureEnv } from "../test-utils/env.js";
-
-const loadConfig = vi.fn();
-const resolveGatewayPort = vi.fn();
-const pickPrimaryTailnetIPv4 = vi.fn();
-const pickPrimaryLanIPv4 = vi.fn();
+import {
+  loadConfigMock as loadConfig,
+  pickPrimaryLanIPv4Mock as pickPrimaryLanIPv4,
+  pickPrimaryTailnetIPv4Mock as pickPrimaryTailnetIPv4,
+  resolveGatewayPortMock as resolveGatewayPort,
+} from "./gateway-connection.test-mocks.js";
 
 let lastClientOptions: {
   url?: string;
@@ -18,6 +19,7 @@ let startMode: StartMode = "hello";
 let closeCode = 1006;
 let closeReason = "";
 
+<<<<<<< HEAD
 vi.mock("../config/config.js", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../config/config.js")>();
   return {
@@ -35,6 +37,8 @@ vi.mock("./net.js", () => ({
   pickPrimaryLanIPv4,
 }));
 
+=======
+>>>>>>> 1c753ea78 (test: dedupe fixtures and test harness setup)
 vi.mock("./client.js", () => ({
   describeGatewayCloseCode: (code: number) => {
     if (code === 1000) {
