@@ -25,7 +25,12 @@ moltbot doctor --deep
 Notes:
 
 - Interactive prompts (like keychain/OAuth fixes) only run when stdin is a TTY and `--non-interactive` is **not** set. Headless runs (cron, Telegram, no terminal) will skip prompts.
+<<<<<<< HEAD
 - `--fix` (alias for `--repair`) writes a backup to `~/.clawdbot/moltbot.json.bak` and drops unknown config keys, listing each removal.
+=======
+- `--fix` (alias for `--repair`) writes a backup to `~/.openclaw/openclaw.json.bak` and drops unknown config keys, listing each removal.
+- State integrity checks now detect orphan transcript files in the sessions directory and can archive them as `.deleted.<timestamp>` to reclaim space safely.
+>>>>>>> eff3c5c70 (Session/Cron maintenance hardening and cleanup UX (#24753))
 
 ## macOS: `launchctl` env overrides
 

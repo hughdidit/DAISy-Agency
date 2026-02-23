@@ -11,6 +11,7 @@ import { resolveDefaultAgentId } from "../agents/agent-scope.js";
 import type { MoltbotConfig } from "../config/config.js";
 =======
 import { resolveDefaultAgentId } from "../agents/agent-scope.js";
+import { formatCliCommand } from "../cli/command-format.js";
 import type { OpenClawConfig } from "../config/config.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
@@ -31,6 +32,8 @@ import type { OpenClawConfig } from "../config/config.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { resolveOAuthDir, resolveStateDir } from "../config/paths.js";
 import {
+  formatSessionArchiveTimestamp,
+  isPrimarySessionTranscriptFileName,
   loadSessionStore,
   resolveMainSessionKey,
   resolveSessionFilePath,
@@ -183,6 +186,7 @@ export async function noteStateIntegrity(
   const sessionsDir = resolveSessionTranscriptsDirForAgent(agentId, env, homedir);
   const storePath = resolveStorePath(cfg.session?.store, { agentId });
   const storeDir = path.dirname(storePath);
+  const absoluteStorePath = path.resolve(storePath);
   const displayStateDir = shortenHomePath(stateDir);
   const displayOauthDir = shortenHomePath(oauthDir);
   const displaySessionsDir = shortenHomePath(sessionsDir);
@@ -380,7 +384,11 @@ export async function noteStateIntegrity(
     });
     if (missing.length > 0) {
       warnings.push(
-        `- ${missing.length}/${recent.length} recent sessions are missing transcripts. Check for deleted session files or split state dirs.`,
+        [
+          `- ${missing.length}/${recent.length} recent sessions are missing transcripts.`,
+          `  Verify sessions in store: ${formatCliCommand(`openclaw sessions --store "${absoluteStorePath}"`)}`,
+          `  Preview cleanup impact: ${formatCliCommand(`openclaw sessions cleanup --store "${absoluteStorePath}" --dry-run`)}`,
+        ].join("\n"),
       );
     }
 
@@ -402,6 +410,54 @@ export async function noteStateIntegrity(
           warnings.push(
             `- Main session transcript has only ${lineCount} line. Session history may not be appending.`,
           );
+        }
+      }
+    }
+  }
+
+  if (existsDir(sessionsDir)) {
+    const referencedTranscriptPaths = new Set<string>();
+    for (const [, entry] of entries) {
+      if (!entry?.sessionId) {
+        continue;
+      }
+      try {
+        referencedTranscriptPaths.add(
+          path.resolve(resolveSessionFilePath(entry.sessionId, entry, sessionPathOpts)),
+        );
+      } catch {
+        // ignore invalid legacy paths
+      }
+    }
+    const sessionDirEntries = fs.readdirSync(sessionsDir, { withFileTypes: true });
+    const orphanTranscriptPaths = sessionDirEntries
+      .filter((entry) => entry.isFile() && isPrimarySessionTranscriptFileName(entry.name))
+      .map((entry) => path.resolve(path.join(sessionsDir, entry.name)))
+      .filter((filePath) => !referencedTranscriptPaths.has(filePath));
+    if (orphanTranscriptPaths.length > 0) {
+      warnings.push(
+        `- Found ${orphanTranscriptPaths.length} orphan transcript file(s) in ${displaySessionsDir}. They are not referenced by sessions.json and can consume disk over time.`,
+      );
+      const archiveOrphans = await prompter.confirmSkipInNonInteractive({
+        message: `Archive ${orphanTranscriptPaths.length} orphan transcript file(s) in ${displaySessionsDir}?`,
+        initialValue: false,
+      });
+      if (archiveOrphans) {
+        let archived = 0;
+        const archivedAt = formatSessionArchiveTimestamp();
+        for (const orphanPath of orphanTranscriptPaths) {
+          const archivedPath = `${orphanPath}.deleted.${archivedAt}`;
+          try {
+            fs.renameSync(orphanPath, archivedPath);
+            archived += 1;
+          } catch (err) {
+            warnings.push(
+              `- Failed to archive orphan transcript ${shortenHomePath(orphanPath)}: ${String(err)}`,
+            );
+          }
+        }
+        if (archived > 0) {
+          changes.push(`- Archived ${archived} orphan transcript file(s) in ${displaySessionsDir}`);
         }
       }
     }

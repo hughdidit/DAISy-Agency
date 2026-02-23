@@ -20,5 +20,16 @@ export type CronConfig = {
    * Default: "24h".
    */
   sessionRetention?: string | false;
+<<<<<<< HEAD
 >>>>>>> 115cfb443 (gateway: add cron finished-run webhook (#14535))
+=======
+  /**
+   * Run-log pruning controls for `cron/runs/<jobId>.jsonl`.
+   * Defaults: `maxBytes=2_000_000`, `keepLines=2000`.
+   */
+  runLog?: {
+    maxBytes?: number | string;
+    keepLines?: number;
+  };
+>>>>>>> eff3c5c70 (Session/Cron maintenance hardening and cleanup UX (#24753))
 };

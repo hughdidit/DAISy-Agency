@@ -173,7 +173,20 @@ Save to `~/.clawdbot/moltbot.json` and you can DM the bot from that number.
       discord: { mode: "idle", idleMinutes: 10080 },
     },
     resetTriggers: ["/new", "/reset"],
+<<<<<<< HEAD
     store: "~/.clawdbot/agents/default/sessions/sessions.json",
+=======
+    store: "~/.openclaw/agents/default/sessions/sessions.json",
+    maintenance: {
+      mode: "warn",
+      pruneAfter: "30d",
+      maxEntries: 500,
+      rotateBytes: "10mb",
+      resetArchiveRetention: "30d", // duration or false
+      maxDiskBytes: "500mb", // optional
+      highWaterBytes: "400mb", // optional (defaults to 80% of maxDiskBytes)
+    },
+>>>>>>> eff3c5c70 (Session/Cron maintenance hardening and cleanup UX (#24753))
     typingIntervalSeconds: 5,
     sendPolicy: {
       default: "allow",
@@ -362,7 +375,15 @@ Save to `~/.clawdbot/moltbot.json` and you can DM the bot from that number.
 =======
     store: "~/.openclaw/cron/cron.json",
     maxConcurrentRuns: 2,
+<<<<<<< HEAD
 >>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
+=======
+    sessionRetention: "24h",
+    runLog: {
+      maxBytes: "2mb",
+      keepLines: 2000,
+    },
+>>>>>>> eff3c5c70 (Session/Cron maintenance hardening and cleanup UX (#24753))
   },
 
   // Webhooks
