@@ -106,7 +106,11 @@ package-lock.json
 .agents/
 .agents
 .agent/
+<<<<<<< HEAD
 >>>>>>> 72e937a59 (fix(gitignore): add mise configuration files and correct .agents entries)
+=======
+skills-lock.json
+>>>>>>> 271a14905 (chore: add skills-lock.json to gitignore)
 
 # Local iOS signing overrides
 apps/ios/LocalSigning.xcconfig
