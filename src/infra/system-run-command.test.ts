@@ -58,6 +58,27 @@ describe("system run command helpers", () => {
 <<<<<<< HEAD
 =======
 
+  test("validateSystemRunCommandConsistency rejects shell-only rawCommand for env assignment prelude", () => {
+    expectRawCommandMismatch({
+      argv: ["/usr/bin/env", "BASH_ENV=/tmp/payload.sh", "bash", "-lc", "echo hi"],
+      rawCommand: "echo hi",
+    });
+  });
+
+  test("validateSystemRunCommandConsistency accepts full rawCommand for env assignment prelude", () => {
+    const raw = '/usr/bin/env BASH_ENV=/tmp/payload.sh bash -lc "echo hi"';
+    const res = validateSystemRunCommandConsistency({
+      argv: ["/usr/bin/env", "BASH_ENV=/tmp/payload.sh", "bash", "-lc", "echo hi"],
+      rawCommand: raw,
+    });
+    expect(res.ok).toBe(true);
+    if (!res.ok) {
+      throw new Error("unreachable");
+    }
+    expect(res.shellCommand).toBe("echo hi");
+    expect(res.cmdText).toBe(raw);
+  });
+
   test("validateSystemRunCommandConsistency rejects cmd.exe /c trailing-arg smuggling", () => {
     expectRawCommandMismatch({
       argv: ["cmd.exe", "/d", "/s", "/c", "echo", "SAFE&&whoami"],
@@ -95,5 +116,20 @@ describe("system run command helpers", () => {
     expect(res.shellCommand).toBe("echo SAFE&&whoami");
     expect(res.cmdText).toBe("echo SAFE&&whoami");
   });
+<<<<<<< HEAD
 >>>>>>> b109fa53e (refactor(core): dedupe gateway runtime and config tests)
+=======
+
+  test("resolveSystemRunCommand binds cmdText to full argv when env prelude modifies shell wrapper", () => {
+    const res = resolveSystemRunCommand({
+      command: ["/usr/bin/env", "BASH_ENV=/tmp/payload.sh", "bash", "-lc", "echo hi"],
+    });
+    expect(res.ok).toBe(true);
+    if (!res.ok) {
+      throw new Error("unreachable");
+    }
+    expect(res.shellCommand).toBe("echo hi");
+    expect(res.cmdText).toBe('/usr/bin/env BASH_ENV=/tmp/payload.sh bash -lc "echo hi"');
+  });
+>>>>>>> bd8b9af9a (fix(exec): bind env-prefixed shell wrappers to full approval text)
 });

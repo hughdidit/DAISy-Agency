@@ -212,7 +212,65 @@ export function unwrapEnvInvocation(argv: string[]): string[] | null {
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+function envInvocationUsesModifiers(argv: string[]): boolean {
+  let idx = 1;
+  let expectsOptionValue = false;
+  while (idx < argv.length) {
+    const token = argv[idx]?.trim() ?? "";
+    if (!token) {
+      idx += 1;
+      continue;
+    }
+    if (expectsOptionValue) {
+      return true;
+    }
+    if (token === "--" || token === "-") {
+      idx += 1;
+      break;
+    }
+    if (isEnvAssignment(token)) {
+      return true;
+    }
+    if (!token.startsWith("-") || token === "-") {
+      break;
+    }
+    const lower = token.toLowerCase();
+    const [flag] = lower.split("=", 2);
+    if (ENV_FLAG_OPTIONS.has(flag)) {
+      return true;
+    }
+    if (ENV_OPTIONS_WITH_VALUE.has(flag)) {
+      if (lower.includes("=") || lower !== flag) {
+        return true;
+      }
+      expectsOptionValue = true;
+      idx += 1;
+      continue;
+    }
+    if (
+      lower.startsWith("-u") ||
+      lower.startsWith("-c") ||
+      lower.startsWith("-s") ||
+      lower.startsWith("--unset=") ||
+      lower.startsWith("--chdir=") ||
+      lower.startsWith("--split-string=") ||
+      lower.startsWith("--default-signal=") ||
+      lower.startsWith("--ignore-signal=") ||
+      lower.startsWith("--block-signal=")
+    ) {
+      return true;
+    }
+    // Unknown env flags are treated conservatively as modifiers.
+    return true;
+  }
+
+  return false;
+}
+
+>>>>>>> bd8b9af9a (fix(exec): bind env-prefixed shell wrappers to full approval text)
 function unwrapNiceInvocation(argv: string[]): string[] | null {
   return scanWrapperInvocation(argv, {
     separators: new Set(["--"]),
@@ -363,6 +421,49 @@ export function unwrapDispatchWrappersForResolution(
 >>>>>>> cd919ebd2 (refactor(exec): unify wrapper resolution and split approvals tests)
   }
   return current;
+}
+
+function hasEnvManipulationBeforeShellWrapperInternal(
+  argv: string[],
+  depth: number,
+  envManipulationSeen: boolean,
+): boolean {
+  if (depth >= MAX_DISPATCH_WRAPPER_DEPTH) {
+    return false;
+  }
+
+  const token0 = argv[0]?.trim();
+  if (!token0) {
+    return false;
+  }
+
+  const dispatchUnwrap = unwrapKnownDispatchWrapperInvocation(argv);
+  if (dispatchUnwrap.kind === "blocked") {
+    return false;
+  }
+  if (dispatchUnwrap.kind === "unwrapped") {
+    const nextEnvManipulationSeen =
+      envManipulationSeen || (dispatchUnwrap.wrapper === "env" && envInvocationUsesModifiers(argv));
+    return hasEnvManipulationBeforeShellWrapperInternal(
+      dispatchUnwrap.argv,
+      depth + 1,
+      nextEnvManipulationSeen,
+    );
+  }
+
+  const wrapper = findShellWrapperSpec(normalizeExecutableToken(token0));
+  if (!wrapper) {
+    return false;
+  }
+  const payload = extractShellWrapperPayload(argv, wrapper);
+  if (!payload) {
+    return false;
+  }
+  return envManipulationSeen;
+}
+
+export function hasEnvManipulationBeforeShellWrapper(argv: string[]): boolean {
+  return hasEnvManipulationBeforeShellWrapperInternal(argv, 0, false);
 }
 
 function extractPosixShellInlineCommand(argv: string[]): string | null {
