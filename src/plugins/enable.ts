@@ -1,4 +1,9 @@
 import type { OpenClawConfig } from "../config/config.js";
+<<<<<<< HEAD
+=======
+import { ensurePluginAllowlisted } from "../config/plugins-allowlist.js";
+import { setPluginEnabledInConfig } from "./toggle-config.js";
+>>>>>>> 87603b5c4 (fix: sync built-in channel enablement across config paths)
 
 export type PluginEnableResult = {
   config: OpenClawConfig;
@@ -27,6 +32,7 @@ export function enablePluginInConfig(cfg: OpenClawConfig, pluginId: string): Plu
   if (cfg.plugins?.deny?.includes(pluginId)) {
     return { config: cfg, enabled: false, reason: "blocked by denylist" };
   }
+<<<<<<< HEAD
 
   const entries = {
     ...cfg.plugins?.entries,
@@ -43,5 +49,9 @@ export function enablePluginInConfig(cfg: OpenClawConfig, pluginId: string): Plu
     },
   };
   next = ensureAllowlisted(next, pluginId);
+=======
+  let next = setPluginEnabledInConfig(cfg, resolvedId, true);
+  next = ensurePluginAllowlisted(next, resolvedId);
+>>>>>>> 87603b5c4 (fix: sync built-in channel enablement across config paths)
   return { config: next, enabled: true };
 }

@@ -2,6 +2,10 @@ import { createJiti } from "jiti";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+<<<<<<< HEAD
+=======
+import { createJiti } from "jiti";
+>>>>>>> 87603b5c4 (fix: sync built-in channel enablement across config paths)
 import type { OpenClawConfig } from "../config/config.js";
 import type { GatewayRequestHandler } from "../gateway/server-methods/types.js";
 import type {
@@ -15,7 +19,7 @@ import { resolveUserPath } from "../utils.js";
 import { clearPluginCommands } from "./commands.js";
 import {
   normalizePluginsConfig,
-  resolveEnableState,
+  resolveEffectiveEnableState,
   resolveMemorySlotDecision,
   type NormalizedPluginsConfig,
 } from "./config-state.js";
@@ -162,6 +166,34 @@ function createPluginRecord(params: {
   };
 }
 
+<<<<<<< HEAD
+=======
+function recordPluginError(params: {
+  logger: PluginLogger;
+  registry: PluginRegistry;
+  record: PluginRecord;
+  seenIds: Map<string, PluginRecord["origin"]>;
+  pluginId: string;
+  origin: PluginRecord["origin"];
+  error: unknown;
+  logPrefix: string;
+  diagnosticMessagePrefix: string;
+}) {
+  const errorText = String(params.error);
+  params.logger.error(`${params.logPrefix}${errorText}`);
+  params.record.status = "error";
+  params.record.error = errorText;
+  params.registry.plugins.push(params.record);
+  params.seenIds.set(params.pluginId, params.origin);
+  params.registry.diagnostics.push({
+    level: "error",
+    pluginId: params.record.id,
+    source: params.record.source,
+    message: `${params.diagnosticMessagePrefix}${errorText}`,
+  });
+}
+
+>>>>>>> 87603b5c4 (fix: sync built-in channel enablement across config paths)
 function pushDiagnostics(diagnostics: PluginDiagnostic[], append: PluginDiagnostic[]) {
   diagnostics.push(...append);
 }
@@ -252,7 +284,16 @@ export function loadOpenClawPlugins(options: PluginLoadOptions = {}): PluginRegi
       continue;
     }
 
+<<<<<<< HEAD
     const enableState = resolveEnableState(pluginId, candidate.origin, normalized);
+=======
+    const enableState = resolveEffectiveEnableState({
+      id: pluginId,
+      origin: candidate.origin,
+      config: normalized,
+      rootConfig: cfg,
+    });
+>>>>>>> 87603b5c4 (fix: sync built-in channel enablement across config paths)
     const entry = normalized.entries[pluginId];
     const record = createPluginRecord({
       id: pluginId,
