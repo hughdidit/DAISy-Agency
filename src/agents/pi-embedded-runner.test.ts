@@ -15,7 +15,10 @@ import "./test-helpers/fast-coding-tools.js";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 >>>>>>> 239f72c58 (perf(test): consolidate archive safety cases and cache session manager)
 import type { OpenClawConfig } from "../config/config.js";
+<<<<<<< HEAD
 >>>>>>> 47514e35a (test: dedupe pi embedded runner setup and orphan case)
+=======
+>>>>>>> 1f5e6444e (test: remove redundant pi embedded runner cases)
 
 function createMockUsage(input: number, output: number) {
   return {
@@ -35,28 +38,9 @@ function createMockUsage(input: number, output: number) {
 }
 
 vi.mock("@mariozechner/pi-coding-agent", async () => {
-  const actual = await vi.importActual<typeof import("@mariozechner/pi-coding-agent")>(
+  return await vi.importActual<typeof import("@mariozechner/pi-coding-agent")>(
     "@mariozechner/pi-coding-agent",
   );
-
-  return {
-    ...actual,
-    createAgentSession: async (
-      ...args: Parameters<typeof actual.createAgentSession>
-    ): ReturnType<typeof actual.createAgentSession> => {
-      const result = await actual.createAgentSession(...args);
-      const modelId = (args[0] as { model?: { id?: string } } | undefined)?.model?.id;
-      if (modelId === "mock-throw") {
-        const session = result.session as { prompt?: (...params: unknown[]) => Promise<unknown> };
-        if (session && typeof session.prompt === "function") {
-          session.prompt = async () => {
-            throw new Error("transport failed");
-          };
-        }
-      }
-      return result;
-    },
-  };
 });
 
 vi.mock("@mariozechner/pi-ai", async () => {
@@ -102,6 +86,7 @@ vi.mock("@mariozechner/pi-ai", async () => {
     streamSimple: (model: { api: string; provider: string; id: string }) => {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       const stream = new actual.AssistantMessageEventStream();
 =======
       if (model.id === "mock-throw") {
@@ -109,6 +94,8 @@ vi.mock("@mariozechner/pi-ai", async () => {
       }
 =======
 >>>>>>> eda941f39 (perf(test): remove flaky transport timeout and dedupe safeBins checks)
+=======
+>>>>>>> 1f5e6444e (test: remove redundant pi embedded runner cases)
       const stream = actual.createAssistantMessageEventStream();
 >>>>>>> db3529e92 (chore: Fix types in tests 14/N.)
       queueMicrotask(() => {
@@ -266,6 +253,7 @@ const runDefaultEmbeddedTurn = async (sessionFile: string, prompt: string, sessi
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 describe("runEmbeddedPiAgent", () => {
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -339,18 +327,39 @@ describe("runEmbeddedPiAgent", () => {
     const result = await runEmbeddedPiAgent({
       sessionId: "session:test-fallback",
       sessionKey: "agent:main:subagent:fallback-workspace",
+=======
+describe("runEmbeddedPiAgent", () => {
+  it("handles prompt error paths without dropping user state", async () => {
+    const sessionFile = nextSessionFile();
+    const cfg = makeOpenAiConfig(["mock-error"]);
+    const sessionKey = nextSessionKey();
+    const result = await runEmbeddedPiAgent({
+      sessionId: "session:test",
+      sessionKey,
+>>>>>>> 1f5e6444e (test: remove redundant pi embedded runner cases)
       sessionFile,
       workspaceDir: undefined as unknown as string,
       config: cfg,
+<<<<<<< HEAD
       prompt: "hello",
       provider: "openai",
       model: "mock-1",
       timeoutMs: 5_000,
       agentDir,
       runId: "run-fallback-workspace",
+=======
+      prompt: "boom",
+      provider: "openai",
+      model: "mock-error",
+      timeoutMs: 5_000,
+      agentDir,
+      runId: nextRunId("prompt-error"),
+>>>>>>> 1f5e6444e (test: remove redundant pi embedded runner cases)
       enqueue: immediateEnqueue,
     });
+    expect(result.payloads?.[0]?.isError).toBe(true);
 
+<<<<<<< HEAD
     expect(result.payloads?.[0]?.text).toBe("ok");
     await expect(fs.stat(fallbackWorkspace)).resolves.toBeTruthy();
   });
@@ -451,11 +460,14 @@ describe("runEmbeddedPiAgent", () => {
     });
     expect(result.payloads?.[0]?.isError).toBe(true);
 
+=======
+>>>>>>> 1f5e6444e (test: remove redundant pi embedded runner cases)
     const messages = await readSessionMessages(sessionFile);
     const userIndex = messages.findIndex(
       (message) => message?.role === "user" && textFromContent(message.content) === "boom",
     );
     expect(userIndex).toBeGreaterThanOrEqual(0);
+<<<<<<< HEAD
   });
 
 <<<<<<< HEAD
@@ -527,6 +539,8 @@ describe("runEmbeddedPiAgent", () => {
         expect(userIndex, testCase.label).toBeGreaterThanOrEqual(0);
       }
     }
+=======
+>>>>>>> 1f5e6444e (test: remove redundant pi embedded runner cases)
   });
 
 >>>>>>> db3529e92 (chore: Fix types in tests 14/N.)
