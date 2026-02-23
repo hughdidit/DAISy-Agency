@@ -19,24 +19,32 @@ import {
 
 installGatewayTestHooks({ scope: "suite" });
 
-let server: Awaited<ReturnType<typeof startServerWithClient>>["server"];
-let ws: Awaited<ReturnType<typeof startServerWithClient>>["ws"];
+let startedServer: Awaited<ReturnType<typeof startServerWithClient>> | null = null;
+
+function requireWs(): Awaited<ReturnType<typeof startServerWithClient>>["ws"] {
+  if (!startedServer) {
+    throw new Error("gateway test server not started");
+  }
+  return startedServer.ws;
+}
 
 beforeAll(async () => {
-  const started = await startServerWithClient(undefined, { controlUiEnabled: true });
-  server = started.server;
-  ws = started.ws;
-  await connectOk(ws);
+  startedServer = await startServerWithClient(undefined, { controlUiEnabled: true });
+  await connectOk(requireWs());
 });
 
 afterAll(async () => {
-  ws.close();
-  await server.close();
+  if (!startedServer) {
+    return;
+  }
+  startedServer.ws.close();
+  await startedServer.server.close();
+  startedServer = null;
 });
 
 describe("gateway config methods", () => {
   it("rejects config.patch when raw is not an object", async () => {
-    const res = await rpcReq<{ ok?: boolean }>(ws, "config.patch", {
+    const res = await rpcReq<{ ok?: boolean }>(requireWs(), "config.patch", {
       raw: "[]",
     });
 <<<<<<< HEAD
@@ -298,7 +306,7 @@ describe("gateway server sessions", () => {
 
     const homeSessions = await rpcReq<{
       sessions: Array<{ key: string }>;
-    }>(ws, "sessions.list", {
+    }>(requireWs(), "sessions.list", {
       includeGlobal: false,
       includeUnknown: false,
       agentId: "home",
@@ -311,7 +319,7 @@ describe("gateway server sessions", () => {
 
     const workSessions = await rpcReq<{
       sessions: Array<{ key: string }>;
-    }>(ws, "sessions.list", {
+    }>(requireWs(), "sessions.list", {
       includeGlobal: false,
       includeUnknown: false,
       agentId: "work",
@@ -339,13 +347,13 @@ describe("gateway server sessions", () => {
       },
     });
 
-    const resolved = await rpcReq<{ ok: true; key: string }>(ws, "sessions.resolve", {
+    const resolved = await rpcReq<{ ok: true; key: string }>(requireWs(), "sessions.resolve", {
       key: "main",
     });
     expect(resolved.ok).toBe(true);
     expect(resolved.payload?.key).toBe("agent:ops:work");
 
-    const patched = await rpcReq<{ ok: true; key: string }>(ws, "sessions.patch", {
+    const patched = await rpcReq<{ ok: true; key: string }>(requireWs(), "sessions.patch", {
       key: "main",
       thinkingLevel: "medium",
     });

@@ -1,6 +1,13 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import {
+  loadConfigMock as loadConfig,
+  pickPrimaryLanIPv4Mock as pickPrimaryLanIPv4,
+  pickPrimaryTailnetIPv4Mock as pickPrimaryTailnetIPv4,
+  resolveGatewayPortMock as resolveGatewayPort,
+} from "../gateway/gateway-connection.test-mocks.js";
 import { captureEnv, withEnv } from "../test-utils/env.js";
 
+<<<<<<< HEAD
 const loadConfig = vi.fn();
 const resolveGatewayPort = vi.fn();
 const pickPrimaryTailnetIPv4 = vi.fn();
@@ -23,6 +30,8 @@ vi.mock("../gateway/net.js", () => ({
   pickPrimaryLanIPv4,
 }));
 
+=======
+>>>>>>> 1c753ea78 (test: dedupe fixtures and test harness setup)
 const { resolveGatewayConnection } = await import("./gateway-chat.js");
 
 describe("resolveGatewayConnection", () => {

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import fs from "node:fs/promises";
 import path from "node:path";
 <<<<<<< HEAD
@@ -38,15 +39,20 @@ const _MODELS_CONFIG: MoltbotConfig = {
   },
 };
 =======
+=======
+>>>>>>> 1c753ea78 (test: dedupe fixtures and test harness setup)
 import { describe, expect, it } from "vitest";
 import type { OpenClawConfig } from "../config/config.js";
-import { resolveOpenClawAgentDir } from "./agent-paths.js";
 import { installModelsConfigTestHooks, withModelsTempHome } from "./models-config.e2e-harness.js";
 <<<<<<< HEAD
 >>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 =======
 import { ensureOpenClawModelsJson } from "./models-config.js";
+<<<<<<< HEAD
 >>>>>>> 7b229decd (test(perf): dedupe fixtures and reduce flaky waits)
+=======
+import { readGeneratedModelsJson } from "./models-config.test-utils.js";
+>>>>>>> 1c753ea78 (test: dedupe fixtures and test harness setup)
 
 describe("models-config", () => {
   installModelsConfigTestHooks();
@@ -106,11 +112,15 @@ describe("models-config", () => {
 
       await ensureMoltbotModelsJson(cfg);
 
+<<<<<<< HEAD
       const modelPath = path.join(resolveMoltbotAgentDir(), "models.json");
       const raw = await fs.readFile(modelPath, "utf8");
       const parsed = JSON.parse(raw) as {
+=======
+      const parsed = await readGeneratedModelsJson<{
+>>>>>>> 1c753ea78 (test: dedupe fixtures and test harness setup)
         providers: Record<string, { models: Array<{ id: string }> }>;
-      };
+      }>();
       const ids = parsed.providers.google?.models?.map((model) => model.id);
       expect(ids).toEqual(["gemini-3-pro-preview", "gemini-3-flash-preview"]);
     });

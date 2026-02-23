@@ -57,6 +57,18 @@ async function resolveBedrockProvider() {
   });
 }
 
+async function expectBedrockAuthSource(params: {
+  env: Record<string, string | undefined>;
+  expectedSource: string;
+}) {
+  await withEnvAsync(params.env, async () => {
+    const resolved = await resolveBedrockProvider();
+    expect(resolved.mode).toBe("aws-sdk");
+    expect(resolved.apiKey).toBeUndefined();
+    expect(resolved.source).toContain(params.expectedSource);
+  });
+}
+
 describe("getApiKeyForModel", () => {
   it("migrates legacy oauth.json into auth-profiles.json", async () => {
 <<<<<<< HEAD
@@ -397,57 +409,39 @@ describe("getApiKeyForModel", () => {
   });
 
   it("prefers Bedrock bearer token over access keys and profile", async () => {
-    await withEnvAsync(
-      {
+    await expectBedrockAuthSource({
+      env: {
         AWS_BEARER_TOKEN_BEDROCK: "bedrock-token",
         AWS_ACCESS_KEY_ID: "access-key",
         AWS_SECRET_ACCESS_KEY: "secret-key",
         AWS_PROFILE: "profile",
       },
-      async () => {
-        const resolved = await resolveBedrockProvider();
-
-        expect(resolved.mode).toBe("aws-sdk");
-        expect(resolved.apiKey).toBeUndefined();
-        expect(resolved.source).toContain("AWS_BEARER_TOKEN_BEDROCK");
-      },
-    );
+      expectedSource: "AWS_BEARER_TOKEN_BEDROCK",
+    });
   });
 
   it("prefers Bedrock access keys over profile", async () => {
-    await withEnvAsync(
-      {
+    await expectBedrockAuthSource({
+      env: {
         AWS_BEARER_TOKEN_BEDROCK: undefined,
         AWS_ACCESS_KEY_ID: "access-key",
         AWS_SECRET_ACCESS_KEY: "secret-key",
         AWS_PROFILE: "profile",
       },
-      async () => {
-        const resolved = await resolveBedrockProvider();
-
-        expect(resolved.mode).toBe("aws-sdk");
-        expect(resolved.apiKey).toBeUndefined();
-        expect(resolved.source).toContain("AWS_ACCESS_KEY_ID");
-      },
-    );
+      expectedSource: "AWS_ACCESS_KEY_ID",
+    });
   });
 
   it("uses Bedrock profile when access keys are missing", async () => {
-    await withEnvAsync(
-      {
+    await expectBedrockAuthSource({
+      env: {
         AWS_BEARER_TOKEN_BEDROCK: undefined,
         AWS_ACCESS_KEY_ID: undefined,
         AWS_SECRET_ACCESS_KEY: undefined,
         AWS_PROFILE: "profile",
       },
-      async () => {
-        const resolved = await resolveBedrockProvider();
-
-        expect(resolved.mode).toBe("aws-sdk");
-        expect(resolved.apiKey).toBeUndefined();
-        expect(resolved.source).toContain("AWS_PROFILE");
-      },
-    );
+      expectedSource: "AWS_PROFILE",
+    });
   });
 
   it("accepts VOYAGE_API_KEY for voyage", async () => {

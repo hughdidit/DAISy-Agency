@@ -5,13 +5,14 @@ import {
   installDirectiveBehaviorE2EHooks,
   loadModelCatalog,
   makeWhatsAppDirectiveConfig,
-  replyText,
   runEmbeddedPiAgent,
   sessionStorePath,
   withTempHome,
 } from "./reply.directive.directive-behavior.e2e-harness.js";
+import { runModelDirectiveText } from "./reply.directive.directive-behavior.model-directive-test-utils.js";
 import { getReplyFromConfig } from "./reply.js";
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 const MAIN_SESSION_KEY = "agent:main:main";
@@ -85,11 +86,14 @@ async function runModelDirective(
 }
 
 >>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
+=======
+>>>>>>> 1c753ea78 (test: dedupe fixtures and test harness setup)
 describe("directive behavior", () => {
   installDirectiveBehaviorE2EHooks();
 
   it("aliases /model list to /models", async () => {
     await withTempHome(async (home) => {
+<<<<<<< HEAD
 <<<<<<< HEAD
       const storePath = path.join(home, "sessions.json");
 
@@ -115,6 +119,9 @@ describe("directive behavior", () => {
 =======
       const text = await runModelDirective(home, "/model list");
 >>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
+=======
+      const text = await runModelDirectiveText(home, "/model list");
+>>>>>>> 1c753ea78 (test: dedupe fixtures and test harness setup)
       expect(text).toContain("Providers:");
       expect(text).toContain("- anthropic");
       expect(text).toContain("- openai");
@@ -126,6 +133,7 @@ describe("directive behavior", () => {
   it("shows current model when catalog is unavailable", async () => {
     await withTempHome(async (home) => {
       vi.mocked(loadModelCatalog).mockResolvedValueOnce([]);
+<<<<<<< HEAD
 <<<<<<< HEAD
       const storePath = path.join(home, "sessions.json");
 
@@ -151,6 +159,9 @@ describe("directive behavior", () => {
 =======
       const text = await runModelDirective(home, "/model");
 >>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
+=======
+      const text = await runModelDirectiveText(home, "/model");
+>>>>>>> 1c753ea78 (test: dedupe fixtures and test harness setup)
       expect(text).toContain("Current: anthropic/claude-opus-4-5");
       expect(text).toContain("Switch: /model <provider/model>");
       expect(text).toContain("Browse: /models (providers) or /models <provider> (models)");
@@ -165,6 +176,7 @@ describe("directive behavior", () => {
         { id: "gpt-4.1-mini", name: "GPT-4.1 Mini", provider: "openai" },
         { id: "grok-4", name: "Grok 4", provider: "xai" },
       ]);
+<<<<<<< HEAD
 <<<<<<< HEAD
       const storePath = path.join(home, "sessions.json");
 
@@ -183,6 +195,9 @@ describe("directive behavior", () => {
             },
 =======
       const text = await runModelDirective(home, "/model list", {
+=======
+      const text = await runModelDirectiveText(home, "/model list", {
+>>>>>>> 1c753ea78 (test: dedupe fixtures and test harness setup)
         defaults: {
           model: {
             primary: "anthropic/claude-opus-4-5",
@@ -214,6 +229,7 @@ describe("directive behavior", () => {
         { provider: "openai", id: "gpt-4.1-mini", name: "GPT-4.1 mini" },
       ]);
 <<<<<<< HEAD
+<<<<<<< HEAD
       const storePath = path.join(home, "sessions.json");
 
       const res = await getReplyFromConfig(
@@ -232,6 +248,9 @@ describe("directive behavior", () => {
             },
 =======
       const text = await runModelDirective(home, "/models minimax", {
+=======
+      const text = await runModelDirectiveText(home, "/models minimax", {
+>>>>>>> 1c753ea78 (test: dedupe fixtures and test harness setup)
         defaults: {
           models: {
             "anthropic/claude-opus-4-5": {},
@@ -261,6 +280,7 @@ describe("directive behavior", () => {
   it("does not repeat missing auth labels on /model list", async () => {
     await withTempHome(async (home) => {
 <<<<<<< HEAD
+<<<<<<< HEAD
       const storePath = path.join(home, "sessions.json");
 
       const res = await getReplyFromConfig(
@@ -277,6 +297,9 @@ describe("directive behavior", () => {
             },
 =======
       const text = await runModelDirective(home, "/model list", {
+=======
+      const text = await runModelDirectiveText(home, "/model list", {
+>>>>>>> 1c753ea78 (test: dedupe fixtures and test harness setup)
         defaults: {
           models: {
             "anthropic/claude-opus-4-5": {},

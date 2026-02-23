@@ -5,12 +5,12 @@ import {
   installDirectiveBehaviorE2EHooks,
   makeEmbeddedTextResult,
   makeWhatsAppDirectiveConfig,
-  replyText,
   replyTexts,
   runEmbeddedPiAgent,
   sessionStorePath,
   withTempHome,
 } from "./reply.directive.directive-behavior.e2e-harness.js";
+import { runModelDirectiveText } from "./reply.directive.directive-behavior.model-directive-test-utils.js";
 import { getReplyFromConfig } from "./reply.js";
 
 <<<<<<< HEAD
@@ -116,6 +116,7 @@ async function runInFlightVerboseToggleCase(params: {
   return { res };
 }
 
+<<<<<<< HEAD
 >>>>>>> 2fd211b70 (test(auto-reply): dedupe directive behavior e2e fixtures)
 async function runModelDirectiveAndGetText(
   home: string,
@@ -136,6 +137,8 @@ async function runModelDirectiveAndGetText(
 }
 
 >>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
+=======
+>>>>>>> 1c753ea78 (test: dedupe fixtures and test harness setup)
 describe("directive behavior", () => {
   installDirectiveBehaviorE2EHooks();
 
@@ -238,6 +241,7 @@ describe("directive behavior", () => {
   it("shows summary on /model", async () => {
     await withTempHome(async (home) => {
 <<<<<<< HEAD
+<<<<<<< HEAD
       const storePath = path.join(home, "sessions.json");
 
       const res = await getReplyFromConfig(
@@ -262,6 +266,9 @@ describe("directive behavior", () => {
 =======
       const text = await runModelDirectiveAndGetText(home, "/model");
 >>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
+=======
+      const text = await runModelDirectiveText(home, "/model", { includeSessionStore: false });
+>>>>>>> 1c753ea78 (test: dedupe fixtures and test harness setup)
       expect(text).toContain("Current: anthropic/claude-opus-4-5");
       expect(text).toContain("Switch: /model <provider/model>");
       expect(text).toContain("Browse: /models (providers) or /models <provider> (models)");
@@ -272,6 +279,7 @@ describe("directive behavior", () => {
   });
   it("lists allowlisted models on /model status", async () => {
     await withTempHome(async (home) => {
+<<<<<<< HEAD
 <<<<<<< HEAD
       const storePath = path.join(home, "sessions.json");
 
@@ -297,6 +305,11 @@ describe("directive behavior", () => {
 =======
       const text = await runModelDirectiveAndGetText(home, "/model status");
 >>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
+=======
+      const text = await runModelDirectiveText(home, "/model status", {
+        includeSessionStore: false,
+      });
+>>>>>>> 1c753ea78 (test: dedupe fixtures and test harness setup)
       expect(text).toContain("anthropic/claude-opus-4-5");
       expect(text).toContain("openai/gpt-4.1-mini");
       expect(text).not.toContain("claude-sonnet-4-1");

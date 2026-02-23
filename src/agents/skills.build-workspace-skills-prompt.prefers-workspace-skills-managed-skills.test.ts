@@ -1,35 +1,32 @@
 import fs from "node:fs/promises";
-import os from "node:os";
 import path from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { withEnv } from "../test-utils/env.js";
+import { createFixtureSuite } from "../test-utils/fixture-suite.js";
 import { writeSkill } from "./skills.e2e-test-helpers.js";
 import { buildWorkspaceSkillsPrompt } from "./skills.js";
 
-let fixtureRoot = "";
-let fixtureCount = 0;
-
-async function createCaseDir(prefix: string): Promise<string> {
-  const dir = path.join(fixtureRoot, `${prefix}-${fixtureCount++}`);
-  await fs.mkdir(dir, { recursive: true });
-  return dir;
-}
+const fixtureSuite = createFixtureSuite("openclaw-skills-prompt-suite-");
 
 beforeAll(async () => {
-  fixtureRoot = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-skills-prompt-suite-"));
+  await fixtureSuite.setup();
 });
 
 afterAll(async () => {
-  await fs.rm(fixtureRoot, { recursive: true, force: true });
+  await fixtureSuite.cleanup();
 });
 
 describe("buildWorkspaceSkillsPrompt", () => {
   it("prefers workspace skills over managed skills", async () => {
 <<<<<<< HEAD
+<<<<<<< HEAD
     const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-"));
 =======
     const workspaceDir = await createCaseDir("workspace");
 >>>>>>> 7b229decd (test(perf): dedupe fixtures and reduce flaky waits)
+=======
+    const workspaceDir = await fixtureSuite.createCaseDir("workspace");
+>>>>>>> 1c753ea78 (test: dedupe fixtures and test harness setup)
     const managedDir = path.join(workspaceDir, ".managed");
     const bundledDir = path.join(workspaceDir, ".bundled");
     const managedSkillDir = path.join(managedDir, "demo-skill");
@@ -67,10 +64,14 @@ describe("buildWorkspaceSkillsPrompt", () => {
   });
   it("gates by bins, config, and always", async () => {
 <<<<<<< HEAD
+<<<<<<< HEAD
     const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-"));
 =======
     const workspaceDir = await createCaseDir("workspace");
 >>>>>>> 7b229decd (test(perf): dedupe fixtures and reduce flaky waits)
+=======
+    const workspaceDir = await fixtureSuite.createCaseDir("workspace");
+>>>>>>> 1c753ea78 (test: dedupe fixtures and test harness setup)
     const skillsDir = path.join(workspaceDir, "skills");
     const binDir = path.join(workspaceDir, "bin");
 
@@ -139,10 +140,14 @@ describe("buildWorkspaceSkillsPrompt", () => {
   });
   it("uses skillKey for config lookups", async () => {
 <<<<<<< HEAD
+<<<<<<< HEAD
     const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-"));
 =======
     const workspaceDir = await createCaseDir("workspace");
 >>>>>>> 7b229decd (test(perf): dedupe fixtures and reduce flaky waits)
+=======
+    const workspaceDir = await fixtureSuite.createCaseDir("workspace");
+>>>>>>> 1c753ea78 (test: dedupe fixtures and test harness setup)
     const skillDir = path.join(workspaceDir, "skills", "alias-skill");
     await writeSkill({
       dir: skillDir,

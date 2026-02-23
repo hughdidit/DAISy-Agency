@@ -19,7 +19,11 @@ import {
   withModelsTempHome as withTempHome,
 } from "./models-config.e2e-harness.js";
 import { ensureOpenClawModelsJson } from "./models-config.js";
+<<<<<<< HEAD
 >>>>>>> 02fe0c840 (perf(test): remove resetModules from auth/models/subagent suites)
+=======
+import { readGeneratedModelsJson } from "./models-config.test-utils.js";
+>>>>>>> 1c753ea78 (test: dedupe fixtures and test harness setup)
 
 <<<<<<< HEAD
 async function withTempHome<T>(fn: (home: string) => Promise<T>): Promise<T> {
@@ -74,11 +78,9 @@ describe("models-config", () => {
 
       await ensureOpenClawModelsJson(validated.config);
 
-      const modelPath = path.join(resolveOpenClawAgentDir(), "models.json");
-      const raw = await fs.readFile(modelPath, "utf8");
-      const parsed = JSON.parse(raw) as {
+      const parsed = await readGeneratedModelsJson<{
         providers: Record<string, { api?: string; models?: Array<{ id: string; api?: string }> }>;
-      };
+      }>();
 
       expect(parsed.providers.anthropic?.api).toBe("anthropic-messages");
       expect(parsed.providers.anthropic?.models?.[0]?.api).toBe("anthropic-messages");
@@ -121,11 +123,15 @@ describe("models-config", () => {
 
         await ensureMoltbotModelsJson(cfg);
 
+<<<<<<< HEAD
         const modelPath = path.join(resolveMoltbotAgentDir(), "models.json");
         const raw = await fs.readFile(modelPath, "utf8");
         const parsed = JSON.parse(raw) as {
+=======
+        const parsed = await readGeneratedModelsJson<{
+>>>>>>> 1c753ea78 (test: dedupe fixtures and test harness setup)
           providers: Record<string, { apiKey?: string; models?: Array<{ id: string }> }>;
-        };
+        }>();
         expect(parsed.providers.minimax?.apiKey).toBe("MINIMAX_API_KEY");
         const ids = parsed.providers.minimax?.models?.map((model) => model.id);
         expect(ids).toContain("MiniMax-VL-01");

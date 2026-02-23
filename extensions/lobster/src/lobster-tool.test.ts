@@ -16,6 +16,12 @@ async function writeFakeLobsterScript(scriptBody: string, prefix = "moltbot-lobs
 import { PassThrough } from "node:stream";
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import type { OpenClawPluginApi, OpenClawPluginToolContext } from "../../../src/plugins/types.js";
+import {
+  createWindowsCmdShimFixture,
+  restorePlatformPathEnv,
+  setProcessPlatform,
+  snapshotPlatformPathEnv,
+} from "./test-helpers.js";
 
 const spawnState = vi.hoisted(() => ({
   queue: [] as Array<{ stdout: string; stderr?: string; exitCode?: number }>,
@@ -70,7 +76,11 @@ function fakeCtx(overrides: Partial<MoltbotPluginToolContext> = {}): MoltbotPlug
 
 describe("lobster plugin tool", () => {
   let tempDir = "";
+<<<<<<< HEAD
   let lobsterBinPath = "";
+=======
+  const originalProcessState = snapshotPlatformPathEnv();
+>>>>>>> 1c753ea78 (test: dedupe fixtures and test harness setup)
 
 <<<<<<< HEAD
     const tool = createLobsterTool(fakeApi());
@@ -86,8 +96,15 @@ describe("lobster plugin tool", () => {
     ({ createLobsterTool } = await import("./lobster-tool.js"));
 
     tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-lobster-plugin-"));
+<<<<<<< HEAD
     lobsterBinPath = path.join(tempDir, process.platform === "win32" ? "lobster.cmd" : "lobster");
     await fs.writeFile(lobsterBinPath, "", { encoding: "utf8", mode: 0o755 });
+=======
+  });
+
+  afterEach(() => {
+    restorePlatformPathEnv(originalProcessState);
+>>>>>>> 1c753ea78 (test: dedupe fixtures and test harness setup)
   });
 
   afterAll(async () => {
@@ -131,6 +148,20 @@ describe("lobster plugin tool", () => {
     });
   });
 
+<<<<<<< HEAD
+=======
+  const queueSuccessfulEnvelope = (hello = "world") => {
+    spawnState.queue.push({
+      stdout: JSON.stringify({
+        ok: true,
+        status: "ok",
+        output: [{ hello }],
+        requiresApproval: null,
+      }),
+    });
+  };
+
+>>>>>>> 1c753ea78 (test: dedupe fixtures and test harness setup)
   it("runs lobster and returns parsed envelope in details", async () => {
     spawnState.queue.push({
       stdout: JSON.stringify({
@@ -290,6 +321,7 @@ describe("lobster plugin tool", () => {
   it("runs Windows cmd shims through Node without enabling shell", async () => {
     setProcessPlatform("win32");
     const shimScriptPath = path.join(tempDir, "shim-dist", "lobster-cli.cjs");
+<<<<<<< HEAD
     const shimPath = path.join(tempDir, "shim", "lobster.cmd");
     await fs.mkdir(path.dirname(shimScriptPath), { recursive: true });
     await fs.mkdir(path.dirname(shimPath), { recursive: true });
@@ -306,6 +338,13 @@ describe("lobster plugin tool", () => {
         output: [{ hello: "world" }],
         requiresApproval: null,
       }),
+=======
+    const shimPath = path.join(tempDir, "shim-bin", "lobster.cmd");
+    await createWindowsCmdShimFixture({
+      shimPath,
+      scriptPath: shimScriptPath,
+      shimLine: `"%dp0%\\..\\shim-dist\\lobster-cli.cjs" %*`,
+>>>>>>> 1c753ea78 (test: dedupe fixtures and test harness setup)
     });
 
     const tool = createLobsterTool(fakeApi({ pluginConfig: { lobsterPath: shimPath } }));

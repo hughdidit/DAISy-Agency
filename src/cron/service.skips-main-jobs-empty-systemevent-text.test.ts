@@ -25,7 +25,11 @@ import type { CronJob } from "./types.js";
 =======
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { CronService } from "./service.js";
-import { createCronStoreHarness, createNoopLogger } from "./service.test-harness.js";
+import {
+  createCronStoreHarness,
+  createNoopLogger,
+  withCronServiceForTest,
+} from "./service.test-harness.js";
 import type { CronJob } from "./types.js";
 
 <<<<<<< HEAD
@@ -74,25 +78,15 @@ async function withCronService(
     requestHeartbeatNow: ReturnType<typeof vi.fn>;
   }) => Promise<void>,
 ) {
-  const store = await makeStorePath();
-  const enqueueSystemEvent = vi.fn();
-  const requestHeartbeatNow = vi.fn();
-  const cron = new CronService({
-    storePath: store.storePath,
-    cronEnabled,
-    log: noopLogger,
-    enqueueSystemEvent,
-    requestHeartbeatNow,
-    runIsolatedAgentJob: vi.fn(async () => ({ status: "ok" as const })),
-  });
-
-  await cron.start();
-  try {
-    await run({ cron, enqueueSystemEvent, requestHeartbeatNow });
-  } finally {
-    cron.stop();
-    await store.cleanup();
-  }
+  await withCronServiceForTest(
+    {
+      makeStorePath,
+      logger: noopLogger,
+      cronEnabled,
+      runIsolatedAgentJob: vi.fn(async () => ({ status: "ok" as const })),
+    },
+    run,
+  );
 }
 
 >>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)

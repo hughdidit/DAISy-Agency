@@ -1,9 +1,9 @@
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { beforeAll, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
   getRunEmbeddedPiAgentMock,
-  installTriggerHandlingE2eTestHooks,
+  installTriggerHandlingReplyHarness,
   makeCfg,
   runGreetingPromptForBareNewOrReset,
   withTempHome,
@@ -55,14 +55,17 @@ afterEach(() => {
 =======
 =======
 let getReplyFromConfig: typeof import("./reply.js").getReplyFromConfig;
-beforeAll(async () => {
-  ({ getReplyFromConfig } = await import("./reply.js"));
+installTriggerHandlingReplyHarness((loader) => {
+  getReplyFromConfig = loader;
 });
 
+<<<<<<< HEAD
 >>>>>>> 043ae0044 (test(auto-reply): import reply after harness mocks)
 installTriggerHandlingE2eTestHooks();
 >>>>>>> eb594a090 (refactor(test): dedupe trigger-handling e2e setup)
 
+=======
+>>>>>>> 1c753ea78 (test: dedupe fixtures and test harness setup)
 async function expectResetBlockedForNonOwner(params: {
   home: string;
   commandAuthorized: boolean;
@@ -115,6 +118,7 @@ describe("trigger handling", () => {
       expect(getRunEmbeddedPiAgentMock()).not.toHaveBeenCalled();
     });
   });
+
   it("injects group activation context into the system prompt", async () => {
     await withTempHome(async (home) => {
       getRunEmbeddedPiAgentMock().mockResolvedValue({
@@ -187,6 +191,7 @@ describe("trigger handling", () => {
   });
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   it("runs a greeting prompt for a bare /new", async () => {
     await withTempHome(async (home) => {
 <<<<<<< HEAD
@@ -236,16 +241,21 @@ describe("trigger handling", () => {
 =======
 >>>>>>> af547ec52 (test: consolidate trigger-handling suites)
 =======
+=======
+
+>>>>>>> 1c753ea78 (test: dedupe fixtures and test harness setup)
   it("runs a greeting prompt for a bare /reset", async () => {
     await withTempHome(async (home) => {
       await runGreetingPromptForBareNewOrReset({ home, body: "/reset", getReplyFromConfig });
     });
   });
+
   it("runs a greeting prompt for a bare /new", async () => {
     await withTempHome(async (home) => {
       await runGreetingPromptForBareNewOrReset({ home, body: "/new", getReplyFromConfig });
     });
   });
+
   it("does not reset for unauthorized /reset", async () => {
     await withTempHome(async (home) => {
       await expectResetBlockedForNonOwner({
@@ -255,6 +265,7 @@ describe("trigger handling", () => {
       });
     });
   });
+
   it("blocks /reset for non-owner senders", async () => {
     await withTempHome(async (home) => {
       await expectResetBlockedForNonOwner({

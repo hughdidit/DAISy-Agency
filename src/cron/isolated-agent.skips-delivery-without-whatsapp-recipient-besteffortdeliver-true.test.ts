@@ -64,7 +64,11 @@ import { runEmbeddedPiAgent } from "../agents/pi-embedded.js";
 >>>>>>> a53062ae3 (refactor(test): deduplicate isolated agent cron test helpers)
 import { runSubagentAnnounceFlow } from "../agents/subagent-announce.js";
 import type { CliDeps } from "../cli/deps.js";
-import { createCliDeps, mockAgentPayloads } from "./isolated-agent.delivery.test-helpers.js";
+import {
+  createCliDeps,
+  mockAgentPayloads,
+  runTelegramAnnounceTurn,
+} from "./isolated-agent.delivery.test-helpers.js";
 import { runCronIsolatedAgentTurn } from "./isolated-agent.js";
 import {
   makeCfg,
@@ -74,32 +78,18 @@ import {
 } from "./isolated-agent.test-harness.js";
 import { setupIsolatedAgentTurnMocks } from "./isolated-agent.test-setup.js";
 
-async function runTelegramAnnounceTurn(params: {
+async function runExplicitTelegramAnnounceTurn(params: {
   home: string;
   storePath: string;
   deps: CliDeps;
-  delivery: {
-    mode: "announce";
-    channel: string;
-    to?: string;
-    bestEffort?: boolean;
-  };
 }): Promise<Awaited<ReturnType<typeof runCronIsolatedAgentTurn>>> {
-  return runCronIsolatedAgentTurn({
-    cfg: makeCfg(params.home, params.storePath, {
-      channels: { telegram: { botToken: "t-1" } },
-    }),
-    deps: params.deps,
-    job: {
-      ...makeJob({ kind: "agentTurn", message: "do it" }),
-      delivery: params.delivery,
-    },
-    message: "do it",
-    sessionKey: "cron:job-1",
-    lane: "cron",
+  return runTelegramAnnounceTurn({
+    ...params,
+    delivery: { mode: "announce", channel: "telegram", to: "123" },
   });
 }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 async function withTempHome<T>(fn: (home: string) => Promise<T>): Promise<T> {
   return withTempHomeBase(fn, { prefix: "moltbot-cron-" });
@@ -119,6 +109,13 @@ async function writeSessionStore(home: string) {
           lastProvider: "webchat",
           lastTo: "",
 =======
+=======
+function expectDeliveredOk(result: Awaited<ReturnType<typeof runCronIsolatedAgentTurn>>): void {
+  expect(result.status).toBe("ok");
+  expect(result.delivered).toBe(true);
+}
+
+>>>>>>> 1c753ea78 (test: dedupe fixtures and test harness setup)
 async function expectBestEffortTelegramNotDelivered(
   payload: Record<string, unknown>,
 ): Promise<void> {
@@ -201,15 +198,13 @@ async function expectExplicitTelegramTargetAnnounce(params: {
     const storePath = await writeSessionStore(home, { lastProvider: "webchat", lastTo: "" });
     const deps = createCliDeps();
     mockAgentPayloads(params.payloads);
-    const res = await runTelegramAnnounceTurn({
+    const res = await runExplicitTelegramAnnounceTurn({
       home,
       storePath,
       deps,
-      delivery: { mode: "announce", channel: "telegram", to: "123" },
     });
 
-    expect(res.status).toBe("ok");
-    expect(res.delivered).toBe(true);
+    expectDeliveredOk(res);
     expect(runSubagentAnnounceFlow).toHaveBeenCalledTimes(1);
     const announceArgs = vi.mocked(runSubagentAnnounceFlow).mock.calls[0]?.[0] as
       | {
@@ -474,14 +469,17 @@ describe("runCronIsolatedAgentTurn", () => {
         messagingToolSentTargets: [{ tool: "message", provider: "telegram", to: "123" }],
       });
 
-      const res = await runTelegramAnnounceTurn({
+      const res = await runExplicitTelegramAnnounceTurn({
         home,
         storePath,
         deps,
-        delivery: { mode: "announce", channel: "telegram", to: "123" },
       });
 
+<<<<<<< HEAD
       expect(res.status).toBe("ok");
+=======
+      expectDeliveredOk(res);
+>>>>>>> 1c753ea78 (test: dedupe fixtures and test harness setup)
       expect(runSubagentAnnounceFlow).not.toHaveBeenCalled();
 <<<<<<< HEAD
 =======
