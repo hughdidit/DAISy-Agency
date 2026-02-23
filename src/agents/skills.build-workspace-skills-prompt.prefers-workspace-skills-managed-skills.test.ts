@@ -59,7 +59,7 @@ describe("buildWorkspaceSkillsPrompt", () => {
     );
 
     expect(prompt).toContain("Workspace version");
-    expect(prompt).toContain("demo-skill/SKILL.md");
+    expect(prompt.replaceAll("\\", "/")).toContain("demo-skill/SKILL.md");
     expect(prompt).not.toContain("Managed version");
     expect(prompt).not.toContain("Bundled version");
   });

@@ -114,7 +114,7 @@ describe("buildWorkspaceSkillsPrompt", () => {
     expect(prompt).not.toContain("Managed version");
     expect(prompt).not.toContain("Bundled version");
     expect(prompt).not.toContain("Extra version");
-    expect(prompt).toContain("demo-skill/SKILL.md");
+    expect(prompt.replaceAll("\\", "/")).toContain("demo-skill/SKILL.md");
   });
 <<<<<<< HEAD
   it("filters skills based on env/config gates", async () => {
