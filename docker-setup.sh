@@ -91,7 +91,13 @@ fi
 
 mkdir -p "$OPENCLAW_CONFIG_DIR"
 mkdir -p "$OPENCLAW_WORKSPACE_DIR"
+<<<<<<< HEAD
 >>>>>>> 7255c20dd (fix(docker): harden docker-setup mount validation)
+=======
+# Seed device-identity parent eagerly for Docker Desktop/Windows bind mounts
+# that reject creating new subdirectories from inside the container.
+mkdir -p "$OPENCLAW_CONFIG_DIR/identity"
+>>>>>>> f0542df9f (Docker: precreate identity dir in docker setup)
 
 if [[ -z "${CLAWDBOT_GATEWAY_TOKEN:-}" ]]; then
   if command -v openssl >/dev/null 2>&1; then
