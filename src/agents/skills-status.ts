@@ -15,6 +15,7 @@ import type { OpenClawConfig } from "../config/config.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import {
   buildConfigChecks,
   resolveMissingAnyBins,
@@ -38,6 +39,9 @@ import { evaluateRequirementsFromMetadataWithRemote } from "../shared/requiremen
 >>>>>>> 34b6c743f (refactor(shared): share requirements eval for remote context)
 =======
 =======
+=======
+import { evaluateEntryRequirementsForCurrentPlatform } from "../shared/entry-status.js";
+>>>>>>> 8af19ddc5 (refactor: extract shared dedupe helpers for runtime paths)
 import type { RequirementConfigCheck, Requirements } from "../shared/requirements.js";
 >>>>>>> 6f2f88d3a (refactor(status): reuse Requirements types)
 import { evaluateEntryMetadataRequirements } from "../shared/entry-status.js";
@@ -258,6 +262,7 @@ function buildSkillStatus(
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   const {
     required,
     missing,
@@ -309,6 +314,17 @@ function buildSkillStatus(
   const { emoji, homepage, required, missing, requirementsSatisfied, configChecks } =
     requirementStatus;
 >>>>>>> b2c273745 (refactor(shared): reuse runtime entry requirement evaluator)
+=======
+  const { emoji, homepage, required, missing, requirementsSatisfied, configChecks } =
+    evaluateEntryRequirementsForCurrentPlatform({
+      always,
+      entry,
+      hasLocalBin: hasBinary,
+      remote: eligibility?.remote,
+      isEnvSatisfied,
+      isConfigSatisfied,
+    });
+>>>>>>> 8af19ddc5 (refactor: extract shared dedupe helpers for runtime paths)
   const eligible = !disabled && !blockedByAllowlist && requirementsSatisfied;
 
   return {

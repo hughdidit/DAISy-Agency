@@ -10,6 +10,7 @@ import type { OpenClawConfig } from "../config/config.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { RequirementConfigCheck, Requirements } from "../shared/requirements.js";
 import type { HookEligibilityContext, HookEntry, HookInstallSpec } from "./types.js";
 <<<<<<< HEAD
@@ -61,6 +62,9 @@ import { evaluateEntryMetadataRequirements } from "../shared/entry-status.js";
 =======
 import { evaluateEntryMetadataRequirementsForCurrentPlatform } from "../shared/entry-status.js";
 >>>>>>> b2c273745 (refactor(shared): reuse runtime entry requirement evaluator)
+=======
+import { evaluateEntryRequirementsForCurrentPlatform } from "../shared/entry-status.js";
+>>>>>>> 8af19ddc5 (refactor: extract shared dedupe helpers for runtime paths)
 import type { RequirementConfigCheck, Requirements } from "../shared/requirements.js";
 import { CONFIG_DIR } from "../utils.js";
 import { hasBinary, isConfigPathTruthy, resolveHookConfig } from "./config.js";
@@ -176,6 +180,7 @@ function buildHookStatus(
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   const {
     required,
     missing,
@@ -217,6 +222,17 @@ function buildHookStatus(
   const { emoji, homepage, required, missing, requirementsSatisfied, configChecks } =
     requirementStatus;
 >>>>>>> b2c273745 (refactor(shared): reuse runtime entry requirement evaluator)
+=======
+  const { emoji, homepage, required, missing, requirementsSatisfied, configChecks } =
+    evaluateEntryRequirementsForCurrentPlatform({
+      always,
+      entry,
+      hasLocalBin: hasBinary,
+      remote: eligibility?.remote,
+      isEnvSatisfied,
+      isConfigSatisfied,
+    });
+>>>>>>> 8af19ddc5 (refactor: extract shared dedupe helpers for runtime paths)
 
   const eligible = !disabled && requirementsSatisfied;
 
