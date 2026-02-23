@@ -350,6 +350,7 @@ describe("directive behavior", () => {
       expect(runEmbeddedPiAgent).not.toHaveBeenCalled();
     });
   });
+<<<<<<< HEAD
   it("shows current think level when /think has no argument", async () => {
     await withTempHome(async (home) => {
       const res = await getReplyFromConfig(
@@ -381,4 +382,6 @@ describe("directive behavior", () => {
       expect(runEmbeddedPiAgent).not.toHaveBeenCalled();
     });
   });
+=======
+>>>>>>> b11ff9f7d (test: collapse directive behavior shards)
 });
