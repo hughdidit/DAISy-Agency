@@ -330,9 +330,28 @@ const DOCKS: Record<ChatChannelId, ChannelDock> = {
       },
 =======
       resolveReplyToMode: ({ cfg }) => cfg.channels?.telegram?.replyToMode ?? "off",
+<<<<<<< HEAD
       buildToolContext: ({ context, hasRepliedRef }) =>
         buildThreadToolContextFromMessageThreadOrReply({ context, hasRepliedRef }),
 >>>>>>> 75c1bfbae (refactor(channels): dedupe message routing and telegram helpers)
+=======
+      buildToolContext: ({ context, hasRepliedRef }) => {
+        // Telegram auto-threading should only use actual thread/topic IDs.
+        // ReplyToId is a message ID and causes invalid message_thread_id in DMs.
+        const threadId = context.MessageThreadId;
+        const rawCurrentMessageId = context.CurrentMessageId;
+        const currentMessageId =
+          typeof rawCurrentMessageId === "number"
+            ? rawCurrentMessageId
+            : rawCurrentMessageId?.trim() || undefined;
+        return {
+          currentChannelId: context.To?.trim() || undefined,
+          currentThreadTs: threadId != null ? String(threadId) : undefined,
+          currentMessageId,
+          hasRepliedRef,
+        };
+      },
+>>>>>>> c1b75ab8e (fix(telegram): make reaction handling soft-fail and message-id resilient (#20236))
     },
   },
   whatsapp: {
