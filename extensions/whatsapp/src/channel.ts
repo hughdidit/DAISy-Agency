@@ -4,7 +4,6 @@ import {
   collectWhatsAppStatusIssues,
   createActionGate,
   DEFAULT_ACCOUNT_ID,
-  escapeRegExp,
   formatPairingApproveHint,
   getChatChannelMeta,
   listWhatsAppAccountIds,
@@ -14,8 +13,8 @@ import {
   migrateBaseNameToDefaultAccount,
   normalizeAccountId,
   normalizeE164,
+  normalizeWhatsAppAllowFromEntries,
   normalizeWhatsAppMessagingTarget,
-  normalizeWhatsAppTarget,
   readStringParam,
   resolveDefaultWhatsAppAccountId,
   resolveWhatsAppOutboundTarget,
@@ -29,8 +28,10 @@ import {
 >>>>>>> 6dd36a6b7 (refactor(channels): reuse runtime group policy helpers)
   resolveWhatsAppAccount,
   resolveWhatsAppGroupRequireMention,
+  resolveWhatsAppGroupIntroHint,
   resolveWhatsAppGroupToolPolicy,
   resolveWhatsAppHeartbeatRecipients,
+  resolveWhatsAppMentionStripPatterns,
   whatsappOnboardingAdapter,
   WhatsAppConfigSchema,
   type ChannelMessageActionName,
@@ -120,12 +121,7 @@ export const whatsappPlugin: ChannelPlugin<ResolvedWhatsAppAccount> = {
     }),
     resolveAllowFrom: ({ cfg, accountId }) =>
       resolveWhatsAppAccount({ cfg, accountId }).allowFrom ?? [],
-    formatAllowFrom: ({ allowFrom }) =>
-      allowFrom
-        .map((entry) => String(entry).trim())
-        .filter((entry): entry is string => Boolean(entry))
-        .map((entry) => (entry === "*" ? entry : normalizeWhatsAppTarget(entry)))
-        .filter((entry): entry is string => Boolean(entry)),
+    formatAllowFrom: ({ allowFrom }) => normalizeWhatsAppAllowFromEntries(allowFrom),
     resolveDefaultTo: ({ cfg, accountId }) => {
       const root = cfg.channels?.whatsapp;
       const normalized = normalizeAccountId(accountId);
@@ -225,18 +221,10 @@ export const whatsappPlugin: ChannelPlugin<ResolvedWhatsAppAccount> = {
   groups: {
     resolveRequireMention: resolveWhatsAppGroupRequireMention,
     resolveToolPolicy: resolveWhatsAppGroupToolPolicy,
-    resolveGroupIntroHint: () =>
-      "WhatsApp IDs: SenderId is the participant JID (group participant id).",
+    resolveGroupIntroHint: resolveWhatsAppGroupIntroHint,
   },
   mentions: {
-    stripPatterns: ({ ctx }) => {
-      const selfE164 = (ctx.To ?? "").replace(/^whatsapp:/, "");
-      if (!selfE164) {
-        return [];
-      }
-      const escaped = escapeRegExp(selfE164);
-      return [escaped, `@${escaped}`];
-    },
+    stripPatterns: ({ ctx }) => resolveWhatsAppMentionStripPatterns(ctx),
   },
   commands: {
     enforceOwnerForCommands: true,

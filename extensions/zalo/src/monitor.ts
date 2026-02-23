@@ -1,8 +1,12 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
+<<<<<<< HEAD
 import type { OpenClawConfig, MarkdownTableMode } from "openclaw/plugin-sdk";
 <<<<<<< HEAD
 import { createReplyPrefixOptions } from "openclaw/plugin-sdk";
 =======
+=======
+import type { MarkdownTableMode, OpenClawConfig, OutboundReplyPayload } from "openclaw/plugin-sdk";
+>>>>>>> 0183610db (refactor: de-duplicate channel runtime and payload helpers)
 import {
   createDedupeCache,
   createReplyPrefixOptions,
@@ -10,6 +14,8 @@ import {
   registerWebhookTarget,
   rejectNonPostWebhookRequest,
   resolveSenderCommandAuthorization,
+  resolveOutboundMediaUrls,
+  sendMediaWithLeadingCaption,
   resolveWebhookPath,
   resolveWebhookTargets,
   requestBodyErrorToText,
@@ -666,7 +672,7 @@ async function processMessageWithPipeline(params: {
 }
 
 async function deliverZaloReply(params: {
-  payload: { text?: string; mediaUrls?: string[]; mediaUrl?: string };
+  payload: OutboundReplyPayload;
   token: string;
   chatId: string;
   runtime: ZaloRuntimeEnv;
@@ -681,24 +687,18 @@ async function deliverZaloReply(params: {
   const tableMode = params.tableMode ?? "code";
   const text = core.channel.text.convertMarkdownTables(payload.text ?? "", tableMode);
 
-  const mediaList = payload.mediaUrls?.length
-    ? payload.mediaUrls
-    : payload.mediaUrl
-      ? [payload.mediaUrl]
-      : [];
-
-  if (mediaList.length > 0) {
-    let first = true;
-    for (const mediaUrl of mediaList) {
-      const caption = first ? text : undefined;
-      first = false;
-      try {
-        await sendPhoto(token, { chat_id: chatId, photo: mediaUrl, caption }, fetcher);
-        statusSink?.({ lastOutboundAt: Date.now() });
-      } catch (err) {
-        runtime.error?.(`Zalo photo send failed: ${String(err)}`);
-      }
-    }
+  const sentMedia = await sendMediaWithLeadingCaption({
+    mediaUrls: resolveOutboundMediaUrls(payload),
+    caption: text,
+    send: async ({ mediaUrl, caption }) => {
+      await sendPhoto(token, { chat_id: chatId, photo: mediaUrl, caption }, fetcher);
+      statusSink?.({ lastOutboundAt: Date.now() });
+    },
+    onError: (error) => {
+      runtime.error?.(`Zalo photo send failed: ${String(error)}`);
+    },
+  });
+  if (sentMedia) {
     return;
   }
 

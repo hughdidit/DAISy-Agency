@@ -1,14 +1,24 @@
 import {
   GROUP_POLICY_BLOCKED_LABEL,
+  createNormalizedOutboundDeliverer,
   createReplyPrefixOptions,
+  formatTextWithAttachmentLinks,
   logInboundDrop,
   resolveControlCommandGate,
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
   resolveAllowlistProviderRuntimeGroupPolicy,
   resolveDefaultGroupPolicy,
   warnMissingProviderGroupPolicyFallbackOnce,
 >>>>>>> 85e5ed3f7 (refactor(channels): centralize runtime group policy handling)
+=======
+  resolveOutboundMediaUrls,
+  resolveAllowlistProviderRuntimeGroupPolicy,
+  resolveDefaultGroupPolicy,
+  warnMissingProviderGroupPolicyFallbackOnce,
+  type OutboundReplyPayload,
+>>>>>>> 0183610db (refactor: de-duplicate channel runtime and payload helpers)
   type OpenClawConfig,
   type RuntimeEnv,
 } from "openclaw/plugin-sdk";
@@ -29,31 +39,16 @@ import type { CoreConfig, GroupPolicy, NextcloudTalkInboundMessage } from "./typ
 const CHANNEL_ID = "nextcloud-talk" as const;
 
 async function deliverNextcloudTalkReply(params: {
-  payload: { text?: string; mediaUrls?: string[]; mediaUrl?: string; replyToId?: string };
+  payload: OutboundReplyPayload;
   roomToken: string;
   accountId: string;
   statusSink?: (patch: { lastOutboundAt?: number }) => void;
 }): Promise<void> {
   const { payload, roomToken, accountId, statusSink } = params;
-  const text = payload.text ?? "";
-  const mediaList = payload.mediaUrls?.length
-    ? payload.mediaUrls
-    : payload.mediaUrl
-      ? [payload.mediaUrl]
-      : [];
-
-  if (!text.trim() && mediaList.length === 0) {
+  const combined = formatTextWithAttachmentLinks(payload.text, resolveOutboundMediaUrls(payload));
+  if (!combined) {
     return;
   }
-
-  const mediaBlock = mediaList.length
-    ? mediaList.map((url) => `Attachment: ${url}`).join("\n")
-    : "";
-  const combined = text.trim()
-    ? mediaBlock
-      ? `${text.trim()}\n\n${mediaBlock}`
-      : text.trim()
-    : mediaBlock;
 
   await sendMessageNextcloudTalk(roomToken, combined, {
     accountId,
@@ -335,25 +330,21 @@ export async function handleNextcloudTalkInbound(params: {
     channel: CHANNEL_ID,
     accountId: account.accountId,
   });
+  const deliverReply = createNormalizedOutboundDeliverer(async (payload) => {
+    await deliverNextcloudTalkReply({
+      payload,
+      roomToken,
+      accountId: account.accountId,
+      statusSink,
+    });
+  });
 
   await core.channel.reply.dispatchReplyWithBufferedBlockDispatcher({
     ctx: ctxPayload,
     cfg: config as OpenClawConfig,
     dispatcherOptions: {
       ...prefixOptions,
-      deliver: async (payload) => {
-        await deliverNextcloudTalkReply({
-          payload: payload as {
-            text?: string;
-            mediaUrls?: string[];
-            mediaUrl?: string;
-            replyToId?: string;
-          },
-          roomToken,
-          accountId: account.accountId,
-          statusSink,
-        });
-      },
+      deliver: deliverReply,
       onError: (err, info) => {
         runtime.error?.(`nextcloud-talk ${info.kind} reply failed: ${String(err)}`);
       },

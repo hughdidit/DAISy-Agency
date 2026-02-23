@@ -3,6 +3,7 @@ import { createServer, type IncomingMessage, type Server, type ServerResponse } 
 <<<<<<< HEAD
 =======
 import {
+  createLoggerBackedRuntime,
   type RuntimeEnv,
   isRequestBodyLimitError,
   readRequestBodyWithLimit,
@@ -211,13 +212,12 @@ export async function monitorNextcloudTalkProvider(
     cfg,
     accountId: opts.accountId,
   });
-  const runtime: RuntimeEnv = opts.runtime ?? {
-    log: (...args: unknown[]) => core.logging.getChildLogger().info(args.map(String).join(" ")),
-    error: (...args: unknown[]) => core.logging.getChildLogger().error(args.map(String).join(" ")),
-    exit: () => {
-      throw new Error("Runtime exit not available");
-    },
-  };
+  const runtime: RuntimeEnv =
+    opts.runtime ??
+    createLoggerBackedRuntime({
+      logger: core.logging.getChildLogger(),
+      exitError: () => new Error("Runtime exit not available"),
+    });
 
   if (!account.secret) {
     throw new Error(`Nextcloud Talk bot secret not configured for account "${account.accountId}"`);

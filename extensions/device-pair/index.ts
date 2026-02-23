@@ -1,6 +1,25 @@
 import os from "node:os";
 import type { OpenClawPluginApi } from "openclaw/plugin-sdk";
+<<<<<<< HEAD
 import { approveDevicePairing, listDevicePairing } from "openclaw/plugin-sdk";
+=======
+import {
+  approveDevicePairing,
+  listDevicePairing,
+  resolveGatewayBindUrl,
+  runPluginCommandWithTimeout,
+  resolveTailnetHostWithRunner,
+} from "openclaw/plugin-sdk";
+import qrcode from "qrcode-terminal";
+
+function renderQrAscii(data: string): Promise<string> {
+  return new Promise((resolve) => {
+    qrcode.generate(data, { small: true }, (output: string) => {
+      resolve(output);
+    });
+  });
+}
+>>>>>>> 0183610db (refactor: de-duplicate channel runtime and payload helpers)
 
 const DEFAULT_GATEWAY_PORT = 18789;
 
@@ -157,6 +176,7 @@ function pickTailnetIPv4(): string | null {
   return pickMatchingIPv4(isTailnetIPv4);
 }
 
+<<<<<<< HEAD
 async function resolveTailnetHost(api: OpenClawPluginApi): Promise<string | null> {
   const candidates = ["tailscale", "/Applications/Tailscale.app/Contents/MacOS/Tailscale"];
   for (const candidate of candidates) {
@@ -205,6 +225,15 @@ function parsePossiblyNoisyJsonObject(raw: string): Record<string, unknown> {
   } catch {
     return {};
   }
+=======
+async function resolveTailnetHost(): Promise<string | null> {
+  return await resolveTailnetHostWithRunner((argv, opts) =>
+    runPluginCommandWithTimeout({
+      argv,
+      timeoutMs: opts.timeoutMs,
+    }),
+  );
+>>>>>>> 0183610db (refactor: de-duplicate channel runtime and payload helpers)
 }
 
 function resolveAuth(cfg: OpenClawPluginApi["config"]): ResolveAuthResult {
@@ -289,29 +318,16 @@ async function resolveGatewayUrl(api: OpenClawPluginApi): Promise<ResolveUrlResu
     }
   }
 
-  const bind = cfg.gateway?.bind ?? "loopback";
-  if (bind === "custom") {
-    const host = cfg.gateway?.customBindHost?.trim();
-    if (host) {
-      return { url: `${scheme}://${host}:${port}`, source: "gateway.bind=custom" };
-    }
-    return { error: "gateway.bind=custom requires gateway.customBindHost." };
-  }
-
-  if (bind === "tailnet") {
-    const host = pickTailnetIPv4();
-    if (host) {
-      return { url: `${scheme}://${host}:${port}`, source: "gateway.bind=tailnet" };
-    }
-    return { error: "gateway.bind=tailnet set, but no tailnet IP was found." };
-  }
-
-  if (bind === "lan") {
-    const host = pickLanIPv4();
-    if (host) {
-      return { url: `${scheme}://${host}:${port}`, source: "gateway.bind=lan" };
-    }
-    return { error: "gateway.bind=lan set, but no private LAN IP was found." };
+  const bindResult = resolveGatewayBindUrl({
+    bind: cfg.gateway?.bind,
+    customBindHost: cfg.gateway?.customBindHost,
+    scheme,
+    port,
+    pickTailnetHost: pickTailnetIPv4,
+    pickLanHost: pickLanIPv4,
+  });
+  if (bindResult) {
+    return bindResult;
   }
 
   return {
