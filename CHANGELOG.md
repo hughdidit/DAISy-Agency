@@ -70,6 +70,7 @@ Docs: https://docs.openclaw.ai
 =======
 - Config/Write: apply `unsetPaths` with immutable path-copy updates so config writes never mutate caller-provided objects, and harden `openclaw config get/set/unset` path traversal by rejecting prototype-key segments and inherited-property traversal. (#24134) thanks @frankekn.
 - Agents/Overflow: detect additional provider context-overflow error shapes (including `input length` + `max_tokens` exceed-context variants) so failures route through compaction/recovery paths instead of leaking raw provider errors to users. (#9951) Thanks @echoVic and @Glucksberg.
+- Agents/Compaction: cancel safeguard compaction when summary generation cannot run (missing model/API key or summarization failure), preserving history instead of truncating to fallback `"Summary unavailable"` text. (#10711) Thanks @DukeDeSouth and @vincentkoc.
 - Agents/Failover: treat HTTP 502/503/504 errors as failover-eligible transient timeouts so fallback chains can switch providers/models during upstream outages instead of retrying the same failing target. (#20999) Thanks @taw0002 and @vincentkoc.
 >>>>>>> 69692d0d3 (fix: detect additional context overflow error patterns to prevent leak to user (#20539))
 

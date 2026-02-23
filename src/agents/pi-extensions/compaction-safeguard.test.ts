@@ -249,4 +249,205 @@ describe("compaction-safeguard runtime registry", () => {
     expect(getCompactionSafeguardRuntime(sm1)).toEqual({ maxHistoryShare: 0.3 });
     expect(getCompactionSafeguardRuntime(sm2)).toEqual({ maxHistoryShare: 0.8 });
   });
+<<<<<<< HEAD
+=======
+
+  it("stores and retrieves model from runtime (fallback for compact.ts workflow)", () => {
+    const sm = {};
+    const model: Model<Api> = {
+      id: "claude-opus-4-5",
+      name: "Claude Opus 4.5",
+      provider: "anthropic",
+      api: "anthropic" as const,
+      baseUrl: "https://api.anthropic.com",
+      contextWindow: 200000,
+      maxTokens: 4096,
+      reasoning: false,
+      input: ["text"] as const,
+      cost: { input: 15, output: 75, cacheRead: 0, cacheWrite: 0 },
+    };
+    setCompactionSafeguardRuntime(sm, { model });
+    const retrieved = getCompactionSafeguardRuntime(sm);
+    expect(retrieved?.model).toEqual(model);
+  });
+
+  it("stores and retrieves contextWindowTokens from runtime", () => {
+    const sm = {};
+    setCompactionSafeguardRuntime(sm, { contextWindowTokens: 200000 });
+    const retrieved = getCompactionSafeguardRuntime(sm);
+    expect(retrieved?.contextWindowTokens).toBe(200000);
+  });
+
+  it("stores and retrieves combined runtime values", () => {
+    const sm = {};
+    const model: Model<Api> = {
+      id: "claude-opus-4-5",
+      name: "Claude Opus 4.5",
+      provider: "anthropic",
+      api: "anthropic" as const,
+      baseUrl: "https://api.anthropic.com",
+      contextWindow: 200000,
+      maxTokens: 4096,
+      reasoning: false,
+      input: ["text"] as const,
+      cost: { input: 15, output: 75, cacheRead: 0, cacheWrite: 0 },
+    };
+    setCompactionSafeguardRuntime(sm, {
+      maxHistoryShare: 0.6,
+      contextWindowTokens: 200000,
+      model,
+    });
+    const retrieved = getCompactionSafeguardRuntime(sm);
+    expect(retrieved).toEqual({
+      maxHistoryShare: 0.6,
+      contextWindowTokens: 200000,
+      model,
+    });
+  });
+});
+
+describe("compaction-safeguard extension model fallback", () => {
+  it("uses runtime.model when ctx.model is undefined (compact.ts workflow)", async () => {
+    // This test verifies the root-cause fix: when extensionRunner.initialize() is not called
+    // (as happens in compact.ts), ctx.model is undefined but runtime.model is available.
+    const sessionManager = stubSessionManager();
+    const model: Model<Api> = {
+      id: "claude-opus-4-5",
+      name: "Claude Opus 4.5",
+      provider: "anthropic",
+      api: "anthropic" as const,
+      baseUrl: "https://api.anthropic.com",
+      contextWindow: 200000,
+      maxTokens: 4096,
+      reasoning: false,
+      input: ["text"] as const,
+      cost: { input: 15, output: 75, cacheRead: 0, cacheWrite: 0 },
+    };
+
+    // Set up runtime with model (mimics buildEmbeddedExtensionPaths behavior)
+    setCompactionSafeguardRuntime(sessionManager, { model });
+
+    type CompactionHandler = (event: unknown, ctx: unknown) => Promise<unknown>;
+    let compactionHandler: CompactionHandler | undefined;
+
+    // Create a minimal mock ExtensionAPI that captures the handler
+    const mockApi = {
+      on: vi.fn((event: string, handler: CompactionHandler) => {
+        if (event === "session_before_compact") {
+          compactionHandler = handler;
+        }
+      }),
+    } as unknown as ExtensionAPI;
+
+    // Register the extension
+    compactionSafeguardExtension(mockApi);
+
+    // Verify handler was registered
+    expect(compactionHandler).toBeDefined();
+
+    // Now trigger the handler with mock data
+    const mockEvent = {
+      preparation: {
+        messagesToSummarize: [
+          { role: "user", content: "test message", timestamp: Date.now() },
+        ] as AgentMessage[],
+        turnPrefixMessages: [] as AgentMessage[],
+        firstKeptEntryId: "entry-1",
+        tokensBefore: 1000,
+        fileOps: {
+          read: [],
+          edited: [],
+          written: [],
+        },
+      },
+      customInstructions: "",
+      signal: new AbortController().signal,
+    };
+
+    const getApiKeyMock = vi.fn().mockResolvedValue(null);
+    // oxlint-disable-next-line typescript/no-explicit-any
+    const mockContext = {
+      model: undefined, // ctx.model is undefined (simulates compact.ts workflow)
+      sessionManager,
+      modelRegistry: {
+        getApiKey: getApiKeyMock, // No API key should now cancel compaction
+      },
+    } as unknown as Partial<ExtensionContext>;
+
+    // Call the handler and wait for result
+    // oxlint-disable-next-line typescript/no-non-null-assertion
+    const result = (await compactionHandler!(mockEvent, mockContext)) as {
+      cancel?: boolean;
+    };
+
+    expect(result).toEqual({ cancel: true });
+
+    // KEY ASSERTION: Prove the fallback path was exercised
+    // The handler should have called getApiKey with runtime.model (via ctx.model ?? runtime?.model)
+    expect(getApiKeyMock).toHaveBeenCalledWith(model);
+
+    // Verify runtime.model is still available (for completeness)
+    const retrieved = getCompactionSafeguardRuntime(sessionManager);
+    expect(retrieved?.model).toEqual(model);
+  });
+
+  it("cancels compaction when both ctx.model and runtime.model are undefined", async () => {
+    const sessionManager = stubSessionManager();
+
+    // Do NOT set runtime.model (both ctx.model and runtime.model will be undefined)
+
+    type CompactionHandler = (event: unknown, ctx: unknown) => Promise<unknown>;
+    let compactionHandler: CompactionHandler | undefined;
+
+    const mockApi = {
+      on: vi.fn((event: string, handler: CompactionHandler) => {
+        if (event === "session_before_compact") {
+          compactionHandler = handler;
+        }
+      }),
+    } as unknown as ExtensionAPI;
+
+    compactionSafeguardExtension(mockApi);
+
+    expect(compactionHandler).toBeDefined();
+
+    const mockEvent = {
+      preparation: {
+        messagesToSummarize: [
+          { role: "user", content: "test", timestamp: Date.now() },
+        ] as AgentMessage[],
+        turnPrefixMessages: [] as AgentMessage[],
+        firstKeptEntryId: "entry-1",
+        tokensBefore: 500,
+        fileOps: {
+          read: [],
+          edited: [],
+          written: [],
+        },
+      },
+      customInstructions: "",
+      signal: new AbortController().signal,
+    };
+
+    const getApiKeyMock = vi.fn().mockResolvedValue(null);
+    // oxlint-disable-next-line typescript/no-explicit-any
+    const mockContext = {
+      model: undefined, // ctx.model is undefined
+      sessionManager,
+      modelRegistry: {
+        getApiKey: getApiKeyMock, // Should NOT be called (early return)
+      },
+    } as unknown as Partial<ExtensionContext>;
+
+    // oxlint-disable-next-line typescript/no-non-null-assertion
+    const result = (await compactionHandler!(mockEvent, mockContext)) as {
+      cancel?: boolean;
+    };
+
+    expect(result).toEqual({ cancel: true });
+
+    // Verify early return: getApiKey should NOT have been called when both models are missing
+    expect(getApiKeyMock).not.toHaveBeenCalled();
+  });
+>>>>>>> ea47ab29b (fix: cancel compaction instead of truncating history when summarization fails (#10711))
 });
