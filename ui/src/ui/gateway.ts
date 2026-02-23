@@ -28,6 +28,10 @@ export type GatewayResponseFrame = {
 export type GatewayHelloOk = {
   type: "hello-ok";
   protocol: number;
+  server?: {
+    version?: string;
+    connId?: string;
+  };
   features?: { methods?: string[]; events?: string[] };
   snapshot?: unknown;
   auth?: {
