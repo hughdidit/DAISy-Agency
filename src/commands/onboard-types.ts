@@ -47,6 +47,7 @@ export type AuthChoice =
 <<<<<<< HEAD
 =======
   | "xai-api-key"
+  | "mistral-api-key"
   | "volcengine-api-key"
   | "byteplus-api-key"
 >>>>>>> 559736a5a (feat(volcengine): integrate Volcengine & Byteplus Provider)
@@ -77,6 +78,7 @@ export type AuthChoiceGroupId =
   | "minimax"
   | "synthetic"
   | "venice"
+  | "mistral"
   | "qwen"
   | "together"
   | "huggingface"
@@ -114,6 +116,7 @@ export type OnboardOptions = {
   tokenExpiresIn?: string;
   anthropicApiKey?: string;
   openaiApiKey?: string;
+  mistralApiKey?: string;
   openrouterApiKey?: string;
   litellmApiKey?: string;
   aiGatewayApiKey?: string;

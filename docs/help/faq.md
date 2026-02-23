@@ -1394,14 +1394,20 @@ If you don't set a provider explicitly, OpenClaw auto-selects a provider when it
 >>>>>>> 9c4eab69c (iMessage: promote BlueBubbles and refresh docs/skills (#8415))
 can resolve an API key (auth profiles, `models.providers.*.apiKey`, or env vars).
 It prefers OpenAI if an OpenAI key resolves, otherwise Gemini if a Gemini key
+<<<<<<< HEAD
 resolves. If neither key is available, memory search stays disabled until you
 configure it. If you have a local model path configured and present, Moltbot
+=======
+resolves, then Voyage, then Mistral. If no remote key is available, memory
+search stays disabled until you configure it. If you have a local model path
+configured and present, OpenClaw
+>>>>>>> d92ba4f8a (feat: Provider/Mistral full support for Mistral on OpenClaw 🇫🇷 (#23845))
 prefers `local`.
 
 If you'd rather stay local, set `memorySearch.provider = "local"` (and optionally
 `memorySearch.fallback = "none"`). If you want Gemini embeddings, set
 `memorySearch.provider = "gemini"` and provide `GEMINI_API_KEY` (or
-`memorySearch.remote.apiKey`). We support **OpenAI, Gemini, or local** embedding
+`memorySearch.remote.apiKey`). We support **OpenAI, Gemini, Voyage, Mistral, or local** embedding
 models - see [Memory](/concepts/memory) for the setup details.
 
 ### Does memory persist forever What are the limits

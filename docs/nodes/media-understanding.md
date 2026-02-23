@@ -186,12 +186,20 @@ If you omit `capabilities`, the entry is eligible for the list it appears in.
 =======
 ## Provider support matrix (OpenClaw integrations)
 
+<<<<<<< HEAD
 | Capability | Provider integration                             | Notes                                             |
 | ---------- | ------------------------------------------------ | ------------------------------------------------- |
 | Image      | OpenAI / Anthropic / Google / others via `pi-ai` | Any image-capable model in the registry works.    |
 | Audio      | OpenAI, Groq, Deepgram, Google                   | Provider transcription (Whisper/Deepgram/Gemini). |
 | Video      | Google (Gemini API)                              | Provider video understanding.                     |
 >>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
+=======
+| Capability | Provider integration                             | Notes                                                     |
+| ---------- | ------------------------------------------------ | --------------------------------------------------------- |
+| Image      | OpenAI / Anthropic / Google / others via `pi-ai` | Any image-capable model in the registry works.            |
+| Audio      | OpenAI, Groq, Deepgram, Google, Mistral          | Provider transcription (Whisper/Deepgram/Gemini/Voxtral). |
+| Video      | Google (Gemini API)                              | Provider video understanding.                             |
+>>>>>>> d92ba4f8a (feat: Provider/Mistral full support for Mistral on OpenClaw 🇫🇷 (#23845))
 
 ## Recommended providers
 
@@ -202,7 +210,7 @@ If you omit `capabilities`, the entry is eligible for the list it appears in.
 
 **Audio**
 
-- `openai/gpt-4o-mini-transcribe`, `groq/whisper-large-v3-turbo`, or `deepgram/nova-3`.
+- `openai/gpt-4o-mini-transcribe`, `groq/whisper-large-v3-turbo`, `deepgram/nova-3`, or `mistral/voxtral-mini-latest`.
 - CLI fallback: `whisper-cli` (whisper-cpp) or `whisper`.
 - Deepgram setup: [Deepgram (audio transcription)](/providers/deepgram).
 

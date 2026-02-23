@@ -140,8 +140,13 @@
       "destination": "/providers/moonshot"
     },
     {
+<<<<<<< HEAD
       "source": "/moonshot/",
       "destination": "/providers/moonshot"
+=======
+      "source": "/mistral",
+      "destination": "/providers/mistral"
+>>>>>>> d92ba4f8a (feat: Provider/Mistral full support for Mistral on OpenClaw 🇫🇷 (#23845))
     },
     {
       "source": "/openrouter",
@@ -1502,6 +1507,7 @@
                   "providers/bedrock",
                   "providers/vercel-ai-gateway",
                   "providers/moonshot",
+                  "providers/mistral",
                   "providers/minimax",
                   "providers/opencode",
                   "providers/glm",

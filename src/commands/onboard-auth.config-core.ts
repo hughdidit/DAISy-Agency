@@ -101,6 +101,7 @@ import type { ModelApi } from "../config/types.models.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import {
   HUGGINGFACE_DEFAULT_MODEL_REF,
+  MISTRAL_DEFAULT_MODEL_REF,
   OPENROUTER_DEFAULT_MODEL_REF,
   TOGETHER_DEFAULT_MODEL_REF,
   XIAOMI_DEFAULT_MODEL_REF,
@@ -127,9 +128,16 @@ import {
   applyProviderConfigWithModelCatalog,
 } from "./onboard-auth.config-shared.js";
 import {
+  buildMistralModelDefinition,
   buildZaiModelDefinition,
   buildMoonshotModelDefinition,
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+  buildXaiModelDefinition,
+  MISTRAL_BASE_URL,
+  MISTRAL_DEFAULT_MODEL_ID,
+>>>>>>> d92ba4f8a (feat: Provider/Mistral full support for Mistral on OpenClaw 🇫🇷 (#23845))
   QIANFAN_BASE_URL,
   QIANFAN_DEFAULT_MODEL_REF,
 <<<<<<< HEAD
@@ -756,6 +764,30 @@ export function applyXaiProviderConfig(cfg: OpenClawConfig): OpenClawConfig {
 export function applyXaiConfig(cfg: OpenClawConfig): OpenClawConfig {
   const next = applyXaiProviderConfig(cfg);
   return applyAgentDefaultModelPrimary(next, XAI_DEFAULT_MODEL_REF);
+}
+
+export function applyMistralProviderConfig(cfg: OpenClawConfig): OpenClawConfig {
+  const models = { ...cfg.agents?.defaults?.models };
+  models[MISTRAL_DEFAULT_MODEL_REF] = {
+    ...models[MISTRAL_DEFAULT_MODEL_REF],
+    alias: models[MISTRAL_DEFAULT_MODEL_REF]?.alias ?? "Mistral",
+  };
+
+  const defaultModel = buildMistralModelDefinition();
+
+  return applyProviderConfigWithDefaultModel(cfg, {
+    agentModels: models,
+    providerId: "mistral",
+    api: "openai-completions",
+    baseUrl: MISTRAL_BASE_URL,
+    defaultModel,
+    defaultModelId: MISTRAL_DEFAULT_MODEL_ID,
+  });
+}
+
+export function applyMistralConfig(cfg: OpenClawConfig): OpenClawConfig {
+  const next = applyMistralProviderConfig(cfg);
+  return applyAgentDefaultModelPrimary(next, MISTRAL_DEFAULT_MODEL_REF);
 }
 
 export function applyAuthProfileConfig(
