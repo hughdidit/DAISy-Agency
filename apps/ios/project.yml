@@ -122,6 +122,7 @@ targets:
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         CFBundleShortVersionString: "2026.2.17"
         CFBundleVersion: "20260217"
 >>>>>>> 9a2c39419 (chore(release): bump version to 2026.2.17)
@@ -140,6 +141,10 @@ targets:
 >>>>>>> 9231d7d30 (chore: bump version to 2026.2.21)
         CFBundleVersion: "20260220"
 >>>>>>> f66b23de7 (chore(release): bump versions to 2026.2.20)
+=======
+        CFBundleShortVersionString: "2026.2.23"
+        CFBundleVersion: "20260223"
+>>>>>>> 558a0137b (chore(release): bump versions to 2026.2.23)
         UILaunchScreen: {}
         UIApplicationSceneManifest:
           UIApplicationSupportsMultipleScenes: false
@@ -191,8 +196,8 @@ targets:
       path: ShareExtension/Info.plist
       properties:
         CFBundleDisplayName: OpenClaw Share
-        CFBundleShortVersionString: "2026.2.21"
-        CFBundleVersion: "20260220"
+        CFBundleShortVersionString: "2026.2.23"
+        CFBundleVersion: "20260223"
         NSExtension:
           NSExtensionPointIdentifier: com.apple.share-services
           NSExtensionPrincipalClass: "$(PRODUCT_MODULE_NAME).ShareViewController"
@@ -221,8 +226,8 @@ targets:
       path: WatchApp/Info.plist
       properties:
         CFBundleDisplayName: OpenClaw
-        CFBundleShortVersionString: "2026.2.21"
-        CFBundleVersion: "20260220"
+        CFBundleShortVersionString: "2026.2.23"
+        CFBundleVersion: "20260223"
         WKCompanionAppBundleIdentifier: "$(OPENCLAW_APP_BUNDLE_ID)"
         WKWatchKitApp: true
 
@@ -245,8 +250,8 @@ targets:
       path: WatchExtension/Info.plist
       properties:
         CFBundleDisplayName: OpenClaw
-        CFBundleShortVersionString: "2026.2.21"
-        CFBundleVersion: "20260220"
+        CFBundleShortVersionString: "2026.2.23"
+        CFBundleVersion: "20260223"
         NSExtension:
           NSExtensionAttributes:
             WKAppBundleIdentifier: "$(OPENCLAW_WATCH_APP_BUNDLE_ID)"
@@ -274,6 +279,7 @@ targets:
       path: Tests/Info.plist
       properties:
         CFBundleDisplayName: OpenClawTests
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -329,3 +335,7 @@ targets:
 >>>>>>> 9231d7d30 (chore: bump version to 2026.2.21)
         CFBundleVersion: "20260220"
 >>>>>>> f66b23de7 (chore(release): bump versions to 2026.2.20)
+=======
+        CFBundleShortVersionString: "2026.2.23"
+        CFBundleVersion: "20260223"
+>>>>>>> 558a0137b (chore(release): bump versions to 2026.2.23)
