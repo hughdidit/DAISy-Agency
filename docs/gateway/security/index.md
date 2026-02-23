@@ -37,6 +37,89 @@ OpenClaw is both a product and an experiment: you’re wiring frontier-model beh
 
 Start with the smallest access that still works, then widen it as you gain confidence.
 
+<<<<<<< HEAD
+=======
+## Deployment assumption (important)
+
+OpenClaw assumes the host and config boundary are trusted:
+
+- If someone can modify Gateway host state/config (`~/.openclaw`, including `openclaw.json`), treat them as a trusted operator.
+- Running one Gateway for multiple mutually untrusted/adversarial operators is **not a recommended setup**.
+- For mixed-trust teams, split trust boundaries with separate gateways (or at minimum separate OS users/hosts).
+
+## Trust boundary matrix
+
+Use this as the quick model when triaging risk:
+
+| Boundary or control                         | What it means                                     | Common misread                                                                |
+| ------------------------------------------- | ------------------------------------------------- | ----------------------------------------------------------------------------- |
+| `gateway.auth` (token/password/device auth) | Authenticates callers to gateway APIs             | "Needs per-message signatures on every frame to be secure"                    |
+| `sessionKey`                                | Routing key for context/session selection         | "Session key is a user auth boundary"                                         |
+| Prompt/content guardrails                   | Reduce model abuse risk                           | "Prompt injection alone proves auth bypass"                                   |
+| `canvas.eval` / browser evaluate            | Intentional operator capability when enabled      | "Any JS eval primitive is automatically a vuln in this trust model"           |
+| Local TUI `!` shell                         | Explicit operator-triggered local execution       | "Local shell convenience command is remote injection"                         |
+| Node pairing and node commands              | Operator-level remote execution on paired devices | "Remote device control should be treated as untrusted user access by default" |
+
+## Not vulnerabilities by design
+
+These patterns are commonly reported and are usually closed as no-action unless a real boundary bypass is shown:
+
+- Prompt-injection-only chains without a policy/auth/sandbox bypass.
+- Claims that assume hostile multi-tenant operation on one shared host/config.
+- Localhost-only deployment findings (for example HSTS on loopback-only gateway).
+- Discord inbound webhook signature findings for inbound paths that do not exist in this repo.
+- "Missing per-user authorization" findings that treat `sessionKey` as an auth token.
+
+## Researcher preflight checklist
+
+Before opening a GHSA, verify all of these:
+
+1. Repro still works on latest `main` or latest release.
+2. Report includes exact code path (`file`, function, line range) and tested version/commit.
+3. Impact crosses a documented trust boundary (not just prompt injection).
+4. Claim is not listed in [Out of Scope](https://github.com/openclaw/openclaw/blob/main/SECURITY.md#out-of-scope).
+5. Existing advisories were checked for duplicates (reuse canonical GHSA when applicable).
+6. Deployment assumptions are explicit (loopback/local vs exposed, trusted vs untrusted operators).
+
+## Hardened baseline in 60 seconds
+
+Use this baseline first, then selectively re-enable tools per trusted agent:
+
+```json5
+{
+  gateway: {
+    mode: "local",
+    bind: "loopback",
+    auth: { mode: "token", token: "replace-with-long-random-token" },
+  },
+  session: {
+    dmScope: "per-channel-peer",
+  },
+  tools: {
+    profile: "messaging",
+    deny: ["group:automation", "group:runtime", "group:fs", "sessions_spawn", "sessions_send"],
+    fs: { workspaceOnly: true },
+    exec: { security: "deny", ask: "always" },
+    elevated: { enabled: false },
+  },
+  channels: {
+    whatsapp: { dmPolicy: "pairing", groups: { "*": { requireMention: true } } },
+  },
+}
+```
+
+This keeps the Gateway local-only, isolates DMs, and disables control-plane/runtime tools by default.
+
+## Shared inbox quick rule
+
+If more than one person can DM your bot:
+
+- Set `session.dmScope: "per-channel-peer"` (or `"per-account-channel-peer"` for multi-account channels).
+- Keep `dmPolicy: "pairing"` or strict allowlists.
+- Never combine shared DMs with broad tool access.
+- This hardens cooperative/shared inboxes, but is not designed as hostile co-tenant isolation when users share host/config write access.
+
+>>>>>>> 9af3ec92a (fix(gateway): add HSTS header hardening and docs)
 ### What the audit checks (high level)
 
 - **Inbound access** (DM policies, group policies, allowlists): can strangers trigger the bot?
@@ -189,6 +272,14 @@ Bad reverse proxy behavior (append/preserve untrusted forwarding headers):
 ```nginx
 proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
 ```
+
+## HSTS and origin notes
+
+- OpenClaw gateway is local/loopback first. If you terminate TLS at a reverse proxy, set HSTS on the proxy-facing HTTPS domain there.
+- If the gateway itself terminates HTTPS, you can set `gateway.http.securityHeaders.strictTransportSecurity` to emit the HSTS header from OpenClaw responses.
+- Detailed deployment guidance is in [Trusted Proxy Auth](/gateway/trusted-proxy-auth#tls-termination-and-hsts).
+- For non-loopback Control UI deployments, explicitly configure `gateway.controlUi.allowedOrigins` instead of relying on permissive defaults.
+- Treat DNS rebinding and proxy-host header behavior as deployment hardening concerns; keep `trustedProxies` tight and avoid exposing the gateway directly to the public internet.
 
 ## Local session logs live on disk
 

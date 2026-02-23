@@ -564,6 +564,12 @@ export const OpenClawSchema = z
               })
               .strict()
               .optional(),
+            securityHeaders: z
+              .object({
+                strictTransportSecurity: z.union([z.string(), z.literal(false)]).optional(),
+              })
+              .strict()
+              .optional(),
           })
           .strict()
           .optional(),

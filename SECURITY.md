@@ -8,6 +8,36 @@ For full reporting instructions - including which repo to report to and how - se
 
 Include: reproduction steps, impact assessment, and (if possible) a minimal PoC.
 
+### Report Acceptance Gate (Triage Fast Path)
+
+For fastest triage, include all of the following:
+
+- Exact vulnerable path (`file`, function, and line range) on a current revision.
+- Tested version details (OpenClaw version and/or commit SHA).
+- Reproducible PoC against latest `main` or latest released version.
+- Demonstrated impact tied to OpenClaw's documented trust boundaries.
+- Scope check explaining why the report is **not** covered by the Out of Scope section below.
+
+Reports that miss these requirements may be closed as `invalid` or `no-action`.
+
+### Common False-Positive Patterns
+
+These are frequently reported but are typically closed with no code change:
+
+- Prompt-injection-only chains without a boundary bypass (prompt injection is out of scope).
+- Operator-intended local features (for example TUI local `!` shell) presented as remote injection.
+- Reports that assume per-user multi-tenant authorization on a shared gateway host/config.
+- Missing HSTS findings on default local/loopback deployments.
+- Slack webhook signature findings when HTTP mode already uses signing-secret verification.
+- Discord inbound webhook signature findings for paths not used by this repo's Discord integration.
+- Scanner-only claims against stale/nonexistent paths, or claims without a working repro.
+
+### Duplicate Report Handling
+
+- Search existing advisories before filing.
+- Include likely duplicate GHSA IDs in your report when applicable.
+- Maintainers may close lower-quality/later duplicates in favor of the earliest high-quality canonical report.
+
 ## Security & Trust
 
 **Jamieson O'Reilly** ([@theonejvo](https://twitter.com/theonejvo)) is Security & Trust at OpenClaw. Jamieson is the founder of [Dvuln](https://dvuln.com) and brings extensive experience in offensive security, penetration testing, and security program development.
