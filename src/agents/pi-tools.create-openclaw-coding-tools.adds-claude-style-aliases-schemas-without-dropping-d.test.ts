@@ -192,6 +192,7 @@ describe("createOpenClawCodingTools", () => {
     expect(tools.some((tool) => tool.name === "write")).toBe(false);
     expect(tools.some((tool) => tool.name === "edit")).toBe(false);
   });
+<<<<<<< HEAD
   it("filters tools by agent tool policy even without sandbox", () => {
     const tools = createMoltbotCodingTools({
       config: { tools: { deny: ["browser"] } },
@@ -199,4 +200,6 @@ describe("createOpenClawCodingTools", () => {
     expect(tools.some((tool) => tool.name === "exec")).toBe(true);
     expect(tools.some((tool) => tool.name === "browser")).toBe(false);
   });
+=======
+>>>>>>> 63e4dfaa9 (test: consolidate pi-tools gating assertions)
 });

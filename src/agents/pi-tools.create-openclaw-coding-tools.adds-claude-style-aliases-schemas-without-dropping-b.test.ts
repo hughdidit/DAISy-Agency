@@ -55,61 +55,96 @@ describe("createMoltbotCodingTools", () => {
       expect(values.size).toBeGreaterThanOrEqual(min);
     }
   });
-  it("includes exec and process tools by default", () => {
+  it("enforces apply_patch availability and canonical names across model/provider constraints", () => {
     expect(defaultTools.some((tool) => tool.name === "exec")).toBe(true);
     expect(defaultTools.some((tool) => tool.name === "process")).toBe(true);
     expect(defaultTools.some((tool) => tool.name === "apply_patch")).toBe(false);
+<<<<<<< HEAD
   });
   it("gates apply_patch behind tools.exec.applyPatch for OpenAI models", () => {
     const config: MoltbotConfig = {
+=======
+
+    const enabledConfig: OpenClawConfig = {
+>>>>>>> 63e4dfaa9 (test: consolidate pi-tools gating assertions)
       tools: {
         exec: {
           applyPatch: { enabled: true },
         },
       },
     };
+<<<<<<< HEAD
     const openAiTools = createMoltbotCodingTools({
       config,
+=======
+    const openAiTools = createOpenClawCodingTools({
+      config: enabledConfig,
+>>>>>>> 63e4dfaa9 (test: consolidate pi-tools gating assertions)
       modelProvider: "openai",
       modelId: "gpt-5.2",
     });
     expect(openAiTools.some((tool) => tool.name === "apply_patch")).toBe(true);
 
+<<<<<<< HEAD
     const anthropicTools = createMoltbotCodingTools({
       config,
+=======
+    const anthropicTools = createOpenClawCodingTools({
+      config: enabledConfig,
+>>>>>>> 63e4dfaa9 (test: consolidate pi-tools gating assertions)
       modelProvider: "anthropic",
       modelId: "claude-opus-4-5",
     });
     expect(anthropicTools.some((tool) => tool.name === "apply_patch")).toBe(false);
+<<<<<<< HEAD
   });
   it("respects apply_patch allowModels", () => {
     const config: MoltbotConfig = {
+=======
+
+    const allowModelsConfig: OpenClawConfig = {
+>>>>>>> 63e4dfaa9 (test: consolidate pi-tools gating assertions)
       tools: {
         exec: {
           applyPatch: { enabled: true, allowModels: ["gpt-5.2"] },
         },
       },
     };
+<<<<<<< HEAD
     const allowed = createMoltbotCodingTools({
       config,
+=======
+    const allowed = createOpenClawCodingTools({
+      config: allowModelsConfig,
+>>>>>>> 63e4dfaa9 (test: consolidate pi-tools gating assertions)
       modelProvider: "openai",
       modelId: "gpt-5.2",
     });
     expect(allowed.some((tool) => tool.name === "apply_patch")).toBe(true);
 
+<<<<<<< HEAD
     const denied = createMoltbotCodingTools({
       config,
+=======
+    const denied = createOpenClawCodingTools({
+      config: allowModelsConfig,
+>>>>>>> 63e4dfaa9 (test: consolidate pi-tools gating assertions)
       modelProvider: "openai",
       modelId: "gpt-5-mini",
     });
     expect(denied.some((tool) => tool.name === "apply_patch")).toBe(false);
+<<<<<<< HEAD
   });
   it("keeps canonical tool names for Anthropic OAuth (pi-ai remaps on the wire)", () => {
     const tools = createMoltbotCodingTools({
+=======
+
+    const oauthTools = createOpenClawCodingTools({
+>>>>>>> 63e4dfaa9 (test: consolidate pi-tools gating assertions)
       modelProvider: "anthropic",
       modelAuthMode: "oauth",
     });
-    const names = new Set(tools.map((tool) => tool.name));
+    const names = new Set(oauthTools.map((tool) => tool.name));
     expect(names.has("exec")).toBe(true);
     expect(names.has("read")).toBe(true);
     expect(names.has("write")).toBe(true);
