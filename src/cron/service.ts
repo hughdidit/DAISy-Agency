@@ -60,6 +60,10 @@ export class CronService {
     return await ops.list(this.state, opts);
   }
 
+  async listPage(opts?: ops.CronListPageOptions) {
+    return await ops.listPage(this.state, opts);
+  }
+
   async add(input: CronJobCreate) {
     return await ops.add(this.state, input);
   }

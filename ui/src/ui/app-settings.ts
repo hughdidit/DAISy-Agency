@@ -60,7 +60,12 @@ import { loadAgentSkills } from "./controllers/agent-skills.ts";
 import { loadAgents } from "./controllers/agents.ts";
 import { loadChannels } from "./controllers/channels.ts";
 import { loadConfig, loadConfigSchema } from "./controllers/config.ts";
-import { loadCronJobs, loadCronStatus } from "./controllers/cron.ts";
+import {
+  loadCronJobs,
+  loadCronModelSuggestions,
+  loadCronRuns,
+  loadCronStatus,
+} from "./controllers/cron.ts";
 import { loadDebug } from "./controllers/debug.ts";
 import { loadDevices } from "./controllers/devices.ts";
 import { loadExecApprovals } from "./controllers/exec-approvals.ts";
@@ -590,9 +595,24 @@ export async function loadChannelsTab(host: SettingsHost) {
 }
 
 export async function loadCron(host: SettingsHost) {
+  const cronHost = host as unknown as OpenClawApp;
   await Promise.all([
+<<<<<<< HEAD
     loadChannels(host as unknown as MoltbotApp, false),
     loadCronStatus(host as unknown as MoltbotApp),
     loadCronJobs(host as unknown as MoltbotApp),
+=======
+    loadChannels(host as unknown as OpenClawApp, false),
+    loadCronStatus(cronHost),
+    loadCronJobs(cronHost),
+    loadCronModelSuggestions(cronHost),
+>>>>>>> 77c3b142a (Web UI: add full cron edit parity, all-jobs run history, and compact filters (openclaw#24155) thanks @Takhoffman)
   ]);
+  if (cronHost.cronRunsScope === "all") {
+    await loadCronRuns(cronHost, null);
+    return;
+  }
+  if (cronHost.cronRunsJobId) {
+    await loadCronRuns(cronHost, cronHost.cronRunsJobId);
+  }
 }

@@ -1,4 +1,5 @@
 import { normalizeCronJobCreate, normalizeCronJobPatch } from "../../cron/normalize.js";
+<<<<<<< HEAD
 import { readCronRunLogEntries, resolveCronRunLogPath } from "../../cron/run-log.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -6,6 +7,13 @@ import { readCronRunLogEntries, resolveCronRunLogPath } from "../../cron/run-log
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+=======
+import {
+  readCronRunLogEntriesPage,
+  readCronRunLogEntriesPageAll,
+  resolveCronRunLogPath,
+} from "../../cron/run-log.js";
+>>>>>>> 77c3b142a (Web UI: add full cron edit parity, all-jobs run history, and compact filters (openclaw#24155) thanks @Takhoffman)
 import type { CronJobCreate, CronJobPatch } from "../../cron/types.js";
 =======
 =======
@@ -70,11 +78,25 @@ export const cronHandlers: GatewayRequestHandlers = {
       );
       return;
     }
-    const p = params as { includeDisabled?: boolean };
-    const jobs = await context.cron.list({
+    const p = params as {
+      includeDisabled?: boolean;
+      limit?: number;
+      offset?: number;
+      query?: string;
+      enabled?: "all" | "enabled" | "disabled";
+      sortBy?: "nextRunAtMs" | "updatedAtMs" | "name";
+      sortDir?: "asc" | "desc";
+    };
+    const page = await context.cron.listPage({
       includeDisabled: p.includeDisabled,
+      limit: p.limit,
+      offset: p.offset,
+      query: p.query,
+      enabled: p.enabled,
+      sortBy: p.sortBy,
+      sortDir: p.sortDir,
     });
-    respond(true, { jobs }, undefined);
+    respond(true, page, undefined);
   },
   "cron.status": async ({ params, respond, context }) => {
     if (!validateCronStatusParams(params)) {
@@ -225,9 +247,23 @@ export const cronHandlers: GatewayRequestHandlers = {
       );
       return;
     }
-    const p = params as { id?: string; jobId?: string; limit?: number };
+    const p = params as {
+      scope?: "job" | "all";
+      id?: string;
+      jobId?: string;
+      limit?: number;
+      offset?: number;
+      statuses?: Array<"ok" | "error" | "skipped">;
+      status?: "all" | "ok" | "error" | "skipped";
+      deliveryStatuses?: Array<"delivered" | "not-delivered" | "unknown" | "not-requested">;
+      deliveryStatus?: "delivered" | "not-delivered" | "unknown" | "not-requested";
+      query?: string;
+      sortDir?: "asc" | "desc";
+    };
+    const explicitScope = p.scope;
     const jobId = p.id ?? p.jobId;
-    if (!jobId) {
+    const scope: "job" | "all" = explicitScope ?? (jobId ? "job" : "all");
+    if (scope === "job" && !jobId) {
       respond(
         false,
         undefined,
@@ -235,11 +271,33 @@ export const cronHandlers: GatewayRequestHandlers = {
       );
       return;
     }
+    if (scope === "all") {
+      const jobs = await context.cron.list({ includeDisabled: true });
+      const jobNameById = Object.fromEntries(
+        jobs
+          .filter((job) => typeof job.id === "string" && typeof job.name === "string")
+          .map((job) => [job.id, job.name]),
+      );
+      const page = await readCronRunLogEntriesPageAll({
+        storePath: context.cronStorePath,
+        limit: p.limit,
+        offset: p.offset,
+        statuses: p.statuses,
+        status: p.status,
+        deliveryStatuses: p.deliveryStatuses,
+        deliveryStatus: p.deliveryStatus,
+        query: p.query,
+        sortDir: p.sortDir,
+        jobNameById,
+      });
+      respond(true, page, undefined);
+      return;
+    }
     let logPath: string;
     try {
       logPath = resolveCronRunLogPath({
         storePath: context.cronStorePath,
-        jobId,
+        jobId: jobId as string,
       });
     } catch {
       respond(
@@ -249,10 +307,17 @@ export const cronHandlers: GatewayRequestHandlers = {
       );
       return;
     }
-    const entries = await readCronRunLogEntries(logPath, {
+    const page = await readCronRunLogEntriesPage(logPath, {
       limit: p.limit,
-      jobId,
+      offset: p.offset,
+      jobId: jobId as string,
+      statuses: p.statuses,
+      status: p.status,
+      deliveryStatuses: p.deliveryStatuses,
+      deliveryStatus: p.deliveryStatus,
+      query: p.query,
+      sortDir: p.sortDir,
     });
-    respond(true, { entries }, undefined);
+    respond(true, page, undefined);
   },
 };
