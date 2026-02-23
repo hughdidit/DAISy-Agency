@@ -2,6 +2,7 @@
   "name": "@openclaw/twitch",
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   "version": "2026.2.6-3",
 =======
   "version": "2026.2.9",
@@ -10,6 +11,9 @@
 =======
   "version": "2026.2.22",
 >>>>>>> 549549f6a (fix(ci): sync plugin versions and harden install smoke)
+=======
+  "version": "2026.2.23",
+>>>>>>> 8d9d01447 (chore: align plugin versions and harden outbound cross-provider test)
   "description": "OpenClaw Twitch channel plugin",
   "type": "module",
   "dependencies": {
