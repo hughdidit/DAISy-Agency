@@ -24,8 +24,8 @@ import {
   resolveHooksGmailModel,
   resolveThinkingDefault,
 } from "../../agents/model-selection.js";
-import type { MessagingToolSend } from "../../agents/pi-embedded-messaging.js";
 import { runEmbeddedPiAgent } from "../../agents/pi-embedded.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 import type { MessagingToolSend } from "../../agents/pi-embedded-messaging.js";
 import { buildWorkspaceSkillSnapshot } from "../../agents/skills.js";
@@ -50,6 +50,8 @@ import {
 import { runSubagentAnnounceFlow } from "../../agents/subagent-announce.js";
 import { countActiveDescendantRuns } from "../../agents/subagent-registry.js";
 >>>>>>> aef1d5530 (fix(cron): normalize skill-filter snapshots and split isolated run helpers)
+=======
+>>>>>>> 7a40d99b1 (refactor(cron): extract delivery dispatch + harden reset notices)
 import { resolveAgentTimeoutMs } from "../../agents/timeout.js";
 import { deriveSessionTotalTokens, hasNonzeroUsage } from "../../agents/usage.js";
 >>>>>>> b8f66c260 (Agents: add nested subagent orchestration controls and reduce subagent token waste (#14447))
@@ -68,6 +70,7 @@ import {
   normalizeVerboseLevel,
   supportsXHighThinking,
 } from "../../auto-reply/thinking.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
@@ -127,6 +130,11 @@ import {
 =======
 >>>>>>> 8fae55e8e (fix(cron): share isolated announce flow + harden cron scheduling/delivery (#11641))
 =======
+=======
+import type { CliDeps } from "../../cli/outbound-send-deps.js";
+import type { OpenClawConfig } from "../../config/config.js";
+import { resolveSessionTranscriptPath, updateSessionStore } from "../../config/sessions.js";
+>>>>>>> 7a40d99b1 (refactor(cron): extract delivery dispatch + harden reset notices)
 import type { AgentDefaultsConfig } from "../../config/types.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
@@ -146,6 +154,7 @@ import type { AgentDefaultsConfig } from "../../config/types.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { registerAgentRunContext } from "../../infra/agent-events.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import { deliverOutboundPayloads } from "../../infra/outbound/deliver.js";
 import { resolveAgentOutboundIdentity } from "../../infra/outbound/identity.js";
@@ -157,6 +166,8 @@ import { getRemoteSkillEligibility } from "../../infra/skills-remote.js";
 =======
 import { resolveOutboundSessionRoute } from "../../infra/outbound/outbound-session.js";
 >>>>>>> 75001a049 (fix cron announce routing and timeout handling)
+=======
+>>>>>>> 7a40d99b1 (refactor(cron): extract delivery dispatch + harden reset notices)
 import { logWarn } from "../../logger.js";
 >>>>>>> aef1d5530 (fix(cron): normalize skill-filter snapshots and split isolated run helpers)
 import { buildAgentMainSessionKey, normalizeAgentId } from "../../routing/session-key.js";
@@ -187,6 +198,7 @@ import { resolveCronDeliveryPlan } from "../delivery.js";
 >>>>>>> 80c7d04ad (refactor(cron): reuse shared run outcome telemetry types)
 =======
 import type { CronJob, CronRunOutcome, CronRunTelemetry } from "../types.js";
+<<<<<<< HEAD
 >>>>>>> c70597dae (chore: Fix formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
@@ -198,6 +210,13 @@ import type { CronJob, CronRunOutcome, CronRunTelemetry } from "../types.js";
 =======
 import type { CronJob, CronRunOutcome, CronRunTelemetry } from "../types.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
+=======
+import {
+  dispatchCronDelivery,
+  matchesMessagingToolDeliveryTarget,
+  resolveCronDeliveryBestEffort,
+} from "./delivery-dispatch.js";
+>>>>>>> 7a40d99b1 (refactor(cron): extract delivery dispatch + harden reset notices)
 import { resolveDeliveryTarget } from "./delivery-target.js";
 import {
   isHeartbeatOnlyResponse,
@@ -208,6 +227,7 @@ import {
 } from "./helpers.js";
 import { resolveCronSession } from "./session.js";
 import { resolveCronSkillsSnapshot } from "./skills-snapshot.js";
+<<<<<<< HEAD
 import {
   expectsSubagentFollowup,
   isLikelyInterimCronMessage,
@@ -438,6 +458,8 @@ async function resolveCronAnnounceSessionKey(params: {
   }
   return params.fallbackSessionKey;
 }
+=======
+>>>>>>> 7a40d99b1 (refactor(cron): extract delivery dispatch + harden reset notices)
 
 >>>>>>> 75001a049 (fix cron announce routing and timeout handling)
 export type RunCronAgentTurnResult = {
@@ -1039,6 +1061,7 @@ let skillsSnapshot = cronSession.sessionEntry.skillsSnapshot;
     );
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   let delivered = false;
 =======
   // `true` means we confirmed at least one outbound send reached the target.
@@ -1408,7 +1431,41 @@ let skillsSnapshot = cronSession.sessionEntry.skillsSnapshot;
       }
 >>>>>>> 8fae55e8e (fix(cron): share isolated announce flow + harden cron scheduling/delivery (#11641))
     }
+=======
+  const deliveryResult = await dispatchCronDelivery({
+    cfg: params.cfg,
+    cfgWithAgentDefaults,
+    deps: params.deps,
+    job: params.job,
+    agentId,
+    agentSessionKey,
+    runSessionId,
+    runStartedAt,
+    runEndedAt,
+    timeoutMs,
+    resolvedDelivery,
+    deliveryRequested,
+    skipHeartbeatDelivery,
+    skipMessagingToolDelivery,
+    deliveryBestEffort,
+    deliveryPayloadHasStructuredContent,
+    deliveryPayloads,
+    synthesizedText,
+    summary,
+    outputText,
+    telemetry,
+    abortSignal,
+    isAborted,
+    abortReason,
+    withRunSession,
+  });
+  if (deliveryResult.result) {
+    return deliveryResult.result;
+>>>>>>> 7a40d99b1 (refactor(cron): extract delivery dispatch + harden reset notices)
   }
+  const delivered = deliveryResult.delivered;
+  summary = deliveryResult.summary;
+  outputText = deliveryResult.outputText;
 
 <<<<<<< HEAD
 <<<<<<< HEAD
