@@ -16,9 +16,10 @@ function getOptions(includeSkip = false) {
 }
 
 describe("buildAuthChoiceOptions", () => {
-  it("includes GitHub Copilot", () => {
+  it("includes core and provider-specific auth choices", () => {
     const options = getOptions();
 
+<<<<<<< HEAD
     expect(options.find((opt) => opt.value === "github-copilot")).toBeDefined();
   });
 
@@ -167,6 +168,31 @@ describe("buildAuthChoiceOptions", () => {
     expect(options.some((opt) => opt.value === "vllm")).toBe(true);
 =======
     for (const value of expectedValues) {
+=======
+    for (const value of [
+      "github-copilot",
+      "token",
+      "zai-api-key",
+      "xiaomi-api-key",
+      "minimax-api",
+      "minimax-api-key-cn",
+      "minimax-api-lightning",
+      "moonshot-api-key",
+      "moonshot-api-key-cn",
+      "kimi-code-api-key",
+      "together-api-key",
+      "ai-gateway-api-key",
+      "cloudflare-ai-gateway-api-key",
+      "synthetic-api-key",
+      "chutes",
+      "qwen-portal",
+      "xai-api-key",
+      "mistral-api-key",
+      "volcengine-api-key",
+      "byteplus-api-key",
+      "vllm",
+    ]) {
+>>>>>>> 29b19455e (test(commands): collapse provider and endpoint matrices)
       expect(options.some((opt) => opt.value === value)).toBe(true);
     }
 >>>>>>> 9372df45f (refactor(test): table-drive auth choice option checks)
