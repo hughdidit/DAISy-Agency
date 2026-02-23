@@ -135,21 +135,33 @@ describe("telegram inbound media", () => {
   const INBOUND_MEDIA_TEST_TIMEOUT_MS = process.platform === "win32" ? 60_000 : 45_000;
 
   it(
-    "downloads media via file_path (no file.download)",
+    "handles file_path media downloads and missing file_path safely",
     async () => {
-      const { handler, replySpy, runtimeError } = await createBotHandler();
-      const fetchSpy = mockTelegramFileDownload({
-        contentType: "image/jpeg",
-        bytes: new Uint8Array([0xff, 0xd8, 0xff, 0x00]),
-      });
-
-      await handler({
-        message: {
-          message_id: 1,
-          chat: { id: 1234, type: "private" },
-          photo: [{ file_id: "fid" }],
-          date: 1736380800, // 2025-01-09T00:00:00Z
+      for (const scenario of [
+        {
+          name: "downloads via file_path",
+          getFile: async () => ({ file_path: "photos/1.jpg" }),
+          setupFetch: () =>
+            mockTelegramFileDownload({
+              contentType: "image/jpeg",
+              bytes: new Uint8Array([0xff, 0xd8, 0xff, 0x00]),
+            }),
+          assert: (params: {
+            fetchSpy: ReturnType<typeof vi.spyOn>;
+            replySpy: ReturnType<typeof vi.fn>;
+            runtimeError: ReturnType<typeof vi.fn>;
+          }) => {
+            expect(params.runtimeError).not.toHaveBeenCalled();
+            expect(params.fetchSpy).toHaveBeenCalledWith(
+              "https://api.telegram.org/file/bottok/photos/1.jpg",
+              expect.objectContaining({ redirect: "manual" }),
+            );
+            expect(params.replySpy).toHaveBeenCalledTimes(1);
+            const payload = params.replySpy.mock.calls[0][0];
+            expect(payload.Body).toContain("<media:image>");
+          },
         },
+<<<<<<< HEAD
         me: { username: "moltbot_bot" },
         getFile: async () => ({ file_path: "photos/1.jpg" }),
       });
@@ -162,8 +174,45 @@ describe("telegram inbound media", () => {
       expect(replySpy).toHaveBeenCalledTimes(1);
       const payload = replySpy.mock.calls[0][0];
       expect(payload.Body).toContain("<media:image>");
+=======
+        {
+          name: "skips when file_path is missing",
+          getFile: async () => ({}),
+          setupFetch: () => vi.spyOn(globalThis, "fetch"),
+          assert: (params: {
+            fetchSpy: ReturnType<typeof vi.spyOn>;
+            replySpy: ReturnType<typeof vi.fn>;
+            runtimeError: ReturnType<typeof vi.fn>;
+          }) => {
+            expect(params.fetchSpy).not.toHaveBeenCalled();
+            expect(params.replySpy).not.toHaveBeenCalled();
+            expect(params.runtimeError).not.toHaveBeenCalled();
+          },
+        },
+      ]) {
+        const runtimeLog = vi.fn();
+        const runtimeError = vi.fn();
+        const { handler, replySpy } = await createBotHandlerWithOptions({
+          runtimeLog,
+          runtimeError,
+        });
+        const fetchSpy = scenario.setupFetch();
 
-      fetchSpy.mockRestore();
+        await handler({
+          message: {
+            message_id: 1,
+            chat: { id: 1234, type: "private" },
+            photo: [{ file_id: "fid" }],
+            date: 1736380800, // 2025-01-09T00:00:00Z
+          },
+          me: { username: "openclaw_bot" },
+          getFile: scenario.getFile,
+        });
+>>>>>>> ecd278b67 (test: merge redundant telegram media path scenarios)
+
+        scenario.assert({ fetchSpy, replySpy, runtimeError });
+        fetchSpy.mockRestore();
+      }
     },
     INBOUND_MEDIA_TEST_TIMEOUT_MS,
   );
@@ -207,6 +256,7 @@ describe("telegram inbound media", () => {
     globalFetchSpy.mockRestore();
   });
 
+<<<<<<< HEAD
   it("logs a handler error when getFile returns no file_path", async () => {
     const runtimeLog = vi.fn();
     const runtimeError = vi.fn();
@@ -236,6 +286,8 @@ describe("telegram inbound media", () => {
     fetchSpy.mockRestore();
   });
 
+=======
+>>>>>>> ecd278b67 (test: merge redundant telegram media path scenarios)
   it("captures pin and venue location payload fields", async () => {
     const { handler, replySpy } = await createBotHandler();
 
@@ -305,20 +357,37 @@ describe("telegram media groups", () => {
   const MEDIA_GROUP_FLUSH_MS = TELEGRAM_TEST_TIMINGS.mediaGroupFlushMs + 60;
 
   it(
-    "buffers messages with same media_group_id and processes them together",
+    "handles same-group buffering and separate-group independence",
     async () => {
-      const runtimeError = vi.fn();
-      const { handler, replySpy } = await createBotHandlerWithOptions({ runtimeError });
-      const fetchSpy = mockTelegramPngDownload();
-      const first = handler({
-        message: {
-          chat: { id: 42, type: "private" },
-          message_id: 1,
-          caption: "Here are my photos",
-          date: 1736380800,
-          media_group_id: "album123",
-          photo: [{ file_id: "photo1" }],
+      for (const scenario of [
+        {
+          messages: [
+            {
+              chat: { id: 42, type: "private" as const },
+              message_id: 1,
+              caption: "Here are my photos",
+              date: 1736380800,
+              media_group_id: "album123",
+              photo: [{ file_id: "photo1" }],
+              filePath: "photos/photo1.jpg",
+            },
+            {
+              chat: { id: 42, type: "private" as const },
+              message_id: 2,
+              date: 1736380801,
+              media_group_id: "album123",
+              photo: [{ file_id: "photo2" }],
+              filePath: "photos/photo2.jpg",
+            },
+          ],
+          expectedReplyCount: 1,
+          assert: (replySpy: ReturnType<typeof vi.fn>) => {
+            const payload = replySpy.mock.calls[0]?.[0];
+            expect(payload?.Body).toContain("Here are my photos");
+            expect(payload?.MediaPaths).toHaveLength(2);
+          },
         },
+<<<<<<< HEAD
         me: { username: "moltbot_bot" },
         getFile: async () => ({ file_path: "photos/photo1.jpg" }),
       });
@@ -334,18 +403,56 @@ describe("telegram media groups", () => {
         me: { username: "moltbot_bot" },
         getFile: async () => ({ file_path: "photos/photo2.jpg" }),
       });
-
-      await first;
-      await second;
-
-      expect(replySpy).not.toHaveBeenCalled();
-      await vi.waitFor(
-        () => {
-          expect(replySpy).toHaveBeenCalledTimes(1);
+=======
+        {
+          messages: [
+            {
+              chat: { id: 42, type: "private" as const },
+              message_id: 11,
+              caption: "Album A",
+              date: 1736380800,
+              media_group_id: "albumA",
+              photo: [{ file_id: "photoA1" }],
+              filePath: "photos/photoA1.jpg",
+            },
+            {
+              chat: { id: 42, type: "private" as const },
+              message_id: 12,
+              caption: "Album B",
+              date: 1736380801,
+              media_group_id: "albumB",
+              photo: [{ file_id: "photoB1" }],
+              filePath: "photos/photoB1.jpg",
+            },
+          ],
+          expectedReplyCount: 2,
+          assert: () => {},
         },
-        { timeout: MEDIA_GROUP_FLUSH_MS * 2, interval: 10 },
-      );
+      ]) {
+        const runtimeError = vi.fn();
+        const { handler, replySpy } = await createBotHandlerWithOptions({ runtimeError });
+        const fetchSpy = mockTelegramPngDownload();
+>>>>>>> ecd278b67 (test: merge redundant telegram media path scenarios)
 
+        await Promise.all(
+          scenario.messages.map((message) =>
+            handler({
+              message,
+              me: { username: "openclaw_bot" },
+              getFile: async () => ({ file_path: message.filePath }),
+            }),
+          ),
+        );
+
+        expect(replySpy).not.toHaveBeenCalled();
+        await vi.waitFor(
+          () => {
+            expect(replySpy).toHaveBeenCalledTimes(scenario.expectedReplyCount);
+          },
+          { timeout: MEDIA_GROUP_FLUSH_MS * 2, interval: 10 },
+        );
+
+<<<<<<< HEAD
       expect(runtimeError).not.toHaveBeenCalled();
       const payload = replySpy.mock.calls[0][0];
       expect(payload.Body).toContain("Here are my photos");
@@ -398,6 +505,12 @@ describe("telegram media groups", () => {
       );
 
       fetchSpy.mockRestore();
+=======
+        expect(runtimeError).not.toHaveBeenCalled();
+        scenario.assert(replySpy);
+        fetchSpy.mockRestore();
+      }
+>>>>>>> ecd278b67 (test: merge redundant telegram media path scenarios)
     },
     MEDIA_GROUP_TEST_TIMEOUT_MS,
   );
@@ -582,28 +695,24 @@ describe("telegram stickers", () => {
   );
 
   it(
-    "skips animated stickers (TGS format)",
+    "skips animated and video sticker formats that cannot be downloaded",
     async () => {
-      const { handler, replySpy, runtimeError } = await createBotHandler();
-      const fetchSpy = vi.spyOn(globalThis, "fetch");
-
-      await handler({
-        message: {
-          message_id: 101,
-          chat: { id: 1234, type: "private" },
+      for (const scenario of [
+        {
+          filePath: "stickers/animated.tgs",
           sticker: {
             file_id: "animated_sticker_id",
             file_unique_id: "animated_unique",
             type: "regular",
             width: 512,
             height: 512,
-            is_animated: true, // TGS format
+            is_animated: true,
             is_video: false,
             emoji: "😎",
             set_name: "AnimatedPack",
           },
-          date: 1736380800,
         },
+<<<<<<< HEAD
         me: { username: "moltbot_bot" },
         getFile: async () => ({ file_path: "stickers/animated.tgs" }),
       });
@@ -629,6 +738,10 @@ describe("telegram stickers", () => {
         message: {
           message_id: 102,
           chat: { id: 1234, type: "private" },
+=======
+        {
+          filePath: "stickers/video.webm",
+>>>>>>> ecd278b67 (test: merge redundant telegram media path scenarios)
           sticker: {
             file_id: "video_sticker_id",
             file_unique_id: "video_unique",
@@ -636,22 +749,37 @@ describe("telegram stickers", () => {
             width: 512,
             height: 512,
             is_animated: false,
-            is_video: true, // WEBM format
+            is_video: true,
             emoji: "🎬",
             set_name: "VideoPack",
           },
-          date: 1736380800,
         },
+<<<<<<< HEAD
         me: { username: "moltbot_bot" },
         getFile: async () => ({ file_path: "stickers/video.webm" }),
       });
+=======
+      ]) {
+        const { handler, replySpy, runtimeError } = await createBotHandler();
+        const fetchSpy = vi.spyOn(globalThis, "fetch");
+>>>>>>> ecd278b67 (test: merge redundant telegram media path scenarios)
 
-      // Should not attempt to download video stickers
-      expect(fetchSpy).not.toHaveBeenCalled();
-      expect(replySpy).not.toHaveBeenCalled();
-      expect(runtimeError).not.toHaveBeenCalled();
+        await handler({
+          message: {
+            message_id: 101,
+            chat: { id: 1234, type: "private" },
+            sticker: scenario.sticker,
+            date: 1736380800,
+          },
+          me: { username: "openclaw_bot" },
+          getFile: async () => ({ file_path: scenario.filePath }),
+        });
 
-      fetchSpy.mockRestore();
+        expect(fetchSpy).not.toHaveBeenCalled();
+        expect(replySpy).not.toHaveBeenCalled();
+        expect(runtimeError).not.toHaveBeenCalled();
+        fetchSpy.mockRestore();
+      }
     },
     STICKER_TEST_TIMEOUT_MS,
   );
