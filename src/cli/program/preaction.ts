@@ -31,7 +31,13 @@ function setProcessTitleForCommand(actionCommand: Command) {
 }
 
 // Commands that need channel plugins loaded
-const PLUGIN_REQUIRED_COMMANDS = new Set(["message", "channels", "directory"]);
+const PLUGIN_REQUIRED_COMMANDS = new Set([
+  "message",
+  "channels",
+  "directory",
+  "configure",
+  "onboard",
+]);
 
 function getRootCommand(command: Command): Command {
   let current = command;
