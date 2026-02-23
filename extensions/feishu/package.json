@@ -2,6 +2,7 @@
   "name": "@openclaw/feishu",
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   "version": "2026.2.2",
   "description": "OpenClaw Feishu channel plugin",
 =======
@@ -9,6 +10,9 @@
 =======
   "version": "2026.2.22",
 >>>>>>> 549549f6a (fix(ci): sync plugin versions and harden install smoke)
+=======
+  "version": "2026.2.23",
+>>>>>>> 8d9d01447 (chore: align plugin versions and harden outbound cross-provider test)
   "description": "OpenClaw Feishu/Lark channel plugin (community maintained by @m1heng)",
 >>>>>>> 2267d58af (feat(feishu): replace built-in SDK with community plugin)
   "type": "module",
