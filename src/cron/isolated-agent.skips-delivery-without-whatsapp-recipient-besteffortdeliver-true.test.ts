@@ -12,6 +12,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import { withTempHome as withTempHomeBase } from "../../test/helpers/temp-home.js";
 import type { CliDeps } from "../cli/deps.js";
@@ -59,8 +60,11 @@ import type { CliDeps } from "../cli/deps.js";
 =======
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { runEmbeddedPiAgent } from "../agents/pi-embedded.js";
+=======
+>>>>>>> a53062ae3 (refactor(test): deduplicate isolated agent cron test helpers)
 import { runSubagentAnnounceFlow } from "../agents/subagent-announce.js";
 import type { CliDeps } from "../cli/deps.js";
+import { createCliDeps, mockAgentPayloads } from "./isolated-agent.delivery.test-helpers.js";
 import { runCronIsolatedAgentTurn } from "./isolated-agent.js";
 import {
   makeCfg,
@@ -69,32 +73,6 @@ import {
   writeSessionStore,
 } from "./isolated-agent.test-harness.js";
 import { setupIsolatedAgentTurnMocks } from "./isolated-agent.test-setup.js";
-
-function createCliDeps(overrides: Partial<CliDeps> = {}): CliDeps {
-  return {
-    sendMessageSlack: vi.fn(),
-    sendMessageWhatsApp: vi.fn(),
-    sendMessageTelegram: vi.fn(),
-    sendMessageDiscord: vi.fn(),
-    sendMessageSignal: vi.fn(),
-    sendMessageIMessage: vi.fn(),
-    ...overrides,
-  };
-}
-
-function mockAgentPayloads(
-  payloads: Array<Record<string, unknown>>,
-  extra: Partial<Awaited<ReturnType<typeof runEmbeddedPiAgent>>> = {},
-): void {
-  vi.mocked(runEmbeddedPiAgent).mockResolvedValue({
-    payloads,
-    meta: {
-      durationMs: 5,
-      agentMeta: { sessionId: "s", provider: "p", model: "m" },
-    },
-    ...extra,
-  });
-}
 
 async function runTelegramAnnounceTurn(params: {
   home: string;
