@@ -1,4 +1,4 @@
-import { lookupContextTokens } from "../agents/context.js";
+import { resolveContextTokensForModel } from "../agents/context.js";
 import { DEFAULT_CONTEXT_TOKENS, DEFAULT_MODEL, DEFAULT_PROVIDER } from "../agents/defaults.js";
 import { resolveConfiguredModelRef } from "../agents/model-selection.js";
 import { loadConfig } from "../config/config.js";
@@ -104,9 +104,13 @@ export async function getStatusSummary(
   });
   const configModel = resolved.model ?? DEFAULT_MODEL;
   const configContextTokens =
-    cfg.agents?.defaults?.contextTokens ??
-    lookupContextTokens(configModel) ??
-    DEFAULT_CONTEXT_TOKENS;
+    resolveContextTokensForModel({
+      cfg,
+      provider: resolved.provider ?? DEFAULT_PROVIDER,
+      model: configModel,
+      contextTokensOverride: cfg.agents?.defaults?.contextTokens,
+      fallbackContextTokens: DEFAULT_CONTEXT_TOKENS,
+    }) ?? DEFAULT_CONTEXT_TOKENS;
 
   const now = Date.now();
   const storeCache = new Map<string, Record<string, SessionEntry | undefined>>();
@@ -131,11 +135,26 @@ export async function getStatusSummary(
         const resolvedModel = resolveSessionModelRef(cfg, entry, opts.agentIdOverride);
         const model = resolvedModel.model ?? configModel ?? null;
         const contextTokens =
+<<<<<<< HEAD
           entry?.contextTokens ?? lookupContextTokens(model) ?? configContextTokens ?? null;
         const input = entry?.inputTokens ?? 0;
         const output = entry?.outputTokens ?? 0;
         const total = entry?.totalTokens ?? input + output;
         const remaining = contextTokens != null ? Math.max(0, contextTokens - total) : null;
+=======
+          resolveContextTokensForModel({
+            cfg,
+            provider: resolvedModel.provider,
+            model,
+            contextTokensOverride: entry?.contextTokens,
+            fallbackContextTokens: configContextTokens ?? undefined,
+          }) ?? null;
+        const total = resolveFreshSessionTotalTokens(entry);
+        const totalTokensFresh =
+          typeof entry?.totalTokens === "number" ? entry?.totalTokensFresh !== false : false;
+        const remaining =
+          contextTokens != null && total !== undefined ? Math.max(0, contextTokens - total) : null;
+>>>>>>> f03ff3975 (Providers: skip context1m beta for Anthropic OAuth tokens (#24620))
         const pct =
           contextTokens && contextTokens > 0
             ? Math.min(999, Math.round((total / contextTokens) * 100))
