@@ -37,6 +37,7 @@ afterEach(() => {
 });
 
 describe("stageSandboxMedia", () => {
+<<<<<<< HEAD
   it("stages inbound media into the sandbox workspace", async () => {
 <<<<<<< HEAD
     await withTempHome(async (home) => {
@@ -49,14 +50,26 @@ describe("stageSandboxMedia", () => {
       const mediaPath = join(inboundDir, "photo.jpg");
       await fs.writeFile(mediaPath, "test");
 
+=======
+  it("stages allowed media and blocks unsafe paths", async () => {
+    await withSandboxMediaTempHome("openclaw-triggers-", async (home) => {
+      const cfg = createSandboxMediaStageConfig(home);
+      const workspaceDir = join(home, "openclaw");
+>>>>>>> c88915b72 (test: consolidate trigger handling suites)
       const sandboxDir = join(home, "sandboxes", "session");
       vi.mocked(ensureSandboxWorkspaceForSession).mockResolvedValue({
         workspaceDir: sandboxDir,
         containerWorkdir: "/work",
       });
 
-      const { ctx, sessionCtx } = createSandboxMediaContexts(mediaPath);
+      {
+        const inboundDir = join(home, ".openclaw", "media", "inbound");
+        await fs.mkdir(inboundDir, { recursive: true });
+        const mediaPath = join(inboundDir, "photo.jpg");
+        await fs.writeFile(mediaPath, "test");
+        const { ctx, sessionCtx } = createSandboxMediaContexts(mediaPath);
 
+<<<<<<< HEAD
       await stageSandboxMedia({
         ctx,
         sessionCtx,
@@ -81,47 +94,73 @@ describe("stageSandboxMedia", () => {
         sessionKey: "agent:main:main",
         workspaceDir: join(home, "clawd"),
       });
+=======
+        await stageSandboxMedia({
+          ctx,
+          sessionCtx,
+          cfg,
+          sessionKey: "agent:main:main",
+          workspaceDir,
+        });
+>>>>>>> c88915b72 (test: consolidate trigger handling suites)
 
-      const stagedPath = `media/inbound/${basename(mediaPath)}`;
-      expect(ctx.MediaPath).toBe(stagedPath);
-      expect(sessionCtx.MediaPath).toBe(stagedPath);
-      expect(ctx.MediaUrl).toBe(stagedPath);
-      expect(sessionCtx.MediaUrl).toBe(stagedPath);
+        const stagedPath = `media/inbound/${basename(mediaPath)}`;
+        expect(ctx.MediaPath).toBe(stagedPath);
+        expect(sessionCtx.MediaPath).toBe(stagedPath);
+        expect(ctx.MediaUrl).toBe(stagedPath);
+        expect(sessionCtx.MediaUrl).toBe(stagedPath);
+        await expect(
+          fs.stat(join(sandboxDir, "media", "inbound", basename(mediaPath))),
+        ).resolves.toBeTruthy();
+      }
 
-      const stagedFullPath = join(sandboxDir, "media", "inbound", basename(mediaPath));
-      await expect(fs.stat(stagedFullPath)).resolves.toBeTruthy();
-    });
-  });
+      {
+        const sensitiveFile = join(home, "secrets.txt");
+        await fs.writeFile(sensitiveFile, "SENSITIVE DATA");
+        const { ctx, sessionCtx } = createSandboxMediaContexts(sensitiveFile);
 
-  it("rejects staging host files from outside the media directory", async () => {
-    await withSandboxMediaTempHome("openclaw-triggers-bypass-", async (home) => {
-      // Sensitive host file outside .openclaw
-      const sensitiveFile = join(home, "secrets.txt");
-      await fs.writeFile(sensitiveFile, "SENSITIVE DATA");
+        await stageSandboxMedia({
+          ctx,
+          sessionCtx,
+          cfg,
+          sessionKey: "agent:main:main",
+          workspaceDir,
+        });
 
-      const sandboxDir = join(home, "sandboxes", "session");
-      vi.mocked(ensureSandboxWorkspaceForSession).mockResolvedValue({
-        workspaceDir: sandboxDir,
-        containerWorkdir: "/work",
-      });
+        await expect(
+          fs.stat(join(sandboxDir, "media", "inbound", basename(sensitiveFile))),
+        ).rejects.toThrow();
+        expect(ctx.MediaPath).toBe(sensitiveFile);
+      }
 
-      const { ctx, sessionCtx } = createSandboxMediaContexts(sensitiveFile);
+      {
+        childProcessMocks.spawn.mockClear();
+        const { ctx, sessionCtx } = createSandboxMediaContexts("/etc/passwd");
+        ctx.Provider = "imessage";
+        ctx.MediaRemoteHost = "user@gateway-host";
+        sessionCtx.Provider = "imessage";
+        sessionCtx.MediaRemoteHost = "user@gateway-host";
 
-      // This should fail or skip the file
-      await stageSandboxMedia({
-        ctx,
-        sessionCtx,
-        cfg: createSandboxMediaStageConfig(home),
-        sessionKey: "agent:main:main",
-        workspaceDir: join(home, "openclaw"),
-      });
+        await stageSandboxMedia({
+          ctx,
+          sessionCtx,
+          cfg,
+          sessionKey: "agent:main:main",
+          workspaceDir,
+        });
 
+<<<<<<< HEAD
       const stagedFullPath = join(sandboxDir, "media", "inbound", basename(sensitiveFile));
       // Expect the file NOT to be staged
       await expect(fs.stat(stagedFullPath)).rejects.toThrow();
 
       // Context should NOT be rewritten to a sandbox path if it failed to stage
       expect(ctx.MediaPath).toBe(sensitiveFile);
+=======
+        expect(childProcessMocks.spawn).not.toHaveBeenCalled();
+        expect(ctx.MediaPath).toBe("/etc/passwd");
+      }
+>>>>>>> c88915b72 (test: consolidate trigger handling suites)
     });
   });
 });
