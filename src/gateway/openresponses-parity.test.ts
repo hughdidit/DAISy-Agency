@@ -5,9 +5,33 @@
  * support in the OpenResponses `/v1/responses` endpoint.
  */
 
+<<<<<<< HEAD
 import { describe, it, expect } from "vitest";
 
 describe("OpenResponses Feature Parity", () => {
+=======
+import { beforeAll, describe, it, expect } from "vitest";
+
+let InputImageContentPartSchema: typeof import("./open-responses.schema.js").InputImageContentPartSchema;
+let InputFileContentPartSchema: typeof import("./open-responses.schema.js").InputFileContentPartSchema;
+let ToolDefinitionSchema: typeof import("./open-responses.schema.js").ToolDefinitionSchema;
+let CreateResponseBodySchema: typeof import("./open-responses.schema.js").CreateResponseBodySchema;
+let OutputItemSchema: typeof import("./open-responses.schema.js").OutputItemSchema;
+let buildAgentPrompt: typeof import("./openresponses-prompt.js").buildAgentPrompt;
+
+describe("OpenResponses Feature Parity", () => {
+  beforeAll(async () => {
+    ({
+      InputImageContentPartSchema,
+      InputFileContentPartSchema,
+      ToolDefinitionSchema,
+      CreateResponseBodySchema,
+      OutputItemSchema,
+    } = await import("./open-responses.schema.js"));
+    ({ buildAgentPrompt } = await import("./openresponses-prompt.js"));
+  });
+
+>>>>>>> 3f03cdea5 (test: optimize redundant suites for faster runtime)
   describe("Schema Validation", () => {
     it("should validate input_image with url source", async () => {
       const { InputImageContentPartSchema } = await import("./open-responses.schema.js");
