@@ -10,11 +10,19 @@ export const NODE_WINDOWS_TASK_NAME = "Moltbot Node";
 export const NODE_SERVICE_MARKER = "moltbot";
 export const NODE_SERVICE_KIND = "node";
 export const NODE_WINDOWS_TASK_SCRIPT_NAME = "node.cmd";
+<<<<<<< HEAD
 export const LEGACY_GATEWAY_LAUNCH_AGENT_LABELS = [
   "com.clawdbot.gateway",
   "com.steipete.clawdbot.gateway",
 ];
 export const LEGACY_GATEWAY_SYSTEMD_SERVICE_NAMES: string[] = [];
+=======
+export const LEGACY_GATEWAY_LAUNCH_AGENT_LABELS: string[] = [];
+export const LEGACY_GATEWAY_SYSTEMD_SERVICE_NAMES: string[] = [
+  "clawdbot-gateway",
+  "moltbot-gateway",
+];
+>>>>>>> 8a8faf066 (doctor: clean up legacy Linux gateway services (#21188))
 export const LEGACY_GATEWAY_WINDOWS_TASK_NAMES: string[] = [];
 
 export function normalizeGatewayProfile(profile?: string): string | null {
