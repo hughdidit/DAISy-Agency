@@ -63,6 +63,12 @@ function shouldShowToolErrorWarning(params: {
   if ((normalizedToolName === "exec" || normalizedToolName === "bash") && !verboseEnabled) {
     return false;
   }
+  // sessions_send timeouts and errors are transient inter-session communication
+  // issues — the message may still have been delivered. Suppress warnings to
+  // prevent raw error text from leaking into the chat surface (#23989).
+  if (normalizedToolName === "sessions_send") {
+    return { showWarning: false, includeDetails };
+  }
   const isMutatingToolError =
     params.lastToolError.mutatingAction ?? isLikelyMutatingToolName(params.lastToolError.toolName);
   if (isMutatingToolError) {
