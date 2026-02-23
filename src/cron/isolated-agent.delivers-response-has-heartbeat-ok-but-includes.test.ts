@@ -277,10 +277,8 @@ describe("runCronIsolatedAgentTurn", () => {
       });
 
       const cfg = makeCfg(home, storePath);
-      const job = {
-        ...makeJob({ kind: "agentTurn", message: "do it" }),
-        delivery: { mode: "announce", channel: "last" as const },
-      };
+      const job = makeJob({ kind: "agentTurn", message: "do it" });
+      job.delivery = { mode: "announce", channel: "last" };
 
       await runCronIsolatedAgentTurn({
         cfg,
