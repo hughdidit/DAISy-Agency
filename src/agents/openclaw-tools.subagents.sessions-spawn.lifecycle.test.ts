@@ -50,11 +50,21 @@ import {
 >>>>>>> dd11a6bcd (refactor(test): share sessions_spawn e2e harness)
 import { resetSubagentRegistryForTests } from "./subagent-registry.js";
 
+const fastModeEnv = vi.hoisted(() => {
+  const previous = process.env.OPENCLAW_TEST_FAST;
+  process.env.OPENCLAW_TEST_FAST = "1";
+  return { previous };
+});
+
 vi.mock("./pi-embedded.js", () => ({
   isEmbeddedPiRunActive: () => false,
   isEmbeddedPiRunStreaming: () => false,
   queueEmbeddedPiMessage: () => false,
   waitForEmbeddedPiRunEnd: async () => true,
+}));
+
+vi.mock("./tools/agent-step.js", () => ({
+  readLatestAssistantReply: async () => "done",
 }));
 
 const callGatewayMock = getCallGatewayMock();
@@ -318,16 +328,15 @@ async function emitLifecycleEndAndFlush(params: {
 >>>>>>> 3c75bc0e4 (refactor(test): dedupe agent and discord test fixtures)
 describe("openclaw-tools: subagents (sessions_spawn lifecycle)", () => {
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 870b1d50d (perf(test): consolidate sessions_spawn e2e tests):src/agents/openclaw-tools.subagents.sessions-spawn.lifecycle.e2e.test.ts
 =======
   let previousFastTestEnv: string | undefined;
 
 >>>>>>> 0b7c7ee1a (perf(test): speed up sessions_spawn lifecycle suite setup)
+=======
+>>>>>>> 610863e73 (test: speed up long-running async suites)
   beforeEach(() => {
-    if (previousFastTestEnv === undefined) {
-      previousFastTestEnv = process.env.OPENCLAW_TEST_FAST;
-    }
-    vi.stubEnv("OPENCLAW_TEST_FAST", "1");
     resetSessionsSpawnConfigOverride();
     setSessionsSpawnConfigOverride({
       session: {
@@ -345,11 +354,11 @@ describe("openclaw-tools: subagents (sessions_spawn lifecycle)", () => {
   });
 
   afterAll(() => {
-    if (previousFastTestEnv === undefined) {
+    if (fastModeEnv.previous === undefined) {
       delete process.env.OPENCLAW_TEST_FAST;
       return;
     }
-    process.env.OPENCLAW_TEST_FAST = previousFastTestEnv;
+    process.env.OPENCLAW_TEST_FAST = fastModeEnv.previous;
   });
 
   it("sessions_spawn runs cleanup flow after subagent completion", async () => {
@@ -396,19 +405,12 @@ describe("openclaw-tools: subagents (sessions_spawn lifecycle)", () => {
       throw new Error("missing child runId");
 >>>>>>> 870b1d50d (perf(test): consolidate sessions_spawn e2e tests):src/agents/openclaw-tools.subagents.sessions-spawn.lifecycle.e2e.test.ts
     }
-    emitAgentEvent({
-      runId: child.runId,
-      stream: "lifecycle",
-      data: {
-        phase: "end",
-        startedAt: 1000,
-        endedAt: 2000,
-      },
-    });
-
-    await waitFor(() => ctx.waitCalls.some((call) => call.runId === child.runId));
-    await waitFor(() => patchCalls.some((call) => call.label === "my-task"));
-    await waitFor(() => ctx.calls.filter((c) => c.method === "agent").length >= 2);
+    await waitFor(
+      () =>
+        ctx.waitCalls.some((call) => call.runId === child.runId) &&
+        patchCalls.some((call) => call.label === "my-task") &&
+        ctx.calls.filter((call) => call.method === "agent").length >= 2,
+    );
 
     const childWait = ctx.waitCalls.find((call) => call.runId === child.runId);
     expect(childWait?.timeoutMs).toBe(1000);
@@ -506,8 +508,9 @@ describe("openclaw-tools: subagents (sessions_spawn lifecycle)", () => {
     });
 >>>>>>> 3c75bc0e4 (refactor(test): dedupe agent and discord test fixtures)
 
-    await waitFor(() => ctx.calls.filter((call) => call.method === "agent").length >= 2);
-    await waitFor(() => Boolean(deletedKey));
+    await waitFor(
+      () => ctx.calls.filter((call) => call.method === "agent").length >= 2 && Boolean(deletedKey),
+    );
 
     const childWait = ctx.waitCalls.find((call) => call.runId === child.runId);
     expect(childWait?.timeoutMs).toBe(1000);
@@ -567,9 +570,12 @@ describe("openclaw-tools: subagents (sessions_spawn lifecycle)", () => {
     if (!child.runId) {
       throw new Error("missing child runId");
     }
-    await waitFor(() => ctx.waitCalls.some((call) => call.runId === child.runId));
-    await waitFor(() => ctx.calls.filter((call) => call.method === "agent").length >= 2);
-    await waitFor(() => Boolean(deletedKey));
+    await waitFor(
+      () =>
+        ctx.waitCalls.some((call) => call.runId === child.runId) &&
+        ctx.calls.filter((call) => call.method === "agent").length >= 2 &&
+        Boolean(deletedKey),
+    );
 
     const childWait = ctx.waitCalls.find((call) => call.runId === child.runId);
     expect(childWait?.timeoutMs).toBe(1000);
