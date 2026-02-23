@@ -85,6 +85,7 @@ error.log
 .claude/settings.local.json
 .claude/*.local.*
 
+<<<<<<< HEAD
 
 # sensitive files
 *client_secret*.json
@@ -96,3 +97,19 @@ secrets/
 .var/
 AGENTS.md
 AGENTS.md.bak.md
+=======
+# Local iOS signing overrides
+apps/ios/LocalSigning.xcconfig
+# Generated protocol schema (produced via pnpm protocol:gen)
+dist/protocol.schema.json
+.ant-colony/
+
+# Eclipse
+**/.project
+**/.classpath
+**/.settings/
+**/.gradle/
+
+# Synthing
+**/.stfolder/
+>>>>>>> ad666c5f3 (Fixed Discord channel name (#24281))
