@@ -494,6 +494,7 @@ public struct AgentParams: Codable, Sendable {
     public let groupchannel: String?
     public let groupspace: String?
     public let timeout: Int?
+    public let besteffortdeliver: Bool?
     public let lane: String?
     public let extrasystemprompt: String?
     public let inputprovenance: [String: AnyCodable]?
@@ -520,6 +521,7 @@ public struct AgentParams: Codable, Sendable {
         groupchannel: String?,
         groupspace: String?,
         timeout: Int?,
+        besteffortdeliver: Bool?,
         lane: String?,
         extrasystemprompt: String?,
         inputprovenance: [String: AnyCodable]?,
@@ -545,6 +547,7 @@ public struct AgentParams: Codable, Sendable {
         self.groupchannel = groupchannel
         self.groupspace = groupspace
         self.timeout = timeout
+        self.besteffortdeliver = besteffortdeliver
         self.lane = lane
         self.extrasystemprompt = extrasystemprompt
         self.inputprovenance = inputprovenance
@@ -571,6 +574,7 @@ public struct AgentParams: Codable, Sendable {
         case groupchannel = "groupChannel"
         case groupspace = "groupSpace"
         case timeout
+        case besteffortdeliver = "bestEffortDeliver"
         case lane
         case extrasystemprompt = "extraSystemPrompt"
         case inputprovenance = "inputProvenance"
