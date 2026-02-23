@@ -237,6 +237,14 @@ Docs: https://docs.openclaw.ai
 - Cron/Schedule: for `every` jobs, prefer `lastRunAtMs + everyMs` when still in the future after restarts, then fall back to anchor scheduling for catch-up windows, so NEXT timing matches the last successful cadence. (#22895) Thanks @SidQin-cyber.
 - Cron/Service: execute manual `cron.run` jobs outside the cron lock (while still persisting started/finished state atomically) so `cron.list` and `cron.status` remain responsive during long forced runs. (#23628) Thanks @dsgraves.
 - Cron/Timer: keep a watchdog recheck timer armed while `onTimer` is actively executing so the scheduler continues polling even if a due-run tick stalls for an extended period. (#23628) Thanks @dsgraves.
+<<<<<<< HEAD
+=======
+- Cron/Run log: clean up settled per-path run-log write queue entries so long-running cron uptime does not retain stale promise bookkeeping in memory.
+- Cron/Run log: harden `cron.runs` run-log path resolution by rejecting path-separator `id`/`jobId` inputs and enforcing reads within the per-cron `runs/` directory.
+- Cron/Announce: when announce delivery target resolution fails (for example multiple configured channels with no explicit target), skip injecting fallback `Cron (error): ...` into the main session so runs fail cleanly without accidental last-route sends. (#24074)
+- Cron/Telegram: validate cron `delivery.to` with shared Telegram target parsing and resolve legacy `@username`/`t.me` targets to numeric IDs at send-time for deterministic delivery target writeback. (#21930) Thanks @kesor.
+- Telegram/Targets: normalize unprefixed topic-qualified targets through the shared parse/normalize path so valid `@channel:topic:<id>` and `<chatId>:topic:<id>` routes are recognized again. (#24166) Thanks @obviyus.
+>>>>>>> fda98f560 (docs(changelog): add telegram topic target fix)
 - Cron/Isolation: force fresh session IDs for isolated cron runs so `sessionTarget="isolated"` executions never reuse prior run context. (#23470) Thanks @echoVic.
 - Plugins/Install: strip `workspace:*` devDependency entries from copied plugin manifests before `npm install --omit=dev`, preventing `EUNSUPPORTEDPROTOCOL` install failures for npm-published channel plugins (including Feishu and MS Teams).
 - Feishu/Plugins: restore bundled Feishu SDK availability for global installs and strip `openclaw: workspace:*` from plugin `devDependencies` during plugin-version sync so npm-installed Feishu plugins do not fail dependency install. (#23611, #23645, #23603)
