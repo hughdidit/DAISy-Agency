@@ -1,7 +1,7 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import type { ChannelPlugin } from "../channels/plugins/types.js";
 import type { OpenClawConfig } from "../config/config.js";
 import { withEnvAsync } from "../test-utils/env.js";
@@ -176,11 +176,36 @@ describe("security audit", () => {
         bind: "lan",
         auth: { token: "secret" },
       },
+<<<<<<< HEAD
     };
 
     const res = await audit(cfg, { env: {} });
 
     expect(hasFinding(res, "gateway.auth_no_rate_limit", "warn")).toBe(true);
+=======
+      {
+        name: "rate limit configured",
+        cfg: {
+          gateway: {
+            bind: "lan",
+            auth: {
+              token: "secret",
+              rateLimit: { maxAttempts: 10, windowMs: 60_000, lockoutMs: 300_000 },
+            },
+          },
+        },
+        expectWarn: false,
+      },
+    ];
+    await Promise.all(
+      cases.map(async (testCase) => {
+        const res = await audit(testCase.cfg, { env: {} });
+        expect(hasFinding(res, "gateway.auth_no_rate_limit", "warn"), testCase.name).toBe(
+          testCase.expectWarn,
+        );
+      }),
+    );
+>>>>>>> f52a0228c (test: optimize auth and audit test runtime)
   });
 
 <<<<<<< HEAD
@@ -223,13 +248,15 @@ describe("security audit", () => {
         expectedSeverity: "critical",
       },
     ];
-    for (const testCase of cases) {
-      const res = await audit(testCase.cfg, { env: {} });
-      expect(
-        hasFinding(res, "gateway.tools_invoke_http.dangerous_allow", testCase.expectedSeverity),
-        testCase.name,
-      ).toBe(true);
-    }
+    await Promise.all(
+      cases.map(async (testCase) => {
+        const res = await audit(testCase.cfg, { env: {} });
+        expect(
+          hasFinding(res, "gateway.tools_invoke_http.dangerous_allow", testCase.expectedSeverity),
+          testCase.name,
+        ).toBe(true);
+      }),
+    );
   });
 
 >>>>>>> 825cc7079 (test: dedupe gateway auth and sessions patch coverage (#20087))
@@ -242,11 +269,49 @@ describe("security audit", () => {
           rateLimit: { maxAttempts: 10, windowMs: 60_000, lockoutMs: 300_000 },
         },
       },
+<<<<<<< HEAD
     };
 
     const res = await audit(cfg, { env: {} });
 
     expect(hasFinding(res, "gateway.auth_no_rate_limit")).toBe(false);
+=======
+      {
+        name: "agent override host is sandbox",
+        cfg: {
+          tools: {
+            exec: {
+              host: "gateway",
+            },
+          },
+          agents: {
+            defaults: {
+              sandbox: {
+                mode: "off",
+              },
+            },
+            list: [
+              {
+                id: "ops",
+                tools: {
+                  exec: {
+                    host: "sandbox",
+                  },
+                },
+              },
+            ],
+          },
+        },
+        checkId: "tools.exec.host_sandbox_no_sandbox_agents",
+      },
+    ];
+    await Promise.all(
+      cases.map(async (testCase) => {
+        const res = await audit(testCase.cfg);
+        expect(hasFinding(res, testCase.checkId, "warn"), testCase.name).toBe(true);
+      }),
+    );
+>>>>>>> f52a0228c (test: optimize auth and audit test runtime)
   });
 
 <<<<<<< HEAD
@@ -265,11 +330,57 @@ describe("security audit", () => {
           },
         },
       },
+<<<<<<< HEAD
     };
 
     const res = await audit(cfg);
 
     expect(hasFinding(res, "tools.exec.host_sandbox_no_sandbox_defaults", "warn")).toBe(true);
+=======
+      {
+        name: "profiles configured",
+        cfg: {
+          tools: {
+            exec: {
+              safeBins: ["python3"],
+              safeBinProfiles: {
+                python3: {
+                  maxPositional: 0,
+                },
+              },
+            },
+          },
+          agents: {
+            list: [
+              {
+                id: "ops",
+                tools: {
+                  exec: {
+                    safeBins: ["node"],
+                    safeBinProfiles: {
+                      node: {
+                        maxPositional: 0,
+                      },
+                    },
+                  },
+                },
+              },
+            ],
+          },
+        },
+        expected: false,
+      },
+    ];
+    await Promise.all(
+      cases.map(async (testCase) => {
+        const res = await audit(testCase.cfg);
+        expect(
+          hasFinding(res, "tools.exec.safe_bins_interpreter_unprofiled", "warn"),
+          testCase.name,
+        ).toBe(testCase.expected);
+      }),
+    );
+>>>>>>> f52a0228c (test: optimize auth and audit test runtime)
   });
 
   it("warns when an agent sets exec host=sandbox with sandbox mode off", async () => {
@@ -358,6 +469,7 @@ describe("security audit", () => {
           },
         ],
       },
+<<<<<<< HEAD
     };
 
     const res = await audit(cfg);
@@ -420,6 +532,14 @@ describe("security audit", () => {
       expect.arrayContaining([
         expect.objectContaining({ checkId: "logging.redact_off", severity: "warn" }),
       ]),
+=======
+    ];
+    await Promise.all(
+      cases.map(async (testCase) => {
+        const res = await audit(testCase.cfg, testCase.opts);
+        expect(hasFinding(res, testCase.checkId, testCase.severity), testCase.name).toBe(true);
+      }),
+>>>>>>> f52a0228c (test: optimize auth and audit test runtime)
     );
   });
 
@@ -705,14 +825,16 @@ describe("security audit", () => {
         detailIncludes: ["mistral-8b", "sandbox=all"],
       },
     ];
-    for (const testCase of cases) {
-      const res = await audit(testCase.cfg);
-      const finding = res.findings.find((f) => f.checkId === "models.small_params");
-      expect(finding?.severity, testCase.name).toBe(testCase.expectedSeverity);
-      for (const text of testCase.detailIncludes) {
-        expect(finding?.detail, `${testCase.name}:${text}`).toContain(text);
-      }
-    }
+    await Promise.all(
+      cases.map(async (testCase) => {
+        const res = await audit(testCase.cfg);
+        const finding = res.findings.find((f) => f.checkId === "models.small_params");
+        expect(finding?.severity, testCase.name).toBe(testCase.expectedSeverity);
+        for (const text of testCase.detailIncludes) {
+          expect(finding?.detail, `${testCase.name}:${text}`).toContain(text);
+        }
+      }),
+    );
   });
 
 <<<<<<< HEAD
@@ -783,12 +905,14 @@ describe("security audit", () => {
         expectedPresent: false,
       },
     ];
-    for (const testCase of cases) {
-      const res = await audit(testCase.cfg);
-      expect(hasFinding(res, "sandbox.docker_config_mode_off"), testCase.name).toBe(
-        testCase.expectedPresent,
-      );
-    }
+    await Promise.all(
+      cases.map(async (testCase) => {
+        const res = await audit(testCase.cfg);
+        expect(hasFinding(res, "sandbox.docker_config_mode_off"), testCase.name).toBe(
+          testCase.expectedPresent,
+        );
+      }),
+    );
   });
 
   it("flags dangerous sandbox docker config (binds/network/seccomp/apparmor)", async () => {
@@ -870,19 +994,21 @@ describe("security audit", () => {
         expectedPresent: false,
       },
     ];
-    for (const testCase of cases) {
-      const res = await audit(testCase.cfg);
-      const finding = res.findings.find(
-        (f) => f.checkId === "sandbox.browser_cdp_bridge_unrestricted",
-      );
-      expect(Boolean(finding), testCase.name).toBe(testCase.expectedPresent);
-      if (testCase.expectedPresent) {
-        expect(finding?.severity, testCase.name).toBe(testCase.expectedSeverity);
-        if (testCase.detailIncludes) {
-          expect(finding?.detail, testCase.name).toContain(testCase.detailIncludes);
+    await Promise.all(
+      cases.map(async (testCase) => {
+        const res = await audit(testCase.cfg);
+        const finding = res.findings.find(
+          (f) => f.checkId === "sandbox.browser_cdp_bridge_unrestricted",
+        );
+        expect(Boolean(finding), testCase.name).toBe(testCase.expectedPresent);
+        if (testCase.expectedPresent) {
+          expect(finding?.severity, testCase.name).toBe(testCase.expectedSeverity);
+          if (testCase.detailIncludes) {
+            expect(finding?.detail, testCase.name).toContain(testCase.detailIncludes);
+          }
         }
-      }
-    }
+      }),
+    );
   });
 
 >>>>>>> 0608587bc (test: streamline config, audit, and qmd coverage)
@@ -905,6 +1031,64 @@ describe("security audit", () => {
     expect(finding?.detail).toContain("system.runx");
   });
 
+<<<<<<< HEAD
+=======
+  it("scores dangerous gateway.nodes.allowCommands by exposure", async () => {
+    const cases: Array<{
+      name: string;
+      cfg: OpenClawConfig;
+      expectedSeverity: "warn" | "critical";
+    }> = [
+      {
+        name: "loopback gateway",
+        cfg: {
+          gateway: {
+            bind: "loopback",
+            nodes: { allowCommands: ["camera.snap", "screen.record"] },
+          },
+        },
+        expectedSeverity: "warn",
+      },
+      {
+        name: "lan-exposed gateway",
+        cfg: {
+          gateway: {
+            bind: "lan",
+            nodes: { allowCommands: ["camera.snap", "screen.record"] },
+          },
+        },
+        expectedSeverity: "critical",
+      },
+    ];
+
+    await Promise.all(
+      cases.map(async (testCase) => {
+        const res = await audit(testCase.cfg);
+        const finding = res.findings.find(
+          (f) => f.checkId === "gateway.nodes.allow_commands_dangerous",
+        );
+        expect(finding?.severity, testCase.name).toBe(testCase.expectedSeverity);
+        expect(finding?.detail, testCase.name).toContain("camera.snap");
+        expect(finding?.detail, testCase.name).toContain("screen.record");
+      }),
+    );
+  });
+
+  it("does not flag dangerous allowCommands entries when denied again", async () => {
+    const cfg: OpenClawConfig = {
+      gateway: {
+        nodes: {
+          allowCommands: ["camera.snap", "screen.record"],
+          denyCommands: ["camera.snap", "screen.record"],
+        },
+      },
+    };
+
+    const res = await audit(cfg);
+    expectNoFinding(res, "gateway.nodes.allow_commands_dangerous");
+  });
+
+>>>>>>> f52a0228c (test: optimize auth and audit test runtime)
   it("flags agent profile overrides when global tools.profile is minimal", async () => {
     const cfg: OpenClawConfig = {
       tools: {
@@ -1155,13 +1339,15 @@ describe("security audit", () => {
       },
     ];
 
-    for (const testCase of cases) {
-      const res = await audit(testCase.cfg);
-      expect(
-        hasFinding(res, "gateway.real_ip_fallback_enabled", testCase.expectedSeverity),
-        testCase.name,
-      ).toBe(true);
-    }
+    await Promise.all(
+      cases.map(async (testCase) => {
+        const res = await audit(testCase.cfg);
+        expect(
+          hasFinding(res, "gateway.real_ip_fallback_enabled", testCase.expectedSeverity),
+          testCase.name,
+        ).toBe(true);
+      }),
+    );
   });
 
   it("scores mDNS full mode risk by gateway bind mode", async () => {
@@ -1204,13 +1390,15 @@ describe("security audit", () => {
       },
     ];
 
-    for (const testCase of cases) {
-      const res = await audit(testCase.cfg);
-      expect(
-        hasFinding(res, "discovery.mdns_full_mode", testCase.expectedSeverity),
-        testCase.name,
-      ).toBe(true);
-    }
+    await Promise.all(
+      cases.map(async (testCase) => {
+        const res = await audit(testCase.cfg);
+        expect(
+          hasFinding(res, "discovery.mdns_full_mode", testCase.expectedSeverity),
+          testCase.name,
+        ).toBe(true);
+      }),
+    );
   });
 
 >>>>>>> c283f87ab (refactor: clarify strict loopback proxy audit rules)
@@ -1288,17 +1476,19 @@ describe("security audit", () => {
       },
     ];
 
-    for (const testCase of cases) {
-      const res = await audit(testCase.cfg);
-      expect(
-        hasFinding(res, testCase.expectedCheckId, testCase.expectedSeverity),
-        testCase.name,
-      ).toBe(true);
-      if (testCase.suppressesGenericSharedSecretFindings) {
-        expect(hasFinding(res, "gateway.bind_no_auth"), testCase.name).toBe(false);
-        expect(hasFinding(res, "gateway.auth_no_rate_limit"), testCase.name).toBe(false);
-      }
-    }
+    await Promise.all(
+      cases.map(async (testCase) => {
+        const res = await audit(testCase.cfg);
+        expect(
+          hasFinding(res, testCase.expectedCheckId, testCase.expectedSeverity),
+          testCase.name,
+        ).toBe(true);
+        if (testCase.suppressesGenericSharedSecretFindings) {
+          expect(hasFinding(res, "gateway.bind_no_auth"), testCase.name).toBe(false);
+          expect(hasFinding(res, "gateway.auth_no_rate_limit"), testCase.name).toBe(false);
+        }
+      }),
+    );
   });
 
   it("warns when multiple DM senders share the main session", async () => {
@@ -1621,15 +1811,17 @@ describe("security audit", () => {
         },
       },
     ];
-    for (const testCase of cases) {
-      const res = await audit(cfg, {
-        deep: true,
-        deepTimeoutMs: 50,
-        probeGatewayFn: testCase.probeGatewayFn,
-      });
-      testCase.assertDeep?.(res);
-      expect(hasFinding(res, "gateway.probe_failed", "warn"), testCase.name).toBe(true);
-    }
+    await Promise.all(
+      cases.map(async (testCase) => {
+        const res = await audit(cfg, {
+          deep: true,
+          deepTimeoutMs: 50,
+          probeGatewayFn: testCase.probeGatewayFn,
+        });
+        testCase.assertDeep?.(res);
+        expect(hasFinding(res, "gateway.probe_failed", "warn"), testCase.name).toBe(true);
+      }),
+    );
   });
 
   it("classifies legacy and weak-tier model identifiers", async () => {
@@ -1656,17 +1848,19 @@ describe("security audit", () => {
         expectedAbsentCheckId: "models.weak_tier",
       },
     ];
-    for (const testCase of cases) {
-      const res = await audit({
-        agents: { defaults: { model: { primary: testCase.model } } },
-      });
-      for (const expected of testCase.expectedFindings ?? []) {
-        expect(hasFinding(res, expected.checkId, expected.severity), testCase.name).toBe(true);
-      }
-      if (testCase.expectedAbsentCheckId) {
-        expect(hasFinding(res, testCase.expectedAbsentCheckId), testCase.name).toBe(false);
-      }
-    }
+    await Promise.all(
+      cases.map(async (testCase) => {
+        const res = await audit({
+          agents: { defaults: { model: { primary: testCase.model } } },
+        });
+        for (const expected of testCase.expectedFindings ?? []) {
+          expect(hasFinding(res, expected.checkId, expected.severity), testCase.name).toBe(true);
+        }
+        if (testCase.expectedAbsentCheckId) {
+          expect(hasFinding(res, testCase.expectedAbsentCheckId), testCase.name).toBe(false);
+        }
+      }),
+    );
   });
 
   it("warns when hooks token looks short", async () => {
@@ -1748,16 +1942,18 @@ describe("security audit", () => {
         expectedSeverity: "critical",
       },
     ];
-    for (const testCase of cases) {
-      const res = await audit(testCase.cfg);
-      expect(
-        hasFinding(res, "hooks.request_session_key_enabled", testCase.expectedSeverity),
-        testCase.name,
-      ).toBe(true);
-      if (testCase.expectsPrefixesMissing) {
-        expect(hasFinding(res, "hooks.request_session_key_prefixes_missing", "warn")).toBe(true);
-      }
-    }
+    await Promise.all(
+      cases.map(async (testCase) => {
+        const res = await audit(testCase.cfg);
+        expect(
+          hasFinding(res, "hooks.request_session_key_enabled", testCase.expectedSeverity),
+          testCase.name,
+        ).toBe(true);
+        if (testCase.expectsPrefixesMissing) {
+          expect(hasFinding(res, "hooks.request_session_key_prefixes_missing", "warn")).toBe(true);
+        }
+      }),
+    );
   });
 
 <<<<<<< HEAD
@@ -1815,6 +2011,7 @@ describe("security audit", () => {
       },
     ];
 
+<<<<<<< HEAD
     for (const testCase of cases) {
       const res = await runSecurityAudit({
         config: testCase.cfg,
@@ -1830,9 +2027,20 @@ describe("security audit", () => {
         const finding = res.findings.find((entry) => entry.checkId === "gateway.http.no_auth");
         for (const text of testCase.detailIncludes) {
           expect(finding?.detail, `${testCase.name}:${text}`).toContain(text);
+=======
+    await Promise.all(
+      cases.map(async (testCase) => {
+        const res = await audit(testCase.cfg, { env: {} });
+        expectFinding(res, "gateway.http.no_auth", testCase.expectedSeverity);
+        if (testCase.detailIncludes) {
+          const finding = res.findings.find((entry) => entry.checkId === "gateway.http.no_auth");
+          for (const text of testCase.detailIncludes) {
+            expect(finding?.detail, `${testCase.name}:${text}`).toContain(text);
+          }
+>>>>>>> f52a0228c (test: optimize auth and audit test runtime)
         }
-      }
-    }
+      }),
+    );
   });
 
   it("does not report gateway.http.no_auth when auth mode is token", async () => {
@@ -2282,6 +2490,7 @@ description: test skill
   });
 
   describe("maybeProbeGateway auth selection", () => {
+<<<<<<< HEAD
     const originalEnvToken = process.env.OPENCLAW_GATEWAY_TOKEN;
     const originalEnvPassword = process.env.OPENCLAW_GATEWAY_PASSWORD;
 
@@ -2303,6 +2512,8 @@ description: test skill
       }
     });
 
+=======
+>>>>>>> f52a0228c (test: optimize auth and audit test runtime)
     const makeProbeCapture = () => {
       let capturedAuth: { token?: string; password?: string } | undefined;
       return {
@@ -2317,15 +2528,15 @@ description: test skill
       };
     };
 
-    const setProbeEnv = (env?: { token?: string; password?: string }) => {
-      delete process.env.OPENCLAW_GATEWAY_TOKEN;
-      delete process.env.OPENCLAW_GATEWAY_PASSWORD;
+    const makeProbeEnv = (env?: { token?: string; password?: string }) => {
+      const probeEnv: NodeJS.ProcessEnv = {};
       if (env?.token !== undefined) {
-        process.env.OPENCLAW_GATEWAY_TOKEN = env.token;
+        probeEnv.OPENCLAW_GATEWAY_TOKEN = env.token;
       }
       if (env?.password !== undefined) {
-        process.env.OPENCLAW_GATEWAY_PASSWORD = env.password;
+        probeEnv.OPENCLAW_GATEWAY_PASSWORD = env.password;
       }
+      return probeEnv;
     };
 
     it("applies token precedence across local/remote gateway modes", async () => {
@@ -2406,12 +2617,18 @@ description: test skill
         },
       ];
 
-      for (const testCase of cases) {
-        setProbeEnv(testCase.env);
-        const { probeGatewayFn, getAuth } = makeProbeCapture();
-        await audit(testCase.cfg, { deep: true, deepTimeoutMs: 50, probeGatewayFn });
-        expect(getAuth()?.token, testCase.name).toBe(testCase.expectedToken);
-      }
+      await Promise.all(
+        cases.map(async (testCase) => {
+          const { probeGatewayFn, getAuth } = makeProbeCapture();
+          await audit(testCase.cfg, {
+            deep: true,
+            deepTimeoutMs: 50,
+            probeGatewayFn,
+            env: makeProbeEnv(testCase.env),
+          });
+          expect(getAuth()?.token, testCase.name).toBe(testCase.expectedToken);
+        }),
+      );
     });
 
 <<<<<<< HEAD
@@ -2476,6 +2693,7 @@ description: test skill
       ];
 
 <<<<<<< HEAD
+<<<<<<< HEAD
       await audit(cfg, { deep: true, deepTimeoutMs: 50, probeGatewayFn });
 
       expect(getAuth()?.password).toBe("remote-pass");
@@ -2522,6 +2740,20 @@ description: test skill
         expect(getAuth()?.password, testCase.name).toBe(testCase.expectedPassword);
       }
 >>>>>>> 0608587bc (test: streamline config, audit, and qmd coverage)
+=======
+      await Promise.all(
+        cases.map(async (testCase) => {
+          const { probeGatewayFn, getAuth } = makeProbeCapture();
+          await audit(testCase.cfg, {
+            deep: true,
+            deepTimeoutMs: 50,
+            probeGatewayFn,
+            env: makeProbeEnv(testCase.env),
+          });
+          expect(getAuth()?.password, testCase.name).toBe(testCase.expectedPassword);
+        }),
+      );
+>>>>>>> f52a0228c (test: optimize auth and audit test runtime)
     });
   });
 });

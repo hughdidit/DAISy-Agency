@@ -1207,6 +1207,7 @@ async function collectChannelSecurityFindings(params: {
 
 async function maybeProbeGateway(params: {
   cfg: OpenClawConfig;
+  env: NodeJS.ProcessEnv;
   timeoutMs: number;
   probe: typeof probeGateway;
 }): Promise<SecurityAuditReport["deep"]> {
@@ -1219,8 +1220,8 @@ async function maybeProbeGateway(params: {
 
   const auth =
     !isRemoteMode || remoteUrlMissing
-      ? resolveGatewayProbeAuth({ cfg: params.cfg, mode: "local" })
-      : resolveGatewayProbeAuth({ cfg: params.cfg, mode: "remote" });
+      ? resolveGatewayProbeAuth({ cfg: params.cfg, env: params.env, mode: "local" })
+      : resolveGatewayProbeAuth({ cfg: params.cfg, env: params.env, mode: "remote" });
   const res = await params.probe({ url, auth, timeoutMs: params.timeoutMs }).catch((err) => ({
     ok: false,
     url,
@@ -1313,6 +1314,7 @@ export async function runSecurityAudit(opts: SecurityAuditOptions): Promise<Secu
     opts.deep === true
       ? await maybeProbeGateway({
           cfg,
+          env,
           timeoutMs: Math.max(250, opts.deepTimeoutMs ?? 5000),
           probe: opts.probeGatewayFn ?? probeGateway,
         })
