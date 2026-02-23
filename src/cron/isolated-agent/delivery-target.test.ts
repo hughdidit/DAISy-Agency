@@ -231,8 +231,36 @@ describe("resolveDeliveryTarget", () => {
       cfg: makeCfg({ bindings: [] }),
       target: { channel: "last", to: undefined },
     });
+<<<<<<< HEAD
     expect(result.channel).toBe(DEFAULT_CHAT_CHANNEL);
     expect(result.to).toBeUndefined();
+=======
+    expect(result.channel).toBe("telegram");
+    expect(result.ok).toBe(false);
+    if (result.ok) {
+      throw new Error("expected unresolved delivery target");
+    }
+    expect(result.error.message).toContain('No delivery target resolved for channel "telegram"');
+  });
+
+  it("returns an error when channel selection is ambiguous", async () => {
+    setMainSessionEntry(undefined);
+    vi.mocked(resolveMessageChannelSelection).mockRejectedValueOnce(
+      new Error("Channel is required when multiple channels are configured: telegram, slack"),
+    );
+
+    const result = await resolveForAgent({
+      cfg: makeCfg({ bindings: [] }),
+      target: { channel: "last", to: undefined },
+    });
+    expect(result.channel).toBeUndefined();
+    expect(result.to).toBeUndefined();
+    expect(result.ok).toBe(false);
+    if (result.ok) {
+      throw new Error("expected ambiguous channel selection error");
+    }
+    expect(result.error.message).toContain("Channel is required");
+>>>>>>> bf373eeb4 (refactor: harden reset notice + cron delivery target flow)
   });
 
   it("uses sessionKey thread entry before main session entry", async () => {
@@ -274,7 +302,12 @@ describe("resolveDeliveryTarget", () => {
     });
 
     expect(result.channel).toBe("telegram");
+<<<<<<< HEAD
     expect(result.to).toBeUndefined();
     expect(result.mode).toBe("implicit");
+=======
+    expect(result.to).toBe("987654");
+    expect(result.ok).toBe(true);
+>>>>>>> bf373eeb4 (refactor: harden reset notice + cron delivery target flow)
   });
 });

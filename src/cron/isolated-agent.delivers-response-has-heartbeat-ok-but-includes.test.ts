@@ -229,6 +229,48 @@ describe("runCronIsolatedAgentTurn", () => {
 >>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
   });
 
+  it("does not fan out telegram cron delivery across allowFrom entries", async () => {
+    await withTempCronHome(async (home) => {
+      const { storePath, deps } = await createTelegramDeliveryFixture(home);
+      mockEmbeddedAgentPayloads([
+        { text: "HEARTBEAT_OK", mediaUrl: "https://example.com/img.png" },
+      ]);
+
+      const cfg = makeCfg(home, storePath, {
+        channels: {
+          telegram: {
+            botToken: "tok",
+            allowFrom: ["111", "222", "333"],
+          },
+        },
+      });
+
+      const res = await runCronIsolatedAgentTurn({
+        cfg,
+        deps,
+        job: {
+          ...makeJob({
+            kind: "agentTurn",
+            message: "deliver once",
+          }),
+          delivery: { mode: "announce", channel: "telegram", to: "123" },
+        },
+        message: "deliver once",
+        sessionKey: "cron:job-1",
+        lane: "cron",
+      });
+
+      expect(res.status).toBe("ok");
+      expect(res.delivered).toBe(true);
+      expect(deps.sendMessageTelegram).toHaveBeenCalledTimes(1);
+      expect(deps.sendMessageTelegram).toHaveBeenCalledWith(
+        "123",
+        "HEARTBEAT_OK",
+        expect.objectContaining({ accountId: undefined }),
+      );
+    });
+  });
+
   it("handles media heartbeat delivery and announce cleanup modes", async () => {
     await withTempCronHome(async (home) => {
       const { storePath, deps } = await createTelegramDeliveryFixture(home);
