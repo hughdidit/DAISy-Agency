@@ -336,6 +336,8 @@ describe("gateway agent handler", () => {
         agentId: "main",
         sessionKey: "agent:main:main",
         deliver: true,
+        replyChannel: "telegram",
+        to: "123",
         bestEffortDeliver: false,
         idempotencyKey: "test-strict-delivery",
       },
