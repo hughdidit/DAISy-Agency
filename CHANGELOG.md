@@ -119,7 +119,11 @@ Docs: https://docs.openclaw.ai
 =======
 - Security/Config: redact sensitive-looking dynamic catchall keys in `config.get` snapshots (for example `env.*` and `skills.entries.*.env.*`) and preserve round-trip restore behavior for those redacted sentinels. Thanks @merc1305.
 - Tests/Vitest: tier local parallel worker defaults by host memory, keep gateway serial by default on non-high-memory hosts, and document a low-profile fallback command for memory-constrained land/gate runs to prevent local OOMs. (#24719) Thanks @ngutman.
+<<<<<<< HEAD
 >>>>>>> f0c3c8b6a (fix(config): redact dynamic catchall secret keys)
+=======
+- WhatsApp/Group policy: fix `groupAllowFrom` sender filtering when `groupPolicy: "allowlist"` is set without explicit `groups` — previously all group messages were blocked even for allowlisted senders. (#24670)
+>>>>>>> c6bb7b0c0 (fix(whatsapp): groupAllowFrom sender filter bypassed when groupPolicy is allowlist (#24670))
 - Agents/Context pruning: extend `cache-ttl` eligibility to Moonshot/Kimi and ZAI/GLM providers (including OpenRouter model refs), so `contextPruning.mode: "cache-ttl"` is no longer silently skipped for those sessions. (#24497) Thanks @lailoo.
 <<<<<<< HEAD
 - Tools/web_search: add `provider: "kimi"` (Moonshot) support with key/config schema wiring and a corrected two-step `$web_search` tool flow that echoes tool results before final synthesis, including citation extraction from search results. (#18822) Thanks @adshine.
