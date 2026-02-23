@@ -49,6 +49,7 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { ensureMoltbotModelsJson } from "../../agents/models-config.js";
 import type { MoltbotConfig } from "../../config/config.js";
 import type { ModelRow } from "./list.types.js";
@@ -63,6 +64,8 @@ import {
   resolveForwardCompatModel,
 } from "../../agents/model-forward-compat.js";
 >>>>>>> cf2524b8b (refactor(models): share auth helpers and forward-compat list fallbacks)
+=======
+>>>>>>> 382fe8009 (refactor!: remove google-antigravity provider support)
 import { ensureOpenClawModelsJson } from "../../agents/models-config.js";
 import { ensurePiAuthJsonFromAuthProfiles } from "../../agents/pi-auth-json.js";
 import type { ModelRegistry } from "../../agents/pi-model-discovery.js";
@@ -244,23 +247,13 @@ export async function loadModelRegistry(cfg: OpenClawConfig) {
 >>>>>>> 4ca75bed5 (fix(models): sync auth-profiles before availability checks)
   const authStorage = discoverAuthStorage(agentDir);
   const registry = discoverModels(authStorage, agentDir);
-  const appended = appendAntigravityForwardCompatModels(registry.getAll(), registry);
-  const models = appended.models;
-  const synthesizedForwardCompat = appended.synthesizedForwardCompat;
+  const models = registry.getAll();
   let availableKeys: Set<string> | undefined;
   let availabilityErrorMessage: string | undefined;
 
   try {
     const availableModels = loadAvailableModels(registry);
     availableKeys = new Set(availableModels.map((model) => modelKey(model.provider, model.id)));
-    for (const synthesized of synthesizedForwardCompat) {
-      if (hasAvailableTemplate(availableKeys, synthesized.templatePrefixes)) {
-        availableKeys.add(synthesized.key);
-        for (const aliasKey of synthesized.availabilityAliasKeys) {
-          availableKeys.add(aliasKey);
-        }
-      }
-    }
   } catch (err) {
     if (!shouldFallbackToAuthHeuristics(err)) {
       throw err;
@@ -274,60 +267,6 @@ export async function loadModelRegistry(cfg: OpenClawConfig) {
     }
   }
   return { registry, models, availableKeys, availabilityErrorMessage };
-}
-
-type SynthesizedForwardCompat = {
-  key: string;
-  templatePrefixes: readonly string[];
-  availabilityAliasKeys: readonly string[];
-};
-
-function appendAntigravityForwardCompatModels(
-  models: Model<Api>[],
-  modelRegistry: ModelRegistry,
-): { models: Model<Api>[]; synthesizedForwardCompat: SynthesizedForwardCompat[] } {
-  const nextModels = [...models];
-  const synthesizedForwardCompat: SynthesizedForwardCompat[] = [];
-  const candidates = [
-    ...ANTIGRAVITY_OPUS_46_FORWARD_COMPAT_CANDIDATES,
-    ...ANTIGRAVITY_GEMINI_31_FORWARD_COMPAT_CANDIDATES,
-  ];
-
-  for (const candidate of candidates) {
-    const key = modelKey("google-antigravity", candidate.id);
-    const hasForwardCompat = nextModels.some((model) => modelKey(model.provider, model.id) === key);
-    if (hasForwardCompat) {
-      continue;
-    }
-
-    const fallback = resolveForwardCompatModel("google-antigravity", candidate.id, modelRegistry);
-    if (!fallback) {
-      continue;
-    }
-
-    nextModels.push(fallback);
-    synthesizedForwardCompat.push({
-      key,
-      templatePrefixes: candidate.templatePrefixes,
-      availabilityAliasKeys: candidate.availabilityAliasIds.map((id) =>
-        modelKey("google-antigravity", id),
-      ),
-    });
-  }
-
-  return { models: nextModels, synthesizedForwardCompat };
-}
-
-function hasAvailableTemplate(
-  availableKeys: Set<string>,
-  templatePrefixes: readonly string[],
-): boolean {
-  for (const key of availableKeys) {
-    if (templatePrefixes.some((prefix) => key.startsWith(prefix))) {
-      return true;
-    }
-  }
-  return false;
 }
 
 export function toModelRow(params: {
