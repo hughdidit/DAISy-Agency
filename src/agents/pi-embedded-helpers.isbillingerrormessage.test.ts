@@ -189,6 +189,35 @@ describe("isContextOverflowError", () => {
     }
   });
 
+<<<<<<< HEAD
+=======
+  it("matches exceed/context/max_tokens overflow variants", () => {
+    const samples = [
+      "input length and max_tokens exceed context limit (i.e 156321 + 48384 > 200000)",
+      "This request exceeds the model's maximum context length",
+      "LLM request rejected: max_tokens would exceed context window",
+      "input length would exceed context budget for this model",
+    ];
+    for (const sample of samples) {
+      expect(isContextOverflowError(sample)).toBe(true);
+    }
+  });
+
+  it("matches Chinese context overflow error messages from proxy providers", () => {
+    const samples = [
+      "上下文过长",
+      "错误：上下文过长，请减少输入",
+      "上下文超出限制",
+      "上下文长度超出模型最大限制",
+      "超出最大上下文长度",
+      "请压缩上下文后重试",
+    ];
+    for (const sample of samples) {
+      expect(isContextOverflowError(sample)).toBe(true);
+    }
+  });
+
+>>>>>>> 544809b6f (Add Chinese context overflow patterns to isContextOverflowError (#22855))
   it("ignores normal conversation text mentioning context overflow", () => {
     // These are legitimate conversation snippets, not error messages
     expect(isContextOverflowError("Let's investigate the context overflow bug")).toBe(false);

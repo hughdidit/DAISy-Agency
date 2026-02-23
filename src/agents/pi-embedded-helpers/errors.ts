@@ -84,11 +84,25 @@ export function isContextOverflowError(errorMessage?: string): boolean {
 =======
     lower.includes("context overflow:") ||
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> e4651d6af (Memory/QMD: reuse default model cache and skip ENOENT warnings (#12114))
     lower.includes("context overflow") ||
 =======
 >>>>>>> f0924d3c4 (refactor: consolidate PNG encoder and safeParseJson utilities (#12457))
     (lower.includes("413") && lower.includes("too large"))
+=======
+    lower.includes("exceed context limit") ||
+    lower.includes("exceeds the model's maximum context") ||
+    (lower.includes("max_tokens") && lower.includes("exceed") && lower.includes("context")) ||
+    (lower.includes("input length") && lower.includes("exceed") && lower.includes("context")) ||
+    (lower.includes("413") && lower.includes("too large")) ||
+    // Chinese proxy error messages for context overflow
+    errorMessage.includes("上下文过长") ||
+    errorMessage.includes("上下文超出") ||
+    errorMessage.includes("上下文长度超") ||
+    errorMessage.includes("超出最大上下文") ||
+    errorMessage.includes("请压缩上下文")
+>>>>>>> 544809b6f (Add Chinese context overflow patterns to isContextOverflowError (#22855))
   );
 }
 
