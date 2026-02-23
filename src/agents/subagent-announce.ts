@@ -701,6 +701,7 @@ async function sendSubagentAnnounceDirectly(params: {
   triggerMessage: string;
   completionMessage?: string;
   expectsCompletionMessage: boolean;
+  bestEffortDeliver?: boolean;
   completionRouteMode?: "bound" | "fallback" | "hook";
   spawnMode?: SpawnSubagentMode;
   directIdempotencyKey: string;
@@ -812,6 +813,7 @@ async function sendSubagentAnnounceDirectly(params: {
         sessionKey: canonicalRequesterSessionKey,
         message: params.triggerMessage,
         deliver: !params.requesterIsSubagent,
+        bestEffortDeliver: params.bestEffortDeliver,
         channel: params.requesterIsSubagent ? undefined : directOrigin?.channel,
         accountId: params.requesterIsSubagent ? undefined : directOrigin?.accountId,
         to: params.requesterIsSubagent ? undefined : directOrigin?.to,
@@ -847,6 +849,7 @@ async function deliverSubagentAnnouncement(params: {
   targetRequesterSessionKey: string;
   requesterIsSubagent: boolean;
   expectsCompletionMessage: boolean;
+  bestEffortDeliver?: boolean;
   completionRouteMode?: "bound" | "fallback" | "hook";
   spawnMode?: SpawnSubagentMode;
   directIdempotencyKey: string;
@@ -938,6 +941,7 @@ async function deliverSubagentAnnouncement(params: {
     requesterIsSubagent: params.requesterIsSubagent,
     expectsCompletionMessage: params.expectsCompletionMessage,
     signal: params.signal,
+    bestEffortDeliver: params.bestEffortDeliver,
   });
   if (direct.delivered || !params.expectsCompletionMessage) {
     return direct;
@@ -1116,6 +1120,7 @@ export async function runSubagentAnnounceFlow(params: {
   expectsCompletionMessage?: boolean;
   spawnMode?: SpawnSubagentMode;
   signal?: AbortSignal;
+  bestEffortDeliver?: boolean;
 }): Promise<boolean> {
   let didAnnounce = false;
   const expectsCompletionMessage = params.expectsCompletionMessage === true;
@@ -1417,6 +1422,7 @@ export async function runSubagentAnnounceFlow(params: {
       targetRequesterSessionKey,
       requesterIsSubagent,
       expectsCompletionMessage: expectsCompletionMessage,
+      bestEffortDeliver: params.bestEffortDeliver,
       completionRouteMode: completionResolution.routeMode,
       spawnMode: params.spawnMode,
       directIdempotencyKey,

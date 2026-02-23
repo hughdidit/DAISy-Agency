@@ -838,7 +838,7 @@ let skillsSnapshot = cronSession.sessionEntry.skillsSnapshot;
         }
         const didAnnounce = await runSubagentAnnounceFlow({
           childSessionKey: agentSessionKey,
-          childRunId: `${params.job.id}:${runSessionId}`,
+          childRunId: `${params.job.id}:${runSessionId}:${runStartedAt}`,
           requesterSessionKey: announceSessionKey,
           requesterOrigin: {
             channel: resolvedDelivery.channel,
@@ -851,6 +851,9 @@ let skillsSnapshot = cronSession.sessionEntry.skillsSnapshot;
           timeoutMs,
           cleanup: params.job.deleteAfterRun ? "delete" : "keep",
           roundOneReply: synthesizedText,
+          // Keep delivery outcome truthful for cron state: if outbound send fails,
+          // announce flow must report false so caller can apply best-effort policy.
+          bestEffortDeliver: false,
           waitForCompletion: false,
           startedAt: runStartedAt,
           endedAt: runEndedAt,
