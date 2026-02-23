@@ -77,8 +77,12 @@ Welcome to the lobster tank! 🦞
 3. **Questions** → Discord #setup-help
 =======
 2. **New features / architecture** → Start a [GitHub Discussion](https://github.com/openclaw/openclaw/discussions) or ask in Discord first
+<<<<<<< HEAD
 3. **Questions** → Discord [#help](https://discord.com/channels/1456350064065904867/1459642797895319552) / [#users-heping-users](https://discord.com/channels/1456350064065904867/1459007081603403828)
 >>>>>>> ad666c5f3 (Fixed Discord channel name (#24281))
+=======
+3. **Questions** → Discord [#help](https://discord.com/channels/1456350064065904867/1459642797895319552) / [#users-helping-users](https://discord.com/channels/1456350064065904867/1459007081603403828)
+>>>>>>> 7568ae52c (Typo (#24288))
 
 ## Before You PR
 <<<<<<< HEAD
