@@ -21,10 +21,7 @@ import {
   resolveHooksGmailModel,
   resolveThinkingDefault,
 } from "../../agents/model-selection.js";
-import type { MessagingToolSend } from "../../agents/pi-embedded-messaging.js";
 import { runEmbeddedPiAgent } from "../../agents/pi-embedded.js";
-import { runSubagentAnnounceFlow } from "../../agents/subagent-announce.js";
-import { countActiveDescendantRuns } from "../../agents/subagent-registry.js";
 import { resolveAgentTimeoutMs } from "../../agents/timeout.js";
 import { deriveSessionTotalTokens, hasNonzeroUsage } from "../../agents/usage.js";
 import { ensureAgentWorkspace } from "../../agents/workspace.js";
@@ -33,19 +30,11 @@ import {
   normalizeVerboseLevel,
   supportsXHighThinking,
 } from "../../auto-reply/thinking.js";
-import { SILENT_REPLY_TOKEN } from "../../auto-reply/tokens.js";
-import { createOutboundSendDeps, type CliDeps } from "../../cli/outbound-send-deps.js";
+import type { CliDeps } from "../../cli/outbound-send-deps.js";
 import type { OpenClawConfig } from "../../config/config.js";
-import {
-  resolveAgentMainSessionKey,
-  resolveSessionTranscriptPath,
-  updateSessionStore,
-} from "../../config/sessions.js";
+import { resolveSessionTranscriptPath, updateSessionStore } from "../../config/sessions.js";
 import type { AgentDefaultsConfig } from "../../config/types.js";
 import { registerAgentRunContext } from "../../infra/agent-events.js";
-import { deliverOutboundPayloads } from "../../infra/outbound/deliver.js";
-import { resolveAgentOutboundIdentity } from "../../infra/outbound/identity.js";
-import { resolveOutboundSessionRoute } from "../../infra/outbound/outbound-session.js";
 import { logWarn } from "../../logger.js";
 import { buildAgentMainSessionKey, normalizeAgentId } from "../../routing/session-key.js";
 import {
@@ -56,6 +45,11 @@ import {
 } from "../../security/external-content.js";
 import { resolveCronDeliveryPlan } from "../delivery.js";
 import type { CronJob, CronRunOutcome, CronRunTelemetry } from "../types.js";
+import {
+  dispatchCronDelivery,
+  matchesMessagingToolDeliveryTarget,
+  resolveCronDeliveryBestEffort,
+} from "./delivery-dispatch.js";
 import { resolveDeliveryTarget } from "./delivery-target.js";
 import {
   isHeartbeatOnlyResponse,
@@ -67,6 +61,7 @@ import {
 } from "./helpers.js";
 import { resolveCronSession } from "./session.js";
 import { resolveCronSkillsSnapshot } from "./skills-snapshot.js";
+<<<<<<< HEAD
 import {
   expectsSubagentFollowup,
   isLikelyInterimCronMessage,
@@ -135,6 +130,8 @@ async function resolveCronAnnounceSessionKey(params: {
   }
   return params.fallbackSessionKey;
 }
+=======
+>>>>>>> 7a40d99b1 (refactor(cron): extract delivery dispatch + harden reset notices)
 
 export type RunCronAgentTurnResult = {
   /** Last non-empty agent text output (not truncated). */
@@ -653,6 +650,7 @@ let skillsSnapshot = cronSession.sessionEntry.skillsSnapshot;
     );
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   let delivered = false;
 =======
   // `true` means we confirmed at least one outbound send reached the target.
@@ -962,7 +960,41 @@ let skillsSnapshot = cronSession.sessionEntry.skillsSnapshot;
         return announceResult;
       }
     }
+=======
+  const deliveryResult = await dispatchCronDelivery({
+    cfg: params.cfg,
+    cfgWithAgentDefaults,
+    deps: params.deps,
+    job: params.job,
+    agentId,
+    agentSessionKey,
+    runSessionId,
+    runStartedAt,
+    runEndedAt,
+    timeoutMs,
+    resolvedDelivery,
+    deliveryRequested,
+    skipHeartbeatDelivery,
+    skipMessagingToolDelivery,
+    deliveryBestEffort,
+    deliveryPayloadHasStructuredContent,
+    deliveryPayloads,
+    synthesizedText,
+    summary,
+    outputText,
+    telemetry,
+    abortSignal,
+    isAborted,
+    abortReason,
+    withRunSession,
+  });
+  if (deliveryResult.result) {
+    return deliveryResult.result;
+>>>>>>> 7a40d99b1 (refactor(cron): extract delivery dispatch + harden reset notices)
   }
+  const delivered = deliveryResult.delivered;
+  summary = deliveryResult.summary;
+  outputText = deliveryResult.outputText;
 
   return withRunSession({ status: "ok", summary, outputText, delivered, ...telemetry });
 }
