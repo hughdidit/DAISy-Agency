@@ -652,17 +652,26 @@ let skillsSnapshot = cronSession.sessionEntry.skillsSnapshot;
       }),
     );
 
+<<<<<<< HEAD
   let delivered = false;
+=======
+  // `true` means we confirmed at least one outbound send reached the target.
+  // Keep this strict so timer fallback can safely decide whether to wake main.
+  let delivered = skipMessagingToolDelivery;
+  const failDeliveryTarget = (error: string) =>
+    withRunSession({
+      status: "error",
+      error,
+      errorKind: "delivery-target",
+      summary,
+      outputText,
+      ...telemetry,
+    });
+>>>>>>> a54dc7fe8 (Cron: suppress fallback main summary for delivery-target errors (openclaw#24074) thanks @Takhoffman)
   if (deliveryRequested && !skipHeartbeatDelivery && !skipMessagingToolDelivery) {
     if (resolvedDelivery.error) {
       if (!deliveryBestEffort) {
-        return withRunSession({
-          status: "error",
-          error: resolvedDelivery.error.message,
-          summary,
-          outputText,
-          ...telemetry,
-        });
+        return failDeliveryTarget(resolvedDelivery.error.message);
       }
       logWarn(`[cron:${params.job.id}] ${resolvedDelivery.error.message}`);
       return withRunSession({ status: "ok", summary, outputText, ...telemetry });
@@ -671,13 +680,7 @@ let skillsSnapshot = cronSession.sessionEntry.skillsSnapshot;
 =======
     const failOrWarnMissingDeliveryField = (message: string) => {
       if (!deliveryBestEffort) {
-        return withRunSession({
-          status: "error",
-          error: message,
-          summary,
-          outputText,
-          ...telemetry,
-        });
+        return failDeliveryTarget(message);
       }
       logWarn(`[cron:${params.job.id}] ${message}`);
       return withRunSession({ status: "ok", summary, outputText, ...telemetry });
