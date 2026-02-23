@@ -9,6 +9,7 @@ import { createProcessSupervisor } from "./supervisor.js";
 type ProcessSupervisor = ReturnType<typeof createProcessSupervisor>;
 type SpawnOptions = Parameters<ProcessSupervisor["spawn"]>[0];
 type ChildSpawnOptions = Omit<Extract<SpawnOptions, { mode: "child" }>, "backendId" | "mode">;
+const OUTPUT_DELAY_MS = 40;
 
 async function spawnChild(supervisor: ProcessSupervisor, options: ChildSpawnOptions) {
   return supervisor.spawn({
@@ -36,9 +37,18 @@ describe("process supervisor", () => {
 >>>>>>> d01cc69ef (test: tighten process timeout fixtures)
 =======
       // Delay stdout slightly so listeners are attached even on heavily loaded runners.
+<<<<<<< HEAD
       argv: [process.execPath, "-e", 'setTimeout(() => process.stdout.write("ok"), 200)'],
       timeoutMs: 10_000,
 >>>>>>> fe6271134 (test(gate): stabilize env- and timing-sensitive process/web-search checks)
+=======
+      argv: [
+        process.execPath,
+        "-e",
+        `setTimeout(() => process.stdout.write("ok"), ${OUTPUT_DELAY_MS})`,
+      ],
+      timeoutMs: 2_000,
+>>>>>>> 3b5a276a4 (test: speed up supervisor test timing)
       stdinMode: "pipe-closed",
     });
     const exit = await run.wait();
@@ -94,6 +104,7 @@ describe("process supervisor", () => {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       mode: "child",
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -120,6 +131,10 @@ describe("process supervisor", () => {
       argv: [process.execPath, "-e", "setTimeout(() => {}, 2_000)"],
       timeoutMs: 10_000,
 >>>>>>> fe6271134 (test(gate): stabilize env- and timing-sensitive process/web-search checks)
+=======
+      argv: [process.execPath, "-e", "setTimeout(() => {}, 1_000)"],
+      timeoutMs: 2_000,
+>>>>>>> 3b5a276a4 (test: speed up supervisor test timing)
       stdinMode: "pipe-open",
     });
 
@@ -140,9 +155,18 @@ describe("process supervisor", () => {
 >>>>>>> d01cc69ef (test: tighten process timeout fixtures)
 =======
       // Small delay makes stdout capture deterministic by giving listeners time to attach.
+<<<<<<< HEAD
       argv: [process.execPath, "-e", 'setTimeout(() => process.stdout.write("new"), 200)'],
       timeoutMs: 10_000,
 >>>>>>> fe6271134 (test(gate): stabilize env- and timing-sensitive process/web-search checks)
+=======
+      argv: [
+        process.execPath,
+        "-e",
+        `setTimeout(() => process.stdout.write("new"), ${OUTPUT_DELAY_MS})`,
+      ],
+      timeoutMs: 2_000,
+>>>>>>> 3b5a276a4 (test: speed up supervisor test timing)
       stdinMode: "pipe-closed",
     });
 
@@ -206,9 +230,18 @@ describe("process supervisor", () => {
 >>>>>>> d01cc69ef (test: tighten process timeout fixtures)
 =======
       // Avoid race where child exits before stdout listeners are attached.
+<<<<<<< HEAD
       argv: [process.execPath, "-e", 'setTimeout(() => process.stdout.write("streamed"), 200)'],
       timeoutMs: 10_000,
 >>>>>>> fe6271134 (test(gate): stabilize env- and timing-sensitive process/web-search checks)
+=======
+      argv: [
+        process.execPath,
+        "-e",
+        `setTimeout(() => process.stdout.write("streamed"), ${OUTPUT_DELAY_MS})`,
+      ],
+      timeoutMs: 2_000,
+>>>>>>> 3b5a276a4 (test: speed up supervisor test timing)
       stdinMode: "pipe-closed",
       captureOutput: false,
       onStdout: (chunk) => {
