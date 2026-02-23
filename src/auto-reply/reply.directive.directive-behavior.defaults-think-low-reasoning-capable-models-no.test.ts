@@ -18,6 +18,7 @@ import { getReplyFromConfig } from "./reply.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 const MAIN_SESSION_KEY = "agent:main:main";
 
 vi.mock("../agents/pi-embedded.js", () => ({
@@ -88,6 +89,18 @@ function makeWhatsAppConfig(home: string) {
 
 =======
 >>>>>>> 2fd211b70 (test(auto-reply): dedupe directive behavior e2e fixtures)
+=======
+function makeDefaultModelConfig(home: string) {
+  return makeWhatsAppDirectiveConfig(home, {
+    model: { primary: "anthropic/claude-opus-4-5" },
+    models: {
+      "anthropic/claude-opus-4-5": {},
+      "openai/gpt-4.1-mini": {},
+    },
+  });
+}
+
+>>>>>>> 706c9ec72 (test: consolidate directive behavior suites)
 async function runReplyToCurrentCase(home: string, text: string) {
   vi.mocked(runEmbeddedPiAgent).mockResolvedValue(makeEmbeddedTextResult(text));
 
@@ -231,6 +244,7 @@ describe("directive behavior", () => {
   });
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   it("strips reply tags and maps reply_to_current to MessageSid", async () => {
     await withTempHome(async (home) => {
 <<<<<<< HEAD
@@ -311,6 +325,92 @@ describe("directive behavior", () => {
   });
 =======
 =======
+=======
+  it("ignores inline /model and uses the default model", async () => {
+    await withTempHome(async (home) => {
+      mockEmbeddedTextResult("done");
+
+      const res = await getReplyFromConfig(
+        {
+          Body: "please sync /model openai/gpt-4.1-mini now",
+          From: "+1004",
+          To: "+2000",
+        },
+        {},
+        makeDefaultModelConfig(home),
+      );
+
+      const texts = replyTexts(res);
+      expect(texts).toContain("done");
+      expect(runEmbeddedPiAgent).toHaveBeenCalledOnce();
+      const call = vi.mocked(runEmbeddedPiAgent).mock.calls[0]?.[0];
+      expect(call?.provider).toBe("anthropic");
+      expect(call?.model).toBe("claude-opus-4-5");
+    });
+  });
+  it("defaults thinking to low for reasoning-capable models during normal replies", async () => {
+    await withTempHome(async (home) => {
+      mockEmbeddedTextResult("done");
+      vi.mocked(loadModelCatalog).mockResolvedValueOnce([
+        {
+          id: "claude-opus-4-5",
+          name: "Opus 4.5",
+          provider: "anthropic",
+          reasoning: true,
+        },
+      ]);
+
+      await getReplyFromConfig(
+        {
+          Body: "hello",
+          From: "+1004",
+          To: "+2000",
+        },
+        {},
+        makeWhatsAppDirectiveConfig(home, { model: { primary: "anthropic/claude-opus-4-5" } }),
+      );
+
+      expect(runEmbeddedPiAgent).toHaveBeenCalledOnce();
+      const call = vi.mocked(runEmbeddedPiAgent).mock.calls[0]?.[0];
+      expect(call?.thinkLevel).toBe("low");
+    });
+  });
+  it("passes elevated defaults when sender is approved", async () => {
+    await withTempHome(async (home) => {
+      mockEmbeddedTextResult("done");
+
+      await getReplyFromConfig(
+        {
+          Body: "hello",
+          From: "+1004",
+          To: "+2000",
+          Provider: "whatsapp",
+          SenderE164: "+1004",
+        },
+        {},
+        makeWhatsAppDirectiveConfig(
+          home,
+          { model: { primary: "anthropic/claude-opus-4-5" } },
+          {
+            tools: {
+              elevated: {
+                allowFrom: { whatsapp: ["+1004"] },
+              },
+            },
+          },
+        ),
+      );
+
+      expect(runEmbeddedPiAgent).toHaveBeenCalledOnce();
+      const call = vi.mocked(runEmbeddedPiAgent).mock.calls[0]?.[0];
+      expect(call?.bashElevated).toEqual({
+        enabled: true,
+        allowed: true,
+        defaultLevel: "on",
+      });
+    });
+  });
+>>>>>>> 706c9ec72 (test: consolidate directive behavior suites)
   it("persists /reasoning off on discord even when model defaults reasoning on", async () => {
     await withTempHome(async (home) => {
       const storePath = sessionStorePath(home);
