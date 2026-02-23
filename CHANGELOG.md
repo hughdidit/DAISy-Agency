@@ -30,7 +30,11 @@ Docs: https://docs.openclaw.ai
 =======
 - Docs/Prompt caching: add a dedicated prompt-caching reference covering `cacheRetention`, per-agent `params` merge precedence, Bedrock/OpenRouter behavior, and cache-ttl + heartbeat tuning. Thanks @svenssonaxel.
 - Gateway/HTTP security headers: add optional `gateway.http.securityHeaders.strictTransportSecurity` support to emit `Strict-Transport-Security` for direct HTTPS deployments, with runtime wiring, validation, tests, and hardening docs.
+<<<<<<< HEAD
 >>>>>>> 9af3ec92a (fix(gateway): add HSTS header hardening and docs)
+=======
+- Sessions/Cron: harden session maintenance with `openclaw sessions cleanup`, per-agent store targeting, disk-budget controls (`session.maintenance.maxDiskBytes` / `highWaterBytes`), and safer transcript/archive cleanup + run-log retention behavior. (#24753) thanks @gumadeiras.
+>>>>>>> eff3c5c70 (Session/Cron maintenance hardening and cleanup UX (#24753))
 
 ### Breaking
 
