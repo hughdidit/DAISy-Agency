@@ -251,6 +251,7 @@ Docs: https://docs.openclaw.ai
 >>>>>>> 63b4c500d (fix: prevent Telegram preview stream cross-edit race (#23202))
 =======
 - Agents/Auth profiles: skip auth-profile cooldown writes for timeout failures in embedded runner rotation so model/network timeouts do not poison same-provider fallback model selection while still allowing in-turn account rotation. (#22622) Thanks @vageeshkumar.
+- Agents/Failover: treat HTTP 502/503/504 errors as failover-eligible transient timeouts so fallback chains can switch providers/models during upstream outages instead of retrying the same failing target. (#20999) Thanks @taw0002 and @vincentkoc.
 - Plugins/Hooks: run legacy `before_agent_start` once per agent turn and reuse that result across model-resolve and prompt-build compatibility paths, preventing duplicate hook side effects (for example duplicate external API calls). (#23289) Thanks @ksato8710.
 - Models/Config: default missing Anthropic provider/model `api` fields to `anthropic-messages` during config validation so custom relay model entries are preserved instead of being dropped by runtime model registry validation. (#23332) Thanks @bigbigmonkey123.
 >>>>>>> 3e2849c57 (fix: align timeout cooldown behavior docs/tests (#22622) (thanks @vageeshkumar))
