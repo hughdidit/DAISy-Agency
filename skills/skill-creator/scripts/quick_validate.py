@@ -27,9 +27,12 @@ def validate_skill(skill_path):
     match = re.match(r"^---\n(.*?)\n---", content, re.DOTALL)
     if not match:
         return False, "Invalid frontmatter format"
+<<<<<<< HEAD
 
     frontmatter_text = match.group(1)
 
+=======
+>>>>>>> 07edadfa8 (skill-creator: reject unclosed YAML frontmatter (#24289))
     try:
         frontmatter = yaml.safe_load(frontmatter_text)
         if not isinstance(frontmatter, dict):
