@@ -34,6 +34,7 @@ Docs: https://docs.openclaw.ai
 =======
 =======
 ## Unreleased
+<<<<<<< HEAD
 =======
 ## 2026.2.14 (Unreleased)
 >>>>>>> 90117a384 (docs: consolidate 2026.2.14 changelog)
@@ -47,6 +48,14 @@ Docs: https://docs.openclaw.ai
 =======
 ## 2026.2.22 (Unreleased)
 >>>>>>> bdfb97afa (chore: prep 2026.2.22 unreleased and publish new npm plugins)
+=======
+
+### Fixes
+
+- Security/Exec: harden `safeBins` long-option validation by rejecting unknown/ambiguous GNU long-option abbreviations and denying sort filesystem-dependent flags (`--random-source`, `--temporary-directory`, `-T`), closing safe-bin denylist bypasses. Thanks @jiseoung.
+
+## 2026.2.23 (Unreleased)
+>>>>>>> 25f6fcc63 (docs(changelog): note safeBins exec hardening)
 
 ### Changes
 
