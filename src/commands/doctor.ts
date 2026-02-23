@@ -119,7 +119,7 @@ import {
 import { doctorShellCompletion } from "./doctor-completion.js";
 import { loadAndMaybeMigrateDoctorConfig } from "./doctor-config-flow.js";
 import { maybeRepairGatewayDaemon } from "./doctor-gateway-daemon-flow.js";
-import { checkGatewayHealth } from "./doctor-gateway-health.js";
+import { checkGatewayHealth, probeGatewayMemoryStatus } from "./doctor-gateway-health.js";
 import {
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -585,7 +585,6 @@ export async function doctorCommand(
   }
 
   noteWorkspaceStatus(cfg);
-  await noteMemorySearchHealth(cfg);
 
   // Check and fix shell completion
   await doctorShellCompletion(runtime, prompter, {
@@ -597,6 +596,13 @@ export async function doctorCommand(
     cfg,
     timeoutMs: options.nonInteractive === true ? 3000 : 10_000,
   });
+  const gatewayMemoryProbe = healthOk
+    ? await probeGatewayMemoryStatus({
+        cfg,
+        timeoutMs: options.nonInteractive === true ? 3000 : 10_000,
+      })
+    : { checked: false, ready: false };
+  await noteMemorySearchHealth(cfg, { gatewayMemoryProbe });
   await maybeRepairGatewayDaemon({
     cfg,
     runtime,
