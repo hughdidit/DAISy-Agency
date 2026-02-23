@@ -272,6 +272,7 @@ export async function handleInlineActions(params: {
       cfg,
       command: inlineCommandContext,
       agentId,
+      agentDir,
       directives,
       elevated: {
         enabled: elevatedEnabled,

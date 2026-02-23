@@ -26,6 +26,7 @@ export type HandleCommandsParams = {
   cfg: MoltbotConfig;
   command: CommandContext;
   agentId?: string;
+  agentDir?: string;
   directives: InlineDirectives;
   elevated: {
     enabled: boolean;
