@@ -34,6 +34,7 @@ Status: beta.
 ## 2026.2.13 (Unreleased)
 =======
 ## Unreleased
+<<<<<<< HEAD
 =======
 ## 2026.2.15 (Unreleased)
 =======
@@ -45,6 +46,10 @@ Status: beta.
 =======
 ## 2026.2.18 (Unreleased)
 >>>>>>> 4bf333883 (chore: bump version to 2026.2.18 unreleased)
+=======
+
+## 2026.2.23 (Unreleased)
+>>>>>>> 558a0137b (chore(release): bump versions to 2026.2.23)
 
 ### Changes
 
