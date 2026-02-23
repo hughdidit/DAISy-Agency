@@ -634,6 +634,25 @@ let skillsSnapshot = cronSession.sessionEntry.skillsSnapshot;
     (deliveryPayload?.mediaUrls?.length ?? 0) > 0 ||
     Object.keys(deliveryPayload?.channelData ?? {}).length > 0;
   const deliveryBestEffort = resolveCronDeliveryBestEffort(params.job);
+  const hasErrorPayload = payloads.some((payload) => payload?.isError === true);
+  const lastErrorPayloadText = [...payloads]
+    .toReversed()
+    .find((payload) => payload?.isError === true && Boolean(payload?.text?.trim()))
+    ?.text?.trim();
+  const embeddedRunError = hasErrorPayload
+    ? (lastErrorPayloadText ?? "cron isolated run returned an error payload")
+    : undefined;
+  const resolveRunOutcome = (params?: { delivered?: boolean }) =>
+    withRunSession({
+      status: hasErrorPayload ? "error" : "ok",
+      ...(hasErrorPayload
+        ? { error: embeddedRunError ?? "cron isolated run returned an error payload" }
+        : {}),
+      summary,
+      outputText,
+      delivered: params?.delivered,
+      ...telemetry,
+    });
 
   // Skip delivery for heartbeat-only responses (HEARTBEAT_OK with no real content).
   const ackMaxChars = resolveHeartbeatAckMaxChars(agentCfg);
@@ -989,12 +1008,19 @@ let skillsSnapshot = cronSession.sessionEntry.skillsSnapshot;
     withRunSession,
   });
   if (deliveryResult.result) {
+<<<<<<< HEAD
     return deliveryResult.result;
 >>>>>>> 7a40d99b1 (refactor(cron): extract delivery dispatch + harden reset notices)
+=======
+    if (!hasErrorPayload || deliveryResult.result.status !== "ok") {
+      return deliveryResult.result;
+    }
+    return resolveRunOutcome({ delivered: deliveryResult.result.delivered });
+>>>>>>> 8c8374def (fix(cron): treat embedded error payloads as run failures)
   }
   const delivered = deliveryResult.delivered;
   summary = deliveryResult.summary;
   outputText = deliveryResult.outputText;
 
-  return withRunSession({ status: "ok", summary, outputText, delivered, ...telemetry });
+  return resolveRunOutcome({ delivered });
 }
