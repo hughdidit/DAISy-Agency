@@ -18,6 +18,25 @@ import { normalizeAgentId } from "../../routing/session-key.js";
 import { resolveWhatsAppAccount } from "../../web/accounts.js";
 import { normalizeWhatsAppTarget } from "../../whatsapp/normalize.js";
 
+export type DeliveryTargetResolution =
+  | {
+      ok: true;
+      channel: Exclude<OutboundChannel, "none">;
+      to: string;
+      accountId?: string;
+      threadId?: string | number;
+      mode: "explicit" | "implicit";
+    }
+  | {
+      ok: false;
+      channel?: Exclude<OutboundChannel, "none">;
+      to?: string;
+      accountId?: string;
+      threadId?: string | number;
+      mode: "explicit" | "implicit";
+      error: Error;
+    };
+
 export async function resolveDeliveryTarget(
   cfg: OpenClawConfig,
   agentId: string,
@@ -26,6 +45,7 @@ export async function resolveDeliveryTarget(
     to?: string;
     sessionKey?: string;
   },
+<<<<<<< HEAD
 ): Promise<{
   channel: Exclude<OutboundChannel, "none">;
   to?: string;
@@ -34,6 +54,9 @@ export async function resolveDeliveryTarget(
   mode: "explicit" | "implicit";
   error?: Error;
 }> {
+=======
+): Promise<DeliveryTargetResolution> {
+>>>>>>> bf373eeb4 (refactor: harden reset notice + cron delivery target flow)
   const requestedChannel = typeof jobPayload.channel === "string" ? jobPayload.channel : "last";
   const explicitTo = typeof jobPayload.to === "string" ? jobPayload.to : undefined;
   const allowMismatchedLastTo = requestedChannel === "last";
@@ -105,13 +128,37 @@ export async function resolveDeliveryTarget(
       ? resolved.threadId
       : undefined;
 
+<<<<<<< HEAD
+=======
+  if (!channel) {
+    return {
+      ok: false,
+      channel: undefined,
+      to: undefined,
+      accountId,
+      threadId,
+      mode,
+      error:
+        channelResolutionError ??
+        new Error("Channel is required when delivery.channel=last has no previous channel."),
+    };
+  }
+
+>>>>>>> bf373eeb4 (refactor: harden reset notice + cron delivery target flow)
   if (!toCandidate) {
     return {
+      ok: false,
       channel,
       to: undefined,
       accountId,
       threadId,
       mode,
+<<<<<<< HEAD
+=======
+      error:
+        channelResolutionError ??
+        new Error(`No delivery target resolved for channel "${channel}". Set delivery.to.`),
+>>>>>>> bf373eeb4 (refactor: harden reset notice + cron delivery target flow)
     };
   }
 
@@ -144,12 +191,27 @@ export async function resolveDeliveryTarget(
     mode,
     allowFrom: allowFromOverride,
   });
+  if (!docked.ok) {
+    return {
+      ok: false,
+      channel,
+      to: undefined,
+      accountId,
+      threadId,
+      mode,
+      error: docked.error,
+    };
+  }
   return {
+    ok: true,
     channel,
-    to: docked.ok ? docked.to : undefined,
+    to: docked.to,
     accountId,
     threadId,
     mode,
+<<<<<<< HEAD
     error: docked.ok ? undefined : docked.error,
+=======
+>>>>>>> bf373eeb4 (refactor: harden reset notice + cron delivery target flow)
   };
 }
