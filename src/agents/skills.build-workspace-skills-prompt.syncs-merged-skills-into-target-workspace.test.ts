@@ -56,6 +56,12 @@ afterAll(async () => {
 });
 
 describe("buildWorkspaceSkillsPrompt", () => {
+  const buildPrompt = (
+    workspaceDir: string,
+    opts?: Parameters<typeof buildWorkspaceSkillsPrompt>[1],
+  ) =>
+    withEnv({ HOME: workspaceDir, PATH: "" }, () => buildWorkspaceSkillsPrompt(workspaceDir, opts));
+
   it("syncs merged skills into a target workspace", async () => {
 <<<<<<< HEAD
     const sourceWorkspace = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-"));
@@ -89,15 +95,17 @@ describe("buildWorkspaceSkillsPrompt", () => {
       description: "Workspace version",
     });
 
-    await syncSkillsToWorkspace({
-      sourceWorkspaceDir: sourceWorkspace,
-      targetWorkspaceDir: targetWorkspace,
-      config: { skills: { load: { extraDirs: [extraDir] } } },
-      bundledSkillsDir: bundledDir,
-      managedSkillsDir: managedDir,
-    });
+    await withEnv({ HOME: sourceWorkspace, PATH: "" }, () =>
+      syncSkillsToWorkspace({
+        sourceWorkspaceDir: sourceWorkspace,
+        targetWorkspaceDir: targetWorkspace,
+        config: { skills: { load: { extraDirs: [extraDir] } } },
+        bundledSkillsDir: bundledDir,
+        managedSkillsDir: managedDir,
+      }),
+    );
 
-    const prompt = buildWorkspaceSkillsPrompt(targetWorkspace, {
+    const prompt = buildPrompt(targetWorkspace, {
       bundledSkillsDir: path.join(targetWorkspace, ".bundled"),
       managedSkillsDir: path.join(targetWorkspace, ".managed"),
     });
@@ -106,7 +114,7 @@ describe("buildWorkspaceSkillsPrompt", () => {
     expect(prompt).not.toContain("Managed version");
     expect(prompt).not.toContain("Bundled version");
     expect(prompt).not.toContain("Extra version");
-    expect(prompt).toContain(path.join(targetWorkspace, "skills", "demo-skill", "SKILL.md"));
+    expect(prompt).toContain("demo-skill/SKILL.md");
   });
 <<<<<<< HEAD
   it("filters skills based on env/config gates", async () => {
@@ -130,12 +138,14 @@ describe("buildWorkspaceSkillsPrompt", () => {
     );
     expect(await pathExists(escapedDest)).toBe(false);
 
-    await syncSkillsToWorkspace({
-      sourceWorkspaceDir: sourceWorkspace,
-      targetWorkspaceDir: targetWorkspace,
-      bundledSkillsDir: path.join(sourceWorkspace, ".bundled"),
-      managedSkillsDir: path.join(sourceWorkspace, ".managed"),
-    });
+    await withEnv({ HOME: sourceWorkspace, PATH: "" }, () =>
+      syncSkillsToWorkspace({
+        sourceWorkspaceDir: sourceWorkspace,
+        targetWorkspaceDir: targetWorkspace,
+        bundledSkillsDir: path.join(sourceWorkspace, ".bundled"),
+        managedSkillsDir: path.join(sourceWorkspace, ".managed"),
+      }),
+    );
 
     expect(
       await pathExists(path.join(targetWorkspace, "skills", "safe-traversal-skill", "SKILL.md")),
@@ -157,12 +167,14 @@ describe("buildWorkspaceSkillsPrompt", () => {
 
     expect(await pathExists(absoluteDest)).toBe(false);
 
-    await syncSkillsToWorkspace({
-      sourceWorkspaceDir: sourceWorkspace,
-      targetWorkspaceDir: targetWorkspace,
-      bundledSkillsDir: path.join(sourceWorkspace, ".bundled"),
-      managedSkillsDir: path.join(sourceWorkspace, ".managed"),
-    });
+    await withEnv({ HOME: sourceWorkspace, PATH: "" }, () =>
+      syncSkillsToWorkspace({
+        sourceWorkspaceDir: sourceWorkspace,
+        targetWorkspaceDir: targetWorkspace,
+        bundledSkillsDir: path.join(sourceWorkspace, ".bundled"),
+        managedSkillsDir: path.join(sourceWorkspace, ".managed"),
+      }),
+    );
 
     expect(
       await pathExists(path.join(targetWorkspace, "skills", "safe-absolute-skill", "SKILL.md")),
@@ -198,13 +210,13 @@ describe("buildWorkspaceSkillsPrompt", () => {
 >>>>>>> 5dc1b5a8d (refactor(test): reuse env helper in workspace skill sync gating)
 
     withEnv({ GEMINI_API_KEY: undefined }, () => {
-      const missingPrompt = buildWorkspaceSkillsPrompt(workspaceDir, {
+      const missingPrompt = buildPrompt(workspaceDir, {
         managedSkillsDir: path.join(workspaceDir, ".managed"),
         config: { skills: { entries: { "nano-banana-pro": { apiKey: "" } } } },
       });
       expect(missingPrompt).not.toContain("nano-banana-pro");
 
-      const enabledPrompt = buildWorkspaceSkillsPrompt(workspaceDir, {
+      const enabledPrompt = buildPrompt(workspaceDir, {
         managedSkillsDir: path.join(workspaceDir, ".managed"),
         config: {
           skills: { entries: { "nano-banana-pro": { apiKey: "test-key" } } },
@@ -230,14 +242,14 @@ describe("buildWorkspaceSkillsPrompt", () => {
       description: "Beta skill",
     });
 
-    const filteredPrompt = buildWorkspaceSkillsPrompt(workspaceDir, {
+    const filteredPrompt = buildPrompt(workspaceDir, {
       managedSkillsDir: path.join(workspaceDir, ".managed"),
       skillFilter: ["alpha"],
     });
     expect(filteredPrompt).toContain("alpha");
     expect(filteredPrompt).not.toContain("beta");
 
-    const emptyPrompt = buildWorkspaceSkillsPrompt(workspaceDir, {
+    const emptyPrompt = buildPrompt(workspaceDir, {
       managedSkillsDir: path.join(workspaceDir, ".managed"),
       skillFilter: [],
     });
