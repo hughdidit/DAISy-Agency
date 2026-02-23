@@ -18,16 +18,23 @@ Session pruning trims **old tool results** from the in-memory context right befo
  - After a prune, the TTL window resets so subsequent requests keep cache until `ttl` expires again.
 =======
 - Only active for Anthropic API calls (and OpenRouter Anthropic models).
+<<<<<<< HEAD
 - For best results, match `ttl` to your model `cacheRetention`.
+=======
+- For best results, match `ttl` to your model `cacheRetention` policy (`short` = 5m, `long` = 1h).
+>>>>>>> 78e7f41d2 (docs: detail per-agent prompt caching configuration)
 - After a prune, the TTL window resets so subsequent requests keep cache until `ttl` expires again.
 >>>>>>> 7a8a39a14 (docs: document cacheRetention parameter (#6270))
 
 ## Smart defaults (Anthropic)
 - **OAuth or setup-token** profiles: enable `cache-ttl` pruning and set heartbeat to `1h`.
 <<<<<<< HEAD
+<<<<<<< HEAD
 - **API key** profiles: enable `cache-ttl` pruning, set heartbeat to `30m`, and default `cacheControlTtl` to `1h` on Anthropic models.
 - If you set any of these values explicitly, Moltbot does **not** override them.
 =======
+=======
+>>>>>>> 78e7f41d2 (docs: detail per-agent prompt caching configuration)
 - **API key** profiles: enable `cache-ttl` pruning, set heartbeat to `30m`, and default `cacheRetention: "short"` on Anthropic models.
 - If you set any of these values explicitly, OpenClaw does **not** override them.
 >>>>>>> 7a8a39a14 (docs: document cacheRetention parameter (#6270))
@@ -86,30 +93,49 @@ Pruning uses an estimated context window (chars ≈ tokens × 4). The window siz
 Default (off):
 ```json5
 {
+<<<<<<< HEAD
   agent: {
     contextPruning: { mode: "off" }
   }
+=======
+  agents: { defaults: { contextPruning: { mode: "off" } } },
+>>>>>>> 78e7f41d2 (docs: detail per-agent prompt caching configuration)
 }
 ```
 
 Enable TTL-aware pruning:
 ```json5
 {
+<<<<<<< HEAD
   agent: {
     contextPruning: { mode: "cache-ttl", ttl: "5m" }
   }
+=======
+  agents: { defaults: { contextPruning: { mode: "cache-ttl", ttl: "5m" } } },
+>>>>>>> 78e7f41d2 (docs: detail per-agent prompt caching configuration)
 }
 ```
 
 Restrict pruning to specific tools:
 ```json5
 {
+<<<<<<< HEAD
   agent: {
     contextPruning: {
       mode: "cache-ttl",
       tools: { allow: ["exec", "read"], deny: ["*image*"] }
     }
   }
+=======
+  agents: {
+    defaults: {
+      contextPruning: {
+        mode: "cache-ttl",
+        tools: { allow: ["exec", "read"], deny: ["*image*"] },
+      },
+    },
+  },
+>>>>>>> 78e7f41d2 (docs: detail per-agent prompt caching configuration)
 }
 ```
 
