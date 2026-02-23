@@ -327,6 +327,7 @@ describe("gateway agent handler", () => {
   });
 
   it("respects explicit bestEffortDeliver=false for main session runs", async () => {
+    mocks.agentCommand.mockClear();
     primeMainAgentRun();
 
     await invokeAgent(
