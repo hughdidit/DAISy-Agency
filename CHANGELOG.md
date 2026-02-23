@@ -66,6 +66,7 @@ Docs: https://docs.openclaw.ai
 >>>>>>> f03ff3975 (Providers: skip context1m beta for Anthropic OAuth tokens (#24620))
 =======
 - Providers/Bedrock: disable prompt-cache retention for non-Anthropic Bedrock models so Nova/Mistral requests do not send unsupported cache metadata. (#20866) Thanks @pierreeurope.
+- Providers/Bedrock: apply Anthropic-Claude cacheRetention defaults and runtime pass-through for `amazon-bedrock/*anthropic.claude*` model refs, while keeping non-Anthropic Bedrock models excluded. (#22303) Thanks @snese.
 - Providers/OpenRouter: remove conflicting top-level `reasoning_effort` when injecting nested `reasoning.effort`, preventing OpenRouter 400 payload-validation failures for reasoning models. (#24120) thanks @tenequm.
 - Providers/Groq: avoid classifying Groq TPM limit errors as context overflow so throttling paths no longer trigger overflow recovery logic. (#16176) Thanks @dddabtc.
 >>>>>>> ca5c0bc02 (fix(providers): disable Bedrock prompt caching for non-Anthropic models (#20866) (thanks @pierreeurope))
