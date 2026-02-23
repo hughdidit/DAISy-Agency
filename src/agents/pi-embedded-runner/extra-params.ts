@@ -31,10 +31,21 @@ export function resolveExtraParams(params: {
   cfg: MoltbotConfig | undefined;
   provider: string;
   modelId: string;
+  agentId?: string;
 }): Record<string, unknown> | undefined {
   const modelKey = `${params.provider}/${params.modelId}`;
   const modelConfig = params.cfg?.agents?.defaults?.models?.[modelKey];
-  return modelConfig?.params ? { ...modelConfig.params } : undefined;
+  const globalParams = modelConfig?.params ? { ...modelConfig.params } : undefined;
+  const agentParams =
+    params.agentId && params.cfg?.agents?.list
+      ? params.cfg.agents.list.find((agent) => agent.id === params.agentId)?.params
+      : undefined;
+
+  if (!globalParams && !agentParams) {
+    return undefined;
+  }
+
+  return Object.assign({}, globalParams, agentParams);
 }
 
 <<<<<<< HEAD
@@ -517,11 +528,13 @@ export function applyExtraParamsToAgent(
   modelId: string,
   extraParamsOverride?: Record<string, unknown>,
   thinkingLevel?: ThinkLevel,
+  agentId?: string,
 ): void {
   const extraParams = resolveExtraParams({
     cfg,
     provider,
     modelId,
+    agentId,
   });
   const override =
     extraParamsOverride && Object.keys(extraParamsOverride).length > 0
