@@ -339,9 +339,11 @@ describe("directive behavior", () => {
       expect(blockReplies.length).toBe(0);
     });
   });
-  it("acks verbose directive immediately with system marker", async () => {
+  it("handles standalone verbose directives and persistence", async () => {
     await withTempHome(async (home) => {
-      const res = await getReplyFromConfig(
+      const storePath = sessionStorePath(home);
+
+      const enabledRes = await getReplyFromConfig(
         { Body: "/verbose on", From: "+1222", To: "+1222", CommandAuthorized: true },
         {},
 <<<<<<< HEAD
@@ -358,17 +360,9 @@ describe("directive behavior", () => {
         makeWhatsAppDirectiveConfig(home, { model: "anthropic/claude-opus-4-5" }),
 >>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
       );
+      expect(replyText(enabledRes)).toMatch(/^⚙️ Verbose logging enabled\./);
 
-      const text = replyText(res);
-      expect(text).toMatch(/^⚙️ Verbose logging enabled\./);
-      expect(runEmbeddedPiAgent).not.toHaveBeenCalled();
-    });
-  });
-  it("persists verbose off when directive is standalone", async () => {
-    await withTempHome(async (home) => {
-      const storePath = sessionStorePath(home);
-
-      const res = await getReplyFromConfig(
+      const disabledRes = await getReplyFromConfig(
         { Body: "/verbose off", From: "+1222", To: "+1222", CommandAuthorized: true },
         {},
 <<<<<<< HEAD
@@ -389,7 +383,7 @@ describe("directive behavior", () => {
         ),
       );
 
-      const text = replyText(res);
+      const text = replyText(disabledRes);
       expect(text).toMatch(/Verbose logging disabled\./);
       const store = loadSessionStore(storePath);
       const entry = Object.values(store)[0];
@@ -397,34 +391,31 @@ describe("directive behavior", () => {
       expect(runEmbeddedPiAgent).not.toHaveBeenCalled();
     });
   });
-  it("updates tool verbose during an in-flight run (toggle on)", async () => {
+  it("updates tool verbose during in-flight runs for toggle on/off", async () => {
     await withTempHome(async (home) => {
-      const { res } = await runInFlightVerboseToggleCase({
-        home,
-        shouldEmitBefore: false,
-        toggledVerboseLevel: "on",
-      });
-
-      const texts = replyTexts(res);
-      expect(texts).toContain("done");
-      expect(runEmbeddedPiAgent).toHaveBeenCalledOnce();
+      for (const testCase of [
+        {
+          shouldEmitBefore: false,
+          toggledVerboseLevel: "on" as const,
+        },
+        {
+          shouldEmitBefore: true,
+          toggledVerboseLevel: "off" as const,
+          seedVerboseOn: true,
+        },
+      ]) {
+        vi.mocked(runEmbeddedPiAgent).mockClear();
+        const { res } = await runInFlightVerboseToggleCase({
+          home,
+          ...testCase,
+        });
+        const texts = replyTexts(res);
+        expect(texts).toContain("done");
+        expect(runEmbeddedPiAgent).toHaveBeenCalledOnce();
+      }
     });
   });
-  it("updates tool verbose during an in-flight run (toggle off)", async () => {
-    await withTempHome(async (home) => {
-      const { res } = await runInFlightVerboseToggleCase({
-        home,
-        shouldEmitBefore: true,
-        toggledVerboseLevel: "off",
-        seedVerboseOn: true,
-      });
-
-      const texts = replyTexts(res);
-      expect(texts).toContain("done");
-      expect(runEmbeddedPiAgent).toHaveBeenCalledOnce();
-    });
-  });
-  it("shows current think level when /think has no argument", async () => {
+  it("covers think status and /thinking xhigh support matrix", async () => {
     await withTempHome(async (home) => {
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -452,6 +443,7 @@ describe("directive behavior", () => {
 >>>>>>> b11ff9f7d (test: collapse directive behavior shards)
       expect(text).toContain("Current thinking level: high");
       expect(text).toContain("Options: off, minimal, low, medium, high.");
+<<<<<<< HEAD
       expect(runEmbeddedPiAgent).not.toHaveBeenCalled();
     });
   });
@@ -502,8 +494,19 @@ describe("directive behavior", () => {
     await withTempHome(async (home) => {
       const texts = await runThinkingDirective(home, "openai/gpt-4.1-mini");
       expect(texts).toContain(
+=======
+
+      for (const model of ["openai-codex/gpt-5.2-codex", "openai/gpt-5.2"]) {
+        const texts = await runThinkingDirective(home, model);
+        expect(texts).toContain("Thinking level set to xhigh.");
+      }
+
+      const unsupportedModelTexts = await runThinkingDirective(home, "openai/gpt-4.1-mini");
+      expect(unsupportedModelTexts).toContain(
+>>>>>>> b9f01e8d3 (test: consolidate directive behavior suites for faster runs)
         'Thinking level "xhigh" is only supported for openai/gpt-5.2, openai-codex/gpt-5.3-codex, openai-codex/gpt-5.3-codex-spark, openai-codex/gpt-5.2-codex, openai-codex/gpt-5.1-codex, github-copilot/gpt-5.2-codex or github-copilot/gpt-5.2.',
       );
+      expect(runEmbeddedPiAgent).not.toHaveBeenCalled();
     });
   });
   it("keeps reserved command aliases from matching after trimming", async () => {
@@ -568,9 +571,9 @@ describe("directive behavior", () => {
       expect(prompt).toContain('Use the "demo-skill" skill');
     });
   });
-  it("errors on invalid queue options", async () => {
+  it("reports invalid queue options and current queue settings", async () => {
     await withTempHome(async (home) => {
-      const res = await getReplyFromConfig(
+      const invalidRes = await getReplyFromConfig(
         {
           Body: "/queue collect debounce:bogus cap:zero drop:maybe",
           From: "+1222",
@@ -587,16 +590,12 @@ describe("directive behavior", () => {
         ),
       );
 
-      const text = replyText(res);
-      expect(text).toContain("Invalid debounce");
-      expect(text).toContain("Invalid cap");
-      expect(text).toContain("Invalid drop policy");
-      expect(runEmbeddedPiAgent).not.toHaveBeenCalled();
-    });
-  });
-  it("shows current queue settings when /queue has no arguments", async () => {
-    await withTempHome(async (home) => {
-      const res = await getReplyFromConfig(
+      const invalidText = replyText(invalidRes);
+      expect(invalidText).toContain("Invalid debounce");
+      expect(invalidText).toContain("Invalid cap");
+      expect(invalidText).toContain("Invalid drop policy");
+
+      const currentRes = await getReplyFromConfig(
         {
           Body: "/queue",
           From: "+1222",
@@ -622,7 +621,7 @@ describe("directive behavior", () => {
         ),
       );
 
-      const text = replyText(res);
+      const text = replyText(currentRes);
       expect(text).toContain(
         "Current queue settings: mode=collect, debounce=1500ms, cap=9, drop=summarize.",
       );
