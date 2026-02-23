@@ -90,8 +90,273 @@ describe("handleCommands gating", () => {
     expect(result.reply?.text).toContain("bash is disabled");
   });
 
+<<<<<<< HEAD
   it("blocks /bash when elevated is not allowlisted", async () => {
     resetBashChatCommandForTests();
+=======
+  it("submits approval", async () => {
+    const cfg = {
+      commands: { text: true },
+      channels: { whatsapp: { allowFrom: ["*"] } },
+    } as OpenClawConfig;
+    const params = buildParams("/approve abc allow-once", cfg, { SenderId: "123" });
+
+    callGatewayMock.mockResolvedValue({ ok: true });
+
+    const result = await handleCommands(params);
+    expect(result.shouldContinue).toBe(false);
+    expect(result.reply?.text).toContain("Exec approval allow-once submitted");
+    expect(callGatewayMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        method: "exec.approval.resolve",
+        params: { id: "abc", decision: "allow-once" },
+      }),
+    );
+  });
+
+  it("rejects gateway clients without approvals scope", async () => {
+    const cfg = {
+      commands: { text: true },
+    } as OpenClawConfig;
+    const params = buildParams("/approve abc allow-once", cfg, {
+      Provider: "webchat",
+      Surface: "webchat",
+      GatewayClientScopes: ["operator.write"],
+    });
+
+    callGatewayMock.mockResolvedValue({ ok: true });
+
+    const result = await handleCommands(params);
+    expect(result.shouldContinue).toBe(false);
+    expect(result.reply?.text).toContain("requires operator.approvals");
+    expect(callGatewayMock).not.toHaveBeenCalled();
+  });
+
+  it("allows gateway clients with approvals or admin scopes", async () => {
+    const cfg = {
+      commands: { text: true },
+    } as OpenClawConfig;
+    const scopeCases = [["operator.approvals"], ["operator.admin"]];
+    for (const scopes of scopeCases) {
+      callGatewayMock.mockResolvedValue({ ok: true });
+      const params = buildParams("/approve abc allow-once", cfg, {
+        Provider: "webchat",
+        Surface: "webchat",
+        GatewayClientScopes: scopes,
+      });
+
+      const result = await handleCommands(params);
+      expect(result.shouldContinue).toBe(false);
+      expect(result.reply?.text).toContain("Exec approval allow-once submitted");
+      expect(callGatewayMock).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          method: "exec.approval.resolve",
+          params: { id: "abc", decision: "allow-once" },
+        }),
+      );
+    }
+  });
+});
+
+describe("/compact command", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("returns null when command is not /compact", async () => {
+    const cfg = {
+      commands: { text: true },
+      channels: { whatsapp: { allowFrom: ["*"] } },
+    } as OpenClawConfig;
+    const params = buildParams("/status", cfg);
+
+    const result = await handleCompactCommand(
+      {
+        ...params,
+      },
+      true,
+    );
+
+    expect(result).toBeNull();
+    expect(vi.mocked(compactEmbeddedPiSession)).not.toHaveBeenCalled();
+  });
+
+  it("rejects unauthorized /compact commands", async () => {
+    const cfg = {
+      commands: { text: true },
+      channels: { whatsapp: { allowFrom: ["*"] } },
+    } as OpenClawConfig;
+    const params = buildParams("/compact", cfg);
+
+    const result = await handleCompactCommand(
+      {
+        ...params,
+        command: {
+          ...params.command,
+          isAuthorizedSender: false,
+          senderId: "unauthorized",
+        },
+      },
+      true,
+    );
+
+    expect(result).toEqual({ shouldContinue: false });
+    expect(vi.mocked(compactEmbeddedPiSession)).not.toHaveBeenCalled();
+  });
+
+  it("routes manual compaction with explicit trigger and context metadata", async () => {
+    const cfg = {
+      commands: { text: true },
+      channels: { whatsapp: { allowFrom: ["*"] } },
+      session: { store: "/tmp/openclaw-session-store.json" },
+    } as OpenClawConfig;
+    const params = buildParams("/compact: focus on decisions", cfg, {
+      From: "+15550001",
+      To: "+15550002",
+    });
+    const agentDir = "/tmp/openclaw-agent-compact";
+    vi.mocked(compactEmbeddedPiSession).mockResolvedValueOnce({
+      ok: true,
+      compacted: false,
+    });
+
+    const result = await handleCompactCommand(
+      {
+        ...params,
+        agentDir,
+        sessionEntry: {
+          sessionId: "session-1",
+          updatedAt: Date.now(),
+          groupId: "group-1",
+          groupChannel: "#general",
+          space: "workspace-1",
+          spawnedBy: "agent:main:parent",
+          totalTokens: 12345,
+        },
+      },
+      true,
+    );
+
+    expect(result?.shouldContinue).toBe(false);
+    expect(vi.mocked(compactEmbeddedPiSession)).toHaveBeenCalledOnce();
+    expect(vi.mocked(compactEmbeddedPiSession)).toHaveBeenCalledWith(
+      expect.objectContaining({
+        sessionId: "session-1",
+        sessionKey: "agent:main:main",
+        trigger: "manual",
+        customInstructions: "focus on decisions",
+        messageChannel: "whatsapp",
+        groupId: "group-1",
+        groupChannel: "#general",
+        groupSpace: "workspace-1",
+        spawnedBy: "agent:main:parent",
+        agentDir,
+      }),
+    );
+  });
+});
+
+describe("buildCommandsPaginationKeyboard", () => {
+  it("adds agent id to callback data when provided", () => {
+    const keyboard = buildCommandsPaginationKeyboard(2, 3, "agent-main");
+    expect(keyboard[0]).toEqual([
+      { text: "◀ Prev", callback_data: "commands_page_1:agent-main" },
+      { text: "2/3", callback_data: "commands_page_noop:agent-main" },
+      { text: "Next ▶", callback_data: "commands_page_3:agent-main" },
+    ]);
+  });
+});
+
+describe("parseConfigCommand", () => {
+  it("parses config/debug command actions and JSON payloads", () => {
+    const cases: Array<{
+      parse: (input: string) => unknown;
+      input: string;
+      expected: unknown;
+    }> = [
+      { parse: parseConfigCommand, input: "/config", expected: { action: "show" } },
+      {
+        parse: parseConfigCommand,
+        input: "/config show",
+        expected: { action: "show", path: undefined },
+      },
+      {
+        parse: parseConfigCommand,
+        input: "/config show foo.bar",
+        expected: { action: "show", path: "foo.bar" },
+      },
+      {
+        parse: parseConfigCommand,
+        input: "/config get foo.bar",
+        expected: { action: "show", path: "foo.bar" },
+      },
+      {
+        parse: parseConfigCommand,
+        input: "/config unset foo.bar",
+        expected: { action: "unset", path: "foo.bar" },
+      },
+      {
+        parse: parseConfigCommand,
+        input: '/config set foo={"a":1}',
+        expected: { action: "set", path: "foo", value: { a: 1 } },
+      },
+      { parse: parseDebugCommand, input: "/debug", expected: { action: "show" } },
+      { parse: parseDebugCommand, input: "/debug show", expected: { action: "show" } },
+      { parse: parseDebugCommand, input: "/debug reset", expected: { action: "reset" } },
+      {
+        parse: parseDebugCommand,
+        input: "/debug unset foo.bar",
+        expected: { action: "unset", path: "foo.bar" },
+      },
+      {
+        parse: parseDebugCommand,
+        input: '/debug set foo={"a":1}',
+        expected: { action: "set", path: "foo", value: { a: 1 } },
+      },
+    ];
+
+    for (const testCase of cases) {
+      expect(testCase.parse(testCase.input)).toEqual(testCase.expected);
+    }
+  });
+});
+
+describe("extractMessageText", () => {
+  it("preserves user markers and sanitizes assistant markers", () => {
+    const cases = [
+      {
+        message: { role: "user", content: "Here [Tool Call: foo (ID: 1)] ok" },
+        expectedText: "Here [Tool Call: foo (ID: 1)] ok",
+      },
+      {
+        message: { role: "assistant", content: "Here [Tool Call: foo (ID: 1)] ok" },
+        expectedText: "Here ok",
+      },
+    ] as const;
+
+    for (const testCase of cases) {
+      const result = extractMessageText(testCase.message);
+      expect(result?.text).toBe(testCase.expectedText);
+    }
+  });
+});
+
+describe("handleCommands /config configWrites gating", () => {
+  it("blocks /config set when channel config writes are disabled", async () => {
+    const cfg = {
+      commands: { config: true, text: true },
+      channels: { whatsapp: { allowFrom: ["*"], configWrites: false } },
+    } as OpenClawConfig;
+    const params = buildParams('/config set messages.ackReaction=":)"', cfg);
+    const result = await handleCommands(params);
+    expect(result.shouldContinue).toBe(false);
+    expect(result.reply?.text).toContain("Config writes are disabled");
+  });
+});
+
+describe("handleCommands bash alias", () => {
+  it("routes !poll and !stop through the /bash handler", async () => {
+>>>>>>> 36400df08 (fix: pass agentDir to /compact command for agent-specific auth (#24133))
     const cfg = {
       commands: { bash: true, text: true },
       whatsapp: { allowFrom: ["*"] },
