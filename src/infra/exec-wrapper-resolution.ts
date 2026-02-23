@@ -243,7 +243,7 @@ function envInvocationUsesModifiers(argv: string[]): boolean {
       return true;
     }
     if (ENV_OPTIONS_WITH_VALUE.has(flag)) {
-      if (lower.includes("=") || lower !== flag) {
+      if (lower.includes("=")) {
         return true;
       }
       expectsOptionValue = true;
