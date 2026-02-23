@@ -3,7 +3,6 @@ import {
   getRunEmbeddedPiAgentMock,
   installTriggerHandlingE2eTestHooks,
   makeCfg,
-  runGreetingPromptForBareNewOrReset,
   withTempHome,
 } from "./reply.triggers.trigger-handling.test-harness.js";
 
@@ -153,6 +152,7 @@ describe("trigger handling", () => {
       expect(extra).toContain("Activation: always-on");
     });
   });
+<<<<<<< HEAD
   it("runs a greeting prompt for a bare /new", async () => {
     await withTempHome(async (home) => {
 <<<<<<< HEAD
@@ -199,4 +199,6 @@ describe("trigger handling", () => {
 >>>>>>> 516cbf436 (refactor(test): dedupe trigger greeting prompt cases)
     });
   });
+=======
+>>>>>>> af547ec52 (test: consolidate trigger-handling suites)
 });

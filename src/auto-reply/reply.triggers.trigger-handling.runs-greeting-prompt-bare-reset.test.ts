@@ -140,6 +140,11 @@ describe("trigger handling", () => {
 >>>>>>> 516cbf436 (refactor(test): dedupe trigger greeting prompt cases)
     });
   });
+  it("runs a greeting prompt for a bare /new", async () => {
+    await withTempHome(async (home) => {
+      await runGreetingPromptForBareNewOrReset({ home, body: "/new", getReplyFromConfig });
+    });
+  });
   it("does not reset for unauthorized /reset", async () => {
     await withTempHome(async (home) => {
 <<<<<<< HEAD

@@ -1,7 +1,6 @@
 import { beforeAll, describe, expect, it } from "vitest";
 import { loadSessionStore } from "../config/sessions.js";
 import {
-  expectDirectElevatedToggleOn,
   installTriggerHandlingE2eTestHooks,
   loadGetReplyFromConfig,
   makeWhatsAppElevatedCfg,
@@ -172,6 +171,7 @@ describe("trigger handling", () => {
       expect(store["agent:main:whatsapp:group:123@g.us"]?.elevatedLevel).toBe("on");
     });
   });
+<<<<<<< HEAD
 
   it("allows elevated directive in direct chats without mentions", async () => {
 <<<<<<< HEAD
@@ -226,4 +226,6 @@ describe("trigger handling", () => {
     await expectDirectElevatedToggleOn({ getReplyFromConfig });
 >>>>>>> 5e8b1f5ac (refactor(test): centralize trigger and cron test helpers)
   });
+=======
+>>>>>>> af547ec52 (test: consolidate trigger-handling suites)
 });
