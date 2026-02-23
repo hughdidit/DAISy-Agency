@@ -37,6 +37,13 @@ import {
 import {
   applyAuthProfileConfig,
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+  applyCloudflareAiGatewayConfig,
+  applyCloudflareAiGatewayProviderConfig,
+  applyKilocodeConfig,
+  applyKilocodeProviderConfig,
+>>>>>>> 13f32e2f7 (feat: Add Kilo Gateway provider (#20212))
   applyQianfanConfig,
   applyQianfanProviderConfig,
 =======
@@ -73,6 +80,7 @@ import {
   applyZaiProviderConfig,
 >>>>>>> 540996f10 (feat(provider): Z.AI endpoints + model catalog (#13456) (thanks @tomsun28) (#13456))
   CLOUDFLARE_AI_GATEWAY_DEFAULT_MODEL_REF,
+  KILOCODE_DEFAULT_MODEL_REF,
   LITELLM_DEFAULT_MODEL_REF,
 >>>>>>> a36b9be24 (Feat/litellm provider (#12823))
   QIANFAN_DEFAULT_MODEL_REF,
@@ -93,6 +101,7 @@ import {
   setCloudflareAiGatewayConfig,
 >>>>>>> 5b0851ebd (feat: add cloudflare ai gateway provider)
   setGeminiApiKey,
+  setKilocodeApiKey,
   setLitellmApiKey,
   setKimiCodingApiKey,
   setMistralApiKey,
@@ -127,6 +136,7 @@ const API_KEY_TOKEN_PROVIDER_AUTH_CHOICE: Record<string, AuthChoice> = {
   huggingface: "huggingface-api-key",
   mistral: "mistral-api-key",
   opencode: "opencode-zen",
+  kilocode: "kilocode-api-key",
   qianfan: "qianfan-api-key",
 };
 
@@ -306,6 +316,18 @@ const SIMPLE_API_KEY_PROVIDER_FLOWS: Partial<Record<AuthChoice, SimpleApiKeyProv
       "API key format: bce-v3/ALTAK-...",
     ].join("\n"),
     noteTitle: "QIANFAN",
+  },
+  "kilocode-api-key": {
+    provider: "kilocode",
+    profileId: "kilocode:default",
+    expectedProviders: ["kilocode"],
+    envLabel: "KILOCODE_API_KEY",
+    promptMessage: "Enter Kilo Gateway API key",
+    setCredential: setKilocodeApiKey,
+    defaultModel: KILOCODE_DEFAULT_MODEL_REF,
+    applyDefaultConfig: applyKilocodeConfig,
+    applyProviderConfig: applyKilocodeProviderConfig,
+    noteDefault: KILOCODE_DEFAULT_MODEL_REF,
   },
   "synthetic-api-key": {
     provider: "synthetic",

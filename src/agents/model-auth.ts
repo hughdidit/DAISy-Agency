@@ -355,7 +355,11 @@ export function resolveEnvApiKey(provider: string): EnvApiKeyResult | null {
 >>>>>>> 34a58b839 (fix(ollama): add streaming config and fix OLLAMA_API_KEY env var support (#9870))
 =======
     vllm: "VLLM_API_KEY",
+<<<<<<< HEAD
 >>>>>>> e73d881c5 (Onboarding: add vLLM provider support)
+=======
+    kilocode: "KILOCODE_API_KEY",
+>>>>>>> 13f32e2f7 (feat: Add Kilo Gateway provider (#20212))
   };
   const envVar = envMap[normalized];
   if (!envVar) {

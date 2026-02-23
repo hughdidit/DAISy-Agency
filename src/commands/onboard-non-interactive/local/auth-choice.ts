@@ -40,6 +40,11 @@ import { applyGoogleGeminiModelDefault } from "../../google-gemini-model-default
 import {
   applyAuthProfileConfig,
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+  applyCloudflareAiGatewayConfig,
+  applyKilocodeConfig,
+>>>>>>> 13f32e2f7 (feat: Add Kilo Gateway provider (#20212))
   applyQianfanConfig,
 =======
   applyCloudflareAiGatewayConfig,
@@ -68,6 +73,7 @@ import {
   setCloudflareAiGatewayConfig,
 >>>>>>> 5b0851ebd (feat: add cloudflare ai gateway provider)
   setGeminiApiKey,
+  setKilocodeApiKey,
   setKimiCodingApiKey,
   setLitellmApiKey,
   setMistralApiKey,
@@ -531,6 +537,29 @@ export async function applyNonInteractiveAuthChoice(params: {
       mode: "api_key",
     });
     return applyOpenrouterConfig(nextConfig);
+  }
+
+  if (authChoice === "kilocode-api-key") {
+    const resolved = await resolveNonInteractiveApiKey({
+      provider: "kilocode",
+      cfg: baseConfig,
+      flagValue: opts.kilocodeApiKey,
+      flagName: "--kilocode-api-key",
+      envVar: "KILOCODE_API_KEY",
+      runtime,
+    });
+    if (!resolved) {
+      return null;
+    }
+    if (resolved.source !== "profile") {
+      await setKilocodeApiKey(resolved.key);
+    }
+    nextConfig = applyAuthProfileConfig(nextConfig, {
+      profileId: "kilocode:default",
+      provider: "kilocode",
+      mode: "api_key",
+    });
+    return applyKilocodeConfig(nextConfig);
   }
 
   if (authChoice === "litellm-api-key") {

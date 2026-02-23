@@ -12,7 +12,12 @@ export {
   applyCloudflareAiGatewayProviderConfig,
   applyHuggingfaceConfig,
   applyHuggingfaceProviderConfig,
+<<<<<<< HEAD
 >>>>>>> 08b7932df (feat(agents) : Hugging Face Inference provider first-class support and Together API fix and Direct Injection Refactor Auths [AI-assisted] (#13472))
+=======
+  applyKilocodeConfig,
+  applyKilocodeProviderConfig,
+>>>>>>> 13f32e2f7 (feat: Add Kilo Gateway provider (#20212))
   applyQianfanConfig,
   applyQianfanProviderConfig,
 =======
@@ -44,6 +49,7 @@ export {
   applyXiaomiProviderConfig,
   applyZaiConfig,
   applyZaiProviderConfig,
+  KILOCODE_BASE_URL,
 } from "./onboard-auth.config-core.js";
 export {
   applyMinimaxApiConfig,
@@ -62,6 +68,7 @@ export {
 } from "./onboard-auth.config-opencode.js";
 export {
   CLOUDFLARE_AI_GATEWAY_DEFAULT_MODEL_REF,
+  KILOCODE_DEFAULT_MODEL_REF,
   LITELLM_DEFAULT_MODEL_REF,
   OPENROUTER_DEFAULT_MODEL_REF,
   setAnthropicApiKey,
@@ -71,6 +78,7 @@ export {
   setCloudflareAiGatewayConfig,
 >>>>>>> 5b0851ebd (feat: add cloudflare ai gateway provider)
   setGeminiApiKey,
+  setKilocodeApiKey,
   setLitellmApiKey,
   setKimiCodingApiKey,
   setMinimaxApiKey,
@@ -96,7 +104,11 @@ export {
   XAI_DEFAULT_MODEL_REF,
 } from "./onboard-auth.credentials.js";
 export {
+<<<<<<< HEAD
   buildQianfanModelDefinition,
+=======
+  buildKilocodeModelDefinition,
+>>>>>>> 13f32e2f7 (feat: Add Kilo Gateway provider (#20212))
   buildMinimaxApiModelDefinition,
   buildMinimaxModelDefinition,
   buildMistralModelDefinition,
@@ -104,6 +116,10 @@ export {
   buildZaiModelDefinition,
   DEFAULT_MINIMAX_BASE_URL,
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+  KILOCODE_DEFAULT_MODEL_ID,
+>>>>>>> 13f32e2f7 (feat: Add Kilo Gateway provider (#20212))
   MOONSHOT_CN_BASE_URL,
 =======
   QIANFAN_BASE_URL,

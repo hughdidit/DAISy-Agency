@@ -101,6 +101,7 @@ import type { ModelApi } from "../config/types.models.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import {
   HUGGINGFACE_DEFAULT_MODEL_REF,
+  KILOCODE_DEFAULT_MODEL_REF,
   MISTRAL_DEFAULT_MODEL_REF,
   OPENROUTER_DEFAULT_MODEL_REF,
   TOGETHER_DEFAULT_MODEL_REF,
@@ -128,6 +129,7 @@ import {
   applyProviderConfigWithModelCatalog,
 } from "./onboard-auth.config-shared.js";
 import {
+  buildKilocodeModelDefinition,
   buildMistralModelDefinition,
   buildZaiModelDefinition,
   buildMoonshotModelDefinition,
@@ -135,6 +137,7 @@ import {
 <<<<<<< HEAD
 =======
   buildXaiModelDefinition,
+  KILOCODE_DEFAULT_MODEL_ID,
   MISTRAL_BASE_URL,
   MISTRAL_DEFAULT_MODEL_ID,
 >>>>>>> d92ba4f8a (feat: Provider/Mistral full support for Mistral on OpenClaw 🇫🇷 (#23845))
@@ -788,6 +791,40 @@ export function applyMistralProviderConfig(cfg: OpenClawConfig): OpenClawConfig 
 export function applyMistralConfig(cfg: OpenClawConfig): OpenClawConfig {
   const next = applyMistralProviderConfig(cfg);
   return applyAgentDefaultModelPrimary(next, MISTRAL_DEFAULT_MODEL_REF);
+}
+
+export const KILOCODE_BASE_URL = "https://api.kilo.ai/api/gateway/";
+
+/**
+ * Apply Kilo Gateway provider configuration without changing the default model.
+ * Registers Kilo Gateway and sets up the provider, but preserves existing model selection.
+ */
+export function applyKilocodeProviderConfig(cfg: OpenClawConfig): OpenClawConfig {
+  const models = { ...cfg.agents?.defaults?.models };
+  models[KILOCODE_DEFAULT_MODEL_REF] = {
+    ...models[KILOCODE_DEFAULT_MODEL_REF],
+    alias: models[KILOCODE_DEFAULT_MODEL_REF]?.alias ?? "Kilo Gateway",
+  };
+
+  const defaultModel = buildKilocodeModelDefinition();
+
+  return applyProviderConfigWithDefaultModel(cfg, {
+    agentModels: models,
+    providerId: "kilocode",
+    api: "openai-completions",
+    baseUrl: KILOCODE_BASE_URL,
+    defaultModel,
+    defaultModelId: KILOCODE_DEFAULT_MODEL_ID,
+  });
+}
+
+/**
+ * Apply Kilo Gateway provider configuration AND set Kilo Gateway as the default model.
+ * Use this when Kilo Gateway is the primary provider choice during onboarding.
+ */
+export function applyKilocodeConfig(cfg: OpenClawConfig): OpenClawConfig {
+  const next = applyKilocodeProviderConfig(cfg);
+  return applyAgentDefaultModelPrimary(next, KILOCODE_DEFAULT_MODEL_REF);
 }
 
 export function applyAuthProfileConfig(
