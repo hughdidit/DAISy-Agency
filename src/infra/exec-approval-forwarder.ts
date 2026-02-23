@@ -7,7 +7,12 @@ import type { ExecApprovalDecision } from "./exec-approvals.js";
 import { loadConfig } from "../config/config.js";
 import { loadSessionStore, resolveStorePath } from "../config/sessions.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
+<<<<<<< HEAD
 import { parseAgentSessionKey } from "../routing/session-key.js";
+=======
+import { normalizeAccountId, parseAgentSessionKey } from "../routing/session-key.js";
+import { compileSafeRegex } from "../security/safe-regex.js";
+>>>>>>> a2dfe9879 (fix(security): harden regex compilation for filters and redaction)
 import { isDeliverableMessageChannel, normalizeMessageChannel } from "../utils/message-channel.js";
 import { deliverOutboundPayloads } from "./outbound/deliver.js";
 import { resolveSessionDeliveryTarget } from "./outbound/targets.js";
@@ -69,11 +74,11 @@ function normalizeMode(mode?: ExecApprovalForwardingConfig["mode"]) {
 
 function matchSessionFilter(sessionKey: string, patterns: string[]): boolean {
   return patterns.some((pattern) => {
-    try {
-      return sessionKey.includes(pattern) || new RegExp(pattern).test(sessionKey);
-    } catch {
-      return sessionKey.includes(pattern);
+    if (sessionKey.includes(pattern)) {
+      return true;
     }
+    const regex = compileSafeRegex(pattern);
+    return regex ? regex.test(sessionKey) : false;
   });
 }
 
