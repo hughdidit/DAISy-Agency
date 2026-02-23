@@ -160,6 +160,7 @@ export const AgentDefaultsSchema = z
           ),
 >>>>>>> fe57bea08 (Subagents: restore announce chain + fix nested retry/drop regressions (#22223))
         archiveAfterMinutes: z.number().int().positive().optional(),
+<<<<<<< HEAD
         model: z
           .union([
             z.string(),
@@ -185,6 +186,12 @@ export const AgentDefaultsSchema = z
         docker: SandboxDockerSchema,
         browser: SandboxBrowserSchema,
         prune: SandboxPruneSchema,
+=======
+        model: AgentModelSchema.optional(),
+        thinking: z.string().optional(),
+        runTimeoutSeconds: z.number().int().min(0).optional(),
+        announceTimeoutMs: z.number().int().positive().optional(),
+>>>>>>> 8bcd405b1 (fix: add .int() to runTimeoutSeconds zod schema for consistency)
       })
       .strict()
       .optional(),
