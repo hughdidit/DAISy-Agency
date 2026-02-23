@@ -174,8 +174,15 @@ export const ToolPolicySchema = ToolPolicyBaseSchema.superRefine((value, ctx) =>
 export const ToolsWebSearchSchema = z
   .object({
     enabled: z.boolean().optional(),
+<<<<<<< HEAD
     provider: z.union([z.literal("brave"), z.literal("perplexity"), z.literal("grok")]).optional(),
     apiKey: z.string().optional(),
+=======
+    provider: z
+      .union([z.literal("brave"), z.literal("perplexity"), z.literal("grok"), z.literal("gemini")])
+      .optional(),
+    apiKey: z.string().optional().register(sensitive),
+>>>>>>> 3a3c2da91 ([Feature]: Add Gemini (Google Search grounding) as web_search provider (#13075))
     maxResults: z.number().int().positive().optional(),
     timeoutSeconds: z.number().int().positive().optional(),
     cacheTtlMinutes: z.number().nonnegative().optional(),
@@ -192,6 +199,13 @@ export const ToolsWebSearchSchema = z
         apiKey: z.string().optional(),
         model: z.string().optional(),
         inlineCitations: z.boolean().optional(),
+      })
+      .strict()
+      .optional(),
+    gemini: z
+      .object({
+        apiKey: z.string().optional().register(sensitive),
+        model: z.string().optional(),
       })
       .strict()
       .optional(),
