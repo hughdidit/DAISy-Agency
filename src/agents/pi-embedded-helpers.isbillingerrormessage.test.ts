@@ -196,6 +196,17 @@ describe("isContextOverflowError", () => {
     expect(isContextOverflowError("We're debugging context overflow issues")).toBe(false);
     expect(isContextOverflowError("Something is causing context overflow messages")).toBe(false);
   });
+
+  it("excludes reasoning-required invalid-request errors", () => {
+    const samples = [
+      "400 Reasoning is mandatory for this endpoint and cannot be disabled.",
+      '{"type":"error","error":{"type":"invalid_request_error","message":"Reasoning is mandatory for this endpoint and cannot be disabled."}}',
+      "This model requires reasoning to be enabled",
+    ];
+    for (const sample of samples) {
+      expect(isContextOverflowError(sample)).toBe(false);
+    }
+  });
 });
 
 describe("error classifiers", () => {
@@ -269,6 +280,17 @@ describe("isLikelyContextOverflowError", () => {
       "exceeded your current quota",
       "This request would exceed your account's rate limit",
       "429 Too Many Requests: request exceeds rate limit",
+    ];
+    for (const sample of samples) {
+      expect(isLikelyContextOverflowError(sample)).toBe(false);
+    }
+  });
+
+  it("excludes reasoning-required invalid-request errors", () => {
+    const samples = [
+      "400 Reasoning is mandatory for this endpoint and cannot be disabled.",
+      '{"type":"error","error":{"type":"invalid_request_error","message":"Reasoning is mandatory for this endpoint and cannot be disabled."}}',
+      "This endpoint requires reasoning",
     ];
     for (const sample of samples) {
       expect(isLikelyContextOverflowError(sample)).toBe(false);
