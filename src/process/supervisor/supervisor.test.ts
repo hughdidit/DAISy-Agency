@@ -23,6 +23,7 @@ describe("process supervisor", () => {
     const supervisor = createProcessSupervisor();
     const run = await spawnChild(supervisor, {
       sessionId: "s1",
+<<<<<<< HEAD
       argv: [process.execPath, "-e", 'process.stdout.write("ok")'],
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -33,6 +34,11 @@ describe("process supervisor", () => {
 =======
       timeoutMs: 1_000,
 >>>>>>> d01cc69ef (test: tighten process timeout fixtures)
+=======
+      // Delay stdout slightly so listeners are attached even on heavily loaded runners.
+      argv: [process.execPath, "-e", 'setTimeout(() => process.stdout.write("ok"), 200)'],
+      timeoutMs: 10_000,
+>>>>>>> fe6271134 (test(gate): stabilize env- and timing-sensitive process/web-search checks)
       stdinMode: "pipe-closed",
     });
     const exit = await run.wait();
@@ -87,6 +93,7 @@ describe("process supervisor", () => {
       scopeKey: "scope:a",
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       mode: "child",
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -109,6 +116,10 @@ describe("process supervisor", () => {
       argv: [process.execPath, "-e", "setTimeout(() => {}, 40)"],
       timeoutMs: 500,
 >>>>>>> d01cc69ef (test: tighten process timeout fixtures)
+=======
+      argv: [process.execPath, "-e", "setTimeout(() => {}, 2_000)"],
+      timeoutMs: 10_000,
+>>>>>>> fe6271134 (test(gate): stabilize env- and timing-sensitive process/web-search checks)
       stdinMode: "pipe-open",
     });
 
@@ -116,6 +127,7 @@ describe("process supervisor", () => {
       sessionId: "s1",
       scopeKey: "scope:a",
       replaceExistingScope: true,
+<<<<<<< HEAD
       argv: [process.execPath, "-e", 'process.stdout.write("new")'],
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -126,6 +138,11 @@ describe("process supervisor", () => {
 =======
       timeoutMs: 1_000,
 >>>>>>> d01cc69ef (test: tighten process timeout fixtures)
+=======
+      // Small delay makes stdout capture deterministic by giving listeners time to attach.
+      argv: [process.execPath, "-e", 'setTimeout(() => process.stdout.write("new"), 200)'],
+      timeoutMs: 10_000,
+>>>>>>> fe6271134 (test(gate): stabilize env- and timing-sensitive process/web-search checks)
       stdinMode: "pipe-closed",
     });
 
@@ -176,6 +193,7 @@ describe("process supervisor", () => {
     let streamed = "";
     const run = await spawnChild(supervisor, {
       sessionId: "s-capture",
+<<<<<<< HEAD
       argv: [process.execPath, "-e", 'process.stdout.write("streamed")'],
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -186,6 +204,11 @@ describe("process supervisor", () => {
 =======
       timeoutMs: 1_000,
 >>>>>>> d01cc69ef (test: tighten process timeout fixtures)
+=======
+      // Avoid race where child exits before stdout listeners are attached.
+      argv: [process.execPath, "-e", 'setTimeout(() => process.stdout.write("streamed"), 200)'],
+      timeoutMs: 10_000,
+>>>>>>> fe6271134 (test(gate): stabilize env- and timing-sensitive process/web-search checks)
       stdinMode: "pipe-closed",
       captureOutput: false,
       onStdout: (chunk) => {

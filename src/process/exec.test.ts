@@ -197,11 +197,15 @@ describe("runCommandWithTimeout", () => {
       {
         timeoutMs: 5_000,
 <<<<<<< HEAD
+<<<<<<< HEAD
         noOutputTimeoutMs: 250,
 >>>>>>> a6a2a9276 (test: reduce exec timer test runtime)
 =======
         noOutputTimeoutMs: 500,
 >>>>>>> 86a8b65e9 (test: consolidate redundant suites and speed up timers)
+=======
+        noOutputTimeoutMs: 1_500,
+>>>>>>> fe6271134 (test(gate): stabilize env- and timing-sensitive process/web-search checks)
       },
     );
 
