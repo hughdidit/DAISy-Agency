@@ -37,6 +37,12 @@ function formatRateLimitOrOverloadedErrorCopy(raw: string): string | undefined {
 export function isContextOverflowError(errorMessage?: string): boolean {
   if (!errorMessage) return false;
   const lower = errorMessage.toLowerCase();
+
+  // Groq uses 413 for TPM (tokens per minute) limits, which is a rate limit, not context overflow.
+  if (lower.includes("tpm") || lower.includes("tokens per minute")) {
+    return false;
+  }
+
   const hasRequestSizeExceeds = lower.includes("request size exceeds");
   const hasContextWindow =
     lower.includes("context window") ||
@@ -64,9 +70,37 @@ const CONTEXT_OVERFLOW_HINT_RE =
   /context.*overflow|context window.*(too (?:large|long)|exceed|over|limit|max(?:imum)?|requested|sent|tokens)|(?:prompt|request|input).*(too (?:large|long)|exceed|over|limit|max(?:imum)?)/i;
 
 export function isLikelyContextOverflowError(errorMessage?: string): boolean {
+<<<<<<< HEAD
   if (!errorMessage) return false;
   if (CONTEXT_WINDOW_TOO_SMALL_RE.test(errorMessage)) return false;
   if (isContextOverflowError(errorMessage)) return true;
+=======
+  if (!errorMessage) {
+    return false;
+  }
+
+  // Groq uses 413 for TPM (tokens per minute) limits, which is a rate limit, not context overflow.
+  const lower = errorMessage.toLowerCase();
+  if (lower.includes("tpm") || lower.includes("tokens per minute")) {
+    return false;
+  }
+
+  if (CONTEXT_WINDOW_TOO_SMALL_RE.test(errorMessage)) {
+    return false;
+  }
+  // Rate limit errors can match the broad CONTEXT_OVERFLOW_HINT_RE pattern
+  // (e.g., "request reached organization TPD rate limit" matches request.*limit).
+  // Exclude them before checking context overflow heuristics.
+  if (isRateLimitErrorMessage(errorMessage)) {
+    return false;
+  }
+  if (isContextOverflowError(errorMessage)) {
+    return true;
+  }
+  if (RATE_LIMIT_HINT_RE.test(errorMessage)) {
+    return false;
+  }
+>>>>>>> 652099cd5 (fix: correctly identify Groq TPM limits as rate limits instead of context overflow (#16176))
   return CONTEXT_OVERFLOW_HINT_RE.test(errorMessage);
 }
 
@@ -467,6 +501,8 @@ const ERROR_PATTERNS = {
     "quota exceeded",
     "resource_exhausted",
     "usage limit",
+    "tpm",
+    "tokens per minute",
   ],
 <<<<<<< HEAD
   overloaded: [/overloaded_error|"type"\s*:\s*"overloaded_error"/i, "overloaded"],
