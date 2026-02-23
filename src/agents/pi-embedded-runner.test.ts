@@ -7,9 +7,65 @@ import path from "node:path";
 import "./test-helpers/fast-coding-tools.js";
 >>>>>>> b79c89fc9 (fix: stabilize CI type and test harness coverage)
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
+<<<<<<< HEAD
 import "./test-helpers/fast-coding-tools.js";
 import type { MoltbotConfig } from "../config/config.js";
 import { ensureMoltbotModelsJson } from "./models-config.js";
+=======
+import type { OpenClawConfig } from "../config/config.js";
+
+type PiAiMockState = {
+  lastModel: { provider?: string; id?: string; compat?: unknown } | null;
+};
+
+const piAiMockState = vi.hoisted(
+  (): PiAiMockState => ({
+    lastModel: null,
+  }),
+);
+
+function createMockUsage(input: number, output: number) {
+  return {
+    input,
+    output,
+    cacheRead: 0,
+    cacheWrite: 0,
+    totalTokens: input + output,
+    cost: {
+      input: 0,
+      output: 0,
+      cacheRead: 0,
+      cacheWrite: 0,
+      total: 0,
+    },
+  };
+}
+
+vi.mock("@mariozechner/pi-coding-agent", async () => {
+  const actual = await vi.importActual<typeof import("@mariozechner/pi-coding-agent")>(
+    "@mariozechner/pi-coding-agent",
+  );
+
+  return {
+    ...actual,
+    createAgentSession: async (
+      ...args: Parameters<typeof actual.createAgentSession>
+    ): ReturnType<typeof actual.createAgentSession> => {
+      const result = await actual.createAgentSession(...args);
+      const modelId = (args[0] as { model?: { id?: string } } | undefined)?.model?.id;
+      if (modelId === "mock-throw") {
+        const session = result.session as { prompt?: (...params: unknown[]) => Promise<unknown> };
+        if (session && typeof session.prompt === "function") {
+          session.prompt = async () => {
+            throw new Error("transport failed");
+          };
+        }
+      }
+      return result;
+    },
+  };
+});
+>>>>>>> 2fa6aa6ea (test(agents): add comprehensive kimi regressions)
 
 vi.mock("@mariozechner/pi-ai", async () => {
   const actual = await vi.importActual<typeof import("@mariozechner/pi-ai")>("@mariozechner/pi-ai");
@@ -74,10 +130,15 @@ vi.mock("@mariozechner/pi-ai", async () => {
       return buildAssistantMessage(model);
     },
     streamSimple: (model: { api: string; provider: string; id: string }) => {
+<<<<<<< HEAD
       if (model.id === "mock-throw") {
         throw new Error("transport failed");
       }
       const stream = new actual.AssistantMessageEventStream();
+=======
+      piAiMockState.lastModel = model as { provider?: string; id?: string; compat?: unknown };
+      const stream = actual.createAssistantMessageEventStream();
+>>>>>>> 2fa6aa6ea (test(agents): add comprehensive kimi regressions)
       queueMicrotask(() => {
         stream.push({
           type: "done",
@@ -182,6 +243,7 @@ const readSessionMessages = async (sessionFile: string) => {
     ) as Array<{ role?: string; content?: unknown }>;
 };
 
+<<<<<<< HEAD
 describe("runEmbeddedPiAgent", () => {
   const itIfNotWin32 = process.platform === "win32" ? it.skip : it;
   it("writes models.json into the provided agentDir", async () => {
@@ -207,6 +269,91 @@ describe("runEmbeddedPiAgent", () => {
             ],
           },
         },
+=======
+const runDefaultEmbeddedTurn = async (sessionFile: string, prompt: string, sessionKey: string) => {
+  const cfg = makeOpenAiConfig(["mock-1"]);
+  await runEmbeddedPiAgent({
+    sessionId: "session:test",
+    sessionKey,
+    sessionFile,
+    workspaceDir,
+    config: cfg,
+    prompt,
+    provider: "openai",
+    model: "mock-1",
+    timeoutMs: 5_000,
+    agentDir,
+    runId: nextRunId("default-turn"),
+    enqueue: immediateEnqueue,
+  });
+};
+
+const makeMoonshotConfig = (modelIds: string[]) =>
+  ({
+    models: {
+      providers: {
+        moonshot: {
+          api: "openai-completions",
+          apiKey: "sk-test",
+          baseUrl: "https://api.moonshot.ai/v1",
+          models: modelIds.map((id) => ({
+            id,
+            name: `Moonshot ${id}`,
+            reasoning: false,
+            input: ["text", "image"],
+            cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
+            contextWindow: 256_000,
+            maxTokens: 8_192,
+          })),
+        },
+      },
+    },
+  }) satisfies OpenClawConfig;
+
+describe("runEmbeddedPiAgent", () => {
+  it("normalizes moonshot models to disable developer-role payloads in runner calls", async () => {
+    piAiMockState.lastModel = null;
+    const sessionFile = nextSessionFile();
+    const sessionKey = nextSessionKey();
+    const cfg = makeMoonshotConfig(["kimi-k2.5"]);
+
+    await runEmbeddedPiAgent({
+      sessionId: "session:test",
+      sessionKey,
+      sessionFile,
+      workspaceDir,
+      config: cfg,
+      prompt: "reply with ok",
+      provider: "moonshot",
+      model: "kimi-k2.5",
+      timeoutMs: 5_000,
+      agentDir,
+      runId: nextRunId("moonshot-compat"),
+      enqueue: immediateEnqueue,
+    });
+
+    const capturedModel = piAiMockState.lastModel as {
+      provider?: string;
+      id?: string;
+      compat?: unknown;
+    } | null;
+    expect(capturedModel?.provider).toBe("moonshot");
+    expect(capturedModel?.id).toBe("kimi-k2.5");
+    expect(
+      (capturedModel?.compat as { supportsDeveloperRole?: boolean } | undefined)
+        ?.supportsDeveloperRole,
+    ).toBe(false);
+  });
+
+  it("handles prompt error paths without dropping user state", async () => {
+    for (const testCase of [
+      {
+        label: "assistant error response keeps user message",
+        model: "mock-error",
+        prompt: "boom",
+        runIdPrefix: "prompt-error",
+        expectReject: false,
+>>>>>>> 2fa6aa6ea (test(agents): add comprehensive kimi regressions)
       },
     } satisfies MoltbotConfig;
 
