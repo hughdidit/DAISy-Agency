@@ -149,6 +149,46 @@ describe("handleTelegramAction", () => {
 >>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
   });
 
+  it("accepts snake_case message_id for reactions", async () => {
+    const cfg = {
+      channels: { telegram: { botToken: "tok", reactionLevel: "minimal" } },
+    } as OpenClawConfig;
+    await handleTelegramAction(
+      {
+        action: "react",
+        chatId: "123",
+        message_id: "456",
+        emoji: "✅",
+      },
+      cfg,
+    );
+    expect(reactMessageTelegram).toHaveBeenCalledWith(
+      "123",
+      456,
+      "✅",
+      expect.objectContaining({ token: "tok", remove: false }),
+    );
+  });
+
+  it("soft-fails when messageId is missing", async () => {
+    const cfg = {
+      channels: { telegram: { botToken: "tok", reactionLevel: "minimal" } },
+    } as OpenClawConfig;
+    const result = await handleTelegramAction(
+      {
+        action: "react",
+        chatId: "123",
+        emoji: "✅",
+      },
+      cfg,
+    );
+    expect(result.details).toMatchObject({
+      ok: false,
+      reason: "missing_message_id",
+    });
+    expect(reactMessageTelegram).not.toHaveBeenCalled();
+  });
+
   it("removes reactions on empty emoji", async () => {
     const cfg = {
       channels: { telegram: { botToken: "tok", reactionLevel: "minimal" } },
@@ -231,6 +271,7 @@ describe("handleTelegramAction", () => {
   });
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   it("blocks reactions when reactionLevel is off", async () => {
 <<<<<<< HEAD
     const cfg = {
@@ -253,6 +294,12 @@ describe("handleTelegramAction", () => {
 >>>>>>> 2595690a4 (test(actions): table-drive slack and telegram action cases)
     await expect(
       handleTelegramAction(
+=======
+  it.each(["off", "ack"] as const)(
+    "soft-fails reactions when reactionLevel is %s",
+    async (level) => {
+      const result = await handleTelegramAction(
+>>>>>>> c1b75ab8e (fix(telegram): make reaction handling soft-fail and message-id resilient (#20236))
         {
           action: "react",
           chatId: "123",
@@ -260,6 +307,7 @@ describe("handleTelegramAction", () => {
           emoji: "✅",
         },
         reactionConfig(level),
+<<<<<<< HEAD
       ),
 <<<<<<< HEAD
     ).rejects.toThrow(/Telegram agent reactions disabled.*reactionLevel="off"/);
@@ -288,8 +336,17 @@ describe("handleTelegramAction", () => {
     ).rejects.toThrow(expectedMessage);
 >>>>>>> 2595690a4 (test(actions): table-drive slack and telegram action cases)
   });
+=======
+      );
+      expect(result.details).toMatchObject({
+        ok: false,
+        reason: "disabled",
+      });
+    },
+  );
+>>>>>>> c1b75ab8e (fix(telegram): make reaction handling soft-fail and message-id resilient (#20236))
 
-  it("also respects legacy actions.reactions gating", async () => {
+  it("soft-fails when reactions are disabled via actions.reactions", async () => {
     const cfg = {
       channels: {
         telegram: {
@@ -298,6 +355,7 @@ describe("handleTelegramAction", () => {
           actions: { reactions: false },
         },
       },
+<<<<<<< HEAD
     } as MoltbotConfig;
     await expect(
       handleTelegramAction(
@@ -310,6 +368,22 @@ describe("handleTelegramAction", () => {
         cfg,
       ),
     ).rejects.toThrow(/Telegram reactions are disabled via actions.reactions/);
+=======
+    } as OpenClawConfig;
+    const result = await handleTelegramAction(
+      {
+        action: "react",
+        chatId: "123",
+        messageId: "456",
+        emoji: "✅",
+      },
+      cfg,
+    );
+    expect(result.details).toMatchObject({
+      ok: false,
+      reason: "disabled",
+    });
+>>>>>>> c1b75ab8e (fix(telegram): make reaction handling soft-fail and message-id resilient (#20236))
   });
 
   it("sends a text message", async () => {
@@ -837,18 +911,20 @@ describe("handleTelegramAction per-account gating", () => {
       },
     } as OpenClawConfig;
 
-    await expect(
-      handleTelegramAction(
-        {
-          action: "react",
-          chatId: "123",
-          messageId: 1,
-          emoji: "👀",
-          accountId: "media",
-        },
-        cfg,
-      ),
-    ).rejects.toThrow(/reactions are disabled via actions.reactions/i);
+    const result = await handleTelegramAction(
+      {
+        action: "react",
+        chatId: "123",
+        messageId: 1,
+        emoji: "👀",
+        accountId: "media",
+      },
+      cfg,
+    );
+    expect(result.details).toMatchObject({
+      ok: false,
+      reason: "disabled",
+    });
   });
 
   it("allows account to explicitly re-enable top-level disabled reaction gate", async () => {
