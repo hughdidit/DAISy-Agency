@@ -14,6 +14,12 @@ import {
   resolveAllowAlwaysPatterns,
   resolveExecApprovals,
 } from "../infra/exec-approvals.js";
+<<<<<<< HEAD
+=======
+import { detectCommandObfuscation } from "../infra/exec-obfuscation-detect.js";
+import type { SafeBinProfile } from "../infra/exec-safe-bin-policy.js";
+import { logInfo } from "../logger.js";
+>>>>>>> 0e28e50b4 (fix(security): detect obfuscated commands that bypass allowlist filters (#24287))
 import { markBackgrounded, tail } from "./bash-process-registry.js";
 import { requestExecApprovalDecision } from "./bash-tools.exec-approval-request.js";
 import {
@@ -78,6 +84,27 @@ export async function processGatewayAllowlist(
   const analysisOk = allowlistEval.analysisOk;
   const allowlistSatisfied =
     hostSecurity === "allowlist" && analysisOk ? allowlistEval.allowlistSatisfied : false;
+<<<<<<< HEAD
+=======
+  const obfuscation = detectCommandObfuscation(params.command);
+  if (obfuscation.detected) {
+    logInfo(`exec: obfuscation detected (gateway): ${obfuscation.reasons.join(", ")}`);
+    params.warnings.push(`⚠️ Obfuscated command detected: ${obfuscation.reasons.join("; ")}`);
+  }
+  const recordMatchedAllowlistUse = (resolvedPath?: string) => {
+    if (allowlistMatches.length === 0) {
+      return;
+    }
+    const seen = new Set<string>();
+    for (const match of allowlistMatches) {
+      if (seen.has(match.pattern)) {
+        continue;
+      }
+      seen.add(match.pattern);
+      recordAllowlistUse(approvals.file, params.agentId, match, params.command, resolvedPath);
+    }
+  };
+>>>>>>> 0e28e50b4 (fix(security): detect obfuscated commands that bypass allowlist filters (#24287))
   const hasHeredocSegment = allowlistEval.segments.some((segment) =>
     segment.argv.some((token) => token.startsWith("<<")),
   );
@@ -89,7 +116,9 @@ export async function processGatewayAllowlist(
       security: hostSecurity,
       analysisOk,
       allowlistSatisfied,
-    }) || requiresHeredocApproval;
+    }) ||
+    requiresHeredocApproval ||
+    obfuscation.detected;
   if (requiresHeredocApproval) {
     params.warnings.push(
       "Warning: heredoc execution requires explicit approval in allowlist mode.",
@@ -138,7 +167,9 @@ export async function processGatewayAllowlist(
       if (decision === "deny") {
         deniedReason = "user-denied";
       } else if (!decision) {
-        if (askFallback === "full") {
+        if (obfuscation.detected) {
+          deniedReason = "approval-timeout (obfuscation-detected)";
+        } else if (askFallback === "full") {
           approvedByAsk = true;
         } else if (askFallback === "allowlist") {
           if (!analysisOk || !allowlistSatisfied) {
