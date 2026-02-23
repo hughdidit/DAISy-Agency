@@ -24,28 +24,9 @@ function createMockUsage(input: number, output: number) {
 }
 
 vi.mock("@mariozechner/pi-coding-agent", async () => {
-  const actual = await vi.importActual<typeof import("@mariozechner/pi-coding-agent")>(
+  return await vi.importActual<typeof import("@mariozechner/pi-coding-agent")>(
     "@mariozechner/pi-coding-agent",
   );
-
-  return {
-    ...actual,
-    createAgentSession: async (
-      ...args: Parameters<typeof actual.createAgentSession>
-    ): ReturnType<typeof actual.createAgentSession> => {
-      const result = await actual.createAgentSession(...args);
-      const modelId = (args[0] as { model?: { id?: string } } | undefined)?.model?.id;
-      if (modelId === "mock-throw") {
-        const session = result.session as { prompt?: (...params: unknown[]) => Promise<unknown> };
-        if (session && typeof session.prompt === "function") {
-          session.prompt = async () => {
-            throw new Error("transport failed");
-          };
-        }
-      }
-      return result;
-    },
-  };
 });
 
 vi.mock("@mariozechner/pi-ai", async () => {
@@ -91,6 +72,7 @@ vi.mock("@mariozechner/pi-ai", async () => {
     streamSimple: (model: { api: string; provider: string; id: string }) => {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       const stream = new actual.AssistantMessageEventStream();
 =======
       if (model.id === "mock-throw") {
@@ -98,6 +80,8 @@ vi.mock("@mariozechner/pi-ai", async () => {
       }
 =======
 >>>>>>> eda941f39 (perf(test): remove flaky transport timeout and dedupe safeBins checks)
+=======
+>>>>>>> 1f5e6444e (test: remove redundant pi embedded runner cases)
       const stream = actual.createAssistantMessageEventStream();
 >>>>>>> db3529e92 (chore: Fix types in tests 14/N.)
       queueMicrotask(() => {
@@ -245,12 +229,20 @@ const runDefaultEmbeddedTurn = async (sessionFile: string, prompt: string, sessi
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 describe("runEmbeddedPiAgent", () => {
 <<<<<<< HEAD
   it("persists the user message when prompt fails before assistant output", async () => {
     const sessionFile = nextSessionFile();
     const cfg = makeOpenAiConfig(["mock-error"]);
 
+=======
+describe("runEmbeddedPiAgent", () => {
+  it("handles prompt error paths without dropping user state", async () => {
+    const sessionFile = nextSessionFile();
+    const cfg = makeOpenAiConfig(["mock-error"]);
+    const sessionKey = nextSessionKey();
+>>>>>>> 1f5e6444e (test: remove redundant pi embedded runner cases)
     const result = await runEmbeddedPiAgent({
       sessionId: "session:test",
       sessionKey: testSessionKey,
@@ -272,6 +264,7 @@ describe("runEmbeddedPiAgent", () => {
       (message) => message?.role === "user" && textFromContent(message.content) === "boom",
     );
     expect(userIndex).toBeGreaterThanOrEqual(0);
+<<<<<<< HEAD
   });
 
 <<<<<<< HEAD
@@ -343,6 +336,8 @@ describe("runEmbeddedPiAgent", () => {
         expect(userIndex, testCase.label).toBeGreaterThanOrEqual(0);
       }
     }
+=======
+>>>>>>> 1f5e6444e (test: remove redundant pi embedded runner cases)
   });
 
 >>>>>>> db3529e92 (chore: Fix types in tests 14/N.)
