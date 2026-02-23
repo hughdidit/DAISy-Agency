@@ -314,10 +314,11 @@ export function subscribeEmbeddedPiSession(params: SubscribeEmbeddedPiSessionPar
     }
     return `\`\`\`txt\n${trimmed}\n\`\`\``;
   };
-  const emitToolSummary = (toolName?: string, meta?: string) => {
+  const emitToolResultMessage = (toolName: string | undefined, message: string) => {
     if (!params.onToolResult) {
       return;
     }
+<<<<<<< HEAD
     const agg = formatToolAggregate(toolName, meta ? [meta] : undefined, {
       markdown: useMarkdown,
     });
@@ -342,6 +343,8 @@ export function subscribeEmbeddedPiSession(params: SubscribeEmbeddedPiSessionPar
       markdown: useMarkdown,
     });
     const message = `${agg}\n${formatToolOutputBlock(output)}`;
+=======
+>>>>>>> 8af19ddc5 (refactor: extract shared dedupe helpers for runtime paths)
     const { text: cleanedText, mediaUrls } = parseReplyDirectives(message);
     if (!cleanedText && (!mediaUrls || mediaUrls.length === 0)) {
       return;
@@ -354,6 +357,22 @@ export function subscribeEmbeddedPiSession(params: SubscribeEmbeddedPiSessionPar
     } catch {
       // ignore tool result delivery failures
     }
+  };
+  const emitToolSummary = (toolName?: string, meta?: string) => {
+    const agg = formatToolAggregate(toolName, meta ? [meta] : undefined, {
+      markdown: useMarkdown,
+    });
+    emitToolResultMessage(toolName, agg);
+  };
+  const emitToolOutput = (toolName?: string, meta?: string, output?: string) => {
+    if (!output) {
+      return;
+    }
+    const agg = formatToolAggregate(toolName, meta ? [meta] : undefined, {
+      markdown: useMarkdown,
+    });
+    const message = `${agg}\n${formatToolOutputBlock(output)}`;
+    emitToolResultMessage(toolName, message);
   };
 
   const stripBlockTags = (

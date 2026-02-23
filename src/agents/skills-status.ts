@@ -1,6 +1,6 @@
 import path from "node:path";
 import type { OpenClawConfig } from "../config/config.js";
-import { evaluateEntryMetadataRequirementsForCurrentPlatform } from "../shared/entry-status.js";
+import { evaluateEntryRequirementsForCurrentPlatform } from "../shared/entry-status.js";
 import type { RequirementConfigCheck, Requirements } from "../shared/requirements.js";
 import { CONFIG_DIR } from "../utils.js";
 import {
@@ -195,6 +195,7 @@ function buildSkillStatus(
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   const {
     required,
     missing,
@@ -246,6 +247,17 @@ function buildSkillStatus(
   const { emoji, homepage, required, missing, requirementsSatisfied, configChecks } =
     requirementStatus;
 >>>>>>> b2c273745 (refactor(shared): reuse runtime entry requirement evaluator)
+=======
+  const { emoji, homepage, required, missing, requirementsSatisfied, configChecks } =
+    evaluateEntryRequirementsForCurrentPlatform({
+      always,
+      entry,
+      hasLocalBin: hasBinary,
+      remote: eligibility?.remote,
+      isEnvSatisfied,
+      isConfigSatisfied,
+    });
+>>>>>>> 8af19ddc5 (refactor: extract shared dedupe helpers for runtime paths)
   const eligible = !disabled && !blockedByAllowlist && requirementsSatisfied;
 
   return {
