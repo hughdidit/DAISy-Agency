@@ -224,16 +224,25 @@ export const dispatchTelegramMessage = async ({
   type ArchivedPreview = { messageId: number; textSnapshot: string };
   const archivedAnswerPreviews: ArchivedPreview[] = [];
   type SplitLaneSegment = { lane: LaneName; text: string };
-  const splitTextIntoLaneSegments = (text?: string): SplitLaneSegment[] => {
+  type SplitLaneSegmentsResult = {
+    segments: SplitLaneSegment[];
+    suppressedReasoningOnly: boolean;
+  };
+  const splitTextIntoLaneSegments = (text?: string): SplitLaneSegmentsResult => {
     const split = splitTelegramReasoningText(text);
     const segments: SplitLaneSegment[] = [];
-    if (split.reasoningText) {
+    const suppressReasoning = resolvedReasoningLevel === "off";
+    if (split.reasoningText && !suppressReasoning) {
       segments.push({ lane: "reasoning", text: split.reasoningText });
     }
     if (split.answerText) {
       segments.push({ lane: "answer", text: split.answerText });
     }
-    return segments;
+    return {
+      segments,
+      suppressedReasoningOnly:
+        Boolean(split.reasoningText) && suppressReasoning && !split.answerText,
+    };
   };
   const resetDraftLaneState = (lane: DraftLaneState) => {
     lane.lastPartialText = "";
@@ -307,8 +316,23 @@ export const dispatchTelegramMessage = async ({
     laneStream.update(text);
 >>>>>>> 677384c51 (refactor: simplify Telegram preview streaming to single boolean (#22012))
   };
+<<<<<<< HEAD
   const flushDraft = async () => {
     if (!draftStream) {
+=======
+  const ingestDraftLaneSegments = (text: string | undefined) => {
+    const split = splitTextIntoLaneSegments(text);
+    for (const segment of split.segments) {
+      if (segment.lane === "reasoning") {
+        reasoningStepState.noteReasoningHint();
+        reasoningStepState.noteReasoningDelivered();
+      }
+      updateDraftFromPartial(lanes[segment.lane], segment.text);
+    }
+  };
+  const flushDraftLane = async (lane: DraftLaneState) => {
+    if (!lane.stream) {
+>>>>>>> 5a475259b (fix(telegram): suppress reasoning-only leaks when reasoning is off)
       return;
     }
 <<<<<<< HEAD
@@ -696,6 +720,7 @@ export const dispatchTelegramMessage = async ({
       dispatcherOptions: {
         ...prefixOptions,
         deliver: async (payload, info) => {
+<<<<<<< HEAD
           if (info.kind === "final") {
             await flushDraft();
             const hasMedia = Boolean(payload.mediaUrl) || (payload.mediaUrls?.length ?? 0) > 0;
@@ -704,6 +729,24 @@ export const dispatchTelegramMessage = async ({
             const currentPreviewText = streamMode === "block" ? draftText : lastPartialText;
             const previewButtons = (
               payload.channelData?.telegram as { buttons?: TelegramInlineButtons } | undefined
+=======
+          const previewButtons = (
+            payload.channelData?.telegram as { buttons?: TelegramInlineButtons } | undefined
+          )?.buttons;
+          const split = splitTextIntoLaneSegments(payload.text);
+          const segments = split.segments;
+          const hasMedia = Boolean(payload.mediaUrl) || (payload.mediaUrls?.length ?? 0) > 0;
+
+          const flushBufferedFinalAnswer = async () => {
+            const buffered = reasoningStepState.takeBufferedFinalAnswer();
+            if (!buffered) {
+              return;
+            }
+            const bufferedButtons = (
+              buffered.payload.channelData?.telegram as
+                | { buttons?: TelegramInlineButtons }
+                | undefined
+>>>>>>> 5a475259b (fix(telegram): suppress reasoning-only leaks when reasoning is off)
             )?.buttons;
             let draftStoppedForPreviewEdit = false;
             // Skip preview edit for error payloads to avoid overwriting previous content
@@ -793,6 +836,7 @@ export const dispatchTelegramMessage = async ({
               }
             }
           }
+<<<<<<< HEAD
           const result = await deliverReplies({
             ...deliveryBaseOptions,
             replies: [payload],
@@ -819,6 +863,39 @@ export const dispatchTelegramMessage = async ({
             logVerbose(
               `telegram: ${info.kind} reply delivery returned not-delivered for chat ${chatId}`,
             );
+=======
+          if (segments.length > 0) {
+            return;
+          }
+          if (split.suppressedReasoningOnly) {
+            if (hasMedia) {
+              const payloadWithoutSuppressedReasoning =
+                typeof payload.text === "string" ? { ...payload, text: "" } : payload;
+              await sendPayload(payloadWithoutSuppressedReasoning);
+            }
+            if (info.kind === "final") {
+              await flushBufferedFinalAnswer();
+            }
+            return;
+          }
+
+          if (info.kind === "final") {
+            await answerLane.stream?.stop();
+            await reasoningLane.stream?.stop();
+            reasoningStepState.resetForNextStep();
+          }
+          const canSendAsIs =
+            hasMedia || typeof payload.text !== "string" || payload.text.length > 0;
+          if (!canSendAsIs) {
+            if (info.kind === "final") {
+              await flushBufferedFinalAnswer();
+            }
+            return;
+          }
+          await sendPayload(payload);
+          if (info.kind === "final") {
+            await flushBufferedFinalAnswer();
+>>>>>>> 5a475259b (fix(telegram): suppress reasoning-only leaks when reasoning is off)
           }
         },
         onSkip: (_payload, info) => {
