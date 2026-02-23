@@ -466,3 +466,6 @@ export type { LinqProbe } from "../linq/types.js";
 >>>>>>> 2992639f8 (Revert "feat: add Linq channel — real iMessage via API, no Mac required")
 // Media utilities
 export { loadWebMedia, type WebMediaResult } from "../web/media.js";
+
+// Security utilities
+export { redactSensitiveText } from "../logging/redact.js";

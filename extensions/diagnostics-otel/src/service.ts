@@ -11,7 +11,7 @@ import { ParentBasedSampler, TraceIdRatioBasedSampler } from "@opentelemetry/sdk
 import { SemanticResourceAttributes } from "@opentelemetry/semantic-conventions";
 
 import type { DiagnosticEventPayload, OpenClawPluginService } from "openclaw/plugin-sdk";
-import { onDiagnosticEvent, registerLogTransport } from "openclaw/plugin-sdk";
+import { onDiagnosticEvent, redactSensitiveText, registerLogTransport } from "openclaw/plugin-sdk";
 
 const DEFAULT_SERVICE_NAME = "openclaw";
 
@@ -32,6 +32,31 @@ function resolveSampleRate(value: number | undefined): number | undefined {
   return value;
 }
 
+<<<<<<< HEAD
+=======
+function formatError(err: unknown): string {
+  if (err instanceof Error) {
+    return err.stack ?? err.message;
+  }
+  if (typeof err === "string") {
+    return err;
+  }
+  try {
+    return JSON.stringify(err);
+  } catch {
+    return String(err);
+  }
+}
+
+function redactOtelAttributes(attributes: Record<string, string | number | boolean>) {
+  const redactedAttributes: Record<string, string | number | boolean> = {};
+  for (const [key, value] of Object.entries(attributes)) {
+    redactedAttributes[key] = typeof value === "string" ? redactSensitiveText(value) : value;
+  }
+  return redactedAttributes;
+}
+
+>>>>>>> 7fab4d128 (fix(security): redact sensitive data in OTEL log exports (CWE-532) (#18182))
 export function createDiagnosticsOtelService(): OpenClawPluginService {
   let sdk: NodeSDK | null = null;
   let logProvider: LoggerProvider | null = null;
@@ -251,6 +276,69 @@ export function createDiagnosticsOtelService(): OpenClawPluginService {
             } catch {
               // ignore malformed json bindings
             }
+<<<<<<< HEAD
+=======
+
+            let message = "";
+            if (numericArgs.length > 0 && typeof numericArgs[numericArgs.length - 1] === "string") {
+              message = String(numericArgs.pop());
+            } else if (numericArgs.length === 1) {
+              message = safeStringify(numericArgs[0]);
+              numericArgs.length = 0;
+            }
+            if (!message) {
+              message = "log";
+            }
+
+            const attributes: Record<string, string | number | boolean> = {
+              "openclaw.log.level": logLevelName,
+            };
+            if (meta?.name) {
+              attributes["openclaw.logger"] = meta.name;
+            }
+            if (meta?.parentNames?.length) {
+              attributes["openclaw.logger.parents"] = meta.parentNames.join(".");
+            }
+            if (bindings) {
+              for (const [key, value] of Object.entries(bindings)) {
+                if (
+                  typeof value === "string" ||
+                  typeof value === "number" ||
+                  typeof value === "boolean"
+                ) {
+                  attributes[`openclaw.${key}`] = value;
+                } else if (value != null) {
+                  attributes[`openclaw.${key}`] = safeStringify(value);
+                }
+              }
+            }
+            if (numericArgs.length > 0) {
+              attributes["openclaw.log.args"] = safeStringify(numericArgs);
+            }
+            if (meta?.path?.filePath) {
+              attributes["code.filepath"] = meta.path.filePath;
+            }
+            if (meta?.path?.fileLine) {
+              attributes["code.lineno"] = Number(meta.path.fileLine);
+            }
+            if (meta?.path?.method) {
+              attributes["code.function"] = meta.path.method;
+            }
+            if (meta?.path?.filePathWithLine) {
+              attributes["openclaw.code.location"] = meta.path.filePathWithLine;
+            }
+
+            // OTLP can leave the host boundary, so redact string fields before export.
+            otelLogger.emit({
+              body: redactSensitiveText(message),
+              severityText: logLevelName,
+              severityNumber,
+              attributes: redactOtelAttributes(attributes),
+              timestamp: meta?.date ?? new Date(),
+            });
+          } catch (err) {
+            ctx.logger.error(`diagnostics-otel: log transport failed: ${formatError(err)}`);
+>>>>>>> 7fab4d128 (fix(security): redact sensitive data in OTEL log exports (CWE-532) (#18182))
           }
 
           let message = "";
@@ -396,16 +484,23 @@ export function createDiagnosticsOtelService(): OpenClawPluginService {
           "openclaw.webhook": evt.updateType ?? "unknown",
         };
         webhookErrorCounter.add(1, attrs);
+<<<<<<< HEAD
         if (!tracesEnabled) return;
+=======
+        if (!tracesEnabled) {
+          return;
+        }
+        const redactedError = redactSensitiveText(evt.error);
+>>>>>>> 7fab4d128 (fix(security): redact sensitive data in OTEL log exports (CWE-532) (#18182))
         const spanAttrs: Record<string, string | number> = {
           ...attrs,
-          "openclaw.error": evt.error,
+          "openclaw.error": redactedError,
         };
         if (evt.chatId !== undefined) spanAttrs["openclaw.chatId"] = String(evt.chatId);
         const span = tracer.startSpan("openclaw.webhook.error", {
           attributes: spanAttrs,
         });
-        span.setStatus({ code: SpanStatusCode.ERROR, message: evt.error });
+        span.setStatus({ code: SpanStatusCode.ERROR, message: redactedError });
         span.end();
       };
 
@@ -435,14 +530,32 @@ export function createDiagnosticsOtelService(): OpenClawPluginService {
         }
         if (!tracesEnabled) return;
         const spanAttrs: Record<string, string | number> = { ...attrs };
+<<<<<<< HEAD
         if (evt.sessionKey) spanAttrs["openclaw.sessionKey"] = evt.sessionKey;
         if (evt.sessionId) spanAttrs["openclaw.sessionId"] = evt.sessionId;
         if (evt.chatId !== undefined) spanAttrs["openclaw.chatId"] = String(evt.chatId);
         if (evt.messageId !== undefined) spanAttrs["openclaw.messageId"] = String(evt.messageId);
         if (evt.reason) spanAttrs["openclaw.reason"] = evt.reason;
+=======
+        if (evt.sessionKey) {
+          spanAttrs["openclaw.sessionKey"] = evt.sessionKey;
+        }
+        if (evt.sessionId) {
+          spanAttrs["openclaw.sessionId"] = evt.sessionId;
+        }
+        if (evt.chatId !== undefined) {
+          spanAttrs["openclaw.chatId"] = String(evt.chatId);
+        }
+        if (evt.messageId !== undefined) {
+          spanAttrs["openclaw.messageId"] = String(evt.messageId);
+        }
+        if (evt.reason) {
+          spanAttrs["openclaw.reason"] = redactSensitiveText(evt.reason);
+        }
+>>>>>>> 7fab4d128 (fix(security): redact sensitive data in OTEL log exports (CWE-532) (#18182))
         const span = spanWithDuration("openclaw.message.processed", spanAttrs, evt.durationMs);
-        if (evt.outcome === "error") {
-          span.setStatus({ code: SpanStatusCode.ERROR, message: evt.error });
+        if (evt.outcome === "error" && evt.error) {
+          span.setStatus({ code: SpanStatusCode.ERROR, message: redactSensitiveText(evt.error) });
         }
         span.end();
       };
@@ -470,7 +583,13 @@ export function createDiagnosticsOtelService(): OpenClawPluginService {
         evt: Extract<DiagnosticEventPayload, { type: "session.state" }>,
       ) => {
         const attrs: Record<string, string> = { "openclaw.state": evt.state };
+<<<<<<< HEAD
         if (evt.reason) attrs["openclaw.reason"] = evt.reason;
+=======
+        if (evt.reason) {
+          attrs["openclaw.reason"] = redactSensitiveText(evt.reason);
+        }
+>>>>>>> 7fab4d128 (fix(security): redact sensitive data in OTEL log exports (CWE-532) (#18182))
         sessionStateCounter.add(1, attrs);
       };
 
