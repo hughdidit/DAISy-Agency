@@ -1,6 +1,7 @@
 import fs from "node:fs/promises";
 import { join } from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
+<<<<<<< HEAD
 import type { OpenClawConfig } from "../config/config.js";
 <<<<<<< HEAD
 import { loadSessionStore } from "../config/sessions.js";
@@ -11,6 +12,8 @@ import { getReplyFromConfig } from "./reply.js";
 =======
 >>>>>>> 043ae0044 (test(auto-reply): import reply after harness mocks)
 =======
+=======
+>>>>>>> cba8037d9 (test: prune redundant trigger handling integration coverage)
 import { loadSessionStore, resolveSessionKey } from "../config/sessions.js";
 <<<<<<< HEAD
 >>>>>>> 89a469502 (test: consolidate shard tests for faster trigger/directive suites)
@@ -181,26 +184,6 @@ async function expectResetBlockedForNonOwner(params: { home: string }): Promise<
     {},
     cfg,
   );
-  expect(res).toBeUndefined();
-  expect(runEmbeddedPiAgentMock).not.toHaveBeenCalled();
-}
-
-async function expectUnauthorizedCommandDropped(home: string, body: "/status") {
-  const runEmbeddedPiAgentMock = getRunEmbeddedPiAgentMock();
-  const cfg = makeUnauthorizedWhatsAppCfg(home);
-
-  const res = await getReplyFromConfig(
-    {
-      Body: body,
-      From: "+2001",
-      To: "+2000",
-      Provider: "whatsapp",
-      SenderE164: "+2001",
-    },
-    {},
-    cfg,
-  );
-
   expect(res).toBeUndefined();
   expect(runEmbeddedPiAgentMock).not.toHaveBeenCalled();
 }
@@ -555,41 +538,6 @@ describe("trigger handling", () => {
         );
       }
 
-      {
-        const cfg = makeCfg(home) as unknown as OpenClawConfig;
-        cfg.session = { ...cfg.session, store: join(home, "native-status.sessions.json") };
-        cfg.agents = {
-          ...cfg.agents,
-          list: [{ id: "coding", model: "minimax/MiniMax-M2.1" }],
-        };
-        cfg.channels = {
-          ...cfg.channels,
-          telegram: {
-            allowFrom: ["*"],
-          },
-        };
-
-        const res = await getReplyFromConfig(
-          {
-            Body: "/status",
-            From: "telegram:111",
-            To: "telegram:111",
-            ChatType: "group",
-            Provider: "telegram",
-            Surface: "telegram",
-            SessionKey: "telegram:slash:111",
-            CommandSource: "native",
-            CommandTargetSessionKey: "agent:coding:telegram:group:123",
-            CommandAuthorized: true,
-          },
-          {},
-          cfg,
-        );
-
-        const text = Array.isArray(res) ? res[0]?.text : res?.text;
-        expect(text).toContain("minimax/MiniMax-M2.1");
-      }
-
       await runGreetingPromptForBareNewOrReset({ home, body: "/new", getReplyFromConfig });
       await expectResetBlockedForNonOwner({ home });
       await expectInlineCommandHandledAndStripped({
@@ -600,8 +548,6 @@ describe("trigger handling", () => {
         blockReplyContains: "Identity",
         requestOverrides: { SenderId: "12345" },
       });
-      getRunEmbeddedPiAgentMock().mockClear();
-      await expectUnauthorizedCommandDropped(home, "/status");
       const inlineRunEmbeddedPiAgentMock = mockEmbeddedOk();
       const res = await runInlineUnauthorizedCommand({
         home,
