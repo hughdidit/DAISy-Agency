@@ -165,7 +165,7 @@ Docs: https://docs.openclaw.ai
 - Agents/Failover: treat HTTP 502/503/504 errors as failover-eligible transient timeouts so fallback chains can switch providers/models during upstream outages instead of retrying the same failing target. (#20999) Thanks @taw0002 and @vincentkoc.
 >>>>>>> db32677f1 (Update CHANGELOG.md)
 
-## 2026.2.23
+## 2026.2.22
 
 ### Changes
 
