@@ -20,7 +20,7 @@ import {
   resolveChatRunExpiresAtMs,
 } from "../chat-abort.js";
 import { type ChatImageContent, parseMessageWithAttachments } from "../chat-attachments.js";
-import { stripEnvelopeFromMessages } from "../chat-sanitize.js";
+import { stripEnvelopeFromMessage, stripEnvelopeFromMessages } from "../chat-sanitize.js";
 import { GATEWAY_CLIENT_CAPS, hasGatewayClientCap } from "../protocol/client-info.js";
 import {
   ErrorCodes,
@@ -516,12 +516,19 @@ function broadcastChatFinal(params: {
   message?: Record<string, unknown>;
 }) {
   const seq = nextChatSeq({ agentRunSeq: params.context.agentRunSeq }, params.runId);
+  const strippedEnvelopeMessage = stripEnvelopeFromMessage(params.message) as
+    | Record<string, unknown>
+    | undefined;
   const payload = {
     runId: params.runId,
     sessionKey: params.sessionKey,
     seq,
     state: "final" as const,
+<<<<<<< HEAD
     message: stripMessageDirectiveTags(params.message),
+=======
+    message: stripInlineDirectiveTagsFromMessageForDisplay(strippedEnvelopeMessage),
+>>>>>>> a10ec2607 (Gateway/Chat UI: sanitize untrusted wrapper markup in final payloads)
   };
   params.context.broadcast("chat", payload);
   params.context.nodeSendToSession(params.sessionKey, "chat", payload);
@@ -1053,7 +1060,13 @@ export const chatHandlers: GatewayRequestHandlers = {
       sessionKey: rawSessionKey,
       seq: 0,
       state: "final" as const,
+<<<<<<< HEAD
       message: stripMessageDirectiveTags(appended.message),
+=======
+      message: stripInlineDirectiveTagsFromMessageForDisplay(
+        stripEnvelopeFromMessage(appended.message) as Record<string, unknown>,
+      ),
+>>>>>>> a10ec2607 (Gateway/Chat UI: sanitize untrusted wrapper markup in final payloads)
     };
     context.broadcast("chat", chatPayload);
     context.nodeSendToSession(rawSessionKey, "chat", chatPayload);
