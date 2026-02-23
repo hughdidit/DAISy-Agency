@@ -111,6 +111,11 @@ export function buildEmbeddedExtensionPaths(params: {
     const compactionCfg = params.cfg?.agents?.defaults?.compaction;
     setCompactionSafeguardRuntime(params.sessionManager, {
       maxHistoryShare: compactionCfg?.maxHistoryShare,
+<<<<<<< HEAD
+=======
+      contextWindowTokens: contextWindowInfo.tokens,
+      model: params.model,
+>>>>>>> 01380f49f (fix(compaction): pass model through runtime for safeguard summaries (#17864))
     });
     paths.push(resolvePiExtensionPath("compaction-safeguard"));
   }
