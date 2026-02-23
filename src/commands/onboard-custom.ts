@@ -286,6 +286,30 @@ async function requestOpenAiVerification(params: {
   }
 }
 
+<<<<<<< HEAD
+=======
+async function requestOpenAiVerification(params: {
+  baseUrl: string;
+  apiKey: string;
+  modelId: string;
+}): Promise<VerificationResult> {
+  const endpoint = resolveVerificationEndpoint({
+    baseUrl: params.baseUrl,
+    modelId: params.modelId,
+    endpointPath: "chat/completions",
+  });
+  return await requestVerification({
+    endpoint,
+    headers: buildOpenAiHeaders(params.apiKey),
+    body: {
+      model: params.modelId,
+      messages: [{ role: "user", content: "Hi" }],
+      max_tokens: 1024,
+    },
+  });
+}
+
+>>>>>>> 1565d7e7b (fix: increase verification max_tokens to 1024 for Poe API compatibility)
 async function requestAnthropicVerification(params: {
   baseUrl: string;
   apiKey: string;
@@ -343,7 +367,7 @@ async function requestAnthropicVerification(params: {
     headers: buildAnthropicHeaders(params.apiKey),
     body: {
       model: params.modelId,
-      max_tokens: 16,
+      max_tokens: 1024,
       messages: [{ role: "user", content: "Hi" }],
     },
   });
