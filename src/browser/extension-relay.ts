@@ -69,6 +69,14 @@ import { loadConfig } from "../config/config.js";
 import { isLoopbackAddress, isLoopbackHost } from "../gateway/net.js";
 >>>>>>> 53910f364 (Deduplicate more)
 import { rawDataToString } from "../infra/ws.js";
+<<<<<<< HEAD
+=======
+import {
+  probeAuthenticatedOpenClawRelay,
+  resolveRelayAcceptedTokensForPort,
+  resolveRelayAuthTokenForPort,
+} from "./extension-relay-auth.js";
+>>>>>>> bb8f538cd (Browser relay: accept raw gateway token in extension auth)
 
 type CdpCommand = {
   id: number;
@@ -342,7 +350,12 @@ export async function ensureChromeExtensionRelayServer(opts: {
     return existing.server;
   }
 
+<<<<<<< HEAD
   const relayAuthToken = resolveRelayAuthToken();
+=======
+  const relayAuthToken = resolveRelayAuthTokenForPort(info.port);
+  const relayAuthTokens = new Set(resolveRelayAcceptedTokensForPort(info.port));
+>>>>>>> bb8f538cd (Browser relay: accept raw gateway token in extension auth)
 
   let extensionWs: WebSocket | null = null;
   const cdpClients = new Set<WebSocket>();
@@ -488,6 +501,18 @@ export async function ensureChromeExtensionRelayServer(opts: {
     const url = new URL(req.url ?? "/", info.baseUrl);
     const path = url.pathname;
 
+<<<<<<< HEAD
+=======
+    if (path.startsWith("/json")) {
+      const token = getHeader(req, RELAY_AUTH_HEADER)?.trim();
+      if (!token || !relayAuthTokens.has(token)) {
+        res.writeHead(401);
+        res.end("Unauthorized");
+        return;
+      }
+    }
+
+>>>>>>> bb8f538cd (Browser relay: accept raw gateway token in extension auth)
     if (req.method === "HEAD" && path === "/") {
       res.writeHead(200);
       res.end();
@@ -598,7 +623,7 @@ export async function ensureChromeExtensionRelayServer(opts: {
 
     if (pathname === "/extension") {
       const token = getRelayAuthTokenFromRequest(req, url);
-      if (!token || token !== relayAuthToken) {
+      if (!token || !relayAuthTokens.has(token)) {
         rejectUpgrade(socket, 401, "Unauthorized");
         return;
       }
@@ -625,7 +650,7 @@ export async function ensureChromeExtensionRelayServer(opts: {
 <<<<<<< HEAD
 =======
       const token = getRelayAuthTokenFromRequest(req, url);
-      if (!token || token !== relayAuthToken) {
+      if (!token || !relayAuthTokens.has(token)) {
         rejectUpgrade(socket, 401, "Unauthorized");
         return;
       }
