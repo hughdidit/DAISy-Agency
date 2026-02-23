@@ -164,6 +164,33 @@ describe("DiscordExecApprovalHandler.shouldHandle", () => {
     );
   });
 
+<<<<<<< HEAD
+=======
+  it("rejects unsafe nested-repetition regex in session filter", () => {
+    const handler = createHandler({
+      enabled: true,
+      approvers: ["123"],
+      sessionFilter: ["(a+)+$"],
+    });
+    expect(handler.shouldHandle(createRequest({ sessionKey: `${"a".repeat(28)}!` }))).toBe(false);
+  });
+
+  it("filters by discord account when session store includes account", () => {
+    writeStore({
+      "agent:test-agent:discord:channel:999888777": {
+        sessionId: "sess",
+        updatedAt: Date.now(),
+        origin: { provider: "discord", accountId: "secondary" },
+        lastAccountId: "secondary",
+      },
+    });
+    const handler = createHandler({ enabled: true, approvers: ["123"] }, "default");
+    expect(handler.shouldHandle(createRequest())).toBe(false);
+    const matching = createHandler({ enabled: true, approvers: ["123"] }, "secondary");
+    expect(matching.shouldHandle(createRequest())).toBe(true);
+  });
+
+>>>>>>> a2dfe9879 (fix(security): harden regex compilation for filters and redaction)
   it("combines agent and session filters", () => {
     const handler = createHandler({
       enabled: true,

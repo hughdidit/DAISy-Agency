@@ -9,6 +9,17 @@ import { createDiscordClient } from "../send.shared.js";
 import { logDebug, logError } from "../../logger.js";
 import type { DiscordExecApprovalConfig } from "../../config/types.discord.js";
 import type { RuntimeEnv } from "../../runtime.js";
+<<<<<<< HEAD
+=======
+import { compileSafeRegex } from "../../security/safe-regex.js";
+import {
+  GATEWAY_CLIENT_MODES,
+  GATEWAY_CLIENT_NAMES,
+  normalizeMessageChannel,
+} from "../../utils/message-channel.js";
+import { createDiscordClient, stripUndefinedFields } from "../send.shared.js";
+import { DiscordUiContainer } from "../ui.js";
+>>>>>>> a2dfe9879 (fix(security): harden regex compilation for filters and redaction)
 
 const EXEC_APPROVAL_KEY = "execapproval";
 
@@ -383,11 +394,11 @@ export class DiscordExecApprovalHandler {
       const session = request.request.sessionKey;
       if (!session) return false;
       const matches = config.sessionFilter.some((p) => {
-        try {
-          return session.includes(p) || new RegExp(p).test(session);
-        } catch {
-          return session.includes(p);
+        if (session.includes(p)) {
+          return true;
         }
+        const regex = compileSafeRegex(p);
+        return regex ? regex.test(session) : false;
       });
       if (!matches) return false;
     }

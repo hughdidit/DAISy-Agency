@@ -1,4 +1,10 @@
+<<<<<<< HEAD
 import { createRequire } from "node:module";
+=======
+import type { OpenClawConfig } from "../config/config.js";
+import { compileSafeRegex } from "../security/safe-regex.js";
+import { resolveNodeRequireFromMeta } from "./node-require.js";
+>>>>>>> a2dfe9879 (fix(security): harden regex compilation for filters and redaction)
 
 import type { OpenClawConfig } from "../config/config.js";
 
@@ -50,15 +56,11 @@ function normalizeMode(value?: string): RedactSensitiveMode {
 function parsePattern(raw: string): RegExp | null {
   if (!raw.trim()) return null;
   const match = raw.match(/^\/(.+)\/([gimsuy]*)$/);
-  try {
-    if (match) {
-      const flags = match[2].includes("g") ? match[2] : `${match[2]}g`;
-      return new RegExp(match[1], flags);
-    }
-    return new RegExp(raw, "gi");
-  } catch {
-    return null;
+  if (match) {
+    const flags = match[2].includes("g") ? match[2] : `${match[2]}g`;
+    return compileSafeRegex(match[1], flags);
   }
+  return compileSafeRegex(raw, "gi");
 }
 
 function resolvePatterns(value?: string[]): RegExp[] {
