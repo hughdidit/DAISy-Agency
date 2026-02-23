@@ -11,8 +11,17 @@ import { buildMSTeamsMediaPayload } from "./attachments/payload.js";
 import { setMSTeamsRuntime } from "./runtime.js";
 >>>>>>> 48f327c20 (test: consolidate redundant suites and speed attachment tests)
 
+<<<<<<< HEAD
 import type { PluginRuntime } from "clawdbot/plugin-sdk";
 import { setMSTeamsRuntime } from "./runtime.js";
+=======
+vi.mock("openclaw/plugin-sdk", () => ({
+  isPrivateIpAddress: () => false,
+}));
+
+/** Mock DNS resolver that always returns a public IP (for anti-SSRF validation in tests). */
+const publicResolveFn = async () => ({ address: "13.107.136.10" });
+>>>>>>> 3f03cdea5 (test: optimize redundant suites for faster runtime)
 
 const detectMimeMock = vi.fn(async () => "image/png");
 const saveMediaBufferMock = vi.fn(async () => ({

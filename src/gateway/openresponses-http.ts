@@ -135,10 +135,6 @@ import {
 =======
 import { defaultRuntime } from "../runtime.js";
 import { resolveAssistantStreamDeltaText } from "./agent-event-assistant-text.js";
-import {
-  buildAgentMessageFromConversationEntries,
-  type ConversationEntry,
-} from "./agent-prompt.js";
 import type { AuthRateLimiter } from "./auth-rate-limit.js";
 import type { ResolvedGatewayAuth } from "./auth.js";
 import { sendJson, setSseHeaders, writeDone } from "./http-common.js";
@@ -146,15 +142,17 @@ import { handleGatewayPostJsonEndpoint } from "./http-endpoint-helpers.js";
 import { resolveAgentIdForRequest, resolveSessionKey } from "./http-utils.js";
 import {
   CreateResponseBodySchema,
-  type ContentPart,
   type CreateResponseBody,
-  type ItemParam,
   type OutputItem,
   type ResponseResource,
   type StreamingEvent,
   type Usage,
 } from "./open-responses.schema.js";
+<<<<<<< HEAD
 >>>>>>> 30b6eccae (feat(gateway): add auth rate-limiting & brute-force protection (#15035))
+=======
+import { buildAgentPrompt } from "./openresponses-prompt.js";
+>>>>>>> 3f03cdea5 (test: optimize redundant suites for faster runtime)
 
 type OpenResponsesHttpOptions = {
   auth: ResolvedGatewayAuth;
@@ -170,24 +168,6 @@ const DEFAULT_BODY_BYTES = 20 * 1024 * 1024;
 function writeSseEvent(res: ServerResponse, event: StreamingEvent) {
   res.write(`event: ${event.type}\n`);
   res.write(`data: ${JSON.stringify(event)}\n\n`);
-}
-
-function extractTextContent(content: string | ContentPart[]): string {
-  if (typeof content === "string") {
-    return content;
-  }
-  return content
-    .map((part) => {
-      if (part.type === "input_text") {
-        return part.text;
-      }
-      if (part.type === "output_text") {
-        return part.text;
-      }
-      return "";
-    })
-    .filter(Boolean)
-    .join("\n");
 }
 
 type ResolvedResponsesLimits = {
@@ -277,52 +257,7 @@ function applyToolChoice(params: {
   return { tools };
 }
 
-export function buildAgentPrompt(input: string | ItemParam[]): {
-  message: string;
-  extraSystemPrompt?: string;
-} {
-  if (typeof input === "string") {
-    return { message: input };
-  }
-
-  const systemParts: string[] = [];
-  const conversationEntries: ConversationEntry[] = [];
-
-  for (const item of input) {
-    if (item.type === "message") {
-      const content = extractTextContent(item.content).trim();
-      if (!content) {
-        continue;
-      }
-
-      if (item.role === "system" || item.role === "developer") {
-        systemParts.push(content);
-        continue;
-      }
-
-      const normalizedRole = item.role === "assistant" ? "assistant" : "user";
-      const sender = normalizedRole === "assistant" ? "Assistant" : "User";
-
-      conversationEntries.push({
-        role: normalizedRole,
-        entry: { sender, body: content },
-      });
-    } else if (item.type === "function_call_output") {
-      conversationEntries.push({
-        role: "tool",
-        entry: { sender: `Tool:${item.call_id}`, body: item.output },
-      });
-    }
-    // Skip reasoning and item_reference for prompt building (Phase 1)
-  }
-
-  const message = buildAgentMessageFromConversationEntries(conversationEntries);
-
-  return {
-    message,
-    extraSystemPrompt: systemParts.length > 0 ? systemParts.join("\n\n") : undefined,
-  };
-}
+export { buildAgentPrompt } from "./openresponses-prompt.js";
 
 function resolveOpenResponsesSessionKey(params: {
   req: IncomingMessage;
