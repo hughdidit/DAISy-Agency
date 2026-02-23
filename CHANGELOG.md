@@ -200,7 +200,11 @@ Docs: https://docs.openclaw.ai
 >>>>>>> 9bd04849e (fix(agents): detect Kimi model-token-limit overflows)
 =======
 - Providers/Moonshot: mark Kimi K2.5 as image-capable in implicit + onboarding model definitions, and refresh stale explicit provider capability fields (`input`/`reasoning`/context limits) from implicit catalogs so existing configs pick up Moonshot vision support without manual model rewrites. (#13135, #4459) Thanks @manikv12.
+<<<<<<< HEAD
 >>>>>>> 15e32c734 (fix(models): refresh Moonshot Kimi vision capabilities)
+=======
+- Agents/Transcript: enable consecutive-user turn merging for strict non-OpenAI `openai-completions` providers (for example Moonshot/Kimi), reducing `roles must alternate` ordering failures on OpenAI-compatible endpoints while preserving current OpenRouter/Opencode behavior. (#7693)
+>>>>>>> 9757d2bb6 (fix(agents): normalize strict openai-compatible turn ordering)
 - Install/Discord Voice: make `@discordjs/opus` an optional dependency so `openclaw` install/update no longer hard-fails when native Opus builds fail, while keeping `opusscript` as the runtime fallback decoder for Discord voice flows. (#23737, #23733, #23703) Thanks @jeadland, @Sheetaa, and @Breakyman.
 - Docker/Setup: precreate `$OPENCLAW_CONFIG_DIR/identity` during `docker-setup.sh` so CLI commands that need device identity (for example `devices list`) avoid `EACCES ... /home/node/.openclaw/identity` failures on restrictive bind mounts. (#23948) Thanks @ackson-beep.
 >>>>>>> f0542df9f (Docker: precreate identity dir in docker setup)
