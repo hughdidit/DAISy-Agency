@@ -1553,8 +1553,17 @@
               {
                 "group": "Technical reference",
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
                 "pages": ["reference/wizard", "reference/token-use", "channels/grammy"]
+=======
+                "pages": [
+                  "reference/wizard",
+                  "reference/token-use",
+                  "reference/prompt-caching",
+                  "channels/grammy"
+                ]
+>>>>>>> 46dee2660 (docs(reference): add prompt-caching guide and knobs)
               },
               {
                 "group": "Concept internals",
