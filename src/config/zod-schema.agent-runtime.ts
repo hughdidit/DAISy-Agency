@@ -179,7 +179,13 @@ export const ToolsWebSearchSchema = z
     apiKey: z.string().optional(),
 =======
     provider: z
-      .union([z.literal("brave"), z.literal("perplexity"), z.literal("grok"), z.literal("gemini")])
+      .union([
+        z.literal("brave"),
+        z.literal("perplexity"),
+        z.literal("grok"),
+        z.literal("gemini"),
+        z.literal("kimi"),
+      ])
       .optional(),
     apiKey: z.string().optional().register(sensitive),
 >>>>>>> 3a3c2da91 ([Feature]: Add Gemini (Google Search grounding) as web_search provider (#13075))
@@ -205,6 +211,14 @@ export const ToolsWebSearchSchema = z
     gemini: z
       .object({
         apiKey: z.string().optional().register(sensitive),
+        model: z.string().optional(),
+      })
+      .strict()
+      .optional(),
+    kimi: z
+      .object({
+        apiKey: z.string().optional().register(sensitive),
+        baseUrl: z.string().optional(),
         model: z.string().optional(),
       })
       .strict()
