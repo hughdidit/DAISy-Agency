@@ -174,6 +174,11 @@ export const AgentDefaultsSchema = z
           ])
           .optional(),
         thinking: z.string().optional(),
+<<<<<<< HEAD
+=======
+        runTimeoutSeconds: z.number().int().min(0).optional(),
+        announceTimeoutMs: z.number().int().positive().optional(),
+>>>>>>> 8bcd405b1 (fix: add .int() to runTimeoutSeconds zod schema for consistency)
       })
       .strict()
       .optional(),
