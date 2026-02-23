@@ -69,6 +69,7 @@ Docs: https://docs.openclaw.ai
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 =======
@@ -127,6 +128,21 @@ Docs: https://docs.openclaw.ai
 =======
 =======
 =======
+=======
+### Breaking
+
+### Fixes
+- Security/Skills: escape user-controlled prompt, filename, and output-path values in `openai-image-gen` HTML gallery generation to prevent stored XSS in generated `index.html` output. (#12538) Thanks @CornBrother0x.
+- Security/OTEL: redact sensitive values (API keys, tokens, credential fields) from diagnostics-otel log bodies, log attributes, and error/reason span fields before OTLP export. (#12542) Thanks @brandonwise.
+- Providers/OpenRouter: remove conflicting top-level `reasoning_effort` when injecting nested `reasoning.effort`, preventing OpenRouter 400 payload-validation failures for reasoning models. (#24120) thanks @tenequm.
+
+## 2026.2.23
+
+### Changes
+
+- Control UI/Agents: make the Tools panel data-driven from runtime `tools.catalog`, add per-tool provenance labels (`core` / `plugin:<id>` + optional marker), and keep a static fallback list when the runtime catalog is unavailable.
+- Control UI/Cron: add full web cron edit parity (including clone and richer validation/help text), plus all-jobs run history with pagination/search/sort/multi-filter controls and improved cron page layout for cleaner scheduling and failure triage workflows.
+>>>>>>> af4330ef7 (Update CHANGELOG.md)
 - Provider/Mistral: add support for the Mistral provider, including memory embeddings and voice support. (#23845) Thanks @vincentkoc.
 >>>>>>> b19a6ee62 (docs(changelog): move mistral to top and add synology chat)
 - Update/Core: add an optional built-in auto-updater for package installs (`update.auto.*`), default-off, with stable rollout delay+jitter and beta hourly cadence.
@@ -196,6 +212,11 @@ Docs: https://docs.openclaw.ai
 
 ### Fixes
 
+<<<<<<< HEAD
+=======
+- Agents/Compaction: count auto-compactions only after a non-retry `auto_compaction_end`, keeping session `compactionCount` aligned to completed compactions.
+- Security/CLI: redact sensitive values in `openclaw config get` output before printing config paths, preventing credential leakage to terminal output/history. (#13683) Thanks @SleuthCo.
+>>>>>>> af4330ef7 (Update CHANGELOG.md)
 - Install/Discord Voice: make `@discordjs/opus` an optional dependency so `openclaw` install/update no longer hard-fails when native Opus builds fail, while keeping `opusscript` as the runtime fallback decoder for Discord voice flows. (#23737, #23733, #23703) Thanks @jeadland, @Sheetaa, and @Breakyman.
 <<<<<<< HEAD
 - Agents/Exec: honor explicit agent context when resolving `tools.exec` defaults for runs with opaque/non-agent session keys, so per-agent `host/security/ask` policies are applied consistently. (#11832)
