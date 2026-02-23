@@ -5,7 +5,7 @@ import type { MoltbotConfig } from "../../config/config.js";
 import { createSubsystemLogger } from "../../logging/subsystem.js";
 import {
   normalizePluginsConfig,
-  resolveEnableState,
+  resolveEffectiveEnableState,
   resolveMemorySlotDecision,
 } from "../../plugins/config-state.js";
 import { loadPluginManifestRegistry } from "../../plugins/manifest-registry.js";
@@ -30,9 +30,24 @@ export function resolvePluginSkillDirs(params: {
   const resolved: string[] = [];
 
   for (const record of registry.plugins) {
+<<<<<<< HEAD
     if (!record.skills || record.skills.length === 0) continue;
     const enableState = resolveEnableState(record.id, record.origin, normalizedPlugins);
     if (!enableState.enabled) continue;
+=======
+    if (!record.skills || record.skills.length === 0) {
+      continue;
+    }
+    const enableState = resolveEffectiveEnableState({
+      id: record.id,
+      origin: record.origin,
+      config: normalizedPlugins,
+      rootConfig: params.config,
+    });
+    if (!enableState.enabled) {
+      continue;
+    }
+>>>>>>> 87603b5c4 (fix: sync built-in channel enablement across config paths)
     const memoryDecision = resolveMemorySlotDecision({
       id: record.id,
       kind: record.kind,
