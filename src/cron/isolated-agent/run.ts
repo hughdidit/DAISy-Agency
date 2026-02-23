@@ -1038,11 +1038,27 @@ let skillsSnapshot = cronSession.sessionEntry.skillsSnapshot;
       }),
     );
 
+<<<<<<< HEAD
   let delivered = false;
+=======
+  // `true` means we confirmed at least one outbound send reached the target.
+  // Keep this strict so timer fallback can safely decide whether to wake main.
+  let delivered = skipMessagingToolDelivery;
+  const failDeliveryTarget = (error: string) =>
+    withRunSession({
+      status: "error",
+      error,
+      errorKind: "delivery-target",
+      summary,
+      outputText,
+      ...telemetry,
+    });
+>>>>>>> a54dc7fe8 (Cron: suppress fallback main summary for delivery-target errors (openclaw#24074) thanks @Takhoffman)
   if (deliveryRequested && !skipHeartbeatDelivery && !skipMessagingToolDelivery) {
     const deliveryFailure = resolveCronDeliveryFailure(resolvedDelivery);
     if (deliveryFailure) {
       if (!deliveryBestEffort) {
+<<<<<<< HEAD
         return {
           status: "error",
           error: deliveryFailure.message,
@@ -1054,6 +1070,9 @@ let skillsSnapshot = cronSession.sessionEntry.skillsSnapshot;
           ...telemetry,
         });
 >>>>>>> dbe2ab6f6 (cron: keep usage telemetry in run log types + error paths)
+=======
+        return failDeliveryTarget(resolvedDelivery.error.message);
+>>>>>>> a54dc7fe8 (Cron: suppress fallback main summary for delivery-target errors (openclaw#24074) thanks @Takhoffman)
       }
 <<<<<<< HEAD
       logWarn(`[cron:${params.job.id}] ${deliveryFailure.message}`);
@@ -1076,13 +1095,7 @@ let skillsSnapshot = cronSession.sessionEntry.skillsSnapshot;
 =======
     const failOrWarnMissingDeliveryField = (message: string) => {
       if (!deliveryBestEffort) {
-        return withRunSession({
-          status: "error",
-          error: message,
-          summary,
-          outputText,
-          ...telemetry,
-        });
+        return failDeliveryTarget(message);
       }
       logWarn(`[cron:${params.job.id}] ${message}`);
       return withRunSession({ status: "ok", summary, outputText, ...telemetry });
