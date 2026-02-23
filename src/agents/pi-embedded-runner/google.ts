@@ -29,9 +29,13 @@ import type { TranscriptPolicy } from "../transcript-policy.js";
 import { resolveTranscriptPolicy } from "../transcript-policy.js";
 import { log } from "./logger.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import { dropThinkingBlocks, isAssistantMessageWithContent } from "./thinking.js";
 >>>>>>> 2081b3a3c (refactor(channels): dedupe hook and monitor execution paths)
+=======
+import { dropThinkingBlocks } from "./thinking.js";
+>>>>>>> 382fe8009 (refactor!: remove google-antigravity provider support)
 import { describeUnknownError } from "./utils.js";
 
 const GOOGLE_TURN_ORDERING_CUSTOM_TYPE = "google-turn-ordering-bootstrap";
@@ -57,6 +61,7 @@ const GOOGLE_SCHEMA_UNSUPPORTED_KEYWORDS = new Set([
   "minProperties",
   "maxProperties",
 ]);
+<<<<<<< HEAD
 const ANTIGRAVITY_SIGNATURE_RE = /^[A-Za-z0-9+/]+={0,2}$/;
 
 function isValidAntigravitySignature(value: unknown): value is string {
@@ -131,6 +136,11 @@ export function sanitizeAntigravityThinkingBlocks(messages: AgentMessage[]): Age
 
 <<<<<<< HEAD
 =======
+=======
+
+const INTER_SESSION_PREFIX_BASE = "[Inter-session message]";
+
+>>>>>>> 382fe8009 (refactor!: remove google-antigravity provider support)
 function buildInterSessionPrefix(message: AgentMessage): string {
   const provenance = normalizeInputProvenance((message as { provenance?: unknown }).provenance);
   if (!provenance) {
@@ -281,10 +291,17 @@ export function sanitizeToolsForGoogle<
   tools: AgentTool<TSchemaType, TResult>[];
   provider: string;
 }): AgentTool<TSchemaType, TResult>[] {
+<<<<<<< HEAD
   // google-antigravity serves Anthropic models (e.g. claude-opus-4-6-thinking),
   // NOT Gemini. Applying Gemini schema cleaning strips JSON Schema keywords
   // (minimum, maximum, format, etc.) that Anthropic's API requires for
   // draft 2020-12 compliance. Only clean for actual Gemini providers.
+=======
+  // Cloud Code Assist uses the OpenAPI 3.03 `parameters` field for both Gemini
+  // AND Claude models.  This field does not support JSON Schema keywords such as
+  // patternProperties, additionalProperties, $ref, etc.  We must clean schemas
+  // for every provider that routes through this path.
+>>>>>>> 382fe8009 (refactor!: remove google-antigravity provider support)
   if (params.provider !== "google-gemini-cli") {
     return params.tools;
   }
@@ -302,7 +319,7 @@ export function sanitizeToolsForGoogle<
 }
 
 export function logToolSchemasForGoogle(params: { tools: AgentTool[]; provider: string }) {
-  if (params.provider !== "google-antigravity" && params.provider !== "google-gemini-cli") {
+  if (params.provider !== "google-gemini-cli") {
     return;
   }
   const toolNames = params.tools.map((tool, index) => `${index}:${tool.name}`);
@@ -493,12 +510,16 @@ export async function sanitizeSessionHistory(params: {
     ? sanitizeAntigravityThinkingBlocks(sanitizedImages)
     : sanitizedImages;
 <<<<<<< HEAD
+<<<<<<< HEAD
   const sanitizedToolCalls = sanitizeToolCallInputs(sanitizedThinking);
 =======
   const sanitizedThinking = policy.sanitizeThinkingSignatures
     ? sanitizeAntigravityThinkingBlocks(droppedThinking)
     : droppedThinking;
   const sanitizedToolCalls = sanitizeToolCallInputs(sanitizedThinking, {
+=======
+  const sanitizedToolCalls = sanitizeToolCallInputs(droppedThinking, {
+>>>>>>> 382fe8009 (refactor!: remove google-antigravity provider support)
     allowedToolNames: params.allowedToolNames,
   });
 >>>>>>> cdfe45eeb (Agents: validate persisted tool-call names)

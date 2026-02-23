@@ -152,7 +152,7 @@ async function resolveOAuthToken(params: {
       });
       if (resolved) {
         let token = resolved.apiKey;
-        if (params.provider === "google-gemini-cli" || params.provider === "google-antigravity") {
+        if (params.provider === "google-gemini-cli") {
           const parsed = parseGoogleToken(resolved.apiKey);
           token = parsed?.token ?? resolved.apiKey;
         }
@@ -182,7 +182,6 @@ function resolveOAuthProviders(agentDir?: string): UsageProviderId[] {
     "anthropic",
     "github-copilot",
     "google-gemini-cli",
-    "google-antigravity",
     "openai-codex",
   ] satisfies UsageProviderId[];
   const isOAuthLikeCredential = (id: string) => {

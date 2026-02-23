@@ -1,5 +1,5 @@
 import { normalizeProviderId } from "./model-selection.js";
-import { isAntigravityClaude, isGoogleModelApi } from "./pi-embedded-helpers/google.js";
+import { isGoogleModelApi } from "./pi-embedded-helpers/google.js";
 import type { ToolCallIdMode } from "./tool-call-id.js";
 
 export type TranscriptSanitizeMode = "full" | "images-only";
@@ -87,11 +87,20 @@ export function resolveTranscriptPolicy(params: {
   const isOpenRouterGemini =
     (provider === "openrouter" || provider === "opencode") &&
     modelId.toLowerCase().includes("gemini");
+<<<<<<< HEAD
   const isAntigravityClaudeModel = isAntigravityClaude({
     api: params.modelApi,
     provider,
     modelId,
   });
+=======
+  const isCopilotClaude = provider === "github-copilot" && modelId.toLowerCase().includes("claude");
+
+  // GitHub Copilot's Claude endpoints can reject persisted `thinking` blocks with
+  // non-binary/non-base64 signatures (e.g. thinkingSignature: "reasoning_text").
+  // Drop these blocks at send-time to keep sessions usable.
+  const dropThinkingBlocks = isCopilotClaude;
+>>>>>>> 382fe8009 (refactor!: remove google-antigravity provider support)
 
   const needsNonImageSanitize = isGoogle || isAnthropic || isMistral || isOpenRouterGemini;
 
@@ -110,17 +119,25 @@ export function resolveTranscriptPolicy(params: {
 =======
   const sanitizeThoughtSignatures =
     isOpenRouterGemini || isGoogle ? { allowBase64Only: true, includeCamelCase: true } : undefined;
+<<<<<<< HEAD
   const sanitizeThinkingSignatures = isAntigravityClaudeModel;
 >>>>>>> 9176571ec (fix(gemini): sanitize thoughtSignatures for native Google provider)
+=======
+>>>>>>> 382fe8009 (refactor!: remove google-antigravity provider support)
 
   return {
     sanitizeMode: isOpenAi ? "images-only" : needsNonImageSanitize ? "full" : "images-only",
     sanitizeToolCallIds: !isOpenAi && sanitizeToolCallIds,
     toolCallIdMode,
     repairToolUseResultPairing: !isOpenAi && repairToolUseResultPairing,
-    preserveSignatures: isAntigravityClaudeModel,
+    preserveSignatures: false,
     sanitizeThoughtSignatures: isOpenAi ? undefined : sanitizeThoughtSignatures,
+<<<<<<< HEAD
     normalizeAntigravityThinkingBlocks,
+=======
+    sanitizeThinkingSignatures: false,
+    dropThinkingBlocks,
+>>>>>>> 382fe8009 (refactor!: remove google-antigravity provider support)
     applyGoogleTurnOrdering: !isOpenAi && isGoogle,
     validateGeminiTurns: !isOpenAi && isGoogle,
     validateAnthropicTurns: !isOpenAi && isAnthropic,
