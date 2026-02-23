@@ -1045,6 +1045,25 @@ let skillsSnapshot = cronSession.sessionEntry.skillsSnapshot;
     Object.keys(deliveryPayload?.channelData ?? {}).length > 0;
 >>>>>>> 8fae55e8e (fix(cron): share isolated announce flow + harden cron scheduling/delivery (#11641))
   const deliveryBestEffort = resolveCronDeliveryBestEffort(params.job);
+  const hasErrorPayload = payloads.some((payload) => payload?.isError === true);
+  const lastErrorPayloadText = [...payloads]
+    .toReversed()
+    .find((payload) => payload?.isError === true && Boolean(payload?.text?.trim()))
+    ?.text?.trim();
+  const embeddedRunError = hasErrorPayload
+    ? (lastErrorPayloadText ?? "cron isolated run returned an error payload")
+    : undefined;
+  const resolveRunOutcome = (params?: { delivered?: boolean }) =>
+    withRunSession({
+      status: hasErrorPayload ? "error" : "ok",
+      ...(hasErrorPayload
+        ? { error: embeddedRunError ?? "cron isolated run returned an error payload" }
+        : {}),
+      summary,
+      outputText,
+      delivered: params?.delivered,
+      ...telemetry,
+    });
 
   // Skip delivery for heartbeat-only responses (HEARTBEAT_OK with no real content).
   const ackMaxChars = resolveHeartbeatAckMaxChars(agentCfg);
@@ -1460,13 +1479,21 @@ let skillsSnapshot = cronSession.sessionEntry.skillsSnapshot;
     withRunSession,
   });
   if (deliveryResult.result) {
+<<<<<<< HEAD
     return deliveryResult.result;
 >>>>>>> 7a40d99b1 (refactor(cron): extract delivery dispatch + harden reset notices)
+=======
+    if (!hasErrorPayload || deliveryResult.result.status !== "ok") {
+      return deliveryResult.result;
+    }
+    return resolveRunOutcome({ delivered: deliveryResult.result.delivered });
+>>>>>>> 8c8374def (fix(cron): treat embedded error payloads as run failures)
   }
   const delivered = deliveryResult.delivered;
   summary = deliveryResult.summary;
   outputText = deliveryResult.outputText;
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
   return { status: "ok", summary, outputText };
@@ -1476,4 +1503,7 @@ let skillsSnapshot = cronSession.sessionEntry.skillsSnapshot;
 =======
   return withRunSession({ status: "ok", summary, outputText, delivered, ...telemetry });
 >>>>>>> ddea5458d (cron: log model+token usage per run + add usage report script)
+=======
+  return resolveRunOutcome({ delivered });
+>>>>>>> 8c8374def (fix(cron): treat embedded error payloads as run failures)
 }
