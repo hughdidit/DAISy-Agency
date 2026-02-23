@@ -7,11 +7,52 @@ import re
 import sys
 from pathlib import Path
 
-import yaml
+try:
+    import yaml
+except ModuleNotFoundError:
+    yaml = None
 
 MAX_SKILL_NAME_LENGTH = 64
 
 
+<<<<<<< HEAD
+=======
+def _extract_frontmatter(content: str) -> Optional[str]:
+    lines = content.splitlines()
+    if not lines or lines[0].strip() != "---":
+        return None
+    for i in range(1, len(lines)):
+        if lines[i].strip() == "---":
+            return "\n".join(lines[1:i])
+    return None
+
+
+def _parse_simple_frontmatter(frontmatter_text: str) -> Optional[dict[str, str]]:
+    """
+    Minimal fallback parser used when PyYAML is unavailable.
+    Supports simple `key: value` mappings used by SKILL.md frontmatter.
+    """
+    parsed: dict[str, str] = {}
+    for raw_line in frontmatter_text.splitlines():
+        line = raw_line.strip()
+        if not line or line.startswith("#"):
+            continue
+        if ":" not in line:
+            return None
+        key, value = line.split(":", 1)
+        key = key.strip()
+        value = value.strip()
+        if not key:
+            return None
+        if (value.startswith('"') and value.endswith('"')) or (
+            value.startswith("'") and value.endswith("'")
+        ):
+            value = value[1:-1]
+        parsed[key] = value
+    return parsed
+
+
+>>>>>>> f18f087c3 (fix(skills): make quick_validate work without PyYAML)
 def validate_skill(skill_path):
     """Basic validation of a skill"""
     skill_path = Path(skill_path)
@@ -28,6 +69,7 @@ def validate_skill(skill_path):
     if not match:
         return False, "Invalid frontmatter format"
 <<<<<<< HEAD
+<<<<<<< HEAD
 
     frontmatter_text = match.group(1)
 
@@ -39,6 +81,22 @@ def validate_skill(skill_path):
             return False, "Frontmatter must be a YAML dictionary"
     except yaml.YAMLError as e:
         return False, f"Invalid YAML in frontmatter: {e}"
+=======
+    if yaml is not None:
+        try:
+            frontmatter = yaml.safe_load(frontmatter_text)
+            if not isinstance(frontmatter, dict):
+                return False, "Frontmatter must be a YAML dictionary"
+        except yaml.YAMLError as e:
+            return False, f"Invalid YAML in frontmatter: {e}"
+    else:
+        frontmatter = _parse_simple_frontmatter(frontmatter_text)
+        if frontmatter is None:
+            return (
+                False,
+                "Invalid YAML in frontmatter: unsupported syntax without PyYAML installed",
+            )
+>>>>>>> f18f087c3 (fix(skills): make quick_validate work without PyYAML)
 
     allowed_properties = {"name", "description", "license", "allowed-tools", "metadata"}
 
