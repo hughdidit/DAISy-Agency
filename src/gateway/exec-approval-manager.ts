@@ -147,4 +147,31 @@ export class ExecApprovalManager {
     const entry = this.pending.get(recordId);
     return entry?.record ?? null;
   }
+<<<<<<< HEAD
+=======
+
+  consumeAllowOnce(recordId: string): boolean {
+    const entry = this.pending.get(recordId);
+    if (!entry) {
+      return false;
+    }
+    const record = entry.record;
+    if (record.decision !== "allow-once") {
+      return false;
+    }
+    // One-time approvals must be consumed atomically so the same runId
+    // cannot be replayed during the resolved-entry grace window.
+    record.decision = undefined;
+    return true;
+  }
+
+  /**
+   * Wait for decision on an already-registered approval.
+   * Returns the decision promise if the ID is pending, null otherwise.
+   */
+  awaitDecision(recordId: string): Promise<ExecApprovalDecision | null> | null {
+    const entry = this.pending.get(recordId);
+    return entry?.promise ?? null;
+  }
+>>>>>>> 3f5e7f815 (fix(gateway): consume allow-once approvals to prevent replay)
 }
