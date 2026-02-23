@@ -90,7 +90,7 @@ export function resolveTranscriptPolicy(params: {
     !OPENAI_COMPAT_TURN_MERGE_EXCLUDED_PROVIDERS.has(provider);
   const isMistral = isMistralModel({ provider, modelId });
   const isOpenRouterGemini =
-    (provider === "openrouter" || provider === "opencode") &&
+    (provider === "openrouter" || provider === "opencode" || provider === "kilocode") &&
     modelId.toLowerCase().includes("gemini");
 <<<<<<< HEAD
   const isAntigravityClaudeModel = isAntigravityClaude({
