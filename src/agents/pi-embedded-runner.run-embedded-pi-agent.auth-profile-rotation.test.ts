@@ -21,8 +21,13 @@ import type { AssistantMessage } from "@mariozechner/pi-ai";
 import type { AssistantMessage } from "@mariozechner/pi-ai";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../config/config.js";
+=======
+import type { OpenClawConfig } from "../config/config.js";
+import type { AuthProfileFailureReason } from "./auth-profiles.js";
+>>>>>>> 5c7c37a02 (Agents: infer auth-profile unavailable failover reason)
 import type { EmbeddedRunAttemptResult } from "./pi-embedded-runner/run/types.js";
 
 const runEmbeddedAttemptMock = vi.fn<(params: unknown) => Promise<EmbeddedRunAttemptResult>>();
@@ -131,7 +136,16 @@ const writeAuthStore = async (
   agentDir: string,
   opts?: {
     includeAnthropic?: boolean;
-    usageStats?: Record<string, { lastUsed?: number; cooldownUntil?: number }>;
+    usageStats?: Record<
+      string,
+      {
+        lastUsed?: number;
+        cooldownUntil?: number;
+        disabledUntil?: number;
+        disabledReason?: AuthProfileFailureReason;
+        failureCounts?: Partial<Record<AuthProfileFailureReason, number>>;
+      }
+    >;
   },
 ) => {
   const authPath = path.join(agentDir, "auth-profiles.json");
@@ -203,7 +217,17 @@ async function runAutoPinnedOpenAiTurn(params: {
 async function readUsageStats(agentDir: string) {
   const stored = JSON.parse(
     await fs.readFile(path.join(agentDir, "auth-profiles.json"), "utf-8"),
-  ) as { usageStats?: Record<string, { lastUsed?: number; cooldownUntil?: number }> };
+  ) as {
+    usageStats?: Record<
+      string,
+      {
+        lastUsed?: number;
+        cooldownUntil?: number;
+        disabledUntil?: number;
+        disabledReason?: AuthProfileFailureReason;
+      }
+    >;
+  };
   return stored.usageStats ?? {};
 }
 
@@ -581,6 +605,50 @@ describe("runEmbeddedPiAgent auth profile rotation", () => {
       ).rejects.toMatchObject({
         name: "FailoverError",
         reason: "rate_limit",
+        provider: "openai",
+        model: "mock-1",
+      });
+
+      expect(runEmbeddedAttemptMock).not.toHaveBeenCalled();
+    });
+  });
+
+  it("fails over with disabled reason when all profiles are unavailable", async () => {
+    await withTimedAgentWorkspace(async ({ agentDir, workspaceDir, now }) => {
+      await writeAuthStore(agentDir, {
+        usageStats: {
+          "openai:p1": {
+            lastUsed: 1,
+            disabledUntil: now + 60 * 60 * 1000,
+            disabledReason: "billing",
+            failureCounts: { rate_limit: 4 },
+          },
+          "openai:p2": {
+            lastUsed: 2,
+            disabledUntil: now + 60 * 60 * 1000,
+            disabledReason: "billing",
+          },
+        },
+      });
+
+      await expect(
+        runEmbeddedPiAgent({
+          sessionId: "session:test",
+          sessionKey: "agent:test:disabled-failover",
+          sessionFile: path.join(workspaceDir, "session.jsonl"),
+          workspaceDir,
+          agentDir,
+          config: makeConfig({ fallbacks: ["openai/mock-2"] }),
+          prompt: "hello",
+          provider: "openai",
+          model: "mock-1",
+          authProfileIdSource: "auto",
+          timeoutMs: 5_000,
+          runId: "run:disabled-failover",
+        }),
+      ).rejects.toMatchObject({
+        name: "FailoverError",
+        reason: "billing",
         provider: "openai",
         model: "mock-1",
       });
