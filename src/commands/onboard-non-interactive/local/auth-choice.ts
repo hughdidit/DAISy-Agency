@@ -25,6 +25,7 @@ import {
   applyHuggingfaceConfig,
   applyVercelAiGatewayConfig,
   applyLitellmConfig,
+  applyMistralConfig,
   applyXaiConfig,
   applyXiaomiConfig,
   applyZaiConfig,
@@ -34,6 +35,7 @@ import {
   setGeminiApiKey,
   setKimiCodingApiKey,
   setLitellmApiKey,
+  setMistralApiKey,
   setMinimaxApiKey,
   setMoonshotApiKey,
   setOpencodeZenApiKey,
@@ -301,6 +303,29 @@ export async function applyNonInteractiveAuthChoice(params: {
       mode: "api_key",
     });
     return applyXaiConfig(nextConfig);
+  }
+
+  if (authChoice === "mistral-api-key") {
+    const resolved = await resolveNonInteractiveApiKey({
+      provider: "mistral",
+      cfg: baseConfig,
+      flagValue: opts.mistralApiKey,
+      flagName: "--mistral-api-key",
+      envVar: "MISTRAL_API_KEY",
+      runtime,
+    });
+    if (!resolved) {
+      return null;
+    }
+    if (resolved.source !== "profile") {
+      await setMistralApiKey(resolved.key);
+    }
+    nextConfig = applyAuthProfileConfig(nextConfig, {
+      profileId: "mistral:default",
+      provider: "mistral",
+      mode: "api_key",
+    });
+    return applyMistralConfig(nextConfig);
   }
 
   if (authChoice === "volcengine-api-key") {

@@ -90,6 +90,7 @@ describe("applyAuthChoice", () => {
     "AI_GATEWAY_API_KEY",
     "CLOUDFLARE_AI_GATEWAY_API_KEY",
     "MOONSHOT_API_KEY",
+    "MISTRAL_API_KEY",
     "KIMI_API_KEY",
     "GEMINI_API_KEY",
     "XIAOMI_API_KEY",
@@ -624,6 +625,13 @@ describe("applyAuthChoice", () => {
       profileId: "moonshot:default",
       provider: "moonshot",
       modelPrefix: "moonshot/",
+    },
+    {
+      authChoice: "mistral-api-key",
+      tokenProvider: "mistral",
+      profileId: "mistral:default",
+      provider: "mistral",
+      modelPrefix: "mistral/",
     },
     {
       authChoice: "kimi-code-api-key",
@@ -1372,6 +1380,10 @@ describe("resolvePreferredProviderForAuthChoice", () => {
 
   it("maps qwen-portal to the provider", () => {
     expect(resolvePreferredProviderForAuthChoice("qwen-portal")).toBe("qwen-portal");
+  });
+
+  it("maps mistral-api-key to the provider", () => {
+    expect(resolvePreferredProviderForAuthChoice("mistral-api-key")).toBe("mistral");
   });
 
   it("returns undefined for unknown choices", () => {

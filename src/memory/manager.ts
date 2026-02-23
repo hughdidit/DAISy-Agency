@@ -12,6 +12,7 @@ import {
   type EmbeddingProvider,
   type EmbeddingProviderResult,
   type GeminiEmbeddingClient,
+  type MistralEmbeddingClient,
   type OpenAiEmbeddingClient,
   type VoyageEmbeddingClient,
 } from "./embeddings.js";
@@ -150,8 +151,8 @@ export class MemoryIndexManager extends MemoryManagerEmbeddingOps implements Mem
   protected readonly workspaceDir: string;
   protected readonly settings: ResolvedMemorySearchConfig;
   protected provider: EmbeddingProvider | null;
-  private readonly requestedProvider: "openai" | "local" | "gemini" | "voyage" | "auto";
-  protected fallbackFrom?: "openai" | "local" | "gemini" | "voyage";
+  private readonly requestedProvider: "openai" | "local" | "gemini" | "voyage" | "mistral" | "auto";
+  protected fallbackFrom?: "openai" | "local" | "gemini" | "voyage" | "mistral";
   protected fallbackReason?: string;
 >>>>>>> ddef3cadb (refactor: replace memory manager prototype mixing)
   private readonly providerUnavailableReason?: string;
@@ -159,9 +160,13 @@ export class MemoryIndexManager extends MemoryManagerEmbeddingOps implements Mem
   protected gemini?: GeminiEmbeddingClient;
   protected voyage?: VoyageEmbeddingClient;
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 1dc9bb8d6 (chore: Fix more type issues.)
   private batch: {
 =======
+=======
+  protected mistral?: MistralEmbeddingClient;
+>>>>>>> d92ba4f8a (feat: Provider/Mistral full support for Mistral on OpenClaw 🇫🇷 (#23845))
   protected batch: {
 >>>>>>> ddef3cadb (refactor: replace memory manager prototype mixing)
     enabled: boolean;
@@ -268,6 +273,7 @@ export class MemoryIndexManager extends MemoryManagerEmbeddingOps implements Mem
     this.openAi = params.providerResult.openAi;
     this.gemini = params.providerResult.gemini;
     this.voyage = params.providerResult.voyage;
+    this.mistral = params.providerResult.mistral;
     this.sources = new Set(params.settings.sources);
     this.db = this.openDatabase();
     this.providerKey = this.computeProviderKey();
