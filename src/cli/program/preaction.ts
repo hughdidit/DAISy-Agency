@@ -6,6 +6,10 @@ import { isTruthyEnvValue } from "../../infra/env.js";
 import type { LogLevel } from "../../logging/levels.js";
 >>>>>>> 98a03c490 (Feat/logger support log level validation0222 (#23436))
 import { defaultRuntime } from "../../runtime.js";
+<<<<<<< HEAD
+=======
+import { getCommandPath, getVerboseFlag, hasFlag, hasHelpOrVersion } from "../argv.js";
+>>>>>>> 9e4a366ee (fix(cli): keep json preflight stdout machine-readable)
 import { emitCliBanner } from "../banner.js";
 <<<<<<< HEAD
 import { getCommandPath, getVerboseFlag, hasHelpOrVersion } from "../argv.js";
@@ -40,6 +44,7 @@ const PLUGIN_REQUIRED_COMMANDS = new Set([
   "onboard",
 ]);
 const CONFIG_GUARD_BYPASS_COMMANDS = new Set(["doctor", "completion", "secrets"]);
+const JSON_PARSE_ONLY_COMMANDS = new Set(["config set"]);
 
 function getRootCommand(command: Command): Command {
   let current = command;
@@ -59,6 +64,17 @@ function getCliLogLevel(actionCommand: Command): LogLevel | undefined {
   }
   const logLevel = root.opts<Record<string, unknown>>().logLevel;
   return typeof logLevel === "string" ? (logLevel as LogLevel) : undefined;
+}
+
+function isJsonOutputMode(commandPath: string[], argv: string[]): boolean {
+  if (!hasFlag(argv, "--json")) {
+    return false;
+  }
+  const key = `${commandPath[0] ?? ""} ${commandPath[1] ?? ""}`.trim();
+  if (JSON_PARSE_ONLY_COMMANDS.has(key)) {
+    return false;
+  }
+  return true;
 }
 
 export function registerPreActionHooks(program: Command, programVersion: string) {
@@ -96,11 +112,21 @@ export function registerPreActionHooks(program: Command, programVersion: string)
       return;
     }
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
 =======
     const { ensureConfigReady } = await import("./config-guard.js");
 >>>>>>> c90b3e4d5 (perf(cli): speed up startup)
     await ensureConfigReady({ runtime: defaultRuntime, commandPath });
+=======
+    const suppressDoctorStdout = isJsonOutputMode(commandPath, argv);
+    const { ensureConfigReady } = await import("./config-guard.js");
+    await ensureConfigReady({
+      runtime: defaultRuntime,
+      commandPath,
+      ...(suppressDoctorStdout ? { suppressDoctorStdout: true } : {}),
+    });
+>>>>>>> 9e4a366ee (fix(cli): keep json preflight stdout machine-readable)
     // Load plugins for commands that need channel access
     if (PLUGIN_REQUIRED_COMMANDS.has(commandPath[0])) {
       const { ensurePluginRegistryLoaded } = await import("../plugin-registry.js");

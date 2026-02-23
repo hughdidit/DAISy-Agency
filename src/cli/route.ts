@@ -3,11 +3,15 @@ import { ensurePluginRegistryLoaded } from "./plugin-registry.js";
 import { isTruthyEnvValue } from "../infra/env.js";
 import { emitCliBanner } from "./banner.js";
 import { VERSION } from "../version.js";
+<<<<<<< HEAD
 import { getCommandPath, hasHelpOrVersion } from "./argv.js";
 <<<<<<< HEAD
 import { ensureConfigReady } from "./program/config-guard.js";
 import { findRoutedCommand } from "./program/command-registry.js";
 =======
+=======
+import { getCommandPath, hasFlag, hasHelpOrVersion } from "./argv.js";
+>>>>>>> 9e4a366ee (fix(cli): keep json preflight stdout machine-readable)
 import { emitCliBanner } from "./banner.js";
 import { ensurePluginRegistryLoaded } from "./plugin-registry.js";
 import { ensureConfigReady } from "./program/config-guard.js";
@@ -19,8 +23,13 @@ async function prepareRoutedCommand(params: {
   commandPath: string[];
   loadPlugins?: boolean | ((argv: string[]) => boolean);
 }) {
+  const suppressDoctorStdout = hasFlag(params.argv, "--json");
   emitCliBanner(VERSION, { argv: params.argv });
-  await ensureConfigReady({ runtime: defaultRuntime, commandPath: params.commandPath });
+  await ensureConfigReady({
+    runtime: defaultRuntime,
+    commandPath: params.commandPath,
+    ...(suppressDoctorStdout ? { suppressDoctorStdout: true } : {}),
+  });
   const shouldLoadPlugins =
     typeof params.loadPlugins === "function" ? params.loadPlugins(params.argv) : params.loadPlugins;
   if (shouldLoadPlugins) {
