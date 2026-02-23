@@ -111,6 +111,7 @@ describe("runCommandWithTimeout", () => {
         "-e",
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         'process.stdout.write("."); setTimeout(() => process.stdout.write("."), 30); setTimeout(() => process.exit(0), 60);',
       ],
       {
@@ -130,6 +131,23 @@ describe("runCommandWithTimeout", () => {
         timeoutMs: 500,
         noOutputTimeoutMs: 250,
 >>>>>>> d01cc69ef (test: tighten process timeout fixtures)
+=======
+        [
+          'process.stdout.write(".");',
+          "let count = 0;",
+          'const ticker = setInterval(() => { process.stdout.write(".");',
+          "count += 1;",
+          "if (count === 4) {",
+          "clearInterval(ticker);",
+          "process.exit(0);",
+          "}",
+          "}, 60);",
+        ].join(" "),
+      ],
+      {
+        timeoutMs: 5_000,
+        noOutputTimeoutMs: 250,
+>>>>>>> a6a2a9276 (test: reduce exec timer test runtime)
       },
     );
 
