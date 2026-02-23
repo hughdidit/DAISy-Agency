@@ -13,7 +13,7 @@ export const TlonAuthorizationSchema = z.object({
   channelRules: z.record(z.string(), TlonChannelRuleSchema).optional(),
 });
 
-export const TlonAccountSchema = z.object({
+const tlonCommonConfigFields = {
   name: z.string().optional(),
   enabled: z.boolean().optional(),
   ship: ShipSchema.optional(),
@@ -24,9 +24,14 @@ export const TlonAccountSchema = z.object({
   autoDiscoverChannels: z.boolean().optional(),
   showModelSignature: z.boolean().optional(),
   responsePrefix: z.string().optional(),
+} satisfies z.ZodRawShape;
+
+export const TlonAccountSchema = z.object({
+  ...tlonCommonConfigFields,
 });
 
 export const TlonConfigSchema = z.object({
+<<<<<<< HEAD
   name: z.string().optional(),
   enabled: z.boolean().optional(),
   ship: ShipSchema.optional(),
@@ -37,6 +42,9 @@ export const TlonConfigSchema = z.object({
   autoDiscoverChannels: z.boolean().optional(),
   showModelSignature: z.boolean().optional(),
   responsePrefix: z.string().optional(),
+=======
+  ...tlonCommonConfigFields,
+>>>>>>> 75423a00d (refactor: deduplicate shared helpers and test setup)
   authorization: TlonAuthorizationSchema.optional(),
   defaultAuthorizedShips: z.array(ShipSchema).optional(),
   accounts: z.record(z.string(), TlonAccountSchema).optional(),
