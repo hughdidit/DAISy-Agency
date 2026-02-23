@@ -8,6 +8,7 @@ import type { OpenClawConfig } from "../config/config.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { EmbeddedContextFile } from "./pi-embedded-helpers.js";
 <<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -15,6 +16,9 @@ import type { EmbeddedContextFile } from "./pi-embedded-helpers.js";
 import { applyBootstrapHookOverrides } from "./bootstrap-hooks.js";
 >>>>>>> ed11e93cf (chore(format))
 =======
+=======
+import { getOrLoadBootstrapFiles } from "./bootstrap-cache.js";
+>>>>>>> 40db3fef4 (fix(agents): cache bootstrap snapshots per session key)
 import { applyBootstrapHookOverrides } from "./bootstrap-hooks.js";
 import type { EmbeddedContextFile } from "./pi-embedded-helpers.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
@@ -77,10 +81,13 @@ export async function resolveBootstrapFilesForRun(params: {
   warn?: (message: string) => void;
 }): Promise<WorkspaceBootstrapFile[]> {
   const sessionKey = params.sessionKey ?? params.sessionId;
-  const bootstrapFiles = filterBootstrapFilesForSession(
-    await loadWorkspaceBootstrapFiles(params.workspaceDir),
-    sessionKey,
-  );
+  const rawFiles = params.sessionKey
+    ? await getOrLoadBootstrapFiles({
+        workspaceDir: params.workspaceDir,
+        sessionKey: params.sessionKey,
+      })
+    : await loadWorkspaceBootstrapFiles(params.workspaceDir);
+  const bootstrapFiles = filterBootstrapFilesForSession(rawFiles, sessionKey);
 
   const updated = await applyBootstrapHookOverrides({
     files: bootstrapFiles,

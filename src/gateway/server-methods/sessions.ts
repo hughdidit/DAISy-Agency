@@ -22,7 +22,11 @@ import type { GatewayRequestHandlers, RespondFn } from "./types.js";
 =======
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { resolveDefaultAgentId } from "../../agents/agent-scope.js";
+<<<<<<< HEAD
 >>>>>>> dc5d23484 (refactor(gateway): share server-method param validation)
+=======
+import { clearBootstrapSnapshot } from "../../agents/bootstrap-cache.js";
+>>>>>>> 40db3fef4 (fix(agents): cache bootstrap snapshots per session key)
 import { abortEmbeddedPiRun, waitForEmbeddedPiRunEnd } from "../../agents/pi-embedded.js";
 import { stopSubagentsForRequester } from "../../auto-reply/reply/abort.js";
 import { clearSessionQueues } from "../../auto-reply/reply/queue.js";
@@ -240,6 +244,7 @@ async function ensureSessionRuntimeCleanup(params: {
     queueKeys.add(params.sessionId);
   }
   clearSessionQueues([...queueKeys]);
+  clearBootstrapSnapshot(params.target.canonicalKey);
   stopSubagentsForRequester({ cfg: params.cfg, requesterSessionKey: params.target.canonicalKey });
   if (!params.sessionId) {
     return undefined;
