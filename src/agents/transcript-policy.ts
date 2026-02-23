@@ -144,6 +144,7 @@ export function resolveTranscriptPolicy(params: {
     : sanitizeToolCallIds
       ? "strict"
       : undefined;
+<<<<<<< HEAD
   const repairToolUseResultPairing = isGoogle || isAnthropic;
 <<<<<<< HEAD
   const sanitizeThoughtSignatures = isOpenRouterGemini
@@ -151,6 +152,12 @@ export function resolveTranscriptPolicy(params: {
     : undefined;
   const normalizeAntigravityThinkingBlocks = isAntigravityClaudeModel;
 =======
+=======
+  // All providers need orphaned tool_result repair after history truncation.
+  // OpenAI rejects function_call_output items whose call_id has no matching
+  // function_call in the conversation, so the repair must run universally.
+  const repairToolUseResultPairing = true;
+>>>>>>> 252079f00 (fix(agents): repair orphaned tool results for OpenAI after history truncation)
   const sanitizeThoughtSignatures =
     isOpenRouterGemini || isGoogle ? { allowBase64Only: true, includeCamelCase: true } : undefined;
 <<<<<<< HEAD
@@ -163,7 +170,7 @@ export function resolveTranscriptPolicy(params: {
     sanitizeMode: isOpenAi ? "images-only" : needsNonImageSanitize ? "full" : "images-only",
     sanitizeToolCallIds: !isOpenAi && sanitizeToolCallIds,
     toolCallIdMode,
-    repairToolUseResultPairing: !isOpenAi && repairToolUseResultPairing,
+    repairToolUseResultPairing,
     preserveSignatures: false,
     sanitizeThoughtSignatures: isOpenAi ? undefined : sanitizeThoughtSignatures,
 <<<<<<< HEAD
