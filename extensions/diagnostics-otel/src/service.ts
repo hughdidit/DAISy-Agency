@@ -627,6 +627,18 @@ export function createDiagnosticsOtelService(): OpenClawPluginService {
         }
       };
 
+      const addSessionIdentityAttrs = (
+        spanAttrs: Record<string, string | number>,
+        evt: { sessionKey?: string; sessionId?: string },
+      ) => {
+        if (evt.sessionKey) {
+          spanAttrs["openclaw.sessionKey"] = evt.sessionKey;
+        }
+        if (evt.sessionId) {
+          spanAttrs["openclaw.sessionId"] = evt.sessionId;
+        }
+      };
+
       const recordMessageProcessed = (
         evt: Extract<DiagnosticEventPayload, { type: "message.processed" }>,
       ) => {
@@ -643,6 +655,7 @@ export function createDiagnosticsOtelService(): OpenClawPluginService {
         }
         const spanAttrs: Record<string, string | number> = { ...attrs };
 <<<<<<< HEAD
+<<<<<<< HEAD
         if (evt.sessionKey) spanAttrs["moltbot.sessionKey"] = evt.sessionKey;
         if (evt.sessionId) spanAttrs["moltbot.sessionId"] = evt.sessionId;
         if (evt.chatId !== undefined) spanAttrs["moltbot.chatId"] = String(evt.chatId);
@@ -656,6 +669,9 @@ export function createDiagnosticsOtelService(): OpenClawPluginService {
         if (evt.sessionId) {
           spanAttrs["openclaw.sessionId"] = evt.sessionId;
         }
+=======
+        addSessionIdentityAttrs(spanAttrs, evt);
+>>>>>>> 75423a00d (refactor: deduplicate shared helpers and test setup)
         if (evt.chatId !== undefined) {
           spanAttrs["openclaw.chatId"] = String(evt.chatId);
         }
@@ -720,6 +736,7 @@ export function createDiagnosticsOtelService(): OpenClawPluginService {
         }
         const spanAttrs: Record<string, string | number> = { ...attrs };
 <<<<<<< HEAD
+<<<<<<< HEAD
         if (evt.sessionKey) spanAttrs["moltbot.sessionKey"] = evt.sessionKey;
         if (evt.sessionId) spanAttrs["moltbot.sessionId"] = evt.sessionId;
         spanAttrs["moltbot.queueDepth"] = evt.queueDepth ?? 0;
@@ -732,6 +749,9 @@ export function createDiagnosticsOtelService(): OpenClawPluginService {
         if (evt.sessionId) {
           spanAttrs["openclaw.sessionId"] = evt.sessionId;
         }
+=======
+        addSessionIdentityAttrs(spanAttrs, evt);
+>>>>>>> 75423a00d (refactor: deduplicate shared helpers and test setup)
         spanAttrs["openclaw.queueDepth"] = evt.queueDepth ?? 0;
         spanAttrs["openclaw.ageMs"] = evt.ageMs;
         const span = tracer.startSpan("openclaw.session.stuck", { attributes: spanAttrs });

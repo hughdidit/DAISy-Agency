@@ -26,6 +26,26 @@ const fixtureRoot = path.join(os.tmpdir(), `openclaw-plugin-${randomUUID()}`);
 let tempDirIndex = 0;
 const prevBundledDir = process.env.OPENCLAW_BUNDLED_PLUGINS_DIR;
 const EMPTY_PLUGIN_SCHEMA = { type: "object", additionalProperties: false, properties: {} };
+const BUNDLED_TELEGRAM_PLUGIN_BODY = `export default { id: "telegram", register(api) {
+  api.registerChannel({
+    plugin: {
+      id: "telegram",
+      meta: {
+        id: "telegram",
+        label: "Telegram",
+        selectionLabel: "Telegram",
+        docsPath: "/channels/telegram",
+        blurb: "telegram channel"
+      },
+      capabilities: { chatTypes: ["direct"] },
+      config: {
+        listAccountIds: () => [],
+        resolveAccount: () => ({ accountId: "default" })
+      },
+      outbound: { deliveryMode: "direct" }
+    }
+  });
+} };`;
 
 function makeTempDir() {
   const dir = path.join(fixtureRoot, `case-${tempDirIndex++}`);
@@ -109,6 +129,23 @@ function loadBundledMemoryPluginRegistry(options?: {
   });
 }
 
+function setupBundledTelegramPlugin() {
+  const bundledDir = makeTempDir();
+  writePlugin({
+    id: "telegram",
+    body: BUNDLED_TELEGRAM_PLUGIN_BODY,
+    dir: bundledDir,
+    filename: "telegram.js",
+  });
+  process.env.OPENCLAW_BUNDLED_PLUGINS_DIR = bundledDir;
+}
+
+function expectTelegramLoaded(registry: ReturnType<typeof loadOpenClawPlugins>) {
+  const telegram = registry.plugins.find((entry) => entry.id === "telegram");
+  expect(telegram?.status).toBe("loaded");
+  expect(registry.channels.some((entry) => entry.plugin.id === "telegram")).toBe(true);
+}
+
 afterEach(() => {
   if (prevBundledDir === undefined) {
     delete process.env.CLAWDBOT_BUNDLED_PLUGINS_DIR;
@@ -169,6 +206,7 @@ describe("loadOpenClawPlugins", () => {
   });
 
   it("loads bundled telegram plugin when enabled", () => {
+<<<<<<< HEAD
     const bundledDir = makeTempDir();
     writePlugin({
       id: "telegram",
@@ -196,6 +234,9 @@ describe("loadOpenClawPlugins", () => {
       filename: "telegram.js",
     });
     process.env.CLAWDBOT_BUNDLED_PLUGINS_DIR = bundledDir;
+=======
+    setupBundledTelegramPlugin();
+>>>>>>> 75423a00d (refactor: deduplicate shared helpers and test setup)
 
     const registry = loadMoltbotPlugins({
       cache: false,
@@ -209,39 +250,11 @@ describe("loadOpenClawPlugins", () => {
       },
     });
 
-    const telegram = registry.plugins.find((entry) => entry.id === "telegram");
-    expect(telegram?.status).toBe("loaded");
-    expect(registry.channels.some((entry) => entry.plugin.id === "telegram")).toBe(true);
+    expectTelegramLoaded(registry);
   });
 
   it("loads bundled channel plugins when channels.<id>.enabled=true", () => {
-    const bundledDir = makeTempDir();
-    writePlugin({
-      id: "telegram",
-      body: `export default { id: "telegram", register(api) {
-  api.registerChannel({
-    plugin: {
-      id: "telegram",
-      meta: {
-        id: "telegram",
-        label: "Telegram",
-        selectionLabel: "Telegram",
-        docsPath: "/channels/telegram",
-        blurb: "telegram channel"
-      },
-      capabilities: { chatTypes: ["direct"] },
-      config: {
-        listAccountIds: () => [],
-        resolveAccount: () => ({ accountId: "default" })
-      },
-      outbound: { deliveryMode: "direct" }
-    }
-  });
-	} };`,
-      dir: bundledDir,
-      filename: "telegram.js",
-    });
-    process.env.OPENCLAW_BUNDLED_PLUGINS_DIR = bundledDir;
+    setupBundledTelegramPlugin();
 
     const registry = loadOpenClawPlugins({
       cache: false,
@@ -257,39 +270,11 @@ describe("loadOpenClawPlugins", () => {
       },
     });
 
-    const telegram = registry.plugins.find((entry) => entry.id === "telegram");
-    expect(telegram?.status).toBe("loaded");
-    expect(registry.channels.some((entry) => entry.plugin.id === "telegram")).toBe(true);
+    expectTelegramLoaded(registry);
   });
 
   it("still respects explicit disable via plugins.entries for bundled channels", () => {
-    const bundledDir = makeTempDir();
-    writePlugin({
-      id: "telegram",
-      body: `export default { id: "telegram", register(api) {
-  api.registerChannel({
-    plugin: {
-      id: "telegram",
-      meta: {
-        id: "telegram",
-        label: "Telegram",
-        selectionLabel: "Telegram",
-        docsPath: "/channels/telegram",
-        blurb: "telegram channel"
-      },
-      capabilities: { chatTypes: ["direct"] },
-      config: {
-        listAccountIds: () => [],
-        resolveAccount: () => ({ accountId: "default" })
-      },
-      outbound: { deliveryMode: "direct" }
-    }
-  });
-	} };`,
-      dir: bundledDir,
-      filename: "telegram.js",
-    });
-    process.env.OPENCLAW_BUNDLED_PLUGINS_DIR = bundledDir;
+    setupBundledTelegramPlugin();
 
     const registry = loadOpenClawPlugins({
       cache: false,
