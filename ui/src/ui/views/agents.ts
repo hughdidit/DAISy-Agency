@@ -7,6 +7,7 @@ import type {
   CronJob,
   CronStatus,
   SkillStatusReport,
+  ToolsCatalogResult,
 } from "../types.ts";
 import {
   renderAgentFiles,
@@ -68,6 +69,9 @@ export type AgentsProps = {
   agentSkillsReport: SkillStatusReport | null;
   agentSkillsError: string | null;
   agentSkillsAgentId: string | null;
+  toolsCatalogLoading: boolean;
+  toolsCatalogError: string | null;
+  toolsCatalogResult: ToolsCatalogResult | null;
   skillsFilter: string;
   onRefresh: () => void;
   onSelectAgent: (agentId: string) => void;
@@ -248,6 +252,9 @@ export function renderAgents(props: AgentsProps) {
                         configLoading: props.configLoading,
                         configSaving: props.configSaving,
                         configDirty: props.configDirty,
+                        toolsCatalogLoading: props.toolsCatalogLoading,
+                        toolsCatalogError: props.toolsCatalogError,
+                        toolsCatalogResult: props.toolsCatalogResult,
                         onProfileChange: props.onToolsProfileChange,
                         onOverridesChange: props.onToolsOverridesChange,
                         onConfigReload: props.onConfigReload,

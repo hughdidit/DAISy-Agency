@@ -2018,8 +2018,138 @@ public struct SkillsStatusParams: Codable, Sendable {
     }
 }
 
+<<<<<<< HEAD
 public struct SkillsBinsParams: Codable, Sendable {
 }
+=======
+public struct ToolsCatalogParams: Codable, Sendable {
+    public let agentid: String?
+    public let includeplugins: Bool?
+
+    public init(
+        agentid: String?,
+        includeplugins: Bool?)
+    {
+        self.agentid = agentid
+        self.includeplugins = includeplugins
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case agentid = "agentId"
+        case includeplugins = "includePlugins"
+    }
+}
+
+public struct ToolCatalogProfile: Codable, Sendable {
+    public let id: AnyCodable
+    public let label: String
+
+    public init(
+        id: AnyCodable,
+        label: String)
+    {
+        self.id = id
+        self.label = label
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case id
+        case label
+    }
+}
+
+public struct ToolCatalogEntry: Codable, Sendable {
+    public let id: String
+    public let label: String
+    public let description: String
+    public let source: AnyCodable
+    public let pluginid: String?
+    public let optional: Bool?
+    public let defaultprofiles: [AnyCodable]
+
+    public init(
+        id: String,
+        label: String,
+        description: String,
+        source: AnyCodable,
+        pluginid: String?,
+        optional: Bool?,
+        defaultprofiles: [AnyCodable])
+    {
+        self.id = id
+        self.label = label
+        self.description = description
+        self.source = source
+        self.pluginid = pluginid
+        self.optional = optional
+        self.defaultprofiles = defaultprofiles
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case id
+        case label
+        case description
+        case source
+        case pluginid = "pluginId"
+        case optional
+        case defaultprofiles = "defaultProfiles"
+    }
+}
+
+public struct ToolCatalogGroup: Codable, Sendable {
+    public let id: String
+    public let label: String
+    public let source: AnyCodable
+    public let pluginid: String?
+    public let tools: [ToolCatalogEntry]
+
+    public init(
+        id: String,
+        label: String,
+        source: AnyCodable,
+        pluginid: String?,
+        tools: [ToolCatalogEntry])
+    {
+        self.id = id
+        self.label = label
+        self.source = source
+        self.pluginid = pluginid
+        self.tools = tools
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case id
+        case label
+        case source
+        case pluginid = "pluginId"
+        case tools
+    }
+}
+
+public struct ToolsCatalogResult: Codable, Sendable {
+    public let agentid: String
+    public let profiles: [ToolCatalogProfile]
+    public let groups: [ToolCatalogGroup]
+
+    public init(
+        agentid: String,
+        profiles: [ToolCatalogProfile],
+        groups: [ToolCatalogGroup])
+    {
+        self.agentid = agentid
+        self.profiles = profiles
+        self.groups = groups
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case agentid = "agentId"
+        case profiles
+        case groups
+    }
+}
+
+public struct SkillsBinsParams: Codable, Sendable {}
+>>>>>>> 9e1a13bf4 (Gateway/UI: data-driven agents tools catalog with provenance (openclaw#24199) thanks @Takhoffman)
 
 public struct SkillsBinsResult: Codable, Sendable {
     public let bins: [String]
@@ -2151,14 +2281,43 @@ public struct CronJob: Codable, Sendable {
 
 public struct CronListParams: Codable, Sendable {
     public let includedisabled: Bool?
+    public let limit: Int?
+    public let offset: Int?
+    public let query: String?
+    public let enabled: AnyCodable?
+    public let sortby: AnyCodable?
+    public let sortdir: AnyCodable?
 
     public init(
+<<<<<<< HEAD
         includedisabled: Bool?
     ) {
+=======
+        includedisabled: Bool?,
+        limit: Int?,
+        offset: Int?,
+        query: String?,
+        enabled: AnyCodable?,
+        sortby: AnyCodable?,
+        sortdir: AnyCodable?)
+    {
+>>>>>>> 9e1a13bf4 (Gateway/UI: data-driven agents tools catalog with provenance (openclaw#24199) thanks @Takhoffman)
         self.includedisabled = includedisabled
+        self.limit = limit
+        self.offset = offset
+        self.query = query
+        self.enabled = enabled
+        self.sortby = sortby
+        self.sortdir = sortdir
     }
     private enum CodingKeys: String, CodingKey {
         case includedisabled = "includeDisabled"
+        case limit
+        case offset
+        case query
+        case enabled
+        case sortby = "sortBy"
+        case sortdir = "sortDir"
     }
 }
 
@@ -2218,6 +2377,60 @@ public struct CronAddParams: Codable, Sendable {
     }
 }
 
+public struct CronRunsParams: Codable, Sendable {
+    public let scope: AnyCodable?
+    public let id: String?
+    public let jobid: String?
+    public let limit: Int?
+    public let offset: Int?
+    public let statuses: [AnyCodable]?
+    public let status: AnyCodable?
+    public let deliverystatuses: [AnyCodable]?
+    public let deliverystatus: AnyCodable?
+    public let query: String?
+    public let sortdir: AnyCodable?
+
+    public init(
+        scope: AnyCodable?,
+        id: String?,
+        jobid: String?,
+        limit: Int?,
+        offset: Int?,
+        statuses: [AnyCodable]?,
+        status: AnyCodable?,
+        deliverystatuses: [AnyCodable]?,
+        deliverystatus: AnyCodable?,
+        query: String?,
+        sortdir: AnyCodable?)
+    {
+        self.scope = scope
+        self.id = id
+        self.jobid = jobid
+        self.limit = limit
+        self.offset = offset
+        self.statuses = statuses
+        self.status = status
+        self.deliverystatuses = deliverystatuses
+        self.deliverystatus = deliverystatus
+        self.query = query
+        self.sortdir = sortdir
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case scope
+        case id
+        case jobid = "jobId"
+        case limit
+        case offset
+        case statuses
+        case status
+        case deliverystatuses = "deliveryStatuses"
+        case deliverystatus = "deliveryStatus"
+        case query
+        case sortdir = "sortDir"
+    }
+}
+
 public struct CronRunLogEntry: Codable, Sendable {
     public let ts: Int
     public let jobid: String
@@ -2233,6 +2446,10 @@ public struct CronRunLogEntry: Codable, Sendable {
     public let runatms: Int?
     public let durationms: Int?
     public let nextrunatms: Int?
+    public let model: String?
+    public let provider: String?
+    public let usage: [String: AnyCodable]?
+    public let jobname: String?
 
     public init(
         ts: Int,
@@ -2248,8 +2465,17 @@ public struct CronRunLogEntry: Codable, Sendable {
         sessionkey: String?,
         runatms: Int?,
         durationms: Int?,
+<<<<<<< HEAD
         nextrunatms: Int?
     ) {
+=======
+        nextrunatms: Int?,
+        model: String?,
+        provider: String?,
+        usage: [String: AnyCodable]?,
+        jobname: String?)
+    {
+>>>>>>> 9e1a13bf4 (Gateway/UI: data-driven agents tools catalog with provenance (openclaw#24199) thanks @Takhoffman)
         self.ts = ts
         self.jobid = jobid
         self.action = action
@@ -2264,6 +2490,10 @@ public struct CronRunLogEntry: Codable, Sendable {
         self.runatms = runatms
         self.durationms = durationms
         self.nextrunatms = nextrunatms
+        self.model = model
+        self.provider = provider
+        self.usage = usage
+        self.jobname = jobname
     }
     private enum CodingKeys: String, CodingKey {
         case ts
@@ -2280,6 +2510,10 @@ public struct CronRunLogEntry: Codable, Sendable {
         case runatms = "runAtMs"
         case durationms = "durationMs"
         case nextrunatms = "nextRunAtMs"
+        case model
+        case provider
+        case usage
+        case jobname = "jobName"
     }
 }
 

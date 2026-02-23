@@ -45,6 +45,7 @@ export default defineConfig({
       "extensions/**/*.test.ts",
       "test/**/*.test.ts",
       "ui/src/ui/views/usage-render-details.test.ts",
+      "ui/src/ui/controllers/agents.test.ts",
     ],
 >>>>>>> 9789dfd95 (fix(ui): correct usage range totals and muted styles)
     setupFiles: ["test/setup.ts"],
