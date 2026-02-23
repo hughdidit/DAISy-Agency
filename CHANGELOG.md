@@ -136,6 +136,15 @@ Docs: https://docs.openclaw.ai
 - Security/Skills: harden `skill-creator` packaging by skipping symlink entries and rejecting files whose resolved paths escape the selected skill root. (#24260, #16959) Thanks @CornBrother0x and @vincentkoc.
 - Security/OTEL: redact sensitive values (API keys, tokens, credential fields) from diagnostics-otel log bodies, log attributes, and error/reason span fields before OTLP export. (#12542) Thanks @brandonwise.
 - Providers/OpenRouter: remove conflicting top-level `reasoning_effort` when injecting nested `reasoning.effort`, preventing OpenRouter 400 payload-validation failures for reasoning models. (#24120) thanks @tenequm.
+<<<<<<< HEAD
+=======
+- Skills/Python: add CI + pre-commit linting (`ruff`) and pytest discovery coverage for Python scripts/tests under `skills/`, including package test execution from repo root. Thanks @vincentkoc.
+- Sessions/Store: canonicalize inbound mixed-case session keys for metadata and route updates, and migrate legacy case-variant entries to a single lowercase key to prevent duplicate sessions and missing TUI/WebUI history. (#9561) Thanks @hillghost86.
+- Security/CI: add pre-commit security hook coverage for private-key detection and production dependency auditing, and enforce those checks in CI alongside baseline secret scanning. Thanks @vincentkoc.
+- Skills/Python: harden skill script packaging and validation edge cases (self-including `.skill` outputs, CRLF frontmatter parsing, strict `--days` validation, and safer image file loading), with expanded Python regression coverage. Thanks @vincentkoc.
+- Config/Write: apply `unsetPaths` with immutable path-copy updates so config writes never mutate caller-provided objects, and harden `openclaw config get/set/unset` path traversal by rejecting prototype-key segments and inherited-property traversal. (#24134) thanks @frankekn.
+- Agents/Failover: treat HTTP 502/503/504 errors as failover-eligible transient timeouts so fallback chains can switch providers/models during upstream outages instead of retrying the same failing target. (#20999) Thanks @taw0002 and @vincentkoc.
+>>>>>>> db32677f1 (Update CHANGELOG.md)
 
 ## 2026.2.23
 
@@ -451,6 +460,11 @@ Docs: https://docs.openclaw.ai
 - Agents/Subagents: make announce call timeouts configurable via `agents.defaults.subagents.announceTimeoutMs` and restore a 60s default to prevent false timeout failures on slower announce paths. (#22719) Thanks @Valadon.
 >>>>>>> 1c2c7843a (docs: add synology channel docs and fix unreleased changelog)
 - Agents/Diagnostics: include resolved lifecycle error text in `embedded run agent end` warnings so UI/TUI “Connection error” runs expose actionable provider failure reasons in gateway logs. (#23054) Thanks @Raize.
+<<<<<<< HEAD
+=======
+- Agents/Auth profiles: resolve `agentCommand` session scope before choosing `agentDir`/workspace so resumed runs no longer read auth from `agents/main/agent` when the resolved session belongs to a different/default agent (for example `agent:exec:*` sessions). (#24016) Thanks @abersonFAC.
+- Agents/Auth profiles: skip auth-profile cooldown writes for timeout failures in embedded runner rotation so model/network timeouts do not poison same-provider fallback model selection while still allowing in-turn account rotation. (#22622) Thanks @vageeshkumar.
+>>>>>>> db32677f1 (Update CHANGELOG.md)
 - Plugins/Hooks: run legacy `before_agent_start` once per agent turn and reuse that result across model-resolve and prompt-build compatibility paths, preventing duplicate hook side effects (for example duplicate external API calls). (#23289) Thanks @ksato8710.
 - Models/Config: default missing Anthropic provider/model `api` fields to `anthropic-messages` during config validation so custom relay model entries are preserved instead of being dropped by runtime model registry validation. (#23332) Thanks @bigbigmonkey123.
 <<<<<<< HEAD
