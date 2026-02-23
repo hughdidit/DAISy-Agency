@@ -4,7 +4,11 @@ import type { APIAttachment } from "discord-api-types/v10";
 
 =======
 import { StickerFormatType, type APIAttachment, type APIStickerItem } from "discord-api-types/v10";
+<<<<<<< HEAD
 >>>>>>> 1eec2aee4 (Discord: ingest inbound stickers)
+=======
+import { buildMediaPayload } from "../../channels/plugins/media-payload.js";
+>>>>>>> 0183610db (refactor: de-duplicate channel runtime and payload helpers)
 import { logVerbose } from "../../globals.js";
 import { fetchRemoteMedia } from "../../media/fetch.js";
 import { saveMediaBuffer } from "../../media/store.js";
@@ -507,15 +511,5 @@ export function buildDiscordMediaPayload(
   MediaUrls?: string[];
   MediaTypes?: string[];
 } {
-  const first = mediaList[0];
-  const mediaPaths = mediaList.map((media) => media.path);
-  const mediaTypes = mediaList.map((media) => media.contentType).filter(Boolean) as string[];
-  return {
-    MediaPath: first?.path,
-    MediaType: first?.contentType,
-    MediaUrl: first?.path,
-    MediaPaths: mediaPaths.length > 0 ? mediaPaths : undefined,
-    MediaUrls: mediaPaths.length > 0 ? mediaPaths : undefined,
-    MediaTypes: mediaTypes.length > 0 ? mediaTypes : undefined,
-  };
+  return buildMediaPayload(mediaList);
 }

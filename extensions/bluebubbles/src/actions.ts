@@ -2,17 +2,21 @@ import {
   BLUEBUBBLES_ACTION_NAMES,
   BLUEBUBBLES_ACTIONS,
   createActionGate,
+  extractToolSend,
   jsonResult,
   readNumberParam,
   readReactionParams,
   readStringParam,
   type ChannelMessageActionAdapter,
   type ChannelMessageActionName,
+<<<<<<< HEAD
   type ChannelToolSend,
 <<<<<<< HEAD
   type MoltbotConfig,
 } from "clawdbot/plugin-sdk";
 =======
+=======
+>>>>>>> 0183610db (refactor: de-duplicate channel runtime and payload helpers)
 } from "openclaw/plugin-sdk";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -125,18 +129,7 @@ export const bluebubblesMessageActions: ChannelMessageActionAdapter = {
     return Array.from(actions);
   },
   supportsAction: ({ action }) => SUPPORTED_ACTIONS.has(action),
-  extractToolSend: ({ args }): ChannelToolSend | null => {
-    const action = typeof args.action === "string" ? args.action.trim() : "";
-    if (action !== "sendMessage") {
-      return null;
-    }
-    const to = typeof args.to === "string" ? args.to : undefined;
-    if (!to) {
-      return null;
-    }
-    const accountId = typeof args.accountId === "string" ? args.accountId.trim() : undefined;
-    return { to, accountId };
-  },
+  extractToolSend: ({ args }) => extractToolSend(args, "sendMessage"),
   handleAction: async ({ action, params, cfg, accountId, toolContext }) => {
     const account = resolveBlueBubblesAccount({
 <<<<<<< HEAD

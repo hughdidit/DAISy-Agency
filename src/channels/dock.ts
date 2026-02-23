@@ -17,6 +17,7 @@ import { resolveSlackAccount, resolveSlackReplyToMode } from "../slack/accounts.
 import { buildSlackThreadingToolContext } from "../slack/threading-tool-context.js";
 import { resolveTelegramAccount } from "../telegram/accounts.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { normalizeAccountId } from "../routing/session-key.js";
 import { normalizeE164 } from "../utils.js";
 =======
@@ -25,6 +26,10 @@ import { escapeRegExp, normalizeE164 } from "../utils.js";
 import { resolveWhatsAppAccount } from "../web/accounts.js";
 import { normalizeWhatsAppTarget } from "../whatsapp/normalize.js";
 import { requireActivePluginRegistry } from "../plugins/runtime.js";
+=======
+import { normalizeE164 } from "../utils.js";
+import { resolveWhatsAppAccount } from "../web/accounts.js";
+>>>>>>> 0183610db (refactor: de-duplicate channel runtime and payload helpers)
 import {
   resolveDiscordGroupRequireMention,
   resolveDiscordGroupToolPolicy,
@@ -48,9 +53,13 @@ import {
 import { normalizeSignalMessagingTarget } from "./plugins/normalize/signal.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> b20339a23 (fix(signal): canonicalize message targets in tool and inbound flows)
 =======
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
+=======
+import { normalizeWhatsAppAllowFromEntries } from "./plugins/normalize/whatsapp.js";
+>>>>>>> 0183610db (refactor: de-duplicate channel runtime and payload helpers)
 import type {
   ChannelCapabilities,
   ChannelCommandAdapter,
@@ -87,11 +96,18 @@ import type {
   ChannelThreadingToolContext,
 } from "./plugins/types.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 =======
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
+=======
+import {
+  resolveWhatsAppGroupIntroHint,
+  resolveWhatsAppMentionStripPatterns,
+} from "./plugins/whatsapp-shared.js";
+>>>>>>> 0183610db (refactor: de-duplicate channel runtime and payload helpers)
 import { CHAT_CHANNEL_ORDER, type ChatChannelId, getChatChannelMeta } from "./registry.js";
 
 export type ChannelDock = {
@@ -397,12 +413,7 @@ const DOCKS: Record<ChatChannelId, ChannelDock> = {
     config: {
       resolveAllowFrom: ({ cfg, accountId }) =>
         resolveWhatsAppAccount({ cfg, accountId }).allowFrom ?? [],
-      formatAllowFrom: ({ allowFrom }) =>
-        allowFrom
-          .map((entry) => String(entry).trim())
-          .filter((entry): entry is string => Boolean(entry))
-          .map((entry) => (entry === "*" ? entry : normalizeWhatsAppTarget(entry)))
-          .filter((entry): entry is string => Boolean(entry)),
+      formatAllowFrom: ({ allowFrom }) => normalizeWhatsAppAllowFromEntries(allowFrom),
       resolveDefaultTo: ({ cfg, accountId }) => {
         const root = cfg.channels?.whatsapp;
         const normalized = normalizeAccountId(accountId);
@@ -413,18 +424,10 @@ const DOCKS: Record<ChatChannelId, ChannelDock> = {
     groups: {
       resolveRequireMention: resolveWhatsAppGroupRequireMention,
       resolveToolPolicy: resolveWhatsAppGroupToolPolicy,
-      resolveGroupIntroHint: () =>
-        "WhatsApp IDs: SenderId is the participant JID (group participant id).",
+      resolveGroupIntroHint: resolveWhatsAppGroupIntroHint,
     },
     mentions: {
-      stripPatterns: ({ ctx }) => {
-        const selfE164 = (ctx.To ?? "").replace(/^whatsapp:/, "");
-        if (!selfE164) {
-          return [];
-        }
-        const escaped = escapeRegExp(selfE164);
-        return [escaped, `@${escaped}`];
-      },
+      stripPatterns: ({ ctx }) => resolveWhatsAppMentionStripPatterns(ctx),
     },
     threading: {
       buildToolContext: ({ context, hasRepliedRef }) => {

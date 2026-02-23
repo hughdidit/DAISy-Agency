@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { Buffer } from "node:buffer";
 
 <<<<<<< HEAD
@@ -10,6 +11,13 @@ export { createDedupeCache } from "openclaw/plugin-sdk";
 >>>>>>> 451deb066 (refactor(plugin-sdk): reuse dedupe cache)
 =======
 import type { OpenClawConfig } from "openclaw/plugin-sdk";
+=======
+import {
+  formatInboundFromLabel as formatInboundFromLabelShared,
+  resolveThreadSessionKeys as resolveThreadSessionKeysShared,
+  type OpenClawConfig,
+} from "openclaw/plugin-sdk";
+>>>>>>> 0183610db (refactor: de-duplicate channel runtime and payload helpers)
 export { createDedupeCache, rawDataToString } from "openclaw/plugin-sdk";
 >>>>>>> 544ffbcf7 (refactor(extensions): dedupe connector helper usage)
 
@@ -27,27 +35,7 @@ export function extractShortModelName(fullModel: string): string {
   return modelPart.replace(/-\d{8}$/, "").replace(/-latest$/, "");
 }
 
-export function formatInboundFromLabel(params: {
-  isGroup: boolean;
-  groupLabel?: string;
-  groupId?: string;
-  directLabel: string;
-  directId?: string;
-  groupFallback?: string;
-}): string {
-  if (params.isGroup) {
-    const label = params.groupLabel?.trim() || params.groupFallback || "Group";
-    const id = params.groupId?.trim();
-    return id ? `${label} id:${id}` : label;
-  }
-
-  const directLabel = params.directLabel.trim();
-  const directId = params.directId?.trim();
-  if (!directId || directId === directLabel) {
-    return directLabel;
-  }
-  return `${directLabel} id:${directId}`;
-}
+export const formatInboundFromLabel = formatInboundFromLabelShared;
 
 function normalizeAgentId(value: string | undefined | null): string {
   const trimmed = (value ?? "").trim();
@@ -93,13 +81,8 @@ export function resolveThreadSessionKeys(params: {
   parentSessionKey?: string;
   useSuffix?: boolean;
 }): { sessionKey: string; parentSessionKey?: string } {
-  const threadId = (params.threadId ?? "").trim();
-  if (!threadId) {
-    return { sessionKey: params.baseSessionKey, parentSessionKey: undefined };
-  }
-  const useSuffix = params.useSuffix ?? true;
-  const sessionKey = useSuffix
-    ? `${params.baseSessionKey}:thread:${threadId}`
-    : params.baseSessionKey;
-  return { sessionKey, parentSessionKey: params.parentSessionKey };
+  return resolveThreadSessionKeysShared({
+    ...params,
+    normalizeThreadId: (threadId) => threadId,
+  });
 }

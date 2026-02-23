@@ -22,12 +22,22 @@ import { setMSTeamsRuntime } from "./runtime.js";
 >>>>>>> 48f327c20 (test: consolidate redundant suites and speed attachment tests)
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { PluginRuntime } from "clawdbot/plugin-sdk";
 import { setMSTeamsRuntime } from "./runtime.js";
 =======
 vi.mock("openclaw/plugin-sdk", () => ({
   isPrivateIpAddress: () => false,
 }));
+=======
+vi.mock("openclaw/plugin-sdk", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("openclaw/plugin-sdk")>();
+  return {
+    ...actual,
+    isPrivateIpAddress: () => false,
+  };
+});
+>>>>>>> 0183610db (refactor: de-duplicate channel runtime and payload helpers)
 
 /** Mock DNS resolver that always returns a public IP (for anti-SSRF validation in tests). */
 const publicResolveFn = async () => ({ address: "13.107.136.10" });

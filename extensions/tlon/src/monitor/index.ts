@@ -2,6 +2,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { format } from "node:util";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -30,6 +31,10 @@ import type { RuntimeEnv, ReplyPayload, OpenClawConfig } from "openclaw/plugin-s
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { createReplyPrefixOptions } from "openclaw/plugin-sdk";
 >>>>>>> 5d82c8231 (feat: per-channel responsePrefix override (#9001))
+=======
+import type { RuntimeEnv, ReplyPayload, OpenClawConfig } from "openclaw/plugin-sdk";
+import { createLoggerBackedRuntime, createReplyPrefixOptions } from "openclaw/plugin-sdk";
+>>>>>>> 0183610db (refactor: de-duplicate channel runtime and payload helpers)
 import { getTlonRuntime } from "../runtime.js";
 import { resolveTlonAccount } from "../types.js";
 import { normalizeShip, parseChannelNest } from "../targets.js";
@@ -126,18 +131,11 @@ export async function monitorTlonProvider(opts: MonitorTlonOpts = {}): Promise<v
 >>>>>>> 230ca789e (chore: Lint extensions folder.)
 
   const logger = core.logging.getChildLogger({ module: "tlon-auto-reply" });
-  const formatRuntimeMessage = (...args: Parameters<RuntimeEnv["log"]>) => format(...args);
-  const runtime: RuntimeEnv = opts.runtime ?? {
-    log: (...args) => {
-      logger.info(formatRuntimeMessage(...args));
-    },
-    error: (...args) => {
-      logger.error(formatRuntimeMessage(...args));
-    },
-    exit: (code: number): never => {
-      throw new Error(`exit ${code}`);
-    },
-  };
+  const runtime: RuntimeEnv =
+    opts.runtime ??
+    createLoggerBackedRuntime({
+      logger,
+    });
 
   const account = resolveTlonAccount(cfg, opts.accountId ?? undefined);
   if (!account.enabled) {

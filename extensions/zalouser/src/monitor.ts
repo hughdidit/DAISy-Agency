@@ -1,5 +1,6 @@
 import type { ChildProcess } from "node:child_process";
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import type { MoltbotConfig, MarkdownTableMode, RuntimeEnv } from "clawdbot/plugin-sdk";
 import { mergeAllowlist, summarizeMapping } from "clawdbot/plugin-sdk";
@@ -10,8 +11,17 @@ import type { OpenClawConfig, MarkdownTableMode, RuntimeEnv } from "openclaw/plu
 import { createReplyPrefixOptions, mergeAllowlist, summarizeMapping } from "openclaw/plugin-sdk";
 >>>>>>> 5d82c8231 (feat: per-channel responsePrefix override (#9001))
 =======
+=======
+import type {
+  MarkdownTableMode,
+  OpenClawConfig,
+  OutboundReplyPayload,
+  RuntimeEnv,
+} from "openclaw/plugin-sdk";
+>>>>>>> 0183610db (refactor: de-duplicate channel runtime and payload helpers)
 import {
   createReplyPrefixOptions,
+  resolveOutboundMediaUrls,
   mergeAllowlist,
 <<<<<<< HEAD
 =======
@@ -22,6 +32,7 @@ import {
   resolveDefaultGroupPolicy,
 >>>>>>> 6dd36a6b7 (refactor(channels): reuse runtime group policy helpers)
   resolveSenderCommandAuthorization,
+  sendMediaWithLeadingCaption,
   summarizeMapping,
   warnMissingProviderGroupPolicyFallbackOnce,
 } from "openclaw/plugin-sdk";
@@ -446,7 +457,7 @@ async function processMessage(
 }
 
 async function deliverZalouserReply(params: {
-  payload: { text?: string; mediaUrls?: string[]; mediaUrl?: string };
+  payload: OutboundReplyPayload;
   profile: string;
   chatId: string;
   isGroup: boolean;
@@ -462,29 +473,23 @@ async function deliverZalouserReply(params: {
   const tableMode = params.tableMode ?? "code";
   const text = core.channel.text.convertMarkdownTables(payload.text ?? "", tableMode);
 
-  const mediaList = payload.mediaUrls?.length
-    ? payload.mediaUrls
-    : payload.mediaUrl
-      ? [payload.mediaUrl]
-      : [];
-
-  if (mediaList.length > 0) {
-    let first = true;
-    for (const mediaUrl of mediaList) {
-      const caption = first ? text : undefined;
-      first = false;
-      try {
-        logVerbose(core, runtime, `Sending media to ${chatId}`);
-        await sendMessageZalouser(chatId, caption ?? "", {
-          profile,
-          mediaUrl,
-          isGroup,
-        });
-        statusSink?.({ lastOutboundAt: Date.now() });
-      } catch (err) {
-        runtime.error(`Zalouser media send failed: ${String(err)}`);
-      }
-    }
+  const sentMedia = await sendMediaWithLeadingCaption({
+    mediaUrls: resolveOutboundMediaUrls(payload),
+    caption: text,
+    send: async ({ mediaUrl, caption }) => {
+      logVerbose(core, runtime, `Sending media to ${chatId}`);
+      await sendMessageZalouser(chatId, caption ?? "", {
+        profile,
+        mediaUrl,
+        isGroup,
+      });
+      statusSink?.({ lastOutboundAt: Date.now() });
+    },
+    onError: (error) => {
+      runtime.error(`Zalouser media send failed: ${String(error)}`);
+    },
+  });
+  if (sentMedia) {
     return;
   }
 
