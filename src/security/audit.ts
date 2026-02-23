@@ -1216,7 +1216,12 @@ async function collectChannelSecurityFindings(params: {
 }
 
 async function maybeProbeGateway(params: {
+<<<<<<< HEAD
   cfg: MoltbotConfig;
+=======
+  cfg: OpenClawConfig;
+  env: NodeJS.ProcessEnv;
+>>>>>>> f52a0228c (test: optimize auth and audit test runtime)
   timeoutMs: number;
   probe: typeof probeGateway;
 }): Promise<SecurityAuditReport["deep"]> {
@@ -1255,9 +1260,14 @@ async function maybeProbeGateway(params: {
 =======
   const auth =
     !isRemoteMode || remoteUrlMissing
+<<<<<<< HEAD
       ? resolveGatewayProbeAuth({ cfg: params.cfg, mode: "local" })
       : resolveGatewayProbeAuth({ cfg: params.cfg, mode: "remote" });
 >>>>>>> 6c7a7d910 (refactor(gateway): dedupe probe auth resolution)
+=======
+      ? resolveGatewayProbeAuth({ cfg: params.cfg, env: params.env, mode: "local" })
+      : resolveGatewayProbeAuth({ cfg: params.cfg, env: params.env, mode: "remote" });
+>>>>>>> f52a0228c (test: optimize auth and audit test runtime)
   const res = await params.probe({ url, auth, timeoutMs: params.timeoutMs }).catch((err) => ({
     ok: false,
     url,
@@ -1346,6 +1356,7 @@ export async function runSecurityAudit(opts: SecurityAuditOptions): Promise<Secu
     opts.deep === true
       ? await maybeProbeGateway({
           cfg,
+          env,
           timeoutMs: Math.max(250, opts.deepTimeoutMs ?? 5000),
           probe: opts.probeGatewayFn ?? probeGateway,
         })

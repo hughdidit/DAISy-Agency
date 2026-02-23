@@ -112,7 +112,7 @@ describe("gateway-cli coverage", () => {
 
     expect(callGateway).toHaveBeenCalledTimes(1);
     expect(runtimeLogs.join("\n")).toContain('"ok": true');
-  }, 60_000);
+  });
 
   it("registers gateway probe and routes to gatewayStatusCommand", async () => {
     resetRuntimeCapture();
@@ -121,8 +121,9 @@ describe("gateway-cli coverage", () => {
     await runGatewayCommand(["gateway", "probe", "--json"]);
 
     expect(gatewayStatusCommand).toHaveBeenCalledTimes(1);
-  }, 60_000);
+  });
 
+<<<<<<< HEAD
 <<<<<<< HEAD
   it("registers gateway discover and prints JSON", async () => {
     resetRuntimeCapture();
@@ -177,6 +178,9 @@ describe("gateway-cli coverage", () => {
     },
   ])("registers gateway discover and prints $label", async ({ args, expectedOutput }) => {
 >>>>>>> a1cb700a0 (test: dedupe and optimize test suites)
+=======
+  it("registers gateway discover and prints json output", async () => {
+>>>>>>> f52a0228c (test: optimize auth and audit test runtime)
     resetRuntimeCapture();
     discoverGatewayBeacons.mockClear();
     discoverGatewayBeacons.mockResolvedValueOnce([
@@ -192,10 +196,11 @@ describe("gateway-cli coverage", () => {
       },
     ]);
 
-    await runGatewayCommand(args);
+    await runGatewayCommand(["gateway", "discover", "--json"]);
 
     expect(discoverGatewayBeacons).toHaveBeenCalledTimes(1);
     const out = runtimeLogs.join("\n");
+<<<<<<< HEAD
 <<<<<<< HEAD
     expect(out).toContain("Gateway Discovery");
     expect(out).toContain("Found 1 gateway(s)");
@@ -210,6 +215,9 @@ describe("gateway-cli coverage", () => {
 >>>>>>> c06a962bb (test(e2e): stabilize suite)
 =======
     for (const text of expectedOutput) {
+=======
+    for (const text of ['"beacons"', '"wsUrl"', "ws://"]) {
+>>>>>>> f52a0228c (test: optimize auth and audit test runtime)
       expect(out).toContain(text);
     }
 >>>>>>> a1cb700a0 (test: dedupe and optimize test suites)
