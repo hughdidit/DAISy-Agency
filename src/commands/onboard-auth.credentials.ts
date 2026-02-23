@@ -4,8 +4,10 @@ import type { OAuthCredentials } from "@mariozechner/pi-ai";
 import { resolveMoltbotAgentDir } from "../agents/agent-paths.js";
 import { upsertAuthProfile } from "../agents/auth-profiles.js";
 import { resolveStateDir } from "../config/paths.js";
+import { KILOCODE_DEFAULT_MODEL_REF } from "../providers/kilocode-shared.js";
 export { CLOUDFLARE_AI_GATEWAY_DEFAULT_MODEL_REF } from "../agents/cloudflare-ai-gateway.js";
 export { MISTRAL_DEFAULT_MODEL_REF, XAI_DEFAULT_MODEL_REF } from "./onboard-auth.models.js";
+export { KILOCODE_DEFAULT_MODEL_REF };
 
 const resolveAuthAgentDir = (agentDir?: string) => agentDir ?? resolveMoltbotAgentDir();
 
@@ -247,10 +249,13 @@ export const LITELLM_DEFAULT_MODEL_REF = "litellm/claude-opus-4-6";
 >>>>>>> a36b9be24 (Feat/litellm provider (#12823))
 export const VERCEL_AI_GATEWAY_DEFAULT_MODEL_REF = "vercel-ai-gateway/anthropic/claude-opus-4.6";
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 661279cbf (feat: adding support for Together ai provider (#10304))
 =======
 export const KILOCODE_DEFAULT_MODEL_REF = "kilocode/anthropic/claude-opus-4.6";
 >>>>>>> 13f32e2f7 (feat: Add Kilo Gateway provider (#20212))
+=======
+>>>>>>> e6484cb65 (refactor: harden kilocode auth ordering and dedupe provider wiring)
 
 export async function setZaiApiKey(key: string, agentDir?: string) {
   // Write to resolved agent dir so gateway finds credentials on startup.
