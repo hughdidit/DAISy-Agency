@@ -116,8 +116,13 @@ Docs: https://docs.openclaw.ai
 - Security/Voice Call: harden media stream WebSocket handling against pre-auth idle-connection DoS by adding strict pre-start timeouts, pending/per-IP connection limits, and total connection caps for streaming endpoints. This ships in the next npm release. Thanks @jiseoung for reporting.
 - Agents/Exec: honor explicit agent context when resolving `tools.exec` defaults for runs with opaque/non-agent session keys, so per-agent `host/security/ask` policies are applied consistently. (#11832)
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 394a1af70 (fix(exec): apply per-agent exec defaults for opaque session keys)
 =======
+=======
+- Agents/Auth profiles: infer `all profiles unavailable` failover reasons from active profile cooldown/disabled stats (instead of hardcoded `rate_limit`) so auth/billing OAuth outages surface accurately in fallback errors. (#23996) Thanks @DerpyNoodlez.
+- Security/Sessions: redact sensitive token patterns from `sessions_history` tool output and surface `contentRedacted` metadata when masking occurs. (#16928) Thanks @aether-ai-agent.
+>>>>>>> 5c7c37a02 (Agents: infer auth-profile unavailable failover reason)
 - Sandbox/Docker: default sandbox container user to the workspace owner `uid:gid` when `agents.*.sandbox.docker.user` is unset, fixing non-root gateway file-tool permissions under capability-dropped containers. (#20979)
 <<<<<<< HEAD
 >>>>>>> a30f9c867 (fix(sandbox): fallback docker user to workspace owner uid/gid)
