@@ -54,6 +54,7 @@ Docs: https://docs.openclaw.ai
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 =======
@@ -73,6 +74,9 @@ Docs: https://docs.openclaw.ai
 =======
 =======
 =======
+=======
+- Config/Meta: accept numeric `meta.lastTouchedAt` timestamps and coerce them to ISO strings, preserving compatibility with agent edits that write `Date.now()` values. (#25491) Thanks @mcaxtr.
+>>>>>>> d2c031de8 (fix: add changelog for meta timestamp coercion (#25491) (thanks @mcaxtr))
 - Auto-reply/Reset hooks: guarantee native `/new` and `/reset` flows emit command/reset hooks even on early-return command paths, with dedupe protection to avoid double hook emission. (#25459) Thanks @chilu18.
 >>>>>>> 0365125c2 (fix: add changelog for reset hook fallback coverage (#25459) (thanks @chilu18))
 - Hooks/Slug generator: resolve session slug model from the agent’s effective model (including defaults/fallback resolution) instead of raw agent-primary config only. (#25485) Thanks @SudeepMalipeddi.
