@@ -7,6 +7,7 @@ import { describe, expect, it, vi } from "vitest";
 import {
   analyzeArgvCommand,
   analyzeShellCommand,
+  buildEnforcedShellCommand,
   buildSafeBinsShellCommand,
   evaluateExecAllowlist,
   evaluateShellAllowlist,
@@ -118,10 +119,104 @@ describe("exec approvals safe shell command builder", () => {
     // SafeBins segment is fully quoted
     expect(res.command).toContain("'head' '-n' '5'");
   });
+
+  it("enforces canonical planned argv for every approved segment", () => {
+    if (process.platform === "win32") {
+      return;
+    }
+    const analysis = analyzeShellCommand({
+      command: "env rg -n needle",
+      cwd: "/tmp",
+      env: { PATH: "/usr/bin:/bin" },
+      platform: process.platform,
+    });
+    expect(analysis.ok).toBe(true);
+    const res = buildEnforcedShellCommand({
+      command: "env rg -n needle",
+      segments: analysis.segments,
+      platform: process.platform,
+    });
+    expect(res.ok).toBe(true);
+    expect(res.command).toMatch(/'(?:[^']*\/)?rg' '-n' 'needle'/);
+    expect(res.command).not.toContain("'env'");
+  });
 });
 
 describe("exec approvals command resolution", () => {
+<<<<<<< HEAD
   it("resolves PATH executables", () => {
+=======
+  it("resolves PATH, relative, and quoted executables", () => {
+    const cases = [
+      {
+        name: "PATH executable",
+        setup: () => {
+          const dir = makeTempDir();
+          const binDir = path.join(dir, "bin");
+          fs.mkdirSync(binDir, { recursive: true });
+          const exeName = process.platform === "win32" ? "rg.exe" : "rg";
+          const exe = path.join(binDir, exeName);
+          fs.writeFileSync(exe, "");
+          fs.chmodSync(exe, 0o755);
+          return {
+            command: "rg -n foo",
+            cwd: undefined as string | undefined,
+            envPath: makePathEnv(binDir),
+            expectedPath: exe,
+            expectedExecutableName: exeName,
+          };
+        },
+      },
+      {
+        name: "relative executable",
+        setup: () => {
+          const dir = makeTempDir();
+          const cwd = path.join(dir, "project");
+          const script = path.join(cwd, "scripts", "run.sh");
+          fs.mkdirSync(path.dirname(script), { recursive: true });
+          fs.writeFileSync(script, "");
+          fs.chmodSync(script, 0o755);
+          return {
+            command: "./scripts/run.sh --flag",
+            cwd,
+            envPath: undefined as NodeJS.ProcessEnv | undefined,
+            expectedPath: script,
+            expectedExecutableName: undefined,
+          };
+        },
+      },
+      {
+        name: "quoted executable",
+        setup: () => {
+          const dir = makeTempDir();
+          const cwd = path.join(dir, "project");
+          const script = path.join(cwd, "bin", "tool");
+          fs.mkdirSync(path.dirname(script), { recursive: true });
+          fs.writeFileSync(script, "");
+          fs.chmodSync(script, 0o755);
+          return {
+            command: '"./bin/tool" --version',
+            cwd,
+            envPath: undefined as NodeJS.ProcessEnv | undefined,
+            expectedPath: script,
+            expectedExecutableName: undefined,
+          };
+        },
+      },
+    ] as const;
+
+    for (const testCase of cases) {
+      const setup = testCase.setup();
+      const res = resolveCommandResolution(setup.command, setup.cwd, setup.envPath);
+      expect(res?.resolvedPath, testCase.name).toBe(setup.expectedPath);
+      if (setup.expectedExecutableName) {
+        expect(res?.executableName, testCase.name).toBe(setup.expectedExecutableName);
+      }
+    }
+  });
+
+  it("unwraps transparent env wrapper argv to resolve the effective executable", () => {
+>>>>>>> a1c4bf07c (fix(security): harden exec wrapper allowlist execution parity)
     const dir = makeTempDir();
     const binDir = path.join(dir, "bin");
     fs.mkdirSync(binDir, { recursive: true });
@@ -129,6 +224,7 @@ describe("exec approvals command resolution", () => {
     const exe = path.join(binDir, exeName);
     fs.writeFileSync(exe, "");
     fs.chmodSync(exe, 0o755);
+<<<<<<< HEAD
     const res = resolveCommandResolution("rg -n foo", undefined, makePathEnv(binDir));
     expect(res?.resolvedPath).toBe(exe);
     expect(res?.executableName).toBe(exeName);
@@ -154,6 +250,34 @@ describe("exec approvals command resolution", () => {
     fs.chmodSync(script, 0o755);
     const res = resolveCommandResolution('"./bin/tool" --version', cwd, undefined);
     expect(res?.resolvedPath).toBe(script);
+=======
+
+    const resolution = resolveCommandResolutionFromArgv(
+      ["/usr/bin/env", "rg", "-n", "needle"],
+      undefined,
+      makePathEnv(binDir),
+    );
+    expect(resolution?.resolvedPath).toBe(exe);
+    expect(resolution?.executableName).toBe(exeName);
+  });
+
+  it("blocks semantic env wrappers from allowlist/safeBins auto-resolution", () => {
+    const resolution = resolveCommandResolutionFromArgv([
+      "/usr/bin/env",
+      "FOO=bar",
+      "rg",
+      "-n",
+      "needle",
+    ]);
+    expect(resolution?.policyBlocked).toBe(true);
+    expect(resolution?.rawExecutable).toBe("/usr/bin/env");
+  });
+
+  it("unwraps env wrapper with shell inner executable", () => {
+    const resolution = resolveCommandResolutionFromArgv(["/usr/bin/env", "bash", "-lc", "echo hi"]);
+    expect(resolution?.rawExecutable).toBe("bash");
+    expect(resolution?.executableName.toLowerCase()).toContain("bash");
+>>>>>>> a1c4bf07c (fix(security): harden exec wrapper allowlist execution parity)
   });
 
   it("unwraps nice wrapper argv to resolve the effective executable", () => {

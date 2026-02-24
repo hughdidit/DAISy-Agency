@@ -897,6 +897,36 @@ function renderQuotedArgv(argv: string[]): string {
   return argv.map((token) => shellEscapeSingleArg(token)).join(" ");
 }
 
+<<<<<<< HEAD
+=======
+function resolvePlannedSegmentArgv(segment: ExecCommandSegment): string[] | null {
+  if (segment.resolution?.policyBlocked === true) {
+    return null;
+  }
+  const baseArgv =
+    segment.resolution?.effectiveArgv && segment.resolution.effectiveArgv.length > 0
+      ? segment.resolution.effectiveArgv
+      : segment.argv;
+  if (baseArgv.length === 0) {
+    return null;
+  }
+  const argv = [...baseArgv];
+  const resolvedExecutable = segment.resolution?.resolvedPath?.trim() ?? "";
+  if (resolvedExecutable) {
+    argv[0] = resolvedExecutable;
+  }
+  return argv;
+}
+
+function renderSafeBinSegmentArgv(segment: ExecCommandSegment): string | null {
+  const argv = resolvePlannedSegmentArgv(segment);
+  if (!argv || argv.length === 0) {
+    return null;
+  }
+  return renderQuotedArgv(argv);
+}
+
+>>>>>>> a1c4bf07c (fix(security): harden exec wrapper allowlist execution parity)
 /**
  * Rebuilds a shell command and selectively single-quotes argv tokens for segments that
  * must be treated as literal (safeBins hardening) while preserving the rest of the
@@ -935,6 +965,7 @@ export function buildSafeBinsShellCommand(params: {
         return { ok: false, reason: "segment mapping failed" };
       }
       const needsLiteral = by === "safeBins";
+<<<<<<< HEAD
       rendered.push(needsLiteral ? renderQuotedArgv(seg.argv) : raw.trim());
       segIndex += 1;
     }
@@ -943,6 +974,49 @@ export function buildSafeBinsShellCommand(params: {
     if (part.opToNext) {
       out += ` ${part.opToNext} `;
     }
+=======
+      if (!needsLiteral) {
+        return { ok: true, rendered: raw.trim() };
+      }
+      const rendered = renderSafeBinSegmentArgv(seg);
+      if (!rendered) {
+        return { ok: false, reason: "segment execution plan unavailable" };
+      }
+      return { ok: true, rendered };
+    },
+  });
+  if (!rebuilt.ok) {
+    return { ok: false, reason: rebuilt.reason };
+  }
+  if (rebuilt.segmentCount !== params.segments.length) {
+    return { ok: false, reason: "segment count mismatch" };
+  }
+  return { ok: true, command: rebuilt.command };
+}
+
+export function buildEnforcedShellCommand(params: {
+  command: string;
+  segments: ExecCommandSegment[];
+  platform?: string | null;
+}): { ok: boolean; command?: string; reason?: string } {
+  const rebuilt = rebuildShellCommandFromSource({
+    command: params.command,
+    platform: params.platform,
+    renderSegment: (_raw, segmentIndex) => {
+      const seg = params.segments[segmentIndex];
+      if (!seg) {
+        return { ok: false, reason: "segment mapping failed" };
+      }
+      const argv = resolvePlannedSegmentArgv(seg);
+      if (!argv) {
+        return { ok: false, reason: "segment execution plan unavailable" };
+      }
+      return { ok: true, rendered: renderQuotedArgv(argv) };
+    },
+  });
+  if (!rebuilt.ok) {
+    return { ok: false, reason: rebuilt.reason };
+>>>>>>> a1c4bf07c (fix(security): harden exec wrapper allowlist execution parity)
   }
 
   if (segIndex !== params.segments.length) {
