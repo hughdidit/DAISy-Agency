@@ -230,11 +230,15 @@ Docs: https://docs.openclaw.ai
 - Agents/Tool dispatch: await block-reply flush before tool execution starts so buffered block replies preserve message ordering around tool calls. (#25427) Thanks @SidQin-cyber.
 - macOS/Menu bar: stop reusing the injector delegate for the "Usage cost (30 days)" submenu to prevent recursive submenu injection loops when opening cost history. (#25341) Thanks @yingchunbai.
 <<<<<<< HEAD
+<<<<<<< HEAD
 - Control UI/Chat images: centralize safe external URL opening for image clicks (allowlist `http/https/blob` + opt-in `data:image/*`) and enforce opener isolation (`noopener,noreferrer` + `window.opener = null`) to prevent tabnabbing/unsafe schemes. (#25444) Thanks @shakkernerd.
 >>>>>>> fb8edebc3 (fix(ui): stabilize chat-image open browser test and changelog)
 =======
 - Control UI/Chat images: route image-click opens through a shared safe-open helper (allowing only safe URL schemes) and open new tabs with opener isolation to block tabnabbing. (#18685, #25444) Thanks @Mariana-Codebase and @shakkernerd.
 >>>>>>> e7298b844 (changelog: credit both chat-image fix contributors)
+=======
+- Control UI/Chat images: route image-click opens through a shared safe-open helper (allowing only safe URL schemes) and open new tabs with opener isolation to block tabnabbing. (#18685, #25444, #25847) Thanks @Mariana-Codebase and @shakkernerd.
+>>>>>>> 853f75592 (changelog: include #25847 in chat image safety entry (#25847) (thanks @shakkernerd))
 - CLI/Doctor: correct stale recovery hints to use valid commands (`openclaw gateway status --deep` and `openclaw configure --section model`). (#24485) Thanks @chilu18.
 <<<<<<< HEAD
 >>>>>>> e3ac491da (docs(changelog): trim 2026.2.24 unreleased entries)
