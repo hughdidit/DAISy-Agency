@@ -138,6 +138,10 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     runtime.setTalkEnabled(enabled)
   }
 
+  fun logGatewayDebugSnapshot(source: String = "manual") {
+    runtime.logGatewayDebugSnapshot(source)
+  }
+
   fun refreshGatewayConnection() {
     runtime.refreshGatewayConnection()
   }

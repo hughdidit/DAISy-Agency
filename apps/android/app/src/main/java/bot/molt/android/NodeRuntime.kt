@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.SystemClock
+import android.util.Log
 import androidx.core.content.ContextCompat
 <<<<<<< HEAD:apps/android/app/src/main/java/bot/molt/android/NodeRuntime.kt
 import bot.molt.android.chat.ChatController
@@ -544,6 +545,7 @@ class NodeRuntime(context: Context) {
   }
 
 <<<<<<< HEAD:apps/android/app/src/main/java/bot/molt/android/NodeRuntime.kt
+<<<<<<< HEAD:apps/android/app/src/main/java/bot/molt/android/NodeRuntime.kt
   private fun buildInvokeCommands(): List<String> =
     buildList {
       add(MoltbotCanvasCommand.Present.rawValue)
@@ -643,6 +645,17 @@ class NodeRuntime(context: Context) {
 
 =======
 >>>>>>> c179f71f4 (feat: Android companion app improvements & gateway URL camera payloads (#13541)):apps/android/app/src/main/java/ai/openclaw/android/NodeRuntime.kt
+=======
+  fun logGatewayDebugSnapshot(source: String = "manual") {
+    val flowToken = gatewayToken.value.trim()
+    val loadedToken = prefs.loadGatewayToken().orEmpty()
+    Log.i(
+      "OpenClawGatewayDebug",
+      "source=$source manualEnabled=${manualEnabled.value} host=${manualHost.value} port=${manualPort.value} tls=${manualTls.value} flowTokenLen=${flowToken.length} loadTokenLen=${loadedToken.length} connected=${isConnected.value} status=${statusText.value}",
+    )
+  }
+
+>>>>>>> 4b188dcf9 (fix(android): persist gateway auth state across onboarding):apps/android/app/src/main/java/ai/openclaw/android/NodeRuntime.kt
   fun refreshGatewayConnection() {
     val endpoint = connectedEndpoint ?: return
     val token = prefs.loadGatewayToken()
