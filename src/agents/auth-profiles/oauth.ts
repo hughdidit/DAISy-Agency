@@ -10,10 +10,15 @@ import {
   type OAuthCredentials,
   type OAuthProvider,
 } from "@mariozechner/pi-ai";
-import type { OpenClawConfig } from "../../config/config.js";
+import { loadConfig, type OpenClawConfig } from "../../config/config.js";
+import { isSecretRef } from "../../config/types.secrets.js";
 import { withFileLock } from "../../infra/file-lock.js";
 import { refreshQwenPortalCredentials } from "../../providers/qwen-portal-oauth.js";
+<<<<<<< HEAD
 >>>>>>> 201ac2b72 (perf: replace proper-lockfile with lightweight file locks)
+=======
+import { resolveSecretRefString, type SecretRefResolveCache } from "../../secrets/resolve.js";
+>>>>>>> 6a251d8d7 (Auth profiles: resolve keyRef/tokenRef outside gateway)
 import { refreshChutesTokens } from "../chutes-oauth.js";
 import { refreshQwenPortalCredentials } from "../../providers/qwen-portal-oauth.js";
 import { AUTH_STORE_LOCK_OPTIONS, log } from "./constants.js";
@@ -302,15 +307,48 @@ export async function resolveApiKeyForProfile(
     return null;
   }
 
+  const refResolveCache: SecretRefResolveCache = { fileSecretsPromise: null };
+  const configForRefResolution = cfg ?? loadConfig();
+
   if (cred.type === "api_key") {
-    const key = cred.key?.trim();
+    let key = cred.key?.trim();
+    if (!key && isSecretRef(cred.keyRef)) {
+      try {
+        key = await resolveSecretRefString(cred.keyRef, {
+          config: configForRefResolution,
+          env: process.env,
+          cache: refResolveCache,
+        });
+      } catch (err) {
+        log.debug("failed to resolve auth profile api_key ref", {
+          profileId,
+          provider: cred.provider,
+          error: err instanceof Error ? err.message : String(err),
+        });
+      }
+    }
     if (!key) {
       return null;
     }
     return buildApiKeyProfileResult({ apiKey: key, provider: cred.provider, email: cred.email });
   }
   if (cred.type === "token") {
-    const token = cred.token?.trim();
+    let token = cred.token?.trim();
+    if (!token && isSecretRef(cred.tokenRef)) {
+      try {
+        token = await resolveSecretRefString(cred.tokenRef, {
+          config: configForRefResolution,
+          env: process.env,
+          cache: refResolveCache,
+        });
+      } catch (err) {
+        log.debug("failed to resolve auth profile token ref", {
+          profileId,
+          provider: cred.provider,
+          error: err instanceof Error ? err.message : String(err),
+        });
+      }
+    }
     if (!token) {
       return null;
     }
