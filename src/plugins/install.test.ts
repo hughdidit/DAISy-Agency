@@ -486,6 +486,124 @@ describe("installPluginFromArchive", () => {
       },
     });
 
+<<<<<<< HEAD
+=======
+    const run = vi.mocked(runCommandWithTimeout);
+    run.mockResolvedValue({
+      code: 0,
+      stdout: "",
+      stderr: "",
+      signal: null,
+      killed: false,
+      termination: "exit",
+    });
+
+    const res = await installPluginFromDir({
+      dirPath: pluginDir,
+      extensionsDir,
+    });
+    expect(res.ok).toBe(true);
+    if (!res.ok) {
+      return;
+    }
+
+    const manifest = JSON.parse(
+      fs.readFileSync(path.join(res.targetDir, "package.json"), "utf-8"),
+    ) as {
+      devDependencies?: Record<string, string>;
+    };
+    expect(manifest.devDependencies?.openclaw).toBeUndefined();
+    expect(manifest.devDependencies?.vitest).toBe("^3.0.0");
+  });
+
+  it("uses openclaw.plugin.json id as install key when it differs from package name", async () => {
+    const { pluginDir, extensionsDir } = setupPluginInstallDirs();
+    fs.mkdirSync(path.join(pluginDir, "dist"), { recursive: true });
+    fs.writeFileSync(
+      path.join(pluginDir, "package.json"),
+      JSON.stringify({
+        name: "@openclaw/cognee-openclaw",
+        version: "0.0.1",
+        openclaw: { extensions: ["./dist/index.js"] },
+      }),
+      "utf-8",
+    );
+    fs.writeFileSync(path.join(pluginDir, "dist", "index.js"), "export {};", "utf-8");
+    fs.writeFileSync(
+      path.join(pluginDir, "openclaw.plugin.json"),
+      JSON.stringify({
+        id: "memory-cognee",
+        configSchema: { type: "object", properties: {} },
+      }),
+      "utf-8",
+    );
+
+    const infoMessages: string[] = [];
+    const res = await installPluginFromDir({
+      dirPath: pluginDir,
+      extensionsDir,
+      logger: { info: (msg: string) => infoMessages.push(msg), warn: () => {} },
+    });
+
+    expect(res.ok).toBe(true);
+    if (!res.ok) {
+      return;
+    }
+    expect(res.pluginId).toBe("memory-cognee");
+    expect(res.targetDir).toBe(path.join(extensionsDir, "memory-cognee"));
+    expect(
+      infoMessages.some((msg) =>
+        msg.includes(
+          'Plugin manifest id "memory-cognee" differs from npm package name "cognee-openclaw"',
+        ),
+      ),
+    ).toBe(true);
+  });
+});
+
+describe("installPluginFromNpmSpec", () => {
+  it("uses --ignore-scripts for npm pack and cleans up temp dir", async () => {
+    const stateDir = makeTempDir();
+
+    const extensionsDir = path.join(stateDir, "extensions");
+    fs.mkdirSync(extensionsDir, { recursive: true });
+
+    const run = vi.mocked(runCommandWithTimeout);
+    const voiceCallArchiveBuffer = await VOICE_CALL_ARCHIVE_V1_BUFFER_PROMISE;
+
+    let packTmpDir = "";
+    const packedName = "voice-call-0.0.1.tgz";
+    run.mockImplementation(async (argv, opts) => {
+      if (argv[0] === "npm" && argv[1] === "pack") {
+        packTmpDir = String(typeof opts === "number" ? "" : (opts.cwd ?? ""));
+        fs.writeFileSync(path.join(packTmpDir, packedName), voiceCallArchiveBuffer);
+        return {
+          code: 0,
+          stdout: JSON.stringify([
+            {
+              id: "@openclaw/voice-call@0.0.1",
+              name: "@openclaw/voice-call",
+              version: "0.0.1",
+              filename: packedName,
+              integrity: "sha512-plugin-test",
+              shasum: "pluginshasum",
+            },
+          ]),
+          stderr: "",
+          signal: null,
+          killed: false,
+          termination: "exit",
+        };
+      }
+      throw new Error(`unexpected command: ${argv.join(" ")}`);
+    });
+
+    const result = await installPluginFromNpmSpec({
+      spec: "@openclaw/voice-call@0.0.1",
+      extensionsDir,
+      logger: { info: () => {}, warn: () => {} },
+    });
+>>>>>>> 6c1ed9493 (fix: harden queue retry debounce and add regression tests)
     expect(result.ok).toBe(true);
     expect(warnings.some((w) => w.includes("code safety scan failed"))).toBe(true);
 
