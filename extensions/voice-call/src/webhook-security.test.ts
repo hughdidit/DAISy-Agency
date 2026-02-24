@@ -1,8 +1,16 @@
 import crypto from "node:crypto";
 
 import { describe, expect, it } from "vitest";
+<<<<<<< HEAD
 
 import { verifyPlivoWebhook, verifyTwilioWebhook } from "./webhook-security.js";
+=======
+import {
+  verifyPlivoWebhook,
+  verifyTelnyxWebhook,
+  verifyTwilioWebhook,
+} from "./webhook-security.js";
+>>>>>>> a3c4f56b0 (security(voice-call): detect Telnyx webhook replay)
 
 function canonicalizeBase64(input: string): string {
   return Buffer.from(input, "base64").toString("base64");
@@ -171,6 +179,37 @@ describe("verifyPlivoWebhook", () => {
 
     expect(result.ok).toBe(false);
     expect(result.reason).toMatch(/Missing Plivo signature headers/);
+  });
+});
+
+describe("verifyTelnyxWebhook", () => {
+  it("marks replayed valid requests as replay without failing auth", () => {
+    const { publicKey, privateKey } = crypto.generateKeyPairSync("ed25519");
+    const pemPublicKey = publicKey.export({ format: "pem", type: "spki" }).toString();
+    const timestamp = String(Math.floor(Date.now() / 1000));
+    const rawBody = JSON.stringify({
+      data: { event_type: "call.initiated", payload: { call_control_id: "call-1" } },
+      nonce: crypto.randomUUID(),
+    });
+    const signedPayload = `${timestamp}|${rawBody}`;
+    const signature = crypto.sign(null, Buffer.from(signedPayload), privateKey).toString("base64");
+    const ctx = {
+      headers: {
+        "telnyx-signature-ed25519": signature,
+        "telnyx-timestamp": timestamp,
+      },
+      rawBody,
+      url: "https://example.com/voice/webhook",
+      method: "POST" as const,
+    };
+
+    const first = verifyTelnyxWebhook(ctx, pemPublicKey);
+    const second = verifyTelnyxWebhook(ctx, pemPublicKey);
+
+    expect(first.ok).toBe(true);
+    expect(first.isReplay).toBeFalsy();
+    expect(second.ok).toBe(true);
+    expect(second.isReplay).toBe(true);
   });
 });
 
