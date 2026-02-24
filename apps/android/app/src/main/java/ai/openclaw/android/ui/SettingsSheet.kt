@@ -430,6 +430,10 @@ fun SettingsSheet(viewModel: MainViewModel) {
           ) {
             Text("Connect (Manual)")
           }
+
+          TextButton(onClick = { viewModel.setOnboardingCompleted(false) }) {
+            Text("Run onboarding again")
+          }
         }
       }
     }
