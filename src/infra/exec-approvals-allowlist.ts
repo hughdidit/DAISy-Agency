@@ -205,6 +205,13 @@ function evaluateSegments(
   return { satisfied, matches };
 }
 
+function resolveAnalysisSegmentGroups(analysis: ExecCommandAnalysis): ExecCommandSegment[][] {
+  if (analysis.chains) {
+    return analysis.chains;
+  }
+  return [analysis.segments];
+}
+
 export function evaluateExecAllowlist(params: {
   analysis: ExecCommandAnalysis;
   allowlist: ExecAllowlistEntry[];
@@ -220,6 +227,7 @@ export function evaluateExecAllowlist(params: {
     return { allowlistSatisfied: false, allowlistMatches };
   }
 
+<<<<<<< HEAD
   // If the analysis contains chains, evaluate each chain part separately
   if (params.analysis.chains) {
     for (const chainSegments of params.analysis.chains) {
@@ -251,6 +259,34 @@ export function evaluateExecAllowlist(params: {
     autoAllowSkills: params.autoAllowSkills,
   });
   return { allowlistSatisfied: result.satisfied, allowlistMatches: result.matches };
+=======
+  const hasChains = Boolean(params.analysis.chains);
+  for (const group of resolveAnalysisSegmentGroups(params.analysis)) {
+    const result = evaluateSegments(group, {
+      allowlist: params.allowlist,
+      safeBins: params.safeBins,
+      safeBinProfiles: params.safeBinProfiles,
+      cwd: params.cwd,
+      platform: params.platform,
+      trustedSafeBinDirs: params.trustedSafeBinDirs,
+      skillBins: params.skillBins,
+      autoAllowSkills: params.autoAllowSkills,
+    });
+    if (!result.satisfied) {
+      if (!hasChains) {
+        return {
+          allowlistSatisfied: false,
+          allowlistMatches: result.matches,
+          segmentSatisfiedBy: result.segmentSatisfiedBy,
+        };
+      }
+      return { allowlistSatisfied: false, allowlistMatches: [], segmentSatisfiedBy: [] };
+    }
+    allowlistMatches.push(...result.matches);
+    segmentSatisfiedBy.push(...result.segmentSatisfiedBy);
+  }
+  return { allowlistSatisfied: true, allowlistMatches, segmentSatisfiedBy };
+>>>>>>> 9530c0108 (refactor(exec): split safe-bin policy modules and dedupe allowlist flow)
 }
 
 export type ExecAllowlistAnalysis = {
