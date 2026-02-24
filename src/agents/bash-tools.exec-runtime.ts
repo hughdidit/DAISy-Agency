@@ -691,14 +691,28 @@ export async function runExecProcess(opts: {
         clearTimeout(timeoutFinalizeTimer);
       }
       const durationMs = Date.now() - startedAt;
+<<<<<<< HEAD
       const wasSignal = exitSignal != null;
       const isSuccess = code === 0 && !wasSignal && !timedOut;
       const status: "completed" | "failed" = isSuccess ? "completed" : "failed";
       markExited(session, code, exitSignal, status);
+=======
+      const isNormalExit = exit.reason === "exit";
+      const exitCode = exit.exitCode ?? 0;
+      // Shell exit codes 126 (not executable) and 127 (command not found) are
+      // unrecoverable infrastructure failures that should surface as real errors
+      // rather than silently completing — e.g. `python: command not found`.
+      const isShellFailure = exitCode === 126 || exitCode === 127;
+      const status: "completed" | "failed" =
+        isNormalExit && !isShellFailure ? "completed" : "failed";
+
+      markExited(session, exit.exitCode, exit.exitSignal, status);
+>>>>>>> f3459d71e (fix(exec): treat shell exit codes 126/127 as failures instead of completed)
       maybeNotifyOnExit(session, status);
       if (!session.child && session.stdin) {
         session.stdin.destroyed = true;
       }
+<<<<<<< HEAD
 
       if (settled) {
         return;
@@ -732,6 +746,25 @@ export async function runExecProcess(opts: {
 =======
       const reason =
         exit.reason === "overall-timeout"
+=======
+      const aggregated = session.aggregated.trim();
+      if (status === "completed") {
+        const exitMsg = exitCode !== 0 ? `\n\n(Command exited with code ${exitCode})` : "";
+        return {
+          status: "completed",
+          exitCode,
+          exitSignal: exit.exitSignal,
+          durationMs,
+          aggregated: aggregated + exitMsg,
+          timedOut: false,
+        };
+      }
+      const reason = isShellFailure
+        ? exitCode === 127
+          ? "Command not found"
+          : "Command not executable (permission denied)"
+        : exit.reason === "overall-timeout"
+>>>>>>> f3459d71e (fix(exec): treat shell exit codes 126/127 as failures instead of completed)
           ? typeof opts.timeoutSec === "number" && opts.timeoutSec > 0
             ? `Command timed out after ${opts.timeoutSec} seconds`
             : "Command timed out"
