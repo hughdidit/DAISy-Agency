@@ -79,6 +79,25 @@ The best way to help the project right now is by sending PRs.
 
 When patching a GHSA via `gh api`, include `X-GitHub-Api-Version: 2022-11-28` (or newer). Without it, some fields (notably CVSS) may not persist even if the request returns 200.
 
+<<<<<<< HEAD
+=======
+## Operator Trust Model (Important)
+
+OpenClaw does **not** model one gateway as a multi-tenant, adversarial user boundary.
+
+- Authenticated Gateway callers are treated as trusted operators for that gateway instance.
+- Session identifiers (`sessionKey`, session IDs, labels) are routing controls, not per-user authorization boundaries.
+- If one operator can view data from another operator on the same gateway, that is expected in this trust model.
+- OpenClaw can technically run multiple gateway instances on one machine, but recommended operations are clean separation by trust boundary.
+- Recommended mode: one user per machine/host (or VPS), one gateway for that user, and one or more agents inside that gateway.
+- If multiple users need OpenClaw, use one VPS (or host/OS user boundary) per user.
+- For advanced setups, multiple gateways on one machine are possible, but only with strict isolation and are not the recommended default.
+- Exec behavior is host-first by default: `agents.defaults.sandbox.mode` defaults to `off`.
+- `tools.exec.host` defaults to `sandbox` as a routing preference, but if sandbox runtime is not active for the session, exec runs on the gateway host.
+- Implicit exec calls (no explicit host in the tool call) follow the same behavior.
+- This is expected in OpenClaw's one-user trusted-operator model. If you need isolation, enable sandbox mode (`non-main`/`all`) and keep strict tool policy.
+
+>>>>>>> f6afc8c5b (docs(security): clarify host-side exec trust model defaults)
 ## Out of Scope
 
 - Public Internet Exposure
@@ -112,7 +131,11 @@ When patching a GHSA via `gh api`, include `X-GitHub-Api-Version: 2022-11-28` (o
 >>>>>>> 7b4d2cb5c (docs(security): clarify trusted-config dos scope)
 =======
 - Exposed secrets that are third-party/user-controlled credentials (not OpenClaw-owned and not granting access to OpenClaw-operated infrastructure/services) without demonstrated OpenClaw impact
+<<<<<<< HEAD
 >>>>>>> d68380bb7 (docs(security): clarify exposed-secret report scope)
+=======
+- Reports whose only claim is host-side exec when sandbox runtime is disabled/unavailable (documented default behavior in the trusted-operator model), without a boundary bypass.
+>>>>>>> f6afc8c5b (docs(security): clarify host-side exec trust model defaults)
 
 ## Deployment Assumptions
 
