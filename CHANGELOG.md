@@ -43,6 +43,7 @@ Docs: https://docs.openclaw.ai
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 =======
@@ -51,6 +52,9 @@ Docs: https://docs.openclaw.ai
 =======
 =======
 =======
+=======
+- Providers/OpenRouter: when thinking is explicitly off, avoid injecting `reasoning.effort` so reasoning-required models can use provider defaults instead of failing request validation. (#24863) Thanks @DevSecTim.
+>>>>>>> de0e01259 (fix: expand openrouter thinking-off regression coverage (#24863) (thanks @DevSecTim))
 - Status/Pairing recovery: show explicit pairing-approval command hints (including requestId when safe) when gateway probe failures report pairing-required closures. (#24771) Thanks @markmusson.
 >>>>>>> 69a541c3f (fix: sanitize pairing recovery requestId hints (#24771) (thanks @markmusson))
 - Discord/Threading: recover missing thread parent IDs by refetching thread metadata before resolving parent channel context. (#24897) Thanks @z-x-yang.
