@@ -654,6 +654,149 @@ export function collectSandboxDockerNoopFindings(cfg: OpenClawConfig): SecurityA
   return findings;
 }
 
+<<<<<<< HEAD
+=======
+export function collectSandboxDangerousConfigFindings(cfg: OpenClawConfig): SecurityAuditFinding[] {
+  const findings: SecurityAuditFinding[] = [];
+  const agents = Array.isArray(cfg.agents?.list) ? cfg.agents.list : [];
+
+  const configs: Array<{ source: string; docker: Record<string, unknown> }> = [];
+  const defaultDocker = cfg.agents?.defaults?.sandbox?.docker;
+  if (defaultDocker && typeof defaultDocker === "object") {
+    configs.push({
+      source: "agents.defaults.sandbox.docker",
+      docker: defaultDocker as Record<string, unknown>,
+    });
+  }
+  for (const entry of agents) {
+    if (!entry || typeof entry !== "object" || typeof entry.id !== "string") {
+      continue;
+    }
+    const agentDocker = entry.sandbox?.docker;
+    if (agentDocker && typeof agentDocker === "object") {
+      configs.push({
+        source: `agents.list.${entry.id}.sandbox.docker`,
+        docker: agentDocker as Record<string, unknown>,
+      });
+    }
+  }
+
+  for (const { source, docker } of configs) {
+    const binds = Array.isArray(docker.binds) ? docker.binds : [];
+    for (const bind of binds) {
+      if (typeof bind !== "string") {
+        continue;
+      }
+      const blocked = getBlockedBindReason(bind);
+      if (!blocked) {
+        continue;
+      }
+      if (blocked.kind === "non_absolute") {
+        findings.push({
+          checkId: "sandbox.bind_mount_non_absolute",
+          severity: "warn",
+          title: "Sandbox bind mount uses a non-absolute source path",
+          detail:
+            `${source}.binds contains "${bind}" which uses source path "${blocked.sourcePath}". ` +
+            "Non-absolute bind sources are hard to validate safely and may resolve unexpectedly.",
+          remediation: `Rewrite "${bind}" to use an absolute host path (for example: /home/user/project:/project:ro).`,
+        });
+        continue;
+      }
+      if (blocked.kind !== "covers" && blocked.kind !== "targets") {
+        continue;
+      }
+      const verb = blocked.kind === "covers" ? "covers" : "targets";
+      findings.push({
+        checkId: "sandbox.dangerous_bind_mount",
+        severity: "critical",
+        title: "Dangerous bind mount in sandbox config",
+        detail:
+          `${source}.binds contains "${bind}" which ${verb} blocked path "${blocked.blockedPath}". ` +
+          "This can expose host system directories or the Docker socket to sandbox containers.",
+        remediation: `Remove "${bind}" from ${source}.binds. Use project-specific paths instead.`,
+      });
+    }
+
+    const network = typeof docker.network === "string" ? docker.network : undefined;
+    if (network && network.trim().toLowerCase() === "host") {
+      findings.push({
+        checkId: "sandbox.dangerous_network_mode",
+        severity: "critical",
+        title: "Network host mode in sandbox config",
+        detail: `${source}.network is "host" which bypasses container network isolation entirely.`,
+        remediation: `Set ${source}.network to "bridge" or "none".`,
+      });
+    }
+
+    const seccompProfile =
+      typeof docker.seccompProfile === "string" ? docker.seccompProfile : undefined;
+    if (seccompProfile && seccompProfile.trim().toLowerCase() === "unconfined") {
+      findings.push({
+        checkId: "sandbox.dangerous_seccomp_profile",
+        severity: "critical",
+        title: "Seccomp unconfined in sandbox config",
+        detail: `${source}.seccompProfile is "unconfined" which disables syscall filtering.`,
+        remediation: `Remove ${source}.seccompProfile or use a custom seccomp profile file.`,
+      });
+    }
+
+    const apparmorProfile =
+      typeof docker.apparmorProfile === "string" ? docker.apparmorProfile : undefined;
+    if (apparmorProfile && apparmorProfile.trim().toLowerCase() === "unconfined") {
+      findings.push({
+        checkId: "sandbox.dangerous_apparmor_profile",
+        severity: "critical",
+        title: "AppArmor unconfined in sandbox config",
+        detail: `${source}.apparmorProfile is "unconfined" which disables AppArmor enforcement.`,
+        remediation: `Remove ${source}.apparmorProfile or use a named AppArmor profile.`,
+      });
+    }
+  }
+
+  const browserExposurePaths: string[] = [];
+  const defaultBrowser = resolveSandboxConfigForAgent(cfg).browser;
+  if (
+    defaultBrowser.enabled &&
+    defaultBrowser.network.trim().toLowerCase() === "bridge" &&
+    !defaultBrowser.cdpSourceRange?.trim()
+  ) {
+    browserExposurePaths.push("agents.defaults.sandbox.browser");
+  }
+  for (const entry of agents) {
+    if (!entry || typeof entry !== "object" || typeof entry.id !== "string") {
+      continue;
+    }
+    const browser = resolveSandboxConfigForAgent(cfg, entry.id).browser;
+    if (!browser.enabled) {
+      continue;
+    }
+    if (browser.network.trim().toLowerCase() !== "bridge") {
+      continue;
+    }
+    if (browser.cdpSourceRange?.trim()) {
+      continue;
+    }
+    browserExposurePaths.push(`agents.list.${entry.id}.sandbox.browser`);
+  }
+  if (browserExposurePaths.length > 0) {
+    findings.push({
+      checkId: "sandbox.browser_cdp_bridge_unrestricted",
+      severity: "warn",
+      title: "Sandbox browser CDP may be reachable by peer containers",
+      detail:
+        "These sandbox browser configs use Docker bridge networking with no CDP source restriction:\n" +
+        browserExposurePaths.map((entry) => `- ${entry}`).join("\n"),
+      remediation:
+        "Set sandbox.browser.network to a dedicated bridge network (recommended default: openclaw-sandbox-browser), " +
+        "or set sandbox.browser.cdpSourceRange (for example 172.21.0.1/32) to restrict container-edge CDP ingress.",
+    });
+  }
+
+  return findings;
+}
+
+>>>>>>> c070be1bc (fix(sandbox): harden fs bridge path checks and bind mount policy)
 export function collectNodeDenyCommandPatternFindings(cfg: OpenClawConfig): SecurityAuditFinding[] {
   const findings: SecurityAuditFinding[] = [];
   const denyListRaw = cfg.gateway?.nodes?.denyCommands;

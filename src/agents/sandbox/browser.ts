@@ -218,6 +218,7 @@ export async function ensureSandboxBrowser(params: {
       labels: { "openclaw.sandboxBrowser": "1" },
       configHash: expectedHash,
       includeBinds: false,
+      bindSourceRoots: [params.workspaceDir, params.agentWorkspaceDir],
     });
     const mainMountSuffix =
       params.cfg.workspaceAccess === "ro" && params.workspaceDir === params.agentWorkspaceDir
