@@ -184,6 +184,7 @@ export function createProcessTool(
             };
           }
           if (!scopedSession.backgrounded) {
+<<<<<<< HEAD
             return {
               content: [
                 {
@@ -193,6 +194,18 @@ export function createProcessTool(
               ],
               details: { status: "failed" },
             };
+=======
+            return failText(`Session ${params.sessionId} is not backgrounded.`);
+          }
+          const pollWaitMs = resolvePollWaitMs(params.timeout);
+          if (pollWaitMs > 0 && !scopedSession.exited) {
+            const deadline = Date.now() + pollWaitMs;
+            while (!scopedSession.exited && Date.now() < deadline) {
+              await new Promise((resolve) =>
+                setTimeout(resolve, Math.max(0, Math.min(250, deadline - Date.now()))),
+              );
+            }
+>>>>>>> d07d24eeb (fix: clamp poll sleep duration to non-negative in bash-tools process (#24889))
           }
           const { stdout, stderr } = drainSession(scopedSession);
           const exited = scopedSession.exited;
