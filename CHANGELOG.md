@@ -65,6 +65,7 @@ Docs: https://docs.openclaw.ai
 - Agents/Workspace paths: strip null bytes and guard undefined `.trim()` calls for workspace-path handling to avoid `ENOTDIR`/`TypeError` crashes. (#24876, #24875)
 - Auth/OAuth: classify missing OAuth scopes as auth failures for clearer remediation and retry behavior. (#24761)
 - Doctor/UX: suppress the redundant "Run doctor --fix" hint when already in fix mode with no changes. (#24666)
+- CLI/Doctor: correct stale recovery hints to use valid commands (`openclaw gateway status --deep` and `openclaw configure --section model`). (#24485) Thanks @chilu18.
 - Doctor/Nix: skip false-positive permission warnings for Nix store symlinks in state-integrity checks. (#24901)
 - Update/Systemd: back up an existing systemd unit before overwriting it during update flows. (#24350, #24937)
 - Install/Global detection: resolve symlinks when detecting pnpm/bun global install paths. (#24744)
