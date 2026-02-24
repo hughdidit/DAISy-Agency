@@ -53,6 +53,7 @@ vi.mock("./zai-endpoint-detect.js", () => ({
 
 type StoredAuthProfile = {
   key?: string;
+  keyRef?: { source: string; id: string };
   access?: string;
   refresh?: string;
   provider?: string;
@@ -901,7 +902,10 @@ describe("applyAuthChoice", () => {
           ),
         ).toBe(true);
       }
-      expect((await readAuthProfile(scenario.profileId))?.key).toBe(scenario.envValue);
+      expect((await readAuthProfile(scenario.profileId))?.keyRef).toEqual({
+        source: "env",
+        id: scenario.envKey,
+      });
     }
   });
 
@@ -1190,7 +1194,10 @@ describe("applyAuthChoice", () => {
 
     expect(await readAuthProfile("litellm:default")).toMatchObject({
       type: "api_key",
-      key: "sk-litellm-test",
+      keyRef: {
+        source: "env",
+        id: "LITELLM_API_KEY",
+      },
     });
   });
 
@@ -1205,7 +1212,8 @@ describe("applyAuthChoice", () => {
         cloudflareAiGatewayApiKey: string;
       };
       expectEnvPrompt: boolean;
-      expectedKey: string;
+      expectedKey?: string;
+      expectedKeyRef?: { source: string; id: string };
       expectedMetadata: { accountId: string; gatewayId: string };
     }> = [
       {
@@ -1213,7 +1221,10 @@ describe("applyAuthChoice", () => {
         textValues: ["cf-account-id", "cf-gateway-id"],
         confirmValue: true,
         expectEnvPrompt: true,
-        expectedKey: "cf-gateway-test-key",
+        expectedKeyRef: {
+          source: "env",
+          id: "CLOUDFLARE_AI_GATEWAY_API_KEY",
+        },
         expectedMetadata: {
           accountId: "cf-account-id",
           gatewayId: "cf-gateway-id",
@@ -1277,7 +1288,11 @@ describe("applyAuthChoice", () => {
       );
 
       const profile = await readAuthProfile("cloudflare-ai-gateway:default");
-      expect(profile?.key).toBe(scenario.expectedKey);
+      if (scenario.expectedKeyRef) {
+        expect(profile?.keyRef).toEqual(scenario.expectedKeyRef);
+      } else {
+        expect(profile?.key).toBe(scenario.expectedKey);
+      }
       expect(profile?.metadata).toEqual(scenario.expectedMetadata);
     }
     delete process.env.CLOUDFLARE_AI_GATEWAY_API_KEY;
