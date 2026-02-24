@@ -367,7 +367,27 @@ describe("slack prepareSlackMessage inbound contract", () => {
     expect(prepared).toBeNull();
   });
 
+<<<<<<< HEAD
 >>>>>>> 67250f059 (fix(slack): scope attachment extraction to forwarded shares)
+=======
+  it("delivers file-only message with placeholder when media download fails", async () => {
+    // Files without url_private will fail to download, simulating a download
+    // failure.  The message should still be delivered with a fallback
+    // placeholder instead of being silently dropped (#25064).
+    const prepared = await prepareWithDefaultCtx(
+      createSlackMessage({
+        text: "",
+        files: [{ name: "voice.ogg" }, { name: "photo.jpg" }],
+      }),
+    );
+
+    expect(prepared).toBeTruthy();
+    expect(prepared!.ctxPayload.RawBody).toContain("[Slack file:");
+    expect(prepared!.ctxPayload.RawBody).toContain("voice.ogg");
+    expect(prepared!.ctxPayload.RawBody).toContain("photo.jpg");
+  });
+
+>>>>>>> def28a87b (fix(slack): deliver file-only messages when all media downloads fail)
   it("keeps channel metadata out of GroupSystemPrompt", async () => {
     const slackCtx = createInboundSlackCtx({
       cfg: {
