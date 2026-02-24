@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { getBlockedNetworkModeReason } from "../agents/sandbox/network-mode.js";
 import { parseDurationMs } from "../cli/parse-duration.js";
 import { AgentModelSchema } from "./zod-schema.agent-model.js";
 import {
@@ -155,8 +156,11 @@ export const SandboxDockerSchema = z
         }
       }
     }
-    const network = data.network?.trim().toLowerCase();
-    if (network === "host") {
+    const blockedNetworkReason = getBlockedNetworkModeReason({
+      network: data.network,
+      allowContainerNamespaceJoin: data.dangerouslyAllowContainerNamespaceJoin === true,
+    });
+    if (blockedNetworkReason === "host") {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["network"],
@@ -164,7 +168,7 @@ export const SandboxDockerSchema = z
           'Sandbox security: network mode "host" is blocked. Use "bridge" or "none" instead.',
       });
     }
-    if (network?.startsWith("container:") && data.dangerouslyAllowContainerNamespaceJoin !== true) {
+    if (blockedNetworkReason === "container_namespace_join") {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["network"],
@@ -471,11 +475,11 @@ export const AgentSandboxSchema = z
   })
   .strict()
   .superRefine((data, ctx) => {
-    const browserNetwork = data.browser?.network?.trim().toLowerCase();
-    if (
-      browserNetwork?.startsWith("container:") &&
-      data.docker?.dangerouslyAllowContainerNamespaceJoin !== true
-    ) {
+    const blockedBrowserNetworkReason = getBlockedNetworkModeReason({
+      network: data.browser?.network,
+      allowContainerNamespaceJoin: data.docker?.dangerouslyAllowContainerNamespaceJoin === true,
+    });
+    if (blockedBrowserNetworkReason === "container_namespace_join") {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["browser", "network"],
