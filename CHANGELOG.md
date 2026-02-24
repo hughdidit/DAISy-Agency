@@ -55,6 +55,7 @@ Docs: https://docs.openclaw.ai
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 =======
@@ -75,6 +76,9 @@ Docs: https://docs.openclaw.ai
 =======
 =======
 =======
+=======
+- Doctor/Sandbox: when sandbox mode is enabled but Docker is unavailable, surface a clear actionable warning (including failure impact and remediation) instead of a mild “skip checks” note. (#25438) Thanks @mcaxtr.
+>>>>>>> b511a38fc (fix: add changelog for doctor sandbox docker warning (#25438) (thanks @mcaxtr))
 - Config/Meta: accept numeric `meta.lastTouchedAt` timestamps and coerce them to ISO strings, preserving compatibility with agent edits that write `Date.now()` values. (#25491) Thanks @mcaxtr.
 >>>>>>> d2c031de8 (fix: add changelog for meta timestamp coercion (#25491) (thanks @mcaxtr))
 - Auto-reply/Reset hooks: guarantee native `/new` and `/reset` flows emit command/reset hooks even on early-return command paths, with dedupe protection to avoid double hook emission. (#25459) Thanks @chilu18.
