@@ -13,11 +13,21 @@ import { loadPluginManifestRegistry } from "../../plugins/manifest-registry.js";
 const log = createSubsystemLogger("skills");
 
 export function resolvePluginSkillDirs(params: {
+<<<<<<< HEAD
   workspaceDir: string;
   config?: MoltbotConfig;
 }): string[] {
   const workspaceDir = params.workspaceDir.trim();
   if (!workspaceDir) return [];
+=======
+  workspaceDir: string | undefined;
+  config?: OpenClawConfig;
+}): string[] {
+  const workspaceDir = (params.workspaceDir ?? "").trim();
+  if (!workspaceDir) {
+    return [];
+  }
+>>>>>>> 177f167ea (fix: guard .trim() calls on potentially undefined workspaceDir (#24875))
   const registry = loadPluginManifestRegistry({
     workspaceDir,
     config: params.config,
