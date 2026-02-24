@@ -97,9 +97,10 @@ export function resolveSessionDeliveryTarget(params: {
     }
   }
 
-  const accountId = channel && channel === lastChannel ? lastAccountId : undefined;
-  const threadId = channel && channel === lastChannel ? lastThreadId : undefined;
   const mode = params.mode ?? (explicitTo ? "explicit" : "implicit");
+  const accountId = channel && channel === lastChannel ? lastAccountId : undefined;
+  const threadId =
+    mode !== "heartbeat" && channel && channel === lastChannel ? lastThreadId : undefined;
 
   return {
     channel,

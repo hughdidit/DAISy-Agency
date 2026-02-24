@@ -424,6 +424,7 @@ export async function runReplyAgent(params: {
       messageProvider: followupRun.run.messageProvider,
       messagingToolSentTexts: runResult.messagingToolSentTexts,
       messagingToolSentTargets: runResult.messagingToolSentTargets,
+      originatingChannel: sessionCtx.OriginatingChannel,
       originatingTo: sessionCtx.OriginatingTo ?? sessionCtx.To,
       accountId: sessionCtx.AccountId,
     });

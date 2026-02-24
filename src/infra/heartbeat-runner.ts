@@ -707,7 +707,15 @@ export async function runHeartbeatOnce(opts: {
     Body: prompt,
     From: sender,
     To: sender,
+<<<<<<< HEAD
     Provider: hasExecCompletion ? "exec-event" : "heartbeat",
+=======
+    OriginatingChannel: delivery.channel !== "none" ? delivery.channel : undefined,
+    OriginatingTo: delivery.to,
+    AccountId: delivery.accountId,
+    MessageThreadId: delivery.threadId,
+    Provider: hasExecCompletion ? "exec-event" : hasCronEvents ? "cron-event" : "heartbeat",
+>>>>>>> ccbeb332e (fix: harden routing/session isolation for followups and heartbeat)
     SessionKey: sessionKey,
   };
   if (!visibility.showAlerts && !visibility.showOk && !visibility.useIndicator) {
