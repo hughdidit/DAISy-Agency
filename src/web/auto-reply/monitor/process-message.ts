@@ -399,11 +399,18 @@ export async function processMessage(params: {
       onReplyStart: params.msg.sendComposing,
     },
     replyOptions: {
+<<<<<<< HEAD
       disableBlockStreaming:
         typeof params.cfg.channels?.whatsapp?.blockStreaming === "boolean"
           ? !params.cfg.channels.whatsapp.blockStreaming
           : undefined,
       onModelSelected: prefixContext.onModelSelected,
+=======
+      // WhatsApp delivery intentionally suppresses non-final payloads.
+      // Keep block streaming disabled so final replies are still produced.
+      disableBlockStreaming: true,
+      onModelSelected,
+>>>>>>> b5881d9ef (fix: avoid WhatsApp silent turns with final-only delivery (#24962) (thanks @SidQin-cyber))
     },
   });
 
