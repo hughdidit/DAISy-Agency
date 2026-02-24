@@ -78,6 +78,10 @@ class SecurePrefs(context: Context) {
     MutableStateFlow(prefs.getString("gateway.manual.token", "") ?: "")
   val gatewayToken: StateFlow<String> = _gatewayToken
 
+  private val _onboardingCompleted =
+    MutableStateFlow(prefs.getBoolean("onboarding.completed", false))
+  val onboardingCompleted: StateFlow<Boolean> = _onboardingCompleted
+
   private val _lastDiscoveredStableId =
     MutableStateFlow(
       readStringWithMigration(
@@ -157,6 +161,15 @@ class SecurePrefs(context: Context) {
   fun setGatewayToken(value: String) {
     prefs.edit { putString("gateway.manual.token", value) }
     _gatewayToken.value = value
+  }
+
+  fun setGatewayPassword(value: String) {
+    saveGatewayPassword(value)
+  }
+
+  fun setOnboardingCompleted(value: Boolean) {
+    prefs.edit { putBoolean("onboarding.completed", value) }
+    _onboardingCompleted.value = value
   }
 
   fun setCanvasDebugStatusEnabled(value: Boolean) {
