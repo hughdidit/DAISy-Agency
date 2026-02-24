@@ -1,6 +1,26 @@
 import { describe, expect, it } from "vitest";
 import { applyPluginAutoEnable } from "./plugin-auto-enable.js";
 
+<<<<<<< HEAD
+=======
+/** Helper to build a minimal PluginManifestRegistry for testing. */
+function makeRegistry(plugins: Array<{ id: string; channels: string[] }>): PluginManifestRegistry {
+  return {
+    plugins: plugins.map((p) => ({
+      id: p.id,
+      channels: p.channels,
+      providers: [],
+      skills: [],
+      origin: "config" as const,
+      rootDir: `/fake/${p.id}`,
+      source: `/fake/${p.id}/index.js`,
+      manifestPath: `/fake/${p.id}/openclaw.plugin.json`,
+    })),
+    diagnostics: [],
+  };
+}
+
+>>>>>>> 3b4dac764 (fix: doctor plugin-id mapping for channel auto-enable (#25275) (thanks @zerone0x))
 describe("applyPluginAutoEnable", () => {
   it("configures channel plugins with disabled state and updates allowlist", () => {
     const result = applyPluginAutoEnable({
