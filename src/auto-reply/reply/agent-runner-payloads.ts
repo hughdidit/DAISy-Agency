@@ -6,6 +6,11 @@ import { SILENT_REPLY_TOKEN } from "../tokens.js";
 import type { ReplyPayload } from "../types.js";
 import { formatBunFetchSocketError, isBunFetchSocketError } from "./agent-runner-utils.js";
 import { createBlockReplyPayloadKey, type BlockReplyPipeline } from "./block-reply-pipeline.js";
+import {
+  resolveOriginAccountId,
+  resolveOriginMessageProvider,
+  resolveOriginMessageTo,
+} from "./origin-routing.js";
 import { normalizeReplyPayloadDirectives } from "./reply-delivery.js";
 import {
   applyReplyThreading,
@@ -86,10 +91,21 @@ export function buildReplyPayloads(params: {
   const messagingToolSentTexts = params.messagingToolSentTexts ?? [];
   const messagingToolSentTargets = params.messagingToolSentTargets ?? [];
   const suppressMessagingToolReplies = shouldSuppressMessagingToolReplies({
+<<<<<<< HEAD
     messageProvider: params.messageProvider,
+=======
+    messageProvider: resolveOriginMessageProvider({
+      originatingChannel: params.originatingChannel,
+      provider: params.messageProvider,
+    }),
+>>>>>>> 54648a9cf (refactor: centralize followup origin routing helpers)
     messagingToolSentTargets,
-    originatingTo: params.originatingTo,
-    accountId: params.accountId,
+    originatingTo: resolveOriginMessageTo({
+      originatingTo: params.originatingTo,
+    }),
+    accountId: resolveOriginAccountId({
+      originatingAccountId: params.accountId,
+    }),
   });
   // Only dedupe against messaging tool sends for the same origin target.
   // Cross-target sends (for example posting to another channel) must not
