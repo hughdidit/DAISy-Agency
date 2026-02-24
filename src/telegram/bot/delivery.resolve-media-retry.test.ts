@@ -92,6 +92,18 @@ async function expectTransientGetFileRetrySuccess() {
   await flushRetryTimers();
   const result = await promise;
   expect(getFile).toHaveBeenCalledTimes(2);
+<<<<<<< HEAD
+=======
+  expect(fetchRemoteMedia).toHaveBeenCalledWith(
+    expect.objectContaining({
+      url: `https://api.telegram.org/file/bot${BOT_TOKEN}/voice/file_0.oga`,
+      ssrfPolicy: {
+        allowRfc2544BenchmarkRange: true,
+        allowedHostnames: ["api.telegram.org"],
+      },
+    }),
+  );
+>>>>>>> dd14daab1 (fix(telegram): allowlist api.telegram.org in media SSRF policy)
   return result;
 }
 
