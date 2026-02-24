@@ -66,11 +66,29 @@ describe("runCommandWithTimeout", () => {
       [
         process.execPath,
         "-e",
+<<<<<<< HEAD
         'process.stdout.write(".\\n"); const interval = setInterval(() => process.stdout.write(".\\n"), 1800); setTimeout(() => { clearInterval(interval); process.exit(0); }, 9000);',
       ],
       {
         timeoutMs: 15_000,
         noOutputTimeoutMs: 6_000,
+=======
+        [
+          'process.stdout.write(".");',
+          "let count = 0;",
+          'const ticker = setInterval(() => { process.stdout.write(".");',
+          "count += 1;",
+          "if (count === 2) {",
+          "clearInterval(ticker);",
+          "process.exit(0);",
+          "}",
+          "}, 12);",
+        ].join(" "),
+      ],
+      {
+        timeoutMs: 5_000,
+        noOutputTimeoutMs: 120,
+>>>>>>> 31f2bf951 (test: fix gate regressions)
       },
     );
 

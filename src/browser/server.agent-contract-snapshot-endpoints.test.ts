@@ -311,6 +311,7 @@ describe("browser control server", () => {
     })) as { ok: boolean; targetId?: string };
     expect(nav.ok).toBe(true);
     expect(typeof nav.targetId).toBe("string");
+<<<<<<< HEAD
     expect(pwMocks.navigateViaPlaywright).toHaveBeenCalledWith({
       cdpUrl: cdpBaseUrl,
       targetId: "abcd1234",
@@ -319,6 +320,18 @@ describe("browser control server", () => {
         dangerouslyAllowPrivateNetwork: true,
       },
     });
+=======
+    expect(pwMocks.navigateViaPlaywright).toHaveBeenCalledWith(
+      expect.objectContaining({
+        cdpUrl: state.cdpBaseUrl,
+        targetId: "abcd1234",
+        url: "https://example.com",
+        ssrfPolicy: {
+          dangerouslyAllowPrivateNetwork: true,
+        },
+      }),
+    );
+>>>>>>> 31f2bf951 (test: fix gate regressions)
 
     const click = (await postJson(`${base}/act`, {
       kind: "click",

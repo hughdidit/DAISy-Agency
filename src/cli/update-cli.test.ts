@@ -649,6 +649,7 @@ describe("update-cli", () => {
     expect(runDaemonRestart).toHaveBeenCalled();
   });
 
+<<<<<<< HEAD
   it("updateCommand skips restart when --no-restart is set", async () => {
     const { runGatewayUpdate } = await import("../infra/update-runner.js");
     const { runDaemonRestart } = await import("./daemon-cli.js");
@@ -668,6 +669,8 @@ describe("update-cli", () => {
     expect(runDaemonRestart).not.toHaveBeenCalled();
   });
 
+=======
+>>>>>>> 31f2bf951 (test: fix gate regressions)
   it("updateCommand skips success message when restart does not run", async () => {
     const { runGatewayUpdate } = await import("../infra/update-runner.js");
     const { runDaemonRestart } = await import("./daemon-cli.js");
