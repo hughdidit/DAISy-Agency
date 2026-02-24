@@ -120,12 +120,30 @@ running after `tools.exec.approvalRunningNoticeMs`, a single `Exec running` noti
 
 ## Allowlist + safe bins
 
-Allowlist enforcement matches **resolved binary paths only** (no basename matches). When
+Manual allowlist enforcement matches **resolved binary paths only** (no basename matches). When
 `security=allowlist`, shell commands are auto-allowed only if every pipeline segment is
 allowlisted or a safe bin. Chaining (`;`, `&&`, `||`) and redirections are rejected in
 allowlist mode unless every top-level segment satisfies the allowlist (including safe bins).
 Redirections remain unsupported.
 
+<<<<<<< HEAD
+=======
+`autoAllowSkills` is a separate convenience path in exec approvals. It is not the same as
+manual path allowlist entries. For strict explicit trust, keep `autoAllowSkills` disabled.
+
+Use the two controls for different jobs:
+
+- `tools.exec.safeBins`: small, stdin-only stream filters.
+- `tools.exec.safeBinTrustedDirs`: explicit extra trusted directories for safe-bin executable paths.
+- `tools.exec.safeBinProfiles`: explicit argv policy for custom safe bins.
+- allowlist: explicit trust for executable paths.
+
+Do not treat `safeBins` as a generic allowlist, and do not add interpreter/runtime binaries (for example `python3`, `node`, `ruby`, `bash`). If you need those, use explicit allowlist entries and keep approval prompts enabled.
+`openclaw security audit` warns when interpreter/runtime `safeBins` entries are missing explicit profiles, and `openclaw doctor --fix` can scaffold missing custom `safeBinProfiles` entries.
+
+For full policy details and examples, see [Exec approvals](/tools/exec-approvals#safe-bins-stdin-only) and [Safe bins versus allowlist](/tools/exec-approvals#safe-bins-versus-allowlist).
+
+>>>>>>> f0f886ecc (docs(security): clarify gateway-node trust boundary in docs)
 ## Examples
 
 Foreground:
