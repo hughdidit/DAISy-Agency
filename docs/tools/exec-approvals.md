@@ -135,6 +135,19 @@ Shell chaining (`&&`, `||`, `;`) is allowed when every top-level segment satisfi
 (including safe bins or skill auto-allow). Redirections remain unsupported in allowlist mode.
 Command substitution (`$()` / backticks) is rejected during allowlist parsing, including inside
 double quotes; use single quotes if you need literal `$()` text.
+<<<<<<< HEAD
+=======
+On macOS companion-app approvals, raw shell text containing shell control or expansion syntax
+(`&&`, `||`, `;`, `|`, `` ` ``, `$`, `<`, `>`, `(`, `)`) is treated as an allowlist miss unless
+the shell binary itself is allowlisted.
+For shell wrappers (`bash|sh|zsh ... -c/-lc`), request-scoped env overrides are reduced to a
+small explicit allowlist (`TERM`, `LANG`, `LC_*`, `COLORTERM`, `NO_COLOR`, `FORCE_COLOR`).
+For allow-always decisions in allowlist mode, known dispatch wrappers
+(`env`, `nice`, `nohup`, `stdbuf`, `timeout`) persist inner executable paths instead of wrapper
+paths. Shell multiplexers (`busybox`, `toybox`) are also unwrapped for shell applets (`sh`, `ash`,
+etc.) so inner executables are persisted instead of multiplexer binaries. If a wrapper or
+multiplexer cannot be safely unwrapped, no allowlist entry is persisted automatically.
+>>>>>>> a67689a7e (fix: harden allow-always shell multiplexer wrapper handling)
 
 Default safe bins: `jq`, `grep`, `cut`, `sort`, `uniq`, `head`, `tail`, `tr`, `wc`.
 
