@@ -479,6 +479,48 @@ describe("runMessageAction sendAttachment hydration", () => {
     vi.clearAllMocks();
   });
 
+<<<<<<< HEAD
+=======
+  async function restoreRealMediaLoader() {
+    const actual = await vi.importActual<typeof import("../../web/media.js")>("../../web/media.js");
+    vi.mocked(loadWebMedia).mockImplementation(actual.loadWebMedia);
+  }
+
+  async function expectRejectsLocalAbsolutePathWithoutSandbox(params: {
+    action: "sendAttachment" | "setGroupIcon";
+    target: string;
+    message?: string;
+    tempPrefix: string;
+  }) {
+    await restoreRealMediaLoader();
+
+    const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), params.tempPrefix));
+    try {
+      const outsidePath = path.join(tempDir, "secret.txt");
+      await fs.writeFile(outsidePath, "secret", "utf8");
+
+      const actionParams: Record<string, unknown> = {
+        channel: "bluebubbles",
+        target: params.target,
+        media: outsidePath,
+      };
+      if (params.message) {
+        actionParams.message = params.message;
+      }
+
+      await expect(
+        runMessageAction({
+          cfg,
+          action: params.action,
+          params: actionParams,
+        }),
+      ).rejects.toThrow(/allowed directory|path-not-allowed/i);
+    } finally {
+      await fs.rm(tempDir, { recursive: true, force: true });
+    }
+  }
+
+>>>>>>> 316fad13a (refactor(outbound): unify attachment hydration flow)
   it("hydrates buffer and filename from media for sendAttachment", async () => {
     const cfg = {
       channels: {
@@ -554,6 +596,26 @@ describe("runMessageAction sendAttachment hydration", () => {
       );
     });
   });
+<<<<<<< HEAD
+=======
+
+  it("rejects local absolute path for sendAttachment when sandboxRoot is missing", async () => {
+    await expectRejectsLocalAbsolutePathWithoutSandbox({
+      action: "sendAttachment",
+      target: "+15551234567",
+      message: "caption",
+      tempPrefix: "msg-attachment-",
+    });
+  });
+
+  it("rejects local absolute path for setGroupIcon when sandboxRoot is missing", async () => {
+    await expectRejectsLocalAbsolutePathWithoutSandbox({
+      action: "setGroupIcon",
+      target: "group:123",
+      tempPrefix: "msg-group-icon-",
+    });
+  });
+>>>>>>> 316fad13a (refactor(outbound): unify attachment hydration flow)
 });
 
 describe("runMessageAction sandboxed media validation", () => {
