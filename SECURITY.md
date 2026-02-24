@@ -40,6 +40,7 @@ For fastest triage, include all of the following:
 - Tested version details (OpenClaw version and/or commit SHA).
 - Reproducible PoC against latest `main` or latest released version.
 - Demonstrated impact tied to OpenClaw's documented trust boundaries.
+- For exposed-secret reports: proof the credential is OpenClaw-owned (or grants access to OpenClaw-operated infrastructure/services).
 - Scope check explaining why the report is **not** covered by the Out of Scope section below.
 
 Reports that miss these requirements may be closed as `invalid` or `no-action`.
@@ -93,7 +94,11 @@ When patching a GHSA via `gh api`, include `X-GitHub-Api-Version: 2022-11-28` (o
 >>>>>>> b13fc7ecc (docs(security): clarify workspace memory trust boundary)
 =======
 - Reports that depend on trusted operator-supplied configuration values to trigger availability impact (for example custom regex patterns). These may still be fixed as defense-in-depth hardening, but are not security-boundary bypasses.
+<<<<<<< HEAD
 >>>>>>> 7b4d2cb5c (docs(security): clarify trusted-config dos scope)
+=======
+- Exposed secrets that are third-party/user-controlled credentials (not OpenClaw-owned and not granting access to OpenClaw-operated infrastructure/services) without demonstrated OpenClaw impact
+>>>>>>> d68380bb7 (docs(security): clarify exposed-secret report scope)
 
 ## Deployment Assumptions
 
