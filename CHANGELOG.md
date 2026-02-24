@@ -35,6 +35,7 @@ Status: beta.
 =======
 ## Unreleased
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 ## 2026.2.15 (Unreleased)
 =======
@@ -47,6 +48,13 @@ Status: beta.
 ## 2026.2.18 (Unreleased)
 >>>>>>> 4bf333883 (chore: bump version to 2026.2.18 unreleased)
 =======
+=======
+
+### Fixes
+
+- Security/Config writes: block reserved prototype keys in account-id normalization and route account config resolution through own-key lookups, hardening `/allowlist` and account-scoped config paths against prototype-chain pollution.
+- Security/Exec: harden `safeBins` long-option validation by rejecting unknown/ambiguous GNU long-option abbreviations and denying sort filesystem-dependent flags (`--random-source`, `--temporary-directory`, `-T`), closing safe-bin denylist bypasses. Thanks @jiseoung.
+>>>>>>> f97c0922e (fix(security): harden account-key handling against prototype pollution)
 
 ## 2026.2.23 (Unreleased)
 >>>>>>> 558a0137b (chore(release): bump versions to 2026.2.23)

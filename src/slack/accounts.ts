@@ -1,6 +1,10 @@
 import type { OpenClawConfig } from "../config/config.js";
 import type { SlackAccountConfig } from "../config/types.js";
+<<<<<<< HEAD
 import { normalizeChatType } from "../channels/chat-type.js";
+=======
+import { resolveAccountEntry } from "../routing/account-lookup.js";
+>>>>>>> f97c0922e (fix(security): harden account-key handling against prototype pollution)
 import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "../routing/session-key.js";
 import { resolveSlackAppToken, resolveSlackBotToken } from "./token.js";
 
@@ -50,9 +54,13 @@ function resolveAccountConfig(
   cfg: OpenClawConfig,
   accountId: string,
 ): SlackAccountConfig | undefined {
+<<<<<<< HEAD
   const accounts = cfg.channels?.slack?.accounts;
   if (!accounts || typeof accounts !== "object") return undefined;
   return accounts[accountId] as SlackAccountConfig | undefined;
+=======
+  return resolveAccountEntry(cfg.channels?.slack?.accounts, accountId);
+>>>>>>> f97c0922e (fix(security): harden account-key handling against prototype pollution)
 }
 
 function mergeSlackAccountConfig(cfg: OpenClawConfig, accountId: string): SlackAccountConfig {

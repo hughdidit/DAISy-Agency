@@ -1,4 +1,9 @@
 import type { OpenClawConfig } from "../../config/config.js";
+<<<<<<< HEAD
+=======
+import { resolveAccountEntry } from "../../routing/account-lookup.js";
+import { normalizeAccountId } from "../../routing/session-key.js";
+>>>>>>> f97c0922e (fix(security): harden account-key handling against prototype pollution)
 import type { ChannelId } from "./types.js";
 import { normalizeAccountId } from "../../routing/session-key.js";
 
@@ -8,12 +13,16 @@ type ChannelConfigWithAccounts = {
 };
 
 function resolveAccountConfig(accounts: ChannelConfigWithAccounts["accounts"], accountId: string) {
+<<<<<<< HEAD
   if (!accounts || typeof accounts !== "object") return undefined;
   if (accountId in accounts) return accounts[accountId];
   const matchKey = Object.keys(accounts).find(
     (key) => key.toLowerCase() === accountId.toLowerCase(),
   );
   return matchKey ? accounts[matchKey] : undefined;
+=======
+  return resolveAccountEntry(accounts, accountId);
+>>>>>>> f97c0922e (fix(security): harden account-key handling against prototype pollution)
 }
 
 export function resolveChannelConfigWrites(params: {

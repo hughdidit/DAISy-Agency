@@ -109,6 +109,7 @@ describe("handleCommands gating", () => {
     expect(result.reply?.text).toContain("elevated is not available");
   });
 
+<<<<<<< HEAD
   it("blocks /config when disabled", async () => {
     const cfg = {
       commands: { config: false, debug: false, text: true },
@@ -119,6 +120,43 @@ describe("handleCommands gating", () => {
     expect(result.shouldContinue).toBe(false);
     expect(result.reply?.text).toContain("/config is disabled");
   });
+=======
+  it("rejects blocked account ids and keeps Object.prototype clean", async () => {
+    delete (Object.prototype as Record<string, unknown>).allowFrom;
+
+    const cfg = {
+      commands: { text: true, config: true },
+      channels: { telegram: { allowFrom: ["123"] } },
+    } as OpenClawConfig;
+    const params = buildPolicyParams("/allowlist add dm --account __proto__ 789", cfg);
+    const result = await handleCommands(params);
+
+    expect(result.shouldContinue).toBe(false);
+    expect(result.reply?.text).toContain("Invalid account id");
+    expect((Object.prototype as Record<string, unknown>).allowFrom).toBeUndefined();
+    expect(writeConfigFileMock).not.toHaveBeenCalled();
+  });
+
+  it("removes DM allowlist entries from canonical allowFrom and deletes legacy dm.allowFrom", async () => {
+    const cases = [
+      {
+        provider: "slack",
+        removeId: "U111",
+        initialAllowFrom: ["U111", "U222"],
+        expectedAllowFrom: ["U222"],
+      },
+      {
+        provider: "discord",
+        removeId: "111",
+        initialAllowFrom: ["111", "222"],
+        expectedAllowFrom: ["222"],
+      },
+    ] as const;
+    validateConfigObjectWithPluginsMock.mockImplementation((config: unknown) => ({
+      ok: true,
+      config,
+    }));
+>>>>>>> f97c0922e (fix(security): harden account-key handling against prototype pollution)
 
   it("blocks /debug when disabled", async () => {
     const cfg = {
