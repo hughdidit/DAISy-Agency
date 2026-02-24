@@ -57,6 +57,8 @@ const AVATAR_DATA_RE = /^data:/i;
 const AVATAR_HTTP_RE = /^https?:\/\//i;
 const WINDOWS_ABS_RE = /^[a-zA-Z]:[\\/]/;
 
+const LEGACY_REMOVED_PLUGIN_IDS = new Set(["google-antigravity-auth"]);
+
 function isWorkspaceAvatarPath(value: string, workspaceDir: string): boolean {
   const workspaceRoot = path.resolve(workspaceDir);
   const resolved = path.resolve(workspaceRoot, value);
@@ -361,6 +363,19 @@ function validateConfigObjectWithPluginsBase(
   }
 
   const { registry, knownIds, normalizedPlugins } = ensureRegistry();
+  const pushMissingPluginIssue = (path: string, pluginId: string) => {
+    if (LEGACY_REMOVED_PLUGIN_IDS.has(pluginId)) {
+      warnings.push({
+        path,
+        message: `plugin removed: ${pluginId} (stale config entry ignored; remove it from plugins config)`,
+      });
+      return;
+    }
+    issues.push({
+      path,
+      message: `plugin not found: ${pluginId}`,
+    });
+  };
 
   const pluginsConfig = config.plugins;
 
@@ -368,10 +383,7 @@ function validateConfigObjectWithPluginsBase(
   if (entries && isRecord(entries)) {
     for (const pluginId of Object.keys(entries)) {
       if (!knownIds.has(pluginId)) {
-        issues.push({
-          path: `plugins.entries.${pluginId}`,
-          message: `plugin not found: ${pluginId}`,
-        });
+        pushMissingPluginIssue(`plugins.entries.${pluginId}`, pluginId);
       }
     }
   }
@@ -382,10 +394,7 @@ function validateConfigObjectWithPluginsBase(
       continue;
     }
     if (!knownIds.has(pluginId)) {
-      issues.push({
-        path: "plugins.allow",
-        message: `plugin not found: ${pluginId}`,
-      });
+      pushMissingPluginIssue("plugins.allow", pluginId);
     }
   }
 
@@ -395,19 +404,13 @@ function validateConfigObjectWithPluginsBase(
       continue;
     }
     if (!knownIds.has(pluginId)) {
-      issues.push({
-        path: "plugins.deny",
-        message: `plugin not found: ${pluginId}`,
-      });
+      pushMissingPluginIssue("plugins.deny", pluginId);
     }
   }
 
   const memorySlot = normalizedPlugins.slots.memory;
   if (typeof memorySlot === "string" && memorySlot.trim() && !knownIds.has(memorySlot)) {
-    issues.push({
-      path: "plugins.slots.memory",
-      message: `plugin not found: ${memorySlot}`,
-    });
+    pushMissingPluginIssue("plugins.slots.memory", memorySlot);
   }
 
   let selectedMemoryPluginId: string | null = null;
