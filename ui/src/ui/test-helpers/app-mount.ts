@@ -1,5 +1,6 @@
 import { afterEach, beforeEach } from "vitest";
-import { OpenClawApp } from "../app.ts";
+import "../app.ts";
+import type { OpenClawApp } from "../app.ts";
 
 // oxlint-disable-next-line typescript/unbound-method
 const originalConnect = OpenClawApp.prototype.connect;
