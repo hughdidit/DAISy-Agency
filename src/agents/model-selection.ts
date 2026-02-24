@@ -44,6 +44,16 @@ export function normalizeProviderId(provider: string): string {
   if (normalized === "kimi-code") {
     return "kimi-coding";
   }
+<<<<<<< HEAD
+=======
+  if (normalized === "bedrock" || normalized === "aws-bedrock") {
+    return "amazon-bedrock";
+  }
+  // Backward compatibility for older provider naming.
+  if (normalized === "bytedance" || normalized === "doubao") {
+    return "volcengine";
+  }
+>>>>>>> b7deb062e (fix: normalize "bedrock" provider ID to "amazon-bedrock")
   return normalized;
 }
 
