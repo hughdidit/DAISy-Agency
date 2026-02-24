@@ -44,6 +44,7 @@ Docs: https://docs.openclaw.ai
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 =======
@@ -53,6 +54,9 @@ Docs: https://docs.openclaw.ai
 =======
 =======
 =======
+=======
+- WhatsApp/DM routing: only update main-session last-route state when DM traffic is bound to the main session, preserving isolated `dmScope` routing. (#24949) Thanks @kevinWangSheng.
+>>>>>>> ebde897bb (fix: add dmScope route guard regression tests (#24949) (thanks @kevinWangSheng))
 - Providers/OpenRouter: when thinking is explicitly off, avoid injecting `reasoning.effort` so reasoning-required models can use provider defaults instead of failing request validation. (#24863) Thanks @DevSecTim.
 >>>>>>> de0e01259 (fix: expand openrouter thinking-off regression coverage (#24863) (thanks @DevSecTim))
 - Status/Pairing recovery: show explicit pairing-approval command hints (including requestId when safe) when gateway probe failures report pairing-required closures. (#24771) Thanks @markmusson.
