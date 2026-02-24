@@ -111,8 +111,7 @@ import type { OutboundSendDeps } from "./deliver.js";
 import type { OutboundSendDeps } from "./deliver.js";
 >>>>>>> f76f98b26 (chore: fix formatting drift and stabilize cron tool mocks)
 import {
-  hydrateSendAttachmentParams,
-  hydrateSetGroupIconParams,
+  hydrateAttachmentParamsForAction,
   normalizeSandboxMediaList,
   normalizeSandboxMediaParams,
   parseButtonsParam,
@@ -1193,6 +1192,7 @@ export async function runMessageAction(
 
   await normalizeSandboxMediaParams({
     args: params,
+<<<<<<< HEAD
     sandboxRoot: mediaPolicy.mode === "sandbox" ? mediaPolicy.sandboxRoot : undefined,
   });
 >>>>>>> 5c2a48337 (refactor(outbound): centralize attachment media policy)
@@ -1206,11 +1206,13 @@ export async function runMessageAction(
     dryRun,
 <<<<<<< HEAD
 =======
+=======
+>>>>>>> 316fad13a (refactor(outbound): unify attachment hydration flow)
     mediaPolicy,
 >>>>>>> 5c2a48337 (refactor(outbound): centralize attachment media policy)
   });
 
-  await hydrateSetGroupIconParams({
+  await hydrateAttachmentParamsForAction({
     cfg,
     channel,
     accountId,
