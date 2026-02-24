@@ -299,7 +299,7 @@ export function handleMessageEnd(
   const maybeEmitReasoning = () => {
     if (!shouldEmitReasoning || !formattedReasoning) return;
     ctx.state.lastReasoningSent = formattedReasoning;
-    void onBlockReply?.({ text: formattedReasoning });
+    void onBlockReply?.({ text: formattedReasoning, isReasoning: true });
   };
 
   if (shouldEmitReasoningBeforeAnswer) maybeEmitReasoning();

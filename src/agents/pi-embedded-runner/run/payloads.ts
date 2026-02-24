@@ -192,7 +192,13 @@ export function buildEmbeddedRunPayloads(params: {
     params.lastAssistant && params.reasoningLevel === "on"
       ? formatReasoningMessage(extractAssistantThinking(params.lastAssistant))
       : "";
+<<<<<<< HEAD
   if (reasoningText) replyItems.push({ text: reasoningText });
+=======
+  if (reasoningText) {
+    replyItems.push({ text: reasoningText, isReasoning: true });
+  }
+>>>>>>> 7d76c241f (fix: suppress reasoning payloads from generic channel dispatch path)
 
   const fallbackAnswerText = params.lastAssistant ? extractAssistantText(params.lastAssistant) : "";
   const shouldSuppressRawErrorText = (text: string) => {
