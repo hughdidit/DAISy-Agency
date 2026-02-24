@@ -224,6 +224,11 @@ Docs: https://docs.openclaw.ai
 - Security/Synology Chat: enforce fail-closed allowlist behavior for DM ingress so `dmPolicy: "allowlist"` with empty `allowedUserIds` rejects all senders instead of allowing unauthorized dispatch. This ships in the next npm release. Thanks @tdjackey for reporting.
 >>>>>>> 7655c0cb3 (docs(changelog): add synology-chat allowlist fail-closed note)
 - Security/Native images: enforce `tools.fs.workspaceOnly` for native prompt image auto-load (including history refs), preventing out-of-workspace sandbox mounts from being implicitly ingested as vision input. This ships in the next npm release. Thanks @tdjackey for reporting.
+<<<<<<< HEAD
+=======
+- Security/Exec approvals: bind `system.run` command display/approval text to full argv when shell-wrapper inline payloads carry positional argv values, and reject payload-only `rawCommand` mismatches for those wrapper-carrier forms, preventing hidden command execution under misleading approval text. This ships in the next npm release. Thanks @tdjackey for reporting.
+- Security/Exec: limit default safe-bin trusted directories to immutable system paths (`/bin`, `/usr/bin`) and require explicit opt-in (`tools.exec.safeBinTrustedDirs`) for package-manager/user bin paths (for example Homebrew), add security-audit findings for risky trusted-dir choices, warn at runtime when explicitly trusted dirs are group/world writable, and add doctor hints when configured `safeBins` resolve outside trusted dirs. This ships in the next npm release. Thanks @tdjackey for reporting.
+>>>>>>> 79e232893 (docs: update changelog for safe-bin hardening)
 - Telegram/Media fetch: prioritize IPv4 before IPv6 in SSRF pinned DNS address ordering so media downloads still work on hosts with broken IPv6 routing. (#24295, #23975) Thanks @Glucksberg.
 >>>>>>> 9ccc15f3a (docs: update changelog note for native image workspace fix)
 - Sessions/Tool-result guard: avoid generating synthetic `toolResult` entries for assistant turns that ended with `stopReason: "aborted"` or `"error"`, preventing orphaned tool-use IDs from triggering downstream API validation errors. (#25429) Thanks @mikaeldiakhate-cell.
