@@ -799,3 +799,79 @@ export function applySensitiveHints(hints: ConfigUiHints): ConfigUiHints {
   }
   return next;
 }
+<<<<<<< HEAD
+=======
+
+// Seems to be the only way tsgo accepts us to check if we have a ZodClass
+// with an unwrap() method. And it's overly complex because oxlint and
+// tsgo are each forbidding what the other allows.
+interface ZodDummy {
+  unwrap: () => z.ZodType;
+}
+function isUnwrappable(object: unknown): object is ZodDummy {
+  return (
+    !!object &&
+    typeof object === "object" &&
+    "unwrap" in object &&
+    typeof (object as Record<string, unknown>).unwrap === "function" &&
+    !(object instanceof z.ZodArray)
+  );
+}
+
+export function mapSensitivePaths(
+  schema: z.ZodType,
+  path: string,
+  hints: ConfigUiHints,
+): ConfigUiHints {
+  let next = { ...hints };
+  let currentSchema = schema;
+  let isSensitive = sensitive.has(currentSchema);
+
+  while (isUnwrappable(currentSchema)) {
+    currentSchema = currentSchema.unwrap();
+    isSensitive ||= sensitive.has(currentSchema);
+  }
+
+  if (isSensitive) {
+    next[path] = { ...next[path], sensitive: true };
+  } else if (isSensitiveConfigPath(path) && !next[path]?.sensitive) {
+    log.warn(`possibly sensitive key found: (${path})`);
+  }
+
+  if (currentSchema instanceof z.ZodObject) {
+    const shape = currentSchema.shape;
+    for (const key in shape) {
+      const nextPath = path ? `${path}.${key}` : key;
+      next = mapSensitivePaths(shape[key], nextPath, next);
+    }
+    const catchallSchema = currentSchema._def.catchall as z.ZodType | undefined;
+    if (catchallSchema && !(catchallSchema instanceof z.ZodNever)) {
+      const nextPath = path ? `${path}.*` : "*";
+      next = mapSensitivePaths(catchallSchema, nextPath, next);
+    }
+  } else if (currentSchema instanceof z.ZodArray) {
+    const nextPath = path ? `${path}[]` : "[]";
+    next = mapSensitivePaths(currentSchema.element as z.ZodType, nextPath, next);
+  } else if (currentSchema instanceof z.ZodRecord) {
+    const nextPath = path ? `${path}.*` : "*";
+    next = mapSensitivePaths(currentSchema._def.valueType as z.ZodType, nextPath, next);
+  } else if (
+    currentSchema instanceof z.ZodUnion ||
+    currentSchema instanceof z.ZodDiscriminatedUnion
+  ) {
+    for (const option of currentSchema.options) {
+      next = mapSensitivePaths(option as z.ZodType, path, next);
+    }
+  } else if (currentSchema instanceof z.ZodIntersection) {
+    next = mapSensitivePaths(currentSchema._def.left as z.ZodType, path, next);
+    next = mapSensitivePaths(currentSchema._def.right as z.ZodType, path, next);
+  }
+
+  return next;
+}
+
+/** @internal */
+export const __test__ = {
+  mapSensitivePaths,
+};
+>>>>>>> 13478cc79 (refactor(config): harden catchall hint mapping and array fallback)
