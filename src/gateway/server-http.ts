@@ -525,8 +525,38 @@ export function createGatewayHttpServer(opts: {
         })
       )
         return;
+<<<<<<< HEAD
       if (await handleSlackHttpRequest(req, res)) return;
       if (handlePluginRequest && (await handlePluginRequest(req, res))) return;
+=======
+      }
+      if (await handleSlackHttpRequest(req, res)) {
+        return;
+      }
+      if (handlePluginRequest) {
+        // Channel HTTP endpoints are gateway-auth protected by default.
+        // Non-channel plugin routes remain plugin-owned and must enforce
+        // their own auth when exposing sensitive functionality.
+        if (requestPath === "/api/channels" || requestPath.startsWith("/api/channels/")) {
+          const token = getBearerToken(req);
+          const authResult = await authorizeHttpGatewayConnect({
+            auth: resolvedAuth,
+            connectAuth: token ? { token, password: token } : null,
+            req,
+            trustedProxies,
+            allowRealIpFallback,
+            rateLimiter,
+          });
+          if (!authResult.ok) {
+            sendGatewayAuthFailure(res, authResult);
+            return;
+          }
+        }
+        if (await handlePluginRequest(req, res)) {
+          return;
+        }
+      }
+>>>>>>> 5a64f6d76 (Gateway/Security: protect /api/channels plugin root)
       if (openResponsesEnabled) {
         if (
           await handleOpenResponsesHttpRequest(req, res, {
