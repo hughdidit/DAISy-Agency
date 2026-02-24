@@ -400,6 +400,7 @@ describe("sessions", () => {
       expect(sessionFile).toBe(
         path.join(path.resolve("/custom/state"), "agents", "codex", "sessions", "sess-2.jsonl"),
       );
+<<<<<<< HEAD
     } finally {
       if (prev === undefined) {
         delete process.env.OPENCLAW_STATE_DIR;
@@ -407,6 +408,93 @@ describe("sessions", () => {
         process.env.OPENCLAW_STATE_DIR = prev;
       }
     }
+=======
+    });
+  });
+
+  it("resolves cross-agent absolute sessionFile paths", () => {
+    const stateDir = path.resolve("/home/user/.openclaw");
+    withStateDir(stateDir, () => {
+      const bot2Session = path.join(stateDir, "agents", "bot2", "sessions", "sess-1.jsonl");
+      // Agent bot1 resolves a sessionFile that belongs to agent bot2
+      const sessionFile = resolveSessionFilePath(
+        "sess-1",
+        { sessionFile: bot2Session },
+        { agentId: "bot1" },
+      );
+      expect(sessionFile).toBe(bot2Session);
+    });
+  });
+
+  it("resolves cross-agent paths when OPENCLAW_STATE_DIR differs from stored paths", () => {
+    withStateDir(path.resolve("/different/state"), () => {
+      const originalBase = path.resolve("/original/state");
+      const bot2Session = path.join(originalBase, "agents", "bot2", "sessions", "sess-1.jsonl");
+      // sessionFile was created under a different state dir than current env
+      const sessionFile = resolveSessionFilePath(
+        "sess-1",
+        { sessionFile: bot2Session },
+        { agentId: "bot1" },
+      );
+      expect(sessionFile).toBe(bot2Session);
+    });
+  });
+
+  it("falls back when structural cross-root path traverses after sessions", () => {
+    withStateDir(path.resolve("/different/state"), () => {
+      const originalBase = path.resolve("/original/state");
+      const unsafe = path.join(originalBase, "agents", "bot2", "sessions", "..", "..", "etc");
+      const sessionFile = resolveSessionFilePath(
+        "sess-1",
+        { sessionFile: path.join(unsafe, "passwd") },
+        { agentId: "bot1" },
+      );
+      expect(sessionFile).toBe(
+        path.join(path.resolve("/different/state"), "agents", "bot1", "sessions", "sess-1.jsonl"),
+      );
+    });
+  });
+
+  it("falls back when structural cross-root path nests under sessions", () => {
+    withStateDir(path.resolve("/different/state"), () => {
+      const originalBase = path.resolve("/original/state");
+      const nested = path.join(
+        originalBase,
+        "agents",
+        "bot2",
+        "sessions",
+        "nested",
+        "sess-1.jsonl",
+      );
+      const sessionFile = resolveSessionFilePath(
+        "sess-1",
+        { sessionFile: nested },
+        { agentId: "bot1" },
+      );
+      expect(sessionFile).toBe(
+        path.join(path.resolve("/different/state"), "agents", "bot1", "sessions", "sess-1.jsonl"),
+      );
+    });
+  });
+
+  it("falls back to derived transcript path when sessionFile is outside agent sessions directories", () => {
+    withStateDir(path.resolve("/home/user/.openclaw"), () => {
+      const sessionFile = resolveSessionFilePath(
+        "sess-1",
+        { sessionFile: path.resolve("/etc/passwd") },
+        { agentId: "bot1" },
+      );
+      expect(sessionFile).toBe(
+        path.join(
+          path.resolve("/home/user/.openclaw"),
+          "agents",
+          "bot1",
+          "sessions",
+          "sess-1.jsonl",
+        ),
+      );
+    });
+>>>>>>> fefc41457 (fix(security): harden structural session path fallback)
   });
 
   it("updateSessionStoreEntry merges concurrent patches", async () => {
