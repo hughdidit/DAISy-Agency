@@ -210,7 +210,11 @@ Docs: https://docs.openclaw.ai
 >>>>>>> 91ea6ad8e (docs(changelog): reorder unreleased fixes by user impact)
 =======
 - CLI/Doctor: correct stale recovery hints to use valid commands (`openclaw gateway status --deep` and `openclaw configure --section model`). (#24485) Thanks @chilu18.
+<<<<<<< HEAD
 >>>>>>> e3ac491da (docs(changelog): trim 2026.2.24 unreleased entries)
+=======
+- Security/Sandbox: canonicalize bind-mount source paths via existing-ancestor realpath so symlink-parent + non-existent-leaf paths cannot bypass allowed-source-roots or blocked-path checks. Thanks @tdjackey.
+>>>>>>> c3680c227 (docs(changelog): credit reporter for sandbox bind-path fix)
 
 <<<<<<< HEAD
 ## 2026.2.23 (Unreleased)
