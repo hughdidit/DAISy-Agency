@@ -41,7 +41,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -49,14 +48,12 @@ import androidx.compose.ui.unit.dp
 import bot.molt.android.chat.ChatSessionEntry
 =======
 import androidx.compose.ui.unit.sp
-import ai.openclaw.android.chat.ChatSessionEntry
 import ai.openclaw.android.ui.mobileAccent
 import ai.openclaw.android.ui.mobileAccentSoft
 import ai.openclaw.android.ui.mobileBorder
 import ai.openclaw.android.ui.mobileBorderStrong
 import ai.openclaw.android.ui.mobileCallout
 import ai.openclaw.android.ui.mobileCaption1
-import ai.openclaw.android.ui.mobileDanger
 import ai.openclaw.android.ui.mobileHeadline
 import ai.openclaw.android.ui.mobileSurface
 import ai.openclaw.android.ui.mobileText
@@ -66,9 +63,6 @@ import ai.openclaw.android.ui.mobileTextTertiary
 
 @Composable
 fun ChatComposer(
-  sessionKey: String,
-  sessions: List<ChatSessionEntry>,
-  mainSessionKey: String,
   healthOk: Boolean,
   thinkingLevel: String,
   pendingRunCount: Int,
@@ -76,17 +70,12 @@ fun ChatComposer(
   onPickImages: () -> Unit,
   onRemoveAttachment: (id: String) -> Unit,
   onSetThinkingLevel: (level: String) -> Unit,
-  onSelectSession: (sessionKey: String) -> Unit,
   onRefresh: () -> Unit,
   onAbort: () -> Unit,
   onSend: (text: String) -> Unit,
 ) {
   var input by rememberSaveable { mutableStateOf("") }
   var showThinkingMenu by remember { mutableStateOf(false) }
-
-  val sessionOptions = resolveSessionChoices(sessionKey, sessions, mainSessionKey = mainSessionKey)
-  val currentSessionLabel =
-    friendlySessionName(sessionOptions.firstOrNull { it.key == sessionKey }?.displayName ?: sessionKey)
 
   val canSend = pendingRunCount == 0 && (input.trim().isNotEmpty() || attachments.isNotEmpty()) && healthOk
   val sendBusy = pendingRunCount > 0
@@ -173,6 +162,7 @@ fun ChatComposer(
     Row(
       modifier = Modifier.fillMaxWidth(),
       verticalAlignment = Alignment.CenterVertically,
+<<<<<<< HEAD:apps/android/app/src/main/java/bot/molt/android/ui/chat/ChatComposer.kt
       horizontalArrangement = Arrangement.SpaceBetween,
     ) {
       Text(
@@ -222,6 +212,8 @@ fun ChatComposer(
     Row(
       modifier = Modifier.fillMaxWidth(),
       verticalAlignment = Alignment.CenterVertically,
+=======
+>>>>>>> e11e32923 (refactor(android-chat): move thread selector above composer):apps/android/app/src/main/java/ai/openclaw/android/ui/chat/ChatComposer.kt
       horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
       Box(modifier = Modifier.weight(1f)) {
@@ -276,10 +268,10 @@ fun ChatComposer(
     OutlinedTextField(
       value = input,
       onValueChange = { input = it },
-      modifier = Modifier.fillMaxWidth().height(108.dp),
+      modifier = Modifier.fillMaxWidth().height(92.dp),
       placeholder = { Text("Type a message", style = mobileBodyStyle(), color = mobileTextTertiary) },
-      minLines = 3,
-      maxLines = 6,
+      minLines = 2,
+      maxLines = 5,
       textStyle = mobileBodyStyle().copy(color = mobileText),
       shape = RoundedCornerShape(14.dp),
       colors = chatTextFieldColors(),
@@ -341,26 +333,6 @@ fun ChatComposer(
         Text("Send", style = mobileHeadline.copy(fontWeight = FontWeight.Bold))
       }
     }
-  }
-}
-
-@Composable
-private fun ConnectionPill(healthOk: Boolean) {
-  Surface(
-    shape = RoundedCornerShape(999.dp),
-    color = if (healthOk) ai.openclaw.android.ui.mobileSuccessSoft else ai.openclaw.android.ui.mobileWarningSoft,
-    border =
-      BorderStroke(
-        1.dp,
-        if (healthOk) ai.openclaw.android.ui.mobileSuccess.copy(alpha = 0.35f) else ai.openclaw.android.ui.mobileWarning.copy(alpha = 0.35f),
-      ),
-  ) {
-    Text(
-      text = if (healthOk) "Connected" else "Offline",
-      style = mobileCaption1.copy(fontWeight = FontWeight.SemiBold),
-      color = if (healthOk) ai.openclaw.android.ui.mobileSuccess else ai.openclaw.android.ui.mobileWarning,
-      modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
-    )
   }
 }
 
