@@ -1,11 +1,12 @@
 {
   "name": "@openclaw/irc",
+<<<<<<< HEAD
   "version": "2026.2.13",
+=======
+  "version": "2026.2.24",
+>>>>>>> 955cc9029 (chore: sync plugin versions to 2026.2.24)
   "description": "OpenClaw IRC channel plugin",
   "type": "module",
-  "devDependencies": {
-    "openclaw": "workspace:*"
-  },
   "openclaw": {
     "extensions": [
       "./index.ts"

@@ -1,17 +1,18 @@
 {
   "name": "@openclaw/zalo",
 <<<<<<< HEAD
+<<<<<<< HEAD
   "version": "2026.2.9",
 =======
   "version": "2026.2.13",
 >>>>>>> 67251e97b (fix(ci): sync extension versions to root release (#15199))
+=======
+  "version": "2026.2.24",
+>>>>>>> 955cc9029 (chore: sync plugin versions to 2026.2.24)
   "description": "OpenClaw Zalo channel plugin",
   "type": "module",
   "dependencies": {
     "undici": "7.21.0"
-  },
-  "devDependencies": {
-    "openclaw": "workspace:*"
   },
   "openclaw": {
     "extensions": [

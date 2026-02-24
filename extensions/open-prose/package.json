@@ -1,9 +1,13 @@
 {
   "name": "@openclaw/open-prose",
 <<<<<<< HEAD
+<<<<<<< HEAD
   "version": "2026.2.9",
 =======
   "version": "2026.2.13",
+=======
+  "version": "2026.2.24",
+>>>>>>> 955cc9029 (chore: sync plugin versions to 2026.2.24)
   "private": true,
 >>>>>>> 67251e97b (fix(ci): sync extension versions to root release (#15199))
   "description": "OpenProse VM skill pack plugin (slash command + telemetry).",

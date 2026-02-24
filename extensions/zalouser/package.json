@@ -1,17 +1,18 @@
 {
   "name": "@openclaw/zalouser",
 <<<<<<< HEAD
+<<<<<<< HEAD
   "version": "2026.2.9",
 =======
   "version": "2026.2.13",
 >>>>>>> 67251e97b (fix(ci): sync extension versions to root release (#15199))
+=======
+  "version": "2026.2.24",
+>>>>>>> 955cc9029 (chore: sync plugin versions to 2026.2.24)
   "description": "OpenClaw Zalo Personal Account plugin via zca-cli",
   "type": "module",
   "dependencies": {
     "@sinclair/typebox": "0.34.48"
-  },
-  "devDependencies": {
-    "openclaw": "workspace:*"
   },
   "openclaw": {
     "extensions": [
