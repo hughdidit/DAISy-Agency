@@ -155,8 +155,17 @@ Denied flags by safe-bin profile:
 Safe bins also force argv tokens to be treated as **literal text** at execution time (no globbing
 and no `$VARS` expansion) for stdin-only segments, so patterns like `*` or `$HOME/...` cannot be
 used to smuggle file reads.
+<<<<<<< HEAD
 Safe bins must also resolve from trusted binary directories (system defaults plus the gateway
 process `PATH` at startup). This blocks request-scoped PATH hijacking attempts.
+=======
+Safe bins must also resolve from trusted binary directories (system defaults plus optional
+`tools.exec.safeBinTrustedDirs`). `PATH` entries are never auto-trusted.
+Default trusted safe-bin directories are intentionally minimal: `/bin`, `/usr/bin`.
+If your safe-bin executable lives in package-manager/user paths (for example
+`/opt/homebrew/bin`, `/usr/local/bin`, `/opt/local/bin`, `/snap/bin`), add them explicitly
+to `tools.exec.safeBinTrustedDirs`.
+>>>>>>> b67e600bf (fix(security): restrict default safe-bin trusted dirs)
 Shell chaining and redirections are not auto-allowed in allowlist mode.
 
 Shell chaining (`&&`, `||`, `;`) is allowed when every top-level segment satisfies the allowlist

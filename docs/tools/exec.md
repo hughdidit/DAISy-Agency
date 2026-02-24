@@ -56,7 +56,12 @@ Notes:
 >>>>>>> 28bac46c9 (fix(security): harden safeBins path trust)
 =======
 - `tools.exec.safeBins`: stdin-only safe binaries that can run without explicit allowlist entries. For behavior details, see [Safe bins](/tools/exec-approvals#safe-bins-stdin-only).
+<<<<<<< HEAD
 >>>>>>> ac0db6823 (refactor(security): extract safeBins trust resolver)
+=======
+- `tools.exec.safeBinTrustedDirs`: additional explicit directories trusted for `safeBins` path checks. `PATH` entries are never auto-trusted. Built-in defaults are `/bin` and `/usr/bin`.
+- `tools.exec.safeBinProfiles`: optional custom argv policy per safe bin (`minPositional`, `maxPositional`, `allowedValueFlags`, `deniedFlags`).
+>>>>>>> b67e600bf (fix(security): restrict default safe-bin trusted dirs)
 
 Example:
 ```json5

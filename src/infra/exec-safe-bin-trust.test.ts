@@ -7,7 +7,20 @@ import {
 } from "./exec-safe-bin-trust.js";
 
 describe("exec safe bin trust", () => {
+<<<<<<< HEAD
   it("builds trusted dirs from defaults and injected PATH", () => {
+=======
+  it("keeps default trusted dirs limited to immutable system paths", () => {
+    const dirs = getTrustedSafeBinDirs({ refresh: true });
+
+    expect(dirs.has(path.resolve("/bin"))).toBe(true);
+    expect(dirs.has(path.resolve("/usr/bin"))).toBe(true);
+    expect(dirs.has(path.resolve("/usr/local/bin"))).toBe(false);
+    expect(dirs.has(path.resolve("/opt/homebrew/bin"))).toBe(false);
+  });
+
+  it("builds trusted dirs from defaults and explicit extra dirs", () => {
+>>>>>>> b67e600bf (fix(security): restrict default safe-bin trusted dirs)
     const dirs = buildTrustedSafeBinDirs({
       pathEnv: "/custom/bin:/alt/bin:/custom/bin",
       delimiter: ":",
