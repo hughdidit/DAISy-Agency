@@ -56,7 +56,25 @@ describe("system run command helpers", () => {
     expect(res.ok).toBe(true);
   });
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+
+  test("validateSystemRunCommandConsistency rejects shell-only rawCommand for positional-argv carrier wrappers", () => {
+    expectRawCommandMismatch({
+      argv: ["/bin/sh", "-lc", '$0 "$1"', "/usr/bin/touch", "/tmp/marker"],
+      rawCommand: '$0 "$1"',
+    });
+  });
+
+  test("validateSystemRunCommandConsistency accepts rawCommand matching env shell wrapper argv", () => {
+    const res = validateSystemRunCommandConsistency({
+      argv: ["/usr/bin/env", "bash", "-lc", "echo hi"],
+      rawCommand: "echo hi",
+    });
+    expect(res.ok).toBe(true);
+  });
+>>>>>>> 0f0a680d3 (fix(exec): block shell-wrapper positional argv approval smuggling)
 
   test("validateSystemRunCommandConsistency rejects shell-only rawCommand for env assignment prelude", () => {
     expectRawCommandMismatch({
@@ -119,6 +137,18 @@ describe("system run command helpers", () => {
 <<<<<<< HEAD
 >>>>>>> b109fa53e (refactor(core): dedupe gateway runtime and config tests)
 =======
+
+  test("resolveSystemRunCommand binds cmdText to full argv for shell-wrapper positional-argv carriers", () => {
+    const res = resolveSystemRunCommand({
+      command: ["/bin/sh", "-lc", '$0 "$1"', "/usr/bin/touch", "/tmp/marker"],
+    });
+    expect(res.ok).toBe(true);
+    if (!res.ok) {
+      throw new Error("unreachable");
+    }
+    expect(res.shellCommand).toBe('$0 "$1"');
+    expect(res.cmdText).toBe('/bin/sh -lc "$0 \\"$1\\"" /usr/bin/touch /tmp/marker');
+  });
 
   test("resolveSystemRunCommand binds cmdText to full argv when env prelude modifies shell wrapper", () => {
     const res = resolveSystemRunCommand({
