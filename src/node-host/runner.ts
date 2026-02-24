@@ -1,8 +1,29 @@
+<<<<<<< HEAD
 import crypto from "node:crypto";
 import { spawn } from "node:child_process";
 import fs from "node:fs";
 import fsPromises from "node:fs/promises";
 import path from "node:path";
+=======
+import fs from "node:fs";
+import path from "node:path";
+import { resolveBrowserConfig } from "../browser/config.js";
+import { loadConfig } from "../config/config.js";
+import { GatewayClient } from "../gateway/client.js";
+import { loadOrCreateDeviceIdentity } from "../infra/device-identity.js";
+import type { SkillBinTrustEntry } from "../infra/exec-approvals.js";
+import { getMachineDisplayName } from "../infra/machine-name.js";
+import { ensureOpenClawCliOnPath } from "../infra/path-env.js";
+import { GATEWAY_CLIENT_MODES, GATEWAY_CLIENT_NAMES } from "../utils/message-channel.js";
+import { VERSION } from "../version.js";
+import { ensureNodeHostConfig, saveNodeHostConfig, type NodeHostGatewayConfig } from "./config.js";
+import {
+  coerceNodeInvokePayload,
+  handleInvoke,
+  type SkillBinsProvider,
+  buildNodeInvokeResultParams,
+} from "./invoke.js";
+>>>>>>> ffd63b7a2 (fix(security): trust resolved skill-bin paths in allowlist auto-allow)
 
 import {
   addAllowlistEntry,
@@ -71,6 +92,7 @@ type SystemRunParams = {
   runId?: string | null;
 };
 
+<<<<<<< HEAD
 type SystemWhichParams = {
   bins: string[];
 };
@@ -168,15 +190,85 @@ const blockedEnvPrefixes = ["DYLD_", "LD_"];
 
 class SkillBinsCache {
   private bins = new Set<string>();
+=======
+function isExecutableFile(filePath: string): boolean {
+  try {
+    const stat = fs.statSync(filePath);
+    if (!stat.isFile()) {
+      return false;
+    }
+    if (process.platform !== "win32") {
+      fs.accessSync(filePath, fs.constants.X_OK);
+    }
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function resolveExecutablePathFromEnv(bin: string, pathEnv: string): string | null {
+  if (bin.includes("/") || bin.includes("\\")) {
+    return null;
+  }
+  const hasExtension = process.platform === "win32" && path.extname(bin).length > 0;
+  const extensions =
+    process.platform === "win32"
+      ? hasExtension
+        ? [""]
+        : (process.env.PATHEXT ?? process.env.PathExt ?? ".EXE;.CMD;.BAT;.COM")
+            .split(";")
+            .map((ext) => ext.toLowerCase())
+      : [""];
+  for (const dir of pathEnv.split(path.delimiter).filter(Boolean)) {
+    for (const ext of extensions) {
+      const candidate = path.join(dir, bin + ext);
+      if (isExecutableFile(candidate)) {
+        return candidate;
+      }
+    }
+  }
+  return null;
+}
+
+function resolveSkillBinTrustEntries(bins: string[], pathEnv: string): SkillBinTrustEntry[] {
+  const trustEntries: SkillBinTrustEntry[] = [];
+  const seen = new Set<string>();
+  for (const bin of bins) {
+    const name = bin.trim();
+    if (!name) {
+      continue;
+    }
+    const resolvedPath = resolveExecutablePathFromEnv(name, pathEnv);
+    if (!resolvedPath) {
+      continue;
+    }
+    const key = `${name}\u0000${resolvedPath}`;
+    if (seen.has(key)) {
+      continue;
+    }
+    seen.add(key);
+    trustEntries.push({ name, resolvedPath });
+  }
+  return trustEntries.toSorted(
+    (left, right) =>
+      left.name.localeCompare(right.name) || left.resolvedPath.localeCompare(right.resolvedPath),
+  );
+}
+
+class SkillBinsCache implements SkillBinsProvider {
+  private bins: SkillBinTrustEntry[] = [];
+>>>>>>> ffd63b7a2 (fix(security): trust resolved skill-bin paths in allowlist auto-allow)
   private lastRefresh = 0;
   private readonly ttlMs = 90_000;
   private readonly fetch: () => Promise<string[]>;
+  private readonly pathEnv: string;
 
-  constructor(fetch: () => Promise<string[]>) {
+  constructor(fetch: () => Promise<string[]>, pathEnv: string) {
     this.fetch = fetch;
+    this.pathEnv = pathEnv;
   }
 
-  async current(force = false): Promise<Set<string>> {
+  async current(force = false): Promise<SkillBinTrustEntry[]> {
     if (force || Date.now() - this.lastRefresh > this.ttlMs) {
       await this.refresh();
     }
@@ -186,11 +278,11 @@ class SkillBinsCache {
   private async refresh() {
     try {
       const bins = await this.fetch();
-      this.bins = new Set(bins);
+      this.bins = resolveSkillBinTrustEntries(bins, this.pathEnv);
       this.lastRefresh = Date.now();
     } catch {
       if (!this.lastRefresh) {
-        this.bins = new Set();
+        this.bins = [];
       }
     }
   }
@@ -575,7 +667,7 @@ export async function runNodeHost(opts: NodeHostRunOptions): Promise<void> {
       | undefined;
     const bins = Array.isArray(res?.bins) ? res.bins.map((bin) => String(bin)) : [];
     return bins;
-  });
+  }, pathEnv);
 
   client.start();
   await new Promise(() => {});
