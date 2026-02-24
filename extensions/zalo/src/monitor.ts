@@ -1,6 +1,27 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
+<<<<<<< HEAD
 import type { OpenClawConfig, MarkdownTableMode } from "openclaw/plugin-sdk";
 import { createReplyPrefixOptions } from "openclaw/plugin-sdk";
+=======
+import type { MarkdownTableMode, OpenClawConfig, OutboundReplyPayload } from "openclaw/plugin-sdk";
+import {
+  createDedupeCache,
+  createReplyPrefixOptions,
+  readJsonBodyWithLimit,
+  registerWebhookTarget,
+  rejectNonPostWebhookRequest,
+  resolveSingleWebhookTarget,
+  resolveSenderCommandAuthorization,
+  resolveOutboundMediaUrls,
+  resolveDefaultGroupPolicy,
+  resolveOpenProviderRuntimeGroupPolicy,
+  sendMediaWithLeadingCaption,
+  resolveWebhookPath,
+  resolveWebhookTargets,
+  warnMissingProviderGroupPolicyFallbackOnce,
+  requestBodyErrorToText,
+} from "openclaw/plugin-sdk";
+>>>>>>> b4010a0b6 (fix(zalo): enforce group sender policy in groups)
 import type { ResolvedZaloAccount } from "./accounts.js";
 import {
   ZaloApiError,
@@ -43,6 +64,18 @@ const ZALO_TEXT_LIMIT = 2000;
 const DEFAULT_MEDIA_MAX_MB = 5;
 
 type ZaloCoreRuntime = ReturnType<typeof getZaloRuntime>;
+<<<<<<< HEAD
+=======
+type WebhookRateLimitState = { count: number; windowStartMs: number };
+type ZaloGroupPolicy = "open" | "allowlist" | "disabled";
+type ZaloGroupAccessReason = "allowed" | "disabled" | "empty_allowlist" | "sender_not_allowlisted";
+type ZaloGroupAccessDecision = {
+  allowed: boolean;
+  groupPolicy: ZaloGroupPolicy;
+  providerMissingFallbackApplied: boolean;
+  reason: ZaloGroupAccessReason;
+};
+>>>>>>> b4010a0b6 (fix(zalo): enforce group sender policy in groups)
 
 function logVerbose(core: ZaloCoreRuntime, runtime: ZaloRuntimeEnv, message: string): void {
   if (core.logging.shouldLogVerbose()) {
@@ -61,6 +94,7 @@ function isSenderAllowed(senderId: string, allowFrom: string[]): boolean {
   });
 }
 
+<<<<<<< HEAD
 async function readJsonBody(req: IncomingMessage, maxBytes: number) {
   const chunks: Buffer[] = [];
   let total = 0;
@@ -92,6 +126,69 @@ async function readJsonBody(req: IncomingMessage, maxBytes: number) {
   });
 }
 
+=======
+function resolveZaloRuntimeGroupPolicy(params: {
+  providerConfigPresent: boolean;
+  groupPolicy?: ZaloGroupPolicy;
+  defaultGroupPolicy?: ZaloGroupPolicy;
+}): {
+  groupPolicy: ZaloGroupPolicy;
+  providerMissingFallbackApplied: boolean;
+} {
+  return resolveOpenProviderRuntimeGroupPolicy({
+    providerConfigPresent: params.providerConfigPresent,
+    groupPolicy: params.groupPolicy,
+    defaultGroupPolicy: params.defaultGroupPolicy,
+  });
+}
+
+function evaluateZaloGroupAccess(params: {
+  providerConfigPresent: boolean;
+  configuredGroupPolicy?: ZaloGroupPolicy;
+  defaultGroupPolicy?: ZaloGroupPolicy;
+  groupAllowFrom: string[];
+  senderId: string;
+}): ZaloGroupAccessDecision {
+  const { groupPolicy, providerMissingFallbackApplied } = resolveZaloRuntimeGroupPolicy({
+    providerConfigPresent: params.providerConfigPresent,
+    groupPolicy: params.configuredGroupPolicy,
+    defaultGroupPolicy: params.defaultGroupPolicy,
+  });
+  if (groupPolicy === "disabled") {
+    return {
+      allowed: false,
+      groupPolicy,
+      providerMissingFallbackApplied,
+      reason: "disabled",
+    };
+  }
+  if (groupPolicy === "allowlist") {
+    if (params.groupAllowFrom.length === 0) {
+      return {
+        allowed: false,
+        groupPolicy,
+        providerMissingFallbackApplied,
+        reason: "empty_allowlist",
+      };
+    }
+    if (!isSenderAllowed(params.senderId, params.groupAllowFrom)) {
+      return {
+        allowed: false,
+        groupPolicy,
+        providerMissingFallbackApplied,
+        reason: "sender_not_allowlisted",
+      };
+    }
+  }
+  return {
+    allowed: true,
+    groupPolicy,
+    providerMissingFallbackApplied,
+    reason: "allowed",
+  };
+}
+
+>>>>>>> b4010a0b6 (fix(zalo): enforce group sender policy in groups)
 type WebhookTarget = {
   token: string;
   account: ResolvedZaloAccount;
@@ -439,6 +536,42 @@ async function processMessageWithPipeline(params: {
 
   const dmPolicy = account.config.dmPolicy ?? "pairing";
   const configAllowFrom = (account.config.allowFrom ?? []).map((v) => String(v));
+  const configuredGroupAllowFrom = (account.config.groupAllowFrom ?? []).map((v) => String(v));
+  const groupAllowFrom =
+    configuredGroupAllowFrom.length > 0 ? configuredGroupAllowFrom : configAllowFrom;
+  const defaultGroupPolicy = resolveDefaultGroupPolicy(config);
+  const groupAccess = isGroup
+    ? evaluateZaloGroupAccess({
+        providerConfigPresent: config.channels?.zalo !== undefined,
+        configuredGroupPolicy: account.config.groupPolicy,
+        defaultGroupPolicy,
+        groupAllowFrom,
+        senderId,
+      })
+    : undefined;
+  if (groupAccess) {
+    warnMissingProviderGroupPolicyFallbackOnce({
+      providerMissingFallbackApplied: groupAccess.providerMissingFallbackApplied,
+      providerKey: "zalo",
+      accountId: account.accountId,
+      log: (message) => logVerbose(core, runtime, message),
+    });
+    if (!groupAccess.allowed) {
+      if (groupAccess.reason === "disabled") {
+        logVerbose(core, runtime, `zalo: drop group ${chatId} (groupPolicy=disabled)`);
+      } else if (groupAccess.reason === "empty_allowlist") {
+        logVerbose(
+          core,
+          runtime,
+          `zalo: drop group ${chatId} (groupPolicy=allowlist, no groupAllowFrom)`,
+        );
+      } else if (groupAccess.reason === "sender_not_allowlisted") {
+        logVerbose(core, runtime, `zalo: drop group sender ${senderId} (groupPolicy=allowlist)`);
+      }
+      return;
+    }
+  }
+
   const rawBody = text?.trim() || (mediaPath ? "<media:image>" : "");
   const shouldComputeAuth = core.channel.commands.shouldComputeCommandAuthorized(rawBody, config);
   const storeAllowFrom =
@@ -762,3 +895,8 @@ export async function monitorZaloProvider(options: ZaloMonitorOptions): Promise<
 
   return { stop };
 }
+
+export const __testing = {
+  evaluateZaloGroupAccess,
+  resolveZaloRuntimeGroupPolicy,
+};
