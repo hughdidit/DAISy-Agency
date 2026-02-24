@@ -93,8 +93,12 @@ Docs: https://docs.openclaw.ai
 >>>>>>> f93ca9349 (fix(agents): extend cache-ttl eligibility for moonshot and zai)
 - Providers/Anthropic: skip `context-1m-*` beta injection for OAuth/subscription tokens (`sk-ant-oat-*`) while preserving OAuth-required betas, avoiding Anthropic 401 auth failures when `params.context1m` is enabled. (#10647, #20354) Thanks @ClumsyWizardHands and @dcruver.
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> f03ff3975 (Providers: skip context1m beta for Anthropic OAuth tokens (#24620))
 =======
+=======
+- Providers/DashScope: mark DashScope-compatible `openai-completions` endpoints as `supportsDeveloperRole=false` so OpenClaw sends `system` instead of unsupported `developer` role on Qwen/DashScope APIs. (#19130) Thanks @Putzhuawa and @vincentkoc.
+>>>>>>> 30c622554 (Providers: disable developer role for DashScope-compatible endpoints (#24675))
 - Providers/Bedrock: disable prompt-cache retention for non-Anthropic Bedrock models so Nova/Mistral requests do not send unsupported cache metadata. (#20866) Thanks @pierreeurope.
 - Providers/Bedrock: apply Anthropic-Claude cacheRetention defaults and runtime pass-through for `amazon-bedrock/*anthropic.claude*` model refs, while keeping non-Anthropic Bedrock models excluded. (#22303) Thanks @snese.
 - Providers/OpenRouter: remove conflicting top-level `reasoning_effort` when injecting nested `reasoning.effort`, preventing OpenRouter 400 payload-validation failures for reasoning models. (#24120) thanks @tenequm.
