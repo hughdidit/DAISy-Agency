@@ -8,7 +8,6 @@ import {
   applyModelAllowlist,
   applyModelFallbacksFromSelection,
   applyPrimaryModel,
-  pruneKilocodeProviderModelsToAllowlist,
   promptDefaultModel,
   promptModelAllowlist,
 } from "./model-picker.js";
@@ -130,7 +129,6 @@ export async function promptAuthConfig(
     });
     if (allowlistSelection.models) {
       next = applyModelAllowlist(next, allowlistSelection.models);
-      next = pruneKilocodeProviderModelsToAllowlist(next, allowlistSelection.models);
       next = applyModelFallbacksFromSelection(next, allowlistSelection.models);
     }
   }
