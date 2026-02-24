@@ -98,6 +98,11 @@ Use `sessions_spawn`:
 - Starts a sub-agent run (`deliver: false`, global lane: `subagent`)
 - Then runs an announce step and posts the announce reply to the requester chat channel
 - Default model: inherits the caller unless you set `agents.defaults.subagents.model` (or per-agent `agents.list[].subagents.model`); an explicit `sessions_spawn.model` still wins.
+<<<<<<< HEAD
+=======
+- Default thinking: inherits the caller unless you set `agents.defaults.subagents.thinking` (or per-agent `agents.list[].subagents.thinking`); an explicit `sessions_spawn.thinking` still wins.
+- Default run timeout: if `sessions_spawn.runTimeoutSeconds` is omitted, OpenClaw uses `agents.defaults.subagents.runTimeoutSeconds` when set; otherwise it falls back to `0` (no timeout).
+>>>>>>> 8c5cf2d5b (docs(subagents): document default runTimeoutSeconds config (#24594) (thanks @mitchmcalister))
 
 Tool params:
 - `task` (required)
@@ -105,7 +110,7 @@ Tool params:
 - `agentId?` (optional; spawn under another agent id if allowed)
 - `model?` (optional; overrides the sub-agent model; invalid values are skipped and the sub-agent runs on the default model with a warning in the tool result)
 - `thinking?` (optional; overrides thinking level for the sub-agent run)
-- `runTimeoutSeconds?` (default `0`; when set, the sub-agent run is aborted after N seconds)
+- `runTimeoutSeconds?` (defaults to `agents.defaults.subagents.runTimeoutSeconds` when set, otherwise `0`; when set, the sub-agent run is aborted after N seconds)
 - `thread?` (default `false`; when `true`, requests channel thread binding for this sub-agent session)
 - `mode?` (`run|session`)
   - default is `run`
@@ -155,6 +160,67 @@ Auto-archive:
 - `cleanup: "delete"` archives immediately after announce (still keeps the transcript via rename).
 - Auto-archive is best-effort; pending timers are lost if the gateway restarts.
 - `runTimeoutSeconds` does **not** auto-archive; it only stops the run. The session remains until auto-archive.
+<<<<<<< HEAD
+=======
+- Auto-archive applies equally to depth-1 and depth-2 sessions.
+
+## Nested Sub-Agents
+
+By default, sub-agents cannot spawn their own sub-agents (`maxSpawnDepth: 1`). You can enable one level of nesting by setting `maxSpawnDepth: 2`, which allows the **orchestrator pattern**: main → orchestrator sub-agent → worker sub-sub-agents.
+
+### How to enable
+
+```json5
+{
+  agents: {
+    defaults: {
+      subagents: {
+        maxSpawnDepth: 2, // allow sub-agents to spawn children (default: 1)
+        maxChildrenPerAgent: 5, // max active children per agent session (default: 5)
+        maxConcurrent: 8, // global concurrency lane cap (default: 8)
+        runTimeoutSeconds: 900, // default timeout for sessions_spawn when omitted (0 = no timeout)
+      },
+    },
+  },
+}
+```
+
+### Depth levels
+
+| Depth | Session key shape                            | Role                                          | Can spawn?                   |
+| ----- | -------------------------------------------- | --------------------------------------------- | ---------------------------- |
+| 0     | `agent:<id>:main`                            | Main agent                                    | Always                       |
+| 1     | `agent:<id>:subagent:<uuid>`                 | Sub-agent (orchestrator when depth 2 allowed) | Only if `maxSpawnDepth >= 2` |
+| 2     | `agent:<id>:subagent:<uuid>:subagent:<uuid>` | Sub-sub-agent (leaf worker)                   | Never                        |
+
+### Announce chain
+
+Results flow back up the chain:
+
+1. Depth-2 worker finishes → announces to its parent (depth-1 orchestrator)
+2. Depth-1 orchestrator receives the announce, synthesizes results, finishes → announces to main
+3. Main agent receives the announce and delivers to the user
+
+Each level only sees announces from its direct children.
+
+### Tool policy by depth
+
+- **Depth 1 (orchestrator, when `maxSpawnDepth >= 2`)**: Gets `sessions_spawn`, `subagents`, `sessions_list`, `sessions_history` so it can manage its children. Other session/system tools remain denied.
+- **Depth 1 (leaf, when `maxSpawnDepth == 1`)**: No session tools (current default behavior).
+- **Depth 2 (leaf worker)**: No session tools — `sessions_spawn` is always denied at depth 2. Cannot spawn further children.
+
+### Per-agent spawn limit
+
+Each agent session (at any depth) can have at most `maxChildrenPerAgent` (default: 5) active children at a time. This prevents runaway fan-out from a single orchestrator.
+
+### Cascade stop
+
+Stopping a depth-1 orchestrator automatically stops all its depth-2 children:
+
+- `/stop` in the main chat stops all depth-1 agents and cascades to their depth-2 children.
+- `/subagents kill <id>` stops a specific sub-agent and cascades to its children.
+- `/subagents kill all` stops all sub-agents for the requester and cascades.
+>>>>>>> 8c5cf2d5b (docs(subagents): document default runTimeoutSeconds config (#24594) (thanks @mitchmcalister))
 
 ## Authentication
 

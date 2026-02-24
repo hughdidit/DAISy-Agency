@@ -1584,6 +1584,7 @@ Provider auth follows standard order: auth profiles → env vars → `models.pro
       subagents: {
         model: "minimax/MiniMax-M2.1",
         maxConcurrent: 1,
+        runTimeoutSeconds: 900,
         archiveAfterMinutes: 60,
       },
     },
@@ -1592,6 +1593,7 @@ Provider auth follows standard order: auth profiles → env vars → `models.pro
 ```
 
 - `model`: default model for spawned sub-agents. If omitted, sub-agents inherit the caller's model.
+- `runTimeoutSeconds`: default timeout (seconds) for `sessions_spawn` when the tool call omits `runTimeoutSeconds`. `0` means no timeout.
 - Per-subagent tool policy: `tools.subagents.tools.allow` / `tools.subagents.tools.deny`.
 
 ---

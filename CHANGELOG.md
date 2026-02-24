@@ -50,6 +50,10 @@ Docs: https://docs.openclaw.ai
 >>>>>>> bdfb97afa (chore: prep 2026.2.22 unreleased and publish new npm plugins)
 =======
 
+### Changes
+
+- Subagents/Sessions: add `agents.defaults.subagents.runTimeoutSeconds` so `sessions_spawn` can inherit a configurable default timeout when the tool call omits `runTimeoutSeconds` (unset remains `0`, meaning no timeout). (#24594) Thanks @mitchmcalister.
+
 ### Fixes
 
 <<<<<<< HEAD
