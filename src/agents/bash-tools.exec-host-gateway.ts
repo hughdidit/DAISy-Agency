@@ -4,8 +4,7 @@ import {
   addAllowlistEntry,
   type ExecAsk,
   type ExecSecurity,
-  buildSafeBinsShellCommand,
-  buildSafeShellCommand,
+  buildEnforcedShellCommand,
   evaluateShellAllowlist,
   maxAsk,
   minSecurity,
@@ -85,7 +84,22 @@ export async function processGatewayAllowlist(
   const allowlistSatisfied =
     hostSecurity === "allowlist" && analysisOk ? allowlistEval.allowlistSatisfied : false;
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+  let enforcedCommand: string | undefined;
+  if (hostSecurity === "allowlist" && analysisOk && allowlistSatisfied) {
+    const enforced = buildEnforcedShellCommand({
+      command: params.command,
+      segments: allowlistEval.segments,
+      platform: process.platform,
+    });
+    if (!enforced.ok || !enforced.command) {
+      throw new Error(`exec denied: allowlist execution plan unavailable (${enforced.reason})`);
+    }
+    enforcedCommand = enforced.command;
+  }
+>>>>>>> a1c4bf07c (fix(security): harden exec wrapper allowlist execution parity)
   const obfuscation = detectCommandObfuscation(params.command);
   if (obfuscation.detected) {
     logInfo(`exec: obfuscation detected (gateway): ${obfuscation.reasons.join(", ")}`);
@@ -235,6 +249,7 @@ export async function processGatewayAllowlist(
       try {
         run = await runExecProcess({
           command: params.command,
+          execCommand: enforcedCommand,
           workdir: params.workdir,
           env: params.env,
           sandbox: undefined,
@@ -313,6 +328,7 @@ export async function processGatewayAllowlist(
     throw new Error("exec denied: allowlist miss");
   }
 
+<<<<<<< HEAD
   let execCommandOverride: string | undefined;
   // If allowlist uses safeBins, sanitize only those stdin-only segments:
   // disable glob/var expansion by forcing argv tokens to be literal via single-quoting.
@@ -365,6 +381,9 @@ export async function processGatewayAllowlist(
       );
     }
   }
+=======
+  recordMatchedAllowlistUse(allowlistEval.segments[0]?.resolution?.resolvedPath);
+>>>>>>> a1c4bf07c (fix(security): harden exec wrapper allowlist execution parity)
 
-  return { execCommandOverride };
+  return { execCommandOverride: enforcedCommand };
 }

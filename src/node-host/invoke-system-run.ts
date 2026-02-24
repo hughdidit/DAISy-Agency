@@ -232,7 +232,41 @@ export async function handleSystemRunInvoke(opts: {
 >>>>>>> 3f0b9dbb3 (fix(security): block shell-wrapper line-continuation allowlist bypass)
   }
 
+<<<<<<< HEAD
   const useMacAppExec = process.platform === "darwin";
+=======
+  let plannedAllowlistArgv: string[] | undefined;
+  if (
+    security === "allowlist" &&
+    !policy.approvedByAsk &&
+    !shellCommand &&
+    policy.analysisOk &&
+    policy.allowlistSatisfied &&
+    segments.length === 1
+  ) {
+    plannedAllowlistArgv = segments[0]?.resolution?.effectiveArgv;
+    if (!plannedAllowlistArgv || plannedAllowlistArgv.length === 0) {
+      await opts.sendNodeEvent(
+        opts.client,
+        "exec.denied",
+        opts.buildExecEventPayload({
+          sessionKey,
+          runId,
+          host: "node",
+          command: cmdText,
+          reason: "execution-plan-miss",
+        }),
+      );
+      await opts.sendInvokeResult({
+        ok: false,
+        error: { code: "UNAVAILABLE", message: "SYSTEM_RUN_DENIED: execution plan mismatch" },
+      });
+      return;
+    }
+  }
+
+  const useMacAppExec = opts.preferMacAppExecHost;
+>>>>>>> a1c4bf07c (fix(security): harden exec wrapper allowlist execution parity)
   if (useMacAppExec) {
     const approvalDecision =
       opts.params.approvalDecision === "allow-once" ||
@@ -240,7 +274,7 @@ export async function handleSystemRunInvoke(opts: {
         ? opts.params.approvalDecision
         : null;
     const execRequest: ExecHostRequest = {
-      command: argv,
+      command: plannedAllowlistArgv ?? argv,
       rawCommand: rawCommand || shellCommand || null,
       cwd: opts.params.cwd ?? null,
       env: envOverrides ?? null,
@@ -427,7 +461,7 @@ export async function handleSystemRunInvoke(opts: {
     return;
   }
 
-  let execArgv = argv;
+  let execArgv = plannedAllowlistArgv ?? argv;
   if (
     security === "allowlist" &&
     isWindows &&

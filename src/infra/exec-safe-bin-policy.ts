@@ -304,7 +304,7 @@ function consumeLongOptionToken(
 function consumeShortOptionClusterToken(
   args: string[],
   index: number,
-  raw: string,
+  _raw: string,
   cluster: string,
   flags: string[],
   valueFlags: ReadonlySet<string>,
@@ -324,7 +324,7 @@ function consumeShortOptionClusterToken(
     }
     return isInvalidValueToken(args[index + 1]) ? -1 : index + 2;
   }
-  return hasGlobToken(raw) ? -1 : index + 1;
+  return -1;
 }
 
 function consumePositionalToken(token: string, positional: string[]): boolean {
