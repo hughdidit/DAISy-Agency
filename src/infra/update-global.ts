@@ -75,14 +75,34 @@ export async function detectGlobalInstallManagerForRoot(
     const globalRoot = res.stdout.trim();
     if (!globalRoot) continue;
     const globalReal = await tryRealpath(globalRoot);
+<<<<<<< HEAD
     const expected = path.join(globalReal, "moltbot");
     if (path.resolve(expected) === path.resolve(pkgReal)) return manager;
+=======
+    for (const name of ALL_PACKAGE_NAMES) {
+      const expected = path.join(globalReal, name);
+      const expectedReal = await tryRealpath(expected);
+      if (path.resolve(expectedReal) === path.resolve(pkgReal)) {
+        return manager;
+      }
+    }
+>>>>>>> a3b82a563 (fix: resolve symlinks in pnpm/bun global install detection (#24744))
   }
 
   const bunGlobalRoot = resolveBunGlobalRoot();
   const bunGlobalReal = await tryRealpath(bunGlobalRoot);
+<<<<<<< HEAD
   const bunExpected = path.join(bunGlobalReal, "moltbot");
   if (path.resolve(bunExpected) === path.resolve(pkgReal)) return "bun";
+=======
+  for (const name of ALL_PACKAGE_NAMES) {
+    const bunExpected = path.join(bunGlobalReal, name);
+    const bunExpectedReal = await tryRealpath(bunExpected);
+    if (path.resolve(bunExpectedReal) === path.resolve(pkgReal)) {
+      return "bun";
+    }
+  }
+>>>>>>> a3b82a563 (fix: resolve symlinks in pnpm/bun global install detection (#24744))
 
   return null;
 }
