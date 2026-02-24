@@ -38,9 +38,17 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import { createAuthChoiceAgentModelNoter } from "./auth-choice.apply-helpers.js";
 >>>>>>> 0048af4e2 (refactor(commands): dedupe auth-choice model notes)
+=======
+import {
+  createAuthChoiceAgentModelNoter,
+  normalizeSecretInputModeInput,
+  resolveSecretInputModeForEnvSelection,
+} from "./auth-choice.apply-helpers.js";
+>>>>>>> 2ef109f00 (Onboard OpenAI: explicit secret-input-mode behavior)
 import type { ApplyAuthChoiceParams, ApplyAuthChoiceResult } from "./auth-choice.apply.js";
 import { createVpsAwareOAuthHandlers } from "./oauth-flow.js";
 =======
@@ -83,6 +91,7 @@ import {
 export async function applyAuthChoiceOpenAI(
   params: ApplyAuthChoiceParams,
 ): Promise<ApplyAuthChoiceResult | null> {
+  const requestedSecretInputMode = normalizeSecretInputModeInput(params.opts?.secretInputMode);
   const noteAgentModel = createAuthChoiceAgentModelNoter(params);
   let authChoice = params.authChoice;
   if (authChoice === "apiKey" && params.opts?.tokenProvider === "openai") {
@@ -119,7 +128,11 @@ export async function applyAuthChoiceOpenAI(
         initialValue: true,
       });
       if (useExisting) {
-        await setOpenaiApiKey(envKey.apiKey, params.agentDir);
+        const mode = await resolveSecretInputModeForEnvSelection({
+          prompter: params.prompter,
+          explicitMode: requestedSecretInputMode,
+        });
+        await setOpenaiApiKey(envKey.apiKey, params.agentDir, { secretInputMode: mode });
         nextConfig = applyAuthProfileConfig(nextConfig, {
           profileId: "openai:default",
           provider: "openai",
@@ -154,7 +167,9 @@ export async function applyAuthChoiceOpenAI(
     }
 
     const trimmed = normalizeApiKeyInput(String(key));
-    await setOpenaiApiKey(trimmed, params.agentDir);
+    await setOpenaiApiKey(trimmed, params.agentDir, {
+      secretInputMode: requestedSecretInputMode,
+    });
     nextConfig = applyAuthProfileConfig(nextConfig, {
       profileId: "openai:default",
       provider: "openai",
