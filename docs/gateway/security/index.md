@@ -239,6 +239,7 @@ High-signal `checkId` values you will most likely see in real deployments (not e
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 | `checkId`                                    | Severity      | Why it matters                                           | Primary fix key/path                             | Auto-fix |
 | -------------------------------------------- | ------------- | -------------------------------------------------------- | ------------------------------------------------ | -------- |
 | `fs.state_dir.perms_world_writable`          | critical      | Other users/processes can modify full OpenClaw state     | filesystem perms on `~/.openclaw`                | yes      |
@@ -354,6 +355,40 @@ High-signal `checkId` values you will most likely see in real deployments (not e
 | `plugins.tools_reachable_permissive_policy`        | warn          | Extension tools reachable in permissive contexts                                | `tools.profile` + tool allow/deny                                                                 | no       |
 | `models.small_params`                              | critical/info | Small models + unsafe tool surfaces raise injection risk                        | model choice + sandbox/tool policy                                                                | no       |
 >>>>>>> bc78b343b (Security: expand audit checks for mDNS and real-IP fallback)
+=======
+| `checkId`                                          | Severity      | Why it matters                                                                     | Primary fix key/path                                                                              | Auto-fix |
+| -------------------------------------------------- | ------------- | ---------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- | -------- |
+| `fs.state_dir.perms_world_writable`                | critical      | Other users/processes can modify full OpenClaw state                               | filesystem perms on `~/.openclaw`                                                                 | yes      |
+| `fs.config.perms_writable`                         | critical      | Others can change auth/tool policy/config                                          | filesystem perms on `~/.openclaw/openclaw.json`                                                   | yes      |
+| `fs.config.perms_world_readable`                   | critical      | Config can expose tokens/settings                                                  | filesystem perms on config file                                                                   | yes      |
+| `gateway.bind_no_auth`                             | critical      | Remote bind without shared secret                                                  | `gateway.bind`, `gateway.auth.*`                                                                  | no       |
+| `gateway.loopback_no_auth`                         | critical      | Reverse-proxied loopback may become unauthenticated                                | `gateway.auth.*`, proxy setup                                                                     | no       |
+| `gateway.http.no_auth`                             | warn/critical | Gateway HTTP APIs reachable with `auth.mode="none"`                                | `gateway.auth.mode`, `gateway.http.endpoints.*`                                                   | no       |
+| `gateway.tools_invoke_http.dangerous_allow`        | warn/critical | Re-enables dangerous tools over HTTP API                                           | `gateway.tools.allow`                                                                             | no       |
+| `gateway.nodes.allow_commands_dangerous`           | warn/critical | Enables high-impact node commands (camera/screen/contacts/calendar/SMS)            | `gateway.nodes.allowCommands`                                                                     | no       |
+| `gateway.tailscale_funnel`                         | critical      | Public internet exposure                                                           | `gateway.tailscale.mode`                                                                          | no       |
+| `gateway.control_ui.allowed_origins_required`      | critical      | Non-loopback Control UI without explicit browser-origin allowlist                  | `gateway.controlUi.allowedOrigins`                                                                | no       |
+| `gateway.control_ui.host_header_origin_fallback`   | warn/critical | Enables Host-header origin fallback (DNS rebinding hardening downgrade)            | `gateway.controlUi.dangerouslyAllowHostHeaderOriginFallback`                                      | no       |
+| `gateway.control_ui.insecure_auth`                 | warn          | Insecure-auth compatibility toggle enabled                                         | `gateway.controlUi.allowInsecureAuth`                                                             | no       |
+| `gateway.control_ui.device_auth_disabled`          | critical      | Disables device identity check                                                     | `gateway.controlUi.dangerouslyDisableDeviceAuth`                                                  | no       |
+| `gateway.real_ip_fallback_enabled`                 | warn/critical | Trusting `X-Real-IP` fallback can enable source-IP spoofing via proxy misconfig    | `gateway.allowRealIpFallback`, `gateway.trustedProxies`                                           | no       |
+| `discovery.mdns_full_mode`                         | warn/critical | mDNS full mode advertises `cliPath`/`sshPort` metadata on local network            | `discovery.mdns.mode`, `gateway.bind`                                                             | no       |
+| `config.insecure_or_dangerous_flags`               | warn          | Any insecure/dangerous debug flags enabled                                         | multiple keys (see finding detail)                                                                | no       |
+| `hooks.token_too_short`                            | warn          | Easier brute force on hook ingress                                                 | `hooks.token`                                                                                     | no       |
+| `hooks.request_session_key_enabled`                | warn/critical | External caller can choose sessionKey                                              | `hooks.allowRequestSessionKey`                                                                    | no       |
+| `hooks.request_session_key_prefixes_missing`       | warn/critical | No bound on external session key shapes                                            | `hooks.allowedSessionKeyPrefixes`                                                                 | no       |
+| `logging.redact_off`                               | warn          | Sensitive values leak to logs/status                                               | `logging.redactSensitive`                                                                         | yes      |
+| `sandbox.docker_config_mode_off`                   | warn          | Sandbox Docker config present but inactive                                         | `agents.*.sandbox.mode`                                                                           | no       |
+| `tools.exec.host_sandbox_no_sandbox_defaults`      | warn          | `exec host=sandbox` resolves to host exec when sandbox is off                      | `tools.exec.host`, `agents.defaults.sandbox.mode`                                                 | no       |
+| `tools.exec.host_sandbox_no_sandbox_agents`        | warn          | Per-agent `exec host=sandbox` resolves to host exec when sandbox is off            | `agents.list[].tools.exec.host`, `agents.list[].sandbox.mode`                                     | no       |
+| `tools.exec.safe_bins_interpreter_unprofiled`      | warn          | Interpreter/runtime bins in `safeBins` without explicit profiles broaden exec risk | `tools.exec.safeBins`, `tools.exec.safeBinProfiles`, `agents.list[].tools.exec.*`                 | no       |
+| `security.exposure.open_groups_with_elevated`      | critical      | Open groups + elevated tools create high-impact prompt-injection paths             | `channels.*.groupPolicy`, `tools.elevated.*`                                                      | no       |
+| `security.exposure.open_groups_with_runtime_or_fs` | critical/warn | Open groups can reach command/file tools without sandbox/workspace guards          | `channels.*.groupPolicy`, `tools.profile/deny`, `tools.fs.workspaceOnly`, `agents.*.sandbox.mode` | no       |
+| `security.trust_model.multi_user_heuristic`        | warn          | Config looks multi-user while gateway trust model is personal-assistant            | split trust boundaries, or shared-user hardening (`sandbox.mode`, tool deny/workspace scoping)    | no       |
+| `tools.profile_minimal_overridden`                 | warn          | Agent overrides bypass global minimal profile                                      | `agents.list[].tools.profile`                                                                     | no       |
+| `plugins.tools_reachable_permissive_policy`        | warn          | Extension tools reachable in permissive contexts                                   | `tools.profile` + tool allow/deny                                                                 | no       |
+| `models.small_params`                              | critical/info | Small models + unsafe tool surfaces raise injection risk                           | model choice + sandbox/tool policy                                                                | no       |
+>>>>>>> 8cc841766 (docs(security): enumerate dangerous config parameters)
 
 ## Control UI over HTTP
 
@@ -370,6 +405,7 @@ keep it off unless you are actively debugging and can revert quickly.
 
 ## HTTP Security Headers
 
+<<<<<<< HEAD
 All HTTP responses from the gateway include:
 
 - `X-Content-Type-Options: nosniff` — prevents browsers from MIME-sniffing responses
@@ -380,6 +416,40 @@ All HTTP responses from the gateway include:
 HSTS and CSP are omitted for now: the gateway typically serves on localhost or behind
 IAP, where HSTS would break local development, and CSP requires careful tuning of the
 injected inline script in the Control UI.
+=======
+`openclaw security audit` includes `config.insecure_or_dangerous_flags` when
+known insecure/dangerous debug switches are enabled. That check currently
+aggregates:
+
+- `gateway.controlUi.allowInsecureAuth=true`
+- `gateway.controlUi.dangerouslyAllowHostHeaderOriginFallback=true`
+- `gateway.controlUi.dangerouslyDisableDeviceAuth=true`
+- `hooks.gmail.allowUnsafeExternalContent=true`
+- `hooks.mappings[<index>].allowUnsafeExternalContent=true`
+- `tools.exec.applyPatch.workspaceOnly=false`
+
+Complete `dangerous*` / `dangerously*` config keys defined in OpenClaw config
+schema:
+
+- `gateway.controlUi.dangerouslyAllowHostHeaderOriginFallback`
+- `gateway.controlUi.dangerouslyDisableDeviceAuth`
+- `browser.ssrfPolicy.dangerouslyAllowPrivateNetwork`
+- `channels.discord.dangerouslyAllowNameMatching`
+- `channels.discord.accounts.<accountId>.dangerouslyAllowNameMatching`
+- `channels.slack.dangerouslyAllowNameMatching`
+- `channels.slack.accounts.<accountId>.dangerouslyAllowNameMatching`
+- `channels.googlechat.dangerouslyAllowNameMatching`
+- `channels.googlechat.accounts.<accountId>.dangerouslyAllowNameMatching`
+- `channels.msteams.dangerouslyAllowNameMatching`
+- `channels.irc.dangerouslyAllowNameMatching` (extension channel)
+- `channels.irc.accounts.<accountId>.dangerouslyAllowNameMatching` (extension channel)
+- `channels.mattermost.dangerouslyAllowNameMatching` (extension channel)
+- `channels.mattermost.accounts.<accountId>.dangerouslyAllowNameMatching` (extension channel)
+- `agents.defaults.sandbox.docker.dangerouslyAllowReservedContainerTargets`
+- `agents.defaults.sandbox.docker.dangerouslyAllowExternalBindSources`
+- `agents.list[<index>].sandbox.docker.dangerouslyAllowReservedContainerTargets`
+- `agents.list[<index>].sandbox.docker.dangerouslyAllowExternalBindSources`
+>>>>>>> 8cc841766 (docs(security): enumerate dangerous config parameters)
 
 ## Reverse Proxy Configuration
 
