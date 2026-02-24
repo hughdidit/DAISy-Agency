@@ -79,6 +79,43 @@ const baseQueuedRun = (messageProvider = "whatsapp"): FollowupRun =>
     },
   }) as FollowupRun;
 
+<<<<<<< HEAD
+=======
+function createQueuedRun(
+  overrides: Partial<Omit<FollowupRun, "run">> & { run?: Partial<FollowupRun["run"]> } = {},
+): FollowupRun {
+  const base = baseQueuedRun();
+  return {
+    ...base,
+    ...overrides,
+    run: {
+      ...base.run,
+      ...overrides.run,
+    },
+  };
+}
+
+function mockCompactionRun(params: {
+  willRetry: boolean;
+  result: {
+    payloads: Array<{ text: string }>;
+    meta: Record<string, unknown>;
+  };
+}) {
+  runEmbeddedPiAgentMock.mockImplementationOnce(
+    async (args: {
+      onAgentEvent?: (evt: { stream: string; data: Record<string, unknown> }) => void;
+    }) => {
+      args.onAgentEvent?.({
+        stream: "compaction",
+        data: { phase: "end", willRetry: params.willRetry },
+      });
+      return params.result;
+    },
+  );
+}
+
+>>>>>>> b0bb3cca8 (test(types): fix ts narrowing regressions in followup and matrix queue tests)
 describe("createFollowupRunner compaction", () => {
   it("adds verbose auto-compaction notice and tracks count", async () => {
     const storePath = path.join(
