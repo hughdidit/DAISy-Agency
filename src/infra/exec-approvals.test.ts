@@ -136,6 +136,22 @@ describe("exec approvals allowlist matching", () => {
     }
   });
 
+  it("matches bare * wildcard pattern against any resolved path", () => {
+    const match = matchAllowlist([{ pattern: "*" }], baseResolution);
+    expect(match).not.toBeNull();
+    expect(match?.pattern).toBe("*");
+  });
+
+  it("matches bare * wildcard against arbitrary executables", () => {
+    const match = matchAllowlist([{ pattern: "*" }], {
+      rawExecutable: "python3",
+      resolvedPath: "/usr/bin/python3",
+      executableName: "python3",
+    });
+    expect(match).not.toBeNull();
+    expect(match?.pattern).toBe("*");
+  });
+
   it("requires a resolved path", () => {
     const match = matchAllowlist([{ pattern: "bin/rg" }], {
       rawExecutable: "bin/rg",
@@ -826,6 +842,7 @@ describe("exec approvals safe bins", () => {
     expect(result.allowlistSatisfied).toBe(false);
   });
 
+<<<<<<< HEAD
   it("allows caller-defined custom safe-bin profiles", () => {
     if (process.platform === "win32") {
       return;
@@ -937,6 +954,26 @@ describe("exec approvals safe bins", () => {
     expect(result.allowlistSatisfied).toBe(false);
     expect(result.segmentSatisfiedBy).toEqual([null]);
     expect(result.segments[0]?.resolution?.resolvedPath).toBe(fakeHead);
+=======
+  it("satisfies allowlist when bare * wildcard is present", () => {
+    const dir = makeTempDir();
+    const binPath = path.join(dir, "mybin");
+    fs.writeFileSync(binPath, "#!/bin/sh\n", { mode: 0o755 });
+    const env = makePathEnv(dir);
+    try {
+      const result = evaluateShellAllowlist({
+        command: "mybin --flag",
+        allowlist: [{ pattern: "*" }],
+        safeBins: new Set(),
+        cwd: dir,
+        env,
+      });
+      expect(result.analysisOk).toBe(true);
+      expect(result.allowlistSatisfied).toBe(true);
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true });
+    }
+>>>>>>> 0f0b2c025 (fix(exec): match bare * wildcard in allowlist entries (#25082))
   });
 });
 
