@@ -29,6 +29,15 @@ For threat model + hardening guidance (including `openclaw security audit --deep
 
 - `https://docs.openclaw.ai/gateway/security`
 
+<<<<<<< HEAD
+=======
+### Tool filesystem hardening
+
+- `tools.exec.applyPatch.workspaceOnly: true` (recommended): keeps `apply_patch` writes/deletes within the configured workspace directory.
+- `tools.fs.workspaceOnly: true` (optional): restricts `read`/`write`/`edit`/`apply_patch` paths and native prompt image auto-load paths to the workspace directory.
+- Avoid setting `tools.exec.applyPatch.workspaceOnly: false` unless you fully trust who can trigger tool execution.
+
+>>>>>>> 370d11554 (fix: enforce workspaceOnly for native prompt image autoload)
 ### Web Interface Safety
 
 OpenClaw's web interface is intended for local use only. Do **not** bind it to the public internet; it is not hardened for public exposure.
