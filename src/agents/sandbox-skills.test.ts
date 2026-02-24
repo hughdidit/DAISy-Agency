@@ -7,10 +7,14 @@ import type { MoltbotConfig } from "../config/config.js";
 =======
 import type { OpenClawConfig } from "../config/config.js";
 import { captureFullEnv } from "../test-utils/env.js";
+<<<<<<< HEAD
 import { resolveSandboxContext } from "./sandbox.js";
 <<<<<<< HEAD
 >>>>>>> c2f7b66d2 (perf(test): replace module resets with direct spies and runtime seams)
 =======
+=======
+import { resolveSandboxContext } from "./sandbox/context.js";
+>>>>>>> 467666adc (test(sandbox): use focused modules in lightweight suites)
 import { writeSkill } from "./skills.e2e-test-helpers.js";
 >>>>>>> f086245af (refactor(test): reuse shared skill writer in sandbox and bundled tests)
 

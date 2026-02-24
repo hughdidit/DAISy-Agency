@@ -20,7 +20,7 @@ describe("resolveSandboxContext", () => {
 =======
 import { describe, expect, it } from "vitest";
 import type { OpenClawConfig } from "../config/config.js";
-import { ensureSandboxWorkspaceForSession, resolveSandboxContext } from "./sandbox.js";
+import { ensureSandboxWorkspaceForSession, resolveSandboxContext } from "./sandbox/context.js";
 
 describe("resolveSandboxContext", () => {
   it("does not sandbox the agent main session in non-main mode", async () => {
