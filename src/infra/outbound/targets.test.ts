@@ -375,5 +375,43 @@ describe("resolveSessionDeliveryTarget", () => {
     expect(resolved.to).toBe("user:U123");
     expect(resolved.threadId).toBeUndefined();
   });
+<<<<<<< HEAD
 >>>>>>> ccbeb332e (fix: harden routing/session isolation for followups and heartbeat)
+=======
+
+  it("keeps explicit threadId in heartbeat mode", () => {
+    const resolved = resolveSessionDeliveryTarget({
+      entry: {
+        sessionId: "sess-heartbeat-explicit-thread",
+        updatedAt: 1,
+        lastChannel: "telegram",
+        lastTo: "-100123",
+        lastThreadId: 999,
+      },
+      requestedChannel: "last",
+      mode: "heartbeat",
+      explicitThreadId: 42,
+    });
+
+    expect(resolved.channel).toBe("telegram");
+    expect(resolved.to).toBe("-100123");
+    expect(resolved.threadId).toBe(42);
+    expect(resolved.threadIdExplicit).toBe(true);
+  });
+
+  it("parses explicit heartbeat topic targets into threadId", () => {
+    const cfg: OpenClawConfig = {};
+    const resolved = resolveHeartbeatDeliveryTarget({
+      cfg,
+      heartbeat: {
+        target: "telegram",
+        to: "63448508:topic:1008013",
+      },
+    });
+
+    expect(resolved.channel).toBe("telegram");
+    expect(resolved.to).toBe("63448508");
+    expect(resolved.threadId).toBe(1008013);
+  });
+>>>>>>> 9b5310210 (test: add routing/session isolation edge-case regressions)
 });
