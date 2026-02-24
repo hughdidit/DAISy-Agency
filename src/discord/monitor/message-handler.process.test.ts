@@ -37,8 +37,15 @@ type DispatchInboundParams = {
       text?: string;
       isReasoning?: boolean;
     }) => boolean | Promise<boolean>;
+<<<<<<< HEAD
 >>>>>>> e7a5f9f4d (fix(channels,sandbox): land hard breakage cluster from reviewed PR bases)
     sendFinalReply: (payload: { text?: string }) => boolean | Promise<boolean>;
+=======
+    sendFinalReply: (payload: {
+      text?: string;
+      isReasoning?: boolean;
+    }) => boolean | Promise<boolean>;
+>>>>>>> 58309fd8d (refactor(matrix,tests): extract helpers and inject send-queue timing)
   };
   replyOptions?: {
     onReasoningStream?: () => Promise<void> | void;
@@ -446,6 +453,27 @@ describe("processDiscordMessage draft streaming", () => {
     expect(deliverDiscordReply).not.toHaveBeenCalled();
   });
 
+<<<<<<< HEAD
+=======
+  it("suppresses reasoning-tagged final payload delivery to Discord", async () => {
+    dispatchInboundMessage.mockImplementationOnce(async (params?: DispatchInboundParams) => {
+      await params?.dispatcher.sendFinalReply({
+        text: "Reasoning:\nthis should stay internal",
+        isReasoning: true,
+      });
+      return { queuedFinal: true, counts: { final: 1, tool: 0, block: 0 } };
+    });
+
+    const ctx = await createBaseContext({ discordConfig: { streamMode: "off" } });
+
+    // oxlint-disable-next-line typescript/no-explicit-any
+    await processDiscordMessage(ctx as any);
+
+    expect(deliverDiscordReply).not.toHaveBeenCalled();
+    expect(editMessageDiscord).not.toHaveBeenCalled();
+  });
+
+>>>>>>> 58309fd8d (refactor(matrix,tests): extract helpers and inject send-queue timing)
   it("delivers non-reasoning block payloads to Discord", async () => {
     dispatchInboundMessage.mockImplementationOnce(async (params?: DispatchInboundParams) => {
       await params?.dispatcher.sendBlockReply({ text: "hello from block stream" });

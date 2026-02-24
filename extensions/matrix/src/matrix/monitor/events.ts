@@ -5,6 +5,32 @@ import { sendReadReceiptMatrix } from "../send.js";
 import type { MatrixRawEvent } from "./types.js";
 import { EventType } from "./types.js";
 
+function createSelfUserIdResolver(client: Pick<MatrixClient, "getUserId">) {
+  let selfUserId: string | undefined;
+  let selfUserIdLookup: Promise<string | undefined> | undefined;
+
+  return async (): Promise<string | undefined> => {
+    if (selfUserId) {
+      return selfUserId;
+    }
+    if (!selfUserIdLookup) {
+      selfUserIdLookup = client
+        .getUserId()
+        .then((userId) => {
+          selfUserId = userId;
+          return userId;
+        })
+        .catch(() => undefined)
+        .finally(() => {
+          if (!selfUserId) {
+            selfUserIdLookup = undefined;
+          }
+        });
+    }
+    return await selfUserIdLookup;
+  };
+}
+
 export function registerMatrixMonitorEvents(params: {
   client: MatrixClient;
   auth: MatrixAuth;
@@ -26,7 +52,11 @@ export function registerMatrixMonitorEvents(params: {
     onRoomMessage,
   } = params;
 
+<<<<<<< HEAD
   let selfUserId: string | undefined;
+=======
+  const resolveSelfUserId = createSelfUserIdResolver(client);
+>>>>>>> 58309fd8d (refactor(matrix,tests): extract helpers and inject send-queue timing)
   client.on("room.message", (roomId: string, event: MatrixRawEvent) => {
     const eventId = event?.event_id;
     const senderId = event?.sender;
