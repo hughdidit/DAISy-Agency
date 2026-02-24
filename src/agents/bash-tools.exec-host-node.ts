@@ -183,6 +183,7 @@ export async function executeNodeHostCommand(
           command: params.command,
           workdir: params.workdir,
           host: "node",
+          nodeId,
           security: hostSecurity,
           ask: hostAsk,
           agentId: params.agentId,

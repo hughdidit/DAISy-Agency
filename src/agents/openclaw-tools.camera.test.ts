@@ -210,6 +210,7 @@ describe("nodes run", () => {
         expect(params).toMatchObject({
           id: expect.any(String),
           command: "echo hi",
+          nodeId: NODE_ID,
           host: "node",
           timeoutMs: 120_000,
         });
