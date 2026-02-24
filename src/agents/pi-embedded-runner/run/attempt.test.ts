@@ -1,8 +1,17 @@
 import type { AgentMessage } from "@mariozechner/pi-agent-core";
 import type { ImageContent } from "@mariozechner/pi-ai";
+<<<<<<< HEAD
 import { describe, expect, it } from "vitest";
 
 import { injectHistoryImagesIntoMessages } from "./attempt.js";
+=======
+import { describe, expect, it, vi } from "vitest";
+import {
+  injectHistoryImagesIntoMessages,
+  resolvePromptBuildHookResult,
+  resolvePromptModeForSession,
+} from "./attempt.js";
+>>>>>>> 6c1ed9493 (fix: harden queue retry debounce and add regression tests)
 
 describe("injectHistoryImagesIntoMessages", () => {
   const image: ImageContent = { type: "image", data: "abc", mimeType: "image/png" };
@@ -55,5 +64,16 @@ describe("injectHistoryImagesIntoMessages", () => {
 
     expect(didMutate).toBe(false);
     expect(messages[0]?.content).toBe("noop");
+  });
+});
+
+describe("resolvePromptModeForSession", () => {
+  it("uses minimal mode for subagent sessions", () => {
+    expect(resolvePromptModeForSession("agent:main:subagent:child")).toBe("minimal");
+  });
+
+  it("uses full mode for cron sessions", () => {
+    expect(resolvePromptModeForSession("agent:main:cron:job-1")).toBe("full");
+    expect(resolvePromptModeForSession("agent:main:cron:job-1:run:run-abc")).toBe("full");
   });
 });
