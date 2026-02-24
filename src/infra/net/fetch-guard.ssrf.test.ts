@@ -14,26 +14,26 @@ describe("fetchWithSsrFGuard hardening", () => {
     await expect(
       fetchWithSsrFGuard({
 <<<<<<< HEAD
+<<<<<<< HEAD
         url: "http://127.0.0.1:8080/internal",
 =======
         url: "http://198.51.100.1:8080/internal",
 >>>>>>> 9df80b73e (fix: allow RFC2544 benchmark range (198.18.0.0/15) through SSRF filter)
+=======
+        url: "http://198.18.0.1:8080/internal",
+>>>>>>> 3af9d1f8e (fix: scope Telegram RFC2544 SSRF exception to policy opt-in (#24982) (thanks @stakeswky))
         fetchImpl,
       }),
     ).rejects.toThrow(/private|internal|blocked/i);
     expect(fetchImpl).not.toHaveBeenCalled();
   });
 
-  it("allows RFC2544 benchmark range IPv4 literal URLs (Telegram)", async () => {
-    const lookupFn = vi.fn(async () => [
-      { address: "198.18.0.153", family: 4 },
-    ]) as unknown as LookupFn;
+  it("allows RFC2544 benchmark range IPv4 literal URLs when explicitly opted in", async () => {
     const fetchImpl = vi.fn().mockResolvedValueOnce(new Response("ok", { status: 200 }));
-    // Should not throw — 198.18.x.x is allowed now
     const result = await fetchWithSsrFGuard({
       url: "http://198.18.0.153/file",
       fetchImpl,
-      lookupFn,
+      policy: { allowRfc2544BenchmarkRange: true },
     });
     expect(result.response.status).toBe(200);
   });
