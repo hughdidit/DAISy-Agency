@@ -1,12 +1,16 @@
 ---
-summary: "Group chat behavior across surfaces (WhatsApp/Telegram/Discord/Slack/Signal/iMessage/Microsoft Teams)"
+summary: "Group chat behavior across surfaces (WhatsApp/Telegram/Discord/Slack/Signal/iMessage/Microsoft Teams/Zalo)"
 read_when:
   - Changing group chat behavior or mention gating
 title: "Groups"
 ---
 # Groups
 
+<<<<<<< HEAD:docs/concepts/groups.md
 Moltbot treats group chats consistently across surfaces: WhatsApp, Telegram, Discord, Slack, Signal, iMessage, Microsoft Teams.
+=======
+OpenClaw treats group chats consistently across surfaces: WhatsApp, Telegram, Discord, Slack, Signal, iMessage, Microsoft Teams, Zalo.
+>>>>>>> b4010a0b6 (fix(zalo): enforce group sender policy in groups):docs/channels/groups.md
 
 ## Beginner intro (2 minutes)
 Moltbot “lives” on your own messaging accounts. There is no separate WhatsApp bot user.
@@ -181,7 +185,7 @@ Control how group/room messages are handled per channel:
 
 Notes:
 - `groupPolicy` is separate from mention-gating (which requires @mentions).
-- WhatsApp/Telegram/Signal/iMessage/Microsoft Teams: use `groupAllowFrom` (fallback: explicit `allowFrom`).
+- WhatsApp/Telegram/Signal/iMessage/Microsoft Teams/Zalo: use `groupAllowFrom` (fallback: explicit `allowFrom`).
 - Discord: allowlist uses `channels.discord.guilds.<id>.channels`.
 - Slack: allowlist uses `channels.slack.channels`.
 - Matrix: allowlist uses `channels.matrix.groups` (room IDs, aliases, or names). Use `channels.matrix.groupAllowFrom` to restrict senders; per-room `users` allowlists are also supported.
