@@ -52,6 +52,7 @@ Docs: https://docs.openclaw.ai
 =======
 =======
 
+<<<<<<< HEAD
 ### Breaking
 
 - **BREAKING:** non-loopback Control UI now requires explicit `gateway.controlUi.allowedOrigins` (full origins). Startup fails closed when missing unless `gateway.controlUi.dangerouslyAllowHostHeaderOriginFallback=true` is set to use Host-header origin fallback mode.
@@ -63,6 +64,11 @@ Docs: https://docs.openclaw.ai
 - Subagents/Sessions: add `agents.defaults.subagents.runTimeoutSeconds` so `sessions_spawn` can inherit a configurable default timeout when the tool call omits `runTimeoutSeconds` (unset remains `0`, meaning no timeout). (#24594) Thanks @mitchmcalister.
 - Config/Kilo Gateway: Kilo provider flow now surfaces an updated list of models. (#24921) thanks @gumadeiras.
 - Auto-reply/Abort shortcuts: expand standalone stop phrases (`stop openclaw`, `stop action`, `stop run`, `stop agent`, `please stop`, and related variants) and accept trailing punctuation (for example `STOP OPENCLAW!!!`) so emergency stop messages are caught more reliably.
+=======
+### Changes
+
+- Auto-reply/Abort shortcuts: expand standalone stop phrases (`stop openclaw`, `stop action`, `stop run`, `stop agent`, `please stop`, and related variants), accept trailing punctuation (for example `STOP OPENCLAW!!!`), and add multilingual stop keywords (including ES/FR/ZH/HI/AR/JP/DE/PT/RU forms) so emergency stop messages are caught more reliably. (#25103) Thanks @steipete and @vincentkoc.
+>>>>>>> e3ac491da (docs(changelog): trim 2026.2.24 unreleased entries)
 
 ### Fixes
 
@@ -119,6 +125,7 @@ Docs: https://docs.openclaw.ai
 - Telegram/Media SSRF: keep RFC2544 benchmark range (`198.18.0.0/15`) blocked by default, add an explicit SSRF-policy opt-in for Telegram media downloads, and keep other channels/URL fetch paths blocked. (#24982) Thanks @stakeswky.
 =======
 - Control UI/Chat images: harden image-open clicks against reverse tabnabbing by using opener isolation (`noopener,noreferrer` plus `window.opener = null`). (#18685) Thanks @Mariana-Codebase.
+<<<<<<< HEAD
 >>>>>>> aceb17a30 (changelog: add entry for PR 18685 fix)
 - Security/iOS deep links: require local confirmation (or trusted key) before forwarding `openclaw://agent` requests from iOS to gateway `agent.request`, and strip unkeyed delivery-routing fields to reduce exfiltration risk. This ships in the next npm release. Thanks @GCXWLP for reporting.
 >>>>>>> 9cc7450ed (docs(changelog): add missing unreleased fixes and reorder)
@@ -201,6 +208,9 @@ Docs: https://docs.openclaw.ai
 - Infra/Windows TOCTOU: handle Windows `dev=0` edge cases in same-file identity checks. (#24939)
 - Exec/Bash tools: clamp poll sleep duration to non-negative values in process polling loops. (#24889)
 >>>>>>> 91ea6ad8e (docs(changelog): reorder unreleased fixes by user impact)
+=======
+- CLI/Doctor: correct stale recovery hints to use valid commands (`openclaw gateway status --deep` and `openclaw configure --section model`). (#24485) Thanks @chilu18.
+>>>>>>> e3ac491da (docs(changelog): trim 2026.2.24 unreleased entries)
 
 <<<<<<< HEAD
 ## 2026.2.23 (Unreleased)
