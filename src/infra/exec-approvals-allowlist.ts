@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import type { ExecAllowlistEntry } from "./exec-approvals.js";
+=======
+import path from "node:path";
+>>>>>>> ffd63b7a2 (fix(security): trust resolved skill-bin paths in allowlist auto-allow)
 import {
   DEFAULT_SAFE_BINS,
   analyzeShellCommand,
@@ -169,6 +173,71 @@ export type ExecAllowlistEvaluation = {
 };
 
 export type ExecSegmentSatisfiedBy = "allowlist" | "safeBins" | "skills" | null;
+export type SkillBinTrustEntry = {
+  name: string;
+  resolvedPath: string;
+};
+
+function normalizeSkillBinName(value: string | undefined): string | null {
+  const trimmed = value?.trim().toLowerCase();
+  return trimmed && trimmed.length > 0 ? trimmed : null;
+}
+
+function normalizeSkillBinResolvedPath(value: string | undefined): string | null {
+  const trimmed = value?.trim();
+  if (!trimmed) {
+    return null;
+  }
+  const resolved = path.resolve(trimmed);
+  if (process.platform === "win32") {
+    return resolved.replace(/\\/g, "/").toLowerCase();
+  }
+  return resolved;
+}
+
+function buildSkillBinTrustIndex(
+  entries: readonly SkillBinTrustEntry[] | undefined,
+): Map<string, Set<string>> {
+  const trustByName = new Map<string, Set<string>>();
+  if (!entries || entries.length === 0) {
+    return trustByName;
+  }
+  for (const entry of entries) {
+    const name = normalizeSkillBinName(entry.name);
+    const resolvedPath = normalizeSkillBinResolvedPath(entry.resolvedPath);
+    if (!name || !resolvedPath) {
+      continue;
+    }
+    const paths = trustByName.get(name) ?? new Set<string>();
+    paths.add(resolvedPath);
+    trustByName.set(name, paths);
+  }
+  return trustByName;
+}
+
+function isSkillAutoAllowedSegment(params: {
+  segment: ExecCommandSegment;
+  allowSkills: boolean;
+  skillBinTrust: ReadonlyMap<string, ReadonlySet<string>>;
+}): boolean {
+  if (!params.allowSkills) {
+    return false;
+  }
+  const resolution = params.segment.resolution;
+  if (!resolution?.resolvedPath) {
+    return false;
+  }
+  const rawExecutable = resolution.rawExecutable?.trim() ?? "";
+  if (!rawExecutable || isPathScopedExecutableToken(rawExecutable)) {
+    return false;
+  }
+  const executableName = normalizeSkillBinName(resolution.executableName);
+  const resolvedPath = normalizeSkillBinResolvedPath(resolution.resolvedPath);
+  if (!executableName || !resolvedPath) {
+    return false;
+  }
+  return Boolean(params.skillBinTrust.get(executableName)?.has(resolvedPath));
+}
 
 function evaluateSegments(
   segments: ExecCommandSegment[],
@@ -180,8 +249,12 @@ function evaluateSegments(
 =======
     platform?: string | null;
     trustedSafeBinDirs?: ReadonlySet<string>;
+<<<<<<< HEAD
 >>>>>>> a688ccf24 (refactor(security): unify safe-bin argv parsing and harden regressions)
     skillBins?: Set<string>;
+=======
+    skillBins?: readonly SkillBinTrustEntry[];
+>>>>>>> ffd63b7a2 (fix(security): trust resolved skill-bin paths in allowlist auto-allow)
     autoAllowSkills?: boolean;
   },
 ): {
@@ -190,7 +263,8 @@ function evaluateSegments(
   segmentSatisfiedBy: ExecSegmentSatisfiedBy[];
 } {
   const matches: ExecAllowlistEntry[] = [];
-  const allowSkills = params.autoAllowSkills === true && (params.skillBins?.size ?? 0) > 0;
+  const skillBinTrust = buildSkillBinTrustIndex(params.skillBins);
+  const allowSkills = params.autoAllowSkills === true && skillBinTrust.size > 0;
   const segmentSatisfiedBy: ExecSegmentSatisfiedBy[] = [];
 
   const satisfied = segments.every((segment) => {
@@ -225,19 +299,11 @@ function evaluateSegments(
       trustedSafeBinDirs: params.trustedSafeBinDirs,
 >>>>>>> 165c18819 (refactor(security): simplify safe-bin validation structure)
     });
-    const rawExecutable = segment.resolution?.rawExecutable?.trim() ?? "";
-    const executableName = segment.resolution?.executableName;
-    const usesExplicitPath = isPathScopedExecutableToken(rawExecutable);
-    let skillAllow = false;
-    if (
-      allowSkills &&
-      segment.resolution?.resolvedPath &&
-      rawExecutable.length > 0 &&
-      !usesExplicitPath &&
-      executableName
-    ) {
-      skillAllow = Boolean(params.skillBins?.has(executableName));
-    }
+    const skillAllow = isSkillAutoAllowedSegment({
+      segment,
+      allowSkills,
+      skillBinTrust,
+    });
     const by: ExecSegmentSatisfiedBy = match
       ? "allowlist"
       : safe
@@ -261,8 +327,12 @@ export function evaluateExecAllowlist(params: {
 =======
   platform?: string | null;
   trustedSafeBinDirs?: ReadonlySet<string>;
+<<<<<<< HEAD
 >>>>>>> a688ccf24 (refactor(security): unify safe-bin argv parsing and harden regressions)
   skillBins?: Set<string>;
+=======
+  skillBins?: readonly SkillBinTrustEntry[];
+>>>>>>> ffd63b7a2 (fix(security): trust resolved skill-bin paths in allowlist auto-allow)
   autoAllowSkills?: boolean;
 }): ExecAllowlistEvaluation {
   const allowlistMatches: ExecAllowlistEntry[] = [];
@@ -516,7 +586,12 @@ export function evaluateShellAllowlist(params: {
   safeBins: Set<string>;
   cwd?: string;
   env?: NodeJS.ProcessEnv;
+<<<<<<< HEAD
   skillBins?: Set<string>;
+=======
+  trustedSafeBinDirs?: ReadonlySet<string>;
+  skillBins?: readonly SkillBinTrustEntry[];
+>>>>>>> ffd63b7a2 (fix(security): trust resolved skill-bin paths in allowlist auto-allow)
   autoAllowSkills?: boolean;
   platform?: string | null;
 }): ExecAllowlistAnalysis {
