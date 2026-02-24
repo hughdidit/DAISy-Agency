@@ -53,6 +53,7 @@ Docs: https://docs.openclaw.ai
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 =======
@@ -71,6 +72,9 @@ Docs: https://docs.openclaw.ai
 =======
 =======
 =======
+=======
+- Auto-reply/Reset hooks: guarantee native `/new` and `/reset` flows emit command/reset hooks even on early-return command paths, with dedupe protection to avoid double hook emission. (#25459) Thanks @chilu18.
+>>>>>>> 0365125c2 (fix: add changelog for reset hook fallback coverage (#25459) (thanks @chilu18))
 - Hooks/Slug generator: resolve session slug model from the agent’s effective model (including defaults/fallback resolution) instead of raw agent-primary config only. (#25485) Thanks @SudeepMalipeddi.
 >>>>>>> bbdf895d4 (fix: add changelog for slug generator model resolution (#25485) (thanks @SudeepMalipeddi))
 - Slack/DM routing: treat `D*` channel IDs as direct messages even when Slack sends an incorrect `channel_type`, preventing DM traffic from being misclassified as channel/group chats. (#25479) Thanks @mcaxtr.
