@@ -591,6 +591,14 @@ You can already build a read-only profile by combining:
 
 We may add a single `readOnlyMode` flag later to simplify this configuration.
 
+<<<<<<< HEAD
+=======
+Additional hardening options:
+
+- `tools.exec.applyPatch.workspaceOnly: true` (default): ensures `apply_patch` cannot write/delete outside the workspace directory even when sandboxing is off. Set to `false` only if you intentionally want `apply_patch` to touch files outside the workspace.
+- `tools.fs.workspaceOnly: true` (optional): restricts `read`/`write`/`edit`/`apply_patch` paths and native prompt image auto-load paths to the workspace directory (useful if you allow absolute paths today and want a single guardrail).
+
+>>>>>>> 370d11554 (fix: enforce workspaceOnly for native prompt image autoload)
 ### 5) Secure baseline (copy/paste)
 
 One “safe default” config that keeps the Gateway private, requires DM pairing, and avoids always-on group bots:

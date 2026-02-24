@@ -56,7 +56,7 @@ import { resolveUserPath } from "../../../utils.js";
 import { normalizeMessageChannel } from "../../../utils/message-channel.js";
 import { isReasoningTagProvider } from "../../../utils/provider-utils.js";
 import { resolveOpenClawAgentDir } from "../../agent-paths.js";
-import { resolveSessionAgentIds } from "../../agent-scope.js";
+import { resolveAgentConfig, resolveSessionAgentIds } from "../../agent-scope.js";
 import { createAnthropicPayloadLogger } from "../../anthropic-payload-log.js";
 import { makeBootstrapWarn, resolveBootstrapContextForRun } from "../../bootstrap-files.js";
 import { createCacheTrace } from "../../cache-trace.js";
@@ -400,6 +400,17 @@ export async function runEmbeddedAttempt(
 
     const agentDir = params.agentDir ?? resolveMoltbotAgentDir();
 
+<<<<<<< HEAD
+=======
+    const { defaultAgentId, sessionAgentId } = resolveSessionAgentIds({
+      sessionKey: params.sessionKey,
+      config: params.config,
+      agentId: params.agentId,
+    });
+    const effectiveFsWorkspaceOnly =
+      (resolveAgentConfig(params.config ?? {}, sessionAgentId)?.tools?.fs?.workspaceOnly ??
+        params.config?.tools?.fs?.workspaceOnly) === true;
+>>>>>>> 370d11554 (fix: enforce workspaceOnly for native prompt image autoload)
     // Check if the model supports native image input
     const modelHasVision = params.model.input?.includes("image") ?? false;
     const toolsRaw = params.disableTools
@@ -1082,6 +1093,11 @@ export async function runEmbeddedAttempt(
             existingImages: params.images,
             historyMessages: activeSession.messages,
             maxBytes: MAX_IMAGE_BYTES,
+<<<<<<< HEAD
+=======
+            maxDimensionPx: resolveImageSanitizationLimits(params.config).maxDimensionPx,
+            workspaceOnly: effectiveFsWorkspaceOnly,
+>>>>>>> 370d11554 (fix: enforce workspaceOnly for native prompt image autoload)
             // Enforce sandbox path restrictions when sandbox is enabled
             sandbox:
               sandbox?.enabled && sandbox?.fsBridge

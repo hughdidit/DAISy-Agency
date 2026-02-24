@@ -11,7 +11,17 @@ If you believe you've found a security issue in Moltbot, please report it privat
 
 For threat model + hardening guidance (including `moltbot security audit --deep` and `--fix`), see:
 
+<<<<<<< HEAD
 - `https://docs.molt.bot/gateway/security`
+=======
+- `https://docs.openclaw.ai/gateway/security`
+
+### Tool filesystem hardening
+
+- `tools.exec.applyPatch.workspaceOnly: true` (recommended): keeps `apply_patch` writes/deletes within the configured workspace directory.
+- `tools.fs.workspaceOnly: true` (optional): restricts `read`/`write`/`edit`/`apply_patch` paths and native prompt image auto-load paths to the workspace directory.
+- Avoid setting `tools.exec.applyPatch.workspaceOnly: false` unless you fully trust who can trigger tool execution.
+>>>>>>> 370d11554 (fix: enforce workspaceOnly for native prompt image autoload)
 
 ### Web Interface Safety
 

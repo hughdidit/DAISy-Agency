@@ -20,6 +20,7 @@ import type { ImageContent } from "@mariozechner/pi-ai";
 import { resolveUserPath } from "../../../utils.js";
 import { loadWebMedia } from "../../../web/media.js";
 import type { ImageSanitizationLimits } from "../../image-sanitization.js";
+import { assertSandboxPath } from "../../sandbox-paths.js";
 import type { SandboxFsBridge } from "../../sandbox/fs-bridge.js";
 >>>>>>> 6dcc052bb (fix: stabilize model catalog and pi discovery auth storage compatibility)
 import { sanitizeImageBlocks } from "../../tool-images.js";
@@ -184,6 +185,7 @@ export async function loadImageFromRef(
   workspaceDir: string,
   options?: {
     maxBytes?: number;
+    workspaceOnly?: boolean;
     sandbox?: { root: string; bridge: SandboxFsBridge };
   },
 ): Promise<ImageContent | null> {
@@ -213,6 +215,14 @@ export async function loadImageFromRef(
         }
       } else if (!path.isAbsolute(targetPath)) {
         targetPath = path.resolve(workspaceDir, targetPath);
+      }
+      if (options?.workspaceOnly) {
+        const root = options?.sandbox?.root ?? workspaceDir;
+        await assertSandboxPath({
+          filePath: targetPath,
+          cwd: root,
+          root,
+        });
       }
     }
 
@@ -324,6 +334,11 @@ export async function detectAndLoadPromptImages(params: {
   existingImages?: ImageContent[];
   historyMessages?: unknown[];
   maxBytes?: number;
+<<<<<<< HEAD
+=======
+  maxDimensionPx?: number;
+  workspaceOnly?: boolean;
+>>>>>>> 370d11554 (fix: enforce workspaceOnly for native prompt image autoload)
   sandbox?: { root: string; bridge: SandboxFsBridge };
 }): Promise<{
   /** Images for the current prompt (existingImages + detected in current prompt) */
@@ -385,6 +400,7 @@ export async function detectAndLoadPromptImages(params: {
   for (const ref of allRefs) {
     const image = await loadImageFromRef(ref, params.workspaceDir, {
       maxBytes: params.maxBytes,
+      workspaceOnly: params.workspaceOnly,
       sandbox: params.sandbox,
     });
     if (image) {
