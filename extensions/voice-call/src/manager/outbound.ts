@@ -211,6 +211,13 @@ export async function continueCall(
   if (TerminalStates.has(call.state)) {
     return { success: false, error: "Call has ended" };
   }
+<<<<<<< HEAD
+=======
+  ctx.activeTurnCalls.add(callId);
+
+  const turnStartedAt = Date.now();
+  const turnToken = provider.name === "twilio" ? crypto.randomUUID() : undefined;
+>>>>>>> 1d28da55a (fix(voice-call): block Twilio webhook replay and stale transitions)
 
   try {
     await speak(ctx, callId, prompt);
@@ -218,9 +225,17 @@ export async function continueCall(
     transitionState(call, "listening");
     persistCallRecord(ctx.storePath, call);
 
+<<<<<<< HEAD
     await ctx.provider.startListening({ callId, providerCallId: call.providerCallId });
 
     const transcript = await waitForFinalTranscript(ctx, callId);
+=======
+    const listenStartedAt = Date.now();
+    await provider.startListening({ callId, providerCallId, turnToken });
+
+    const transcript = await waitForFinalTranscript(ctx, callId, turnToken);
+    const transcriptReceivedAt = Date.now();
+>>>>>>> 1d28da55a (fix(voice-call): block Twilio webhook replay and stale transitions)
 
     // Best-effort: stop listening after final transcript.
     await ctx.provider.stopListening({ callId, providerCallId: call.providerCallId });

@@ -80,11 +80,17 @@ function createInboundCall(params: {
   return callRecord;
 }
 
+<<<<<<< HEAD
 export function processEvent(ctx: CallManagerContext, event: NormalizedEvent): void {
   if (ctx.processedEventIds.has(event.id)) {
+=======
+export function processEvent(ctx: EventContext, event: NormalizedEvent): void {
+  const dedupeKey = event.dedupeKey || event.id;
+  if (ctx.processedEventIds.has(dedupeKey)) {
+>>>>>>> 1d28da55a (fix(voice-call): block Twilio webhook replay and stale transitions)
     return;
   }
-  ctx.processedEventIds.add(event.id);
+  ctx.processedEventIds.add(dedupeKey);
 
   let call = findCall({
     activeCalls: ctx.activeCalls,
@@ -147,7 +153,7 @@ export function processEvent(ctx: CallManagerContext, event: NormalizedEvent): v
     }
   }
 
-  call.processedEventIds.push(event.id);
+  call.processedEventIds.push(dedupeKey);
 
   switch (event.type) {
     case "call.initiated":
@@ -181,8 +187,20 @@ export function processEvent(ctx: CallManagerContext, event: NormalizedEvent): v
 
     case "call.speech":
       if (event.isFinal) {
+        const hadWaiter = ctx.transcriptWaiters.has(call.callId);
+        const resolved = resolveTranscriptWaiter(
+          ctx,
+          call.callId,
+          event.transcript,
+          event.turnToken,
+        );
+        if (hadWaiter && !resolved) {
+          console.warn(
+            `[voice-call] Ignoring speech event with mismatched turn token for ${call.callId}`,
+          );
+          break;
+        }
         addTranscriptEntry(call, "user", event.transcript);
-        resolveTranscriptWaiter(ctx, call.callId, event.transcript);
       }
       transitionState(call, "listening");
       break;
