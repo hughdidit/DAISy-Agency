@@ -38,7 +38,11 @@ import type { MessageGroup, ToolCard } from "../types/chat-types.ts";
 import type { MessageGroup } from "../types/chat-types.ts";
 >>>>>>> 629869800 (revert(ui): remove UI portions of mixed commits from main)
 import { renderCopyAsMarkdownButton } from "./copy-as-markdown.ts";
+<<<<<<< HEAD
 >>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
+=======
+import { resolveSafeImageOpenUrl } from "./image-open.ts";
+>>>>>>> ebb568089 (ui(chat): allowlist image open URLs)
 import {
   extractTextCached,
   extractThinkingCached,
@@ -240,7 +244,12 @@ function renderMessageImages(images: ImageBlock[]) {
   }
 
   const openImage = (url: string) => {
-    const opened = window.open(url, "_blank", "noopener,noreferrer");
+    const safeUrl = resolveSafeImageOpenUrl(url, window.location.href);
+    if (!safeUrl) {
+      return;
+    }
+
+    const opened = window.open(safeUrl, "_blank", "noopener,noreferrer");
     if (opened) {
       opened.opener = null;
     }
