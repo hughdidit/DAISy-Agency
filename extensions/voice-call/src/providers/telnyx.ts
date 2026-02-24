@@ -93,6 +93,7 @@ export class TelnyxProvider implements VoiceCallProvider {
       };
     }
 
+<<<<<<< HEAD
     const signature = ctx.headers["telnyx-signature-ed25519"];
     const timestamp = ctx.headers["telnyx-timestamp"];
 
@@ -141,6 +142,9 @@ export class TelnyxProvider implements VoiceCallProvider {
         reason: `Verification error: ${err instanceof Error ? err.message : String(err)}`,
       };
     }
+=======
+    return { ok: result.ok, reason: result.reason, isReplay: result.isReplay };
+>>>>>>> a3c4f56b0 (security(voice-call): detect Telnyx webhook replay)
   }
 
   /**
