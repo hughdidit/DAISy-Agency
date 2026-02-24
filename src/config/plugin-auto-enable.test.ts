@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { validateConfigObject } from "./config.js";
 import { applyPluginAutoEnable } from "./plugin-auto-enable.js";
 
 describe("applyPluginAutoEnable", () => {
@@ -50,7 +51,27 @@ describe("applyPluginAutoEnable", () => {
     expect(result.changes).toEqual([]);
   });
 
+<<<<<<< HEAD
 >>>>>>> 40680432b (fix(config): allowlist auto-enabled built-in channels when restricted)
+=======
+  it("keeps auto-enabled WhatsApp config schema-valid", () => {
+    const result = applyPluginAutoEnable({
+      config: {
+        channels: {
+          whatsapp: {
+            allowFrom: ["+15555550123"],
+          },
+        },
+      },
+      env: {},
+    });
+
+    expect(result.config.channels?.whatsapp?.enabled).toBe(true);
+    const validated = validateConfigObject(result.config);
+    expect(validated.ok).toBe(true);
+  });
+
+>>>>>>> 3a653082d (fix(config): align whatsapp enabled schema with auto-enable)
   it("respects explicit disable", () => {
     const result = applyPluginAutoEnable({
       config: {
