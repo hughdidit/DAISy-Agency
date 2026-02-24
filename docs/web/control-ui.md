@@ -202,5 +202,25 @@ Notes:
 - `gatewayUrl` is stored in localStorage after load and removed from the URL.
 - `token` is stored in localStorage; `password` is kept in memory only.
 - Use `wss://` when the Gateway is behind TLS (Tailscale Serve, HTTPS proxy, etc.).
+<<<<<<< HEAD
+=======
+- `gatewayUrl` is only accepted in a top-level window (not embedded) to prevent clickjacking.
+- Non-loopback Control UI deployments must set `gateway.controlUi.allowedOrigins`
+  explicitly (full origins). This includes remote dev setups.
+- `gateway.controlUi.dangerouslyAllowHostHeaderOriginFallback=true` enables
+  Host-header origin fallback mode, but it is a dangerous security mode.
+
+Example:
+
+```json5
+{
+  gateway: {
+    controlUi: {
+      allowedOrigins: ["http://localhost:5173"],
+    },
+  },
+}
+```
+>>>>>>> 223d7dc23 (feat(gateway)!: require explicit non-loopback control-ui origins)
 
 Remote access setup details: [Remote access](/gateway/remote).

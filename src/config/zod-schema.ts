@@ -460,6 +460,11 @@ export const OpenClawSchema = z
             enabled: z.boolean().optional(),
             basePath: z.string().optional(),
             root: z.string().optional(),
+<<<<<<< HEAD
+=======
+            allowedOrigins: z.array(z.string()).optional(),
+            dangerouslyAllowHostHeaderOriginFallback: z.boolean().optional(),
+>>>>>>> 223d7dc23 (feat(gateway)!: require explicit non-loopback control-ui origins)
             allowInsecureAuth: z.boolean().optional(),
             dangerouslyDisableDeviceAuth: z.boolean().optional(),
           })
