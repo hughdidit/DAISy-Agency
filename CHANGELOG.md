@@ -48,6 +48,7 @@ Docs: https://docs.openclaw.ai
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 =======
@@ -61,6 +62,9 @@ Docs: https://docs.openclaw.ai
 =======
 =======
 =======
+=======
+- Gateway/Auth: allow trusted-proxy authenticated Control UI websocket sessions to skip device pairing when device identity is absent, preventing false `pairing required` failures behind trusted reverse proxies. (#25428) Thanks @SidQin-cyber.
+>>>>>>> e9216cb7d (fix: add changelog for trusted-proxy pairing bypass (#25428) (thanks @SidQin-cyber))
 - Agents/Tool dispatch: await block-reply flush before tool execution starts so buffered block replies preserve message ordering around tool calls. (#25427) Thanks @SidQin-cyber.
 >>>>>>> d84659f22 (fix: add changelog for block-reply flush await (#25427) (thanks @SidQin-cyber))
 - macOS/Menu bar: stop reusing the injector delegate for the "Usage cost (30 days)" submenu to prevent recursive submenu injection loops when opening cost history. (#25341) Thanks @yingchunbai.
