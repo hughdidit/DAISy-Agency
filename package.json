@@ -63,10 +63,13 @@
     "build:plugin-sdk:dts": "tsc -p tsconfig.plugin-sdk.dts.json",
     "canvas:a2ui:bundle": "bash scripts/bundle-a2ui.sh",
 <<<<<<< HEAD
+<<<<<<< HEAD
     "check": "pnpm tsgo && pnpm lint && pnpm format",
     "check:docs": "pnpm format:docs && pnpm lint:docs && pnpm docs:build",
 =======
     "changelog:add": "node --import tsx scripts/changelog-add.ts",
+=======
+>>>>>>> e806b3477 (chore: remove changelog add helper script)
     "check": "pnpm format:check && pnpm tsgo && pnpm lint",
     "check:docs": "pnpm format:docs:check && pnpm lint:docs && pnpm docs:check-links",
 >>>>>>> d18ae2256 (refactor: unify channel plugin resolution, family ordering, and changelog entry tooling)
