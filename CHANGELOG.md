@@ -51,6 +51,7 @@ Docs: https://docs.openclaw.ai
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 =======
@@ -67,6 +68,9 @@ Docs: https://docs.openclaw.ai
 =======
 =======
 =======
+=======
+- Slack/DM routing: treat `D*` channel IDs as direct messages even when Slack sends an incorrect `channel_type`, preventing DM traffic from being misclassified as channel/group chats. (#25479) Thanks @mcaxtr.
+>>>>>>> 5e6fe9c16 (fix: add changelog for slack dm channel-type guard (#25479) (thanks @mcaxtr))
 - Models/Providers: preserve explicit user `reasoning` overrides when merging provider model config with built-in catalog metadata, so `reasoning: false` is no longer overwritten by catalog defaults. (#25314) Thanks @lbo728.
 >>>>>>> 39631639b (fix: add changelog + typed omission test note (#25314) (thanks @lbo728))
 - Exec approvals: treat bare allowlist `*` as a true wildcard for parsed executables, including unresolved PATH lookups, so global opt-in allowlists work as configured. (#25250) Thanks @widingmarcus-cyber.
