@@ -1,62 +1,11 @@
 package bot.molt.android.ui
 
-import android.annotation.SuppressLint
-import android.Manifest
-import android.content.pm.PackageManager
-import android.graphics.Color
-import android.util.Log
-import android.view.View
-import android.webkit.JavascriptInterface
-import android.webkit.ConsoleMessage
-import android.webkit.WebChromeClient
-import android.webkit.WebView
-import android.webkit.WebSettings
-import android.webkit.WebResourceError
-import android.webkit.WebResourceRequest
-import android.webkit.WebResourceResponse
-import android.webkit.WebViewClient
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.webkit.WebSettingsCompat
-import androidx.webkit.WebViewFeature
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.WindowInsetsSides
-import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeDrawing
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.windowInsetsPadding
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilledTonalIconButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButtonDefaults
-import androidx.compose.material3.LocalContentColor
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.rememberModalBottomSheetState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ScreenShare
-import androidx.compose.material.icons.filled.ChatBubble
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Error
-import androidx.compose.material.icons.filled.FiberManualRecord
-import androidx.compose.material.icons.filled.PhotoCamera
-import androidx.compose.material.icons.filled.RecordVoiceOver
-import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material.icons.filled.Report
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+<<<<<<< HEAD:apps/android/app/src/main/java/bot/molt/android/ui/RootScreen.kt
 import androidx.compose.ui.graphics.Color as ComposeColor
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.platform.LocalContext
@@ -67,14 +16,12 @@ import androidx.compose.ui.window.PopupProperties
 import androidx.core.content.ContextCompat
 import bot.molt.android.CameraHudKind
 import bot.molt.android.MainViewModel
+=======
+import ai.openclaw.android.MainViewModel
+>>>>>>> f853622ec (feat(android): switch post-onboarding app to five-tab shell):apps/android/app/src/main/java/ai/openclaw/android/ui/RootScreen.kt
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RootScreen(viewModel: MainViewModel) {
-  var sheet by remember { mutableStateOf<Sheet?>(null) }
-  val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-  val safeOverlayInsets = WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal)
-  val context = LocalContext.current
   val onboardingCompleted by viewModel.onboardingCompleted.collectAsState()
 
   if (!onboardingCompleted) {
@@ -82,6 +29,7 @@ fun RootScreen(viewModel: MainViewModel) {
     return
   }
 
+<<<<<<< HEAD:apps/android/app/src/main/java/bot/molt/android/ui/RootScreen.kt
   val serverName by viewModel.serverName.collectAsState()
   val statusText by viewModel.statusText.collectAsState()
   val cameraHud by viewModel.cameraHud.collectAsState()
@@ -453,4 +401,7 @@ private class CanvasA2UIActionLegacyBridge(private val bridge: CanvasA2UIActionB
   companion object {
     const val interfaceName: String = "Android"
   }
+=======
+  PostOnboardingTabs(viewModel = viewModel, modifier = Modifier.fillMaxSize())
+>>>>>>> f853622ec (feat(android): switch post-onboarding app to five-tab shell):apps/android/app/src/main/java/ai/openclaw/android/ui/RootScreen.kt
 }
