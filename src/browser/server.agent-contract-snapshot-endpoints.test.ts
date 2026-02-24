@@ -315,6 +315,9 @@ describe("browser control server", () => {
       cdpUrl: cdpBaseUrl,
       targetId: "abcd1234",
       url: "https://example.com",
+      ssrfPolicy: {
+        dangerouslyAllowPrivateNetwork: true,
+      },
     });
 
     const click = (await postJson(`${base}/act`, {

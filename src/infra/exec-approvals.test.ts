@@ -148,6 +148,50 @@ describe("exec approvals command resolution", () => {
     expect(resolution?.executableName).toBe(exeName);
   });
 
+<<<<<<< HEAD
+=======
+  it("blocks semantic env wrappers from allowlist/safeBins auto-resolution", () => {
+    const resolution = resolveCommandResolutionFromArgv([
+      "/usr/bin/env",
+      "FOO=bar",
+      "rg",
+      "-n",
+      "needle",
+    ]);
+    expect(resolution?.policyBlocked).toBe(true);
+    expect(resolution?.rawExecutable).toBe("/usr/bin/env");
+  });
+
+  it("fails closed for env -S even when env itself is allowlisted", () => {
+    const dir = makeTempDir();
+    const binDir = path.join(dir, "bin");
+    fs.mkdirSync(binDir, { recursive: true });
+    const envName = process.platform === "win32" ? "env.exe" : "env";
+    const envPath = path.join(binDir, envName);
+    fs.writeFileSync(envPath, process.platform === "win32" ? "" : "#!/bin/sh\n");
+    if (process.platform !== "win32") {
+      fs.chmodSync(envPath, 0o755);
+    }
+
+    const analysis = analyzeArgvCommand({
+      argv: [envPath, "-S", 'sh -c "echo pwned"'],
+      cwd: dir,
+      env: makePathEnv(binDir),
+    });
+    const allowlistEval = evaluateExecAllowlist({
+      analysis,
+      allowlist: [{ pattern: envPath }],
+      safeBins: normalizeSafeBins([]),
+      cwd: dir,
+    });
+
+    expect(analysis.ok).toBe(true);
+    expect(analysis.segments[0]?.resolution?.policyBlocked).toBe(true);
+    expect(allowlistEval.allowlistSatisfied).toBe(false);
+    expect(allowlistEval.segmentSatisfiedBy).toEqual([null]);
+  });
+
+>>>>>>> 3f923e831 (test: add env -S allowlist bypass regressions)
   it("unwraps env wrapper with shell inner executable", () => {
     const resolution = resolveCommandResolutionFromArgv(["/usr/bin/env", "bash", "-lc", "echo hi"]);
     expect(resolution?.rawExecutable).toBe("bash");
