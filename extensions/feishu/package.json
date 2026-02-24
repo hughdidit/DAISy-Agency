@@ -4,6 +4,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   "version": "2026.2.3",
   "description": "OpenClaw Feishu channel plugin",
 =======
@@ -17,11 +18,21 @@
 =======
   "version": "2026.2.13",
 >>>>>>> 67251e97b (fix(ci): sync extension versions to root release (#15199))
+=======
+  "version": "2026.2.24",
+>>>>>>> 955cc9029 (chore: sync plugin versions to 2026.2.24)
   "description": "OpenClaw Feishu/Lark channel plugin (community maintained by @m1heng)",
 >>>>>>> ad4dd0422 (chore(release): 2026.2.6-2)
   "type": "module",
+<<<<<<< HEAD
   "devDependencies": {
     "openclaw": "workspace:*"
+=======
+  "dependencies": {
+    "@larksuiteoapi/node-sdk": "^1.59.0",
+    "@sinclair/typebox": "0.34.48",
+    "zod": "^4.3.6"
+>>>>>>> 955cc9029 (chore: sync plugin versions to 2026.2.24)
   },
   "openclaw": {
     "extensions": [

@@ -11,6 +11,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   "version": "2026.1.29",
 >>>>>>> 62e4ad23d (chore: release 2026.1.29)
 =======
@@ -34,11 +35,21 @@
 =======
   "version": "2026.2.21",
 >>>>>>> bdfb97afa (chore: prep 2026.2.22 unreleased and publish new npm plugins)
+=======
+  "version": "2026.2.24",
+>>>>>>> 955cc9029 (chore: sync plugin versions to 2026.2.24)
   "description": "OpenClaw Tlon/Urbit channel plugin",
 >>>>>>> 1c4db9159 (chore: prepare 2026.2.2 release)
   "type": "module",
+<<<<<<< HEAD
   "description": "Moltbot Tlon/Urbit channel plugin",
   "moltbot": {
+=======
+  "dependencies": {
+    "@urbit/aura": "^3.0.0"
+  },
+  "openclaw": {
+>>>>>>> 955cc9029 (chore: sync plugin versions to 2026.2.24)
     "extensions": [
       "./index.ts"
     ],

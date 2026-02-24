@@ -10,6 +10,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   "version": "2026.1.29",
 >>>>>>> 62e4ad23d (chore: release 2026.1.29)
 =======
@@ -28,13 +29,20 @@
 >>>>>>> fb8c653f5 (chore(release): 2026.2.9)
 =======
   "version": "2026.2.13",
+=======
+  "version": "2026.2.24",
+>>>>>>> 955cc9029 (chore: sync plugin versions to 2026.2.24)
   "private": true,
 >>>>>>> 67251e97b (fix(ci): sync extension versions to root release (#15199))
   "description": "OpenClaw LINE channel plugin",
 >>>>>>> 1c4db9159 (chore: prepare 2026.2.2 release)
   "type": "module",
+<<<<<<< HEAD
   "description": "Moltbot LINE channel plugin",
   "moltbot": {
+=======
+  "openclaw": {
+>>>>>>> 955cc9029 (chore: sync plugin versions to 2026.2.24)
     "extensions": [
       "./index.ts"
     ],

@@ -10,6 +10,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   "version": "2026.1.29",
 >>>>>>> 62e4ad23d (chore: release 2026.1.29)
 =======
@@ -29,11 +30,22 @@
 =======
   "version": "2026.2.13",
 >>>>>>> 67251e97b (fix(ci): sync extension versions to root release (#15199))
+=======
+  "version": "2026.2.24",
+>>>>>>> 955cc9029 (chore: sync plugin versions to 2026.2.24)
   "description": "OpenClaw Nostr channel plugin for NIP-04 encrypted DMs",
 >>>>>>> 1c4db9159 (chore: prepare 2026.2.2 release)
   "type": "module",
+<<<<<<< HEAD
   "description": "Moltbot Nostr channel plugin for NIP-04 encrypted DMs",
   "moltbot": {
+=======
+  "dependencies": {
+    "nostr-tools": "^2.23.1",
+    "zod": "^4.3.6"
+  },
+  "openclaw": {
+>>>>>>> 955cc9029 (chore: sync plugin versions to 2026.2.24)
     "extensions": [
       "./index.ts"
     ],

@@ -10,6 +10,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   "version": "2026.1.29",
 >>>>>>> 62e4ad23d (chore: release 2026.1.29)
 =======
@@ -28,6 +29,9 @@
 >>>>>>> fb8c653f5 (chore(release): 2026.2.9)
 =======
   "version": "2026.2.13",
+=======
+  "version": "2026.2.24",
+>>>>>>> 955cc9029 (chore: sync plugin versions to 2026.2.24)
   "private": true,
 >>>>>>> 67251e97b (fix(ci): sync extension versions to root release (#15199))
   "description": "OpenClaw LanceDB-backed long-term memory plugin with auto-recall/capture",
@@ -39,7 +43,11 @@
     "@sinclair/typebox": "0.34.47",
     "openai": "^6.16.0"
   },
+<<<<<<< HEAD
   "moltbot": {
+=======
+  "openclaw": {
+>>>>>>> 955cc9029 (chore: sync plugin versions to 2026.2.24)
     "extensions": [
       "./index.ts"
     ]
