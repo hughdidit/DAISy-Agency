@@ -132,6 +132,7 @@ import {
 =======
 =======
 import type { TelegramContext } from "./bot/types.js";
+<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
@@ -148,6 +149,9 @@ import type { TelegramContext } from "./bot/types.js";
 =======
 import type { TelegramContext } from "./bot/types.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
+=======
+import { enforceTelegramDmAccess } from "./dm-access.js";
+>>>>>>> 9514201fb (fix(telegram): block unauthorized DM media downloads)
 import {
   evaluateTelegramGroupBaseAccess,
   evaluateTelegramGroupPolicyAccess,
@@ -198,6 +202,7 @@ export const registerTelegramHandlers = ({
   runtime,
   mediaMaxBytes,
   telegramCfg,
+  allowFrom,
   groupAllowFrom,
   resolveGroupPolicy,
   resolveTelegramGroupConfig,
@@ -1309,6 +1314,38 @@ export const registerTelegramHandlers = ({
         })
       ) {
         return;
+      }
+
+      const hasInboundMedia =
+        Boolean(event.msg.media_group_id) ||
+        (Array.isArray(event.msg.photo) && event.msg.photo.length > 0) ||
+        Boolean(
+          event.msg.video ??
+          event.msg.video_note ??
+          event.msg.document ??
+          event.msg.audio ??
+          event.msg.voice ??
+          event.msg.sticker,
+        );
+      if (!event.isGroup && hasInboundMedia) {
+        const effectiveDmAllow = normalizeAllowFromWithStore({
+          allowFrom,
+          storeAllowFrom,
+          dmPolicy: telegramCfg.dmPolicy ?? "pairing",
+        });
+        const dmAuthorized = await enforceTelegramDmAccess({
+          isGroup: event.isGroup,
+          dmPolicy: telegramCfg.dmPolicy ?? "pairing",
+          msg: event.msg,
+          chatId: event.chatId,
+          effectiveDmAllow,
+          accountId,
+          bot,
+          logger,
+        });
+        if (!dmAuthorized) {
+          return;
+        }
       }
 
       await processInboundMessage({

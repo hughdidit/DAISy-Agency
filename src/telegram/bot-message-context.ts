@@ -118,8 +118,6 @@ import type { DmPolicy, TelegramGroupConfig, TelegramTopicConfig } from "../conf
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { logVerbose, shouldLogVerbose } from "../globals.js";
 import { recordChannelActivity } from "../infra/channel-activity.js";
-import { buildPairingReply } from "../pairing/pairing-messages.js";
-import { upsertChannelPairingRequest } from "../pairing/pairing-store.js";
 import { resolveAgentRoute } from "../routing/resolve-route.js";
 import { resolveThreadSessionKeys } from "../routing/session-key.js";
 import { shouldAckReaction as shouldAckReactionGate } from "../channels/ack-reactions.js";
@@ -127,6 +125,10 @@ import { resolveMentionGatingWithBypass } from "../channels/mention-gating.js";
 import { resolveControlCommandGate } from "../channels/command-gating.js";
 import { logInboundDrop } from "../channels/logging.js";
 import { withTelegramApiErrorLogging } from "./api-logging.js";
+<<<<<<< HEAD
+=======
+import { firstDefined, isSenderAllowed, normalizeAllowFromWithStore } from "./bot-access.js";
+>>>>>>> 9514201fb (fix(telegram): block unauthorized DM media downloads)
 import {
   buildGroupLabel,
   buildSenderLabel,
@@ -155,6 +157,7 @@ import {
 <<<<<<< HEAD
 =======
 import type { StickerMetadata, TelegramContext } from "./bot/types.js";
+import { enforceTelegramDmAccess } from "./dm-access.js";
 import { evaluateTelegramGroupBaseAccess } from "./group-access.js";
 import { resolveTelegramGroupPromptSettings } from "./group-config-helpers.js";
 >>>>>>> 75c1bfbae (refactor(channels): dedupe message routing and telegram helpers)
@@ -279,11 +282,6 @@ export const buildTelegramMessageContext = async ({
   resolveTelegramGroupConfig,
 }: BuildTelegramMessageContextParams) => {
   const msg = primaryCtx.message;
-  recordChannelActivity({
-    channel: "telegram",
-    accountId: account.accountId,
-    direction: "inbound",
-  });
   const chatId = msg.chat.id;
   const isGroup = msg.chat.type === "group" || msg.chat.type === "supergroup";
   const messageThreadId = (msg as { message_thread_id?: number }).message_thread_id;
@@ -369,6 +367,7 @@ export const buildTelegramMessageContext = async ({
     }
   };
 
+<<<<<<< HEAD
   // DM access control (secure defaults): "pairing" (default) / "allowlist" / "open" / "disabled"
   if (!isGroup) {
     if (dmPolicy === "disabled") {
@@ -468,7 +467,28 @@ export const buildTelegramMessageContext = async ({
         return null;
       }
     }
+=======
+  if (
+    !(await enforceTelegramDmAccess({
+      isGroup,
+      dmPolicy,
+      msg,
+      chatId,
+      effectiveDmAllow,
+      accountId: account.accountId,
+      bot,
+      logger,
+    }))
+  ) {
+    return null;
+>>>>>>> 9514201fb (fix(telegram): block unauthorized DM media downloads)
   }
+
+  recordChannelActivity({
+    channel: "telegram",
+    accountId: account.accountId,
+    direction: "inbound",
+  });
 
   const botUsername = primaryCtx.me?.username?.toLowerCase();
   const allowForCommands = isGroup ? effectiveGroupAllow : effectiveDmAllow;
