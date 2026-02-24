@@ -62,7 +62,12 @@ export type WhatsAppConfig = {
   responsePrefix?: string;
 =======
 type WhatsAppSharedConfig = {
+<<<<<<< HEAD
 >>>>>>> 328679131 (refactor(agents): dedupe config and truncation guards)
+=======
+  /** Whether the WhatsApp channel is enabled. */
+  enabled?: boolean;
+>>>>>>> 3a653082d (fix(config): align whatsapp enabled schema with auto-enable)
   /** Direct message access policy (default: pairing). */
   dmPolicy?: DmPolicy;
   /** Same-phone setup (bot uses your personal WhatsApp number). */
