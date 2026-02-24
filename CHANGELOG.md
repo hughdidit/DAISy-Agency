@@ -81,8 +81,12 @@ Status: beta.
 <<<<<<< HEAD
 =======
 - Security/Exec: detect obfuscated commands before exec allowlist decisions and require explicit approval for obfuscation patterns. (#8592) Thanks @CornBrother0x and @vincentkoc.
+<<<<<<< HEAD
 - Agents/Compaction: pass `agentDir` into manual `/compact` command runs so compaction auth/profile resolution stays scoped to the active agent. (#24133) thanks @Glucksberg.
 >>>>>>> 0e28e50b4 (fix(security): detect obfuscated commands that bypass allowlist filters (#24287))
+=======
+- Security/ACP: harden ACP client permission auto-approval to require trusted core tool IDs, ignore untrusted `toolCall.kind` hints, and scope `read` auto-approval to the active working directory so unknown tool names and out-of-scope file reads always prompt. Thanks @nedlir for reporting.
+>>>>>>> 2e36bdda8 (docs(changelog): credit ACP security reporter)
 - Security/Skills: escape user-controlled prompt, filename, and output-path values in `openai-image-gen` HTML gallery generation to prevent stored XSS in generated `index.html` output. (#12538) Thanks @CornBrother0x.
 - Security/Skills: harden `skill-creator` packaging by skipping symlink entries and rejecting files whose resolved paths escape the selected skill root. (#24260, #16959) Thanks @CornBrother0x and @vincentkoc.
 - Security/OTEL: redact sensitive values (API keys, tokens, credential fields) from diagnostics-otel log bodies, log attributes, and error/reason span fields before OTLP export. (#12542) Thanks @brandonwise.
