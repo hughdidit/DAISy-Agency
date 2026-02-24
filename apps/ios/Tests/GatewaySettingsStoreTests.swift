@@ -13,10 +13,6 @@ private let talkService = "ai.openclaw.talk"
 private let instanceIdEntry = KeychainEntry(service: nodeService, account: "instanceId")
 private let preferredGatewayEntry = KeychainEntry(service: gatewayService, account: "preferredStableID")
 private let lastGatewayEntry = KeychainEntry(service: gatewayService, account: "lastDiscoveredStableID")
-private let talkElevenLabsLegacyEntry = KeychainEntry(service: talkService, account: "elevenlabs.apiKey")
-private let talkElevenLabsProviderEntry = KeychainEntry(
-    service: talkService,
-    account: "provider.apiKey.elevenlabs")
 private let talkAcmeProviderEntry = KeychainEntry(service: talkService, account: "provider.apiKey.acme")
 
 private func snapshotDefaults(_ keys: [String]) -> [String: Any?] {
@@ -217,6 +213,7 @@ private func restoreKeychain(_ snapshot: [KeychainEntry: String?]) {
         GatewaySettingsStore.saveTalkProviderApiKey(nil, provider: "acme")
         #expect(GatewaySettingsStore.loadTalkProviderApiKey(provider: "acme") == nil)
     }
+<<<<<<< HEAD
 
     @Test func talkProviderApiKey_elevenlabsLegacyFallbackMigratesToProviderKey() {
         let keychainSnapshot = snapshotKeychain([talkElevenLabsLegacyEntry, talkElevenLabsProviderEntry])
@@ -235,4 +232,6 @@ private func restoreKeychain(_ snapshot: [KeychainEntry: String?]) {
                 == "legacy-eleven-key")
     }
 >>>>>>> d58f71571 (feat(talk): add provider-agnostic config with legacy compatibility)
+=======
+>>>>>>> f4e6f8730 (refactor(ios): drop legacy talk payload and keychain fallbacks)
 }

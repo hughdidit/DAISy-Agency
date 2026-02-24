@@ -26,8 +26,11 @@ enum GatewaySettingsStore {
 <<<<<<< HEAD
 =======
     private static let talkProviderApiKeyAccountPrefix = "provider.apiKey."
+<<<<<<< HEAD
     private static let talkElevenLabsApiKeyLegacyAccount = "elevenlabs.apiKey"
 >>>>>>> d58f71571 (feat(talk): add provider-agnostic config with legacy compatibility)
+=======
+>>>>>>> f4e6f8730 (refactor(ios): drop legacy talk payload and keychain fallbacks)
 
     static func bootstrapPersistence() {
         self.ensureStableInstanceID()
@@ -158,18 +161,6 @@ enum GatewaySettingsStore {
             account: account)?
             .trimmingCharacters(in: .whitespacesAndNewlines)
         if value?.isEmpty == false { return value }
-
-        if providerId == "elevenlabs" {
-            let legacyValue = KeychainStore.loadString(
-                service: self.talkService,
-                account: self.talkElevenLabsApiKeyLegacyAccount)?
-                .trimmingCharacters(in: .whitespacesAndNewlines)
-            if legacyValue?.isEmpty == false {
-                _ = KeychainStore.saveString(legacyValue!, service: self.talkService, account: account)
-                return legacyValue
-            }
-        }
-
         return nil
     }
 
@@ -179,23 +170,9 @@ enum GatewaySettingsStore {
         let trimmed = apiKey?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         if trimmed.isEmpty {
             _ = KeychainStore.delete(service: self.talkService, account: account)
-            if providerId == "elevenlabs" {
-                _ = KeychainStore.delete(service: self.talkService, account: self.talkElevenLabsApiKeyLegacyAccount)
-            }
             return
         }
         _ = KeychainStore.saveString(trimmed, service: self.talkService, account: account)
-        if providerId == "elevenlabs" {
-            _ = KeychainStore.delete(service: self.talkService, account: self.talkElevenLabsApiKeyLegacyAccount)
-        }
-    }
-
-    static func loadTalkElevenLabsApiKey() -> String? {
-        self.loadTalkProviderApiKey(provider: "elevenlabs")
-    }
-
-    static func saveTalkElevenLabsApiKey(_ apiKey: String?) {
-        self.saveTalkProviderApiKey(apiKey, provider: "elevenlabs")
     }
 
     static func saveLastGatewayConnectionManual(host: String, port: Int, useTLS: Bool, stableID: String) {
