@@ -19,7 +19,7 @@ export function channelToNpmTag(channel: UpdateChannel): string {
 }
 
 export function isBetaTag(tag: string): boolean {
-  return tag.toLowerCase().includes("-beta");
+  return /(?:^|[.-])beta(?:[.-]|$)/i.test(tag);
 }
 
 export function isStableTag(tag: string): boolean {
