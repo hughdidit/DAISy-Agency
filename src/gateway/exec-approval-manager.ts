@@ -4,6 +4,7 @@ import type { ExecApprovalDecision } from "../infra/exec-approvals.js";
 export type ExecApprovalRequestPayload = {
   command: string;
   cwd?: string | null;
+  nodeId?: string | null;
   host?: string | null;
   security?: string | null;
   ask?: string | null;
