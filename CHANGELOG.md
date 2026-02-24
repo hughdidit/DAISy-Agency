@@ -42,6 +42,7 @@ Docs: https://docs.openclaw.ai
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 =======
@@ -49,6 +50,9 @@ Docs: https://docs.openclaw.ai
 =======
 =======
 =======
+=======
+- Status/Pairing recovery: show explicit pairing-approval command hints (including requestId when safe) when gateway probe failures report pairing-required closures. (#24771) Thanks @markmusson.
+>>>>>>> 69a541c3f (fix: sanitize pairing recovery requestId hints (#24771) (thanks @markmusson))
 - Discord/Threading: recover missing thread parent IDs by refetching thread metadata before resolving parent channel context. (#24897) Thanks @z-x-yang.
 >>>>>>> a216f2dab (fix: extend discord thread parent fallback coverage (#24897) (thanks @z-x-yang))
 - Web UI/i18n: load and hydrate saved locale translations during startup so non-English sessions apply immediately without manual toggling. (#24795) Thanks @chilu18.
