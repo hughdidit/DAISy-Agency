@@ -56,6 +56,7 @@ Docs: https://docs.openclaw.ai
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 =======
@@ -77,6 +78,9 @@ Docs: https://docs.openclaw.ai
 =======
 =======
 =======
+=======
+- Usage accounting: parse Moonshot/Kimi `cached_tokens` fields (including `prompt_tokens_details.cached_tokens`) into normalized cache-read usage metrics. (#25436) Thanks @Elarwei001.
+>>>>>>> 760671e31 (fix: add changelog for kimi cache usage parsing (#25436) (thanks @Elarwei001))
 - Doctor/Sandbox: when sandbox mode is enabled but Docker is unavailable, surface a clear actionable warning (including failure impact and remediation) instead of a mild “skip checks” note. (#25438) Thanks @mcaxtr.
 >>>>>>> b511a38fc (fix: add changelog for doctor sandbox docker warning (#25438) (thanks @mcaxtr))
 - Config/Meta: accept numeric `meta.lastTouchedAt` timestamps and coerce them to ISO strings, preserving compatibility with agent edits that write `Date.now()` values. (#25491) Thanks @mcaxtr.
