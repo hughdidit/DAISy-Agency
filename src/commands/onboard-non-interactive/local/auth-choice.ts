@@ -36,7 +36,11 @@ import { shortenHomePath } from "../../../utils.js";
 =======
 >>>>>>> 59e5f12bf (Onboard: move volcengine/byteplus auth from .env to profiles)
 import { normalizeSecretInput } from "../../../utils/normalize-secret-input.js";
+<<<<<<< HEAD
 >>>>>>> 42a07791c (fix(auth): strip line breaks from pasted keys)
+=======
+import { normalizeSecretInputModeInput } from "../../auth-choice.apply-helpers.js";
+>>>>>>> cb119874d (Onboard: require explicit mode for env secret refs)
 import { buildTokenProfileId, validateAnthropicSetupToken } from "../../auth-token.js";
 import { applyGoogleGeminiModelDefault } from "../../google-gemini-model-default.js";
 import {
@@ -128,6 +132,15 @@ export async function applyNonInteractiveAuthChoice(params: {
 }): Promise<MoltbotConfig | null> {
   const { authChoice, opts, runtime, baseConfig } = params;
   let nextConfig = params.nextConfig;
+  const requestedSecretInputMode = normalizeSecretInputModeInput(opts.secretInputMode);
+  if (opts.secretInputMode && !requestedSecretInputMode) {
+    runtime.error('Invalid --secret-input-mode. Use "plaintext" or "ref".');
+    runtime.exit(1);
+    return null;
+  }
+  const apiKeyStorageOptions = requestedSecretInputMode
+    ? { secretInputMode: requestedSecretInputMode }
+    : undefined;
 
   if (authChoice === "claude-cli" || authChoice === "codex-cli") {
     runtime.error(
@@ -175,7 +188,7 @@ export async function applyNonInteractiveAuthChoice(params: {
       return null;
     }
     if (resolved.source !== "profile") {
-      await setAnthropicApiKey(resolved.key);
+      await setAnthropicApiKey(resolved.key, undefined, apiKeyStorageOptions);
     }
     return applyAuthProfileConfig(nextConfig, {
       profileId: "anthropic:default",
@@ -252,7 +265,7 @@ export async function applyNonInteractiveAuthChoice(params: {
       return null;
     }
     if (resolved.source !== "profile") {
-      await setGeminiApiKey(resolved.key);
+      await setGeminiApiKey(resolved.key, undefined, apiKeyStorageOptions);
     }
     nextConfig = applyAuthProfileConfig(nextConfig, {
       profileId: "google:default",
@@ -281,7 +294,7 @@ export async function applyNonInteractiveAuthChoice(params: {
       return null;
     }
     if (resolved.source !== "profile") {
-      await setZaiApiKey(resolved.key);
+      await setZaiApiKey(resolved.key, undefined, apiKeyStorageOptions);
     }
     nextConfig = applyAuthProfileConfig(nextConfig, {
       profileId: "zai:default",
@@ -330,7 +343,7 @@ export async function applyNonInteractiveAuthChoice(params: {
       return null;
     }
     if (resolved.source !== "profile") {
-      await setXiaomiApiKey(resolved.key);
+      await setXiaomiApiKey(resolved.key, undefined, apiKeyStorageOptions);
     }
     nextConfig = applyAuthProfileConfig(nextConfig, {
       profileId: "xiaomi:default",
@@ -399,7 +412,7 @@ export async function applyNonInteractiveAuthChoice(params: {
 >>>>>>> 7a9deb240 (Resolve conflicts)
     }
     if (resolved.source !== "profile") {
-      setXaiApiKey(resolved.key);
+      setXaiApiKey(resolved.key, undefined, apiKeyStorageOptions);
     }
     nextConfig = applyAuthProfileConfig(nextConfig, {
       profileId: "xai:default",
@@ -425,7 +438,7 @@ export async function applyNonInteractiveAuthChoice(params: {
       return null;
     }
     if (resolved.source !== "profile") {
-      await setMistralApiKey(resolved.key);
+      await setMistralApiKey(resolved.key, undefined, apiKeyStorageOptions);
     }
     nextConfig = applyAuthProfileConfig(nextConfig, {
       profileId: "mistral:default",
@@ -448,7 +461,7 @@ export async function applyNonInteractiveAuthChoice(params: {
       return null;
     }
     if (resolved.source !== "profile") {
-      await setVolcengineApiKey(resolved.key);
+      await setVolcengineApiKey(resolved.key, undefined, apiKeyStorageOptions);
     }
     nextConfig = applyAuthProfileConfig(nextConfig, {
       profileId: "volcengine:default",
@@ -471,7 +484,7 @@ export async function applyNonInteractiveAuthChoice(params: {
       return null;
     }
     if (resolved.source !== "profile") {
-      await setByteplusApiKey(resolved.key);
+      await setByteplusApiKey(resolved.key, undefined, apiKeyStorageOptions);
     }
     nextConfig = applyAuthProfileConfig(nextConfig, {
       profileId: "byteplus:default",
@@ -494,7 +507,7 @@ export async function applyNonInteractiveAuthChoice(params: {
       return null;
     }
     if (resolved.source !== "profile") {
-      setQianfanApiKey(resolved.key);
+      setQianfanApiKey(resolved.key, undefined, apiKeyStorageOptions);
     }
     nextConfig = applyAuthProfileConfig(nextConfig, {
       profileId: "qianfan:default",
@@ -528,7 +541,7 @@ export async function applyNonInteractiveAuthChoice(params: {
     await setOpenaiApiKey(resolved.key);
 =======
     if (resolved.source !== "profile") {
-      await setOpenaiApiKey(resolved.key);
+      await setOpenaiApiKey(resolved.key, undefined, apiKeyStorageOptions);
     }
 >>>>>>> 13b499328 (Onboard non-interactive: avoid rewriting profile-backed keys)
     nextConfig = applyAuthProfileConfig(nextConfig, {
@@ -553,7 +566,7 @@ export async function applyNonInteractiveAuthChoice(params: {
       return null;
     }
     if (resolved.source !== "profile") {
-      await setOpenrouterApiKey(resolved.key);
+      await setOpenrouterApiKey(resolved.key, undefined, apiKeyStorageOptions);
     }
     nextConfig = applyAuthProfileConfig(nextConfig, {
       profileId: "openrouter:default",
@@ -576,7 +589,7 @@ export async function applyNonInteractiveAuthChoice(params: {
       return null;
     }
     if (resolved.source !== "profile") {
-      await setKilocodeApiKey(resolved.key);
+      await setKilocodeApiKey(resolved.key, undefined, apiKeyStorageOptions);
     }
     nextConfig = applyAuthProfileConfig(nextConfig, {
       profileId: "kilocode:default",
@@ -599,7 +612,7 @@ export async function applyNonInteractiveAuthChoice(params: {
       return null;
     }
     if (resolved.source !== "profile") {
-      await setLitellmApiKey(resolved.key);
+      await setLitellmApiKey(resolved.key, undefined, apiKeyStorageOptions);
     }
     nextConfig = applyAuthProfileConfig(nextConfig, {
       profileId: "litellm:default",
@@ -622,7 +635,7 @@ export async function applyNonInteractiveAuthChoice(params: {
       return null;
     }
     if (resolved.source !== "profile") {
-      await setVercelAiGatewayApiKey(resolved.key);
+      await setVercelAiGatewayApiKey(resolved.key, undefined, apiKeyStorageOptions);
     }
     nextConfig = applyAuthProfileConfig(nextConfig, {
       profileId: "vercel-ai-gateway:default",
@@ -657,7 +670,13 @@ export async function applyNonInteractiveAuthChoice(params: {
       return null;
     }
     if (resolved.source !== "profile") {
-      await setCloudflareAiGatewayConfig(accountId, gatewayId, resolved.key);
+      await setCloudflareAiGatewayConfig(
+        accountId,
+        gatewayId,
+        resolved.key,
+        undefined,
+        apiKeyStorageOptions,
+      );
     }
     nextConfig = applyAuthProfileConfig(nextConfig, {
       profileId: "cloudflare-ai-gateway:default",
@@ -685,7 +704,7 @@ export async function applyNonInteractiveAuthChoice(params: {
       return null;
     }
     if (resolved.source !== "profile") {
-      await setMoonshotApiKey(resolved.key);
+      await setMoonshotApiKey(resolved.key, undefined, apiKeyStorageOptions);
     }
     nextConfig = applyAuthProfileConfig(nextConfig, {
       profileId: "moonshot:default",
@@ -716,7 +735,7 @@ export async function applyNonInteractiveAuthChoice(params: {
       return null;
     }
     if (resolved.source !== "profile") {
-      await setKimiCodingApiKey(resolved.key);
+      await setKimiCodingApiKey(resolved.key, undefined, apiKeyStorageOptions);
     }
     nextConfig = applyAuthProfileConfig(nextConfig, {
       profileId: "kimi-coding:default",
@@ -739,7 +758,7 @@ export async function applyNonInteractiveAuthChoice(params: {
       return null;
     }
     if (resolved.source !== "profile") {
-      await setSyntheticApiKey(resolved.key);
+      await setSyntheticApiKey(resolved.key, undefined, apiKeyStorageOptions);
     }
     nextConfig = applyAuthProfileConfig(nextConfig, {
       profileId: "synthetic:default",
@@ -762,7 +781,7 @@ export async function applyNonInteractiveAuthChoice(params: {
       return null;
     }
     if (resolved.source !== "profile") {
-      await setVeniceApiKey(resolved.key);
+      await setVeniceApiKey(resolved.key, undefined, apiKeyStorageOptions);
     }
     nextConfig = applyAuthProfileConfig(nextConfig, {
       profileId: "venice:default",
@@ -792,7 +811,7 @@ export async function applyNonInteractiveAuthChoice(params: {
       return null;
     }
     if (resolved.source !== "profile") {
-      await setMinimaxApiKey(resolved.key, undefined, profileId);
+      await setMinimaxApiKey(resolved.key, undefined, profileId, apiKeyStorageOptions);
     }
     nextConfig = applyAuthProfileConfig(nextConfig, {
       profileId,
@@ -828,7 +847,7 @@ export async function applyNonInteractiveAuthChoice(params: {
       return null;
     }
     if (resolved.source !== "profile") {
-      await setOpencodeZenApiKey(resolved.key);
+      await setOpencodeZenApiKey(resolved.key, undefined, apiKeyStorageOptions);
     }
     nextConfig = applyAuthProfileConfig(nextConfig, {
       profileId: "opencode:default",
@@ -851,7 +870,7 @@ export async function applyNonInteractiveAuthChoice(params: {
       return null;
     }
     if (resolved.source !== "profile") {
-      await setTogetherApiKey(resolved.key);
+      await setTogetherApiKey(resolved.key, undefined, apiKeyStorageOptions);
     }
     nextConfig = applyAuthProfileConfig(nextConfig, {
       profileId: "together:default",
@@ -874,7 +893,7 @@ export async function applyNonInteractiveAuthChoice(params: {
       return null;
     }
     if (resolved.source !== "profile") {
-      await setHuggingfaceApiKey(resolved.key);
+      await setHuggingfaceApiKey(resolved.key, undefined, apiKeyStorageOptions);
     }
     nextConfig = applyAuthProfileConfig(nextConfig, {
       profileId: "huggingface:default",
