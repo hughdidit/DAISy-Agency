@@ -1915,6 +1915,7 @@ private extension NodeAppModel {
     }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 57083e422 (iOS: add Apple Watch companion message MVP (#20054))
 =======
     private static func normalizeWatchNotifyParams(_ params: OpenClawWatchNotifyParams) -> OpenClawWatchNotifyParams {
@@ -2017,6 +2018,8 @@ private extension NodeAppModel {
     }
 
 >>>>>>> d06d8701f (iOS: normalize watch quick actions and fix test signing)
+=======
+>>>>>>> 80daaeba3 (fix(ios): split watch notify normalization helpers)
     func locationMode() -> OpenClawLocationMode {
 >>>>>>> 532b9653b (iOS: wire node commands and incremental TTS)
         let raw = UserDefaults.standard.string(forKey: "location.enabledMode") ?? "off"
