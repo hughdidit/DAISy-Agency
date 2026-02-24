@@ -45,6 +45,7 @@ Docs: https://docs.openclaw.ai
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 =======
@@ -55,6 +56,9 @@ Docs: https://docs.openclaw.ai
 =======
 =======
 =======
+=======
+- Onboarding/Custom providers: raise verification probe token budgets for OpenAI and Anthropic compatibility checks to avoid false negatives on strict provider defaults. (#24743) Thanks @Glucksberg.
+>>>>>>> a388fbb6c (fix: harden custom-provider verification probes (#24743) (thanks @Glucksberg))
 - WhatsApp/DM routing: only update main-session last-route state when DM traffic is bound to the main session, preserving isolated `dmScope` routing. (#24949) Thanks @kevinWangSheng.
 >>>>>>> ebde897bb (fix: add dmScope route guard regression tests (#24949) (thanks @kevinWangSheng))
 - Providers/OpenRouter: when thinking is explicitly off, avoid injecting `reasoning.effort` so reasoning-required models can use provider defaults instead of failing request validation. (#24863) Thanks @DevSecTim.
