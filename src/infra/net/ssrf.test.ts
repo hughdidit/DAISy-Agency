@@ -3,7 +3,21 @@ import { normalizeFingerprint } from "../tls/fingerprint.js";
 import { isBlockedHostnameOrIp, isPrivateIpAddress } from "./ssrf.js";
 
 const privateIpCases = [
+<<<<<<< HEAD
   "::ffff:127.0.0.1",
+=======
+  "198.51.100.42",
+  "203.0.113.10",
+  "192.0.0.8",
+  "192.0.2.1",
+  "192.88.99.1",
+  "224.0.0.1",
+  "239.255.255.255",
+  "240.0.0.1",
+  "255.255.255.255",
+  "::ffff:127.0.0.1",
+  "64:ff9b::198.51.100.42",
+>>>>>>> 9df80b73e (fix: allow RFC2544 benchmark range (198.18.0.0/15) through SSRF filter)
   "0:0:0:0:0:ffff:7f00:1",
   "0000:0000:0000:0000:0000:ffff:7f00:0001",
   "::127.0.0.1",
@@ -30,7 +44,22 @@ const privateIpCases = [
 
 const publicIpCases = [
   "93.184.216.34",
+<<<<<<< HEAD
+=======
+  "198.17.255.255",
+  "198.18.0.1",
+  "198.18.0.153",
+  "198.19.255.254",
+  "198.20.0.1",
+  "2002:c612:0001::",
+  "198.51.99.1",
+  "198.51.101.1",
+  "203.0.112.1",
+  "203.0.114.1",
+  "223.255.255.255",
+>>>>>>> 9df80b73e (fix: allow RFC2544 benchmark range (198.18.0.0/15) through SSRF filter)
   "2606:4700:4700::1111",
+  "::ffff:198.18.0.1",
   "2001:db8::1",
   "64:ff9b::8.8.8.8",
   "64:ff9b:1::8.8.8.8",
@@ -74,4 +103,23 @@ describe("isBlockedHostnameOrIp", () => {
     expect(isBlockedHostnameOrIp("2001:db8:1234::5efe:127.0.0.1")).toBe(true);
     expect(isBlockedHostnameOrIp("2001:db8::1")).toBe(false);
   });
+<<<<<<< HEAD
+=======
+
+  it("allows RFC2544 benchmark range (used by Telegram) but blocks adjacent special-use ranges", () => {
+    expect(isBlockedHostnameOrIp("198.18.0.1")).toBe(false);
+    expect(isBlockedHostnameOrIp("198.18.0.153")).toBe(false);
+    expect(isBlockedHostnameOrIp("198.19.255.254")).toBe(false);
+    expect(isBlockedHostnameOrIp("198.20.0.1")).toBe(false);
+    expect(isBlockedHostnameOrIp("198.51.100.1")).toBe(true);
+    expect(isBlockedHostnameOrIp("203.0.113.1")).toBe(true);
+  });
+
+  it("blocks legacy IPv4 literal representations", () => {
+    expect(isBlockedHostnameOrIp("0177.0.0.1")).toBe(true);
+    expect(isBlockedHostnameOrIp("8.8.2056")).toBe(true);
+    expect(isBlockedHostnameOrIp("127.1")).toBe(true);
+    expect(isBlockedHostnameOrIp("2130706433")).toBe(true);
+  });
+>>>>>>> 9df80b73e (fix: allow RFC2544 benchmark range (198.18.0.0/15) through SSRF filter)
 });
