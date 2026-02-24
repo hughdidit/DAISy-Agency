@@ -114,6 +114,7 @@ import { stripSlackMentionsForCommandDetection } from "../commands.js";
 import { normalizeSlackChannelType, type SlackMonitorContext } from "../context.js";
 import {
   resolveSlackAttachmentContent,
+  MAX_SLACK_MEDIA_FILES,
   resolveSlackMedia,
   resolveSlackThreadHistory,
   resolveSlackThreadStarter,
@@ -440,7 +441,7 @@ export async function prepareSlackMessage(params: {
   const fileOnlyFallback =
     !mediaPlaceholder && (message.files?.length ?? 0) > 0
       ? message
-          .files!.slice(0, 5)
+          .files!.slice(0, MAX_SLACK_MEDIA_FILES)
           .map((f) => f.name ?? "file")
           .join(", ")
       : undefined;
