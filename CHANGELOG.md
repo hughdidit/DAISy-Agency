@@ -60,6 +60,8 @@ Docs: https://docs.openclaw.ai
 =======
 ### Breaking
 
+- **BREAKING:** browser SSRF policy now defaults to trusted-network mode (`browser.ssrfPolicy.dangerouslyAllowPrivateNetwork=true` when unset), and canonical config uses `browser.ssrfPolicy.dangerouslyAllowPrivateNetwork` instead of `browser.ssrfPolicy.allowPrivateNetwork`. `openclaw doctor --fix` migrates the legacy key automatically.
+
 ### Fixes
 
 <<<<<<< HEAD

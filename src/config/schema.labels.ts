@@ -214,6 +214,14 @@ export const FIELD_LABELS: Record<string, string> = {
   "browser.evaluateEnabled": "Browser Evaluate Enabled",
   "browser.snapshotDefaults": "Browser Snapshot Defaults",
   "browser.snapshotDefaults.mode": "Browser Snapshot Mode",
+<<<<<<< HEAD
+=======
+  "browser.ssrfPolicy": "Browser SSRF Policy",
+  "browser.ssrfPolicy.allowPrivateNetwork": "Browser Allow Private Network",
+  "browser.ssrfPolicy.dangerouslyAllowPrivateNetwork": "Browser Dangerously Allow Private Network",
+  "browser.ssrfPolicy.allowedHostnames": "Browser Allowed Hostnames",
+  "browser.ssrfPolicy.hostnameAllowlist": "Browser Hostname Allowlist",
+>>>>>>> 5eb72ab76 (fix(security): harden browser SSRF defaults and migrate legacy key)
   "browser.remoteCdpTimeoutMs": "Remote CDP Timeout (ms)",
   "browser.remoteCdpHandshakeTimeoutMs": "Remote CDP Handshake Timeout (ms)",
   "session.dmScope": "DM Session Scope",

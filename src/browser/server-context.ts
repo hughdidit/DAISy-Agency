@@ -1,5 +1,19 @@
 import fs from "node:fs";
 import type { ResolvedBrowserProfile } from "./config.js";
+<<<<<<< HEAD
+=======
+import { resolveProfile } from "./config.js";
+import {
+  ensureChromeExtensionRelayServer,
+  stopChromeExtensionRelayServer,
+} from "./extension-relay.js";
+import {
+  assertBrowserNavigationAllowed,
+  assertBrowserNavigationResultAllowed,
+  InvalidBrowserNavigationUrlError,
+  withBrowserNavigationPolicy,
+} from "./navigation-guard.js";
+>>>>>>> 5eb72ab76 (fix(security): harden browser SSRF defaults and migrate legacy key)
 import type { PwAiModule } from "./pw-ai-module.js";
 import type {
   BrowserRouteContext,
@@ -178,6 +192,7 @@ function createProfileContext(
         const tabs = await listTabs().catch(() => [] as BrowserTab[]);
         const found = tabs.find((t) => t.targetId === createdViaCdp);
         if (found) {
+          await assertBrowserNavigationResultAllowed({ url: found.url, ...ssrfPolicyOpts });
           return found;
         }
         await new Promise((r) => setTimeout(r, 100));
@@ -215,10 +230,12 @@ function createProfileContext(
     }
     const profileState = getProfileState();
     profileState.lastTargetId = created.id;
+    const resolvedUrl = created.url ?? url;
+    await assertBrowserNavigationResultAllowed({ url: resolvedUrl, ...ssrfPolicyOpts });
     return {
       targetId: created.id,
       title: created.title ?? "",
-      url: created.url ?? url,
+      url: resolvedUrl,
       wsUrl: normalizeWsUrl(created.webSocketDebuggerUrl, profile.cdpUrl),
       type: created.type,
     };
