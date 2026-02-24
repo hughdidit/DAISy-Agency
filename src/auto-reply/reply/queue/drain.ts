@@ -107,11 +107,30 @@ export function scheduleFollowupDrain(
           if (!run) {
             break;
           }
+<<<<<<< HEAD
           await runFollowup({
             prompt: summaryPrompt,
             run,
             enqueuedAt: Date.now(),
           });
+=======
+          if (
+            !(await drainNextQueueItem(queue.items, async (item) => {
+              await runFollowup({
+                prompt: summaryPrompt,
+                run,
+                enqueuedAt: Date.now(),
+                originatingChannel: item.originatingChannel,
+                originatingTo: item.originatingTo,
+                originatingAccountId: item.originatingAccountId,
+                originatingThreadId: item.originatingThreadId,
+              });
+            }))
+          ) {
+            break;
+          }
+          clearQueueSummaryState(queue);
+>>>>>>> ccbeb332e (fix: harden routing/session isolation for followups and heartbeat)
           continue;
         }
 
