@@ -47,6 +47,7 @@ import { resolvePluginTools } from "../plugins/tools.js";
 import type { GatewayMessageChannel } from "../utils/message-channel.js";
 import { resolveSessionAgentId } from "./agent-scope.js";
 import type { SandboxFsBridge } from "./sandbox/fs-bridge.js";
+import type { ToolFsPolicy } from "./tool-fs-policy.js";
 import { createAgentsListTool } from "./tools/agents-list-tool.js";
 import { createBrowserTool } from "./tools/browser-tool.js";
 import { createCanvasTool } from "./tools/canvas-tool.js";
@@ -98,6 +99,11 @@ export function createMoltbotTools(options?: {
   agentGroupSpace?: string | null;
   agentDir?: string;
   sandboxRoot?: string;
+<<<<<<< HEAD:src/agents/moltbot-tools.ts
+=======
+  sandboxFsBridge?: SandboxFsBridge;
+  fsPolicy?: ToolFsPolicy;
+>>>>>>> ce02ad964 (refactor(agents): centralize sandbox media and fs policy helpers):src/agents/openclaw-tools.ts
   workspaceDir?: string;
   sandboxed?: boolean;
   config?: MoltbotConfig;
@@ -138,7 +144,11 @@ export function createMoltbotTools(options?: {
           options?.sandboxRoot && options?.sandboxFsBridge
             ? { root: options.sandboxRoot, bridge: options.sandboxFsBridge }
             : undefined,
+<<<<<<< HEAD:src/agents/moltbot-tools.ts
 >>>>>>> edb06170f (fix(image): allow workspace and sandbox media paths (#15541)):src/agents/openclaw-tools.ts
+=======
+        fsPolicy: options?.fsPolicy,
+>>>>>>> ce02ad964 (refactor(agents): centralize sandbox media and fs policy helpers):src/agents/openclaw-tools.ts
         modelHasVision: options?.modelHasVision,
       })
     : null;
