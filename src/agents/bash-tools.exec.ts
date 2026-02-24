@@ -32,6 +32,7 @@ import { logInfo, logWarn } from "../logger.js";
 import { formatSpawnError, spawnWithFallback } from "../process/spawn-utils.js";
 import { parseAgentSessionKey, resolveAgentIdFromSessionKey } from "../routing/session-key.js";
 import {
+<<<<<<< HEAD
   type ProcessSession,
   type SessionStdin,
   addSession,
@@ -41,6 +42,29 @@ import {
   markExited,
   tail,
 } from "./bash-process-registry.js";
+=======
+  DEFAULT_MAX_OUTPUT,
+  DEFAULT_PATH,
+  DEFAULT_PENDING_MAX_OUTPUT,
+  applyPathPrepend,
+  applyShellPath,
+  normalizeExecAsk,
+  normalizeExecHost,
+  normalizeExecSecurity,
+  normalizePathPrepend,
+  renderExecHostLabel,
+  resolveApprovalRunningNoticeMs,
+  runExecProcess,
+  sanitizeHostBaseEnv,
+  execSchema,
+  validateHostEnv,
+} from "./bash-tools.exec-runtime.js";
+import type {
+  ExecElevatedDefaults,
+  ExecToolDefaults,
+  ExecToolDetails,
+} from "./bash-tools.exec-types.js";
+>>>>>>> 48b052322 (Security: sanitize inherited host exec env)
 import {
   buildDockerExecArgs,
   buildSandboxEnv,
@@ -967,7 +991,8 @@ export function createExecTool(
         workdir = resolveWorkdir(rawWorkdir, warnings);
       }
 
-      const baseEnv = coerceEnv(process.env);
+      const inheritedBaseEnv = coerceEnv(process.env);
+      const baseEnv = host === "sandbox" ? inheritedBaseEnv : sanitizeHostBaseEnv(inheritedBaseEnv);
 
       // Logic: Sandbox gets raw env. Host (gateway/node) must pass validation.
       // We validate BEFORE merging to prevent any dangerous vars from entering the stream.
