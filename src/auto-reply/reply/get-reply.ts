@@ -29,6 +29,7 @@ import { applyLinkUnderstanding } from "../../link-understanding/apply.js";
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { GetReplyOptions, ReplyPayload } from "../types.js";
+<<<<<<< HEAD
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -39,6 +40,9 @@ import type { GetReplyOptions, ReplyPayload } from "../types.js";
 =======
 import type { GetReplyOptions, ReplyPayload } from "../types.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
+=======
+import { emitResetCommandHooks, type ResetCommandAction } from "./commands-core.js";
+>>>>>>> aec41a588 (fix(hooks): backfill reset command hooks for native /new path)
 import { resolveDefaultModel } from "./directive-handling.js";
 import { resolveReplyDirectives } from "./get-reply-directives.js";
 import { handleInlineActions } from "./get-reply-inline-actions.js";
@@ -294,6 +298,27 @@ export async function getReplyFromConfig(
   provider = resolvedProvider;
   model = resolvedModel;
 
+  const maybeEmitMissingResetHooks = async () => {
+    if (!resetTriggered || !command.isAuthorizedSender || command.resetHookTriggered) {
+      return;
+    }
+    const resetMatch = command.commandBodyNormalized.match(/^\/(new|reset)(?:\s|$)/);
+    if (!resetMatch) {
+      return;
+    }
+    const action: ResetCommandAction = resetMatch[1] === "reset" ? "reset" : "new";
+    await emitResetCommandHooks({
+      action,
+      ctx,
+      cfg,
+      command,
+      sessionKey,
+      sessionEntry,
+      previousSessionEntry,
+      workspaceDir,
+    });
+  };
+
   const inlineActionResult = await handleInlineActions({
     ctx,
     sessionCtx,
@@ -333,8 +358,10 @@ export async function getReplyFromConfig(
     skillFilter: mergedSkillFilter,
   });
   if (inlineActionResult.kind === "reply") {
+    await maybeEmitMissingResetHooks();
     return inlineActionResult.reply;
   }
+  await maybeEmitMissingResetHooks();
   directives = inlineActionResult.directives;
   abortedLastRun = inlineActionResult.abortedLastRun ?? abortedLastRun;
 
