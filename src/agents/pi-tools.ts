@@ -135,10 +135,14 @@ import type { SandboxContext } from "./sandbox.js";
 >>>>>>> f76f98b26 (chore: fix formatting drift and stabilize cron tool mocks)
 import { getSubagentDepthFromSessionStore } from "./subagent-depth.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> b8f66c260 (Agents: add nested subagent orchestration controls and reduce subagent token waste (#14447))
 =======
 import { createToolFsPolicy } from "./tool-fs-policy.js";
 >>>>>>> ce02ad964 (refactor(agents): centralize sandbox media and fs policy helpers)
+=======
+import { createToolFsPolicy, resolveToolFsConfig } from "./tool-fs-policy.js";
+>>>>>>> 878b4e0ed (refactor: unify tools.fs workspaceOnly resolution)
 import {
   applyToolPolicyPipeline,
   buildDefaultToolPolicyPipelineSteps,
@@ -246,6 +250,7 @@ function resolveExecConfig(cfg: MoltbotConfig | undefined) {
   };
 }
 
+<<<<<<< HEAD
 function resolveFsConfig(params: { cfg?: OpenClawConfig; agentId?: string }) {
   const cfg = params.cfg;
   const globalFs = cfg?.tools?.fs;
@@ -257,6 +262,8 @@ function resolveFsConfig(params: { cfg?: OpenClawConfig; agentId?: string }) {
   };
 }
 
+=======
+>>>>>>> 878b4e0ed (refactor: unify tools.fs workspaceOnly resolution)
 export function resolveToolLoopDetectionConfig(params: {
   cfg?: OpenClawConfig;
   agentId?: string;
@@ -419,7 +426,7 @@ export function createOpenClawCodingTools(options?: {
   const execConfig = resolveExecConfig(options?.config);
 =======
   const execConfig = resolveExecConfig({ cfg: options?.config, agentId });
-  const fsConfig = resolveFsConfig({ cfg: options?.config, agentId });
+  const fsConfig = resolveToolFsConfig({ cfg: options?.config, agentId });
   const fsPolicy = createToolFsPolicy({
     workspaceOnly: fsConfig.workspaceOnly,
   });
