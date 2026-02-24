@@ -71,7 +71,11 @@ Status: beta.
 >>>>>>> a1c4bf07c (fix(security): harden exec wrapper allowlist execution parity)
 =======
 - Security/Image tool: enforce `tools.fs.workspaceOnly` for sandboxed `image` path resolution so mounted out-of-workspace paths are blocked before media bytes are loaded/sent to vision providers. This ships in the next npm release. Thanks @tdjackey for reporting.
+<<<<<<< HEAD
 >>>>>>> dd9d9c1c6 (fix(security): enforce workspaceOnly for sandbox image tool)
+=======
+- Security/Session export: harden exported HTML image rendering against data-URL attribute injection by validating image MIME/base64 fields, rejecting malformed base64 input in media ingestion paths, and dropping invalid tool-image payloads.
+>>>>>>> e578521ef (fix(security): harden session export image data-url handling)
 
 ## 2026.2.23 (Unreleased)
 >>>>>>> 558a0137b (chore(release): bump versions to 2026.2.23)

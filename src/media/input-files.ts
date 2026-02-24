@@ -1,5 +1,6 @@
 import { logWarn } from "../logger.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import {
   closeDispatcher,
   createPinnedDispatcher,
@@ -9,6 +10,10 @@ import type { Dispatcher } from "undici";
 =======
 import { estimateBase64DecodedBytes } from "./base64.js";
 >>>>>>> 31791233d (fix(security): reject oversized base64 before decode)
+=======
+import { canonicalizeBase64, estimateBase64DecodedBytes } from "./base64.js";
+import { readResponseWithLimit } from "./read-response-with-limit.js";
+>>>>>>> e578521ef (fix(security): harden session export image data-url handling)
 
 type CanvasModule = typeof import("@napi-rs/canvas");
 type PdfJsModule = typeof import("pdfjs-dist/legacy/build/pdf.mjs");
@@ -313,17 +318,25 @@ export async function extractImageContentFromSource(
     if (!source.data) {
       throw new Error("input_image base64 source missing 'data' field");
     }
+<<<<<<< HEAD
+=======
+    rejectOversizedBase64Payload({ data: source.data, maxBytes: limits.maxBytes, label: "Image" });
+    const canonicalData = canonicalizeBase64(source.data);
+    if (!canonicalData) {
+      throw new Error("input_image base64 source has invalid 'data' field");
+    }
+>>>>>>> e578521ef (fix(security): harden session export image data-url handling)
     const mimeType = normalizeMimeType(source.mediaType) ?? "image/png";
     if (!limits.allowedMimes.has(mimeType)) {
       throw new Error(`Unsupported image MIME type: ${mimeType}`);
     }
-    const buffer = Buffer.from(source.data, "base64");
+    const buffer = Buffer.from(canonicalData, "base64");
     if (buffer.byteLength > limits.maxBytes) {
       throw new Error(
         `Image too large: ${buffer.byteLength} bytes (limit: ${limits.maxBytes} bytes)`,
       );
     }
-    return { type: "image", data: source.data, mimeType };
+    return { type: "image", data: canonicalData, mimeType };
   }
 
   if (source.type === "url" && source.url) {
@@ -360,10 +373,18 @@ export async function extractFileContentFromSource(params: {
     if (!source.data) {
       throw new Error("input_file base64 source missing 'data' field");
     }
+<<<<<<< HEAD
+=======
+    rejectOversizedBase64Payload({ data: source.data, maxBytes: limits.maxBytes, label: "File" });
+    const canonicalData = canonicalizeBase64(source.data);
+    if (!canonicalData) {
+      throw new Error("input_file base64 source has invalid 'data' field");
+    }
+>>>>>>> e578521ef (fix(security): harden session export image data-url handling)
     const parsed = parseContentType(source.mediaType);
     mimeType = parsed.mimeType;
     charset = parsed.charset;
-    buffer = Buffer.from(source.data, "base64");
+    buffer = Buffer.from(canonicalData, "base64");
   } else if (source.type === "url" && source.url) {
     if (!limits.allowUrl) {
       throw new Error("input_file URL sources are disabled by config");
