@@ -171,11 +171,39 @@ async function resolveAllowedTmpMediaPath(params: {
   if (!isPathInside(tmpDir, resolved)) {
     return undefined;
   }
+<<<<<<< HEAD
   await assertNoSymlinkEscape(path.relative(tmpDir, resolved), tmpDir);
   return resolved;
 }
 
 >>>>>>> 55e38d3b4 (refactor: extract tmp media resolver helper and dedupe sandbox-path tests)
+=======
+  await assertNoSymlinkEscape(path.relative(openClawTmpDir, resolved), openClawTmpDir);
+  await assertNoHardlinkedFinalPath(resolved, openClawTmpDir);
+  return resolved;
+}
+
+async function assertNoHardlinkedFinalPath(filePath: string, root: string): Promise<void> {
+  let stat: Awaited<ReturnType<typeof fs.stat>>;
+  try {
+    stat = await fs.stat(filePath);
+  } catch (err) {
+    if (isNotFoundPathError(err)) {
+      return;
+    }
+    throw err;
+  }
+  if (!stat.isFile()) {
+    return;
+  }
+  if (stat.nlink > 1) {
+    throw new Error(
+      `Hardlinked tmp media path is not allowed under sandbox root (${shortPath(root)}): ${shortPath(filePath)}`,
+    );
+  }
+}
+
+>>>>>>> 22689b9dc (fix(sandbox): reject hardlinked tmp media aliases)
 async function assertNoSymlinkEscape(
   relative: string,
   root: string,
