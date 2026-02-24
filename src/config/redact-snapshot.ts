@@ -122,11 +122,52 @@ function collectSensitiveValues(obj: unknown): string[] {
     }
     return values;
   }
+<<<<<<< HEAD
   for (const [key, value] of Object.entries(obj as Record<string, unknown>)) {
     if (isSensitiveKey(key) && typeof value === "string" && value.length > 0) {
       values.push(value);
     } else if (typeof value === "object" && value !== null) {
       values.push(...collectSensitiveValues(value));
+=======
+
+  if (typeof obj === "object") {
+    const result: Record<string, unknown> = {};
+    for (const [key, value] of Object.entries(obj as Record<string, unknown>)) {
+      const path = prefix ? `${prefix}.${key}` : key;
+      const wildcardPath = prefix ? `${prefix}.*` : "*";
+      let matched = false;
+      for (const candidate of [path, wildcardPath]) {
+        result[key] = value;
+        if (lookup.has(candidate)) {
+          matched = true;
+          // Hey, greptile, look here, this **IS** only applied to strings
+          if (typeof value === "string" && !isEnvVarPlaceholder(value)) {
+            result[key] = REDACTED_SENTINEL;
+            values.push(value);
+          } else if (typeof value === "object" && value !== null) {
+            result[key] = redactObjectWithLookup(value, lookup, candidate, values, hints);
+          }
+          break;
+        }
+      }
+      if (!matched) {
+        // Fall back to pattern-based guessing for paths not covered by schema
+        // hints. This catches dynamic keys inside catchall objects (for example
+        // env.GROQ_API_KEY) and extension/plugin config alike.
+        const markedNonSensitive = isExplicitlyNonSensitivePath(hints, [path, wildcardPath]);
+        if (
+          typeof value === "string" &&
+          !markedNonSensitive &&
+          isSensitivePath(path) &&
+          !isEnvVarPlaceholder(value)
+        ) {
+          result[key] = REDACTED_SENTINEL;
+          values.push(value);
+        } else if (typeof value === "object" && value !== null) {
+          result[key] = redactObjectGuessing(value, path, values, hints);
+        }
+      }
+>>>>>>> f0c3c8b6a (fix(config): redact dynamic catchall secret keys)
     }
   }
   return values;
@@ -439,7 +480,7 @@ function restoreRedactedValuesWithLookup(
         break;
       }
     }
-    if (!matched && isExtensionPath(path)) {
+    if (!matched) {
       const markedNonSensitive = isExplicitlyNonSensitivePath(hints, [path, wildcardPath]);
       if (!markedNonSensitive && isSensitivePath(path) && value === REDACTED_SENTINEL) {
         result[key] = restoreOriginalValueOrThrow({ key, path, original: orig });
