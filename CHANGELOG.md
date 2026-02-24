@@ -43,6 +43,7 @@ Docs: https://docs.openclaw.ai
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 =======
@@ -67,6 +68,9 @@ Docs: https://docs.openclaw.ai
 - Auth/OAuth: classify missing OAuth scopes as auth failures for clearer remediation and retry behavior. (#24761)
 - Doctor/UX: suppress the redundant "Run doctor --fix" hint when already in fix mode with no changes. (#24666)
 =======
+=======
+- Security/Workspace FS: normalize `@`-prefixed paths before workspace-boundary checks (including workspace-only read/write/edit and sandbox mount path guards), preventing absolute-path escape attempts from bypassing guard validation. This ships in the next npm release. Thanks @tdjackey for reporting.
+>>>>>>> 9ef0fc2ff (fix(sandbox): block @-prefixed workspace path bypass)
 - Security/Native images: enforce `tools.fs.workspaceOnly` for native prompt image auto-load (including history refs), preventing out-of-workspace sandbox mounts from being implicitly ingested as vision input. This ships in the next npm release. Thanks @tdjackey for reporting.
 - Security/Exec approvals: bind `system.run` command display/approval text to full argv when shell-wrapper inline payloads carry positional argv values, and reject payload-only `rawCommand` mismatches for those wrapper-carrier forms, preventing hidden command execution under misleading approval text. This ships in the next npm release. Thanks @tdjackey for reporting.
 - Telegram/Media fetch: prioritize IPv4 before IPv6 in SSRF pinned DNS address ordering so media downloads still work on hosts with broken IPv6 routing. (#24295, #23975) Thanks @Glucksberg.
