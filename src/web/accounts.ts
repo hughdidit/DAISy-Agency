@@ -2,7 +2,11 @@ import fs from "node:fs";
 import path from "node:path";
 import type { OpenClawConfig } from "../config/config.js";
 import type { DmPolicy, GroupPolicy, WhatsAppAccountConfig } from "../config/types.js";
+<<<<<<< HEAD
 import { resolveOAuthDir } from "../config/paths.js";
+=======
+import { resolveAccountEntry } from "../routing/account-lookup.js";
+>>>>>>> f97c0922e (fix(security): harden account-key handling against prototype pollution)
 import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "../routing/session-key.js";
 import { resolveUserPath } from "../utils.js";
 import { hasWebCredsSync } from "./auth-store.js";
@@ -86,12 +90,7 @@ function resolveAccountConfig(
   cfg: OpenClawConfig,
   accountId: string,
 ): WhatsAppAccountConfig | undefined {
-  const accounts = cfg.channels?.whatsapp?.accounts;
-  if (!accounts || typeof accounts !== "object") {
-    return undefined;
-  }
-  const entry = accounts[accountId] as WhatsAppAccountConfig | undefined;
-  return entry;
+  return resolveAccountEntry(cfg.channels?.whatsapp?.accounts, accountId);
 }
 
 function resolveDefaultAuthDir(accountId: string): string {

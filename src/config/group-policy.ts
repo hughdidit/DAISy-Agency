@@ -1,4 +1,9 @@
 import type { ChannelId } from "../channels/plugins/types.js";
+<<<<<<< HEAD
+=======
+import { resolveAccountEntry } from "../routing/account-lookup.js";
+import { normalizeAccountId } from "../routing/session-key.js";
+>>>>>>> f97c0922e (fix(security): harden account-key handling against prototype pollution)
 import type { OpenClawConfig } from "./config.js";
 import type { GroupToolPolicyBySenderConfig, GroupToolPolicyConfig } from "./types.tools.js";
 import { normalizeAccountId } from "../routing/session-key.js";
@@ -263,16 +268,37 @@ function resolveChannelGroups(
   if (!channelConfig) {
     return undefined;
   }
-  const accountGroups =
-    channelConfig.accounts?.[normalizedAccountId]?.groups ??
-    channelConfig.accounts?.[
-      Object.keys(channelConfig.accounts ?? {}).find(
-        (key) => key.toLowerCase() === normalizedAccountId.toLowerCase(),
-      ) ?? ""
-    ]?.groups;
+  const accountGroups = resolveAccountEntry(channelConfig.accounts, normalizedAccountId)?.groups;
   return accountGroups ?? channelConfig.groups;
 }
 
+<<<<<<< HEAD
+=======
+type ChannelGroupPolicyMode = "open" | "allowlist" | "disabled";
+
+function resolveChannelGroupPolicyMode(
+  cfg: OpenClawConfig,
+  channel: GroupPolicyChannel,
+  accountId?: string | null,
+): ChannelGroupPolicyMode | undefined {
+  const normalizedAccountId = normalizeAccountId(accountId);
+  const channelConfig = cfg.channels?.[channel] as
+    | {
+        groupPolicy?: ChannelGroupPolicyMode;
+        accounts?: Record<string, { groupPolicy?: ChannelGroupPolicyMode }>;
+      }
+    | undefined;
+  if (!channelConfig) {
+    return undefined;
+  }
+  const accountPolicy = resolveAccountEntry(
+    channelConfig.accounts,
+    normalizedAccountId,
+  )?.groupPolicy;
+  return accountPolicy ?? channelConfig.groupPolicy;
+}
+
+>>>>>>> f97c0922e (fix(security): harden account-key handling against prototype pollution)
 export function resolveChannelGroupPolicy(params: {
   cfg: OpenClawConfig;
   channel: GroupPolicyChannel;
