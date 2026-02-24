@@ -52,6 +52,7 @@ import { createHmac, createHash } from "node:crypto";
 export type PromptMode = "full" | "minimal" | "none";
 type OwnerIdDisplay = "raw" | "hash";
 
+<<<<<<< HEAD
 function buildSkillsSection(params: {
   skillsPrompt?: string;
   isMinimal: boolean;
@@ -60,6 +61,9 @@ function buildSkillsSection(params: {
   if (params.isMinimal) {
     return [];
   }
+=======
+function buildSkillsSection(params: { skillsPrompt?: string; readToolName: string }) {
+>>>>>>> c7bf0dacb (chore: remove unused isMinimal param from buildSkillsSection)
   const trimmed = params.skillsPrompt?.trim();
   if (!trimmed) {
     return [];
@@ -431,7 +435,6 @@ export function buildAgentSystemPrompt(params: {
   ];
   const skillsSection = buildSkillsSection({
     skillsPrompt,
-    isMinimal,
     readToolName,
   });
   const memorySection = buildMemorySection({
