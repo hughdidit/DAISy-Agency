@@ -92,7 +92,10 @@ OpenClaw does **not** model one gateway as a multi-tenant, adversarial user boun
 - Authenticated Gateway callers are treated as trusted operators for that gateway instance.
 - Session identifiers (`sessionKey`, session IDs, labels) are routing controls, not per-user authorization boundaries.
 - If one operator can view data from another operator on the same gateway, that is expected in this trust model.
-- If you need adversarial-user isolation, split by trust boundary (separate OS users/hosts/gateways).
+- OpenClaw can technically run multiple gateway instances on one machine, but recommended operations are clean separation by trust boundary.
+- Recommended mode: one user per machine/host (or VPS), one gateway for that user, and one or more agents inside that gateway.
+- If multiple users need OpenClaw, use one VPS (or host/OS user boundary) per user.
+- For advanced setups, multiple gateways on one machine are possible, but only with strict isolation and are not the recommended default.
 
 >>>>>>> 7d55277d7 (docs: clarify operator trust boundary for shared gateways)
 ## Out of Scope
@@ -104,6 +107,39 @@ OpenClaw does **not** model one gateway as a multi-tenant, adversarial user boun
 - Deployments where mutually untrusted/adversarial operators share one gateway host and config (for example, reports expecting per-operator isolation for `sessions.list`, `sessions.preview`, `chat.history`, or similar control-plane reads)
 >>>>>>> 7d55277d7 (docs: clarify operator trust boundary for shared gateways)
 - Prompt injection attacks
+<<<<<<< HEAD
+=======
+- Reports that require write access to trusted local state (`~/.openclaw`, workspace files like `MEMORY.md` / `memory/*.md`)
+- Reports that depend on trusted operator-supplied configuration values to trigger availability impact (for example custom regex patterns). These may still be fixed as defense-in-depth hardening, but are not security-boundary bypasses.
+- Exposed secrets that are third-party/user-controlled credentials (not OpenClaw-owned and not granting access to OpenClaw-operated infrastructure/services) without demonstrated OpenClaw impact
+
+## Deployment Assumptions
+
+OpenClaw security guidance assumes:
+
+- The host where OpenClaw runs is within a trusted OS/admin boundary.
+- Anyone who can modify `~/.openclaw` state/config (including `openclaw.json`) is effectively a trusted operator.
+- A single Gateway shared by mutually untrusted people is **not a recommended setup**. Use separate gateways (or at minimum separate OS users/hosts) per trust boundary.
+- Authenticated Gateway callers are treated as trusted operators. Session identifiers (for example `sessionKey`) are routing controls, not per-user authorization boundaries.
+- Multiple gateway instances can run on one machine, but the recommended model is clean per-user isolation (prefer one host/VPS per user).
+
+## Workspace Memory Trust Boundary
+
+`MEMORY.md` and `memory/*.md` are plain workspace files and are treated as trusted local operator state.
+
+- If someone can edit workspace memory files, they already crossed the trusted operator boundary.
+- Memory search indexing/recall over those files is expected behavior, not a sandbox/security boundary.
+- Example report pattern considered out of scope: "attacker writes malicious content into `memory/*.md`, then `memory_search` returns it."
+- If you need isolation between mutually untrusted users, split by OS user or host and run separate gateways.
+
+## Plugin Trust Boundary
+
+Plugins/extensions are loaded **in-process** with the Gateway and are treated as trusted code.
+
+- Plugins can execute with the same OS privileges as the OpenClaw process.
+- Runtime helpers (for example `runtime.system.runCommandWithTimeout`) are convenience APIs, not a sandbox boundary.
+- Only install plugins you trust, and prefer `plugins.allow` to pin explicit trusted plugin ids.
+>>>>>>> 400220275 (docs: clarify multi-instance recommendations for user isolation)
 
 >>>>>>> a767c584c (Add prompt injection attacks to out of scope section)
 ## Operational Guidance
