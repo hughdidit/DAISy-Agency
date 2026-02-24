@@ -87,6 +87,11 @@ struct RootCanvas: View {
                 CameraFlashOverlay(nonce: self.appModel.cameraFlashNonce)
             }
         }
+<<<<<<< HEAD
+=======
+        .gatewayTrustPromptAlert()
+        .deepLinkAgentPromptAlert()
+>>>>>>> ff4e6ca0d (fix(ios): gate agent deep links with local confirmation)
         .sheet(item: self.$presentedSheet) { sheet in
             switch sheet {
             case .settings:
