@@ -112,6 +112,7 @@ Docs: https://docs.openclaw.ai
 - Agents/Tool dispatch: await block-reply flush before tool execution starts so buffered block replies preserve message ordering around tool calls. (#25427) Thanks @SidQin-cyber.
 >>>>>>> d84659f22 (fix: add changelog for block-reply flush await (#25427) (thanks @SidQin-cyber))
 - macOS/Menu bar: stop reusing the injector delegate for the "Usage cost (30 days)" submenu to prevent recursive submenu injection loops when opening cost history. (#25341) Thanks @yingchunbai.
+<<<<<<< HEAD
 - Control UI/Chat images: harden image-open clicks against reverse tabnabbing by using opener isolation (`noopener,noreferrer` plus `window.opener = null`). (#18685) Thanks @Mariana-Codebase.
 - Security/iOS deep links: require local confirmation (or trusted key) before forwarding `openclaw://agent` requests from iOS to gateway `agent.request`, and strip unkeyed delivery-routing fields to reduce exfiltration risk. This ships in the next npm release. Thanks @GCXWLP for reporting.
 - Security/Export session HTML: escape raw HTML markdown tokens in the exported session viewer, harden tree/header metadata rendering against HTML injection, and sanitize image data-URL MIME types in export output to prevent stored XSS when opening exported HTML files. This ships in the next npm release. Thanks @allsmog for reporting.
@@ -267,6 +268,12 @@ Docs: https://docs.openclaw.ai
 - Agents/Compaction: cancel safeguard compaction when summary generation cannot run (missing model/API key or summarization failure), preserving history instead of truncating to fallback `"Summary unavailable"` text. (#10711) Thanks @DukeDeSouth and @vincentkoc.
 - Agents/Failover: treat HTTP 502/503/504 errors as failover-eligible transient timeouts so fallback chains can switch providers/models during upstream outages instead of retrying the same failing target. (#20999) Thanks @taw0002 and @vincentkoc.
 >>>>>>> 69692d0d3 (fix: detect additional context overflow error patterns to prevent leak to user (#20539))
+=======
+- Control UI/Chat images: centralize safe external URL opening for image clicks (allowlist `http/https/blob` + opt-in `data:image/*`) and enforce opener isolation (`noopener,noreferrer` + `window.opener = null`) to prevent tabnabbing/unsafe schemes. (#25444) Thanks @shakkernerd.
+- CLI/Doctor: correct stale recovery hints to use valid commands (`openclaw gateway status --deep` and `openclaw configure --section model`). (#24485) Thanks @chilu18.
+- Security/Sandbox: canonicalize bind-mount source paths via existing-ancestor realpath so symlink-parent + non-existent-leaf paths cannot bypass allowed-source-roots or blocked-path checks. Thanks @tdjackey.
+- Doctor/Plugins: auto-enable now resolves third-party channel plugins by manifest plugin id (not channel id), preventing invalid `plugins.entries.<channelId>` writes when ids differ. (#25275) Thanks @zerone0x.
+>>>>>>> 3b4dac764 (fix: doctor plugin-id mapping for channel auto-enable (#25275) (thanks @zerone0x))
 
 ## 2026.2.23
 

@@ -353,7 +353,12 @@ export function applyPluginAutoEnable(params: {
   env?: NodeJS.ProcessEnv;
 }): PluginAutoEnableResult {
   const env = params.env ?? process.env;
+<<<<<<< HEAD
   const configured = resolveConfiguredPlugins(params.config, env);
+=======
+  const registry = params.manifestRegistry ?? loadPluginManifestRegistry({ config: params.config });
+  const configured = resolveConfiguredPlugins(params.config, env, registry);
+>>>>>>> 3b4dac764 (fix: doctor plugin-id mapping for channel auto-enable (#25275) (thanks @zerone0x))
   if (configured.length === 0) {
     return { config: params.config, changes: [] };
   }
