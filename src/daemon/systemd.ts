@@ -199,12 +199,28 @@ export async function installSystemdService({
 
   const unitPath = resolveSystemdUnitPath(env);
   await fs.mkdir(path.dirname(unitPath), { recursive: true });
+<<<<<<< HEAD
   const serviceDescription =
     description ??
     formatGatewayServiceDescription({
       profile: env.CLAWDBOT_PROFILE,
       version: environment?.CLAWDBOT_SERVICE_VERSION ?? env.CLAWDBOT_SERVICE_VERSION,
     });
+=======
+
+  // Preserve user customizations: back up existing unit file before overwriting.
+  let backedUp = false;
+  try {
+    await fs.access(unitPath);
+    const backupPath = `${unitPath}.bak`;
+    await fs.copyFile(unitPath, backupPath);
+    backedUp = true;
+  } catch {
+    // File does not exist yet — nothing to back up.
+  }
+
+  const serviceDescription = resolveGatewayServiceDescription({ env, environment, description });
+>>>>>>> dc8423f2c (fix: back up existing systemd unit before overwriting on update (#24350) (#24937))
   const unit = buildSystemdUnit({
     description: serviceDescription,
     programArguments,
@@ -231,8 +247,29 @@ export async function installSystemdService({
   }
 
   // Ensure we don't end up writing to a clack spinner line (wizards show progress without a newline).
+<<<<<<< HEAD
   stdout.write("\n");
   stdout.write(`${formatLine("Installed systemd service", unitPath)}\n`);
+=======
+  writeFormattedLines(
+    stdout,
+    [
+      {
+        label: "Installed systemd service",
+        value: unitPath,
+      },
+      ...(backedUp
+        ? [
+            {
+              label: "Previous unit backed up to",
+              value: `${unitPath}.bak`,
+            },
+          ]
+        : []),
+    ],
+    { leadingBlankLine: true },
+  );
+>>>>>>> dc8423f2c (fix: back up existing systemd unit before overwriting on update (#24350) (#24937))
   return { unitPath };
 }
 
