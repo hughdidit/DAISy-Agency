@@ -35,6 +35,7 @@ import {
   parseCardParam,
   parseComponentsParam,
   readBooleanParam,
+  resolveAttachmentMediaPolicy,
   resolveSlackAutoThreadId,
   resolveTelegramAutoThreadId,
 } from "./message-action-params.js";
@@ -756,10 +757,18 @@ export async function runMessageAction(
     params.accountId = accountId;
   }
   const dryRun = Boolean(input.dryRun ?? readBooleanParam(params, "dryRun"));
+<<<<<<< HEAD
+=======
+  const mediaLocalRoots = getAgentScopedMediaLocalRoots(cfg, resolvedAgentId);
+  const mediaPolicy = resolveAttachmentMediaPolicy({
+    sandboxRoot: input.sandboxRoot,
+    mediaLocalRoots,
+  });
+>>>>>>> 5c2a48337 (refactor(outbound): centralize attachment media policy)
 
   await normalizeSandboxMediaParams({
     args: params,
-    sandboxRoot: input.sandboxRoot,
+    sandboxRoot: mediaPolicy.mode === "sandbox" ? mediaPolicy.sandboxRoot : undefined,
   });
 
   await hydrateSendAttachmentParams({
@@ -769,6 +778,10 @@ export async function runMessageAction(
     args: params,
     action,
     dryRun,
+<<<<<<< HEAD
+=======
+    mediaPolicy,
+>>>>>>> 5c2a48337 (refactor(outbound): centralize attachment media policy)
   });
 
   await hydrateSetGroupIconParams({
@@ -778,6 +791,10 @@ export async function runMessageAction(
     args: params,
     action,
     dryRun,
+<<<<<<< HEAD
+=======
+    mediaPolicy,
+>>>>>>> 5c2a48337 (refactor(outbound): centralize attachment media policy)
   });
 
   const resolvedTarget = await resolveActionTarget({
