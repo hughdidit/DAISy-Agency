@@ -78,6 +78,7 @@ Docs: https://docs.openclaw.ai
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 - Security/Shell env fallback: remove trusted-prefix shell-path fallback and only trust login shells explicitly registered in `/etc/shells`, defaulting to `/bin/sh` when `SHELL` is not registered. This ships in the next npm release. Thanks @tdjackey for reporting.
@@ -209,6 +210,22 @@ Docs: https://docs.openclaw.ai
 - Exec/Bash tools: clamp poll sleep duration to non-negative values in process polling loops. (#24889)
 >>>>>>> 91ea6ad8e (docs(changelog): reorder unreleased fixes by user impact)
 =======
+=======
+- Security/Native images: enforce `tools.fs.workspaceOnly` for native prompt image auto-load (including history refs), preventing out-of-workspace sandbox mounts from being implicitly ingested as vision input.
+- Sessions/Tool-result guard: avoid generating synthetic `toolResult` entries for assistant turns that ended with `stopReason: "aborted"` or `"error"`, preventing orphaned tool-use IDs from triggering downstream API validation errors. (#25429) Thanks @mikaeldiakhate-cell.
+- Usage accounting: parse Moonshot/Kimi `cached_tokens` fields (including `prompt_tokens_details.cached_tokens`) into normalized cache-read usage metrics. (#25436) Thanks @Elarwei001.
+- Doctor/Sandbox: when sandbox mode is enabled but Docker is unavailable, surface a clear actionable warning (including failure impact and remediation) instead of a mild “skip checks” note. (#25438) Thanks @mcaxtr.
+- Config/Meta: accept numeric `meta.lastTouchedAt` timestamps and coerce them to ISO strings, preserving compatibility with agent edits that write `Date.now()` values. (#25491) Thanks @mcaxtr.
+- Auto-reply/Reset hooks: guarantee native `/new` and `/reset` flows emit command/reset hooks even on early-return command paths, with dedupe protection to avoid double hook emission. (#25459) Thanks @chilu18.
+- Hooks/Slug generator: resolve session slug model from the agent’s effective model (including defaults/fallback resolution) instead of raw agent-primary config only. (#25485) Thanks @SudeepMalipeddi.
+- Slack/DM routing: treat `D*` channel IDs as direct messages even when Slack sends an incorrect `channel_type`, preventing DM traffic from being misclassified as channel/group chats. (#25479) Thanks @mcaxtr.
+- Models/Providers: preserve explicit user `reasoning` overrides when merging provider model config with built-in catalog metadata, so `reasoning: false` is no longer overwritten by catalog defaults. (#25314) Thanks @lbo728.
+- Exec approvals: treat bare allowlist `*` as a true wildcard for parsed executables, including unresolved PATH lookups, so global opt-in allowlists work as configured. (#25250) Thanks @widingmarcus-cyber.
+- Gateway/Auth: allow trusted-proxy authenticated Control UI websocket sessions to skip device pairing when device identity is absent, preventing false `pairing required` failures behind trusted reverse proxies. (#25428) Thanks @SidQin-cyber.
+- Agents/Tool dispatch: await block-reply flush before tool execution starts so buffered block replies preserve message ordering around tool calls. (#25427) Thanks @SidQin-cyber.
+- macOS/Menu bar: stop reusing the injector delegate for the "Usage cost (30 days)" submenu to prevent recursive submenu injection loops when opening cost history. (#25341) Thanks @yingchunbai.
+- Control UI/Chat images: centralize safe external URL opening for image clicks (allowlist `http/https/blob` + opt-in `data:image/*`) and enforce opener isolation (`noopener,noreferrer` + `window.opener = null`) to prevent tabnabbing/unsafe schemes. (#25444) Thanks @shakkernerd.
+>>>>>>> fb8edebc3 (fix(ui): stabilize chat-image open browser test and changelog)
 - CLI/Doctor: correct stale recovery hints to use valid commands (`openclaw gateway status --deep` and `openclaw configure --section model`). (#24485) Thanks @chilu18.
 <<<<<<< HEAD
 >>>>>>> e3ac491da (docs(changelog): trim 2026.2.24 unreleased entries)
