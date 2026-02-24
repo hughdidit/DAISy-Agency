@@ -148,6 +148,7 @@ describe("abort detection", () => {
       "stop dont do anything",
       "stop do not do anything",
       "stop doing anything",
+      "do not do that",
       "please stop",
       "stop please",
       "STOP OPENCLAW",
@@ -178,7 +179,7 @@ describe("abort detection", () => {
     }
 
     expect(isAbortTrigger("hello")).toBe(false);
-    expect(isAbortTrigger("do not do that")).toBe(false);
+    expect(isAbortTrigger("please do not do that")).toBe(false);
     // /stop is NOT matched by isAbortTrigger - it's handled separately.
     expect(isAbortTrigger("/stop")).toBe(false);
   });
@@ -203,7 +204,8 @@ describe("abort detection", () => {
     expect(isAbortRequestText("/Stop@openclaw_bot", { botUsername: "openclaw_bot" })).toBe(true);
 
     expect(isAbortRequestText("/status")).toBe(false);
-    expect(isAbortRequestText("do not do that")).toBe(false);
+    expect(isAbortRequestText("do not do that")).toBe(true);
+    expect(isAbortRequestText("please do not do that")).toBe(false);
     expect(isAbortRequestText("/abort")).toBe(false);
   });
 
