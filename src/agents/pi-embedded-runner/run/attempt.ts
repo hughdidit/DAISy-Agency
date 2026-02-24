@@ -6,6 +6,7 @@ import { streamSimple } from "@mariozechner/pi-ai";
 import { createAgentSession, SessionManager, SettingsManager } from "@mariozechner/pi-coding-agent";
 import { resolveHeartbeatPrompt } from "../../../auto-reply/heartbeat.js";
 import { resolveChannelCapabilities } from "../../../config/channel-capabilities.js";
+import type { OpenClawConfig } from "../../../config/config.js";
 import { getMachineDisplayName } from "../../../infra/machine-name.js";
 import { MAX_IMAGE_BYTES } from "../../../media/constants.js";
 import { getGlobalHookRunner } from "../../../plugins/hook-runner-global.js";
@@ -67,6 +68,11 @@ import {
 } from "../../skills.js";
 import { buildSystemPromptParams } from "../../system-prompt-params.js";
 import { buildSystemPromptReport } from "../../system-prompt-report.js";
+<<<<<<< HEAD
+=======
+import { sanitizeToolCallIdsForCloudCodeAssist } from "../../tool-call-id.js";
+import { resolveEffectiveToolFsWorkspaceOnly } from "../../tool-fs-policy.js";
+>>>>>>> 878b4e0ed (refactor: unify tools.fs workspaceOnly resolution)
 import { resolveTranscriptPolicy } from "../../transcript-policy.js";
 import { DEFAULT_BOOTSTRAP_FILENAME } from "../../workspace.js";
 import { isRunnerAbortError } from "../abort.js";
@@ -217,6 +223,26 @@ export async function resolvePromptBuildHookResult(params: {
   };
 }
 
+<<<<<<< HEAD
+=======
+export function resolvePromptModeForSession(sessionKey?: string): "minimal" | "full" {
+  if (!sessionKey) {
+    return "full";
+  }
+  return isSubagentSessionKey(sessionKey) ? "minimal" : "full";
+}
+
+export function resolveAttemptFsWorkspaceOnly(params: {
+  config?: OpenClawConfig;
+  sessionAgentId: string;
+}): boolean {
+  return resolveEffectiveToolFsWorkspaceOnly({
+    cfg: params.config,
+    agentId: params.sessionAgentId,
+  });
+}
+
+>>>>>>> 878b4e0ed (refactor: unify tools.fs workspaceOnly resolution)
 function summarizeMessagePayload(msg: AgentMessage): { textChars: number; imageBlocks: number } {
   const content = (msg as { content?: unknown }).content;
   if (typeof content === "string") {
@@ -352,6 +378,13 @@ export async function runEmbeddedAttempt(
       config: params.config,
       agentId: params.agentId,
     });
+<<<<<<< HEAD
+=======
+    const effectiveFsWorkspaceOnly = resolveAttemptFsWorkspaceOnly({
+      config: params.config,
+      sessionAgentId,
+    });
+>>>>>>> 878b4e0ed (refactor: unify tools.fs workspaceOnly resolution)
     // Check if the model supports native image input
     const modelHasVision = params.model.input?.includes("image") ?? false;
     const toolsRaw = params.disableTools

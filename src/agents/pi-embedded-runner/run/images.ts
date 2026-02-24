@@ -60,6 +60,11 @@ import type { ImageContent } from "@mariozechner/pi-ai";
 import { resolveUserPath } from "../../../utils.js";
 import { loadWebMedia } from "../../../web/media.js";
 import type { ImageSanitizationLimits } from "../../image-sanitization.js";
+<<<<<<< HEAD
+=======
+import { resolveSandboxedBridgeMediaPath } from "../../sandbox-media-paths.js";
+import { assertSandboxPath } from "../../sandbox-paths.js";
+>>>>>>> 878b4e0ed (refactor: unify tools.fs workspaceOnly resolution)
 import type { SandboxFsBridge } from "../../sandbox/fs-bridge.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { sanitizeImageBlocks } from "../../tool-images.js";
@@ -251,6 +256,7 @@ export async function loadImageFromRef(
       return null;
     }
 
+<<<<<<< HEAD
     // For file paths, resolve relative to the appropriate root:
     // - When sandbox is enabled, resolve relative to sandboxRoot for security
     // - Otherwise, resolve relative to workspaceDir
@@ -265,6 +271,33 @@ export async function loadImageFromRef(
     if (ref.type === "path" && options?.sandboxRoot) {
       try {
         const validated = await assertSandboxPath({
+=======
+    // Resolve paths relative to sandbox or workspace as needed
+    if (ref.type === "path") {
+      if (options?.sandbox) {
+        try {
+          const resolved = await resolveSandboxedBridgeMediaPath({
+            sandbox: {
+              root: options.sandbox.root,
+              bridge: options.sandbox.bridge,
+              workspaceOnly: options.workspaceOnly,
+            },
+            mediaPath: targetPath,
+          });
+          targetPath = resolved.resolved;
+        } catch (err) {
+          log.debug(
+            `Native image: sandbox validation failed for ${ref.resolved}: ${err instanceof Error ? err.message : String(err)}`,
+          );
+          return null;
+        }
+      } else if (!path.isAbsolute(targetPath)) {
+        targetPath = path.resolve(workspaceDir, targetPath);
+      }
+      if (options?.workspaceOnly && !options?.sandbox) {
+        const root = options?.sandbox?.root ?? workspaceDir;
+        await assertSandboxPath({
+>>>>>>> 878b4e0ed (refactor: unify tools.fs workspaceOnly resolution)
           filePath: targetPath,
           cwd: options.sandboxRoot,
           root: options.sandboxRoot,

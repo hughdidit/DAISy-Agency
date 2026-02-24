@@ -51,7 +51,7 @@ import { cleanToolSchemaForGemini, normalizeToolParameters } from "./pi-tools.sc
 import type { AnyAgentTool } from "./pi-tools.types.js";
 import type { SandboxContext } from "./sandbox.js";
 import { getSubagentDepthFromSessionStore } from "./subagent-depth.js";
-import { createToolFsPolicy } from "./tool-fs-policy.js";
+import { createToolFsPolicy, resolveToolFsConfig } from "./tool-fs-policy.js";
 import {
   applyToolPolicyPipeline,
   buildDefaultToolPolicyPipelineSteps,
@@ -152,6 +152,7 @@ function resolveExecConfig(cfg: OpenClawConfig | undefined) {
   };
 }
 
+<<<<<<< HEAD
 function resolveFsConfig(params: { cfg?: OpenClawConfig; agentId?: string }) {
   const cfg = params.cfg;
   const globalFs = cfg?.tools?.fs;
@@ -163,6 +164,8 @@ function resolveFsConfig(params: { cfg?: OpenClawConfig; agentId?: string }) {
   };
 }
 
+=======
+>>>>>>> 878b4e0ed (refactor: unify tools.fs workspaceOnly resolution)
 export function resolveToolLoopDetectionConfig(params: {
   cfg?: OpenClawConfig;
   agentId?: string;
@@ -323,7 +326,7 @@ export function createOpenClawCodingTools(options?: {
   const execConfig = resolveExecConfig(options?.config);
 =======
   const execConfig = resolveExecConfig({ cfg: options?.config, agentId });
-  const fsConfig = resolveFsConfig({ cfg: options?.config, agentId });
+  const fsConfig = resolveToolFsConfig({ cfg: options?.config, agentId });
   const fsPolicy = createToolFsPolicy({
     workspaceOnly: fsConfig.workspaceOnly,
   });
