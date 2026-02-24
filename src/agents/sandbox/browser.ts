@@ -217,7 +217,11 @@ export async function ensureSandboxBrowser(params: {
 >>>>>>> 1f1fc095a (refactor(sandbox): auto-recreate browser container on config changes (#16254))
 =======
       includeBinds: false,
+<<<<<<< HEAD
 >>>>>>> 6f895eb83 (fix(sandbox): honor explicit bind mounts over workspace defaults)
+=======
+      bindSourceRoots: [params.workspaceDir, params.agentWorkspaceDir],
+>>>>>>> c070be1bc (fix(sandbox): harden fs bridge path checks and bind mount policy)
     });
     const mainMountSuffix =
       params.cfg.workspaceAccess === "ro" && params.workspaceDir === params.agentWorkspaceDir
