@@ -16,6 +16,7 @@ import type {
   ChannelMessageActionName,
   ChannelThreadingToolContext,
 } from "../../channels/plugins/types.js";
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
 =======
 import { extensionForMime } from "../../media/mime.js";
@@ -25,6 +26,10 @@ import { parseTelegramTarget } from "../../telegram/targets.js";
 >>>>>>> eef247b7a (fix: auto-inject Telegram forum topic threadId in message tool)
 =======
 >>>>>>> 01db1dde1 (fix: telegram topic auto-threading — use parseTelegramTarget, add tests (#7235) (thanks @Lukavyi))
+=======
+import type { OpenClawConfig } from "../../config/config.js";
+import { getAgentScopedMediaLocalRoots } from "../../media/local-roots.js";
+>>>>>>> 270ab03e3 (fix: enforce local media root checks for attachment hydration)
 import {
   isDeliverableMessageChannel,
   normalizeMessageChannel,
@@ -968,6 +973,7 @@ export async function runMessageAction(
     params.accountId = accountId;
   }
   const dryRun = Boolean(input.dryRun ?? readBooleanParam(params, "dryRun"));
+  const mediaLocalRoots = getAgentScopedMediaLocalRoots(cfg, resolvedAgentId);
 
   await hydrateSendAttachmentParams({
     cfg,
@@ -976,6 +982,8 @@ export async function runMessageAction(
     args: params,
     action,
     dryRun,
+    sandboxRoot: input.sandboxRoot,
+    mediaLocalRoots,
   });
 
   await hydrateSetGroupIconParams({
@@ -985,6 +993,8 @@ export async function runMessageAction(
     args: params,
     action,
     dryRun,
+    sandboxRoot: input.sandboxRoot,
+    mediaLocalRoots,
   });
 
   const resolvedTarget = await resolveActionTarget({
