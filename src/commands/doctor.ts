@@ -309,8 +309,13 @@ export async function doctorCommand(
     if (fs.existsSync(backupPath)) {
       runtime.log(`Backup: ${shortenHomePath(backupPath)}`);
     }
+<<<<<<< HEAD
   } else {
     runtime.log(`Run "${formatCliCommand("moltbot doctor --fix")}" to apply changes.`);
+=======
+  } else if (!prompter.shouldRepair) {
+    runtime.log(`Run "${formatCliCommand("openclaw doctor --fix")}" to apply changes.`);
+>>>>>>> ae281a6f6 (fix: suppress "Run doctor --fix" hint when already in fix mode with no changes (#24666))
   }
 
   if (options.workspaceSuggestions !== false) {
