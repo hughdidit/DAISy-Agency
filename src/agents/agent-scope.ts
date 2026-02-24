@@ -18,6 +18,12 @@ import { normalizeSkillFilter } from "./skills/filter.js";
 import { resolveDefaultAgentWorkspaceDir } from "./workspace.js";
 const log = createSubsystemLogger("agent-scope");
 
+/** Strip null bytes from paths to prevent ENOTDIR errors. */
+function stripNullBytes(s: string): string {
+  // eslint-disable-next-line no-control-regex
+  return s.replace(/\0/g, "");
+}
+
 export { resolveAgentIdFromSessionKey } from "../routing/session-key.js";
 
 type AgentEntry = NonNullable<NonNullable<MoltbotConfig["agents"]>["list"]>[number];
@@ -251,22 +257,26 @@ export function resolveAgentWorkspaceDir(cfg: OpenClawConfig, agentId: string) {
   const id = normalizeAgentId(agentId);
   const configured = resolveAgentConfig(cfg, id)?.workspace?.trim();
   if (configured) {
-    return resolveUserPath(configured);
+    return stripNullBytes(resolveUserPath(configured));
   }
   const defaultAgentId = resolveDefaultAgentId(cfg);
   if (id === defaultAgentId) {
     const fallback = cfg.agents?.defaults?.workspace?.trim();
     if (fallback) {
-      return resolveUserPath(fallback);
+      return stripNullBytes(resolveUserPath(fallback));
     }
-    return resolveDefaultAgentWorkspaceDir(process.env);
+    return stripNullBytes(resolveDefaultAgentWorkspaceDir(process.env));
   }
 <<<<<<< HEAD
   return path.join(os.homedir(), `clawd-${id}`);
 =======
   const stateDir = resolveStateDir(process.env);
+<<<<<<< HEAD
   return path.join(stateDir, `workspace-${id}`);
 >>>>>>> db137dd65 (fix(paths): respect OPENCLAW_HOME for all internal path resolution (#12091))
+=======
+  return stripNullBytes(path.join(stateDir, `workspace-${id}`));
+>>>>>>> 19c43eade (fix(memory): strip null bytes from workspace paths causing ENOTDIR (#24876))
 }
 
 export function resolveAgentDir(cfg: MoltbotConfig, agentId: string) {
