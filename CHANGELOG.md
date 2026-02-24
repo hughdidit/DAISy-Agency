@@ -64,8 +64,12 @@ Docs: https://docs.openclaw.ai
 - Config/Kilo Gateway: Kilo provider flow now surfaces an updated list of models. (#24921) thanks @gumadeiras.
 - Security/Sandbox: enforce `tools.exec.applyPatch.workspaceOnly` and `tools.fs.workspaceOnly` for `apply_patch` in sandbox-mounted paths so writes/deletes cannot escape the workspace boundary via mounts like `/agent` unless explicitly opted out (`tools.exec.applyPatch.workspaceOnly=false`). This ships in the next npm release. Thanks @tdjackey for reporting.
 - Security/Config writes: block reserved prototype keys in account-id normalization and route account config resolution through own-key lookups, hardening `/allowlist` and account-scoped config paths against prototype-chain pollution.
+<<<<<<< HEAD
 >>>>>>> 1d28da55a (fix(voice-call): block Twilio webhook replay and stale transitions)
 - Security/Exec: harden `safeBins` long-option validation by rejecting unknown/ambiguous GNU long-option abbreviations and denying sort filesystem-dependent flags (`--random-source`, `--temporary-directory`, `-T`), closing safe-bin denylist bypasses. Thanks @jiseoung.
+=======
+- Security/Exec: harden `safeBins` long-option validation by rejecting unknown/ambiguous GNU long-option abbreviations and denying sort filesystem-dependent flags (`--random-source`, `--temporary-directory`, `-T`), closing safe-bin denylist bypasses. This ships in the next npm release. Thanks @tdjackey and @jiseoung for reporting.
+>>>>>>> d0ef4c75c (docs(changelog): credit safeBins advisory reporters)
 - Security/Channels: unify dangerous name-matching policy checks (`dangerouslyAllowNameMatching`) across core and extension channels, share mutable-allowlist detectors between `openclaw doctor` and `openclaw security audit`, and scan all configured accounts (not only the default account) in channel security audit findings.
 
 ## 2026.2.23 (Unreleased)
