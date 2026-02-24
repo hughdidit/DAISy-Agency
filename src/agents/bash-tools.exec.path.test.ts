@@ -1,4 +1,11 @@
+<<<<<<< HEAD
 import { afterEach, describe, expect, it, vi } from "vitest";
+=======
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+>>>>>>> 204d9fb40 (refactor(security): dedupe shell env probe and add path regression test)
 import type { ExecApprovalsResolved } from "../infra/exec-approvals.js";
 import { sanitizeBinaryOutput } from "./shell-utils.js";
 
@@ -54,7 +61,15 @@ const normalizeText = (value?: string) =>
     .trim();
 
 describe("exec PATH login shell merge", () => {
+<<<<<<< HEAD
   const originalPath = process.env.PATH;
+=======
+  let envSnapshot: ReturnType<typeof captureEnv>;
+
+  beforeEach(() => {
+    envSnapshot = captureEnv(["PATH", "SHELL"]);
+  });
+>>>>>>> 204d9fb40 (refactor(security): dedupe shell env probe and add path regression test)
 
   afterEach(() => {
     process.env.PATH = originalPath;
@@ -114,5 +129,42 @@ describe("exec PATH login shell merge", () => {
 
 >>>>>>> 0a5821a81 (fix(security): enforce strict environment variable validation in exec tool (#4896))
     expect(shellPathMock).not.toHaveBeenCalled();
+  });
+
+  it("does not apply login-shell PATH when probe rejects unregistered absolute SHELL", async () => {
+    if (isWin) {
+      return;
+    }
+    process.env.PATH = "/usr/bin";
+    const shellDir = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-shell-env-"));
+    const unregisteredShellPath = path.join(shellDir, "unregistered-shell");
+    fs.writeFileSync(unregisteredShellPath, '#!/bin/sh\nexec /bin/sh "$@"\n', {
+      encoding: "utf8",
+      mode: 0o755,
+    });
+    process.env.SHELL = unregisteredShellPath;
+
+    try {
+      const shellPathMock = vi.mocked(getShellPathFromLoginShell);
+      shellPathMock.mockClear();
+      shellPathMock.mockImplementation((opts) =>
+        opts.env.SHELL?.trim() === unregisteredShellPath ? null : "/custom/bin:/opt/bin",
+      );
+
+      const tool = createExecTool({ host: "gateway", security: "full", ask: "off" });
+      const result = await tool.execute("call1", { command: "echo $PATH" });
+      const entries = normalizePathEntries(result.content.find((c) => c.type === "text")?.text);
+
+      expect(entries).toEqual(["/usr/bin"]);
+      expect(shellPathMock).toHaveBeenCalledTimes(1);
+      expect(shellPathMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          env: process.env,
+          timeoutMs: 1234,
+        }),
+      );
+    } finally {
+      fs.rmSync(shellDir, { recursive: true, force: true });
+    }
   });
 });
