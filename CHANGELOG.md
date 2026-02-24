@@ -49,6 +49,7 @@ Docs: https://docs.openclaw.ai
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 =======
@@ -63,6 +64,9 @@ Docs: https://docs.openclaw.ai
 =======
 =======
 =======
+=======
+- Exec approvals: treat bare allowlist `*` as a true wildcard for parsed executables, including unresolved PATH lookups, so global opt-in allowlists work as configured. (#25250) Thanks @widingmarcus-cyber.
+>>>>>>> 07f653ffc (fix: polish bare wildcard allowlist handling (#25250) (thanks @widingmarcus-cyber))
 - Gateway/Auth: allow trusted-proxy authenticated Control UI websocket sessions to skip device pairing when device identity is absent, preventing false `pairing required` failures behind trusted reverse proxies. (#25428) Thanks @SidQin-cyber.
 >>>>>>> e9216cb7d (fix: add changelog for trusted-proxy pairing bypass (#25428) (thanks @SidQin-cyber))
 - Agents/Tool dispatch: await block-reply flush before tool execution starts so buffered block replies preserve message ordering around tool calls. (#25427) Thanks @SidQin-cyber.
