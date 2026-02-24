@@ -39,8 +39,12 @@ const VOICE_FORBIDDEN_RE = /VOICE_MESSAGES_FORBIDDEN/;
 const FILE_TOO_BIG_RE = /file is too big/i;
 const TELEGRAM_MEDIA_SSRF_POLICY = {
   allowRfc2544BenchmarkRange: true,
+<<<<<<< HEAD
 } as const;
 >>>>>>> 3af9d1f8e (fix: scope Telegram RFC2544 SSRF exception to policy opt-in (#24982) (thanks @stakeswky))
+=======
+};
+>>>>>>> 803e02d8d (fix: adapt landed fixups to current type and approval constraints)
 
 export async function deliverReplies(params: {
   replies: ReplyPayload[];
