@@ -35,6 +35,15 @@ import type { StickerMetadata, TelegramContext } from "./types.js";
 const PARSE_ERR_RE = /can't parse entities|parse entities|find end of the entity/i;
 const VOICE_FORBIDDEN_RE = /VOICE_MESSAGES_FORBIDDEN/;
 const FILE_TOO_BIG_RE = /file is too big/i;
+<<<<<<< HEAD
+=======
+const TELEGRAM_MEDIA_SSRF_POLICY = {
+  // Telegram file downloads should trust api.telegram.org even when DNS/proxy
+  // resolution maps to private/internal ranges in restricted networks.
+  allowedHostnames: ["api.telegram.org"],
+  allowRfc2544BenchmarkRange: true,
+} as const;
+>>>>>>> dd14daab1 (fix(telegram): allowlist api.telegram.org in media SSRF policy)
 
 export async function deliverReplies(params: {
   replies: ReplyPayload[];
