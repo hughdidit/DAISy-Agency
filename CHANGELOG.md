@@ -53,6 +53,7 @@ Docs: https://docs.openclaw.ai
 ### Fixes
 
 - Security/Exec: harden `safeBins` long-option validation by rejecting unknown/ambiguous GNU long-option abbreviations and denying sort filesystem-dependent flags (`--random-source`, `--temporary-directory`, `-T`), closing safe-bin denylist bypasses. Thanks @jiseoung.
+- Security/Channels: unify dangerous name-matching policy checks (`dangerouslyAllowNameMatching`) across core and extension channels, share mutable-allowlist detectors between `openclaw doctor` and `openclaw security audit`, and scan all configured accounts (not only the default account) in channel security audit findings.
 
 ## 2026.2.23 (Unreleased)
 >>>>>>> 25f6fcc63 (docs(changelog): note safeBins exec hardening)
