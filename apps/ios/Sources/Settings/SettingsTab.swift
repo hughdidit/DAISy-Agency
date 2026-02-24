@@ -359,10 +359,16 @@ struct SettingsTab: View {
                             .foregroundStyle(.secondary)
                             .lineLimit(1)
                             .truncationMode(.middle)
+<<<<<<< HEAD
                         LabeledContent("Device", value: self.deviceFamily())
                         LabeledContent("Platform", value: self.platformString())
                         LabeledContent("OpenClaw", value: self.openClawVersionString())
 >>>>>>> bfc973636 (feat: share to openclaw ios app (#19424))
+=======
+                        LabeledContent("Device", value: DeviceInfoHelper.deviceFamily())
+                        LabeledContent("Platform", value: DeviceInfoHelper.platformStringForDisplay())
+                        LabeledContent("OpenClaw", value: DeviceInfoHelper.openClawVersionString())
+>>>>>>> 32d7756d8 (iOS: extract device/platform info into DeviceInfoHelper, keep Settings platform string as iOS X.Y.Z)
                     }
                     .pickerStyle(.segmented)
 
@@ -559,6 +565,7 @@ struct SettingsTab: View {
         case availableOnly
     }
 
+<<<<<<< HEAD
     private func platformString() -> String {
         let v = ProcessInfo.processInfo.operatingSystemVersion
         return "iOS \(v.majorVersion).\(v.minorVersion).\(v.patchVersion)"
@@ -594,6 +601,20 @@ struct SettingsTab: View {
             return version
         }
         return "\(version) (\(trimmedBuild))"
+=======
+    private var isGatewayConnected: Bool {
+        let status = self.appModel.gatewayStatusText.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        if status.contains("connected") { return true }
+        return self.appModel.gatewayServerName != nil && !status.contains("offline")
+    }
+
+    private var gatewaySummaryText: String {
+        if let server = self.appModel.gatewayServerName, self.isGatewayConnected {
+            return server
+        }
+        let trimmed = self.appModel.gatewayStatusText.trimmingCharacters(in: .whitespacesAndNewlines)
+        return trimmed.isEmpty ? "Not connected" : trimmed
+>>>>>>> 32d7756d8 (iOS: extract device/platform info into DeviceInfoHelper, keep Settings platform string as iOS X.Y.Z)
     }
 
     private func featureToggle(

@@ -681,6 +681,7 @@ final class GatewayConnectionController {
     private static func motionAvailable() -> Bool {
         CMMotionActivityManager.isActivityAvailable() || CMPedometer.isStepCountingAvailable()
     }
+<<<<<<< HEAD
 
 >>>>>>> a884955cd (iOS: add write commands for contacts/calendar/reminders)
 =======
@@ -722,6 +723,8 @@ final class GatewayConnectionController {
     private func appVersion() -> String {
         Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "dev"
     }
+=======
+>>>>>>> 32d7756d8 (iOS: extract device/platform info into DeviceInfoHelper, keep Settings platform string as iOS X.Y.Z)
 }
 
 #if DEBUG
@@ -739,19 +742,19 @@ extension GatewayConnectionController {
     }
 
     func _test_platformString() -> String {
-        self.platformString()
+        DeviceInfoHelper.platformString()
     }
 
     func _test_deviceFamily() -> String {
-        self.deviceFamily()
+        DeviceInfoHelper.deviceFamily()
     }
 
     func _test_modelIdentifier() -> String {
-        self.modelIdentifier()
+        DeviceInfoHelper.modelIdentifier()
     }
 
     func _test_appVersion() -> String {
-        self.appVersion()
+        DeviceInfoHelper.appVersion()
     }
 
     func _test_setGateways(_ gateways: [GatewayDiscoveryModel.DiscoveredGateway]) {
