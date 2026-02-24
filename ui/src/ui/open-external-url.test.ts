@@ -38,6 +38,33 @@ describe("resolveSafeExternalUrl", () => {
     ).toBeNull();
   });
 
+<<<<<<< HEAD
+=======
+  it("rejects SVG data image URLs", () => {
+    expect(
+      resolveSafeExternalUrl(
+        "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' />",
+        baseHref,
+        {
+          allowDataImage: true,
+        },
+      ),
+    ).toBeNull();
+  });
+
+  it("rejects base64-encoded SVG data image URLs", () => {
+    expect(
+      resolveSafeExternalUrl(
+        "data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIC8+",
+        baseHref,
+        {
+          allowDataImage: true,
+        },
+      ),
+    ).toBeNull();
+  });
+
+>>>>>>> 30cb849b1 (test(ui): reject base64 SVG data URLs)
   it("rejects data image URLs unless explicitly enabled", () => {
     expect(resolveSafeExternalUrl("data:image/png;base64,iVBORw0KGgo=", baseHref)).toBeNull();
   });
