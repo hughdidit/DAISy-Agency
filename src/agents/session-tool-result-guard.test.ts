@@ -346,11 +346,9 @@ describe("installSessionToolResultGuard", () => {
 >>>>>>> 85409e401 (fix: preserve inter-session input provenance (thanks @anbecker))
 =======
 
-  // Regression test for orphaned tool_result bug
-  // See: https://github.com/clawdbot/clawdbot/issues/XXXX
   // When an assistant message with toolCalls is aborted, no synthetic toolResult
   // should be created. Creating synthetic results for aborted/incomplete tool calls
-  // causes API 400 errors: "unexpected tool_use_id found in tool_result blocks"
+  // causes API 400 errors: "unexpected tool_use_id found in tool_result blocks".
   it("does NOT create synthetic toolResult for aborted assistant messages with toolCalls", () => {
     const sm = SessionManager.inMemory();
     installSessionToolResultGuard(sm);
