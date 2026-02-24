@@ -13,6 +13,7 @@
   "type": "module",
   "dependencies": {
     "@opentelemetry/api": "^1.9.0",
+<<<<<<< HEAD
     "@opentelemetry/api-logs": "^0.211.0",
     "@opentelemetry/exporter-logs-otlp-http": "^0.211.0",
     "@opentelemetry/exporter-metrics-otlp-http": "^0.211.0",
@@ -22,6 +23,17 @@
     "@opentelemetry/sdk-metrics": "^2.5.0",
     "@opentelemetry/sdk-node": "^0.211.0",
     "@opentelemetry/sdk-trace-base": "^2.5.0",
+=======
+    "@opentelemetry/api-logs": "^0.212.0",
+    "@opentelemetry/exporter-logs-otlp-proto": "^0.212.0",
+    "@opentelemetry/exporter-metrics-otlp-proto": "^0.212.0",
+    "@opentelemetry/exporter-trace-otlp-proto": "^0.212.0",
+    "@opentelemetry/resources": "^2.5.1",
+    "@opentelemetry/sdk-logs": "^0.212.0",
+    "@opentelemetry/sdk-metrics": "^2.5.1",
+    "@opentelemetry/sdk-node": "^0.212.0",
+    "@opentelemetry/sdk-trace-base": "^2.5.1",
+>>>>>>> 9d3bd5099 (fix(otel): use protobuf OTLP exporters instead of JSON/HTTP)
     "@opentelemetry/semantic-conventions": "^1.39.0"
   },
   "devDependencies": {
