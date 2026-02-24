@@ -198,8 +198,12 @@ Docs: https://docs.openclaw.ai
 - Exec/Bash tools: clamp poll sleep duration to non-negative values in process polling loops. (#24889)
 >>>>>>> 91ea6ad8e (docs(changelog): reorder unreleased fixes by user impact)
 
+<<<<<<< HEAD
 ## 2026.2.23 (Unreleased)
 >>>>>>> 25f6fcc63 (docs(changelog): note safeBins exec hardening)
+=======
+## 2026.2.23
+>>>>>>> b81760053 (chore(release): cut 2026.2.23)
 
 ### Changes
 
