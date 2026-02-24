@@ -35,6 +35,10 @@ const FAILURE_REASON_ORDER = new Map<AuthProfileFailureReason, number>(
   FAILURE_REASON_PRIORITY.map((reason, index) => [reason, index]),
 );
 
+function isAuthCooldownBypassedForProvider(provider: string | undefined): boolean {
+  return normalizeProviderId(provider ?? "") === "openrouter";
+}
+
 export function resolveProfileUnusableUntil(
   stats: Pick<ProfileUsageStats, "cooldownUntil" | "disabledUntil">,
 ): number | null {
@@ -51,6 +55,9 @@ export function resolveProfileUnusableUntil(
  * Check if a profile is currently in cooldown (due to rate limiting or errors).
  */
 export function isProfileInCooldown(store: AuthProfileStore, profileId: string): boolean {
+  if (isAuthCooldownBypassedForProvider(store.profiles[profileId]?.provider)) {
+    return false;
+  }
   const stats = store.usageStats?.[profileId];
   if (!stats) {
     return false;
@@ -363,6 +370,9 @@ export function resolveProfileUnusableUntilForDisplay(
   store: AuthProfileStore,
   profileId: string,
 ): number | null {
+  if (isAuthCooldownBypassedForProvider(store.profiles[profileId]?.provider)) {
+    return null;
+  }
   const stats = store.usageStats?.[profileId];
   if (!stats) {
     return null;
@@ -437,11 +447,15 @@ export async function markAuthProfileFailure(params: {
   agentDir?: string;
 }): Promise<void> {
   const { store, profileId, reason, agentDir, cfg } = params;
+  const profile = store.profiles[profileId];
+  if (!profile || isAuthCooldownBypassedForProvider(profile.provider)) {
+    return;
+  }
   const updated = await updateAuthProfileStoreWithLock({
     agentDir,
     updater: (freshStore) => {
       const profile = freshStore.profiles[profileId];
-      if (!profile) {
+      if (!profile || isAuthCooldownBypassedForProvider(profile.provider)) {
         return false;
       }
       freshStore.usageStats = freshStore.usageStats ?? {};
