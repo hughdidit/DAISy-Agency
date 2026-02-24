@@ -154,6 +154,22 @@ export { resolveChannelAccountConfigBasePath } from "./config-paths.js";
 export { chunkTextForOutbound } from "./text-chunking.js";
 export { readJsonFileWithFallback, writeJsonFileAtomically } from "./json-store.js";
 export { buildRandomTempFilePath, withTempDownloadPath } from "./temp-path.js";
+<<<<<<< HEAD
+=======
+export { resolvePreferredOpenClawTmpDir } from "../infra/tmp-openclaw-dir.js";
+export {
+  runPluginCommandWithTimeout,
+  type PluginCommandRunOptions,
+  type PluginCommandRunResult,
+} from "./run-command.js";
+export { resolveGatewayBindUrl } from "../shared/gateway-bind-url.js";
+export type { GatewayBindUrlResult } from "../shared/gateway-bind-url.js";
+export { resolveTailnetHostWithRunner } from "../shared/tailscale-status.js";
+export type {
+  TailscaleStatusCommandResult,
+  TailscaleStatusCommandRunner,
+} from "../shared/tailscale-status.js";
+>>>>>>> d3da67c7a (fix(security): lock sandbox tmp media paths to openclaw roots)
 export type { ChatType } from "../channels/chat-type.js";
 /** @deprecated Use ChatType instead */
 export type { RoutePeerKind } from "../routing/resolve-route.js";
