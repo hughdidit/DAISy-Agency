@@ -15,6 +15,7 @@ import {
 } from "./test-helpers.js";
 
 installGatewayTestHooks({ scope: "suite" });
+const FAST_WAIT_OPTS = { timeout: 250, interval: 2 } as const;
 
 const sendReq = (
   ws: { send: (payload: string) => void },
@@ -166,12 +167,9 @@ describe("gateway server chat", () => {
         });
         expect(sendRes.ok).toBe(true);
 
-        await vi.waitFor(
-          () => {
-            expect(spy.mock.calls.length).toBeGreaterThan(0);
-          },
-          { timeout: 500, interval: 10 },
-        );
+        await vi.waitFor(() => {
+          expect(spy.mock.calls.length).toBeGreaterThan(0);
+        }, FAST_WAIT_OPTS);
 
         expect(capturedOpts?.disableBlockStreaming).toBeUndefined();
       } finally {
@@ -377,12 +375,9 @@ describe("gateway server chat", () => {
 
       const sendRes = await sendResP;
       expect(sendRes.ok).toBe(true);
-      await vi.waitFor(
-        () => {
-          expect(spy.mock.calls.length).toBeGreaterThan(0);
-        },
-        { timeout: 500, interval: 10 },
-      );
+      await vi.waitFor(() => {
+        expect(spy.mock.calls.length).toBeGreaterThan(0);
+      }, FAST_WAIT_OPTS);
 
       const inFlight = await rpcReq<{ status?: string }>(ws, "chat.send", {
         sessionKey: "main",
@@ -398,12 +393,9 @@ describe("gateway server chat", () => {
       });
       expect(abortRes.ok).toBe(true);
       expect(abortRes.payload?.aborted).toBe(true);
-      await vi.waitFor(
-        () => {
-          expect(aborted).toBe(true);
-        },
-        { timeout: 500, interval: 10 },
-      );
+      await vi.waitFor(() => {
+        expect(aborted).toBe(true);
+      }, FAST_WAIT_OPTS);
 
       spy.mockClear();
       spy.mockResolvedValueOnce(undefined);
@@ -415,18 +407,15 @@ describe("gateway server chat", () => {
       });
       expect(completeRes.ok).toBe(true);
 
-      await vi.waitFor(
-        async () => {
-          const again = await rpcReq<{ status?: string }>(ws, "chat.send", {
-            sessionKey: "main",
-            message: "hello",
-            idempotencyKey: "idem-complete-1",
-          });
-          expect(again.ok).toBe(true);
-          expect(again.payload?.status).toBe("ok");
-        },
-        { timeout: 500, interval: 10 },
-      );
+      await vi.waitFor(async () => {
+        const again = await rpcReq<{ status?: string }>(ws, "chat.send", {
+          sessionKey: "main",
+          message: "hello",
+          idempotencyKey: "idem-complete-1",
+        });
+        expect(again.ok).toBe(true);
+        expect(again.payload?.status).toBe("ok");
+      }, FAST_WAIT_OPTS);
     });
   });
 });
