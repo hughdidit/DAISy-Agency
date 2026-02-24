@@ -30,5 +30,6 @@ export function verifyTwilioProviderWebhook(params: {
   return {
     ok: result.ok,
     reason: result.reason,
+    isReplay: result.isReplay,
   };
 }

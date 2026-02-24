@@ -325,6 +325,7 @@ export class VoiceCallWebhookServer {
     const result = this.provider.parseWebhookEvent(ctx);
 
     // Process each event
+<<<<<<< HEAD
     for (const event of result.events) {
       try {
         await this.manager.processEvent(event);
@@ -332,6 +333,17 @@ export class VoiceCallWebhookServer {
         this.logger.error(
           `[voice-call] Error processing event ${event.type}: ${err}`,
         );
+=======
+    if (verification.isReplay) {
+      console.warn("[voice-call] Replay detected; skipping event side effects");
+    } else {
+      for (const event of result.events) {
+        try {
+          this.manager.processEvent(event);
+        } catch (err) {
+          console.error(`[voice-call] Error processing event ${event.type}:`, err);
+        }
+>>>>>>> 1d28da55a (fix(voice-call): block Twilio webhook replay and stale transitions)
       }
     }
 

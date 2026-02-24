@@ -31,6 +31,29 @@ export interface PlivoProviderOptions {
 type PendingSpeak = { text: string; locale?: string };
 type PendingListen = { language?: string };
 
+function getHeader(
+  headers: Record<string, string | string[] | undefined>,
+  name: string,
+): string | undefined {
+  const value = headers[name.toLowerCase()];
+  if (Array.isArray(value)) {
+    return value[0];
+  }
+  return value;
+}
+
+function createPlivoRequestDedupeKey(ctx: WebhookContext): string {
+  const nonceV3 = getHeader(ctx.headers, "x-plivo-signature-v3-nonce");
+  if (nonceV3) {
+    return `plivo:v3:${nonceV3}`;
+  }
+  const nonceV2 = getHeader(ctx.headers, "x-plivo-signature-v2-nonce");
+  if (nonceV2) {
+    return `plivo:v2:${nonceV2}`;
+  }
+  return `plivo:fallback:${crypto.createHash("sha256").update(ctx.rawBody).digest("hex")}`;
+}
+
 export class PlivoProvider implements VoiceCallProvider {
   readonly name = "plivo" as const;
 
@@ -104,7 +127,7 @@ export class PlivoProvider implements VoiceCallProvider {
       this.logger.warn(`[plivo] Webhook verification failed: ${result.reason}`);
     }
 
-    return { ok: result.ok, reason: result.reason };
+    return { ok: result.ok, reason: result.reason, isReplay: result.isReplay };
   }
 
   parseWebhookEvent(ctx: WebhookContext): ProviderWebhookParseResult {
@@ -172,7 +195,8 @@ export class PlivoProvider implements VoiceCallProvider {
 
     // Normal events.
     const callIdFromQuery = this.getCallIdFromQuery(ctx);
-    const event = this.normalizeEvent(parsed, callIdFromQuery);
+    const dedupeKey = createPlivoRequestDedupeKey(ctx);
+    const event = this.normalizeEvent(parsed, callIdFromQuery, dedupeKey);
 
     return {
       events: event ? [event] : [],
@@ -188,6 +212,10 @@ export class PlivoProvider implements VoiceCallProvider {
   private normalizeEvent(
     params: URLSearchParams,
     callIdOverride?: string,
+<<<<<<< HEAD
+=======
+    dedupeKey?: string,
+>>>>>>> 1d28da55a (fix(voice-call): block Twilio webhook replay and stale transitions)
   ): NormalizedEvent | null {
     const callUuid = params.get("CallUUID") || "";
     const requestUuid = params.get("RequestUUID") || "";
@@ -203,6 +231,7 @@ export class PlivoProvider implements VoiceCallProvider {
 
     const baseEvent = {
       id: crypto.randomUUID(),
+      dedupeKey,
       callId: callIdOverride || callUuid || requestUuid,
       providerCallId: callUuid || requestUuid || undefined,
       timestamp: Date.now(),

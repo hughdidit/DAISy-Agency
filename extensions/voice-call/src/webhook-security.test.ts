@@ -172,6 +172,40 @@ describe("verifyPlivoWebhook", () => {
     expect(result.ok).toBe(false);
     expect(result.reason).toMatch(/Missing Plivo signature headers/);
   });
+
+  it("marks replayed valid V3 requests as replay without failing auth", () => {
+    const authToken = "test-auth-token";
+    const nonce = "nonce-replay-v3";
+    const urlWithQuery = "https://example.com/voice/webhook?flow=answer&callId=abc";
+    const postBody = "CallUUID=uuid&CallStatus=in-progress&From=%2B15550000000";
+    const signature = plivoV3Signature({
+      authToken,
+      urlWithQuery,
+      postBody,
+      nonce,
+    });
+
+    const ctx = {
+      headers: {
+        host: "example.com",
+        "x-forwarded-proto": "https",
+        "x-plivo-signature-v3": signature,
+        "x-plivo-signature-v3-nonce": nonce,
+      },
+      rawBody: postBody,
+      url: urlWithQuery,
+      method: "POST" as const,
+      query: { flow: "answer", callId: "abc" },
+    };
+
+    const first = verifyPlivoWebhook(ctx, authToken);
+    const second = verifyPlivoWebhook(ctx, authToken);
+
+    expect(first.ok).toBe(true);
+    expect(first.isReplay).toBeFalsy();
+    expect(second.ok).toBe(true);
+    expect(second.isReplay).toBe(true);
+  });
 });
 
 describe("verifyTwilioWebhook", () => {
@@ -206,7 +240,53 @@ describe("verifyTwilioWebhook", () => {
     expect(result.ok).toBe(true);
   });
 
+<<<<<<< HEAD
   it("rejects invalid signatures even with ngrok free tier enabled", () => {
+=======
+  it("marks replayed valid requests as replay without failing auth", () => {
+    const authToken = "test-auth-token";
+    const publicUrl = "https://example.com/voice/webhook";
+    const urlWithQuery = `${publicUrl}?callId=abc`;
+    const postBody = "CallSid=CS777&CallStatus=completed&From=%2B15550000000";
+    const signature = twilioSignature({ authToken, url: urlWithQuery, postBody });
+    const headers = {
+      host: "example.com",
+      "x-forwarded-proto": "https",
+      "x-twilio-signature": signature,
+      "i-twilio-idempotency-token": "idem-replay-1",
+    };
+
+    const first = verifyTwilioWebhook(
+      {
+        headers,
+        rawBody: postBody,
+        url: "http://local/voice/webhook?callId=abc",
+        method: "POST",
+        query: { callId: "abc" },
+      },
+      authToken,
+      { publicUrl },
+    );
+    const second = verifyTwilioWebhook(
+      {
+        headers,
+        rawBody: postBody,
+        url: "http://local/voice/webhook?callId=abc",
+        method: "POST",
+        query: { callId: "abc" },
+      },
+      authToken,
+      { publicUrl },
+    );
+
+    expect(first.ok).toBe(true);
+    expect(first.isReplay).toBeFalsy();
+    expect(second.ok).toBe(true);
+    expect(second.isReplay).toBe(true);
+  });
+
+  it("rejects invalid signatures even when attacker injects forwarded host", () => {
+>>>>>>> 1d28da55a (fix(voice-call): block Twilio webhook replay and stale transitions)
     const authToken = "test-auth-token";
     const postBody = "CallSid=CS123&CallStatus=completed&From=%2B15550000000";
 

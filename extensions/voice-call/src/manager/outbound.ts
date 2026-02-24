@@ -188,10 +188,26 @@ export async function continueCall(
   callId: CallId,
   prompt: string,
 ): Promise<{ success: boolean; transcript?: string; error?: string }> {
+<<<<<<< HEAD
   const call = ctx.activeCalls.get(callId);
   if (!call) return { success: false, error: "Call not found" };
   if (!ctx.provider || !call.providerCallId) return { success: false, error: "Call not connected" };
   if (TerminalStates.has(call.state)) return { success: false, error: "Call has ended" };
+=======
+  const connected = requireConnectedCall(ctx, callId);
+  if (!connected.ok) {
+    return { success: false, error: connected.error };
+  }
+  const { call, providerCallId, provider } = connected;
+
+  if (ctx.activeTurnCalls.has(callId) || ctx.transcriptWaiters.has(callId)) {
+    return { success: false, error: "Already waiting for transcript" };
+  }
+  ctx.activeTurnCalls.add(callId);
+
+  const turnStartedAt = Date.now();
+  const turnToken = provider.name === "twilio" ? crypto.randomUUID() : undefined;
+>>>>>>> 1d28da55a (fix(voice-call): block Twilio webhook replay and stale transitions)
 
   try {
     await speak(ctx, callId, prompt);
@@ -199,9 +215,17 @@ export async function continueCall(
     transitionState(call, "listening");
     persistCallRecord(ctx.storePath, call);
 
+<<<<<<< HEAD
     await ctx.provider.startListening({ callId, providerCallId: call.providerCallId });
 
     const transcript = await waitForFinalTranscript(ctx, callId);
+=======
+    const listenStartedAt = Date.now();
+    await provider.startListening({ callId, providerCallId, turnToken });
+
+    const transcript = await waitForFinalTranscript(ctx, callId, turnToken);
+    const transcriptReceivedAt = Date.now();
+>>>>>>> 1d28da55a (fix(voice-call): block Twilio webhook replay and stale transitions)
 
     // Best-effort: stop listening after final transcript.
     await ctx.provider.stopListening({ callId, providerCallId: call.providerCallId });
