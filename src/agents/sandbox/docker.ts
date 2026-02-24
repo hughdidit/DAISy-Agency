@@ -317,6 +317,7 @@ export function buildSandboxCreateArgs(params: {
   bindSourceRoots?: string[];
   allowSourcesOutsideAllowedRoots?: boolean;
   allowReservedContainerTargets?: boolean;
+  allowContainerNamespaceJoin?: boolean;
 }) {
 <<<<<<< HEAD
 =======
@@ -330,6 +331,9 @@ export function buildSandboxCreateArgs(params: {
     allowReservedContainerTargets:
       params.allowReservedContainerTargets ??
       params.cfg.dangerouslyAllowReservedContainerTargets === true,
+    dangerouslyAllowContainerNamespaceJoin:
+      params.allowContainerNamespaceJoin ??
+      params.cfg.dangerouslyAllowContainerNamespaceJoin === true,
   });
 
 >>>>>>> c070be1bc (fix(sandbox): harden fs bridge path checks and bind mount policy)

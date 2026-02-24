@@ -125,8 +125,74 @@ export const SandboxDockerSchema = z
     binds: z.array(z.string()).optional(),
     dangerouslyAllowReservedContainerTargets: z.boolean().optional(),
     dangerouslyAllowExternalBindSources: z.boolean().optional(),
+    dangerouslyAllowContainerNamespaceJoin: z.boolean().optional(),
   })
   .strict()
+<<<<<<< HEAD
+=======
+  .superRefine((data, ctx) => {
+    if (data.binds) {
+      for (let i = 0; i < data.binds.length; i += 1) {
+        const bind = data.binds[i]?.trim() ?? "";
+        if (!bind) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ["binds", i],
+            message: "Sandbox security: bind mount entry must be a non-empty string.",
+          });
+          continue;
+        }
+        const firstColon = bind.indexOf(":");
+        const source = (firstColon <= 0 ? bind : bind.slice(0, firstColon)).trim();
+        if (!source.startsWith("/")) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ["binds", i],
+            message:
+              `Sandbox security: bind mount "${bind}" uses a non-absolute source path "${source}". ` +
+              "Only absolute POSIX paths are supported for sandbox binds.",
+          });
+        }
+      }
+    }
+    const network = data.network?.trim().toLowerCase();
+    if (network === "host") {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["network"],
+        message:
+          'Sandbox security: network mode "host" is blocked. Use "bridge" or "none" instead.',
+      });
+    }
+    if (network?.startsWith("container:") && data.dangerouslyAllowContainerNamespaceJoin !== true) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["network"],
+        message:
+          'Sandbox security: network mode "container:*" is blocked by default. ' +
+          "Use a custom bridge network, or set dangerouslyAllowContainerNamespaceJoin=true only when you fully trust this runtime.",
+      });
+    }
+    if (data.seccompProfile?.trim().toLowerCase() === "unconfined") {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["seccompProfile"],
+        message:
+          'Sandbox security: seccomp profile "unconfined" is blocked. ' +
+          "Use a custom seccomp profile file or omit this setting.",
+      });
+    }
+    if (data.apparmorProfile?.trim().toLowerCase() === "unconfined") {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["apparmorProfile"],
+        message:
+          'Sandbox security: apparmor profile "unconfined" is blocked. ' +
+          "Use a named AppArmor profile or omit this setting.",
+      });
+    }
+  })
+>>>>>>> 14b6eea6e (feat(sandbox): block container namespace joins by default)
   .optional();
 
 export const SandboxBrowserSchema = z
@@ -404,6 +470,21 @@ export const AgentSandboxSchema = z
     prune: SandboxPruneSchema,
   })
   .strict()
+  .superRefine((data, ctx) => {
+    const browserNetwork = data.browser?.network?.trim().toLowerCase();
+    if (
+      browserNetwork?.startsWith("container:") &&
+      data.docker?.dangerouslyAllowContainerNamespaceJoin !== true
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["browser", "network"],
+        message:
+          'Sandbox security: browser network mode "container:*" is blocked by default. ' +
+          "Set sandbox.docker.dangerouslyAllowContainerNamespaceJoin=true only when you fully trust this runtime.",
+      });
+    }
+  })
   .optional();
 
 const CommonToolPolicyFields = {

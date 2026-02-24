@@ -52,6 +52,7 @@ import { readBrowserRegistry, updateBrowserRegistry } from "./registry.js";
 import { resolveSandboxAgentId, slugifySessionKey } from "./shared.js";
 import { isToolAllowed } from "./tool-policy.js";
 import type { SandboxBrowserContext, SandboxConfig } from "./types.js";
+import { validateNetworkMode } from "./validate-sandbox-security.js";
 
 const HOT_BROWSER_WINDOW_MS = 5 * 60 * 1000;
 
@@ -121,6 +122,27 @@ async function ensureSandboxBrowserImage(image: string) {
   );
 }
 
+<<<<<<< HEAD
+=======
+async function ensureDockerNetwork(
+  network: string,
+  opts?: { allowContainerNamespaceJoin?: boolean },
+) {
+  validateNetworkMode(network, {
+    allowContainerNamespaceJoin: opts?.allowContainerNamespaceJoin === true,
+  });
+  const normalized = network.trim().toLowerCase();
+  if (!normalized || normalized === "bridge" || normalized === "none") {
+    return;
+  }
+  const inspect = await execDocker(["network", "inspect", network], { allowFailure: true });
+  if (inspect.code === 0) {
+    return;
+  }
+  await execDocker(["network", "create", "--driver", "bridge", network]);
+}
+
+>>>>>>> 14b6eea6e (feat(sandbox): block container namespace joins by default)
 export async function ensureSandboxBrowser(params: {
   scopeKey: string;
   workspaceDir: string;
@@ -210,6 +232,12 @@ export async function ensureSandboxBrowser(params: {
     if (noVncEnabled) {
       noVncPassword = generateNoVncPassword();
     }
+<<<<<<< HEAD
+=======
+    await ensureDockerNetwork(browserDockerCfg.network, {
+      allowContainerNamespaceJoin: browserDockerCfg.dangerouslyAllowContainerNamespaceJoin === true,
+    });
+>>>>>>> 14b6eea6e (feat(sandbox): block container namespace joins by default)
     await ensureSandboxBrowserImage(browserImage);
     const args = buildSandboxCreateArgs({
       name: containerName,

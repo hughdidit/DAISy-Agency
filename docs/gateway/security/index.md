@@ -209,6 +209,7 @@ High-signal `checkId` values you will most likely see in real deployments (not e
 | `hooks.request_session_key_prefixes_missing`       | warn/critical | No bound on external session key shapes                                            | `hooks.allowedSessionKeyPrefixes`                                                                 | no       |
 | `logging.redact_off`                               | warn          | Sensitive values leak to logs/status                                               | `logging.redactSensitive`                                                                         | yes      |
 | `sandbox.docker_config_mode_off`                   | warn          | Sandbox Docker config present but inactive                                         | `agents.*.sandbox.mode`                                                                           | no       |
+| `sandbox.dangerous_network_mode`                   | critical      | Sandbox Docker network uses `host` or `container:*` namespace-join mode            | `agents.*.sandbox.docker.network`                                                                 | no       |
 | `tools.exec.host_sandbox_no_sandbox_defaults`      | warn          | `exec host=sandbox` resolves to host exec when sandbox is off                      | `tools.exec.host`, `agents.defaults.sandbox.mode`                                                 | no       |
 | `tools.exec.host_sandbox_no_sandbox_agents`        | warn          | Per-agent `exec host=sandbox` resolves to host exec when sandbox is off            | `agents.list[].tools.exec.host`, `agents.list[].sandbox.mode`                                     | no       |
 | `tools.exec.safe_bins_interpreter_unprofiled`      | warn          | Interpreter/runtime bins in `safeBins` without explicit profiles broaden exec risk | `tools.exec.safeBins`, `tools.exec.safeBinProfiles`, `agents.list[].tools.exec.*`                 | no       |
@@ -234,6 +235,7 @@ keep it off unless you are actively debugging and can revert quickly.
 
 ## Insecure or dangerous flags summary
 
+<<<<<<< HEAD
 `openclaw security audit` includes `config.insecure_or_dangerous_flags` when any
 insecure/dangerous debug switches are enabled. This warning aggregates the exact
 keys so you can review them in one place (for example
@@ -242,6 +244,42 @@ keys so you can review them in one place (for example
 `gateway.controlUi.dangerouslyDisableDeviceAuth=true`,
 `hooks.gmail.allowUnsafeExternalContent=true`, or
 `tools.exec.applyPatch.workspaceOnly=false`).
+=======
+`openclaw security audit` includes `config.insecure_or_dangerous_flags` when
+known insecure/dangerous debug switches are enabled. That check currently
+aggregates:
+
+- `gateway.controlUi.allowInsecureAuth=true`
+- `gateway.controlUi.dangerouslyAllowHostHeaderOriginFallback=true`
+- `gateway.controlUi.dangerouslyDisableDeviceAuth=true`
+- `hooks.gmail.allowUnsafeExternalContent=true`
+- `hooks.mappings[<index>].allowUnsafeExternalContent=true`
+- `tools.exec.applyPatch.workspaceOnly=false`
+
+Complete `dangerous*` / `dangerously*` config keys defined in OpenClaw config
+schema:
+
+- `gateway.controlUi.dangerouslyAllowHostHeaderOriginFallback`
+- `gateway.controlUi.dangerouslyDisableDeviceAuth`
+- `browser.ssrfPolicy.dangerouslyAllowPrivateNetwork`
+- `channels.discord.dangerouslyAllowNameMatching`
+- `channels.discord.accounts.<accountId>.dangerouslyAllowNameMatching`
+- `channels.slack.dangerouslyAllowNameMatching`
+- `channels.slack.accounts.<accountId>.dangerouslyAllowNameMatching`
+- `channels.googlechat.dangerouslyAllowNameMatching`
+- `channels.googlechat.accounts.<accountId>.dangerouslyAllowNameMatching`
+- `channels.msteams.dangerouslyAllowNameMatching`
+- `channels.irc.dangerouslyAllowNameMatching` (extension channel)
+- `channels.irc.accounts.<accountId>.dangerouslyAllowNameMatching` (extension channel)
+- `channels.mattermost.dangerouslyAllowNameMatching` (extension channel)
+- `channels.mattermost.accounts.<accountId>.dangerouslyAllowNameMatching` (extension channel)
+- `agents.defaults.sandbox.docker.dangerouslyAllowReservedContainerTargets`
+- `agents.defaults.sandbox.docker.dangerouslyAllowExternalBindSources`
+- `agents.defaults.sandbox.docker.dangerouslyAllowContainerNamespaceJoin`
+- `agents.list[<index>].sandbox.docker.dangerouslyAllowReservedContainerTargets`
+- `agents.list[<index>].sandbox.docker.dangerouslyAllowExternalBindSources`
+- `agents.list[<index>].sandbox.docker.dangerouslyAllowContainerNamespaceJoin`
+>>>>>>> 14b6eea6e (feat(sandbox): block container namespace joins by default)
 
 ## Reverse Proxy Configuration
 
