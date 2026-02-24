@@ -31,7 +31,16 @@ export class SsrFBlockedError extends Error {
 
 type LookupFn = typeof dnsLookup;
 
+<<<<<<< HEAD
 const BLOCKED_HOSTNAMES = new Set(["localhost", "metadata.google.internal"]);
+=======
+export type SsrFPolicy = {
+  allowPrivateNetwork?: boolean;
+  dangerouslyAllowPrivateNetwork?: boolean;
+  allowedHostnames?: string[];
+  hostnameAllowlist?: string[];
+};
+>>>>>>> 5eb72ab76 (fix(security): harden browser SSRF defaults and migrate legacy key)
 
 function normalizeHostname(hostname: string): string {
   const normalized = hostname.trim().toLowerCase().replace(/\.$/, "");
@@ -57,6 +66,7 @@ function parseStrictIpv4Octet(part: string): number | null {
   return value;
 }
 
+<<<<<<< HEAD
 function parseIpv4(address: string): number[] | null {
   const parts = address.split(".");
 <<<<<<< HEAD
@@ -75,6 +85,17 @@ function parseIpv4(address: string): number[] | null {
   for (const part of parts) {
     if (parseStrictIpv4Octet(part) === null) {
       return null;
+=======
+function resolveAllowPrivateNetwork(policy?: SsrFPolicy): boolean {
+  return policy?.dangerouslyAllowPrivateNetwork === true || policy?.allowPrivateNetwork === true;
+}
+
+function isHostnameAllowedByPattern(hostname: string, pattern: string): boolean {
+  if (pattern.startsWith("*.")) {
+    const suffix = pattern.slice(2);
+    if (!suffix || hostname === suffix) {
+      return false;
+>>>>>>> 5eb72ab76 (fix(security): harden browser SSRF defaults and migrate legacy key)
     }
   }
   return parts.map((part) => Number.parseInt(part, 10));
@@ -464,8 +485,19 @@ export async function resolvePinnedHostname(
     throw new Error("Invalid hostname");
   }
 
+<<<<<<< HEAD
   if (isBlockedHostname(normalized)) {
     throw new SsrFBlockedError(`Blocked hostname: ${hostname}`);
+=======
+  const allowPrivateNetwork = resolveAllowPrivateNetwork(params.policy);
+  const allowedHostnames = normalizeHostnameSet(params.policy?.allowedHostnames);
+  const hostnameAllowlist = normalizeHostnameAllowlist(params.policy?.hostnameAllowlist);
+  const isExplicitAllowed = allowedHostnames.has(normalized);
+  const skipPrivateNetworkChecks = allowPrivateNetwork || isExplicitAllowed;
+
+  if (!matchesHostnameAllowlist(normalized, hostnameAllowlist)) {
+    throw new SsrFBlockedError(`Blocked hostname (not in allowlist): ${hostname}`);
+>>>>>>> 5eb72ab76 (fix(security): harden browser SSRF defaults and migrate legacy key)
   }
 
   if (isPrivateIpAddress(normalized)) {

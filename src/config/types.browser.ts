@@ -12,6 +12,25 @@ export type BrowserSnapshotDefaults = {
   /** Default snapshot mode (applies when mode is not provided). */
   mode?: "efficient";
 };
+<<<<<<< HEAD
+=======
+export type BrowserSsrFPolicyConfig = {
+  /** Legacy alias for private-network access. Prefer dangerouslyAllowPrivateNetwork. */
+  allowPrivateNetwork?: boolean;
+  /** If true, permit browser navigation to private/internal networks. Default: true */
+  dangerouslyAllowPrivateNetwork?: boolean;
+  /**
+   * Explicitly allowed hostnames (exact-match), including blocked names like localhost.
+   * Example: ["localhost", "metadata.internal"]
+   */
+  allowedHostnames?: string[];
+  /**
+   * Hostname allowlist patterns for browser navigation.
+   * Supports exact hosts and "*.example.com" wildcard subdomains.
+   */
+  hostnameAllowlist?: string[];
+};
+>>>>>>> 5eb72ab76 (fix(security): harden browser SSRF defaults and migrate legacy key)
 export type BrowserConfig = {
   enabled?: boolean;
   /** If false, disable browser act:evaluate (arbitrary JS). Default: true */

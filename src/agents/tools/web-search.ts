@@ -1,8 +1,15 @@
 import { Type } from "@sinclair/typebox";
 
 import type { OpenClawConfig } from "../../config/config.js";
+<<<<<<< HEAD
 import { formatCliCommand } from "../../cli/command-format.js";
 <<<<<<< HEAD
+=======
+import { fetchWithSsrFGuard } from "../../infra/net/fetch-guard.js";
+import { defaultRuntime } from "../../runtime.js";
+import { wrapWebContent } from "../../security/external-content.js";
+import { normalizeSecretInput } from "../../utils/normalize-secret-input.js";
+>>>>>>> 5eb72ab76 (fix(security): harden browser SSRF defaults and migrate legacy key)
 import type { AnyAgentTool } from "./common.js";
 =======
 import { wrapWebContent } from "../../security/external-content.js";
@@ -35,6 +42,7 @@ const OPENROUTER_KEY_PREFIXES = ["sk-or-"];
 const SEARCH_CACHE = new Map<string, CacheEntry<Record<string, unknown>>>();
 const BRAVE_FRESHNESS_SHORTCUTS = new Set(["pd", "pw", "pm", "py"]);
 const BRAVE_FRESHNESS_RANGE = /^(\d{4}-\d{2}-\d{2})to(\d{4}-\d{2}-\d{2})$/;
+const TRUSTED_NETWORK_SSRF_POLICY = { dangerouslyAllowPrivateNetwork: true } as const;
 
 const WebSearchSchema = Type.Object({
   query: Type.String({ description: "Search query string." }),
@@ -225,6 +233,223 @@ function resolvePerplexityModel(perplexity?: PerplexityConfig): string {
   return fromConfig || DEFAULT_PERPLEXITY_MODEL;
 }
 
+<<<<<<< HEAD
+=======
+function isDirectPerplexityBaseUrl(baseUrl: string): boolean {
+  const trimmed = baseUrl.trim();
+  if (!trimmed) {
+    return false;
+  }
+  try {
+    return new URL(trimmed).hostname.toLowerCase() === "api.perplexity.ai";
+  } catch {
+    return false;
+  }
+}
+
+function resolvePerplexityRequestModel(baseUrl: string, model: string): string {
+  if (!isDirectPerplexityBaseUrl(baseUrl)) {
+    return model;
+  }
+  return model.startsWith("perplexity/") ? model.slice("perplexity/".length) : model;
+}
+
+function resolveGrokConfig(search?: WebSearchConfig): GrokConfig {
+  if (!search || typeof search !== "object") {
+    return {};
+  }
+  const grok = "grok" in search ? search.grok : undefined;
+  if (!grok || typeof grok !== "object") {
+    return {};
+  }
+  return grok as GrokConfig;
+}
+
+function resolveGrokApiKey(grok?: GrokConfig): string | undefined {
+  const fromConfig = normalizeApiKey(grok?.apiKey);
+  if (fromConfig) {
+    return fromConfig;
+  }
+  const fromEnv = normalizeApiKey(process.env.XAI_API_KEY);
+  return fromEnv || undefined;
+}
+
+function resolveGrokModel(grok?: GrokConfig): string {
+  const fromConfig =
+    grok && "model" in grok && typeof grok.model === "string" ? grok.model.trim() : "";
+  return fromConfig || DEFAULT_GROK_MODEL;
+}
+
+function resolveGrokInlineCitations(grok?: GrokConfig): boolean {
+  return grok?.inlineCitations === true;
+}
+
+function resolveKimiConfig(search?: WebSearchConfig): KimiConfig {
+  if (!search || typeof search !== "object") {
+    return {};
+  }
+  const kimi = "kimi" in search ? search.kimi : undefined;
+  if (!kimi || typeof kimi !== "object") {
+    return {};
+  }
+  return kimi as KimiConfig;
+}
+
+function resolveKimiApiKey(kimi?: KimiConfig): string | undefined {
+  const fromConfig = normalizeApiKey(kimi?.apiKey);
+  if (fromConfig) {
+    return fromConfig;
+  }
+  const fromEnvKimi = normalizeApiKey(process.env.KIMI_API_KEY);
+  if (fromEnvKimi) {
+    return fromEnvKimi;
+  }
+  const fromEnvMoonshot = normalizeApiKey(process.env.MOONSHOT_API_KEY);
+  return fromEnvMoonshot || undefined;
+}
+
+function resolveKimiModel(kimi?: KimiConfig): string {
+  const fromConfig =
+    kimi && "model" in kimi && typeof kimi.model === "string" ? kimi.model.trim() : "";
+  return fromConfig || DEFAULT_KIMI_MODEL;
+}
+
+function resolveKimiBaseUrl(kimi?: KimiConfig): string {
+  const fromConfig =
+    kimi && "baseUrl" in kimi && typeof kimi.baseUrl === "string" ? kimi.baseUrl.trim() : "";
+  return fromConfig || DEFAULT_KIMI_BASE_URL;
+}
+
+function resolveGeminiConfig(search?: WebSearchConfig): GeminiConfig {
+  if (!search || typeof search !== "object") {
+    return {};
+  }
+  const gemini = "gemini" in search ? search.gemini : undefined;
+  if (!gemini || typeof gemini !== "object") {
+    return {};
+  }
+  return gemini as GeminiConfig;
+}
+
+function resolveGeminiApiKey(gemini?: GeminiConfig): string | undefined {
+  const fromConfig = normalizeApiKey(gemini?.apiKey);
+  if (fromConfig) {
+    return fromConfig;
+  }
+  const fromEnv = normalizeApiKey(process.env.GEMINI_API_KEY);
+  return fromEnv || undefined;
+}
+
+function resolveGeminiModel(gemini?: GeminiConfig): string {
+  const fromConfig =
+    gemini && "model" in gemini && typeof gemini.model === "string" ? gemini.model.trim() : "";
+  return fromConfig || DEFAULT_GEMINI_MODEL;
+}
+
+async function runGeminiSearch(params: {
+  query: string;
+  apiKey: string;
+  model: string;
+  timeoutSeconds: number;
+}): Promise<{ content: string; citations: Array<{ url: string; title?: string }> }> {
+  const endpoint = `${GEMINI_API_BASE}/models/${params.model}:generateContent`;
+
+  const res = await fetch(endpoint, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-goog-api-key": params.apiKey,
+    },
+    body: JSON.stringify({
+      contents: [
+        {
+          parts: [{ text: params.query }],
+        },
+      ],
+      tools: [{ google_search: {} }],
+    }),
+    signal: withTimeout(undefined, params.timeoutSeconds * 1000),
+  });
+
+  if (!res.ok) {
+    const detailResult = await readResponseText(res, { maxBytes: 64_000 });
+    // Strip API key from any error detail to prevent accidental key leakage in logs
+    const safeDetail = (detailResult.text || res.statusText).replace(/key=[^&\s]+/gi, "key=***");
+    throw new Error(`Gemini API error (${res.status}): ${safeDetail}`);
+  }
+
+  let data: GeminiGroundingResponse;
+  try {
+    data = (await res.json()) as GeminiGroundingResponse;
+  } catch (err) {
+    const safeError = String(err).replace(/key=[^&\s]+/gi, "key=***");
+    throw new Error(`Gemini API returned invalid JSON: ${safeError}`, { cause: err });
+  }
+
+  if (data.error) {
+    const rawMsg = data.error.message || data.error.status || "unknown";
+    const safeMsg = rawMsg.replace(/key=[^&\s]+/gi, "key=***");
+    throw new Error(`Gemini API error (${data.error.code}): ${safeMsg}`);
+  }
+
+  const candidate = data.candidates?.[0];
+  const content =
+    candidate?.content?.parts
+      ?.map((p) => p.text)
+      .filter(Boolean)
+      .join("\n") ?? "No response";
+
+  const groundingChunks = candidate?.groundingMetadata?.groundingChunks ?? [];
+  const rawCitations = groundingChunks
+    .filter((chunk) => chunk.web?.uri)
+    .map((chunk) => ({
+      url: chunk.web!.uri!,
+      title: chunk.web?.title || undefined,
+    }));
+
+  // Resolve Google grounding redirect URLs to direct URLs with concurrency cap.
+  // Gemini typically returns 3-8 citations; cap at 10 concurrent to be safe.
+  const MAX_CONCURRENT_REDIRECTS = 10;
+  const citations: Array<{ url: string; title?: string }> = [];
+  for (let i = 0; i < rawCitations.length; i += MAX_CONCURRENT_REDIRECTS) {
+    const batch = rawCitations.slice(i, i + MAX_CONCURRENT_REDIRECTS);
+    const resolved = await Promise.all(
+      batch.map(async (citation) => {
+        const resolvedUrl = await resolveRedirectUrl(citation.url);
+        return { ...citation, url: resolvedUrl };
+      }),
+    );
+    citations.push(...resolved);
+  }
+
+  return { content, citations };
+}
+
+const REDIRECT_TIMEOUT_MS = 5000;
+
+/**
+ * Resolve a redirect URL to its final destination using a HEAD request.
+ * Returns the original URL if resolution fails or times out.
+ */
+async function resolveRedirectUrl(url: string): Promise<string> {
+  try {
+    const { finalUrl, release } = await fetchWithSsrFGuard({
+      url,
+      init: { method: "HEAD" },
+      timeoutMs: REDIRECT_TIMEOUT_MS,
+      policy: TRUSTED_NETWORK_SSRF_POLICY,
+    });
+    try {
+      return finalUrl || url;
+    } finally {
+      await release();
+    }
+  } catch {
+    return url;
+  }
+}
+
+>>>>>>> 5eb72ab76 (fix(security): harden browser SSRF defaults and migrate legacy key)
 function resolveSearchCount(value: unknown, fallback: number): number {
   const parsed = typeof value === "number" && Number.isFinite(value) ? value : fallback;
   const clamped = Math.max(1, Math.min(MAX_SEARCH_COUNT, Math.floor(parsed)));
@@ -539,4 +764,17 @@ export const __testing = {
   inferPerplexityBaseUrlFromApiKey,
   resolvePerplexityBaseUrl,
   normalizeFreshness,
+<<<<<<< HEAD
+=======
+  freshnessToPerplexityRecency,
+  resolveGrokApiKey,
+  resolveGrokModel,
+  resolveGrokInlineCitations,
+  extractGrokContent,
+  resolveKimiApiKey,
+  resolveKimiModel,
+  resolveKimiBaseUrl,
+  extractKimiCitations,
+  resolveRedirectUrl,
+>>>>>>> 5eb72ab76 (fix(security): harden browser SSRF defaults and migrate legacy key)
 } as const;

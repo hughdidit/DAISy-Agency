@@ -10,6 +10,25 @@ import {
 } from "./chrome.js";
 import type { ResolvedBrowserProfile } from "./config.js";
 import { resolveProfile } from "./config.js";
+<<<<<<< HEAD
+=======
+import {
+  ensureChromeExtensionRelayServer,
+  stopChromeExtensionRelayServer,
+} from "./extension-relay.js";
+import {
+  assertBrowserNavigationAllowed,
+  assertBrowserNavigationResultAllowed,
+  InvalidBrowserNavigationUrlError,
+  withBrowserNavigationPolicy,
+} from "./navigation-guard.js";
+import type { PwAiModule } from "./pw-ai-module.js";
+import { getPwAiModule } from "./pw-ai-module.js";
+import {
+  refreshResolvedBrowserConfigFromDisk,
+  resolveBrowserProfileWithHotReload,
+} from "./resolved-config-refresh.js";
+>>>>>>> 5eb72ab76 (fix(security): harden browser SSRF defaults and migrate legacy key)
 import type {
   BrowserRouteContext,
   BrowserTab,
@@ -170,7 +189,14 @@ function createProfileContext(
       while (Date.now() < deadline) {
         const tabs = await listTabs().catch(() => [] as BrowserTab[]);
         const found = tabs.find((t) => t.targetId === createdViaCdp);
+<<<<<<< HEAD
         if (found) return found;
+=======
+        if (found) {
+          await assertBrowserNavigationResultAllowed({ url: found.url, ...ssrfPolicyOpts });
+          return found;
+        }
+>>>>>>> 5eb72ab76 (fix(security): harden browser SSRF defaults and migrate legacy key)
         await new Promise((r) => setTimeout(r, 100));
       }
       return { targetId: createdViaCdp, title: "", url, type: "page" };
@@ -204,10 +230,12 @@ function createProfileContext(
     if (!created.id) throw new Error("Failed to open tab (missing id)");
     const profileState = getProfileState();
     profileState.lastTargetId = created.id;
+    const resolvedUrl = created.url ?? url;
+    await assertBrowserNavigationResultAllowed({ url: resolvedUrl, ...ssrfPolicyOpts });
     return {
       targetId: created.id,
       title: created.title ?? "",
-      url: created.url ?? url,
+      url: resolvedUrl,
       wsUrl: normalizeWsUrl(created.webSocketDebuggerUrl, profile.cdpUrl),
       type: created.type,
     };

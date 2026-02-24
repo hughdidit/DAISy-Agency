@@ -68,6 +68,48 @@ function normalizeTimeoutMs(raw: number | undefined, fallback: number) {
   return value < 0 ? fallback : value;
 }
 
+<<<<<<< HEAD
+=======
+function normalizeStringList(raw: string[] | undefined): string[] | undefined {
+  if (!Array.isArray(raw) || raw.length === 0) {
+    return undefined;
+  }
+  const values = raw
+    .map((value) => value.trim())
+    .filter((value): value is string => value.length > 0);
+  return values.length > 0 ? values : undefined;
+}
+
+function resolveBrowserSsrFPolicy(cfg: BrowserConfig | undefined): SsrFPolicy | undefined {
+  const allowPrivateNetwork = cfg?.ssrfPolicy?.allowPrivateNetwork;
+  const dangerouslyAllowPrivateNetwork = cfg?.ssrfPolicy?.dangerouslyAllowPrivateNetwork;
+  const allowedHostnames = normalizeStringList(cfg?.ssrfPolicy?.allowedHostnames);
+  const hostnameAllowlist = normalizeStringList(cfg?.ssrfPolicy?.hostnameAllowlist);
+  const hasExplicitPrivateSetting =
+    allowPrivateNetwork !== undefined || dangerouslyAllowPrivateNetwork !== undefined;
+  // Browser defaults to trusted-network mode unless explicitly disabled by policy.
+  const resolvedAllowPrivateNetwork =
+    dangerouslyAllowPrivateNetwork === true ||
+    allowPrivateNetwork === true ||
+    !hasExplicitPrivateSetting;
+
+  if (
+    !resolvedAllowPrivateNetwork &&
+    !hasExplicitPrivateSetting &&
+    !allowedHostnames &&
+    !hostnameAllowlist
+  ) {
+    return undefined;
+  }
+
+  return {
+    ...(resolvedAllowPrivateNetwork ? { dangerouslyAllowPrivateNetwork: true } : {}),
+    ...(allowedHostnames ? { allowedHostnames } : {}),
+    ...(hostnameAllowlist ? { hostnameAllowlist } : {}),
+  };
+}
+
+>>>>>>> 5eb72ab76 (fix(security): harden browser SSRF defaults and migrate legacy key)
 export function parseHttpUrl(raw: string, label: string) {
   const trimmed = raw.trim();
   const parsed = new URL(trimmed);

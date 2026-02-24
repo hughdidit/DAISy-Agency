@@ -148,5 +148,23 @@ describe("ssrf pinning", () => {
     });
     expect(lookup).toHaveBeenCalledTimes(1);
   });
+<<<<<<< HEAD
 >>>>>>> baa335f25 (fix(security): harden SSRF IPv4 literal parsing)
+=======
+
+  it("accepts dangerouslyAllowPrivateNetwork as an allowPrivateNetwork alias", async () => {
+    const lookup = vi.fn(async () => [{ address: "127.0.0.1", family: 4 }]) as unknown as LookupFn;
+
+    await expect(
+      resolvePinnedHostnameWithPolicy("localhost", {
+        lookupFn: lookup,
+        policy: { dangerouslyAllowPrivateNetwork: true },
+      }),
+    ).resolves.toMatchObject({
+      hostname: "localhost",
+      addresses: ["127.0.0.1"],
+    });
+    expect(lookup).toHaveBeenCalledTimes(1);
+  });
+>>>>>>> 5eb72ab76 (fix(security): harden browser SSRF defaults and migrate legacy key)
 });

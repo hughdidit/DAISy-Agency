@@ -136,7 +136,54 @@ If no base URL is set, OpenClaw chooses a default based on the API key source:
 |-------|-------------|----------|
 | `perplexity/sonar` | Fast Q&A with web search | Quick lookups |
 | `perplexity/sonar-pro` (default) | Multi-step reasoning with web search | Complex questions |
+<<<<<<< HEAD
 | `perplexity/sonar-reasoning-pro` | Chain-of-thought analysis | Deep research |
+=======
+| `perplexity/sonar-reasoning-pro` | Chain-of-thought analysis            | Deep research     |
+
+## Using Gemini (Google Search grounding)
+
+Gemini models support built-in [Google Search grounding](https://ai.google.dev/gemini-api/docs/grounding),
+which returns AI-synthesized answers backed by live Google Search results with citations.
+
+### Getting a Gemini API key
+
+1. Go to [Google AI Studio](https://aistudio.google.com/apikey)
+2. Create an API key
+3. Set `GEMINI_API_KEY` in the Gateway environment, or configure `tools.web.search.gemini.apiKey`
+
+### Setting up Gemini search
+
+```json5
+{
+  tools: {
+    web: {
+      search: {
+        provider: "gemini",
+        gemini: {
+          // API key (optional if GEMINI_API_KEY is set)
+          apiKey: "AIza...",
+          // Model (defaults to "gemini-2.5-flash")
+          model: "gemini-2.5-flash",
+        },
+      },
+    },
+  },
+}
+```
+
+**Environment alternative:** set `GEMINI_API_KEY` in the Gateway environment.
+For a gateway install, put it in `~/.openclaw/.env`.
+
+### Notes
+
+- Citation URLs from Gemini grounding are automatically resolved from Google's
+  redirect URLs to direct URLs.
+- Redirect resolution uses the SSRF guard path (HEAD + redirect checks + http/https validation) before returning the final citation URL.
+- This redirect resolver follows the trusted-network model (private/internal networks allowed by default) to match Gateway operator trust assumptions.
+- The default model (`gemini-2.5-flash`) is fast and cost-effective.
+  Any Gemini model that supports grounding can be used.
+>>>>>>> 5eb72ab76 (fix(security): harden browser SSRF defaults and migrate legacy key)
 
 ## web_search
 
