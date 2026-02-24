@@ -66,6 +66,7 @@ Docs: https://docs.openclaw.ai
 - Auth/OAuth: classify missing OAuth scopes as auth failures for clearer remediation and retry behavior. (#24761)
 - Doctor/UX: suppress the redundant "Run doctor --fix" hint when already in fix mode with no changes. (#24666)
 - CLI/Doctor: correct stale recovery hints to use valid commands (`openclaw gateway status --deep` and `openclaw configure --section model`). (#24485) Thanks @chilu18.
+<<<<<<< HEAD
 - Doctor/Nix: skip false-positive permission warnings for Nix store symlinks in state-integrity checks. (#24901)
 - Update/Systemd: back up an existing systemd unit before overwriting it during update flows. (#24350, #24937)
 - Install/Global detection: resolve symlinks when detecting pnpm/bun global install paths. (#24744)
@@ -93,6 +94,9 @@ Docs: https://docs.openclaw.ai
 - Security/Channels: unify dangerous name-matching policy checks (`dangerouslyAllowNameMatching`) across core and extension channels, share mutable-allowlist detectors between `openclaw doctor` and `openclaw security audit`, and scan all configured accounts (not only the default account) in channel security audit findings.
 - Security/Exec approvals: enforce canonical wrapper execution plans across allowlist analysis and runtime execution (node host + gateway host), fail closed on semantic `env` wrapper usage, and reject unknown short safe-bin flags to prevent `env -S/--split-string` interpretation-mismatch bypasses. This ships in the next npm release. Thanks @jiseoung for reporting.
 >>>>>>> 223d7dc23 (feat(gateway)!: require explicit non-loopback control-ui origins)
+=======
+- Security/Sandbox: canonicalize bind-mount source paths via existing-ancestor realpath so symlink-parent + non-existent-leaf paths cannot bypass allowed-source-roots or blocked-path checks.
+>>>>>>> b5787e4ab (fix(sandbox): harden bind validation for symlink missing-leaf paths)
 
 ## 2026.2.23 (Unreleased)
 
