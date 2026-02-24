@@ -343,7 +343,7 @@ describe("runEmbeddedPiAgent", () => {
 >>>>>>> db3529e92 (chore: Fix types in tests 14/N.)
   it(
     "appends new user + assistant after existing transcript entries",
-    { timeout: 90_000 },
+    { timeout: 20_000 },
     async () => {
       const sessionFile = nextSessionFile();
       const sessionKey = nextSessionKey();
