@@ -262,6 +262,7 @@
 >>>>>>> a3b5f1b15 (fix(build): unblock pnpm build dts)
     "canvas:a2ui:bundle": "bash scripts/bundle-a2ui.sh",
 <<<<<<< HEAD
+<<<<<<< HEAD
     "check:loc": "node --import tsx scripts/check-ts-max-loc.ts --max 500"
 =======
     "build": "pnpm canvas:a2ui:bundle && tsc -p tsconfig.json --noEmit false && node --import tsx scripts/canvas-a2ui-copy.ts && node --import tsx scripts/copy-hook-metadata.ts && node --import tsx scripts/write-build-info.ts",
@@ -273,6 +274,8 @@
 >>>>>>> 134c03a90 (feat: add markdownlint configuration for documentation formatting and linting)
 =======
     "changelog:add": "node --import tsx scripts/changelog-add.ts",
+=======
+>>>>>>> e806b3477 (chore: remove changelog add helper script)
     "check": "pnpm format:check && pnpm tsgo && pnpm lint",
     "check:docs": "pnpm format:docs:check && pnpm lint:docs && pnpm docs:check-links",
 >>>>>>> d18ae2256 (refactor: unify channel plugin resolution, family ordering, and changelog entry tooling)
