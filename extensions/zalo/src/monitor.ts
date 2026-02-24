@@ -8,8 +8,8 @@ import { createReplyPrefixOptions } from "openclaw/plugin-sdk";
 import type { MarkdownTableMode, OpenClawConfig, OutboundReplyPayload } from "openclaw/plugin-sdk";
 >>>>>>> 0183610db (refactor: de-duplicate channel runtime and payload helpers)
 import {
-  createDedupeCache,
   createReplyPrefixOptions,
+<<<<<<< HEAD
   readJsonBodyWithLimit,
   registerWebhookTarget,
   rejectNonPostWebhookRequest,
@@ -19,6 +19,14 @@ import {
   resolveWebhookPath,
   resolveWebhookTargets,
   requestBodyErrorToText,
+=======
+  resolveSenderCommandAuthorization,
+  resolveOutboundMediaUrls,
+  resolveDefaultGroupPolicy,
+  sendMediaWithLeadingCaption,
+  resolveWebhookPath,
+  warnMissingProviderGroupPolicyFallbackOnce,
+>>>>>>> 453664f09 (refactor(zalo): split monitor access and webhook logic)
 } from "openclaw/plugin-sdk";
 >>>>>>> 00e63da33 (refactor(webhooks): reuse plugin-sdk webhook path helpers)
 import type { ResolvedZaloAccount } from "./accounts.js";
@@ -33,6 +41,16 @@ import {
   type ZaloMessage,
   type ZaloUpdate,
 } from "./api.js";
+import {
+  evaluateZaloGroupAccess,
+  isZaloSenderAllowed,
+  resolveZaloRuntimeGroupPolicy,
+} from "./group-access.js";
+import {
+  handleZaloWebhookRequest as handleZaloWebhookRequestInternal,
+  registerZaloWebhookTarget as registerZaloWebhookTargetInternal,
+  type ZaloWebhookTarget,
+} from "./monitor.webhook.js";
 import { resolveZaloProxyFetch } from "./proxy.js";
 import { getZaloRuntime } from "./runtime.js";
 
@@ -70,6 +88,7 @@ function logVerbose(core: ZaloCoreRuntime, runtime: ZaloRuntimeEnv, message: str
   }
 }
 
+<<<<<<< HEAD
 function isSenderAllowed(senderId: string, allowFrom: string[]): boolean {
   if (allowFrom.includes("*")) {
     return true;
@@ -205,12 +224,17 @@ function recordWebhookStatus(
 
 export function registerZaloWebhookTarget(target: WebhookTarget): () => void {
   return registerWebhookTarget(webhookTargets, target).unregister;
+=======
+export function registerZaloWebhookTarget(target: ZaloWebhookTarget): () => void {
+  return registerZaloWebhookTargetInternal(target);
+>>>>>>> 453664f09 (refactor(zalo): split monitor access and webhook logic)
 }
 
 export async function handleZaloWebhookRequest(
   req: IncomingMessage,
   res: ServerResponse,
 ): Promise<boolean> {
+<<<<<<< HEAD
   const resolved = resolveWebhookTargets(req, webhookTargets);
   if (!resolved) {
     return false;
@@ -268,6 +292,21 @@ export async function handleZaloWebhookRequest(
   res.statusCode = 200;
   res.end("ok");
   return true;
+=======
+  return handleZaloWebhookRequestInternal(req, res, async ({ update, target }) => {
+    await processUpdate(
+      update,
+      target.token,
+      target.account,
+      target.config,
+      target.runtime,
+      target.core as ZaloCoreRuntime,
+      target.mediaMaxMb,
+      target.statusSink,
+      target.fetcher,
+    );
+  });
+>>>>>>> 453664f09 (refactor(zalo): split monitor access and webhook logic)
 }
 
 function startPollingLoop(params: {
@@ -499,7 +538,7 @@ async function processMessageWithPipeline(params: {
     dmPolicy,
     configuredAllowFrom: configAllowFrom,
     senderId,
-    isSenderAllowed,
+    isSenderAllowed: isZaloSenderAllowed,
     readAllowFromStore: () => core.channel.pairing.readAllowFromStore("zalo"),
     shouldComputeCommandAuthorized: (body, cfg) =>
       core.channel.commands.shouldComputeCommandAuthorized(body, cfg),
