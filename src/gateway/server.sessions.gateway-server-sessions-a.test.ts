@@ -99,6 +99,8 @@ vi.mock("../discord/monitor/thread-bindings.js", async (importOriginal) => {
 installGatewayTestHooks({ scope: "suite" });
 
 let harness: GatewayServerHarness;
+let sharedSessionStoreDir: string;
+let sharedSessionStorePath: string;
 
 beforeAll(async () => {
 <<<<<<< HEAD
@@ -122,20 +124,26 @@ afterAll(async () => {
 >>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
 =======
   harness = await startGatewayServerHarness();
+  sharedSessionStoreDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-sessions-"));
+  sharedSessionStorePath = path.join(sharedSessionStoreDir, "sessions.json");
 });
 
 afterAll(async () => {
   await harness.close();
+<<<<<<< HEAD
 >>>>>>> d491c789a (refactor(test): share gateway ws e2e harness)
+=======
+  await fs.rm(sharedSessionStoreDir, { recursive: true, force: true });
+>>>>>>> 0cc327546 (test(gateway): speed up slow e2e test setup)
 });
 
 const openClient = async (opts?: Parameters<typeof connectOk>[1]) => await harness.openClient(opts);
 
 async function createSessionStoreDir() {
-  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-sessions-"));
-  const storePath = path.join(dir, "sessions.json");
-  testState.sessionStorePath = storePath;
-  return { dir, storePath };
+  await fs.rm(sharedSessionStoreDir, { recursive: true, force: true });
+  await fs.mkdir(sharedSessionStoreDir, { recursive: true });
+  testState.sessionStorePath = sharedSessionStorePath;
+  return { dir: sharedSessionStoreDir, storePath: sharedSessionStorePath };
 }
 
 async function writeSingleLineSession(dir: string, sessionId: string, content: string) {
@@ -500,9 +508,13 @@ describe("gateway server sessions", () => {
   });
 
   test("sessions.preview returns transcript previews", async () => {
+<<<<<<< HEAD
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-sessions-preview-"));
     const storePath = path.join(dir, "sessions.json");
     testState.sessionStorePath = storePath;
+=======
+    const { dir } = await createSessionStoreDir();
+>>>>>>> 0cc327546 (test(gateway): speed up slow e2e test setup)
     const sessionId = "sess-preview";
     const transcriptPath = path.join(dir, `${sessionId}.jsonl`);
     const lines = createToolSummaryPreviewTranscriptLines(sessionId);
@@ -526,9 +538,7 @@ describe("gateway server sessions", () => {
   });
 
   test("sessions.preview resolves legacy mixed-case main alias with custom mainKey", async () => {
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-sessions-preview-alias-"));
-    const storePath = path.join(dir, "sessions.json");
-    testState.sessionStorePath = storePath;
+    const { dir, storePath } = await createSessionStoreDir();
     testState.agentsConfig = { list: [{ id: "ops", default: true }] };
     testState.sessionConfig = { mainKey: "work" };
     const sessionId = "sess-legacy-main";
@@ -561,9 +571,7 @@ describe("gateway server sessions", () => {
   });
 
   test("sessions.resolve and mutators clean legacy main-alias ghost keys", async () => {
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-sessions-cleanup-alias-"));
-    const storePath = path.join(dir, "sessions.json");
-    testState.sessionStorePath = storePath;
+    const { dir, storePath } = await createSessionStoreDir();
     testState.agentsConfig = { list: [{ id: "ops", default: true }] };
     testState.sessionConfig = { mainKey: "work" };
     const sessionId = "sess-alias-cleanup";
@@ -1091,9 +1099,7 @@ describe("gateway server sessions", () => {
 =======
 
   test("webchat clients cannot patch or delete sessions", async () => {
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-sessions-webchat-"));
-    const storePath = path.join(dir, "sessions.json");
-    testState.sessionStorePath = storePath;
+    await createSessionStoreDir();
 
     await writeSessionStore({
       entries: {
