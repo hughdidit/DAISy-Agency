@@ -118,6 +118,7 @@ describe("gateway server cron", () => {
     vi.useRealTimers();
   });
 
+<<<<<<< HEAD
   test("handles cron CRUD, normalization, and patch semantics", { timeout: 120_000 }, async () => {
 <<<<<<< HEAD
     const prevSkipCron = process.env.CLAWDBOT_SKIP_CRON;
@@ -129,6 +130,9 @@ describe("gateway server cron", () => {
     await fs.mkdir(path.dirname(testState.cronStorePath), { recursive: true });
     await fs.writeFile(testState.cronStorePath, JSON.stringify({ version: 1, jobs: [] }));
 =======
+=======
+  test("handles cron CRUD, normalization, and patch semantics", { timeout: 20_000 }, async () => {
+>>>>>>> e5931554b (test: tighten slow test timeouts and cleanup)
     const { prevSkipCron, dir } = await setupCronTestRun({
       tempPrefix: "openclaw-gw-cron-",
       sessionConfig: { mainKey: "primary" },
