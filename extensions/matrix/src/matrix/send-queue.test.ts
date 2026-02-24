@@ -79,8 +79,11 @@ describe("enqueueSend", () => {
     await vi.advanceTimersByTimeAsync(150);
     const firstResult = await first;
     expect(firstResult.ok).toBe(false);
+    if (firstResult.ok) {
+      throw new Error("expected first queue item to fail");
+    }
     expect(firstResult.error).toBeInstanceOf(Error);
-    expect((firstResult.error as Error).message).toBe("boom");
+    expect(firstResult.error.message).toBe("boom");
 
     const second = enqueueSend("!room:example.org", async () => "ok");
     await vi.advanceTimersByTimeAsync(150);
@@ -110,6 +113,9 @@ describe("enqueueSend", () => {
     gate.resolve();
     const firstResult = await first;
     expect(firstResult.ok).toBe(false);
+    if (firstResult.ok) {
+      throw new Error("expected head queue item to fail");
+    }
     expect(firstResult.error).toBeInstanceOf(Error);
 
     await vi.advanceTimersByTimeAsync(150);
