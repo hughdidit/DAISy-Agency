@@ -90,7 +90,13 @@ Docs: https://docs.openclaw.ai
 - Security/Sandbox media: restrict sandbox media tmp-path allowances to OpenClaw-managed tmp roots instead of broad host `os.tmpdir()` trust, and add outbound/channel guardrails (tmp-path lint + media-root smoke tests) to prevent regressions in local media attachment reads. This ships in the next npm release. Thanks @tdjackey for reporting.
 >>>>>>> 79a7b3d22 (test(line): align tmp-root expectation after sandbox hardening)
 - Config/Plugins: treat stale removed `google-antigravity-auth` plugin references as compatibility warnings (not hard validation errors) across `plugins.entries`, `plugins.allow`, `plugins.deny`, and `plugins.slots.memory`, so startup no longer fails after antigravity removal. (#25538, #25862) Thanks @chilu18.
+<<<<<<< HEAD
 >>>>>>> bf8ca07de (fix(config): soften antigravity removal fallout (#25538))
+=======
+- Security/Message actions: enforce local media root checks for `sendAttachment` and `setGroupIcon` when `sandboxRoot` is unset, preventing attachment hydration from reading arbitrary host files via local absolute paths. This ships in the next npm release. Thanks @GCXWLP for reporting.
+- Zalo/Group policy: enforce sender authorization for group messages with `groupPolicy` + `groupAllowFrom` (fallback to `allowFrom`), default runtime group behavior to fail-closed allowlist, and block unauthorized non-command group messages before dispatch. This ships in the next npm release. Thanks @tdjackey for reporting.
+- Security/Telegram: enforce DM authorization before media download/write (including media groups) and move telegram inbound activity tracking after DM authorization, preventing unauthorized sender-triggered inbound media disk writes. This ships in the next npm release. Thanks @v8hid for reporting.
+>>>>>>> 9514201fb (fix(telegram): block unauthorized DM media downloads)
 - Security/Workspace FS: normalize `@`-prefixed paths before workspace-boundary checks (including workspace-only read/write/edit and sandbox mount path guards), preventing absolute-path escape attempts from bypassing guard validation. This ships in the next npm release. Thanks @tdjackey for reporting.
 >>>>>>> 9ef0fc2ff (fix(sandbox): block @-prefixed workspace path bypass)
 - Security/Native images: enforce `tools.fs.workspaceOnly` for native prompt image auto-load (including history refs), preventing out-of-workspace sandbox mounts from being implicitly ingested as vision input. This ships in the next npm release. Thanks @tdjackey for reporting.
