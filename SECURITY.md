@@ -13,7 +13,7 @@ Report vulnerabilities directly to the repository where the issue lives:
 - **ClawHub** — [openclaw/clawhub](https://github.com/openclaw/clawhub)
 - **Trust and threat model** — [openclaw/trust](https://github.com/openclaw/trust)
 
-For issues that don't fit a specific repo, or if you're unsure, email **security@openclaw.ai** and we'll route it.
+For issues that don't fit a specific repo, or if you're unsure, email **[security@openclaw.ai](mailto:security@openclaw.ai)** and we'll route it.
 
 For full reporting instructions see our [Trust page](https://trust.openclaw.ai).
 
@@ -83,12 +83,17 @@ When patching a GHSA via `gh api`, include `X-GitHub-Api-Version: 2022-11-28` (o
 - Public Internet Exposure
 - Using OpenClaw in ways that the docs recommend not to
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 - Deployments where mutually untrusted/adversarial operators share one gateway host and config
 - Prompt injection attacks
 <<<<<<< HEAD
 >>>>>>> 810218756 (docs(security): clarify trusted-host deployment assumptions)
 =======
+=======
+- Deployments where mutually untrusted/adversarial operators share one gateway host and config (for example, reports expecting per-operator isolation for `sessions.list`, `sessions.preview`, `chat.history`, or similar control-plane reads)
+- Prompt-injection-only attacks (without a policy/auth/sandbox boundary bypass)
+>>>>>>> 41b0568b3 (docs(security): clarify shared-agent trust boundaries)
 - Reports that require write access to trusted local state (`~/.openclaw`, workspace files like `MEMORY.md` / `memory/*.md`)
 <<<<<<< HEAD
 >>>>>>> b13fc7ecc (docs(security): clarify workspace memory trust boundary)
@@ -108,6 +113,23 @@ OpenClaw security guidance assumes:
 - Anyone who can modify `~/.openclaw` state/config (including `openclaw.json`) is effectively a trusted operator.
 - A single Gateway shared by mutually untrusted people is **not a recommended setup**. Use separate gateways (or at minimum separate OS users/hosts) per trust boundary.
 - Authenticated Gateway callers are treated as trusted operators. Session identifiers (for example `sessionKey`) are routing controls, not per-user authorization boundaries.
+
+## One-User Trust Model (Personal Assistant)
+
+OpenClaw's security model is "personal assistant" (one trusted operator, potentially many agents), not "shared multi-tenant bus."
+
+- If multiple people can message the same tool-enabled agent (for example a shared Slack workspace), they can all steer that agent within its granted permissions.
+- Session or memory scoping reduces context bleed, but does **not** create per-user host authorization boundaries.
+- For mixed-trust or adversarial users, isolate by OS user/host/gateway and use separate credentials per boundary.
+- A company-shared agent can be a valid setup when users are in the same trust boundary and the agent is strictly business-only.
+- For company-shared setups, use a dedicated machine/VM/container and dedicated accounts; avoid mixing personal data on that runtime.
+- If that host/browser profile is logged into personal accounts (for example Apple/Google/personal password manager), you have collapsed the boundary and increased personal-data exposure risk.
+
+## Agent and Model Assumptions
+
+- The model/agent is **not** a trusted principal. Assume prompt/content injection can manipulate behavior.
+- Security boundaries come from host/config trust, auth, tool policy, sandboxing, and exec approvals.
+- Prompt injection by itself is not a vulnerability report unless it crosses one of those boundaries.
 
 ## Workspace Memory Trust Boundary
 
