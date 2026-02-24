@@ -31,8 +31,39 @@ Docs: https://docs.openclaw.ai
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
+=======
+- Onboarding/Custom providers: raise verification probe token budgets for OpenAI and Anthropic compatibility checks to avoid false negatives on strict provider defaults. (#24743) Thanks @Glucksberg.
+- WhatsApp/DM routing: only update main-session last-route state when DM traffic is bound to the main session, preserving isolated `dmScope` routing. (#24949) Thanks @kevinWangSheng.
+- Providers/OpenRouter: when thinking is explicitly off, avoid injecting `reasoning.effort` so reasoning-required models can use provider defaults instead of failing request validation. (#24863) Thanks @DevSecTim.
+- Status/Pairing recovery: show explicit pairing-approval command hints (including requestId when safe) when gateway probe failures report pairing-required closures. (#24771) Thanks @markmusson.
+- Discord/Threading: recover missing thread parent IDs by refetching thread metadata before resolving parent channel context. (#24897) Thanks @z-x-yang.
+- Web UI/i18n: load and hydrate saved locale translations during startup so non-English sessions apply immediately without manual toggling. (#24795) Thanks @chilu18.
+- Plugins/Config schema: support legacy plugin schemas without `toJSONSchema()` by falling back to permissive object schema generation. (#24933) Thanks @pandego.
+- Auto-reply/Abort shortcuts: expand standalone stop phrases (`stop openclaw`, `stop action`, `stop run`, `stop agent`, `please stop`, and related variants) and accept trailing punctuation (for example `STOP OPENCLAW!!!`) so emergency stop messages are caught more reliably.
+- Cron/Isolated sessions: use full prompt mode for isolated cron runs so skills/extensions are available during cron execution. (#24944)
+- Discord/Reasoning: suppress reasoning/thinking-only payload blocks from Discord delivery output. (#24969)
+- Sessions/Reasoning: persist `reasoningLevel: "off"` explicitly instead of deleting it so session overrides survive patch/update flows. (#24406, #24559)
+- Plugins/Config: use plugin manifest `id` (instead of npm package name) for config entry keys so plugin settings stay bound correctly. (#24796)
+- Synology Chat/Webhooks: deregister stale webhook routes before re-registering on channel restart to prevent duplicate route handling. (#24971)
+- Gateway/Prompt builder: safely extract text from mixed content arrays when assembling prompts to avoid malformed prompt payloads. (#24946)
+- WhatsApp/Access control: honor `selfChatMode` in inbound access-control checks. (#24738)
+- Slack/Restart sentinel: map `threadId` to `replyToId` for restart sentinel notifications. (#24885)
+- Gateway/Slug generation: respect agent-level model config in slug generation flows. (#24776)
+- Agents/Workspace paths: strip null bytes and guard undefined `.trim()` calls for workspace-path handling to avoid `ENOTDIR`/`TypeError` crashes. (#24876, #24875)
+- Auth/OAuth: classify missing OAuth scopes as auth failures for clearer remediation and retry behavior. (#24761)
+- Doctor/UX: suppress the redundant "Run doctor --fix" hint when already in fix mode with no changes. (#24666)
+- Doctor/Nix: skip false-positive permission warnings for Nix store symlinks in state-integrity checks. (#24901)
+- Update/Systemd: back up an existing systemd unit before overwriting it during update flows. (#24350, #24937)
+- Install/Global detection: resolve symlinks when detecting pnpm/bun global install paths. (#24744)
+- Infra/Windows TOCTOU: handle Windows `dev=0` edge cases in same-file identity checks. (#24939)
+- Exec/Bash tools: clamp poll sleep duration to non-negative values in process polling loops. (#24889)
+- Subagents/Announce queue: add exponential backoff when queue-drain delivery fails to reduce retry storms. (#24783)
+- Config/Kilo Gateway: Kilo provider flow now surfaces an updated list of models. (#24921) thanks @gumadeiras.
+- Agents/Tool warnings: suppress `sessions_send` relay errors from chat-facing warning payloads to avoid leaking transient inter-session transport failures. (#24740) Thanks @Glucksberg.
+>>>>>>> aea28e26f (fix(auto-reply): expand standalone stop phrases)
 - WhatsApp/Logging: redact outbound recipient identifiers in WhatsApp outbound + heartbeat logs and remove message/poll preview text from those log lines. (#24980) Thanks @coygeek.
 - Telegram/Media SSRF: keep RFC2544 benchmark range (`198.18.0.0/15`) blocked by default, add an explicit SSRF-policy opt-in for Telegram media downloads, and keep other channels/URL fetch paths blocked. (#24982) Thanks @stakeswky.
 >>>>>>> 0bdcca2f3 (test(whatsapp): add log redaction coverage)
