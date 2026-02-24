@@ -88,7 +88,11 @@ Docs: https://docs.openclaw.ai
 >>>>>>> 370d11554 (fix: enforce workspaceOnly for native prompt image autoload)
 =======
 - Telegram/Media fetch: prioritize IPv4 before IPv6 in SSRF pinned DNS address ordering so media downloads still work on hosts with broken IPv6 routing. (#24295, #23975) Thanks @Glucksberg.
+<<<<<<< HEAD
 >>>>>>> 3f07d725b (fix: changelog credit for Telegram IPv4 fallback fix (#24295) (thanks @Glucksberg))
+=======
+- Telegram/Replies: when markdown formatting renders to empty HTML (for example syntax-only chunks in threaded replies), retry delivery with plain text, and fail loud when both formatted and plain payloads are empty to avoid false delivered states. (#25096, #25091) Thanks @Glucksberg.
+>>>>>>> f154926cc (fix: land telegram empty-html fallback hardening (#25096) (thanks @Glucksberg))
 - Sessions/Tool-result guard: avoid generating synthetic `toolResult` entries for assistant turns that ended with `stopReason: "aborted"` or `"error"`, preventing orphaned tool-use IDs from triggering downstream API validation errors. (#25429) Thanks @mikaeldiakhate-cell.
 >>>>>>> 6da03eabe (fix: add changelog and clean regression comment for tool-result guard (#25429) (thanks @mikaeldiakhate-cell))
 - Usage accounting: parse Moonshot/Kimi `cached_tokens` fields (including `prompt_tokens_details.cached_tokens`) into normalized cache-read usage metrics. (#25436) Thanks @Elarwei001.
