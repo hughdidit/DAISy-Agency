@@ -11,7 +11,7 @@ import {
   resolveDefaultAgentId,
   resolveAgentWorkspaceDir,
   resolveAgentDir,
-  resolveAgentModelPrimary,
+  resolveAgentEffectiveModelPrimary,
 } from "../agents/agent-scope.js";
 <<<<<<< HEAD
 =======
@@ -50,7 +50,7 @@ ${params.sessionContent.slice(0, 2000)}
 Reply with ONLY the slug, nothing else. Examples: "vendor-pitch", "api-design", "bug-fix"`;
 
     // Resolve model from agent config instead of using hardcoded defaults
-    const modelRef = resolveAgentModelPrimary(params.cfg, agentId);
+    const modelRef = resolveAgentEffectiveModelPrimary(params.cfg, agentId);
     const parsed = modelRef ? parseModelRef(modelRef, DEFAULT_PROVIDER) : null;
     const provider = parsed?.provider ?? DEFAULT_PROVIDER;
     const model = parsed?.model ?? DEFAULT_MODEL;
