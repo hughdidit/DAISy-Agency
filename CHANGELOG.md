@@ -35,6 +35,7 @@ Docs: https://docs.openclaw.ai
 =======
 ## Unreleased
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 ## 2026.2.14 (Unreleased)
 >>>>>>> 90117a384 (docs: consolidate 2026.2.14 changelog)
@@ -49,6 +50,13 @@ Docs: https://docs.openclaw.ai
 ## 2026.2.22 (Unreleased)
 >>>>>>> bdfb97afa (chore: prep 2026.2.22 unreleased and publish new npm plugins)
 =======
+=======
+
+### Breaking
+
+- **BREAKING:** non-loopback Control UI now requires explicit `gateway.controlUi.allowedOrigins` (full origins). Startup fails closed when missing unless `gateway.controlUi.dangerouslyAllowHostHeaderOriginFallback=true` is set to use Host-header origin fallback mode.
+- **BREAKING:** channel `allowFrom` matching is now ID-only by default across channels that previously allowed mutable name/tag/email principal matching. If you relied on direct mutable-name matching, migrate allowlists to stable IDs (recommended) or explicitly opt back in with `channels.<channel>.dangerouslyAllowNameMatching=true` (break-glass compatibility mode). (#24907)
+>>>>>>> fd1028681 (docs(changelog): mark allowFrom id-only default as breaking)
 
 ### Changes
 
