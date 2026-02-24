@@ -6,6 +6,7 @@ import type { PluginRuntime } from "clawdbot/plugin-sdk";
 import type { PluginRuntime, RuntimeLogger } from "openclaw/plugin-sdk";
 >>>>>>> 40b11db80 (TypeScript: add extensions to tsconfig and fix type errors (#12781))
 import type { MatrixAuth } from "../client.js";
+import { sendReadReceiptMatrix } from "../send.js";
 import type { MatrixRawEvent } from "./types.js";
 import { EventType } from "./types.js";
 
@@ -30,7 +31,32 @@ export function registerMatrixMonitorEvents(params: {
     onRoomMessage,
   } = params;
 
-  client.on("room.message", onRoomMessage);
+  let selfUserId: string | undefined;
+  client.on("room.message", (roomId: string, event: MatrixRawEvent) => {
+    const eventId = event?.event_id;
+    const senderId = event?.sender;
+    if (eventId && senderId) {
+      void (async () => {
+        if (!selfUserId) {
+          try {
+            selfUserId = await client.getUserId();
+          } catch {
+            return;
+          }
+        }
+        if (senderId === selfUserId) {
+          return;
+        }
+        await sendReadReceiptMatrix(roomId, eventId, client).catch((err) => {
+          logVerboseMessage(
+            `matrix: early read receipt failed room=${roomId} id=${eventId}: ${String(err)}`,
+          );
+        });
+      })();
+    }
+
+    onRoomMessage(roomId, event);
+  });
 
   client.on("room.encrypted_event", (roomId: string, event: MatrixRawEvent) => {
     const eventId = event?.event_id ?? "unknown";
