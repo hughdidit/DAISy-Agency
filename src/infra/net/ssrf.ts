@@ -458,7 +458,29 @@ export type PinnedHostname = {
   lookup: typeof dnsLookupCb;
 };
 
+<<<<<<< HEAD
 export async function resolvePinnedHostname(
+=======
+function dedupeAndPreferIpv4(results: readonly LookupAddress[]): string[] {
+  const seen = new Set<string>();
+  const ipv4: string[] = [];
+  const otherFamilies: string[] = [];
+  for (const entry of results) {
+    if (seen.has(entry.address)) {
+      continue;
+    }
+    seen.add(entry.address);
+    if (entry.family === 4) {
+      ipv4.push(entry.address);
+      continue;
+    }
+    otherFamilies.push(entry.address);
+  }
+  return [...ipv4, ...otherFamilies];
+}
+
+export async function resolvePinnedHostnameWithPolicy(
+>>>>>>> d18ae2256 (refactor: unify channel plugin resolution, family ordering, and changelog entry tooling)
   hostname: string,
   lookupFn: LookupFn = dnsLookup,
 ): Promise<PinnedHostname> {
@@ -521,7 +543,13 @@ export async function resolvePinnedHostname(
 >>>>>>> 44dfbd23d (fix(ssrf): centralize host/ip block checks)
   }
 
+<<<<<<< HEAD
   const addresses = Array.from(new Set(results.map((entry) => entry.address)));
+=======
+  // Prefer addresses returned as IPv4 by DNS family metadata before other
+  // families so Happy Eyeballs and pinned round-robin both attempt IPv4 first.
+  const addresses = dedupeAndPreferIpv4(results);
+>>>>>>> d18ae2256 (refactor: unify channel plugin resolution, family ordering, and changelog entry tooling)
   if (addresses.length === 0) {
     throw new Error(`Unable to resolve hostname: ${hostname}`);
   }
