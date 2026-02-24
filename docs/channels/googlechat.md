@@ -134,7 +134,14 @@ Configure your tunnel's ingress rules to only route the webhook path:
 
 ## Targets
 Use these identifiers for delivery and allowlists:
+<<<<<<< HEAD
 - Direct messages: `users/<userId>` or `users/<email>` (email addresses are accepted).
+=======
+
+- Direct messages: `users/<userId>` (recommended).
+- Raw email `name@example.com` is mutable and only used for direct allowlist matching when `channels.googlechat.dangerouslyAllowNameMatching: true`.
+- Deprecated: `users/<email>` is treated as a user id, not an email allowlist.
+>>>>>>> cfa44ea6b (fix(security): make allowFrom id-only by default with dangerous name opt-in (#24907))
 - Spaces: `spaces/<spaceId>`.
 
 ## Config highlights
@@ -150,7 +157,11 @@ Use these identifiers for delivery and allowlists:
       botUser: "users/1234567890", // optional; helps mention detection
       dm: {
         policy: "pairing",
+<<<<<<< HEAD
         allowFrom: ["users/1234567890", "name@example.com"]
+=======
+        allowFrom: ["users/1234567890"],
+>>>>>>> cfa44ea6b (fix(security): make allowFrom id-only by default with dangerous name opt-in (#24907))
       },
       groupPolicy: "allowlist",
       groups: {
@@ -172,6 +183,7 @@ Use these identifiers for delivery and allowlists:
 Notes:
 - Service account credentials can also be passed inline with `serviceAccount` (JSON string).
 - Default webhook path is `/googlechat` if `webhookPath` isn’t set.
+- `dangerouslyAllowNameMatching` re-enables mutable email principal matching for allowlists (break-glass compatibility mode).
 - Reactions are available via the `reactions` tool and `channels action` when `actions.reactions` is enabled.
 - `typingIndicator` supports `none`, `message` (default), and `reaction` (reaction requires user OAuth).
 - Attachments are downloaded through the Chat API and stored in the media pipeline (size capped by `mediaMaxMb`).

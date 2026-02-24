@@ -214,6 +214,7 @@ For actions/directory reads, user token can be preferred when configured. For wr
 
     - channel allowlist entries and DM allowlist entries are resolved at startup when token access allows
     - unresolved entries are kept as configured
+    - inbound authorization matching is ID-first by default; direct username/slug matching requires `channels.slack.dangerouslyAllowNameMatching: true`
 
   </Tab>
 
@@ -692,6 +693,7 @@ Use these with cron/CLI sends:
 ## Tool actions
 Slack tool actions can be gated with `channels.slack.actions.*`:
 
+<<<<<<< HEAD
 | Action group | Default | Notes |
 | --- | --- | --- |
 | reactions | enabled | React + list reactions |
@@ -699,6 +701,16 @@ Slack tool actions can be gated with `channels.slack.actions.*`:
 | pins | enabled | Pin/unpin/list |
 | memberInfo | enabled | Member info |
 | emojiList | enabled | Custom emoji list |
+=======
+  High-signal Slack fields:
+  - mode/auth: `mode`, `botToken`, `appToken`, `signingSecret`, `webhookPath`, `accounts.*`
+  - DM access: `dm.enabled`, `dmPolicy`, `allowFrom` (legacy: `dm.policy`, `dm.allowFrom`), `dm.groupEnabled`, `dm.groupChannels`
+  - compatibility toggle: `dangerouslyAllowNameMatching` (break-glass; keep off unless needed)
+  - channel access: `groupPolicy`, `channels.*`, `channels.*.users`, `channels.*.requireMention`
+  - threading/history: `replyToMode`, `replyToModeByChatType`, `thread.*`, `historyLimit`, `dmHistoryLimit`, `dms.*.historyLimit`
+  - delivery: `textChunkLimit`, `chunkMode`, `mediaMaxMb`, `streaming`, `nativeStreaming`
+  - ops/features: `configWrites`, `commands.native`, `slashCommand.*`, `actions.*`, `userToken`, `userTokenReadOnly`
+>>>>>>> cfa44ea6b (fix(security): make allowFrom id-only by default with dangerous name opt-in (#24907))
 
 ## Security notes
 - Writes default to the bot token so state-changing actions stay scoped to the

@@ -648,6 +648,7 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
     registerDiscordListener(client.listeners, new DiscordVoiceReadyListener(voiceManager));
   }
 
+<<<<<<< HEAD
   const messageHandler = createDiscordMessageHandler({
     cfg,
     discordConfig: discordCfg,
@@ -666,6 +667,33 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
     allowFrom,
     guildEntries,
   });
+=======
+    registerDiscordListener(client.listeners, new DiscordMessageListener(messageHandler, logger));
+    registerDiscordListener(
+      client.listeners,
+      new DiscordReactionListener({
+        cfg,
+        accountId: account.accountId,
+        runtime,
+        botUserId,
+        allowNameMatching: discordCfg.dangerouslyAllowNameMatching === true,
+        guildEntries,
+        logger,
+      }),
+    );
+    registerDiscordListener(
+      client.listeners,
+      new DiscordReactionRemoveListener({
+        cfg,
+        accountId: account.accountId,
+        runtime,
+        botUserId,
+        allowNameMatching: discordCfg.dangerouslyAllowNameMatching === true,
+        guildEntries,
+        logger,
+      }),
+    );
+>>>>>>> cfa44ea6b (fix(security): make allowFrom id-only by default with dangerous name opt-in (#24907))
 
   registerDiscordListener(client.listeners, new DiscordMessageListener(messageHandler, logger));
   registerDiscordListener(

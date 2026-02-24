@@ -24,6 +24,7 @@ export function resolveSlackAllowListMatch(params: {
   allowList: string[];
   id?: string;
   name?: string;
+  allowNameMatching?: boolean;
 }): SlackAllowListMatch {
   const allowList = params.allowList;
   if (allowList.length === 0) return { allowed: false };
@@ -37,9 +38,13 @@ export function resolveSlackAllowListMatch(params: {
     { value: id, source: "id" },
     { value: id ? `slack:${id}` : undefined, source: "prefixed-id" },
     { value: id ? `user:${id}` : undefined, source: "prefixed-user" },
-    { value: name, source: "name" },
-    { value: name ? `slack:${name}` : undefined, source: "prefixed-name" },
-    { value: slug, source: "slug" },
+    ...(params.allowNameMatching === true
+      ? ([
+          { value: name, source: "name" as const },
+          { value: name ? `slack:${name}` : undefined, source: "prefixed-name" as const },
+          { value: slug, source: "slug" as const },
+        ] satisfies Array<{ value?: string; source: SlackAllowListMatch["matchSource"] }>)
+      : []),
   ];
   for (const candidate of candidates) {
     if (!candidate.value) continue;
@@ -54,7 +59,12 @@ export function resolveSlackAllowListMatch(params: {
   return { allowed: false };
 }
 
-export function allowListMatches(params: { allowList: string[]; id?: string; name?: string }) {
+export function allowListMatches(params: {
+  allowList: string[];
+  id?: string;
+  name?: string;
+  allowNameMatching?: boolean;
+}) {
   return resolveSlackAllowListMatch(params).allowed;
 }
 
@@ -62,6 +72,7 @@ export function resolveSlackUserAllowed(params: {
   allowList?: Array<string | number>;
   userId?: string;
   userName?: string;
+  allowNameMatching?: boolean;
 }) {
   const allowList = normalizeAllowListLower(params.allowList);
   if (allowList.length === 0) return true;
@@ -69,5 +80,6 @@ export function resolveSlackUserAllowed(params: {
     allowList,
     id: params.userId,
     name: params.userName,
+    allowNameMatching: params.allowNameMatching,
   });
 }

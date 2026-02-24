@@ -187,7 +187,7 @@ Save to `~/.openclaw/openclaw.json` and you can DM the bot from that number.
     discord: {
       enabled: true,
       token: "YOUR_DISCORD_BOT_TOKEN",
-      dm: { enabled: true, allowFrom: ["steipete"] },
+      dm: { enabled: true, allowFrom: ["123456789012345678"] },
       guilds: {
         "123456789012345678": {
           slug: "friends-of-openclaw",
@@ -306,7 +306,7 @@ Save to `~/.openclaw/openclaw.json` and you can DM the bot from that number.
       allowFrom: {
         whatsapp: ["+15555550123"],
         telegram: ["123456789"],
-        discord: ["steipete"],
+        discord: ["123456789012345678"],
         slack: ["U123"],
         signal: ["+15555550123"],
         imessage: ["user@example.com"],
@@ -449,11 +449,46 @@ Save to `~/.openclaw/openclaw.json` and you can DM the bot from that number.
     discord: {
       enabled: true,
       token: "YOUR_TOKEN",
+<<<<<<< HEAD
       dm: { allowFrom: ["yourname"] }
     }
   }
+=======
+      dm: { allowFrom: ["123456789012345678"] },
+    },
+  },
 }
 ```
+
+### Secure DM mode (shared inbox / multi-user DMs)
+
+If more than one person can DM your bot (multiple entries in `allowFrom`, pairing approvals for multiple people, or `dmPolicy: "open"`), enable **secure DM mode** so DMs from different senders don’t share one context by default:
+
+```json5
+{
+  // Secure DM mode (recommended for multi-user or sensitive DM agents)
+  session: { dmScope: "per-channel-peer" },
+
+  channels: {
+    // Example: WhatsApp multi-user inbox
+    whatsapp: {
+      dmPolicy: "allowlist",
+      allowFrom: ["+15555550123", "+15555550124"],
+    },
+
+    // Example: Discord multi-user inbox
+    discord: {
+      enabled: true,
+      token: "YOUR_DISCORD_BOT_TOKEN",
+      dm: { enabled: true, allowFrom: ["123456789012345678", "987654321098765432"] },
+    },
+  },
+>>>>>>> cfa44ea6b (fix(security): make allowFrom id-only by default with dangerous name opt-in (#24907))
+}
+```
+
+For Discord/Slack/Google Chat/MS Teams/Mattermost/IRC, sender authorization is ID-first by default.
+Only enable direct mutable name/email/nick matching with each channel's `dangerouslyAllowNameMatching: true` if you explicitly accept that risk.
 
 ### OAuth with API key failover
 ```json5

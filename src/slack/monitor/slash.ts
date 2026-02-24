@@ -378,6 +378,7 @@ export function registerSlackMonitorSlashCommands(params: {
             allowList: effectiveAllowFromLower,
             id: command.user_id,
             name: senderName,
+            allowNameMatching: ctx.allowNameMatching,
           });
           const allowMatchMeta = formatAllowlistMatchMeta(allowMatch);
           if (!allowMatch.allowed) {
@@ -464,6 +465,7 @@ export function registerSlackMonitorSlashCommands(params: {
             allowList: channelConfig?.users,
             userId: command.user_id,
             userName: senderName,
+            allowNameMatching: ctx.allowNameMatching,
           })
         : false;
       if (channelUsersAllowlistConfigured && !channelUserAllowed) {
@@ -478,6 +480,7 @@ export function registerSlackMonitorSlashCommands(params: {
         allowList: effectiveAllowFromLower,
         id: command.user_id,
         name: senderName,
+        allowNameMatching: ctx.allowNameMatching,
       }).allowed;
       if (isRoomish) {
         commandAuthorized = resolveCommandAuthorizedFromAuthorizers({

@@ -96,8 +96,12 @@ When patching a GHSA via `gh api`, include `X-GitHub-Api-Version: 2022-11-28` (o
 >>>>>>> 41b0568b3 (docs(security): clarify shared-agent trust boundaries)
 - Reports that require write access to trusted local state (`~/.openclaw`, workspace files like `MEMORY.md` / `memory/*.md`)
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> b13fc7ecc (docs(security): clarify workspace memory trust boundary)
 =======
+=======
+- Any report whose only claim is that an operator-enabled `dangerous*`/`dangerously*` config option weakens defaults (these are explicit break-glass tradeoffs by design)
+>>>>>>> cfa44ea6b (fix(security): make allowFrom id-only by default with dangerous name opt-in (#24907))
 - Reports that depend on trusted operator-supplied configuration values to trigger availability impact (for example custom regex patterns). These may still be fixed as defense-in-depth hardening, but are not security-boundary bypasses.
 <<<<<<< HEAD
 >>>>>>> 7b4d2cb5c (docs(security): clarify trusted-config dos scope)

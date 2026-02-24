@@ -169,6 +169,15 @@ export async function processDiscordMessage(ctx: DiscordMessagePreflightContext)
 >>>>>>> 35eb40a70 (fix(security): separate untrusted channel metadata from system prompt (thanks @KonstantinMirin))
   const groupSystemPrompt =
     systemPromptParts.length > 0 ? systemPromptParts.join("\n\n") : undefined;
+<<<<<<< HEAD
+=======
+  const ownerAllowFrom = resolveDiscordOwnerAllowFrom({
+    channelConfig,
+    guildInfo,
+    sender: { id: sender.id, name: sender.name, tag: sender.tag },
+    allowNameMatching: discordConfig?.dangerouslyAllowNameMatching === true,
+  });
+>>>>>>> cfa44ea6b (fix(security): make allowFrom id-only by default with dangerous name opt-in (#24907))
   const storePath = resolveStorePath(cfg.session?.store, {
     agentId: route.agentId,
   });

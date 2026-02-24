@@ -61,12 +61,18 @@ It also warns when existing sandbox browser Docker containers have missing/stale
 >>>>>>> 1835dec20 (fix(security): force sandbox browser hash migration and audit stale labels)
 It also warns when npm-based plugin/hook install records are unpinned, missing integrity metadata, or drift from currently installed package versions.
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 5dc50b8a3 (fix(security): harden npm plugin and hook install integrity flow)
 =======
 It warns when Discord allowlists (`channels.discord.allowFrom`, `channels.discord.guilds.*.users`, pairing store) use name or tag entries instead of stable IDs.
 >>>>>>> f97c45c5b (fix(security): warn on Discord name-based allowlists in audit)
 It warns when `gateway.auth.mode="none"` leaves Gateway HTTP APIs reachable without a shared secret (`/tools/invoke` plus any enabled `/v1/*` endpoint).
 >>>>>>> e3e0ffd80 (feat(security): audit gateway HTTP no-auth exposure)
+=======
+It warns when channel allowlists rely on mutable names/emails/tags instead of stable IDs (Discord, Slack, Google Chat, MS Teams, Mattermost, IRC scopes where applicable).
+It warns when `gateway.auth.mode="none"` leaves Gateway HTTP APIs reachable without a shared secret (`/tools/invoke` plus any enabled `/v1/*` endpoint).
+Settings prefixed with `dangerous`/`dangerously` are explicit break-glass operator overrides; enabling one is not, by itself, a security vulnerability report.
+>>>>>>> cfa44ea6b (fix(security): make allowFrom id-only by default with dangerous name opt-in (#24907))
 
 ## JSON output
 
