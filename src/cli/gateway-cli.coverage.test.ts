@@ -202,6 +202,7 @@ describe("gateway-cli coverage", () => {
     const out = runtimeLogs.join("\n");
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     expect(out).toContain("Gateway Discovery");
     expect(out).toContain("Found 1 gateway(s)");
     expect(out).toContain("- Studio moltbot.internal.");
@@ -221,6 +222,10 @@ describe("gateway-cli coverage", () => {
       expect(out).toContain(text);
     }
 >>>>>>> a1cb700a0 (test: dedupe and optimize test suites)
+=======
+    expect(out).toContain('"beacons"');
+    expect(out).toContain("ws://");
+>>>>>>> 663f784e4 (test(core): trim redundant setup and tighten waits)
   });
 
   it("validates gateway discover timeout", async () => {
