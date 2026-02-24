@@ -18,9 +18,19 @@ import {
 } from "../../agents/tools/common.js";
 import { parseReplyDirectives } from "../../auto-reply/reply/reply-directives.js";
 import { dispatchChannelMessageAction } from "../../channels/plugins/message-actions.js";
+<<<<<<< HEAD
 import { extensionForMime } from "../../media/mime.js";
 import { parseSlackTarget } from "../../slack/targets.js";
 import { parseTelegramTarget } from "../../telegram/targets.js";
+=======
+import type {
+  ChannelId,
+  ChannelMessageActionName,
+  ChannelThreadingToolContext,
+} from "../../channels/plugins/types.js";
+import type { OpenClawConfig } from "../../config/config.js";
+import { getAgentScopedMediaLocalRoots } from "../../media/local-roots.js";
+>>>>>>> 270ab03e3 (fix: enforce local media root checks for attachment hydration)
 import {
   isDeliverableMessageChannel,
   normalizeMessageChannel,
@@ -1066,6 +1076,7 @@ export async function runMessageAction(
     params.accountId = accountId;
   }
   const dryRun = Boolean(input.dryRun ?? readBooleanParam(params, "dryRun"));
+  const mediaLocalRoots = getAgentScopedMediaLocalRoots(cfg, resolvedAgentId);
 
   await normalizeSandboxMediaParams({
     args: params,
@@ -1079,6 +1090,8 @@ export async function runMessageAction(
     args: params,
     action,
     dryRun,
+    sandboxRoot: input.sandboxRoot,
+    mediaLocalRoots,
   });
 
   await hydrateSetGroupIconParams({
@@ -1088,6 +1101,8 @@ export async function runMessageAction(
     args: params,
     action,
     dryRun,
+    sandboxRoot: input.sandboxRoot,
+    mediaLocalRoots,
   });
 
   const resolvedTarget = await resolveActionTarget({
