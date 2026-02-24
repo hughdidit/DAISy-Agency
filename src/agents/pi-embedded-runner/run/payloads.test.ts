@@ -436,4 +436,26 @@ describe("buildEmbeddedRunPayloads tool-error warnings", () => {
     expect(payloads[0]?.text).toContain("permission denied");
 >>>>>>> 835be4392 (fix: gate tool error details behind verbose)
   });
+
+  it("suppresses sessions_send errors to avoid leaking transient relay failures", () => {
+    const payloads = buildPayloads({
+      lastToolError: { toolName: "sessions_send", error: "delivery timeout" },
+      verboseLevel: "on",
+    });
+
+    expect(payloads).toHaveLength(0);
+  });
+
+  it("suppresses sessions_send errors even when marked mutating", () => {
+    const payloads = buildPayloads({
+      lastToolError: {
+        toolName: "sessions_send",
+        error: "delivery timeout",
+        mutatingAction: true,
+      },
+      verboseLevel: "on",
+    });
+
+    expect(payloads).toHaveLength(0);
+  });
 });
