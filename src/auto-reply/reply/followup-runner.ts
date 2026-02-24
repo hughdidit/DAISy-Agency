@@ -26,6 +26,11 @@ import { resolveRunAuthProfile } from "./agent-runner-utils.js";
 =======
 import type { GetReplyOptions, ReplyPayload } from "../types.js";
 import { resolveRunAuthProfile } from "./agent-runner-utils.js";
+import {
+  resolveOriginAccountId,
+  resolveOriginMessageProvider,
+  resolveOriginMessageTo,
+} from "./origin-routing.js";
 import type { FollowupRun } from "./queue.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
@@ -288,9 +293,10 @@ export function createFollowupRunner(params: {
         }
         return [{ ...payload, text: stripped.text }];
       });
-      const replyToChannel =
-        queued.originatingChannel ??
-        (queued.run.messageProvider?.toLowerCase() as OriginatingChannelType | undefined);
+      const replyToChannel = resolveOriginMessageProvider({
+        originatingChannel: queued.originatingChannel,
+        provider: queued.run.messageProvider,
+      }) as OriginatingChannelType | undefined;
       const replyToMode = resolveReplyToMode(
         queued.run.config,
         replyToChannel,
@@ -313,10 +319,25 @@ export function createFollowupRunner(params: {
         sentMediaUrls: runResult.messagingToolSentMediaUrls ?? [],
       });
       const suppressMessagingToolReplies = shouldSuppressMessagingToolReplies({
+<<<<<<< HEAD
         messageProvider: queued.run.messageProvider,
         messagingToolSentTargets: runResult.messagingToolSentTargets,
         originatingTo: queued.originatingTo,
         accountId: queued.run.agentAccountId,
+=======
+        messageProvider: resolveOriginMessageProvider({
+          originatingChannel: queued.originatingChannel,
+          provider: queued.run.messageProvider,
+        }),
+        messagingToolSentTargets: runResult.messagingToolSentTargets,
+        originatingTo: resolveOriginMessageTo({
+          originatingTo: queued.originatingTo,
+        }),
+        accountId: resolveOriginAccountId({
+          originatingAccountId: queued.originatingAccountId,
+          accountId: queued.run.agentAccountId,
+        }),
+>>>>>>> 54648a9cf (refactor: centralize followup origin routing helpers)
       });
       const finalPayloads = suppressMessagingToolReplies ? [] : mediaFilteredPayloads;
 

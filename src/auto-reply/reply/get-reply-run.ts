@@ -124,6 +124,7 @@ import { buildGroupChatContext, buildGroupIntro } from "./groups.js";
 >>>>>>> b8f66c260 (Agents: add nested subagent orchestration controls and reduce subagent token waste (#14447))
 import { buildInboundMetaSystemPrompt, buildInboundUserContextPrefix } from "./inbound-meta.js";
 import type { createModelSelectionState } from "./model-selection.js";
+import { resolveOriginMessageProvider } from "./origin-routing.js";
 import { resolveQueueSettings } from "./queue.js";
 >>>>>>> 53273b490 (fix(auto-reply): prevent sender spoofing in group prompts)
 import { routeReply } from "./route-reply.js";
@@ -591,7 +592,14 @@ export async function runPreparedReply(
       agentDir,
       sessionId: sessionIdFinal,
       sessionKey,
+<<<<<<< HEAD
       messageProvider: sessionCtx.Provider?.trim().toLowerCase() || undefined,
+=======
+      messageProvider: resolveOriginMessageProvider({
+        originatingChannel: sessionCtx.OriginatingChannel,
+        provider: sessionCtx.Provider,
+      }),
+>>>>>>> 54648a9cf (refactor: centralize followup origin routing helpers)
       agentAccountId: sessionCtx.AccountId,
       groupId: resolveGroupSessionKey(sessionCtx)?.id ?? undefined,
       groupChannel: sessionCtx.GroupChannel?.trim() ?? sessionCtx.GroupSubject?.trim(),
