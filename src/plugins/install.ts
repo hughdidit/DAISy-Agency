@@ -52,7 +52,11 @@ import { extensionUsesSkippedScannerPath, isPathInside } from "../security/scan-
 >>>>>>> 8a9fddedc (refactor: extract shared install and embedding utilities)
 import * as skillScanner from "../security/skill-scanner.js";
 import { CONFIG_DIR, resolveUserPath } from "../utils.js";
+<<<<<<< HEAD
 >>>>>>> c2f7b66d2 (perf(test): replace module resets with direct spies and runtime seams)
+=======
+import { loadPluginManifest } from "./manifest.js";
+>>>>>>> bf91b347c (fix(plugins): use manifest id as config entry key instead of npm package name (#24796))
 
 type PluginInstallLogger = {
   info?: (message: string) => void;
@@ -180,7 +184,25 @@ async function installPluginFromPackageDir(params: {
   }
 
   const pkgName = typeof manifest.name === "string" ? manifest.name : "";
+<<<<<<< HEAD
   const pluginId = pkgName ? unscopedPackageName(pkgName) : "plugin";
+=======
+  const npmPluginId = pkgName ? unscopedPackageName(pkgName) : "plugin";
+
+  // Prefer the canonical `id` from openclaw.plugin.json over the npm package name.
+  // This avoids a latent key-mismatch bug: if the manifest id (e.g. "memory-cognee")
+  // differs from the npm package name (e.g. "cognee-openclaw"), the plugin registry
+  // uses the manifest id as the authoritative key, so the config entry must match it.
+  const ocManifestResult = loadPluginManifest(params.packageDir);
+  const manifestPluginId =
+    ocManifestResult.ok && ocManifestResult.manifest.id ? ocManifestResult.manifest.id : undefined;
+
+  const pluginId = manifestPluginId ?? npmPluginId;
+  const pluginIdError = validatePluginId(pluginId);
+  if (pluginIdError) {
+    return { ok: false, error: pluginIdError };
+  }
+>>>>>>> bf91b347c (fix(plugins): use manifest id as config entry key instead of npm package name (#24796))
   if (params.expectedPluginId && params.expectedPluginId !== pluginId) {
     return {
       ok: false,
@@ -189,7 +211,16 @@ async function installPluginFromPackageDir(params: {
   }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+  if (manifestPluginId && manifestPluginId !== npmPluginId) {
+    logger.info?.(
+      `Plugin manifest id "${manifestPluginId}" differs from npm package name "${npmPluginId}"; using manifest id as the config key.`,
+    );
+  }
+
+>>>>>>> bf91b347c (fix(plugins): use manifest id as config entry key instead of npm package name (#24796))
   const packageDir = path.resolve(params.packageDir);
   const forcedScanEntries: string[] = [];
   for (const entry of extensions) {
