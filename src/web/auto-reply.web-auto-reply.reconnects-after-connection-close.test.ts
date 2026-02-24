@@ -129,7 +129,7 @@ describe("web auto-reply", () => {
         () => {
           expect(listenerFactory).toHaveBeenCalledTimes(scenario.expectedCallsAfterFirstClose);
         },
-        { timeout: 500, interval: 5 },
+        { timeout: 250, interval: 2 },
       );
 
       if (scenario.closeTwiceAndFinish) {
@@ -185,7 +185,7 @@ describe("web auto-reply", () => {
         () => {
           expect(capturedOnMessage).toBeTypeOf("function");
         },
-        { timeout: 500, interval: 5 },
+        { timeout: 250, interval: 2 },
       );
 
       const reply = vi.fn().mockResolvedValue(undefined);
@@ -218,7 +218,7 @@ describe("web auto-reply", () => {
         () => {
           expect(listenerFactory).toHaveBeenCalledTimes(2);
         },
-        { timeout: 500, interval: 5 },
+        { timeout: 250, interval: 2 },
       );
 >>>>>>> b534dfa3e (fix(slack,web): harden thread hints and monitor tuning)
 
@@ -229,7 +229,7 @@ describe("web auto-reply", () => {
     } finally {
       vi.useRealTimers();
     }
-  }, 15_000);
+  });
 
   it("processes inbound messages without batching and preserves timestamps", async () => {
     await withEnvAsync({ TZ: "Europe/Vienna" }, async () => {
