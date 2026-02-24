@@ -66,14 +66,6 @@ function collectSensitiveStrings(value: unknown, values: string[]): void {
   }
 }
 
-function isExtensionPath(path: string): boolean {
-  return (
-    path === "plugins" ||
-    path.startsWith("plugins.") ||
-    path === "channels" ||
-    path.startsWith("channels.")
-  );
-}
 function isExplicitlyNonSensitivePath(hints: ConfigUiHints | undefined, paths: string[]): boolean {
   if (!hints) {
     return false;
