@@ -21,6 +21,18 @@ import { finalizeInboundContext } from "../../auto-reply/reply/inbound-context.j
 import { createReplyDispatcherWithTyping } from "../../auto-reply/reply/reply-dispatcher.js";
 import type { ReplyPayload } from "../../auto-reply/types.js";
 import { recordInboundSession } from "../../channels/session.js";
+<<<<<<< HEAD
+=======
+import {
+  createStatusReactionController,
+  DEFAULT_TIMING,
+  type StatusReactionAdapter,
+} from "../../channels/status-reactions.js";
+import { createTypingCallbacks } from "../../channels/typing.js";
+import { isDangerousNameMatchingEnabled } from "../../config/dangerous-name-matching.js";
+import { resolveDiscordPreviewStreamMode } from "../../config/discord-preview-streaming.js";
+import { resolveMarkdownTableMode } from "../../config/markdown-tables.js";
+>>>>>>> 161d9841d (refactor(security): unify dangerous name matching handling)
 import { readSessionUpdatedAt, resolveStorePath } from "../../config/sessions.js";
 import { resolveChunkMode } from "../../auto-reply/chunk.js";
 import { resolveMarkdownTableMode } from "../../config/markdown-tables.js";
@@ -175,7 +187,7 @@ export async function processDiscordMessage(ctx: DiscordMessagePreflightContext)
     channelConfig,
     guildInfo,
     sender: { id: sender.id, name: sender.name, tag: sender.tag },
-    allowNameMatching: discordConfig?.dangerouslyAllowNameMatching === true,
+    allowNameMatching: isDangerousNameMatchingEnabled(discordConfig),
   });
 >>>>>>> cfa44ea6b (fix(security): make allowFrom id-only by default with dangerous name opt-in (#24907))
   const storePath = resolveStorePath(cfg.session?.store, {

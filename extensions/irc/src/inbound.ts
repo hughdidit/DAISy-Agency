@@ -1,6 +1,7 @@
 import {
   createReplyPrefixOptions,
   logInboundDrop,
+  isDangerousNameMatchingEnabled,
   resolveControlCommandGate,
   type OpenClawConfig,
   type RuntimeEnv,
@@ -82,7 +83,7 @@ export async function handleIrcInbound(params: {
   const senderDisplay = message.senderHost
     ? `${message.senderNick}!${message.senderUser ?? "?"}@${message.senderHost}`
     : message.senderNick;
-  const allowNameMatching = account.config.dangerouslyAllowNameMatching === true;
+  const allowNameMatching = isDangerousNameMatchingEnabled(account.config);
 
   const dmPolicy = account.config.dmPolicy ?? "pairing";
   const defaultGroupPolicy = config.channels?.defaults?.groupPolicy;

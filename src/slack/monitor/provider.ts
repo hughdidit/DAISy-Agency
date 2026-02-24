@@ -6,6 +6,15 @@ import { resolveTextChunkLimit } from "../../auto-reply/chunk.js";
 import { DEFAULT_GROUP_HISTORY_LIMIT } from "../../auto-reply/reply/history.js";
 import { mergeAllowlist, summarizeMapping } from "../../channels/allowlists/resolve-utils.js";
 import { loadConfig } from "../../config/config.js";
+<<<<<<< HEAD
+=======
+import { isDangerousNameMatchingEnabled } from "../../config/dangerous-name-matching.js";
+import {
+  resolveOpenProviderRuntimeGroupPolicy,
+  resolveDefaultGroupPolicy,
+  warnMissingProviderGroupPolicyFallbackOnce,
+} from "../../config/runtime-group-policy.js";
+>>>>>>> 161d9841d (refactor(security): unify dangerous name matching handling)
 import type { SessionScope } from "../../config/sessions.js";
 import type { DmPolicy, GroupPolicy } from "../../config/types.js";
 import { warn } from "../../globals.js";
@@ -209,7 +218,7 @@ export async function monitorSlackProvider(opts: MonitorSlackOpts = {}) {
     dmEnabled,
     dmPolicy,
     allowFrom,
-    allowNameMatching: slackCfg.dangerouslyAllowNameMatching === true,
+    allowNameMatching: isDangerousNameMatchingEnabled(slackCfg),
     groupDmEnabled,
     groupDmChannels,
     defaultRequireMention: slackCfg.requireMention,

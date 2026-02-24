@@ -15,6 +15,12 @@ import {
 =======
   registerWebhookTarget,
   rejectNonPostWebhookRequest,
+<<<<<<< HEAD
+=======
+  isDangerousNameMatchingEnabled,
+  resolveAllowlistProviderRuntimeGroupPolicy,
+  resolveDefaultGroupPolicy,
+>>>>>>> 161d9841d (refactor(security): unify dangerous name matching handling)
   resolveSingleWebhookTargetAsync,
   resolveWebhookPath,
   resolveWebhookTargets,
@@ -469,7 +475,7 @@ async function processMessageWithPipeline(params: {
   const senderId = sender?.name ?? "";
   const senderName = sender?.displayName ?? "";
   const senderEmail = sender?.email ?? undefined;
-  const allowNameMatching = account.config.dangerouslyAllowNameMatching === true;
+  const allowNameMatching = isDangerousNameMatchingEnabled(account.config);
 
   const allowBots = account.config.allowBots === true;
   if (!allowBots) {

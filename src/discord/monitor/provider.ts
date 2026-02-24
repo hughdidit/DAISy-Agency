@@ -35,6 +35,16 @@ import {
 } from "../../config/commands.js";
 import type { OpenClawConfig, ReplyToMode } from "../../config/config.js";
 import { loadConfig } from "../../config/config.js";
+<<<<<<< HEAD
+=======
+import { isDangerousNameMatchingEnabled } from "../../config/dangerous-name-matching.js";
+import {
+  GROUP_POLICY_BLOCKED_LABEL,
+  resolveOpenProviderRuntimeGroupPolicy,
+  resolveDefaultGroupPolicy,
+  warnMissingProviderGroupPolicyFallbackOnce,
+} from "../../config/runtime-group-policy.js";
+>>>>>>> 161d9841d (refactor(security): unify dangerous name matching handling)
 import { danger, logVerbose, shouldLogVerbose, warn } from "../../globals.js";
 import { formatErrorMessage } from "../../infra/errors.js";
 import { createDiscordRetryRunner } from "../../infra/retry-policy.js";
@@ -676,7 +686,7 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
         accountId: account.accountId,
         runtime,
         botUserId,
-        allowNameMatching: discordCfg.dangerouslyAllowNameMatching === true,
+        allowNameMatching: isDangerousNameMatchingEnabled(discordCfg),
         guildEntries,
         logger,
       }),
@@ -688,7 +698,7 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
         accountId: account.accountId,
         runtime,
         botUserId,
-        allowNameMatching: discordCfg.dangerouslyAllowNameMatching === true,
+        allowNameMatching: isDangerousNameMatchingEnabled(discordCfg),
         guildEntries,
         logger,
       }),
