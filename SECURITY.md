@@ -4,8 +4,73 @@ If you believe you've found a security issue in Moltbot, please report it privat
 
 ## Reporting
 
+<<<<<<< HEAD
 - Email: `steipete@gmail.com`
 - What to include: reproduction steps, impact assessment, and (if possible) a minimal PoC.
+=======
+Report vulnerabilities directly to the repository where the issue lives:
+
+- **Core CLI and gateway** — [openclaw/openclaw](https://github.com/openclaw/openclaw)
+- **macOS desktop app** — [openclaw/openclaw](https://github.com/openclaw/openclaw) (apps/macos)
+- **iOS app** — [openclaw/openclaw](https://github.com/openclaw/openclaw) (apps/ios)
+- **Android app** — [openclaw/openclaw](https://github.com/openclaw/openclaw) (apps/android)
+- **ClawHub** — [openclaw/clawhub](https://github.com/openclaw/clawhub)
+- **Trust and threat model** — [openclaw/trust](https://github.com/openclaw/trust)
+
+For issues that don't fit a specific repo, or if you're unsure, email **security@openclaw.ai** and we'll route it.
+
+For full reporting instructions see our [Trust page](https://trust.openclaw.ai).
+
+### Required in Reports
+
+1. **Title**
+2. **Severity Assessment**
+3. **Impact**
+4. **Affected Component**
+5. **Technical Reproduction**
+6. **Demonstrated Impact**
+7. **Environment**
+8. **Remediation Advice**
+
+Reports without reproduction steps, demonstrated impact, and remediation advice will be deprioritized. Given the volume of AI-generated scanner findings, we must ensure we're receiving vetted reports from researchers who understand the issues.
+
+### Report Acceptance Gate (Triage Fast Path)
+
+For fastest triage, include all of the following:
+
+- Exact vulnerable path (`file`, function, and line range) on a current revision.
+- Tested version details (OpenClaw version and/or commit SHA).
+- Reproducible PoC against latest `main` or latest released version.
+- Demonstrated impact tied to OpenClaw's documented trust boundaries.
+- For exposed-secret reports: proof the credential is OpenClaw-owned (or grants access to OpenClaw-operated infrastructure/services).
+- Explicit statement that the report does not rely on adversarial operators sharing one gateway host/config.
+- Scope check explaining why the report is **not** covered by the Out of Scope section below.
+
+Reports that miss these requirements may be closed as `invalid` or `no-action`.
+
+### Common False-Positive Patterns
+
+These are frequently reported but are typically closed with no code change:
+
+- Prompt-injection-only chains without a boundary bypass (prompt injection is out of scope).
+- Operator-intended local features (for example TUI local `!` shell) presented as remote injection.
+- Reports that assume per-user multi-tenant authorization on a shared gateway host/config.
+- ReDoS/DoS claims that require trusted operator configuration input (for example catastrophic regex in `sessionFilter` or `logging.redactPatterns`) without a trust-boundary bypass.
+- Missing HSTS findings on default local/loopback deployments.
+- Slack webhook signature findings when HTTP mode already uses signing-secret verification.
+- Discord inbound webhook signature findings for paths not used by this repo's Discord integration.
+- Scanner-only claims against stale/nonexistent paths, or claims without a working repro.
+
+### Duplicate Report Handling
+
+- Search existing advisories before filing.
+- Include likely duplicate GHSA IDs in your report when applicable.
+- Maintainers may close lower-quality/later duplicates in favor of the earliest high-quality canonical report.
+
+## Security & Trust
+
+**Jamieson O'Reilly** ([@theonejvo](https://twitter.com/theonejvo)) is Security & Trust at OpenClaw. Jamieson is the founder of [Dvuln](https://dvuln.com) and brings extensive experience in offensive security, penetration testing, and security program development.
+>>>>>>> 7d55277d7 (docs: clarify operator trust boundary for shared gateways)
 
 <<<<<<< HEAD
 =======
@@ -14,10 +79,30 @@ If you believe you've found a security issue in Moltbot, please report it privat
 OpenClaw is a labor of love. There is no bug bounty program and no budget for paid reports. Please still disclose responsibly so we can fix issues quickly.
 The best way to help the project right now is by sending PRs.
 
+<<<<<<< HEAD
+=======
+## Maintainers: GHSA Updates via CLI
+
+When patching a GHSA via `gh api`, include `X-GitHub-Api-Version: 2022-11-28` (or newer). Without it, some fields (notably CVSS) may not persist even if the request returns 200.
+
+## Operator Trust Model (Important)
+
+OpenClaw does **not** model one gateway as a multi-tenant, adversarial user boundary.
+
+- Authenticated Gateway callers are treated as trusted operators for that gateway instance.
+- Session identifiers (`sessionKey`, session IDs, labels) are routing controls, not per-user authorization boundaries.
+- If one operator can view data from another operator on the same gateway, that is expected in this trust model.
+- If you need adversarial-user isolation, split by trust boundary (separate OS users/hosts/gateways).
+
+>>>>>>> 7d55277d7 (docs: clarify operator trust boundary for shared gateways)
 ## Out of Scope
 
 - Public Internet Exposure
 - Using OpenClaw in ways that the docs recommend not to
+<<<<<<< HEAD
+=======
+- Deployments where mutually untrusted/adversarial operators share one gateway host and config (for example, reports expecting per-operator isolation for `sessions.list`, `sessions.preview`, `chat.history`, or similar control-plane reads)
+>>>>>>> 7d55277d7 (docs: clarify operator trust boundary for shared gateways)
 - Prompt injection attacks
 
 >>>>>>> a767c584c (Add prompt injection attacks to out of scope section)
