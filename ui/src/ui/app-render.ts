@@ -234,6 +234,7 @@ import { renderSkills } from "./views/skills";
   type SkillMessage,
 >>>>>>> 4b17ce7f4 (feat(ui): add i18n support with English, Chinese, and Portuguese)
 } from "./controllers/skills.ts";
+import { buildExternalLinkRel, EXTERNAL_LINK_TARGET } from "./external-link.ts";
 import { icons } from "./icons.ts";
 <<<<<<< HEAD
 import {
@@ -564,9 +565,14 @@ export function renderApp(state: AppViewState) {
               href="https://docs.molt.bot"
 =======
               href="https://docs.openclaw.ai"
+<<<<<<< HEAD
 >>>>>>> 629869800 (revert(ui): remove UI portions of mixed commits from main)
               target="_blank"
               rel="noreferrer"
+=======
+              target=${EXTERNAL_LINK_TARGET}
+              rel=${buildExternalLinkRel()}
+>>>>>>> 6c5ab543c (refactor: tighten external-link policy and window.open guard)
               title="${t("common.docs")} (opens in new tab)"
             >
               <span class="nav-item__icon" aria-hidden="true">${icons.book}</span>

@@ -90,6 +90,7 @@ import { html } from "lit";
 import { ConnectErrorDetailCodes } from "../../../../src/gateway/protocol/connect-error-details.js";
 >>>>>>> 078e1a7fc (fix(ui): remove unused Lit import in overview view)
 import { t, i18n, type Locale } from "../../i18n/index.ts";
+import { buildExternalLinkRel, EXTERNAL_LINK_TARGET } from "../external-link.ts";
 import { formatRelativeTimestamp, formatDurationHuman } from "../format.ts";
 import type { GatewayHelloOk } from "../gateway.ts";
 import { formatNextRun } from "../presenter.ts";
@@ -152,8 +153,8 @@ export function renderOverview(props: OverviewProps) {
           <a
             class="session-link"
             href="https://docs.openclaw.ai/web/control-ui#device-pairing-first-connection"
-            target="_blank"
-            rel="noreferrer"
+            target=${EXTERNAL_LINK_TARGET}
+            rel=${buildExternalLinkRel()}
             title="Device pairing docs (opens in new tab)"
             >Docs: Device pairing</a
           >
@@ -190,9 +191,15 @@ export function renderOverview(props: OverviewProps) {
           <div style="margin-top: 6px">
             <a
               class="session-link"
+<<<<<<< HEAD
               href="https://docs.molt.bot/web/dashboard"
               target="_blank"
               rel="noreferrer"
+=======
+              href="https://docs.openclaw.ai/web/dashboard"
+              target=${EXTERNAL_LINK_TARGET}
+              rel=${buildExternalLinkRel()}
+>>>>>>> 6c5ab543c (refactor: tighten external-link policy and window.open guard)
               title="Control UI auth docs (opens in new tab)"
               >Docs: Control UI auth</a
             >
@@ -217,9 +224,15 @@ export function renderOverview(props: OverviewProps) {
 >>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
           <a
             class="session-link"
+<<<<<<< HEAD
             href="https://docs.molt.bot/web/dashboard"
             target="_blank"
             rel="noreferrer"
+=======
+            href="https://docs.openclaw.ai/web/dashboard"
+            target=${EXTERNAL_LINK_TARGET}
+            rel=${buildExternalLinkRel()}
+>>>>>>> 6c5ab543c (refactor: tighten external-link policy and window.open guard)
             title="Control UI auth docs (opens in new tab)"
             >Docs: Control UI auth</a
           >
@@ -245,18 +258,30 @@ export function renderOverview(props: OverviewProps) {
         <div style="margin-top: 6px">
           <a
             class="session-link"
+<<<<<<< HEAD
             href="https://docs.molt.bot/gateway/tailscale"
             target="_blank"
             rel="noreferrer"
+=======
+            href="https://docs.openclaw.ai/gateway/tailscale"
+            target=${EXTERNAL_LINK_TARGET}
+            rel=${buildExternalLinkRel()}
+>>>>>>> 6c5ab543c (refactor: tighten external-link policy and window.open guard)
             title="Tailscale Serve docs (opens in new tab)"
             >Docs: Tailscale Serve</a
           >
           <span class="muted"> · </span>
           <a
             class="session-link"
+<<<<<<< HEAD
             href="https://docs.molt.bot/web/control-ui#insecure-http"
             target="_blank"
             rel="noreferrer"
+=======
+            href="https://docs.openclaw.ai/web/control-ui#insecure-http"
+            target=${EXTERNAL_LINK_TARGET}
+            rel=${buildExternalLinkRel()}
+>>>>>>> 6c5ab543c (refactor: tighten external-link policy and window.open guard)
             title="Insecure HTTP docs (opens in new tab)"
             >Docs: Insecure HTTP</a
           >
