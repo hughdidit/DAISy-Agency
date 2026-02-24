@@ -4,8 +4,13 @@ import { isBlockedHostnameOrIp, isPrivateIpAddress } from "./ssrf.js";
 
 const privateIpCases = [
 <<<<<<< HEAD
+<<<<<<< HEAD
   "::ffff:127.0.0.1",
 =======
+=======
+  "198.18.0.1",
+  "198.19.255.254",
+>>>>>>> 3af9d1f8e (fix: scope Telegram RFC2544 SSRF exception to policy opt-in (#24982) (thanks @stakeswky))
   "198.51.100.42",
   "203.0.113.10",
   "192.0.0.8",
@@ -16,6 +21,7 @@ const privateIpCases = [
   "240.0.0.1",
   "255.255.255.255",
   "::ffff:127.0.0.1",
+  "::ffff:198.18.0.1",
   "64:ff9b::198.51.100.42",
 >>>>>>> 9df80b73e (fix: allow RFC2544 benchmark range (198.18.0.0/15) through SSRF filter)
   "0:0:0:0:0:ffff:7f00:1",
@@ -33,6 +39,7 @@ const privateIpCases = [
   "2002:a9fe:a9fe::",
   "2001:0000:0:0:0:0:80ff:fefe",
   "2001:0000:0:0:0:0:3f57:fefe",
+  "2002:c612:0001::",
   "::",
   "::1",
   "fe80::1%lo0",
@@ -47,11 +54,7 @@ const publicIpCases = [
 <<<<<<< HEAD
 =======
   "198.17.255.255",
-  "198.18.0.1",
-  "198.18.0.153",
-  "198.19.255.254",
   "198.20.0.1",
-  "2002:c612:0001::",
   "198.51.99.1",
   "198.51.101.1",
   "203.0.112.1",
@@ -59,7 +62,6 @@ const publicIpCases = [
   "223.255.255.255",
 >>>>>>> 9df80b73e (fix: allow RFC2544 benchmark range (198.18.0.0/15) through SSRF filter)
   "2606:4700:4700::1111",
-  "::ffff:198.18.0.1",
   "2001:db8::1",
   "64:ff9b::8.8.8.8",
   "64:ff9b:1::8.8.8.8",
@@ -106,13 +108,17 @@ describe("isBlockedHostnameOrIp", () => {
 <<<<<<< HEAD
 =======
 
-  it("allows RFC2544 benchmark range (used by Telegram) but blocks adjacent special-use ranges", () => {
-    expect(isBlockedHostnameOrIp("198.18.0.1")).toBe(false);
-    expect(isBlockedHostnameOrIp("198.18.0.153")).toBe(false);
-    expect(isBlockedHostnameOrIp("198.19.255.254")).toBe(false);
+  it("blocks IPv4 special-use ranges but allows adjacent public ranges", () => {
+    expect(isBlockedHostnameOrIp("198.18.0.1")).toBe(true);
     expect(isBlockedHostnameOrIp("198.20.0.1")).toBe(false);
-    expect(isBlockedHostnameOrIp("198.51.100.1")).toBe(true);
-    expect(isBlockedHostnameOrIp("203.0.113.1")).toBe(true);
+  });
+
+  it("supports opt-in policy to allow RFC2544 benchmark range", () => {
+    const policy = { allowRfc2544BenchmarkRange: true };
+    expect(isBlockedHostnameOrIp("198.18.0.1")).toBe(true);
+    expect(isBlockedHostnameOrIp("198.18.0.1", policy)).toBe(false);
+    expect(isBlockedHostnameOrIp("::ffff:198.18.0.1", policy)).toBe(false);
+    expect(isBlockedHostnameOrIp("198.51.100.1", policy)).toBe(true);
   });
 
   it("blocks legacy IPv4 literal representations", () => {

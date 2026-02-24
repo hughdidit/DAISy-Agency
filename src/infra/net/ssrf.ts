@@ -1,6 +1,21 @@
 import { lookup as dnsLookup } from "node:dns/promises";
 import { lookup as dnsLookupCb, type LookupAddress } from "node:dns";
 import { Agent, type Dispatcher } from "undici";
+<<<<<<< HEAD
+=======
+import {
+  extractEmbeddedIpv4FromIpv6,
+  isBlockedSpecialUseIpv4Address,
+  isCanonicalDottedDecimalIPv4,
+  type Ipv4SpecialUseBlockOptions,
+  isIpv4Address,
+  isLegacyIpv4Literal,
+  isPrivateOrLoopbackIpAddress,
+  parseCanonicalIpAddress,
+  parseLooseIpAddress,
+} from "../../shared/net/ip.js";
+import { normalizeHostname } from "./hostname.js";
+>>>>>>> 3af9d1f8e (fix: scope Telegram RFC2544 SSRF exception to policy opt-in (#24982) (thanks @stakeswky))
 
 type LookupCallback = (
   err: NodeJS.ErrnoException | null,
@@ -19,6 +34,11 @@ export type LookupFn = typeof dnsLookup;
 
 export type SsrFPolicy = {
   allowPrivateNetwork?: boolean;
+<<<<<<< HEAD
+=======
+  dangerouslyAllowPrivateNetwork?: boolean;
+  allowRfc2544BenchmarkRange?: boolean;
+>>>>>>> 3af9d1f8e (fix: scope Telegram RFC2544 SSRF exception to policy opt-in (#24982) (thanks @stakeswky))
   allowedHostnames?: string[];
   hostnameAllowlist?: string[];
 };
@@ -62,6 +82,19 @@ function normalizeHostnameAllowlist(values?: string[]): string[] {
   );
 }
 
+<<<<<<< HEAD
+=======
+function resolveAllowPrivateNetwork(policy?: SsrFPolicy): boolean {
+  return policy?.dangerouslyAllowPrivateNetwork === true || policy?.allowPrivateNetwork === true;
+}
+
+function resolveIpv4SpecialUseBlockOptions(policy?: SsrFPolicy): Ipv4SpecialUseBlockOptions {
+  return {
+    allowRfc2544BenchmarkRange: policy?.allowRfc2544BenchmarkRange === true,
+  };
+}
+
+>>>>>>> 3af9d1f8e (fix: scope Telegram RFC2544 SSRF exception to policy opt-in (#24982) (thanks @stakeswky))
 function isHostnameAllowedByPattern(hostname: string, pattern: string): boolean {
   if (pattern.startsWith("*.")) {
     const suffix = pattern.slice(2);
@@ -256,7 +289,12 @@ function isPrivateIpv4(parts: number[]): boolean {
   return false;
 }
 
+<<<<<<< HEAD
 export function isPrivateIpAddress(address: string): boolean {
+=======
+// Returns true for private/internal and special-use non-global addresses.
+export function isPrivateIpAddress(address: string, policy?: SsrFPolicy): boolean {
+>>>>>>> 3af9d1f8e (fix: scope Telegram RFC2544 SSRF exception to policy opt-in (#24982) (thanks @stakeswky))
   let normalized = address.trim().toLowerCase();
   if (normalized.startsWith("[") && normalized.endsWith("]")) {
     normalized = normalized.slice(1, -1);
@@ -268,10 +306,27 @@ export function isPrivateIpAddress(address: string): boolean {
     const ipv4 = parseIpv4FromMappedIpv6(mapped);
     if (ipv4) return isPrivateIpv4(ipv4);
   }
+  const blockOptions = resolveIpv4SpecialUseBlockOptions(policy);
 
+<<<<<<< HEAD
   if (normalized.includes(":")) {
     if (normalized === "::" || normalized === "::1") return true;
     return PRIVATE_IPV6_PREFIXES.some((prefix) => normalized.startsWith(prefix));
+=======
+  const strictIp = parseCanonicalIpAddress(normalized);
+  if (strictIp) {
+    if (isIpv4Address(strictIp)) {
+      return isBlockedSpecialUseIpv4Address(strictIp, blockOptions);
+    }
+    if (isPrivateOrLoopbackIpAddress(strictIp.toString())) {
+      return true;
+    }
+    const embeddedIpv4 = extractEmbeddedIpv4FromIpv6(strictIp);
+    if (embeddedIpv4) {
+      return isBlockedSpecialUseIpv4Address(embeddedIpv4, blockOptions);
+    }
+    return false;
+>>>>>>> 3af9d1f8e (fix: scope Telegram RFC2544 SSRF exception to policy opt-in (#24982) (thanks @stakeswky))
   }
 
   const ipv4 = parseIpv4(normalized);
@@ -303,14 +358,38 @@ function isBlockedHostnameNormalized(normalized: string): boolean {
   );
 }
 
-export function isBlockedHostnameOrIp(hostname: string): boolean {
+export function isBlockedHostnameOrIp(hostname: string, policy?: SsrFPolicy): boolean {
   const normalized = normalizeHostname(hostname);
   if (!normalized) {
     return false;
   }
-  return isBlockedHostnameNormalized(normalized) || isPrivateIpAddress(normalized);
+  return isBlockedHostnameNormalized(normalized) || isPrivateIpAddress(normalized, policy);
 }
 
+<<<<<<< HEAD
+=======
+const BLOCKED_HOST_OR_IP_MESSAGE = "Blocked hostname or private/internal/special-use IP address";
+const BLOCKED_RESOLVED_IP_MESSAGE = "Blocked: resolves to private/internal/special-use IP address";
+
+function assertAllowedHostOrIpOrThrow(hostnameOrIp: string, policy?: SsrFPolicy): void {
+  if (isBlockedHostnameOrIp(hostnameOrIp, policy)) {
+    throw new SsrFBlockedError(BLOCKED_HOST_OR_IP_MESSAGE);
+  }
+}
+
+function assertAllowedResolvedAddressesOrThrow(
+  results: readonly LookupAddress[],
+  policy?: SsrFPolicy,
+): void {
+  for (const entry of results) {
+    // Reuse the exact same host/IP classifier as the pre-DNS check to avoid drift.
+    if (isBlockedHostnameOrIp(entry.address, policy)) {
+      throw new SsrFBlockedError(BLOCKED_RESOLVED_IP_MESSAGE);
+    }
+  }
+}
+
+>>>>>>> 3af9d1f8e (fix: scope Telegram RFC2544 SSRF exception to policy opt-in (#24982) (thanks @stakeswky))
 export function createPinnedLookup(params: {
   hostname: string;
   addresses: string[];
@@ -390,8 +469,14 @@ export async function resolvePinnedHostnameWithPolicy(
     throw new SsrFBlockedError(`Blocked hostname (not in allowlist): ${hostname}`);
   }
 
+<<<<<<< HEAD
   if (!allowPrivateNetwork && !isExplicitAllowed && isBlockedHostnameOrIp(normalized)) {
     throw new SsrFBlockedError("Blocked hostname or private/internal IP address");
+=======
+  if (!skipPrivateNetworkChecks) {
+    // Phase 1: fail fast for literal hosts/IPs before any DNS lookup side-effects.
+    assertAllowedHostOrIpOrThrow(normalized, params.policy);
+>>>>>>> 3af9d1f8e (fix: scope Telegram RFC2544 SSRF exception to policy opt-in (#24982) (thanks @stakeswky))
   }
 
   const lookupFn = params.lookupFn ?? dnsLookup;
@@ -400,12 +485,18 @@ export async function resolvePinnedHostnameWithPolicy(
     throw new Error(`Unable to resolve hostname: ${hostname}`);
   }
 
+<<<<<<< HEAD
   if (!allowPrivateNetwork && !isExplicitAllowed) {
     for (const entry of results) {
       if (isPrivateIpAddress(entry.address)) {
         throw new SsrFBlockedError("Blocked: resolves to private/internal IP address");
       }
     }
+=======
+  if (!skipPrivateNetworkChecks) {
+    // Phase 2: re-check DNS answers so public hostnames cannot pivot to private targets.
+    assertAllowedResolvedAddressesOrThrow(results, params.policy);
+>>>>>>> 3af9d1f8e (fix: scope Telegram RFC2544 SSRF exception to policy opt-in (#24982) (thanks @stakeswky))
   }
 
   const addresses = Array.from(new Set(results.map((entry) => entry.address)));
