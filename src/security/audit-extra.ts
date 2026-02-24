@@ -1236,6 +1236,7 @@ export {
   collectGatewayHttpSessionKeyOverrideFindings,
 >>>>>>> e3e0ffd80 (feat(security): audit gateway HTTP no-auth exposure)
   collectHooksHardeningFindings,
+  collectLikelyMultiUserSetupFindings,
   collectMinimalProfileOverrideFindings,
   collectModelHygieneFindings,
   collectNodeDangerousAllowCommandFindings,

@@ -164,17 +164,23 @@ describe("security audit", () => {
       browser: { enabled: true },
     };
 
+<<<<<<< HEAD
     const res = await runSecurityAudit({
       config: cfg,
       includeFilesystem: false,
       includeChannelSecurity: false,
     });
+=======
+    const res = await audit(cfg);
+    const summary = res.findings.find((f) => f.checkId === "summary.attack_surface");
+>>>>>>> 4d124e4a9 (feat(security): warn on likely multi-user trust-model mismatch)
 
     expect(res.findings).toEqual(
       expect.arrayContaining([
         expect.objectContaining({ checkId: "summary.attack_surface", severity: "info" }),
       ]),
     );
+    expect(summary?.detail).toContain("trust model: personal assistant");
   });
 
   it("flags non-loopback bind without auth as critical", async () => {
@@ -2839,6 +2845,51 @@ description: test skill
     expect(
       res.findings.some((f) => f.checkId === "security.exposure.open_groups_with_runtime_or_fs"),
     ).toBe(false);
+  });
+
+  it("warns when config heuristics suggest a likely multi-user setup", async () => {
+    const cfg: OpenClawConfig = {
+      channels: {
+        discord: {
+          groupPolicy: "allowlist",
+          guilds: {
+            "1234567890": {
+              channels: {
+                "7777777777": { allow: true },
+              },
+            },
+          },
+        },
+      },
+      tools: { elevated: { enabled: false } },
+    };
+
+    const res = await audit(cfg);
+    const finding = res.findings.find(
+      (f) => f.checkId === "security.trust_model.multi_user_heuristic",
+    );
+
+    expect(finding?.severity).toBe("warn");
+    expect(finding?.detail).toContain(
+      'channels.discord.groupPolicy="allowlist" with configured group targets',
+    );
+    expect(finding?.detail).toContain("personal-assistant");
+    expect(finding?.remediation).toContain('agents.defaults.sandbox.mode="all"');
+  });
+
+  it("does not warn for multi-user heuristic when no shared-user signals are configured", async () => {
+    const cfg: OpenClawConfig = {
+      channels: {
+        discord: {
+          groupPolicy: "allowlist",
+        },
+      },
+      tools: { elevated: { enabled: false } },
+    };
+
+    const res = await audit(cfg);
+
+    expectNoFinding(res, "security.trust_model.multi_user_heuristic");
   });
 
   describe("maybeProbeGateway auth selection", () => {
