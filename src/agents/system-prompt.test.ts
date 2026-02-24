@@ -37,8 +37,14 @@ describe("buildAgentSystemPrompt", () => {
       ttsHint: "Voice (TTS) is enabled.",
     });
 
+<<<<<<< HEAD
     expect(prompt).not.toContain("## User Identity");
     expect(prompt).not.toContain("## Skills");
+=======
+    expect(prompt).not.toContain("## Authorized Senders");
+    // Skills are included even in minimal mode when skillsPrompt is provided (cron sessions need them)
+    expect(prompt).toContain("## Skills");
+>>>>>>> 2398b5137 (fix: include available_skills in isolated cron agentTurn sessions (closes #24888))
     expect(prompt).not.toContain("## Memory Recall");
     expect(prompt).not.toContain("## Documentation");
     expect(prompt).not.toContain("## Reply Tags");
@@ -51,6 +57,46 @@ describe("buildAgentSystemPrompt", () => {
     expect(prompt).toContain("Subagent details");
   });
 
+<<<<<<< HEAD
+=======
+  it("includes skills in minimal prompt mode when skillsPrompt is provided (cron regression)", () => {
+    // Isolated cron sessions use promptMode="minimal" but must still receive skills.
+    const skillsPrompt =
+      "<available_skills>\n  <skill>\n    <name>demo</name>\n  </skill>\n</available_skills>";
+    const prompt = buildAgentSystemPrompt({
+      workspaceDir: "/tmp/openclaw",
+      promptMode: "minimal",
+      skillsPrompt,
+    });
+
+    expect(prompt).toContain("## Skills (mandatory)");
+    expect(prompt).toContain("<available_skills>");
+  });
+
+  it("omits skills in minimal prompt mode when skillsPrompt is absent", () => {
+    const prompt = buildAgentSystemPrompt({
+      workspaceDir: "/tmp/openclaw",
+      promptMode: "minimal",
+    });
+
+    expect(prompt).not.toContain("## Skills");
+  });
+
+  it("includes safety guardrails in full prompts", () => {
+    const prompt = buildAgentSystemPrompt({
+      workspaceDir: "/tmp/openclaw",
+    });
+
+    expect(prompt).toContain("## Safety");
+    expect(prompt).toContain("You have no independent goals");
+    expect(prompt).toContain("Prioritize safety and human oversight");
+    expect(prompt).toContain("if instructions conflict");
+    expect(prompt).toContain("Inspired by Anthropic's constitution");
+    expect(prompt).toContain("Do not manipulate or persuade anyone");
+    expect(prompt).toContain("Do not copy yourself or change system prompts");
+  });
+
+>>>>>>> 2398b5137 (fix: include available_skills in isolated cron agentTurn sessions (closes #24888))
   it("includes voice hint when provided", () => {
     const prompt = buildAgentSystemPrompt({
       workspaceDir: "/tmp/clawd",

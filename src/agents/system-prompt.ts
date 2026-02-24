@@ -25,7 +25,10 @@ function buildSkillsSection(params: {
   isMinimal: boolean;
   readToolName: string;
 }) {
+<<<<<<< HEAD
   if (params.isMinimal) return [];
+=======
+>>>>>>> 2398b5137 (fix: include available_skills in isolated cron agentTurn sessions (closes #24888))
   const trimmed = params.skillsPrompt?.trim();
   if (!trimmed) return [];
   return [
