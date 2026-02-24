@@ -48,6 +48,12 @@ import { createWebOnMessageHandler } from "./monitor/on-message.js";
 import type { WebChannelStatus, WebInboundMsg, WebMonitorTuning } from "./types.js";
 import { isLikelyWhatsAppCryptoError } from "./util.js";
 
+function isNonRetryableWebCloseStatus(statusCode: unknown): boolean {
+  // WhatsApp 440 = session conflict ("Unknown Stream Errored (conflict)").
+  // This is persistent until the operator resolves the conflicting session.
+  return statusCode === 440;
+}
+
 export async function monitorWebChannel(
   verbose: boolean,
   listenerFactory: typeof monitorWebInbox | undefined = monitorWebInbox,
@@ -414,6 +420,22 @@ export async function monitorWebChannel(
     if (loggedOut) {
       runtime.error(
         `WhatsApp session logged out. Run \`${formatCliCommand("moltbot channels login --channel web")}\` to relink.`,
+      );
+      await closeListener();
+      break;
+    }
+
+    if (isNonRetryableWebCloseStatus(statusCode)) {
+      reconnectLogger.warn(
+        {
+          connectionId,
+          status: statusCode,
+          error: errorStr,
+        },
+        "web reconnect: non-retryable close status; stopping monitor",
+      );
+      runtime.error(
+        `WhatsApp Web connection closed (status ${statusCode}: session conflict). Resolve conflicting WhatsApp Web sessions, then relink with \`${formatCliCommand("openclaw channels login --channel web")}\`. Stopping web monitoring.`,
       );
       await closeListener();
       break;
