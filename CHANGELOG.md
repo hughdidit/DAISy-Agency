@@ -94,7 +94,11 @@ Docs: https://docs.openclaw.ai
 >>>>>>> dd145f134 (fix: suppress sessions_send warning leakage coverage (#24740) (thanks @Glucksberg))
 - WhatsApp/Logging: redact outbound recipient identifiers in WhatsApp outbound + heartbeat logs and remove message/poll preview text from those log lines. (#24980) Thanks @coygeek.
 - WhatsApp/Auto-reply: send only final payloads to WhatsApp, suppress tool/block payload leakage (reasoning/thinking), and force block streaming off for WhatsApp dispatch so final-only delivery cannot cause silent turns. (#24962) Thanks @SidQin-cyber.
+<<<<<<< HEAD
 >>>>>>> b5881d9ef (fix: avoid WhatsApp silent turns with final-only delivery (#24962) (thanks @SidQin-cyber))
+=======
+- Channels/Reasoning: suppress reasoning/thinking payload segments in the shared channel dispatch path so non-Telegram channels (including WhatsApp and Web) no longer emit internal reasoning blocks as user-visible replies. (#24991) Thanks @stakeswky.
+>>>>>>> d427d09b5 (fix: align reasoning payload typing for #24991 (thanks @stakeswky))
 - Telegram/Media SSRF: keep RFC2544 benchmark range (`198.18.0.0/15`) blocked by default, add an explicit SSRF-policy opt-in for Telegram media downloads, and keep other channels/URL fetch paths blocked. (#24982) Thanks @stakeswky.
 >>>>>>> 3af9d1f8e (fix: scope Telegram RFC2544 SSRF exception to policy opt-in (#24982) (thanks @stakeswky))
 - Security/Shell env fallback: remove trusted-prefix shell-path fallback and only trust login shells explicitly registered in `/etc/shells`, defaulting to `/bin/sh` when `SHELL` is not registered. This ships in the next npm release. Thanks @tdjackey for reporting.
