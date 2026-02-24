@@ -35,6 +35,16 @@ Docs: https://docs.openclaw.ai
 
 ### Fixes
 
+<<<<<<< HEAD
+=======
+- Security/Shell env fallback: remove trusted-prefix shell-path fallback and only trust login shells explicitly registered in `/etc/shells`, defaulting to `/bin/sh` when `SHELL` is not registered. This ships in the next npm release. Thanks @tdjackey for reporting.
+- Security/Exec approvals: bind `host=node` approvals to explicit `nodeId`, reject cross-node replay of approved `system.run` requests, and include the target node in approval prompts. This ships in the next npm release. Thanks @tdjackey for reporting.
+- Security/Exec approvals: restore two-phase approval registration + wait-decision handling for gateway/node exec paths, requiring approval IDs to be registered before returning `approval-pending` and honoring server-assigned approval IDs during wait resolution to prevent orphaned `/approve` flows and immediate-return races (`ask:on-miss`). This ships in the next npm release. Thanks @vitalyis for reporting.
+- Security/Voice Call: harden Twilio webhook replay handling by preserving provider event IDs through normalization, adding bounded replay dedupe, and enforcing per-call turn-token matching for call-state transitions. This ships in the next npm release. Thanks @jiseoung for reporting.
+- Security/Export session HTML: escape raw HTML markdown tokens in the exported session viewer, harden tree/header metadata rendering against HTML injection, and sanitize image data-URL MIME types in export output to prevent stored XSS when opening exported HTML files. This ships in the next npm release. Thanks @allsmog for reporting.
+- Security/iOS deep links: require local confirmation (or trusted key) before forwarding `openclaw://agent` requests from iOS to gateway `agent.request`, and strip unkeyed delivery-routing fields to reduce exfiltration risk. This ships in the next npm release. Thanks @GCXWLP for reporting.
+- Security/Exec approvals: for non-default setups that enable `autoAllowSkills`, require pathless invocations plus trusted resolved-path matches so `./<skill-bin>`/absolute-path basename collisions cannot satisfy skill auto-allow checks under allowlist mode. This ships in the next npm release. Thanks @tdjackey for reporting.
+>>>>>>> 7b2b86c60 (fix(exec): add approval race changelog and regressions)
 - Security/Commands: enforce sender-only matching for `commands.allowFrom` by blocking conversation-shaped `From` identities (`channel:`, `group:`, `thread:`, `@g.us`) while preserving direct-message fallback when sender fields are missing. Ships in the next npm release. Thanks @jiseoung.
 - Config/Kilo Gateway: Kilo provider flow now surfaces an updated list of models. (#24921) thanks @gumadeiras.
 - Security/Sandbox: enforce `tools.exec.applyPatch.workspaceOnly` and `tools.fs.workspaceOnly` for `apply_patch` in sandbox-mounted paths so writes/deletes cannot escape the workspace boundary via mounts like `/agent` unless explicitly opted out (`tools.exec.applyPatch.workspaceOnly=false`). This ships in the next npm release. Thanks @tdjackey for reporting.
