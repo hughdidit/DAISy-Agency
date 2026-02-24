@@ -56,10 +56,30 @@ describe("getApiKeyForModel", () => {
             },
           },
         },
+<<<<<<< HEAD
         store,
         agentDir: process.env.CLAWDBOT_AGENT_DIR,
       });
       expect(apiKey.apiKey).toBe(oauthFixture.access);
+=======
+        { version: 1, profiles: {} },
+      ),
+    ).toBe("aws-sdk");
+  });
+
+  it("returns aws-sdk for bedrock alias without explicit auth override", () => {
+    expect(resolveModelAuthMode("bedrock", undefined, { version: 1, profiles: {} })).toBe(
+      "aws-sdk",
+    );
+  });
+
+  it("returns aws-sdk for aws-bedrock alias without explicit auth override", () => {
+    expect(resolveModelAuthMode("aws-bedrock", undefined, { version: 1, profiles: {} })).toBe(
+      "aws-sdk",
+    );
+  });
+});
+>>>>>>> b7deb062e (fix: normalize "bedrock" provider ID to "amazon-bedrock")
 
       const authProfiles = await fs.readFile(
         path.join(tempDir, "agent", "auth-profiles.json"),

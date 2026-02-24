@@ -17,6 +17,13 @@ describe("model-selection", () => {
       expect(normalizeProviderId("z-ai")).toBe("zai");
       expect(normalizeProviderId("OpenCode-Zen")).toBe("opencode");
       expect(normalizeProviderId("qwen")).toBe("qwen-portal");
+<<<<<<< HEAD
+=======
+      expect(normalizeProviderId("kimi-code")).toBe("kimi-coding");
+      expect(normalizeProviderId("bedrock")).toBe("amazon-bedrock");
+      expect(normalizeProviderId("aws-bedrock")).toBe("amazon-bedrock");
+      expect(normalizeProviderId("amazon-bedrock")).toBe("amazon-bedrock");
+>>>>>>> b7deb062e (fix: normalize "bedrock" provider ID to "amazon-bedrock")
     });
   });
 
