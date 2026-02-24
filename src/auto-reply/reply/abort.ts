@@ -113,6 +113,7 @@ const ABORT_TRIGGERS = new Set([
   "stop dont do anything",
   "stop do not do anything",
   "stop doing anything",
+  "do not do that",
   "please stop",
   "stop please",
 ]);
