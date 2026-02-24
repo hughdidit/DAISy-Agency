@@ -169,6 +169,59 @@ function normalizeBase64Payload(params: { base64?: string; contentType?: string 
   };
 }
 
+export type AttachmentMediaPolicy =
+  | {
+      mode: "sandbox";
+      sandboxRoot: string;
+    }
+  | {
+      mode: "host";
+      localRoots?: readonly string[];
+    };
+
+export function resolveAttachmentMediaPolicy(params: {
+  sandboxRoot?: string;
+  mediaLocalRoots?: readonly string[];
+}): AttachmentMediaPolicy {
+  const sandboxRoot = params.sandboxRoot?.trim();
+  if (sandboxRoot) {
+    return {
+      mode: "sandbox",
+      sandboxRoot,
+    };
+  }
+  return {
+    mode: "host",
+    localRoots: params.mediaLocalRoots,
+  };
+}
+
+function buildAttachmentMediaLoadOptions(params: {
+  policy: AttachmentMediaPolicy;
+  maxBytes?: number;
+}):
+  | {
+      maxBytes?: number;
+      sandboxValidated: true;
+      readFile: (filePath: string) => Promise<Buffer>;
+    }
+  | {
+      maxBytes?: number;
+      localRoots?: readonly string[];
+    } {
+  if (params.policy.mode === "sandbox") {
+    return {
+      maxBytes: params.maxBytes,
+      sandboxValidated: true,
+      readFile: (filePath: string) => fs.readFile(filePath),
+    };
+  }
+  return {
+    maxBytes: params.maxBytes,
+    localRoots: params.policy.localRoots,
+  };
+}
+
 async function hydrateAttachmentPayload(params: {
   cfg: OpenClawConfig;
   channel: ChannelId;
@@ -178,6 +231,10 @@ async function hydrateAttachmentPayload(params: {
   contentTypeParam?: string | null;
   mediaHint?: string | null;
   fileHint?: string | null;
+<<<<<<< HEAD
+=======
+  mediaPolicy: AttachmentMediaPolicy;
+>>>>>>> 5c2a48337 (refactor(outbound): centralize attachment media policy)
 }) {
   const contentTypeParam = params.contentTypeParam ?? undefined;
   const rawBuffer = readStringParam(params.args, "buffer", { trim: false });
@@ -201,12 +258,19 @@ async function hydrateAttachmentPayload(params: {
       channel: params.channel,
       accountId: params.accountId,
     });
+<<<<<<< HEAD
     // mediaSource already validated by normalizeSandboxMediaList; allow bypass but force explicit readFile.
     const media = await loadWebMedia(mediaSource, {
       maxBytes,
       sandboxValidated: true,
       readFile: (filePath: string) => fs.readFile(filePath),
     });
+=======
+    const media = await loadWebMedia(
+      mediaSource,
+      buildAttachmentMediaLoadOptions({ policy: params.mediaPolicy, maxBytes }),
+    );
+>>>>>>> 5c2a48337 (refactor(outbound): centralize attachment media policy)
     params.args.buffer = media.buffer.toString("base64");
     if (!contentTypeParam && media.contentType) {
       params.args.contentType = media.contentType;
@@ -280,6 +344,10 @@ async function hydrateAttachmentActionPayload(params: {
   dryRun?: boolean;
   /** If caption is missing, copy message -> caption. */
   allowMessageCaptionFallback?: boolean;
+<<<<<<< HEAD
+=======
+  mediaPolicy: AttachmentMediaPolicy;
+>>>>>>> 5c2a48337 (refactor(outbound): centralize attachment media policy)
 }): Promise<void> {
   const mediaHint = readStringParam(params.args, "media", { trim: false });
   const fileHint =
@@ -305,6 +373,10 @@ async function hydrateAttachmentActionPayload(params: {
     contentTypeParam,
     mediaHint,
     fileHint,
+<<<<<<< HEAD
+=======
+    mediaPolicy: params.mediaPolicy,
+>>>>>>> 5c2a48337 (refactor(outbound): centralize attachment media policy)
   });
 }
 
@@ -315,6 +387,10 @@ export async function hydrateSetGroupIconParams(params: {
   args: Record<string, unknown>;
   action: ChannelMessageActionName;
   dryRun?: boolean;
+<<<<<<< HEAD
+=======
+  mediaPolicy: AttachmentMediaPolicy;
+>>>>>>> 5c2a48337 (refactor(outbound): centralize attachment media policy)
 }): Promise<void> {
   if (params.action !== "setGroupIcon") {
     return;
@@ -329,6 +405,10 @@ export async function hydrateSendAttachmentParams(params: {
   args: Record<string, unknown>;
   action: ChannelMessageActionName;
   dryRun?: boolean;
+<<<<<<< HEAD
+=======
+  mediaPolicy: AttachmentMediaPolicy;
+>>>>>>> 5c2a48337 (refactor(outbound): centralize attachment media policy)
 }): Promise<void> {
   if (params.action !== "sendAttachment") {
     return;

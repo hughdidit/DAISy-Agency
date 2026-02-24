@@ -539,6 +539,15 @@ describe("runMessageAction sendAttachment hydration", () => {
     expect((result.payload as { buffer?: string }).buffer).toBe(
       Buffer.from("hello").toString("base64"),
     );
+    const call = vi.mocked(loadWebMedia).mock.calls[0];
+    expect(call?.[1]).toEqual(
+      expect.objectContaining({
+        localRoots: expect.any(Array),
+      }),
+    );
+    expect((call?.[1] as { sandboxValidated?: boolean } | undefined)?.sandboxValidated).not.toBe(
+      true,
+    );
   });
 <<<<<<< HEAD
 =======
@@ -568,6 +577,11 @@ describe("runMessageAction sendAttachment hydration", () => {
 
       const call = vi.mocked(loadWebMedia).mock.calls[0];
       expect(call?.[0]).toBe(path.join(sandboxDir, "data", "pic.png"));
+      expect(call?.[1]).toEqual(
+        expect.objectContaining({
+          sandboxValidated: true,
+        }),
+      );
     });
   });
 });
