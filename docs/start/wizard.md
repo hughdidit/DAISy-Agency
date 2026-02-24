@@ -121,7 +121,13 @@ The wizard starts with **QuickStart** (defaults) vs **Advanced** (full control).
 
 **Local mode (default)** walks you through these steps:
 
+<<<<<<< HEAD
 1. **Model/Auth** — Anthropic API key (recommended), OAuth, OpenAI, or other providers. Pick a default model.
+=======
+1. **Model/Auth** — Anthropic API key (recommended), OpenAI, or Custom Provider
+   (OpenAI-compatible, Anthropic-compatible, or Unknown auto-detect). Pick a default model.
+   For non-interactive runs, `--secret-input-mode ref` stores env-backed refs in auth profiles instead of plaintext API key values.
+>>>>>>> c0a380108 (Docs: document secrets refs runtime and migration)
 2. **Workspace** — Location for agent files (default `~/.openclaw/workspace`). Seeds bootstrap files.
 3. **Gateway** — Port, bind address, auth mode, Tailscale exposure.
 4. **Channels** — WhatsApp, Telegram, Discord, Google Chat, Mattermost, Signal, BlueBubbles, or iMessage.

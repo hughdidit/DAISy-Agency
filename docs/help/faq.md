@@ -1479,6 +1479,7 @@ Related: [Agent workspace](/concepts/agent-workspace), [Memory](/concepts/memory
 
 Everything lives under `$CLAWDBOT_STATE_DIR` (default: `~/.clawdbot`):
 
+<<<<<<< HEAD
 | Path | Purpose |
 |------|---------|
 | `$CLAWDBOT_STATE_DIR/moltbot.json` | Main config (JSON5) |
@@ -1489,6 +1490,20 @@ Everything lives under `$CLAWDBOT_STATE_DIR` (default: `~/.clawdbot`):
 | `$CLAWDBOT_STATE_DIR/agents/` | Per‑agent state (agentDir + sessions) |
 | `$CLAWDBOT_STATE_DIR/agents/<agentId>/sessions/` | Conversation history & state (per agent) |
 | `$CLAWDBOT_STATE_DIR/agents/<agentId>/sessions/sessions.json` | Session metadata (per agent) |
+=======
+| Path                                                            | Purpose                                                           |
+| --------------------------------------------------------------- | ----------------------------------------------------------------- |
+| `$OPENCLAW_STATE_DIR/openclaw.json`                             | Main config (JSON5)                                               |
+| `$OPENCLAW_STATE_DIR/credentials/oauth.json`                    | Legacy OAuth import (copied into auth profiles on first use)      |
+| `$OPENCLAW_STATE_DIR/agents/<agentId>/agent/auth-profiles.json` | Auth profiles (OAuth, API keys, and optional `keyRef`/`tokenRef`) |
+| `$OPENCLAW_STATE_DIR/secrets.enc.json`                          | Optional encrypted file-backed secret payload (`sops`)            |
+| `$OPENCLAW_STATE_DIR/backups/secrets-migrate/`                  | Optional migration rollback backups + manifests                   |
+| `$OPENCLAW_STATE_DIR/agents/<agentId>/agent/auth.json`          | Legacy compatibility file (static `api_key` entries scrubbed)     |
+| `$OPENCLAW_STATE_DIR/credentials/`                              | Provider state (e.g. `whatsapp/<accountId>/creds.json`)           |
+| `$OPENCLAW_STATE_DIR/agents/`                                   | Per-agent state (agentDir + sessions)                             |
+| `$OPENCLAW_STATE_DIR/agents/<agentId>/sessions/`                | Conversation history & state (per agent)                          |
+| `$OPENCLAW_STATE_DIR/agents/<agentId>/sessions/sessions.json`   | Session metadata (per agent)                                      |
+>>>>>>> c0a380108 (Docs: document secrets refs runtime and migration)
 
 Legacy single‑agent path: `~/.clawdbot/agent/*` (migrated by `moltbot doctor`).
 
@@ -1526,7 +1541,11 @@ Put your **agent workspace** in a **private** git repo and back it up somewhere
 private (for example GitHub private). This captures memory + AGENTS/SOUL/USER
 files, and lets you restore the assistant’s “mind” later.
 
+<<<<<<< HEAD
 Do **not** commit anything under `~/.clawdbot` (credentials, sessions, tokens).
+=======
+Do **not** commit anything under `~/.openclaw` (credentials, sessions, tokens, encrypted secrets payloads, or migration backups).
+>>>>>>> c0a380108 (Docs: document secrets refs runtime and migration)
 If you need a full restore, back up both the workspace and the state directory
 separately (see the migration question above).
 

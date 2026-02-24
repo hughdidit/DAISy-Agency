@@ -172,7 +172,7 @@ Bundled/managed skills can be toggled and supplied with env values:
     entries: {
       "nano-banana-pro": {
         enabled: true,
-        apiKey: "GEMINI_KEY_HERE",
+        apiKey: { source: "env", id: "GEMINI_API_KEY" }, // or plaintext string
         env: {
           GEMINI_API_KEY: "GEMINI_KEY_HERE"
         },
@@ -196,7 +196,12 @@ Config keys match the **skill name** by default. If a skill defines
 Rules:
 - `enabled: false` disables the skill even if it’s bundled/installed.
 - `env`: injected **only if** the variable isn’t already set in the process.
+<<<<<<< HEAD
 - `apiKey`: convenience for skills that declare `metadata.moltbot.primaryEnv`.
+=======
+- `apiKey`: convenience for skills that declare `metadata.openclaw.primaryEnv`.
+  Supports plaintext string or SecretRef object (`{ source, id }`).
+>>>>>>> c0a380108 (Docs: document secrets refs runtime and migration)
 - `config`: optional bag for custom per-skill fields; custom keys must live here.
 - `allowBundled`: optional allowlist for **bundled** skills only. If set, only
   bundled skills in the list are eligible (managed/workspace skills unaffected).

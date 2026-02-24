@@ -122,6 +122,9 @@ moltbot --profile rescue gateway install
   <Card title="Configuration" icon="sliders" href="/gateway/configuration">
     Task-oriented setup guide + full configuration reference.
   </Card>
+  <Card title="Secrets management" icon="key-round" href="/gateway/secrets">
+    SecretRef contract, runtime snapshot behavior, and migrate/reload operations.
+  </Card>
 </CardGroup>
 
 ## 5-minute local startup
@@ -200,6 +203,7 @@ openclaw gateway status --json
 openclaw gateway install
 openclaw gateway restart
 openclaw gateway stop
+openclaw secrets reload
 openclaw logs --follow
 openclaw doctor
 ```

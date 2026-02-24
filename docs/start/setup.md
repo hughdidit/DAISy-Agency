@@ -138,10 +138,21 @@ Use this when debugging auth or deciding what to back up:
 - **Telegram bot token**: config/env or `channels.telegram.tokenFile`
 - **Discord bot token**: config/env (token file not yet supported)
 - **Slack tokens**: config/env (`channels.slack.*`)
+<<<<<<< HEAD
 - **Pairing allowlists**: `~/.clawdbot/credentials/<channel>-allowFrom.json`
 - **Model auth profiles**: `~/.clawdbot/agents/<agentId>/agent/auth-profiles.json`
 - **Legacy OAuth import**: `~/.clawdbot/credentials/oauth.json`
 More detail: [Security](/gateway/security#credential-storage-map).
+=======
+- **Pairing allowlists**:
+  - `~/.openclaw/credentials/<channel>-allowFrom.json` (default account)
+  - `~/.openclaw/credentials/<channel>-<accountId>-allowFrom.json` (non-default accounts)
+- **Model auth profiles**: `~/.openclaw/agents/<agentId>/agent/auth-profiles.json`
+- **Encrypted secrets payload (optional)**: `~/.openclaw/secrets.enc.json`
+- **Secrets migration backups (optional)**: `~/.openclaw/backups/secrets-migrate/<backupId>/`
+- **Legacy OAuth import**: `~/.openclaw/credentials/oauth.json`
+  More detail: [Security](/gateway/security#credential-storage-map).
+>>>>>>> c0a380108 (Docs: document secrets refs runtime and migration)
 
 ## Updating (without wrecking your setup)
 

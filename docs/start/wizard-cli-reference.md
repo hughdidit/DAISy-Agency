@@ -139,8 +139,18 @@ What you set:
 
   </Accordion>
   <Accordion title="OpenAI API key">
+<<<<<<< HEAD
     Uses `OPENAI_API_KEY` if present or prompts for a key, then saves it to
     `~/.openclaw/.env` so launchd can read it.
+=======
+    Uses `OPENAI_API_KEY` if present or prompts for a key, then stores the credential in auth profiles.
+
+    Sets `agents.defaults.model` to `openai/gpt-5.1-codex` when model is unset, `openai/*`, or `openai-codex/*`.
+
+  </Accordion>
+  <Accordion title="xAI (Grok) API key">
+    Prompts for `XAI_API_KEY` and configures xAI as a model provider.
+>>>>>>> c0a380108 (Docs: document secrets refs runtime and migration)
   </Accordion>
   <Accordion title="OpenCode Zen">
     Prompts for `OPENCODE_API_KEY` (or `OPENCODE_ZEN_API_KEY`).
@@ -183,6 +193,12 @@ Credential and profile paths:
 
 - OAuth credentials: `~/.openclaw/credentials/oauth.json`
 - Auth profiles (API keys + OAuth): `~/.openclaw/agents/<agentId>/agent/auth-profiles.json`
+
+API key storage mode:
+
+- Default onboarding behavior persists API keys as plaintext values in auth profiles.
+- `--secret-input-mode ref` stores env-backed refs in auth profiles instead of plaintext values (for example `keyRef: { source: "env", id: "OPENAI_API_KEY" }`).
+- Existing plaintext setups continue to work unchanged.
 
 <Note>
 Headless and server tip: complete OAuth on a machine with a browser, then copy

@@ -49,6 +49,7 @@ This page describes the current CLI behavior. If commands change, update this do
 - [`plugins`](/cli/plugins) (plugin commands)
 - [`channels`](/cli/channels)
 - [`security`](/cli/security)
+- [`secrets`](/cli/secrets)
 - [`skills`](/cli/skills)
 - [`voicecall`](/cli/voicecall) (plugin; if installed)
 
@@ -97,6 +98,9 @@ moltbot [--dev] [--profile <name>] <command>
   doctor
   security
     audit
+  secrets
+    reload
+    migrate
   reset
   uninstall
   update
@@ -245,6 +249,12 @@ Note: plugins can add additional top-level commands (for example `moltbot voicec
 - `moltbot security audit --deep` — best-effort live Gateway probe.
 - `moltbot security audit --fix` — tighten safe defaults and chmod state/config.
 
+## Secrets
+
+- `openclaw secrets reload` — re-resolve refs and atomically swap the runtime snapshot.
+- `openclaw secrets migrate` — migrate plaintext static secrets to file-backed refs (`--write` to apply; dry-run by default).
+- `openclaw secrets migrate --rollback <backup-id>` — restore from a migration backup.
+
 ## Plugins
 
 Manage extensions and their config:
@@ -309,6 +319,7 @@ Options:
 - `--token <token>` (non-interactive; used with `--auth-choice token`)
 - `--token-profile-id <id>` (non-interactive; default: `<provider>:manual`)
 - `--token-expires-in <duration>` (non-interactive; e.g. `365d`, `12h`)
+- `--secret-input-mode <plaintext|ref>` (default `plaintext`; use `ref` to store provider default env refs instead of plaintext keys)
 - `--anthropic-api-key <key>`
 - `--openai-api-key <key>`
 - `--openrouter-api-key <key>`

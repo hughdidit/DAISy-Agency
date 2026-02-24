@@ -24,10 +24,67 @@ Related:
 ## Examples
 
 ```bash
+<<<<<<< HEAD
 moltbot onboard
 moltbot onboard --flow quickstart
 moltbot onboard --flow manual
 moltbot onboard --mode remote --remote-url ws://gateway-host:18789
+=======
+openclaw onboard
+openclaw onboard --flow quickstart
+openclaw onboard --flow manual
+openclaw onboard --mode remote --remote-url ws://gateway-host:18789
+```
+
+Non-interactive custom provider:
+
+```bash
+openclaw onboard --non-interactive \
+  --auth-choice custom-api-key \
+  --custom-base-url "https://llm.example.com/v1" \
+  --custom-model-id "foo-large" \
+  --custom-api-key "$CUSTOM_API_KEY" \
+  --secret-input-mode plaintext \
+  --custom-compatibility openai
+```
+
+`--custom-api-key` is optional in non-interactive mode. If omitted, onboarding checks `CUSTOM_API_KEY`.
+
+Store provider keys as refs instead of plaintext:
+
+```bash
+openclaw onboard --non-interactive \
+  --auth-choice openai-api-key \
+  --secret-input-mode ref \
+  --accept-risk
+```
+
+With `--secret-input-mode ref`, onboarding writes provider default env refs (for example `OPENAI_API_KEY`) into auth profiles instead of plaintext key values.
+
+Non-interactive Z.AI endpoint choices:
+
+Note: `--auth-choice zai-api-key` now auto-detects the best Z.AI endpoint for your key (prefers the general API with `zai/glm-5`).
+If you specifically want the GLM Coding Plan endpoints, pick `zai-coding-global` or `zai-coding-cn`.
+
+```bash
+# Promptless endpoint selection
+openclaw onboard --non-interactive \
+  --auth-choice zai-coding-global \
+  --zai-api-key "$ZAI_API_KEY"
+
+# Other Z.AI endpoint choices:
+# --auth-choice zai-coding-cn
+# --auth-choice zai-global
+# --auth-choice zai-cn
+```
+
+Non-interactive Mistral example:
+
+```bash
+openclaw onboard --non-interactive \
+  --auth-choice mistral-api-key \
+  --mistral-api-key "$MISTRAL_API_KEY"
+>>>>>>> c0a380108 (Docs: document secrets refs runtime and migration)
 ```
 
 Flow notes:

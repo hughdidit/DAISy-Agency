@@ -3699,6 +3699,7 @@ Rules:
 </Accordion>
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 Cron is a Gateway-owned scheduler for wakeups and scheduled jobs. See [Cron jobs](/automation/cron-jobs) for the feature overview and CLI examples.
 
 ```json5
@@ -3714,6 +3715,36 @@ Cron is a Gateway-owned scheduler for wakeups and scheduled jobs. See [Cron jobs
 
 *Next: [Agent Runtime](/concepts/agent)* 🦞
 =======
+=======
+<Accordion title="Secret refs (env and encrypted file)">
+  For fields that support SecretRef objects, you can use:
+
+```json5
+{
+  models: {
+    providers: {
+      openai: { apiKey: { source: "env", id: "OPENAI_API_KEY" } },
+    },
+  },
+  skills: {
+    entries: {
+      "nano-banana-pro": {
+        apiKey: { source: "file", id: "/skills/entries/nano-banana-pro/apiKey" },
+      },
+    },
+  },
+  channels: {
+    googlechat: {
+      serviceAccountRef: { source: "file", id: "/channels/googlechat/serviceAccount" },
+    },
+  },
+}
+```
+
+SecretRef details (including `secrets.sources.file` for `sops`) are in [Secrets Management](/gateway/secrets).
+</Accordion>
+
+>>>>>>> c0a380108 (Docs: document secrets refs runtime and migration)
 See [Environment](/help/environment) for full precedence and sources.
 
 ## Full reference
