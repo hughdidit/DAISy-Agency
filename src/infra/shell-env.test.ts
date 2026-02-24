@@ -171,10 +171,29 @@ describe("shell env fallback", () => {
     expect(exec).toHaveBeenCalledWith("/bin/sh", ["-l", "-c", "env -0"], expect.any(Object));
   });
 
+<<<<<<< HEAD
   it("uses trusted absolute SHELL path when executable on posix-style paths", () => {
     const accessSyncSpy = vi.spyOn(fs, "accessSync").mockImplementation(() => undefined);
     try {
       const trustedShell = "/usr/bin/zsh-trusted";
+=======
+  it("falls back to /bin/sh when SHELL is absolute but not registered in /etc/shells", () => {
+    withEtcShells(["/bin/sh", "/bin/bash", "/bin/zsh"], () => {
+      const { res, exec } = runShellEnvFallbackForShell("/opt/homebrew/bin/evil-shell");
+
+      expect(res.ok).toBe(true);
+      expect(exec).toHaveBeenCalledTimes(1);
+      expect(exec).toHaveBeenCalledWith("/bin/sh", ["-l", "-c", "env -0"], expect.any(Object));
+    });
+  });
+
+  it("uses SHELL when it is explicitly registered in /etc/shells", () => {
+    const trustedShell =
+      process.platform === "win32"
+        ? "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe"
+        : "/usr/bin/zsh-trusted";
+    withEtcShells(["/bin/sh", trustedShell], () => {
+>>>>>>> 5ac70b36a (test: make shell-env trust-path test platform-safe (#24991) (thanks @stakeswky))
       const { res, exec } = runShellEnvFallbackForShell(trustedShell);
       const expectedShell = process.platform === "win32" ? "/bin/sh" : trustedShell;
 
