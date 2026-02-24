@@ -161,6 +161,7 @@ export async function processDiscordMessage(ctx: DiscordMessagePreflightContext)
     channelConfig,
     guildInfo,
     sender: { id: sender.id, name: sender.name, tag: sender.tag },
+    allowNameMatching: discordConfig?.dangerouslyAllowNameMatching === true,
   });
   const storePath = resolveStorePath(cfg.session?.store, {
     agentId: route.agentId,

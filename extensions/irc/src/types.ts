@@ -31,6 +31,11 @@ export type IrcNickServConfig = {
 export type IrcAccountConfig = {
   name?: string;
   enabled?: boolean;
+  /**
+   * Break-glass override: allow nick-only allowlist matching.
+   * Default behavior requires host/user-qualified identities.
+   */
+  dangerouslyAllowNameMatching?: boolean;
   host?: string;
   port?: number;
   tls?: boolean;

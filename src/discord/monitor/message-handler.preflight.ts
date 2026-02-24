@@ -132,6 +132,7 @@ export async function preflightDiscordMessage(
               name: sender.name,
               tag: sender.tag,
             },
+            allowNameMatching: params.discordConfig?.dangerouslyAllowNameMatching === true,
           })
         : { allowed: false };
       const allowMatchMeta = formatAllowlistMatchMeta(allowMatch);
@@ -403,6 +404,16 @@ export async function preflightDiscordMessage(
     surface: "discord",
   });
   const hasControlCommandInMessage = hasControlCommand(baseText, params.cfg);
+<<<<<<< HEAD
+=======
+  const { hasAccessRestrictions, memberAllowed } = resolveDiscordMemberAccessState({
+    channelConfig,
+    guildInfo,
+    memberRoleIds,
+    sender,
+    allowNameMatching: params.discordConfig?.dangerouslyAllowNameMatching === true,
+  });
+>>>>>>> cfa44ea6b (fix(security): make allowFrom id-only by default with dangerous name opt-in (#24907))
 
   if (!isDirectMessage) {
     const ownerAllowList = normalizeDiscordAllowList(params.allowFrom, [
@@ -411,11 +422,15 @@ export async function preflightDiscordMessage(
       "pk:",
     ]);
     const ownerOk = ownerAllowList
-      ? allowListMatches(ownerAllowList, {
-          id: sender.id,
-          name: sender.name,
-          tag: sender.tag,
-        })
+      ? allowListMatches(
+          ownerAllowList,
+          {
+            id: sender.id,
+            name: sender.name,
+            tag: sender.tag,
+          },
+          { allowNameMatching: params.discordConfig?.dangerouslyAllowNameMatching === true },
+        )
       : false;
     const channelUsers = channelConfig?.users ?? guildInfo?.users;
     const usersOk =

@@ -149,6 +149,7 @@ async function authorizeVoiceCommand(
     guildInfo,
     memberRoleIds,
     sender,
+    allowNameMatching: params.discordConfig?.dangerouslyAllowNameMatching === true,
   });
 
   const ownerAllowList = normalizeDiscordAllowList(
@@ -156,11 +157,15 @@ async function authorizeVoiceCommand(
     ["discord:", "user:", "pk:"],
   );
   const ownerOk = ownerAllowList
-    ? allowListMatches(ownerAllowList, {
-        id: sender.id,
-        name: sender.name,
-        tag: sender.tag,
-      })
+    ? allowListMatches(
+        ownerAllowList,
+        {
+          id: sender.id,
+          name: sender.name,
+          tag: sender.tag,
+        },
+        { allowNameMatching: params.discordConfig?.dangerouslyAllowNameMatching === true },
+      )
     : false;
 
   const authorizers = params.useAccessGroups

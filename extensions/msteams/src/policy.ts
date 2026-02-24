@@ -208,6 +208,7 @@ export function resolveMSTeamsAllowlistMatch(params: {
   allowFrom: Array<string | number>;
   senderId: string;
   senderName?: string | null;
+  allowNameMatching?: boolean;
 }): MSTeamsAllowlistMatch {
   const allowFrom = params.allowFrom
     .map((entry) => String(entry).trim().toLowerCase())
@@ -261,6 +262,7 @@ export function isMSTeamsGroupAllowed(params: {
   allowFrom: Array<string | number>;
   senderId: string;
   senderName?: string | null;
+  allowNameMatching?: boolean;
 }): boolean {
   const { groupPolicy } = params;
   if (groupPolicy === "disabled") {

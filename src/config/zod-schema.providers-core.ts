@@ -302,6 +302,7 @@ export const DiscordAccountSchema = z
     proxy: z.string().optional(),
 >>>>>>> 0cb69b0f2 (Discord: add gateway proxy support)
     allowBots: z.boolean().optional(),
+    dangerouslyAllowNameMatching: z.boolean().optional(),
     groupPolicy: GroupPolicySchema.optional().default("allowlist"),
     historyLimit: z.number().int().min(0).optional(),
     dmHistoryLimit: z.number().int().min(0).optional(),
@@ -408,6 +409,7 @@ export const GoogleChatAccountSchema = z
     enabled: z.boolean().optional(),
     configWrites: z.boolean().optional(),
     allowBots: z.boolean().optional(),
+    dangerouslyAllowNameMatching: z.boolean().optional(),
     requireMention: z.boolean().optional(),
     groupPolicy: GroupPolicySchema.optional().default("allowlist"),
     groupAllowFrom: z.array(z.union([z.string(), z.number()])).optional(),
@@ -511,6 +513,7 @@ export const SlackAccountSchema = z
     userToken: z.string().optional(),
     userTokenReadOnly: z.boolean().optional().default(true),
     allowBots: z.boolean().optional(),
+    dangerouslyAllowNameMatching: z.boolean().optional(),
     requireMention: z.boolean().optional(),
     groupPolicy: GroupPolicySchema.optional().default("allowlist"),
     historyLimit: z.number().int().min(0).optional(),
@@ -929,6 +932,7 @@ export const MSTeamsConfigSchema = z
   .object({
     enabled: z.boolean().optional(),
     capabilities: z.array(z.string()).optional(),
+    dangerouslyAllowNameMatching: z.boolean().optional(),
     markdown: MarkdownConfigSchema,
     configWrites: z.boolean().optional(),
     appId: z.string().optional(),

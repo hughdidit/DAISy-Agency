@@ -318,6 +318,7 @@ export function isSenderAllowed(
   senderId: string,
   senderEmail: string | undefined,
   allowFrom: string[],
+  allowNameMatching = false,
 ) {
   if (allowFrom.includes("*")) {
     return true;
@@ -332,8 +333,15 @@ export function isSenderAllowed(
     if (normalized === normalizedSenderId) {
       return true;
     }
+<<<<<<< HEAD
     if (normalizedEmail && normalized === normalizedEmail) {
       return true;
+=======
+
+    // Raw email allowlist entries are a break-glass override.
+    if (allowNameMatching && normalizedEmail && isEmailLike(withoutPrefix)) {
+      return withoutPrefix === normalizedEmail;
+>>>>>>> cfa44ea6b (fix(security): make allowFrom id-only by default with dangerous name opt-in (#24907))
     }
     if (normalizedEmail && normalized.replace(/^users\//i, "") === normalizedEmail) {
       return true;
@@ -443,6 +451,7 @@ async function processMessageWithPipeline(params: {
   const senderId = sender?.name ?? "";
   const senderName = sender?.displayName ?? "";
   const senderEmail = sender?.email ?? undefined;
+  const allowNameMatching = account.config.dangerouslyAllowNameMatching === true;
 
   const allowBots = account.config.allowBots === true;
   if (!allowBots) {
@@ -506,6 +515,7 @@ async function processMessageWithPipeline(params: {
         senderId,
         senderEmail,
         groupUsers.map((v) => String(v)),
+        allowNameMatching,
       );
       if (!ok) {
         logVerbose(core, runtime, `drop group message (sender not allowed, ${senderId})`);
@@ -524,7 +534,12 @@ async function processMessageWithPipeline(params: {
   const effectiveAllowFrom = [...configAllowFrom, ...storeAllowFrom];
   const commandAllowFrom = isGroup ? groupUsers.map((v) => String(v)) : effectiveAllowFrom;
   const useAccessGroups = config.commands?.useAccessGroups !== false;
-  const senderAllowedForCommands = isSenderAllowed(senderId, senderEmail, commandAllowFrom);
+  const senderAllowedForCommands = isSenderAllowed(
+    senderId,
+    senderEmail,
+    commandAllowFrom,
+    allowNameMatching,
+  );
   const commandAuthorized = shouldComputeAuth
     ? core.channel.commands.resolveCommandAuthorizedFromAuthorizers({
         useAccessGroups,

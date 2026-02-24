@@ -13,14 +13,16 @@ export function isSlackSenderAllowListed(params: {
   allowListLower: string[];
   senderId: string;
   senderName?: string;
+  allowNameMatching?: boolean;
 }) {
-  const { allowListLower, senderId, senderName } = params;
+  const { allowListLower, senderId, senderName, allowNameMatching } = params;
   return (
     allowListLower.length === 0 ||
     allowListMatches({
       allowList: allowListLower,
       id: senderId,
       name: senderName,
+      allowNameMatching,
     })
   );
 }

@@ -82,6 +82,7 @@ export async function handleIrcInbound(params: {
   const senderDisplay = message.senderHost
     ? `${message.senderNick}!${message.senderUser ?? "?"}@${message.senderHost}`
     : message.senderNick;
+  const allowNameMatching = account.config.dangerouslyAllowNameMatching === true;
 
   const dmPolicy = account.config.dmPolicy ?? "pairing";
   const defaultGroupPolicy = config.channels?.defaults?.groupPolicy;
@@ -121,6 +122,7 @@ export async function handleIrcInbound(params: {
   const senderAllowedForCommands = resolveIrcAllowlistMatch({
     allowFrom: message.isGroup ? effectiveGroupAllowFrom : effectiveAllowFrom,
     message,
+    allowNameMatching,
   }).allowed;
   const hasControlCommand = core.channel.text.hasControlCommand(rawBody, config as OpenClawConfig);
   const commandGate = resolveControlCommandGate({
@@ -142,6 +144,7 @@ export async function handleIrcInbound(params: {
       message,
       outerAllowFrom: effectiveGroupAllowFrom,
       innerAllowFrom: groupAllowFrom,
+      allowNameMatching,
     });
     if (!senderAllowed) {
       runtime.log?.(`irc: drop group sender ${senderDisplay} (policy=${groupPolicy})`);
@@ -156,6 +159,7 @@ export async function handleIrcInbound(params: {
       const dmAllowed = resolveIrcAllowlistMatch({
         allowFrom: effectiveAllowFrom,
         message,
+        allowNameMatching,
       }).allowed;
       if (!dmAllowed) {
         if (dmPolicy === "pairing") {
