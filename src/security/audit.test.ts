@@ -393,6 +393,7 @@ describe("security audit", () => {
 >>>>>>> f52a0228c (test: optimize auth and audit test runtime)
   });
 
+<<<<<<< HEAD
   it("warns when an agent sets exec host=sandbox with sandbox mode off", async () => {
     const cfg: OpenClawConfig = {
       tools: {
@@ -404,6 +405,69 @@ describe("security audit", () => {
         defaults: {
           sandbox: {
             mode: "off",
+=======
+  it("warns for risky safeBinTrustedDirs entries", async () => {
+    const cfg: OpenClawConfig = {
+      tools: {
+        exec: {
+          safeBinTrustedDirs: ["/usr/local/bin", "/tmp/openclaw-safe-bins"],
+        },
+      },
+      agents: {
+        list: [
+          {
+            id: "ops",
+            tools: {
+              exec: {
+                safeBinTrustedDirs: ["./relative-bin-dir"],
+              },
+            },
+          },
+        ],
+      },
+    };
+
+    const res = await audit(cfg);
+    const finding = res.findings.find(
+      (f) => f.checkId === "tools.exec.safe_bin_trusted_dirs_risky",
+    );
+    expect(finding?.severity).toBe("warn");
+    expect(finding?.detail).toContain("/usr/local/bin");
+    expect(finding?.detail).toContain("/tmp/openclaw-safe-bins");
+    expect(finding?.detail).toContain("agents.list.ops.tools.exec");
+  });
+
+  it("does not warn for non-risky absolute safeBinTrustedDirs entries", async () => {
+    const cfg: OpenClawConfig = {
+      tools: {
+        exec: {
+          safeBinTrustedDirs: ["/usr/libexec"],
+        },
+      },
+    };
+
+    const res = await audit(cfg);
+    expectNoFinding(res, "tools.exec.safe_bin_trusted_dirs_risky");
+  });
+
+  it("evaluates loopback control UI and logging exposure findings", async () => {
+    const cases: Array<{
+      name: string;
+      cfg: OpenClawConfig;
+      checkId:
+        | "gateway.trusted_proxies_missing"
+        | "gateway.loopback_no_auth"
+        | "logging.redact_off";
+      severity: "warn" | "critical";
+      opts?: Omit<SecurityAuditOptions, "config">;
+    }> = [
+      {
+        name: "loopback control UI without trusted proxies",
+        cfg: {
+          gateway: {
+            bind: "loopback",
+            controlUi: { enabled: true },
+>>>>>>> 4355e0826 (refactor: harden safe-bin trusted dir diagnostics)
           },
         },
         list: [

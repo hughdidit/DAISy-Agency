@@ -38,6 +38,7 @@ type SystemRunInvokeResult = {
   error?: { code?: string; message?: string } | null;
 };
 
+<<<<<<< HEAD
 export function formatSystemRunAllowlistMissMessage(params?: {
   windowsShellWrapperBlocked?: boolean;
 }): string {
@@ -47,6 +48,50 @@ export function formatSystemRunAllowlistMissMessage(params?: {
       "(Windows shell wrappers like cmd.exe /c require approval; " +
       "approve once/always or run with --ask on-miss|always)"
     );
+=======
+type SystemRunDeniedReason =
+  | "security=deny"
+  | "approval-required"
+  | "allowlist-miss"
+  | "execution-plan-miss"
+  | "companion-unavailable"
+  | "permission:screenRecording";
+
+type SystemRunExecutionContext = {
+  sessionKey: string;
+  runId: string;
+  cmdText: string;
+};
+
+type SystemRunAllowlistAnalysis = {
+  analysisOk: boolean;
+  allowlistMatches: ExecAllowlistEntry[];
+  allowlistSatisfied: boolean;
+  segments: ExecCommandSegment[];
+};
+
+const safeBinTrustedDirWarningCache = new Set<string>();
+
+function warnWritableTrustedDirOnce(message: string): void {
+  if (safeBinTrustedDirWarningCache.has(message)) {
+    return;
+  }
+  safeBinTrustedDirWarningCache.add(message);
+  console.warn(message);
+}
+
+function normalizeDeniedReason(reason: string | null | undefined): SystemRunDeniedReason {
+  switch (reason) {
+    case "security=deny":
+    case "approval-required":
+    case "allowlist-miss":
+    case "execution-plan-miss":
+    case "companion-unavailable":
+    case "permission:screenRecording":
+      return reason;
+    default:
+      return "approval-required";
+>>>>>>> 4355e0826 (refactor: harden safe-bin trusted dir diagnostics)
   }
   return "SYSTEM_RUN_DENIED: allowlist miss";
 }
@@ -143,7 +188,11 @@ export async function handleSystemRunInvoke(opts: {
   const { safeBins, safeBinProfiles, trustedSafeBinDirs } = resolveExecSafeBinRuntimePolicy({
     global: cfg.tools?.exec,
     local: agentExec,
+<<<<<<< HEAD
 >>>>>>> 0d0f4c699 (refactor(exec): centralize safe-bin policy checks)
+=======
+    onWarning: warnWritableTrustedDirOnce,
+>>>>>>> 4355e0826 (refactor: harden safe-bin trusted dir diagnostics)
   });
   const bins = autoAllowSkills ? await opts.skillBins.current() : new Set<string>();
   let analysisOk = false;
