@@ -28,6 +28,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	<string>2026.2.1</string>
 =======
 	<string>2026.2.3</string>
@@ -59,6 +60,9 @@
 =======
 	<string>2026.2.23</string>
 >>>>>>> 558a0137b (chore(release): bump versions to 2026.2.23)
+=======
+	<string>2026.2.24</string>
+>>>>>>> 2bad30b4d (chore(release): bump version to 2026.2.24)
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
