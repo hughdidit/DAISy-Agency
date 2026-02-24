@@ -219,7 +219,12 @@
 =======
     "build": "pnpm canvas:a2ui:bundle && tsdown && node --import tsx scripts/canvas-a2ui-copy.ts && node --import tsx scripts/copy-hook-metadata.ts && node --import tsx scripts/write-build-info.ts",
     "canvas:a2ui:bundle": "bash scripts/bundle-a2ui.sh",
+<<<<<<< HEAD
     "check": "pnpm tsgo && pnpm lint && pnpm format",
+=======
+    "check": "pnpm format:check && pnpm tsgo && pnpm lint && pnpm lint:tmp:no-random-messaging",
+    "check:docs": "pnpm format:docs:check && pnpm lint:docs && pnpm docs:check-links",
+>>>>>>> d3da67c7a (fix(security): lock sandbox tmp media paths to openclaw roots)
     "check:loc": "node --import tsx scripts/check-ts-max-loc.ts --max 500",
     "deadcode:ci": "pnpm deadcode:report:ci:knip && pnpm deadcode:report:ci:ts-prune && pnpm deadcode:report:ci:ts-unused",
     "deadcode:knip": "pnpm dlx knip --no-progress",
@@ -249,6 +254,11 @@
     "lint:all": "pnpm lint && pnpm lint:swift",
     "lint:fix": "oxlint --type-aware --tsconfig tsconfig.oxlint.json --fix && pnpm format:fix",
     "lint:swift": "swiftlint lint --config .swiftlint.yml && (cd apps/ios && swiftlint lint --config .swiftlint.yml)",
+<<<<<<< HEAD
+=======
+    "lint:tmp:no-random-messaging": "node scripts/check-no-random-messaging-tmp.mjs",
+    "lint:ui:no-raw-window-open": "node scripts/check-no-raw-window-open.mjs",
+>>>>>>> d3da67c7a (fix(security): lock sandbox tmp media paths to openclaw roots)
     "mac:open": "open dist/OpenClaw.app",
     "mac:package": "bash scripts/package-mac-app.sh",
 >>>>>>> a03d852d6 (chore: Migrate to tsdown, speed up JS bundling by ~10x (thanks @hyf0).)

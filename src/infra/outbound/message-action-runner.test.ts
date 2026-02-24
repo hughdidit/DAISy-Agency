@@ -10,6 +10,7 @@ import { slackPlugin } from "../../../extensions/slack/src/channel.js";
 import { telegramPlugin } from "../../../extensions/telegram/src/channel.js";
 import { whatsappPlugin } from "../../../extensions/whatsapp/src/channel.js";
 import { loadWebMedia } from "../../web/media.js";
+import { resolvePreferredOpenClawTmpDir } from "../tmp-openclaw-dir.js";
 import { runMessageAction } from "./message-action-runner.js";
 import { jsonResult } from "../../agents/tools/common.js";
 import type { ChannelPlugin } from "../../channels/plugins/types.js";
@@ -549,8 +550,48 @@ describe("runMessageAction sandboxed media validation", () => {
   });
 
   it("rewrites sandbox-relative media paths", async () => {
+<<<<<<< HEAD
     const sandboxDir = await fs.mkdtemp(path.join(os.tmpdir(), "msg-sandbox-"));
     try {
+=======
+    await withSandbox(async (sandboxDir) => {
+      await expectSandboxMediaRewrite({
+        sandboxDir,
+        media: "./data/file.txt",
+        message: "",
+        expectedRelativePath: path.join("data", "file.txt"),
+      });
+    });
+  });
+
+  it("rewrites /workspace media paths to host sandbox root", async () => {
+    await withSandbox(async (sandboxDir) => {
+      await expectSandboxMediaRewrite({
+        sandboxDir,
+        media: "/workspace/data/file.txt",
+        message: "",
+        expectedRelativePath: path.join("data", "file.txt"),
+      });
+    });
+  });
+
+  it("rewrites MEDIA directives under sandbox", async () => {
+    await withSandbox(async (sandboxDir) => {
+      await expectSandboxMediaRewrite({
+        sandboxDir,
+        message: "Hello\nMEDIA: ./data/note.ogg",
+        expectedRelativePath: path.join("data", "note.ogg"),
+      });
+    });
+  });
+
+  it("allows media paths under preferred OpenClaw tmp root", async () => {
+    const tmpRoot = resolvePreferredOpenClawTmpDir();
+    await fs.mkdir(tmpRoot, { recursive: true });
+    const sandboxDir = await fs.mkdtemp(path.join(os.tmpdir(), "msg-sandbox-"));
+    try {
+      const tmpFile = path.join(tmpRoot, "test-media-image.png");
+>>>>>>> d3da67c7a (fix(security): lock sandbox tmp media paths to openclaw roots)
       const result = await runMessageAction({
         cfg: slackConfig,
         action: "send",
@@ -565,7 +606,29 @@ describe("runMessageAction sandboxed media validation", () => {
       });
 
       expect(result.kind).toBe("send");
+<<<<<<< HEAD
       expect(result.sendResult?.mediaUrl).toBe(path.join(sandboxDir, "data", "file.txt"));
+=======
+      if (result.kind !== "send") {
+        throw new Error("expected send result");
+      }
+      expect(result.sendResult?.mediaUrl).toBe(tmpFile);
+      const hostTmpOutsideOpenClaw = path.join(os.tmpdir(), "outside-openclaw", "test-media.png");
+      await expect(
+        runMessageAction({
+          cfg: slackConfig,
+          action: "send",
+          params: {
+            channel: "slack",
+            target: "#C12345678",
+            media: hostTmpOutsideOpenClaw,
+            message: "",
+          },
+          sandboxRoot: sandboxDir,
+          dryRun: true,
+        }),
+      ).rejects.toThrow(/sandbox/i);
+>>>>>>> d3da67c7a (fix(security): lock sandbox tmp media paths to openclaw roots)
     } finally {
       await fs.rm(sandboxDir, { recursive: true, force: true });
     }
