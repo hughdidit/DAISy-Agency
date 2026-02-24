@@ -48,6 +48,7 @@ import { installGatewayTestHooks, onceMessage, rpcReq } from "./test-helpers.js"
 import { installConnectedControlUiServerSuite } from "./test-with-server.js";
 
 installGatewayTestHooks({ scope: "suite" });
+const FAST_WAIT_OPTS = { timeout: 1_000, interval: 2 } as const;
 
 let ws: WebSocket;
 let port: number;
@@ -164,12 +165,9 @@ describe("gateway update.run", () => {
       const res = await onceMessage(ws, (o) => o.type === "res" && o.id === id);
       expect(res.ok).toBe(true);
 
-      await vi.waitFor(
-        () => {
-          expect(sigusr1.mock.calls.length).toBeGreaterThan(0);
-        },
-        { timeout: 2_000, interval: 10 },
-      );
+      await vi.waitFor(() => {
+        expect(sigusr1.mock.calls.length).toBeGreaterThan(0);
+      }, FAST_WAIT_OPTS);
       expect(sigusr1).toHaveBeenCalled();
 
       const sentinelPath = path.join(os.homedir(), ".clawdbot", "restart-sentinel.json");
@@ -218,16 +216,13 @@ describe("gateway node command allowlist", () => {
   test("enforces command allowlists across node clients", async () => {
     const waitForConnectedCount = async (count: number) => {
       await expect
-        .poll(
-          async () => {
-            const listRes = await rpcReq<{
-              nodes?: Array<{ nodeId: string; connected?: boolean }>;
-            }>(ws, "node.list", {});
-            const nodes = listRes.payload?.nodes ?? [];
-            return nodes.filter((node) => node.connected).length;
-          },
-          { timeout: 2_000 },
-        )
+        .poll(async () => {
+          const listRes = await rpcReq<{
+            nodes?: Array<{ nodeId: string; connected?: boolean }>;
+          }>(ws, "node.list", {});
+          const nodes = listRes.payload?.nodes ?? [];
+          return nodes.filter((node) => node.connected).length;
+        }, FAST_WAIT_OPTS)
         .toBe(count);
     };
 
