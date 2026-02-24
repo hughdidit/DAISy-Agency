@@ -159,7 +159,23 @@ async function installPluginFromPackageDir(params: {
   }
 
   const pkgName = typeof manifest.name === "string" ? manifest.name : "";
+<<<<<<< HEAD
   const pluginId = pkgName ? unscopedPackageName(pkgName) : "plugin";
+=======
+  const npmPluginId = pkgName ? unscopedPackageName(pkgName) : "plugin";
+
+  // Prefer the canonical `id` from openclaw.plugin.json over the npm package name.
+  // This avoids a latent key-mismatch bug: if the manifest id (e.g. "memory-cognee")
+  // differs from the npm package name (e.g. "cognee-openclaw"), the plugin registry
+  // uses the manifest id as the authoritative key, so the config entry must match it.
+  const ocManifestResult = loadPluginManifest(params.packageDir);
+  const manifestPluginId =
+    ocManifestResult.ok && ocManifestResult.manifest.id
+      ? unscopedPackageName(ocManifestResult.manifest.id)
+      : undefined;
+
+  const pluginId = manifestPluginId ?? npmPluginId;
+>>>>>>> d76742ff8 (fix: normalize manifest plugin ids during install)
   const pluginIdError = validatePluginId(pluginId);
   if (pluginIdError) {
     return { ok: false, error: pluginIdError };
