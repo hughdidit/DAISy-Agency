@@ -17,6 +17,11 @@ import { formatAllowlistMatchMeta } from "../../channels/allowlist-match.js";
 import { resolveControlCommandGate } from "../../channels/command-gating.js";
 import { logInboundDrop } from "../../channels/logging.js";
 import { resolveMentionGatingWithBypass } from "../../channels/mention-gating.js";
+<<<<<<< HEAD
+=======
+import { loadConfig } from "../../config/config.js";
+import { isDangerousNameMatchingEnabled } from "../../config/dangerous-name-matching.js";
+>>>>>>> 161d9841d (refactor(security): unify dangerous name matching handling)
 import { logVerbose, shouldLogVerbose } from "../../globals.js";
 import { recordChannelActivity } from "../../infra/channel-activity.js";
 import { enqueueSystemEvent } from "../../infra/system-events.js";
@@ -132,7 +137,7 @@ export async function preflightDiscordMessage(
               name: sender.name,
               tag: sender.tag,
             },
-            allowNameMatching: params.discordConfig?.dangerouslyAllowNameMatching === true,
+            allowNameMatching: isDangerousNameMatchingEnabled(params.discordConfig),
           })
         : { allowed: false };
       const allowMatchMeta = formatAllowlistMatchMeta(allowMatch);
@@ -411,7 +416,7 @@ export async function preflightDiscordMessage(
     guildInfo,
     memberRoleIds,
     sender,
-    allowNameMatching: params.discordConfig?.dangerouslyAllowNameMatching === true,
+    allowNameMatching: isDangerousNameMatchingEnabled(params.discordConfig),
   });
 >>>>>>> cfa44ea6b (fix(security): make allowFrom id-only by default with dangerous name opt-in (#24907))
 
@@ -429,7 +434,7 @@ export async function preflightDiscordMessage(
             name: sender.name,
             tag: sender.tag,
           },
-          { allowNameMatching: params.discordConfig?.dangerouslyAllowNameMatching === true },
+          { allowNameMatching: isDangerousNameMatchingEnabled(params.discordConfig) },
         )
       : false;
     const channelUsers = channelConfig?.users ?? guildInfo?.users;

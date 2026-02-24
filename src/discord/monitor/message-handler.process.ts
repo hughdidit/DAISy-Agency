@@ -23,6 +23,11 @@ import { logTypingFailure, logAckFailure } from "../../channels/logging.js";
 import { createReplyPrefixOptions } from "../../channels/reply-prefix.js";
 import { recordInboundSession } from "../../channels/session.js";
 import { createTypingCallbacks } from "../../channels/typing.js";
+<<<<<<< HEAD
+=======
+import { isDangerousNameMatchingEnabled } from "../../config/dangerous-name-matching.js";
+import { resolveDiscordPreviewStreamMode } from "../../config/discord-preview-streaming.js";
+>>>>>>> 161d9841d (refactor(security): unify dangerous name matching handling)
 import { resolveMarkdownTableMode } from "../../config/markdown-tables.js";
 import { readSessionUpdatedAt, resolveStorePath } from "../../config/sessions.js";
 import { danger, logVerbose, shouldLogVerbose } from "../../globals.js";
@@ -161,7 +166,7 @@ export async function processDiscordMessage(ctx: DiscordMessagePreflightContext)
     channelConfig,
     guildInfo,
     sender: { id: sender.id, name: sender.name, tag: sender.tag },
-    allowNameMatching: discordConfig?.dangerouslyAllowNameMatching === true,
+    allowNameMatching: isDangerousNameMatchingEnabled(discordConfig),
   });
   const storePath = resolveStorePath(cfg.session?.store, {
     agentId: route.agentId,

@@ -10,7 +10,25 @@ import {
   migrateLegacyConfig,
   readConfigFileSnapshot,
 } from "../config/config.js";
+import { collectProviderDangerousNameMatchingScopes } from "../config/dangerous-name-matching.js";
 import { applyPluginAutoEnable } from "../config/plugin-auto-enable.js";
+<<<<<<< HEAD
+=======
+import { parseToolsBySenderTypedKey } from "../config/types.tools.js";
+import {
+  listInterpreterLikeSafeBins,
+  resolveMergedSafeBinProfileFixtures,
+} from "../infra/exec-safe-bin-runtime-policy.js";
+import {
+  isDiscordMutableAllowEntry,
+  isGoogleChatMutableAllowEntry,
+  isIrcMutableAllowEntry,
+  isMSTeamsMutableAllowEntry,
+  isMattermostMutableAllowEntry,
+  isSlackMutableAllowEntry,
+} from "../security/mutable-allowlist-detectors.js";
+import { listTelegramAccountIds, resolveTelegramAccount } from "../telegram/accounts.js";
+>>>>>>> 161d9841d (refactor(security): unify dangerous name matching handling)
 import { note } from "../terminal/note.js";
 import { resolveHomeDir } from "../utils.js";
 import { normalizeLegacyConfigValues } from "./doctor-legacy-config.js";
@@ -580,6 +598,7 @@ type MutableAllowlistHit = {
   dangerousFlagPath: string;
 };
 
+<<<<<<< HEAD
 function collectProviderAccountScopes(
   cfg: OpenClawConfig,
   provider: string,
@@ -696,6 +715,8 @@ function isIrcMutableAllowEntry(raw: string): boolean {
   return !normalized.includes("!") && !normalized.includes("@");
 }
 
+=======
+>>>>>>> 161d9841d (refactor(security): unify dangerous name matching handling)
 function addMutableAllowlistHits(params: {
   hits: MutableAllowlistHit[];
   pathLabel: string;
@@ -727,9 +748,14 @@ function addMutableAllowlistHits(params: {
 function scanMutableAllowlistEntries(cfg: OpenClawConfig): MutableAllowlistHit[] {
   const hits: MutableAllowlistHit[] = [];
 
+<<<<<<< HEAD
   for (const scope of collectProviderAccountScopes(cfg, "discord")) {
     const dangerousFlagPath = `${scope.prefix}.dangerouslyAllowNameMatching`;
     if (scope.account.dangerouslyAllowNameMatching === true) {
+=======
+  for (const scope of collectProviderDangerousNameMatchingScopes(cfg, "discord")) {
+    if (scope.dangerousNameMatchingEnabled) {
+>>>>>>> 161d9841d (refactor(security): unify dangerous name matching handling)
       continue;
     }
     addMutableAllowlistHits({
@@ -789,9 +815,14 @@ function scanMutableAllowlistEntries(cfg: OpenClawConfig): MutableAllowlistHit[]
     }
   }
 
+<<<<<<< HEAD
   for (const scope of collectProviderAccountScopes(cfg, "slack")) {
     const dangerousFlagPath = `${scope.prefix}.dangerouslyAllowNameMatching`;
     if (scope.account.dangerouslyAllowNameMatching === true) {
+=======
+  for (const scope of collectProviderDangerousNameMatchingScopes(cfg, "slack")) {
+    if (scope.dangerousNameMatchingEnabled) {
+>>>>>>> 161d9841d (refactor(security): unify dangerous name matching handling)
       continue;
     }
     addMutableAllowlistHits({
@@ -833,9 +864,14 @@ function scanMutableAllowlistEntries(cfg: OpenClawConfig): MutableAllowlistHit[]
     }
   }
 
+<<<<<<< HEAD
   for (const scope of collectProviderAccountScopes(cfg, "googlechat")) {
     const dangerousFlagPath = `${scope.prefix}.dangerouslyAllowNameMatching`;
     if (scope.account.dangerouslyAllowNameMatching === true) {
+=======
+  for (const scope of collectProviderDangerousNameMatchingScopes(cfg, "googlechat")) {
+    if (scope.dangerousNameMatchingEnabled) {
+>>>>>>> 161d9841d (refactor(security): unify dangerous name matching handling)
       continue;
     }
     addMutableAllowlistHits({
@@ -877,9 +913,14 @@ function scanMutableAllowlistEntries(cfg: OpenClawConfig): MutableAllowlistHit[]
     }
   }
 
+<<<<<<< HEAD
   for (const scope of collectProviderAccountScopes(cfg, "msteams")) {
     const dangerousFlagPath = `${scope.prefix}.dangerouslyAllowNameMatching`;
     if (scope.account.dangerouslyAllowNameMatching === true) {
+=======
+  for (const scope of collectProviderDangerousNameMatchingScopes(cfg, "msteams")) {
+    if (scope.dangerousNameMatchingEnabled) {
+>>>>>>> 161d9841d (refactor(security): unify dangerous name matching handling)
       continue;
     }
     addMutableAllowlistHits({
@@ -900,9 +941,14 @@ function scanMutableAllowlistEntries(cfg: OpenClawConfig): MutableAllowlistHit[]
     });
   }
 
+<<<<<<< HEAD
   for (const scope of collectProviderAccountScopes(cfg, "mattermost")) {
     const dangerousFlagPath = `${scope.prefix}.dangerouslyAllowNameMatching`;
     if (scope.account.dangerouslyAllowNameMatching === true) {
+=======
+  for (const scope of collectProviderDangerousNameMatchingScopes(cfg, "mattermost")) {
+    if (scope.dangerousNameMatchingEnabled) {
+>>>>>>> 161d9841d (refactor(security): unify dangerous name matching handling)
       continue;
     }
     addMutableAllowlistHits({
@@ -923,9 +969,14 @@ function scanMutableAllowlistEntries(cfg: OpenClawConfig): MutableAllowlistHit[]
     });
   }
 
+<<<<<<< HEAD
   for (const scope of collectProviderAccountScopes(cfg, "irc")) {
     const dangerousFlagPath = `${scope.prefix}.dangerouslyAllowNameMatching`;
     if (scope.account.dangerouslyAllowNameMatching === true) {
+=======
+  for (const scope of collectProviderDangerousNameMatchingScopes(cfg, "irc")) {
+    if (scope.dangerousNameMatchingEnabled) {
+>>>>>>> 161d9841d (refactor(security): unify dangerous name matching handling)
       continue;
     }
     addMutableAllowlistHits({

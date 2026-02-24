@@ -34,6 +34,16 @@ import { finalizeInboundContext } from "../../auto-reply/reply/inbound-context.j
 import { dispatchReplyWithDispatcher } from "../../auto-reply/reply/provider-dispatcher.js";
 import { resolveCommandAuthorizedFromAuthorizers } from "../../channels/command-gating.js";
 import { createReplyPrefixOptions } from "../../channels/reply-prefix.js";
+<<<<<<< HEAD
+=======
+import type { OpenClawConfig, loadConfig } from "../../config/config.js";
+import { isDangerousNameMatchingEnabled } from "../../config/dangerous-name-matching.js";
+import { resolveOpenProviderRuntimeGroupPolicy } from "../../config/runtime-group-policy.js";
+import { loadSessionStore, resolveStorePath } from "../../config/sessions.js";
+import { logVerbose } from "../../globals.js";
+import { createSubsystemLogger } from "../../logging/subsystem.js";
+import { getAgentScopedMediaLocalRoots } from "../../media/local-roots.js";
+>>>>>>> 161d9841d (refactor(security): unify dangerous name matching handling)
 import { buildPairingReply } from "../../pairing/pairing-messages.js";
 import {
   readChannelAllowFromStore,
@@ -554,7 +564,7 @@ async function dispatchDiscordCommandInteraction(params: {
             name: sender.name,
             tag: sender.tag,
           },
-          { allowNameMatching: discordConfig?.dangerouslyAllowNameMatching === true },
+          { allowNameMatching: isDangerousNameMatchingEnabled(discordConfig) },
         )
       : false;
   const guildInfo = resolveDiscordGuildEntry({
@@ -636,7 +646,7 @@ async function dispatchDiscordCommandInteraction(params: {
               name: sender.name,
               tag: sender.tag,
             },
-            { allowNameMatching: discordConfig?.dangerouslyAllowNameMatching === true },
+            { allowNameMatching: isDangerousNameMatchingEnabled(discordConfig) },
           )
         : false;
       if (!permitted) {
@@ -686,7 +696,7 @@ async function dispatchDiscordCommandInteraction(params: {
       guildInfo,
       memberRoleIds,
       sender,
-      allowNameMatching: discordConfig?.dangerouslyAllowNameMatching === true,
+      allowNameMatching: isDangerousNameMatchingEnabled(discordConfig),
     });
 >>>>>>> cfa44ea6b (fix(security): make allowFrom id-only by default with dangerous name opt-in (#24907))
     const authorizers = useAccessGroups
@@ -764,7 +774,7 @@ async function dispatchDiscordCommandInteraction(params: {
     channelConfig,
     guildInfo,
     sender: { id: sender.id, name: sender.name, tag: sender.tag },
-    allowNameMatching: discordConfig?.dangerouslyAllowNameMatching === true,
+    allowNameMatching: isDangerousNameMatchingEnabled(discordConfig),
   });
   const ctxPayload = finalizeInboundContext({
     Body: prompt,
