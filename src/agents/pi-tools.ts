@@ -51,6 +51,7 @@ import { cleanToolSchemaForGemini, normalizeToolParameters } from "./pi-tools.sc
 import type { AnyAgentTool } from "./pi-tools.types.js";
 import type { SandboxContext } from "./sandbox.js";
 import { getSubagentDepthFromSessionStore } from "./subagent-depth.js";
+import { createToolFsPolicy } from "./tool-fs-policy.js";
 import {
   applyToolPolicyPipeline,
   buildDefaultToolPolicyPipelineSteps,
@@ -318,7 +319,15 @@ export function createOpenClawCodingTools(options?: {
     sandbox?.tools,
     subagentPolicy,
   ]);
+<<<<<<< HEAD
   const execConfig = resolveExecConfig(options?.config);
+=======
+  const execConfig = resolveExecConfig({ cfg: options?.config, agentId });
+  const fsConfig = resolveFsConfig({ cfg: options?.config, agentId });
+  const fsPolicy = createToolFsPolicy({
+    workspaceOnly: fsConfig.workspaceOnly,
+  });
+>>>>>>> ce02ad964 (refactor(agents): centralize sandbox media and fs policy helpers)
   const sandboxRoot = sandbox?.workspaceDir;
   const allowWorkspaceWrites = sandbox?.workspaceAccess !== "ro";
 <<<<<<< HEAD
@@ -326,7 +335,7 @@ export function createOpenClawCodingTools(options?: {
   const applyPatchConfig = options?.config?.tools?.exec?.applyPatch;
 =======
   const workspaceRoot = resolveWorkspaceRoot(options?.workspaceDir);
-  const workspaceOnly = fsConfig.workspaceOnly === true;
+  const workspaceOnly = fsPolicy.workspaceOnly;
   const applyPatchConfig = execConfig.applyPatch;
   // Secure by default: apply_patch is workspace-contained unless explicitly disabled.
   // (tools.fs.workspaceOnly is a separate umbrella flag for read/write/edit/apply_patch.)
@@ -497,6 +506,10 @@ export function createOpenClawCodingTools(options?: {
       workspaceDir: options?.workspaceDir,
 =======
       sandboxFsBridge,
+<<<<<<< HEAD
+=======
+      fsPolicy,
+>>>>>>> ce02ad964 (refactor(agents): centralize sandbox media and fs policy helpers)
       workspaceDir: workspaceRoot,
 >>>>>>> b79e7fdb7 (fix(image): propagate workspace root for image allowlist (#16722))
       sandboxed: !!sandbox,

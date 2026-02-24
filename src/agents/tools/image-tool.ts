@@ -1,4 +1,3 @@
-import path from "node:path";
 import { type Api, type Context, complete, type Model } from "@mariozechner/pi-ai";
 import { Type } from "@sinclair/typebox";
 <<<<<<< HEAD
@@ -60,12 +59,20 @@ import { discoverAuthStorage, discoverModels } from "../pi-model-discovery.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { assertSandboxPath } from "../sandbox-paths.js";
 =======
 import { normalizeWorkspaceDir } from "../workspace-dir.js";
 >>>>>>> 683aa09b5 (refactor(media): harden localRoots bypass (#16739))
 =======
+=======
+import {
+  resolveSandboxedBridgeMediaPath,
+  type SandboxedBridgeMediaPathConfig,
+} from "../sandbox-media-paths.js";
+>>>>>>> ce02ad964 (refactor(agents): centralize sandbox media and fs policy helpers)
 import type { SandboxFsBridge } from "../sandbox/fs-bridge.js";
+import type { ToolFsPolicy } from "../tool-fs-policy.js";
 import { normalizeWorkspaceDir } from "../workspace-dir.js";
 import type { AnyAgentTool } from "./common.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -270,6 +277,7 @@ function buildImageContext(
   };
 }
 
+<<<<<<< HEAD
 async function resolveSandboxedImagePath(params: {
   sandboxRoot: string;
   imagePath: string;
@@ -300,6 +308,12 @@ async function resolveSandboxedImagePath(params: {
     return { resolved: out.resolved, rewrittenFrom: filePath };
   }
 }
+=======
+type ImageSandboxConfig = {
+  root: string;
+  bridge: SandboxFsBridge;
+};
+>>>>>>> ce02ad964 (refactor(agents): centralize sandbox media and fs policy helpers)
 
 async function runImagePrompt(params: {
   cfg?: OpenClawConfig;
@@ -397,7 +411,11 @@ export function createImageTool(options?: {
 =======
   workspaceDir?: string;
   sandbox?: ImageSandboxConfig;
+<<<<<<< HEAD
 >>>>>>> edb06170f (fix(image): allow workspace and sandbox media paths (#15541))
+=======
+  fsPolicy?: ToolFsPolicy;
+>>>>>>> ce02ad964 (refactor(agents): centralize sandbox media and fs policy helpers)
   /** If true, the model has native vision capability and images in the prompt are auto-injected */
   modelHasVision?: boolean;
 }): AnyAgentTool | null {
@@ -505,6 +523,7 @@ export function createImageTool(options?: {
       const maxBytes = pickMaxBytes(options?.config, maxBytesMb);
 
 <<<<<<< HEAD
+<<<<<<< HEAD
       const sandboxRoot = options?.sandboxRoot?.trim();
       const isUrl = isHttpUrl;
       if (sandboxRoot && isUrl) {
@@ -557,6 +576,15 @@ export function createImageTool(options?: {
       const sandboxConfig =
         options?.sandbox && options?.sandbox.root.trim()
           ? { root: options.sandbox.root.trim(), bridge: options.sandbox.bridge }
+=======
+      const sandboxConfig: SandboxedBridgeMediaPathConfig | null =
+        options?.sandbox && options?.sandbox.root.trim()
+          ? {
+              root: options.sandbox.root.trim(),
+              bridge: options.sandbox.bridge,
+              workspaceOnly: options.fsPolicy?.workspaceOnly === true,
+            }
+>>>>>>> ce02ad964 (refactor(agents): centralize sandbox media and fs policy helpers)
           : null;
 
       // MARK: - Load and resolve each image
@@ -615,9 +643,10 @@ export function createImageTool(options?: {
         const resolvedPathInfo: { resolved: string; rewrittenFrom?: string } = isDataUrl
           ? { resolved: "" }
           : sandboxConfig
-            ? await resolveSandboxedImagePath({
+            ? await resolveSandboxedBridgeMediaPath({
                 sandbox: sandboxConfig,
-                imagePath: resolvedImage,
+                mediaPath: resolvedImage,
+                inboundFallbackDir: "media/inbound",
               })
             : {
                 resolved: resolvedImage.startsWith("file://")

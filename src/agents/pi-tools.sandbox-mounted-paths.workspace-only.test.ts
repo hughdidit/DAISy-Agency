@@ -1,24 +1,21 @@
 import fs from "node:fs/promises";
-import os from "node:os";
 import path from "node:path";
 import { describe, expect, it, vi } from "vitest";
 import type { OpenClawConfig } from "../config/config.js";
 import { createOpenClawCodingTools } from "./pi-tools.js";
-import type { SandboxContext } from "./sandbox.js";
-import type { SandboxFsBridge, SandboxResolvedPath } from "./sandbox/fs-bridge.js";
-import { createSandboxFsBridgeFromResolver } from "./test-helpers/host-sandbox-fs-bridge.js";
 import {
   expectReadWriteEditTools,
   expectReadWriteTools,
   getTextContent,
 } from "./test-helpers/pi-tools-fs-helpers.js";
-import { createPiToolsSandboxContext } from "./test-helpers/pi-tools-sandbox-context.js";
+import { withUnsafeMountedSandboxHarness } from "./test-helpers/unsafe-mounted-sandbox.js";
 
 vi.mock("../infra/shell-env.js", async (importOriginal) => {
   const mod = await importOriginal<typeof import("../infra/shell-env.js")>();
   return { ...mod, getShellPathFromLoginShell: () => null };
 });
 
+<<<<<<< HEAD
 function createUnsafeMountedBridge(params: {
   root: string;
   agentHostRoot: string;
@@ -90,6 +87,11 @@ async function withUnsafeMountedSandboxHarness(
   }
 }
 
+=======
+type ToolWithExecute = {
+  execute: (toolCallId: string, args: unknown, signal?: AbortSignal) => Promise<unknown>;
+};
+>>>>>>> ce02ad964 (refactor(agents): centralize sandbox media and fs policy helpers)
 describe("tools.fs.workspaceOnly", () => {
   it("defaults to allowing sandbox mounts outside the workspace root", async () => {
     await withUnsafeMountedSandboxHarness(async ({ sandboxRoot, agentRoot, sandbox }) => {

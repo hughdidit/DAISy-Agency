@@ -48,6 +48,7 @@ import { resolvePluginTools } from "../plugins/tools.js";
 import type { GatewayMessageChannel } from "../utils/message-channel.js";
 import { resolveSessionAgentId } from "./agent-scope.js";
 import type { SandboxFsBridge } from "./sandbox/fs-bridge.js";
+import type { ToolFsPolicy } from "./tool-fs-policy.js";
 import { createAgentsListTool } from "./tools/agents-list-tool.js";
 import { createBrowserTool } from "./tools/browser-tool.js";
 import { createCanvasTool } from "./tools/canvas-tool.js";
@@ -85,6 +86,11 @@ export function createOpenClawTools(options?: {
   agentGroupSpace?: string | null;
   agentDir?: string;
   sandboxRoot?: string;
+<<<<<<< HEAD
+=======
+  sandboxFsBridge?: SandboxFsBridge;
+  fsPolicy?: ToolFsPolicy;
+>>>>>>> ce02ad964 (refactor(agents): centralize sandbox media and fs policy helpers)
   workspaceDir?: string;
   sandboxed?: boolean;
   config?: OpenClawConfig;
@@ -125,7 +131,11 @@ export function createOpenClawTools(options?: {
           options?.sandboxRoot && options?.sandboxFsBridge
             ? { root: options.sandboxRoot, bridge: options.sandboxFsBridge }
             : undefined,
+<<<<<<< HEAD
 >>>>>>> edb06170f (fix(image): allow workspace and sandbox media paths (#15541))
+=======
+        fsPolicy: options?.fsPolicy,
+>>>>>>> ce02ad964 (refactor(agents): centralize sandbox media and fs policy helpers)
         modelHasVision: options?.modelHasVision,
       })
     : null;
