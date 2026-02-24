@@ -465,6 +465,41 @@ describe("processDiscordMessage draft streaming", () => {
     expect(deliverDiscordReply).not.toHaveBeenCalled();
   });
 
+<<<<<<< HEAD
+=======
+  it("suppresses reasoning-tagged final payload delivery to Discord", async () => {
+    dispatchInboundMessage.mockImplementationOnce(async (params?: DispatchInboundParams) => {
+      await params?.dispatcher.sendFinalReply({
+        text: "Reasoning:\nthis should stay internal",
+        isReasoning: true,
+      } as never);
+      return { queuedFinal: true, counts: { final: 1, tool: 0, block: 0 } };
+    });
+
+    const ctx = await createBaseContext({ discordConfig: { streamMode: "off" } });
+
+    // oxlint-disable-next-line typescript/no-explicit-any
+    await processDiscordMessage(ctx as any);
+
+    expect(deliverDiscordReply).not.toHaveBeenCalled();
+    expect(editMessageDiscord).not.toHaveBeenCalled();
+  });
+
+  it("delivers non-reasoning block payloads to Discord", async () => {
+    dispatchInboundMessage.mockImplementationOnce(async (params?: DispatchInboundParams) => {
+      await params?.dispatcher.sendBlockReply({ text: "hello from block stream" });
+      return { queuedFinal: false, counts: { final: 0, tool: 0, block: 1 } };
+    });
+
+    const ctx = await createBaseContext({ discordConfig: { streamMode: "off" } });
+
+    // oxlint-disable-next-line typescript/no-explicit-any
+    await processDiscordMessage(ctx as any);
+
+    expect(deliverDiscordReply).toHaveBeenCalledTimes(1);
+  });
+
+>>>>>>> a2529c25f (test(matrix,discord,sandbox): expand breakage regression coverage)
   it("streams block previews using draft chunking", async () => {
     const draftStream = createMockDraftStream();
     createDiscordDraftStream.mockReturnValueOnce(draftStream);
