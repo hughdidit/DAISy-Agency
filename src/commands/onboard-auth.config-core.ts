@@ -41,7 +41,11 @@ import {
 import {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+  buildKilocodeProvider,
+>>>>>>> 5239b55c0 (Config: expand Kilo catalog and persist selected Kilo models (#24921))
   buildKimiCodingProvider,
 >>>>>>> c62a6e704 (fix(models): add kimi-coding implicit provider template (openclaw#22526) thanks @lailoo)
   buildQianfanProvider,
@@ -133,7 +137,6 @@ import {
   applyProviderConfigWithModelCatalog,
 } from "./onboard-auth.config-shared.js";
 import {
-  buildKilocodeModelDefinition,
   buildMistralModelDefinition,
   buildZaiModelDefinition,
   buildMoonshotModelDefinition,
@@ -141,7 +144,6 @@ import {
 <<<<<<< HEAD
 =======
   buildXaiModelDefinition,
-  KILOCODE_DEFAULT_MODEL_ID,
   MISTRAL_BASE_URL,
   MISTRAL_DEFAULT_MODEL_ID,
 >>>>>>> d92ba4f8a (feat: Provider/Mistral full support for Mistral on OpenClaw 🇫🇷 (#23845))
@@ -810,15 +812,14 @@ export function applyKilocodeProviderConfig(cfg: OpenClawConfig): OpenClawConfig
     alias: models[KILOCODE_DEFAULT_MODEL_REF]?.alias ?? "Kilo Gateway",
   };
 
-  const defaultModel = buildKilocodeModelDefinition();
+  const kilocodeModels = buildKilocodeProvider().models ?? [];
 
-  return applyProviderConfigWithDefaultModel(cfg, {
+  return applyProviderConfigWithModelCatalog(cfg, {
     agentModels: models,
     providerId: "kilocode",
     api: "openai-completions",
     baseUrl: KILOCODE_BASE_URL,
-    defaultModel,
-    defaultModelId: KILOCODE_DEFAULT_MODEL_ID,
+    catalogModels: kilocodeModels,
   });
 }
 
