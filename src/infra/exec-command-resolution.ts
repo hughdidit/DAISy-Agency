@@ -203,7 +203,17 @@ export function matchAllowlist(
   entries: ExecAllowlistEntry[],
   resolution: CommandResolution | null,
 ): ExecAllowlistEntry | null {
-  if (!entries.length || !resolution?.resolvedPath) {
+  if (!entries.length) {
+    return null;
+  }
+  // A bare "*" wildcard allows any command regardless of resolution.
+  // Check it before the resolvedPath guard so that unresolvable commands
+  // (e.g. Windows executables without known extensions) still match.
+  const bareWild = entries.find((e) => e.pattern?.trim() === "*");
+  if (bareWild && resolution) {
+    return bareWild;
+  }
+  if (!resolution?.resolvedPath) {
     return null;
   }
   const resolvedPath = resolution.resolvedPath;
@@ -211,6 +221,12 @@ export function matchAllowlist(
     const pattern = entry.pattern?.trim();
     if (!pattern) {
       continue;
+    }
+    // A bare "*" wildcard means "allow any executable". Match immediately
+    // without going through glob expansion (glob `*` maps to `[^/]*` which
+    // would fail on absolute paths containing slashes).
+    if (pattern === "*") {
+      return entry;
     }
     const hasPath = pattern.includes("/") || pattern.includes("\\") || pattern.includes("~");
     if (!hasPath) {
