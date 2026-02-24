@@ -12,6 +12,58 @@ import {
 } from "./shell-env.js";
 
 describe("shell env fallback", () => {
+<<<<<<< HEAD
+=======
+  function getShellPathTwice(params: {
+    exec: Parameters<typeof getShellPathFromLoginShell>[0]["exec"];
+    platform: NodeJS.Platform;
+  }) {
+    const first = getShellPathFromLoginShell({
+      env: {} as NodeJS.ProcessEnv,
+      exec: params.exec,
+      platform: params.platform,
+    });
+    const second = getShellPathFromLoginShell({
+      env: {} as NodeJS.ProcessEnv,
+      exec: params.exec,
+      platform: params.platform,
+    });
+    return { first, second };
+  }
+
+  function runShellEnvFallbackForShell(shell: string) {
+    resetShellPathCacheForTests();
+    const env: NodeJS.ProcessEnv = { SHELL: shell };
+    const exec = vi.fn(() => Buffer.from("OPENAI_API_KEY=from-shell\0"));
+    const res = loadShellEnvFallback({
+      enabled: true,
+      env,
+      expectedKeys: ["OPENAI_API_KEY"],
+      exec: exec as unknown as Parameters<typeof loadShellEnvFallback>[0]["exec"],
+    });
+    return { res, exec };
+  }
+
+  function makeUnsafeStartupEnv(): NodeJS.ProcessEnv {
+    return {
+      SHELL: "/bin/bash",
+      HOME: "/tmp/evil-home",
+      ZDOTDIR: "/tmp/evil-zdotdir",
+      BASH_ENV: "/tmp/evil-bash-env",
+      PS4: "$(touch /tmp/pwned)",
+    };
+  }
+
+  function expectSanitizedStartupEnv(receivedEnv: NodeJS.ProcessEnv | undefined) {
+    expect(receivedEnv).toBeDefined();
+    expect(receivedEnv?.BASH_ENV).toBeUndefined();
+    expect(receivedEnv?.PS4).toBeUndefined();
+    expect(receivedEnv?.ZDOTDIR).toBeUndefined();
+    expect(receivedEnv?.SHELL).toBeUndefined();
+    expect(receivedEnv?.HOME).toBe(os.homedir());
+  }
+
+>>>>>>> ff10fe8b9 (fix(security): require /etc/shells for shell env fallback)
   it("is disabled by default", () => {
     expect(shouldEnableShellEnvFallback({} as NodeJS.ProcessEnv)).toBe(false);
     expect(shouldEnableShellEnvFallback({ OPENCLAW_LOAD_SHELL_ENV: "0" })).toBe(false);
@@ -143,19 +195,50 @@ describe("shell env fallback", () => {
   });
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   it("uses trusted absolute SHELL path when executable on posix-style paths", () => {
     const accessSyncSpy = vi.spyOn(fs, "accessSync").mockImplementation(() => undefined);
+=======
+  it("falls back to /bin/sh when SHELL is absolute but not registered in /etc/shells", () => {
+    const readFileSyncSpy = vi
+      .spyOn(fs, "readFileSync")
+      .mockImplementation((filePath, encoding) => {
+        if (filePath === "/etc/shells" && encoding === "utf8") {
+          return "/bin/sh\n/bin/bash\n/bin/zsh\n";
+        }
+        throw new Error(`Unexpected readFileSync(${String(filePath)}) in test`);
+      });
+>>>>>>> ff10fe8b9 (fix(security): require /etc/shells for shell env fallback)
     try {
-      const trustedShell = "/usr/bin/zsh-trusted";
-      const { res, exec } = runShellEnvFallbackForShell(trustedShell);
-      const expectedShell = process.platform === "win32" ? "/bin/sh" : trustedShell;
+      const { res, exec } = runShellEnvFallbackForShell("/opt/homebrew/bin/evil-shell");
 
       expect(res.ok).toBe(true);
       expect(exec).toHaveBeenCalledTimes(1);
-      expect(exec).toHaveBeenCalledWith(expectedShell, ["-l", "-c", "env -0"], expect.any(Object));
+      expect(exec).toHaveBeenCalledWith("/bin/sh", ["-l", "-c", "env -0"], expect.any(Object));
     } finally {
-      accessSyncSpy.mockRestore();
+      readFileSyncSpy.mockRestore();
+    }
+  });
+
+  it("uses SHELL when it is explicitly registered in /etc/shells", () => {
+    const readFileSyncSpy = vi
+      .spyOn(fs, "readFileSync")
+      .mockImplementation((filePath, encoding) => {
+        if (filePath === "/etc/shells" && encoding === "utf8") {
+          return "/bin/sh\n/usr/bin/zsh-trusted\n";
+        }
+        throw new Error(`Unexpected readFileSync(${String(filePath)}) in test`);
+      });
+    try {
+      const trustedShell = "/usr/bin/zsh-trusted";
+      const { res, exec } = runShellEnvFallbackForShell(trustedShell);
+
+      expect(res.ok).toBe(true);
+      expect(exec).toHaveBeenCalledTimes(1);
+      expect(exec).toHaveBeenCalledWith(trustedShell, ["-l", "-c", "env -0"], expect.any(Object));
+    } finally {
+      readFileSyncSpy.mockRestore();
     }
   });
 
