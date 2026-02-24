@@ -41,6 +41,11 @@ export function createOpenClawTools(options?: {
   agentGroupSpace?: string | null;
   agentDir?: string;
   sandboxRoot?: string;
+<<<<<<< HEAD
+=======
+  sandboxFsBridge?: SandboxFsBridge;
+  workspaceOnly?: boolean;
+>>>>>>> dd9d9c1c6 (fix(security): enforce workspaceOnly for sandbox image tool)
   workspaceDir?: string;
   sandboxed?: boolean;
   config?: OpenClawConfig;
@@ -73,7 +78,16 @@ export function createOpenClawTools(options?: {
     ? createImageTool({
         config: options?.config,
         agentDir: options.agentDir,
+<<<<<<< HEAD
         sandboxRoot: options?.sandboxRoot,
+=======
+        workspaceDir,
+        sandbox:
+          options?.sandboxRoot && options?.sandboxFsBridge
+            ? { root: options.sandboxRoot, bridge: options.sandboxFsBridge }
+            : undefined,
+        workspaceOnly: options?.workspaceOnly,
+>>>>>>> dd9d9c1c6 (fix(security): enforce workspaceOnly for sandbox image tool)
         modelHasVision: options?.modelHasVision,
       })
     : null;

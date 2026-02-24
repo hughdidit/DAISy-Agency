@@ -21,7 +21,14 @@ import { getApiKeyForModel, requireApiKey, resolveEnvApiKey } from "../model-aut
 import { runWithImageModelFallback } from "../model-fallback.js";
 import { resolveConfiguredModelRef } from "../model-selection.js";
 import { ensureOpenClawModelsJson } from "../models-config.js";
+<<<<<<< HEAD
 import { assertSandboxPath } from "../sandbox-paths.js";
+=======
+import { discoverAuthStorage, discoverModels } from "../pi-model-discovery.js";
+import { assertSandboxPath } from "../sandbox-paths.js";
+import type { SandboxFsBridge } from "../sandbox/fs-bridge.js";
+import { normalizeWorkspaceDir } from "../workspace-dir.js";
+>>>>>>> dd9d9c1c6 (fix(security): enforce workspaceOnly for sandbox image tool)
 import type { AnyAgentTool } from "./common.js";
 import {
   coerceImageAssistantText,
@@ -194,6 +201,15 @@ function buildImageContext(prompt: string, base64: string, mimeType: string): Co
   };
 }
 
+<<<<<<< HEAD
+=======
+type ImageSandboxConfig = {
+  root: string;
+  bridge: SandboxFsBridge;
+  workspaceOnly?: boolean;
+};
+
+>>>>>>> dd9d9c1c6 (fix(security): enforce workspaceOnly for sandbox image tool)
 async function resolveSandboxedImagePath(params: {
   sandboxRoot: string;
   imagePath: string;
@@ -206,7 +222,18 @@ async function resolveSandboxedImagePath(params: {
       cwd: params.sandboxRoot,
       root: params.sandboxRoot,
     });
+<<<<<<< HEAD
     return { resolved: out.resolved };
+=======
+    if (params.sandbox.workspaceOnly) {
+      await assertSandboxPath({
+        filePath: resolved.hostPath,
+        cwd: params.sandbox.root,
+        root: params.sandbox.root,
+      });
+    }
+    return { resolved: resolved.hostPath };
+>>>>>>> dd9d9c1c6 (fix(security): enforce workspaceOnly for sandbox image tool)
   } catch (err) {
     const name = path.basename(filePath);
     const candidateRel = path.join("media", "inbound", name);
@@ -221,7 +248,18 @@ async function resolveSandboxedImagePath(params: {
       cwd: params.sandboxRoot,
       root: params.sandboxRoot,
     });
+<<<<<<< HEAD
     return { resolved: out.resolved, rewrittenFrom: filePath };
+=======
+    if (params.sandbox.workspaceOnly) {
+      await assertSandboxPath({
+        filePath: out.hostPath,
+        cwd: params.sandbox.root,
+        root: params.sandbox.root,
+      });
+    }
+    return { resolved: out.hostPath, rewrittenFrom: filePath };
+>>>>>>> dd9d9c1c6 (fix(security): enforce workspaceOnly for sandbox image tool)
   }
 }
 
@@ -315,7 +353,13 @@ async function runImagePrompt(params: {
 export function createImageTool(options?: {
   config?: OpenClawConfig;
   agentDir?: string;
+<<<<<<< HEAD
   sandboxRoot?: string;
+=======
+  workspaceDir?: string;
+  sandbox?: ImageSandboxConfig;
+  workspaceOnly?: boolean;
+>>>>>>> dd9d9c1c6 (fix(security): enforce workspaceOnly for sandbox image tool)
   /** If true, the model has native vision capability and images in the prompt are auto-injected */
   modelHasVision?: boolean;
 }): AnyAgentTool | null {
@@ -390,10 +434,119 @@ export function createImageTool(options?: {
       const maxBytesMb = typeof record.maxBytesMb === "number" ? record.maxBytesMb : undefined;
       const maxBytes = pickMaxBytes(options?.config, maxBytesMb);
 
+<<<<<<< HEAD
       const sandboxRoot = options?.sandboxRoot?.trim();
       const isUrl = isHttpUrl;
       if (sandboxRoot && isUrl) {
         throw new Error("Sandboxed image tool does not allow remote URLs.");
+=======
+      const sandboxConfig =
+        options?.sandbox && options?.sandbox.root.trim()
+          ? {
+              root: options.sandbox.root.trim(),
+              bridge: options.sandbox.bridge,
+              workspaceOnly: options.workspaceOnly === true,
+            }
+          : null;
+
+      // MARK: - Load and resolve each image
+      const loadedImages: Array<{
+        base64: string;
+        mimeType: string;
+        resolvedImage: string;
+        rewrittenFrom?: string;
+      }> = [];
+
+      for (const imageRawInput of imageInputs) {
+        const trimmed = imageRawInput.trim();
+        const imageRaw = trimmed.startsWith("@") ? trimmed.slice(1).trim() : trimmed;
+        if (!imageRaw) {
+          throw new Error("image required (empty string in array)");
+        }
+
+        // The tool accepts file paths, file/data URLs, or http(s) URLs. In some
+        // agent/model contexts, images can be referenced as pseudo-URIs like
+        // `image:0` (e.g. "first image in the prompt"). We don't have access to a
+        // shared image registry here, so fail gracefully instead of attempting to
+        // `fs.readFile("image:0")` and producing a noisy ENOENT.
+        const looksLikeWindowsDrivePath = /^[a-zA-Z]:[\\/]/.test(imageRaw);
+        const hasScheme = /^[a-z][a-z0-9+.-]*:/i.test(imageRaw);
+        const isFileUrl = /^file:/i.test(imageRaw);
+        const isHttpUrl = /^https?:\/\//i.test(imageRaw);
+        const isDataUrl = /^data:/i.test(imageRaw);
+        if (hasScheme && !looksLikeWindowsDrivePath && !isFileUrl && !isHttpUrl && !isDataUrl) {
+          return {
+            content: [
+              {
+                type: "text",
+                text: `Unsupported image reference: ${imageRawInput}. Use a file path, a file:// URL, a data: URL, or an http(s) URL.`,
+              },
+            ],
+            details: {
+              error: "unsupported_image_reference",
+              image: imageRawInput,
+            },
+          };
+        }
+
+        if (sandboxConfig && isHttpUrl) {
+          throw new Error("Sandboxed image tool does not allow remote URLs.");
+        }
+
+        const resolvedImage = (() => {
+          if (sandboxConfig) {
+            return imageRaw;
+          }
+          if (imageRaw.startsWith("~")) {
+            return resolveUserPath(imageRaw);
+          }
+          return imageRaw;
+        })();
+        const resolvedPathInfo: { resolved: string; rewrittenFrom?: string } = isDataUrl
+          ? { resolved: "" }
+          : sandboxConfig
+            ? await resolveSandboxedImagePath({
+                sandbox: sandboxConfig,
+                imagePath: resolvedImage,
+              })
+            : {
+                resolved: resolvedImage.startsWith("file://")
+                  ? resolvedImage.slice("file://".length)
+                  : resolvedImage,
+              };
+        const resolvedPath = isDataUrl ? null : resolvedPathInfo.resolved;
+
+        const media = isDataUrl
+          ? decodeDataUrl(resolvedImage)
+          : sandboxConfig
+            ? await loadWebMedia(resolvedPath ?? resolvedImage, {
+                maxBytes,
+                sandboxValidated: true,
+                readFile: (filePath) =>
+                  sandboxConfig.bridge.readFile({ filePath, cwd: sandboxConfig.root }),
+              })
+            : await loadWebMedia(resolvedPath ?? resolvedImage, {
+                maxBytes,
+                localRoots,
+              });
+        if (media.kind !== "image") {
+          throw new Error(`Unsupported media type: ${media.kind}`);
+        }
+
+        const mimeType =
+          ("contentType" in media && media.contentType) ||
+          ("mimeType" in media && media.mimeType) ||
+          "image/png";
+        const base64 = media.buffer.toString("base64");
+        loadedImages.push({
+          base64,
+          mimeType,
+          resolvedImage,
+          ...(resolvedPathInfo.rewrittenFrom
+            ? { rewrittenFrom: resolvedPathInfo.rewrittenFrom }
+            : {}),
+        });
+>>>>>>> dd9d9c1c6 (fix(security): enforce workspaceOnly for sandbox image tool)
       }
 
       const resolvedImage = (() => {

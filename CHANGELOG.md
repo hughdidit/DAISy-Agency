@@ -59,7 +59,11 @@ Status: beta.
 =======
 - Security/Channels: unify dangerous name-matching policy checks (`dangerouslyAllowNameMatching`) across core and extension channels, share mutable-allowlist detectors between `openclaw doctor` and `openclaw security audit`, and scan all configured accounts (not only the default account) in channel security audit findings.
 - Security/Exec approvals: enforce canonical wrapper execution plans across allowlist analysis and runtime execution (node host + gateway host), fail closed on semantic `env` wrapper usage, and reject unknown short safe-bin flags to prevent `env -S/--split-string` interpretation-mismatch bypasses. This ships in the next npm release. Thanks @jiseoung for reporting.
+<<<<<<< HEAD
 >>>>>>> a1c4bf07c (fix(security): harden exec wrapper allowlist execution parity)
+=======
+- Security/Image tool: enforce `tools.fs.workspaceOnly` for sandboxed `image` path resolution so mounted out-of-workspace paths are blocked before media bytes are loaded/sent to vision providers. This ships in the next npm release. Thanks @tdjackey for reporting.
+>>>>>>> dd9d9c1c6 (fix(security): enforce workspaceOnly for sandbox image tool)
 
 ## 2026.2.23 (Unreleased)
 >>>>>>> 558a0137b (chore(release): bump versions to 2026.2.23)

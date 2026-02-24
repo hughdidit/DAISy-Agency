@@ -405,7 +405,13 @@ export function createOpenClawCodingTools(options?: {
       agentGroupSpace: options?.groupSpace ?? null,
       agentDir: options?.agentDir,
       sandboxRoot,
+<<<<<<< HEAD
       workspaceDir: options?.workspaceDir,
+=======
+      sandboxFsBridge,
+      workspaceOnly,
+      workspaceDir: workspaceRoot,
+>>>>>>> dd9d9c1c6 (fix(security): enforce workspaceOnly for sandbox image tool)
       sandboxed: !!sandbox,
       config: options?.config,
       pluginToolAllowlist: collectExplicitAllowlist([
