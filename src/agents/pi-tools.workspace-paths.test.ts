@@ -7,6 +7,7 @@ import { describe, expect, it } from "vitest";
 import { createMoltbotCodingTools } from "./pi-tools.js";
 =======
 import { describe, expect, it, vi } from "vitest";
+import type { OpenClawConfig } from "../config/config.js";
 import { createOpenClawCodingTools } from "./pi-tools.js";
 <<<<<<< HEAD
 >>>>>>> 141f551a4 (fix(exec-approvals): coerce bare string allowlist entries (#9903) (thanks @mcaxtr))
@@ -234,6 +235,19 @@ describe("workspace path resolution", () => {
         ]);
         expect(resolvedOutput).toBe(resolvedOverride);
       });
+    });
+  });
+
+  it("rejects @-prefixed absolute paths outside workspace when workspaceOnly is enabled", async () => {
+    await withTempDir("openclaw-ws-", async (workspaceDir) => {
+      const cfg: OpenClawConfig = { tools: { fs: { workspaceOnly: true } } };
+      const tools = createOpenClawCodingTools({ workspaceDir, config: cfg });
+      const { readTool } = expectReadWriteEditTools(tools);
+
+      const outsideAbsolute = path.resolve(path.parse(workspaceDir).root, "outside-openclaw.txt");
+      await expect(
+        readTool.execute("ws-read-at-prefix", { path: `@${outsideAbsolute}` }),
+      ).rejects.toThrow(/Path escapes sandbox root/i);
     });
   });
 });
