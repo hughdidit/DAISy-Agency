@@ -55,9 +55,15 @@ describe("exec approvals", () => {
     vi.mocked(callGatewayTool).mockImplementation(async (method, _opts, params) => {
       if (method === "exec.approval.request") {
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
         // Approval request now carries the decision directly.
 >>>>>>> 7d1be585d (test: fix exec approval and pty fallback e2e flows)
+=======
+        return { status: "accepted", id: (params as { id?: string })?.id };
+      }
+      if (method === "exec.approval.waitDecision") {
+>>>>>>> 6f0dd6179 (fix(exec): restore two-phase approval registration flow)
         return { decision: "allow-once" };
       }
       if (method === "node.invoke") {
@@ -181,5 +187,89 @@ describe("exec approvals", () => {
     expect(result.details.status).toBe("approval-pending");
     await approvalSeen;
     expect(calls).toContain("exec.approval.request");
+    expect(calls).toContain("exec.approval.waitDecision");
   });
+<<<<<<< HEAD
+=======
+
+  it("denies node obfuscated command when approval request times out", async () => {
+    vi.mocked(detectCommandObfuscation).mockReturnValue({
+      detected: true,
+      reasons: ["Content piped directly to shell interpreter"],
+      matchedPatterns: ["pipe-to-shell"],
+    });
+
+    const calls: string[] = [];
+    vi.mocked(callGatewayTool).mockImplementation(async (method) => {
+      calls.push(method);
+      if (method === "exec.approval.request") {
+        return { status: "accepted", id: "approval-id" };
+      }
+      if (method === "exec.approval.waitDecision") {
+        return {};
+      }
+      if (method === "node.invoke") {
+        return { payload: { success: true, stdout: "should-not-run" } };
+      }
+      return { ok: true };
+    });
+
+    const tool = createExecTool({
+      host: "node",
+      ask: "off",
+      security: "full",
+      approvalRunningNoticeMs: 0,
+    });
+
+    const result = await tool.execute("call5", { command: "echo hi | sh" });
+    expect(result.details.status).toBe("approval-pending");
+    await expect.poll(() => calls.filter((call) => call === "node.invoke").length).toBe(0);
+  });
+
+  it("denies gateway obfuscated command when approval request times out", async () => {
+    if (process.platform === "win32") {
+      return;
+    }
+
+    vi.mocked(detectCommandObfuscation).mockReturnValue({
+      detected: true,
+      reasons: ["Content piped directly to shell interpreter"],
+      matchedPatterns: ["pipe-to-shell"],
+    });
+
+    vi.mocked(callGatewayTool).mockImplementation(async (method) => {
+      if (method === "exec.approval.request") {
+        return { status: "accepted", id: "approval-id" };
+      }
+      if (method === "exec.approval.waitDecision") {
+        return {};
+      }
+      return { ok: true };
+    });
+
+    const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-test-obf-"));
+    const markerPath = path.join(tempDir, "ran.txt");
+    const tool = createExecTool({
+      host: "gateway",
+      ask: "off",
+      security: "full",
+      approvalRunningNoticeMs: 0,
+    });
+
+    const result = await tool.execute("call6", {
+      command: `echo touch ${JSON.stringify(markerPath)} | sh`,
+    });
+    expect(result.details.status).toBe("approval-pending");
+    await expect
+      .poll(async () => {
+        try {
+          await fs.access(markerPath);
+          return true;
+        } catch {
+          return false;
+        }
+      })
+      .toBe(false);
+  });
+>>>>>>> 6f0dd6179 (fix(exec): restore two-phase approval registration flow)
 });
