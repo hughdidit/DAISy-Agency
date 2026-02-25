@@ -336,7 +336,42 @@ export async function prepareSlackMessage(params: {
     token: ctx.botToken,
     maxBytes: ctx.mediaMaxBytes,
   });
+<<<<<<< HEAD
   const rawBody = (message.text ?? "").trim() || media?.placeholder || "";
+=======
+
+  // Resolve forwarded message content (text + media) from Slack attachments
+  const attachmentContent = await resolveSlackAttachmentContent({
+    attachments: message.attachments,
+    token: ctx.botToken,
+    maxBytes: ctx.mediaMaxBytes,
+  });
+
+  // Merge forwarded media into the message's media array
+  const mergedMedia = [...(media ?? []), ...(attachmentContent?.media ?? [])];
+  const effectiveDirectMedia = mergedMedia.length > 0 ? mergedMedia : null;
+
+  const mediaPlaceholder = effectiveDirectMedia
+    ? effectiveDirectMedia.map((m) => m.placeholder).join(" ")
+    : undefined;
+
+  // When files were attached but all downloads failed, create a fallback
+  // placeholder so the message is still delivered to the agent instead of
+  // being silently dropped (#25064).
+  const fileOnlyFallback =
+    !mediaPlaceholder && (message.files?.length ?? 0) > 0
+      ? message
+          .files!.slice(0, MAX_SLACK_MEDIA_FILES)
+          .map((f) => f.name?.trim() || "file")
+          .join(", ")
+      : undefined;
+  const fileOnlyPlaceholder = fileOnlyFallback ? `[Slack file: ${fileOnlyFallback}]` : undefined;
+
+  const rawBody =
+    [(message.text ?? "").trim(), attachmentContent?.text, mediaPlaceholder, fileOnlyPlaceholder]
+      .filter(Boolean)
+      .join("\n") || "";
+>>>>>>> b247cd6d6 (fix: harden Slack file-only fallback placeholder (#25181) (thanks @justinhuangcode))
   if (!rawBody) {
     return null;
   }
