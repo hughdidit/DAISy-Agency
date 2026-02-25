@@ -80,6 +80,7 @@
     "@sinclair/typebox": "0.34.48",
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     "openai": "^6.19.0"
 >>>>>>> fa21050af (chore: Update deps.)
 =======
@@ -91,6 +92,9 @@
   },
   "devDependencies": {
     "openclaw": "workspace:*"
+=======
+    "openai": "^6.25.0"
+>>>>>>> 8470dff61 (chore(deps): update dependencies except carbon)
   },
   "openclaw": {
     "extensions": [

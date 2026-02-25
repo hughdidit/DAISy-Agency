@@ -60,7 +60,16 @@
   "description": "OpenClaw Google Chat channel plugin",
 >>>>>>> 85cd55e22 (chore: bump to 2026.2.1)
   "type": "module",
+<<<<<<< HEAD
   "description": "OpenClaw Google Chat channel plugin",
+=======
+  "dependencies": {
+    "google-auth-library": "^10.6.1"
+  },
+  "peerDependencies": {
+    "openclaw": ">=2026.1.26"
+  },
+>>>>>>> 8470dff61 (chore(deps): update dependencies except carbon)
   "openclaw": {
     "extensions": [
       "./index.ts"
