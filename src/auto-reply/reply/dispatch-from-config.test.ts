@@ -406,6 +406,8 @@ describe("dispatchReplyFromConfig", () => {
       SenderUsername: "alice",
       SenderE164: "+15555550123",
       AccountId: "acc-1",
+      GroupSpace: "guild-123",
+      GroupChannel: "alerts",
     });
 
     const replyResolver = async () => ({ text: "hi" }) satisfies ReplyPayload;
@@ -424,6 +426,8 @@ describe("dispatchReplyFromConfig", () => {
           senderName: "Alice",
           senderUsername: "alice",
           senderE164: "+15555550123",
+          guildId: "guild-123",
+          channelName: "alerts",
         }),
       }),
       expect.objectContaining({
@@ -444,6 +448,8 @@ describe("dispatchReplyFromConfig", () => {
       SessionKey: "agent:main:main",
       CommandBody: "/help",
       MessageSid: "msg-42",
+      GroupSpace: "guild-456",
+      GroupChannel: "ops-room",
     });
 
     const replyResolver = async () => ({ text: "hi" }) satisfies ReplyPayload;
@@ -458,6 +464,10 @@ describe("dispatchReplyFromConfig", () => {
         content: "/help",
         channelId: "telegram",
         messageId: "msg-42",
+        metadata: expect.objectContaining({
+          guildId: "guild-456",
+          channelName: "ops-room",
+        }),
       }),
     );
     expect(internalHookMocks.triggerInternalHook).toHaveBeenCalledTimes(1);
