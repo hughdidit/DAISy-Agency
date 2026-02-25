@@ -44,6 +44,7 @@ import { escapeRegExp } from "../utils.js";
 import { formatErrorMessage, hasErrnoCode } from "./errors.js";
 import { isWithinActiveHours } from "./heartbeat-active-hours.js";
 import {
+  buildExecEventPrompt,
   buildCronEventPrompt,
   isCronSystemEvent,
   isExecCompletionEvent,
@@ -94,6 +95,7 @@ export type HeartbeatSummary = {
   ackMaxChars: number;
 };
 
+<<<<<<< HEAD
 const DEFAULT_HEARTBEAT_TARGET = "last";
 
 // Prompt used when an async exec has completed and the result should be relayed to the user.
@@ -123,6 +125,9 @@ function buildCronEventPrompt(pendingEvents: string[]): string {
   );
 }
 =======
+=======
+const DEFAULT_HEARTBEAT_TARGET = "none";
+>>>>>>> e2362d352 (fix(heartbeat): default target none and internalize relay prompts)
 export { isCronSystemEvent };
 >>>>>>> 5a431f57f (refactor(infra): split heartbeat event filters)
 
@@ -655,12 +660,12 @@ export async function runHeartbeatOnce(opts: {
   if (delivery.reason === "unknown-account") {
     log.warn("heartbeat: unknown accountId", {
       accountId: delivery.accountId ?? heartbeatAccountId ?? null,
-      target: heartbeat?.target ?? "last",
+      target: heartbeat?.target ?? "none",
     });
   } else if (heartbeatAccountId) {
     log.info("heartbeat: using explicit accountId", {
       accountId: delivery.accountId ?? heartbeatAccountId,
-      target: heartbeat?.target ?? "last",
+      target: heartbeat?.target ?? "none",
       channel: delivery.channel,
     });
   }
@@ -705,11 +710,21 @@ export async function runHeartbeatOnce(opts: {
     .map((event) => event.text);
   const hasExecCompletion = pendingEvents.some(isExecCompletionEvent);
   const hasCronEvents = cronEvents.length > 0;
+<<<<<<< HEAD
 >>>>>>> 4c4d2558e (fix (heartbeat/cron): preserve cron prompts for tagged interval events)
+=======
+  const canRelayToUser = Boolean(
+    delivery.channel !== "none" && delivery.to && visibility.showAlerts,
+  );
+>>>>>>> e2362d352 (fix(heartbeat): default target none and internalize relay prompts)
   const prompt = hasExecCompletion
-    ? EXEC_EVENT_PROMPT
+    ? buildExecEventPrompt({ deliverToUser: canRelayToUser })
     : hasCronEvents
+<<<<<<< HEAD
       ? buildCronEventPrompt(pendingEvents)
+=======
+      ? buildCronEventPrompt(cronEvents, { deliverToUser: canRelayToUser })
+>>>>>>> e2362d352 (fix(heartbeat): default target none and internalize relay prompts)
       : resolveHeartbeatPrompt(cfg, heartbeat);
   const ctx = {
     Body: appendCronStyleCurrentTimeLine(prompt, cfg, startedAt),
