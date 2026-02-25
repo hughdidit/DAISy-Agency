@@ -188,6 +188,21 @@ export type SessionInitResult = {
   triggerBodyNormalized: string;
 };
 
+/**
+ * Default max parent token count beyond which thread/session parent forking is skipped.
+ * This prevents new thread sessions from inheriting near-full parent context.
+ * See #26905.
+ */
+const DEFAULT_PARENT_FORK_MAX_TOKENS = 100_000;
+
+function resolveParentForkMaxTokens(cfg: OpenClawConfig): number {
+  const configured = cfg.session?.parentForkMaxTokens;
+  if (typeof configured === "number" && Number.isFinite(configured) && configured >= 0) {
+    return Math.floor(configured);
+  }
+  return DEFAULT_PARENT_FORK_MAX_TOKENS;
+}
+
 function forkSessionFromParent(params: {
   parentEntry: SessionEntry;
 }): { sessionId: string; sessionFile: string } | null {
@@ -251,6 +266,7 @@ export async function initSessionState(params: {
   const resetTriggers = sessionCfg?.resetTriggers?.length
     ? sessionCfg.resetTriggers
     : DEFAULT_RESET_TRIGGERS;
+  const parentForkMaxTokens = resolveParentForkMaxTokens(cfg);
   const sessionScope = sessionCfg?.scope ?? "per-sender";
   const storePath = resolveStorePath(sessionCfg?.store, { agentId });
 
@@ -484,6 +500,7 @@ export async function initSessionState(params: {
     !alreadyForked
   ) {
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
     log.warn(
       `forking from parent session: parentKey=${parentSessionKey} → sessionKey=${sessionKey} ` +
@@ -505,6 +522,35 @@ export async function initSessionState(params: {
 >>>>>>> 5e73f3344 (fix(slack): keep thread session fork/history context after first turn (#23843))
       log.warn(`forked session created: file=${forked.sessionFile}`);
 >>>>>>> 2f46308d5 (refactor(logging): migrate non-agent internal console calls to subsystem logger (#22964))
+=======
+    const parentTokens = sessionStore[parentSessionKey].totalTokens ?? 0;
+    if (parentForkMaxTokens > 0 && parentTokens > parentForkMaxTokens) {
+      // Parent context is too large — forking would create a thread session
+      // that immediately overflows the model's context window. Start fresh
+      // instead and mark as forked to prevent re-attempts. See #26905.
+      log.warn(
+        `skipping parent fork (parent too large): parentKey=${parentSessionKey} → sessionKey=${sessionKey} ` +
+          `parentTokens=${parentTokens} maxTokens=${parentForkMaxTokens}`,
+      );
+      sessionEntry.forkedFromParent = true;
+    } else {
+      log.warn(
+        `forking from parent session: parentKey=${parentSessionKey} → sessionKey=${sessionKey} ` +
+          `parentTokens=${parentTokens}`,
+      );
+      const forked = forkSessionFromParent({
+        parentEntry: sessionStore[parentSessionKey],
+        agentId,
+        sessionsDir: path.dirname(storePath),
+      });
+      if (forked) {
+        sessionId = forked.sessionId;
+        sessionEntry.sessionId = forked.sessionId;
+        sessionEntry.sessionFile = forked.sessionFile;
+        sessionEntry.forkedFromParent = true;
+        log.warn(`forked session created: file=${forked.sessionFile}`);
+      }
+>>>>>>> eb73e87f1 (fix(session): prevent silent overflow on parent thread forks (#26912))
     }
   }
   const fallbackSessionFile = !sessionEntry.sessionFile
