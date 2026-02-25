@@ -25,7 +25,11 @@ import type { Page } from "playwright-core";
 import type { Page } from "playwright-core";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { resolvePreferredOpenClawTmpDir } from "../infra/tmp-openclaw-dir.js";
+<<<<<<< HEAD
 >>>>>>> b02c88d3e (Browser/Logging: share default openclaw tmp dir resolver)
+=======
+import { DEFAULT_UPLOAD_DIR, resolveStrictExistingPathsWithinRoot } from "./paths.js";
+>>>>>>> ef326f5cd (fix(browser): revalidate upload paths at use time)
 import {
   ensurePageState,
   getPageForTargetId,
@@ -164,7 +168,20 @@ export async function armFileUploadViaPlaywright(opts: {
         }
         return;
       }
-      await fileChooser.setFiles(opts.paths);
+      const uploadPathsResult = await resolveStrictExistingPathsWithinRoot({
+        rootDir: DEFAULT_UPLOAD_DIR,
+        requestedPaths: opts.paths,
+        scopeLabel: `uploads directory (${DEFAULT_UPLOAD_DIR})`,
+      });
+      if (!uploadPathsResult.ok) {
+        try {
+          await page.keyboard.press("Escape");
+        } catch {
+          // Best-effort.
+        }
+        return;
+      }
+      await fileChooser.setFiles(uploadPathsResult.paths);
       try {
         const input =
           typeof fileChooser.element === "function"
