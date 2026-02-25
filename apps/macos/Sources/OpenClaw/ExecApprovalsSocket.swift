@@ -372,7 +372,24 @@ private enum ExecHostExecutor {
                 reason: "invalid")
         }
 
-        let context = await self.buildContext(request: request, command: command)
+        let validatedCommand = ExecSystemRunCommandValidator.resolve(
+            command: command,
+            rawCommand: request.rawCommand)
+        let displayCommand: String
+        switch validatedCommand {
+        case .ok(let resolved):
+            displayCommand = resolved.displayCommand
+        case .invalid(let message):
+            return self.errorResponse(
+                code: "INVALID_REQUEST",
+                message: message,
+                reason: "invalid")
+        }
+
+        let context = await self.buildContext(
+            request: request,
+            command: command,
+            rawCommand: displayCommand)
         if context.security == .deny {
             return self.errorResponse(
                 code: "UNAVAILABLE",
@@ -453,6 +470,7 @@ private enum ExecHostExecutor {
             timeoutMs: request.timeoutMs)
     }
 
+<<<<<<< HEAD
     private static func buildContext(request: ExecHostRequest, command: [String]) async -> ExecApprovalContext {
         let displayCommand = ExecCommandFormatter.displayString(
             for: command,
@@ -465,8 +483,16 @@ private enum ExecHostExecutor {
         let autoAllowSkills = approvals.agent.autoAllowSkills
         let env = self.sanitizedEnv(request.env)
         let resolution = ExecCommandResolution.resolve(
+=======
+    private static func buildContext(
+        request: ExecHostRequest,
+        command: [String],
+        rawCommand: String?) async -> ExecApprovalContext
+    {
+        await ExecApprovalEvaluator.evaluate(
+>>>>>>> 55cf92578 (fix(security): harden system.run companion command binding)
             command: command,
-            rawCommand: request.rawCommand,
+            rawCommand: rawCommand,
             cwd: request.cwd,
             env: env)
         let allowlistMatch = security == .allowlist
