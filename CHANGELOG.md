@@ -92,6 +92,7 @@ Docs: https://docs.openclaw.ai
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 - Security/Shell env fallback: remove trusted-prefix shell-path fallback and only trust login shells explicitly registered in `/etc/shells`, defaulting to `/bin/sh` when `SHELL` is not registered. This ships in the next npm release. Thanks @tdjackey for reporting.
@@ -230,6 +231,9 @@ Docs: https://docs.openclaw.ai
 - Security/Sandbox media: restrict sandbox media tmp-path allowances to OpenClaw-managed tmp roots instead of broad host `os.tmpdir()` trust, and add outbound/channel guardrails (tmp-path lint + media-root smoke tests) to prevent regressions in local media attachment reads.
 =======
 =======
+=======
+- macOS/Gateway launch: prefer an available `openclaw` binary before pnpm/node runtime fallback when resolving local gateway commands, so local startup no longer fails on hosts with broken runtime discovery. (#25512) Thanks @chilu18.
+>>>>>>> 31e6d1853 (fix(macos): prefer openclaw binary while keeping pnpm fallback (#25512))
 - macOS/Voice input: guard all audio-input startup paths against missing default microphones (Voice Wake, Talk Mode, Push-to-Talk, mic-level monitor, tester) to avoid launch/runtime crashes on mic-less Macs and fail gracefully until input becomes available. (#25817) Thanks @sfo2001.
 >>>>>>> 236b22b6a (fix(macos): guard voice audio paths with no input device (#25817))
 - Gateway/Security: enforce gateway auth for the exact `/api/channels` plugin root path (plus `/api/channels/` descendants), with regression coverage for query/trailing-slash variants and near-miss paths that must remain plugin-owned. (#25753) Thanks @bmendonca3.
