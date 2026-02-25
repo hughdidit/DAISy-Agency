@@ -2,8 +2,17 @@
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ## 2026.2.13
 =======
+=======
+## 2026.2.25
+
+### Changes
+
+- Version alignment with core OpenClaw release numbers.
+
+>>>>>>> 2652bb1d7 (Release: sync plugin versions to 2026.2.25)
 ## 2026.2.24
 
 ### Changes
