@@ -154,6 +154,7 @@ Docs: https://docs.openclaw.ai
 >>>>>>> fd07861bc (fix(ios): harden team-id profile fallback and tests)
 - CLI/Doctor: correct stale recovery hints to use valid commands (`openclaw gateway status --deep` and `openclaw configure --section model`). (#24485) Thanks @chilu18.
 <<<<<<< HEAD
+<<<<<<< HEAD
 - Doctor/Nix: skip false-positive permission warnings for Nix store symlinks in state-integrity checks. (#24901)
 - Update/Systemd: back up an existing systemd unit before overwriting it during update flows. (#24350, #24937)
 - Install/Global detection: resolve symlinks when detecting pnpm/bun global install paths. (#24744)
@@ -184,6 +185,11 @@ Docs: https://docs.openclaw.ai
 =======
 - Security/Sandbox: canonicalize bind-mount source paths via existing-ancestor realpath so symlink-parent + non-existent-leaf paths cannot bypass allowed-source-roots or blocked-path checks.
 >>>>>>> b5787e4ab (fix(sandbox): harden bind validation for symlink missing-leaf paths)
+=======
+- CLI/Memory search: accept `--query <text>` for `openclaw memory search` (while keeping positional query support), and emit a clear error when neither form is provided. (#25904, #25857) Thanks @niceysam and @stakeswky.
+- Security/Sandbox: canonicalize bind-mount source paths via existing-ancestor realpath so symlink-parent + non-existent-leaf paths cannot bypass allowed-source-roots or blocked-path checks. Thanks @tdjackey.
+- Doctor/Plugins: auto-enable now resolves third-party channel plugins by manifest plugin id (not channel id), preventing invalid `plugins.entries.<channelId>` writes when ids differ. (#25275) Thanks @zerone0x.
+>>>>>>> 559b5eab7 (fix(cli): support --query in memory search command (#25904))
 
 ## 2026.2.23 (Unreleased)
 
