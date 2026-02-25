@@ -6,10 +6,14 @@ import { convertMarkdownTables } from "../../markdown/tables.js";
 import type { RuntimeEnv } from "../../runtime.js";
 import type { createIMessageRpcClient } from "../client.js";
 import { sendMessageIMessage } from "../send.js";
+<<<<<<< HEAD
 
 type SentMessageCache = {
   remember: (scope: string, text: string) => void;
 };
+=======
+import type { SentMessageCache } from "./echo-cache.js";
+>>>>>>> 5c6b2cbc8 (refactor: extract iMessage echo cache and unify suppression guards)
 
 export async function deliverReplies(params: {
   replies: ReplyPayload[];
@@ -19,7 +23,7 @@ export async function deliverReplies(params: {
   runtime: RuntimeEnv;
   maxBytes: number;
   textLimit: number;
-  sentMessageCache?: SentMessageCache;
+  sentMessageCache?: Pick<SentMessageCache, "remember">;
 }) {
   const { replies, target, client, runtime, maxBytes, textLimit, accountId, sentMessageCache } =
     params;

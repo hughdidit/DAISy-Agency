@@ -44,6 +44,7 @@ import { probeIMessage } from "../probe.js";
 import { sendMessageIMessage } from "../send.js";
 import { attachIMessageMonitorAbortHandler } from "./abort-handler.js";
 import { deliverReplies } from "./deliver.js";
+import { createSentMessageCache } from "./echo-cache.js";
 import {
   buildIMessageInboundContext,
   resolveIMessageInboundDecision,
@@ -80,6 +81,7 @@ async function detectRemoteHostFromCliPath(cliPath: string): Promise<string | un
   }
 }
 
+<<<<<<< HEAD
 /**
  * Cache for recently sent messages, used for echo detection.
  * Keys are scoped by conversation (accountId:target) so the same text in different chats is not conflated.
@@ -125,6 +127,8 @@ class SentMessageCache {
   }
 }
 
+=======
+>>>>>>> 5c6b2cbc8 (refactor: extract iMessage echo cache and unify suppression guards)
 export async function monitorIMessageProvider(opts: MonitorIMessageOpts = {}): Promise<void> {
   const runtime = resolveRuntime(opts);
   const cfg = opts.config ?? loadConfig();
@@ -140,7 +144,7 @@ export async function monitorIMessageProvider(opts: MonitorIMessageOpts = {}): P
       DEFAULT_GROUP_HISTORY_LIMIT,
   );
   const groupHistories = new Map<string, HistoryEntry[]>();
-  const sentMessageCache = new SentMessageCache();
+  const sentMessageCache = createSentMessageCache();
   const textLimit = resolveTextChunkLimit(cfg, "imessage", accountInfo.accountId);
   const allowFrom = normalizeAllowList(opts.allowFrom ?? imessageCfg.allowFrom);
   const groupAllowFrom = normalizeAllowList(
