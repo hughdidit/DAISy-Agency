@@ -232,7 +232,7 @@ describe("resolveHeartbeatDeliveryTarget", () => {
       {
         name: "target defaults to none when unset",
         cfg: {},
-        entry: { ...baseEntry, lastChannel: "whatsapp", lastTo: "+1555" },
+        entry: { ...baseEntry, lastChannel: "whatsapp", lastTo: "120363401234567890@g.us" },
         expected: {
           channel: "none",
           reason: "target-none",
@@ -244,13 +244,15 @@ describe("resolveHeartbeatDeliveryTarget", () => {
       {
         name: "normalize explicit whatsapp target when allowFrom wildcard",
         cfg: {
-          agents: { defaults: { heartbeat: { target: "whatsapp", to: "whatsapp:(555) 123" } } },
+          agents: {
+            defaults: { heartbeat: { target: "whatsapp", to: "whatsapp:120363401234567890@G.US" } },
+          },
           channels: { whatsapp: { allowFrom: ["*"] } },
         },
         entry: baseEntry,
         expected: {
           channel: "whatsapp",
-          to: "+555123",
+          to: "120363401234567890@g.us",
           accountId: undefined,
           lastChannel: undefined,
           lastAccountId: undefined,
@@ -272,7 +274,7 @@ describe("resolveHeartbeatDeliveryTarget", () => {
         name: "reject explicit whatsapp target outside allowFrom",
         cfg: {
           agents: { defaults: { heartbeat: { target: "whatsapp", to: "+1999" } } },
-          channels: { whatsapp: { allowFrom: ["+1555", "+1666"] } },
+          channels: { whatsapp: { allowFrom: ["120363401234567890@g.us", "+1666"] } },
         },
         entry: { ...baseEntry, lastChannel: "whatsapp", lastTo: "+1222" },
         expected: {
@@ -287,7 +289,7 @@ describe("resolveHeartbeatDeliveryTarget", () => {
         name: "normalize prefixed whatsapp group targets",
         cfg: {
           agents: { defaults: { heartbeat: { target: "last" } } },
-          channels: { whatsapp: { allowFrom: ["+1555"] } },
+          channels: { whatsapp: { allowFrom: ["120363401234567890@g.us"] } },
         },
         entry: {
           ...baseEntry,
@@ -304,11 +306,11 @@ describe("resolveHeartbeatDeliveryTarget", () => {
       },
       {
         name: "keep explicit telegram target",
-        cfg: { agents: { defaults: { heartbeat: { target: "telegram", to: "123" } } } },
+        cfg: { agents: { defaults: { heartbeat: { target: "telegram", to: "-100123" } } } },
         entry: baseEntry,
         expected: {
           channel: "telegram",
-          to: "123",
+          to: "-100123",
           accountId: undefined,
           lastChannel: undefined,
           lastAccountId: undefined,
@@ -337,11 +339,24 @@ describe("resolveHeartbeatDeliveryTarget", () => {
     expect(result.threadId).toBe(42);
   });
 
+<<<<<<< HEAD
   it("heartbeat to without :topic: has no threadId", () => {
     const cfg: OpenClawConfig = {
       agents: {
         defaults: {
           heartbeat: { target: "telegram", to: "-100111" },
+=======
+  it("handles explicit heartbeat accountId allow/deny", () => {
+    const cases = [
+      {
+        accountId: "work",
+        expected: {
+          channel: "telegram",
+          to: "-100123",
+          accountId: "work",
+          lastChannel: undefined,
+          lastAccountId: undefined,
+>>>>>>> 24d7612dd (refactor(heartbeat): harden dm delivery classification)
         },
       },
     };
@@ -350,11 +365,20 @@ describe("resolveHeartbeatDeliveryTarget", () => {
     expect(result.threadId).toBeUndefined();
   });
 
+<<<<<<< HEAD
   it("uses explicit heartbeat accountId when provided", () => {
     const cfg: OpenClawConfig = {
       agents: {
         defaults: {
           heartbeat: { target: "telegram", to: "123", accountId: "work" },
+=======
+    for (const testCase of cases) {
+      const cfg: OpenClawConfig = {
+        agents: {
+          defaults: {
+            heartbeat: { target: "telegram", to: "-100123", accountId: testCase.accountId },
+          },
+>>>>>>> 24d7612dd (refactor(heartbeat): harden dm delivery classification)
         },
       },
       channels: { telegram: { accounts: { work: { botToken: "token" } } } },
@@ -388,9 +412,9 @@ describe("resolveHeartbeatDeliveryTarget", () => {
 
   it("prefers per-agent heartbeat overrides when provided", () => {
     const cfg: OpenClawConfig = {
-      agents: { defaults: { heartbeat: { target: "telegram", to: "123" } } },
+      agents: { defaults: { heartbeat: { target: "telegram", to: "-100123" } } },
     };
-    const heartbeat = { target: "whatsapp", to: "+1555" } as const;
+    const heartbeat = { target: "whatsapp", to: "120363401234567890@g.us" } as const;
     expect(
       resolveHeartbeatDeliveryTarget({
         cfg,
@@ -399,7 +423,7 @@ describe("resolveHeartbeatDeliveryTarget", () => {
       }),
     ).toEqual({
       channel: "whatsapp",
-      to: "+1555",
+      to: "120363401234567890@g.us",
       accountId: undefined,
       lastChannel: "whatsapp",
       lastAccountId: undefined,
@@ -515,7 +539,7 @@ describe("runHeartbeatOnce", () => {
             sessionId: "sid",
             updatedAt: Date.now(),
             lastChannel: "whatsapp",
-            lastTo: "+1555",
+            lastTo: "120363401234567890@g.us",
           },
         }),
       );
@@ -532,7 +556,11 @@ describe("runHeartbeatOnce", () => {
       });
 
       expect(sendWhatsApp).toHaveBeenCalledTimes(1);
-      expect(sendWhatsApp).toHaveBeenCalledWith("+1555", "Final alert", expect.any(Object));
+      expect(sendWhatsApp).toHaveBeenCalledWith(
+        "120363401234567890@g.us",
+        "Final alert",
+        expect.any(Object),
+      );
     } finally {
       replySpy.mockRestore();
     }
@@ -568,7 +596,7 @@ describe("runHeartbeatOnce", () => {
             sessionId: "sid",
             updatedAt: Date.now(),
             lastChannel: "whatsapp",
-            lastTo: "+1555",
+            lastTo: "120363401234567890@g.us",
           },
         }),
       );
@@ -583,13 +611,24 @@ describe("runHeartbeatOnce", () => {
         deps: createHeartbeatDeps(sendWhatsApp),
       });
       expect(sendWhatsApp).toHaveBeenCalledTimes(1);
-      expect(sendWhatsApp).toHaveBeenCalledWith("+1555", "Final alert", expect.any(Object));
+      expect(sendWhatsApp).toHaveBeenCalledWith(
+        "120363401234567890@g.us",
+        "Final alert",
+        expect.any(Object),
+      );
       expect(replySpy).toHaveBeenCalledWith(
         expect.objectContaining({
           Body: expect.stringMatching(/Ops check[\s\S]*Current time: /),
           SessionKey: sessionKey,
+<<<<<<< HEAD
           From: "+1555",
           To: "+1555",
+=======
+          From: "120363401234567890@g.us",
+          To: "120363401234567890@g.us",
+          OriginatingChannel: "whatsapp",
+          OriginatingTo: "120363401234567890@g.us",
+>>>>>>> 24d7612dd (refactor(heartbeat): harden dm delivery classification)
           Provider: "heartbeat",
         }),
         expect.objectContaining({ isHeartbeat: true, suppressToolErrorWarnings: false }),
@@ -638,7 +677,7 @@ describe("runHeartbeatOnce", () => {
             sessionFile,
             updatedAt: Date.now(),
             lastChannel: "whatsapp",
-            lastTo: "+1555",
+            lastTo: "120363401234567890@g.us",
           },
         }),
       );
@@ -656,12 +695,16 @@ describe("runHeartbeatOnce", () => {
 
       expect(result.status).toBe("ran");
       expect(sendWhatsApp).toHaveBeenCalledTimes(1);
-      expect(sendWhatsApp).toHaveBeenCalledWith("+1555", "Final alert", expect.any(Object));
+      expect(sendWhatsApp).toHaveBeenCalledWith(
+        "120363401234567890@g.us",
+        "Final alert",
+        expect.any(Object),
+      );
       expect(replySpy).toHaveBeenCalledWith(
         expect.objectContaining({
           SessionKey: sessionKey,
-          From: "+1555",
-          To: "+1555",
+          From: "120363401234567890@g.us",
+          To: "120363401234567890@g.us",
           Provider: "heartbeat",
         }),
         expect.objectContaining({ isHeartbeat: true, suppressToolErrorWarnings: false }),
@@ -702,8 +745,8 @@ describe("runHeartbeatOnce", () => {
         {
           name: "runHeartbeatOnce sessionKey arg",
           caseDir: "hb-forced-session-override",
-          peerKind: "direct" as const,
-          peerId: "+15559990000",
+          peerKind: "group" as const,
+          peerId: "120363401234567891@g.us",
           message: "Forced alert",
           applyOverride: () => {},
           runOptions: ({ sessionKey }: { sessionKey: string }) => ({ sessionKey }),
@@ -743,7 +786,7 @@ describe("runHeartbeatOnce", () => {
               sessionId: "sid-main",
               updatedAt: Date.now(),
               lastChannel: "whatsapp",
-              lastTo: "+1555",
+              lastTo: "120363401234567890@g.us",
             },
             [overrideSessionKey]: {
               sessionId: `sid-${testCase.peerKind}`,
@@ -812,7 +855,7 @@ describe("runHeartbeatOnce", () => {
             sessionId: "sid",
             updatedAt: Date.now(),
             lastChannel: "whatsapp",
-            lastTo: "+1555",
+            lastTo: "120363401234567890@g.us",
             lastHeartbeatText: "Final alert",
             lastHeartbeatSentAt: 0,
           },
@@ -885,7 +928,7 @@ describe("runHeartbeatOnce", () => {
               updatedAt: Date.now(),
               lastChannel: "whatsapp",
               lastProvider: "whatsapp",
-              lastTo: "+1555",
+              lastTo: "120363401234567890@g.us",
             },
           }),
         );
@@ -905,7 +948,7 @@ describe("runHeartbeatOnce", () => {
         for (const [index, text] of testCase.expectedTexts.entries()) {
           expect(sendWhatsApp, testCase.name).toHaveBeenNthCalledWith(
             index + 1,
-            "+1555",
+            "120363401234567890@g.us",
             text,
             expect.any(Object),
           );
@@ -942,7 +985,7 @@ describe("runHeartbeatOnce", () => {
             updatedAt: Date.now(),
             lastChannel: "whatsapp",
             lastProvider: "whatsapp",
-            lastTo: "+1555",
+            lastTo: "120363401234567890@g.us",
           },
         }),
       );
@@ -960,7 +1003,7 @@ describe("runHeartbeatOnce", () => {
 
       expect(sendWhatsApp).toHaveBeenCalledTimes(1);
       expect(sendWhatsApp).toHaveBeenCalledWith(
-        "+1555",
+        "120363401234567890@g.us",
         "Hello from heartbeat",
         expect.any(Object),
       );
@@ -1289,7 +1332,7 @@ describe("runHeartbeatOnce", () => {
           sessionId: "sid",
           updatedAt: Date.now(),
           lastChannel: "whatsapp",
-          lastTo: "+1555",
+          lastTo: "120363401234567890@g.us",
         },
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -1492,7 +1535,7 @@ describe("runHeartbeatOnce", () => {
           sessionId: "sid",
           updatedAt: Date.now(),
           lastChannel: "whatsapp",
-          lastTo: "+1555",
+          lastTo: "120363401234567890@g.us",
         },
       }),
     );
@@ -1545,7 +1588,7 @@ describe("runHeartbeatOnce", () => {
           sessionId: "sid",
           updatedAt: Date.now(),
           lastChannel: "whatsapp",
-          lastTo: "+1555",
+          lastTo: "120363401234567890@g.us",
         },
       }),
     );

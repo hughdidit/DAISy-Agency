@@ -587,7 +587,44 @@ async function resolveHeartbeatPreflight(params: {
   return basePreflight;
 }
 
+<<<<<<< HEAD
 >>>>>>> cf4ffff3e (fix(heartbeat): run when HEARTBEAT.md is missing)
+=======
+type HeartbeatPromptResolution = {
+  prompt: string;
+  hasExecCompletion: boolean;
+  hasCronEvents: boolean;
+};
+
+function resolveHeartbeatRunPrompt(params: {
+  cfg: OpenClawConfig;
+  heartbeat?: HeartbeatConfig;
+  preflight: HeartbeatPreflight;
+  canRelayToUser: boolean;
+}): HeartbeatPromptResolution {
+  const pendingEventEntries = params.preflight.pendingEventEntries;
+  const pendingEvents = params.preflight.shouldInspectPendingEvents
+    ? pendingEventEntries.map((event) => event.text)
+    : [];
+  const cronEvents = pendingEventEntries
+    .filter(
+      (event) =>
+        (params.preflight.isCronEventReason || event.contextKey?.startsWith("cron:")) &&
+        isCronSystemEvent(event.text),
+    )
+    .map((event) => event.text);
+  const hasExecCompletion = pendingEvents.some(isExecCompletionEvent);
+  const hasCronEvents = cronEvents.length > 0;
+  const prompt = hasExecCompletion
+    ? buildExecEventPrompt({ deliverToUser: params.canRelayToUser })
+    : hasCronEvents
+      ? buildCronEventPrompt(cronEvents, { deliverToUser: params.canRelayToUser })
+      : resolveHeartbeatPrompt(params.cfg, params.heartbeat);
+
+  return { prompt, hasExecCompletion, hasCronEvents };
+}
+
+>>>>>>> 24d7612dd (refactor(heartbeat): harden dm delivery classification)
 export async function runHeartbeatOnce(opts: {
   cfg?: OpenClawConfig;
   agentId?: string;
@@ -652,8 +689,23 @@ export async function runHeartbeatOnce(opts: {
     cfg,
     agentId,
     heartbeat,
+<<<<<<< HEAD
     opts.sessionKey,
   );
+=======
+    forcedSessionKey: opts.sessionKey,
+    reason: opts.reason,
+  });
+  if (preflight.skipReason) {
+    emitHeartbeatEvent({
+      status: "skipped",
+      reason: preflight.skipReason,
+      durationMs: Date.now() - startedAt,
+    });
+    return { status: "skipped", reason: preflight.skipReason };
+  }
+  const { entry, sessionKey, storePath } = preflight.session;
+>>>>>>> 24d7612dd (refactor(heartbeat): harden dm delivery classification)
   const previousUpdatedAt = entry?.updatedAt;
   const delivery = resolveHeartbeatDeliveryTarget({ cfg, entry, heartbeat });
   const heartbeatAccountId = heartbeat?.accountId?.trim();
@@ -683,6 +735,7 @@ export async function runHeartbeatOnce(opts: {
     accountId: delivery.accountId,
   }).responsePrefix;
 
+<<<<<<< HEAD
   // Check if this is an exec event or cron event with pending system events.
   // If so, use a specialized prompt that instructs the model to relay the result
   // instead of the standard heartbeat prompt with "reply HEARTBEAT_OK".
@@ -726,6 +779,17 @@ export async function runHeartbeatOnce(opts: {
       ? buildCronEventPrompt(cronEvents, { deliverToUser: canRelayToUser })
 >>>>>>> e2362d352 (fix(heartbeat): default target none and internalize relay prompts)
       : resolveHeartbeatPrompt(cfg, heartbeat);
+=======
+  const canRelayToUser = Boolean(
+    delivery.channel !== "none" && delivery.to && visibility.showAlerts,
+  );
+  const { prompt, hasExecCompletion, hasCronEvents } = resolveHeartbeatRunPrompt({
+    cfg,
+    heartbeat,
+    preflight,
+    canRelayToUser,
+  });
+>>>>>>> 24d7612dd (refactor(heartbeat): harden dm delivery classification)
   const ctx = {
     Body: appendCronStyleCurrentTimeLine(prompt, cfg, startedAt),
     From: sender,
