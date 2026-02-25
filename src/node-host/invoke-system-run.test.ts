@@ -121,7 +121,37 @@ describe("handleSystemRunInvoke mac app exec host routing", () => {
     );
   });
 
+<<<<<<< HEAD
   it("runs canonical argv in allowlist mode for transparent env wrappers", async () => {
+=======
+  it("forwards canonical cmdText to mac app exec host for positional-argv shell wrappers", async () => {
+    const { runViaMacAppExecHost } = await runSystemInvoke({
+      preferMacAppExecHost: true,
+      command: ["/bin/sh", "-lc", '$0 "$1"', "/usr/bin/touch", "/tmp/marker"],
+      runViaResponse: {
+        ok: true,
+        payload: {
+          success: true,
+          stdout: "app-ok",
+          stderr: "",
+          timedOut: false,
+          exitCode: 0,
+          error: null,
+        },
+      },
+    });
+
+    expect(runViaMacAppExecHost).toHaveBeenCalledWith({
+      approvals: expect.anything(),
+      request: expect.objectContaining({
+        command: ["/bin/sh", "-lc", '$0 "$1"', "/usr/bin/touch", "/tmp/marker"],
+        rawCommand: '/bin/sh -lc "$0 \\"$1\\"" /usr/bin/touch /tmp/marker',
+      }),
+    });
+  });
+
+  it("handles transparent env wrappers in allowlist mode", async () => {
+>>>>>>> 55cf92578 (fix(security): harden system.run companion command binding)
     const { runCommand, sendInvokeResult } = await runSystemInvoke({
       preferMacAppExecHost: false,
       security: "allowlist",

@@ -320,7 +320,6 @@ export async function handleSystemRunInvoke(opts: HandleSystemRunInvokeOptions):
   }
 
   const argv = command.argv;
-  const rawCommand = command.rawCommand ?? "";
   const shellCommand = command.shellCommand;
   const cmdText = command.cmdText;
   const agentId = opts.params.agentId?.trim() || undefined;
@@ -512,7 +511,9 @@ export async function handleSystemRunInvoke(opts: HandleSystemRunInvokeOptions):
         : null;
     const execRequest: ExecHostRequest = {
       command: plannedAllowlistArgv ?? argv,
-      rawCommand: rawCommand || shellCommand || null,
+      // Forward canonical display text so companion approval/prompt surfaces bind to
+      // the exact command context already validated on the node-host.
+      rawCommand: cmdText || null,
       cwd: opts.params.cwd ?? null,
       env: envOverrides ?? null,
       timeoutMs: opts.params.timeoutMs ?? null,
