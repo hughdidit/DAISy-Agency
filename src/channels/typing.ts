@@ -24,6 +24,7 @@ export function createTypingCallbacks(params: {
   const fireStart = async () => {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> d42ef2ac6 (refactor: consolidate typing lifecycle and queue policy)
 =======
     if (closed) return;
@@ -31,6 +32,11 @@ export function createTypingCallbacks(params: {
 =======
     if (closed) { return; }
 >>>>>>> ae658aa84 (style: add curly braces to satisfy eslint(curly))
+=======
+    if (closed) {
+      return;
+    }
+>>>>>>> a182afcf9 (style: expand curly braces per oxfmt)
     try {
       await params.start();
     } catch (err) {
