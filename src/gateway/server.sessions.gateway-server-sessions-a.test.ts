@@ -200,6 +200,8 @@ describe("gateway server sessions", () => {
         main: {
           sessionId: "sess-main",
           updatedAt: recent,
+          modelProvider: "anthropic",
+          model: "claude-sonnet-4-6",
           inputTokens: 10,
           outputTokens: 20,
           thinkingLevel: "low",
@@ -452,11 +454,18 @@ describe("gateway server sessions", () => {
     const reset = await rpcReq<{
       ok: true;
       key: string;
-      entry: { sessionId: string };
+      entry: { sessionId: string; modelProvider?: string; model?: string };
     }>(ws, "sessions.reset", { key: "agent:main:main" });
     expect(reset.ok).toBe(true);
     expect(reset.payload?.key).toBe("agent:main:main");
     expect(reset.payload?.entry.sessionId).not.toBe("sess-main");
+<<<<<<< HEAD
+=======
+    expect(reset.payload?.entry.modelProvider).toBe("anthropic");
+    expect(reset.payload?.entry.model).toBe("claude-sonnet-4-6");
+    const filesAfterReset = await fs.readdir(dir);
+    expect(filesAfterReset.some((f) => f.startsWith("sess-main.jsonl.reset."))).toBe(true);
+>>>>>>> 177386ed7 (fix(tui): resolve wrong provider prefix when session has model without modelProvider (#25874))
 
     const badThinking = await rpcReq(ws, "sessions.patch", {
       key: "agent:main:main",

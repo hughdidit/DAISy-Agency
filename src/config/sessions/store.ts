@@ -68,7 +68,11 @@ import type { SessionMaintenanceConfig, SessionMaintenanceMode } from "../types.
 import { enforceSessionDiskBudget, type SessionDiskBudgetSweepResult } from "./disk-budget.js";
 >>>>>>> eff3c5c70 (Session/Cron maintenance hardening and cleanup UX (#24753))
 import { deriveSessionMetaPatch } from "./metadata.js";
-import { mergeSessionEntry, type SessionEntry } from "./types.js";
+import {
+  mergeSessionEntry,
+  normalizeSessionRuntimeModelFields,
+  type SessionEntry,
+} from "./types.js";
 
 // ============================================================================
 // Session Store Cache with TTL Support
@@ -204,7 +208,7 @@ function normalizeSessionStore(store: Record<string, SessionEntry>): void {
     if (!entry) {
       continue;
     }
-    const normalized = normalizeSessionEntryDelivery(entry);
+    const normalized = normalizeSessionEntryDelivery(normalizeSessionRuntimeModelFields(entry));
     if (normalized !== entry) {
       store[key] = normalized;
     }
