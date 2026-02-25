@@ -210,6 +210,89 @@ class SandboxFsBridgeImpl implements SandboxFsBridge {
         `Sandbox workspace (${this.sandbox.workspaceAccess}) does not allow ${action}.`,
       );
     }
+<<<<<<< HEAD
+=======
+
+    await assertNoHostSymlinkEscape({
+      absolutePath: target.hostPath,
+      rootPath: lexicalMount.hostRoot,
+      allowFinalSymlink: options.allowFinalSymlink === true,
+    });
+
+    const canonicalContainerPath = await this.resolveCanonicalContainerPath({
+      containerPath: target.containerPath,
+      allowFinalSymlink: options.allowFinalSymlink === true,
+    });
+    const canonicalMount = this.resolveMountByContainerPath(canonicalContainerPath);
+    if (!canonicalMount) {
+      throw new Error(
+        `Sandbox path escapes allowed mounts; cannot ${options.action}: ${target.containerPath}`,
+      );
+    }
+    if (options.requireWritable && !canonicalMount.writable) {
+      throw new Error(
+        `Sandbox path is read-only; cannot ${options.action}: ${target.containerPath}`,
+      );
+    }
+  }
+
+  private resolveMountByContainerPath(containerPath: string): SandboxFsMount | null {
+    const normalized = normalizeContainerPath(containerPath);
+    for (const mount of this.mountsByContainer) {
+      if (isPathInsidePosix(normalizeContainerPath(mount.containerRoot), normalized)) {
+        return mount;
+      }
+    }
+    return null;
+  }
+
+  private async resolveCanonicalContainerPath(params: {
+    containerPath: string;
+    allowFinalSymlink: boolean;
+  }): Promise<string> {
+    const script = [
+      "set -eu",
+      'target="$1"',
+      'allow_final="$2"',
+      'suffix=""',
+      'probe="$target"',
+      'if [ "$allow_final" = "1" ] && [ -L "$target" ]; then probe=$(dirname -- "$target"); fi',
+      'cursor="$probe"',
+      'while [ ! -e "$cursor" ] && [ ! -L "$cursor" ]; do',
+      '  parent=$(dirname -- "$cursor")',
+      '  if [ "$parent" = "$cursor" ]; then break; fi',
+      '  base=$(basename -- "$cursor")',
+      '  suffix="/$base$suffix"',
+      '  cursor="$parent"',
+      "done",
+      'canonical=$(readlink -f -- "$cursor")',
+      'printf "%s%s\\n" "$canonical" "$suffix"',
+    ].join("\n");
+    const result = await this.runCommand(script, {
+      args: [params.containerPath, params.allowFinalSymlink ? "1" : "0"],
+    });
+    const canonical = result.stdout.toString("utf8").trim();
+    if (!canonical.startsWith("/")) {
+      throw new Error(`Failed to resolve canonical sandbox path: ${params.containerPath}`);
+    }
+    return normalizeContainerPath(canonical);
+  }
+
+  private ensureWriteAccess(target: SandboxResolvedFsPath, action: string) {
+    if (!allowsWrites(this.sandbox.workspaceAccess) || !target.writable) {
+      throw new Error(`Sandbox path is read-only; cannot ${action}: ${target.containerPath}`);
+    }
+  }
+
+  private resolveResolvedPath(params: { filePath: string; cwd?: string }): SandboxResolvedFsPath {
+    return resolveSandboxFsPathWithMounts({
+      filePath: params.filePath,
+      cwd: params.cwd ?? this.sandbox.workspaceDir,
+      defaultWorkspaceRoot: this.sandbox.workspaceDir,
+      defaultContainerRoot: this.sandbox.containerWorkdir,
+      mounts: this.mounts,
+    });
+>>>>>>> c7ae4ed04 (fix: harden sandbox fs dash-path regression coverage (#25891) (thanks @albertlieyingadrian))
   }
 }
 
@@ -255,3 +338,68 @@ function coerceStatType(typeRaw?: string): "file" | "directory" | "other" {
   }
   return "other";
 }
+<<<<<<< HEAD
+=======
+
+function normalizeContainerPath(value: string): string {
+  const normalized = path.posix.normalize(value);
+  return normalized === "." ? "/" : normalized;
+}
+
+function isPathInsidePosix(root: string, target: string): boolean {
+  if (root === "/") {
+    return true;
+  }
+  return target === root || target.startsWith(`${root}/`);
+}
+
+async function assertNoHostSymlinkEscape(params: {
+  absolutePath: string;
+  rootPath: string;
+  allowFinalSymlink: boolean;
+}): Promise<void> {
+  const root = path.resolve(params.rootPath);
+  const target = path.resolve(params.absolutePath);
+  if (!isPathInside(root, target)) {
+    throw new Error(`Sandbox path escapes mount root (${root}): ${params.absolutePath}`);
+  }
+  const relative = path.relative(root, target);
+  if (!relative) {
+    return;
+  }
+  const rootReal = await tryRealpath(root);
+  const parts = relative.split(path.sep).filter(Boolean);
+  let current = root;
+  for (let idx = 0; idx < parts.length; idx += 1) {
+    current = path.join(current, parts[idx] ?? "");
+    const isLast = idx === parts.length - 1;
+    try {
+      const stat = await fs.lstat(current);
+      if (!stat.isSymbolicLink()) {
+        continue;
+      }
+      if (params.allowFinalSymlink && isLast) {
+        return;
+      }
+      const symlinkTarget = await tryRealpath(current);
+      if (!isPathInside(rootReal, symlinkTarget)) {
+        throw new Error(`Symlink escapes sandbox mount root (${rootReal}): ${current}`);
+      }
+      current = symlinkTarget;
+    } catch (error) {
+      if (isNotFoundPathError(error)) {
+        return;
+      }
+      throw error;
+    }
+  }
+}
+
+async function tryRealpath(value: string): Promise<string> {
+  try {
+    return await fs.realpath(value);
+  } catch {
+    return path.resolve(value);
+  }
+}
+>>>>>>> c7ae4ed04 (fix: harden sandbox fs dash-path regression coverage (#25891) (thanks @albertlieyingadrian))
