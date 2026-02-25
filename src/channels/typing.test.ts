@@ -1,8 +1,17 @@
 import { describe, expect, it, vi } from "vitest";
+<<<<<<< HEAD
 
 import { createTypingCallbacks } from "./typing.js";
 
 const flush = () => new Promise((resolve) => setTimeout(resolve, 0));
+=======
+import { createTypingCallbacks } from "./typing.js";
+
+const flushMicrotasks = async () => {
+  await Promise.resolve();
+  await Promise.resolve();
+};
+>>>>>>> d42ef2ac6 (refactor: consolidate typing lifecycle and queue policy)
 
 describe("createTypingCallbacks", () => {
   it("invokes start on reply start", async () => {
@@ -34,9 +43,60 @@ describe("createTypingCallbacks", () => {
     const callbacks = createTypingCallbacks({ start, stop, onStartError, onStopError });
 
     callbacks.onIdle?.();
+<<<<<<< HEAD
     await flush();
+=======
+    await flushMicrotasks();
+>>>>>>> d42ef2ac6 (refactor: consolidate typing lifecycle and queue policy)
 
     expect(stop).toHaveBeenCalledTimes(1);
     expect(onStopError).toHaveBeenCalledTimes(1);
   });
+<<<<<<< HEAD
+=======
+
+  it("sends typing keepalive pings until idle cleanup", async () => {
+    vi.useFakeTimers();
+    try {
+      const start = vi.fn().mockResolvedValue(undefined);
+      const stop = vi.fn().mockResolvedValue(undefined);
+      const onStartError = vi.fn();
+      const callbacks = createTypingCallbacks({ start, stop, onStartError });
+
+      await callbacks.onReplyStart();
+      expect(start).toHaveBeenCalledTimes(1);
+
+      await vi.advanceTimersByTimeAsync(2_999);
+      expect(start).toHaveBeenCalledTimes(1);
+
+      await vi.advanceTimersByTimeAsync(1);
+      expect(start).toHaveBeenCalledTimes(2);
+
+      await vi.advanceTimersByTimeAsync(3_000);
+      expect(start).toHaveBeenCalledTimes(3);
+
+      callbacks.onIdle?.();
+      await flushMicrotasks();
+      expect(stop).toHaveBeenCalledTimes(1);
+
+      await vi.advanceTimersByTimeAsync(9_000);
+      expect(start).toHaveBeenCalledTimes(3);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("deduplicates stop across idle and cleanup", async () => {
+    const start = vi.fn().mockResolvedValue(undefined);
+    const stop = vi.fn().mockResolvedValue(undefined);
+    const onStartError = vi.fn();
+    const callbacks = createTypingCallbacks({ start, stop, onStartError });
+
+    callbacks.onIdle?.();
+    callbacks.onCleanup?.();
+    await flushMicrotasks();
+
+    expect(stop).toHaveBeenCalledTimes(1);
+  });
+>>>>>>> d42ef2ac6 (refactor: consolidate typing lifecycle and queue policy)
 });

@@ -1,3 +1,4 @@
+import type { TypingCallbacks } from "../../channels/typing.js";
 import type { HumanDelayConfig } from "../../config/types.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -96,6 +97,7 @@ export type ReplyDispatcherOptions = {
 };
 
 export type ReplyDispatcherWithTypingOptions = Omit<ReplyDispatcherOptions, "onIdle"> & {
+  typingCallbacks?: TypingCallbacks;
   onReplyStart?: () => Promise<void> | void;
   onIdle?: () => void;
 };
@@ -207,27 +209,39 @@ export function createReplyDispatcher(options: ReplyDispatcherOptions): ReplyDis
 export function createReplyDispatcherWithTyping(
   options: ReplyDispatcherWithTypingOptions,
 ): ReplyDispatcherWithTypingResult {
+<<<<<<< HEAD
   const { onReplyStart, onIdle, ...dispatcherOptions } = options;
+=======
+  const { typingCallbacks, onReplyStart, onIdle, onCleanup, ...dispatcherOptions } = options;
+  const resolvedOnReplyStart = onReplyStart ?? typingCallbacks?.onReplyStart;
+  const resolvedOnIdle = onIdle ?? typingCallbacks?.onIdle;
+  const resolvedOnCleanup = onCleanup ?? typingCallbacks?.onCleanup;
+>>>>>>> d42ef2ac6 (refactor: consolidate typing lifecycle and queue policy)
   let typingController: TypingController | undefined;
   const dispatcher = createReplyDispatcher({
     ...dispatcherOptions,
     onIdle: () => {
       typingController?.markDispatchIdle();
-      onIdle?.();
+      resolvedOnIdle?.();
     },
   });
 
   return {
     dispatcher,
     replyOptions: {
+<<<<<<< HEAD
       onReplyStart,
+=======
+      onReplyStart: resolvedOnReplyStart,
+      onTypingCleanup: resolvedOnCleanup,
+>>>>>>> d42ef2ac6 (refactor: consolidate typing lifecycle and queue policy)
       onTypingController: (typing) => {
         typingController = typing;
       },
     },
     markDispatchIdle: () => {
       typingController?.markDispatchIdle();
-      onIdle?.();
+      resolvedOnIdle?.();
     },
   };
 }

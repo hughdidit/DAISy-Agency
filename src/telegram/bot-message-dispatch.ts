@@ -814,6 +814,7 @@ export const dispatchTelegramMessage = async ({
       cfg,
       dispatcherOptions: {
         ...prefixOptions,
+        typingCallbacks,
         deliver: async (payload, info) => {
 <<<<<<< HEAD
           if (info.kind === "final") {
@@ -1036,6 +1037,7 @@ export const dispatchTelegramMessage = async ({
 >>>>>>> 13541864e (refactor: extract telegram lane delivery and e2e harness)
           runtime.error?.(danger(`telegram ${info.kind} reply failed: ${String(err)}`));
         },
+<<<<<<< HEAD
         onReplyStart: createTypingCallbacks({
           start: sendTyping,
           onStartError: (err) => {
@@ -1047,6 +1049,8 @@ export const dispatchTelegramMessage = async ({
             });
           },
         }).onReplyStart,
+=======
+>>>>>>> d42ef2ac6 (refactor: consolidate typing lifecycle and queue policy)
       },
       replyOptions: {
         skillFilter,
