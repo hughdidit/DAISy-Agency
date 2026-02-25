@@ -418,6 +418,17 @@ export function resolveDispatchWrapperExecutionPlan(
     current = unwrap.argv;
 >>>>>>> a1c4bf07c (fix(security): harden exec wrapper allowlist execution parity)
   }
+  if (wrappers.length >= maxDepth) {
+    const overflow = unwrapKnownDispatchWrapperInvocation(current);
+    if (overflow.kind === "blocked" || overflow.kind === "unwrapped") {
+      return {
+        argv: current,
+        wrappers,
+        policyBlocked: true,
+        blockedWrapper: overflow.wrapper,
+      };
+    }
+  }
   return { argv: current, wrappers, policyBlocked: false };
 }
 
