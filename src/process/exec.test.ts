@@ -187,10 +187,11 @@ describe("runCommandWithTimeout", () => {
           "let count = 0;",
           'const ticker = setInterval(() => { process.stdout.write(".");',
           "count += 1;",
-          "if (count === 2) {",
+          "if (count === 6) {",
           "clearInterval(ticker);",
           "process.exit(0);",
           "}",
+<<<<<<< HEAD
           "}, 40);",
         ].join(" "),
       ],
@@ -206,6 +207,14 @@ describe("runCommandWithTimeout", () => {
 =======
         noOutputTimeoutMs: 1_500,
 >>>>>>> fe6271134 (test(gate): stabilize env- and timing-sensitive process/web-search checks)
+=======
+          "}, 200);",
+        ].join(" "),
+      ],
+      {
+        timeoutMs: 7_000,
+        noOutputTimeoutMs: 450,
+>>>>>>> df9a47489 (test: stabilize no-output timeout exec test)
       },
     );
 
@@ -214,10 +223,14 @@ describe("runCommandWithTimeout", () => {
     expect(result.termination).toBe("exit");
     expect(result.noOutputTimedOut).toBe(false);
 <<<<<<< HEAD
+<<<<<<< HEAD
     expect(result.stdout.length).toBeGreaterThanOrEqual(2);
 =======
     expect(result.stdout.length).toBeGreaterThanOrEqual(3);
 >>>>>>> 86a8b65e9 (test: consolidate redundant suites and speed up timers)
+=======
+    expect(result.stdout.length).toBeGreaterThanOrEqual(7);
+>>>>>>> df9a47489 (test: stabilize no-output timeout exec test)
   });
 
   it("reports global timeout termination when overall timeout elapses", async () => {
