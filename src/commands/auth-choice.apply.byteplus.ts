@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import type { ApplyAuthChoiceParams, ApplyAuthChoiceResult } from "./auth-choice.apply.js";
 import { resolveEnvApiKey } from "../agents/model-auth.js";
 import {
@@ -7,9 +8,12 @@ import {
 } from "./auth-choice.api-key.js";
 <<<<<<< HEAD
 =======
+=======
+import { normalizeApiKeyInput, validateApiKeyInput } from "./auth-choice.api-key.js";
+>>>>>>> 5e3a86fd2 (feat(secrets): expand onboarding secret-ref flows and custom-provider parity)
 import {
+  ensureApiKeyFromOptionEnvOrPrompt,
   normalizeSecretInputModeInput,
-  resolveSecretInputModeForEnvSelection,
 } from "./auth-choice.apply-helpers.js";
 import type { ApplyAuthChoiceParams, ApplyAuthChoiceResult } from "./auth-choice.apply.js";
 >>>>>>> cb119874d (Onboard: require explicit mode for env secret refs)
@@ -27,44 +31,20 @@ export async function applyAuthChoiceBytePlus(
   }
 
   const requestedSecretInputMode = normalizeSecretInputModeInput(params.opts?.secretInputMode);
-  const envKey = resolveEnvApiKey("byteplus");
-  if (envKey) {
-    const useExisting = await params.prompter.confirm({
-      message: `Use existing BYTEPLUS_API_KEY (${envKey.source}, ${formatApiKeyPreview(envKey.apiKey)})?`,
-      initialValue: true,
-    });
-    if (useExisting) {
-      const mode = await resolveSecretInputModeForEnvSelection({
-        prompter: params.prompter,
-        explicitMode: requestedSecretInputMode,
-      });
-      await setByteplusApiKey(envKey.apiKey, params.agentDir, { secretInputMode: mode });
-      const configWithAuth = applyAuthProfileConfig(params.config, {
-        profileId: "byteplus:default",
-        provider: "byteplus",
-        mode: "api_key",
-      });
-      const configWithModel = applyPrimaryModel(configWithAuth, BYTEPLUS_DEFAULT_MODEL);
-      return {
-        config: configWithModel,
-        agentModelOverride: BYTEPLUS_DEFAULT_MODEL,
-      };
-    }
-  }
-
-  let key: string | undefined;
-  if (params.opts?.byteplusApiKey) {
-    key = params.opts.byteplusApiKey;
-  } else {
-    key = await params.prompter.text({
-      message: "Enter BytePlus API key",
-      validate: validateApiKeyInput,
-    });
-  }
-
-  const trimmed = normalizeApiKeyInput(String(key));
-  await setByteplusApiKey(trimmed, params.agentDir, {
+  await ensureApiKeyFromOptionEnvOrPrompt({
+    token: params.opts?.byteplusApiKey,
+    tokenProvider: "byteplus",
     secretInputMode: requestedSecretInputMode,
+    config: params.config,
+    expectedProviders: ["byteplus"],
+    provider: "byteplus",
+    envLabel: "BYTEPLUS_API_KEY",
+    promptMessage: "Enter BytePlus API key",
+    normalize: normalizeApiKeyInput,
+    validate: validateApiKeyInput,
+    prompter: params.prompter,
+    setCredential: async (apiKey, mode) =>
+      setByteplusApiKey(apiKey, params.agentDir, { secretInputMode: mode }),
   });
   const configWithAuth = applyAuthProfileConfig(params.config, {
     profileId: "byteplus:default",
