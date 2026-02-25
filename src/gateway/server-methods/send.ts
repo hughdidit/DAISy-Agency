@@ -124,6 +124,7 @@ export const sendHandlers: GatewayRequestHandlers = {
       gifPlayback?: boolean;
       channel?: string;
       accountId?: string;
+      agentId?: string;
       threadId?: string;
       sessionKey?: string;
       idempotencyKey: string;
@@ -253,13 +254,21 @@ export const sendHandlers: GatewayRequestHandlers = {
           typeof request.sessionKey === "string" && request.sessionKey.trim()
             ? request.sessionKey.trim().toLowerCase()
             : undefined;
-        const derivedAgentId = resolveSessionAgentId({ config: cfg });
+        const explicitAgentId =
+          typeof request.agentId === "string" && request.agentId.trim()
+            ? request.agentId.trim()
+            : undefined;
+        const sessionAgentId = providedSessionKey
+          ? resolveSessionAgentId({ sessionKey: providedSessionKey, config: cfg })
+          : undefined;
+        const defaultAgentId = resolveSessionAgentId({ config: cfg });
+        const effectiveAgentId = explicitAgentId ?? sessionAgentId ?? defaultAgentId;
         // If callers omit sessionKey, derive a target session key from the outbound route.
         const derivedRoute = !providedSessionKey
           ? await resolveOutboundSessionRoute({
               cfg,
               channel,
-              agentId: derivedAgentId,
+              agentId: effectiveAgentId,
               accountId,
               target: resolved.to,
               threadId,
@@ -268,7 +277,7 @@ export const sendHandlers: GatewayRequestHandlers = {
         if (derivedRoute) {
           await ensureOutboundSessionEntry({
             cfg,
-            agentId: derivedAgentId,
+            agentId: effectiveAgentId,
             channel,
             accountId,
             route: derivedRoute,
@@ -279,21 +288,26 @@ export const sendHandlers: GatewayRequestHandlers = {
           channel: outboundChannel,
           to: resolved.to,
           accountId,
+<<<<<<< HEAD
           payloads: [{ text: message, mediaUrl: request.mediaUrl, mediaUrls }],
+=======
+          payloads: [{ text: message, mediaUrl, mediaUrls }],
+          agentId: effectiveAgentId,
+>>>>>>> 2011edc9e (fix(gateway): preserve agentId through gateway send path)
           gifPlayback: request.gifPlayback,
           threadId: threadId ?? null,
           deps: outboundDeps,
           mirror: providedSessionKey
             ? {
                 sessionKey: providedSessionKey,
-                agentId: resolveSessionAgentId({ sessionKey: providedSessionKey, config: cfg }),
+                agentId: effectiveAgentId,
                 text: mirrorText || message,
                 mediaUrls: mirrorMediaUrls.length > 0 ? mirrorMediaUrls : undefined,
               }
             : derivedRoute
               ? {
                   sessionKey: derivedRoute.sessionKey,
-                  agentId: derivedAgentId,
+                  agentId: effectiveAgentId,
                   text: mirrorText || message,
                   mediaUrls: mirrorMediaUrls.length > 0 ? mirrorMediaUrls : undefined,
                 }

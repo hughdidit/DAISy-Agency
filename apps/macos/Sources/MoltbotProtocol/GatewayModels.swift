@@ -397,6 +397,11 @@ public struct SendParams: Codable, Sendable {
     public let gifplayback: Bool?
     public let channel: String?
     public let accountid: String?
+<<<<<<< HEAD:apps/macos/Sources/MoltbotProtocol/GatewayModels.swift
+=======
+    public let agentid: String?
+    public let threadid: String?
+>>>>>>> 2011edc9e (fix(gateway): preserve agentId through gateway send path):apps/macos/Sources/OpenClawProtocol/GatewayModels.swift
     public let sessionkey: String?
     public let idempotencykey: String
 
@@ -408,6 +413,11 @@ public struct SendParams: Codable, Sendable {
         gifplayback: Bool?,
         channel: String?,
         accountid: String?,
+<<<<<<< HEAD:apps/macos/Sources/MoltbotProtocol/GatewayModels.swift
+=======
+        agentid: String?,
+        threadid: String?,
+>>>>>>> 2011edc9e (fix(gateway): preserve agentId through gateway send path):apps/macos/Sources/OpenClawProtocol/GatewayModels.swift
         sessionkey: String?,
         idempotencykey: String
     ) {
@@ -418,6 +428,11 @@ public struct SendParams: Codable, Sendable {
         self.gifplayback = gifplayback
         self.channel = channel
         self.accountid = accountid
+<<<<<<< HEAD:apps/macos/Sources/MoltbotProtocol/GatewayModels.swift
+=======
+        self.agentid = agentid
+        self.threadid = threadid
+>>>>>>> 2011edc9e (fix(gateway): preserve agentId through gateway send path):apps/macos/Sources/OpenClawProtocol/GatewayModels.swift
         self.sessionkey = sessionkey
         self.idempotencykey = idempotencykey
     }
@@ -429,6 +444,11 @@ public struct SendParams: Codable, Sendable {
         case gifplayback = "gifPlayback"
         case channel
         case accountid = "accountId"
+<<<<<<< HEAD:apps/macos/Sources/MoltbotProtocol/GatewayModels.swift
+=======
+        case agentid = "agentId"
+        case threadid = "threadId"
+>>>>>>> 2011edc9e (fix(gateway): preserve agentId through gateway send path):apps/macos/Sources/OpenClawProtocol/GatewayModels.swift
         case sessionkey = "sessionKey"
         case idempotencykey = "idempotencyKey"
     }
