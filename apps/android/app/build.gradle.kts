@@ -2,7 +2,6 @@ import com.android.build.api.variant.impl.VariantOutputImpl
 
 plugins {
   id("com.android.application")
-  id("org.jetbrains.kotlin.android")
   id("org.jetbrains.kotlin.plugin.compose")
   id("org.jetbrains.kotlin.plugin.serialization")
 }
@@ -13,7 +12,11 @@ android {
 
   sourceSets {
     getByName("main") {
+<<<<<<< HEAD
       assets.srcDir(file("../../shared/MoltbotKit/Sources/MoltbotKit/Resources"))
+=======
+      assets.directories.add("../../shared/OpenClawKit/Sources/OpenClawKit/Resources")
+>>>>>>> 1edd9f8bf (build(android): migrate to AGP 9 new DSL kotlin setup)
     }
   }
 
