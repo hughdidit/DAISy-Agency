@@ -26,6 +26,11 @@ Notes:
 ## Examples
 
 ```bash
+<<<<<<< HEAD
 moltbot configure
 moltbot configure --section models --section channels
+=======
+openclaw configure
+openclaw configure --section model --section channels
+>>>>>>> c2a837565 (docs: fix configure section example)
 ```
