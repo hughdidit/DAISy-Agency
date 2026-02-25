@@ -104,11 +104,29 @@ export function createFollowupRunner(params: {
           cfg: queued.run.config,
         });
         if (!result.ok) {
+<<<<<<< HEAD
           // Log error and fall back to dispatcher if available.
           const errorMsg = result.error ?? "unknown error";
           logVerbose(`followup queue: route-reply failed: ${errorMsg}`);
           // Fallback: try the dispatcher if routing failed.
           if (opts?.onBlockReply) {
+=======
+          const errorMsg = result.error ?? "unknown error";
+          logVerbose(`followup queue: route-reply failed: ${errorMsg}`);
+          // Fall back to the caller-provided dispatcher only when the
+          // originating channel matches the session's message provider.
+          // In that case onBlockReply was created by the same channel's
+          // handler and delivers to the correct destination.  For true
+          // cross-channel routing (origin !== provider), falling back
+          // would send to the wrong channel, so we drop the payload.
+          const provider = resolveOriginMessageProvider({
+            provider: queued.run.messageProvider,
+          });
+          const origin = resolveOriginMessageProvider({
+            originatingChannel,
+          });
+          if (opts?.onBlockReply && origin && origin === provider) {
+>>>>>>> f7de41ca2 (fix(followup): fall back to dispatcher when same-channel origin routing fails (#26109))
             await opts.onBlockReply(payload);
           }
         }

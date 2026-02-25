@@ -7,6 +7,11 @@ import type { FollowupRun } from "./queue.js";
 import { createMockTypingController } from "./test-helpers.js";
 
 const runEmbeddedPiAgentMock = vi.fn();
+<<<<<<< HEAD
+=======
+const routeReplyMock = vi.fn();
+const isRoutableChannelMock = vi.fn();
+>>>>>>> f7de41ca2 (fix(followup): fall back to dispatcher when same-channel origin routing fails (#26109))
 
 vi.mock(
   "../../agents/model-fallback.js",
@@ -17,8 +22,41 @@ vi.mock("../../agents/pi-embedded.js", () => ({
   runEmbeddedPiAgent: (params: unknown) => runEmbeddedPiAgentMock(params),
 }));
 
+<<<<<<< HEAD
 import { createFollowupRunner } from "./followup-runner.js";
 
+=======
+vi.mock("./route-reply.js", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("./route-reply.js")>();
+  return {
+    ...actual,
+    isRoutableChannel: (...args: unknown[]) => isRoutableChannelMock(...args),
+    routeReply: (...args: unknown[]) => routeReplyMock(...args),
+  };
+});
+
+import { createFollowupRunner } from "./followup-runner.js";
+
+const ROUTABLE_TEST_CHANNELS = new Set([
+  "telegram",
+  "slack",
+  "discord",
+  "signal",
+  "imessage",
+  "whatsapp",
+  "feishu",
+]);
+
+beforeEach(() => {
+  routeReplyMock.mockReset();
+  routeReplyMock.mockResolvedValue({ ok: true });
+  isRoutableChannelMock.mockReset();
+  isRoutableChannelMock.mockImplementation((ch: string | undefined) =>
+    Boolean(ch?.trim() && ROUTABLE_TEST_CHANNELS.has(ch.trim().toLowerCase())),
+  );
+});
+
+>>>>>>> f7de41ca2 (fix(followup): fall back to dispatcher when same-channel origin routing fails (#26109))
 const baseQueuedRun = (messageProvider = "whatsapp"): FollowupRun =>
   ({
     prompt: "hello",
@@ -326,6 +364,87 @@ describe("createFollowupRunner messaging tool dedupe", () => {
     const store = loadSessionStore(storePath, { skipCache: true });
     expect(store[sessionKey]?.totalTokens ?? 0).toBeGreaterThan(0);
     expect(store[sessionKey]?.model).toBe("claude-opus-4-5");
+<<<<<<< HEAD
+=======
+    // Accumulated usage is still stored for usage/cost tracking.
+    expect(store[sessionKey]?.inputTokens).toBe(1_000);
+    expect(store[sessionKey]?.outputTokens).toBe(50);
+  });
+
+  it("does not fall back to dispatcher when cross-channel origin routing fails", async () => {
+    const onBlockReply = vi.fn(async () => {});
+    runEmbeddedPiAgentMock.mockResolvedValueOnce({
+      payloads: [{ text: "hello world!" }],
+      meta: {},
+    });
+    routeReplyMock.mockResolvedValueOnce({
+      ok: false,
+      error: "forced route failure",
+    });
+
+    const runner = createMessagingDedupeRunner(onBlockReply);
+
+    await runner({
+      ...baseQueuedRun("webchat"),
+      originatingChannel: "discord",
+      originatingTo: "channel:C1",
+    } as FollowupRun);
+
+    expect(routeReplyMock).toHaveBeenCalled();
+    expect(onBlockReply).not.toHaveBeenCalled();
+  });
+
+  it("falls back to dispatcher when same-channel origin routing fails", async () => {
+    const onBlockReply = vi.fn(async () => {});
+    runEmbeddedPiAgentMock.mockResolvedValueOnce({
+      payloads: [{ text: "hello world!" }],
+      meta: {},
+    });
+    routeReplyMock.mockResolvedValueOnce({
+      ok: false,
+      error: "outbound adapter unavailable",
+    });
+
+    const runner = createMessagingDedupeRunner(onBlockReply);
+
+    await runner({
+      ...baseQueuedRun(" Feishu "),
+      originatingChannel: "FEISHU",
+      originatingTo: "ou_abc123",
+    } as FollowupRun);
+
+    expect(routeReplyMock).toHaveBeenCalled();
+    expect(onBlockReply).toHaveBeenCalledTimes(1);
+    expect(onBlockReply).toHaveBeenCalledWith(expect.objectContaining({ text: "hello world!" }));
+  });
+
+  it("routes followups with originating account/thread metadata", async () => {
+    const onBlockReply = vi.fn(async () => {});
+    runEmbeddedPiAgentMock.mockResolvedValueOnce({
+      payloads: [{ text: "hello world!" }],
+      meta: {},
+    });
+
+    const runner = createMessagingDedupeRunner(onBlockReply);
+
+    await runner({
+      ...baseQueuedRun("webchat"),
+      originatingChannel: "discord",
+      originatingTo: "channel:C1",
+      originatingAccountId: "work",
+      originatingThreadId: "1739142736.000100",
+    } as FollowupRun);
+
+    expect(routeReplyMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        channel: "discord",
+        to: "channel:C1",
+        accountId: "work",
+        threadId: "1739142736.000100",
+      }),
+    );
+    expect(onBlockReply).not.toHaveBeenCalled();
+>>>>>>> f7de41ca2 (fix(followup): fall back to dispatcher when same-channel origin routing fails (#26109))
   });
 });
 
