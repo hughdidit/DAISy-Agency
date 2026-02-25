@@ -91,6 +91,7 @@ Docs: https://docs.openclaw.ai
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 - Security/Shell env fallback: remove trusted-prefix shell-path fallback and only trust login shells explicitly registered in `/etc/shells`, defaulting to `/bin/sh` when `SHELL` is not registered. This ships in the next npm release. Thanks @tdjackey for reporting.
@@ -228,6 +229,9 @@ Docs: https://docs.openclaw.ai
 =======
 - Security/Sandbox media: restrict sandbox media tmp-path allowances to OpenClaw-managed tmp roots instead of broad host `os.tmpdir()` trust, and add outbound/channel guardrails (tmp-path lint + media-root smoke tests) to prevent regressions in local media attachment reads.
 =======
+=======
+- macOS/Voice input: guard all audio-input startup paths against missing default microphones (Voice Wake, Talk Mode, Push-to-Talk, mic-level monitor, tester) to avoid launch/runtime crashes on mic-less Macs and fail gracefully until input becomes available. (#25817) Thanks @sfo2001.
+>>>>>>> 236b22b6a (fix(macos): guard voice audio paths with no input device (#25817))
 - Gateway/Security: enforce gateway auth for the exact `/api/channels` plugin root path (plus `/api/channels/` descendants), with regression coverage for query/trailing-slash variants and near-miss paths that must remain plugin-owned. (#25753) Thanks @bmendonca3.
 - Security/Exec: sanitize inherited host execution environment before merge, canonicalize inherited PATH handling, and strip dangerous keys (`LD_*`, `DYLD_*`, `SSLKEYLOGFILE`, and related injection vectors) from non-sandboxed exec runs. (#25755) Thanks @bmendonca3.
 - Security/Hooks: normalize hook session-key classification with trim/lowercase plus Unicode NFKC folding (for example full-width `ＨＯＯＫ：...`) so external-content wrapping cannot be bypassed by mixed-case or lookalike prefixes. (#25750) Thanks @bmendonca3.
