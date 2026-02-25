@@ -12,6 +12,7 @@ import { deriveSessionTotalTokens, hasNonzeroUsage } from "../../agents/usage.js
 <<<<<<< HEAD
 <<<<<<< HEAD
 import type { OpenClawConfig } from "../../config/config.js";
+<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
@@ -24,6 +25,13 @@ import type { OpenClawConfig } from "../../config/config.js";
 import type { OpenClawConfig } from "../../config/config.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { type SessionEntry, updateSessionStore } from "../../config/sessions.js";
+=======
+import {
+  setSessionRuntimeModel,
+  type SessionEntry,
+  updateSessionStore,
+} from "../../config/sessions.js";
+>>>>>>> 177386ed7 (fix(tui): resolve wrong provider prefix when session has model without modelProvider (#25874))
 
 type RunResult = Awaited<
   ReturnType<(typeof import("../../agents/pi-embedded.js"))["runEmbeddedPiAgent"]>
@@ -80,10 +88,12 @@ export async function updateSessionStoreAfterAgentRun(params: {
     ...entry,
     sessionId,
     updatedAt: Date.now(),
-    modelProvider: providerUsed,
-    model: modelUsed,
     contextTokens,
   };
+  setSessionRuntimeModel(next, {
+    provider: providerUsed,
+    model: modelUsed,
+  });
   if (isCliProvider(providerUsed, cfg)) {
     const cliSessionId = result.meta.agentMeta?.sessionId?.trim();
     if (cliSessionId) {

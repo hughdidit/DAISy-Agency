@@ -33,6 +33,7 @@ import { resolveConfiguredModelRef } from "../agents/model-selection.js";
 import { type MoltbotConfig, loadConfig } from "../config/config.js";
 =======
 import {
+  inferUniqueProviderFromConfiguredModels,
   parseModelRef,
   resolveConfiguredModelRef,
   resolveDefaultModelForAgent,
@@ -810,6 +811,39 @@ export function resolveSessionModelRef(
   return { provider, model };
 }
 
+export function resolveSessionModelIdentityRef(
+  cfg: OpenClawConfig,
+  entry?:
+    | SessionEntry
+    | Pick<SessionEntry, "model" | "modelProvider" | "modelOverride" | "providerOverride">,
+  agentId?: string,
+): { provider?: string; model: string } {
+  const runtimeModel = entry?.model?.trim();
+  const runtimeProvider = entry?.modelProvider?.trim();
+  if (runtimeModel) {
+    if (runtimeProvider) {
+      return { provider: runtimeProvider, model: runtimeModel };
+    }
+    const inferredProvider = inferUniqueProviderFromConfiguredModels({
+      cfg,
+      model: runtimeModel,
+    });
+    if (inferredProvider) {
+      return { provider: inferredProvider, model: runtimeModel };
+    }
+    if (runtimeModel.includes("/")) {
+      const parsedRuntime = parseModelRef(runtimeModel, DEFAULT_PROVIDER);
+      if (parsedRuntime) {
+        return { provider: parsedRuntime.provider, model: parsedRuntime.model };
+      }
+      return { model: runtimeModel };
+    }
+    return { model: runtimeModel };
+  }
+  const resolved = resolveSessionModelRef(cfg, entry, agentId);
+  return { provider: resolved.provider, model: resolved.model };
+}
+
 export function listSessionsFromStore(params: {
   cfg: MoltbotConfig;
   storePath: string;
@@ -895,6 +929,14 @@ export function listSessionsFromStore(params: {
         entry?.label ??
         originLabel;
       const deliveryFields = normalizeSessionDeliveryFields(entry);
+<<<<<<< HEAD
+=======
+      const parsedAgent = parseAgentSessionKey(key);
+      const sessionAgentId = normalizeAgentId(parsedAgent?.agentId ?? resolveDefaultAgentId(cfg));
+      const resolvedModel = resolveSessionModelIdentityRef(cfg, entry, sessionAgentId);
+      const modelProvider = resolvedModel.provider;
+      const model = resolvedModel.model ?? DEFAULT_MODEL;
+>>>>>>> 177386ed7 (fix(tui): resolve wrong provider prefix when session has model without modelProvider (#25874))
       return {
         key,
         entry,

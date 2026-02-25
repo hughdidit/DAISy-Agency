@@ -133,8 +133,16 @@ import {
 =======
 import type { CliDeps } from "../../cli/outbound-send-deps.js";
 import type { OpenClawConfig } from "../../config/config.js";
+<<<<<<< HEAD
 import { resolveSessionTranscriptPath, updateSessionStore } from "../../config/sessions.js";
 >>>>>>> 7a40d99b1 (refactor(cron): extract delivery dispatch + harden reset notices)
+=======
+import {
+  resolveSessionTranscriptPath,
+  setSessionRuntimeModel,
+  updateSessionStore,
+} from "../../config/sessions.js";
+>>>>>>> 177386ed7 (fix(tui): resolve wrong provider prefix when session has model without modelProvider (#25874))
 import type { AgentDefaultsConfig } from "../../config/types.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
@@ -957,8 +965,10 @@ let skillsSnapshot = cronSession.sessionEntry.skillsSnapshot;
     const contextTokens =
       agentCfg?.contextTokens ?? lookupContextTokens(modelUsed) ?? DEFAULT_CONTEXT_TOKENS;
 
-    cronSession.sessionEntry.modelProvider = providerUsed;
-    cronSession.sessionEntry.model = modelUsed;
+    setSessionRuntimeModel(cronSession.sessionEntry, {
+      provider: providerUsed,
+      model: modelUsed,
+    });
     cronSession.sessionEntry.contextTokens = contextTokens;
     if (isCliProvider(providerUsed, cfgWithAgentDefaults)) {
 <<<<<<< HEAD
