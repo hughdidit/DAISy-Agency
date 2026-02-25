@@ -727,6 +727,26 @@ export const dispatchTelegramMessage = async ({
             error: err,
 =======
   let queuedFinal = false;
+<<<<<<< HEAD
+=======
+
+  if (statusReactionController) {
+    void statusReactionController.setThinking();
+  }
+
+  const typingCallbacks = createTypingCallbacks({
+    start: sendTyping,
+    onStartError: (err) => {
+      logTypingFailure({
+        log: logVerbose,
+        channel: "telegram",
+        target: String(chatId),
+        error: err,
+      });
+    },
+  });
+
+>>>>>>> e0201c277 (fix: keep channel typing active during long inference (#25886, thanks @stakeswky))
   try {
     ({ queuedFinal } = await dispatchReplyWithBufferedBlockDispatcher({
       ctx: ctxPayload,
@@ -912,17 +932,9 @@ export const dispatchTelegramMessage = async ({
           deliveryState.failedNonSilent += 1;
           runtime.error?.(danger(`telegram ${info.kind} reply failed: ${String(err)}`));
         },
-        onReplyStart: createTypingCallbacks({
-          start: sendTyping,
-          onStartError: (err) => {
-            logTypingFailure({
-              log: logVerbose,
-              channel: "telegram",
-              target: String(chatId),
-              error: err,
-            });
-          },
-        }).onReplyStart,
+        onReplyStart: typingCallbacks.onReplyStart,
+        onIdle: typingCallbacks.onIdle,
+        onCleanup: typingCallbacks.onCleanup,
       },
       replyOptions: {
         skillFilter,

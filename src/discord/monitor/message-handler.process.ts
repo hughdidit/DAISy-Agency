@@ -423,6 +423,7 @@ export async function processDiscordMessage(ctx: DiscordMessagePreflightContext)
     onError: (err, info) => {
       runtime.error?.(danger(`discord ${info.kind} reply failed: ${String(err)}`));
     },
+<<<<<<< HEAD
     onReplyStart: createTypingCallbacks({
       start: () => sendTyping({ client, channelId: typingChannelId }),
       onStartError: (err) => {
@@ -434,6 +435,14 @@ export async function processDiscordMessage(ctx: DiscordMessagePreflightContext)
         });
       },
     }).onReplyStart,
+=======
+    onReplyStart: async () => {
+      await typingCallbacks.onReplyStart();
+      await statusReactions.setThinking();
+    },
+    onIdle: typingCallbacks.onIdle,
+    onCleanup: typingCallbacks.onCleanup,
+>>>>>>> e0201c277 (fix: keep channel typing active during long inference (#25886, thanks @stakeswky))
   });
 
   const { queuedFinal, counts } = await dispatchInboundMessage({
