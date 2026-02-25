@@ -82,6 +82,11 @@ Docs: https://docs.openclaw.ai
 - Hooks/Inbound metadata: include `guildId` and `channelName` in `message_received` metadata for both plugin and internal hook paths. (#26115) Thanks @davidrudduck.
 - Discord/Component auth: evaluate guild component interactions with command-gating authorizers so unauthorized users no longer get `CommandAuthorized: true` on modal/button events. (#26119) Thanks @bmendonca3.
 - Discord/Typing indicator: prevent stuck typing indicators by sealing channel typing keepalive callbacks after idle/cleanup and ensuring Discord dispatch always marks typing idle even if preview-stream cleanup fails. (#26295) Thanks @ngutman.
+<<<<<<< HEAD
+=======
+- Channels/Typing indicator: guard typing keepalive start callbacks after idle/cleanup close so post-close ticks cannot re-trigger stale typing indicators. (#26325) Thanks @win4r.
+- Tests/Low-memory stability: disable Vitest `vmForks` by default on low-memory local hosts (`<64 GiB`), keep low-profile extension lane parallelism at 4 workers, and align cron isolated-agent tests with `setSessionRuntimeModel` usage to avoid deterministic suite failures. (#26324) Thanks @ngutman.
+>>>>>>> 3607b733c (fix(changelog): add typing firestart guard note (#26325) (thanks @win4r))
 - Slack/Inbound media fallback: deliver file-only messages even when Slack media downloads fail by adding a filename placeholder fallback, capping fallback names to the shared media-file limit, and normalizing empty filenames to `file` so attachment-only messages are not silently dropped. (#25181) Thanks @justinhuangcode.
 
 >>>>>>> 56b8c6948 (docs(changelog): add discord typing fix entry (#26295) (thanks @ngutman))
