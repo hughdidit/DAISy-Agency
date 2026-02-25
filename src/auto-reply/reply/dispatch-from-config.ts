@@ -48,6 +48,7 @@ import type { GetReplyOptions, ReplyPayload } from "../types.js";
 import { formatAbortReplyText, tryFastAbortFromMessage } from "./abort.js";
 import { shouldSkipDuplicateInbound } from "./inbound-dedupe.js";
 import type { ReplyDispatcher, ReplyDispatchKind } from "./reply-dispatcher.js";
+import { shouldSuppressReasoningPayload } from "./reply-payloads.js";
 import { isRoutableChannel, routeReply } from "./route-reply.js";
 import { maybeApplyTtsToPayload, normalizeTtsAutoMode, resolveTtsConfig } from "../../tts/tts.js";
 
@@ -434,6 +435,15 @@ export async function dispatchReplyFromConfig(params: {
 >>>>>>> c2a0cf0c2 (fix(tts): update tool description to prevent duplicate audio delivery (#18046))
         onBlockReply: (payload: ReplyPayload, context) => {
           const run = async () => {
+<<<<<<< HEAD
+=======
+            // Suppress reasoning payloads — channels using this generic dispatch
+            // path (WhatsApp, web, etc.) do not have a dedicated reasoning lane.
+            // Telegram has its own dispatch path that handles reasoning splitting.
+            if (shouldSuppressReasoningPayload(payload)) {
+              return;
+            }
+>>>>>>> 5c6b2cbc8 (refactor: extract iMessage echo cache and unify suppression guards)
             // Accumulate block text for TTS generation after streaming
             if (payload.text) {
               if (accumulatedBlockText.length > 0) {
@@ -467,6 +477,14 @@ export async function dispatchReplyFromConfig(params: {
     let queuedFinal = false;
     let routedFinalCount = 0;
     for (const reply of replies) {
+<<<<<<< HEAD
+=======
+      // Suppress reasoning payloads from channel delivery — channels using this
+      // generic dispatch path do not have a dedicated reasoning lane.
+      if (shouldSuppressReasoningPayload(reply)) {
+        continue;
+      }
+>>>>>>> 5c6b2cbc8 (refactor: extract iMessage echo cache and unify suppression guards)
       const ttsReply = await maybeApplyTtsToPayload({
         payload: reply,
         cfg,
