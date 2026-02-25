@@ -33,8 +33,13 @@ Notes:
 ```bash
 # From repo root; set release IDs so Sparkle feed is enabled.
 # APP_BUILD must be numeric + monotonic for Sparkle compare.
+<<<<<<< HEAD
 BUNDLE_ID=bot.molt.mac \
 APP_VERSION=2026.2.6 \
+=======
+BUNDLE_ID=ai.openclaw.mac \
+APP_VERSION=2026.2.25 \
+>>>>>>> 52d933b3a (refactor: replace bot.molt identifiers with ai.openclaw)
 APP_BUILD="$(git rev-list --count HEAD)" \
 BUILD_CONFIG=release \
 SIGN_IDENTITY="Developer ID Application: <Developer Name> (<TEAMID>)" \
@@ -51,8 +56,13 @@ scripts/create-dmg.sh dist/OpenClaw.app dist/OpenClaw-2026.2.6.dmg
 #   xcrun notarytool store-credentials "openclaw-notary" \
 #     --apple-id "<apple-id>" --team-id "<team-id>" --password "<app-specific-password>"
 NOTARIZE=1 NOTARYTOOL_PROFILE=openclaw-notary \
+<<<<<<< HEAD
 BUNDLE_ID=bot.molt.mac \
 APP_VERSION=2026.2.6 \
+=======
+BUNDLE_ID=ai.openclaw.mac \
+APP_VERSION=2026.2.25 \
+>>>>>>> 52d933b3a (refactor: replace bot.molt identifiers with ai.openclaw)
 APP_BUILD="$(git rev-list --count HEAD)" \
 BUILD_CONFIG=release \
 SIGN_IDENTITY="Developer ID Application: <Developer Name> (<TEAMID>)" \
