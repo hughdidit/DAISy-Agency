@@ -42,7 +42,7 @@ private struct ExecHostSocketRequest: Codable {
     var requestJson: String
 }
 
-private struct ExecHostRequest: Codable {
+struct ExecHostRequest: Codable {
     var command: [String]
     var rawCommand: String?
     var cwd: String?
@@ -63,7 +63,7 @@ private struct ExecHostRunResult: Codable {
     var error: String?
 }
 
-private struct ExecHostError: Codable {
+struct ExecHostError: Codable, Error {
     var code: String
     var message: String
     var reason: String?
@@ -384,6 +384,7 @@ private enum ExecHostExecutor {
     ]
 
     static func handle(_ request: ExecHostRequest) async -> ExecHostResponse {
+<<<<<<< HEAD:apps/macos/Sources/Moltbot/ExecApprovalsSocket.swift
         let command = request.command.map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
         guard !command.isEmpty else {
             return self.errorResponse(
@@ -407,10 +408,19 @@ private enum ExecHostExecutor {
                 code: "INVALID_REQUEST",
                 message: message,
                 reason: "invalid")
+=======
+        let validatedRequest: ExecHostValidatedRequest
+        switch ExecHostRequestEvaluator.validateRequest(request) {
+        case .success(let request):
+            validatedRequest = request
+        case .failure(let error):
+            return self.errorResponse(error)
+>>>>>>> 3c95f8966 (refactor(exec): split system.run phases and align ts/swift validator contracts):apps/macos/Sources/OpenClaw/ExecApprovalsSocket.swift
         }
 
         let context = await self.buildContext(
             request: request,
+<<<<<<< HEAD:apps/macos/Sources/Moltbot/ExecApprovalsSocket.swift
             command: command,
             rawCommand: displayCommand)
 >>>>>>> ce1dbeb98 (fix(macos): clean warnings and harden gateway/talk config parsing):apps/macos/Sources/OpenClaw/ExecApprovalsSocket.swift
@@ -420,23 +430,20 @@ private enum ExecHostExecutor {
                 message: "SYSTEM_RUN_DISABLED: security=deny",
                 reason: "security=deny")
         }
+=======
+            command: validatedRequest.command,
+            rawCommand: validatedRequest.displayCommand)
+>>>>>>> 3c95f8966 (refactor(exec): split system.run phases and align ts/swift validator contracts):apps/macos/Sources/OpenClaw/ExecApprovalsSocket.swift
 
-        let approvalDecision = request.approvalDecision
-        if approvalDecision == .deny {
-            return self.errorResponse(
-                code: "UNAVAILABLE",
-                message: "SYSTEM_RUN_DENIED: user denied",
-                reason: "user-denied")
-        }
-
-        var approvedByAsk = approvalDecision != nil
-        if ExecApprovalHelpers.requiresAsk(
-            ask: context.ask,
-            security: context.security,
-            allowlistMatch: context.allowlistMatch,
-            skillAllow: context.skillAllow),
-            approvalDecision == nil
+        switch ExecHostRequestEvaluator.evaluate(
+            context: context,
+            approvalDecision: request.approvalDecision)
         {
+        case .deny(let error):
+            return self.errorResponse(error)
+        case .allow:
+            break
+        case .requiresPrompt:
             let decision = ExecApprovalsPromptPresenter.prompt(
                 ExecApprovalPromptRequest(
                     command: context.displayCommand,
@@ -448,20 +455,34 @@ private enum ExecHostExecutor {
                     resolvedPath: context.resolution?.resolvedPath,
                     sessionKey: request.sessionKey))
 
+            let followupDecision: ExecApprovalDecision
             switch decision {
             case .deny:
-                return self.errorResponse(
-                    code: "UNAVAILABLE",
-                    message: "SYSTEM_RUN_DENIED: user denied",
-                    reason: "user-denied")
+                followupDecision = .deny
             case .allowAlways:
-                approvedByAsk = true
+                followupDecision = .allowAlways
                 self.persistAllowlistEntry(decision: decision, context: context)
             case .allowOnce:
-                approvedByAsk = true
+                followupDecision = .allowOnce
+            }
+
+            switch ExecHostRequestEvaluator.evaluate(
+                context: context,
+                approvalDecision: followupDecision)
+            {
+            case .deny(let error):
+                return self.errorResponse(error)
+            case .allow:
+                break
+            case .requiresPrompt:
+                return self.errorResponse(
+                    code: "INVALID_REQUEST",
+                    message: "unexpected approval state",
+                    reason: "invalid")
             }
         }
 
+<<<<<<< HEAD:apps/macos/Sources/Moltbot/ExecApprovalsSocket.swift
         self.persistAllowlistEntry(decision: approvalDecision, context: context)
 
         if context.security == .allowlist,
@@ -474,6 +495,9 @@ private enum ExecHostExecutor {
                 message: "SYSTEM_RUN_DENIED: allowlist miss",
                 reason: "allowlist-miss")
         }
+=======
+        self.persistAllowlistEntry(decision: request.approvalDecision, context: context)
+>>>>>>> 3c95f8966 (refactor(exec): split system.run phases and align ts/swift validator contracts):apps/macos/Sources/OpenClaw/ExecApprovalsSocket.swift
 
         if let match = context.allowlistMatch {
             ExecApprovalsStore.recordAllowlistUse(
@@ -488,7 +512,7 @@ private enum ExecHostExecutor {
         }
 
         return await self.runCommand(
-            command: command,
+            command: validatedRequest.command,
             cwd: request.cwd,
             env: context.env,
             timeoutMs: request.timeoutMs)
@@ -581,6 +605,17 @@ private enum ExecHostExecutor {
             stderr: result.stderr,
             error: result.errorMessage)
         return self.successResponse(payload)
+    }
+
+    private static func errorResponse(
+        _ error: ExecHostError) -> ExecHostResponse
+    {
+        ExecHostResponse(
+            type: "response",
+            id: UUID().uuidString,
+            ok: false,
+            payload: nil,
+            error: error)
     }
 
     private static func errorResponse(
