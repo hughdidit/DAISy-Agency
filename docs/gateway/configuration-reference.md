@@ -268,6 +268,11 @@ WhatsApp runs through the gateway's web channel (Baileys Web). It starts automat
   - `spawnSubagentSessions`: opt-in switch for `sessions_spawn({ thread: true })` auto thread creation/binding
 - `channels.discord.ui.components.accentColor` sets the accent color for Discord components v2 containers.
 - `channels.discord.voice` enables Discord voice channel conversations and optional auto-join + TTS overrides.
+<<<<<<< HEAD
+=======
+- `channels.discord.voice.daveEncryption` and `channels.discord.voice.decryptionFailureTolerance` pass through to `@discordjs/voice` DAVE options (`true` and `24` by default).
+- OpenClaw additionally attempts voice receive recovery by leaving/rejoining a voice session after repeated decrypt failures.
+>>>>>>> ee6fec36e (docs(discord): document DAVE defaults and decrypt recovery)
 - `channels.discord.streaming` is the canonical stream mode key. Legacy `streamMode` and boolean `streaming` values are auto-migrated.
 >>>>>>> 817905f3a (docs: document thread-bound subagent sessions and remove plan)
 
