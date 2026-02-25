@@ -9,6 +9,7 @@ import type { ThinkLevel } from "../../auto-reply/thinking.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import type { PluginHookBeforeAgentStartResult } from "../../plugins/types.js";
 import type { RunEmbeddedPiAgentParams } from "./run/params.js";
@@ -31,6 +32,8 @@ import { getGlobalHookRunner } from "../../plugins/hook-runner-global.js";
 =======
 =======
 import { resolveAgentModelFallbackValues } from "../../config/model-input.js";
+=======
+>>>>>>> 9beec48e9 (refactor(agents): centralize model fallback resolution)
 import { generateSecureToken } from "../../infra/secure-random.js";
 >>>>>>> a4c373935 (fix(agents): fall back to agents.defaults.model when agent has no model config (#24210))
 import { getGlobalHookRunner } from "../../plugins/hook-runner-global.js";
@@ -53,8 +56,12 @@ import { isMarkdownCapableMessageChannel } from "../../utils/message-channel.js"
 import { resolveMoltbotAgentDir } from "../agent-paths.js";
 =======
 import { resolveOpenClawAgentDir } from "../agent-paths.js";
+<<<<<<< HEAD
 import { resolveAgentModelFallbacksOverride } from "../agent-scope.js";
 >>>>>>> d2597d5ec (fix(agents): harden model fallback failover paths)
+=======
+import { hasConfiguredModelFallbacks } from "../agent-scope.js";
+>>>>>>> 9beec48e9 (refactor(agents): centralize model fallback resolution)
 import {
   isProfileInCooldown,
   markAuthProfileFailure,
@@ -291,6 +298,7 @@ export async function runEmbeddedPiAgent(
       let modelId = (params.model ?? DEFAULT_MODEL).trim() || DEFAULT_MODEL;
       const agentDir = params.agentDir ?? resolveOpenClawAgentDir();
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> b90eb5152 (feat(plugins): add modelOverride/providerOverride to before_agent_start hook)
       const fallbackConfigured =
 <<<<<<< HEAD
@@ -309,6 +317,13 @@ export async function runEmbeddedPiAgent(
           resolveAgentModelFallbackValues(params.config?.agents?.defaults?.model)
         ).length > 0;
 >>>>>>> d2597d5ec (fix(agents): harden model fallback failover paths)
+=======
+      const fallbackConfigured = hasConfiguredModelFallbacks({
+        cfg: params.config,
+        agentId: params.agentId,
+        sessionKey: params.sessionKey,
+      });
+>>>>>>> 9beec48e9 (refactor(agents): centralize model fallback resolution)
       await ensureOpenClawModelsJson(params.config, agentDir);
 >>>>>>> a4c373935 (fix(agents): fall back to agents.defaults.model when agent has no model config (#24210))
 

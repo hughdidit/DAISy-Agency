@@ -113,7 +113,8 @@ function resolveImageFallbackCandidates(params: {
 =======
 function createModelCandidateCollector(allowlist: Set<string> | null | undefined): {
   candidates: ModelCandidate[];
-  addCandidate: (candidate: ModelCandidate, enforceAllowlist: boolean) => void;
+  addExplicitCandidate: (candidate: ModelCandidate) => void;
+  addAllowlistedCandidate: (candidate: ModelCandidate) => void;
 } {
 >>>>>>> ed03b834d (refactor(agents): dedupe model fallback candidate logic)
   const seen = new Set<string>();
@@ -134,7 +135,14 @@ function createModelCandidateCollector(allowlist: Set<string> | null | undefined
     candidates.push(candidate);
   };
 
-  return { candidates, addCandidate };
+  const addExplicitCandidate = (candidate: ModelCandidate) => {
+    addCandidate(candidate, false);
+  };
+  const addAllowlistedCandidate = (candidate: ModelCandidate) => {
+    addCandidate(candidate, true);
+  };
+
+  return { candidates, addExplicitCandidate, addAllowlistedCandidate };
 }
 
 type ModelFallbackErrorHandler = (attempt: {
@@ -189,9 +197,10 @@ function resolveImageFallbackCandidates(params: {
     cfg: params.cfg,
     defaultProvider: params.defaultProvider,
   });
-  const { candidates, addCandidate } = createModelCandidateCollector(allowlist);
+  const { candidates, addExplicitCandidate, addAllowlistedCandidate } =
+    createModelCandidateCollector(allowlist);
 
-  const addRaw = (raw: string, enforceAllowlist: boolean) => {
+  const addRaw = (raw: string, opts?: { allowlist?: boolean }) => {
     const resolved = resolveModelRefFromString({
       raw: String(raw ?? ""),
       defaultProvider: params.defaultProvider,
@@ -200,15 +209,19 @@ function resolveImageFallbackCandidates(params: {
     if (!resolved) {
       return;
     }
-    addCandidate(resolved.ref, enforceAllowlist);
+    if (opts?.allowlist) {
+      addAllowlistedCandidate(resolved.ref);
+      return;
+    }
+    addExplicitCandidate(resolved.ref);
   };
 
   if (params.modelOverride?.trim()) {
-    addRaw(params.modelOverride, false);
+    addRaw(params.modelOverride);
   } else {
     const primary = resolveAgentModelPrimaryValue(params.cfg?.agents?.defaults?.imageModel);
     if (primary?.trim()) {
-      addRaw(primary, false);
+      addRaw(primary);
     }
   }
 
@@ -217,7 +230,7 @@ function resolveImageFallbackCandidates(params: {
   for (const raw of imageFallbacks) {
     // Explicitly configured image fallbacks should remain reachable even when a
     // model allowlist is present.
-    addRaw(raw, false);
+    addRaw(raw);
   }
 
   return candidates;
@@ -271,10 +284,14 @@ function resolveFallbackCandidates(params: {
     cfg: params.cfg,
     defaultProvider,
   });
+<<<<<<< HEAD
   const { candidates, addCandidate } = createModelCandidateCollector(allowlist);
 >>>>>>> ed03b834d (refactor(agents): dedupe model fallback candidate logic)
+=======
+  const { candidates, addExplicitCandidate } = createModelCandidateCollector(allowlist);
+>>>>>>> 9beec48e9 (refactor(agents): centralize model fallback resolution)
 
-  addCandidate(normalizedPrimary, false);
+  addExplicitCandidate(normalizedPrimary);
 
   const modelFallbacks = (() => {
     if (params.fallbacksOverride !== undefined) {
@@ -311,11 +328,11 @@ function resolveFallbackCandidates(params: {
     }
     // Fallbacks are explicit user intent; do not silently filter them by the
     // model allowlist.
-    addCandidate(resolved.ref, false);
+    addExplicitCandidate(resolved.ref);
   }
 
   if (params.fallbacksOverride === undefined && primary?.provider && primary.model) {
-    addCandidate({ provider: primary.provider, model: primary.model }, false);
+    addExplicitCandidate({ provider: primary.provider, model: primary.model });
   }
 
   return candidates;
