@@ -39,6 +39,7 @@ const PLUGIN_REQUIRED_COMMANDS = new Set([
   "configure",
   "onboard",
 ]);
+const CONFIG_GUARD_BYPASS_COMMANDS = new Set(["doctor", "completion", "secrets"]);
 
 function getRootCommand(command: Command): Command {
   let current = command;
@@ -85,9 +86,13 @@ export function registerPreActionHooks(program: Command, programVersion: string)
       process.env.NODE_NO_WARNINGS ??= "1";
     }
 <<<<<<< HEAD
+<<<<<<< HEAD
     if (commandPath[0] === "doctor") return;
 =======
     if (commandPath[0] === "doctor" || commandPath[0] === "completion") {
+=======
+    if (CONFIG_GUARD_BYPASS_COMMANDS.has(commandPath[0])) {
+>>>>>>> 0e69660c4 (feat(secrets): finalize external secrets runtime and migration hardening)
       return;
     }
 <<<<<<< HEAD
