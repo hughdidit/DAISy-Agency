@@ -36,8 +36,13 @@ import { withTelegramApiErrorLogging } from "./api-logging.js";
 import {
   firstDefined,
   isSenderAllowed,
+<<<<<<< HEAD
   normalizeAllowFromWithStore,
   resolveSenderAllowMatch,
+=======
+  normalizeAllowFrom,
+  normalizeAllowFromWithStore,
+>>>>>>> c7352f6b3 (security(telegram): fail closed group allowlist against DM pairing store)
 } from "./bot-access.js";
 import {
   buildGroupLabel,
@@ -184,10 +189,15 @@ export const buildTelegramMessageContext = async ({
   const mentionRegexes = buildMentionRegexes(cfg, route.agentId);
   const effectiveDmAllow = normalizeAllowFromWithStore({ allowFrom, storeAllowFrom });
   const groupAllowOverride = firstDefined(topicConfig?.allowFrom, groupConfig?.allowFrom);
+<<<<<<< HEAD
   const effectiveGroupAllow = normalizeAllowFromWithStore({
     allowFrom: groupAllowOverride ?? groupAllowFrom,
     storeAllowFrom,
   });
+=======
+  // Group sender checks are explicit and must not inherit DM pairing-store entries.
+  const effectiveGroupAllow = normalizeAllowFrom(groupAllowOverride ?? groupAllowFrom);
+>>>>>>> c7352f6b3 (security(telegram): fail closed group allowlist against DM pairing store)
   const hasGroupAllowOverride = typeof groupAllowOverride !== "undefined";
 
   if (isGroup && groupConfig?.enabled === false) {
