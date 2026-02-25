@@ -14,6 +14,10 @@ use the long‑lived token created by `claude setup-token`.
 
 See [/concepts/oauth](/concepts/oauth) for the full OAuth flow and storage
 layout.
+<<<<<<< HEAD
+=======
+For SecretRef-based auth (`env`/`file`/`exec` providers), see [Secrets Management](/gateway/secrets).
+>>>>>>> bde9cbb05 (docs(secrets): align provider model and add exec resolver coverage)
 
 ## Recommended Anthropic setup (API key)
 
@@ -85,6 +89,14 @@ openclaw models auth paste-token --provider anthropic
 openclaw models auth paste-token --provider openrouter
 ```
 
+<<<<<<< HEAD
+=======
+Auth profile refs are also supported for static credentials:
+
+- `api_key` credentials can use `keyRef: { source, provider, id }`
+- `token` credentials can use `tokenRef: { source, provider, id }`
+
+>>>>>>> bde9cbb05 (docs(secrets): align provider model and add exec resolver coverage)
 Automation-friendly check (exit `1` when expired/missing, `2` when expiring):
 
 ```bash

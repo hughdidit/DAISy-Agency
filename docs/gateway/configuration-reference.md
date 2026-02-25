@@ -1912,7 +1912,11 @@ See [Local Models](/gateway/local-models). TL;DR: run MiniMax M2.1 via LM Studio
     },
     entries: {
       "nano-banana-pro": {
+<<<<<<< HEAD
         apiKey: "GEMINI_KEY_HERE",
+=======
+        apiKey: { source: "env", provider: "default", id: "GEMINI_API_KEY" }, // or plaintext string
+>>>>>>> bde9cbb05 (docs(secrets): align provider model and add exec resolver coverage)
         env: { GEMINI_API_KEY: "GEMINI_KEY_HERE" },
       },
       peekaboo: { enabled: true },
@@ -2307,6 +2311,73 @@ Reference env vars in any config string with `${VAR_NAME}`:
 
 ---
 
+<<<<<<< HEAD
+=======
+## Secrets
+
+Secret refs are additive: plaintext values still work.
+
+### `SecretRef`
+
+Use one object shape:
+
+```json5
+{ source: "env" | "file" | "exec", provider: "default", id: "..." }
+```
+
+Validation:
+
+- `provider` pattern: `^[a-z][a-z0-9_-]{0,63}$`
+- `source: "env"` id pattern: `^[A-Z][A-Z0-9_]{0,127}$`
+- `source: "file"` id: absolute JSON pointer (for example `"/providers/openai/apiKey"`)
+- `source: "exec"` id pattern: `^[A-Za-z0-9][A-Za-z0-9._:/-]{0,255}$`
+
+### Supported fields in config
+
+- `models.providers.<provider>.apiKey`
+- `skills.entries.<skillKey>.apiKey`
+- `channels.googlechat.serviceAccount`
+- `channels.googlechat.serviceAccountRef`
+- `channels.googlechat.accounts.<accountId>.serviceAccount`
+- `channels.googlechat.accounts.<accountId>.serviceAccountRef`
+
+### Secret providers config
+
+```json5
+{
+  secrets: {
+    providers: {
+      default: { source: "env" }, // optional explicit env provider
+      filemain: {
+        source: "file",
+        path: "~/.openclaw/secrets.json",
+        mode: "jsonPointer",
+        timeoutMs: 5000,
+      },
+      vault: {
+        source: "exec",
+        command: "/usr/local/bin/openclaw-vault-resolver",
+        passEnv: ["PATH", "VAULT_ADDR"],
+      },
+    },
+    defaults: {
+      env: "default",
+      file: "filemain",
+      exec: "vault",
+    },
+  },
+}
+```
+
+Notes:
+
+- `file` provider supports `mode: "jsonPointer"` and `mode: "raw"` (`id` must be `"value"` in raw mode).
+- `exec` provider requires an absolute `command` path and uses protocol payloads on stdin/stdout.
+- Secret refs are resolved at activation time into an in-memory snapshot, then request paths read the snapshot only.
+
+---
+
+>>>>>>> bde9cbb05 (docs(secrets): align provider model and add exec resolver coverage)
 ## Auth storage
 
 ```json5

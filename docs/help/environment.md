@@ -74,6 +74,18 @@ You can reference env vars directly in config string values using `${VAR_NAME}` 
 
 See [Configuration: Env var substitution](/gateway/configuration#env-var-substitution-in-config) for full details.
 
+<<<<<<< HEAD
+=======
+## Secret refs vs `${ENV}` strings
+
+OpenClaw supports two env-driven patterns:
+
+- `${VAR}` string substitution in config values.
+- SecretRef objects (`{ source: "env", provider: "default", id: "VAR" }`) for fields that support secrets references.
+
+Both resolve from process env at activation time. SecretRef details are documented in [Secrets Management](/gateway/secrets).
+
+>>>>>>> bde9cbb05 (docs(secrets): align provider model and add exec resolver coverage)
 ## Path-related env vars
 
 | Variable               | Purpose                                                                                                                                                                          |
