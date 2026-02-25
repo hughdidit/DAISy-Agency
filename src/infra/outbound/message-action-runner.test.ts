@@ -723,7 +723,27 @@ describe("runMessageAction sandboxed media validation", () => {
       if (result.kind !== "send") {
         throw new Error("expected send result");
       }
+<<<<<<< HEAD
       expect(result.sendResult?.mediaUrl).toBe(tmpFile);
+=======
+      // runMessageAction normalizes media paths through platform resolution.
+      expect(result.sendResult?.mediaUrl).toBe(path.resolve(tmpFile));
+      const hostTmpOutsideOpenClaw = path.join(os.tmpdir(), "outside-openclaw", "test-media.png");
+      await expect(
+        runMessageAction({
+          cfg: slackConfig,
+          action: "send",
+          params: {
+            channel: "slack",
+            target: "#C12345678",
+            media: hostTmpOutsideOpenClaw,
+            message: "",
+          },
+          sandboxRoot: sandboxDir,
+          dryRun: true,
+        }),
+      ).rejects.toThrow(/sandbox/i);
+>>>>>>> 2157c490a (test: normalize tmp media path assertion for windows)
     } finally {
       await fs.rm(sandboxDir, { recursive: true, force: true });
     }
