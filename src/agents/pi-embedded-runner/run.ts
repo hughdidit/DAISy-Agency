@@ -1,8 +1,11 @@
 import fs from "node:fs/promises";
 import type { ThinkLevel } from "../../auto-reply/thinking.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import { resolveAgentModelFallbackValues } from "../../config/model-input.js";
+=======
+>>>>>>> 9beec48e9 (refactor(agents): centralize model fallback resolution)
 import { generateSecureToken } from "../../infra/secure-random.js";
 >>>>>>> a4c373935 (fix(agents): fall back to agents.defaults.model when agent has no model config (#24210))
 import { getGlobalHookRunner } from "../../plugins/hook-runner-global.js";
@@ -10,7 +13,7 @@ import type { PluginHookBeforeAgentStartResult } from "../../plugins/types.js";
 import { enqueueCommandInLane } from "../../process/command-queue.js";
 import { isMarkdownCapableMessageChannel } from "../../utils/message-channel.js";
 import { resolveOpenClawAgentDir } from "../agent-paths.js";
-import { resolveAgentModelFallbacksOverride } from "../agent-scope.js";
+import { hasConfiguredModelFallbacks } from "../agent-scope.js";
 import {
   isProfileInCooldown,
   markAuthProfileFailure,
@@ -202,15 +205,11 @@ export async function runEmbeddedPiAgent(
       let provider = (params.provider ?? DEFAULT_PROVIDER).trim() || DEFAULT_PROVIDER;
       let modelId = (params.model ?? DEFAULT_MODEL).trim() || DEFAULT_MODEL;
       const agentDir = params.agentDir ?? resolveOpenClawAgentDir();
-      const agentFallbacksOverride =
-        params.config && params.agentId
-          ? resolveAgentModelFallbacksOverride(params.config, params.agentId)
-          : undefined;
-      const fallbackConfigured =
-        (
-          agentFallbacksOverride ??
-          resolveAgentModelFallbackValues(params.config?.agents?.defaults?.model)
-        ).length > 0;
+      const fallbackConfigured = hasConfiguredModelFallbacks({
+        cfg: params.config,
+        agentId: params.agentId,
+        sessionKey: params.sessionKey,
+      });
       await ensureOpenClawModelsJson(params.config, agentDir);
 
       // Run before_model_resolve hooks early so plugins can override the
