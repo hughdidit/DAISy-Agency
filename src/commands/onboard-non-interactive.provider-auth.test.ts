@@ -301,9 +301,128 @@ describe("onboard (non-interactive): provider auth", () => {
           skipHealth: true,
           skipChannels: true,
           skipSkills: true,
+<<<<<<< HEAD
           json: true,
         },
         runtime,
+=======
+        });
+
+        const cfg = await readJsonFile<ProviderAuthConfigSnapshot>(configPath);
+
+        expect(cfg.models?.providers?.["custom-models-custom-local"]?.baseUrl).toBe(
+          "https://models.custom.local/v1",
+        );
+        expect(cfg.models?.providers?.["custom-models-custom-local"]?.api).toBe(
+          "openai-completions",
+        );
+        expect(cfg.agents?.defaults?.model?.primary).toBe("custom-models-custom-local/local-large");
+      },
+    );
+  });
+
+  it("uses CUSTOM_API_KEY env fallback for non-interactive custom provider auth", async () => {
+    await withOnboardEnv(
+      "openclaw-onboard-custom-provider-env-fallback-",
+      async ({ configPath, runtime }) => {
+        process.env.CUSTOM_API_KEY = "custom-env-key";
+        await runCustomLocalNonInteractive(runtime);
+        expect(await readCustomLocalProviderApiKey(configPath)).toBe("custom-env-key");
+      },
+    );
+  });
+
+  it("stores CUSTOM_API_KEY env ref for non-interactive custom provider auth in ref mode", async () => {
+    await withOnboardEnv(
+      "openclaw-onboard-custom-provider-env-ref-",
+      async ({ configPath, runtime }) => {
+        process.env.CUSTOM_API_KEY = "custom-env-key";
+        await runCustomLocalNonInteractive(runtime, {
+          secretInputMode: "ref",
+        });
+        expect(await readCustomLocalProviderApiKeyInput(configPath)).toEqual({
+          source: "env",
+          provider: "default",
+          id: "CUSTOM_API_KEY",
+        });
+      },
+    );
+  });
+
+  it("fails fast for custom provider ref mode when --custom-api-key is set but CUSTOM_API_KEY env is missing", async () => {
+    await withOnboardEnv("openclaw-onboard-custom-provider-ref-flag-", async ({ runtime }) => {
+      const providedSecret = "custom-inline-key-should-not-leak";
+      await withEnvAsync({ CUSTOM_API_KEY: undefined }, async () => {
+        let thrown: Error | undefined;
+        try {
+          await runCustomLocalNonInteractive(runtime, {
+            secretInputMode: "ref",
+            customApiKey: providedSecret,
+          });
+        } catch (error) {
+          thrown = error as Error;
+        }
+        expect(thrown).toBeDefined();
+        const message = String(thrown?.message ?? "");
+        expect(message).toContain(
+          "--custom-api-key cannot be used with --secret-input-mode ref unless CUSTOM_API_KEY is set in env.",
+        );
+        expect(message).toContain(
+          "Set CUSTOM_API_KEY in env and omit --custom-api-key, or use --secret-input-mode plaintext.",
+        );
+        expect(message).not.toContain(providedSecret);
+      });
+    });
+  });
+
+  it("uses matching profile fallback for non-interactive custom provider auth", async () => {
+    await withOnboardEnv(
+      "openclaw-onboard-custom-provider-profile-fallback-",
+      async ({ configPath, runtime }) => {
+        upsertAuthProfile({
+          profileId: `${CUSTOM_LOCAL_PROVIDER_ID}:default`,
+          credential: {
+            type: "api_key",
+            provider: CUSTOM_LOCAL_PROVIDER_ID,
+            key: "custom-profile-key",
+          },
+        });
+        await runCustomLocalNonInteractive(runtime);
+        expect(await readCustomLocalProviderApiKey(configPath)).toBe("custom-profile-key");
+      },
+    );
+  });
+
+  it("fails custom provider auth when compatibility is invalid", async () => {
+    await withOnboardEnv(
+      "openclaw-onboard-custom-provider-invalid-compat-",
+      async ({ runtime }) => {
+        await expect(
+          runNonInteractiveOnboardingWithDefaults(runtime, {
+            authChoice: "custom-api-key",
+            customBaseUrl: "https://models.custom.local/v1",
+            customModelId: "local-large",
+            customCompatibility: "xmlrpc",
+            skipSkills: true,
+          }),
+        ).rejects.toThrow('Invalid --custom-compatibility (use "openai" or "anthropic").');
+      },
+    );
+  });
+
+  it("fails custom provider auth when explicit provider id is invalid", async () => {
+    await withOnboardEnv("openclaw-onboard-custom-provider-invalid-id-", async ({ runtime }) => {
+      await expect(
+        runNonInteractiveOnboardingWithDefaults(runtime, {
+          authChoice: "custom-api-key",
+          customBaseUrl: "https://models.custom.local/v1",
+          customModelId: "local-large",
+          customProviderId: "!!!",
+          skipSkills: true,
+        }),
+      ).rejects.toThrow(
+        "Invalid custom provider config: Custom provider ID must include letters, numbers, or hyphens.",
+>>>>>>> 4e7a833a2 (feat(security): add provider-based external secrets management)
       );
 
       const cfg = await readJsonFile<{

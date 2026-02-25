@@ -4,9 +4,15 @@ import {
   type OAuthCredentials,
   type OAuthProvider,
 } from "@mariozechner/pi-ai";
+<<<<<<< HEAD
 import lockfile from "proper-lockfile";
 import type { OpenClawConfig } from "../../config/config.js";
 import type { AuthProfileStore } from "./types.js";
+=======
+import { loadConfig, type OpenClawConfig } from "../../config/config.js";
+import { coerceSecretRef } from "../../config/types.secrets.js";
+import { withFileLock } from "../../infra/file-lock.js";
+>>>>>>> 4e7a833a2 (feat(security): add provider-based external secrets management)
 import { refreshQwenPortalCredentials } from "../../providers/qwen-portal-oauth.js";
 import { refreshChutesTokens } from "../chutes-oauth.js";
 import { AUTH_STORE_LOCK_OPTIONS, log } from "./constants.js";
@@ -161,6 +167,7 @@ export async function resolveApiKeyForProfile(params: {
   if (profileConfig && profileConfig.provider !== cred.provider) {
     return null;
   }
+<<<<<<< HEAD
   if (profileConfig && profileConfig.mode !== cred.type) {
     // Compatibility: treat "oauth" config as compatible with stored token profiles.
     if (!(profileConfig.mode === "oauth" && cred.type === "token")) {
@@ -170,13 +177,94 @@ export async function resolveApiKeyForProfile(params: {
 
   if (cred.type === "api_key") {
     const key = cred.key?.trim();
+=======
+
+  const refResolveCache: SecretRefResolveCache = {};
+  const configForRefResolution = cfg ?? loadConfig();
+  const refDefaults = configForRefResolution.secrets?.defaults;
+
+  if (cred.type === "api_key") {
+    let key = cred.key?.trim();
+    if (key) {
+      const inlineRef = coerceSecretRef(key, refDefaults);
+      if (inlineRef) {
+        try {
+          key = await resolveSecretRefString(inlineRef, {
+            config: configForRefResolution,
+            env: process.env,
+            cache: refResolveCache,
+          });
+        } catch (err) {
+          log.debug("failed to resolve inline auth profile api_key ref", {
+            profileId,
+            provider: cred.provider,
+            error: err instanceof Error ? err.message : String(err),
+          });
+        }
+      }
+    }
+    const keyRef = coerceSecretRef(cred.keyRef, refDefaults);
+    if (!key && keyRef) {
+      try {
+        key = await resolveSecretRefString(keyRef, {
+          config: configForRefResolution,
+          env: process.env,
+          cache: refResolveCache,
+        });
+      } catch (err) {
+        log.debug("failed to resolve auth profile api_key ref", {
+          profileId,
+          provider: cred.provider,
+          error: err instanceof Error ? err.message : String(err),
+        });
+      }
+    }
+>>>>>>> 4e7a833a2 (feat(security): add provider-based external secrets management)
     if (!key) {
       return null;
     }
     return { apiKey: key, provider: cred.provider, email: cred.email };
   }
   if (cred.type === "token") {
+<<<<<<< HEAD
     const token = cred.token?.trim();
+=======
+    let token = cred.token?.trim();
+    if (token) {
+      const inlineRef = coerceSecretRef(token, refDefaults);
+      if (inlineRef) {
+        try {
+          token = await resolveSecretRefString(inlineRef, {
+            config: configForRefResolution,
+            env: process.env,
+            cache: refResolveCache,
+          });
+        } catch (err) {
+          log.debug("failed to resolve inline auth profile token ref", {
+            profileId,
+            provider: cred.provider,
+            error: err instanceof Error ? err.message : String(err),
+          });
+        }
+      }
+    }
+    const tokenRef = coerceSecretRef(cred.tokenRef, refDefaults);
+    if (!token && tokenRef) {
+      try {
+        token = await resolveSecretRefString(tokenRef, {
+          config: configForRefResolution,
+          env: process.env,
+          cache: refResolveCache,
+        });
+      } catch (err) {
+        log.debug("failed to resolve auth profile token ref", {
+          profileId,
+          provider: cred.provider,
+          error: err instanceof Error ? err.message : String(err),
+        });
+      }
+    }
+>>>>>>> 4e7a833a2 (feat(security): add provider-based external secrets management)
     if (!token) {
       return null;
     }
