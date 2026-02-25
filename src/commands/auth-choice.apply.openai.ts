@@ -4,6 +4,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { loginOpenAICodex } from "@mariozechner/pi-ai";
 =======
 import type { ApplyAuthChoiceParams, ApplyAuthChoiceResult } from "./auth-choice.apply.js";
@@ -43,10 +44,13 @@ import {
 import { createAuthChoiceAgentModelNoter } from "./auth-choice.apply-helpers.js";
 >>>>>>> 0048af4e2 (refactor(commands): dedupe auth-choice model notes)
 =======
+=======
+import { normalizeApiKeyInput, validateApiKeyInput } from "./auth-choice.api-key.js";
+>>>>>>> 5e3a86fd2 (feat(secrets): expand onboarding secret-ref flows and custom-provider parity)
 import {
   createAuthChoiceAgentModelNoter,
+  ensureApiKeyFromOptionEnvOrPrompt,
   normalizeSecretInputModeInput,
-  resolveSecretInputModeForEnvSelection,
 } from "./auth-choice.apply-helpers.js";
 >>>>>>> 2ef109f00 (Onboard OpenAI: explicit secret-input-mode behavior)
 import type { ApplyAuthChoiceParams, ApplyAuthChoiceResult } from "./auth-choice.apply.js";
@@ -120,6 +124,7 @@ export async function applyAuthChoiceOpenAI(
       return { config: nextConfig, agentModelOverride };
     };
 
+<<<<<<< HEAD
 >>>>>>> aa2d74a84 (refactor(commands): dedupe OpenAI default model apply)
     const envKey = resolveEnvApiKey("openai");
     if (envKey) {
@@ -168,7 +173,22 @@ export async function applyAuthChoiceOpenAI(
 
     const trimmed = normalizeApiKeyInput(String(key));
     await setOpenaiApiKey(trimmed, params.agentDir, {
+=======
+    await ensureApiKeyFromOptionEnvOrPrompt({
+      token: params.opts?.token,
+      tokenProvider: params.opts?.tokenProvider,
+>>>>>>> 5e3a86fd2 (feat(secrets): expand onboarding secret-ref flows and custom-provider parity)
       secretInputMode: requestedSecretInputMode,
+      config: nextConfig,
+      expectedProviders: ["openai"],
+      provider: "openai",
+      envLabel: "OPENAI_API_KEY",
+      promptMessage: "Enter OpenAI API key",
+      normalize: normalizeApiKeyInput,
+      validate: validateApiKeyInput,
+      prompter: params.prompter,
+      setCredential: async (apiKey, mode) =>
+        setOpenaiApiKey(apiKey, params.agentDir, { secretInputMode: mode }),
     });
     nextConfig = applyAuthProfileConfig(nextConfig, {
       profileId: "openai:default",

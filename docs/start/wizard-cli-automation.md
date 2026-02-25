@@ -31,6 +31,25 @@ openclaw onboard --non-interactive \
 
 Add `--json` for a machine-readable summary.
 
+<<<<<<< HEAD
+=======
+Use `--secret-input-mode ref` to store env-backed refs in auth profiles instead of plaintext values.
+Interactive selection between env refs and encrypted file refs (`sops`) is available in the onboarding wizard flow.
+
+In non-interactive `ref` mode, provider env vars must be set in the process environment.
+Passing inline key flags without the matching env var now fails fast.
+
+Example:
+
+```bash
+openclaw onboard --non-interactive \
+  --mode local \
+  --auth-choice openai-api-key \
+  --secret-input-mode ref \
+  --accept-risk
+```
+
+>>>>>>> 5e3a86fd2 (feat(secrets): expand onboarding secret-ref flows and custom-provider parity)
 ## Provider-specific examples
 
 <AccordionGroup>
@@ -131,6 +150,24 @@ Add `--json` for a machine-readable summary.
     ```
 
     `--custom-api-key` is optional. If omitted, onboarding checks `CUSTOM_API_KEY`.
+
+    Ref-mode variant:
+
+    ```bash
+    export CUSTOM_API_KEY="your-key"
+    openclaw onboard --non-interactive \
+      --mode local \
+      --auth-choice custom-api-key \
+      --custom-base-url "https://llm.example.com/v1" \
+      --custom-model-id "foo-large" \
+      --secret-input-mode ref \
+      --custom-provider-id "my-custom" \
+      --custom-compatibility anthropic \
+      --gateway-port 18789 \
+      --gateway-bind loopback
+    ```
+
+    In this mode, onboarding stores `apiKey` as `{ source: "env", id: "CUSTOM_API_KEY" }`.
 
   </Accordion>
 </AccordionGroup>
