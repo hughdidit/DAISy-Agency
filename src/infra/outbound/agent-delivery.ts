@@ -49,11 +49,39 @@ export function resolveAgentDeliveryPlan(params: {
       ? params.explicitTo.trim()
       : undefined;
 
+<<<<<<< HEAD
+=======
+  // Resolve turn-source channel for cross-channel safety.
+  const normalizedTurnSource = params.turnSourceChannel
+    ? normalizeMessageChannel(params.turnSourceChannel)
+    : undefined;
+  const turnSourceChannel =
+    normalizedTurnSource && isDeliverableMessageChannel(normalizedTurnSource)
+      ? normalizedTurnSource
+      : undefined;
+  const turnSourceTo =
+    typeof params.turnSourceTo === "string" && params.turnSourceTo.trim()
+      ? params.turnSourceTo.trim()
+      : undefined;
+  const turnSourceAccountId = normalizeAccountId(params.turnSourceAccountId);
+  const turnSourceThreadId =
+    params.turnSourceThreadId != null && params.turnSourceThreadId !== ""
+      ? params.turnSourceThreadId
+      : undefined;
+
+>>>>>>> 885452f5c (fix: fail-closed shared-session reply routing (#24571) (thanks @brandonwise))
   const baseDelivery = resolveSessionDeliveryTarget({
     entry: params.sessionEntry,
     requestedChannel: requestedChannel === INTERNAL_MESSAGE_CHANNEL ? "last" : requestedChannel,
     explicitTo,
     explicitThreadId: params.explicitThreadId,
+<<<<<<< HEAD
+=======
+    turnSourceChannel,
+    turnSourceTo,
+    turnSourceAccountId,
+    turnSourceThreadId,
+>>>>>>> 885452f5c (fix: fail-closed shared-session reply routing (#24571) (thanks @brandonwise))
   });
 
   const resolvedChannel = (() => {
