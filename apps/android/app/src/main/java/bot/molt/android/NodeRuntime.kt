@@ -55,7 +55,11 @@ import ai.openclaw.android.voice.VoiceWakeManager
 >>>>>>> c179f71f4 (feat: Android companion app improvements & gateway URL camera payloads (#13541)):apps/android/app/src/main/java/ai/openclaw/android/NodeRuntime.kt
 =======
 import ai.openclaw.android.voice.MicCaptureManager
+<<<<<<< HEAD:apps/android/app/src/main/java/bot/molt/android/NodeRuntime.kt
 >>>>>>> 3d29233ba (feat(android): add single-path mic capture runtime manager):apps/android/app/src/main/java/ai/openclaw/android/NodeRuntime.kt
+=======
+import ai.openclaw.android.voice.VoiceConversationEntry
+>>>>>>> f9c3fdba4 (refactor(android): expose voice conversation state to viewmodel):apps/android/app/src/main/java/ai/openclaw/android/NodeRuntime.kt
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -341,6 +345,9 @@ class NodeRuntime(context: Context) {
 
   val micQueuedMessages: StateFlow<List<String>>
     get() = micCapture.queuedMessages
+
+  val micConversation: StateFlow<List<VoiceConversationEntry>>
+    get() = micCapture.conversation
 
   val micInputLevel: StateFlow<Float>
     get() = micCapture.inputLevel
