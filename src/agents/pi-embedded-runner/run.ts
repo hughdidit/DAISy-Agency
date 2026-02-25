@@ -49,7 +49,12 @@ import type { PluginHookBeforeAgentStartResult } from "../../plugins/types.js";
 import { enqueueCommandInLane } from "../../process/command-queue.js";
 import { resolveUserPath } from "../../utils.js";
 import { isMarkdownCapableMessageChannel } from "../../utils/message-channel.js";
+<<<<<<< HEAD
 import { resolveMoltbotAgentDir } from "../agent-paths.js";
+=======
+import { resolveOpenClawAgentDir } from "../agent-paths.js";
+import { resolveAgentModelFallbacksOverride } from "../agent-scope.js";
+>>>>>>> d2597d5ec (fix(agents): harden model fallback failover paths)
 import {
   isProfileInCooldown,
   markAuthProfileFailure,
@@ -285,6 +290,7 @@ export async function runEmbeddedPiAgent(
       let provider = (params.provider ?? DEFAULT_PROVIDER).trim() || DEFAULT_PROVIDER;
       let modelId = (params.model ?? DEFAULT_MODEL).trim() || DEFAULT_MODEL;
       const agentDir = params.agentDir ?? resolveOpenClawAgentDir();
+<<<<<<< HEAD
 >>>>>>> b90eb5152 (feat(plugins): add modelOverride/providerOverride to before_agent_start hook)
       const fallbackConfigured =
 <<<<<<< HEAD
@@ -292,6 +298,17 @@ export async function runEmbeddedPiAgent(
       await ensureMoltbotModelsJson(params.config, agentDir);
 =======
         resolveAgentModelFallbackValues(params.config?.agents?.defaults?.model).length > 0;
+=======
+      const agentFallbacksOverride =
+        params.config && params.agentId
+          ? resolveAgentModelFallbacksOverride(params.config, params.agentId)
+          : undefined;
+      const fallbackConfigured =
+        (
+          agentFallbacksOverride ??
+          resolveAgentModelFallbackValues(params.config?.agents?.defaults?.model)
+        ).length > 0;
+>>>>>>> d2597d5ec (fix(agents): harden model fallback failover paths)
       await ensureOpenClawModelsJson(params.config, agentDir);
 >>>>>>> a4c373935 (fix(agents): fall back to agents.defaults.model when agent has no model config (#24210))
 
