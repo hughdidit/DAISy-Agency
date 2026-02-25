@@ -51,6 +51,7 @@ Docs: https://docs.openclaw.ai
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 =======
@@ -79,6 +80,25 @@ Docs: https://docs.openclaw.ai
 =======
 =======
 =======
+=======
+- iMessage/Reasoning safety: harden iMessage echo suppression with outbound `messageId` matching (plus scoped text fallback), and enforce reasoning-payload suppression on routed outbound delivery paths to prevent hidden thinking text from being sent as user-visible channel messages. (#25897, #1649, #25757) Thanks @rmarr and @Iranb.
+- Windows/Media safety checks: align async local-file identity validation with sync-safe-open behavior by treating win32 `dev=0` stats as unknown-device fallbacks (while keeping strict dev checks when both sides are non-zero), fixing false `Local media path is not safe to read` drops for local attachments/TTS/images. (#25708, #21989, #25699, #25878) Thanks @kevinWangSheng.
+- macOS/WebChat panel: fix rounded-corner clipping by using panel-specific visual-effect blending and matching corner masking on both effect and hosting layers. (#22458) Thanks @apethree and @agisilaos.
+- macOS/IME input: when marked text is active, treat Return as IME candidate confirmation first in both the voice overlay composer and shared chat composer to prevent accidental sends while composing CJK text. (#25178) Thanks @bottotl.
+- macOS/Voice wake routing: default forwarded voice-wake transcripts to the `webchat` channel (instead of ambiguous `last` routing) so local voice prompts stay pinned to the control chat surface unless explicitly overridden. (#25440) Thanks @chilu18.
+- macOS/Gateway launch: prefer an available `openclaw` binary before pnpm/node runtime fallback when resolving local gateway commands, so local startup no longer fails on hosts with broken runtime discovery. (#25512) Thanks @chilu18.
+- macOS/Voice input: guard all audio-input startup paths against missing default microphones (Voice Wake, Talk Mode, Push-to-Talk, mic-level monitor, tester) to avoid launch/runtime crashes on mic-less Macs and fail gracefully until input becomes available. (#25817) Thanks @sfo2001.
+- Gateway/Security: enforce gateway auth for the exact `/api/channels` plugin root path (plus `/api/channels/` descendants), with regression coverage for query/trailing-slash variants and near-miss paths that must remain plugin-owned. (#25753) Thanks @bmendonca3.
+- Security/Exec: sanitize inherited host execution environment before merge, canonicalize inherited PATH handling, and strip dangerous keys (`LD_*`, `DYLD_*`, `SSLKEYLOGFILE`, and related injection vectors) from non-sandboxed exec runs. (#25755) Thanks @bmendonca3.
+- Security/Hooks: normalize hook session-key classification with trim/lowercase plus Unicode NFKC folding (for example full-width `ＨＯＯＫ：...`) so external-content wrapping cannot be bypassed by mixed-case or lookalike prefixes. (#25750) Thanks @bmendonca3.
+- Security/Voice Call: add Telnyx webhook replay detection and canonicalize replay-key signature encoding (Base64/Base64URL equivalent forms dedupe together), so duplicate signed webhook deliveries no longer re-trigger side effects. (#25832) Thanks @bmendonca3.
+- Providers/OpenRouter/Auth profiles: bypass auth-profile cooldown/disable windows for OpenRouter, so provider failures no longer put OpenRouter profiles into local cooldown and stale legacy cooldown markers are ignored in fallback and status selection paths. (#25892) Thanks @alexanderatallah for raising this and @vincentkoc for the fix.
+- WhatsApp/Web reconnect: treat close status `440` as non-retryable (including string-form status values), stop reconnect loops immediately, and emit operator guidance to relink after resolving session conflicts. (#25858) Thanks @markmusson.
+- Onboarding/Telegram: keep core-channel onboarding available when plugin registry population is missing by falling back to built-in adapters and continuing wizard setup with actionable recovery guidance. (#25803) Thanks @Suko.
+- Models/Bedrock auth: normalize additional Bedrock provider aliases (`bedrock`, `aws-bedrock`, `aws_bedrock`, `amazon bedrock`) to canonical `amazon-bedrock`, ensuring auth-mode resolution consistently selects AWS SDK fallback. (#25756) Thanks @fwhite13.
+- Providers/SiliconFlow: normalize `thinking="off"` to `thinking: null` for `Pro/*` model payloads to avoid provider-side 400 loops and misleading compaction retries. (#25435) Thanks @Zjianru.
+- Gateway/Models: honor explicit `agents.defaults.models` allowlist refs even when bundled model catalog data is stale, synthesize missing allowlist entries in `models.list`, and allow `sessions.patch`/`/model` selection for those refs without false `model not allowed` errors. (#20291) Thanks @kensipe, @nikolasdehor, and @vincentkoc.
+>>>>>>> bd213cf2a (fix(agents): normalize SiliconFlow Pro thinking=off payload (#25435))
 - Automation/Subagent/Cron reliability: honor `ANNOUNCE_SKIP` in `sessions_spawn` completion/direct announce flows (no user-visible token leaks), add transient direct-announce retries for channel unavailability (for example WhatsApp listener reconnect windows), and include `cron` in the `coding` tool profile so `/tools/invoke` can execute cron actions when explicitly allowed by gateway policy. (#25800, #25656, #25842, #25813, #25822, #25821) Thanks @astra-fer, @aaajiao, @dwight11232-coder, @kevinWangSheng, @widingmarcus-cyber, and @stakeswky.
 >>>>>>> 53f9b7d4e (fix(automation): harden announce delivery + cron coding profile (#25813 #25821 #25822))
 - Discord/Block streaming: restore block-streamed reply delivery by suppressing only reasoning payloads (instead of all `block` payloads), fixing missing Discord replies in `channels.discord.streaming=block` mode. (#25839, #25836, #25792) Thanks @pewallin.

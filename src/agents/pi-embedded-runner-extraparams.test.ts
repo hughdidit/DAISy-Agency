@@ -263,7 +263,121 @@ describe("applyExtraParamsToAgent", () => {
     expect(payloads[0]?.reasoning).toEqual({ effort: "low" });
   });
 
+<<<<<<< HEAD
 >>>>>>> b96d32c1c (chore: fix oxfmt formatting in extraparams test)
+=======
+  it("removes legacy reasoning_effort and keeps reasoning unset when thinkingLevel is off", () => {
+    const payloads: Record<string, unknown>[] = [];
+    const baseStreamFn: StreamFn = (_model, _context, options) => {
+      const payload: Record<string, unknown> = { reasoning_effort: "high" };
+      options?.onPayload?.(payload);
+      payloads.push(payload);
+      return {} as ReturnType<StreamFn>;
+    };
+    const agent = { streamFn: baseStreamFn };
+
+    applyExtraParamsToAgent(agent, undefined, "openrouter", "openrouter/auto", undefined, "off");
+
+    const model = {
+      api: "openai-completions",
+      provider: "openrouter",
+      id: "openrouter/auto",
+    } as Model<"openai-completions">;
+    const context: Context = { messages: [] };
+    void agent.streamFn?.(model, context, {});
+
+    expect(payloads).toHaveLength(1);
+    expect(payloads[0]).not.toHaveProperty("reasoning_effort");
+    expect(payloads[0]).not.toHaveProperty("reasoning");
+  });
+
+  it("does not inject effort when payload already has reasoning.max_tokens", () => {
+    const payloads: Record<string, unknown>[] = [];
+    const baseStreamFn: StreamFn = (_model, _context, options) => {
+      const payload: Record<string, unknown> = { reasoning: { max_tokens: 256 } };
+      options?.onPayload?.(payload);
+      payloads.push(payload);
+      return {} as ReturnType<StreamFn>;
+    };
+    const agent = { streamFn: baseStreamFn };
+
+    applyExtraParamsToAgent(agent, undefined, "openrouter", "openrouter/auto", undefined, "low");
+
+    const model = {
+      api: "openai-completions",
+      provider: "openrouter",
+      id: "openrouter/auto",
+    } as Model<"openai-completions">;
+    const context: Context = { messages: [] };
+    void agent.streamFn?.(model, context, {});
+
+    expect(payloads).toHaveLength(1);
+    expect(payloads[0]).toEqual({ reasoning: { max_tokens: 256 } });
+  });
+
+  it("normalizes thinking=off to null for SiliconFlow Pro models", () => {
+    const payloads: Record<string, unknown>[] = [];
+    const baseStreamFn: StreamFn = (_model, _context, options) => {
+      const payload: Record<string, unknown> = { thinking: "off" };
+      options?.onPayload?.(payload);
+      payloads.push(payload);
+      return {} as ReturnType<StreamFn>;
+    };
+    const agent = { streamFn: baseStreamFn };
+
+    applyExtraParamsToAgent(
+      agent,
+      undefined,
+      "siliconflow",
+      "Pro/MiniMaxAI/MiniMax-M2.1",
+      undefined,
+      "off",
+    );
+
+    const model = {
+      api: "openai-completions",
+      provider: "siliconflow",
+      id: "Pro/MiniMaxAI/MiniMax-M2.1",
+    } as Model<"openai-completions">;
+    const context: Context = { messages: [] };
+    void agent.streamFn?.(model, context, {});
+
+    expect(payloads).toHaveLength(1);
+    expect(payloads[0]?.thinking).toBeNull();
+  });
+
+  it("keeps thinking=off unchanged for non-Pro SiliconFlow model IDs", () => {
+    const payloads: Record<string, unknown>[] = [];
+    const baseStreamFn: StreamFn = (_model, _context, options) => {
+      const payload: Record<string, unknown> = { thinking: "off" };
+      options?.onPayload?.(payload);
+      payloads.push(payload);
+      return {} as ReturnType<StreamFn>;
+    };
+    const agent = { streamFn: baseStreamFn };
+
+    applyExtraParamsToAgent(
+      agent,
+      undefined,
+      "siliconflow",
+      "deepseek-ai/DeepSeek-V3.2",
+      undefined,
+      "off",
+    );
+
+    const model = {
+      api: "openai-completions",
+      provider: "siliconflow",
+      id: "deepseek-ai/DeepSeek-V3.2",
+    } as Model<"openai-completions">;
+    const context: Context = { messages: [] };
+    void agent.streamFn?.(model, context, {});
+
+    expect(payloads).toHaveLength(1);
+    expect(payloads[0]?.thinking).toBe("off");
+  });
+
+>>>>>>> bd213cf2a (fix(agents): normalize SiliconFlow Pro thinking=off payload (#25435))
   it("adds OpenRouter attribution headers to stream options", () => {
     const { calls, agent } = createOptionsCaptureAgent();
 
