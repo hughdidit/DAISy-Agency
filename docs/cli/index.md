@@ -261,9 +261,15 @@ Most plugin changes require a gateway restart. See [/plugin](/plugin).
 
 Vector search over `MEMORY.md` + `memory/*.md`:
 
+<<<<<<< HEAD
 - `moltbot memory status` — show index stats.
 - `moltbot memory index` — reindex memory files.
 - `moltbot memory search "<query>"` — semantic search over memory.
+=======
+- `openclaw memory status` — show index stats.
+- `openclaw memory index` — reindex memory files.
+- `openclaw memory search "<query>"` (or `--query "<query>"`) — semantic search over memory.
+>>>>>>> a12cbf899 (docs: refresh CLI and trusted-proxy docs)
 
 ## Chat slash commands
 
@@ -421,8 +427,15 @@ Tip: use `npx clawdhub` to search, install, and sync skills.
 Approve DM pairing requests across channels.
 
 Subcommands:
+<<<<<<< HEAD
 - `pairing list <channel> [--json]`
 - `pairing approve <channel> <code> [--notify]`
+=======
+
+- `pairing list [channel] [--channel <channel>] [--account <id>] [--json]`
+- `pairing approve <channel> <code> [--account <id>] [--notify]`
+- `pairing approve --channel <channel> [--account <id>] <code> [--notify]`
+>>>>>>> a12cbf899 (docs: refresh CLI and trusted-proxy docs)
 
 ### `webhooks gmail`
 Gmail Pub/Sub hook setup + runner. See [/automation/gmail-pubsub](/automation/gmail-pubsub).

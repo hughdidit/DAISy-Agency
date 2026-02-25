@@ -35,9 +35,22 @@ Notes:
 - If multiple nodes are available, set `exec.node` or `tools.exec.node` to select one.
 - On non-Windows hosts, exec uses `SHELL` when set; if `SHELL` is `fish`, it prefers `bash` (or `sh`)
   from `PATH` to avoid fish-incompatible scripts, then falls back to `SHELL` if neither exists.
+<<<<<<< HEAD
 - Important: sandboxing is **off by default**. If sandboxing is off, `host=sandbox` runs directly on
   the gateway host (no container) and **does not require approvals**. To require approvals, run with
   `host=gateway` and configure exec approvals (or enable sandboxing).
+=======
+- On Windows hosts, exec prefers PowerShell 7 (`pwsh`) discovery (Program Files, ProgramW6432, then PATH),
+  then falls back to Windows PowerShell 5.1.
+- Host execution (`gateway`/`node`) rejects `env.PATH` and loader overrides (`LD_*`/`DYLD_*`) to
+  prevent binary hijacking or injected code.
+- Important: sandboxing is **off by default**. If sandboxing is off and `host=sandbox` is explicitly
+  configured/requested, exec now fails closed instead of silently running on the gateway host.
+  Enable sandboxing or use `host=gateway` with approvals.
+- Script preflight checks (for common Python/Node shell-syntax mistakes) only inspect files inside the
+  effective `workdir` boundary. If a script path resolves outside `workdir`, preflight is skipped for
+  that file.
+>>>>>>> a12cbf899 (docs: refresh CLI and trusted-proxy docs)
 
 ## Config
 
