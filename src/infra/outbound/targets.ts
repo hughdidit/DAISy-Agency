@@ -2,6 +2,10 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+import type { ChatType } from "../../channels/chat-type.js";
+>>>>>>> a805d6b43 (fix(heartbeat): block dm targets and internalize blocked prompts)
 import { getChannelPlugin, normalizeChannelId } from "../../channels/plugins/index.js";
 <<<<<<< HEAD
 import { formatCliCommand } from "../../cli/command-format.js";
@@ -32,6 +36,7 @@ import type { AgentDefaultsConfig } from "../../config/types.agent-defaults.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import { normalizeAccountId } from "../../routing/session-key.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -39,7 +44,11 @@ import { deliveryContextFromSession } from "../../utils/delivery-context.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
+=======
+import { parseDiscordTarget } from "../../discord/targets.js";
+>>>>>>> a805d6b43 (fix(heartbeat): block dm targets and internalize blocked prompts)
 import { normalizeAccountId } from "../../routing/session-key.js";
+import { parseSlackTarget } from "../../slack/targets.js";
 import { parseTelegramTarget } from "../../telegram/targets.js";
 import { deliveryContextFromSession } from "../../utils/delivery-context.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
@@ -359,6 +368,20 @@ export function resolveHeartbeatDeliveryTarget(params: {
     };
   }
 
+  const deliveryChatType = resolveHeartbeatDeliveryChatType({
+    channel: resolvedTarget.channel,
+    to: resolved.to,
+  });
+  if (deliveryChatType === "direct") {
+    return {
+      channel: "none",
+      reason: "dm-blocked",
+      accountId: effectiveAccountId,
+      lastChannel: resolvedTarget.lastChannel,
+      lastAccountId: resolvedTarget.lastAccountId,
+    };
+  }
+
   let reason: string | undefined;
   const plugin = getChannelPlugin(resolvedTarget.channel);
   if (plugin?.config.resolveAllowFrom) {
@@ -383,6 +406,59 @@ export function resolveHeartbeatDeliveryTarget(params: {
     lastChannel: resolvedTarget.lastChannel,
     lastAccountId: resolvedTarget.lastAccountId,
   };
+}
+
+function inferChatTypeFromTarget(params: {
+  channel: DeliverableMessageChannel;
+  to: string;
+}): ChatType | undefined {
+  const to = params.to.trim();
+  if (!to) {
+    return undefined;
+  }
+
+  if (/^user:/i.test(to)) {
+    return "direct";
+  }
+  if (/^(channel:|thread:)/i.test(to)) {
+    return "channel";
+  }
+  if (/^group:/i.test(to)) {
+    return "group";
+  }
+
+  switch (params.channel) {
+    case "discord": {
+      try {
+        const target = parseDiscordTarget(to, { defaultKind: "channel" });
+        if (!target) {
+          return undefined;
+        }
+        return target.kind === "user" ? "direct" : "channel";
+      } catch {
+        return undefined;
+      }
+    }
+    case "slack": {
+      const target = parseSlackTarget(to, { defaultKind: "channel" });
+      if (!target) {
+        return undefined;
+      }
+      return target.kind === "user" ? "direct" : "channel";
+    }
+    default:
+      return undefined;
+  }
+}
+
+function resolveHeartbeatDeliveryChatType(params: {
+  channel: DeliverableMessageChannel;
+  to: string;
+}): ChatType | undefined {
+  return inferChatTypeFromTarget({
+    channel: params.channel,
+    to: params.to,
+  });
 }
 
 function resolveHeartbeatSenderId(params: {

@@ -373,7 +373,31 @@ moltbot status
 
 Look for `AllowFrom: ...` in the output.
 
+<<<<<<< HEAD
 **Check 2:** For group chats, is mention required?
+=======
+- Cron enabled and next wake present.
+- Job run history status (`ok`, `skipped`, `error`).
+- Heartbeat skip reasons (`quiet-hours`, `requests-in-flight`, `alerts-disabled`).
+
+Common signatures:
+
+- `cron: scheduler disabled; jobs will not run automatically` → cron disabled.
+- `cron: timer tick failed` → scheduler tick failed; check file/log/runtime errors.
+- `heartbeat skipped` with `reason=quiet-hours` → outside active hours window.
+- `heartbeat: unknown accountId` → invalid account id for heartbeat delivery target.
+- `heartbeat skipped` with `reason=dm-blocked` → heartbeat target resolved to a DM-style `user:<id>` destination (blocked by design).
+
+Related:
+
+- [/automation/troubleshooting](/automation/troubleshooting)
+- [/automation/cron-jobs](/automation/cron-jobs)
+- [/gateway/heartbeat](/gateway/heartbeat)
+
+## Node paired tool fails
+
+If a node is paired but tools fail, isolate foreground, permission, and approval state.
+>>>>>>> a805d6b43 (fix(heartbeat): block dm targets and internalize blocked prompts)
 
 ```bash
 # The message must match mentionPatterns or explicit mentions; defaults live in channel groups/guilds.

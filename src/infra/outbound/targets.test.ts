@@ -479,7 +479,7 @@ describe("resolveSessionDeliveryTarget", () => {
 >>>>>>> d833dcd73 (fix(telegram): cron and heartbeat messages land in wrong chat instead of target topic (#19367))
 =======
 
-  it("does not return inherited threadId from resolveHeartbeatDeliveryTarget", () => {
+  it("blocks heartbeat delivery to Slack DMs and avoids inherited threadId", () => {
     const cfg: OpenClawConfig = {};
     const resolved = resolveHeartbeatDeliveryTarget({
       cfg,
@@ -495,9 +495,47 @@ describe("resolveSessionDeliveryTarget", () => {
       },
     });
 
-    expect(resolved.channel).toBe("slack");
-    expect(resolved.to).toBe("user:U123");
+    expect(resolved.channel).toBe("none");
+    expect(resolved.reason).toBe("dm-blocked");
     expect(resolved.threadId).toBeUndefined();
+  });
+
+  it("blocks heartbeat delivery to Discord DMs", () => {
+    const cfg: OpenClawConfig = {};
+    const resolved = resolveHeartbeatDeliveryTarget({
+      cfg,
+      entry: {
+        sessionId: "sess-heartbeat-discord-dm",
+        updatedAt: 1,
+        lastChannel: "discord",
+        lastTo: "user:12345",
+      },
+      heartbeat: {
+        target: "last",
+      },
+    });
+
+    expect(resolved.channel).toBe("none");
+    expect(resolved.reason).toBe("dm-blocked");
+  });
+
+  it("keeps heartbeat delivery to Discord channels", () => {
+    const cfg: OpenClawConfig = {};
+    const resolved = resolveHeartbeatDeliveryTarget({
+      cfg,
+      entry: {
+        sessionId: "sess-heartbeat-discord-channel",
+        updatedAt: 1,
+        lastChannel: "discord",
+        lastTo: "channel:999",
+      },
+      heartbeat: {
+        target: "last",
+      },
+    });
+
+    expect(resolved.channel).toBe("discord");
+    expect(resolved.to).toBe("channel:999");
   });
 
   it("keeps explicit threadId in heartbeat mode", () => {
