@@ -570,13 +570,29 @@ Env var equivalent:
 
 ### Env var substitution in config
 
+<<<<<<< HEAD
 You can reference environment variables directly in any config string value using
 `${VAR_NAME}` syntax. Variables are substituted at config load time, before validation.
+=======
+Rules:
+
+- Only uppercase names matched: `[A-Z_][A-Z0-9_]*`
+- Missing/empty vars throw an error at load time
+- Escape with `$${VAR}` for literal output
+- Works inside `$include` files
+- Inline substitution: `"${BASE}/v1"` → `"https://api.example.com/v1"`
+
+</Accordion>
+
+<Accordion title="Secret refs (env, file, exec)">
+  For fields that support SecretRef objects, you can use:
+>>>>>>> bde9cbb05 (docs(secrets): align provider model and add exec resolver coverage)
 
 ```json5
 {
   models: {
     providers: {
+<<<<<<< HEAD
       "vercel-gateway": {
         apiKey: "${VERCEL_GATEWAY_API_KEY}",
       },
@@ -611,13 +627,40 @@ You can reference environment variables directly in any config string value usin
     providers: {
       custom: {
         baseUrl: "${CUSTOM_API_BASE}/v1", // → "https://api.example.com/v1"
+=======
+      openai: { apiKey: { source: "env", provider: "default", id: "OPENAI_API_KEY" } },
+    },
+  },
+  skills: {
+    entries: {
+      "nano-banana-pro": {
+        apiKey: {
+          source: "file",
+          provider: "filemain",
+          id: "/skills/entries/nano-banana-pro/apiKey",
+        },
+      },
+    },
+  },
+  channels: {
+    googlechat: {
+      serviceAccountRef: {
+        source: "exec",
+        provider: "vault",
+        id: "channels/googlechat/serviceAccount",
+>>>>>>> bde9cbb05 (docs(secrets): align provider model and add exec resolver coverage)
       },
     },
   },
 }
 ```
 
+<<<<<<< HEAD
 ### Auth storage (OAuth + API keys)
+=======
+SecretRef details (including `secrets.providers` for `env`/`file`/`exec`) are in [Secrets Management](/gateway/secrets).
+</Accordion>
+>>>>>>> bde9cbb05 (docs(secrets): align provider model and add exec resolver coverage)
 
 <<<<<<< HEAD
 Moltbot stores **per-agent** auth profiles (OAuth + API keys) in:

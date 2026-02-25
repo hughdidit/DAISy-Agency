@@ -1444,6 +1444,7 @@ Related: [Agent workspace](/concepts/agent-workspace), [Memory](/concepts/memory
 Everything lives under `$CLAWDBOT_STATE_DIR` (default: `~/.clawdbot`):
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 | Path | Purpose |
 |------|---------|
 | `$CLAWDBOT_STATE_DIR/moltbot.json` | Main config (JSON5) |
@@ -1466,6 +1467,20 @@ Everything lives under `$CLAWDBOT_STATE_DIR` (default: `~/.clawdbot`):
 | `$OPENCLAW_STATE_DIR/agents/<agentId>/sessions/`                | Conversation history & state (per agent)                     |
 | `$OPENCLAW_STATE_DIR/agents/<agentId>/sessions/sessions.json`   | Session metadata (per agent)                                 |
 >>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
+=======
+| Path                                                            | Purpose                                                            |
+| --------------------------------------------------------------- | ------------------------------------------------------------------ |
+| `$OPENCLAW_STATE_DIR/openclaw.json`                             | Main config (JSON5)                                                |
+| `$OPENCLAW_STATE_DIR/credentials/oauth.json`                    | Legacy OAuth import (copied into auth profiles on first use)       |
+| `$OPENCLAW_STATE_DIR/agents/<agentId>/agent/auth-profiles.json` | Auth profiles (OAuth, API keys, and optional `keyRef`/`tokenRef`)  |
+| `$OPENCLAW_STATE_DIR/secrets.json`                              | Optional file-backed secret payload for `file` SecretRef providers |
+| `$OPENCLAW_STATE_DIR/backups/secrets-migrate/`                  | Optional migration rollback backups + manifests                    |
+| `$OPENCLAW_STATE_DIR/agents/<agentId>/agent/auth.json`          | Legacy compatibility file (static `api_key` entries scrubbed)      |
+| `$OPENCLAW_STATE_DIR/credentials/`                              | Provider state (e.g. `whatsapp/<accountId>/creds.json`)            |
+| `$OPENCLAW_STATE_DIR/agents/`                                   | Per-agent state (agentDir + sessions)                              |
+| `$OPENCLAW_STATE_DIR/agents/<agentId>/sessions/`                | Conversation history & state (per agent)                           |
+| `$OPENCLAW_STATE_DIR/agents/<agentId>/sessions/sessions.json`   | Session metadata (per agent)                                       |
+>>>>>>> bde9cbb05 (docs(secrets): align provider model and add exec resolver coverage)
 
 <<<<<<< HEAD
 Legacy single‑agent path: `~/.clawdbot/agent/*` (migrated by `moltbot doctor`).
