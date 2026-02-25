@@ -52,6 +52,7 @@ These are frequently reported but are typically closed with no code change:
 - Prompt-injection-only chains without a boundary bypass (prompt injection is out of scope).
 - Operator-intended local features (for example TUI local `!` shell) presented as remote injection.
 - Authorized user-triggered local actions presented as privilege escalation. Example: an allowlisted/owner sender running `/export-session /absolute/path.html` to write on the host. In this trust model, authorized user actions are trusted host actions unless you demonstrate an auth/sandbox/boundary bypass.
+- Reports that only show a malicious plugin executing privileged actions after a trusted operator installs/enables it.
 - Reports that assume per-user multi-tenant authorization on a shared gateway host/config.
 - ReDoS/DoS claims that require trusted operator configuration input (for example catastrophic regex in `sessionFilter` or `logging.redactPatterns`) without a trust-boundary bypass.
 - Missing HSTS findings on default local/loopback deployments.
@@ -97,7 +98,18 @@ OpenClaw does **not** model one gateway as a multi-tenant, adversarial user boun
 - Implicit exec calls (no explicit host in the tool call) follow the same behavior.
 - This is expected in OpenClaw's one-user trusted-operator model. If you need isolation, enable sandbox mode (`non-main`/`all`) and keep strict tool policy.
 
+<<<<<<< HEAD
 >>>>>>> f6afc8c5b (docs(security): clarify host-side exec trust model defaults)
+=======
+## Trusted Plugin Concept (Core)
+
+Plugins/extensions are part of OpenClaw's trusted computing base for a gateway.
+
+- Installing or enabling a plugin grants it the same trust level as local code running on that gateway host.
+- Plugin behavior such as reading env/files or running host commands is expected inside this trust boundary.
+- Security reports must show a boundary bypass (for example unauthenticated plugin load, allowlist/policy bypass, or sandbox/path-safety bypass), not only malicious behavior from a trusted-installed plugin.
+
+>>>>>>> 38c4944d7 (docs(security): clarify trusted plugin boundary)
 ## Out of Scope
 
 - Public Internet Exposure
@@ -123,7 +135,11 @@ OpenClaw does **not** model one gateway as a multi-tenant, adversarial user boun
 =======
 =======
 - Reports where the only demonstrated impact is an already-authorized sender intentionally invoking a local-action command (for example `/export-session` writing to an absolute host path) without bypassing auth, sandbox, or another documented boundary
+<<<<<<< HEAD
 >>>>>>> 403239057 (docs(security): clarify trusted user-triggered local actions)
+=======
+- Reports where the only claim is that a trusted-installed/enabled plugin can execute with gateway/host privileges (documented trust model behavior).
+>>>>>>> 38c4944d7 (docs(security): clarify trusted plugin boundary)
 - Any report whose only claim is that an operator-enabled `dangerous*`/`dangerously*` config option weakens defaults (these are explicit break-glass tradeoffs by design)
 >>>>>>> cfa44ea6b (fix(security): make allowFrom id-only by default with dangerous name opt-in (#24907))
 - Reports that depend on trusted operator-supplied configuration values to trigger availability impact (for example custom regex patterns). These may still be fixed as defense-in-depth hardening, but are not security-boundary bypasses.
