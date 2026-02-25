@@ -214,9 +214,24 @@ export function extractMessagingToolSend(
   const accountIdRaw = typeof args.accountId === "string" ? args.accountId.trim() : undefined;
   const accountId = accountIdRaw ? accountIdRaw : undefined;
   if (toolName === "message") {
+<<<<<<< HEAD
     if (action !== "send" && action !== "thread-reply") return undefined;
     const toRaw = typeof args.to === "string" ? args.to : undefined;
     if (!toRaw) return undefined;
+=======
+    if (action !== "send" && action !== "thread-reply") {
+      return undefined;
+    }
+    const toRaw =
+      typeof args.to === "string"
+        ? args.to
+        : typeof args.target === "string"
+          ? args.target
+          : undefined;
+    if (!toRaw) {
+      return undefined;
+    }
+>>>>>>> 2a11c09a8 (fix: harden iMessage echo dedupe and reasoning suppression (#25897))
     const providerRaw = typeof args.provider === "string" ? args.provider.trim() : "";
     const channelRaw = typeof args.channel === "string" ? args.channel.trim() : "";
     const providerHint = providerRaw || channelRaw;

@@ -7,6 +7,13 @@ import type { RuntimeEnv } from "../../runtime.js";
 import type { createIMessageRpcClient } from "../client.js";
 import { sendMessageIMessage } from "../send.js";
 
+<<<<<<< HEAD
+=======
+type SentMessageCache = {
+  remember: (scope: string, lookup: { text?: string; messageId?: string }) => void;
+};
+
+>>>>>>> 2a11c09a8 (fix: harden iMessage echo dedupe and reasoning suppression (#25897))
 export async function deliverReplies(params: {
   replies: ReplyPayload[];
   target: string;
@@ -30,24 +37,39 @@ export async function deliverReplies(params: {
     const text = convertMarkdownTables(rawText, tableMode);
     if (!text && mediaList.length === 0) continue;
     if (mediaList.length === 0) {
+<<<<<<< HEAD
+=======
+      sentMessageCache?.remember(scope, { text });
+>>>>>>> 2a11c09a8 (fix: harden iMessage echo dedupe and reasoning suppression (#25897))
       for (const chunk of chunkTextWithMode(text, textLimit, chunkMode)) {
-        await sendMessageIMessage(target, chunk, {
+        const sent = await sendMessageIMessage(target, chunk, {
           maxBytes,
           client,
           accountId,
         });
+<<<<<<< HEAD
+=======
+        sentMessageCache?.remember(scope, { text: chunk, messageId: sent.messageId });
+>>>>>>> 2a11c09a8 (fix: harden iMessage echo dedupe and reasoning suppression (#25897))
       }
     } else {
       let first = true;
       for (const url of mediaList) {
         const caption = first ? text : "";
         first = false;
-        await sendMessageIMessage(target, caption, {
+        const sent = await sendMessageIMessage(target, caption, {
           mediaUrl: url,
           maxBytes,
           client,
           accountId,
         });
+<<<<<<< HEAD
+=======
+        sentMessageCache?.remember(scope, {
+          text: caption || undefined,
+          messageId: sent.messageId,
+        });
+>>>>>>> 2a11c09a8 (fix: harden iMessage echo dedupe and reasoning suppression (#25897))
       }
     }
     runtime.log?.(`imessage: delivered reply to ${target}`);

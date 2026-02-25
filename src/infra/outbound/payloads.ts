@@ -33,6 +33,9 @@ function mergeMediaUrls(...lists: Array<Array<string | undefined> | undefined>):
 
 export function normalizeReplyPayloadsForDelivery(payloads: ReplyPayload[]): ReplyPayload[] {
   return payloads.flatMap((payload) => {
+    if (payload.isReasoning) {
+      return [];
+    }
     const parsed = parseReplyDirectives(payload.text ?? "");
     const explicitMediaUrls = payload.mediaUrls ?? parsed.mediaUrls;
     const explicitMediaUrl = payload.mediaUrl ?? parsed.mediaUrl;

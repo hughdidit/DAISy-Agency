@@ -57,7 +57,13 @@ export type RouteReplyResult = {
 export async function routeReply(params: RouteReplyParams): Promise<RouteReplyResult> {
   const { payload, channel, to, accountId, threadId, cfg, abortSignal } = params;
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+  if (payload.isReasoning) {
+    return { ok: true };
+  }
+>>>>>>> 2a11c09a8 (fix: harden iMessage echo dedupe and reasoning suppression (#25897))
   const normalizedChannel = normalizeMessageChannel(channel);
   const resolvedAgentId = params.sessionKey
     ? resolveSessionAgentId({
