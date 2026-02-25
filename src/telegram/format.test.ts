@@ -97,5 +97,26 @@ describe("markdownToTelegramHtml", () => {
     const res = markdownToTelegramHtml("||**secret** text||");
     expect(res).toBe("<tg-spoiler><b>secret</b> text</tg-spoiler>");
   });
+<<<<<<< HEAD
 >>>>>>> e02d144af (feat(telegram): add spoiler tag support (#11543))
+=======
+
+  it("does not treat single pipe as spoiler", () => {
+    const res = markdownToTelegramHtml("(￣_￣|) face");
+    expect(res).not.toContain("tg-spoiler");
+    expect(res).toContain("|");
+  });
+
+  it("does not treat unpaired || as spoiler", () => {
+    const res = markdownToTelegramHtml("before || after");
+    expect(res).not.toContain("tg-spoiler");
+    expect(res).toContain("||");
+  });
+
+  it("keeps valid spoiler pairs when a trailing || is unmatched", () => {
+    const res = markdownToTelegramHtml("||secret|| trailing ||");
+    expect(res).toContain("<tg-spoiler>secret</tg-spoiler>");
+    expect(res).toContain("trailing ||");
+  });
+>>>>>>> 2e84017f2 (fix(markdown): require paired || delimiters for spoiler detection (#26105))
 });
