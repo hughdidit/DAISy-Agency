@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import * as ssrf from "../infra/net/ssrf.js";
 import { onSpy, sendChatActionSpy } from "./bot.media.e2e-harness.js";
@@ -129,6 +130,17 @@ vi.mock("./sticker-cache.js", () => ({
   getCachedSticker: (...args: unknown[]) => getCachedStickerSpy(...args),
   describeStickerImage: (...args: unknown[]) => describeStickerImageSpy(...args),
 }));
+=======
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { setNextSavedMediaPath } from "./bot.media.e2e-harness.js";
+import {
+  TELEGRAM_TEST_TIMINGS,
+  createBotHandler,
+  createBotHandlerWithOptions,
+  mockTelegramFileDownload,
+  mockTelegramPngDownload,
+} from "./bot.media.test-utils.js";
+>>>>>>> dcd90438e (refactor(telegram-tests): split media suites and decouple store mock)
 
 describe("telegram inbound media", () => {
   // Parallel vitest shards can make this suite slower than the standalone run.
@@ -222,6 +234,49 @@ describe("telegram inbound media", () => {
     INBOUND_MEDIA_TEST_TIMEOUT_MS,
   );
 
+<<<<<<< HEAD
+=======
+  it(
+    "keeps Telegram inbound media paths with triple-dash ids",
+    async () => {
+      const runtimeError = vi.fn();
+      const { handler, replySpy } = await createBotHandlerWithOptions({ runtimeError });
+      const fetchSpy = mockTelegramFileDownload({
+        contentType: "image/jpeg",
+        bytes: new Uint8Array([0xff, 0xd8, 0xff, 0x00]),
+      });
+      const inboundPath = "/tmp/media/inbound/file_1095---f00a04a2-99a0-4d98-99b0-dfe61c5a4198.jpg";
+      setNextSavedMediaPath({
+        path: inboundPath,
+        size: 4,
+        contentType: "image/jpeg",
+      });
+
+      try {
+        await handler({
+          message: {
+            message_id: 1001,
+            chat: { id: 1234, type: "private" },
+            photo: [{ file_id: "fid" }],
+            date: 1736380800,
+          },
+          me: { username: "openclaw_bot" },
+          getFile: async () => ({ file_path: "photos/1.jpg" }),
+        });
+
+        expect(runtimeError).not.toHaveBeenCalled();
+        expect(replySpy).toHaveBeenCalledTimes(1);
+        const payload = replySpy.mock.calls[0]?.[0] as { Body?: string; MediaPaths?: string[] };
+        expect(payload.Body).toContain("<media:image>");
+        expect(payload.MediaPaths).toContain(inboundPath);
+      } finally {
+        fetchSpy.mockRestore();
+      }
+    },
+    INBOUND_MEDIA_TEST_TIMEOUT_MS,
+  );
+
+>>>>>>> dcd90438e (refactor(telegram-tests): split media suites and decouple store mock)
   it("prefers proxyFetch over global fetch", async () => {
     const runtimeLog = vi.fn();
     const runtimeError = vi.fn();
@@ -637,6 +692,7 @@ describe("telegram forwarded bursts", () => {
     FORWARD_BURST_TEST_TIMEOUT_MS,
   );
 });
+<<<<<<< HEAD
 
 describe("telegram stickers", () => {
   const STICKER_TEST_TIMEOUT_MS = process.platform === "win32" ? 30_000 : 20_000;
@@ -937,3 +993,5 @@ describe("telegram text fragments", () => {
     TEXT_FRAGMENT_TEST_TIMEOUT_MS,
   );
 });
+=======
+>>>>>>> dcd90438e (refactor(telegram-tests): split media suites and decouple store mock)
