@@ -98,7 +98,12 @@ Docs: https://docs.openclaw.ai
 - Models/Bedrock auth: normalize additional Bedrock provider aliases (`bedrock`, `aws-bedrock`, `aws_bedrock`, `amazon bedrock`) to canonical `amazon-bedrock`, ensuring auth-mode resolution consistently selects AWS SDK fallback. (#25756) Thanks @fwhite13.
 - Providers/SiliconFlow: normalize `thinking="off"` to `thinking: null` for `Pro/*` model payloads to avoid provider-side 400 loops and misleading compaction retries. (#25435) Thanks @Zjianru.
 - Gateway/Models: honor explicit `agents.defaults.models` allowlist refs even when bundled model catalog data is stale, synthesize missing allowlist entries in `models.list`, and allow `sessions.patch`/`/model` selection for those refs without false `model not allowed` errors. (#20291) Thanks @kensipe, @nikolasdehor, and @vincentkoc.
+<<<<<<< HEAD
 >>>>>>> bd213cf2a (fix(agents): normalize SiliconFlow Pro thinking=off payload (#25435))
+=======
+- Agents/Model fallback: when a run is currently on a configured fallback model, keep traversing the configured fallback chain instead of collapsing straight to primary-only, preventing dead-end failures when primary stays in cooldown. (#25922, #25912) Thanks @Taskle.
+- Control UI/Agents: inherit `agents.defaults.model.fallbacks` in the Overview fallback input when no per-agent model entry exists, while preserving explicit per-agent fallback overrides (including empty lists). (#25729, #25710) Thanks @Suko.
+>>>>>>> bf5a96ad6 (fix(agents): keep fallback chain reachable on configured fallback models (#25922))
 - Automation/Subagent/Cron reliability: honor `ANNOUNCE_SKIP` in `sessions_spawn` completion/direct announce flows (no user-visible token leaks), add transient direct-announce retries for channel unavailability (for example WhatsApp listener reconnect windows), and include `cron` in the `coding` tool profile so `/tools/invoke` can execute cron actions when explicitly allowed by gateway policy. (#25800, #25656, #25842, #25813, #25822, #25821) Thanks @astra-fer, @aaajiao, @dwight11232-coder, @kevinWangSheng, @widingmarcus-cyber, and @stakeswky.
 >>>>>>> 53f9b7d4e (fix(automation): harden announce delivery + cron coding profile (#25813 #25821 #25822))
 - Discord/Block streaming: restore block-streamed reply delivery by suppressing only reasoning payloads (instead of all `block` payloads), fixing missing Discord replies in `channels.discord.streaming=block` mode. (#25839, #25836, #25792) Thanks @pewallin.
