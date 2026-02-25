@@ -95,6 +95,7 @@ Docs: https://docs.openclaw.ai
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 - Security/Shell env fallback: remove trusted-prefix shell-path fallback and only trust login shells explicitly registered in `/etc/shells`, defaulting to `/bin/sh` when `SHELL` is not registered. This ships in the next npm release. Thanks @tdjackey for reporting.
@@ -236,6 +237,9 @@ Docs: https://docs.openclaw.ai
 =======
 =======
 =======
+=======
+- macOS/WebChat panel: fix rounded-corner clipping by using panel-specific visual-effect blending and matching corner masking on both effect and hosting layers. (#22458) Thanks @apethree and @agisilaos.
+>>>>>>> 16b228e4a (fix(macos): resolve webchat panel corner clipping (#22458))
 - macOS/IME input: when marked text is active, treat Return as IME candidate confirmation first in both the voice overlay composer and shared chat composer to prevent accidental sends while composing CJK text. (#25178) Thanks @bottotl.
 >>>>>>> 1970a1e9e (fix(macos): keep Return for IME marked text commit (#25178))
 - macOS/Voice wake routing: default forwarded voice-wake transcripts to the `webchat` channel (instead of ambiguous `last` routing) so local voice prompts stay pinned to the control chat surface unless explicitly overridden. (#25440) Thanks @chilu18.
