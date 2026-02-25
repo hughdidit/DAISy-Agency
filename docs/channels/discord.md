@@ -1133,6 +1133,96 @@ Default gate behavior:
 | moderation                                                                                                                                                               | disabled |
 | presence                                                                                                                                                                 | disabled |
 
+<<<<<<< HEAD
+=======
+## Components v2 UI
+
+OpenClaw uses Discord components v2 for exec approvals and cross-context markers. Discord message actions can also accept `components` for custom UI (advanced; requires Carbon component instances), while legacy `embeds` remain available but are not recommended.
+
+- `channels.discord.ui.components.accentColor` sets the accent color used by Discord component containers (hex).
+- Set per account with `channels.discord.accounts.<id>.ui.components.accentColor`.
+- `embeds` are ignored when components v2 are present.
+
+Example:
+
+```json5
+{
+  channels: {
+    discord: {
+      ui: {
+        components: {
+          accentColor: "#5865F2",
+        },
+      },
+    },
+  },
+}
+```
+
+## Voice channels
+
+OpenClaw can join Discord voice channels for realtime, continuous conversations. This is separate from voice message attachments.
+
+Requirements:
+
+- Enable native commands (`commands.native` or `channels.discord.commands.native`).
+- Configure `channels.discord.voice`.
+- The bot needs Connect + Speak permissions in the target voice channel.
+
+Use the Discord-only native command `/vc join|leave|status` to control sessions. The command uses the account default agent and follows the same allowlist and group policy rules as other Discord commands.
+
+Auto-join example:
+
+```json5
+{
+  channels: {
+    discord: {
+      voice: {
+        enabled: true,
+        autoJoin: [
+          {
+            guildId: "123456789012345678",
+            channelId: "234567890123456789",
+          },
+        ],
+        daveEncryption: true,
+        decryptionFailureTolerance: 24,
+        tts: {
+          provider: "openai",
+          openai: { voice: "alloy" },
+        },
+      },
+    },
+  },
+}
+```
+
+Notes:
+
+- `voice.tts` overrides `messages.tts` for voice playback only.
+- Voice is enabled by default; set `channels.discord.voice.enabled=false` to disable it.
+- `voice.daveEncryption` and `voice.decryptionFailureTolerance` pass through to `@discordjs/voice` join options.
+- `@discordjs/voice` defaults are `daveEncryption=true` and `decryptionFailureTolerance=24` if unset.
+- OpenClaw also watches receive decrypt failures and auto-recovers by leaving/rejoining the voice channel after repeated failures in a short window.
+- If receive logs repeatedly show `DecryptionFailed(UnencryptedWhenPassthroughDisabled)`, this may be the upstream `@discordjs/voice` receive bug tracked in [discord.js #11419](https://github.com/discordjs/discord.js/issues/11419).
+
+## Voice messages
+
+Discord voice messages show a waveform preview and require OGG/Opus audio plus metadata. OpenClaw generates the waveform automatically, but it needs `ffmpeg` and `ffprobe` available on the gateway host to inspect and convert audio files.
+
+Requirements and constraints:
+
+- Provide a **local file path** (URLs are rejected).
+- Omit text content (Discord does not allow text + voice message in the same payload).
+- Any audio format is accepted; OpenClaw converts to OGG/Opus when needed.
+
+Example:
+
+```bash
+message(action="send", channel="discord", target="channel:123", path="/path/to/audio.mp3", asVoice=true)
+```
+
+>>>>>>> ee6fec36e (docs(discord): document DAVE defaults and decrypt recovery)
 ## Troubleshooting
 >>>>>>> 6bee63864 (docs(channels): modernize discord docs page (#14190))
 
@@ -1196,6 +1286,18 @@ openclaw logs --follow
     By default bot-authored messages are ignored.
 
     If you set `channels.discord.allowBots=true`, use strict mention and allowlist rules to avoid loop behavior.
+
+  </Accordion>
+
+  <Accordion title="Voice STT drops with DecryptionFailed(...)">
+
+    - keep OpenClaw current (`openclaw update`) so the Discord voice receive recovery logic is present
+    - confirm `channels.discord.voice.daveEncryption=true` (default)
+    - start from `channels.discord.voice.decryptionFailureTolerance=24` (upstream default) and tune only if needed
+    - watch logs for:
+      - `discord voice: DAVE decrypt failures detected`
+      - `discord voice: repeated decrypt failures; attempting rejoin`
+    - if failures continue after automatic rejoin, collect logs and compare against [discord.js #11419](https://github.com/discordjs/discord.js/issues/11419)
 
   </Accordion>
 </AccordionGroup>
