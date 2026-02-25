@@ -271,6 +271,12 @@ export const FIELD_LABELS: Record<string, string> = {
   "channels.discord.intents.guildMembers": "Discord Guild Members Intent",
   "channels.discord.voice.enabled": "Discord Voice Enabled",
   "channels.discord.voice.autoJoin": "Discord Voice Auto-Join",
+<<<<<<< HEAD
+=======
+  "channels.discord.voice.daveEncryption": "Discord Voice DAVE Encryption",
+  "channels.discord.voice.decryptionFailureTolerance": "Discord Voice Decrypt Failure Tolerance",
+  "channels.discord.voice.tts": "Discord Voice Text-to-Speech",
+>>>>>>> 9cd50c51b (fix(discord): harden voice DAVE receive reliability (#25861))
   "channels.discord.pluralkit.enabled": "Discord PluralKit Enabled",
   "channels.discord.pluralkit.token": "Discord PluralKit Token",
   "channels.discord.activity": "Discord Presence Activity",
