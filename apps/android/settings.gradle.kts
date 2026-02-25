@@ -16,3 +16,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "MoltbotNodeAndroid"
 include(":app")
+include(":benchmark")
