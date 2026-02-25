@@ -21,12 +21,22 @@ docker run --rm -t \
   -e COREPACK_ENABLE_DOWNLOAD_PROMPT=0 \
   -e HOME=/home/node \
   -e NODE_OPTIONS=--disable-warning=ExperimentalWarning \
+<<<<<<< HEAD
   -e CLAWDBOT_LIVE_TEST=1 \
   -e CLAWDBOT_LIVE_GATEWAY_MODELS="${CLAWDBOT_LIVE_GATEWAY_MODELS:-all}" \
   -e CLAWDBOT_LIVE_GATEWAY_PROVIDERS="${CLAWDBOT_LIVE_GATEWAY_PROVIDERS:-}" \
   -e CLAWDBOT_LIVE_GATEWAY_MODEL_TIMEOUT_MS="${CLAWDBOT_LIVE_GATEWAY_MODEL_TIMEOUT_MS:-}" \
   -v "$CONFIG_DIR":/home/node/.clawdbot \
   -v "$WORKSPACE_DIR":/home/node/clawd \
+=======
+  -e OPENCLAW_LIVE_TEST=1 \
+  -e OPENCLAW_LIVE_GATEWAY_MODELS="${OPENCLAW_LIVE_GATEWAY_MODELS:-${CLAWDBOT_LIVE_GATEWAY_MODELS:-modern}}" \
+  -e OPENCLAW_LIVE_GATEWAY_PROVIDERS="${OPENCLAW_LIVE_GATEWAY_PROVIDERS:-${CLAWDBOT_LIVE_GATEWAY_PROVIDERS:-}}" \
+  -e OPENCLAW_LIVE_GATEWAY_MAX_MODELS="${OPENCLAW_LIVE_GATEWAY_MAX_MODELS:-${CLAWDBOT_LIVE_GATEWAY_MAX_MODELS:-24}}" \
+  -e OPENCLAW_LIVE_GATEWAY_MODEL_TIMEOUT_MS="${OPENCLAW_LIVE_GATEWAY_MODEL_TIMEOUT_MS:-${CLAWDBOT_LIVE_GATEWAY_MODEL_TIMEOUT_MS:-}}" \
+  -v "$CONFIG_DIR":/home/node/.openclaw \
+  -v "$WORKSPACE_DIR":/home/node/.openclaw/workspace \
+>>>>>>> 7c59b78ae (test: cap docker live model sweeps and harden timeouts)
   "${PROFILE_MOUNT[@]}" \
   "$IMAGE_NAME" \
   -lc "set -euo pipefail; [ -f \"$HOME/.profile\" ] && source \"$HOME/.profile\" || true; cd /app && pnpm test:live"
