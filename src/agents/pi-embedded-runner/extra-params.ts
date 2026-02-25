@@ -131,6 +131,131 @@ function createOpenRouterHeadersWrapper(baseStreamFn: StreamFn | undefined): Str
       },
 >>>>>>> 3e974dc93 (fix: don't inject reasoning: { effort: "none" } for OpenRouter when thinking is off)
     });
+<<<<<<< HEAD
+=======
+  };
+}
+
+function isGemini31Model(modelId: string): boolean {
+  const normalized = modelId.toLowerCase();
+  return normalized.includes("gemini-3.1-pro") || normalized.includes("gemini-3.1-flash");
+}
+
+function mapThinkLevelToGoogleThinkingLevel(
+  thinkingLevel: ThinkLevel,
+): "MINIMAL" | "LOW" | "MEDIUM" | "HIGH" | undefined {
+  switch (thinkingLevel) {
+    case "minimal":
+      return "MINIMAL";
+    case "low":
+      return "LOW";
+    case "medium":
+      return "MEDIUM";
+    case "high":
+    case "xhigh":
+      return "HIGH";
+    default:
+      return undefined;
+  }
+}
+
+function sanitizeGoogleThinkingPayload(params: {
+  payload: unknown;
+  modelId?: string;
+  thinkingLevel?: ThinkLevel;
+}): void {
+  if (!params.payload || typeof params.payload !== "object") {
+    return;
+  }
+  const payloadObj = params.payload as Record<string, unknown>;
+  const config = payloadObj.config;
+  if (!config || typeof config !== "object") {
+    return;
+  }
+  const configObj = config as Record<string, unknown>;
+  const thinkingConfig = configObj.thinkingConfig;
+  if (!thinkingConfig || typeof thinkingConfig !== "object") {
+    return;
+  }
+  const thinkingConfigObj = thinkingConfig as Record<string, unknown>;
+  const thinkingBudget = thinkingConfigObj.thinkingBudget;
+  if (typeof thinkingBudget !== "number" || thinkingBudget >= 0) {
+    return;
+  }
+
+  // pi-ai can emit thinkingBudget=-1 for some Gemini 3.1 IDs; a negative budget
+  // is invalid for Google-compatible backends and can lead to malformed handling.
+  delete thinkingConfigObj.thinkingBudget;
+
+  if (
+    typeof params.modelId === "string" &&
+    isGemini31Model(params.modelId) &&
+    params.thinkingLevel &&
+    params.thinkingLevel !== "off" &&
+    thinkingConfigObj.thinkingLevel === undefined
+  ) {
+    const mappedLevel = mapThinkLevelToGoogleThinkingLevel(params.thinkingLevel);
+    if (mappedLevel) {
+      thinkingConfigObj.thinkingLevel = mappedLevel;
+    }
+  }
+}
+
+function createGoogleThinkingPayloadWrapper(
+  baseStreamFn: StreamFn | undefined,
+  thinkingLevel?: ThinkLevel,
+): StreamFn {
+  const underlying = baseStreamFn ?? streamSimple;
+  return (model, context, options) => {
+    const onPayload = options?.onPayload;
+    return underlying(model, context, {
+      ...options,
+      onPayload: (payload) => {
+        if (model.api === "google-generative-ai") {
+          sanitizeGoogleThinkingPayload({
+            payload,
+            modelId: model.id,
+            thinkingLevel,
+          });
+        }
+        onPayload?.(payload);
+      },
+    });
+  };
+}
+
+/**
+ * Create a streamFn wrapper that injects tool_stream=true for Z.AI providers.
+ *
+ * Z.AI's API supports the `tool_stream` parameter to enable real-time streaming
+ * of tool call arguments and reasoning content. When enabled, the API returns
+ * progressive tool_call deltas, allowing users to see tool execution in real-time.
+ *
+ * @see https://docs.z.ai/api-reference#streaming
+ */
+function createZaiToolStreamWrapper(
+  baseStreamFn: StreamFn | undefined,
+  enabled: boolean,
+): StreamFn {
+  const underlying = baseStreamFn ?? streamSimple;
+  return (model, context, options) => {
+    if (!enabled) {
+      return underlying(model, context, options);
+    }
+
+    const originalOnPayload = options?.onPayload;
+    return underlying(model, context, {
+      ...options,
+      onPayload: (payload) => {
+        if (payload && typeof payload === "object") {
+          // Inject tool_stream: true for Z.AI API
+          (payload as Record<string, unknown>).tool_stream = true;
+        }
+        originalOnPayload?.(payload);
+      },
+    });
+  };
+>>>>>>> b35d00aaf (fix: sanitize Gemini 3.1 Google reasoning payloads)
 }
 
 /**
@@ -164,4 +289,59 @@ export function applyExtraParamsToAgent(
     log.debug(`applying extraParams to agent streamFn for ${provider}/${modelId}`);
     agent.streamFn = wrappedStreamFn;
   }
+<<<<<<< HEAD
+=======
+
+  const anthropicBetas = resolveAnthropicBetas(merged, provider, modelId);
+  if (anthropicBetas?.length) {
+    log.debug(
+      `applying Anthropic beta header for ${provider}/${modelId}: ${anthropicBetas.join(",")}`,
+    );
+    agent.streamFn = createAnthropicBetaHeadersWrapper(agent.streamFn, anthropicBetas);
+  }
+
+  if (shouldApplySiliconFlowThinkingOffCompat({ provider, modelId, thinkingLevel })) {
+    log.debug(
+      `normalizing thinking=off to thinking=null for SiliconFlow compatibility (${provider}/${modelId})`,
+    );
+    agent.streamFn = createSiliconFlowThinkingWrapper(agent.streamFn);
+  }
+
+  if (provider === "openrouter") {
+    log.debug(`applying OpenRouter app attribution headers for ${provider}/${modelId}`);
+    // "auto" is a dynamic routing model — we don't know which underlying model
+    // OpenRouter will select, and it may be a reasoning-required endpoint.
+    // Omit the thinkingLevel so we never inject `reasoning.effort: "none"`,
+    // which would cause a 400 on models where reasoning is mandatory.
+    // Users who need reasoning control should target a specific model ID.
+    // See: openclaw/openclaw#24851
+    const openRouterThinkingLevel = modelId === "auto" ? undefined : thinkingLevel;
+    agent.streamFn = createOpenRouterWrapper(agent.streamFn, openRouterThinkingLevel);
+    agent.streamFn = createOpenRouterSystemCacheWrapper(agent.streamFn);
+  }
+
+  if (provider === "amazon-bedrock" && !isAnthropicBedrockModel(modelId)) {
+    log.debug(`disabling prompt caching for non-Anthropic Bedrock model ${provider}/${modelId}`);
+    agent.streamFn = createBedrockNoCacheWrapper(agent.streamFn);
+  }
+
+  // Enable Z.AI tool_stream for real-time tool call streaming.
+  // Enabled by default for Z.AI provider, can be disabled via params.tool_stream: false
+  if (provider === "zai" || provider === "z-ai") {
+    const toolStreamEnabled = merged?.tool_stream !== false;
+    if (toolStreamEnabled) {
+      log.debug(`enabling Z.AI tool_stream for ${provider}/${modelId}`);
+      agent.streamFn = createZaiToolStreamWrapper(agent.streamFn, true);
+    }
+  }
+
+  // Guard Google payloads against invalid negative thinking budgets emitted by
+  // upstream model-ID heuristics for Gemini 3.1 variants.
+  agent.streamFn = createGoogleThinkingPayloadWrapper(agent.streamFn, thinkingLevel);
+
+  // Work around upstream pi-ai hardcoding `store: false` for Responses API.
+  // Force `store=true` for direct OpenAI/OpenAI Codex providers so multi-turn
+  // server-side conversation state is preserved.
+  agent.streamFn = createOpenAIResponsesStoreWrapper(agent.streamFn);
+>>>>>>> b35d00aaf (fix: sanitize Gemini 3.1 Google reasoning payloads)
 }
