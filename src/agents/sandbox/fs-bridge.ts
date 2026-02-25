@@ -8,6 +8,7 @@ import {
   type SandboxResolvedFsPath,
   type SandboxFsMount,
 } from "./fs-paths.js";
+import { isPathInsideContainerRoot, normalizeContainerPath } from "./path-utils.js";
 import type { SandboxContext, SandboxWorkspaceAccess } from "./types.js";
 
 type RunCommandOptions = {
@@ -277,7 +278,7 @@ class SandboxFsBridgeImpl implements SandboxFsBridge {
   private resolveMountByContainerPath(containerPath: string): SandboxFsMount | null {
     const normalized = normalizeContainerPath(containerPath);
     for (const mount of this.mountsByContainer) {
-      if (isPathInsidePosix(normalizeContainerPath(mount.containerRoot), normalized)) {
+      if (isPathInsideContainerRoot(normalizeContainerPath(mount.containerRoot), normalized)) {
         return mount;
       }
     }
@@ -351,6 +352,7 @@ function coerceStatType(typeRaw?: string): "file" | "directory" | "other" {
   return "other";
 }
 
+<<<<<<< HEAD
 function normalizeContainerPath(value: string): string {
   const normalized = path.posix.normalize(value);
   return normalized === "." ? "/" : normalized;
@@ -376,6 +378,8 @@ function ensurePathNotInterpretedAsOption(path: string): string {
   return path;
 }
 
+=======
+>>>>>>> eb4a93a8d (refactor(sandbox): share container-path utils and tighten fs bridge tests)
 async function assertNoHostSymlinkEscape(params: {
   absolutePath: string;
   rootPath: string;
