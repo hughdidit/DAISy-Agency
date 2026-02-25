@@ -402,12 +402,53 @@ export function unwrapDispatchWrappersForResolution(
   argv: string[],
   maxDepth = MAX_DISPATCH_WRAPPER_DEPTH,
 ): string[] {
+<<<<<<< HEAD
+=======
+  const plan = resolveDispatchWrapperExecutionPlan(argv, maxDepth);
+  return plan.argv;
+}
+
+function isSemanticDispatchWrapperUsage(wrapper: string, argv: string[]): boolean {
+  if (wrapper === "env") {
+    return envInvocationUsesModifiers(argv);
+  }
+  return !TRANSPARENT_DISPATCH_WRAPPERS.has(wrapper);
+}
+
+function blockedDispatchWrapperPlan(params: {
+  argv: string[];
+  wrappers: string[];
+  blockedWrapper: string;
+}): DispatchWrapperExecutionPlan {
+  return {
+    argv: params.argv,
+    wrappers: params.wrappers,
+    policyBlocked: true,
+    blockedWrapper: params.blockedWrapper,
+  };
+}
+
+export function resolveDispatchWrapperExecutionPlan(
+  argv: string[],
+  maxDepth = MAX_DISPATCH_WRAPPER_DEPTH,
+): DispatchWrapperExecutionPlan {
+>>>>>>> a9ce6bd79 (refactor: dedupe exec wrapper denial plan and test setup)
   let current = argv;
   for (let depth = 0; depth < maxDepth; depth += 1) {
+<<<<<<< HEAD
 <<<<<<< HEAD
     const token0 = current[0]?.trim();
     if (!token0) {
       break;
+=======
+    const unwrap = unwrapKnownDispatchWrapperInvocation(current);
+    if (unwrap.kind === "blocked") {
+      return blockedDispatchWrapperPlan({
+        argv: current,
+        wrappers,
+        blockedWrapper: unwrap.wrapper,
+      });
+>>>>>>> a9ce6bd79 (refactor: dedupe exec wrapper denial plan and test setup)
     }
     if (basenameLower(token0) !== "env") {
       break;
@@ -422,10 +463,35 @@ export function unwrapDispatchWrappersForResolution(
     if (unwrap.kind !== "unwrapped" || unwrap.argv.length === 0) {
       break;
     }
+<<<<<<< HEAD
+=======
+    wrappers.push(unwrap.wrapper);
+    if (isSemanticDispatchWrapperUsage(unwrap.wrapper, current)) {
+      return blockedDispatchWrapperPlan({
+        argv: current,
+        wrappers,
+        blockedWrapper: unwrap.wrapper,
+      });
+    }
+>>>>>>> a9ce6bd79 (refactor: dedupe exec wrapper denial plan and test setup)
     current = unwrap.argv;
 >>>>>>> cd919ebd2 (refactor(exec): unify wrapper resolution and split approvals tests)
   }
+<<<<<<< HEAD
   return current;
+=======
+  if (wrappers.length >= maxDepth) {
+    const overflow = unwrapKnownDispatchWrapperInvocation(current);
+    if (overflow.kind === "blocked" || overflow.kind === "unwrapped") {
+      return blockedDispatchWrapperPlan({
+        argv: current,
+        wrappers,
+        blockedWrapper: overflow.wrapper,
+      });
+    }
+  }
+  return { argv: current, wrappers, policyBlocked: false };
+>>>>>>> a9ce6bd79 (refactor: dedupe exec wrapper denial plan and test setup)
 }
 
 function hasEnvManipulationBeforeShellWrapperInternal(
