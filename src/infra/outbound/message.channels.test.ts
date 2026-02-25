@@ -197,6 +197,35 @@ describe("gateway url override hardening", () => {
       }),
     );
   });
+
+  it("forwards explicit agentId in gateway send params", async () => {
+    setRegistry(
+      createTestRegistry([
+        {
+          pluginId: "mattermost",
+          source: "test",
+          plugin: {
+            ...createMattermostLikePlugin({ onSendText: () => {} }),
+            outbound: { deliveryMode: "gateway" },
+          },
+        },
+      ]),
+    );
+
+    callGatewayMock.mockResolvedValueOnce({ messageId: "m-agent" });
+    await sendMessage({
+      cfg: {},
+      to: "channel:town-square",
+      content: "hi",
+      channel: "mattermost",
+      agentId: "work",
+    });
+
+    const call = callGatewayMock.mock.calls[0]?.[0] as {
+      params?: Record<string, unknown>;
+    };
+    expect(call.params?.agentId).toBe("work");
+  });
 });
 
 >>>>>>> 7adcf5a49 (test(outbound): dedupe shared setup hooks in message e2e)
