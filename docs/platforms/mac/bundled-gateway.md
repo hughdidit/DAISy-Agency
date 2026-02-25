@@ -30,13 +30,17 @@ Label:
 - `bot.molt.gateway` (or `bot.molt.<profile>`; legacy `com.clawdbot.*` may remain)
 =======
 
+<<<<<<< HEAD
 - `bot.molt.gateway` (or `bot.molt.<profile>`; legacy `com.openclaw.*` may remain)
 >>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
+=======
+- `ai.openclaw.gateway` (or `ai.openclaw.<profile>`; legacy `com.openclaw.*` may remain)
+>>>>>>> 52d933b3a (refactor: replace bot.molt identifiers with ai.openclaw)
 
 Plist location (per‑user):
 
-- `~/Library/LaunchAgents/bot.molt.gateway.plist`
-  (or `~/Library/LaunchAgents/bot.molt.<profile>.plist`)
+- `~/Library/LaunchAgents/ai.openclaw.gateway.plist`
+  (or `~/Library/LaunchAgents/ai.openclaw.<profile>.plist`)
 
 Manager:
 

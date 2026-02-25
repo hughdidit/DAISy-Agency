@@ -99,7 +99,7 @@ final class TalkModeManager: NSObject {
     private var incrementalSpeechPrefetchMonitorTask: Task<Void, Never>?
 >>>>>>> 8a661e30c (fix(ios): prefetch talk tts segments)
 
-    private let logger = Logger(subsystem: "bot.molt", category: "TalkMode")
+    private let logger = Logger(subsystem: "ai.openclaw", category: "TalkMode")
 
     func attachGateway(_ gateway: GatewayNodeSession) {
         self.gateway = gateway

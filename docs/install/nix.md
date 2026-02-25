@@ -57,7 +57,11 @@ On macOS, the GUI app does not automatically inherit shell env vars. You can
 also enable Nix mode via defaults:
 
 ```bash
+<<<<<<< HEAD
 defaults write bot.molt.mac moltbot.nixMode -bool true
+=======
+defaults write ai.openclaw.mac openclaw.nixMode -bool true
+>>>>>>> 52d933b3a (refactor: replace bot.molt identifiers with ai.openclaw)
 ```
 
 ### Config + state paths

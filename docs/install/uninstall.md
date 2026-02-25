@@ -88,14 +88,22 @@ Use this if the gateway service keeps running but `moltbot` is missing.
 
 ### macOS (launchd)
 
+<<<<<<< HEAD
 Default label is `bot.molt.gateway` (or `bot.molt.<profile>`; legacy `com.clawdbot.*` may still exist):
+=======
+Default label is `ai.openclaw.gateway` (or `ai.openclaw.<profile>`; legacy `com.openclaw.*` may still exist):
+>>>>>>> 52d933b3a (refactor: replace bot.molt identifiers with ai.openclaw)
 
 ```bash
-launchctl bootout gui/$UID/bot.molt.gateway
-rm -f ~/Library/LaunchAgents/bot.molt.gateway.plist
+launchctl bootout gui/$UID/ai.openclaw.gateway
+rm -f ~/Library/LaunchAgents/ai.openclaw.gateway.plist
 ```
 
+<<<<<<< HEAD
 If you used a profile, replace the label and plist name with `bot.molt.<profile>`. Remove any legacy `com.clawdbot.*` plists if present.
+=======
+If you used a profile, replace the label and plist name with `ai.openclaw.<profile>`. Remove any legacy `com.openclaw.*` plists if present.
+>>>>>>> 52d933b3a (refactor: replace bot.molt identifiers with ai.openclaw)
 
 ### Linux (systemd user unit)
 

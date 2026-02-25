@@ -21,7 +21,12 @@ agent (with a session switcher for other sessions).
   ```bash
   dist/Moltbot.app/Contents/MacOS/Moltbot --webchat
   ```
+<<<<<<< HEAD
 - Logs: `./scripts/clawlog.sh` (subsystem `bot.molt`, category `WebChatSwiftUI`).
+=======
+
+- Logs: `./scripts/clawlog.sh` (subsystem `ai.openclaw`, category `WebChatSwiftUI`).
+>>>>>>> 52d933b3a (refactor: replace bot.molt identifiers with ai.openclaw)
 
 ## How it’s wired
 

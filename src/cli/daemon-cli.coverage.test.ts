@@ -197,7 +197,7 @@ describe("daemon-cli coverage", () => {
         CLAWDBOT_CONFIG_PATH: "/tmp/moltbot-daemon-state/moltbot.json",
         CLAWDBOT_GATEWAY_PORT: "19001",
       },
-      sourcePath: "/tmp/bot.molt.gateway.plist",
+      sourcePath: "/tmp/ai.openclaw.gateway.plist",
     });
 
     await runDaemonCommand(["daemon", "status", "--json"]);
