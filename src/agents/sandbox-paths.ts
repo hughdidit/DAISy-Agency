@@ -172,6 +172,7 @@ async function resolveAllowedTmpMediaPath(params: {
     return undefined;
   }
 <<<<<<< HEAD
+<<<<<<< HEAD
   await assertNoSymlinkEscape(path.relative(tmpDir, resolved), tmpDir);
   return resolved;
 }
@@ -180,10 +181,21 @@ async function resolveAllowedTmpMediaPath(params: {
 =======
   await assertNoSymlinkEscape(path.relative(openClawTmpDir, resolved), openClawTmpDir);
   await assertNoHardlinkedFinalPath(resolved, openClawTmpDir);
+=======
+  await assertNoTmpAliasEscape({ filePath: resolved, tmpRoot: openClawTmpDir });
+>>>>>>> c267b5edf (refactor(sandbox): unify tmp alias checks and dedupe hardlink tests)
   return resolved;
 }
 
-async function assertNoHardlinkedFinalPath(filePath: string, root: string): Promise<void> {
+async function assertNoTmpAliasEscape(params: {
+  filePath: string;
+  tmpRoot: string;
+}): Promise<void> {
+  await assertNoSymlinkEscape(path.relative(params.tmpRoot, params.filePath), params.tmpRoot);
+  await assertNoHardlinkedFinalPath(params.filePath, params.tmpRoot);
+}
+
+async function assertNoHardlinkedFinalPath(filePath: string, tmpRoot: string): Promise<void> {
   let stat: Awaited<ReturnType<typeof fs.stat>>;
   try {
     stat = await fs.stat(filePath);
@@ -198,7 +210,7 @@ async function assertNoHardlinkedFinalPath(filePath: string, root: string): Prom
   }
   if (stat.nlink > 1) {
     throw new Error(
-      `Hardlinked tmp media path is not allowed under sandbox root (${shortPath(root)}): ${shortPath(filePath)}`,
+      `Hardlinked tmp media path is not allowed under tmp root (${shortPath(tmpRoot)}): ${shortPath(filePath)}`,
     );
   }
 }
