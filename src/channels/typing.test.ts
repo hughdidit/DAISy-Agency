@@ -98,5 +98,32 @@ describe("createTypingCallbacks", () => {
 
     expect(stop).toHaveBeenCalledTimes(1);
   });
+<<<<<<< HEAD
 >>>>>>> d42ef2ac6 (refactor: consolidate typing lifecycle and queue policy)
+=======
+
+  it("does not restart keepalive after idle cleanup", async () => {
+    vi.useFakeTimers();
+    try {
+      const start = vi.fn().mockResolvedValue(undefined);
+      const stop = vi.fn().mockResolvedValue(undefined);
+      const onStartError = vi.fn();
+      const callbacks = createTypingCallbacks({ start, stop, onStartError });
+
+      await callbacks.onReplyStart();
+      expect(start).toHaveBeenCalledTimes(1);
+
+      callbacks.onIdle?.();
+      await flushMicrotasks();
+
+      await callbacks.onReplyStart();
+      await vi.advanceTimersByTimeAsync(9_000);
+
+      expect(start).toHaveBeenCalledTimes(1);
+      expect(stop).toHaveBeenCalledTimes(1);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+>>>>>>> a0fa28383 (fix(discord): prevent stuck typing indicator)
 });
