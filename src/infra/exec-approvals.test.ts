@@ -117,6 +117,14 @@ function loadWrapperResolutionParityFixtureCases(): WrapperResolutionParityFixtu
 } from "./exec-approvals.js";
 >>>>>>> cd919ebd2 (refactor(exec): unify wrapper resolution and split approvals tests)
 
+function buildNestedEnvShellCommand(params: {
+  envExecutable: string;
+  depth: number;
+  payload: string;
+}): string[] {
+  return [...Array(params.depth).fill(params.envExecutable), "/bin/sh", "-c", params.payload];
+}
+
 describe("exec approvals allowlist matching", () => {
   const baseResolution = {
     rawExecutable: "rg",
@@ -314,6 +322,119 @@ describe("exec approvals command resolution", () => {
       }
     }
   });
+<<<<<<< HEAD
+=======
+
+  it("unwraps transparent env wrapper argv to resolve the effective executable", () => {
+    const dir = makeTempDir();
+    const binDir = path.join(dir, "bin");
+    fs.mkdirSync(binDir, { recursive: true });
+    const exeName = process.platform === "win32" ? "rg.exe" : "rg";
+    const exe = path.join(binDir, exeName);
+    fs.writeFileSync(exe, "");
+    fs.chmodSync(exe, 0o755);
+
+    const resolution = resolveCommandResolutionFromArgv(
+      ["/usr/bin/env", "rg", "-n", "needle"],
+      undefined,
+      makePathEnv(binDir),
+    );
+    expect(resolution?.resolvedPath).toBe(exe);
+    expect(resolution?.executableName).toBe(exeName);
+  });
+
+  it("blocks semantic env wrappers from allowlist/safeBins auto-resolution", () => {
+    const resolution = resolveCommandResolutionFromArgv([
+      "/usr/bin/env",
+      "FOO=bar",
+      "rg",
+      "-n",
+      "needle",
+    ]);
+    expect(resolution?.policyBlocked).toBe(true);
+    expect(resolution?.rawExecutable).toBe("/usr/bin/env");
+  });
+
+  it("fails closed for env -S even when env itself is allowlisted", () => {
+    const dir = makeTempDir();
+    const binDir = path.join(dir, "bin");
+    fs.mkdirSync(binDir, { recursive: true });
+    const envName = process.platform === "win32" ? "env.exe" : "env";
+    const envPath = path.join(binDir, envName);
+    fs.writeFileSync(envPath, process.platform === "win32" ? "" : "#!/bin/sh\n");
+    if (process.platform !== "win32") {
+      fs.chmodSync(envPath, 0o755);
+    }
+
+    const analysis = analyzeArgvCommand({
+      argv: [envPath, "-S", 'sh -c "echo pwned"'],
+      cwd: dir,
+      env: makePathEnv(binDir),
+    });
+    const allowlistEval = evaluateExecAllowlist({
+      analysis,
+      allowlist: [{ pattern: envPath }],
+      safeBins: normalizeSafeBins([]),
+      cwd: dir,
+    });
+
+    expect(analysis.ok).toBe(true);
+    expect(analysis.segments[0]?.resolution?.policyBlocked).toBe(true);
+    expect(allowlistEval.allowlistSatisfied).toBe(false);
+    expect(allowlistEval.segmentSatisfiedBy).toEqual([null]);
+  });
+
+  it("fails closed when transparent env wrappers exceed unwrap depth", () => {
+    if (process.platform === "win32") {
+      return;
+    }
+    const dir = makeTempDir();
+    const binDir = path.join(dir, "bin");
+    fs.mkdirSync(binDir, { recursive: true });
+    const envPath = path.join(binDir, "env");
+    fs.writeFileSync(envPath, "#!/bin/sh\n");
+    fs.chmodSync(envPath, 0o755);
+
+    const analysis = analyzeArgvCommand({
+      argv: buildNestedEnvShellCommand({
+        envExecutable: envPath,
+        depth: 5,
+        payload: "echo pwned",
+      }),
+      cwd: dir,
+      env: makePathEnv(binDir),
+    });
+    const allowlistEval = evaluateExecAllowlist({
+      analysis,
+      allowlist: [{ pattern: envPath }],
+      safeBins: normalizeSafeBins([]),
+      cwd: dir,
+    });
+
+    expect(analysis.ok).toBe(true);
+    expect(analysis.segments[0]?.resolution?.policyBlocked).toBe(true);
+    expect(analysis.segments[0]?.resolution?.blockedWrapper).toBe("env");
+    expect(allowlistEval.allowlistSatisfied).toBe(false);
+    expect(allowlistEval.segmentSatisfiedBy).toEqual([null]);
+  });
+
+  it("unwraps env wrapper with shell inner executable", () => {
+    const resolution = resolveCommandResolutionFromArgv(["/usr/bin/env", "bash", "-lc", "echo hi"]);
+    expect(resolution?.rawExecutable).toBe("bash");
+    expect(resolution?.executableName.toLowerCase()).toContain("bash");
+  });
+
+  it("unwraps nice wrapper argv to resolve the effective executable", () => {
+    const resolution = resolveCommandResolutionFromArgv([
+      "/usr/bin/nice",
+      "bash",
+      "-lc",
+      "echo hi",
+    ]);
+    expect(resolution?.rawExecutable).toBe("bash");
+    expect(resolution?.executableName.toLowerCase()).toContain("bash");
+  });
+>>>>>>> a9ce6bd79 (refactor: dedupe exec wrapper denial plan and test setup)
 });
 
 describe("exec approvals shell parsing", () => {

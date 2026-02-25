@@ -17,6 +17,30 @@ describe("formatSystemRunAllowlistMissMessage", () => {
 });
 
 describe("handleSystemRunInvoke mac app exec host routing", () => {
+  function buildNestedEnvShellCommand(params: { depth: number; payload: string }): string[] {
+    return [...Array(params.depth).fill("/usr/bin/env"), "/bin/sh", "-c", params.payload];
+  }
+
+  async function withTempApprovalsHome<T>(params: {
+    approvals: Parameters<typeof saveExecApprovals>[0];
+    run: (ctx: { tempHome: string }) => Promise<T>;
+  }): Promise<T> {
+    const tempHome = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-exec-approvals-"));
+    const previousOpenClawHome = process.env.OPENCLAW_HOME;
+    process.env.OPENCLAW_HOME = tempHome;
+    saveExecApprovals(params.approvals);
+    try {
+      return await params.run({ tempHome });
+    } finally {
+      if (previousOpenClawHome === undefined) {
+        delete process.env.OPENCLAW_HOME;
+      } else {
+        process.env.OPENCLAW_HOME = previousOpenClawHome;
+      }
+      fs.rmSync(tempHome, { recursive: true, force: true });
+    }
+  }
+
   async function runSystemInvoke(params: {
     preferMacAppExecHost: boolean;
     runViaResponse?: ExecHostResponse | null;
@@ -222,6 +246,80 @@ describe("handleSystemRunInvoke mac app exec host routing", () => {
     }
   });
 
+<<<<<<< HEAD
+=======
+  it("denies ./skill-bin even when autoAllowSkills trust entry exists", async () => {
+    const runCommand = vi.fn(async () => ({
+      success: true,
+      stdout: "local-ok",
+      stderr: "",
+      timedOut: false,
+      truncated: false,
+      exitCode: 0,
+      error: null,
+    }));
+    const sendInvokeResult = vi.fn(async () => {});
+    const sendNodeEvent = vi.fn(async () => {});
+
+    await withTempApprovalsHome({
+      approvals: {
+        version: 1,
+        defaults: {
+          security: "allowlist",
+          ask: "on-miss",
+          askFallback: "deny",
+          autoAllowSkills: true,
+        },
+        agents: {},
+      },
+      run: async ({ tempHome }) => {
+        const skillBinPath = path.join(tempHome, "skill-bin");
+        fs.writeFileSync(skillBinPath, "#!/bin/sh\necho should-not-run\n", { mode: 0o755 });
+        fs.chmodSync(skillBinPath, 0o755);
+        await handleSystemRunInvoke({
+          client: {} as never,
+          params: {
+            command: ["./skill-bin", "--help"],
+            cwd: tempHome,
+            sessionKey: "agent:main:main",
+          },
+          skillBins: {
+            current: async () => [{ name: "skill-bin", resolvedPath: skillBinPath }],
+          },
+          execHostEnforced: false,
+          execHostFallbackAllowed: true,
+          resolveExecSecurity: () => "allowlist",
+          resolveExecAsk: () => "on-miss",
+          isCmdExeInvocation: () => false,
+          sanitizeEnv: () => undefined,
+          runCommand,
+          runViaMacAppExecHost: vi.fn(async () => null),
+          sendNodeEvent,
+          buildExecEventPayload: (payload) => payload,
+          sendInvokeResult,
+          sendExecFinishedEvent: vi.fn(async () => {}),
+          preferMacAppExecHost: false,
+        });
+      },
+    });
+
+    expect(runCommand).not.toHaveBeenCalled();
+    expect(sendNodeEvent).toHaveBeenCalledWith(
+      expect.anything(),
+      "exec.denied",
+      expect.objectContaining({ reason: "approval-required" }),
+    );
+    expect(sendInvokeResult).toHaveBeenCalledWith(
+      expect.objectContaining({
+        ok: false,
+        error: expect.objectContaining({
+          message: "SYSTEM_RUN_DENIED: approval required",
+        }),
+      }),
+    );
+  });
+
+>>>>>>> a9ce6bd79 (refactor: dedupe exec wrapper denial plan and test setup)
   it("denies env -S shell payloads in allowlist mode", async () => {
     const { runCommand, sendInvokeResult } = await runSystemInvoke({
       preferMacAppExecHost: false,
@@ -238,5 +336,80 @@ describe("handleSystemRunInvoke mac app exec host routing", () => {
       }),
     );
   });
+<<<<<<< HEAD
 >>>>>>> 60f1d1959 (test: stabilize invoke-system-run env-wrapper assertion on Windows)
+=======
+
+  it("denies nested env shell payloads when wrapper depth is exceeded", async () => {
+    if (process.platform === "win32") {
+      return;
+    }
+    const runCommand = vi.fn(async () => {
+      throw new Error("runCommand should not be called for nested env depth overflow");
+    });
+    const sendInvokeResult = vi.fn(async () => {});
+    const sendNodeEvent = vi.fn(async () => {});
+
+    await withTempApprovalsHome({
+      approvals: {
+        version: 1,
+        defaults: {
+          security: "allowlist",
+          ask: "on-miss",
+          askFallback: "deny",
+        },
+        agents: {
+          main: {
+            allowlist: [{ pattern: "/usr/bin/env" }],
+          },
+        },
+      },
+      run: async ({ tempHome }) => {
+        const marker = path.join(tempHome, "pwned.txt");
+        await handleSystemRunInvoke({
+          client: {} as never,
+          params: {
+            command: buildNestedEnvShellCommand({
+              depth: 5,
+              payload: `echo PWNED > ${marker}`,
+            }),
+            sessionKey: "agent:main:main",
+          },
+          skillBins: {
+            current: async () => [],
+          },
+          execHostEnforced: false,
+          execHostFallbackAllowed: true,
+          resolveExecSecurity: () => "allowlist",
+          resolveExecAsk: () => "on-miss",
+          isCmdExeInvocation: () => false,
+          sanitizeEnv: () => undefined,
+          runCommand,
+          runViaMacAppExecHost: vi.fn(async () => null),
+          sendNodeEvent,
+          buildExecEventPayload: (payload) => payload,
+          sendInvokeResult,
+          sendExecFinishedEvent: vi.fn(async () => {}),
+          preferMacAppExecHost: false,
+        });
+        expect(fs.existsSync(marker)).toBe(false);
+      },
+    });
+
+    expect(runCommand).not.toHaveBeenCalled();
+    expect(sendNodeEvent).toHaveBeenCalledWith(
+      expect.anything(),
+      "exec.denied",
+      expect.objectContaining({ reason: "approval-required" }),
+    );
+    expect(sendInvokeResult).toHaveBeenCalledWith(
+      expect.objectContaining({
+        ok: false,
+        error: expect.objectContaining({
+          message: "SYSTEM_RUN_DENIED: approval required",
+        }),
+      }),
+    );
+  });
+>>>>>>> a9ce6bd79 (refactor: dedupe exec wrapper denial plan and test setup)
 });
