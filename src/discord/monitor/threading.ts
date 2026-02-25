@@ -13,6 +13,7 @@ import { truncateUtf16Safe } from "../../utils.js";
 <<<<<<< HEAD
 import type { DiscordChannelConfigResolved } from "./allow-list.js";
 import type { DiscordMessageEvent } from "./listeners.js";
+<<<<<<< HEAD
 import { resolveDiscordChannelInfo } from "./message-utils.js";
 =======
 =======
@@ -33,6 +34,13 @@ import type { DiscordMessageEvent } from "./listeners.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { resolveDiscordChannelInfo, resolveDiscordMessageChannelId } from "./message-utils.js";
 >>>>>>> 09566b169 (fix(discord): preserve channel session keys via channel_id fallbacks (#17622))
+=======
+import {
+  resolveDiscordChannelInfo,
+  resolveDiscordEmbedText,
+  resolveDiscordMessageChannelId,
+} from "./message-utils.js";
+>>>>>>> a0a229a3b (Discord: align embed fallback in thread starter parsing)
 
 export type DiscordThreadChannel = {
   id: string;
@@ -197,7 +205,7 @@ export async function resolveDiscordThreadStarter(params: {
       Routes.channelMessage(messageChannelId, params.channel.id),
     )) as {
       content?: string | null;
-      embeds?: Array<{ description?: string | null }>;
+      embeds?: Array<{ title?: string | null; description?: string | null }>;
       member?: { nick?: string | null; displayName?: string | null };
       author?: {
         id?: string | null;
@@ -209,7 +217,9 @@ export async function resolveDiscordThreadStarter(params: {
     if (!starter) {
       return null;
     }
-    const text = starter.content?.trim() ?? starter.embeds?.[0]?.description?.trim() ?? "";
+    const content = starter.content?.trim() ?? "";
+    const embedText = resolveDiscordEmbedText(starter.embeds?.[0]);
+    const text = content || embedText;
     if (!text) {
       return null;
     }
