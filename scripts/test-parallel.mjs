@@ -72,6 +72,7 @@ const isWindowsCi = isCI && isWindows;
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 const shardOverride = Number.parseInt(process.env.CLAWDBOT_TEST_SHARDS ?? "", 10);
 const shardCount = isWindowsCi ? (Number.isFinite(shardOverride) && shardOverride > 1 ? shardOverride : 2) : 1;
 const windowsCiArgs = isWindowsCi ? ["--no-file-parallelism", "--dangerouslyIgnoreUnhandledErrors"] : [];
@@ -80,19 +81,27 @@ const resolvedOverride = Number.isFinite(overrideWorkers) && overrideWorkers > 0
 =======
 =======
 =======
+=======
+const hostCpuCount = os.cpus().length;
+const hostMemoryGiB = Math.floor(os.totalmem() / 1024 ** 3);
+// Keep aggressive local defaults for high-memory workstations (Mac Studio class).
+const highMemLocalHost = !isCI && hostMemoryGiB >= 96;
+const lowMemLocalHost = !isCI && hostMemoryGiB < 64;
+>>>>>>> b3f46f0e2 (fix(test): stabilize low-mem parallel runner and cron session mock (#26324))
 const nodeMajor = Number.parseInt(process.versions.node.split(".")[0] ?? "", 10);
 <<<<<<< HEAD
 const supportsVmForks = Number.isFinite(nodeMajor) ? nodeMajor < 24 : true;
 >>>>>>> 5d37b204c (Tests: disable vmForks on Node 24 and document override)
 =======
 // vmForks is a big win for transform/import heavy suites, but Node 24 had
-// regressions with Vitest's vm runtime in this repo. Keep it opt-out via
+// regressions with Vitest's vm runtime in this repo, and low-memory local hosts
+// are more likely to hit per-worker V8 heap ceilings. Keep it opt-out via
 // OPENCLAW_TEST_VM_FORKS=0, and let users force-enable with =1.
 const supportsVmForks = Number.isFinite(nodeMajor) ? nodeMajor !== 24 : true;
 >>>>>>> d1f01de59 (perf(test): default to vmForks on Node 25; unstub envs)
 const useVmForks =
   process.env.OPENCLAW_TEST_VM_FORKS === "1" ||
-  (process.env.OPENCLAW_TEST_VM_FORKS !== "0" && !isWindows && supportsVmForks);
+  (process.env.OPENCLAW_TEST_VM_FORKS !== "0" && !isWindows && supportsVmForks && !lowMemLocalHost);
 const disableIsolation = process.env.OPENCLAW_TEST_NO_ISOLATE === "1";
 const runs = [
   ...(useVmForks
@@ -185,11 +194,6 @@ const testProfile =
 const overrideWorkers = Number.parseInt(process.env.OPENCLAW_TEST_WORKERS ?? "", 10);
 const resolvedOverride =
   Number.isFinite(overrideWorkers) && overrideWorkers > 0 ? overrideWorkers : null;
-const hostCpuCount = os.cpus().length;
-const hostMemoryGiB = Math.floor(os.totalmem() / 1024 ** 3);
-// Keep aggressive local defaults for high-memory workstations (Mac Studio class).
-const highMemLocalHost = !isCI && hostMemoryGiB >= 96;
-const lowMemLocalHost = !isCI && hostMemoryGiB < 64;
 const parallelGatewayEnabled =
   process.env.OPENCLAW_TEST_PARALLEL_GATEWAY === "1" || (!isCI && highMemLocalHost);
 // Keep gateway serial by default except when explicitly requested or on high-memory local hosts.
@@ -224,7 +228,7 @@ const defaultWorkerBudget =
     ? {
         unit: 2,
         unitIsolated: 1,
-        extensions: 1,
+        extensions: 4,
         gateway: 1,
       }
     : testProfile === "serial"
@@ -254,7 +258,7 @@ const defaultWorkerBudget =
                 // Sub-64 GiB local hosts are prone to OOM with large vmFork runs.
                 unit: 2,
                 unitIsolated: 1,
-                extensions: 1,
+                extensions: 4,
                 gateway: 1,
               }
             : {
@@ -355,13 +359,23 @@ function buildReporterArgs(entry, extraArgs) {
 const runOnce = (entry, extraArgs = []) =>
   new Promise((resolve) => {
     const maxWorkers = maxWorkersForRun(entry.name);
+<<<<<<< HEAD
+=======
+    const reporterArgs = buildReporterArgs(entry, extraArgs);
+    // vmForks with a single worker has shown cross-file leakage in extension suites.
+    // Fall back to process forks when we intentionally clamp that lane to one worker.
+    const entryArgs =
+      entry.name === "extensions" && maxWorkers === 1 && entry.args.includes("--pool=vmForks")
+        ? entry.args.map((arg) => (arg === "--pool=vmForks" ? "--pool=forks" : arg))
+        : entry.args;
+>>>>>>> b3f46f0e2 (fix(test): stabilize low-mem parallel runner and cron session mock (#26324))
     const args = maxWorkers
 <<<<<<< HEAD
       ? [...entry.args, "--maxWorkers", String(maxWorkers), ...windowsCiArgs, ...extraArgs]
       : [...entry.args, ...windowsCiArgs, ...extraArgs];
 =======
       ? [
-          ...entry.args,
+          ...entryArgs,
           "--maxWorkers",
           String(maxWorkers),
           ...silentArgs,
@@ -369,8 +383,12 @@ const runOnce = (entry, extraArgs = []) =>
           ...windowsCiArgs,
           ...extraArgs,
         ]
+<<<<<<< HEAD
       : [...entry.args, ...silentArgs, ...reporterArgs, ...windowsCiArgs, ...extraArgs];
 >>>>>>> 069670388 (perf(test): speed up test runs and harden temp cleanup)
+=======
+      : [...entryArgs, ...silentArgs, ...reporterArgs, ...windowsCiArgs, ...extraArgs];
+>>>>>>> b3f46f0e2 (fix(test): stabilize low-mem parallel runner and cron session mock (#26324))
     const nodeOptions = process.env.NODE_OPTIONS ?? "";
     const nextNodeOptions = WARNING_SUPPRESSION_FLAGS.reduce(
       (acc, flag) => (acc.includes(flag) ? acc : `${acc} ${flag}`.trim()),
