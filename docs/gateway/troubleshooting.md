@@ -420,7 +420,7 @@ If channels are up but nothing answers, check routing and policy before reconnec
 ```bash
 openclaw status
 openclaw channels status --probe
-openclaw pairing list <channel>
+openclaw pairing list --channel <channel> [--account <id>]
 openclaw config get channels
 openclaw logs --follow
 ```
@@ -509,7 +509,7 @@ If channel state is connected but message flow is dead, focus on policy, permiss
 
 ```bash
 openclaw channels status --probe
-openclaw pairing list <channel>
+openclaw pairing list --channel <channel> [--account <id>]
 openclaw status --deep
 openclaw logs --follow
 openclaw config get channels
@@ -773,7 +773,7 @@ Common signatures:
 
 ```bash
 openclaw devices list
-openclaw pairing list <channel>
+openclaw pairing list --channel <channel> [--account <id>]
 openclaw logs --follow
 openclaw doctor
 ```

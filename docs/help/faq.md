@@ -2934,9 +2934,15 @@ Treat inbound DMs as untrusted input. Defaults are designed to reduce risk:
 
 - Default behavior on DM‑capable channels is **pairing**:
   - Unknown senders receive a pairing code; the bot does not process their message.
+<<<<<<< HEAD
   - Approve with: `moltbot pairing approve <channel> <code>`
   - Pending requests are capped at **3 per channel**; check `moltbot pairing list <channel>` if a code didn’t arrive.
 - Opening DMs publicly requires explicit opt‑in (`dmPolicy: "open"` and allowlist `"*"`).
+=======
+  - Approve with: `openclaw pairing approve --channel <channel> [--account <id>] <code>`
+  - Pending requests are capped at **3 per channel**; check `openclaw pairing list --channel <channel> [--account <id>]` if a code didn't arrive.
+- Opening DMs publicly requires explicit opt-in (`dmPolicy: "open"` and allowlist `"*"`).
+>>>>>>> 069c495df (docs: clarify pairing commands in faq and troubleshooting)
 
 Run `moltbot doctor` to surface risky DM policies.
 
