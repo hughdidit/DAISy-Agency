@@ -430,7 +430,7 @@ final class SparkleUpdaterController: NSObject, UpdaterProviding {
     }
 }
 
-extension SparkleUpdaterController: @preconcurrency SPUUpdaterDelegate {}
+extension SparkleUpdaterController: SPUUpdaterDelegate {}
 
 private func isDeveloperIDSigned(bundleURL: URL) -> Bool {
     var staticCode: SecStaticCode?

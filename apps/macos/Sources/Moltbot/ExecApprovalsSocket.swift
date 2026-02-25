@@ -392,7 +392,28 @@ private enum ExecHostExecutor {
                 reason: "invalid")
         }
 
+<<<<<<< HEAD:apps/macos/Sources/Moltbot/ExecApprovalsSocket.swift
         let context = await self.buildContext(request: request, command: command)
+=======
+        let validatedCommand = ExecSystemRunCommandValidator.resolve(
+            command: command,
+            rawCommand: request.rawCommand)
+        let displayCommand: String
+        switch validatedCommand {
+        case let .ok(resolved):
+            displayCommand = resolved.displayCommand
+        case let .invalid(message):
+            return self.errorResponse(
+                code: "INVALID_REQUEST",
+                message: message,
+                reason: "invalid")
+        }
+
+        let context = await self.buildContext(
+            request: request,
+            command: command,
+            rawCommand: displayCommand)
+>>>>>>> ce1dbeb98 (fix(macos): clean warnings and harden gateway/talk config parsing):apps/macos/Sources/OpenClaw/ExecApprovalsSocket.swift
         if context.security == .deny {
             return self.errorResponse(
                 code: "UNAVAILABLE",
