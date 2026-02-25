@@ -81,11 +81,22 @@ describe("redactConfigSnapshot", () => {
 
   it("redacts signingSecret fields", () => {
     const snapshot = makeSnapshot({
+<<<<<<< HEAD
       channels: {
         slack: { signingSecret: "slack-signing-secret-value-1234" },
+=======
+      models: {
+        providers: {
+          openai: {
+            apiKey: { source: "env", provider: "default", id: "OPENAI_API_KEY" },
+            baseUrl: "https://api.openai.com",
+          },
+        },
+>>>>>>> 4e7a833a2 (feat(security): add provider-based external secrets management)
       },
     });
     const result = redactConfigSnapshot(snapshot);
+<<<<<<< HEAD
     const channels = result.config.channels as Record<string, Record<string, string>>;
     expect(channels.slack.signingSecret).toBe(REDACTED_SENTINEL);
   });
@@ -93,6 +104,13 @@ describe("redactConfigSnapshot", () => {
   it("redacts short secrets with same sentinel", () => {
     const snapshot = makeSnapshot({
       gateway: { auth: { token: "short" } },
+=======
+    const models = result.config.models as Record<string, Record<string, Record<string, unknown>>>;
+    expect(models.providers.openai.apiKey).toEqual({
+      source: REDACTED_SENTINEL,
+      provider: REDACTED_SENTINEL,
+      id: REDACTED_SENTINEL,
+>>>>>>> 4e7a833a2 (feat(security): add provider-based external secrets management)
     });
     const result = redactConfigSnapshot(snapshot);
     const gw = result.config.gateway as Record<string, Record<string, string>>;

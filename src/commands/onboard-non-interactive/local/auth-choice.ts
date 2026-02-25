@@ -359,6 +359,118 @@ export async function applyNonInteractiveAuthChoice(params: {
     return applyOpencodeZenConfig(nextConfig);
   }
 
+<<<<<<< HEAD
+=======
+  if (authChoice === "together-api-key") {
+    const resolved = await resolveApiKey({
+      provider: "together",
+      cfg: baseConfig,
+      flagValue: opts.togetherApiKey,
+      flagName: "--together-api-key",
+      envVar: "TOGETHER_API_KEY",
+      runtime,
+    });
+    if (!resolved) {
+      return null;
+    }
+    if (resolved.source !== "profile") {
+      await setTogetherApiKey(resolved.key, undefined, apiKeyStorageOptions);
+    }
+    nextConfig = applyAuthProfileConfig(nextConfig, {
+      profileId: "together:default",
+      provider: "together",
+      mode: "api_key",
+    });
+    return applyTogetherConfig(nextConfig);
+  }
+
+  if (authChoice === "huggingface-api-key") {
+    const resolved = await resolveApiKey({
+      provider: "huggingface",
+      cfg: baseConfig,
+      flagValue: opts.huggingfaceApiKey,
+      flagName: "--huggingface-api-key",
+      envVar: "HF_TOKEN",
+      runtime,
+    });
+    if (!resolved) {
+      return null;
+    }
+    if (resolved.source !== "profile") {
+      await setHuggingfaceApiKey(resolved.key, undefined, apiKeyStorageOptions);
+    }
+    nextConfig = applyAuthProfileConfig(nextConfig, {
+      profileId: "huggingface:default",
+      provider: "huggingface",
+      mode: "api_key",
+    });
+    return applyHuggingfaceConfig(nextConfig);
+  }
+
+  if (authChoice === "custom-api-key") {
+    try {
+      const customAuth = parseNonInteractiveCustomApiFlags({
+        baseUrl: opts.customBaseUrl,
+        modelId: opts.customModelId,
+        compatibility: opts.customCompatibility,
+        apiKey: opts.customApiKey,
+        providerId: opts.customProviderId,
+      });
+      const resolvedProviderId = resolveCustomProviderId({
+        config: nextConfig,
+        baseUrl: customAuth.baseUrl,
+        providerId: customAuth.providerId,
+      });
+      const resolvedCustomApiKey = await resolveApiKey({
+        provider: resolvedProviderId.providerId,
+        cfg: baseConfig,
+        flagValue: customAuth.apiKey,
+        flagName: "--custom-api-key",
+        envVar: "CUSTOM_API_KEY",
+        envVarName: "CUSTOM_API_KEY",
+        runtime,
+        required: false,
+      });
+      const customApiKeyInput: SecretInput | undefined =
+        requestedSecretInputMode === "ref" && resolvedCustomApiKey?.source === "env"
+          ? { source: "env", provider: "default", id: "CUSTOM_API_KEY" }
+          : resolvedCustomApiKey?.key;
+      const result = applyCustomApiConfig({
+        config: nextConfig,
+        baseUrl: customAuth.baseUrl,
+        modelId: customAuth.modelId,
+        compatibility: customAuth.compatibility,
+        apiKey: customApiKeyInput,
+        providerId: customAuth.providerId,
+      });
+      if (result.providerIdRenamedFrom && result.providerId) {
+        runtime.log(
+          `Custom provider ID "${result.providerIdRenamedFrom}" already exists for a different base URL. Using "${result.providerId}".`,
+        );
+      }
+      return result.config;
+    } catch (err) {
+      if (err instanceof CustomApiError) {
+        switch (err.code) {
+          case "missing_required":
+          case "invalid_compatibility":
+            runtime.error(err.message);
+            break;
+          default:
+            runtime.error(`Invalid custom provider config: ${err.message}`);
+            break;
+        }
+        runtime.exit(1);
+        return null;
+      }
+      const reason = err instanceof Error ? err.message : String(err);
+      runtime.error(`Invalid custom provider config: ${reason}`);
+      runtime.exit(1);
+      return null;
+    }
+  }
+
+>>>>>>> 4e7a833a2 (feat(security): add provider-based external secrets management)
   if (
     authChoice === "oauth" ||
     authChoice === "chutes" ||

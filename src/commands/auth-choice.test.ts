@@ -18,6 +18,7 @@ vi.mock("../plugins/providers.js", () => ({
   resolvePluginProviders,
 }));
 
+<<<<<<< HEAD
 const noopAsync = async () => {};
 const noop = () => {};
 const authProfilePathFor = (agentDir: string) => path.join(agentDir, "auth-profiles.json");
@@ -25,6 +26,22 @@ const requireAgentDir = () => {
   const agentDir = process.env.OPENCLAW_AGENT_DIR;
   if (!agentDir) throw new Error("OPENCLAW_AGENT_DIR not set");
   return agentDir;
+=======
+const detectZaiEndpoint = vi.hoisted(() => vi.fn<DetectZaiEndpoint>(async () => null));
+vi.mock("./zai-endpoint-detect.js", () => ({
+  detectZaiEndpoint,
+}));
+
+type StoredAuthProfile = {
+  key?: string;
+  keyRef?: { source: string; provider: string; id: string };
+  access?: string;
+  refresh?: string;
+  provider?: string;
+  type?: string;
+  email?: string;
+  metadata?: Record<string, string>;
+>>>>>>> 4e7a833a2 (feat(security): add provider-based external secrets management)
 };
 
 describe("applyAuthChoice", () => {
@@ -140,6 +157,7 @@ describe("applyAuthChoice", () => {
     expect(parsed.profiles?.["minimax:default"]?.key).toBe("sk-minimax-test");
   });
 
+<<<<<<< HEAD
   it("prompts and writes Synthetic API key when selecting synthetic-api-key", async () => {
     tempStateDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-auth-"));
     process.env.OPENCLAW_STATE_DIR = tempStateDir;
@@ -155,6 +173,146 @@ describe("applyAuthChoice", () => {
       intro: vi.fn(noopAsync),
       outro: vi.fn(noopAsync),
       note: vi.fn(noopAsync),
+=======
+  it("uses existing env API keys for selected providers", async () => {
+    const scenarios: Array<{
+      authChoice: "synthetic-api-key" | "openrouter-api-key" | "ai-gateway-api-key";
+      envKey: "SYNTHETIC_API_KEY" | "OPENROUTER_API_KEY" | "AI_GATEWAY_API_KEY";
+      envValue: string;
+      profileId: string;
+      provider: string;
+      opts?: { secretInputMode?: "ref" };
+      expectEnvPrompt: boolean;
+      expectedTextCalls: number;
+      expectedKey?: string;
+      expectedKeyRef?: { source: "env"; provider: string; id: string };
+      expectedModel?: string;
+      expectedModelPrefix?: string;
+    }> = [
+      {
+        authChoice: "synthetic-api-key",
+        envKey: "SYNTHETIC_API_KEY",
+        envValue: "sk-synthetic-env",
+        profileId: "synthetic:default",
+        provider: "synthetic",
+        expectEnvPrompt: true,
+        expectedTextCalls: 0,
+        expectedKey: "sk-synthetic-env",
+        expectedModelPrefix: "synthetic/",
+      },
+      {
+        authChoice: "openrouter-api-key",
+        envKey: "OPENROUTER_API_KEY",
+        envValue: "sk-openrouter-test",
+        profileId: "openrouter:default",
+        provider: "openrouter",
+        expectEnvPrompt: true,
+        expectedTextCalls: 0,
+        expectedKey: "sk-openrouter-test",
+        expectedModel: "openrouter/auto",
+      },
+      {
+        authChoice: "ai-gateway-api-key",
+        envKey: "AI_GATEWAY_API_KEY",
+        envValue: "gateway-test-key",
+        profileId: "vercel-ai-gateway:default",
+        provider: "vercel-ai-gateway",
+        expectEnvPrompt: true,
+        expectedTextCalls: 0,
+        expectedKey: "gateway-test-key",
+        expectedModel: "vercel-ai-gateway/anthropic/claude-opus-4.6",
+      },
+      {
+        authChoice: "ai-gateway-api-key",
+        envKey: "AI_GATEWAY_API_KEY",
+        envValue: "gateway-ref-key",
+        profileId: "vercel-ai-gateway:default",
+        provider: "vercel-ai-gateway",
+        opts: { secretInputMode: "ref" },
+        expectEnvPrompt: false,
+        expectedTextCalls: 1,
+        expectedKeyRef: { source: "env", provider: "default", id: "AI_GATEWAY_API_KEY" },
+        expectedModel: "vercel-ai-gateway/anthropic/claude-opus-4.6",
+      },
+    ];
+    for (const scenario of scenarios) {
+      await setupTempState();
+      delete process.env.SYNTHETIC_API_KEY;
+      delete process.env.OPENROUTER_API_KEY;
+      delete process.env.AI_GATEWAY_API_KEY;
+      process.env[scenario.envKey] = scenario.envValue;
+
+      const text = vi.fn();
+      const confirm = vi.fn(async () => true);
+      const { prompter, runtime } = createApiKeyPromptHarness({ text, confirm });
+
+      const result = await applyAuthChoice({
+        authChoice: scenario.authChoice,
+        config: {},
+        prompter,
+        runtime,
+        setDefaultModel: true,
+        opts: scenario.opts,
+      });
+
+      if (scenario.expectEnvPrompt) {
+        expect(confirm).toHaveBeenCalledWith(
+          expect.objectContaining({
+            message: expect.stringContaining(scenario.envKey),
+          }),
+        );
+      } else {
+        expect(confirm).not.toHaveBeenCalled();
+      }
+      expect(text).toHaveBeenCalledTimes(scenario.expectedTextCalls);
+      expect(result.config.auth?.profiles?.[scenario.profileId]).toMatchObject({
+        provider: scenario.provider,
+        mode: "api_key",
+      });
+      if (scenario.expectedModel) {
+        expect(resolveAgentModelPrimaryValue(result.config.agents?.defaults?.model)).toBe(
+          scenario.expectedModel,
+        );
+      }
+      if (scenario.expectedModelPrefix) {
+        expect(
+          resolveAgentModelPrimaryValue(result.config.agents?.defaults?.model)?.startsWith(
+            scenario.expectedModelPrefix,
+          ),
+        ).toBe(true);
+      }
+      const profile = await readAuthProfile(scenario.profileId);
+      if (scenario.expectedKeyRef) {
+        expect(profile?.keyRef).toEqual(scenario.expectedKeyRef);
+        expect(profile?.key).toBeUndefined();
+      } else {
+        expect(profile?.key).toBe(scenario.expectedKey);
+        expect(profile?.keyRef).toBeUndefined();
+      }
+    }
+  });
+
+  it("retries ref setup when provider preflight fails and can switch to env ref", async () => {
+    await setupTempState();
+    process.env.OPENAI_API_KEY = "sk-openai-env";
+
+    const selectValues: Array<"provider" | "env" | "filemain"> = ["provider", "filemain", "env"];
+    const select = vi.fn(async (params: Parameters<WizardPrompter["select"]>[0]) => {
+      const next = selectValues[0];
+      if (next && params.options.some((option) => option.value === next)) {
+        selectValues.shift();
+        return next as never;
+      }
+      return (params.options[0]?.value ?? "env") as never;
+    });
+    const text = vi
+      .fn<WizardPrompter["text"]>()
+      .mockResolvedValueOnce("/providers/openai/apiKey")
+      .mockResolvedValueOnce("OPENAI_API_KEY");
+    const note = vi.fn(async () => undefined);
+
+    const prompter = createPrompter({
+>>>>>>> 4e7a833a2 (feat(security): add provider-based external secrets management)
       select,
       multiselect,
       text,
@@ -170,8 +328,23 @@ describe("applyAuthChoice", () => {
     };
 
     const result = await applyAuthChoice({
+<<<<<<< HEAD
       authChoice: "synthetic-api-key",
       config: {},
+=======
+      authChoice: "openai-api-key",
+      config: {
+        secrets: {
+          providers: {
+            filemain: {
+              source: "file",
+              path: "/tmp/openclaw-missing-secrets.json",
+              mode: "jsonPointer",
+            },
+          },
+        },
+      },
+>>>>>>> 4e7a833a2 (feat(security): add provider-based external secrets management)
       prompter,
       runtime,
       setDefaultModel: true,
@@ -184,6 +357,21 @@ describe("applyAuthChoice", () => {
       provider: "synthetic",
       mode: "api_key",
     });
+<<<<<<< HEAD
+=======
+    expect(note).toHaveBeenCalledWith(
+      expect.stringContaining("Could not validate provider reference"),
+      "Reference check failed",
+    );
+    expect(note).toHaveBeenCalledWith(
+      expect.stringContaining("Validated environment variable OPENAI_API_KEY."),
+      "Reference validated",
+    );
+    expect(await readAuthProfile("openai:default")).toMatchObject({
+      keyRef: { source: "env", provider: "default", id: "OPENAI_API_KEY" },
+    });
+  });
+>>>>>>> 4e7a833a2 (feat(security): add provider-based external secrets management)
 
     const authProfilePath = authProfilePathFor(requireAgentDir());
     const raw = await fs.readFile(authProfilePath, "utf8");
@@ -444,12 +632,82 @@ describe("applyAuthChoice", () => {
     delete process.env.OPENROUTER_API_KEY;
   });
 
+<<<<<<< HEAD
   it("uses existing AI_GATEWAY_API_KEY when selecting ai-gateway-api-key", async () => {
     tempStateDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-auth-"));
     process.env.OPENCLAW_STATE_DIR = tempStateDir;
     process.env.OPENCLAW_AGENT_DIR = path.join(tempStateDir, "agent");
     process.env.PI_CODING_AGENT_DIR = process.env.OPENCLAW_AGENT_DIR;
     process.env.AI_GATEWAY_API_KEY = "gateway-test-key";
+=======
+  it("configures cloudflare ai gateway via env key and explicit opts", async () => {
+    const scenarios: Array<{
+      envGatewayKey?: string;
+      textValues: string[];
+      confirmValue: boolean;
+      opts?: {
+        secretInputMode?: "ref";
+        cloudflareAiGatewayAccountId?: string;
+        cloudflareAiGatewayGatewayId?: string;
+        cloudflareAiGatewayApiKey?: string;
+      };
+      expectEnvPrompt: boolean;
+      expectedTextCalls: number;
+      expectedKey?: string;
+      expectedKeyRef?: { source: string; provider: string; id: string };
+      expectedMetadata: { accountId: string; gatewayId: string };
+    }> = [
+      {
+        envGatewayKey: "cf-gateway-test-key",
+        textValues: ["cf-account-id", "cf-gateway-id"],
+        confirmValue: true,
+        expectEnvPrompt: true,
+        expectedTextCalls: 2,
+        expectedKey: "cf-gateway-test-key",
+        expectedMetadata: {
+          accountId: "cf-account-id",
+          gatewayId: "cf-gateway-id",
+        },
+      },
+      {
+        envGatewayKey: "cf-gateway-ref-key",
+        textValues: ["cf-account-id-ref", "cf-gateway-id-ref"],
+        confirmValue: true,
+        opts: {
+          secretInputMode: "ref",
+        },
+        expectEnvPrompt: false,
+        expectedTextCalls: 3,
+        expectedKeyRef: { source: "env", provider: "default", id: "CLOUDFLARE_AI_GATEWAY_API_KEY" },
+        expectedMetadata: {
+          accountId: "cf-account-id-ref",
+          gatewayId: "cf-gateway-id-ref",
+        },
+      },
+      {
+        textValues: [],
+        confirmValue: false,
+        opts: {
+          cloudflareAiGatewayAccountId: "acc-direct",
+          cloudflareAiGatewayGatewayId: "gw-direct",
+          cloudflareAiGatewayApiKey: "cf-direct-key",
+        },
+        expectEnvPrompt: false,
+        expectedTextCalls: 0,
+        expectedKey: "cf-direct-key",
+        expectedMetadata: {
+          accountId: "acc-direct",
+          gatewayId: "gw-direct",
+        },
+      },
+    ];
+    for (const scenario of scenarios) {
+      await setupTempState();
+      delete process.env.CLOUDFLARE_AI_GATEWAY_API_KEY;
+      if (scenario.envGatewayKey) {
+        process.env.CLOUDFLARE_AI_GATEWAY_API_KEY = scenario.envGatewayKey;
+      }
+>>>>>>> 4e7a833a2 (feat(security): add provider-based external secrets management)
 
     const text = vi.fn();
     const select: WizardPrompter["select"] = vi.fn(
