@@ -7,7 +7,7 @@ import * as sessions from "../../config/sessions.js";
 import type { TypingMode } from "../../config/types.js";
 import type { TemplateContext } from "../templating.js";
 import type { GetReplyOptions } from "../types.js";
-import type { FollowupRun, QueueSettings } from "./queue.js";
+import { enqueueFollowupRun, type FollowupRun, type QueueSettings } from "./queue.js";
 import { createMockTypingController } from "./test-helpers.js";
 
 type AgentRunParams = {
@@ -77,8 +77,14 @@ beforeAll(async () => {
 });
 
 beforeEach(() => {
+<<<<<<< HEAD
   state.runEmbeddedPiAgentMock.mockReset();
   state.runCliAgentMock.mockReset();
+=======
+  state.runEmbeddedPiAgentMock.mockClear();
+  state.runCliAgentMock.mockClear();
+  vi.mocked(enqueueFollowupRun).mockClear();
+>>>>>>> c736778b3 (fix: drop active heartbeat followups from queue (#25610, thanks @mcaxtr))
   vi.stubEnv("OPENCLAW_TEST_FAST", "1");
 });
 
@@ -91,6 +97,9 @@ function createMinimalRun(params?: {
   storePath?: string;
   typingMode?: TypingMode;
   blockStreamingEnabled?: boolean;
+  isActive?: boolean;
+  shouldFollowup?: boolean;
+  resolvedQueueMode?: string;
   runOverrides?: Partial<FollowupRun["run"]>;
 }) {
   const typing = createMockTypingController();
@@ -99,7 +108,9 @@ function createMinimalRun(params?: {
     Provider: "whatsapp",
     MessageSid: "msg",
   } as unknown as TemplateContext;
-  const resolvedQueue = { mode: "interrupt" } as unknown as QueueSettings;
+  const resolvedQueue = {
+    mode: params?.resolvedQueueMode ?? "interrupt",
+  } as unknown as QueueSettings;
   const sessionKey = params?.sessionKey ?? "main";
   const followupRun = {
     prompt: "hello",
@@ -140,8 +151,8 @@ function createMinimalRun(params?: {
         queueKey: "main",
         resolvedQueue,
         shouldSteer: false,
-        shouldFollowup: false,
-        isActive: false,
+        shouldFollowup: params?.shouldFollowup ?? false,
+        isActive: params?.isActive ?? false,
         isStreaming: false,
         opts,
         typing,
@@ -266,6 +277,39 @@ async function runReplyAgentWithBase(params: {
     typingMode: params.typingMode ?? "instant",
   });
 }
+
+describe("runReplyAgent heartbeat followup guard", () => {
+  it("drops heartbeat runs when another run is active", async () => {
+    const { run, typing } = createMinimalRun({
+      opts: { isHeartbeat: true },
+      isActive: true,
+      shouldFollowup: true,
+      resolvedQueueMode: "collect",
+    });
+
+    const result = await run();
+
+    expect(result).toBeUndefined();
+    expect(vi.mocked(enqueueFollowupRun)).not.toHaveBeenCalled();
+    expect(state.runEmbeddedPiAgentMock).not.toHaveBeenCalled();
+    expect(typing.cleanup).toHaveBeenCalledTimes(1);
+  });
+
+  it("still enqueues non-heartbeat runs when another run is active", async () => {
+    const { run } = createMinimalRun({
+      opts: { isHeartbeat: false },
+      isActive: true,
+      shouldFollowup: true,
+      resolvedQueueMode: "collect",
+    });
+
+    const result = await run();
+
+    expect(result).toBeUndefined();
+    expect(vi.mocked(enqueueFollowupRun)).toHaveBeenCalledTimes(1);
+    expect(state.runEmbeddedPiAgentMock).not.toHaveBeenCalled();
+  });
+});
 
 describe("runReplyAgent typing (heartbeat)", () => {
   let fixtureRoot = "";
