@@ -1,7 +1,7 @@
 import type { ChannelType, Client, Message } from "@buape/carbon";
 import type { APIAttachment } from "discord-api-types/v10";
 import { logVerbose } from "../../globals.js";
-import { fetchRemoteMedia } from "../../media/fetch.js";
+import { fetchRemoteMedia, type FetchLike } from "../../media/fetch.js";
 import { saveMediaBuffer } from "../../media/store.js";
 
 export type DiscordMediaInfo = {
@@ -97,18 +97,81 @@ export async function resolveDiscordChannelInfo(
 export async function resolveMediaList(
   message: Message,
   maxBytes: number,
+  fetchImpl?: FetchLike,
 ): Promise<DiscordMediaInfo[]> {
+<<<<<<< HEAD
   const attachments = message.attachments ?? [];
   if (attachments.length === 0) {
     return [];
   }
   const out: DiscordMediaInfo[] = [];
+=======
+  const out: DiscordMediaInfo[] = [];
+  await appendResolvedMediaFromAttachments({
+    attachments: message.attachments ?? [],
+    maxBytes,
+    out,
+    errorPrefix: "discord: failed to download attachment",
+    fetchImpl,
+  });
+  await appendResolvedMediaFromStickers({
+    stickers: resolveDiscordMessageStickers(message),
+    maxBytes,
+    out,
+    errorPrefix: "discord: failed to download sticker",
+    fetchImpl,
+  });
+  return out;
+}
+
+export async function resolveForwardedMediaList(
+  message: Message,
+  maxBytes: number,
+  fetchImpl?: FetchLike,
+): Promise<DiscordMediaInfo[]> {
+  const snapshots = resolveDiscordMessageSnapshots(message);
+  if (snapshots.length === 0) {
+    return [];
+  }
+  const out: DiscordMediaInfo[] = [];
+  for (const snapshot of snapshots) {
+    await appendResolvedMediaFromAttachments({
+      attachments: snapshot.message?.attachments,
+      maxBytes,
+      out,
+      errorPrefix: "discord: failed to download forwarded attachment",
+      fetchImpl,
+    });
+    await appendResolvedMediaFromStickers({
+      stickers: snapshot.message ? resolveDiscordSnapshotStickers(snapshot.message) : [],
+      maxBytes,
+      out,
+      errorPrefix: "discord: failed to download forwarded sticker",
+      fetchImpl,
+    });
+  }
+  return out;
+}
+
+async function appendResolvedMediaFromAttachments(params: {
+  attachments?: APIAttachment[] | null;
+  maxBytes: number;
+  out: DiscordMediaInfo[];
+  errorPrefix: string;
+  fetchImpl?: FetchLike;
+}) {
+  const attachments = params.attachments;
+  if (!attachments || attachments.length === 0) {
+    return;
+  }
+>>>>>>> 97e56cb73 (fix(discord): land proxy/media/reaction/model-picker regressions)
   for (const attachment of attachments) {
     try {
       const fetched = await fetchRemoteMedia({
         url: attachment.url,
         filePathHint: attachment.filename ?? attachment.url,
         maxBytes: params.maxBytes,
+        fetchImpl: params.fetchImpl,
       });
       const saved = await saveMediaBuffer(
         fetched.buffer,
@@ -188,6 +251,7 @@ async function appendResolvedMediaFromStickers(params: {
   maxBytes: number;
   out: DiscordMediaInfo[];
   errorPrefix: string;
+  fetchImpl?: FetchLike;
 }) {
   const stickers = params.stickers;
   if (!stickers || stickers.length === 0) {
@@ -202,6 +266,7 @@ async function appendResolvedMediaFromStickers(params: {
           url: candidate.url,
           filePathHint: candidate.fileName,
           maxBytes: params.maxBytes,
+          fetchImpl: params.fetchImpl,
         });
         const saved = await saveMediaBuffer(
           fetched.buffer,
