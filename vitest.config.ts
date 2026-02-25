@@ -20,7 +20,18 @@ export default defineConfig({
     hookTimeout: isWindows ? 180_000 : 120_000,
     pool: "forks",
     maxWorkers: isCI ? ciWorkers : localWorkers,
+<<<<<<< HEAD
     include: ["src/**/*.test.ts", "extensions/**/*.test.ts", "test/format-error.test.ts"],
+=======
+    include: [
+      "src/**/*.test.ts",
+      "extensions/**/*.test.ts",
+      "test/**/*.test.ts",
+      "ui/src/ui/views/agents-utils.test.ts",
+      "ui/src/ui/views/usage-render-details.test.ts",
+      "ui/src/ui/controllers/agents.test.ts",
+    ],
+>>>>>>> 4d89548e5 (fix(ui): inherit default model fallbacks in agents overview (#25729))
     setupFiles: ["test/setup.ts"],
     exclude: [
       "dist/**",
