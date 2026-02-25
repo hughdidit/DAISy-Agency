@@ -15,6 +15,7 @@
 	<key>CFBundleName</key>
 	<string>$(PRODUCT_NAME)</string>
 	<key>CFBundlePackageType</key>
+<<<<<<< HEAD
 	<string>BNDL</string>
 	<key>CFBundleShortVersionString</key>
 <<<<<<< HEAD
@@ -32,3 +33,12 @@
 >>>>>>> 1c4db9159 (chore: prepare 2026.2.2 release)
 </dict>
 </plist>
+=======
+			<string>BNDL</string>
+			<key>CFBundleShortVersionString</key>
+			<string>2026.2.25</string>
+			<key>CFBundleVersion</key>
+			<string>20260225</string>
+		</dict>
+	</plist>
+>>>>>>> 480cc4b85 (chore: roll to 2026.2.25 unreleased)
