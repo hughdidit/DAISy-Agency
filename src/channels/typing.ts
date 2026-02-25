@@ -22,7 +22,11 @@ export function createTypingCallbacks(params: {
   let closed = false;
 
   const fireStart = async () => {
+<<<<<<< HEAD
 >>>>>>> d42ef2ac6 (refactor: consolidate typing lifecycle and queue policy)
+=======
+    if (closed) return;
+>>>>>>> 97eb5542e (fix(typing): guard fireStart against post-close invocation)
     try {
       await params.start();
     } catch (err) {
