@@ -79,6 +79,7 @@ extension OnboardingView {
         self.copied = true
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) { self.copied = false }
     }
+<<<<<<< HEAD:apps/macos/Sources/Moltbot/OnboardingView+Actions.swift
 
     func startAnthropicOAuth() {
         guard !self.anthropicAuthBusy else { return }
@@ -145,4 +146,6 @@ extension OnboardingView {
         guard self.anthropicAuthAutoConnectClipboard else { return }
         Task { await self.finishAnthropicOAuth() }
     }
+=======
+>>>>>>> 8f3310000 (refactor(macos): remove anthropic oauth onboarding flow):apps/macos/Sources/OpenClaw/OnboardingView+Actions.swift
 }

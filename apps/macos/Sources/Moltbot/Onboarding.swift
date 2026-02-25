@@ -1,8 +1,11 @@
 import AppKit
+<<<<<<< HEAD:apps/macos/Sources/Moltbot/Onboarding.swift
 import Combine
 import MoltbotChatUI
 import MoltbotDiscovery
 import MoltbotIPC
+=======
+>>>>>>> 8f3310000 (refactor(macos): remove anthropic oauth onboarding flow):apps/macos/Sources/OpenClaw/Onboarding.swift
 import Observation
 import SwiftUI
 
@@ -69,6 +72,7 @@ struct OnboardingView: View {
     @State var workspacePath: String = ""
     @State var workspaceStatus: String?
     @State var workspaceApplying = false
+<<<<<<< HEAD:apps/macos/Sources/Moltbot/Onboarding.swift
     @State var anthropicAuthPKCE: AnthropicOAuth.PKCE?
     @State var anthropicAuthCode: String = ""
     @State var anthropicAuthStatus: String?
@@ -85,6 +89,8 @@ struct OnboardingView: View {
     @State var anthropicAuthLastPasteboardChangeCount = NSPasteboard.general.changeCount
     @State var monitoringAuth = false
     @State var authMonitorTask: Task<Void, Never>?
+=======
+>>>>>>> 8f3310000 (refactor(macos): remove anthropic oauth onboarding flow):apps/macos/Sources/OpenClaw/Onboarding.swift
     @State var needsBootstrap = false
     @State var didAutoKickoff = false
     @State var showAdvancedConnection = false
@@ -104,18 +110,8 @@ struct OnboardingView: View {
     let pageWidth: CGFloat = Self.windowWidth
     let contentHeight: CGFloat = 460
     let connectionPageIndex = 1
-    let anthropicAuthPageIndex = 2
     let wizardPageIndex = 3
     let onboardingChatPageIndex = 8
-
-    static let clipboardPoll: AnyPublisher<Date, Never> = {
-        if ProcessInfo.processInfo.isRunningTests {
-            return Empty(completeImmediately: false).eraseToAnyPublisher()
-        }
-        return Timer.publish(every: 0.4, on: .main, in: .common)
-            .autoconnect()
-            .eraseToAnyPublisher()
-    }()
 
     let permissionsPageIndex = 5
     static func pageOrder(

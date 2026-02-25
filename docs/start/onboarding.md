@@ -59,9 +59,9 @@ Read the security notice displayed and decide accordingly.
 
 Where does the **Gateway** run?
 
-- **This Mac (Local only):** onboarding can run OAuth flows and write credentials
+- **This Mac (Local only):** onboarding can configure auth and write credentials
   locally.
-- **Remote (over SSH/Tailnet):** onboarding does **not** run OAuth locally;
+- **Remote (over SSH/Tailnet):** onboarding does **not** configure local auth;
   credentials must exist on the gateway host.
 - **Configure later:** skip setup and leave the app unconfigured.
 

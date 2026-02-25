@@ -12,8 +12,6 @@ extension OnboardingView {
             self.welcomePage()
         case 1:
             self.connectionPage()
-        case 2:
-            self.anthropicAuthPage()
         case 3:
             self.wizardPage()
         case 5:
@@ -327,6 +325,7 @@ extension OnboardingView {
         .buttonStyle(.plain)
     }
 
+<<<<<<< HEAD:apps/macos/Sources/Moltbot/OnboardingView+Pages.swift
     func anthropicAuthPage() -> some View {
         self.onboardingPage {
             Text("Connect Claude")
@@ -491,6 +490,8 @@ extension OnboardingView {
         .task { await self.verifyAnthropicOAuthIfNeeded() }
     }
 
+=======
+>>>>>>> 8f3310000 (refactor(macos): remove anthropic oauth onboarding flow):apps/macos/Sources/OpenClaw/OnboardingView+Pages.swift
     func permissionsPage() -> some View {
         self.onboardingPage {
             Text("Grant permissions")

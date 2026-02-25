@@ -64,6 +64,7 @@ Docs: https://docs.openclaw.ai
 
 ### Changes
 
+- macOS/Onboarding: remove Anthropic OAuth sign-in from the Mac onboarding UI and keep Anthropic subscription auth setup-token-only (legacy `oauth.json` OAuth onboarding path removed).
 - Android/Chat: improve streaming delivery handling and markdown rendering quality in the native Android chat UI, including better GitHub-flavored markdown behavior. (#26079) Thanks @obviyus.
 
 ### Fixes

@@ -47,7 +47,6 @@ extension OnboardingView {
     func updateMonitoring(for pageIndex: Int) {
         self.updatePermissionMonitoring(for: pageIndex)
         self.updateDiscoveryMonitoring(for: pageIndex)
-        self.updateAuthMonitoring(for: pageIndex)
         self.maybeKickoffOnboardingChat(for: pageIndex)
     }
 
@@ -61,33 +60,6 @@ extension OnboardingView {
         guard self.monitoringDiscovery else { return }
         self.monitoringDiscovery = false
         self.gatewayDiscovery.stop()
-    }
-
-    func updateAuthMonitoring(for pageIndex: Int) {
-        let shouldMonitor = pageIndex == self.anthropicAuthPageIndex && self.state.connectionMode == .local
-        if shouldMonitor, !self.monitoringAuth {
-            self.monitoringAuth = true
-            self.startAuthMonitoring()
-        } else if !shouldMonitor, self.monitoringAuth {
-            self.stopAuthMonitoring()
-        }
-    }
-
-    func startAuthMonitoring() {
-        self.refreshAnthropicOAuthStatus()
-        self.authMonitorTask?.cancel()
-        self.authMonitorTask = Task {
-            while !Task.isCancelled {
-                await MainActor.run { self.refreshAnthropicOAuthStatus() }
-                try? await Task.sleep(nanoseconds: 1_000_000_000)
-            }
-        }
-    }
-
-    func stopAuthMonitoring() {
-        self.monitoringAuth = false
-        self.authMonitorTask?.cancel()
-        self.authMonitorTask = nil
     }
 
     func installCLI() async {
@@ -125,6 +97,7 @@ extension OnboardingView {
                 expected: expected)
         }
     }
+<<<<<<< HEAD:apps/macos/Sources/Moltbot/OnboardingView+Monitoring.swift
 
     func refreshAnthropicOAuthStatus() {
         _ = MoltbotOAuthStore.importLegacyAnthropicOAuthIfNeeded()
@@ -175,4 +148,6 @@ extension OnboardingView {
             self.anthropicAuthStatus = "OAuth verification failed: \(error.localizedDescription)"
         }
     }
+=======
+>>>>>>> 8f3310000 (refactor(macos): remove anthropic oauth onboarding flow):apps/macos/Sources/OpenClaw/OnboardingView+Monitoring.swift
 }
