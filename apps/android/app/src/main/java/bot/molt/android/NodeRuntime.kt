@@ -351,13 +351,20 @@ class NodeRuntime(context: Context) {
 
   private fun updateStatus() {
     _isConnected.value = operatorConnected
+    val operator = operatorStatusText.trim()
+    val node = nodeStatusText.trim()
     _statusText.value =
       when {
         operatorConnected && _nodeConnected.value -> "Connected"
         operatorConnected && !_nodeConnected.value -> "Connected (node offline)"
-        !operatorConnected && _nodeConnected.value -> "Connected (operator offline)"
-        operatorStatusText.isNotBlank() && operatorStatusText != "Offline" -> operatorStatusText
-        else -> nodeStatusText
+        !operatorConnected && _nodeConnected.value ->
+          if (operator.isNotEmpty() && operator != "Offline") {
+            "Connected (operator: $operator)"
+          } else {
+            "Connected (operator offline)"
+          }
+        operator.isNotBlank() && operator != "Offline" -> operator
+        else -> node
       }
   }
 
@@ -625,6 +632,7 @@ class NodeRuntime(context: Context) {
 
 <<<<<<< HEAD:apps/android/app/src/main/java/bot/molt/android/NodeRuntime.kt
 <<<<<<< HEAD:apps/android/app/src/main/java/bot/molt/android/NodeRuntime.kt
+<<<<<<< HEAD:apps/android/app/src/main/java/bot/molt/android/NodeRuntime.kt
   private fun buildInvokeCommands(): List<String> =
     buildList {
       add(MoltbotCanvasCommand.Present.rawValue)
@@ -735,8 +743,16 @@ class NodeRuntime(context: Context) {
   }
 
 >>>>>>> 4b188dcf9 (fix(android): persist gateway auth state across onboarding):apps/android/app/src/main/java/ai/openclaw/android/NodeRuntime.kt
+=======
+>>>>>>> 90ddb3f27 (fix(android): stabilize gateway operator reconnect):apps/android/app/src/main/java/ai/openclaw/android/NodeRuntime.kt
   fun refreshGatewayConnection() {
-    val endpoint = connectedEndpoint ?: return
+    val endpoint =
+      connectedEndpoint ?: run {
+        _statusText.value = "Failed: no cached gateway endpoint"
+        return
+      }
+    operatorStatusText = "Connecting…"
+    updateStatus()
     val token = prefs.loadGatewayToken()
     val password = prefs.loadGatewayPassword()
     val tls = connectionManager.resolveTlsParams(endpoint)
