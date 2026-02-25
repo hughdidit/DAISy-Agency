@@ -1,5 +1,6 @@
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from "node:http";
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import type { RuntimeEnv } from "openclaw/plugin-sdk";
 
@@ -8,13 +9,24 @@ import { handleNextcloudTalkInbound } from "./inbound.js";
 import { getNextcloudTalkRuntime } from "./runtime.js";
 import { extractNextcloudTalkHeaders, verifyNextcloudTalkSignature } from "./signature.js";
 =======
+=======
+import os from "node:os";
+>>>>>>> d512163d6 (fix(security): harden nextcloud-talk webhook replay handling)
 import {
   type RuntimeEnv,
   isRequestBodyLimitError,
   readRequestBodyWithLimit,
   requestBodyErrorToText,
 } from "openclaw/plugin-sdk";
+<<<<<<< HEAD
 >>>>>>> 3cbcba10c (fix(security): enforce bounded webhook body handling)
+=======
+import { resolveNextcloudTalkAccount } from "./accounts.js";
+import { handleNextcloudTalkInbound } from "./inbound.js";
+import { createNextcloudTalkReplayGuard } from "./replay-guard.js";
+import { getNextcloudTalkRuntime } from "./runtime.js";
+import { extractNextcloudTalkHeaders, verifyNextcloudTalkSignature } from "./signature.js";
+>>>>>>> d512163d6 (fix(security): harden nextcloud-talk webhook replay handling)
 import type {
   CoreConfig,
   NextcloudTalkInboundMessage,
@@ -32,6 +44,14 @@ const HEALTH_PATH = "/healthz";
 function formatError(err: unknown): string {
   if (err instanceof Error) return err.message;
   return typeof err === "string" ? err : JSON.stringify(err);
+}
+
+function normalizeOrigin(value: string): string | null {
+  try {
+    return new URL(value).origin.toLowerCase();
+  } catch {
+    return null;
+  }
 }
 
 function parseWebhookPayload(body: string): NextcloudTalkWebhookPayload | null {
@@ -96,6 +116,8 @@ export function createNextcloudTalkWebhookServer(opts: NextcloudTalkWebhookServe
       ? Math.floor(opts.maxBodyBytes)
       : DEFAULT_WEBHOOK_MAX_BODY_BYTES;
   const readBody = opts.readBody ?? readNextcloudTalkWebhookBody;
+  const isBackendAllowed = opts.isBackendAllowed;
+  const shouldProcessMessage = opts.shouldProcessMessage;
 
   const server = createServer(async (req: IncomingMessage, res: ServerResponse) => {
     if (req.url === HEALTH_PATH) {
@@ -117,6 +139,11 @@ export function createNextcloudTalkWebhookServer(opts: NextcloudTalkWebhookServe
       if (!headers) {
         res.writeHead(400, { "Content-Type": "application/json" });
         res.end(JSON.stringify({ error: "Missing signature headers" }));
+        return;
+      }
+      if (isBackendAllowed && !isBackendAllowed(headers.backend)) {
+        res.writeHead(401, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ error: "Invalid backend" }));
         return;
       }
 
@@ -149,6 +176,14 @@ export function createNextcloudTalkWebhookServer(opts: NextcloudTalkWebhookServe
       }
 
       const message = payloadToInboundMessage(payload);
+      if (shouldProcessMessage) {
+        const shouldProcess = await shouldProcessMessage(message);
+        if (!shouldProcess) {
+          res.writeHead(200);
+          res.end();
+          return;
+        }
+      }
 
       res.writeHead(200);
       res.end();
@@ -237,12 +272,41 @@ export async function monitorNextcloudTalkProvider(
     channel: "nextcloud-talk",
     accountId: account.accountId,
   });
+  const expectedBackendOrigin = normalizeOrigin(account.baseUrl);
+  const replayGuard = createNextcloudTalkReplayGuard({
+    stateDir: core.state.resolveStateDir(process.env, os.homedir),
+    onDiskError: (error) => {
+      logger.warn(
+        `[nextcloud-talk:${account.accountId}] replay guard disk error: ${String(error)}`,
+      );
+    },
+  });
 
   const { start, stop } = createNextcloudTalkWebhookServer({
     port,
     host,
     path,
     secret: account.secret,
+    isBackendAllowed: (backend) => {
+      if (!expectedBackendOrigin) {
+        return true;
+      }
+      const backendOrigin = normalizeOrigin(backend);
+      return backendOrigin === expectedBackendOrigin;
+    },
+    shouldProcessMessage: async (message) => {
+      const shouldProcess = await replayGuard.shouldProcessMessage({
+        accountId: account.accountId,
+        roomToken: message.roomToken,
+        messageId: message.messageId,
+      });
+      if (!shouldProcess) {
+        logger.warn(
+          `[nextcloud-talk:${account.accountId}] replayed webhook ignored room=${message.roomToken} messageId=${message.messageId}`,
+        );
+      }
+      return shouldProcess;
+    },
     onMessage: async (message) => {
       core.channel.activity.record({
         channel: "nextcloud-talk",
