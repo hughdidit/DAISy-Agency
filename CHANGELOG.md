@@ -64,6 +64,8 @@ Docs: https://docs.openclaw.ai
 
 ### Changes
 
+- Android/Chat: improve streaming delivery handling and markdown rendering quality in the native Android chat UI, including better GitHub-flavored markdown behavior. (#26079) Thanks @obviyus.
+
 ### Fixes
 
 ## 2026.2.24
