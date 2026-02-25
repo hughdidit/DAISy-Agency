@@ -3,6 +3,11 @@ import type { Stats } from "node:fs";
 import type { FileHandle } from "node:fs/promises";
 import fs from "node:fs/promises";
 import path from "node:path";
+<<<<<<< HEAD
+=======
+import { sameFileIdentity } from "./file-identity.js";
+import { isNotFoundPathError, isPathInside, isSymlinkOpenError } from "./path-guards.js";
+>>>>>>> 943b8f171 (fix: align windows safe-open file identity checks)
 
 export type SafeOpenErrorCode = "invalid-path" | "not-found";
 
@@ -26,6 +31,7 @@ const NOT_FOUND_CODES = new Set(["ENOENT", "ENOTDIR"]);
 
 const ensureTrailingSep = (value: string) => (value.endsWith(path.sep) ? value : value + path.sep);
 
+<<<<<<< HEAD
 const isWindows = process.platform === "win32";
 
 const isNodeError = (err: unknown): err is NodeJS.ErrnoException =>
@@ -36,6 +42,52 @@ const isNotFoundError = (err: unknown) =>
 
 const isSymlinkOpenError = (err: unknown) =>
   isNodeError(err) && (err.code === "ELOOP" || err.code === "EINVAL" || err.code === "ENOTSUP");
+=======
+async function openVerifiedLocalFile(filePath: string): Promise<SafeOpenResult> {
+  let handle: FileHandle;
+  try {
+    handle = await fs.open(filePath, OPEN_READ_FLAGS);
+  } catch (err) {
+    if (isNotFoundPathError(err)) {
+      throw new SafeOpenError("not-found", "file not found");
+    }
+    if (isSymlinkOpenError(err)) {
+      throw new SafeOpenError("symlink", "symlink open blocked", { cause: err });
+    }
+    throw err;
+  }
+
+  try {
+    const [stat, lstat] = await Promise.all([handle.stat(), fs.lstat(filePath)]);
+    if (lstat.isSymbolicLink()) {
+      throw new SafeOpenError("symlink", "symlink not allowed");
+    }
+    if (!stat.isFile()) {
+      throw new SafeOpenError("not-file", "not a file");
+    }
+    if (!sameFileIdentity(stat, lstat)) {
+      throw new SafeOpenError("path-mismatch", "path changed during read");
+    }
+
+    const realPath = await fs.realpath(filePath);
+    const realStat = await fs.stat(realPath);
+    if (!sameFileIdentity(stat, realStat)) {
+      throw new SafeOpenError("path-mismatch", "path mismatch");
+    }
+
+    return { handle, realPath, stat };
+  } catch (err) {
+    await handle.close().catch(() => {});
+    if (err instanceof SafeOpenError) {
+      throw err;
+    }
+    if (isNotFoundPathError(err)) {
+      throw new SafeOpenError("not-found", "file not found");
+    }
+    throw err;
+  }
+}
+>>>>>>> 943b8f171 (fix: align windows safe-open file identity checks)
 
 export async function openFileWithinRoot(params: {
   rootDir: string;
