@@ -631,6 +631,7 @@ export function createMatrixRoomMessageHandler(params: MatrixMonitorHandlerParam
         core.channel.reply.createReplyDispatcherWithTyping({
           ...prefixOptions,
           humanDelay: core.channel.reply.resolveHumanDelayConfig(cfg, route.agentId),
+          typingCallbacks,
           deliver: async (payload) => {
             await deliverMatrixReplies({
               replies: [payload],
@@ -648,8 +649,11 @@ export function createMatrixRoomMessageHandler(params: MatrixMonitorHandlerParam
           onError: (err, info) => {
             runtime.error?.(`matrix ${info.kind} reply failed: ${String(err)}`);
           },
+<<<<<<< HEAD
           onReplyStart: typingCallbacks.onReplyStart,
           onIdle: typingCallbacks.onIdle,
+=======
+>>>>>>> d42ef2ac6 (refactor: consolidate typing lifecycle and queue policy)
         });
 
       const { queuedFinal, counts } = await core.channel.reply.dispatchReplyFromConfig({

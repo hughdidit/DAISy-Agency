@@ -324,6 +324,7 @@ export async function dispatchPreparedSlackMessage(prepared: PreparedSlackMessag
   const { dispatcher, replyOptions, markDispatchIdle } = createReplyDispatcherWithTyping({
     ...prefixOptions,
     humanDelay: resolveHumanDelayConfig(cfg, route.agentId),
+    typingCallbacks,
     deliver: async (payload) => {
       const mediaCount = payload.mediaUrls?.length ?? (payload.mediaUrl ? 1 : 0);
       const draftMessageId = draftStream?.messageId();
@@ -478,8 +479,11 @@ export async function dispatchPreparedSlackMessage(prepared: PreparedSlackMessag
       runtime.error?.(danger(`slack ${info.kind} reply failed: ${String(err)}`));
       typingCallbacks.onIdle?.();
     },
+<<<<<<< HEAD
     onReplyStart: typingCallbacks.onReplyStart,
     onIdle: typingCallbacks.onIdle,
+=======
+>>>>>>> d42ef2ac6 (refactor: consolidate typing lifecycle and queue policy)
   });
 
   const draftStream = createSlackDraftStream({

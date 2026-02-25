@@ -51,6 +51,7 @@ import {
   readSessionMessages,
 } from "./post-compaction-audit.js";
 import { readPostCompactionContext } from "./post-compaction-context.js";
+import { resolveActiveRunQueueAction } from "./queue-policy.js";
 import { enqueueFollowupRun, type FollowupRun, type QueueSettings } from "./queue.js";
 import { createReplyToModeFilterForChannel, resolveReplyToMode } from "./reply-threading.js";
 import { incrementCompactionCount } from "./session-updates.js";
@@ -236,7 +237,23 @@ export async function runReplyAgent(params: {
     }
   }
 
+<<<<<<< HEAD
   if (isActive && (shouldFollowup || resolvedQueue.mode === "steer")) {
+=======
+  const activeRunQueueAction = resolveActiveRunQueueAction({
+    isActive,
+    isHeartbeat,
+    shouldFollowup,
+    queueMode: resolvedQueue.mode,
+  });
+
+  if (activeRunQueueAction === "drop") {
+    typing.cleanup();
+    return undefined;
+  }
+
+  if (activeRunQueueAction === "enqueue-followup") {
+>>>>>>> d42ef2ac6 (refactor: consolidate typing lifecycle and queue policy)
     enqueueFollowupRun(queueKey, followupRun, resolvedQueue);
     await touchActiveSessionEntry();
     typing.cleanup();

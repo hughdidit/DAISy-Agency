@@ -774,6 +774,7 @@ export async function monitorMattermostProvider(opts: MonitorMattermostOpts = {}
       core.channel.reply.createReplyDispatcherWithTyping({
         ...prefixOptions,
         humanDelay: core.channel.reply.resolveHumanDelayConfig(cfg, route.agentId),
+        typingCallbacks,
         deliver: async (payload: ReplyPayload) => {
           const mediaUrls = payload.mediaUrls ?? (payload.mediaUrl ? [payload.mediaUrl] : []);
           const text = core.channel.text.convertMarkdownTables(payload.text ?? "", tableMode);
@@ -810,7 +811,10 @@ export async function monitorMattermostProvider(opts: MonitorMattermostOpts = {}
         onError: (err, info) => {
           runtime.error?.(`mattermost ${info.kind} reply failed: ${String(err)}`);
         },
+<<<<<<< HEAD
         onReplyStart: typingCallbacks.onReplyStart,
+=======
+>>>>>>> d42ef2ac6 (refactor: consolidate typing lifecycle and queue policy)
       });
 
     await core.channel.reply.dispatchReplyFromConfig({

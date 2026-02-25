@@ -222,6 +222,7 @@ export function createSignalEventHandler(deps: SignalEventHandlerDeps) {
     const { dispatcher, replyOptions, markDispatchIdle } = createReplyDispatcherWithTyping({
       ...prefixOptions,
       humanDelay: resolveHumanDelayConfig(deps.cfg, route.agentId),
+      typingCallbacks,
       deliver: async (payload) => {
         await deps.deliverReplies({
           replies: [payload],
@@ -237,7 +238,10 @@ export function createSignalEventHandler(deps: SignalEventHandlerDeps) {
       onError: (err, info) => {
         deps.runtime.error?.(danger(`signal ${info.kind} reply failed: ${String(err)}`));
       },
+<<<<<<< HEAD
       onReplyStart: typingCallbacks.onReplyStart,
+=======
+>>>>>>> d42ef2ac6 (refactor: consolidate typing lifecycle and queue policy)
     });
 
     const { queuedFinal } = await dispatchInboundMessage({
