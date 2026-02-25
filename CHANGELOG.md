@@ -46,6 +46,7 @@ Docs: https://docs.openclaw.ai
 =======
 - Android/Chat: improve streaming delivery handling and markdown rendering quality in the native Android chat UI, including better GitHub-flavored markdown behavior. (#26079) Thanks @obviyus.
 - Branding/Docs + Apple surfaces: replace remaining `bot.molt` launchd label, bundle-id, logging subsystem, and command examples with `ai.openclaw` across docs, iOS app surfaces, helper scripts, and CLI test fixtures.
+- Agents/Config: remind agents to call `config.schema` before config edits or config-field questions to avoid guessing. Thanks @thewilloftheshadow.
 
 >>>>>>> 52d933b3a (refactor: replace bot.molt identifiers with ai.openclaw)
 ### Fixes
