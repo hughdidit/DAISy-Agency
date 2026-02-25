@@ -19,6 +19,7 @@ export function createTypingCallbacks(params: {
 =======
   const keepaliveIntervalMs = params.keepaliveIntervalMs ?? 3_000;
   let stopSent = false;
+  let closed = false;
 
   const fireStart = async () => {
 >>>>>>> d42ef2ac6 (refactor: consolidate typing lifecycle and queue policy)
@@ -42,6 +43,9 @@ export function createTypingCallbacks(params: {
   });
 
   const onReplyStart = async () => {
+    if (closed) {
+      return;
+    }
     stopSent = false;
     keepaliveLoop.stop();
     await fireStart();
@@ -49,6 +53,7 @@ export function createTypingCallbacks(params: {
   };
 
   const fireStop = () => {
+    closed = true;
     keepaliveLoop.stop();
     if (!stop || stopSent) {
       return;
