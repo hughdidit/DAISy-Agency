@@ -72,6 +72,11 @@ export type DiscordMessagePreflightContext = {
   canDetectMention: boolean;
 
   historyEntry?: HistoryEntry;
+<<<<<<< HEAD
+=======
+  threadBindings: ThreadBindingManager;
+  discordRestFetch?: typeof fetch;
+>>>>>>> 97e56cb73 (fix(discord): land proxy/media/reaction/model-picker regressions)
 };
 
 export type DiscordMessagePreflightParams = {
@@ -93,6 +98,11 @@ export type DiscordMessagePreflightParams = {
   guildEntries?: Record<string, DiscordGuildEntryResolved>;
   ackReactionScope: DiscordMessagePreflightContext["ackReactionScope"];
   groupPolicy: DiscordMessagePreflightContext["groupPolicy"];
+<<<<<<< HEAD
+=======
+  threadBindings: ThreadBindingManager;
+  discordRestFetch?: typeof fetch;
+>>>>>>> 97e56cb73 (fix(discord): land proxy/media/reaction/model-picker regressions)
   data: DiscordMessageEvent;
   client: Client;
 };

@@ -741,6 +741,7 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
       runtime,
       botUserId,
       guildEntries,
+<<<<<<< HEAD
       logger,
     }),
   );
@@ -748,6 +749,50 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
     client.listeners,
     new DiscordReactionRemoveListener({
       cfg,
+=======
+      threadBindings,
+      discordRestFetch,
+    });
+
+    registerDiscordListener(client.listeners, new DiscordMessageListener(messageHandler, logger));
+    registerDiscordListener(
+      client.listeners,
+      new DiscordReactionListener({
+        cfg,
+        accountId: account.accountId,
+        runtime,
+        botUserId,
+        allowNameMatching: isDangerousNameMatchingEnabled(discordCfg),
+        guildEntries,
+        logger,
+      }),
+    );
+    registerDiscordListener(
+      client.listeners,
+      new DiscordReactionRemoveListener({
+        cfg,
+        accountId: account.accountId,
+        runtime,
+        botUserId,
+        allowNameMatching: isDangerousNameMatchingEnabled(discordCfg),
+        guildEntries,
+        logger,
+      }),
+    );
+
+    if (discordCfg.intents?.presence) {
+      registerDiscordListener(
+        client.listeners,
+        new DiscordPresenceListener({ logger, accountId: account.accountId }),
+      );
+      runtime.log?.("discord: GuildPresences intent enabled — presence listener registered");
+    }
+
+    runtime.log?.(`logged in to discord${botUserId ? ` as ${botUserId}` : ""}`);
+
+    lifecycleStarted = true;
+    await runDiscordGatewayLifecycle({
+>>>>>>> 97e56cb73 (fix(discord): land proxy/media/reaction/model-picker regressions)
       accountId: account.accountId,
       runtime,
       botUserId,

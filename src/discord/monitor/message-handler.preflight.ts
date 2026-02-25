@@ -691,5 +691,10 @@ export async function preflightDiscordMessage(
     effectiveWasMentioned,
     canDetectMention,
     historyEntry,
+<<<<<<< HEAD
+=======
+    threadBindings: params.threadBindings,
+    discordRestFetch: params.discordRestFetch,
+>>>>>>> 97e56cb73 (fix(discord): land proxy/media/reaction/model-picker regressions)
   };
 }

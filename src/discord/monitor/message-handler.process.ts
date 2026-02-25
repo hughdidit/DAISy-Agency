@@ -87,9 +87,20 @@ export async function processDiscordMessage(ctx: DiscordMessagePreflightContext)
     baseSessionKey,
     route,
     commandAuthorized,
+    discordRestFetch,
   } = ctx;
 
+<<<<<<< HEAD
   const mediaList = await resolveMediaList(message, mediaMaxBytes);
+=======
+  const mediaList = await resolveMediaList(message, mediaMaxBytes, discordRestFetch);
+  const forwardedMediaList = await resolveForwardedMediaList(
+    message,
+    mediaMaxBytes,
+    discordRestFetch,
+  );
+  mediaList.push(...forwardedMediaList);
+>>>>>>> 97e56cb73 (fix(discord): land proxy/media/reaction/model-picker regressions)
   const text = messageText;
   if (!text) {
     logVerbose(`discord: drop message ${message.id} (empty content)`);
@@ -111,6 +122,7 @@ export async function processDiscordMessage(ctx: DiscordMessagePreflightContext)
         shouldBypassMention,
       }),
     );
+<<<<<<< HEAD
   const ackReactionPromise = shouldAckReaction()
     ? reactMessageDiscord(message.channelId, message.id, ackReaction, {
         rest: client.rest,
@@ -122,6 +134,39 @@ export async function processDiscordMessage(ctx: DiscordMessagePreflightContext)
         },
       )
     : null;
+=======
+  const statusReactionsEnabled = shouldAckReaction();
+  const discordAdapter: StatusReactionAdapter = {
+    setReaction: async (emoji) => {
+      await reactMessageDiscord(messageChannelId, message.id, emoji, {
+        rest: client.rest as never,
+      });
+    },
+    removeReaction: async (emoji) => {
+      await removeReactionDiscord(messageChannelId, message.id, emoji, {
+        rest: client.rest as never,
+      });
+    },
+  };
+  const statusReactions = createStatusReactionController({
+    enabled: statusReactionsEnabled,
+    adapter: discordAdapter,
+    initialEmoji: ackReaction,
+    emojis: cfg.messages?.statusReactions?.emojis,
+    timing: cfg.messages?.statusReactions?.timing,
+    onError: (err) => {
+      logAckFailure({
+        log: logVerbose,
+        channel: "discord",
+        target: `${messageChannelId}/${message.id}`,
+        error: err,
+      });
+    },
+  });
+  if (statusReactionsEnabled) {
+    void statusReactions.setQueued();
+  }
+>>>>>>> 97e56cb73 (fix(discord): land proxy/media/reaction/model-picker regressions)
 
   const fromLabel = isDirectMessage
     ? buildDirectLabel(author)
