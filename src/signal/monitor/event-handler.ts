@@ -213,6 +213,8 @@ export function createSignalEventHandler(deps: SignalEventHandlerDeps) {
         deps.runtime.error?.(danger(`signal ${info.kind} reply failed: ${String(err)}`));
       },
       onReplyStart: typingCallbacks.onReplyStart,
+      onIdle: typingCallbacks.onIdle,
+      onCleanup: typingCallbacks.onCleanup,
     });
 
     const { queuedFinal } = await dispatchInboundMessage({

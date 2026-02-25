@@ -118,6 +118,8 @@ export function createMSTeamsReplyDispatcher(params: {
         });
       },
       onReplyStart: typingCallbacks.onReplyStart,
+      onIdle: typingCallbacks.onIdle,
+      onCleanup: typingCallbacks.onCleanup,
     });
 
   return {

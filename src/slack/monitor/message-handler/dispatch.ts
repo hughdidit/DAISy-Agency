@@ -260,6 +260,7 @@ export async function dispatchPreparedSlackMessage(prepared: PreparedSlackMessag
     },
     onReplyStart: typingCallbacks.onReplyStart,
     onIdle: typingCallbacks.onIdle,
+    onCleanup: typingCallbacks.onCleanup,
   });
 
   const { queuedFinal, counts } = await dispatchInboundMessage({
