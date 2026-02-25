@@ -35,6 +35,7 @@ import { extractNextcloudTalkHeaders, verifyNextcloudTalkSignature } from "./sig
 import type {
   CoreConfig,
   NextcloudTalkInboundMessage,
+  NextcloudTalkWebhookHeaders,
   NextcloudTalkWebhookPayload,
   NextcloudTalkWebhookServerOptions,
 } from "./types.js";
@@ -43,6 +44,14 @@ const DEFAULT_WEBHOOK_PORT = 8788;
 const DEFAULT_WEBHOOK_HOST = "0.0.0.0";
 const DEFAULT_WEBHOOK_PATH = "/nextcloud-talk-webhook";
 const HEALTH_PATH = "/healthz";
+const WEBHOOK_ERRORS = {
+  missingSignatureHeaders: "Missing signature headers",
+  invalidBackend: "Invalid backend",
+  invalidSignature: "Invalid signature",
+  invalidPayloadFormat: "Invalid payload format",
+  payloadTooLarge: "Payload too large",
+  internalServerError: "Internal server error",
+} as const;
 
 function formatError(err: unknown): string {
   if (err instanceof Error) {
@@ -69,6 +78,83 @@ function parseWebhookPayload(body: string): NextcloudTalkWebhookPayload | null {
   } catch {
     return null;
   }
+}
+
+function writeJsonResponse(
+  res: ServerResponse,
+  status: number,
+  body?: Record<string, unknown>,
+): void {
+  if (body) {
+    res.writeHead(status, { "Content-Type": "application/json" });
+    res.end(JSON.stringify(body));
+    return;
+  }
+  res.writeHead(status);
+  res.end();
+}
+
+function writeWebhookError(res: ServerResponse, status: number, error: string): void {
+  if (res.headersSent) {
+    return;
+  }
+  writeJsonResponse(res, status, { error });
+}
+
+function validateWebhookHeaders(params: {
+  req: IncomingMessage;
+  res: ServerResponse;
+  isBackendAllowed?: (backend: string) => boolean;
+}): NextcloudTalkWebhookHeaders | null {
+  const headers = extractNextcloudTalkHeaders(
+    params.req.headers as Record<string, string | string[] | undefined>,
+  );
+  if (!headers) {
+    writeWebhookError(params.res, 400, WEBHOOK_ERRORS.missingSignatureHeaders);
+    return null;
+  }
+  if (params.isBackendAllowed && !params.isBackendAllowed(headers.backend)) {
+    writeWebhookError(params.res, 401, WEBHOOK_ERRORS.invalidBackend);
+    return null;
+  }
+  return headers;
+}
+
+function verifyWebhookSignature(params: {
+  headers: NextcloudTalkWebhookHeaders;
+  body: string;
+  secret: string;
+  res: ServerResponse;
+}): boolean {
+  const isValid = verifyNextcloudTalkSignature({
+    signature: params.headers.signature,
+    random: params.headers.random,
+    body: params.body,
+    secret: params.secret,
+  });
+  if (!isValid) {
+    writeWebhookError(params.res, 401, WEBHOOK_ERRORS.invalidSignature);
+    return false;
+  }
+  return true;
+}
+
+function decodeWebhookCreateMessage(params: {
+  body: string;
+  res: ServerResponse;
+}):
+  | { kind: "message"; message: NextcloudTalkInboundMessage }
+  | { kind: "ignore" }
+  | { kind: "invalid" } {
+  const payload = parseWebhookPayload(params.body);
+  if (!payload) {
+    writeWebhookError(params.res, 400, WEBHOOK_ERRORS.invalidPayloadFormat);
+    return { kind: "invalid" };
+  }
+  if (payload.type !== "Create") {
+    return { kind: "ignore" };
+  }
+  return { kind: "message", message: payloadToInboundMessage(payload) };
 }
 
 function payloadToInboundMessage(
@@ -120,6 +206,7 @@ export function createNextcloudTalkWebhookServer(opts: NextcloudTalkWebhookServe
     }
 
     try {
+<<<<<<< HEAD
       const body = await readBody(req);
 
       const headers = extractNextcloudTalkHeaders(
@@ -130,27 +217,42 @@ export function createNextcloudTalkWebhookServer(opts: NextcloudTalkWebhookServe
         res.end(JSON.stringify({ error: "Missing signature headers" }));
         return;
       }
+=======
+      const headers = validateWebhookHeaders({
+        req,
+        res,
+        isBackendAllowed,
+      });
+      if (!headers) {
+        return;
+      }
 
-      const isValid = verifyNextcloudTalkSignature({
-        signature: headers.signature,
-        random: headers.random,
+      const body = await readBody(req, maxBodyBytes);
+>>>>>>> 5325ed90b (refactor(nextcloud-talk): extract webhook pipeline and shared test harness)
+
+      const hasValidSignature = verifyWebhookSignature({
+        headers,
         body,
         secret,
+        res,
       });
-
-      if (!isValid) {
-        res.writeHead(401, { "Content-Type": "application/json" });
-        res.end(JSON.stringify({ error: "Invalid signature" }));
+      if (!hasValidSignature) {
         return;
       }
 
-      const payload = parseWebhookPayload(body);
-      if (!payload) {
-        res.writeHead(400, { "Content-Type": "application/json" });
-        res.end(JSON.stringify({ error: "Invalid payload format" }));
+      const decoded = decodeWebhookCreateMessage({
+        body,
+        res,
+      });
+      if (decoded.kind === "invalid") {
+        return;
+      }
+      if (decoded.kind === "ignore") {
+        writeJsonResponse(res, 200);
         return;
       }
 
+<<<<<<< HEAD
       if (payload.type !== "Create") {
         res.writeHead(200);
         res.end();
@@ -158,9 +260,18 @@ export function createNextcloudTalkWebhookServer(opts: NextcloudTalkWebhookServe
       }
 
       const message = payloadToInboundMessage(payload);
+=======
+      const message = decoded.message;
+      if (shouldProcessMessage) {
+        const shouldProcess = await shouldProcessMessage(message);
+        if (!shouldProcess) {
+          writeJsonResponse(res, 200);
+          return;
+        }
+      }
+>>>>>>> 5325ed90b (refactor(nextcloud-talk): extract webhook pipeline and shared test harness)
 
-      res.writeHead(200);
-      res.end();
+      writeJsonResponse(res, 200);
 
       try {
         await onMessage(message);
@@ -168,12 +279,20 @@ export function createNextcloudTalkWebhookServer(opts: NextcloudTalkWebhookServe
         onError?.(err instanceof Error ? err : new Error(formatError(err)));
       }
     } catch (err) {
+<<<<<<< HEAD
+=======
+      if (isRequestBodyLimitError(err, "PAYLOAD_TOO_LARGE")) {
+        writeWebhookError(res, 413, WEBHOOK_ERRORS.payloadTooLarge);
+        return;
+      }
+      if (isRequestBodyLimitError(err, "REQUEST_BODY_TIMEOUT")) {
+        writeWebhookError(res, 408, requestBodyErrorToText("REQUEST_BODY_TIMEOUT"));
+        return;
+      }
+>>>>>>> 5325ed90b (refactor(nextcloud-talk): extract webhook pipeline and shared test harness)
       const error = err instanceof Error ? err : new Error(formatError(err));
       onError?.(error);
-      if (!res.headersSent) {
-        res.writeHead(500, { "Content-Type": "application/json" });
-        res.end(JSON.stringify({ error: "Internal server error" }));
-      }
+      writeWebhookError(res, 500, WEBHOOK_ERRORS.internalServerError);
     }
   });
 
