@@ -3,9 +3,19 @@
 Docs: https://docs.openclaw.ai
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 ## 2026.2.6-4
 =======
 ## 2026.2.15 (Unreleased)
+=======
+## 2026.2.26 (Unreleased)
+
+### Fixes
+
+- CI/Windows: shard the Windows `checks-windows` test lane into two matrix jobs and honor explicit shard index overrides in `scripts/test-parallel.mjs` to reduce CI critical-path wall time. (#27234) Thanks @joshavant.
+
+## 2026.2.25
+>>>>>>> 72adf2458 (CI: shard Windows test lane for faster CI critical path (#27234))
 
 ### Changes
 
