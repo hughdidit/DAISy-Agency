@@ -7,6 +7,11 @@ import {
   logInboundDrop,
   logTypingFailure,
   resolveControlCommandGate,
+<<<<<<< HEAD
+=======
+  resolveDmGroupAccessWithLists,
+  type PluginRuntime,
+>>>>>>> 64de4b6d6 (fix: enforce explicit group auth boundaries across channels)
   type RuntimeEnv,
 } from "clawdbot/plugin-sdk";
 import type { CoreConfig, ReplyToMode } from "../../types.js";
@@ -220,6 +225,7 @@ export function createMatrixRoomMessageHandler(params: MatrixMonitorHandlerParam
 
       const senderName = await getMemberDisplayName(roomId, senderId);
 <<<<<<< HEAD
+<<<<<<< HEAD
       const storeAllowFrom = await core.channel.pairing.readAllowFromStore("matrix").catch(() => []);
       const effectiveAllowFrom = normalizeAllowListLower([...allowFrom, ...storeAllowFrom]);
 =======
@@ -239,23 +245,77 @@ export function createMatrixRoomMessageHandler(params: MatrixMonitorHandlerParam
       if (isDirectMessage) {
         if (!dmEnabled || dmPolicy === "disabled") return;
         if (dmPolicy !== "open") {
+=======
+      const storeAllowFrom =
+        isDirectMessage
+          ? await readStoreAllowFromForDmPolicy({
+              provider: "matrix",
+              dmPolicy,
+              readStore: (provider) => core.channel.pairing.readAllowFromStore(provider),
+            })
+          : [];
+      const groupAllowFrom = cfg.channels?.matrix?.groupAllowFrom ?? [];
+      const normalizedGroupAllowFrom = normalizeMatrixAllowList(groupAllowFrom);
+      const senderGroupPolicy =
+        groupPolicy === "disabled"
+          ? "disabled"
+          : normalizedGroupAllowFrom.length > 0
+            ? "allowlist"
+            : "open";
+      const access = resolveDmGroupAccessWithLists({
+        isGroup: isRoom,
+        dmPolicy,
+        groupPolicy: senderGroupPolicy,
+        allowFrom,
+        groupAllowFrom: normalizedGroupAllowFrom,
+        storeAllowFrom,
+        groupAllowFromFallbackToAllowFrom: false,
+        isSenderAllowed: (allowFrom) =>
+          resolveMatrixAllowListMatches({
+            allowList: normalizeMatrixAllowList(allowFrom),
+            userId: senderId,
+          }),
+      });
+      const effectiveAllowFrom = normalizeMatrixAllowList(access.effectiveAllowFrom);
+      const effectiveGroupAllowFrom = normalizeMatrixAllowList(access.effectiveGroupAllowFrom);
+      const groupAllowConfigured = effectiveGroupAllowFrom.length > 0;
+
+      if (isDirectMessage) {
+        if (!dmEnabled) {
+          return;
+        }
+        if (access.decision !== "allow") {
+>>>>>>> 64de4b6d6 (fix: enforce explicit group auth boundaries across channels)
           const allowMatch = resolveMatrixAllowListMatch({
             allowList: effectiveAllowFrom,
             userId: senderId,
             userName: senderName,
           });
           const allowMatchMeta = formatAllowlistMatchMeta(allowMatch);
-          if (!allowMatch.allowed) {
-            if (dmPolicy === "pairing") {
-              const { code, created } = await core.channel.pairing.upsertPairingRequest({
-                channel: "matrix",
-                id: senderId,
-                meta: { name: senderName },
-              });
-              if (created) {
-                logVerboseMessage(
-                  `matrix pairing request sender=${senderId} name=${senderName ?? "unknown"} (${allowMatchMeta})`,
+          if (access.decision === "pairing") {
+            const { code, created } = await core.channel.pairing.upsertPairingRequest({
+              channel: "matrix",
+              id: senderId,
+              meta: { name: senderName },
+            });
+            if (created) {
+              logVerboseMessage(
+                `matrix pairing request sender=${senderId} name=${senderName ?? "unknown"} (${allowMatchMeta})`,
+              );
+              try {
+                await sendMessageMatrix(
+                  `room:${roomId}`,
+                  [
+                    "OpenClaw: access not configured.",
+                    "",
+                    `Pairing code: ${code}`,
+                    "",
+                    "Ask the bot owner to approve with:",
+                    "openclaw pairing approve matrix <code>",
+                  ].join("\n"),
+                  { client },
                 );
+<<<<<<< HEAD
                 try {
                   await sendMessageMatrix(
                     `room:${roomId}`,
@@ -272,15 +332,18 @@ export function createMatrixRoomMessageHandler(params: MatrixMonitorHandlerParam
                 } catch (err) {
                   logVerboseMessage(`matrix pairing reply failed for ${senderId}: ${String(err)}`);
                 }
+=======
+              } catch (err) {
+                logVerboseMessage(`matrix pairing reply failed for ${senderId}: ${String(err)}`);
+>>>>>>> 64de4b6d6 (fix: enforce explicit group auth boundaries across channels)
               }
             }
-            if (dmPolicy !== "pairing") {
-              logVerboseMessage(
-                `matrix: blocked dm sender ${senderId} (dmPolicy=${dmPolicy}, ${allowMatchMeta})`,
-              );
-            }
-            return;
+          } else {
+            logVerboseMessage(
+              `matrix: blocked dm sender ${senderId} (dmPolicy=${dmPolicy}, ${allowMatchMeta})`,
+            );
           }
+          return;
         }
       }
 
@@ -300,7 +363,7 @@ export function createMatrixRoomMessageHandler(params: MatrixMonitorHandlerParam
           return;
         }
       }
-      if (isRoom && groupPolicy === "allowlist" && roomUsers.length === 0 && groupAllowConfigured) {
+      if (isRoom && roomUsers.length === 0 && groupAllowConfigured && access.decision !== "allow") {
         const groupAllowMatch = resolveMatrixAllowListMatch({
           allowList: effectiveGroupAllowFrom,
           userId: senderId,

@@ -456,6 +456,48 @@ async function processMessageWithPipeline(params: {
         authorizers: [{ configured: effectiveAllowFrom.length > 0, allowed: senderAllowedForCommands }],
       })
     : undefined;
+<<<<<<< HEAD
+=======
+  if (groupAccess) {
+    warnMissingProviderGroupPolicyFallbackOnce({
+      providerMissingFallbackApplied: groupAccess.providerMissingFallbackApplied,
+      providerKey: "zalo",
+      accountId: account.accountId,
+      log: (message) => logVerbose(core, runtime, message),
+    });
+    if (!groupAccess.allowed) {
+      if (groupAccess.reason === "disabled") {
+        logVerbose(core, runtime, `zalo: drop group ${chatId} (groupPolicy=disabled)`);
+      } else if (groupAccess.reason === "empty_allowlist") {
+        logVerbose(
+          core,
+          runtime,
+          `zalo: drop group ${chatId} (groupPolicy=allowlist, no groupAllowFrom)`,
+        );
+      } else if (groupAccess.reason === "sender_not_allowlisted") {
+        logVerbose(core, runtime, `zalo: drop group sender ${senderId} (groupPolicy=allowlist)`);
+      }
+      return;
+    }
+  }
+
+  const rawBody = text?.trim() || (mediaPath ? "<media:image>" : "");
+  const { senderAllowedForCommands, commandAuthorized } = await resolveSenderCommandAuthorization({
+    cfg: config,
+    rawBody,
+    isGroup,
+    dmPolicy,
+    configuredAllowFrom: configAllowFrom,
+    configuredGroupAllowFrom: groupAllowFrom,
+    senderId,
+    isSenderAllowed: isZaloSenderAllowed,
+    readAllowFromStore: () => core.channel.pairing.readAllowFromStore("zalo"),
+    shouldComputeCommandAuthorized: (body, cfg) =>
+      core.channel.commands.shouldComputeCommandAuthorized(body, cfg),
+    resolveCommandAuthorizedFromAuthorizers: (params) =>
+      core.channel.commands.resolveCommandAuthorizedFromAuthorizers(params),
+  });
+>>>>>>> 64de4b6d6 (fix: enforce explicit group auth boundaries across channels)
 
   if (!isGroup) {
     if (dmPolicy === "disabled") {

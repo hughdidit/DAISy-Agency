@@ -418,10 +418,19 @@ export async function monitorMattermostProvider(opts: MonitorMattermostOpts = {}
     const hasControlCommand = core.channel.text.hasControlCommand(rawText, cfg);
     const isControlCommand = allowTextCommands && hasControlCommand;
     const useAccessGroups = cfg.commands?.useAccessGroups !== false;
+<<<<<<< HEAD
     const senderAllowedForCommands = isSenderAllowed({
       senderId,
       senderName,
       allowFrom: effectiveAllowFrom,
+=======
+    const commandDmAllowFrom = kind === "direct" ? effectiveAllowFrom : normalizedAllowFrom;
+    const senderAllowedForCommands = isMattermostSenderAllowed({
+      senderId,
+      senderName,
+      allowFrom: commandDmAllowFrom,
+      allowNameMatching,
+>>>>>>> 64de4b6d6 (fix: enforce explicit group auth boundaries across channels)
     });
     const groupAllowedForCommands = isSenderAllowed({
       senderId,
@@ -431,7 +440,7 @@ export async function monitorMattermostProvider(opts: MonitorMattermostOpts = {}
     const commandGate = resolveControlCommandGate({
       useAccessGroups,
       authorizers: [
-        { configured: effectiveAllowFrom.length > 0, allowed: senderAllowedForCommands },
+        { configured: commandDmAllowFrom.length > 0, allowed: senderAllowedForCommands },
         {
           configured: effectiveGroupAllowFrom.length > 0,
           allowed: groupAllowedForCommands,

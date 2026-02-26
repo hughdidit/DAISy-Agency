@@ -501,11 +501,25 @@ export async function processMessage(
 
   const dmPolicy = account.config.dmPolicy ?? "pairing";
   const groupPolicy = account.config.groupPolicy ?? "allowlist";
+<<<<<<< HEAD
   const storeAllowFrom = await core.channel.pairing
     .readAllowFromStore("bluebubbles")
     .catch(() => []);
   const { effectiveAllowFrom, effectiveGroupAllowFrom } = resolveEffectiveAllowFromLists({
     allowFrom: account.config.allowFrom,
+=======
+  const configuredAllowFrom = (account.config.allowFrom ?? []).map((entry) => String(entry));
+  const storeAllowFrom = await readStoreAllowFromForDmPolicy({
+    provider: "bluebubbles",
+    dmPolicy,
+    readStore: (provider) => core.channel.pairing.readAllowFromStore(provider),
+  });
+  const accessDecision = resolveDmGroupAccessWithLists({
+    isGroup,
+    dmPolicy,
+    groupPolicy,
+    allowFrom: configuredAllowFrom,
+>>>>>>> 64de4b6d6 (fix: enforce explicit group auth boundaries across channels)
     groupAllowFrom: account.config.groupAllowFrom,
     storeAllowFrom,
     dmPolicy,
@@ -666,10 +680,11 @@ export async function processMessage(
   // Command gating (parity with iMessage/WhatsApp)
   const useAccessGroups = config.commands?.useAccessGroups !== false;
   const hasControlCmd = core.channel.text.hasControlCommand(messageText, config);
+  const commandDmAllowFrom = isGroup ? configuredAllowFrom : effectiveAllowFrom;
   const ownerAllowedForCommands =
-    effectiveAllowFrom.length > 0
+    commandDmAllowFrom.length > 0
       ? isAllowedBlueBubblesSender({
-          allowFrom: effectiveAllowFrom,
+          allowFrom: commandDmAllowFrom,
           sender: message.senderId,
           chatId: message.chatId ?? undefined,
           chatGuid: message.chatGuid ?? undefined,
@@ -690,7 +705,7 @@ export async function processMessage(
   const commandGate = resolveControlCommandGate({
     useAccessGroups,
     authorizers: [
-      { configured: effectiveAllowFrom.length > 0, allowed: ownerAllowedForCommands },
+      { configured: commandDmAllowFrom.length > 0, allowed: ownerAllowedForCommands },
       { configured: effectiveGroupAllowFrom.length > 0, allowed: groupAllowedForCommands },
     ],
     allowTextCommands: true,

@@ -121,7 +121,9 @@ export async function prepareSlackMessage(params: {
     return null;
   }
 
-  const { allowFromLower } = await resolveSlackEffectiveAllowFrom(ctx);
+  const { allowFromLower } = await resolveSlackEffectiveAllowFrom(ctx, {
+    includePairingStore: isDirectMessage,
+  });
 
   if (isDirectMessage) {
     const directUserId = message.user;

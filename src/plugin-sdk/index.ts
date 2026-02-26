@@ -260,6 +260,19 @@ export {
   readStringParam,
 } from "../agents/tools/common.js";
 export { formatDocsLink } from "../terminal/links.js";
+<<<<<<< HEAD
+=======
+export {
+  DM_GROUP_ACCESS_REASON,
+  readStoreAllowFromForDmPolicy,
+  resolveDmAllowState,
+  resolveDmGroupAccessDecision,
+  resolveDmGroupAccessWithCommandGate,
+  resolveDmGroupAccessWithLists,
+  resolveEffectiveAllowFromLists,
+} from "../security/dm-policy-shared.js";
+export type { DmGroupAccessReasonCode } from "../security/dm-policy-shared.js";
+>>>>>>> 64de4b6d6 (fix: enforce explicit group auth boundaries across channels)
 export type { HookEntry } from "../hooks/types.js";
 export { normalizeE164 } from "../utils.js";
 export { missingTargetError } from "../infra/outbound/target-errors.js";

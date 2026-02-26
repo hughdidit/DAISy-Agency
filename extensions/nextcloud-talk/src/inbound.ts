@@ -1,10 +1,20 @@
 import {
   logInboundDrop,
+<<<<<<< HEAD
   resolveControlCommandGate,
 <<<<<<< HEAD
   type MoltbotConfig,
 =======
   resolveRuntimeGroupPolicy,
+=======
+  readStoreAllowFromForDmPolicy,
+  resolveDmGroupAccessWithCommandGate,
+  resolveOutboundMediaUrls,
+  resolveAllowlistProviderRuntimeGroupPolicy,
+  resolveDefaultGroupPolicy,
+  warnMissingProviderGroupPolicyFallbackOnce,
+  type OutboundReplyPayload,
+>>>>>>> 64de4b6d6 (fix: enforce explicit group auth boundaries across channels)
   type OpenClawConfig,
 >>>>>>> 777817392 (fix: fail closed missing provider group policy across message channels (#23367) (thanks @bmendonca3))
   type RuntimeEnv,
@@ -143,16 +153,20 @@ export async function handleNextcloudTalkInbound(params: {
   }
 
   const roomAllowFrom = normalizeNextcloudTalkAllowlist(roomConfig?.allowFrom);
+<<<<<<< HEAD
   const baseGroupAllowFrom =
     configGroupAllowFrom.length > 0 ? configGroupAllowFrom : configAllowFrom;
 
   const effectiveAllowFrom = [...configAllowFrom, ...storeAllowList].filter(Boolean);
   const effectiveGroupAllowFrom = [...baseGroupAllowFrom, ...storeAllowList].filter(Boolean);
+=======
+>>>>>>> 64de4b6d6 (fix: enforce explicit group auth boundaries across channels)
 
   const allowTextCommands = core.channel.commands.shouldHandleTextCommands({
     cfg: config as MoltbotConfig,
     surface: CHANNEL_ID,
   });
+<<<<<<< HEAD
   const useAccessGroups = config.commands?.useAccessGroups !== false;
   const senderAllowedForCommands = resolveNextcloudTalkAllowlistMatch({
     allowFrom: isGroup ? effectiveGroupAllowFrom : effectiveAllowFrom,
@@ -173,10 +187,37 @@ export async function handleNextcloudTalkInbound(params: {
     ],
     allowTextCommands,
     hasControlCommand,
+=======
+  const useAccessGroups =
+    (config.commands as Record<string, unknown> | undefined)?.useAccessGroups !== false;
+  const hasControlCommand = core.channel.text.hasControlCommand(rawBody, config as OpenClawConfig);
+  const access = resolveDmGroupAccessWithCommandGate({
+    isGroup,
+    dmPolicy,
+    groupPolicy,
+    allowFrom: configAllowFrom,
+    groupAllowFrom: configGroupAllowFrom,
+    storeAllowFrom: storeAllowList,
+    isSenderAllowed: (allowFrom) =>
+      resolveNextcloudTalkAllowlistMatch({
+        allowFrom,
+        senderId,
+      }).allowed,
+    command: {
+      useAccessGroups,
+      allowTextCommands,
+      hasControlCommand,
+    },
+>>>>>>> 64de4b6d6 (fix: enforce explicit group auth boundaries across channels)
   });
-  const commandAuthorized = commandGate.commandAuthorized;
+  const commandAuthorized = access.commandAuthorized;
+  const effectiveGroupAllowFrom = access.effectiveGroupAllowFrom;
 
   if (isGroup) {
+    if (access.decision !== "allow") {
+      runtime.log?.(`nextcloud-talk: drop group sender ${senderId} (reason=${access.reason})`);
+      return;
+    }
     const groupAllow = resolveNextcloudTalkGroupAllow({
       groupPolicy,
       outerAllowFrom: effectiveGroupAllowFrom,
@@ -190,50 +231,43 @@ export async function handleNextcloudTalkInbound(params: {
       return;
     }
   } else {
-    if (dmPolicy === "disabled") {
-      runtime.log?.(`nextcloud-talk: drop DM sender=${senderId} (dmPolicy=disabled)`);
-      return;
-    }
-    if (dmPolicy !== "open") {
-      const dmAllowed = resolveNextcloudTalkAllowlistMatch({
-        allowFrom: effectiveAllowFrom,
-        senderId,
-      }).allowed;
-      if (!dmAllowed) {
-        if (dmPolicy === "pairing") {
-          const { code, created } = await core.channel.pairing.upsertPairingRequest({
-            channel: CHANNEL_ID,
-            id: senderId,
-            meta: { name: senderName || undefined },
-          });
-          if (created) {
-            try {
-              await sendMessageNextcloudTalk(
-                roomToken,
-                core.channel.pairing.buildPairingReply({
-                  channel: CHANNEL_ID,
-                  idLine: `Your Nextcloud user id: ${senderId}`,
-                  code,
-                }),
-                { accountId: account.accountId },
-              );
-              statusSink?.({ lastOutboundAt: Date.now() });
-            } catch (err) {
-              runtime.error?.(
-                `nextcloud-talk: pairing reply failed for ${senderId}: ${String(err)}`,
-              );
-            }
+    if (access.decision !== "allow") {
+      if (access.decision === "pairing") {
+        const { code, created } = await core.channel.pairing.upsertPairingRequest({
+          channel: CHANNEL_ID,
+          id: senderId,
+          meta: { name: senderName || undefined },
+        });
+        if (created) {
+          try {
+            await sendMessageNextcloudTalk(
+              roomToken,
+              core.channel.pairing.buildPairingReply({
+                channel: CHANNEL_ID,
+                idLine: `Your Nextcloud user id: ${senderId}`,
+                code,
+              }),
+              { accountId: account.accountId },
+            );
+            statusSink?.({ lastOutboundAt: Date.now() });
+          } catch (err) {
+            runtime.error?.(`nextcloud-talk: pairing reply failed for ${senderId}: ${String(err)}`);
           }
         }
+<<<<<<< HEAD
         runtime.log?.(
           `nextcloud-talk: drop DM sender ${senderId} (dmPolicy=${dmPolicy})`,
         );
         return;
+=======
+>>>>>>> 64de4b6d6 (fix: enforce explicit group auth boundaries across channels)
       }
+      runtime.log?.(`nextcloud-talk: drop DM sender ${senderId} (reason=${access.reason})`);
+      return;
     }
   }
 
-  if (isGroup && commandGate.shouldBlock) {
+  if (access.shouldBlockControlCommand) {
     logInboundDrop({
       log: (message) => runtime.log?.(message),
       channel: CHANNEL_ID,

@@ -188,9 +188,19 @@ export function registerSlackMonitorSlashCommands(params: {
       }
 
       const storeAllowFrom =
+<<<<<<< HEAD
         ctx.dmPolicy === "allowlist"
           ? []
           : await readChannelAllowFromStore("slack").catch(() => []);
+=======
+        isDirectMessage
+          ? await readStoreAllowFromForDmPolicy({
+              provider: "slack",
+              dmPolicy: ctx.dmPolicy,
+              readStore: (provider) => readChannelAllowFromStore(provider),
+            })
+          : [];
+>>>>>>> 64de4b6d6 (fix: enforce explicit group auth boundaries across channels)
       const effectiveAllowFrom = normalizeAllowList([...ctx.allowFrom, ...storeAllowFrom]);
       const effectiveAllowFromLower = normalizeAllowListLower(effectiveAllowFrom);
 
