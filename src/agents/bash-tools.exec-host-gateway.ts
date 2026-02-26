@@ -43,6 +43,10 @@ export type ProcessGatewayAllowlistParams = {
   safeBins: Set<string>;
   agentId?: string;
   sessionKey?: string;
+  turnSourceChannel?: string;
+  turnSourceTo?: string;
+  turnSourceAccountId?: string;
+  turnSourceThreadId?: string | number;
   scopeKey?: string;
   warnings: string[];
   notifySessionKey?: string;
@@ -149,6 +153,34 @@ export async function processGatewayAllowlist(
     const effectiveTimeout =
       typeof params.timeoutSec === "number" ? params.timeoutSec : params.defaultTimeoutSec;
     const warningText = params.warnings.length ? `${params.warnings.join("\n")}\n\n` : "";
+<<<<<<< HEAD
+=======
+    let expiresAtMs = Date.now() + DEFAULT_APPROVAL_TIMEOUT_MS;
+    let preResolvedDecision: string | null | undefined;
+
+    try {
+      // Register first so the returned approval ID is actionable immediately.
+      const registration = await registerExecApprovalRequestForHost({
+        approvalId,
+        command: params.command,
+        workdir: params.workdir,
+        host: "gateway",
+        security: hostSecurity,
+        ask: hostAsk,
+        agentId: params.agentId,
+        resolvedPath,
+        sessionKey: params.sessionKey,
+        turnSourceChannel: params.turnSourceChannel,
+        turnSourceTo: params.turnSourceTo,
+        turnSourceAccountId: params.turnSourceAccountId,
+        turnSourceThreadId: params.turnSourceThreadId,
+      });
+      expiresAtMs = registration.expiresAtMs;
+      preResolvedDecision = registration.finalDecision;
+    } catch (err) {
+      throw new Error(`Exec approval registration failed: ${String(err)}`, { cause: err });
+    }
+>>>>>>> da0ba1b73 (fix(security): harden channel auth path checks and exec approval routing)
 
     void (async () => {
       let decision: string | null = null;

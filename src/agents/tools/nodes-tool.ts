@@ -22,6 +22,7 @@ import type { OpenClawConfig } from "../../config/config.js";
 import { formatExecCommand } from "../../infra/system-run-command.js";
 >>>>>>> 03e689fc8 (fix(security): bind system.run approvals to argv identity)
 import { imageMimeFromFormat } from "../../media/mime.js";
+import type { GatewayMessageChannel } from "../../utils/message-channel.js";
 import { resolveSessionAgentId } from "../agent-scope.js";
 import { optionalStringEnum, stringEnum } from "../schema/typebox.js";
 import { sanitizeToolResultImages } from "../tool-images.js";
@@ -97,9 +98,17 @@ const NodesToolSchema = Type.Object({
 
 export function createNodesTool(options?: {
   agentSessionKey?: string;
+  agentChannel?: GatewayMessageChannel;
+  agentAccountId?: string;
+  currentChannelId?: string;
+  currentThreadTs?: string | number;
   config?: OpenClawConfig;
 }): AnyAgentTool {
   const sessionKey = options?.agentSessionKey?.trim() || undefined;
+  const turnSourceChannel = options?.agentChannel?.trim() || undefined;
+  const turnSourceTo = options?.currentChannelId?.trim() || undefined;
+  const turnSourceAccountId = options?.agentAccountId?.trim() || undefined;
+  const turnSourceThreadId = options?.currentThreadTs;
   const agentId = resolveSessionAgentId({
     sessionKey: options?.agentSessionKey,
     config: options?.config,
@@ -477,6 +486,10 @@ export function createNodesTool(options?: {
                 host: "node",
                 agentId,
                 sessionKey,
+                turnSourceChannel,
+                turnSourceTo,
+                turnSourceAccountId,
+                turnSourceThreadId,
                 timeoutMs: APPROVAL_TIMEOUT_MS,
               },
             );
