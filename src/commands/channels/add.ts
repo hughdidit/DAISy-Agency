@@ -29,6 +29,7 @@ import type { ChannelChoice } from "../onboard-types.js";
 import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../../agents/agent-scope.js";
 import { listChannelPluginCatalogEntries } from "../../channels/plugins/catalog.js";
 import { getChannelPlugin, normalizeChannelId } from "../../channels/plugins/index.js";
+import { moveSingleAccountChannelSectionToDefaultAccount } from "../../channels/plugins/setup-helpers.js";
 import type { ChannelId, ChannelSetupInput } from "../../channels/plugins/types.js";
 import { writeConfigFile, type OpenClawConfig } from "../../config/config.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -311,6 +312,13 @@ export async function channelsAddCommand(
     channel === "telegram"
       ? resolveTelegramAccount({ cfg: nextConfig, accountId }).token.trim()
       : "";
+
+  if (accountId !== DEFAULT_ACCOUNT_ID) {
+    nextConfig = moveSingleAccountChannelSectionToDefaultAccount({
+      cfg: nextConfig,
+      channelKey: channel,
+    });
+  }
 
   nextConfig = applyChannelAccountConfig({
     cfg: nextConfig,

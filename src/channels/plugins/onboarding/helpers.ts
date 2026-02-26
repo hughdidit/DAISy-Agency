@@ -24,6 +24,7 @@ import { promptAccountId as promptAccountIdSdk } from "../../../plugin-sdk/onboa
 import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "../../../routing/session-key.js";
 import type { WizardPrompter } from "../../../wizard/prompts.js";
 import type { PromptAccountId, PromptAccountIdParams } from "../onboarding-types.js";
+<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { PromptAccountId, PromptAccountIdParams } from "../onboarding-types.js";
@@ -41,6 +42,9 @@ import { promptAccountId as promptAccountIdSdk } from "../../../plugin-sdk/onboa
 import { promptAccountId as promptAccountIdSdk } from "../../../plugin-sdk/onboarding.js";
 import type { PromptAccountId, PromptAccountIdParams } from "../onboarding-types.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
+=======
+import { moveSingleAccountChannelSectionToDefaultAccount } from "../setup-helpers.js";
+>>>>>>> dfa0b5b4f (Channels: move single-account config into accounts.default (#27334))
 
 export const promptAccountId: PromptAccountId = async (params: PromptAccountIdParams) => {
   return await promptAccountIdSdk(params);
@@ -319,13 +323,21 @@ function patchConfigForScopedAccount(params: {
   ensureEnabled: boolean;
 }): OpenClawConfig {
   const { cfg, channel, accountId, patch, ensureEnabled } = params;
-  const channelConfig = (cfg.channels?.[channel] as Record<string, unknown> | undefined) ?? {};
+  const seededCfg =
+    accountId === DEFAULT_ACCOUNT_ID
+      ? cfg
+      : moveSingleAccountChannelSectionToDefaultAccount({
+          cfg,
+          channelKey: channel,
+        });
+  const channelConfig =
+    (seededCfg.channels?.[channel] as Record<string, unknown> | undefined) ?? {};
 
   if (accountId === DEFAULT_ACCOUNT_ID) {
     return {
-      ...cfg,
+      ...seededCfg,
       channels: {
-        ...cfg.channels,
+        ...seededCfg.channels,
         [channel]: {
           ...channelConfig,
           ...(ensureEnabled ? { enabled: true } : {}),
@@ -340,9 +352,9 @@ function patchConfigForScopedAccount(params: {
   const existingAccount = accounts[accountId] ?? {};
 
   return {
-    ...cfg,
+    ...seededCfg,
     channels: {
-      ...cfg.channels,
+      ...seededCfg.channels,
       [channel]: {
         ...channelConfig,
         ...(ensureEnabled ? { enabled: true } : {}),
