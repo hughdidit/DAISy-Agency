@@ -1,5 +1,6 @@
 import crypto from "node:crypto";
 import type { PlivoConfig, WebhookSecurityConfig } from "../config.js";
+import { getHeader } from "../http-headers.js";
 import type {
   HangupCallInput,
   InitiateCallInput,
@@ -15,6 +16,7 @@ import type {
 import { escapeXml } from "../voice-mapping.js";
 import { reconstructWebhookUrl, verifyPlivoWebhook } from "../webhook-security.js";
 import type { VoiceCallProvider } from "./base.js";
+import { guardedJsonApiRequest } from "./shared/guarded-json-api.js";
 
 export interface PlivoProviderOptions {
   /** Override public URL origin for signature verification */
@@ -30,6 +32,21 @@ export interface PlivoProviderOptions {
 type PendingSpeak = { text: string; locale?: string };
 type PendingListen = { language?: string };
 
+<<<<<<< HEAD
+=======
+function createPlivoRequestDedupeKey(ctx: WebhookContext): string {
+  const nonceV3 = getHeader(ctx.headers, "x-plivo-signature-v3-nonce");
+  if (nonceV3) {
+    return `plivo:v3:${nonceV3}`;
+  }
+  const nonceV2 = getHeader(ctx.headers, "x-plivo-signature-v2-nonce");
+  if (nonceV2) {
+    return `plivo:v2:${nonceV2}`;
+  }
+  return `plivo:fallback:${crypto.createHash("sha256").update(ctx.rawBody).digest("hex")}`;
+}
+
+>>>>>>> 6f0b4caa2 (refactor(voice-call): share header and guarded api helpers)
 export class PlivoProvider implements VoiceCallProvider {
   readonly name = "plivo" as const;
 
@@ -69,12 +86,18 @@ export class PlivoProvider implements VoiceCallProvider {
     allowNotFound?: boolean;
   }): Promise<T> {
     const { method, endpoint, body, allowNotFound } = params;
+<<<<<<< HEAD
     const response = await fetch(`${this.baseUrl}${endpoint}`, {
+=======
+    return await guardedJsonApiRequest<T>({
+      url: `${this.baseUrl}${endpoint}`,
+>>>>>>> 6f0b4caa2 (refactor(voice-call): share header and guarded api helpers)
       method,
       headers: {
         Authorization: `Basic ${Buffer.from(`${this.authId}:${this.authToken}`).toString("base64")}`,
         "Content-Type": "application/json",
       },
+<<<<<<< HEAD
       body: body ? JSON.stringify(body) : undefined,
     });
 
@@ -88,6 +111,14 @@ export class PlivoProvider implements VoiceCallProvider {
 
     const text = await response.text();
     return text ? (JSON.parse(text) as T) : (undefined as T);
+=======
+      body,
+      allowNotFound,
+      allowedHostnames: [this.apiHost],
+      auditContext: "voice-call.plivo.api",
+      errorPrefix: "Plivo API error",
+    });
+>>>>>>> 6f0b4caa2 (refactor(voice-call): share header and guarded api helpers)
   }
 
   verifyWebhook(ctx: WebhookContext): WebhookVerificationResult {
