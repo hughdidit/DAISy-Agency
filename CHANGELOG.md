@@ -56,7 +56,11 @@ Docs: https://docs.openclaw.ai
 - Telegram/Inline buttons: allow callback-query button handling in groups (including `/models` follow-up buttons) when group policy authorizes the sender, by removing the redundant callback allowlist gate that blocked open-policy groups. (#27343) Thanks @GodsBoy.
 - Telegram/Streaming preview: when finalizing without an existing preview message, prime pending preview text with final answer before stop-flush so users do not briefly see stale 1-2 word fragments (for example `no` before `no problem`). (#27449) Thanks @emanuelst for the original fix direction in #19673.
 - Typing/Main reply pipeline: always mark dispatch idle in `agent-runner` finalization so typing cleanup runs even when dispatcher `onIdle` does not fire, preventing stuck typing indicators after run completion. (#27250) Thanks @Sid-Qin.
+<<<<<<< HEAD
 >>>>>>> 199ef9f8e (fix(typing): add main-run dispatch idle safety net (land #27250, thanks @Sid-Qin))
+=======
+- Typing/Run completion race: prevent post-run keepalive ticks from re-triggering typing callbacks by guarding `triggerTyping()` with `runComplete`, with regression coverage for no-restart behavior during run-complete/dispatch-idle boundaries. (#27413) Thanks @widingmarcus-cyber.
+>>>>>>> 8bf1c9a23 (fix(typing): stop keepalive restarts after run completion (land #27413, thanks @widingmarcus-cyber))
 - Daemon/macOS launchd: forward proxy env vars into supervised service environments, keep LaunchAgent `KeepAlive=true` semantics, and harden restart sequencing to `print -> bootout -> wait old pid exit -> bootstrap -> kickstart`. (#27276) thanks @frankekn.
 >>>>>>> 4ebefe647 (fix(daemon): keep launchd KeepAlive while preserving restart hardening)
 - Android/Node invoke: remove native gateway WebSocket `Origin` header to avoid false origin rejections, unify invoke command registry/policy/error parsing paths, and keep command availability checks centralized to reduce dispatcher/advertisement drift. (#27257) Thanks @obviyus.
