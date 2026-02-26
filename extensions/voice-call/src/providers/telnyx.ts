@@ -1,5 +1,9 @@
 import crypto from "node:crypto";
+<<<<<<< HEAD
 
+=======
+import { fetchWithSsrFGuard } from "openclaw/plugin-sdk";
+>>>>>>> 1aadf26f9 (fix(voice-call): bind webhook dedupe to verified request identity)
 import type { TelnyxConfig } from "../config.js";
 import type {
   EndReason,
@@ -12,6 +16,7 @@ import type {
   StartListeningInput,
   StopListeningInput,
   WebhookContext,
+  WebhookParseOptions,
   WebhookVerificationResult,
 } from "../types.js";
 import type { Logger } from "../manager/context.js";
@@ -38,6 +43,7 @@ export class TelnyxProvider implements VoiceCallProvider {
   private readonly publicKey: string | undefined;
   private readonly options: TelnyxProviderOptions;
   private readonly baseUrl = "https://api.telnyx.com/v2";
+  private readonly apiHost = "api.telnyx.com";
 
 <<<<<<< HEAD
   private readonly logger: Logger;
@@ -71,25 +77,33 @@ export class TelnyxProvider implements VoiceCallProvider {
     body: Record<string, unknown>,
     options?: { allowNotFound?: boolean },
   ): Promise<T> {
-    const response = await fetch(`${this.baseUrl}${endpoint}`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${this.apiKey}`,
-        "Content-Type": "application/json",
+    const { response, release } = await fetchWithSsrFGuard({
+      url: `${this.baseUrl}${endpoint}`,
+      init: {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${this.apiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
       },
-      body: JSON.stringify(body),
+      policy: { allowedHostnames: [this.apiHost] },
+      auditContext: "voice-call.telnyx.api",
     });
-
-    if (!response.ok) {
-      if (options?.allowNotFound && response.status === 404) {
-        return undefined as T;
+    try {
+      if (!response.ok) {
+        if (options?.allowNotFound && response.status === 404) {
+          return undefined as T;
+        }
+        const errorText = await response.text();
+        throw new Error(`Telnyx API error: ${response.status} ${errorText}`);
       }
-      const errorText = await response.text();
-      throw new Error(`Telnyx API error: ${response.status} ${errorText}`);
-    }
 
-    const text = await response.text();
-    return text ? (JSON.parse(text) as T) : (undefined as T);
+      const text = await response.text();
+      return text ? (JSON.parse(text) as T) : (undefined as T);
+    } finally {
+      await release();
+    }
   }
 
   /**
@@ -100,13 +114,25 @@ export class TelnyxProvider implements VoiceCallProvider {
       skipVerification: this.options.skipVerification,
     });
 
+<<<<<<< HEAD
     return { ok: result.ok, reason: result.reason };
+=======
+    return {
+      ok: result.ok,
+      reason: result.reason,
+      isReplay: result.isReplay,
+      verifiedRequestKey: result.verifiedRequestKey,
+    };
+>>>>>>> 1aadf26f9 (fix(voice-call): bind webhook dedupe to verified request identity)
   }
 
   /**
    * Parse Telnyx webhook event into normalized format.
    */
-  parseWebhookEvent(ctx: WebhookContext): ProviderWebhookParseResult {
+  parseWebhookEvent(
+    ctx: WebhookContext,
+    options?: WebhookParseOptions,
+  ): ProviderWebhookParseResult {
     try {
       const payload = JSON.parse(ctx.rawBody);
       const data = payload.data;
@@ -115,7 +141,7 @@ export class TelnyxProvider implements VoiceCallProvider {
         return { events: [], statusCode: 200 };
       }
 
-      const event = this.normalizeEvent(data);
+      const event = this.normalizeEvent(data, options?.verifiedRequestKey);
       return {
         events: event ? [event] : [],
         statusCode: 200,
@@ -128,7 +154,7 @@ export class TelnyxProvider implements VoiceCallProvider {
   /**
    * Convert Telnyx event to normalized event format.
    */
-  private normalizeEvent(data: TelnyxEvent): NormalizedEvent | null {
+  private normalizeEvent(data: TelnyxEvent, dedupeKey?: string): NormalizedEvent | null {
     // Decode client_state from Base64 (we encode it in initiateCall)
     let callId = "";
     if (data.payload?.client_state) {
@@ -147,6 +173,7 @@ export class TelnyxProvider implements VoiceCallProvider {
 
     const baseEvent = {
       id: data.id || crypto.randomUUID(),
+      dedupeKey,
       callId,
       providerCallId: data.payload?.call_control_id,
       timestamp: Date.now(),
