@@ -1,3 +1,5 @@
+import { isBunRuntime, isNodeRuntime } from "../daemon/runtime-binary.js";
+
 const HELP_FLAGS = new Set(["-h", "--help"]);
 const VERSION_FLAGS = new Set(["-V", "--version"]);
 const ROOT_VERSION_ALIAS_FLAG = "-v";
@@ -163,34 +165,22 @@ export function buildParseArgv(params: {
       : baseArgv[0]?.endsWith("moltbot")
         ? baseArgv.slice(1)
         : baseArgv;
-  const executable = (normalizedArgv[0]?.split(/[/\\]/).pop() ?? "").toLowerCase();
   const looksLikeNode =
+<<<<<<< HEAD
     normalizedArgv.length >= 2 && (isNodeExecutable(executable) || isBunExecutable(executable));
 <<<<<<< HEAD
   if (looksLikeNode) return normalizedArgv;
   return ["node", programName || "moltbot", ...normalizedArgv];
 =======
+=======
+    normalizedArgv.length >= 2 &&
+    (isNodeRuntime(normalizedArgv[0] ?? "") || isBunRuntime(normalizedArgv[0] ?? ""));
+>>>>>>> 5dd264d2f (refactor(daemon): unify runtime binary detection)
   if (looksLikeNode) {
     return normalizedArgv;
   }
   return ["node", programName || "openclaw", ...normalizedArgv];
 >>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
-}
-
-const nodeExecutablePattern = /^node(?:-\d+|\d+)(?:\.\d+)*(?:\.exe)?$/;
-
-function isNodeExecutable(executable: string): boolean {
-  return (
-    executable === "node" ||
-    executable === "node.exe" ||
-    executable === "nodejs" ||
-    executable === "nodejs.exe" ||
-    nodeExecutablePattern.test(executable)
-  );
-}
-
-function isBunExecutable(executable: string): boolean {
-  return executable === "bun" || executable === "bun.exe";
 }
 
 export function shouldMigrateStateFromPath(path: string[]): boolean {
