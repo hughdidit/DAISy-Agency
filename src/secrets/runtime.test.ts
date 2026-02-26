@@ -83,6 +83,7 @@ describe("secrets runtime snapshot", () => {
     });
   });
 
+<<<<<<< HEAD
   it("resolves file refs via sops json payload", async () => {
     runExecMock.mockResolvedValueOnce({
       stdout: JSON.stringify({
@@ -152,6 +153,19 @@ describe("secrets runtime snapshot", () => {
             },
           },
           models: {
+=======
+  it("resolves file refs via configured file provider", async () => {
+    if (process.platform === "win32") {
+      return;
+    }
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-secrets-file-provider-"));
+    const secretsPath = path.join(root, "secrets.json");
+    try {
+      await fs.writeFile(
+        secretsPath,
+        JSON.stringify(
+          {
+>>>>>>> 060ede8aa (test(secrets): skip windows ACL-sensitive file-provider runtime tests)
             providers: {
               openai: {
                 baseUrl: "https://api.openai.com/v1",
@@ -163,8 +177,58 @@ describe("secrets runtime snapshot", () => {
         },
         agentDirs: ["/tmp/openclaw-agent-main"],
         loadAuthStore: () => ({ version: 1, profiles: {} }),
+<<<<<<< HEAD
       }),
     ).rejects.toThrow("sops decrypt failed: decrypted payload is not a JSON object");
+=======
+      });
+
+      expect(snapshot.config.models?.providers?.openai?.apiKey).toBe("sk-from-file-provider");
+    } finally {
+      await fs.rm(root, { recursive: true, force: true });
+    }
+  });
+
+  it("fails when file provider payload is not a JSON object", async () => {
+    if (process.platform === "win32") {
+      return;
+    }
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-secrets-file-provider-bad-"));
+    const secretsPath = path.join(root, "secrets.json");
+    try {
+      await fs.writeFile(secretsPath, JSON.stringify(["not-an-object"]), "utf8");
+      await fs.chmod(secretsPath, 0o600);
+
+      await expect(
+        prepareSecretsRuntimeSnapshot({
+          config: {
+            secrets: {
+              providers: {
+                default: {
+                  source: "file",
+                  path: secretsPath,
+                  mode: "jsonPointer",
+                },
+              },
+            },
+            models: {
+              providers: {
+                openai: {
+                  baseUrl: "https://api.openai.com/v1",
+                  apiKey: { source: "file", provider: "default", id: "/providers/openai/apiKey" },
+                  models: [],
+                },
+              },
+            },
+          },
+          agentDirs: ["/tmp/openclaw-agent-main"],
+          loadAuthStore: () => ({ version: 1, profiles: {} }),
+        }),
+      ).rejects.toThrow("payload is not a JSON object");
+    } finally {
+      await fs.rm(root, { recursive: true, force: true });
+    }
+>>>>>>> 060ede8aa (test(secrets): skip windows ACL-sensitive file-provider runtime tests)
   });
 
   it("activates runtime snapshots for loadConfig and ensureAuthProfileStore", async () => {
