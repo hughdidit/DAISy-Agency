@@ -501,8 +501,42 @@ export function attachGatewayWsMessageHandler(params: {
           });
           close(1008, truncateCloseReason(authMessage));
         };
+<<<<<<< HEAD
         if (!device) {
           const canSkipDevice = sharedAuthOk;
+=======
+        const clearUnboundScopes = () => {
+          if (scopes.length > 0 && !controlUiAuthPolicy.allowBypass && !sharedAuthOk) {
+            scopes = [];
+            connectParams.scopes = scopes;
+          }
+        };
+        const handleMissingDeviceIdentity = (): boolean => {
+          if (!device) {
+            clearUnboundScopes();
+          }
+          const trustedProxyAuthOk = isTrustedProxyControlUiOperatorAuth({
+            isControlUi,
+            role,
+            authMode: resolvedAuth.mode,
+            authOk,
+            authMethod,
+          });
+          const decision = evaluateMissingDeviceIdentity({
+            hasDeviceIdentity: Boolean(device),
+            role,
+            isControlUi,
+            controlUiAuthPolicy,
+            trustedProxyAuthOk,
+            sharedAuthOk,
+            authOk,
+            hasSharedAuth,
+            isLocalClient,
+          });
+          if (decision.kind === "allow") {
+            return true;
+          }
+>>>>>>> 9c142993b (fix: preserve operator scopes for shared auth connections)
 
           if (isControlUi && !allowControlUiBypass) {
             const errorMessage = "control ui requires HTTPS or localhost (secure context)";
