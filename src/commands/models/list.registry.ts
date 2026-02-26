@@ -1,7 +1,12 @@
 import type { Api, Model } from "@mariozechner/pi-ai";
+<<<<<<< HEAD
 import { discoverAuthStorage, discoverModels } from "@mariozechner/pi-coding-agent";
 
 import { resolveMoltbotAgentDir } from "../../agents/agent-paths.js";
+=======
+import type { ModelRegistry } from "@mariozechner/pi-coding-agent";
+import { resolveOpenClawAgentDir } from "../../agents/agent-paths.js";
+>>>>>>> 5c0255477 (fix: tolerate missing pi-coding-agent backend export)
 import type { AuthProfileStore } from "../../agents/auth-profiles.js";
 import { listProfilesForProvider } from "../../agents/auth-profiles.js";
 import {
@@ -9,8 +14,19 @@ import {
   resolveAwsSdkEnvVarName,
   resolveEnvApiKey,
 } from "../../agents/model-auth.js";
+<<<<<<< HEAD
 import { ensureMoltbotModelsJson } from "../../agents/models-config.js";
 import type { MoltbotConfig } from "../../config/config.js";
+=======
+import { ensureOpenClawModelsJson } from "../../agents/models-config.js";
+import { discoverAuthStorage, discoverModels } from "../../agents/pi-model-discovery.js";
+import type { OpenClawConfig } from "../../config/config.js";
+import {
+  formatErrorWithStack,
+  MODEL_AVAILABILITY_UNAVAILABLE_CODE,
+  shouldFallbackToAuthHeuristics,
+} from "./list.errors.js";
+>>>>>>> 5c0255477 (fix: tolerate missing pi-coding-agent backend export)
 import type { ModelRow } from "./list.types.js";
 import { modelKey } from "./shared.js";
 

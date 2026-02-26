@@ -1,5 +1,18 @@
 import type { Api, Model } from "@mariozechner/pi-ai";
+<<<<<<< HEAD
 import { discoverAuthStorage, discoverModels } from "@mariozechner/pi-coding-agent";
+=======
+import type { AuthStorage, ModelRegistry } from "@mariozechner/pi-coding-agent";
+import type { OpenClawConfig } from "../../config/config.js";
+import type { ModelDefinitionConfig } from "../../config/types.js";
+import { resolveOpenClawAgentDir } from "../agent-paths.js";
+import { DEFAULT_CONTEXT_TOKENS } from "../defaults.js";
+import { buildModelAliasLines } from "../model-alias-lines.js";
+import { normalizeModelCompat } from "../model-compat.js";
+import { resolveForwardCompatModel } from "../model-forward-compat.js";
+import { normalizeProviderId } from "../model-selection.js";
+import { discoverAuthStorage, discoverModels } from "../pi-model-discovery.js";
+>>>>>>> 5c0255477 (fix: tolerate missing pi-coding-agent backend export)
 
 import type { MoltbotConfig } from "../../config/config.js";
 import type { ModelDefinitionConfig } from "../../config/types.js";

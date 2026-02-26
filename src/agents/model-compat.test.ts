@@ -1,6 +1,11 @@
 import type { Api, Model } from "@mariozechner/pi-ai";
+import type { ModelRegistry } from "@mariozechner/pi-coding-agent";
 import { describe, expect, it } from "vitest";
 import { normalizeModelCompat } from "./model-compat.js";
+<<<<<<< HEAD
+=======
+import { resolveForwardCompatModel } from "./model-forward-compat.js";
+>>>>>>> 5c0255477 (fix: tolerate missing pi-coding-agent backend export)
 
 const baseModel = (): Model<Api> =>
   ({
