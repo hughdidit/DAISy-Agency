@@ -197,6 +197,12 @@ function requestMatchesAccountId(entry: PairingRequest, normalizedAccountId: str
   );
 }
 
+function shouldIncludeLegacyAllowFromEntries(normalizedAccountId: string): boolean {
+  // Keep backward compatibility for legacy channel-scoped allowFrom only on default account.
+  // Non-default accounts should remain isolated to avoid cross-account implicit approvals.
+  return !normalizedAccountId || normalizedAccountId === "default";
+}
+
 function normalizeId(value: string | number): string {
   return String(value).trim();
 }
@@ -329,8 +335,11 @@ export async function readChannelAllowFromStore(
 
   const scopedPath = resolveAllowFromPath(channel, env, accountId);
   const scopedEntries = await readAllowFromStateForPath(channel, scopedPath);
+  if (!shouldIncludeLegacyAllowFromEntries(normalizedAccountId)) {
+    return scopedEntries;
+  }
   // Backward compatibility: legacy channel-level allowFrom store was unscoped.
-  // Keep honoring it alongside account-scoped files to prevent re-pair prompts after upgrades.
+  // Keep honoring it for default account to prevent re-pair prompts after upgrades.
   const legacyPath = resolveAllowFromPath(channel, env);
   const legacyEntries = await readAllowFromStateForPath(channel, legacyPath);
   return dedupePreserveOrder([...scopedEntries, ...legacyEntries]);
@@ -350,6 +359,9 @@ export function readChannelAllowFromStoreSync(
 
   const scopedPath = resolveAllowFromPath(channel, env, accountId);
   const scopedEntries = readAllowFromStateForPathSync(channel, scopedPath);
+  if (!shouldIncludeLegacyAllowFromEntries(normalizedAccountId)) {
+    return scopedEntries;
+  }
   const legacyPath = resolveAllowFromPath(channel, env);
   const legacyEntries = readAllowFromStateForPathSync(channel, legacyPath);
   return dedupePreserveOrder([...scopedEntries, ...legacyEntries]);
@@ -544,7 +556,12 @@ export async function upsertChannelPairingRequest(params: {
         nowMs,
       );
       reqs = prunedExpired;
-      const existingIdx = reqs.findIndex((r) => r.id === id);
+      const existingIdx = reqs.findIndex((r) => {
+        if (r.id !== id) {
+          return false;
+        }
+        return requestMatchesAccountId(r, normalizePairingAccountId(normalizedAccountId));
+      });
       const existingCodes = new Set(
         reqs.map((req) =>
           String(req.code ?? "")
