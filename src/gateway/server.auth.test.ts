@@ -393,13 +393,14 @@ describe("gateway server auth/connect", () => {
         opts: Parameters<typeof connectReq>[1];
         expectConnectOk: boolean;
         expectConnectError?: string;
+        expectStatusOk?: boolean;
         expectStatusError?: string;
       }> = [
         {
-          name: "operator + valid shared token => connected with zero scopes",
+          name: "operator + valid shared token => connected with preserved scopes",
           opts: { role: "operator", token, device: null },
           expectConnectOk: true,
-          expectStatusError: "missing scope",
+          expectStatusOk: true,
         },
         {
           name: "node + valid shared token => rejected without device",
@@ -426,12 +427,14 @@ describe("gateway server auth/connect", () => {
             );
             continue;
           }
-          if (scenario.expectStatusError) {
+          if (scenario.expectStatusOk !== undefined) {
             const status = await rpcReq(ws, "status");
-            expect(status.ok, scenario.name).toBe(false);
-            expect(status.error?.message ?? "", scenario.name).toContain(
-              scenario.expectStatusError,
-            );
+            expect(status.ok, scenario.name).toBe(scenario.expectStatusOk);
+            if (!scenario.expectStatusOk && scenario.expectStatusError) {
+              expect(status.error?.message ?? "", scenario.name).toContain(
+                scenario.expectStatusError,
+              );
+            }
           }
         } finally {
           ws.close();
@@ -789,14 +792,102 @@ describe("gateway server auth/connect", () => {
       const res = await connectReq(ws, { token: "secret", device: null });
       expect(res.ok).toBe(true);
       const status = await rpcReq(ws, "status");
-      expect(status.ok).toBe(false);
-      expect(status.error?.message).toContain("missing scope");
+      expect(status.ok).toBe(true);
       const health = await rpcReq(ws, "health");
       expect(health.ok).toBe(true);
       ws.close();
     });
   });
 
+<<<<<<< HEAD
+=======
+  const trustedProxyControlUiCases: Array<{
+    name: string;
+    role: "operator" | "node";
+    withUnpairedNodeDevice: boolean;
+    expectedOk: boolean;
+    expectedErrorSubstring?: string;
+    expectedErrorCode?: string;
+    expectStatusChecks: boolean;
+  }> = [
+    {
+      name: "allows trusted-proxy control ui operator without device identity",
+      role: "operator",
+      withUnpairedNodeDevice: false,
+      expectedOk: true,
+      expectStatusChecks: true,
+    },
+    {
+      name: "rejects trusted-proxy control ui node role without device identity",
+      role: "node",
+      withUnpairedNodeDevice: false,
+      expectedOk: false,
+      expectedErrorSubstring: "control ui requires device identity",
+      expectedErrorCode: ConnectErrorDetailCodes.CONTROL_UI_DEVICE_IDENTITY_REQUIRED,
+      expectStatusChecks: false,
+    },
+    {
+      name: "requires pairing for trusted-proxy control ui node role with unpaired device",
+      role: "node",
+      withUnpairedNodeDevice: true,
+      expectedOk: false,
+      expectedErrorSubstring: "pairing required",
+      expectedErrorCode: ConnectErrorDetailCodes.PAIRING_REQUIRED,
+      expectStatusChecks: false,
+    },
+  ];
+
+  for (const tc of trustedProxyControlUiCases) {
+    test(tc.name, async () => {
+      await configureTrustedProxyControlUiAuth();
+      await withGatewayServer(async ({ port }) => {
+        const ws = await openWs(port, TRUSTED_PROXY_CONTROL_UI_HEADERS);
+        const scopes = tc.withUnpairedNodeDevice ? [] : undefined;
+        let device: Awaited<ReturnType<typeof createSignedDevice>>["device"] | null = null;
+        if (tc.withUnpairedNodeDevice) {
+          const challengeNonce = await readConnectChallengeNonce(ws);
+          expect(challengeNonce).toBeTruthy();
+          ({ device } = await createSignedDevice({
+            token: null,
+            role: "node",
+            scopes: [],
+            clientId: GATEWAY_CLIENT_NAMES.CONTROL_UI,
+            clientMode: GATEWAY_CLIENT_MODES.WEBCHAT,
+            nonce: String(challengeNonce),
+          }));
+        }
+        const res = await connectReq(ws, {
+          skipDefaultAuth: true,
+          role: tc.role,
+          scopes,
+          device,
+          client: { ...CONTROL_UI_CLIENT },
+        });
+        expect(res.ok).toBe(tc.expectedOk);
+        if (!tc.expectedOk) {
+          if (tc.expectedErrorSubstring) {
+            expect(res.error?.message ?? "").toContain(tc.expectedErrorSubstring);
+          }
+          if (tc.expectedErrorCode) {
+            expect((res.error?.details as { code?: string } | undefined)?.code).toBe(
+              tc.expectedErrorCode,
+            );
+          }
+          ws.close();
+          return;
+        }
+        if (tc.expectStatusChecks) {
+          const status = await rpcReq(ws, "status");
+          expect(status.ok).toBe(true);
+          const health = await rpcReq(ws, "health");
+          expect(health.ok).toBe(true);
+        }
+        ws.close();
+      });
+    });
+  }
+
+>>>>>>> 96aad965a (fix: land NO_REPLY announce suppression and auth scope assertions)
   test("allows localhost control ui without device identity when insecure auth is enabled", async () => {
     testState.gatewayControlUi = { allowInsecureAuth: true };
     const { server, ws, prevToken } = await startServerWithClient("secret", {
@@ -814,8 +905,7 @@ describe("gateway server auth/connect", () => {
     });
     expect(res.ok).toBe(true);
     const status = await rpcReq(ws, "status");
-    expect(status.ok).toBe(false);
-    expect(status.error?.message ?? "").toContain("missing scope");
+    expect(status.ok).toBe(true);
     const health = await rpcReq(ws, "health");
     expect(health.ok).toBe(true);
     ws.close();
@@ -837,8 +927,7 @@ describe("gateway server auth/connect", () => {
       });
       expect(res.ok).toBe(true);
       const status = await rpcReq(ws, "status");
-      expect(status.ok).toBe(false);
-      expect(status.error?.message ?? "").toContain("missing scope");
+      expect(status.ok).toBe(true);
       const health = await rpcReq(ws, "health");
       expect(health.ok).toBe(true);
       ws.close();
