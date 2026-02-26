@@ -96,6 +96,7 @@ async function resolveWhatsAppCommandAuthorized(params: {
     params.cfg.channels?.whatsapp?.groupAllowFrom ??
     (configuredAllowFrom.length > 0 ? configuredAllowFrom : undefined);
 
+<<<<<<< HEAD
   if (isGroup) {
     if (!configuredGroupAllowFrom || configuredGroupAllowFrom.length === 0) {
       return false;
@@ -125,6 +126,19 @@ async function resolveWhatsAppCommandAuthorized(params: {
   const allowFrom =
     combinedAllowFrom.length > 0
       ? combinedAllowFrom
+=======
+  const storeAllowFrom = isGroup
+    ? []
+    : await readStoreAllowFromForDmPolicy({
+        provider: "whatsapp",
+        dmPolicy,
+        readStore: (provider) =>
+          readChannelAllowFromStore(provider, process.env, params.msg.accountId),
+      });
+  const dmAllowFrom =
+    configuredAllowFrom.length > 0
+      ? configuredAllowFrom
+>>>>>>> d6eefe2e7 (style: format auth boundary updates)
       : params.msg.selfE164
         ? [params.msg.selfE164]
         : [];

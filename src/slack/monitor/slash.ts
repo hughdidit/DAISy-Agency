@@ -353,6 +353,7 @@ export async function registerSlackMonitorSlashCommands(params: {
       }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
       const storeAllowFrom = await readChannelAllowFromStore("slack").catch(() => []);
 =======
       const storeAllowFrom = await readStoreAllowFromForDmPolicy({
@@ -361,6 +362,15 @@ export async function registerSlackMonitorSlashCommands(params: {
         readStore: (provider) => readChannelAllowFromStore(provider),
       });
 >>>>>>> cd80c7e7f (refactor: unify dm policy store reads and reason codes)
+=======
+      const storeAllowFrom = isDirectMessage
+        ? await readStoreAllowFromForDmPolicy({
+            provider: "slack",
+            dmPolicy: ctx.dmPolicy,
+            readStore: (provider) => readChannelAllowFromStore(provider),
+          })
+        : [];
+>>>>>>> d6eefe2e7 (style: format auth boundary updates)
       const effectiveAllowFrom = normalizeAllowList([...ctx.allowFrom, ...storeAllowFrom]);
       const effectiveAllowFromLower = normalizeAllowListLower(effectiveAllowFrom);
 
