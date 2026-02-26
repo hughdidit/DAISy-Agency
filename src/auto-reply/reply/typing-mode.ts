@@ -1,4 +1,9 @@
 import type { TypingMode } from "../../config/types.js";
+<<<<<<< HEAD
+=======
+import { isSilentReplyText, SILENT_REPLY_TOKEN } from "../tokens.js";
+import type { TypingPolicy } from "../types.js";
+>>>>>>> 37a138c55 (fix: harden typing lifecycle and cross-channel suppression)
 import type { TypingController } from "./typing.js";
 import { isSilentReplyText, SILENT_REPLY_TOKEN } from "../tokens.js";
 
@@ -7,6 +12,8 @@ export type TypingModeContext = {
   isGroupChat: boolean;
   wasMentioned: boolean;
   isHeartbeat: boolean;
+  typingPolicy?: TypingPolicy;
+  suppressTyping?: boolean;
 };
 
 export const DEFAULT_GROUP_TYPING_MODE: TypingMode = "message";
@@ -16,8 +23,16 @@ export function resolveTypingMode({
   isGroupChat,
   wasMentioned,
   isHeartbeat,
+  typingPolicy,
+  suppressTyping,
 }: TypingModeContext): TypingMode {
-  if (isHeartbeat) {
+  if (
+    isHeartbeat ||
+    typingPolicy === "heartbeat" ||
+    typingPolicy === "system_event" ||
+    typingPolicy === "internal_webchat" ||
+    suppressTyping
+  ) {
     return "never";
   }
   if (configured) {

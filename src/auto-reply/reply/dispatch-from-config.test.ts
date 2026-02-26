@@ -138,6 +138,84 @@ describe("dispatchReplyFromConfig", () => {
     );
   });
 
+<<<<<<< HEAD
+=======
+  it("forces suppressTyping when routing to a different originating channel", async () => {
+    setNoAbort();
+    const cfg = emptyConfig;
+    const dispatcher = createDispatcher();
+    const ctx = buildTestCtx({
+      Provider: "slack",
+      OriginatingChannel: "telegram",
+      OriginatingTo: "telegram:999",
+    });
+
+    const replyResolver = async (_ctx: MsgContext, opts?: GetReplyOptions) => {
+      expect(opts?.suppressTyping).toBe(true);
+      expect(opts?.typingPolicy).toBe("system_event");
+      return { text: "hi" } satisfies ReplyPayload;
+    };
+
+    await dispatchReplyFromConfig({ ctx, cfg, dispatcher, replyResolver });
+  });
+
+  it("forces suppressTyping for internal webchat turns", async () => {
+    setNoAbort();
+    const cfg = emptyConfig;
+    const dispatcher = createDispatcher();
+    const ctx = buildTestCtx({
+      Provider: "webchat",
+      Surface: "webchat",
+      OriginatingChannel: "webchat",
+      OriginatingTo: "session:abc",
+    });
+
+    const replyResolver = async (_ctx: MsgContext, opts?: GetReplyOptions) => {
+      expect(opts?.suppressTyping).toBe(true);
+      expect(opts?.typingPolicy).toBe("internal_webchat");
+      return { text: "hi" } satisfies ReplyPayload;
+    };
+
+    await dispatchReplyFromConfig({ ctx, cfg, dispatcher, replyResolver });
+  });
+
+  it("routes media-only tool results when summaries are suppressed", async () => {
+    setNoAbort();
+    mocks.routeReply.mockClear();
+    const cfg = emptyConfig;
+    const dispatcher = createDispatcher();
+    const ctx = buildTestCtx({
+      Provider: "slack",
+      ChatType: "group",
+      AccountId: "acc-1",
+      OriginatingChannel: "telegram",
+      OriginatingTo: "telegram:999",
+    });
+
+    const replyResolver = async (
+      _ctx: MsgContext,
+      opts?: GetReplyOptions,
+      _cfg?: OpenClawConfig,
+    ) => {
+      expect(opts?.onToolResult).toBeDefined();
+      await opts?.onToolResult?.({
+        text: "NO_REPLY",
+        mediaUrls: ["https://example.com/tts-routed.opus"],
+      });
+      return undefined;
+    };
+
+    await dispatchReplyFromConfig({ ctx, cfg, dispatcher, replyResolver });
+
+    expect(dispatcher.sendToolResult).not.toHaveBeenCalled();
+    expect(dispatcher.sendFinalReply).not.toHaveBeenCalled();
+    expect(mocks.routeReply).toHaveBeenCalledTimes(1);
+    const routed = mocks.routeReply.mock.calls[0]?.[0] as { payload?: ReplyPayload } | undefined;
+    expect(routed?.payload?.mediaUrls).toEqual(["https://example.com/tts-routed.opus"]);
+    expect(routed?.payload?.text).toBeUndefined();
+  });
+
+>>>>>>> 37a138c55 (fix: harden typing lifecycle and cross-channel suppression)
   it("provides onToolResult in DM sessions", async () => {
     mocks.tryFastAbortFromMessage.mockResolvedValue({
       handled: false,

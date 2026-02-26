@@ -11,6 +11,7 @@ export function createTypingCallbacks(params: {
   onStartError: (err: unknown) => void;
   onStopError?: (err: unknown) => void;
   keepaliveIntervalMs?: number;
+<<<<<<< HEAD
 }): TypingCallbacks {
   const stop = params.stop;
   const keepaliveIntervalMs = params.keepaliveIntervalMs ?? 3_000;
@@ -19,10 +20,42 @@ export function createTypingCallbacks(params: {
   let stopSent = false;
 
   const fireStart = async () => {
+=======
+  /** Stop keepalive after this many consecutive start() failures. Default: 2 */
+  maxConsecutiveFailures?: number;
+  /** Maximum duration for typing indicator before auto-cleanup (safety TTL). Default: 60s */
+  maxDurationMs?: number;
+};
+
+export function createTypingCallbacks(params: CreateTypingCallbacksParams): TypingCallbacks {
+  const stop = params.stop;
+  const keepaliveIntervalMs = params.keepaliveIntervalMs ?? 3_000;
+  const maxConsecutiveFailures = Math.max(1, params.maxConsecutiveFailures ?? 2);
+  const maxDurationMs = params.maxDurationMs ?? 60_000; // Default 60s TTL
+  let stopSent = false;
+  let closed = false;
+  let consecutiveFailures = 0;
+  let breakerTripped = false;
+  let ttlTimer: ReturnType<typeof setTimeout> | undefined;
+
+  const fireStart = async (): Promise<void> => {
+    if (closed) {
+      return;
+    }
+    if (breakerTripped) {
+      return;
+    }
+>>>>>>> 37a138c55 (fix: harden typing lifecycle and cross-channel suppression)
     try {
       await params.start();
+      consecutiveFailures = 0;
     } catch (err) {
+      consecutiveFailures += 1;
       params.onStartError(err);
+      if (consecutiveFailures >= maxConsecutiveFailures) {
+        breakerTripped = true;
+        keepaliveLoop.stop();
+      }
     }
   };
 
@@ -42,6 +75,7 @@ export function createTypingCallbacks(params: {
     if (keepaliveIntervalMs <= 0) {
       return;
     }
+<<<<<<< HEAD
     keepaliveTimer = setInterval(() => {
       if (keepaliveStartInFlight) {
         return;
@@ -51,6 +85,19 @@ export function createTypingCallbacks(params: {
         keepaliveStartInFlight = false;
       });
     }, keepaliveIntervalMs);
+=======
+    stopSent = false;
+    breakerTripped = false;
+    consecutiveFailures = 0;
+    keepaliveLoop.stop();
+    clearTtlTimer();
+    await fireStart();
+    if (breakerTripped) {
+      return;
+    }
+    keepaliveLoop.start();
+    startTtlTimer(); // Start TTL safety timer
+>>>>>>> 37a138c55 (fix: harden typing lifecycle and cross-channel suppression)
   };
 
   const fireStop = () => {
