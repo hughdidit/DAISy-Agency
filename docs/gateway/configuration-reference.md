@@ -2020,7 +2020,8 @@ See [Plugins](/tools/plugin).
 >>>>>>> ede496fa1 (docs: clarify trusted-host assumption for tokenless tailscale)
 - `tailscale.mode`: `serve` (tailnet only, loopback bind) or `funnel` (public, requires auth).
 - `remote.transport`: `ssh` (default) or `direct` (ws/wss). For `direct`, `remote.url` must be `ws://` or `wss://`.
-- `gateway.remote.token` is for remote CLI calls only; does not enable local gateway auth.
+- `gateway.remote.token` / `.password` are remote-client credential fields. They do not configure gateway auth by themselves.
+- Local gateway call paths can use `gateway.remote.*` as fallback when `gateway.auth.*` is unset.
 - `trustedProxies`: reverse proxy IPs that terminate TLS. Only list proxies you control.
 
 </Accordion>
