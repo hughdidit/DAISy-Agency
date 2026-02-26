@@ -1,4 +1,5 @@
 import { spawn } from "node:child_process";
+import { hasSupervisorHint } from "./supervisor-markers.js";
 
 type RespawnMode = "spawned" | "supervised" | "disabled" | "failed";
 
@@ -8,6 +9,7 @@ export type GatewayRespawnResult = {
   detail?: string;
 };
 
+<<<<<<< HEAD
 const SUPERVISOR_HINT_ENV_VARS = [
   "LAUNCH_JOB_LABEL",
   "LAUNCH_JOB_NAME",
@@ -16,6 +18,8 @@ const SUPERVISOR_HINT_ENV_VARS = [
   "JOURNAL_STREAM",
 ];
 
+=======
+>>>>>>> 4da6a7f21 (refactor(restart): extract stale pid cleanup and supervisor markers)
 function isTruthy(value: string | undefined): boolean {
   if (!value) {
     return false;
@@ -25,10 +29,7 @@ function isTruthy(value: string | undefined): boolean {
 }
 
 function isLikelySupervisedProcess(env: NodeJS.ProcessEnv = process.env): boolean {
-  return SUPERVISOR_HINT_ENV_VARS.some((key) => {
-    const value = env[key];
-    return typeof value === "string" && value.trim().length > 0;
-  });
+  return hasSupervisorHint(env);
 }
 
 /**

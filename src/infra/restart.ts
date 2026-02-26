@@ -3,6 +3,11 @@ import {
   resolveGatewayLaunchAgentLabel,
   resolveGatewaySystemdServiceName,
 } from "../daemon/constants.js";
+<<<<<<< HEAD
+=======
+import { createSubsystemLogger } from "../logging/subsystem.js";
+import { cleanStaleGatewayProcessesSync, findGatewayPidsOnPortSync } from "./restart-stale-pids.js";
+>>>>>>> 4da6a7f21 (refactor(restart): extract stale pid cleanup and supervisor markers)
 
 export type RestartAttempt = {
   ok: boolean;
@@ -15,6 +20,8 @@ const SPAWN_TIMEOUT_MS = 2000;
 const SIGUSR1_AUTH_GRACE_MS = 5000;
 const DEFAULT_DEFERRAL_POLL_MS = 500;
 const DEFAULT_DEFERRAL_MAX_WAIT_MS = 30_000;
+
+export { findGatewayPidsOnPortSync };
 
 let sigusr1AuthorizedCount = 0;
 let sigusr1AuthorizedUntil = 0;
@@ -225,7 +232,11 @@ function normalizeSystemdUnit(raw?: string, profile?: string): string {
   return unit.endsWith(".service") ? unit : `${unit}.service`;
 }
 
+<<<<<<< HEAD
 export function triggerMoltbotRestart(): RestartAttempt {
+=======
+export function triggerOpenClawRestart(): RestartAttempt {
+>>>>>>> 4da6a7f21 (refactor(restart): extract stale pid cleanup and supervisor markers)
   if (process.env.VITEST || process.env.NODE_ENV === "test") {
     return { ok: true, method: "supervisor", detail: "test mode" };
   }
