@@ -2397,6 +2397,10 @@ Notes:
 - Per-agent auth profiles stored at `<agentDir>/auth-profiles.json`.
 - Legacy OAuth imports from `~/.openclaw/credentials/oauth.json`.
 - See [OAuth](/concepts/oauth).
+<<<<<<< HEAD
+=======
+- Secrets runtime behavior and `audit/configure/apply` tooling: [Secrets Management](/gateway/secrets).
+>>>>>>> f413e314b (feat(secrets): replace migrate flow with audit/configure/apply)
 
 ---
 

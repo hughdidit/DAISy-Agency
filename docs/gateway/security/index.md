@@ -147,8 +147,11 @@ Use this when auditing access or deciding what to back up:
 <<<<<<< HEAD
 =======
 - **File-backed secrets payload (optional)**: `~/.openclaw/secrets.json`
+<<<<<<< HEAD
 - **Secrets migration backups (optional)**: `~/.openclaw/backups/secrets-migrate/<backupId>/`
 >>>>>>> bde9cbb05 (docs(secrets): align provider model and add exec resolver coverage)
+=======
+>>>>>>> f413e314b (feat(secrets): replace migrate flow with audit/configure/apply)
 - **Legacy OAuth import**: `~/.openclaw/credentials/oauth.json`
 
 ## Security Audit Checklist
@@ -727,7 +730,6 @@ Assume anything under `~/.openclaw/` (or `$OPENCLAW_STATE_DIR/`) may contain sec
 =======
 - `agents/<agentId>/agent/auth-profiles.json`: API keys, token profiles, OAuth tokens, and optional `keyRef`/`tokenRef`.
 - `secrets.json` (optional): file-backed secret payload used by `file` SecretRef providers (`secrets.providers`).
-- `backups/secrets-migrate/**` (optional): migration rollback backups + manifests.
 - `agents/<agentId>/agent/auth.json`: legacy compatibility file. Static `api_key` entries are scrubbed when discovered.
 >>>>>>> bde9cbb05 (docs(secrets): align provider model and add exec resolver coverage)
 - `agents/<agentId>/sessions/**`: session transcripts (`*.jsonl`) + routing metadata (`sessions.json`) that can contain private messages and tool output.

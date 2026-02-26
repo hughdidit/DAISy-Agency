@@ -263,6 +263,16 @@ Note: plugins can add additional top-level commands (for example `openclaw voice
 - `openclaw security audit --deep` — best-effort live Gateway probe.
 - `openclaw security audit --fix` — tighten safe defaults and chmod state/config.
 
+<<<<<<< HEAD
+=======
+## Secrets
+
+- `openclaw secrets reload` — re-resolve refs and atomically swap the runtime snapshot.
+- `openclaw secrets audit` — scan for plaintext residues, unresolved refs, and precedence drift.
+- `openclaw secrets configure` — interactive helper to build SecretRef plan and preflight/apply safely.
+- `openclaw secrets apply --from <plan.json>` — apply a previously generated plan (`--dry-run` supported).
+
+>>>>>>> f413e314b (feat(secrets): replace migrate flow with audit/configure/apply)
 ## Plugins
 
 Manage extensions and their config:

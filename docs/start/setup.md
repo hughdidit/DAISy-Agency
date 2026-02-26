@@ -137,8 +137,11 @@ Use this when debugging auth or deciding what to back up:
 <<<<<<< HEAD
 =======
 - **File-backed secrets payload (optional)**: `~/.openclaw/secrets.json`
+<<<<<<< HEAD
 - **Secrets migration backups (optional)**: `~/.openclaw/backups/secrets-migrate/<backupId>/`
 >>>>>>> bde9cbb05 (docs(secrets): align provider model and add exec resolver coverage)
+=======
+>>>>>>> f413e314b (feat(secrets): replace migrate flow with audit/configure/apply)
 - **Legacy OAuth import**: `~/.openclaw/credentials/oauth.json`
   More detail: [Security](/gateway/security#credential-storage-map).
 
