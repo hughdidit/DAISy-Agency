@@ -10,6 +10,7 @@ import type { ReplyPayload } from "../../auto-reply/types.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 1d7b2bc9c (refactor(slack): dedupe slash reply delivery)
 import type { ResolvedSlackAccount } from "../accounts.js";
 import type { SlackMonitorContext } from "./context.js";
@@ -44,6 +45,8 @@ import type { SlackMonitorContext } from "./context.js";
 =======
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { formatAllowlistMatchMeta } from "../../channels/allowlist-match.js";
+=======
+>>>>>>> 564be6b40 (refactor(channels): unify dm pairing policy flows)
 import { resolveCommandAuthorizedFromAuthorizers } from "../../channels/command-gating.js";
 import { resolveConversationLabel } from "../../channels/conversation-label.js";
 import { createReplyPrefixOptions } from "../../channels/reply-prefix.js";
@@ -54,6 +57,7 @@ import { resolveCommandAuthorizedFromAuthorizers } from "../../channels/command-
 >>>>>>> a91553c7c (perf(slack): consolidate slash tests)
 import { resolveNativeCommandsEnabled, resolveNativeSkillsEnabled } from "../../config/commands.js";
 import { danger, logVerbose } from "../../globals.js";
+<<<<<<< HEAD
 import { buildPairingReply } from "../../pairing/pairing-messages.js";
 import {
   readChannelAllowFromStore,
@@ -72,9 +76,12 @@ import { formatAllowlistMatchMeta } from "../../channels/allowlist-match.js";
 
 =======
 import { readStoreAllowFromForDmPolicy } from "../../security/dm-policy-shared.js";
+=======
+>>>>>>> 564be6b40 (refactor(channels): unify dm pairing policy flows)
 import { chunkItems } from "../../utils/chunk-items.js";
 >>>>>>> cd80c7e7f (refactor: unify dm policy store reads and reason codes)
 import type { ResolvedSlackAccount } from "../accounts.js";
+<<<<<<< HEAD
 
 =======
 >>>>>>> da2fde7b6 (refactor(slack): share room context hints)
@@ -107,6 +114,10 @@ import {
   resolveSlackAllowListMatch,
   resolveSlackUserAllowed,
 } from "./allow-list.js";
+=======
+import { resolveSlackAllowListMatch, resolveSlackUserAllowed } from "./allow-list.js";
+import { resolveSlackEffectiveAllowFrom } from "./auth.js";
+>>>>>>> 564be6b40 (refactor(channels): unify dm pairing policy flows)
 import { resolveSlackChannelConfig, type SlackChannelConfigResolved } from "./channel-config.js";
 import { buildSlackSlashCommandMatcher, resolveSlackSlashCommandConfig } from "./commands.js";
 <<<<<<< HEAD
@@ -132,8 +143,17 @@ import type { SlackMonitorContext } from "./context.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { normalizeSlackChannelType } from "./context.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> fff59da96 (fix(slack): fail closed on slash command channel type lookup)
 =======
+=======
+import { authorizeSlackDirectMessage } from "./dm-auth.js";
+import {
+  createSlackExternalArgMenuStore,
+  SLACK_EXTERNAL_ARG_MENU_PREFIX,
+  type SlackExternalArgMenuChoice,
+} from "./external-arg-menu-store.js";
+>>>>>>> 564be6b40 (refactor(channels): unify dm pairing policy flows)
 import { escapeSlackMrkdwn } from "./mrkdwn.js";
 >>>>>>> 672b1c508 (refactor: dedupe slack monitor mrkdwn and modal event base)
 import { isSlackChannelAllowedByPolicy } from "./policy.js";
@@ -466,6 +486,7 @@ export async function registerSlackMonitorSlashCommands(params: {
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       const storeAllowFrom = await readChannelAllowFromStore("slack").catch(() => []);
 =======
       const storeAllowFrom = await readStoreAllowFromForDmPolicy({
@@ -485,19 +506,53 @@ export async function registerSlackMonitorSlashCommands(params: {
 >>>>>>> d6eefe2e7 (style: format auth boundary updates)
       const effectiveAllowFrom = normalizeAllowList([...ctx.allowFrom, ...storeAllowFrom]);
       const effectiveAllowFromLower = normalizeAllowListLower(effectiveAllowFrom);
+=======
+      const { allowFromLower: effectiveAllowFromLower } = await resolveSlackEffectiveAllowFrom(
+        ctx,
+        {
+          includePairingStore: isDirectMessage,
+        },
+      );
+>>>>>>> 564be6b40 (refactor(channels): unify dm pairing policy flows)
 
       // Privileged command surface: compute CommandAuthorized, don't assume true.
       // Keep this aligned with the Slack message path (message-handler/prepare.ts).
       let commandAuthorized = false;
       let channelConfig: SlackChannelConfigResolved | null = null;
       if (isDirectMessage) {
-        if (!ctx.dmEnabled || ctx.dmPolicy === "disabled") {
-          await respond({
-            text: "Slack DMs are disabled.",
-            response_type: "ephemeral",
-          });
+        const allowed = await authorizeSlackDirectMessage({
+          ctx,
+          accountId: ctx.accountId,
+          senderId: command.user_id,
+          allowFromLower: effectiveAllowFromLower,
+          resolveSenderName: ctx.resolveUserName,
+          sendPairingReply: async (text) => {
+            await respond({
+              text,
+              response_type: "ephemeral",
+            });
+          },
+          onDisabled: async () => {
+            await respond({
+              text: "Slack DMs are disabled.",
+              response_type: "ephemeral",
+            });
+          },
+          onUnauthorized: async ({ allowMatchMeta }) => {
+            logVerbose(
+              `slack: blocked slash sender ${command.user_id} (dmPolicy=${ctx.dmPolicy}, ${allowMatchMeta})`,
+            );
+            await respond({
+              text: "You are not authorized to use this command.",
+              response_type: "ephemeral",
+            });
+          },
+          log: logVerbose,
+        });
+        if (!allowed) {
           return;
         }
+<<<<<<< HEAD
         if (ctx.dmPolicy !== "open") {
           const sender = await ctx.resolveUserName(command.user_id);
           const senderName = sender?.name ?? undefined;
@@ -541,6 +596,8 @@ export async function registerSlackMonitorSlashCommands(params: {
             return;
           }
         }
+=======
+>>>>>>> 564be6b40 (refactor(channels): unify dm pairing policy flows)
       }
 
       if (isRoom) {
