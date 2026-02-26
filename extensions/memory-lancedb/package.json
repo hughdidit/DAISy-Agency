@@ -14,6 +14,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   "version": "2026.1.27-beta.1",
 =======
   "version": "2026.1.30",
@@ -55,6 +56,9 @@
 =======
   "version": "2026.2.21",
 >>>>>>> 9231d7d30 (chore: bump version to 2026.2.21)
+=======
+  "version": "2026.2.26",
+>>>>>>> caace61ba (chore: bump versions to 2026.2.26)
   "private": true,
 >>>>>>> 1872d0c59 (chore: bump version to 2026.2.10)
   "description": "OpenClaw LanceDB-backed long-term memory plugin with auto-recall/capture",
