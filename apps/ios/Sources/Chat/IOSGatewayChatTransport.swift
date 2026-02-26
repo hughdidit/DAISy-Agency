@@ -54,6 +54,15 @@ struct IOSGatewayChatTransport: OpenClawChatTransport, Sendable {
         idempotencyKey: String,
         attachments: [OpenClawChatAttachmentPayload]) async throws -> OpenClawChatSendResponse
     {
+<<<<<<< HEAD
+=======
+        let startLogMessage =
+            "chat.send start sessionKey=\(sessionKey) "
+            + "len=\(message.count) attachments=\(attachments.count)"
+        Self.logger.info(
+            "\(startLogMessage, privacy: .public)"
+        )
+>>>>>>> c35368c6d (fix(ios): eliminate Swift warnings and clean build logs)
         struct Params: Codable {
             var sessionKey: String
             var message: String

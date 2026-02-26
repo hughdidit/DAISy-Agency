@@ -10,7 +10,7 @@ import Speech
 // This file intentionally centralizes talk mode state + behavior.
 // It's large, and splitting would force `private` -> `fileprivate` across many members.
 // We'll refactor into smaller files when the surface stabilizes.
-// swiftlint:disable type_body_length
+// swiftlint:disable type_body_length file_length
 @MainActor
 @Observable
 final class TalkModeManager: NSObject {
@@ -159,9 +159,7 @@ final class TalkModeManager: NSObject {
         let micOk = await Self.requestMicrophonePermission()
         guard micOk else {
             self.logger.warning("start blocked: microphone permission denied")
-            self.statusText = Self.permissionMessage(
-                kind: "Microphone",
-                status: AVAudioSession.sharedInstance().recordPermission)
+            self.statusText = "Microphone permission denied"
             return
         }
         let speechOk = await Self.requestSpeechPermission()
@@ -298,9 +296,7 @@ final class TalkModeManager: NSObject {
         if !self.allowSimulatorCapture {
             let micOk = await Self.requestMicrophonePermission()
             guard micOk else {
-                self.statusText = Self.permissionMessage(
-                    kind: "Microphone",
-                    status: AVAudioSession.sharedInstance().recordPermission)
+                self.statusText = "Microphone permission denied"
                 throw NSError(domain: "TalkMode", code: 4, userInfo: [
                     NSLocalizedDescriptionKey: "Microphone permission denied",
                 ])
@@ -468,14 +464,15 @@ final class TalkModeManager: NSObject {
 
     private func startRecognition() throws {
         #if targetEnvironment(simulator)
+            if self.allowSimulatorCapture {
+                self.recognitionRequest = SFSpeechAudioBufferRecognitionRequest()
+                self.recognitionRequest?.shouldReportPartialResults = true
+                return
+            }
             if !self.allowSimulatorCapture {
                 throw NSError(domain: "TalkMode", code: 2, userInfo: [
                     NSLocalizedDescriptionKey: "Talk mode is not supported on the iOS simulator",
                 ])
-            } else {
-                self.recognitionRequest = SFSpeechAudioBufferRecognitionRequest()
-                self.recognitionRequest?.shouldReportPartialResults = true
-                return
             }
         #endif
 
@@ -523,7 +520,9 @@ final class TalkModeManager: NSObject {
                         self.noiseFloorSamples.removeAll(keepingCapacity: true)
                         let threshold = min(0.35, max(0.12, avg + 0.10))
                         GatewayDiagnostics.log(
-                            "talk audio: noiseFloor=\(String(format: "%.3f", avg)) threshold=\(String(format: "%.3f", threshold))")
+                            "talk audio: noiseFloor=\(String(format: "%.3f", avg)) "
+                                + "threshold=\(String(format: "%.3f", threshold))"
+                        )
                     }
                 }
 
@@ -547,7 +546,9 @@ final class TalkModeManager: NSObject {
         self.loggedPartialThisCycle = false
 
         GatewayDiagnostics.log(
-            "talk speech: recognition started mode=\(String(describing: self.captureMode)) engineRunning=\(self.audioEngine.isRunning)")
+            "talk speech: recognition started mode=\(String(describing: self.captureMode)) "
+                + "engineRunning=\(self.audioEngine.isRunning)"
+        )
         self.recognitionTask = recognizer.recognitionTask(with: request) { [weak self] result, error in
             guard let self else { return }
             if let error {
@@ -1312,11 +1313,11 @@ final class TalkModeManager: NSObject {
                     try Task.checkCancellation()
                     chunks.append(chunk)
                 }
-                await self?.completeIncrementalPrefetch(id: id, chunks: chunks)
+                self?.completeIncrementalPrefetch(id: id, chunks: chunks)
             } catch is CancellationError {
-                await self?.clearIncrementalPrefetch(id: id)
+                self?.clearIncrementalPrefetch(id: id)
             } catch {
-                await self?.failIncrementalPrefetch(id: id, error: error)
+                self?.failIncrementalPrefetch(id: id, error: error)
             }
         }
         self.incrementalSpeechPrefetch = IncrementalSpeechPrefetchState(
@@ -1422,7 +1423,10 @@ final class TalkModeManager: NSObject {
         for await evt in stream {
             if Task.isCancelled { return }
             guard evt.event == "agent", let payload = evt.payload else { continue }
-            guard let agentEvent = try? GatewayPayloadDecoding.decode(payload, as: OpenClawAgentEventPayload.self) else {
+            guard let agentEvent = try? GatewayPayloadDecoding.decode(
+                payload,
+                as: OpenClawAgentEventPayload.self
+            ) else {
                 continue
             }
             guard agentEvent.runId == runId, agentEvent.stream == "assistant" else { continue }
@@ -1722,22 +1726,19 @@ private struct IncrementalSpeechBuffer {
 
 extension TalkModeManager {
     nonisolated static func requestMicrophonePermission() async -> Bool {
-        let session = AVAudioSession.sharedInstance()
-        switch session.recordPermission {
+        switch AVAudioApplication.shared.recordPermission {
         case .granted:
             return true
         case .denied:
             return false
         case .undetermined:
-            break
+            return await self.requestPermissionWithTimeout { completion in
+                AVAudioApplication.requestRecordPermission(completionHandler: { ok in
+                    completion(ok)
+                })
+            }
         @unknown default:
             return false
-        }
-
-        return await self.requestPermissionWithTimeout { completion in
-            AVAudioSession.sharedInstance().requestRecordPermission { ok in
-                completion(ok)
-            }
         }
     }
 
@@ -1762,7 +1763,7 @@ extension TalkModeManager {
     }
 
     private nonisolated static func requestPermissionWithTimeout(
-        _ operation: @escaping @Sendable (@escaping (Bool) -> Void) -> Void) async -> Bool
+        _ operation: @escaping @Sendable (@escaping @Sendable (Bool) -> Void) -> Void) async -> Bool
     {
         do {
             return try await AsyncTimeout.withTimeout(
@@ -1908,7 +1909,7 @@ extension TalkModeManager {
         }
         let providerID =
             Self.normalizedTalkProviderID(rawProvider) ??
-            normalizedProviders.keys.sorted().first ??
+            normalizedProviders.keys.min() ??
             Self.defaultTalkProvider
         return TalkProviderConfigSelection(
             provider: providerID,
@@ -1919,7 +1920,15 @@ extension TalkModeManager {
     func reloadConfig() async {
         guard let gateway else { return }
         do {
+<<<<<<< HEAD
             let res = try await gateway.request(method: "config.get", paramsJSON: "{}", timeoutSeconds: 8)
+=======
+            let res = try await gateway.request(
+                method: "talk.config",
+                paramsJSON: "{\"includeSecrets\":true}",
+                timeoutSeconds: 8
+            )
+>>>>>>> c35368c6d (fix(ios): eliminate Swift warnings and clean build logs)
             guard let json = try JSONSerialization.jsonObject(with: res) as? [String: Any] else { return }
             guard let config = json["config"] as? [String: Any] else { return }
             let talk = config["talk"] as? [String: Any]
@@ -2014,10 +2023,18 @@ extension TalkModeManager {
 
     private static func describeAudioSession() -> String {
         let session = AVAudioSession.sharedInstance()
-        let inputs = session.currentRoute.inputs.map { "\($0.portType.rawValue):\($0.portName)" }.joined(separator: ",")
-        let outputs = session.currentRoute.outputs.map { "\($0.portType.rawValue):\($0.portName)" }.joined(separator: ",")
-        let available = session.availableInputs?.map { "\($0.portType.rawValue):\($0.portName)" }.joined(separator: ",") ?? ""
-        return "category=\(session.category.rawValue) mode=\(session.mode.rawValue) opts=\(session.categoryOptions.rawValue) inputAvail=\(session.isInputAvailable) routeIn=[\(inputs)] routeOut=[\(outputs)] availIn=[\(available)]"
+        let inputs = session.currentRoute.inputs
+            .map { "\($0.portType.rawValue):\($0.portName)" }
+            .joined(separator: ",")
+        let outputs = session.currentRoute.outputs
+            .map { "\($0.portType.rawValue):\($0.portName)" }
+            .joined(separator: ",")
+        let available = session.availableInputs?
+            .map { "\($0.portType.rawValue):\($0.portName)" }
+            .joined(separator: ",") ?? ""
+        return "category=\(session.category.rawValue) mode=\(session.mode.rawValue) "
+            + "opts=\(session.categoryOptions.rawValue) inputAvail=\(session.isInputAvailable) "
+            + "routeIn=[\(inputs)] routeOut=[\(outputs)] availIn=[\(available)]"
     }
 }
 
@@ -2085,7 +2102,9 @@ private final class AudioTapDiagnostics: @unchecked Sendable {
 
         guard shouldLog else { return }
         GatewayDiagnostics.log(
-            "\(label) mic: buffers=\(count) frames=\(frames) rate=\(Int(rate))Hz ch=\(ch) rms=\(String(format: "%.4f", resolvedRms)) max=\(String(format: "%.4f", maxRms))")
+            "\(label) mic: buffers=\(count) frames=\(frames) rate=\(Int(rate))Hz ch=\(ch) "
+                + "rms=\(String(format: "%.4f", resolvedRms)) max=\(String(format: "%.4f", maxRms))"
+        )
     }
 }
 
@@ -2142,4 +2161,4 @@ private struct IncrementalPrefetchedAudio {
     let outputFormat: String?
 }
 
-// swiftlint:enable type_body_length
+// swiftlint:enable type_body_length file_length

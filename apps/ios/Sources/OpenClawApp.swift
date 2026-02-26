@@ -5,6 +5,10 @@ import Foundation
 import os
 import UIKit
 import BackgroundTasks
+<<<<<<< HEAD
+=======
+@preconcurrency import UserNotifications
+>>>>>>> c35368c6d (fix(ios): eliminate Swift warnings and clean build logs)
 
 final class OpenClawAppDelegate: NSObject, UIApplicationDelegate {
     private let logger = Logger(subsystem: "ai.openclaw.ios", category: "Push")
@@ -93,11 +97,19 @@ final class OpenClawAppDelegate: NSObject, UIApplicationDelegate {
         request.earliestBeginDate = Date().addingTimeInterval(max(60, delay))
         do {
             try BGTaskScheduler.shared.submit(request)
+            let scheduledLogMessage =
+                "Scheduled background wake refresh reason=\(reason) "
+                + "delaySeconds=\(max(60, delay))"
             self.backgroundWakeLogger.info(
-                "Scheduled background wake refresh reason=\(reason, privacy: .public) delaySeconds=\(max(60, delay), privacy: .public)")
+                "\(scheduledLogMessage, privacy: .public)"
+            )
         } catch {
+            let failedLogMessage =
+                "Failed scheduling background wake refresh reason=\(reason) "
+                + "error=\(error.localizedDescription)"
             self.backgroundWakeLogger.error(
-                "Failed scheduling background wake refresh reason=\(reason, privacy: .public) error=\(error.localizedDescription, privacy: .public)")
+                "\(failedLogMessage, privacy: .public)"
+            )
         }
     }
 
@@ -394,7 +406,9 @@ enum WatchPromptNotificationBridge {
         }
     }
 
-    private static func notificationAuthorizationStatus(center: UNUserNotificationCenter) async -> UNAuthorizationStatus {
+    private static func notificationAuthorizationStatus(
+        center: UNUserNotificationCenter
+    ) async -> UNAuthorizationStatus {
         await withCheckedContinuation { continuation in
             center.getNotificationSettings { settings in
                 continuation.resume(returning: settings.authorizationStatus)
@@ -416,7 +430,10 @@ enum WatchPromptNotificationBridge {
         }
     }
 
-    private static func addNotificationRequest(_ request: UNNotificationRequest, center: UNUserNotificationCenter) async throws {
+    private static func addNotificationRequest(
+        _ request: UNNotificationRequest,
+        center: UNUserNotificationCenter
+    ) async throws {
         try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
             center.add(request) { error in
                 if let error {

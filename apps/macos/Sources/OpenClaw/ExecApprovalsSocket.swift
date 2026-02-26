@@ -407,9 +407,9 @@ private enum ExecHostExecutor {
 =======
         let validatedRequest: ExecHostValidatedRequest
         switch ExecHostRequestEvaluator.validateRequest(request) {
-        case .success(let request):
+        case let .success(request):
             validatedRequest = request
-        case .failure(let error):
+        case let .failure(error):
             return self.errorResponse(error)
 >>>>>>> 3c95f8966 (refactor(exec): split system.run phases and align ts/swift validator contracts)
         }
@@ -435,7 +435,7 @@ private enum ExecHostExecutor {
             context: context,
             approvalDecision: request.approvalDecision)
         {
-        case .deny(let error):
+        case let .deny(error):
             return self.errorResponse(error)
         case .allow:
             break
@@ -466,7 +466,7 @@ private enum ExecHostExecutor {
                 context: context,
                 approvalDecision: followupDecision)
             {
-            case .deny(let error):
+            case let .deny(error):
                 return self.errorResponse(error)
             case .allow:
                 break
