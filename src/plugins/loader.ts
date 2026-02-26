@@ -27,6 +27,7 @@ import { normalizeChatChannelId } from "../channels/registry.js";
 import type { OpenClawConfig } from "../config/config.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { GatewayRequestHandler } from "../gateway/server-methods/types.js";
+import { openBoundaryFileSync } from "../infra/boundary-file-read.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import { resolveUserPath } from "../utils.js";
 import { discoverMoltbotPlugins } from "./discovery.js";
@@ -631,6 +632,7 @@ export function loadOpenClawPlugins(options: PluginLoadOptions = {}): PluginRegi
       continue;
     }
 
+<<<<<<< HEAD
     let mod: MoltbotPluginModule | null = null;
     try {
 <<<<<<< HEAD
@@ -638,6 +640,33 @@ export function loadOpenClawPlugins(options: PluginLoadOptions = {}): PluginRegi
 =======
       mod = getJiti()(candidate.source) as OpenClawPluginModule;
 >>>>>>> c25026f2b (perf(plugins): lazy-create jiti loader)
+=======
+    const pluginRoot = safeRealpathOrResolve(candidate.rootDir);
+    const opened = openBoundaryFileSync({
+      absolutePath: candidate.source,
+      rootPath: pluginRoot,
+      boundaryLabel: "plugin root",
+    });
+    if (!opened.ok) {
+      record.status = "error";
+      record.error = "plugin entry path escapes plugin root or fails alias checks";
+      registry.plugins.push(record);
+      seenIds.set(pluginId, candidate.origin);
+      registry.diagnostics.push({
+        level: "error",
+        pluginId: record.id,
+        source: record.source,
+        message: record.error,
+      });
+      continue;
+    }
+    const safeSource = opened.path;
+    fs.closeSync(opened.fd);
+
+    let mod: OpenClawPluginModule | null = null;
+    try {
+      mod = getJiti()(safeSource) as OpenClawPluginModule;
+>>>>>>> eac86c208 (refactor: unify boundary hardening for file reads)
     } catch (err) {
       recordPluginError({
         logger,
@@ -798,4 +827,12 @@ export function loadOpenClawPlugins(options: PluginLoadOptions = {}): PluginRegi
   setActivePluginRegistry(registry, cacheKey);
   initializeGlobalHookRunner(registry);
   return registry;
+}
+
+function safeRealpathOrResolve(value: string): string {
+  try {
+    return fs.realpathSync(value);
+  } catch {
+    return path.resolve(value);
+  }
 }
