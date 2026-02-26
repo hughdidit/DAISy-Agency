@@ -118,6 +118,17 @@ describe("gateway run option collisions", () => {
     });
   }
 
+  function expectAuthOverrideMode(mode: string) {
+    expect(startGatewayServer).toHaveBeenCalledWith(
+      18789,
+      expect.objectContaining({
+        auth: expect.objectContaining({
+          mode,
+        }),
+      }),
+    );
+  }
+
   it("forwards parent-captured options to `gateway run` subcommand", async () => {
     await runGatewayCli([
       "gateway",
@@ -154,5 +165,30 @@ describe("gateway run option collisions", () => {
       }),
     );
   });
+<<<<<<< HEAD
 >>>>>>> a1cb700a0 (test: dedupe and optimize test suites)
+=======
+
+  it("accepts --auth none override", async () => {
+    await runGatewayCli(["gateway", "run", "--auth", "none", "--allow-unconfigured"]);
+
+    expectAuthOverrideMode("none");
+  });
+
+  it("accepts --auth trusted-proxy override", async () => {
+    await runGatewayCli(["gateway", "run", "--auth", "trusted-proxy", "--allow-unconfigured"]);
+
+    expectAuthOverrideMode("trusted-proxy");
+  });
+
+  it("prints all supported modes on invalid --auth value", async () => {
+    await expect(
+      runGatewayCli(["gateway", "run", "--auth", "bad-mode", "--allow-unconfigured"]),
+    ).rejects.toThrow("__exit__:1");
+
+    expect(runtimeErrors).toContain(
+      'Invalid --auth (use "none", "token", "password", or "trusted-proxy")',
+    );
+  });
+>>>>>>> d92fc8555 (refactor(cli): dedupe gateway run mode parsing)
 });
