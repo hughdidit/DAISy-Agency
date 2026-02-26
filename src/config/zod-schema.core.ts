@@ -1,12 +1,17 @@
 import { z } from "zod";
 import { isSafeExecutableValue } from "../infra/exec-safety.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+import { isValidFileSecretRefId } from "../secrets/ref-contract.js";
+>>>>>>> 8944b75e1 (fix(secrets): align ref contracts and non-interactive ref persistence)
 import { createAllowDenyChannelRulesSchema } from "./zod-schema.allowdeny.js";
 import { sensitive } from "./zod-schema.sensitive.js";
 >>>>>>> 747b11c83 (refactor(config): share allow/deny channel policy schema)
 
 const ENV_SECRET_REF_ID_PATTERN = /^[A-Z][A-Z0-9_]{0,127}$/;
+<<<<<<< HEAD
 const FILE_SECRET_REF_SEGMENT_PATTERN = /^(?:[^~]|~0|~1)*$/;
 
 function isValidFileSecretRefId(value: string): boolean {
@@ -17,6 +22,19 @@ function isValidFileSecretRefId(value: string): boolean {
     .slice(1)
     .split("/")
     .every((segment) => FILE_SECRET_REF_SEGMENT_PATTERN.test(segment));
+=======
+const SECRET_PROVIDER_ALIAS_PATTERN = /^[a-z][a-z0-9_-]{0,63}$/;
+const EXEC_SECRET_REF_ID_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._:/-]{0,255}$/;
+const WINDOWS_ABS_PATH_PATTERN = /^[A-Za-z]:[\\/]/;
+const WINDOWS_UNC_PATH_PATTERN = /^\\\\[^\\]+\\[^\\]+/;
+
+function isAbsolutePath(value: string): boolean {
+  return (
+    path.isAbsolute(value) ||
+    WINDOWS_ABS_PATH_PATTERN.test(value) ||
+    WINDOWS_UNC_PATH_PATTERN.test(value)
+  );
+>>>>>>> 8944b75e1 (fix(secrets): align ref contracts and non-interactive ref persistence)
 }
 
 const EnvSecretRefSchema = z
@@ -38,7 +56,7 @@ const FileSecretRefSchema = z
       .string()
       .refine(
         isValidFileSecretRefId,
-        'File secret reference id must be an absolute JSON pointer (example: "/providers/openai/apiKey").',
+        'File secret reference id must be an absolute JSON pointer (example: "/providers/openai/apiKey"), or "value" for raw mode.',
       ),
   })
   .strict();

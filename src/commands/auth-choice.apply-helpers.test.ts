@@ -181,7 +181,39 @@ describe("ensureApiKeyFromEnvOrPrompt", () => {
     expect(text).not.toHaveBeenCalled();
   });
 
+<<<<<<< HEAD
   it("re-prompts after sops ref validation failure and succeeds with env ref", async () => {
+=======
+  it("fails ref mode without select when fallback env var is missing", async () => {
+    delete process.env.MINIMAX_API_KEY;
+    delete process.env.MINIMAX_OAUTH_TOKEN;
+
+    const { confirm, text } = createPromptSpies({
+      confirmResult: true,
+      textResult: "prompt-key",
+    });
+    const setCredential = vi.fn(async () => undefined);
+
+    await expect(
+      ensureApiKeyFromEnvOrPrompt({
+        config: {},
+        provider: "minimax",
+        envLabel: "MINIMAX_API_KEY",
+        promptMessage: "Enter key",
+        normalize: (value) => value.trim(),
+        validate: () => undefined,
+        prompter: createPrompter({ confirm, text }),
+        secretInputMode: "ref",
+        setCredential,
+      }),
+    ).rejects.toThrow(
+      'Environment variable "MINIMAX_API_KEY" is required for --secret-input-mode ref in non-interactive onboarding.',
+    );
+    expect(setCredential).not.toHaveBeenCalled();
+  });
+
+  it("re-prompts after provider ref validation failure and succeeds with env ref", async () => {
+>>>>>>> 8944b75e1 (fix(secrets): align ref contracts and non-interactive ref persistence)
     process.env.MINIMAX_API_KEY = "env-key";
     delete process.env.MINIMAX_OAUTH_TOKEN;
 
