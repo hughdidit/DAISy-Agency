@@ -5,6 +5,7 @@ import type { SlackEventMiddlewareArgs } from "@slack/bolt";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -29,8 +30,13 @@ import { enqueueSystemEvent } from "../../../infra/system-events.js";
 import { authorizeSlackSystemEventSender } from "../auth.js";
 >>>>>>> 75dfb71e4 (fix(slack): gate pin/reaction system events by sender auth)
 import { resolveSlackChannelLabel } from "../channel-config.js";
+=======
+import { danger } from "../../../globals.js";
+import { enqueueSystemEvent } from "../../../infra/system-events.js";
+>>>>>>> e16e8f5af (refactor(slack): share system-event ingress and test harness)
 import type { SlackMonitorContext } from "../context.js";
 import type { SlackPinEvent } from "../types.js";
+import { authorizeAndResolveSlackSystemEventContext } from "./system-event-context.js";
 
 async function handleSlackPinEvent(params: {
   ctx: SlackMonitorContext;
@@ -49,33 +55,26 @@ async function handleSlackPinEvent(params: {
 
     const payload = event as SlackPinEvent;
     const channelId = payload.channel_id;
-    const auth = await authorizeSlackSystemEventSender({
+    const ingressContext = await authorizeAndResolveSlackSystemEventContext({
       ctx,
       senderId: payload.user,
       channelId,
+      eventKind: "pin",
     });
-    if (!auth.allowed) {
-      logVerbose(
-        `slack: drop pin sender ${payload.user ?? "unknown"} channel=${channelId ?? "unknown"} reason=${auth.reason ?? "unauthorized"}`,
-      );
+    if (!ingressContext) {
       return;
     }
-    const label = resolveSlackChannelLabel({
-      channelId,
-      channelName: auth.channelName,
-    });
     const userInfo = payload.user ? await ctx.resolveUserName(payload.user) : {};
     const userLabel = userInfo?.name ?? payload.user ?? "someone";
     const itemType = payload.item?.type ?? "item";
     const messageId = payload.item?.message?.ts ?? payload.event_ts;
-    const sessionKey = ctx.resolveSlackSystemEventSessionKey({
-      channelId,
-      channelType: auth.channelType,
-    });
-    enqueueSystemEvent(`Slack: ${userLabel} ${action} a ${itemType} in ${label}.`, {
-      sessionKey,
-      contextKey: `slack:pin:${contextKeySuffix}:${channelId ?? "unknown"}:${messageId ?? "unknown"}`,
-    });
+    enqueueSystemEvent(
+      `Slack: ${userLabel} ${action} a ${itemType} in ${ingressContext.channelLabel}.`,
+      {
+        sessionKey: ingressContext.sessionKey,
+        contextKey: `slack:pin:${contextKeySuffix}:${channelId ?? "unknown"}:${messageId ?? "unknown"}`,
+      },
+    );
   } catch (err) {
     ctx.runtime.error?.(danger(`slack ${errorLabel} handler failed: ${String(err)}`));
   }
