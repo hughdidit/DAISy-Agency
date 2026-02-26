@@ -22,6 +22,7 @@ import { saveAuthProfileStore, updateAuthProfileStoreWithLock } from "./store.js
 import type { AuthProfileFailureReason, AuthProfileStore, ProfileUsageStats } from "./types.js";
 
 const FAILURE_REASON_PRIORITY: AuthProfileFailureReason[] = [
+  "auth_permanent",
   "auth",
   "billing",
   "format",
@@ -404,13 +405,14 @@ function computeNextProfileUsageStats(params: {
     lastFailureAt: params.now,
   };
 
-  if (params.reason === "billing") {
-    const billingCount = failureCounts.billing ?? 1;
+  if (params.reason === "billing" || params.reason === "auth_permanent") {
+    const billingCount = failureCounts[params.reason] ?? 1;
     const backoffMs = calculateAuthProfileBillingDisableMsWithConfig({
       errorCount: billingCount,
       baseMs: params.cfgResolved.billingBackoffMs,
       maxMs: params.cfgResolved.billingMaxMs,
     });
+<<<<<<< HEAD
     const newDisabledUntil = params.now + backoffMs;
     // Only advance disabledUntil — never shorten an existing window.
     // A retry that fires while the profile is already disabled must not reset
@@ -419,6 +421,16 @@ function computeNextProfileUsageStats(params: {
       updatedStats.disabledUntil = newDisabledUntil;
     }
     updatedStats.disabledReason = "billing";
+=======
+    // Keep active disable windows immutable so retries within the window cannot
+    // extend recovery time indefinitely.
+    updatedStats.disabledUntil = keepActiveWindowOrRecompute({
+      existingUntil: params.existing.disabledUntil,
+      now: params.now,
+      recomputedUntil: params.now + backoffMs,
+    });
+    updatedStats.disabledReason = params.reason;
+>>>>>>> c0026274d (fix(auth): distinguish revoked API keys from transient auth errors (#25754))
   } else {
     const backoffMs = calculateAuthProfileCooldownMs(nextErrorCount);
     const newCooldownUntil = params.now + backoffMs;
@@ -436,8 +448,9 @@ function computeNextProfileUsageStats(params: {
 }
 
 /**
- * Mark a profile as failed for a specific reason. Billing failures are treated
- * as "disabled" (longer backoff) vs the regular cooldown window.
+ * Mark a profile as failed for a specific reason. Billing and permanent-auth
+ * failures are treated as "disabled" (longer backoff) vs the regular cooldown
+ * window.
  */
 export async function markAuthProfileFailure(params: {
   store: AuthProfileStore;
