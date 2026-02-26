@@ -185,7 +185,7 @@ export function resolveDmGroupAccessWithCommandGate(params: {
 
   return {
     ...access,
-    commandAuthorized: params.isGroup ? commandGate.commandAuthorized : access.decision === "allow",
+    commandAuthorized: commandGate.commandAuthorized,
     shouldBlockControlCommand: params.isGroup && commandGate.shouldBlock,
   };
 }
