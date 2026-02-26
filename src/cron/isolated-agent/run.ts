@@ -40,7 +40,11 @@ import {
 import type { AgentDefaultsConfig } from "../../config/types.js";
 import { registerAgentRunContext } from "../../infra/agent-events.js";
 import { logWarn } from "../../logger.js";
-import { buildAgentMainSessionKey, normalizeAgentId } from "../../routing/session-key.js";
+import {
+  buildAgentMainSessionKey,
+  normalizeAgentId,
+  parseAgentSessionKey,
+} from "../../routing/session-key.js";
 import {
   buildSafeExternalPrompt,
   detectSuspiciousPatterns,
@@ -212,10 +216,7 @@ export async function runCronIsolatedAgentTurn(params: {
   };
 
   const baseSessionKey = (params.sessionKey?.trim() || `cron:${params.job.id}`).trim();
-  const agentSessionKey = buildAgentMainSessionKey({
-    agentId,
-    mainKey: baseSessionKey,
-  });
+  const agentSessionKey = resolveCronAgentSessionKey({ sessionKey: baseSessionKey, agentId });
 
   const workspaceDirRaw = resolveAgentWorkspaceDir(params.cfg, agentId);
   const agentDir = resolveAgentDir(params.cfg, agentId);
@@ -1053,4 +1054,19 @@ let skillsSnapshot = cronSession.sessionEntry.skillsSnapshot;
   outputText = deliveryResult.outputText;
 
   return resolveRunOutcome({ delivered, deliveryAttempted });
+}
+
+export function resolveCronAgentSessionKey(params: {
+  sessionKey: string;
+  agentId: string;
+}): string {
+  const baseSessionKey = params.sessionKey.trim();
+  const normalizedBaseSessionKey = baseSessionKey.toLowerCase();
+  if (parseAgentSessionKey(normalizedBaseSessionKey)) {
+    return normalizedBaseSessionKey;
+  }
+  return buildAgentMainSessionKey({
+    agentId: params.agentId,
+    mainKey: baseSessionKey,
+  });
 }
