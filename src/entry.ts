@@ -18,6 +18,16 @@ const ENTRY_WRAPPER_PAIRS = [
   { wrapperBasename: "openclaw.js", entryBasename: "entry.js" },
 ] as const;
 
+function shouldForceReadOnlyAuthStore(argv: string[]): boolean {
+  const tokens = argv.slice(2).filter((token) => token.length > 0 && !token.startsWith("-"));
+  for (let index = 0; index < tokens.length - 1; index += 1) {
+    if (tokens[index] === "secrets" && tokens[index + 1] === "audit") {
+      return true;
+    }
+  }
+  return false;
+}
+
 // Guard: only run entry-point logic when this file is the main module.
 // The bundler may import entry.js as a shared dependency when dist/index.js
 // is the actual entry point; without this guard the top-level code below
@@ -36,6 +46,7 @@ if (
   normalizeEnv();
 >>>>>>> edaa5ef7a (refactor(gateway): simplify restart flow and expand lock tests)
 
+<<<<<<< HEAD
 if (process.argv.includes("--no-color")) {
   process.env.NO_COLOR = "1";
   process.env.FORCE_COLOR = "0";
@@ -47,6 +58,15 @@ function hasExperimentalWarningSuppressed(): boolean {
   const nodeOptions = process.env.NODE_OPTIONS ?? "";
   if (nodeOptions.includes(EXPERIMENTAL_WARNING_FLAG) || nodeOptions.includes("--no-warnings")) {
     return true;
+=======
+  if (shouldForceReadOnlyAuthStore(process.argv)) {
+    process.env.OPENCLAW_AUTH_STORE_READONLY = "1";
+  }
+
+  if (process.argv.includes("--no-color")) {
+    process.env.NO_COLOR = "1";
+    process.env.FORCE_COLOR = "0";
+>>>>>>> ba2eb583c (fix(secrets): make apply idempotent and keep audit read-only)
   }
   for (const arg of process.execArgv) {
     if (arg === EXPERIMENTAL_WARNING_FLAG || arg === "--no-warnings") {
