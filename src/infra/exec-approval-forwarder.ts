@@ -125,12 +125,43 @@ function buildTargetKey(target: ExecApprovalForwardTarget): string {
 
 function buildRequestMessage(request: ExecApprovalRequest, nowMs: number) {
   const lines: string[] = ["🔒 Exec approval required", `ID: ${request.id}`];
+<<<<<<< HEAD
   lines.push(`Command: ${request.request.command}`);
   if (request.request.cwd) lines.push(`CWD: ${request.request.cwd}`);
   if (request.request.host) lines.push(`Host: ${request.request.host}`);
   if (request.request.agentId) lines.push(`Agent: ${request.request.agentId}`);
   if (request.request.security) lines.push(`Security: ${request.request.security}`);
   if (request.request.ask) lines.push(`Ask: ${request.request.ask}`);
+=======
+  const command = formatApprovalCommand(request.request.command);
+  if (command.inline) {
+    lines.push(`Command: ${command.text}`);
+  } else {
+    lines.push("Command:");
+    lines.push(command.text);
+  }
+  if (request.request.cwd) {
+    lines.push(`CWD: ${request.request.cwd}`);
+  }
+  if (request.request.nodeId) {
+    lines.push(`Node: ${request.request.nodeId}`);
+  }
+  if (Array.isArray(request.request.envKeys) && request.request.envKeys.length > 0) {
+    lines.push(`Env overrides: ${request.request.envKeys.join(", ")}`);
+  }
+  if (request.request.host) {
+    lines.push(`Host: ${request.request.host}`);
+  }
+  if (request.request.agentId) {
+    lines.push(`Agent: ${request.request.agentId}`);
+  }
+  if (request.request.security) {
+    lines.push(`Security: ${request.request.security}`);
+  }
+  if (request.request.ask) {
+    lines.push(`Ask: ${request.request.ask}`);
+  }
+>>>>>>> 9a4b2266c (fix(security): bind node system.run approvals to env)
   const expiresIn = Math.max(0, Math.round((request.expiresAtMs - nowMs) / 1000));
   lines.push(`Expires in: ${expiresIn}s`);
   lines.push("Reply with: /approve <id> allow-once|allow-always|deny");
