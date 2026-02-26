@@ -36,6 +36,7 @@ Docs: https://docs.openclaw.ai
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 - **BREAKING:** non-loopback Control UI now requires explicit `gateway.controlUi.allowedOrigins` (full origins). Startup fails closed when missing unless `gateway.controlUi.dangerouslyAllowHostHeaderOriginFallback=true` is set to use Host-header origin fallback mode.
 <<<<<<< HEAD
 =======
@@ -43,6 +44,9 @@ Docs: https://docs.openclaw.ai
 =======
 - Daemon/macOS launchd: forward proxy env vars into supervised service environments, switch LaunchAgent keepalive policy to crash-only with throttling, and harden restart sequencing to `print -> bootout -> wait old pid exit -> bootstrap -> kickstart`. (#27276) thanks @frankekn.
 =======
+=======
+- Channels/Multi-account config: when adding a non-default channel account to a single-account top-level channel setup, move existing account-scoped top-level single-account values into `channels.<channel>.accounts.default` before writing the new account so the original account keeps working without duplicated account values at channel root; `openclaw doctor --fix` now repairs previously mixed channel account shapes the same way. (#27334) thanks @gumadeiras.
+>>>>>>> dfa0b5b4f (Channels: move single-account config into accounts.default (#27334))
 - Daemon/macOS launchd: forward proxy env vars into supervised service environments, keep LaunchAgent `KeepAlive=true` semantics, and harden restart sequencing to `print -> bootout -> wait old pid exit -> bootstrap -> kickstart`. (#27276) thanks @frankekn.
 >>>>>>> 4ebefe647 (fix(daemon): keep launchd KeepAlive while preserving restart hardening)
 - Android/Node invoke: remove native gateway WebSocket `Origin` header to avoid false origin rejections, unify invoke command registry/policy/error parsing paths, and keep command availability checks centralized to reduce dispatcher/advertisement drift. (#27257) Thanks @obviyus.

@@ -164,10 +164,12 @@ describe("normalizeLegacyConfigValues", () => {
     expect(res.config.channels?.discord?.streamMode).toBeUndefined();
     expect(res.config.channels?.discord?.accounts?.work?.streaming).toBe("off");
     expect(res.config.channels?.discord?.accounts?.work?.streamMode).toBeUndefined();
-    expect(res.changes).toEqual([
+    expect(res.changes).toContain(
       "Normalized channels.discord.streaming boolean → enum (partial).",
+    );
+    expect(res.changes).toContain(
       "Normalized channels.discord.accounts.work.streaming boolean → enum (off).",
-    ]);
+    );
   });
 
   it("migrates Discord legacy streamMode into streaming enum", () => {
@@ -222,4 +224,80 @@ describe("normalizeLegacyConfigValues", () => {
       "Moved channels.slack.streaming (boolean) → channels.slack.nativeStreaming (false).",
     ]);
   });
+<<<<<<< HEAD
+=======
+
+  it("moves missing default account from single-account top-level config when named accounts already exist", () => {
+    const res = normalizeLegacyConfigValues({
+      channels: {
+        telegram: {
+          enabled: true,
+          botToken: "legacy-token",
+          dmPolicy: "allowlist",
+          allowFrom: ["123"],
+          groupPolicy: "allowlist",
+          streaming: "partial",
+          accounts: {
+            alerts: {
+              enabled: true,
+              botToken: "alerts-token",
+            },
+          },
+        },
+      },
+    });
+
+    expect(res.config.channels?.telegram?.accounts?.default).toEqual({
+      botToken: "legacy-token",
+      dmPolicy: "allowlist",
+      allowFrom: ["123"],
+      groupPolicy: "allowlist",
+      streaming: "partial",
+    });
+    expect(res.config.channels?.telegram?.botToken).toBeUndefined();
+    expect(res.config.channels?.telegram?.dmPolicy).toBeUndefined();
+    expect(res.config.channels?.telegram?.allowFrom).toBeUndefined();
+    expect(res.config.channels?.telegram?.groupPolicy).toBeUndefined();
+    expect(res.config.channels?.telegram?.streaming).toBeUndefined();
+    expect(res.config.channels?.telegram?.accounts?.alerts?.botToken).toBe("alerts-token");
+    expect(res.changes).toContain(
+      "Moved channels.telegram single-account top-level values into channels.telegram.accounts.default.",
+    );
+  });
+
+  it("migrates browser ssrfPolicy allowPrivateNetwork to dangerouslyAllowPrivateNetwork", () => {
+    const res = normalizeLegacyConfigValues({
+      browser: {
+        ssrfPolicy: {
+          allowPrivateNetwork: true,
+          allowedHostnames: ["localhost"],
+        },
+      },
+    });
+
+    expect(res.config.browser?.ssrfPolicy?.allowPrivateNetwork).toBeUndefined();
+    expect(res.config.browser?.ssrfPolicy?.dangerouslyAllowPrivateNetwork).toBe(true);
+    expect(res.config.browser?.ssrfPolicy?.allowedHostnames).toEqual(["localhost"]);
+    expect(res.changes).toContain(
+      "Moved browser.ssrfPolicy.allowPrivateNetwork → browser.ssrfPolicy.dangerouslyAllowPrivateNetwork (true).",
+    );
+  });
+
+  it("normalizes conflicting browser SSRF alias keys without changing effective behavior", () => {
+    const res = normalizeLegacyConfigValues({
+      browser: {
+        ssrfPolicy: {
+          allowPrivateNetwork: true,
+          dangerouslyAllowPrivateNetwork: false,
+        },
+      },
+    });
+
+    expect(res.config.browser?.ssrfPolicy?.allowPrivateNetwork).toBeUndefined();
+    expect(res.config.browser?.ssrfPolicy?.dangerouslyAllowPrivateNetwork).toBe(true);
+    expect(res.changes).toContain(
+      "Moved browser.ssrfPolicy.allowPrivateNetwork → browser.ssrfPolicy.dangerouslyAllowPrivateNetwork (true).",
+    );
+  });
+>>>>>>> dfa0b5b4f (Channels: move single-account config into accounts.default (#27334))
 });
