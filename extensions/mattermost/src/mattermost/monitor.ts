@@ -17,7 +17,11 @@ import {
   recordPendingHistoryEntryIfEnabled,
   resolveControlCommandGate,
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+  resolveDmGroupAccessWithLists,
+>>>>>>> 8f8e46d89 (refactor: unify reaction ingress policy guards across channels)
   resolveAllowlistProviderRuntimeGroupPolicy,
 <<<<<<< HEAD
 >>>>>>> 85e5ed3f7 (refactor(channels): centralize runtime group policy handling)
@@ -893,6 +897,7 @@ export async function monitorMattermostProvider(opts: MonitorMattermostOpts = {}
     const kind = channelKind(channelInfo.type);
 
     // Enforce DM/group policy and allowlist checks (same as normal messages)
+<<<<<<< HEAD
     if (kind === "direct") {
       const dmPolicy = account.config.dmPolicy ?? "pairing";
       if (dmPolicy === "disabled") {
@@ -930,13 +935,39 @@ export async function monitorMattermostProvider(opts: MonitorMattermostOpts = {}
         const configGroupAllowFrom = normalizeAllowList(account.config.groupAllowFrom ?? []);
         const storeAllowFrom = normalizeAllowList(
           await core.channel.pairing.readAllowFromStore("mattermost").catch(() => []),
+=======
+    const dmPolicy = account.config.dmPolicy ?? "pairing";
+    const storeAllowFrom = normalizeAllowList(
+      dmPolicy === "allowlist"
+        ? []
+        : await core.channel.pairing.readAllowFromStore("mattermost").catch(() => []),
+    );
+    const reactionAccess = resolveDmGroupAccessWithLists({
+      isGroup: kind !== "direct",
+      dmPolicy,
+      groupPolicy,
+      allowFrom: account.config.allowFrom,
+      groupAllowFrom: account.config.groupAllowFrom,
+      storeAllowFrom,
+      isSenderAllowed: (allowFrom) =>
+        isSenderAllowed({
+          senderId: userId,
+          senderName,
+          allowFrom: normalizeAllowList(allowFrom),
+          allowNameMatching,
+        }),
+    });
+    if (reactionAccess.decision !== "allow") {
+      if (kind === "direct") {
+        logVerboseMessage(
+          `mattermost: drop reaction (dmPolicy=${dmPolicy} sender=${userId} reason=${reactionAccess.reason})`,
+>>>>>>> 8f8e46d89 (refactor: unify reaction ingress policy guards across channels)
         );
-        const effectiveGroupAllowFrom = Array.from(
-          new Set([
-            ...(configGroupAllowFrom.length > 0 ? configGroupAllowFrom : configAllowFrom),
-            ...storeAllowFrom,
-          ]),
+      } else {
+        logVerboseMessage(
+          `mattermost: drop reaction (groupPolicy=${groupPolicy} sender=${userId} reason=${reactionAccess.reason} channel=${channelId})`,
         );
+<<<<<<< HEAD
         // Drop when allowlist is empty (same as normal message handler)
         const allowed =
           effectiveGroupAllowFrom.length > 0 &&
@@ -949,7 +980,10 @@ export async function monitorMattermostProvider(opts: MonitorMattermostOpts = {}
           logVerboseMessage(`mattermost: drop reaction (groupPolicy=allowlist sender=${userId})`);
           return;
         }
+=======
+>>>>>>> 8f8e46d89 (refactor: unify reaction ingress policy guards across channels)
       }
+      return;
     }
 
     const teamId = channelInfo?.team_id ?? undefined;

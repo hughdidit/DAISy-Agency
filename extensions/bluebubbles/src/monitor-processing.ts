@@ -5,8 +5,7 @@ import {
   logInboundDrop,
   logTypingFailure,
   resolveAckReaction,
-  resolveDmGroupAccessDecision,
-  resolveEffectiveAllowFromLists,
+  resolveDmGroupAccessWithLists,
   resolveControlCommandGate,
   stripMarkdown,
 } from "openclaw/plugin-sdk";
@@ -363,6 +362,7 @@ export async function processMessage(
   const storeAllowFrom = await core.channel.pairing
     .readAllowFromStore("bluebubbles")
     .catch(() => []);
+<<<<<<< HEAD
   const { effectiveAllowFrom, effectiveGroupAllowFrom } = resolveEffectiveAllowFromLists({
     allowFrom: account.config.allowFrom,
     groupAllowFrom: account.config.groupAllowFrom,
@@ -375,11 +375,15 @@ export async function processMessage(
   });
   const groupName = message.chatName?.trim() || undefined;
   const accessDecision = resolveDmGroupAccessDecision({
+=======
+  const accessDecision = resolveDmGroupAccessWithLists({
+>>>>>>> 8f8e46d89 (refactor: unify reaction ingress policy guards across channels)
     isGroup,
     dmPolicy,
     groupPolicy,
-    effectiveAllowFrom,
-    effectiveGroupAllowFrom,
+    allowFrom: account.config.allowFrom,
+    groupAllowFrom: account.config.groupAllowFrom,
+    storeAllowFrom,
     isSenderAllowed: (allowFrom) =>
       isAllowedBlueBubblesSender({
         allowFrom,
@@ -389,6 +393,14 @@ export async function processMessage(
         chatIdentifier: message.chatIdentifier ?? undefined,
       }),
   });
+  const effectiveAllowFrom = accessDecision.effectiveAllowFrom;
+  const effectiveGroupAllowFrom = accessDecision.effectiveGroupAllowFrom;
+  const groupAllowEntry = formatGroupAllowlistEntry({
+    chatGuid: message.chatGuid,
+    chatId: message.chatId ?? undefined,
+    chatIdentifier: message.chatIdentifier ?? undefined,
+  });
+  const groupName = message.chatName?.trim() || undefined;
 
   if (accessDecision.decision !== "allow") {
     if (isGroup) {
@@ -1113,17 +1125,22 @@ export async function processReaction(
   const storeAllowFrom = await core.channel.pairing
     .readAllowFromStore("bluebubbles")
     .catch(() => []);
+<<<<<<< HEAD
   const { effectiveAllowFrom, effectiveGroupAllowFrom } = resolveEffectiveAllowFromLists({
     allowFrom: account.config.allowFrom,
     groupAllowFrom: account.config.groupAllowFrom,
     storeAllowFrom,
   });
   const accessDecision = resolveDmGroupAccessDecision({
+=======
+  const accessDecision = resolveDmGroupAccessWithLists({
+>>>>>>> 8f8e46d89 (refactor: unify reaction ingress policy guards across channels)
     isGroup: reaction.isGroup,
     dmPolicy,
     groupPolicy,
-    effectiveAllowFrom,
-    effectiveGroupAllowFrom,
+    allowFrom: account.config.allowFrom,
+    groupAllowFrom: account.config.groupAllowFrom,
+    storeAllowFrom,
     isSenderAllowed: (allowFrom) =>
       isAllowedBlueBubblesSender({
         allowFrom,
