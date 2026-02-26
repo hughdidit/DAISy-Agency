@@ -10,10 +10,13 @@ import { openBoundaryFileSync } from "../infra/boundary-file-read.js";
 >>>>>>> a97cec001 (refactor: harden remaining plugin manifest reads)
 import type { UpdateChannel } from "../infra/update-channels.js";
 import { resolveUserPath } from "../utils.js";
+<<<<<<< HEAD
 import { discoverMoltbotPlugins } from "./discovery.js";
+=======
+import { resolveBundledPluginSources } from "./bundled-sources.js";
+>>>>>>> cf311978e (fix(plugins): fallback bundled channel specs when npm install returns 404 (#12849))
 import { installPluginFromNpmSpec, resolvePluginInstallDir } from "./install.js";
 import { buildNpmResolutionInstallFields, recordPluginInstall } from "./installs.js";
-import { loadPluginManifest } from "./manifest.js";
 
 export type PluginUpdateLogger = {
   info?: (message: string) => void;
@@ -50,12 +53,6 @@ export type PluginChannelSyncResult = {
   summary: PluginChannelSyncSummary;
 };
 
-type BundledPluginSource = {
-  pluginId: string;
-  localPath: string;
-  npmSpec?: string;
-};
-
 type InstallIntegrityDrift = {
   spec: string;
   expectedIntegrity: string;
@@ -87,6 +84,7 @@ async function readInstalledPackageVersion(dir: string): Promise<string | undefi
   }
 }
 
+<<<<<<< HEAD
 function resolveBundledPluginSources(params: {
   workspaceDir?: string;
 }): Map<string, BundledPluginSource> {
@@ -121,6 +119,8 @@ function resolveBundledPluginSources(params: {
   return bundled;
 }
 
+=======
+>>>>>>> cf311978e (fix(plugins): fallback bundled channel specs when npm install returns 404 (#12849))
 function pathsEqual(left?: string, right?: string): boolean {
   if (!left || !right) {
     return false;
