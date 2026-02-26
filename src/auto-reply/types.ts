@@ -13,6 +13,13 @@ export type ModelSelectedContext = {
   thinkLevel: string | undefined;
 };
 
+export type TypingPolicy =
+  | "auto"
+  | "user_message"
+  | "system_event"
+  | "internal_webchat"
+  | "heartbeat";
+
 export type GetReplyOptions = {
   /** Override run id for agent events (defaults to random UUID). */
   runId?: string;
@@ -27,6 +34,17 @@ export type GetReplyOptions = {
   onTypingCleanup?: () => void;
   onTypingController?: (typing: TypingController) => void;
   isHeartbeat?: boolean;
+<<<<<<< HEAD
+=======
+  /** Policy-level typing control for run classes (user/system/internal/heartbeat). */
+  typingPolicy?: TypingPolicy;
+  /** Force-disable typing indicators for this run (system/internal/cross-channel routes). */
+  suppressTyping?: boolean;
+  /** Resolved heartbeat model override (provider/model string from merged per-agent config). */
+  heartbeatModelOverride?: string;
+  /** If true, suppress tool error warning payloads for this run. */
+  suppressToolErrorWarnings?: boolean;
+>>>>>>> 37a138c55 (fix: harden typing lifecycle and cross-channel suppression)
   onPartialReply?: (payload: ReplyPayload) => Promise<void> | void;
   onReasoningStream?: (payload: ReplyPayload) => Promise<void> | void;
   onBlockReply?: (payload: ReplyPayload, context?: BlockReplyContext) => Promise<void> | void;

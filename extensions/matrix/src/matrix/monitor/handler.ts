@@ -623,6 +623,7 @@ export function createMatrixRoomMessageHandler(params: MatrixMonitorHandlerParam
           onCleanup: typingCallbacks.onCleanup,
         });
 
+<<<<<<< HEAD
       const { queuedFinal, counts } = await core.channel.reply.dispatchReplyFromConfig({
         ctx: ctxPayload,
         cfg,
@@ -645,7 +646,41 @@ export function createMatrixRoomMessageHandler(params: MatrixMonitorHandlerParam
         core.system.enqueueSystemEvent(`Matrix message from ${senderName}: ${previewText}`, {
           sessionKey: route.sessionKey,
           contextKey: `matrix:message:${roomId}:${messageId || "unknown"}`,
+=======
+      try {
+        const { queuedFinal, counts } = await core.channel.reply.dispatchReplyFromConfig({
+          ctx: ctxPayload,
+          cfg,
+          dispatcher,
+          replyOptions: {
+            ...replyOptions,
+            skillFilter: roomConfig?.skills,
+            onModelSelected,
+          },
+>>>>>>> 37a138c55 (fix: harden typing lifecycle and cross-channel suppression)
         });
+        if (!queuedFinal) {
+          return;
+        }
+        didSendReply = true;
+        const finalCount = counts.final;
+        logVerboseMessage(
+          `matrix: delivered ${finalCount} reply${finalCount === 1 ? "" : "ies"} to ${replyTarget}`,
+        );
+        if (didSendReply) {
+          const previewText = bodyText.replace(/\s+/g, " ").slice(0, 160);
+          core.system.enqueueSystemEvent(`Matrix message from ${senderName}: ${previewText}`, {
+            sessionKey: route.sessionKey,
+            contextKey: `matrix:message:${roomId}:${messageId || "unknown"}`,
+          });
+        }
+      } finally {
+        dispatcher.markComplete();
+        try {
+          await dispatcher.waitForIdle();
+        } finally {
+          markDispatchIdle();
+        }
       }
     } catch (err) {
       runtime.error?.(`matrix handler failed: ${String(err)}`);

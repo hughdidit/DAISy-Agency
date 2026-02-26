@@ -13,6 +13,12 @@ import {
   logSessionStateChange,
 } from "../../logging/diagnostic.js";
 import { getGlobalHookRunner } from "../../plugins/hook-runner-global.js";
+<<<<<<< HEAD
+=======
+import { resolveSendPolicy } from "../../sessions/send-policy.js";
+import { maybeApplyTtsToPayload, normalizeTtsAutoMode, resolveTtsConfig } from "../../tts/tts.js";
+import { INTERNAL_MESSAGE_CHANNEL } from "../../utils/message-channel.js";
+>>>>>>> 37a138c55 (fix: harden typing lifecycle and cross-channel suppression)
 import { getReplyFromConfig } from "../reply.js";
 import type { FinalizedMsgContext } from "../templating.js";
 import type { GetReplyOptions, ReplyPayload } from "../types.js";
@@ -197,8 +203,16 @@ export async function dispatchReplyFromConfig(params: {
   const originatingChannel = ctx.OriginatingChannel;
   const originatingTo = ctx.OriginatingTo;
   const currentSurface = (ctx.Surface ?? ctx.Provider)?.toLowerCase();
+<<<<<<< HEAD
   const shouldRouteToOriginating =
     isRoutableChannel(originatingChannel) && originatingTo && originatingChannel !== currentSurface;
+=======
+  const shouldRouteToOriginating = Boolean(
+    isRoutableChannel(originatingChannel) && originatingTo && originatingChannel !== currentSurface,
+  );
+  const shouldSuppressTyping =
+    shouldRouteToOriginating || originatingChannel === INTERNAL_MESSAGE_CHANNEL;
+>>>>>>> 37a138c55 (fix: harden typing lifecycle and cross-channel suppression)
   const ttsChannel = shouldRouteToOriginating ? originatingChannel : currentSurface;
 
   /**
@@ -282,6 +296,7 @@ export async function dispatchReplyFromConfig(params: {
       ctx,
       {
         ...params.replyOptions,
+<<<<<<< HEAD
         onToolResult: shouldSendToolSummaries
           ? (payload: ReplyPayload) => {
               const run = async () => {
@@ -300,6 +315,29 @@ export async function dispatchReplyFromConfig(params: {
                 }
               };
               return run();
+=======
+        typingPolicy:
+          params.replyOptions?.typingPolicy ??
+          (originatingChannel === INTERNAL_MESSAGE_CHANNEL
+            ? "internal_webchat"
+            : shouldRouteToOriginating
+              ? "system_event"
+              : undefined),
+        suppressTyping: params.replyOptions?.suppressTyping === true || shouldSuppressTyping,
+        onToolResult: (payload: ReplyPayload) => {
+          const run = async () => {
+            const ttsPayload = await maybeApplyTtsToPayload({
+              payload,
+              cfg,
+              channel: ttsChannel,
+              kind: "tool",
+              inboundAudio,
+              ttsAuto: sessionTtsAuto,
+            });
+            const deliveryPayload = resolveToolDeliveryPayload(ttsPayload);
+            if (!deliveryPayload) {
+              return;
+>>>>>>> 37a138c55 (fix: harden typing lifecycle and cross-channel suppression)
             }
           : undefined,
         onBlockReply: (payload: ReplyPayload, context) => {
