@@ -95,6 +95,144 @@ async function dispatchRequest(
   await new Promise((resolve) => setImmediate(resolve));
 }
 
+<<<<<<< HEAD
+=======
+function createHooksConfig(): HooksConfigResolved {
+  return {
+    basePath: "/hooks",
+    token: "hook-secret",
+    maxBodyBytes: 1024,
+    mappings: [],
+    agentPolicy: {
+      defaultAgentId: "main",
+      knownAgentIds: new Set(["main"]),
+      allowedAgentIds: undefined,
+    },
+    sessionPolicy: {
+      allowRequestSessionKey: false,
+      defaultSessionKey: undefined,
+      allowedSessionKeyPrefixes: undefined,
+    },
+  };
+}
+
+function canonicalizePluginPath(pathname: string): string {
+  let decoded = pathname;
+  for (let pass = 0; pass < 3; pass++) {
+    let nextDecoded = decoded;
+    try {
+      nextDecoded = decodeURIComponent(decoded);
+    } catch {
+      break;
+    }
+    if (nextDecoded === decoded) {
+      break;
+    }
+    decoded = nextDecoded;
+  }
+  let resolved = decoded;
+  try {
+    resolved = new URL(decoded, "http://localhost").pathname;
+  } catch {
+    resolved = decoded;
+  }
+  const collapsed = resolved.toLowerCase().replace(/\/{2,}/g, "/");
+  if (collapsed.length <= 1) {
+    return collapsed;
+  }
+  return collapsed.replace(/\/+$/, "");
+}
+
+type RouteVariant = {
+  label: string;
+  path: string;
+};
+
+const CANONICAL_UNAUTH_VARIANTS: RouteVariant[] = [
+  { label: "case-variant", path: "/API/channels/nostr/default/profile" },
+  { label: "encoded-slash", path: "/api/channels%2Fnostr%2Fdefault%2Fprofile" },
+  { label: "encoded-segment", path: "/api/%63hannels/nostr/default/profile" },
+  { label: "dot-traversal-encoded-slash", path: "/api/foo/..%2fchannels/nostr/default/profile" },
+  {
+    label: "dot-traversal-encoded-dotdot-slash",
+    path: "/api/foo/%2e%2e%2fchannels/nostr/default/profile",
+  },
+  {
+    label: "dot-traversal-double-encoded",
+    path: "/api/foo/%252e%252e%252fchannels/nostr/default/profile",
+  },
+  { label: "duplicate-slashes", path: "/api/channels//nostr/default/profile" },
+  { label: "trailing-slash", path: "/api/channels/nostr/default/profile/" },
+  { label: "malformed-short-percent", path: "/api/channels%2" },
+  { label: "malformed-double-slash-short-percent", path: "/api//channels%2" },
+];
+
+const CANONICAL_AUTH_VARIANTS: RouteVariant[] = [
+  { label: "auth-case-variant", path: "/API/channels/nostr/default/profile" },
+  { label: "auth-encoded-segment", path: "/api/%63hannels/nostr/default/profile" },
+  { label: "auth-duplicate-trailing-slash", path: "/api/channels//nostr/default/profile/" },
+  {
+    label: "auth-dot-traversal-encoded-slash",
+    path: "/api/foo/..%2fchannels/nostr/default/profile",
+  },
+  {
+    label: "auth-dot-traversal-double-encoded",
+    path: "/api/foo/%252e%252e%252fchannels/nostr/default/profile",
+  },
+];
+
+function buildChannelPathFuzzCorpus(): RouteVariant[] {
+  const variants = [
+    "/api/channels/nostr/default/profile",
+    "/API/channels/nostr/default/profile",
+    "/api/foo/..%2fchannels/nostr/default/profile",
+    "/api/foo/%2e%2e%2fchannels/nostr/default/profile",
+    "/api/foo/%252e%252e%252fchannels/nostr/default/profile",
+    "/api/channels//nostr/default/profile/",
+    "/api/channels%2Fnostr%2Fdefault%2Fprofile",
+    "/api/channels%252Fnostr%252Fdefault%252Fprofile",
+    "/api//channels/nostr/default/profile",
+    "/api/channels%2",
+    "/api/channels%zz",
+    "/api//channels%2",
+    "/api//channels%zz",
+  ];
+  return variants.map((path) => ({ label: `fuzz:${path}`, path }));
+}
+
+async function expectUnauthorizedVariants(params: {
+  server: ReturnType<typeof createGatewayHttpServer>;
+  variants: RouteVariant[];
+}) {
+  for (const variant of params.variants) {
+    const response = createResponse();
+    await dispatchRequest(params.server, createRequest({ path: variant.path }), response.res);
+    expect(response.res.statusCode, variant.label).toBe(401);
+    expect(response.getBody(), variant.label).toContain("Unauthorized");
+  }
+}
+
+async function expectAuthorizedVariants(params: {
+  server: ReturnType<typeof createGatewayHttpServer>;
+  variants: RouteVariant[];
+  authorization: string;
+}) {
+  for (const variant of params.variants) {
+    const response = createResponse();
+    await dispatchRequest(
+      params.server,
+      createRequest({
+        path: variant.path,
+        authorization: params.authorization,
+      }),
+      response.res,
+    );
+    expect(response.res.statusCode, variant.label).toBe(200);
+    expect(response.getBody(), variant.label).toContain('"route":"channel-canonicalized"');
+  }
+}
+
+>>>>>>> 258d615c4 (fix: harden plugin route auth path canonicalization)
 describe("gateway plugin HTTP auth boundary", () => {
   test("requires gateway auth for /api/channels/* plugin routes and allows authenticated pass-through", async () => {
     const resolvedAuth: ResolvedGatewayAuth = {
