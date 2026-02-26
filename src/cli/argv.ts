@@ -177,7 +177,7 @@ export function buildParseArgv(params: {
 >>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
 }
 
-const nodeExecutablePattern = /^node-\d+(?:\.\d+)*(?:\.exe)?$/;
+const nodeExecutablePattern = /^node(?:-\d+|\d+)(?:\.\d+)*(?:\.exe)?$/;
 
 function isNodeExecutable(executable: string): boolean {
   return (
