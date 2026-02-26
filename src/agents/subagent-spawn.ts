@@ -3,7 +3,16 @@ import { formatThinkingLevels, normalizeThinkLevel } from "../auto-reply/thinkin
 import { DEFAULT_SUBAGENT_MAX_SPAWN_DEPTH } from "../config/agent-limits.js";
 import { loadConfig } from "../config/config.js";
 import { callGateway } from "../gateway/call.js";
+<<<<<<< HEAD
 import { normalizeAgentId, parseAgentSessionKey } from "../routing/session-key.js";
+=======
+import { getGlobalHookRunner } from "../plugins/hook-runner-global.js";
+import {
+  isCronSessionKey,
+  normalizeAgentId,
+  parseAgentSessionKey,
+} from "../routing/session-key.js";
+>>>>>>> 452a8c9db (fix: use canonical cron session detection for spawn note)
 import { normalizeDeliveryContext } from "../utils/delivery-context.js";
 import { resolveAgentConfig } from "./agent-scope.js";
 import { AGENT_LANE_SUBAGENT } from "./lanes.js";
@@ -357,7 +366,7 @@ export async function spawnSubagentDirect(
   // Check if we're in a cron isolated session - don't add "do not poll" note
   // because cron sessions end immediately after the agent produces a response,
   // so the agent needs to wait for subagent results to keep the turn alive.
-  const isCronSession = ctx.agentSessionKey?.includes(":cron:");
+  const isCronSession = isCronSessionKey(ctx.agentSessionKey);
   const note =
     spawnMode === "session"
       ? SUBAGENT_SPAWN_SESSION_ACCEPTED_NOTE
