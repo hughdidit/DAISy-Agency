@@ -34,7 +34,11 @@ import {
 } from "../session-transcript-repair.js";
 import type { TranscriptPolicy } from "../transcript-policy.js";
 import { resolveTranscriptPolicy } from "../transcript-policy.js";
+<<<<<<< HEAD
 >>>>>>> 6dcc052bb (fix: stabilize model catalog and pi discovery auth storage compatibility)
+=======
+import { makeZeroUsageSnapshot } from "../usage.js";
+>>>>>>> 7e0b3f16e (fix: preserve assistant usage snapshots during compaction cleanup)
 import { log } from "./logger.js";
 import { dropThinkingBlocks } from "./thinking.js";
 import { describeUnknownError } from "./utils.js";
@@ -222,6 +226,74 @@ function annotateInterSessionUserMessages(messages: AgentMessage[]): AgentMessag
   return touched ? out : messages;
 }
 
+<<<<<<< HEAD
+=======
+function parseMessageTimestamp(value: unknown): number | null {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return value;
+  }
+  if (typeof value === "string") {
+    const parsed = Date.parse(value);
+    if (Number.isFinite(parsed)) {
+      return parsed;
+    }
+  }
+  return null;
+}
+
+function stripStaleAssistantUsageBeforeLatestCompaction(messages: AgentMessage[]): AgentMessage[] {
+  let latestCompactionSummaryIndex = -1;
+  let latestCompactionTimestamp: number | null = null;
+  for (let i = 0; i < messages.length; i += 1) {
+    const entry = messages[i];
+    if (entry?.role !== "compactionSummary") {
+      continue;
+    }
+    latestCompactionSummaryIndex = i;
+    latestCompactionTimestamp = parseMessageTimestamp(
+      (entry as { timestamp?: unknown }).timestamp ?? null,
+    );
+  }
+  if (latestCompactionSummaryIndex === -1) {
+    return messages;
+  }
+
+  const out = [...messages];
+  let touched = false;
+  for (let i = 0; i < out.length; i += 1) {
+    const candidate = out[i] as
+      | (AgentMessage & { usage?: unknown; timestamp?: unknown })
+      | undefined;
+    if (!candidate || candidate.role !== "assistant") {
+      continue;
+    }
+    if (!candidate.usage || typeof candidate.usage !== "object") {
+      continue;
+    }
+
+    const messageTimestamp = parseMessageTimestamp(candidate.timestamp);
+    const staleByTimestamp =
+      latestCompactionTimestamp !== null &&
+      messageTimestamp !== null &&
+      messageTimestamp <= latestCompactionTimestamp;
+    const staleByLegacyOrdering = i < latestCompactionSummaryIndex;
+    if (!staleByTimestamp && !staleByLegacyOrdering) {
+      continue;
+    }
+
+    // pi-coding-agent expects assistant usage to always be present during context
+    // accounting. Keep stale snapshots structurally valid, but zeroed out.
+    const candidateRecord = candidate as unknown as Record<string, unknown>;
+    out[i] = {
+      ...candidateRecord,
+      usage: makeZeroUsageSnapshot(),
+    } as unknown as AgentMessage;
+    touched = true;
+  }
+  return touched ? out : messages;
+}
+
+>>>>>>> 7e0b3f16e (fix: preserve assistant usage snapshots during compaction cleanup)
 function findUnsupportedSchemaKeywords(schema: unknown, path: string): string[] {
   if (!schema || typeof schema !== "object") return [];
   if (Array.isArray(schema)) {
