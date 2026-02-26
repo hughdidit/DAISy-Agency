@@ -162,12 +162,61 @@ function mergeOAuthFileIntoStore(store: AuthProfileStore): boolean {
   return mutated;
 }
 
+<<<<<<< HEAD
 export function loadAuthProfileStore(): AuthProfileStore {
   const authPath = resolveAuthStorePath();
   const raw = loadJsonFile(authPath);
   const asStore = coerceAuthStore(raw);
   if (asStore) {
     // Sync from external CLI tools on every load
+=======
+function applyLegacyStore(store: AuthProfileStore, legacy: LegacyAuthStore): void {
+  for (const [provider, cred] of Object.entries(legacy)) {
+    const profileId = `${provider}:default`;
+    if (cred.type === "api_key") {
+      store.profiles[profileId] = {
+        type: "api_key",
+        provider: String(cred.provider ?? provider),
+        key: cred.key,
+        ...(cred.email ? { email: cred.email } : {}),
+      };
+      continue;
+    }
+    if (cred.type === "token") {
+      store.profiles[profileId] = {
+        type: "token",
+        provider: String(cred.provider ?? provider),
+        token: cred.token,
+        ...(typeof cred.expires === "number" ? { expires: cred.expires } : {}),
+        ...(cred.email ? { email: cred.email } : {}),
+      };
+      continue;
+    }
+    store.profiles[profileId] = {
+      type: "oauth",
+      provider: String(cred.provider ?? provider),
+      access: cred.access,
+      refresh: cred.refresh,
+      expires: cred.expires,
+      ...(cred.enterpriseUrl ? { enterpriseUrl: cred.enterpriseUrl } : {}),
+      ...(cred.projectId ? { projectId: cred.projectId } : {}),
+      ...(cred.accountId ? { accountId: cred.accountId } : {}),
+      ...(cred.email ? { email: cred.email } : {}),
+    };
+  }
+}
+
+function loadCoercedStore(authPath: string): AuthProfileStore | null {
+  const raw = loadJsonFile(authPath);
+  return coerceAuthStore(raw);
+}
+
+export function loadAuthProfileStore(): AuthProfileStore {
+  const authPath = resolveAuthStorePath();
+  const asStore = loadCoercedStore(authPath);
+  if (asStore) {
+    // Sync from external CLI tools on every load.
+>>>>>>> 47fc6a080 (fix: stabilize secrets land + docs note (#26155) (thanks @joshavant))
     const synced = syncExternalCliCredentials(asStore);
     if (synced) {
       saveJsonFile(authPath, asStore);
@@ -227,8 +276,12 @@ function loadAuthProfileStoreForAgent(
   _options?: { allowKeychainPrompt?: boolean },
 ): AuthProfileStore {
   const authPath = resolveAuthStorePath(agentDir);
+<<<<<<< HEAD
   const raw = loadJsonFile(authPath);
   const asStore = coerceAuthStore(raw);
+=======
+  const asStore = loadCoercedStore(authPath);
+>>>>>>> 47fc6a080 (fix: stabilize secrets land + docs note (#26155) (thanks @joshavant))
   if (asStore) {
     // Sync from external CLI tools on every load
     const synced = syncExternalCliCredentials(asStore);
