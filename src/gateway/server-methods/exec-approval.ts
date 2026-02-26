@@ -3,6 +3,11 @@ import {
   DEFAULT_EXEC_APPROVAL_TIMEOUT_MS,
   type ExecApprovalDecision,
 } from "../../infra/exec-approvals.js";
+<<<<<<< HEAD
+=======
+import { buildSystemRunApprovalBindingV1 } from "../../infra/system-run-approval-binding.js";
+import { resolveSystemRunApprovalRequestContext } from "../../infra/system-run-approval-context.js";
+>>>>>>> 4e690e09c (refactor(gateway): centralize system.run approval context and errors)
 import type { ExecApprovalManager } from "../exec-approval-manager.js";
 import {
   ErrorCodes,
@@ -68,6 +73,7 @@ export function createExecApprovalHandlers(
       const host = typeof p.host === "string" ? p.host.trim() : "";
       const nodeId = typeof p.nodeId === "string" ? p.nodeId.trim() : "";
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
       const commandArgv = Array.isArray(p.commandArgv)
         ? p.commandArgv.map((entry) => String(entry))
@@ -83,6 +89,22 @@ export function createExecApprovalHandlers(
             })
           : null;
 >>>>>>> 4894d907f (refactor(exec-approvals): unify system.run binding and generate host env policy)
+=======
+      const approvalContext = resolveSystemRunApprovalRequestContext({
+        host,
+        command: p.command,
+        commandArgv: p.commandArgv,
+        systemRunPlanV2: p.systemRunPlanV2,
+        cwd: p.cwd,
+        agentId: p.agentId,
+        sessionKey: p.sessionKey,
+      });
+      const effectiveCommandArgv = approvalContext.commandArgv;
+      const effectiveCwd = approvalContext.cwd;
+      const effectiveAgentId = approvalContext.agentId;
+      const effectiveSessionKey = approvalContext.sessionKey;
+      const effectiveCommandText = approvalContext.commandText;
+>>>>>>> 4e690e09c (refactor(gateway): centralize system.run approval context and errors)
       if (host === "node" && !nodeId) {
         respond(
           false,
@@ -106,8 +128,13 @@ export function createExecApprovalHandlers(
         commandArgv,
         envKeys: systemRunBindingV1?.envKeys?.length ? systemRunBindingV1.envKeys : undefined,
         systemRunBindingV1: systemRunBindingV1?.binding ?? null,
+<<<<<<< HEAD
 >>>>>>> 4894d907f (refactor(exec-approvals): unify system.run binding and generate host env policy)
         cwd: p.cwd ?? null,
+=======
+        systemRunPlanV2: approvalContext.planV2,
+        cwd: effectiveCwd ?? null,
+>>>>>>> 4e690e09c (refactor(gateway): centralize system.run approval context and errors)
         nodeId: host === "node" ? nodeId : null,
         host: host || null,
         security: p.security ?? null,
