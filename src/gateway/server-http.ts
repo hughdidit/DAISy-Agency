@@ -248,10 +248,22 @@ export function createHooksRequestHandler(
     logHooks: SubsystemLogger;
   } & HookDispatchers,
 ): HooksRequestHandler {
+<<<<<<< HEAD
   const { getHooksConfig, bindHost, port, logHooks, dispatchAgentHook, dispatchWakeHook } = opts;
 <<<<<<< HEAD
 =======
   const hookAuthFailures = new Map<string, HookAuthFailure>();
+=======
+  const { getHooksConfig, logHooks, dispatchAgentHook, dispatchWakeHook } = opts;
+  const hookAuthLimiter = createAuthRateLimiter({
+    maxAttempts: HOOK_AUTH_FAILURE_LIMIT,
+    windowMs: HOOK_AUTH_FAILURE_WINDOW_MS,
+    lockoutMs: HOOK_AUTH_FAILURE_WINDOW_MS,
+    exemptLoopback: false,
+    // Handler lifetimes are tied to gateway runtime/tests; skip background timer fanout.
+    pruneIntervalMs: 0,
+  });
+>>>>>>> 70e31c6f6 (fix(gateway): harden hooks URL parsing (#26864))
 
   const resolveHookClientKey = (req: IncomingMessage): string => {
     return req.socket?.remoteAddress?.trim() || "unknown";
@@ -311,7 +323,9 @@ export function createHooksRequestHandler(
     if (!hooksConfig) {
       return false;
     }
-    const url = new URL(req.url ?? "/", `http://${bindHost}:${port}`);
+    // Only pathname/search are used here; keep the base host fixed so bind-host
+    // representation (e.g. IPv6 wildcards) cannot break request parsing.
+    const url = new URL(req.url ?? "/", "http://localhost");
     const basePath = hooksConfig.basePath;
     if (url.pathname !== basePath && !url.pathname.startsWith(`${basePath}/`)) {
       return false;
