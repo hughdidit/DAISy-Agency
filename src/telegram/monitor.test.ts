@@ -65,6 +65,36 @@ const { computeBackoff, sleepWithAbort } = vi.hoisted(() => ({
   sleepWithAbort: vi.fn(async () => undefined),
 }));
 
+type RunnerStub = {
+  task: () => Promise<void>;
+  stop: ReturnType<typeof vi.fn<() => void | Promise<void>>>;
+  isRunning: () => boolean;
+};
+
+const makeRunnerStub = (overrides: Partial<RunnerStub> = {}): RunnerStub => ({
+  task: overrides.task ?? (() => Promise.resolve()),
+  stop: overrides.stop ?? vi.fn<() => void | Promise<void>>(),
+  isRunning: overrides.isRunning ?? (() => false),
+});
+
+async function monitorWithAutoAbort(
+  opts: Omit<Parameters<typeof monitorTelegramProvider>[0], "abortSignal"> = {},
+) {
+  const abort = new AbortController();
+  runSpy.mockImplementationOnce(() =>
+    makeRunnerStub({
+      task: async () => {
+        abort.abort();
+      },
+    }),
+  );
+  await monitorTelegramProvider({
+    token: "tok",
+    ...opts,
+    abortSignal: abort.signal,
+  });
+}
+
 vi.mock("../config/config.js", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../config/config.js")>();
   return {
@@ -159,7 +189,7 @@ describe("monitorTelegramProvider (grammY)", () => {
     Object.values(api).forEach((fn) => {
       fn?.mockReset?.();
     });
-    await monitorTelegramProvider({ token: "tok" });
+    await monitorWithAutoAbort();
     expect(handlers.message).toBeDefined();
     await handlers.message?.({
       message: {
@@ -182,7 +212,7 @@ describe("monitorTelegramProvider (grammY)", () => {
       channels: { telegram: {} },
     });
 
-    await monitorTelegramProvider({ token: "tok" });
+    await monitorWithAutoAbort();
 
     expect(runSpy).toHaveBeenCalledWith(
       expect.anything(),
@@ -190,7 +220,7 @@ describe("monitorTelegramProvider (grammY)", () => {
         sink: { concurrency: 3 },
         runner: expect.objectContaining({
           silent: true,
-          maxRetryTime: 5 * 60 * 1000,
+          maxRetryTime: 60 * 60 * 1000,
           retryInterval: "exponential",
         }),
       }),
@@ -201,7 +231,7 @@ describe("monitorTelegramProvider (grammY)", () => {
     Object.values(api).forEach((fn) => {
       fn?.mockReset?.();
     });
-    await monitorTelegramProvider({ token: "tok" });
+    await monitorWithAutoAbort();
     await handlers.message?.({
       message: {
         message_id: 2,
@@ -215,24 +245,27 @@ describe("monitorTelegramProvider (grammY)", () => {
   });
 
   it("retries on recoverable undici fetch errors", async () => {
+    const abort = new AbortController();
     const networkError = Object.assign(new TypeError("fetch failed"), {
       cause: Object.assign(new Error("connect timeout"), {
         code: "UND_ERR_CONNECT_TIMEOUT",
       }),
     });
     runSpy
-      .mockImplementationOnce(() => ({
-        task: () => Promise.reject(networkError),
-        stop: vi.fn(),
-        isRunning: (): boolean => false,
-      }))
-      .mockImplementationOnce(() => ({
-        task: () => Promise.resolve(),
-        stop: vi.fn(),
-        isRunning: (): boolean => false,
-      }));
+      .mockImplementationOnce(() =>
+        makeRunnerStub({
+          task: () => Promise.reject(networkError),
+        }),
+      )
+      .mockImplementationOnce(() =>
+        makeRunnerStub({
+          task: async () => {
+            abort.abort();
+          },
+        }),
+      );
 
-    await monitorTelegramProvider({ token: "tok" });
+    await monitorTelegramProvider({ token: "tok", abortSignal: abort.signal });
 
     expect(computeBackoff).toHaveBeenCalled();
     expect(sleepWithAbort).toHaveBeenCalled();
@@ -240,6 +273,7 @@ describe("monitorTelegramProvider (grammY)", () => {
   });
 
   it("deletes webhook before starting polling", async () => {
+    const abort = new AbortController();
     const order: string[] = [];
     api.deleteWebhook.mockReset();
     api.deleteWebhook.mockImplementationOnce(async () => {
@@ -248,20 +282,21 @@ describe("monitorTelegramProvider (grammY)", () => {
     });
     runSpy.mockImplementationOnce(() => {
       order.push("run");
-      return {
-        task: () => Promise.resolve(),
-        stop: vi.fn(),
-        isRunning: () => false,
-      };
+      return makeRunnerStub({
+        task: async () => {
+          abort.abort();
+        },
+      });
     });
 
-    await monitorTelegramProvider({ token: "tok" });
+    await monitorTelegramProvider({ token: "tok", abortSignal: abort.signal });
 
     expect(api.deleteWebhook).toHaveBeenCalledWith({ drop_pending_updates: false });
     expect(order).toEqual(["deleteWebhook", "run"]);
   });
 
   it("retries recoverable deleteWebhook failures before polling", async () => {
+    const abort = new AbortController();
     const cleanupError = Object.assign(new TypeError("fetch failed"), {
       cause: Object.assign(new Error("connect timeout"), {
         code: "UND_ERR_CONNECT_TIMEOUT",
@@ -269,13 +304,15 @@ describe("monitorTelegramProvider (grammY)", () => {
     });
     api.deleteWebhook.mockReset();
     api.deleteWebhook.mockRejectedValueOnce(cleanupError).mockResolvedValueOnce(true);
-    runSpy.mockImplementationOnce(() => ({
-      task: () => Promise.resolve(),
-      stop: vi.fn(),
-      isRunning: () => false,
-    }));
+    runSpy.mockImplementationOnce(() =>
+      makeRunnerStub({
+        task: async () => {
+          abort.abort();
+        },
+      }),
+    );
 
-    await monitorTelegramProvider({ token: "tok" });
+    await monitorTelegramProvider({ token: "tok", abortSignal: abort.signal });
 
     expect(api.deleteWebhook).toHaveBeenCalledTimes(2);
     expect(computeBackoff).toHaveBeenCalled();
@@ -284,6 +321,7 @@ describe("monitorTelegramProvider (grammY)", () => {
   });
 
   it("retries setup-time recoverable errors before starting polling", async () => {
+    const abort = new AbortController();
     const setupError = Object.assign(new TypeError("fetch failed"), {
       cause: Object.assign(new Error("connect timeout"), {
         code: "UND_ERR_CONNECT_TIMEOUT",
@@ -291,13 +329,15 @@ describe("monitorTelegramProvider (grammY)", () => {
     });
     createTelegramBotErrors.push(setupError);
 
-    runSpy.mockImplementationOnce(() => ({
-      task: () => Promise.resolve(),
-      stop: vi.fn(),
-      isRunning: () => false,
-    }));
+    runSpy.mockImplementationOnce(() =>
+      makeRunnerStub({
+        task: async () => {
+          abort.abort();
+        },
+      }),
+    );
 
-    await monitorTelegramProvider({ token: "tok" });
+    await monitorTelegramProvider({ token: "tok", abortSignal: abort.signal });
 
     expect(computeBackoff).toHaveBeenCalled();
     expect(sleepWithAbort).toHaveBeenCalled();
@@ -305,6 +345,7 @@ describe("monitorTelegramProvider (grammY)", () => {
   });
 
   it("awaits runner.stop before retrying after recoverable polling error", async () => {
+    const abort = new AbortController();
     const recoverableError = Object.assign(new TypeError("fetch failed"), {
       cause: Object.assign(new Error("connect timeout"), {
         code: "UND_ERR_CONNECT_TIMEOUT",
@@ -317,21 +358,22 @@ describe("monitorTelegramProvider (grammY)", () => {
     });
 
     runSpy
-      .mockImplementationOnce(() => ({
-        task: () => Promise.reject(recoverableError),
-        stop: firstStop,
-        isRunning: () => false,
-      }))
+      .mockImplementationOnce(() =>
+        makeRunnerStub({
+          task: () => Promise.reject(recoverableError),
+          stop: firstStop,
+        }),
+      )
       .mockImplementationOnce(() => {
         expect(firstStopped).toBe(true);
-        return {
-          task: () => Promise.resolve(),
-          stop: vi.fn(),
-          isRunning: () => false,
-        };
+        return makeRunnerStub({
+          task: async () => {
+            abort.abort();
+          },
+        });
       });
 
-    await monitorTelegramProvider({ token: "tok" });
+    await monitorTelegramProvider({ token: "tok", abortSignal: abort.signal });
 
     expect(firstStop).toHaveBeenCalled();
     expect(computeBackoff).toHaveBeenCalled();
@@ -340,11 +382,11 @@ describe("monitorTelegramProvider (grammY)", () => {
   });
 
   it("surfaces non-recoverable errors", async () => {
-    runSpy.mockImplementationOnce(() => ({
-      task: () => Promise.reject(new Error("bad token")),
-      stop: vi.fn(),
-      isRunning: (): boolean => false,
-    }));
+    runSpy.mockImplementationOnce(() =>
+      makeRunnerStub({
+        task: () => Promise.reject(new Error("bad token")),
+      }),
+    );
 
     await expect(monitorTelegramProvider({ token: "tok" })).rejects.toThrow("bad token");
   });
@@ -352,6 +394,7 @@ describe("monitorTelegramProvider (grammY)", () => {
 =======
 
   it("force-restarts polling when unhandled network rejection stalls runner", async () => {
+    const abort = new AbortController();
     let running = true;
     let releaseTask: (() => void) | undefined;
     const stop = vi.fn(async () => {
@@ -360,21 +403,25 @@ describe("monitorTelegramProvider (grammY)", () => {
     });
 
     runSpy
-      .mockImplementationOnce(() => ({
-        task: () =>
-          new Promise<void>((resolve) => {
-            releaseTask = resolve;
-          }),
-        stop,
-        isRunning: () => running,
-      }))
-      .mockImplementationOnce(() => ({
-        task: () => Promise.resolve(),
-        stop: vi.fn(),
-        isRunning: () => false,
-      }));
+      .mockImplementationOnce(() =>
+        makeRunnerStub({
+          task: () =>
+            new Promise<void>((resolve) => {
+              releaseTask = resolve;
+            }),
+          stop,
+          isRunning: () => running,
+        }),
+      )
+      .mockImplementationOnce(() =>
+        makeRunnerStub({
+          task: async () => {
+            abort.abort();
+          },
+        }),
+      );
 
-    const monitor = monitorTelegramProvider({ token: "tok" });
+    const monitor = monitorTelegramProvider({ token: "tok", abortSignal: abort.signal });
     await vi.waitFor(() => expect(runSpy).toHaveBeenCalledTimes(1));
 
     expect(emitUnhandledRejection(new TypeError("fetch failed"))).toBe(true);
