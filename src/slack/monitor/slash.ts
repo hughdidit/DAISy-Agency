@@ -63,12 +63,17 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { resolveAgentRoute } from "../../routing/resolve-route.js";
 <<<<<<< HEAD
 import { resolveConversationLabel } from "../../channels/conversation-label.js";
 import { resolveCommandAuthorizedFromAuthorizers } from "../../channels/command-gating.js";
 import { formatAllowlistMatchMeta } from "../../channels/allowlist-match.js";
 
+=======
+import { readStoreAllowFromForDmPolicy } from "../../security/dm-policy-shared.js";
+import { chunkItems } from "../../utils/chunk-items.js";
+>>>>>>> cd80c7e7f (refactor: unify dm policy store reads and reason codes)
 import type { ResolvedSlackAccount } from "../accounts.js";
 
 =======
@@ -459,7 +464,15 @@ export async function registerSlackMonitorSlashCommands(params: {
         return;
       }
 
+<<<<<<< HEAD
       const storeAllowFrom = await readChannelAllowFromStore("slack").catch(() => []);
+=======
+      const storeAllowFrom = await readStoreAllowFromForDmPolicy({
+        provider: "slack",
+        dmPolicy: ctx.dmPolicy,
+        readStore: (provider) => readChannelAllowFromStore(provider),
+      });
+>>>>>>> cd80c7e7f (refactor: unify dm policy store reads and reason codes)
       const effectiveAllowFrom = normalizeAllowList([...ctx.allowFrom, ...storeAllowFrom]);
       const effectiveAllowFromLower = normalizeAllowListLower(effectiveAllowFrom);
 

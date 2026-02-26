@@ -139,6 +139,7 @@ import { resolveAgentRoute } from "../../routing/resolve-route.js";
 import { resolveAgentIdFromSessionKey } from "../../routing/session-key.js";
 >>>>>>> 8178ea472 (feat: thread-bound subagents on Discord (#21805))
 import { buildUntrustedChannelMetadata } from "../../security/channel-metadata.js";
+import { readStoreAllowFromForDmPolicy } from "../../security/dm-policy-shared.js";
 import { chunkItems } from "../../utils/chunk-items.js";
 >>>>>>> 19f53543d (refactor(utils): share chunkItems helper)
 import { loadWebMedia } from "../../web/media.js";
@@ -1419,7 +1420,15 @@ async function dispatchDiscordCommandInteraction(params: {
       return;
     }
     if (dmPolicy !== "open") {
+<<<<<<< HEAD
       const storeAllowFrom = await readChannelAllowFromStore("discord").catch(() => []);
+=======
+      const storeAllowFrom = await readStoreAllowFromForDmPolicy({
+        provider: "discord",
+        dmPolicy,
+        readStore: (provider) => readChannelAllowFromStore(provider),
+      });
+>>>>>>> cd80c7e7f (refactor: unify dm policy store reads and reason codes)
       const effectiveAllowFrom = [
         ...(discordConfig?.allowFrom ?? discordConfig?.dm?.allowFrom ?? []),
         ...storeAllowFrom,

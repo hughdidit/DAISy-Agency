@@ -57,7 +57,11 @@ import { formatAllowlistMatchMeta } from "../../channels/allowlist-match.js";
 =======
 =======
 import { resolveAgentIdFromSessionKey } from "../../routing/session-key.js";
+<<<<<<< HEAD
 >>>>>>> 8178ea472 (feat: thread-bound subagents on Discord (#21805))
+=======
+import { readStoreAllowFromForDmPolicy } from "../../security/dm-policy-shared.js";
+>>>>>>> cd80c7e7f (refactor: unify dm policy store reads and reason codes)
 import { fetchPluralKitMessageInfo } from "../pluralkit.js";
 >>>>>>> 8e2b17e0c (Discord: add PluralKit sender identity resolver (#5838))
 import { sendMessageDiscord } from "../send.js";
@@ -249,7 +253,15 @@ export async function preflightDiscordMessage(
       return null;
     }
     if (dmPolicy !== "open") {
+<<<<<<< HEAD
       const storeAllowFrom = await readChannelAllowFromStore("discord").catch(() => []);
+=======
+      const storeAllowFrom = await readStoreAllowFromForDmPolicy({
+        provider: "discord",
+        dmPolicy,
+        readStore: (provider) => readChannelAllowFromStore(provider),
+      });
+>>>>>>> cd80c7e7f (refactor: unify dm policy store reads and reason codes)
       const effectiveAllowFrom = [...(params.allowFrom ?? []), ...storeAllowFrom];
       const allowList = normalizeDiscordAllowList(effectiveAllowFrom, ["discord:", "user:", "pk:"]);
       const allowMatch = allowList

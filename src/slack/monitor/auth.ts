@@ -1,9 +1,13 @@
 import { readChannelAllowFromStore } from "../../pairing/pairing-store.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import { allowListMatches, normalizeAllowList, normalizeAllowListLower } from "./allow-list.js";
 import type { SlackMonitorContext } from "./context.js";
 =======
+=======
+import { readStoreAllowFromForDmPolicy } from "../../security/dm-policy-shared.js";
+>>>>>>> cd80c7e7f (refactor: unify dm policy store reads and reason codes)
 import {
   allowListMatches,
   normalizeAllowList,
@@ -15,7 +19,15 @@ import { normalizeSlackChannelType, type SlackMonitorContext } from "./context.j
 >>>>>>> ce8c67c31 (fix(slack): gate interactive system events by sender auth)
 
 export async function resolveSlackEffectiveAllowFrom(ctx: SlackMonitorContext) {
+<<<<<<< HEAD
   const storeAllowFrom = await readChannelAllowFromStore("slack").catch(() => []);
+=======
+  const storeAllowFrom = await readStoreAllowFromForDmPolicy({
+    provider: "slack",
+    dmPolicy: ctx.dmPolicy,
+    readStore: (provider) => readChannelAllowFromStore(provider),
+  });
+>>>>>>> cd80c7e7f (refactor: unify dm policy store reads and reason codes)
   const allowFrom = normalizeAllowList([...ctx.allowFrom, ...storeAllowFrom]);
   const allowFromLower = normalizeAllowListLower(allowFrom);
   return { allowFrom, allowFromLower };

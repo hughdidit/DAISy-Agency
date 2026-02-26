@@ -21,6 +21,13 @@ import { enqueueSystemEvent } from "../../infra/system-events.js";
 import { setPresence } from "./presence-cache.js";
 import { createSubsystemLogger } from "../../logging/subsystem.js";
 import { resolveAgentRoute } from "../../routing/resolve-route.js";
+<<<<<<< HEAD
+=======
+import {
+  readStoreAllowFromForDmPolicy,
+  resolveDmGroupAccessWithLists,
+} from "../../security/dm-policy-shared.js";
+>>>>>>> cd80c7e7f (refactor: unify dm policy store reads and reason codes)
 import {
   normalizeDiscordSlug,
   resolveDiscordChannelConfigWithFallback,
@@ -245,10 +252,11 @@ async function authorizeDiscordReactionIngress(
     return { allowed: false, reason: "group-dm-disabled" };
   }
   if (params.isDirectMessage) {
-    const storeAllowFrom =
-      params.dmPolicy === "allowlist"
-        ? []
-        : await readChannelAllowFromStore("discord").catch(() => []);
+    const storeAllowFrom = await readStoreAllowFromForDmPolicy({
+      provider: "discord",
+      dmPolicy: params.dmPolicy,
+      readStore: (provider) => readChannelAllowFromStore(provider),
+    });
     const access = resolveDmGroupAccessWithLists({
       isGroup: false,
       dmPolicy: params.dmPolicy,
