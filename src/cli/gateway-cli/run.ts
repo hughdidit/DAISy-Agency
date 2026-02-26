@@ -77,6 +77,42 @@ const GATEWAY_RUN_BOOLEAN_KEYS = [
   "rawStream",
 ] as const;
 
+const GATEWAY_AUTH_MODES: readonly GatewayAuthMode[] = [
+  "none",
+  "token",
+  "password",
+  "trusted-proxy",
+];
+const GATEWAY_TAILSCALE_MODES: readonly GatewayTailscaleMode[] = ["off", "serve", "funnel"];
+
+function parseEnumOption<T extends string>(
+  raw: string | undefined,
+  allowed: readonly T[],
+): T | null {
+  if (!raw) {
+    return null;
+  }
+  return (allowed as readonly string[]).includes(raw) ? (raw as T) : null;
+}
+
+function formatModeChoices<T extends string>(modes: readonly T[]): string {
+  return modes.map((mode) => `"${mode}"`).join("|");
+}
+
+function formatModeErrorList<T extends string>(modes: readonly T[]): string {
+  const quoted = modes.map((mode) => `"${mode}"`);
+  if (quoted.length === 0) {
+    return "";
+  }
+  if (quoted.length === 1) {
+    return quoted[0];
+  }
+  if (quoted.length === 2) {
+    return `${quoted[0]} or ${quoted[1]}`;
+  }
+  return `${quoted.slice(0, -1).join(", ")}, or ${quoted[quoted.length - 1]}`;
+}
+
 function resolveGatewayRunOptions(opts: GatewayRunOpts, command?: Command): GatewayRunOpts {
   const resolved: GatewayRunOpts = { ...opts };
 
@@ -185,20 +221,32 @@ async function runGatewayCommand(opts: GatewayRunOpts) {
     }
   }
   const authModeRaw = toOptionString(opts.auth);
+<<<<<<< HEAD
   const authMode: GatewayAuthMode | null =
     authModeRaw === "token" || authModeRaw === "password" ? authModeRaw : null;
   if (authModeRaw && !authMode) {
     defaultRuntime.error('Invalid --auth (use "token" or "password")');
+=======
+  const authMode = parseEnumOption(authModeRaw, GATEWAY_AUTH_MODES);
+  if (authModeRaw && !authMode) {
+    defaultRuntime.error(`Invalid --auth (use ${formatModeErrorList(GATEWAY_AUTH_MODES)})`);
+>>>>>>> d92fc8555 (refactor(cli): dedupe gateway run mode parsing)
     defaultRuntime.exit(1);
     return;
   }
   const tailscaleRaw = toOptionString(opts.tailscale);
+<<<<<<< HEAD
   const tailscaleMode =
     tailscaleRaw === "off" || tailscaleRaw === "serve" || tailscaleRaw === "funnel"
       ? tailscaleRaw
       : null;
+=======
+  const tailscaleMode = parseEnumOption(tailscaleRaw, GATEWAY_TAILSCALE_MODES);
+>>>>>>> d92fc8555 (refactor(cli): dedupe gateway run mode parsing)
   if (tailscaleRaw && !tailscaleMode) {
-    defaultRuntime.error('Invalid --tailscale (use "off", "serve", or "funnel")');
+    defaultRuntime.error(
+      `Invalid --tailscale (use ${formatModeErrorList(GATEWAY_TAILSCALE_MODES)})`,
+    );
     defaultRuntime.exit(1);
     return;
   }
@@ -369,9 +417,12 @@ export function addGatewayRunCommand(cmd: Command): Command {
       "--token <token>",
       "Shared token required in connect.params.auth.token (default: OPENCLAW_GATEWAY_TOKEN env if set)",
     )
-    .option("--auth <mode>", 'Gateway auth mode ("none"|"token"|"password"|"trusted-proxy")')
+    .option("--auth <mode>", `Gateway auth mode (${formatModeChoices(GATEWAY_AUTH_MODES)})`)
     .option("--password <password>", "Password for auth mode=password")
-    .option("--tailscale <mode>", 'Tailscale exposure mode ("off"|"serve"|"funnel")')
+    .option(
+      "--tailscale <mode>",
+      `Tailscale exposure mode (${formatModeChoices(GATEWAY_TAILSCALE_MODES)})`,
+    )
     .option(
       "--tailscale-reset-on-exit",
       "Reset Tailscale serve/funnel configuration on shutdown",
