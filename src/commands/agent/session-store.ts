@@ -4,7 +4,16 @@ import { DEFAULT_CONTEXT_TOKENS } from "../../agents/defaults.js";
 import { isCliProvider } from "../../agents/model-selection.js";
 import { hasNonzeroUsage } from "../../agents/usage.js";
 import type { OpenClawConfig } from "../../config/config.js";
+<<<<<<< HEAD
 import { type SessionEntry, updateSessionStore } from "../../config/sessions.js";
+=======
+import {
+  mergeSessionEntry,
+  setSessionRuntimeModel,
+  type SessionEntry,
+  updateSessionStore,
+} from "../../config/sessions.js";
+>>>>>>> a7d56e355 (feat: ACP thread-bound agents (#23580))
 
 type RunResult = Awaited<
   ReturnType<(typeof import("../../agents/pi-embedded.js"))["runEmbeddedPiAgent"]>
@@ -67,8 +76,10 @@ export async function updateSessionStoreAfterAgentRun(params: {
     next.outputTokens = output;
     next.totalTokens = promptTokens > 0 ? promptTokens : (usage.total ?? input);
   }
-  sessionStore[sessionKey] = next;
-  await updateSessionStore(storePath, (store) => {
-    store[sessionKey] = next;
+  const persisted = await updateSessionStore(storePath, (store) => {
+    const merged = mergeSessionEntry(store[sessionKey], next);
+    store[sessionKey] = merged;
+    return merged;
   });
+  sessionStore[sessionKey] = persisted;
 }

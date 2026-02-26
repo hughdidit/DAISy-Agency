@@ -71,7 +71,22 @@ import {
   createDiscordCommandArgFallbackButton,
   createDiscordNativeCommand,
 } from "./native-command.js";
+<<<<<<< HEAD
 import { createExecApprovalButton, DiscordExecApprovalHandler } from "./exec-approvals.js";
+=======
+import { resolveDiscordPresenceUpdate } from "./presence.js";
+import { resolveDiscordAllowlistConfig } from "./provider.allowlist.js";
+import { runDiscordGatewayLifecycle } from "./provider.lifecycle.js";
+import { resolveDiscordRestFetch } from "./rest-fetch.js";
+import {
+  createNoopThreadBindingManager,
+  createThreadBindingManager,
+  resolveThreadBindingSessionTtlMs,
+  resolveThreadBindingsEnabled,
+  reconcileAcpThreadBindingsOnStartup,
+} from "./thread-bindings.js";
+import { formatThreadBindingTtlLabel } from "./thread-bindings.messages.js";
+>>>>>>> a7d56e355 (feat: ACP thread-bound agents (#23580))
 
 export type MonitorDiscordOpts = {
   token?: string;
@@ -144,6 +159,34 @@ function summarizeGuilds(entries?: Record<string, unknown>) {
   return `${sample.join(", ")}${suffix}`;
 }
 
+<<<<<<< HEAD
+=======
+function formatThreadBindingSessionTtlLabel(ttlMs: number): string {
+  const label = formatThreadBindingTtlLabel(ttlMs);
+  return label === "disabled" ? "off" : label;
+}
+
+function dedupeSkillCommandsForDiscord(
+  skillCommands: ReturnType<typeof listSkillCommandsForAgents>,
+) {
+  const seen = new Set<string>();
+  const deduped: ReturnType<typeof listSkillCommandsForAgents> = [];
+  for (const command of skillCommands) {
+    const key = command.skillName.trim().toLowerCase();
+    if (!key) {
+      deduped.push(command);
+      continue;
+    }
+    if (seen.has(key)) {
+      continue;
+    }
+    seen.add(key);
+    deduped.push(command);
+  }
+  return deduped;
+}
+
+>>>>>>> a7d56e355 (feat: ACP thread-bound agents (#23580))
 async function deployDiscordCommands(params: {
   client: Client;
   runtime: RuntimeEnv;
@@ -496,9 +539,203 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
     );
   }
   const voiceManagerRef: { current: DiscordVoiceManager | null } = { current: null };
+<<<<<<< HEAD
   const commands = commandSpecs.map((spec) =>
     createDiscordNativeCommand({
       command: spec,
+=======
+  const threadBindings = threadBindingsEnabled
+    ? createThreadBindingManager({
+        accountId: account.accountId,
+        token,
+        sessionTtlMs: threadBindingSessionTtlMs,
+      })
+    : createNoopThreadBindingManager(account.accountId);
+  if (threadBindingsEnabled) {
+    const reconciliation = reconcileAcpThreadBindingsOnStartup({
+      cfg,
+      accountId: account.accountId,
+      sendFarewell: false,
+    });
+    if (reconciliation.removed > 0) {
+      logVerbose(
+        `discord: removed ${reconciliation.removed}/${reconciliation.checked} stale ACP thread bindings on startup for account ${account.accountId}`,
+      );
+    }
+  }
+  let lifecycleStarted = false;
+  let releaseEarlyGatewayErrorGuard = () => {};
+  try {
+    const commands: BaseCommand[] = commandSpecs.map((spec) =>
+      createDiscordNativeCommand({
+        command: spec,
+        cfg,
+        discordConfig: discordCfg,
+        accountId: account.accountId,
+        sessionPrefix,
+        ephemeralDefault,
+        threadBindings,
+      }),
+    );
+    if (nativeEnabled && voiceEnabled) {
+      commands.push(
+        createDiscordVoiceCommand({
+          cfg,
+          discordConfig: discordCfg,
+          accountId: account.accountId,
+          groupPolicy,
+          useAccessGroups,
+          getManager: () => voiceManagerRef.current,
+          ephemeralDefault,
+        }),
+      );
+    }
+
+    // Initialize exec approvals handler if enabled
+    const execApprovalsConfig = discordCfg.execApprovals ?? {};
+    const execApprovalsHandler = execApprovalsConfig.enabled
+      ? new DiscordExecApprovalHandler({
+          token,
+          accountId: account.accountId,
+          config: execApprovalsConfig,
+          cfg,
+          runtime,
+        })
+      : null;
+
+    const agentComponentsConfig = discordCfg.agentComponents ?? {};
+    const agentComponentsEnabled = agentComponentsConfig.enabled ?? true;
+
+    const components: BaseMessageInteractiveComponent[] = [
+      createDiscordCommandArgFallbackButton({
+        cfg,
+        discordConfig: discordCfg,
+        accountId: account.accountId,
+        sessionPrefix,
+        threadBindings,
+      }),
+      createDiscordModelPickerFallbackButton({
+        cfg,
+        discordConfig: discordCfg,
+        accountId: account.accountId,
+        sessionPrefix,
+        threadBindings,
+      }),
+      createDiscordModelPickerFallbackSelect({
+        cfg,
+        discordConfig: discordCfg,
+        accountId: account.accountId,
+        sessionPrefix,
+        threadBindings,
+      }),
+    ];
+    const modals: Modal[] = [];
+
+    if (execApprovalsHandler) {
+      components.push(createExecApprovalButton({ handler: execApprovalsHandler }));
+    }
+
+    if (agentComponentsEnabled) {
+      const componentContext = {
+        cfg,
+        discordConfig: discordCfg,
+        accountId: account.accountId,
+        guildEntries,
+        allowFrom,
+        dmPolicy,
+        runtime,
+        token,
+      };
+      components.push(createAgentComponentButton(componentContext));
+      components.push(createAgentSelectMenu(componentContext));
+      components.push(createDiscordComponentButton(componentContext));
+      components.push(createDiscordComponentStringSelect(componentContext));
+      components.push(createDiscordComponentUserSelect(componentContext));
+      components.push(createDiscordComponentRoleSelect(componentContext));
+      components.push(createDiscordComponentMentionableSelect(componentContext));
+      components.push(createDiscordComponentChannelSelect(componentContext));
+      modals.push(createDiscordComponentModal(componentContext));
+    }
+
+    class DiscordStatusReadyListener extends ReadyListener {
+      async handle(_data: unknown, client: Client) {
+        const gateway = client.getPlugin<GatewayPlugin>("gateway");
+        if (!gateway) {
+          return;
+        }
+
+        const presence = resolveDiscordPresenceUpdate(discordCfg);
+        if (!presence) {
+          return;
+        }
+
+        gateway.updatePresence(presence);
+      }
+    }
+
+    const clientPlugins: Plugin[] = [
+      createDiscordGatewayPlugin({ discordConfig: discordCfg, runtime }),
+    ];
+    if (voiceEnabled) {
+      clientPlugins.push(new VoicePlugin());
+    }
+    const client = new Client(
+      {
+        baseUrl: "http://localhost",
+        deploySecret: "a",
+        clientId: applicationId,
+        publicKey: "a",
+        token,
+        autoDeploy: false,
+      },
+      {
+        commands,
+        listeners: [new DiscordStatusReadyListener()],
+        components,
+        modals,
+      },
+      clientPlugins,
+    );
+    const earlyGatewayErrorGuard = attachEarlyGatewayErrorGuard(client);
+    releaseEarlyGatewayErrorGuard = earlyGatewayErrorGuard.release;
+
+    await deployDiscordCommands({ client, runtime, enabled: nativeEnabled });
+
+    const logger = createSubsystemLogger("discord/monitor");
+    const guildHistories = new Map<string, HistoryEntry[]>();
+    let botUserId: string | undefined;
+    let voiceManager: DiscordVoiceManager | null = null;
+
+    if (nativeDisabledExplicit) {
+      await clearDiscordNativeCommands({
+        client,
+        applicationId,
+        runtime,
+      });
+    }
+
+    try {
+      const botUser = await client.fetchUser("@me");
+      botUserId = botUser?.id;
+    } catch (err) {
+      runtime.error?.(danger(`discord: failed to fetch bot identity: ${String(err)}`));
+    }
+
+    if (voiceEnabled) {
+      voiceManager = new DiscordVoiceManager({
+        client,
+        cfg,
+        discordConfig: discordCfg,
+        accountId: account.accountId,
+        runtime,
+        botUserId,
+      });
+      voiceManagerRef.current = voiceManager;
+      registerDiscordListener(client.listeners, new DiscordVoiceReadyListener(voiceManager));
+    }
+
+    const messageHandler = createDiscordMessageHandler({
+>>>>>>> a7d56e355 (feat: ACP thread-bound agents (#23580))
       cfg,
       discordConfig: discordCfg,
       accountId: account.accountId,

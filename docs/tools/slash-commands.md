@@ -66,7 +66,19 @@ Text + native (when enabled):
 - `/approve <id> allow-once|allow-always|deny` (resolve exec approval prompts)
 - `/context [list|detail|json]` (explain “context”; `detail` shows per-file + per-tool + per-skill + system prompt size)
 - `/whoami` (show your sender id; alias: `/id`)
+<<<<<<< HEAD
 - `/subagents list|stop|log|info|send` (inspect, stop, log, or message sub-agent runs for the current session)
+=======
+- `/session ttl <duration|off>` (manage session-level settings, such as TTL)
+- `/subagents list|kill|log|info|send|steer|spawn` (inspect, control, or spawn sub-agent runs for the current session)
+- `/acp spawn|cancel|steer|close|status|set-mode|set|cwd|permissions|timeout|model|reset-options|doctor|install|sessions` (inspect and control ACP runtime sessions)
+- `/agents` (list thread-bound agents for this session)
+- `/focus <target>` (Discord: bind this thread, or a new thread, to a session/subagent target)
+- `/unfocus` (Discord: remove the current thread binding)
+- `/kill <id|#|all>` (immediately abort one or all running sub-agents for this session; no confirmation message)
+- `/steer <id|#> <message>` (steer a running sub-agent immediately: in-run when possible, otherwise abort current work and restart on the steer message)
+- `/tell <id|#> <message>` (alias for `/steer`)
+>>>>>>> a7d56e355 (feat: ACP thread-bound agents (#23580))
 - `/config show|get|set|unset` (persist config to disk, owner-only; requires `commands.config: true`)
 - `/debug show|set|unset|reset` (runtime overrides, owner-only; requires `commands.debug: true`)
 - `/usage off|tokens|full|cost` (per-response usage footer or local cost summary)
@@ -106,7 +118,12 @@ Notes:
 =======
 - `/restart` is enabled by default; set `commands.restart: false` to disable it.
 - Discord-only native command: `/vc join|leave|status` controls voice channels (requires `channels.discord.voice` and native commands; not available as text).
+<<<<<<< HEAD
 >>>>>>> 4ab946eeb (Discord VC: voice channels, transcription, and TTS (#18774))
+=======
+- Discord thread-binding commands (`/focus`, `/unfocus`, `/agents`, `/session ttl`) require effective thread bindings to be enabled (`session.threadBindings.enabled` and/or `channels.discord.threadBindings.enabled`).
+- ACP command reference and runtime behavior: [ACP Agents](/tools/acp-agents).
+>>>>>>> a7d56e355 (feat: ACP thread-bound agents (#23580))
 - `/verbose` is meant for debugging and extra visibility; keep it **off** in normal use.
 - `/reasoning` (and `/verbose`) are risky in group settings: they may reveal internal reasoning or tool output you did not intend to expose. Prefer leaving them off, especially in group chats.
 - **Fast path:** command-only messages from allowlisted senders are handled immediately (bypass queue + model).

@@ -21,6 +21,10 @@ import { isDangerousNameMatchingEnabled } from "../../config/dangerous-name-matc
 >>>>>>> 161d9841d (refactor(security): unify dangerous name matching handling)
 import { logVerbose, shouldLogVerbose } from "../../globals.js";
 import { recordChannelActivity } from "../../infra/channel-activity.js";
+import {
+  getSessionBindingService,
+  type SessionBindingRecord,
+} from "../../infra/outbound/session-binding-service.js";
 import { enqueueSystemEvent } from "../../infra/system-events.js";
 import { getChildLogger } from "../../logging.js";
 import { buildPairingReply } from "../../pairing/pairing-messages.js";
@@ -57,6 +61,10 @@ import type {
 } from "./message-handler.preflight.types.js";
 import { resolveDiscordChannelInfo, resolveDiscordMessageText } from "./message-utils.js";
 import { resolveDiscordSystemEvent } from "./system-events.js";
+<<<<<<< HEAD
+=======
+import { isRecentlyUnboundThreadWebhookMessage } from "./thread-bindings.js";
+>>>>>>> a7d56e355 (feat: ACP thread-bound agents (#23580))
 import { resolveDiscordThreadChannel, resolveDiscordThreadParentInfo } from "./threading.js";
 
 export type {
@@ -64,6 +72,47 @@ export type {
   DiscordMessagePreflightParams,
 } from "./message-handler.preflight.types.js";
 
+<<<<<<< HEAD
+=======
+export function resolvePreflightMentionRequirement(params: {
+  shouldRequireMention: boolean;
+  isBoundThreadSession: boolean;
+}): boolean {
+  if (!params.shouldRequireMention) {
+    return false;
+  }
+  return !params.isBoundThreadSession;
+}
+
+export function shouldIgnoreBoundThreadWebhookMessage(params: {
+  accountId?: string;
+  threadId?: string;
+  webhookId?: string | null;
+  threadBinding?: SessionBindingRecord;
+}): boolean {
+  const webhookId = params.webhookId?.trim() || "";
+  if (!webhookId) {
+    return false;
+  }
+  const boundWebhookId =
+    typeof params.threadBinding?.metadata?.webhookId === "string"
+      ? params.threadBinding.metadata.webhookId.trim()
+      : "";
+  if (!boundWebhookId) {
+    const threadId = params.threadId?.trim() || "";
+    if (!threadId) {
+      return false;
+    }
+    return isRecentlyUnboundThreadWebhookMessage({
+      accountId: params.accountId,
+      threadId,
+      webhookId,
+    });
+  }
+  return webhookId === boundWebhookId;
+}
+
+>>>>>>> a7d56e355 (feat: ACP thread-bound agents (#23580))
 export async function preflightDiscordMessage(
   params: DiscordMessagePreflightParams,
 ): Promise<DiscordMessagePreflightContext | null> {
@@ -186,7 +235,40 @@ export async function preflightDiscordMessage(
       id: isDirectMessage ? author.id : message.channelId,
     },
   });
+<<<<<<< HEAD
   const mentionRegexes = buildMentionRegexes(params.cfg, route.agentId);
+=======
+  let threadBinding: SessionBindingRecord | undefined;
+  if (earlyThreadChannel) {
+    threadBinding =
+      getSessionBindingService().resolveByConversation({
+        channel: "discord",
+        accountId: params.accountId,
+        conversationId: messageChannelId,
+      }) ?? undefined;
+  }
+  if (
+    shouldIgnoreBoundThreadWebhookMessage({
+      accountId: params.accountId,
+      threadId: messageChannelId,
+      webhookId,
+      threadBinding,
+    })
+  ) {
+    logVerbose(`discord: drop bound-thread webhook echo message ${message.id}`);
+    return null;
+  }
+  const boundSessionKey = threadBinding?.targetSessionKey?.trim();
+  const boundAgentId = boundSessionKey ? resolveAgentIdFromSessionKey(boundSessionKey) : undefined;
+  const effectiveRoute = boundSessionKey
+    ? {
+        ...route,
+        sessionKey: boundSessionKey,
+        agentId: boundAgentId ?? route.agentId,
+      }
+    : route;
+  const mentionRegexes = buildMentionRegexes(params.cfg, effectiveRoute.agentId);
+>>>>>>> a7d56e355 (feat: ACP thread-bound agents (#23580))
   const explicitlyMentioned = Boolean(
     botId && message.mentionedUsers?.some((user: User) => user.id === botId),
   );

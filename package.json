@@ -220,9 +220,13 @@
     "build": "pnpm canvas:a2ui:bundle && tsdown && node --import tsx scripts/canvas-a2ui-copy.ts && node --import tsx scripts/copy-hook-metadata.ts && node --import tsx scripts/write-build-info.ts",
     "canvas:a2ui:bundle": "bash scripts/bundle-a2ui.sh",
 <<<<<<< HEAD
+<<<<<<< HEAD
     "check": "pnpm tsgo && pnpm lint && pnpm format",
 =======
     "check": "pnpm format:check && pnpm tsgo && pnpm lint && pnpm lint:tmp:no-random-messaging",
+=======
+    "check": "pnpm format:check && pnpm tsgo && pnpm lint && pnpm lint:tmp:no-random-messaging && pnpm lint:tmp:channel-agnostic-boundaries",
+>>>>>>> a7d56e355 (feat: ACP thread-bound agents (#23580))
     "check:docs": "pnpm format:docs:check && pnpm lint:docs && pnpm docs:check-links",
 >>>>>>> d3da67c7a (fix(security): lock sandbox tmp media paths to openclaw roots)
     "check:loc": "node --import tsx scripts/check-ts-max-loc.ts --max 500",
@@ -255,7 +259,11 @@
     "lint:fix": "oxlint --type-aware --tsconfig tsconfig.oxlint.json --fix && pnpm format:fix",
     "lint:swift": "swiftlint lint --config .swiftlint.yml && (cd apps/ios && swiftlint lint --config .swiftlint.yml)",
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+    "lint:tmp:channel-agnostic-boundaries": "node scripts/check-channel-agnostic-boundaries.mjs",
+>>>>>>> a7d56e355 (feat: ACP thread-bound agents (#23580))
     "lint:tmp:no-random-messaging": "node scripts/check-no-random-messaging-tmp.mjs",
     "lint:ui:no-raw-window-open": "node scripts/check-no-raw-window-open.mjs",
 >>>>>>> d3da67c7a (fix(security): lock sandbox tmp media paths to openclaw roots)

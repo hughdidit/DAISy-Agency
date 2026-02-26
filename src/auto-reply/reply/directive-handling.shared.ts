@@ -1,12 +1,15 @@
 import { formatCliCommand } from "../../cli/command-format.js";
+import { SYSTEM_MARK, prefixSystemMessage } from "../../infra/system-message.js";
 import type { ElevatedLevel, ReasoningLevel } from "./directives.js";
 
-export const SYSTEM_MARK = "⚙️";
-
 export const formatDirectiveAck = (text: string): string => {
+<<<<<<< HEAD
   if (!text) return text;
   if (text.startsWith(SYSTEM_MARK)) return text;
   return `${SYSTEM_MARK} ${text}`;
+=======
+  return prefixSystemMessage(text);
+>>>>>>> a7d56e355 (feat: ACP thread-bound agents (#23580))
 };
 
 export const formatOptionsLine = (options: string) => `Options: ${options}.`;

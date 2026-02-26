@@ -111,6 +111,58 @@ export type DiscordExecApprovalConfig = {
   agentFilter?: string[];
   /** Only forward approvals matching these session key patterns (substring or regex). */
   sessionFilter?: string[];
+<<<<<<< HEAD
+=======
+  /** Delete approval DMs after approval, denial, or timeout. Default: false. */
+  cleanupAfterResolve?: boolean;
+  /** Where to send approval prompts. "dm" sends to approver DMs (default), "channel" sends to the
+   *  originating Discord channel, "both" sends to both. When target is "channel" or "both", buttons
+   *  are only usable by configured approvers; other users receive an ephemeral denial. */
+  target?: "dm" | "channel" | "both";
+};
+
+export type DiscordAgentComponentsConfig = {
+  /** Enable agent-controlled interactive components (buttons, select menus). Default: true. */
+  enabled?: boolean;
+};
+
+export type DiscordUiComponentsConfig = {
+  /** Accent color used by Discord component containers (hex). */
+  accentColor?: string;
+};
+
+export type DiscordUiConfig = {
+  components?: DiscordUiComponentsConfig;
+};
+
+export type DiscordThreadBindingsConfig = {
+  /**
+   * Enable Discord thread binding features (/focus, thread-bound delivery, and
+   * thread-bound subagent session flows). Overrides session.threadBindings.enabled
+   * when set.
+   */
+  enabled?: boolean;
+  /**
+   * Auto-unfocus TTL for thread-bound sessions in hours.
+   * Set to 0 to disable TTL. Default: 24.
+   */
+  ttlHours?: number;
+  /**
+   * Allow `sessions_spawn({ thread: true })` to auto-create + bind Discord
+   * threads for subagent sessions. Default: false (opt-in).
+   */
+  spawnSubagentSessions?: boolean;
+  /**
+   * Allow `/acp spawn` to auto-create + bind Discord threads for ACP
+   * sessions. Default: false (opt-in).
+   */
+  spawnAcpSessions?: boolean;
+};
+
+export type DiscordSlashCommandConfig = {
+  /** Reply ephemerally (default: true). */
+  ephemeral?: boolean;
+>>>>>>> a7d56e355 (feat: ACP thread-bound agents (#23580))
 };
 
 export type DiscordAccountConfig = {

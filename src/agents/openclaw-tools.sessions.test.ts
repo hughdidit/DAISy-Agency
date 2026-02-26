@@ -71,7 +71,15 @@ describe("sessions tools", () => {
     expect(schemaProp("sessions_send", "timeoutSeconds").type).toBe("number");
     expect(schemaProp("sessions_spawn", "thinking").type).toBe("string");
     expect(schemaProp("sessions_spawn", "runTimeoutSeconds").type).toBe("number");
+<<<<<<< HEAD
     expect(schemaProp("sessions_spawn", "timeoutSeconds").type).toBe("number");
+=======
+    expect(schemaProp("sessions_spawn", "thread").type).toBe("boolean");
+    expect(schemaProp("sessions_spawn", "mode").type).toBe("string");
+    expect(schemaProp("sessions_spawn", "runtime").type).toBe("string");
+    expect(schemaProp("sessions_spawn", "cwd").type).toBe("string");
+    expect(schemaProp("subagents", "recentMinutes").type).toBe("number");
+>>>>>>> a7d56e355 (feat: ACP thread-bound agents (#23580))
   });
 
   it("sessions_list filters kinds and includes messages", async () => {

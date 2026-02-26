@@ -12,8 +12,12 @@ import {
 } from "../../routing/session-key.js";
 import { normalizeDeliveryContext } from "../../utils/delivery-context.js";
 import type { GatewayMessageChannel } from "../../utils/message-channel.js";
+<<<<<<< HEAD
 import { resolveAgentConfig } from "../agent-scope.js";
 import { AGENT_LANE_SUBAGENT } from "../lanes.js";
+=======
+import { ACP_SPAWN_MODES, spawnAcpDirect } from "../acp-spawn.js";
+>>>>>>> a7d56e355 (feat: ACP thread-bound agents (#23580))
 import { optionalStringEnum } from "../schema/typebox.js";
 import { buildSubagentSystemPrompt } from "../subagent-announce.js";
 import { registerSubagentRun } from "../subagent-registry.js";
@@ -25,12 +29,16 @@ import {
   resolveMainSessionAlias,
 } from "./sessions-helpers.js";
 
+const SESSIONS_SPAWN_RUNTIMES = ["subagent", "acp"] as const;
+
 const SessionsSpawnToolSchema = Type.Object({
   task: Type.String(),
   label: Type.Optional(Type.String()),
+  runtime: optionalStringEnum(SESSIONS_SPAWN_RUNTIMES),
   agentId: Type.Optional(Type.String()),
   model: Type.Optional(Type.String()),
   thinking: Type.Optional(Type.String()),
+  cwd: Type.Optional(Type.String()),
   runTimeoutSeconds: Type.Optional(Type.Number({ minimum: 0 })),
   // Back-compat alias. Prefer runTimeoutSeconds.
   timeoutSeconds: Type.Optional(Type.Number({ minimum: 0 })),
@@ -74,15 +82,25 @@ export function createSessionsSpawnTool(opts?: {
     label: "Sessions",
     name: "sessions_spawn",
     description:
+<<<<<<< HEAD
       "Spawn a background sub-agent run in an isolated session and announce the result back to the requester chat.",
+=======
+      'Spawn an isolated session (runtime="subagent" or runtime="acp"). mode="run" is one-shot and mode="session" is persistent/thread-bound.',
+>>>>>>> a7d56e355 (feat: ACP thread-bound agents (#23580))
     parameters: SessionsSpawnToolSchema,
     execute: async (_toolCallId, args) => {
       const params = args as Record<string, unknown>;
       const task = readStringParam(params, "task", { required: true });
       const label = typeof params.label === "string" ? params.label.trim() : "";
+      const runtime = params.runtime === "acp" ? "acp" : "subagent";
       const requestedAgentId = readStringParam(params, "agentId");
       const modelOverride = readStringParam(params, "model");
       const thinkingOverrideRaw = readStringParam(params, "thinking");
+<<<<<<< HEAD
+=======
+      const cwd = readStringParam(params, "cwd");
+      const mode = params.mode === "run" || params.mode === "session" ? params.mode : undefined;
+>>>>>>> a7d56e355 (feat: ACP thread-bound agents (#23580))
       const cleanup =
         params.cleanup === "keep" || params.cleanup === "delete"
           ? (params.cleanup as "keep" | "delete")
@@ -108,6 +126,7 @@ export function createSessionsSpawnTool(opts?: {
       let modelWarning: string | undefined;
       let modelApplied = false;
 
+<<<<<<< HEAD
       const cfg = loadConfig();
       const { mainKey, alias } = resolveMainSessionAlias(cfg);
       const requesterSessionKey = opts?.agentSessionKey;
@@ -207,6 +226,52 @@ export function createSessionsSpawnTool(opts?: {
         label: label || undefined,
         task,
       });
+=======
+      const result =
+        runtime === "acp"
+          ? await spawnAcpDirect(
+              {
+                task,
+                label: label || undefined,
+                agentId: requestedAgentId,
+                cwd,
+                mode: mode && ACP_SPAWN_MODES.includes(mode) ? mode : undefined,
+                thread,
+              },
+              {
+                agentSessionKey: opts?.agentSessionKey,
+                agentChannel: opts?.agentChannel,
+                agentAccountId: opts?.agentAccountId,
+                agentTo: opts?.agentTo,
+                agentThreadId: opts?.agentThreadId,
+              },
+            )
+          : await spawnSubagentDirect(
+              {
+                task,
+                label: label || undefined,
+                agentId: requestedAgentId,
+                model: modelOverride,
+                thinking: thinkingOverrideRaw,
+                runTimeoutSeconds,
+                thread,
+                mode,
+                cleanup,
+                expectsCompletionMessage: true,
+              },
+              {
+                agentSessionKey: opts?.agentSessionKey,
+                agentChannel: opts?.agentChannel,
+                agentAccountId: opts?.agentAccountId,
+                agentTo: opts?.agentTo,
+                agentThreadId: opts?.agentThreadId,
+                agentGroupId: opts?.agentGroupId,
+                agentGroupChannel: opts?.agentGroupChannel,
+                agentGroupSpace: opts?.agentGroupSpace,
+                requesterAgentIdOverride: opts?.requesterAgentIdOverride,
+              },
+            );
+>>>>>>> a7d56e355 (feat: ACP thread-bound agents (#23580))
 
       const childIdem = crypto.randomUUID();
       let childRunId: string = childIdem;
