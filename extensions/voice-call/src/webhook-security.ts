@@ -76,17 +76,7 @@ export function validateTwilioSignature(
     return false;
   }
 
-  // Build the string to sign: URL + sorted params (key+value pairs)
-  let dataToSign = url;
-
-  // Sort params alphabetically and append key+value
-  const sortedParams = Array.from(params.entries()).toSorted((a, b) =>
-    a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0,
-  );
-
-  for (const [key, value] of sortedParams) {
-    dataToSign += key + value;
-  }
+  const dataToSign = buildTwilioDataToSign(url, params);
 
   // HMAC-SHA1 with auth token, then base64 encode
   const expectedSignature = crypto
@@ -96,6 +86,24 @@ export function validateTwilioSignature(
 
   // Use timing-safe comparison to prevent timing attacks
   return timingSafeEqual(signature, expectedSignature);
+}
+
+function buildTwilioDataToSign(url: string, params: URLSearchParams): string {
+  let dataToSign = url;
+  const sortedParams = Array.from(params.entries()).toSorted((a, b) =>
+    a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0,
+  );
+  for (const [key, value] of sortedParams) {
+    dataToSign += key + value;
+  }
+  return dataToSign;
+}
+
+function buildCanonicalTwilioParamString(params: URLSearchParams): string {
+  return Array.from(params.entries())
+    .toSorted((a, b) => (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0))
+    .map(([key, value]) => `${key}=${value}`)
+    .join("&");
 }
 
 /**
@@ -387,24 +395,30 @@ export interface TwilioVerificationResult {
   isNgrokFreeTier?: boolean;
   /** Request is cryptographically valid but was already processed recently. */
   isReplay?: boolean;
+  /** Stable request identity derived from signed Twilio material. */
+  verifiedRequestKey?: string;
 }
 
 export interface TelnyxVerificationResult {
   ok: boolean;
   reason?: string;
+<<<<<<< HEAD
+=======
+  /** Request is cryptographically valid but was already processed recently. */
+  isReplay?: boolean;
+  /** Stable request identity derived from signed Telnyx material. */
+  verifiedRequestKey?: string;
+>>>>>>> 1aadf26f9 (fix(voice-call): bind webhook dedupe to verified request identity)
 }
 
 function createTwilioReplayKey(params: {
-  ctx: WebhookContext;
-  signature: string;
   verificationUrl: string;
+  signature: string;
+  requestParams: URLSearchParams;
 }): string {
-  const idempotencyToken = getHeader(params.ctx.headers, "i-twilio-idempotency-token");
-  if (idempotencyToken) {
-    return `twilio:idempotency:${idempotencyToken}`;
-  }
-  return `twilio:fallback:${sha256Hex(
-    `${params.verificationUrl}\n${params.signature}\n${params.ctx.rawBody}`,
+  const canonicalParams = buildCanonicalTwilioParamString(params.requestParams);
+  return `twilio:req:${sha256Hex(
+    `${params.verificationUrl}\n${canonicalParams}\n${params.signature}`,
   )}`;
 }
 
@@ -499,7 +513,13 @@ export function verifyTelnyxWebhook(
       return { ok: false, reason: "Timestamp too old" };
     }
 
+<<<<<<< HEAD
     return { ok: true };
+=======
+    const replayKey = `telnyx:${sha256Hex(`${timestamp}\n${signature}\n${ctx.rawBody}`)}`;
+    const isReplay = markReplay(telnyxReplayCache, replayKey);
+    return { ok: true, isReplay, verifiedRequestKey: replayKey };
+>>>>>>> 1aadf26f9 (fix(voice-call): bind webhook dedupe to verified request identity)
   } catch (err) {
     return {
       ok: false,
@@ -574,13 +594,16 @@ export function verifyTwilioWebhook(
   // Parse the body as URL-encoded params
   const params = new URLSearchParams(ctx.rawBody);
 
-  // Validate signature
   const isValid = validateTwilioSignature(authToken, signature, verificationUrl, params);
 
   if (isValid) {
-    const replayKey = createTwilioReplayKey({ ctx, signature, verificationUrl });
+    const replayKey = createTwilioReplayKey({
+      verificationUrl,
+      signature,
+      requestParams: params,
+    });
     const isReplay = markReplay(twilioReplayCache, replayKey);
-    return { ok: true, verificationUrl, isReplay };
+    return { ok: true, verificationUrl, isReplay, verifiedRequestKey: replayKey };
   }
 
   // Check if this is ngrok free tier - the URL might have different format
@@ -610,6 +633,8 @@ export interface PlivoVerificationResult {
   version?: "v3" | "v2";
   /** Request is cryptographically valid but was already processed recently. */
   isReplay?: boolean;
+  /** Stable request identity derived from signed Plivo material. */
+  verifiedRequestKey?: string;
 }
 
 function normalizeSignatureBase64(input: string): string {
@@ -840,7 +865,7 @@ export function verifyPlivoWebhook(
     }
     const replayKey = `plivo:v3:${sha256Hex(`${verificationUrl}\n${nonceV3}`)}`;
     const isReplay = markReplay(plivoReplayCache, replayKey);
-    return { ok: true, version: "v3", verificationUrl, isReplay };
+    return { ok: true, version: "v3", verificationUrl, isReplay, verifiedRequestKey: replayKey };
   }
 
   if (signatureV2 && nonceV2) {
@@ -860,7 +885,7 @@ export function verifyPlivoWebhook(
     }
     const replayKey = `plivo:v2:${sha256Hex(`${verificationUrl}\n${nonceV2}`)}`;
     const isReplay = markReplay(plivoReplayCache, replayKey);
-    return { ok: true, version: "v2", verificationUrl, isReplay };
+    return { ok: true, version: "v2", verificationUrl, isReplay, verifiedRequestKey: replayKey };
   }
 
   return {

@@ -107,6 +107,7 @@ describe("TelnyxProvider.verifyWebhook", () => {
     const signedPayload = `${timestamp}|${rawBody}`;
     const signature = crypto.sign(null, Buffer.from(signedPayload), privateKey).toString("base64");
 
+<<<<<<< HEAD
     const result = provider.verifyWebhook(
       createCtx({
         rawBody,
@@ -117,5 +118,41 @@ describe("TelnyxProvider.verifyWebhook", () => {
       }),
     );
     expect(result.ok).toBe(true);
+=======
+    const first = provider.verifyWebhook(ctx);
+    const second = provider.verifyWebhook(ctx);
+
+    expect(first.ok).toBe(true);
+    expect(first.isReplay).toBeFalsy();
+    expect(first.verifiedRequestKey).toBeTruthy();
+    expect(second.ok).toBe(true);
+    expect(second.isReplay).toBe(true);
+    expect(second.verifiedRequestKey).toBe(first.verifiedRequestKey);
+  });
+});
+
+describe("TelnyxProvider.parseWebhookEvent", () => {
+  it("uses verified request key for manager dedupe", () => {
+    const provider = new TelnyxProvider({
+      apiKey: "KEY123",
+      connectionId: "CONN456",
+      publicKey: undefined,
+    });
+    const result = provider.parseWebhookEvent(
+      createCtx({
+        rawBody: JSON.stringify({
+          data: {
+            id: "evt-123",
+            event_type: "call.initiated",
+            payload: { call_control_id: "call-1" },
+          },
+        }),
+      }),
+      { verifiedRequestKey: "telnyx:req:abc" },
+    );
+
+    expect(result.events).toHaveLength(1);
+    expect(result.events[0]?.dedupeKey).toBe("telnyx:req:abc");
+>>>>>>> 1aadf26f9 (fix(voice-call): bind webhook dedupe to verified request identity)
   });
 });
