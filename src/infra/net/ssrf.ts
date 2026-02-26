@@ -1,6 +1,20 @@
 import { lookup as dnsLookupCb, type LookupAddress } from "node:dns";
 import { lookup as dnsLookup } from "node:dns/promises";
 import { Agent, type Dispatcher } from "undici";
+<<<<<<< HEAD
+=======
+import {
+  extractEmbeddedIpv4FromIpv6,
+  isBlockedSpecialUseIpv4Address,
+  isBlockedSpecialUseIpv6Address,
+  isCanonicalDottedDecimalIPv4,
+  type Ipv4SpecialUseBlockOptions,
+  isIpv4Address,
+  isLegacyIpv4Literal,
+  parseCanonicalIpAddress,
+  parseLooseIpAddress,
+} from "../../shared/net/ip.js";
+>>>>>>> 61b3246a7 (fix(ssrf): unify ipv6 special-use blocking)
 import { normalizeHostname } from "./hostname.js";
 
 type LookupCallback = (
@@ -287,10 +301,14 @@ export function isPrivateIpAddress(address: string): boolean {
     if (ipv4) {
       return isPrivateIpv4(ipv4);
     }
+<<<<<<< HEAD
   }
 
   if (normalized.includes(":")) {
     if (normalized === "::" || normalized === "::1") {
+=======
+    if (isBlockedSpecialUseIpv6Address(strictIp)) {
+>>>>>>> 61b3246a7 (fix(ssrf): unify ipv6 special-use blocking)
       return true;
     }
 <<<<<<< HEAD
