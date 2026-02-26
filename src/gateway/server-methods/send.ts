@@ -15,11 +15,19 @@ import type { GatewayRequestContext, GatewayRequestHandlers } from "./types.js";
 =======
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { resolveSessionAgentId } from "../../agents/agent-scope.js";
+<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { getChannelPlugin, normalizeChannelId } from "../../channels/plugins/index.js";
 import { DEFAULT_CHAT_CHANNEL } from "../../channels/registry.js";
 import { loadConfig } from "../../config/config.js";
 import { createOutboundSendDeps } from "../../cli/deps.js";
+=======
+import { normalizeChannelId } from "../../channels/plugins/index.js";
+import { createOutboundSendDeps } from "../../cli/deps.js";
+import { loadConfig } from "../../config/config.js";
+import { resolveOutboundChannelPlugin } from "../../infra/outbound/channel-resolution.js";
+import { resolveMessageChannelSelection } from "../../infra/outbound/channel-selection.js";
+>>>>>>> 4258a3307 (refactor(agents): unify subagent announce delivery pipeline)
 import { deliverOutboundPayloads } from "../../infra/outbound/deliver.js";
 import { normalizeReplyPayloadsForDelivery } from "../../infra/outbound/payloads.js";
 import {
@@ -212,7 +220,7 @@ export const sendHandlers: GatewayRequestHandlers = {
         ? request.threadId.trim()
         : undefined;
     const outboundChannel = channel;
-    const plugin = getChannelPlugin(channel);
+    const plugin = resolveOutboundChannelPlugin({ channel, cfg });
     if (!plugin) {
       respond(
         false,
@@ -448,7 +456,7 @@ export const sendHandlers: GatewayRequestHandlers = {
         ? request.accountId.trim()
         : undefined;
     try {
-      const plugin = getChannelPlugin(channel);
+      const plugin = resolveOutboundChannelPlugin({ channel, cfg });
       const outbound = plugin?.outbound;
       if (!outbound?.sendPoll) {
         respond(

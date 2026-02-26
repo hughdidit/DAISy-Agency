@@ -77,7 +77,14 @@ import {
   queueEmbeddedPiMessage,
   waitForEmbeddedPiRunEnd,
 } from "./pi-embedded.js";
+<<<<<<< HEAD
 >>>>>>> ade11ec89 (fix(announce): use deterministic idempotency keys to prevent duplicate subagent announces (#17150))
+=======
+import {
+  runSubagentAnnounceDispatch,
+  type SubagentAnnounceDeliveryResult,
+} from "./subagent-announce-dispatch.js";
+>>>>>>> 4258a3307 (refactor(agents): unify subagent announce delivery pipeline)
 import { type AnnounceQueueItem, enqueueAnnounce } from "./subagent-announce-queue.js";
 import { getSubagentDepthFromSessionStore } from "./subagent-depth.js";
 import type { SpawnSubagentMode } from "./subagent-spawn.js";
@@ -101,6 +108,7 @@ type ToolResultMessage = {
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> f555835b0 (Channels: add thread-aware model overrides)
@@ -112,6 +120,8 @@ type SubagentAnnounceDeliveryResult = {
   error?: string;
 };
 
+=======
+>>>>>>> 4258a3307 (refactor(agents): unify subagent announce delivery pipeline)
 function resolveSubagentAnnounceTimeoutMs(cfg: ReturnType<typeof loadConfig>): number {
   const configured = cfg.agents?.defaults?.subagents?.announceTimeoutMs;
   if (typeof configured !== "number" || !Number.isFinite(configured)) {
@@ -799,6 +809,7 @@ async function maybeQueueSubagentAnnounce(params: {
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 async function buildSubagentStatsLine(params: {
   sessionKey: string;
   startedAt?: number;
@@ -849,6 +860,8 @@ function queueOutcomeToDeliveryResult(
 }
 
 >>>>>>> f555835b0 (Channels: add thread-aware model overrides)
+=======
+>>>>>>> 4258a3307 (refactor(agents): unify subagent announce delivery pipeline)
 async function sendSubagentAnnounceDirectly(params: {
   targetRequesterSessionKey: string;
   triggerMessage: string;
@@ -1028,6 +1041,7 @@ async function deliverSubagentAnnouncement(params: {
   directIdempotencyKey: string;
   signal?: AbortSignal;
 }): Promise<SubagentAnnounceDeliveryResult> {
+<<<<<<< HEAD
   if (params.signal?.aborted) {
     return {
       delivered: false,
@@ -1112,10 +1126,37 @@ async function deliverSubagentAnnouncement(params: {
     spawnMode: params.spawnMode,
     directOrigin: params.directOrigin,
     requesterIsSubagent: params.requesterIsSubagent,
+=======
+  return await runSubagentAnnounceDispatch({
+>>>>>>> 4258a3307 (refactor(agents): unify subagent announce delivery pipeline)
     expectsCompletionMessage: params.expectsCompletionMessage,
     signal: params.signal,
-    bestEffortDeliver: params.bestEffortDeliver,
+    queue: async () =>
+      await maybeQueueSubagentAnnounce({
+        requesterSessionKey: params.requesterSessionKey,
+        announceId: params.announceId,
+        triggerMessage: params.triggerMessage,
+        summaryLine: params.summaryLine,
+        requesterOrigin: params.requesterOrigin,
+        signal: params.signal,
+      }),
+    direct: async () =>
+      await sendSubagentAnnounceDirectly({
+        targetRequesterSessionKey: params.targetRequesterSessionKey,
+        triggerMessage: params.triggerMessage,
+        completionMessage: params.completionMessage,
+        directIdempotencyKey: params.directIdempotencyKey,
+        completionDirectOrigin: params.completionDirectOrigin,
+        completionRouteMode: params.completionRouteMode,
+        spawnMode: params.spawnMode,
+        directOrigin: params.directOrigin,
+        requesterIsSubagent: params.requesterIsSubagent,
+        expectsCompletionMessage: params.expectsCompletionMessage,
+        signal: params.signal,
+        bestEffortDeliver: params.bestEffortDeliver,
+      }),
   });
+<<<<<<< HEAD
   if (direct.delivered || !params.expectsCompletionMessage) {
     return direct;
 <<<<<<< HEAD
@@ -1147,6 +1188,8 @@ async function deliverSubagentAnnouncement(params: {
   }
 
   return direct;
+=======
+>>>>>>> 4258a3307 (refactor(agents): unify subagent announce delivery pipeline)
 }
 
 >>>>>>> f555835b0 (Channels: add thread-aware model overrides)

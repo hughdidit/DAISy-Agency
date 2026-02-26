@@ -9,6 +9,7 @@ import type { ChatType } from "../../channels/chat-type.js";
 >>>>>>> a805d6b43 (fix(heartbeat): block dm targets and internalize blocked prompts)
 =======
 import { normalizeChatType, type ChatType } from "../../channels/chat-type.js";
+<<<<<<< HEAD
 >>>>>>> 24d7612dd (refactor(heartbeat): harden dm delivery classification)
 import { getChannelPlugin, normalizeChannelId } from "../../channels/plugins/index.js";
 <<<<<<< HEAD
@@ -29,6 +30,8 @@ import { getChannelPlugin, normalizeChannelId } from "../../channels/plugins/ind
 =======
 import { getChannelPlugin, normalizeChannelId } from "../../channels/plugins/index.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
+=======
+>>>>>>> 4258a3307 (refactor(agents): unify subagent announce delivery pipeline)
 import type { ChannelOutboundTargetMode } from "../../channels/plugins/types.js";
 import { formatCliCommand } from "../../cli/command-format.js";
 import type { OpenClawConfig } from "../../config/config.js";
@@ -100,6 +103,10 @@ import {
   normalizeMessageChannel,
 } from "../../utils/message-channel.js";
 import { isWhatsAppGroupJid, normalizeWhatsAppTarget } from "../../whatsapp/normalize.js";
+import {
+  normalizeDeliverableOutboundChannel,
+  resolveOutboundChannelPlugin,
+} from "./channel-resolution.js";
 import { missingTargetError } from "./target-errors.js";
 
 export type OutboundChannel = DeliverableMessageChannel | "none";
@@ -236,7 +243,10 @@ export function resolveOutboundTarget(params: {
     };
   }
 
-  const plugin = getChannelPlugin(params.channel);
+  const plugin = resolveOutboundChannelPlugin({
+    channel: params.channel,
+    cfg: params.cfg,
+  });
   if (!plugin) {
     return {
       ok: false,
@@ -296,7 +306,7 @@ export function resolveHeartbeatDeliveryTarget(params: {
   if (rawTarget === "none" || rawTarget === "last") {
     target = rawTarget;
   } else if (typeof rawTarget === "string") {
-    const normalized = normalizeChannelId(rawTarget);
+    const normalized = normalizeDeliverableOutboundChannel(rawTarget);
     if (normalized) {
       target = normalized;
     }
@@ -323,7 +333,10 @@ export function resolveHeartbeatDeliveryTarget(params: {
   let effectiveAccountId = heartbeatAccountId || resolvedTarget.accountId;
 
   if (heartbeatAccountId && resolvedTarget.channel) {
-    const plugin = getChannelPlugin(resolvedTarget.channel);
+    const plugin = resolveOutboundChannelPlugin({
+      channel: resolvedTarget.channel,
+      cfg,
+    });
     const listAccountIds = plugin?.config.listAccountIds;
     const accountIds = listAccountIds ? listAccountIds(cfg) : [];
     if (accountIds.length > 0) {
@@ -385,7 +398,10 @@ export function resolveHeartbeatDeliveryTarget(params: {
   }
 
   let reason: string | undefined;
-  const plugin = getChannelPlugin(resolvedTarget.channel);
+  const plugin = resolveOutboundChannelPlugin({
+    channel: resolvedTarget.channel,
+    cfg,
+  });
   if (plugin?.config.resolveAllowFrom) {
     const explicit = resolveOutboundTarget({
       channel: resolvedTarget.channel,
@@ -569,8 +585,16 @@ export function resolveHeartbeatSenderContext(params: {
   const accountId =
     params.delivery.accountId ??
     (provider === params.delivery.lastChannel ? params.delivery.lastAccountId : undefined);
+<<<<<<< HEAD
   const allowFrom = provider
     ? (getChannelPlugin(provider)?.config.resolveAllowFrom?.({
+=======
+  const allowFromRaw = provider
+    ? (resolveOutboundChannelPlugin({
+        channel: provider,
+        cfg: params.cfg,
+      })?.config.resolveAllowFrom?.({
+>>>>>>> 4258a3307 (refactor(agents): unify subagent announce delivery pipeline)
         cfg: params.cfg,
         accountId,
       }) ?? [])
