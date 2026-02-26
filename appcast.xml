@@ -304,6 +304,7 @@
 </ul>
 <p><a href="https://github.com/openclaw/openclaw/blob/main/CHANGELOG.md">View full changelog</a></p>
 ]]></description>
+<<<<<<< HEAD
             <enclosure url="https://github.com/openclaw/openclaw/releases/download/v2026.2.13/OpenClaw-2026.2.13.zip" length="22902077" type="application/octet-stream" sparkle:edSignature="RpkwlPtB2yN7UOYZWfthV5grhDUcbhcHMeicdRA864Vo/P0Hnq5aHKmSvcbWkjHut96TC57bX+AeUrL7txpLCg=="/>
         </item>
         <item>
@@ -539,6 +540,9 @@
 ]]></description>
             <enclosure url="https://github.com/openclaw/openclaw/releases/download/v2026.2.25/OpenClaw-2026.2.25.zip" length="23078398" type="application/octet-stream" sparkle:edSignature="PJjvRhivhybV5bYr8u1C9Dyw4h8yePGwG8SFsr4QRqMSBYMEedraPJO3KNbkoChjclYUYf3oGcC4daNZnFvgBA=="/>
 >>>>>>> 4b5d4a4c6 (docs: finalize 2026.2.25 release notes and appcast)
+=======
+            <enclosure url="https://github.com/openclaw/openclaw/releases/download/v2026.2.26/OpenClaw-2026.2.26.zip" length="12796628" type="application/octet-stream" sparkle:edSignature="qqVJfkQS9Q4LCTlGtOyXzORWZWWnOkWyiJ6DVX27oPF8aeUlUyfHrmb51sFiNjSuCJC2xmJW1Mi1CAHl/I1pCw=="/>
+>>>>>>> bc5070805 (chore(release): cut 2026.2.26)
         </item>
     </channel>
 </rss>

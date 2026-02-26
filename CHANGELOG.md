@@ -26,6 +26,7 @@ Docs: https://docs.openclaw.ai
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ## 2026.1.31
 =======
 =======
@@ -53,6 +54,9 @@ Docs: https://docs.openclaw.ai
 >>>>>>> bdfb97afa (chore: prep 2026.2.22 unreleased and publish new npm plugins)
 =======
 =======
+=======
+## 2026.2.26
+>>>>>>> bc5070805 (chore(release): cut 2026.2.26)
 
 <<<<<<< HEAD
 <<<<<<< HEAD
