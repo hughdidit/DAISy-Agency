@@ -211,11 +211,26 @@ describe("chrome extension relay server", () => {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 39881a318 (Browser: reuse extension relay when relay port is already occupied (#20035))
   it("tracks attached page targets and exposes them via CDP + /json/list", async () => {
 =======
 =======
 =======
+=======
+  it("returns 400 for malformed percent-encoding in target action routes", async () => {
+    const port = await getFreePort();
+    cdpUrl = `http://127.0.0.1:${port}`;
+    await ensureChromeExtensionRelayServer({ cdpUrl });
+
+    const res = await fetch(`${cdpUrl}/json/activate/%E0%A4%A`, {
+      headers: relayAuthHeaders(cdpUrl),
+    });
+    expect(res.status).toBe(400);
+    expect(await res.text()).toContain("invalid targetId encoding");
+  });
+
+>>>>>>> 79659b2b1 (fix(browser): land PR #11880 decodeURIComponent guardrails)
   it("deduplicates concurrent relay starts for the same requested port", async () => {
     const port = await getFreePort();
     cdpUrl = `http://127.0.0.1:${port}`;
