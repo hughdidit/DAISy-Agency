@@ -271,6 +271,12 @@ describe("doctor config flow", () => {
             allowFrom?: string[];
             accounts: Record<string, DiscordAccountRule> & {
               default: { allowFrom: string[] };
+              work: {
+                allowFrom: string[];
+                dm: { allowFrom: string[]; groupChannels: string[] };
+                execApprovals: { approvers: string[] };
+                guilds: Record<string, DiscordGuildRule>;
+              };
             };
           };
         };
