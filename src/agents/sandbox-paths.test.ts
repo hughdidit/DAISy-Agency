@@ -121,6 +121,7 @@ describe("resolveSandboxedMediaSource", () => {
     }
   });
 
+<<<<<<< HEAD
   it("rejects file:// URLs outside sandbox", async () => {
     const sandboxDir = await fs.mkdtemp(path.join(os.tmpdir(), "sandbox-media-"));
     try {
@@ -132,6 +133,31 @@ describe("resolveSandboxedMediaSource", () => {
       ).rejects.toThrow(/sandbox/i);
     } finally {
       await fs.rm(sandboxDir, { recursive: true, force: true });
+=======
+  it("rejects sandbox symlink escapes when the outside leaf does not exist yet", async () => {
+    if (process.platform === "win32") {
+      return;
+    }
+    await withSandboxRoot(async (sandboxDir) => {
+      const outsideDir = await fs.mkdtemp(
+        path.join(process.cwd(), "sandbox-media-outside-missing-"),
+      );
+      const linkDir = path.join(sandboxDir, "escape-link");
+      await fs.symlink(outsideDir, linkDir);
+      try {
+        const missingOutsidePath = path.join(linkDir, "new-file.txt");
+        await expectSandboxRejection(missingOutsidePath, sandboxDir, /symlink|sandbox/i);
+      } finally {
+        await fs.rm(linkDir, { force: true });
+        await fs.rm(outsideDir, { recursive: true, force: true });
+      }
+    });
+  });
+
+  it("rejects hardlinked OpenClaw tmp paths to outside files", async () => {
+    if (process.platform === "win32") {
+      return;
+>>>>>>> 46eba86b4 (fix: harden workspace boundary path resolution)
     }
   });
 

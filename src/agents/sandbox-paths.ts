@@ -48,7 +48,20 @@ export function resolveSandboxPath(params: { filePath: string; cwd: string; root
 
 export async function assertSandboxPath(params: { filePath: string; cwd: string; root: string }) {
   const resolved = resolveSandboxPath(params);
+<<<<<<< HEAD
   await assertNoSymlink(resolved.relative, path.resolve(params.root));
+=======
+  const policy: PathAliasPolicy = {
+    allowFinalSymlinkForUnlink: params.allowFinalSymlinkForUnlink,
+    allowFinalHardlinkForUnlink: params.allowFinalHardlinkForUnlink,
+  };
+  await assertNoPathAliasEscape({
+    absolutePath: resolved.resolved,
+    rootPath: params.root,
+    boundaryLabel: "sandbox root",
+    policy,
+  });
+>>>>>>> 46eba86b4 (fix: harden workspace boundary path resolution)
   return resolved;
 }
 
