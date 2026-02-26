@@ -3,6 +3,11 @@ import {
   resolveGatewayLaunchAgentLabel,
   resolveGatewaySystemdServiceName,
 } from "../daemon/constants.js";
+<<<<<<< HEAD
+=======
+import { createSubsystemLogger } from "../logging/subsystem.js";
+import { cleanStaleGatewayProcessesSync, findGatewayPidsOnPortSync } from "./restart-stale-pids.js";
+>>>>>>> 4da6a7f21 (refactor(restart): extract stale pid cleanup and supervisor markers)
 
 export type RestartAttempt = {
   ok: boolean;
@@ -15,6 +20,8 @@ const SPAWN_TIMEOUT_MS = 2000;
 const SIGUSR1_AUTH_GRACE_MS = 5000;
 const DEFAULT_DEFERRAL_POLL_MS = 500;
 const DEFAULT_DEFERRAL_MAX_WAIT_MS = 30_000;
+
+export { findGatewayPidsOnPortSync };
 
 let sigusr1AuthorizedCount = 0;
 let sigusr1AuthorizedUntil = 0;
