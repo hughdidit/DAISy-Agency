@@ -42,7 +42,6 @@ import {
   DefaultResourceLoader,
   estimateTokens,
   SessionManager,
-  SettingsManager,
 } from "@mariozechner/pi-coding-agent";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -155,6 +154,7 @@ import {
   validateGeminiTurns,
 } from "../pi-embedded-helpers.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import {
   ensurePiCompactionReserveTokens,
   resolveCompactionReserveTokensFloor,
@@ -162,6 +162,9 @@ import {
 import { createMoltbotCodingTools } from "../pi-tools.js";
 =======
 import { applyPiCompactionSettingsFromConfig } from "../pi-settings.js";
+=======
+import { createPreparedEmbeddedPiSettingsManager } from "../pi-project-settings.js";
+>>>>>>> 611dff985 (fix(agents): harden embedded pi project settings loading)
 import { createOpenClawCodingTools } from "../pi-tools.js";
 >>>>>>> c1ac37a64 (Config: expose Pi compaction tuning values (openclaw#21568) thanks @Takhoffman)
 import { resolveSandboxContext } from "../sandbox.js";
@@ -725,9 +728,9 @@ export async function compactEmbeddedPiSessionDirect(
         allowedToolNames,
       });
       trackSessionManagerAccess(params.sessionFile);
-      const settingsManager = SettingsManager.create(effectiveWorkspace, agentDir);
-      applyPiCompactionSettingsFromConfig({
-        settingsManager,
+      const settingsManager = createPreparedEmbeddedPiSettingsManager({
+        cwd: effectiveWorkspace,
+        agentDir,
         cfg: params.config,
       });
       const additionalExtensionPaths = buildEmbeddedExtensionPaths({
