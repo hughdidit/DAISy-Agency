@@ -18,6 +18,52 @@ export type RequestExecApprovalDecisionParams = {
   sessionKey?: string;
 };
 
+type ExecApprovalRequestToolParams = {
+  id: string;
+  command: string;
+  commandArgv?: string[];
+  env?: Record<string, string>;
+  cwd: string;
+  nodeId?: string;
+  host: "gateway" | "node";
+  security: ExecSecurity;
+  ask: ExecAsk;
+  agentId?: string;
+  resolvedPath?: string;
+  sessionKey?: string;
+  turnSourceChannel?: string;
+  turnSourceTo?: string;
+  turnSourceAccountId?: string;
+  turnSourceThreadId?: string | number;
+  timeoutMs: number;
+  twoPhase: true;
+};
+
+function buildExecApprovalRequestToolParams(
+  params: RequestExecApprovalDecisionParams,
+): ExecApprovalRequestToolParams {
+  return {
+    id: params.id,
+    command: params.command,
+    commandArgv: params.commandArgv,
+    env: params.env,
+    cwd: params.cwd,
+    nodeId: params.nodeId,
+    host: params.host,
+    security: params.security,
+    ask: params.ask,
+    agentId: params.agentId,
+    resolvedPath: params.resolvedPath,
+    sessionKey: params.sessionKey,
+    turnSourceChannel: params.turnSourceChannel,
+    turnSourceTo: params.turnSourceTo,
+    turnSourceAccountId: params.turnSourceAccountId,
+    turnSourceThreadId: params.turnSourceThreadId,
+    timeoutMs: DEFAULT_APPROVAL_TIMEOUT_MS,
+    twoPhase: true,
+  };
+}
+
 type ParsedDecision = { present: boolean; value: string | null };
 
 function parseDecision(value: unknown): ParsedDecision {
@@ -59,6 +105,7 @@ export async function registerExecApprovalRequest(
   }>(
     "exec.approval.request",
     { timeoutMs: DEFAULT_APPROVAL_REQUEST_TIMEOUT_MS },
+<<<<<<< HEAD
     {
       id: params.id,
       command: params.command,
@@ -73,6 +120,9 @@ export async function registerExecApprovalRequest(
       timeoutMs: DEFAULT_APPROVAL_TIMEOUT_MS,
       twoPhase: true,
     },
+=======
+    buildExecApprovalRequestToolParams(params),
+>>>>>>> 4894d907f (refactor(exec-approvals): unify system.run binding and generate host env policy)
     { expectFinal: false },
   );
   const decision = parseDecision(registrationResult);

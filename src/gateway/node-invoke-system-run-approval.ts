@@ -1,9 +1,18 @@
+<<<<<<< HEAD
 import {
   formatExecCommand,
   validateSystemRunCommandConsistency,
 } from "../infra/system-run-command.js";
 import type { ExecApprovalManager, ExecApprovalRecord } from "./exec-approval-manager.js";
 import type { GatewayClient } from "./server-methods/types.js";
+=======
+import { resolveSystemRunCommand } from "../infra/system-run-command.js";
+import type { ExecApprovalRecord } from "./exec-approval-manager.js";
+import {
+  evaluateSystemRunApprovalMatch,
+  toSystemRunApprovalMismatchError,
+} from "./node-invoke-system-run-approval-match.js";
+>>>>>>> 4894d907f (refactor(exec-approvals): unify system.run binding and generate host env policy)
 
 type SystemRunParamsLike = {
   command?: unknown;
@@ -262,12 +271,28 @@ export function sanitizeSystemRunParamsForForwarding(opts: {
     };
   }
 
+<<<<<<< HEAD
   if (!approvalMatchesRequest(p, snapshot)) {
     return {
       ok: false,
       message: "approval id does not match request",
       details: { code: "APPROVAL_REQUEST_MISMATCH", runId },
     };
+=======
+  const approvalMatch = evaluateSystemRunApprovalMatch({
+    cmdText,
+    argv: cmdTextResolution.argv,
+    request: snapshot.request,
+    binding: {
+      cwd: normalizeString(p.cwd) ?? null,
+      agentId: normalizeString(p.agentId) ?? null,
+      sessionKey: normalizeString(p.sessionKey) ?? null,
+      env: p.env,
+    },
+  });
+  if (!approvalMatch.ok) {
+    return toSystemRunApprovalMismatchError({ runId, match: approvalMatch });
+>>>>>>> 4894d907f (refactor(exec-approvals): unify system.run binding and generate host env policy)
   }
 
   // Normal path: enforce the decision recorded by the gateway.
