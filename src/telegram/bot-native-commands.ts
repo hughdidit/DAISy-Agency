@@ -41,7 +41,16 @@ import {
 import { resolveAgentRoute } from "../routing/resolve-route.js";
 import { resolveThreadSessionKeys } from "../routing/session-key.js";
 import { withTelegramApiErrorLogging } from "./api-logging.js";
+<<<<<<< HEAD
 import { firstDefined, isSenderAllowed, normalizeAllowFromWithStore } from "./bot-access.js";
+=======
+import { isSenderAllowed, normalizeDmAllowFromWithStore } from "./bot-access.js";
+import {
+  buildCappedTelegramMenuCommands,
+  buildPluginTelegramMenuCommands,
+  syncTelegramMenuCommands,
+} from "./bot-native-command-menu.js";
+>>>>>>> 8bdda7a65 (fix(security): keep DM pairing allowlists out of group auth)
 import { TelegramUpdateKeyContext } from "./bot-updates.js";
 import { TelegramBotOptions } from "./bot.js";
 import { deliverReplies } from "./bot/delivery.js";
@@ -236,7 +245,7 @@ async function resolveTelegramCommandAuth(params: {
     }
   }
 
-  const dmAllow = normalizeAllowFromWithStore({
+  const dmAllow = normalizeDmAllowFromWithStore({
     allowFrom: allowFrom,
     storeAllowFrom,
   });
