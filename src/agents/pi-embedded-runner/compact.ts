@@ -5,7 +5,6 @@ import {
   createAgentSession,
   estimateTokens,
   SessionManager,
-  SettingsManager,
 } from "@mariozechner/pi-coding-agent";
 import { resolveHeartbeatPrompt } from "../../auto-reply/heartbeat.js";
 import type { ReasoningLevel, ThinkLevel } from "../../auto-reply/thinking.js";
@@ -37,7 +36,7 @@ import {
   validateAnthropicTurns,
   validateGeminiTurns,
 } from "../pi-embedded-helpers.js";
-import { applyPiCompactionSettingsFromConfig } from "../pi-settings.js";
+import { createPreparedEmbeddedPiSettingsManager } from "../pi-project-settings.js";
 import { createOpenClawCodingTools } from "../pi-tools.js";
 import { resolveSandboxContext } from "../sandbox.js";
 import { repairSessionFileIfNeeded } from "../session-file-repair.js";
@@ -568,9 +567,9 @@ export async function compactEmbeddedPiSessionDirect(
         allowedToolNames,
       });
       trackSessionManagerAccess(params.sessionFile);
-      const settingsManager = SettingsManager.create(effectiveWorkspace, agentDir);
-      applyPiCompactionSettingsFromConfig({
-        settingsManager,
+      const settingsManager = createPreparedEmbeddedPiSettingsManager({
+        cwd: effectiveWorkspace,
+        agentDir,
         cfg: params.config,
       });
       // Call for side effects (sets compaction/pruning runtime state)
