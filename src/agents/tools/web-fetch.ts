@@ -307,6 +307,7 @@ async function runWebFetch(params: {
       url: params.url,
       maxRedirects: params.maxRedirects,
       timeoutMs: params.timeoutSeconds * 1000,
+      proxy: "env",
       init: {
         headers: {
           Accept: "*/*",
