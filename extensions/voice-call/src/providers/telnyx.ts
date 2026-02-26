@@ -1,5 +1,8 @@
 import crypto from "node:crypto";
+<<<<<<< HEAD
 
+=======
+>>>>>>> 6f0b4caa2 (refactor(voice-call): share header and guarded api helpers)
 import type { TelnyxConfig } from "../config.js";
 import type {
   EndReason,
@@ -37,6 +40,7 @@ import type { VoiceCallProvider } from "./base.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { verifyTelnyxWebhook } from "../webhook-security.js";
 import type { VoiceCallProvider } from "./base.js";
+import { guardedJsonApiRequest } from "./shared/guarded-json-api.js";
 
 /**
  * Telnyx Voice API provider implementation.
@@ -76,12 +80,18 @@ export class TelnyxProvider implements VoiceCallProvider {
     body: Record<string, unknown>,
     options?: { allowNotFound?: boolean },
   ): Promise<T> {
+<<<<<<< HEAD
     const response = await fetch(`${this.baseUrl}${endpoint}`, {
+=======
+    return await guardedJsonApiRequest<T>({
+      url: `${this.baseUrl}${endpoint}`,
+>>>>>>> 6f0b4caa2 (refactor(voice-call): share header and guarded api helpers)
       method: "POST",
       headers: {
         Authorization: `Bearer ${this.apiKey}`,
         "Content-Type": "application/json",
       },
+<<<<<<< HEAD
       body: JSON.stringify(body),
     });
 
@@ -95,6 +105,14 @@ export class TelnyxProvider implements VoiceCallProvider {
 
     const text = await response.text();
     return text ? (JSON.parse(text) as T) : (undefined as T);
+=======
+      body,
+      allowNotFound: options?.allowNotFound,
+      allowedHostnames: [this.apiHost],
+      auditContext: "voice-call.telnyx.api",
+      errorPrefix: "Telnyx API error",
+    });
+>>>>>>> 6f0b4caa2 (refactor(voice-call): share header and guarded api helpers)
   }
 
   /**
