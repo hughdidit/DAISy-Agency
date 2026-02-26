@@ -18,6 +18,7 @@ import { resolveSlackChannelConfig } from "./channel-config.js";
 import { normalizeSlackChannelType, type SlackMonitorContext } from "./context.js";
 >>>>>>> ce8c67c31 (fix(slack): gate interactive system events by sender auth)
 
+<<<<<<< HEAD
 export async function resolveSlackEffectiveAllowFrom(ctx: SlackMonitorContext) {
 <<<<<<< HEAD
   const storeAllowFrom = await readChannelAllowFromStore("slack").catch(() => []);
@@ -28,6 +29,20 @@ export async function resolveSlackEffectiveAllowFrom(ctx: SlackMonitorContext) {
     readStore: (provider) => readChannelAllowFromStore(provider),
   });
 >>>>>>> cd80c7e7f (refactor: unify dm policy store reads and reason codes)
+=======
+export async function resolveSlackEffectiveAllowFrom(
+  ctx: SlackMonitorContext,
+  options?: { includePairingStore?: boolean },
+) {
+  const includePairingStore = options?.includePairingStore === true;
+  const storeAllowFrom = includePairingStore
+    ? await readStoreAllowFromForDmPolicy({
+        provider: "slack",
+        dmPolicy: ctx.dmPolicy,
+        readStore: (provider) => readChannelAllowFromStore(provider),
+      })
+    : [];
+>>>>>>> d6eefe2e7 (style: format auth boundary updates)
   const allowFrom = normalizeAllowList([...ctx.allowFrom, ...storeAllowFrom]);
   const allowFromLower = normalizeAllowListLower(allowFrom);
   return { allowFrom, allowFromLower };

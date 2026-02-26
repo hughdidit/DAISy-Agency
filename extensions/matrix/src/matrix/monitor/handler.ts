@@ -291,6 +291,7 @@ export function createMatrixRoomMessageHandler(params: MatrixMonitorHandlerParam
 
       const senderName = await getMemberDisplayName(roomId, senderId);
 <<<<<<< HEAD
+<<<<<<< HEAD
       const storeAllowFrom = await core.channel.pairing
         .readAllowFromStore("matrix")
         .catch(() => []);
@@ -298,6 +299,25 @@ export function createMatrixRoomMessageHandler(params: MatrixMonitorHandlerParam
 =======
       const storeAllowFrom = await readStoreAllowFromForDmPolicy({
         provider: "matrix",
+=======
+      const storeAllowFrom = isDirectMessage
+        ? await readStoreAllowFromForDmPolicy({
+            provider: "matrix",
+            dmPolicy,
+            readStore: (provider) => core.channel.pairing.readAllowFromStore(provider),
+          })
+        : [];
+      const groupAllowFrom = cfg.channels?.matrix?.groupAllowFrom ?? [];
+      const normalizedGroupAllowFrom = normalizeMatrixAllowList(groupAllowFrom);
+      const senderGroupPolicy =
+        groupPolicy === "disabled"
+          ? "disabled"
+          : normalizedGroupAllowFrom.length > 0
+            ? "allowlist"
+            : "open";
+      const access = resolveDmGroupAccessWithLists({
+        isGroup: isRoom,
+>>>>>>> d6eefe2e7 (style: format auth boundary updates)
         dmPolicy,
         readStore: (provider) => core.channel.pairing.readAllowFromStore(provider),
       });
