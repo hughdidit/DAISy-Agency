@@ -1017,6 +1017,7 @@ export async function handleFeishuMessage(params: {
     });
 
     log(`feishu[${account.accountId}]: dispatching to agent (session=${route.sessionKey})`);
+<<<<<<< HEAD
 
     const { queuedFinal, counts } = await core.channel.reply.dispatchReplyFromConfig({
       ctx: ctxPayload,
@@ -1027,6 +1028,22 @@ export async function handleFeishuMessage(params: {
 
     markDispatchIdle();
 
+=======
+    const { queuedFinal, counts } = await core.channel.reply.withReplyDispatcher({
+      dispatcher,
+      onSettled: () => {
+        markDispatchIdle();
+      },
+      run: () =>
+        core.channel.reply.dispatchReplyFromConfig({
+          ctx: ctxPayload,
+          cfg,
+          dispatcher,
+          replyOptions,
+        }),
+    });
+
+>>>>>>> 273973d37 (refactor: unify typing dispatch lifecycle and policy boundaries)
     if (isGroup && historyKey && chatHistories) {
       clearHistoryEntriesIfEnabled({
         historyMap: chatHistories,

@@ -155,8 +155,32 @@ function createMockRuntime(): PluginRuntime {
           vi.fn() as unknown as PluginRuntime["channel"]["reply"]["resolveHumanDelayConfig"],
         dispatchReplyFromConfig:
           vi.fn() as unknown as PluginRuntime["channel"]["reply"]["dispatchReplyFromConfig"],
+<<<<<<< HEAD
         finalizeInboundContext:
           vi.fn() as unknown as PluginRuntime["channel"]["reply"]["finalizeInboundContext"],
+=======
+        withReplyDispatcher: vi.fn(
+          async ({
+            dispatcher,
+            run,
+            onSettled,
+          }: Parameters<PluginRuntime["channel"]["reply"]["withReplyDispatcher"]>[0]) => {
+            try {
+              return await run();
+            } finally {
+              dispatcher.markComplete();
+              try {
+                await dispatcher.waitForIdle();
+              } finally {
+                await onSettled?.();
+              }
+            }
+          },
+        ) as unknown as PluginRuntime["channel"]["reply"]["withReplyDispatcher"],
+        finalizeInboundContext: vi.fn(
+          (ctx: Record<string, unknown>) => ctx,
+        ) as unknown as PluginRuntime["channel"]["reply"]["finalizeInboundContext"],
+>>>>>>> 273973d37 (refactor: unify typing dispatch lifecycle and policy boundaries)
         formatAgentEnvelope:
           mockFormatAgentEnvelope as unknown as PluginRuntime["channel"]["reply"]["formatAgentEnvelope"],
         formatInboundEnvelope:

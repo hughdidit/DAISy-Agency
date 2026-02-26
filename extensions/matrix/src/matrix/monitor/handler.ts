@@ -656,6 +656,7 @@ export function createMatrixRoomMessageHandler(params: MatrixMonitorHandlerParam
 >>>>>>> d42ef2ac6 (refactor: consolidate typing lifecycle and queue policy)
         });
 
+<<<<<<< HEAD
       const { queuedFinal, counts } = await core.channel.reply.dispatchReplyFromConfig({
         ctx: ctxPayload,
         cfg,
@@ -667,6 +668,25 @@ export function createMatrixRoomMessageHandler(params: MatrixMonitorHandlerParam
         },
       });
       markDispatchIdle();
+=======
+      const { queuedFinal, counts } = await core.channel.reply.withReplyDispatcher({
+        dispatcher,
+        onSettled: () => {
+          markDispatchIdle();
+        },
+        run: () =>
+          core.channel.reply.dispatchReplyFromConfig({
+            ctx: ctxPayload,
+            cfg,
+            dispatcher,
+            replyOptions: {
+              ...replyOptions,
+              skillFilter: roomConfig?.skills,
+              onModelSelected,
+            },
+          }),
+      });
+>>>>>>> 273973d37 (refactor: unify typing dispatch lifecycle and policy boundaries)
       if (!queuedFinal) {
         return;
       }

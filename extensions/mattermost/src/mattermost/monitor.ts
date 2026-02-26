@@ -822,6 +822,7 @@ export async function monitorMattermostProvider(opts: MonitorMattermostOpts = {}
 >>>>>>> d42ef2ac6 (refactor: consolidate typing lifecycle and queue policy)
       });
 
+<<<<<<< HEAD
     await core.channel.reply.dispatchReplyFromConfig({
       ctx: ctxPayload,
       cfg,
@@ -834,6 +835,26 @@ export async function monitorMattermostProvider(opts: MonitorMattermostOpts = {}
       },
     });
     markDispatchIdle();
+=======
+    await core.channel.reply.withReplyDispatcher({
+      dispatcher,
+      onSettled: () => {
+        markDispatchIdle();
+      },
+      run: () =>
+        core.channel.reply.dispatchReplyFromConfig({
+          ctx: ctxPayload,
+          cfg,
+          dispatcher,
+          replyOptions: {
+            ...replyOptions,
+            disableBlockStreaming:
+              typeof account.blockStreaming === "boolean" ? !account.blockStreaming : undefined,
+            onModelSelected,
+          },
+        }),
+    });
+>>>>>>> 273973d37 (refactor: unify typing dispatch lifecycle and policy boundaries)
     if (historyKey) {
       clearHistoryEntriesIfEnabled({
         historyMap: channelHistories,
