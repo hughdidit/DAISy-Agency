@@ -39,6 +39,15 @@ import { wrapExternalContent } from "../../security/external-content.js";
 import { BrowserToolSchema } from "./browser-tool.schema.js";
 import { type AnyAgentTool, imageResultFromFile, jsonResult, readStringParam } from "./common.js";
 import { callGatewayTool } from "./gateway.js";
+<<<<<<< HEAD
+=======
+import {
+  listNodes,
+  resolveNodeIdFromList,
+  selectDefaultNodeFromList,
+  type NodeListNode,
+} from "./nodes-utils.js";
+>>>>>>> a1346a519 (refactor(nodes): share default selection and tighten node.list fallback)
 
 function formatTabsToolResult(tabs: unknown[]) {
   const wrapped = wrapBrowserExternalJson({
@@ -125,10 +134,17 @@ async function resolveBrowserNodeTarget(params: {
     return { nodeId, label: node?.displayName ?? node?.remoteIp ?? nodeId };
   }
 
+  const selected = selectDefaultNodeFromList(browserNodes, {
+    preferLocalMac: false,
+    fallback: "none",
+  });
+
   if (params.target === "node") {
-    if (browserNodes.length === 1) {
-      const node = browserNodes[0];
-      return { nodeId: node.nodeId, label: node.displayName ?? node.remoteIp ?? node.nodeId };
+    if (selected) {
+      return {
+        nodeId: selected.nodeId,
+        label: selected.displayName ?? selected.remoteIp ?? selected.nodeId,
+      };
     }
     throw new Error(
       `Multiple browser-capable nodes connected (${browserNodes.length}). Set gateway.nodes.browser.node or pass node=<id>.`,
@@ -139,9 +155,11 @@ async function resolveBrowserNodeTarget(params: {
     return null;
   }
 
-  if (browserNodes.length === 1) {
-    const node = browserNodes[0];
-    return { nodeId: node.nodeId, label: node.displayName ?? node.remoteIp ?? node.nodeId };
+  if (selected) {
+    return {
+      nodeId: selected.nodeId,
+      label: selected.displayName ?? selected.remoteIp ?? selected.nodeId,
+    };
   }
   return null;
 }
