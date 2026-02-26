@@ -146,19 +146,21 @@ export function createMSTeamsMessageHandler(deps: MSTeamsMessageHandlerDeps) {
     });
     const effectiveDmAllowFrom = resolvedAllowFromLists.effectiveAllowFrom;
     if (isDirectMessage && msteamsCfg) {
+<<<<<<< HEAD
       const dmPolicy = msteamsCfg.dmPolicy ?? "pairing";
       const allowFrom = dmAllowFrom;
 
+=======
+>>>>>>> 051fdcc42 (fix(security): centralize dm/group allowlist auth composition)
       if (dmPolicy === "disabled") {
         log.debug("dropping dm (dms disabled)");
         return;
       }
 
       if (dmPolicy !== "open") {
-        const effectiveAllowFrom = [...allowFrom.map((v) => String(v)), ...storedAllowFrom];
         const allowNameMatching = isDangerousNameMatchingEnabled(msteamsCfg);
         const allowMatch = resolveMSTeamsAllowlistMatch({
-          allowFrom: effectiveAllowFrom,
+          allowFrom: effectiveDmAllowFrom,
           senderId,
           senderName,
           allowNameMatching,

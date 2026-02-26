@@ -225,12 +225,16 @@
     "canvas:a2ui:bundle": "bash scripts/bundle-a2ui.sh",
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     "check": "pnpm tsgo && pnpm lint && pnpm format",
 =======
     "check": "pnpm format:check && pnpm tsgo && pnpm lint && pnpm lint:tmp:no-random-messaging",
 =======
     "check": "pnpm format:check && pnpm tsgo && pnpm lint && pnpm lint:tmp:no-random-messaging && pnpm lint:tmp:channel-agnostic-boundaries",
 >>>>>>> a7d56e355 (feat: ACP thread-bound agents (#23580))
+=======
+    "check": "pnpm format:check && pnpm tsgo && pnpm lint && pnpm lint:tmp:no-random-messaging && pnpm lint:tmp:channel-agnostic-boundaries && pnpm lint:auth:no-pairing-store-group",
+>>>>>>> 051fdcc42 (fix(security): centralize dm/group allowlist auth composition)
     "check:docs": "pnpm format:docs:check && pnpm lint:docs && pnpm docs:check-links",
 >>>>>>> d3da67c7a (fix(security): lock sandbox tmp media paths to openclaw roots)
     "check:loc": "node --import tsx scripts/check-ts-max-loc.ts --max 500",
@@ -260,7 +264,14 @@
     "ios:run": "bash -lc 'cd apps/ios && xcodegen generate && xcodebuild -project OpenClaw.xcodeproj -scheme OpenClaw -destination \"${IOS_DEST:-platform=iOS Simulator,name=iPhone 17}\" -configuration Debug build && xcrun simctl boot \"${IOS_SIM:-iPhone 17}\" || true && xcrun simctl launch booted ai.openclaw.ios'",
     "lint": "oxlint --type-aware --tsconfig tsconfig.oxlint.json",
     "lint:all": "pnpm lint && pnpm lint:swift",
+<<<<<<< HEAD
     "lint:fix": "oxlint --type-aware --tsconfig tsconfig.oxlint.json --fix && pnpm format:fix",
+=======
+    "lint:auth:no-pairing-store-group": "node scripts/check-no-pairing-store-group-auth.mjs",
+    "lint:docs": "pnpm dlx markdownlint-cli2",
+    "lint:docs:fix": "pnpm dlx markdownlint-cli2 --fix",
+    "lint:fix": "oxlint --type-aware --fix && pnpm format",
+>>>>>>> 051fdcc42 (fix(security): centralize dm/group allowlist auth composition)
     "lint:swift": "swiftlint lint --config .swiftlint.yml && (cd apps/ios && swiftlint lint --config .swiftlint.yml)",
 <<<<<<< HEAD
 <<<<<<< HEAD
