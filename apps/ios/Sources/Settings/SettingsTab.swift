@@ -21,6 +21,10 @@ struct SettingsTab: View {
     @AppStorage("voiceWake.enabled") private var voiceWakeEnabled: Bool = false
     @AppStorage("talk.enabled") private var talkEnabled: Bool = false
     @AppStorage("talk.button.enabled") private var talkButtonEnabled: Bool = true
+<<<<<<< HEAD
+=======
+    @AppStorage("talk.background.enabled") private var talkBackgroundEnabled: Bool = false
+>>>>>>> 185c39345 (fix(ios): remove talk voice directive hint)
     @AppStorage("camera.enabled") private var cameraEnabled: Bool = true
     @AppStorage("location.enabledMode") private var locationEnabledModeRaw: String = OpenClawLocationMode.off.rawValue
     @AppStorage("screen.preventSleep") private var preventSleep: Bool = true
@@ -325,10 +329,6 @@ struct SettingsTab: View {
                                     .font(.footnote)
                                     .foregroundStyle(.secondary)
                             }
-                            self.featureToggle(
-                                "Voice Directive Hint",
-                                isOn: self.$talkVoiceDirectiveHintEnabled,
-                                help: "Adds voice-switching instructions to Talk prompts. Disable to reduce prompt size.")
                             self.featureToggle(
                                 "Show Talk Button",
                                 isOn: self.$talkButtonEnabled,
