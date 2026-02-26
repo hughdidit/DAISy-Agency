@@ -54,6 +54,7 @@ These are frequently reported but are typically closed with no code change:
 - Authorized user-triggered local actions presented as privilege escalation. Example: an allowlisted/owner sender running `/export-session /absolute/path.html` to write on the host. In this trust model, authorized user actions are trusted host actions unless you demonstrate an auth/sandbox/boundary bypass.
 - Reports that only show a malicious plugin executing privileged actions after a trusted operator installs/enables it.
 - Reports that assume per-user multi-tenant authorization on a shared gateway host/config.
+- Reports that only show differences in heuristic detection/parity (for example obfuscation-pattern detection on one exec path but not another) without demonstrating bypass of auth, approvals, allowlist enforcement, sandboxing, or other documented trust boundaries.
 - ReDoS/DoS claims that require trusted operator configuration input (for example catastrophic regex in `sessionFilter` or `logging.redactPatterns`) without a trust-boundary bypass.
 - Missing HSTS findings on default local/loopback deployments.
 - Slack webhook signature findings when HTTP mode already uses signing-secret verification.
@@ -144,8 +145,12 @@ Plugins/extensions are part of OpenClaw's trusted computing base for a gateway.
 >>>>>>> cfa44ea6b (fix(security): make allowFrom id-only by default with dangerous name opt-in (#24907))
 - Reports that depend on trusted operator-supplied configuration values to trigger availability impact (for example custom regex patterns). These may still be fixed as defense-in-depth hardening, but are not security-boundary bypasses.
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 7b4d2cb5c (docs(security): clarify trusted-config dos scope)
 =======
+=======
+- Reports whose only claim is heuristic/parity drift in command-risk detection (for example obfuscation-pattern checks) across exec surfaces, without a demonstrated trust-boundary bypass. These may be accepted as hardening improvements, but not as vulnerabilities.
+>>>>>>> 9597cf189 (docs(security): scope obfuscation parity reports as hardening)
 - Exposed secrets that are third-party/user-controlled credentials (not OpenClaw-owned and not granting access to OpenClaw-operated infrastructure/services) without demonstrated OpenClaw impact
 <<<<<<< HEAD
 >>>>>>> d68380bb7 (docs(security): clarify exposed-secret report scope)
