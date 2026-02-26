@@ -332,8 +332,14 @@ export function normalizeProviders(params: {
 
 function buildMinimaxProvider(): ProviderConfig {
   return {
+<<<<<<< HEAD
     baseUrl: MINIMAX_API_BASE_URL,
     api: "openai-completions",
+=======
+    baseUrl: MINIMAX_PORTAL_BASE_URL,
+    api: "anthropic-messages",
+    authHeader: true,
+>>>>>>> 60bb47535 (fix: set authHeader: true by default for MiniMax API provider (#27622))
     models: [
       {
         id: MINIMAX_DEFAULT_MODEL_ID,
@@ -361,6 +367,7 @@ function buildMinimaxPortalProvider(): ProviderConfig {
   return {
     baseUrl: MINIMAX_PORTAL_BASE_URL,
     api: "anthropic-messages",
+    authHeader: true,
     models: [
       {
         id: MINIMAX_DEFAULT_MODEL_ID,
