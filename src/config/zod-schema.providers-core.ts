@@ -199,10 +199,16 @@ export const TelegramAccountSchemaBase = z
     webhookPort: z
       .number()
       .int()
-      .positive()
+      .nonnegative()
       .optional()
+<<<<<<< HEAD
       .describe("Local bind port for the webhook listener. Defaults to 8787."),
 >>>>>>> 840b768d9 (Telegram: improve webhook config guidance and startup fallback)
+=======
+      .describe(
+        "Local bind port for the webhook listener. Defaults to 8787; set to 0 to let the OS assign an ephemeral port.",
+      ),
+>>>>>>> dbfdf60a4 (fix(telegram): Allow ephemeral webhookPort)
     actions: z
       .object({
         reactions: z.boolean().optional(),
