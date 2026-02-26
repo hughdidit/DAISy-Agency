@@ -491,6 +491,10 @@ class NodeRuntime(context: Context) {
     }
 
     scope.launch {
+      prefs.loadGatewayToken()
+    }
+
+    scope.launch {
       prefs.talkEnabled.collect { enabled ->
         micCapture.setMicEnabled(enabled)
         externalAudioCaptureActive.value = enabled
