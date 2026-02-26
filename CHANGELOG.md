@@ -25,6 +25,7 @@ Docs: https://docs.openclaw.ai
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ## 2026.1.31
 =======
 =======
@@ -61,6 +62,9 @@ Docs: https://docs.openclaw.ai
 >>>>>>> fd1028681 (docs(changelog): mark allowFrom id-only default as breaking)
 =======
 ## 2026.2.25 (Unreleased)
+=======
+## 2026.2.25
+>>>>>>> 4b5d4a4c6 (docs: finalize 2026.2.25 release notes and appcast)
 
 ### Changes
 
