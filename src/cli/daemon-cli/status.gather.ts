@@ -246,9 +246,11 @@ export async function gatherDaemonStatus(
   const timeoutMsRaw = Number.parseInt(String(opts.rpc.timeout ?? "10000"), 10);
   const timeoutMs = Number.isFinite(timeoutMsRaw) && timeoutMsRaw > 0 ? timeoutMsRaw : 10_000;
 
-  // Load TLS config for secure WebSocket connections
   const tlsEnabled = daemonCfg.gateway?.tls?.enabled === true;
-  const tlsRuntime = tlsEnabled ? await loadGatewayTlsRuntime(daemonCfg.gateway?.tls) : undefined;
+  const shouldUseLocalTlsRuntime = opts.probe && !probeUrlOverride && tlsEnabled;
+  const tlsRuntime = shouldUseLocalTlsRuntime
+    ? await loadGatewayTlsRuntime(daemonCfg.gateway?.tls)
+    : undefined;
 
   const rpc = opts.probe
     ? await probeGatewayStatus({
@@ -261,7 +263,10 @@ export async function gatherDaemonStatus(
           opts.rpc.password ||
           mergedDaemonEnv.CLAWDBOT_GATEWAY_PASSWORD ||
           daemonCfg.gateway?.auth?.password,
-        tlsFingerprint: tlsRuntime?.enabled ? tlsRuntime.fingerprintSha256 : undefined,
+        tlsFingerprint:
+          shouldUseLocalTlsRuntime && tlsRuntime?.enabled
+            ? tlsRuntime.fingerprintSha256
+            : undefined,
         timeoutMs,
         json: opts.rpc.json,
         configPath: daemonConfigSummary.path,
