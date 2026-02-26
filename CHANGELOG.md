@@ -24,7 +24,15 @@ Docs: https://docs.openclaw.ai
 =======
 =======
 
+<<<<<<< HEAD
 ### Breaking
+=======
+### Changes
+
+- Agents/Routing CLI: add `openclaw agents bindings`, `openclaw agents bind`, and `openclaw agents unbind` for account-scoped route management, including channel-only to account-scoped binding upgrades, role-aware binding identity handling, plugin-resolved binding account IDs, and optional account-binding prompts in `openclaw channels add`. (#27195) thanks @gumadeiras.
+
+### Fixes
+>>>>>>> 96c770252 (Agents: add account-scoped bind and routing commands (#27195))
 
 - **BREAKING:** non-loopback Control UI now requires explicit `gateway.controlUi.allowedOrigins` (full origins). Startup fails closed when missing unless `gateway.controlUi.dangerouslyAllowHostHeaderOriginFallback=true` is set to use Host-header origin fallback mode.
 <<<<<<< HEAD
