@@ -178,6 +178,8 @@ export function createMoltbotCodingTools(options?: {
   /** If true, the model has native vision capability */
   modelHasVision?: boolean;
 }): AnyAgentTool[] {
+  const rawMessageProvider = options?.messageProvider?.trim().toLowerCase();
+  const isVoiceMessageProvider = rawMessageProvider === "voice";
   const execToolName = "exec";
   const sandbox = options?.sandbox?.enabled ? options.sandbox : undefined;
   const {
@@ -381,6 +383,7 @@ export function createMoltbotCodingTools(options?: {
       senderIsOwner: options?.senderIsOwner,
     }),
   ];
+<<<<<<< HEAD
   const coreToolNames = new Set(
     tools
       .filter((tool) => !getPluginToolMeta(tool as AnyAgentTool))
@@ -390,6 +393,34 @@ export function createMoltbotCodingTools(options?: {
   const pluginGroups = buildPluginToolGroups({
     tools,
     toolMeta: (tool) => getPluginToolMeta(tool as AnyAgentTool),
+=======
+  const toolsForMessageProvider = isVoiceMessageProvider
+    ? tools.filter((tool) => tool.name !== "tts")
+    : tools;
+  // Security: treat unknown/undefined as unauthorized (opt-in, not opt-out)
+  const senderIsOwner = options?.senderIsOwner === true;
+  const toolsByAuthorization = applyOwnerOnlyToolPolicy(toolsForMessageProvider, senderIsOwner);
+  const subagentFiltered = applyToolPolicyPipeline({
+    tools: toolsByAuthorization,
+    toolMeta: (tool) => getPluginToolMeta(tool),
+    warn: logWarn,
+    steps: [
+      ...buildDefaultToolPolicyPipelineSteps({
+        profilePolicy: profilePolicyWithAlsoAllow,
+        profile,
+        providerProfilePolicy: providerProfilePolicyWithAlsoAllow,
+        providerProfile,
+        globalPolicy,
+        globalProviderPolicy,
+        agentPolicy,
+        agentProviderPolicy,
+        groupPolicy,
+        agentId,
+      }),
+      { policy: sandbox?.tools, label: "sandbox tools.allow" },
+      { policy: subagentPolicy, label: "subagent tools.allow" },
+    ],
+>>>>>>> 8f8e2b13b (fix: disable tts tool for voice provider)
   });
   const resolvePolicy = (policy: typeof profilePolicy, label: string) => {
     const resolved = stripPluginOnlyAllowlist(policy, pluginGroups, coreToolNames);
