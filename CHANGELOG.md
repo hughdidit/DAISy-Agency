@@ -57,6 +57,7 @@ Docs: https://docs.openclaw.ai
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 =======
@@ -65,6 +66,9 @@ Docs: https://docs.openclaw.ai
 =======
 =======
 =======
+=======
+- Agents/Canvas default node resolution: when multiple connected canvas-capable nodes exist and no single `mac-*` candidate is selected, default to the first connected candidate instead of failing with `node required` for implicit-node canvas tool calls. Landed from contributor PR #27444 by @carbaj03. Thanks @carbaj03.
+>>>>>>> da9f24dd2 (fix: add nodes default-node regression test (#27444) (thanks @carbaj03))
 - TUI/stream assembly: preserve streamed text across real tool-boundary drops without keeping stale streamed text when non-text blocks appear only in the final payload. Landed from contributor PR #27711 by @scz2011. (#27674)
 <<<<<<< HEAD
 >>>>>>> b01273cfc (fix: narrow finalize boundary-drop guard (#27711) (thanks @scz2011))
