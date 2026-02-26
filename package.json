@@ -64,6 +64,7 @@
     "canvas:a2ui:bundle": "bash scripts/bundle-a2ui.sh",
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     "check": "pnpm tsgo && pnpm lint && pnpm format",
     "check:docs": "pnpm format:docs && pnpm lint:docs && pnpm docs:build",
 =======
@@ -71,6 +72,9 @@
 =======
 >>>>>>> e806b3477 (chore: remove changelog add helper script)
     "check": "pnpm format:check && pnpm tsgo && pnpm lint",
+=======
+    "check": "pnpm format:check && pnpm tsgo && pnpm lint && pnpm lint:tmp:no-random-messaging && pnpm lint:tmp:channel-agnostic-boundaries && pnpm lint:tmp:no-raw-channel-fetch && pnpm lint:auth:no-pairing-store-group",
+>>>>>>> 57334cd7d (refactor: unify channel/plugin ssrf fetch policy and auth fallback)
     "check:docs": "pnpm format:docs:check && pnpm lint:docs && pnpm docs:check-links",
 >>>>>>> d18ae2256 (refactor: unify channel plugin resolution, family ordering, and changelog entry tooling)
     "check:loc": "node --import tsx scripts/check-ts-max-loc.ts --max 500",
@@ -112,6 +116,12 @@
     "lint:docs:fix": "pnpm dlx markdownlint-cli2 --fix",
     "lint:fix": "oxlint --type-aware --fix && pnpm format:fix",
     "lint:swift": "swiftlint lint --config .swiftlint.yml && (cd apps/ios && swiftlint lint --config .swiftlint.yml)",
+<<<<<<< HEAD
+=======
+    "lint:tmp:channel-agnostic-boundaries": "node scripts/check-channel-agnostic-boundaries.mjs",
+    "lint:tmp:no-random-messaging": "node scripts/check-no-random-messaging-tmp.mjs",
+    "lint:tmp:no-raw-channel-fetch": "node scripts/check-no-raw-channel-fetch.mjs",
+>>>>>>> 57334cd7d (refactor: unify channel/plugin ssrf fetch policy and auth fallback)
     "lint:ui:no-raw-window-open": "node scripts/check-no-raw-window-open.mjs",
     "mac:open": "open dist/OpenClaw.app",
     "mac:package": "bash scripts/package-mac-app.sh",

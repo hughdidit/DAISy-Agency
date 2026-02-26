@@ -1,3 +1,4 @@
+import { fetchWithBearerAuthScopeFallback } from "openclaw/plugin-sdk";
 import { getMSTeamsRuntime } from "../runtime.js";
 import { downloadAndStoreMSTeamsRemoteMedia } from "./remote-media.js";
 import {
@@ -7,6 +8,7 @@ import {
   isRecord,
   isUrlAllowed,
   normalizeContentType,
+  resolveMediaSsrfPolicy,
   resolveRequestUrl,
   resolveAuthAllowedHosts,
   resolveAllowedHosts,
@@ -88,6 +90,7 @@ async function fetchWithAuthFallback(params: {
   url: string;
   tokenProvider?: MSTeamsAccessTokenProvider;
   fetchFn?: typeof fetch;
+<<<<<<< HEAD
   allowHosts: string[];
   authAllowHosts: string[];
 }): Promise<Response> {
@@ -142,6 +145,20 @@ async function fetchWithAuthFallback(params: {
   }
 
   return firstAttempt;
+=======
+  requestInit?: RequestInit;
+  authAllowHosts: string[];
+}): Promise<Response> {
+  return await fetchWithBearerAuthScopeFallback({
+    url: params.url,
+    scopes: scopeCandidatesForUrl(params.url),
+    tokenProvider: params.tokenProvider,
+    fetchFn: params.fetchFn,
+    requestInit: params.requestInit,
+    requireHttps: true,
+    shouldAttachAuth: (url) => isUrlAllowed(url, params.authAllowHosts),
+  });
+>>>>>>> 57334cd7d (refactor: unify channel/plugin ssrf fetch policy and auth fallback)
 }
 
 function readRedirectUrl(baseUrl: string, res: Response): string | null {
@@ -179,6 +196,7 @@ export async function downloadMSTeamsAttachments(params: {
   }
   const allowHosts = resolveAllowedHosts(params.allowHosts);
   const authAllowHosts = resolveAuthAllowedHosts(params.authAllowHosts);
+  const ssrfPolicy = resolveMediaSsrfPolicy(allowHosts);
 
   // Download ANY downloadable attachment (not just images)
   const downloadable = list.filter(isDownloadableAttachment);
@@ -280,13 +298,13 @@ export async function downloadMSTeamsAttachments(params: {
         contentTypeHint: candidate.contentTypeHint,
         placeholder: candidate.placeholder,
         preserveFilenames: params.preserveFilenames,
+        ssrfPolicy,
         fetchImpl: (input, init) =>
           fetchWithAuthFallback({
             url: resolveRequestUrl(input),
             tokenProvider: params.tokenProvider,
             fetchFn: params.fetchFn,
             requestInit: init,
-            allowHosts,
             authAllowHosts,
           }),
 >>>>>>> 61dc7ac67 (refactor(msteams,bluebubbles): dedupe inbound media download helpers)
