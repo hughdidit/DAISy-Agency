@@ -203,6 +203,7 @@ import { formatGatewayAuthFailureMessage, type AuthProvidedKind } from "./auth-m
 =======
 import {
   evaluateMissingDeviceIdentity,
+  isTrustedProxyControlUiOperatorAuth,
   resolveControlUiAuthPolicy,
   shouldSkipControlUiPairing,
 } from "./connect-policy.js";
@@ -785,12 +786,13 @@ export function attachGatewayWsMessageHandler(params: {
           if (!device) {
             clearUnboundScopes();
           }
-          const trustedProxyAuthOk =
-            isControlUi &&
-            role === "operator" &&
-            resolvedAuth.mode === "trusted-proxy" &&
-            authOk &&
-            authMethod === "trusted-proxy";
+          const trustedProxyAuthOk = isTrustedProxyControlUiOperatorAuth({
+            isControlUi,
+            role,
+            authMode: resolvedAuth.mode,
+            authOk,
+            authMethod,
+          });
           const decision = evaluateMissingDeviceIdentity({
             hasDeviceIdentity: Boolean(device),
             role,
@@ -957,12 +959,13 @@ export function attachGatewayWsMessageHandler(params: {
           return;
         }
 
-        const trustedProxyAuthOk =
-          isControlUi &&
-          role === "operator" &&
-          resolvedAuth.mode === "trusted-proxy" &&
-          authOk &&
-          authMethod === "trusted-proxy";
+        const trustedProxyAuthOk = isTrustedProxyControlUiOperatorAuth({
+          isControlUi,
+          role,
+          authMode: resolvedAuth.mode,
+          authOk,
+          authMethod,
+        });
         const skipPairing = shouldSkipControlUiPairing(
           controlUiAuthPolicy,
           sharedAuthOk,
