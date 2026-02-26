@@ -209,9 +209,67 @@ describe("chrome extension relay server", () => {
   });
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 39881a318 (Browser: reuse extension relay when relay port is already occupied (#20035))
   it("tracks attached page targets and exposes them via CDP + /json/list", async () => {
 =======
+=======
+  it("allows CORS preflight from chrome-extension origins", async () => {
+    const port = await getFreePort();
+    cdpUrl = `http://127.0.0.1:${port}`;
+    await ensureChromeExtensionRelayServer({ cdpUrl });
+
+    const origin = "chrome-extension://abcdefghijklmnop";
+    const res = await fetch(`${cdpUrl}/json/version`, {
+      method: "OPTIONS",
+      headers: {
+        Origin: origin,
+        "Access-Control-Request-Method": "GET",
+        "Access-Control-Request-Headers": "x-openclaw-relay-token",
+      },
+    });
+
+    expect(res.status).toBe(204);
+    expect(res.headers.get("access-control-allow-origin")).toBe(origin);
+    expect(res.headers.get("access-control-allow-headers") ?? "").toContain(
+      "x-openclaw-relay-token",
+    );
+  });
+
+  it("rejects CORS preflight from non-extension origins", async () => {
+    const port = await getFreePort();
+    cdpUrl = `http://127.0.0.1:${port}`;
+    await ensureChromeExtensionRelayServer({ cdpUrl });
+
+    const res = await fetch(`${cdpUrl}/json/version`, {
+      method: "OPTIONS",
+      headers: {
+        Origin: "https://example.com",
+        "Access-Control-Request-Method": "GET",
+      },
+    });
+
+    expect(res.status).toBe(403);
+  });
+
+  it("returns CORS headers on JSON responses for extension origins", async () => {
+    const port = await getFreePort();
+    cdpUrl = `http://127.0.0.1:${port}`;
+    await ensureChromeExtensionRelayServer({ cdpUrl });
+
+    const origin = "chrome-extension://abcdefghijklmnop";
+    const res = await fetch(`${cdpUrl}/json/version`, {
+      headers: {
+        Origin: origin,
+        ...relayAuthHeaders(cdpUrl),
+      },
+    });
+
+    expect(res.status).toBe(200);
+    expect(res.headers.get("access-control-allow-origin")).toBe(origin);
+  });
+
+>>>>>>> 4c75eca58 (fix(browser): land PR #23962 extension relay CORS fix)
   it("rejects extension websocket access without relay auth token", async () => {
 >>>>>>> 7e54b6c96 (fix(browser): unify extension relay auth on gateway token)
     const port = await getFreePort();
