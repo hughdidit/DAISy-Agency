@@ -1,8 +1,11 @@
+import syncFs from "node:fs";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import type { AgentTool } from "@mariozechner/pi-agent-core";
 import { Type } from "@sinclair/typebox";
+import { openBoundaryFile, type BoundaryFileOpenResult } from "../infra/boundary-file-read.js";
+import { writeFileWithinRoot } from "../infra/fs-safe.js";
 import { PATH_ALIAS_POLICIES, type PathAliasPolicy } from "../infra/path-alias-guards.js";
 import { applyUpdateHunk } from "./apply-patch-update.js";
 import { assertSandboxPath } from "./sandbox-paths.js";
@@ -232,7 +235,67 @@ function formatSummary(summary: ApplyPatchSummary): string {
   return lines.join("\n");
 }
 
+<<<<<<< HEAD
 async function ensureDir(filePath: string) {
+=======
+type PatchFileOps = {
+  readFile: (filePath: string) => Promise<string>;
+  writeFile: (filePath: string, content: string) => Promise<void>;
+  remove: (filePath: string) => Promise<void>;
+  mkdirp: (dir: string) => Promise<void>;
+};
+
+function resolvePatchFileOps(options: ApplyPatchOptions): PatchFileOps {
+  if (options.sandbox) {
+    const { root, bridge } = options.sandbox;
+    return {
+      readFile: async (filePath) => {
+        const buf = await bridge.readFile({ filePath, cwd: root });
+        return buf.toString("utf8");
+      },
+      writeFile: (filePath, content) => bridge.writeFile({ filePath, cwd: root, data: content }),
+      remove: (filePath) => bridge.remove({ filePath, cwd: root, force: false }),
+      mkdirp: (dir) => bridge.mkdirp({ filePath: dir, cwd: root }),
+    };
+  }
+  const workspaceOnly = options.workspaceOnly !== false;
+  return {
+    readFile: async (filePath) => {
+      if (!workspaceOnly) {
+        return await fs.readFile(filePath, "utf8");
+      }
+      const opened = await openBoundaryFile({
+        absolutePath: filePath,
+        rootPath: options.cwd,
+        boundaryLabel: "workspace root",
+      });
+      assertBoundaryRead(opened, filePath);
+      try {
+        return syncFs.readFileSync(opened.fd, "utf8");
+      } finally {
+        syncFs.closeSync(opened.fd);
+      }
+    },
+    writeFile: async (filePath, content) => {
+      if (!workspaceOnly) {
+        await fs.writeFile(filePath, content, "utf8");
+        return;
+      }
+      const relative = toRelativeWorkspacePath(options.cwd, filePath);
+      await writeFileWithinRoot({
+        rootDir: options.cwd,
+        relativePath: relative,
+        data: content,
+        encoding: "utf8",
+      });
+    },
+    remove: (filePath) => fs.rm(filePath),
+    mkdirp: (dir) => fs.mkdir(dir, { recursive: true }).then(() => {}),
+  };
+}
+
+async function ensureDir(filePath: string, ops: PatchFileOps) {
+>>>>>>> e3385a657 (fix(security): harden root file guards and host writes)
   const parent = path.dirname(filePath);
   if (!parent || parent === ".") return;
   await fs.mkdir(parent, { recursive: true });
@@ -306,6 +369,7 @@ function normalizeUnicodeSpaces(value: string): string {
   return value.replace(UNICODE_SPACES, " ");
 }
 
+<<<<<<< HEAD
 function expandPath(filePath: string): string {
   const normalized = normalizeUnicodeSpaces(filePath);
 <<<<<<< HEAD
@@ -339,6 +403,29 @@ function resolvePathFromCwd(filePath: string, cwd: string): string {
 }
 
 >>>>>>> 5e7c3250c (fix(security): add optional workspace-only path guards for fs tools)
+=======
+function toRelativeWorkspacePath(workspaceRoot: string, absolutePath: string): string {
+  const rootResolved = path.resolve(workspaceRoot);
+  const resolved = path.resolve(absolutePath);
+  const relative = path.relative(rootResolved, resolved);
+  if (!relative || relative === "." || relative.startsWith("..") || path.isAbsolute(relative)) {
+    throw new Error(`Path escapes sandbox root (${workspaceRoot}): ${absolutePath}`);
+  }
+  return relative;
+}
+
+function assertBoundaryRead(
+  opened: BoundaryFileOpenResult,
+  targetPath: string,
+): asserts opened is Extract<BoundaryFileOpenResult, { ok: true }> {
+  if (opened.ok) {
+    return;
+  }
+  const reason = opened.reason === "validation" ? "unsafe path" : "path not found";
+  throw new Error(`Failed boundary read for ${targetPath} (${reason})`);
+}
+
+>>>>>>> e3385a657 (fix(security): harden root file guards and host writes)
 function toDisplayPath(resolved: string, cwd: string): string {
   const relative = path.relative(cwd, resolved);
   if (!relative || relative === "") return path.basename(resolved);

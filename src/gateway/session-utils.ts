@@ -19,6 +19,10 @@ import {
   type SessionEntry,
   type SessionScope,
 } from "../config/sessions.js";
+<<<<<<< HEAD
+=======
+import { openBoundaryFileSync } from "../infra/boundary-file-read.js";
+>>>>>>> e3385a657 (fix(security): harden root file guards and host writes)
 import {
   normalizeAgentId,
   normalizeMainKey,
@@ -136,11 +140,32 @@ function resolveIdentityAvatarUrl(
   }
 >>>>>>> e0db04a50 (fix(security): harden avatar validation and size limits)
   try {
+<<<<<<< HEAD
     const stat = fs.statSync(resolved);
     if (!stat.isFile() || stat.size > AVATAR_MAX_BYTES) return undefined;
     const buffer = fs.readFileSync(resolved);
     const mime = resolveAvatarMime(resolved);
     return `data:${mime};base64,${buffer.toString("base64")}`;
+=======
+    const opened = openBoundaryFileSync({
+      absolutePath: resolvedCandidate,
+      rootPath: workspaceRoot,
+      rootRealPath: workspaceRoot,
+      boundaryLabel: "workspace root",
+      maxBytes: AVATAR_MAX_BYTES,
+      skipLexicalRootCheck: true,
+    });
+    if (!opened.ok) {
+      return undefined;
+    }
+    try {
+      const buffer = fs.readFileSync(opened.fd);
+      const mime = resolveAvatarMime(resolvedCandidate);
+      return `data:${mime};base64,${buffer.toString("base64")}`;
+    } finally {
+      fs.closeSync(opened.fd);
+    }
+>>>>>>> e3385a657 (fix(security): harden root file guards and host writes)
   } catch {
     return undefined;
   }
