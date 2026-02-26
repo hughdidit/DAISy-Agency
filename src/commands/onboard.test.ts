@@ -1,3 +1,4 @@
+import path from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { RuntimeEnv } from "../runtime.js";
 
@@ -76,6 +77,37 @@ describe("onboardCommand", () => {
     );
   });
 
+<<<<<<< HEAD
+=======
+  it("uses configured default workspace for --reset when --workspace is not provided", async () => {
+    const runtime = makeRuntime();
+    mocks.readConfigFileSnapshot.mockResolvedValue({
+      exists: true,
+      valid: true,
+      config: {
+        agents: {
+          defaults: {
+            workspace: "/tmp/openclaw-custom-workspace",
+          },
+        },
+      },
+    });
+
+    await onboardCommand(
+      {
+        reset: true,
+      },
+      runtime,
+    );
+
+    expect(mocks.handleReset).toHaveBeenCalledWith(
+      "config+creds+sessions",
+      path.resolve("/tmp/openclaw-custom-workspace"),
+      runtime,
+    );
+  });
+
+>>>>>>> f7041fbee (fix(windows): normalize namespaced path containment checks)
   it("accepts explicit --reset-scope full", async () => {
     const runtime = makeRuntime();
 
