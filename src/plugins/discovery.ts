@@ -1,5 +1,9 @@
 import fs from "node:fs";
 import path from "node:path";
+<<<<<<< HEAD
+=======
+import { openBoundaryFileSync } from "../infra/boundary-file-read.js";
+>>>>>>> eac86c208 (refactor: unify boundary hardening for file reads)
 import { resolveConfigDir, resolveUserPath } from "../utils.js";
 import { resolveBundledPluginsDir } from "./bundled-dir.js";
 import {
@@ -283,7 +287,7 @@ function addCandidate(params: {
   if (params.seen.has(resolved)) {
     return;
   }
-  const resolvedRoot = path.resolve(params.rootDir);
+  const resolvedRoot = safeRealpathSync(params.rootDir) ?? path.resolve(params.rootDir);
   if (
     isUnsafePluginCandidate({
       source: resolved,
@@ -311,6 +315,34 @@ function addCandidate(params: {
   });
 }
 
+<<<<<<< HEAD
+=======
+function resolvePackageEntrySource(params: {
+  packageDir: string;
+  entryPath: string;
+  sourceLabel: string;
+  diagnostics: PluginDiagnostic[];
+}): string | null {
+  const source = path.resolve(params.packageDir, params.entryPath);
+  const opened = openBoundaryFileSync({
+    absolutePath: source,
+    rootPath: params.packageDir,
+    boundaryLabel: "plugin package directory",
+  });
+  if (!opened.ok) {
+    params.diagnostics.push({
+      level: "error",
+      message: `extension entry escapes package directory: ${params.entryPath}`,
+      source: params.sourceLabel,
+    });
+    return null;
+  }
+  const safeSource = opened.path;
+  fs.closeSync(opened.fd);
+  return safeSource;
+}
+
+>>>>>>> eac86c208 (refactor: unify boundary hardening for file reads)
 function discoverInDirectory(params: {
   dir: string;
   origin: PluginOrigin;

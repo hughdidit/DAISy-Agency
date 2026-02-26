@@ -199,6 +199,82 @@ describe("discoverOpenClawPlugins", () => {
     ).toBe(true);
   });
 
+<<<<<<< HEAD
+=======
+  it("rejects package extension entries that escape via symlink", async () => {
+    const stateDir = makeTempDir();
+    const globalExt = path.join(stateDir, "extensions", "pack");
+    const outsideDir = path.join(stateDir, "outside");
+    const linkedDir = path.join(globalExt, "linked");
+    fs.mkdirSync(globalExt, { recursive: true });
+    fs.mkdirSync(outsideDir, { recursive: true });
+    fs.writeFileSync(path.join(outsideDir, "escape.ts"), "export default {}", "utf-8");
+    try {
+      fs.symlinkSync(outsideDir, linkedDir, process.platform === "win32" ? "junction" : "dir");
+    } catch {
+      return;
+    }
+
+    fs.writeFileSync(
+      path.join(globalExt, "package.json"),
+      JSON.stringify({
+        name: "@openclaw/pack",
+        openclaw: { extensions: ["./linked/escape.ts"] },
+      }),
+      "utf-8",
+    );
+
+    const { candidates, diagnostics } = await withStateDir(stateDir, async () => {
+      return discoverOpenClawPlugins({});
+    });
+
+    expect(candidates.some((candidate) => candidate.idHint === "pack")).toBe(false);
+    expect(diagnostics.some((entry) => entry.message.includes("escapes package directory"))).toBe(
+      true,
+    );
+  });
+
+  it("rejects package extension entries that are hardlinked aliases", async () => {
+    if (process.platform === "win32") {
+      return;
+    }
+    const stateDir = makeTempDir();
+    const globalExt = path.join(stateDir, "extensions", "pack");
+    const outsideDir = path.join(stateDir, "outside");
+    const outsideFile = path.join(outsideDir, "escape.ts");
+    const linkedFile = path.join(globalExt, "escape.ts");
+    fs.mkdirSync(globalExt, { recursive: true });
+    fs.mkdirSync(outsideDir, { recursive: true });
+    fs.writeFileSync(outsideFile, "export default {}", "utf-8");
+    try {
+      fs.linkSync(outsideFile, linkedFile);
+    } catch (err) {
+      if ((err as NodeJS.ErrnoException).code === "EXDEV") {
+        return;
+      }
+      throw err;
+    }
+
+    fs.writeFileSync(
+      path.join(globalExt, "package.json"),
+      JSON.stringify({
+        name: "@openclaw/pack",
+        openclaw: { extensions: ["./escape.ts"] },
+      }),
+      "utf-8",
+    );
+
+    const { candidates, diagnostics } = await withStateDir(stateDir, async () => {
+      return discoverOpenClawPlugins({});
+    });
+
+    expect(candidates.some((candidate) => candidate.idHint === "pack")).toBe(false);
+    expect(diagnostics.some((entry) => entry.message.includes("escapes package directory"))).toBe(
+      true,
+    );
+  });
+
+>>>>>>> eac86c208 (refactor: unify boundary hardening for file reads)
   it.runIf(process.platform !== "win32")("blocks world-writable plugin paths", async () => {
     const stateDir = makeTempDir();
     const globalExt = path.join(stateDir, "extensions");

@@ -5,6 +5,7 @@ import { createJiti } from "jiti";
 import { normalizeChatChannelId } from "../channels/registry.js";
 import type { OpenClawConfig } from "../config/config.js";
 import type { GatewayRequestHandler } from "../gateway/server-methods/types.js";
+import { openBoundaryFileSync } from "../infra/boundary-file-read.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import { resolveUserPath } from "../utils.js";
 import { clearPluginCommands } from "./commands.js";
@@ -531,9 +532,34 @@ export function loadOpenClawPlugins(options: PluginLoadOptions = {}): PluginRegi
       continue;
     }
 
+<<<<<<< HEAD
+=======
+    const pluginRoot = safeRealpathOrResolve(candidate.rootDir);
+    const opened = openBoundaryFileSync({
+      absolutePath: candidate.source,
+      rootPath: pluginRoot,
+      boundaryLabel: "plugin root",
+    });
+    if (!opened.ok) {
+      record.status = "error";
+      record.error = "plugin entry path escapes plugin root or fails alias checks";
+      registry.plugins.push(record);
+      seenIds.set(pluginId, candidate.origin);
+      registry.diagnostics.push({
+        level: "error",
+        pluginId: record.id,
+        source: record.source,
+        message: record.error,
+      });
+      continue;
+    }
+    const safeSource = opened.path;
+    fs.closeSync(opened.fd);
+
+>>>>>>> eac86c208 (refactor: unify boundary hardening for file reads)
     let mod: OpenClawPluginModule | null = null;
     try {
-      mod = getJiti()(candidate.source) as OpenClawPluginModule;
+      mod = getJiti()(safeSource) as OpenClawPluginModule;
     } catch (err) {
       recordPluginError({
         logger,
@@ -694,4 +720,12 @@ export function loadOpenClawPlugins(options: PluginLoadOptions = {}): PluginRegi
   setActivePluginRegistry(registry, cacheKey);
   initializeGlobalHookRunner(registry);
   return registry;
+}
+
+function safeRealpathOrResolve(value: string): string {
+  try {
+    return fs.realpathSync(value);
+  } catch {
+    return path.resolve(value);
+  }
 }
