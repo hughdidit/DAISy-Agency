@@ -40,11 +40,18 @@ const SMS_DANGEROUS_COMMANDS = ["sms.send"];
 const IOS_SYSTEM_COMMANDS = ["system.notify"];
 
 const SYSTEM_COMMANDS = [
+<<<<<<< HEAD
   "system.run",
   "system.which",
   "system.notify",
   "system.execApprovals.get",
   "system.execApprovals.set",
+=======
+  "system.run.prepare",
+  "system.run",
+  "system.which",
+  "system.notify",
+>>>>>>> 78a7ff2d5 (fix(security): harden node exec approvals against symlink rebind)
   "browser.proxy",
 ];
 
