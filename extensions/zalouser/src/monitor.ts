@@ -20,6 +20,7 @@ import type {
 } from "openclaw/plugin-sdk";
 >>>>>>> 0183610db (refactor: de-duplicate channel runtime and payload helpers)
 import {
+  createScopedPairingAccess,
   createReplyPrefixOptions,
   resolveOutboundMediaUrls,
   mergeAllowlist,
@@ -227,6 +228,11 @@ async function processMessage(
   statusSink?: (patch: { lastInboundAt?: number; lastOutboundAt?: number }) => void,
 ): Promise<void> {
   const { threadId, content, timestamp, metadata } = message;
+  const pairing = createScopedPairingAccess({
+    core,
+    channel: "zalouser",
+    accountId: account.accountId,
+  });
   if (!content?.trim()) {
     return;
   }
@@ -283,7 +289,7 @@ async function processMessage(
     configuredAllowFrom: configAllowFrom,
     senderId,
     isSenderAllowed,
-    readAllowFromStore: () => core.channel.pairing.readAllowFromStore("zalouser"),
+    readAllowFromStore: pairing.readAllowFromStore,
     shouldComputeCommandAuthorized: (body, cfg) =>
       core.channel.commands.shouldComputeCommandAuthorized(body, cfg),
     resolveCommandAuthorizedFromAuthorizers: (params) =>
@@ -301,8 +307,7 @@ async function processMessage(
 
       if (!allowed) {
         if (dmPolicy === "pairing") {
-          const { code, created } = await core.channel.pairing.upsertPairingRequest({
-            channel: "zalouser",
+          const { code, created } = await pairing.upsertPairingRequest({
             id: senderId,
             meta: { name: senderName || undefined },
           });

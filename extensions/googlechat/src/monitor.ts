@@ -11,6 +11,7 @@ import { createReplyPrefixOptions, resolveMentionGatingWithBypass } from "opencl
 =======
 import {
   GROUP_POLICY_BLOCKED_LABEL,
+  createScopedPairingAccess,
   createReplyPrefixOptions,
   readJsonBodyWithLimit,
   registerWebhookTarget,
@@ -496,6 +497,11 @@ async function processMessageWithPipeline(params: {
   mediaMaxMb: number;
 }): Promise<void> {
   const { event, account, config, runtime, core, statusSink, mediaMaxMb } = params;
+  const pairing = createScopedPairingAccess({
+    core,
+    channel: "googlechat",
+    accountId: account.accountId,
+  });
   const space = event.space;
   const message = event.message;
   if (!space || !message) {
@@ -607,8 +613,13 @@ async function processMessageWithPipeline(params: {
   const configAllowFrom = (account.config.dm?.allowFrom ?? []).map((v) => String(v));
   const shouldComputeAuth = core.channel.commands.shouldComputeCommandAuthorized(rawBody, config);
   const storeAllowFrom =
+<<<<<<< HEAD
     !isGroup && (dmPolicy !== "open" || shouldComputeAuth)
       ? await core.channel.pairing.readAllowFromStore("googlechat").catch(() => [])
+=======
+    !isGroup && dmPolicy !== "allowlist" && (dmPolicy !== "open" || shouldComputeAuth)
+      ? await pairing.readAllowFromStore().catch(() => [])
+>>>>>>> a0c5e28f3 (refactor(extensions): use scoped pairing helper)
       : [];
   const effectiveAllowFrom = [...configAllowFrom, ...storeAllowFrom];
   const commandAllowFrom = isGroup ? groupUsers.map((v) => String(v)) : effectiveAllowFrom;
@@ -655,6 +666,7 @@ async function processMessageWithPipeline(params: {
       return;
     }
 
+<<<<<<< HEAD
     if (dmPolicy !== "open") {
       const allowed = senderAllowedForCommands;
       if (!allowed) {
@@ -680,6 +692,29 @@ async function processMessageWithPipeline(params: {
             } catch (err) {
               logVerbose(core, runtime, `pairing reply failed for ${senderId}: ${String(err)}`);
             }
+=======
+    if (access.decision !== "allow") {
+      if (access.decision === "pairing") {
+        const { code, created } = await pairing.upsertPairingRequest({
+          id: senderId,
+          meta: { name: senderName || undefined, email: senderEmail },
+        });
+        if (created) {
+          logVerbose(core, runtime, `googlechat pairing request sender=${senderId}`);
+          try {
+            await sendGoogleChatMessage({
+              account,
+              space: spaceId,
+              text: core.channel.pairing.buildPairingReply({
+                channel: "googlechat",
+                idLine: `Your Google Chat user id: ${senderId}`,
+                code,
+              }),
+            });
+            statusSink?.({ lastOutboundAt: Date.now() });
+          } catch (err) {
+            logVerbose(core, runtime, `pairing reply failed for ${senderId}: ${String(err)}`);
+>>>>>>> a0c5e28f3 (refactor(extensions): use scoped pairing helper)
           }
         } else {
           logVerbose(

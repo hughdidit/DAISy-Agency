@@ -4,6 +4,7 @@ import {
   buildPendingHistoryContextFromMap,
   recordPendingHistoryEntryIfEnabled,
   clearHistoryEntriesIfEnabled,
+  createScopedPairingAccess,
   DEFAULT_GROUP_HISTORY_LIMIT,
   type HistoryEntry,
 <<<<<<< HEAD
@@ -730,6 +731,82 @@ export async function handleFeishuMessage(params: {
 
   try {
     const core = getFeishuRuntime();
+<<<<<<< HEAD
+=======
+    const pairing = createScopedPairingAccess({
+      core,
+      channel: "feishu",
+      accountId: account.accountId,
+    });
+    const shouldComputeCommandAuthorized = core.channel.commands.shouldComputeCommandAuthorized(
+      ctx.content,
+      cfg,
+    );
+    const storeAllowFrom =
+      !isGroup &&
+      dmPolicy !== "allowlist" &&
+      (dmPolicy !== "open" || shouldComputeCommandAuthorized)
+        ? await pairing.readAllowFromStore().catch(() => [])
+        : [];
+    const effectiveDmAllowFrom = [...configAllowFrom, ...storeAllowFrom];
+    const dmAllowed = resolveFeishuAllowlistMatch({
+      allowFrom: effectiveDmAllowFrom,
+      senderId: ctx.senderOpenId,
+      senderIds: [senderUserId],
+      senderName: ctx.senderName,
+    }).allowed;
+
+    if (!isGroup && dmPolicy !== "open" && !dmAllowed) {
+      if (dmPolicy === "pairing") {
+        const { code, created } = await pairing.upsertPairingRequest({
+          id: ctx.senderOpenId,
+          meta: { name: ctx.senderName },
+        });
+        if (created) {
+          log(`feishu[${account.accountId}]: pairing request sender=${ctx.senderOpenId}`);
+          try {
+            await sendMessageFeishu({
+              cfg,
+              to: `user:${ctx.senderOpenId}`,
+              text: core.channel.pairing.buildPairingReply({
+                channel: "feishu",
+                idLine: `Your Feishu user id: ${ctx.senderOpenId}`,
+                code,
+              }),
+              accountId: account.accountId,
+            });
+          } catch (err) {
+            log(
+              `feishu[${account.accountId}]: pairing reply failed for ${ctx.senderOpenId}: ${String(err)}`,
+            );
+          }
+        }
+      } else {
+        log(
+          `feishu[${account.accountId}]: blocked unauthorized sender ${ctx.senderOpenId} (dmPolicy=${dmPolicy})`,
+        );
+      }
+      return;
+    }
+
+    const commandAllowFrom = isGroup
+      ? (groupConfig?.allowFrom ?? configAllowFrom)
+      : effectiveDmAllowFrom;
+    const senderAllowedForCommands = resolveFeishuAllowlistMatch({
+      allowFrom: commandAllowFrom,
+      senderId: ctx.senderOpenId,
+      senderIds: [senderUserId],
+      senderName: ctx.senderName,
+    }).allowed;
+    const commandAuthorized = shouldComputeCommandAuthorized
+      ? core.channel.commands.resolveCommandAuthorizedFromAuthorizers({
+          useAccessGroups,
+          authorizers: [
+            { configured: commandAllowFrom.length > 0, allowed: senderAllowedForCommands },
+          ],
+        })
+      : undefined;
+>>>>>>> a0c5e28f3 (refactor(extensions): use scoped pairing helper)
 
     // In group chats, the session is scoped to the group, but the *speaker* is the sender.
     // Using a group-scoped From causes the agent to treat different users as the same person.
