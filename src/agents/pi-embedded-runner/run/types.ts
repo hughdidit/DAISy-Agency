@@ -1,15 +1,24 @@
 import type { AgentMessage } from "@mariozechner/pi-agent-core";
+<<<<<<< HEAD
 import type { Api, AssistantMessage, ImageContent, Model } from "@mariozechner/pi-ai";
 import type { ReasoningLevel, ThinkLevel, VerboseLevel } from "../../../auto-reply/thinking.js";
 import type { AgentStreamParams } from "../../../commands/agent/types.js";
 import type { OpenClawConfig } from "../../../config/config.js";
+=======
+import type { Api, AssistantMessage, Model } from "@mariozechner/pi-ai";
+import type { AuthStorage, ModelRegistry } from "@mariozechner/pi-coding-agent";
+import type { ThinkLevel } from "../../../auto-reply/thinking.js";
+>>>>>>> 5c0255477 (fix: tolerate missing pi-coding-agent backend export)
 import type { SessionSystemPromptReport } from "../../../config/sessions/types.js";
 import type { InputProvenance } from "../../../sessions/input-provenance.js";
 import type { ExecElevatedDefaults, ExecToolDefaults } from "../../bash-tools.js";
 import type { MessagingToolSend } from "../../pi-embedded-messaging.js";
+<<<<<<< HEAD
 import type { BlockReplyChunking, ToolResultFormat } from "../../pi-embedded-subscribe.js";
 import type { AuthStorage, ModelRegistry } from "../../pi-model-discovery.js";
 import type { SkillSnapshot } from "../../skills.js";
+=======
+>>>>>>> 5c0255477 (fix: tolerate missing pi-coding-agent backend export)
 import type { NormalizedUsage } from "../../usage.js";
 import type { ClientToolDefinition } from "./params.js";
 

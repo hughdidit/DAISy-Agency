@@ -1,4 +1,9 @@
 import type { Api, Model } from "@mariozechner/pi-ai";
+<<<<<<< HEAD
+=======
+import type { ModelRegistry } from "@mariozechner/pi-coding-agent";
+import { resolveOpenClawAgentDir } from "../../agents/agent-paths.js";
+>>>>>>> 5c0255477 (fix: tolerate missing pi-coding-agent backend export)
 import type { AuthProfileStore } from "../../agents/auth-profiles.js";
 import type { OpenClawConfig } from "../../config/config.js";
 import type { ModelRow } from "./list.types.js";

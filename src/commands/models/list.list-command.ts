@@ -1,4 +1,10 @@
 import type { Api, Model } from "@mariozechner/pi-ai";
+<<<<<<< HEAD
+=======
+import type { ModelRegistry } from "@mariozechner/pi-coding-agent";
+import { resolveForwardCompatModel } from "../../agents/model-forward-compat.js";
+import { parseModelRef } from "../../agents/model-selection.js";
+>>>>>>> 5c0255477 (fix: tolerate missing pi-coding-agent backend export)
 import type { RuntimeEnv } from "../../runtime.js";
 import type { ModelRow } from "./list.types.js";
 import { ensureAuthProfileStore } from "../../agents/auth-profiles.js";
