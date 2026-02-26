@@ -205,7 +205,17 @@ Example:
 - ✅ Add Reactions (optional but recommended)
 - ✅ Use External Emojis / Stickers (optional; only if you want them)
 
+<<<<<<< HEAD
 Avoid **Administrator** unless you’re debugging and fully trust the bot.
+=======
+    Multi-account precedence:
+
+    - `channels.discord.accounts.default.allowFrom` applies only to the `default` account.
+    - Named accounts inherit `channels.discord.allowFrom` when their own `allowFrom` is unset.
+    - Named accounts do not inherit `channels.discord.accounts.default.allowFrom`.
+
+    DM target format for delivery:
+>>>>>>> 1ffc31983 (Doctor: keep allowFrom account-scoped in multi-account configs)
 
 Copy the generated URL, open it, pick your server, and install the bot.
 

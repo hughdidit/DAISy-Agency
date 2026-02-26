@@ -971,7 +971,15 @@ Provider options:
 - `channels.telegram.dmPolicy`: `pairing | allowlist | open | disabled` (default: pairing).
 - `channels.telegram.allowFrom`: DM allowlist (numeric Telegram user IDs). `open` requires `"*"`.
 - `channels.telegram.groupPolicy`: `open | allowlist | disabled` (default: allowlist).
+<<<<<<< HEAD
 - `channels.telegram.groupAllowFrom`: group sender allowlist (numeric Telegram user IDs).
+=======
+- `channels.telegram.groupAllowFrom`: group sender allowlist (numeric Telegram user IDs). `openclaw doctor --fix` can resolve legacy `@username` entries to IDs.
+- Multi-account precedence:
+  - `channels.telegram.accounts.default.allowFrom` and `channels.telegram.accounts.default.groupAllowFrom` apply only to the `default` account.
+  - Named accounts inherit `channels.telegram.allowFrom` and `channels.telegram.groupAllowFrom` when account-level values are unset.
+  - Named accounts do not inherit `channels.telegram.accounts.default.allowFrom` / `groupAllowFrom`.
+>>>>>>> 1ffc31983 (Doctor: keep allowFrom account-scoped in multi-account configs)
 - `channels.telegram.groups`: per-group defaults + allowlist (use `"*"` for global defaults).
   - `channels.telegram.groups.<id>.groupPolicy`: per-group override for groupPolicy (`open | allowlist | disabled`).
   - `channels.telegram.groups.<id>.requireMention`: mention gating default.
