@@ -8,7 +8,11 @@ title: "acp"
 
 # acp
 
+<<<<<<< HEAD
 Run the ACP (Agent Client Protocol) bridge that talks to a Moltbot Gateway.
+=======
+Run the [Agent Client Protocol (ACP)](https://agentclientprotocol.com/) bridge that talks to a OpenClaw Gateway.
+>>>>>>> d320b30b9 (Docs: expand ACP first-use naming and link protocol site)
 
 This command speaks ACP over stdio for IDEs and forwards prompts to the Gateway
 over WebSocket. It keeps ACP sessions mapped to Gateway session keys.
