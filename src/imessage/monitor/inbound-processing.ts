@@ -138,6 +138,7 @@ export function resolveIMessageInboundDecision(params: {
   }
 
   const groupId = isGroup ? groupIdCandidate : undefined;
+<<<<<<< HEAD
   const storeAllowFrom = params.dmPolicy === "allowlist" ? [] : params.storeAllowFrom;
   const effectiveDmAllowFrom = Array.from(new Set([...params.allowFrom, ...storeAllowFrom]))
     .map((v) => String(v).trim())
@@ -146,6 +147,27 @@ export function resolveIMessageInboundDecision(params: {
   const effectiveGroupAllowFrom = Array.from(new Set(params.groupAllowFrom))
     .map((v) => String(v).trim())
     .filter(Boolean);
+=======
+  const accessDecision = resolveDmGroupAccessWithLists({
+    isGroup,
+    dmPolicy: params.dmPolicy,
+    groupPolicy: params.groupPolicy,
+    allowFrom: params.allowFrom,
+    groupAllowFrom: params.groupAllowFrom,
+    storeAllowFrom: params.storeAllowFrom,
+    groupAllowFromFallbackToAllowFrom: false,
+    isSenderAllowed: (allowFrom) =>
+      isAllowedIMessageSender({
+        allowFrom,
+        sender,
+        chatId,
+        chatGuid,
+        chatIdentifier,
+      }),
+  });
+  const effectiveDmAllowFrom = accessDecision.effectiveAllowFrom;
+  const effectiveGroupAllowFrom = accessDecision.effectiveGroupAllowFrom;
+>>>>>>> dc6e4a5b1 (fix: harden dm command authorization in open mode)
 
   if (isGroup) {
     if (params.groupPolicy === "disabled") {
@@ -294,7 +316,7 @@ export function resolveIMessageInboundDecision(params: {
     allowTextCommands: true,
     hasControlCommand: hasControlCommandInMessage,
   });
-  const commandAuthorized = isGroup ? commandGate.commandAuthorized : dmAuthorized;
+  const commandAuthorized = commandGate.commandAuthorized;
   if (isGroup && commandGate.shouldBlock) {
     if (params.logVerbose) {
       logInboundDrop({
