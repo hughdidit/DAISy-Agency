@@ -72,7 +72,13 @@ Welcome to the lobster tank! 🦞
 - **Onur Solmaz** - Agents, dev workflows, ACP integrations, MS Teams
   - GitHub: [@onutc](https://github.com/onutc), [@osolmaz](https://github.com/osolmaz) · X: [@onusoz](https://x.com/onusoz)
 
+<<<<<<< HEAD
 >>>>>>> ac633366c (docs: add Onur Solmaz to contributors (#22890))
+=======
+- **Josh Avant** - Core, CLI, Gateway, Security, Agents
+  - GitHub: [@joshavant](https://github.com/joshavant) · X: [@joshavant](https://x.com/joshavant)
+
+>>>>>>> edf7ad9b7 (add me to Maintainers list)
 ## How to Contribute
 1. **Bugs & small fixes** → Open a PR!
 <<<<<<< HEAD
