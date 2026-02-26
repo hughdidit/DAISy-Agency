@@ -109,11 +109,25 @@ export function createLaneTextDeliverer(params: CreateLaneTextDelivererParams) {
     text: string;
     skipRegressive: "always" | "existingOnly";
     hadPreviewMessage: boolean;
+<<<<<<< HEAD
   }): boolean =>
     Boolean(args.currentPreviewText) &&
     args.currentPreviewText.startsWith(args.text) &&
     args.text.length < args.currentPreviewText.length &&
     (args.skipRegressive === "always" || args.hadPreviewMessage);
+=======
+  }): boolean => {
+    const currentPreviewText = args.currentPreviewText;
+    if (currentPreviewText === undefined) {
+      return false;
+    }
+    return (
+      currentPreviewText.startsWith(args.text) &&
+      args.text.length < currentPreviewText.length &&
+      (args.skipRegressive === "always" || args.hadPreviewMessage)
+    );
+  };
+>>>>>>> 273973d37 (refactor: unify typing dispatch lifecycle and policy boundaries)
 
   const tryEditPreviewMessage = async (args: {
     laneName: LaneName;

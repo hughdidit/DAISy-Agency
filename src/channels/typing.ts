@@ -1,4 +1,5 @@
 import { createTypingKeepaliveLoop } from "./typing-lifecycle.js";
+import { createTypingStartGuard } from "./typing-start-guard.js";
 
 export type TypingCallbacks = {
   onReplyStart: () => Promise<void>;
@@ -35,6 +36,7 @@ export function createTypingCallbacks(params: CreateTypingCallbacksParams): Typi
   let closed = false;
   let ttlTimer: ReturnType<typeof setTimeout> | undefined;
 
+<<<<<<< HEAD
   const fireStart = async () => {
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -56,6 +58,19 @@ export function createTypingCallbacks(params: CreateTypingCallbacksParams): Typi
     } catch (err) {
       params.onStartError(err);
     }
+=======
+  const startGuard = createTypingStartGuard({
+    isSealed: () => closed,
+    onStartError: params.onStartError,
+    maxConsecutiveFailures,
+    onTrip: () => {
+      keepaliveLoop.stop();
+    },
+  });
+
+  const fireStart = async (): Promise<void> => {
+    await startGuard.run(() => params.start());
+>>>>>>> 273973d37 (refactor: unify typing dispatch lifecycle and policy boundaries)
   };
 
 <<<<<<< HEAD
@@ -98,9 +113,19 @@ export function createTypingCallbacks(params: CreateTypingCallbacksParams): Typi
       return;
     }
     stopSent = false;
+<<<<<<< HEAD
     keepaliveLoop.stop();
     clearTtlTimer();
     await fireStart();
+=======
+    startGuard.reset();
+    keepaliveLoop.stop();
+    clearTtlTimer();
+    await fireStart();
+    if (startGuard.isTripped()) {
+      return;
+    }
+>>>>>>> 273973d37 (refactor: unify typing dispatch lifecycle and policy boundaries)
     keepaliveLoop.start();
     startTtlTimer(); // Start TTL safety timer
   };
