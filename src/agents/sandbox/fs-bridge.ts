@@ -1,6 +1,12 @@
+<<<<<<< HEAD
 import fs from "node:fs/promises";
 import path from "node:path";
 import { isNotFoundPathError, isPathInside } from "../../infra/path-guards.js";
+=======
+import fs from "node:fs";
+import { openBoundaryFile } from "../../infra/boundary-file-read.js";
+import { PATH_ALIAS_POLICIES, type PathAliasPolicy } from "../../infra/path-alias-guards.js";
+>>>>>>> 242188b7b (refactor: unify boundary-safe reads for bootstrap and includes)
 import { execDockerRaw, type ExecDockerRawResult } from "./docker.js";
 import {
   buildSandboxFsMounts,
@@ -22,6 +28,7 @@ type PathSafetyOptions = {
   action: string;
   allowFinalSymlink?: boolean;
   requireWritable?: boolean;
+  allowMissingTarget?: boolean;
 };
 
 export type SandboxResolvedPath = {
@@ -252,11 +259,30 @@ class SandboxFsBridgeImpl implements SandboxFsBridge {
       );
     }
 
+<<<<<<< HEAD
     await assertNoHostSymlinkEscape({
       absolutePath: target.hostPath,
       rootPath: lexicalMount.hostRoot,
       allowFinalSymlink: options.allowFinalSymlink === true,
+=======
+    const guarded = await openBoundaryFile({
+      absolutePath: target.hostPath,
+      rootPath: lexicalMount.hostRoot,
+      boundaryLabel: "sandbox mount root",
+      aliasPolicy: options.aliasPolicy,
+>>>>>>> 242188b7b (refactor: unify boundary-safe reads for bootstrap and includes)
     });
+    if (!guarded.ok) {
+      if (guarded.reason !== "path" || options.allowMissingTarget === false) {
+        throw guarded.error instanceof Error
+          ? guarded.error
+          : new Error(
+              `Sandbox boundary checks failed; cannot ${options.action}: ${target.containerPath}`,
+            );
+      }
+    } else {
+      fs.closeSync(guarded.fd);
+    }
 
     const canonicalContainerPath = await this.resolveCanonicalContainerPath({
       containerPath: target.containerPath,
