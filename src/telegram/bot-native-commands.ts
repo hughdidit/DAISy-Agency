@@ -260,7 +260,7 @@ async function resolveTelegramCommandAuth(params: {
 
   const dmAllow = normalizeAllowFromWithStore({
     allowFrom: allowFrom,
-    storeAllowFrom,
+    storeAllowFrom: isGroup ? [] : storeAllowFrom,
     dmPolicy: telegramCfg.dmPolicy ?? "pairing",
   });
   const senderAllowed = isSenderAllowed({
