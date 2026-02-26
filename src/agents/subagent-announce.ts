@@ -4,7 +4,7 @@ import path from "node:path";
 
 =======
 import { resolveQueueSettings } from "../auto-reply/reply/queue.js";
-import { SILENT_REPLY_TOKEN } from "../auto-reply/tokens.js";
+import { isSilentReplyText, SILENT_REPLY_TOKEN } from "../auto-reply/tokens.js";
 import { DEFAULT_SUBAGENT_MAX_SPAWN_DEPTH } from "../config/agent-limits.js";
 >>>>>>> fe57bea08 (Subagents: restore announce chain + fix nested retry/drop regressions (#22223))
 import { loadConfig } from "../config/config.js";
@@ -893,6 +893,16 @@ export async function runSubagentAnnounceFlow(params: {
       return false;
     }
 
+<<<<<<< HEAD
+=======
+    if (isAnnounceSkip(reply)) {
+      return true;
+    }
+    if (isSilentReplyText(reply, SILENT_REPLY_TOKEN)) {
+      return true;
+    }
+
+>>>>>>> 96aad965a (fix: land NO_REPLY announce suppression and auth scope assertions)
     if (!outcome) {
       outcome = { status: "unknown" };
     }
