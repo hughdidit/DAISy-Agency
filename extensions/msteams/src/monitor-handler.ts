@@ -1,5 +1,10 @@
 import type { OpenClawConfig, RuntimeEnv } from "openclaw/plugin-sdk";
 import type { MSTeamsConversationStore } from "./conversation-store.js";
+<<<<<<< HEAD
+=======
+import { buildFileInfoCard, parseFileConsentInvoke, uploadToConsentUrl } from "./file-consent.js";
+import { normalizeMSTeamsConversationId } from "./inbound.js";
+>>>>>>> 347f7b955 (fix(msteams): bind file consent invokes to conversation)
 import type { MSTeamsAdapter } from "./messenger.js";
 import type { MSTeamsMonitorLogger } from "./monitor-types.js";
 import type { MSTeamsPollStore } from "./polls.js";
@@ -42,6 +47,8 @@ async function handleFileConsentInvoke(
   context: MSTeamsTurnContext,
   log: MSTeamsMonitorLogger,
 ): Promise<boolean> {
+  const expiredUploadMessage =
+    "The file upload request has expired. Please try sending the file again.";
   const activity = context.activity;
   if (activity.type !== "invoke" || activity.name !== "fileConsent/invoke") {
     return false;
@@ -57,9 +64,24 @@ async function handleFileConsentInvoke(
     typeof consentResponse.context?.uploadId === "string"
       ? consentResponse.context.uploadId
       : undefined;
+  const pendingFile = getPendingUpload(uploadId);
+  if (pendingFile) {
+    const pendingConversationId = normalizeMSTeamsConversationId(pendingFile.conversationId);
+    const invokeConversationId = normalizeMSTeamsConversationId(activity.conversation?.id ?? "");
+    if (!invokeConversationId || pendingConversationId !== invokeConversationId) {
+      log.info("file consent conversation mismatch", {
+        uploadId,
+        expectedConversationId: pendingConversationId,
+        receivedConversationId: invokeConversationId || undefined,
+      });
+      if (consentResponse.action === "accept") {
+        await context.sendActivity(expiredUploadMessage);
+      }
+      return true;
+    }
+  }
 
   if (consentResponse.action === "accept" && consentResponse.uploadInfo) {
-    const pendingFile = getPendingUpload(uploadId);
     if (pendingFile) {
       log.debug("user accepted file consent, uploading", {
         uploadId,
@@ -100,10 +122,15 @@ async function handleFileConsentInvoke(
         removePendingUpload(uploadId);
       }
     } else {
+<<<<<<< HEAD
       log.debug("pending file not found for consent", { uploadId });
       await context.sendActivity(
         "The file upload request has expired. Please try sending the file again.",
       );
+=======
+      log.debug?.("pending file not found for consent", { uploadId });
+      await context.sendActivity(expiredUploadMessage);
+>>>>>>> 347f7b955 (fix(msteams): bind file consent invokes to conversation)
     }
   } else {
     // User declined
