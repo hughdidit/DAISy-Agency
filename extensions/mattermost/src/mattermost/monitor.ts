@@ -449,8 +449,12 @@ export async function monitorMattermostProvider(opts: MonitorMattermostOpts = {}
       allowTextCommands,
       hasControlCommand,
     });
+<<<<<<< HEAD
     const commandAuthorized =
       kind === "dm" ? dmPolicy === "open" || senderAllowedForCommands : commandGate.commandAuthorized;
+=======
+    const commandAuthorized = commandGate.commandAuthorized;
+>>>>>>> dc6e4a5b1 (fix: harden dm command authorization in open mode)
 
     if (kind === "dm") {
       if (dmPolicy === "disabled") {

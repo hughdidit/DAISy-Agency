@@ -319,6 +319,28 @@ export function createSignalEventHandler(deps: SignalEventHandlerDeps) {
     const quoteText = dataMessage?.quote?.text?.trim() ?? "";
     const hasBodyContent =
       Boolean(messageText || quoteText) || Boolean(!reaction && dataMessage?.attachments?.length);
+<<<<<<< HEAD
+=======
+    const senderDisplay = formatSignalSenderDisplay(sender);
+    const storeAllowFrom = await readStoreAllowFromForDmPolicy({
+      provider: "signal",
+      dmPolicy: deps.dmPolicy,
+      readStore: (provider) => readChannelAllowFromStore(provider),
+    });
+    const resolveAccessDecision = (isGroup: boolean) =>
+      resolveDmGroupAccessWithLists({
+        isGroup,
+        dmPolicy: deps.dmPolicy,
+        groupPolicy: deps.groupPolicy,
+        allowFrom: deps.allowFrom,
+        groupAllowFrom: deps.groupAllowFrom,
+        storeAllowFrom,
+        isSenderAllowed: (allowEntries) => isSignalSenderAllowed(sender, allowEntries),
+      });
+    const dmAccess = resolveAccessDecision(false);
+    const effectiveDmAllow = dmAccess.effectiveAllowFrom;
+    const effectiveGroupAllow = dmAccess.effectiveGroupAllowFrom;
+>>>>>>> dc6e4a5b1 (fix: harden dm command authorization in open mode)
 
     if (reaction && !hasBodyContent) {
       if (reaction.isRemove) return; // Ignore reaction removals
@@ -461,7 +483,7 @@ export function createSignalEventHandler(deps: SignalEventHandlerDeps) {
       allowTextCommands: true,
       hasControlCommand: hasControlCommandInMessage,
     });
-    const commandAuthorized = isGroup ? commandGate.commandAuthorized : dmAllowed;
+    const commandAuthorized = commandGate.commandAuthorized;
     if (isGroup && commandGate.shouldBlock) {
       logInboundDrop({
         log: logVerbose,
