@@ -149,8 +149,12 @@ import { note } from "../terminal/note.js";
 <<<<<<< HEAD
 =======
 import { isRecord, resolveHomeDir } from "../utils.js";
+<<<<<<< HEAD
 >>>>>>> 8d75a496b (refactor: centralize isPlainObject, isRecord, isErrno, isLoopbackHost utilities (#12926))
 import { normalizeLegacyConfigValues } from "./doctor-legacy-config.js";
+=======
+import { normalizeCompatibilityConfigValues } from "./doctor-legacy-config.js";
+>>>>>>> 1ffc31983 (Doctor: keep allowFrom account-scoped in multi-account configs)
 import type { DoctorOptions } from "./doctor-prompter.js";
 import { autoMigrateLegacyStateDir } from "./doctor-state-migrations.js";
 
@@ -1764,7 +1768,7 @@ export async function loadAndMaybeMigrateDoctorConfig(params: {
   if (snapshot.legacyIssues.length > 0) {
     note(
       snapshot.legacyIssues.map((issue) => `- ${issue.path}: ${issue.message}`).join("\n"),
-      "Legacy config keys detected",
+      "Compatibility config keys detected",
     );
     const { config: migrated, changes } = migrateLegacyConfig(snapshot.parsed);
     if (changes.length > 0) {
@@ -1775,18 +1779,22 @@ export async function loadAndMaybeMigrateDoctorConfig(params: {
       pendingChanges = pendingChanges || changes.length > 0;
     }
     if (shouldRepair) {
-      // Legacy migration (2026-01-02, commit: 16420e5b) — normalize per-provider allowlists; move WhatsApp gating into channels.whatsapp.allowFrom.
+      // Compatibility migration (2026-01-02, commit: 16420e5b) — normalize per-provider allowlists; move WhatsApp gating into channels.whatsapp.allowFrom.
       if (migrated) {
         cfg = migrated;
       }
     } else {
       fixHints.push(
+<<<<<<< HEAD
         `Run "${formatCliCommand("moltbot doctor --fix")}" to apply legacy migrations.`,
+=======
+        `Run "${formatCliCommand("openclaw doctor --fix")}" to apply compatibility migrations.`,
+>>>>>>> 1ffc31983 (Doctor: keep allowFrom account-scoped in multi-account configs)
       );
     }
   }
 
-  const normalized = normalizeLegacyConfigValues(candidate);
+  const normalized = normalizeCompatibilityConfigValues(candidate);
   if (normalized.changes.length > 0) {
     note(normalized.changes.join("\n"), "Doctor changes");
     candidate = normalized.config;

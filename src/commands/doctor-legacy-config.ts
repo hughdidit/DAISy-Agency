@@ -16,7 +16,7 @@ import {
 } from "../config/discord-preview-streaming.js";
 import { DEFAULT_ACCOUNT_ID } from "../routing/session-key.js";
 
-export function normalizeLegacyConfigValues(cfg: OpenClawConfig): {
+export function normalizeCompatibilityConfigValues(cfg: OpenClawConfig): {
   config: OpenClawConfig;
 >>>>>>> 2c14b0cf4 (refactor(config): unify streaming config across channels)
   changes: string[];
