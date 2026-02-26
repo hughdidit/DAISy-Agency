@@ -15,6 +15,7 @@ function okResponse(body = "ok"): Response {
 describe("fetchWithSsrFGuard hardening", () => {
   type LookupFn = NonNullable<Parameters<typeof fetchWithSsrFGuard>[0]["lookupFn"]>;
 
+<<<<<<< HEAD
   it("blocks private IP literal URLs before fetch", async () => {
     const fetchImpl = vi.fn();
     await expect(
@@ -24,6 +25,25 @@ describe("fetchWithSsrFGuard hardening", () => {
       }),
     ).rejects.toThrow(/private|internal|blocked/i);
     expect(fetchImpl).not.toHaveBeenCalled();
+=======
+  it("blocks private and legacy loopback literals before fetch", async () => {
+    const blockedUrls = [
+      "http://127.0.0.1:8080/internal",
+      "http://[ff02::1]/internal",
+      "http://0177.0.0.1:8080/internal",
+      "http://0x7f000001/internal",
+    ];
+    for (const url of blockedUrls) {
+      const fetchImpl = vi.fn();
+      await expect(
+        fetchWithSsrFGuard({
+          url,
+          fetchImpl,
+        }),
+      ).rejects.toThrow(/private|internal|blocked/i);
+      expect(fetchImpl).not.toHaveBeenCalled();
+    }
+>>>>>>> 61b3246a7 (fix(ssrf): unify ipv6 special-use blocking)
   });
 
   it("blocks special-use IPv4 literal URLs before fetch", async () => {
