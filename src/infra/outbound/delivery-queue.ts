@@ -42,6 +42,7 @@ export interface QueuedDelivery {
     mediaUrls?: string[];
   };
   retryCount: number;
+  lastAttemptAt?: number;
   lastError?: string;
 }
 
@@ -131,6 +132,7 @@ export async function failDelivery(id: string, error: string, stateDir?: string)
   const raw = await fs.promises.readFile(filePath, "utf-8");
   const entry: QueuedDelivery = JSON.parse(raw);
   entry.retryCount += 1;
+  entry.lastAttemptAt = Date.now();
   entry.lastError = error;
   const tmp = `${filePath}.${process.pid}.tmp`;
   await fs.promises.writeFile(tmp, JSON.stringify(entry, null, 2), {
@@ -229,8 +231,6 @@ export async function recoverPendingDeliveries(opts: {
   log: RecoveryLogger;
   cfg: OpenClawConfig;
   stateDir?: string;
-  /** Override for testing — resolves instead of using real setTimeout. */
-  delay?: (ms: number) => Promise<void>;
   /** Maximum wall-clock time for recovery in ms. Remaining entries are deferred to next restart. Default: 60 000. */
   maxRecoveryMs?: number;
 }): Promise<{ recovered: number; failed: number; skipped: number }> {
@@ -244,12 +244,12 @@ export async function recoverPendingDeliveries(opts: {
 
   opts.log.info(`Found ${pending.length} pending delivery entries — starting recovery`);
 
-  const delayFn = opts.delay ?? ((ms: number) => new Promise<void>((r) => setTimeout(r, ms)));
   const deadline = Date.now() + (opts.maxRecoveryMs ?? 60_000);
 
   let recovered = 0;
   let failed = 0;
   let skipped = 0;
+  let deferred = 0;
 
   for (const entry of pending) {
     const now = Date.now();
@@ -273,15 +273,27 @@ export async function recoverPendingDeliveries(opts: {
 
     const backoff = computeBackoffMs(entry.retryCount + 1);
     if (backoff > 0) {
+<<<<<<< HEAD
       if (now + backoff >= deadline) {
         const deferred = pending.length - recovered - failed - skipped;
         opts.log.warn(
           `Recovery time budget exceeded — ${deferred} entries deferred to next restart`,
         );
         break;
+=======
+      const firstReplayAfterCrash = entry.retryCount === 0 && entry.lastAttemptAt === undefined;
+      if (!firstReplayAfterCrash) {
+        const baseAttemptAt = entry.lastAttemptAt ?? entry.enqueuedAt;
+        const nextEligibleAt = baseAttemptAt + backoff;
+        if (now < nextEligibleAt) {
+          deferred += 1;
+          opts.log.info(
+            `Delivery ${entry.id} not ready for retry yet — backoff ${nextEligibleAt - now}ms remaining`,
+          );
+          continue;
+        }
+>>>>>>> cceefe833 (fix: harden delivery recovery backoff eligibility and tests (#27710) (thanks @Jimmy-xuzimo))
       }
-      opts.log.info(`Waiting ${backoff}ms before retrying delivery ${entry.id}`);
-      await delayFn(backoff);
     }
 
     try {
@@ -320,7 +332,7 @@ export async function recoverPendingDeliveries(opts: {
   }
 
   opts.log.info(
-    `Delivery recovery complete: ${recovered} recovered, ${failed} failed, ${skipped} skipped (max retries)`,
+    `Delivery recovery complete: ${recovered} recovered, ${failed} failed, ${skipped} skipped (max retries), ${deferred} deferred (backoff)`,
   );
   return { recovered, failed, skipped };
 }
