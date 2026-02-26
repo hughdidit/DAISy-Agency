@@ -3,6 +3,11 @@ import { loadConfig } from "../config/config.js";
 import { GatewayClient } from "../gateway/client.js";
 import { loadOrCreateDeviceIdentity } from "../infra/device-identity.js";
 import { getMachineDisplayName } from "../infra/machine-name.js";
+import {
+  NODE_BROWSER_PROXY_COMMAND,
+  NODE_EXEC_APPROVALS_COMMANDS,
+  NODE_SYSTEM_RUN_COMMANDS,
+} from "../infra/node-commands.js";
 import { ensureOpenClawCliOnPath } from "../infra/path-env.js";
 import { GATEWAY_CLIENT_MODES, GATEWAY_CLIENT_NAMES } from "../utils/message-channel.js";
 import { VERSION } from "../version.js";
@@ -413,11 +418,17 @@ export async function runNodeHost(opts: NodeHostRunOptions): Promise<void> {
     scopes: [],
     caps: ["system", ...(browserProxyEnabled ? ["browser"] : [])],
     commands: [
+<<<<<<< HEAD
       "system.run",
       "system.which",
       "system.execApprovals.get",
       "system.execApprovals.set",
       ...(browserProxyEnabled ? ["browser.proxy"] : []),
+=======
+      ...NODE_SYSTEM_RUN_COMMANDS,
+      ...NODE_EXEC_APPROVALS_COMMANDS,
+      ...(browserProxyEnabled ? [NODE_BROWSER_PROXY_COMMAND] : []),
+>>>>>>> d06632ba4 (refactor(gateway): share node command catalog)
     ],
     pathEnv,
     permissions: undefined,
