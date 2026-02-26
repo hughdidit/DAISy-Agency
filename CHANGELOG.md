@@ -76,10 +76,14 @@ Status: beta.
 - Security/Sandbox path alias guard: reject broken symlink targets by resolving through existing ancestors and failing closed on out-of-root targets, preventing workspace-only `apply_patch` writes from escaping sandbox/workspace boundaries via dangling symlinks. This ships in the next npm release (`2026.2.26`). Thanks @tdjackey for reporting.
 - Security/Workspace FS boundary aliases: harden canonical boundary resolution for non-existent-leaf symlink aliases while preserving valid in-root aliases, preventing first-write workspace escapes via out-of-root symlink targets. This ships in the next npm release (`2026.2.26`). Thanks @tdjackey for reporting.
 - Security/Config includes: harden `$include` file loading with verified-open reads, reject hardlinked include aliases, and enforce include file-size guardrails so config include resolution remains bounded to trusted in-root files. This ships in the next npm release (`2026.2.26`). Thanks @zpbrent for reporting.
+<<<<<<< HEAD
 - Security/Node exec approvals: bind `system.run` approvals to canonicalized env overrides (`envHash`/`envKeys`) and fail closed on env-binding mismatches/missing bindings, while adding `GIT_EXTERNAL_DIFF` to blocked host env keys. This ships in the next npm release (`2026.2.26`). Thanks @tdjackey for reporting.
 <<<<<<< HEAD
 >>>>>>> 9a4b2266c (fix(security): bind node system.run approvals to env)
 =======
+=======
+- Security/Node exec approvals: require structured `commandArgv` approvals for `host=node`, enforce versioned `systemRunBindingV1` matching for argv/cwd/session/agent/env context with fail-closed behavior on missing/mismatched bindings, and add `GIT_EXTERNAL_DIFF` to blocked host env keys. This ships in the next npm release (`2026.2.26`). Thanks @tdjackey for reporting.
+>>>>>>> 10481097f (refactor(security): enforce v1 node exec approval binding)
 - Security/Microsoft Teams media fetch: route Graph message/hosted-content/attachment fetches and auth-scope fallback attachment downloads through shared SSRF-guarded fetch paths, and centralize hostname-suffix allowlist policy helpers in the plugin SDK to remove channel/plugin drift. This ships in the next npm release (`2026.2.26`). Thanks @tdjackey for reporting.
 - Microsoft Teams/File uploads: acknowledge `fileConsent/invoke` immediately (`invokeResponse` before upload + file card send) so Teams no longer shows false "Something went wrong" timeout banners while upload completion continues asynchronously; includes updated async regression coverage. Landed from contributor PR #27641 by @scz2011.
 >>>>>>> b678308d9 (docs: add unreleased security note for msteams ssrf hardening)

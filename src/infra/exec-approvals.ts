@@ -17,7 +17,11 @@ export type ExecAsk = "off" | "on-miss" | "always";
 export type ExecApprovalRequestPayload = {
   command: string;
   commandArgv?: string[];
+<<<<<<< HEAD
   envHash?: string | null;
+=======
+  // Optional UI-safe env key preview for approval prompts.
+>>>>>>> 10481097f (refactor(security): enforce v1 node exec approval binding)
   envKeys?: string[];
   cwd?: string | null;
   nodeId?: string | null;

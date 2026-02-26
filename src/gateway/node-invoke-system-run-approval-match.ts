@@ -1,5 +1,14 @@
 import type { ExecApprovalRequestPayload } from "../infra/exec-approvals.js";
+<<<<<<< HEAD
 import { matchSystemRunApprovalEnvBinding } from "./system-run-approval-env-binding.js";
+=======
+import {
+  buildSystemRunApprovalBindingV1,
+  missingSystemRunApprovalBindingV1,
+  matchSystemRunApprovalBindingV1,
+  type SystemRunApprovalMatchResult,
+} from "../infra/system-run-approval-binding.js";
+>>>>>>> 10481097f (refactor(security): enforce v1 node exec approval binding)
 
 export type SystemRunApprovalBinding = {
   cwd: string | null;
@@ -20,6 +29,7 @@ function argvMatchesRequest(requestedArgv: string[], argv: string[]): boolean {
   return true;
 }
 
+<<<<<<< HEAD
 export function approvalMatchesSystemRunRequest(params: {
   cmdText: string;
   argv: string[];
@@ -37,9 +47,12 @@ export type SystemRunApprovalMatchResult =
       message: string;
       details?: Record<string, unknown>;
     };
+=======
+export { toSystemRunApprovalMismatchError } from "../infra/system-run-approval-binding.js";
+export type { SystemRunApprovalMatchResult } from "../infra/system-run-approval-binding.js";
+>>>>>>> 10481097f (refactor(security): enforce v1 node exec approval binding)
 
 export function evaluateSystemRunApprovalMatch(params: {
-  cmdText: string;
   argv: string[];
   request: ExecApprovalRequestPayload;
   binding: SystemRunApprovalBinding;
@@ -95,9 +108,24 @@ export function evaluateSystemRunApprovalMatch(params: {
     request: params.request,
     env: params.binding.env,
   });
+<<<<<<< HEAD
   if (!envMatch.ok) {
     return envMatch;
   }
 
   return { ok: true };
+=======
+
+  const expectedBinding = params.request.systemRunBindingV1;
+  if (!expectedBinding) {
+    return missingSystemRunApprovalBindingV1({
+      actualEnvKeys: actualBinding.envKeys,
+    });
+  }
+  return matchSystemRunApprovalBindingV1({
+    expected: expectedBinding,
+    actual: actualBinding.binding,
+    actualEnvKeys: actualBinding.envKeys,
+  });
+>>>>>>> 10481097f (refactor(security): enforce v1 node exec approval binding)
 }
