@@ -11,12 +11,19 @@ export function isSilentReplyText(
     return false;
   }
   const escaped = escapeRegExp(token);
+<<<<<<< HEAD
   const prefix = new RegExp(`^\\s*${escaped}(?=$|\\W)`);
   if (prefix.test(text)) {
     return true;
   }
   const suffix = new RegExp(`\\b${escaped}\\b\\W*$`);
   return suffix.test(text);
+=======
+  // Only match when the entire response (trimmed) is the silent token,
+  // optionally surrounded by whitespace. This prevents
+  // substantive replies ending with NO_REPLY from being suppressed (#19537).
+  return new RegExp(`^\\s*${escaped}\\s*$`).test(text);
+>>>>>>> e64d72299 (fix(auto-reply): tighten silent token semantics and prefix streaming)
 }
 
 export function isSilentReplyPrefixText(

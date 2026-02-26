@@ -29,6 +29,7 @@ import { stripHeartbeatToken } from "../heartbeat.js";
 import type { TemplateContext } from "../templating.js";
 import type { VerboseLevel } from "../thinking.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { isSilentReplyText, SILENT_REPLY_TOKEN } from "../tokens.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -39,6 +40,14 @@ import { isSilentReplyText, SILENT_REPLY_TOKEN } from "../tokens.js";
 =======
 import { isSilentReplyPrefixText, isSilentReplyText, SILENT_REPLY_TOKEN } from "../tokens.js";
 >>>>>>> 8b1fe0d1e (fix(telegram): split streaming preview per assistant block (#22613))
+=======
+import {
+  HEARTBEAT_TOKEN,
+  isSilentReplyPrefixText,
+  isSilentReplyText,
+  SILENT_REPLY_TOKEN,
+} from "../tokens.js";
+>>>>>>> e64d72299 (fix(auto-reply): tighten silent token semantics and prefix streaming)
 import type { GetReplyOptions, ReplyPayload } from "../types.js";
 import { buildThreadingToolContext, resolveEnforceFinalTag } from "./agent-runner-utils.js";
 <<<<<<< HEAD
@@ -202,6 +211,12 @@ export async function runAgentTurnWithFallback(params: {
           text = stripped.text;
         }
         if (isSilentReplyText(text, SILENT_REPLY_TOKEN)) {
+          return { skip: true };
+        }
+        if (
+          isSilentReplyPrefixText(text, SILENT_REPLY_TOKEN) ||
+          isSilentReplyPrefixText(text, HEARTBEAT_TOKEN)
+        ) {
           return { skip: true };
         }
         if (!text) {
