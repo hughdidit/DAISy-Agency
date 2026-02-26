@@ -1,3 +1,4 @@
+import { fetchWithBearerAuthScopeFallback } from "openclaw/plugin-sdk";
 import { getMSTeamsRuntime } from "../runtime.js";
 import { downloadAndStoreMSTeamsRemoteMedia } from "./remote-media.js";
 import {
@@ -8,7 +9,11 @@ import {
   isUrlAllowed,
   normalizeContentType,
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+  resolveMediaSsrfPolicy,
+>>>>>>> 57334cd7d (refactor: unify channel/plugin ssrf fetch policy and auth fallback)
   resolveRequestUrl,
   resolveAuthAllowedHosts,
 >>>>>>> 61dc7ac67 (refactor(msteams,bluebubbles): dedupe inbound media download helpers)
@@ -91,6 +96,7 @@ async function fetchWithAuthFallback(params: {
   url: string;
   tokenProvider?: MSTeamsAccessTokenProvider;
   fetchFn?: typeof fetch;
+<<<<<<< HEAD
 }): Promise<Response> {
   const fetchFn = params.fetchFn ?? fetch;
   const firstAttempt = await fetchFn(params.url);
@@ -120,6 +126,20 @@ async function fetchWithAuthFallback(params: {
   }
 
   return firstAttempt;
+=======
+  requestInit?: RequestInit;
+  authAllowHosts: string[];
+}): Promise<Response> {
+  return await fetchWithBearerAuthScopeFallback({
+    url: params.url,
+    scopes: scopeCandidatesForUrl(params.url),
+    tokenProvider: params.tokenProvider,
+    fetchFn: params.fetchFn,
+    requestInit: params.requestInit,
+    requireHttps: true,
+    shouldAttachAuth: (url) => isUrlAllowed(url, params.authAllowHosts),
+  });
+>>>>>>> 57334cd7d (refactor: unify channel/plugin ssrf fetch policy and auth fallback)
 }
 
 <<<<<<< HEAD
@@ -158,6 +178,11 @@ export async function downloadMSTeamsAttachments(params: {
     return [];
   }
   const allowHosts = resolveAllowedHosts(params.allowHosts);
+<<<<<<< HEAD
+=======
+  const authAllowHosts = resolveAuthAllowedHosts(params.authAllowHosts);
+  const ssrfPolicy = resolveMediaSsrfPolicy(allowHosts);
+>>>>>>> 57334cd7d (refactor: unify channel/plugin ssrf fetch policy and auth fallback)
 
   // Download ANY downloadable attachment (not just images)
   const downloadable = list.filter(isDownloadableAttachment);
@@ -257,13 +282,13 @@ export async function downloadMSTeamsAttachments(params: {
         contentTypeHint: candidate.contentTypeHint,
         placeholder: candidate.placeholder,
         preserveFilenames: params.preserveFilenames,
+        ssrfPolicy,
         fetchImpl: (input, init) =>
           fetchWithAuthFallback({
             url: resolveRequestUrl(input),
             tokenProvider: params.tokenProvider,
             fetchFn: params.fetchFn,
             requestInit: init,
-            allowHosts,
             authAllowHosts,
           }),
 >>>>>>> 61dc7ac67 (refactor(msteams,bluebubbles): dedupe inbound media download helpers)
