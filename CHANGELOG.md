@@ -31,6 +31,14 @@ Docs: https://docs.openclaw.ai
 =======
 ## 2026.2.26 (Unreleased)
 
+<<<<<<< HEAD
+=======
+### Changes
+
+- Agents/Routing CLI: add `openclaw agents bindings`, `openclaw agents bind`, and `openclaw agents unbind` for account-scoped route management, including channel-only to account-scoped binding upgrades, role-aware binding identity handling, plugin-resolved binding account IDs, and optional account-binding prompts in `openclaw channels add`. (#27195) thanks @gumadeiras.
+- Android/Nodes: add `notifications.list` support on Android nodes and expose `nodes notifications_list` in agent tooling for listing active device notifications. (#27344) thanks @obviyus.
+
+>>>>>>> da6a96ed3 (fix: update changelog for notifications list land (#27344) (thanks @obviyus))
 ### Fixes
 
 - Android/Node invoke: remove native gateway WebSocket `Origin` header to avoid false origin rejections, unify invoke command registry/policy/error parsing paths, and keep command availability checks centralized to reduce dispatcher/advertisement drift. (#27257) Thanks @obviyus.
