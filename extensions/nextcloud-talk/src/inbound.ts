@@ -4,6 +4,7 @@ import {
   createReplyPrefixOptions,
   formatTextWithAttachmentLinks,
   logInboundDrop,
+  readStoreAllowFromForDmPolicy,
   resolveControlCommandGate,
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -122,7 +123,15 @@ export async function handleNextcloudTalkInbound(params: {
 
   const configAllowFrom = normalizeNextcloudTalkAllowlist(account.config.allowFrom);
   const configGroupAllowFrom = normalizeNextcloudTalkAllowlist(account.config.groupAllowFrom);
+<<<<<<< HEAD
   const storeAllowFrom = await core.channel.pairing.readAllowFromStore(CHANNEL_ID).catch(() => []);
+=======
+  const storeAllowFrom = await readStoreAllowFromForDmPolicy({
+    provider: CHANNEL_ID,
+    dmPolicy,
+    readStore: (provider) => core.channel.pairing.readAllowFromStore(provider),
+  });
+>>>>>>> cd80c7e7f (refactor: unify dm policy store reads and reason codes)
   const storeAllowList = normalizeNextcloudTalkAllowlist(storeAllowFrom);
 
   const roomMatch = resolveNextcloudTalkRoomMatch({

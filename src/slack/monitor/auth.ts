@@ -1,4 +1,5 @@
 import { readChannelAllowFromStore } from "../../pairing/pairing-store.js";
+import { readStoreAllowFromForDmPolicy } from "../../security/dm-policy-shared.js";
 import {
   allowListMatches,
   normalizeAllowList,
@@ -9,7 +10,15 @@ import { resolveSlackChannelConfig } from "./channel-config.js";
 import { normalizeSlackChannelType, type SlackMonitorContext } from "./context.js";
 
 export async function resolveSlackEffectiveAllowFrom(ctx: SlackMonitorContext) {
+<<<<<<< HEAD
   const storeAllowFrom = await readChannelAllowFromStore("slack").catch(() => []);
+=======
+  const storeAllowFrom = await readStoreAllowFromForDmPolicy({
+    provider: "slack",
+    dmPolicy: ctx.dmPolicy,
+    readStore: (provider) => readChannelAllowFromStore(provider),
+  });
+>>>>>>> cd80c7e7f (refactor: unify dm policy store reads and reason codes)
   const allowFrom = normalizeAllowList([...ctx.allowFrom, ...storeAllowFrom]);
   const allowFromLower = normalizeAllowListLower(allowFrom);
   return { allowFrom, allowFromLower };

@@ -44,6 +44,7 @@ import { getAgentScopedMediaLocalRoots } from "../../../media/local-roots.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { readChannelAllowFromStore } from "../../../pairing/pairing-store.js";
 import type { resolveAgentRoute } from "../../../routing/resolve-route.js";
+import { readStoreAllowFromForDmPolicy } from "../../../security/dm-policy-shared.js";
 import { jidToE164, normalizeE164 } from "../../../utils.js";
 import { newConnectionId } from "../../reconnect.js";
 import { formatError } from "../../session.js";
@@ -105,11 +106,19 @@ async function resolveWhatsAppCommandAuthorized(params: {
     return normalizeAllowFromE164(configuredGroupAllowFrom).includes(senderE164);
   }
 
+<<<<<<< HEAD
   const storeAllowFrom = await readChannelAllowFromStore(
     "whatsapp",
     process.env,
     params.msg.accountId,
   ).catch(() => []);
+=======
+  const storeAllowFrom = await readStoreAllowFromForDmPolicy({
+    provider: "whatsapp",
+    dmPolicy,
+    readStore: (provider) => readChannelAllowFromStore(provider, process.env, params.msg.accountId),
+  });
+>>>>>>> cd80c7e7f (refactor: unify dm policy store reads and reason codes)
   const combinedAllowFrom = Array.from(
     new Set([...(configuredAllowFrom ?? []), ...storeAllowFrom]),
   );

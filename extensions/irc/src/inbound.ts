@@ -4,6 +4,11 @@ import {
   createReplyPrefixOptions,
   formatTextWithAttachmentLinks,
   logInboundDrop,
+<<<<<<< HEAD
+=======
+  isDangerousNameMatchingEnabled,
+  readStoreAllowFromForDmPolicy,
+>>>>>>> cd80c7e7f (refactor: unify dm policy store reads and reason codes)
   resolveControlCommandGate,
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -114,7 +119,15 @@ export async function handleIrcInbound(params: {
 
   const configAllowFrom = normalizeIrcAllowlist(account.config.allowFrom);
   const configGroupAllowFrom = normalizeIrcAllowlist(account.config.groupAllowFrom);
+<<<<<<< HEAD
   const storeAllowFrom = await core.channel.pairing.readAllowFromStore(CHANNEL_ID).catch(() => []);
+=======
+  const storeAllowFrom = await readStoreAllowFromForDmPolicy({
+    provider: CHANNEL_ID,
+    dmPolicy,
+    readStore: (provider) => core.channel.pairing.readAllowFromStore(provider),
+  });
+>>>>>>> cd80c7e7f (refactor: unify dm policy store reads and reason codes)
   const storeAllowList = normalizeIrcAllowlist(storeAllowFrom);
 
   const groupMatch = resolveIrcGroupMatch({

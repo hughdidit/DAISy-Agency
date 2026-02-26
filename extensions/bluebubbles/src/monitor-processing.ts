@@ -1,9 +1,15 @@
 import type { OpenClawConfig } from "openclaw/plugin-sdk";
 import {
+  DM_GROUP_ACCESS_REASON,
   createReplyPrefixOptions,
   logAckFailure,
   logInboundDrop,
   logTypingFailure,
+<<<<<<< HEAD
+=======
+  readStoreAllowFromForDmPolicy,
+  recordPendingHistoryEntryIfEnabled,
+>>>>>>> cd80c7e7f (refactor: unify dm policy store reads and reason codes)
   resolveAckReaction,
   resolveDmGroupAccessWithLists,
   resolveControlCommandGate,
@@ -359,6 +365,7 @@ export async function processMessage(
 
   const dmPolicy = account.config.dmPolicy ?? "pairing";
   const groupPolicy = account.config.groupPolicy ?? "allowlist";
+<<<<<<< HEAD
   const storeAllowFrom = await core.channel.pairing
     .readAllowFromStore("bluebubbles")
     .catch(() => []);
@@ -376,6 +383,13 @@ export async function processMessage(
   const groupName = message.chatName?.trim() || undefined;
   const accessDecision = resolveDmGroupAccessDecision({
 =======
+=======
+  const storeAllowFrom = await readStoreAllowFromForDmPolicy({
+    provider: "bluebubbles",
+    dmPolicy,
+    readStore: (provider) => core.channel.pairing.readAllowFromStore(provider),
+  });
+>>>>>>> cd80c7e7f (refactor: unify dm policy store reads and reason codes)
   const accessDecision = resolveDmGroupAccessWithLists({
 >>>>>>> 8f8e46d89 (refactor: unify reaction ingress policy guards across channels)
     isGroup,
@@ -404,7 +418,7 @@ export async function processMessage(
 
   if (accessDecision.decision !== "allow") {
     if (isGroup) {
-      if (accessDecision.reason === "groupPolicy=disabled") {
+      if (accessDecision.reasonCode === DM_GROUP_ACCESS_REASON.GROUP_POLICY_DISABLED) {
         logVerbose(core, runtime, "Blocked BlueBubbles group message (groupPolicy=disabled)");
         logGroupAllowlistHint({
           runtime,
@@ -415,7 +429,7 @@ export async function processMessage(
         });
         return;
       }
-      if (accessDecision.reason === "groupPolicy=allowlist (empty allowlist)") {
+      if (accessDecision.reasonCode === DM_GROUP_ACCESS_REASON.GROUP_POLICY_EMPTY_ALLOWLIST) {
         logVerbose(core, runtime, "Blocked BlueBubbles group message (no allowlist)");
         logGroupAllowlistHint({
           runtime,
@@ -426,7 +440,7 @@ export async function processMessage(
         });
         return;
       }
-      if (accessDecision.reason === "groupPolicy=allowlist (not allowlisted)") {
+      if (accessDecision.reasonCode === DM_GROUP_ACCESS_REASON.GROUP_POLICY_NOT_ALLOWLISTED) {
         logVerbose(
           core,
           runtime,
@@ -449,7 +463,7 @@ export async function processMessage(
       return;
     }
 
-    if (accessDecision.reason === "dmPolicy=disabled") {
+    if (accessDecision.reasonCode === DM_GROUP_ACCESS_REASON.DM_POLICY_DISABLED) {
       logVerbose(core, runtime, `Blocked BlueBubbles DM from ${message.senderId}`);
       logVerbose(core, runtime, `drop: dmPolicy disabled sender=${message.senderId}`);
       return;
@@ -1122,6 +1136,7 @@ export async function processReaction(
 
   const dmPolicy = account.config.dmPolicy ?? "pairing";
   const groupPolicy = account.config.groupPolicy ?? "allowlist";
+<<<<<<< HEAD
   const storeAllowFrom = await core.channel.pairing
     .readAllowFromStore("bluebubbles")
     .catch(() => []);
@@ -1133,6 +1148,13 @@ export async function processReaction(
   });
   const accessDecision = resolveDmGroupAccessDecision({
 =======
+=======
+  const storeAllowFrom = await readStoreAllowFromForDmPolicy({
+    provider: "bluebubbles",
+    dmPolicy,
+    readStore: (provider) => core.channel.pairing.readAllowFromStore(provider),
+  });
+>>>>>>> cd80c7e7f (refactor: unify dm policy store reads and reason codes)
   const accessDecision = resolveDmGroupAccessWithLists({
 >>>>>>> 8f8e46d89 (refactor: unify reaction ingress policy guards across channels)
     isGroup: reaction.isGroup,

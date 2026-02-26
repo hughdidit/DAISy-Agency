@@ -6,6 +6,11 @@ import {
   recordPendingHistoryEntryIfEnabled,
   resolveControlCommandGate,
   resolveDefaultGroupPolicy,
+<<<<<<< HEAD
+=======
+  isDangerousNameMatchingEnabled,
+  readStoreAllowFromForDmPolicy,
+>>>>>>> cd80c7e7f (refactor: unify dm policy store reads and reason codes)
   resolveMentionGating,
   formatAllowlistMatchMeta,
   type HistoryEntry,
@@ -125,9 +130,18 @@ export function createMSTeamsMessageHandler(deps: MSTeamsMessageHandlerDeps) {
 
     const senderName = from.name ?? from.id;
     const senderId = from.aadObjectId ?? from.id;
+<<<<<<< HEAD
     const storedAllowFrom = await core.channel.pairing
       .readAllowFromStore("msteams")
       .catch(() => []);
+=======
+    const dmPolicy = msteamsCfg?.dmPolicy ?? "pairing";
+    const storedAllowFrom = await readStoreAllowFromForDmPolicy({
+      provider: "msteams",
+      dmPolicy,
+      readStore: (provider) => core.channel.pairing.readAllowFromStore(provider),
+    });
+>>>>>>> cd80c7e7f (refactor: unify dm policy store reads and reason codes)
     const useAccessGroups = cfg.commands?.useAccessGroups !== false;
 
     // Check DM policy for direct messages.
