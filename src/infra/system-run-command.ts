@@ -36,15 +36,14 @@ function basenameLower(token: string): string {
 export function formatExecCommand(argv: string[]): string {
   return argv
     .map((arg) => {
-      const trimmed = arg.trim();
-      if (!trimmed) {
+      if (arg.length === 0) {
         return '""';
       }
-      const needsQuotes = /\s|"/.test(trimmed);
+      const needsQuotes = /\s|"/.test(arg);
       if (!needsQuotes) {
-        return trimmed;
+        return arg;
       }
-      return `"${trimmed.replace(/"/g, '\\"')}"`;
+      return `"${arg.replace(/"/g, '\\"')}"`;
     })
     .join(" ");
 }

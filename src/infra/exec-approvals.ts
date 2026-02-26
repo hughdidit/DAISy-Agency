@@ -10,6 +10,35 @@ export type ExecHost = "sandbox" | "gateway" | "node";
 export type ExecSecurity = "deny" | "allowlist" | "full";
 export type ExecAsk = "off" | "on-miss" | "always";
 
+<<<<<<< HEAD
+=======
+export type ExecApprovalRequest = {
+  id: string;
+  request: {
+    command: string;
+    commandArgv?: string[] | null;
+    cwd?: string | null;
+    nodeId?: string | null;
+    host?: string | null;
+    security?: string | null;
+    ask?: string | null;
+    agentId?: string | null;
+    resolvedPath?: string | null;
+    sessionKey?: string | null;
+  };
+  createdAtMs: number;
+  expiresAtMs: number;
+};
+
+export type ExecApprovalResolved = {
+  id: string;
+  decision: ExecApprovalDecision;
+  resolvedBy?: string | null;
+  ts: number;
+  request?: ExecApprovalRequest["request"];
+};
+
+>>>>>>> 03e689fc8 (fix(security): bind system.run approvals to argv identity)
 export type ExecApprovalsDefaults = {
   security?: ExecSecurity;
   ask?: ExecAsk;

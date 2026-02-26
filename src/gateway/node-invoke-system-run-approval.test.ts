@@ -13,12 +13,13 @@ describe("sanitizeSystemRunParamsForForwarding", () => {
     },
   };
 
-  function makeRecord(command: string): ExecApprovalRecord {
+  function makeRecord(command: string, commandArgv?: string[] | null): ExecApprovalRecord {
     return {
       id: "approval-1",
       request: {
         host: "node",
         command,
+        commandArgv: commandArgv ?? null,
         cwd: null,
         agentId: null,
         sessionKey: null,
@@ -78,8 +79,186 @@ describe("sanitizeSystemRunParamsForForwarding", () => {
     if (!result.ok) {
       throw new Error("unreachable");
     }
+<<<<<<< HEAD
     const params = result.params as Record<string, unknown>;
     expect(params.approved).toBe(true);
     expect(params.approvalDecision).toBe("allow-once");
+=======
+    expect(result.message).toContain("approval id does not match request");
+    expect(result.details?.code).toBe("APPROVAL_REQUEST_MISMATCH");
+  });
+
+  test("accepts env-assignment shell wrapper only when approval command matches full argv text", () => {
+    const result = sanitizeSystemRunParamsForForwarding({
+      rawParams: {
+        command: ["/usr/bin/env", "BASH_ENV=/tmp/payload.sh", "bash", "-lc", "echo SAFE"],
+        runId: "approval-1",
+        approved: true,
+        approvalDecision: "allow-once",
+      },
+      nodeId: "node-1",
+      client,
+      execApprovalManager: manager(
+        makeRecord('/usr/bin/env BASH_ENV=/tmp/payload.sh bash -lc "echo SAFE"'),
+      ),
+      nowMs: now,
+    });
+    expectAllowOnceForwardingResult(result);
+  });
+
+  test("rejects trailing-space argv mismatch against legacy command-only approval", () => {
+    const result = sanitizeSystemRunParamsForForwarding({
+      rawParams: {
+        command: ["runner "],
+        runId: "approval-1",
+        approved: true,
+        approvalDecision: "allow-once",
+      },
+      nodeId: "node-1",
+      client,
+      execApprovalManager: manager(makeRecord("runner")),
+      nowMs: now,
+    });
+    expect(result.ok).toBe(false);
+    if (result.ok) {
+      throw new Error("unreachable");
+    }
+    expect(result.message).toContain("approval id does not match request");
+    expect(result.details?.code).toBe("APPROVAL_REQUEST_MISMATCH");
+  });
+
+  test("enforces commandArgv identity when approval includes argv binding", () => {
+    const result = sanitizeSystemRunParamsForForwarding({
+      rawParams: {
+        command: ["echo", "SAFE"],
+        runId: "approval-1",
+        approved: true,
+        approvalDecision: "allow-once",
+      },
+      nodeId: "node-1",
+      client,
+      execApprovalManager: manager(makeRecord("echo SAFE", ["echo SAFE"])),
+      nowMs: now,
+    });
+    expect(result.ok).toBe(false);
+    if (result.ok) {
+      throw new Error("unreachable");
+    }
+    expect(result.message).toContain("approval id does not match request");
+    expect(result.details?.code).toBe("APPROVAL_REQUEST_MISMATCH");
+  });
+
+  test("accepts matching commandArgv binding for trailing-space argv", () => {
+    const result = sanitizeSystemRunParamsForForwarding({
+      rawParams: {
+        command: ["runner "],
+        runId: "approval-1",
+        approved: true,
+        approvalDecision: "allow-once",
+      },
+      nodeId: "node-1",
+      client,
+      execApprovalManager: manager(makeRecord('"runner "', ["runner "])),
+      nowMs: now,
+    });
+    expectAllowOnceForwardingResult(result);
+  });
+  test("consumes allow-once approvals and blocks same runId replay", async () => {
+    const approvalManager = new ExecApprovalManager();
+    const runId = "approval-replay-1";
+    const record = approvalManager.create(
+      {
+        host: "node",
+        nodeId: "node-1",
+        command: "echo SAFE",
+        cwd: null,
+        agentId: null,
+        sessionKey: null,
+      },
+      60_000,
+      runId,
+    );
+    record.requestedByConnId = "conn-1";
+    record.requestedByDeviceId = "dev-1";
+    record.requestedByClientId = "cli-1";
+
+    const decisionPromise = approvalManager.register(record, 60_000);
+    approvalManager.resolve(runId, "allow-once", "operator");
+    await expect(decisionPromise).resolves.toBe("allow-once");
+
+    const params = {
+      command: ["echo", "SAFE"],
+      rawCommand: "echo SAFE",
+      runId,
+      approved: true,
+      approvalDecision: "allow-once",
+    };
+
+    const first = sanitizeSystemRunParamsForForwarding({
+      nodeId: "node-1",
+      rawParams: params,
+      client,
+      execApprovalManager: approvalManager,
+      nowMs: now,
+    });
+    expectAllowOnceForwardingResult(first);
+
+    const second = sanitizeSystemRunParamsForForwarding({
+      nodeId: "node-1",
+      rawParams: params,
+      client,
+      execApprovalManager: approvalManager,
+      nowMs: now,
+    });
+    expect(second.ok).toBe(false);
+    if (second.ok) {
+      throw new Error("unreachable");
+    }
+    expect(second.details?.code).toBe("APPROVAL_REQUIRED");
+  });
+
+  test("rejects approval ids that do not bind a nodeId", () => {
+    const record = makeRecord("echo SAFE");
+    record.request.nodeId = null;
+    const result = sanitizeSystemRunParamsForForwarding({
+      rawParams: {
+        command: ["echo", "SAFE"],
+        runId: "approval-1",
+        approved: true,
+        approvalDecision: "allow-once",
+      },
+      nodeId: "node-1",
+      client,
+      execApprovalManager: manager(record),
+      nowMs: now,
+    });
+    expect(result.ok).toBe(false);
+    if (result.ok) {
+      throw new Error("unreachable");
+    }
+    expect(result.message).toContain("missing node binding");
+    expect(result.details?.code).toBe("APPROVAL_NODE_BINDING_MISSING");
+  });
+
+  test("rejects approval ids replayed against a different nodeId", () => {
+    const result = sanitizeSystemRunParamsForForwarding({
+      rawParams: {
+        command: ["echo", "SAFE"],
+        runId: "approval-1",
+        approved: true,
+        approvalDecision: "allow-once",
+      },
+      nodeId: "node-2",
+      client,
+      execApprovalManager: manager(makeRecord("echo SAFE")),
+      nowMs: now,
+    });
+    expect(result.ok).toBe(false);
+    if (result.ok) {
+      throw new Error("unreachable");
+    }
+    expect(result.message).toContain("not valid for this node");
+    expect(result.details?.code).toBe("APPROVAL_NODE_MISMATCH");
+>>>>>>> 03e689fc8 (fix(security): bind system.run approvals to argv identity)
   });
 });
