@@ -2697,6 +2697,10 @@ public struct ExecApprovalRequestParams: Codable, Sendable {
     public let agentid: AnyCodable?
     public let resolvedpath: AnyCodable?
     public let sessionkey: AnyCodable?
+    public let turnsourcechannel: AnyCodable?
+    public let turnsourceto: AnyCodable?
+    public let turnsourceaccountid: AnyCodable?
+    public let turnsourcethreadid: AnyCodable?
     public let timeoutms: Int?
 
     public init(
@@ -2711,9 +2715,16 @@ public struct ExecApprovalRequestParams: Codable, Sendable {
         resolvedpath: AnyCodable?,
         sessionkey: AnyCodable?,
 <<<<<<< HEAD:apps/macos/Sources/MoltbotProtocol/GatewayModels.swift
+<<<<<<< HEAD:apps/macos/Sources/MoltbotProtocol/GatewayModels.swift
         timeoutms: Int?
     ) {
 =======
+=======
+        turnsourcechannel: AnyCodable?,
+        turnsourceto: AnyCodable?,
+        turnsourceaccountid: AnyCodable?,
+        turnsourcethreadid: AnyCodable?,
+>>>>>>> f53e4e9ff (chore: Fix broken build protocol:check):apps/macos/Sources/OpenClawProtocol/GatewayModels.swift
         timeoutms: Int?,
 <<<<<<< HEAD:apps/macos/Sources/MoltbotProtocol/GatewayModels.swift
         twophase: Bool?)
@@ -2733,6 +2744,10 @@ public struct ExecApprovalRequestParams: Codable, Sendable {
         self.agentid = agentid
         self.resolvedpath = resolvedpath
         self.sessionkey = sessionkey
+        self.turnsourcechannel = turnsourcechannel
+        self.turnsourceto = turnsourceto
+        self.turnsourceaccountid = turnsourceaccountid
+        self.turnsourcethreadid = turnsourcethreadid
         self.timeoutms = timeoutms
     }
     private enum CodingKeys: String, CodingKey {
@@ -2746,6 +2761,10 @@ public struct ExecApprovalRequestParams: Codable, Sendable {
         case agentid = "agentId"
         case resolvedpath = "resolvedPath"
         case sessionkey = "sessionKey"
+        case turnsourcechannel = "turnSourceChannel"
+        case turnsourceto = "turnSourceTo"
+        case turnsourceaccountid = "turnSourceAccountId"
+        case turnsourcethreadid = "turnSourceThreadId"
         case timeoutms = "timeoutMs"
     }
 }
