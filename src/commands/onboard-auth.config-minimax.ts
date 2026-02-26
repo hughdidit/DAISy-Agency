@@ -166,6 +166,7 @@ export function applyMinimaxApiProviderConfig(
     ...existingProviderRest,
     baseUrl: MINIMAX_API_BASE_URL,
     api: "anthropic-messages",
+    authHeader: true,
     ...(normalizedApiKey?.trim() ? { apiKey: normalizedApiKey } : {}),
     models: mergedModels.length > 0 ? mergedModels : [apiModel],
   };
