@@ -416,6 +416,7 @@ NODE
 	    cat > "$HOME/.openclaw/openclaw.json" <<'"'"'JSON'"'"'
 >>>>>>> 80d42eb0b (fix(docker): support .mjs entrypoints in images and e2e)
 {
+  "meta": {},
   "agents": { "defaults": { "workspace": "/root/old" } },
   "gateway": {
     "mode": "remote",
@@ -515,6 +516,7 @@ NODE
 	    cat > "$HOME/.openclaw/openclaw.json" <<'"'"'JSON'"'"'
 >>>>>>> 80d42eb0b (fix(docker): support .mjs entrypoints in images and e2e)
 {
+  "meta": {},
   "skills": {
     "allowBundled": ["__none__"],
     "install": { "nodeManager": "bun" }
