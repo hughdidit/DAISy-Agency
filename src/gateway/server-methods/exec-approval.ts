@@ -9,6 +9,11 @@ import {
   validateExecApprovalRequestParams,
   validateExecApprovalResolveParams,
 } from "../protocol/index.js";
+<<<<<<< HEAD
+=======
+import { buildSystemRunApprovalEnvBinding } from "../system-run-approval-env-binding.js";
+import type { GatewayRequestHandlers } from "./types.js";
+>>>>>>> 9a4b2266c (fix(security): bind node system.run approvals to env)
 
 export function createExecApprovalHandlers(
   manager: ExecApprovalManager,
@@ -33,6 +38,7 @@ export function createExecApprovalHandlers(
         id?: string;
         command: string;
         commandArgv?: string[];
+        env?: Record<string, string>;
         cwd?: string;
         host?: string;
         security?: string;
@@ -55,6 +61,7 @@ export function createExecApprovalHandlers(
       const commandArgv = Array.isArray(p.commandArgv)
         ? p.commandArgv.map((entry) => String(entry))
         : undefined;
+      const envBinding = buildSystemRunApprovalEnvBinding(p.env);
       if (host === "node" && !nodeId) {
         respond(
           false,
@@ -75,6 +82,8 @@ export function createExecApprovalHandlers(
       const request = {
         command: p.command,
         commandArgv,
+        envHash: envBinding.envHash,
+        envKeys: envBinding.envKeys.length > 0 ? envBinding.envKeys : undefined,
         cwd: p.cwd ?? null,
         host: p.host ?? null,
         security: p.security ?? null,

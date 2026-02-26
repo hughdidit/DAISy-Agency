@@ -157,6 +157,15 @@ function buildRequestMessage(request: ExecApprovalRequest, nowMs: number) {
   if (request.request.cwd) {
     lines.push(`CWD: ${request.request.cwd}`);
   }
+<<<<<<< HEAD
+=======
+  if (request.request.nodeId) {
+    lines.push(`Node: ${request.request.nodeId}`);
+  }
+  if (Array.isArray(request.request.envKeys) && request.request.envKeys.length > 0) {
+    lines.push(`Env overrides: ${request.request.envKeys.join(", ")}`);
+  }
+>>>>>>> 9a4b2266c (fix(security): bind node system.run approvals to env)
   if (request.request.host) {
     lines.push(`Host: ${request.request.host}`);
   }
