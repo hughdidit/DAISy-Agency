@@ -1,7 +1,13 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
 import { describe, expect, test, vi } from "vitest";
 import type { ResolvedGatewayAuth } from "./auth.js";
+<<<<<<< HEAD
 import { createGatewayHttpServer } from "./server-http.js";
+=======
+import type { HooksConfigResolved } from "./hooks.js";
+import { canonicalizePathVariant } from "./security-path.js";
+import { createGatewayHttpServer, createHooksRequestHandler } from "./server-http.js";
+>>>>>>> 08e335748 (refactor: share gateway security path canonicalization)
 import { withTempConfig } from "./test-temp-config.js";
 
 function createRequest(params: {
@@ -87,6 +93,7 @@ function createHooksConfig(): HooksConfigResolved {
 }
 
 function canonicalizePluginPath(pathname: string): string {
+<<<<<<< HEAD
   let decoded = pathname;
   try {
     decoded = decodeURIComponent(pathname);
@@ -98,6 +105,9 @@ function canonicalizePluginPath(pathname: string): string {
     return collapsed;
   }
   return collapsed.replace(/\/+$/, "");
+=======
+  return canonicalizePathVariant(pathname);
+>>>>>>> 08e335748 (refactor: share gateway security path canonicalization)
 }
 
 <<<<<<< HEAD
