@@ -52,6 +52,15 @@ import {
   resolveMatrixAllowListMatches,
   normalizeAllowListLower,
 } from "./allowlist.js";
+<<<<<<< HEAD
+=======
+import {
+  resolveMatrixBodyForAgent,
+  resolveMatrixInboundSenderLabel,
+  resolveMatrixSenderUsername,
+} from "./inbound-body.js";
+import { resolveMatrixLocation, type MatrixLocationPayload } from "./location.js";
+>>>>>>> 8483e01a6 (refactor(matrix): dedupe sender label resolution for inbound bodies)
 import { downloadMatrixMedia } from "./media.js";
 import { resolveMentions } from "./mentions.js";
 import { deliverMatrixReplies } from "./replies.js";
@@ -292,6 +301,7 @@ export function createMatrixRoomMessageHandler(params: MatrixMonitorHandlerParam
       const senderName = await getMemberDisplayName(roomId, senderId);
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       const storeAllowFrom = await core.channel.pairing
         .readAllowFromStore("matrix")
         .catch(() => []);
@@ -300,6 +310,14 @@ export function createMatrixRoomMessageHandler(params: MatrixMonitorHandlerParam
       const storeAllowFrom = await readStoreAllowFromForDmPolicy({
         provider: "matrix",
 =======
+=======
+      const senderUsername = resolveMatrixSenderUsername(senderId);
+      const senderLabel = resolveMatrixInboundSenderLabel({
+        senderName,
+        senderId,
+        senderUsername,
+      });
+>>>>>>> 8483e01a6 (refactor(matrix): dedupe sender label resolution for inbound bodies)
       const storeAllowFrom = isDirectMessage
         ? await readStoreAllowFromForDmPolicy({
             provider: "matrix",
@@ -618,12 +636,25 @@ export function createMatrixRoomMessageHandler(params: MatrixMonitorHandlerParam
         previousTimestamp,
         envelope: envelopeOptions,
         body: textWithId,
+<<<<<<< HEAD
+=======
+        chatType: isDirectMessage ? "direct" : "channel",
+        senderLabel,
+>>>>>>> 8483e01a6 (refactor(matrix): dedupe sender label resolution for inbound bodies)
       });
 
       const groupSystemPrompt = roomConfig?.systemPrompt?.trim() || undefined;
       const ctxPayload = core.channel.reply.finalizeInboundContext({
         Body: body,
+<<<<<<< HEAD
         BodyForAgent: bodyText,
+=======
+        BodyForAgent: resolveMatrixBodyForAgent({
+          isDirectMessage,
+          bodyText,
+          senderLabel,
+        }),
+>>>>>>> 8483e01a6 (refactor(matrix): dedupe sender label resolution for inbound bodies)
         RawBody: bodyText,
         CommandBody: bodyText,
         From: isDirectMessage ? `matrix:${senderId}` : `matrix:channel:${roomId}`,
