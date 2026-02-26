@@ -1,5 +1,4 @@
 import crypto from "node:crypto";
-import fs from "node:fs/promises";
 import path from "node:path";
 
 import type { BrowserRouteContext } from "../server-context.js";
@@ -9,7 +8,18 @@ import type { BrowserRouteContext } from "../server-context.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+import {
+  readBody,
+  resolveTargetIdFromBody,
+  resolveTargetIdFromQuery,
+  withPlaywrightRouteContext,
+} from "./agent.shared.js";
+import { resolveWritableOutputPathOrRespond } from "./output-paths.js";
+import { DEFAULT_TRACE_DIR } from "./path-output.js";
+>>>>>>> f41715a18 (refactor(browser): split act route modules and dedupe path guards)
 import type { BrowserRouteRegistrar } from "./types.js";
 import { resolvePreferredOpenClawTmpDir } from "../../infra/tmp-openclaw-dir.js";
 >>>>>>> b02c88d3e (Browser/Logging: share default openclaw tmp dir resolver)
@@ -162,6 +172,7 @@ export function registerBrowserAgentDebugRoutes(
     const body = readBody(req);
     const targetId = toStringOrEmpty(body.targetId) || undefined;
     const out = toStringOrEmpty(body.path) || "";
+<<<<<<< HEAD
     try {
       const tab = await profileCtx.ensureTabAvailable(targetId);
       const pw = await requirePwAi(res, "trace stop");
@@ -189,5 +200,39 @@ export function registerBrowserAgentDebugRoutes(
     } catch (err) {
       handleRouteError(ctx, res, err);
     }
+=======
+
+    await withPlaywrightRouteContext({
+      req,
+      res,
+      ctx,
+      targetId,
+      feature: "trace stop",
+      run: async ({ cdpUrl, tab, pw }) => {
+        const id = crypto.randomUUID();
+        const tracePath = await resolveWritableOutputPathOrRespond({
+          res,
+          rootDir: DEFAULT_TRACE_DIR,
+          requestedPath: out,
+          scopeLabel: "trace directory",
+          defaultFileName: `browser-trace-${id}.zip`,
+          ensureRootDir: true,
+        });
+        if (!tracePath) {
+          return;
+        }
+        await pw.traceStopViaPlaywright({
+          cdpUrl,
+          targetId: tab.targetId,
+          path: tracePath,
+        });
+        res.json({
+          ok: true,
+          targetId: tab.targetId,
+          path: path.resolve(tracePath),
+        });
+      },
+    });
+>>>>>>> f41715a18 (refactor(browser): split act route modules and dedupe path guards)
   });
 }
