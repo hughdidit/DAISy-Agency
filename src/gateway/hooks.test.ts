@@ -7,6 +7,11 @@ import { createIMessageTestPlugin } from "../test-utils/imessage-test-plugin.js"
 import {
   extractHookToken,
   isHookAgentAllowed,
+<<<<<<< HEAD
+=======
+  normalizeHookDispatchSessionKey,
+  resolveHookSessionKey,
+>>>>>>> 4b71de384 (fix(core): unify session-key normalization and plugin boundary checks)
   resolveHookTargetAgentId,
   normalizeAgentPayload,
   normalizeWakePayload,
@@ -204,6 +209,137 @@ describe("gateway hooks helpers", () => {
     expect(isHookAgentAllowed(resolved, "hooks")).toBe(true);
     expect(isHookAgentAllowed(resolved, "missing-agent")).toBe(true);
   });
+<<<<<<< HEAD
+=======
+
+  test("resolveHookSessionKey disables request sessionKey by default", () => {
+    const cfg = {
+      hooks: { enabled: true, token: "secret" },
+    } as OpenClawConfig;
+    const resolved = resolveHooksConfig(cfg);
+    expect(resolved).not.toBeNull();
+    if (!resolved) {
+      return;
+    }
+    const denied = resolveHookSessionKey({
+      hooksConfig: resolved,
+      source: "request",
+      sessionKey: "agent:main:dm:u99999",
+    });
+    expect(denied.ok).toBe(false);
+  });
+
+  test("resolveHookSessionKey allows request sessionKey when explicitly enabled", () => {
+    const cfg = {
+      hooks: { enabled: true, token: "secret", allowRequestSessionKey: true },
+    } as OpenClawConfig;
+    const resolved = resolveHooksConfig(cfg);
+    expect(resolved).not.toBeNull();
+    if (!resolved) {
+      return;
+    }
+    const allowed = resolveHookSessionKey({
+      hooksConfig: resolved,
+      source: "request",
+      sessionKey: "hook:manual",
+    });
+    expect(allowed).toEqual({ ok: true, value: "hook:manual" });
+  });
+
+  test("resolveHookSessionKey enforces allowed prefixes", () => {
+    const cfg = {
+      hooks: {
+        enabled: true,
+        token: "secret",
+        allowRequestSessionKey: true,
+        allowedSessionKeyPrefixes: ["hook:"],
+      },
+    } as OpenClawConfig;
+    const resolved = resolveHooksConfig(cfg);
+    expect(resolved).not.toBeNull();
+    if (!resolved) {
+      return;
+    }
+
+    const blocked = resolveHookSessionKey({
+      hooksConfig: resolved,
+      source: "request",
+      sessionKey: "agent:main:main",
+    });
+    expect(blocked.ok).toBe(false);
+
+    const allowed = resolveHookSessionKey({
+      hooksConfig: resolved,
+      source: "mapping",
+      sessionKey: "hook:gmail:1",
+    });
+    expect(allowed).toEqual({ ok: true, value: "hook:gmail:1" });
+  });
+
+  test("resolveHookSessionKey uses defaultSessionKey when request key is absent", () => {
+    const cfg = {
+      hooks: {
+        enabled: true,
+        token: "secret",
+        defaultSessionKey: "hook:ingress",
+      },
+    } as OpenClawConfig;
+    const resolved = resolveHooksConfig(cfg);
+    expect(resolved).not.toBeNull();
+    if (!resolved) {
+      return;
+    }
+
+    const resolvedKey = resolveHookSessionKey({
+      hooksConfig: resolved,
+      source: "request",
+    });
+    expect(resolvedKey).toEqual({ ok: true, value: "hook:ingress" });
+  });
+
+  test("normalizeHookDispatchSessionKey strips duplicate target agent prefix", () => {
+    expect(
+      normalizeHookDispatchSessionKey({
+        sessionKey: "agent:hooks:slack:channel:c123",
+        targetAgentId: "hooks",
+      }),
+    ).toBe("slack:channel:c123");
+  });
+
+  test("normalizeHookDispatchSessionKey preserves non-target agent scoped keys", () => {
+    expect(
+      normalizeHookDispatchSessionKey({
+        sessionKey: "agent:main:slack:channel:c123",
+        targetAgentId: "hooks",
+      }),
+    ).toBe("agent:main:slack:channel:c123");
+  });
+
+  test("resolveHooksConfig validates defaultSessionKey and generated fallback against prefixes", () => {
+    expect(() =>
+      resolveHooksConfig({
+        hooks: {
+          enabled: true,
+          token: "secret",
+          defaultSessionKey: "agent:main:main",
+          allowedSessionKeyPrefixes: ["hook:"],
+        },
+      } as OpenClawConfig),
+    ).toThrow("hooks.defaultSessionKey must match hooks.allowedSessionKeyPrefixes");
+
+    expect(() =>
+      resolveHooksConfig({
+        hooks: {
+          enabled: true,
+          token: "secret",
+          allowedSessionKeyPrefixes: ["agent:"],
+        },
+      } as OpenClawConfig),
+    ).toThrow(
+      "hooks.allowedSessionKeyPrefixes must include 'hook:' when hooks.defaultSessionKey is unset",
+    );
+  });
+>>>>>>> 4b71de384 (fix(core): unify session-key normalization and plugin boundary checks)
 });
 
 const emptyRegistry = createTestRegistry([]);

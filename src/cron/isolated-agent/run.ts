@@ -40,11 +40,7 @@ import {
 import type { AgentDefaultsConfig } from "../../config/types.js";
 import { registerAgentRunContext } from "../../infra/agent-events.js";
 import { logWarn } from "../../logger.js";
-import {
-  buildAgentMainSessionKey,
-  normalizeAgentId,
-  parseAgentSessionKey,
-} from "../../routing/session-key.js";
+import { normalizeAgentId } from "../../routing/session-key.js";
 import {
   buildSafeExternalPrompt,
   detectSuspiciousPatterns,
@@ -67,6 +63,7 @@ import {
   pickSummaryFromPayloads,
   resolveHeartbeatAckMaxChars,
 } from "./helpers.js";
+import { resolveCronAgentSessionKey } from "./session-key.js";
 import { resolveCronSession } from "./session.js";
 import { resolveCronSkillsSnapshot } from "./skills-snapshot.js";
 <<<<<<< HEAD
@@ -1054,19 +1051,4 @@ let skillsSnapshot = cronSession.sessionEntry.skillsSnapshot;
   outputText = deliveryResult.outputText;
 
   return resolveRunOutcome({ delivered, deliveryAttempted });
-}
-
-export function resolveCronAgentSessionKey(params: {
-  sessionKey: string;
-  agentId: string;
-}): string {
-  const baseSessionKey = params.sessionKey.trim();
-  const normalizedBaseSessionKey = baseSessionKey.toLowerCase();
-  if (parseAgentSessionKey(normalizedBaseSessionKey)) {
-    return normalizedBaseSessionKey;
-  }
-  return buildAgentMainSessionKey({
-    agentId: params.agentId,
-    mainKey: baseSessionKey,
-  });
 }

@@ -33,8 +33,12 @@ import { listChannelPlugins } from "../channels/plugins/index.js";
 import type { ChannelId } from "../channels/plugins/types.js";
 import type { OpenClawConfig } from "../config/config.js";
 import { readJsonBodyWithLimit, requestBodyErrorToText } from "../infra/http-body.js";
+<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { normalizeAgentId } from "../routing/session-key.js";
+=======
+import { normalizeAgentId, parseAgentSessionKey } from "../routing/session-key.js";
+>>>>>>> 4b71de384 (fix(core): unify session-key normalization and plugin boundary checks)
 import { normalizeMessageChannel } from "../utils/message-channel.js";
 import { type HookMappingResolved, resolveHookMappings } from "./hooks-mapping.js";
 
@@ -289,10 +293,64 @@ export function isHookAgentAllowed(
 
 export const getHookAgentPolicyError = () => "agentId is not allowed by hooks.allowedAgentIds";
 
+<<<<<<< HEAD
 export function normalizeAgentPayload(
   payload: Record<string, unknown>,
   opts?: { idFactory?: () => string },
 ):
+=======
+export function resolveHookSessionKey(params: {
+  hooksConfig: HooksConfigResolved;
+  source: "request" | "mapping";
+  sessionKey?: string;
+  idFactory?: () => string;
+}): { ok: true; value: string } | { ok: false; error: string } {
+  const requested = resolveSessionKey(params.sessionKey);
+  if (requested) {
+    if (params.source === "request" && !params.hooksConfig.sessionPolicy.allowRequestSessionKey) {
+      return { ok: false, error: getHookSessionKeyRequestPolicyError() };
+    }
+    const allowedPrefixes = params.hooksConfig.sessionPolicy.allowedSessionKeyPrefixes;
+    if (allowedPrefixes && !isSessionKeyAllowedByPrefix(requested, allowedPrefixes)) {
+      return { ok: false, error: getHookSessionKeyPrefixError(allowedPrefixes) };
+    }
+    return { ok: true, value: requested };
+  }
+
+  const defaultSessionKey = params.hooksConfig.sessionPolicy.defaultSessionKey;
+  if (defaultSessionKey) {
+    return { ok: true, value: defaultSessionKey };
+  }
+
+  const generated = `hook:${(params.idFactory ?? randomUUID)()}`;
+  const allowedPrefixes = params.hooksConfig.sessionPolicy.allowedSessionKeyPrefixes;
+  if (allowedPrefixes && !isSessionKeyAllowedByPrefix(generated, allowedPrefixes)) {
+    return { ok: false, error: getHookSessionKeyPrefixError(allowedPrefixes) };
+  }
+  return { ok: true, value: generated };
+}
+
+export function normalizeHookDispatchSessionKey(params: {
+  sessionKey: string;
+  targetAgentId: string | undefined;
+}): string {
+  const trimmed = params.sessionKey.trim();
+  if (!trimmed || !params.targetAgentId) {
+    return trimmed;
+  }
+  const parsed = parseAgentSessionKey(trimmed);
+  if (!parsed) {
+    return trimmed;
+  }
+  const targetAgentId = normalizeAgentId(params.targetAgentId);
+  if (parsed.agentId !== targetAgentId) {
+    return `agent:${parsed.agentId}:${parsed.rest}`;
+  }
+  return parsed.rest;
+}
+
+export function normalizeAgentPayload(payload: Record<string, unknown>):
+>>>>>>> 4b71de384 (fix(core): unify session-key normalization and plugin boundary checks)
   | {
       ok: true;
       value: HookAgentPayload;

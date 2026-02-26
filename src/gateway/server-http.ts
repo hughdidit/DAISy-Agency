@@ -65,6 +65,11 @@ import {
   normalizeHookHeaders,
   normalizeWakePayload,
   readJsonBody,
+<<<<<<< HEAD
+=======
+  normalizeHookDispatchSessionKey,
+  resolveHookSessionKey,
+>>>>>>> 4b71de384 (fix(core): unify session-key normalization and plugin boundary checks)
   resolveHookTargetAgentId,
   resolveHookChannel,
   resolveHookDeliver,
@@ -395,9 +400,29 @@ export function createHooksRequestHandler(
         sendJson(res, 400, { ok: false, error: getHookAgentPolicyError() });
         return true;
       }
+<<<<<<< HEAD
       const runId = dispatchAgentHook({
         ...normalized.value,
         agentId: resolveHookTargetAgentId(hooksConfig, normalized.value.agentId),
+=======
+      const sessionKey = resolveHookSessionKey({
+        hooksConfig,
+        source: "request",
+        sessionKey: normalized.value.sessionKey,
+      });
+      if (!sessionKey.ok) {
+        sendJson(res, 400, { ok: false, error: sessionKey.error });
+        return true;
+      }
+      const targetAgentId = resolveHookTargetAgentId(hooksConfig, normalized.value.agentId);
+      const runId = dispatchAgentHook({
+        ...normalized.value,
+        sessionKey: normalizeHookDispatchSessionKey({
+          sessionKey: sessionKey.value,
+          targetAgentId,
+        }),
+        agentId: targetAgentId,
+>>>>>>> 4b71de384 (fix(core): unify session-key normalization and plugin boundary checks)
       });
       sendJson(res, 202, { ok: true, runId });
       return true;
@@ -438,12 +463,32 @@ export function createHooksRequestHandler(
             sendJson(res, 400, { ok: false, error: getHookAgentPolicyError() });
             return true;
           }
+<<<<<<< HEAD
+=======
+          const sessionKey = resolveHookSessionKey({
+            hooksConfig,
+            source: "mapping",
+            sessionKey: mapped.action.sessionKey,
+          });
+          if (!sessionKey.ok) {
+            sendJson(res, 400, { ok: false, error: sessionKey.error });
+            return true;
+          }
+          const targetAgentId = resolveHookTargetAgentId(hooksConfig, mapped.action.agentId);
+>>>>>>> 4b71de384 (fix(core): unify session-key normalization and plugin boundary checks)
           const runId = dispatchAgentHook({
             message: mapped.action.message,
             name: mapped.action.name ?? "Hook",
-            agentId: resolveHookTargetAgentId(hooksConfig, mapped.action.agentId),
+            agentId: targetAgentId,
             wakeMode: mapped.action.wakeMode,
+<<<<<<< HEAD
             sessionKey: mapped.action.sessionKey ?? "",
+=======
+            sessionKey: normalizeHookDispatchSessionKey({
+              sessionKey: sessionKey.value,
+              targetAgentId,
+            }),
+>>>>>>> 4b71de384 (fix(core): unify session-key normalization and plugin boundary checks)
             deliver: resolveHookDeliver(mapped.action.deliver),
             channel,
             to: mapped.action.to,
