@@ -55,6 +55,7 @@ import {
   emitAgentEvent,
   registerAgentRunContext,
 } from "../infra/agent-events.js";
+import { buildOutboundSessionContext } from "../infra/outbound/session-context.js";
 import { getRemoteSkillEligibility } from "../infra/skills-remote.js";
 import { normalizeAgentId } from "../routing/session-key.js";
 import { defaultRuntime, type RuntimeEnv } from "../runtime.js";
@@ -283,6 +284,11 @@ export async function agentCommand(
       sessionKey: sessionKey ?? opts.sessionKey?.trim(),
       config: cfg,
     });
+  const outboundSession = buildOutboundSessionContext({
+    cfg,
+    agentId: sessionAgentId,
+    sessionKey,
+  });
   const workspaceDirRaw = resolveAgentWorkspaceDir(cfg, sessionAgentId);
   const agentDir = resolveAgentDir(cfg, sessionAgentId);
   const workspace = await ensureAgentWorkspace({
@@ -307,6 +313,130 @@ export async function agentCommand(
       }
     }
 
+<<<<<<< HEAD
+=======
+    if (acpResolution?.kind === "stale") {
+      throw acpResolution.error;
+    }
+
+    if (acpResolution?.kind === "ready" && sessionKey) {
+      const startedAt = Date.now();
+      registerAgentRunContext(runId, {
+        sessionKey,
+      });
+      emitAgentEvent({
+        runId,
+        stream: "lifecycle",
+        data: {
+          phase: "start",
+          startedAt,
+        },
+      });
+
+      let streamedText = "";
+      let stopReason: string | undefined;
+      try {
+        const dispatchPolicyError = resolveAcpDispatchPolicyError(cfg);
+        if (dispatchPolicyError) {
+          throw dispatchPolicyError;
+        }
+        const acpAgent = normalizeAgentId(
+          acpResolution.meta.agent || resolveAgentIdFromSessionKey(sessionKey),
+        );
+        const agentPolicyError = resolveAcpAgentPolicyError(cfg, acpAgent);
+        if (agentPolicyError) {
+          throw agentPolicyError;
+        }
+
+        await acpManager.runTurn({
+          cfg,
+          sessionKey,
+          text: body,
+          mode: "prompt",
+          requestId: runId,
+          signal: opts.abortSignal,
+          onEvent: (event) => {
+            if (event.type === "done") {
+              stopReason = event.stopReason;
+              return;
+            }
+            if (event.type !== "text_delta") {
+              return;
+            }
+            if (event.stream && event.stream !== "output") {
+              return;
+            }
+            if (!event.text) {
+              return;
+            }
+            streamedText += event.text;
+            emitAgentEvent({
+              runId,
+              stream: "assistant",
+              data: {
+                text: streamedText,
+                delta: event.text,
+              },
+            });
+          },
+        });
+      } catch (error) {
+        const acpError = toAcpRuntimeError({
+          error,
+          fallbackCode: "ACP_TURN_FAILED",
+          fallbackMessage: "ACP turn failed before completion.",
+        });
+        emitAgentEvent({
+          runId,
+          stream: "lifecycle",
+          data: {
+            phase: "error",
+            error: acpError.message,
+            endedAt: Date.now(),
+          },
+        });
+        throw acpError;
+      }
+
+      emitAgentEvent({
+        runId,
+        stream: "lifecycle",
+        data: {
+          phase: "end",
+          endedAt: Date.now(),
+        },
+      });
+
+      const finalText = streamedText.trim();
+      const payloads = finalText
+        ? [
+            {
+              text: finalText,
+            },
+          ]
+        : [];
+      const result = {
+        payloads,
+        meta: {
+          durationMs: Date.now() - startedAt,
+          aborted: opts.abortSignal?.aborted === true,
+          stopReason,
+        },
+      };
+
+      return await deliverAgentCommandResult({
+        cfg,
+        deps,
+        runtime,
+        opts,
+        outboundSession,
+        sessionEntry,
+        result,
+        payloads,
+      });
+    }
+
+>>>>>>> 712e23172 (fix(agent): forward resolved outbound session context for delivery)
     let resolvedThinkLevel =
       thinkOnce ??
       thinkOverride ??
@@ -658,6 +788,7 @@ export async function agentCommand(
       deps,
       runtime,
       opts,
+      outboundSession,
       sessionEntry,
       result,
       payloads,
