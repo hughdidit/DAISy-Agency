@@ -73,22 +73,91 @@ Optional explicit config:
 }
 ```
 
+<<<<<<< HEAD
 ### Encrypted file source (`sops`)
+=======
+### Env provider
+
+- Optional allowlist via `allowlist`.
+- Missing/empty env values fail resolution.
+
+### File provider
+
+- Reads local file from `path`.
+- `mode: "json"` expects JSON object payload and resolves `id` as pointer.
+- `mode: "singleValue"` expects ref id `"value"` and returns file contents.
+- Path must pass ownership/permission checks.
+
+### Exec provider
+
+- Runs configured absolute binary path, no shell.
+- By default, `command` must point to a regular file (not a symlink).
+- Set `allowSymlinkCommand: true` to allow symlink command paths (for example Homebrew shims). OpenClaw validates the resolved target path.
+- When `trustedDirs` is set, checks apply to the resolved target path.
+- Supports timeout, no-output timeout, output byte limits, env allowlist, and trusted dirs.
+- Request payload (stdin):
+
+```json
+{ "protocolVersion": 1, "provider": "vault", "ids": ["providers/openai/apiKey"] }
+```
+
+- Response payload (stdout):
+
+```json
+{ "protocolVersion": 1, "values": { "providers/openai/apiKey": "sk-..." } }
+```
+
+Optional per-id errors:
+
+```json
+{
+  "protocolVersion": 1,
+  "values": {},
+  "errors": { "providers/openai/apiKey": { "message": "not found" } }
+}
+```
+
+## Exec integration examples
+
+### 1Password CLI
+>>>>>>> ea1ccf489 (docs(secrets): add direct 1password exec example)
 
 ```json5
 {
   secrets: {
+<<<<<<< HEAD
     sources: {
       file: {
         type: "sops",
         path: "~/.openclaw/secrets.enc.json",
         timeoutMs: 5000,
+=======
+    providers: {
+      onepassword_openai: {
+        source: "exec",
+        command: "/opt/homebrew/bin/op",
+        allowSymlinkCommand: true, // required for Homebrew symlinked binaries
+        trustedDirs: ["/opt/homebrew"],
+        args: ["read", "op://Personal/OpenClaw QA API Key/password"],
+        passEnv: ["HOME"],
+        jsonOnly: false,
+      },
+    },
+  },
+  models: {
+    providers: {
+      openai: {
+        baseUrl: "https://api.openai.com/v1",
+        models: [{ id: "gpt-5", name: "gpt-5" }],
+        apiKey: { source: "exec", provider: "onepassword_openai", id: "value" },
+>>>>>>> ea1ccf489 (docs(secrets): add direct 1password exec example)
       },
     },
   },
 }
 ```
 
+<<<<<<< HEAD
 Contract:
 
 - OpenClaw shells out to `sops` for decrypt/encrypt.
@@ -101,6 +170,65 @@ Common errors:
 
 - Missing binary: `sops binary not found in PATH. Install sops >= 3.9.0 or disable secrets.sources.file.`
 - Timeout: `sops decrypt timed out after <n>ms for <path>.`
+=======
+### HashiCorp Vault CLI
+
+```json5
+{
+  secrets: {
+    providers: {
+      vault_openai: {
+        source: "exec",
+        command: "/opt/homebrew/bin/vault",
+        allowSymlinkCommand: true, // required for Homebrew symlinked binaries
+        trustedDirs: ["/opt/homebrew"],
+        args: ["kv", "get", "-field=OPENAI_API_KEY", "secret/openclaw"],
+        passEnv: ["VAULT_ADDR", "VAULT_TOKEN"],
+        jsonOnly: false,
+      },
+    },
+  },
+  models: {
+    providers: {
+      openai: {
+        baseUrl: "https://api.openai.com/v1",
+        models: [{ id: "gpt-5", name: "gpt-5" }],
+        apiKey: { source: "exec", provider: "vault_openai", id: "value" },
+      },
+    },
+  },
+}
+```
+
+### `sops`
+
+```json5
+{
+  secrets: {
+    providers: {
+      sops_openai: {
+        source: "exec",
+        command: "/opt/homebrew/bin/sops",
+        allowSymlinkCommand: true, // required for Homebrew symlinked binaries
+        trustedDirs: ["/opt/homebrew"],
+        args: ["-d", "--extract", '["providers"]["openai"]["apiKey"]', "/path/to/secrets.enc.json"],
+        passEnv: ["SOPS_AGE_KEY_FILE"],
+        jsonOnly: false,
+      },
+    },
+  },
+  models: {
+    providers: {
+      openai: {
+        baseUrl: "https://api.openai.com/v1",
+        models: [{ id: "gpt-5", name: "gpt-5" }],
+        apiKey: { source: "exec", provider: "sops_openai", id: "value" },
+      },
+    },
+  },
+}
+```
+>>>>>>> ea1ccf489 (docs(secrets): add direct 1password exec example)
 
 ## In-scope fields (v1)
 
