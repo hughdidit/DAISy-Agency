@@ -16,6 +16,7 @@ import {
   resolveStorePath,
 } from "../config/sessions.js";
 import { resolveRequiredHomeDir } from "../infra/home-dir.js";
+import { parseAgentSessionKey } from "../sessions/session-key-utils.js";
 import { note } from "../terminal/note.js";
 import { shortenHomePath } from "../utils.js";
 
@@ -136,6 +137,71 @@ function findOtherStateDirs(stateDir: string): string[] {
   return found;
 }
 
+<<<<<<< HEAD
+=======
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
+}
+
+function isPairingPolicy(value: unknown): boolean {
+  return typeof value === "string" && value.trim().toLowerCase() === "pairing";
+}
+
+function hasPairingPolicy(value: unknown): boolean {
+  if (!isRecord(value)) {
+    return false;
+  }
+  if (isPairingPolicy(value.dmPolicy)) {
+    return true;
+  }
+  if (isRecord(value.dm) && isPairingPolicy(value.dm.policy)) {
+    return true;
+  }
+  if (!isRecord(value.accounts)) {
+    return false;
+  }
+  for (const accountCfg of Object.values(value.accounts)) {
+    if (hasPairingPolicy(accountCfg)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function isSlashRoutingSessionKey(sessionKey: string): boolean {
+  const raw = sessionKey.trim().toLowerCase();
+  if (!raw) {
+    return false;
+  }
+  const scoped = parseAgentSessionKey(raw)?.rest ?? raw;
+  return /^[^:]+:slash:[^:]+(?:$|:)/.test(scoped);
+}
+
+function shouldRequireOAuthDir(cfg: OpenClawConfig, env: NodeJS.ProcessEnv): boolean {
+  if (env.OPENCLAW_OAUTH_DIR?.trim()) {
+    return true;
+  }
+  const channels = cfg.channels;
+  if (!isRecord(channels)) {
+    return false;
+  }
+  // WhatsApp auth always uses the credentials tree.
+  if (isRecord(channels.whatsapp)) {
+    return true;
+  }
+  // Pairing allowlists are persisted under credentials/<channel>-allowFrom.json.
+  for (const [channelId, channelCfg] of Object.entries(channels)) {
+    if (channelId === "defaults" || channelId === "modelByChannel") {
+      continue;
+    }
+    if (hasPairingPolicy(channelCfg)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+>>>>>>> a690b6239 (Doctor: ignore slash sessions in transcript integrity check)
 export async function noteStateIntegrity(
   cfg: OpenClawConfig,
   prompter: DoctorPrompterLike,
@@ -358,7 +424,8 @@ export async function noteStateIntegrity(
         return bUpdated - aUpdated;
       })
       .slice(0, 5);
-    const missing = recent.filter(([, entry]) => {
+    const recentTranscriptCandidates = recent.filter(([key]) => !isSlashRoutingSessionKey(key));
+    const missing = recentTranscriptCandidates.filter(([, entry]) => {
       const sessionId = entry.sessionId;
       if (!sessionId) {
         return false;
@@ -369,7 +436,7 @@ export async function noteStateIntegrity(
     if (missing.length > 0) {
       warnings.push(
         [
-          `- ${missing.length}/${recent.length} recent sessions are missing transcripts.`,
+          `- ${missing.length}/${recentTranscriptCandidates.length} recent sessions are missing transcripts.`,
           `  Verify sessions in store: ${formatCliCommand(`openclaw sessions --store "${absoluteStorePath}"`)}`,
           `  Preview cleanup impact: ${formatCliCommand(`openclaw sessions cleanup --store "${absoluteStorePath}" --dry-run`)}`,
         ].join("\n"),
