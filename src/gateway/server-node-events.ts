@@ -206,7 +206,55 @@ function parseSessionKeyFromPayloadJSON(payloadJSON: string): string | null {
   return sessionKey.length > 0 ? sessionKey : null;
 }
 
+<<<<<<< HEAD
 >>>>>>> 210bc3797 (chore(subagents): add regression coverage and changelog)
+=======
+function parsePayloadObject(payloadJSON?: string | null): Record<string, unknown> | null {
+  if (!payloadJSON) {
+    return null;
+  }
+  let payload: unknown;
+  try {
+    payload = JSON.parse(payloadJSON) as unknown;
+  } catch {
+    return null;
+  }
+  return typeof payload === "object" && payload !== null
+    ? (payload as Record<string, unknown>)
+    : null;
+}
+
+async function sendReceiptAck(params: {
+  cfg: ReturnType<typeof loadConfig>;
+  deps: NodeEventContext["deps"];
+  sessionKey: string;
+  channel: string;
+  to: string;
+  text: string;
+}) {
+  const resolved = resolveOutboundTarget({
+    channel: params.channel,
+    to: params.to,
+    cfg: params.cfg,
+    mode: "explicit",
+  });
+  if (!resolved.ok) {
+    throw new Error(String(resolved.error));
+  }
+  const agentId = resolveSessionAgentId({ sessionKey: params.sessionKey, config: params.cfg });
+  await deliverOutboundPayloads({
+    cfg: params.cfg,
+    channel: params.channel,
+    to: resolved.to,
+    payloads: [{ text: params.text }],
+    agentId,
+    bestEffort: true,
+    deps: createOutboundSendDeps(params.deps),
+    sessionKey: params.sessionKey,
+  });
+}
+
+>>>>>>> a4408a917 (fix: pass sessionKey to deliverOutboundPayloads for message:sent hook dispatch)
 export const handleNodeEvent = async (ctx: NodeEventContext, nodeId: string, evt: NodeEvent) => {
   switch (evt.event) {
     case "voice.transcript": {
