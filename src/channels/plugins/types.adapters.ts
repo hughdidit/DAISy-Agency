@@ -21,7 +21,20 @@ import type {
 } from "./types.core.js";
 
 export type ChannelSetupAdapter = {
+<<<<<<< HEAD
   resolveAccountId?: (params: { cfg: MoltbotConfig; accountId?: string }) => string;
+=======
+  resolveAccountId?: (params: {
+    cfg: OpenClawConfig;
+    accountId?: string;
+    input?: ChannelSetupInput;
+  }) => string;
+  resolveBindingAccountId?: (params: {
+    cfg: OpenClawConfig;
+    agentId: string;
+    accountId?: string;
+  }) => string | undefined;
+>>>>>>> 96c770252 (Agents: add account-scoped bind and routing commands (#27195))
   applyAccountName?: (params: {
     cfg: MoltbotConfig;
     accountId: string;
