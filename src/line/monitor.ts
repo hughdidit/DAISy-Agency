@@ -54,11 +54,15 @@ import type { OpenClawConfig } from "../config/config.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { danger, logVerbose } from "../globals.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { RuntimeEnv } from "../runtime.js";
 import { createLineBot } from "./bot.js";
 import { validateLineSignature } from "./signature.js";
 =======
 >>>>>>> 2493455f0 (refactor(line): extract node webhook handler + shared verification)
+=======
+import { waitForAbortSignal } from "../infra/abort-signal.js";
+>>>>>>> e915b4c64 (refactor: unify monitor abort lifecycle handling)
 import { normalizePluginHttpPath } from "../plugins/http-path.js";
 import { registerPluginHttpRoute } from "../plugins/http-registry.js";
 <<<<<<< HEAD
@@ -480,7 +484,12 @@ export async function monitorLineProvider(
   logVerbose(`line: registered webhook handler at ${normalizedPath}`);
 
   // Handle abort signal
+  let stopped = false;
   const stopHandler = () => {
+    if (stopped) {
+      return;
+    }
+    stopped = true;
     logVerbose(`line: stopping provider for account ${resolvedAccountId}`);
     unregisterHttp();
     recordChannelRuntimeState({
@@ -493,7 +502,12 @@ export async function monitorLineProvider(
     });
   };
 
-  abortSignal?.addEventListener("abort", stopHandler);
+  if (abortSignal?.aborted) {
+    stopHandler();
+  } else if (abortSignal) {
+    abortSignal.addEventListener("abort", stopHandler, { once: true });
+    await waitForAbortSignal(abortSignal);
+  }
 
   return {
     account: bot.account,

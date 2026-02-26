@@ -28,7 +28,11 @@ import { resolveAgentMaxConcurrent } from "../config/agent-limits.js";
 import type { OpenClawConfig } from "../config/config.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { loadConfig } from "../config/config.js";
+<<<<<<< HEAD
 import { resolveAgentMaxConcurrent } from "../config/agent-limits.js";
+=======
+import { waitForAbortSignal } from "../infra/abort-signal.js";
+>>>>>>> e915b4c64 (refactor: unify monitor abort lifecycle handling)
 import { computeBackoff, sleepWithAbort } from "../infra/backoff.js";
 import { formatErrorMessage } from "../infra/errors.js";
 <<<<<<< HEAD
@@ -224,16 +228,7 @@ export async function monitorTelegramProvider(opts: MonitorTelegramOpts = {}) {
         abortSignal: opts.abortSignal,
         publicUrl: opts.webhookUrl,
       });
-      const abortSignal = opts.abortSignal;
-      if (abortSignal && !abortSignal.aborted) {
-        await new Promise<void>((resolve) => {
-          const onAbort = () => {
-            abortSignal.removeEventListener("abort", onAbort);
-            resolve();
-          };
-          abortSignal.addEventListener("abort", onAbort, { once: true });
-        });
-      }
+      await waitForAbortSignal(opts.abortSignal);
       return;
     }
 

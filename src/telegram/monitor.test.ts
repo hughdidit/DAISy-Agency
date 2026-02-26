@@ -1,5 +1,9 @@
+<<<<<<< HEAD
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+=======
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+>>>>>>> e915b4c64 (refactor: unify monitor abort lifecycle handling)
 import { monitorTelegramProvider } from "./monitor.js";
 
 type MockCtx = {
@@ -164,13 +168,19 @@ vi.mock("../auto-reply/reply.js", () => ({
 }));
 
 describe("monitorTelegramProvider (grammY)", () => {
+  let consoleErrorSpy: { mockRestore: () => void } | undefined;
+
   beforeEach(() => {
     loadConfig.mockReturnValue({
       agents: { defaults: { maxConcurrent: 2 } },
       channels: { telegram: {} },
     });
     initSpy.mockClear();
-    runSpy.mockClear();
+    runSpy.mockReset().mockImplementation(() =>
+      makeRunnerStub({
+        task: () => Promise.reject(new Error("runSpy called without explicit test stub")),
+      }),
+    );
     computeBackoff.mockClear();
     sleepWithAbort.mockClear();
 <<<<<<< HEAD
@@ -182,7 +192,15 @@ describe("monitorTelegramProvider (grammY)", () => {
 >>>>>>> 4d0ca7c31 (fix(telegram): restart stalled polling after unhandled network errors)
 =======
     createTelegramBotErrors.length = 0;
+<<<<<<< HEAD
 >>>>>>> 81384daeb (fix(telegram): harden polling retry setup and teardown order)
+=======
+    consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    consoleErrorSpy?.mockRestore();
+>>>>>>> e915b4c64 (refactor: unify monitor abort lifecycle handling)
   });
 
   it("processes a DM and sends reply", async () => {
