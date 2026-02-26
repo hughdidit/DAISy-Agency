@@ -27,6 +27,13 @@ import {
 } from "../../commands/agents.config.js";
 import { loadConfig, writeConfigFile } from "../../config/config.js";
 import { resolveSessionTranscriptsDirForAgent } from "../../config/sessions/paths.js";
+<<<<<<< HEAD
+=======
+import { sameFileIdentity } from "../../infra/file-identity.js";
+import { SafeOpenError, readLocalFileSafely } from "../../infra/fs-safe.js";
+import { assertNoPathAliasEscape } from "../../infra/path-alias-guards.js";
+import { isNotFoundPathError } from "../../infra/path-guards.js";
+>>>>>>> 46eba86b4 (fix: harden workspace boundary path resolution)
 import { DEFAULT_AGENT_ID, normalizeAgentId } from "../../routing/session-key.js";
 import { resolveUserPath } from "../../utils.js";
 import {
@@ -64,8 +71,108 @@ type FileMeta = {
 
 async function statFile(filePath: string): Promise<FileMeta | null> {
   try {
+<<<<<<< HEAD
     const stat = await fs.stat(filePath);
     if (!stat.isFile()) {
+=======
+    return await fs.realpath(workspaceDir);
+  } catch {
+    return path.resolve(workspaceDir);
+  }
+}
+
+async function resolveAgentWorkspaceFilePath(params: {
+  workspaceDir: string;
+  name: string;
+  allowMissing: boolean;
+}): Promise<ResolvedAgentWorkspaceFilePath> {
+  const requestPath = path.join(params.workspaceDir, params.name);
+  const workspaceReal = await resolveWorkspaceRealPath(params.workspaceDir);
+  const candidatePath = path.resolve(workspaceReal, params.name);
+
+  try {
+    await assertNoPathAliasEscape({
+      absolutePath: candidatePath,
+      rootPath: workspaceReal,
+      boundaryLabel: "workspace root",
+    });
+  } catch (error) {
+    return {
+      kind: "invalid",
+      requestPath,
+      reason: error instanceof Error ? error.message : "path escapes workspace root",
+    };
+  }
+
+  let candidateLstat: Awaited<ReturnType<typeof fs.lstat>>;
+  try {
+    candidateLstat = await fs.lstat(candidatePath);
+  } catch (err) {
+    if (isNotFoundPathError(err)) {
+      if (params.allowMissing) {
+        return { kind: "missing", requestPath, ioPath: candidatePath, workspaceReal };
+      }
+      return { kind: "invalid", requestPath, reason: "file not found" };
+    }
+    throw err;
+  }
+
+  if (candidateLstat.isSymbolicLink()) {
+    let targetReal: string;
+    try {
+      targetReal = await fs.realpath(candidatePath);
+    } catch (err) {
+      if (isNotFoundPathError(err)) {
+        if (params.allowMissing) {
+          return { kind: "missing", requestPath, ioPath: candidatePath, workspaceReal };
+        }
+        return { kind: "invalid", requestPath, reason: "file not found" };
+      }
+      throw err;
+    }
+    let targetStat: Awaited<ReturnType<typeof fs.stat>>;
+    try {
+      targetStat = await fs.stat(targetReal);
+    } catch (err) {
+      if (isNotFoundPathError(err)) {
+        if (params.allowMissing) {
+          return { kind: "missing", requestPath, ioPath: targetReal, workspaceReal };
+        }
+        return { kind: "invalid", requestPath, reason: "file not found" };
+      }
+      throw err;
+    }
+    if (!targetStat.isFile()) {
+      return { kind: "invalid", requestPath, reason: "path is not a regular file" };
+    }
+    if (targetStat.nlink > 1) {
+      return { kind: "invalid", requestPath, reason: "hardlinked file path not allowed" };
+    }
+    return { kind: "ready", requestPath, ioPath: targetReal, workspaceReal };
+  }
+
+  if (!candidateLstat.isFile()) {
+    return { kind: "invalid", requestPath, reason: "path is not a regular file" };
+  }
+  if (candidateLstat.nlink > 1) {
+    return { kind: "invalid", requestPath, reason: "hardlinked file path not allowed" };
+  }
+
+  const targetReal = await fs.realpath(candidatePath).catch(() => candidatePath);
+  return { kind: "ready", requestPath, ioPath: targetReal, workspaceReal };
+}
+
+async function statFileSafely(filePath: string): Promise<FileMeta | null> {
+  try {
+    const [stat, lstat] = await Promise.all([fs.stat(filePath), fs.lstat(filePath)]);
+    if (lstat.isSymbolicLink() || !stat.isFile()) {
+      return null;
+    }
+    if (stat.nlink > 1) {
+      return null;
+    }
+    if (!sameFileIdentity(stat, lstat)) {
+>>>>>>> 46eba86b4 (fix: harden workspace boundary path resolution)
       return null;
     }
     return {
