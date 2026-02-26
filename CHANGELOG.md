@@ -73,7 +73,11 @@ Docs: https://docs.openclaw.ai
 >>>>>>> da53015ef (fix(onboard): seed Control UI origins for non-loopback binds (land #26157, thanks @stakeswky))
 =======
 - LINE/Inline directives auth: gate directive parsing (`/model`, `/think`, `/verbose`, `/reasoning`, `/queue`) on resolved authorization (`command.isAuthorizedSender`) so `commands.allowFrom`-authorized LINE senders are not silently stripped when raw `CommandAuthorized` is unset. Landed from contributor PR #27248 by @kevinWangSheng. (#27240)
+<<<<<<< HEAD
 >>>>>>> 473a27470 (fix(auto-reply): gate inline directives on resolved auth (#27248))
+=======
+- Models/Profile suffix parsing: centralize trailing `@profile` parsing and only treat `@` as a profile separator when it appears after the final `/`, preserving model IDs like `openai/@cf/...` and `openrouter/@preset/...` across `/model` directive parsing and allowlist model resolution, with regression coverage.
+>>>>>>> 4b259ab81 (fix(models): normalize trailing @profile parsing across resolver paths)
 - Doctor/State integrity: ignore metadata-only slash routing sessions when checking recent missing transcripts so `openclaw doctor` no longer reports false-positive transcript-missing warnings for `*:slash:*` keys. (#27375) thanks @gumadeiras.
 >>>>>>> a690b6239 (Doctor: ignore slash sessions in transcript integrity check)
 - Channels/Multi-account config: when adding a non-default channel account to a single-account top-level channel setup, move existing account-scoped top-level single-account values into `channels.<channel>.accounts.default` before writing the new account so the original account keeps working without duplicated account values at channel root; `openclaw doctor --fix` now repairs previously mixed channel account shapes the same way. (#27334) thanks @gumadeiras.
