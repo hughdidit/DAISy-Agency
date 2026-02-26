@@ -210,10 +210,24 @@ describe("chrome extension relay server", () => {
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 39881a318 (Browser: reuse extension relay when relay port is already occupied (#20035))
   it("tracks attached page targets and exposes them via CDP + /json/list", async () => {
 =======
 =======
+=======
+  it("deduplicates concurrent relay starts for the same requested port", async () => {
+    const port = await getFreePort();
+    cdpUrl = `http://127.0.0.1:${port}`;
+    const [first, second] = await Promise.all([
+      ensureChromeExtensionRelayServer({ cdpUrl }),
+      ensureChromeExtensionRelayServer({ cdpUrl }),
+    ]);
+    expect(first).toBe(second);
+    expect(first.port).toBe(port);
+  });
+
+>>>>>>> 5416cabdf (fix(browser): land PR #21277 dedupe concurrent relay init)
   it("allows CORS preflight from chrome-extension origins", async () => {
     const port = await getFreePort();
     cdpUrl = `http://127.0.0.1:${port}`;
