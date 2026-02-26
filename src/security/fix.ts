@@ -11,6 +11,10 @@ import { INCLUDE_KEY, MAX_INCLUDE_DEPTH } from "../config/includes.js";
 import { normalizeAgentId } from "../routing/session-key.js";
 import { readChannelAllowFromStore } from "../pairing/pairing-store.js";
 import { runExec } from "../process/exec.js";
+<<<<<<< HEAD
+=======
+import { DEFAULT_ACCOUNT_ID, normalizeAgentId } from "../routing/session-key.js";
+>>>>>>> bce643a0b (refactor(security): enforce account-scoped pairing APIs)
 import { createIcaclsResetCommand, formatIcaclsResetCommand, type ExecFn } from "./windows-acl.js";
 
 export type SecurityFixChmodAction = {
@@ -448,7 +452,11 @@ export async function fixSecurityFootguns(opts?: {
     const fixed = applyConfigFixes({ cfg: snap.config, env });
     changes = fixed.changes;
 
-    const whatsappStoreAllowFrom = await readChannelAllowFromStore("whatsapp", env).catch(() => []);
+    const whatsappStoreAllowFrom = await readChannelAllowFromStore(
+      "whatsapp",
+      env,
+      DEFAULT_ACCOUNT_ID,
+    ).catch(() => []);
     if (whatsappStoreAllowFrom.length > 0) {
       setWhatsAppGroupAllowFromFromStore({
         cfg: fixed.cfg,

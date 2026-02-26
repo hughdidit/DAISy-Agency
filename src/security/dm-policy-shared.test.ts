@@ -5,9 +5,10 @@ describe("security/dm-policy-shared", () => {
   it("normalizes config + store allow entries and counts distinct senders", async () => {
     const state = await resolveDmAllowState({
       provider: "telegram",
+      accountId: "default",
       allowFrom: [" * ", " alice ", "ALICE", "bob"],
       normalizeEntry: (value) => value.toLowerCase(),
-      readStore: async () => [" Bob ", "carol", ""],
+      readStore: async (_provider, _accountId) => [" Bob ", "carol", ""],
     });
     expect(state.configAllowFrom).toEqual(["*", "alice", "ALICE", "bob"]);
     expect(state.hasWildcard).toBe(true);
@@ -18,8 +19,9 @@ describe("security/dm-policy-shared", () => {
   it("handles empty allowlists and store failures", async () => {
     const state = await resolveDmAllowState({
       provider: "slack",
+      accountId: "default",
       allowFrom: undefined,
-      readStore: async () => {
+      readStore: async (_provider, _accountId) => {
         throw new Error("offline");
       },
     });
@@ -29,7 +31,40 @@ describe("security/dm-policy-shared", () => {
     expect(state.isMultiUserDm).toBe(false);
   });
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+
+  it("skips pairing-store reads when dmPolicy is allowlist", async () => {
+    let called = false;
+    const storeAllowFrom = await readStoreAllowFromForDmPolicy({
+      provider: "telegram",
+      accountId: "default",
+      dmPolicy: "allowlist",
+      readStore: async (_provider, _accountId) => {
+        called = true;
+        return ["should-not-be-read"];
+      },
+    });
+    expect(called).toBe(false);
+    expect(storeAllowFrom).toEqual([]);
+  });
+
+  it("skips pairing-store reads when shouldRead=false", async () => {
+    let called = false;
+    const storeAllowFrom = await readStoreAllowFromForDmPolicy({
+      provider: "slack",
+      accountId: "default",
+      shouldRead: false,
+      readStore: async (_provider, _accountId) => {
+        called = true;
+        return ["should-not-be-read"];
+      },
+    });
+    expect(called).toBe(false);
+    expect(storeAllowFrom).toEqual([]);
+  });
+>>>>>>> bce643a0b (refactor(security): enforce account-scoped pairing APIs)
 
   it("builds effective DM/group allowlists from config + pairing store", () => {
     const lists = resolveEffectiveAllowFromLists({

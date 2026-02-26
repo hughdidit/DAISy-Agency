@@ -7,6 +7,13 @@ import lockfile from "proper-lockfile";
 import { getPairingAdapter } from "../channels/plugins/pairing.js";
 import type { ChannelId, ChannelPairingAdapter } from "../channels/plugins/types.js";
 import { resolveOAuthDir, resolveStateDir } from "../config/paths.js";
+<<<<<<< HEAD
+=======
+import { withFileLock as withPathLock } from "../infra/file-lock.js";
+import { resolveRequiredHomeDir } from "../infra/home-dir.js";
+import { readJsonFileWithFallback, writeJsonFileAtomically } from "../plugin-sdk/json-store.js";
+import { DEFAULT_ACCOUNT_ID } from "../routing/session-key.js";
+>>>>>>> bce643a0b (refactor(security): enforce account-scoped pairing APIs)
 
 const PAIRING_CODE_LENGTH = 8;
 const PAIRING_CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
@@ -209,6 +216,30 @@ function generateUniqueCode(existing: Set<string>): string {
   throw new Error("failed to generate unique pairing code");
 }
 
+<<<<<<< HEAD
+=======
+function normalizePairingAccountId(accountId?: string): string {
+  return accountId?.trim().toLowerCase() || "";
+}
+
+function requestMatchesAccountId(entry: PairingRequest, normalizedAccountId: string): boolean {
+  if (!normalizedAccountId) {
+    return true;
+  }
+  return (
+    String(entry.meta?.accountId ?? "")
+      .trim()
+      .toLowerCase() === normalizedAccountId
+  );
+}
+
+function shouldIncludeLegacyAllowFromEntries(normalizedAccountId: string): boolean {
+  // Keep backward compatibility for legacy channel-scoped allowFrom only on default account.
+  // Non-default accounts should remain isolated to avoid cross-account implicit approvals.
+  return !normalizedAccountId || normalizedAccountId === DEFAULT_ACCOUNT_ID;
+}
+
+>>>>>>> bce643a0b (refactor(security): enforce account-scoped pairing APIs)
 function normalizeId(value: string | number): string {
   return String(value).trim();
 }
@@ -285,12 +316,24 @@ async function updateAllowFromStoreEntry(params: {
   );
 }
 
+<<<<<<< HEAD
 >>>>>>> ee10feb80 (fix (security/pairing): scope pairing stores by account)
+=======
+export async function readLegacyChannelAllowFromStore(
+  channel: PairingChannel,
+  env: NodeJS.ProcessEnv = process.env,
+): Promise<string[]> {
+  const filePath = resolveAllowFromPath(channel, env);
+  return await readAllowFromStateForPath(channel, filePath);
+}
+
+>>>>>>> bce643a0b (refactor(security): enforce account-scoped pairing APIs)
 export async function readChannelAllowFromStore(
   channel: PairingChannel,
   env: NodeJS.ProcessEnv = process.env,
-  accountId?: string,
+  accountId: string,
 ): Promise<string[]> {
+<<<<<<< HEAD
   const filePath = resolveAllowFromPath(channel, env, accountId);
   const { value } = await readJsonFile<AllowFromStore>(filePath, {
     version: 1,
@@ -301,6 +344,58 @@ export async function readChannelAllowFromStore(
 }
 
 export async function addChannelAllowFromStoreEntry(params: {
+=======
+  const normalizedAccountId = accountId.trim().toLowerCase();
+  const resolvedAccountId = normalizedAccountId || DEFAULT_ACCOUNT_ID;
+
+  if (!shouldIncludeLegacyAllowFromEntries(resolvedAccountId)) {
+    return await readNonDefaultAccountAllowFrom({
+      channel,
+      env,
+      accountId: resolvedAccountId,
+    });
+  }
+  const scopedPath = resolveAllowFromPath(channel, env, resolvedAccountId);
+  const scopedEntries = await readAllowFromStateForPath(channel, scopedPath);
+  // Backward compatibility: legacy channel-level allowFrom store was unscoped.
+  // Keep honoring it for default account to prevent re-pair prompts after upgrades.
+  const legacyPath = resolveAllowFromPath(channel, env);
+  const legacyEntries = await readAllowFromStateForPath(channel, legacyPath);
+  return dedupePreserveOrder([...scopedEntries, ...legacyEntries]);
+}
+
+export function readLegacyChannelAllowFromStoreSync(
+  channel: PairingChannel,
+  env: NodeJS.ProcessEnv = process.env,
+): string[] {
+  const filePath = resolveAllowFromPath(channel, env);
+  return readAllowFromStateForPathSync(channel, filePath);
+}
+
+export function readChannelAllowFromStoreSync(
+  channel: PairingChannel,
+  env: NodeJS.ProcessEnv = process.env,
+  accountId: string,
+): string[] {
+  const normalizedAccountId = accountId.trim().toLowerCase();
+  const resolvedAccountId = normalizedAccountId || DEFAULT_ACCOUNT_ID;
+
+  if (!shouldIncludeLegacyAllowFromEntries(resolvedAccountId)) {
+    return readNonDefaultAccountAllowFromSync({
+      channel,
+      env,
+      accountId: resolvedAccountId,
+    });
+  }
+  const scopedPath = resolveAllowFromPath(channel, env, resolvedAccountId);
+  const scopedEntries = readAllowFromStateForPathSync(channel, scopedPath);
+  const legacyPath = resolveAllowFromPath(channel, env);
+  const legacyEntries = readAllowFromStateForPathSync(channel, legacyPath);
+  return dedupePreserveOrder([...scopedEntries, ...legacyEntries]);
+}
+
+type AllowFromStoreEntryUpdateParams = {
+>>>>>>> bce643a0b (refactor(security): enforce account-scoped pairing APIs)
   channel: PairingChannel;
   entry: string | number;
   accountId?: string;
@@ -439,7 +534,7 @@ export async function listChannelPairingRequests(
 export async function upsertChannelPairingRequest(params: {
   channel: PairingChannel;
   id: string | number;
-  accountId?: string;
+  accountId: string;
   meta?: Record<string, string | undefined | null>;
   env?: NodeJS.ProcessEnv;
   /** Extension channels can pass their adapter directly to bypass registry lookup. */
@@ -458,7 +553,7 @@ export async function upsertChannelPairingRequest(params: {
       const now = new Date().toISOString();
       const nowMs = Date.now();
       const id = normalizeId(params.id);
-      const normalizedAccountId = params.accountId?.trim();
+      const normalizedAccountId = normalizePairingAccountId(params.accountId) || DEFAULT_ACCOUNT_ID;
       const baseMeta =
         params.meta && typeof params.meta === "object"
           ? Object.fromEntries(
@@ -467,9 +562,13 @@ export async function upsertChannelPairingRequest(params: {
                 .filter(([_, v]) => Boolean(v)),
             )
           : undefined;
+<<<<<<< HEAD
       const meta = normalizedAccountId
         ? { ...baseMeta, accountId: normalizedAccountId }
         : baseMeta;
+=======
+      const meta = { ...baseMeta, accountId: normalizedAccountId };
+>>>>>>> bce643a0b (refactor(security): enforce account-scoped pairing APIs)
 
       let reqs = Array.isArray(value.requests) ? value.requests : [];
       const { requests: prunedExpired, removed: expiredRemoved } = pruneExpiredRequests(
@@ -477,7 +576,17 @@ export async function upsertChannelPairingRequest(params: {
         nowMs,
       );
       reqs = prunedExpired;
+<<<<<<< HEAD
       const existingIdx = reqs.findIndex((r) => r.id === id);
+=======
+      const normalizedMatchingAccountId = normalizedAccountId;
+      const existingIdx = reqs.findIndex((r) => {
+        if (r.id !== id) {
+          return false;
+        }
+        return requestMatchesAccountId(r, normalizedMatchingAccountId);
+      });
+>>>>>>> bce643a0b (refactor(security): enforce account-scoped pairing APIs)
       const existingCodes = new Set(
         reqs.map((req) =>
           String(req.code ?? "")

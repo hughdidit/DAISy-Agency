@@ -95,6 +95,7 @@ async function sendLinePairingReply(params: {
   const { code, created } = await upsertChannelPairingRequest({
     channel: "line",
     id: senderId,
+    accountId: context.account.accountId,
   });
   if (!created) return;
   logVerbose(`line pairing request sender=${senderId}`);
@@ -139,7 +140,11 @@ async function shouldProcessLineEvent(
   const { userId, groupId, roomId, isGroup } = getSourceInfo(event.source);
   const senderId = userId ?? "";
 
-  const storeAllowFrom = await readChannelAllowFromStore("line").catch(() => []);
+  const storeAllowFrom = await readChannelAllowFromStore(
+    "line",
+    process.env,
+    account.accountId,
+  ).catch(() => []);
   const effectiveDmAllow = normalizeDmAllowFromWithStore({
     allowFrom: account.config.allowFrom,
     storeAllowFrom,

@@ -227,6 +227,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     "check": "pnpm tsgo && pnpm lint && pnpm format",
 =======
     "check": "pnpm format:check && pnpm tsgo && pnpm lint && pnpm lint:tmp:no-random-messaging",
@@ -240,6 +241,9 @@
 >>>>>>> d3da67c7a (fix(security): lock sandbox tmp media paths to openclaw roots)
 =======
     "check": "pnpm format:check && pnpm tsgo && pnpm lint && pnpm lint:tmp:no-random-messaging && pnpm lint:tmp:channel-agnostic-boundaries && pnpm lint:tmp:no-raw-channel-fetch && pnpm lint:auth:no-pairing-store-group && pnpm check:host-env-policy:swift",
+=======
+    "check": "pnpm format:check && pnpm tsgo && pnpm lint && pnpm lint:tmp:no-random-messaging && pnpm lint:tmp:channel-agnostic-boundaries && pnpm lint:tmp:no-raw-channel-fetch && pnpm lint:auth:no-pairing-store-group && pnpm lint:auth:pairing-account-scope && pnpm check:host-env-policy:swift",
+>>>>>>> bce643a0b (refactor(security): enforce account-scoped pairing APIs)
     "check:docs": "pnpm format:docs:check && pnpm lint:docs && pnpm docs:check-links",
     "check:host-env-policy:swift": "node scripts/generate-host-env-security-policy-swift.mjs --check",
 >>>>>>> 10481097f (refactor(security): enforce v1 node exec approval binding)
@@ -284,6 +288,7 @@
     "lint:fix": "oxlint --type-aware --tsconfig tsconfig.oxlint.json --fix && pnpm format:fix",
 =======
     "lint:auth:no-pairing-store-group": "node scripts/check-no-pairing-store-group-auth.mjs",
+    "lint:auth:pairing-account-scope": "node scripts/check-pairing-account-scope.mjs",
     "lint:docs": "pnpm dlx markdownlint-cli2",
     "lint:docs:fix": "pnpm dlx markdownlint-cli2 --fix",
     "lint:fix": "oxlint --type-aware --fix && pnpm format",

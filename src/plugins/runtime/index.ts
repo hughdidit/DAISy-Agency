@@ -326,10 +326,42 @@ export function createPluginRuntime(): PluginRuntime {
       loadConfig,
       writeConfigFile,
     },
+<<<<<<< HEAD
     system: {
       enqueueSystemEvent,
       runCommandWithTimeout,
       formatNativeDependencyHint,
+=======
+    reply: {
+      dispatchReplyWithBufferedBlockDispatcher,
+      createReplyDispatcherWithTyping,
+      resolveEffectiveMessagesConfig,
+      resolveHumanDelayConfig,
+      dispatchReplyFromConfig,
+      withReplyDispatcher,
+      finalizeInboundContext,
+      formatAgentEnvelope,
+      /** @deprecated Prefer `BodyForAgent` + structured user-context blocks (do not build plaintext envelopes for prompts). */
+      formatInboundEnvelope,
+      resolveEnvelopeFormatOptions,
+    },
+    routing: {
+      resolveAgentRoute,
+    },
+    pairing: {
+      buildPairingReply,
+      readAllowFromStore: ({ channel, accountId, env }) =>
+        readChannelAllowFromStore(channel, env, accountId),
+      upsertPairingRequest: ({ channel, id, accountId, meta, env, pairingAdapter }) =>
+        upsertChannelPairingRequest({
+          channel,
+          id,
+          accountId,
+          meta,
+          env,
+          pairingAdapter,
+        }),
+>>>>>>> bce643a0b (refactor(security): enforce account-scoped pairing APIs)
     },
     media: {
       loadWebMedia,

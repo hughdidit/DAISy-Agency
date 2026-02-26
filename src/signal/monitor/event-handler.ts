@@ -25,10 +25,7 @@ import { danger, logVerbose, shouldLogVerbose } from "../../globals.js";
 import { enqueueSystemEvent } from "../../infra/system-events.js";
 import { mediaKindFromMime } from "../../media/constants.js";
 import { buildPairingReply } from "../../pairing/pairing-messages.js";
-import {
-  readChannelAllowFromStore,
-  upsertChannelPairingRequest,
-} from "../../pairing/pairing-store.js";
+import { upsertChannelPairingRequest } from "../../pairing/pairing-store.js";
 import { resolveAgentRoute } from "../../routing/resolve-route.js";
 import { normalizeE164 } from "../../utils.js";
 import { resolveControlCommandGate } from "../../channels/command-gating.js";
@@ -317,6 +314,28 @@ export function createSignalEventHandler(deps: SignalEventHandlerDeps) {
     const quoteText = dataMessage?.quote?.text?.trim() ?? "";
     const hasBodyContent =
       Boolean(messageText || quoteText) || Boolean(!reaction && dataMessage?.attachments?.length);
+<<<<<<< HEAD
+=======
+    const senderDisplay = formatSignalSenderDisplay(sender);
+    const storeAllowFrom = await readStoreAllowFromForDmPolicy({
+      provider: "signal",
+      accountId: deps.accountId,
+      dmPolicy: deps.dmPolicy,
+    });
+    const resolveAccessDecision = (isGroup: boolean) =>
+      resolveDmGroupAccessWithLists({
+        isGroup,
+        dmPolicy: deps.dmPolicy,
+        groupPolicy: deps.groupPolicy,
+        allowFrom: deps.allowFrom,
+        groupAllowFrom: deps.groupAllowFrom,
+        storeAllowFrom,
+        isSenderAllowed: (allowEntries) => isSignalSenderAllowed(sender, allowEntries),
+      });
+    const dmAccess = resolveAccessDecision(false);
+    const effectiveDmAllow = dmAccess.effectiveAllowFrom;
+    const effectiveGroupAllow = dmAccess.effectiveGroupAllowFrom;
+>>>>>>> bce643a0b (refactor(security): enforce account-scoped pairing APIs)
 
     if (reaction && !hasBodyContent) {
       if (reaction.isRemove) return; // Ignore reaction removals
@@ -398,6 +417,7 @@ export function createSignalEventHandler(deps: SignalEventHandlerDeps) {
           const { code, created } = await upsertChannelPairingRequest({
             channel: "signal",
             id: senderId,
+            accountId: deps.accountId,
             meta: { name: envelope.sourceName ?? undefined },
           });
           if (created) {

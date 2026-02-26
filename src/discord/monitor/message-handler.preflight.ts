@@ -28,13 +28,16 @@ import {
 import { enqueueSystemEvent } from "../../infra/system-events.js";
 import { getChildLogger } from "../../logging.js";
 import { buildPairingReply } from "../../pairing/pairing-messages.js";
-import {
-  readChannelAllowFromStore,
-  upsertChannelPairingRequest,
-} from "../../pairing/pairing-store.js";
+import { upsertChannelPairingRequest } from "../../pairing/pairing-store.js";
 import { resolveAgentRoute } from "../../routing/resolve-route.js";
+<<<<<<< HEAD
 import { resolveMentionGatingWithBypass } from "../../channels/mention-gating.js";
 import { formatAllowlistMatchMeta } from "../../channels/allowlist-match.js";
+=======
+import { DEFAULT_ACCOUNT_ID, resolveAgentIdFromSessionKey } from "../../routing/session-key.js";
+import { readStoreAllowFromForDmPolicy } from "../../security/dm-policy-shared.js";
+import { fetchPluralKitMessageInfo } from "../pluralkit.js";
+>>>>>>> bce643a0b (refactor(security): enforce account-scoped pairing APIs)
 import { sendMessageDiscord } from "../send.js";
 import { resolveControlCommandGate } from "../../channels/command-gating.js";
 import { logInboundDrop } from "../../channels/logging.js";
@@ -145,7 +148,12 @@ export async function preflightDiscordMessage(
     return null;
   }
 
+<<<<<<< HEAD
   const dmPolicy = params.discordConfig?.dm?.policy ?? "pairing";
+=======
+  const dmPolicy = params.discordConfig?.dmPolicy ?? params.discordConfig?.dm?.policy ?? "pairing";
+  const resolvedAccountId = params.accountId ?? DEFAULT_ACCOUNT_ID;
+>>>>>>> bce643a0b (refactor(security): enforce account-scoped pairing APIs)
   let commandAuthorized = true;
   if (isDirectMessage) {
     if (dmPolicy === "disabled") {
@@ -153,7 +161,15 @@ export async function preflightDiscordMessage(
       return null;
     }
     if (dmPolicy !== "open") {
+<<<<<<< HEAD
       const storeAllowFrom = await readChannelAllowFromStore("discord").catch(() => []);
+=======
+      const storeAllowFrom = await readStoreAllowFromForDmPolicy({
+        provider: "discord",
+        accountId: resolvedAccountId,
+        dmPolicy,
+      });
+>>>>>>> bce643a0b (refactor(security): enforce account-scoped pairing APIs)
       const effectiveAllowFrom = [...(params.allowFrom ?? []), ...storeAllowFrom];
       const allowList = normalizeDiscordAllowList(effectiveAllowFrom, ["discord:", "user:"]);
       const allowMatch = allowList
@@ -175,6 +191,7 @@ export async function preflightDiscordMessage(
           const { code, created } = await upsertChannelPairingRequest({
             channel: "discord",
             id: author.id,
+            accountId: resolvedAccountId,
             meta: {
               tag: formatDiscordUserTag(author),
               name: author.username ?? undefined,

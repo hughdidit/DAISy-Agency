@@ -43,10 +43,7 @@ import { createSubsystemLogger } from "../../logging/subsystem.js";
 import { getAgentScopedMediaLocalRoots } from "../../media/local-roots.js";
 >>>>>>> 161d9841d (refactor(security): unify dangerous name matching handling)
 import { buildPairingReply } from "../../pairing/pairing-messages.js";
-import {
-  readChannelAllowFromStore,
-  upsertChannelPairingRequest,
-} from "../../pairing/pairing-store.js";
+import { upsertChannelPairingRequest } from "../../pairing/pairing-store.js";
 import { resolveAgentRoute } from "../../routing/resolve-route.js";
 import { buildUntrustedChannelMetadata } from "../../security/channel-metadata.js";
 import { loadWebMedia } from "../../web/media.js";
@@ -616,9 +613,22 @@ async function dispatchDiscordCommandInteraction(params: {
       return;
     }
     if (dmPolicy !== "open") {
+<<<<<<< HEAD
       const storeAllowFrom = await readChannelAllowFromStore("discord").catch(() => []);
       const effectiveAllowFrom = [...(discordConfig?.dm?.allowFrom ?? []), ...storeAllowFrom];
       const allowList = normalizeDiscordAllowList(effectiveAllowFrom, ["discord:", "user:"]);
+=======
+      const storeAllowFrom = await readStoreAllowFromForDmPolicy({
+        provider: "discord",
+        accountId,
+        dmPolicy,
+      });
+      const effectiveAllowFrom = [
+        ...(discordConfig?.allowFrom ?? discordConfig?.dm?.allowFrom ?? []),
+        ...storeAllowFrom,
+      ];
+      const allowList = normalizeDiscordAllowList(effectiveAllowFrom, ["discord:", "user:", "pk:"]);
+>>>>>>> bce643a0b (refactor(security): enforce account-scoped pairing APIs)
       const permitted = allowList
 <<<<<<< HEAD
         ? allowListMatches(allowList, {
@@ -644,6 +654,7 @@ async function dispatchDiscordCommandInteraction(params: {
           const { code, created } = await upsertChannelPairingRequest({
             channel: "discord",
             id: user.id,
+            accountId,
             meta: {
               tag: formatDiscordUserTag(user),
               name: user.username ?? undefined,

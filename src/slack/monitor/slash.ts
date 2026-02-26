@@ -16,6 +16,7 @@ import { resolveNativeCommandsEnabled, resolveNativeSkillsEnabled } from "../../
 import { resolveMarkdownTableMode } from "../../config/markdown-tables.js";
 import { danger, logVerbose } from "../../globals.js";
 import { buildPairingReply } from "../../pairing/pairing-messages.js";
+<<<<<<< HEAD
 import {
   readChannelAllowFromStore,
   upsertChannelPairingRequest,
@@ -26,6 +27,11 @@ import { resolveConversationLabel } from "../../channels/conversation-label.js";
 import { resolveCommandAuthorizedFromAuthorizers } from "../../channels/command-gating.js";
 import { formatAllowlistMatchMeta } from "../../channels/allowlist-match.js";
 
+=======
+import { upsertChannelPairingRequest } from "../../pairing/pairing-store.js";
+import { readStoreAllowFromForDmPolicy } from "../../security/dm-policy-shared.js";
+import { chunkItems } from "../../utils/chunk-items.js";
+>>>>>>> bce643a0b (refactor(security): enforce account-scoped pairing APIs)
 import type { ResolvedSlackAccount } from "../accounts.js";
 
 =======
@@ -357,7 +363,17 @@ export function registerSlackMonitorSlashCommands(params: {
         return;
       }
 
+<<<<<<< HEAD
       const storeAllowFrom = await readChannelAllowFromStore("slack").catch(() => []);
+=======
+      const storeAllowFrom = isDirectMessage
+        ? await readStoreAllowFromForDmPolicy({
+            provider: "slack",
+            accountId: ctx.accountId,
+            dmPolicy: ctx.dmPolicy,
+          })
+        : [];
+>>>>>>> bce643a0b (refactor(security): enforce account-scoped pairing APIs)
       const effectiveAllowFrom = normalizeAllowList([...ctx.allowFrom, ...storeAllowFrom]);
       const effectiveAllowFromLower = normalizeAllowListLower(effectiveAllowFrom);
 
@@ -386,6 +402,7 @@ export function registerSlackMonitorSlashCommands(params: {
               const { code, created } = await upsertChannelPairingRequest({
                 channel: "slack",
                 id: command.user_id,
+                accountId: ctx.accountId,
                 meta: { name: senderName },
               });
               if (created) {

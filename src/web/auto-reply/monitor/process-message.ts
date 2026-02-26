@@ -24,7 +24,11 @@ import {
 import { resolveMarkdownTableMode } from "../../../config/markdown-tables.js";
 import { logVerbose, shouldLogVerbose } from "../../../globals.js";
 import type { getChildLogger } from "../../../logging.js";
+<<<<<<< HEAD
 import { readChannelAllowFromStore } from "../../../pairing/pairing-store.js";
+=======
+import { getAgentScopedMediaLocalRoots } from "../../../media/local-roots.js";
+>>>>>>> bce643a0b (refactor(security): enforce account-scoped pairing APIs)
 import type { resolveAgentRoute } from "../../../routing/resolve-route.js";
 import { jidToE164, normalizeE164 } from "../../../utils.js";
 import { newConnectionId } from "../../reconnect.js";
@@ -79,6 +83,7 @@ async function resolveWhatsAppCommandAuthorized(params: {
     return normalizeAllowFromE164(configuredGroupAllowFrom).includes(senderE164);
   }
 
+<<<<<<< HEAD
   const storeAllowFrom = await readChannelAllowFromStore("whatsapp").catch(() => []);
   const combinedAllowFrom = Array.from(
     new Set([...(configuredAllowFrom ?? []), ...storeAllowFrom]),
@@ -86,6 +91,25 @@ async function resolveWhatsAppCommandAuthorized(params: {
   const allowFrom =
     combinedAllowFrom.length > 0
       ? combinedAllowFrom
+=======
+  const account = resolveWhatsAppAccount({ cfg: params.cfg, accountId: params.msg.accountId });
+  const dmPolicy = account.dmPolicy ?? "pairing";
+  const groupPolicy = account.groupPolicy ?? "allowlist";
+  const configuredAllowFrom = account.allowFrom ?? [];
+  const configuredGroupAllowFrom =
+    account.groupAllowFrom ?? (configuredAllowFrom.length > 0 ? configuredAllowFrom : undefined);
+
+  const storeAllowFrom = isGroup
+    ? []
+    : await readStoreAllowFromForDmPolicy({
+        provider: "whatsapp",
+        accountId: params.msg.accountId,
+        dmPolicy,
+      });
+  const dmAllowFrom =
+    configuredAllowFrom.length > 0
+      ? configuredAllowFrom
+>>>>>>> bce643a0b (refactor(security): enforce account-scoped pairing APIs)
       : params.msg.selfE164
         ? [params.msg.selfE164]
         : [];
