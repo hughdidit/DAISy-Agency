@@ -1021,6 +1021,26 @@ export function createExecTool(
           safeBins: new Set(),
           cwd: workdir,
           env,
+<<<<<<< HEAD
+=======
+          requestedEnv: params.env,
+          requestedNode: params.node?.trim(),
+          boundNode: defaults?.node?.trim(),
+          sessionKey: defaults?.sessionKey,
+          turnSourceChannel: defaults?.messageProvider,
+          turnSourceTo: defaults?.currentChannelId,
+          turnSourceAccountId: defaults?.accountId,
+          turnSourceThreadId: defaults?.currentThreadTs,
+          agentId,
+          security,
+          ask,
+          timeoutSec: params.timeout,
+          defaultTimeoutSec,
+          approvalRunningNoticeMs,
+          warnings,
+          notifySessionKey,
+          trustedSafeBinDirs,
+>>>>>>> da0ba1b73 (fix(security): harden channel auth path checks and exec approval routing)
         });
         let analysisOk = baseAllowlistEval.analysisOk;
         let allowlistSatisfied = false;
@@ -1242,6 +1262,7 @@ export function createExecTool(
       }
 
       if (host === "gateway" && !bypassApprovals) {
+<<<<<<< HEAD
         const approvals = resolveExecApprovals(agentId, { security, ask });
         const hostSecurity = minSecurity(security, approvals.agent.security);
         const hostAsk = maxAsk(ask, approvals.agent.ask);
@@ -1497,6 +1518,35 @@ export function createExecTool(
               allowlistEval.segments[0]?.resolution?.resolvedPath,
             );
           }
+=======
+        const gatewayResult = await processGatewayAllowlist({
+          command: params.command,
+          workdir,
+          env,
+          pty: params.pty === true && !sandbox,
+          timeoutSec: params.timeout,
+          defaultTimeoutSec,
+          security,
+          ask,
+          safeBins,
+          safeBinProfiles,
+          agentId,
+          sessionKey: defaults?.sessionKey,
+          turnSourceChannel: defaults?.messageProvider,
+          turnSourceTo: defaults?.currentChannelId,
+          turnSourceAccountId: defaults?.accountId,
+          turnSourceThreadId: defaults?.currentThreadTs,
+          scopeKey: defaults?.scopeKey,
+          warnings,
+          notifySessionKey,
+          approvalRunningNoticeMs,
+          maxOutput,
+          pendingMaxOutput,
+          trustedSafeBinDirs,
+        });
+        if (gatewayResult.pendingResult) {
+          return gatewayResult.pendingResult;
+>>>>>>> da0ba1b73 (fix(security): harden channel auth path checks and exec approval routing)
         }
       }
 

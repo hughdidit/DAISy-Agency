@@ -136,6 +136,10 @@ export function createOpenClawTools(options?: {
 >>>>>>> 4ab946eeb (Discord VC: voice channels, transcription, and TTS (#18774))
     createNodesTool({
       agentSessionKey: options?.agentSessionKey,
+      agentChannel: options?.agentChannel,
+      agentAccountId: options?.agentAccountId,
+      currentChannelId: options?.currentChannelId,
+      currentThreadTs: options?.currentThreadTs,
       config: options?.config,
     }),
     createCronTool({
