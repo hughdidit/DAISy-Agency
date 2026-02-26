@@ -196,6 +196,175 @@ describe("agentCommand", () => {
     });
   });
 
+<<<<<<< HEAD
+=======
+  it("uses default fallback list for session model overrides", async () => {
+    await withTempHome(async (home) => {
+      const store = path.join(home, "sessions.json");
+      writeSessionStoreSeed(store, {
+        "agent:main:subagent:test": {
+          sessionId: "session-subagent",
+          updatedAt: Date.now(),
+          providerOverride: "anthropic",
+          modelOverride: "claude-opus-4-5",
+        },
+      });
+
+      mockConfig(home, store, {
+        model: {
+          primary: "openai/gpt-4.1-mini",
+          fallbacks: ["openai/gpt-5.2"],
+        },
+        models: {
+          "anthropic/claude-opus-4-5": {},
+          "openai/gpt-4.1-mini": {},
+          "openai/gpt-5.2": {},
+        },
+      });
+
+      vi.mocked(loadModelCatalog).mockResolvedValueOnce([
+        { id: "claude-opus-4-5", name: "Opus", provider: "anthropic" },
+        { id: "gpt-4.1-mini", name: "GPT-4.1 Mini", provider: "openai" },
+        { id: "gpt-5.2", name: "GPT-5.2", provider: "openai" },
+      ]);
+      vi.mocked(runEmbeddedPiAgent)
+        .mockRejectedValueOnce(Object.assign(new Error("rate limited"), { status: 429 }))
+        .mockResolvedValueOnce({
+          payloads: [{ text: "ok" }],
+          meta: {
+            durationMs: 5,
+            agentMeta: { sessionId: "session-subagent", provider: "openai", model: "gpt-5.2" },
+          },
+        });
+
+      await agentCommand(
+        {
+          message: "hi",
+          sessionKey: "agent:main:subagent:test",
+        },
+        runtime,
+      );
+
+      const attempts = vi
+        .mocked(runEmbeddedPiAgent)
+        .mock.calls.map((call) => ({ provider: call[0]?.provider, model: call[0]?.model }));
+      expect(attempts).toEqual([
+        { provider: "anthropic", model: "claude-opus-4-5" },
+        { provider: "openai", model: "gpt-5.2" },
+      ]);
+    });
+  });
+
+  it("keeps stored session model override when models allowlist is empty", async () => {
+    await withTempHome(async (home) => {
+      const store = path.join(home, "sessions.json");
+      writeSessionStoreSeed(store, {
+        "agent:main:subagent:allow-any": {
+          sessionId: "session-allow-any",
+          updatedAt: Date.now(),
+          providerOverride: "openai",
+          modelOverride: "gpt-custom-foo",
+        },
+      });
+
+      mockConfig(home, store, {
+        model: { primary: "anthropic/claude-opus-4-5" },
+        models: {},
+      });
+
+      vi.mocked(loadModelCatalog).mockResolvedValueOnce([
+        { id: "claude-opus-4-5", name: "Opus", provider: "anthropic" },
+      ]);
+
+      await agentCommand(
+        {
+          message: "hi",
+          sessionKey: "agent:main:subagent:allow-any",
+        },
+        runtime,
+      );
+
+      const callArgs = vi.mocked(runEmbeddedPiAgent).mock.calls.at(-1)?.[0];
+      expect(callArgs?.provider).toBe("openai");
+      expect(callArgs?.model).toBe("gpt-custom-foo");
+
+      const saved = JSON.parse(fs.readFileSync(store, "utf-8")) as Record<
+        string,
+        { providerOverride?: string; modelOverride?: string }
+      >;
+      expect(saved["agent:main:subagent:allow-any"]?.providerOverride).toBe("openai");
+      expect(saved["agent:main:subagent:allow-any"]?.modelOverride).toBe("gpt-custom-foo");
+    });
+  });
+
+  it("persists cleared model and auth override fields when stored override falls back to default", async () => {
+    await withTempHome(async (home) => {
+      const store = path.join(home, "sessions.json");
+      writeSessionStoreSeed(store, {
+        "agent:main:subagent:clear-overrides": {
+          sessionId: "session-clear-overrides",
+          updatedAt: Date.now(),
+          providerOverride: "anthropic",
+          modelOverride: "claude-opus-4-5",
+          authProfileOverride: "profile-legacy",
+          authProfileOverrideSource: "user",
+          authProfileOverrideCompactionCount: 2,
+          fallbackNoticeSelectedModel: "anthropic/claude-opus-4-5",
+          fallbackNoticeActiveModel: "openai/gpt-4.1-mini",
+          fallbackNoticeReason: "fallback",
+        },
+      });
+
+      mockConfig(home, store, {
+        model: { primary: "openai/gpt-4.1-mini" },
+        models: {
+          "openai/gpt-4.1-mini": {},
+        },
+      });
+
+      vi.mocked(loadModelCatalog).mockResolvedValueOnce([
+        { id: "claude-opus-4-5", name: "Opus", provider: "anthropic" },
+        { id: "gpt-4.1-mini", name: "GPT-4.1 Mini", provider: "openai" },
+      ]);
+
+      await agentCommand(
+        {
+          message: "hi",
+          sessionKey: "agent:main:subagent:clear-overrides",
+        },
+        runtime,
+      );
+
+      const callArgs = vi.mocked(runEmbeddedPiAgent).mock.calls.at(-1)?.[0];
+      expect(callArgs?.provider).toBe("openai");
+      expect(callArgs?.model).toBe("gpt-4.1-mini");
+
+      const saved = JSON.parse(fs.readFileSync(store, "utf-8")) as Record<
+        string,
+        {
+          providerOverride?: string;
+          modelOverride?: string;
+          authProfileOverride?: string;
+          authProfileOverrideSource?: string;
+          authProfileOverrideCompactionCount?: number;
+          fallbackNoticeSelectedModel?: string;
+          fallbackNoticeActiveModel?: string;
+          fallbackNoticeReason?: string;
+        }
+      >;
+      const entry = saved["agent:main:subagent:clear-overrides"];
+      expect(entry?.providerOverride).toBeUndefined();
+      expect(entry?.modelOverride).toBeUndefined();
+      expect(entry?.authProfileOverride).toBeUndefined();
+      expect(entry?.authProfileOverrideSource).toBeUndefined();
+      expect(entry?.authProfileOverrideCompactionCount).toBeUndefined();
+      expect(entry?.fallbackNoticeSelectedModel).toBeUndefined();
+      expect(entry?.fallbackNoticeActiveModel).toBeUndefined();
+      expect(entry?.fallbackNoticeReason).toBeUndefined();
+    });
+  });
+
+>>>>>>> a7d56e355 (feat: ACP thread-bound agents (#23580))
   it("keeps explicit sessionKey even when sessionId exists elsewhere", async () => {
     await withTempHome(async (home) => {
       const store = path.join(home, "sessions.json");

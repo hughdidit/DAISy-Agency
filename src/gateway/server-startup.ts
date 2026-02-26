@@ -1,6 +1,11 @@
+<<<<<<< HEAD
 import type { CliDeps } from "../cli/deps.js";
 import type { loadConfig } from "../config/config.js";
 import type { loadOpenClawPlugins } from "../plugins/loader.js";
+=======
+import { getAcpSessionManager } from "../acp/control-plane/manager.js";
+import { ACP_SESSION_IDENTITY_RENDERER_VERSION } from "../acp/runtime/session-identifiers.js";
+>>>>>>> a7d56e355 (feat: ACP thread-bound agents (#23580))
 import { DEFAULT_MODEL, DEFAULT_PROVIDER } from "../agents/defaults.js";
 import { loadModelCatalog } from "../agents/model-catalog.js";
 import {
@@ -150,6 +155,29 @@ export async function startGatewaySidecars(params: {
     params.log.warn(`plugin services failed to start: ${String(err)}`);
   }
 
+<<<<<<< HEAD
+=======
+  if (params.cfg.acp?.enabled) {
+    void getAcpSessionManager()
+      .reconcilePendingSessionIdentities({ cfg: params.cfg })
+      .then((result) => {
+        if (result.checked === 0) {
+          return;
+        }
+        params.log.warn(
+          `acp startup identity reconcile (renderer=${ACP_SESSION_IDENTITY_RENDERER_VERSION}): checked=${result.checked} resolved=${result.resolved} failed=${result.failed}`,
+        );
+      })
+      .catch((err) => {
+        params.log.warn(`acp startup identity reconcile failed: ${String(err)}`);
+      });
+  }
+
+  void startGatewayMemoryBackend({ cfg: params.cfg, log: params.log }).catch((err) => {
+    params.log.warn(`qmd memory startup initialization failed: ${String(err)}`);
+  });
+
+>>>>>>> a7d56e355 (feat: ACP thread-bound agents (#23580))
   if (shouldWakeFromRestartSentinel()) {
     setTimeout(() => {
       void scheduleRestartSentinelWake({ deps: params.deps });

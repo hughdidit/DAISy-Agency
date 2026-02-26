@@ -7,6 +7,7 @@ import { logVerbose } from "../../globals.js";
 import { createInternalHookEvent, triggerInternalHook } from "../../hooks/internal-hooks.js";
 import { resolveSendPolicy } from "../../sessions/send-policy.js";
 import { shouldHandleTextCommands } from "../commands-registry.js";
+import { handleAcpCommand } from "./commands-acp.js";
 import { handleAllowlistCommand } from "./commands-allowlist.js";
 import { handleApproveCommand } from "./commands-approve.js";
 import { handleBashCommand } from "./commands-bash.js";
@@ -54,6 +55,7 @@ export async function handleCommands(params: HandleCommandsParams): Promise<Comm
       handleContextCommand,
       handleWhoamiCommand,
       handleSubagentsCommand,
+      handleAcpCommand,
       handleConfigCommand,
       handleDebugCommand,
       handleModelsCommand,

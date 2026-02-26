@@ -3,8 +3,64 @@ import os from "node:os";
 import path from "node:path";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+<<<<<<< HEAD
 const reactMessageDiscord = vi.fn(async () => {});
 const removeReactionDiscord = vi.fn(async () => {});
+=======
+const sendMocks = vi.hoisted(() => ({
+  reactMessageDiscord: vi.fn(async () => {}),
+  removeReactionDiscord: vi.fn(async () => {}),
+}));
+function createMockDraftStream() {
+  return {
+    update: vi.fn<(text: string) => void>(() => {}),
+    flush: vi.fn(async () => {}),
+    messageId: vi.fn(() => "preview-1"),
+    clear: vi.fn(async () => {}),
+    stop: vi.fn(async () => {}),
+    forceNewMessage: vi.fn(() => {}),
+  };
+}
+
+const deliveryMocks = vi.hoisted(() => ({
+  editMessageDiscord: vi.fn(async () => ({})),
+  deliverDiscordReply: vi.fn(async () => {}),
+  createDiscordDraftStream: vi.fn(() => createMockDraftStream()),
+}));
+const editMessageDiscord = deliveryMocks.editMessageDiscord;
+const deliverDiscordReply = deliveryMocks.deliverDiscordReply;
+const createDiscordDraftStream = deliveryMocks.createDiscordDraftStream;
+type DispatchInboundParams = {
+  dispatcher: {
+    sendBlockReply: (payload: {
+      text?: string;
+      isReasoning?: boolean;
+    }) => boolean | Promise<boolean>;
+    sendFinalReply: (payload: {
+      text?: string;
+      isReasoning?: boolean;
+    }) => boolean | Promise<boolean>;
+  };
+  replyOptions?: {
+    onReasoningStream?: () => Promise<void> | void;
+    onReasoningEnd?: () => Promise<void> | void;
+    onToolStart?: (payload: { name?: string }) => Promise<void> | void;
+    onPartialReply?: (payload: { text?: string }) => Promise<void> | void;
+    onAssistantMessageStart?: () => Promise<void> | void;
+  };
+};
+const dispatchInboundMessage = vi.fn(async (_params?: DispatchInboundParams) => ({
+  queuedFinal: false,
+  counts: { final: 0, tool: 0, block: 0 },
+}));
+const recordInboundSession = vi.fn(async () => {});
+const configSessionsMocks = vi.hoisted(() => ({
+  readSessionUpdatedAt: vi.fn(() => undefined),
+  resolveStorePath: vi.fn(() => "/tmp/openclaw-discord-process-test-sessions.json"),
+}));
+const readSessionUpdatedAt = configSessionsMocks.readSessionUpdatedAt;
+const resolveStorePath = configSessionsMocks.resolveStorePath;
+>>>>>>> a7d56e355 (feat: ACP thread-bound agents (#23580))
 
 vi.mock("../send.js", () => ({
   reactMessageDiscord: (...args: unknown[]) => reactMessageDiscord(...args),
@@ -19,11 +75,43 @@ vi.mock("../../auto-reply/reply/dispatch-from-config.js", () => ({
 }));
 
 vi.mock("../../auto-reply/reply/reply-dispatcher.js", () => ({
+<<<<<<< HEAD
   createReplyDispatcherWithTyping: vi.fn(() => ({
     dispatcher: {},
     replyOptions: {},
     markDispatchIdle: vi.fn(),
   })),
+=======
+  createReplyDispatcherWithTyping: vi.fn(
+    (opts: { deliver: (payload: unknown, info: { kind: string }) => Promise<void> | void }) => ({
+      dispatcher: {
+        sendToolResult: vi.fn(() => true),
+        sendBlockReply: vi.fn((payload: unknown) => {
+          void opts.deliver(payload as never, { kind: "block" });
+          return true;
+        }),
+        sendFinalReply: vi.fn((payload: unknown) => {
+          void opts.deliver(payload as never, { kind: "final" });
+          return true;
+        }),
+        waitForIdle: vi.fn(async () => {}),
+        getQueuedCounts: vi.fn(() => ({ tool: 0, block: 0, final: 0 })),
+        markComplete: vi.fn(),
+      },
+      replyOptions: {},
+      markDispatchIdle: vi.fn(),
+    }),
+  ),
+}));
+
+vi.mock("../../channels/session.js", () => ({
+  recordInboundSession,
+}));
+
+vi.mock("../../config/sessions.js", () => ({
+  readSessionUpdatedAt: configSessionsMocks.readSessionUpdatedAt,
+  resolveStorePath: configSessionsMocks.resolveStorePath,
+>>>>>>> a7d56e355 (feat: ACP thread-bound agents (#23580))
 }));
 
 const { processDiscordMessage } = await import("./message-handler.process.js");

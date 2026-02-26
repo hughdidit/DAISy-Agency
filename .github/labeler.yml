@@ -231,3 +231,26 @@
   - changed-files:
       - any-glob-to-any-file:
           - "extensions/qwen-portal-auth/**"
+<<<<<<< HEAD
+=======
+"extensions: device-pair":
+  - changed-files:
+      - any-glob-to-any-file:
+          - "extensions/device-pair/**"
+"extensions: acpx":
+  - changed-files:
+      - any-glob-to-any-file:
+          - "extensions/acpx/**"
+"extensions: minimax-portal-auth":
+  - changed-files:
+      - any-glob-to-any-file:
+          - "extensions/minimax-portal-auth/**"
+"extensions: phone-control":
+  - changed-files:
+      - any-glob-to-any-file:
+          - "extensions/phone-control/**"
+"extensions: talk-voice":
+  - changed-files:
+      - any-glob-to-any-file:
+          - "extensions/talk-voice/**"
+>>>>>>> a7d56e355 (feat: ACP thread-bound agents (#23580))

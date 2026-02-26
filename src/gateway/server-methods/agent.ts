@@ -4,6 +4,7 @@ import { listAgentIds } from "../../agents/agent-scope.js";
 import { agentCommand } from "../../commands/agent.js";
 import { loadConfig } from "../../config/config.js";
 import {
+  mergeSessionEntry,
   resolveAgentIdFromSessionKey,
   resolveExplicitAgentSessionKey,
   resolveAgentMainSessionKey,
@@ -237,7 +238,7 @@ export const agentHandlers: GatewayRequestHandlers = {
       resolvedGroupChannel = resolvedGroupChannel || inheritedGroup?.groupChannel;
       resolvedGroupSpace = resolvedGroupSpace || inheritedGroup?.groupSpace;
       const deliveryFields = normalizeSessionDeliveryFields(entry);
-      const nextEntry: SessionEntry = {
+      const nextEntryPatch: SessionEntry = {
         sessionId,
         updatedAt: now,
         thinkingLevel: entry?.thinkingLevel,
@@ -261,7 +262,7 @@ export const agentHandlers: GatewayRequestHandlers = {
         cliSessionIds: entry?.cliSessionIds,
         claudeCliSessionId: entry?.claudeCliSessionId,
       };
-      sessionEntry = nextEntry;
+      sessionEntry = mergeSessionEntry(entry, nextEntryPatch);
       const sendPolicy = resolveSendPolicy({
         cfg,
         entry,
@@ -282,9 +283,27 @@ export const agentHandlers: GatewayRequestHandlers = {
       const agentId = resolveAgentIdFromSessionKey(canonicalSessionKey);
       const mainSessionKey = resolveAgentMainSessionKey({ cfg, agentId });
       if (storePath) {
+<<<<<<< HEAD
         await updateSessionStore(storePath, (store) => {
           store[canonicalSessionKey] = nextEntry;
+=======
+        const persisted = await updateSessionStore(storePath, (store) => {
+          const target = resolveGatewaySessionStoreTarget({
+            cfg,
+            key: requestedSessionKey,
+            store,
+          });
+          pruneLegacyStoreKeys({
+            store,
+            canonicalKey: target.canonicalKey,
+            candidates: target.storeKeys,
+          });
+          const merged = mergeSessionEntry(store[canonicalSessionKey], nextEntryPatch);
+          store[canonicalSessionKey] = merged;
+          return merged;
+>>>>>>> a7d56e355 (feat: ACP thread-bound agents (#23580))
         });
+        sessionEntry = persisted;
       }
       if (canonicalSessionKey === mainSessionKey || canonicalSessionKey === "global") {
         context.addChatRun(idem, {
