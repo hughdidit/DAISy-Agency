@@ -262,4 +262,138 @@ describe("handleFeishuMessage command authorization", () => {
       }),
     );
   });
+<<<<<<< HEAD
+=======
+
+  it("falls back to top-level allowFrom for group command authorization", async () => {
+    mockShouldComputeCommandAuthorized.mockReturnValue(true);
+    mockResolveCommandAuthorizedFromAuthorizers.mockReturnValue(true);
+
+    const cfg: ClawdbotConfig = {
+      commands: { useAccessGroups: true },
+      channels: {
+        feishu: {
+          allowFrom: ["ou-admin"],
+          groups: {
+            "oc-group": {
+              requireMention: false,
+            },
+          },
+        },
+      },
+    } as ClawdbotConfig;
+
+    const event: FeishuMessageEvent = {
+      sender: {
+        sender_id: {
+          open_id: "ou-admin",
+        },
+      },
+      message: {
+        message_id: "msg-group-command-fallback",
+        chat_id: "oc-group",
+        chat_type: "group",
+        message_type: "text",
+        content: JSON.stringify({ text: "/status" }),
+      },
+    };
+
+    await dispatchMessage({ cfg, event });
+
+    expect(mockResolveCommandAuthorizedFromAuthorizers).toHaveBeenCalledWith({
+      useAccessGroups: true,
+      authorizers: [{ configured: true, allowed: true }],
+    });
+    expect(mockFinalizeInboundContext).toHaveBeenCalledWith(
+      expect.objectContaining({
+        ChatType: "group",
+        CommandAuthorized: true,
+        SenderId: "ou-admin",
+      }),
+    );
+  });
+
+  it("uses video file_key (not thumbnail image_key) for inbound video download", async () => {
+    mockShouldComputeCommandAuthorized.mockReturnValue(false);
+
+    const cfg: ClawdbotConfig = {
+      channels: {
+        feishu: {
+          dmPolicy: "open",
+        },
+      },
+    } as ClawdbotConfig;
+
+    const event: FeishuMessageEvent = {
+      sender: {
+        sender_id: {
+          open_id: "ou-sender",
+        },
+      },
+      message: {
+        message_id: "msg-video-inbound",
+        chat_id: "oc-dm",
+        chat_type: "p2p",
+        message_type: "video",
+        content: JSON.stringify({
+          file_key: "file_video_payload",
+          image_key: "img_thumb_payload",
+          file_name: "clip.mp4",
+        }),
+      },
+    };
+
+    await dispatchMessage({ cfg, event });
+
+    expect(mockDownloadMessageResourceFeishu).toHaveBeenCalledWith(
+      expect.objectContaining({
+        messageId: "msg-video-inbound",
+        fileKey: "file_video_payload",
+        type: "file",
+      }),
+    );
+    expect(mockSaveMediaBuffer).toHaveBeenCalledWith(
+      expect.any(Buffer),
+      "video/mp4",
+      "inbound",
+      expect.any(Number),
+      "clip.mp4",
+    );
+  });
+
+  it("includes message_id in BodyForAgent on its own line", async () => {
+    mockShouldComputeCommandAuthorized.mockReturnValue(false);
+
+    const cfg: ClawdbotConfig = {
+      channels: {
+        feishu: {
+          dmPolicy: "open",
+        },
+      },
+    } as ClawdbotConfig;
+
+    const event: FeishuMessageEvent = {
+      sender: {
+        sender_id: {
+          open_id: "ou-msgid",
+        },
+      },
+      message: {
+        message_id: "msg-message-id-line",
+        chat_id: "oc-dm",
+        chat_type: "p2p",
+        message_type: "text",
+        content: JSON.stringify({ text: "hello" }),
+      },
+    };
+
+    await dispatchMessage({ cfg, event });
+
+    expect(mockFinalizeInboundContext).toHaveBeenCalledWith(
+      expect.objectContaining({
+        BodyForAgent: "[message_id: msg-message-id-line]\nou-msgid: hello",
+      }),
+    );
+  });
+>>>>>>> d671d7a0a (fix: preserve feishu message_id in agent-visible body (#27253) (thanks @xss925175263))
 });
