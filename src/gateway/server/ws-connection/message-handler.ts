@@ -514,6 +514,7 @@ export function attachGatewayWsMessageHandler(params: {
           }
           const trustedProxyAuthOk =
             isControlUi &&
+            role === "operator" &&
             resolvedAuth.mode === "trusted-proxy" &&
             authOk &&
             authMethod === "trusted-proxy";
@@ -685,6 +686,7 @@ export function attachGatewayWsMessageHandler(params: {
 
         const trustedProxyAuthOk =
           isControlUi &&
+          role === "operator" &&
           resolvedAuth.mode === "trusted-proxy" &&
           authOk &&
           authMethod === "trusted-proxy";
