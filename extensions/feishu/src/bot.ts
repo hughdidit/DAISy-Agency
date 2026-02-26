@@ -933,7 +933,7 @@ export async function handleFeishuMessage(params: {
 
     const ctxPayload = core.channel.reply.finalizeInboundContext({
       Body: combinedBody,
-      BodyForAgent: ctx.content,
+      BodyForAgent: messageBody,
       InboundHistory: inboundHistory,
       RawBody: ctx.content,
       CommandBody: ctx.content,
