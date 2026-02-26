@@ -22,6 +22,7 @@ describe("config secret refs schema", () => {
             source: "exec",
             command: "/usr/local/bin/openclaw-secret-resolver",
             args: ["resolve"],
+            allowSymlinkCommand: true,
           },
 >>>>>>> 06290b49b (feat(secrets): finalize mode rename and validated exec docs)
         },
