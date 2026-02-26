@@ -131,6 +131,10 @@ class NodeRuntime(context: Context) {
     locationPreciseEnabled = { locationPreciseEnabled.value },
   )
 
+  private val notificationsHandler: NotificationsHandler = NotificationsHandler(
+    appContext = appContext,
+  )
+
   private val screenHandler: ScreenHandler = ScreenHandler(
     screenRecorder = screenRecorder,
     setScreenRecordActive = { _screenRecordActive.value = it },
@@ -162,6 +166,7 @@ class NodeRuntime(context: Context) {
     canvas = canvas,
     cameraHandler = cameraHandler,
     locationHandler = locationHandler,
+    notificationsHandler = notificationsHandler,
     screenHandler = screenHandler,
     smsHandler = smsHandlerImpl,
     a2uiHandler = a2uiHandler,
