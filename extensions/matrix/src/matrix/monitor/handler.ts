@@ -7,7 +7,6 @@ import {
   formatAllowlistMatchMeta,
   logInboundDrop,
   logTypingFailure,
-  readStoreAllowFromForDmPolicy,
   resolveControlCommandGate,
   type PluginRuntime,
   type RuntimeEnv,
@@ -22,6 +21,7 @@ import {
   type PollStartContent,
 } from "../poll-types.js";
 import { reactMatrixMessage, sendMessageMatrix, sendTypingMatrix } from "../send.js";
+import { enforceMatrixDirectMessageAccess, resolveMatrixAccessState } from "./access-policy.js";
 import {
   normalizeMatrixAllowList,
   resolveMatrixAllowListMatch,
@@ -245,6 +245,7 @@ export function createMatrixRoomMessageHandler(params: MatrixMonitorHandlerParam
         senderId,
         senderUsername,
       });
+<<<<<<< HEAD
 >>>>>>> 8483e01a6 (refactor(matrix): dedupe sender label resolution for inbound bodies)
       const storeAllowFrom = isDirectMessage
         ? await readStoreAllowFromForDmPolicy({
@@ -344,6 +345,37 @@ export function createMatrixRoomMessageHandler(params: MatrixMonitorHandlerParam
             }
             return;
           }
+=======
+      const groupAllowFrom = cfg.channels?.matrix?.groupAllowFrom ?? [];
+      const { access, effectiveAllowFrom, effectiveGroupAllowFrom, groupAllowConfigured } =
+        await resolveMatrixAccessState({
+          isDirectMessage,
+          resolvedAccountId,
+          dmPolicy,
+          groupPolicy,
+          allowFrom,
+          groupAllowFrom,
+          senderId,
+          readStoreForDmPolicy: pairing.readStoreForDmPolicy,
+        });
+
+      if (isDirectMessage) {
+        const allowedDirectMessage = await enforceMatrixDirectMessageAccess({
+          dmEnabled,
+          dmPolicy,
+          accessDecision: access.decision,
+          senderId,
+          senderName,
+          effectiveAllowFrom,
+          upsertPairingRequest: pairing.upsertPairingRequest,
+          sendPairingReply: async (text) => {
+            await sendMessageMatrix(`room:${roomId}`, text, { client });
+          },
+          logVerboseMessage,
+        });
+        if (!allowedDirectMessage) {
+          return;
+>>>>>>> 564be6b40 (refactor(channels): unify dm pairing policy flows)
         }
       }
 

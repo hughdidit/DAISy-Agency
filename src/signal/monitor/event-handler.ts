@@ -30,17 +30,16 @@ import { readSessionUpdatedAt, resolveStorePath } from "../../config/sessions.js
 import { danger, logVerbose, shouldLogVerbose } from "../../globals.js";
 import { enqueueSystemEvent } from "../../infra/system-events.js";
 import { mediaKindFromMime } from "../../media/constants.js";
+<<<<<<< HEAD
 import { buildPairingReply } from "../../pairing/pairing-messages.js";
 import {
   readChannelAllowFromStore,
   upsertChannelPairingRequest,
 } from "../../pairing/pairing-store.js";
+=======
+>>>>>>> 564be6b40 (refactor(channels): unify dm pairing policy flows)
 import { resolveAgentRoute } from "../../routing/resolve-route.js";
-import {
-  DM_GROUP_ACCESS_REASON,
-  readStoreAllowFromForDmPolicy,
-  resolveDmGroupAccessWithLists,
-} from "../../security/dm-policy-shared.js";
+import { DM_GROUP_ACCESS_REASON } from "../../security/dm-policy-shared.js";
 import { normalizeE164 } from "../../utils.js";
 import {
   formatSignalPairingIdLine,
@@ -53,6 +52,7 @@ import {
   type SignalSender,
 } from "../identity.js";
 import { sendMessageSignal, sendReadReceiptSignal, sendTypingSignal } from "../send.js";
+import { handleSignalDirectMessageAccess, resolveSignalAccessState } from "./access-policy.js";
 import type {
   SignalEnvelope,
   SignalEventHandlerDeps,
@@ -461,6 +461,7 @@ export function createSignalEventHandler(deps: SignalEventHandlerDeps) {
     const hasBodyContent =
       Boolean(messageText || quoteText) || Boolean(!reaction && dataMessage?.attachments?.length);
     const senderDisplay = formatSignalSenderDisplay(sender);
+<<<<<<< HEAD
     const storeAllowFrom = await readStoreAllowFromForDmPolicy({
       provider: "signal",
       dmPolicy: deps.dmPolicy,
@@ -469,17 +470,24 @@ export function createSignalEventHandler(deps: SignalEventHandlerDeps) {
     const resolveAccessDecision = (isGroup: boolean) =>
       resolveDmGroupAccessWithLists({
         isGroup,
+=======
+    const { resolveAccessDecision, dmAccess, effectiveDmAllow, effectiveGroupAllow } =
+      await resolveSignalAccessState({
+        accountId: deps.accountId,
+>>>>>>> 564be6b40 (refactor(channels): unify dm pairing policy flows)
         dmPolicy: deps.dmPolicy,
         groupPolicy: deps.groupPolicy,
         allowFrom: deps.allowFrom,
         groupAllowFrom: deps.groupAllowFrom,
-        storeAllowFrom,
-        isSenderAllowed: (allowEntries) => isSignalSenderAllowed(sender, allowEntries),
+        sender,
       });
+<<<<<<< HEAD
     const dmAccess = resolveAccessDecision(false);
     const effectiveDmAllow = dmAccess.effectiveAllowFrom;
     const effectiveGroupAllow = dmAccess.effectiveGroupAllowFrom;
     const dmAllowed = dmAccess.decision === "allow";
+=======
+>>>>>>> 564be6b40 (refactor(channels): unify dm pairing policy flows)
 
     if (
       reaction &&
@@ -518,6 +526,7 @@ export function createSignalEventHandler(deps: SignalEventHandlerDeps) {
 >>>>>>> 2aa7842ad (fix(signal): enforce auth before reaction notification enqueue)
 
     if (!isGroup) {
+<<<<<<< HEAD
       if (dmAccess.decision === "block") {
         if (deps.dmPolicy !== "disabled") {
           logVerbose(`Blocked signal sender ${senderDisplay} (dmPolicy=${deps.dmPolicy})`);
@@ -531,29 +540,27 @@ export function createSignalEventHandler(deps: SignalEventHandlerDeps) {
             channel: "signal",
             id: senderId,
             meta: { name: envelope.sourceName ?? undefined },
+=======
+      const allowedDirectMessage = await handleSignalDirectMessageAccess({
+        dmPolicy: deps.dmPolicy,
+        dmAccessDecision: dmAccess.decision,
+        senderId: senderAllowId,
+        senderIdLine,
+        senderDisplay,
+        senderName: envelope.sourceName ?? undefined,
+        accountId: deps.accountId,
+        sendPairingReply: async (text) => {
+          await sendMessageSignal(`signal:${senderRecipient}`, text, {
+            baseUrl: deps.baseUrl,
+            account: deps.account,
+            maxBytes: deps.mediaMaxBytes,
+            accountId: deps.accountId,
+>>>>>>> 564be6b40 (refactor(channels): unify dm pairing policy flows)
           });
-          if (created) {
-            logVerbose(`signal pairing request sender=${senderId}`);
-            try {
-              await sendMessageSignal(
-                `signal:${senderRecipient}`,
-                buildPairingReply({
-                  channel: "signal",
-                  idLine: senderIdLine,
-                  code,
-                }),
-                {
-                  baseUrl: deps.baseUrl,
-                  account: deps.account,
-                  maxBytes: deps.mediaMaxBytes,
-                  accountId: deps.accountId,
-                },
-              );
-            } catch (err) {
-              logVerbose(`signal pairing reply failed for ${senderId}: ${String(err)}`);
-            }
-          }
-        }
+        },
+        log: logVerbose,
+      });
+      if (!allowedDirectMessage) {
         return;
       }
     }
