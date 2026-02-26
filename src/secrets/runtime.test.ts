@@ -174,6 +174,28 @@ describe("secrets runtime snapshot", () => {
               },
             },
           },
+<<<<<<< HEAD
+=======
+          null,
+          2,
+        ),
+        "utf8",
+      );
+      await fs.chmod(secretsPath, 0o600);
+
+      const config: OpenClawConfig = {
+        secrets: {
+          providers: {
+            default: {
+              source: "file",
+              path: secretsPath,
+              mode: "json",
+            },
+          },
+          defaults: {
+            file: "default",
+          },
+>>>>>>> 06290b49b (feat(secrets): finalize mode rename and validated exec docs)
         },
         agentDirs: ["/tmp/openclaw-agent-main"],
         loadAuthStore: () => ({ version: 1, profiles: {} }),
@@ -207,7 +229,7 @@ describe("secrets runtime snapshot", () => {
                 default: {
                   source: "file",
                   path: secretsPath,
-                  mode: "jsonPointer",
+                  mode: "json",
                 },
               },
             },

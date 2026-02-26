@@ -227,7 +227,21 @@ describe("ensureApiKeyFromEnvOrPrompt", () => {
     const setCredential = vi.fn(async () => undefined);
 
     const result = await ensureApiKeyFromEnvOrPrompt({
+<<<<<<< HEAD
       config: {},
+=======
+      config: {
+        secrets: {
+          providers: {
+            filemain: {
+              source: "file",
+              path: "/tmp/does-not-exist-secrets.json",
+              mode: "json",
+            },
+          },
+        },
+      },
+>>>>>>> 06290b49b (feat(secrets): finalize mode rename and validated exec docs)
       provider: "minimax",
       envLabel: "MINIMAX_API_KEY",
       promptMessage: "Enter key",
