@@ -86,9 +86,15 @@ describe("runCommandWithTimeout", () => {
         ].join(" "),
       ],
       {
+<<<<<<< HEAD
         timeoutMs: 5_000,
         noOutputTimeoutMs: 120,
 >>>>>>> 31f2bf951 (test: fix gate regressions)
+=======
+        timeoutMs: 7_000,
+        // Keep a generous idle budget; CI event-loop stalls can exceed 450ms.
+        noOutputTimeoutMs: 900,
+>>>>>>> 262bca9bd (fix: restore dm command and self-chat auth behavior)
       },
     );
 
