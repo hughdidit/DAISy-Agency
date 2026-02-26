@@ -50,6 +50,7 @@ import { parseSlackTarget } from "../../slack/targets.js";
 >>>>>>> 39af215c3 (refactor(outbound): extract message action param helpers)
 =======
 import type { OpenClawConfig } from "../../config/config.js";
+<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
@@ -64,6 +65,11 @@ import type { OpenClawConfig } from "../../config/config.js";
 =======
 import type { OpenClawConfig } from "../../config/config.js";
 >>>>>>> f76f98b26 (chore: fix formatting drift and stabilize cron tool mocks)
+=======
+import { getAgentScopedMediaLocalRoots } from "../../media/local-roots.js";
+import { buildChannelAccountBindings } from "../../routing/bindings.js";
+import { normalizeAgentId } from "../../routing/session-key.js";
+>>>>>>> 1e7ec8bfd (fix(routing): preserve explicit cron account and bound message defaults)
 import {
   isDeliverableMessageChannel,
   normalizeMessageChannel,
@@ -1177,7 +1183,14 @@ export async function runMessageAction(
   }
 
   const channel = await resolveChannel(cfg, params);
-  const accountId = readStringParam(params, "accountId") ?? input.defaultAccountId;
+  let accountId = readStringParam(params, "accountId") ?? input.defaultAccountId;
+  if (!accountId && resolvedAgentId) {
+    const byAgent = buildChannelAccountBindings(cfg).get(channel);
+    const boundAccountIds = byAgent?.get(normalizeAgentId(resolvedAgentId));
+    if (boundAccountIds && boundAccountIds.length > 0) {
+      accountId = boundAccountIds[0];
+    }
+  }
   if (accountId) {
     params.accountId = accountId;
   }
