@@ -5,7 +5,11 @@ import { isSafeExecutableValue } from "../infra/exec-safety.js";
 =======
 =======
 import { isValidFileSecretRefId } from "../secrets/ref-contract.js";
+<<<<<<< HEAD
 >>>>>>> 8944b75e1 (fix(secrets): align ref contracts and non-interactive ref persistence)
+=======
+import { MODEL_APIS } from "./types.models.js";
+>>>>>>> 344f54b84 (refactor(config): dedupe model api definitions)
 import { createAllowDenyChannelRulesSchema } from "./zod-schema.allowdeny.js";
 import { sensitive } from "./zod-schema.sensitive.js";
 >>>>>>> 747b11c83 (refactor(config): share allow/deny channel policy schema)
@@ -170,16 +174,7 @@ export const SecretsConfigSchema = z
   .strict()
   .optional();
 
-export const ModelApiSchema = z.union([
-  z.literal("openai-completions"),
-  z.literal("openai-responses"),
-  z.literal("openai-codex-responses"),
-  z.literal("anthropic-messages"),
-  z.literal("google-generative-ai"),
-  z.literal("github-copilot"),
-  z.literal("bedrock-converse-stream"),
-  z.literal("ollama"),
-]);
+export const ModelApiSchema = z.enum(MODEL_APIS);
 
 export const ModelCompatSchema = z
   .object({
