@@ -125,7 +125,7 @@ const SecretsExecProviderSchema = z
   })
   .strict();
 
-const SecretsProviderSchema = z.discriminatedUnion("source", [
+export const SecretProviderSchema = z.discriminatedUnion("source", [
   SecretsEnvProviderSchema,
   SecretsFileProviderSchema,
   SecretsExecProviderSchema,
@@ -136,8 +136,33 @@ export const SecretsConfigSchema = z
   .object({
     sources: z
       .object({
+<<<<<<< HEAD
         env: SecretsEnvSourceSchema.optional(),
         file: SecretsFileSourceSchema.optional(),
+=======
+        // Keep this as a record so users can define multiple providers per source.
+      })
+      .catchall(SecretProviderSchema)
+      .optional(),
+    defaults: z
+      .object({
+        env: z.string().regex(SECRET_PROVIDER_ALIAS_PATTERN).optional(),
+        file: z.string().regex(SECRET_PROVIDER_ALIAS_PATTERN).optional(),
+        exec: z.string().regex(SECRET_PROVIDER_ALIAS_PATTERN).optional(),
+      })
+      .strict()
+      .optional(),
+    resolution: z
+      .object({
+        maxProviderConcurrency: z.number().int().positive().max(16).optional(),
+        maxRefsPerProvider: z.number().int().positive().max(4096).optional(),
+        maxBatchBytes: z
+          .number()
+          .int()
+          .positive()
+          .max(5 * 1024 * 1024)
+          .optional(),
+>>>>>>> d879c7c64 (fix(secrets): harden apply and audit plan handling)
       })
       .strict()
       .optional(),
