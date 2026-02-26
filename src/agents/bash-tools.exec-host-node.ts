@@ -184,6 +184,31 @@ export async function executeNodeHostCommand(
     const contextKey = `exec:${approvalId}`;
     const noticeSeconds = Math.max(1, Math.round(params.approvalRunningNoticeMs / 1000));
     const warningText = params.warnings.length ? `${params.warnings.join("\n")}\n\n` : "";
+<<<<<<< HEAD
+=======
+    let expiresAtMs = Date.now() + DEFAULT_APPROVAL_TIMEOUT_MS;
+    let preResolvedDecision: string | null | undefined;
+
+    try {
+      // Register first so the returned approval ID is actionable immediately.
+      const registration = await registerExecApprovalRequestForHost({
+        approvalId,
+        command: params.command,
+        commandArgv: argv,
+        workdir: params.workdir,
+        host: "node",
+        nodeId,
+        security: hostSecurity,
+        ask: hostAsk,
+        agentId: params.agentId,
+        sessionKey: params.sessionKey,
+      });
+      expiresAtMs = registration.expiresAtMs;
+      preResolvedDecision = registration.finalDecision;
+    } catch (err) {
+      throw new Error(`Exec approval registration failed: ${String(err)}`, { cause: err });
+    }
+>>>>>>> 03e689fc8 (fix(security): bind system.run approvals to argv identity)
 
     void (async () => {
       let decision: string | null = null;
