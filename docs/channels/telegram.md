@@ -139,13 +139,15 @@ You can add custom commands to the menu via config:
     `channels.telegram.dmPolicy` controls direct message access:
 
     - `pairing` (default)
-    - `allowlist`
+    - `allowlist` (requires at least one sender ID in `allowFrom`)
     - `open` (requires `allowFrom` to include `"*"`)
     - `disabled`
 
     `channels.telegram.allowFrom` accepts numeric Telegram user IDs. `telegram:` / `tg:` prefixes are accepted and normalized.
+    `dmPolicy: "allowlist"` with empty `allowFrom` blocks all DMs and is rejected by config validation.
     The onboarding wizard accepts `@username` input and resolves it to numeric IDs.
     If you upgraded and your config contains `@username` allowlist entries, run `openclaw doctor --fix` to resolve them (best-effort; requires a Telegram bot token).
+    If you previously relied on pairing-store allowlist files, `openclaw doctor --fix` can auto-migrate recovered entries into `channels.telegram.allowFrom`.
 
     ### Finding your Telegram user ID
 
@@ -841,7 +843,11 @@ Provider options:
 - `channels.telegram.botToken`: bot token (BotFather).
 - `channels.telegram.tokenFile`: read token from file path.
 - `channels.telegram.dmPolicy`: `pairing | allowlist | open | disabled` (default: pairing).
+<<<<<<< HEAD
 - `channels.telegram.allowFrom`: DM allowlist (ids/usernames). `open` requires `"*"`.
+=======
+- `channels.telegram.allowFrom`: DM allowlist (numeric Telegram user IDs). `allowlist` requires at least one sender ID. `open` requires `"*"`. `openclaw doctor --fix` can resolve legacy `@username` entries to IDs and can restore allowlist entries from pairing-store files when available.
+>>>>>>> 1d4320293 (fix: repair Telegram allowlist DM migrations (#27936) (thanks @widingmarcus-cyber))
 - `channels.telegram.groupPolicy`: `open | allowlist | disabled` (default: allowlist).
 - `channels.telegram.groupAllowFrom`: group sender allowlist (ids/usernames).
 - `channels.telegram.groups`: per-group defaults + allowlist (use `"*"` for global defaults).

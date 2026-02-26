@@ -31,7 +31,32 @@ import {
   readConfigFileSnapshot,
 } from "../config/config.js";
 import { applyPluginAutoEnable } from "../config/plugin-auto-enable.js";
+<<<<<<< HEAD
 import { formatCliCommand } from "../cli/command-format.js";
+=======
+import { parseToolsBySenderTypedKey } from "../config/types.tools.js";
+import { resolveCommandResolutionFromArgv } from "../infra/exec-command-resolution.js";
+import {
+  listInterpreterLikeSafeBins,
+  resolveMergedSafeBinProfileFixtures,
+} from "../infra/exec-safe-bin-runtime-policy.js";
+import {
+  getTrustedSafeBinDirs,
+  isTrustedSafeBinPath,
+  normalizeTrustedSafeBinDirs,
+} from "../infra/exec-safe-bin-trust.js";
+import { readChannelAllowFromStore } from "../pairing/pairing-store.js";
+import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "../routing/session-key.js";
+import {
+  isDiscordMutableAllowEntry,
+  isGoogleChatMutableAllowEntry,
+  isIrcMutableAllowEntry,
+  isMSTeamsMutableAllowEntry,
+  isMattermostMutableAllowEntry,
+  isSlackMutableAllowEntry,
+} from "../security/mutable-allowlist-detectors.js";
+import { listTelegramAccountIds, resolveTelegramAccount } from "../telegram/accounts.js";
+>>>>>>> 1d4320293 (fix: repair Telegram allowlist DM migrations (#27936) (thanks @widingmarcus-cyber))
 import { note } from "../terminal/note.js";
 import { normalizeLegacyConfigValues } from "./doctor-legacy-config.js";
 import { autoMigrateLegacyStateDir } from "./doctor-state-migrations.js";
@@ -616,12 +641,172 @@ function maybeRepairOpenPolicyAllowFrom(cfg: OpenClawConfig): {
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> b05273de6 (fix: doctor --fix auto-repairs dmPolicy="open" missing allowFrom wildcard)
 =======
+=======
+function hasAllowFromEntries(list?: Array<string | number>) {
+  return Array.isArray(list) && list.map((v) => String(v).trim()).filter(Boolean).length > 0;
+}
+
+async function maybeRepairAllowlistPolicyAllowFrom(cfg: OpenClawConfig): Promise<{
+  config: OpenClawConfig;
+  changes: string[];
+}> {
+  const channels = cfg.channels;
+  if (!channels || typeof channels !== "object") {
+    return { config: cfg, changes: [] };
+  }
+
+  type AllowFromMode = "topOnly" | "topOrNested" | "nestedOnly";
+
+  const resolveAllowFromMode = (channelName: string): AllowFromMode => {
+    if (channelName === "googlechat") {
+      return "nestedOnly";
+    }
+    if (channelName === "discord" || channelName === "slack") {
+      return "topOrNested";
+    }
+    return "topOnly";
+  };
+
+  const next = structuredClone(cfg);
+  const changes: string[] = [];
+
+  const applyRecoveredAllowFrom = (params: {
+    account: Record<string, unknown>;
+    allowFrom: string[];
+    mode: AllowFromMode;
+    prefix: string;
+  }) => {
+    const count = params.allowFrom.length;
+    const noun = count === 1 ? "entry" : "entries";
+
+    if (params.mode === "nestedOnly") {
+      const dmEntry = params.account.dm;
+      const dm =
+        dmEntry && typeof dmEntry === "object" && !Array.isArray(dmEntry)
+          ? (dmEntry as Record<string, unknown>)
+          : {};
+      dm.allowFrom = params.allowFrom;
+      params.account.dm = dm;
+      changes.push(
+        `- ${params.prefix}.dm.allowFrom: restored ${count} sender ${noun} from pairing store (dmPolicy="allowlist").`,
+      );
+      return;
+    }
+
+    if (params.mode === "topOrNested") {
+      const dmEntry = params.account.dm;
+      const dm =
+        dmEntry && typeof dmEntry === "object" && !Array.isArray(dmEntry)
+          ? (dmEntry as Record<string, unknown>)
+          : undefined;
+      const nestedAllowFrom = dm?.allowFrom as Array<string | number> | undefined;
+      if (dm && !Array.isArray(params.account.allowFrom) && Array.isArray(nestedAllowFrom)) {
+        dm.allowFrom = params.allowFrom;
+        changes.push(
+          `- ${params.prefix}.dm.allowFrom: restored ${count} sender ${noun} from pairing store (dmPolicy="allowlist").`,
+        );
+        return;
+      }
+    }
+
+    params.account.allowFrom = params.allowFrom;
+    changes.push(
+      `- ${params.prefix}.allowFrom: restored ${count} sender ${noun} from pairing store (dmPolicy="allowlist").`,
+    );
+  };
+
+  const recoverAllowFromForAccount = async (params: {
+    channelName: string;
+    account: Record<string, unknown>;
+    accountId?: string;
+    prefix: string;
+  }) => {
+    const dmEntry = params.account.dm;
+    const dm =
+      dmEntry && typeof dmEntry === "object" && !Array.isArray(dmEntry)
+        ? (dmEntry as Record<string, unknown>)
+        : undefined;
+    const dmPolicy =
+      (params.account.dmPolicy as string | undefined) ?? (dm?.policy as string | undefined);
+    if (dmPolicy !== "allowlist") {
+      return;
+    }
+
+    const topAllowFrom = params.account.allowFrom as Array<string | number> | undefined;
+    const nestedAllowFrom = dm?.allowFrom as Array<string | number> | undefined;
+    if (hasAllowFromEntries(topAllowFrom) || hasAllowFromEntries(nestedAllowFrom)) {
+      return;
+    }
+
+    const normalizedChannelId = (normalizeChatChannelId(params.channelName) ?? params.channelName)
+      .trim()
+      .toLowerCase();
+    if (!normalizedChannelId) {
+      return;
+    }
+    const normalizedAccountId = normalizeAccountId(params.accountId) || DEFAULT_ACCOUNT_ID;
+    const fromStore = await readChannelAllowFromStore(
+      normalizedChannelId,
+      process.env,
+      normalizedAccountId,
+    ).catch(() => []);
+    const recovered = Array.from(new Set(fromStore.map((entry) => String(entry).trim()))).filter(
+      Boolean,
+    );
+    if (recovered.length === 0) {
+      return;
+    }
+
+    applyRecoveredAllowFrom({
+      account: params.account,
+      allowFrom: recovered,
+      mode: resolveAllowFromMode(params.channelName),
+      prefix: params.prefix,
+    });
+  };
+
+  const nextChannels = next.channels as Record<string, Record<string, unknown>>;
+  for (const [channelName, channelConfig] of Object.entries(nextChannels)) {
+    if (!channelConfig || typeof channelConfig !== "object") {
+      continue;
+    }
+    await recoverAllowFromForAccount({
+      channelName,
+      account: channelConfig,
+      prefix: `channels.${channelName}`,
+    });
+
+    const accounts = channelConfig.accounts as Record<string, Record<string, unknown>> | undefined;
+    if (!accounts || typeof accounts !== "object") {
+      continue;
+    }
+    for (const [accountId, accountConfig] of Object.entries(accounts)) {
+      if (!accountConfig || typeof accountConfig !== "object") {
+        continue;
+      }
+      await recoverAllowFromForAccount({
+        channelName,
+        account: accountConfig,
+        accountId,
+        prefix: `channels.${channelName}.accounts.${accountId}`,
+      });
+    }
+  }
+
+  if (changes.length === 0) {
+    return { config: cfg, changes: [] };
+  }
+  return { config: next, changes };
+}
+
+>>>>>>> 1d4320293 (fix: repair Telegram allowlist DM migrations (#27936) (thanks @widingmarcus-cyber))
 /**
  * Scan all channel configs for dmPolicy="allowlist" without any allowFrom entries.
- * This configuration causes all DMs to be silently dropped because no sender can
- * match the empty allowlist. Common after upgrades that remove external allowlist
+ * This configuration blocks all DMs because no sender can match the empty
+ * allowlist. Common after upgrades that remove external allowlist
  * file support.
  */
 function detectEmptyAllowlistPolicy(cfg: OpenClawConfig): string[] {
@@ -631,9 +816,6 @@ function detectEmptyAllowlistPolicy(cfg: OpenClawConfig): string[] {
   }
 
   const warnings: string[] = [];
-
-  const hasEntries = (list?: Array<string | number>) =>
-    Array.isArray(list) && list.map((v) => String(v).trim()).filter(Boolean).length > 0;
 
   const checkAccount = (
     account: Record<string, unknown>,
@@ -668,12 +850,12 @@ function detectEmptyAllowlistPolicy(cfg: OpenClawConfig): string[] {
     const parentNestedAllowFrom = parentDm?.allowFrom as Array<string | number> | undefined;
     const effectiveAllowFrom = topAllowFrom ?? nestedAllowFrom ?? parentNestedAllowFrom;
 
-    if (hasEntries(effectiveAllowFrom)) {
+    if (hasAllowFromEntries(effectiveAllowFrom)) {
       return;
     }
 
     warnings.push(
-      `- ${prefix}.dmPolicy is "allowlist" but allowFrom is empty — all DMs will be silently dropped. Add sender IDs to ${prefix}.allowFrom or change dmPolicy to "pairing".`,
+      `- ${prefix}.dmPolicy is "allowlist" but allowFrom is empty — all DMs will be blocked. Add sender IDs to ${prefix}.allowFrom, or run "${formatCliCommand("openclaw doctor --fix")}" to auto-migrate from pairing store when entries exist.`,
     );
   };
 
@@ -1163,6 +1345,14 @@ export async function loadAndMaybeMigrateDoctorConfig(params: {
     }
 <<<<<<< HEAD
 =======
+
+    const allowlistRepair = await maybeRepairAllowlistPolicyAllowFrom(candidate);
+    if (allowlistRepair.changes.length > 0) {
+      note(allowlistRepair.changes.join("\n"), "Doctor changes");
+      candidate = allowlistRepair.config;
+      pendingChanges = true;
+      cfg = allowlistRepair.config;
+    }
 
     const emptyAllowlistWarnings = detectEmptyAllowlistPolicy(candidate);
     if (emptyAllowlistWarnings.length > 0) {
