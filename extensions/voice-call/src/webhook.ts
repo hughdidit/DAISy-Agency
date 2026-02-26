@@ -18,6 +18,7 @@ import type { NormalizedEvent, WebhookContext } from "./types.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 import { MediaStreamHandler } from "./media-stream.js";
@@ -31,6 +32,9 @@ import { OpenAIRealtimeSTTProvider } from "./providers/stt-openai-realtime.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 =======
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
+=======
+import { startStaleCallReaper } from "./webhook/stale-call-reaper.js";
+>>>>>>> 535ef8991 (refactor(voice-call): enforce verified webhook key contract)
 
 const MAX_WEBHOOK_BODY_BYTES = 1024 * 1024;
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -46,10 +50,14 @@ export class VoiceCallWebhookServer {
   private provider: VoiceCallProvider;
   private coreConfig: CoreConfig | null;
 <<<<<<< HEAD
+<<<<<<< HEAD
   private readonly logger: Logger;
 =======
   private staleCallReaperInterval: ReturnType<typeof setInterval> | null = null;
 >>>>>>> 390c503b5 (feat(voice-call): add configurable stale call reaper)
+=======
+  private stopStaleCallReaper: (() => void) | null = null;
+>>>>>>> 535ef8991 (refactor(voice-call): enforce verified webhook key contract)
 
   /** Media stream handler for bidirectional audio (when streaming enabled) */
   private mediaStreamHandler: MediaStreamHandler | null = null;
@@ -305,12 +313,16 @@ export class VoiceCallWebhookServer {
         resolve(url);
 
         // Start the stale call reaper if configured
-        this.startStaleCallReaper();
+        this.stopStaleCallReaper = startStaleCallReaper({
+          manager: this.manager,
+          staleCallReaperSeconds: this.config.staleCallReaperSeconds,
+        });
       });
     });
   }
 
   /**
+<<<<<<< HEAD
    * Start a periodic reaper that ends calls older than the configured threshold.
    * Catches calls stuck in unexpected states (e.g., notify-mode calls that never
    * receive a terminal webhook from the provider).
@@ -339,12 +351,14 @@ export class VoiceCallWebhookServer {
   }
 
   /**
+=======
+>>>>>>> 535ef8991 (refactor(voice-call): enforce verified webhook key contract)
    * Stop the webhook server.
    */
   async stop(): Promise<void> {
-    if (this.staleCallReaperInterval) {
-      clearInterval(this.staleCallReaperInterval);
-      this.staleCallReaperInterval = null;
+    if (this.stopStaleCallReaper) {
+      this.stopStaleCallReaper();
+      this.stopStaleCallReaper = null;
     }
     return new Promise((resolve) => {
       if (this.server) {
@@ -405,6 +419,12 @@ export class VoiceCallWebhookServer {
 =======
       console.warn(`[voice-call] Webhook verification failed: ${verification.reason}`);
 >>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
+      res.statusCode = 401;
+      res.end("Unauthorized");
+      return;
+    }
+    if (!verification.verifiedRequestKey) {
+      console.warn("[voice-call] Webhook verification succeeded without request identity key");
       res.statusCode = 401;
       res.end("Unauthorized");
       return;
