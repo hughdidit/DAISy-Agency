@@ -312,6 +312,48 @@ function buildChatCommands(): ChatCommandDefinition[] {
       argsMenu: "auto",
     }),
     defineChatCommand({
+<<<<<<< HEAD
+=======
+      key: "acp",
+      nativeName: "acp",
+      description: "Manage ACP sessions and runtime options.",
+      textAlias: "/acp",
+      category: "management",
+      args: [
+        {
+          name: "action",
+          description: "Action to run",
+          type: "string",
+          choices: [
+            "spawn",
+            "cancel",
+            "steer",
+            "close",
+            "sessions",
+            "status",
+            "set-mode",
+            "set",
+            "cwd",
+            "permissions",
+            "timeout",
+            "model",
+            "reset-options",
+            "doctor",
+            "install",
+            "help",
+          ],
+        },
+        {
+          name: "value",
+          description: "Action arguments",
+          type: "string",
+          captureRemaining: true,
+        },
+      ],
+      argsMenu: "auto",
+    }),
+    defineChatCommand({
+>>>>>>> c5facb847 (fix(discord): avoid invalid /acp native option payload)
       key: "focus",
       nativeName: "focus",
       description: "Bind this Discord thread (or a new one) to a session target.",
