@@ -726,9 +726,17 @@ Config:
   - `channels.telegram.draftChunk: { minChars?, maxChars?, breakPreference? }`
     - defaults: `minChars: 200`, `maxChars: 800`, `breakPreference: "paragraph"` (clamped to `channels.telegram.textChunkLimit`).
 
+<<<<<<< HEAD
 Note: draft streaming is separate from **block streaming** (channel messages).
 Block streaming is off by default and requires `channels.telegram.blockStreaming: true`
 if you want early Telegram messages instead of draft updates.
+=======
+    - `own` means user reactions to bot-sent messages only (best-effort via sent-message cache).
+    - Reaction events still respect Telegram access controls (`dmPolicy`, `allowFrom`, `groupPolicy`, `groupAllowFrom`); unauthorized senders are dropped.
+    - Telegram does not provide thread IDs in reaction updates.
+      - non-forum groups route to group chat session
+      - forum groups route to the group general-topic session (`:topic:1`), not the exact originating topic
+>>>>>>> e56b0cf1a (fix: enforce telegram reaction authorization)
 
 Reasoning stream (Telegram only):
 - `/reasoning stream` streams reasoning into the draft bubble while the reply is
