@@ -145,9 +145,17 @@ Use this when auditing access or deciding what to back up:
 - **Telegram bot token**: config/env or `channels.telegram.tokenFile`
 - **Discord bot token**: config/env (token file not yet supported)
 - **Slack tokens**: config/env (`channels.slack.*`)
+<<<<<<< HEAD
 - **Pairing allowlists**: `~/.moltbot/credentials/<channel>-allowFrom.json`
 - **Model auth profiles**: `~/.moltbot/agents/<agentId>/agent/auth-profiles.json`
 - **Legacy OAuth import**: `~/.moltbot/credentials/oauth.json`
+=======
+- **Pairing allowlists**:
+  - `~/.openclaw/credentials/<channel>-allowFrom.json` (default account)
+  - `~/.openclaw/credentials/<channel>-<accountId>-allowFrom.json` (non-default accounts)
+- **Model auth profiles**: `~/.openclaw/agents/<agentId>/agent/auth-profiles.json`
+- **Legacy OAuth import**: `~/.openclaw/credentials/oauth.json`
+>>>>>>> 91a3f0a3f (pairing: enforce strict account-scoped state)
 
 ## Security Audit Checklist
 
@@ -458,8 +466,13 @@ This prevents cross-user context leakage while keeping group chats isolated. If 
 
 Moltbot has two separate “who can trigger me?” layers:
 
+<<<<<<< HEAD
 - **DM allowlist** (`allowFrom` / `channels.discord.dm.allowFrom` / `channels.slack.dm.allowFrom`): who is allowed to talk to the bot in direct messages.
   - When `dmPolicy="pairing"`, approvals are written to `~/.moltbot/credentials/<channel>-allowFrom.json` (merged with config allowlists).
+=======
+- **DM allowlist** (`allowFrom` / `channels.discord.allowFrom` / `channels.slack.allowFrom`; legacy: `channels.discord.dm.allowFrom`, `channels.slack.dm.allowFrom`): who is allowed to talk to the bot in direct messages.
+  - When `dmPolicy="pairing"`, approvals are written to the account-scoped pairing allowlist store under `~/.openclaw/credentials/` (`<channel>-allowFrom.json` for default account, `<channel>-<accountId>-allowFrom.json` for non-default accounts), merged with config allowlists.
+>>>>>>> 91a3f0a3f (pairing: enforce strict account-scoped state)
 - **Group allowlist** (channel-specific): which groups/channels/guilds the bot will accept messages from at all.
   - Common patterns:
     - `channels.whatsapp.groups`, `channels.telegram.groups`, `channels.imessage.groups`: per-group defaults like `requireMention`; when set, it also acts as a group allowlist (include `"*"` to keep allow-all behavior).

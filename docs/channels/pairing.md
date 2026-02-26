@@ -46,7 +46,14 @@ Stored under `~/.openclaw/credentials/`:
 
 >>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - Pending requests: `<channel>-pairing.json`
-- Approved allowlist store: `<channel>-allowFrom.json`
+- Approved allowlist store:
+  - Default account: `<channel>-allowFrom.json`
+  - Non-default account: `<channel>-<accountId>-allowFrom.json`
+
+Account scoping behavior:
+
+- Non-default accounts read/write only their scoped allowlist file.
+- Default account uses the channel-scoped unscoped allowlist file.
 
 Treat these as sensitive (they gate access to your assistant).
 

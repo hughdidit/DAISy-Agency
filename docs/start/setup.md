@@ -132,12 +132,18 @@ Use this when debugging auth or deciding what to back up:
 - **Discord bot token**: config/env (token file not yet supported)
 - **Slack tokens**: config/env (`channels.slack.*`)
 <<<<<<< HEAD
+<<<<<<< HEAD
 - **Pairing allowlists**: `~/.clawdbot/credentials/<channel>-allowFrom.json`
 - **Model auth profiles**: `~/.clawdbot/agents/<agentId>/agent/auth-profiles.json`
 - **Legacy OAuth import**: `~/.clawdbot/credentials/oauth.json`
 More detail: [Security](/gateway/security#credential-storage-map).
 =======
 - **Pairing allowlists**: `~/.openclaw/credentials/<channel>-allowFrom.json`
+=======
+- **Pairing allowlists**:
+  - `~/.openclaw/credentials/<channel>-allowFrom.json` (default account)
+  - `~/.openclaw/credentials/<channel>-<accountId>-allowFrom.json` (non-default accounts)
+>>>>>>> 91a3f0a3f (pairing: enforce strict account-scoped state)
 - **Model auth profiles**: `~/.openclaw/agents/<agentId>/agent/auth-profiles.json`
 - **Legacy OAuth import**: `~/.openclaw/credentials/oauth.json`
   More detail: [Security](/gateway/security#credential-storage-map).
