@@ -58,7 +58,11 @@ Status: beta.
 ### Changes
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+- Dependencies: update workspace dependency pins and lockfile (Bedrock SDK `3.998.0`, `@mariozechner/pi-*` `0.55.1`, TypeScript native preview `7.0.0-dev.20260225.1`) while keeping `@buape/carbon` pinned.
+>>>>>>> 876018f32 (chore(deps): update dependencies and lockfile)
 - Android/Chat: improve streaming delivery handling and markdown rendering quality in the native Android chat UI, including better GitHub-flavored markdown behavior. (#26079) Thanks @obviyus.
 
 ### Fixes
