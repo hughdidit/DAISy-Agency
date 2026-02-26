@@ -278,6 +278,8 @@ export async function startTelegramWebhook(opts: {
     port,
     host,
   });
+  const boundAddress = server.address();
+  const boundPort = boundAddress && typeof boundAddress !== "string" ? boundAddress.port : port;
 
   const publicUrl = resolveWebhookPublicUrl({
     configuredPublicUrl: opts.publicUrl,
@@ -307,10 +309,14 @@ export async function startTelegramWebhook(opts: {
   }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> ee594e2fd (fix(telegram): webhook hang - tests and fix (openclaw#26933) thanks @huntharo)
   runtime.log?.(`webhook listening on ${publicUrl}`);
 =======
   runtime.log?.(`webhook local listener on http://${host}:${port}${path}`);
+=======
+  runtime.log?.(`webhook local listener on http://${host}:${boundPort}${path}`);
+>>>>>>> 296210636 (fix(telegram): Log bound port if ephemeral (0) is configured)
   runtime.log?.(`webhook advertised to telegram on ${publicUrl}`);
 >>>>>>> 840b768d9 (Telegram: improve webhook config guidance and startup fallback)
 
