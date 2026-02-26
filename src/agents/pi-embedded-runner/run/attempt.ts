@@ -1125,16 +1125,21 @@ export async function runEmbeddedAttempt(
         }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
         messagesSnapshot = activeSession.messages.slice();
         sessionIdUsed = activeSession.sessionId;
 =======
+=======
+        const compactionOccurredThisAttempt = getCompactionCount() > 0;
+
+>>>>>>> 0ec7711bc (fix(agents): harden compaction and reset safety)
         // Append cache-TTL timestamp AFTER prompt + compaction retry completes.
         // Previously this was before the prompt, which caused a custom entry to be
         // inserted between compaction and the next prompt — breaking the
         // prepareCompaction() guard that checks the last entry type, leading to
         // double-compaction. See: https://github.com/openclaw/openclaw/issues/9282
         // Skip when timed out during compaction — session state may be inconsistent.
-        if (!timedOutDuringCompaction) {
+        if (!timedOutDuringCompaction && !compactionOccurredThisAttempt) {
           const shouldTrackCacheTtl =
             params.config?.agents?.defaults?.contextPruning?.mode === "cache-ttl" &&
             isCacheTtlEligibleProvider(params.provider, params.modelId);
@@ -1165,7 +1170,27 @@ export async function runEmbeddedAttempt(
         }
         messagesSnapshot = snapshotSelection.messagesSnapshot;
         sessionIdUsed = snapshotSelection.sessionIdUsed;
+<<<<<<< HEAD
 >>>>>>> e6f67d5f3 (fix(agent): prevent session lock deadlock on timeout during compaction (#9855))
+=======
+
+        if (promptError && promptErrorSource === "prompt" && !compactionOccurredThisAttempt) {
+          try {
+            sessionManager.appendCustomEntry("openclaw:prompt-error", {
+              timestamp: Date.now(),
+              runId: params.runId,
+              sessionId: params.sessionId,
+              provider: params.provider,
+              model: params.modelId,
+              api: params.model.api,
+              error: describeUnknownError(promptError),
+            });
+          } catch (entryErr) {
+            log.warn(`failed to persist prompt error entry: ${String(entryErr)}`);
+          }
+        }
+
+>>>>>>> 0ec7711bc (fix(agents): harden compaction and reset safety)
         cacheTrace?.recordStage("session:after", {
           messages: messagesSnapshot,
           note: timedOutDuringCompaction
