@@ -1,6 +1,7 @@
 import type { OpenClawConfig } from "openclaw/plugin-sdk";
 import {
   DM_GROUP_ACCESS_REASON,
+  createScopedPairingAccess,
   createReplyPrefixOptions,
   logAckFailure,
   logInboundDrop,
@@ -279,10 +280,18 @@ export async function processMessage(
   const { account, config, runtime, core, statusSink } = target;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   const privateApiEnabled = getCachedBlueBubblesPrivateApiStatus(account.accountId) === true;
 >>>>>>> 888b6bc94 (fix(bluebubbles): treat null privateApiStatus as disabled, not enabled)
 =======
+=======
+  const pairing = createScopedPairingAccess({
+    core,
+    channel: "bluebubbles",
+    accountId: account.accountId,
+  });
+>>>>>>> a0c5e28f3 (refactor(extensions): use scoped pairing helper)
   const privateApiEnabled = isBlueBubblesPrivateApiEnabled(account.accountId);
 >>>>>>> 296b3f49e (refactor(bluebubbles): centralize private-api status handling)
 
@@ -386,8 +395,9 @@ export async function processMessage(
 =======
   const storeAllowFrom = await readStoreAllowFromForDmPolicy({
     provider: "bluebubbles",
+    accountId: account.accountId,
     dmPolicy,
-    readStore: (provider) => core.channel.pairing.readAllowFromStore(provider),
+    readStore: pairing.readStoreForDmPolicy,
   });
 >>>>>>> cd80c7e7f (refactor: unify dm policy store reads and reason codes)
   const accessDecision = resolveDmGroupAccessWithLists({
@@ -470,8 +480,7 @@ export async function processMessage(
     }
 
     if (accessDecision.decision === "pairing") {
-      const { code, created } = await core.channel.pairing.upsertPairingRequest({
-        channel: "bluebubbles",
+      const { code, created } = await pairing.upsertPairingRequest({
         id: message.senderId,
         meta: { name: message.senderName },
       });
@@ -1130,6 +1139,11 @@ export async function processReaction(
   target: WebhookTarget,
 ): Promise<void> {
   const { account, config, runtime, core } = target;
+  const pairing = createScopedPairingAccess({
+    core,
+    channel: "bluebubbles",
+    accountId: account.accountId,
+  });
   if (reaction.fromMe) {
     return;
   }
@@ -1151,8 +1165,9 @@ export async function processReaction(
 =======
   const storeAllowFrom = await readStoreAllowFromForDmPolicy({
     provider: "bluebubbles",
+    accountId: account.accountId,
     dmPolicy,
-    readStore: (provider) => core.channel.pairing.readAllowFromStore(provider),
+    readStore: pairing.readStoreForDmPolicy,
   });
 >>>>>>> cd80c7e7f (refactor: unify dm policy store reads and reason codes)
   const accessDecision = resolveDmGroupAccessWithLists({

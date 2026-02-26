@@ -1,5 +1,7 @@
 import type { LocationMessageEventContent, MatrixClient } from "@vector-im/matrix-bot-sdk";
 import {
+  DEFAULT_ACCOUNT_ID,
+  createScopedPairingAccess,
   createReplyPrefixOptions,
   createTypingCallbacks,
   formatAllowlistMatchMeta,
@@ -98,6 +100,12 @@ export function createMatrixRoomMessageHandler(params: MatrixMonitorHandlerParam
     getRoomInfo,
     getMemberDisplayName,
   } = params;
+  const resolvedAccountId = accountId?.trim() || DEFAULT_ACCOUNT_ID;
+  const pairing = createScopedPairingAccess({
+    core,
+    channel: "matrix",
+    accountId: resolvedAccountId,
+  });
 
   return async (roomId: string, event: MatrixRawEvent) => {
     try {
@@ -241,8 +249,9 @@ export function createMatrixRoomMessageHandler(params: MatrixMonitorHandlerParam
       const storeAllowFrom = isDirectMessage
         ? await readStoreAllowFromForDmPolicy({
             provider: "matrix",
+            accountId: resolvedAccountId,
             dmPolicy,
-            readStore: (provider) => core.channel.pairing.readAllowFromStore(provider),
+            readStore: pairing.readStoreForDmPolicy,
           })
         : [];
       const groupAllowFrom = cfg.channels?.matrix?.groupAllowFrom ?? [];
@@ -275,6 +284,7 @@ export function createMatrixRoomMessageHandler(params: MatrixMonitorHandlerParam
             userId: senderId,
           });
           const allowMatchMeta = formatAllowlistMatchMeta(allowMatch);
+<<<<<<< HEAD
           if (!allowMatch.allowed) {
             if (dmPolicy === "pairing") {
               const { code, created } = await core.channel.pairing.upsertPairingRequest({
@@ -285,6 +295,29 @@ export function createMatrixRoomMessageHandler(params: MatrixMonitorHandlerParam
               if (created) {
                 logVerboseMessage(
                   `matrix pairing request sender=${senderId} name=${senderName ?? "unknown"} (${allowMatchMeta})`,
+=======
+          if (access.decision === "pairing") {
+            const { code, created } = await pairing.upsertPairingRequest({
+              id: senderId,
+              meta: { name: senderName },
+            });
+            if (created) {
+              logVerboseMessage(
+                `matrix pairing request sender=${senderId} name=${senderName ?? "unknown"} (${allowMatchMeta})`,
+              );
+              try {
+                await sendMessageMatrix(
+                  `room:${roomId}`,
+                  [
+                    "OpenClaw: access not configured.",
+                    "",
+                    `Pairing code: ${code}`,
+                    "",
+                    "Ask the bot owner to approve with:",
+                    "openclaw pairing approve matrix <code>",
+                  ].join("\n"),
+                  { client },
+>>>>>>> a0c5e28f3 (refactor(extensions): use scoped pairing helper)
                 );
                 try {
                   await sendMessageMatrix(

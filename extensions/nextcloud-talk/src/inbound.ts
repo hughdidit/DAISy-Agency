@@ -1,5 +1,6 @@
 import {
   GROUP_POLICY_BLOCKED_LABEL,
+  createScopedPairingAccess,
   createNormalizedOutboundDeliverer,
   createReplyPrefixOptions,
   formatTextWithAttachmentLinks,
@@ -67,6 +68,11 @@ export async function handleNextcloudTalkInbound(params: {
 }): Promise<void> {
   const { message, account, config, runtime, statusSink } = params;
   const core = getNextcloudTalkRuntime();
+  const pairing = createScopedPairingAccess({
+    core,
+    channel: CHANNEL_ID,
+    accountId: account.accountId,
+  });
 
   const rawBody = message.text?.trim() ?? "";
   if (!rawBody) {
@@ -128,8 +134,9 @@ export async function handleNextcloudTalkInbound(params: {
 =======
   const storeAllowFrom = await readStoreAllowFromForDmPolicy({
     provider: CHANNEL_ID,
+    accountId: account.accountId,
     dmPolicy,
-    readStore: (provider) => core.channel.pairing.readAllowFromStore(provider),
+    readStore: pairing.readStoreForDmPolicy,
   });
 >>>>>>> cd80c7e7f (refactor: unify dm policy store reads and reason codes)
   const storeAllowList = normalizeNextcloudTalkAllowlist(storeAllowFrom);
@@ -192,6 +199,7 @@ export async function handleNextcloudTalkInbound(params: {
       return;
     }
   } else {
+<<<<<<< HEAD
     if (dmPolicy === "disabled") {
       runtime.log?.(`nextcloud-talk: drop DM sender=${senderId} (dmPolicy=disabled)`);
       return;
@@ -225,6 +233,28 @@ export async function handleNextcloudTalkInbound(params: {
                 `nextcloud-talk: pairing reply failed for ${senderId}: ${String(err)}`,
               );
             }
+=======
+    if (access.decision !== "allow") {
+      if (access.decision === "pairing") {
+        const { code, created } = await pairing.upsertPairingRequest({
+          id: senderId,
+          meta: { name: senderName || undefined },
+        });
+        if (created) {
+          try {
+            await sendMessageNextcloudTalk(
+              roomToken,
+              core.channel.pairing.buildPairingReply({
+                channel: CHANNEL_ID,
+                idLine: `Your Nextcloud user id: ${senderId}`,
+                code,
+              }),
+              { accountId: account.accountId },
+            );
+            statusSink?.({ lastOutboundAt: Date.now() });
+          } catch (err) {
+            runtime.error?.(`nextcloud-talk: pairing reply failed for ${senderId}: ${String(err)}`);
+>>>>>>> a0c5e28f3 (refactor(extensions): use scoped pairing helper)
           }
         }
         runtime.log?.(`nextcloud-talk: drop DM sender ${senderId} (dmPolicy=${dmPolicy})`);

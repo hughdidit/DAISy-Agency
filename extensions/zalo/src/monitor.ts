@@ -8,6 +8,7 @@ import { createReplyPrefixOptions } from "openclaw/plugin-sdk";
 import type { MarkdownTableMode, OpenClawConfig, OutboundReplyPayload } from "openclaw/plugin-sdk";
 >>>>>>> 0183610db (refactor: de-duplicate channel runtime and payload helpers)
 import {
+  createScopedPairingAccess,
   createReplyPrefixOptions,
 <<<<<<< HEAD
   readJsonBodyWithLimit,
@@ -521,6 +522,11 @@ async function processMessageWithPipeline(params: {
     statusSink,
     fetcher,
   } = params;
+  const pairing = createScopedPairingAccess({
+    core,
+    channel: "zalo",
+    accountId: account.accountId,
+  });
   const { from, chat, message_id, date } = message;
 
   const isGroup = chat.chat_type === "GROUP";
@@ -539,7 +545,7 @@ async function processMessageWithPipeline(params: {
     configuredAllowFrom: configAllowFrom,
     senderId,
     isSenderAllowed: isZaloSenderAllowed,
-    readAllowFromStore: () => core.channel.pairing.readAllowFromStore("zalo"),
+    readAllowFromStore: pairing.readAllowFromStore,
     shouldComputeCommandAuthorized: (body, cfg) =>
       core.channel.commands.shouldComputeCommandAuthorized(body, cfg),
     resolveCommandAuthorizedFromAuthorizers: (params) =>
@@ -557,8 +563,7 @@ async function processMessageWithPipeline(params: {
 
       if (!allowed) {
         if (dmPolicy === "pairing") {
-          const { code, created } = await core.channel.pairing.upsertPairingRequest({
-            channel: "zalo",
+          const { code, created } = await pairing.upsertPairingRequest({
             id: senderId,
             meta: { name: senderName ?? undefined },
           });

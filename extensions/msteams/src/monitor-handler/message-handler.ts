@@ -1,7 +1,9 @@
 import {
+  DEFAULT_ACCOUNT_ID,
   buildPendingHistoryContextFromMap,
   clearHistoryEntriesIfEnabled,
   DEFAULT_GROUP_HISTORY_LIMIT,
+  createScopedPairingAccess,
   logInboundDrop,
   recordPendingHistoryEntryIfEnabled,
   resolveControlCommandGate,
@@ -58,6 +60,11 @@ export function createMSTeamsMessageHandler(deps: MSTeamsMessageHandlerDeps) {
     log,
   } = deps;
   const core = getMSTeamsRuntime();
+  const pairing = createScopedPairingAccess({
+    core,
+    channel: "msteams",
+    accountId: DEFAULT_ACCOUNT_ID,
+  });
   const logVerboseMessage = (message: string) => {
     if (core.logging.shouldLogVerbose()) {
       log.debug?.(message);
@@ -138,8 +145,9 @@ export function createMSTeamsMessageHandler(deps: MSTeamsMessageHandlerDeps) {
     const dmPolicy = msteamsCfg?.dmPolicy ?? "pairing";
     const storedAllowFrom = await readStoreAllowFromForDmPolicy({
       provider: "msteams",
+      accountId: pairing.accountId,
       dmPolicy,
-      readStore: (provider) => core.channel.pairing.readAllowFromStore(provider),
+      readStore: pairing.readStoreForDmPolicy,
     });
 >>>>>>> cd80c7e7f (refactor: unify dm policy store reads and reason codes)
     const useAccessGroups = cfg.commands?.useAccessGroups !== false;
@@ -212,6 +220,63 @@ export function createMSTeamsMessageHandler(deps: MSTeamsMessageHandlerDeps) {
       conversationId,
       channelName,
     });
+<<<<<<< HEAD
+=======
+    const senderGroupPolicy =
+      groupPolicy === "disabled"
+        ? "disabled"
+        : effectiveGroupAllowFrom.length > 0
+          ? "allowlist"
+          : "open";
+    const access = resolveDmGroupAccessWithLists({
+      isGroup: !isDirectMessage,
+      dmPolicy,
+      groupPolicy: senderGroupPolicy,
+      allowFrom: configuredDmAllowFrom,
+      groupAllowFrom,
+      storeAllowFrom: storedAllowFrom,
+      groupAllowFromFallbackToAllowFrom: false,
+      isSenderAllowed: (allowFrom) =>
+        resolveMSTeamsAllowlistMatch({
+          allowFrom,
+          senderId,
+          senderName,
+          allowNameMatching: isDangerousNameMatchingEnabled(msteamsCfg),
+        }).allowed,
+    });
+    const effectiveDmAllowFrom = access.effectiveAllowFrom;
+
+    if (isDirectMessage && msteamsCfg && access.decision !== "allow") {
+      if (access.reason === "dmPolicy=disabled") {
+        log.debug?.("dropping dm (dms disabled)");
+        return;
+      }
+      const allowMatch = resolveMSTeamsAllowlistMatch({
+        allowFrom: effectiveDmAllowFrom,
+        senderId,
+        senderName,
+        allowNameMatching: isDangerousNameMatchingEnabled(msteamsCfg),
+      });
+      if (access.decision === "pairing") {
+        const request = await pairing.upsertPairingRequest({
+          id: senderId,
+          meta: { name: senderName },
+        });
+        if (request) {
+          log.info("msteams pairing request created", {
+            sender: senderId,
+            label: senderName,
+          });
+        }
+      }
+      log.debug?.("dropping dm (not allowlisted)", {
+        sender: senderId,
+        label: senderName,
+        allowlistMatch: formatAllowlistMatchMeta(allowMatch),
+      });
+      return;
+    }
+>>>>>>> a0c5e28f3 (refactor(extensions): use scoped pairing helper)
 
     if (!isDirectMessage && msteamsCfg) {
       if (groupPolicy === "disabled") {
