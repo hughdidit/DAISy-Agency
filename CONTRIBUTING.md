@@ -78,7 +78,13 @@ Welcome to the lobster tank! 🦞
 - **Josh Avant** - Core, CLI, Gateway, Security, Agents
   - GitHub: [@joshavant](https://github.com/joshavant) · X: [@joshavant](https://x.com/joshavant)
 
+<<<<<<< HEAD
 >>>>>>> edf7ad9b7 (add me to Maintainers list)
+=======
+- **Jonathan Taylor** - ACP subsystem, Gateway features/bugs, Gog/Mog/Sog CLI's, SEDMAT
+  - Github [@visionik](https://github.com/visionik) · X: [@visionik](https://x.com/visionik)
+    
+>>>>>>> a81cf35a6 (Add contributor Jonathan Taylor to CONTRIBUTING.md)
 ## How to Contribute
 1. **Bugs & small fixes** → Open a PR!
 <<<<<<< HEAD
