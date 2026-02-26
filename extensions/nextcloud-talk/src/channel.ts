@@ -10,7 +10,11 @@ import {
   type OpenClawConfig,
   type ChannelSetupInput,
 } from "openclaw/plugin-sdk";
+<<<<<<< HEAD
 import type { CoreConfig } from "./types.js";
+=======
+import { waitForAbortSignal } from "../../../src/infra/abort-signal.js";
+>>>>>>> 31c0b04c4 (fix(nextcloud-talk): keep startAccount pending until abort (#27897))
 import {
   listNextcloudTalkAccountIds,
   resolveDefaultNextcloudTalkAccountId,
@@ -325,7 +329,9 @@ export const nextcloudTalkPlugin: ChannelPlugin<ResolvedNextcloudTalkAccount> = 
         statusSink: (patch) => ctx.setStatus({ accountId: ctx.accountId, ...patch }),
       });
 
-      return { stop };
+      // Keep webhook channels pending for the account lifecycle.
+      await waitForAbortSignal(ctx.abortSignal);
+      stop();
     },
     logoutAccount: async ({ accountId, cfg }) => {
       const nextCfg = { ...cfg } as OpenClawConfig;
