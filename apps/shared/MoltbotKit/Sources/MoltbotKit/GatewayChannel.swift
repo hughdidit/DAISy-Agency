@@ -400,6 +400,7 @@ public actor GatewayChannelActor {
         }
         let signedAtMs = Int(Date().timeIntervalSince1970 * 1000)
         let connectNonce = try await self.waitForConnectChallenge()
+<<<<<<< HEAD:apps/shared/MoltbotKit/Sources/MoltbotKit/GatewayChannel.swift
         let scopesValue = scopes.joined(separator: ",")
 <<<<<<< HEAD:apps/shared/MoltbotKit/Sources/MoltbotKit/GatewayChannel.swift
         var payloadParts = [
@@ -431,7 +432,20 @@ public actor GatewayChannelActor {
             if let connectNonce {
                 device["nonce"] = ProtoAnyCodable(connectNonce)
 =======
+=======
+>>>>>>> 490cb5174 (fix(apps): sign gateway device auth with v3 payload):apps/shared/OpenClawKit/Sources/OpenClawKit/GatewayChannel.swift
         if includeDeviceIdentity, let identity {
+            let payload = buildDeviceAuthPayloadV3(
+                deviceId: identity.deviceId,
+                clientId: clientId,
+                clientMode: clientMode,
+                role: role,
+                scopes: scopes,
+                signedAtMs: signedAtMs,
+                token: authToken,
+                nonce: connectNonce,
+                platform: platform,
+                deviceFamily: InstanceIdentity.deviceFamily)
             if let signature = DeviceIdentityStore.signPayload(payload, identity: identity),
                let publicKey = DeviceIdentityStore.publicKeyBase64Url(identity) {
                 let device: [String: ProtoAnyCodable] = [
@@ -463,6 +477,44 @@ public actor GatewayChannelActor {
             }
             throw error
         }
+    }
+
+    private func buildDeviceAuthPayloadV3(
+        deviceId: String,
+        clientId: String,
+        clientMode: String,
+        role: String,
+        scopes: [String],
+        signedAtMs: Int,
+        token: String?,
+        nonce: String,
+        platform: String?,
+        deviceFamily: String?) -> String
+    {
+        let scopeString = scopes.joined(separator: ",")
+        let authToken = token ?? ""
+        let normalizedPlatform = normalizeMetadataField(platform)
+        let normalizedDeviceFamily = normalizeMetadataField(deviceFamily)
+        return [
+            "v3",
+            deviceId,
+            clientId,
+            clientMode,
+            role,
+            scopeString,
+            String(signedAtMs),
+            authToken,
+            nonce,
+            normalizedPlatform,
+            normalizedDeviceFamily,
+        ].joined(separator: "|")
+    }
+
+    private func normalizeMetadataField(_ value: String?) -> String {
+        guard let value else { return "" }
+        return value
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .lowercased(with: Locale(identifier: "en_US_POSIX"))
     }
 
     private func handleConnectResponse(
