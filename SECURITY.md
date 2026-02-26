@@ -42,6 +42,7 @@ For fastest triage, include all of the following:
 - Demonstrated impact tied to OpenClaw's documented trust boundaries.
 - For exposed-secret reports: proof the credential is OpenClaw-owned (or grants access to OpenClaw-operated infrastructure/services).
 - Scope check explaining why the report is **not** covered by the Out of Scope section below.
+- For command-risk/parity reports (for example obfuscation detection differences), a concrete boundary-bypass path is required (auth/approval/allowlist/sandbox). Parity-only findings are treated as hardening, not vulnerabilities.
 
 Reports that miss these requirements may be closed as `invalid` or `no-action`.
 
@@ -54,7 +55,7 @@ These are frequently reported but are typically closed with no code change:
 - Authorized user-triggered local actions presented as privilege escalation. Example: an allowlisted/owner sender running `/export-session /absolute/path.html` to write on the host. In this trust model, authorized user actions are trusted host actions unless you demonstrate an auth/sandbox/boundary bypass.
 - Reports that only show a malicious plugin executing privileged actions after a trusted operator installs/enables it.
 - Reports that assume per-user multi-tenant authorization on a shared gateway host/config.
-- Reports that only show differences in heuristic detection/parity (for example obfuscation-pattern detection on one exec path but not another) without demonstrating bypass of auth, approvals, allowlist enforcement, sandboxing, or other documented trust boundaries.
+- Reports that only show differences in heuristic detection/parity (for example obfuscation-pattern detection on one exec path but not another, such as `node.invoke -> system.run` parity gaps) without demonstrating bypass of auth, approvals, allowlist enforcement, sandboxing, or other documented trust boundaries.
 - ReDoS/DoS claims that require trusted operator configuration input (for example catastrophic regex in `sessionFilter` or `logging.redactPatterns`) without a trust-boundary bypass.
 - Missing HSTS findings on default local/loopback deployments.
 - Slack webhook signature findings when HTTP mode already uses signing-secret verification.
@@ -147,11 +148,15 @@ Plugins/extensions are part of OpenClaw's trusted computing base for a gateway.
 - Reports that depend on trusted operator-supplied configuration values to trigger availability impact (for example custom regex patterns). These may still be fixed as defense-in-depth hardening, but are not security-boundary bypasses.
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 7b4d2cb5c (docs(security): clarify trusted-config dos scope)
 =======
 =======
 - Reports whose only claim is heuristic/parity drift in command-risk detection (for example obfuscation-pattern checks) across exec surfaces, without a demonstrated trust-boundary bypass. These may be accepted as hardening improvements, but not as vulnerabilities.
 >>>>>>> 9597cf189 (docs(security): scope obfuscation parity reports as hardening)
+=======
+- Reports whose only claim is heuristic/parity drift in command-risk detection (for example obfuscation-pattern checks) across exec surfaces, without a demonstrated trust-boundary bypass. These are hardening-only findings and are not vulnerabilities; triage may close them as `invalid`/`no-action` or track them separately as low/informational hardening.
+>>>>>>> 58171c891 (docs(security): clarify parity-only command-risk reports)
 - Exposed secrets that are third-party/user-controlled credentials (not OpenClaw-owned and not granting access to OpenClaw-operated infrastructure/services) without demonstrated OpenClaw impact
 <<<<<<< HEAD
 >>>>>>> d68380bb7 (docs(security): clarify exposed-secret report scope)
@@ -196,6 +201,7 @@ OpenClaw separates routing from execution, but both remain inside the same opera
 - **Gateway** is the control plane. If a caller passes Gateway auth, they are treated as a trusted operator for that Gateway.
 - **Node** is an execution extension of the Gateway. Pairing a node grants operator-level remote capability on that node.
 - **Exec approvals** (allowlist/ask UI) are operator guardrails to reduce accidental command execution, not a multi-tenant authorization boundary.
+- Differences in command-risk warning heuristics between exec surfaces (`gateway`, `node`, `sandbox`) do not, by themselves, constitute a security-boundary bypass.
 - For untrusted-user isolation, split by trust boundary: separate gateways and separate OS users/hosts per boundary.
 
 ## Workspace Memory Trust Boundary
