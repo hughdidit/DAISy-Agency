@@ -832,9 +832,12 @@ export async function handleFeishuMessage(params: {
 
     const envelopeFrom = isGroup ? `${ctx.chatId}:${ctx.senderOpenId}` : ctx.senderOpenId;
 
-    // If there's a permission error, dispatch a separate notification first
+    // Append permission error notice to the main message body instead of dispatching
+    // a separate agent turn. A separate dispatch caused the bot to reply twice — once
+    // for the permission notification and once for the actual user message (#27372).
     if (permissionErrorForAgent) {
       const grantUrl = permissionErrorForAgent.grantUrl ?? "";
+<<<<<<< HEAD
       const permissionNotifyBody = `[System: The bot encountered a Feishu API permission error. Please inform the user about this issue and provide the permission grant URL for the admin to authorize. Permission grant URL: ${grantUrl}]`;
 
       const permissionBody = core.channel.reply.formatAgentEnvelope({
@@ -891,6 +894,10 @@ export async function handleFeishuMessage(params: {
       });
 
       markPermIdle();
+=======
+      messageBody += `\n\n[System: The bot encountered a Feishu API permission error. Please inform the user about this issue and provide the permission grant URL for the admin to authorize. Permission grant URL: ${grantUrl}]`;
+      log(`feishu[${account.accountId}]: appending permission error notice to message body`);
+>>>>>>> 736ec9690 (fix(feishu): merge permission error notice into main dispatch instead of separate agent turn)
     }
 
     const body = core.channel.reply.formatAgentEnvelope({
