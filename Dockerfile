@@ -25,7 +25,14 @@ COPY ui/package.json ./ui/package.json
 COPY patches ./patches
 COPY scripts ./scripts
 
+<<<<<<< HEAD
 RUN pnpm install --frozen-lockfile
+=======
+USER node
+# Reduce OOM risk on low-memory hosts during dependency installation.
+# Docker builds on small VMs may otherwise fail with "Killed" (exit 137).
+RUN NODE_OPTIONS=--max-old-space-size=2048 pnpm install --frozen-lockfile
+>>>>>>> 35976da7a (fix: harden Docker/GCP onboarding flow (#26253) (thanks @pandego))
 
 # Optionally install Chromium and Xvfb for browser automation.
 # Build with: docker build --build-arg OPENCLAW_INSTALL_BROWSER=1 ...

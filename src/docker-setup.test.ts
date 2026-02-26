@@ -47,6 +47,100 @@ describe("docker-setup.sh", () => {
     const binDir = join(rootDir, "bin");
     const logPath = join(rootDir, "docker-stub.log");
 
+<<<<<<< HEAD
+=======
+    const result = runDockerSetup(activeSandbox, {
+      OPENCLAW_DOCKER_APT_PACKAGES: "ffmpeg build-essential",
+      OPENCLAW_EXTRA_MOUNTS: undefined,
+      OPENCLAW_HOME_VOLUME: "openclaw-home",
+    });
+    expect(result.status).toBe(0);
+    const envFile = await readFile(join(activeSandbox.rootDir, ".env"), "utf8");
+    expect(envFile).toContain("OPENCLAW_DOCKER_APT_PACKAGES=ffmpeg build-essential");
+    expect(envFile).toContain("OPENCLAW_EXTRA_MOUNTS=");
+    expect(envFile).toContain("OPENCLAW_HOME_VOLUME=openclaw-home");
+    const extraCompose = await readFile(
+      join(activeSandbox.rootDir, "docker-compose.extra.yml"),
+      "utf8",
+    );
+    expect(extraCompose).toContain("openclaw-home:/home/node");
+    expect(extraCompose).toContain("volumes:");
+    expect(extraCompose).toContain("openclaw-home:");
+    const log = await readFile(activeSandbox.logPath, "utf8");
+    expect(log).toContain("--build-arg OPENCLAW_DOCKER_APT_PACKAGES=ffmpeg build-essential");
+  });
+
+  it("precreates config identity dir for CLI device auth writes", async () => {
+    const activeSandbox = requireSandbox(sandbox);
+    const configDir = join(activeSandbox.rootDir, "config-identity");
+    const workspaceDir = join(activeSandbox.rootDir, "workspace-identity");
+
+    const result = runDockerSetup(activeSandbox, {
+      OPENCLAW_CONFIG_DIR: configDir,
+      OPENCLAW_WORKSPACE_DIR: workspaceDir,
+    });
+
+    expect(result.status).toBe(0);
+    const identityDirStat = await stat(join(configDir, "identity"));
+    expect(identityDirStat.isDirectory()).toBe(true);
+  });
+
+  it("reuses existing config token when OPENCLAW_GATEWAY_TOKEN is unset", async () => {
+    const activeSandbox = requireSandbox(sandbox);
+    const configDir = join(activeSandbox.rootDir, "config-token-reuse");
+    const workspaceDir = join(activeSandbox.rootDir, "workspace-token-reuse");
+    await mkdir(configDir, { recursive: true });
+    await writeFile(
+      join(configDir, "openclaw.json"),
+      JSON.stringify({ gateway: { auth: { mode: "token", token: "config-token-123" } } }),
+    );
+
+    const result = runDockerSetup(activeSandbox, {
+      OPENCLAW_GATEWAY_TOKEN: undefined,
+      OPENCLAW_CONFIG_DIR: configDir,
+      OPENCLAW_WORKSPACE_DIR: workspaceDir,
+    });
+
+    expect(result.status).toBe(0);
+    const envFile = await readFile(join(activeSandbox.rootDir, ".env"), "utf8");
+    expect(envFile).toContain("OPENCLAW_GATEWAY_TOKEN=config-token-123");
+  });
+
+  it("rejects injected multiline OPENCLAW_EXTRA_MOUNTS values", async () => {
+    const activeSandbox = requireSandbox(sandbox);
+
+    const result = runDockerSetup(activeSandbox, {
+      OPENCLAW_EXTRA_MOUNTS: "/tmp:/tmp\n  evil-service:\n    image: alpine",
+    });
+
+    expect(result.status).not.toBe(0);
+    expect(result.stderr).toContain("OPENCLAW_EXTRA_MOUNTS cannot contain control characters");
+  });
+
+  it("rejects invalid OPENCLAW_EXTRA_MOUNTS mount format", async () => {
+    const activeSandbox = requireSandbox(sandbox);
+
+    const result = runDockerSetup(activeSandbox, {
+      OPENCLAW_EXTRA_MOUNTS: "bad mount spec",
+    });
+
+    expect(result.status).not.toBe(0);
+    expect(result.stderr).toContain("Invalid mount format");
+  });
+
+  it("rejects invalid OPENCLAW_HOME_VOLUME names", async () => {
+    const activeSandbox = requireSandbox(sandbox);
+
+    const result = runDockerSetup(activeSandbox, {
+      OPENCLAW_HOME_VOLUME: "bad name",
+    });
+
+    expect(result.status).not.toBe(0);
+    expect(result.stderr).toContain("OPENCLAW_HOME_VOLUME must match");
+  });
+
+  it("avoids associative arrays so the script remains Bash 3.2-compatible", async () => {
+>>>>>>> 35976da7a (fix: harden Docker/GCP onboarding flow (#26253) (thanks @pandego))
     const script = await readFile(join(repoRoot, "docker-setup.sh"), "utf8");
     await writeFile(scriptPath, script, { mode: 0o755 });
     await writeFile(dockerfilePath, "FROM scratch\n");
