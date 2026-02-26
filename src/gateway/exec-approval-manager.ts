@@ -1,7 +1,15 @@
 import { randomUUID } from "node:crypto";
+<<<<<<< HEAD
+=======
+import type {
+  ExecApprovalDecision,
+  ExecApprovalRequestPayload as InfraExecApprovalRequestPayload,
+} from "../infra/exec-approvals.js";
+>>>>>>> 92eb3dfc9 (refactor(security): unify exec approval request matching)
 
 import type { ExecApprovalDecision } from "../infra/exec-approvals.js";
 
+<<<<<<< HEAD
 export type ExecApprovalRequestPayload = {
   command: string;
   commandArgv?: string[] | null;
@@ -13,6 +21,9 @@ export type ExecApprovalRequestPayload = {
   resolvedPath?: string | null;
   sessionKey?: string | null;
 };
+=======
+export type ExecApprovalRequestPayload = InfraExecApprovalRequestPayload;
+>>>>>>> 92eb3dfc9 (refactor(security): unify exec approval request matching)
 
 export type ExecApprovalRecord = {
   id: string;

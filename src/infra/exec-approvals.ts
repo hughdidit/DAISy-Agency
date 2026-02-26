@@ -11,21 +11,26 @@ export type ExecSecurity = "deny" | "allowlist" | "full";
 export type ExecAsk = "off" | "on-miss" | "always";
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+export type ExecApprovalRequestPayload = {
+  command: string;
+  commandArgv?: string[];
+  cwd?: string | null;
+  nodeId?: string | null;
+  host?: string | null;
+  security?: string | null;
+  ask?: string | null;
+  agentId?: string | null;
+  resolvedPath?: string | null;
+  sessionKey?: string | null;
+};
+
+>>>>>>> 92eb3dfc9 (refactor(security): unify exec approval request matching)
 export type ExecApprovalRequest = {
   id: string;
-  request: {
-    command: string;
-    commandArgv?: string[] | null;
-    cwd?: string | null;
-    nodeId?: string | null;
-    host?: string | null;
-    security?: string | null;
-    ask?: string | null;
-    agentId?: string | null;
-    resolvedPath?: string | null;
-    sessionKey?: string | null;
-  };
+  request: ExecApprovalRequestPayload;
   createdAtMs: number;
   expiresAtMs: number;
 };

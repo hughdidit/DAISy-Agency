@@ -33,7 +33,7 @@ export function createExecApprovalHandlers(
       const p = params as {
         id?: string;
         command: string;
-        commandArgv?: string[] | null;
+        commandArgv?: string[];
         cwd?: string;
         host?: string;
         security?: string;
@@ -51,7 +51,7 @@ export function createExecApprovalHandlers(
       const nodeId = typeof p.nodeId === "string" ? p.nodeId.trim() : "";
       const commandArgv = Array.isArray(p.commandArgv)
         ? p.commandArgv.map((entry) => String(entry))
-        : null;
+        : undefined;
       if (host === "node" && !nodeId) {
         respond(
           false,
