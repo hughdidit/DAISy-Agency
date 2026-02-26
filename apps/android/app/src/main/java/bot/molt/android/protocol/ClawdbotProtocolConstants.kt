@@ -7,6 +7,7 @@ enum class MoltbotCapability(val rawValue: String) {
   Sms("sms"),
   VoiceWake("voiceWake"),
   Location("location"),
+  Device("device"),
 }
 
 enum class MoltbotCanvasCommand(val rawValue: String) {
@@ -67,6 +68,16 @@ enum class MoltbotLocationCommand(val rawValue: String) {
 
   companion object {
     const val NamespacePrefix: String = "location."
+  }
+}
+
+enum class OpenClawDeviceCommand(val rawValue: String) {
+  Status("device.status"),
+  Info("device.info"),
+  ;
+
+  companion object {
+    const val NamespacePrefix: String = "device."
   }
 }
 
