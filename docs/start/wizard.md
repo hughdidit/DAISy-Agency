@@ -90,6 +90,7 @@ The wizard starts with **QuickStart** (defaults) vs **Advanced** (full control).
 7. **Skills** — Installs recommended skills and optional dependencies.
 >>>>>>> c0befdee0 (feat(onboard): add custom/local API configuration flow (#11106))
 
+<<<<<<< HEAD
 **Local mode (default)** walks you through:
 
 - Model/auth (OpenAI Code (Codex) subscription OAuth, Anthropic API key (recommended) or setup-token (paste), plus MiniMax/GLM/Moonshot/AI Gateway options)
@@ -99,6 +100,13 @@ The wizard starts with **QuickStart** (defaults) vs **Advanced** (full control).
 - Daemon install (LaunchAgent / systemd user unit)
 - Health check
 - Skills (recommended)
+=======
+<Note>
+Re-running the wizard does **not** wipe anything unless you explicitly choose **Reset** (or pass `--reset`).
+CLI `--reset` defaults to config, credentials, and sessions; use `--reset-scope full` to include workspace.
+If the config is invalid or contains legacy keys, the wizard asks you to run `openclaw doctor` first.
+</Note>
+>>>>>>> 0ec7711bc (fix(agents): harden compaction and reset safety)
 
 **Remote mode** only configures the local client to connect to a Gateway elsewhere.
 It does **not** install or change anything on the remote host.

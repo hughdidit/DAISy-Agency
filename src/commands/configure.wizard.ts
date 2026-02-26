@@ -2,6 +2,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { formatCliCommand } from "../cli/command-format.js";
 <<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
@@ -19,6 +20,10 @@ import type {
 import { formatCliCommand } from "../cli/command-format.js";
 >>>>>>> ed11e93cf (chore(format))
 =======
+=======
+import fsPromises from "node:fs/promises";
+import nodePath from "node:path";
+>>>>>>> 0ec7711bc (fix(agents): harden compaction and reset safety)
 import { formatCliCommand } from "../cli/command-format.js";
 import type { OpenClawConfig } from "../config/config.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
@@ -389,6 +394,32 @@ export async function runConfigureWizard(
         runtime,
       );
       workspaceDir = resolveUserPath(String(workspaceInput ?? "").trim() || DEFAULT_WORKSPACE);
+      if (!snapshot.exists) {
+        const indicators = ["MEMORY.md", "memory", ".git"].map((name) =>
+          nodePath.join(workspaceDir, name),
+        );
+        const hasExistingContent = (
+          await Promise.all(
+            indicators.map(async (candidate) => {
+              try {
+                await fsPromises.access(candidate);
+                return true;
+              } catch {
+                return false;
+              }
+            }),
+          )
+        ).some(Boolean);
+        if (hasExistingContent) {
+          note(
+            [
+              `Existing workspace detected at ${workspaceDir}`,
+              "Existing files are preserved. Missing templates may be created, never overwritten.",
+            ].join("\n"),
+            "Existing workspace",
+          );
+        }
+      }
       nextConfig = {
         ...nextConfig,
         agents: {

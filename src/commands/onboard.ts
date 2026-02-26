@@ -32,6 +32,7 @@ import { runNonInteractiveOnboarding } from "./onboard-non-interactive.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { formatCliCommand } from "../cli/command-format.js";
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -46,6 +47,11 @@ import type { OnboardOptions } from "./onboard-types.js";
 =======
 import type { OnboardOptions } from "./onboard-types.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
+=======
+import type { OnboardOptions, ResetScope } from "./onboard-types.js";
+
+const VALID_RESET_SCOPES = new Set<ResetScope>(["config", "config+creds+sessions", "full"]);
+>>>>>>> 0ec7711bc (fix(agents): harden compaction and reset safety)
 
 export async function onboardCommand(opts: OnboardOptions, runtime: RuntimeEnv = defaultRuntime) {
   assertSupportedRuntime(runtime);
@@ -82,6 +88,12 @@ export async function onboardCommand(opts: OnboardOptions, runtime: RuntimeEnv =
     return;
   }
 
+  if (normalizedOpts.resetScope && !VALID_RESET_SCOPES.has(normalizedOpts.resetScope)) {
+    runtime.error('Invalid --reset-scope. Use "config", "config+creds+sessions", or "full".');
+    runtime.exit(1);
+    return;
+  }
+
   if (normalizedOpts.nonInteractive && normalizedOpts.acceptRisk !== true) {
     runtime.error(
       [
@@ -99,7 +111,8 @@ export async function onboardCommand(opts: OnboardOptions, runtime: RuntimeEnv =
     const baseConfig = snapshot.valid ? snapshot.config : {};
     const workspaceDefault =
       normalizedOpts.workspace ?? baseConfig.agents?.defaults?.workspace ?? DEFAULT_WORKSPACE;
-    await handleReset("full", resolveUserPath(workspaceDefault), runtime);
+    const resetScope: ResetScope = normalizedOpts.resetScope ?? "config+creds+sessions";
+    await handleReset(resetScope, resolveUserPath(workspaceDefault), runtime);
   }
 
   if (process.platform === "win32") {

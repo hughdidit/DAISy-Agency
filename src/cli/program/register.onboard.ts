@@ -25,6 +25,7 @@ import type {
   GatewayAuthChoice,
   GatewayBind,
   NodeManagerChoice,
+  ResetScope,
   SecretInputMode,
   TailscaleMode,
 } from "../../commands/onboard-types.js";
@@ -96,8 +97,17 @@ export function registerOnboardCommand(program: Command) {
       () =>
         `\n${theme.muted("Docs:")} ${formatDocsLink("/cli/onboard", "docs.molt.bot/cli/onboard")}\n`,
     )
+<<<<<<< HEAD
     .option("--workspace <dir>", "Agent workspace directory (default: ~/clawd)")
     .option("--reset", "Reset config + credentials + sessions + workspace before running wizard")
+=======
+    .option("--workspace <dir>", "Agent workspace directory (default: ~/.openclaw/workspace)")
+    .option(
+      "--reset",
+      "Reset config + credentials + sessions before running wizard (workspace only with --reset-scope full)",
+    )
+    .option("--reset-scope <scope>", "Reset scope: config|config+creds+sessions|full")
+>>>>>>> 0ec7711bc (fix(agents): harden compaction and reset safety)
     .option("--non-interactive", "Run without prompts", false)
     .option(
       "--accept-risk",
@@ -294,6 +304,7 @@ export function registerOnboardCommand(program: Command) {
           tailscale: opts.tailscale as TailscaleMode | undefined,
           tailscaleResetOnExit: Boolean(opts.tailscaleResetOnExit),
           reset: Boolean(opts.reset),
+          resetScope: opts.resetScope as ResetScope | undefined,
           installDaemon,
           daemonRuntime: opts.daemonRuntime as GatewayDaemonRuntime | undefined,
           skipChannels: Boolean(opts.skipChannels),
