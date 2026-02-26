@@ -10,6 +10,7 @@ This doc describes the **current** first‑run onboarding flow. The goal is a
 smooth “day 0” experience: pick where the Gateway runs, connect auth, run the
 wizard, and let the agent bootstrap itself.
 
+<<<<<<< HEAD
 ## Page order (current)
 
 1) Welcome + security notice
@@ -22,6 +23,33 @@ wizard, and let the agent bootstrap itself.
 8) Ready
 
 ## 1) Local vs Remote
+=======
+<Steps>
+<Step title="Approve macOS warning">
+<Frame>
+<img src="/assets/macos-onboarding/01-macos-warning.jpeg" alt="" />
+</Frame>
+</Step>
+<Step title="Approve find local networks">
+<Frame>
+<img src="/assets/macos-onboarding/02-local-networks.jpeg" alt="" />
+</Frame>
+</Step>
+<Step title="Welcome and security notice">
+<Frame caption="Read the security notice displayed and decide accordingly">
+<img src="/assets/macos-onboarding/03-security-notice.png" alt="" />
+</Frame>
+
+Security trust model:
+
+- By default, OpenClaw is a personal agent: one trusted operator boundary.
+- Shared/multi-user setups require lock-down (split trust boundaries, keep tool access minimal, and follow [Security](/gateway/security)).
+</Step>
+<Step title="Local vs Remote">
+<Frame>
+<img src="/assets/macos-onboarding/04-choose-gateway.png" alt="" />
+</Frame>
+>>>>>>> b8bb8ab3c (docs: clarify personal-by-default onboarding security notice)
 
 Where does the **Gateway** run?
 
