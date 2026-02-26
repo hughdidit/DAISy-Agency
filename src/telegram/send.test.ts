@@ -1209,22 +1209,37 @@ describe("sendStickerTelegram", () => {
     expect(res.messageId).toBe("109");
   });
 
+<<<<<<< HEAD
   it("trims whitespace from fileId", async () => {
     const chatId = "123";
     const sendSticker = vi.fn().mockResolvedValue({
       message_id: 106,
+=======
+  it("fails when sticker send returns no message_id", async () => {
+    const chatId = "123";
+    const sendSticker = vi.fn().mockResolvedValue({
+>>>>>>> aaeed3c4e (test(agents): add missing announce delivery regressions)
       chat: { id: chatId },
     });
     const api = { sendSticker } as unknown as {
       sendSticker: typeof sendSticker;
     };
 
+<<<<<<< HEAD
     await sendStickerTelegram(chatId, "  fileId123  ", {
       token: "tok",
       api,
     });
 
     expect(sendSticker).toHaveBeenCalledWith(chatId, "fileId123", undefined);
+=======
+    await expect(
+      sendStickerTelegram(chatId, "fileId123", {
+        token: "tok",
+        api,
+      }),
+    ).rejects.toThrow(/returned no message_id/i);
+>>>>>>> aaeed3c4e (test(agents): add missing announce delivery regressions)
   });
 });
 
@@ -1494,6 +1509,20 @@ describe("sendPollTelegram", () => {
     ).rejects.toThrow(/durationHours is not supported/i);
 
     expect(api.sendPoll).not.toHaveBeenCalled();
+  });
+
+  it("fails when poll send returns no message_id", async () => {
+    const api = {
+      sendPoll: vi.fn(async () => ({ chat: { id: 555 }, poll: { id: "p1" } })),
+    };
+
+    await expect(
+      sendPollTelegram(
+        "123",
+        { question: "Q", options: ["A", "B"] },
+        { token: "t", api: api as unknown as Bot["api"] },
+      ),
+    ).rejects.toThrow(/returned no message_id/i);
   });
 });
 
