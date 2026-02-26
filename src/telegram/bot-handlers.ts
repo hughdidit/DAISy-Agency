@@ -17,6 +17,7 @@ import { resolveChannelConfigWrites } from "../channels/plugins/config-writes.js
 import { loadConfig } from "../config/config.js";
 import { writeConfigFile } from "../config/io.js";
 import { loadSessionStore, resolveStorePath } from "../config/sessions.js";
+import type { DmPolicy } from "../config/types.base.js";
 import type { TelegramGroupConfig, TelegramTopicConfig } from "../config/types.js";
 import { danger, logVerbose, warn } from "../globals.js";
 import { enqueueSystemEvent } from "../infra/system-events.js";
@@ -507,6 +508,135 @@ export const registerTelegramHandlers = ({
     return false;
   };
 
+<<<<<<< HEAD
+=======
+  type TelegramGroupAllowContext = Awaited<ReturnType<typeof resolveTelegramGroupAllowFromContext>>;
+  type TelegramEventAuthorizationMode = "reaction" | "callback-scope" | "callback-allowlist";
+  type TelegramEventAuthorizationResult = { allowed: true } | { allowed: false; reason: string };
+  type TelegramEventAuthorizationContext = TelegramGroupAllowContext & { dmPolicy: DmPolicy };
+
+  const TELEGRAM_EVENT_AUTH_RULES: Record<
+    TelegramEventAuthorizationMode,
+    {
+      enforceDirectAuthorization: boolean;
+      enforceGroupAllowlistAuthorization: boolean;
+      deniedDmReason: string;
+      deniedGroupReason: string;
+    }
+  > = {
+    reaction: {
+      enforceDirectAuthorization: true,
+      enforceGroupAllowlistAuthorization: false,
+      deniedDmReason: "reaction unauthorized by dm policy/allowlist",
+      deniedGroupReason: "reaction unauthorized by group allowlist",
+    },
+    "callback-scope": {
+      enforceDirectAuthorization: false,
+      enforceGroupAllowlistAuthorization: false,
+      deniedDmReason: "callback unauthorized by inlineButtonsScope",
+      deniedGroupReason: "callback unauthorized by inlineButtonsScope",
+    },
+    "callback-allowlist": {
+      enforceDirectAuthorization: true,
+      enforceGroupAllowlistAuthorization: true,
+      deniedDmReason: "callback unauthorized by inlineButtonsScope allowlist",
+      deniedGroupReason: "callback unauthorized by inlineButtonsScope allowlist",
+    },
+  };
+
+  const resolveTelegramEventAuthorizationContext = async (params: {
+    chatId: number;
+    isForum: boolean;
+    messageThreadId?: number;
+    groupAllowContext?: TelegramGroupAllowContext;
+  }): Promise<TelegramEventAuthorizationContext> => {
+    const dmPolicy = telegramCfg.dmPolicy ?? "pairing";
+    const groupAllowContext =
+      params.groupAllowContext ??
+      (await resolveTelegramGroupAllowFromContext({
+        chatId: params.chatId,
+        accountId,
+        dmPolicy,
+        isForum: params.isForum,
+        messageThreadId: params.messageThreadId,
+        groupAllowFrom,
+        resolveTelegramGroupConfig,
+      }));
+    return { dmPolicy, ...groupAllowContext };
+  };
+
+  const authorizeTelegramEventSender = (params: {
+    chatId: number;
+    chatTitle?: string;
+    isGroup: boolean;
+    senderId: string;
+    senderUsername: string;
+    mode: TelegramEventAuthorizationMode;
+    context: TelegramEventAuthorizationContext;
+  }): TelegramEventAuthorizationResult => {
+    const { chatId, chatTitle, isGroup, senderId, senderUsername, mode, context } = params;
+    const {
+      dmPolicy,
+      resolvedThreadId,
+      storeAllowFrom,
+      groupConfig,
+      topicConfig,
+      effectiveGroupAllow,
+      hasGroupAllowOverride,
+    } = context;
+    const authRules = TELEGRAM_EVENT_AUTH_RULES[mode];
+    const {
+      enforceDirectAuthorization,
+      enforceGroupAllowlistAuthorization,
+      deniedDmReason,
+      deniedGroupReason,
+    } = authRules;
+    if (
+      shouldSkipGroupMessage({
+        isGroup,
+        chatId,
+        chatTitle,
+        resolvedThreadId,
+        senderId,
+        senderUsername,
+        effectiveGroupAllow,
+        hasGroupAllowOverride,
+        groupConfig,
+        topicConfig,
+      })
+    ) {
+      return { allowed: false, reason: "group-policy" };
+    }
+
+    if (!isGroup && enforceDirectAuthorization) {
+      if (dmPolicy === "disabled") {
+        logVerbose(
+          `Blocked telegram direct event from ${senderId || "unknown"} (${deniedDmReason})`,
+        );
+        return { allowed: false, reason: "direct-disabled" };
+      }
+      if (dmPolicy !== "open") {
+        const effectiveDmAllow = normalizeAllowFromWithStore({
+          allowFrom,
+          storeAllowFrom,
+          dmPolicy,
+        });
+        if (!isAllowlistAuthorized(effectiveDmAllow, senderId, senderUsername)) {
+          logVerbose(`Blocked telegram direct sender ${senderId || "unknown"} (${deniedDmReason})`);
+          return { allowed: false, reason: "direct-unauthorized" };
+        }
+      }
+    }
+    if (isGroup && enforceGroupAllowlistAuthorization) {
+      if (!isAllowlistAuthorized(effectiveGroupAllow, senderId, senderUsername)) {
+        logVerbose(`Blocked telegram group sender ${senderId || "unknown"} (${deniedGroupReason})`);
+        return { allowed: false, reason: "group-unauthorized" };
+      }
+    }
+    return { allowed: true };
+  };
+
+>>>>>>> 046feb6b0 (refactor: simplify telegram event authorization flow)
   // Handle emoji reactions to messages.
   bot.on("message_reaction", async (ctx) => {
     try {
@@ -533,6 +663,25 @@ export const registerTelegramHandlers = ({
       if (reactionMode === "own" && !wasSentByBot(chatId, messageId)) {
         return;
       }
+<<<<<<< HEAD
+=======
+      const eventAuthContext = await resolveTelegramEventAuthorizationContext({
+        chatId,
+        isForum,
+      });
+      const senderAuthorization = authorizeTelegramEventSender({
+        chatId,
+        chatTitle: reaction.chat.title,
+        isGroup,
+        senderId,
+        senderUsername,
+        mode: "reaction",
+        context: eventAuthContext,
+      });
+      if (!senderAuthorization.allowed) {
+        return;
+      }
+>>>>>>> 046feb6b0 (refactor: simplify telegram event authorization flow)
 
       // Detect added reactions.
       const oldEmojis = new Set(
@@ -855,14 +1004,16 @@ export const registerTelegramHandlers = ({
 
       const messageThreadId = callbackMessage.message_thread_id;
       const isForum = callbackMessage.chat.is_forum === true;
-      const groupAllowContext = await resolveTelegramGroupAllowFromContext({
+      const eventAuthContext = await resolveTelegramEventAuthorizationContext({
         chatId,
+<<<<<<< HEAD
         accountId,
+=======
+>>>>>>> 046feb6b0 (refactor: simplify telegram event authorization flow)
         isForum,
         messageThreadId,
-        groupAllowFrom,
-        resolveTelegramGroupConfig,
       });
+<<<<<<< HEAD
       const {
         resolvedThreadId,
         storeAllowFrom,
@@ -892,6 +1043,23 @@ export const registerTelegramHandlers = ({
           topicConfig,
         })
       ) {
+=======
+      const { resolvedThreadId, storeAllowFrom } = eventAuthContext;
+      const senderId = callback.from?.id ? String(callback.from.id) : "";
+      const senderUsername = callback.from?.username ?? "";
+      const authorizationMode: TelegramEventAuthorizationMode =
+        inlineButtonsScope === "allowlist" ? "callback-allowlist" : "callback-scope";
+      const senderAuthorization = authorizeTelegramEventSender({
+        chatId,
+        chatTitle: callbackMessage.chat.title,
+        isGroup,
+        senderId,
+        senderUsername,
+        mode: authorizationMode,
+        context: eventAuthContext,
+      });
+      if (!senderAuthorization.allowed) {
+>>>>>>> 046feb6b0 (refactor: simplify telegram event authorization flow)
         return;
       }
 
@@ -1149,28 +1317,28 @@ export const registerTelegramHandlers = ({
       if (shouldSkipUpdate(event.ctxForDedupe)) {
         return;
       }
-      const dmPolicy = telegramCfg.dmPolicy ?? "pairing";
-
-      const groupAllowContext = await resolveTelegramGroupAllowFromContext({
+      const eventAuthContext = await resolveTelegramEventAuthorizationContext({
         chatId: event.chatId,
+<<<<<<< HEAD
         accountId,
 <<<<<<< HEAD
 =======
         dmPolicy,
 >>>>>>> 36d1e1dcf (refactor(telegram): simplify DM media auth precheck flow)
+=======
+>>>>>>> 046feb6b0 (refactor: simplify telegram event authorization flow)
         isForum: event.isForum,
         messageThreadId: event.messageThreadId,
-        groupAllowFrom,
-        resolveTelegramGroupConfig,
       });
       const {
+        dmPolicy,
         resolvedThreadId,
         storeAllowFrom,
         groupConfig,
         topicConfig,
         effectiveGroupAllow,
         hasGroupAllowOverride,
-      } = groupAllowContext;
+      } = eventAuthContext;
       const effectiveDmAllow = normalizeAllowFromWithStore({
         allowFrom,
         storeAllowFrom,
