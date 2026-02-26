@@ -3,12 +3,15 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { CliDeps } from "../cli/deps.js";
 import { resolveAnnounceTargetFromKey } from "../agents/tools/sessions-send-helpers.js";
 import { normalizeChannelId } from "../channels/plugins/index.js";
 import { agentCommand } from "../commands/agent.js";
 =======
 import { resolveSessionAgentId } from "../agents/agent-scope.js";
+=======
+>>>>>>> a1628d89e (refactor: unify outbound session context wiring)
 import { resolveAnnounceTargetFromKey } from "../agents/tools/sessions-send-helpers.js";
 import { normalizeChannelId } from "../channels/plugins/index.js";
 import type { CliDeps } from "../cli/deps.js";
@@ -42,7 +45,11 @@ import { resolveMainSessionKeyFromConfig } from "../config/sessions.js";
 =======
 import { parseSessionThreadInfo } from "../config/sessions/delivery-info.js";
 import { deliverOutboundPayloads } from "../infra/outbound/deliver.js";
+<<<<<<< HEAD
 >>>>>>> 0dc004fd2 (refactor(sessions): share session thread/topic parsing)
+=======
+import { buildOutboundSessionContext } from "../infra/outbound/session-context.js";
+>>>>>>> a1628d89e (refactor: unify outbound session context wiring)
 import { resolveOutboundTarget } from "../infra/outbound/targets.js";
 import {
   consumeRestartSentinel,
@@ -122,6 +129,10 @@ export async function scheduleRestartSentinelWake(params: { deps: CliDeps }) {
   const isSlack = channel === "slack";
   const replyToId = isSlack && threadId != null && threadId !== "" ? String(threadId) : undefined;
   const resolvedThreadId = isSlack ? undefined : threadId;
+  const outboundSession = buildOutboundSessionContext({
+    cfg,
+    sessionKey,
+  });
 
   try {
 <<<<<<< HEAD
@@ -148,7 +159,7 @@ export async function scheduleRestartSentinelWake(params: { deps: CliDeps }) {
       replyToId,
       threadId: resolvedThreadId,
       payloads: [{ text: message }],
-      agentId: resolveSessionAgentId({ sessionKey, config: cfg }),
+      session: outboundSession,
       bestEffort: true,
     });
 >>>>>>> e2e10b3da (fix(slack): map threadId to replyToId for restart sentinel notifications (#24885))

@@ -3,6 +3,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -24,6 +25,8 @@ import type { AgentCommandOpts } from "./types.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { resolveSessionAgentId } from "../../agents/agent-scope.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+>>>>>>> a1628d89e (refactor: unify outbound session context wiring)
 import { AGENT_LANE_NESTED } from "../../agents/lanes.js";
 import { getChannelPlugin, normalizeChannelId } from "../../channels/plugins/index.js";
 import { createOutboundSendDeps, type CliDeps } from "../../cli/outbound-send-deps.js";
@@ -41,6 +44,7 @@ import {
   normalizeOutboundPayloads,
   normalizeOutboundPayloadsForJson,
 } from "../../infra/outbound/payloads.js";
+import { buildOutboundSessionContext } from "../../infra/outbound/session-context.js";
 import type { RuntimeEnv } from "../../runtime.js";
 import { isInternalMessageChannel } from "../../utils/message-channel.js";
 import type { AgentCommandOpts } from "./types.js";
@@ -204,12 +208,24 @@ export async function deliverAgentCommandResult(params: {
   }
   if (deliver && deliveryChannel && !isInternalMessageChannel(deliveryChannel)) {
     if (deliveryTarget) {
+<<<<<<< HEAD
+=======
+      const deliverySession = buildOutboundSessionContext({
+        cfg,
+        agentId: opts.agentId,
+        sessionKey: opts.sessionKey,
+      });
+>>>>>>> a1628d89e (refactor: unify outbound session context wiring)
       await deliverOutboundPayloads({
         cfg,
         channel: deliveryChannel,
         to: deliveryTarget,
         accountId: resolvedAccountId,
         payloads: deliveryPayloads,
+<<<<<<< HEAD
+=======
+        session: deliverySession,
+>>>>>>> a1628d89e (refactor: unify outbound session context wiring)
         replyToId: resolvedReplyToId ?? null,
         threadId: resolvedThreadTarget ?? null,
         bestEffort: bestEffortDeliver,
