@@ -52,6 +52,7 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import {
   resolveAgentDeliveryPlan,
   resolveAgentOutboundTarget,
@@ -61,6 +62,9 @@ import {
 =======
 import { buildOutboundSessionContext } from "../../infra/outbound/session-context.js";
 >>>>>>> a1628d89e (refactor: unify outbound session context wiring)
+=======
+import type { OutboundSessionContext } from "../../infra/outbound/session-context.js";
+>>>>>>> 712e23172 (fix(agent): forward resolved outbound session context for delivery)
 import type { RuntimeEnv } from "../../runtime.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
@@ -118,11 +122,12 @@ export async function deliverAgentCommandResult(params: {
   deps: CliDeps;
   runtime: RuntimeEnv;
   opts: AgentCommandOpts;
+  outboundSession: OutboundSessionContext | undefined;
   sessionEntry: SessionEntry | undefined;
   result: RunResult;
   payloads: RunResult["payloads"];
 }) {
-  const { cfg, deps, runtime, opts, sessionEntry, payloads, result } = params;
+  const { cfg, deps, runtime, opts, outboundSession, sessionEntry, payloads, result } = params;
   const deliver = opts.deliver === true;
   const bestEffortDeliver = opts.bestEffortDeliver === true;
   const deliveryPlan = resolveAgentDeliveryPlan({
@@ -235,6 +240,7 @@ export async function deliverAgentCommandResult(params: {
   if (deliver && deliveryChannel && !isInternalMessageChannel(deliveryChannel)) {
     if (deliveryTarget) {
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
       const deliverySession = buildOutboundSessionContext({
         cfg,
@@ -242,6 +248,8 @@ export async function deliverAgentCommandResult(params: {
         sessionKey: opts.sessionKey,
       });
 >>>>>>> a1628d89e (refactor: unify outbound session context wiring)
+=======
+>>>>>>> 712e23172 (fix(agent): forward resolved outbound session context for delivery)
       await deliverOutboundPayloads({
         cfg,
         channel: deliveryChannel,
@@ -249,9 +257,13 @@ export async function deliverAgentCommandResult(params: {
         accountId: resolvedAccountId,
         payloads: deliveryPayloads,
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
         session: deliverySession,
 >>>>>>> a1628d89e (refactor: unify outbound session context wiring)
+=======
+        session: outboundSession,
+>>>>>>> 712e23172 (fix(agent): forward resolved outbound session context for delivery)
         replyToId: resolvedReplyToId ?? null,
         threadId: resolvedThreadTarget ?? null,
         bestEffort: bestEffortDeliver,
