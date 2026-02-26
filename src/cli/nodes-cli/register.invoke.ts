@@ -260,6 +260,7 @@ export function registerNodesInvokeCommands(nodes: Command) {
 
           const requiresAsk = hostAsk === "always" || hostAsk === "on-miss";
           if (requiresAsk) {
+<<<<<<< HEAD
             const decisionResult = (await callGatewayCli("exec.approval.request", opts, {
               command: rawCommand ?? argv.join(" "),
               cwd: opts.cwd,
@@ -271,6 +272,38 @@ export function registerNodesInvokeCommands(nodes: Command) {
               sessionKey: undefined,
               timeoutMs: 120_000,
             })) as { decision?: string } | null;
+=======
+            approvalId = crypto.randomUUID();
+            const approvalTimeoutMs = DEFAULT_EXEC_APPROVAL_TIMEOUT_MS;
+            // The CLI transport timeout (opts.timeout) must be longer than the
+            // gateway-side approval wait so the connection stays alive while the
+            // user decides.  Without this override the default 35 s transport
+            // timeout races — and always loses — against the 120 s approval
+            // timeout, causing "gateway timeout after 35000ms" (#12098).
+            const transportTimeoutMs = Math.max(
+              parseTimeoutMs(opts.timeout) ?? 0,
+              approvalTimeoutMs + 10_000,
+            );
+            const decisionResult = (await callGatewayCli(
+              "exec.approval.request",
+              opts,
+              {
+                id: approvalId,
+                command: rawCommand ?? argv.join(" "),
+                commandArgv: argv,
+                cwd: opts.cwd,
+                nodeId,
+                host: "node",
+                security: hostSecurity,
+                ask: hostAsk,
+                agentId,
+                resolvedPath: undefined,
+                sessionKey: undefined,
+                timeoutMs: approvalTimeoutMs,
+              },
+              { transportTimeoutMs },
+            )) as { decision?: string } | null;
+>>>>>>> f789f880c (fix(security): harden approval-bound node exec cwd handling)
             const decision =
               decisionResult && typeof decisionResult === "object"
                 ? (decisionResult.decision ?? null)
