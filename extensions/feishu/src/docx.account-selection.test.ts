@@ -1,4 +1,9 @@
 import { describe, expect, test, vi } from "vitest";
+<<<<<<< HEAD
+=======
+import { registerFeishuDocTools } from "./docx.js";
+import { createToolFactoryHarness } from "./tool-factory-test-harness.js";
+>>>>>>> 125dc322f (refactor(feishu): unify account-aware tool routing and message body)
 
 const createFeishuClientMock = vi.fn((creds: any) => ({ __appId: creds?.appId }));
 
@@ -18,6 +23,7 @@ vi.mock("@larksuiteoapi/node-sdk", () => {
   };
 });
 
+<<<<<<< HEAD
 function fakeApi(cfg: any) {
   const tools: Array<{ name: string; execute: (id: string, params: any) => any }> = [];
   const api: Partial<OpenClawPluginApi> = {
@@ -36,6 +42,8 @@ function fakeApi(cfg: any) {
   return { api: api as OpenClawPluginApi, tools };
 }
 
+=======
+>>>>>>> 125dc322f (refactor(feishu): unify account-aware tool routing and message body)
 describe("feishu_doc account selection", () => {
   test("uses accountId param to pick correct account when multiple accounts configured", async () => {
     const cfg = {
@@ -50,7 +58,11 @@ describe("feishu_doc account selection", () => {
       },
     };
 
+<<<<<<< HEAD
     const { api, tools } = fakeApi(cfg);
+=======
+    const { api, resolveTool } = createToolFactoryHarness(cfg);
+>>>>>>> 125dc322f (refactor(feishu): unify account-aware tool routing and message body)
     registerFeishuDocTools(api);
 
     const tool = tools.find((t) => t.name === "feishu_doc");
@@ -78,7 +90,11 @@ describe("feishu_doc account selection", () => {
       },
     };
 
+<<<<<<< HEAD
     const { api, tools } = fakeApi(cfg);
+=======
+    const { api, resolveTool } = createToolFactoryHarness(cfg);
+>>>>>>> 125dc322f (refactor(feishu): unify account-aware tool routing and message body)
     registerFeishuDocTools(api);
 
     const tool = tools.find((t) => t.name === "feishu_doc");

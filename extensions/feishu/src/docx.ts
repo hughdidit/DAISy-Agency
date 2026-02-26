@@ -3,10 +3,17 @@ import type * as Lark from "@larksuiteoapi/node-sdk";
 import { Type } from "@sinclair/typebox";
 import type { OpenClawPluginApi } from "openclaw/plugin-sdk";
 import { listEnabledFeishuAccounts } from "./accounts.js";
-import { resolveFeishuAccount } from "./accounts.js";
-import { createFeishuClient } from "./client.js";
 import { FeishuDocSchema, type FeishuDocParams } from "./doc-schema.js";
+<<<<<<< HEAD
 import { resolveToolsConfig } from "./tools-config.js";
+=======
+import { getFeishuRuntime } from "./runtime.js";
+import {
+  createFeishuToolClient,
+  resolveAnyEnabledFeishuToolsConfig,
+  resolveFeishuToolAccount,
+} from "./tool-account.js";
+>>>>>>> 125dc322f (refactor(feishu): unify account-aware tool routing and message body)
 
 // ============ Helpers ============
 
@@ -441,12 +448,12 @@ export function registerFeishuDocTools(api: OpenClawPluginApi) {
     return;
   }
 
-  // Use first account's config for tools configuration (registration-time defaults only)
-  const firstAccount = accounts[0];
-  const toolsCfg = resolveToolsConfig(firstAccount.config.tools);
+  // Register if enabled on any account; account routing is resolved per execution.
+  const toolsCfg = resolveAnyEnabledFeishuToolsConfig(accounts);
 
   const registered: string[] = [];
 
+<<<<<<< HEAD
   const resolveAccount = (params: FeishuDocParams) =>
     resolveFeishuAccount({ cfg: api.config!, accountId: (params as any).accountId });
 
@@ -454,6 +461,19 @@ export function registerFeishuDocTools(api: OpenClawPluginApi) {
 
   const getMediaMaxBytes = (params: FeishuDocParams) =>
     (resolveAccount(params).config?.mediaMaxMb ?? 30) * 1024 * 1024;
+=======
+  const getClient = (params: { accountId?: string } | undefined, defaultAccountId?: string) =>
+    createFeishuToolClient({ api, executeParams: params, defaultAccountId });
+
+  const getMediaMaxBytes = (
+    params: { accountId?: string } | undefined,
+    defaultAccountId?: string,
+  ) =>
+    (resolveFeishuToolAccount({ api, executeParams: params, defaultAccountId }).config
+      ?.mediaMaxMb ?? 30) *
+    1024 *
+    1024;
+>>>>>>> 125dc322f (refactor(feishu): unify account-aware tool routing and message body)
 
   // Main document tool with action-based dispatch
   if (toolsCfg.doc) {
