@@ -80,7 +80,19 @@ describe("nodes-cli coverage", () => {
     runtimeErrors.length = 0;
     callGateway.mockClear();
 
+<<<<<<< HEAD
     const { registerNodesCli } = await import("./nodes-cli.js");
+=======
+  const getNodeInvokeCall = () =>
+    callGateway.mock.calls.find((call) => call[0]?.method === "node.invoke")?.[0] as NodeInvokeCall;
+
+  const getApprovalRequestCall = () =>
+    callGateway.mock.calls.find((call) => call[0]?.method === "exec.approval.request")?.[0] as {
+      params?: Record<string, unknown>;
+    };
+
+  const createNodesProgram = () => {
+>>>>>>> f789f880c (fix(security): harden approval-bound node exec cwd handling)
     const program = new Command();
     program.exitOverride();
     registerNodesCli(program);
@@ -140,6 +152,8 @@ describe("nodes-cli coverage", () => {
       approvalDecision: "allow-once",
     });
     expect(invoke?.params?.timeoutMs).toBe(5000);
+    const approval = getApprovalRequestCall();
+    expect(approval?.params?.["commandArgv"]).toEqual(["echo", "hi"]);
   });
 
   it("invokes system.run with raw command", async () => {
@@ -170,6 +184,8 @@ describe("nodes-cli coverage", () => {
       approved: true,
       approvalDecision: "allow-once",
     });
+    const approval = getApprovalRequestCall();
+    expect(approval?.params?.["commandArgv"]).toEqual(["/bin/sh", "-lc", "echo hi"]);
   });
 
   it("invokes system.notify with provided fields", async () => {
