@@ -2,8 +2,21 @@ import type { StreamFn } from "@mariozechner/pi-agent-core";
 import type { Api, Model, SimpleStreamOptions } from "@mariozechner/pi-ai";
 import { streamSimple } from "@mariozechner/pi-ai";
 
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
 import { log } from "./logger.js";
+=======
+const OPENROUTER_APP_HEADERS: Record<string, string> = {
+  "HTTP-Referer": "https://openclaw.ai",
+  "X-Title": "OpenClaw",
+};
+const ANTHROPIC_CONTEXT_1M_BETA = "context-1m-2025-08-07";
+const ANTHROPIC_1M_MODEL_PREFIXES = ["claude-opus-4", "claude-sonnet-4"] as const;
+// NOTE: We only force `store=true` for *direct* OpenAI Responses.
+// Codex responses (chatgpt.com/backend-api/codex/responses) require `store=false`.
+const OPENAI_RESPONSES_APIS = new Set(["openai-responses"]);
+const OPENAI_RESPONSES_PROVIDERS = new Set(["openai", "azure-openai-responses"]);
+>>>>>>> 0ab5f4c43 (fix: enable store=true for Azure OpenAI Responses API)
 
 /**
  * Resolve provider-specific extra params from model config.
@@ -84,6 +97,293 @@ function createOpenRouterHeadersWrapper(baseStreamFn: StreamFn | undefined): Str
   return (model, context, options) =>
     underlying(model, context, {
       ...options,
+<<<<<<< HEAD
+=======
+      cacheRetention: "none",
+    });
+}
+
+function isDirectOpenAIBaseUrl(baseUrl: unknown): boolean {
+  if (typeof baseUrl !== "string" || !baseUrl.trim()) {
+    return true;
+  }
+
+  try {
+    const host = new URL(baseUrl).hostname.toLowerCase();
+    return host === "api.openai.com" || host === "chatgpt.com" || host.endsWith(".openai.azure.com");
+  } catch {
+    const normalized = baseUrl.toLowerCase();
+    return normalized.includes("api.openai.com") || normalized.includes("chatgpt.com") || normalized.includes(".openai.azure.com");
+  }
+}
+
+function shouldForceResponsesStore(model: {
+  api?: unknown;
+  provider?: unknown;
+  baseUrl?: unknown;
+}): boolean {
+  if (typeof model.api !== "string" || typeof model.provider !== "string") {
+    return false;
+  }
+  if (!OPENAI_RESPONSES_APIS.has(model.api)) {
+    return false;
+  }
+  if (!OPENAI_RESPONSES_PROVIDERS.has(model.provider)) {
+    return false;
+  }
+  return isDirectOpenAIBaseUrl(model.baseUrl);
+}
+
+function createOpenAIResponsesStoreWrapper(baseStreamFn: StreamFn | undefined): StreamFn {
+  const underlying = baseStreamFn ?? streamSimple;
+  return (model, context, options) => {
+    if (!shouldForceResponsesStore(model)) {
+      return underlying(model, context, options);
+    }
+
+    const originalOnPayload = options?.onPayload;
+    return underlying(model, context, {
+      ...options,
+      onPayload: (payload) => {
+        if (payload && typeof payload === "object") {
+          (payload as { store?: unknown }).store = true;
+        }
+        originalOnPayload?.(payload);
+      },
+    });
+  };
+}
+
+function isAnthropic1MModel(modelId: string): boolean {
+  const normalized = modelId.trim().toLowerCase();
+  return ANTHROPIC_1M_MODEL_PREFIXES.some((prefix) => normalized.startsWith(prefix));
+}
+
+function parseHeaderList(value: unknown): string[] {
+  if (typeof value !== "string") {
+    return [];
+  }
+  return value
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
+function resolveAnthropicBetas(
+  extraParams: Record<string, unknown> | undefined,
+  provider: string,
+  modelId: string,
+): string[] | undefined {
+  if (provider !== "anthropic") {
+    return undefined;
+  }
+
+  const betas = new Set<string>();
+  const configured = extraParams?.anthropicBeta;
+  if (typeof configured === "string" && configured.trim()) {
+    betas.add(configured.trim());
+  } else if (Array.isArray(configured)) {
+    for (const beta of configured) {
+      if (typeof beta === "string" && beta.trim()) {
+        betas.add(beta.trim());
+      }
+    }
+  }
+
+  if (extraParams?.context1m === true) {
+    if (isAnthropic1MModel(modelId)) {
+      betas.add(ANTHROPIC_CONTEXT_1M_BETA);
+    } else {
+      log.warn(`ignoring context1m for non-opus/sonnet model: ${provider}/${modelId}`);
+    }
+  }
+
+  return betas.size > 0 ? [...betas] : undefined;
+}
+
+function mergeAnthropicBetaHeader(
+  headers: Record<string, string> | undefined,
+  betas: string[],
+): Record<string, string> {
+  const merged = { ...headers };
+  const existingKey = Object.keys(merged).find((key) => key.toLowerCase() === "anthropic-beta");
+  const existing = existingKey ? parseHeaderList(merged[existingKey]) : [];
+  const values = Array.from(new Set([...existing, ...betas]));
+  const key = existingKey ?? "anthropic-beta";
+  merged[key] = values.join(",");
+  return merged;
+}
+
+// Betas that pi-ai's createClient injects for standard Anthropic API key calls.
+// Must be included when injecting anthropic-beta via options.headers, because
+// pi-ai's mergeHeaders uses Object.assign (last-wins), which would otherwise
+// overwrite the hardcoded defaultHeaders["anthropic-beta"].
+const PI_AI_DEFAULT_ANTHROPIC_BETAS = [
+  "fine-grained-tool-streaming-2025-05-14",
+  "interleaved-thinking-2025-05-14",
+] as const;
+
+// Additional betas pi-ai injects when the API key is an OAuth token (sk-ant-oat-*).
+// These are required for Anthropic to accept OAuth Bearer auth. Losing oauth-2025-04-20
+// causes a 401 "OAuth authentication is currently not supported".
+const PI_AI_OAUTH_ANTHROPIC_BETAS = [
+  "claude-code-20250219",
+  "oauth-2025-04-20",
+  ...PI_AI_DEFAULT_ANTHROPIC_BETAS,
+] as const;
+
+function isAnthropicOAuthApiKey(apiKey: unknown): boolean {
+  return typeof apiKey === "string" && apiKey.includes("sk-ant-oat");
+}
+
+function createAnthropicBetaHeadersWrapper(
+  baseStreamFn: StreamFn | undefined,
+  betas: string[],
+): StreamFn {
+  const underlying = baseStreamFn ?? streamSimple;
+  return (model, context, options) => {
+    const isOauth = isAnthropicOAuthApiKey(options?.apiKey);
+    const requestedContext1m = betas.includes(ANTHROPIC_CONTEXT_1M_BETA);
+    const effectiveBetas =
+      isOauth && requestedContext1m
+        ? betas.filter((beta) => beta !== ANTHROPIC_CONTEXT_1M_BETA)
+        : betas;
+    if (isOauth && requestedContext1m) {
+      log.warn(
+        `ignoring context1m for OAuth token auth on ${model.provider}/${model.id}; Anthropic rejects context-1m beta with OAuth auth`,
+      );
+    }
+
+    // Preserve the betas pi-ai's createClient would inject for the given token type.
+    // Without this, our options.headers["anthropic-beta"] overwrites the pi-ai
+    // defaultHeaders via Object.assign, stripping critical betas like oauth-2025-04-20.
+    const piAiBetas = isOauth
+      ? (PI_AI_OAUTH_ANTHROPIC_BETAS as readonly string[])
+      : (PI_AI_DEFAULT_ANTHROPIC_BETAS as readonly string[]);
+    const allBetas = [...new Set([...piAiBetas, ...effectiveBetas])];
+    return underlying(model, context, {
+      ...options,
+      headers: mergeAnthropicBetaHeader(options?.headers, allBetas),
+    });
+  };
+}
+
+function isOpenRouterAnthropicModel(provider: string, modelId: string): boolean {
+  return provider.toLowerCase() === "openrouter" && modelId.toLowerCase().startsWith("anthropic/");
+}
+
+type PayloadMessage = {
+  role?: string;
+  content?: unknown;
+};
+
+/**
+ * Inject cache_control into the system message for OpenRouter Anthropic models.
+ * OpenRouter passes through Anthropic's cache_control field — caching the system
+ * prompt avoids re-processing it on every request.
+ */
+function createOpenRouterSystemCacheWrapper(baseStreamFn: StreamFn | undefined): StreamFn {
+  const underlying = baseStreamFn ?? streamSimple;
+  return (model, context, options) => {
+    if (
+      typeof model.provider !== "string" ||
+      typeof model.id !== "string" ||
+      !isOpenRouterAnthropicModel(model.provider, model.id)
+    ) {
+      return underlying(model, context, options);
+    }
+
+    const originalOnPayload = options?.onPayload;
+    return underlying(model, context, {
+      ...options,
+      onPayload: (payload) => {
+        const messages = (payload as Record<string, unknown>)?.messages;
+        if (Array.isArray(messages)) {
+          for (const msg of messages as PayloadMessage[]) {
+            if (msg.role !== "system" && msg.role !== "developer") {
+              continue;
+            }
+            if (typeof msg.content === "string") {
+              msg.content = [
+                { type: "text", text: msg.content, cache_control: { type: "ephemeral" } },
+              ];
+            } else if (Array.isArray(msg.content) && msg.content.length > 0) {
+              const last = msg.content[msg.content.length - 1];
+              if (last && typeof last === "object") {
+                (last as Record<string, unknown>).cache_control = { type: "ephemeral" };
+              }
+            }
+          }
+        }
+        originalOnPayload?.(payload);
+      },
+    });
+  };
+}
+
+/**
+ * Map OpenClaw's ThinkLevel to OpenRouter's reasoning.effort values.
+ * "off" maps to "none"; all other levels pass through as-is.
+ */
+function mapThinkingLevelToOpenRouterReasoningEffort(
+  thinkingLevel: ThinkLevel,
+): "none" | "minimal" | "low" | "medium" | "high" | "xhigh" {
+  if (thinkingLevel === "off") {
+    return "none";
+  }
+  return thinkingLevel;
+}
+
+function shouldApplySiliconFlowThinkingOffCompat(params: {
+  provider: string;
+  modelId: string;
+  thinkingLevel?: ThinkLevel;
+}): boolean {
+  return (
+    params.provider === "siliconflow" &&
+    params.thinkingLevel === "off" &&
+    params.modelId.startsWith("Pro/")
+  );
+}
+
+/**
+ * SiliconFlow's Pro/* models reject string thinking modes (including "off")
+ * with HTTP 400 invalid-parameter errors. Normalize to `thinking: null` to
+ * preserve "thinking disabled" intent without sending an invalid enum value.
+ */
+function createSiliconFlowThinkingWrapper(baseStreamFn: StreamFn | undefined): StreamFn {
+  const underlying = baseStreamFn ?? streamSimple;
+  return (model, context, options) => {
+    const originalOnPayload = options?.onPayload;
+    return underlying(model, context, {
+      ...options,
+      onPayload: (payload) => {
+        if (payload && typeof payload === "object") {
+          const payloadObj = payload as Record<string, unknown>;
+          if (payloadObj.thinking === "off") {
+            payloadObj.thinking = null;
+          }
+        }
+        originalOnPayload?.(payload);
+      },
+    });
+  };
+}
+
+/**
+ * Create a streamFn wrapper that adds OpenRouter app attribution headers
+ * and injects reasoning.effort based on the configured thinking level.
+ */
+function createOpenRouterWrapper(
+  baseStreamFn: StreamFn | undefined,
+  thinkingLevel?: ThinkLevel,
+): StreamFn {
+  const underlying = baseStreamFn ?? streamSimple;
+  return (model, context, options) => {
+    const onPayload = options?.onPayload;
+    return underlying(model, context, {
+      ...options,
+>>>>>>> 0ab5f4c43 (fix: enable store=true for Azure OpenAI Responses API)
       headers: {
         ...OPENROUTER_APP_HEADERS,
         ...options?.headers,
