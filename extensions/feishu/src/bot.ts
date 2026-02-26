@@ -537,6 +537,40 @@ export function parseFeishuMessageEvent(
   return ctx;
 }
 
+export function buildFeishuAgentBody(params: {
+  ctx: Pick<
+    FeishuMessageContext,
+    "content" | "senderName" | "senderOpenId" | "mentionTargets" | "messageId"
+  >;
+  quotedContent?: string;
+  permissionErrorForAgent?: PermissionError;
+}): string {
+  const { ctx, quotedContent, permissionErrorForAgent } = params;
+  let messageBody = ctx.content;
+  if (quotedContent) {
+    messageBody = `[Replying to: "${quotedContent}"]\n\n${ctx.content}`;
+  }
+
+  // DMs already have per-sender sessions, but this label still improves attribution.
+  const speaker = ctx.senderName ?? ctx.senderOpenId;
+  messageBody = `${speaker}: ${messageBody}`;
+
+  if (ctx.mentionTargets && ctx.mentionTargets.length > 0) {
+    const targetNames = ctx.mentionTargets.map((t) => t.name).join(", ");
+    messageBody += `\n\n[System: Your reply will automatically @mention: ${targetNames}. Do not write @xxx yourself.]`;
+  }
+
+  // Keep message_id on its own line so shared message-id hint stripping can parse it reliably.
+  messageBody = `[message_id: ${ctx.messageId}]\n${messageBody}`;
+
+  if (permissionErrorForAgent) {
+    const grantUrl = permissionErrorForAgent.grantUrl ?? "";
+    messageBody += `\n\n[System: The bot encountered a Feishu API permission error. Please inform the user about this issue and provide the permission grant URL for the admin to authorize. Permission grant URL: ${grantUrl}]`;
+  }
+
+  return messageBody;
+}
+
 export async function handleFeishuMessage(params: {
   cfg: ClawdbotConfig;
   event: FeishuMessageEvent;
@@ -809,6 +843,7 @@ export async function handleFeishuMessage(params: {
     }
 
     const envelopeOptions = core.channel.reply.resolveEnvelopeFormatOptions(cfg);
+<<<<<<< HEAD
 
     // Build message body with quoted content if available
     let messageBody = ctx.content;
@@ -830,12 +865,16 @@ export async function handleFeishuMessage(params: {
     // Include message_id in body so the agent can use it (e.g. for Feishu API media download or reply).
     messageBody = `[message_id: ${ctx.messageId}] ${messageBody}`;
 
+=======
+    const messageBody = buildFeishuAgentBody({
+      ctx,
+      quotedContent,
+      permissionErrorForAgent,
+    });
+>>>>>>> 125dc322f (refactor(feishu): unify account-aware tool routing and message body)
     const envelopeFrom = isGroup ? `${ctx.chatId}:${ctx.senderOpenId}` : ctx.senderOpenId;
-
-    // Append permission error notice to the main message body instead of dispatching
-    // a separate agent turn. A separate dispatch caused the bot to reply twice — once
-    // for the permission notification and once for the actual user message (#27372).
     if (permissionErrorForAgent) {
+<<<<<<< HEAD
       const grantUrl = permissionErrorForAgent.grantUrl ?? "";
 <<<<<<< HEAD
       const permissionNotifyBody = `[System: The bot encountered a Feishu API permission error. Please inform the user about this issue and provide the permission grant URL for the admin to authorize. Permission grant URL: ${grantUrl}]`;
@@ -896,6 +935,9 @@ export async function handleFeishuMessage(params: {
       markPermIdle();
 =======
       messageBody += `\n\n[System: The bot encountered a Feishu API permission error. Please inform the user about this issue and provide the permission grant URL for the admin to authorize. Permission grant URL: ${grantUrl}]`;
+=======
+      // Keep the notice in a single dispatch to avoid duplicate replies (#27372).
+>>>>>>> 125dc322f (refactor(feishu): unify account-aware tool routing and message body)
       log(`feishu[${account.accountId}]: appending permission error notice to message body`);
 >>>>>>> 736ec9690 (fix(feishu): merge permission error notice into main dispatch instead of separate agent turn)
     }
