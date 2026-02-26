@@ -60,10 +60,17 @@ export function createTypingController(params: {
       typingTtlTimer = undefined;
     }
 <<<<<<< HEAD
+<<<<<<< HEAD
     if (typingTimer) {
       clearInterval(typingTimer);
       typingTimer = undefined;
 =======
+=======
+    if (dispatchIdleTimer) {
+      clearTimeout(dispatchIdleTimer);
+      dispatchIdleTimer = undefined;
+    }
+>>>>>>> 79176cc4e (fix(typing): force cleanup when dispatch idle is never received)
     typingLoop.stop();
     // Notify the channel to stop its typing indicator (e.g., on NO_REPLY).
     // This fires only once (sealed prevents re-entry).
@@ -181,13 +188,28 @@ export function createTypingController(params: {
     await startTypingLoop();
   };
 
+  let dispatchIdleTimer: NodeJS.Timeout | undefined;
+  const DISPATCH_IDLE_GRACE_MS = 10_000;
+
   const markRunComplete = () => {
     runComplete = true;
     maybeStopOnIdle();
+    if (!sealed && !dispatchIdle) {
+      dispatchIdleTimer = setTimeout(() => {
+        if (!sealed && !dispatchIdle) {
+          log?.("typing: dispatch idle not received after run complete; forcing cleanup");
+          cleanup();
+        }
+      }, DISPATCH_IDLE_GRACE_MS);
+    }
   };
 
   const markDispatchIdle = () => {
     dispatchIdle = true;
+    if (dispatchIdleTimer) {
+      clearTimeout(dispatchIdleTimer);
+      dispatchIdleTimer = undefined;
+    }
     maybeStopOnIdle();
   };
 
