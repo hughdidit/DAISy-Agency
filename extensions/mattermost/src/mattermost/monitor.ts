@@ -17,6 +17,13 @@ import {
   recordPendingHistoryEntryIfEnabled,
   isDangerousNameMatchingEnabled,
   resolveControlCommandGate,
+<<<<<<< HEAD
+=======
+  resolveDmGroupAccessWithLists,
+  resolveEffectiveAllowFromLists,
+  resolveAllowlistProviderRuntimeGroupPolicy,
+  resolveDefaultGroupPolicy,
+>>>>>>> 8bdda7a65 (fix(security): keep DM pairing allowlists out of group auth)
   resolveChannelMediaMaxBytes,
   type HistoryEntry,
 } from "openclaw/plugin-sdk";
@@ -159,6 +166,23 @@ function normalizeAllowList(entries: Array<string | number>): string[] {
     .map((entry) => normalizeAllowEntry(String(entry)))
     .filter(Boolean);
   return Array.from(new Set(normalized));
+}
+
+export function resolveMattermostEffectiveAllowFromLists(params: {
+  allowFrom?: Array<string | number> | null;
+  groupAllowFrom?: Array<string | number> | null;
+  storeAllowFrom?: Array<string | number> | null;
+  dmPolicy?: string | null;
+}): {
+  effectiveAllowFrom: string[];
+  effectiveGroupAllowFrom: string[];
+} {
+  return resolveEffectiveAllowFromLists({
+    allowFrom: normalizeAllowList(params.allowFrom ?? []),
+    groupAllowFrom: normalizeAllowList(params.groupAllowFrom ?? []),
+    storeAllowFrom: normalizeAllowList(params.storeAllowFrom ?? []),
+    dmPolicy: params.dmPolicy,
+  });
 }
 
 function isSenderAllowed(params: {
@@ -391,20 +415,23 @@ export async function monitorMattermostProvider(opts: MonitorMattermostOpts = {}
       senderId;
     const rawText = post.message?.trim() || "";
     const dmPolicy = account.config.dmPolicy ?? "pairing";
+<<<<<<< HEAD
     const defaultGroupPolicy = cfg.channels?.defaults?.groupPolicy;
     const groupPolicy = account.config.groupPolicy ?? defaultGroupPolicy ?? "allowlist";
     const configAllowFrom = normalizeAllowList(account.config.allowFrom ?? []);
     const configGroupAllowFrom = normalizeAllowList(account.config.groupAllowFrom ?? []);
+=======
+>>>>>>> 8bdda7a65 (fix(security): keep DM pairing allowlists out of group auth)
     const storeAllowFrom = normalizeAllowList(
       await core.channel.pairing.readAllowFromStore("mattermost").catch(() => []),
     );
-    const effectiveAllowFrom = Array.from(new Set([...configAllowFrom, ...storeAllowFrom]));
-    const effectiveGroupAllowFrom = Array.from(
-      new Set([
-        ...(configGroupAllowFrom.length > 0 ? configGroupAllowFrom : configAllowFrom),
-        ...storeAllowFrom,
-      ]),
-    );
+    const { effectiveAllowFrom, effectiveGroupAllowFrom } =
+      resolveMattermostEffectiveAllowFromLists({
+        dmPolicy,
+        allowFrom: account.config.allowFrom,
+        groupAllowFrom: account.config.groupAllowFrom,
+        storeAllowFrom,
+      });
     const allowTextCommands = core.channel.commands.shouldHandleTextCommands({
       cfg,
       surface: "mattermost",

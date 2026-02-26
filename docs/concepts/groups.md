@@ -170,7 +170,12 @@ Control how group/room messages are handled per channel:
 
 Notes:
 - `groupPolicy` is separate from mention-gating (which requires @mentions).
+<<<<<<< HEAD:docs/concepts/groups.md
 - WhatsApp/Telegram/Signal/iMessage/Microsoft Teams: use `groupAllowFrom` (fallback: explicit `allowFrom`).
+=======
+- WhatsApp/Telegram/Signal/iMessage/Microsoft Teams/Zalo: use `groupAllowFrom` (fallback: explicit `allowFrom`).
+- DM pairing approvals (`*-allowFrom` store entries) apply to DM access only; group sender authorization stays explicit to group allowlists.
+>>>>>>> 8bdda7a65 (fix(security): keep DM pairing allowlists out of group auth):docs/channels/groups.md
 - Discord: allowlist uses `channels.discord.guilds.<id>.channels`.
 - Slack: allowlist uses `channels.slack.channels`.
 - Matrix: allowlist uses `channels.matrix.groups` (room IDs, aliases, or names). Use `channels.matrix.groupAllowFrom` to restrict senders; per-room `users` allowlists are also supported.

@@ -11,6 +11,27 @@ import { resolveDefaultAgentId } from "../agents/agent-scope.js";
 import { loadConfig } from "../config/config.js";
 import { writeConfigFile } from "../config/io.js";
 import { danger, logVerbose, warn } from "../globals.js";
+<<<<<<< HEAD
+=======
+import { enqueueSystemEvent } from "../infra/system-events.js";
+import { MediaFetchError } from "../media/fetch.js";
+import { readChannelAllowFromStore } from "../pairing/pairing-store.js";
+import { resolveAgentRoute } from "../routing/resolve-route.js";
+import { resolveThreadSessionKeys } from "../routing/session-key.js";
+import { withTelegramApiErrorLogging } from "./api-logging.js";
+import {
+  isSenderAllowed,
+  normalizeDmAllowFromWithStore,
+  type NormalizedAllowFrom,
+} from "./bot-access.js";
+import type { TelegramMediaRef } from "./bot-message-context.js";
+import { RegisterTelegramHandlerParams } from "./bot-native-commands.js";
+import {
+  MEDIA_GROUP_TIMEOUT_MS,
+  type MediaGroupEntry,
+  type TelegramUpdateKeyContext,
+} from "./bot-updates.js";
+>>>>>>> 8bdda7a65 (fix(security): keep DM pairing allowlists out of group auth)
 import { resolveMedia } from "./bot/delivery.js";
 import { withTelegramApiErrorLogging } from "./api-logging.js";
 import { resolveTelegramForumThreadId } from "./bot/helpers.js";
@@ -189,6 +210,538 @@ export const registerTelegramHandlers = ({
     }, TELEGRAM_TEXT_FRAGMENT_MAX_GAP_MS);
   };
 
+<<<<<<< HEAD
+=======
+  const loadStoreAllowFrom = async () =>
+    readChannelAllowFromStore("telegram", process.env, accountId).catch(() => []);
+
+  const isAllowlistAuthorized = (
+    allow: NormalizedAllowFrom,
+    senderId: string,
+    senderUsername: string,
+  ) =>
+    allow.hasWildcard ||
+    (allow.hasEntries &&
+      isSenderAllowed({
+        allow,
+        senderId,
+        senderUsername,
+      }));
+
+  const shouldSkipGroupMessage = (params: {
+    isGroup: boolean;
+    chatId: string | number;
+    chatTitle?: string;
+    resolvedThreadId?: number;
+    senderId: string;
+    senderUsername: string;
+    effectiveGroupAllow: NormalizedAllowFrom;
+    hasGroupAllowOverride: boolean;
+    groupConfig?: TelegramGroupConfig;
+    topicConfig?: TelegramTopicConfig;
+  }) => {
+    const {
+      isGroup,
+      chatId,
+      chatTitle,
+      resolvedThreadId,
+      senderId,
+      senderUsername,
+      effectiveGroupAllow,
+      hasGroupAllowOverride,
+      groupConfig,
+      topicConfig,
+    } = params;
+    const baseAccess = evaluateTelegramGroupBaseAccess({
+      isGroup,
+      groupConfig,
+      topicConfig,
+      hasGroupAllowOverride,
+      effectiveGroupAllow,
+      senderId,
+      senderUsername,
+      enforceAllowOverride: true,
+      requireSenderForAllowOverride: true,
+    });
+    if (!baseAccess.allowed) {
+      if (baseAccess.reason === "group-disabled") {
+        logVerbose(`Blocked telegram group ${chatId} (group disabled)`);
+        return true;
+      }
+      if (baseAccess.reason === "topic-disabled") {
+        logVerbose(
+          `Blocked telegram topic ${chatId} (${resolvedThreadId ?? "unknown"}) (topic disabled)`,
+        );
+        return true;
+      }
+      logVerbose(
+        `Blocked telegram group sender ${senderId || "unknown"} (group allowFrom override)`,
+      );
+      return true;
+    }
+    if (!isGroup) {
+      return false;
+    }
+    const policyAccess = evaluateTelegramGroupPolicyAccess({
+      isGroup,
+      chatId,
+      cfg,
+      telegramCfg,
+      topicConfig,
+      groupConfig,
+      effectiveGroupAllow,
+      senderId,
+      senderUsername,
+      resolveGroupPolicy,
+      enforcePolicy: true,
+      useTopicAndGroupOverrides: true,
+      enforceAllowlistAuthorization: true,
+      allowEmptyAllowlistEntries: false,
+      requireSenderForAllowlistAuthorization: true,
+      checkChatAllowlist: true,
+    });
+    if (!policyAccess.allowed) {
+      if (policyAccess.reason === "group-policy-disabled") {
+        logVerbose("Blocked telegram group message (groupPolicy: disabled)");
+        return true;
+      }
+      if (policyAccess.reason === "group-policy-allowlist-no-sender") {
+        logVerbose("Blocked telegram group message (no sender ID, groupPolicy: allowlist)");
+        return true;
+      }
+      if (policyAccess.reason === "group-policy-allowlist-empty") {
+        logVerbose(
+          "Blocked telegram group message (groupPolicy: allowlist, no group allowlist entries)",
+        );
+        return true;
+      }
+      if (policyAccess.reason === "group-policy-allowlist-unauthorized") {
+        logVerbose(`Blocked telegram group message from ${senderId} (groupPolicy: allowlist)`);
+        return true;
+      }
+      logger.info({ chatId, title: chatTitle, reason: "not-allowed" }, "skipping group message");
+      return true;
+    }
+    return false;
+  };
+
+  type TelegramGroupAllowContext = Awaited<ReturnType<typeof resolveTelegramGroupAllowFromContext>>;
+  type TelegramEventAuthorizationMode = "reaction" | "callback-scope" | "callback-allowlist";
+  type TelegramEventAuthorizationResult = { allowed: true } | { allowed: false; reason: string };
+  type TelegramEventAuthorizationContext = TelegramGroupAllowContext & { dmPolicy: DmPolicy };
+
+  const TELEGRAM_EVENT_AUTH_RULES: Record<
+    TelegramEventAuthorizationMode,
+    {
+      enforceDirectAuthorization: boolean;
+      enforceGroupAllowlistAuthorization: boolean;
+      deniedDmReason: string;
+      deniedGroupReason: string;
+    }
+  > = {
+    reaction: {
+      enforceDirectAuthorization: true,
+      enforceGroupAllowlistAuthorization: false,
+      deniedDmReason: "reaction unauthorized by dm policy/allowlist",
+      deniedGroupReason: "reaction unauthorized by group allowlist",
+    },
+    "callback-scope": {
+      enforceDirectAuthorization: false,
+      enforceGroupAllowlistAuthorization: false,
+      deniedDmReason: "callback unauthorized by inlineButtonsScope",
+      deniedGroupReason: "callback unauthorized by inlineButtonsScope",
+    },
+    "callback-allowlist": {
+      enforceDirectAuthorization: true,
+      // Group auth is already enforced by shouldSkipGroupMessage (group policy + allowlist).
+      // An extra allowlist gate here would block users whose original command was authorized.
+      enforceGroupAllowlistAuthorization: false,
+      deniedDmReason: "callback unauthorized by inlineButtonsScope allowlist",
+      deniedGroupReason: "callback unauthorized by inlineButtonsScope allowlist",
+    },
+  };
+
+  const resolveTelegramEventAuthorizationContext = async (params: {
+    chatId: number;
+    isForum: boolean;
+    messageThreadId?: number;
+    groupAllowContext?: TelegramGroupAllowContext;
+  }): Promise<TelegramEventAuthorizationContext> => {
+    const dmPolicy = telegramCfg.dmPolicy ?? "pairing";
+    const groupAllowContext =
+      params.groupAllowContext ??
+      (await resolveTelegramGroupAllowFromContext({
+        chatId: params.chatId,
+        accountId,
+        isForum: params.isForum,
+        messageThreadId: params.messageThreadId,
+        groupAllowFrom,
+        resolveTelegramGroupConfig,
+      }));
+    return { dmPolicy, ...groupAllowContext };
+  };
+
+  const authorizeTelegramEventSender = (params: {
+    chatId: number;
+    chatTitle?: string;
+    isGroup: boolean;
+    senderId: string;
+    senderUsername: string;
+    mode: TelegramEventAuthorizationMode;
+    context: TelegramEventAuthorizationContext;
+  }): TelegramEventAuthorizationResult => {
+    const { chatId, chatTitle, isGroup, senderId, senderUsername, mode, context } = params;
+    const {
+      dmPolicy,
+      resolvedThreadId,
+      storeAllowFrom,
+      groupConfig,
+      topicConfig,
+      effectiveGroupAllow,
+      hasGroupAllowOverride,
+    } = context;
+    const authRules = TELEGRAM_EVENT_AUTH_RULES[mode];
+    const {
+      enforceDirectAuthorization,
+      enforceGroupAllowlistAuthorization,
+      deniedDmReason,
+      deniedGroupReason,
+    } = authRules;
+    if (
+      shouldSkipGroupMessage({
+        isGroup,
+        chatId,
+        chatTitle,
+        resolvedThreadId,
+        senderId,
+        senderUsername,
+        effectiveGroupAllow,
+        hasGroupAllowOverride,
+        groupConfig,
+        topicConfig,
+      })
+    ) {
+      return { allowed: false, reason: "group-policy" };
+    }
+
+    if (!isGroup && enforceDirectAuthorization) {
+      if (dmPolicy === "disabled") {
+        logVerbose(
+          `Blocked telegram direct event from ${senderId || "unknown"} (${deniedDmReason})`,
+        );
+        return { allowed: false, reason: "direct-disabled" };
+      }
+      if (dmPolicy !== "open") {
+        const effectiveDmAllow = normalizeDmAllowFromWithStore({
+          allowFrom,
+          storeAllowFrom,
+          dmPolicy,
+        });
+        if (!isAllowlistAuthorized(effectiveDmAllow, senderId, senderUsername)) {
+          logVerbose(`Blocked telegram direct sender ${senderId || "unknown"} (${deniedDmReason})`);
+          return { allowed: false, reason: "direct-unauthorized" };
+        }
+      }
+    }
+    if (isGroup && enforceGroupAllowlistAuthorization) {
+      if (!isAllowlistAuthorized(effectiveGroupAllow, senderId, senderUsername)) {
+        logVerbose(`Blocked telegram group sender ${senderId || "unknown"} (${deniedGroupReason})`);
+        return { allowed: false, reason: "group-unauthorized" };
+      }
+    }
+    return { allowed: true };
+  };
+
+  // Handle emoji reactions to messages.
+  bot.on("message_reaction", async (ctx) => {
+    try {
+      const reaction = ctx.messageReaction;
+      if (!reaction) {
+        return;
+      }
+      if (shouldSkipUpdate(ctx)) {
+        return;
+      }
+
+      const chatId = reaction.chat.id;
+      const messageId = reaction.message_id;
+      const user = reaction.user;
+      const senderId = user?.id != null ? String(user.id) : "";
+      const senderUsername = user?.username ?? "";
+      const isGroup = reaction.chat.type === "group" || reaction.chat.type === "supergroup";
+      const isForum = reaction.chat.is_forum === true;
+
+      // Resolve reaction notification mode (default: "own").
+      const reactionMode = telegramCfg.reactionNotifications ?? "own";
+      if (reactionMode === "off") {
+        return;
+      }
+      if (user?.is_bot) {
+        return;
+      }
+      if (reactionMode === "own" && !wasSentByBot(chatId, messageId)) {
+        return;
+      }
+      const eventAuthContext = await resolveTelegramEventAuthorizationContext({
+        chatId,
+        isForum,
+      });
+      const senderAuthorization = authorizeTelegramEventSender({
+        chatId,
+        chatTitle: reaction.chat.title,
+        isGroup,
+        senderId,
+        senderUsername,
+        mode: "reaction",
+        context: eventAuthContext,
+      });
+      if (!senderAuthorization.allowed) {
+        return;
+      }
+
+      // Detect added reactions.
+      const oldEmojis = new Set(
+        reaction.old_reaction
+          .filter((r): r is ReactionTypeEmoji => r.type === "emoji")
+          .map((r) => r.emoji),
+      );
+      const addedReactions = reaction.new_reaction
+        .filter((r): r is ReactionTypeEmoji => r.type === "emoji")
+        .filter((r) => !oldEmojis.has(r.emoji));
+
+      if (addedReactions.length === 0) {
+        return;
+      }
+
+      // Build sender label.
+      const senderName = user
+        ? [user.first_name, user.last_name].filter(Boolean).join(" ").trim() || user.username
+        : undefined;
+      const senderUsernameLabel = user?.username ? `@${user.username}` : undefined;
+      let senderLabel = senderName;
+      if (senderName && senderUsernameLabel) {
+        senderLabel = `${senderName} (${senderUsernameLabel})`;
+      } else if (!senderName && senderUsernameLabel) {
+        senderLabel = senderUsernameLabel;
+      }
+      if (!senderLabel && user?.id) {
+        senderLabel = `id:${user.id}`;
+      }
+      senderLabel = senderLabel || "unknown";
+
+      // Reactions target a specific message_id; the Telegram Bot API does not include
+      // message_thread_id on MessageReactionUpdated, so we route to the chat-level
+      // session (forum topic routing is not available for reactions).
+      const resolvedThreadId = isForum
+        ? resolveTelegramForumThreadId({ isForum, messageThreadId: undefined })
+        : undefined;
+      const peerId = isGroup ? buildTelegramGroupPeerId(chatId, resolvedThreadId) : String(chatId);
+      const parentPeer = buildTelegramParentPeer({ isGroup, resolvedThreadId, chatId });
+      // Fresh config for bindings lookup; other routing inputs are payload-derived.
+      const route = resolveAgentRoute({
+        cfg: loadConfig(),
+        channel: "telegram",
+        accountId,
+        peer: { kind: isGroup ? "group" : "direct", id: peerId },
+        parentPeer,
+      });
+      const sessionKey = route.sessionKey;
+
+      // Enqueue system event for each added reaction.
+      for (const r of addedReactions) {
+        const emoji = r.emoji;
+        const text = `Telegram reaction added: ${emoji} by ${senderLabel} on msg ${messageId}`;
+        enqueueSystemEvent(text, {
+          sessionKey,
+          contextKey: `telegram:reaction:add:${chatId}:${messageId}:${user?.id ?? "anon"}:${emoji}`,
+        });
+        logVerbose(`telegram: reaction event enqueued: ${text}`);
+      }
+    } catch (err) {
+      runtime.error?.(danger(`telegram reaction handler failed: ${String(err)}`));
+    }
+  });
+  const processInboundMessage = async (params: {
+    ctx: TelegramContext;
+    msg: Message;
+    chatId: number;
+    resolvedThreadId?: number;
+    storeAllowFrom: string[];
+    sendOversizeWarning: boolean;
+    oversizeLogMessage: string;
+  }) => {
+    const {
+      ctx,
+      msg,
+      chatId,
+      resolvedThreadId,
+      storeAllowFrom,
+      sendOversizeWarning,
+      oversizeLogMessage,
+    } = params;
+
+    // Text fragment handling - Telegram splits long pastes into multiple inbound messages (~4096 chars).
+    // We buffer “near-limit” messages and append immediately-following parts.
+    const text = typeof msg.text === "string" ? msg.text : undefined;
+    const isCommandLike = (text ?? "").trim().startsWith("/");
+    if (text && !isCommandLike) {
+      const nowMs = Date.now();
+      const senderId = msg.from?.id != null ? String(msg.from.id) : "unknown";
+      const key = `text:${chatId}:${resolvedThreadId ?? "main"}:${senderId}`;
+      const existing = textFragmentBuffer.get(key);
+
+      if (existing) {
+        const last = existing.messages.at(-1);
+        const lastMsgId = last?.msg.message_id;
+        const lastReceivedAtMs = last?.receivedAtMs ?? nowMs;
+        const idGap = typeof lastMsgId === "number" ? msg.message_id - lastMsgId : Infinity;
+        const timeGapMs = nowMs - lastReceivedAtMs;
+        const canAppend =
+          idGap > 0 &&
+          idGap <= TELEGRAM_TEXT_FRAGMENT_MAX_ID_GAP &&
+          timeGapMs >= 0 &&
+          timeGapMs <= TELEGRAM_TEXT_FRAGMENT_MAX_GAP_MS;
+
+        if (canAppend) {
+          const currentTotalChars = existing.messages.reduce(
+            (sum, m) => sum + (m.msg.text?.length ?? 0),
+            0,
+          );
+          const nextTotalChars = currentTotalChars + text.length;
+          if (
+            existing.messages.length + 1 <= TELEGRAM_TEXT_FRAGMENT_MAX_PARTS &&
+            nextTotalChars <= TELEGRAM_TEXT_FRAGMENT_MAX_TOTAL_CHARS
+          ) {
+            existing.messages.push({ msg, ctx, receivedAtMs: nowMs });
+            scheduleTextFragmentFlush(existing);
+            return;
+          }
+        }
+
+        // Not appendable (or limits exceeded): flush buffered entry first, then continue normally.
+        clearTimeout(existing.timer);
+        textFragmentBuffer.delete(key);
+        textFragmentProcessing = textFragmentProcessing
+          .then(async () => {
+            await flushTextFragments(existing);
+          })
+          .catch(() => undefined);
+        await textFragmentProcessing;
+      }
+
+      const shouldStart = text.length >= TELEGRAM_TEXT_FRAGMENT_START_THRESHOLD_CHARS;
+      if (shouldStart) {
+        const entry: TextFragmentEntry = {
+          key,
+          messages: [{ msg, ctx, receivedAtMs: nowMs }],
+          timer: setTimeout(() => {}, TELEGRAM_TEXT_FRAGMENT_MAX_GAP_MS),
+        };
+        textFragmentBuffer.set(key, entry);
+        scheduleTextFragmentFlush(entry);
+        return;
+      }
+    }
+
+    // Media group handling - buffer multi-image messages
+    const mediaGroupId = msg.media_group_id;
+    if (mediaGroupId) {
+      const existing = mediaGroupBuffer.get(mediaGroupId);
+      if (existing) {
+        clearTimeout(existing.timer);
+        existing.messages.push({ msg, ctx });
+        existing.timer = setTimeout(async () => {
+          mediaGroupBuffer.delete(mediaGroupId);
+          mediaGroupProcessing = mediaGroupProcessing
+            .then(async () => {
+              await processMediaGroup(existing);
+            })
+            .catch(() => undefined);
+          await mediaGroupProcessing;
+        }, mediaGroupTimeoutMs);
+      } else {
+        const entry: MediaGroupEntry = {
+          messages: [{ msg, ctx }],
+          timer: setTimeout(async () => {
+            mediaGroupBuffer.delete(mediaGroupId);
+            mediaGroupProcessing = mediaGroupProcessing
+              .then(async () => {
+                await processMediaGroup(entry);
+              })
+              .catch(() => undefined);
+            await mediaGroupProcessing;
+          }, mediaGroupTimeoutMs),
+        };
+        mediaGroupBuffer.set(mediaGroupId, entry);
+      }
+      return;
+    }
+
+    let media: Awaited<ReturnType<typeof resolveMedia>> = null;
+    try {
+      media = await resolveMedia(ctx, mediaMaxBytes, opts.token, opts.proxyFetch);
+    } catch (mediaErr) {
+      if (isMediaSizeLimitError(mediaErr)) {
+        if (sendOversizeWarning) {
+          const limitMb = Math.round(mediaMaxBytes / (1024 * 1024));
+          await withTelegramApiErrorLogging({
+            operation: "sendMessage",
+            runtime,
+            fn: () =>
+              bot.api.sendMessage(chatId, `⚠️ File too large. Maximum size is ${limitMb}MB.`, {
+                reply_to_message_id: msg.message_id,
+              }),
+          }).catch(() => {});
+        }
+        logger.warn({ chatId, error: String(mediaErr) }, oversizeLogMessage);
+        return;
+      }
+      logger.warn({ chatId, error: String(mediaErr) }, "media fetch failed");
+      await withTelegramApiErrorLogging({
+        operation: "sendMessage",
+        runtime,
+        fn: () =>
+          bot.api.sendMessage(chatId, "⚠️ Failed to download media. Please try again.", {
+            reply_to_message_id: msg.message_id,
+          }),
+      }).catch(() => {});
+      return;
+    }
+
+    // Skip sticker-only messages where the sticker was skipped (animated/video)
+    // These have no media and no text content to process.
+    const hasText = Boolean((msg.text ?? msg.caption ?? "").trim());
+    if (msg.sticker && !media && !hasText) {
+      logVerbose("telegram: skipping sticker-only message (unsupported sticker type)");
+      return;
+    }
+
+    const allMedia = media
+      ? [
+          {
+            path: media.path,
+            contentType: media.contentType,
+            stickerMetadata: media.stickerMetadata,
+          },
+        ]
+      : [];
+    const senderId = msg.from?.id ? String(msg.from.id) : "";
+    const conversationKey =
+      resolvedThreadId != null ? `${chatId}:topic:${resolvedThreadId}` : String(chatId);
+    const debounceLane = resolveTelegramDebounceLane(msg);
+    const debounceKey = senderId
+      ? `telegram:${accountId ?? "default"}:${conversationKey}:${senderId}:${debounceLane}`
+      : null;
+    await inboundDebouncer.enqueue({
+      ctx,
+      msg,
+      allMedia,
+      storeAllowFrom,
+      debounceKey,
+      debounceLane,
+      botUsername: ctx.me?.username,
+    });
+  };
+>>>>>>> 8bdda7a65 (fix(security): keep DM pairing allowlists out of group auth)
   bot.on("callback_query", async (ctx) => {
     const callback = ctx.callbackQuery;
     if (!callback) return;
@@ -455,6 +1008,18 @@ export const registerTelegramHandlers = ({
       const effectiveGroupAllow = normalizeAllowFromWithStore({
         allowFrom: groupAllowOverride ?? groupAllowFrom,
         storeAllowFrom,
+<<<<<<< HEAD
+=======
+        groupConfig,
+        topicConfig,
+        effectiveGroupAllow,
+        hasGroupAllowOverride,
+      } = eventAuthContext;
+      const effectiveDmAllow = normalizeDmAllowFromWithStore({
+        allowFrom,
+        storeAllowFrom,
+        dmPolicy,
+>>>>>>> 8bdda7a65 (fix(security): keep DM pairing allowlists out of group auth)
       });
       const hasGroupAllowOverride = typeof groupAllowOverride !== "undefined";
 

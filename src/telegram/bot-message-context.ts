@@ -38,7 +38,7 @@ import {
   firstDefined,
   isSenderAllowed,
   normalizeAllowFrom,
-  normalizeAllowFromWithStore,
+  normalizeDmAllowFromWithStore,
 } from "./bot-access.js";
 >>>>>>> c7352f6b3 (security(telegram): fail closed group allowlist against DM pairing store)
 import {
@@ -190,7 +190,11 @@ export const buildTelegramMessageContext = async ({
       : null;
   const sessionKey = threadKeys?.sessionKey ?? baseSessionKey;
   const mentionRegexes = buildMentionRegexes(cfg, route.agentId);
+<<<<<<< HEAD
   const effectiveDmAllow = normalizeAllowFromWithStore({ allowFrom, storeAllowFrom });
+=======
+  const effectiveDmAllow = normalizeDmAllowFromWithStore({ allowFrom, storeAllowFrom, dmPolicy });
+>>>>>>> 8bdda7a65 (fix(security): keep DM pairing allowlists out of group auth)
   const groupAllowOverride = firstDefined(topicConfig?.allowFrom, groupConfig?.allowFrom);
 <<<<<<< HEAD
   const effectiveGroupAllow = normalizeAllowFromWithStore({
