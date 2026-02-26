@@ -1,7 +1,11 @@
 {
   "name": "@openclaw/synology-chat",
+<<<<<<< HEAD
   "version": "2026.2.22",
   "private": true,
+=======
+  "version": "2026.2.26",
+>>>>>>> caace61ba (chore: bump versions to 2026.2.26)
   "description": "Synology Chat channel plugin for OpenClaw",
   "type": "module",
   "dependencies": {
