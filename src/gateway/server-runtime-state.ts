@@ -16,6 +16,7 @@ import type { HooksConfigResolved } from "./hooks.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> ed11e93cf (chore(format))
@@ -39,6 +40,9 @@ import { type CanvasHostHandler, createCanvasHostHandler } from "../canvas-host/
 =======
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { resolveGatewayListenHosts } from "./net.js";
+=======
+import { isLoopbackHost, resolveGatewayListenHosts } from "./net.js";
+>>>>>>> a288f3066 (fix(gateway): warn on non-loopback bind at startup (land #25397, thanks @let5sne))
 import {
   createGatewayBroadcaster,
   type GatewayBroadcastFn,
@@ -200,6 +204,12 @@ export async function createGatewayRuntimeState(params: {
   });
 
   const bindHosts = await resolveGatewayListenHosts(params.bindHost);
+  if (!isLoopbackHost(params.bindHost)) {
+    params.log.warn(
+      "⚠️  Gateway is binding to a non-loopback address. " +
+        "Ensure authentication is configured before exposing to public networks.",
+    );
+  }
   const httpServers: HttpServer[] = [];
   const httpBindHosts: string[] = [];
   for (const host of bindHosts) {
