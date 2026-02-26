@@ -2860,6 +2860,7 @@ public struct DevicePairRequestedEvent: Codable, Sendable {
     public let publickey: String
     public let displayname: String?
     public let platform: String?
+    public let devicefamily: String?
     public let clientid: String?
     public let clientmode: String?
     public let role: String?
@@ -2876,6 +2877,7 @@ public struct DevicePairRequestedEvent: Codable, Sendable {
         publickey: String,
         displayname: String?,
         platform: String?,
+        devicefamily: String?,
         clientid: String?,
         clientmode: String?,
         role: String?,
@@ -2891,6 +2893,7 @@ public struct DevicePairRequestedEvent: Codable, Sendable {
         self.publickey = publickey
         self.displayname = displayname
         self.platform = platform
+        self.devicefamily = devicefamily
         self.clientid = clientid
         self.clientmode = clientmode
         self.role = role
@@ -2907,6 +2910,7 @@ public struct DevicePairRequestedEvent: Codable, Sendable {
         case publickey = "publicKey"
         case displayname = "displayName"
         case platform
+        case devicefamily = "deviceFamily"
         case clientid = "clientId"
         case clientmode = "clientMode"
         case role
