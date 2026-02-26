@@ -376,6 +376,7 @@
     "express": "^5.2.1",
     "file-type": "^21.3.0",
 <<<<<<< HEAD
+<<<<<<< HEAD
     "grammy": "^1.39.3",
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -401,6 +402,9 @@
 =======
 >>>>>>> 8fad4c284 (chore(deps): update dependencies, remove hono pinning)
 =======
+=======
+    "grammy": "^1.40.1",
+>>>>>>> ed9cd846d (chore(deps): refresh grammy and @types/node)
     "https-proxy-agent": "^7.0.6",
 <<<<<<< HEAD
 >>>>>>> 0cb69b0f2 (Discord: add gateway proxy support)
@@ -442,7 +446,7 @@
     "@lit/context": "^1.1.6",
     "@types/express": "^5.0.6",
     "@types/markdown-it": "^14.1.2",
-    "@types/node": "^25.3.0",
+    "@types/node": "^25.3.1",
     "@types/qrcode-terminal": "^0.12.2",
     "@types/ws": "^8.18.1",
     "@typescript/native-preview": "7.0.0-dev.20260225.1",
