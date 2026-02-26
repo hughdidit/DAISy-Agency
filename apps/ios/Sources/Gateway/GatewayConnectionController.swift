@@ -121,7 +121,7 @@ final class GatewayConnectionController {
             await self.connectManual(host: host, port: port, useTLS: useTLS)
         case let .discovered(stableID, _):
             guard let gateway = self.gateways.first(where: { $0.stableID == stableID }) else { return }
-            await self.connectDiscoveredGateway(gateway)
+            _ = await self.connectDiscoveredGateway(gateway)
         }
     }
 
@@ -267,6 +267,7 @@ final class GatewayConnectionController {
             self.gateways.contains(where: { $0.stableID == id })
         }) else { return }
 
+<<<<<<< HEAD
         guard let target = self.gateways.first(where: { $0.stableID == targetStableID }) else { return }
         guard let host = self.resolveGatewayHost(target) else { return }
         let port = target.gatewayPort ?? 18789
@@ -281,6 +282,37 @@ final class GatewayConnectionController {
             tls: tlsParams,
             token: token,
             password: password)
+=======
+            self.didAutoConnect = true
+            Task { [weak self] in
+                guard let self else { return }
+                _ = await self.connectDiscoveredGateway(target)
+            }
+            return
+        }
+
+        if self.gateways.count == 1, let gateway = self.gateways.first {
+            // Security: autoconnect only to previously trusted gateways (stored TLS pin).
+            guard GatewayTLSStore.loadFingerprint(stableID: gateway.stableID) != nil else { return }
+
+            self.didAutoConnect = true
+            Task { [weak self] in
+                guard let self else { return }
+                _ = await self.connectDiscoveredGateway(gateway)
+            }
+            return
+        }
+    }
+
+    private func attemptAutoReconnectIfNeeded() {
+        guard let appModel = self.appModel else { return }
+        guard appModel.gatewayAutoReconnectEnabled else { return }
+        // Avoid starting duplicate connect loops while a prior config is active.
+        guard appModel.activeGatewayConnectConfig == nil else { return }
+        guard UserDefaults.standard.bool(forKey: "gateway.autoconnect") else { return }
+        self.didAutoConnect = false
+        self.maybeAutoConnect()
+>>>>>>> c35368c6d (fix(ios): eliminate Swift warnings and clean build logs)
     }
 
     private func updateLastDiscoveredGateway(from gateways: [GatewayDiscoveryModel.DiscoveredGateway]) {
@@ -355,8 +387,145 @@ final class GatewayConnectionController {
         if let lanHost = gateway.lanHost?.trimmingCharacters(in: .whitespacesAndNewlines), !lanHost.isEmpty {
             return lanHost
         }
+<<<<<<< HEAD
         if let tailnet = gateway.tailnetDns?.trimmingCharacters(in: .whitespacesAndNewlines), !tailnet.isEmpty {
             return tailnet
+=======
+    }
+
+    private func resolveServiceEndpoint(_ endpoint: NWEndpoint) async -> (host: String, port: Int)? {
+        guard case let .service(name, type, domain, _) = endpoint else { return nil }
+        let key = "\(domain)|\(type)|\(name)"
+        return await withCheckedContinuation { continuation in
+            let resolver = GatewayServiceResolver(name: name, type: type, domain: domain) { [weak self] result in
+                Task { @MainActor in
+                    self?.pendingServiceResolvers[key] = nil
+                    continuation.resume(returning: result)
+                }
+            }
+            self.pendingServiceResolvers[key] = resolver
+            resolver.start()
+        }
+    }
+
+    private func resolveHostPortFromBonjourEndpoint(_ endpoint: NWEndpoint) async -> (host: String, port: Int)? {
+        switch endpoint {
+        case let .hostPort(host, port):
+            return (host: host.debugDescription, port: Int(port.rawValue))
+        case let .service(name, type, domain, _):
+            return await Self.resolveBonjourServiceToHostPort(name: name, type: type, domain: domain)
+        default:
+            return nil
+        }
+    }
+
+    private static func resolveBonjourServiceToHostPort(
+        name: String,
+        type: String,
+        domain: String,
+        timeoutSeconds: TimeInterval = 3.0
+    ) async -> (host: String, port: Int)? {
+        // NetService callbacks are delivered via a run loop. If we resolve from a thread without one,
+        // we can end up never receiving callbacks, which in turn leaks the continuation and leaves
+        // the UI stuck "connecting". Keep the whole lifecycle on the main run loop and always
+        // resume the continuation exactly once (timeout/cancel safe).
+        @MainActor
+        final class Resolver: NSObject, @preconcurrency NetServiceDelegate {
+            private var cont: CheckedContinuation<(host: String, port: Int)?, Never>?
+            private let service: NetService
+            private var timeoutTask: Task<Void, Never>?
+            private var finished = false
+
+            init(cont: CheckedContinuation<(host: String, port: Int)?, Never>, service: NetService) {
+                self.cont = cont
+                self.service = service
+                super.init()
+            }
+
+            func start(timeoutSeconds: TimeInterval) {
+                self.service.delegate = self
+                self.service.schedule(in: .main, forMode: .default)
+
+                // NetService has its own timeout, but we keep a manual one as a backstop in case
+                // callbacks never arrive (e.g. local network permission issues).
+                self.timeoutTask = Task { @MainActor [weak self] in
+                    guard let self else { return }
+                    let ns = UInt64(max(0.1, timeoutSeconds) * 1_000_000_000)
+                    try? await Task.sleep(nanoseconds: ns)
+                    self.finish(nil)
+                }
+
+                self.service.resolve(withTimeout: timeoutSeconds)
+            }
+
+            func netServiceDidResolveAddress(_ sender: NetService) {
+                self.finish(Self.extractHostPort(sender))
+            }
+
+            func netService(_ sender: NetService, didNotResolve errorDict: [String: NSNumber]) {
+                _ = errorDict // currently best-effort; callers surface a generic failure
+                self.finish(nil)
+            }
+
+            private func finish(_ result: (host: String, port: Int)?) {
+                guard !self.finished else { return }
+                self.finished = true
+
+                self.timeoutTask?.cancel()
+                self.timeoutTask = nil
+
+                self.service.stop()
+                self.service.remove(from: .main, forMode: .default)
+
+                let c = self.cont
+                self.cont = nil
+                c?.resume(returning: result)
+            }
+
+            private static func extractHostPort(_ svc: NetService) -> (host: String, port: Int)? {
+                let port = svc.port
+
+                if let host = svc.hostName?.trimmingCharacters(in: .whitespacesAndNewlines), !host.isEmpty {
+                    return (host: host, port: port)
+                }
+
+                guard let addrs = svc.addresses else { return nil }
+                    for addrData in addrs {
+                        let host = addrData.withUnsafeBytes { ptr -> String? in
+                        guard let base = ptr.baseAddress, !ptr.isEmpty else { return nil }
+                        var buffer = [CChar](repeating: 0, count: Int(NI_MAXHOST))
+
+                        let rc = getnameinfo(
+                            base.assumingMemoryBound(to: sockaddr.self),
+                            socklen_t(ptr.count),
+                            &buffer,
+                            socklen_t(buffer.count),
+                            nil,
+                            0,
+                            NI_NUMERICHOST)
+                        guard rc == 0 else { return nil }
+                        let bytes = buffer.prefix { $0 != 0 }.map { UInt8(bitPattern: $0) }
+                        return String(bytes: bytes, encoding: .utf8)
+                    }
+
+                    if let host, !host.isEmpty {
+                        return (host: host, port: port)
+                    }
+                }
+
+                return nil
+            }
+        }
+
+        return await withCheckedContinuation { cont in
+            Task { @MainActor in
+                let service = NetService(domain: domain, type: type, name: name)
+                let resolver = Resolver(cont: cont, service: service)
+                // Keep the resolver alive for the lifetime of the NetService resolve.
+                objc_setAssociatedObject(service, "resolver", resolver, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+                resolver.start(timeoutSeconds: timeoutSeconds)
+            }
+>>>>>>> c35368c6d (fix(ios): eliminate Swift warnings and clean build logs)
         }
         return nil
     }
@@ -649,11 +818,9 @@ final class GatewayConnectionController {
         permissions["contacts"] = contactsStatus == .authorized || contactsStatus == .limited
 
         let calendarStatus = EKEventStore.authorizationStatus(for: .event)
-        permissions["calendar"] =
-            calendarStatus == .authorized || calendarStatus == .fullAccess || calendarStatus == .writeOnly
+        permissions["calendar"] = Self.hasEventKitAccess(calendarStatus)
         let remindersStatus = EKEventStore.authorizationStatus(for: .reminder)
-        permissions["reminders"] =
-            remindersStatus == .authorized || remindersStatus == .fullAccess || remindersStatus == .writeOnly
+        permissions["reminders"] = Self.hasEventKitAccess(remindersStatus)
 
         let motionStatus = CMMotionActivityManager.authorizationStatus()
         let pedometerStatus = CMPedometer.authorizationStatus()
@@ -671,11 +838,15 @@ final class GatewayConnectionController {
 
     private static func isLocationAuthorized(status: CLAuthorizationStatus) -> Bool {
         switch status {
-        case .authorizedAlways, .authorizedWhenInUse, .authorized:
+        case .authorizedAlways, .authorizedWhenInUse:
             return true
         default:
             return false
         }
+    }
+
+    private static func hasEventKitAccess(_ status: EKAuthorizationStatus) -> Bool {
+        status == .fullAccess || status == .writeOnly
     }
 
     private static func motionAvailable() -> Bool {
@@ -766,3 +937,74 @@ extension GatewayConnectionController {
     }
 }
 #endif
+<<<<<<< HEAD
+=======
+
+private final class GatewayTLSFingerprintProbe: NSObject, URLSessionDelegate, @unchecked Sendable {
+    private let url: URL
+    private let timeoutSeconds: Double
+    private let onComplete: (String?) -> Void
+    private var didFinish = false
+    private var session: URLSession?
+    private var task: URLSessionWebSocketTask?
+
+    init(url: URL, timeoutSeconds: Double, onComplete: @escaping (String?) -> Void) {
+        self.url = url
+        self.timeoutSeconds = timeoutSeconds
+        self.onComplete = onComplete
+    }
+
+    func start() {
+        let config = URLSessionConfiguration.ephemeral
+        config.timeoutIntervalForRequest = self.timeoutSeconds
+        config.timeoutIntervalForResource = self.timeoutSeconds
+        let session = URLSession(configuration: config, delegate: self, delegateQueue: nil)
+        self.session = session
+        let task = session.webSocketTask(with: self.url)
+        self.task = task
+        task.resume()
+
+        DispatchQueue.global(qos: .utility).asyncAfter(deadline: .now() + self.timeoutSeconds) { [weak self] in
+            self?.finish(nil)
+        }
+    }
+
+    func urlSession(
+        _ session: URLSession,
+        didReceive challenge: URLAuthenticationChallenge,
+        completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void
+    ) {
+        guard challenge.protectionSpace.authenticationMethod == NSURLAuthenticationMethodServerTrust,
+              let trust = challenge.protectionSpace.serverTrust
+        else {
+            completionHandler(.performDefaultHandling, nil)
+            return
+        }
+
+        let fp = GatewayTLSFingerprintProbe.certificateFingerprint(trust)
+        completionHandler(.cancelAuthenticationChallenge, nil)
+        self.finish(fp)
+    }
+
+    private func finish(_ fingerprint: String?) {
+        objc_sync_enter(self)
+        defer { objc_sync_exit(self) }
+        guard !self.didFinish else { return }
+        self.didFinish = true
+        self.task?.cancel(with: .goingAway, reason: nil)
+        self.session?.invalidateAndCancel()
+        self.onComplete(fingerprint)
+    }
+
+    private static func certificateFingerprint(_ trust: SecTrust) -> String? {
+        guard let chain = SecTrustCopyCertificateChain(trust) as? [SecCertificate],
+              let cert = chain.first
+        else {
+            return nil
+        }
+        let data = SecCertificateCopyData(cert) as Data
+        let digest = SHA256.hash(data: data)
+        return digest.map { String(format: "%02x", $0) }.joined()
+    }
+}
+>>>>>>> c35368c6d (fix(ios): eliminate Swift warnings and clean build logs)
