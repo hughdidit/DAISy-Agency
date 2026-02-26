@@ -244,6 +244,48 @@ describe("buildServiceEnvironment", () => {
       expect(env.CLAWDBOT_LAUNCHD_LABEL).toBe("bot.molt.work");
     }
   });
+<<<<<<< HEAD
+=======
+
+  it("forwards proxy environment variables for launchd/systemd runtime", () => {
+    const env = buildServiceEnvironment({
+      env: {
+        HOME: "/home/user",
+        HTTP_PROXY: " http://proxy.local:7890 ",
+        HTTPS_PROXY: "https://proxy.local:7890",
+        NO_PROXY: "localhost,127.0.0.1",
+        http_proxy: "http://proxy.local:7890",
+        all_proxy: "socks5://proxy.local:1080",
+      },
+      port: 18789,
+    });
+
+    expect(env.HTTP_PROXY).toBe("http://proxy.local:7890");
+    expect(env.HTTPS_PROXY).toBe("https://proxy.local:7890");
+    expect(env.NO_PROXY).toBe("localhost,127.0.0.1");
+    expect(env.http_proxy).toBe("http://proxy.local:7890");
+    expect(env.all_proxy).toBe("socks5://proxy.local:1080");
+  });
+  it("defaults NODE_EXTRA_CA_CERTS to system cert bundle on macOS", () => {
+    const env = buildServiceEnvironment({
+      env: { HOME: "/home/user" },
+      port: 18789,
+    });
+    if (process.platform === "darwin") {
+      expect(env.NODE_EXTRA_CA_CERTS).toBe("/etc/ssl/cert.pem");
+    } else {
+      expect(env.NODE_EXTRA_CA_CERTS).toBeUndefined();
+    }
+  });
+
+  it("respects user-provided NODE_EXTRA_CA_CERTS over the default", () => {
+    const env = buildServiceEnvironment({
+      env: { HOME: "/home/user", NODE_EXTRA_CA_CERTS: "/custom/certs/ca.pem" },
+      port: 18789,
+    });
+    expect(env.NODE_EXTRA_CA_CERTS).toBe("/custom/certs/ca.pem");
+  });
+>>>>>>> 6b59c8757 (fix: add missing closing brace in proxy env test)
 });
 
 describe("buildNodeServiceEnvironment", () => {
