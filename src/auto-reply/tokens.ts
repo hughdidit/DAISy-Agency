@@ -12,6 +12,7 @@ export function isSilentReplyText(
   }
   const escaped = escapeRegExp(token);
 <<<<<<< HEAD
+<<<<<<< HEAD
   const prefix = new RegExp(`^\\s*${escaped}(?=$|\\W)`);
   if (prefix.test(text)) {
     return true;
@@ -21,6 +22,10 @@ export function isSilentReplyText(
 =======
   // Only match when the entire response (trimmed) is the silent token,
   // optionally surrounded by whitespace. This prevents
+=======
+  // Match only the exact silent token with optional surrounding whitespace.
+  // This prevents
+>>>>>>> 133f14c0a (docs(auto-reply): align silent token comment with regex)
   // substantive replies ending with NO_REPLY from being suppressed (#19537).
   return new RegExp(`^\\s*${escaped}\\s*$`).test(text);
 >>>>>>> e64d72299 (fix(auto-reply): tighten silent token semantics and prefix streaming)
