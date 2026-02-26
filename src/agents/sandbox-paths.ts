@@ -1,13 +1,17 @@
-import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 <<<<<<< HEAD
 import { fileURLToPath } from "node:url";
 =======
 import { fileURLToPath, URL } from "node:url";
+<<<<<<< HEAD
 import { assertNoHardlinkedFinalPath } from "../infra/hardlink-guards.js";
 >>>>>>> 04d91d031 (fix(security): block workspace hardlink alias escapes)
 import { isNotFoundPathError, isPathInside } from "../infra/path-guards.js";
+=======
+import { assertNoPathAliasEscape, type PathAliasPolicy } from "../infra/path-alias-guards.js";
+import { isPathInside } from "../infra/path-guards.js";
+>>>>>>> de61e9c97 (refactor(security): unify path alias guard policies)
 import { resolvePreferredOpenClawTmpDir } from "../infra/tmp-openclaw-dir.js";
 
 const UNICODE_SPACES = /[\u00A0\u2000-\u200A\u202F\u205F\u3000]/g;
@@ -60,18 +64,19 @@ export async function assertSandboxPath(params: {
   filePath: string;
   cwd: string;
   root: string;
-  allowFinalSymlink?: boolean;
-  allowFinalHardlink?: boolean;
+  allowFinalSymlinkForUnlink?: boolean;
+  allowFinalHardlinkForUnlink?: boolean;
 }) {
   const resolved = resolveSandboxPath(params);
-  await assertNoSymlinkEscape(resolved.relative, path.resolve(params.root), {
-    allowFinalSymlink: params.allowFinalSymlink,
-  });
-  await assertNoHardlinkedFinalPath({
-    filePath: resolved.resolved,
-    root: path.resolve(params.root),
+  const policy: PathAliasPolicy = {
+    allowFinalSymlinkForUnlink: params.allowFinalSymlinkForUnlink,
+    allowFinalHardlinkForUnlink: params.allowFinalHardlinkForUnlink,
+  };
+  await assertNoPathAliasEscape({
+    absolutePath: resolved.resolved,
+    rootPath: path.resolve(params.root),
     boundaryLabel: "sandbox root",
-    allowFinalHardlink: params.allowFinalHardlink,
+    policy,
   });
 >>>>>>> 04d91d031 (fix(security): block workspace hardlink alias escapes)
   return resolved;
@@ -188,14 +193,14 @@ async function assertNoTmpAliasEscape(params: {
   filePath: string;
   tmpRoot: string;
 }): Promise<void> {
-  await assertNoSymlinkEscape(path.relative(params.tmpRoot, params.filePath), params.tmpRoot);
-  await assertNoHardlinkedFinalPath({
-    filePath: params.filePath,
-    root: params.tmpRoot,
+  await assertNoPathAliasEscape({
+    absolutePath: params.filePath,
+    rootPath: params.tmpRoot,
     boundaryLabel: "tmp root",
   });
 }
 
+<<<<<<< HEAD
 >>>>>>> 04d91d031 (fix(security): block workspace hardlink alias escapes)
 async function assertNoSymlinkEscape(
   relative: string,
@@ -240,6 +245,8 @@ async function tryRealpath(value: string): Promise<string> {
   }
 }
 
+=======
+>>>>>>> de61e9c97 (refactor(security): unify path alias guard policies)
 function shortPath(value: string) {
   if (value.startsWith(os.homedir())) {
     return `~${value.slice(os.homedir().length)}`;

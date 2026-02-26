@@ -3,6 +3,7 @@ import os from "node:os";
 import path from "node:path";
 import type { AgentTool } from "@mariozechner/pi-agent-core";
 import { Type } from "@sinclair/typebox";
+import { PATH_ALIAS_POLICIES, type PathAliasPolicy } from "../infra/path-alias-guards.js";
 import { applyUpdateHunk } from "./apply-patch-update.js";
 import { assertSandboxPath } from "./sandbox-paths.js";
 
@@ -170,6 +171,7 @@ export async function applyPatch(
     if (hunk.kind === "delete") {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       const target = await resolvePatchPath(hunk.path, options);
       await fs.rm(target.resolved);
 =======
@@ -177,6 +179,9 @@ export async function applyPatch(
 =======
       const target = await resolvePatchPath(hunk.path, options);
 >>>>>>> 4a44da7d9 (fix(security): default apply_patch workspace containment)
+=======
+      const target = await resolvePatchPath(hunk.path, options, PATH_ALIAS_POLICIES.unlinkTarget);
+>>>>>>> de61e9c97 (refactor(security): unify path alias guard policies)
       await fileOps.remove(target.resolved);
 >>>>>>> 5e7c3250c (fix(security): add optional workspace-only path guards for fs tools)
       recordSummary(summary, seen, "deleted", target.display);
@@ -236,6 +241,10 @@ async function ensureDir(filePath: string) {
 async function resolvePatchPath(
   filePath: string,
   options: ApplyPatchOptions,
+<<<<<<< HEAD
+=======
+  aliasPolicy: PathAliasPolicy = PATH_ALIAS_POLICIES.strict,
+>>>>>>> de61e9c97 (refactor(security): unify path alias guard policies)
 ): Promise<{ resolved: string; display: string }> {
   if (options.sandboxRoot) {
     const resolved = await assertSandboxPath({
@@ -250,8 +259,8 @@ async function resolvePatchPath(
         filePath: resolved.hostPath,
         cwd: options.cwd,
         root: options.cwd,
-        allowFinalSymlink: purpose === "unlink",
-        allowFinalHardlink: purpose === "unlink",
+        allowFinalSymlinkForUnlink: aliasPolicy.allowFinalSymlinkForUnlink,
+        allowFinalHardlinkForUnlink: aliasPolicy.allowFinalHardlinkForUnlink,
       });
     }
 >>>>>>> 04d91d031 (fix(security): block workspace hardlink alias escapes)
@@ -269,10 +278,15 @@ async function resolvePatchPath(
           cwd: options.cwd,
           root: options.cwd,
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
           allowFinalSymlink: purpose === "unlink",
           allowFinalHardlink: purpose === "unlink",
 >>>>>>> 04d91d031 (fix(security): block workspace hardlink alias escapes)
+=======
+          allowFinalSymlinkForUnlink: aliasPolicy.allowFinalSymlinkForUnlink,
+          allowFinalHardlinkForUnlink: aliasPolicy.allowFinalHardlinkForUnlink,
+>>>>>>> de61e9c97 (refactor(security): unify path alias guard policies)
         })
       ).resolved
     : resolvePathFromCwd(filePath, options.cwd);
