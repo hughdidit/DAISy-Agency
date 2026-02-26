@@ -16,6 +16,7 @@ import type { OpenClawConfig } from "../../../config/config.js";
 import type { SecretInput } from "../../../config/types.secrets.js";
 import type { RuntimeEnv } from "../../../runtime.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import { upsertSharedEnvVar } from "../../../infra/env-file.js";
@@ -36,6 +37,9 @@ import type { RuntimeEnv } from "../../../runtime.js";
 import { shortenHomePath } from "../../../utils.js";
 =======
 >>>>>>> 59e5f12bf (Onboard: move volcengine/byteplus auth from .env to profiles)
+=======
+import { resolveDefaultSecretProviderAlias } from "../../../secrets/ref-contract.js";
+>>>>>>> 8944b75e1 (fix(secrets): align ref contracts and non-interactive ref persistence)
 import { normalizeSecretInput } from "../../../utils/normalize-secret-input.js";
 <<<<<<< HEAD
 >>>>>>> 42a07791c (fix(auth): strip line breaks from pasted keys)
@@ -124,6 +128,10 @@ import { detectZaiEndpoint } from "../../zai-endpoint-detect.js";
 import { resolveNonInteractiveApiKey } from "../api-keys.js";
 import { shortenHomePath } from "../../../utils.js";
 
+type ResolvedNonInteractiveApiKey = NonNullable<
+  Awaited<ReturnType<typeof resolveNonInteractiveApiKey>>
+>;
+
 export async function applyNonInteractiveAuthChoice(params: {
   nextConfig: MoltbotConfig;
   authChoice: AuthChoice;
@@ -142,13 +150,50 @@ export async function applyNonInteractiveAuthChoice(params: {
   const apiKeyStorageOptions = requestedSecretInputMode
     ? { secretInputMode: requestedSecretInputMode }
     : undefined;
-  const resolveApiKey = (
-    input: Parameters<typeof resolveNonInteractiveApiKey>[0],
-  ): ReturnType<typeof resolveNonInteractiveApiKey> =>
+  const toStoredSecretInput = (resolved: ResolvedNonInteractiveApiKey): SecretInput | null => {
+    if (requestedSecretInputMode !== "ref") {
+      return resolved.key;
+    }
+    if (resolved.source !== "env") {
+      return resolved.key;
+    }
+    if (!resolved.envVarName) {
+      runtime.error(
+        [
+          `Unable to determine which environment variable to store as a ref for provider "${authChoice}".`,
+          "Set an explicit provider env var and retry, or use --secret-input-mode plaintext.",
+        ].join("\n"),
+      );
+      runtime.exit(1);
+      return null;
+    }
+    return {
+      source: "env",
+      provider: resolveDefaultSecretProviderAlias(baseConfig, "env", {
+        preferFirstProviderForSource: true,
+      }),
+      id: resolved.envVarName,
+    };
+  };
+  const resolveApiKey = (input: Parameters<typeof resolveNonInteractiveApiKey>[0]) =>
     resolveNonInteractiveApiKey({
       ...input,
       secretInputMode: requestedSecretInputMode,
     });
+  const maybeSetResolvedApiKey = async (
+    resolved: ResolvedNonInteractiveApiKey,
+    setter: (value: SecretInput) => Promise<void> | void,
+  ): Promise<boolean> => {
+    if (resolved.source === "profile") {
+      return true;
+    }
+    const stored = toStoredSecretInput(resolved);
+    if (!stored) {
+      return false;
+    }
+    await setter(stored);
+    return true;
+  };
 
   if (authChoice === "claude-cli" || authChoice === "codex-cli") {
     runtime.error(
@@ -195,8 +240,12 @@ export async function applyNonInteractiveAuthChoice(params: {
     if (!resolved) {
       return null;
     }
-    if (resolved.source !== "profile") {
-      await setAnthropicApiKey(resolved.key, undefined, apiKeyStorageOptions);
+    if (
+      !(await maybeSetResolvedApiKey(resolved, (value) =>
+        setAnthropicApiKey(value, undefined, apiKeyStorageOptions),
+      ))
+    ) {
+      return null;
     }
     return applyAuthProfileConfig(nextConfig, {
       profileId: "anthropic:default",
@@ -272,8 +321,12 @@ export async function applyNonInteractiveAuthChoice(params: {
     if (!resolved) {
       return null;
     }
-    if (resolved.source !== "profile") {
-      await setGeminiApiKey(resolved.key, undefined, apiKeyStorageOptions);
+    if (
+      !(await maybeSetResolvedApiKey(resolved, (value) =>
+        setGeminiApiKey(value, undefined, apiKeyStorageOptions),
+      ))
+    ) {
+      return null;
     }
     nextConfig = applyAuthProfileConfig(nextConfig, {
       profileId: "google:default",
@@ -301,8 +354,12 @@ export async function applyNonInteractiveAuthChoice(params: {
     if (!resolved) {
       return null;
     }
-    if (resolved.source !== "profile") {
-      await setZaiApiKey(resolved.key, undefined, apiKeyStorageOptions);
+    if (
+      !(await maybeSetResolvedApiKey(resolved, (value) =>
+        setZaiApiKey(value, undefined, apiKeyStorageOptions),
+      ))
+    ) {
+      return null;
     }
     nextConfig = applyAuthProfileConfig(nextConfig, {
       profileId: "zai:default",
@@ -350,8 +407,12 @@ export async function applyNonInteractiveAuthChoice(params: {
     if (!resolved) {
       return null;
     }
-    if (resolved.source !== "profile") {
-      await setXiaomiApiKey(resolved.key, undefined, apiKeyStorageOptions);
+    if (
+      !(await maybeSetResolvedApiKey(resolved, (value) =>
+        setXiaomiApiKey(value, undefined, apiKeyStorageOptions),
+      ))
+    ) {
+      return null;
     }
     nextConfig = applyAuthProfileConfig(nextConfig, {
       profileId: "xiaomi:default",
@@ -419,8 +480,12 @@ export async function applyNonInteractiveAuthChoice(params: {
       return null;
 >>>>>>> 7a9deb240 (Resolve conflicts)
     }
-    if (resolved.source !== "profile") {
-      setXaiApiKey(resolved.key, undefined, apiKeyStorageOptions);
+    if (
+      !(await maybeSetResolvedApiKey(resolved, (value) =>
+        setXaiApiKey(value, undefined, apiKeyStorageOptions),
+      ))
+    ) {
+      return null;
     }
     nextConfig = applyAuthProfileConfig(nextConfig, {
       profileId: "xai:default",
@@ -445,8 +510,12 @@ export async function applyNonInteractiveAuthChoice(params: {
     if (!resolved) {
       return null;
     }
-    if (resolved.source !== "profile") {
-      await setMistralApiKey(resolved.key, undefined, apiKeyStorageOptions);
+    if (
+      !(await maybeSetResolvedApiKey(resolved, (value) =>
+        setMistralApiKey(value, undefined, apiKeyStorageOptions),
+      ))
+    ) {
+      return null;
     }
     nextConfig = applyAuthProfileConfig(nextConfig, {
       profileId: "mistral:default",
@@ -468,8 +537,12 @@ export async function applyNonInteractiveAuthChoice(params: {
     if (!resolved) {
       return null;
     }
-    if (resolved.source !== "profile") {
-      await setVolcengineApiKey(resolved.key, undefined, apiKeyStorageOptions);
+    if (
+      !(await maybeSetResolvedApiKey(resolved, (value) =>
+        setVolcengineApiKey(value, undefined, apiKeyStorageOptions),
+      ))
+    ) {
+      return null;
     }
     nextConfig = applyAuthProfileConfig(nextConfig, {
       profileId: "volcengine:default",
@@ -491,8 +564,12 @@ export async function applyNonInteractiveAuthChoice(params: {
     if (!resolved) {
       return null;
     }
-    if (resolved.source !== "profile") {
-      await setByteplusApiKey(resolved.key, undefined, apiKeyStorageOptions);
+    if (
+      !(await maybeSetResolvedApiKey(resolved, (value) =>
+        setByteplusApiKey(value, undefined, apiKeyStorageOptions),
+      ))
+    ) {
+      return null;
     }
     nextConfig = applyAuthProfileConfig(nextConfig, {
       profileId: "byteplus:default",
@@ -514,8 +591,12 @@ export async function applyNonInteractiveAuthChoice(params: {
     if (!resolved) {
       return null;
     }
-    if (resolved.source !== "profile") {
-      setQianfanApiKey(resolved.key, undefined, apiKeyStorageOptions);
+    if (
+      !(await maybeSetResolvedApiKey(resolved, (value) =>
+        setQianfanApiKey(value, undefined, apiKeyStorageOptions),
+      ))
+    ) {
+      return null;
     }
     nextConfig = applyAuthProfileConfig(nextConfig, {
       profileId: "qianfan:default",
@@ -540,6 +621,7 @@ export async function applyNonInteractiveAuthChoice(params: {
     }
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     const key = resolved.key;
     const result = upsertSharedEnvVar({ key: "OPENAI_API_KEY", value: key });
     process.env.OPENAI_API_KEY = key;
@@ -550,6 +632,14 @@ export async function applyNonInteractiveAuthChoice(params: {
 =======
     if (resolved.source !== "profile") {
       await setOpenaiApiKey(resolved.key, undefined, apiKeyStorageOptions);
+=======
+    if (
+      !(await maybeSetResolvedApiKey(resolved, (value) =>
+        setOpenaiApiKey(value, undefined, apiKeyStorageOptions),
+      ))
+    ) {
+      return null;
+>>>>>>> 8944b75e1 (fix(secrets): align ref contracts and non-interactive ref persistence)
     }
 >>>>>>> 13b499328 (Onboard non-interactive: avoid rewriting profile-backed keys)
     nextConfig = applyAuthProfileConfig(nextConfig, {
@@ -573,8 +663,12 @@ export async function applyNonInteractiveAuthChoice(params: {
     if (!resolved) {
       return null;
     }
-    if (resolved.source !== "profile") {
-      await setOpenrouterApiKey(resolved.key, undefined, apiKeyStorageOptions);
+    if (
+      !(await maybeSetResolvedApiKey(resolved, (value) =>
+        setOpenrouterApiKey(value, undefined, apiKeyStorageOptions),
+      ))
+    ) {
+      return null;
     }
     nextConfig = applyAuthProfileConfig(nextConfig, {
       profileId: "openrouter:default",
@@ -596,8 +690,12 @@ export async function applyNonInteractiveAuthChoice(params: {
     if (!resolved) {
       return null;
     }
-    if (resolved.source !== "profile") {
-      await setKilocodeApiKey(resolved.key, undefined, apiKeyStorageOptions);
+    if (
+      !(await maybeSetResolvedApiKey(resolved, (value) =>
+        setKilocodeApiKey(value, undefined, apiKeyStorageOptions),
+      ))
+    ) {
+      return null;
     }
     nextConfig = applyAuthProfileConfig(nextConfig, {
       profileId: "kilocode:default",
@@ -619,8 +717,12 @@ export async function applyNonInteractiveAuthChoice(params: {
     if (!resolved) {
       return null;
     }
-    if (resolved.source !== "profile") {
-      await setLitellmApiKey(resolved.key, undefined, apiKeyStorageOptions);
+    if (
+      !(await maybeSetResolvedApiKey(resolved, (value) =>
+        setLitellmApiKey(value, undefined, apiKeyStorageOptions),
+      ))
+    ) {
+      return null;
     }
     nextConfig = applyAuthProfileConfig(nextConfig, {
       profileId: "litellm:default",
@@ -642,8 +744,12 @@ export async function applyNonInteractiveAuthChoice(params: {
     if (!resolved) {
       return null;
     }
-    if (resolved.source !== "profile") {
-      await setVercelAiGatewayApiKey(resolved.key, undefined, apiKeyStorageOptions);
+    if (
+      !(await maybeSetResolvedApiKey(resolved, (value) =>
+        setVercelAiGatewayApiKey(value, undefined, apiKeyStorageOptions),
+      ))
+    ) {
+      return null;
     }
     nextConfig = applyAuthProfileConfig(nextConfig, {
       profileId: "vercel-ai-gateway:default",
@@ -678,10 +784,14 @@ export async function applyNonInteractiveAuthChoice(params: {
       return null;
     }
     if (resolved.source !== "profile") {
+      const stored = toStoredSecretInput(resolved);
+      if (!stored) {
+        return null;
+      }
       await setCloudflareAiGatewayConfig(
         accountId,
         gatewayId,
-        resolved.key,
+        stored,
         undefined,
         apiKeyStorageOptions,
       );
@@ -711,8 +821,12 @@ export async function applyNonInteractiveAuthChoice(params: {
     if (!resolved) {
       return null;
     }
-    if (resolved.source !== "profile") {
-      await setMoonshotApiKey(resolved.key, undefined, apiKeyStorageOptions);
+    if (
+      !(await maybeSetResolvedApiKey(resolved, (value) =>
+        setMoonshotApiKey(value, undefined, apiKeyStorageOptions),
+      ))
+    ) {
+      return null;
     }
     nextConfig = applyAuthProfileConfig(nextConfig, {
       profileId: "moonshot:default",
@@ -742,8 +856,12 @@ export async function applyNonInteractiveAuthChoice(params: {
     if (!resolved) {
       return null;
     }
-    if (resolved.source !== "profile") {
-      await setKimiCodingApiKey(resolved.key, undefined, apiKeyStorageOptions);
+    if (
+      !(await maybeSetResolvedApiKey(resolved, (value) =>
+        setKimiCodingApiKey(value, undefined, apiKeyStorageOptions),
+      ))
+    ) {
+      return null;
     }
     nextConfig = applyAuthProfileConfig(nextConfig, {
       profileId: "kimi-coding:default",
@@ -765,8 +883,12 @@ export async function applyNonInteractiveAuthChoice(params: {
     if (!resolved) {
       return null;
     }
-    if (resolved.source !== "profile") {
-      await setSyntheticApiKey(resolved.key, undefined, apiKeyStorageOptions);
+    if (
+      !(await maybeSetResolvedApiKey(resolved, (value) =>
+        setSyntheticApiKey(value, undefined, apiKeyStorageOptions),
+      ))
+    ) {
+      return null;
     }
     nextConfig = applyAuthProfileConfig(nextConfig, {
       profileId: "synthetic:default",
@@ -788,8 +910,12 @@ export async function applyNonInteractiveAuthChoice(params: {
     if (!resolved) {
       return null;
     }
-    if (resolved.source !== "profile") {
-      await setVeniceApiKey(resolved.key, undefined, apiKeyStorageOptions);
+    if (
+      !(await maybeSetResolvedApiKey(resolved, (value) =>
+        setVeniceApiKey(value, undefined, apiKeyStorageOptions),
+      ))
+    ) {
+      return null;
     }
     nextConfig = applyAuthProfileConfig(nextConfig, {
       profileId: "venice:default",
@@ -818,8 +944,12 @@ export async function applyNonInteractiveAuthChoice(params: {
     if (!resolved) {
       return null;
     }
-    if (resolved.source !== "profile") {
-      await setMinimaxApiKey(resolved.key, undefined, profileId, apiKeyStorageOptions);
+    if (
+      !(await maybeSetResolvedApiKey(resolved, (value) =>
+        setMinimaxApiKey(value, undefined, profileId, apiKeyStorageOptions),
+      ))
+    ) {
+      return null;
     }
     nextConfig = applyAuthProfileConfig(nextConfig, {
       profileId,
@@ -854,8 +984,12 @@ export async function applyNonInteractiveAuthChoice(params: {
     if (!resolved) {
       return null;
     }
-    if (resolved.source !== "profile") {
-      await setOpencodeZenApiKey(resolved.key, undefined, apiKeyStorageOptions);
+    if (
+      !(await maybeSetResolvedApiKey(resolved, (value) =>
+        setOpencodeZenApiKey(value, undefined, apiKeyStorageOptions),
+      ))
+    ) {
+      return null;
     }
     nextConfig = applyAuthProfileConfig(nextConfig, {
       profileId: "opencode:default",
@@ -877,8 +1011,12 @@ export async function applyNonInteractiveAuthChoice(params: {
     if (!resolved) {
       return null;
     }
-    if (resolved.source !== "profile") {
-      await setTogetherApiKey(resolved.key, undefined, apiKeyStorageOptions);
+    if (
+      !(await maybeSetResolvedApiKey(resolved, (value) =>
+        setTogetherApiKey(value, undefined, apiKeyStorageOptions),
+      ))
+    ) {
+      return null;
     }
     nextConfig = applyAuthProfileConfig(nextConfig, {
       profileId: "together:default",
@@ -900,8 +1038,12 @@ export async function applyNonInteractiveAuthChoice(params: {
     if (!resolved) {
       return null;
     }
-    if (resolved.source !== "profile") {
-      await setHuggingfaceApiKey(resolved.key, undefined, apiKeyStorageOptions);
+    if (
+      !(await maybeSetResolvedApiKey(resolved, (value) =>
+        setHuggingfaceApiKey(value, undefined, apiKeyStorageOptions),
+      ))
+    ) {
+      return null;
     }
     nextConfig = applyAuthProfileConfig(nextConfig, {
       profileId: "huggingface:default",
@@ -935,10 +1077,25 @@ export async function applyNonInteractiveAuthChoice(params: {
         runtime,
         required: false,
       });
+<<<<<<< HEAD
       const customApiKeyInput: SecretInput | undefined =
         requestedSecretInputMode === "ref" && resolvedCustomApiKey?.source === "env"
           ? { source: "env", id: "CUSTOM_API_KEY" }
           : resolvedCustomApiKey?.key;
+=======
+      let customApiKeyInput: SecretInput | undefined;
+      if (resolvedCustomApiKey) {
+        if (requestedSecretInputMode === "ref") {
+          const stored = toStoredSecretInput(resolvedCustomApiKey);
+          if (!stored) {
+            return null;
+          }
+          customApiKeyInput = stored;
+        } else {
+          customApiKeyInput = resolvedCustomApiKey.key;
+        }
+      }
+>>>>>>> 8944b75e1 (fix(secrets): align ref contracts and non-interactive ref persistence)
       const result = applyCustomApiConfig({
         config: nextConfig,
         baseUrl: customAuth.baseUrl,

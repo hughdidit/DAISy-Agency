@@ -13,7 +13,12 @@ import {
 } from "../config/config.js";
 import { isSecretRef, type SecretRef } from "../config/types.secrets.js";
 import { resolveUserPath } from "../utils.js";
+<<<<<<< HEAD
 import { resolveSecretRefValue, type SecretRefResolveCache } from "./resolve.js";
+=======
+import { secretRefKey } from "./ref-contract.js";
+import { resolveSecretRefValues, type SecretRefResolveCache } from "./resolve.js";
+>>>>>>> 8944b75e1 (fix(secrets): align ref contracts and non-interactive ref persistence)
 import { isNonEmptyString, isRecord } from "./shared.js";
 
 type SecretResolverWarningCode = "SECRETS_REF_OVERRIDES_PLAINTEXT";
@@ -62,8 +67,30 @@ type TokenCredentialLike = AuthProfileCredential & {
   tokenRef?: unknown;
 };
 
+<<<<<<< HEAD
 let activeSnapshot: PreparedSecretsRuntimeSnapshot | null = null;
 
+=======
+type SecretAssignment = {
+  ref: SecretRef;
+  path: string;
+  expected: "string" | "string-or-object";
+  apply: (value: unknown) => void;
+};
+
+type ResolverContext = {
+  sourceConfig: OpenClawConfig;
+  env: NodeJS.ProcessEnv;
+  cache: SecretRefResolveCache;
+  warnings: SecretResolverWarning[];
+  assignments: SecretAssignment[];
+};
+
+type SecretDefaults = NonNullable<OpenClawConfig["secrets"]>["defaults"];
+
+let activeSnapshot: PreparedSecretsRuntimeSnapshot | null = null;
+
+>>>>>>> 8944b75e1 (fix(secrets): align ref contracts and non-interactive ref persistence)
 function cloneSnapshot(snapshot: PreparedSecretsRuntimeSnapshot): PreparedSecretsRuntimeSnapshot {
   return {
     sourceConfig: structuredClone(snapshot.sourceConfig),
@@ -76,6 +103,7 @@ function cloneSnapshot(snapshot: PreparedSecretsRuntimeSnapshot): PreparedSecret
   };
 }
 
+<<<<<<< HEAD
 async function resolveSecretRefValueFromContext(
   ref: SecretRef,
   context: ResolverContext,
@@ -95,10 +123,67 @@ async function resolveGoogleChatServiceAccount(
 ): Promise<void> {
   const explicitRef = isSecretRef(target.serviceAccountRef) ? target.serviceAccountRef : null;
   const inlineRef = isSecretRef(target.serviceAccount) ? target.serviceAccount : null;
+=======
+function pushAssignment(context: ResolverContext, assignment: SecretAssignment): void {
+  context.assignments.push(assignment);
+}
+
+function collectModelProviderAssignments(params: {
+  providers: Record<string, ProviderLike>;
+  defaults: SecretDefaults | undefined;
+  context: ResolverContext;
+}): void {
+  for (const [providerId, provider] of Object.entries(params.providers)) {
+    const ref = coerceSecretRef(provider.apiKey, params.defaults);
+    if (!ref) {
+      continue;
+    }
+    pushAssignment(params.context, {
+      ref,
+      path: `models.providers.${providerId}.apiKey`,
+      expected: "string",
+      apply: (value) => {
+        provider.apiKey = value;
+      },
+    });
+  }
+}
+
+function collectSkillAssignments(params: {
+  entries: Record<string, SkillEntryLike>;
+  defaults: SecretDefaults | undefined;
+  context: ResolverContext;
+}): void {
+  for (const [skillKey, entry] of Object.entries(params.entries)) {
+    const ref = coerceSecretRef(entry.apiKey, params.defaults);
+    if (!ref) {
+      continue;
+    }
+    pushAssignment(params.context, {
+      ref,
+      path: `skills.entries.${skillKey}.apiKey`,
+      expected: "string",
+      apply: (value) => {
+        entry.apiKey = value;
+      },
+    });
+  }
+}
+
+function collectGoogleChatAccountAssignment(params: {
+  target: GoogleChatAccountLike;
+  path: string;
+  defaults: SecretDefaults | undefined;
+  context: ResolverContext;
+}): void {
+  const explicitRef = coerceSecretRef(params.target.serviceAccountRef, params.defaults);
+  const inlineRef = coerceSecretRef(params.target.serviceAccount, params.defaults);
+>>>>>>> 8944b75e1 (fix(secrets): align ref contracts and non-interactive ref persistence)
   const ref = explicitRef ?? inlineRef;
   if (!ref) {
     return;
   }
+<<<<<<< HEAD
   if (explicitRef && target.serviceAccount !== undefined && !isSecretRef(target.serviceAccount)) {
     warnings.push({
       code: "SECRETS_REF_OVERRIDES_PLAINTEXT",
@@ -110,6 +195,57 @@ async function resolveGoogleChatServiceAccount(
 }
 
 async function resolveConfigSecretRefs(params: {
+=======
+  if (
+    explicitRef &&
+    params.target.serviceAccount !== undefined &&
+    !coerceSecretRef(params.target.serviceAccount, params.defaults)
+  ) {
+    params.context.warnings.push({
+      code: "SECRETS_REF_OVERRIDES_PLAINTEXT",
+      path: params.path,
+      message: `${params.path}: serviceAccountRef is set; runtime will ignore plaintext serviceAccount.`,
+    });
+  }
+  pushAssignment(params.context, {
+    ref,
+    path: `${params.path}.serviceAccount`,
+    expected: "string-or-object",
+    apply: (value) => {
+      params.target.serviceAccount = value;
+    },
+  });
+}
+
+function collectGoogleChatAssignments(params: {
+  googleChat: GoogleChatAccountLike;
+  defaults: SecretDefaults | undefined;
+  context: ResolverContext;
+}): void {
+  collectGoogleChatAccountAssignment({
+    target: params.googleChat,
+    path: "channels.googlechat",
+    defaults: params.defaults,
+    context: params.context,
+  });
+  if (!isRecord(params.googleChat.accounts)) {
+    return;
+  }
+  for (const [accountId, account] of Object.entries(params.googleChat.accounts)) {
+    if (!isRecord(account)) {
+      continue;
+    }
+    collectGoogleChatAccountAssignment({
+      target: account as GoogleChatAccountLike,
+      path: `channels.googlechat.accounts.${accountId}`,
+      defaults: params.defaults,
+      context: params.context,
+    });
+  }
+}
+
+function collectConfigAssignments(params: {
+>>>>>>> 8944b75e1 (fix(secrets): align ref contracts and non-interactive ref persistence)
   config: OpenClawConfig;
   context: ResolverContext;
   warnings: SecretResolverWarning[];
@@ -117,6 +253,7 @@ async function resolveConfigSecretRefs(params: {
   const resolved = structuredClone(params.config);
   const providers = resolved.models?.providers as Record<string, ProviderLike> | undefined;
   if (providers) {
+<<<<<<< HEAD
     for (const [providerId, provider] of Object.entries(providers)) {
       if (!isSecretRef(provider.apiKey)) {
         continue;
@@ -129,10 +266,18 @@ async function resolveConfigSecretRefs(params: {
       }
       provider.apiKey = resolvedValue;
     }
+=======
+    collectModelProviderAssignments({
+      providers,
+      defaults,
+      context: params.context,
+    });
+>>>>>>> 8944b75e1 (fix(secrets): align ref contracts and non-interactive ref persistence)
   }
 
   const skillEntries = resolved.skills?.entries as Record<string, SkillEntryLike> | undefined;
   if (skillEntries) {
+<<<<<<< HEAD
     for (const [skillKey, entry] of Object.entries(skillEntries)) {
       if (!isSecretRef(entry.apiKey)) {
         continue;
@@ -168,12 +313,92 @@ async function resolveConfigSecretRefs(params: {
         );
       }
     }
+=======
+    collectSkillAssignments({
+      entries: skillEntries,
+      defaults,
+      context: params.context,
+    });
+  }
+
+  const googleChat = params.config.channels?.googlechat as GoogleChatAccountLike | undefined;
+  if (googleChat) {
+    collectGoogleChatAssignments({
+      googleChat,
+      defaults,
+      context: params.context,
+    });
+>>>>>>> 8944b75e1 (fix(secrets): align ref contracts and non-interactive ref persistence)
   }
 
   return resolved;
 }
 
+<<<<<<< HEAD
 async function resolveAuthStoreSecretRefs(params: {
+=======
+function collectApiKeyProfileAssignment(params: {
+  profile: ApiKeyCredentialLike;
+  profileId: string;
+  agentDir: string;
+  defaults: SecretDefaults | undefined;
+  context: ResolverContext;
+}): void {
+  const keyRef = coerceSecretRef(params.profile.keyRef, params.defaults);
+  const inlineKeyRef = keyRef ? null : coerceSecretRef(params.profile.key, params.defaults);
+  const resolvedKeyRef = keyRef ?? inlineKeyRef;
+  if (!resolvedKeyRef) {
+    return;
+  }
+  if (keyRef && isNonEmptyString(params.profile.key)) {
+    params.context.warnings.push({
+      code: "SECRETS_REF_OVERRIDES_PLAINTEXT",
+      path: `${params.agentDir}.auth-profiles.${params.profileId}.key`,
+      message: `auth-profiles ${params.profileId}: keyRef is set; runtime will ignore plaintext key.`,
+    });
+  }
+  pushAssignment(params.context, {
+    ref: resolvedKeyRef,
+    path: `${params.agentDir}.auth-profiles.${params.profileId}.key`,
+    expected: "string",
+    apply: (value) => {
+      params.profile.key = String(value);
+    },
+  });
+}
+
+function collectTokenProfileAssignment(params: {
+  profile: TokenCredentialLike;
+  profileId: string;
+  agentDir: string;
+  defaults: SecretDefaults | undefined;
+  context: ResolverContext;
+}): void {
+  const tokenRef = coerceSecretRef(params.profile.tokenRef, params.defaults);
+  const inlineTokenRef = tokenRef ? null : coerceSecretRef(params.profile.token, params.defaults);
+  const resolvedTokenRef = tokenRef ?? inlineTokenRef;
+  if (!resolvedTokenRef) {
+    return;
+  }
+  if (tokenRef && isNonEmptyString(params.profile.token)) {
+    params.context.warnings.push({
+      code: "SECRETS_REF_OVERRIDES_PLAINTEXT",
+      path: `${params.agentDir}.auth-profiles.${params.profileId}.token`,
+      message: `auth-profiles ${params.profileId}: tokenRef is set; runtime will ignore plaintext token.`,
+    });
+  }
+  pushAssignment(params.context, {
+    ref: resolvedTokenRef,
+    path: `${params.agentDir}.auth-profiles.${params.profileId}.token`,
+    expected: "string",
+    apply: (value) => {
+      params.profile.token = String(value);
+    },
+  });
+}
+
+function collectAuthStoreAssignments(params: {
+>>>>>>> 8944b75e1 (fix(secrets): align ref contracts and non-interactive ref persistence)
   store: AuthProfileStore;
   context: ResolverContext;
   warnings: SecretResolverWarning[];
@@ -182,6 +407,7 @@ async function resolveAuthStoreSecretRefs(params: {
   const resolvedStore = structuredClone(params.store);
   for (const [profileId, profile] of Object.entries(resolvedStore.profiles)) {
     if (profile.type === "api_key") {
+<<<<<<< HEAD
       const apiProfile = profile as ApiKeyCredentialLike;
       const keyRef = isSecretRef(apiProfile.keyRef) ? apiProfile.keyRef : null;
       if (keyRef && isNonEmptyString(apiProfile.key)) {
@@ -198,10 +424,19 @@ async function resolveAuthStoreSecretRefs(params: {
         }
         apiProfile.key = resolvedValue;
       }
+=======
+      collectApiKeyProfileAssignment({
+        profile: profile as ApiKeyCredentialLike,
+        profileId,
+        agentDir: params.agentDir,
+        defaults,
+        context: params.context,
+      });
+>>>>>>> 8944b75e1 (fix(secrets): align ref contracts and non-interactive ref persistence)
       continue;
     }
-
     if (profile.type === "token") {
+<<<<<<< HEAD
       const tokenProfile = profile as TokenCredentialLike;
       const tokenRef = isSecretRef(tokenProfile.tokenRef) ? tokenProfile.tokenRef : null;
       if (tokenRef && isNonEmptyString(tokenProfile.token)) {
@@ -217,6 +452,32 @@ async function resolveAuthStoreSecretRefs(params: {
           throw new Error(`auth profile "${profileId}" tokenRef resolved to an empty value.`);
         }
         tokenProfile.token = resolvedValue;
+=======
+      collectTokenProfileAssignment({
+        profile: profile as TokenCredentialLike,
+        profileId,
+        agentDir: params.agentDir,
+        defaults,
+        context: params.context,
+      });
+    }
+  }
+}
+
+function applyAssignments(params: {
+  assignments: SecretAssignment[];
+  resolved: Map<string, unknown>;
+}): void {
+  for (const assignment of params.assignments) {
+    const key = secretRefKey(assignment.ref);
+    if (!params.resolved.has(key)) {
+      throw new Error(`Secret reference "${key}" resolved to no value.`);
+    }
+    const value = params.resolved.get(key);
+    if (assignment.expected === "string") {
+      if (!isNonEmptyString(value)) {
+        throw new Error(`${assignment.path} resolved to a non-string or empty value.`);
+>>>>>>> 8944b75e1 (fix(secrets): align ref contracts and non-interactive ref persistence)
       }
     }
   }
