@@ -48,6 +48,29 @@ export type FileSecretProviderConfig = {
   timeoutMs?: number;
 };
 
+<<<<<<< HEAD
+=======
+export type ExecSecretProviderConfig = {
+  source: "exec";
+  command: string;
+  args?: string[];
+  timeoutMs?: number;
+  noOutputTimeoutMs?: number;
+  maxOutputBytes?: number;
+  jsonOnly?: boolean;
+  env?: Record<string, string>;
+  passEnv?: string[];
+  trustedDirs?: string[];
+  allowInsecurePath?: boolean;
+  allowSymlinkCommand?: boolean;
+};
+
+export type SecretProviderConfig =
+  | EnvSecretProviderConfig
+  | FileSecretProviderConfig
+  | ExecSecretProviderConfig;
+
+>>>>>>> f46b9c996 (feat(secrets): allow opt-in symlink exec command paths)
 export type SecretsConfig = {
   sources?: {
     env?: EnvSecretSourceConfig;

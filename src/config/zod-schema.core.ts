@@ -86,6 +86,52 @@ const SecretsFileSourceSchema = z
   })
   .strict();
 
+<<<<<<< HEAD
+=======
+const SecretsExecProviderSchema = z
+  .object({
+    source: z.literal("exec"),
+    command: z
+      .string()
+      .min(1)
+      .refine((value) => isSafeExecutableValue(value), "secrets.providers.*.command is unsafe.")
+      .refine(
+        (value) => isAbsolutePath(value),
+        "secrets.providers.*.command must be an absolute path.",
+      ),
+    args: z.array(z.string().max(1024)).max(128).optional(),
+    timeoutMs: z.number().int().positive().max(120000).optional(),
+    noOutputTimeoutMs: z.number().int().positive().max(120000).optional(),
+    maxOutputBytes: z
+      .number()
+      .int()
+      .positive()
+      .max(20 * 1024 * 1024)
+      .optional(),
+    jsonOnly: z.boolean().optional(),
+    env: z.record(z.string(), z.string()).optional(),
+    passEnv: z.array(z.string().regex(ENV_SECRET_REF_ID_PATTERN)).max(128).optional(),
+    trustedDirs: z
+      .array(
+        z
+          .string()
+          .min(1)
+          .refine((value) => isAbsolutePath(value), "trustedDirs entries must be absolute paths."),
+      )
+      .max(64)
+      .optional(),
+    allowInsecurePath: z.boolean().optional(),
+    allowSymlinkCommand: z.boolean().optional(),
+  })
+  .strict();
+
+const SecretsProviderSchema = z.discriminatedUnion("source", [
+  SecretsEnvProviderSchema,
+  SecretsFileProviderSchema,
+  SecretsExecProviderSchema,
+]);
+
+>>>>>>> f46b9c996 (feat(secrets): allow opt-in symlink exec command paths)
 export const SecretsConfigSchema = z
   .object({
     sources: z
