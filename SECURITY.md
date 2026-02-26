@@ -59,6 +59,7 @@ These are frequently reported but are typically closed with no code change:
 - Missing HSTS findings on default local/loopback deployments.
 - Slack webhook signature findings when HTTP mode already uses signing-secret verification.
 - Discord inbound webhook signature findings for paths not used by this repo's Discord integration.
+- Claims that Microsoft Teams `fileConsent/invoke` `uploadInfo.uploadUrl` is attacker-controlled without demonstrating one of: auth boundary bypass, a real authenticated Teams/Bot Framework event carrying attacker-chosen URL, or compromise of the Microsoft/Bot trust path.
 - Scanner-only claims against stale/nonexistent paths, or claims without a working repro.
 
 ### Duplicate Report Handling
@@ -156,7 +157,11 @@ Plugins/extensions are part of OpenClaw's trusted computing base for a gateway.
 >>>>>>> d68380bb7 (docs(security): clarify exposed-secret report scope)
 =======
 - Reports whose only claim is host-side exec when sandbox runtime is disabled/unavailable (documented default behavior in the trusted-operator model), without a boundary bypass.
+<<<<<<< HEAD
 >>>>>>> f6afc8c5b (docs(security): clarify host-side exec trust model defaults)
+=======
+- Reports whose only claim is that a platform-provided upload destination URL is untrusted (for example Microsoft Teams `fileConsent/invoke` `uploadInfo.uploadUrl`) without proving attacker control in an authenticated production flow.
+>>>>>>> f4391c172 (docs(security): clarify Teams fileConsent uploadUrl report scope)
 
 ## Deployment Assumptions
 
