@@ -4,7 +4,6 @@ import { Type } from "@sinclair/typebox";
 import type { MoltbotConfig } from "../../config/config.js";
 =======
 import type { OpenClawConfig } from "../../config/config.js";
-import { fetchWithSsrFGuard } from "../../infra/net/fetch-guard.js";
 import { SsrFBlockedError } from "../../infra/net/ssrf.js";
 import { logDebug } from "../../logger.js";
 import { wrapExternalContent, wrapWebContent } from "../../security/external-content.js";
@@ -14,6 +13,7 @@ import type { AnyAgentTool } from "./common.js";
 import { jsonResult, readNumberParam, readStringParam } from "./common.js";
 >>>>>>> 42a07791c (fix(auth): strip line breaks from pasted keys)
 import {
+<<<<<<< HEAD
   closeDispatcher,
   createPinnedDispatcher,
   resolvePinnedHostname,
@@ -23,6 +23,15 @@ import type { Dispatcher } from "undici";
 import { stringEnum } from "../schema/typebox.js";
 import type { AnyAgentTool } from "./common.js";
 import { jsonResult, readNumberParam, readStringParam } from "./common.js";
+=======
+  extractReadableContent,
+  htmlToMarkdown,
+  markdownToText,
+  truncateText,
+  type ExtractMode,
+} from "./web-fetch-utils.js";
+import { fetchWithWebToolsNetworkGuard } from "./web-guarded-fetch.js";
+>>>>>>> b74be2577 (refactor(web): unify proxy-guarded fetch path for web tools)
 import {
   CacheEntry,
   DEFAULT_CACHE_TTL_MINUTES,
@@ -612,6 +621,7 @@ async function runWebFetch(params: WebFetchRuntimeParams): Promise<Record<string
   let dispatcher: Dispatcher | null = null;
   let finalUrl = params.url;
   try {
+<<<<<<< HEAD
     const result = await fetchWithRedirects({
       url: params.url,
       maxRedirects: params.maxRedirects,
@@ -624,6 +634,12 @@ async function runWebFetch(params: WebFetchRuntimeParams): Promise<Record<string
     dispatcher = result.dispatcher;
 =======
       timeoutMs: params.timeoutSeconds * 1000,
+=======
+    const result = await fetchWithWebToolsNetworkGuard({
+      url: params.url,
+      maxRedirects: params.maxRedirects,
+      timeoutSeconds: params.timeoutSeconds,
+>>>>>>> b74be2577 (refactor(web): unify proxy-guarded fetch path for web tools)
       init: {
         headers: {
           Accept: "text/markdown, text/html;q=0.9, */*;q=0.1",
