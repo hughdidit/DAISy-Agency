@@ -85,6 +85,83 @@ function describeToolExecutionError(err: unknown): {
   return { message: String(err) };
 }
 
+<<<<<<< HEAD
+=======
+function stringifyToolPayload(payload: unknown): string {
+  if (typeof payload === "string") {
+    return payload;
+  }
+  try {
+    const encoded = JSON.stringify(payload, null, 2);
+    if (typeof encoded === "string") {
+      return encoded;
+    }
+  } catch {
+    // Fall through to String(payload) for non-serializable values.
+  }
+  return String(payload);
+}
+
+function normalizeToolExecutionResult(params: {
+  toolName: string;
+  result: unknown;
+}): AgentToolResult<unknown> {
+  const { toolName, result } = params;
+  if (result && typeof result === "object") {
+    const record = result as Record<string, unknown>;
+    if (Array.isArray(record.content)) {
+      return result as AgentToolResult<unknown>;
+    }
+    logDebug(`tools: ${toolName} returned non-standard result (missing content[]); coercing`);
+    const details = "details" in record ? record.details : record;
+    const safeDetails = details ?? { status: "ok", tool: toolName };
+    return {
+      content: [
+        {
+          type: "text",
+          text: stringifyToolPayload(safeDetails),
+        },
+      ],
+      details: safeDetails,
+    };
+  }
+  const safeDetails = result ?? { status: "ok", tool: toolName };
+  return {
+    content: [
+      {
+        type: "text",
+        text: stringifyToolPayload(safeDetails),
+      },
+    ],
+    details: safeDetails,
+  };
+}
+
+function splitToolExecuteArgs(args: ToolExecuteArgsAny): {
+  toolCallId: string;
+  params: unknown;
+  onUpdate: AgentToolUpdateCallback<unknown> | undefined;
+  signal: AbortSignal | undefined;
+} {
+  if (isLegacyToolExecuteArgs(args)) {
+    const [toolCallId, params, onUpdate, _ctx, signal] = args;
+    return {
+      toolCallId,
+      params,
+      onUpdate,
+      signal,
+    };
+  }
+  const [toolCallId, params, signal, onUpdate] = args;
+  return {
+    toolCallId,
+    params,
+    onUpdate,
+    signal,
+  };
+}
+
+>>>>>>> 8a9780347 (fix(agents): normalize malformed tool results in adapter (#27007))
 export function toToolDefinitions(tools: AnyAgentTool[]): ToolDefinition[] {
   return tools.map((tool) => {
     const name = tool.name || "tool";
@@ -105,6 +182,7 @@ export function toToolDefinitions(tools: AnyAgentTool[]): ToolDefinition[] {
         // than pi-agent-core `AgentTool.execute`. This adapter keeps our existing tools intact.
         try {
 <<<<<<< HEAD
+<<<<<<< HEAD
           return await tool.execute(toolCallId, params, signal, onUpdate);
 =======
           // NOTE: before_tool_call hook is NOT called here — it is already
@@ -112,6 +190,27 @@ export function toToolDefinitions(tools: AnyAgentTool[]): ToolDefinition[] {
           // before the tool reaches toToolDefinitions.  Calling it again would
           // fire the hook twice per invocation (#15502).
           const result = await tool.execute(toolCallId, params, signal, onUpdate);
+=======
+          if (!beforeHookWrapped) {
+            const hookOutcome = await runBeforeToolCallHook({
+              toolName: name,
+              params,
+              toolCallId,
+            });
+            if (hookOutcome.blocked) {
+              throw new Error(hookOutcome.reason);
+            }
+            executeParams = hookOutcome.params;
+          }
+          const rawResult = await tool.execute(toolCallId, executeParams, signal, onUpdate);
+          const result = normalizeToolExecutionResult({
+            toolName: normalizedName,
+            result: rawResult,
+          });
+          const afterParams = beforeHookWrapped
+            ? (consumeAdjustedParamsForToolCall(toolCallId) ?? executeParams)
+            : executeParams;
+>>>>>>> 8a9780347 (fix(agents): normalize malformed tool results in adapter (#27007))
 
           // Call after_tool_call hook
           const hookRunner = getGlobalHookRunner();
