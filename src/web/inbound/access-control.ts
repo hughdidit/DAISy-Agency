@@ -1,10 +1,18 @@
 import { loadConfig } from "../../config/config.js";
 import { logVerbose } from "../../globals.js";
 import { buildPairingReply } from "../../pairing/pairing-messages.js";
+<<<<<<< HEAD
 import {
   readChannelAllowFromStore,
   upsertChannelPairingRequest,
 } from "../../pairing/pairing-store.js";
+=======
+import { upsertChannelPairingRequest } from "../../pairing/pairing-store.js";
+import {
+  readStoreAllowFromForDmPolicy,
+  resolveDmGroupAccessWithLists,
+} from "../../security/dm-policy-shared.js";
+>>>>>>> bce643a0b (refactor(security): enforce account-scoped pairing APIs)
 import { isSelfChatMode, normalizeE164 } from "../../utils.js";
 import { resolveWhatsAppAccount } from "../accounts.js";
 
@@ -38,9 +46,19 @@ export async function checkInboundAccessControl(params: {
     cfg,
     accountId: params.accountId,
   });
+<<<<<<< HEAD
   const dmPolicy = cfg.channels?.whatsapp?.dmPolicy ?? "pairing";
   const configuredAllowFrom = account.allowFrom;
   const storeAllowFrom = await readChannelAllowFromStore("whatsapp").catch(() => []);
+=======
+  const dmPolicy = account.dmPolicy ?? "pairing";
+  const configuredAllowFrom = account.allowFrom ?? [];
+  const storeAllowFrom = await readStoreAllowFromForDmPolicy({
+    provider: "whatsapp",
+    accountId: account.accountId,
+    dmPolicy,
+  });
+>>>>>>> bce643a0b (refactor(security): enforce account-scoped pairing APIs)
   // Without user config, default to self-only DM access so the owner can talk to themselves.
   const combinedAllowFrom = Array.from(
     new Set([...(configuredAllowFrom ?? []), ...storeAllowFrom]),

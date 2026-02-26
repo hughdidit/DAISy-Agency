@@ -1,5 +1,10 @@
 import type { OpenClawConfig } from "../../config/config.js";
 import { loadSessionStore, resolveStorePath } from "../../config/sessions.js";
+<<<<<<< HEAD
+=======
+import { readChannelAllowFromStoreSync } from "../../pairing/pairing-store.js";
+import { DEFAULT_ACCOUNT_ID } from "../../routing/session-key.js";
+>>>>>>> bce643a0b (refactor(security): enforce account-scoped pairing APIs)
 import { normalizeE164 } from "../../utils.js";
 import { normalizeChatChannelId } from "../registry.js";
 
@@ -55,6 +60,14 @@ export function resolveWhatsAppHeartbeatRecipients(
     Array.isArray(cfg.channels?.whatsapp?.allowFrom) && cfg.channels.whatsapp.allowFrom.length > 0
       ? cfg.channels.whatsapp.allowFrom.filter((v) => v !== "*").map(normalizeE164)
       : [];
+<<<<<<< HEAD
+=======
+  const storeAllowFrom = readChannelAllowFromStoreSync(
+    "whatsapp",
+    process.env,
+    DEFAULT_ACCOUNT_ID,
+  ).map(normalizeE164);
+>>>>>>> bce643a0b (refactor(security): enforce account-scoped pairing APIs)
 
   const unique = (list: string[]) => [...new Set(list.filter(Boolean))];
 

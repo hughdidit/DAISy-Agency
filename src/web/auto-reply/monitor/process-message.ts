@@ -26,7 +26,17 @@ import {
   resolveStorePath,
 } from "../../../config/sessions.js";
 import { logVerbose, shouldLogVerbose } from "../../../globals.js";
+<<<<<<< HEAD
 import { readChannelAllowFromStore } from "../../../pairing/pairing-store.js";
+=======
+import type { getChildLogger } from "../../../logging.js";
+import { getAgentScopedMediaLocalRoots } from "../../../media/local-roots.js";
+import type { resolveAgentRoute } from "../../../routing/resolve-route.js";
+import {
+  readStoreAllowFromForDmPolicy,
+  resolveDmGroupAccessWithCommandGate,
+} from "../../../security/dm-policy-shared.js";
+>>>>>>> bce643a0b (refactor(security): enforce account-scoped pairing APIs)
 import { jidToE164, normalizeE164 } from "../../../utils.js";
 import { newConnectionId } from "../../reconnect.js";
 import { formatError } from "../../session.js";
@@ -77,6 +87,7 @@ async function resolveWhatsAppCommandAuthorized(params: {
     params.cfg.channels?.whatsapp?.groupAllowFrom ??
     (configuredAllowFrom.length > 0 ? configuredAllowFrom : undefined);
 
+<<<<<<< HEAD
   if (isGroup) {
     if (!configuredGroupAllowFrom || configuredGroupAllowFrom.length === 0) {
       return false;
@@ -94,6 +105,18 @@ async function resolveWhatsAppCommandAuthorized(params: {
   const allowFrom =
     combinedAllowFrom.length > 0
       ? combinedAllowFrom
+=======
+  const storeAllowFrom = isGroup
+    ? []
+    : await readStoreAllowFromForDmPolicy({
+        provider: "whatsapp",
+        accountId: params.msg.accountId,
+        dmPolicy,
+      });
+  const dmAllowFrom =
+    configuredAllowFrom.length > 0
+      ? configuredAllowFrom
+>>>>>>> bce643a0b (refactor(security): enforce account-scoped pairing APIs)
       : params.msg.selfE164
         ? [params.msg.selfE164]
         : [];

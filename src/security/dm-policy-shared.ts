@@ -37,6 +37,39 @@ export function resolveEffectiveAllowFromLists(params: {
 }
 
 export type DmGroupAccessDecision = "allow" | "block" | "pairing";
+<<<<<<< HEAD
+=======
+export const DM_GROUP_ACCESS_REASON = {
+  GROUP_POLICY_ALLOWED: "group_policy_allowed",
+  GROUP_POLICY_DISABLED: "group_policy_disabled",
+  GROUP_POLICY_EMPTY_ALLOWLIST: "group_policy_empty_allowlist",
+  GROUP_POLICY_NOT_ALLOWLISTED: "group_policy_not_allowlisted",
+  DM_POLICY_OPEN: "dm_policy_open",
+  DM_POLICY_DISABLED: "dm_policy_disabled",
+  DM_POLICY_ALLOWLISTED: "dm_policy_allowlisted",
+  DM_POLICY_PAIRING_REQUIRED: "dm_policy_pairing_required",
+  DM_POLICY_NOT_ALLOWLISTED: "dm_policy_not_allowlisted",
+} as const;
+export type DmGroupAccessReasonCode =
+  (typeof DM_GROUP_ACCESS_REASON)[keyof typeof DM_GROUP_ACCESS_REASON];
+
+export async function readStoreAllowFromForDmPolicy(params: {
+  provider: ChannelId;
+  accountId: string;
+  dmPolicy?: string | null;
+  shouldRead?: boolean | null;
+  readStore?: (provider: ChannelId, accountId: string) => Promise<string[]>;
+}): Promise<string[]> {
+  if (params.shouldRead === false || params.dmPolicy === "allowlist") {
+    return [];
+  }
+  const readStore =
+    params.readStore ??
+    ((provider: ChannelId, accountId: string) =>
+      readChannelAllowFromStore(provider, process.env, accountId));
+  return await readStore(params.provider, params.accountId).catch(() => []);
+}
+>>>>>>> bce643a0b (refactor(security): enforce account-scoped pairing APIs)
 
 export function resolveDmGroupAccessDecision(params: {
   isGroup: boolean;
@@ -124,9 +157,10 @@ export function resolveDmGroupAccessWithLists(params: {
 >>>>>>> 8bdda7a65 (fix(security): keep DM pairing allowlists out of group auth)
 export async function resolveDmAllowState(params: {
   provider: ChannelId;
+  accountId: string;
   allowFrom?: Array<string | number> | null;
   normalizeEntry?: (raw: string) => string;
-  readStore?: (provider: ChannelId) => Promise<string[]>;
+  readStore?: (provider: ChannelId, accountId: string) => Promise<string[]>;
 }): Promise<{
   configAllowFrom: string[];
   hasWildcard: boolean;
@@ -137,9 +171,17 @@ export async function resolveDmAllowState(params: {
     Array.isArray(params.allowFrom) ? params.allowFrom : undefined,
   );
   const hasWildcard = configAllowFrom.includes("*");
+<<<<<<< HEAD
   const storeAllowFrom = await (params.readStore ?? readChannelAllowFromStore)(
     params.provider,
   ).catch(() => []);
+=======
+  const storeAllowFrom = await readStoreAllowFromForDmPolicy({
+    provider: params.provider,
+    accountId: params.accountId,
+    readStore: params.readStore,
+  });
+>>>>>>> bce643a0b (refactor(security): enforce account-scoped pairing APIs)
   const normalizeEntry = params.normalizeEntry ?? ((value: string) => value);
   const normalizedCfg = configAllowFrom
     .filter((value) => value !== "*")

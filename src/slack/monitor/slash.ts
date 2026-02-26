@@ -21,12 +21,19 @@ import { resolveNativeCommandsEnabled, resolveNativeSkillsEnabled } from "../../
 import { resolveMarkdownTableMode } from "../../config/markdown-tables.js";
 import { danger, logVerbose } from "../../globals.js";
 import { buildPairingReply } from "../../pairing/pairing-messages.js";
+<<<<<<< HEAD
 import {
   readChannelAllowFromStore,
   upsertChannelPairingRequest,
 } from "../../pairing/pairing-store.js";
 import { resolveAgentRoute } from "../../routing/resolve-route.js";
 import { buildUntrustedChannelMetadata } from "../../security/channel-metadata.js";
+=======
+import { upsertChannelPairingRequest } from "../../pairing/pairing-store.js";
+import { readStoreAllowFromForDmPolicy } from "../../security/dm-policy-shared.js";
+import { chunkItems } from "../../utils/chunk-items.js";
+import type { ResolvedSlackAccount } from "../accounts.js";
+>>>>>>> bce643a0b (refactor(security): enforce account-scoped pairing APIs)
 import {
   normalizeAllowList,
   normalizeAllowListLower,
@@ -362,7 +369,17 @@ export function registerSlackMonitorSlashCommands(params: {
         return;
       }
 
+<<<<<<< HEAD
       const storeAllowFrom = await readChannelAllowFromStore("slack").catch(() => []);
+=======
+      const storeAllowFrom = isDirectMessage
+        ? await readStoreAllowFromForDmPolicy({
+            provider: "slack",
+            accountId: ctx.accountId,
+            dmPolicy: ctx.dmPolicy,
+          })
+        : [];
+>>>>>>> bce643a0b (refactor(security): enforce account-scoped pairing APIs)
       const effectiveAllowFrom = normalizeAllowList([...ctx.allowFrom, ...storeAllowFrom]);
       const effectiveAllowFromLower = normalizeAllowListLower(effectiveAllowFrom);
 
@@ -391,6 +408,7 @@ export function registerSlackMonitorSlashCommands(params: {
               const { code, created } = await upsertChannelPairingRequest({
                 channel: "slack",
                 id: command.user_id,
+                accountId: ctx.accountId,
                 meta: { name: senderName },
               });
               if (created) {
