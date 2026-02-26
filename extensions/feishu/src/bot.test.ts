@@ -4,6 +4,7 @@ import type { FeishuMessageEvent } from "./bot.js";
 import { handleFeishuMessage } from "./bot.js";
 import { setFeishuRuntime } from "./runtime.js";
 
+<<<<<<< HEAD
 const { mockCreateFeishuReplyDispatcher, mockSendMessageFeishu, mockGetMessageFeishu } = vi.hoisted(
   () => ({
     mockCreateFeishuReplyDispatcher: vi.fn(() => ({
@@ -15,6 +16,29 @@ const { mockCreateFeishuReplyDispatcher, mockSendMessageFeishu, mockGetMessageFe
     mockGetMessageFeishu: vi.fn().mockResolvedValue(null),
   }),
 );
+=======
+const {
+  mockCreateFeishuReplyDispatcher,
+  mockSendMessageFeishu,
+  mockGetMessageFeishu,
+  mockDownloadMessageResourceFeishu,
+  mockCreateFeishuClient,
+} = vi.hoisted(() => ({
+  mockCreateFeishuReplyDispatcher: vi.fn(() => ({
+    dispatcher: vi.fn(),
+    replyOptions: {},
+    markDispatchIdle: vi.fn(),
+  })),
+  mockSendMessageFeishu: vi.fn().mockResolvedValue({ messageId: "pairing-msg", chatId: "oc-dm" }),
+  mockGetMessageFeishu: vi.fn().mockResolvedValue(null),
+  mockDownloadMessageResourceFeishu: vi.fn().mockResolvedValue({
+    buffer: Buffer.from("video"),
+    contentType: "video/mp4",
+    fileName: "clip.mp4",
+  }),
+  mockCreateFeishuClient: vi.fn(),
+}));
+>>>>>>> cf4853e2b (fix: avoid duplicate feishu permission-error dispatch replies (#27381) (thanks @byungsker))
 
 vi.mock("./reply-dispatcher.js", () => ({
   createFeishuReplyDispatcher: mockCreateFeishuReplyDispatcher,
@@ -25,6 +49,35 @@ vi.mock("./send.js", () => ({
   getMessageFeishu: mockGetMessageFeishu,
 }));
 
+<<<<<<< HEAD
+=======
+vi.mock("./media.js", () => ({
+  downloadMessageResourceFeishu: mockDownloadMessageResourceFeishu,
+}));
+
+vi.mock("./client.js", () => ({
+  createFeishuClient: mockCreateFeishuClient,
+}));
+
+function createRuntimeEnv(): RuntimeEnv {
+  return {
+    log: vi.fn(),
+    error: vi.fn(),
+    exit: vi.fn((code: number): never => {
+      throw new Error(`exit ${code}`);
+    }),
+  } as RuntimeEnv;
+}
+
+async function dispatchMessage(params: { cfg: ClawdbotConfig; event: FeishuMessageEvent }) {
+  await handleFeishuMessage({
+    cfg: params.cfg,
+    event: params.event,
+    runtime: createRuntimeEnv(),
+  });
+}
+
+>>>>>>> cf4853e2b (fix: avoid duplicate feishu permission-error dispatch replies (#27381) (thanks @byungsker))
 describe("handleFeishuMessage command authorization", () => {
   const mockFinalizeInboundContext = vi.fn((ctx: unknown) => ctx);
   const mockDispatchReplyFromConfig = vi
@@ -38,6 +91,13 @@ describe("handleFeishuMessage command authorization", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    mockCreateFeishuClient.mockReturnValue({
+      contact: {
+        user: {
+          get: vi.fn().mockResolvedValue({ data: { user: { name: "Sender" } } }),
+        },
+      },
+    });
     setFeishuRuntime({
       system: {
         enqueueSystemEvent: vi.fn(),
@@ -395,5 +455,71 @@ describe("handleFeishuMessage command authorization", () => {
       }),
     );
   });
+<<<<<<< HEAD
 >>>>>>> d671d7a0a (fix: preserve feishu message_id in agent-visible body (#27253) (thanks @xss925175263))
+=======
+
+  it("dispatches once and appends permission notice to the main agent body", async () => {
+    mockShouldComputeCommandAuthorized.mockReturnValue(false);
+    mockCreateFeishuClient.mockReturnValue({
+      contact: {
+        user: {
+          get: vi.fn().mockRejectedValue({
+            response: {
+              data: {
+                code: 99991672,
+                msg: "permission denied https://open.feishu.cn/app/cli_test",
+              },
+            },
+          }),
+        },
+      },
+    });
+
+    const cfg: ClawdbotConfig = {
+      channels: {
+        feishu: {
+          appId: "cli_test",
+          appSecret: "sec_test",
+          groups: {
+            "oc-group": {
+              requireMention: false,
+            },
+          },
+        },
+      },
+    } as ClawdbotConfig;
+
+    const event: FeishuMessageEvent = {
+      sender: {
+        sender_id: {
+          open_id: "ou-perm",
+        },
+      },
+      message: {
+        message_id: "msg-perm-1",
+        chat_id: "oc-group",
+        chat_type: "group",
+        message_type: "text",
+        content: JSON.stringify({ text: "hello group" }),
+      },
+    };
+
+    await dispatchMessage({ cfg, event });
+
+    expect(mockDispatchReplyFromConfig).toHaveBeenCalledTimes(1);
+    expect(mockFinalizeInboundContext).toHaveBeenCalledWith(
+      expect.objectContaining({
+        BodyForAgent: expect.stringContaining(
+          "Permission grant URL: https://open.feishu.cn/app/cli_test",
+        ),
+      }),
+    );
+    expect(mockFinalizeInboundContext).toHaveBeenCalledWith(
+      expect.objectContaining({
+        BodyForAgent: expect.stringContaining("ou-perm: hello group"),
+      }),
+    );
+  });
+>>>>>>> cf4853e2b (fix: avoid duplicate feishu permission-error dispatch replies (#27381) (thanks @byungsker))
 });
