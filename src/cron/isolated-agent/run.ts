@@ -177,8 +177,16 @@ import { resolveOutboundSessionRoute } from "../../infra/outbound/outbound-sessi
 =======
 >>>>>>> 7a40d99b1 (refactor(cron): extract delivery dispatch + harden reset notices)
 import { logWarn } from "../../logger.js";
+<<<<<<< HEAD
 >>>>>>> aef1d5530 (fix(cron): normalize skill-filter snapshots and split isolated run helpers)
 import { buildAgentMainSessionKey, normalizeAgentId } from "../../routing/session-key.js";
+=======
+import {
+  buildAgentMainSessionKey,
+  normalizeAgentId,
+  parseAgentSessionKey,
+} from "../../routing/session-key.js";
+>>>>>>> 8b5ebff67 (fix(cron): prevent isolated hook session-key double-prefixing (land #27333, @MaheshBhushan))
 import {
   buildSafeExternalPrompt,
   detectSuspiciousPatterns,
@@ -575,10 +583,7 @@ export async function runCronIsolatedAgentTurn(params: {
   };
 
   const baseSessionKey = (params.sessionKey?.trim() || `cron:${params.job.id}`).trim();
-  const agentSessionKey = buildAgentMainSessionKey({
-    agentId,
-    mainKey: baseSessionKey,
-  });
+  const agentSessionKey = resolveCronAgentSessionKey({ sessionKey: baseSessionKey, agentId });
 
   const workspaceDirRaw = resolveAgentWorkspaceDir(params.cfg, agentId);
   const agentDir = resolveAgentDir(params.cfg, agentId);
@@ -1547,4 +1552,19 @@ let skillsSnapshot = cronSession.sessionEntry.skillsSnapshot;
 =======
   return resolveRunOutcome({ delivered, deliveryAttempted });
 >>>>>>> b37dc4224 (fix(cron): suppress fallback summary after attempted announce delivery)
+}
+
+export function resolveCronAgentSessionKey(params: {
+  sessionKey: string;
+  agentId: string;
+}): string {
+  const baseSessionKey = params.sessionKey.trim();
+  const normalizedBaseSessionKey = baseSessionKey.toLowerCase();
+  if (parseAgentSessionKey(normalizedBaseSessionKey)) {
+    return normalizedBaseSessionKey;
+  }
+  return buildAgentMainSessionKey({
+    agentId: params.agentId,
+    mainKey: baseSessionKey,
+  });
 }
