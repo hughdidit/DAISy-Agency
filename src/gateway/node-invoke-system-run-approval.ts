@@ -105,7 +105,6 @@ export function sanitizeSystemRunParamsForForwarding(opts: {
       details: cmdTextResolution.details,
     };
   }
-  const cmdText = cmdTextResolution.cmdText;
 
   const approved = p.approved === true;
   const requestedDecision = normalizeApprovalDecision(p.approvalDecision);
@@ -179,7 +178,6 @@ export function sanitizeSystemRunParamsForForwarding(opts: {
   }
 
   const approvalMatch = evaluateSystemRunApprovalMatch({
-    cmdText,
     argv: cmdTextResolution.argv,
     request: snapshot.request,
     binding: {

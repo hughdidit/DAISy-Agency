@@ -1,5 +1,13 @@
 import type { ExecApprovalForwarder } from "../../infra/exec-approval-forwarder.js";
+<<<<<<< HEAD
 import type { ExecApprovalDecision } from "../../infra/exec-approvals.js";
+=======
+import {
+  DEFAULT_EXEC_APPROVAL_TIMEOUT_MS,
+  type ExecApprovalDecision,
+} from "../../infra/exec-approvals.js";
+import { buildSystemRunApprovalBindingV1 } from "../../infra/system-run-approval-binding.js";
+>>>>>>> 10481097f (refactor(security): enforce v1 node exec approval binding)
 import type { ExecApprovalManager } from "../exec-approval-manager.js";
 import type { GatewayRequestHandlers } from "./types.js";
 import {
@@ -10,8 +18,11 @@ import {
   validateExecApprovalResolveParams,
 } from "../protocol/index.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import { buildSystemRunApprovalEnvBinding } from "../system-run-approval-env-binding.js";
+=======
+>>>>>>> 10481097f (refactor(security): enforce v1 node exec approval binding)
 import type { GatewayRequestHandlers } from "./types.js";
 >>>>>>> 9a4b2266c (fix(security): bind node system.run approvals to env)
 
@@ -61,7 +72,10 @@ export function createExecApprovalHandlers(
       const commandArgv = Array.isArray(p.commandArgv)
         ? p.commandArgv.map((entry) => String(entry))
         : undefined;
+<<<<<<< HEAD
       const envBinding = buildSystemRunApprovalEnvBinding(p.env);
+=======
+>>>>>>> 10481097f (refactor(security): enforce v1 node exec approval binding)
       if (host === "node" && !nodeId) {
         respond(
           false,
@@ -70,7 +84,28 @@ export function createExecApprovalHandlers(
         );
         return;
       }
+<<<<<<< HEAD
 >>>>>>> 03e689fc8 (fix(security): bind system.run approvals to argv identity)
+=======
+      if (host === "node" && (!Array.isArray(commandArgv) || commandArgv.length === 0)) {
+        respond(
+          false,
+          undefined,
+          errorShape(ErrorCodes.INVALID_REQUEST, "commandArgv is required for host=node"),
+        );
+        return;
+      }
+      const systemRunBindingV1 =
+        host === "node"
+          ? buildSystemRunApprovalBindingV1({
+              argv: commandArgv,
+              cwd: p.cwd,
+              agentId: p.agentId,
+              sessionKey: p.sessionKey,
+              env: p.env,
+            })
+          : null;
+>>>>>>> 10481097f (refactor(security): enforce v1 node exec approval binding)
       if (explicitId && manager.getSnapshot(explicitId)) {
         respond(
           false,
