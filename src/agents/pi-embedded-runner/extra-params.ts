@@ -133,9 +133,22 @@ function createStreamFnWithExtraParams(
   if (typeof extraParams.maxTokens === "number") {
     streamParams.maxTokens = extraParams.maxTokens;
   }
+<<<<<<< HEAD
   const cacheControlTtl = resolveCacheControlTtl(extraParams, provider, modelId);
   if (cacheControlTtl) {
     streamParams.cacheControlTtl = cacheControlTtl;
+=======
+  const transport = extraParams.transport;
+  if (transport === "sse" || transport === "websocket" || transport === "auto") {
+    streamParams.transport = transport;
+  } else if (transport != null) {
+    const transportSummary = typeof transport === "string" ? transport : typeof transport;
+    log.warn(`ignoring invalid transport param: ${transportSummary}`);
+  }
+  const cacheRetention = resolveCacheRetention(extraParams, provider);
+  if (cacheRetention) {
+    streamParams.cacheRetention = cacheRetention;
+>>>>>>> 03d7641b0 (feat(agents): default codex transport to websocket-first)
   }
 
   // Extract OpenRouter provider routing preferences from extraParams.provider.
@@ -242,6 +255,15 @@ function createOpenAIResponsesStoreWrapper(baseStreamFn: StreamFn | undefined): 
       },
     });
   };
+}
+
+function createCodexDefaultTransportWrapper(baseStreamFn: StreamFn | undefined): StreamFn {
+  const underlying = baseStreamFn ?? streamSimple;
+  return (model, context, options) =>
+    underlying(model, context, {
+      ...options,
+      transport: options?.transport ?? "auto",
+    });
 }
 
 function isAnthropic1MModel(modelId: string): boolean {
@@ -572,6 +594,10 @@ export function applyExtraParamsToAgent(
     modelId,
     agentId,
   });
+  if (provider === "openai-codex") {
+    // Default Codex to WebSocket-first when nothing else specifies transport.
+    agent.streamFn = createCodexDefaultTransportWrapper(agent.streamFn);
+  }
   const override =
     extraParamsOverride && Object.keys(extraParamsOverride).length > 0
       ? Object.fromEntries(
