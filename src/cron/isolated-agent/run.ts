@@ -490,6 +490,7 @@ export type RunCronAgentTurnResult = {
   delivered?: boolean;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> ea95e88dd (fix(cron): prevent duplicate delivery for isolated jobs with announce mode)
 =======
 
@@ -506,6 +507,14 @@ export type RunCronAgentTurnResult = {
 >>>>>>> ddea5458d (cron: log model+token usage per run + add usage report script)
 };
 =======
+=======
+  /**
+   * `true` when cron attempted announce/direct delivery for this run.
+   * This is tracked separately from `delivered` because some announce paths
+   * cannot guarantee a final delivery ack synchronously.
+   */
+  deliveryAttempted?: boolean;
+>>>>>>> b37dc4224 (fix(cron): suppress fallback summary after attempted announce delivery)
 } & CronRunOutcome &
   CronRunTelemetry;
 >>>>>>> 80c7d04ad (refactor(cron): reuse shared run outcome telemetry types)
@@ -1064,7 +1073,7 @@ let skillsSnapshot = cronSession.sessionEntry.skillsSnapshot;
   const embeddedRunError = hasErrorPayload
     ? (lastErrorPayloadText ?? "cron isolated run returned an error payload")
     : undefined;
-  const resolveRunOutcome = (params?: { delivered?: boolean }) =>
+  const resolveRunOutcome = (params?: { delivered?: boolean; deliveryAttempted?: boolean }) =>
     withRunSession({
       status: hasErrorPayload ? "error" : "ok",
       ...(hasErrorPayload
@@ -1073,6 +1082,7 @@ let skillsSnapshot = cronSession.sessionEntry.skillsSnapshot;
       summary,
       outputText,
       delivered: params?.delivered,
+      deliveryAttempted: params?.deliveryAttempted,
       ...telemetry,
     });
 
@@ -1491,19 +1501,36 @@ let skillsSnapshot = cronSession.sessionEntry.skillsSnapshot;
   });
   if (deliveryResult.result) {
 <<<<<<< HEAD
+<<<<<<< HEAD
     return deliveryResult.result;
 >>>>>>> 7a40d99b1 (refactor(cron): extract delivery dispatch + harden reset notices)
 =======
+=======
+    const resultWithDeliveryMeta: RunCronAgentTurnResult = {
+      ...deliveryResult.result,
+      deliveryAttempted:
+        deliveryResult.result.deliveryAttempted ?? deliveryResult.deliveryAttempted,
+    };
+>>>>>>> b37dc4224 (fix(cron): suppress fallback summary after attempted announce delivery)
     if (!hasErrorPayload || deliveryResult.result.status !== "ok") {
-      return deliveryResult.result;
+      return resultWithDeliveryMeta;
     }
+<<<<<<< HEAD
     return resolveRunOutcome({ delivered: deliveryResult.result.delivered });
 >>>>>>> 8c8374def (fix(cron): treat embedded error payloads as run failures)
+=======
+    return resolveRunOutcome({
+      delivered: deliveryResult.result.delivered,
+      deliveryAttempted: resultWithDeliveryMeta.deliveryAttempted,
+    });
+>>>>>>> b37dc4224 (fix(cron): suppress fallback summary after attempted announce delivery)
   }
   const delivered = deliveryResult.delivered;
+  const deliveryAttempted = deliveryResult.deliveryAttempted;
   summary = deliveryResult.summary;
   outputText = deliveryResult.outputText;
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -1517,4 +1544,7 @@ let skillsSnapshot = cronSession.sessionEntry.skillsSnapshot;
 =======
   return resolveRunOutcome({ delivered });
 >>>>>>> 8c8374def (fix(cron): treat embedded error payloads as run failures)
+=======
+  return resolveRunOutcome({ delivered, deliveryAttempted });
+>>>>>>> b37dc4224 (fix(cron): suppress fallback summary after attempted announce delivery)
 }
