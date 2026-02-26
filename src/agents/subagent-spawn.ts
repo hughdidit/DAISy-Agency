@@ -324,11 +324,58 @@ export async function spawnSubagentDirect(
     expectsCompletionMessage: params.expectsCompletionMessage === true,
   });
 
+<<<<<<< HEAD
+=======
+  if (hookRunner?.hasHooks("subagent_spawned")) {
+    try {
+      await hookRunner.runSubagentSpawned(
+        {
+          runId: childRunId,
+          childSessionKey,
+          agentId: targetAgentId,
+          label: label || undefined,
+          requester: {
+            channel: requesterOrigin?.channel,
+            accountId: requesterOrigin?.accountId,
+            to: requesterOrigin?.to,
+            threadId: requesterOrigin?.threadId,
+          },
+          threadRequested: requestThreadBinding,
+          mode: spawnMode,
+        },
+        {
+          runId: childRunId,
+          childSessionKey,
+          requesterSessionKey: requesterInternalKey,
+        },
+      );
+    } catch {
+      // Spawn should still return accepted if spawn lifecycle hooks fail.
+    }
+  }
+
+  // Check if we're in a cron isolated session - don't add "do not poll" note
+  // because cron sessions end immediately after the agent produces a response,
+  // so the agent needs to wait for subagent results to keep the turn alive.
+  const isCronSession = ctx.agentSessionKey?.includes(":cron:");
+  const note =
+    spawnMode === "session"
+      ? SUBAGENT_SPAWN_SESSION_ACCEPTED_NOTE
+      : isCronSession
+        ? undefined
+        : SUBAGENT_SPAWN_ACCEPTED_NOTE;
+
+>>>>>>> 69590de27 (fix: suppress SUBAGENT_SPAWN_ACCEPTED_NOTE for cron isolated sessions)
   return {
     status: "accepted",
     childSessionKey,
     runId: childRunId,
+<<<<<<< HEAD
     note: SUBAGENT_SPAWN_ACCEPTED_NOTE,
+=======
+    mode: spawnMode,
+    note,
+>>>>>>> 69590de27 (fix: suppress SUBAGENT_SPAWN_ACCEPTED_NOTE for cron isolated sessions)
     modelApplied: resolvedModel ? modelApplied : undefined,
     warning: modelWarning,
   };
