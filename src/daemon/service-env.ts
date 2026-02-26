@@ -26,6 +26,35 @@ type BuildServicePathOptions = MinimalServicePathOptions & {
   env?: Record<string, string | undefined>;
 };
 
+const SERVICE_PROXY_ENV_KEYS = [
+  "HTTP_PROXY",
+  "HTTPS_PROXY",
+  "NO_PROXY",
+  "ALL_PROXY",
+  "http_proxy",
+  "https_proxy",
+  "no_proxy",
+  "all_proxy",
+] as const;
+
+function readServiceProxyEnvironment(
+  env: Record<string, string | undefined>,
+): Record<string, string | undefined> {
+  const out: Record<string, string | undefined> = {};
+  for (const key of SERVICE_PROXY_ENV_KEYS) {
+    const value = env[key];
+    if (typeof value !== "string") {
+      continue;
+    }
+    const trimmed = value.trim();
+    if (!trimmed) {
+      continue;
+    }
+    out[key] = trimmed;
+  }
+  return out;
+}
+
 function addNonEmptyDir(dirs: string[], dir: string | undefined): void {
   if (dir) {
     dirs.push(dir);
@@ -221,11 +250,16 @@ export function buildServiceEnvironment(params: {
   const configPath = env.OPENCLAW_CONFIG_PATH;
   // Keep a usable temp directory for supervised services even when the host env omits TMPDIR.
   const tmpDir = env.TMPDIR?.trim() || os.tmpdir();
+<<<<<<< HEAD
 >>>>>>> 2bb8ead18 (Fix LaunchAgent missing TMPDIR causing SQLITE_CANTOPEN on macOS (#20512))
+=======
+  const proxyEnv = readServiceProxyEnvironment(env);
+>>>>>>> b97571142 (fix(daemon): stabilize LaunchAgent restart and proxy env passthrough (#27276))
   return {
     HOME: env.HOME,
     TMPDIR: tmpDir,
     PATH: buildMinimalServicePath({ env }),
+<<<<<<< HEAD
     CLAWDBOT_PROFILE: profile,
     CLAWDBOT_STATE_DIR: env.CLAWDBOT_STATE_DIR,
     CLAWDBOT_CONFIG_PATH: env.CLAWDBOT_CONFIG_PATH,
@@ -236,6 +270,19 @@ export function buildServiceEnvironment(params: {
     CLAWDBOT_SERVICE_MARKER: GATEWAY_SERVICE_MARKER,
     CLAWDBOT_SERVICE_KIND: GATEWAY_SERVICE_KIND,
     CLAWDBOT_SERVICE_VERSION: VERSION,
+=======
+    ...proxyEnv,
+    OPENCLAW_PROFILE: profile,
+    OPENCLAW_STATE_DIR: stateDir,
+    OPENCLAW_CONFIG_PATH: configPath,
+    OPENCLAW_GATEWAY_PORT: String(port),
+    OPENCLAW_GATEWAY_TOKEN: token,
+    OPENCLAW_LAUNCHD_LABEL: resolvedLaunchdLabel,
+    OPENCLAW_SYSTEMD_UNIT: systemdUnit,
+    OPENCLAW_SERVICE_MARKER: GATEWAY_SERVICE_MARKER,
+    OPENCLAW_SERVICE_KIND: GATEWAY_SERVICE_KIND,
+    OPENCLAW_SERVICE_VERSION: VERSION,
+>>>>>>> b97571142 (fix(daemon): stabilize LaunchAgent restart and proxy env passthrough (#27276))
   };
 }
 
@@ -248,11 +295,16 @@ export function buildNodeServiceEnvironment(params: {
   const stateDir = env.OPENCLAW_STATE_DIR;
   const configPath = env.OPENCLAW_CONFIG_PATH;
   const tmpDir = env.TMPDIR?.trim() || os.tmpdir();
+<<<<<<< HEAD
 >>>>>>> 2bb8ead18 (Fix LaunchAgent missing TMPDIR causing SQLITE_CANTOPEN on macOS (#20512))
+=======
+  const proxyEnv = readServiceProxyEnvironment(env);
+>>>>>>> b97571142 (fix(daemon): stabilize LaunchAgent restart and proxy env passthrough (#27276))
   return {
     HOME: env.HOME,
     TMPDIR: tmpDir,
     PATH: buildMinimalServicePath({ env }),
+<<<<<<< HEAD
     CLAWDBOT_STATE_DIR: env.CLAWDBOT_STATE_DIR,
     CLAWDBOT_CONFIG_PATH: env.CLAWDBOT_CONFIG_PATH,
     CLAWDBOT_LAUNCHD_LABEL: resolveNodeLaunchAgentLabel(),
@@ -263,5 +315,18 @@ export function buildNodeServiceEnvironment(params: {
     CLAWDBOT_SERVICE_MARKER: NODE_SERVICE_MARKER,
     CLAWDBOT_SERVICE_KIND: NODE_SERVICE_KIND,
     CLAWDBOT_SERVICE_VERSION: VERSION,
+=======
+    ...proxyEnv,
+    OPENCLAW_STATE_DIR: stateDir,
+    OPENCLAW_CONFIG_PATH: configPath,
+    OPENCLAW_LAUNCHD_LABEL: resolveNodeLaunchAgentLabel(),
+    OPENCLAW_SYSTEMD_UNIT: resolveNodeSystemdServiceName(),
+    OPENCLAW_WINDOWS_TASK_NAME: resolveNodeWindowsTaskName(),
+    OPENCLAW_TASK_SCRIPT_NAME: NODE_WINDOWS_TASK_SCRIPT_NAME,
+    OPENCLAW_LOG_PREFIX: "node",
+    OPENCLAW_SERVICE_MARKER: NODE_SERVICE_MARKER,
+    OPENCLAW_SERVICE_KIND: NODE_SERVICE_KIND,
+    OPENCLAW_SERVICE_VERSION: VERSION,
+>>>>>>> b97571142 (fix(daemon): stabilize LaunchAgent restart and proxy env passthrough (#27276))
   };
 }
