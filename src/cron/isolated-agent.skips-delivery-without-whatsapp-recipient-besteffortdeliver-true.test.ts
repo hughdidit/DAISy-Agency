@@ -56,6 +56,7 @@ async function expectBestEffortTelegramNotDelivered(
 
     expect(res.status).toBe("ok");
     expect(res.delivered).toBe(false);
+    expect(res.deliveryAttempted).toBe(true);
     expect(runSubagentAnnounceFlow).not.toHaveBeenCalled();
     expect(deps.sendMessageTelegram).toHaveBeenCalledTimes(1);
   });
@@ -482,7 +483,37 @@ describe("runCronIsolatedAgentTurn", () => {
     });
   });
 
+<<<<<<< HEAD
 >>>>>>> 32e6ccb7b (test(cron): cover announce failure when best-effort is off)
+=======
+  it("marks attempted when announce delivery reports false and best-effort is enabled", async () => {
+    await withTempCronHome(async (home) => {
+      const storePath = await writeSessionStore(home, { lastProvider: "webchat", lastTo: "" });
+      const deps = createCliDeps();
+      mockAgentPayloads([{ text: "hello from cron" }]);
+      vi.mocked(runSubagentAnnounceFlow).mockResolvedValueOnce(false);
+
+      const res = await runTelegramAnnounceTurn({
+        home,
+        storePath,
+        deps,
+        delivery: {
+          mode: "announce",
+          channel: "telegram",
+          to: "123",
+          bestEffort: true,
+        },
+      });
+
+      expect(res.status).toBe("ok");
+      expect(res.delivered).toBe(false);
+      expect(res.deliveryAttempted).toBe(true);
+      expect(runSubagentAnnounceFlow).toHaveBeenCalledTimes(1);
+      expect(deps.sendMessageTelegram).not.toHaveBeenCalled();
+    });
+  });
+
+>>>>>>> b37dc4224 (fix(cron): suppress fallback summary after attempted announce delivery)
   it("ignores structured direct delivery failures when best-effort is enabled", async () => {
     await expectBestEffortTelegramNotDelivered({
       text: "hello from cron",

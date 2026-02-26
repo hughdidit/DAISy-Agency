@@ -103,7 +103,11 @@ Docs: https://docs.openclaw.ai
 =======
 =======
 - Cron/Message multi-account routing: honor explicit `delivery.accountId` for isolated cron delivery resolution, and when `message.send` omits `accountId`, fall back to the sending agent's bound channel account instead of defaulting to the global account. (#27015, #26975) Thanks @lbo728 and @stakeswky.
+<<<<<<< HEAD
 >>>>>>> 1e7ec8bfd (fix(routing): preserve explicit cron account and bound message defaults)
+=======
+- Cron/Announce duplicate guard: track attempted announce/direct delivery separately from confirmed `delivered`, and suppress fallback main-session cron summaries when delivery was already attempted to avoid duplicate end-user sends in uncertain-ack paths. (#27018)
+>>>>>>> b37dc4224 (fix(cron): suppress fallback summary after attempted announce delivery)
 - Cron/Model overrides: when isolated `payload.model` is no longer allowlisted, fall back to default model selection instead of failing the job, while still returning explicit errors for invalid model strings. (#26717) Thanks @Youyou972.
 - Security/Gateway auth: require pairing for operator device-identity sessions authenticated with shared token auth so unpaired devices cannot self-assign operator scopes. Thanks @tdjackey for reporting.
 <<<<<<< HEAD
