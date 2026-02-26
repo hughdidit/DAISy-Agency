@@ -303,7 +303,15 @@ Apply changes:
 openclaw secrets migrate --write
 ```
 
+<<<<<<< HEAD
 Rollback by backup id:
+=======
+For strict target/path contract details and exact rejection rules, see:
+
+- [Secrets Apply Plan Contract](/gateway/secrets-plan-contract)
+
+## One-way safety policy
+>>>>>>> 4380d74d4 (docs(secrets): add dedicated apply plan contract page)
 
 ```bash
 openclaw secrets migrate --rollback 20260224T193000Z
@@ -332,6 +340,7 @@ For static credentials, OpenClaw runtime no longer depends on plaintext `auth.js
 ## Related docs
 
 - CLI commands: [secrets](/cli/secrets)
+- Plan contract details: [Secrets Apply Plan Contract](/gateway/secrets-plan-contract)
 - Auth setup: [Authentication](/gateway/authentication)
 - Security posture: [Security](/gateway/security)
 - Environment precedence: [Environment Variables](/help/environment)

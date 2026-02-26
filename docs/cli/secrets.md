@@ -52,7 +52,21 @@ Skip `.env` scrubbing:
 openclaw secrets migrate --write --no-scrub-env
 ```
 
+<<<<<<< HEAD
 Rollback a previous migration:
+=======
+Plan contract details (allowed target paths, validation rules, and failure semantics):
+
+- [Secrets Apply Plan Contract](/gateway/secrets-plan-contract)
+
+## Why no rollback backups
+
+`secrets apply` intentionally does not write rollback backups containing old plaintext values.
+
+Safety comes from strict preflight + atomic-ish apply with best-effort in-memory restore on failure.
+
+## Example
+>>>>>>> 4380d74d4 (docs(secrets): add dedicated apply plan contract page)
 
 ```bash
 openclaw secrets migrate --rollback <backup-id>
