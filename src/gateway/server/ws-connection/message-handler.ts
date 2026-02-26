@@ -91,6 +91,8 @@ export function attachGatewayWsMessageHandler(params: {
   resolvedAuth: ResolvedGatewayAuth;
   /** Optional rate limiter for auth brute-force protection. */
   rateLimiter?: AuthRateLimiter;
+  /** Browser-origin fallback limiter (loopback is never exempt). */
+  browserRateLimiter?: AuthRateLimiter;
   gatewayMethods: string[];
   events: string[];
   extraHandlers: GatewayRequestHandlers;
@@ -122,6 +124,7 @@ export function attachGatewayWsMessageHandler(params: {
     connectNonce,
     resolvedAuth,
     rateLimiter,
+    browserRateLimiter,
     gatewayMethods,
     events,
     extraHandlers,
@@ -187,6 +190,12 @@ export function attachGatewayWsMessageHandler(params: {
 
   const isWebchatConnect = (p: ConnectParams | null | undefined) => isWebchatClient(p?.client);
   const unauthorizedFloodGuard = new UnauthorizedFloodGuard();
+  const hasBrowserOriginHeader = Boolean(requestOrigin && requestOrigin.trim() !== "");
+  const enforceBrowserOriginForAnyClient = hasBrowserOriginHeader && !hasProxyHeaders;
+  const browserRateLimitClientIp =
+    hasBrowserOriginHeader && isLoopbackAddress(clientIp) ? "198.18.0.1" : clientIp;
+  const authRateLimiter =
+    hasBrowserOriginHeader && browserRateLimiter ? browserRateLimiter : rateLimiter;
 
   socket.on("message", async (data) => {
     if (isClosed()) {
@@ -322,7 +331,7 @@ export function attachGatewayWsMessageHandler(params: {
 
         const isControlUi = connectParams.client.id === GATEWAY_CLIENT_IDS.CONTROL_UI;
         const isWebchat = isWebchatConnect(connectParams);
-        if (isControlUi || isWebchat) {
+        if (enforceBrowserOriginForAnyClient || isControlUi || isWebchat) {
           const originCheck = checkBrowserOrigin({
             requestHost,
             origin: requestOrigin,
@@ -395,8 +404,8 @@ export function attachGatewayWsMessageHandler(params: {
           req: upgradeReq,
           trustedProxies,
           allowRealIpFallback,
-          rateLimiter,
-          clientIp,
+          rateLimiter: authRateLimiter,
+          clientIp: browserRateLimitClientIp,
         });
         const rejectUnauthorized = (failedAuth: GatewayAuthResult) => {
           markHandshakeFailure("unauthorized", {
@@ -562,6 +571,7 @@ export function attachGatewayWsMessageHandler(params: {
           }
         }
 
+<<<<<<< HEAD
         if (!authOk && device && deviceTokenCandidate) {
           if (rateLimiter) {
             const deviceRateCheck = rateLimiter.check(clientIp, AUTH_RATE_LIMIT_SCOPE_DEVICE_TOKEN);
@@ -595,6 +605,26 @@ export function attachGatewayWsMessageHandler(params: {
             }
           }
         }
+=======
+        ({ authResult, authOk, authMethod } = await resolveConnectAuthDecision({
+          state: {
+            authResult,
+            authOk,
+            authMethod,
+            sharedAuthOk,
+            sharedAuthProvided: hasSharedAuth,
+            deviceTokenCandidate,
+            deviceTokenCandidateSource,
+          },
+          hasDeviceIdentity: Boolean(device),
+          deviceId: device?.id,
+          role,
+          scopes,
+          rateLimiter: authRateLimiter,
+          clientIp: browserRateLimitClientIp,
+          verifyDeviceToken,
+        }));
+>>>>>>> c736f11a1 (fix(gateway): harden browser websocket auth chain)
         if (!authOk) {
           rejectUnauthorized(authResult);
           return;
@@ -662,16 +692,24 @@ export function attachGatewayWsMessageHandler(params: {
           const requirePairing = async (
             reason: "not-paired" | "role-upgrade" | "scope-upgrade",
           ) => {
+            const allowSilentLocalPairing =
+              isLocalClient &&
+              (!hasBrowserOriginHeader || isControlUi || isWebchat) &&
+              (reason === "not-paired" || reason === "scope-upgrade");
             const pairing = await requestDevicePairing({
               deviceId: device.id,
               publicKey: devicePublicKey,
               ...clientAccessMetadata,
+<<<<<<< HEAD
 <<<<<<< HEAD
               silent: isLocalClient && reason === "not-paired",
 >>>>>>> d116bcfb1 (refactor(runtime): consolidate followup, gateway, and provider dedupe paths)
 =======
               silent: isLocalClient && (reason === "not-paired" || reason === "scope-upgrade"),
 >>>>>>> 9165bd7f3 (fix(gateway): auto-approve loopback scope upgrades)
+=======
+              silent: allowSilentLocalPairing,
+>>>>>>> c736f11a1 (fix(gateway): harden browser websocket auth chain)
             });
             const context = buildRequestContext();
             if (pairing.request.silent === true) {
