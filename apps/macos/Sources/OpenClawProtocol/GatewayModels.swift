@@ -2678,6 +2678,7 @@ public struct ExecApprovalRequestParams: Codable, Sendable {
     public let id: String?
     public let command: String
     public let commandargv: [String]?
+    public let env: [String: AnyCodable]?
     public let cwd: AnyCodable?
     public let host: AnyCodable?
     public let security: AnyCodable?
@@ -2695,6 +2696,7 @@ public struct ExecApprovalRequestParams: Codable, Sendable {
         id: String?,
         command: String,
         commandargv: [String]?,
+        env: [String: AnyCodable]?,
         cwd: AnyCodable?,
         host: AnyCodable?,
         security: AnyCodable?,
@@ -2725,6 +2727,7 @@ public struct ExecApprovalRequestParams: Codable, Sendable {
         self.id = id
         self.command = command
         self.commandargv = commandargv
+        self.env = env
         self.cwd = cwd
         self.host = host
         self.security = security
@@ -2742,6 +2745,7 @@ public struct ExecApprovalRequestParams: Codable, Sendable {
         case id
         case command
         case commandargv = "commandArgv"
+        case env
         case cwd
         case host
         case security
