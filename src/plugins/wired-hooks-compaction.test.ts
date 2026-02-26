@@ -128,7 +128,7 @@ describe("compaction hook wiring", () => {
     expect(hookMocks.runner.runAfterCompaction).not.toHaveBeenCalled();
   });
 
-  it("clears stale assistant usage after final compaction", () => {
+  it("resets stale assistant usage after final compaction", () => {
     const messages = [
       { role: "user", content: "hello" },
       {
