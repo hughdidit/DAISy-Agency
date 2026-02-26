@@ -149,6 +149,7 @@ Docs: https://docs.openclaw.ai
 - Daemon/macOS launchd: forward proxy env vars into supervised service environments, keep LaunchAgent `KeepAlive=true` semantics, and harden restart sequencing to `print -> bootout -> wait old pid exit -> bootstrap -> kickstart`. (#27276) thanks @frankekn.
 =======
 - Daemon/macOS launchd: forward proxy env vars into supervised service environments, keep LaunchAgent `KeepAlive=true` semantics, and harden restart sequencing to `print -> bootout -> wait old pid exit -> bootstrap -> kickstart`. (#27276) thanks @frankekn.
+- Gateway/macOS restart-loop hardening: detect OpenClaw-managed supervisor markers during SIGUSR1 restart handoff, clean stale gateway PIDs before `/restart` launchctl/systemctl triggers, and set LaunchAgent `ThrottleInterval=60` to bound launchd retry storms during lock-release races. Landed from contributor PRs #27655 (@taw0002), #27448 (@Sid-Qin), and #27650 (@kevinWangSheng). (#27605, #27590, #26904, #26736)
 - Azure OpenAI Responses: force `store=true` for `azure-openai-responses` direct responses API calls to avoid multi-turn 400 failures. Landed from contributor PR #27499 by @polarbear-Yang. (#27497)
 >>>>>>> aa17bdbe4 (docs(changelog): reorder all unreleased entries by user impact)
 - Android/Node invoke: remove native gateway WebSocket `Origin` header to avoid false origin rejections, unify invoke command registry/policy/error parsing paths, and keep command availability checks centralized to reduce dispatcher/advertisement drift. (#27257) Thanks @obviyus.
