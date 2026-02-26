@@ -27,7 +27,19 @@ export class TuiStreamAssembler {
     return state;
   }
 
+<<<<<<< HEAD
   private updateRunState(state: RunStreamState, message: unknown, showThinking: boolean) {
+=======
+  private updateRunState(
+    state: RunStreamState,
+    message: unknown,
+    showThinking: boolean,
+    opts?: {
+      protectBoundaryDrops?: boolean;
+      useIncomingNonTextForBoundaryDrops?: boolean;
+    },
+  ) {
+>>>>>>> b01273cfc (fix: narrow finalize boundary-drop guard (#27711) (thanks @scz2011))
     const thinkingText = extractThinkingFromMessage(message);
     const contentText = extractContentFromMessage(message);
 
@@ -35,7 +47,28 @@ export class TuiStreamAssembler {
       state.thinkingText = thinkingText;
     }
     if (contentText) {
+<<<<<<< HEAD
       state.contentText = contentText;
+=======
+      const nextContentBlocks = textBlocks.length > 0 ? textBlocks : [contentText];
+      const useIncomingNonTextForBoundaryDrops = opts?.useIncomingNonTextForBoundaryDrops !== false;
+      const shouldPreserveBoundaryDroppedText =
+        opts?.protectBoundaryDrops === true &&
+        (state.sawNonTextContentBlocks ||
+          (useIncomingNonTextForBoundaryDrops && sawNonTextContentBlocks)) &&
+        isDroppedBoundaryTextBlockSubset({
+          streamedTextBlocks: state.contentBlocks,
+          finalTextBlocks: nextContentBlocks,
+        });
+
+      if (!shouldPreserveBoundaryDroppedText) {
+        state.contentText = contentText;
+        state.contentBlocks = nextContentBlocks;
+      }
+    }
+    if (sawNonTextContentBlocks) {
+      state.sawNonTextContentBlocks = true;
+>>>>>>> b01273cfc (fix: narrow finalize boundary-drop guard (#27711) (thanks @scz2011))
     }
 
     const displayText = composeThinkingAndContent({
@@ -59,7 +92,17 @@ export class TuiStreamAssembler {
 
   finalize(runId: string, message: unknown, showThinking: boolean): string {
     const state = this.getOrCreateRun(runId);
+<<<<<<< HEAD
     this.updateRunState(state, message, showThinking);
+=======
+    const streamedDisplayText = state.displayText;
+    const streamedTextBlocks = [...state.contentBlocks];
+    const streamedSawNonTextContentBlocks = state.sawNonTextContentBlocks;
+    this.updateRunState(state, message, showThinking, {
+      protectBoundaryDrops: true,
+      useIncomingNonTextForBoundaryDrops: false,
+    });
+>>>>>>> b01273cfc (fix: narrow finalize boundary-drop guard (#27711) (thanks @scz2011))
     const finalComposed = state.displayText;
     const finalText = resolveFinalAssistantText({
       finalText: finalComposed,

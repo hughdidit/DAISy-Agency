@@ -56,6 +56,7 @@ Docs: https://docs.openclaw.ai
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 =======
@@ -63,6 +64,9 @@ Docs: https://docs.openclaw.ai
 - iOS/Talk mode: stop injecting the voice directive hint into iOS Talk prompts and remove the Voice Directive Hint setting, reducing model bias toward tool-style TTS directives and keeping relay responses text-first by default. (#27543) thanks @ngutman.
 =======
 =======
+=======
+- TUI/stream assembly: preserve streamed text across real tool-boundary drops without keeping stale streamed text when non-text blocks appear only in the final payload. Landed from contributor PR #27711 by @scz2011. (#27674)
+>>>>>>> b01273cfc (fix: narrow finalize boundary-drop guard (#27711) (thanks @scz2011))
 - Models/MiniMax auth header defaults: set `authHeader: true` for both onboarding-generated MiniMax API providers and implicit built-in MiniMax (`minimax`, `minimax-portal`) provider templates so first requests no longer fail with MiniMax `401 authentication_error` due to missing `Authorization` header. Landed from contributor PRs #27622 by @riccoyuanft and #27631 by @kevinWangSheng. (#27600, #15303)
 >>>>>>> 60bb47535 (fix: set authHeader: true by default for MiniMax API provider (#27622))
 - Pi image-token usage: stop re-injecting history image blocks each turn, process image references from the current prompt only, and prune already-answered user-image blocks in stored history to prevent runaway token growth. (#27602)
