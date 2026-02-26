@@ -12,6 +12,7 @@ import {
 >>>>>>> 161d9841d (refactor(security): unify dangerous name matching handling)
   resolveMentionGating,
   formatAllowlistMatchMeta,
+  resolveEffectiveAllowFromLists,
   type HistoryEntry,
 } from "openclaw/plugin-sdk";
 
@@ -136,7 +137,14 @@ export function createMSTeamsMessageHandler(deps: MSTeamsMessageHandlerDeps) {
     // Check DM policy for direct messages.
     const dmAllowFrom = msteamsCfg?.allowFrom ?? [];
     const configuredDmAllowFrom = dmAllowFrom.map((v) => String(v));
-    const effectiveDmAllowFrom = [...configuredDmAllowFrom, ...storedAllowFrom];
+    const groupAllowFrom = msteamsCfg?.groupAllowFrom;
+    const resolvedAllowFromLists = resolveEffectiveAllowFromLists({
+      allowFrom: configuredDmAllowFrom,
+      groupAllowFrom,
+      storeAllowFrom: storedAllowFrom,
+      dmPolicy,
+    });
+    const effectiveDmAllowFrom = resolvedAllowFromLists.effectiveAllowFrom;
     if (isDirectMessage && msteamsCfg) {
       const dmPolicy = msteamsCfg.dmPolicy ?? "pairing";
       const allowFrom = dmAllowFrom;
@@ -185,13 +193,8 @@ export function createMSTeamsMessageHandler(deps: MSTeamsMessageHandlerDeps) {
       !isDirectMessage && msteamsCfg
         ? (msteamsCfg.groupPolicy ?? defaultGroupPolicy ?? "allowlist")
         : "disabled";
-    const groupAllowFrom =
-      !isDirectMessage && msteamsCfg
-        ? (msteamsCfg.groupAllowFrom ??
-          (msteamsCfg.allowFrom && msteamsCfg.allowFrom.length > 0 ? msteamsCfg.allowFrom : []))
-        : [];
     const effectiveGroupAllowFrom =
-      !isDirectMessage && msteamsCfg ? groupAllowFrom.map((v) => String(v)) : [];
+      !isDirectMessage && msteamsCfg ? resolvedAllowFromLists.effectiveGroupAllowFrom : [];
     const teamId = activity.channelData?.team?.id;
     const teamName = activity.channelData?.team?.name;
     const channelName = activity.channelData?.channel?.name;
