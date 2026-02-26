@@ -25,6 +25,7 @@ import { INTERNAL_MESSAGE_CHANNEL, normalizeMessageChannel } from "../../utils/m
 >>>>>>> 5d82c8231 (feat: per-channel responsePrefix override (#9001))
 =======
 import type { OpenClawConfig } from "../../config/config.js";
+import { buildOutboundSessionContext } from "../../infra/outbound/session-context.js";
 import { INTERNAL_MESSAGE_CHANNEL, normalizeMessageChannel } from "../../utils/message-channel.js";
 import type { OriginatingChannelType } from "../templating.js";
 import type { ReplyPayload } from "../types.js";
@@ -155,6 +156,11 @@ export async function routeReply(params: RouteReplyParams): Promise<RouteReplyRe
     // Provider docking: this is an execution boundary (we're about to send).
     // Keep the module cheap to import by loading outbound plumbing lazily.
     const { deliverOutboundPayloads } = await import("../../infra/outbound/deliver.js");
+    const outboundSession = buildOutboundSessionContext({
+      cfg,
+      agentId: resolvedAgentId,
+      sessionKey: params.sessionKey,
+    });
     const results = await deliverOutboundPayloads({
       cfg,
       channel: channelId,
@@ -163,6 +169,10 @@ export async function routeReply(params: RouteReplyParams): Promise<RouteReplyRe
       payloads: [normalized],
       replyToId: resolvedReplyToId ?? null,
       threadId: resolvedThreadId,
+<<<<<<< HEAD
+=======
+      session: outboundSession,
+>>>>>>> a1628d89e (refactor: unify outbound session context wiring)
       abortSignal,
       mirror:
         params.mirror !== false && params.sessionKey

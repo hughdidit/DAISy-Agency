@@ -125,6 +125,7 @@ import {
 import type { sendMessageDiscord } from "../../discord/send.js";
 import { createInternalHookEvent, triggerInternalHook } from "../../hooks/internal-hooks.js";
 import type { sendMessageIMessage } from "../../imessage/send.js";
+import { createSubsystemLogger } from "../../logging/subsystem.js";
 import { getAgentScopedMediaLocalRoots } from "../../media/local-roots.js";
 import { getGlobalHookRunner } from "../../plugins/hook-runner-global.js";
 import { markdownToSignalTextChunks, type SignalTextStyleRange } from "../../signal/format.js";
@@ -164,10 +165,13 @@ import type { OutboundIdentity } from "./identity.js";
 import type { NormalizedOutboundPayload } from "./payloads.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { normalizeReplyPayloadsForDelivery } from "./payloads.js";
+import type { OutboundSessionContext } from "./session-context.js";
 import type { OutboundChannel } from "./targets.js";
 
 export type { NormalizedOutboundPayload } from "./payloads.js";
 export { normalizeOutboundPayloads } from "./payloads.js";
+
+const log = createSubsystemLogger("outbound/deliver");
 
 type SendMatrixMessage = (
   to: string,
@@ -422,6 +426,11 @@ type DeliverOutboundPayloadsCoreParams = {
   bestEffort?: boolean;
   onError?: (err: unknown, payload: NormalizedOutboundPayload) => void;
   onPayload?: (payload: NormalizedOutboundPayload) => void;
+<<<<<<< HEAD
+=======
+  /** Session/agent context used for hooks and media local-root scoping. */
+  session?: OutboundSessionContext;
+>>>>>>> a1628d89e (refactor: unify outbound session context wiring)
   mirror?: {
     sessionKey: string;
     agentId?: string;
@@ -429,8 +438,6 @@ type DeliverOutboundPayloadsCoreParams = {
     mediaUrls?: string[];
   };
   silent?: boolean;
-  /** Session key for internal hook dispatch (when `mirror` is not needed). */
-  sessionKey?: string;
 };
 
 type DeliverOutboundPayloadsParams = DeliverOutboundPayloadsCoreParams & {
@@ -534,6 +541,13 @@ async function deliverOutboundPayloadsCore(
   const deps = params.deps;
   const abortSignal = params.abortSignal;
   const sendSignal = params.deps?.sendSignal ?? sendMessageSignal;
+<<<<<<< HEAD
+=======
+  const mediaLocalRoots = getAgentScopedMediaLocalRoots(
+    cfg,
+    params.session?.agentId ?? params.mirror?.agentId,
+  );
+>>>>>>> a1628d89e (refactor: unify outbound session context wiring)
   const results: OutboundDeliveryResult[] = [];
   const handler = await createChannelHandler({
     cfg,
@@ -684,11 +698,29 @@ async function deliverOutboundPayloadsCore(
   });
   const hookRunner = getGlobalHookRunner();
 <<<<<<< HEAD
+<<<<<<< HEAD
   const sessionKeyForInternalHooks = params.mirror?.sessionKey;
 >>>>>>> f07bb8e8f (fix(hooks): backport internal message hook bridge with safe delivery semantics)
 =======
   const sessionKeyForInternalHooks = params.mirror?.sessionKey ?? params.sessionKey;
 >>>>>>> 01c1f68ab (fix(hooks): decouple message:sent internal hook from mirror param)
+=======
+  const sessionKeyForInternalHooks = params.mirror?.sessionKey ?? params.session?.key;
+  if (
+    hookRunner?.hasHooks("message_sent") &&
+    params.session?.agentId &&
+    !sessionKeyForInternalHooks
+  ) {
+    log.warn(
+      "deliverOutboundPayloads: session.agentId present without session key; internal message:sent hook will be skipped",
+      {
+        channel,
+        to,
+        agentId: params.session.agentId,
+      },
+    );
+  }
+>>>>>>> a1628d89e (refactor: unify outbound session context wiring)
   for (const payload of normalizedPayloads) {
     const payloadSummary: NormalizedOutboundPayload = {
       text: payload.text ?? "",
