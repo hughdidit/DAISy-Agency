@@ -12,8 +12,29 @@ export type ExecAsk = "off" | "on-miss" | "always";
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
+=======
+export type SystemRunApprovalBindingV1 = {
+  version: 1;
+  argv: string[];
+  cwd: string | null;
+  agentId: string | null;
+  sessionKey: string | null;
+  envHash: string | null;
+};
+
+export type SystemRunApprovalPlanV2 = {
+  version: 2;
+  argv: string[];
+  cwd: string | null;
+  rawCommand: string | null;
+  agentId: string | null;
+  sessionKey: string | null;
+};
+
+>>>>>>> 78a7ff2d5 (fix(security): harden node exec approvals against symlink rebind)
 export type ExecApprovalRequestPayload = {
   command: string;
   commandArgv?: string[];
@@ -23,6 +44,11 @@ export type ExecApprovalRequestPayload = {
   // Optional UI-safe env key preview for approval prompts.
 >>>>>>> 10481097f (refactor(security): enforce v1 node exec approval binding)
   envKeys?: string[];
+<<<<<<< HEAD
+=======
+  systemRunBindingV1?: SystemRunApprovalBindingV1 | null;
+  systemRunPlanV2?: SystemRunApprovalPlanV2 | null;
+>>>>>>> 78a7ff2d5 (fix(security): harden node exec approvals against symlink rebind)
   cwd?: string | null;
   nodeId?: string | null;
   host?: string | null;

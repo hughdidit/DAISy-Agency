@@ -20,6 +20,7 @@ const LOCATION_COMMANDS = ["location.get"];
 
 const SMS_COMMANDS = ["sms.send"];
 
+<<<<<<< HEAD
 const SYSTEM_COMMANDS = [
   "system.run",
   "system.which",
@@ -27,6 +28,43 @@ const SYSTEM_COMMANDS = [
   "system.execApprovals.get",
   "system.execApprovals.set",
   "browser.proxy",
+=======
+const CONTACTS_COMMANDS = ["contacts.search"];
+const CONTACTS_DANGEROUS_COMMANDS = ["contacts.add"];
+
+const CALENDAR_COMMANDS = ["calendar.events"];
+const CALENDAR_DANGEROUS_COMMANDS = ["calendar.add"];
+
+const REMINDERS_COMMANDS = ["reminders.list"];
+const REMINDERS_DANGEROUS_COMMANDS = ["reminders.add"];
+
+const PHOTOS_COMMANDS = ["photos.latest"];
+
+const MOTION_COMMANDS = ["motion.activity", "motion.pedometer"];
+
+const SMS_DANGEROUS_COMMANDS = ["sms.send"];
+
+// iOS nodes don't implement system.run/which, but they do support notifications.
+const IOS_SYSTEM_COMMANDS = ["system.notify"];
+
+const SYSTEM_COMMANDS = [
+  "system.run.prepare",
+  "system.run",
+  "system.which",
+  "system.notify",
+  "browser.proxy",
+];
+
+// "High risk" node commands. These can be enabled by explicitly adding them to
+// `gateway.nodes.allowCommands` (and ensuring they're not blocked by denyCommands).
+export const DEFAULT_DANGEROUS_NODE_COMMANDS = [
+  ...CAMERA_DANGEROUS_COMMANDS,
+  ...SCREEN_DANGEROUS_COMMANDS,
+  ...CONTACTS_DANGEROUS_COMMANDS,
+  ...CALENDAR_DANGEROUS_COMMANDS,
+  ...REMINDERS_DANGEROUS_COMMANDS,
+  ...SMS_DANGEROUS_COMMANDS,
+>>>>>>> 78a7ff2d5 (fix(security): harden node exec approvals against symlink rebind)
 ];
 
 const PLATFORM_DEFAULTS: Record<string, string[]> = {

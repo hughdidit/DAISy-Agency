@@ -7,8 +7,16 @@ import {
   DEFAULT_EXEC_APPROVAL_TIMEOUT_MS,
   type ExecApprovalDecision,
 } from "../../infra/exec-approvals.js";
+<<<<<<< HEAD
 import { buildSystemRunApprovalBindingV1 } from "../../infra/system-run-approval-binding.js";
 >>>>>>> 10481097f (refactor(security): enforce v1 node exec approval binding)
+=======
+import {
+  buildSystemRunApprovalBindingV1,
+  normalizeSystemRunApprovalPlanV2,
+} from "../../infra/system-run-approval-binding.js";
+import { formatExecCommand } from "../../infra/system-run-command.js";
+>>>>>>> 78a7ff2d5 (fix(security): harden node exec approvals against symlink rebind)
 import type { ExecApprovalManager } from "../exec-approval-manager.js";
 import {
   ErrorCodes,
@@ -48,6 +56,11 @@ export function createExecApprovalHandlers(
         commandArgv?: string[];
         env?: Record<string, string>;
         cwd?: string;
+<<<<<<< HEAD
+=======
+        systemRunPlanV2?: unknown;
+        nodeId?: string;
+>>>>>>> 78a7ff2d5 (fix(security): harden node exec approvals against symlink rebind)
         host?: string;
         security?: string;
         ask?: string;
@@ -70,9 +83,24 @@ export function createExecApprovalHandlers(
         ? p.commandArgv.map((entry) => String(entry))
         : undefined;
 <<<<<<< HEAD
+<<<<<<< HEAD
       const envBinding = buildSystemRunApprovalEnvBinding(p.env);
 =======
 >>>>>>> 10481097f (refactor(security): enforce v1 node exec approval binding)
+=======
+      const systemRunPlanV2 =
+        host === "node" ? normalizeSystemRunApprovalPlanV2(p.systemRunPlanV2) : null;
+      const effectiveCommandArgv = systemRunPlanV2?.argv ?? commandArgv;
+      const effectiveCwd = systemRunPlanV2?.cwd ?? p.cwd;
+      const effectiveAgentId = systemRunPlanV2?.agentId ?? p.agentId;
+      const effectiveSessionKey = systemRunPlanV2?.sessionKey ?? p.sessionKey;
+      const effectiveCommandText = (() => {
+        if (!systemRunPlanV2) {
+          return p.command;
+        }
+        return systemRunPlanV2.rawCommand ?? formatExecCommand(systemRunPlanV2.argv);
+      })();
+>>>>>>> 78a7ff2d5 (fix(security): harden node exec approvals against symlink rebind)
       if (host === "node" && !nodeId) {
         respond(
           false,
@@ -82,9 +110,16 @@ export function createExecApprovalHandlers(
         return;
       }
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 03e689fc8 (fix(security): bind system.run approvals to argv identity)
 =======
       if (host === "node" && (!Array.isArray(commandArgv) || commandArgv.length === 0)) {
+=======
+      if (
+        host === "node" &&
+        (!Array.isArray(effectiveCommandArgv) || effectiveCommandArgv.length === 0)
+      ) {
+>>>>>>> 78a7ff2d5 (fix(security): harden node exec approvals against symlink rebind)
         respond(
           false,
           undefined,
@@ -95,10 +130,10 @@ export function createExecApprovalHandlers(
       const systemRunBindingV1 =
         host === "node"
           ? buildSystemRunApprovalBindingV1({
-              argv: commandArgv,
-              cwd: p.cwd,
-              agentId: p.agentId,
-              sessionKey: p.sessionKey,
+              argv: effectiveCommandArgv,
+              cwd: effectiveCwd,
+              agentId: effectiveAgentId,
+              sessionKey: effectiveSessionKey,
               env: p.env,
             })
           : null;
@@ -113,6 +148,7 @@ export function createExecApprovalHandlers(
       }
       const request = {
 <<<<<<< HEAD
+<<<<<<< HEAD
         command: sanitizeBinaryOutput(p.command).replace(/\r/g, ""),
 =======
         command: p.command,
@@ -125,11 +161,21 @@ export function createExecApprovalHandlers(
 >>>>>>> 9a4b2266c (fix(security): bind node system.run approvals to env)
         cwd: p.cwd ?? null,
         host: p.host ?? null,
+=======
+        command: effectiveCommandText,
+        commandArgv: effectiveCommandArgv,
+        envKeys: systemRunBindingV1?.envKeys?.length ? systemRunBindingV1.envKeys : undefined,
+        systemRunBindingV1: systemRunBindingV1?.binding ?? null,
+        systemRunPlanV2: systemRunPlanV2,
+        cwd: effectiveCwd ?? null,
+        nodeId: host === "node" ? nodeId : null,
+        host: host || null,
+>>>>>>> 78a7ff2d5 (fix(security): harden node exec approvals against symlink rebind)
         security: p.security ?? null,
         ask: p.ask ?? null,
-        agentId: p.agentId ?? null,
+        agentId: effectiveAgentId ?? null,
         resolvedPath: p.resolvedPath ?? null,
-        sessionKey: p.sessionKey ?? null,
+        sessionKey: effectiveSessionKey ?? null,
         turnSourceChannel:
           typeof p.turnSourceChannel === "string" ? p.turnSourceChannel.trim() || null : null,
         turnSourceTo: typeof p.turnSourceTo === "string" ? p.turnSourceTo.trim() || null : null,
