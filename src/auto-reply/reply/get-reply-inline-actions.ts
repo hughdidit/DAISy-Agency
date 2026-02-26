@@ -42,6 +42,7 @@ import type { SessionEntry } from "../../config/sessions.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 =======
@@ -65,6 +66,8 @@ import { getChannelDock } from "../../channels/dock.js";
 =======
 import { updateSessionStore } from "../../config/sessions.js";
 >>>>>>> c397a02c9 (fix(queue): harden drain/abort/timeout race handling)
+=======
+>>>>>>> b402770f6 (refactor(reply): split abort cutoff and timeout policy modules)
 import { logVerbose } from "../../globals.js";
 import { resolveGatewayMessageChannel } from "../../utils/message-channel.js";
 <<<<<<< HEAD
@@ -88,6 +91,7 @@ import type { MsgContext, TemplateContext } from "../templating.js";
 import type { ElevatedLevel, ReasoningLevel, ThinkLevel, VerboseLevel } from "../thinking.js";
 import type { GetReplyOptions, ReplyPayload } from "../types.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
@@ -107,6 +111,15 @@ import { getAbortMemory } from "./abort.js";
 =======
 import { getAbortMemory, isAbortRequestText, shouldSkipMessageByAbortCutoff } from "./abort.js";
 >>>>>>> c397a02c9 (fix(queue): harden drain/abort/timeout race handling)
+=======
+import {
+  clearAbortCutoffInSession,
+  readAbortCutoffFromSessionEntry,
+  resolveAbortCutoffFromContext,
+  shouldSkipMessageByAbortCutoff,
+} from "./abort-cutoff.js";
+import { getAbortMemory, isAbortRequestText } from "./abort.js";
+>>>>>>> b402770f6 (refactor(reply): split abort cutoff and timeout policy modules)
 import { buildStatusReply, handleCommands } from "./commands.js";
 import type { InlineDirectives } from "./directive-handling.js";
 import { isDirectiveOnly } from "./directive-handling.js";
@@ -362,54 +375,29 @@ export async function handleInlineActions(params: {
     await opts.onBlockReply(reply);
   };
 
-  const clearAbortCutoff = async () => {
-    if (!sessionEntry || !sessionStore || !sessionKey) {
-      return;
-    }
-    if (
-      sessionEntry.abortCutoffMessageSid === undefined &&
-      sessionEntry.abortCutoffTimestamp === undefined
-    ) {
-      return;
-    }
-    sessionEntry.abortCutoffMessageSid = undefined;
-    sessionEntry.abortCutoffTimestamp = undefined;
-    sessionEntry.updatedAt = Date.now();
-    sessionStore[sessionKey] = sessionEntry;
-    if (storePath) {
-      await updateSessionStore(storePath, (store) => {
-        const existing = store[sessionKey] ?? sessionEntry;
-        if (!existing) {
-          return;
-        }
-        existing.abortCutoffMessageSid = undefined;
-        existing.abortCutoffTimestamp = undefined;
-        existing.updatedAt = Date.now();
-        store[sessionKey] = existing;
-      });
-    }
-  };
-
   const isStopLikeInbound = isAbortRequestText(command.rawBodyNormalized);
   if (!isStopLikeInbound && sessionEntry) {
-    const shouldSkip = shouldSkipMessageByAbortCutoff({
-      cutoffMessageSid: sessionEntry.abortCutoffMessageSid,
-      cutoffTimestamp: sessionEntry.abortCutoffTimestamp,
-      messageSid:
-        (typeof ctx.MessageSidFull === "string" && ctx.MessageSidFull.trim()) ||
-        (typeof ctx.MessageSid === "string" && ctx.MessageSid.trim()) ||
-        undefined,
-      timestamp: typeof ctx.Timestamp === "number" ? ctx.Timestamp : undefined,
-    });
+    const cutoff = readAbortCutoffFromSessionEntry(sessionEntry);
+    const incoming = resolveAbortCutoffFromContext(ctx);
+    const shouldSkip = cutoff
+      ? shouldSkipMessageByAbortCutoff({
+          cutoffMessageSid: cutoff.messageSid,
+          cutoffTimestamp: cutoff.timestamp,
+          messageSid: incoming?.messageSid,
+          timestamp: incoming?.timestamp,
+        })
+      : false;
     if (shouldSkip) {
       typing.cleanup();
       return { kind: "reply", reply: undefined };
     }
-    if (
-      sessionEntry.abortCutoffMessageSid !== undefined ||
-      sessionEntry.abortCutoffTimestamp !== undefined
-    ) {
-      await clearAbortCutoff();
+    if (cutoff) {
+      await clearAbortCutoffInSession({
+        sessionEntry,
+        sessionStore,
+        sessionKey,
+        storePath,
+      });
     }
   }
 
