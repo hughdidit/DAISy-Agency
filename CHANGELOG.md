@@ -13,6 +13,7 @@ Docs: https://docs.openclaw.ai
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 =======
@@ -27,6 +28,16 @@ Docs: https://docs.openclaw.ai
 ## Unreleased
 =======
 ## 2026.2.25 (Unreleased)
+=======
+## 2026.2.26 (Unreleased)
+
+### Fixes
+
+- Android/Node invoke: remove native gateway WebSocket `Origin` header to avoid false origin rejections, unify invoke command registry/policy/error parsing paths, and keep command availability checks centralized to reduce dispatcher/advertisement drift. (#27257) Thanks @obviyus.
+- CI/Windows: shard the Windows `checks-windows` test lane into two matrix jobs and honor explicit shard index overrides in `scripts/test-parallel.mjs` to reduce CI critical-path wall time. (#27234) Thanks @joshavant.
+
+## 2026.2.25
+>>>>>>> c5d040bbe (fix: update changelog for android invoke distill (#27257) (thanks @obviyus))
 
 ### Changes
 
