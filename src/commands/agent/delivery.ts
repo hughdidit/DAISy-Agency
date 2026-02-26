@@ -41,11 +41,21 @@ type RunResult = Awaited<
 
 const NESTED_LOG_PREFIX = "[agent:nested]";
 
-function formatNestedLogPrefix(opts: AgentCommandOpts): string {
+function formatNestedLogPrefix(opts: AgentCommandOpts, sessionKey?: string): string {
   const parts = [NESTED_LOG_PREFIX];
+<<<<<<< HEAD
   const session = opts.sessionKey ?? opts.sessionId;
   if (session) parts.push(`session=${session}`);
   if (opts.runId) parts.push(`run=${opts.runId}`);
+=======
+  const session = sessionKey ?? opts.sessionKey ?? opts.sessionId;
+  if (session) {
+    parts.push(`session=${session}`);
+  }
+  if (opts.runId) {
+    parts.push(`run=${opts.runId}`);
+  }
+>>>>>>> 7ef6623bf (fix: forward resolved session key in agent delivery (follow-up #27584 by @qualiobra))
   const channel = opts.messageChannel ?? opts.channel;
   if (channel) parts.push(`channel=${channel}`);
   if (opts.to) parts.push(`to=${opts.to}`);
@@ -53,8 +63,13 @@ function formatNestedLogPrefix(opts: AgentCommandOpts): string {
   return parts.join(" ");
 }
 
-function logNestedOutput(runtime: RuntimeEnv, opts: AgentCommandOpts, output: string) {
-  const prefix = formatNestedLogPrefix(opts);
+function logNestedOutput(
+  runtime: RuntimeEnv,
+  opts: AgentCommandOpts,
+  output: string,
+  sessionKey?: string,
+) {
+  const prefix = formatNestedLogPrefix(opts, sessionKey);
   for (const line of output.split(/\r?\n/)) {
     if (!line) continue;
     runtime.log(`${prefix} ${line}`);
@@ -70,7 +85,12 @@ export async function deliverAgentCommandResult(params: {
   result: RunResult;
   payloads: RunResult["payloads"];
 }) {
+<<<<<<< HEAD
   const { cfg, deps, runtime, opts, sessionEntry, payloads, result } = params;
+=======
+  const { cfg, deps, runtime, opts, outboundSession, sessionEntry, payloads, result } = params;
+  const effectiveSessionKey = outboundSession?.key ?? opts.sessionKey;
+>>>>>>> 7ef6623bf (fix: forward resolved session key in agent delivery (follow-up #27584 by @qualiobra))
   const deliver = opts.deliver === true;
   const bestEffortDeliver = opts.bestEffortDeliver === true;
   const turnSourceChannel = opts.runContext?.messageChannel ?? opts.messageChannel;
@@ -190,7 +210,7 @@ export async function deliverAgentCommandResult(params: {
     const output = formatOutboundPayloadLog(payload);
     if (!output) return;
     if (opts.lane === AGENT_LANE_NESTED) {
-      logNestedOutput(runtime, opts, output);
+      logNestedOutput(runtime, opts, output, effectiveSessionKey);
       return;
     }
     runtime.log(output);
