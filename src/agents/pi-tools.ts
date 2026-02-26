@@ -189,6 +189,8 @@ export function createOpenClawCodingTools(options?: {
   /** Whether the sender is an owner (required for owner-only tools). */
   senderIsOwner?: boolean;
 }): AnyAgentTool[] {
+  const rawMessageProvider = options?.messageProvider?.trim().toLowerCase();
+  const isVoiceMessageProvider = rawMessageProvider === "voice";
   const execToolName = "exec";
   const sandbox = options?.sandbox?.enabled ? options.sandbox : undefined;
   const {
@@ -402,8 +404,12 @@ export function createOpenClawCodingTools(options?: {
       senderIsOwner: options?.senderIsOwner,
     }),
   ];
+  const toolsForMessageProvider = isVoiceMessageProvider
+    ? tools.filter((tool) => tool.name !== "tts")
+    : tools;
   // Security: treat unknown/undefined as unauthorized (opt-in, not opt-out)
   const senderIsOwner = options?.senderIsOwner === true;
+<<<<<<< HEAD
   const toolsByAuthorization = applyOwnerOnlyToolPolicy(tools, senderIsOwner);
   const coreToolNames = new Set(
     toolsByAuthorization
@@ -412,6 +418,10 @@ export function createOpenClawCodingTools(options?: {
       .filter(Boolean),
   );
   const pluginGroups = buildPluginToolGroups({
+=======
+  const toolsByAuthorization = applyOwnerOnlyToolPolicy(toolsForMessageProvider, senderIsOwner);
+  const subagentFiltered = applyToolPolicyPipeline({
+>>>>>>> 8f8e2b13b (fix: disable tts tool for voice provider)
     tools: toolsByAuthorization,
     toolMeta: (tool) => getPluginToolMeta(tool),
   });
