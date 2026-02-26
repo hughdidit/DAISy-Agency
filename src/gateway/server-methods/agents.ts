@@ -27,6 +27,13 @@ import {
 } from "../../commands/agents.config.js";
 import { loadConfig, writeConfigFile } from "../../config/config.js";
 import { resolveSessionTranscriptsDirForAgent } from "../../config/sessions/paths.js";
+<<<<<<< HEAD
+=======
+import { sameFileIdentity } from "../../infra/file-identity.js";
+import { SafeOpenError, readLocalFileSafely, writeFileWithinRoot } from "../../infra/fs-safe.js";
+import { assertNoPathAliasEscape } from "../../infra/path-alias-guards.js";
+import { isNotFoundPathError } from "../../infra/path-guards.js";
+>>>>>>> e3385a657 (fix(security): harden root file guards and host writes)
 import { DEFAULT_AGENT_ID, normalizeAgentId } from "../../routing/session-key.js";
 import { resolveUserPath } from "../../utils.js";
 import {
@@ -62,7 +69,30 @@ type FileMeta = {
   updatedAtMs: number;
 };
 
+<<<<<<< HEAD
 async function statFile(filePath: string): Promise<FileMeta | null> {
+=======
+type ResolvedAgentWorkspaceFilePath =
+  | {
+      kind: "ready";
+      requestPath: string;
+      ioPath: string;
+      workspaceReal: string;
+    }
+  | {
+      kind: "missing";
+      requestPath: string;
+      ioPath: string;
+      workspaceReal: string;
+    }
+  | {
+      kind: "invalid";
+      requestPath: string;
+      reason: string;
+    };
+
+async function resolveWorkspaceRealPath(workspaceDir: string): Promise<string> {
+>>>>>>> e3385a657 (fix(security): harden root file guards and host writes)
   try {
     const stat = await fs.stat(filePath);
     if (!stat.isFile()) {
@@ -77,7 +107,11 @@ async function statFile(filePath: string): Promise<FileMeta | null> {
   }
 }
 
+<<<<<<< HEAD
 async function listAgentFiles(workspaceDir: string) {
+=======
+async function listAgentFiles(workspaceDir: string, options?: { hideBootstrap?: boolean }) {
+>>>>>>> e3385a657 (fix(security): harden root file guards and host writes)
   const files: Array<{
     name: string;
     path: string;
@@ -484,8 +518,27 @@ export const agentsHandlers: GatewayRequestHandlers = {
     await fs.mkdir(workspaceDir, { recursive: true });
     const filePath = path.join(workspaceDir, name);
     const content = String(params.content ?? "");
+<<<<<<< HEAD
     await fs.writeFile(filePath, content, "utf-8");
     const meta = await statFile(filePath);
+=======
+    try {
+      await writeFileWithinRoot({
+        rootDir: workspaceDir,
+        relativePath: name,
+        data: content,
+        encoding: "utf8",
+      });
+    } catch {
+      respond(
+        false,
+        undefined,
+        errorShape(ErrorCodes.INVALID_REQUEST, `unsafe workspace file "${name}"`),
+      );
+      return;
+    }
+    const meta = await statFileSafely(resolvedPath.ioPath);
+>>>>>>> e3385a657 (fix(security): harden root file guards and host writes)
     respond(
       true,
       {

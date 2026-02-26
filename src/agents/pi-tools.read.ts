@@ -1,5 +1,17 @@
+<<<<<<< HEAD
 import type { AgentToolResult } from "@mariozechner/pi-agent-core";
 import { createEditTool, createReadTool, createWriteTool } from "@mariozechner/pi-coding-agent";
+=======
+import fs from "node:fs/promises";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import type { AgentToolResult } from "@mariozechner/pi-agent-core";
+import { createEditTool, createReadTool, createWriteTool } from "@mariozechner/pi-coding-agent";
+import { SafeOpenError, openFileWithinRoot, writeFileWithinRoot } from "../infra/fs-safe.js";
+import { detectMime } from "../media/mime.js";
+import { sniffMimeFromBase64 } from "../media/sniff-mime-from-base64.js";
+import type { ImageSanitizationLimits } from "./image-sanitization.js";
+>>>>>>> e3385a657 (fix(security): harden root file guards and host writes)
 import type { AnyAgentTool } from "./pi-tools.types.js";
 import { detectMime } from "../media/mime.js";
 import { assertSandboxPath } from "./sandbox-paths.js";
@@ -295,12 +307,33 @@ export function createSandboxedWriteTool(root: string) {
   return wrapSandboxPathGuard(wrapToolParamNormalization(base, CLAUDE_PARAM_GROUPS.write), root);
 }
 
+<<<<<<< HEAD
 export function createSandboxedEditTool(root: string) {
   const base = createEditTool(root) as unknown as AnyAgentTool;
   return wrapSandboxPathGuard(wrapToolParamNormalization(base, CLAUDE_PARAM_GROUPS.edit), root);
 }
 
 export function createOpenClawReadTool(base: AnyAgentTool): AnyAgentTool {
+=======
+export function createHostWorkspaceWriteTool(root: string) {
+  const base = createWriteTool(root, {
+    operations: createHostWriteOperations(root),
+  }) as unknown as AnyAgentTool;
+  return wrapToolParamNormalization(base, CLAUDE_PARAM_GROUPS.write);
+}
+
+export function createHostWorkspaceEditTool(root: string) {
+  const base = createEditTool(root, {
+    operations: createHostEditOperations(root),
+  }) as unknown as AnyAgentTool;
+  return wrapToolParamNormalization(base, CLAUDE_PARAM_GROUPS.edit);
+}
+
+export function createOpenClawReadTool(
+  base: AnyAgentTool,
+  options?: OpenClawReadToolOptions,
+): AnyAgentTool {
+>>>>>>> e3385a657 (fix(security): harden root file guards and host writes)
   const patched = patchToolSchemaForClaudeCompatibility(base);
   return {
     ...patched,
@@ -317,3 +350,137 @@ export function createOpenClawReadTool(base: AnyAgentTool): AnyAgentTool {
     },
   };
 }
+<<<<<<< HEAD
+=======
+
+function createSandboxReadOperations(params: SandboxToolParams) {
+  return {
+    readFile: (absolutePath: string) =>
+      params.bridge.readFile({ filePath: absolutePath, cwd: params.root }),
+    access: async (absolutePath: string) => {
+      const stat = await params.bridge.stat({ filePath: absolutePath, cwd: params.root });
+      if (!stat) {
+        throw createFsAccessError("ENOENT", absolutePath);
+      }
+    },
+    detectImageMimeType: async (absolutePath: string) => {
+      const buffer = await params.bridge.readFile({ filePath: absolutePath, cwd: params.root });
+      const mime = await detectMime({ buffer, filePath: absolutePath });
+      return mime && mime.startsWith("image/") ? mime : undefined;
+    },
+  } as const;
+}
+
+function createSandboxWriteOperations(params: SandboxToolParams) {
+  return {
+    mkdir: async (dir: string) => {
+      await params.bridge.mkdirp({ filePath: dir, cwd: params.root });
+    },
+    writeFile: async (absolutePath: string, content: string) => {
+      await params.bridge.writeFile({ filePath: absolutePath, cwd: params.root, data: content });
+    },
+  } as const;
+}
+
+function createSandboxEditOperations(params: SandboxToolParams) {
+  return {
+    readFile: (absolutePath: string) =>
+      params.bridge.readFile({ filePath: absolutePath, cwd: params.root }),
+    writeFile: (absolutePath: string, content: string) =>
+      params.bridge.writeFile({ filePath: absolutePath, cwd: params.root, data: content }),
+    access: async (absolutePath: string) => {
+      const stat = await params.bridge.stat({ filePath: absolutePath, cwd: params.root });
+      if (!stat) {
+        throw createFsAccessError("ENOENT", absolutePath);
+      }
+    },
+  } as const;
+}
+
+function createHostWriteOperations(root: string) {
+  return {
+    mkdir: async (dir: string) => {
+      const relative = toRelativePathInRoot(root, dir, { allowRoot: true });
+      const resolved = relative ? path.resolve(root, relative) : path.resolve(root);
+      await assertSandboxPath({ filePath: resolved, cwd: root, root });
+      await fs.mkdir(resolved, { recursive: true });
+    },
+    writeFile: async (absolutePath: string, content: string) => {
+      const relative = toRelativePathInRoot(root, absolutePath);
+      await writeFileWithinRoot({
+        rootDir: root,
+        relativePath: relative,
+        data: content,
+        mkdir: true,
+      });
+    },
+  } as const;
+}
+
+function createHostEditOperations(root: string) {
+  return {
+    readFile: async (absolutePath: string) => {
+      const relative = toRelativePathInRoot(root, absolutePath);
+      const opened = await openFileWithinRoot({
+        rootDir: root,
+        relativePath: relative,
+      });
+      try {
+        return await opened.handle.readFile();
+      } finally {
+        await opened.handle.close().catch(() => {});
+      }
+    },
+    writeFile: async (absolutePath: string, content: string) => {
+      const relative = toRelativePathInRoot(root, absolutePath);
+      await writeFileWithinRoot({
+        rootDir: root,
+        relativePath: relative,
+        data: content,
+        mkdir: true,
+      });
+    },
+    access: async (absolutePath: string) => {
+      const relative = toRelativePathInRoot(root, absolutePath);
+      try {
+        const opened = await openFileWithinRoot({
+          rootDir: root,
+          relativePath: relative,
+        });
+        await opened.handle.close().catch(() => {});
+      } catch (error) {
+        if (error instanceof SafeOpenError && error.code === "not-found") {
+          throw createFsAccessError("ENOENT", absolutePath);
+        }
+        throw error;
+      }
+    },
+  } as const;
+}
+
+function toRelativePathInRoot(
+  root: string,
+  candidate: string,
+  options?: { allowRoot?: boolean },
+): string {
+  const rootResolved = path.resolve(root);
+  const resolved = path.resolve(candidate);
+  const relative = path.relative(rootResolved, resolved);
+  if (relative === "" || relative === ".") {
+    if (options?.allowRoot) {
+      return "";
+    }
+    throw new Error(`Path escapes workspace root: ${candidate}`);
+  }
+  if (relative.startsWith("..") || path.isAbsolute(relative)) {
+    throw new Error(`Path escapes workspace root: ${candidate}`);
+  }
+  return relative;
+}
+
+function createFsAccessError(code: string, filePath: string): NodeJS.ErrnoException {
+  const error = new Error(`Sandbox FS error (${code}): ${filePath}`) as NodeJS.ErrnoException;
+  error.code = code;
+  return error;
+}
+>>>>>>> e3385a657 (fix(security): harden root file guards and host writes)

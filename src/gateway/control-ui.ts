@@ -2,6 +2,7 @@ import type { IncomingMessage, ServerResponse } from "node:http";
 import fs from "node:fs";
 import path from "node:path";
 import type { OpenClawConfig } from "../config/config.js";
+import { openBoundaryFileSync } from "../infra/boundary-file-read.js";
 import { resolveControlUiRootSync } from "../infra/control-ui-assets.js";
 import { isWithinDir } from "../infra/path-safety.js";
 import { DEFAULT_ASSISTANT_IDENTITY, resolveAssistantIdentity } from "./assistant-identity.js";
@@ -236,11 +237,6 @@ function serveResolvedIndexHtml(res: ServerResponse, body: string) {
   res.end(body);
 }
 
-function isContainedPath(baseDir: string, targetPath: string): boolean {
-  const relative = path.relative(baseDir, targetPath);
-  return relative !== ".." && !relative.startsWith(`..${path.sep}`) && !path.isAbsolute(relative);
-}
-
 function isExpectedSafePathError(error: unknown): boolean {
   const code =
     typeof error === "object" && error !== null && "code" in error ? String(error.code) : "";
@@ -254,6 +250,7 @@ function areSameFileIdentity(preOpen: fs.Stats, opened: fs.Stats): boolean {
 function resolveSafeControlUiFile(
   root: string,
   filePath: string,
+<<<<<<< HEAD
 ): { path: string; body: Buffer } | null {
   let fd: number | null = null;
   try {
@@ -290,6 +287,23 @@ function resolveSafeControlUiFile(
     }
   }
 >>>>>>> 7c500ff62 (fix(security): harden control-ui static path resolution)
+=======
+): { path: string; fd: number } | null {
+  const opened = openBoundaryFileSync({
+    absolutePath: filePath,
+    rootPath: rootReal,
+    rootRealPath: rootReal,
+    boundaryLabel: "control ui root",
+    skipLexicalRootCheck: true,
+  });
+  if (!opened.ok) {
+    if (opened.reason === "io") {
+      throw opened.error;
+    }
+    return null;
+  }
+  return { path: opened.path, fd: opened.fd };
+>>>>>>> e3385a657 (fix(security): harden root file guards and host writes)
 }
 
 function isSafeRelativePath(relPath: string) {
