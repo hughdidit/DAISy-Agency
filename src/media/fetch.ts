@@ -51,6 +51,7 @@ export type FetchLike = (input: RequestInfo | URL, init?: RequestInit) => Promis
 type FetchMediaOptions = {
   url: string;
   fetchImpl?: FetchLike;
+  requestInit?: RequestInit;
   filePathHint?: string;
   maxBytes?: number;
 };
@@ -100,15 +101,42 @@ async function readErrorBodySnippet(res: Response, maxChars = 200): Promise<stri
 }
 
 export async function fetchRemoteMedia(options: FetchMediaOptions): Promise<FetchMediaResult> {
+<<<<<<< HEAD
   const { url, fetchImpl, filePathHint, maxBytes } = options;
   const fetcher: FetchLike | undefined = fetchImpl ?? globalThis.fetch;
   if (!fetcher) {
     throw new Error("fetch is not available");
   }
+=======
+  const {
+    url,
+    fetchImpl,
+    requestInit,
+    filePathHint,
+    maxBytes,
+    maxRedirects,
+    ssrfPolicy,
+    lookupFn,
+  } = options;
+>>>>>>> b044c149c (Mattermost: avoid raw fetch in monitor media download)
 
   let res: Response;
   try {
+<<<<<<< HEAD
     res = await fetcher(url);
+=======
+    const result = await fetchWithSsrFGuard({
+      url,
+      fetchImpl,
+      init: requestInit,
+      maxRedirects,
+      policy: ssrfPolicy,
+      lookupFn,
+    });
+    res = result.response;
+    finalUrl = result.finalUrl;
+    release = result.release;
+>>>>>>> b044c149c (Mattermost: avoid raw fetch in monitor media download)
   } catch (err) {
     throw new MediaFetchError("fetch_failed", `Failed to fetch media from ${url}: ${String(err)}`);
   }
