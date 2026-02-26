@@ -868,6 +868,12 @@ export async function handleFeishuMessage(params: {
       messageBody += `\n\n[System: Your reply will automatically @mention: ${targetNames}. Do not write @xxx yourself.]`;
     }
 
+<<<<<<< HEAD
+=======
+    // Keep message_id on its own line so shared message-id hint stripping can parse it reliably.
+    messageBody = `[message_id: ${ctx.messageId}]\n${messageBody}`;
+
+>>>>>>> d671d7a0a (fix: preserve feishu message_id in agent-visible body (#27253) (thanks @xss925175263))
     const envelopeFrom = isGroup ? `${ctx.chatId}:${ctx.senderOpenId}` : ctx.senderOpenId;
 
     // If there's a permission error, dispatch a separate notification first
