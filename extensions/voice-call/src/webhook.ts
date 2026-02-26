@@ -10,6 +10,7 @@ import type { VoiceCallProvider } from "./providers/base.js";
 import { OpenAIRealtimeSTTProvider } from "./providers/stt-openai-realtime.js";
 import type { TwilioProvider } from "./providers/twilio.js";
 import type { NormalizedEvent, WebhookContext } from "./types.js";
+import { startStaleCallReaper } from "./webhook/stale-call-reaper.js";
 
 const MAX_WEBHOOK_BODY_BYTES = 1024 * 1024;
 
@@ -23,7 +24,7 @@ export class VoiceCallWebhookServer {
   private manager: CallManager;
   private provider: VoiceCallProvider;
   private coreConfig: CoreConfig | null;
-  private staleCallReaperInterval: ReturnType<typeof setInterval> | null = null;
+  private stopStaleCallReaper: (() => void) | null = null;
 
   /** Media stream handler for bidirectional audio (when streaming enabled) */
   private mediaStreamHandler: MediaStreamHandler | null = null;
@@ -243,12 +244,16 @@ export class VoiceCallWebhookServer {
         resolve(url);
 
         // Start the stale call reaper if configured
-        this.startStaleCallReaper();
+        this.stopStaleCallReaper = startStaleCallReaper({
+          manager: this.manager,
+          staleCallReaperSeconds: this.config.staleCallReaperSeconds,
+        });
       });
     });
   }
 
   /**
+<<<<<<< HEAD
    * Start a periodic reaper that ends calls older than the configured threshold.
    * Catches calls stuck in unexpected states (e.g., notify-mode calls that never
    * receive a terminal webhook from the provider).
@@ -277,12 +282,14 @@ export class VoiceCallWebhookServer {
   }
 
   /**
+=======
+>>>>>>> 535ef8991 (refactor(voice-call): enforce verified webhook key contract)
    * Stop the webhook server.
    */
   async stop(): Promise<void> {
-    if (this.staleCallReaperInterval) {
-      clearInterval(this.staleCallReaperInterval);
-      this.staleCallReaperInterval = null;
+    if (this.stopStaleCallReaper) {
+      this.stopStaleCallReaper();
+      this.stopStaleCallReaper = null;
     }
     return new Promise((resolve) => {
       if (this.server) {
@@ -347,6 +354,12 @@ export class VoiceCallWebhookServer {
     const verification = this.provider.verifyWebhook(ctx);
     if (!verification.ok) {
       console.warn(`[voice-call] Webhook verification failed: ${verification.reason}`);
+      res.statusCode = 401;
+      res.end("Unauthorized");
+      return;
+    }
+    if (!verification.verifiedRequestKey) {
+      console.warn("[voice-call] Webhook verification succeeded without request identity key");
       res.statusCode = 401;
       res.end("Unauthorized");
       return;
