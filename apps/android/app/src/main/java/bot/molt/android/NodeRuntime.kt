@@ -131,6 +131,10 @@ class NodeRuntime(context: Context) {
     locationPreciseEnabled = { locationPreciseEnabled.value },
   )
 
+  private val deviceHandler: DeviceHandler = DeviceHandler(
+    appContext = appContext,
+  )
+
   private val notificationsHandler: NotificationsHandler = NotificationsHandler(
     appContext = appContext,
   )
@@ -166,6 +170,7 @@ class NodeRuntime(context: Context) {
     canvas = canvas,
     cameraHandler = cameraHandler,
     locationHandler = locationHandler,
+    deviceHandler = deviceHandler,
     notificationsHandler = notificationsHandler,
     screenHandler = screenHandler,
     smsHandler = smsHandlerImpl,
