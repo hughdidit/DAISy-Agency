@@ -306,8 +306,13 @@ export async function startTelegramWebhook(opts: {
     throw err;
   }
 
+<<<<<<< HEAD
 >>>>>>> ee594e2fd (fix(telegram): webhook hang - tests and fix (openclaw#26933) thanks @huntharo)
   runtime.log?.(`webhook listening on ${publicUrl}`);
+=======
+  runtime.log?.(`webhook local listener on http://${host}:${port}${path}`);
+  runtime.log?.(`webhook advertised to telegram on ${publicUrl}`);
+>>>>>>> 840b768d9 (Telegram: improve webhook config guidance and startup fallback)
 
   let shutDown = false;
   const shutdown = () => {
