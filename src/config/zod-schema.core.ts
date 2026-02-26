@@ -56,7 +56,7 @@ const FileSecretRefSchema = z
       .string()
       .refine(
         isValidFileSecretRefId,
-        'File secret reference id must be an absolute JSON pointer (example: "/providers/openai/apiKey"), or "value" for raw mode.',
+        'File secret reference id must be an absolute JSON pointer (example: "/providers/openai/apiKey"), or "value" for singleValue mode.',
       ),
   })
   .strict();
@@ -78,6 +78,10 @@ const SecretsFileSourceSchema = z
   .object({
     type: z.literal("sops"),
     path: z.string().min(1),
+<<<<<<< HEAD
+=======
+    mode: z.union([z.literal("singleValue"), z.literal("json")]).optional(),
+>>>>>>> 06290b49b (feat(secrets): finalize mode rename and validated exec docs)
     timeoutMs: z.number().int().positive().max(120000).optional(),
   })
   .strict();

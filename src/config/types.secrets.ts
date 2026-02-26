@@ -35,8 +35,15 @@ export type EnvSecretSourceConfig = {
   type?: "env";
 };
 
+<<<<<<< HEAD
 export type SopsSecretSourceConfig = {
   type: "sops";
+=======
+export type FileSecretProviderMode = "singleValue" | "json";
+
+export type FileSecretProviderConfig = {
+  source: "file";
+>>>>>>> 06290b49b (feat(secrets): finalize mode rename and validated exec docs)
   path: string;
   timeoutMs?: number;
 };

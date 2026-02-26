@@ -971,7 +971,21 @@ describe("applyAuthChoice", () => {
 
     const result = await applyAuthChoice({
       authChoice: "openai-api-key",
+<<<<<<< HEAD
       config: {},
+=======
+      config: {
+        secrets: {
+          providers: {
+            filemain: {
+              source: "file",
+              path: "/tmp/openclaw-missing-secrets.json",
+              mode: "json",
+            },
+          },
+        },
+      },
+>>>>>>> 06290b49b (feat(secrets): finalize mode rename and validated exec docs)
       prompter,
       runtime,
       setDefaultModel: false,

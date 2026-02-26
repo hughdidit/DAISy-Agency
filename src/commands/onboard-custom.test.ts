@@ -264,7 +264,21 @@ describe("promptCustomApiConfig", () => {
     });
     stubFetchSequence([{ ok: true }]);
 
+<<<<<<< HEAD
     const result = await runPromptCustomApi(prompter);
+=======
+    const result = await runPromptCustomApi(prompter, {
+      secrets: {
+        providers: {
+          filemain: {
+            source: "file",
+            path: "/tmp/openclaw-missing-provider.json",
+            mode: "json",
+          },
+        },
+      },
+    });
+>>>>>>> 06290b49b (feat(secrets): finalize mode rename and validated exec docs)
 
     expect(prompter.note).toHaveBeenCalledWith(
       expect.stringContaining("Could not validate this encrypted file reference."),
