@@ -37,6 +37,7 @@ import {
   resolveAgentModelFallbackValues,
   resolveAgentModelPrimaryValue,
 } from "../config/model-input.js";
+import type { ModelApi } from "../config/types.models.js";
 import {
   applyAuthProfileConfig,
   applyLitellmProviderConfig,
@@ -95,7 +96,7 @@ import {
 
 function createLegacyProviderConfig(params: {
   providerId: string;
-  api: "anthropic-messages" | "openai-completions" | "openai-responses";
+  api: ModelApi;
   modelId?: string;
   modelName?: string;
   baseUrl?: string;
