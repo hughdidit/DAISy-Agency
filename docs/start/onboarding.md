@@ -50,6 +50,15 @@ Read the security notice displayed and decide accordingly.
 <Frame caption="Read the security notice displayed and decide accordingly">
 <img src="/assets/macos-onboarding/03-security-notice.png" alt="" />
 </Frame>
+<<<<<<< HEAD
+=======
+
+Security trust model:
+
+- By default, OpenClaw is a personal agent: one trusted operator boundary.
+- Shared/multi-user setups require lock-down (split trust boundaries, keep tool access minimal, and follow [Security](/gateway/security)).
+
+>>>>>>> cb3e5c35b (docs: fix onboarding markdown list spacing)
 </Step>
 <Step title="Local vs Remote">
 <Frame>
@@ -91,9 +100,11 @@ with Gateway‑side behavior and avoids duplicating logic in SwiftUI.
 =======
 <Tip>
 **Gateway auth tip:**
+
 - The wizard now generates a **token** even for loopback, so local WS clients must authenticate.
 - If you disable auth, any local process can connect; use that only on fully trusted machines.
 - Use a **token** for multi‑machine access or non‑loopback binds.
+
 </Tip>
 </Step>
 <Step title="Permissions">
