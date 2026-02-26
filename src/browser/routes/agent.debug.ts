@@ -2,6 +2,16 @@ import crypto from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
 import type { BrowserRouteContext } from "../server-context.js";
+<<<<<<< HEAD
+=======
+import {
+  readBody,
+  resolveTargetIdFromBody,
+  resolveTargetIdFromQuery,
+  withPlaywrightRouteContext,
+} from "./agent.shared.js";
+import { DEFAULT_TRACE_DIR, resolveWritablePathWithinRoot } from "./path-output.js";
+>>>>>>> 496a76c03 (fix(security): harden browser trace/download temp path handling)
 import type { BrowserRouteRegistrar } from "./types.js";
 import { handleRouteError, readBody, requirePwAi, resolveProfileContext } from "./agent.shared.js";
 import { DEFAULT_TRACE_DIR, resolvePathWithinRoot } from "./path-output.js";
@@ -125,6 +135,7 @@ export function registerBrowserAgentDebugRoutes(
     const body = readBody(req);
     const targetId = toStringOrEmpty(body.targetId) || undefined;
     const out = toStringOrEmpty(body.path) || "";
+<<<<<<< HEAD
     try {
       const tab = await profileCtx.ensureTabAvailable(targetId);
       const pw = await requirePwAi(res, "trace stop");
@@ -158,5 +169,41 @@ export function registerBrowserAgentDebugRoutes(
     } catch (err) {
       handleRouteError(ctx, res, err);
     }
+=======
+
+    await withPlaywrightRouteContext({
+      req,
+      res,
+      ctx,
+      targetId,
+      feature: "trace stop",
+      run: async ({ cdpUrl, tab, pw }) => {
+        const id = crypto.randomUUID();
+        const dir = DEFAULT_TRACE_DIR;
+        await fs.mkdir(dir, { recursive: true });
+        const tracePathResult = await resolveWritablePathWithinRoot({
+          rootDir: dir,
+          requestedPath: out,
+          scopeLabel: "trace directory",
+          defaultFileName: `browser-trace-${id}.zip`,
+        });
+        if (!tracePathResult.ok) {
+          res.status(400).json({ error: tracePathResult.error });
+          return;
+        }
+        const tracePath = tracePathResult.path;
+        await pw.traceStopViaPlaywright({
+          cdpUrl,
+          targetId: tab.targetId,
+          path: tracePath,
+        });
+        res.json({
+          ok: true,
+          targetId: tab.targetId,
+          path: path.resolve(tracePath),
+        });
+      },
+    });
+>>>>>>> 496a76c03 (fix(security): harden browser trace/download temp path handling)
   });
 }

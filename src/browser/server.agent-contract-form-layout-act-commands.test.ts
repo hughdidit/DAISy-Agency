@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { type AddressInfo, createServer } from "node:net";
 import { fetch as realFetch } from "undici";
 <<<<<<< HEAD
@@ -6,6 +7,24 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { DEFAULT_UPLOAD_DIR } from "./paths.js";
 >>>>>>> 3aa94afcf (fix(security): harden archive extraction (#16203))
+=======
+import fs from "node:fs/promises";
+import os from "node:os";
+import path from "node:path";
+import { fetch as realFetch } from "undici";
+import { describe, expect, it } from "vitest";
+import { DEFAULT_DOWNLOAD_DIR, DEFAULT_TRACE_DIR, DEFAULT_UPLOAD_DIR } from "./paths.js";
+import {
+  installAgentContractHooks,
+  postJson,
+  startServerAndBase,
+} from "./server.agent-contract.test-harness.js";
+import {
+  getBrowserControlServerTestState,
+  getPwMocks,
+  setBrowserControlServerEvaluateEnabled,
+} from "./server.control-server.test-harness.js";
+>>>>>>> 496a76c03 (fix(security): harden browser trace/download temp path handling)
 
 let testPort = 0;
 let cdpBaseUrl = "";
@@ -190,6 +209,23 @@ function makeResponse(
     json: async () => body,
     text: async () => text,
   } as unknown as Response;
+}
+
+async function withSymlinkPathEscape<T>(params: {
+  rootDir: string;
+  run: (relativePath: string) => Promise<T>;
+}): Promise<T> {
+  const outsideDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-route-escape-"));
+  const linkName = `escape-link-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+  const linkPath = path.join(params.rootDir, linkName);
+  await fs.mkdir(params.rootDir, { recursive: true });
+  await fs.symlink(outsideDir, linkPath);
+  try {
+    return await params.run(`${linkName}/pwned.zip`);
+  } finally {
+    await fs.unlink(linkPath).catch(() => {});
+    await fs.rm(outsideDir, { recursive: true, force: true }).catch(() => {});
+  }
 }
 
 describe("browser control server", () => {
@@ -527,6 +563,58 @@ describe("browser control server", () => {
     expect(downloadRes.error).toContain("Invalid path");
     expect(pwMocks.downloadViaPlaywright).not.toHaveBeenCalled();
   });
+
+  it.runIf(process.platform !== "win32")(
+    "trace stop rejects symlinked write path escape under trace dir",
+    async () => {
+      const base = await startServerAndBase();
+      await withSymlinkPathEscape({
+        rootDir: DEFAULT_TRACE_DIR,
+        run: async (pathEscape) => {
+          const res = await postJson<{ error?: string }>(`${base}/trace/stop`, {
+            path: pathEscape,
+          });
+          expect(res.error).toContain("Invalid path");
+          expect(pwMocks.traceStopViaPlaywright).not.toHaveBeenCalled();
+        },
+      });
+    },
+  );
+
+  it.runIf(process.platform !== "win32")(
+    "wait/download rejects symlinked write path escape under downloads dir",
+    async () => {
+      const base = await startServerAndBase();
+      await withSymlinkPathEscape({
+        rootDir: DEFAULT_DOWNLOAD_DIR,
+        run: async (pathEscape) => {
+          const res = await postJson<{ error?: string }>(`${base}/wait/download`, {
+            path: pathEscape,
+          });
+          expect(res.error).toContain("Invalid path");
+          expect(pwMocks.waitForDownloadViaPlaywright).not.toHaveBeenCalled();
+        },
+      });
+    },
+  );
+
+  it.runIf(process.platform !== "win32")(
+    "download rejects symlinked write path escape under downloads dir",
+    async () => {
+      const base = await startServerAndBase();
+      await withSymlinkPathEscape({
+        rootDir: DEFAULT_DOWNLOAD_DIR,
+        run: async (pathEscape) => {
+          const res = await postJson<{ error?: string }>(`${base}/download`, {
+            ref: "e12",
+            path: pathEscape,
+          });
+          expect(res.error).toContain("Invalid path");
+          expect(pwMocks.downloadViaPlaywright).not.toHaveBeenCalled();
+        },
+      });
+    },
+  );
 
   it("wait/download accepts in-root relative output path", async () => {
     const base = await startServerAndBase();
