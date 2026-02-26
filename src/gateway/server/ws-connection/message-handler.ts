@@ -125,10 +125,20 @@ import {
   CANVAS_CAPABILITY_TTL_MS,
   mintCanvasCapabilityToken,
 } from "../../canvas-capability.js";
+<<<<<<< HEAD
 >>>>>>> c45f3c5b0 (fix(gateway): harden canvas auth with session capabilities)
 import { buildDeviceAuthPayload } from "../../device-auth.js";
 import { isLoopbackAddress, isTrustedProxyAddress, resolveClientIp } from "../../net.js";
 import { resolveHostName } from "../../net.js";
+=======
+import { buildDeviceAuthPayload, buildDeviceAuthPayloadV3 } from "../../device-auth.js";
+import {
+  isLocalishHost,
+  isLoopbackAddress,
+  isTrustedProxyAddress,
+  resolveClientIp,
+} from "../../net.js";
+>>>>>>> 7d8aeaaf0 (fix(gateway): pin paired reconnect metadata for node policy)
 import { resolveNodeCommandAllowlist } from "../../node-command-policy.js";
 import {
   type ConnectParams,
@@ -254,7 +264,7 @@ function shouldAllowSilentLocalPairing(params: {
   hasBrowserOriginHeader: boolean;
   isControlUi: boolean;
   isWebchat: boolean;
-  reason: "not-paired" | "role-upgrade" | "scope-upgrade";
+  reason: "not-paired" | "role-upgrade" | "scope-upgrade" | "metadata-upgrade";
 }): boolean {
   return (
     params.isLocalClient &&
@@ -263,6 +273,7 @@ function shouldAllowSilentLocalPairing(params: {
   );
 }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -382,6 +393,12 @@ function shouldSkipControlUiPairing(policy: ControlUiAuthPolicy, sharedAuthOk: b
 >>>>>>> 14b0d2b81 (refactor: harden control-ui auth flow and add insecure-flag audit summary)
 =======
 >>>>>>> 51149fcaf (refactor(gateway): extract connect and role policy logic)
+=======
+function normalizeClientMetadataForComparison(value: string | undefined): string {
+  return typeof value === "string" ? value.trim().toLowerCase() : "";
+}
+
+>>>>>>> 7d8aeaaf0 (fix(gateway): pin paired reconnect metadata for node policy)
 export function attachGatewayWsMessageHandler(params: {
   socket: WebSocket;
   upgradeReq: IncomingMessage;
@@ -681,6 +698,7 @@ export function attachGatewayWsMessageHandler(params: {
 >>>>>>> adac9cb67 (refactor: dedupe gateway and scheduler test scaffolding)
         const deviceRaw = connectParams.device;
         let devicePublicKey: string | null = null;
+        let deviceAuthPayloadVersion: "v2" | "v3" | null = null;
         const hasTokenAuth = Boolean(connectParams.auth?.token);
         const hasPasswordAuth = Boolean(connectParams.auth?.password);
         const hasSharedAuth = hasTokenAuth || hasPasswordAuth;
@@ -876,7 +894,19 @@ export function attachGatewayWsMessageHandler(params: {
             rejectDeviceAuthInvalid("device-nonce-mismatch", "device nonce mismatch");
             return;
           }
-          const payload = buildDeviceAuthPayload({
+          const payloadV3 = buildDeviceAuthPayloadV3({
+            deviceId: device.id,
+            clientId: connectParams.client.id,
+            clientMode: connectParams.client.mode,
+            role,
+            scopes,
+            signedAtMs: signedAt,
+            token: connectParams.auth?.token ?? connectParams.auth?.deviceToken ?? null,
+            nonce: providedNonce,
+            platform: connectParams.client.platform,
+            deviceFamily: connectParams.client.deviceFamily,
+          });
+          const payloadV2 = buildDeviceAuthPayload({
             deviceId: device.id,
             clientId: connectParams.client.id,
             clientMode: connectParams.client.mode,
@@ -888,11 +918,18 @@ export function attachGatewayWsMessageHandler(params: {
           });
           const rejectDeviceSignatureInvalid = () =>
             rejectDeviceAuthInvalid("device-signature", "device signature invalid");
-          const signatureOk = verifyDeviceSignature(device.publicKey, payload, device.signature);
-          if (!signatureOk) {
+          const signatureOkV3 = verifyDeviceSignature(
+            device.publicKey,
+            payloadV3,
+            device.signature,
+          );
+          const signatureOkV2 =
+            !signatureOkV3 && verifyDeviceSignature(device.publicKey, payloadV2, device.signature);
+          if (!signatureOkV3 && !signatureOkV2) {
             rejectDeviceSignatureInvalid();
             return;
           }
+          deviceAuthPayloadVersion = signatureOkV3 ? "v3" : "v2";
           devicePublicKey = normalizeDevicePublicKeyBase64Url(device.publicKey);
           if (!devicePublicKey) {
             rejectDeviceAuthInvalid("device-public-key", "device public key invalid");
@@ -1011,9 +1048,18 @@ export function attachGatewayWsMessageHandler(params: {
               `security audit: device access upgrade requested reason=${reason} device=${device.id} ip=${reportedClientIp ?? "unknown-ip"} auth=${authMethod} roleFrom=${formatAuditList(currentRoles)} roleTo=${role} scopesFrom=${formatAuditList(currentScopes)} scopesTo=${formatAuditList(scopes)} client=${connectParams.client.id} conn=${connId}`,
             );
           };
-          const clientAccessMetadata = {
+          const clientPairingMetadata = {
             displayName: connectParams.client.displayName,
             platform: connectParams.client.platform,
+            deviceFamily: connectParams.client.deviceFamily,
+            clientId: connectParams.client.id,
+            clientMode: connectParams.client.mode,
+            role,
+            scopes,
+            remoteIp: reportedClientIp,
+          };
+          const clientAccessMetadata = {
+            displayName: connectParams.client.displayName,
             clientId: connectParams.client.id,
             clientMode: connectParams.client.mode,
             role,
@@ -1021,7 +1067,7 @@ export function attachGatewayWsMessageHandler(params: {
             remoteIp: reportedClientIp,
           };
           const requirePairing = async (
-            reason: "not-paired" | "role-upgrade" | "scope-upgrade",
+            reason: "not-paired" | "role-upgrade" | "scope-upgrade" | "metadata-upgrade",
           ) => {
             const allowSilentLocalPairing = shouldAllowSilentLocalPairing({
               isLocalClient,
@@ -1033,6 +1079,7 @@ export function attachGatewayWsMessageHandler(params: {
             const pairing = await requestDevicePairing({
               deviceId: device.id,
               publicKey: devicePublicKey,
+<<<<<<< HEAD
               ...clientAccessMetadata,
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -1042,6 +1089,9 @@ export function attachGatewayWsMessageHandler(params: {
               silent: isLocalClient && (reason === "not-paired" || reason === "scope-upgrade"),
 >>>>>>> 9165bd7f3 (fix(gateway): auto-approve loopback scope upgrades)
 =======
+=======
+              ...clientPairingMetadata,
+>>>>>>> 7d8aeaaf0 (fix(gateway): pin paired reconnect metadata for node policy)
               silent: allowSilentLocalPairing,
 >>>>>>> c736f11a1 (fix(gateway): harden browser websocket auth chain)
             });
@@ -1097,6 +1147,7 @@ export function attachGatewayWsMessageHandler(params: {
           } else {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
             const allowedRoles = new Set(
               Array.isArray(paired.roles) ? paired.roles : paired.role ? [paired.role] : [],
             );
@@ -1129,6 +1180,39 @@ export function attachGatewayWsMessageHandler(params: {
               paired.roles === undefined && paired.scopes === undefined;
 =======
 >>>>>>> fa4e4efd9 (fix(gateway): restore localhost Control UI pairing when allowInsecureAuth is set (#22996))
+=======
+            const claimedPlatform = connectParams.client.platform;
+            const pairedPlatform = paired.platform;
+            const claimedDeviceFamily = connectParams.client.deviceFamily;
+            const pairedDeviceFamily = paired.deviceFamily;
+            const hasPinnedPlatform = normalizeClientMetadataForComparison(pairedPlatform) !== "";
+            const hasPinnedDeviceFamily =
+              normalizeClientMetadataForComparison(pairedDeviceFamily) !== "";
+            const platformMismatch =
+              hasPinnedPlatform &&
+              normalizeClientMetadataForComparison(claimedPlatform) !==
+                normalizeClientMetadataForComparison(pairedPlatform);
+            const deviceFamilyMismatch =
+              hasPinnedDeviceFamily &&
+              normalizeClientMetadataForComparison(claimedDeviceFamily) !==
+                normalizeClientMetadataForComparison(pairedDeviceFamily);
+            if (platformMismatch || deviceFamilyMismatch) {
+              logGateway.warn(
+                `security audit: device metadata upgrade requested reason=metadata-upgrade device=${device.id} ip=${reportedClientIp ?? "unknown-ip"} auth=${authMethod} payload=${deviceAuthPayloadVersion ?? "unknown"} claimedPlatform=${claimedPlatform ?? "<none>"} pinnedPlatform=${pairedPlatform ?? "<none>"} claimedDeviceFamily=${claimedDeviceFamily ?? "<none>"} pinnedDeviceFamily=${pairedDeviceFamily ?? "<none>"} client=${connectParams.client.id} conn=${connId}`,
+              );
+              const ok = await requirePairing("metadata-upgrade");
+              if (!ok) {
+                return;
+              }
+            } else {
+              if (hasPinnedPlatform && pairedPlatform) {
+                connectParams.client.platform = pairedPlatform;
+              }
+              if (hasPinnedDeviceFamily) {
+                connectParams.client.deviceFamily = pairedDeviceFamily;
+              }
+            }
+>>>>>>> 7d8aeaaf0 (fix(gateway): pin paired reconnect metadata for node policy)
             const pairedRoles = Array.isArray(paired.roles)
               ? paired.roles
               : paired.role
@@ -1178,6 +1262,8 @@ export function attachGatewayWsMessageHandler(params: {
               }
             }
 
+            // Metadata pinning is approval-bound. Reconnects can update access metadata,
+            // but platform/device family must stay on the approved pairing record.
             await updatePairedDeviceMetadata(device.id, clientAccessMetadata);
           }
         }

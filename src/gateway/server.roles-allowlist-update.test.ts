@@ -28,7 +28,11 @@ import type { GatewayClient } from "./client.js";
 =======
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { CONFIG_PATH } from "../config/config.js";
+<<<<<<< HEAD
 >>>>>>> fdfc34fa1 (perf(test): stabilize e2e harness and reduce flaky gateway coverage)
+=======
+import type { DeviceIdentity } from "../infra/device-identity.js";
+>>>>>>> 7d8aeaaf0 (fix(gateway): pin paired reconnect metadata for node policy)
 import { GATEWAY_CLIENT_MODES, GATEWAY_CLIENT_NAMES } from "../utils/message-channel.js";
 import type { GatewayClient } from "./client.js";
 
@@ -61,6 +65,9 @@ installConnectedControlUiServerSuite((started) => {
 const connectNodeClient = async (params: {
   port: number;
   commands: string[];
+  platform?: string;
+  deviceFamily?: string;
+  deviceIdentity?: DeviceIdentity;
   instanceId?: string;
   displayName?: string;
   onEvent?: (evt: { event?: string; payload?: unknown }) => void;
@@ -76,11 +83,13 @@ const connectNodeClient = async (params: {
     clientName: GATEWAY_CLIENT_NAMES.NODE_HOST,
     clientVersion: "1.0.0",
     clientDisplayName: params.displayName,
-    platform: "ios",
+    platform: params.platform ?? "ios",
+    deviceFamily: params.deviceFamily,
     mode: GATEWAY_CLIENT_MODES.NODE,
     instanceId: params.instanceId,
     scopes: [],
     commands: params.commands,
+    deviceIdentity: params.deviceIdentity,
     onEvent: params.onEvent,
     timeoutMessage: "timeout waiting for node to connect",
   });
@@ -336,6 +345,53 @@ describe("gateway node command allowlist", () => {
       systemClient?.stop();
       emptyClient?.stop();
       allowedClient?.stop();
+    }
+  });
+
+  test("rejects reconnect metadata spoof for paired node devices", async () => {
+    const { loadOrCreateDeviceIdentity } = await import("../infra/device-identity.js");
+    const deviceIdentityPath = path.join(
+      os.tmpdir(),
+      `openclaw-spoof-test-device-${Date.now()}-${Math.random().toString(36).slice(2)}.json`,
+    );
+    const deviceIdentity = loadOrCreateDeviceIdentity(deviceIdentityPath);
+
+    let iosClient: GatewayClient | undefined;
+    try {
+      iosClient = await connectNodeClientWithPairing({
+        port,
+        commands: ["canvas.snapshot"],
+        platform: "ios",
+        deviceFamily: "iPhone",
+        instanceId: "node-platform-pin",
+        displayName: "node-platform-pin",
+        deviceIdentity,
+      });
+      iosClient.stop();
+      await expect
+        .poll(async () => {
+          const listRes = await rpcReq<{ nodes?: Array<{ connected?: boolean }> }>(
+            ws,
+            "node.list",
+            {},
+          );
+          return (listRes.payload?.nodes ?? []).filter((node) => node.connected).length;
+        }, FAST_WAIT_OPTS)
+        .toBe(0);
+
+      await expect(
+        connectNodeClient({
+          port,
+          commands: ["system.run"],
+          platform: "linux",
+          deviceFamily: "linux",
+          instanceId: "node-platform-pin",
+          displayName: "node-platform-pin",
+          deviceIdentity,
+        }),
+      ).rejects.toThrow(/pairing required/i);
+    } finally {
+      iosClient?.stop();
     }
   });
 });
