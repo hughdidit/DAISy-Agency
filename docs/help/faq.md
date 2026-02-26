@@ -1610,7 +1610,13 @@ Non-loopback binds **require auth**. Configure `gateway.auth.mode` + `gateway.au
 ```
 
 Notes:
+<<<<<<< HEAD
 - `gateway.remote.token` is for **remote CLI calls** only; it does not enable local gateway auth.
+=======
+
+- `gateway.remote.token` / `.password` do **not** enable local gateway auth by themselves.
+- Local call paths can use `gateway.remote.*` as fallback when `gateway.auth.*` is unset.
+>>>>>>> cc1eaf130 (docs(gateway): clarify remote token local fallback semantics)
 - The Control UI authenticates via `connect.params.auth.token` (stored in app/UI settings). Avoid putting tokens in URLs.
 
 ### Why do I need a token on localhost now
