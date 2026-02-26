@@ -4,9 +4,6 @@ import { loadConfig } from "../config/config.js";
 import type { GatewayClient } from "../gateway/client.js";
 import {
   addAllowlistEntry,
-  analyzeArgvCommand,
-  evaluateExecAllowlist,
-  evaluateShellAllowlist,
   recordAllowlistUse,
   requiresExecApproval,
   resolveAllowAlwaysPatterns,
@@ -25,6 +22,17 @@ import { resolveExecSafeBinRuntimePolicy } from "../infra/exec-safe-bin-runtime-
 import { sanitizeSystemRunEnvOverrides } from "../infra/host-env-security.js";
 >>>>>>> 0d0f4c699 (refactor(exec): centralize safe-bin policy checks)
 import { resolveSystemRunCommand } from "../infra/system-run-command.js";
+<<<<<<< HEAD
+=======
+import { evaluateSystemRunPolicy, resolveExecApprovalDecision } from "./exec-policy.js";
+import {
+  applyOutputTruncation,
+  evaluateSystemRunAllowlist,
+  resolvePlannedAllowlistArgv,
+  resolveSystemRunExecArgv,
+} from "./invoke-system-run-allowlist.js";
+import { hardenApprovedExecutionPaths } from "./invoke-system-run-plan.js";
+>>>>>>> d82c042b0 (refactor(node-host): split system.run plan and allowlist internals)
 import type {
   ExecEventPayload,
   RunResult,
@@ -61,13 +69,6 @@ type SystemRunExecutionContext = {
   sessionKey: string;
   runId: string;
   cmdText: string;
-};
-
-type SystemRunAllowlistAnalysis = {
-  analysisOk: boolean;
-  allowlistMatches: ExecAllowlistEntry[];
-  allowlistSatisfied: boolean;
-  segments: ExecCommandSegment[];
 };
 
 type ResolvedExecApprovals = ReturnType<typeof resolveExecApprovals>;
@@ -127,7 +128,11 @@ function normalizeDeniedReason(reason: string | null | undefined): SystemRunDeni
   return "SYSTEM_RUN_DENIED: allowlist miss";
 }
 
+<<<<<<< HEAD
 export async function handleSystemRunInvoke(opts: {
+=======
+export type HandleSystemRunInvokeOptions = {
+>>>>>>> d82c042b0 (refactor(node-host): split system.run plan and allowlist internals)
   client: GatewayClient;
   params: SystemRunParams;
   skillBins: SkillBinsProvider;
@@ -197,129 +202,8 @@ async function sendSystemRunDenied(
   });
 }
 
-function evaluateSystemRunAllowlist(params: {
-  shellCommand: string | null;
-  argv: string[];
-  approvals: ReturnType<typeof resolveExecApprovals>;
-  security: ExecSecurity;
-  safeBins: ReturnType<typeof resolveExecSafeBinRuntimePolicy>["safeBins"];
-  safeBinProfiles: ReturnType<typeof resolveExecSafeBinRuntimePolicy>["safeBinProfiles"];
-  trustedSafeBinDirs: ReturnType<typeof resolveExecSafeBinRuntimePolicy>["trustedSafeBinDirs"];
-  cwd: string | undefined;
-  env: Record<string, string> | undefined;
-  skillBins: SkillBinTrustEntry[];
-  autoAllowSkills: boolean;
-}): SystemRunAllowlistAnalysis {
-  if (params.shellCommand) {
-    const allowlistEval = evaluateShellAllowlist({
-      command: params.shellCommand,
-      allowlist: params.approvals.allowlist,
-      safeBins: params.safeBins,
-      safeBinProfiles: params.safeBinProfiles,
-      cwd: params.cwd,
-      env: params.env,
-      trustedSafeBinDirs: params.trustedSafeBinDirs,
-      skillBins: params.skillBins,
-      autoAllowSkills: params.autoAllowSkills,
-      platform: process.platform,
-    });
-    return {
-      analysisOk: allowlistEval.analysisOk,
-      allowlistMatches: allowlistEval.allowlistMatches,
-      allowlistSatisfied:
-        params.security === "allowlist" && allowlistEval.analysisOk
-          ? allowlistEval.allowlistSatisfied
-          : false,
-      segments: allowlistEval.segments,
-    };
-  }
-
-  const analysis = analyzeArgvCommand({ argv: params.argv, cwd: params.cwd, env: params.env });
-  const allowlistEval = evaluateExecAllowlist({
-    analysis,
-    allowlist: params.approvals.allowlist,
-    safeBins: params.safeBins,
-    safeBinProfiles: params.safeBinProfiles,
-    cwd: params.cwd,
-    trustedSafeBinDirs: params.trustedSafeBinDirs,
-    skillBins: params.skillBins,
-    autoAllowSkills: params.autoAllowSkills,
-  });
-  return {
-    analysisOk: analysis.ok,
-    allowlistMatches: allowlistEval.allowlistMatches,
-    allowlistSatisfied:
-      params.security === "allowlist" && analysis.ok ? allowlistEval.allowlistSatisfied : false,
-    segments: analysis.segments,
-  };
-}
-
-function resolvePlannedAllowlistArgv(params: {
-  security: ExecSecurity;
-  shellCommand: string | null;
-  policy: {
-    approvedByAsk: boolean;
-    analysisOk: boolean;
-    allowlistSatisfied: boolean;
-  };
-  segments: ExecCommandSegment[];
-}): string[] | undefined | null {
-  if (
-    params.security !== "allowlist" ||
-    params.policy.approvedByAsk ||
-    params.shellCommand ||
-    !params.policy.analysisOk ||
-    !params.policy.allowlistSatisfied ||
-    params.segments.length !== 1
-  ) {
-    return undefined;
-  }
-  const plannedAllowlistArgv = params.segments[0]?.resolution?.effectiveArgv;
-  return plannedAllowlistArgv && plannedAllowlistArgv.length > 0 ? plannedAllowlistArgv : null;
-}
-
-function resolveSystemRunExecArgv(params: {
-  plannedAllowlistArgv: string[] | undefined;
-  argv: string[];
-  security: ExecSecurity;
-  isWindows: boolean;
-  policy: {
-    approvedByAsk: boolean;
-    analysisOk: boolean;
-    allowlistSatisfied: boolean;
-  };
-  shellCommand: string | null;
-  segments: ExecCommandSegment[];
-}): string[] {
-  let execArgv = params.plannedAllowlistArgv ?? params.argv;
-  if (
-    params.security === "allowlist" &&
-    params.isWindows &&
-    !params.policy.approvedByAsk &&
-    params.shellCommand &&
-    params.policy.analysisOk &&
-    params.policy.allowlistSatisfied &&
-    params.segments.length === 1 &&
-    params.segments[0]?.argv.length > 0
-  ) {
-    execArgv = params.segments[0].argv;
-  }
-  return execArgv;
-}
-
-function applyOutputTruncation(result: RunResult) {
-  if (!result.truncated) {
-    return;
-  }
-  const suffix = "... (truncated)";
-  if (result.stderr.trim().length > 0) {
-    result.stderr = `${result.stderr}\n${suffix}`;
-  } else {
-    result.stdout = `${result.stdout}\n${suffix}`;
-  }
-}
-
 export { formatSystemRunAllowlistMissMessage } from "./exec-policy.js";
+export { buildSystemRunApprovalPlanV2 } from "./invoke-system-run-plan.js";
 
 async function parseSystemRunPhase(
   opts: HandleSystemRunInvokeOptions,
