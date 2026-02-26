@@ -768,7 +768,15 @@ Telegram can stream **draft bubbles** while the agent is generating a response.
 OpenClaw uses Bot API `sendMessageDraft` (not real messages) and then sends the
 final reply as a normal message.
 
+<<<<<<< HEAD
 Requirements (Telegram Bot API 9.3+):
+=======
+    - `own` means user reactions to bot-sent messages only (best-effort via sent-message cache).
+    - Reaction events still respect Telegram access controls (`dmPolicy`, `allowFrom`, `groupPolicy`, `groupAllowFrom`); unauthorized senders are dropped.
+    - Telegram does not provide thread IDs in reaction updates.
+      - non-forum groups route to group chat session
+      - forum groups route to the group general-topic session (`:topic:1`), not the exact originating topic
+>>>>>>> e56b0cf1a (fix: enforce telegram reaction authorization)
 
 - **Private chats with topics enabled** (forum topic mode for the bot).
 - Incoming messages must include `message_thread_id` (private topic thread).
