@@ -833,6 +833,7 @@ export async function runHeartbeatOnce(opts: {
       payloads: [{ text: heartbeatOkText }],
       agentId,
       deps: opts.deps,
+      sessionKey,
     });
     return true;
   };
@@ -1019,6 +1020,7 @@ export async function runHeartbeatOnce(opts: {
             ]),
       ],
       deps: opts.deps,
+      sessionKey,
     });
 
     // Record last delivered heartbeat payload for dedupe.
