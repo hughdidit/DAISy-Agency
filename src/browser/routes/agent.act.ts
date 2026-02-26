@@ -1,5 +1,7 @@
 import type { BrowserFormField } from "../client-actions-core.js";
 import type { BrowserRouteContext } from "../server-context.js";
+import { registerBrowserAgentActDownloadRoutes } from "./agent.act.download.js";
+import { registerBrowserAgentActHookRoutes } from "./agent.act.hooks.js";
 import {
   type ActKind,
   isActKind,
@@ -12,6 +14,7 @@ import {
   withPlaywrightRouteContext,
   SELECTOR_UNSUPPORTED_MESSAGE,
 } from "./agent.shared.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
 import {
@@ -67,6 +70,11 @@ function respondWithDownloadResult(res: BrowserResponse, targetId: string, resul
   res.json({ ok: true, targetId, download: result });
 }
 
+=======
+import type { BrowserRouteRegistrar } from "./types.js";
+import { jsonError, toBoolean, toNumber, toStringArray, toStringOrEmpty } from "./utils.js";
+
+>>>>>>> f41715a18 (refactor(browser): split act route modules and dedupe path guards)
 export function registerBrowserAgentActRoutes(
   app: BrowserRouteRegistrar,
   ctx: BrowserRouteContext,
@@ -634,6 +642,7 @@ export function registerBrowserAgentActRoutes(
 >>>>>>> b30e3467e (refactor(browser): reuse shared route context in agent act routes)
   });
 
+<<<<<<< HEAD
   app.post("/hooks/file-chooser", async (req, res) => {
     const body = readBody(req);
     const targetId = resolveTargetIdFromBody(body);
@@ -861,6 +870,10 @@ export function registerBrowserAgentActRoutes(
     });
 >>>>>>> b30e3467e (refactor(browser): reuse shared route context in agent act routes)
   });
+=======
+  registerBrowserAgentActHookRoutes(app, ctx);
+  registerBrowserAgentActDownloadRoutes(app, ctx);
+>>>>>>> f41715a18 (refactor(browser): split act route modules and dedupe path guards)
 
   app.post("/response/body", async (req, res) => {
     const body = readBody(req);
