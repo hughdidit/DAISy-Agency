@@ -56,6 +56,12 @@ Docs: https://docs.openclaw.ai
 - Android/Node invoke: remove native gateway WebSocket `Origin` header to avoid false origin rejections, unify invoke command registry/policy/error parsing paths, and keep command availability checks centralized to reduce dispatcher/advertisement drift. (#27257) Thanks @obviyus.
 - CI/Windows: shard the Windows `checks-windows` test lane into two matrix jobs and honor explicit shard index overrides in `scripts/test-parallel.mjs` to reduce CI critical-path wall time. (#27234) Thanks @joshavant.
 - Agents/Models config: preserve agent-level provider `apiKey` and `baseUrl` during merge-mode `models.json` updates when agent values are present. (#27293) thanks @Sid-Qin.
+<<<<<<< HEAD
+=======
+- Docker/GCP onboarding: reduce first-build OOM risk by capping Node heap during `pnpm install`, reuse existing gateway token during `docker-setup.sh` reruns so `.env` stays aligned with config, auto-bootstrap Control UI allowed origins for non-loopback Docker binds, and add GCP docs guidance for tokenized dashboard links + pairing recovery commands. (#26253) Thanks @pandego.
+- Pairing/Multi-account isolation: keep non-default account pairing allowlists and pending requests strictly account-scoped, while default account continues to use channel-scoped pairing allowlist storage. Thanks @gumadeiras.
+- Security/Config includes: harden `$include` file loading with verified-open reads, reject hardlinked include aliases, and enforce include file-size guardrails so config include resolution remains bounded to trusted in-root files. This ships in the next npm release (`2026.2.26`). Thanks @zpbrent for reporting.
+>>>>>>> 9925ac6a2 (fix(config): harden include file loading path checks)
 
 ## 2026.2.25
 >>>>>>> b97571142 (fix(daemon): stabilize LaunchAgent restart and proxy env passthrough (#27276))
