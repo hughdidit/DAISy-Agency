@@ -1,7 +1,12 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+<<<<<<< HEAD
 import { fileURLToPath } from "node:url";
+=======
+import { fileURLToPath, URL } from "node:url";
+import { assertNoHardlinkedFinalPath } from "../infra/hardlink-guards.js";
+>>>>>>> 04d91d031 (fix(security): block workspace hardlink alias escapes)
 import { isNotFoundPathError, isPathInside } from "../infra/path-guards.js";
 import { resolvePreferredOpenClawTmpDir } from "../infra/tmp-openclaw-dir.js";
 
@@ -46,9 +51,29 @@ export function resolveSandboxPath(params: { filePath: string; cwd: string; root
   return { resolved, relative };
 }
 
+<<<<<<< HEAD
 export async function assertSandboxPath(params: { filePath: string; cwd: string; root: string }) {
   const resolved = resolveSandboxPath(params);
   await assertNoSymlinkEscape(resolved.relative, path.resolve(params.root));
+=======
+export async function assertSandboxPath(params: {
+  filePath: string;
+  cwd: string;
+  root: string;
+  allowFinalSymlink?: boolean;
+  allowFinalHardlink?: boolean;
+}) {
+  const resolved = resolveSandboxPath(params);
+  await assertNoSymlinkEscape(resolved.relative, path.resolve(params.root), {
+    allowFinalSymlink: params.allowFinalSymlink,
+  });
+  await assertNoHardlinkedFinalPath({
+    filePath: resolved.resolved,
+    root: path.resolve(params.root),
+    boundaryLabel: "sandbox root",
+    allowFinalHardlink: params.allowFinalHardlink,
+  });
+>>>>>>> 04d91d031 (fix(security): block workspace hardlink alias escapes)
   return resolved;
 }
 
@@ -157,6 +182,21 @@ async function resolveAllowedTmpMediaPath(params: {
   return resolved;
 }
 
+<<<<<<< HEAD
+=======
+async function assertNoTmpAliasEscape(params: {
+  filePath: string;
+  tmpRoot: string;
+}): Promise<void> {
+  await assertNoSymlinkEscape(path.relative(params.tmpRoot, params.filePath), params.tmpRoot);
+  await assertNoHardlinkedFinalPath({
+    filePath: params.filePath,
+    root: params.tmpRoot,
+    boundaryLabel: "tmp root",
+  });
+}
+
+>>>>>>> 04d91d031 (fix(security): block workspace hardlink alias escapes)
 async function assertNoSymlinkEscape(
   relative: string,
   root: string,

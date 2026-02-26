@@ -243,6 +243,18 @@ async function resolvePatchPath(
       cwd: options.cwd,
       root: options.sandboxRoot,
     });
+<<<<<<< HEAD
+=======
+    if (options.workspaceOnly !== false) {
+      await assertSandboxPath({
+        filePath: resolved.hostPath,
+        cwd: options.cwd,
+        root: options.cwd,
+        allowFinalSymlink: purpose === "unlink",
+        allowFinalHardlink: purpose === "unlink",
+      });
+    }
+>>>>>>> 04d91d031 (fix(security): block workspace hardlink alias escapes)
     return {
       resolved: resolved.resolved,
       display: resolved.relative || resolved.resolved,
@@ -256,6 +268,11 @@ async function resolvePatchPath(
           filePath,
           cwd: options.cwd,
           root: options.cwd,
+<<<<<<< HEAD
+=======
+          allowFinalSymlink: purpose === "unlink",
+          allowFinalHardlink: purpose === "unlink",
+>>>>>>> 04d91d031 (fix(security): block workspace hardlink alias escapes)
         })
       ).resolved
     : resolvePathFromCwd(filePath, options.cwd);
