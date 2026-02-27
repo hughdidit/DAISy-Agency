@@ -8,7 +8,24 @@ import { convertMarkdownTables } from "../../markdown/tables.js";
 import type { RuntimeEnv } from "../../runtime.js";
 import { chunkDiscordTextWithMode } from "../chunk.js";
 import { sendMessageDiscord, sendVoiceMessageDiscord, sendWebhookMessageDiscord } from "../send.js";
+<<<<<<< HEAD
 import type { ThreadBindingManager, ThreadBindingRecord } from "./thread-bindings.js";
+=======
+
+export type DiscordThreadBindingLookupRecord = {
+  accountId: string;
+  threadId: string;
+  agentId: string;
+  label?: string;
+  webhookId?: string;
+  webhookToken?: string;
+};
+
+export type DiscordThreadBindingLookup = {
+  listBySessionKey: (targetSessionKey: string) => DiscordThreadBindingLookupRecord[];
+  touchThread?: (params: { threadId: string; at?: number; persist?: boolean }) => unknown;
+};
+>>>>>>> a7929abad (Discord: thread bindings idle + max-age lifecycle (#27845) (thanks @osolmaz))
 
 function resolveTargetChannelId(target: string): string | undefined {
   if (!target.startsWith("channel:")) {
@@ -161,6 +178,7 @@ export async function deliverDiscordReply(params: {
     target: params.target,
   });
   const persona = resolveBindingPersona(binding);
+  let deliveredAny = false;
   for (const payload of params.replies) {
     const mediaList = payload.mediaUrls ?? (payload.mediaUrl ? [payload.mediaUrl] : []);
     const rawText = payload.text ?? "";
@@ -195,6 +213,7 @@ export async function deliverDiscordReply(params: {
           username: persona.username,
           avatarUrl: persona.avatarUrl,
         });
+        deliveredAny = true;
       }
       continue;
     }
@@ -213,6 +232,7 @@ export async function deliverDiscordReply(params: {
         accountId: params.accountId,
         replyTo,
       });
+      deliveredAny = true;
       // Voice messages cannot include text; send remaining text separately if present.
       await sendDiscordChunkWithFallback({
         target: params.target,
@@ -245,6 +265,7 @@ export async function deliverDiscordReply(params: {
       accountId: params.accountId,
       replyTo,
     });
+    deliveredAny = true;
     await sendAdditionalDiscordMedia({
       target: params.target,
       token: params.token,
@@ -253,5 +274,9 @@ export async function deliverDiscordReply(params: {
       mediaUrls: mediaList.slice(1),
       resolveReplyTo,
     });
+  }
+
+  if (binding && deliveredAny) {
+    params.threadBindings?.touchThread?.({ threadId: binding.threadId });
   }
 }

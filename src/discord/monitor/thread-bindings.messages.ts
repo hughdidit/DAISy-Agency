@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { DEFAULT_FAREWELL_TEXT, type ThreadBindingRecord } from "./thread-bindings.types.js";
 
 function normalizeThreadBindingMessageTtlMs(raw: unknown): number {
@@ -70,3 +71,11 @@ export function summarizeBindingPersona(record: ThreadBindingRecord): string {
   const base = label || record.agentId;
   return (`🤖 ${base}`.trim() || "🤖 agent").slice(0, 80);
 }
+=======
+export {
+  formatThreadBindingDurationLabel,
+  resolveThreadBindingFarewellText,
+  resolveThreadBindingIntroText,
+  resolveThreadBindingThreadName,
+} from "../../channels/thread-bindings-messages.js";
+>>>>>>> a7929abad (Discord: thread bindings idle + max-age lifecycle (#27845) (thanks @osolmaz))
