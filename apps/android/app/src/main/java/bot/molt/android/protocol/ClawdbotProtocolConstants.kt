@@ -79,6 +79,8 @@ enum class MoltbotLocationCommand(val rawValue: String) {
 enum class OpenClawDeviceCommand(val rawValue: String) {
   Status("device.status"),
   Info("device.info"),
+  Permissions("device.permissions"),
+  Health("device.health"),
   ;
 
   companion object {
@@ -88,6 +90,7 @@ enum class OpenClawDeviceCommand(val rawValue: String) {
 
 enum class OpenClawNotificationsCommand(val rawValue: String) {
   List("notifications.list"),
+  Actions("notifications.actions"),
   ;
 
   companion object {
