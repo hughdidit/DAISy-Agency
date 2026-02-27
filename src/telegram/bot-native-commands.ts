@@ -66,7 +66,12 @@ import { resolveAgentRoute } from "../routing/resolve-route.js";
 import { resolveThreadSessionKeys } from "../routing/session-key.js";
 import type { RuntimeEnv } from "../runtime.js";
 import { withTelegramApiErrorLogging } from "./api-logging.js";
+<<<<<<< HEAD
 import { isSenderAllowed, normalizeAllowFromWithStore } from "./bot-access.js";
+=======
+import { isSenderAllowed, normalizeDmAllowFromWithStore } from "./bot-access.js";
+import type { TelegramMediaRef } from "./bot-message-context.js";
+>>>>>>> aae90cb03 (fix(telegram): include replied media files in reply context (#28488))
 import {
   buildCappedTelegramMenuCommands,
   buildPluginTelegramMenuCommands,
@@ -126,12 +131,13 @@ export type RegisterTelegramHandlerParams = {
   shouldSkipUpdate: (ctx: TelegramUpdateKeyContext) => boolean;
   processMessage: (
     ctx: TelegramContext,
-    allMedia: Array<{ path: string; contentType?: string }>,
+    allMedia: TelegramMediaRef[],
     storeAllowFrom: string[],
     options?: {
       messageIdOverride?: string;
       forceWasMentioned?: boolean;
     },
+    replyMedia?: TelegramMediaRef[],
   ) => Promise<void>;
   logger: ReturnType<typeof getChildLogger>;
 };
