@@ -18,7 +18,7 @@ import type { SecretInputMode } from "./onboard-types.js";
 const DEFAULT_OLLAMA_BASE_URL = "http://127.0.0.1:11434/v1";
 const DEFAULT_CONTEXT_WINDOW = 4096;
 const DEFAULT_MAX_TOKENS = 4096;
-const VERIFY_TIMEOUT_MS = 10000;
+const VERIFY_TIMEOUT_MS = 30_000;
 
 export type CustomApiCompatibility = "openai" | "anthropic";
 type CustomApiCompatibilityChoice = CustomApiCompatibility | "unknown";
@@ -290,7 +290,12 @@ async function requestOpenAiVerification(params: {
     body: {
       model: params.modelId,
       messages: [{ role: "user", content: "Hi" }],
+<<<<<<< HEAD
       max_tokens: 5,
+=======
+      max_tokens: 1,
+      stream: false,
+>>>>>>> ee2eaddeb (fix(onboard): increase verification timeout and reduce max_tokens for custom provider probes (#27380))
     },
   });
 }
@@ -337,8 +342,13 @@ async function requestAnthropicVerification(params: {
     headers: buildAnthropicHeaders(params.apiKey),
     body: {
       model: params.modelId,
+<<<<<<< HEAD
       max_tokens: 16,
+=======
+      max_tokens: 1,
+>>>>>>> ee2eaddeb (fix(onboard): increase verification timeout and reduce max_tokens for custom provider probes (#27380))
       messages: [{ role: "user", content: "Hi" }],
+      stream: false,
     },
   });
 >>>>>>> 4f36c813a (refactor(commands): share custom api verification request flow)
