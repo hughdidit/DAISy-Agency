@@ -57,6 +57,14 @@ import { resolveNodeCommandAllowlist } from "../../node-command-policy.js";
 import { checkBrowserOrigin } from "../../origin-check.js";
 import { GATEWAY_CLIENT_IDS } from "../../protocol/client-info.js";
 import {
+<<<<<<< HEAD
+=======
+  ConnectErrorDetailCodes,
+  resolveDeviceAuthConnectErrorDetailCode,
+  resolveAuthConnectErrorDetailCode,
+} from "../../protocol/connect-error-details.js";
+import {
+>>>>>>> cb9374a2a (Gateway: improve device-auth v2 migration diagnostics (#28305))
   type ConnectParams,
   ErrorCodes,
   type ErrorShape,
@@ -667,7 +675,16 @@ export function attachGatewayWsMessageHandler(params: {
               type: "res",
               id: frame.id,
               ok: false,
+<<<<<<< HEAD
               error: errorShape(ErrorCodes.INVALID_REQUEST, message),
+=======
+              error: errorShape(ErrorCodes.INVALID_REQUEST, message, {
+                details: {
+                  code: resolveDeviceAuthConnectErrorDetailCode(reason),
+                  reason,
+                },
+              }),
+>>>>>>> cb9374a2a (Gateway: improve device-auth v2 migration diagnostics (#28305))
             });
             close(1008, message);
           };
