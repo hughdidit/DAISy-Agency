@@ -198,12 +198,21 @@ import { resolveDiscordRestFetch } from "./rest-fetch.js";
 import { resolveDiscordAllowlistConfig } from "./provider.allowlist.js";
 import { runDiscordGatewayLifecycle } from "./provider.lifecycle.js";
 import { resolveDiscordRestFetch } from "./rest-fetch.js";
+<<<<<<< HEAD
 import { createNoopThreadBindingManager, createThreadBindingManager } from "./thread-bindings.js";
 <<<<<<< HEAD
 >>>>>>> 8178ea472 (feat: thread-bound subagents on Discord (#21805))
 =======
 import { formatThreadBindingTtlLabel } from "./thread-bindings.messages.js";
 >>>>>>> 296b19e41 (test: dedupe gateway browser discord and channel coverage)
+=======
+import {
+  createNoopThreadBindingManager,
+  createThreadBindingManager,
+  reconcileAcpThreadBindingsOnStartup,
+} from "./thread-bindings.js";
+import { formatThreadBindingDurationLabel } from "./thread-bindings.messages.js";
+>>>>>>> a7929abad (Discord: thread bindings idle + max-age lifecycle (#27845) (thanks @osolmaz))
 
 export type MonitorDiscordOpts = {
   token?: string;
@@ -283,9 +292,16 @@ function summarizeGuilds(entries?: Record<string, unknown>) {
   return `${sample.join(", ")}${suffix}`;
 }
 
+<<<<<<< HEAD
 const DEFAULT_THREAD_BINDING_TTL_HOURS = 24;
 
 function normalizeThreadBindingTtlHours(raw: unknown): number | undefined {
+=======
+const DEFAULT_THREAD_BINDING_IDLE_HOURS = 24;
+const DEFAULT_THREAD_BINDING_MAX_AGE_HOURS = 0;
+
+function normalizeThreadBindingHours(raw: unknown): number | undefined {
+>>>>>>> a7929abad (Discord: thread bindings idle + max-age lifecycle (#27845) (thanks @osolmaz))
   if (typeof raw !== "number" || !Number.isFinite(raw)) {
     return undefined;
   }
@@ -295,6 +311,7 @@ function normalizeThreadBindingTtlHours(raw: unknown): number | undefined {
   return raw;
 }
 
+<<<<<<< HEAD
 function resolveThreadBindingSessionTtlMs(params: {
   channelTtlHoursRaw: unknown;
   sessionTtlHoursRaw: unknown;
@@ -304,6 +321,28 @@ function resolveThreadBindingSessionTtlMs(params: {
     normalizeThreadBindingTtlHours(params.sessionTtlHoursRaw) ??
     DEFAULT_THREAD_BINDING_TTL_HOURS;
   return Math.floor(ttlHours * 60 * 60 * 1000);
+=======
+function resolveThreadBindingIdleTimeoutMs(params: {
+  channelIdleHoursRaw: unknown;
+  sessionIdleHoursRaw: unknown;
+}): number {
+  const idleHours =
+    normalizeThreadBindingHours(params.channelIdleHoursRaw) ??
+    normalizeThreadBindingHours(params.sessionIdleHoursRaw) ??
+    DEFAULT_THREAD_BINDING_IDLE_HOURS;
+  return Math.floor(idleHours * 60 * 60 * 1000);
+}
+
+function resolveThreadBindingMaxAgeMs(params: {
+  channelMaxAgeHoursRaw: unknown;
+  sessionMaxAgeHoursRaw: unknown;
+}): number {
+  const maxAgeHours =
+    normalizeThreadBindingHours(params.channelMaxAgeHoursRaw) ??
+    normalizeThreadBindingHours(params.sessionMaxAgeHoursRaw) ??
+    DEFAULT_THREAD_BINDING_MAX_AGE_HOURS;
+  return Math.floor(maxAgeHours * 60 * 60 * 1000);
+>>>>>>> a7929abad (Discord: thread bindings idle + max-age lifecycle (#27845) (thanks @osolmaz))
 }
 
 function normalizeThreadBindingsEnabled(raw: unknown): boolean | undefined {
@@ -324,8 +363,13 @@ function resolveThreadBindingsEnabled(params: {
   );
 }
 
+<<<<<<< HEAD
 function formatThreadBindingSessionTtlLabel(ttlMs: number): string {
   const label = formatThreadBindingTtlLabel(ttlMs);
+=======
+function formatThreadBindingDurationForConfigLabel(durationMs: number): string {
+  const label = formatThreadBindingDurationLabel(durationMs);
+>>>>>>> a7929abad (Discord: thread bindings idle + max-age lifecycle (#27845) (thanks @osolmaz))
   return label === "disabled" ? "off" : label;
 }
 
@@ -498,10 +542,15 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
   const replyToMode = opts.replyToMode ?? discordCfg.replyToMode ?? "off";
   const dmEnabled = dmConfig?.enabled ?? true;
   const dmPolicy = discordCfg.dmPolicy ?? dmConfig?.policy ?? "pairing";
-  const threadBindingSessionTtlMs = resolveThreadBindingSessionTtlMs({
-    channelTtlHoursRaw:
-      discordAccountThreadBindings?.ttlHours ?? discordRootThreadBindings?.ttlHours,
-    sessionTtlHoursRaw: cfg.session?.threadBindings?.ttlHours,
+  const threadBindingIdleTimeoutMs = resolveThreadBindingIdleTimeoutMs({
+    channelIdleHoursRaw:
+      discordAccountThreadBindings?.idleHours ?? discordRootThreadBindings?.idleHours,
+    sessionIdleHoursRaw: cfg.session?.threadBindings?.idleHours,
+  });
+  const threadBindingMaxAgeMs = resolveThreadBindingMaxAgeMs({
+    channelMaxAgeHoursRaw:
+      discordAccountThreadBindings?.maxAgeHours ?? discordRootThreadBindings?.maxAgeHours,
+    sessionMaxAgeHoursRaw: cfg.session?.threadBindings?.maxAgeHours,
   });
   const threadBindingsEnabled = resolveThreadBindingsEnabled({
     channelEnabledRaw: discordAccountThreadBindings?.enabled ?? discordRootThreadBindings?.enabled,
@@ -545,7 +594,7 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
 
   if (shouldLogVerbose()) {
     logVerbose(
-      `discord: config dm=${dmEnabled ? "on" : "off"} dmPolicy=${dmPolicy} allowFrom=${summarizeAllowList(allowFrom)} groupDm=${groupDmEnabled ? "on" : "off"} groupDmChannels=${summarizeAllowList(groupDmChannels)} groupPolicy=${groupPolicy} guilds=${summarizeGuilds(guildEntries)} historyLimit=${historyLimit} mediaMaxMb=${Math.round(mediaMaxBytes / (1024 * 1024))} native=${nativeEnabled ? "on" : "off"} nativeSkills=${nativeSkillsEnabled ? "on" : "off"} accessGroups=${useAccessGroups ? "on" : "off"} threadBindings=${threadBindingsEnabled ? "on" : "off"} threadSessionTtl=${formatThreadBindingSessionTtlLabel(threadBindingSessionTtlMs)}`,
+      `discord: config dm=${dmEnabled ? "on" : "off"} dmPolicy=${dmPolicy} allowFrom=${summarizeAllowList(allowFrom)} groupDm=${groupDmEnabled ? "on" : "off"} groupDmChannels=${summarizeAllowList(groupDmChannels)} groupPolicy=${groupPolicy} guilds=${summarizeGuilds(guildEntries)} historyLimit=${historyLimit} mediaMaxMb=${Math.round(mediaMaxBytes / (1024 * 1024))} native=${nativeEnabled ? "on" : "off"} nativeSkills=${nativeSkillsEnabled ? "on" : "off"} accessGroups=${useAccessGroups ? "on" : "off"} threadBindings=${threadBindingsEnabled ? "on" : "off"} threadIdleTimeout=${formatThreadBindingDurationForConfigLabel(threadBindingIdleTimeoutMs)} threadMaxAge=${formatThreadBindingDurationForConfigLabel(threadBindingMaxAgeMs)}`,
     );
   }
 
@@ -600,7 +649,8 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
     ? createThreadBindingManager({
         accountId: account.accountId,
         token,
-        sessionTtlMs: threadBindingSessionTtlMs,
+        idleTimeoutMs: threadBindingIdleTimeoutMs,
+        maxAgeMs: threadBindingMaxAgeMs,
       })
     : createNoopThreadBindingManager(account.accountId);
   let lifecycleStarted = false;

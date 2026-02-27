@@ -1,5 +1,15 @@
 import {
+<<<<<<< HEAD
   getThreadBindingManager,
+=======
+  resolveAcpSessionCwd,
+  resolveAcpThreadSessionDetailLines,
+} from "../../../acp/runtime/session-identifiers.js";
+import { readAcpSessionEntry } from "../../../acp/runtime/session-meta.js";
+import {
+  resolveDiscordThreadBindingIdleTimeoutMs,
+  resolveDiscordThreadBindingMaxAgeMs,
+>>>>>>> a7929abad (Discord: thread bindings idle + max-age lifecycle (#27845) (thanks @osolmaz))
   resolveThreadBindingIntroText,
   resolveThreadBindingThreadName,
 } from "../../../discord/monitor/thread-bindings.js";
@@ -79,7 +89,52 @@ export async function handleSubagentsFocusAction(
     }),
   });
 
+<<<<<<< HEAD
   if (!binding) {
+=======
+  let binding;
+  try {
+    binding = await bindingService.bind({
+      targetSessionKey: focusTarget.targetSessionKey,
+      targetKind: focusTarget.targetKind === "acp" ? "session" : "subagent",
+      conversation: {
+        channel: "discord",
+        accountId,
+        conversationId,
+      },
+      placement,
+      metadata: {
+        threadName: resolveThreadBindingThreadName({
+          agentId: focusTarget.agentId,
+          label,
+        }),
+        agentId: focusTarget.agentId,
+        label,
+        boundBy: senderId || "unknown",
+        introText: resolveThreadBindingIntroText({
+          agentId: focusTarget.agentId,
+          label,
+          idleTimeoutMs: resolveDiscordThreadBindingIdleTimeoutMs({
+            cfg: params.cfg,
+            accountId,
+          }),
+          maxAgeMs: resolveDiscordThreadBindingMaxAgeMs({
+            cfg: params.cfg,
+            accountId,
+          }),
+          sessionCwd: focusTarget.targetKind === "acp" ? resolveAcpSessionCwd(acpMeta) : undefined,
+          sessionDetails:
+            focusTarget.targetKind === "acp"
+              ? resolveAcpThreadSessionDetailLines({
+                  sessionKey: focusTarget.targetSessionKey,
+                  meta: acpMeta,
+                })
+              : [],
+        }),
+      },
+    });
+  } catch {
+>>>>>>> a7929abad (Discord: thread bindings idle + max-age lifecycle (#27845) (thanks @osolmaz))
     return stopWithText("⚠️ Failed to bind a Discord thread to the target session.");
   }
 

@@ -224,6 +224,10 @@ vi.mock("./rest-fetch.js", () => ({
 vi.mock("./thread-bindings.js", () => ({
   createNoopThreadBindingManager: createNoopThreadBindingManagerMock,
   createThreadBindingManager: createThreadBindingManagerMock,
+<<<<<<< HEAD
+=======
+  reconcileAcpThreadBindingsOnStartup: reconcileAcpThreadBindingsOnStartupMock,
+>>>>>>> a7929abad (Discord: thread bindings idle + max-age lifecycle (#27845) (thanks @osolmaz))
 }));
 
 describe("monitorDiscordProvider", () => {
