@@ -445,6 +445,7 @@ export function detectFileType(
 }
 
 /**
+<<<<<<< HEAD
  * Check if a string is a local file path (not a URL)
  */
 function isLocalPath(urlOrPath: string): boolean {
@@ -463,6 +464,11 @@ function isLocalPath(urlOrPath: string): boolean {
 
 /**
  * Upload and send media (image or file) from URL, local path, or buffer
+=======
+ * Upload and send media (image or file) from URL, local path, or buffer.
+ * When mediaUrl is a local path, mediaLocalRoots (from core outbound context)
+ * must be passed so loadWebMedia allows the path (post CVE-2026-26321).
+>>>>>>> ad804b035 (fix(feishu): propagate mediaLocalRoots for local file sends (#27884) (openclaw#27928) thanks @joelnishanth)
  */
 export async function sendMediaFeishu(params: {
   cfg: ClawdbotConfig;
@@ -472,8 +478,20 @@ export async function sendMediaFeishu(params: {
   fileName?: string;
   replyToMessageId?: string;
   accountId?: string;
+  /** Allowed roots for local path reads; required for local filePath to work. */
+  mediaLocalRoots?: readonly string[];
 }): Promise<SendMediaResult> {
+<<<<<<< HEAD
   const { cfg, to, mediaUrl, mediaBuffer, fileName, replyToMessageId, accountId } = params;
+=======
+  const { cfg, to, mediaUrl, mediaBuffer, fileName, replyToMessageId, accountId, mediaLocalRoots } =
+    params;
+  const account = resolveFeishuAccount({ cfg, accountId });
+  if (!account.configured) {
+    throw new Error(`Feishu account "${account.accountId}" not configured`);
+  }
+  const mediaMaxBytes = (account.config?.mediaMaxMb ?? 30) * 1024 * 1024;
+>>>>>>> ad804b035 (fix(feishu): propagate mediaLocalRoots for local file sends (#27884) (openclaw#27928) thanks @joelnishanth)
 
   let buffer: Buffer;
   let name: string;
@@ -482,6 +500,7 @@ export async function sendMediaFeishu(params: {
     buffer = mediaBuffer;
     name = fileName ?? "file";
   } else if (mediaUrl) {
+<<<<<<< HEAD
     if (isLocalPath(mediaUrl)) {
       // Local file path - read directly
       const filePath = mediaUrl.startsWith("~")
@@ -502,6 +521,15 @@ export async function sendMediaFeishu(params: {
       buffer = Buffer.from(await response.arrayBuffer());
       name = fileName ?? (path.basename(new URL(mediaUrl).pathname) || "file");
     }
+=======
+    const loaded = await getFeishuRuntime().media.loadWebMedia(mediaUrl, {
+      maxBytes: mediaMaxBytes,
+      optimizeImages: false,
+      localRoots: mediaLocalRoots?.length ? mediaLocalRoots : undefined,
+    });
+    buffer = loaded.buffer;
+    name = fileName ?? loaded.fileName ?? "file";
+>>>>>>> ad804b035 (fix(feishu): propagate mediaLocalRoots for local file sends (#27884) (openclaw#27928) thanks @joelnishanth)
   } else {
     throw new Error("Either mediaUrl or mediaBuffer must be provided");
   }

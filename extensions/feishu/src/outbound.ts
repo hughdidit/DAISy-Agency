@@ -12,16 +12,26 @@ export const feishuOutbound: ChannelOutboundAdapter = {
     const result = await sendMessageFeishu({ cfg, to, text, accountId });
     return { channel: "feishu", ...result };
   },
-  sendMedia: async ({ cfg, to, text, mediaUrl, accountId }) => {
+  sendMedia: async ({ cfg, to, text, mediaUrl, accountId, mediaLocalRoots }) => {
     // Send text first if provided
     if (text?.trim()) {
       await sendMessageFeishu({ cfg, to, text, accountId });
     }
 
-    // Upload and send media if URL provided
+    // Upload and send media if URL or local path provided
     if (mediaUrl) {
       try {
+<<<<<<< HEAD
         const result = await sendMediaFeishu({ cfg, to, mediaUrl, accountId });
+=======
+        const result = await sendMediaFeishu({
+          cfg,
+          to,
+          mediaUrl,
+          accountId: accountId ?? undefined,
+          mediaLocalRoots,
+        });
+>>>>>>> ad804b035 (fix(feishu): propagate mediaLocalRoots for local file sends (#27884) (openclaw#27928) thanks @joelnishanth)
         return { channel: "feishu", ...result };
       } catch (err) {
         // Log the error for debugging
