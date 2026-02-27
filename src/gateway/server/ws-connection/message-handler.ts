@@ -148,6 +148,16 @@ import {
 } from "../../net.js";
 >>>>>>> 7d8aeaaf0 (fix(gateway): pin paired reconnect metadata for node policy)
 import { resolveNodeCommandAllowlist } from "../../node-command-policy.js";
+<<<<<<< HEAD
+=======
+import { checkBrowserOrigin } from "../../origin-check.js";
+import { GATEWAY_CLIENT_IDS } from "../../protocol/client-info.js";
+import {
+  ConnectErrorDetailCodes,
+  resolveDeviceAuthConnectErrorDetailCode,
+  resolveAuthConnectErrorDetailCode,
+} from "../../protocol/connect-error-details.js";
+>>>>>>> cb9374a2a (Gateway: improve device-auth v2 migration diagnostics (#28305))
 import {
   type ConnectParams,
   ErrorCodes,
@@ -948,7 +958,16 @@ export function attachGatewayWsMessageHandler(params: {
               type: "res",
               id: frame.id,
               ok: false,
+<<<<<<< HEAD
               error: errorShape(ErrorCodes.INVALID_REQUEST, message),
+=======
+              error: errorShape(ErrorCodes.INVALID_REQUEST, message, {
+                details: {
+                  code: resolveDeviceAuthConnectErrorDetailCode(reason),
+                  reason,
+                },
+              }),
+>>>>>>> cb9374a2a (Gateway: improve device-auth v2 migration diagnostics (#28305))
             });
             close(1008, message);
           };

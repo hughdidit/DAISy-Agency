@@ -117,6 +117,7 @@ If you open the dashboard over plain HTTP (e.g. `http://<lan-ip>:18789/` or
 `http://<tailscale-ip>:18789/`), the browser runs in a **non-secure context** and
 blocks WebCrypto, so device identity can’t be generated.
 
+<<<<<<< HEAD
 **Fix:**
 
 - Prefer HTTPS via [Tailscale Serve](/gateway/tailscale).
@@ -124,6 +125,31 @@ blocks WebCrypto, so device identity can’t be generated.
 - If you must stay on HTTP, enable `gateway.controlUi.allowInsecureAuth: true` and
   use a gateway token (token-only; no device identity/pairing). See
   [Control UI](/web/control-ui#insecure-http).
+=======
+- `device identity required` → non-secure context or missing device auth.
+- `device nonce required` / `device nonce mismatch` → client is not completing the
+  challenge-based device auth flow (`connect.challenge` + `device.nonce`).
+- `device signature invalid` / `device signature expired` → client signed the wrong
+  payload (or stale timestamp) for the current handshake.
+- `unauthorized` / reconnect loop → token/password mismatch.
+- `gateway connect failed:` → wrong host/port/url target.
+
+Device auth v2 migration check:
+
+```bash
+openclaw --version
+openclaw doctor
+openclaw gateway status
+```
+
+If logs show nonce/signature errors, update the connecting client and verify it:
+
+1. waits for `connect.challenge`
+2. signs the challenge-bound payload
+3. sends `connect.params.device.nonce` with the same challenge nonce
+
+Related:
+>>>>>>> cb9374a2a (Gateway: improve device-auth v2 migration diagnostics (#28305))
 
 ### CI Secrets Scan Failed
 
