@@ -98,6 +98,14 @@ RUN pnpm ui:install
 ENV OPENCLAW_PREFER_PNPM=1
 >>>>>>> 1168f5989 (perf: skip redundant ui install in Dockerfile)
 RUN pnpm ui:build
+<<<<<<< HEAD
+=======
+
+# Expose the CLI binary without requiring npm global writes as non-root.
+USER root
+RUN ln -sf /app/openclaw.mjs /usr/local/bin/openclaw \
+ && chmod 755 /app/openclaw.mjs
+>>>>>>> 22ad7523f (Docker: replace npm link with root CLI symlink (#28312))
 
 ENV NODE_ENV=production
 
