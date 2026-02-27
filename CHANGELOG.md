@@ -8,6 +8,7 @@ Docs: https://docs.openclaw.ai
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ## 2026.2.6-4
 =======
 ## 2026.2.10
@@ -23,6 +24,30 @@ Docs: https://docs.openclaw.ai
 ## 2026.2.22 (Unreleased)
 =======
 =======
+=======
+## 2026.2.27
+
+### Changes
+
+- Web UI/i18n: add German (`de`) locale support and auto-render language options from supported locale constants in Overview settings. (#28495) thanks @dsantoreis.
+- Discord/Thread bindings: replace fixed TTL lifecycle with inactivity (`idleHours`, default 24h) plus optional hard `maxAgeHours` lifecycle controls, and add `/session idle` + `/session max-age` commands for focused thread-bound sessions. (#27845) Thanks @osolmaz.
+- Android/Nodes: add `camera.list`, `device.permissions`, `device.health`, and `notifications.actions` (`open`/`dismiss`/`reply`) on Android nodes, plus first-class node-tool actions for the new device/notification commands. (#28260) Thanks @obviyus.
+- Android/Gateway capability refresh: add live Android capability integration coverage and node canvas capability refresh wiring, plus runtime hardening for A2UI readiness retries, scoped canvas URL normalization, debug diagnostics JSON, and JavaScript MIME delivery. (#28388) Thanks @obviyus.
+
+### Fixes
+
+- Telegram/Reply media context: include replied media files in inbound context when replying to media, defer reply-media downloads to debounce flush, gate reply-media fetch behind DM authorization, and preserve replied media when non-vision sticker fallback runs (including cached-sticker paths). (#28488) Thanks @obviyus.
+- Android/Nodes reliability: reject `facing=both` when `deviceId` is set to avoid mislabeled duplicate captures, allow notification `open`/`reply` on non-clearable entries while still gating dismiss, trigger listener rebind before notification actions, and scale invoke-result ack timeout to invoke budget for large clip payloads. (#28260) Thanks @obviyus.
+- Android/Camera clip: remove `camera.clip` HTTP-upload fallback to base64 so clip transport is deterministic and fail-loud, and reject non-positive `maxWidth` values so invalid inputs fall back to the safe resize default. (#28229) Thanks @obviyus.
+- Android/Gateway canvas capability refresh: send `node.canvas.capability.refresh` with object `params` (`{}`) from Android node runtime so gateway object-schema validation accepts refresh retries and A2UI host recovery works after scoped capability expiry. (#28413) Thanks @obviyus.
+- Daemon/macOS TLS certs: default LaunchAgent service env `NODE_EXTRA_CA_CERTS` to `/etc/ssl/cert.pem` (while preserving explicit overrides) so HTTPS clients no longer fail with local-issuer errors under launchd. (#27915) Thanks @Lukavyi.
+- Update/Global npm: fallback to `--omit=optional` when global `npm update` fails so optional dependency install failures no longer abort update flows. (#24896) Thanks @xinhuagu and @vincentkoc.
+- Plugins/NPM spec install: fix npm-spec plugin installs when `npm pack` output is empty by detecting newly created `.tgz` archives in the pack directory. (#21039) Thanks @graysurf and @vincentkoc.
+- Plugins/Install: clear stale install errors when an npm package is not found so follow-up install attempts report current state correctly. (#25073) Thanks @dalefrieswthat.
+- OpenAI Responses/Compaction: rewrite and unify the OpenAI Responses store patches to treat empty `baseUrl` as non-direct, honor `compat.supportsStore=false`, and auto-inject server-side compaction `context_management` for compatible direct OpenAI models (with per-model opt-out/threshold overrides). Landed from contributor PRs #16930 (@OiPunk), #22441 (@EdwardWu7), and #25088 (@MoerAI). Thanks @OiPunk, @EdwardWu7, and @MoerAI.
+
+## 2026.2.26
+>>>>>>> 8da3a9a92 (fix(agents): auto-enable OpenAI Responses server-side compaction (#16930, #22441, #25088))
 
 <<<<<<< HEAD
 ### Breaking
