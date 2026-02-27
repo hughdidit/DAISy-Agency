@@ -615,6 +615,7 @@ jobs:
 >>>>>>> 243549986 (ci: move blacksmith runners to 8 vcpu)
 =======
     runs-on: blacksmith-16vcpu-windows-2025
+    timeout-minutes: 45
     env:
       NODE_OPTIONS: --max-old-space-size=4096
       # Keep total concurrency predictable on the 16 vCPU runner:
