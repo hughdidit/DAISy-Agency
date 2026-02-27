@@ -7,6 +7,7 @@ import {
   resolveAttemptFsWorkspaceOnly,
   resolvePromptBuildHookResult,
   resolvePromptModeForSession,
+  wrapStreamFnTrimToolCallNames,
 } from "./attempt.js";
 >>>>>>> 878b4e0ed (refactor: unify tools.fs workspaceOnly resolution)
 
@@ -109,4 +110,77 @@ describe("resolveAttemptFsWorkspaceOnly", () => {
     ).toBe(false);
   });
 });
+<<<<<<< HEAD
 >>>>>>> 878b4e0ed (refactor: unify tools.fs workspaceOnly resolution)
+=======
+
+describe("wrapStreamFnTrimToolCallNames", () => {
+  function createFakeStream(params: { events: unknown[]; resultMessage: unknown }): {
+    result: () => Promise<unknown>;
+    [Symbol.asyncIterator]: () => AsyncIterator<unknown>;
+  } {
+    return {
+      async result() {
+        return params.resultMessage;
+      },
+      [Symbol.asyncIterator]() {
+        return (async function* () {
+          for (const event of params.events) {
+            yield event;
+          }
+        })();
+      },
+    };
+  }
+
+  it("trims whitespace from live streamed tool call names and final result message", async () => {
+    const partialToolCall = { type: "toolCall", name: " read " };
+    const messageToolCall = { type: "toolCall", name: " exec " };
+    const finalToolCall = { type: "toolCall", name: " write " };
+    const event = {
+      type: "toolcall_delta",
+      partial: { role: "assistant", content: [partialToolCall] },
+      message: { role: "assistant", content: [messageToolCall] },
+    };
+    const finalMessage = { role: "assistant", content: [finalToolCall] };
+    const baseFn = vi.fn(() => createFakeStream({ events: [event], resultMessage: finalMessage }));
+
+    const wrappedFn = wrapStreamFnTrimToolCallNames(baseFn as never);
+    const stream = wrappedFn({} as never, {} as never, {} as never) as Awaited<
+      ReturnType<typeof wrappedFn>
+    >;
+
+    const seenEvents: unknown[] = [];
+    for await (const item of stream) {
+      seenEvents.push(item);
+    }
+    const result = await stream.result();
+
+    expect(seenEvents).toHaveLength(1);
+    expect(partialToolCall.name).toBe("read");
+    expect(messageToolCall.name).toBe("exec");
+    expect(finalToolCall.name).toBe("write");
+    expect(result).toBe(finalMessage);
+    expect(baseFn).toHaveBeenCalledTimes(1);
+  });
+
+  it("supports async stream functions that return a promise", async () => {
+    const finalToolCall = { type: "toolCall", name: " browser " };
+    const finalMessage = { role: "assistant", content: [finalToolCall] };
+    const baseFn = vi.fn(async () =>
+      createFakeStream({
+        events: [],
+        resultMessage: finalMessage,
+      }),
+    );
+
+    const wrappedFn = wrapStreamFnTrimToolCallNames(baseFn as never);
+    const stream = await wrappedFn({} as never, {} as never, {} as never);
+    const result = await stream.result();
+
+    expect(finalToolCall.name).toBe("browser");
+    expect(result).toBe(finalMessage);
+    expect(baseFn).toHaveBeenCalledTimes(1);
+  });
+});
+>>>>>>> 6b317b1f1 (fix(agents): normalize whitespace-padded tool call names before dispatch (#27094))
