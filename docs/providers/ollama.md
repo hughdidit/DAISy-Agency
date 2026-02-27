@@ -9,6 +9,10 @@ title: "Ollama"
 
 Ollama is a local LLM runtime that makes it easy to run open-source models on your machine. Moltbot integrates with Ollama's OpenAI-compatible API and can **auto-discover tool-capable models** when you opt in with `OLLAMA_API_KEY` (or an auth profile) and do not define an explicit `models.providers.ollama` entry.
 
+<Warning>
+**Remote Ollama users**: Do not use the `/v1` OpenAI-compatible URL (`http://host:11434/v1`) with OpenClaw. This breaks tool calling and models may output raw tool JSON as plain text. Use the native Ollama API URL instead: `baseUrl: "http://host:11434"` (no `/v1`).
+</Warning>
+
 ## Quick start
 
 <<<<<<< HEAD
@@ -158,12 +162,24 @@ If Ollama is running on a different host or port (explicit config disables auto-
     providers: {
       ollama: {
         apiKey: "ollama-local",
+<<<<<<< HEAD
         baseUrl: "http://ollama-host:11434/v1"
       }
     }
   }
+=======
+        baseUrl: "http://ollama-host:11434", // No /v1 - use native Ollama API URL
+        api: "ollama", // Set explicitly to guarantee native tool-calling behavior
+      },
+    },
+  },
+>>>>>>> d17c08380 (docs(ollama): clarify /v1 tool-calling guidance (#29204))
 }
 ```
+
+<Warning>
+Do not add `/v1` to the URL. The `/v1` path uses OpenAI-compatible mode, where tool calling is not reliable. Use the base Ollama URL without a path suffix.
+</Warning>
 
 ### Model selection
 
@@ -203,6 +219,38 @@ ollama pull deepseek-r1:32b
 
 Ollama is free and runs locally, so all model costs are set to $0.
 
+<<<<<<< HEAD
+=======
+### Streaming Configuration
+
+OpenClaw's Ollama integration uses the **native Ollama API** (`/api/chat`) by default, which fully supports streaming and tool calling simultaneously. No special configuration is needed.
+
+#### Legacy OpenAI-Compatible Mode
+
+<Warning>
+**Tool calling is not reliable in OpenAI-compatible mode.** Use this mode only if you need OpenAI format for a proxy and do not depend on native tool calling behavior.
+</Warning>
+
+If you need to use the OpenAI-compatible endpoint instead (e.g., behind a proxy that only supports OpenAI format), set `api: "openai-completions"` explicitly:
+
+```json5
+{
+  models: {
+    providers: {
+      ollama: {
+        baseUrl: "http://ollama-host:11434/v1",
+        api: "openai-completions",
+        apiKey: "ollama-local",
+        models: [...]
+      }
+    }
+  }
+}
+```
+
+This mode may not support streaming + tool calling simultaneously. You may need to disable streaming with `params: { streaming: false }` in model config.
+
+>>>>>>> d17c08380 (docs(ollama): clarify /v1 tool-calling guidance (#29204))
 ### Context windows
 
 For auto-discovered models, Moltbot uses the context window reported by Ollama when available, otherwise it defaults to `8192`. You can override `contextWindow` and `maxTokens` in explicit provider config.
