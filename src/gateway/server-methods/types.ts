@@ -16,6 +16,14 @@ type SubsystemLogger = ReturnType<typeof createSubsystemLogger>;
 
 export type GatewayClient = {
   connect: ConnectParams;
+<<<<<<< HEAD
+=======
+  connId?: string;
+  clientIp?: string;
+  canvasHostUrl?: string;
+  canvasCapability?: string;
+  canvasCapabilityExpiresAtMs?: number;
+>>>>>>> 54eaf1732 (feat(gateway): add node canvas capability refresh flow)
 };
 
 export type RespondFn = (
