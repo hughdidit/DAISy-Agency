@@ -270,12 +270,18 @@ describe("buildServiceEnvironment", () => {
     const env = buildServiceEnvironment({
       env: { HOME: "/home/user" },
       port: 18789,
+      platform: "darwin",
     });
-    if (process.platform === "darwin") {
-      expect(env.NODE_EXTRA_CA_CERTS).toBe("/etc/ssl/cert.pem");
-    } else {
-      expect(env.NODE_EXTRA_CA_CERTS).toBeUndefined();
-    }
+    expect(env.NODE_EXTRA_CA_CERTS).toBe("/etc/ssl/cert.pem");
+  });
+
+  it("does not default NODE_EXTRA_CA_CERTS on non-macOS", () => {
+    const env = buildServiceEnvironment({
+      env: { HOME: "/home/user" },
+      port: 18789,
+      platform: "linux",
+    });
+    expect(env.NODE_EXTRA_CA_CERTS).toBeUndefined();
   });
 
   it("respects user-provided NODE_EXTRA_CA_CERTS over the default", () => {
@@ -295,4 +301,89 @@ describe("buildNodeServiceEnvironment", () => {
     });
     expect(env.HOME).toBe("/home/user");
   });
+<<<<<<< HEAD
+=======
+
+  it("forwards proxy environment variables for node services", () => {
+    const env = buildNodeServiceEnvironment({
+      env: {
+        HOME: "/home/user",
+        HTTPS_PROXY: " https://proxy.local:7890 ",
+        no_proxy: "localhost,127.0.0.1",
+      },
+    });
+
+    expect(env.HTTPS_PROXY).toBe("https://proxy.local:7890");
+    expect(env.no_proxy).toBe("localhost,127.0.0.1");
+  });
+
+  it("forwards TMPDIR for node services", () => {
+    const env = buildNodeServiceEnvironment({
+      env: { HOME: "/home/user", TMPDIR: "/tmp/custom" },
+    });
+    expect(env.TMPDIR).toBe("/tmp/custom");
+  });
+
+  it("falls back to os.tmpdir for node services when TMPDIR is not set", () => {
+    const env = buildNodeServiceEnvironment({
+      env: { HOME: "/home/user" },
+    });
+    expect(env.TMPDIR).toBe(os.tmpdir());
+  });
+
+  it("defaults NODE_EXTRA_CA_CERTS to system cert bundle on macOS for node services", () => {
+    const env = buildNodeServiceEnvironment({
+      env: { HOME: "/home/user" },
+      platform: "darwin",
+    });
+    expect(env.NODE_EXTRA_CA_CERTS).toBe("/etc/ssl/cert.pem");
+  });
+
+  it("does not default NODE_EXTRA_CA_CERTS on non-macOS for node services", () => {
+    const env = buildNodeServiceEnvironment({
+      env: { HOME: "/home/user" },
+      platform: "linux",
+    });
+    expect(env.NODE_EXTRA_CA_CERTS).toBeUndefined();
+  });
+
+  it("respects user-provided NODE_EXTRA_CA_CERTS for node services", () => {
+    const env = buildNodeServiceEnvironment({
+      env: { HOME: "/home/user", NODE_EXTRA_CA_CERTS: "/custom/certs/ca.pem" },
+    });
+    expect(env.NODE_EXTRA_CA_CERTS).toBe("/custom/certs/ca.pem");
+  });
+});
+
+describe("resolveGatewayStateDir", () => {
+  it("uses the default state dir when no overrides are set", () => {
+    const env = { HOME: "/Users/test" };
+    expect(resolveGatewayStateDir(env)).toBe(path.join("/Users/test", ".openclaw"));
+  });
+
+  it("appends the profile suffix when set", () => {
+    const env = { HOME: "/Users/test", OPENCLAW_PROFILE: "rescue" };
+    expect(resolveGatewayStateDir(env)).toBe(path.join("/Users/test", ".openclaw-rescue"));
+  });
+
+  it("treats default profiles as the base state dir", () => {
+    const env = { HOME: "/Users/test", OPENCLAW_PROFILE: "Default" };
+    expect(resolveGatewayStateDir(env)).toBe(path.join("/Users/test", ".openclaw"));
+  });
+
+  it("uses OPENCLAW_STATE_DIR when provided", () => {
+    const env = { HOME: "/Users/test", OPENCLAW_STATE_DIR: "/var/lib/openclaw" };
+    expect(resolveGatewayStateDir(env)).toBe(path.resolve("/var/lib/openclaw"));
+  });
+
+  it("expands ~ in OPENCLAW_STATE_DIR", () => {
+    const env = { HOME: "/Users/test", OPENCLAW_STATE_DIR: "~/openclaw-state" };
+    expect(resolveGatewayStateDir(env)).toBe(path.resolve("/Users/test/openclaw-state"));
+  });
+
+  it("preserves Windows absolute paths without HOME", () => {
+    const env = { OPENCLAW_STATE_DIR: "C:\\State\\openclaw" };
+    expect(resolveGatewayStateDir(env)).toBe("C:\\State\\openclaw");
+  });
+>>>>>>> 9d52dcf1f (fix: stabilize launchd CA env tests (#27915) (thanks @Lukavyi))
 });

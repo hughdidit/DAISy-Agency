@@ -129,13 +129,31 @@ export function buildServiceEnvironment(params: {
   port: number;
   token?: string;
   launchdLabel?: string;
+  platform?: NodeJS.Platform;
 }): Record<string, string | undefined> {
   const { env, port, token, launchdLabel } = params;
+<<<<<<< HEAD
   const profile = env.CLAWDBOT_PROFILE;
+=======
+  const platform = params.platform ?? process.platform;
+  const profile = env.OPENCLAW_PROFILE;
+>>>>>>> 9d52dcf1f (fix: stabilize launchd CA env tests (#27915) (thanks @Lukavyi))
   const resolvedLaunchdLabel =
-    launchdLabel ||
-    (process.platform === "darwin" ? resolveGatewayLaunchAgentLabel(profile) : undefined);
+    launchdLabel || (platform === "darwin" ? resolveGatewayLaunchAgentLabel(profile) : undefined);
   const systemdUnit = `${resolveGatewaySystemdServiceName(profile)}.service`;
+<<<<<<< HEAD
+=======
+  const stateDir = env.OPENCLAW_STATE_DIR;
+  const configPath = env.OPENCLAW_CONFIG_PATH;
+  // Keep a usable temp directory for supervised services even when the host env omits TMPDIR.
+  const tmpDir = env.TMPDIR?.trim() || os.tmpdir();
+  const proxyEnv = readServiceProxyEnvironment(env);
+  // On macOS, launchd services don't inherit the shell environment, so Node's undici/fetch
+  // cannot locate the system CA bundle. Default to /etc/ssl/cert.pem so TLS verification
+  // works correctly when running as a LaunchAgent without extra user configuration.
+  const nodeCaCerts =
+    env.NODE_EXTRA_CA_CERTS ?? (platform === "darwin" ? "/etc/ssl/cert.pem" : undefined);
+>>>>>>> 9d52dcf1f (fix: stabilize launchd CA env tests (#27915) (thanks @Lukavyi))
   return {
     HOME: env.HOME,
     PATH: buildMinimalServicePath({ env }),
@@ -154,8 +172,22 @@ export function buildServiceEnvironment(params: {
 
 export function buildNodeServiceEnvironment(params: {
   env: Record<string, string | undefined>;
+  platform?: NodeJS.Platform;
 }): Record<string, string | undefined> {
   const { env } = params;
+<<<<<<< HEAD
+=======
+  const platform = params.platform ?? process.platform;
+  const stateDir = env.OPENCLAW_STATE_DIR;
+  const configPath = env.OPENCLAW_CONFIG_PATH;
+  const tmpDir = env.TMPDIR?.trim() || os.tmpdir();
+  const proxyEnv = readServiceProxyEnvironment(env);
+  // On macOS, launchd services don't inherit the shell environment, so Node's undici/fetch
+  // cannot locate the system CA bundle. Default to /etc/ssl/cert.pem so TLS verification
+  // works correctly when running as a LaunchAgent without extra user configuration.
+  const nodeCaCerts =
+    env.NODE_EXTRA_CA_CERTS ?? (platform === "darwin" ? "/etc/ssl/cert.pem" : undefined);
+>>>>>>> 9d52dcf1f (fix: stabilize launchd CA env tests (#27915) (thanks @Lukavyi))
   return {
     HOME: env.HOME,
     PATH: buildMinimalServicePath({ env }),
