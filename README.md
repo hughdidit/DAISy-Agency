@@ -32,6 +32,7 @@ New install? Start here: [Getting started](https://docs.openclaw.ai/start/gettin
 
 ## Sponsors
 
+<<<<<<< HEAD
 <table align="center">
   <tr>
     <td align="center" valign="middle" bgcolor="#111827" width="240" height="72">
@@ -47,6 +48,11 @@ New install? Start here: [Getting started](https://docs.openclaw.ai/start/gettin
     </td>
   </tr>
 </table>
+=======
+| OpenAI                                                            | Blacksmith                                                                   | Convex                                                                |
+| ----------------------------------------------------------------- | ---------------------------------------------------------------------------- | --------------------------------------------------------------------- |
+| [![OpenAI](docs/assets/sponsors/openai.svg)](https://openai.com/) | [![Blacksmith](docs/assets/sponsors/blacksmith.svg)](https://blacksmith.sh/) | [![Convex](docs/assets/sponsors/convex.svg)](https://www.convex.dev/) |
+>>>>>>> de77497ea (chore: add convex to sponsors table)
 
 **Subscriptions (OAuth):**
 
