@@ -701,7 +701,24 @@ export function createSandboxedEditTool(params: SandboxToolParams) {
     operations: createSandboxEditOperations(params),
   }) as unknown as AnyAgentTool;
   return wrapToolParamNormalization(base, CLAUDE_PARAM_GROUPS.edit);
+<<<<<<< HEAD
 >>>>>>> 726ff36fd (Sandbox: honor bind mounts in file tools)
+=======
+}
+
+export function createHostWorkspaceWriteTool(root: string, options?: { workspaceOnly?: boolean }) {
+  const base = createWriteTool(root, {
+    operations: createHostWriteOperations(root, options),
+  }) as unknown as AnyAgentTool;
+  return wrapToolParamNormalization(base, CLAUDE_PARAM_GROUPS.write);
+}
+
+export function createHostWorkspaceEditTool(root: string, options?: { workspaceOnly?: boolean }) {
+  const base = createEditTool(root, {
+    operations: createHostEditOperations(root, options),
+  }) as unknown as AnyAgentTool;
+  return wrapToolParamNormalization(base, CLAUDE_PARAM_GROUPS.edit);
+>>>>>>> 172583972 (fix(tools): honor tools.fs.workspaceOnly=false for host write/edit (#28822))
 }
 
 export function createOpenClawReadTool(
@@ -735,3 +752,179 @@ export function createOpenClawReadTool(
     },
   };
 }
+<<<<<<< HEAD
+=======
+
+function createSandboxReadOperations(params: SandboxToolParams) {
+  return {
+    readFile: (absolutePath: string) =>
+      params.bridge.readFile({ filePath: absolutePath, cwd: params.root }),
+    access: async (absolutePath: string) => {
+      const stat = await params.bridge.stat({ filePath: absolutePath, cwd: params.root });
+      if (!stat) {
+        throw createFsAccessError("ENOENT", absolutePath);
+      }
+    },
+    detectImageMimeType: async (absolutePath: string) => {
+      const buffer = await params.bridge.readFile({ filePath: absolutePath, cwd: params.root });
+      const mime = await detectMime({ buffer, filePath: absolutePath });
+      return mime && mime.startsWith("image/") ? mime : undefined;
+    },
+  } as const;
+}
+
+function createSandboxWriteOperations(params: SandboxToolParams) {
+  return {
+    mkdir: async (dir: string) => {
+      await params.bridge.mkdirp({ filePath: dir, cwd: params.root });
+    },
+    writeFile: async (absolutePath: string, content: string) => {
+      await params.bridge.writeFile({ filePath: absolutePath, cwd: params.root, data: content });
+    },
+  } as const;
+}
+
+function createSandboxEditOperations(params: SandboxToolParams) {
+  return {
+    readFile: (absolutePath: string) =>
+      params.bridge.readFile({ filePath: absolutePath, cwd: params.root }),
+    writeFile: (absolutePath: string, content: string) =>
+      params.bridge.writeFile({ filePath: absolutePath, cwd: params.root, data: content }),
+    access: async (absolutePath: string) => {
+      const stat = await params.bridge.stat({ filePath: absolutePath, cwd: params.root });
+      if (!stat) {
+        throw createFsAccessError("ENOENT", absolutePath);
+      }
+    },
+  } as const;
+}
+
+function createHostWriteOperations(root: string, options?: { workspaceOnly?: boolean }) {
+  const workspaceOnly = options?.workspaceOnly !== false;
+
+  if (!workspaceOnly) {
+    // When workspaceOnly is false, allow writes anywhere on the host
+    return {
+      mkdir: async (dir: string) => {
+        const resolved = path.resolve(dir);
+        await fs.mkdir(resolved, { recursive: true });
+      },
+      writeFile: async (absolutePath: string, content: string) => {
+        const resolved = path.resolve(absolutePath);
+        const dir = path.dirname(resolved);
+        await fs.mkdir(dir, { recursive: true });
+        await fs.writeFile(resolved, content, "utf-8");
+      },
+    } as const;
+  }
+
+  // When workspaceOnly is true (default), enforce workspace boundary
+  return {
+    mkdir: async (dir: string) => {
+      const relative = toRelativePathInRoot(root, dir, { allowRoot: true });
+      const resolved = relative ? path.resolve(root, relative) : path.resolve(root);
+      await assertSandboxPath({ filePath: resolved, cwd: root, root });
+      await fs.mkdir(resolved, { recursive: true });
+    },
+    writeFile: async (absolutePath: string, content: string) => {
+      const relative = toRelativePathInRoot(root, absolutePath);
+      await writeFileWithinRoot({
+        rootDir: root,
+        relativePath: relative,
+        data: content,
+        mkdir: true,
+      });
+    },
+  } as const;
+}
+
+function createHostEditOperations(root: string, options?: { workspaceOnly?: boolean }) {
+  const workspaceOnly = options?.workspaceOnly !== false;
+
+  if (!workspaceOnly) {
+    // When workspaceOnly is false, allow edits anywhere on the host
+    return {
+      readFile: async (absolutePath: string) => {
+        const resolved = path.resolve(absolutePath);
+        return await fs.readFile(resolved);
+      },
+      writeFile: async (absolutePath: string, content: string) => {
+        const resolved = path.resolve(absolutePath);
+        const dir = path.dirname(resolved);
+        await fs.mkdir(dir, { recursive: true });
+        await fs.writeFile(resolved, content, "utf-8");
+      },
+      access: async (absolutePath: string) => {
+        const resolved = path.resolve(absolutePath);
+        await fs.access(resolved);
+      },
+    } as const;
+  }
+
+  // When workspaceOnly is true (default), enforce workspace boundary
+  return {
+    readFile: async (absolutePath: string) => {
+      const relative = toRelativePathInRoot(root, absolutePath);
+      const opened = await openFileWithinRoot({
+        rootDir: root,
+        relativePath: relative,
+      });
+      try {
+        return await opened.handle.readFile();
+      } finally {
+        await opened.handle.close().catch(() => {});
+      }
+    },
+    writeFile: async (absolutePath: string, content: string) => {
+      const relative = toRelativePathInRoot(root, absolutePath);
+      await writeFileWithinRoot({
+        rootDir: root,
+        relativePath: relative,
+        data: content,
+        mkdir: true,
+      });
+    },
+    access: async (absolutePath: string) => {
+      const relative = toRelativePathInRoot(root, absolutePath);
+      try {
+        const opened = await openFileWithinRoot({
+          rootDir: root,
+          relativePath: relative,
+        });
+        await opened.handle.close().catch(() => {});
+      } catch (error) {
+        if (error instanceof SafeOpenError && error.code === "not-found") {
+          throw createFsAccessError("ENOENT", absolutePath);
+        }
+        throw error;
+      }
+    },
+  } as const;
+}
+
+function toRelativePathInRoot(
+  root: string,
+  candidate: string,
+  options?: { allowRoot?: boolean },
+): string {
+  const rootResolved = path.resolve(root);
+  const resolved = path.resolve(candidate);
+  const relative = path.relative(rootResolved, resolved);
+  if (relative === "" || relative === ".") {
+    if (options?.allowRoot) {
+      return "";
+    }
+    throw new Error(`Path escapes workspace root: ${candidate}`);
+  }
+  if (relative.startsWith("..") || path.isAbsolute(relative)) {
+    throw new Error(`Path escapes workspace root: ${candidate}`);
+  }
+  return relative;
+}
+
+function createFsAccessError(code: string, filePath: string): NodeJS.ErrnoException {
+  const error = new Error(`Sandbox FS error (${code}): ${filePath}`) as NodeJS.ErrnoException;
+  error.code = code;
+  return error;
+}
+>>>>>>> 172583972 (fix(tools): honor tools.fs.workspaceOnly=false for host write/edit (#28822))

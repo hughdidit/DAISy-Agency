@@ -424,17 +424,27 @@ export function createOpenClawCodingTools(options?: {
       if (sandboxRoot) {
         return [];
       }
+<<<<<<< HEAD
       // Wrap with param normalization for Claude Code compatibility
       return [
         wrapToolParamNormalization(createWriteTool(workspaceRoot), CLAUDE_PARAM_GROUPS.write),
       ];
+=======
+      const wrapped = createHostWorkspaceWriteTool(workspaceRoot, { workspaceOnly });
+      return [workspaceOnly ? wrapToolWorkspaceRootGuard(wrapped, workspaceRoot) : wrapped];
+>>>>>>> 172583972 (fix(tools): honor tools.fs.workspaceOnly=false for host write/edit (#28822))
     }
     if (tool.name === "edit") {
       if (sandboxRoot) {
         return [];
       }
+<<<<<<< HEAD
       // Wrap with param normalization for Claude Code compatibility
       return [wrapToolParamNormalization(createEditTool(workspaceRoot), CLAUDE_PARAM_GROUPS.edit)];
+=======
+      const wrapped = createHostWorkspaceEditTool(workspaceRoot, { workspaceOnly });
+      return [workspaceOnly ? wrapToolWorkspaceRootGuard(wrapped, workspaceRoot) : wrapped];
+>>>>>>> 172583972 (fix(tools): honor tools.fs.workspaceOnly=false for host write/edit (#28822))
     }
     return [tool];
   });
