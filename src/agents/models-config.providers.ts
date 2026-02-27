@@ -1031,12 +1031,45 @@ export async function resolveImplicitProviders(params: {
     break;
   }
 
+<<<<<<< HEAD
   // Ollama provider - only add if explicitly configured
   const ollamaKey =
     resolveEnvApiKeyVarName("ollama") ??
     resolveApiKeyFromProfiles({ provider: "ollama", store: authStore });
   if (ollamaKey) {
     providers.ollama = { ...(await buildOllamaProvider()), apiKey: ollamaKey };
+=======
+  // Ollama provider - auto-discover if running locally, or add if explicitly configured.
+  // Use the user's configured baseUrl (from explicit providers) for model
+  // discovery so that remote / non-default Ollama instances are reachable.
+  // Skip discovery when explicit models are already defined.
+  const ollamaKey =
+    resolveEnvApiKeyVarName("ollama") ??
+    resolveApiKeyFromProfiles({ provider: "ollama", store: authStore });
+  const explicitOllama = params.explicitProviders?.ollama;
+  const hasExplicitModels =
+    Array.isArray(explicitOllama?.models) && explicitOllama.models.length > 0;
+  if (hasExplicitModels) {
+    providers.ollama = {
+      ...explicitOllama,
+      api: explicitOllama.api ?? "ollama",
+      apiKey: ollamaKey ?? "ollama-local",
+    };
+  } else {
+    const ollamaBaseUrl = explicitOllama?.baseUrl;
+    const hasExplicitOllamaConfig = Boolean(explicitOllama);
+    // Only suppress warnings for implicit local probing when user has not
+    // explicitly configured Ollama.
+    const ollamaProvider = await buildOllamaProvider(ollamaBaseUrl, {
+      quiet: !ollamaKey && !hasExplicitOllamaConfig,
+    });
+    if (ollamaProvider.models.length > 0 || ollamaKey) {
+      providers.ollama = {
+        ...ollamaProvider,
+        apiKey: ollamaKey ?? "ollama-local",
+      };
+    }
+>>>>>>> deb9560a2 (fix(agents): skip Ollama discovery when explicit models configured (#28762))
   }
 
   // vLLM provider - OpenAI-compatible local server (opt-in via env/profile).
