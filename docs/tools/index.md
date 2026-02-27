@@ -353,8 +353,14 @@ Core actions:
 - `pending`, `approve`, `reject` (pairing)
 - `notify` (macOS `system.notify`)
 - `run` (macOS `system.run`)
+<<<<<<< HEAD
 - `camera_snap`, `camera_clip`, `screen_record`
 - `location_get`
+=======
+- `camera_list`, `camera_snap`, `camera_clip`, `screen_record`
+- `location_get`, `notifications_list`, `notifications_action`
+- `device_status`, `device_info`, `device_permissions`, `device_health`
+>>>>>>> 29f5da5b2 (feat(nodes): expose device diagnostics and notification actions)
 
 Notes:
 
