@@ -39,12 +39,17 @@ Docs: https://docs.openclaw.ai
 - Android/Nodes: add `notifications.list` support on Android nodes and expose `nodes notifications_list` in agent tooling for listing active device notifications. (#27344) thanks @obviyus.
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 - Onboarding/Plugins: let channel plugins own interactive onboarding flows with optional `configureInteractive` and `configureWhenConfigured` hooks while preserving the generic fallback path. (#27191) thanks @gumadeiras.
 - Secrets/External management: add external secrets runtime activation, migration/apply safety hardening, and dedicated docs for strict `secrets apply` target-path rules and ref-only auth-profile behavior. (#26155) Thanks @joshavant.
 >>>>>>> 47fc6a080 (fix: stabilize secrets land + docs note (#26155) (thanks @joshavant))
 =======
 - Android/Nodes: add Android `device` capability plus `device.status` and `device.info` node commands, including runtime handler wiring and protocol/registry coverage for device status/info payloads. (#27664) Thanks @obviyus.
+=======
+- Android/Nodes: add `camera.list`, `device.permissions`, `device.health`, and `notifications.actions` (`open`/`dismiss`/`reply`) on Android nodes, plus first-class node-tool actions for the new device/notification commands. (#28260) Thanks @obviyus.
+- Android/Gateway capability refresh: add live Android capability integration coverage and node canvas capability refresh wiring, plus runtime hardening for A2UI readiness retries, scoped canvas URL normalization, debug diagnostics JSON, and JavaScript MIME delivery. (#28388) Thanks @obviyus.
+>>>>>>> 256021b8d (fix: update changelog for android capability refresh land (#28388) (thanks @obviyus))
 - Docs/Contributing: add Nimrod Gutman to the maintainer roster in `CONTRIBUTING.md`. (#27840) Thanks @ngutman.
 >>>>>>> 3f20c4330 (fix: add nimrod gutman maintainer profile (#27840) (thanks @ngutman))
 
