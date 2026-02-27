@@ -144,7 +144,7 @@
     },
     {
       "source": "/providers/grammy",
-      "destination": "/channels/grammy"
+      "destination": "/channels/telegram"
     },
     {
       "source": "/providers/imessage",
@@ -348,7 +348,11 @@
     },
     {
       "source": "/grammy",
-      "destination": "/channels/grammy"
+      "destination": "/channels/telegram"
+    },
+    {
+      "source": "/channels/grammy",
+      "destination": "/channels/telegram"
     },
     {
       "source": "/group-messages",
@@ -1557,6 +1561,7 @@
                 "group": "Technical reference",
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
                 "pages": ["reference/wizard", "reference/token-use", "channels/grammy"]
 =======
@@ -1567,6 +1572,9 @@
                   "channels/grammy"
                 ]
 >>>>>>> 46dee2660 (docs(reference): add prompt-caching guide and knobs)
+=======
+                "pages": ["reference/wizard", "reference/token-use", "reference/prompt-caching"]
+>>>>>>> 035a2dbb4 (docs: consolidate grammy links to telegram)
               },
               {
                 "group": "Concept internals",
