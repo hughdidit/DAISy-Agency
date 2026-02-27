@@ -114,6 +114,8 @@ export function buildEmbeddedExtensionPaths(params: {
 <<<<<<< HEAD
 =======
       contextWindowTokens: contextWindowInfo.tokens,
+      identifierPolicy: compactionCfg?.identifierPolicy,
+      identifierInstructions: compactionCfg?.identifierInstructions,
       model: params.model,
 >>>>>>> 01380f49f (fix(compaction): pass model through runtime for safeguard summaries (#17864))
     });
