@@ -553,6 +553,7 @@ describe("runGatewayUpdate", () => {
   });
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   it("updates global npm installs with tag override", async () => {
     const nodeModules = path.join(tempDir, "node_modules");
     const pkgRoot = path.join(nodeModules, "moltbot");
@@ -567,20 +568,47 @@ describe("runGatewayUpdate", () => {
     const runCommand = async (argv: string[]) => {
       const key = argv.join(" ");
       calls.push(key);
+=======
+  it("retries global npm update with --omit=optional when initial install fails", async () => {
+    const nodeModules = path.join(tempDir, "node_modules");
+    const pkgRoot = path.join(nodeModules, "openclaw");
+    await seedGlobalPackageRoot(pkgRoot);
+
+    let firstAttempt = true;
+    const runCommand = async (argv: string[]) => {
+      const key = argv.join(" ");
+>>>>>>> 7bbfb9de5 (fix(update): fallback to --omit=optional when global npm update fails (#24896))
       if (key === `git -C ${pkgRoot} rev-parse --show-toplevel`) {
         return { stdout: "", stderr: "not a git repository", code: 128 };
       }
       if (key === "npm root -g") {
         return { stdout: nodeModules, stderr: "", code: 0 };
       }
+<<<<<<< HEAD
       if (key === "npm i -g moltbot@beta") {
         await fs.writeFile(
           path.join(pkgRoot, "package.json"),
           JSON.stringify({ name: "moltbot", version: "2.0.0" }),
+=======
+      if (key === "pnpm root -g") {
+        return { stdout: "", stderr: "", code: 1 };
+      }
+      if (key === "npm i -g openclaw@latest --no-fund --no-audit --loglevel=error") {
+        firstAttempt = false;
+        return { stdout: "", stderr: "node-gyp failed", code: 1 };
+      }
+      if (
+        key === "npm i -g openclaw@latest --omit=optional --no-fund --no-audit --loglevel=error"
+      ) {
+        await fs.writeFile(
+          path.join(pkgRoot, "package.json"),
+          JSON.stringify({ name: "openclaw", version: "2.0.0" }),
+>>>>>>> 7bbfb9de5 (fix(update): fallback to --omit=optional when global npm update fails (#24896))
           "utf-8",
         );
         return { stdout: "ok", stderr: "", code: 0 };
       }
+<<<<<<< HEAD
       if (key === "pnpm root -g") {
         return { stdout: "", stderr: "", code: 1 };
       }
@@ -603,6 +631,22 @@ describe("runGatewayUpdate", () => {
 
 =======
 >>>>>>> 0465d314b (refactor(test): table npm global update cases)
+=======
+      return { stdout: "", stderr: "", code: 0 };
+    };
+
+    const result = await runWithCommand(runCommand, { cwd: pkgRoot });
+
+    expect(firstAttempt).toBe(false);
+    expect(result.status).toBe("ok");
+    expect(result.mode).toBe("npm");
+    expect(result.steps.map((s) => s.name)).toEqual([
+      "global update",
+      "global update (omit optional)",
+    ]);
+  });
+
+>>>>>>> 7bbfb9de5 (fix(update): fallback to --omit=optional when global npm update fails (#24896))
   it("updates global bun installs when detected", async () => {
     const bunInstall = path.join(tempDir, "bun-install");
     await withEnvAsync({ BUN_INSTALL: bunInstall }, async () => {
