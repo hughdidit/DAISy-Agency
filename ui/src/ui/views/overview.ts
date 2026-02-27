@@ -1,9 +1,20 @@
 import { html } from "lit";
+<<<<<<< HEAD
 
 import type { GatewayHelloOk } from "../gateway";
 import { formatAgo, formatDurationMs } from "../format";
 import { formatNextRun } from "../presenter";
 import type { UiSettings } from "../storage";
+=======
+import { ConnectErrorDetailCodes } from "../../../../src/gateway/protocol/connect-error-details.js";
+import { t, i18n, SUPPORTED_LOCALES, type Locale } from "../../i18n/index.ts";
+import { buildExternalLinkRel, EXTERNAL_LINK_TARGET } from "../external-link.ts";
+import { formatRelativeTimestamp, formatDurationHuman } from "../format.ts";
+import type { GatewayHelloOk } from "../gateway.ts";
+import { formatNextRun } from "../presenter.ts";
+import type { UiSettings } from "../storage.ts";
+import { shouldShowPairingHint } from "./overview-hints.ts";
+>>>>>>> 84a88b2ac (feat(i18n): add German (de) locale (#28495))
 
 export type OverviewProps = {
   connected: boolean;
@@ -166,6 +177,25 @@ export function renderOverview(props: OverviewProps) {
               }}
             />
           </label>
+<<<<<<< HEAD
+=======
+          <label class="field">
+            <span>${t("overview.access.language")}</span>
+            <select
+              .value=${currentLocale}
+              @change=${(e: Event) => {
+                const v = (e.target as HTMLSelectElement).value as Locale;
+                void i18n.setLocale(v);
+                props.onSettingsChange({ ...props.settings, locale: v });
+              }}
+            >
+              ${SUPPORTED_LOCALES.map((loc) => {
+                const key = loc.replace(/-([a-zA-Z])/g, (_, c) => c.toUpperCase());
+                return html`<option value=${loc}>${t(`languages.${key}`)}</option>`;
+              })}
+            </select>
+          </label>
+>>>>>>> 84a88b2ac (feat(i18n): add German (de) locale (#28495))
         </div>
         <div class="row" style="margin-top: 14px;">
           <button class="btn" @click=${() => props.onConnect()}>Connect</button>
