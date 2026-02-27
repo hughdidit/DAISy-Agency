@@ -21,7 +21,12 @@ Compaction **persists** in the session’s JSONL history.
 
 ## Configuration
 
+<<<<<<< HEAD
 See [Compaction config & modes](/concepts/compaction) for the `agents.defaults.compaction` settings.
+=======
+Use the `agents.defaults.compaction` setting in your `openclaw.json` to configure compaction behavior (mode, target tokens, etc.).
+Compaction summarization preserves opaque identifiers by default (`identifierPolicy: "strict"`). You can override this with `identifierPolicy: "off"` or provide custom text with `identifierPolicy: "custom"` and `identifierInstructions`.
+>>>>>>> 0fe6cf06b (Compaction: preserve opaque identifiers in summaries (openclaw#25553) thanks @rodrigouroz)
 
 ## Auto-compaction (default on)
 
