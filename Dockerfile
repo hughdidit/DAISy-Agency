@@ -61,6 +61,7 @@ RUN pnpm install --filter @openclaw/memory-lancedb --prod --no-frozen-lockfile |
 ENV CLAWDBOT_PREFER_PNPM=1
 RUN pnpm ui:install
 RUN pnpm ui:build
+RUN npm link
 
 ENV NODE_ENV=production
 
