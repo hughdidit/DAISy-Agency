@@ -110,6 +110,69 @@ describe("resolveForwardedMediaList", () => {
     ]);
   });
 
+<<<<<<< HEAD
+=======
+  it("forwards fetchImpl to forwarded attachment downloads", async () => {
+    const proxyFetch = vi.fn() as unknown as typeof fetch;
+    const attachment = {
+      id: "att-proxy",
+      url: "https://cdn.discordapp.com/attachments/1/proxy.png",
+      filename: "proxy.png",
+      content_type: "image/png",
+    };
+    fetchRemoteMedia.mockResolvedValueOnce({
+      buffer: Buffer.from("image"),
+      contentType: "image/png",
+    });
+    saveMediaBuffer.mockResolvedValueOnce({
+      path: "/tmp/proxy.png",
+      contentType: "image/png",
+    });
+
+    await resolveForwardedMediaList(
+      asMessage({
+        rawData: {
+          message_snapshots: [{ message: { attachments: [attachment] } }],
+        },
+      }),
+      512,
+      proxyFetch,
+    );
+
+    expect(fetchRemoteMedia).toHaveBeenCalledWith(
+      expect.objectContaining({ fetchImpl: proxyFetch }),
+    );
+  });
+
+  it("keeps forwarded attachment metadata when download fails", async () => {
+    const attachment = {
+      id: "att-fallback",
+      url: "https://cdn.discordapp.com/attachments/1/fallback.png",
+      filename: "fallback.png",
+      content_type: "image/png",
+    };
+    fetchRemoteMedia.mockRejectedValueOnce(new Error("blocked by ssrf guard"));
+
+    const result = await resolveForwardedMediaList(
+      asMessage({
+        rawData: {
+          message_snapshots: [{ message: { attachments: [attachment] } }],
+        },
+      }),
+      512,
+    );
+
+    expect(saveMediaBuffer).not.toHaveBeenCalled();
+    expect(result).toEqual([
+      {
+        path: attachment.url,
+        contentType: "image/png",
+        placeholder: "<media:image>",
+      },
+    ]);
+  });
+
+>>>>>>> 0a67033fe (fix(discord): keep attachment metadata when media fetch is blocked)
   it("downloads forwarded stickers", async () => {
     const sticker = {
       id: "sticker-1",
@@ -227,6 +290,89 @@ describe("resolveMediaList", () => {
       },
     ]);
   });
+<<<<<<< HEAD
+=======
+
+  it("forwards fetchImpl to sticker downloads", async () => {
+    const proxyFetch = vi.fn() as unknown as typeof fetch;
+    const sticker = {
+      id: "sticker-proxy",
+      name: "proxy-sticker",
+      format_type: StickerFormatType.PNG,
+    };
+    fetchRemoteMedia.mockResolvedValueOnce({
+      buffer: Buffer.from("sticker"),
+      contentType: "image/png",
+    });
+    saveMediaBuffer.mockResolvedValueOnce({
+      path: "/tmp/sticker-proxy.png",
+      contentType: "image/png",
+    });
+
+    await resolveMediaList(
+      asMessage({
+        stickers: [sticker],
+      }),
+      512,
+      proxyFetch,
+    );
+
+    expect(fetchRemoteMedia).toHaveBeenCalledWith(
+      expect.objectContaining({ fetchImpl: proxyFetch }),
+    );
+  });
+
+  it("keeps attachment metadata when download fails", async () => {
+    const attachment = {
+      id: "att-main-fallback",
+      url: "https://cdn.discordapp.com/attachments/1/main-fallback.png",
+      filename: "main-fallback.png",
+      content_type: "image/png",
+    };
+    fetchRemoteMedia.mockRejectedValueOnce(new Error("blocked by ssrf guard"));
+
+    const result = await resolveMediaList(
+      asMessage({
+        attachments: [attachment],
+      }),
+      512,
+    );
+
+    expect(saveMediaBuffer).not.toHaveBeenCalled();
+    expect(result).toEqual([
+      {
+        path: attachment.url,
+        contentType: "image/png",
+        placeholder: "<media:image>",
+      },
+    ]);
+  });
+
+  it("keeps sticker metadata when sticker download fails", async () => {
+    const sticker = {
+      id: "sticker-fallback",
+      name: "fallback",
+      format_type: StickerFormatType.PNG,
+    };
+    fetchRemoteMedia.mockRejectedValueOnce(new Error("blocked by ssrf guard"));
+
+    const result = await resolveMediaList(
+      asMessage({
+        stickers: [sticker],
+      }),
+      512,
+    );
+
+    expect(saveMediaBuffer).not.toHaveBeenCalled();
+    expect(result).toEqual([
+      {
+        path: "https://media.discordapp.net/stickers/sticker-fallback.png",
+        contentType: "image/png",
+        placeholder: "<media:sticker>",
+      },
+    ]);
+  });
+>>>>>>> 0a67033fe (fix(discord): keep attachment metadata when media fetch is blocked)
 });
 
 describe("Discord media SSRF policy", () => {
