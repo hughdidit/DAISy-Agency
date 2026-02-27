@@ -96,7 +96,21 @@ describe("commands registry", () => {
   });
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+  it("renames status to agentstatus for slack", () => {
+    const native = listNativeCommandSpecsForConfig(
+      { commands: { native: true } },
+      { provider: "slack" },
+    );
+    expect(native.find((spec) => spec.name === "agentstatus")).toBeTruthy();
+    expect(native.find((spec) => spec.name === "status")).toBeFalsy();
+    expect(findCommandByNativeName("agentstatus", "slack")?.key).toBe("status");
+    expect(findCommandByNativeName("status", "slack")).toBeUndefined();
+  });
+
+>>>>>>> 8bc80fad4 (fix(slack): land #29032 /agentstatus alias from @maloqab)
   it("keeps discord native command specs within slash-command limits", () => {
     const native = listNativeCommandSpecsForConfig(
       { commands: { native: true } },
