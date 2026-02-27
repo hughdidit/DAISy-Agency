@@ -165,7 +165,11 @@ async function discoverOllamaModels(baseUrl?: string): Promise<ModelDefinitionCo
     }
     const data = (await response.json()) as OllamaTagsResponse;
     if (!data.models || data.models.length === 0) {
+<<<<<<< HEAD
       console.warn("No Ollama models found on local instance");
+=======
+      log.debug("No Ollama models found on local instance");
+>>>>>>> d911b0254 (fix(agents): demote Ollama empty-discovery log from warn to debug (#26379))
       return [];
     }
     return data.models.map((model) => {
