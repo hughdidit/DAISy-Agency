@@ -6,6 +6,7 @@ import { describe, expect, it } from "vitest";
 import { resolveImplicitProviders } from "./models-config.providers.js";
 =======
 import { afterEach, describe, expect, it, vi } from "vitest";
+import type { ModelDefinitionConfig } from "../config/types.models.js";
 import { resolveImplicitProviders, resolveOllamaApiBase } from "./models-config.providers.js";
 
 afterEach(() => {
@@ -211,12 +212,16 @@ describe("Ollama provider", () => {
     process.env.OLLAMA_API_KEY = "test-key";
 
     try {
-      const explicitModels = [
+      const explicitModels: ModelDefinitionConfig[] = [
         {
           id: "gpt-oss:20b",
           name: "GPT-OSS 20B",
           reasoning: false,
+<<<<<<< HEAD
           input: ["text"] as const,
+=======
+          input: ["text"] as Array<"text" | "image">,
+>>>>>>> 0331fc519 (test(ollama): type explicit models input union in provider test)
           cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
           contextWindow: 8192,
           maxTokens: 81920,
