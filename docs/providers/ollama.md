@@ -10,6 +10,10 @@ title: "Ollama"
 
 Ollama is a local LLM runtime that makes it easy to run open-source models on your machine. OpenClaw integrates with Ollama's OpenAI-compatible API and can **auto-discover tool-capable models** when you opt in with `OLLAMA_API_KEY` (or an auth profile) and do not define an explicit `models.providers.ollama` entry.
 
+<Warning>
+**Remote Ollama users**: Do not use the `/v1` OpenAI-compatible URL (`http://host:11434/v1`) with OpenClaw. This breaks tool calling and models may output raw tool JSON as plain text. Use the native Ollama API URL instead: `baseUrl: "http://host:11434"` (no `/v1`).
+</Warning>
+
 ## Quick start
 
 1. Install Ollama: [https://ollama.ai](https://ollama.ai)
@@ -134,12 +138,21 @@ If Ollama is running on a different host or port (explicit config disables auto-
     providers: {
       ollama: {
         apiKey: "ollama-local",
+<<<<<<< HEAD
         baseUrl: "http://ollama-host:11434/v1",
+=======
+        baseUrl: "http://ollama-host:11434", // No /v1 - use native Ollama API URL
+        api: "ollama", // Set explicitly to guarantee native tool-calling behavior
+>>>>>>> d17c08380 (docs(ollama): clarify /v1 tool-calling guidance (#29204))
       },
     },
   },
 }
 ```
+
+<Warning>
+Do not add `/v1` to the URL. The `/v1` path uses OpenAI-compatible mode, where tool calling is not reliable. Use the base Ollama URL without a path suffix.
+</Warning>
 
 ### Model selection
 
@@ -178,9 +191,17 @@ Due to a [known issue](https://github.com/badlogic/pi-mono/issues/1205) in the u
 
 When streaming is disabled, responses are delivered all at once (non-streaming mode), which avoids the issue where interleaved content/reasoning deltas cause garbled output.
 
+<<<<<<< HEAD
 #### Re-enable Streaming (Advanced)
 
 If you want to re-enable streaming for Ollama (may cause issues with tool-capable models):
+=======
+<Warning>
+**Tool calling is not reliable in OpenAI-compatible mode.** Use this mode only if you need OpenAI format for a proxy and do not depend on native tool calling behavior.
+</Warning>
+
+If you need to use the OpenAI-compatible endpoint instead (e.g., behind a proxy that only supports OpenAI format), set `api: "openai-completions"` explicitly:
+>>>>>>> d17c08380 (docs(ollama): clarify /v1 tool-calling guidance (#29204))
 
 ```json5
 {
@@ -196,6 +217,7 @@ If you want to re-enable streaming for Ollama (may cause issues with tool-capabl
 }
 ```
 
+<<<<<<< HEAD
 #### Disable Streaming for Other Providers
 
 You can also disable streaming for any provider if needed:
@@ -213,6 +235,9 @@ You can also disable streaming for any provider if needed:
   },
 }
 ```
+=======
+This mode may not support streaming + tool calling simultaneously. You may need to disable streaming with `params: { streaming: false }` in model config.
+>>>>>>> d17c08380 (docs(ollama): clarify /v1 tool-calling guidance (#29204))
 
 ### Context windows
 
