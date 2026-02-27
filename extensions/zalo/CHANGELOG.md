@@ -9,6 +9,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ## 2026.2.1
 =======
 =======
@@ -24,6 +25,14 @@
 ## 2026.2.19
 >>>>>>> b0e55283d (chore: bump release metadata to 2026.2.19)
 =======
+=======
+## 2026.2.27
+
+### Changes
+
+- Version alignment with core OpenClaw release numbers.
+
+>>>>>>> fe807e4be (chore(release): bump 2026.2.27 and split changelog)
 ## 2026.2.26
 
 ### Changes

@@ -15,6 +15,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   "version": "2026.1.27-beta.1",
 =======
   "version": "2026.1.30",
@@ -60,6 +61,9 @@
 =======
   "version": "2026.2.26",
 >>>>>>> caace61ba (chore: bump versions to 2026.2.26)
+=======
+  "version": "2026.2.27",
+>>>>>>> fe807e4be (chore(release): bump 2026.2.27 and split changelog)
   "description": "OpenClaw Zalo channel plugin",
 >>>>>>> 85cd55e22 (chore: bump to 2026.2.1)
   "type": "module",

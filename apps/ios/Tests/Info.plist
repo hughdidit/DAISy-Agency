@@ -48,6 +48,7 @@
 			<string>BNDL</string>
 			<key>CFBundleShortVersionString</key>
 <<<<<<< HEAD
+<<<<<<< HEAD
 			<string>2026.2.24</string>
 			<key>CFBundleVersion</key>
 			<string>20260223</string>
@@ -56,6 +57,11 @@
 			<key>CFBundleVersion</key>
 			<string>20260226</string>
 >>>>>>> caace61ba (chore: bump versions to 2026.2.26)
+=======
+			<string>2026.2.27</string>
+			<key>CFBundleVersion</key>
+			<string>20260227</string>
+>>>>>>> fe807e4be (chore(release): bump 2026.2.27 and split changelog)
 		</dict>
 	</plist>
 >>>>>>> 379b44558 (chore: bump version to 2026.2.15)

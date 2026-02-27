@@ -32,6 +32,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     <string>2026.2.1</string>
 =======
     <string>2026.2.3</string>
@@ -110,6 +111,11 @@
     <key>CFBundleVersion</key>
     <string>202602260</string>
 >>>>>>> caace61ba (chore: bump versions to 2026.2.26)
+=======
+    <string>2026.2.27</string>
+    <key>CFBundleVersion</key>
+    <string>202602270</string>
+>>>>>>> fe807e4be (chore(release): bump 2026.2.27 and split changelog)
     <key>CFBundleIconFile</key>
     <string>OpenClaw</string>
     <key>CFBundleURLTypes</key>
