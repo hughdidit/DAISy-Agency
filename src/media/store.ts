@@ -161,6 +161,54 @@ export type SavedMedia = {
   contentType?: string;
 };
 
+<<<<<<< HEAD
+=======
+export type SaveMediaSourceErrorCode =
+  | "invalid-path"
+  | "not-found"
+  | "not-file"
+  | "path-mismatch"
+  | "too-large";
+
+export class SaveMediaSourceError extends Error {
+  code: SaveMediaSourceErrorCode;
+
+  constructor(code: SaveMediaSourceErrorCode, message: string, options?: ErrorOptions) {
+    super(message, options);
+    this.code = code;
+    this.name = "SaveMediaSourceError";
+  }
+}
+
+function toSaveMediaSourceError(err: SafeOpenError): SaveMediaSourceError {
+  switch (err.code) {
+    case "symlink":
+      return new SaveMediaSourceError("invalid-path", "Media path must not be a symlink", {
+        cause: err,
+      });
+    case "not-file":
+      return new SaveMediaSourceError("not-file", "Media path is not a file", { cause: err });
+    case "path-mismatch":
+      return new SaveMediaSourceError("path-mismatch", "Media path changed during read", {
+        cause: err,
+      });
+    case "too-large":
+      return new SaveMediaSourceError("too-large", "Media exceeds 5MB limit", { cause: err });
+    case "not-found":
+      return new SaveMediaSourceError("not-found", "Media path does not exist", { cause: err });
+    case "outside-workspace":
+      return new SaveMediaSourceError("invalid-path", "Media path is outside workspace root", {
+        cause: err,
+      });
+    case "invalid-path":
+    default:
+      return new SaveMediaSourceError("invalid-path", "Media path is not safe to read", {
+        cause: err,
+      });
+  }
+}
+
+>>>>>>> d6552998e (fix: handle outside-workspace error in media store)
 export async function saveMediaSource(
   source: string,
   headers?: Record<string, string>,
