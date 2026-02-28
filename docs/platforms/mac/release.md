@@ -43,9 +43,13 @@ BUNDLE_ID=bot.molt.mac \
 APP_VERSION=2026.2.6 \
 =======
 BUNDLE_ID=ai.openclaw.mac \
+<<<<<<< HEAD
 APP_VERSION=2026.2.25 \
 >>>>>>> 52d933b3a (refactor: replace bot.molt identifiers with ai.openclaw)
 APP_BUILD="$(git rev-list --count HEAD)" \
+=======
+APP_VERSION=2026.2.27 \
+>>>>>>> af9edc98e (fix(release): unify sparkle build policy and defaults)
 BUILD_CONFIG=release \
 SIGN_IDENTITY="Developer ID Application: <Developer Name> (<TEAMID>)" \
 scripts/package-mac-app.sh
@@ -66,9 +70,13 @@ BUNDLE_ID=bot.molt.mac \
 APP_VERSION=2026.2.6 \
 =======
 BUNDLE_ID=ai.openclaw.mac \
+<<<<<<< HEAD
 APP_VERSION=2026.2.25 \
 >>>>>>> 52d933b3a (refactor: replace bot.molt identifiers with ai.openclaw)
 APP_BUILD="$(git rev-list --count HEAD)" \
+=======
+APP_VERSION=2026.2.27 \
+>>>>>>> af9edc98e (fix(release): unify sparkle build policy and defaults)
 BUILD_CONFIG=release \
 SIGN_IDENTITY="Developer ID Application: <Developer Name> (<TEAMID>)" \
 scripts/package-mac-dist.sh
