@@ -7,7 +7,6 @@ import ai.openclaw.android.gateway.GatewayClientInfo
 import ai.openclaw.android.gateway.GatewayConnectOptions
 import ai.openclaw.android.gateway.GatewayEndpoint
 import ai.openclaw.android.gateway.GatewayTlsParams
-import ai.openclaw.android.protocol.OpenClawCapability
 import ai.openclaw.android.LocationMode
 import ai.openclaw.android.VoiceWakeMode
 
@@ -20,28 +19,76 @@ class ConnectionManager(
   private val hasRecordAudioPermission: () -> Boolean,
   private val manualTls: () -> Boolean,
 ) {
+<<<<<<< HEAD
   fun buildInvokeCommands(): List<String> =
     InvokeCommandRegistry.advertisedCommands(
+=======
+  companion object {
+    internal fun resolveTlsParamsForEndpoint(
+      endpoint: GatewayEndpoint,
+      storedFingerprint: String?,
+      manualTlsEnabled: Boolean,
+    ): GatewayTlsParams? {
+      val stableId = endpoint.stableId
+      val stored = storedFingerprint?.trim().takeIf { !it.isNullOrEmpty() }
+      val isManual = stableId.startsWith("manual|")
+
+      if (isManual) {
+        if (!manualTlsEnabled) return null
+        if (!stored.isNullOrBlank()) {
+          return GatewayTlsParams(
+            required = true,
+            expectedFingerprint = stored,
+            allowTOFU = false,
+            stableId = stableId,
+          )
+        }
+        return GatewayTlsParams(
+          required = true,
+          expectedFingerprint = null,
+          allowTOFU = false,
+          stableId = stableId,
+        )
+      }
+
+      // Prefer stored pins. Never let discovery-provided TXT override a stored fingerprint.
+      if (!stored.isNullOrBlank()) {
+        return GatewayTlsParams(
+          required = true,
+          expectedFingerprint = stored,
+          allowTOFU = false,
+          stableId = stableId,
+        )
+      }
+
+      val hinted = endpoint.tlsEnabled || !endpoint.tlsFingerprintSha256.isNullOrBlank()
+      if (hinted) {
+        // TXT is unauthenticated. Do not treat the advertised fingerprint as authoritative.
+        return GatewayTlsParams(
+          required = true,
+          expectedFingerprint = null,
+          allowTOFU = false,
+          stableId = stableId,
+        )
+      }
+
+      return null
+    }
+  }
+
+  private fun runtimeFlags(): NodeRuntimeFlags =
+    NodeRuntimeFlags(
+>>>>>>> 3f06693e7 (refactor(android): share node capability and command manifest)
       cameraEnabled = cameraEnabled(),
       locationEnabled = locationMode() != LocationMode.Off,
       smsAvailable = smsAvailable(),
+      voiceWakeEnabled = voiceWakeMode() != VoiceWakeMode.Off && hasRecordAudioPermission(),
       debugBuild = BuildConfig.DEBUG,
     )
 
-  fun buildCapabilities(): List<String> =
-    buildList {
-      add(OpenClawCapability.Canvas.rawValue)
-      add(OpenClawCapability.Screen.rawValue)
-      add(OpenClawCapability.Device.rawValue)
-      if (cameraEnabled()) add(OpenClawCapability.Camera.rawValue)
-      if (smsAvailable()) add(OpenClawCapability.Sms.rawValue)
-      if (voiceWakeMode() != VoiceWakeMode.Off && hasRecordAudioPermission()) {
-        add(OpenClawCapability.VoiceWake.rawValue)
-      }
-      if (locationMode() != LocationMode.Off) {
-        add(OpenClawCapability.Location.rawValue)
-      }
-    }
+  fun buildInvokeCommands(): List<String> = InvokeCommandRegistry.advertisedCommands(runtimeFlags())
+
+  fun buildCapabilities(): List<String> = InvokeCommandRegistry.advertisedCapabilities(runtimeFlags())
 
   fun resolvedVersionName(): String {
     val versionName = BuildConfig.VERSION_NAME.trim().ifEmpty { "dev" }
