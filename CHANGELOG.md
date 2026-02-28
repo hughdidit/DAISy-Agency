@@ -82,8 +82,12 @@ Docs: https://docs.openclaw.ai
 =======
 - Feishu/Reply media attachments: send Feishu reply `mediaUrl`/`mediaUrls` payloads as attachments alongside text/streamed replies in the reply dispatcher, including legacy fallback when `mediaUrls` is empty. (#28959)
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> a509154be (Feishu: send media payloads as attachments (openclaw#28959) thanks @icesword0760)
 =======
+=======
+- Feishu/Reaction notifications: add `channels.feishu.reactionNotifications` (`off | own | all`, default `own`) so operators can disable reaction ingress or allow all verified reaction events (not only bot-authored message reactions). (#28529)
+>>>>>>> aef535510 (fix(feishu): add reactionNotifications mode gating (openclaw#29388) thanks @Takhoffman)
 - Feishu/Group session routing: add configurable group session scopes (`group`, `group_sender`, `group_topic`, `group_topic_sender`) with legacy `topicSessionMode=enabled` compatibility so Feishu group conversations can isolate sessions by sender/topic as configured. (#17798)
 <<<<<<< HEAD
 >>>>>>> 36d69d05e (feat(feishu): support sender/topic-scoped group session routing (openclaw#17798) thanks @yfge)
