@@ -638,10 +638,17 @@ export async function handleFeishuMessage(params: {
   if (isGroup) {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     const groupPolicy = feishuCfg?.groupPolicy ?? "open";
 =======
     const defaultGroupPolicy = cfg.channels?.defaults?.groupPolicy;
 =======
+=======
+    if (groupConfig?.enabled === false) {
+      log(`feishu[${account.accountId}]: group ${ctx.chatId} is disabled`);
+      return;
+    }
+>>>>>>> b0a8909a7 (fix(feishu): fix group policy enforcement gaps (#25439))
     const defaultGroupPolicy = resolveDefaultGroupPolicy(cfg);
 >>>>>>> 6dd36a6b7 (refactor(channels): reuse runtime group policy helpers)
     const { groupPolicy, providerMissingFallbackApplied } = resolveOpenProviderRuntimeGroupPolicy({
@@ -669,7 +676,9 @@ export async function handleFeishuMessage(params: {
     });
 
     if (!groupAllowed) {
-      log(`feishu[${account.accountId}]: sender ${ctx.senderOpenId} not in group allowlist`);
+      log(
+        `feishu[${account.accountId}]: group ${ctx.chatId} not in groupAllowFrom (groupPolicy=${groupPolicy})`,
+      );
       return;
     }
 
