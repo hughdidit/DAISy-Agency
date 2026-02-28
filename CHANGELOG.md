@@ -95,7 +95,11 @@ Docs: https://docs.openclaw.ai
 - Feishu/Reply-in-thread routing: add `replyInThread` config (`disabled|enabled`) for group replies, propagate `reply_in_thread` across text/card/media/streaming sends, and align topic-scoped session routing so newly created reply threads stay on the same session root. (#27325)
 >>>>>>> 89669a33b (feat(feishu): add replyInThread configuration for message replies (openclaw#27325) thanks @kcinzgg)
 - Feishu/Typing backoff: re-throw Feishu typing add/remove rate-limit and quota errors (`429`, `99991400`, `99991403`) and detect SDK non-throwing backoff responses so the typing keepalive circuit breaker can stop retries instead of looping indefinitely. (#28494)
+<<<<<<< HEAD
 >>>>>>> 32ee2f010 (fix(feishu): break infinite typing-indicator retry loop on rate-limit / quota errors (openclaw#28494) thanks @guoqunabc)
+=======
+- Feishu/Zalo runtime logging: replace direct `console.log/error` usage in Feishu typing-indicator paths and Zalo monitor paths with runtime-gated logger calls so verbosity controls are respected while preserving typing backoff behavior. (#18841) Thanks @Clawborn.
+>>>>>>> 10f1be107 (fix(feishu): replace console.log with runtime log for typing indicator errors (openclaw#18841) thanks @Clawborn)
 - Feishu/Probe status caching: cache successful `probeFeishu()` bot-info results for 10 minutes (bounded cache with per-account keying) to reduce repeated status/onboarding probe API calls, while bypassing cache for failures and exceptions. (#28907) Thanks @Glucksberg.
 <<<<<<< HEAD
 >>>>>>> 60ef92305 (fix(feishu): cache probeFeishu() results with 10-min TTL to reduce API calls (openclaw#28907) thanks @Glucksberg)
