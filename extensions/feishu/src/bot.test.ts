@@ -1,7 +1,11 @@
 import type { ClawdbotConfig, PluginRuntime, RuntimeEnv } from "openclaw/plugin-sdk";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { FeishuMessageEvent } from "./bot.js";
+<<<<<<< HEAD
 import { handleFeishuMessage } from "./bot.js";
+=======
+import { buildFeishuAgentBody, handleFeishuMessage, toMessageResourceType } from "./bot.js";
+>>>>>>> 8beb048a8 (test(feishu): add regression for audio download resource type=file (openclaw#16311) thanks @Yaxuan42)
 import { setFeishuRuntime } from "./runtime.js";
 
 <<<<<<< HEAD
@@ -522,4 +526,20 @@ describe("handleFeishuMessage command authorization", () => {
     );
   });
 >>>>>>> cf4853e2b (fix: avoid duplicate feishu permission-error dispatch replies (#27381) (thanks @byungsker))
+});
+
+describe("toMessageResourceType", () => {
+  it("maps image to image", () => {
+    expect(toMessageResourceType("image")).toBe("image");
+  });
+
+  it("maps audio to file", () => {
+    expect(toMessageResourceType("audio")).toBe("file");
+  });
+
+  it("maps video/file/sticker to file", () => {
+    expect(toMessageResourceType("video")).toBe("file");
+    expect(toMessageResourceType("file")).toBe("file");
+    expect(toMessageResourceType("sticker")).toBe("file");
+  });
 });
