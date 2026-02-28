@@ -45,6 +45,7 @@ import type { ResolvedFeishuAccount } from "./types.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { resolveFeishuAccount, listEnabledFeishuAccounts } from "./accounts.js";
 import { handleFeishuMessage, type FeishuMessageEvent, type FeishuBotAddedEvent } from "./bot.js";
+import { handleFeishuCardAction, type FeishuCardActionEvent } from "./card-action.js";
 import { createFeishuWSClient, createEventDispatcher } from "./client.js";
 import { probeFeishu } from "./probe.js";
 import type { ResolvedFeishuAccount } from "./types.js";
@@ -131,6 +132,77 @@ function registerEventHandlers(
         error(`feishu[${accountId}]: error handling bot removed event: ${String(err)}`);
       }
     },
+<<<<<<< HEAD
+=======
+    "im.message.reaction.created_v1": async (data) => {
+      const processReaction = async () => {
+        const event = data as FeishuReactionCreatedEvent;
+        const myBotId = botOpenIds.get(accountId);
+        const syntheticEvent = await resolveReactionSyntheticEvent({
+          cfg,
+          accountId,
+          event,
+          botOpenId: myBotId,
+          logger: log,
+        });
+        if (!syntheticEvent) {
+          return;
+        }
+        const promise = handleFeishuMessage({
+          cfg,
+          event: syntheticEvent,
+          botOpenId: myBotId,
+          runtime,
+          chatHistories,
+          accountId,
+        });
+        if (fireAndForget) {
+          promise.catch((err) => {
+            error(`feishu[${accountId}]: error handling reaction: ${String(err)}`);
+          });
+          return;
+        }
+        await promise;
+      };
+
+      if (fireAndForget) {
+        void processReaction().catch((err) => {
+          error(`feishu[${accountId}]: error handling reaction event: ${String(err)}`);
+        });
+        return;
+      }
+
+      try {
+        await processReaction();
+      } catch (err) {
+        error(`feishu[${accountId}]: error handling reaction event: ${String(err)}`);
+      }
+    },
+    "im.message.reaction.deleted_v1": async () => {
+      // Ignore reaction removals
+    },
+    "card.action.trigger": async (data) => {
+      try {
+        const event = data as unknown as FeishuCardActionEvent;
+        const promise = handleFeishuCardAction({
+          cfg,
+          event,
+          botOpenId: botOpenIds.get(accountId),
+          runtime,
+          accountId,
+        });
+        if (fireAndForget) {
+          promise.catch((err) => {
+            error(`feishu[${accountId}]: error handling card action: ${String(err)}`);
+          });
+        } else {
+          await promise;
+        }
+      } catch (err) {
+        error(`feishu[${accountId}]: error handling card action: ${String(err)}`);
+      }
+    },
+>>>>>>> 49cf2bceb (fix(feishu): handle card.action.trigger callbacks (openclaw#17863))
   });
 }
 
