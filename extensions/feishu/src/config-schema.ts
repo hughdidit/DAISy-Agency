@@ -162,6 +162,8 @@ const FeishuSharedConfigShape = {
   tools: FeishuToolsConfigSchema,
   replyInThread: ReplyInThreadSchema,
   reactionNotifications: ReactionNotificationModeSchema,
+  typingIndicator: z.boolean().optional(),
+  resolveSenderNames: z.boolean().optional(),
 };
 
 >>>>>>> 89669a33b (feat(feishu): add replyInThread configuration for message replies (openclaw#27325) thanks @kcinzgg)
@@ -252,7 +254,13 @@ export const FeishuConfigSchema = z
     topicSessionMode: TopicSessionModeSchema,
     // Dynamic agent creation for DM users
     dynamicAgentCreation: DynamicAgentCreationSchema,
+<<<<<<< HEAD
 >>>>>>> 36d69d05e (feat(feishu): support sender/topic-scoped group session routing (openclaw#17798) thanks @yfge)
+=======
+    // Optimization flags
+    typingIndicator: z.boolean().optional().default(true),
+    resolveSenderNames: z.boolean().optional().default(true),
+>>>>>>> 27882dc73 (feat(feishu): add quota optimization flags (openclaw#10513) thanks @BigUncle)
     // Multi-account configuration
     accounts: z.record(z.string(), FeishuAccountConfigSchema.optional()).optional(),
   })
