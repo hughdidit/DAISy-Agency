@@ -326,7 +326,6 @@ async function requestOpenAiVerification(params: {
       headers,
       body: {
         messages: [{ role: "user", content: "Hi" }],
-        temperature: 1,
         max_completion_tokens: 5,
         stream: false,
       },
@@ -338,7 +337,6 @@ async function requestOpenAiVerification(params: {
       body: {
         model: params.modelId,
         messages: [{ role: "user", content: "Hi" }],
-        temperature: 1,
         max_tokens: 1,
         stream: false,
       },
