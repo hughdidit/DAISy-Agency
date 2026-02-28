@@ -429,6 +429,135 @@ function createSandboxEditOperations(params: SandboxToolParams) {
   } as const;
 }
 
+<<<<<<< HEAD
+=======
+function createHostWriteOperations(root: string, options?: { workspaceOnly?: boolean }) {
+  const workspaceOnly = options?.workspaceOnly !== false;
+
+  if (!workspaceOnly) {
+    // When workspaceOnly is false, allow writes anywhere on the host
+    return {
+      mkdir: async (dir: string) => {
+        const resolved = path.resolve(dir);
+        await fs.mkdir(resolved, { recursive: true });
+      },
+      writeFile: async (absolutePath: string, content: string) => {
+        const resolved = path.resolve(absolutePath);
+        const dir = path.dirname(resolved);
+        await fs.mkdir(dir, { recursive: true });
+        await fs.writeFile(resolved, content, "utf-8");
+      },
+    } as const;
+  }
+
+  // When workspaceOnly is true (default), enforce workspace boundary
+  return {
+    mkdir: async (dir: string) => {
+      const relative = toRelativePathInRoot(root, dir, { allowRoot: true });
+      const resolved = relative ? path.resolve(root, relative) : path.resolve(root);
+      await assertSandboxPath({ filePath: resolved, cwd: root, root });
+      await fs.mkdir(resolved, { recursive: true });
+    },
+    writeFile: async (absolutePath: string, content: string) => {
+      const relative = toRelativePathInRoot(root, absolutePath);
+      await writeFileWithinRoot({
+        rootDir: root,
+        relativePath: relative,
+        data: content,
+        mkdir: true,
+      });
+    },
+  } as const;
+}
+
+function createHostEditOperations(root: string, options?: { workspaceOnly?: boolean }) {
+  const workspaceOnly = options?.workspaceOnly !== false;
+
+  if (!workspaceOnly) {
+    // When workspaceOnly is false, allow edits anywhere on the host
+    return {
+      readFile: async (absolutePath: string) => {
+        const resolved = path.resolve(absolutePath);
+        return await fs.readFile(resolved);
+      },
+      writeFile: async (absolutePath: string, content: string) => {
+        const resolved = path.resolve(absolutePath);
+        const dir = path.dirname(resolved);
+        await fs.mkdir(dir, { recursive: true });
+        await fs.writeFile(resolved, content, "utf-8");
+      },
+      access: async (absolutePath: string) => {
+        const resolved = path.resolve(absolutePath);
+        await fs.access(resolved);
+      },
+    } as const;
+  }
+
+  // When workspaceOnly is true (default), enforce workspace boundary
+  return {
+    readFile: async (absolutePath: string) => {
+      const relative = toRelativePathInRoot(root, absolutePath);
+      const opened = await openFileWithinRoot({
+        rootDir: root,
+        relativePath: relative,
+      });
+      try {
+        return await opened.handle.readFile();
+      } finally {
+        await opened.handle.close().catch(() => {});
+      }
+    },
+    writeFile: async (absolutePath: string, content: string) => {
+      const relative = toRelativePathInRoot(root, absolutePath);
+      await writeFileWithinRoot({
+        rootDir: root,
+        relativePath: relative,
+        data: content,
+        mkdir: true,
+      });
+    },
+    access: async (absolutePath: string) => {
+      const relative = toRelativePathInRoot(root, absolutePath);
+      try {
+        const opened = await openFileWithinRoot({
+          rootDir: root,
+          relativePath: relative,
+        });
+        await opened.handle.close().catch(() => {});
+      } catch (error) {
+        if (error instanceof SafeOpenError && error.code === "not-found") {
+          throw createFsAccessError("ENOENT", absolutePath);
+        }
+        if (error instanceof SafeOpenError && error.code === "outside-workspace") {
+          throw createFsAccessError("EACCES", absolutePath);
+        }
+        throw error;
+      }
+    },
+  } as const;
+}
+
+function toRelativePathInRoot(
+  root: string,
+  candidate: string,
+  options?: { allowRoot?: boolean },
+): string {
+  const rootResolved = path.resolve(root);
+  const resolved = path.resolve(candidate);
+  const relative = path.relative(rootResolved, resolved);
+  if (relative === "" || relative === ".") {
+    if (options?.allowRoot) {
+      return "";
+    }
+    throw new Error(`Path escapes workspace root: ${candidate}`);
+  }
+  if (relative.startsWith("..") || path.isAbsolute(relative)) {
+    throw new Error(`Path escapes workspace root: ${candidate}`);
+  }
+  return relative;
+}
+
+>>>>>>> f5c2be191 (fix: distinguish outside-workspace errors from not-found in fs-safe)
 function createFsAccessError(code: string, filePath: string): NodeJS.ErrnoException {
   const error = new Error(`Sandbox FS error (${code}): ${filePath}`) as NodeJS.ErrnoException;
   error.code = code;
