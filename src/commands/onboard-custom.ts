@@ -176,10 +176,18 @@ function resolveAliasError(params: {
   return `Alias ${normalized} already points to ${existingKey}.`;
 }
 
-function buildOpenAiHeaders(apiKey: string) {
+function buildAzureOpenAiHeaders(apiKey: string) {
   const headers: Record<string, string> = {};
   if (apiKey) {
     headers["api-key"] = apiKey;
+  }
+  return headers;
+}
+
+function buildOpenAiHeaders(apiKey: string) {
+  const headers: Record<string, string> = {};
+  if (apiKey) {
+    headers.Authorization = `Bearer ${apiKey}`;
   }
   return headers;
 }
@@ -284,6 +292,7 @@ async function requestOpenAiVerification(params: {
     modelId: params.modelId,
     endpointPath: "chat/completions",
   });
+<<<<<<< HEAD
   return await requestVerification({
     endpoint,
     headers: buildOpenAiHeaders(params.apiKey),
@@ -306,6 +315,36 @@ async function requestOpenAiVerification(params: {
 >>>>>>> ee2eaddeb (fix(onboard): increase verification timeout and reduce max_tokens for custom provider probes (#27380))
     },
   });
+=======
+  const isBaseUrlAzureUrl = isAzureUrl(params.baseUrl);
+  const headers = isBaseUrlAzureUrl
+    ? buildAzureOpenAiHeaders(params.apiKey)
+    : buildOpenAiHeaders(params.apiKey);
+  if (isBaseUrlAzureUrl) {
+    return await requestVerification({
+      endpoint,
+      headers,
+      body: {
+        messages: [{ role: "user", content: "Hi" }],
+        temperature: 1,
+        max_completion_tokens: DEFAULT_MAX_TOKENS,
+        stream: false,
+      }
+    });
+  } else {
+    return await requestVerification({
+      endpoint,
+      headers,
+      body: {
+        model: params.modelId,
+        messages: [{ role: "user", content: "Hi" }],
+        temperature: 1,
+        max_tokens: 1,
+        stream: false,
+      }
+    });
+  }
+>>>>>>> 4ed12c18a (Conditional azure openai endpoint usage)
 }
 
 async function requestAnthropicVerification(params: {
