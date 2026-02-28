@@ -76,6 +76,30 @@ const FeishuToolsConfigSchema = z
   .strict()
   .optional();
 
+<<<<<<< HEAD
+=======
+/**
+ * Group session scope for routing Feishu group messages.
+ * - "group" (default): one session per group chat
+ * - "group_sender": one session per (group + sender)
+ * - "group_topic": one session per group topic thread (falls back to group if no topic)
+ * - "group_topic_sender": one session per (group + topic thread + sender),
+ *   falls back to (group + sender) if no topic
+ */
+const GroupSessionScopeSchema = z
+  .enum(["group", "group_sender", "group_topic", "group_topic_sender"])
+  .optional();
+
+/**
+ * @deprecated Use groupSessionScope instead.
+ *
+ * Topic session isolation mode for group chats.
+ * - "disabled" (default): All messages in a group share one session
+ * - "enabled": Messages in different topics get separate sessions
+ */
+const TopicSessionModeSchema = z.enum(["disabled", "enabled"]).optional();
+
+>>>>>>> 36d69d05e (feat(feishu): support sender/topic-scoped group session routing (openclaw#17798) thanks @yfge)
 export const FeishuGroupSchema = z
   .object({
     requireMention: z.boolean().optional(),
@@ -84,6 +108,11 @@ export const FeishuGroupSchema = z
     enabled: z.boolean().optional(),
     allowFrom: z.array(z.union([z.string(), z.number()])).optional(),
     systemPrompt: z.string().optional(),
+<<<<<<< HEAD
+=======
+    groupSessionScope: GroupSessionScopeSchema,
+    topicSessionMode: TopicSessionModeSchema,
+>>>>>>> 36d69d05e (feat(feishu): support sender/topic-scoped group session routing (openclaw#17798) thanks @yfge)
   })
   .strict();
 
@@ -102,6 +131,7 @@ export const FeishuAccountConfigSchema = z
     domain: FeishuDomainSchema.optional(),
     connectionMode: FeishuConnectionModeSchema.optional(),
     webhookPath: z.string().optional(),
+<<<<<<< HEAD
     webhookPort: z.number().int().positive().optional(),
     capabilities: z.array(z.string()).optional(),
     markdown: MarkdownConfigSchema,
@@ -123,6 +153,11 @@ export const FeishuAccountConfigSchema = z
     renderMode: RenderModeSchema,
     streaming: StreamingModeSchema, // Enable streaming card mode (default: true)
     tools: FeishuToolsConfigSchema,
+=======
+    ...FeishuSharedConfigShape,
+    groupSessionScope: GroupSessionScopeSchema,
+    topicSessionMode: TopicSessionModeSchema,
+>>>>>>> 36d69d05e (feat(feishu): support sender/topic-scoped group session routing (openclaw#17798) thanks @yfge)
   })
   .strict();
 
@@ -146,6 +181,7 @@ export const FeishuConfigSchema = z
     groupPolicy: GroupPolicySchema.optional().default("allowlist"),
     groupAllowFrom: z.array(z.union([z.string(), z.number()])).optional(),
     requireMention: z.boolean().optional().default(true),
+<<<<<<< HEAD
     groups: z.record(z.string(), FeishuGroupSchema.optional()).optional(),
     historyLimit: z.number().int().min(0).optional(),
     dmHistoryLimit: z.number().int().min(0).optional(),
@@ -158,6 +194,12 @@ export const FeishuConfigSchema = z
     renderMode: RenderModeSchema, // raw = plain text (default), card = interactive card with markdown
     streaming: StreamingModeSchema, // Enable streaming card mode (default: true)
     tools: FeishuToolsConfigSchema,
+=======
+    groupSessionScope: GroupSessionScopeSchema,
+    topicSessionMode: TopicSessionModeSchema,
+    // Dynamic agent creation for DM users
+    dynamicAgentCreation: DynamicAgentCreationSchema,
+>>>>>>> 36d69d05e (feat(feishu): support sender/topic-scoped group session routing (openclaw#17798) thanks @yfge)
     // Multi-account configuration
     accounts: z.record(z.string(), FeishuAccountConfigSchema.optional()).optional(),
   })

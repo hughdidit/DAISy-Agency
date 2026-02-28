@@ -719,7 +719,46 @@ export async function handleFeishuMessage(params: {
     const feishuFrom = `feishu:${ctx.senderOpenId}`;
     const feishuTo = isGroup ? `chat:${ctx.chatId}` : `user:${ctx.senderOpenId}`;
 
+<<<<<<< HEAD
     const route = core.channel.routing.resolveAgentRoute({
+=======
+    // Resolve peer ID for session routing.
+    // Default is one session per group chat; this can be customized with groupSessionScope.
+    let peerId = isGroup ? ctx.chatId : ctx.senderOpenId;
+    let groupSessionScope: "group" | "group_sender" | "group_topic" | "group_topic_sender" =
+      "group";
+
+    if (isGroup) {
+      const legacyTopicSessionMode =
+        groupConfig?.topicSessionMode ?? feishuCfg?.topicSessionMode ?? "disabled";
+      groupSessionScope =
+        groupConfig?.groupSessionScope ??
+        feishuCfg?.groupSessionScope ??
+        (legacyTopicSessionMode === "enabled" ? "group_topic" : "group");
+
+      switch (groupSessionScope) {
+        case "group_sender":
+          peerId = `${ctx.chatId}:sender:${ctx.senderOpenId}`;
+          break;
+        case "group_topic":
+          peerId = ctx.rootId ? `${ctx.chatId}:topic:${ctx.rootId}` : ctx.chatId;
+          break;
+        case "group_topic_sender":
+          peerId = ctx.rootId
+            ? `${ctx.chatId}:topic:${ctx.rootId}:sender:${ctx.senderOpenId}`
+            : `${ctx.chatId}:sender:${ctx.senderOpenId}`;
+          break;
+        case "group":
+        default:
+          peerId = ctx.chatId;
+          break;
+      }
+
+      log(`feishu[${account.accountId}]: group session scope=${groupSessionScope}, peer=${peerId}`);
+    }
+
+    let route = core.channel.routing.resolveAgentRoute({
+>>>>>>> 36d69d05e (feat(feishu): support sender/topic-scoped group session routing (openclaw#17798) thanks @yfge)
       cfg,
       channel: "feishu",
       accountId: account.accountId,
@@ -727,6 +766,19 @@ export async function handleFeishuMessage(params: {
         kind: isGroup ? "group" : "dm",
         id: isGroup ? ctx.chatId : ctx.senderOpenId,
       },
+<<<<<<< HEAD
+=======
+      // Add parentPeer for binding inheritance in topic-scoped modes.
+      parentPeer:
+        isGroup &&
+        ctx.rootId &&
+        (groupSessionScope === "group_topic" || groupSessionScope === "group_topic_sender")
+          ? {
+              kind: "group",
+              id: ctx.chatId,
+            }
+          : null,
+>>>>>>> 36d69d05e (feat(feishu): support sender/topic-scoped group session routing (openclaw#17798) thanks @yfge)
     });
 
     const preview = ctx.content.replace(/\s+/g, " ").slice(0, 160);
