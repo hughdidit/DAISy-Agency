@@ -2,6 +2,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import path from "node:path";
 <<<<<<< HEAD
 
@@ -22,6 +23,13 @@ import { Type } from "@sinclair/typebox";
 =======
 import { Type } from "@sinclair/typebox";
 import path from "node:path";
+=======
+import { Type } from "@sinclair/typebox";
+import { loadConfig } from "../../config/config.js";
+import { resolveSessionFilePath, resolveSessionFilePathOptions } from "../../config/sessions.js";
+import { callGateway } from "../../gateway/call.js";
+import { resolveAgentIdFromSessionKey } from "../../routing/session-key.js";
+>>>>>>> c58d2aa99 (Sessions: fix sessions_list transcriptPath path resolution)
 import type { AnyAgentTool } from "./common.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 =======
@@ -219,13 +227,14 @@ export function createSessionsListTool(opts?: {
         let transcriptPath: string | undefined;
         if (sessionId && storePath) {
           try {
+            const sessionPathOpts = resolveSessionFilePathOptions({
+              agentId: resolveAgentIdFromSessionKey(key),
+              storePath,
+            });
             transcriptPath = resolveSessionFilePath(
               sessionId,
               sessionFile ? { sessionFile } : undefined,
-              {
-                agentId: resolveAgentIdFromSessionKey(key),
-                sessionsDir: path.dirname(storePath),
-              },
+              sessionPathOpts,
             );
           } catch {
             transcriptPath = undefined;
