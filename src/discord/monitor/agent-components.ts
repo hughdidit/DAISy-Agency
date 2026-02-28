@@ -445,11 +445,7 @@ function parseAgentComponentData(data: ComponentData): {
   };
 
   const componentId =
-    typeof raw === "string"
-      ? decodeSafe(raw)
-      : typeof raw === "number"
-        ? String(raw)
-        : null;
+    typeof raw === "string" ? decodeSafe(raw) : typeof raw === "number" ? String(raw) : null;
 
   if (!componentId) {
     return null;
