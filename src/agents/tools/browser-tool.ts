@@ -91,7 +91,17 @@ function readOptionalTargetAndTimeout(params: Record<string, unknown>) {
   return { targetId, timeoutMs };
 }
 
+<<<<<<< HEAD
 >>>>>>> 06bdd5365 (refactor(agents): dedupe workspace and session tool flows)
+=======
+function readTargetUrlParam(params: Record<string, unknown>) {
+  return (
+    readStringParam(params, "targetUrl") ??
+    readStringParam(params, "url", { required: true, label: "targetUrl" })
+  );
+}
+
+>>>>>>> ed51796d9 (fix(browser): accept url alias for open and navigate (#29260))
 type BrowserProxyFile = {
   path: string;
   base64: string;
@@ -418,9 +428,7 @@ export function createBrowserTool(opts?: {
           }
           return jsonResult({ tabs: await browserTabs(baseUrl, { profile }) });
         case "open": {
-          const targetUrl = readStringParam(params, "targetUrl", {
-            required: true,
-          });
+          const targetUrl = readTargetUrlParam(params);
           if (proxyRequest) {
             const result = await proxyRequest({
               method: "POST",
@@ -600,9 +608,7 @@ export function createBrowserTool(opts?: {
           });
         }
         case "navigate": {
-          const targetUrl = readStringParam(params, "targetUrl", {
-            required: true,
-          });
+          const targetUrl = readTargetUrlParam(params);
           const targetId = readStringParam(params, "targetId");
           if (proxyRequest) {
             const result = await proxyRequest({
