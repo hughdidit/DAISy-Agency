@@ -574,11 +574,15 @@ describe("CronService", () => {
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   it("passes agentId to runHeartbeatOnce for main-session wakeMode now jobs", async () => {
 =======
   it("passes agentId + sessionKey to runHeartbeatOnce for main-session wakeMode now jobs", async () => {
 >>>>>>> f988abf20 (Cron: route reminders by session namespace)
+=======
+  it("passes agentId and resolves main session for wakeMode now main jobs", async () => {
+>>>>>>> fe9a7c408 (fix(cron): force main-target system events onto main session (#28898))
     const runHeartbeatOnce = vi.fn(async () => ({ status: "ran" as const, durationMs: 1 }));
 
     const { store, cron, enqueueSystemEvent, requestHeartbeatNow } =
@@ -603,13 +607,13 @@ describe("CronService", () => {
       expect.objectContaining({
         reason: `cron:${job.id}`,
         agentId: "ops",
-        sessionKey,
+        sessionKey: undefined,
       }),
     );
     expect(requestHeartbeatNow).not.toHaveBeenCalled();
     expect(enqueueSystemEvent).toHaveBeenCalledWith(
       "hello",
-      expect.objectContaining({ agentId: "ops", sessionKey }),
+      expect.objectContaining({ agentId: "ops", sessionKey: undefined }),
     );
 
     cron.stop();
@@ -647,7 +651,7 @@ describe("CronService", () => {
     expect(requestHeartbeatNow).toHaveBeenCalledWith(
       expect.objectContaining({
         reason: `cron:${job.id}`,
-        sessionKey,
+        sessionKey: undefined,
       }),
     );
     expect(job.state.lastStatus).toBe("ok");
