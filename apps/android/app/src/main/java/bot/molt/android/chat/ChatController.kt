@@ -315,16 +315,22 @@ class ChatController(
     if (!sessionKey.isNullOrEmpty() && sessionKey != _sessionKey.value) return
 
     val runId = payload["runId"].asStringOrNull()
-    if (runId != null) {
-      val isPending =
-        synchronized(pendingRuns) {
-          pendingRuns.contains(runId)
-        }
-      if (!isPending) return
-    }
+    val isPending =
+      if (runId != null) synchronized(pendingRuns) { pendingRuns.contains(runId) } else true
 
     val state = payload["state"].asStringOrNull()
     when (state) {
+<<<<<<< HEAD:apps/android/app/src/main/java/bot/molt/android/chat/ChatController.kt
+=======
+      "delta" -> {
+        // Only show streaming text for runs we initiated
+        if (!isPending) return
+        val text = parseAssistantDeltaText(payload)
+        if (!text.isNullOrEmpty()) {
+          _streamingAssistantText.value = text
+        }
+      }
+>>>>>>> 4748ba491 (fix(android): chat history refresh and mic capture improvements for voice):apps/android/app/src/main/java/ai/openclaw/android/chat/ChatController.kt
       "final", "aborted", "error" -> {
         if (state == "error") {
           _errorText.value = payload["errorMessage"].asStringOrNull() ?: "Chat failed"
