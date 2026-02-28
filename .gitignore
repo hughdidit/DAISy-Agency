@@ -166,4 +166,17 @@ dist/protocol.schema.json
 >>>>>>> 3317b49d3 (feat(memory): allow QMD searches via mcporter keep-alive (openclaw#19617) thanks @vignesh07)
 =======
 .ant-colony/
+<<<<<<< HEAD
 >>>>>>> 3bbbe33a1 (UI: gateway dashboard with glassmorphism theme system)
+=======
+
+# Eclipse
+**/.project
+**/.classpath
+**/.settings/
+**/.gradle/
+
+# Synthing
+**/.stfolder/
+apps/android/.kotlin/
+>>>>>>> 68db055f1 (feat(android): wire TalkModeManager into NodeRuntime for voice screen TTS)
