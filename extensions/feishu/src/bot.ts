@@ -28,6 +28,7 @@ import {
   resolveFeishuAllowlistMatch,
   isFeishuGroupAllowed,
 } from "./policy.js";
+import { parsePostContent } from "./post.js";
 import { createFeishuReplyDispatcher } from "./reply-dispatcher.js";
 import { getFeishuRuntime } from "./runtime.js";
 import { getMessageFeishu, sendMessageFeishu } from "./send.js";
@@ -191,15 +192,16 @@ export type FeishuBotAddedEvent = {
 };
 
 function parseMessageContent(content: string, messageType: string): string {
+  if (messageType === "post") {
+    // Extract text content from rich text post
+    const { textContent } = parsePostContent(content);
+    return textContent;
+  }
+
   try {
     const parsed = JSON.parse(content);
     if (messageType === "text") {
       return parsed.text || "";
-    }
-    if (messageType === "post") {
-      // Extract text content from rich text post
-      const { textContent } = parsePostContent(content);
-      return textContent;
     }
     if (messageType === "share_chat") {
       // Preserve available summary text for merged/forwarded chat messages.
@@ -398,6 +400,7 @@ function parseMediaKeys(
 }
 
 /**
+<<<<<<< HEAD
  * Parse post (rich text) content and extract embedded image keys.
  * Post structure: { title?: string, content: [[{ tag, text?, image_key?, ... }]] }
  */
@@ -471,6 +474,13 @@ function parsePostContent(content: string): {
   } catch {
     return { textContent: "[Rich text message]", imageKeys: [], mentionedOpenIds: [] };
   }
+=======
+ * Map Feishu message type to messageResource.get resource type.
+ * Feishu messageResource API supports only: image | file.
+ */
+export function toMessageResourceType(messageType: string): "image" | "file" {
+  return messageType === "image" ? "image" : "file";
+>>>>>>> 8818464f5 (feat(feishu): render post rich text as markdown (openclaw#12755))
 }
 
 /**
