@@ -111,6 +111,16 @@ const GroupSessionScopeSchema = z
  */
 const TopicSessionModeSchema = z.enum(["disabled", "enabled"]).optional();
 
+/**
+ * Reply-in-thread mode for group chats.
+ * - "disabled" (default): Bot replies are normal inline replies
+ * - "enabled": Bot replies create or continue a Feishu topic thread
+ *
+ * When enabled, the Feishu reply API is called with `reply_in_thread: true`,
+ * causing the reply to appear as a topic (话题) under the original message.
+ */
+const ReplyInThreadSchema = z.enum(["disabled", "enabled"]).optional();
+
 export const FeishuGroupSchema = z
   .object({
     requireMention: z.boolean().optional(),
@@ -121,9 +131,39 @@ export const FeishuGroupSchema = z
     systemPrompt: z.string().optional(),
     groupSessionScope: GroupSessionScopeSchema,
     topicSessionMode: TopicSessionModeSchema,
+    replyInThread: ReplyInThreadSchema,
   })
   .strict();
 
+<<<<<<< HEAD
+=======
+const FeishuSharedConfigShape = {
+  webhookHost: z.string().optional(),
+  webhookPort: z.number().int().positive().optional(),
+  capabilities: z.array(z.string()).optional(),
+  markdown: MarkdownConfigSchema,
+  configWrites: z.boolean().optional(),
+  dmPolicy: DmPolicySchema.optional(),
+  allowFrom: z.array(z.union([z.string(), z.number()])).optional(),
+  groupPolicy: GroupPolicySchema.optional(),
+  groupAllowFrom: z.array(z.union([z.string(), z.number()])).optional(),
+  requireMention: z.boolean().optional(),
+  groups: z.record(z.string(), FeishuGroupSchema.optional()).optional(),
+  historyLimit: z.number().int().min(0).optional(),
+  dmHistoryLimit: z.number().int().min(0).optional(),
+  dms: z.record(z.string(), DmConfigSchema).optional(),
+  textChunkLimit: z.number().int().positive().optional(),
+  chunkMode: z.enum(["length", "newline"]).optional(),
+  blockStreamingCoalesce: BlockStreamingCoalesceSchema,
+  mediaMaxMb: z.number().positive().optional(),
+  heartbeat: ChannelHeartbeatVisibilitySchema,
+  renderMode: RenderModeSchema,
+  streaming: StreamingModeSchema,
+  tools: FeishuToolsConfigSchema,
+  replyInThread: ReplyInThreadSchema,
+};
+
+>>>>>>> 89669a33b (feat(feishu): add replyInThread configuration for message replies (openclaw#27325) thanks @kcinzgg)
 /**
  * Per-account configuration.
  * All fields are optional - missing fields inherit from top-level config.

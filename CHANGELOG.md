@@ -84,7 +84,11 @@ Docs: https://docs.openclaw.ai
 >>>>>>> a509154be (Feishu: send media payloads as attachments (openclaw#28959) thanks @icesword0760)
 =======
 - Feishu/Group session routing: add configurable group session scopes (`group`, `group_sender`, `group_topic`, `group_topic_sender`) with legacy `topicSessionMode=enabled` compatibility so Feishu group conversations can isolate sessions by sender/topic as configured. (#17798)
+<<<<<<< HEAD
 >>>>>>> 36d69d05e (feat(feishu): support sender/topic-scoped group session routing (openclaw#17798) thanks @yfge)
+=======
+- Feishu/Reply-in-thread routing: add `replyInThread` config (`disabled|enabled`) for group replies, propagate `reply_in_thread` across text/card/media/streaming sends, and align topic-scoped session routing so newly created reply threads stay on the same session root. (#27325)
+>>>>>>> 89669a33b (feat(feishu): add replyInThread configuration for message replies (openclaw#27325) thanks @kcinzgg)
 - Feishu/Typing backoff: re-throw Feishu typing add/remove rate-limit and quota errors (`429`, `99991400`, `99991403`) and detect SDK non-throwing backoff responses so the typing keepalive circuit breaker can stop retries instead of looping indefinitely. (#28494)
 >>>>>>> 32ee2f010 (fix(feishu): break infinite typing-indicator retry loop on rate-limit / quota errors (openclaw#28494) thanks @guoqunabc)
 - Feishu/Probe status caching: cache successful `probeFeishu()` bot-info results for 10 minutes (bounded cache with per-account keying) to reduce repeated status/onboarding probe API calls, while bypassing cache for failures and exceptions. (#28907) Thanks @Glucksberg.
