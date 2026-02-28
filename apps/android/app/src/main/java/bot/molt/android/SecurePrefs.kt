@@ -139,9 +139,14 @@ class SecurePrefs(context: Context) {
   private val _talkEnabled = MutableStateFlow(plainPrefs.getBoolean("talk.enabled", false))
   val talkEnabled: StateFlow<Boolean> = _talkEnabled
 
+<<<<<<< HEAD:apps/android/app/src/main/java/bot/molt/android/SecurePrefs.kt
   init {
     logGatewayToken("init.gateway.manual.token", _gatewayToken.value)
   }
+=======
+  private val _speakerEnabled = MutableStateFlow(plainPrefs.getBoolean("voice.speakerEnabled", true))
+  val speakerEnabled: StateFlow<Boolean> = _speakerEnabled
+>>>>>>> 72e135083 (feat(android-voice): add speaker toggle in voice tab):apps/android/app/src/main/java/ai/openclaw/android/SecurePrefs.kt
 
   fun setLastDiscoveredStableId(value: String) {
     val trimmed = value.trim()
@@ -350,6 +355,11 @@ class SecurePrefs(context: Context) {
   fun setTalkEnabled(value: Boolean) {
     plainPrefs.edit { putBoolean("talk.enabled", value) }
     _talkEnabled.value = value
+  }
+
+  fun setSpeakerEnabled(value: Boolean) {
+    plainPrefs.edit { putBoolean("voice.speakerEnabled", value) }
+    _speakerEnabled.value = value
   }
 
   private fun loadVoiceWakeMode(): VoiceWakeMode {

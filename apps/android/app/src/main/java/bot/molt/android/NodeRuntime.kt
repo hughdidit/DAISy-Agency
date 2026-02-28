@@ -392,7 +392,9 @@ class NodeRuntime(context: Context) {
         parseChatSendRunId(response) ?: idempotencyKey
       },
       speakAssistantReply = { text ->
-        voiceReplySpeaker.speakAssistantReply(text)
+        if (prefs.speakerEnabled.value) {
+          voiceReplySpeaker.speakAssistantReply(text)
+        }
       },
     )
   }
@@ -666,6 +668,7 @@ class NodeRuntime(context: Context) {
 <<<<<<< HEAD:apps/android/app/src/main/java/bot/molt/android/NodeRuntime.kt
 <<<<<<< HEAD:apps/android/app/src/main/java/bot/molt/android/NodeRuntime.kt
 <<<<<<< HEAD:apps/android/app/src/main/java/bot/molt/android/NodeRuntime.kt
+<<<<<<< HEAD:apps/android/app/src/main/java/bot/molt/android/NodeRuntime.kt
   private fun buildInvokeCommands(): List<String> =
     buildList {
       add(MoltbotCanvasCommand.Present.rawValue)
@@ -778,6 +781,15 @@ class NodeRuntime(context: Context) {
 >>>>>>> 4b188dcf9 (fix(android): persist gateway auth state across onboarding):apps/android/app/src/main/java/ai/openclaw/android/NodeRuntime.kt
 =======
 >>>>>>> 90ddb3f27 (fix(android): stabilize gateway operator reconnect):apps/android/app/src/main/java/ai/openclaw/android/NodeRuntime.kt
+=======
+  val speakerEnabled: StateFlow<Boolean>
+    get() = prefs.speakerEnabled
+
+  fun setSpeakerEnabled(value: Boolean) {
+    prefs.setSpeakerEnabled(value)
+  }
+
+>>>>>>> 72e135083 (feat(android-voice): add speaker toggle in voice tab):apps/android/app/src/main/java/ai/openclaw/android/NodeRuntime.kt
   fun refreshGatewayConnection() {
     val endpoint =
       connectedEndpoint ?: run {
