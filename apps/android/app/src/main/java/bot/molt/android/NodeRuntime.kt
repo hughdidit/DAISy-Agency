@@ -842,6 +842,8 @@ class NodeRuntime(context: Context) {
     if (voiceReplySpeakerLazy.isInitialized()) {
       voiceReplySpeaker.setPlaybackEnabled(value)
     }
+    // Keep TalkMode in sync so speaker mute works when ttsOnAllResponses is active.
+    talkMode.setPlaybackEnabled(value)
   }
 
 >>>>>>> 72e135083 (feat(android-voice): add speaker toggle in voice tab):apps/android/app/src/main/java/ai/openclaw/android/NodeRuntime.kt
