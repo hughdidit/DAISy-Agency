@@ -102,11 +102,55 @@ describe("deliverOutboundPayloads", () => {
       }
       expect(results).toHaveLength(2);
       expect(results[0]).toMatchObject({ channel: "telegram", chatId: "c1" });
+<<<<<<< HEAD
     } finally {
       if (prevTelegramToken === undefined) {
         delete process.env.TELEGRAM_BOT_TOKEN;
       } else {
         process.env.TELEGRAM_BOT_TOKEN = prevTelegramToken;
+=======
+    });
+  });
+
+  it("clamps telegram text chunk size to protocol max even with higher config", async () => {
+    const sendTelegram = vi.fn().mockResolvedValue({ messageId: "m1", chatId: "c1" });
+    const cfg: OpenClawConfig = {
+      channels: { telegram: { botToken: "tok-1", textChunkLimit: 10_000 } },
+    };
+    const text = "<".repeat(3_000);
+    await withEnvAsync({ TELEGRAM_BOT_TOKEN: "" }, async () => {
+      await deliverOutboundPayloads({
+        cfg,
+        channel: "telegram",
+        to: "123",
+        payloads: [{ text }],
+        deps: { sendTelegram },
+      });
+    });
+
+    expect(sendTelegram.mock.calls.length).toBeGreaterThan(1);
+    const sentHtmlChunks = sendTelegram.mock.calls
+      .map((call) => call[1])
+      .filter((message): message is string => typeof message === "string");
+    expect(sentHtmlChunks.length).toBeGreaterThan(1);
+    expect(sentHtmlChunks.every((message) => message.length <= 4096)).toBe(true);
+  });
+
+  it("keeps payload replyToId across all chunked telegram sends", async () => {
+    const sendTelegram = vi.fn().mockResolvedValue({ messageId: "m1", chatId: "c1" });
+    await withEnvAsync({ TELEGRAM_BOT_TOKEN: "" }, async () => {
+      await deliverOutboundPayloads({
+        cfg: telegramChunkConfig,
+        channel: "telegram",
+        to: "123",
+        payloads: [{ text: "abcd", replyToId: "777" }],
+        deps: { sendTelegram },
+      });
+
+      expect(sendTelegram).toHaveBeenCalledTimes(2);
+      for (const call of sendTelegram.mock.calls) {
+        expect(call[2]).toEqual(expect.objectContaining({ replyToMessageId: 777 }));
+>>>>>>> 69c39368e (fix: enforce telegram shared outbound chunking)
       }
     }
   });

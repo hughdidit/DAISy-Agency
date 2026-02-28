@@ -62,6 +62,12 @@ import type { OutboundChannel } from "./targets.js";
 export type { NormalizedOutboundPayload } from "./payloads.js";
 export { normalizeOutboundPayloads } from "./payloads.js";
 
+<<<<<<< HEAD
+=======
+const log = createSubsystemLogger("outbound/deliver");
+const TELEGRAM_TEXT_LIMIT = 4096;
+
+>>>>>>> 69c39368e (fix: enforce telegram shared outbound chunking)
 type SendMatrixMessage = (
   to: string,
   text: string,
@@ -374,11 +380,15 @@ async function deliverOutboundPayloadsCore(params: {
     mediaLocalRoots,
 >>>>>>> e927fd1e3 (fix: allow agent workspace directories in media local roots (#17136))
   });
-  const textLimit = handler.chunker
+  const configuredTextLimit = handler.chunker
     ? resolveTextChunkLimit(cfg, channel, accountId, {
         fallbackLimit: handler.textChunkLimit,
       })
     : undefined;
+  const textLimit =
+    channel === "telegram" && typeof configuredTextLimit === "number"
+      ? Math.min(configuredTextLimit, TELEGRAM_TEXT_LIMIT)
+      : configuredTextLimit;
   const chunkMode = handler.chunker ? resolveChunkMode(cfg, channel, accountId) : "length";
   const isSignalChannel = channel === "signal";
   const signalTableMode = isSignalChannel
