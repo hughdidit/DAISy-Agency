@@ -1089,6 +1089,12 @@ export async function handleFeishuMessage(params: {
       runtime: runtime as RuntimeEnv,
       chatId: ctx.chatId,
       replyToMessageId: ctx.messageId,
+<<<<<<< HEAD
+=======
+      skipReplyToInMessages: !isGroup,
+      replyInThread,
+      rootId: ctx.rootId,
+>>>>>>> d9230b13a (feat(feishu): skip reply-to in DM conversations (#13211))
       mentionTargets: ctx.mentionTargets,
       accountId: account.accountId,
     });
