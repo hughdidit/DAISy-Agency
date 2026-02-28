@@ -714,10 +714,10 @@ export async function handleFeishuMessage(params: {
     const feishuFrom = `feishu:${ctx.senderOpenId}`;
     const feishuTo = isGroup ? `chat:${ctx.chatId}` : `user:${ctx.senderOpenId}`;
 
-    // Resolve peer ID for session routing
-    // When topicSessionMode is enabled, messages within a topic (identified by root_id)
-    // get a separate session from the main group chat.
+    // Resolve peer ID for session routing.
+    // Default is one session per group chat; this can be customized with groupSessionScope.
     let peerId = isGroup ? ctx.chatId : ctx.senderOpenId;
+<<<<<<< HEAD
     if (isGroup && ctx.rootId) {
       const groupConfig = resolveFeishuGroupConfig({ cfg: feishuCfg, groupId: ctx.chatId });
       const topicSessionMode =
@@ -726,7 +726,38 @@ export async function handleFeishuMessage(params: {
         // Use chatId:topic:rootId as peer ID for topic-scoped sessions
         peerId = `${ctx.chatId}:topic:${ctx.rootId}`;
         log(`feishu[${account.accountId}]: topic session isolation enabled, peer=${peerId}`);
+=======
+    let groupSessionScope: "group" | "group_sender" | "group_topic" | "group_topic_sender" =
+      "group";
+
+    if (isGroup) {
+      const legacyTopicSessionMode =
+        groupConfig?.topicSessionMode ?? feishuCfg?.topicSessionMode ?? "disabled";
+      groupSessionScope =
+        groupConfig?.groupSessionScope ??
+        feishuCfg?.groupSessionScope ??
+        (legacyTopicSessionMode === "enabled" ? "group_topic" : "group");
+
+      switch (groupSessionScope) {
+        case "group_sender":
+          peerId = `${ctx.chatId}:sender:${ctx.senderOpenId}`;
+          break;
+        case "group_topic":
+          peerId = ctx.rootId ? `${ctx.chatId}:topic:${ctx.rootId}` : ctx.chatId;
+          break;
+        case "group_topic_sender":
+          peerId = ctx.rootId
+            ? `${ctx.chatId}:topic:${ctx.rootId}:sender:${ctx.senderOpenId}`
+            : `${ctx.chatId}:sender:${ctx.senderOpenId}`;
+          break;
+        case "group":
+        default:
+          peerId = ctx.chatId;
+          break;
+>>>>>>> 36d69d05e (feat(feishu): support sender/topic-scoped group session routing (openclaw#17798) thanks @yfge)
       }
+
+      log(`feishu[${account.accountId}]: group session scope=${groupSessionScope}, peer=${peerId}`);
     }
 
     let route = core.channel.routing.resolveAgentRoute({
@@ -737,6 +768,19 @@ export async function handleFeishuMessage(params: {
         kind: isGroup ? "group" : "direct",
         id: peerId,
       },
+<<<<<<< HEAD
+=======
+      // Add parentPeer for binding inheritance in topic-scoped modes.
+      parentPeer:
+        isGroup &&
+        ctx.rootId &&
+        (groupSessionScope === "group_topic" || groupSessionScope === "group_topic_sender")
+          ? {
+              kind: "group",
+              id: ctx.chatId,
+            }
+          : null,
+>>>>>>> 36d69d05e (feat(feishu): support sender/topic-scoped group session routing (openclaw#17798) thanks @yfge)
     });
 
     // Dynamic agent creation for DM users
