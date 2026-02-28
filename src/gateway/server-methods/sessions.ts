@@ -53,7 +53,11 @@ import {
   normalizeAgentId,
   parseAgentSessionKey,
 } from "../../routing/session-key.js";
+<<<<<<< HEAD
 >>>>>>> 8178ea472 (feat: thread-bound subagents on Discord (#21805))
+=======
+import { GATEWAY_CLIENT_IDS } from "../protocol/client-info.js";
+>>>>>>> 9868d5cd8 (Gateway: allow control-ui session deletion)
 import {
   ErrorCodes,
   errorShape,
@@ -138,6 +142,9 @@ function rejectWebchatSessionMutation(params: {
   respond: RespondFn;
 }): boolean {
   if (!params.client?.connect || !params.isWebchatConnect(params.client.connect)) {
+    return false;
+  }
+  if (params.client.connect.client.id === GATEWAY_CLIENT_IDS.CONTROL_UI) {
     return false;
   }
   params.respond(
