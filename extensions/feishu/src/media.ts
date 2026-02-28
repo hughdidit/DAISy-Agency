@@ -357,6 +357,11 @@ export async function sendFileFeishu(params: {
   cfg: ClawdbotConfig;
   to: string;
   fileKey: string;
+<<<<<<< HEAD
+=======
+  /** Use "media" for video, "audio" for audio, "file" for documents */
+  msgType?: "file" | "media" | "audio";
+>>>>>>> 0e755ad99 (fix(feishu): use msg_type "audio" for opus files instead of "media" (openclaw#28269) thanks @Glucksberg)
   replyToMessageId?: string;
   accountId?: string;
 }): Promise<SendMediaResult> {
@@ -550,6 +555,19 @@ export async function sendMediaFeishu(params: {
       fileType,
       accountId,
     });
+<<<<<<< HEAD
     return sendFileFeishu({ cfg, to, fileKey, replyToMessageId, accountId });
+=======
+    // Feishu API: opus -> "audio", mp4 -> "media", everything else -> "file"
+    const msgType = fileType === "opus" ? "audio" : fileType === "mp4" ? "media" : "file";
+    return sendFileFeishu({
+      cfg,
+      to,
+      fileKey,
+      msgType,
+      replyToMessageId,
+      accountId,
+    });
+>>>>>>> 0e755ad99 (fix(feishu): use msg_type "audio" for opus files instead of "media" (openclaw#28269) thanks @Glucksberg)
   }
 }
