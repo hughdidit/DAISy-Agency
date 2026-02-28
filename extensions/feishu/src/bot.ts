@@ -1007,6 +1007,11 @@ export async function handleFeishuMessage(params: {
       runtime: runtime as RuntimeEnv,
       chatId: ctx.chatId,
       replyToMessageId: ctx.messageId,
+<<<<<<< HEAD
+=======
+      replyInThread,
+      rootId: ctx.rootId,
+>>>>>>> 4221b5f80 (fix: pass rootId to streaming card in Feishu topic groups (openclaw#28346) thanks @Sid-Qin)
       mentionTargets: ctx.mentionTargets,
       accountId: account.accountId,
     });
