@@ -132,8 +132,29 @@ export function armTimer(state: CronServiceState) {
   state.timer = null;
   if (!state.deps.cronEnabled) return;
   const nextAt = nextWakeAtMs(state);
+<<<<<<< HEAD
   if (!nextAt) return;
   const delay = Math.max(nextAt - state.deps.nowMs(), 0);
+=======
+  if (!nextAt) {
+    const jobCount = state.store?.jobs.length ?? 0;
+    const enabledCount = state.store?.jobs.filter((j) => j.enabled).length ?? 0;
+    const withNextRun =
+      state.store?.jobs.filter(
+        (j) =>
+          j.enabled &&
+          typeof j.state.nextRunAtMs === "number" &&
+          Number.isFinite(j.state.nextRunAtMs),
+      ).length ?? 0;
+    state.deps.log.debug(
+      { jobCount, enabledCount, withNextRun },
+      "cron: armTimer skipped - no jobs with nextRunAtMs",
+    );
+    return;
+  }
+  const now = state.deps.nowMs();
+  const delay = Math.max(nextAt - now, 0);
+>>>>>>> e1c8094ad (fix: schedule nextWakeAtMs for isolated sessionTarget cron jobs (#19541))
   // Wake at least once a minute to avoid schedule drift and recover quickly
   // when the process was paused or wall-clock time jumps.
   const clampedDelay = Math.min(delay, MAX_TIMER_DELAY_MS);
@@ -329,7 +350,44 @@ function findDueJobs(state: CronServiceState): CronJob[] {
   });
 }
 
+<<<<<<< HEAD
 export async function runMissedJobs(state: CronServiceState) {
+=======
+function isRunnableJob(params: {
+  job: CronJob;
+  nowMs: number;
+  skipJobIds?: ReadonlySet<string>;
+  skipAtIfAlreadyRan?: boolean;
+}): boolean {
+  const { job, nowMs } = params;
+  if (!job.state) {
+    job.state = {};
+  }
+  if (!job.enabled) {
+    return false;
+  }
+  if (params.skipJobIds?.has(job.id)) {
+    return false;
+  }
+  if (typeof job.state.runningAtMs === "number") {
+    return false;
+  }
+  if (params.skipAtIfAlreadyRan && job.schedule.kind === "at" && job.state.lastStatus) {
+    // Any terminal status (ok, error, skipped) means the job already ran at least once.
+    // Don't re-fire it on restart — applyJobResult disables one-shot jobs, but guard
+    // here defensively (#13845).
+    return false;
+  }
+  const next = job.state.nextRunAtMs;
+  return typeof next === "number" && Number.isFinite(next) && nowMs >= next;
+}
+
+function collectRunnableJobs(
+  state: CronServiceState,
+  nowMs: number,
+  opts?: { skipJobIds?: ReadonlySet<string>; skipAtIfAlreadyRan?: boolean },
+): CronJob[] {
+>>>>>>> e1c8094ad (fix: schedule nextWakeAtMs for isolated sessionTarget cron jobs (#19541))
   if (!state.store) {
     return;
   }
