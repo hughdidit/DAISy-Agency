@@ -343,6 +343,14 @@ class NodeRuntime(context: Context) {
       },
     )
 
+  init {
+    DeviceNotificationListenerService.setNodeEventSink { event, payloadJson ->
+      scope.launch {
+        nodeSession.sendNodeEvent(event = event, payloadJson = payloadJson)
+      }
+    }
+  }
+
   private val chat: ChatController =
     ChatController(
       scope = scope,
