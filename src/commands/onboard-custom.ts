@@ -296,8 +296,12 @@ async function requestOpenAiVerification(params: {
       max_tokens: 1,
 =======
       temperature: 1,
+<<<<<<< HEAD
       max_completion_tokens: 1,
 >>>>>>> 978d9ae19 (Fix azure openai endpoint validation)
+=======
+      max_completion_tokens: DEFAULT_MAX_TOKENS,
+>>>>>>> 955768d13 (Fix default max tokens)
       stream: false,
 >>>>>>> ee2eaddeb (fix(onboard): increase verification timeout and reduce max_tokens for custom provider probes (#27380))
     },
