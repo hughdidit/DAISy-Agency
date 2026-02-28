@@ -1722,8 +1722,32 @@ OpenClaw uses the pi-coding-agent model catalog. Add custom providers via `model
 - Merge precedence for matching provider IDs:
   - Non-empty agent `models.json` `apiKey`/`baseUrl` win.
   - Empty or missing agent `apiKey`/`baseUrl` fall back to `models.providers` in config.
+  - Matching model `contextWindow`/`maxTokens` use the higher value between explicit config and implicit catalog values.
   - Use `models.mode: "replace"` when you want config to fully rewrite `models.json`.
 
+<<<<<<< HEAD
+=======
+### Provider field details
+
+- `models.mode`: provider catalog behavior (`merge` or `replace`).
+- `models.providers`: custom provider map keyed by provider id.
+- `models.providers.*.api`: request adapter (`openai-completions`, `openai-responses`, `anthropic-messages`, `google-generative-ai`, etc).
+- `models.providers.*.apiKey`: provider credential (prefer SecretRef/env substitution).
+- `models.providers.*.auth`: auth strategy (`api-key`, `token`, `oauth`, `aws-sdk`).
+- `models.providers.*.injectNumCtxForOpenAICompat`: for Ollama + `openai-completions`, inject `options.num_ctx` into requests (default: `true`).
+- `models.providers.*.authHeader`: force credential transport in the `Authorization` header when required.
+- `models.providers.*.baseUrl`: upstream API base URL.
+- `models.providers.*.headers`: extra static headers for proxy/tenant routing.
+- `models.providers.*.models`: explicit provider model catalog entries.
+- `models.bedrockDiscovery`: Bedrock auto-discovery settings root.
+- `models.bedrockDiscovery.enabled`: turn discovery polling on/off.
+- `models.bedrockDiscovery.region`: AWS region for discovery.
+- `models.bedrockDiscovery.providerFilter`: optional provider-id filter for targeted discovery.
+- `models.bedrockDiscovery.refreshInterval`: polling interval for discovery refresh.
+- `models.bedrockDiscovery.defaultContextWindow`: fallback context window for discovered models.
+- `models.bedrockDiscovery.defaultMaxTokens`: fallback max output tokens for discovered models.
+
+>>>>>>> f16ecd1da (fix(ollama): unify context window handling across discovery, merge, and OpenAI-compat transport (#29205))
 ### Provider examples
 
 <Accordion title="Cerebras (GLM 4.6 / 4.7)">
