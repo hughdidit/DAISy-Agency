@@ -56,8 +56,12 @@ import ai.openclaw.android.voice.VoiceWakeManager
 =======
 import ai.openclaw.android.voice.MicCaptureManager
 <<<<<<< HEAD:apps/android/app/src/main/java/bot/molt/android/NodeRuntime.kt
+<<<<<<< HEAD:apps/android/app/src/main/java/bot/molt/android/NodeRuntime.kt
 >>>>>>> 3d29233ba (feat(android): add single-path mic capture runtime manager):apps/android/app/src/main/java/ai/openclaw/android/NodeRuntime.kt
 =======
+=======
+import ai.openclaw.android.voice.TalkModeManager
+>>>>>>> fb92a91ef (fix(android): speak final voice replies in mic capture flow):apps/android/app/src/main/java/ai/openclaw/android/NodeRuntime.kt
 import ai.openclaw.android.voice.VoiceConversationEntry
 >>>>>>> f9c3fdba4 (refactor(android): expose voice conversation state to viewmodel):apps/android/app/src/main/java/ai/openclaw/android/NodeRuntime.kt
 import kotlinx.coroutines.CoroutineScope
@@ -358,6 +362,18 @@ class NodeRuntime(context: Context) {
       json = json,
       supportsChatSubscribe = false,
     )
+  private val voiceReplySpeaker: TalkModeManager by lazy {
+    // Reuse the existing TalkMode speech engine (ElevenLabs + deterministic system-TTS fallback)
+    // without enabling the legacy talk capture loop.
+    TalkModeManager(
+      context = appContext,
+      scope = scope,
+      session = operatorSession,
+      supportsChatSubscribe = false,
+      isConnected = { operatorConnected },
+    )
+  }
+
   private val micCapture: MicCaptureManager by lazy {
     MicCaptureManager(
       context = appContext,
@@ -374,6 +390,9 @@ class NodeRuntime(context: Context) {
           }
         val response = operatorSession.request("chat.send", params.toString())
         parseChatSendRunId(response) ?: idempotencyKey
+      },
+      speakAssistantReply = { text ->
+        voiceReplySpeaker.speakAssistantReply(text)
       },
     )
   }
