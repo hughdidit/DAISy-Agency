@@ -1,3 +1,4 @@
+import { CONTEXT_WINDOW_HARD_MIN_TOKENS } from "../agents/context-window-guard.js";
 import { DEFAULT_PROVIDER } from "../agents/defaults.js";
 import { buildModelAliasIndex, modelKey } from "../agents/model-selection.js";
 import type { OpenClawConfig } from "../config/config.js";
@@ -16,10 +17,53 @@ import { normalizeAlias } from "./models/shared.js";
 import type { SecretInputMode } from "./onboard-types.js";
 
 const DEFAULT_OLLAMA_BASE_URL = "http://127.0.0.1:11434/v1";
-const DEFAULT_CONTEXT_WINDOW = 4096;
+const DEFAULT_CONTEXT_WINDOW = CONTEXT_WINDOW_HARD_MIN_TOKENS;
 const DEFAULT_MAX_TOKENS = 4096;
 const VERIFY_TIMEOUT_MS = 30_000;
 
+<<<<<<< HEAD
+=======
+function normalizeContextWindowForCustomModel(value: unknown): number {
+  const parsed = typeof value === "number" && Number.isFinite(value) ? Math.floor(value) : 0;
+  return parsed >= CONTEXT_WINDOW_HARD_MIN_TOKENS ? parsed : CONTEXT_WINDOW_HARD_MIN_TOKENS;
+}
+
+/**
+ * Detects if a URL is from Azure AI Foundry or Azure OpenAI.
+ * Matches both:
+ * - https://*.services.ai.azure.com (Azure AI Foundry)
+ * - https://*.openai.azure.com (classic Azure OpenAI)
+ */
+function isAzureUrl(baseUrl: string): boolean {
+  try {
+    const url = new URL(baseUrl);
+    const host = url.hostname.toLowerCase();
+    return host.endsWith(".services.ai.azure.com") || host.endsWith(".openai.azure.com");
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Transforms an Azure AI Foundry/OpenAI URL to include the deployment path.
+ * Azure requires: https://host/openai/deployments/<model-id>/chat/completions?api-version=2024-xx-xx-preview
+ * But we can't add query params here, so we just add the path prefix.
+ * The api-version will be handled by the Azure OpenAI client or as a query param.
+ *
+ * Example:
+ *   https://my-resource.services.ai.azure.com + gpt-5-nano
+ *   => https://my-resource.services.ai.azure.com/openai/deployments/gpt-5-nano
+ */
+function transformAzureUrl(baseUrl: string, modelId: string): string {
+  const normalizedUrl = baseUrl.endsWith("/") ? baseUrl.slice(0, -1) : baseUrl;
+  // Check if the URL already includes the deployment path
+  if (normalizedUrl.includes("/openai/deployments/")) {
+    return normalizedUrl;
+  }
+  return `${normalizedUrl}/openai/deployments/${modelId}`;
+}
+
+>>>>>>> a623c9c8d (Onboarding: enforce custom model context minimum)
 export type CustomApiCompatibility = "openai" | "anthropic";
 type CustomApiCompatibilityChoice = CustomApiCompatibility | "unknown";
 export type CustomApiResult = {
@@ -621,7 +665,16 @@ export function applyCustomApiConfig(params: ApplyCustomApiConfigParams): Custom
     cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
     reasoning: false,
   };
-  const mergedModels = hasModel ? existingModels : [...existingModels, nextModel];
+  const mergedModels = hasModel
+    ? existingModels.map((model) =>
+        model.id === modelId
+          ? {
+              ...model,
+              contextWindow: normalizeContextWindowForCustomModel(model.contextWindow),
+            }
+          : model,
+      )
+    : [...existingModels, nextModel];
   const { apiKey: existingApiKey, ...existingProviderRest } = existingProvider ?? {};
   const normalizedApiKey =
     normalizeOptionalProviderApiKey(params.apiKey) ??
