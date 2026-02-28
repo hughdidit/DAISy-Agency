@@ -95,6 +95,8 @@ export type SendFeishuMessageParams = {
   to: string;
   text: string;
   replyToMessageId?: string;
+  /** When true, reply creates a Feishu topic thread instead of an inline reply */
+  replyInThread?: boolean;
   /** Mention target users */
   mentions?: MentionTarget[];
   /** Account ID (optional, uses default if not specified) */
@@ -126,6 +128,7 @@ function buildFeishuPostMessagePayload(params: { messageText: string }): {
 export async function sendMessageFeishu(
   params: SendFeishuMessageParams,
 ): Promise<FeishuSendResult> {
+<<<<<<< HEAD
   const { cfg, to, text, replyToMessageId, mentions, accountId } = params;
   const account = resolveFeishuAccount({ cfg, accountId });
   if (!account.configured) {
@@ -139,6 +142,10 @@ export async function sendMessageFeishu(
   }
 
   const receiveIdType = resolveReceiveIdType(receiveId);
+=======
+  const { cfg, to, text, replyToMessageId, replyInThread, mentions, accountId } = params;
+  const { client, receiveId, receiveIdType } = resolveFeishuSendTarget({ cfg, to, accountId });
+>>>>>>> 89669a33b (feat(feishu): add replyInThread configuration for message replies (openclaw#27325) thanks @kcinzgg)
   const tableMode = getFeishuRuntime().channel.text.resolveMarkdownTableMode({
     cfg,
     channel: "feishu",
@@ -159,6 +166,7 @@ export async function sendMessageFeishu(
       data: {
         content,
         msg_type: msgType,
+        ...(replyInThread ? { reply_in_thread: true } : {}),
       },
     });
 
@@ -196,10 +204,13 @@ export type SendFeishuCardParams = {
   to: string;
   card: Record<string, unknown>;
   replyToMessageId?: string;
+  /** When true, reply creates a Feishu topic thread instead of an inline reply */
+  replyInThread?: boolean;
   accountId?: string;
 };
 
 export async function sendCardFeishu(params: SendFeishuCardParams): Promise<FeishuSendResult> {
+<<<<<<< HEAD
   const { cfg, to, card, replyToMessageId, accountId } = params;
   const account = resolveFeishuAccount({ cfg, accountId });
   if (!account.configured) {
@@ -213,6 +224,10 @@ export async function sendCardFeishu(params: SendFeishuCardParams): Promise<Feis
   }
 
   const receiveIdType = resolveReceiveIdType(receiveId);
+=======
+  const { cfg, to, card, replyToMessageId, replyInThread, accountId } = params;
+  const { client, receiveId, receiveIdType } = resolveFeishuSendTarget({ cfg, to, accountId });
+>>>>>>> 89669a33b (feat(feishu): add replyInThread configuration for message replies (openclaw#27325) thanks @kcinzgg)
   const content = JSON.stringify(card);
 
   if (replyToMessageId) {
@@ -221,6 +236,7 @@ export async function sendCardFeishu(params: SendFeishuCardParams): Promise<Feis
       data: {
         content,
         msg_type: "interactive",
+        ...(replyInThread ? { reply_in_thread: true } : {}),
       },
     });
 
@@ -305,18 +321,19 @@ export async function sendMarkdownCardFeishu(params: {
   to: string;
   text: string;
   replyToMessageId?: string;
+  /** When true, reply creates a Feishu topic thread instead of an inline reply */
+  replyInThread?: boolean;
   /** Mention target users */
   mentions?: MentionTarget[];
   accountId?: string;
 }): Promise<FeishuSendResult> {
-  const { cfg, to, text, replyToMessageId, mentions, accountId } = params;
-  // Build message content (with @mention support)
+  const { cfg, to, text, replyToMessageId, replyInThread, mentions, accountId } = params;
   let cardText = text;
   if (mentions && mentions.length > 0) {
     cardText = buildMentionedCardContent(mentions, text);
   }
   const card = buildMarkdownCard(cardText);
-  return sendCardFeishu({ cfg, to, card, replyToMessageId, accountId });
+  return sendCardFeishu({ cfg, to, card, replyToMessageId, replyInThread, accountId });
 }
 
 /**

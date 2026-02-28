@@ -295,8 +295,10 @@ export async function sendImageFeishu(params: {
   to: string;
   imageKey: string;
   replyToMessageId?: string;
+  replyInThread?: boolean;
   accountId?: string;
 }): Promise<SendMediaResult> {
+<<<<<<< HEAD
   const { cfg, to, imageKey, replyToMessageId, accountId } = params;
   const account = resolveFeishuAccount({ cfg, accountId });
   if (!account.configured) {
@@ -310,6 +312,14 @@ export async function sendImageFeishu(params: {
   }
 
   const receiveIdType = resolveReceiveIdType(receiveId);
+=======
+  const { cfg, to, imageKey, replyToMessageId, replyInThread, accountId } = params;
+  const { client, receiveId, receiveIdType } = resolveFeishuSendTarget({
+    cfg,
+    to,
+    accountId,
+  });
+>>>>>>> 89669a33b (feat(feishu): add replyInThread configuration for message replies (openclaw#27325) thanks @kcinzgg)
   const content = JSON.stringify({ image_key: imageKey });
 
   if (replyToMessageId) {
@@ -318,6 +328,7 @@ export async function sendImageFeishu(params: {
       data: {
         content,
         msg_type: "image",
+        ...(replyInThread ? { reply_in_thread: true } : {}),
       },
     });
 
@@ -363,8 +374,10 @@ export async function sendFileFeishu(params: {
   msgType?: "file" | "media" | "audio";
 >>>>>>> 0e755ad99 (fix(feishu): use msg_type "audio" for opus files instead of "media" (openclaw#28269) thanks @Glucksberg)
   replyToMessageId?: string;
+  replyInThread?: boolean;
   accountId?: string;
 }): Promise<SendMediaResult> {
+<<<<<<< HEAD
   const { cfg, to, fileKey, replyToMessageId, accountId } = params;
   const account = resolveFeishuAccount({ cfg, accountId });
   if (!account.configured) {
@@ -378,6 +391,15 @@ export async function sendFileFeishu(params: {
   }
 
   const receiveIdType = resolveReceiveIdType(receiveId);
+=======
+  const { cfg, to, fileKey, replyToMessageId, replyInThread, accountId } = params;
+  const msgType = params.msgType ?? "file";
+  const { client, receiveId, receiveIdType } = resolveFeishuSendTarget({
+    cfg,
+    to,
+    accountId,
+  });
+>>>>>>> 89669a33b (feat(feishu): add replyInThread configuration for message replies (openclaw#27325) thanks @kcinzgg)
   const content = JSON.stringify({ file_key: fileKey });
 
   if (replyToMessageId) {
@@ -385,7 +407,12 @@ export async function sendFileFeishu(params: {
       path: { message_id: replyToMessageId },
       data: {
         content,
+<<<<<<< HEAD
         msg_type: "file",
+=======
+        msg_type: msgType,
+        ...(replyInThread ? { reply_in_thread: true } : {}),
+>>>>>>> 89669a33b (feat(feishu): add replyInThread configuration for message replies (openclaw#27325) thanks @kcinzgg)
       },
     });
 
@@ -482,15 +509,30 @@ export async function sendMediaFeishu(params: {
   mediaBuffer?: Buffer;
   fileName?: string;
   replyToMessageId?: string;
+  replyInThread?: boolean;
   accountId?: string;
   /** Allowed roots for local path reads; required for local filePath to work. */
   mediaLocalRoots?: readonly string[];
 }): Promise<SendMediaResult> {
 <<<<<<< HEAD
+<<<<<<< HEAD
   const { cfg, to, mediaUrl, mediaBuffer, fileName, replyToMessageId, accountId } = params;
 =======
   const { cfg, to, mediaUrl, mediaBuffer, fileName, replyToMessageId, accountId, mediaLocalRoots } =
     params;
+=======
+  const {
+    cfg,
+    to,
+    mediaUrl,
+    mediaBuffer,
+    fileName,
+    replyToMessageId,
+    replyInThread,
+    accountId,
+    mediaLocalRoots,
+  } = params;
+>>>>>>> 89669a33b (feat(feishu): add replyInThread configuration for message replies (openclaw#27325) thanks @kcinzgg)
   const account = resolveFeishuAccount({ cfg, accountId });
   if (!account.configured) {
     throw new Error(`Feishu account "${account.accountId}" not configured`);
@@ -545,7 +587,7 @@ export async function sendMediaFeishu(params: {
 
   if (isImage) {
     const { imageKey } = await uploadImageFeishu({ cfg, image: buffer, accountId });
-    return sendImageFeishu({ cfg, to, imageKey, replyToMessageId, accountId });
+    return sendImageFeishu({ cfg, to, imageKey, replyToMessageId, replyInThread, accountId });
   } else {
     const fileType = detectFileType(name);
     const { fileKey } = await uploadFileFeishu({
@@ -566,6 +608,7 @@ export async function sendMediaFeishu(params: {
       fileKey,
       msgType,
       replyToMessageId,
+      replyInThread,
       accountId,
     });
 >>>>>>> 0e755ad99 (fix(feishu): use msg_type "audio" for opus files instead of "media" (openclaw#28269) thanks @Glucksberg)

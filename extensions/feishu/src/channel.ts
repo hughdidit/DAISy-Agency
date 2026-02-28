@@ -100,7 +100,11 @@ export const feishuPlugin: ChannelPlugin<ResolvedFeishuAccount> = {
           enum: ["group", "group_sender", "group_topic", "group_topic_sender"],
         },
         topicSessionMode: { type: "string", enum: ["disabled", "enabled"] },
+<<<<<<< HEAD
 >>>>>>> 36d69d05e (feat(feishu): support sender/topic-scoped group session routing (openclaw#17798) thanks @yfge)
+=======
+        replyInThread: { type: "string", enum: ["disabled", "enabled"] },
+>>>>>>> 89669a33b (feat(feishu): add replyInThread configuration for message replies (openclaw#27325) thanks @kcinzgg)
         historyLimit: { type: "integer", minimum: 0 },
         dmHistoryLimit: { type: "integer", minimum: 0 },
         textChunkLimit: { type: "integer", minimum: 1 },
