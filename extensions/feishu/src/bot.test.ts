@@ -213,6 +213,85 @@ describe("handleFeishuMessage command authorization", () => {
     expect(mockDispatchReplyFromConfig).toHaveBeenCalledTimes(1);
   });
 
+<<<<<<< HEAD
+=======
+  it("skips sender-name lookup when resolveSenderNames is false", async () => {
+    const cfg: ClawdbotConfig = {
+      channels: {
+        feishu: {
+          dmPolicy: "open",
+          allowFrom: ["*"],
+          resolveSenderNames: false,
+        },
+      },
+    } as ClawdbotConfig;
+
+    const event: FeishuMessageEvent = {
+      sender: {
+        sender_id: {
+          open_id: "ou-attacker",
+        },
+      },
+      message: {
+        message_id: "msg-skip-sender-lookup",
+        chat_id: "oc-dm",
+        chat_type: "p2p",
+        message_type: "text",
+        content: JSON.stringify({ text: "hello" }),
+      },
+    };
+
+    await dispatchMessage({ cfg, event });
+
+    expect(mockCreateFeishuClient).not.toHaveBeenCalled();
+  });
+
+  it("propagates parent/root message ids into inbound context for reply reconstruction", async () => {
+    mockGetMessageFeishu.mockResolvedValueOnce({
+      messageId: "om_parent_001",
+      chatId: "oc-group",
+      content: "quoted content",
+      contentType: "text",
+    });
+
+    const cfg: ClawdbotConfig = {
+      channels: {
+        feishu: {
+          enabled: true,
+          dmPolicy: "open",
+        },
+      },
+    } as ClawdbotConfig;
+
+    const event: FeishuMessageEvent = {
+      sender: {
+        sender_id: {
+          open_id: "ou-replier",
+        },
+      },
+      message: {
+        message_id: "om_reply_001",
+        root_id: "om_root_001",
+        parent_id: "om_parent_001",
+        chat_id: "oc-dm",
+        chat_type: "p2p",
+        message_type: "text",
+        content: JSON.stringify({ text: "reply text" }),
+      },
+    };
+
+    await dispatchMessage({ cfg, event });
+
+    expect(mockFinalizeInboundContext).toHaveBeenCalledWith(
+      expect.objectContaining({
+        ReplyToId: "om_parent_001",
+        RootMessageId: "om_root_001",
+        ReplyToBody: "quoted content",
+      }),
+    );
+  });
+
+>>>>>>> 4ad49de89 (feat(feishu): add parent/root inbound context for quote support (openclaw#18529))
   it("creates pairing request and drops unauthorized DMs in pairing mode", async () => {
     mockShouldComputeCommandAuthorized.mockReturnValue(false);
     mockReadAllowFromStore.mockResolvedValue([]);
