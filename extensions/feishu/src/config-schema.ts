@@ -164,6 +164,8 @@ const FeishuSharedConfigShape = {
   tools: FeishuToolsConfigSchema,
   replyInThread: ReplyInThreadSchema,
   reactionNotifications: ReactionNotificationModeSchema,
+  typingIndicator: z.boolean().optional(),
+  resolveSenderNames: z.boolean().optional(),
 };
 
 >>>>>>> 89669a33b (feat(feishu): add replyInThread configuration for message replies (openclaw#27325) thanks @kcinzgg)
@@ -255,6 +257,9 @@ export const FeishuConfigSchema = z
     tools: FeishuToolsConfigSchema,
     // Dynamic agent creation for DM users
     dynamicAgentCreation: DynamicAgentCreationSchema,
+    // Optimization flags
+    typingIndicator: z.boolean().optional().default(true),
+    resolveSenderNames: z.boolean().optional().default(true),
     // Multi-account configuration
     accounts: z.record(z.string(), FeishuAccountConfigSchema.optional()).optional(),
   })
