@@ -34,7 +34,12 @@ export type CreateFeishuReplyDispatcherParams = {
   runtime: RuntimeEnv;
   chatId: string;
   replyToMessageId?: string;
+<<<<<<< HEAD
   /** Mention targets, will be auto-included in replies */
+=======
+  replyInThread?: boolean;
+  rootId?: string;
+>>>>>>> 4221b5f80 (fix: pass rootId to streaming card in Feishu topic groups (openclaw#28346) thanks @Sid-Qin)
   mentionTargets?: MentionTarget[];
   /** Account ID for multi-account support */
   accountId?: string;
@@ -42,7 +47,22 @@ export type CreateFeishuReplyDispatcherParams = {
 
 export function createFeishuReplyDispatcher(params: CreateFeishuReplyDispatcherParams) {
   const core = getFeishuRuntime();
+<<<<<<< HEAD
   const { cfg, agentId, chatId, replyToMessageId, mentionTargets, accountId } = params;
+=======
+  const {
+    cfg,
+    agentId,
+    chatId,
+    replyToMessageId,
+    replyInThread,
+    rootId,
+    mentionTargets,
+    accountId,
+  } = params;
+  const account = resolveFeishuAccount({ cfg, accountId });
+  const prefixContext = createReplyPrefixContext({ cfg, agentId });
+>>>>>>> 4221b5f80 (fix: pass rootId to streaming card in Feishu topic groups (openclaw#28346) thanks @Sid-Qin)
 
   // Resolve account for config access
   const account = resolveFeishuAccount({ cfg, accountId });
@@ -96,10 +116,69 @@ export function createFeishuReplyDispatcher(params: CreateFeishuReplyDispatcherP
     defaultLimit: 4000,
   });
   const chunkMode = core.channel.text.resolveChunkMode(cfg, "feishu");
+<<<<<<< HEAD
   const tableMode = core.channel.text.resolveMarkdownTableMode({
     cfg,
     channel: "feishu",
   });
+=======
+  const tableMode = core.channel.text.resolveMarkdownTableMode({ cfg, channel: "feishu" });
+  const renderMode = account.config?.renderMode ?? "auto";
+  const streamingEnabled = account.config?.streaming !== false && renderMode !== "raw";
+
+  let streaming: FeishuStreamingSession | null = null;
+  let streamText = "";
+  let lastPartial = "";
+  let partialUpdateQueue: Promise<void> = Promise.resolve();
+  let streamingStartPromise: Promise<void> | null = null;
+
+  const startStreaming = () => {
+    if (!streamingEnabled || streamingStartPromise || streaming) {
+      return;
+    }
+    streamingStartPromise = (async () => {
+      const creds =
+        account.appId && account.appSecret
+          ? { appId: account.appId, appSecret: account.appSecret, domain: account.domain }
+          : null;
+      if (!creds) {
+        return;
+      }
+
+      streaming = new FeishuStreamingSession(createFeishuClient(account), creds, (message) =>
+        params.runtime.log?.(`feishu[${account.accountId}] ${message}`),
+      );
+      try {
+        await streaming.start(chatId, resolveReceiveIdType(chatId), {
+          replyToMessageId,
+          replyInThread,
+          rootId,
+        });
+      } catch (error) {
+        params.runtime.error?.(`feishu: streaming start failed: ${String(error)}`);
+        streaming = null;
+      }
+    })();
+  };
+
+  const closeStreaming = async () => {
+    if (streamingStartPromise) {
+      await streamingStartPromise;
+    }
+    await partialUpdateQueue;
+    if (streaming?.isActive()) {
+      let text = streamText;
+      if (mentionTargets?.length) {
+        text = buildMentionedCardContent(mentionTargets, text);
+      }
+      await streaming.close(text);
+    }
+    streaming = null;
+    streamingStartPromise = null;
+    streamText = "";
+    lastPartial = "";
+  };
+>>>>>>> 4221b5f80 (fix: pass rootId to streaming card in Feishu topic groups (openclaw#28346) thanks @Sid-Qin)
 
   const { dispatcher, replyOptions, markDispatchIdle } =
     core.channel.reply.createReplyDispatcherWithTyping({
