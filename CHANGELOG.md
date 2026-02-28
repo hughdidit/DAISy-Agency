@@ -112,6 +112,7 @@ Docs: https://docs.openclaw.ai
 >>>>>>> da00ead65 (fix(feishu): parse code blocks and share_chat messages (openclaw#28591) thanks @kevinWangSheng)
 - Feishu/Local media sends: propagate `mediaLocalRoots` through Feishu outbound media sending into `loadWebMedia` so local path attachments work with post-CVE local-root enforcement. (#27884) Thanks @joelnishanth.
 - Feishu/Group sender allowlist fallback: add global `channels.feishu.groupSenderAllowFrom` sender authorization for group chats, with per-group `groups.<id>.allowFrom` precedence and regression coverage for allow/block/precedence behavior. (#29174) Thanks @1MoreBuild.
+- Feishu/Docx append/write ordering: insert converted Docx blocks sequentially (single-block creates) so Feishu append/write preserves markdown block order instead of returning shuffled sections in asynchronous batch inserts. (#26172, #26022) Thanks @echoVic.
 - Security/Feishu webhook ingress: bound unauthenticated webhook rate-limit state with stale-window pruning and a hard key cap to prevent unbounded pre-auth memory growth from rotating source keys. (#26050) Thanks @bmendonca3.
 <<<<<<< HEAD
 >>>>>>> ad804b035 (fix(feishu): propagate mediaLocalRoots for local file sends (#27884) (openclaw#27928) thanks @joelnishanth)
