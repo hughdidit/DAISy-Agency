@@ -211,6 +211,11 @@ type MonitorAccountParams = {
   account: ResolvedFeishuAccount;
   runtime?: RuntimeEnv;
   abortSignal?: AbortSignal;
+<<<<<<< HEAD
+=======
+  botOpenId?: string;
+  botOpenIdPrefetched?: boolean;
+>>>>>>> abc7b6fbe (Feishu: skip duplicate bot-info retries after preflight)
 };
 
 /**
@@ -222,7 +227,11 @@ async function monitorSingleAccount(params: MonitorAccountParams): Promise<void>
   const log = runtime?.log ?? console.log;
 
   // Fetch bot open_id
+<<<<<<< HEAD
   const botOpenId = await fetchBotOpenId(account);
+=======
+  const botOpenId = params.botOpenIdPrefetched ? params.botOpenId : await fetchBotOpenId(account);
+>>>>>>> abc7b6fbe (Feishu: skip duplicate bot-info retries after preflight)
   botOpenIds.set(accountId, botOpenId ?? "");
   log(`feishu[${accountId}]: bot open_id resolved: ${botOpenId ?? "unknown"}`);
 
@@ -390,6 +399,11 @@ export async function monitorFeishuProvider(opts: MonitorFeishuOpts = {}): Promi
         account,
         runtime: opts.runtime,
         abortSignal: opts.abortSignal,
+<<<<<<< HEAD
+=======
+        botOpenId,
+        botOpenIdPrefetched: true,
+>>>>>>> abc7b6fbe (Feishu: skip duplicate bot-info retries after preflight)
       }),
     ),
   );

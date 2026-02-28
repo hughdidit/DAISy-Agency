@@ -180,4 +180,98 @@ describe("Feishu webhook security hardening", () => {
       },
     );
   });
+<<<<<<< HEAD
+=======
+
+  it("caps tracked webhook rate-limit keys to prevent unbounded growth", () => {
+    const now = 1_000_000;
+    for (let i = 0; i < 4_500; i += 1) {
+      isWebhookRateLimitedForTest(`/feishu-rate-limit:key-${i}`, now);
+    }
+    expect(getFeishuWebhookRateLimitStateSizeForTest()).toBeLessThanOrEqual(4_096);
+  });
+
+  it("prunes stale webhook rate-limit state after window elapses", () => {
+    const now = 2_000_000;
+    for (let i = 0; i < 100; i += 1) {
+      isWebhookRateLimitedForTest(`/feishu-rate-limit-stale:key-${i}`, now);
+    }
+    expect(getFeishuWebhookRateLimitStateSizeForTest()).toBe(100);
+
+    isWebhookRateLimitedForTest("/feishu-rate-limit-stale:fresh", now + 60_001);
+    expect(getFeishuWebhookRateLimitStateSizeForTest()).toBe(1);
+  });
+
+  it("starts account probes sequentially to avoid startup bursts", async () => {
+    let inFlight = 0;
+    let maxInFlight = 0;
+    const started: string[] = [];
+    let releaseProbes!: () => void;
+    const probesReleased = new Promise<void>((resolve) => {
+      releaseProbes = () => resolve();
+    });
+    probeFeishuMock.mockImplementation(async (account: { accountId: string }) => {
+      started.push(account.accountId);
+      inFlight += 1;
+      maxInFlight = Math.max(maxInFlight, inFlight);
+      await probesReleased;
+      inFlight -= 1;
+      return { ok: true, botOpenId: `bot_${account.accountId}` };
+    });
+
+    const abortController = new AbortController();
+    const monitorPromise = monitorFeishuProvider({
+      config: buildMultiAccountWebsocketConfig(["alpha", "beta", "gamma"]),
+      abortSignal: abortController.signal,
+    });
+
+    try {
+      await Promise.resolve();
+      await Promise.resolve();
+
+      expect(started).toEqual(["alpha"]);
+      expect(maxInFlight).toBe(1);
+    } finally {
+      releaseProbes();
+      abortController.abort();
+      await monitorPromise;
+    }
+  });
+
+  it("does not refetch bot info after a failed sequential preflight", async () => {
+    const started: string[] = [];
+    let releaseBetaProbe!: () => void;
+    const betaProbeReleased = new Promise<void>((resolve) => {
+      releaseBetaProbe = () => resolve();
+    });
+
+    probeFeishuMock.mockImplementation(async (account: { accountId: string }) => {
+      started.push(account.accountId);
+      if (account.accountId === "alpha") {
+        return { ok: false };
+      }
+      await betaProbeReleased;
+      return { ok: true, botOpenId: `bot_${account.accountId}` };
+    });
+
+    const abortController = new AbortController();
+    const monitorPromise = monitorFeishuProvider({
+      config: buildMultiAccountWebsocketConfig(["alpha", "beta"]),
+      abortSignal: abortController.signal,
+    });
+
+    try {
+      await Promise.resolve();
+      await Promise.resolve();
+      await Promise.resolve();
+
+      expect(started).toEqual(["alpha", "beta"]);
+      expect(started.filter((accountId) => accountId === "alpha")).toHaveLength(1);
+    } finally {
+      releaseBetaProbe();
+      abortController.abort();
+      await monitorPromise;
+    }
+  });
+>>>>>>> abc7b6fbe (Feishu: skip duplicate bot-info retries after preflight)
 });
