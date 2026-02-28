@@ -98,6 +98,7 @@ const GroupSessionScopeSchema = z
  * - "enabled": Messages in different topics get separate sessions
  */
 const TopicSessionModeSchema = z.enum(["disabled", "enabled"]).optional();
+const ReactionNotificationModeSchema = z.enum(["off", "own", "all"]).optional();
 
 <<<<<<< HEAD
 >>>>>>> 36d69d05e (feat(feishu): support sender/topic-scoped group session routing (openclaw#17798) thanks @yfge)
@@ -159,6 +160,7 @@ const FeishuSharedConfigShape = {
   streaming: StreamingModeSchema,
   tools: FeishuToolsConfigSchema,
   replyInThread: ReplyInThreadSchema,
+  reactionNotifications: ReactionNotificationModeSchema,
 };
 
 >>>>>>> 89669a33b (feat(feishu): add replyInThread configuration for message replies (openclaw#27325) thanks @kcinzgg)
@@ -223,7 +225,11 @@ export const FeishuConfigSchema = z
     markdown: MarkdownConfigSchema,
     configWrites: z.boolean().optional(),
     dmPolicy: DmPolicySchema.optional().default("pairing"),
+<<<<<<< HEAD
     allowFrom: z.array(z.union([z.string(), z.number()])).optional(),
+=======
+    reactionNotifications: ReactionNotificationModeSchema.optional().default("own"),
+>>>>>>> aef535510 (fix(feishu): add reactionNotifications mode gating (openclaw#29388) thanks @Takhoffman)
     groupPolicy: GroupPolicySchema.optional().default("allowlist"),
     groupAllowFrom: z.array(z.union([z.string(), z.number()])).optional(),
     requireMention: z.boolean().optional().default(true),
