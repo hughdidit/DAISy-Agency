@@ -75,7 +75,11 @@ Docs: https://docs.openclaw.ai
 =======
 =======
 - Feishu/Probe status caching: cache successful `probeFeishu()` bot-info results for 10 minutes (bounded cache with per-account keying) to reduce repeated status/onboarding probe API calls, while bypassing cache for failures and exceptions. (#28907) Thanks @Glucksberg.
+<<<<<<< HEAD
 >>>>>>> 60ef92305 (fix(feishu): cache probeFeishu() results with 10-min TTL to reduce API calls (openclaw#28907) thanks @Glucksberg)
+=======
+- Feishu/Opus media send type: send `.opus` attachments with `msg_type: "audio"` (instead of `"media"`) so Feishu voice messages deliver correctly while `.mp4` remains `msg_type: "media"` and documents remain `msg_type: "file"`. (#28269) Thanks @Glucksberg.
+>>>>>>> 0e755ad99 (fix(feishu): use msg_type "audio" for opus files instead of "media" (openclaw#28269) thanks @Glucksberg)
 - Feishu/Local media sends: propagate `mediaLocalRoots` through Feishu outbound media sending into `loadWebMedia` so local path attachments work with post-CVE local-root enforcement. (#27884) Thanks @joelnishanth.
 - Security/Feishu webhook ingress: bound unauthenticated webhook rate-limit state with stale-window pruning and a hard key cap to prevent unbounded pre-auth memory growth from rotating source keys. (#26050) Thanks @bmendonca3.
 >>>>>>> ad804b035 (fix(feishu): propagate mediaLocalRoots for local file sends (#27884) (openclaw#27928) thanks @joelnishanth)
