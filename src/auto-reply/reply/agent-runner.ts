@@ -40,6 +40,12 @@ import { appendUsageLine, formatResponseUsageLine } from "./agent-runner-utils.j
 import { createAudioAsVoiceBuffer, createBlockReplyPipeline } from "./block-reply-pipeline.js";
 import { resolveEffectiveBlockStreamingConfig } from "./block-streaming.js";
 import { createFollowupRunner } from "./followup-runner.js";
+<<<<<<< HEAD
+=======
+import { resolveOriginMessageProvider, resolveOriginMessageTo } from "./origin-routing.js";
+import { readPostCompactionContext } from "./post-compaction-context.js";
+import { resolveActiveRunQueueAction } from "./queue-policy.js";
+>>>>>>> 70a4f25ab (fix(security): remove post-compaction audit injection message (#28507))
 import { enqueueFollowupRun, type FollowupRun, type QueueSettings } from "./queue.js";
 import { createReplyToModeFilterForChannel, resolveReplyToMode } from "./reply-threading.js";
 import { persistSessionUsageUpdate } from "./session-usage.js";
@@ -49,6 +55,44 @@ import { createTypingSignaler } from "./typing-mode.js";
 import { emitDiagnosticEvent, isDiagnosticsEnabled } from "../../infra/diagnostic-events.js";
 
 const BLOCK_REPLY_SEND_TIMEOUT_MS = 15_000;
+<<<<<<< HEAD
+=======
+const UNSCHEDULED_REMINDER_NOTE =
+  "Note: I did not schedule a reminder in this turn, so this will not trigger automatically.";
+const REMINDER_COMMITMENT_PATTERNS: RegExp[] = [
+  /\b(?:i\s*['’]?ll|i will)\s+(?:make sure to\s+)?(?:remember|remind|ping|follow up|follow-up|check back|circle back)\b/i,
+  /\b(?:i\s*['’]?ll|i will)\s+(?:set|create|schedule)\s+(?:a\s+)?reminder\b/i,
+];
+
+function hasUnbackedReminderCommitment(text: string): boolean {
+  const normalized = text.toLowerCase();
+  if (!normalized.trim()) {
+    return false;
+  }
+  if (normalized.includes(UNSCHEDULED_REMINDER_NOTE.toLowerCase())) {
+    return false;
+  }
+  return REMINDER_COMMITMENT_PATTERNS.some((pattern) => pattern.test(text));
+}
+
+function appendUnscheduledReminderNote(payloads: ReplyPayload[]): ReplyPayload[] {
+  let appended = false;
+  return payloads.map((payload) => {
+    if (appended || payload.isError || typeof payload.text !== "string") {
+      return payload;
+    }
+    if (!hasUnbackedReminderCommitment(payload.text)) {
+      return payload;
+    }
+    appended = true;
+    const trimmed = payload.text.trimEnd();
+    return {
+      ...payload,
+      text: `${trimmed}\n\n${UNSCHEDULED_REMINDER_NOTE}`,
+    };
+  });
+}
+>>>>>>> 70a4f25ab (fix(security): remove post-compaction audit injection message (#28507))
 
 export async function runReplyAgent(params: {
   commandBody: string;
@@ -496,6 +540,24 @@ export async function runReplyAgent(params: {
         sessionKey,
         storePath,
       });
+<<<<<<< HEAD
+=======
+
+      // Inject post-compaction workspace context for the next agent turn
+      if (sessionKey) {
+        const workspaceDir = process.cwd();
+        readPostCompactionContext(workspaceDir)
+          .then((contextContent) => {
+            if (contextContent) {
+              enqueueSystemEvent(contextContent, { sessionKey });
+            }
+          })
+          .catch(() => {
+            // Silent failure — post-compaction context is best-effort
+          });
+      }
+
+>>>>>>> 70a4f25ab (fix(security): remove post-compaction audit injection message (#28507))
       if (verboseEnabled) {
         const suffix = typeof count === "number" ? ` (count ${count})` : "";
         finalPayloads = [{ text: `🧹 Auto-compaction complete${suffix}.` }, ...finalPayloads];
