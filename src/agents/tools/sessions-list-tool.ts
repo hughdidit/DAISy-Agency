@@ -3,6 +3,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import path from "node:path";
 <<<<<<< HEAD
 
@@ -24,9 +25,16 @@ import { Type } from "@sinclair/typebox";
 import { Type } from "@sinclair/typebox";
 import path from "node:path";
 =======
+=======
+import path from "node:path";
+>>>>>>> 53d6e07a6 (fix(sessions): set transcriptPath to agent sessions directory (openclaw#24775) thanks @martinfrancois)
 import { Type } from "@sinclair/typebox";
 import { loadConfig } from "../../config/config.js";
-import { resolveSessionFilePath, resolveSessionFilePathOptions } from "../../config/sessions.js";
+import {
+  resolveSessionFilePath,
+  resolveSessionFilePathOptions,
+  resolveStorePath,
+} from "../../config/sessions.js";
 import { callGateway } from "../../gateway/call.js";
 import { resolveAgentIdFromSessionKey } from "../../routing/session-key.js";
 >>>>>>> c58d2aa99 (Sessions: fix sessions_list transcriptPath path resolution)
@@ -225,16 +233,26 @@ export function createSessionsListTool(opts?: {
         const sessionFileRaw = (entry as { sessionFile?: unknown }).sessionFile;
         const sessionFile = typeof sessionFileRaw === "string" ? sessionFileRaw : undefined;
         let transcriptPath: string | undefined;
-        if (sessionId && storePath) {
+        if (sessionId) {
           try {
-            const sessionPathOpts = resolveSessionFilePathOptions({
-              agentId: resolveAgentIdFromSessionKey(key),
-              storePath,
+            const agentId = resolveAgentIdFromSessionKey(key);
+            const trimmedStorePath = storePath?.trim();
+            let effectiveStorePath: string | undefined;
+            if (trimmedStorePath && trimmedStorePath !== "(multiple)") {
+              if (trimmedStorePath.includes("{agentId}") || trimmedStorePath.startsWith("~")) {
+                effectiveStorePath = resolveStorePath(trimmedStorePath, { agentId });
+              } else if (path.isAbsolute(trimmedStorePath)) {
+                effectiveStorePath = trimmedStorePath;
+              }
+            }
+            const filePathOpts = resolveSessionFilePathOptions({
+              agentId,
+              storePath: effectiveStorePath,
             });
             transcriptPath = resolveSessionFilePath(
               sessionId,
               sessionFile ? { sessionFile } : undefined,
-              sessionPathOpts,
+              filePathOpts,
             );
           } catch {
             transcriptPath = undefined;
