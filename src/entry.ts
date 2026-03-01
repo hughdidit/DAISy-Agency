@@ -6,8 +6,12 @@ import process from "node:process";
 
 =======
 import { fileURLToPath } from "node:url";
+<<<<<<< HEAD
 import { isRootVersionInvocation } from "./cli/argv.js";
 >>>>>>> 153adc4c8 (Entry: fast-path root version command)
+=======
+import { isRootHelpInvocation, isRootVersionInvocation } from "./cli/argv.js";
+>>>>>>> 38da2d076 (CLI: add root --help fast path and lazy channel option resolution (#30975))
 import { applyCliProfileEnv, parseCliProfileArgs } from "./cli/profile.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -224,6 +228,24 @@ if (!ensureExperimentalWarningSuppressed()) {
     return true;
   }
 
+  function tryHandleRootHelpFastPath(argv: string[]): boolean {
+    if (!isRootHelpInvocation(argv)) {
+      return false;
+    }
+    import("./cli/program.js")
+      .then(({ buildProgram }) => {
+        buildProgram().outputHelp();
+      })
+      .catch((error) => {
+        console.error(
+          "[openclaw] Failed to display help:",
+          error instanceof Error ? (error.stack ?? error.message) : error,
+        );
+        process.exitCode = 1;
+      });
+    return true;
+  }
+
   process.argv = normalizeWindowsArgv(process.argv);
 
   if (!ensureExperimentalWarningSuppressed()) {
@@ -240,7 +262,7 @@ if (!ensureExperimentalWarningSuppressed()) {
       process.argv = parsed.argv;
     }
 
-    if (!tryHandleRootVersionFastPath(process.argv)) {
+    if (!tryHandleRootVersionFastPath(process.argv) && !tryHandleRootHelpFastPath(process.argv)) {
       import("./cli/run-main.js")
         .then(({ runCli }) => runCli(process.argv))
         .catch((error) => {

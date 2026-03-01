@@ -150,7 +150,11 @@ import {
   noteMacLaunchAgentOverrides,
   noteMacLaunchctlGatewayEnvOverrides,
   noteDeprecatedLegacyEnvVars,
+<<<<<<< HEAD
 >>>>>>> 78c34bcf3 (Add runtime quiting functionality to doctor.ts)
+=======
+  noteStartupOptimizationHints,
+>>>>>>> 38da2d076 (CLI: add root --help fast path and lazy channel option resolution (#30975))
 } from "./doctor-platform-notes.js";
 import { createDoctorPrompter, type DoctorOptions } from "./doctor-prompter.js";
 import { maybeRepairSandboxImages, noteSandboxScopeWarnings } from "./doctor-sandbox.js";
@@ -384,6 +388,7 @@ export async function doctorCommand(
   await maybeRepairUiProtocolFreshness(runtime, prompter);
   noteSourceInstallIssues(root);
   noteDeprecatedLegacyEnvVars();
+  noteStartupOptimizationHints();
 
   const configResult = await loadAndMaybeMigrateDoctorConfig({
     options,
