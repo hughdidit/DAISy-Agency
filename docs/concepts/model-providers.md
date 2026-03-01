@@ -51,7 +51,11 @@ Moltbot ships with the pi‑ai catalog. These providers require **no**
 =======
 - Default transport is `auto` (WebSocket-first, SSE fallback)
 - Override per model via `agents.defaults.models["openai/<model>"].params.transport` (`"sse"`, `"websocket"`, or `"auto"`)
+<<<<<<< HEAD
 >>>>>>> 7ced38b5e (feat(agents): make openai responses websocket-first with fallback)
+=======
+- OpenAI Responses WebSocket warm-up defaults to enabled via `params.openaiWsWarmup` (`true`/`false`)
+>>>>>>> d1615eb35 (feat(openai): add websocket warm-up with configurable toggle)
 
 ```json5
 {
