@@ -9,6 +9,7 @@ import {
 import { DEFAULT_MODEL, DEFAULT_PROVIDER } from "../../agents/defaults.js";
 import type { OpenClawConfig } from "../../config/config.js";
 import type { ReplyPayload } from "../types.js";
+import { rejectUnauthorizedCommand } from "./command-gates.js";
 import type { CommandHandler } from "./commands-types.js";
 
 const PAGE_SIZE_DEFAULT = 20;
@@ -232,11 +233,41 @@ export async function resolveModelsCommandReply(params: {
 }
 
 export const handleModelsCommand: CommandHandler = async (params, allowTextCommands) => {
+<<<<<<< HEAD
   if (!allowTextCommands) return null;
 
   const reply = await resolveModelsCommandReply({
     cfg: params.cfg,
     commandBodyNormalized: params.command.commandBodyNormalized,
+=======
+  if (!allowTextCommands) {
+    return null;
+  }
+  const commandBodyNormalized = params.command.commandBodyNormalized.trim();
+  if (!commandBodyNormalized.startsWith("/models")) {
+    return null;
+  }
+  const unauthorized = rejectUnauthorizedCommand(params, "/models");
+  if (unauthorized) {
+    return unauthorized;
+  }
+
+  const modelsAgentId =
+    params.agentId ??
+    resolveSessionAgentId({
+      sessionKey: params.sessionKey,
+      config: params.cfg,
+    });
+  const modelsAgentDir = resolveAgentDir(params.cfg, modelsAgentId);
+
+  const reply = await resolveModelsCommandReply({
+    cfg: params.cfg,
+    commandBodyNormalized,
+    surface: params.ctx.Surface,
+    currentModel: params.model ? `${params.provider}/${params.model}` : undefined,
+    agentDir: modelsAgentDir,
+    sessionEntry: params.sessionEntry,
+>>>>>>> 3a93a7bb1 (fix(security): enforce auth for abort triggers and models)
   });
   if (!reply) return null;
   return { reply, shouldContinue: false };
