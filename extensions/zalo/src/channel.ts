@@ -49,9 +49,7 @@ const meta = {
 
 function normalizeZaloMessagingTarget(raw: string): string | undefined {
   const trimmed = raw?.trim();
-  if (!trimmed) {
-    return undefined;
-  }
+  if (!trimmed) return undefined;
   return trimmed.replace(/^(zalo|zl):/i, "");
 }
 
@@ -67,10 +65,6 @@ export const zaloDock: ChannelDock = {
     resolveAllowFrom: ({ cfg, accountId }) =>
       (resolveZaloAccount({ cfg: cfg as OpenClawConfig, accountId }).config.allowFrom ?? []).map(
         (entry) => String(entry),
-=======
-      (resolveZaloAccount({ cfg: cfg, accountId }).config.allowFrom ?? []).map((entry) =>
-        String(entry),
->>>>>>> 230ca789e (chore: Lint extensions folder.)
       ),
     formatAllowFrom: ({ allowFrom }) =>
       allowFrom
@@ -132,10 +126,6 @@ export const zaloPlugin: ChannelPlugin<ResolvedZaloAccount> = {
     resolveAllowFrom: ({ cfg, accountId }) =>
       (resolveZaloAccount({ cfg: cfg as OpenClawConfig, accountId }).config.allowFrom ?? []).map(
         (entry) => String(entry),
-=======
-      (resolveZaloAccount({ cfg: cfg, accountId }).config.allowFrom ?? []).map((entry) =>
-        String(entry),
->>>>>>> 230ca789e (chore: Lint extensions folder.)
       ),
     formatAllowFrom: ({ allowFrom }) =>
       allowFrom
@@ -147,13 +137,9 @@ export const zaloPlugin: ChannelPlugin<ResolvedZaloAccount> = {
   security: {
     resolveDmPolicy: ({ cfg, accountId, account }) => {
       const resolvedAccountId = accountId ?? account.accountId ?? DEFAULT_ACCOUNT_ID;
-<<<<<<< HEAD
       const useAccountPath = Boolean(
         (cfg as OpenClawConfig).channels?.zalo?.accounts?.[resolvedAccountId],
       );
-=======
-      const useAccountPath = Boolean(cfg.channels?.zalo?.accounts?.[resolvedAccountId]);
->>>>>>> 230ca789e (chore: Lint extensions folder.)
       const basePath = useAccountPath
         ? `channels.zalo.accounts.${resolvedAccountId}.`
         : "channels.zalo.";
@@ -179,9 +165,7 @@ export const zaloPlugin: ChannelPlugin<ResolvedZaloAccount> = {
     targetResolver: {
       looksLikeId: (raw) => {
         const trimmed = raw.trim();
-        if (!trimmed) {
-          return false;
-        }
+        if (!trimmed) return false;
         return /^\d{3,}$/.test(trimmed);
       },
       hint: "<chatId>",
@@ -266,9 +250,9 @@ export const zaloPlugin: ChannelPlugin<ResolvedZaloAccount> = {
             ...next.channels?.zalo,
             enabled: true,
             accounts: {
-              ...next.channels?.zalo?.accounts,
+              ...(next.channels?.zalo?.accounts ?? {}),
               [accountId]: {
-                ...next.channels?.zalo?.accounts?.[accountId],
+                ...(next.channels?.zalo?.accounts?.[accountId] ?? {}),
                 enabled: true,
                 ...(input.tokenFile
                   ? { tokenFile: input.tokenFile }
@@ -288,24 +272,14 @@ export const zaloPlugin: ChannelPlugin<ResolvedZaloAccount> = {
     notifyApproval: async ({ cfg, id }) => {
       const account = resolveZaloAccount({ cfg: cfg as OpenClawConfig });
       if (!account.token) throw new Error("Zalo token not configured");
-=======
-      const account = resolveZaloAccount({ cfg: cfg });
-      if (!account.token) {
-        throw new Error("Zalo token not configured");
-      }
->>>>>>> 230ca789e (chore: Lint extensions folder.)
       await sendMessageZalo(id, PAIRING_APPROVED_MESSAGE, { token: account.token });
     },
   },
   outbound: {
     deliveryMode: "direct",
     chunker: (text, limit) => {
-      if (!text) {
-        return [];
-      }
-      if (limit <= 0 || text.length <= limit) {
-        return [text];
-      }
+      if (!text) return [];
+      if (limit <= 0 || text.length <= limit) return [text];
       const chunks: string[] = [];
       let remaining = text;
       while (remaining.length > limit) {
@@ -313,21 +287,15 @@ export const zaloPlugin: ChannelPlugin<ResolvedZaloAccount> = {
         const lastNewline = window.lastIndexOf("\n");
         const lastSpace = window.lastIndexOf(" ");
         let breakIdx = lastNewline > 0 ? lastNewline : lastSpace;
-        if (breakIdx <= 0) {
-          breakIdx = limit;
-        }
+        if (breakIdx <= 0) breakIdx = limit;
         const rawChunk = remaining.slice(0, breakIdx);
         const chunk = rawChunk.trimEnd();
-        if (chunk.length > 0) {
-          chunks.push(chunk);
-        }
+        if (chunk.length > 0) chunks.push(chunk);
         const brokeOnSeparator = breakIdx < remaining.length && /\s/.test(remaining[breakIdx]);
         const nextStart = Math.min(remaining.length, breakIdx + (brokeOnSeparator ? 1 : 0));
         remaining = remaining.slice(nextStart).trimStart();
       }
-      if (remaining.length) {
-        chunks.push(remaining);
-      }
+      if (remaining.length) chunks.push(remaining);
       return chunks;
     },
     chunkerMode: "text",
@@ -408,9 +376,7 @@ export const zaloPlugin: ChannelPlugin<ResolvedZaloAccount> = {
       try {
         const probe = await probeZalo(token, 2500, fetcher);
         const name = probe.ok ? probe.bot?.name?.trim() : null;
-        if (name) {
-          zaloBotLabel = ` (${name})`;
-        }
+        if (name) zaloBotLabel = ` (${name})`;
         ctx.setStatus({
           accountId: account.accountId,
           bot: probe.bot,

@@ -8,9 +8,7 @@ function dedupe(values: string[]): string[] {
   const seen = new Set<string>();
   const resolved: string[] = [];
   for (const value of values) {
-    if (!value || seen.has(value)) {
-      continue;
-    }
+    if (!value || seen.has(value)) continue;
     seen.add(value);
     resolved.push(value);
   }

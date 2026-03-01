@@ -13,9 +13,7 @@ export function isAntigravityClaude(params: {
 }): boolean {
   const provider = params.provider?.toLowerCase();
   const api = params.api?.toLowerCase();
-  if (provider !== "google-antigravity" && api !== "google-antigravity") {
-    return false;
-  }
+  if (provider !== "google-antigravity" && api !== "google-antigravity") return false;
   return params.modelId?.toLowerCase().includes("claude") ?? false;
 }
 

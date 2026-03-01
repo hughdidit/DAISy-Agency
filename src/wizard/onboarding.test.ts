@@ -177,9 +177,7 @@ describe("runOnboardingWizard", () => {
     await fs.writeFile(path.join(workspaceDir, DEFAULT_BOOTSTRAP_FILENAME), "{}");
 
     const select: WizardPrompter["select"] = vi.fn(async (opts) => {
-      if (opts.message === "How do you want to hatch your bot?") {
-        return "tui";
-      }
+      if (opts.message === "How do you want to hatch your bot?") return "tui";
       return "quickstart";
     });
 
@@ -234,9 +232,7 @@ describe("runOnboardingWizard", () => {
     const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-onboard-"));
 
     const select: WizardPrompter["select"] = vi.fn(async (opts) => {
-      if (opts.message === "How do you want to hatch your bot?") {
-        return "tui";
-      }
+      if (opts.message === "How do you want to hatch your bot?") return "tui";
       return "quickstart";
     });
 

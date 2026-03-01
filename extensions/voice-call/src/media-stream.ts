@@ -93,7 +93,10 @@ export class MediaStreamHandler {
   /**
    * Handle new WebSocket connection from Twilio.
    */
-  private async handleConnection(ws: WebSocket, _request: IncomingMessage): Promise<void> {
+  private async handleConnection(
+    ws: WebSocket,
+    _request: IncomingMessage,
+  ): Promise<void> {
     let session: StreamSession | null = null;
     const streamToken = this.getStreamToken(_request);
 
@@ -289,7 +292,10 @@ export class MediaStreamHandler {
    * Queue a TTS operation for sequential playback.
    * Only one TTS operation plays at a time per stream to prevent overlap.
    */
-  async queueTts(streamSid: string, playFn: (signal: AbortSignal) => Promise<void>): Promise<void> {
+  async queueTts(
+    streamSid: string,
+    playFn: (signal: AbortSignal) => Promise<void>,
+  ): Promise<void> {
     const queue = this.getTtsQueue(streamSid);
     let resolveEntry: () => void;
     let rejectEntry: (error: unknown) => void;
@@ -326,7 +332,9 @@ export class MediaStreamHandler {
    * Get active session by call ID.
    */
   getSessionByCallId(callId: string): StreamSession | undefined {
-    return [...this.sessions.values()].find((session) => session.callId === callId);
+    return [...this.sessions.values()].find(
+      (session) => session.callId === callId,
+    );
   }
 
   /**
@@ -343,9 +351,7 @@ export class MediaStreamHandler {
 
   private getTtsQueue(streamSid: string): TtsQueueEntry[] {
     const existing = this.ttsQueues.get(streamSid);
-    if (existing) {
-      return existing;
-    }
+    if (existing) return existing;
     const queue: TtsQueueEntry[] = [];
     this.ttsQueues.set(streamSid, queue);
     return queue;
@@ -389,9 +395,7 @@ export class MediaStreamHandler {
 
   private clearTtsState(streamSid: string): void {
     const queue = this.ttsQueues.get(streamSid);
-    if (queue) {
-      queue.length = 0;
-    }
+    if (queue) queue.length = 0;
     this.ttsActiveControllers.get(streamSid)?.abort();
     this.ttsActiveControllers.delete(streamSid);
     this.ttsPlaying.delete(streamSid);

@@ -61,18 +61,14 @@ describe("nostrPlugin", () => {
 
     it("recognizes npub as valid target", () => {
       const looksLikeId = nostrPlugin.messaging?.targetResolver?.looksLikeId;
-      if (!looksLikeId) {
-        return;
-      }
+      if (!looksLikeId) return;
 
       expect(looksLikeId("npub1xyz123")).toBe(true);
     });
 
     it("recognizes hex pubkey as valid target", () => {
       const looksLikeId = nostrPlugin.messaging?.targetResolver?.looksLikeId;
-      if (!looksLikeId) {
-        return;
-      }
+      if (!looksLikeId) return;
 
       const hexPubkey = "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef";
       expect(looksLikeId(hexPubkey)).toBe(true);
@@ -80,9 +76,7 @@ describe("nostrPlugin", () => {
 
     it("rejects invalid input", () => {
       const looksLikeId = nostrPlugin.messaging?.targetResolver?.looksLikeId;
-      if (!looksLikeId) {
-        return;
-      }
+      if (!looksLikeId) return;
 
       expect(looksLikeId("not-a-pubkey")).toBe(false);
       expect(looksLikeId("")).toBe(false);
@@ -90,9 +84,7 @@ describe("nostrPlugin", () => {
 
     it("normalizeTarget strips nostr: prefix", () => {
       const normalize = nostrPlugin.messaging?.normalizeTarget;
-      if (!normalize) {
-        return;
-      }
+      if (!normalize) return;
 
       const hexPubkey = "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef";
       expect(normalize(`nostr:${hexPubkey}`)).toBe(hexPubkey);
@@ -116,9 +108,7 @@ describe("nostrPlugin", () => {
 
     it("normalizes nostr: prefix in allow entries", () => {
       const normalize = nostrPlugin.pairing?.normalizeAllowEntry;
-      if (!normalize) {
-        return;
-      }
+      if (!normalize) return;
 
       const hexPubkey = "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef";
       expect(normalize(`nostr:${hexPubkey}`)).toBe(hexPubkey);

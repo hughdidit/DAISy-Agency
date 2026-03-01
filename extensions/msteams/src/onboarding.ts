@@ -128,7 +128,9 @@ async function promptMSTeamsAllowFrom(params: {
     }
 
     const ids = resolved.map((item) => item.id as string);
-    const unique = [...new Set([...existing.map((v) => String(v).trim()).filter(Boolean), ...ids])];
+    const unique = [
+      ...new Set([...existing.map((v) => String(v).trim()).filter(Boolean), ...ids]),
+    ];
     return setMSTeamsAllowFrom(params.cfg, unique);
   }
 }
@@ -171,12 +173,10 @@ function setMSTeamsTeamsAllowlist(
   const teams: Record<string, { channels?: Record<string, unknown> }> = { ...baseTeams };
   for (const entry of entries) {
     const teamKey = entry.teamKey;
-    if (!teamKey) {
-      continue;
-    }
+    if (!teamKey) continue;
     const existing = teams[teamKey] ?? {};
     if (entry.channelKey) {
-      const channels = { ...existing.channels };
+      const channels = { ...(existing.channels ?? {}) };
       channels[entry.channelKey] = channels[entry.channelKey] ?? {};
       teams[teamKey] = { ...existing, channels };
     } else {
@@ -341,9 +341,7 @@ export const msteamsOnboardingAdapter: ChannelOnboardingAdapter = {
       ([teamKey, value]) => {
         const channels = value?.channels ?? {};
         const channelKeys = Object.keys(channels);
-        if (channelKeys.length === 0) {
-          return [teamKey];
-        }
+        if (channelKeys.length === 0) return [teamKey];
         return channelKeys.map((channelKey) => `${teamKey}/${channelKey}`);
       },
     );
@@ -386,7 +384,9 @@ export const msteamsOnboardingAdapter: ChannelOnboardingAdapter = {
               ...resolvedTeams.map((entry) => ({
                 teamKey: entry.teamId as string,
               })),
-              ...unresolved.map((entry) => parseMSTeamsTeamEntry(entry)).filter(Boolean),
+              ...unresolved
+                .map((entry) => parseMSTeamsTeamEntry(entry))
+                .filter(Boolean),
             ] as Array<{ teamKey: string; channelKey?: string }>;
 
             if (resolvedChannels.length > 0 || resolvedTeams.length > 0 || unresolved.length > 0) {

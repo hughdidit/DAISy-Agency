@@ -50,21 +50,6 @@ function createRuntime(): { runtime: PluginRuntime; mocks: LineRuntimeMocks } {
       config: { ...lineConfig, ...accountConfig },
     };
   });
-=======
-  const resolveLineAccount = vi.fn(
-    ({ cfg, accountId }: { cfg: OpenClawConfig; accountId?: string }) => {
-      const resolved = accountId ?? "default";
-      const lineConfig = (cfg.channels?.line ?? {}) as {
-        accounts?: Record<string, Record<string, unknown>>;
-      };
-      const accountConfig = resolved !== "default" ? (lineConfig.accounts?.[resolved] ?? {}) : {};
-      return {
-        accountId: resolved,
-        config: { ...lineConfig, ...accountConfig },
-      };
-    },
-  );
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
   const runtime = {
     channel: {
@@ -276,9 +261,12 @@ describe("linePlugin outbound.sendPayload", () => {
       cfg,
     });
 
-    expect(mocks.resolveTextChunkLimit).toHaveBeenCalledWith(cfg, "line", "primary", {
-      fallbackLimit: 5000,
-    });
+    expect(mocks.resolveTextChunkLimit).toHaveBeenCalledWith(
+      cfg,
+      "line",
+      "primary",
+      { fallbackLimit: 5000 },
+    );
     expect(mocks.chunkMarkdownText).toHaveBeenCalledWith("Hello world", 123);
   });
 });

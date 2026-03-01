@@ -82,11 +82,9 @@ describe("jidToE164", () => {
 <<<<<<< HEAD
     const spy = vi
       .spyOn(fs, "readFileSync")
-      // oxlint-disable-next-line typescript/no-explicit-any
+      // biome-ignore lint/suspicious/noExplicitAny: forwarding to native signature
       .mockImplementation((path: any, encoding?: any) => {
-        if (path === mappingPath) {
-          return `"5551234"`;
-        }
+        if (path === mappingPath) return `"5551234"`;
         return original(path, encoding);
       });
 =======

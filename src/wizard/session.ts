@@ -200,9 +200,7 @@ export class WizardSession {
   }
 
   cancel() {
-    if (this.status !== "running") {
-      return;
-    }
+    if (this.status !== "running") return;
     this.status = "cancelled";
     this.error = "cancelled";
     this.currentStep = null;
@@ -246,9 +244,7 @@ export class WizardSession {
   }
 
   private resolveStep(step: WizardStep | null) {
-    if (!this.stepDeferred) {
-      return;
-    }
+    if (!this.stepDeferred) return;
     const deferred = this.stepDeferred;
     this.stepDeferred = null;
     deferred.resolve(step);

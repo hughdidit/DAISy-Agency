@@ -34,16 +34,11 @@ describe("loadDotEnv", () => {
 
     process.chdir(prevCwd);
     for (const key of Object.keys(process.env)) {
-      if (!(key in prevEnv)) {
-        delete process.env[key];
-      }
+      if (!(key in prevEnv)) delete process.env[key];
     }
     for (const [key, value] of Object.entries(prevEnv)) {
-      if (value === undefined) {
-        delete process.env[key];
-      } else {
-        process.env[key] = value;
-      }
+      if (value === undefined) delete process.env[key];
+      else process.env[key] = value;
     }
   });
 
@@ -69,16 +64,11 @@ describe("loadDotEnv", () => {
 
     process.chdir(prevCwd);
     for (const key of Object.keys(process.env)) {
-      if (!(key in prevEnv)) {
-        delete process.env[key];
-      }
+      if (!(key in prevEnv)) delete process.env[key];
     }
     for (const [key, value] of Object.entries(prevEnv)) {
-      if (value === undefined) {
-        delete process.env[key];
-      } else {
-        process.env[key] = value;
-      }
+      if (value === undefined) delete process.env[key];
+      else process.env[key] = value;
     }
   });
 });

@@ -8,9 +8,7 @@ export type PluginEnableResult = {
 
 function ensureAllowlisted(cfg: OpenClawConfig, pluginId: string): OpenClawConfig {
   const allow = cfg.plugins?.allow;
-  if (!Array.isArray(allow) || allow.includes(pluginId)) {
-    return cfg;
-  }
+  if (!Array.isArray(allow) || allow.includes(pluginId)) return cfg;
   return {
     ...cfg,
     plugins: {

@@ -247,7 +247,7 @@ export const twitchPlugin: ChannelPlugin<TwitchAccountConfig> = {
   gateway: {
     /** Start an account connection */
     startAccount: async (ctx): Promise<void> => {
-      const account = ctx.account;
+      const account = ctx.account as TwitchAccountConfig;
       const accountId = ctx.accountId;
 
       ctx.setStatus?.({
@@ -272,7 +272,7 @@ export const twitchPlugin: ChannelPlugin<TwitchAccountConfig> = {
 
     /** Stop an account connection */
     stopAccount: async (ctx): Promise<void> => {
-      const account = ctx.account;
+      const account = ctx.account as TwitchAccountConfig;
       const accountId = ctx.accountId;
 
       // Disconnect and remove client manager from registry

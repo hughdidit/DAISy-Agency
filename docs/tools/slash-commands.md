@@ -5,7 +5,6 @@ read_when:
   - Debugging command routing or permissions
 title: "Slash Commands"
 ---
-
 # Slash commands
 
 Commands are handled by the Gateway. Most commands must be sent as a **standalone** message that starts with `/`.
@@ -37,8 +36,8 @@ They run immediately, are stripped before the model sees the message, and the re
     config: false,
     debug: false,
     restart: false,
-    useAccessGroups: true,
-  },
+    useAccessGroups: true
+  }
 }
 ```
 
@@ -60,7 +59,6 @@ They run immediately, are stripped before the model sees the message, and the re
 ## Command list
 
 Text + native (when enabled):
-
 - `/help`
 - `/commands`
 - `/skill <name> [input]` (run a skill by name)
@@ -93,14 +91,12 @@ Text + native (when enabled):
 - `/bash <command>` (host-only; alias for `! <command>`; requires `commands.bash: true` + `tools.elevated` allowlists)
 
 Text-only:
-
 - `/compact [instructions]` (see [/concepts/compaction](/concepts/compaction))
 - `! <command>` (host-only; one at a time; use `!poll` + `!stop` for long-running jobs)
 - `!poll` (check output / status; accepts optional `sessionId`; `/bash poll` also works)
 - `!stop` (stop the running bash job; accepts optional `sessionId`; `/bash stop` also works)
 
 Notes:
-
 - Commands accept an optional `:` between the command and args (e.g. `/think: high`, `/send: on`, `/help:`).
 - `/new <model>` accepts a model alias, `provider/model`, or a provider name (fuzzy match); if no match, the text is treated as the message body.
 - For full provider usage breakdown, use `openclaw status --usage`.
@@ -144,7 +140,6 @@ Examples:
 ```
 
 Notes:
-
 - `/model` and `/model list` show a compact, numbered picker (model family + available providers).
 - `/model <#>` selects from that picker (and prefers the current provider when possible).
 - `/model status` shows the detailed view, including configured provider endpoint (`baseUrl`) and API mode (`api`) when available.
@@ -182,7 +177,6 @@ Examples:
 ```
 
 Notes:
-
 - Config is validated before write; invalid changes are rejected.
 - `/config` updates persist across restarts.
 

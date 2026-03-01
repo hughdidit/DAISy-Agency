@@ -28,9 +28,7 @@ export class DirectoryCache<T> {
   get(key: string, cfg: OpenClawConfig): T | undefined {
     this.resetIfConfigChanged(cfg);
     const entry = this.cache.get(key);
-    if (!entry) {
-      return undefined;
-    }
+    if (!entry) return undefined;
     if (Date.now() - entry.fetchedAt > this.ttlMs) {
       this.cache.delete(key);
       return undefined;
@@ -45,17 +43,13 @@ export class DirectoryCache<T> {
 
   clearMatching(match: (key: string) => boolean): void {
     for (const key of this.cache.keys()) {
-      if (match(key)) {
-        this.cache.delete(key);
-      }
+      if (match(key)) this.cache.delete(key);
     }
   }
 
   clear(cfg?: OpenClawConfig): void {
     this.cache.clear();
-    if (cfg) {
-      this.lastConfigRef = cfg;
-    }
+    if (cfg) this.lastConfigRef = cfg;
   }
 
   private resetIfConfigChanged(cfg: OpenClawConfig): void {

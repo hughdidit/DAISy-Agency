@@ -59,9 +59,7 @@ export async function buildGatewayInstallPlan(params: {
   if (params.runtime === "node") {
     const systemNode = await resolveSystemNodeInfo({ env: params.env });
     const warning = renderSystemNodeWarning(systemNode, programArguments[0]);
-    if (warning) {
-      params.warn?.(warning, "Gateway runtime");
-    }
+    if (warning) params.warn?.(warning, "Gateway runtime");
   }
   const serviceEnvironment = buildServiceEnvironment({
     env: params.env,

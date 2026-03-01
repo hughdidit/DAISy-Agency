@@ -20,10 +20,8 @@ export async function fetchGroupChanges(
       return changes;
     }
     return null;
-  } catch (error) {
-    runtime.log?.(
-      `[tlon] Failed to fetch changes (falling back to full init): ${error?.message ?? String(error)}`,
-    );
+  } catch (error: any) {
+    runtime.log?.(`[tlon] Failed to fetch changes (falling back to full init): ${error?.message ?? String(error)}`);
     return null;
   }
 }
@@ -36,7 +34,6 @@ export async function fetchAllChannels(
     runtime.log?.("[tlon] Attempting auto-discovery of group channels...");
     const changes = await fetchGroupChanges(api, runtime, 5);
 
-    // oxlint-disable-next-line typescript/no-explicit-any
     let initData: any;
     if (changes) {
       runtime.log?.("[tlon] Changes data received, using full init for channel extraction");
@@ -47,7 +44,6 @@ export async function fetchAllChannels(
 
     const channels: string[] = [];
     if (initData && initData.groups) {
-      // oxlint-disable-next-line typescript/no-explicit-any
       for (const groupData of Object.values(initData.groups as Record<string, any>)) {
         if (groupData && typeof groupData === "object" && groupData.channels) {
           for (const channelNest of Object.keys(groupData.channels)) {
@@ -70,12 +66,10 @@ export async function fetchAllChannels(
     }
 
     return channels;
-  } catch (error) {
+  } catch (error: any) {
     runtime.log?.(`[tlon] Auto-discovery failed: ${error?.message ?? String(error)}`);
-    runtime.log?.(
-      "[tlon] To monitor group channels, add them to config: channels.tlon.groupChannels",
-    );
-    runtime.log?.('[tlon] Example: ["chat/~host-ship/channel-name"]');
+    runtime.log?.("[tlon] To monitor group channels, add them to config: channels.tlon.groupChannels");
+    runtime.log?.("[tlon] Example: [\"chat/~host-ship/channel-name\"]");
     return [];
   }
 }

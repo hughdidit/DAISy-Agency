@@ -30,11 +30,6 @@ describe("normalizeThinkLevel", () => {
     expect(normalizeThinkLevel("xhigher")).toBeUndefined();
   });
 
-  it("accepts extra-high aliases as xhigh", () => {
-    expect(normalizeThinkLevel("extra-high")).toBe("xhigh");
-    expect(normalizeThinkLevel("extra high")).toBe("xhigh");
-  });
-
   it("accepts on as low", () => {
     expect(normalizeThinkLevel("on")).toBe("low");
   });
@@ -48,11 +43,6 @@ describe("listThinkingLevels", () => {
 
   it("includes xhigh for openai gpt-5.2", () => {
     expect(listThinkingLevels("openai", "gpt-5.2")).toContain("xhigh");
-  });
-
-  it("includes xhigh for github-copilot gpt-5.2 refs", () => {
-    expect(listThinkingLevels("github-copilot", "gpt-5.2")).toContain("xhigh");
-    expect(listThinkingLevels("github-copilot", "gpt-5.2-codex")).toContain("xhigh");
   });
 
   it("excludes xhigh for non-codex models", () => {

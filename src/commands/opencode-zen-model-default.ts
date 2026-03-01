@@ -8,9 +8,7 @@ const LEGACY_OPENCODE_ZEN_DEFAULT_MODELS = new Set([
 ]);
 
 function resolvePrimaryModel(model?: AgentModelListConfig | string): string | undefined {
-  if (typeof model === "string") {
-    return model;
-  }
+  if (typeof model === "string") return model;
   if (model && typeof model === "object" && typeof model.primary === "string") {
     return model.primary;
   }

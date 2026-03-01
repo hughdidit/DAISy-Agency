@@ -8,6 +8,7 @@ const mockUnbind = vi.fn();
 // Event handler storage
 let connectHandler: (() => void) | null = null;
 let disconnectHandler: ((manually: boolean, reason?: Error) => void) | null = null;
+let authFailHandler: (() => void) | null = null;
 
 // Event listener mocks that store handlers and return unbind function
 const mockOnConnect = vi.fn((handler: () => void) => {
@@ -20,7 +21,8 @@ const mockOnDisconnect = vi.fn((handler: (manually: boolean, reason?: Error) => 
   return { unbind: mockUnbind };
 });
 
-const mockOnAuthenticationFailure = vi.fn((_handler: () => void) => {
+const mockOnAuthenticationFailure = vi.fn((handler: () => void) => {
+  authFailHandler = handler;
   return { unbind: mockUnbind };
 });
 
@@ -63,6 +65,7 @@ describe("probeTwitch", () => {
     // Reset handlers
     connectHandler = null;
     disconnectHandler = null;
+    authFailHandler = null;
   });
 
   it("returns error when username is missing", async () => {

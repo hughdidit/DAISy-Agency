@@ -4,7 +4,6 @@ read_when:
   - Reviewing historical Telegram allowlist changes
 title: "Telegram Allowlist Hardening"
 ---
-
 # Telegram Allowlist Hardening
 
 **Date**: 2026-01-05  
@@ -27,7 +26,7 @@ All of these are accepted for the same ID:
 
 - `telegram:123456`
 - `TG:123456`
-- `tg:123456`
+- ` tg:123456 `
 
 ## Why it matters
 
@@ -36,5 +35,5 @@ false negatives when deciding whether to respond in DMs or groups.
 
 ## Related docs
 
-- [Group Chats](/channels/groups)
+- [Group Chats](/concepts/groups)
 - [Telegram Provider](/channels/telegram)

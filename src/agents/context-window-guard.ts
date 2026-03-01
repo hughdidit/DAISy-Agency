@@ -27,9 +27,7 @@ export function resolveContextWindowInfo(params: {
 }): ContextWindowInfo {
 <<<<<<< HEAD
   const fromModel = normalizePositiveInt(params.modelContextWindow);
-  if (fromModel) {
-    return { tokens: fromModel, source: "model" };
-  }
+  if (fromModel) return { tokens: fromModel, source: "model" };
 
 =======
 >>>>>>> 0992c5a80 (fix: cap context window resolution (#6187) (thanks @iamEvanYT))
@@ -46,9 +44,7 @@ export function resolveContextWindowInfo(params: {
   if (fromModelsConfig) return { tokens: fromModelsConfig, source: "modelsConfig" };
 
   const fromAgentConfig = normalizePositiveInt(params.cfg?.agents?.defaults?.contextTokens);
-  if (fromAgentConfig) {
-    return { tokens: fromAgentConfig, source: "agentContextTokens" };
-  }
+  if (fromAgentConfig) return { tokens: fromAgentConfig, source: "agentContextTokens" };
 
   return { tokens: Math.floor(params.defaultTokens), source: "default" };
 =======

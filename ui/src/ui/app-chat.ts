@@ -17,7 +17,7 @@ import type { ChatAttachment, ChatQueueItem } from "./ui-types";
 import { generateUUID } from "./uuid";
 >>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 
-export type ChatHost = {
+type ChatHost = {
   connected: boolean;
   chatMessage: string;
   chatAttachments: ChatAttachment[];
@@ -34,21 +34,15 @@ export type ChatHost = {
 >>>>>>> 0b7aa8cf1 (feat(ui): refresh session list after chat commands in Web UI)
 };
 
-export const CHAT_SESSIONS_ACTIVE_MINUTES = 120;
-
 export function isChatBusy(host: ChatHost) {
   return host.chatSending || Boolean(host.chatRunId);
 }
 
 export function isChatStopCommand(text: string) {
   const trimmed = text.trim();
-  if (!trimmed) {
-    return false;
-  }
+  if (!trimmed) return false;
   const normalized = trimmed.toLowerCase();
-  if (normalized === "/stop") {
-    return true;
-  }
+  if (normalized === "/stop") return true;
   return (
     normalized === "stop" ||
     normalized === "esc" ||
@@ -58,22 +52,8 @@ export function isChatStopCommand(text: string) {
   );
 }
 
-function isChatResetCommand(text: string) {
-  const trimmed = text.trim();
-  if (!trimmed) {
-    return false;
-  }
-  const normalized = trimmed.toLowerCase();
-  if (normalized === "/new" || normalized === "/reset") {
-    return true;
-  }
-  return normalized.startsWith("/new ") || normalized.startsWith("/reset ");
-}
-
 export async function handleAbortChat(host: ChatHost) {
-  if (!host.connected) {
-    return;
-  }
+  if (!host.connected) return;
   host.chatMessage = "";
   await abortChatRun(host as unknown as OpenClawApp);
 }
@@ -86,9 +66,7 @@ function enqueueChatMessage(
 ) {
   const trimmed = text.trim();
   const hasAttachments = Boolean(attachments && attachments.length > 0);
-  if (!trimmed && !hasAttachments) {
-    return;
-  }
+  if (!trimmed && !hasAttachments) return;
   host.chatQueue = [
     ...host.chatQueue,
     {
@@ -110,7 +88,6 @@ async function sendChatMessageNow(
     attachments?: ChatAttachment[];
     previousAttachments?: ChatAttachment[];
     restoreAttachments?: boolean;
-    refreshSessions?: boolean;
   },
 ) {
   resetToolStream(host as unknown as Parameters<typeof resetToolStream>[0]);
@@ -127,10 +104,7 @@ async function sendChatMessageNow(
     host.chatAttachments = opts.previousAttachments;
   }
   if (ok) {
-    setLastActiveSessionKey(
-      host as unknown as Parameters<typeof setLastActiveSessionKey>[0],
-      host.sessionKey,
-    );
+    setLastActiveSessionKey(host as unknown as Parameters<typeof setLastActiveSessionKey>[0], host.sessionKey);
   }
   if (ok && opts?.restoreDraft && opts.previousDraft?.trim()) {
     host.chatMessage = opts.previousDraft;
@@ -152,13 +126,9 @@ async function sendChatMessageNow(
 }
 
 async function flushChatQueue(host: ChatHost) {
-  if (!host.connected || isChatBusy(host)) {
-    return;
-  }
+  if (!host.connected || isChatBusy(host)) return;
   const [next, ...rest] = host.chatQueue;
-  if (!next) {
-    return;
-  }
+  if (!next) return;
   host.chatQueue = rest;
   const ok = await sendChatMessageNow(host, next.text, {
     attachments: next.attachments,
@@ -178,9 +148,7 @@ export async function handleSendChat(
   messageOverride?: string,
   opts?: { restoreDraft?: boolean },
 ) {
-  if (!host.connected) {
-    return;
-  }
+  if (!host.connected) return;
   const previousDraft = host.chatMessage;
   const message = (messageOverride ?? host.chatMessage).trim();
   const attachments = host.chatAttachments ?? [];
@@ -188,16 +156,13 @@ export async function handleSendChat(
   const hasAttachments = attachmentsToSend.length > 0;
 
   // Allow sending with just attachments (no message text required)
-  if (!message && !hasAttachments) {
-    return;
-  }
+  if (!message && !hasAttachments) return;
 
   if (isChatStopCommand(message)) {
     await handleAbortChat(host);
     return;
   }
 
-  const refreshSessions = isChatResetCommand(message);
   if (messageOverride == null) {
     host.chatMessage = "";
     // Clear attachments when sending
@@ -215,7 +180,6 @@ export async function handleSendChat(
     attachments: hasAttachments ? attachmentsToSend : undefined,
     previousAttachments: messageOverride == null ? attachments : undefined,
     restoreAttachments: Boolean(messageOverride && opts?.restoreDraft),
-    refreshSessions,
   });
 }
 
@@ -247,12 +211,8 @@ type SessionDefaultsSnapshot = {
 
 function resolveAgentIdForSession(host: ChatHost): string | null {
   const parsed = parseAgentSessionKey(host.sessionKey);
-  if (parsed?.agentId) {
-    return parsed.agentId;
-  }
-  const snapshot = host.hello?.snapshot as
-    | { sessionDefaults?: SessionDefaultsSnapshot }
-    | undefined;
+  if (parsed?.agentId) return parsed.agentId;
+  const snapshot = host.hello?.snapshot as { sessionDefaults?: SessionDefaultsSnapshot } | undefined;
   const fallback = snapshot?.sessionDefaults?.defaultAgentId?.trim();
   return fallback || "main";
 }

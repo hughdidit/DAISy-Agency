@@ -25,29 +25,28 @@ import {
 import { type AnnounceQueueItem, enqueueAnnounce } from "./subagent-announce-queue.js";
 import { readLatestAssistantReply } from "./tools/agent-step.js";
 
+function formatDurationShort(valueMs?: number) {
+  if (!valueMs || !Number.isFinite(valueMs) || valueMs <= 0) return undefined;
+  const totalSeconds = Math.round(valueMs / 1000);
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+  if (hours > 0) return `${hours}h${minutes}m`;
+  if (minutes > 0) return `${minutes}m${seconds}s`;
+  return `${seconds}s`;
+}
+
 function formatTokenCount(value?: number) {
-  if (!value || !Number.isFinite(value)) {
-    return "0";
-  }
-  if (value >= 1_000_000) {
-    return `${(value / 1_000_000).toFixed(1)}m`;
-  }
-  if (value >= 1_000) {
-    return `${(value / 1_000).toFixed(1)}k`;
-  }
+  if (!value || !Number.isFinite(value)) return "0";
+  if (value >= 1_000_000) return `${(value / 1_000_000).toFixed(1)}m`;
+  if (value >= 1_000) return `${(value / 1_000).toFixed(1)}k`;
   return String(Math.round(value));
 }
 
 function formatUsd(value?: number) {
-  if (value === undefined || !Number.isFinite(value)) {
-    return undefined;
-  }
-  if (value >= 1) {
-    return `$${value.toFixed(2)}`;
-  }
-  if (value >= 0.01) {
-    return `$${value.toFixed(2)}`;
-  }
+  if (value === undefined || !Number.isFinite(value)) return undefined;
+  if (value >= 1) return `$${value.toFixed(2)}`;
+  if (value >= 0.01) return `$${value.toFixed(2)}`;
   return `$${value.toFixed(4)}`;
 }
 
@@ -65,9 +64,7 @@ function resolveModelCost(params: {
   | undefined {
   const provider = params.provider?.trim();
   const model = params.model?.trim();
-  if (!provider || !model) {
-    return undefined;
-  }
+  if (!provider || !model) return undefined;
   const models = params.config.models?.providers?.[provider]?.models ?? [];
   const entry = models.find((candidate) => candidate.id === model);
   return entry?.cost;
@@ -78,23 +75,17 @@ async function waitForSessionUsage(params: { sessionKey: string }) {
   const agentId = resolveAgentIdFromSessionKey(params.sessionKey);
   const storePath = resolveStorePath(cfg.session?.store, { agentId });
   let entry = loadSessionStore(storePath)[params.sessionKey];
-  if (!entry) {
-    return { entry, storePath };
-  }
+  if (!entry) return { entry, storePath };
   const hasTokens = () =>
     entry &&
     (typeof entry.totalTokens === "number" ||
       typeof entry.inputTokens === "number" ||
       typeof entry.outputTokens === "number");
-  if (hasTokens()) {
-    return { entry, storePath };
-  }
+  if (hasTokens()) return { entry, storePath };
   for (let attempt = 0; attempt < 4; attempt += 1) {
     await new Promise((resolve) => setTimeout(resolve, 200));
     entry = loadSessionStore(storePath)[params.sessionKey];
-    if (hasTokens()) {
-      break;
-    }
+    if (hasTokens()) break;
   }
   return { entry, storePath };
 }
@@ -137,15 +128,9 @@ function resolveRequesterStoreKey(
   requesterSessionKey: string,
 ): string {
   const raw = requesterSessionKey.trim();
-  if (!raw) {
-    return raw;
-  }
-  if (raw === "global" || raw === "unknown") {
-    return raw;
-  }
-  if (raw.startsWith("agent:")) {
-    return raw;
-  }
+  if (!raw) return raw;
+  if (raw === "global" || raw === "unknown") return raw;
+  if (raw.startsWith("agent:")) return raw;
   const mainKey = normalizeMainKey(cfg.session?.mainKey);
   if (raw === "main" || raw === mainKey) {
     return resolveMainSessionKey(cfg);
@@ -173,9 +158,7 @@ async function maybeQueueSubagentAnnounce(params: {
   const { cfg, entry } = loadRequesterSessionEntry(params.requesterSessionKey);
   const canonicalKey = resolveRequesterStoreKey(cfg, params.requesterSessionKey);
   const sessionId = entry?.sessionId;
-  if (!sessionId) {
-    return "none";
-  }
+  if (!sessionId) return "none";
 
   const queueSettings = resolveQueueSettings({
     cfg,
@@ -187,9 +170,7 @@ async function maybeQueueSubagentAnnounce(params: {
   const shouldSteer = queueSettings.mode === "steer" || queueSettings.mode === "steer-backlog";
   if (shouldSteer) {
     const steered = queueEmbeddedPiMessage(sessionId, params.triggerMessage);
-    if (steered) {
-      return "steered";
-    }
+    if (steered) return "steered";
   }
 
   const shouldFollowup =
@@ -250,7 +231,7 @@ async function buildSubagentStatsLine(params: {
       : undefined;
 
   const parts: string[] = [];
-  const runtime = formatDurationCompact(runtimeMs);
+  const runtime = formatDurationShort(runtimeMs);
   parts.push(`runtime ${runtime ?? "n/a"}`);
   if (typeof total === "number") {
     const inputText = typeof input === "number" ? formatTokenCount(input) : "n/a";
@@ -261,16 +242,10 @@ async function buildSubagentStatsLine(params: {
     parts.push("tokens n/a");
   }
   const costText = formatUsd(cost);
-  if (costText) {
-    parts.push(`est ${costText}`);
-  }
+  if (costText) parts.push(`est ${costText}`);
   parts.push(`sessionKey ${params.sessionKey}`);
-  if (sessionId) {
-    parts.push(`sessionId ${sessionId}`);
-  }
-  if (transcriptPath) {
-    parts.push(`transcript ${transcriptPath}`);
-  }
+  if (sessionId) parts.push(`sessionId ${sessionId}`);
+  if (transcriptPath) parts.push(`transcript ${transcriptPath}`);
 
   return `Stats: ${parts.join(" \u2022 ")}`;
 }
@@ -339,10 +314,10 @@ export function buildSubagentSystemPrompt(params: {
     "",
     "## What You DON'T Do",
     "- NO user conversations (that's main agent's job)",
-    "- NO external messages (email, tweets, etc.) unless explicitly tasked with a specific recipient/channel",
+    "- NO external messages (email, tweets, etc.) unless explicitly tasked",
     "- NO cron jobs or persistent state",
     "- NO pretending to be the main agent",
-    "- Only use the `message` tool when explicitly instructed to contact a specific external recipient; otherwise return plain text and let the main agent deliver it",
+    "- NO using the `message` tool directly",
     "",
     "## Session Context",
     params.label ? `- Label: ${params.label}` : undefined,
@@ -361,8 +336,6 @@ export type SubagentRunOutcome = {
   error?: string;
 };
 
-export type SubagentAnnounceType = "subagent task" | "cron job";
-
 export async function runSubagentAnnounceFlow(params: {
   childSessionKey: string;
   childRunId: string;
@@ -378,7 +351,6 @@ export async function runSubagentAnnounceFlow(params: {
   endedAt?: number;
   label?: string;
   outcome?: SubagentRunOutcome;
-  announceType?: SubagentAnnounceType;
 }): Promise<boolean> {
   let didAnnounce = false;
   let shouldDeleteChildSession = params.cleanup === "delete";
@@ -450,9 +422,7 @@ export async function runSubagentAnnounceFlow(params: {
         params.endedAt = wait.endedAt;
       }
       if (wait?.status === "timeout") {
-        if (!outcome) {
-          outcome = { status: "timeout" };
-        }
+        if (!outcome) outcome = { status: "timeout" };
       }
       reply = await readLatestAssistantReply({ sessionKey: params.childSessionKey });
     }
@@ -501,10 +471,9 @@ export async function runSubagentAnnounceFlow(params: {
             : "finished with unknown status";
 
     // Build instructional message for main agent
-    const announceType = params.announceType ?? "subagent task";
-    const taskLabel = params.label || params.task || "task";
+    const taskLabel = params.label || params.task || "background task";
     const triggerMessage = [
-      `A ${announceType} "${taskLabel}" just ${statusLabel}.`,
+      `A background task "${taskLabel}" just ${statusLabel}.`,
       "",
       "Findings:",
       reply || "(no output)",
@@ -512,7 +481,7 @@ export async function runSubagentAnnounceFlow(params: {
       statsLine,
       "",
       "Summarize this naturally for the user. Keep it brief (1-2 sentences). Flow it into the conversation naturally.",
-      `Do not mention technical details like tokens, stats, or that this was a ${announceType}.`,
+      "Do not mention technical details like tokens, stats, or that this was a background task.",
       "You can respond with NO_REPLY if no announcement is needed (e.g., internal task with no user-facing result).",
     ].join("\n");
 

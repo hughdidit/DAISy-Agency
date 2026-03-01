@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import { Type } from "@sinclair/typebox";
 import fs from "node:fs";
 import { homedir } from "node:os";
@@ -49,11 +48,13 @@ const EMBEDDING_DIMENSIONS: Record<string, number> = {
   "text-embedding-3-large": 3072,
 };
 
-function assertAllowedKeys(value: Record<string, unknown>, allowed: string[], label: string) {
+function assertAllowedKeys(
+  value: Record<string, unknown>,
+  allowed: string[],
+  label: string,
+) {
   const unknown = Object.keys(value).filter((key) => !allowed.includes(key));
-  if (unknown.length === 0) {
-    return;
-  }
+  if (unknown.length === 0) return;
   throw new Error(`${label} has unknown keys: ${unknown.join(", ")}`);
 }
 

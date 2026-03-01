@@ -39,9 +39,7 @@ describe("browser default executable detection", () => {
     });
     vi.mocked(fs.existsSync).mockImplementation((p) => {
       const value = String(p);
-      if (value.includes("com.apple.launchservices.secure.plist")) {
-        return true;
-      }
+      if (value.includes("com.apple.launchservices.secure.plist")) return true;
       return value.includes("/Applications/Google Chrome.app/Contents/MacOS/Google Chrome");
     });
 
@@ -67,9 +65,7 @@ describe("browser default executable detection", () => {
     });
     vi.mocked(fs.existsSync).mockImplementation((p) => {
       const value = String(p);
-      if (value.includes("com.apple.launchservices.secure.plist")) {
-        return true;
-      }
+      if (value.includes("com.apple.launchservices.secure.plist")) return true;
       return value.includes("Google Chrome.app/Contents/MacOS/Google Chrome");
     });
 

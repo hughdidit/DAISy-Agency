@@ -82,7 +82,11 @@ vi.mock("../defaults.js", () => ({
 }));
 
 vi.mock("../failover-error.js", () => ({
-  FailoverError: class extends Error {},
+  FailoverError: class extends Error {
+    constructor(msg: string) {
+      super(msg);
+    }
+  },
   resolveFailoverStatus: vi.fn(),
 }));
 
@@ -120,9 +124,7 @@ vi.mock("./tool-result-truncation.js", () => ({
 
 vi.mock("./utils.js", () => ({
   describeUnknownError: vi.fn((err: unknown) => {
-    if (err instanceof Error) {
-      return err.message;
-    }
+    if (err instanceof Error) return err.message;
     return String(err);
   }),
 }));
@@ -130,16 +132,12 @@ vi.mock("./utils.js", () => ({
 vi.mock("../pi-embedded-helpers.js", async () => {
   return {
     isCompactionFailureError: (msg?: string) => {
-      if (!msg) {
-        return false;
-      }
+      if (!msg) return false;
       const lower = msg.toLowerCase();
       return lower.includes("request_too_large") && lower.includes("summarization failed");
     },
     isContextOverflowError: (msg?: string) => {
-      if (!msg) {
-        return false;
-      }
+      if (!msg) return false;
       const lower = msg.toLowerCase();
       return lower.includes("request_too_large") || lower.includes("request size exceeds");
     },

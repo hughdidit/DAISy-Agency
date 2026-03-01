@@ -5,7 +5,6 @@ import type { AuthProfileCredential, OAuthCredential } from "../agents/auth-prof
 import type { AnyAgentTool } from "../agents/tools/common.js";
 import type { ReplyPayload } from "../auto-reply/types.js";
 import type { ChannelDock } from "../channels/dock.js";
-<<<<<<< HEAD
 import type { ChannelPlugin } from "../channels/plugins/types.js";
 <<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
@@ -145,8 +144,6 @@ export type PluginCommandContext = {
   senderId?: string;
   /** The channel/surface (e.g., "telegram", "discord") */
   channel: string;
-  /** Provider channel id (e.g., "telegram") */
-  channelId?: ChannelId;
   /** Whether the sender is on the allowlist */
   isAuthorizedSender: boolean;
   /** Raw command arguments after the command name */

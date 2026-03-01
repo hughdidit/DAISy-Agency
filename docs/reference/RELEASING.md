@@ -11,14 +11,11 @@ read_when:
 Use `pnpm` (Node 22+) from the repo root. Keep the working tree clean before tagging/publishing.
 
 ## Operator trigger
-
 When the operator says “release”, immediately do this preflight (no extra questions unless blocked):
-
 - Read this doc and `docs/platforms/mac/release.md`.
 - Load env from `~/.profile` and confirm `SPARKLE_PRIVATE_KEY_FILE` + App Store Connect vars are set (SPARKLE_PRIVATE_KEY_FILE should live in `~/.profile`).
 - Use Sparkle keys from `~/Library/CloudStorage/Dropbox/Backup/Sparkle` if needed.
 
-<<<<<<< HEAD
 1) **Version & metadata**
 - [ ] Bump `package.json` version (e.g., `2026.1.29`).
 - [ ] Run `pnpm plugins:sync` to align extension package versions + changelogs.
@@ -127,8 +124,7 @@ The workflow exports `VERIFY_ENV`, `DEPLOYED_REF`, and `DRY_RUN` so `verify.sh` 
 6. **Publish (npm)**
 >>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 
-6. **Publish (npm)**
-
+6) **Publish (npm)**
 - [ ] Confirm git status is clean; commit and push as needed.
 - [ ] `npm login` (verify 2FA) if needed.
 - [ ] `npm publish --access public` (use `--tag beta` for pre-releases).

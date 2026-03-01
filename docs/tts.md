@@ -33,7 +33,6 @@ does not publish limits, so assume similar or lower limits. citeturn0searc
 ## Optional keys
 
 If you want OpenAI or ElevenLabs:
-
 - `ELEVENLABS_API_KEY` (or `XI_API_KEY`)
 - `OPENAI_API_KEY`
 
@@ -73,9 +72,9 @@ Full schema is in [Gateway configuration](/gateway/configuration).
   messages: {
     tts: {
       auto: "always",
-      provider: "elevenlabs",
-    },
-  },
+      provider: "elevenlabs"
+    }
+  }
 }
 ```
 
@@ -89,12 +88,12 @@ Full schema is in [Gateway configuration](/gateway/configuration).
       provider: "openai",
       summaryModel: "openai/gpt-4.1-mini",
       modelOverrides: {
-        enabled: true,
+        enabled: true
       },
       openai: {
         apiKey: "openai_api_key",
         model: "gpt-4o-mini-tts",
-        voice: "alloy",
+        voice: "alloy"
       },
       elevenlabs: {
         apiKey: "elevenlabs_api_key",
@@ -109,11 +108,11 @@ Full schema is in [Gateway configuration](/gateway/configuration).
           similarityBoost: 0.75,
           style: 0.0,
           useSpeakerBoost: true,
-          speed: 1.0,
-        },
-      },
-    },
-  },
+          speed: 1.0
+        }
+      }
+    }
+  }
 }
 ```
 
@@ -131,10 +130,10 @@ Full schema is in [Gateway configuration](/gateway/configuration).
         lang: "en-US",
         outputFormat: "audio-24khz-48kbitrate-mono-mp3",
         rate: "+10%",
-        pitch: "-5%",
-      },
-    },
-  },
+        pitch: "-5%"
+      }
+    }
+  }
 }
 ```
 
@@ -145,10 +144,10 @@ Full schema is in [Gateway configuration](/gateway/configuration).
   messages: {
     tts: {
       edge: {
-        enabled: false,
-      },
-    },
-  },
+        enabled: false
+      }
+    }
+  }
 }
 ```
 
@@ -164,11 +163,6 @@ Full schema is in [Gateway configuration](/gateway/configuration).
       prefsPath: "~/.openclaw/settings/tts.json"
     }
   }
-=======
-      prefsPath: "~/.openclaw/settings/tts.json",
-    },
-  },
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 }
 ```
 
@@ -178,9 +172,9 @@ Full schema is in [Gateway configuration](/gateway/configuration).
 {
   messages: {
     tts: {
-      auto: "inbound",
-    },
-  },
+      auto: "inbound"
+    }
+  }
 }
 ```
 
@@ -190,9 +184,9 @@ Full schema is in [Gateway configuration](/gateway/configuration).
 {
   messages: {
     tts: {
-      auto: "always",
-    },
-  },
+      auto: "always"
+    }
+  }
 }
 ```
 
@@ -257,7 +251,6 @@ Here you go.
 ```
 
 Available directive keys (when enabled):
-
 - `provider` (`openai` | `elevenlabs` | `edge`)
 - `voice` (OpenAI voice) or `voiceId` (ElevenLabs)
 - `model` (OpenAI TTS model or ElevenLabs model id)
@@ -273,10 +266,10 @@ Disable all model overrides:
   messages: {
     tts: {
       modelOverrides: {
-        enabled: false,
-      },
-    },
-  },
+        enabled: false
+      }
+    }
+  }
 }
 ```
 
@@ -289,10 +282,10 @@ Optional allowlist (disable specific overrides while keeping tags enabled):
       modelOverrides: {
         enabled: true,
         allowProvider: false,
-        allowSeed: false,
-      },
-    },
-  },
+        allowSeed: false
+      }
+    }
+  }
 }
 ```
 
@@ -303,7 +296,6 @@ Slash commands write local overrides to `prefsPath` (default:
 `messages.tts.prefsPath`).
 
 Stored fields:
-
 - `enabled`
 - `provider`
 - `maxLength` (summary threshold; default 1500 chars)
@@ -375,7 +367,6 @@ Discord note: `/tts` is a built-in Discord command, so OpenClaw registers
 ```
 
 Notes:
-
 - Commands require an authorized sender (allowlist/owner rules still apply).
 - `commands.text` or native command registration must be enabled.
 - `off|always|inbound|tagged` are per‑session toggles (`/tts on` is an alias for `/tts always`).
@@ -391,7 +382,6 @@ Telegram sends a voice bubble.
 ## Gateway RPC
 
 Gateway methods:
-
 - `tts.status`
 - `tts.enable`
 - `tts.disable`

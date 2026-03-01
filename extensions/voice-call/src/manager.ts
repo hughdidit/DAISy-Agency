@@ -129,7 +129,8 @@ export class CallManager {
 
     const callId = crypto.randomUUID();
     const from =
-      this.config.fromNumber || (this.provider?.name === "mock" ? "+15550000000" : undefined);
+      this.config.fromNumber ||
+      (this.provider?.name === "mock" ? "+15550000000" : undefined);
     if (!from) {
       return { callId: "", success: false, error: "fromNumber not configured" };
     }
@@ -200,7 +201,10 @@ export class CallManager {
   /**
    * Speak to user in an active call.
    */
-  async speak(callId: CallId, text: string): Promise<{ success: boolean; error?: string }> {
+  async speak(
+    callId: CallId,
+    text: string,
+  ): Promise<{ success: boolean; error?: string }> {
     const call = this.activeCalls.get(callId);
     if (!call) {
       return { success: false, error: "Call not found" };
@@ -223,7 +227,8 @@ export class CallManager {
       this.addTranscriptEntry(call, "bot", text);
 
       // Play TTS
-      const voice = this.provider?.name === "twilio" ? this.config.tts?.openai?.voice : undefined;
+      const voice =
+        this.provider?.name === "twilio" ? this.config.tts?.openai?.voice : undefined;
       await this.provider.playTts({
         callId,
         providerCallId: call.providerCallId,
@@ -341,27 +346,21 @@ export class CallManager {
 
   private clearTranscriptWaiter(callId: CallId): void {
     const waiter = this.transcriptWaiters.get(callId);
-    if (!waiter) {
-      return;
-    }
+    if (!waiter) return;
     clearTimeout(waiter.timeout);
     this.transcriptWaiters.delete(callId);
   }
 
   private rejectTranscriptWaiter(callId: CallId, reason: string): void {
     const waiter = this.transcriptWaiters.get(callId);
-    if (!waiter) {
-      return;
-    }
+    if (!waiter) return;
     this.clearTranscriptWaiter(callId);
     waiter.reject(new Error(reason));
   }
 
   private resolveTranscriptWaiter(callId: CallId, transcript: string): void {
     const waiter = this.transcriptWaiters.get(callId);
-    if (!waiter) {
-      return;
-    }
+    if (!waiter) return;
     this.clearTranscriptWaiter(callId);
     waiter.resolve(transcript);
   }
@@ -374,7 +373,9 @@ export class CallManager {
     return new Promise((resolve, reject) => {
       const timeout = setTimeout(() => {
         this.transcriptWaiters.delete(callId);
-        reject(new Error(`Timed out waiting for transcript after ${timeoutMs}ms`));
+        reject(
+          new Error(`Timed out waiting for transcript after ${timeoutMs}ms`),
+        );
       }, timeoutMs);
 
       this.transcriptWaiters.set(callId, { resolve, reject, timeout });
@@ -496,7 +497,10 @@ export class CallManager {
         const normalized = from?.replace(/\D/g, "") || "";
         const allowed = (allowFrom || []).some((num) => {
           const normalizedAllow = num.replace(/\D/g, "");
-          return normalized.endsWith(normalizedAllow) || normalizedAllow.endsWith(normalized);
+          return (
+            normalized.endsWith(normalizedAllow) ||
+            normalizedAllow.endsWith(normalized)
+          );
         });
 =======
         const normalized = normalizePhoneNumber(from);
@@ -521,7 +525,11 @@ export class CallManager {
   /**
    * Create a call record for an inbound call.
    */
-  private createInboundCall(providerCallId: string, from: string, to: string): CallRecord {
+  private createInboundCall(
+    providerCallId: string,
+    from: string,
+    to: string,
+  ): CallRecord {
     const callId = crypto.randomUUID();
 
     const callRecord: CallRecord = {
@@ -536,7 +544,8 @@ export class CallManager {
       transcript: [],
       processedEventIds: [],
       metadata: {
-        initialMessage: this.config.inboundGreeting || "Hello! How can I help you today?",
+        initialMessage:
+          this.config.inboundGreeting || "Hello! How can I help you today?",
       },
     };
 
@@ -556,9 +565,7 @@ export class CallManager {
   private findCall(callIdOrProviderCallId: string): CallRecord | undefined {
     // Try direct lookup by internal callId
     const directCall = this.activeCalls.get(callIdOrProviderCallId);
-    if (directCall) {
-      return directCall;
-    }
+    if (directCall) return directCall;
 
     // Try lookup by providerCallId
     return this.getCallByProviderCallId(callIdOrProviderCallId);
@@ -679,7 +686,10 @@ export class CallManager {
           call.endReason = "error";
           this.transitionState(call, "error");
           this.clearMaxDurationTimer(call.callId);
-          this.rejectTranscriptWaiter(call.callId, `Call error: ${event.error}`);
+          this.rejectTranscriptWaiter(
+            call.callId,
+            `Call error: ${event.error}`,
+          );
           this.activeCalls.delete(call.callId);
           if (call.providerCallId) {
             this.providerCallIdMap.delete(call.providerCallId);
@@ -712,21 +722,17 @@ export class CallManager {
 
   private maybeSpeakInitialMessageOnAnswered(call: CallRecord): void {
     const initialMessage =
-      typeof call.metadata?.initialMessage === "string" ? call.metadata.initialMessage.trim() : "";
+      typeof call.metadata?.initialMessage === "string"
+        ? call.metadata.initialMessage.trim()
+        : "";
 
-    if (!initialMessage) {
-      return;
-    }
+    if (!initialMessage) return;
 
-    if (!this.provider || !call.providerCallId) {
-      return;
-    }
+    if (!this.provider || !call.providerCallId) return;
 
     // Twilio has provider-specific state for speaking (<Say> fallback) and can
     // fail for inbound calls; keep existing Twilio behavior unchanged.
-    if (this.provider.name === "twilio") {
-      return;
-    }
+    if (this.provider.name === "twilio") return;
 
     void this.speakInitialMessage(call.providerCallId);
   }
@@ -795,7 +801,10 @@ export class CallManager {
   }
 
   // States that can cycle during multi-turn conversations
-  private static readonly ConversationStates = new Set<CallState>(["speaking", "listening"]);
+  private static readonly ConversationStates = new Set<CallState>([
+    "speaking",
+    "listening",
+  ]);
 
   // Non-terminal state order for monotonic transitions
   private static readonly StateOrder: readonly CallState[] = [
@@ -812,9 +821,7 @@ export class CallManager {
    */
   private transitionState(call: CallRecord, newState: CallState): void {
     // No-op for same state or already terminal
-    if (call.state === newState || TerminalStates.has(call.state)) {
-      return;
-    }
+    if (call.state === newState || TerminalStates.has(call.state)) return;
 
     // Terminal states can always be reached from non-terminal
     if (TerminalStates.has(newState)) {
@@ -843,7 +850,11 @@ export class CallManager {
   /**
    * Add an entry to the call transcript.
    */
-  private addTranscriptEntry(call: CallRecord, speaker: "bot" | "user", text: string): void {
+  private addTranscriptEntry(
+    call: CallRecord,
+    speaker: "bot" | "user",
+    text: string,
+  ): void {
     const entry: TranscriptEntry = {
       timestamp: Date.now(),
       speaker,
@@ -871,9 +882,7 @@ export class CallManager {
    */
   private loadActiveCalls(): void {
     const logPath = path.join(this.storePath, "calls.jsonl");
-    if (!fs.existsSync(logPath)) {
-      return;
-    }
+    if (!fs.existsSync(logPath)) return;
 
     // Read file synchronously and parse lines
     const content = fs.readFileSync(logPath, "utf-8");
@@ -883,9 +892,7 @@ export class CallManager {
     const callMap = new Map<CallId, CallRecord>();
 
     for (const line of lines) {
-      if (!line.trim()) {
-        continue;
-      }
+      if (!line.trim()) continue;
       try {
         const call = CallRecordSchema.parse(JSON.parse(line));
         callMap.set(call.callId, call);

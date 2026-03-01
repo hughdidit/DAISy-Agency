@@ -8,9 +8,7 @@
  * API fields for reasoning/thinking.
  */
 export function isReasoningTagProvider(provider: string | undefined | null): boolean {
-  if (!provider) {
-    return false;
-  }
+  if (!provider) return false;
   const normalized = provider.trim().toLowerCase();
 
   // Check for exact matches or known prefixes/substrings for reasoning providers

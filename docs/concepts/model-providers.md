@@ -5,7 +5,6 @@ read_when:
   - You want example configs or CLI onboarding commands for model providers
 title: "Model Providers"
 ---
-
 # Model providers
 
 This page covers **LLM/model providers** (not chat channels like WhatsApp/Telegram).
@@ -186,7 +185,7 @@ Kimi K2 model IDs:
 ```json5
 {
   agents: {
-    defaults: { model: { primary: "moonshot/kimi-k2.5" } },
+    defaults: { model: { primary: "moonshot/kimi-k2.5" } }
   },
   models: {
     mode: "merge",
@@ -195,27 +194,38 @@ Kimi K2 model IDs:
         baseUrl: "https://api.moonshot.ai/v1",
         apiKey: "${MOONSHOT_API_KEY}",
         api: "openai-completions",
-        models: [{ id: "kimi-k2.5", name: "Kimi K2.5" }],
-      },
-    },
-  },
+        models: [{ id: "kimi-k2.5", name: "Kimi K2.5" }]
+      }
+    }
+  }
 }
 ```
 
-### Kimi Coding
+### Kimi Code
 
-Kimi Coding uses Moonshot AI's Anthropic-compatible endpoint:
+Kimi Code uses a dedicated endpoint and key (separate from Moonshot):
 
-- Provider: `kimi-coding`
-- Auth: `KIMI_API_KEY`
-- Example model: `kimi-coding/k2p5`
+- Provider: `kimi-code`
+- Auth: `KIMICODE_API_KEY`
+- Example model: `kimi-code/kimi-for-coding`
 
 ```json5
 {
-  env: { KIMI_API_KEY: "sk-..." },
+  env: { KIMICODE_API_KEY: "sk-..." },
   agents: {
-    defaults: { model: { primary: "kimi-coding/k2p5" } },
+    defaults: { model: { primary: "kimi-code/kimi-for-coding" } }
   },
+  models: {
+    mode: "merge",
+    providers: {
+      "kimi-code": {
+        baseUrl: "https://api.kimi.com/coding/v1",
+        apiKey: "${KIMICODE_API_KEY}",
+        api: "openai-completions",
+        models: [{ id: "kimi-for-coding", name: "Kimi For Coding" }]
+      }
+    }
+  }
 }
 ```
 
@@ -230,7 +240,6 @@ openclaw models auth login --provider qwen-portal --set-default
 ```
 
 Model refs:
-
 - `qwen-portal/coder-model`
 - `qwen-portal/vision-model`
 
@@ -248,7 +257,7 @@ Synthetic provides Anthropic-compatible models behind the `synthetic` provider:
 ```json5
 {
   agents: {
-    defaults: { model: { primary: "synthetic/hf:MiniMaxAI/MiniMax-M2.1" } },
+    defaults: { model: { primary: "synthetic/hf:MiniMaxAI/MiniMax-M2.1" } }
   },
   models: {
     mode: "merge",
@@ -257,10 +266,10 @@ Synthetic provides Anthropic-compatible models behind the `synthetic` provider:
         baseUrl: "https://api.synthetic.new/anthropic",
         apiKey: "${SYNTHETIC_API_KEY}",
         api: "anthropic-messages",
-        models: [{ id: "hf:MiniMaxAI/MiniMax-M2.1", name: "MiniMax M2.1" }],
-      },
-    },
-  },
+        models: [{ id: "hf:MiniMaxAI/MiniMax-M2.1", name: "MiniMax M2.1" }]
+      }
+    }
+  }
 }
 ```
 
@@ -290,8 +299,8 @@ ollama pull llama3.3
 ```json5
 {
   agents: {
-    defaults: { model: { primary: "ollama/llama3.3" } },
-  },
+    defaults: { model: { primary: "ollama/llama3.3" } }
+  }
 }
 ```
 
@@ -306,8 +315,8 @@ Example (OpenAI‑compatible):
   agents: {
     defaults: {
       model: { primary: "lmstudio/minimax-m2.1-gs32" },
-      models: { "lmstudio/minimax-m2.1-gs32": { alias: "Minimax" } },
-    },
+      models: { "lmstudio/minimax-m2.1-gs32": { alias: "Minimax" } }
+    }
   },
   models: {
     providers: {
@@ -323,17 +332,16 @@ Example (OpenAI‑compatible):
             input: ["text"],
             cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
             contextWindow: 200000,
-            maxTokens: 8192,
-          },
-        ],
-      },
-    },
-  },
+            maxTokens: 8192
+          }
+        ]
+      }
+    }
+  }
 }
 ```
 
 Notes:
-
 - For custom providers, `reasoning`, `input`, `cost`, `contextWindow`, and `maxTokens` are optional.
   When omitted, OpenClaw defaults to:
   - `reasoning: false`

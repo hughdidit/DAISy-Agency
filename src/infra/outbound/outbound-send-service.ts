@@ -41,9 +41,7 @@ export type OutboundSendContext = {
 };
 
 function extractToolPayload(result: AgentToolResult<unknown>): unknown {
-  if (result.details !== undefined) {
-    return result.details;
-  }
+  if (result.details !== undefined) return result.details;
   const textBlock = Array.isArray(result.content)
     ? result.content.find(
         (block) =>

@@ -33,7 +33,6 @@ import { truncateUtf16Safe } from "../../utils.js";
 import { reactMessageDiscord, removeReactionDiscord } from "../send.js";
 <<<<<<< HEAD
 import { normalizeDiscordSlug } from "./allow-list.js";
-<<<<<<< HEAD
 import { formatDiscordUserTag, resolveTimestampMs } from "./format.js";
 import {
   buildDiscordMediaPayload,
@@ -60,7 +59,6 @@ export async function processDiscordMessage(ctx: DiscordMessagePreflightContext)
     ackReactionScope,
     message,
     author,
-    sender,
     data,
     client,
     channelInfo,
@@ -129,7 +127,12 @@ export async function processDiscordMessage(ctx: DiscordMessagePreflightContext)
         channelName: channelName ?? message.channelId,
         channelId: message.channelId,
       });
-  const senderLabel = sender.label;
+  const senderTag = formatDiscordUserTag(author);
+  const senderDisplay = data.member?.nickname ?? author.globalName ?? author.username;
+  const senderLabel =
+    senderDisplay && senderTag && senderDisplay !== senderTag
+      ? `${senderDisplay} (${senderTag})`
+      : (senderDisplay ?? senderTag ?? author.id);
   const isForumParent =
     threadParentType === ChannelType.GuildForum || threadParentType === ChannelType.GuildMedia;
   const forumParentSlug =
@@ -142,13 +145,6 @@ export async function processDiscordMessage(ctx: DiscordMessagePreflightContext)
   const groupSubject = isDirectMessage ? undefined : groupChannel;
 <<<<<<< HEAD
   const channelDescription = channelInfo?.topic?.trim();
-  const senderName = sender.isPluralKit
-    ? (sender.name ?? author.username)
-    : (data.member?.nickname ?? author.globalName ?? author.username);
-  const senderUsername = sender.isPluralKit
-    ? (sender.tag ?? sender.name ?? author.username)
-    : author.username;
-  const senderTag = sender.tag;
   const systemPromptParts = [
     channelDescription ? `Channel topic: ${channelDescription}` : null,
     channelConfig?.systemPrompt?.trim() || null,
@@ -231,25 +227,22 @@ export async function processDiscordMessage(ctx: DiscordMessagePreflightContext)
   let threadLabel: string | undefined;
   let parentSessionKey: string | undefined;
   if (threadChannel) {
-    const includeThreadStarter = channelConfig?.includeThreadStarter !== false;
-    if (includeThreadStarter) {
-      const starter = await resolveDiscordThreadStarter({
-        channel: threadChannel,
-        client,
-        parentId: threadParentId,
-        parentType: threadParentType,
-        resolveTimestampMs,
+    const starter = await resolveDiscordThreadStarter({
+      channel: threadChannel,
+      client,
+      parentId: threadParentId,
+      parentType: threadParentType,
+      resolveTimestampMs,
+    });
+    if (starter?.text) {
+      const starterEnvelope = formatThreadStarterEnvelope({
+        channel: "Discord",
+        author: starter.author,
+        timestamp: starter.timestamp,
+        body: starter.text,
+        envelope: envelopeOptions,
       });
-      if (starter?.text) {
-        const starterEnvelope = formatThreadStarterEnvelope({
-          channel: "Discord",
-          author: starter.author,
-          timestamp: starter.timestamp,
-          body: starter.text,
-          envelope: envelopeOptions,
-        });
-        threadStarterBody = starterEnvelope;
-      }
+      threadStarterBody = starterEnvelope;
     }
     const parentName = threadParentName ?? "parent";
     threadLabel = threadName
@@ -306,10 +299,10 @@ export async function processDiscordMessage(ctx: DiscordMessagePreflightContext)
     AccountId: route.accountId,
     ChatType: isDirectMessage ? "direct" : "channel",
     ConversationLabel: fromLabel,
-    SenderName: senderName,
-    SenderId: sender.id,
-    SenderUsername: senderUsername,
-    SenderTag: senderTag,
+    SenderName: data.member?.nickname ?? author.globalName ?? author.username,
+    SenderId: author.id,
+    SenderUsername: author.username,
+    SenderTag: formatDiscordUserTag(author),
     GroupSubject: groupSubject,
     GroupChannel: groupChannel,
     UntrustedContext: untrustedChannelMetadata ? [untrustedChannelMetadata] : undefined,
@@ -360,12 +353,7 @@ export async function processDiscordMessage(ctx: DiscordMessagePreflightContext)
     ? deliverTarget.slice("channel:".length)
     : message.channelId;
 
-  const { onModelSelected, ...prefixOptions } = createReplyPrefixOptions({
-    cfg,
-    agentId: route.agentId,
-    channel: "discord",
-    accountId: route.accountId,
-  });
+  const prefixContext = createReplyPrefixContext({ cfg, agentId: route.agentId });
   const tableMode = resolveMarkdownTableMode({
     cfg,
     channel: "discord",
@@ -373,7 +361,8 @@ export async function processDiscordMessage(ctx: DiscordMessagePreflightContext)
   });
 
   const { dispatcher, replyOptions, markDispatchIdle } = createReplyDispatcherWithTyping({
-    ...prefixOptions,
+    responsePrefix: prefixContext.responsePrefix,
+    responsePrefixContextProvider: prefixContext.responsePrefixContextProvider,
     humanDelay: resolveHumanDelayConfig(cfg, route.agentId),
     deliver: async (payload: ReplyPayload) => {
       const replyToId = replyReference.use();
@@ -419,7 +408,9 @@ export async function processDiscordMessage(ctx: DiscordMessagePreflightContext)
         typeof discordConfig?.blockStreaming === "boolean"
           ? !discordConfig.blockStreaming
           : undefined,
-      onModelSelected,
+      onModelSelected: (ctx) => {
+        prefixContext.onModelSelected(ctx);
+      },
     },
   });
   markDispatchIdle();

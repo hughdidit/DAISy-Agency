@@ -28,7 +28,6 @@ it as a `System:` line in the prompt. Use `--mode now` to trigger the heartbeat
 immediately; `next-heartbeat` waits for the next scheduled tick.
 
 Flags:
-
 - `--text <text>`: required system event text.
 - `--mode <mode>`: `now` or `next-heartbeat` (default).
 - `--json`: machine-readable output.
@@ -36,13 +35,11 @@ Flags:
 ## `system heartbeat last|enable|disable`
 
 Heartbeat controls:
-
 - `last`: show the last heartbeat event.
 - `enable`: turn heartbeats back on (use this if they were disabled).
 - `disable`: pause heartbeats.
 
 Flags:
-
 - `--json`: machine-readable output.
 
 ## `system presence`
@@ -51,7 +48,6 @@ List the current system presence entries the Gateway knows about (nodes,
 instances, and similar status lines).
 
 Flags:
-
 - `--json`: machine-readable output.
 
 ## Notes

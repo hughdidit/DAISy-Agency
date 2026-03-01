@@ -163,17 +163,13 @@ function normalizeUrlPath(rawPath: string): string {
 async function resolveFilePath(rootReal: string, urlPath: string) {
   const normalized = normalizeUrlPath(urlPath);
   const rel = normalized.replace(/^\/+/, "");
-  if (rel.split("/").some((p) => p === "..")) {
-    return null;
-  }
+  if (rel.split("/").some((p) => p === "..")) return null;
 
   const tryOpen = async (relative: string) => {
     try {
       return await openFileWithinRoot({ rootDir: rootReal, relativePath: relative });
     } catch (err) {
-      if (err instanceof SafeOpenError) {
-        return null;
-      }
+      if (err instanceof SafeOpenError) return null;
       throw err;
     }
   };
@@ -185,9 +181,7 @@ async function resolveFilePath(rootReal: string, urlPath: string) {
   const candidate = path.join(rootReal, rel);
   try {
     const st = await fs.lstat(candidate);
-    if (st.isSymbolicLink()) {
-      return null;
-    }
+    if (st.isSymbolicLink()) return null;
     if (st.isDirectory()) {
       return await tryOpen(path.posix.join(rel, "index.html"));
     }
@@ -203,29 +197,13 @@ function isDisabledByEnv() {
   if (isTruthyEnvValue(process.env.OPENCLAW_SKIP_CANVAS_HOST)) return true;
   if (process.env.NODE_ENV === "test") return true;
   if (process.env.VITEST) return true;
-=======
-  if (isTruthyEnvValue(process.env.OPENCLAW_SKIP_CANVAS_HOST)) {
-    return true;
-  }
-  if (isTruthyEnvValue(process.env.OPENCLAW_SKIP_CANVAS_HOST)) {
-    return true;
-  }
-  if (process.env.NODE_ENV === "test") {
-    return true;
-  }
-  if (process.env.VITEST) {
-    return true;
-  }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
   return false;
 }
 
 function normalizeBasePath(rawPath: string | undefined) {
   const trimmed = (rawPath ?? CANVAS_HOST_PATH).trim();
   const normalized = normalizeUrlPath(trimmed || CANVAS_HOST_PATH);
-  if (normalized === "/") {
-    return "/";
-  }
+  if (normalized === "/") return "/";
   return normalized.replace(/\/+$/, "");
 }
 
@@ -286,9 +264,7 @@ export async function createCanvasHostHandler(
 
   let debounce: NodeJS.Timeout | null = null;
   const broadcastReload = () => {
-    if (!liveReload) {
-      return;
-    }
+    if (!liveReload) return;
     for (const ws of sockets) {
       try {
         ws.send("reload");
@@ -298,9 +274,7 @@ export async function createCanvasHostHandler(
     }
   };
   const scheduleReload = () => {
-    if (debounce) {
-      clearTimeout(debounce);
-    }
+    if (debounce) clearTimeout(debounce);
     debounce = setTimeout(() => {
       debounce = null;
       broadcastReload();
@@ -322,9 +296,7 @@ export async function createCanvasHostHandler(
     : null;
   watcher?.on("all", () => scheduleReload());
   watcher?.on("error", (err) => {
-    if (watcherClosed) {
-      return;
-    }
+    if (watcherClosed) return;
     watcherClosed = true;
     opts.runtime.error(
       `canvasHost watcher error: ${String(err)} (live reload disabled; consider canvasHost.liveReload=false or a smaller canvasHost.root)`,
@@ -333,13 +305,9 @@ export async function createCanvasHostHandler(
   });
 
   const handleUpgrade = (req: IncomingMessage, socket: Duplex, head: Buffer) => {
-    if (!wss) {
-      return false;
-    }
+    if (!wss) return false;
     const url = new URL(req.url ?? "/", "http://localhost");
-    if (url.pathname !== CANVAS_WS_PATH) {
-      return false;
-    }
+    if (url.pathname !== CANVAS_WS_PATH) return false;
     wss.handleUpgrade(req, socket as Socket, head, (ws) => {
       wss.emit("connection", ws, req);
     });
@@ -348,9 +316,7 @@ export async function createCanvasHostHandler(
 
   const handleHttpRequest = async (req: IncomingMessage, res: ServerResponse) => {
     const urlRaw = req.url;
-    if (!urlRaw) {
-      return false;
-    }
+    if (!urlRaw) return false;
 
     try {
       const url = new URL(urlRaw, "http://localhost");
@@ -430,9 +396,7 @@ export async function createCanvasHostHandler(
     handleHttpRequest,
     handleUpgrade,
     close: async () => {
-      if (debounce) {
-        clearTimeout(debounce);
-      }
+      if (debounce) clearTimeout(debounce);
       watcherClosed = true;
       await watcher?.close().catch(() => {});
       if (wss) {
@@ -460,16 +424,10 @@ export async function startCanvasHost(opts: CanvasHostServerOpts): Promise<Canva
 
   const bindHost = opts.listenHost?.trim() || "0.0.0.0";
   const server: Server = http.createServer((req, res) => {
-    if (String(req.headers.upgrade ?? "").toLowerCase() === "websocket") {
-      return;
-    }
+    if (String(req.headers.upgrade ?? "").toLowerCase() === "websocket") return;
     void (async () => {
-      if (await handleA2uiHttpRequest(req, res)) {
-        return;
-      }
-      if (await handler.handleHttpRequest(req, res)) {
-        return;
-      }
+      if (await handleA2uiHttpRequest(req, res)) return;
+      if (await handler.handleHttpRequest(req, res)) return;
       res.statusCode = 404;
       res.setHeader("Content-Type", "text/plain; charset=utf-8");
       res.end("Not Found");
@@ -481,9 +439,7 @@ export async function startCanvasHost(opts: CanvasHostServerOpts): Promise<Canva
     });
   });
   server.on("upgrade", (req, socket, head) => {
-    if (handler.handleUpgrade(req, socket, head)) {
-      return;
-    }
+    if (handler.handleUpgrade(req, socket, head)) return;
     socket.destroy();
   });
 
@@ -513,9 +469,7 @@ export async function startCanvasHost(opts: CanvasHostServerOpts): Promise<Canva
     port: boundPort,
     rootDir: handler.rootDir,
     close: async () => {
-      if (ownsHandler) {
-        await handler.close();
-      }
+      if (ownsHandler) await handler.close();
       await new Promise<void>((resolve, reject) =>
         server.close((err) => (err ? reject(err) : resolve())),
       );

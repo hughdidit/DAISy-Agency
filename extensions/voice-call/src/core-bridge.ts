@@ -50,7 +50,10 @@ type CoreAgentDeps = {
   ensureAgentWorkspace: (params?: { dir: string }) => Promise<void>;
   resolveStorePath: (store?: string, opts?: { agentId?: string }) => string;
   loadSessionStore: (storePath: string) => Record<string, unknown>;
-  saveSessionStore: (storePath: string, store: Record<string, unknown>) => Promise<void>;
+  saveSessionStore: (
+    storePath: string,
+    store: Record<string, unknown>,
+  ) => Promise<void>;
   resolveSessionFilePath: (
     sessionId: string,
     entry: unknown,
@@ -71,17 +74,13 @@ function findPackageRoot(startDir: string, name: string): string | null {
       if (fs.existsSync(pkgPath)) {
         const raw = fs.readFileSync(pkgPath, "utf8");
         const pkg = JSON.parse(raw) as { name?: string };
-        if (pkg.name === name) {
-          return dir;
-        }
+        if (pkg.name === name) return dir;
       }
     } catch {
       // ignore parse errors and keep walking
     }
     const parent = path.dirname(dir);
-    if (parent === dir) {
-      return null;
-    }
+    if (parent === dir) return null;
     dir = parent;
   }
 }
@@ -116,13 +115,9 @@ function resolveOpenClawRoot(): string {
     }
   }
 
-<<<<<<< HEAD
   throw new Error(
     "Unable to resolve core root. Set OPENCLAW_ROOT to the package root.",
   );
-=======
-  throw new Error("Unable to resolve core root. Set OPENCLAW_ROOT to the package root.");
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 }
 
 async function importCoreExtensionAPI(): Promise<{
@@ -151,9 +146,7 @@ async function importCoreExtensionAPI(): Promise<{
 }
 
 export async function loadCoreAgentDeps(): Promise<CoreAgentDeps> {
-  if (coreDepsPromise) {
-    return coreDepsPromise;
-  }
+  if (coreDepsPromise) return coreDepsPromise;
 
   coreDepsPromise = (async () => {
     return await importCoreExtensionAPI();

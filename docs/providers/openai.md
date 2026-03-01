@@ -5,7 +5,6 @@ read_when:
   - You want Codex subscription auth instead of API keys
 title: "OpenAI"
 ---
-
 # OpenAI
 
 OpenAI provides developer APIs for GPT models. Codex supports **ChatGPT sign-in** for subscription

@@ -8,10 +8,10 @@ export async function readLatestAssistantReply(params: {
   sessionKey: string;
   limit?: number;
 }): Promise<string | undefined> {
-  const history = await callGateway<{ messages: Array<unknown> }>({
+  const history = (await callGateway({
     method: "chat.history",
     params: { sessionKey: params.sessionKey, limit: params.limit ?? 50 },
-  });
+  })) as { messages?: unknown[] };
   const filtered = stripToolMessages(Array.isArray(history?.messages) ? history.messages : []);
   const last = filtered.length > 0 ? filtered[filtered.length - 1] : undefined;
   return last ? extractAssistantText(last) : undefined;
@@ -26,7 +26,7 @@ export async function runAgentStep(params: {
   lane?: string;
 }): Promise<string | undefined> {
   const stepIdem = crypto.randomUUID();
-  const response = await callGateway<{ runId?: string }>({
+  const response = (await callGateway({
     method: "agent",
     params: {
       message: params.message,
@@ -38,21 +38,19 @@ export async function runAgentStep(params: {
       extraSystemPrompt: params.extraSystemPrompt,
     },
     timeoutMs: 10_000,
-  });
+  })) as { runId?: string; acceptedAt?: number };
 
   const stepRunId = typeof response?.runId === "string" && response.runId ? response.runId : "";
   const resolvedRunId = stepRunId || stepIdem;
   const stepWaitMs = Math.min(params.timeoutMs, 60_000);
-  const wait = await callGateway<{ status?: string }>({
+  const wait = (await callGateway({
     method: "agent.wait",
     params: {
       runId: resolvedRunId,
       timeoutMs: stepWaitMs,
     },
     timeoutMs: stepWaitMs + 2000,
-  });
-  if (wait?.status !== "ok") {
-    return undefined;
-  }
+  })) as { status?: string };
+  if (wait?.status !== "ok") return undefined;
   return await readLatestAssistantReply({ sessionKey: params.sessionKey });
 }

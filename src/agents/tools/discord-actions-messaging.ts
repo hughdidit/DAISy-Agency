@@ -60,9 +60,7 @@ export async function handleDiscordMessagingAction(
     );
   const accountId = readStringParam(params, "accountId");
   const normalizeMessage = (message: unknown) => {
-    if (!message || typeof message !== "object") {
-      return message;
-    }
+    if (!message || typeof message !== "object") return message;
     return withNormalizedTimestamp(
       message as Record<string, unknown>,
       (message as { timestamp?: unknown }).timestamp,
@@ -281,7 +279,6 @@ export async function handleDiscordMessagingAction(
       const channelId = resolveChannelId();
       const name = readStringParam(params, "name", { required: true });
       const messageId = readStringParam(params, "messageId");
-      const content = readStringParam(params, "content");
       const autoArchiveMinutesRaw = params.autoArchiveMinutes;
       const autoArchiveMinutes =
         typeof autoArchiveMinutesRaw === "number" && Number.isFinite(autoArchiveMinutesRaw)
@@ -290,10 +287,10 @@ export async function handleDiscordMessagingAction(
       const thread = accountId
         ? await createThreadDiscord(
             channelId,
-            { name, messageId, autoArchiveMinutes, content },
+            { name, messageId, autoArchiveMinutes },
             { accountId },
           )
-        : await createThreadDiscord(channelId, { name, messageId, autoArchiveMinutes, content });
+        : await createThreadDiscord(channelId, { name, messageId, autoArchiveMinutes });
       return jsonResult({ ok: true, thread });
     }
     case "threadList": {

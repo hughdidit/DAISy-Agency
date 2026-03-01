@@ -10,7 +10,7 @@ import { runBeforeToolCallHook } from "./pi-tools.before-tool-call.js";
 import { normalizeToolName } from "./tool-policy.js";
 import { jsonResult } from "./tools/common.js";
 
-// oxlint-disable-next-line typescript/no-explicit-any
+// biome-ignore lint/suspicious/noExplicitAny: TypeBox schema type from pi-agent-core uses a different module instance.
 type AnyAgentTool = AgentTool<any, unknown>;
 
 type ToolExecuteArgsCurrent = [
@@ -102,16 +102,12 @@ export function toToolDefinitions(tools: AnyAgentTool[]): ToolDefinition[] {
         try {
           return await tool.execute(toolCallId, params, signal, onUpdate);
         } catch (err) {
-          if (signal?.aborted) {
-            throw err;
-          }
+          if (signal?.aborted) throw err;
           const name =
             err && typeof err === "object" && "name" in err
               ? String((err as { name?: unknown }).name)
               : "";
-          if (name === "AbortError") {
-            throw err;
-          }
+          if (name === "AbortError") throw err;
           const described = describeToolExecutionError(err);
           if (described.stack && described.stack !== described.message) {
             logDebug(`tools: ${normalizedName} failed stack:\n${described.stack}`);
@@ -141,7 +137,6 @@ export function toClientToolDefinitions(
       name: func.name,
       label: func.name,
       description: func.description ?? "",
-      // oxlint-disable-next-line typescript/no-explicit-any
       parameters: func.parameters as any,
 <<<<<<< HEAD
       execute: async (

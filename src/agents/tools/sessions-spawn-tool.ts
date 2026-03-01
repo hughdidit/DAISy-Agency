@@ -36,17 +36,11 @@ const SessionsSpawnToolSchema = Type.Object({
 });
 
 function splitModelRef(ref?: string) {
-  if (!ref) {
-    return { provider: undefined, model: undefined };
-  }
+  if (!ref) return { provider: undefined, model: undefined };
   const trimmed = ref.trim();
-  if (!trimmed) {
-    return { provider: undefined, model: undefined };
-  }
+  if (!trimmed) return { provider: undefined, model: undefined };
   const [provider, model] = trimmed.split("/", 2);
-  if (model) {
-    return { provider, model };
-  }
+  if (model) return { provider, model };
   return { provider: undefined, model: trimmed };
 }
 
@@ -55,13 +49,9 @@ function normalizeModelSelection(value: unknown): string | undefined {
     const trimmed = value.trim();
     return trimmed || undefined;
   }
-  if (!value || typeof value !== "object") {
-    return undefined;
-  }
+  if (!value || typeof value !== "object") return undefined;
   const primary = (value as { primary?: unknown }).primary;
-  if (typeof primary === "string" && primary.trim()) {
-    return primary.trim();
-  }
+  if (typeof primary === "string" && primary.trim()) return primary.trim();
   return undefined;
 }
 
@@ -92,7 +82,9 @@ export function createSessionsSpawnTool(opts?: {
       const modelOverride = readStringParam(params, "model");
       const thinkingOverrideRaw = readStringParam(params, "thinking");
       const cleanup =
-        params.cleanup === "keep" || params.cleanup === "delete" ? params.cleanup : "keep";
+        params.cleanup === "keep" || params.cleanup === "delete"
+          ? (params.cleanup as "keep" | "delete")
+          : "keep";
       const requesterOrigin = normalizeDeliveryContext({
         channel: opts?.agentChannel,
         accountId: opts?.agentAccountId,
@@ -104,9 +96,7 @@ export function createSessionsSpawnTool(opts?: {
           typeof params.runTimeoutSeconds === "number" && Number.isFinite(params.runTimeoutSeconds)
             ? Math.max(0, Math.floor(params.runTimeoutSeconds))
             : undefined;
-        if (explicit !== undefined) {
-          return explicit;
-        }
+        if (explicit !== undefined) return explicit;
         const legacy =
           typeof params.timeoutSeconds === "number" && Number.isFinite(params.timeoutSeconds)
             ? Math.max(0, Math.floor(params.timeoutSeconds))
@@ -172,21 +162,15 @@ export function createSessionsSpawnTool(opts?: {
         normalizeModelSelection(modelOverride) ??
         normalizeModelSelection(targetAgentConfig?.subagents?.model) ??
         normalizeModelSelection(cfg.agents?.defaults?.subagents?.model);
-
-      const resolvedThinkingDefaultRaw =
-        readStringParam(targetAgentConfig?.subagents ?? {}, "thinking") ??
-        readStringParam(cfg.agents?.defaults?.subagents ?? {}, "thinking");
-
       let thinkingOverride: string | undefined;
-      const thinkingCandidateRaw = thinkingOverrideRaw || resolvedThinkingDefaultRaw;
-      if (thinkingCandidateRaw) {
-        const normalized = normalizeThinkLevel(thinkingCandidateRaw);
+      if (thinkingOverrideRaw) {
+        const normalized = normalizeThinkLevel(thinkingOverrideRaw);
         if (!normalized) {
           const { provider, model } = splitModelRef(resolvedModel);
           const hint = formatThinkingLevels(provider, model);
           return jsonResult({
             status: "error",
-            error: `Invalid thinking level "${thinkingCandidateRaw}". Use one of: ${hint}.`,
+            error: `Invalid thinking level "${thinkingOverrideRaw}". Use one of: ${hint}.`,
           });
         }
         thinkingOverride = normalized;
@@ -245,7 +229,7 @@ export function createSessionsSpawnTool(opts?: {
       const childIdem = crypto.randomUUID();
       let childRunId: string = childIdem;
       try {
-        const response = await callGateway<{ runId: string }>({
+        const response = (await callGateway({
           method: "agent",
           params: {
             message: task,
@@ -268,7 +252,7 @@ export function createSessionsSpawnTool(opts?: {
             groupSpace: opts?.agentGroupSpace ?? undefined,
           },
           timeoutMs: 10_000,
-        });
+        })) as { runId?: string };
         if (typeof response?.runId === "string" && response.runId) {
           childRunId = response.runId;
         }

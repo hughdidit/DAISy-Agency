@@ -31,13 +31,9 @@ type OutboundDeliveryMeta = {
 
 const resolveChannelLabel = (channel: string) => {
   const pluginLabel = getChannelPlugin(channel as ChannelId)?.meta.label;
-  if (pluginLabel) {
-    return pluginLabel;
-  }
+  if (pluginLabel) return pluginLabel;
   const normalized = normalizeChatChannelId(channel);
-  if (normalized) {
-    return getChatChannelMeta(normalized).label;
-  }
+  if (normalized) return getChatChannelMeta(normalized).label;
   return channel;
 };
 
@@ -52,18 +48,10 @@ export function formatOutboundDeliverySummary(
   const label = resolveChannelLabel(result.channel);
   const base = `✅ Sent via ${label}. Message ID: ${result.messageId}`;
 
-  if ("chatId" in result) {
-    return `${base} (chat ${result.chatId})`;
-  }
-  if ("channelId" in result) {
-    return `${base} (channel ${result.channelId})`;
-  }
-  if ("roomId" in result) {
-    return `${base} (room ${result.roomId})`;
-  }
-  if ("conversationId" in result) {
-    return `${base} (conversation ${result.conversationId})`;
-  }
+  if ("chatId" in result) return `${base} (chat ${result.chatId})`;
+  if ("channelId" in result) return `${base} (channel ${result.channelId})`;
+  if ("roomId" in result) return `${base} (room ${result.roomId})`;
+  if ("conversationId" in result) return `${base} (conversation ${result.conversationId})`;
   return base;
 }
 

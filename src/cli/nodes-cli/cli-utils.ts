@@ -22,9 +22,7 @@ export function runNodesCommand(label: string, action: () => Promise<void>) {
     const { error, warn } = getNodesTheme();
     defaultRuntime.error(error(`nodes ${label} failed: ${message}`));
     const hint = unauthorizedHintForMessage(message);
-    if (hint) {
-      defaultRuntime.error(warn(hint));
-    }
+    if (hint) defaultRuntime.error(warn(hint));
     defaultRuntime.exit(1);
   });
 }

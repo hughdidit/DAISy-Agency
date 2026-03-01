@@ -4,18 +4,7 @@ import { migrateLegacyCronPayload } from "../payload-migration.js";
 import { loadCronStore, saveCronStore } from "../store.js";
 import { inferLegacyName, normalizeOptionalText } from "./normalize.js";
 
-function hasLegacyDeliveryHints(payload: Record<string, unknown>) {
-  if (typeof payload.deliver === "boolean") {
-    return true;
-  }
-  if (typeof payload.bestEffortDeliver === "boolean") {
-    return true;
-  }
-  if (typeof payload.to === "string" && payload.to.trim()) {
-    return true;
-  }
-  return false;
-}
+const storeCache = new Map<string, { version: 1; jobs: CronJob[] }>();
 
 <<<<<<< HEAD
 export async function ensureLoaded(state: CronServiceState) {
@@ -305,11 +294,6 @@ export async function ensureLoaded(state: CronServiceState, opts?: { forceReload
       mutated = true;
     }
 
-    if (typeof raw.enabled !== "boolean") {
-      raw.enabled = true;
-      mutated = true;
-    }
-
     const payload = raw.payload;
     if (
       (!payload || typeof payload !== "object" || Array.isArray(payload)) &&
@@ -474,25 +458,13 @@ export async function ensureLoaded(state: CronServiceState, opts?: { forceReload
 >>>>>>> d90cac990 (fix: cron scheduler reliability, store hardening, and UX improvements (#10776))
   }
   state.store = { version: 1, jobs: jobs as unknown as CronJob[] };
-  state.storeLoadedAtMs = state.deps.nowMs();
-  state.storeFileMtimeMs = fileMtimeMs;
-
-  if (!opts?.skipRecompute) {
-    recomputeNextRuns(state);
-  }
-
-  if (mutated) {
-    await persist(state);
-  }
+  storeCache.set(state.deps.storePath, state.store);
+  if (mutated) await persist(state);
 }
 
 export function warnIfDisabled(state: CronServiceState, action: string) {
-  if (state.deps.cronEnabled) {
-    return;
-  }
-  if (state.warnedDisabled) {
-    return;
-  }
+  if (state.deps.cronEnabled) return;
+  if (state.warnedDisabled) return;
   state.warnedDisabled = true;
   state.deps.log.warn(
     { enabled: false, action, storePath: state.deps.storePath },
@@ -501,10 +473,6 @@ export function warnIfDisabled(state: CronServiceState, action: string) {
 }
 
 export async function persist(state: CronServiceState) {
-  if (!state.store) {
-    return;
-  }
+  if (!state.store) return;
   await saveCronStore(state.deps.storePath, state.store);
-  // Update file mtime after save to prevent immediate reload
-  state.storeFileMtimeMs = await getFileMtimeMs(state.deps.storePath);
 }

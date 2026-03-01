@@ -11,22 +11,14 @@ import { theme } from "../terminal/theme.js";
 
 function parseLimit(value: unknown): number | null {
   if (typeof value === "number" && Number.isFinite(value)) {
-    if (value <= 0) {
-      return null;
-    }
+    if (value <= 0) return null;
     return Math.floor(value);
   }
-  if (typeof value !== "string") {
-    return null;
-  }
+  if (typeof value !== "string") return null;
   const raw = value.trim();
-  if (!raw) {
-    return null;
-  }
+  if (!raw) return null;
   const parsed = Number.parseInt(raw, 10);
-  if (!Number.isFinite(parsed) || parsed <= 0) {
-    return null;
-  }
+  if (!Number.isFinite(parsed) || parsed <= 0) return null;
   return parsed;
 }
 
@@ -67,9 +59,7 @@ export function registerDirectoryCli(program: Command) {
     });
     const channelId = selection.channel;
     const plugin = getChannelPlugin(channelId);
-    if (!plugin) {
-      throw new Error(`Unsupported channel: ${String(channelId)}`);
-    }
+    if (!plugin) throw new Error(`Unsupported channel: ${String(channelId)}`);
     const accountId = opts.account?.trim() || resolveChannelDefaultAccountId({ plugin, cfg });
     return { cfg, channelId, accountId, plugin };
   };
@@ -82,9 +72,7 @@ export function registerDirectoryCli(program: Command) {
           account: opts.account as string | undefined,
         });
         const fn = plugin.directory?.self;
-        if (!fn) {
-          throw new Error(`Channel ${channelId} does not support directory self`);
-        }
+        if (!fn) throw new Error(`Channel ${channelId} does not support directory self`);
         const result = await fn({ cfg, accountId, runtime: defaultRuntime });
         if (opts.json) {
           defaultRuntime.log(JSON.stringify(result, null, 2));
@@ -95,7 +83,7 @@ export function registerDirectoryCli(program: Command) {
           return;
         }
         const tableWidth = Math.max(60, (process.stdout.columns ?? 120) - 1);
-        defaultRuntime.log(theme.heading("Self"));
+        defaultRuntime.log(`${theme.heading("Self")}`);
         defaultRuntime.log(
           renderTable({
             width: tableWidth,
@@ -124,9 +112,7 @@ export function registerDirectoryCli(program: Command) {
           account: opts.account as string | undefined,
         });
         const fn = plugin.directory?.listPeers;
-        if (!fn) {
-          throw new Error(`Channel ${channelId} does not support directory peers`);
-        }
+        if (!fn) throw new Error(`Channel ${channelId} does not support directory peers`);
         const result = await fn({
           cfg,
           accountId,
@@ -171,9 +157,7 @@ export function registerDirectoryCli(program: Command) {
           account: opts.account as string | undefined,
         });
         const fn = plugin.directory?.listGroups;
-        if (!fn) {
-          throw new Error(`Channel ${channelId} does not support directory groups`);
-        }
+        if (!fn) throw new Error(`Channel ${channelId} does not support directory groups`);
         const result = await fn({
           cfg,
           accountId,
@@ -221,13 +205,9 @@ export function registerDirectoryCli(program: Command) {
           account: opts.account as string | undefined,
         });
         const fn = plugin.directory?.listGroupMembers;
-        if (!fn) {
-          throw new Error(`Channel ${channelId} does not support group members listing`);
-        }
+        if (!fn) throw new Error(`Channel ${channelId} does not support group members listing`);
         const groupId = String(opts.groupId ?? "").trim();
-        if (!groupId) {
-          throw new Error("Missing --group-id");
-        }
+        if (!groupId) throw new Error("Missing --group-id");
         const result = await fn({
           cfg,
           accountId,

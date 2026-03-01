@@ -266,10 +266,8 @@ export function createLobsterTool(api: OpenClawPluginApi) {
       maxStdoutBytes: Type.Optional(Type.Number()),
     }),
     async execute(_id: string, params: Record<string, unknown>) {
-      const action = typeof params.action === "string" ? params.action.trim() : "";
-      if (!action) {
-        throw new Error("action required");
-      }
+      const action = String(params.action || "").trim();
+      if (!action) throw new Error("action required");
 
       // SECURITY: never allow tool callers (agent/user) to select executables.
       // If a host needs to override the binary, it must do so via plugin config.
@@ -289,15 +287,12 @@ export function createLobsterTool(api: OpenClawPluginApi) {
       const cwd = resolveCwd(params.cwd);
 >>>>>>> 1295b6705 (fix(lobster): block arbitrary exec via lobsterPath/cwd (GHSA-4mhr-g7xj-cg8j) (#5335))
       const timeoutMs = typeof params.timeoutMs === "number" ? params.timeoutMs : 20_000;
-      const maxStdoutBytes =
-        typeof params.maxStdoutBytes === "number" ? params.maxStdoutBytes : 512_000;
+      const maxStdoutBytes = typeof params.maxStdoutBytes === "number" ? params.maxStdoutBytes : 512_000;
 
       const argv = (() => {
         if (action === "run") {
           const pipeline = typeof params.pipeline === "string" ? params.pipeline : "";
-          if (!pipeline.trim()) {
-            throw new Error("pipeline required");
-          }
+          if (!pipeline.trim()) throw new Error("pipeline required");
           const argv = ["run", "--mode", "tool", pipeline];
           const argsJson = typeof params.argsJson === "string" ? params.argsJson : "";
           if (argsJson.trim()) {
@@ -307,13 +302,9 @@ export function createLobsterTool(api: OpenClawPluginApi) {
         }
         if (action === "resume") {
           const token = typeof params.token === "string" ? params.token : "";
-          if (!token.trim()) {
-            throw new Error("token required");
-          }
+          if (!token.trim()) throw new Error("token required");
           const approve = params.approve;
-          if (typeof approve !== "boolean") {
-            throw new Error("approve required");
-          }
+          if (typeof approve !== "boolean") throw new Error("approve required");
           return ["resume", "--token", token, "--approve", approve ? "yes" : "no"];
         }
         throw new Error(`Unknown action: ${action}`);

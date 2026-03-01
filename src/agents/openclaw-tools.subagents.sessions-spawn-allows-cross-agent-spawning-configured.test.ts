@@ -73,9 +73,7 @@ describe("openclaw-tools: subagents", () => {
       agentSessionKey: "main",
       agentChannel: "whatsapp",
     }).find((candidate) => candidate.name === "sessions_spawn");
-    if (!tool) {
-      throw new Error("missing sessions_spawn tool");
-    }
+    if (!tool) throw new Error("missing sessions_spawn tool");
 
     const result = await tool.execute("call7", {
       task: "do thing",
@@ -126,9 +124,7 @@ describe("openclaw-tools: subagents", () => {
       agentSessionKey: "main",
       agentChannel: "whatsapp",
     }).find((candidate) => candidate.name === "sessions_spawn");
-    if (!tool) {
-      throw new Error("missing sessions_spawn tool");
-    }
+    if (!tool) throw new Error("missing sessions_spawn tool");
 
     const result = await tool.execute("call8", {
       task: "do thing",

@@ -6,23 +6,19 @@ read_when:
   - Handling plugin config schemas or plugin load gating
 title: "Strict Config Validation"
 ---
-
 # Strict config validation (doctor-only migrations)
 
 ## Goals
-
 - **Reject unknown config keys everywhere** (root + nested).
 - **Reject plugin config without a schema**; don’t load that plugin.
 - **Remove legacy auto-migration on load**; migrations run via doctor only.
 - **Auto-run doctor (dry-run) on startup**; if invalid, block non-diagnostic commands.
 
 ## Non-goals
-
 - Backward compatibility on load (legacy keys do not auto-migrate).
 - Silent drops of unrecognized keys.
 
 ## Strict validation rules
-
 - Config must match the schema exactly at every level.
 - Unknown keys are validation errors (no passthrough at root or nested).
 - `plugins.entries.<id>.config` must be validated by the plugin’s schema.
@@ -31,17 +27,11 @@ title: "Strict Config Validation"
 - Plugin manifests (`openclaw.plugin.json`) are required for all plugins.
 
 ## Plugin schema enforcement
-
 - Each plugin provides a strict JSON Schema for its config (inline in the manifest).
 - Plugin load flow:
   1) Resolve plugin manifest + schema (`openclaw.plugin.json`).
   2) Validate config against the schema.
   3) If missing schema or invalid config: block plugin load, record error.
-=======
-  1. Resolve plugin manifest + schema (`openclaw.plugin.json`).
-  2. Validate config against the schema.
-  3. If missing schema or invalid config: block plugin load, record error.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - Error message includes:
   - Plugin id
   - Reason (missing schema / invalid config)
@@ -49,7 +39,6 @@ title: "Strict Config Validation"
 - Disabled plugins keep their config, but Doctor + logs surface a warning.
 
 ## Doctor flow
-
 - Doctor runs **every time** config is loaded (dry-run by default).
 - If config invalid:
   - Print a summary + actionable errors.
@@ -60,7 +49,6 @@ title: "Strict Config Validation"
   - Writes updated config.
 
 ## Command gating (when config is invalid)
-
 Allowed (diagnostic-only):
 - `openclaw doctor`
 - `openclaw logs`
@@ -72,7 +60,6 @@ Allowed (diagnostic-only):
 Everything else must hard-fail with: “Config invalid. Run `openclaw doctor --fix`.”
 
 ## Error UX format
-
 - Single summary header.
 - Grouped sections:
   - Unknown keys (full paths)
@@ -80,7 +67,6 @@ Everything else must hard-fail with: “Config invalid. Run `openclaw doctor --f
   - Plugin load failures (plugin id + reason + path)
 
 ## Implementation touchpoints
-
 - `src/config/zod-schema.ts`: remove root passthrough; strict objects everywhere.
 - `src/config/zod-schema.providers.ts`: ensure strict channel schemas.
 - `src/config/validation.ts`: fail on unknown keys; do not apply legacy migrations.
@@ -90,7 +76,6 @@ Everything else must hard-fail with: “Config invalid. Run `openclaw doctor --f
 - CLI command gating in `src/cli`.
 
 ## Tests
-
 - Unknown key rejection (root + nested).
 - Plugin missing schema → plugin load blocked with clear error.
 - Invalid config → gateway startup blocked except diagnostic commands.

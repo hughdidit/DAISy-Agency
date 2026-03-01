@@ -127,9 +127,7 @@ describe("web inbound media saves with extension", () => {
 
     // Allow a brief window for the async handler to fire on slower hosts.
     for (let i = 0; i < 50; i++) {
-      if (onMessage.mock.calls.length > 0) {
-        break;
-      }
+      if (onMessage.mock.calls.length > 0) break;
       await new Promise((resolve) => setTimeout(resolve, 10));
     }
 
@@ -180,9 +178,7 @@ describe("web inbound media saves with extension", () => {
     realSock.ev.emit("messages.upsert", upsert);
 
     for (let i = 0; i < 50; i++) {
-      if (onMessage.mock.calls.length > 0) {
-        break;
-      }
+      if (onMessage.mock.calls.length > 0) break;
       await new Promise((resolve) => setTimeout(resolve, 10));
     }
 
@@ -222,9 +218,7 @@ describe("web inbound media saves with extension", () => {
     realSock.ev.emit("messages.upsert", upsert);
 
     for (let i = 0; i < 50; i++) {
-      if (onMessage.mock.calls.length > 0) {
-        break;
-      }
+      if (onMessage.mock.calls.length > 0) break;
       await new Promise((resolve) => setTimeout(resolve, 10));
     }
 

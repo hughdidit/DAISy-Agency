@@ -47,30 +47,22 @@ function buildModelPickerCatalog(params: {
     const pushRef = (ref: { provider: string; model: string }, name?: string) => {
       const provider = normalizeProviderId(ref.provider);
       const id = String(ref.model ?? "").trim();
-      if (!provider || !id) {
-        return;
-      }
+      if (!provider || !id) return;
       const key = modelKey(provider, id);
-      if (keys.has(key)) {
-        return;
-      }
+      if (keys.has(key)) return;
       keys.add(key);
       out.push({ provider, id, name: name ?? id });
     };
 
     const pushRaw = (raw?: string) => {
       const value = String(raw ?? "").trim();
-      if (!value) {
-        return;
-      }
+      if (!value) return;
       const resolved = resolveModelRefFromString({
         raw: value,
         defaultProvider: params.defaultProvider,
         aliasIndex: params.aliasIndex,
       });
-      if (!resolved) {
-        return;
-      }
+      if (!resolved) return;
       pushRef(resolved.ref);
     };
 
@@ -104,13 +96,9 @@ function buildModelPickerCatalog(params: {
   const push = (entry: ModelPickerCatalogEntry) => {
     const provider = normalizeProviderId(entry.provider);
     const id = String(entry.id ?? "").trim();
-    if (!provider || !id) {
-      return;
-    }
+    if (!provider || !id) return;
     const key = modelKey(provider, id);
-    if (keys.has(key)) {
-      return;
-    }
+    if (keys.has(key)) return;
     keys.add(key);
     out.push({ provider, id, name: entry.name });
   };
@@ -147,9 +135,7 @@ function buildModelPickerCatalog(params: {
       defaultProvider: params.defaultProvider,
       aliasIndex: params.aliasIndex,
     });
-    if (!resolved) {
-      continue;
-    }
+    if (!resolved) continue;
     push({
       provider: resolved.ref.provider,
       id: resolved.ref.model,
@@ -181,20 +167,15 @@ export async function maybeHandleModelDirectiveInfo(params: {
   aliasIndex: ModelAliasIndex;
   allowedModelCatalog: Array<{ provider: string; id?: string; name?: string }>;
   resetModelOverride: boolean;
-  surface?: string;
 }): Promise<ReplyPayload | undefined> {
-  if (!params.directives.hasModelDirective) {
-    return undefined;
-  }
+  if (!params.directives.hasModelDirective) return undefined;
 
   const rawDirective = params.directives.rawModelDirective?.trim();
   const directive = rawDirective?.toLowerCase();
   const wantsStatus = directive === "status";
   const wantsSummary = !rawDirective;
   const wantsLegacyList = directive === "list";
-  if (!wantsSummary && !wantsStatus && !wantsLegacyList) {
-    return undefined;
-  }
+  if (!wantsSummary && !wantsStatus && !wantsLegacyList) return undefined;
 
   if (params.directives.rawModelProfile) {
     return { text: "Auth profile override requires a model selection." };
@@ -218,22 +199,6 @@ export async function maybeHandleModelDirectiveInfo(params: {
 
   if (wantsSummary) {
     const current = `${params.provider}/${params.model}`;
-    const isTelegram = params.surface === "telegram";
-
-    if (isTelegram) {
-      const buttons = buildBrowseProvidersButton();
-      return {
-        text: [
-          `Current: ${current}`,
-          "",
-          "Tap below to browse models, or use:",
-          "/model <provider/model> to switch",
-          "/model status for details",
-        ].join("\n"),
-        channelData: { telegram: { buttons } },
-      };
-    }
-
     return {
       text: [
         `Current: ${current}`,
@@ -248,16 +213,12 @@ export async function maybeHandleModelDirectiveInfo(params: {
   const modelsPath = `${params.agentDir}/models.json`;
   const formatPath = (value: string) => shortenHomePath(value);
   const authMode: ModelAuthDetailMode = "verbose";
-  if (pickerCatalog.length === 0) {
-    return { text: "No models available." };
-  }
+  if (pickerCatalog.length === 0) return { text: "No models available." };
 
   const authByProvider = new Map<string, string>();
   for (const entry of pickerCatalog) {
     const provider = normalizeProviderId(entry.provider);
-    if (authByProvider.has(provider)) {
-      continue;
-    }
+    if (authByProvider.has(provider)) continue;
     const auth = await resolveAuthLabel(
       provider,
       params.cfg,
@@ -293,9 +254,7 @@ export async function maybeHandleModelDirectiveInfo(params: {
 
   for (const provider of byProvider.keys()) {
     const models = byProvider.get(provider);
-    if (!models) {
-      continue;
-    }
+    if (!models) continue;
     const authLabel = authByProvider.get(provider) ?? "missing";
     const endpoint = resolveProviderEndpointLabel(provider, params.cfg);
     const endpointSuffix = endpoint.endpoint

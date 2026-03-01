@@ -37,13 +37,9 @@ export function buildSandboxEnv(params: {
 
 export function coerceEnv(env?: NodeJS.ProcessEnv | Record<string, string>) {
   const record: Record<string, string> = {};
-  if (!env) {
-    return record;
-  }
+  if (!env) return record;
   for (const [key, value] of Object.entries(env)) {
-    if (typeof value === "string") {
-      record[key] = value;
-    }
+    if (typeof value === "string") record[key] = value;
   }
   return record;
 }
@@ -56,9 +52,7 @@ export function buildDockerExecArgs(params: {
   tty: boolean;
 }) {
   const args = ["exec", "-i"];
-  if (params.tty) {
-    args.push("-t");
-  }
+  if (params.tty) args.push("-t");
   if (params.workdir) {
     args.push("-w", params.workdir);
   }
@@ -127,9 +121,7 @@ export function resolveWorkdir(workdir: string, warnings: string[]) {
   const fallback = current ?? homedir();
   try {
     const stats = statSync(workdir);
-    if (stats.isDirectory()) {
-      return workdir;
-    }
+    if (stats.isDirectory()) return workdir;
   } catch {
     // ignore, fallback below
   }
@@ -152,17 +144,13 @@ export function clampNumber(
   min: number,
   max: number,
 ) {
-  if (value === undefined || Number.isNaN(value)) {
-    return defaultValue;
-  }
+  if (value === undefined || Number.isNaN(value)) return defaultValue;
   return Math.min(Math.max(value, min), max);
 }
 
 export function readEnvInt(key: string) {
   const raw = process.env[key];
-  if (!raw) {
-    return undefined;
-  }
+  if (!raw) return undefined;
   const parsed = Number.parseInt(raw, 10);
   return Number.isFinite(parsed) ? parsed : undefined;
 }
@@ -176,9 +164,7 @@ export function chunkString(input: string, limit = CHUNK_LIMIT) {
 }
 
 export function truncateMiddle(str: string, max: number) {
-  if (str.length <= max) {
-    return str;
-  }
+  if (str.length <= max) return str;
   const half = Math.floor((max - 3) / 2);
   return `${sliceUtf16Safe(str, 0, half)}...${sliceUtf16Safe(str, -half)}`;
 }
@@ -188,9 +174,7 @@ export function sliceLogLines(
   offset?: number,
   limit?: number,
 ): { slice: string; totalLines: number; totalChars: number } {
-  if (!text) {
-    return { slice: "", totalLines: 0, totalChars: 0 };
-  }
+  if (!text) return { slice: "", totalLines: 0, totalChars: 0 };
   const normalized = text.replace(/\r\n/g, "\n");
   const lines = normalized.split("\n");
   if (lines.length > 0 && lines[lines.length - 1] === "") {
@@ -213,17 +197,11 @@ export function sliceLogLines(
 
 export function deriveSessionName(command: string): string | undefined {
   const tokens = tokenizeCommand(command);
-  if (tokens.length === 0) {
-    return undefined;
-  }
+  if (tokens.length === 0) return undefined;
   const verb = tokens[0];
   let target = tokens.slice(1).find((t) => !t.startsWith("-"));
-  if (!target) {
-    target = tokens[1];
-  }
-  if (!target) {
-    return verb;
-  }
+  if (!target) target = tokens[1];
+  if (!target) return verb;
   const cleaned = truncateMiddle(stripQuotes(target), 48);
   return `${stripQuotes(verb)} ${cleaned}`;
 }
@@ -244,9 +222,16 @@ function stripQuotes(value: string): string {
   return trimmed;
 }
 
+export function formatDuration(ms: number) {
+  if (ms < 1000) return `${ms}ms`;
+  const seconds = Math.floor(ms / 1000);
+  if (seconds < 60) return `${seconds}s`;
+  const minutes = Math.floor(seconds / 60);
+  const rem = seconds % 60;
+  return `${minutes}m${rem.toString().padStart(2, "0")}s`;
+}
+
 export function pad(str: string, width: number) {
-  if (str.length >= width) {
-    return str;
-  }
+  if (str.length >= width) return str;
   return str + " ".repeat(width - str.length);
 }

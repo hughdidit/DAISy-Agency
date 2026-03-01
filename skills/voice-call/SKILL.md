@@ -20,7 +20,6 @@ openclaw voicecall status --call-id <id>
 Use `voice_call` for agent-initiated calls.
 
 Actions:
-
 - `initiate_call` (message, to?, mode?)
 - `continue_call` (callId, message)
 - `speak_to_user` (callId, message)
@@ -28,7 +27,6 @@ Actions:
 - `get_status` (callId)
 
 Notes:
-
 - Requires the voice-call plugin to be enabled.
 - Plugin config lives under `plugins.entries.voice-call.config`.
 - Twilio config: `provider: "twilio"` + `twilio.accountSid/authToken` + `fromNumber`.

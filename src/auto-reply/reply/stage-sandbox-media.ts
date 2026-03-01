@@ -31,9 +31,7 @@ export async function stageSandboxMedia(params: {
       : ctx.MediaPath?.trim()
         ? [ctx.MediaPath.trim()]
         : [];
-  if (rawPaths.length === 0 || !sessionKey) {
-    return;
-  }
+  if (rawPaths.length === 0 || !sessionKey) return;
 
   const sandbox = await ensureSandboxWorkspaceForSession({
     config: cfg,
@@ -46,15 +44,11 @@ export async function stageSandboxMedia(params: {
     ? path.join(CONFIG_DIR, "media", "remote-cache", sessionKey)
     : null;
   const effectiveWorkspaceDir = sandbox?.workspaceDir ?? remoteMediaCacheDir;
-  if (!effectiveWorkspaceDir) {
-    return;
-  }
+  if (!effectiveWorkspaceDir) return;
 
   const resolveAbsolutePath = (value: string): string | null => {
     let resolved = value.trim();
-    if (!resolved) {
-      return null;
-    }
+    if (!resolved) return null;
     if (resolved.startsWith("file://")) {
       try {
         resolved = fileURLToPath(resolved);
@@ -62,9 +56,7 @@ export async function stageSandboxMedia(params: {
         return null;
       }
     }
-    if (!path.isAbsolute(resolved)) {
-      return null;
-    }
+    if (!path.isAbsolute(resolved)) return null;
     return resolved;
   };
 
@@ -80,12 +72,8 @@ export async function stageSandboxMedia(params: {
 
     for (const raw of rawPaths) {
       const source = resolveAbsolutePath(raw);
-      if (!source) {
-        continue;
-      }
-      if (staged.has(source)) {
-        continue;
-      }
+      if (!source) continue;
+      if (staged.has(source)) continue;
 
       // Local paths must be restricted to the media directory.
       if (!ctx.MediaRemoteHost) {
@@ -103,9 +91,7 @@ export async function stageSandboxMedia(params: {
       }
 
       const baseName = path.basename(source);
-      if (!baseName) {
-        continue;
-      }
+      if (!baseName) continue;
       const parsed = path.parse(baseName);
       let fileName = baseName;
       let suffix = 1;
@@ -129,13 +115,9 @@ export async function stageSandboxMedia(params: {
 
     const rewriteIfStaged = (value: string | undefined): string | undefined => {
       const raw = value?.trim();
-      if (!raw) {
-        return value;
-      }
+      if (!raw) return value;
       const abs = resolveAbsolutePath(raw);
-      if (!abs) {
-        return value;
-      }
+      if (!abs) return value;
       const mapped = staged.get(abs);
       return mapped ?? value;
     };
@@ -192,11 +174,8 @@ async function scpFile(remoteHost: string, remotePath: string, localPath: string
 
     child.once("error", reject);
     child.once("exit", (code) => {
-      if (code === 0) {
-        resolve();
-      } else {
-        reject(new Error(`scp failed (${code}): ${stderr.trim()}`));
-      }
+      if (code === 0) resolve();
+      else reject(new Error(`scp failed (${code}): ${stderr.trim()}`));
     });
   });
 }

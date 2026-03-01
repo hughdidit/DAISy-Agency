@@ -6,7 +6,6 @@ read_when:
   - Deciding between heartbeat and cron for scheduled tasks
 title: "Cron Jobs"
 ---
-
 # Cron jobs (Gateway scheduler)
 
 > **Cron vs Heartbeat?** See [Cron vs Heartbeat](/automation/cron-vs-heartbeat) for guidance on when to use each.
@@ -14,18 +13,17 @@ title: "Cron Jobs"
 Cron is the Gateway’s built-in scheduler. It persists jobs, wakes the agent at
 the right time, and can optionally deliver output back to a chat.
 
-If you want _“run this every morning”_ or _“poke the agent in 20 minutes”_,
+If you want *“run this every morning”* or *“poke the agent in 20 minutes”*,
 cron is the mechanism.
 
 Troubleshooting: [/automation/troubleshooting](/automation/troubleshooting)
 
 ## TL;DR
-
 - Cron runs **inside the Gateway** (not inside the model).
 - Jobs persist under `~/.openclaw/cron/` so restarts don’t lose schedules.
 - Two execution styles:
   - **Main session**: enqueue a system event, then run on the next heartbeat.
-  - **Isolated**: run a dedicated agent turn in `cron:<jobId>`, with delivery (announce by default or none).
+  - **Isolated**: run a dedicated agent turn in `cron:<jobId>`, optionally deliver output.
 - Wakeups are first-class: a job can request “wake now” vs “next heartbeat”.
 
 ## Quick start (actionable)
@@ -72,46 +70,40 @@ are only safe when the Gateway is stopped. Prefer `openclaw cron add/edit` or th
 tool call API for changes.
 
 ## Beginner-friendly overview
-
 Think of a cron job as: **when** to run + **what** to do.
 
-1. **Choose a schedule**
+1) **Choose a schedule**
    - One-shot reminder → `schedule.kind = "at"` (CLI: `--at`)
    - Repeating job → `schedule.kind = "every"` or `schedule.kind = "cron"`
    - If your ISO timestamp omits a timezone, it is treated as **UTC**.
 
-2. **Choose where it runs**
+2) **Choose where it runs**
    - `sessionTarget: "main"` → run during the next heartbeat with main context.
    - `sessionTarget: "isolated"` → run a dedicated agent turn in `cron:<jobId>`.
 
-3. **Choose the payload**
+3) **Choose the payload**
    - Main session → `payload.kind = "systemEvent"`
    - Isolated session → `payload.kind = "agentTurn"`
 
-Optional: one-shot jobs (`schedule.kind = "at"`) delete after success by default. Set
-`deleteAfterRun: false` to keep them (they will disable after success).
+Optional: `deleteAfterRun: true` removes successful one-shot jobs from the store.
 
 ## Concepts
 
 ### Jobs
-
 A cron job is a stored record with:
-
 - a **schedule** (when it should run),
 - a **payload** (what it should do),
-- optional **delivery mode** (announce or none).
+- optional **delivery** (where output should be sent).
 - optional **agent binding** (`agentId`): run the job under a specific agent; if
   missing or unknown, the gateway falls back to the default agent.
 
 Jobs are identified by a stable `jobId` (used by CLI/Gateway APIs).
 In agent tool calls, `jobId` is canonical; legacy `id` is accepted for compatibility.
-One-shot jobs auto-delete after success by default; set `deleteAfterRun: false` to keep them.
+Jobs can optionally auto-delete after a successful one-shot run via `deleteAfterRun: true`.
 
 ### Schedules
-
 Cron supports three schedule kinds:
-
-- `at`: one-shot timestamp via `schedule.at` (ISO 8601).
+- `at`: one-shot timestamp (ms since epoch). Gateway accepts ISO 8601 and coerces to UTC.
 - `every`: fixed interval (ms).
 - `cron`: 5-field cron expression with optional IANA timezone.
 
@@ -121,7 +113,6 @@ local timezone is used.
 ### Main vs isolated execution
 
 #### Main session jobs (system events)
-
 Main jobs enqueue a system event and optionally wake the heartbeat runner.
 They must use `payload.kind = "systemEvent"`.
 
@@ -132,11 +123,9 @@ This is the best fit when you want the normal heartbeat prompt + main-session co
 See [Heartbeat](/gateway/heartbeat).
 
 #### Isolated jobs (dedicated cron sessions)
-
 Isolated jobs run a dedicated agent turn in session `cron:<jobId>`.
 
 Key behaviors:
-
 - Prompt is prefixed with `[cron:<jobId> <job name>]` for traceability.
 - Each run starts a **fresh session id** (no prior conversation carry-over).
 <<<<<<< HEAD
@@ -157,17 +146,18 @@ Use isolated jobs for noisy, frequent, or "background chores" that shouldn't spa
 your main chat history.
 
 ### Payload shapes (what runs)
-
 Two payload kinds are supported:
-
 - `systemEvent`: main-session only, routed through the heartbeat prompt.
 - `agentTurn`: isolated-session only, runs a dedicated agent turn.
 
 Common `agentTurn` fields:
-
 - `message`: required text prompt.
 - `model` / `thinking`: optional overrides (see below).
 - `timeoutSeconds`: optional timeout override.
+- `deliver`: `true` to send output to a channel target.
+- `channel`: `last` or a specific channel.
+- `to`: channel-specific target (phone/chat/channel id).
+- `bestEffortDeliver`: avoid failing the job if delivery fails.
 
 <<<<<<< HEAD
 Isolation options (only for `session=isolated`):
@@ -206,9 +196,7 @@ Behavior details:
   `next-heartbeat` waits for the next scheduled heartbeat.
 
 ### Model and thinking overrides
-
 Isolated jobs (`agentTurn`) can override the model and thinking level:
-
 - `model`: Provider/model string (e.g., `anthropic/claude-sonnet-4-20250514`) or alias (e.g., `opus`)
 - `thinking`: Thinking level (`off`, `minimal`, `low`, `medium`, `high`, `xhigh`; GPT-5.2 + Codex models only)
 
@@ -217,14 +205,17 @@ session model. We recommend model overrides only for isolated jobs to avoid
 unexpected context shifts.
 
 Resolution priority:
-
 1. Job payload override (highest)
 2. Hook-specific defaults (e.g., `hooks.gmail.model`)
 3. Agent config default
 
 ### Delivery (channel + target)
+Isolated jobs can deliver output to a channel. The job payload can specify:
+- `channel`: `whatsapp` / `telegram` / `discord` / `slack` / `mattermost` (plugin) / `signal` / `imessage` / `last`
+- `to`: channel-specific recipient target
 
-Isolated jobs can deliver output to a channel via the top-level `delivery` config:
+If `channel` or `to` is omitted, cron can fall back to the main session’s “last route”
+(the last place the agent replied).
 
 <<<<<<< HEAD
 Delivery notes:
@@ -243,12 +234,10 @@ If `delivery.channel` or `delivery.to` is omitted, cron can fall back to the mai
 >>>>>>> 6341819d7 (fix: cron announce delivery path (#8540) (thanks @tyler6204))
 
 Target format reminders:
-
 - Slack/Discord/Mattermost (plugin) targets should use explicit prefixes (e.g. `channel:<id>`, `user:<id>`) to avoid ambiguity.
 - Telegram topics should use the `:topic:` form (see below).
 
 #### Telegram delivery targets (topics / forum threads)
-
 Telegram supports forum topics via `message_thread_id`. For cron delivery, you can encode
 the topic/thread into the `to` field:
 
@@ -257,7 +246,6 @@ the topic/thread into the `to` field:
 - `-1001234567890:123` (shorthand: numeric suffix)
 
 Prefixed targets like `telegram:...` / `telegram:group:...` are also accepted:
-
 - `telegram:group:-1001234567890:topic:123`
 
 ## JSON schema for tool calls
@@ -350,23 +338,16 @@ Notes:
     store: "~/.openclaw/cron/jobs.json",
     maxConcurrentRuns: 1 // default 1
   }
-=======
-    store: "~/.openclaw/cron/jobs.json",
-    maxConcurrentRuns: 1, // default 1
-  },
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 }
 ```
 
 Disable cron entirely:
-
 - `cron.enabled: false` (config)
 - `OPENCLAW_SKIP_CRON=1` (env)
 
 ## CLI quickstart
 
 One-shot reminder (UTC ISO, auto-delete after success):
-
 ```bash
 openclaw cron add \
   --name "Send reminder" \
@@ -378,7 +359,6 @@ openclaw cron add \
 ```
 
 One-shot reminder (main session, wake immediately):
-
 ```bash
 openclaw cron add \
   --name "Calendar check" \
@@ -388,8 +368,7 @@ openclaw cron add \
   --wake now
 ```
 
-Recurring isolated job (announce to WhatsApp):
-
+Recurring isolated job (deliver to WhatsApp):
 ```bash
 openclaw cron add \
   --name "Morning status" \
@@ -397,13 +376,12 @@ openclaw cron add \
   --tz "America/Los_Angeles" \
   --session isolated \
   --message "Summarize inbox + calendar for today." \
-  --announce \
+  --deliver \
   --channel whatsapp \
   --to "+15551234567"
 ```
 
 Recurring isolated job (deliver to a Telegram topic):
-
 ```bash
 openclaw cron add \
   --name "Nightly summary (topic)" \
@@ -411,7 +389,7 @@ openclaw cron add \
   --tz "America/Los_Angeles" \
   --session isolated \
   --message "Summarize today; send to the nightly topic." \
-  --announce \
+  --deliver \
   --channel telegram \
   --to "-1001234567890:topic:123"
 ```
@@ -432,7 +410,7 @@ openclaw cron add \
   --message "Weekly deep analysis of project progress." \
   --model "opus" \
   --thinking high \
-  --announce \
+  --deliver \
   --channel whatsapp \
   --to "+15551234567"
 ```
@@ -464,21 +442,8 @@ moltbot cron run <jobId> --force
 openclaw cron run <jobId> --force
 >>>>>>> 75093ebe1 (Docs: add actionable cron quick start (#5446))
 ```
-=======
-openclaw cron edit <jobId> --agent ops
-openclaw cron edit <jobId> --clear-agent
-````
-
-````
-
-Manual run (debug):
-```bash
-openclaw cron run <jobId> --force
-````
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 Edit an existing job (patch fields):
-
 ```bash
 openclaw cron edit <jobId> \
   --message "Updated prompt" \
@@ -487,19 +452,16 @@ openclaw cron edit <jobId> \
 ```
 
 Run history:
-
 ```bash
 openclaw cron runs --id <jobId> --limit 50
 ```
 
 Immediate system event without creating a job:
-
 ```bash
 openclaw system event --mode now --text "Next heartbeat: check battery."
 ```
 
 ## Gateway API surface
-
 - `cron.list`, `cron.status`, `cron.add`, `cron.update`, `cron.remove`
 - `cron.run` (force or due), `cron.runs`
 For immediate system events without a job, use [`openclaw system event`](/cli/system).
@@ -511,15 +473,7 @@ For immediate system events without a job, use [`openclaw system event`](/cli/sy
 - Check the Gateway is running continuously (cron runs inside the Gateway process).
 - For `cron` schedules: confirm timezone (`--tz`) vs the host timezone.
 
-### A recurring job keeps delaying after failures
-
-- OpenClaw applies exponential retry backoff for recurring jobs after consecutive errors:
-  30s, 1m, 5m, 15m, then 60m between retries.
-- Backoff resets automatically after the next successful run.
-- One-shot (`at`) jobs disable after a terminal run (`ok`, `error`, or `skipped`) and do not retry.
-
 ### Telegram delivers to the wrong place
-
 - For forum topics, use `-100…:topic:<id>` so it’s explicit and unambiguous.
 - If you see `telegram:...` prefixes in logs or stored “last route” targets, that’s normal;
   cron delivery accepts them and still parses topic IDs correctly.

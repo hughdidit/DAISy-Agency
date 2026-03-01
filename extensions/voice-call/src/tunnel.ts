@@ -51,7 +51,14 @@ export async function startNgrokTunnel(config: {
   }
 
   // Build ngrok command args
-  const args = ["http", String(config.port), "--log", "stdout", "--log-format", "json"];
+  const args = [
+    "http",
+    String(config.port),
+    "--log",
+    "stdout",
+    "--log-format",
+    "json",
+  ];
 
   // Add custom domain if provided (paid ngrok feature)
   if (config.domain) {
@@ -226,9 +233,11 @@ export async function startTailscaleTunnel(config: {
   const localUrl = `http://127.0.0.1:${config.port}${path}`;
 
   return new Promise((resolve, reject) => {
-    const proc = spawn("tailscale", [config.mode, "--bg", "--yes", "--set-path", path, localUrl], {
-      stdio: ["ignore", "pipe", "pipe"],
-    });
+    const proc = spawn(
+      "tailscale",
+      [config.mode, "--bg", "--yes", "--set-path", path, localUrl],
+      { stdio: ["ignore", "pipe", "pipe"] },
+    );
 
     const timeout = setTimeout(() => {
       proc.kill("SIGKILL");
@@ -265,7 +274,10 @@ export async function startTailscaleTunnel(config: {
 /**
  * Stop a Tailscale serve/funnel tunnel.
  */
-async function stopTailscaleTunnel(mode: "serve" | "funnel", path: string): Promise<void> {
+async function stopTailscaleTunnel(
+  mode: "serve" | "funnel",
+  path: string,
+): Promise<void> {
   return new Promise((resolve) => {
     const proc = spawn("tailscale", [mode, "off", path], {
       stdio: "ignore",
@@ -286,7 +298,9 @@ async function stopTailscaleTunnel(mode: "serve" | "funnel", path: string): Prom
 /**
  * Start a tunnel based on configuration.
  */
-export async function startTunnel(config: TunnelConfig): Promise<TunnelResult | null> {
+export async function startTunnel(
+  config: TunnelConfig,
+): Promise<TunnelResult | null> {
   switch (config.provider) {
     case "ngrok":
       return startNgrokTunnel({

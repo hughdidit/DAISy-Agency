@@ -28,12 +28,7 @@ export function resolveMatrixRoomConfig(params: {
     `room:${params.roomId}`,
     ...params.aliases,
   );
-  const {
-    entry: matched,
-    key: matchedKey,
-    wildcardEntry,
-    wildcardKey,
-  } = resolveChannelEntryMatch({
+  const { entry: matched, key: matchedKey, wildcardEntry, wildcardKey } = resolveChannelEntryMatch({
     entries: rooms,
     keys: candidates,
     wildcardKey: "*",

@@ -38,9 +38,7 @@ export type AgentIdentity = AgentIdentityFile;
 
 export function listAgentEntries(cfg: OpenClawConfig): AgentEntry[] {
   const list = cfg.agents?.list;
-  if (!Array.isArray(list)) {
-    return [];
-  }
+  if (!Array.isArray(list)) return [];
   return list.filter((entry): entry is AgentEntry => Boolean(entry && typeof entry === "object"));
 }
 
@@ -66,15 +64,11 @@ function resolveAgentModel(cfg: OpenClawConfig, agentId: string) {
     }
     if (typeof entry.model === "object") {
       const primary = entry.model.primary?.trim();
-      if (primary) {
-        return primary;
-      }
+      if (primary) return primary;
     }
   }
   const raw = cfg.agents?.defaults?.model;
-  if (typeof raw === "string") {
-    return raw;
-  }
+  if (typeof raw === "string") return raw;
   return raw?.primary?.trim() || undefined;
 }
 
@@ -84,9 +78,7 @@ export function parseIdentityMarkdown(content: string): AgentIdentity {
 
 export function loadAgentIdentity(workspace: string): AgentIdentity | null {
   const parsed = loadAgentIdentityFromWorkspace(workspace);
-  if (!parsed) {
-    return null;
-  }
+  if (!parsed) return null;
   return identityHasValues(parsed) ? parsed : null;
 }
 

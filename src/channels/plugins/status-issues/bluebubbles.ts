@@ -20,9 +20,7 @@ type BlueBubblesProbeResult = {
 function readBlueBubblesAccountStatus(
   value: ChannelAccountSnapshot,
 ): BlueBubblesAccountStatus | null {
-  if (!isRecord(value)) {
-    return null;
-  }
+  if (!isRecord(value)) return null;
   return {
     accountId: value.accountId,
     enabled: value.enabled,
@@ -35,9 +33,7 @@ function readBlueBubblesAccountStatus(
 }
 
 function readBlueBubblesProbeResult(value: unknown): BlueBubblesProbeResult | null {
-  if (!isRecord(value)) {
-    return null;
-  }
+  if (!isRecord(value)) return null;
   return {
     ok: typeof value.ok === "boolean" ? value.ok : undefined,
     status: typeof value.status === "number" ? value.status : null,
@@ -51,14 +47,10 @@ export function collectBlueBubblesStatusIssues(
   const issues: ChannelStatusIssue[] = [];
   for (const entry of accounts) {
     const account = readBlueBubblesAccountStatus(entry);
-    if (!account) {
-      continue;
-    }
+    if (!account) continue;
     const accountId = asString(account.accountId) ?? "default";
     const enabled = account.enabled !== false;
-    if (!enabled) {
-      continue;
-    }
+    if (!enabled) continue;
 
     const configured = account.configured === true;
     const running = account.running === true;

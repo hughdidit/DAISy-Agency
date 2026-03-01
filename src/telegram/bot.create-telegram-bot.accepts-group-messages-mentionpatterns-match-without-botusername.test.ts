@@ -1,7 +1,8 @@
-import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { escapeRegExp, formatEnvelopeTimestamp } from "../../test/helpers/envelope-timestamp.js";
-import { resetInboundDedupe } from "../auto-reply/reply/inbound-dedupe.js";
-import { createTelegramBot } from "./bot.js";
+
+let createTelegramBot: typeof import("./bot.js").createTelegramBot;
+let resetInboundDedupe: typeof import("../auto-reply/reply/inbound-dedupe.js").resetInboundDedupe;
 
 const { sessionStorePath } = vi.hoisted(() => ({
   sessionStorePath: `/tmp/openclaw-telegram-${Math.random().toString(16).slice(2)}.json`,
@@ -34,17 +35,17 @@ vi.mock("../config/sessions.js", async (importOriginal) => {
   };
 });
 
-const { readChannelAllowFromStore, upsertChannelPairingRequest } = vi.hoisted(() => ({
-  readChannelAllowFromStore: vi.fn(async () => [] as string[]),
-  upsertChannelPairingRequest: vi.fn(async () => ({
+const { readTelegramAllowFromStore, upsertTelegramPairingRequest } = vi.hoisted(() => ({
+  readTelegramAllowFromStore: vi.fn(async () => [] as string[]),
+  upsertTelegramPairingRequest: vi.fn(async () => ({
     code: "PAIRCODE",
     created: true,
   })),
 }));
 
-vi.mock("../pairing/pairing-store.js", () => ({
-  readChannelAllowFromStore,
-  upsertChannelPairingRequest,
+vi.mock("./pairing-store.js", () => ({
+  readTelegramAllowFromStore,
+  upsertTelegramPairingRequest,
 }));
 
 const useSpy = vi.fn();
@@ -128,19 +129,17 @@ let replyModule: typeof import("../auto-reply/reply.js");
 
 const getOnHandler = (event: string) => {
   const handler = onSpy.mock.calls.find((call) => call[0] === event)?.[1];
-  if (!handler) {
-    throw new Error(`Missing handler for event: ${event}`);
-  }
+  if (!handler) throw new Error(`Missing handler for event: ${event}`);
   return handler as (ctx: Record<string, unknown>) => Promise<void>;
 };
 
 const ORIGINAL_TZ = process.env.TZ;
 describe("createTelegramBot", () => {
-  beforeAll(async () => {
+  beforeEach(async () => {
+    vi.resetModules();
+    ({ resetInboundDedupe } = await import("../auto-reply/reply/inbound-dedupe.js"));
+    ({ createTelegramBot } = await import("./bot.js"));
     replyModule = await import("../auto-reply/reply.js");
-  });
-
-  beforeEach(() => {
     process.env.TZ = "UTC";
     resetInboundDedupe();
     loadConfig.mockReturnValue({
@@ -213,7 +212,7 @@ describe("createTelegramBot", () => {
     );
   });
 
-  it("accepts group messages when mentionPatterns match even if another user is mentioned", async () => {
+  it("skips group messages when another user is explicitly mentioned", async () => {
     onSpy.mockReset();
     const replySpy = replyModule.__replySpy as unknown as ReturnType<typeof vi.fn>;
     replySpy.mockReset();
@@ -250,8 +249,7 @@ describe("createTelegramBot", () => {
       getFile: async () => ({ download: async () => new Uint8Array() }),
     });
 
-    expect(replySpy).toHaveBeenCalledTimes(1);
-    expect(replySpy.mock.calls[0][0].WasMentioned).toBe(true);
+    expect(replySpy).not.toHaveBeenCalled();
   });
 
   it("keeps group envelope headers stable (sender identity is separate)", async () => {

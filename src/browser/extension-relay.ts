@@ -113,21 +113,11 @@ function isLoopbackHost(host: string) {
 }
 
 function isLoopbackAddress(ip: string | undefined): boolean {
-  if (!ip) {
-    return false;
-  }
-  if (ip === "127.0.0.1") {
-    return true;
-  }
-  if (ip.startsWith("127.")) {
-    return true;
-  }
-  if (ip === "::1") {
-    return true;
-  }
-  if (ip.startsWith("::ffff:127.")) {
-    return true;
-  }
+  if (!ip) return false;
+  if (ip === "127.0.0.1") return true;
+  if (ip.startsWith("127.")) return true;
+  if (ip === "::1") return true;
+  if (ip.startsWith("::ffff:127.")) return true;
   return false;
 }
 
@@ -212,9 +202,7 @@ export async function ensureChromeExtensionRelayServer(opts: {
   }
 
   const existing = serversByPort.get(info.port);
-  if (existing) {
-    return existing;
-  }
+  if (existing) return existing;
 
   let extensionWs: WebSocket | null = null;
   const cdpClients = new Set<WebSocket>();
@@ -248,17 +236,13 @@ export async function ensureChromeExtensionRelayServer(opts: {
   const broadcastToCdpClients = (evt: CdpEvent) => {
     const msg = JSON.stringify(evt);
     for (const ws of cdpClients) {
-      if (ws.readyState !== WebSocket.OPEN) {
-        continue;
-      }
+      if (ws.readyState !== WebSocket.OPEN) continue;
       ws.send(msg);
     }
   };
 
   const sendResponseToCdp = (ws: WebSocket, res: CdpResponse) => {
-    if (ws.readyState !== WebSocket.OPEN) {
-      return;
-    }
+    if (ws.readyState !== WebSocket.OPEN) return;
     ws.send(JSON.stringify(res));
   };
 
@@ -313,16 +297,12 @@ export async function ensureChromeExtensionRelayServer(opts: {
         const targetId = typeof params.targetId === "string" ? params.targetId : undefined;
         if (targetId) {
           for (const t of connectedTargets.values()) {
-            if (t.targetId === targetId) {
-              return { targetInfo: t.targetInfo };
-            }
+            if (t.targetId === targetId) return { targetInfo: t.targetInfo };
           }
         }
         if (cmd.sessionId && connectedTargets.has(cmd.sessionId)) {
           const t = connectedTargets.get(cmd.sessionId);
-          if (t) {
-            return { targetInfo: t.targetInfo };
-          }
+          if (t) return { targetInfo: t.targetInfo };
         }
         const first = Array.from(connectedTargets.values())[0];
         return { targetInfo: first?.targetInfo };
@@ -330,13 +310,9 @@ export async function ensureChromeExtensionRelayServer(opts: {
       case "Target.attachToTarget": {
         const params = (cmd.params ?? {}) as { targetId?: string };
         const targetId = typeof params.targetId === "string" ? params.targetId : undefined;
-        if (!targetId) {
-          throw new Error("targetId required");
-        }
+        if (!targetId) throw new Error("targetId required");
         for (const t of connectedTargets.values()) {
-          if (t.targetId === targetId) {
-            return { sessionId: t.sessionId };
-          }
+          if (t.targetId === targetId) return { sessionId: t.sessionId };
         }
         throw new Error("target not found");
       }
@@ -401,9 +377,7 @@ export async function ensureChromeExtensionRelayServer(opts: {
         "Protocol-Version": "1.3",
       };
       // Only advertise the WS URL if a real extension is connected.
-      if (extensionWs) {
-        payload.webSocketDebuggerUrl = cdpWsUrl;
-      }
+      if (extensionWs) payload.webSocketDebuggerUrl = cdpWsUrl;
       res.writeHead(200, { "Content-Type": "application/json" });
       res.end(JSON.stringify(payload));
       return;
@@ -530,9 +504,7 @@ export async function ensureChromeExtensionRelayServer(opts: {
     extensionWs = ws;
 
     const ping = setInterval(() => {
-      if (ws.readyState !== WebSocket.OPEN) {
-        return;
-      }
+      if (ws.readyState !== WebSocket.OPEN) return;
       ws.send(JSON.stringify({ method: "ping" } satisfies ExtensionPingMessage));
     }, 5000);
 
@@ -546,40 +518,30 @@ export async function ensureChromeExtensionRelayServer(opts: {
 
       if (parsed && typeof parsed === "object" && "id" in parsed && typeof parsed.id === "number") {
         const pending = pendingExtension.get(parsed.id);
-        if (!pending) {
-          return;
-        }
+        if (!pending) return;
         pendingExtension.delete(parsed.id);
         clearTimeout(pending.timer);
         if ("error" in parsed && typeof parsed.error === "string" && parsed.error.trim()) {
           pending.reject(new Error(parsed.error));
         } else {
-          pending.resolve(parsed.result);
+          pending.resolve((parsed as ExtensionResponseMessage).result);
         }
         return;
       }
 
       if (parsed && typeof parsed === "object" && "method" in parsed) {
-        if ((parsed as ExtensionPongMessage).method === "pong") {
-          return;
-        }
-        if ((parsed as ExtensionForwardEventMessage).method !== "forwardCDPEvent") {
-          return;
-        }
+        if ((parsed as ExtensionPongMessage).method === "pong") return;
+        if ((parsed as ExtensionForwardEventMessage).method !== "forwardCDPEvent") return;
         const evt = parsed as ExtensionForwardEventMessage;
         const method = evt.params?.method;
         const params = evt.params?.params;
         const sessionId = evt.params?.sessionId;
-        if (!method || typeof method !== "string") {
-          return;
-        }
+        if (!method || typeof method !== "string") return;
 
         if (method === "Target.attachedToTarget") {
           const attached = (params ?? {}) as AttachedToTargetEvent;
           const targetType = attached?.targetInfo?.type ?? "page";
-          if (targetType !== "page") {
-            return;
-          }
+          if (targetType !== "page") return;
           if (attached?.sessionId && attached?.targetInfo?.targetId) {
             const prev = connectedTargets.get(attached.sessionId);
             const nextTargetId = attached.targetInfo.targetId;
@@ -606,9 +568,7 @@ export async function ensureChromeExtensionRelayServer(opts: {
 
         if (method === "Target.detachedFromTarget") {
           const detached = (params ?? {}) as DetachedFromTargetEvent;
-          if (detached?.sessionId) {
-            connectedTargets.delete(detached.sessionId);
-          }
+          if (detached?.sessionId) connectedTargets.delete(detached.sessionId);
           broadcastToCdpClients({ method, params, sessionId });
           return;
         }
@@ -621,9 +581,7 @@ export async function ensureChromeExtensionRelayServer(opts: {
           const targetId = targetInfo?.targetId;
           if (targetId && (targetInfo?.type ?? "page") === "page") {
             for (const [sid, target] of connectedTargets) {
-              if (target.targetId !== targetId) {
-                continue;
-              }
+              if (target.targetId !== targetId) continue;
               connectedTargets.set(sid, {
                 ...target,
                 targetInfo: { ...target.targetInfo, ...(targetInfo as object) },
@@ -667,12 +625,8 @@ export async function ensureChromeExtensionRelayServer(opts: {
       } catch {
         return;
       }
-      if (!cmd || typeof cmd !== "object") {
-        return;
-      }
-      if (typeof cmd.id !== "number" || typeof cmd.method !== "string") {
-        return;
-      }
+      if (!cmd || typeof cmd !== "object") return;
+      if (typeof cmd.id !== "number" || typeof cmd.method !== "string") return;
 
       if (!extensionWs) {
         sendResponseToCdp(ws, {
@@ -779,9 +733,7 @@ export async function ensureChromeExtensionRelayServer(opts: {
 export async function stopChromeExtensionRelayServer(opts: { cdpUrl: string }): Promise<boolean> {
   const info = parseBaseUrl(opts.cdpUrl);
   const existing = serversByPort.get(info.port);
-  if (!existing) {
-    return false;
-  }
+  if (!existing) return false;
   await existing.stop();
   relayAuthByPort.delete(info.port);
   return true;

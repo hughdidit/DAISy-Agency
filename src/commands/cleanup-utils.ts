@@ -41,18 +41,12 @@ export function isPathWithin(child: string, parent: string): boolean {
 }
 
 function isUnsafeRemovalTarget(target: string): boolean {
-  if (!target.trim()) {
-    return true;
-  }
+  if (!target.trim()) return true;
   const resolved = path.resolve(target);
   const root = path.parse(resolved).root;
-  if (resolved === root) {
-    return true;
-  }
+  if (resolved === root) return true;
   const home = resolveHomeDir();
-  if (home && resolved === path.resolve(home)) {
-    return true;
-  }
+  if (home && resolved === path.resolve(home)) return true;
   return false;
 }
 
@@ -61,9 +55,7 @@ export async function removePath(
   runtime: RuntimeEnv,
   opts?: { dryRun?: boolean; label?: string },
 ): Promise<RemovalResult> {
-  if (!target?.trim()) {
-    return { ok: false, skipped: true };
-  }
+  if (!target?.trim()) return { ok: false, skipped: true };
   const resolved = path.resolve(target);
   const label = opts?.label ?? resolved;
   const displayLabel = shortenHomeInString(label);

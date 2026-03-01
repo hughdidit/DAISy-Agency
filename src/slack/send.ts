@@ -47,9 +47,7 @@ function resolveToken(params: {
   fallbackSource?: SlackTokenSource;
 }) {
   const explicit = resolveSlackBotToken(params.explicit);
-  if (explicit) {
-    return explicit;
-  }
+  if (explicit) return explicit;
   const fallback = resolveSlackBotToken(params.fallbackToken);
   if (!fallback) {
     logVerbose(
@@ -162,9 +160,7 @@ export async function sendMessageSlack(
   const chunks = markdownChunks.flatMap((markdown) =>
     markdownToSlackMrkdwnChunks(markdown, chunkLimit, { tableMode }),
   );
-  if (!chunks.length && trimmedMessage) {
-    chunks.push(trimmedMessage);
-  }
+  if (!chunks.length && trimmedMessage) chunks.push(trimmedMessage);
   const mediaMaxBytes =
     typeof account.config.mediaMaxMb === "number"
       ? account.config.mediaMaxMb * 1024 * 1024

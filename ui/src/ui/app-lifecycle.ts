@@ -1,5 +1,5 @@
-import type { Tab } from "./navigation.ts";
-import { connectGateway } from "./app-gateway.ts";
+import type { Tab } from "./navigation";
+import { connectGateway } from "./app-gateway";
 import {
   startLogsPolling,
   startNodesPolling,
@@ -36,11 +36,20 @@ type LifecycleHost = {
 
 export function handleConnected(host: LifecycleHost) {
   host.basePath = inferBasePath();
-  applySettingsFromUrl(host as unknown as Parameters<typeof applySettingsFromUrl>[0]);
-  syncTabWithLocation(host as unknown as Parameters<typeof syncTabWithLocation>[0], true);
-  syncThemeWithSettings(host as unknown as Parameters<typeof syncThemeWithSettings>[0]);
-  attachThemeListener(host as unknown as Parameters<typeof attachThemeListener>[0]);
+  syncTabWithLocation(
+    host as unknown as Parameters<typeof syncTabWithLocation>[0],
+    true,
+  );
+  syncThemeWithSettings(
+    host as unknown as Parameters<typeof syncThemeWithSettings>[0],
+  );
+  attachThemeListener(
+    host as unknown as Parameters<typeof attachThemeListener>[0],
+  );
   window.addEventListener("popstate", host.popStateHandler);
+  applySettingsFromUrl(
+    host as unknown as Parameters<typeof applySettingsFromUrl>[0],
+  );
   connectGateway(host as unknown as Parameters<typeof connectGateway>[0]);
   startNodesPolling(host as unknown as Parameters<typeof startNodesPolling>[0]);
   if (host.tab === "logs") {
@@ -60,7 +69,9 @@ export function handleDisconnected(host: LifecycleHost) {
   stopNodesPolling(host as unknown as Parameters<typeof stopNodesPolling>[0]);
   stopLogsPolling(host as unknown as Parameters<typeof stopLogsPolling>[0]);
   stopDebugPolling(host as unknown as Parameters<typeof stopDebugPolling>[0]);
-  detachThemeListener(host as unknown as Parameters<typeof detachThemeListener>[0]);
+  detachThemeListener(
+    host as unknown as Parameters<typeof detachThemeListener>[0],
+  );
   host.topbarObserver?.disconnect();
   host.topbarObserver = null;
 }
@@ -86,7 +97,9 @@ export function handleUpdated(host: LifecycleHost, changed: Map<PropertyKey, unk
   ) {
     const forcedByTab = changed.has("tab");
     const forcedByLoad =
-      changed.has("chatLoading") && changed.get("chatLoading") === true && !host.chatLoading;
+      changed.has("chatLoading") &&
+      changed.get("chatLoading") === true &&
+      host.chatLoading === false;
     scheduleChatScroll(
       host as unknown as Parameters<typeof scheduleChatScroll>[0],
       forcedByTab || forcedByLoad || !host.chatHasAutoScrolled,

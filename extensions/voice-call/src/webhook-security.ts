@@ -23,7 +23,7 @@ export function validateTwilioSignature(
   let dataToSign = url;
 
   // Sort params alphabetically and append key+value
-  const sortedParams = Array.from(params.entries()).toSorted((a, b) =>
+  const sortedParams = Array.from(params.entries()).sort((a, b) =>
     a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0,
   );
 
@@ -309,15 +309,9 @@ function getHeader(
 }
 
 function isLoopbackAddress(address?: string): boolean {
-  if (!address) {
-    return false;
-  }
-  if (address === "127.0.0.1" || address === "::1") {
-    return true;
-  }
-  if (address.startsWith("::ffff:127.")) {
-    return true;
-  }
+  if (!address) return false;
+  if (address === "127.0.0.1" || address === "::1") return true;
+  if (address.startsWith("::ffff:127.")) return true;
   return false;
 }
 
@@ -394,7 +388,12 @@ export function verifyTwilioWebhook(
   const params = new URLSearchParams(ctx.rawBody);
 
   // Validate signature
-  const isValid = validateTwilioSignature(authToken, signature, verificationUrl, params);
+  const isValid = validateTwilioSignature(
+    authToken,
+    signature,
+    verificationUrl,
+    params,
+  );
 
   if (isValid) {
     return { ok: true, verificationUrl };
@@ -402,7 +401,8 @@ export function verifyTwilioWebhook(
 
   // Check if this is ngrok free tier - the URL might have different format
   const isNgrokFreeTier =
-    verificationUrl.includes(".ngrok-free.app") || verificationUrl.includes(".ngrok.io");
+    verificationUrl.includes(".ngrok-free.app") ||
+    verificationUrl.includes(".ngrok.io");
 
   if (
     isNgrokFreeTier &&
@@ -483,9 +483,7 @@ type PlivoParamMap = Record<string, string[]>;
 function toParamMapFromSearchParams(sp: URLSearchParams): PlivoParamMap {
   const map: PlivoParamMap = {};
   for (const [key, value] of sp.entries()) {
-    if (!map[key]) {
-      map[key] = [];
-    }
+    if (!map[key]) map[key] = [];
     map[key].push(value);
   }
   return map;
@@ -493,8 +491,8 @@ function toParamMapFromSearchParams(sp: URLSearchParams): PlivoParamMap {
 
 function sortedQueryString(params: PlivoParamMap): string {
   const parts: string[] = [];
-  for (const key of Object.keys(params).toSorted()) {
-    const values = [...params[key]].toSorted();
+  for (const key of Object.keys(params).sort()) {
+    const values = [...params[key]].sort();
     for (const value of values) {
       parts.push(`${key}=${value}`);
     }
@@ -504,8 +502,8 @@ function sortedQueryString(params: PlivoParamMap): string {
 
 function sortedParamsString(params: PlivoParamMap): string {
   const parts: string[] = [];
-  for (const key of Object.keys(params).toSorted()) {
-    const values = [...params[key]].toSorted();
+  for (const key of Object.keys(params).sort()) {
+    const values = [...params[key]].sort();
     for (const value of values) {
       parts.push(`${key}${value}`);
     }
@@ -557,7 +555,10 @@ function validatePlivoV3Signature(params: {
   });
 
   const hmacBase = `${baseUrl}.${params.nonce}`;
-  const digest = crypto.createHmac("sha256", params.authToken).update(hmacBase).digest("base64");
+  const digest = crypto
+    .createHmac("sha256", params.authToken)
+    .update(hmacBase)
+    .digest("base64");
   const expected = normalizeSignatureBase64(digest);
 
   // Header can contain multiple signatures separated by commas.
@@ -568,9 +569,7 @@ function validatePlivoV3Signature(params: {
     .map((s) => normalizeSignatureBase64(s));
 
   for (const sig of provided) {
-    if (timingSafeEqualString(expected, sig)) {
-      return true;
-    }
+    if (timingSafeEqualString(expected, sig)) return true;
   }
   return false;
 }
@@ -641,7 +640,8 @@ export function verifyPlivoWebhook(
   }
 
   if (signatureV3 && nonceV3) {
-    const method = ctx.method === "GET" || ctx.method === "POST" ? ctx.method : null;
+    const method =
+      ctx.method === "GET" || ctx.method === "POST" ? ctx.method : null;
 
     if (!method) {
       return {

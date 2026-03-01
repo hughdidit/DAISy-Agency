@@ -6,9 +6,7 @@ import { parseTelegramTarget } from "./targets.js";
 const DEFAULT_INLINE_BUTTONS_SCOPE: TelegramInlineButtonsScope = "allowlist";
 
 function normalizeInlineButtonsScope(value: unknown): TelegramInlineButtonsScope | undefined {
-  if (typeof value !== "string") {
-    return undefined;
-  }
+  if (typeof value !== "string") return undefined;
   const trimmed = value.trim().toLowerCase();
   if (
     trimmed === "off" ||
@@ -25,9 +23,7 @@ function normalizeInlineButtonsScope(value: unknown): TelegramInlineButtonsScope
 function resolveInlineButtonsScopeFromCapabilities(
   capabilities: unknown,
 ): TelegramInlineButtonsScope {
-  if (!capabilities) {
-    return DEFAULT_INLINE_BUTTONS_SCOPE;
-  }
+  if (!capabilities) return DEFAULT_INLINE_BUTTONS_SCOPE;
   if (Array.isArray(capabilities)) {
     const enabled = capabilities.some(
       (entry) => String(entry).trim().toLowerCase() === "inlinebuttons",
@@ -66,14 +62,10 @@ export function isTelegramInlineButtonsEnabled(params: {
 }
 
 export function resolveTelegramTargetChatType(target: string): "direct" | "group" | "unknown" {
-  if (!target.trim()) {
-    return "unknown";
-  }
+  if (!target.trim()) return "unknown";
   const parsed = parseTelegramTarget(target);
   const chatId = parsed.chatId.trim();
-  if (!chatId) {
-    return "unknown";
-  }
+  if (!chatId) return "unknown";
   if (/^-?\d+$/.test(chatId)) {
     return chatId.startsWith("-") ? "group" : "direct";
   }

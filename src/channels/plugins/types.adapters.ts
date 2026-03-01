@@ -109,7 +109,7 @@ export type ChannelOutboundAdapter = {
   sendPoll?: (ctx: ChannelPollContext) => Promise<ChannelPollResult>;
 };
 
-export type ChannelStatusAdapter<ResolvedAccount, Probe = unknown, Audit = unknown> = {
+export type ChannelStatusAdapter<ResolvedAccount> = {
   defaultRuntime?: ChannelAccountSnapshot;
   buildChannelSummary?: (params: {
     account: ResolvedAccount;
@@ -128,22 +128,12 @@ export type ChannelStatusAdapter<ResolvedAccount, Probe = unknown, Audit = unkno
     cfg: OpenClawConfig;
     probe?: unknown;
   }) => Promise<unknown>;
-=======
-    cfg: OpenClawConfig;
-  }) => Promise<Probe>;
-  auditAccount?: (params: {
-    account: ResolvedAccount;
-    timeoutMs: number;
-    cfg: OpenClawConfig;
-    probe?: Probe;
-  }) => Promise<Audit>;
->>>>>>> da6de4981 (Telegram: use Grammy types directly, add typed Probe/Audit to plugin interface (#8403))
   buildAccountSnapshot?: (params: {
     account: ResolvedAccount;
     cfg: OpenClawConfig;
     runtime?: ChannelAccountSnapshot;
-    probe?: Probe;
-    audit?: Audit;
+    probe?: unknown;
+    audit?: unknown;
   }) => ChannelAccountSnapshot | Promise<ChannelAccountSnapshot>;
   logSelfId?: (params: {
     account: ResolvedAccount;

@@ -31,13 +31,11 @@ type RpcSupportResult = {
 
 const rpcSupportCache = new Map<string, RpcSupportResult>();
 
-async function probeRpcSupport(cliPath: string, timeoutMs: number): Promise<RpcSupportResult> {
+async function probeRpcSupport(cliPath: string): Promise<RpcSupportResult> {
   const cached = rpcSupportCache.get(cliPath);
-  if (cached) {
-    return cached;
-  }
+  if (cached) return cached;
   try {
-    const result = await runCommandWithTimeout([cliPath, "rpc", "--help"], { timeoutMs });
+    const result = await runCommandWithTimeout([cliPath, "rpc", "--help"], { timeoutMs: 2000 });
     const combined = `${result.stdout}\n${result.stderr}`.trim();
     const normalized = combined.toLowerCase();
     if (normalized.includes("unknown command") && normalized.includes("rpc")) {
@@ -91,7 +89,7 @@ export async function probeIMessage(
     return { ok: false, error: `imsg not found (${cliPath})` };
   }
 
-  const rpcSupport = await probeRpcSupport(cliPath, effectiveTimeout);
+  const rpcSupport = await probeRpcSupport(cliPath);
   if (!rpcSupport.supported) {
     return {
       ok: false,
@@ -106,7 +104,7 @@ export async function probeIMessage(
     runtime: opts.runtime,
   });
   try {
-    await client.request("chats.list", { limit: 1 }, { timeoutMs: effectiveTimeout });
+    await client.request("chats.list", { limit: 1 }, { timeoutMs });
     return { ok: true };
   } catch (err) {
     return { ok: false, error: String(err) };

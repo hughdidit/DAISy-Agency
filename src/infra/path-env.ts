@@ -71,9 +71,7 @@ function candidateBinDirs(opts: EnsureOpenClawPathOpts): string[] {
 
   const miseDataDir = process.env.MISE_DATA_DIR ?? path.join(homeDir, ".local", "share", "mise");
   const miseShims = path.join(miseDataDir, "shims");
-  if (isDirectory(miseShims)) {
-    candidates.push(miseShims);
-  }
+  if (isDirectory(miseShims)) candidates.push(miseShims);
 
   candidates.push(...resolveBrewPathDirs({ homeDir }));
 
@@ -81,9 +79,7 @@ function candidateBinDirs(opts: EnsureOpenClawPathOpts): string[] {
   if (platform === "darwin") {
     candidates.push(path.join(homeDir, "Library", "pnpm"));
   }
-  if (process.env.XDG_BIN_HOME) {
-    candidates.push(process.env.XDG_BIN_HOME);
-  }
+  if (process.env.XDG_BIN_HOME) candidates.push(process.env.XDG_BIN_HOME);
   candidates.push(path.join(homeDir, ".local", "bin"));
   candidates.push(path.join(homeDir, ".local", "share", "pnpm"));
   candidates.push(path.join(homeDir, ".bun", "bin"));
@@ -105,12 +101,8 @@ export function ensureOpenClawCliOnPath(opts: EnsureOpenClawPathOpts = {}) {
 
   const existing = opts.pathEnv ?? process.env.PATH ?? "";
   const prepend = candidateBinDirs(opts);
-  if (prepend.length === 0) {
-    return;
-  }
+  if (prepend.length === 0) return;
 
   const merged = mergePath({ existing, prepend });
-  if (merged) {
-    process.env.PATH = merged;
-  }
+  if (merged) process.env.PATH = merged;
 }

@@ -21,18 +21,10 @@ function bindingMatchKey(match: AgentBinding["match"]) {
 export function describeBinding(binding: AgentBinding) {
   const match = binding.match;
   const parts = [match.channel];
-  if (match.accountId) {
-    parts.push(`accountId=${match.accountId}`);
-  }
-  if (match.peer) {
-    parts.push(`peer=${match.peer.kind}:${match.peer.id}`);
-  }
-  if (match.guildId) {
-    parts.push(`guild=${match.guildId}`);
-  }
-  if (match.teamId) {
-    parts.push(`team=${match.teamId}`);
-  }
+  if (match.accountId) parts.push(`accountId=${match.accountId}`);
+  if (match.peer) parts.push(`peer=${match.peer.kind}:${match.peer.id}`);
+  if (match.guildId) parts.push(`guild=${match.guildId}`);
+  if (match.teamId) parts.push(`team=${match.teamId}`);
   return parts.join(" ");
 }
 
@@ -91,9 +83,7 @@ export function applyAgentBindings(
 
 function resolveDefaultAccountId(cfg: OpenClawConfig, provider: ChannelId): string {
   const plugin = getChannelPlugin(provider);
-  if (!plugin) {
-    return DEFAULT_ACCOUNT_ID;
-  }
+  if (!plugin) return DEFAULT_ACCOUNT_ID;
   return resolveChannelDefaultAccountId({ plugin, cfg });
 }
 
@@ -132,9 +122,7 @@ export function parseBindingSpecs(params: {
   const agentId = normalizeAgentId(params.agentId);
   for (const raw of specs) {
     const trimmed = raw?.trim();
-    if (!trimmed) {
-      continue;
-    }
+    if (!trimmed) continue;
     const [channelRaw, accountRaw] = trimmed.split(":", 2);
     const channel = normalizeChannelId(channelRaw);
     if (!channel) {
@@ -153,9 +141,7 @@ export function parseBindingSpecs(params: {
       }
     }
     const match: AgentBinding["match"] = { channel };
-    if (accountId) {
-      match.accountId = accountId;
-    }
+    if (accountId) match.accountId = accountId;
     bindings.push({ agentId, match });
   }
   return { bindings, errors };

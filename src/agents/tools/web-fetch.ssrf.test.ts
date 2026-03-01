@@ -6,7 +6,10 @@ import * as ssrf from "../../infra/net/ssrf.js";
 >>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 
 const lookupMock = vi.fn();
-const resolvePinnedHostname = ssrf.resolvePinnedHostname;
+
+vi.mock("node:dns/promises", () => ({
+  lookup: lookupMock,
+}));
 
 function makeHeaders(map: Record<string, string>): { get: (key: string) => string | null } {
   return {
@@ -34,12 +37,6 @@ function textResponse(body: string): Response {
 
 describe("web_fetch SSRF protection", () => {
   const priorFetch = global.fetch;
-
-  beforeEach(() => {
-    vi.spyOn(ssrf, "resolvePinnedHostname").mockImplementation((hostname) =>
-      resolvePinnedHostname(hostname, lookupMock),
-    );
-  });
 
   afterEach(() => {
     // @ts-expect-error restore

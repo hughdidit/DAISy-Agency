@@ -5,7 +5,6 @@ read_when:
   - Building automations that need tool policy enforcement
 title: "Tools Invoke API"
 ---
-
 # Tools Invoke (HTTP)
 
 OpenClaw’s Gateway exposes a simple HTTP endpoint for invoking a single tool directly. It is always enabled, but gated by Gateway auth and tool policy.
@@ -38,7 +37,6 @@ Notes:
 ```
 
 Fields:
-
 - `tool` (string, required): tool name to invoke.
 - `action` (string, optional): mapped into args if the tool schema supports `action` and the args payload omitted it.
 - `args` (object, optional): tool-specific arguments.
@@ -48,7 +46,6 @@ Fields:
 ## Policy + routing behavior
 
 Tool availability is filtered through the same policy chain used by Gateway agents:
-
 - `tools.profile` / `tools.byProvider.profile`
 - `tools.allow` / `tools.byProvider.allow`
 - `agents.<id>.tools.allow` / `agents.<id>.tools.byProvider.allow`

@@ -67,12 +67,8 @@ describe("subscribeEmbeddedPiSession", () => {
 
     const events: Array<{ phase: string; willRetry?: boolean }> = [];
     const stop = onAgentEvent((evt) => {
-      if (evt.runId !== "run-compaction") {
-        return;
-      }
-      if (evt.stream !== "compaction") {
-        return;
-      }
+      if (evt.runId !== "run-compaction") return;
+      if (evt.stream !== "compaction") return;
       const phase = typeof evt.data?.phase === "string" ? evt.data.phase : "";
       events.push({
         phase,

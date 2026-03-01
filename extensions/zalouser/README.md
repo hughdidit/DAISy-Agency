@@ -16,8 +16,8 @@ OpenClaw extension for Zalo Personal Account messaging via [zca-cli](https://zca
 
 Install `zca` CLI and ensure it's in your PATH:
 
-**macOS / Linux:**
 
+**macOS / Linux:**
 ```bash
 curl -fsSL https://get.zca-cli.dev/install.sh | bash
 
@@ -32,7 +32,6 @@ curl -fsSL https://get.zca-cli.dev/install.sh | bash -s uninstall
 ```
 
 **Windows (PowerShell):**
-
 ```powershell
 irm https://get.zca-cli.dev/install.ps1 | iex
 
@@ -51,19 +50,16 @@ iex "& { $(irm https://get.zca-cli.dev/install.ps1) } -Uninstall"
 Download binary directly:
 
 **macOS / Linux:**
-
 ```bash
 curl -fsSL https://get.zca-cli.dev/latest/zca-darwin-arm64 -o zca && chmod +x zca
 ```
 
 **Windows (PowerShell):**
-
 ```powershell
 Invoke-WebRequest -Uri https://get.zca-cli.dev/latest/zca-windows-x64.exe -OutFile zca.exe
 ```
 
 Available binaries:
-
 - `zca-darwin-arm64` - macOS Apple Silicon
 - `zca-darwin-x64` - macOS Intel
 - `zca-linux-arm64` - Linux ARM64
@@ -103,7 +99,7 @@ After onboarding, your config will include:
 channels:
   zalouser:
     enabled: true
-    dmPolicy: pairing # pairing | allowlist | open | disabled
+    dmPolicy: pairing  # pairing | allowlist | open | disabled
 ```
 
 For multi-account:

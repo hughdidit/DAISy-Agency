@@ -40,9 +40,7 @@ export type ResolvedWhatsAppAccount = {
 
 function listConfiguredAccountIds(cfg: OpenClawConfig): string[] {
   const accounts = cfg.channels?.whatsapp?.accounts;
-  if (!accounts || typeof accounts !== "object") {
-    return [];
-  }
+  if (!accounts || typeof accounts !== "object") return [];
   return Object.keys(accounts).filter(Boolean);
 }
 
@@ -59,9 +57,7 @@ export function listWhatsAppAuthDirs(cfg: OpenClawConfig): string[] {
   try {
     const entries = fs.readdirSync(whatsappDir, { withFileTypes: true });
     for (const entry of entries) {
-      if (!entry.isDirectory()) {
-        continue;
-      }
+      if (!entry.isDirectory()) continue;
       authDirs.add(path.join(whatsappDir, entry.name));
     }
   } catch {
@@ -77,17 +73,13 @@ export function hasAnyWhatsAppAuth(cfg: OpenClawConfig): boolean {
 
 export function listWhatsAppAccountIds(cfg: OpenClawConfig): string[] {
   const ids = listConfiguredAccountIds(cfg);
-  if (ids.length === 0) {
-    return [DEFAULT_ACCOUNT_ID];
-  }
-  return ids.toSorted((a, b) => a.localeCompare(b));
+  if (ids.length === 0) return [DEFAULT_ACCOUNT_ID];
+  return ids.sort((a, b) => a.localeCompare(b));
 }
 
 export function resolveDefaultWhatsAppAccountId(cfg: OpenClawConfig): string {
   const ids = listWhatsAppAccountIds(cfg);
-  if (ids.includes(DEFAULT_ACCOUNT_ID)) {
-    return DEFAULT_ACCOUNT_ID;
-  }
+  if (ids.includes(DEFAULT_ACCOUNT_ID)) return DEFAULT_ACCOUNT_ID;
   return ids[0] ?? DEFAULT_ACCOUNT_ID;
 }
 
@@ -96,9 +88,7 @@ function resolveAccountConfig(
   accountId: string,
 ): WhatsAppAccountConfig | undefined {
   const accounts = cfg.channels?.whatsapp?.accounts;
-  if (!accounts || typeof accounts !== "object") {
-    return undefined;
-  }
+  if (!accounts || typeof accounts !== "object") return undefined;
   const entry = accounts[accountId] as WhatsAppAccountConfig | undefined;
   return entry;
 }

@@ -24,18 +24,14 @@ export function createEchoTracker(params: {
 
   const trim = () => {
     while (recentlySent.size > maxItems) {
-      const firstKey = recentlySent.values().next().value;
-      if (!firstKey) {
-        break;
-      }
+      const firstKey = recentlySent.values().next().value as string | undefined;
+      if (!firstKey) break;
       recentlySent.delete(firstKey);
     }
   };
 
   const rememberText: EchoTracker["rememberText"] = (text, opts) => {
-    if (!text) {
-      return;
-    }
+    if (!text) return;
     recentlySent.add(text);
     if (opts.combinedBody && opts.combinedBodySessionKey) {
       recentlySent.add(

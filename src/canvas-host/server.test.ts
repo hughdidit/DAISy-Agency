@@ -84,18 +84,14 @@ describe("canvas host", () => {
 
     const server = createServer((req, res) => {
       void (async () => {
-        if (await handler.handleHttpRequest(req, res)) {
-          return;
-        }
+        if (await handler.handleHttpRequest(req, res)) return;
         res.statusCode = 404;
         res.setHeader("Content-Type", "text/plain; charset=utf-8");
         res.end("Not Found");
       })();
     });
     server.on("upgrade", (req, socket, head) => {
-      if (handler.handleUpgrade(req, socket, head)) {
-        return;
-      }
+      if (handler.handleUpgrade(req, socket, head)) return;
       socket.destroy();
     });
 
@@ -244,9 +240,6 @@ describe("canvas host", () => {
       expect(js).toContain("openclawA2UI");
     } finally {
       await server.close();
-      if (createdBundle) {
-        await fs.rm(bundlePath, { force: true });
-      }
       await fs.rm(dir, { recursive: true, force: true });
     }
   });

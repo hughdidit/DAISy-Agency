@@ -54,9 +54,7 @@ async function ensureSharedClientStarted(params: {
   initialSyncLimit?: number;
   encryption?: boolean;
 }): Promise<void> {
-  if (params.state.started) {
-    return;
-  }
+  if (params.state.started) return;
   if (sharedClientStartPromise) {
     await sharedClientStartPromise;
     return;

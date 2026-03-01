@@ -10,7 +10,6 @@ title: "Android App"
 # Android App (Node)
 
 ## Support snapshot
-
 - Role: companion node app (Android does not host the Gateway).
 - Gateway required: yes (run it on macOS, Linux, or Windows via WSL2).
 - Install: [Getting Started](/start/getting-started) + [Pairing](/gateway/pairing).
@@ -18,7 +17,6 @@ title: "Android App"
   - Protocols: [Gateway protocol](/gateway/protocol) (nodes + control plane).
 
 ## System control
-
 System control (launchd/systemd) lives on the Gateway host. See [Gateway](/gateway).
 
 ## Connection Runbook
@@ -43,7 +41,6 @@ openclaw gateway --port 18789 --verbose
 ```
 
 Confirm in logs you see something like:
-
 - `listening on ws://0.0.0.0:18789`
 
 For tailnet-only setups (recommended for Vienna ⇄ London), bind the gateway to the tailnet IP:
@@ -80,7 +77,6 @@ In the Android app:
 - If mDNS is blocked, use **Advanced → Manual Gateway** (host + port) and **Connect (Manual)**.
 
 After the first successful pairing, Android auto-reconnects on launch:
-
 - Manual endpoint (if enabled), otherwise
 - The last discovered gateway (best-effort).
 
@@ -127,7 +123,7 @@ Note: nodes use the standalone canvas host on `canvasHost.port` (default `18793`
 
 1) Create `~/.openclaw/workspace/canvas/index.html` on the gateway host.
 
-2. Navigate the node to it (LAN):
+2) Navigate the node to it (LAN):
 
 ```bash
 openclaw nodes invoke --node "<Android Node>" --command canvas.navigate --params '{"url":"http://<gateway-hostname>.local:18793/__openclaw__/canvas/"}'
@@ -139,12 +135,10 @@ This server injects a live-reload client into HTML and reloads on file changes.
 The A2UI host lives at `http://<gateway-host>:18793/__openclaw__/a2ui/`.
 
 Canvas commands (foreground only):
-
 - `canvas.eval`, `canvas.snapshot`, `canvas.navigate` (use `{"url":""}` or `{"url":"/"}` to return to the default scaffold). `canvas.snapshot` returns `{ format, base64 }` (default `format="jpeg"`).
 - A2UI: `canvas.a2ui.push`, `canvas.a2ui.reset` (`canvas.a2ui.pushJSONL` legacy alias)
 
 Camera commands (foreground only; permission-gated):
-
 - `camera.snap` (jpg)
 - `camera.clip` (mp4)
 

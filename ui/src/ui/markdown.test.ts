@@ -1,8 +1,5 @@
 import { describe, expect, it } from "vitest";
 import { toSanitizedMarkdownHtml } from "./markdown";
-=======
-import { toSanitizedMarkdownHtml } from "./markdown.ts";
->>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
 
 describe("toSanitizedMarkdownHtml", () => {
   it("renders basic markdown", () => {

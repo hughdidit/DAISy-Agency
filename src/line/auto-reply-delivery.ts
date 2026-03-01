@@ -59,9 +59,7 @@ export async function deliverLineAutoReply(params: {
   let replyTokenUsed = params.replyTokenUsed;
 
   const pushLineMessages = async (messages: messagingApi.Message[]): Promise<void> => {
-    if (messages.length === 0) {
-      return;
-    }
+    if (messages.length === 0) return;
     for (let i = 0; i < messages.length; i += 5) {
       await deps.pushMessagesLine(to, messages.slice(i, i + 5), {
         accountId,
@@ -73,9 +71,7 @@ export async function deliverLineAutoReply(params: {
     messages: messagingApi.Message[],
     allowReplyToken: boolean,
   ): Promise<void> => {
-    if (messages.length === 0) {
-      return;
-    }
+    if (messages.length === 0) return;
 
     let remaining = messages;
     if (allowReplyToken && replyToken && !replyTokenUsed) {
@@ -125,7 +121,9 @@ export async function deliverLineAutoReply(params: {
     : { text: "", flexMessages: [] };
 
   for (const flexMsg of processed.flexMessages) {
-    richMessages.push(deps.createFlexMessage(flexMsg.altText.slice(0, 400), flexMsg.contents));
+    richMessages.push(
+      deps.createFlexMessage(flexMsg.altText.slice(0, 400), flexMsg.contents as FlexContainer),
+    );
   }
 
   const chunks = processed.text ? deps.chunkMarkdownText(processed.text, textLimit) : [];

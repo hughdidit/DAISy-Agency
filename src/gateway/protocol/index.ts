@@ -10,32 +10,6 @@ import {
   AgentParamsSchema,
   type AgentSummary,
   AgentSummarySchema,
-  type AgentsFileEntry,
-  AgentsFileEntrySchema,
-  type AgentsCreateParams,
-  AgentsCreateParamsSchema,
-  type AgentsCreateResult,
-  AgentsCreateResultSchema,
-  type AgentsUpdateParams,
-  AgentsUpdateParamsSchema,
-  type AgentsUpdateResult,
-  AgentsUpdateResultSchema,
-  type AgentsDeleteParams,
-  AgentsDeleteParamsSchema,
-  type AgentsDeleteResult,
-  AgentsDeleteResultSchema,
-  type AgentsFilesGetParams,
-  AgentsFilesGetParamsSchema,
-  type AgentsFilesGetResult,
-  AgentsFilesGetResultSchema,
-  type AgentsFilesListParams,
-  AgentsFilesListParamsSchema,
-  type AgentsFilesListResult,
-  AgentsFilesListResultSchema,
-  type AgentsFilesSetParams,
-  AgentsFilesSetParamsSchema,
-  type AgentsFilesSetResult,
-  AgentsFilesSetResultSchema,
   type AgentsListParams,
   AgentsListParamsSchema,
   type AgentsListResult,
@@ -173,8 +147,6 @@ import {
   SessionsResetParamsSchema,
   type SessionsResolveParams,
   SessionsResolveParamsSchema,
-  type SessionsUsageParams,
-  SessionsUsageParamsSchema,
   type ShutdownEvent,
   ShutdownEventSchema,
   type SkillsBinsParams,
@@ -238,18 +210,6 @@ export const validateAgentIdentityParams =
 export const validateAgentWaitParams = ajv.compile<AgentWaitParams>(AgentWaitParamsSchema);
 export const validateWakeParams = ajv.compile<WakeParams>(WakeParamsSchema);
 export const validateAgentsListParams = ajv.compile<AgentsListParams>(AgentsListParamsSchema);
-export const validateAgentsCreateParams = ajv.compile<AgentsCreateParams>(AgentsCreateParamsSchema);
-export const validateAgentsUpdateParams = ajv.compile<AgentsUpdateParams>(AgentsUpdateParamsSchema);
-export const validateAgentsDeleteParams = ajv.compile<AgentsDeleteParams>(AgentsDeleteParamsSchema);
-export const validateAgentsFilesListParams = ajv.compile<AgentsFilesListParams>(
-  AgentsFilesListParamsSchema,
-);
-export const validateAgentsFilesGetParams = ajv.compile<AgentsFilesGetParams>(
-  AgentsFilesGetParamsSchema,
-);
-export const validateAgentsFilesSetParams = ajv.compile<AgentsFilesSetParams>(
-  AgentsFilesSetParamsSchema,
-);
 export const validateNodePairRequestParams = ajv.compile<NodePairRequestParams>(
   NodePairRequestParamsSchema,
 );
@@ -288,8 +248,6 @@ export const validateSessionsDeleteParams = ajv.compile<SessionsDeleteParams>(
 export const validateSessionsCompactParams = ajv.compile<SessionsCompactParams>(
   SessionsCompactParamsSchema,
 );
-export const validateSessionsUsageParams =
-  ajv.compile<SessionsUsageParams>(SessionsUsageParamsSchema);
 export const validateConfigGetParams = ajv.compile<ConfigGetParams>(ConfigGetParamsSchema);
 export const validateConfigSetParams = ajv.compile<ConfigSetParams>(ConfigSetParamsSchema);
 export const validateConfigApplyParams = ajv.compile<ConfigApplyParams>(ConfigApplyParamsSchema);
@@ -364,9 +322,7 @@ export const validateWebLoginStartParams =
 export const validateWebLoginWaitParams = ajv.compile<WebLoginWaitParams>(WebLoginWaitParamsSchema);
 
 export function formatValidationErrors(errors: ErrorObject[] | null | undefined) {
-  if (!errors?.length) {
-    return "unknown validation error";
-  }
+  if (!errors?.length) return "unknown validation error";
 
   const parts: string[] = [];
 
@@ -431,7 +387,6 @@ export {
   SessionsResetParamsSchema,
   SessionsDeleteParamsSchema,
   SessionsCompactParamsSchema,
-  SessionsUsageParamsSchema,
   ConfigGetParamsSchema,
   ConfigSetParamsSchema,
   ConfigApplyParamsSchema,
@@ -452,19 +407,6 @@ export {
   WebLoginStartParamsSchema,
   WebLoginWaitParamsSchema,
   AgentSummarySchema,
-  AgentsFileEntrySchema,
-  AgentsCreateParamsSchema,
-  AgentsCreateResultSchema,
-  AgentsUpdateParamsSchema,
-  AgentsUpdateResultSchema,
-  AgentsDeleteParamsSchema,
-  AgentsDeleteResultSchema,
-  AgentsFilesListParamsSchema,
-  AgentsFilesListResultSchema,
-  AgentsFilesGetParamsSchema,
-  AgentsFilesGetResultSchema,
-  AgentsFilesSetParamsSchema,
-  AgentsFilesSetResultSchema,
   AgentsListParamsSchema,
   AgentsListResultSchema,
   ModelsListParamsSchema,
@@ -539,19 +481,6 @@ export type {
   WebLoginStartParams,
   WebLoginWaitParams,
   AgentSummary,
-  AgentsFileEntry,
-  AgentsCreateParams,
-  AgentsCreateResult,
-  AgentsUpdateParams,
-  AgentsUpdateResult,
-  AgentsDeleteParams,
-  AgentsDeleteResult,
-  AgentsFilesListParams,
-  AgentsFilesListResult,
-  AgentsFilesGetParams,
-  AgentsFilesGetResult,
-  AgentsFilesSetParams,
-  AgentsFilesSetResult,
   AgentsListParams,
   AgentsListResult,
   SkillsStatusParams,
@@ -573,7 +502,6 @@ export type {
   SessionsResetParams,
   SessionsDeleteParams,
   SessionsCompactParams,
-  SessionsUsageParams,
   CronJob,
   CronListParams,
   CronStatusParams,

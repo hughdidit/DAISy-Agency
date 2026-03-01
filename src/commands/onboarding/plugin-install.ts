@@ -34,9 +34,7 @@ function hasGitWorkspace(workspaceDir?: string): boolean {
     candidates.add(path.join(workspaceDir, ".git"));
   }
   for (const candidate of candidates) {
-    if (fs.existsSync(candidate)) {
-      return true;
-    }
+    if (fs.existsSync(candidate)) return true;
   }
   return false;
 }
@@ -46,22 +44,16 @@ function resolveLocalPath(
   workspaceDir: string | undefined,
   allowLocal: boolean,
 ): string | null {
-  if (!allowLocal) {
-    return null;
-  }
+  if (!allowLocal) return null;
   const raw = entry.install.localPath?.trim();
-  if (!raw) {
-    return null;
-  }
+  if (!raw) return null;
   const candidates = new Set<string>();
   candidates.add(path.resolve(process.cwd(), raw));
   if (workspaceDir && workspaceDir !== process.cwd()) {
     candidates.add(path.resolve(workspaceDir, raw));
   }
   for (const candidate of candidates) {
-    if (fs.existsSync(candidate)) {
-      return candidate;
-    }
+    if (fs.existsSync(candidate)) return candidate;
   }
   return null;
 }
@@ -125,12 +117,8 @@ function resolveInstallDefaultChoice(params: {
     return "npm";
   }
   const entryDefault = entry.install.defaultChoice;
-  if (entryDefault === "local") {
-    return localPath ? "local" : "npm";
-  }
-  if (entryDefault === "npm") {
-    return "npm";
-  }
+  if (entryDefault === "local") return localPath ? "local" : "npm";
+  if (entryDefault === "npm") return "npm";
   return localPath ? "local" : "npm";
 }
 

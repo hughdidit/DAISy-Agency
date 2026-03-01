@@ -16,7 +16,8 @@ export function verifyTwilioProviderWebhook(params: {
   const logger = params.logger ?? defaultLogger;
   const result = verifyTwilioWebhook(params.ctx, params.authToken, {
     publicUrl: params.currentPublicUrl || undefined,
-    allowNgrokFreeTierLoopbackBypass: params.options.allowNgrokFreeTierLoopbackBypass ?? false,
+    allowNgrokFreeTierLoopbackBypass:
+      params.options.allowNgrokFreeTierLoopbackBypass ?? false,
     skipVerification: params.options.skipVerification,
     allowedHosts: params.options.webhookSecurity?.allowedHosts,
     trustForwardingHeaders: params.options.webhookSecurity?.trustForwardingHeaders,

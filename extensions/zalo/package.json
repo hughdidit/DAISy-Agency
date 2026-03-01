@@ -56,7 +56,6 @@
       "localPath": "extensions/zalo",
       "defaultChoice": "npm"
     }
-<<<<<<< HEAD
   },
   "dependencies": {
     "openclaw": "workspace:*",

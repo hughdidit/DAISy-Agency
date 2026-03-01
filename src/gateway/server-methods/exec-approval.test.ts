@@ -117,9 +117,7 @@ describe("exec approval handlers", () => {
 
     const context = {
       broadcast: (event: string, payload: unknown) => {
-        if (event !== "exec.approval.requested") {
-          return;
-        }
+        if (event !== "exec.approval.requested") return;
         const id = (payload as { id?: string })?.id ?? "";
         void handlers["exec.approval.resolve"]({
           params: { id, decision: "allow-once" },

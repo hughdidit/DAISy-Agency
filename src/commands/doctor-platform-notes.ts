@@ -19,7 +19,6 @@ function resolveHomeDir(): string {
 }
 
 export async function noteMacLaunchAgentOverrides() {
-<<<<<<< HEAD
   if (process.platform !== "darwin") return;
   const home = resolveHomeDir();
   const markerCandidates = [path.join(home, ".openclaw", "disable-launchagent")];
@@ -66,12 +65,8 @@ export async function noteMacLaunchctlGatewayEnvOverrides(
   },
 ) {
   const platform = deps?.platform ?? process.platform;
-  if (platform !== "darwin") {
-    return;
-  }
-  if (!hasConfigGatewayCreds(cfg)) {
-    return;
-  }
+  if (platform !== "darwin") return;
+  if (!hasConfigGatewayCreds(cfg)) return;
 
   const getenv = deps?.getenv ?? launchctlGetenv;
   const deprecatedLaunchctlEntries = [
@@ -104,40 +99,6 @@ export async function noteMacLaunchctlGatewayEnvOverrides(
   const envTokenKey = tokenEntry?.[0];
   const envPasswordKey = passwordEntry?.[0];
   if (!envToken && !envPassword) return;
-=======
-  const deprecatedLaunchctlEntries = [
-    ["MOLTBOT_GATEWAY_TOKEN", await getenv("MOLTBOT_GATEWAY_TOKEN")],
-    ["MOLTBOT_GATEWAY_PASSWORD", await getenv("MOLTBOT_GATEWAY_PASSWORD")],
-    ["CLAWDBOT_GATEWAY_TOKEN", await getenv("CLAWDBOT_GATEWAY_TOKEN")],
-    ["CLAWDBOT_GATEWAY_PASSWORD", await getenv("CLAWDBOT_GATEWAY_PASSWORD")],
-  ].filter((entry): entry is [string, string] => Boolean(entry[1]?.trim()));
-  if (deprecatedLaunchctlEntries.length > 0) {
-    const lines = [
-      "- Deprecated launchctl environment variables detected (ignored).",
-      ...deprecatedLaunchctlEntries.map(
-        ([key]) =>
-          `- \`${key}\` is set; use \`OPENCLAW_${key.slice(key.indexOf("_") + 1)}\` instead.`,
-      ),
-    ];
-    (deps?.noteFn ?? note)(lines.join("\n"), "Gateway (macOS)");
-  }
-
-  const tokenEntries = [
-    ["OPENCLAW_GATEWAY_TOKEN", await getenv("OPENCLAW_GATEWAY_TOKEN")],
-  ] as const;
-  const passwordEntries = [
-    ["OPENCLAW_GATEWAY_PASSWORD", await getenv("OPENCLAW_GATEWAY_PASSWORD")],
-  ] as const;
-  const tokenEntry = tokenEntries.find(([, value]) => value?.trim());
-  const passwordEntry = passwordEntries.find(([, value]) => value?.trim());
-  const envToken = tokenEntry?.[1]?.trim() ?? "";
-  const envPassword = passwordEntry?.[1]?.trim() ?? "";
-  const envTokenKey = tokenEntry?.[0];
-  const envPasswordKey = passwordEntry?.[0];
-  if (!envToken && !envPassword) {
-    return;
-  }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
 
   const lines = [
     "- launchctl environment overrides detected (can cause confusing unauthorized errors).",

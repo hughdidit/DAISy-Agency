@@ -1,6 +1,8 @@
 {
   "id": "googlechat",
-  "channels": ["googlechat"],
+  "channels": [
+    "googlechat"
+  ],
   "configSchema": {
     "type": "object",
     "additionalProperties": false,

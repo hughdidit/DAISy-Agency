@@ -18,9 +18,7 @@ function cleanupExpired(entry: CacheEntry): void {
 }
 
 export function recordMSTeamsSentMessage(conversationId: string, messageId: string): void {
-  if (!conversationId || !messageId) {
-    return;
-  }
+  if (!conversationId || !messageId) return;
   let entry = sentMessages.get(conversationId);
   if (!entry) {
     entry = { messageIds: new Set(), timestamps: new Map() };
@@ -28,16 +26,12 @@ export function recordMSTeamsSentMessage(conversationId: string, messageId: stri
   }
   entry.messageIds.add(messageId);
   entry.timestamps.set(messageId, Date.now());
-  if (entry.messageIds.size > 200) {
-    cleanupExpired(entry);
-  }
+  if (entry.messageIds.size > 200) cleanupExpired(entry);
 }
 
 export function wasMSTeamsMessageSent(conversationId: string, messageId: string): boolean {
   const entry = sentMessages.get(conversationId);
-  if (!entry) {
-    return false;
-  }
+  if (!entry) return false;
   cleanupExpired(entry);
   return entry.messageIds.has(messageId);
 }

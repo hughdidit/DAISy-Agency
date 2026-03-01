@@ -4,7 +4,6 @@ read_when:
   - Setting up the macOS development environment
 title: "macOS Dev Setup"
 ---
-
 # macOS Developer Setup
 
 This guide covers the necessary steps to build and run the OpenClaw macOS application from source.
@@ -32,7 +31,7 @@ To build the macOS app and package it into `dist/OpenClaw.app`, run:
 ./scripts/package-mac-app.sh
 ```
 
-If you don't have an Apple Developer ID certificate, the script will automatically use **ad-hoc signing** (`-`).
+If you don't have an Apple Developer ID certificate, the script will automatically use **ad-hoc signing** (`-`). 
 
 For dev run modes, signing flags, and Team ID troubleshooting, see the macOS app README:
 <<<<<<< HEAD
@@ -58,10 +57,6 @@ The macOS app expects a global `openclaw` CLI install to manage background tasks
 **To install it (recommended):**
 <<<<<<< HEAD
 1.  Open the Moltbot app.
-=======
-
-1.  Open the OpenClaw app.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 2.  Go to the **General** settings tab.
 3.  Click **"Install CLI"**.
 =======
@@ -84,7 +79,6 @@ The macOS app expects a global `openclaw` CLI install to manage background tasks
 >>>>>>> 578a6e27a (Docs: enable markdownlint autofixables except list numbering (#10476))
 
 Alternatively, install it manually:
-
 ```bash
 npm install -g openclaw@<version>
 ```
@@ -92,16 +86,13 @@ npm install -g openclaw@<version>
 ## Troubleshooting
 
 ### Build Fails: Toolchain or SDK Mismatch
-
 The macOS app build expects the latest macOS SDK and Swift 6.2 toolchain.
 
 **System dependencies (required):**
-
 - **Latest macOS version available in Software Update** (required by Xcode 26.2 SDKs)
 - **Xcode 26.2** (Swift 6.2 toolchain)
 
 **Checks:**
-
 ```bash
 xcodebuild -version
 xcrun swift --version
@@ -110,11 +101,9 @@ xcrun swift --version
 If versions don’t match, update macOS/Xcode and re-run the build.
 
 ### App Crashes on Permission Grant
-
 If the app crashes when you try to allow **Speech Recognition** or **Microphone** access, it may be due to a corrupted TCC cache or signature mismatch.
 
 **Fix:**
-
 1. Reset the TCC permissions:
 
    ```bash
@@ -135,7 +124,6 @@ If the app crashes when you try to allow **Speech Recognition** or **Microphone*
 >>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 
 ### Gateway "Starting..." indefinitely
-
 If the gateway status stays on "Starting...", check if a zombie process is holding the port:
 
 ```bash
@@ -145,5 +133,4 @@ openclaw gateway stop
 # If you’re not using a LaunchAgent (dev mode / manual runs), find the listener:
 lsof -nP -iTCP:18789 -sTCP:LISTEN
 ```
-
 If a manual run is holding the port, stop that process (Ctrl+C). As a last resort, kill the PID you found above.

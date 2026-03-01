@@ -55,7 +55,6 @@ services:
       - key: PORT
         value: "8080"
       - key: SETUP_PASSWORD
-<<<<<<< HEAD
         sync: false          # prompts during deploy
       - key: OPENCLAW_STATE_DIR
         value: /data/.openclaw
@@ -63,15 +62,6 @@ services:
         value: /data/workspace
       - key: OPENCLAW_GATEWAY_TOKEN
         generateValue: true  # auto-generates a secure token
-=======
-        sync: false # prompts during deploy
-      - key: OPENCLAW_STATE_DIR
-        value: /data/.openclaw
-      - key: OPENCLAW_WORKSPACE_DIR
-        value: /data/workspace
-      - key: OPENCLAW_GATEWAY_TOKEN
-        generateValue: true # auto-generates a secure token
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
     disk:
       name: openclaw-data
       mountPath: /data
@@ -80,21 +70,21 @@ services:
 
 Key Blueprint features used:
 
-| Feature               | Purpose                                                    |
-| --------------------- | ---------------------------------------------------------- |
-| `runtime: docker`     | Builds from the repo's Dockerfile                          |
-| `healthCheckPath`     | Render monitors `/health` and restarts unhealthy instances |
-| `sync: false`         | Prompts for value during deploy (secrets)                  |
-| `generateValue: true` | Auto-generates a cryptographically secure value            |
-| `disk`                | Persistent storage that survives redeploys                 |
+| Feature | Purpose |
+|---------|---------|
+| `runtime: docker` | Builds from the repo's Dockerfile |
+| `healthCheckPath` | Render monitors `/health` and restarts unhealthy instances |
+| `sync: false` | Prompts for value during deploy (secrets) |
+| `generateValue: true` | Auto-generates a cryptographically secure value |
+| `disk` | Persistent storage that survives redeploys |
 
 ## Choosing a plan
 
-| Plan      | Spin-down         | Disk          | Best for                      |
-| --------- | ----------------- | ------------- | ----------------------------- |
-| Free      | After 15 min idle | Not available | Testing, demos                |
-| Starter   | Never             | 1GB+          | Personal use, small teams     |
-| Standard+ | Never             | 1GB+          | Production, multiple channels |
+| Plan | Spin-down | Disk | Best for |
+|------|-----------|------|----------|
+| Free | After 15 min idle | Not available | Testing, demos |
+| Starter | Never | 1GB+ | Personal use, small teams |
+| Standard+ | Never | 1GB+ | Production, multiple channels |
 
 The Blueprint defaults to `starter`. To use free tier, change `plan: free` in your fork's
 `render.yaml` (but note: no persistent disk means config resets on each deploy).
@@ -118,7 +108,6 @@ The web dashboard is available at `https://<your-service>.onrender.com/openclaw`
 ### Logs
 
 View real-time logs in **Dashboard → your service → Logs**. Filter by:
-
 - Build logs (Docker image creation)
 - Deploy logs (service startup)
 - Runtime logs (application output)

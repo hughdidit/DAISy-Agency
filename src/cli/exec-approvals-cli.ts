@@ -8,7 +8,6 @@ import {
   type ExecApprovalsAgent,
   type ExecApprovalsFile,
 } from "../infra/exec-approvals.js";
-import { formatTimeAgo } from "../infra/format-time/format-relative.ts";
 import { defaultRuntime } from "../runtime.js";
 import { formatDocsLink } from "../terminal/links.js";
 import { renderTable } from "../terminal/table.js";
@@ -32,6 +31,17 @@ type ExecApprovalsCliOpts = NodesRpcOpts & {
   agent?: string;
 };
 
+function formatAge(msAgo: number) {
+  const s = Math.max(0, Math.floor(msAgo / 1000));
+  if (s < 60) return `${s}s`;
+  const m = Math.floor(s / 60);
+  if (m < 60) return `${m}m`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h}h`;
+  const d = Math.floor(h / 24);
+  return `${d}d`;
+}
+
 async function readStdin(): Promise<string> {
   const chunks: Buffer[] = [];
   for await (const chunk of process.stdin) {
@@ -41,13 +51,9 @@ async function readStdin(): Promise<string> {
 }
 
 async function resolveTargetNodeId(opts: ExecApprovalsCliOpts): Promise<string | null> {
-  if (opts.gateway) {
-    return null;
-  }
+  if (opts.gateway) return null;
   const raw = opts.node?.trim() ?? "";
-  if (!raw) {
-    return null;
-  }
+  if (!raw) return null;
   return await resolveNodeId(opts as NodesRpcOpts, raw);
 }
 
@@ -118,15 +124,13 @@ function renderApprovalsSnapshot(snapshot: ExecApprovalsSnapshot, targetLabel: s
     const allowlist = Array.isArray(agent.allowlist) ? agent.allowlist : [];
     for (const entry of allowlist) {
       const pattern = entry?.pattern?.trim() ?? "";
-      if (!pattern) {
-        continue;
-      }
+      if (!pattern) continue;
       const lastUsedAt = typeof entry.lastUsedAt === "number" ? entry.lastUsedAt : null;
       allowlistRows.push({
         Target: targetLabel,
         Agent: agentId,
         Pattern: pattern,
-        LastUsed: lastUsedAt ? formatTimeAgo(Math.max(0, now - lastUsedAt)) : muted("unknown"),
+        LastUsed: lastUsedAt ? `${formatAge(Math.max(0, now - lastUsedAt))} ago` : muted("unknown"),
       });
     }
   }
@@ -290,7 +294,7 @@ export function registerExecApprovalsCli(program: Command) {
         const raw = opts.stdin ? await readStdin() : await fs.readFile(String(opts.file), "utf8");
         let file: ExecApprovalsFile;
         try {
-          file = JSON5.parse(raw);
+          file = JSON5.parse(raw) as ExecApprovalsFile;
         } catch (err) {
           defaultRuntime.error(`Failed to parse approvals JSON: ${String(err)}`);
           defaultRuntime.exit(1);

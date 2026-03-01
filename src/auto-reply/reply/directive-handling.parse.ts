@@ -206,9 +206,8 @@ export function isDirectiveOnly(params: {
     !directives.hasExecDirective &&
     !directives.hasModelDirective &&
     !directives.hasQueueDirective
-  ) {
+  )
     return false;
-  }
   const stripped = stripStructuralPrefixes(cleanedBody ?? "");
   const noMentions = isGroup ? stripMentions(stripped, ctx, cfg, agentId) : stripped;
   return noMentions.length === 0;

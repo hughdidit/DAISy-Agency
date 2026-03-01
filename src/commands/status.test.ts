@@ -464,14 +464,10 @@ describe("statusCommand", () => {
       payload.sessions.recent.some((sess: { key?: string }) => sess.key === "agent:ops:main"),
     ).toBe(true);
 
-    if (originalAgents) {
-      mocks.listAgentsForGateway.mockImplementation(originalAgents);
-    }
-    if (originalResolveStorePath) {
+    if (originalAgents) mocks.listAgentsForGateway.mockImplementation(originalAgents);
+    if (originalResolveStorePath)
       mocks.resolveStorePath.mockImplementation(originalResolveStorePath);
-    }
-    if (originalLoadSessionStore) {
+    if (originalLoadSessionStore)
       mocks.loadSessionStore.mockImplementation(originalLoadSessionStore);
-    }
   });
 });

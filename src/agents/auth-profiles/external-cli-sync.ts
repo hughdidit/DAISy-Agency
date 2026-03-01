@@ -16,12 +16,8 @@ import {
 } from "./constants.js";
 
 function shallowEqualOAuthCredentials(a: OAuthCredential | undefined, b: OAuthCredential): boolean {
-  if (!a) {
-    return false;
-  }
-  if (a.type !== "oauth") {
-    return false;
-  }
+  if (!a) return false;
+  if (a.type !== "oauth") return false;
   return (
     a.provider === b.provider &&
     a.access === b.access &&
@@ -50,9 +46,7 @@ function isExternalProfileFresh(cred: AuthProfileCredential | undefined, now: nu
 >>>>>>> 1287328b6 (feat: add MiniMax OAuth plugin (#4521) (thanks @Maosghoul))
     return false;
   }
-  if (typeof cred.expires !== "number") {
-    return true;
-  }
+  if (typeof cred.expires !== "number") return true;
   return cred.expires > now + EXTERNAL_CLI_NEAR_EXPIRY_MS;
 }
 

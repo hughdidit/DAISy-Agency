@@ -1,6 +1,8 @@
 {
   "id": "mattermost",
-  "channels": ["mattermost"],
+  "channels": [
+    "mattermost"
+  ],
   "configSchema": {
     "type": "object",
     "additionalProperties": false,

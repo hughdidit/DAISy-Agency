@@ -31,9 +31,7 @@ async function loadDevTemplate(name: string, fallback: string): Promise<string> 
     }
 >>>>>>> ddc5683c6 (fix: resolve workspace templates from package root)
     const endIndex = raw.indexOf("\n---", 3);
-    if (endIndex === -1) {
-      return raw;
-    }
+    if (endIndex === -1) return raw;
     return raw.slice(endIndex + "\n---".length).replace(/^\s+/, "");
   } catch {
     return fallback;
@@ -44,12 +42,6 @@ const resolveDevWorkspaceDir = (env: NodeJS.ProcessEnv = process.env): string =>
   const baseDir = resolveDefaultAgentWorkspaceDir(env, os.homedir);
   const profile = env.OPENCLAW_PROFILE?.trim().toLowerCase();
   if (profile === "dev") return baseDir;
-=======
-  const profile = env.OPENCLAW_PROFILE?.trim().toLowerCase();
-  if (profile === "dev") {
-    return baseDir;
-  }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
   return `${baseDir}-${DEV_AGENT_WORKSPACE_SUFFIX}`;
 };
 
@@ -61,9 +53,7 @@ async function writeFileIfMissing(filePath: string, content: string) {
     });
   } catch (err) {
     const anyErr = err as { code?: string };
-    if (anyErr.code !== "EEXIST") {
-      throw err;
-    }
+    if (anyErr.code !== "EEXIST") throw err;
   }
 }
 
@@ -110,9 +100,7 @@ export async function ensureDevGatewayConfig(opts: { reset?: boolean }) {
   const io = createConfigIO();
   const configPath = io.configPath;
   const configExists = fs.existsSync(configPath);
-  if (!opts.reset && configExists) {
-    return;
-  }
+  if (!opts.reset && configExists) return;
 
   await writeConfigFile({
     gateway: {

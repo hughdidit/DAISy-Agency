@@ -34,12 +34,8 @@ export function createLocalShellRunner(deps: LocalShellDeps) {
   const maxChars = deps.maxOutputChars ?? 40_000;
 
   const ensureLocalExecAllowed = async (): Promise<boolean> => {
-    if (localExecAllowed) {
-      return true;
-    }
-    if (localExecAsked) {
-      return false;
-    }
+    if (localExecAllowed) return true;
+    if (localExecAsked) return false;
     localExecAsked = true;
 
     return await new Promise<boolean>((resolve) => {
@@ -82,9 +78,7 @@ export function createLocalShellRunner(deps: LocalShellDeps) {
     const cmd = line.slice(1);
     // NOTE: A lone '!' is handled by the submit handler as a normal message.
     // Keep this guard anyway in case this is called directly.
-    if (cmd === "") {
-      return;
-    }
+    if (cmd === "") return;
 
     if (localExecAsked && !localExecAllowed) {
       deps.chatLog.addSystem("local shell: not enabled for this session");
@@ -93,9 +87,7 @@ export function createLocalShellRunner(deps: LocalShellDeps) {
     }
 
     const allowed = await ensureLocalExecAllowed();
-    if (!allowed) {
-      return;
-    }
+    if (!allowed) return;
 
     deps.chatLog.addSystem(`[local] $ ${cmd}`);
     deps.tui.requestRender();

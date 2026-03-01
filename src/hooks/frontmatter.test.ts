@@ -57,7 +57,6 @@ metadata:
     expect(typeof result.metadata).toBe("string");
 
     // Verify the metadata is valid JSON
-<<<<<<< HEAD
     const parsed = JSON.parse(result.metadata as string);
     expect(parsed.openclaw.emoji).toBe("💾");
     expect(parsed.openclaw.events).toEqual(["command:new"]);
@@ -83,7 +82,6 @@ metadata:
     expect(result.name).toBe("command-logger");
     expect(result.metadata).toBeDefined();
 
-<<<<<<< HEAD
     const parsed = JSON.parse(result.metadata as string);
     expect(parsed.openclaw.emoji).toBe("📝");
     expect(parsed.openclaw.events).toEqual(["command"]);

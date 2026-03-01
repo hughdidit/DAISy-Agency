@@ -11,17 +11,13 @@ let pageState: {
 
 const sessionMocks = vi.hoisted(() => ({
   getPageForTargetId: vi.fn(async () => {
-    if (!currentPage) {
-      throw new Error("missing page");
-    }
+    if (!currentPage) throw new Error("missing page");
     return currentPage;
   }),
   ensurePageState: vi.fn(() => pageState),
   restoreRoleRefsForTarget: vi.fn(() => {}),
   refLocator: vi.fn(() => {
-    if (!currentRefLocator) {
-      throw new Error("missing locator");
-    }
+    if (!currentRefLocator) throw new Error("missing locator");
     return currentRefLocator;
   }),
   rememberRoleRefsForTarget: vi.fn(() => {}),
@@ -43,9 +39,7 @@ describe("pw-tools-core", () => {
       armIdDialog: 0,
       armIdDownload: 0,
     };
-    for (const fn of Object.values(sessionMocks)) {
-      fn.mockClear();
-    }
+    for (const fn of Object.values(sessionMocks)) fn.mockClear();
   });
 
   it("last file-chooser arm wins", async () => {
@@ -61,13 +55,13 @@ describe("pw-tools-core", () => {
         () =>
           new Promise((r) => {
             resolve1 = r;
-          }),
+          }) as Promise<unknown>,
       )
       .mockImplementationOnce(
         () =>
           new Promise((r) => {
             resolve2 = r;
-          }),
+          }) as Promise<unknown>,
       );
 
     currentPage = {

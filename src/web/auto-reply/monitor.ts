@@ -7,7 +7,7 @@ import { formatCliCommand } from "../../cli/command-format.js";
 import { waitForever } from "../../cli/wait.js";
 import { loadConfig } from "../../config/config.js";
 import { logVerbose } from "../../globals.js";
-import { formatDurationPrecise } from "../../infra/format-time/format-duration.ts";
+import { formatDurationMs } from "../../infra/format-duration.js";
 import { enqueueSystemEvent } from "../../infra/system-events.js";
 import { registerUnhandledRejectionHandler } from "../../infra/unhandled-rejections.js";
 import { getChildLogger } from "../../logging.js";
@@ -141,9 +141,7 @@ export async function monitorWebChannel(
   let reconnectAttempts = 0;
 
   while (true) {
-    if (stopRequested()) {
-      break;
-    }
+    if (stopRequested()) break;
 
     const connectionId = newConnectionId();
     const startedAt = Date.now();
@@ -177,15 +175,9 @@ export async function monitorWebChannel(
 
     const inboundDebounceMs = resolveInboundDebounceMs({ cfg, channel: "whatsapp" });
     const shouldDebounce = (msg: WebInboundMsg) => {
-      if (msg.mediaPath || msg.mediaType) {
-        return false;
-      }
-      if (msg.location) {
-        return false;
-      }
-      if (msg.replyToId || msg.replyToBody) {
-        return false;
-      }
+      if (msg.mediaPath || msg.mediaType) return false;
+      if (msg.location) return false;
+      if (msg.replyToId || msg.replyToBody) return false;
       return !hasControlCommand(msg.body, cfg);
     };
 
@@ -227,9 +219,7 @@ export async function monitorWebChannel(
 
     setActiveWebListener(account.accountId, listener);
     unregisterUnhandled = registerUnhandledRejectionHandler((reason) => {
-      if (!isLikelyWhatsAppCryptoError(reason)) {
-        return false;
-      }
+      if (!isLikelyWhatsAppCryptoError(reason)) return false;
       const errorStr = formatError(reason);
       reconnectLogger.warn(
         { connectionId, error: errorStr },
@@ -249,12 +239,8 @@ export async function monitorWebChannel(
         unregisterUnhandled();
         unregisterUnhandled = null;
       }
-      if (heartbeat) {
-        clearInterval(heartbeat);
-      }
-      if (watchdogTimer) {
-        clearInterval(watchdogTimer);
-      }
+      if (heartbeat) clearInterval(heartbeat);
+      if (watchdogTimer) clearInterval(watchdogTimer);
       if (backgroundTasks.size > 0) {
         await Promise.allSettled(backgroundTasks);
         backgroundTasks.clear();
@@ -293,13 +279,9 @@ export async function monitorWebChannel(
       }, heartbeatSeconds * 1000);
 
       watchdogTimer = setInterval(() => {
-        if (!lastMessageAt) {
-          return;
-        }
+        if (!lastMessageAt) return;
         const timeSinceLastMessage = Date.now() - lastMessageAt;
-        if (timeSinceLastMessage <= MESSAGE_TIMEOUT_MS) {
-          return;
-        }
+        if (timeSinceLastMessage <= MESSAGE_TIMEOUT_MS) return;
         const minutesSinceLastMessage = Math.floor(timeSinceLastMessage / 60000);
         heartbeatLogger.warn(
           {
@@ -432,7 +414,7 @@ export async function monitorWebChannel(
       "web reconnect: scheduling retry",
     );
     runtime.error(
-      `WhatsApp Web connection closed (status ${statusCode}). Retry ${reconnectAttempts}/${reconnectPolicy.maxAttempts || "∞"} in ${formatDurationPrecise(delay)}… (${errorStr})`,
+      `WhatsApp Web connection closed (status ${statusCode}). Retry ${reconnectAttempts}/${reconnectPolicy.maxAttempts || "∞"} in ${formatDurationMs(delay)}… (${errorStr})`,
     );
     await closeListener();
     try {

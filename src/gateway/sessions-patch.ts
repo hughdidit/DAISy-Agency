@@ -97,14 +97,10 @@ export async function applySessionsPatchToStore(params: {
   if ("spawnedBy" in patch) {
     const raw = patch.spawnedBy;
     if (raw === null) {
-      if (existing?.spawnedBy) {
-        return invalid("spawnedBy cannot be cleared once set");
-      }
+      if (existing?.spawnedBy) return invalid("spawnedBy cannot be cleared once set");
     } else if (raw !== undefined) {
       const trimmed = String(raw).trim();
-      if (!trimmed) {
-        return invalid("invalid spawnedBy: empty");
-      }
+      if (!trimmed) return invalid("invalid spawnedBy: empty");
       if (!isSubagentSessionKey(storeKey)) {
         return invalid("spawnedBy is only supported for subagent:* sessions");
       }
@@ -121,13 +117,9 @@ export async function applySessionsPatchToStore(params: {
       delete next.label;
     } else if (raw !== undefined) {
       const parsed = parseSessionLabel(raw);
-      if (!parsed.ok) {
-        return invalid(parsed.error);
-      }
+      if (!parsed.ok) return invalid(parsed.error);
       for (const [key, entry] of Object.entries(store)) {
-        if (key === storeKey) {
-          continue;
-        }
+        if (key === storeKey) continue;
         if (entry?.label === parsed.label) {
           return invalid(`label already in use: ${parsed.label}`);
         }
@@ -149,20 +141,15 @@ export async function applySessionsPatchToStore(params: {
           `invalid thinkingLevel (use ${formatThinkingLevels(hintProvider, hintModel, "|")})`,
         );
       }
-      if (normalized === "off") {
-        delete next.thinkingLevel;
-      } else {
-        next.thinkingLevel = normalized;
-      }
+      if (normalized === "off") delete next.thinkingLevel;
+      else next.thinkingLevel = normalized;
     }
   }
 
   if ("verboseLevel" in patch) {
     const raw = patch.verboseLevel;
     const parsed = parseVerboseOverride(raw);
-    if (!parsed.ok) {
-      return invalid(parsed.error);
-    }
+    if (!parsed.ok) return invalid(parsed.error);
     applyVerboseOverride(next, parsed.value);
   }
 
@@ -175,11 +162,8 @@ export async function applySessionsPatchToStore(params: {
       if (!normalized) {
         return invalid('invalid reasoningLevel (use "on"|"off"|"stream")');
       }
-      if (normalized === "off") {
-        delete next.reasoningLevel;
-      } else {
-        next.reasoningLevel = normalized;
-      }
+      if (normalized === "off") delete next.reasoningLevel;
+      else next.reasoningLevel = normalized;
     }
   }
 
@@ -189,14 +173,9 @@ export async function applySessionsPatchToStore(params: {
       delete next.responseUsage;
     } else if (raw !== undefined) {
       const normalized = normalizeUsageDisplay(String(raw));
-      if (!normalized) {
-        return invalid('invalid responseUsage (use "off"|"tokens"|"full")');
-      }
-      if (normalized === "off") {
-        delete next.responseUsage;
-      } else {
-        next.responseUsage = normalized;
-      }
+      if (!normalized) return invalid('invalid responseUsage (use "off"|"tokens"|"full")');
+      if (normalized === "off") delete next.responseUsage;
+      else next.responseUsage = normalized;
     }
   }
 
@@ -206,9 +185,7 @@ export async function applySessionsPatchToStore(params: {
       delete next.elevatedLevel;
     } else if (raw !== undefined) {
       const normalized = normalizeElevatedLevel(String(raw));
-      if (!normalized) {
-        return invalid('invalid elevatedLevel (use "on"|"off"|"ask"|"full")');
-      }
+      if (!normalized) return invalid('invalid elevatedLevel (use "on"|"off"|"ask"|"full")');
       // Persist "off" explicitly so patches can override defaults.
       next.elevatedLevel = normalized;
     }
@@ -220,9 +197,7 @@ export async function applySessionsPatchToStore(params: {
       delete next.execHost;
     } else if (raw !== undefined) {
       const normalized = normalizeExecHost(String(raw));
-      if (!normalized) {
-        return invalid('invalid execHost (use "sandbox"|"gateway"|"node")');
-      }
+      if (!normalized) return invalid('invalid execHost (use "sandbox"|"gateway"|"node")');
       next.execHost = normalized;
     }
   }
@@ -233,9 +208,7 @@ export async function applySessionsPatchToStore(params: {
       delete next.execSecurity;
     } else if (raw !== undefined) {
       const normalized = normalizeExecSecurity(String(raw));
-      if (!normalized) {
-        return invalid('invalid execSecurity (use "deny"|"allowlist"|"full")');
-      }
+      if (!normalized) return invalid('invalid execSecurity (use "deny"|"allowlist"|"full")');
       next.execSecurity = normalized;
     }
   }
@@ -246,9 +219,7 @@ export async function applySessionsPatchToStore(params: {
       delete next.execAsk;
     } else if (raw !== undefined) {
       const normalized = normalizeExecAsk(String(raw));
-      if (!normalized) {
-        return invalid('invalid execAsk (use "off"|"on-miss"|"always")');
-      }
+      if (!normalized) return invalid('invalid execAsk (use "off"|"on-miss"|"always")');
       next.execAsk = normalized;
     }
   }
@@ -259,9 +230,7 @@ export async function applySessionsPatchToStore(params: {
       delete next.execNode;
     } else if (raw !== undefined) {
       const trimmed = String(raw).trim();
-      if (!trimmed) {
-        return invalid("invalid execNode: empty");
-      }
+      if (!trimmed) return invalid("invalid execNode: empty");
       next.execNode = trimmed;
     }
   }
@@ -279,9 +248,7 @@ export async function applySessionsPatchToStore(params: {
       });
     } else if (raw !== undefined) {
       const trimmed = String(raw).trim();
-      if (!trimmed) {
-        return invalid("invalid model: empty");
-      }
+      if (!trimmed) return invalid("invalid model: empty");
       if (!params.loadGatewayModelCatalog) {
         return {
           ok: false,
@@ -330,9 +297,7 @@ export async function applySessionsPatchToStore(params: {
       delete next.sendPolicy;
     } else if (raw !== undefined) {
       const normalized = normalizeSendPolicy(String(raw));
-      if (!normalized) {
-        return invalid('invalid sendPolicy (use "allow"|"deny")');
-      }
+      if (!normalized) return invalid('invalid sendPolicy (use "allow"|"deny")');
       next.sendPolicy = normalized;
     }
   }

@@ -36,6 +36,8 @@ export async function deliverWebReply(params: {
       ? [replyResult.mediaUrl]
       : [];
 
+  const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
   const sendWithRetry = async (fn: () => Promise<unknown>, label: string, maxAttempts = 3) => {
     let lastErr: unknown;
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {

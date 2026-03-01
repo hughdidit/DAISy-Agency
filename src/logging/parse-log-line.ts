@@ -10,9 +10,7 @@ export type ParsedLogLine = {
 function extractMessage(value: Record<string, unknown>): string {
   const parts: string[] = [];
   for (const key of Object.keys(value)) {
-    if (!/^\d+$/.test(key)) {
-      continue;
-    }
+    if (!/^\d+$/.test(key)) continue;
     const item = value[key];
     if (typeof item === "string") {
       parts.push(item);
@@ -24,9 +22,7 @@ function extractMessage(value: Record<string, unknown>): string {
 }
 
 function parseMetaName(raw?: unknown): { subsystem?: string; module?: string } {
-  if (typeof raw !== "string") {
-    return {};
-  }
+  if (typeof raw !== "string") return {};
   try {
     const parsed = JSON.parse(raw) as Record<string, unknown>;
     return {

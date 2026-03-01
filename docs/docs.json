@@ -2,47 +2,15 @@
   "$schema": "https://mintlify.com/docs.json",
   "name": "OpenClaw",
   "theme": "mint",
-  "icons": {
-    "library": "lucide"
-  },
   "logo": {
     "light": "/assets/pixel-lobster.svg",
     "dark": "/assets/pixel-lobster.svg"
   },
-  "fonts": {
-    "body": {
-      "family": "Fragment Mono"
-    },
-    "heading": {
-      "family": "DM Sans"
-    }
-  },
   "favicon": "/assets/pixel-lobster.svg",
   "colors": {
-    "primary": "#FF5A36",
-    "dark": "#FF5A36",
-    "light": "#FF8A6B"
+    "primary": "#FF5A36"
   },
-  "navbar": {
-    "links": [
-      {
-        "label": "GitHub",
-        "href": "https://github.com/openclaw/openclaw",
-        "icon": "github"
-      },
-      {
-        "label": "Releases",
-        "href": "https://github.com/openclaw/openclaw/releases",
-        "icon": "package"
-      }
-    ]
-  },
-<<<<<<< HEAD
   "topbarLinks": [
-    {
-      "name": "中文",
-      "url": "/zh-CN"
-    },
     {
       "name": "GitHub",
       "url": "https://github.com/openclaw/openclaw"
@@ -52,11 +20,8 @@
       "url": "https://github.com/openclaw/openclaw/releases"
     }
   ],
-=======
->>>>>>> 718dba8cb (Docs: landing page revamp (#8885))
   "redirects": [
     {
-<<<<<<< HEAD
       "source": "/cron",
       "destination": "/cron-jobs"
     },
@@ -69,8 +34,6 @@
       "destination": "/models"
     },
     {
-=======
->>>>>>> 929a3725d (docs: canonicalize docs paths and align zh navigation (#11428))
       "source": "/messages",
       "destination": "/concepts/messages"
     },
@@ -94,14 +57,6 @@
       "source": "/xiaomi",
       "destination": "/providers/xiaomi"
 >>>>>>> f57e70912 (docs: Update information architecture for OpenClaw docs (#7622))
-    },
-    {
-      "source": "/xiaomi",
-      "destination": "/providers/xiaomi"
-    },
-    {
-      "source": "/xiaomi/",
-      "destination": "/providers/xiaomi"
     },
     {
       "source": "/openai",
@@ -300,16 +255,8 @@
       "destination": "/start/openclaw"
     },
     {
-      "source": "/clawhub",
-      "destination": "/tools/clawhub"
-    },
-    {
       "source": "/clawdhub",
-      "destination": "/tools/clawhub"
-    },
-    {
-      "source": "/tools/clawdhub",
-      "destination": "/tools/clawhub"
+      "destination": "/tools/clawdhub"
     },
     {
       "source": "/configuration",
@@ -385,11 +332,11 @@
     },
     {
       "source": "/group-messages",
-      "destination": "/channels/group-messages"
+      "destination": "/concepts/group-messages"
     },
     {
       "source": "/groups",
-      "destination": "/channels/groups"
+      "destination": "/concepts/groups"
     },
     {
       "source": "/health",
@@ -516,14 +463,6 @@
       "destination": "/concepts/model-failover"
     },
     {
-      "source": "/model",
-      "destination": "/models"
-    },
-    {
-      "source": "/model/",
-      "destination": "/models"
-    },
-    {
       "source": "/models",
       "destination": "/concepts/models"
     },
@@ -545,7 +484,7 @@
     },
     {
       "source": "/pairing",
-      "destination": "/channels/pairing"
+      "destination": "/start/pairing"
     },
     {
       "source": "/plans/cron-add-hardening",
@@ -569,11 +508,11 @@
     },
     {
       "source": "/provider-routing",
-      "destination": "/channels/channel-routing"
+      "destination": "/concepts/channel-routing"
     },
     {
       "source": "/concepts/provider-routing",
-      "destination": "/channels/channel-routing"
+      "destination": "/concepts/channel-routing"
     },
     {
       "source": "/queue",
@@ -704,8 +643,8 @@
       "destination": "/help/troubleshooting"
     },
     {
-      "source": "/tui",
-      "destination": "/web/tui"
+      "source": "/web/tui",
+      "destination": "/tui"
     },
     {
       "source": "/typebox",
@@ -760,12 +699,8 @@
       "destination": "/concepts/oauth"
     },
     {
-      "source": "/plugin",
-      "destination": "/tools/plugin"
-    },
-    {
       "source": "/plugins",
-      "destination": "/tools/plugin"
+      "destination": "/plugin"
     },
     {
       "source": "/railway",
@@ -836,7 +771,11 @@
       },
       {
         "group": "Help",
-        "pages": ["help/index", "help/troubleshooting", "help/faq"]
+        "pages": [
+          "help/index",
+          "help/troubleshooting",
+          "help/faq"
+        ]
       },
       {
         "group": "Install & Updates",
@@ -1060,7 +999,7 @@
           "tools/reactions",
           "tools/skills",
           "tools/skills-config",
-          "tools/clawhub"
+          "tools/clawdhub"
         ]
       },
       {

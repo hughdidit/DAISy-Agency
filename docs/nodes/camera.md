@@ -75,7 +75,6 @@ openclaw nodes camera clip --node <id> --no-audio
 ```
 
 Notes:
-
 - `nodes camera snap` defaults to **both** facings to give the agent both views.
 - Output files are temporary (in the OS temp directory) unless you build your own wrapper.
 
@@ -144,12 +143,11 @@ Notes:
 
 ## macOS screen video (OS-level)
 
-For _screen_ video (not camera), use the macOS companion:
+For *screen* video (not camera), use the macOS companion:
 
 ```bash
 openclaw nodes screen record --node <id> --duration 10s --fps 15   # prints MEDIA:<path>
 ```
 
 Notes:
-
 - Requires macOS **Screen Recording** permission (TCC).

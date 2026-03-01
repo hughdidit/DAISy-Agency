@@ -61,15 +61,11 @@ vi.mock("@mariozechner/pi-ai", async () => {
   return {
     ...actual,
     complete: async (model: { api: string; provider: string; id: string }) => {
-      if (model.id === "mock-error") {
-        return buildAssistantErrorMessage(model);
-      }
+      if (model.id === "mock-error") return buildAssistantErrorMessage(model);
       return buildAssistantMessage(model);
     },
     completeSimple: async (model: { api: string; provider: string; id: string }) => {
-      if (model.id === "mock-error") {
-        return buildAssistantErrorMessage(model);
-      }
+      if (model.id === "mock-error") return buildAssistantErrorMessage(model);
       return buildAssistantMessage(model);
     },
     streamSimple: (model: { api: string; provider: string; id: string }) => {
@@ -107,9 +103,7 @@ beforeAll(async () => {
 }, 20_000);
 
 afterAll(async () => {
-  if (!tempRoot) {
-    return;
-  }
+  if (!tempRoot) return;
   await fs.rm(tempRoot, { recursive: true, force: true });
   tempRoot = undefined;
 });
@@ -147,9 +141,7 @@ const testSessionKey = "agent:test:embedded";
 const immediateEnqueue = async <T>(task: () => Promise<T>) => task();
 
 const textFromContent = (content: unknown) => {
-  if (typeof content === "string") {
-    return content;
-  }
+  if (typeof content === "string") return content;
   if (Array.isArray(content) && content[0]?.type === "text") {
     return (content[0] as { text?: string }).text;
   }

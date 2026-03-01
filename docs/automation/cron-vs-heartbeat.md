@@ -6,21 +6,20 @@ read_when:
   - Optimizing token usage for periodic checks
 title: "Cron vs Heartbeat"
 ---
-
 # Cron vs Heartbeat: When to Use Each
 
 Both heartbeats and cron jobs let you run tasks on a schedule. This guide helps you choose the right mechanism for your use case.
 
 ## Quick Decision Guide
 
-| Use Case                             | Recommended         | Why                                      |
-| ------------------------------------ | ------------------- | ---------------------------------------- |
-| Check inbox every 30 min             | Heartbeat           | Batches with other checks, context-aware |
-| Send daily report at 9am sharp       | Cron (isolated)     | Exact timing needed                      |
-| Monitor calendar for upcoming events | Heartbeat           | Natural fit for periodic awareness       |
-| Run weekly deep analysis             | Cron (isolated)     | Standalone task, can use different model |
-| Remind me in 20 minutes              | Cron (main, `--at`) | One-shot with precise timing             |
-| Background project health check      | Heartbeat           | Piggybacks on existing cycle             |
+| Use Case | Recommended | Why |
+|----------|-------------|-----|
+| Check inbox every 30 min | Heartbeat | Batches with other checks, context-aware |
+| Send daily report at 9am sharp | Cron (isolated) | Exact timing needed |
+| Monitor calendar for upcoming events | Heartbeat | Natural fit for periodic awareness |
+| Run weekly deep analysis | Cron (isolated) | Standalone task, can use different model |
+| Remind me in 20 minutes | Cron (main, `--at`) | One-shot with precise timing |
+| Background project health check | Heartbeat | Piggybacks on existing cycle |
 
 ## Heartbeat: Periodic Awareness
 
@@ -61,12 +60,12 @@ The agent reads this on each heartbeat and handles all items in one turn.
   agents: {
     defaults: {
       heartbeat: {
-        every: "30m", // interval
-        target: "last", // where to deliver alerts
-        activeHours: { start: "08:00", end: "22:00" }, // optional
-      },
-    },
-  },
+        every: "30m",        // interval
+        target: "last",      // where to deliver alerts
+        activeHours: { start: "08:00", end: "22:00" }  // optional
+      }
+    }
+  }
 }
 ```
 
@@ -90,8 +89,7 @@ Cron jobs run at **exact times** and can run in isolated sessions without affect
 - **Exact timing**: 5-field cron expressions with timezone support.
 - **Session isolation**: Runs in `cron:<jobId>` without polluting main history.
 - **Model overrides**: Use a cheaper or more powerful model per job.
-- **Delivery control**: Isolated jobs default to `announce` (summary); choose `none` as needed.
-- **Immediate delivery**: Announce mode posts directly without waiting for heartbeat.
+- **Delivery control**: Can deliver directly to a channel; still posts a summary to main by default (configurable).
 - **No agent context needed**: Runs even if main session is idle or compacted.
 - **One-shot support**: `--at` for precise future timestamps.
 
@@ -105,12 +103,12 @@ openclaw cron add \
   --session isolated \
   --message "Generate today's briefing: weather, calendar, top emails, news summary." \
   --model opus \
-  --announce \
+  --deliver \
   --channel whatsapp \
   --to "+15551234567"
 ```
 
-This runs at exactly 7:00 AM New York time, uses Opus for quality, and announces a summary directly to WhatsApp.
+This runs at exactly 7:00 AM New York time, uses Opus for quality, and delivers directly to WhatsApp.
 
 ### Cron example: One-shot reminder
 
@@ -160,10 +158,8 @@ The most efficient setup uses **both**:
 ### Example: Efficient automation setup
 
 **HEARTBEAT.md** (checked every 30 min):
-
 ```md
 # Heartbeat checklist
-
 - Scan inbox for urgent emails
 - Check calendar for events in next 2h
 - Review any pending tasks
@@ -171,7 +167,6 @@ The most efficient setup uses **both**:
 ```
 
 **Cron jobs** (precise timing):
-
 ```bash
 # Daily morning briefing at 7am
 openclaw cron add --name "Morning brief" --cron "0 7 * * *" --session isolated --message "..." --deliver
@@ -182,6 +177,7 @@ openclaw cron add --name "Weekly review" --cron "0 9 * * 1" --session isolated -
 # One-shot reminder
 openclaw cron add --name "Call back" --at "2h" --session main --system-event "Call back the client" --wake now
 ```
+
 
 ## Lobster: Deterministic workflows with approvals
 
@@ -196,8 +192,8 @@ Use it when the task is more than a single agent turn, and you want a resumable 
 
 ### How it pairs with heartbeat and cron
 
-- **Heartbeat/cron** decide _when_ a run happens.
-- **Lobster** defines _what steps_ happen once the run starts.
+- **Heartbeat/cron** decide *when* a run happens.
+- **Lobster** defines *what steps* happen once the run starts.
 
 For scheduled workflows, use cron or heartbeat to trigger an agent turn that calls Lobster.
 For ad-hoc workflows, call Lobster directly.
@@ -215,18 +211,17 @@ See [Lobster](/tools/lobster) for full usage and examples.
 
 Both heartbeat and cron can interact with the main session, but differently:
 
-|         | Heartbeat                       | Cron (main)              | Cron (isolated)            |
-| ------- | ------------------------------- | ------------------------ | -------------------------- |
-| Session | Main                            | Main (via system event)  | `cron:<jobId>`             |
-| History | Shared                          | Shared                   | Fresh each run             |
-| Context | Full                            | Full                     | None (starts clean)        |
-| Model   | Main session model              | Main session model       | Can override               |
-| Output  | Delivered if not `HEARTBEAT_OK` | Heartbeat prompt + event | Announce summary (default) |
+| | Heartbeat | Cron (main) | Cron (isolated) |
+|---|---|---|---|
+| Session | Main | Main (via system event) | `cron:<jobId>` |
+| History | Shared | Shared | Fresh each run |
+| Context | Full | Full | None (starts clean) |
+| Model | Main session model | Main session model | Can override |
+| Output | Delivered if not `HEARTBEAT_OK` | Heartbeat prompt + event | Summary posted to main |
 
 ### When to use main session cron
 
 Use `--session main` with `--system-event` when you want:
-
 - The reminder/event to appear in main session context
 - The agent to handle it during the next heartbeat with full context
 - No separate isolated run
@@ -243,10 +238,9 @@ openclaw cron add \
 ### When to use isolated cron
 
 Use `--session isolated` when you want:
-
 - A clean slate without prior context
 - Different model or thinking settings
-- Announce summaries directly to a channel
+- Output delivered directly to a channel (summary still posts to main by default)
 - History that doesn't clutter main session
 
 ```bash
@@ -257,19 +251,18 @@ openclaw cron add \
   --message "Weekly codebase analysis..." \
   --model opus \
   --thinking high \
-  --announce
+  --deliver
 ```
 
 ## Cost Considerations
 
-| Mechanism       | Cost Profile                                            |
-| --------------- | ------------------------------------------------------- |
-| Heartbeat       | One turn every N minutes; scales with HEARTBEAT.md size |
-| Cron (main)     | Adds event to next heartbeat (no isolated turn)         |
-| Cron (isolated) | Full agent turn per job; can use cheaper model          |
+| Mechanism | Cost Profile |
+|-----------|--------------|
+| Heartbeat | One turn every N minutes; scales with HEARTBEAT.md size |
+| Cron (main) | Adds event to next heartbeat (no isolated turn) |
+| Cron (isolated) | Full agent turn per job; can use cheaper model |
 
 **Tips**:
-
 - Keep `HEARTBEAT.md` small to minimize token overhead.
 - Batch similar checks into heartbeat instead of multiple cron jobs.
 - Use `target: "none"` on heartbeat if you only want internal processing.

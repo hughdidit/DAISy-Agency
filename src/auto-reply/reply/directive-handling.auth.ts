@@ -21,12 +21,8 @@ export type ModelAuthDetailMode = "compact" | "verbose";
 
 const maskApiKey = (value: string): string => {
   const trimmed = value.trim();
-  if (!trimmed) {
-    return "missing";
-  }
-  if (trimmed.length <= 16) {
-    return trimmed;
-  }
+  if (!trimmed) return "missing";
+  if (trimmed.length <= 16) return trimmed;
   return `${trimmed.slice(0, 8)}...${trimmed.slice(-8)}`;
 };
 
@@ -45,13 +41,9 @@ export const resolveAuthLabel = async (
   const providerKey = normalizeProviderId(provider);
   const lastGood = (() => {
     const map = store.lastGood;
-    if (!map) {
-      return undefined;
-    }
+    if (!map) return undefined;
     for (const [key, value] of Object.entries(map)) {
-      if (normalizeProviderId(key) === providerKey) {
-        return value;
-      }
+      if (normalizeProviderId(key) === providerKey) return value;
     }
     return undefined;
   })();
@@ -61,16 +53,10 @@ export const resolveAuthLabel = async (
   const formatUntil = (timestampMs: number) => {
     const remainingMs = Math.max(0, timestampMs - now);
     const minutes = Math.round(remainingMs / 60_000);
-    if (minutes < 1) {
-      return "soon";
-    }
-    if (minutes < 60) {
-      return `${minutes}m`;
-    }
+    if (minutes < 1) return "soon";
+    if (minutes < 60) return `${minutes}m`;
     const hours = Math.round(minutes / 60);
-    if (hours < 48) {
-      return `${hours}h`;
-    }
+    if (hours < 48) return `${hours}h`;
     const days = Math.round(hours / 24);
     return `${days}d`;
   };
@@ -78,9 +64,7 @@ export const resolveAuthLabel = async (
   if (order.length > 0) {
     if (mode === "compact") {
       const profileId = nextProfileId;
-      if (!profileId) {
-        return { label: "missing", source: "missing" };
-      }
+      if (!profileId) return { label: "missing", source: "missing" };
       const profile = store.profiles[profileId];
       const configProfile = cfg.auth?.profiles?.[profileId];
       const missing =
@@ -91,13 +75,11 @@ export const resolveAuthLabel = async (
           !(configProfile.mode === "oauth" && profile.type === "token"));
 
       const more = order.length > 1 ? ` (+${order.length - 1})` : "";
-      if (missing) {
-        return { label: `${profileId} missing${more}`, source: "" };
-      }
+      if (missing) return { label: `${profileId} missing${more}`, source: "" };
 
       if (profile.type === "api_key") {
         return {
-          label: `${profileId} api-key ${maskApiKey(profile.key ?? "")}${more}`,
+          label: `${profileId} api-key ${maskApiKey(profile.key)}${more}`,
           source: "",
         };
       }
@@ -132,12 +114,8 @@ export const resolveAuthLabel = async (
       const profile = store.profiles[profileId];
       const configProfile = cfg.auth?.profiles?.[profileId];
       const flags: string[] = [];
-      if (profileId === nextProfileId) {
-        flags.push("next");
-      }
-      if (lastGood && profileId === lastGood) {
-        flags.push("lastGood");
-      }
+      if (profileId === nextProfileId) flags.push("next");
+      if (lastGood && profileId === lastGood) flags.push("lastGood");
       if (isProfileInCooldown(store, profileId)) {
         const until = store.usageStats?.[profileId]?.cooldownUntil;
         if (typeof until === "number" && Number.isFinite(until) && until > now) {
@@ -158,7 +136,7 @@ export const resolveAuthLabel = async (
       }
       if (profile.type === "api_key") {
         const suffix = flags.length > 0 ? ` (${flags.join(", ")})` : "";
-        return `${profileId}=${maskApiKey(profile.key ?? "")}${suffix}`;
+        return `${profileId}=${maskApiKey(profile.key)}${suffix}`;
       }
       if (profile.type === "token") {
         if (
@@ -231,9 +209,7 @@ export const resolveProfileOverride = (params: {
   agentDir?: string;
 }): { profileId?: string; error?: string } => {
   const raw = params.rawProfile?.trim();
-  if (!raw) {
-    return {};
-  }
+  if (!raw) return {};
   const store = ensureAuthProfileStore(params.agentDir, {
     allowKeychainPrompt: false,
   });

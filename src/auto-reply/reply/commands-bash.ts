@@ -3,9 +3,7 @@ import { logVerbose } from "../../globals.js";
 import { handleBashChatCommand } from "./bash-command.js";
 
 export const handleBashCommand: CommandHandler = async (params, allowTextCommands) => {
-  if (!allowTextCommands) {
-    return null;
-  }
+  if (!allowTextCommands) return null;
   const { command } = params;
   const bashSlashRequested =
     command.commandBodyNormalized === "/bash" || command.commandBodyNormalized.startsWith("/bash ");

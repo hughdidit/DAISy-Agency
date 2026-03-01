@@ -51,9 +51,7 @@ export async function maybeInstallDaemon(params: {
       shouldCheckLinger = true;
       shouldInstall = false;
     }
-    if (action === "skip") {
-      return;
-    }
+    if (action === "skip") return;
     if (action === "reinstall") {
       await withProgress(
         { label: "Gateway service", indeterminate: true, delayMs: 0 },
@@ -125,7 +123,7 @@ export async function maybeInstallDaemon(params: {
     await ensureSystemdUserLingerInteractive({
       runtime: params.runtime,
       prompter: {
-        confirm: async (p) => guardCancel(await confirm(p), params.runtime),
+        confirm: async (p) => guardCancel(await confirm(p), params.runtime) === true,
         note,
       },
       reason:

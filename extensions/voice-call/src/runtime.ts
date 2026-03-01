@@ -30,9 +30,7 @@ export type VoiceCallRuntime = {
 };
 
 function isLoopbackBind(bind: string | undefined): boolean {
-  if (!bind) {
-    return false;
-  }
+  if (!bind) return false;
   return bind === "127.0.0.1" || bind === "::1" || bind === "localhost";
 }
 
@@ -93,7 +91,9 @@ function resolveProvider(config: VoiceCallConfig, logger?: Logger): VoiceCallPro
     case "mock":
       return new MockProvider();
     default:
-      throw new Error(`Unsupported voice-call provider: ${String(config.provider)}`);
+      throw new Error(
+        `Unsupported voice-call provider: ${String(config.provider)}`,
+      );
   }
 }
 
@@ -109,7 +109,9 @@ export async function createVoiceCallRuntime(params: {
   const config = resolveVoiceCallConfig(rawConfig);
 
   if (!config.enabled) {
-    throw new Error("Voice call disabled. Enable the plugin entry in config.");
+    throw new Error(
+      "Voice call disabled. Enable the plugin entry in config.",
+    );
   }
 
   const validation = validateProviderConfig(config);
@@ -145,7 +147,9 @@ export async function createVoiceCallRuntime(params: {
       publicUrl = tunnelResult?.publicUrl ?? null;
     } catch (err) {
       log.error(
-        `[voice-call] Tunnel setup failed: ${err instanceof Error ? err.message : String(err)}`,
+        `[voice-call] Tunnel setup failed: ${
+          err instanceof Error ? err.message : String(err)
+        }`,
       );
     }
   }

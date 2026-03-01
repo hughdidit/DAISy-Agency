@@ -5,7 +5,6 @@ import {
   logoutWhatsApp,
   startWhatsAppLogin,
   waitWhatsAppLogin,
-<<<<<<< HEAD
 } from "./controllers/channels";
 import { loadConfig, saveConfig } from "./controllers/config";
 <<<<<<< HEAD
@@ -14,11 +13,6 @@ import type { NostrProfile } from "./types";
 =======
 >>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { createNostrProfileFormState } from "./views/channels.nostr-profile-form";
-=======
-} from "./controllers/channels.ts";
-import { loadConfig, saveConfig } from "./controllers/config.ts";
-import { createNostrProfileFormState } from "./views/channels.nostr-profile-form.ts";
->>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
 
 export async function handleWhatsAppStart(host: OpenClawApp, force: boolean) {
   await startWhatsAppLogin(host, force);
@@ -47,23 +41,15 @@ export async function handleChannelConfigReload(host: OpenClawApp) {
 }
 
 function parseValidationErrors(details: unknown): Record<string, string> {
-  if (!Array.isArray(details)) {
-    return {};
-  }
+  if (!Array.isArray(details)) return {};
   const errors: Record<string, string> = {};
   for (const entry of details) {
-    if (typeof entry !== "string") {
-      continue;
-    }
+    if (typeof entry !== "string") continue;
     const [rawField, ...rest] = entry.split(":");
-    if (!rawField || rest.length === 0) {
-      continue;
-    }
+    if (!rawField || rest.length === 0) continue;
     const field = rawField.trim();
     const message = rest.join(":").trim();
-    if (field && message) {
-      errors[field] = message;
-    }
+    if (field && message) errors[field] = message;
   }
   return errors;
 }
@@ -97,9 +83,7 @@ export function handleNostrProfileFieldChange(
   value: string,
 ) {
   const state = host.nostrProfileFormState;
-  if (!state) {
-    return;
-  }
+  if (!state) return;
   host.nostrProfileFormState = {
     ...state,
     values: {
@@ -115,9 +99,7 @@ export function handleNostrProfileFieldChange(
 
 export function handleNostrProfileToggleAdvanced(host: OpenClawApp) {
   const state = host.nostrProfileFormState;
-  if (!state) {
-    return;
-  }
+  if (!state) return;
   host.nostrProfileFormState = {
     ...state,
     showAdvanced: !state.showAdvanced,
@@ -126,9 +108,7 @@ export function handleNostrProfileToggleAdvanced(host: OpenClawApp) {
 
 export async function handleNostrProfileSave(host: OpenClawApp) {
   const state = host.nostrProfileFormState;
-  if (!state || state.saving) {
-    return;
-  }
+  if (!state || state.saving) return;
   const accountId = resolveNostrAccountId(host);
 
   host.nostrProfileFormState = {
@@ -147,12 +127,9 @@ export async function handleNostrProfileSave(host: OpenClawApp) {
       },
       body: JSON.stringify(state.values),
     });
-    const data = (await response.json().catch(() => null)) as {
-      ok?: boolean;
-      error?: string;
-      details?: unknown;
-      persisted?: boolean;
-    } | null;
+    const data = (await response.json().catch(() => null)) as
+      | { ok?: boolean; error?: string; details?: unknown; persisted?: boolean }
+      | null;
 
     if (!response.ok || data?.ok === false || !data) {
       const errorMessage = data?.error ?? `Profile update failed (${response.status})`;
@@ -197,9 +174,7 @@ export async function handleNostrProfileSave(host: OpenClawApp) {
 
 export async function handleNostrProfileImport(host: OpenClawApp) {
   const state = host.nostrProfileFormState;
-  if (!state || state.importing) {
-    return;
-  }
+  if (!state || state.importing) return;
   const accountId = resolveNostrAccountId(host);
 
   host.nostrProfileFormState = {
@@ -217,13 +192,9 @@ export async function handleNostrProfileImport(host: OpenClawApp) {
       },
       body: JSON.stringify({ autoMerge: true }),
     });
-    const data = (await response.json().catch(() => null)) as {
-      ok?: boolean;
-      error?: string;
-      imported?: NostrProfile;
-      merged?: NostrProfile;
-      saved?: boolean;
-    } | null;
+    const data = (await response.json().catch(() => null)) as
+      | { ok?: boolean; error?: string; imported?: NostrProfile; merged?: NostrProfile; saved?: boolean }
+      | null;
 
     if (!response.ok || data?.ok === false || !data) {
       const errorMessage = data?.error ?? `Profile import failed (${response.status})`;

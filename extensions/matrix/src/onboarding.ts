@@ -1,4 +1,3 @@
-import type { DmPolicy } from "openclaw/plugin-sdk";
 import {
   addWildcardAllowFrom,
   formatDocsLink,
@@ -13,14 +12,14 @@ import {
 import type { CoreConfig, DmPolicy } from "./types.js";
 >>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { listMatrixDirectoryGroupsLive } from "./directory-live.js";
+import { listMatrixDirectoryPeersLive } from "./directory-live.js";
 import { resolveMatrixAccount } from "./matrix/accounts.js";
 import { ensureMatrixSdkInstalled, isMatrixSdkAvailable } from "./matrix/deps.js";
 
 const channel = "matrix" as const;
 
 function setMatrixDmPolicy(cfg: CoreConfig, policy: DmPolicy) {
-  const allowFrom =
-    policy === "open" ? addWildcardAllowFrom(cfg.channels?.matrix?.dm?.allowFrom) : undefined;
+  const allowFrom = policy === "open" ? addWildcardAllowFrom(cfg.channels?.matrix?.dm?.allowFrom) : undefined;
   return {
     ...cfg,
     channels: {
@@ -69,16 +68,14 @@ async function promptMatrixAllowFrom(params: {
 
   while (true) {
     const entry = await prompter.text({
-      message: "Matrix allowFrom (full @user:server; display name only if unique)",
+      message: "Matrix allowFrom (username or user id)",
       placeholder: "@user:server",
       initialValue: existingAllowFrom[0] ? String(existingAllowFrom[0]) : undefined,
       validate: (value) => (String(value ?? "").trim() ? undefined : "Required"),
     });
     const parts = parseInput(String(entry));
     const resolvedIds: string[] = [];
-    const pending: string[] = [];
-    const unresolved: string[] = [];
-    const unresolvedNotes: string[] = [];
+    let unresolved: string[] = [];
 
     for (const part of parts) {
       if (isFullUserId(part)) {
@@ -89,33 +86,28 @@ async function promptMatrixAllowFrom(params: {
         unresolved.push(part);
         continue;
       }
-      pending.push(part);
-    }
-
-    if (pending.length > 0) {
-      const results = await resolveMatrixTargets({
+      const results = await listMatrixDirectoryPeersLive({
         cfg,
-        inputs: pending,
-        kind: "user",
+        query: part,
+        limit: 5,
       }).catch(() => []);
-      for (const result of results) {
-        if (result?.resolved && result.id) {
-          resolvedIds.push(result.id);
-          continue;
+      const match = results.find((result) => result.id);
+      if (match?.id) {
+        resolvedIds.push(match.id);
+        if (results.length > 1) {
+          await prompter.note(
+            `Multiple matches for "${part}", using ${match.id}.`,
+            "Matrix allowlist",
+          );
         }
-        if (result?.input) {
-          unresolved.push(result.input);
-          if (result.note) {
-            unresolvedNotes.push(`${result.input}: ${result.note}`);
-          }
-        }
+      } else {
+        unresolved.push(part);
       }
     }
 
     if (unresolved.length > 0) {
-      const details = unresolvedNotes.length > 0 ? unresolvedNotes : unresolved;
       await prompter.note(
-        `Could not resolve:\n${details.join("\n")}\nUse full @user:server IDs.`,
+        `Could not resolve: ${unresolved.join(", ")}. Use full @user:server IDs.`,
         "Matrix allowlist",
       );
       continue;
@@ -260,12 +252,8 @@ export const matrixOnboardingAdapter: ChannelOnboardingAdapter = {
         initialValue: existing.homeserver ?? envHomeserver,
         validate: (value) => {
           const raw = String(value ?? "").trim();
-          if (!raw) {
-            return "Required";
-          }
-          if (!/^https?:\/\//i.test(raw)) {
-            return "Use a full URL (https://...)";
-          }
+          if (!raw) return "Required";
+          if (!/^https?:\/\//i.test(raw)) return "Use a full URL (https://...)";
           return undefined;
         },
       }),
@@ -289,13 +277,13 @@ export const matrixOnboardingAdapter: ChannelOnboardingAdapter = {
 
     if (!accessToken && !password) {
       // Ask auth method FIRST before asking for user ID
-      const authMode = await prompter.select({
+      const authMode = (await prompter.select({
         message: "Matrix auth method",
         options: [
           { value: "token", label: "Access token (user ID fetched automatically)" },
           { value: "password", label: "Password (requires user ID)" },
         ],
-      });
+      })) as "token" | "password";
 
       if (authMode === "token") {
         accessToken = String(
@@ -315,15 +303,9 @@ export const matrixOnboardingAdapter: ChannelOnboardingAdapter = {
             initialValue: existing.userId ?? envUserId,
             validate: (value) => {
               const raw = String(value ?? "").trim();
-              if (!raw) {
-                return "Required";
-              }
-              if (!raw.startsWith("@")) {
-                return "Matrix user IDs should start with @";
-              }
-              if (!raw.includes(":")) {
-                return "Matrix user IDs should include a server (:server)";
-              }
+              if (!raw) return "Required";
+              if (!raw.startsWith("@")) return "Matrix user IDs should start with @";
+              if (!raw.includes(":")) return "Matrix user IDs should include a server (:server)";
               return undefined;
             },
           }),
@@ -391,9 +373,7 @@ export const matrixOnboardingAdapter: ChannelOnboardingAdapter = {
             const unresolved: string[] = [];
             for (const entry of accessConfig.entries) {
               const trimmed = entry.trim();
-              if (!trimmed) {
-                continue;
-              }
+              if (!trimmed) continue;
               const cleaned = trimmed.replace(/^(room|channel):/i, "").trim();
               if (cleaned.startsWith("!") && cleaned.includes(":")) {
                 resolvedIds.push(cleaned);
@@ -414,7 +394,10 @@ export const matrixOnboardingAdapter: ChannelOnboardingAdapter = {
                 unresolved.push(entry);
               }
             }
-            roomKeys = [...resolvedIds, ...unresolved.map((entry) => entry.trim()).filter(Boolean)];
+            roomKeys = [
+              ...resolvedIds,
+              ...unresolved.map((entry) => entry.trim()).filter(Boolean),
+            ];
             if (resolvedIds.length > 0 || unresolved.length > 0) {
               await prompter.note(
                 [

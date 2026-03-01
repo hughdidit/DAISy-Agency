@@ -44,27 +44,17 @@ function asMessages(val: unknown): OpenAiChatMessage[] {
 }
 
 function extractTextContent(content: unknown): string {
-  if (typeof content === "string") {
-    return content;
-  }
+  if (typeof content === "string") return content;
   if (Array.isArray(content)) {
     return content
       .map((part) => {
-        if (!part || typeof part !== "object") {
-          return "";
-        }
+        if (!part || typeof part !== "object") return "";
         const type = (part as { type?: unknown }).type;
         const text = (part as { text?: unknown }).text;
         const inputText = (part as { input_text?: unknown }).input_text;
-        if (type === "text" && typeof text === "string") {
-          return text;
-        }
-        if (type === "input_text" && typeof text === "string") {
-          return text;
-        }
-        if (typeof inputText === "string") {
-          return inputText;
-        }
+        if (type === "text" && typeof text === "string") return text;
+        if (type === "input_text" && typeof text === "string") return text;
+        if (typeof inputText === "string") return inputText;
         return "";
       })
       .filter(Boolean)
@@ -84,14 +74,10 @@ function buildAgentPrompt(messagesUnknown: unknown): {
     [];
 
   for (const msg of messages) {
-    if (!msg || typeof msg !== "object") {
-      continue;
-    }
+    if (!msg || typeof msg !== "object") continue;
     const role = typeof msg.role === "string" ? msg.role.trim() : "";
     const content = extractTextContent(msg.content).trim();
-    if (!role || !content) {
-      continue;
-    }
+    if (!role || !content) continue;
     if (role === "system" || role === "developer") {
       systemParts.push(content);
       continue;
@@ -128,9 +114,7 @@ function buildAgentPrompt(messagesUnknown: unknown): {
         break;
       }
     }
-    if (currentIndex < 0) {
-      currentIndex = conversationEntries.length - 1;
-    }
+    if (currentIndex < 0) currentIndex = conversationEntries.length - 1;
     const currentEntry = conversationEntries[currentIndex]?.entry;
     if (currentEntry) {
       const historyEntries = conversationEntries.slice(0, currentIndex).map((entry) => entry.entry);
@@ -162,9 +146,7 @@ function resolveOpenAiSessionKey(params: {
 }
 
 function coerceRequest(val: unknown): OpenAiChatCompletionRequest {
-  if (!val || typeof val !== "object") {
-    return {};
-  }
+  if (!val || typeof val !== "object") return {};
   return val as OpenAiChatCompletionRequest;
 }
 
@@ -174,9 +156,7 @@ export async function handleOpenAiHttpRequest(
   opts: OpenAiHttpOptions,
 ): Promise<boolean> {
   const url = new URL(req.url ?? "/", `http://${req.headers.host || "localhost"}`);
-  if (url.pathname !== "/v1/chat/completions") {
-    return false;
-  }
+  if (url.pathname !== "/v1/chat/completions") return false;
 
   if (req.method !== "POST") {
     sendMethodNotAllowed(res);
@@ -196,9 +176,7 @@ export async function handleOpenAiHttpRequest(
   }
 
   const body = await readJsonBodyOrError(req, res, opts.maxBodyBytes ?? 1024 * 1024);
-  if (body === undefined) {
-    return true;
-  }
+  if (body === undefined) return true;
 
   const payload = coerceRequest(body);
   const stream = Boolean(payload.stream);
@@ -275,20 +253,14 @@ export async function handleOpenAiHttpRequest(
   let closed = false;
 
   const unsubscribe = onAgentEvent((evt) => {
-    if (evt.runId !== runId) {
-      return;
-    }
-    if (closed) {
-      return;
-    }
+    if (evt.runId !== runId) return;
+    if (closed) return;
 
     if (evt.stream === "assistant") {
       const delta = evt.data?.delta;
       const text = evt.data?.text;
       const content = typeof delta === "string" ? delta : typeof text === "string" ? text : "";
-      if (!content) {
-        return;
-      }
+      if (!content) return;
 
       if (!wroteRole) {
         wroteRole = true;
@@ -350,9 +322,7 @@ export async function handleOpenAiHttpRequest(
         deps,
       );
 
-      if (closed) {
-        return;
-      }
+      if (closed) return;
 
       if (!sawAssistantDelta) {
         if (!wroteRole) {
@@ -391,9 +361,7 @@ export async function handleOpenAiHttpRequest(
         });
       }
     } catch (err) {
-      if (closed) {
-        return;
-      }
+      if (closed) return;
       writeSse(res, {
         id: runId,
         object: "chat.completion.chunk",

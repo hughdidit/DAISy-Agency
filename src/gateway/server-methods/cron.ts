@@ -82,24 +82,14 @@ export const cronHandlers: GatewayRequestHandlers = {
       );
       return;
     }
-    const jobCreate = normalized as unknown as CronJobCreate;
-    const timestampValidation = validateScheduleTimestamp(jobCreate.schedule);
-    if (!timestampValidation.ok) {
-      respond(
-        false,
-        undefined,
-        errorShape(ErrorCodes.INVALID_REQUEST, timestampValidation.message),
-      );
-      return;
-    }
-    const job = await context.cron.add(jobCreate);
+    const job = await context.cron.add(normalized as unknown as CronJobCreate);
     respond(true, job, undefined);
   },
   "cron.update": async ({ params, respond, context }) => {
     const normalizedPatch = normalizeCronJobPatch((params as { patch?: unknown } | null)?.patch);
     const candidate =
       normalizedPatch && typeof params === "object" && params !== null
-        ? { ...params, patch: normalizedPatch }
+        ? { ...(params as Record<string, unknown>), patch: normalizedPatch }
         : params;
     if (!validateCronUpdateParams(candidate)) {
       respond(
@@ -126,19 +116,7 @@ export const cronHandlers: GatewayRequestHandlers = {
       );
       return;
     }
-    const patch = p.patch as unknown as CronJobPatch;
-    if (patch.schedule) {
-      const timestampValidation = validateScheduleTimestamp(patch.schedule);
-      if (!timestampValidation.ok) {
-        respond(
-          false,
-          undefined,
-          errorShape(ErrorCodes.INVALID_REQUEST, timestampValidation.message),
-        );
-        return;
-      }
-    }
-    const job = await context.cron.update(jobId, patch);
+    const job = await context.cron.update(jobId, p.patch as unknown as CronJobPatch);
     respond(true, job, undefined);
   },
   "cron.remove": async ({ params, respond, context }) => {

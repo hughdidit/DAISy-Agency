@@ -23,9 +23,7 @@ function takeValue(
 }
 
 export function parseCliProfileArgs(argv: string[]): CliProfileParseResult {
-  if (argv.length < 2) {
-    return { ok: true, profile: null, argv };
-  }
+  if (argv.length < 2) return { ok: true, profile: null, argv };
 
   const out: string[] = argv.slice(0, 2);
   let profile: string | null = null;
@@ -35,9 +33,7 @@ export function parseCliProfileArgs(argv: string[]): CliProfileParseResult {
   const args = argv.slice(2);
   for (let i = 0; i < args.length; i += 1) {
     const arg = args[i];
-    if (arg === undefined) {
-      continue;
-    }
+    if (arg === undefined) continue;
 
     if (sawCommand) {
       out.push(arg);
@@ -59,12 +55,8 @@ export function parseCliProfileArgs(argv: string[]): CliProfileParseResult {
       }
       const next = args[i + 1];
       const { value, consumedNext } = takeValue(arg, next);
-      if (consumedNext) {
-        i += 1;
-      }
-      if (!value) {
-        return { ok: false, error: "--profile requires a value" };
-      }
+      if (consumedNext) i += 1;
+      if (!value) return { ok: false, error: "--profile requires a value" };
       if (!isValidProfileName(value)) {
         return {
           ok: false,
@@ -100,9 +92,7 @@ export function applyCliProfileEnv(params: {
   const env = params.env ?? (process.env as Record<string, string | undefined>);
   const homedir = params.homedir ?? os.homedir;
   const profile = params.profile.trim();
-  if (!profile) {
-    return;
-  }
+  if (!profile) return;
 
   // Convenience only: fill defaults, never override explicit env values.
   env.OPENCLAW_PROFILE = profile;

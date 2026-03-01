@@ -13,9 +13,7 @@ type DeliveryPayload = {
 
 export function pickSummaryFromOutput(text: string | undefined) {
   const clean = (text ?? "").trim();
-  if (!clean) {
-    return undefined;
-  }
+  if (!clean) return undefined;
   const limit = 2000;
   return clean.length > limit ? `${truncateUtf16Safe(clean, limit)}…` : clean;
 }
@@ -23,9 +21,7 @@ export function pickSummaryFromOutput(text: string | undefined) {
 export function pickSummaryFromPayloads(payloads: Array<{ text?: string | undefined }>) {
   for (let i = payloads.length - 1; i >= 0; i--) {
     const summary = pickSummaryFromOutput(payloads[i]?.text);
-    if (summary) {
-      return summary;
-    }
+    if (summary) return summary;
   }
   return undefined;
 }
@@ -33,9 +29,7 @@ export function pickSummaryFromPayloads(payloads: Array<{ text?: string | undefi
 export function pickLastNonEmptyTextFromPayloads(payloads: Array<{ text?: string | undefined }>) {
   for (let i = payloads.length - 1; i >= 0; i--) {
     const clean = (payloads[i]?.text ?? "").trim();
-    if (clean) {
-      return clean;
-    }
+    if (clean) return clean;
   }
   return undefined;
 }
@@ -58,15 +52,11 @@ export function pickLastDeliverablePayload(payloads: DeliveryPayload[]) {
  * Returns true if delivery should be skipped because there's no real content.
  */
 export function isHeartbeatOnlyResponse(payloads: DeliveryPayload[], ackMaxChars: number) {
-  if (payloads.length === 0) {
-    return true;
-  }
+  if (payloads.length === 0) return true;
   return payloads.every((payload) => {
     // If there's media, we should deliver regardless of text content.
     const hasMedia = (payload.mediaUrls?.length ?? 0) > 0 || Boolean(payload.mediaUrl);
-    if (hasMedia) {
-      return false;
-    }
+    if (hasMedia) return false;
     // Use heartbeat mode to check if text is just HEARTBEAT_OK or short ack.
     const result = stripHeartbeatToken(payload.text, {
       mode: "heartbeat",

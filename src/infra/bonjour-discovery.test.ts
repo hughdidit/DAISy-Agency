@@ -107,9 +107,7 @@ describe("bonjour-discovery", () => {
 
   it("decodes dns-sd octal escapes in TXT displayName", async () => {
     const run = vi.fn(async (argv: string[], options: { timeoutMs: number }) => {
-      if (options.timeoutMs < 0) {
-        throw new Error("invalid timeout");
-      }
+      if (options.timeoutMs < 0) throw new Error("invalid timeout");
 
       const domain = argv[3] ?? "";
       if (argv[0] === "dns-sd" && argv[1] === "-B" && domain === "local.") {

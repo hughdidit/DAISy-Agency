@@ -1,8 +1,10 @@
-import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { escapeRegExp, formatEnvelopeTimestamp } from "../../test/helpers/envelope-timestamp.js";
-import { resetInboundDedupe } from "../auto-reply/reply/inbound-dedupe.js";
-import { createTelegramBot, getTelegramSequentialKey } from "./bot.js";
 import { resolveTelegramFetch } from "./fetch.js";
+
+let createTelegramBot: typeof import("./bot.js").createTelegramBot;
+let getTelegramSequentialKey: typeof import("./bot.js").getTelegramSequentialKey;
+let resetInboundDedupe: typeof import("../auto-reply/reply/inbound-dedupe.js").resetInboundDedupe;
 
 const { sessionStorePath } = vi.hoisted(() => ({
   sessionStorePath: `/tmp/openclaw-telegram-throttler-${Math.random().toString(16).slice(2)}.json`,
@@ -34,17 +36,17 @@ vi.mock("../config/sessions.js", async (importOriginal) => {
   };
 });
 
-const { readChannelAllowFromStore, upsertChannelPairingRequest } = vi.hoisted(() => ({
-  readChannelAllowFromStore: vi.fn(async () => [] as string[]),
-  upsertChannelPairingRequest: vi.fn(async () => ({
+const { readTelegramAllowFromStore, upsertTelegramPairingRequest } = vi.hoisted(() => ({
+  readTelegramAllowFromStore: vi.fn(async () => [] as string[]),
+  upsertTelegramPairingRequest: vi.fn(async () => ({
     code: "PAIRCODE",
     created: true,
   })),
 }));
 
-vi.mock("../pairing/pairing-store.js", () => ({
-  readChannelAllowFromStore,
-  upsertChannelPairingRequest,
+vi.mock("./pairing-store.js", () => ({
+  readTelegramAllowFromStore,
+  upsertTelegramPairingRequest,
 }));
 
 const useSpy = vi.fn();
@@ -130,20 +132,18 @@ let replyModule: typeof import("../auto-reply/reply.js");
 
 const getOnHandler = (event: string) => {
   const handler = onSpy.mock.calls.find((call) => call[0] === event)?.[1];
-  if (!handler) {
-    throw new Error(`Missing handler for event: ${event}`);
-  }
+  if (!handler) throw new Error(`Missing handler for event: ${event}`);
   return handler as (ctx: Record<string, unknown>) => Promise<void>;
 };
 
 const ORIGINAL_TZ = process.env.TZ;
 
 describe("createTelegramBot", () => {
-  beforeAll(async () => {
+  beforeEach(async () => {
+    vi.resetModules();
+    ({ resetInboundDedupe } = await import("../auto-reply/reply/inbound-dedupe.js"));
+    ({ createTelegramBot, getTelegramSequentialKey } = await import("./bot.js"));
     replyModule = await import("../auto-reply/reply.js");
-  });
-
-  beforeEach(() => {
     process.env.TZ = "UTC";
     resetInboundDedupe();
     loadConfig.mockReturnValue({
@@ -355,8 +355,8 @@ describe("createTelegramBot", () => {
     loadConfig.mockReturnValue({
       channels: { telegram: { dmPolicy: "pairing" } },
     });
-    readChannelAllowFromStore.mockResolvedValue([]);
-    upsertChannelPairingRequest.mockResolvedValue({
+    readTelegramAllowFromStore.mockResolvedValue([]);
+    upsertTelegramPairingRequest.mockResolvedValue({
       code: "PAIRME12",
       created: true,
     });
@@ -391,8 +391,8 @@ describe("createTelegramBot", () => {
     loadConfig.mockReturnValue({
       channels: { telegram: { dmPolicy: "pairing" } },
     });
-    readChannelAllowFromStore.mockResolvedValue([]);
-    upsertChannelPairingRequest
+    readTelegramAllowFromStore.mockResolvedValue([]);
+    upsertTelegramPairingRequest
       .mockResolvedValueOnce({ code: "PAIRME12", created: true })
       .mockResolvedValueOnce({ code: "PAIRME12", created: false });
 

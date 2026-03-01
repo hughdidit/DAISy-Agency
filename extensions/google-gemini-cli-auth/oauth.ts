@@ -43,9 +43,7 @@ export type GeminiCliOAuthContext = {
 function resolveEnv(keys: string[]): string | undefined {
   for (const key of keys) {
     const value = process.env[key]?.trim();
-    if (value) {
-      return value;
-    }
+    if (value) return value;
   }
   return undefined;
 }
@@ -59,39 +57,18 @@ export function clearCredentialsCache(): void {
 
 /** Extracts OAuth credentials from the installed Gemini CLI's bundled oauth2.js. */
 export function extractGeminiCliCredentials(): { clientId: string; clientSecret: string } | null {
-  if (cachedGeminiCliCredentials) {
-    return cachedGeminiCliCredentials;
-  }
+  if (cachedGeminiCliCredentials) return cachedGeminiCliCredentials;
 
   try {
     const geminiPath = findInPath("gemini");
-    if (!geminiPath) {
-      return null;
-    }
+    if (!geminiPath) return null;
 
     const resolvedPath = realpathSync(geminiPath);
     const geminiCliDir = dirname(dirname(resolvedPath));
 
     const searchPaths = [
-      join(
-        geminiCliDir,
-        "node_modules",
-        "@google",
-        "gemini-cli-core",
-        "dist",
-        "src",
-        "code_assist",
-        "oauth2.js",
-      ),
-      join(
-        geminiCliDir,
-        "node_modules",
-        "@google",
-        "gemini-cli-core",
-        "dist",
-        "code_assist",
-        "oauth2.js",
-      ),
+      join(geminiCliDir, "node_modules", "@google", "gemini-cli-core", "dist", "src", "code_assist", "oauth2.js"),
+      join(geminiCliDir, "node_modules", "@google", "gemini-cli-core", "dist", "code_assist", "oauth2.js"),
     ];
 
     let content: string | null = null;
@@ -103,13 +80,9 @@ export function extractGeminiCliCredentials(): { clientId: string; clientSecret:
     }
     if (!content) {
       const found = findFile(geminiCliDir, "oauth2.js", 10);
-      if (found) {
-        content = readFileSync(found, "utf8");
-      }
+      if (found) content = readFileSync(found, "utf8");
     }
-    if (!content) {
-      return null;
-    }
+    if (!content) return null;
 
     const idMatch = content.match(/(\d+-[a-z0-9]+\.apps\.googleusercontent\.com)/);
     const secretMatch = content.match(/(GOCSPX-[A-Za-z0-9_-]+)/);
@@ -128,29 +101,21 @@ function findInPath(name: string): string | null {
   for (const dir of (process.env.PATH ?? "").split(delimiter)) {
     for (const ext of exts) {
       const p = join(dir, name + ext);
-      if (existsSync(p)) {
-        return p;
-      }
+      if (existsSync(p)) return p;
     }
   }
   return null;
 }
 
 function findFile(dir: string, name: string, depth: number): string | null {
-  if (depth <= 0) {
-    return null;
-  }
+  if (depth <= 0) return null;
   try {
     for (const e of readdirSync(dir, { withFileTypes: true })) {
       const p = join(dir, e.name);
-      if (e.isFile() && e.name === name) {
-        return p;
-      }
+      if (e.isFile() && e.name === name) return p;
       if (e.isDirectory() && !e.name.startsWith(".")) {
         const found = findFile(p, name, depth - 1);
-        if (found) {
-          return found;
-        }
+        if (found) return found;
       }
     }
   } catch {}
@@ -178,9 +143,7 @@ function resolveOAuthClientConfig(): { clientId: string; clientSecret?: string }
 }
 
 function isWSL(): boolean {
-  if (process.platform !== "linux") {
-    return false;
-  }
+  if (process.platform !== "linux") return false;
   try {
     const release = readFileSync("/proc/version", "utf8").toLowerCase();
     return release.includes("microsoft") || release.includes("wsl");
@@ -190,9 +153,7 @@ function isWSL(): boolean {
 }
 
 function isWSL2(): boolean {
-  if (!isWSL()) {
-    return false;
-  }
+  if (!isWSL()) return false;
   try {
     const version = readFileSync("/proc/version", "utf8").toLowerCase();
     return version.includes("wsl2") || version.includes("microsoft-standard");
@@ -232,25 +193,17 @@ function parseCallbackInput(
   expectedState: string,
 ): { code: string; state: string } | { error: string } {
   const trimmed = input.trim();
-  if (!trimmed) {
-    return { error: "No input provided" };
-  }
+  if (!trimmed) return { error: "No input provided" };
 
   try {
     const url = new URL(trimmed);
     const code = url.searchParams.get("code");
     const state = url.searchParams.get("state") ?? expectedState;
-    if (!code) {
-      return { error: "Missing 'code' parameter in URL" };
-    }
-    if (!state) {
-      return { error: "Missing 'state' parameter. Paste the full URL." };
-    }
+    if (!code) return { error: "Missing 'code' parameter in URL" };
+    if (!state) return { error: "Missing 'state' parameter. Paste the full URL." };
     return { code, state };
   } catch {
-    if (!expectedState) {
-      return { error: "Paste the full redirect URL, not just the code." };
-    }
+    if (!expectedState) return { error: "Paste the full redirect URL, not just the code." };
     return { code: trimmed, state: expectedState };
   }
 }
@@ -319,9 +272,7 @@ async function waitForLocalCallback(params: {
     });
 
     const finish = (err?: Error, result?: { code: string; state: string }) => {
-      if (timeout) {
-        clearTimeout(timeout);
-      }
+      if (timeout) clearTimeout(timeout);
       try {
         server.close();
       } catch {
@@ -348,10 +299,7 @@ async function waitForLocalCallback(params: {
   });
 }
 
-async function exchangeCodeForTokens(
-  code: string,
-  verifier: string,
-): Promise<GeminiCliOAuthCredentials> {
+async function exchangeCodeForTokens(code: string, verifier: string): Promise<GeminiCliOAuthCredentials> {
   const { clientId, clientSecret } = resolveOAuthClientConfig();
   const body = new URLSearchParams({
     client_id: clientId,
@@ -459,20 +407,14 @@ async function discoverProject(accessToken: string): Promise<string> {
     if (err instanceof Error) {
       throw err;
     }
-    throw new Error("loadCodeAssist failed", { cause: err });
+    throw new Error("loadCodeAssist failed");
   }
 
   if (data.currentTier) {
     const project = data.cloudaicompanionProject;
-    if (typeof project === "string" && project) {
-      return project;
-    }
-    if (typeof project === "object" && project?.id) {
-      return project.id;
-    }
-    if (envProject) {
-      return envProject;
-    }
+    if (typeof project === "string" && project) return project;
+    if (typeof project === "object" && project?.id) return project.id;
+    if (envProject) return envProject;
     throw new Error(
       "This account requires GOOGLE_CLOUD_PROJECT or GOOGLE_CLOUD_PROJECT_ID to be set.",
     );
@@ -520,12 +462,8 @@ async function discoverProject(accessToken: string): Promise<string> {
   }
 
   const projectId = lro.response?.cloudaicompanionProject?.id;
-  if (projectId) {
-    return projectId;
-  }
-  if (envProject) {
-    return envProject;
-  }
+  if (projectId) return projectId;
+  if (envProject) return envProject;
 
   throw new Error(
     "Could not discover or provision a Google Cloud project. Set GOOGLE_CLOUD_PROJECT or GOOGLE_CLOUD_PROJECT_ID.",
@@ -533,31 +471,21 @@ async function discoverProject(accessToken: string): Promise<string> {
 }
 
 function isVpcScAffected(payload: unknown): boolean {
-  if (!payload || typeof payload !== "object") {
-    return false;
-  }
+  if (!payload || typeof payload !== "object") return false;
   const error = (payload as { error?: unknown }).error;
-  if (!error || typeof error !== "object") {
-    return false;
-  }
+  if (!error || typeof error !== "object") return false;
   const details = (error as { details?: unknown[] }).details;
-  if (!Array.isArray(details)) {
-    return false;
-  }
+  if (!Array.isArray(details)) return false;
   return details.some(
     (item) =>
-      typeof item === "object" &&
-      item &&
-      (item as { reason?: string }).reason === "SECURITY_POLICY_VIOLATED",
+      typeof item === "object" && item && (item as { reason?: string }).reason === "SECURITY_POLICY_VIOLATED",
   );
 }
 
 function getDefaultTier(
   allowedTiers?: Array<{ id?: string; isDefault?: boolean }>,
 ): { id?: string } | undefined {
-  if (!allowedTiers?.length) {
-    return { id: TIER_LEGACY };
-  }
+  if (!allowedTiers?.length) return { id: TIER_LEGACY };
   return allowedTiers.find((tier) => tier.isDefault) ?? { id: TIER_LEGACY };
 }
 
@@ -570,23 +498,17 @@ async function pollOperation(
     const response = await fetch(`${CODE_ASSIST_ENDPOINT}/v1internal/${operationName}`, {
       headers,
     });
-    if (!response.ok) {
-      continue;
-    }
+    if (!response.ok) continue;
     const data = (await response.json()) as {
       done?: boolean;
       response?: { cloudaicompanionProject?: { id?: string } };
     };
-    if (data.done) {
-      return data;
-    }
+    if (data.done) return data;
   }
   throw new Error("Operation polling timeout");
 }
 
-export async function loginGeminiCliOAuth(
-  ctx: GeminiCliOAuthContext,
-): Promise<GeminiCliOAuthCredentials> {
+export async function loginGeminiCliOAuth(ctx: GeminiCliOAuthContext): Promise<GeminiCliOAuthCredentials> {
   const needsManual = shouldUseManualOAuthFlow(ctx.isRemote);
   await ctx.note(
     needsManual
@@ -612,9 +534,7 @@ export async function loginGeminiCliOAuth(
     ctx.progress.update("Waiting for you to paste the callback URL...");
     const callbackInput = await ctx.prompt("Paste the redirect URL here: ");
     const parsed = parseCallbackInput(callbackInput, verifier);
-    if ("error" in parsed) {
-      throw new Error(parsed.error);
-    }
+    if ("error" in parsed) throw new Error(parsed.error);
     if (parsed.state !== verifier) {
       throw new Error("OAuth state mismatch - please try again");
     }
@@ -648,11 +568,9 @@ export async function loginGeminiCliOAuth(
       ctx.log(`\nOpen this URL in your LOCAL browser:\n\n${authUrl}\n`);
       const callbackInput = await ctx.prompt("Paste the redirect URL here: ");
       const parsed = parseCallbackInput(callbackInput, verifier);
-      if ("error" in parsed) {
-        throw new Error(parsed.error, { cause: err });
-      }
+      if ("error" in parsed) throw new Error(parsed.error);
       if (parsed.state !== verifier) {
-        throw new Error("OAuth state mismatch - please try again", { cause: err });
+        throw new Error("OAuth state mismatch - please try again");
       }
       ctx.progress.update("Exchanging authorization code for tokens...");
       return exchangeCodeForTokens(parsed.code, verifier);

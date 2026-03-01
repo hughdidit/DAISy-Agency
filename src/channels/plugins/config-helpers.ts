@@ -30,7 +30,7 @@ export function setAccountEnabledInConfigSection(params: {
     } as OpenClawConfig;
   }
 
-  const baseAccounts = base?.accounts ?? {};
+  const baseAccounts = (base?.accounts ?? {}) as Record<string, Record<string, unknown>>;
   const existing = baseAccounts[accountKey] ?? {};
   return {
     ...params.cfg,
@@ -59,9 +59,7 @@ export function deleteAccountFromConfigSection(params: {
   const accountKey = params.accountId || DEFAULT_ACCOUNT_ID;
   const channels = params.cfg.channels as Record<string, unknown> | undefined;
   const base = channels?.[params.sectionKey] as ChannelSection | undefined;
-  if (!base) {
-    return params.cfg;
-  }
+  if (!base) return params.cfg;
 
   const baseAccounts =
     base.accounts && typeof base.accounts === "object" ? { ...base.accounts } : undefined;
@@ -85,9 +83,7 @@ export function deleteAccountFromConfigSection(params: {
     delete baseAccounts[accountKey];
     const baseRecord = { ...(base as Record<string, unknown>) };
     for (const field of params.clearBaseFields ?? []) {
-      if (field in baseRecord) {
-        baseRecord[field] = undefined;
-      }
+      if (field in baseRecord) baseRecord[field] = undefined;
     }
     return {
       ...params.cfg,

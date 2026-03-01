@@ -16,12 +16,11 @@ export type ProbeMSTeamsResult = {
 };
 
 function readAccessToken(value: unknown): string | null {
-  if (typeof value === "string") {
-    return value;
-  }
+  if (typeof value === "string") return value;
   if (value && typeof value === "object") {
     const token =
-      (value as { accessToken?: unknown }).accessToken ?? (value as { token?: unknown }).token;
+      (value as { accessToken?: unknown }).accessToken ??
+      (value as { token?: unknown }).token;
     return typeof token === "string" ? token : null;
   }
   return null;
@@ -29,9 +28,7 @@ function readAccessToken(value: unknown): string | null {
 
 function decodeJwtPayload(token: string): Record<string, unknown> | null {
   const parts = token.split(".");
-  if (parts.length < 2) {
-    return null;
-  }
+  if (parts.length < 2) return null;
   const payload = parts[1] ?? "";
   const padded = payload.padEnd(payload.length + ((4 - (payload.length % 4)) % 4), "=");
   const normalized = padded.replace(/-/g, "+").replace(/_/g, "/");
@@ -45,21 +42,14 @@ function decodeJwtPayload(token: string): Record<string, unknown> | null {
 }
 
 function readStringArray(value: unknown): string[] | undefined {
-  if (!Array.isArray(value)) {
-    return undefined;
-  }
+  if (!Array.isArray(value)) return undefined;
   const out = value.map((entry) => String(entry).trim()).filter(Boolean);
   return out.length > 0 ? out : undefined;
 }
 
 function readScopes(value: unknown): string[] | undefined {
-  if (typeof value !== "string") {
-    return undefined;
-  }
-  const out = value
-    .split(/\s+/)
-    .map((entry) => entry.trim())
-    .filter(Boolean);
+  if (typeof value !== "string") return undefined;
+  const out = value.split(/\s+/).map((entry) => entry.trim()).filter(Boolean);
   return out.length > 0 ? out : undefined;
 }
 
@@ -85,7 +75,9 @@ export async function probeMSTeams(cfg?: MSTeamsConfig): Promise<ProbeMSTeamsRes
         }
       | undefined;
     try {
-      const graphToken = await tokenProvider.getAccessToken("https://graph.microsoft.com");
+      const graphToken = await tokenProvider.getAccessToken(
+        "https://graph.microsoft.com",
+      );
       const accessToken = readAccessToken(graphToken);
       const payload = accessToken ? decodeJwtPayload(accessToken) : null;
       graph = {

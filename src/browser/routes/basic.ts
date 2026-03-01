@@ -131,9 +131,7 @@ export function registerBrowserBasicRoutes(app: BrowserRouteRegistrar, ctx: Brow
       | "extension"
       | "";
 
-    if (!name) {
-      return jsonError(res, 400, "name is required");
-    }
+    if (!name) return jsonError(res, 400, "name is required");
 
     try {
       const service = createBrowserProfilesService(ctx);
@@ -165,9 +163,7 @@ export function registerBrowserBasicRoutes(app: BrowserRouteRegistrar, ctx: Brow
   // Delete a profile
   app.delete("/profiles/:name", async (req, res) => {
     const name = toStringOrEmpty(req.params.name);
-    if (!name) {
-      return jsonError(res, 400, "profile name is required");
-    }
+    if (!name) return jsonError(res, 400, "profile name is required");
 
     try {
       const service = createBrowserProfilesService(ctx);

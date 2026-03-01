@@ -6,7 +6,6 @@ read_when:
   - Debugging WKWebView canvas loads
 title: "Canvas"
 ---
-
 # Canvas (macOS app)
 
 The macOS app embeds an agent‑controlled **Canvas panel** using `WKWebView`. It
@@ -59,7 +58,6 @@ openclaw nodes canvas snapshot --node <id>
 ```
 
 Notes:
-
 - `canvas.navigate` accepts **local canvas paths**, `http(s)` URLs, and `file://` URLs.
 - If you pass `"/"`, the Canvas shows the local scaffold or `index.html`.
 

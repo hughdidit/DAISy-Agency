@@ -25,9 +25,7 @@ const clamp = (val: number, min: number, max: number) => Math.max(min, Math.min(
 
 export function resolveHeartbeatSeconds(cfg: OpenClawConfig, overrideSeconds?: number): number {
   const candidate = overrideSeconds ?? cfg.web?.heartbeatSeconds;
-  if (typeof candidate === "number" && candidate > 0) {
-    return candidate;
-  }
+  if (typeof candidate === "number" && candidate > 0) return candidate;
   return DEFAULT_HEARTBEAT_SECONDS;
 }
 

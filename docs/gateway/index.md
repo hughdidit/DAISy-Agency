@@ -4,19 +4,16 @@ read_when:
   - Running or debugging the gateway process
 title: "Gateway Runbook"
 ---
-
 # Gateway service runbook
 
 Last updated: 2025-12-09
 
 ## What it is
-
 - The always-on process that owns the single Baileys/Telegram connection and the control/event plane.
 - Replaces the legacy `gateway` command. CLI entry point: `openclaw gateway`.
 - Runs until stopped; exits non-zero on fatal errors so the supervisor restarts it.
 
 ## How to run (local)
-
 ```bash
 openclaw gateway --port 18789
 # for full debug/trace logs in stdio:
@@ -46,7 +43,6 @@ pnpm gateway:watch
 - Port precedence: `--port` > `OPENCLAW_GATEWAY_PORT` > `gateway.port` > default `18789`.
 
 ## Remote access
-
 - Tailscale/VPN preferred; otherwise SSH tunnel:
 
   ```bash
@@ -101,7 +97,6 @@ Derived ports (rules of thumb):
 - Browser profile CDP ports auto-allocate from `browser.controlPort + 9 .. + 108` (persisted per profile).
 
 Checklist per instance:
-
 - unique `gateway.port`
 - unique `OPENCLAW_CONFIG_PATH`
 - unique `OPENCLAW_STATE_DIR`
@@ -109,21 +104,18 @@ Checklist per instance:
 - separate WhatsApp numbers (if using WA)
 
 Service install per profile:
-
 ```bash
 openclaw --profile main gateway install
 openclaw --profile rescue gateway install
 ```
 
 Example:
-
 ```bash
 OPENCLAW_CONFIG_PATH=~/.openclaw/a.json OPENCLAW_STATE_DIR=~/.openclaw-a openclaw gateway --port 19001
 OPENCLAW_CONFIG_PATH=~/.openclaw/b.json OPENCLAW_STATE_DIR=~/.openclaw-b openclaw gateway --port 19002
 ```
 
 ## Protocol (operator view)
-
 - Full docs: [Gateway protocol](/gateway/protocol) and [Bridge protocol (legacy)](/gateway/bridge-protocol).
 - Mandatory first frame from client: `req {type:"req", id, method:"connect", params:{minProtocol,maxProtocol,client:{id,displayName?,version,platform,deviceFamily?,modelIdentifier?,mode,instanceId?}, caps, auth?, locale?, userAgent? } }`.
 - Gateway replies `res {type:"res", id, ok:true, payload:hello-ok }` (or `ok:false` with an error, then closes).
@@ -148,20 +140,17 @@ OPENCLAW_CONFIG_PATH=~/.openclaw/b.json OPENCLAW_STATE_DIR=~/.openclaw-b opencla
 See also: [Presence](/concepts/presence) for how presence is produced/deduped and why a stable `client.instanceId` matters.
 
 ## Events
-
 - `agent` — streamed tool/output events from the agent run (seq-tagged).
 - `presence` — presence updates (deltas with stateVersion) pushed to all connected clients.
 - `tick` — periodic keepalive/no-op to confirm liveness.
 - `shutdown` — Gateway is exiting; payload includes `reason` and optional `restartExpectedMs`. Clients should reconnect.
 
 ## WebChat integration
-
 - WebChat is a native SwiftUI UI that talks directly to the Gateway WebSocket for history, sends, abort, and events.
 - Remote use goes through the same SSH/Tailscale tunnel; if a gateway token is configured, the client includes it during `connect`.
 - macOS app connects via a single WS (shared connection); it hydrates presence from the initial snapshot and listens for `presence` events to update the UI.
 
 ## Typing and validation
-
 - Server validates every inbound frame with AJV against JSON Schema emitted from the protocol definitions.
 - Clients (TS/Swift) consume generated types (TS directly; Swift via the repo’s generator).
 - Protocol definitions are the source of truth; regenerate schema/models with:
@@ -169,12 +158,10 @@ See also: [Presence](/concepts/presence) for how presence is produced/deduped an
   - `pnpm protocol:gen:swift`
 
 ## Connection snapshot
-
 - `hello-ok` includes a `snapshot` with `presence`, `health`, `stateVersion`, and `uptimeMs` plus `policy {maxPayload,maxBufferedBytes,tickIntervalMs}` so clients can render immediately without extra requests.
 - `health`/`system-presence` remain available for manual refresh, but are not required at connect time.
 
 ## Error codes (res.error shape)
-
 - Errors use `{ code, message, details?, retryable?, retryAfterMs? }`.
 - Standard codes:
   - `NOT_LINKED` — WhatsApp not authenticated.
@@ -183,16 +170,13 @@ See also: [Presence](/concepts/presence) for how presence is produced/deduped an
   - `UNAVAILABLE` — Gateway is shutting down or a dependency is unavailable.
 
 ## Keepalive behavior
-
 - `tick` events (or WS ping/pong) are emitted periodically so clients know the Gateway is alive even when no traffic occurs.
 - Send/agent acknowledgements remain separate responses; do not overload ticks for sends.
 
 ## Replay / gaps
-
 - Events are not replayed. Clients detect seq gaps and should refresh (`health` + `system-presence`) before continuing. WebChat and macOS clients now auto-refresh on gap.
 
 ## Supervision (macOS example)
-
 - Use launchd to keep the service alive:
   - Program: path to `openclaw`
   - Arguments: `gateway`
@@ -217,7 +201,6 @@ openclaw logs --follow
 ```
 
 Notes:
-
 - `gateway status` probes the Gateway RPC by default using the service’s resolved port/config (override with `--url`).
 - `gateway status --deep` adds system-level scans (LaunchDaemons/system units).
 - `gateway status --no-probe` skips the RPC probe (useful when networking is down).
@@ -265,16 +248,12 @@ WorkingDirectory=/home/youruser
 [Install]
 WantedBy=default.target
 ```
-
 Enable lingering (required so the user service survives logout/idle):
-
 ```
 sudo loginctl enable-linger youruser
 ```
-
 Onboarding runs this on Linux/WSL2 (may prompt for sudo; writes `/var/lib/systemd/linger`).
 Then enable the service:
-
 ```
 systemctl --user enable --now openclaw-gateway[-<profile>].service
 ```
@@ -283,7 +262,6 @@ systemctl --user enable --now openclaw-gateway[-<profile>].service
 install a systemd **system** unit instead of a user unit (no lingering needed).
 Create `/etc/systemd/system/openclaw-gateway[-<profile>].service` (copy the unit above,
 switch `WantedBy=multi-user.target`, set `User=` + `WorkingDirectory=`), then:
-
 ```
 sudo systemctl daemon-reload
 sudo systemctl enable --now openclaw-gateway[-<profile>].service
@@ -294,13 +272,11 @@ sudo systemctl enable --now openclaw-gateway[-<profile>].service
 Windows installs should use **WSL2** and follow the Linux systemd section above.
 
 ## Operational checks
-
 - Liveness: open WS and send `req:connect` → expect `res` with `payload.type="hello-ok"` (with snapshot).
 - Readiness: call `health` → expect `ok: true` and a linked channel in `linkChannel` (when applicable).
 - Debug: subscribe to `tick` and `presence` events; ensure `status` shows linked/auth age; presence entries show Gateway host and connected clients.
 
 ## Safety guarantees
-
 - Assume one Gateway per host by default; if you run multiple profiles, isolate ports/state and target the right instance.
 - No fallback to direct Baileys connections; if the Gateway is down, sends fail fast.
 - Non-connect first frames or malformed JSON are rejected and the socket is closed.

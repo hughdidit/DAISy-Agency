@@ -23,15 +23,12 @@ function coerceSchedule(schedule: UnknownRecord) {
   const kind = rawKind === "at" || rawKind === "every" || rawKind === "cron" ? rawKind : undefined;
   const atMsRaw = schedule.atMs;
   const atRaw = schedule.at;
-  const atString = typeof atRaw === "string" ? atRaw.trim() : "";
   const parsedAtMs =
-    typeof atMsRaw === "number"
-      ? atMsRaw
-      : typeof atMsRaw === "string"
-        ? parseAbsoluteTimeMs(atMsRaw)
-        : atString
-          ? parseAbsoluteTimeMs(atString)
-          : null;
+    typeof atMsRaw === "string"
+      ? parseAbsoluteTimeMs(atMsRaw)
+      : typeof atRaw === "string"
+        ? parseAbsoluteTimeMs(atRaw)
+        : null;
 
   if (kind) {
     next.kind = kind;
@@ -40,13 +37,10 @@ function coerceSchedule(schedule: UnknownRecord) {
       typeof schedule.atMs === "number" ||
       typeof schedule.at === "string" ||
       typeof schedule.atMs === "string"
-    ) {
+    )
       next.kind = "at";
-    } else if (typeof schedule.everyMs === "number") {
-      next.kind = "every";
-    } else if (typeof schedule.expr === "string") {
-      next.kind = "cron";
-    }
+    else if (typeof schedule.everyMs === "number") next.kind = "every";
+    else if (typeof schedule.expr === "string") next.kind = "cron";
   }
 
 <<<<<<< HEAD
@@ -62,6 +56,8 @@ function coerceSchedule(schedule: UnknownRecord) {
     delete next.atMs;
 >>>>>>> d90cac990 (fix: cron scheduler reliability, store hardening, and UX improvements (#10776))
   }
+
+  if ("at" in next) delete next.at;
 
   return next;
 }
@@ -223,12 +219,8 @@ function stripLegacyDeliveryFields(payload: UnknownRecord) {
 
 >>>>>>> d90cac990 (fix: cron scheduler reliability, store hardening, and UX improvements (#10776))
 function unwrapJob(raw: UnknownRecord) {
-  if (isRecord(raw.data)) {
-    return raw.data;
-  }
-  if (isRecord(raw.job)) {
-    return raw.job;
-  }
+  if (isRecord(raw.data)) return raw.data;
+  if (isRecord(raw.job)) return raw.job;
   return raw;
 }
 
@@ -325,38 +317,29 @@ export function normalizeCronJobInput(
   raw: unknown,
   options: NormalizeOptions = DEFAULT_OPTIONS,
 ): UnknownRecord | null {
-  if (!isRecord(raw)) {
-    return null;
-  }
+  if (!isRecord(raw)) return null;
   const base = unwrapJob(raw);
   const next: UnknownRecord = { ...base };
 
   if ("agentId" in base) {
-    const agentId = base.agentId;
+    const agentId = (base as UnknownRecord).agentId;
     if (agentId === null) {
       next.agentId = null;
     } else if (typeof agentId === "string") {
       const trimmed = agentId.trim();
-      if (trimmed) {
-        next.agentId = sanitizeAgentId(trimmed);
-      } else {
-        delete next.agentId;
-      }
+      if (trimmed) next.agentId = sanitizeAgentId(trimmed);
+      else delete next.agentId;
     }
   }
 
   if ("enabled" in base) {
-    const enabled = base.enabled;
+    const enabled = (base as UnknownRecord).enabled;
     if (typeof enabled === "boolean") {
       next.enabled = enabled;
     } else if (typeof enabled === "string") {
       const trimmed = enabled.trim().toLowerCase();
-      if (trimmed === "true") {
-        next.enabled = true;
-      }
-      if (trimmed === "false") {
-        next.enabled = false;
-      }
+      if (trimmed === "true") next.enabled = true;
+      if (trimmed === "false") next.enabled = false;
     }
   }
 
@@ -440,35 +423,8 @@ export function normalizeCronJobInput(
 >>>>>>> d90cac990 (fix: cron scheduler reliability, store hardening, and UX improvements (#10776))
     if (!next.sessionTarget && isRecord(next.payload)) {
       const kind = typeof next.payload.kind === "string" ? next.payload.kind : "";
-      if (kind === "systemEvent") {
-        next.sessionTarget = "main";
-      }
-      if (kind === "agentTurn") {
-        next.sessionTarget = "isolated";
-      }
-    }
-    if (
-      "schedule" in next &&
-      isRecord(next.schedule) &&
-      next.schedule.kind === "at" &&
-      !("deleteAfterRun" in next)
-    ) {
-      next.deleteAfterRun = true;
-    }
-    const payload = isRecord(next.payload) ? next.payload : null;
-    const payloadKind = payload && typeof payload.kind === "string" ? payload.kind : "";
-    const sessionTarget = typeof next.sessionTarget === "string" ? next.sessionTarget : "";
-    const isIsolatedAgentTurn =
-      sessionTarget === "isolated" || (sessionTarget === "" && payloadKind === "agentTurn");
-    const hasDelivery = "delivery" in next && next.delivery !== undefined;
-    const hasLegacyDelivery = payload ? hasLegacyDeliveryHints(payload) : false;
-    if (!hasDelivery && isIsolatedAgentTurn && payloadKind === "agentTurn") {
-      if (payload && hasLegacyDelivery) {
-        next.delivery = buildDeliveryFromLegacyPayload(payload);
-        stripLegacyDeliveryFields(payload);
-      } else {
-        next.delivery = { mode: "announce" };
-      }
+      if (kind === "systemEvent") next.sessionTarget = "main";
+      if (kind === "agentTurn") next.sessionTarget = "isolated";
     }
   }
 

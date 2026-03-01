@@ -30,28 +30,6 @@ describe("auth-profiles (chutes)", () => {
     else process.env.PI_CODING_AGENT_DIR = previousPiAgentDir;
     if (previousChutesClientId === undefined) delete process.env.CHUTES_CLIENT_ID;
     else process.env.CHUTES_CLIENT_ID = previousChutesClientId;
-=======
-    if (previousStateDir === undefined) {
-      delete process.env.OPENCLAW_STATE_DIR;
-    } else {
-      process.env.OPENCLAW_STATE_DIR = previousStateDir;
-    }
-    if (previousAgentDir === undefined) {
-      delete process.env.OPENCLAW_AGENT_DIR;
-    } else {
-      process.env.OPENCLAW_AGENT_DIR = previousAgentDir;
-    }
-    if (previousPiAgentDir === undefined) {
-      delete process.env.PI_CODING_AGENT_DIR;
-    } else {
-      process.env.PI_CODING_AGENT_DIR = previousPiAgentDir;
-    }
-    if (previousChutesClientId === undefined) {
-      delete process.env.CHUTES_CLIENT_ID;
-    } else {
-      process.env.CHUTES_CLIENT_ID = previousChutesClientId;
-    }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
   });
 
   it("refreshes expired Chutes OAuth credentials", async () => {
@@ -80,9 +58,7 @@ describe("auth-profiles (chutes)", () => {
 
     const fetchSpy = vi.fn(async (input: string | URL) => {
       const url = typeof input === "string" ? input : input.toString();
-      if (url !== CHUTES_TOKEN_ENDPOINT) {
-        return new Response("not found", { status: 404 });
-      }
+      if (url !== CHUTES_TOKEN_ENDPOINT) return new Response("not found", { status: 404 });
       return new Response(
         JSON.stringify({
           access_token: "at_new",

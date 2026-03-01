@@ -5,7 +5,6 @@ read_when:
   - You want to tune the automatic pre-compaction memory flush
 title: "Memory"
 ---
-
 # Memory
 
 OpenClaw memory is **plain Markdown in the agent workspace**. The files are the
@@ -40,7 +39,7 @@ These files live under the workspace (`agents.defaults.workspace`, default
 
 When a session is **close to auto-compaction**, OpenClaw triggers a **silent,
 agentic turn** that reminds the model to write durable memory **before** the
-context is compacted. The default prompts explicitly say the model _may reply_,
+context is compacted. The default prompts explicitly say the model *may reply*,
 but usually `NO_REPLY` is the correct response so the user never sees this turn.
 
 This is controlled by `agents.defaults.compaction.memoryFlush`:
@@ -55,16 +54,15 @@ This is controlled by `agents.defaults.compaction.memoryFlush`:
           enabled: true,
           softThresholdTokens: 4000,
           systemPrompt: "Session nearing compaction. Store durable memories now.",
-          prompt: "Write any lasting notes to memory/YYYY-MM-DD.md; reply with NO_REPLY if nothing to store.",
-        },
-      },
-    },
-  },
+          prompt: "Write any lasting notes to memory/YYYY-MM-DD.md; reply with NO_REPLY if nothing to store."
+        }
+      }
+    }
+  }
 }
 ```
 
 Details:
-
 - **Soft threshold**: flush triggers when the session token estimate crosses
   `contextWindow - reserveTokensFloor - softThresholdTokens`.
 - **Silent** by default: prompts include `NO_REPLY` so nothing is delivered.
@@ -81,24 +79,15 @@ For the full compaction lifecycle, see
 OpenClaw can build a small vector index over `MEMORY.md` and `memory/*.md` (plus
 any extra directories or files you opt in) so semantic queries can find related
 notes even when wording differs.
-=======
-Moltbot can build a small vector index over `MEMORY.md` and `memory/*.md` so
-=======
-OpenClaw can build a small vector index over `MEMORY.md` and `memory/*.md` so
->>>>>>> f72214725 (chore: restore OpenClaw branding)
-semantic queries can find related notes even when wording differs.
->>>>>>> 5d3af3bc6 (feat (memory): Implement new (opt-in) QMD memory backend)
 
 Defaults:
-
 - Enabled by default.
 - Watches memory files for changes (debounced).
 - Uses remote embeddings by default. If `memorySearch.provider` is not set, OpenClaw auto-selects:
   1. `local` if a `memorySearch.local.modelPath` is configured and the file exists.
   2. `openai` if an OpenAI key can be resolved.
   3. `gemini` if a Gemini key can be resolved.
-  4. `voyage` if a Voyage key can be resolved.
-  5. Otherwise memory search stays disabled until configured.
+  4. Otherwise memory search stays disabled until configured.
 - Local mode uses node-llama-cpp and may require `pnpm approve-builds`.
 - Uses sqlite-vec (when available) to accelerate vector search inside SQLite.
 
@@ -106,8 +95,7 @@ Remote embeddings **require** an API key for the embedding provider. OpenClaw
 resolves keys from auth profiles, `models.providers.*.apiKey`, or environment
 variables. Codex OAuth only covers chat/completions and does **not** satisfy
 embeddings for memory search. For Gemini, use `GEMINI_API_KEY` or
-`models.providers.google.apiKey`. For Voyage, use `VOYAGE_API_KEY` or
-`models.providers.voyage.apiKey`. When using a custom OpenAI-compatible endpoint,
+`models.providers.google.apiKey`. When using a custom OpenAI-compatible endpoint,
 set `memorySearch.remote.apiKey` (and optional `memorySearch.remote.headers`).
 
 <<<<<<< HEAD
@@ -256,7 +244,6 @@ agents: {
 ```
 
 Notes:
-
 - Paths can be absolute or workspace-relative.
 - Directories are scanned recursively for `.md` files.
 - Only Markdown files are indexed.
@@ -281,7 +268,6 @@ agents: {
 ```
 
 Notes:
-
 - `remote.baseUrl` is optional (defaults to the Gemini API base URL).
 - `remote.headers` lets you add extra headers if needed.
 - Default model: `gemini-embedding-001`.
@@ -309,12 +295,10 @@ If you don't want to set an API key, use `memorySearch.provider = "local"` or se
 `memorySearch.fallback = "none"`.
 
 Fallbacks:
-
 - `memorySearch.fallback` can be `openai`, `gemini`, `local`, or `none`.
 - The fallback provider is only used when the primary embedding provider fails.
 
 Batch indexing (OpenAI + Gemini):
-
 - Enabled by default for OpenAI and Gemini embeddings. Set `agents.defaults.memorySearch.remote.batch.enabled = false` to disable.
 - Default behavior waits for batch completion; tune `remote.batch.wait`, `remote.batch.pollIntervalMs`, and `remote.batch.timeoutMinutes` if needed.
 - Set `remote.batch.concurrency` to control how many batch jobs we submit in parallel (default: 2).
@@ -322,7 +306,6 @@ Batch indexing (OpenAI + Gemini):
 - Gemini batch jobs use the async embeddings batch endpoint and require Gemini Batch API availability.
 
 Why OpenAI batch is fast + cheap:
-
 - For large backfills, OpenAI is typically the fastest option we support because we can submit many embedding requests in a single batch job and let OpenAI process them asynchronously.
 - OpenAI offers discounted pricing for Batch API workloads, so large indexing runs are usually cheaper than sending the same requests synchronously.
 - See the OpenAI Batch API docs and pricing for details:
@@ -348,12 +331,10 @@ agents: {
 ```
 
 Tools:
-
 - `memory_search` — returns snippets with file + line ranges.
 - `memory_get` — read memory file content by path.
 
 Local mode:
-
 - Set `agents.defaults.memorySearch.provider = "local"`.
 - Provide `agents.defaults.memorySearch.local.modelPath` (GGUF or `hf:` URI).
 - Optional: set `agents.defaults.memorySearch.fallback = "none"` to avoid remote fallback.
@@ -361,7 +342,7 @@ Local mode:
 ### How the memory tools work
 
 - `memory_search` semantically searches Markdown chunks (~400 token target, 80-token overlap) from `MEMORY.md` + `memory/**/*.md`. It returns snippet text (capped ~700 chars), file path, line range, score, provider/model, and whether we fell back from local → remote embeddings. No full file payload is returned.
-- `memory_get` reads a specific memory Markdown file (workspace-relative), optionally from a starting line and for N lines. Paths outside `MEMORY.md` / `memory/` are rejected.
+- `memory_get` reads a specific memory Markdown file (workspace-relative), optionally from a starting line and for N lines. Paths outside `MEMORY.md` / `memory/` are allowed only when explicitly listed in `memorySearch.extraPaths`.
 - Both tools are enabled only when `memorySearch.enabled` resolves true for the agent.
 
 ### What gets indexed (and when)
@@ -370,12 +351,6 @@ Local mode:
 - File type: Markdown only (`MEMORY.md`, `memory/**/*.md`, plus any `.md` files under `memorySearch.extraPaths`).
 - Index storage: per-agent SQLite at `~/.openclaw/memory/<agentId>.sqlite` (configurable via `agents.defaults.memorySearch.store.path`, supports `{agentId}` token).
 - Freshness: watcher on `MEMORY.md`, `memory/`, and `memorySearch.extraPaths` marks the index dirty (debounce 1.5s). Sync is scheduled on session start, on search, or on an interval and runs asynchronously. Session transcripts use delta thresholds to trigger background sync.
-=======
-- File type: Markdown only (`MEMORY.md`, `memory/**/*.md`).
-- Index storage: per-agent SQLite at `~/.clawdbot/memory/<agentId>.sqlite` (configurable via `agents.defaults.memorySearch.store.path`, supports `{agentId}` token).
-- Freshness: watcher on `MEMORY.md` + `memory/` marks the index dirty (debounce 1.5s). Sync is scheduled on session start, on search, or on an interval and runs asynchronously. Session transcripts use delta thresholds to trigger background sync.
-<<<<<<< HEAD
->>>>>>> 5d3af3bc6 (feat (memory): Implement new (opt-in) QMD memory backend)
 - Reindex triggers: the index stores the embedding **provider/model + endpoint fingerprint + chunking params**. If any of those change, Moltbot automatically resets and reindexes the entire store.
 =======
 - File type: Markdown only (`MEMORY.md`, `memory/**/*.md`).
@@ -395,12 +370,10 @@ If full-text search is unavailable on your platform, OpenClaw falls back to vect
 #### Why hybrid?
 
 Vector search is great at “this means the same thing”:
-
 - “Mac Studio gateway host” vs “the machine running the gateway”
 - “debounce file updates” vs “avoid indexing on every write”
 
 But it can be weak at exact, high-signal tokens:
-
 - IDs (`a828e60`, `b3b9895a…`)
 - code symbols (`memorySearch.query.hybrid`)
 - error strings (“sqlite-vec unavailable”)
@@ -413,8 +386,7 @@ good results for both “natural language” queries and “needle in a haystack
 
 Implementation sketch:
 
-1. Retrieve a candidate pool from both sides:
-
+1) Retrieve a candidate pool from both sides:
 - **Vector**: top `maxResults * candidateMultiplier` by cosine similarity.
 - **BM25**: top `maxResults * candidateMultiplier` by FTS5 BM25 rank (lower is better).
 
@@ -438,7 +410,6 @@ Implementation sketch:
 - `finalScore = vectorWeight * vectorScore + textWeight * textScore`
 
 Notes:
-
 - `vectorWeight` + `textWeight` is normalized to 1.0 in config resolution, so weights behave as percentages.
 - If embeddings are unavailable (or the provider returns a zero-vector), we still run BM25 and return keyword matches.
 - If FTS5 can’t be created, we keep vector-only search (no hard failure).
@@ -502,7 +473,6 @@ agents: {
 ```
 
 Notes:
-
 - Session indexing is **opt-in** (off by default).
 - Session updates are debounced and **indexed asynchronously** once they cross delta thresholds (best-effort).
 - `memory_search` never blocks on indexing; results can be slightly stale until background sync finishes.
@@ -551,7 +521,6 @@ agents: {
 ```
 
 Notes:
-
 - `enabled` defaults to true; when disabled, search falls back to in-process
   cosine similarity over stored embeddings.
 - If the sqlite-vec extension is missing or fails to load, OpenClaw logs the
@@ -588,6 +557,5 @@ agents: {
 ```
 
 Notes:
-
 - `remote.*` takes precedence over `models.providers.openai.*`.
 - `remote.headers` merge with OpenAI headers; remote wins on key conflicts. Omit `remote.headers` to use the OpenAI defaults.

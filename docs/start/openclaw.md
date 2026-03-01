@@ -12,13 +12,11 @@ OpenClaw is a WhatsApp + Telegram + Discord + iMessage gateway for **Pi** agents
 ## ⚠️ Safety first
 
 You’re putting an agent in a position to:
-
 - run commands on your machine (depending on your Pi tool setup)
 - read/write files in your workspace
 - send messages back out via WhatsApp/Telegram/Discord/Mattermost (plugin)
 
 Start conservative:
-
 - Always set `channels.whatsapp.allowFrom` (never run open-to-the-world on your personal Mac).
 - Use a dedicated WhatsApp number for the assistant.
 - Heartbeats now default to every 30 minutes. Disable until you trust the setup by setting `agents.defaults.heartbeat.every: "0m"`.
@@ -74,7 +72,7 @@ If you link your personal WhatsApp to OpenClaw, every message to you becomes “
 
 ## 5-minute quick start
 
-1. Pair WhatsApp Web (shows QR; scan with the assistant phone):
+1) Pair WhatsApp Web (shows QR; scan with the assistant phone):
 
 ```bash
 openclaw channels login
@@ -106,7 +104,7 @@ openclaw gateway --port 18789
 
 ```json5
 {
-  channels: { whatsapp: { allowFrom: ["+15555550123"] } },
+  channels: { whatsapp: { allowFrom: ["+15555550123"] } }
 }
 ```
 
@@ -140,10 +138,6 @@ Optional: choose a different workspace with `agents.defaults.workspace` (support
   agent: {
     workspace: "~/.openclaw/workspace"
   }
-=======
-    workspace: "~/.openclaw/workspace",
-  },
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.):docs/start/openclaw.md
 }
 ```
 
@@ -152,8 +146,8 @@ If you already ship your own workspace files from a repo, you can disable bootst
 ```json5
 {
   agent: {
-    skipBootstrap: true,
-  },
+    skipBootstrap: true
+  }
 }
 ```
 
@@ -175,24 +169,20 @@ Example:
     thinkingDefault: "high",
     timeoutSeconds: 1800,
     // Start with 0; enable later.
-    heartbeat: { every: "0m" },
+    heartbeat: { every: "0m" }
   },
   channels: {
     whatsapp: {
       allowFrom: ["+15555550123"],
       groups: {
-        "*": { requireMention: true },
-      },
-    },
+        "*": { requireMention: true }
+      }
+    }
   },
   routing: {
     groupChat: {
       mentionPatterns: ["@openclaw", "openclaw"]
     }
-=======
-      mentionPatterns: ["@openclaw", "openclaw"],
-    },
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.):docs/start/openclaw.md
   },
   session: {
     scope: "per-sender",
@@ -200,9 +190,9 @@ Example:
     reset: {
       mode: "daily",
       atHour: 4,
-      idleMinutes: 10080,
-    },
-  },
+      idleMinutes: 10080
+    }
+  }
 }
 ```
 
@@ -227,15 +217,14 @@ Set `agents.defaults.heartbeat.every: "0m"` to disable.
 ```json5
 {
   agent: {
-    heartbeat: { every: "30m" },
-  },
+    heartbeat: { every: "30m" }
+  }
 }
 ```
 
 ## Media in and out
 
 Inbound attachments (images/audio/docs) can be surfaced to your command via templates:
-
 - `{{MediaPath}}` (local temp file path)
 - `{{MediaUrl}}` (pseudo-URL)
 - `{{Transcript}}` (if audio transcription is enabled)

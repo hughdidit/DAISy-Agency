@@ -17,20 +17,6 @@ import type { WizardPrompter } from "./prompts.js";
 import { normalizeGatewayTokenInput, randomToken } from "../commands/onboard-helpers.js";
 import { findTailscaleBinary } from "../infra/tailscale.js";
 
-// These commands are "high risk" (privacy writes/recording) and should be
-// explicitly armed by the user when they want to use them.
-//
-// This only affects what the gateway will accept via node.invoke; the iOS app
-// still prompts for OS permissions (camera/photos/contacts/etc) on first use.
-const DEFAULT_DANGEROUS_NODE_DENY_COMMANDS = [
-  "camera.snap",
-  "camera.clip",
-  "screen.record",
-  "calendar.add",
-  "contacts.add",
-  "reminders.add",
-];
-
 type ConfigureGatewayOptions = {
   flow: WizardFlow;
   baseConfig: OpenClawConfig;
@@ -85,7 +71,8 @@ export async function configureGatewayForOnboarding(
             { value: "auto", label: "Auto (Loopback → LAN)" },
             { value: "custom", label: "Custom IP" },
           ],
-        });
+        })) as "loopback" | "lan" | "auto" | "custom" | "tailnet")
+  ) as "loopback" | "lan" | "auto" | "custom" | "tailnet";
 
   let customBindHost = quickstartGateway.customBindHost;
   if (bind === "custom") {
@@ -96,22 +83,17 @@ export async function configureGatewayForOnboarding(
         placeholder: "192.168.1.100",
         initialValue: customBindHost ?? "",
         validate: (value) => {
-          if (!value) {
-            return "IP address is required for custom bind mode";
-          }
+          if (!value) return "IP address is required for custom bind mode";
           const trimmed = value.trim();
           const parts = trimmed.split(".");
-          if (parts.length !== 4) {
-            return "Invalid IPv4 address (e.g., 192.168.1.100)";
-          }
+          if (parts.length !== 4) return "Invalid IPv4 address (e.g., 192.168.1.100)";
           if (
             parts.every((part) => {
               const n = parseInt(part, 10);
               return !Number.isNaN(n) && n >= 0 && n <= 255 && part === String(n);
             })
-          ) {
+          )
             return undefined;
-          }
           return "Invalid IPv4 address (each octet must be 0-255)";
         },
       });
@@ -119,7 +101,7 @@ export async function configureGatewayForOnboarding(
     }
   }
 
-  let authMode =
+  let authMode = (
     flow === "quickstart"
       ? quickstartGateway.authMode
       : ((await prompter.select({
@@ -133,7 +115,8 @@ export async function configureGatewayForOnboarding(
             { value: "password", label: "Password" },
           ],
           initialValue: "token",
-        })) as GatewayAuthChoice);
+        })) as GatewayAuthChoice)
+  ) as GatewayAuthChoice;
 
 <<<<<<< HEAD
   const tailscaleMode = (
@@ -160,7 +143,8 @@ export async function configureGatewayForOnboarding(
               hint: "Public HTTPS via Tailscale Funnel (internet)",
             },
           ],
-        });
+        })) as "off" | "serve" | "funnel")
+  ) as "off" | "serve" | "funnel";
 
   // Detect Tailscale binary before proceeding with serve/funnel setup.
   if (tailscaleMode !== "off") {
@@ -263,46 +247,25 @@ export async function configureGatewayForOnboarding(
     gateway: {
       ...nextConfig.gateway,
       port,
-      bind: bind as GatewayBindMode,
+      bind,
       ...(bind === "custom" && customBindHost ? { customBindHost } : {}),
       tailscale: {
         ...nextConfig.gateway?.tailscale,
-        mode: tailscaleMode as GatewayTailscaleMode,
+        mode: tailscaleMode,
         resetOnExit: tailscaleResetOnExit,
       },
     },
   };
 
-  // If this is a new gateway setup (no existing gateway settings), start with a
-  // denylist for high-risk node commands. Users can arm these temporarily via
-  // /phone arm ... (phone-control plugin).
-  if (
-    !quickstartGateway.hasExisting &&
-    nextConfig.gateway?.nodes?.denyCommands === undefined &&
-    nextConfig.gateway?.nodes?.allowCommands === undefined &&
-    nextConfig.gateway?.nodes?.browser === undefined
-  ) {
-    nextConfig = {
-      ...nextConfig,
-      gateway: {
-        ...nextConfig.gateway,
-        nodes: {
-          ...nextConfig.gateway?.nodes,
-          denyCommands: [...DEFAULT_DANGEROUS_NODE_DENY_COMMANDS],
-        },
-      },
-    };
-  }
-
   return {
     nextConfig,
     settings: {
       port,
-      bind: bind as GatewayBindMode,
+      bind,
       customBindHost: bind === "custom" ? customBindHost : undefined,
       authMode,
       gatewayToken,
-      tailscaleMode: tailscaleMode as GatewayTailscaleMode,
+      tailscaleMode,
       tailscaleResetOnExit,
     },
   };

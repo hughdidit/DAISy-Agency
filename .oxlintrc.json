@@ -1,10 +1,12 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["unicorn", "typescript", "oxc"],
+  "plugins": [
+    "unicorn",
+    "typescript",
+    "oxc"
+  ],
   "categories": {
-    "correctness": "error",
-    "perf": "error",
-    "suspicious": "error"
+    "correctness": "error"
   },
 <<<<<<< HEAD
   "ignorePatterns": ["src/canvas-host/a2ui/a2ui.bundle.js"]

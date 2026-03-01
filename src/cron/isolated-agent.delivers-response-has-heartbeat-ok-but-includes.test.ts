@@ -14,13 +14,9 @@ vi.mock("../agents/pi-embedded.js", () => ({
 vi.mock("../agents/model-catalog.js", () => ({
   loadModelCatalog: vi.fn(),
 }));
-vi.mock("../agents/subagent-announce.js", () => ({
-  runSubagentAnnounceFlow: vi.fn(),
-}));
 
 import { loadModelCatalog } from "../agents/model-catalog.js";
 import { runEmbeddedPiAgent } from "../agents/pi-embedded.js";
-import { runSubagentAnnounceFlow } from "../agents/subagent-announce.js";
 import { runCronIsolatedAgentTurn } from "./isolated-agent.js";
 
 async function withTempHome<T>(fn: (home: string) => Promise<T>): Promise<T> {
@@ -71,7 +67,6 @@ function makeJob(payload: CronJob["payload"]): CronJob {
   const now = Date.now();
   return {
     id: "job-1",
-    name: "job-1",
     enabled: true,
     createdAtMs: now,
     updatedAtMs: now,
@@ -80,6 +75,7 @@ function makeJob(payload: CronJob["payload"]): CronJob {
     wakeMode: "now",
     payload,
     state: {},
+    isolation: { postToMainPrefix: "Cron" },
   };
 }
 
@@ -126,13 +122,13 @@ describe("runCronIsolatedAgentTurn", () => {
       const res = await runCronIsolatedAgentTurn({
         cfg: makeCfg(home, storePath),
         deps,
-        job: {
-          ...makeJob({
-            kind: "agentTurn",
-            message: "do it",
-          }),
-          delivery: { mode: "announce", channel: "telegram", to: "123" },
-        },
+        job: makeJob({
+          kind: "agentTurn",
+          message: "do it",
+          deliver: true,
+          channel: "telegram",
+          to: "123",
+        }),
         message: "do it",
         sessionKey: "cron:job-1",
         lane: "cron",
@@ -151,7 +147,7 @@ describe("runCronIsolatedAgentTurn", () => {
     });
   });
 
-  it("uses shared announce flow when heartbeat ack padding exceeds configured limit", async () => {
+  it("delivers when heartbeat ack padding exceeds configured limit", async () => {
     await withTempHome(async (home) => {
       const storePath = await writeSessionStore(home);
       const deps: CliDeps = {
@@ -184,24 +180,20 @@ describe("runCronIsolatedAgentTurn", () => {
       const res = await runCronIsolatedAgentTurn({
         cfg,
         deps,
-        job: {
-          ...makeJob({
-            kind: "agentTurn",
-            message: "do it",
-          }),
-          delivery: { mode: "announce", channel: "telegram", to: "123" },
-        },
+        job: makeJob({
+          kind: "agentTurn",
+          message: "do it",
+          deliver: true,
+          channel: "telegram",
+          to: "123",
+        }),
         message: "do it",
         sessionKey: "cron:job-1",
         lane: "cron",
       });
 
       expect(res.status).toBe("ok");
-      expect(runSubagentAnnounceFlow).toHaveBeenCalledTimes(1);
-<<<<<<< HEAD
-=======
-      expect(deps.sendMessageTelegram).not.toHaveBeenCalled();
->>>>>>> 8fae55e8e (fix(cron): share isolated announce flow + harden cron scheduling/delivery (#11641))
+      expect(deps.sendMessageTelegram).toHaveBeenCalled();
     });
   });
 });

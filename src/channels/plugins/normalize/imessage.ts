@@ -7,9 +7,7 @@ const CHAT_TARGET_PREFIX_RE =
 
 export function normalizeIMessageMessagingTarget(raw: string): string | undefined {
   const trimmed = raw.trim();
-  if (!trimmed) {
-    return undefined;
-  }
+  if (!trimmed) return undefined;
 
   // Preserve service prefix if present (e.g., "sms:+1555" → "sms:+15551234567")
   const lower = trimmed.toLowerCase();
@@ -17,12 +15,8 @@ export function normalizeIMessageMessagingTarget(raw: string): string | undefine
     if (lower.startsWith(prefix)) {
       const remainder = trimmed.slice(prefix.length).trim();
       const normalizedHandle = normalizeIMessageHandle(remainder);
-      if (!normalizedHandle) {
-        return undefined;
-      }
-      if (CHAT_TARGET_PREFIX_RE.test(normalizedHandle)) {
-        return normalizedHandle;
-      }
+      if (!normalizedHandle) return undefined;
+      if (CHAT_TARGET_PREFIX_RE.test(normalizedHandle)) return normalizedHandle;
       return `${prefix}${normalizedHandle}`;
     }
   }
@@ -33,17 +27,9 @@ export function normalizeIMessageMessagingTarget(raw: string): string | undefine
 
 export function looksLikeIMessageTargetId(raw: string): boolean {
   const trimmed = raw.trim();
-  if (!trimmed) {
-    return false;
-  }
-  if (/^(imessage:|sms:|auto:)/i.test(trimmed)) {
-    return true;
-  }
-  if (CHAT_TARGET_PREFIX_RE.test(trimmed)) {
-    return true;
-  }
-  if (trimmed.includes("@")) {
-    return true;
-  }
+  if (!trimmed) return false;
+  if (/^(imessage:|sms:|auto:)/i.test(trimmed)) return true;
+  if (CHAT_TARGET_PREFIX_RE.test(trimmed)) return true;
+  if (trimmed.includes("@")) return true;
   return /^\+?\d{3,}$/.test(trimmed);
 }

@@ -53,8 +53,6 @@ export const updateHandlers: GatewayRequestHandlers = {
 
     let result: Awaited<ReturnType<typeof runGatewayUpdate>>;
     try {
-      const config = loadConfig();
-      const configChannel = normalizeUpdateChannel(config.update?.channel);
       const root =
         (await resolveOpenClawPackageRoot({
           moduleUrl: import.meta.url,
@@ -65,7 +63,6 @@ export const updateHandlers: GatewayRequestHandlers = {
         timeoutMs,
         cwd: root,
         argv1: process.argv[1],
-        channel: configChannel ?? undefined,
       });
     } catch (err) {
       result = {

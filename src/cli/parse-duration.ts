@@ -6,14 +6,10 @@ export function parseDurationMs(raw: string, opts?: DurationMsParseOptions): num
   const trimmed = String(raw ?? "")
     .trim()
     .toLowerCase();
-  if (!trimmed) {
-    throw new Error("invalid duration (empty)");
-  }
+  if (!trimmed) throw new Error("invalid duration (empty)");
 
   const m = /^(\d+(?:\.\d+)?)(ms|s|m|h|d)?$/.exec(trimmed);
-  if (!m) {
-    throw new Error(`invalid duration: ${raw}`);
-  }
+  if (!m) throw new Error(`invalid duration: ${raw}`);
 
   const value = Number(m[1]);
   if (!Number.isFinite(value) || value < 0) {
@@ -32,8 +28,6 @@ export function parseDurationMs(raw: string, opts?: DurationMsParseOptions): num
             ? 3_600_000
             : 86_400_000;
   const ms = Math.round(value * multiplier);
-  if (!Number.isFinite(ms)) {
-    throw new Error(`invalid duration: ${raw}`);
-  }
+  if (!Number.isFinite(ms)) throw new Error(`invalid duration: ${raw}`);
   return ms;
 }

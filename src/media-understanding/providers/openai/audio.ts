@@ -27,12 +27,8 @@ export async function transcribeOpenAiCompatibleAudio(
   });
   form.append("file", blob, fileName);
   form.append("model", model);
-  if (params.language?.trim()) {
-    form.append("language", params.language.trim());
-  }
-  if (params.prompt?.trim()) {
-    form.append("prompt", params.prompt.trim());
-  }
+  if (params.language?.trim()) form.append("language", params.language.trim());
+  if (params.prompt?.trim()) form.append("prompt", params.prompt.trim());
 
   const headers = new Headers(params.headers);
   if (!headers.has("authorization")) {

@@ -12,9 +12,7 @@ export function registerSlackMemberEvents(params: { ctx: SlackMonitorContext }) 
     "member_joined_channel",
     async ({ event, body }: SlackEventMiddlewareArgs<"member_joined_channel">) => {
       try {
-        if (ctx.shouldDropMismatchedSlackEvent(body)) {
-          return;
-        }
+        if (ctx.shouldDropMismatchedSlackEvent(body)) return;
         const payload = event as SlackMemberChannelEvent;
         const channelId = payload.channel;
         const channelInfo = channelId ? await ctx.resolveChannelName(channelId) : {};
@@ -52,9 +50,7 @@ export function registerSlackMemberEvents(params: { ctx: SlackMonitorContext }) 
     "member_left_channel",
     async ({ event, body }: SlackEventMiddlewareArgs<"member_left_channel">) => {
       try {
-        if (ctx.shouldDropMismatchedSlackEvent(body)) {
-          return;
-        }
+        if (ctx.shouldDropMismatchedSlackEvent(body)) return;
         const payload = event as SlackMemberChannelEvent;
         const channelId = payload.channel;
         const channelInfo = channelId ? await ctx.resolveChannelName(channelId) : {};

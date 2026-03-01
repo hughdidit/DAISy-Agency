@@ -53,9 +53,7 @@ function isUnrecognizedKeysIssue(issue: ZodIssue): issue is UnrecognizedKeysIssu
 }
 
 function formatPath(parts: Array<string | number>): string {
-  if (parts.length === 0) {
-    return "<root>";
-  }
+  if (parts.length === 0) return "<root>";
   let out = "";
   for (const part of parts) {
     if (typeof part === "number") {
@@ -71,22 +69,14 @@ function resolvePathTarget(root: unknown, path: Array<string | number>): unknown
   let current: unknown = root;
   for (const part of path) {
     if (typeof part === "number") {
-      if (!Array.isArray(current)) {
-        return null;
-      }
-      if (part < 0 || part >= current.length) {
-        return null;
-      }
+      if (!Array.isArray(current)) return null;
+      if (part < 0 || part >= current.length) return null;
       current = current[part];
       continue;
     }
-    if (!current || typeof current !== "object" || Array.isArray(current)) {
-      return null;
-    }
+    if (!current || typeof current !== "object" || Array.isArray(current)) return null;
     const record = current as Record<string, unknown>;
-    if (!(part in record)) {
-      return null;
-    }
+    if (!(part in record)) return null;
     current = record[part];
   }
   return current;
@@ -104,22 +94,14 @@ function stripUnknownConfigKeys(config: OpenClawConfig): {
   const next = structuredClone(config) as OpenClawConfig;
   const removed: string[] = [];
   for (const issue of parsed.error.issues) {
-    if (!isUnrecognizedKeysIssue(issue)) {
-      continue;
-    }
+    if (!isUnrecognizedKeysIssue(issue)) continue;
     const path = normalizeIssuePath(issue.path);
     const target = resolvePathTarget(next, path);
-    if (!target || typeof target !== "object" || Array.isArray(target)) {
-      continue;
-    }
+    if (!target || typeof target !== "object" || Array.isArray(target)) continue;
     const record = target as Record<string, unknown>;
     for (const key of issue.keys) {
-      if (typeof key !== "string") {
-        continue;
-      }
-      if (!(key in record)) {
-        continue;
-      }
+      if (typeof key !== "string") continue;
+      if (!(key in record)) continue;
       delete record[key];
       removed.push(formatPath([...path, key]));
     }
@@ -130,21 +112,13 @@ function stripUnknownConfigKeys(config: OpenClawConfig): {
 
 function noteOpencodeProviderOverrides(cfg: OpenClawConfig) {
   const providers = cfg.models?.providers;
-  if (!providers) {
-    return;
-  }
+  if (!providers) return;
 
   // 2026-01-10: warn when OpenCode Zen overrides mask built-in routing/costs (8a194b4abc360c6098f157956bb9322576b44d51, 2d105d16f8a099276114173836d46b46cdfbdbae).
   const overrides: string[] = [];
-  if (providers.opencode) {
-    overrides.push("opencode");
-  }
-  if (providers["opencode-zen"]) {
-    overrides.push("opencode-zen");
-  }
-  if (overrides.length === 0) {
-    return;
-  }
+  if (providers.opencode) overrides.push("opencode");
+  if (providers["opencode-zen"]) overrides.push("opencode-zen");
+  if (overrides.length === 0) return;
 
   const lines = overrides.flatMap((id) => {
     const providerEntry = providers[id];
@@ -214,9 +188,7 @@ export async function loadAndMaybeMigrateDoctorConfig(params: {
     }
     if (shouldRepair) {
       // Legacy migration (2026-01-02, commit: 16420e5b) — normalize per-provider allowlists; move WhatsApp gating into channels.whatsapp.allowFrom.
-      if (migrated) {
-        cfg = migrated;
-      }
+      if (migrated) cfg = migrated;
     } else {
       fixHints.push(
         `Run "${formatCliCommand("openclaw doctor --fix")}" to apply legacy migrations.`,

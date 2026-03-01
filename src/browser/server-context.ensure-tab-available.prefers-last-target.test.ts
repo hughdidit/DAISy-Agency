@@ -51,11 +51,12 @@ describe("browser server-context ensureTabAvailable", () => {
       } as unknown as Response;
     });
 
+    // @ts-expect-error test override
     global.fetch = fetchMock;
 
     const state: BrowserServerState = {
       // unused in these tests
-      // oxlint-disable-next-line typescript/no-explicit-any
+      // biome-ignore lint/suspicious/noExplicitAny: test stub
       server: null as any,
       port: 0,
       resolved: {
@@ -102,20 +103,17 @@ describe("browser server-context ensureTabAvailable", () => {
 
     fetchMock.mockImplementation(async (url: unknown) => {
       const u = String(url);
-      if (!u.includes("/json/list")) {
-        throw new Error(`unexpected fetch: ${u}`);
-      }
+      if (!u.includes("/json/list")) throw new Error(`unexpected fetch: ${u}`);
       const next = responses.shift();
-      if (!next) {
-        throw new Error("no more responses");
-      }
+      if (!next) throw new Error("no more responses");
       return { ok: true, json: async () => next } as unknown as Response;
     });
 
+    // @ts-expect-error test override
     global.fetch = fetchMock;
 
     const state: BrowserServerState = {
-      // oxlint-disable-next-line typescript/no-explicit-any
+      // biome-ignore lint/suspicious/noExplicitAny: test stub
       server: null as any,
       port: 0,
       resolved: {
@@ -153,20 +151,16 @@ describe("browser server-context ensureTabAvailable", () => {
     const responses = [[]];
     fetchMock.mockImplementation(async (url: unknown) => {
       const u = String(url);
-      if (!u.includes("/json/list")) {
-        throw new Error(`unexpected fetch: ${u}`);
-      }
+      if (!u.includes("/json/list")) throw new Error(`unexpected fetch: ${u}`);
       const next = responses.shift();
-      if (!next) {
-        throw new Error("no more responses");
-      }
+      if (!next) throw new Error("no more responses");
       return { ok: true, json: async () => next } as unknown as Response;
     });
-
+    // @ts-expect-error test override
     global.fetch = fetchMock;
 
     const state: BrowserServerState = {
-      // oxlint-disable-next-line typescript/no-explicit-any
+      // biome-ignore lint/suspicious/noExplicitAny: test stub
       server: null as any,
       port: 0,
       resolved: {

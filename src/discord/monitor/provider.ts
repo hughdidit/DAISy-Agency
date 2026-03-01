@@ -56,18 +56,14 @@ export type MonitorDiscordOpts = {
 };
 
 function summarizeAllowList(list?: Array<string | number>) {
-  if (!list || list.length === 0) {
-    return "any";
-  }
+  if (!list || list.length === 0) return "any";
   const sample = list.slice(0, 4).map((entry) => String(entry));
   const suffix = list.length > sample.length ? ` (+${list.length - sample.length})` : "";
   return `${sample.join(", ")}${suffix}`;
 }
 
 function summarizeGuilds(entries?: Record<string, unknown>) {
-  if (!entries || Object.keys(entries).length === 0) {
-    return "any";
-  }
+  if (!entries || Object.keys(entries).length === 0) return "any";
   const keys = Object.keys(entries);
   const sample = keys.slice(0, 4);
   const suffix = keys.length > sample.length ? ` (+${keys.length - sample.length})` : "";
@@ -79,9 +75,7 @@ async function deployDiscordCommands(params: {
   runtime: RuntimeEnv;
   enabled: boolean;
 }) {
-  if (!params.enabled) {
-    return;
-  }
+  if (!params.enabled) return;
   const runWithRetry = createDiscordRetryRunner({ verbose: shouldLogVerbose() });
   try {
     await runWithRetry(() => params.client.handleDeployRequest(), "command deploy");
@@ -94,16 +88,12 @@ async function deployDiscordCommands(params: {
 }
 
 function formatDiscordDeployErrorDetails(err: unknown): string {
-  if (!err || typeof err !== "object") {
-    return "";
-  }
+  if (!err || typeof err !== "object") return "";
   const status = (err as { status?: unknown }).status;
   const discordCode = (err as { discordCode?: unknown }).discordCode;
   const rawBody = (err as { rawBody?: unknown }).rawBody;
   const details: string[] = [];
-  if (typeof status === "number") {
-    details.push(`status=${status}`);
-  }
+  if (typeof status === "number") details.push(`status=${status}`);
   if (typeof discordCode === "number" || typeof discordCode === "string") {
     details.push(`code=${discordCode}`);
   }
@@ -218,9 +208,7 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
       try {
         const entries: Array<{ input: string; guildKey: string; channelKey?: string }> = [];
         for (const [guildKey, guildCfg] of Object.entries(guildEntries)) {
-          if (guildKey === "*") {
-            continue;
-          }
+          if (guildKey === "*") continue;
           const channels = guildCfg?.channels ?? {};
           const channelKeys = Object.keys(channels).filter((key) => key !== "*");
           if (channelKeys.length === 0) {
@@ -245,9 +233,7 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
           const unresolved: string[] = [];
           for (const entry of resolved) {
             const source = entries.find((item) => item.input === entry.input);
-            if (!source) {
-              continue;
-            }
+            if (!source) continue;
             const sourceGuild = guildEntries?.[source.guildKey] ?? {};
             if (!entry.resolved || !entry.guildId) {
               unresolved.push(entry.input);
@@ -319,32 +305,22 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
     if (guildEntries && Object.keys(guildEntries).length > 0) {
       const userEntries = new Set<string>();
       for (const guild of Object.values(guildEntries)) {
-        if (!guild || typeof guild !== "object") {
-          continue;
-        }
+        if (!guild || typeof guild !== "object") continue;
         const users = (guild as { users?: Array<string | number> }).users;
         if (Array.isArray(users)) {
           for (const entry of users) {
             const trimmed = String(entry).trim();
-            if (trimmed && trimmed !== "*") {
-              userEntries.add(trimmed);
-            }
+            if (trimmed && trimmed !== "*") userEntries.add(trimmed);
           }
         }
         const channels = (guild as { channels?: Record<string, unknown> }).channels ?? {};
         for (const channel of Object.values(channels)) {
-          if (!channel || typeof channel !== "object") {
-            continue;
-          }
+          if (!channel || typeof channel !== "object") continue;
           const channelUsers = (channel as { users?: Array<string | number> }).users;
-          if (!Array.isArray(channelUsers)) {
-            continue;
-          }
+          if (!Array.isArray(channelUsers)) continue;
           for (const entry of channelUsers) {
             const trimmed = String(entry).trim();
-            if (trimmed && trimmed !== "*") {
-              userEntries.add(trimmed);
-            }
+            if (trimmed && trimmed !== "*") userEntries.add(trimmed);
           }
         }
       }
@@ -365,9 +341,7 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
 
           const nextGuilds = { ...guildEntries };
           for (const [guildKey, guildConfig] of Object.entries(guildEntries ?? {})) {
-            if (!guildConfig || typeof guildConfig !== "object") {
-              continue;
-            }
+            if (!guildConfig || typeof guildConfig !== "object") continue;
             const nextGuild = { ...guildConfig } as Record<string, unknown>;
             const users = (guildConfig as { users?: Array<string | number> }).users;
             if (Array.isArray(users) && users.length > 0) {
@@ -375,9 +349,7 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
               for (const entry of users) {
                 const trimmed = String(entry).trim();
                 const resolved = resolvedMap.get(trimmed);
-                if (resolved?.resolved && resolved.id) {
-                  additions.push(resolved.id);
-                }
+                if (resolved?.resolved && resolved.id) additions.push(resolved.id);
               }
               nextGuild.users = mergeAllowlist({ existing: users, additions });
             }
@@ -385,20 +357,14 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
             if (channels && typeof channels === "object") {
               const nextChannels: Record<string, unknown> = { ...channels };
               for (const [channelKey, channelConfig] of Object.entries(channels)) {
-                if (!channelConfig || typeof channelConfig !== "object") {
-                  continue;
-                }
+                if (!channelConfig || typeof channelConfig !== "object") continue;
                 const channelUsers = (channelConfig as { users?: Array<string | number> }).users;
-                if (!Array.isArray(channelUsers) || channelUsers.length === 0) {
-                  continue;
-                }
+                if (!Array.isArray(channelUsers) || channelUsers.length === 0) continue;
                 const additions: string[] = [];
                 for (const entry of channelUsers) {
                   const trimmed = String(entry).trim();
                   const resolved = resolvedMap.get(trimmed);
-                  if (resolved?.resolved && resolved.id) {
-                    additions.push(resolved.id);
-                  }
+                  if (resolved?.resolved && resolved.id) additions.push(resolved.id);
                 }
                 nextChannels[channelKey] = {
                   ...channelConfig,
@@ -595,9 +561,6 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
   }
 
   const gateway = client.getPlugin<GatewayPlugin>("gateway");
-  if (gateway) {
-    registerGateway(account.accountId, gateway);
-  }
   const gatewayEmitter = getDiscordGatewayEmitter(gateway);
   const stopGatewayLogging = attachDiscordGatewayLogging({
     emitter: gatewayEmitter,
@@ -605,9 +568,7 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
   });
   const abortSignal = opts.abortSignal;
   const onAbort = () => {
-    if (!gateway) {
-      return;
-    }
+    if (!gateway) return;
     // Carbon emits an error when maxAttempts is 0; keep a one-shot listener to avoid
     // an unhandled error after we tear down listeners during abort.
     gatewayEmitter?.once("error", () => {});
@@ -624,12 +585,8 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
   let helloTimeoutId: ReturnType<typeof setTimeout> | undefined;
   const onGatewayDebug = (msg: unknown) => {
     const message = String(msg);
-    if (!message.includes("WebSocket connection opened")) {
-      return;
-    }
-    if (helloTimeoutId) {
-      clearTimeout(helloTimeoutId);
-    }
+    if (!message.includes("WebSocket connection opened")) return;
+    if (helloTimeoutId) clearTimeout(helloTimeoutId);
     helloTimeoutId = setTimeout(() => {
       if (!gateway?.isConnected) {
         runtime.log?.(
@@ -664,11 +621,8 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
       },
     });
   } finally {
-    unregisterGateway(account.accountId);
     stopGatewayLogging();
-    if (helloTimeoutId) {
-      clearTimeout(helloTimeoutId);
-    }
+    if (helloTimeoutId) clearTimeout(helloTimeoutId);
     gatewayEmitter?.removeListener("debug", onGatewayDebug);
     abortSignal?.removeEventListener("abort", onAbort);
     if (execApprovalsHandler) {

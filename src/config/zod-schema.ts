@@ -5,12 +5,7 @@ import { ApprovalsSchema } from "./zod-schema.approvals.js";
 import { HexColorSchema, ModelsConfigSchema } from "./zod-schema.core.js";
 import { HookMappingSchema, HooksGmailSchema, InternalHooksSchema } from "./zod-schema.hooks.js";
 import { ChannelsSchema } from "./zod-schema.providers.js";
-import {
-  CommandsSchema,
-  MessagesSchema,
-  SessionSchema,
-  SessionSendPolicySchema,
-} from "./zod-schema.session.js";
+import { CommandsSchema, MessagesSchema, SessionSchema } from "./zod-schema.session.js";
 
 const BrowserSnapshotDefaultsSchema = z
   .object({
@@ -456,7 +451,6 @@ export const OpenClawSchema = z
       })
       .strict()
       .optional(),
-    memory: MemorySchema,
     skills: z
       .object({
         allowBundled: z.array(z.string()).optional(),
@@ -543,23 +537,15 @@ export const OpenClawSchema = z
   .strict()
   .superRefine((cfg, ctx) => {
     const agents = cfg.agents?.list ?? [];
-    if (agents.length === 0) {
-      return;
-    }
+    if (agents.length === 0) return;
     const agentIds = new Set(agents.map((agent) => agent.id));
 
     const broadcast = cfg.broadcast;
-    if (!broadcast) {
-      return;
-    }
+    if (!broadcast) return;
 
     for (const [peerId, ids] of Object.entries(broadcast)) {
-      if (peerId === "strategy") {
-        continue;
-      }
-      if (!Array.isArray(ids)) {
-        continue;
-      }
+      if (peerId === "strategy") continue;
+      if (!Array.isArray(ids)) continue;
       for (let idx = 0; idx < ids.length; idx += 1) {
         const agentId = ids[idx];
         if (!agentIds.has(agentId)) {

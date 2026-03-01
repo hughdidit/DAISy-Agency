@@ -19,9 +19,7 @@ export function listMatrixAccountIds(_cfg: CoreConfig): string[] {
 
 export function resolveDefaultMatrixAccountId(cfg: CoreConfig): string {
   const ids = listMatrixAccountIds(cfg);
-  if (ids.includes(DEFAULT_ACCOUNT_ID)) {
-    return DEFAULT_ACCOUNT_ID;
-  }
+  if (ids.includes(DEFAULT_ACCOUNT_ID)) return DEFAULT_ACCOUNT_ID;
   return ids[0] ?? DEFAULT_ACCOUNT_ID;
 }
 
@@ -30,7 +28,7 @@ export function resolveMatrixAccount(params: {
   accountId?: string | null;
 }): ResolvedMatrixAccount {
   const accountId = normalizeAccountId(params.accountId);
-  const base = params.cfg.channels?.matrix ?? {};
+  const base = (params.cfg.channels?.matrix ?? {}) as MatrixConfig;
   const enabled = base.enabled !== false;
   const resolved = resolveMatrixConfig(params.cfg, process.env);
   const hasHomeserver = Boolean(resolved.homeserver);

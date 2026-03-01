@@ -30,7 +30,6 @@ Provider-specific shortcuts: [/channels/troubleshooting](/channels/troubleshooti
 
 Quick triage commands (in order):
 
-<<<<<<< HEAD
 | Command | What it tells you | When to use it |
 |---|---|---|
 | `openclaw status` | Local summary: OS + update, gateway reachability/mode, service, agents/sessions, provider config state | First check, quick overview |
@@ -53,7 +52,6 @@ This means the **agent’s auth store is empty** or missing Anthropic credential
 Auth is **per agent**, so a new agent won’t inherit the main agent’s keys.
 
 Fix options:
-
 - Re-run onboarding and choose **Anthropic** for that agent.
 - Or paste a setup-token on the **gateway host**:
 
@@ -64,7 +62,6 @@ Fix options:
 - Or copy `auth-profiles.json` from the main agent dir to the new agent dir.
 
 Verify:
-
 ```bash
 openclaw models status
 ```
@@ -83,31 +80,7 @@ openclaw models auth setup-token --provider anthropic
 openclaw models status
 ```
 
-<<<<<<< HEAD
 If you generated the token elsewhere:
-=======
-Look for:
-
-- Pairing pending for DM senders.
-- Group mention gating (`requireMention`, `mentionPatterns`).
-- Channel/group allowlist mismatches.
-
-Common signatures:
-
-- `drop guild message (mention required` → group message ignored until mention.
-- `pairing request` → sender needs approval.
-- `blocked` / `allowlist` → sender/channel was filtered by policy.
-
-Related:
-
-- [/channels/troubleshooting](/channels/troubleshooting)
-- [/channels/pairing](/channels/pairing)
-- [/channels/groups](/channels/groups)
-
-## Dashboard control ui connectivity
-
-When dashboard/control UI will not connect, validate URL, auth mode, and secure context assumptions.
->>>>>>> 929a3725d (docs: canonicalize docs paths and align zh navigation (#11428))
 
 ```bash
 openclaw models auth paste-token --provider anthropic
@@ -123,7 +96,6 @@ If you open the dashboard over plain HTTP (e.g. `http://<lan-ip>:18789/` or
 blocks WebCrypto, so device identity can’t be generated.
 
 **Fix:**
-
 - Prefer HTTPS via [Tailscale Serve](/gateway/tailscale).
 - Or open locally on the gateway host: `http://127.0.0.1:18789/`.
 - If you must stay on HTTP, enable `gateway.controlUi.allowInsecureAuth: true` and
@@ -141,7 +113,6 @@ If the gateway service is installed but the process exits immediately, the servi
 can appear “loaded” while nothing is running.
 
 **Check:**
-
 ```bash
 openclaw gateway status
 openclaw doctor
@@ -157,7 +128,6 @@ Doctor/service will show runtime state (PID/last exit) and log hints.
 - Windows: `schtasks /Query /TN "OpenClaw Gateway (<profile>)" /V /FO LIST`
 
 **Enable more logging:**
-
 - Bump file log detail (persisted JSONL):
 
   ```json
@@ -180,7 +150,6 @@ This means the config exists but `gateway.mode` is unset (or not `local`), so th
 Gateway refuses to start.
 
 **Fix (recommended):**
-
 - Run the wizard and set the Gateway run mode to **Local**:
 
   ```bash
@@ -194,7 +163,6 @@ Gateway refuses to start.
   ```
 
 **If you meant to run a remote Gateway instead:**
-
 - Set a remote URL and keep `gateway.mode=remote`:
 
   ```bash
@@ -211,7 +179,6 @@ the gateway.
 ### Service Environment (PATH + runtime)
 
 The gateway service runs with a **minimal PATH** to avoid shell/manager cruft:
-
 - macOS: `/opt/homebrew/bin`, `/usr/local/bin`, `/usr/bin`, `/bin`
 - Linux: `/usr/local/bin`, `/usr/bin`, `/bin`
 
@@ -234,7 +201,6 @@ to migrate to a system Node install.
 **Why:** sandboxed exec runs inside Docker and does **not** inherit host `process.env`.
 
 **Fix:**
-
 - set `agents.defaults.sandbox.docker.env` (or per-agent `agents.list[].sandbox.docker.env`)
 - or bake the key into your custom sandbox image
 - then run `openclaw sandbox recreate --agent <id>` (or `--all`)
@@ -245,7 +211,6 @@ If the service reports **running** but nothing is listening on the gateway port,
 the Gateway likely refused to bind.
 
 **What "running" means here**
-
 - `Runtime: running` means your supervisor (launchd/systemd/schtasks) thinks the process is alive.
 - `RPC probe` means the CLI could actually connect to the gateway WebSocket and call `status`.
 - Always trust `Probe target:` + `Config (service):` as the “what did we actually try?” lines.
@@ -269,7 +234,6 @@ the Gateway likely refused to bind.
 - Fix: run `openclaw doctor` to update it (or `openclaw gateway install --force` for a full rewrite).
 
 **If `Last gateway error:` mentions “refusing to bind … without auth”**
-
 - You set `gateway.bind` to a non-loopback mode (`lan`/`tailnet`/`custom`, or `auto` when loopback is unavailable) but didn’t configure auth.
 - Fix: set `gateway.auth.mode` + `gateway.auth.token` (or export `OPENCLAW_GATEWAY_TOKEN`) and restart the service.
 
@@ -278,7 +242,6 @@ the Gateway likely refused to bind.
 - Fix: bring up Tailscale on that machine (or change `gateway.bind` to `loopback`/`lan`).
 
 **If `Probe note:` says the probe uses loopback**
-
 - That’s expected for `bind=lan`: the gateway listens on `0.0.0.0` (all interfaces), and loopback should still connect locally.
 - For remote clients, use a real LAN IP (not `0.0.0.0`) plus the port, and ensure auth is configured.
 
@@ -287,7 +250,6 @@ the Gateway likely refused to bind.
 This means something is already listening on the gateway port.
 
 **Check:**
-
 ```bash
 openclaw gateway status
 ```
@@ -314,7 +276,6 @@ Group/channel sessions use their own keys, so they are treated as non-main and
 get sandbox workspaces.
 
 **Fix options:**
-
 - If you want host workspaces for an agent: set `agents.list[].sandbox.mode: "off"`.
 - If you want host workspace access inside sandbox: set `workspaceAccess: "rw"` for that agent.
 
@@ -323,7 +284,6 @@ get sandbox workspaces.
 The agent was interrupted mid-response.
 
 **Causes:**
-
 - User sent `stop`, `abort`, `esc`, `wait`, or `exit`
 - Timeout exceeded
 - Process crashed
@@ -337,7 +297,6 @@ vulnerable to prompt injection). If you see this error, the model name is no
 longer supported.
 
 **Fix:**
-
 - Pick a **latest** model for the provider and update your config or model alias.
 - If you’re unsure which models are available, run `openclaw models list` or
   `openclaw models scan` and choose a supported one.
@@ -348,15 +307,12 @@ See also: [Models CLI](/cli/models) and [Model providers](/concepts/model-provid
 ### Messages Not Triggering
 
 **Check 1:** Is the sender allowlisted?
-
 ```bash
 openclaw status
 ```
-
 Look for `AllowFrom: ...` in the output.
 
 **Check 2:** For group chats, is mention required?
-
 ```bash
 # The message must match mentionPatterns or explicit mentions; defaults live in channel groups/guilds.
 # Multi-agent: `agents.list[].groupChat.mentionPatterns` overrides global patterns.
@@ -365,7 +321,6 @@ grep -n "agents\\|groupChat\\|mentionPatterns\\|channels\\.whatsapp\\.groups\\|c
 ```
 
 **Check 3:** Check the logs
-
 ```bash
 openclaw logs --follow
 # or if you want quick filters:
@@ -390,7 +345,6 @@ Expected healthy signals:
 
 <<<<<<< HEAD
 **Check 1:** Is a pending request already waiting?
-
 ```bash
 openclaw pairing list <channel>
 ```
@@ -398,7 +352,6 @@ openclaw pairing list <channel>
 Pending DM pairing requests are capped at **3 per channel** by default. If the list is full, new requests won’t generate a code until one is approved or expires.
 
 **Check 2:** Did the request get created but no reply was sent?
-
 ```bash
 openclaw logs --follow | grep "pairing request"
 ```
@@ -416,20 +369,18 @@ Known issue: When you send an image with ONLY a mention (no other text), WhatsAp
 ### Session Not Resuming
 
 **Check 1:** Is the session file there?
-
 ```bash
 ls -la ~/.openclaw/agents/<agentId>/sessions/
 ```
 
 **Check 2:** Is the reset window too short?
-
 ```json
 {
   "session": {
     "reset": {
       "mode": "daily",
       "atHour": 4,
-      "idleMinutes": 10080 // 7 days
+      "idleMinutes": 10080  // 7 days
     }
   }
 }
@@ -444,7 +395,7 @@ Default timeout is 30 minutes. For long tasks:
 ```json
 {
   "reply": {
-    "timeoutSeconds": 3600 // 1 hour
+    "timeoutSeconds": 3600  // 1 hour
   }
 }
 ```
@@ -641,19 +592,16 @@ Look for:
 
 <<<<<<< HEAD
 **Check 1:** Is the file path valid?
-
 ```bash
 ls -la /path/to/your/image.jpg
 ```
 
 **Check 2:** Is it too large?
-
 - Images: max 6MB
-- Audio/Video: max 16MB
+- Audio/Video: max 16MB  
 - Documents: max 100MB
 
 **Check 3:** Check media logs
-
 ```bash
 grep "media\\|fetch\\|download" "$(ls -t /tmp/openclaw/openclaw-*.log | head -1)" | tail -20
 ```
@@ -663,11 +611,10 @@ grep "media\\|fetch\\|download" "$(ls -t /tmp/openclaw/openclaw-*.log | head -1)
 OpenClaw keeps conversation history in memory.
 
 **Fix:** Restart periodically or set session limits:
-
 ```json
 {
   "session": {
-    "historyLimit": 100 // Max messages to keep
+    "historyLimit": 100  // Max messages to keep
   }
 }
 ```
@@ -680,14 +627,12 @@ OpenClaw now refuses to start when the config contains unknown keys, malformed v
 This is intentional for safety.
 
 Fix it with Doctor:
-
 ```bash
 openclaw doctor
 openclaw doctor --fix
 ```
 
 Notes:
-<<<<<<< HEAD
 - `moltbot doctor` reports every invalid entry.
 - `moltbot doctor --fix` applies migrations/repairs and rewrites the config.
 - Diagnostic commands like `moltbot logs`, `moltbot health`, `moltbot status`, `moltbot gateway status`, and `moltbot gateway probe` still run even if the config is invalid.
@@ -755,9 +700,9 @@ Related:
     whatsapp: {
       selfChatMode: true,
       dmPolicy: "allowlist",
-      allowFrom: ["+15555550123"],
-    },
-  },
+      allowFrom: ["+15555550123"]
+    }
+  }
 }
 ```
 =======
@@ -798,7 +743,6 @@ Common signatures:
 
 <<<<<<< HEAD
 Typical recovery:
-
 ```bash
 git status   # ensure you’re in the repo root
 pnpm install
@@ -861,7 +805,6 @@ Use the **website installer** and select the install method with a flag. It
 upgrades in place and rewrites the gateway service to point at the new install.
 
 Switch **to git install**:
-
 ```bash
 <<<<<<< HEAD
 curl -fsSL https://molt.bot/install.sh | bash -s -- --install-method git --no-onboard
@@ -871,7 +814,6 @@ curl -fsSL https://openclaw.ai/install.sh | bash -s -- --install-method git --no
 ```
 
 Switch **to npm global**:
-
 ```bash
 <<<<<<< HEAD
 curl -fsSL https://molt.bot/install.sh | bash
@@ -881,7 +823,6 @@ curl -fsSL https://openclaw.ai/install.sh | bash
 ```
 
 Notes:
-
 - The git flow only rebases if the repo is clean. Commit or stash changes first.
 - After switching, run:
 
@@ -893,7 +834,6 @@ Notes:
 ### Telegram block streaming isn’t splitting text between tool calls. Why?
 
 Block streaming only sends **completed text blocks**. Common reasons you see a single message:
-
 - `agents.defaults.blockStreamingDefault` is still `"off"`.
 - `channels.telegram.blockStreaming` is set to `false`.
 - `channels.telegram.streamMode` is `partial` or `block` **and draft streaming is active**
@@ -902,10 +842,9 @@ Block streaming only sends **completed text blocks**. Common reasons you see a s
 - The model emits one large text block (no mid‑reply flush points).
 
 Fix checklist:
-
-1. Put block streaming settings under `agents.defaults`, not the root.
-2. Set `channels.telegram.streamMode: "off"` if you want real multi‑message block replies.
-3. Use smaller chunk/coalesce thresholds while debugging.
+1) Put block streaming settings under `agents.defaults`, not the root.
+2) Set `channels.telegram.streamMode: "off"` if you want real multi‑message block replies.
+3) Use smaller chunk/coalesce thresholds while debugging.
 
 See [Streaming](/concepts/streaming).
 
@@ -916,12 +855,10 @@ By default `channels.discord.groupPolicy` is **allowlist**, so guilds must be ex
 If you set `channels.discord.guilds.<guildId>.channels`, only the listed channels are allowed; omit it to allow all channels in the guild.
 
 Fix checklist:
-
-1. Set `channels.discord.groupPolicy: "open"` **or** add a guild allowlist entry (and optionally a channel allowlist).
-2. Use **numeric channel IDs** in `channels.discord.guilds.<guildId>.channels`.
-3. Put `requireMention: false` **under** `channels.discord.guilds` (global or per‑channel).
+1) Set `channels.discord.groupPolicy: "open"` **or** add a guild allowlist entry (and optionally a channel allowlist).
+2) Use **numeric channel IDs** in `channels.discord.guilds.<guildId>.channels`.
+3) Put `requireMention: false` **under** `channels.discord.guilds` (global or per‑channel).
    Top‑level `channels.discord.requireMention` is not a supported key.
-<<<<<<< HEAD
 4) Ensure the bot has **Message Content Intent** and channel permissions.
 5) Run `openclaw channels status --probe` for audit hints.
 
@@ -938,9 +875,9 @@ Fix checklist:
 1) **Update OpenClaw**:
    - If you can run from source, pull `main` and restart the gateway.
    - Otherwise, wait for the next release that includes the schema scrubber.
-2. Avoid unsupported keywords like `anyOf/oneOf/allOf`, `patternProperties`,
+2) Avoid unsupported keywords like `anyOf/oneOf/allOf`, `patternProperties`,
    `additionalProperties`, `minLength`, `maxLength`, `format`, etc.
-3. If you define custom tools, keep the top‑level schema as `type: "object"` with
+3) If you define custom tools, keep the top‑level schema as `type: "object"` with
    `properties` and simple enums.
 
 See [Tools](/tools) and [TypeBox schemas](/concepts/typebox).
@@ -952,7 +889,6 @@ See [Tools](/tools) and [TypeBox schemas](/concepts/typebox).
 If the app disappears or shows "Abort trap 6" when you click "Allow" on a privacy prompt:
 
 **Fix 1: Reset TCC Cache**
-
 ```bash
 tccutil reset All bot.molt.mac.debug
 ```
@@ -966,7 +902,6 @@ The app connects to a local gateway on port `18789`. If it stays stuck:
 
 **Fix 1: Stop the supervisor (preferred)**
 If the gateway is supervised by launchd, killing the PID will just respawn it. Stop the supervisor first:
-
 ```bash
 openclaw gateway status
 openclaw gateway stop
@@ -974,13 +909,11 @@ openclaw gateway stop
 ```
 
 **Fix 2: Port is busy (find the listener)**
-
 ```bash
 lsof -nP -iTCP:18789 -sTCP:LISTEN
 ```
 
 If it’s an unsupervised process, try a graceful stop first, then escalate:
-
 ```bash
 kill -TERM <PID>
 sleep 1
@@ -1009,7 +942,6 @@ openclaw channels login --verbose
 
 ## Log Locations
 
-<<<<<<< HEAD
 | Log | Location |
 |-----|----------|
 | Gateway file logs (structured) | `/tmp/openclaw/openclaw-YYYY-MM-DD.log` (or `logging.file`) |
@@ -1068,7 +1000,7 @@ openclaw gateway restart           # or: openclaw gateway
 
 ---
 
-_"Have you tried turning it off and on again?"_ — Every IT person ever
+*"Have you tried turning it off and on again?"* — Every IT person ever
 
 🦞🔧
 
@@ -1079,14 +1011,12 @@ If you see `"Failed to start Chrome CDP on port 18800"`:
 **Most likely cause:** Snap-packaged Chromium on Ubuntu.
 
 **Quick fix:** Install Google Chrome instead:
-
 ```bash
 wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
 sudo dpkg -i google-chrome-stable_current_amd64.deb
 ```
 
 Then set in config:
-
 ```json
 {
   "browser": {

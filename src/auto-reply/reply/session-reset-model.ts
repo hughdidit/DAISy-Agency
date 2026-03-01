@@ -46,13 +46,9 @@ function buildSelectionFromExplicit(params: {
     defaultProvider: params.defaultProvider,
     aliasIndex: params.aliasIndex,
   });
-  if (!resolved) {
-    return undefined;
-  }
+  if (!resolved) return undefined;
   const key = modelKey(resolved.ref.provider, resolved.ref.model);
-  if (params.allowedModelKeys.size > 0 && !params.allowedModelKeys.has(key)) {
-    return undefined;
-  }
+  if (params.allowedModelKeys.size > 0 && !params.allowedModelKeys.has(key)) return undefined;
   const isDefault =
     resolved.ref.provider === params.defaultProvider && resolved.ref.model === params.defaultModel;
   return {
@@ -71,16 +67,12 @@ function applySelectionToSession(params: {
   storePath?: string;
 }) {
   const { selection, sessionEntry, sessionStore, sessionKey, storePath } = params;
-  if (!sessionEntry || !sessionStore || !sessionKey) {
-    return;
-  }
+  if (!sessionEntry || !sessionStore || !sessionKey) return;
   const { updated } = applyModelOverrideToSessionEntry({
     entry: sessionEntry,
     selection,
   });
-  if (!updated) {
-    return;
-  }
+  if (!updated) return;
   sessionStore[sessionKey] = sessionEntry;
   if (storePath) {
     updateSessionStore(storePath, (store) => {
@@ -105,18 +97,12 @@ export async function applyResetModelOverride(params: {
   defaultModel: string;
   aliasIndex: ModelAliasIndex;
 }): Promise<ResetModelResult> {
-  if (!params.resetTriggered) {
-    return {};
-  }
+  if (!params.resetTriggered) return {};
   const rawBody = params.bodyStripped?.trim();
-  if (!rawBody) {
-    return {};
-  }
+  if (!rawBody) return {};
 
   const { tokens, first, second } = splitBody(rawBody);
-  if (!first) {
-    return {};
-  }
+  if (!first) return {};
 
   const catalog = await loadModelCatalog({ config: params.cfg });
   const allowed = buildAllowedModelSet({
@@ -126,16 +112,12 @@ export async function applyResetModelOverride(params: {
     defaultModel: params.defaultModel,
   });
   const allowedModelKeys = allowed.allowedKeys;
-  if (allowedModelKeys.size === 0) {
-    return {};
-  }
+  if (allowedModelKeys.size === 0) return {};
 
   const providers = new Set<string>();
   for (const key of allowedModelKeys) {
     const slash = key.indexOf("/");
-    if (slash <= 0) {
-      continue;
-    }
+    if (slash <= 0) continue;
     providers.add(normalizeProviderId(key.slice(0, slash)));
   }
 
@@ -168,9 +150,7 @@ export async function applyResetModelOverride(params: {
       aliasIndex: params.aliasIndex,
       allowedModelKeys,
     });
-    if (selection) {
-      consumed = 1;
-    }
+    if (selection) consumed = 1;
   }
 
   if (!selection) {
@@ -178,15 +158,11 @@ export async function applyResetModelOverride(params: {
     const allowFuzzy = providers.has(normalizeProviderId(first)) || first.trim().length >= 6;
     if (allowFuzzy) {
       selection = resolved.selection;
-      if (selection) {
-        consumed = 1;
-      }
+      if (selection) consumed = 1;
     }
   }
 
-  if (!selection) {
-    return {};
-  }
+  if (!selection) return {};
 
   const cleanedBody = tokens.slice(consumed).join(" ").trim();
   params.sessionCtx.BodyStripped = formatInboundBodyWithSenderMeta({

@@ -73,13 +73,9 @@ function isApplyPatchAllowedForModel(params: {
   allowModels?: string[];
 }) {
   const allowModels = Array.isArray(params.allowModels) ? params.allowModels : [];
-  if (allowModels.length === 0) {
-    return true;
-  }
+  if (allowModels.length === 0) return true;
   const modelId = params.modelId?.trim();
-  if (!modelId) {
-    return false;
-  }
+  if (!modelId) return false;
   const normalizedModelId = modelId.toLowerCase();
   const provider = params.modelProvider?.trim().toLowerCase();
   const normalizedFull =
@@ -88,9 +84,7 @@ function isApplyPatchAllowedForModel(params: {
       : normalizedModelId;
   return allowModels.some((entry) => {
     const normalized = entry.trim().toLowerCase();
-    if (!normalized) {
-      return false;
-    }
+    if (!normalized) return false;
     return normalized === normalizedModelId || normalized === normalizedFull;
   });
 }
@@ -213,9 +207,7 @@ export function createOpenClawCodingTools(options?: {
   const providerProfilePolicy = resolveToolProfilePolicy(providerProfile);
 
   const mergeAlsoAllow = (policy: typeof profilePolicy, alsoAllow?: string[]) => {
-    if (!policy?.allow || !Array.isArray(alsoAllow) || alsoAllow.length === 0) {
-      return policy;
-    }
+    if (!policy?.allow || !Array.isArray(alsoAllow) || alsoAllow.length === 0) return policy;
     return { ...policy, allow: Array.from(new Set([...policy.allow, ...alsoAllow])) };
   };
 
@@ -262,26 +254,20 @@ export function createOpenClawCodingTools(options?: {
       const freshReadTool = createReadTool(workspaceRoot);
       return [createOpenClawReadTool(freshReadTool)];
     }
-    if (tool.name === "bash" || tool.name === execToolName) {
-      return [];
-    }
+    if (tool.name === "bash" || tool.name === execToolName) return [];
     if (tool.name === "write") {
-      if (sandboxRoot) {
-        return [];
-      }
+      if (sandboxRoot) return [];
       // Wrap with param normalization for Claude Code compatibility
       return [
         wrapToolParamNormalization(createWriteTool(workspaceRoot), CLAUDE_PARAM_GROUPS.write),
       ];
     }
     if (tool.name === "edit") {
-      if (sandboxRoot) {
-        return [];
-      }
+      if (sandboxRoot) return [];
       // Wrap with param normalization for Claude Code compatibility
       return [wrapToolParamNormalization(createEditTool(workspaceRoot), CLAUDE_PARAM_GROUPS.edit)];
     }
-    return [tool];
+    return [tool as AnyAgentTool];
   });
   const { cleanupMs: cleanupMsOverride, ...execDefaults } = options?.exec ?? {};
   const execTool = createExecTool({
@@ -367,8 +353,6 @@ export function createOpenClawCodingTools(options?: {
       replyToMode: options?.replyToMode,
       hasRepliedRef: options?.hasRepliedRef,
       modelHasVision: options?.modelHasVision,
-      requireExplicitMessageTarget: options?.requireExplicitMessageTarget,
-      disableMessageTool: options?.disableMessageTool,
       requesterAgentIdOverride: agentId,
     }),
   ];

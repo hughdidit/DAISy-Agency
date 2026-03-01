@@ -72,15 +72,9 @@ function hashExecApprovalsRaw(raw: string | null): string {
 }
 
 function expandHome(value: string): string {
-  if (!value) {
-    return value;
-  }
-  if (value === "~") {
-    return os.homedir();
-  }
-  if (value.startsWith("~/")) {
-    return path.join(os.homedir(), value.slice(2));
-  }
+  if (!value) return value;
+  if (value === "~") return os.homedir();
+  if (value.startsWith("~/")) return path.join(os.homedir(), value.slice(2));
   return value;
 }
 
@@ -105,18 +99,12 @@ function mergeLegacyAgent(
   const seen = new Set<string>();
   const pushEntry = (entry: ExecAllowlistEntry) => {
     const key = normalizeAllowlistPattern(entry.pattern);
-    if (!key || seen.has(key)) {
-      return;
-    }
+    if (!key || seen.has(key)) return;
     seen.add(key);
     allowlist.push(entry);
   };
-  for (const entry of current.allowlist ?? []) {
-    pushEntry(entry);
-  }
-  for (const entry of legacy.allowlist ?? []) {
-    pushEntry(entry);
-  }
+  for (const entry of current.allowlist ?? []) pushEntry(entry);
+  for (const entry of legacy.allowlist ?? []) pushEntry(entry);
 
   return {
     security: current.security ?? legacy.security,
@@ -132,48 +120,13 @@ function ensureDir(filePath: string) {
   fs.mkdirSync(dir, { recursive: true });
 }
 
-// Coerce legacy/corrupted allowlists into `ExecAllowlistEntry[]` before we spread
-// entries to add ids (spreading strings creates {"0":"l","1":"s",...}).
-function coerceAllowlistEntries(allowlist: unknown): ExecAllowlistEntry[] | undefined {
-  if (!Array.isArray(allowlist) || allowlist.length === 0) {
-    return Array.isArray(allowlist) ? (allowlist as ExecAllowlistEntry[]) : undefined;
-  }
-  let changed = false;
-  const result: ExecAllowlistEntry[] = [];
-  for (const item of allowlist) {
-    if (typeof item === "string") {
-      const trimmed = item.trim();
-      if (trimmed) {
-        result.push({ pattern: trimmed });
-        changed = true;
-      } else {
-        changed = true; // dropped empty string
-      }
-    } else if (item && typeof item === "object" && !Array.isArray(item)) {
-      const pattern = (item as { pattern?: unknown }).pattern;
-      if (typeof pattern === "string" && pattern.trim().length > 0) {
-        result.push(item as ExecAllowlistEntry);
-      } else {
-        changed = true; // dropped invalid entry
-      }
-    } else {
-      changed = true; // dropped invalid entry
-    }
-  }
-  return changed ? (result.length > 0 ? result : undefined) : (allowlist as ExecAllowlistEntry[]);
-}
-
 function ensureAllowlistIds(
   allowlist: ExecAllowlistEntry[] | undefined,
 ): ExecAllowlistEntry[] | undefined {
-  if (!Array.isArray(allowlist) || allowlist.length === 0) {
-    return allowlist;
-  }
+  if (!Array.isArray(allowlist) || allowlist.length === 0) return allowlist;
   let changed = false;
   const next = allowlist.map((entry) => {
-    if (entry.id) {
-      return entry;
-    }
+    if (entry.id) return entry;
     changed = true;
     return { ...entry, id: crypto.randomUUID() };
   });
@@ -191,8 +144,7 @@ export function normalizeExecApprovals(file: ExecApprovalsFile): ExecApprovalsFi
     delete agents.default;
   }
   for (const [key, agent] of Object.entries(agents)) {
-    const coerced = coerceAllowlistEntries(agent.allowlist);
-    const allowlist = ensureAllowlistIds(coerced);
+    const allowlist = ensureAllowlistIds(agent.allowlist);
     if (allowlist !== agent.allowlist) {
       agents[key] = { ...agent, allowlist };
     }
@@ -295,16 +247,12 @@ export function ensureExecApprovals(): ExecApprovalsFile {
 }
 
 function normalizeSecurity(value: ExecSecurity | undefined, fallback: ExecSecurity): ExecSecurity {
-  if (value === "allowlist" || value === "full" || value === "deny") {
-    return value;
-  }
+  if (value === "allowlist" || value === "full" || value === "deny") return value;
   return fallback;
 }
 
 function normalizeAsk(value: ExecAsk | undefined, fallback: ExecAsk): ExecAsk {
-  if (value === "always" || value === "off" || value === "on-miss") {
-    return value;
-  }
+  if (value === "always" || value === "off" || value === "on-miss") return value;
   return fallback;
 }
 
@@ -396,9 +344,7 @@ type CommandResolution = {
 function isExecutableFile(filePath: string): boolean {
   try {
     const stat = fs.statSync(filePath);
-    if (!stat.isFile()) {
-      return false;
-    }
+    if (!stat.isFile()) return false;
     if (process.platform !== "win32") {
       fs.accessSync(filePath, fs.constants.X_OK);
     }
@@ -410,15 +356,11 @@ function isExecutableFile(filePath: string): boolean {
 
 function parseFirstToken(command: string): string | null {
   const trimmed = command.trim();
-  if (!trimmed) {
-    return null;
-  }
+  if (!trimmed) return null;
   const first = trimmed[0];
   if (first === '"' || first === "'") {
     const end = trimmed.indexOf(first, 1);
-    if (end > 1) {
-      return trimmed.slice(1, end);
-    }
+    if (end > 1) return trimmed.slice(1, end);
     return trimmed.slice(1);
   }
   const match = /^[^\s]+/.exec(trimmed);
@@ -455,9 +397,7 @@ function resolveExecutablePath(rawExecutable: string, cwd?: string, env?: NodeJS
   for (const entry of entries) {
     for (const ext of extensions) {
       const candidate = path.join(entry, expanded + ext);
-      if (isExecutableFile(candidate)) {
-        return candidate;
-      }
+      if (isExecutableFile(candidate)) return candidate;
     }
   }
   return undefined;
@@ -469,9 +409,7 @@ export function resolveCommandResolution(
   env?: NodeJS.ProcessEnv,
 ): CommandResolution | null {
   const rawExecutable = parseFirstToken(command);
-  if (!rawExecutable) {
-    return null;
-  }
+  if (!rawExecutable) return null;
   const resolvedPath = resolveExecutablePath(rawExecutable, cwd, env);
   const executableName = resolvedPath ? path.basename(resolvedPath) : rawExecutable;
   return { rawExecutable, resolvedPath, executableName };
@@ -483,9 +421,7 @@ export function resolveCommandResolutionFromArgv(
   env?: NodeJS.ProcessEnv,
 ): CommandResolution | null {
   const rawExecutable = argv[0]?.trim();
-  if (!rawExecutable) {
-    return null;
-  }
+  if (!rawExecutable) return null;
   const resolvedPath = resolveExecutablePath(rawExecutable, cwd, env);
   const executableName = resolvedPath ? path.basename(resolvedPath) : rawExecutable;
   return { rawExecutable, resolvedPath, executableName };
@@ -537,9 +473,7 @@ function globToRegExp(pattern: string): RegExp {
 
 function matchesPattern(pattern: string, target: string): boolean {
   const trimmed = pattern.trim();
-  if (!trimmed) {
-    return false;
-  }
+  if (!trimmed) return false;
   const expanded = trimmed.startsWith("~") ? expandHome(trimmed) : trimmed;
   const hasWildcard = /[*?]/.test(expanded);
   let normalizedPattern = expanded;
@@ -558,23 +492,13 @@ function resolveAllowlistCandidatePath(
   resolution: CommandResolution | null,
   cwd?: string,
 ): string | undefined {
-  if (!resolution) {
-    return undefined;
-  }
-  if (resolution.resolvedPath) {
-    return resolution.resolvedPath;
-  }
+  if (!resolution) return undefined;
+  if (resolution.resolvedPath) return resolution.resolvedPath;
   const raw = resolution.rawExecutable?.trim();
-  if (!raw) {
-    return undefined;
-  }
+  if (!raw) return undefined;
   const expanded = raw.startsWith("~") ? expandHome(raw) : raw;
-  if (!expanded.includes("/") && !expanded.includes("\\")) {
-    return undefined;
-  }
-  if (path.isAbsolute(expanded)) {
-    return expanded;
-  }
+  if (!expanded.includes("/") && !expanded.includes("\\")) return undefined;
+  if (path.isAbsolute(expanded)) return expanded;
   const base = cwd && cwd.trim() ? cwd.trim() : process.cwd();
   return path.resolve(base, expanded);
 }
@@ -583,22 +507,14 @@ export function matchAllowlist(
   entries: ExecAllowlistEntry[],
   resolution: CommandResolution | null,
 ): ExecAllowlistEntry | null {
-  if (!entries.length || !resolution?.resolvedPath) {
-    return null;
-  }
+  if (!entries.length || !resolution?.resolvedPath) return null;
   const resolvedPath = resolution.resolvedPath;
   for (const entry of entries) {
     const pattern = entry.pattern?.trim();
-    if (!pattern) {
-      continue;
-    }
+    if (!pattern) continue;
     const hasPath = pattern.includes("/") || pattern.includes("\\") || pattern.includes("~");
-    if (!hasPath) {
-      continue;
-    }
-    if (matchesPattern(pattern, resolvedPath)) {
-      return entry;
-    }
+    if (!hasPath) continue;
+    if (matchesPattern(pattern, resolvedPath)) return entry;
   }
   return null;
 }
@@ -680,9 +596,7 @@ function iterateQuoteAware(
       continue;
     }
     if (inSingle) {
-      if (ch === "'") {
-        inSingle = false;
-      }
+      if (ch === "'") inSingle = false;
       buf += ch;
       continue;
     }
@@ -1019,18 +933,10 @@ export function analyzeArgvCommand(params: {
 
 function isPathLikeToken(value: string): boolean {
   const trimmed = value.trim();
-  if (!trimmed) {
-    return false;
-  }
-  if (trimmed === "-") {
-    return false;
-  }
-  if (trimmed.startsWith("./") || trimmed.startsWith("../") || trimmed.startsWith("~")) {
-    return true;
-  }
-  if (trimmed.startsWith("/")) {
-    return true;
-  }
+  if (!trimmed) return false;
+  if (trimmed === "-") return false;
+  if (trimmed.startsWith("./") || trimmed.startsWith("../") || trimmed.startsWith("~")) return true;
+  if (trimmed.startsWith("/")) return true;
   return /^[A-Za-z]:[\\/]/.test(trimmed);
 }
 
@@ -1043,9 +949,7 @@ function defaultFileExists(filePath: string): boolean {
 }
 
 export function normalizeSafeBins(entries?: string[]): Set<string> {
-  if (!Array.isArray(entries)) {
-    return new Set();
-  }
+  if (!Array.isArray(entries)) return new Set();
   const normalized = entries
     .map((entry) => entry.trim().toLowerCase())
     .filter((entry) => entry.length > 0);
@@ -1053,9 +957,7 @@ export function normalizeSafeBins(entries?: string[]): Set<string> {
 }
 
 export function resolveSafeBins(entries?: string[] | null): Set<string> {
-  if (entries === undefined) {
-    return normalizeSafeBins(DEFAULT_SAFE_BINS);
-  }
+  if (entries === undefined) return normalizeSafeBins(DEFAULT_SAFE_BINS);
   return normalizeSafeBins(entries ?? []);
 }
 
@@ -1066,34 +968,22 @@ export function isSafeBinUsage(params: {
   cwd?: string;
   fileExists?: (filePath: string) => boolean;
 }): boolean {
-  if (params.safeBins.size === 0) {
-    return false;
-  }
+  if (params.safeBins.size === 0) return false;
   const resolution = params.resolution;
   const execName = resolution?.executableName?.toLowerCase();
-  if (!execName) {
-    return false;
-  }
+  if (!execName) return false;
   const matchesSafeBin =
     params.safeBins.has(execName) ||
     (process.platform === "win32" && params.safeBins.has(path.parse(execName).name));
-  if (!matchesSafeBin) {
-    return false;
-  }
-  if (!resolution?.resolvedPath) {
-    return false;
-  }
+  if (!matchesSafeBin) return false;
+  if (!resolution?.resolvedPath) return false;
   const cwd = params.cwd ?? process.cwd();
   const exists = params.fileExists ?? defaultFileExists;
   const argv = params.argv.slice(1);
   for (let i = 0; i < argv.length; i += 1) {
     const token = argv[i];
-    if (!token) {
-      continue;
-    }
-    if (token === "-") {
-      continue;
-    }
+    if (!token) continue;
+    if (token === "-") continue;
     if (token.startsWith("-")) {
       const eqIndex = token.indexOf("=");
       if (eqIndex > 0) {
@@ -1104,12 +994,8 @@ export function isSafeBinUsage(params: {
       }
       continue;
     }
-    if (isPathLikeToken(token)) {
-      return false;
-    }
-    if (exists(path.resolve(cwd, token))) {
-      return false;
-    }
+    if (isPathLikeToken(token)) return false;
+    if (exists(path.resolve(cwd, token))) return false;
   }
   return true;
 }
@@ -1139,9 +1025,7 @@ function evaluateSegments(
         ? { ...segment.resolution, resolvedPath: candidatePath }
         : segment.resolution;
     const match = matchAllowlist(params.allowlist, candidateResolution);
-    if (match) {
-      matches.push(match);
-    }
+    if (match) matches.push(match);
     const safe = isSafeBinUsage({
       argv: segment.argv,
       resolution: segment.resolution,
@@ -1238,9 +1122,7 @@ function splitCommandChain(command: string): string[] | null {
       continue;
     }
     if (inSingle) {
-      if (ch === "'") {
-        inSingle = false;
-      }
+      if (ch === "'") inSingle = false;
       buf += ch;
       continue;
     }
@@ -1273,25 +1155,19 @@ function splitCommandChain(command: string): string[] | null {
     }
 
     if (ch === "&" && command[i + 1] === "&") {
-      if (!pushPart()) {
-        invalidChain = true;
-      }
+      if (!pushPart()) invalidChain = true;
       i += 1;
       foundChain = true;
       continue;
     }
     if (ch === "|" && command[i + 1] === "|") {
-      if (!pushPart()) {
-        invalidChain = true;
-      }
+      if (!pushPart()) invalidChain = true;
       i += 1;
       foundChain = true;
       continue;
     }
     if (ch === ";") {
-      if (!pushPart()) {
-        invalidChain = true;
-      }
+      if (!pushPart()) invalidChain = true;
       foundChain = true;
       continue;
     }
@@ -1300,12 +1176,8 @@ function splitCommandChain(command: string): string[] | null {
   }
 
   const pushedFinal = pushPart();
-  if (!foundChain) {
-    return null;
-  }
-  if (invalidChain || !pushedFinal) {
-    return null;
-  }
+  if (!foundChain) return null;
+  if (invalidChain || !pushedFinal) return null;
   return parts.length > 0 ? parts : null;
 }
 
@@ -1459,12 +1331,8 @@ export function addAllowlistEntry(
   const existing = agents[target] ?? {};
   const allowlist = Array.isArray(existing.allowlist) ? existing.allowlist : [];
   const trimmed = pattern.trim();
-  if (!trimmed) {
-    return;
-  }
-  if (allowlist.some((entry) => entry.pattern === trimmed)) {
-    return;
-  }
+  if (!trimmed) return;
+  if (allowlist.some((entry) => entry.pattern === trimmed)) return;
   allowlist.push({ id: crypto.randomUUID(), pattern: trimmed, lastUsedAt: Date.now() });
   agents[target] = { ...existing, allowlist };
   approvals.agents = agents;
@@ -1490,18 +1358,14 @@ export async function requestExecApprovalViaSocket(params: {
   timeoutMs?: number;
 }): Promise<ExecApprovalDecision | null> {
   const { socketPath, token, request } = params;
-  if (!socketPath || !token) {
-    return null;
-  }
+  if (!socketPath || !token) return null;
   const timeoutMs = params.timeoutMs ?? 15_000;
   return await new Promise((resolve) => {
     const client = new net.Socket();
     let settled = false;
     let buffer = "";
     const finish = (value: ExecApprovalDecision | null) => {
-      if (settled) {
-        return;
-      }
+      if (settled) return;
       settled = true;
       try {
         client.destroy();
@@ -1530,9 +1394,7 @@ export async function requestExecApprovalViaSocket(params: {
         const line = buffer.slice(0, idx).trim();
         buffer = buffer.slice(idx + 1);
         idx = buffer.indexOf("\n");
-        if (!line) {
-          continue;
-        }
+        if (!line) continue;
         try {
           const msg = JSON.parse(line) as { type?: string; decision?: ExecApprovalDecision };
           if (msg?.type === "decision" && msg.decision) {

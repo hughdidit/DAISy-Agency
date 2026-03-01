@@ -81,16 +81,11 @@ async function connectClient(params: { url: string; token: string }) {
   return await new Promise<InstanceType<typeof GatewayClient>>((resolve, reject) => {
     let settled = false;
     const stop = (err?: Error, client?: InstanceType<typeof GatewayClient>) => {
-      if (settled) {
-        return;
-      }
+      if (settled) return;
       settled = true;
       clearTimeout(timer);
-      if (err) {
-        reject(err);
-      } else {
-        resolve(client as InstanceType<typeof GatewayClient>);
-      }
+      if (err) reject(err);
+      else resolve(client as InstanceType<typeof GatewayClient>);
     };
     const client = new GatewayClient({
       url: params.url,
@@ -149,9 +144,7 @@ describe("provider timeouts (e2e)", () => {
           return buildOpenAIResponsesSse("fallback-ok");
         }
 
-        if (!originalFetch) {
-          throw new Error(`fetch is not available (url=${url})`);
-        }
+        if (!originalFetch) throw new Error(`fetch is not available (url=${url})`);
         return await originalFetch(input, init);
       };
       (globalThis as unknown as { fetch: unknown }).fetch = fetchImpl;
@@ -268,7 +261,6 @@ describe("provider timeouts (e2e)", () => {
         await server.close({ reason: "timeout fallback test complete" });
         await fs.rm(tempHome, { recursive: true, force: true });
         (globalThis as unknown as { fetch: unknown }).fetch = originalFetch;
-<<<<<<< HEAD
         if (prev.home === undefined) delete process.env.HOME;
         else process.env.HOME = prev.home;
         if (prev.configPath === undefined) delete process.env.OPENCLAW_CONFIG_PATH;

@@ -23,17 +23,13 @@ export type SignalReactionResult = {
 
 function normalizeSignalId(raw: string): string {
   const trimmed = raw.trim();
-  if (!trimmed) {
-    return "";
-  }
+  if (!trimmed) return "";
   return trimmed.replace(/^signal:/i, "").trim();
 }
 
 function normalizeSignalUuid(raw: string): string {
   const trimmed = normalizeSignalId(raw);
-  if (!trimmed) {
-    return "";
-  }
+  if (!trimmed) return "";
   if (trimmed.toLowerCase().startsWith("uuid:")) {
     return trimmed.slice("uuid:".length).trim();
   }
@@ -48,13 +44,9 @@ function resolveTargetAuthorParams(params: {
   const candidates = [params.targetAuthor, params.targetAuthorUuid, params.fallback];
   for (const candidate of candidates) {
     const raw = candidate?.trim();
-    if (!raw) {
-      continue;
-    }
+    if (!raw) continue;
     const normalized = normalizeSignalUuid(raw);
-    if (normalized) {
-      return { targetAuthor: normalized };
-    }
+    if (normalized) return { targetAuthor: normalized };
   }
   return {};
 }
@@ -126,15 +118,9 @@ export async function sendReactionSignal(
     targetTimestamp,
     ...targetAuthorParams,
   };
-  if (normalizedRecipient) {
-    params.recipients = [normalizedRecipient];
-  }
-  if (groupId) {
-    params.groupIds = [groupId];
-  }
-  if (account) {
-    params.account = account;
-  }
+  if (normalizedRecipient) params.recipients = [normalizedRecipient];
+  if (groupId) params.groupIds = [groupId];
+  if (account) params.account = account;
 
   const result = await signalRpcRequest<{ timestamp?: number }>("sendReaction", params, {
     baseUrl,
@@ -193,15 +179,9 @@ export async function removeReactionSignal(
     remove: true,
     ...targetAuthorParams,
   };
-  if (normalizedRecipient) {
-    params.recipients = [normalizedRecipient];
-  }
-  if (groupId) {
-    params.groupIds = [groupId];
-  }
-  if (account) {
-    params.account = account;
-  }
+  if (normalizedRecipient) params.recipients = [normalizedRecipient];
+  if (groupId) params.groupIds = [groupId];
+  if (account) params.account = account;
 
   const result = await signalRpcRequest<{ timestamp?: number }>("sendReaction", params, {
     baseUrl,

@@ -37,7 +37,6 @@ openclaw sandbox list --json     # JSON output
 ```
 
 **Output includes:**
-
 - Container name and status (running/stopped)
 - Docker image and whether it matches config
 - Age (time since creation)
@@ -57,7 +56,6 @@ openclaw sandbox recreate --all --force        # Skip confirmation
 ```
 
 **Options:**
-
 - `--all`: Recreate all sandbox containers
 - `--session <key>`: Recreate container for specific session
 - `--agent <id>`: Recreate containers for specific agent
@@ -99,6 +97,7 @@ openclaw sandbox recreate --all
 openclaw sandbox recreate --agent family
 ```
 
+
 ### For a specific agent only
 
 ```bash
@@ -109,7 +108,6 @@ openclaw sandbox recreate --agent alfred
 ## Why is this needed?
 
 **Problem:** When you update sandbox Docker images or configuration:
-
 - Existing containers continue running with old settings
 - Containers are only pruned after 24h of inactivity
 - Regularly-used agents keep old containers running indefinitely
@@ -128,20 +126,20 @@ Sandbox settings live in `~/.openclaw/openclaw.json` under `agents.defaults.sand
   "agents": {
     "defaults": {
       "sandbox": {
-        "mode": "all", // off, non-main, all
-        "scope": "agent", // session, agent, shared
+        "mode": "all",                    // off, non-main, all
+        "scope": "agent",                 // session, agent, shared
         "docker": {
           "image": "openclaw-sandbox:bookworm-slim",
           "containerPrefix": "openclaw-sbx-"
           // ... more Docker options
         },
         "prune": {
-          "idleHours": 24, // Auto-prune after 24h idle
-          "maxAgeDays": 7, // Auto-prune after 7 days
-        },
-      },
-    },
-  },
+          "idleHours": 24,               // Auto-prune after 24h idle
+          "maxAgeDays": 7                // Auto-prune after 7 days
+        }
+      }
+    }
+  }
 }
 ```
 

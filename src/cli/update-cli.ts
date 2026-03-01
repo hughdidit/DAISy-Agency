@@ -1,6 +1,5 @@
 import type { Command } from "commander";
 import { confirm, isCancel, select, spinner } from "@clack/prompts";
-import { spawnSync } from "node:child_process";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
@@ -12,21 +11,6 @@ import {
 import { readConfigFileSnapshot, writeConfigFile } from "../config/config.js";
 <<<<<<< HEAD
 import { resolveMoltbotPackageRoot } from "../infra/moltbot-root.js";
-=======
-import { resolveStateDir } from "../config/paths.js";
-import { formatDurationPrecise } from "../infra/format-time/format-duration.ts";
-import { resolveOpenClawPackageRoot } from "../infra/openclaw-root.js";
-import { trimLogTail } from "../infra/restart-sentinel.js";
-import { parseSemver } from "../infra/runtime-guard.js";
-import {
-  channelToNpmTag,
-  DEFAULT_GIT_CHANNEL,
-  DEFAULT_PACKAGE_CHANNEL,
-  formatUpdateChannelLabel,
-  normalizeUpdateChannel,
-  resolveEffectiveUpdateChannel,
-} from "../infra/update-channels.js";
->>>>>>> a1123dd9b (Centralize date/time formatting utilities (#11831))
 import {
   checkUpdateStatus,
   compareSemverStrings,
@@ -105,7 +89,6 @@ const STEP_LABELS: Record<string, string> = {
   "preflight cleanup": "Cleaning preflight worktree",
   "deps install": "Installing dependencies",
   build: "Building",
-<<<<<<< HEAD
   "ui:build": "Building UI",
   "openclaw doctor": "Running doctor checks",
   "git rev-parse HEAD (after)": "Verifying update",
@@ -144,11 +127,8 @@ const OPENCLAW_REPO_URL = "https://github.com/openclaw/openclaw.git";
 const DEFAULT_GIT_DIR = path.join(os.homedir(), ".openclaw");
 
 function normalizeTag(value?: string | null): string | null {
-  if (!value) {
-    return null;
-  }
+  if (!value) return null;
   const trimmed = value.trim();
-<<<<<<< HEAD
   if (!trimmed) return null;
   if (trimmed.startsWith("openclaw@")) return trimmed.slice("openclaw@".length);
   if (trimmed.startsWith(`${DEFAULT_PACKAGE_NAME}@`)) {
@@ -163,9 +143,7 @@ function pickUpdateQuip(): string {
 
 function normalizeVersionTag(tag: string): string | null {
   const trimmed = tag.trim();
-  if (!trimmed) {
-    return null;
-  }
+  if (!trimmed) return null;
   const cleaned = trimmed.startsWith("v") ? trimmed.slice(1) : trimmed;
   return parseSemver(cleaned) ? cleaned : null;
 }
@@ -182,9 +160,7 @@ async function readPackageVersion(root: string): Promise<string | null> {
 
 async function resolveTargetVersion(tag: string, timeoutMs?: number): Promise<string | null> {
   const direct = normalizeVersionTag(tag);
-  if (direct) {
-    return direct;
-  }
+  if (direct) return direct;
   const res = await fetchNpmTagVersion({ tag, timeoutMs });
   return res.version ?? null;
 }
@@ -223,90 +199,6 @@ async function pathExists(targetPath: string): Promise<boolean> {
   }
 }
 
-async function tryWriteCompletionCache(root: string, jsonMode: boolean): Promise<void> {
-  const binPath = path.join(root, "openclaw.mjs");
-  if (!(await pathExists(binPath))) {
-    return;
-  }
-  const result = spawnSync(resolveNodeRunner(), [binPath, "completion", "--write-state"], {
-    cwd: root,
-    env: process.env,
-    encoding: "utf-8",
-  });
-  if (result.error) {
-    if (!jsonMode) {
-      defaultRuntime.log(theme.warn(`Completion cache update failed: ${String(result.error)}`));
-    }
-    return;
-  }
-  if (result.status !== 0 && !jsonMode) {
-    const stderr = (result.stderr ?? "").toString().trim();
-    const detail = stderr ? ` (${stderr})` : "";
-    defaultRuntime.log(theme.warn(`Completion cache update failed${detail}.`));
-  }
-}
-
-/** Check if shell completion is installed and prompt user to install if not. */
-async function tryInstallShellCompletion(opts: {
-  jsonMode: boolean;
-  skipPrompt: boolean;
-}): Promise<void> {
-  if (opts.jsonMode || !process.stdin.isTTY) {
-    return;
-  }
-
-  const status = await checkShellCompletionStatus(CLI_NAME);
-
-  // Profile uses slow dynamic pattern - upgrade to cached version
-  if (status.usesSlowPattern) {
-    defaultRuntime.log(theme.muted("Upgrading shell completion to cached version..."));
-    // Ensure cache exists first
-    const cacheGenerated = await ensureCompletionCacheExists(CLI_NAME);
-    if (cacheGenerated) {
-      await installCompletion(status.shell, true, CLI_NAME);
-    }
-    return;
-  }
-
-  // Profile has completion but no cache - auto-fix silently
-  if (status.profileInstalled && !status.cacheExists) {
-    defaultRuntime.log(theme.muted("Regenerating shell completion cache..."));
-    await ensureCompletionCacheExists(CLI_NAME);
-    return;
-  }
-
-  // No completion at all - prompt to install
-  if (!status.profileInstalled) {
-    defaultRuntime.log("");
-    defaultRuntime.log(theme.heading("Shell completion"));
-
-    const shouldInstall = await confirm({
-      message: stylePromptMessage(`Enable ${status.shell} shell completion for ${CLI_NAME}?`),
-      initialValue: true,
-    });
-
-    if (isCancel(shouldInstall) || !shouldInstall) {
-      if (!opts.skipPrompt) {
-        defaultRuntime.log(
-          theme.muted(
-            `Skipped. Run \`${replaceCliName(formatCliCommand("openclaw completion --install"), CLI_NAME)}\` later to enable.`,
-          ),
-        );
-      }
-      return;
-    }
-
-    // Generate cache first (required for fast shell startup)
-    const cacheGenerated = await ensureCompletionCacheExists(CLI_NAME);
-    if (!cacheGenerated) {
-      defaultRuntime.log(theme.warn("Failed to generate completion cache."));
-      return;
-    }
-
-    await installCompletion(status.shell, opts.skipPrompt, CLI_NAME);
-  }
-}
-
 async function isEmptyDir(targetPath: string): Promise<boolean> {
   try {
     const entries = await fs.readdir(targetPath);
@@ -339,9 +231,7 @@ function resolveDefaultGitDir(): string {
 
 function resolveNodeRunner(): string {
   const base = path.basename(process.execPath).toLowerCase();
-  if (base === "node" || base === "node.exe") {
-    return process.execPath;
-  }
+  if (base === "node" || base === "node.exe") return process.execPath;
   return "node";
 }
 
@@ -439,9 +329,7 @@ async function resolveGlobalManager(params: {
       params.root,
       params.timeoutMs,
     );
-    if (detected) {
-      return detected;
-    }
+    if (detected) return detected;
   }
   const byPresence = await detectGlobalInstallManagerByPresence(runCommand, params.timeoutMs);
   return byPresence ?? "npm";
@@ -591,12 +479,10 @@ function createUpdateProgress(enabled: boolean): ProgressController {
       currentSpinner.start(theme.accent(getStepLabel(step)));
     },
     onStepComplete: (step) => {
-      if (!currentSpinner) {
-        return;
-      }
+      if (!currentSpinner) return;
 
       const label = getStepLabel(step);
-      const duration = theme.muted(`(${formatDurationPrecise(step.durationMs)})`);
+      const duration = theme.muted(`(${formatDuration(step.durationMs)})`);
       const icon = step.exitCode === 0 ? theme.success("\u2713") : theme.error("\u2717");
 
       currentSpinner.stop(`${icon} ${label} ${duration}`);
@@ -624,13 +510,15 @@ function createUpdateProgress(enabled: boolean): ProgressController {
   };
 }
 
+function formatDuration(ms: number): string {
+  if (ms < 1000) return `${ms}ms`;
+  const seconds = (ms / 1000).toFixed(1);
+  return `${seconds}s`;
+}
+
 function formatStepStatus(exitCode: number | null): string {
-  if (exitCode === 0) {
-    return theme.success("\u2713");
-  }
-  if (exitCode === null) {
-    return theme.warn("?");
-  }
+  if (exitCode === 0) return theme.success("\u2713");
+  if (exitCode === null) return theme.warn("?");
   return theme.error("\u2717");
 }
 
@@ -681,7 +569,7 @@ function printResult(result: UpdateRunResult, opts: PrintResultOptions) {
     defaultRuntime.log(theme.heading("Steps:"));
     for (const step of result.steps) {
       const status = formatStepStatus(step.exitCode);
-      const duration = theme.muted(`(${formatDurationPrecise(step.durationMs)})`);
+      const duration = theme.muted(`(${formatDuration(step.durationMs)})`);
       defaultRuntime.log(`  ${status} ${step.name} ${duration}`);
 
       if (step.exitCode !== 0 && step.stderrTail) {
@@ -696,7 +584,7 @@ function printResult(result: UpdateRunResult, opts: PrintResultOptions) {
   }
 
   defaultRuntime.log("");
-  defaultRuntime.log(`Total time: ${theme.muted(formatDurationPrecise(result.durationMs))}`);
+  defaultRuntime.log(`Total time: ${theme.muted(formatDuration(result.durationMs))}`);
 }
 
 export async function updateCommand(opts: UpdateCommandOptions): Promise<void> {
@@ -789,7 +677,7 @@ export async function updateCommand(opts: UpdateCommandOptions): Promise<void> {
         message: stylePromptMessage(message),
         initialValue: false,
       });
-      if (isCancel(ok) || !ok) {
+      if (isCancel(ok) || ok === false) {
         if (!opts.json) {
           defaultRuntime.log(theme.muted("Update cancelled."));
         }
@@ -845,12 +733,6 @@ export async function updateCommand(opts: UpdateCommandOptions): Promise<void> {
       (pkgRoot ? await readPackageName(pkgRoot) : await readPackageName(root)) ??
       DEFAULT_PACKAGE_NAME;
     const beforeVersion = pkgRoot ? await readPackageVersion(pkgRoot) : null;
-    if (pkgRoot) {
-      await cleanupGlobalRenameDirs({
-        globalRoot: path.dirname(pkgRoot),
-        packageName,
-      });
-    }
     const updateStep = await runUpdateStep({
       name: "global update",
       argv: globalInstallArgs(manager, `${packageName}@${tag}`),
@@ -1013,9 +895,7 @@ export async function updateCommand(opts: UpdateCommandOptions): Promise<void> {
 
     if (!opts.json) {
       const summarizeList = (list: string[]) => {
-        if (list.length <= 6) {
-          return list.join(", ");
-        }
+        if (list.length <= 6) return list.join(", ");
         return `${list.slice(0, 6).join(", ")} +${list.length - 6} more`;
       };
 
@@ -1047,33 +927,19 @@ export async function updateCommand(opts: UpdateCommandOptions): Promise<void> {
         defaultRuntime.log(theme.muted("No plugin updates needed."));
       } else {
         const parts = [`${updated} updated`, `${unchanged} unchanged`];
-        if (failed > 0) {
-          parts.push(`${failed} failed`);
-        }
-        if (skipped > 0) {
-          parts.push(`${skipped} skipped`);
-        }
+        if (failed > 0) parts.push(`${failed} failed`);
+        if (skipped > 0) parts.push(`${skipped} skipped`);
         defaultRuntime.log(theme.muted(`npm plugins: ${parts.join(", ")}.`));
       }
 
       for (const outcome of npmResult.outcomes) {
-        if (outcome.status !== "error") {
-          continue;
-        }
+        if (outcome.status !== "error") continue;
         defaultRuntime.log(theme.error(outcome.message));
       }
     }
   } else if (!opts.json) {
     defaultRuntime.log(theme.warn("Skipping plugin updates: config is invalid."));
   }
-
-  await tryWriteCompletionCache(root, Boolean(opts.json));
-
-  // Offer to install shell completion if not already installed
-  await tryInstallShellCompletion({
-    jsonMode: Boolean(opts.json),
-    skipPrompt: Boolean(opts.yes),
-  });
 
   // Restart service if requested
   if (shouldRestart) {
@@ -1236,7 +1102,7 @@ export async function updateWizardCommand(opts: UpdateWizardOptions = {}): Promi
         ),
         initialValue: true,
       });
-      if (isCancel(ok) || !ok) {
+      if (isCancel(ok) || ok === false) {
         defaultRuntime.log(theme.muted("Update cancelled."));
         defaultRuntime.exit(0);
         return;

@@ -12,19 +12,18 @@ import { handleChatEvent, type ChatEventPayload, type ChatState } from "./chat";
 
 function createState(overrides: Partial<ChatState> = {}): ChatState {
   return {
-    chatAttachments: [],
-    chatLoading: false,
-    chatMessage: "",
-    chatMessages: [],
-    chatRunId: null,
-    chatSending: false,
-    chatStream: null,
-    chatStreamStartedAt: null,
-    chatThinkingLevel: null,
     client: null,
     connected: true,
-    lastError: null,
     sessionKey: "main",
+    chatLoading: false,
+    chatMessages: [],
+    chatThinkingLevel: null,
+    chatSending: false,
+    chatMessage: "",
+    chatRunId: null,
+    chatStream: null,
+    chatStreamStartedAt: null,
+    lastError: null,
     ...overrides,
   };
 }

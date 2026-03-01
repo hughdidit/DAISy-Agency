@@ -12,8 +12,8 @@ type QRCodeConstructor = new (
   isDark: (row: number, col: number) => boolean;
 };
 
-const QRCode = QRCodeModule as QRCodeConstructor;
-const QRErrorCorrectLevel = QRErrorCorrectLevelModule;
+const QRCode = QRCodeModule as unknown as QRCodeConstructor;
+const QRErrorCorrectLevel = QRErrorCorrectLevelModule as Record<string, unknown>;
 
 function createQrMatrix(input: string) {
   const qr = new QRCode(-1, QRErrorCorrectLevel.L);
@@ -111,9 +111,7 @@ export async function renderQrPngBase64(
   const buf = Buffer.alloc(size * size * 4, 255);
   for (let row = 0; row < modules; row += 1) {
     for (let col = 0; col < modules; col += 1) {
-      if (!qr.isDark(row, col)) {
-        continue;
-      }
+      if (!qr.isDark(row, col)) continue;
       const startX = (col + marginModules) * scale;
       const startY = (row + marginModules) * scale;
       for (let y = 0; y < scale; y += 1) {

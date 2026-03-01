@@ -16,9 +16,7 @@ const slackHttpRoutes = new Map<string, SlackHttpRequestHandler>();
 
 export function normalizeSlackWebhookPath(path?: string | null): string {
   const trimmed = path?.trim();
-  if (!trimmed) {
-    return "/slack/events";
-  }
+  if (!trimmed) return "/slack/events";
   return trimmed.startsWith("/") ? trimmed : `/${trimmed}`;
 }
 
@@ -41,9 +39,7 @@ export async function handleSlackHttpRequest(
 ): Promise<boolean> {
   const url = new URL(req.url ?? "/", "http://localhost");
   const handler = slackHttpRoutes.get(url.pathname);
-  if (!handler) {
-    return false;
-  }
+  if (!handler) return false;
   await handler(req, res);
   return true;
 }

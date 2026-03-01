@@ -96,9 +96,7 @@ describe("cron tool", () => {
     expect(call.method).toBe("cron.add");
     expect(call.params).toEqual({
       name: "wake-up",
-      enabled: true,
-      deleteAfterRun: true,
-      schedule: { kind: "at", at: new Date(123).toISOString() },
+      schedule: { kind: "at", atMs: 123 },
       sessionTarget: "main",
       wakeMode: "now",
       payload: { kind: "systemEvent", text: "hello" },
@@ -111,7 +109,7 @@ describe("cron tool", () => {
       action: "add",
       job: {
         name: "wake-up",
-        schedule: { at: new Date(123).toISOString() },
+        schedule: { atMs: 123 },
         agentId: null,
       },
     });
@@ -142,7 +140,7 @@ describe("cron tool", () => {
       contextMessages: 3,
       job: {
         name: "reminder",
-        schedule: { at: new Date(123).toISOString() },
+        schedule: { atMs: 123 },
         payload: { kind: "systemEvent", text: "Reminder: the thing." },
       },
     });
@@ -179,7 +177,7 @@ describe("cron tool", () => {
       contextMessages: 20,
       job: {
         name: "reminder",
-        schedule: { at: new Date(123).toISOString() },
+        schedule: { atMs: 123 },
         payload: { kind: "systemEvent", text: "Reminder: the thing." },
       },
     });
@@ -210,7 +208,7 @@ describe("cron tool", () => {
       action: "add",
       job: {
         name: "reminder",
-        schedule: { at: new Date(123).toISOString() },
+        schedule: { atMs: 123 },
         payload: { text: "Reminder: the thing." },
       },
     });
@@ -234,7 +232,7 @@ describe("cron tool", () => {
       action: "add",
       job: {
         name: "reminder",
-        schedule: { at: new Date(123).toISOString() },
+        schedule: { atMs: 123 },
         agentId: null,
         payload: { kind: "systemEvent", text: "Reminder: the thing." },
       },

@@ -6,7 +6,6 @@ read_when:
   - Updating model scan probes (tools/images)
 title: "Models CLI"
 ---
-
 # Models CLI
 
 See [/concepts/model-failover](/concepts/model-failover) for auth profile
@@ -17,9 +16,9 @@ Quick provider overview + examples: [/concepts/model-providers](/concepts/model-
 
 OpenClaw selects models in this order:
 
-1. **Primary** model (`agents.defaults.model.primary` or `agents.defaults.model`).
-2. **Fallbacks** in `agents.defaults.model.fallbacks` (in order).
-3. **Provider auth failover** happens inside a provider before moving to the
+1) **Primary** model (`agents.defaults.model.primary` or `agents.defaults.model`).
+2) **Fallbacks** in `agents.defaults.model.fallbacks` (in order).
+3) **Provider auth failover** happens inside a provider before moving to the
    next model.
 
 Related:
@@ -107,7 +106,6 @@ You can switch models for the current session without restarting:
 ```
 
 Notes:
-
 - `/model` (and `/model list`) is a compact, numbered picker (model family + available providers).
 - `/model <#>` selects from that picker.
 - `/model status` is the detailed view (auth candidates and, when configured, provider endpoint `baseUrl` + `api` mode).
@@ -190,16 +188,14 @@ Probing requires an OpenRouter API key (from auth profiles or
 `OPENROUTER_API_KEY`). Without a key, use `--no-probe` to list candidates only.
 
 Scan results are ranked by:
-
-1. Image support
-2. Tool latency
-3. Context size
-4. Parameter count
+1) Image support
+2) Tool latency
+3) Context size
+4) Parameter count
 
 Input
-
 - OpenRouter `/models` list (filter `:free`)
-- Requires OpenRouter API key from auth profiles or `OPENROUTER_API_KEY` (see [/environment](/help/environment))
+- Requires OpenRouter API key from auth profiles or `OPENROUTER_API_KEY` (see [/environment](/environment))
 - Optional filters: `--max-age-days`, `--min-params`, `--provider`, `--max-candidates`
 - Probe controls: `--timeout`, `--concurrency`
 

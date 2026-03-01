@@ -32,9 +32,7 @@ function resolveChunkLimitForProvider(
   cfgSection: ProviderChunkConfig | undefined,
   accountId?: string | null,
 ): number | undefined {
-  if (!cfgSection) {
-    return undefined;
-  }
+  if (!cfgSection) return undefined;
   const normalizedAccountId = normalizeAccountId(accountId);
   const accounts = cfgSection.accounts;
   if (accounts && typeof accounts === "object") {
@@ -64,9 +62,7 @@ export function resolveTextChunkLimit(
       ? opts.fallbackLimit
       : DEFAULT_CHUNK_LIMIT;
   const providerOverride = (() => {
-    if (!provider || provider === INTERNAL_MESSAGE_CHANNEL) {
-      return undefined;
-    }
+    if (!provider || provider === INTERNAL_MESSAGE_CHANNEL) return undefined;
     const channelsConfig = cfg?.channels as Record<string, unknown> | undefined;
     const providerConfig = (channelsConfig?.[provider] ??
       (cfg as Record<string, unknown> | undefined)?.[provider]) as ProviderChunkConfig | undefined;
@@ -82,9 +78,7 @@ function resolveChunkModeForProvider(
   cfgSection: ProviderChunkConfig | undefined,
   accountId?: string | null,
 ): ChunkMode | undefined {
-  if (!cfgSection) {
-    return undefined;
-  }
+  if (!cfgSection) return undefined;
   const normalizedAccountId = normalizeAccountId(accountId);
   const accounts = cfgSection.accounts;
   if (accounts && typeof accounts === "object") {
@@ -108,9 +102,7 @@ export function resolveChunkMode(
   provider?: TextChunkProvider,
   accountId?: string | null,
 ): ChunkMode {
-  if (!provider || provider === INTERNAL_MESSAGE_CHANNEL) {
-    return DEFAULT_CHUNK_MODE;
-  }
+  if (!provider || provider === INTERNAL_MESSAGE_CHANNEL) return DEFAULT_CHUNK_MODE;
   const channelsConfig = cfg?.channels as Record<string, unknown> | undefined;
   const providerConfig = (channelsConfig?.[provider] ??
     (cfg as Record<string, unknown> | undefined)?.[provider]) as ProviderChunkConfig | undefined;
@@ -132,12 +124,8 @@ export function chunkByNewline(
     isSafeBreak?: (index: number) => boolean;
   },
 ): string[] {
-  if (!text) {
-    return [];
-  }
-  if (maxLineLength <= 0) {
-    return text.trim() ? [text] : [];
-  }
+  if (!text) return [];
+  if (maxLineLength <= 0) return text.trim() ? [text] : [];
   const splitLongLines = opts?.splitLongLines !== false;
   const trimLines = opts?.trimLines !== false;
   const lines = splitByNewline(text, opts?.isSafeBreak);
@@ -192,12 +180,8 @@ export function chunkByParagraph(
   limit: number,
   opts?: { splitLongParagraphs?: boolean },
 ): string[] {
-  if (!text) {
-    return [];
-  }
-  if (limit <= 0) {
-    return [text];
-  }
+  if (!text) return [];
+  if (limit <= 0) return [text];
   const splitLongParagraphs = opts?.splitLongParagraphs !== false;
 
   // Normalize to \n so blank line detection is consistent.
@@ -208,12 +192,8 @@ export function chunkByParagraph(
   // boundaries, not only exceeding a length limit.)
   const paragraphRe = /\n[\t ]*\n+/;
   if (!paragraphRe.test(normalized)) {
-    if (normalized.length <= limit) {
-      return [normalized];
-    }
-    if (!splitLongParagraphs) {
-      return [normalized];
-    }
+    if (normalized.length <= limit) return [normalized];
+    if (!splitLongParagraphs) return [normalized];
     return chunkText(normalized, limit);
   }
 
@@ -238,9 +218,7 @@ export function chunkByParagraph(
   const chunks: string[] = [];
   for (const part of parts) {
     const paragraph = part.replace(/\s+$/g, "");
-    if (!paragraph.trim()) {
-      continue;
-    }
+    if (!paragraph.trim()) continue;
     if (paragraph.length <= limit) {
       chunks.push(paragraph);
     } else if (!splitLongParagraphs) {
@@ -271,11 +249,8 @@ export function chunkMarkdownTextWithMode(text: string, limit: number, mode: Chu
     const out: string[] = [];
     for (const chunk of paragraphChunks) {
       const nested = chunkMarkdownText(chunk, limit);
-      if (!nested.length && chunk) {
-        out.push(chunk);
-      } else {
-        out.push(...nested);
-      }
+      if (!nested.length && chunk) out.push(chunk);
+      else out.push(...nested);
     }
     return out;
   }
@@ -299,15 +274,9 @@ function splitByNewline(
 }
 
 export function chunkText(text: string, limit: number): string[] {
-  if (!text) {
-    return [];
-  }
-  if (limit <= 0) {
-    return [text];
-  }
-  if (text.length <= limit) {
-    return [text];
-  }
+  if (!text) return [];
+  if (limit <= 0) return [text];
+  if (text.length <= limit) return [text];
 
   const chunks: string[] = [];
   let remaining = text;
@@ -322,9 +291,7 @@ export function chunkText(text: string, limit: number): string[] {
     let breakIdx = lastNewline > 0 ? lastNewline : lastWhitespace;
 
     // 3) Fallback: hard break exactly at the limit.
-    if (breakIdx <= 0) {
-      breakIdx = limit;
-    }
+    if (breakIdx <= 0) breakIdx = limit;
 
     const rawChunk = remaining.slice(0, breakIdx);
     const chunk = rawChunk.trimEnd();
@@ -338,23 +305,15 @@ export function chunkText(text: string, limit: number): string[] {
     remaining = remaining.slice(nextStart).trimStart();
   }
 
-  if (remaining.length) {
-    chunks.push(remaining);
-  }
+  if (remaining.length) chunks.push(remaining);
 
   return chunks;
 }
 
 export function chunkMarkdownText(text: string, limit: number): string[] {
-  if (!text) {
-    return [];
-  }
-  if (limit <= 0) {
-    return [text];
-  }
-  if (text.length <= limit) {
-    return [text];
-  }
+  if (!text) return [];
+  if (limit <= 0) return [text];
+  if (text.length <= limit) return [text];
 
   const chunks: string[] = [];
   let remaining = text;
@@ -389,9 +348,7 @@ export function chunkMarkdownText(text: string, limit: number): string[] {
         let lastNewline = remaining.lastIndexOf("\n", Math.max(0, maxIdxIfAlreadyNewline - 1));
         while (lastNewline !== -1) {
           const candidateBreak = lastNewline + 1;
-          if (candidateBreak < minProgressIdx) {
-            break;
-          }
+          if (candidateBreak < minProgressIdx) break;
           const candidateFence = findFenceSpanAt(spans, candidateBreak);
           if (candidateFence && candidateFence.start === initialFence.start) {
             breakIdx = Math.max(1, candidateBreak);
@@ -417,9 +374,7 @@ export function chunkMarkdownText(text: string, limit: number): string[] {
     }
 
     let rawChunk = remaining.slice(0, breakIdx);
-    if (!rawChunk) {
-      break;
-    }
+    if (!rawChunk) break;
 
     const brokeOnSeparator = breakIdx < remaining.length && /\s/.test(remaining[breakIdx]);
     const nextStart = Math.min(remaining.length, breakIdx + (brokeOnSeparator ? 1 : 0));
@@ -437,17 +392,13 @@ export function chunkMarkdownText(text: string, limit: number): string[] {
     remaining = next;
   }
 
-  if (remaining.length) {
-    chunks.push(remaining);
-  }
+  if (remaining.length) chunks.push(remaining);
   return chunks;
 }
 
 function stripLeadingNewlines(value: string): string {
   let i = 0;
-  while (i < value.length && value[i] === "\n") {
-    i++;
-  }
+  while (i < value.length && value[i] === "\n") i++;
   return i > 0 ? value.slice(i) : value;
 }
 
@@ -456,12 +407,8 @@ function pickSafeBreakIndex(window: string, spans: ReturnType<typeof parseFenceS
     isSafeFenceBreak(spans, index),
   );
 
-  if (lastNewline > 0) {
-    return lastNewline;
-  }
-  if (lastWhitespace > 0) {
-    return lastWhitespace;
-  }
+  if (lastNewline > 0) return lastNewline;
+  if (lastWhitespace > 0) return lastWhitespace;
   return -1;
 }
 
@@ -474,9 +421,7 @@ function scanParenAwareBreakpoints(
   let depth = 0;
 
   for (let i = 0; i < window.length; i++) {
-    if (!isAllowed(i)) {
-      continue;
-    }
+    if (!isAllowed(i)) continue;
     const char = window[i];
     if (char === "(") {
       depth += 1;
@@ -486,14 +431,9 @@ function scanParenAwareBreakpoints(
       depth -= 1;
       continue;
     }
-    if (depth !== 0) {
-      continue;
-    }
-    if (char === "\n") {
-      lastNewline = i;
-    } else if (/\s/.test(char)) {
-      lastWhitespace = i;
-    }
+    if (depth !== 0) continue;
+    if (char === "\n") lastNewline = i;
+    else if (/\s/.test(char)) lastWhitespace = i;
   }
 
   return { lastNewline, lastWhitespace };

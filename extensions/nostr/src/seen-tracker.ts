@@ -56,27 +56,19 @@ export function createSeenTracker(options?: SeenTrackerOptions): SeenTracker {
   // Move an entry to the front (most recently used)
   function moveToFront(id: string): void {
     const entry = entries.get(id);
-    if (!entry) {
-      return;
-    }
+    if (!entry) return;
 
     // Already at front
-    if (head === id) {
-      return;
-    }
+    if (head === id) return;
 
     // Remove from current position
     if (entry.prev) {
       const prevEntry = entries.get(entry.prev);
-      if (prevEntry) {
-        prevEntry.next = entry.next;
-      }
+      if (prevEntry) prevEntry.next = entry.next;
     }
     if (entry.next) {
       const nextEntry = entries.get(entry.next);
-      if (nextEntry) {
-        nextEntry.prev = entry.prev;
-      }
+      if (nextEntry) nextEntry.prev = entry.prev;
     }
 
     // Update tail if this was the tail
@@ -89,39 +81,29 @@ export function createSeenTracker(options?: SeenTrackerOptions): SeenTracker {
     entry.next = head;
     if (head) {
       const headEntry = entries.get(head);
-      if (headEntry) {
-        headEntry.prev = id;
-      }
+      if (headEntry) headEntry.prev = id;
     }
     head = id;
 
     // If no tail, this is also the tail
-    if (!tail) {
-      tail = id;
-    }
+    if (!tail) tail = id;
   }
 
   // Remove an entry from the linked list
   function removeFromList(id: string): void {
     const entry = entries.get(id);
-    if (!entry) {
-      return;
-    }
+    if (!entry) return;
 
     if (entry.prev) {
       const prevEntry = entries.get(entry.prev);
-      if (prevEntry) {
-        prevEntry.next = entry.next;
-      }
+      if (prevEntry) prevEntry.next = entry.next;
     } else {
       head = entry.next;
     }
 
     if (entry.next) {
       const nextEntry = entries.get(entry.next);
-      if (nextEntry) {
-        nextEntry.prev = entry.prev;
-      }
+      if (nextEntry) nextEntry.prev = entry.prev;
     } else {
       tail = entry.prev;
     }
@@ -129,9 +111,7 @@ export function createSeenTracker(options?: SeenTrackerOptions): SeenTracker {
 
   // Evict the least recently used entry
   function evictLRU(): void {
-    if (!tail) {
-      return;
-    }
+    if (!tail) return;
     const idToEvict = tail;
     removeFromList(idToEvict);
     entries.delete(idToEvict);
@@ -159,9 +139,7 @@ export function createSeenTracker(options?: SeenTrackerOptions): SeenTracker {
   if (pruneIntervalMs > 0) {
     pruneTimer = setInterval(pruneExpired, pruneIntervalMs);
     // Don't keep process alive just for pruning
-    if (pruneTimer.unref) {
-      pruneTimer.unref();
-    }
+    if (pruneTimer.unref) pruneTimer.unref();
   }
 
   function add(id: string): void {
@@ -189,16 +167,12 @@ export function createSeenTracker(options?: SeenTrackerOptions): SeenTracker {
 
     if (head) {
       const headEntry = entries.get(head);
-      if (headEntry) {
-        headEntry.prev = id;
-      }
+      if (headEntry) headEntry.prev = id;
     }
 
     entries.set(id, newEntry);
     head = id;
-    if (!tail) {
-      tail = id;
-    }
+    if (!tail) tail = id;
   }
 
   function has(id: string): boolean {
@@ -224,9 +198,7 @@ export function createSeenTracker(options?: SeenTrackerOptions): SeenTracker {
 
   function peek(id: string): boolean {
     const entry = entries.get(id);
-    if (!entry) {
-      return false;
-    }
+    if (!entry) return false;
 
     // Check if expired
     if (Date.now() - entry.seenAt > ttlMs) {
@@ -276,16 +248,12 @@ export function createSeenTracker(options?: SeenTrackerOptions): SeenTracker {
 
         if (head) {
           const headEntry = entries.get(head);
-          if (headEntry) {
-            headEntry.prev = id;
-          }
+          if (headEntry) headEntry.prev = id;
         }
 
         entries.set(id, newEntry);
         head = id;
-        if (!tail) {
-          tail = id;
-        }
+        if (!tail) tail = id;
       }
     }
   }

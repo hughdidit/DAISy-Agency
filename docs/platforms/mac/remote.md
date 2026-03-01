@@ -10,15 +10,12 @@ title: "Remote Control"
 This flow lets the macOS app act as a full remote control for a OpenClaw gateway running on another host (desktop/server). It’s the app’s **Remote over SSH** (remote run) feature. All features—health checks, Voice Wake forwarding, and Web Chat—reuse the same remote SSH configuration from *Settings → General*.
 
 ## Modes
-
 - **Local (this Mac)**: Everything runs on the laptop. No SSH involved.
 - **Remote over SSH (default)**: OpenClaw commands are executed on the remote host. The mac app opens an SSH connection with `-o BatchMode` plus your chosen identity/key and a local port-forward.
 - **Remote direct (ws/wss)**: No SSH tunnel. The mac app connects to the gateway URL directly (for example, via Tailscale Serve or a public HTTPS reverse proxy).
 
 ## Remote transports
-
 Remote mode supports two transports:
-
 - **SSH tunnel** (default): Uses `ssh -N -L ...` to forward the gateway port to localhost. The gateway will see the node’s IP as `127.0.0.1` because the tunnel is loopback.
 - **Direct (ws/wss)**: Connects straight to the gateway URL. The gateway sees the real client IP.
 
@@ -39,25 +36,17 @@ Remote mode supports two transports:
    - **CLI path** (advanced): optional path to a runnable `openclaw` entrypoint/binary (auto-filled when advertised).
 3) Hit **Test remote**. Success indicates the remote `openclaw status --json` runs correctly. Failures usually mean PATH/CLI issues; exit 127 means the CLI isn’t found remotely.
 4) Health checks and Web Chat will now run through this SSH tunnel automatically.
-=======
-   - **CLI path** (advanced): optional path to a runnable `openclaw` entrypoint/binary (auto-filled when advertised).
-3. Hit **Test remote**. Success indicates the remote `openclaw status --json` runs correctly. Failures usually mean PATH/CLI issues; exit 127 means the CLI isn’t found remotely.
-4. Health checks and Web Chat will now run through this SSH tunnel automatically.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 ## Web Chat
-
 - **SSH tunnel**: Web Chat connects to the gateway over the forwarded WebSocket control port (default 18789).
 - **Direct (ws/wss)**: Web Chat connects straight to the configured gateway URL.
 - There is no separate WebChat HTTP server anymore.
 
 ## Permissions
-
 - The remote host needs the same TCC approvals as local (Automation, Accessibility, Screen Recording, Microphone, Speech Recognition, Notifications). Run onboarding on that machine to grant them once.
 - Nodes advertise their permission state via `node.list` / `node.describe` so agents know what’s available.
 
 ## Security notes
-
 - Prefer loopback binds on the remote host and connect via SSH or Tailscale.
 - If you bind the Gateway to a non-loopback interface, require token/password auth.
 - See [Security](/gateway/security) and [Tailscale](/gateway/tailscale).

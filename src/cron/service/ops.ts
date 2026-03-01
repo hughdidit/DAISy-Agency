@@ -56,7 +56,7 @@ export async function status(state: CronServiceState) {
       enabled: state.deps.cronEnabled,
       storePath: state.deps.storePath,
       jobs: state.store?.jobs.length ?? 0,
-      nextWakeAtMs: state.deps.cronEnabled ? (nextWakeAtMs(state) ?? null) : null,
+      nextWakeAtMs: state.deps.cronEnabled === true ? (nextWakeAtMs(state) ?? null) : null,
     };
   });
 }
@@ -66,7 +66,7 @@ export async function list(state: CronServiceState, opts?: { includeDisabled?: b
     await ensureLoaded(state, { skipRecompute: true });
     const includeDisabled = opts?.includeDisabled === true;
     const jobs = (state.store?.jobs ?? []).filter((j) => includeDisabled || j.enabled);
-    return jobs.toSorted((a, b) => (a.state.nextRunAtMs ?? 0) - (b.state.nextRunAtMs ?? 0));
+    return jobs.sort((a, b) => (a.state.nextRunAtMs ?? 0) - (b.state.nextRunAtMs ?? 0));
   });
 }
 
@@ -76,25 +76,8 @@ export async function add(state: CronServiceState, input: CronJobCreate) {
     await ensureLoaded(state);
     const job = createJob(state, input);
     state.store?.jobs.push(job);
-
-    // Defensive: recompute all next-run times to ensure consistency
-    recomputeNextRuns(state);
-
     await persist(state);
     armTimer(state);
-
-    state.deps.log.info(
-      {
-        jobId: job.id,
-        jobName: job.name,
-        nextRunAtMs: job.state.nextRunAtMs,
-        schedulerNextWakeAtMs: nextWakeAtMs(state) ?? null,
-        timerArmed: state.timer !== null,
-        cronEnabled: state.deps.cronEnabled,
-      },
-      "cron: job added",
-    );
-
     emit(state, {
       jobId: job.id,
       action: "added",
@@ -128,13 +111,11 @@ export async function update(state: CronServiceState, id: string, patch: CronJob
       }
     }
     job.updatedAtMs = now;
-    if (scheduleChanged || enabledChanged) {
-      if (job.enabled) {
-        job.state.nextRunAtMs = computeJobNextRunAtMs(job, now);
-      } else {
-        job.state.nextRunAtMs = undefined;
-        job.state.runningAtMs = undefined;
-      }
+    if (job.enabled) {
+      job.state.nextRunAtMs = computeJobNextRunAtMs(job, now);
+    } else {
+      job.state.nextRunAtMs = undefined;
+      job.state.runningAtMs = undefined;
     }
 
     await persist(state);
@@ -153,16 +134,12 @@ export async function remove(state: CronServiceState, id: string) {
     warnIfDisabled(state, "remove");
     await ensureLoaded(state);
     const before = state.store?.jobs.length ?? 0;
-    if (!state.store) {
-      return { ok: false, removed: false } as const;
-    }
+    if (!state.store) return { ok: false, removed: false } as const;
     state.store.jobs = state.store.jobs.filter((j) => j.id !== id);
     const removed = (state.store.jobs.length ?? 0) !== before;
     await persist(state);
     armTimer(state);
-    if (removed) {
-      emit(state, { jobId: id, action: "removed" });
-    }
+    if (removed) emit(state, { jobId: id, action: "removed" });
     return { ok: true, removed } as const;
   });
 }
@@ -177,9 +154,7 @@ export async function run(state: CronServiceState, id: string, mode?: "due" | "f
     }
     const now = state.deps.nowMs();
     const due = isJobDue(job, now, { forced: mode === "force" });
-    if (!due) {
-      return { ok: true, ran: false, reason: "not-due" as const };
-    }
+    if (!due) return { ok: true, ran: false, reason: "not-due" as const };
     await executeJob(state, job, now, { forced: mode === "force" });
     recomputeNextRuns(state);
     await persist(state);

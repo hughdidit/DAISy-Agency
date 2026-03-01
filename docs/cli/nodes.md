@@ -11,13 +11,11 @@ title: "nodes"
 Manage paired nodes (devices) and invoke node capabilities.
 
 Related:
-
 - Nodes overview: [Nodes](/nodes)
 - Camera: [Camera nodes](/nodes/camera)
 - Images: [Image nodes](/nodes/images)
 
 Common options:
-
 - `--url`, `--token`, `--timeout`, `--json`
 
 ## Common commands
@@ -47,7 +45,6 @@ openclaw nodes run --agent main --node <id|name|ip> --raw "git status"
 ```
 
 Invoke flags:
-
 - `--params <json>`: JSON object string (default `{}`).
 - `--invoke-timeout <ms>`: node invoke timeout (default `15000`).
 - `--idempotency-key <key>`: optional idempotency key.
@@ -62,7 +59,6 @@ Invoke flags:
 - Requires a node that advertises `system.run` (macOS companion app or headless node host).
 
 Flags:
-
 - `--cwd <path>`: working directory.
 - `--env <key=val>`: env override (repeatable).
 - `--command-timeout <ms>`: command timeout.

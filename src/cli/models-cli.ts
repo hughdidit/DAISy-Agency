@@ -291,7 +291,6 @@ export function registerModelsCli(program: Command) {
         {
           json: Boolean(opts?.statusJson),
           plain: Boolean(opts?.statusPlain),
-          agent: opts?.agent as string | undefined,
         },
         defaultRuntime,
       );

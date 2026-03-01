@@ -11,9 +11,7 @@ async function waitFor(
 ): Promise<void> {
   const deadline = Date.now() + opts.timeoutMs;
   while (Date.now() < deadline) {
-    if (await fn()) {
-      return;
-    }
+    if (await fn()) return;
     await new Promise((r) => setTimeout(r, opts.intervalMs));
   }
   throw new Error("timed out");

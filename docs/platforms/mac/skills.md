@@ -5,13 +5,11 @@ read_when:
   - Changing skills gating or install behavior
 title: "Skills"
 ---
-
 # Skills (macOS)
 
 The macOS app surfaces OpenClaw skills via the gateway; it does not parse skills locally.
 
 ## Data source
-
 - `skills.status` (gateway) returns all skills plus eligibility and missing requirements
   (including allowlist blocks for bundled skills).
 - Requirements are derived from `metadata.openclaw.requires` in each `SKILL.md`.
@@ -27,5 +25,4 @@ The macOS app surfaces OpenClaw skills via the gateway; it does not parse skills
 - `skills.update` patches `enabled`, `apiKey`, and `env`.
 
 ## Remote mode
-
 - Install + config updates happen on the gateway host (not the local Mac).

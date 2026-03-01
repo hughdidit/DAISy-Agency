@@ -20,7 +20,7 @@ export function setContextPruningRuntime(
     return;
   }
 
-  const key = sessionManager;
+  const key = sessionManager as object;
   if (value === null) {
     REGISTRY.delete(key);
     return;
@@ -36,5 +36,5 @@ export function getContextPruningRuntime(
     return null;
   }
 
-  return REGISTRY.get(sessionManager) ?? null;
+  return REGISTRY.get(sessionManager as object) ?? null;
 }

@@ -44,9 +44,7 @@ type DiscordClientOpts = {
 
 function resolveToken(params: { explicit?: string; accountId: string; fallbackToken?: string }) {
   const explicit = normalizeDiscordToken(params.explicit);
-  if (explicit) {
-    return explicit;
-  }
+  if (explicit) return explicit;
   const fallback = normalizeDiscordToken(params.fallbackToken);
   if (!fallback) {
     throw new Error(
@@ -184,18 +182,14 @@ function normalizeDiscordPollInput(input: PollInput): RESTAPIPoll {
 }
 
 function getDiscordErrorCode(err: unknown) {
-  if (!err || typeof err !== "object") {
-    return undefined;
-  }
+  if (!err || typeof err !== "object") return undefined;
   const candidate =
     "code" in err && err.code !== undefined
       ? err.code
       : "rawError" in err && err.rawError && typeof err.rawError === "object"
         ? (err.rawError as { code?: unknown }).code
         : undefined;
-  if (typeof candidate === "number") {
-    return candidate;
-  }
+  if (typeof candidate === "number") return candidate;
   if (typeof candidate === "string" && /^\d+$/.test(candidate)) {
     return Number(candidate);
   }
@@ -211,9 +205,7 @@ async function buildDiscordSendError(
     hasMedia: boolean;
   },
 ) {
-  if (err instanceof DiscordSendError) {
-    return err;
-  }
+  if (err instanceof DiscordSendError) return err;
   const code = getDiscordErrorCode(err);
   if (code === DISCORD_CANNOT_DM) {
     return new DiscordSendError(
@@ -221,9 +213,7 @@ async function buildDiscordSendError(
       { kind: "dm-blocked" },
     );
   }
-  if (code !== DISCORD_MISSING_PERMISSIONS) {
-    return err;
-  }
+  if (code !== DISCORD_MISSING_PERMISSIONS) return err;
 
   let missing: string[] = [];
   try {
@@ -297,9 +287,7 @@ async function sendDiscordText(
     maxLines: maxLinesPerMessage,
     chunkMode,
   });
-  if (!chunks.length && text) {
-    chunks.push(text);
-  }
+  if (!chunks.length && text) chunks.push(text);
   if (chunks.length === 1) {
     const res = (await request(
       () =>
@@ -355,9 +343,7 @@ async function sendDiscordMedia(
         chunkMode,
       })
     : [];
-  if (!chunks.length && text) {
-    chunks.push(text);
-  }
+  if (!chunks.length && text) chunks.push(text);
   const caption = chunks[0] ?? "";
   const messageReference = replyTo ? { message_id: replyTo, fail_if_not_exists: false } : undefined;
   const res = (await request(
@@ -378,9 +364,7 @@ async function sendDiscordMedia(
     "media",
   )) as { id: string; channel_id: string };
   for (const chunk of chunks.slice(1)) {
-    if (!chunk.trim()) {
-      continue;
-    }
+    if (!chunk.trim()) continue;
     await sendDiscordText(
       rest,
       channelId,

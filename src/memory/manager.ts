@@ -1,6 +1,7 @@
 import type { DatabaseSync } from "node:sqlite";
 import chokidar, { type FSWatcher } from "chokidar";
 import { randomUUID } from "node:crypto";
+import fsSync from "node:fs";
 import fs from "node:fs/promises";
 import path from "node:path";
 import type { ResolvedMemorySearchConfig } from "../agents/memory-search.js";
@@ -39,9 +40,9 @@ import {
   hashText,
   isMemoryPath,
   listMemoryFiles,
+  normalizeExtraMemoryPaths,
   type MemoryChunk,
   type MemoryFileEntry,
-  normalizeRelPath,
   parseEmbedding,
 } from "./internal.js";
 import { searchKeyword, searchVector } from "./manager-search.js";
@@ -84,6 +85,12 @@ type SessionFileEntry = {
   content: string;
 };
 
+type MemorySyncProgressUpdate = {
+  completed: number;
+  total: number;
+  label?: string;
+};
+
 type MemorySyncProgressState = {
   completed: number;
   total: number;
@@ -118,19 +125,18 @@ const INDEX_CACHE = new Map<string, MemoryIndexManager>();
 const vectorToBlob = (embedding: number[]): Buffer =>
   Buffer.from(new Float32Array(embedding).buffer);
 
-export class MemoryIndexManager implements MemorySearchManager {
+export class MemoryIndexManager {
   private readonly cacheKey: string;
   private readonly cfg: OpenClawConfig;
   private readonly agentId: string;
   private readonly workspaceDir: string;
   private readonly settings: ResolvedMemorySearchConfig;
   private provider: EmbeddingProvider;
-  private readonly requestedProvider: "openai" | "local" | "gemini" | "voyage" | "auto";
-  private fallbackFrom?: "openai" | "local" | "gemini" | "voyage";
+  private readonly requestedProvider: "openai" | "local" | "gemini" | "auto";
+  private fallbackFrom?: "openai" | "local" | "gemini";
   private fallbackReason?: string;
   private openAi?: OpenAiEmbeddingClient;
   private gemini?: GeminiEmbeddingClient;
-  private voyage?: VoyageEmbeddingClient;
   private batch: {
     enabled: boolean;
     wait: boolean;
@@ -231,7 +237,6 @@ export class MemoryIndexManager implements MemorySearchManager {
     this.fallbackReason = params.providerResult.fallbackReason;
     this.openAi = params.providerResult.openAi;
     this.gemini = params.providerResult.gemini;
-    this.voyage = params.providerResult.voyage;
     this.sources = new Set(params.settings.sources);
     this.db = this.openDatabase();
     this.providerKey = this.computeProviderKey();
@@ -417,8 +422,8 @@ export class MemoryIndexManager implements MemorySearchManager {
     from?: number;
     lines?: number;
   }): Promise<{ text: string; path: string }> {
-    const relPath = normalizeRelPath(params.relPath);
-    if (!relPath || !isMemoryPath(relPath)) {
+    const rawPath = params.relPath.trim();
+    if (!rawPath) {
       throw new Error("path required");
     }
     const absPath = path.isAbsolute(rawPath)
@@ -481,7 +486,40 @@ export class MemoryIndexManager implements MemorySearchManager {
     return { text: slice.join("\n"), path: relPath };
   }
 
-  status(): MemoryProviderStatus {
+  status(): {
+    files: number;
+    chunks: number;
+    dirty: boolean;
+    workspaceDir: string;
+    dbPath: string;
+    provider: string;
+    model: string;
+    requestedProvider: string;
+    sources: MemorySource[];
+    extraPaths: string[];
+    sourceCounts: Array<{ source: MemorySource; files: number; chunks: number }>;
+    cache?: { enabled: boolean; entries?: number; maxEntries?: number };
+    fts?: { enabled: boolean; available: boolean; error?: string };
+    fallback?: { from: string; reason?: string };
+    vector?: {
+      enabled: boolean;
+      available?: boolean;
+      extensionPath?: string;
+      loadError?: string;
+      dims?: number;
+    };
+    batch?: {
+      enabled: boolean;
+      failures: number;
+      limit: number;
+      wait: boolean;
+      concurrency: number;
+      pollIntervalMs: number;
+      timeoutMs: number;
+      lastError?: string;
+      lastProvider?: string;
+    };
+  } {
     const sourceFilter = this.buildSourceFilter();
     const files = this.db
       .prepare(`SELECT COUNT(*) as c FROM files WHERE 1=1${sourceFilter.sql}`)
@@ -525,16 +563,16 @@ export class MemoryIndexManager implements MemorySearchManager {
       return sources.map((source) => Object.assign({ source }, bySource.get(source)!));
     })();
     return {
-      backend: "builtin",
       files: files?.c ?? 0,
       chunks: chunks?.c ?? 0,
-      dirty: this.dirty || this.sessionsDirty,
+      dirty: this.dirty,
       workspaceDir: this.workspaceDir,
       dbPath: this.settings.store.path,
       provider: this.provider.id,
       model: this.provider.model,
       requestedProvider: this.requestedProvider,
       sources: Array.from(this.sources),
+      extraPaths: this.settings.extraPaths,
       sourceCounts,
       cache: this.cache.enabled
         ? {
@@ -584,7 +622,7 @@ export class MemoryIndexManager implements MemorySearchManager {
     return this.ensureVectorReady();
   }
 
-  async probeEmbeddingAvailability(): Promise<MemoryEmbeddingProbeResult> {
+  async probeEmbeddingAvailability(): Promise<{ ok: boolean; error?: string }> {
     try {
       await this.embedBatchWithRetry(["ping"]);
       return { ok: true };
@@ -842,9 +880,11 @@ export class MemoryIndexManager implements MemorySearchManager {
       .filter((entry): entry is string => Boolean(entry));
     const watchPaths = new Set<string>([
       path.join(this.workspaceDir, "MEMORY.md"),
+      path.join(this.workspaceDir, "memory.md"),
       path.join(this.workspaceDir, "memory"),
-    ];
-    this.watcher = chokidar.watch(watchPaths, {
+      ...additionalPaths,
+    ]);
+    this.watcher = chokidar.watch(Array.from(watchPaths), {
       ignoreInitial: true,
       awaitWriteFinish: {
         stabilityThreshold: this.settings.sync.watchDebounceMs,
@@ -1086,7 +1126,7 @@ export class MemoryIndexManager implements MemorySearchManager {
     needsFullReindex: boolean;
     progress?: MemorySyncProgressState;
   }) {
-    const files = await listMemoryFiles(this.workspaceDir);
+    const files = await listMemoryFiles(this.workspaceDir, this.settings.extraPaths);
     const fileEntries = await Promise.all(
       files.map(async (file) => buildFileEntry(file, this.workspaceDir)),
     );
@@ -1129,7 +1169,7 @@ export class MemoryIndexManager implements MemorySearchManager {
         });
       }
     });
-    await runWithConcurrency(tasks, this.getIndexConcurrency());
+    await this.runWithConcurrency(tasks, this.getIndexConcurrency());
 
     const staleRows = this.db
       .prepare(`SELECT path FROM files WHERE source = ?`)
@@ -1226,7 +1266,7 @@ export class MemoryIndexManager implements MemorySearchManager {
         });
       }
     });
-    await runWithConcurrency(tasks, this.getIndexConcurrency());
+    await this.runWithConcurrency(tasks, this.getIndexConcurrency());
 
     const staleRows = this.db
       .prepare(`SELECT path FROM files WHERE source = ?`)
@@ -1366,8 +1406,7 @@ export class MemoryIndexManager implements MemorySearchManager {
     const enabled = Boolean(
       batch?.enabled &&
       ((this.openAi && this.provider.id === "openai") ||
-        (this.gemini && this.provider.id === "gemini") ||
-        (this.voyage && this.provider.id === "voyage")),
+        (this.gemini && this.provider.id === "gemini")),
     );
     return {
       enabled,
@@ -1387,24 +1426,13 @@ export class MemoryIndexManager implements MemorySearchManager {
       return false;
     }
     const fallbackFrom = this.provider.id as "openai" | "gemini" | "local";
-=======
-    if (!fallback || fallback === "none" || fallback === this.provider.id) {
-      return false;
-    }
-    if (this.fallbackFrom) {
-      return false;
-    }
-    const fallbackFrom = this.provider.id as "openai" | "gemini" | "local" | "voyage";
->>>>>>> 6965a2cc9 (feat(memory): native Voyage AI support (#7078))
 
     const fallbackModel =
       fallback === "gemini"
         ? DEFAULT_GEMINI_EMBEDDING_MODEL
         : fallback === "openai"
           ? DEFAULT_OPENAI_EMBEDDING_MODEL
-          : fallback === "voyage"
-            ? DEFAULT_VOYAGE_EMBEDDING_MODEL
-            : this.settings.model;
+          : this.settings.model;
 
     const fallbackResult = await createEmbeddingProvider({
       config: this.cfg,
@@ -1421,7 +1449,6 @@ export class MemoryIndexManager implements MemorySearchManager {
     this.provider = fallbackResult.provider;
     this.openAi = fallbackResult.openAi;
     this.gemini = fallbackResult.gemini;
-    this.voyage = fallbackResult.voyage;
     this.providerKey = this.computeProviderKey();
     this.batch = this.resolveBatchConfig();
     log.warn(`memory embeddings: switched to fallback provider (${fallback})`, { reason });
@@ -1898,88 +1925,7 @@ export class MemoryIndexManager implements MemorySearchManager {
     if (this.provider.id === "gemini" && this.gemini) {
       return this.embedChunksWithGeminiBatch(chunks, entry, source);
     }
-    if (this.provider.id === "voyage" && this.voyage) {
-      return this.embedChunksWithVoyageBatch(chunks, entry, source);
-    }
     return this.embedChunksInBatches(chunks);
-  }
-
-  private async embedChunksWithVoyageBatch(
-    chunks: MemoryChunk[],
-    entry: MemoryFileEntry | SessionFileEntry,
-    source: MemorySource,
-  ): Promise<number[][]> {
-    const voyage = this.voyage;
-    if (!voyage) {
-      return this.embedChunksInBatches(chunks);
-    }
-    if (chunks.length === 0) {
-      return [];
-    }
-    const cached = this.loadEmbeddingCache(chunks.map((chunk) => chunk.hash));
-    const embeddings: number[][] = Array.from({ length: chunks.length }, () => []);
-    const missing: Array<{ index: number; chunk: MemoryChunk }> = [];
-
-    for (let i = 0; i < chunks.length; i += 1) {
-      const chunk = chunks[i];
-      const hit = chunk?.hash ? cached.get(chunk.hash) : undefined;
-      if (hit && hit.length > 0) {
-        embeddings[i] = hit;
-      } else if (chunk) {
-        missing.push({ index: i, chunk });
-      }
-    }
-
-    if (missing.length === 0) {
-      return embeddings;
-    }
-
-    const requests: VoyageBatchRequest[] = [];
-    const mapping = new Map<string, { index: number; hash: string }>();
-    for (const item of missing) {
-      const chunk = item.chunk;
-      const customId = hashText(
-        `${source}:${entry.path}:${chunk.startLine}:${chunk.endLine}:${chunk.hash}:${item.index}`,
-      );
-      mapping.set(customId, { index: item.index, hash: chunk.hash });
-      requests.push({
-        custom_id: customId,
-        body: {
-          input: chunk.text,
-        },
-      });
-    }
-    const batchResult = await this.runBatchWithFallback({
-      provider: "voyage",
-      run: async () =>
-        await runVoyageEmbeddingBatches({
-          client: voyage,
-          agentId: this.agentId,
-          requests,
-          wait: this.batch.wait,
-          concurrency: this.batch.concurrency,
-          pollIntervalMs: this.batch.pollIntervalMs,
-          timeoutMs: this.batch.timeoutMs,
-          debug: (message, data) => log.debug(message, { ...data, source, chunks: chunks.length }),
-        }),
-      fallback: async () => await this.embedChunksInBatches(chunks),
-    });
-    if (Array.isArray(batchResult)) {
-      return batchResult;
-    }
-    const byCustomId = batchResult;
-
-    const toCache: Array<{ hash: string; embedding: number[] }> = [];
-    for (const [customId, embedding] of byCustomId.entries()) {
-      const mapped = mapping.get(customId);
-      if (!mapped) {
-        continue;
-      }
-      embeddings[mapped.index] = embedding;
-      toCache.push({ hash: mapped.hash, embedding });
-    }
-    this.upsertEmbeddingCache(toCache);
-    return embeddings;
   }
 
   private async embedChunksWithOpenAiBatch(
@@ -2222,7 +2168,6 @@ export class MemoryIndexManager implements MemorySearchManager {
     }
   }
 
-<<<<<<< HEAD
   private async runWithConcurrency<T>(tasks: Array<() => Promise<T>>, limit: number): Promise<T[]> {
     if (tasks.length === 0) {
       return [];
@@ -2258,8 +2203,6 @@ export class MemoryIndexManager implements MemorySearchManager {
     return results;
   }
 
-=======
->>>>>>> 6965a2cc9 (feat(memory): native Voyage AI support (#7078))
   private async withBatchFailureLock<T>(fn: () => Promise<T>): Promise<T> {
     let release: () => void;
     const wait = this.batchFailureLock;

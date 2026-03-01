@@ -5,7 +5,6 @@ read_when:
   - Changing mDNS service types, TXT records, or discovery UX
 title: "Bonjour Discovery"
 ---
-
 # Bonjour / mDNS discovery
 
 OpenClaw uses Bonjour (mDNS / DNS‑SD) as a **LAN‑only convenience** to discover
@@ -20,7 +19,6 @@ boundary. You can keep the same discovery UX by switching to **unicast DNS‑SD*
 
 High‑level steps:
 
-<<<<<<< HEAD
 1) Run a DNS server on the gateway host (reachable over Tailnet).
 2) Publish DNS‑SD records for `_openclaw-gw._tcp` under a dedicated zone
    (example: `openclaw.internal.`).
@@ -46,7 +44,6 @@ openclaw dns setup --apply
 ```
 
 This installs CoreDNS and configures it to:
-
 - listen on port 53 only on the gateway’s Tailscale interfaces
 - serve your chosen domain (example: `openclaw.internal.`) from `~/.openclaw/dns/<domain>.db`
 
@@ -133,7 +130,6 @@ The Gateway writes a rolling log file (printed on startup as
 The iOS node uses `NWBrowser` to discover `_openclaw-gw._tcp`.
 
 To capture logs:
-
 - Settings → Gateway → Advanced → **Discovery Debug Logs**
 - Settings → Gateway → Advanced → **Discovery Logs** → reproduce → **Copy**
 

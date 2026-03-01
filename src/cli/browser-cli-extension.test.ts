@@ -2,32 +2,32 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { describe, expect, it, vi } from "vitest";
-=======
-import { describe, expect, it } from "vitest";
-import { installChromeExtension } from "./browser-cli-extension";
->>>>>>> 0621d0e9e (fix(cli): resolve bundled chrome extension path)
+
+const copyToClipboard = vi.fn();
+const runtime = {
+  log: vi.fn(),
+  error: vi.fn(),
+  exit: vi.fn(),
+};
+
+vi.mock("../infra/clipboard.js", () => ({
+  copyToClipboard,
+}));
+
+vi.mock("../runtime.js", () => ({
+  defaultRuntime: runtime,
+}));
 
 describe("browser extension install", () => {
-<<<<<<< HEAD
   it("installs into the state dir (never node_modules)", async () => {
     const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-ext-"));
     const { installChromeExtension } = await import("./browser-cli-extension.js");
-=======
-  it("installs bundled chrome extension into a state dir", async () => {
-<<<<<<< HEAD
-    const tmp = path.join(process.cwd(), ".tmp-test-openclaw-state", String(Date.now()));
->>>>>>> 0621d0e9e (fix(cli): resolve bundled chrome extension path)
-=======
-    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-ext-state-"));
->>>>>>> 1008c28f5 (test(cli): use unique temp dir for extension install)
 
-    try {
-      const result = await installChromeExtension({ stateDir: tmp });
+    const sourceDir = path.resolve(process.cwd(), "assets/chrome-extension");
+    const result = await installChromeExtension({ stateDir: tmp, sourceDir });
 
-<<<<<<< HEAD
-    expect(result.path).toContain(path.join("browser", "chrome-extension"));
+    expect(result.path).toBe(path.join(tmp, "browser", "chrome-extension"));
     expect(fs.existsSync(path.join(result.path, "manifest.json"))).toBe(true);
-<<<<<<< HEAD
     expect(result.path.includes("node_modules")).toBe(false);
   });
 
@@ -175,14 +175,5 @@ describe("browser extension install", () => {
         process.env.OPENCLAW_STATE_DIR = prev;
       }
     }
-=======
->>>>>>> 0621d0e9e (fix(cli): resolve bundled chrome extension path)
-=======
-      expect(result.path).toBe(path.join(tmp, "browser", "chrome-extension"));
-      expect(fs.existsSync(path.join(result.path, "manifest.json"))).toBe(true);
-    } finally {
-      fs.rmSync(tmp, { recursive: true, force: true });
-    }
->>>>>>> 1008c28f5 (test(cli): use unique temp dir for extension install)
   });
 });

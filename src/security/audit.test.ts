@@ -29,20 +29,6 @@ import { runSecurityAudit } from "./audit.js";
 
 const isWindows = process.platform === "win32";
 
-function successfulProbeResult(url: string) {
-  return {
-    ok: true,
-    url,
-    connectLatencyMs: 1,
-    error: null,
-    close: null,
-    health: null,
-    status: null,
-    presence: null,
-    configSnapshot: null,
-  };
-}
-
 describe("security audit", () => {
   it("includes an attack surface summary (info)", async () => {
     const cfg: OpenClawConfig = {
@@ -936,26 +922,14 @@ describe("security audit", () => {
         ]),
       );
     } finally {
-      if (prevDiscordToken == null) {
-        delete process.env.DISCORD_BOT_TOKEN;
-      } else {
-        process.env.DISCORD_BOT_TOKEN = prevDiscordToken;
-      }
-      if (prevTelegramToken == null) {
-        delete process.env.TELEGRAM_BOT_TOKEN;
-      } else {
-        process.env.TELEGRAM_BOT_TOKEN = prevTelegramToken;
-      }
-      if (prevSlackBotToken == null) {
-        delete process.env.SLACK_BOT_TOKEN;
-      } else {
-        process.env.SLACK_BOT_TOKEN = prevSlackBotToken;
-      }
-      if (prevSlackAppToken == null) {
-        delete process.env.SLACK_APP_TOKEN;
-      } else {
-        process.env.SLACK_APP_TOKEN = prevSlackAppToken;
-      }
+      if (prevDiscordToken == null) delete process.env.DISCORD_BOT_TOKEN;
+      else process.env.DISCORD_BOT_TOKEN = prevDiscordToken;
+      if (prevTelegramToken == null) delete process.env.TELEGRAM_BOT_TOKEN;
+      else process.env.TELEGRAM_BOT_TOKEN = prevTelegramToken;
+      if (prevSlackBotToken == null) delete process.env.SLACK_BOT_TOKEN;
+      else process.env.SLACK_BOT_TOKEN = prevSlackBotToken;
+      if (prevSlackAppToken == null) delete process.env.SLACK_APP_TOKEN;
+      else process.env.SLACK_APP_TOKEN = prevSlackAppToken;
     }
   });
 
@@ -992,11 +966,8 @@ describe("security audit", () => {
         ]),
       );
     } finally {
-      if (prevDiscordToken == null) {
-        delete process.env.DISCORD_BOT_TOKEN;
-      } else {
-        process.env.DISCORD_BOT_TOKEN = prevDiscordToken;
-      }
+      if (prevDiscordToken == null) delete process.env.DISCORD_BOT_TOKEN;
+      else process.env.DISCORD_BOT_TOKEN = prevDiscordToken;
     }
   });
 

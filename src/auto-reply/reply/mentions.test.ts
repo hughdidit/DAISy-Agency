@@ -4,22 +4,9 @@ import { matchesMentionWithExplicit } from "./mentions.js";
 describe("matchesMentionWithExplicit", () => {
   const mentionRegexes = [/\bopenclaw\b/i];
 
-  it("checks mentionPatterns even when explicit mention is available", () => {
+  it("prefers explicit mentions when other mentions are present", () => {
     const result = matchesMentionWithExplicit({
       text: "@openclaw hello",
-      mentionRegexes,
-      explicit: {
-        hasAnyMention: true,
-        isExplicitlyMentioned: false,
-        canResolveExplicit: true,
-      },
-    });
-    expect(result).toBe(true);
-  });
-
-  it("returns false when explicit is false and no regex match", () => {
-    const result = matchesMentionWithExplicit({
-      text: "<@999999> hello",
       mentionRegexes,
       explicit: {
         hasAnyMention: true,

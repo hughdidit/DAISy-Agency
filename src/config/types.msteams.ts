@@ -106,6 +106,4 @@ export type MSTeamsConfig = {
   sharePointSiteId?: string;
   /** Heartbeat visibility settings for this channel. */
   heartbeat?: ChannelHeartbeatVisibilityConfig;
-  /** Outbound response prefix override for this channel/account. */
-  responsePrefix?: string;
 };

@@ -29,14 +29,10 @@ describe("wrapFetchWithAbortSignal", () => {
     const fakeSignal = {
       aborted: false,
       addEventListener: (event: string, handler: () => void) => {
-        if (event === "abort") {
-          abortHandler = handler;
-        }
+        if (event === "abort") abortHandler = handler;
       },
       removeEventListener: (event: string, handler: () => void) => {
-        if (event === "abort" && abortHandler === handler) {
-          abortHandler = null;
-        }
+        if (event === "abort" && abortHandler === handler) abortHandler = null;
       },
     } as AbortSignal;
 

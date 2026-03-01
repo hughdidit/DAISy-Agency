@@ -14,7 +14,6 @@ The Gateway is OpenClaw’s WebSocket server (channels, nodes, sessions, hooks).
 Subcommands in this page live under `openclaw gateway …`.
 
 Related docs:
-
 - [/gateway/bonjour](/gateway/bonjour)
 - [/gateway/discovery](/gateway/discovery)
 - [/gateway/configuration](/gateway/configuration)
@@ -64,13 +63,11 @@ Notes:
 All query commands use WebSocket RPC.
 
 Output modes:
-
 - Default: human-readable (colored in TTY).
 - `--json`: machine-readable JSON (no styling/spinner).
 - `--no-color` (or `NO_COLOR=1`): disable ANSI while keeping human layout.
 
 Shared options (where supported):
-
 - `--url <url>`: Gateway WebSocket URL.
 - `--token <token>`: Gateway token.
 - `--password <password>`: Gateway password.
@@ -96,7 +93,6 @@ openclaw gateway status --json
 ```
 
 Options:
-
 - `--url <url>`: override the probe URL.
 - `--token <token>`: token auth for the probe.
 - `--password <password>`: password auth for the probe.
@@ -107,7 +103,6 @@ Options:
 ### `gateway probe`
 
 `gateway probe` is the “debug everything” command. It always probes:
-
 - your configured remote gateway (if set), and
 - localhost (loopback) **even if remote is configured**.
 
@@ -129,13 +124,11 @@ openclaw gateway probe --ssh user@gateway-host
 ```
 
 Options:
-
 - `--ssh <target>`: `user@host` or `user@host:port` (port defaults to `22`).
 - `--ssh-identity <path>`: identity file.
 - `--ssh-auto`: pick the first discovered gateway host as SSH target (LAN/WAB only).
 
 Config (optional, used as defaults):
-
 - `gateway.remote.sshTarget`
 - `gateway.remote.sshIdentity`
 
@@ -159,7 +152,6 @@ openclaw gateway uninstall
 ```
 
 Notes:
-
 - `gateway install` supports `--port`, `--runtime`, `--token`, `--force`, `--json`.
 - Lifecycle commands accept `--json` for scripting.
 
@@ -173,7 +165,6 @@ Notes:
 Only gateways with Bonjour discovery enabled (default) advertise the beacon.
 
 Wide-Area discovery records include (TXT):
-
 - `role` (gateway role hint)
 - `transport` (transport hint, e.g. `gateway`)
 - `gatewayPort` (WebSocket port, usually `18789`)
@@ -189,7 +180,6 @@ openclaw gateway discover
 ```
 
 Options:
-
 - `--timeout <ms>`: per-command timeout (browse/resolve); default `2000`.
 - `--json`: machine-readable output (also disables styling/spinner).
 

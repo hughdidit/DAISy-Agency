@@ -1,5 +1,3 @@
-import { sleep } from "../utils.js";
-
 export type RetryConfig = {
   attempts?: number;
   minDelayMs?: number;
@@ -29,14 +27,14 @@ const DEFAULT_RETRY_CONFIG = {
   jitter: 0,
 };
 
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
 const asFiniteNumber = (value: unknown): number | undefined =>
   typeof value === "number" && Number.isFinite(value) ? value : undefined;
 
 const clampNumber = (value: unknown, fallback: number, min?: number, max?: number) => {
   const next = asFiniteNumber(value);
-  if (next === undefined) {
-    return fallback;
-  }
+  if (next === undefined) return fallback;
   const floor = typeof min === "number" ? min : Number.NEGATIVE_INFINITY;
   const ceiling = typeof max === "number" ? max : Number.POSITIVE_INFINITY;
   return Math.min(Math.max(next, floor), ceiling);
@@ -60,9 +58,7 @@ export function resolveRetryConfig(
 }
 
 function applyJitter(delayMs: number, jitter: number): number {
-  if (jitter <= 0) {
-    return delayMs;
-  }
+  if (jitter <= 0) return delayMs;
   const offset = (Math.random() * 2 - 1) * jitter;
   return Math.max(0, Math.round(delayMs * (1 + offset)));
 }
@@ -80,9 +76,7 @@ export async function retryAsync<T>(
         return await fn();
       } catch (err) {
         lastErr = err;
-        if (i === attempts - 1) {
-          break;
-        }
+        if (i === attempts - 1) break;
         const delay = initialDelayMs * 2 ** i;
         await sleep(delay);
       }
@@ -108,9 +102,7 @@ export async function retryAsync<T>(
       return await fn();
     } catch (err) {
       lastErr = err;
-      if (attempt >= maxAttempts || !shouldRetry(err, attempt)) {
-        break;
-      }
+      if (attempt >= maxAttempts || !shouldRetry(err, attempt)) break;
 
       const retryAfterMs = options.retryAfterMs?.(err);
       const hasRetryAfter = typeof retryAfterMs === "number" && Number.isFinite(retryAfterMs);

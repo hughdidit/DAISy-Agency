@@ -1,6 +1,8 @@
 {
   "id": "zalouser",
-  "channels": ["zalouser"],
+  "channels": [
+    "zalouser"
+  ],
   "configSchema": {
     "type": "object",
     "additionalProperties": false,

@@ -1,6 +1,8 @@
 {
   "id": "discord",
-  "channels": ["discord"],
+  "channels": [
+    "discord"
+  ],
   "configSchema": {
     "type": "object",
     "additionalProperties": false,

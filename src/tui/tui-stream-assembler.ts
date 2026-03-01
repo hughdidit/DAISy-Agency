@@ -52,9 +52,7 @@ export class TuiStreamAssembler {
     const previousDisplayText = state.displayText;
     this.updateRunState(state, message, showThinking);
 
-    if (!state.displayText || state.displayText === previousDisplayText) {
-      return null;
-    }
+    if (!state.displayText || state.displayText === previousDisplayText) return null;
 
     return state.displayText;
   }

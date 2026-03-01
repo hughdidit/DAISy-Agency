@@ -5,7 +5,6 @@ read_when:
   - Documenting authentication or credential storage
 title: "Authentication"
 ---
-
 # Authentication
 
 OpenClaw supports OAuth and API keys for model providers. For Anthropic
@@ -19,7 +18,6 @@ layout.
 
 If you’re using Anthropic directly, use an API key.
 
-<<<<<<< HEAD
 1) Create an API key in the Anthropic Console.
 2) Put it on the **gateway host** (the machine running `openclaw gateway`).
 

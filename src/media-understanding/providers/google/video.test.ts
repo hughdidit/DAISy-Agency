@@ -1,16 +1,9 @@
-<<<<<<< HEAD
 import { describe, expect, it } from "vitest";
 import { describeGeminiVideo } from "./video.js";
 
-const TEST_NET_IP = "203.0.113.10";
-
 const resolveRequestUrl = (input: RequestInfo | URL) => {
-  if (typeof input === "string") {
-    return input;
-  }
-  if (input instanceof URL) {
-    return input.toString();
-  }
+  if (typeof input === "string") return input;
+  if (input instanceof URL) return input.toString();
   return input.url;
 };
 

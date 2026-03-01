@@ -47,9 +47,7 @@ describe("monitorSlackProvider tool results", () => {
 
     await waitForSlackEvent("message");
     const handler = getSlackHandlers()?.get("message");
-    if (!handler) {
-      throw new Error("Slack message handler not registered");
-    }
+    if (!handler) throw new Error("Slack message handler not registered");
 
     await handler({
       event: {
@@ -82,9 +80,7 @@ describe("monitorSlackProvider tool results", () => {
 
     await waitForSlackEvent("message");
     const handler = getSlackHandlers()?.get("message");
-    if (!handler) {
-      throw new Error("Slack message handler not registered");
-    }
+    if (!handler) throw new Error("Slack message handler not registered");
 
     await handler({
       event: {
@@ -135,9 +131,7 @@ describe("monitorSlackProvider tool results", () => {
 
     await waitForSlackEvent("message");
     const handler = getSlackHandlers()?.get("message");
-    if (!handler) {
-      throw new Error("Slack message handler not registered");
-    }
+    if (!handler) throw new Error("Slack message handler not registered");
 
     await handler({
       event: {
@@ -198,9 +192,7 @@ describe("monitorSlackProvider tool results", () => {
 
     await waitForSlackEvent("message");
     const handler = getSlackHandlers()?.get("message");
-    if (!handler) {
-      throw new Error("Slack message handler not registered");
-    }
+    if (!handler) throw new Error("Slack message handler not registered");
 
     await handler({
       event: {
@@ -266,9 +258,7 @@ describe("monitorSlackProvider tool results", () => {
 
     await waitForSlackEvent("message");
     const handler = getSlackHandlers()?.get("message");
-    if (!handler) {
-      throw new Error("Slack message handler not registered");
-    }
+    if (!handler) throw new Error("Slack message handler not registered");
 
     await handler({
       event: {
@@ -320,9 +310,7 @@ describe("monitorSlackProvider tool results", () => {
 
     await waitForSlackEvent("message");
     const handler = getSlackHandlers()?.get("message");
-    if (!handler) {
-      throw new Error("Slack message handler not registered");
-    }
+    if (!handler) throw new Error("Slack message handler not registered");
 
     await handler({
       event: {
@@ -368,9 +356,7 @@ describe("monitorSlackProvider tool results", () => {
 
     await waitForSlackEvent("message");
     const handler = getSlackHandlers()?.get("message");
-    if (!handler) {
-      throw new Error("Slack message handler not registered");
-    }
+    if (!handler) throw new Error("Slack message handler not registered");
 
     await handler({
       event: {

@@ -73,9 +73,7 @@ export async function runNonInteractiveOnboardingLocal(params: {
     runtime,
     baseConfig,
   });
-  if (!nextConfigAfterAuth) {
-    return;
-  }
+  if (!nextConfigAfterAuth) return;
   nextConfig = nextConfigAfterAuth;
 
   const gatewayBasePort = resolveGatewayPort(baseConfig);
@@ -85,9 +83,7 @@ export async function runNonInteractiveOnboardingLocal(params: {
     runtime,
     defaultPort: gatewayBasePort,
   });
-  if (!gatewayResult) {
-    return;
-  }
+  if (!gatewayResult) return;
   nextConfig = gatewayResult.nextConfig;
 
   nextConfig = applyNonInteractiveSkillsConfig({ nextConfig, opts, runtime });

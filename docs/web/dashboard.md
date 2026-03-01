@@ -4,7 +4,6 @@ read_when:
   - Changing dashboard authentication or exposure modes
 title: "Dashboard"
 ---
-
 # Dashboard (Control UI)
 
 The Gateway dashboard is the browser Control UI served at `/` by default
@@ -28,7 +27,6 @@ Quick open (local Gateway):
 >>>>>>> 578a6e27a (Docs: enable markdownlint autofixables except list numbering (#10476))
 
 Key references:
-
 - [Control UI](/web/control-ui) for usage and UI capabilities.
 - [Tailscale](/gateway/tailscale) for Serve/Funnel automation.
 - [Web surfaces](/web) for bind modes and security notes.

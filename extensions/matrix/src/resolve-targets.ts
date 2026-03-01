@@ -19,9 +19,7 @@ function pickBestGroupMatch(
   matches: ChannelDirectoryEntry[],
   query: string,
 ): ChannelDirectoryEntry | undefined {
-  if (matches.length === 0) {
-    return undefined;
-  }
+  if (matches.length === 0) return undefined;
   const normalized = query.trim().toLowerCase();
   if (normalized) {
     const exact = matches.find((match) => {
@@ -30,9 +28,7 @@ function pickBestGroupMatch(
       const id = match.id.trim().toLowerCase();
       return name === normalized || handle === normalized || id === normalized;
     });
-    if (exact) {
-      return exact;
-    }
+    if (exact) return exact;
   }
   return matches[0];
 }

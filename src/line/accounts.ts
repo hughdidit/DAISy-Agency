@@ -10,9 +10,7 @@ import type {
 export const DEFAULT_ACCOUNT_ID = "default";
 
 function readFileIfExists(filePath: string | undefined): string | undefined {
-  if (!filePath) {
-    return undefined;
-  }
+  if (!filePath) return undefined;
   try {
     return fs.readFileSync(filePath, "utf-8").trim();
   } catch {

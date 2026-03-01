@@ -27,14 +27,10 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 function mergeProviderModels(implicit: ProviderConfig, explicit: ProviderConfig): ProviderConfig {
   const implicitModels = Array.isArray(implicit.models) ? implicit.models : [];
   const explicitModels = Array.isArray(explicit.models) ? explicit.models : [];
-  if (implicitModels.length === 0) {
-    return { ...implicit, ...explicit };
-  }
+  if (implicitModels.length === 0) return { ...implicit, ...explicit };
 
   const getId = (model: unknown): string => {
-    if (!model || typeof model !== "object") {
-      return "";
-    }
+    if (!model || typeof model !== "object") return "";
     const id = (model as { id?: unknown }).id;
     return typeof id === "string" ? id.trim() : "";
   };
@@ -44,12 +40,8 @@ function mergeProviderModels(implicit: ProviderConfig, explicit: ProviderConfig)
     ...explicitModels,
     ...implicitModels.filter((model) => {
       const id = getId(model);
-      if (!id) {
-        return false;
-      }
-      if (seen.has(id)) {
-        return false;
-      }
+      if (!id) return false;
+      if (seen.has(id)) return false;
       seen.add(id);
       return true;
     }),
@@ -69,9 +61,7 @@ function mergeProviders(params: {
   const out: Record<string, ProviderConfig> = params.implicit ? { ...params.implicit } : {};
   for (const [key, explicit] of Object.entries(params.explicit ?? {})) {
     const providerKey = key.trim();
-    if (!providerKey) {
-      continue;
-    }
+    if (!providerKey) continue;
     const implicit = out[providerKey];
     out[providerKey] = implicit ? mergeProviderModels(implicit, explicit) : explicit;
   }
@@ -94,7 +84,7 @@ export async function ensureOpenClawModelsJson(
   const cfg = config ?? loadConfig();
   const agentDir = agentDirOverride?.trim() ? agentDirOverride.trim() : resolveOpenClawAgentDir();
 
-  const explicitProviders = cfg.models?.providers ?? {};
+  const explicitProviders = (cfg.models?.providers ?? {}) as Record<string, ProviderConfig>;
   const implicitProviders = await resolveImplicitProviders({ agentDir });
   const providers: Record<string, ProviderConfig> = mergeProviders({
     implicit: implicitProviders,

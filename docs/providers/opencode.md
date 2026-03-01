@@ -5,7 +5,6 @@ read_when:
   - You want a curated list of coding-friendly models
 title: "OpenCode Zen"
 ---
-
 # OpenCode Zen
 
 OpenCode Zen is a **curated list of models** recommended by the OpenCode team for coding agents.

@@ -44,7 +44,6 @@
       "localPath": "extensions/line",
       "defaultChoice": "npm"
     }
-<<<<<<< HEAD
   },
   "devDependencies": {
     "openclaw": "workspace:*"

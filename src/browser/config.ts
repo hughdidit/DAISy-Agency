@@ -128,22 +128,12 @@ function ensureDefaultChromeExtensionProfile(
   controlPort: number,
 ): Record<string, BrowserProfileConfig> {
   const result = { ...profiles };
-  if (result.chrome) {
-    return result;
-  }
+  if (result.chrome) return result;
   const relayPort = controlPort + 1;
-  if (!Number.isFinite(relayPort) || relayPort <= 0 || relayPort > 65535) {
-    return result;
-  }
+  if (!Number.isFinite(relayPort) || relayPort <= 0 || relayPort > 65535) return result;
   // Avoid adding the built-in profile if the derived relay port is already used by another profile
   // (legacy single-profile configs may use controlPort+1 for openclaw/openclaw CDP).
   if (getUsedPorts(result).has(relayPort)) return result;
-=======
-  // (legacy single-profile configs may use controlPort+1 for openclaw/openclaw CDP).
-  if (getUsedPorts(result).has(relayPort)) {
-    return result;
-  }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
   result.chrome = {
     driver: "extension",
     cdpUrl: `http://127.0.0.1:${relayPort}`,
@@ -246,9 +236,7 @@ export function resolveProfile(
   profileName: string,
 ): ResolvedBrowserProfile | null {
   const profile = resolved.profiles[profileName];
-  if (!profile) {
-    return null;
-  }
+  if (!profile) return null;
 
   const rawProfileUrl = profile.cdpUrl?.trim() ?? "";
   let cdpHost = resolved.cdpHost;

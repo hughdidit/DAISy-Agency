@@ -11,14 +11,10 @@ type OverrideTree = Record<string, unknown>;
 let overrides: OverrideTree = {};
 
 function mergeOverrides(base: unknown, override: unknown): unknown {
-  if (!isPlainObject(base) || !isPlainObject(override)) {
-    return override;
-  }
+  if (!isPlainObject(base) || !isPlainObject(override)) return override;
   const next: OverrideTree = { ...base };
   for (const [key, value] of Object.entries(override)) {
-    if (value === undefined) {
-      continue;
-    }
+    if (value === undefined) continue;
     next[key] = mergeOverrides((base as OverrideTree)[key], value);
   }
   return next;

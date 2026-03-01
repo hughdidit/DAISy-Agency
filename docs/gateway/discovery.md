@@ -6,13 +6,12 @@ read_when:
   - Designing node discovery + pairing for remote nodes
 title: "Discovery and Transports"
 ---
-
 # Discovery & transports
 
 OpenClaw has two distinct problems that look similar on the surface:
 
-1. **Operator remote control**: the macOS menu bar app controlling a gateway running elsewhere.
-2. **Node pairing**: iOS/Android (and future nodes) finding a gateway and pairing securely.
+1) **Operator remote control**: the macOS menu bar app controlling a gateway running elsewhere.
+2) **Node pairing**: iOS/Android (and future nodes) finding a gateway and pairing securely.
 
 The design goal is to keep all network discovery/advertising in the **Node Gateway** (`openclaw gateway`) and keep clients (mac app, iOS) as consumers.
 
@@ -25,7 +24,6 @@ The design goal is to keep all network discovery/advertising in the **Node Gatew
 - **Legacy TCP bridge (deprecated/removed)**: older node transport (see [Bridge protocol](/gateway/bridge-protocol)); no longer advertised for discovery.
 
 Protocol details:
-
 - [Gateway protocol](/gateway/protocol)
 - [Bridge protocol (legacy)](/gateway/bridge-protocol)
 
@@ -47,7 +45,6 @@ Protocol details:
 Bonjour is best-effort and does not cross networks. It is only used for “same LAN” convenience.
 
 Target direction:
-
 - The **gateway** advertises its WS endpoint via Bonjour.
 - Clients browse and show a “pick a gateway” list, then store the chosen endpoint.
 
@@ -78,7 +75,6 @@ Disable/override:
 ### 2) Tailnet (cross-network)
 
 For London/Vienna style setups, Bonjour won’t help. The recommended “direct” target is:
-
 - Tailscale MagicDNS name (preferred) or a stable tailnet IP.
 
 If the gateway can detect it is running under Tailscale, it publishes `tailnetDns` as an optional hint for clients (including wide-area beacons).
@@ -93,10 +89,10 @@ See [Remote access](/gateway/remote).
 
 Recommended client behavior:
 
-1. If a paired direct endpoint is configured and reachable, use it.
-2. Else, if Bonjour finds a gateway on LAN, offer a one-tap “Use this gateway” choice and save it as the direct endpoint.
-3. Else, if a tailnet DNS/IP is configured, try direct.
-4. Else, fall back to SSH.
+1) If a paired direct endpoint is configured and reachable, use it.
+2) Else, if Bonjour finds a gateway on LAN, offer a one-tap “Use this gateway” choice and save it as the direct endpoint.
+3) Else, if a tailnet DNS/IP is configured, try direct.
+4) Else, fall back to SSH.
 
 ## Pairing + auth (direct transport)
 

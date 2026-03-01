@@ -7,9 +7,7 @@ export type GatewayDiscoverOpts = {
 };
 
 export function parseDiscoverTimeoutMs(raw: unknown, fallbackMs: number): number {
-  if (raw === undefined || raw === null) {
-    return fallbackMs;
-  }
+  if (raw === undefined || raw === null) return fallbackMs;
   const value =
     typeof raw === "string"
       ? raw.trim()
@@ -19,9 +17,7 @@ export function parseDiscoverTimeoutMs(raw: unknown, fallbackMs: number): number
   if (value === null) {
     throw new Error("invalid --timeout");
   }
-  if (!value) {
-    return fallbackMs;
-  }
+  if (!value) return fallbackMs;
   const parsed = Number.parseInt(value, 10);
   if (!Number.isFinite(parsed) || parsed <= 0) {
     throw new Error(`invalid --timeout: ${value}`);
@@ -52,9 +48,7 @@ export function dedupeBeacons(beacons: GatewayBonjourBeacon[]): GatewayBonjourBe
       String(b.port ?? ""),
       String(b.gatewayPort ?? ""),
     ].join("|");
-    if (seen.has(key)) {
-      continue;
-    }
+    if (seen.has(key)) continue;
     seen.add(key);
     out.push(b);
   }

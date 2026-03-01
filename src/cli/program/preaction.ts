@@ -15,9 +15,7 @@ function setProcessTitleForCommand(actionCommand: Command) {
   }
   const name = current.name();
   const cliName = resolveCliName();
-  if (!name || name === cliName) {
-    return;
-  }
+  if (!name || name === cliName) return;
   process.title = `${cliName}-${name}`;
 }
 
@@ -28,9 +26,7 @@ export function registerPreActionHooks(program: Command, programVersion: string)
   program.hook("preAction", async (_thisCommand, actionCommand) => {
     setProcessTitleForCommand(actionCommand);
     const argv = process.argv;
-    if (hasHelpOrVersion(argv)) {
-      return;
-    }
+    if (hasHelpOrVersion(argv)) return;
     const commandPath = getCommandPath(argv, 2);
     const hideBanner =
       isTruthyEnvValue(process.env.OPENCLAW_HIDE_BANNER) ||

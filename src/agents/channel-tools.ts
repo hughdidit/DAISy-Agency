@@ -21,11 +21,8 @@ export function listChannelSupportedActions(params: {
   cfg?: OpenClawConfig;
   channel?: string;
 }): ChannelMessageActionName[] {
-  if (!params.channel) {
-    return [];
-  }
+  if (!params.channel) return [];
   const plugin = getChannelPlugin(params.channel as Parameters<typeof getChannelPlugin>[0]);
-<<<<<<< HEAD
   if (!plugin?.actions?.listActions) return [];
   const cfg = params.cfg ?? ({} as OpenClawConfig);
   return runPluginListActions(plugin, cfg);
@@ -39,7 +36,6 @@ export function listAllChannelSupportedActions(params: {
 }): ChannelMessageActionName[] {
   const actions = new Set<ChannelMessageActionName>();
   for (const plugin of listChannelPlugins()) {
-<<<<<<< HEAD
     if (!plugin.actions?.listActions) continue;
     const cfg = params.cfg ?? ({} as OpenClawConfig);
     const channelActions = runPluginListActions(plugin, cfg);
@@ -55,13 +51,9 @@ export function listChannelAgentTools(params: { cfg?: OpenClawConfig }): Channel
   const tools: ChannelAgentTool[] = [];
   for (const plugin of listChannelPlugins()) {
     const entry = plugin.agentTools;
-    if (!entry) {
-      continue;
-    }
+    if (!entry) continue;
     const resolved = typeof entry === "function" ? entry(params) : entry;
-    if (Array.isArray(resolved)) {
-      tools.push(...resolved);
-    }
+    if (Array.isArray(resolved)) tools.push(...resolved);
   }
   return tools;
 }
@@ -72,12 +64,9 @@ export function resolveChannelMessageToolHints(params: {
   accountId?: string | null;
 }): string[] {
   const channelId = normalizeAnyChannelId(params.channel);
-  if (!channelId) {
-    return [];
-  }
+  if (!channelId) return [];
   const dock = getChannelDock(channelId);
   const resolve = dock?.agentPrompt?.messageToolHints;
-<<<<<<< HEAD
   if (!resolve) return [];
   const cfg = params.cfg ?? ({} as OpenClawConfig);
   return (resolve({ cfg, accountId: params.accountId }) ?? [])
@@ -91,9 +80,7 @@ function runPluginListActions(
   plugin: ChannelPlugin,
   cfg: OpenClawConfig,
 ): ChannelMessageActionName[] {
-  if (!plugin.actions?.listActions) {
-    return [];
-  }
+  if (!plugin.actions?.listActions) return [];
   try {
     const listed = plugin.actions.listActions({ cfg });
     return Array.isArray(listed) ? listed : [];
@@ -106,9 +93,7 @@ function runPluginListActions(
 function logListActionsError(pluginId: string, err: unknown) {
   const message = err instanceof Error ? err.message : String(err);
   const key = `${pluginId}:${message}`;
-  if (loggedListActionErrors.has(key)) {
-    return;
-  }
+  if (loggedListActionErrors.has(key)) return;
   loggedListActionErrors.add(key);
   const stack = err instanceof Error && err.stack ? err.stack : null;
   const details = stack ?? message;

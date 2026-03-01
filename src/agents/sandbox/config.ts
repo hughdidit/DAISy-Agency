@@ -31,9 +31,7 @@ export function resolveSandboxScope(params: {
   scope?: SandboxScope;
   perSession?: boolean;
 }): SandboxScope {
-  if (params.scope) {
-    return params.scope;
-  }
+  if (params.scope) return params.scope;
   if (typeof params.perSession === "boolean") {
     return params.perSession ? "session" : "shared";
   }

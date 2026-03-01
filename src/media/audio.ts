@@ -11,12 +11,8 @@ export function isVoiceCompatibleAudio(opts: {
     return true;
   }
   const fileName = opts.fileName?.trim();
-  if (!fileName) {
-    return false;
-  }
+  if (!fileName) return false;
   const ext = getFileExtension(fileName);
-  if (!ext) {
-    return false;
-  }
+  if (!ext) return false;
   return VOICE_AUDIO_EXTENSIONS.has(ext);
 }

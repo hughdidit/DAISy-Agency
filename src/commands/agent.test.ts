@@ -149,12 +149,10 @@ describe("agentCommand", () => {
 
       const assistantEvents: Array<{ runId: string; text?: string }> = [];
       const stop = onAgentEvent((evt) => {
-        if (evt.stream !== "assistant") {
-          return;
-        }
+        if (evt.stream !== "assistant") return;
         assistantEvents.push({
           runId: evt.runId,
-          text: typeof evt.data?.text === "string" ? evt.data.text : undefined,
+          text: typeof evt.data?.text === "string" ? (evt.data.text as string) : undefined,
         });
       });
 

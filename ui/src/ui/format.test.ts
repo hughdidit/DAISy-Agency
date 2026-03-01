@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import { describe, expect, it } from "vitest";
 import { stripThinkingTags } from "./format";
 =======

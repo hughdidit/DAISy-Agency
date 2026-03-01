@@ -1,9 +1,7 @@
 type UnknownRecord = Record<string, unknown>;
 
 function readString(value: unknown): string | undefined {
-  if (typeof value !== "string") {
-    return undefined;
-  }
+  if (typeof value !== "string") return undefined;
   return value;
 }
 

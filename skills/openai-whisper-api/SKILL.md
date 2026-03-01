@@ -16,7 +16,6 @@ Transcribe an audio file via OpenAI’s `/v1/audio/transcriptions` endpoint.
 ```
 
 Defaults:
-
 - Model: `whisper-1`
 - Output: `<input>.txt`
 
@@ -37,8 +36,8 @@ Set `OPENAI_API_KEY`, or configure it in `~/.clawdbot/openclaw.json`:
 {
   skills: {
     "openai-whisper-api": {
-      apiKey: "OPENAI_KEY_HERE",
-    },
-  },
+      apiKey: "OPENAI_KEY_HERE"
+    }
+  }
 }
 ```

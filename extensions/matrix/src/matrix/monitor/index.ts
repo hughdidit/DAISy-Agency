@@ -1,7 +1,6 @@
 import { format } from "node:util";
 <<<<<<< HEAD
 
-<<<<<<< HEAD
 import {
   mergeAllowlist,
   summarizeMapping,
@@ -44,9 +43,7 @@ export async function monitorMatrixProvider(opts: MonitorMatrixOpts = {}): Promi
   }
   const core = getMatrixRuntime();
   let cfg = core.config.loadConfig() as CoreConfig;
-  if (cfg.channels?.matrix?.enabled === false) {
-    return;
-  }
+  if (cfg.channels?.matrix?.enabled === false) return;
 
   const logger = core.logging.getChildLogger({ module: "matrix-auto-reply" });
   const formatRuntimeMessage = (...args: Parameters<RuntimeEnv["log"]>) => format(...args);
@@ -62,22 +59,14 @@ export async function monitorMatrixProvider(opts: MonitorMatrixOpts = {}): Promi
     },
   };
   const logVerboseMessage = (message: string) => {
-    if (!core.logging.shouldLogVerbose()) {
-      return;
-    }
+    if (!core.logging.shouldLogVerbose()) return;
     logger.debug(message);
   };
 
   const normalizeUserEntry = (raw: string) =>
-    raw
-      .replace(/^matrix:/i, "")
-      .replace(/^user:/i, "")
-      .trim();
+    raw.replace(/^matrix:/i, "").replace(/^user:/i, "").trim();
   const normalizeRoomEntry = (raw: string) =>
-    raw
-      .replace(/^matrix:/i, "")
-      .replace(/^(room|channel):/i, "")
-      .trim();
+    raw.replace(/^matrix:/i, "").replace(/^(room|channel):/i, "").trim();
   const isMatrixUserId = (value: string) => value.startsWith("@") && value.includes(":");
   const resolveUserAllowlist = async (
     label: string,
@@ -153,9 +142,7 @@ export async function monitorMatrixProvider(opts: MonitorMatrixOpts = {}): Promi
         continue;
       }
       const trimmed = entry.trim();
-      if (!trimmed) {
-        continue;
-      }
+      if (!trimmed) continue;
       const cleaned = normalizeRoomEntry(trimmed);
       if ((cleaned.startsWith("!") || cleaned.startsWith("#")) && cleaned.includes(":")) {
         if (!nextRooms[cleaned]) {
@@ -177,9 +164,7 @@ export async function monitorMatrixProvider(opts: MonitorMatrixOpts = {}): Promi
       });
       resolved.forEach((entry, index) => {
         const source = pending[index];
-        if (!source) {
-          return;
-        }
+        if (!source) return;
         if (entry.resolved && entry.id) {
           if (!nextRooms[entry.id]) {
             nextRooms[entry.id] = source.config;
@@ -322,10 +307,7 @@ export async function monitorMatrixProvider(opts: MonitorMatrixOpts = {}): Promi
         logger.info("matrix: device verification requested - please verify in another client");
       }
     } catch (err) {
-      logger.debug(
-        { error: String(err) },
-        "Device verification request failed (may already be verified)",
-      );
+      logger.debug({ error: String(err) }, "Device verification request failed (may already be verified)");
     }
   }
 

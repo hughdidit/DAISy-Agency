@@ -11,7 +11,6 @@ title: "setup"
 Initialize `~/.openclaw/openclaw.json` and the agent workspace.
 
 Related:
-
 - Getting started: [Getting started](/start/getting-started)
 - Wizard: [Onboarding](/start/onboarding)
 
@@ -27,3 +26,4 @@ To run the wizard via setup:
 ```bash
 openclaw setup --wizard
 ```
+

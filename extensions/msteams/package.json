@@ -59,7 +59,6 @@
       "localPath": "extensions/msteams",
       "defaultChoice": "npm"
     }
-<<<<<<< HEAD
   },
   "dependencies": {
     "@microsoft/agents-hosting": "^1.2.3",
@@ -68,7 +67,5 @@
     "express": "^5.2.1",
     "openclaw": "workspace:*",
     "proper-lockfile": "^4.1.2"
-=======
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
   }
 }

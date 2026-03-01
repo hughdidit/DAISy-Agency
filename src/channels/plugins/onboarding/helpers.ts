@@ -4,7 +4,7 @@ import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "../../../routing/session
 export const promptAccountId: PromptAccountId = async (params: PromptAccountIdParams) => {
   const existingIds = params.listAccountIds(params.cfg);
   const initial = params.currentId?.trim() || params.defaultAccountId || DEFAULT_ACCOUNT_ID;
-  const choice = await params.prompter.select({
+  const choice = (await params.prompter.select({
     message: `${params.label} account`,
     options: [
       ...existingIds.map((id) => ({
@@ -14,11 +14,9 @@ export const promptAccountId: PromptAccountId = async (params: PromptAccountIdPa
       { value: "__new__", label: "Add a new account" },
     ],
     initialValue: initial,
-  });
+  })) as string;
 
-  if (choice !== "__new__") {
-    return normalizeAccountId(choice);
-  }
+  if (choice !== "__new__") return normalizeAccountId(choice);
 
   const entered = await params.prompter.text({
     message: `New ${params.label} account id`,
@@ -38,8 +36,6 @@ export function addWildcardAllowFrom(
   allowFrom?: Array<string | number> | null,
 ): Array<string | number> {
   const next = (allowFrom ?? []).map((v) => String(v).trim()).filter(Boolean);
-  if (!next.includes("*")) {
-    next.push("*");
-  }
+  if (!next.includes("*")) next.push("*");
   return next;
 }

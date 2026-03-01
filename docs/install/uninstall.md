@@ -29,7 +29,7 @@ npx -y openclaw uninstall --all --yes --non-interactive
 
 Manual steps (same result):
 
-1. Stop the gateway service:
+1) Stop the gateway service:
 
 ```bash
 openclaw gateway stop
@@ -166,6 +166,6 @@ Remove it with `npm rm -g openclaw` (or `pnpm remove -g` / `bun remove -g` if yo
 
 If you run from a repo checkout (`git clone` + `openclaw ...` / `bun run openclaw ...`):
 
-1. Uninstall the gateway service **before** deleting the repo (use the easy path above or manual service removal).
-2. Delete the repo directory.
-3. Remove state + workspace as shown above.
+1) Uninstall the gateway service **before** deleting the repo (use the easy path above or manual service removal).
+2) Delete the repo directory.
+3) Remove state + workspace as shown above.

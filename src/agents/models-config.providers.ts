@@ -32,22 +32,23 @@ const MINIMAX_API_COST = {
   cacheWrite: 10,
 };
 
-const XIAOMI_BASE_URL = "https://api.xiaomimimo.com/anthropic";
-export const XIAOMI_DEFAULT_MODEL_ID = "mimo-v2-flash";
-const XIAOMI_DEFAULT_CONTEXT_WINDOW = 262144;
-const XIAOMI_DEFAULT_MAX_TOKENS = 8192;
-const XIAOMI_DEFAULT_COST = {
-  input: 0,
-  output: 0,
-  cacheRead: 0,
-  cacheWrite: 0,
-};
-
 const MOONSHOT_BASE_URL = "https://api.moonshot.ai/v1";
 const MOONSHOT_DEFAULT_MODEL_ID = "kimi-k2.5";
 const MOONSHOT_DEFAULT_CONTEXT_WINDOW = 256000;
 const MOONSHOT_DEFAULT_MAX_TOKENS = 8192;
 const MOONSHOT_DEFAULT_COST = {
+  input: 0,
+  output: 0,
+  cacheRead: 0,
+  cacheWrite: 0,
+};
+const KIMI_CODE_BASE_URL = "https://api.kimi.com/coding/v1";
+const KIMI_CODE_MODEL_ID = "kimi-for-coding";
+const KIMI_CODE_CONTEXT_WINDOW = 262144;
+const KIMI_CODE_MAX_TOKENS = 32768;
+const KIMI_CODE_HEADERS = { "User-Agent": "KimiCLI/0.77" } as const;
+const KIMI_CODE_COMPAT = { supportsDeveloperRole: false } as const;
+const KIMI_CODE_DEFAULT_COST = {
   input: 0,
   output: 0,
   cacheRead: 0,
@@ -70,17 +71,6 @@ const OLLAMA_API_BASE_URL = "http://127.0.0.1:11434";
 const OLLAMA_DEFAULT_CONTEXT_WINDOW = 128000;
 const OLLAMA_DEFAULT_MAX_TOKENS = 8192;
 const OLLAMA_DEFAULT_COST = {
-  input: 0,
-  output: 0,
-  cacheRead: 0,
-  cacheWrite: 0,
-};
-
-const QIANFAN_BASE_URL = "https://qianfan.baidubce.com/v2";
-export const QIANFAN_DEFAULT_MODEL_ID = "deepseek-v3.2";
-const QIANFAN_DEFAULT_CONTEXT_WINDOW = 98304;
-const QIANFAN_DEFAULT_MAX_TOKENS = 32768;
-const QIANFAN_DEFAULT_COST = {
   input: 0,
   output: 0,
   cacheRead: 0,
@@ -132,11 +122,6 @@ async function discoverOllamaModels(): Promise<ModelDefinitionConfig[]> {
         cost: OLLAMA_DEFAULT_COST,
         contextWindow: OLLAMA_DEFAULT_CONTEXT_WINDOW,
         maxTokens: OLLAMA_DEFAULT_MAX_TOKENS,
-        // Disable streaming by default for Ollama to avoid SDK issue #1205
-        // See: https://github.com/badlogic/pi-mono/issues/1205
-        params: {
-          streaming: false,
-        },
       };
     });
   } catch (error) {
@@ -153,9 +138,7 @@ function normalizeApiKeyConfig(value: string): string {
 
 function resolveEnvApiKeyVarName(provider: string): string | undefined {
   const resolved = resolveEnvApiKey(provider);
-  if (!resolved) {
-    return undefined;
-  }
+  if (!resolved) return undefined;
   const match = /^(?:env: |shell env: )([A-Z0-9_]+)$/.exec(resolved.source);
   return match ? match[1] : undefined;
 }
@@ -171,26 +154,16 @@ function resolveApiKeyFromProfiles(params: {
   const ids = listProfilesForProvider(params.store, params.provider);
   for (const id of ids) {
     const cred = params.store.profiles[id];
-    if (!cred) {
-      continue;
-    }
-    if (cred.type === "api_key") {
-      return cred.key;
-    }
-    if (cred.type === "token") {
-      return cred.token;
-    }
+    if (!cred) continue;
+    if (cred.type === "api_key") return cred.key;
+    if (cred.type === "token") return cred.token;
   }
   return undefined;
 }
 
 export function normalizeGoogleModelId(id: string): string {
-  if (id === "gemini-3-pro") {
-    return "gemini-3-pro-preview";
-  }
-  if (id === "gemini-3-flash") {
-    return "gemini-3-flash-preview";
-  }
+  if (id === "gemini-3-pro") return "gemini-3-pro-preview";
+  if (id === "gemini-3-flash") return "gemini-3-flash-preview";
   return id;
 }
 
@@ -198,9 +171,7 @@ function normalizeGoogleProvider(provider: ProviderConfig): ProviderConfig {
   let mutated = false;
   const models = provider.models.map((model) => {
     const nextId = normalizeGoogleModelId(model.id);
-    if (nextId === model.id) {
-      return model;
-    }
+    if (nextId === model.id) return model;
     mutated = true;
     return { ...model, id: nextId };
   });
@@ -212,9 +183,7 @@ export function normalizeProviders(params: {
   agentDir: string;
 }): ModelsConfig["providers"] {
   const { providers } = params;
-  if (!providers) {
-    return providers;
-  }
+  if (!providers) return providers;
   const authStore = ensureAuthProfileStore(params.agentDir, {
     allowKeychainPrompt: false,
   });
@@ -264,9 +233,7 @@ export function normalizeProviders(params: {
 
     if (normalizedKey === "google") {
       const googleNormalized = normalizeGoogleProvider(normalizedProvider);
-      if (googleNormalized !== normalizedProvider) {
-        mutated = true;
-      }
+      if (googleNormalized !== normalizedProvider) mutated = true;
       normalizedProvider = googleNormalized;
     }
 
@@ -339,6 +306,26 @@ function buildMoonshotProvider(): ProviderConfig {
   };
 }
 
+function buildKimiCodeProvider(): ProviderConfig {
+  return {
+    baseUrl: KIMI_CODE_BASE_URL,
+    api: "openai-completions",
+    models: [
+      {
+        id: KIMI_CODE_MODEL_ID,
+        name: "Kimi For Coding",
+        reasoning: true,
+        input: ["text"],
+        cost: KIMI_CODE_DEFAULT_COST,
+        contextWindow: KIMI_CODE_CONTEXT_WINDOW,
+        maxTokens: KIMI_CODE_MAX_TOKENS,
+        headers: KIMI_CODE_HEADERS,
+        compat: KIMI_CODE_COMPAT,
+      },
+    ],
+  };
+}
+
 function buildQwenPortalProvider(): ProviderConfig {
   return {
     baseUrl: QWEN_PORTAL_BASE_URL,
@@ -374,24 +361,6 @@ function buildSyntheticProvider(): ProviderConfig {
   };
 }
 
-export function buildXiaomiProvider(): ProviderConfig {
-  return {
-    baseUrl: XIAOMI_BASE_URL,
-    api: "anthropic-messages",
-    models: [
-      {
-        id: XIAOMI_DEFAULT_MODEL_ID,
-        name: "Xiaomi MiMo V2 Flash",
-        reasoning: false,
-        input: ["text"],
-        cost: XIAOMI_DEFAULT_COST,
-        contextWindow: XIAOMI_DEFAULT_CONTEXT_WINDOW,
-        maxTokens: XIAOMI_DEFAULT_MAX_TOKENS,
-      },
-    ],
-  };
-}
-
 async function buildVeniceProvider(): Promise<ProviderConfig> {
   const models = await discoverVeniceModels();
   return {
@@ -407,33 +376,6 @@ async function buildOllamaProvider(): Promise<ProviderConfig> {
     baseUrl: OLLAMA_BASE_URL,
     api: "openai-completions",
     models,
-  };
-}
-
-export function buildQianfanProvider(): ProviderConfig {
-  return {
-    baseUrl: QIANFAN_BASE_URL,
-    api: "openai-completions",
-    models: [
-      {
-        id: QIANFAN_DEFAULT_MODEL_ID,
-        name: "DEEPSEEK V3.2",
-        reasoning: true,
-        input: ["text"],
-        cost: QIANFAN_DEFAULT_COST,
-        contextWindow: QIANFAN_DEFAULT_CONTEXT_WINDOW,
-        maxTokens: QIANFAN_DEFAULT_MAX_TOKENS,
-      },
-      {
-        id: "ernie-5.0-thinking-preview",
-        name: "ERNIE-5.0-Thinking-Preview",
-        reasoning: true,
-        input: ["text", "image"],
-        cost: QIANFAN_DEFAULT_COST,
-        contextWindow: 119000,
-        maxTokens: 64000,
-      },
-    ],
   };
 }
 
@@ -467,6 +409,13 @@ export async function resolveImplicitProviders(params: {
     providers.moonshot = { ...buildMoonshotProvider(), apiKey: moonshotKey };
   }
 
+  const kimiCodeKey =
+    resolveEnvApiKeyVarName("kimi-code") ??
+    resolveApiKeyFromProfiles({ provider: "kimi-code", store: authStore });
+  if (kimiCodeKey) {
+    providers["kimi-code"] = { ...buildKimiCodeProvider(), apiKey: kimiCodeKey };
+  }
+
   const syntheticKey =
     resolveEnvApiKeyVarName("synthetic") ??
     resolveApiKeyFromProfiles({ provider: "synthetic", store: authStore });
@@ -489,54 +438,12 @@ export async function resolveImplicitProviders(params: {
     };
   }
 
-  const xiaomiKey =
-    resolveEnvApiKeyVarName("xiaomi") ??
-    resolveApiKeyFromProfiles({ provider: "xiaomi", store: authStore });
-  if (xiaomiKey) {
-    providers.xiaomi = { ...buildXiaomiProvider(), apiKey: xiaomiKey };
-  }
-
-  const cloudflareProfiles = listProfilesForProvider(authStore, "cloudflare-ai-gateway");
-  for (const profileId of cloudflareProfiles) {
-    const cred = authStore.profiles[profileId];
-    if (cred?.type !== "api_key") {
-      continue;
-    }
-    const accountId = cred.metadata?.accountId?.trim();
-    const gatewayId = cred.metadata?.gatewayId?.trim();
-    if (!accountId || !gatewayId) {
-      continue;
-    }
-    const baseUrl = resolveCloudflareAiGatewayBaseUrl({ accountId, gatewayId });
-    if (!baseUrl) {
-      continue;
-    }
-    const apiKey = resolveEnvApiKeyVarName("cloudflare-ai-gateway") ?? cred.key?.trim() ?? "";
-    if (!apiKey) {
-      continue;
-    }
-    providers["cloudflare-ai-gateway"] = {
-      baseUrl,
-      api: "anthropic-messages",
-      apiKey,
-      models: [buildCloudflareAiGatewayModelDefinition()],
-    };
-    break;
-  }
-
   // Ollama provider - only add if explicitly configured
   const ollamaKey =
     resolveEnvApiKeyVarName("ollama") ??
     resolveApiKeyFromProfiles({ provider: "ollama", store: authStore });
   if (ollamaKey) {
     providers.ollama = { ...(await buildOllamaProvider()), apiKey: ollamaKey };
-  }
-
-  const qianfanKey =
-    resolveEnvApiKeyVarName("qianfan") ??
-    resolveApiKeyFromProfiles({ provider: "qianfan", store: authStore });
-  if (qianfanKey) {
-    providers.qianfan = { ...buildQianfanProvider(), apiKey: qianfanKey };
   }
 
   return providers;
@@ -552,9 +459,7 @@ export async function resolveImplicitCopilotProvider(params: {
   const envToken = env.COPILOT_GITHUB_TOKEN ?? env.GH_TOKEN ?? env.GITHUB_TOKEN;
   const githubToken = (envToken ?? "").trim();
 
-  if (!hasProfile && !githubToken) {
-    return null;
-  }
+  if (!hasProfile && !githubToken) return null;
 
   let selectedGithubToken = githubToken;
   if (!selectedGithubToken && hasProfile) {
@@ -610,18 +515,12 @@ export async function resolveImplicitBedrockProvider(params: {
   const discoveryConfig = params.config?.models?.bedrockDiscovery;
   const enabled = discoveryConfig?.enabled;
   const hasAwsCreds = resolveAwsSdkEnvVarName(env) !== undefined;
-  if (enabled === false) {
-    return null;
-  }
-  if (enabled !== true && !hasAwsCreds) {
-    return null;
-  }
+  if (enabled === false) return null;
+  if (enabled !== true && !hasAwsCreds) return null;
 
   const region = discoveryConfig?.region ?? env.AWS_REGION ?? env.AWS_DEFAULT_REGION ?? "us-east-1";
   const models = await discoverBedrockModels({ region, config: discoveryConfig });
-  if (models.length === 0) {
-    return null;
-  }
+  if (models.length === 0) return null;
 
   return {
     baseUrl: `https://bedrock-runtime.${region}.amazonaws.com`,

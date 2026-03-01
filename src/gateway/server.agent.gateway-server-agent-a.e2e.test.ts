@@ -113,13 +113,9 @@ const createStubChannelPlugin = (params: {
     deliveryMode: "direct",
     resolveTarget: ({ to, allowFrom }) => {
       const trimmed = to?.trim() ?? "";
-      if (trimmed) {
-        return { ok: true, to: trimmed };
-      }
+      if (trimmed) return { ok: true, to: trimmed };
       const first = allowFrom?.[0];
-      if (first) {
-        return { ok: true, to: String(first) };
-      }
+      if (first) return { ok: true, to: String(first) };
       return {
         ok: false,
         error: new Error(`missing target for ${params.id}`),

@@ -76,10 +76,6 @@ export async function applyAuthChoiceOAuth(
         typeof creds.email === "string" && creds.email.trim() ? creds.email.trim() : "default";
 >>>>>>> 08ed62852 (chore: update deps and pi model discovery)
       const profileId = `chutes:${email}`;
-=======
-      const email = typeof creds.email === "string" ? creds.email.trim() : "";
-      const profileId = `chutes:${email || "default"}`;
->>>>>>> ca47b0d79 (OAuth: normalize profile email)
 
       await writeOAuthCredentials("chutes", creds, params.agentDir);
       nextConfig = applyAuthProfileConfig(nextConfig, {

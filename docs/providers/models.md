@@ -5,7 +5,6 @@ read_when:
   - You want quick setup examples for LLM auth + model selection
 title: "Model Provider Quickstart"
 ---
-
 # Model Providers
 
 OpenClaw can use many LLM providers. Pick one, authenticate, then set the default
@@ -24,10 +23,6 @@ See [Venice AI](/providers/venice).
 
 1) Authenticate with the provider (usually via `openclaw onboard`).
 2) Set the default model:
-=======
-1. Authenticate with the provider (usually via `openclaw onboard`).
-2. Set the default model:
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 ```json5
 {
@@ -45,8 +40,7 @@ See [Venice AI](/providers/venice).
 - [Anthropic (API + Claude Code CLI)](/providers/anthropic)
 - [OpenRouter](/providers/openrouter)
 - [Vercel AI Gateway](/providers/vercel-ai-gateway)
-- [Cloudflare AI Gateway](/providers/cloudflare-ai-gateway)
-- [Moonshot AI (Kimi + Kimi Coding)](/providers/moonshot)
+- [Moonshot AI (Kimi + Kimi Code)](/providers/moonshot)
 - [Synthetic](/providers/synthetic)
 - [OpenCode Zen](/providers/opencode)
 - [Z.AI](/providers/zai)
@@ -54,11 +48,6 @@ See [Venice AI](/providers/venice).
 - [MiniMax](/providers/minimax)
 - [Venice (Venice AI)](/providers/venice)
 - [Amazon Bedrock](/bedrock)
-=======
-- [Venice (Venice AI)](/providers/venice)
-- [Amazon Bedrock](/providers/bedrock)
->>>>>>> 929a3725d (docs: canonicalize docs paths and align zh navigation (#11428))
-- [Qianfan](/providers/qianfan)
 
 For the full provider catalog (xAI, Groq, Mistral, etc.) and advanced configuration,
 see [Model providers](/concepts/model-providers).

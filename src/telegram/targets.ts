@@ -18,9 +18,7 @@ export function stripTelegramInternalPrefixes(to: string): string {
       }
       return trimmed;
     })();
-    if (next === trimmed) {
-      return trimmed;
-    }
+    if (next === trimmed) return trimmed;
     trimmed = next;
   }
 }

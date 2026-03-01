@@ -14,9 +14,7 @@ function expectFencesBalanced(chunks: string[]) {
     let open: { markerChar: string; markerLen: number } | null = null;
     for (const line of chunk.split("\n")) {
       const match = line.match(/^( {0,3})(`{3,}|~{3,})(.*)$/);
-      if (!match) {
-        continue;
-      }
+      if (!match) continue;
       const marker = match[2];
       if (!open) {
         open = { markerChar: marker[0], markerLen: marker.length };

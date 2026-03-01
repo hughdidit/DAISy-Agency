@@ -52,9 +52,7 @@ export async function ensureConfigReady(params: {
       : [];
 
   const invalid = snapshot.exists && !snapshot.valid;
-  if (!invalid) {
-    return;
-  }
+  if (!invalid) return;
 
   const rich = isRich();
   const muted = (value: string) => colorize(rich, theme.muted, value);

@@ -68,9 +68,7 @@ export async function loadGatewayTlsRuntime(
   cfg: GatewayTlsConfig | undefined,
   log?: { info?: (msg: string) => void; warn?: (msg: string) => void },
 ): Promise<GatewayTlsRuntime> {
-  if (!cfg || cfg.enabled !== true) {
-    return { enabled: false, required: false };
-  }
+  if (!cfg || cfg.enabled !== true) return { enabled: false, required: false };
 
   const autoGenerate = cfg.autoGenerate !== false;
   const baseDir = path.join(CONFIG_DIR, "gateway", "tls");
@@ -134,7 +132,7 @@ export async function loadGatewayTlsRuntime(
         cert,
         key,
         ca,
-        minVersion: "TLSv1.3",
+        minVersion: "TLSv1.2",
       },
     };
   } catch (err) {

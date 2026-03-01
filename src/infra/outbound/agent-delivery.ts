@@ -57,9 +57,7 @@ export function resolveAgentDeliveryPlan(params: {
   });
 
   const resolvedChannel = (() => {
-    if (requestedChannel === INTERNAL_MESSAGE_CHANNEL) {
-      return INTERNAL_MESSAGE_CHANNEL;
-    }
+    if (requestedChannel === INTERNAL_MESSAGE_CHANNEL) return INTERNAL_MESSAGE_CHANNEL;
     if (requestedChannel === "last") {
       if (baseDelivery.channel && baseDelivery.channel !== INTERNAL_MESSAGE_CHANNEL) {
         return baseDelivery.channel;
@@ -67,9 +65,7 @@ export function resolveAgentDeliveryPlan(params: {
       return params.wantsDelivery ? DEFAULT_CHAT_CHANNEL : INTERNAL_MESSAGE_CHANNEL;
     }
 
-    if (isGatewayMessageChannel(requestedChannel)) {
-      return requestedChannel;
-    }
+    if (isGatewayMessageChannel(requestedChannel)) return requestedChannel;
 
     if (baseDelivery.channel && baseDelivery.channel !== INTERNAL_MESSAGE_CHANNEL) {
       return baseDelivery.channel;

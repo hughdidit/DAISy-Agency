@@ -21,9 +21,7 @@ export async function agentsDeleteCommand(
   runtime: RuntimeEnv = defaultRuntime,
 ) {
   const cfg = await requireValidConfig(runtime);
-  if (!cfg) {
-    return;
-  }
+  if (!cfg) return;
 
   const input = opts.id?.trim();
   if (!input) {
@@ -71,9 +69,7 @@ export async function agentsDeleteCommand(
 
   const result = pruneAgentConfig(cfg, agentId);
   await writeConfigFile(result.config);
-  if (!opts.json) {
-    logConfigUpdated(runtime);
-  }
+  if (!opts.json) logConfigUpdated(runtime);
 
   const quietRuntime = opts.json ? createQuietRuntime(runtime) : runtime;
   await moveToTrash(workspaceDir, quietRuntime);

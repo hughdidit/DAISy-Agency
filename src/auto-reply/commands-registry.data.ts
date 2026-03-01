@@ -66,13 +66,9 @@ function registerAlias(commands: ChatCommandDefinition[], key: string, ...aliase
   const existing = new Set(command.textAliases.map((alias) => alias.trim().toLowerCase()));
   for (const alias of aliases) {
     const trimmed = alias.trim();
-    if (!trimmed) {
-      continue;
-    }
+    if (!trimmed) continue;
     const lowered = trimmed.toLowerCase();
-    if (existing.has(lowered)) {
-      continue;
-    }
+    if (existing.has(lowered)) continue;
     existing.add(lowered);
     command.textAliases.push(trimmed);
   }
@@ -589,9 +585,7 @@ function buildChatCommands(): ChatCommandDefinition[] {
 
 export function getChatCommands(): ChatCommandDefinition[] {
   const registry = getActivePluginRegistry();
-  if (cachedCommands && registry === cachedRegistry) {
-    return cachedCommands;
-  }
+  if (cachedCommands && registry === cachedRegistry) return cachedCommands;
   const commands = buildChatCommands();
   cachedCommands = commands;
   cachedRegistry = registry;

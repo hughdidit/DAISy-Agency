@@ -13,9 +13,7 @@ type TelegramUpdateOffsetState = {
 
 function normalizeAccountId(accountId?: string) {
   const trimmed = accountId?.trim();
-  if (!trimmed) {
-    return "default";
-  }
+  if (!trimmed) return "default";
   return trimmed.replace(/[^a-z0-9._-]+/gi, "_");
 }
 
@@ -31,9 +29,7 @@ function resolveTelegramUpdateOffsetPath(
 function safeParseState(raw: string): TelegramUpdateOffsetState | null {
   try {
     const parsed = JSON.parse(raw) as TelegramUpdateOffsetState;
-    if (parsed?.version !== STORE_VERSION) {
-      return null;
-    }
+    if (parsed?.version !== STORE_VERSION) return null;
     if (parsed.lastUpdateId !== null && typeof parsed.lastUpdateId !== "number") {
       return null;
     }
@@ -54,9 +50,7 @@ export async function readTelegramUpdateOffset(params: {
     return parsed?.lastUpdateId ?? null;
   } catch (err) {
     const code = (err as { code?: string }).code;
-    if (code === "ENOENT") {
-      return null;
-    }
+    if (code === "ENOENT") return null;
     return null;
   }
 }

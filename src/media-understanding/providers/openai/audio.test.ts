@@ -9,12 +9,8 @@ let resolvePinnedHostnameSpy: ReturnType<typeof vi.spyOn> = null;
 let resolvePinnedHostnameWithPolicySpy: ReturnType<typeof vi.spyOn> = null;
 
 const resolveRequestUrl = (input: RequestInfo | URL) => {
-  if (typeof input === "string") {
-    return input;
-  }
-  if (input instanceof URL) {
-    return input.toString();
-  }
+  if (typeof input === "string") return input;
+  if (input instanceof URL) return input.toString();
   return input.url;
 };
 

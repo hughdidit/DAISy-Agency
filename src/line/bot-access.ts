@@ -6,12 +6,8 @@ export type NormalizedAllowFrom = {
 
 function normalizeAllowEntry(value: string | number): string {
   const trimmed = String(value).trim();
-  if (!trimmed) {
-    return "";
-  }
-  if (trimmed === "*") {
-    return "*";
-  }
+  if (!trimmed) return "";
+  if (trimmed === "*") return "*";
   return trimmed.replace(/^line:(?:user:)?/i, "");
 }
 
@@ -35,9 +31,7 @@ export const normalizeAllowFromWithStore = (params: {
 
 export const firstDefined = <T>(...values: Array<T | undefined>) => {
   for (const value of values) {
-    if (typeof value !== "undefined") {
-      return value;
-    }
+    if (typeof value !== "undefined") return value;
   }
   return undefined;
 };
@@ -47,14 +41,8 @@ export const isSenderAllowed = (params: {
   senderId?: string;
 }): boolean => {
   const { allow, senderId } = params;
-  if (!allow.hasEntries) {
-    return false;
-  }
-  if (allow.hasWildcard) {
-    return true;
-  }
-  if (!senderId) {
-    return false;
-  }
+  if (!allow.hasEntries) return false;
+  if (allow.hasWildcard) return true;
+  if (!senderId) return false;
   return allow.entries.includes(senderId);
 };

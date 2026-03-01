@@ -17,9 +17,7 @@ async function canExecute(path: string): Promise<boolean> {
 
 export async function resolveLsofCommand(): Promise<string> {
   for (const candidate of LSOF_CANDIDATES) {
-    if (await canExecute(candidate)) {
-      return candidate;
-    }
+    if (await canExecute(candidate)) return candidate;
   }
   return "lsof";
 }

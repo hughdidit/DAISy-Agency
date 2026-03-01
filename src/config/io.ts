@@ -77,13 +77,9 @@ export function resolveConfigSnapshotHash(snapshot: {
 }): string | null {
   if (typeof snapshot.hash === "string") {
     const trimmed = snapshot.hash.trim();
-    if (trimmed) {
-      return trimmed;
-    }
+    if (trimmed) return trimmed;
   }
-  if (typeof snapshot.raw !== "string") {
-    return null;
-  }
+  if (typeof snapshot.raw !== "string") return null;
   return hashConfigRaw(snapshot.raw);
 }
 
@@ -95,9 +91,7 @@ function coerceConfig(value: unknown): OpenClawConfig {
 }
 
 async function rotateConfigBackups(configPath: string, ioFs: typeof fs.promises): Promise<void> {
-  if (CONFIG_BACKUP_COUNT <= 1) {
-    return;
-  }
+  if (CONFIG_BACKUP_COUNT <= 1) return;
   const backupBase = `${configPath}.bak`;
   const maxIndex = CONFIG_BACKUP_COUNT - 1;
   await ioFs.unlink(`${backupBase}.${maxIndex}`).catch(() => {
@@ -123,13 +117,9 @@ export type ConfigIoDeps = {
 };
 
 function warnOnConfigMiskeys(raw: unknown, logger: Pick<typeof console, "warn">): void {
-  if (!raw || typeof raw !== "object") {
-    return;
-  }
+  if (!raw || typeof raw !== "object") return;
   const gateway = (raw as Record<string, unknown>).gateway;
-  if (!gateway || typeof gateway !== "object") {
-    return;
-  }
+  if (!gateway || typeof gateway !== "object") return;
   if ("token" in (gateway as Record<string, unknown>)) {
     logger.warn(
       'Config uses "gateway.token". This key is ignored; use "gateway.auth.token" instead.',
@@ -151,19 +141,9 @@ function stampConfigVersion(cfg: OpenClawConfig): OpenClawConfig {
 
 function warnIfConfigFromFuture(cfg: OpenClawConfig, logger: Pick<typeof console, "warn">): void {
   const touched = cfg.meta?.lastTouchedVersion;
-<<<<<<< HEAD
   if (!touched) return;
   const cmp = compareOpenClawVersions(VERSION, touched);
   if (cmp === null) return;
-=======
-  if (!touched) {
-    return;
-  }
-  const cmp = compareOpenClawVersions(VERSION, touched);
-  if (cmp === null) {
-    return;
-  }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
   if (cmp < 0) {
     logger.warn(
       `Config was last written by a newer OpenClaw (${touched}); current version is ${VERSION}.`,
@@ -174,17 +154,13 @@ function warnIfConfigFromFuture(cfg: OpenClawConfig, logger: Pick<typeof console
 function applyConfigEnv(cfg: OpenClawConfig, env: NodeJS.ProcessEnv): void {
   const entries = collectConfigEnvVars(cfg);
   for (const [key, value] of Object.entries(entries)) {
-    if (env[key]?.trim()) {
-      continue;
-    }
+    if (env[key]?.trim()) continue;
     env[key] = value;
   }
 }
 
 function resolveConfigPathForDeps(deps: Required<ConfigIoDeps>): string {
-  if (deps.configPath) {
-    return deps.configPath;
-  }
+  if (deps.configPath) return deps.configPath;
   return resolveConfigPath(deps.env, resolveStateDir(deps.env, deps.homedir));
 }
 
@@ -204,7 +180,7 @@ export function parseConfigJson5(
   json5: { parse: (value: string) => unknown } = JSON5,
 ): ParseConfigJson5Result {
   try {
-    return { ok: true, parsed: json5.parse(raw) };
+    return { ok: true, parsed: json5.parse(raw) as unknown };
   } catch (err) {
     return { ok: false, error: String(err) };
   }
@@ -252,7 +228,6 @@ export function createConfigIO(overrides: ConfigIoDeps = {}) {
 
       const resolvedConfig = substituted;
       warnOnConfigMiskeys(resolvedConfig, deps.logger);
-<<<<<<< HEAD
       if (typeof resolvedConfig !== "object" || resolvedConfig === null) return {};
       const preValidationDuplicates = findDuplicateAgentDirs(resolvedConfig as OpenClawConfig, {
         env: deps.env,
@@ -567,19 +542,8 @@ function resolveConfigCacheMs(env: NodeJS.ProcessEnv): number {
   const raw = env.OPENCLAW_CONFIG_CACHE_MS?.trim();
   if (raw === "" || raw === "0") return 0;
   if (!raw) return DEFAULT_CONFIG_CACHE_MS;
-=======
-  const raw = env.OPENCLAW_CONFIG_CACHE_MS?.trim();
-  if (raw === "" || raw === "0") {
-    return 0;
-  }
-  if (!raw) {
-    return DEFAULT_CONFIG_CACHE_MS;
-  }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
   const parsed = Number.parseInt(raw, 10);
-  if (!Number.isFinite(parsed)) {
-    return DEFAULT_CONFIG_CACHE_MS;
-  }
+  if (!Number.isFinite(parsed)) return DEFAULT_CONFIG_CACHE_MS;
   return Math.max(0, parsed);
 }
 

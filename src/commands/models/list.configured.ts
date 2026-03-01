@@ -59,9 +59,7 @@ export function resolveConfiguredEntries(cfg: OpenClawConfig) {
       defaultProvider: DEFAULT_PROVIDER,
       aliasIndex,
     });
-    if (!resolved) {
-      return;
-    }
+    if (!resolved) return;
     addEntry(resolved.ref, `fallback#${idx + 1}`);
   });
 
@@ -71,9 +69,7 @@ export function resolveConfiguredEntries(cfg: OpenClawConfig) {
       defaultProvider: DEFAULT_PROVIDER,
       aliasIndex,
     });
-    if (resolved) {
-      addEntry(resolved.ref, "image");
-    }
+    if (resolved) addEntry(resolved.ref, "image");
   }
 
   imageFallbacks.forEach((raw, idx) => {
@@ -82,17 +78,13 @@ export function resolveConfiguredEntries(cfg: OpenClawConfig) {
       defaultProvider: DEFAULT_PROVIDER,
       aliasIndex,
     });
-    if (!resolved) {
-      return;
-    }
+    if (!resolved) return;
     addEntry(resolved.ref, `img-fallback#${idx + 1}`);
   });
 
   for (const key of Object.keys(cfg.agents?.defaults?.models ?? {})) {
     const parsed = parseModelRef(String(key ?? ""), DEFAULT_PROVIDER);
-    if (!parsed) {
-      continue;
-    }
+    if (!parsed) continue;
     addEntry(parsed, "configured");
   }
 

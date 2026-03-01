@@ -17,11 +17,6 @@ const runtimeStub = {
       const override =
         env.OPENCLAW_STATE_DIR?.trim() || env.OPENCLAW_STATE_DIR?.trim();
       if (override) return override;
-=======
-      if (override) {
-        return override;
-      }
->>>>>>> 230ca789e (chore: Lint extensions folder.)
       const resolvedHome = homedir ? homedir() : os.homedir();
       return path.join(resolvedHome, ".openclaw");
     },

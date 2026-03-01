@@ -113,9 +113,7 @@ export async function runNodeDaemonInstall(opts: NodeDaemonInstallOptions) {
     hints?: string[];
     warnings?: string[];
   }) => {
-    if (!json) {
-      return;
-    }
+    if (!json) return;
     emitDaemonActionJson({ action: "install", ...payload });
   };
   const fail = (message: string, hints?: string[]) => {
@@ -129,9 +127,7 @@ export async function runNodeDaemonInstall(opts: NodeDaemonInstallOptions) {
     } else {
       defaultRuntime.error(message);
       if (hints?.length) {
-        for (const hint of hints) {
-          defaultRuntime.log(`Tip: ${hint}`);
-        }
+        for (const hint of hints) defaultRuntime.log(`Tip: ${hint}`);
       }
     }
     defaultRuntime.exit(1);
@@ -191,11 +187,8 @@ export async function runNodeDaemonInstall(opts: NodeDaemonInstallOptions) {
       displayName: opts.displayName,
       runtime: runtimeRaw,
       warn: (message) => {
-        if (json) {
-          warnings.push(message);
-        } else {
-          defaultRuntime.log(message);
-        }
+        if (json) warnings.push(message);
+        else defaultRuntime.log(message);
       },
     });
 
@@ -242,17 +235,12 @@ export async function runNodeDaemonUninstall(opts: NodeDaemonLifecycleOptions = 
       notLoadedText: string;
     };
   }) => {
-    if (!json) {
-      return;
-    }
+    if (!json) return;
     emitDaemonActionJson({ action: "uninstall", ...payload });
   };
   const fail = (message: string) => {
-    if (json) {
-      emit({ ok: false, error: message });
-    } else {
-      defaultRuntime.error(message);
-    }
+    if (json) emit({ ok: false, error: message });
+    else defaultRuntime.error(message);
     defaultRuntime.exit(1);
   };
 
@@ -298,17 +286,12 @@ export async function runNodeDaemonStart(opts: NodeDaemonLifecycleOptions = {}) 
       notLoadedText: string;
     };
   }) => {
-    if (!json) {
-      return;
-    }
+    if (!json) return;
     emitDaemonActionJson({ action: "start", ...payload });
   };
   const fail = (message: string, hints?: string[]) => {
-    if (json) {
-      emit({ ok: false, error: message, hints });
-    } else {
-      defaultRuntime.error(message);
-    }
+    if (json) emit({ ok: false, error: message, hints });
+    else defaultRuntime.error(message);
     defaultRuntime.exit(1);
   };
 
@@ -380,17 +363,12 @@ export async function runNodeDaemonRestart(opts: NodeDaemonLifecycleOptions = {}
       notLoadedText: string;
     };
   }) => {
-    if (!json) {
-      return;
-    }
+    if (!json) return;
     emitDaemonActionJson({ action: "restart", ...payload });
   };
   const fail = (message: string, hints?: string[]) => {
-    if (json) {
-      emit({ ok: false, error: message, hints });
-    } else {
-      defaultRuntime.error(message);
-    }
+    if (json) emit({ ok: false, error: message, hints });
+    else defaultRuntime.error(message);
     defaultRuntime.exit(1);
   };
 
@@ -461,17 +439,12 @@ export async function runNodeDaemonStop(opts: NodeDaemonLifecycleOptions = {}) {
       notLoadedText: string;
     };
   }) => {
-    if (!json) {
-      return;
-    }
+    if (!json) return;
     emitDaemonActionJson({ action: "stop", ...payload });
   };
   const fail = (message: string) => {
-    if (json) {
-      emit({ ok: false, error: message });
-    } else {
-      defaultRuntime.error(message);
-    }
+    if (json) emit({ ok: false, error: message });
+    else defaultRuntime.error(message);
     defaultRuntime.exit(1);
   };
 

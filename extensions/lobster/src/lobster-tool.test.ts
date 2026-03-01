@@ -45,7 +45,6 @@ function fakeApi(overrides: Partial<OpenClawPluginApi> = {}): OpenClawPluginApi 
     id: "lobster",
     name: "lobster",
     source: "test",
-<<<<<<< HEAD
     config: {} as any,
     pluginConfig: {},
     runtime: { version: "test" } as any,
@@ -68,7 +67,7 @@ function fakeApi(overrides: Partial<OpenClawPluginApi> = {}): OpenClawPluginApi 
 
 function fakeCtx(overrides: Partial<OpenClawPluginToolContext> = {}): OpenClawPluginToolContext {
   return {
-    config: {},
+    config: {} as any,
     workspaceDir: "/tmp",
     agentDir: "/tmp",
     agentId: "main",
@@ -245,12 +244,6 @@ describe("lobster plugin tool", () => {
     const api = fakeApi();
     const factoryTool = (ctx: OpenClawPluginToolContext) => {
       if (ctx.sandboxed) return null;
-=======
-    const factoryTool = (ctx: OpenClawPluginToolContext) => {
-      if (ctx.sandboxed) {
-        return null;
-      }
->>>>>>> 230ca789e (chore: Lint extensions folder.)
       return createLobsterTool(api);
     };
 

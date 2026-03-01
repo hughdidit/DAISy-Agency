@@ -866,7 +866,6 @@ final class NodeAppModel {
                 return BridgeInvokeResponse(
                     id: req.id,
                     ok: false,
-<<<<<<< HEAD
                     error: MoltbotNodeError(code: .invalidRequest, message: "INVALID_REQUEST: unknown command"))
 =======
             return try await self.capabilityRouter.handle(req)
@@ -884,14 +883,6 @@ final class NodeAppModel {
                     error: OpenClawNodeError(code: .unavailable, message: "node handler unavailable"))
 >>>>>>> 6aedc54bd (iOS: alpha node app + setup-code onboarding (#11756))
             }
-=======
-                    error: OpenClawNodeError(code: .invalidRequest, message: "INVALID_REQUEST: unknown command"))
-<<<<<<< HEAD
-        }
->>>>>>> b17e6fdd0 (iOS: align node permissions and notifications)
-=======
-            }
->>>>>>> 821ed35be (Revert "iOS: align node permissions and notifications")
         } catch {
             if command.hasPrefix("camera.") {
                 let text = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription
@@ -1542,7 +1533,6 @@ final class NodeAppModel {
 }
 
 private extension NodeAppModel {
-<<<<<<< HEAD
     func locationMode() -> MoltbotLocationMode {
 =======
     private func handleTalkInvoke(_ req: BridgeInvokeRequest) async throws -> BridgeInvokeResponse {

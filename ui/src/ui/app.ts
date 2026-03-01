@@ -1,4 +1,4 @@
-import { LitElement } from "lit";
+import { LitElement, html, nothing } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import type { EventLogEntry } from "./app-events";
 import type { DevicePairingList } from "./controllers/devices";
@@ -7,21 +7,8 @@ import type { ExecApprovalsFile, ExecApprovalsSnapshot } from "./controllers/exe
 import type { GatewayBrowserClient, GatewayHelloOk } from "./gateway";
 import type { Tab } from "./navigation";
 import type { ResolvedTheme, ThemeMode } from "./theme";
-=======
-import type { EventLogEntry } from "./app-events.ts";
-import type { AppViewState } from "./app-view-state.ts";
-import type { DevicePairingList } from "./controllers/devices.ts";
-import type { ExecApprovalRequest } from "./controllers/exec-approval.ts";
-import type { ExecApprovalsFile, ExecApprovalsSnapshot } from "./controllers/exec-approvals.ts";
-import type { SkillMessage } from "./controllers/skills.ts";
-import type { GatewayBrowserClient, GatewayHelloOk } from "./gateway.ts";
-import type { Tab } from "./navigation.ts";
-import type { ResolvedTheme, ThemeMode } from "./theme.ts";
->>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
 import type {
   AgentsListResult,
-  AgentsFilesListResult,
-  AgentIdentityResult,
   ConfigSnapshot,
   ConfigUiHints,
   CronJob,
@@ -36,13 +23,15 @@ import type {
   SkillStatusReport,
   StatusSummary,
   NostrProfile,
-<<<<<<< HEAD
 } from "./types";
 <<<<<<< HEAD
 import { type ChatAttachment, type ChatQueueItem, type CronFormState } from "./ui-types";
 import type { EventLogEntry } from "./app-events";
 import { DEFAULT_CRON_FORM, DEFAULT_LOG_LEVEL_FILTERS } from "./app-defaults";
-import type { ExecApprovalsFile, ExecApprovalsSnapshot } from "./controllers/exec-approvals";
+import type {
+  ExecApprovalsFile,
+  ExecApprovalsSnapshot,
+} from "./controllers/exec-approvals";
 import type { DevicePairingList } from "./controllers/devices";
 import type { ExecApprovalRequest } from "./controllers/exec-approval";
 import {
@@ -90,7 +79,6 @@ import {
   handleWhatsAppLogout as handleWhatsAppLogoutInternal,
   handleWhatsAppStart as handleWhatsAppStartInternal,
   handleWhatsAppWait as handleWhatsAppWaitInternal,
-<<<<<<< HEAD
 } from "./app-channels";
 import {
   handleAbortChat as handleAbortChatInternal,
@@ -138,14 +126,10 @@ declare global {
 const injectedAssistantIdentity = resolveInjectedAssistantIdentity();
 
 function resolveOnboardingMode(): boolean {
-  if (!window.location.search) {
-    return false;
-  }
+  if (!window.location.search) return false;
   const params = new URLSearchParams(window.location.search);
   const raw = params.get("onboarding");
-  if (!raw) {
-    return false;
-  }
+  if (!raw) return false;
   const normalized = raw.trim().toLowerCase();
   return normalized === "1" || normalized === "true" || normalized === "yes" || normalized === "on";
 }
@@ -179,7 +163,7 @@ export class OpenClawApp extends LitElement {
   @state() chatStream: string | null = null;
   @state() chatStreamStartedAt: number | null = null;
   @state() chatRunId: string | null = null;
-  @state() compactionStatus: CompactionStatus | null = null;
+  @state() compactionStatus: import("./app-tool-stream").CompactionStatus | null = null;
   @state() chatAvatarUrl: string | null = null;
   @state() chatThinkingLevel: string | null = null;
   @state() chatQueue: ChatQueueItem[] = [];
@@ -219,7 +203,7 @@ export class OpenClawApp extends LitElement {
   @state() updateRunning = false;
   @state() applySessionKey = this.settings.lastActiveSessionKey;
   @state() configSnapshot: ConfigSnapshot | null = null;
-  @state() configSchema: unknown = null;
+  @state() configSchema: unknown | null = null;
   @state() configSchemaVersion: string | null = null;
   @state() configSchemaLoading = false;
   @state() configUiHints: ConfigUiHints = {};
@@ -250,23 +234,6 @@ export class OpenClawApp extends LitElement {
   @state() agentsLoading = false;
   @state() agentsList: AgentsListResult | null = null;
   @state() agentsError: string | null = null;
-  @state() agentsSelectedId: string | null = null;
-  @state() agentsPanel: "overview" | "files" | "tools" | "skills" | "channels" | "cron" =
-    "overview";
-  @state() agentFilesLoading = false;
-  @state() agentFilesError: string | null = null;
-  @state() agentFilesList: AgentsFilesListResult | null = null;
-  @state() agentFileContents: Record<string, string> = {};
-  @state() agentFileDrafts: Record<string, string> = {};
-  @state() agentFileActive: string | null = null;
-  @state() agentFileSaving = false;
-  @state() agentIdentityLoading = false;
-  @state() agentIdentityError: string | null = null;
-  @state() agentIdentityById: Record<string, AgentIdentityResult> = {};
-  @state() agentSkillsLoading = false;
-  @state() agentSkillsError: string | null = null;
-  @state() agentSkillsReport: SkillStatusReport | null = null;
-  @state() agentSkillsAgentId: string | null = null;
 
   @state() sessionsLoading = false;
   @state() sessionsResult: SessionsListResult | null = null;
@@ -275,59 +242,6 @@ export class OpenClawApp extends LitElement {
   @state() sessionsFilterLimit = "120";
   @state() sessionsIncludeGlobal = true;
   @state() sessionsIncludeUnknown = false;
-
-  @state() usageLoading = false;
-  @state() usageResult: import("./types.js").SessionsUsageResult | null = null;
-  @state() usageCostSummary: import("./types.js").CostUsageSummary | null = null;
-  @state() usageError: string | null = null;
-  @state() usageStartDate = (() => {
-    const d = new Date();
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-  })();
-  @state() usageEndDate = (() => {
-    const d = new Date();
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-  })();
-  @state() usageSelectedSessions: string[] = [];
-  @state() usageSelectedDays: string[] = [];
-  @state() usageSelectedHours: number[] = [];
-  @state() usageChartMode: "tokens" | "cost" = "tokens";
-  @state() usageDailyChartMode: "total" | "by-type" = "by-type";
-  @state() usageTimeSeriesMode: "cumulative" | "per-turn" = "per-turn";
-  @state() usageTimeSeriesBreakdownMode: "total" | "by-type" = "by-type";
-  @state() usageTimeSeries: import("./types.js").SessionUsageTimeSeries | null = null;
-  @state() usageTimeSeriesLoading = false;
-  @state() usageSessionLogs: import("./views/usage.js").SessionLogEntry[] | null = null;
-  @state() usageSessionLogsLoading = false;
-  @state() usageSessionLogsExpanded = false;
-  // Applied query (used to filter the already-loaded sessions list client-side).
-  @state() usageQuery = "";
-  // Draft query text (updates immediately as the user types; applied via debounce or "Search").
-  @state() usageQueryDraft = "";
-  @state() usageSessionSort: "tokens" | "cost" | "recent" | "messages" | "errors" = "recent";
-  @state() usageSessionSortDir: "desc" | "asc" = "desc";
-  @state() usageRecentSessions: string[] = [];
-  @state() usageTimeZone: "local" | "utc" = "local";
-  @state() usageContextExpanded = false;
-  @state() usageHeaderPinned = false;
-  @state() usageSessionsTab: "all" | "recent" = "all";
-  @state() usageVisibleColumns: string[] = [
-    "channel",
-    "agent",
-    "provider",
-    "model",
-    "messages",
-    "tools",
-    "errors",
-    "duration",
-  ];
-  @state() usageLogFilterRoles: import("./views/usage.js").SessionLogRole[] = [];
-  @state() usageLogFilterTools: string[] = [];
-  @state() usageLogFilterHasTools = false;
-  @state() usageLogFilterQuery = "";
-
-  // Non-reactive (don’t trigger renders just for timer bookkeeping).
-  usageQueryDebounceTimer: number | null = null;
 
   @state() cronLoading = false;
   @state() cronJobs: CronJob[] = [];
@@ -350,7 +264,7 @@ export class OpenClawApp extends LitElement {
   @state() debugStatus: StatusSummary | null = null;
   @state() debugHealth: HealthSnapshot | null = null;
   @state() debugModels: unknown[] = [];
-  @state() debugHeartbeat: unknown = null;
+  @state() debugHeartbeat: unknown | null = null;
   @state() debugCallMethod = "";
   @state() debugCallParams = "{}";
   @state() debugCallResult: string | null = null;
@@ -393,7 +307,9 @@ export class OpenClawApp extends LitElement {
 >>>>>>> 0b7aa8cf1 (feat(ui): refresh session list after chat commands in Web UI)
   basePath = "";
   private popStateHandler = () =>
-    onPopStateInternal(this as unknown as Parameters<typeof onPopStateInternal>[0]);
+    onPopStateInternal(
+      this as unknown as Parameters<typeof onPopStateInternal>[0],
+    );
   private themeMedia: MediaQueryList | null = null;
   private themeMediaHandler: ((event: MediaQueryListEvent) => void) | null = null;
   private topbarObserver: ResizeObserver | null = null;
@@ -417,11 +333,16 @@ export class OpenClawApp extends LitElement {
   }
 
   protected updated(changed: Map<PropertyKey, unknown>) {
-    handleUpdated(this as unknown as Parameters<typeof handleUpdated>[0], changed);
+    handleUpdated(
+      this as unknown as Parameters<typeof handleUpdated>[0],
+      changed,
+    );
   }
 
   connect() {
-    connectGatewayInternal(this as unknown as Parameters<typeof connectGatewayInternal>[0]);
+    connectGatewayInternal(
+      this as unknown as Parameters<typeof connectGatewayInternal>[0],
+    );
   }
 
   handleChatScroll(event: Event) {
@@ -443,7 +364,9 @@ export class OpenClawApp extends LitElement {
   }
 
   resetToolStream() {
-    resetToolStreamInternal(this as unknown as Parameters<typeof resetToolStreamInternal>[0]);
+    resetToolStreamInternal(
+      this as unknown as Parameters<typeof resetToolStreamInternal>[0],
+    );
   }
 
   resetChatScroll() {
@@ -472,7 +395,10 @@ export class OpenClawApp extends LitElement {
   }
 
   applySettings(next: UiSettings) {
-    applySettingsInternal(this as unknown as Parameters<typeof applySettingsInternal>[0], next);
+    applySettingsInternal(
+      this as unknown as Parameters<typeof applySettingsInternal>[0],
+      next,
+    );
   }
 
   setTab(next: Tab) {
@@ -480,19 +406,29 @@ export class OpenClawApp extends LitElement {
   }
 
   setTheme(next: ThemeMode, context?: Parameters<typeof setThemeInternal>[2]) {
-    setThemeInternal(this as unknown as Parameters<typeof setThemeInternal>[0], next, context);
+    setThemeInternal(
+      this as unknown as Parameters<typeof setThemeInternal>[0],
+      next,
+      context,
+    );
   }
 
   async loadOverview() {
-    await loadOverviewInternal(this as unknown as Parameters<typeof loadOverviewInternal>[0]);
+    await loadOverviewInternal(
+      this as unknown as Parameters<typeof loadOverviewInternal>[0],
+    );
   }
 
   async loadCron() {
-    await loadCronInternal(this as unknown as Parameters<typeof loadCronInternal>[0]);
+    await loadCronInternal(
+      this as unknown as Parameters<typeof loadCronInternal>[0],
+    );
   }
 
   async handleAbortChat() {
-    await handleAbortChatInternal(this as unknown as Parameters<typeof handleAbortChatInternal>[0]);
+    await handleAbortChatInternal(
+      this as unknown as Parameters<typeof handleAbortChatInternal>[0],
+    );
   }
 
   removeQueuedMessage(id: string) {
@@ -559,9 +495,7 @@ export class OpenClawApp extends LitElement {
 
   async handleExecApprovalDecision(decision: "allow-once" | "allow-always" | "deny") {
     const active = this.execApprovalQueue[0];
-    if (!active || !this.client || this.execApprovalBusy) {
-      return;
-    }
+    if (!active || !this.client || this.execApprovalBusy) return;
     this.execApprovalBusy = true;
     this.execApprovalError = null;
     try {
@@ -579,14 +513,12 @@ export class OpenClawApp extends LitElement {
 
   handleGatewayUrlConfirm() {
     const nextGatewayUrl = this.pendingGatewayUrl;
-    if (!nextGatewayUrl) {
-      return;
-    }
+    if (!nextGatewayUrl) return;
     this.pendingGatewayUrl = null;
-    applySettingsInternal(this as unknown as Parameters<typeof applySettingsInternal>[0], {
-      ...this.settings,
-      gatewayUrl: nextGatewayUrl,
-    });
+    applySettingsInternal(
+      this as unknown as Parameters<typeof applySettingsInternal>[0],
+      { ...this.settings, gatewayUrl: nextGatewayUrl },
+    );
     this.connect();
   }
 
@@ -612,9 +544,7 @@ export class OpenClawApp extends LitElement {
       window.clearTimeout(this.sidebarCloseTimer);
     }
     this.sidebarCloseTimer = window.setTimeout(() => {
-      if (this.sidebarOpen) {
-        return;
-      }
+      if (this.sidebarOpen) return;
       this.sidebarContent = null;
       this.sidebarError = null;
       this.sidebarCloseTimer = null;
@@ -628,6 +558,6 @@ export class OpenClawApp extends LitElement {
   }
 
   render() {
-    return renderApp(this as unknown as AppViewState);
+    return renderApp(this);
   }
 }

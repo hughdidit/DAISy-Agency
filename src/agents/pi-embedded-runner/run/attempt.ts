@@ -1,5 +1,5 @@
 import type { AgentMessage } from "@mariozechner/pi-agent-core";
-import type { ImageContent } from "@mariozechner/pi-ai";
+import type { AssistantMessage, ImageContent } from "@mariozechner/pi-ai";
 import { streamSimple } from "@mariozechner/pi-ai";
 <<<<<<< HEAD
 import { createAgentSession, SessionManager, SettingsManager } from "@mariozechner/pi-coding-agent";
@@ -80,7 +80,6 @@ import { resolveSandboxContext } from "../../sandbox.js";
 import { resolveSandboxRuntimeStatus } from "../../sandbox/runtime-status.js";
 import { guardSessionManager } from "../../session-tool-result-guard-wrapper.js";
 import { acquireSessionWriteLock } from "../../session-write-lock.js";
-import { detectRuntimeShell } from "../../shell-utils.js";
 import {
   applySkillEnvOverrides,
   applySkillEnvOverridesFromSnapshot,
@@ -124,16 +123,12 @@ export function injectHistoryImagesIntoMessages(
   messages: AgentMessage[],
   historyImagesByIndex: Map<number, ImageContent[]>,
 ): boolean {
-  if (historyImagesByIndex.size === 0) {
-    return false;
-  }
+  if (historyImagesByIndex.size === 0) return false;
   let didMutate = false;
 
   for (const [msgIndex, images] of historyImagesByIndex) {
     // Bounds check: ensure index is valid before accessing
-    if (msgIndex < 0 || msgIndex >= messages.length) {
-      continue;
-    }
+    if (msgIndex < 0 || msgIndex >= messages.length) continue;
     const msg = messages[msgIndex];
     if (msg && msg.role === "user") {
       // Convert string content to array format if needed
@@ -271,9 +266,6 @@ export async function runEmbeddedAttempt(
           replyToMode: params.replyToMode,
           hasRepliedRef: params.hasRepliedRef,
           modelHasVision,
-          requireExplicitMessageTarget:
-            params.requireExplicitMessageTarget ?? isSubagentSessionKey(params.sessionKey),
-          disableMessageTool: params.disableMessageTool,
         });
     const tools = sanitizeToolsForGoogle({ tools: toolsRaw, provider: params.provider });
     logToolSchemasForGoogle({ tools, provider: params.provider });
@@ -293,9 +285,7 @@ export async function runEmbeddedAttempt(
         accountId: params.agentAccountId ?? undefined,
       });
       if (inlineButtonsScope !== "off") {
-        if (!runtimeCapabilities) {
-          runtimeCapabilities = [];
-        }
+        if (!runtimeCapabilities) runtimeCapabilities = [];
         if (
           !runtimeCapabilities.some((cap) => String(cap).trim().toLowerCase() === "inlinebuttons")
         ) {
@@ -363,7 +353,6 @@ export async function runEmbeddedAttempt(
         node: process.version,
         model: `${params.provider}/${params.modelId}`,
         defaultModel: defaultModelLabel,
-        shell: detectRuntimeShell(),
         channel: runtimeChannel,
         capabilities: runtimeCapabilities,
         channelActions,
@@ -404,7 +393,6 @@ export async function runEmbeddedAttempt(
       userTime,
       userTimeFormat,
       contextFiles,
-      memoryCitationsMode: params.config?.memory?.citations,
     });
     const systemPromptReport = buildSystemPromptReport({
       source: "run",
@@ -438,10 +426,6 @@ export async function runEmbeddedAttempt(
     let sessionManager: ReturnType<typeof guardSessionManager> | undefined;
     let session: Awaited<ReturnType<typeof createAgentSession>>["session"] | undefined;
     try {
-      await repairSessionFileIfNeeded({
-        sessionFile: params.sessionFile,
-        warn: (message) => log.warn(message),
-      });
       const hadSessionFile = await fs
         .stat(params.sessionFile)
         .then(() => true)
@@ -630,9 +614,7 @@ export async function runEmbeddedAttempt(
       };
       const abortRun = (isTimeout = false, reason?: unknown) => {
         aborted = true;
-        if (isTimeout) {
-          timedOut = true;
-        }
+        if (isTimeout) timedOut = true;
         if (isTimeout) {
           runAbortController.abort(reason ?? makeTimeoutAbortReason());
         } else {
@@ -719,9 +701,7 @@ export async function runEmbeddedAttempt(
           abortRun(true);
           if (!abortWarnTimer) {
             abortWarnTimer = setTimeout(() => {
-              if (!activeSession.isStreaming) {
-                return;
-              }
+              if (!activeSession.isStreaming) return;
               if (!isProbeSession) {
                 log.warn(
                   `embedded run abort still streaming: runId=${params.runId} sessionId=${params.sessionId}`,
@@ -876,9 +856,7 @@ export async function runEmbeddedAttempt(
           await waitForCompactionRetry();
         } catch (err) {
           if (isAbortError(err)) {
-            if (!promptError) {
-              promptError = err;
-            }
+            if (!promptError) promptError = err;
           } else {
             throw err;
           }
@@ -916,9 +894,7 @@ export async function runEmbeddedAttempt(
         }
       } finally {
         clearTimeout(abortTimer);
-        if (abortWarnTimer) {
-          clearTimeout(abortWarnTimer);
-        }
+        if (abortWarnTimer) clearTimeout(abortWarnTimer);
         unsubscribe();
         clearActiveEmbeddedRun(params.sessionId, queueHandle);
         params.abortSignal?.removeEventListener?.("abort", onAbort);

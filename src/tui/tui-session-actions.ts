@@ -79,9 +79,7 @@ export function createSessionActions(context: SessionActionContext) {
     }));
     agentNames.clear();
     for (const agent of state.agents) {
-      if (agent.name) {
-        agentNames.set(agent.id, agent.name);
-      }
+      if (agent.name) agentNames.set(agent.id, agent.name);
     }
     if (!state.initialSessionApplied) {
       if (initialSessionAgentId) {
@@ -116,9 +114,7 @@ export function createSessionActions(context: SessionActionContext) {
 
   const updateAgentFromSessionKey = (key: string) => {
     const parsed = parseAgentSessionKey(key);
-    if (!parsed) {
-      return;
-    }
+    if (!parsed) return;
     const next = normalizeAgentId(parsed.agentId);
     if (next !== state.currentAgentId) {
       state.currentAgentId = next;
@@ -127,9 +123,7 @@ export function createSessionActions(context: SessionActionContext) {
 
 <<<<<<< HEAD
   const refreshSessionInfo = async () => {
-    if (refreshSessionInfoPromise) {
-      return refreshSessionInfoPromise;
-    }
+    if (refreshSessionInfoPromise) return refreshSessionInfoPromise;
     refreshSessionInfoPromise = (async () => {
       try {
         const listAgentId =
@@ -143,9 +137,7 @@ export function createSessionActions(context: SessionActionContext) {
         });
         const entry = result.sessions.find((row) => {
           // Exact match
-          if (row.key === state.currentSessionKey) {
-            return true;
-          }
+          if (row.key === state.currentSessionKey) return true;
           // Also match canonical keys like "agent:default:main" against "main"
           const parsed = parseAgentSessionKey(row.key);
           return parsed?.rest === state.currentSessionKey;
@@ -359,31 +351,23 @@ export function createSessionActions(context: SessionActionContext) {
       chatLog.clearAll();
       chatLog.addSystem(`session ${state.currentSessionKey}`);
       for (const entry of record.messages ?? []) {
-        if (!entry || typeof entry !== "object") {
-          continue;
-        }
+        if (!entry || typeof entry !== "object") continue;
         const message = entry as Record<string, unknown>;
         if (isCommandMessage(message)) {
           const text = extractTextFromMessage(message);
-          if (text) {
-            chatLog.addSystem(text);
-          }
+          if (text) chatLog.addSystem(text);
           continue;
         }
         if (message.role === "user") {
           const text = extractTextFromMessage(message);
-          if (text) {
-            chatLog.addUser(text);
-          }
+          if (text) chatLog.addUser(text);
           continue;
         }
         if (message.role === "assistant") {
           const text = extractTextFromMessage(message, {
             includeThinking: state.showThinking,
           });
-          if (text) {
-            chatLog.finalizeAssistant(text);
-          }
+          if (text) chatLog.finalizeAssistant(text);
           continue;
         }
         if (message.role === "toolResult") {

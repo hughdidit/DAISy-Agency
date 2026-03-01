@@ -53,7 +53,6 @@ describe("slack prepareSlackMessage inbound contract", () => {
       mediaMaxBytes: 1024,
       removeAckAfterReply: false,
     });
-    // oxlint-disable-next-line typescript/no-explicit-any
     slackCtx.resolveUserName = async () => ({ name: "Alice" }) as any;
 
     const account: ResolvedSlackAccount = {
@@ -80,7 +79,6 @@ describe("slack prepareSlackMessage inbound contract", () => {
     });
 
     expect(prepared).toBeTruthy();
-    // oxlint-disable-next-line typescript/no-explicit-any
     expectInboundContextContract(prepared!.ctxPayload as any);
   });
 
@@ -211,7 +209,6 @@ describe("slack prepareSlackMessage inbound contract", () => {
       mediaMaxBytes: 1024,
       removeAckAfterReply: false,
     });
-    // oxlint-disable-next-line typescript/no-explicit-any
     slackCtx.resolveUserName = async () => ({ name: "Alice" }) as any;
 
     const account: ResolvedSlackAccount = {

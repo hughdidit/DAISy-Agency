@@ -4,7 +4,6 @@ read_when:
   - Integrating tools that expect OpenAI Chat Completions
 title: "OpenAI Chat Completions"
 ---
-
 # OpenAI Chat Completions (HTTP)
 
 OpenClaw’s Gateway can serve a small OpenAI-compatible Chat Completions endpoint.
@@ -49,10 +48,10 @@ Set `gateway.http.endpoints.chatCompletions.enabled` to `true`:
   gateway: {
     http: {
       endpoints: {
-        chatCompletions: { enabled: true },
-      },
-    },
-  },
+        chatCompletions: { enabled: true }
+      }
+    }
+  }
 }
 ```
 
@@ -65,10 +64,10 @@ Set `gateway.http.endpoints.chatCompletions.enabled` to `false`:
   gateway: {
     http: {
       endpoints: {
-        chatCompletions: { enabled: false },
-      },
-    },
-  },
+        chatCompletions: { enabled: false }
+      }
+    }
+  }
 }
 ```
 
@@ -89,7 +88,6 @@ Set `stream: true` to receive Server-Sent Events (SSE):
 ## Examples
 
 Non-streaming:
-
 ```bash
 curl -sS http://127.0.0.1:18789/v1/chat/completions \
   -H 'Authorization: Bearer YOUR_TOKEN' \
@@ -102,7 +100,6 @@ curl -sS http://127.0.0.1:18789/v1/chat/completions \
 ```
 
 Streaming:
-
 ```bash
 curl -N http://127.0.0.1:18789/v1/chat/completions \
   -H 'Authorization: Bearer YOUR_TOKEN' \

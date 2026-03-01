@@ -5,7 +5,6 @@ read_when:
   - You need a quick overview of supported LLM backends
 title: "Model Providers"
 ---
-
 # Model Providers
 
 OpenClaw can use many LLM providers. Pick a provider, authenticate, then set the
@@ -26,10 +25,6 @@ See [Venice AI](/providers/venice).
 
 1) Authenticate with the provider (usually via `openclaw onboard`).
 2) Set the default model:
-=======
-1. Authenticate with the provider (usually via `openclaw onboard`).
-2. Set the default model:
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 ```json5
 {
@@ -48,17 +43,14 @@ See [Venice AI](/providers/venice).
 - [Qwen (OAuth)](/providers/qwen)
 - [OpenRouter](/providers/openrouter)
 - [Vercel AI Gateway](/providers/vercel-ai-gateway)
-- [Cloudflare AI Gateway](/providers/cloudflare-ai-gateway)
-- [Moonshot AI (Kimi + Kimi Coding)](/providers/moonshot)
+- [Moonshot AI (Kimi + Kimi Code)](/providers/moonshot)
 - [OpenCode Zen](/providers/opencode)
-- [Amazon Bedrock](/providers/bedrock)
+- [Amazon Bedrock](/bedrock)
 - [Z.AI](/providers/zai)
-- [Xiaomi](/providers/xiaomi)
 - [GLM models](/providers/glm)
 - [MiniMax](/providers/minimax)
 - [Venice (Venice AI, privacy-focused)](/providers/venice)
 - [Ollama (local models)](/providers/ollama)
-- [Qianfan](/providers/qianfan)
 
 ## Transcription providers
 

@@ -30,12 +30,10 @@ Label:
 - `bot.molt.gateway` (or `bot.molt.<profile>`; legacy `com.openclaw.*` may remain)
 
 Plist location (per‑user):
-
 - `~/Library/LaunchAgents/bot.molt.gateway.plist`
   (or `~/Library/LaunchAgents/bot.molt.<profile>.plist`)
 
 Manager:
-
 - The macOS app owns LaunchAgent install/update in Local mode.
 - The CLI can also install it: `openclaw gateway install`.
 

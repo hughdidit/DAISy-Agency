@@ -91,9 +91,7 @@ async function sendLinePairingReply(params: {
     channel: "line",
     id: senderId,
   });
-  if (!created) {
-    return;
-  }
+  if (!created) return;
   logVerbose(`line pairing request sender=${senderId}`);
   const idLabel = (() => {
     try {
@@ -225,9 +223,7 @@ async function handleMessageEvent(event: MessageEvent, context: LineHandlerConte
   const { cfg, account, runtime, mediaMaxBytes, processMessage } = context;
   const message = event.message;
 
-  if (!(await shouldProcessLineEvent(event, context))) {
-    return;
-  }
+  if (!(await shouldProcessLineEvent(event, context))) return;
 
   // Download media if applicable
   const allMedia: MediaRef[] = [];
@@ -298,18 +294,14 @@ async function handlePostbackEvent(
   const data = event.postback.data;
   logVerbose(`line: received postback: ${data}`);
 
-  if (!(await shouldProcessLineEvent(event, context))) {
-    return;
-  }
+  if (!(await shouldProcessLineEvent(event, context))) return;
 
   const postbackContext = await buildLinePostbackContext({
     event,
     cfg: context.cfg,
     account: context.account,
   });
-  if (!postbackContext) {
-    return;
-  }
+  if (!postbackContext) return;
 
   await context.processMessage(postbackContext);
 }

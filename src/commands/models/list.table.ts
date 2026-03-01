@@ -30,9 +30,7 @@ export function printModelTable(
   }
 
   if (opts.plain) {
-    for (const row of rows) {
-      runtime.log(row.key);
-    }
+    for (const row of rows) runtime.log(row.key);
     return;
   }
 

@@ -111,12 +111,9 @@ To target a specific Gateway or agent:
       "command": "openclaw",
       "args": [
         "acp",
-        "--url",
-        "wss://gateway-host:18789",
-        "--token",
-        "<token>",
-        "--session",
-        "agent:design:main"
+        "--url", "wss://gateway-host:18789",
+        "--token", "<token>",
+        "--session", "agent:design:main"
       ],
       "env": {}
     }

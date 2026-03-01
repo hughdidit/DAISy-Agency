@@ -21,13 +21,9 @@ export type RuntimeDetails = {
 const SEMVER_RE = /(\d+)\.(\d+)\.(\d+)/;
 
 export function parseSemver(version: string | null): Semver | null {
-  if (!version) {
-    return null;
-  }
+  if (!version) return null;
   const match = version.match(SEMVER_RE);
-  if (!match) {
-    return null;
-  }
+  if (!match) return null;
   const [, major, minor, patch] = match;
   return {
     major: Number.parseInt(major, 10),
@@ -37,15 +33,9 @@ export function parseSemver(version: string | null): Semver | null {
 }
 
 export function isAtLeast(version: Semver | null, minimum: Semver): boolean {
-  if (!version) {
-    return false;
-  }
-  if (version.major !== minimum.major) {
-    return version.major > minimum.major;
-  }
-  if (version.minor !== minimum.minor) {
-    return version.minor > minimum.minor;
-  }
+  if (!version) return false;
+  if (version.major !== minimum.major) return version.major > minimum.major;
+  if (version.minor !== minimum.minor) return version.minor > minimum.minor;
   return version.patch >= minimum.patch;
 }
 
@@ -63,9 +53,7 @@ export function detectRuntime(): RuntimeDetails {
 
 export function runtimeSatisfies(details: RuntimeDetails): boolean {
   const parsed = parseSemver(details.version);
-  if (details.kind === "node") {
-    return isAtLeast(parsed, MIN_NODE);
-  }
+  if (details.kind === "node") return isAtLeast(parsed, MIN_NODE);
   return false;
 }
 
@@ -77,9 +65,7 @@ export function assertSupportedRuntime(
   runtime: RuntimeEnv = defaultRuntime,
   details: RuntimeDetails = detectRuntime(),
 ): void {
-  if (runtimeSatisfies(details)) {
-    return;
-  }
+  if (runtimeSatisfies(details)) return;
 
   const versionLabel = details.version ?? "unknown";
   const runtimeLabel =

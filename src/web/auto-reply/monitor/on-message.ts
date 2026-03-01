@@ -138,9 +138,7 @@ export function createWebOnMessageHandler(params: {
         logVerbose,
         replyLogger: params.replyLogger,
       });
-      if (!gating.shouldProcess) {
-        return;
-      }
+      if (!gating.shouldProcess) return;
     } else {
       // Ensure `peerId` for DMs is stable and stored as E.164 when possible.
       if (!msg.senderE164 && peerId && peerId.startsWith("+")) {
