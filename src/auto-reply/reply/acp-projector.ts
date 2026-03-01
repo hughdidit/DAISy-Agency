@@ -192,7 +192,7 @@ export function createAcpReplyProjector(params: {
   const chunker = new EmbeddedBlockChunker(streaming.chunking);
   const liveIdleFlushMs = Math.max(streaming.coalescing.idleMs, ACP_LIVE_IDLE_FLUSH_FLOOR_MS);
 
-  let emittedTurnChars = 0;
+  let emittedOutputChars = 0;
   let truncationNoticeEmitted = false;
   let lastStatusHash: string | undefined;
   let lastToolHash: string | undefined;
@@ -258,7 +258,13 @@ export function createAcpReplyProjector(params: {
 
   const resetTurnState = () => {
     clearLiveIdleTimer();
+<<<<<<< HEAD
     emittedTurnChars = 0;
+=======
+    blockReplyPipeline.stop();
+    blockReplyPipeline = createTurnBlockReplyPipeline();
+    emittedOutputChars = 0;
+>>>>>>> 829240171 (ACP: rename stream char limits to output/sessionUpdate)
     truncationNoticeEmitted = false;
     lastStatusHash = undefined;
     lastToolHash = undefined;
@@ -297,7 +303,7 @@ export function createAcpReplyProjector(params: {
     if (!params.shouldSendToolSummaries) {
       return;
     }
-    const bounded = truncateText(text.trim(), settings.maxStatusChars);
+    const bounded = truncateText(text.trim(), settings.maxSessionUpdateChars);
     if (!bounded) {
       return;
     }
@@ -327,8 +333,14 @@ export function createAcpReplyProjector(params: {
       return;
     }
 
+<<<<<<< HEAD
     const toolSummary = truncateText(renderToolSummaryText(event), settings.maxToolSummaryChars);
     const hash = hashText(toolSummary);
+=======
+    const renderedToolSummary = renderToolSummaryText(event);
+    const toolSummary = truncateText(renderedToolSummary, settings.maxSessionUpdateChars);
+    const hash = hashText(renderedToolSummary);
+>>>>>>> 829240171 (ACP: rename stream char limits to output/sessionUpdate)
     const toolCallId = event.toolCallId?.trim() || undefined;
     const status = normalizeToolStatus(event.status);
     const isTerminal = status ? TERMINAL_TOOL_STATUSES.has(status) : false;
@@ -419,14 +431,14 @@ export function createAcpReplyProjector(params: {
         text = `${resolveHiddenBoundarySeparatorText(settings.hiddenBoundarySeparator)}${text}`;
       }
       pendingHiddenBoundary = false;
-      if (emittedTurnChars >= settings.maxTurnChars) {
+      if (emittedOutputChars >= settings.maxOutputChars) {
         await emitTruncationNotice();
         return;
       }
-      const remaining = settings.maxTurnChars - emittedTurnChars;
+      const remaining = settings.maxOutputChars - emittedOutputChars;
       const accepted = remaining < text.length ? text.slice(0, remaining) : text;
       if (accepted.length > 0) {
-        emittedTurnChars += accepted.length;
+        emittedOutputChars += accepted.length;
         lastVisibleOutputTail = accepted.slice(-1);
         if (settings.deliveryMode === "live") {
           liveBufferText += accepted;

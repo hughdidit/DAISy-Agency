@@ -411,6 +411,56 @@ describe("createAcpReplyProjector", () => {
     expect(deliveries[1]?.text).toContain("Tool Call");
   });
 
+<<<<<<< HEAD
+=======
+  it("keeps terminal tool updates even when rendered summaries are truncated", async () => {
+    const deliveries: Array<{ kind: string; text?: string }> = [];
+    const projector = createAcpReplyProjector({
+      cfg: createCfg({
+        acp: {
+          enabled: true,
+          stream: {
+            deliveryMode: "live",
+            maxSessionUpdateChars: 48,
+            tagVisibility: {
+              tool_call: true,
+              tool_call_update: true,
+            },
+          },
+        },
+      }),
+      shouldSendToolSummaries: true,
+      deliver: async (kind, payload) => {
+        deliveries.push({ kind, text: payload.text });
+        return true;
+      },
+    });
+
+    const longTitle =
+      "Run an intentionally long command title that truncates before lifecycle status is visible";
+    await projector.onEvent({
+      type: "tool_call",
+      tag: "tool_call",
+      toolCallId: "call_truncated_status",
+      status: "in_progress",
+      title: longTitle,
+      text: `${longTitle} (in_progress)`,
+    });
+    await projector.onEvent({
+      type: "tool_call",
+      tag: "tool_call_update",
+      toolCallId: "call_truncated_status",
+      status: "completed",
+      title: longTitle,
+      text: `${longTitle} (completed)`,
+    });
+
+    expect(deliveries.length).toBe(2);
+    expect(deliveries[0]?.kind).toBe("tool");
+    expect(deliveries[1]?.kind).toBe("tool");
+  });
+
+>>>>>>> 829240171 (ACP: rename stream char limits to output/sessionUpdate)
   it("renders fallback tool labels without leaking call ids as primary label", async () => {
     const deliveries: Array<{ kind: string; text?: string }> = [];
     const projector = createAcpReplyProjector({
@@ -571,7 +621,7 @@ describe("createAcpReplyProjector", () => {
             coalesceIdleMs: 0,
             maxChunkChars: 256,
             deliveryMode: "live",
-            maxTurnChars: 5,
+            maxOutputChars: 5,
           },
         },
       }),
