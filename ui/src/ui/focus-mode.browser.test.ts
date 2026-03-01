@@ -1,37 +1,33 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 <<<<<<< HEAD
-=======
-import { OpenClawApp } from "./app.ts";
->>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
 
 <<<<<<< HEAD
 import { MoltbotApp } from "./app";
-
-const originalConnect = MoltbotApp.prototype.connect;
 =======
-// oxlint-disable-next-line typescript/unbound-method
+import { OpenClawApp } from "./app";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
+
 const originalConnect = OpenClawApp.prototype.connect;
->>>>>>> e9a32b83c (chore: Manually fix lint issues in `ui`.)
 
 function mountApp(pathname: string) {
   window.history.replaceState({}, "", pathname);
-  const app = document.createElement("moltbot-app") as MoltbotApp;
+  const app = document.createElement("openclaw-app") as OpenClawApp;
   document.body.append(app);
   return app;
 }
 
 beforeEach(() => {
-  MoltbotApp.prototype.connect = () => {
+  OpenClawApp.prototype.connect = () => {
     // no-op: avoid real gateway WS connections in browser tests
   };
-  window.__CLAWDBOT_CONTROL_UI_BASE_PATH__ = undefined;
+  window.__OPENCLAW_CONTROL_UI_BASE_PATH__ = undefined;
   localStorage.clear();
   document.body.innerHTML = "";
 });
 
 afterEach(() => {
-  MoltbotApp.prototype.connect = originalConnect;
-  window.__CLAWDBOT_CONTROL_UI_BASE_PATH__ = undefined;
+  OpenClawApp.prototype.connect = originalConnect;
+  window.__OPENCLAW_CONTROL_UI_BASE_PATH__ = undefined;
   localStorage.clear();
   document.body.innerHTML = "";
 });

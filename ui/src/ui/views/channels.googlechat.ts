@@ -1,16 +1,8 @@
 import { html, nothing } from "lit";
-<<<<<<< HEAD
-
-import { formatAgo } from "../format";
 import type { GoogleChatStatus } from "../types";
-import { renderChannelConfigSection } from "./channels.config";
 import type { ChannelsProps } from "./channels.types";
-=======
-import type { GoogleChatStatus } from "../types.ts";
-import type { ChannelsProps } from "./channels.types.ts";
-import { formatRelativeTimestamp } from "../format.ts";
-import { renderChannelConfigSection } from "./channels.config.ts";
->>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
+import { formatAgo } from "../format";
+import { renderChannelConfigSection } from "./channels.config";
 
 export function renderGoogleChatCard(params: {
   props: ChannelsProps;

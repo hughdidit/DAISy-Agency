@@ -1,11 +1,12 @@
+<<<<<<< HEAD
 import { randomToken } from "../commands/onboard-helpers.js";
 import type { GatewayAuthChoice } from "../commands/onboard-types.js";
-<<<<<<< HEAD
-import type { MoltbotConfig } from "../config/config.js";
-=======
-import type { GatewayBindMode, GatewayTailscaleMode, OpenClawConfig } from "../config/config.js";
->>>>>>> 952b0f8c4 (chore: Fix TypeScript errors 2/n.)
+import type { OpenClawConfig } from "../config/config.js";
 import { findTailscaleBinary } from "../infra/tailscale.js";
+=======
+import type { GatewayAuthChoice } from "../commands/onboard-types.js";
+import type { GatewayBindMode, GatewayTailscaleMode, OpenClawConfig } from "../config/config.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { RuntimeEnv } from "../runtime.js";
 import type {
   GatewayWizardSettings,
@@ -13,6 +14,8 @@ import type {
   WizardFlow,
 } from "./onboarding.types.js";
 import type { WizardPrompter } from "./prompts.js";
+import { normalizeGatewayTokenInput, randomToken } from "../commands/onboard-helpers.js";
+import { findTailscaleBinary } from "../infra/tailscale.js";
 
 // These commands are "high risk" (privacy writes/recording) and should be
 // explicitly armed by the user when they want to use them.
@@ -30,8 +33,8 @@ const DEFAULT_DANGEROUS_NODE_DENY_COMMANDS = [
 
 type ConfigureGatewayOptions = {
   flow: WizardFlow;
-  baseConfig: MoltbotConfig;
-  nextConfig: MoltbotConfig;
+  baseConfig: OpenClawConfig;
+  nextConfig: OpenClawConfig;
   localPort: number;
   quickstartGateway: QuickstartGatewayDefaults;
   prompter: WizardPrompter;
@@ -39,7 +42,7 @@ type ConfigureGatewayOptions = {
 };
 
 type ConfigureGatewayResult = {
-  nextConfig: MoltbotConfig;
+  nextConfig: OpenClawConfig;
   settings: GatewayWizardSettings;
 };
 
@@ -63,10 +66,17 @@ export async function configureGatewayForOnboarding(
           10,
         );
 
-  let bind =
+<<<<<<< HEAD
+  let bind = (
     flow === "quickstart"
       ? quickstartGateway.bind
-      : await prompter.select({
+      : ((await prompter.select({
+=======
+  let bind: GatewayWizardSettings["bind"] =
+    flow === "quickstart"
+      ? quickstartGateway.bind
+      : await prompter.select<GatewayWizardSettings["bind"]>({
+>>>>>>> a42e1c82d (fix: restore tsc build and plugin install tests)
           message: "Gateway bind",
           options: [
             { value: "loopback", label: "Loopback (127.0.0.1)" },
@@ -125,10 +135,17 @@ export async function configureGatewayForOnboarding(
           initialValue: "token",
         })) as GatewayAuthChoice);
 
-  const tailscaleMode =
+<<<<<<< HEAD
+  const tailscaleMode = (
     flow === "quickstart"
       ? quickstartGateway.tailscaleMode
-      : await prompter.select({
+      : ((await prompter.select({
+=======
+  const tailscaleMode: GatewayWizardSettings["tailscaleMode"] =
+    flow === "quickstart"
+      ? quickstartGateway.tailscaleMode
+      : await prompter.select<GatewayWizardSettings["tailscaleMode"]>({
+>>>>>>> a42e1c82d (fix: restore tsc build and plugin install tests)
           message: "Tailscale exposure",
           options: [
             { value: "off", label: "Off", hint: "No Tailscale exposure" },
@@ -165,7 +182,9 @@ export async function configureGatewayForOnboarding(
   let tailscaleResetOnExit = flow === "quickstart" ? quickstartGateway.tailscaleResetOnExit : false;
   if (tailscaleMode !== "off" && flow !== "quickstart") {
     await prompter.note(
-      ["Docs:", "https://docs.molt.bot/gateway/tailscale", "https://docs.molt.bot/web"].join("\n"),
+      ["Docs:", "https://docs.openclaw.ai/gateway/tailscale", "https://docs.openclaw.ai/web"].join(
+        "\n",
+      ),
       "Tailscale",
     );
     tailscaleResetOnExit = Boolean(
@@ -200,7 +219,9 @@ export async function configureGatewayForOnboarding(
         placeholder: "Needed for multi-machine or non-loopback access",
         initialValue: quickstartGateway.token ?? "",
       });
-      gatewayToken = String(tokenInput).trim() || randomToken();
+      // FIX: Ensure undefined becomes an empty string, not "undefined" string
+      const rawInput = tokenInput ? String(tokenInput).trim() : "";
+      gatewayToken = rawInput || randomToken();
     }
   }
 

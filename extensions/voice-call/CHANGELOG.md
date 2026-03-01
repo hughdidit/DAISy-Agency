@@ -1,36 +1,70 @@
 # Changelog
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
 ## 2026.1.27-beta.1
 =======
-## 2026.2.1
+=======
+## 2026.2.3
+=======
+=======
+## 2026.2.6-3
 
 ### Changes
 
+- Version alignment with core OpenClaw release numbers.
+
+>>>>>>> 9f703a44d (chore(release): 2026.2.6-3)
+## 2026.2.6-2
+
+### Changes
+
+- Version alignment with core OpenClaw release numbers.
+
+## 2026.2.6
+
+### Changes
+
+- Version alignment with core OpenClaw release numbers.
+
+## 2026.2.4
+>>>>>>> ad4dd0422 (chore(release): 2026.2.6-2)
+
+### Changes
+
+- Version alignment with core OpenClaw release numbers.
+
+>>>>>>> f895c9fba (chore: sync plugin versions to 2026.2.3)
+## 2026.2.2
+>>>>>>> 1c4db9159 (chore: prepare 2026.2.2 release)
+
+### Changes
+
+- Version alignment with core OpenClaw release numbers.
+
+>>>>>>> 677450cd9 (chore(release): bump version to 2026.2.6)
+## 2026.2.4
+>>>>>>> 5031b283a (chore: bump version to 2026.2.4)
+
+### Changes
 - Version alignment with core OpenClaw release numbers.
 
 ## 2026.1.31
 
 ### Changes
-
 - Version alignment with core OpenClaw release numbers.
 
 ## 2026.1.30
->>>>>>> 8d2f98fb0 (Fix subagent announce failover race (always emit lifecycle end + treat timeout=0 as no-timeout) (#6621))
 
 ### Changes
-<<<<<<< HEAD
-- Version alignment with core Moltbot release numbers.
-=======
-
 - Version alignment with core OpenClaw release numbers.
 
 ## 2026.1.29
 
 ### Changes
-
 - Version alignment with core OpenClaw release numbers.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 ## 2026.1.26
 
@@ -44,102 +78,52 @@
 ## 2026.1.23
 
 ### Changes
-<<<<<<< HEAD
-- Version alignment with core Moltbot release numbers.
-=======
-
 - Version alignment with core OpenClaw release numbers.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 ## 2026.1.22
 
 ### Changes
-<<<<<<< HEAD
-- Version alignment with core Moltbot release numbers.
-=======
-
 - Version alignment with core OpenClaw release numbers.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 ## 2026.1.21
 
 ### Changes
-<<<<<<< HEAD
-- Version alignment with core Moltbot release numbers.
-=======
-
 - Version alignment with core OpenClaw release numbers.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 ## 2026.1.20
 
 ### Changes
-<<<<<<< HEAD
-- Version alignment with core Moltbot release numbers.
-=======
-
 - Version alignment with core OpenClaw release numbers.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 ## 2026.1.17-1
 
 ### Changes
-<<<<<<< HEAD
-- Version alignment with core Moltbot release numbers.
-=======
-
 - Version alignment with core OpenClaw release numbers.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 ## 2026.1.17
 
 ### Changes
-<<<<<<< HEAD
-- Version alignment with core Moltbot release numbers.
-=======
-
 - Version alignment with core OpenClaw release numbers.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 ## 2026.1.16
 
 ### Changes
-<<<<<<< HEAD
-- Version alignment with core Moltbot release numbers.
-=======
-
 - Version alignment with core OpenClaw release numbers.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 ## 2026.1.15
 
 ### Changes
-<<<<<<< HEAD
-- Version alignment with core Moltbot release numbers.
-=======
-
 - Version alignment with core OpenClaw release numbers.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 ## 2026.1.14
 
 ### Changes
-<<<<<<< HEAD
-- Version alignment with core Moltbot release numbers.
-=======
-
 - Version alignment with core OpenClaw release numbers.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 ## 0.1.0
 
 ### Highlights
-<<<<<<< HEAD
-- First public release of the @moltbot/voice-call plugin.
-=======
-
 - First public release of the @openclaw/voice-call plugin.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 ### Features
 
@@ -152,6 +136,6 @@
 - Speech: OpenAI TTS (model/voice/instructions) with Twilio `<Say>` fallback.
 - Tooling: `voice_call` tool actions for initiate/continue/speak/end/status.
 - Gateway RPC: `voicecall.initiate|continue|speak|end|status` (+ legacy `voicecall.start`).
-- CLI: `moltbot voicecall` commands (call/start/continue/speak/end/status/tail/expose).
+- CLI: `openclaw voicecall` commands (call/start/continue/speak/end/status/tail/expose).
 - Observability: JSONL call logs and `voicecall tail` for live inspection.
 - Response controls: `responseModel`, `responseSystemPrompt`, and `responseTimeoutMs` for auto‑responses.

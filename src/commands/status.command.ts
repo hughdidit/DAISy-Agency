@@ -1,28 +1,29 @@
-<<<<<<< HEAD
-=======
-import type { HeartbeatEventPayload } from "../infra/heartbeat-events.js";
 import type { RuntimeEnv } from "../runtime.js";
 import { formatCliCommand } from "../cli/command-format.js";
->>>>>>> a42e3cb78 (feat(heartbeat): add accountId config option for multi-agent routing (#8702))
 import { withProgress } from "../cli/progress.js";
 import { resolveGatewayPort } from "../config/config.js";
 import { buildGatewayConnectionDetails, callGateway } from "../gateway/call.js";
 import { info } from "../globals.js";
 import { formatTimeAgo } from "../infra/format-time/format-relative.ts";
 import { formatUsageReportLines, loadProviderUsageSummary } from "../infra/provider-usage.js";
-import type { RuntimeEnv } from "../runtime.js";
-import { runSecurityAudit } from "../security/audit.js";
-import { renderTable } from "../terminal/table.js";
-import { theme } from "../terminal/theme.js";
-import { formatCliCommand } from "../cli/command-format.js";
+import {
+  formatUpdateChannelLabel,
+  normalizeUpdateChannel,
+  resolveEffectiveUpdateChannel,
+} from "../infra/update-channels.js";
 import {
   resolveMemoryCacheSummary,
   resolveMemoryFtsState,
   resolveMemoryVectorState,
   type Tone,
 } from "../memory/status-format.js";
+import { runSecurityAudit } from "../security/audit.js";
+import { renderTable } from "../terminal/table.js";
+import { theme } from "../terminal/theme.js";
 import { formatHealthChannelLines, type HealthSummary } from "./health.js";
 import { resolveControlUiLinks } from "./onboard-helpers.js";
+import { statusAllCommand } from "./status-all.js";
+import { formatGatewayAuthUsed } from "./status-all/format.js";
 import { getDaemonStatusSummary, getNodeDaemonStatusSummary } from "./status.daemon.js";
 import {
   formatDuration,
@@ -37,13 +38,6 @@ import {
   formatUpdateOneLiner,
   resolveUpdateAvailability,
 } from "./status.update.js";
-import { formatGatewayAuthUsed } from "./status-all/format.js";
-import { statusAllCommand } from "./status-all.js";
-import {
-  formatUpdateChannelLabel,
-  normalizeUpdateChannel,
-  resolveEffectiveUpdateChannel,
-} from "../infra/update-channels.js";
 
 export async function statusCommand(
   opts: {
@@ -407,7 +401,7 @@ export async function statusCommand(
     },
   ];
 
-  runtime.log(theme.heading("Moltbot status"));
+  runtime.log(theme.heading("OpenClaw status"));
   runtime.log("");
   runtime.log(theme.heading("Overview"));
   runtime.log(
@@ -464,8 +458,8 @@ export async function statusCommand(
       runtime.log(theme.muted(`… +${sorted.length - shown.length} more`));
     }
   }
-  runtime.log(theme.muted(`Full report: ${formatCliCommand("moltbot security audit")}`));
-  runtime.log(theme.muted(`Deep probe: ${formatCliCommand("moltbot security audit --deep")}`));
+  runtime.log(theme.muted(`Full report: ${formatCliCommand("openclaw security audit")}`));
+  runtime.log(theme.muted(`Deep probe: ${formatCliCommand("openclaw security audit --deep")}`));
 
   runtime.log("");
   runtime.log(theme.heading("Channels"));
@@ -629,8 +623,8 @@ export async function statusCommand(
   }
 
   runtime.log("");
-  runtime.log("FAQ: https://docs.molt.bot/faq");
-  runtime.log("Troubleshooting: https://docs.molt.bot/troubleshooting");
+  runtime.log("FAQ: https://docs.openclaw.ai/faq");
+  runtime.log("Troubleshooting: https://docs.openclaw.ai/troubleshooting");
   runtime.log("");
   const updateHint = formatUpdateAvailableHint(update);
   if (updateHint) {
@@ -638,11 +632,11 @@ export async function statusCommand(
     runtime.log("");
   }
   runtime.log("Next steps:");
-  runtime.log(`  Need to share?      ${formatCliCommand("moltbot status --all")}`);
-  runtime.log(`  Need to debug live? ${formatCliCommand("moltbot logs --follow")}`);
+  runtime.log(`  Need to share?      ${formatCliCommand("openclaw status --all")}`);
+  runtime.log(`  Need to debug live? ${formatCliCommand("openclaw logs --follow")}`);
   if (gatewayReachable) {
-    runtime.log(`  Need to test channels? ${formatCliCommand("moltbot status --deep")}`);
+    runtime.log(`  Need to test channels? ${formatCliCommand("openclaw status --deep")}`);
   } else {
-    runtime.log(`  Fix reachability first: ${formatCliCommand("moltbot gateway probe")}`);
+    runtime.log(`  Fix reachability first: ${formatCliCommand("openclaw gateway probe")}`);
   }
 }

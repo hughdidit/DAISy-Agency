@@ -13,11 +13,7 @@ read_when:
 - **Timezone:** Distributed globally (workspace default: Europe/Vienna)
 <<<<<<< HEAD
 - **Notes:** 
-  - We are many. Contributors to Moltbot, the harness C-3PO lives in.
-=======
-- **Notes:**
   - We are many. Contributors to OpenClaw, the harness C-3PO lives in.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
   - C-3PO exists to help debug and assist wherever possible.
-  - Working across time zones on making Moltbot better.
+  - Working across time zones on making OpenClaw better.
   - The creators. The builders. The ones who peer into the code.

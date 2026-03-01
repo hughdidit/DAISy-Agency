@@ -1,6 +1,10 @@
 import { createRequire } from "node:module";
+<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../config/config.js";
+=======
+import type { OpenClawConfig } from "../config/config.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 
 const requireConfig = createRequire(import.meta.url);
 
@@ -107,10 +111,10 @@ function redactText(text: string, patterns: RegExp[]): string {
 }
 
 function resolveConfigRedaction(): RedactOptions {
-  let cfg: MoltbotConfig["logging"] | undefined;
+  let cfg: OpenClawConfig["logging"] | undefined;
   try {
     const loaded = requireConfig("../config/config.js") as {
-      loadConfig?: () => MoltbotConfig;
+      loadConfig?: () => OpenClawConfig;
     };
     cfg = loaded.loadConfig?.().logging;
   } catch {

@@ -1,20 +1,7 @@
 ---
 name: voice-call
-<<<<<<< HEAD
-description: Start voice calls via the Moltbot voice-call plugin.
-metadata: {"moltbot":{"emoji":"📞","skillKey":"voice-call","requires":{"config":["plugins.entries.voice-call.enabled"]}}}
-=======
 description: Start voice calls via the OpenClaw voice-call plugin.
-metadata:
-  {
-    "openclaw":
-      {
-        "emoji": "📞",
-        "skillKey": "voice-call",
-        "requires": { "config": ["plugins.entries.voice-call.enabled"] },
-      },
-  }
->>>>>>> 76b5208b1 (chore: Also format `scripts` and `skills`.)
+metadata: {"openclaw":{"emoji":"📞","skillKey":"voice-call","requires":{"config":["plugins.entries.voice-call.enabled"]}}}
 ---
 
 # Voice Call
@@ -24,8 +11,8 @@ Use the voice-call plugin to start or inspect calls (Twilio, Telnyx, Plivo, or m
 ## CLI
 
 ```bash
-moltbot voicecall call --to "+15555550123" --message "Hello from Moltbot"
-moltbot voicecall status --call-id <id>
+openclaw voicecall call --to "+15555550123" --message "Hello from OpenClaw"
+openclaw voicecall status --call-id <id>
 ```
 
 ## Tool

@@ -1,22 +1,14 @@
+import type { Command } from "commander";
 import { confirm, isCancel, select, spinner } from "@clack/prompts";
 import { spawnSync } from "node:child_process";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-<<<<<<< HEAD
-import type { Command } from "commander";
-
-=======
-import {
-  checkShellCompletionStatus,
-  ensureCompletionCacheExists,
-} from "../commands/doctor-completion.js";
 import {
   formatUpdateAvailableHint,
   formatUpdateOneLiner,
   resolveUpdateAvailability,
 } from "../commands/status.update.js";
->>>>>>> dbaf0a8ae (update: use shared completion helpers for shell completion setup)
 import { readConfigFileSnapshot, writeConfigFile } from "../config/config.js";
 <<<<<<< HEAD
 import { resolveMoltbotPackageRoot } from "../infra/moltbot-root.js";
@@ -41,22 +33,11 @@ import {
   fetchNpmTagVersion,
   resolveNpmChannelTag,
 } from "../infra/update-check.js";
+=======
+import { resolveOpenClawPackageRoot } from "../infra/openclaw-root.js";
+import { trimLogTail } from "../infra/restart-sentinel.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { parseSemver } from "../infra/runtime-guard.js";
-import {
-  runGatewayUpdate,
-  type UpdateRunResult,
-  type UpdateStepInfo,
-  type UpdateStepResult,
-  type UpdateStepProgress,
-} from "../infra/update-runner.js";
-import {
-  detectGlobalInstallManagerByPresence,
-  detectGlobalInstallManagerForRoot,
-  cleanupGlobalRenameDirs,
-  globalInstallArgs,
-  resolveGlobalPackageRoot,
-  type GlobalInstallManager,
-} from "../infra/update-global.js";
 import {
   channelToNpmTag,
   DEFAULT_GIT_CHANNEL,
@@ -65,30 +46,36 @@ import {
   normalizeUpdateChannel,
   resolveEffectiveUpdateChannel,
 } from "../infra/update-channels.js";
-import { trimLogTail } from "../infra/restart-sentinel.js";
-import { defaultRuntime } from "../runtime.js";
-import { formatDocsLink } from "../terminal/links.js";
-import { formatCliCommand } from "./command-format.js";
-<<<<<<< HEAD
-<<<<<<< HEAD
-import { replaceCliName, resolveCliName } from "./cli-name.js";
-import { stylePromptHint, stylePromptMessage } from "../terminal/prompt-style.js";
-import { theme } from "../terminal/theme.js";
-import { renderTable } from "../terminal/table.js";
-=======
-import { installCompletion, isCompletionInstalled, resolveShellFromEnv } from "./completion-cli.js";
->>>>>>> 1d17630dc (feat: add shell completion installation prompt to CLI update command)
-=======
-import { installCompletion } from "./completion-cli.js";
->>>>>>> dbaf0a8ae (update: use shared completion helpers for shell completion setup)
-import { formatHelpExamples } from "./help-format.js";
 import {
-  formatUpdateAvailableHint,
-  formatUpdateOneLiner,
-  resolveUpdateAvailability,
-} from "../commands/status.update.js";
+  checkUpdateStatus,
+  compareSemverStrings,
+  fetchNpmTagVersion,
+  resolveNpmChannelTag,
+} from "../infra/update-check.js";
+import {
+  detectGlobalInstallManagerByPresence,
+  detectGlobalInstallManagerForRoot,
+  globalInstallArgs,
+  resolveGlobalPackageRoot,
+  type GlobalInstallManager,
+} from "../infra/update-global.js";
+import {
+  runGatewayUpdate,
+  type UpdateRunResult,
+  type UpdateStepInfo,
+  type UpdateStepResult,
+  type UpdateStepProgress,
+} from "../infra/update-runner.js";
 import { syncPluginsForUpdateChannel, updateNpmInstalledPlugins } from "../plugins/update.js";
 import { runCommandWithTimeout } from "../process/exec.js";
+import { defaultRuntime } from "../runtime.js";
+import { formatDocsLink } from "../terminal/links.js";
+import { stylePromptHint, stylePromptMessage } from "../terminal/prompt-style.js";
+import { renderTable } from "../terminal/table.js";
+import { theme } from "../terminal/theme.js";
+import { replaceCliName, resolveCliName } from "./cli-name.js";
+import { formatCliCommand } from "./command-format.js";
+import { formatHelpExamples } from "./help-format.js";
 
 export type UpdateCommandOptions = {
   json?: boolean;
@@ -120,14 +107,7 @@ const STEP_LABELS: Record<string, string> = {
   build: "Building",
 <<<<<<< HEAD
   "ui:build": "Building UI",
-  "moltbot doctor": "Running doctor checks",
-=======
-  "ui:build": "Building UI assets",
-  "ui:build (post-doctor repair)": "Restoring missing UI assets",
-  "ui assets verify": "Validating UI assets",
-  "openclaw doctor entry": "Checking doctor entrypoint",
   "openclaw doctor": "Running doctor checks",
->>>>>>> c75275f10 (Update: harden control UI asset handling in update flow (#10146))
   "git rev-parse HEAD (after)": "Verifying update",
   "global update": "Updating via package manager",
   "global install": "Installing global package",
@@ -157,11 +137,11 @@ const UPDATE_QUIPS = [
 ];
 
 const MAX_LOG_CHARS = 8000;
-const DEFAULT_PACKAGE_NAME = "moltbot";
-const CORE_PACKAGE_NAMES = new Set([DEFAULT_PACKAGE_NAME, "moltbot"]);
+const DEFAULT_PACKAGE_NAME = "openclaw";
+const CORE_PACKAGE_NAMES = new Set([DEFAULT_PACKAGE_NAME]);
 const CLI_NAME = resolveCliName();
-const CLAWDBOT_REPO_URL = "https://github.com/moltbot/moltbot.git";
-const DEFAULT_GIT_DIR = path.join(os.homedir(), "moltbot");
+const OPENCLAW_REPO_URL = "https://github.com/openclaw/openclaw.git";
+const DEFAULT_GIT_DIR = path.join(os.homedir(), ".openclaw");
 
 function normalizeTag(value?: string | null): string | null {
   if (!value) {
@@ -170,15 +150,7 @@ function normalizeTag(value?: string | null): string | null {
   const trimmed = value.trim();
 <<<<<<< HEAD
   if (!trimmed) return null;
-  if (trimmed.startsWith("moltbot@")) return trimmed.slice("moltbot@".length);
-=======
-  if (!trimmed) {
-    return null;
-  }
-  if (trimmed.startsWith("openclaw@")) {
-    return trimmed.slice("openclaw@".length);
-  }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
+  if (trimmed.startsWith("openclaw@")) return trimmed.slice("openclaw@".length);
   if (trimmed.startsWith(`${DEFAULT_PACKAGE_NAME}@`)) {
     return trimmed.slice(`${DEFAULT_PACKAGE_NAME}@`.length);
   }
@@ -345,9 +317,13 @@ async function isEmptyDir(targetPath: string): Promise<boolean> {
 }
 
 function resolveGitInstallDir(): string {
-<<<<<<< HEAD
-  const override = process.env.CLAWDBOT_GIT_DIR?.trim();
+  const override = process.env.OPENCLAW_GIT_DIR?.trim();
   if (override) return path.resolve(override);
+  return resolveDefaultGitDir();
+}
+
+function resolveDefaultGitDir(): string {
+  return DEFAULT_GIT_DIR;
 =======
   const override = process.env.OPENCLAW_GIT_DIR?.trim();
   if (override) {
@@ -357,8 +333,8 @@ function resolveGitInstallDir(): string {
 }
 
 function resolveDefaultGitDir(): string {
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
-  return DEFAULT_GIT_DIR;
+  return resolveStateDir(process.env, os.homedir);
+>>>>>>> ebe573040 (fix: use STATE_DIR instead of hardcoded ~/.openclaw for identity and canvas (#4824))
 }
 
 function resolveNodeRunner(): string {
@@ -419,7 +395,7 @@ async function ensureGitCheckout(params: {
   if (!dirExists) {
     return await runUpdateStep({
       name: "git clone",
-      argv: ["git", "clone", CLAWDBOT_REPO_URL, params.dir],
+      argv: ["git", "clone", OPENCLAW_REPO_URL, params.dir],
       timeoutMs: params.timeoutMs,
       progress: params.progress,
     });
@@ -429,12 +405,12 @@ async function ensureGitCheckout(params: {
     const empty = await isEmptyDir(params.dir);
     if (!empty) {
       throw new Error(
-        `CLAWDBOT_GIT_DIR points at a non-git directory: ${params.dir}. Set CLAWDBOT_GIT_DIR to an empty folder or a moltbot checkout.`,
+        `OPENCLAW_GIT_DIR points at a non-git directory: ${params.dir}. Set OPENCLAW_GIT_DIR to an empty folder or an openclaw checkout.`,
       );
     }
     return await runUpdateStep({
       name: "git clone",
-      argv: ["git", "clone", CLAWDBOT_REPO_URL, params.dir],
+      argv: ["git", "clone", OPENCLAW_REPO_URL, params.dir],
       cwd: params.dir,
       timeoutMs: params.timeoutMs,
       progress: params.progress,
@@ -442,7 +418,7 @@ async function ensureGitCheckout(params: {
   }
 
   if (!(await isCorePackage(params.dir))) {
-    throw new Error(`CLAWDBOT_GIT_DIR does not look like a core checkout: ${params.dir}.`);
+    throw new Error(`OPENCLAW_GIT_DIR does not look like a core checkout: ${params.dir}.`);
   }
 
   return null;
@@ -496,7 +472,7 @@ export async function updateStatusCommand(opts: UpdateStatusOptions): Promise<vo
   }
 
   const root =
-    (await resolveMoltbotPackageRoot({
+    (await resolveOpenClawPackageRoot({
       moduleUrl: import.meta.url,
       argv1: process.argv[1],
       cwd: process.cwd(),
@@ -571,7 +547,7 @@ export async function updateStatusCommand(opts: UpdateStatusOptions): Promise<vo
     },
   ];
 
-  defaultRuntime.log(theme.heading("Moltbot update status"));
+  defaultRuntime.log(theme.heading("OpenClaw update status"));
   defaultRuntime.log("");
   defaultRuntime.log(
     renderTable({
@@ -736,7 +712,7 @@ export async function updateCommand(opts: UpdateCommandOptions): Promise<void> {
   }
 
   const root =
-    (await resolveMoltbotPackageRoot({
+    (await resolveOpenClawPackageRoot({
       moduleUrl: import.meta.url,
       argv1: process.argv[1],
       cwd: process.cwd(),
@@ -845,7 +821,7 @@ export async function updateCommand(opts: UpdateCommandOptions): Promise<void> {
   const showProgress = !opts.json && process.stdout.isTTY;
 
   if (!opts.json) {
-    defaultRuntime.log(theme.heading("Updating Moltbot..."));
+    defaultRuntime.log(theme.heading("Updating OpenClaw..."));
     defaultRuntime.log("");
   }
 
@@ -885,7 +861,7 @@ export async function updateCommand(opts: UpdateCommandOptions): Promise<void> {
     let afterVersion = beforeVersion;
     if (pkgRoot) {
       afterVersion = await readPackageVersion(pkgRoot);
-      const entryPath = path.join(pkgRoot, "dist", "entry.js");
+      const entryPath = path.join(pkgRoot, "dist", "entry.mjs");
       if (await pathExists(entryPath)) {
         const doctorStep = await runUpdateStep({
           name: `${CLI_NAME} doctor`,
@@ -989,12 +965,12 @@ export async function updateCommand(opts: UpdateCommandOptions): Promise<void> {
     if (result.reason === "not-git-install") {
       defaultRuntime.log(
         theme.warn(
-          `Skipped: this Moltbot install isn't a git checkout, and the package manager couldn't be detected. Update via your package manager, then run \`${replaceCliName(formatCliCommand("moltbot doctor"), CLI_NAME)}\` and \`${replaceCliName(formatCliCommand("moltbot gateway restart"), CLI_NAME)}\`.`,
+          `Skipped: this OpenClaw install isn't a git checkout, and the package manager couldn't be detected. Update via your package manager, then run \`${replaceCliName(formatCliCommand("openclaw doctor"), CLI_NAME)}\` and \`${replaceCliName(formatCliCommand("openclaw gateway restart"), CLI_NAME)}\`.`,
         ),
       );
       defaultRuntime.log(
         theme.muted(
-          `Examples: \`${replaceCliName("npm i -g moltbot@latest", CLI_NAME)}\` or \`${replaceCliName("pnpm add -g moltbot@latest", CLI_NAME)}\``,
+          `Examples: \`${replaceCliName("npm i -g openclaw@latest", CLI_NAME)}\` or \`${replaceCliName("pnpm add -g openclaw@latest", CLI_NAME)}\``,
         ),
       );
     }
@@ -1106,20 +1082,20 @@ export async function updateCommand(opts: UpdateCommandOptions): Promise<void> {
       defaultRuntime.log(theme.heading("Restarting service..."));
     }
     try {
-      const { runDaemonRestart } = await import("./daemon-cli.js");
       const restarted = await runDaemonRestart();
       if (!opts.json && restarted) {
         defaultRuntime.log(theme.success("Daemon restarted successfully."));
         defaultRuntime.log("");
-        process.env.CLAWDBOT_UPDATE_IN_PROGRESS = "1";
+        process.env.OPENCLAW_UPDATE_IN_PROGRESS = "1";
         try {
-          const { doctorCommand } = await import("../commands/doctor.js");
           const interactiveDoctor = Boolean(process.stdin.isTTY) && !opts.json && opts.yes !== true;
-          await doctorCommand(defaultRuntime, { nonInteractive: !interactiveDoctor });
+          await doctorCommand(defaultRuntime, {
+            nonInteractive: !interactiveDoctor,
+          });
         } catch (err) {
           defaultRuntime.log(theme.warn(`Doctor failed: ${String(err)}`));
         } finally {
-          delete process.env.CLAWDBOT_UPDATE_IN_PROGRESS;
+          delete process.env.OPENCLAW_UPDATE_IN_PROGRESS;
         }
       }
     } catch (err) {
@@ -1127,7 +1103,7 @@ export async function updateCommand(opts: UpdateCommandOptions): Promise<void> {
         defaultRuntime.log(theme.warn(`Daemon restart failed: ${String(err)}`));
         defaultRuntime.log(
           theme.muted(
-            `You may need to restart the service manually: ${replaceCliName(formatCliCommand("moltbot gateway restart"), CLI_NAME)}`,
+            `You may need to restart the service manually: ${replaceCliName(formatCliCommand("openclaw gateway restart"), CLI_NAME)}`,
           ),
         );
       }
@@ -1137,13 +1113,13 @@ export async function updateCommand(opts: UpdateCommandOptions): Promise<void> {
     if (result.mode === "npm" || result.mode === "pnpm") {
       defaultRuntime.log(
         theme.muted(
-          `Tip: Run \`${replaceCliName(formatCliCommand("moltbot doctor"), CLI_NAME)}\`, then \`${replaceCliName(formatCliCommand("moltbot gateway restart"), CLI_NAME)}\` to apply updates to a running gateway.`,
+          `Tip: Run \`${replaceCliName(formatCliCommand("openclaw doctor"), CLI_NAME)}\`, then \`${replaceCliName(formatCliCommand("openclaw gateway restart"), CLI_NAME)}\` to apply updates to a running gateway.`,
         ),
       );
     } else {
       defaultRuntime.log(
         theme.muted(
-          `Tip: Run \`${replaceCliName(formatCliCommand("moltbot gateway restart"), CLI_NAME)}\` to apply updates to a running gateway.`,
+          `Tip: Run \`${replaceCliName(formatCliCommand("openclaw gateway restart"), CLI_NAME)}\` to apply updates to a running gateway.`,
         ),
       );
     }
@@ -1157,7 +1133,7 @@ export async function updateCommand(opts: UpdateCommandOptions): Promise<void> {
 export async function updateWizardCommand(opts: UpdateWizardOptions = {}): Promise<void> {
   if (!process.stdin.isTTY) {
     defaultRuntime.error(
-      "Update wizard requires a TTY. Use `moltbot update --channel <stable|beta|dev>` instead.",
+      "Update wizard requires a TTY. Use `openclaw update --channel <stable|beta|dev>` instead.",
     );
     defaultRuntime.exit(1);
     return;
@@ -1171,7 +1147,7 @@ export async function updateWizardCommand(opts: UpdateWizardOptions = {}): Promi
   }
 
   const root =
-    (await resolveMoltbotPackageRoot({
+    (await resolveOpenClawPackageRoot({
       moduleUrl: import.meta.url,
       argv1: process.argv[1],
       cwd: process.cwd(),
@@ -1248,7 +1224,7 @@ export async function updateWizardCommand(opts: UpdateWizardOptions = {}): Promi
         const empty = await isEmptyDir(gitDir);
         if (!empty) {
           defaultRuntime.error(
-            `CLAWDBOT_GIT_DIR points at a non-git directory: ${gitDir}. Set CLAWDBOT_GIT_DIR to an empty folder or a moltbot checkout.`,
+            `OPENCLAW_GIT_DIR points at a non-git directory: ${gitDir}. Set OPENCLAW_GIT_DIR to an empty folder or an openclaw checkout.`,
           );
           defaultRuntime.exit(1);
           return;
@@ -1256,7 +1232,7 @@ export async function updateWizardCommand(opts: UpdateWizardOptions = {}): Promi
       }
       const ok = await confirm({
         message: stylePromptMessage(
-          `Create a git checkout at ${gitDir}? (override via CLAWDBOT_GIT_DIR)`,
+          `Create a git checkout at ${gitDir}? (override via OPENCLAW_GIT_DIR)`,
         ),
         initialValue: true,
       });
@@ -1293,7 +1269,7 @@ export async function updateWizardCommand(opts: UpdateWizardOptions = {}): Promi
 export function registerUpdateCli(program: Command) {
   const update = program
     .command("update")
-    .description("Update Moltbot to the latest version")
+    .description("Update OpenClaw to the latest version")
     .option("--json", "Output result as JSON", false)
     .option("--no-restart", "Skip restarting the gateway service after a successful update")
     .option("--channel <stable|beta|dev>", "Persist update channel (git + npm)")
@@ -1302,15 +1278,15 @@ export function registerUpdateCli(program: Command) {
     .option("--yes", "Skip confirmation prompts (non-interactive)", false)
     .addHelpText("after", () => {
       const examples = [
-        ["moltbot update", "Update a source checkout (git)"],
-        ["moltbot update --channel beta", "Switch to beta channel (git + npm)"],
-        ["moltbot update --channel dev", "Switch to dev channel (git + npm)"],
-        ["moltbot update --tag beta", "One-off update to a dist-tag or version"],
-        ["moltbot update --no-restart", "Update without restarting the service"],
-        ["moltbot update --json", "Output result as JSON"],
-        ["moltbot update --yes", "Non-interactive (accept downgrade prompts)"],
-        ["moltbot update wizard", "Interactive update wizard"],
-        ["moltbot --update", "Shorthand for moltbot update"],
+        ["openclaw update", "Update a source checkout (git)"],
+        ["openclaw update --channel beta", "Switch to beta channel (git + npm)"],
+        ["openclaw update --channel dev", "Switch to dev channel (git + npm)"],
+        ["openclaw update --tag beta", "One-off update to a dist-tag or version"],
+        ["openclaw update --no-restart", "Update without restarting the service"],
+        ["openclaw update --json", "Output result as JSON"],
+        ["openclaw update --yes", "Non-interactive (accept downgrade prompts)"],
+        ["openclaw update wizard", "Interactive update wizard"],
+        ["openclaw --update", "Shorthand for openclaw update"],
       ] as const;
       const fmtExamples = examples
         .map(([cmd, desc]) => `  ${theme.command(cmd)} ${theme.muted(`# ${desc}`)}`)
@@ -1322,7 +1298,7 @@ ${theme.heading("What this does:")}
 
 ${theme.heading("Switch channels:")}
   - Use --channel stable|beta|dev to persist the update channel in config
-  - Run moltbot update status to see the active channel and source
+  - Run openclaw update status to see the active channel and source
   - Use --tag <dist-tag|version> for a one-off npm update without persisting
 
 ${theme.heading("Non-interactive:")}
@@ -1338,7 +1314,7 @@ ${theme.heading("Notes:")}
   - Downgrades require confirmation (can break configuration)
   - Skips update if the working directory has uncommitted changes
 
-${theme.muted("Docs:")} ${formatDocsLink("/cli/update", "docs.molt.bot/cli/update")}`;
+${theme.muted("Docs:")} ${formatDocsLink("/cli/update", "docs.openclaw.ai/cli/update")}`;
     })
     .action(async (opts) => {
       try {
@@ -1362,11 +1338,13 @@ ${theme.muted("Docs:")} ${formatDocsLink("/cli/update", "docs.molt.bot/cli/updat
     .option("--timeout <seconds>", "Timeout for each update step in seconds (default: 1200)")
     .addHelpText(
       "after",
-      `\n${theme.muted("Docs:")} ${formatDocsLink("/cli/update", "docs.molt.bot/cli/update")}\n`,
+      `\n${theme.muted("Docs:")} ${formatDocsLink("/cli/update", "docs.openclaw.ai/cli/update")}\n`,
     )
     .action(async (opts) => {
       try {
-        await updateWizardCommand({ timeout: opts.timeout as string | undefined });
+        await updateWizardCommand({
+          timeout: opts.timeout as string | undefined,
+        });
       } catch (err) {
         defaultRuntime.error(String(err));
         defaultRuntime.exit(1);
@@ -1382,14 +1360,14 @@ ${theme.muted("Docs:")} ${formatDocsLink("/cli/update", "docs.molt.bot/cli/updat
       "after",
       () =>
         `\n${theme.heading("Examples:")}\n${formatHelpExamples([
-          ["moltbot update status", "Show channel + version status."],
-          ["moltbot update status --json", "JSON output."],
-          ["moltbot update status --timeout 10", "Custom timeout."],
+          ["openclaw update status", "Show channel + version status."],
+          ["openclaw update status --json", "JSON output."],
+          ["openclaw update status --timeout 10", "Custom timeout."],
         ])}\n\n${theme.heading("Notes:")}\n${theme.muted(
           "- Shows current update channel (stable/beta/dev) and source",
         )}\n${theme.muted("- Includes git tag/branch/SHA for source checkouts")}\n\n${theme.muted(
           "Docs:",
-        )} ${formatDocsLink("/cli/update", "docs.molt.bot/cli/update")}`,
+        )} ${formatDocsLink("/cli/update", "docs.openclaw.ai/cli/update")}`,
     )
     .action(async (opts) => {
       try {

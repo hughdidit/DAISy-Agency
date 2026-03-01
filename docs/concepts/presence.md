@@ -1,19 +1,15 @@
 ---
-summary: "How Moltbot presence entries are produced, merged, and displayed"
+summary: "How OpenClaw presence entries are produced, merged, and displayed"
 read_when:
   - Debugging the Instances tab
   - Investigating duplicate or stale instance rows
   - Changing gateway WS connect or system-event beacons
+title: "Presence"
 ---
 
 # Presence
 
-<<<<<<< HEAD
-Moltbot “presence” is a lightweight, best‑effort view of:
-=======
 OpenClaw “presence” is a lightweight, best‑effort view of:
-
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - the **Gateway** itself, and
 - **clients connected to the Gateway** (mac app, WebChat, CLI, etc.)
 

@@ -27,7 +27,7 @@ const isWindowsCi = isCI && isWindows;
 const shardOverride = Number.parseInt(process.env.CLAWDBOT_TEST_SHARDS ?? "", 10);
 const shardCount = isWindowsCi ? (Number.isFinite(shardOverride) && shardOverride > 1 ? shardOverride : 2) : 1;
 const windowsCiArgs = isWindowsCi ? ["--no-file-parallelism", "--dangerouslyIgnoreUnhandledErrors"] : [];
-const overrideWorkers = Number.parseInt(process.env.CLAWDBOT_TEST_WORKERS ?? "", 10);
+const overrideWorkers = Number.parseInt(process.env.OPENCLAW_TEST_WORKERS ?? "", 10);
 const resolvedOverride = Number.isFinite(overrideWorkers) && overrideWorkers > 0 ? overrideWorkers : null;
 =======
 const shardOverride = Number.parseInt(process.env.OPENCLAW_TEST_SHARDS ?? "", 10);
@@ -36,15 +36,38 @@ const shardCount = isWindowsCi
     ? shardOverride
     : 2
   : 1;
+<<<<<<< HEAD
 const windowsCiArgs = isWindowsCi
   ? ["--no-file-parallelism", "--dangerouslyIgnoreUnhandledErrors"]
   : [];
+const passthroughArgs = process.argv.slice(2);
+=======
+const windowsCiArgs = isWindowsCi ? ["--dangerouslyIgnoreUnhandledErrors"] : [];
+const rawPassthroughArgs = process.argv.slice(2);
+const passthroughArgs =
+  rawPassthroughArgs[0] === "--" ? rawPassthroughArgs.slice(1) : rawPassthroughArgs;
+>>>>>>> 191da1feb (fix: context overflow compaction and subagent announce improvements (#11664) (thanks @tyler6204))
 const overrideWorkers = Number.parseInt(process.env.OPENCLAW_TEST_WORKERS ?? "", 10);
 const resolvedOverride =
   Number.isFinite(overrideWorkers) && overrideWorkers > 0 ? overrideWorkers : null;
->>>>>>> 76b5208b1 (chore: Also format `scripts` and `skills`.)
+>>>>>>> d90cac990 (fix: cron scheduler reliability, store hardening, and UX improvements (#10776))
 const parallelRuns = isWindowsCi ? [] : runs.filter((entry) => entry.name !== "gateway");
 const serialRuns = isWindowsCi ? runs : runs.filter((entry) => entry.name === "gateway");
+=======
+const shardOverride = Number.parseInt(process.env.OPENCLAW_TEST_SHARDS ?? "", 10);
+const shardCount = isWindowsCi
+  ? Number.isFinite(shardOverride) && shardOverride > 1
+    ? shardOverride
+    : 2
+  : 1;
+const windowsCiArgs = isWindowsCi ? ["--dangerouslyIgnoreUnhandledErrors"] : [];
+const passthroughArgs = process.argv.slice(2);
+const overrideWorkers = Number.parseInt(process.env.OPENCLAW_TEST_WORKERS ?? "", 10);
+const resolvedOverride =
+  Number.isFinite(overrideWorkers) && overrideWorkers > 0 ? overrideWorkers : null;
+const parallelRuns = runs.filter((entry) => entry.name !== "gateway");
+const serialRuns = runs.filter((entry) => entry.name === "gateway");
+>>>>>>> 2d7428a7f (ci: re-enable parallel vitest on Windows CI)
 const localWorkers = Math.max(4, Math.min(16, os.cpus().length));
 const parallelCount = Math.max(1, parallelRuns.length);
 const perRunWorkers = Math.max(1, Math.floor(localWorkers / parallelCount));
@@ -103,6 +126,30 @@ const shutdown = (signal) => {
 
 process.on("SIGINT", () => shutdown("SIGINT"));
 process.on("SIGTERM", () => shutdown("SIGTERM"));
+
+if (passthroughArgs.length > 0) {
+  const args = maxWorkers
+    ? ["vitest", "run", "--maxWorkers", String(maxWorkers), ...windowsCiArgs, ...passthroughArgs]
+    : ["vitest", "run", ...windowsCiArgs, ...passthroughArgs];
+  const nodeOptions = process.env.NODE_OPTIONS ?? "";
+  const nextNodeOptions = WARNING_SUPPRESSION_FLAGS.reduce(
+    (acc, flag) => (acc.includes(flag) ? acc : `${acc} ${flag}`.trim()),
+    nodeOptions,
+  );
+  const code = await new Promise((resolve) => {
+    const child = spawn(pnpm, args, {
+      stdio: "inherit",
+      env: { ...process.env, NODE_OPTIONS: nextNodeOptions },
+      shell: process.platform === "win32",
+    });
+    children.add(child);
+    child.on("exit", (exitCode, signal) => {
+      children.delete(child);
+      resolve(exitCode ?? (signal ? 1 : 0));
+    });
+  });
+  process.exit(Number(code) || 0);
+}
 
 const parallelCodes = await Promise.all(parallelRuns.map(run));
 const failedParallel = parallelCodes.find((code) => code !== 0);

@@ -2,28 +2,23 @@
 summary: "Group chat behavior across surfaces (WhatsApp/Telegram/Discord/Slack/Signal/iMessage/Microsoft Teams)"
 read_when:
   - Changing group chat behavior or mention gating
+title: "Groups"
 ---
 
 # Groups
 
-Moltbot treats group chats consistently across surfaces: WhatsApp, Telegram, Discord, Slack, Signal, iMessage, Microsoft Teams.
+OpenClaw treats group chats consistently across surfaces: WhatsApp, Telegram, Discord, Slack, Signal, iMessage, Microsoft Teams.
 
 ## Beginner intro (2 minutes)
-<<<<<<< HEAD
-Moltbot “lives” on your own messaging accounts. There is no separate WhatsApp bot user.
-If **you** are in a group, Moltbot can see that group and respond there.
-=======
-
 OpenClaw “lives” on your own messaging accounts. There is no separate WhatsApp bot user.
 If **you** are in a group, OpenClaw can see that group and respond there.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 Default behavior:
 
 - Groups are restricted (`groupPolicy: "allowlist"`).
 - Replies require a mention unless you explicitly disable mention gating.
 
-Translation: allowlisted senders can trigger Moltbot by mentioning it.
+Translation: allowlisted senders can trigger OpenClaw by mentioning it.
 
 > TL;DR
 >
@@ -43,12 +38,13 @@ otherwise -> reply
 ![Group message flow](/images/groups-flow.svg)
 
 If you want...
-| Goal | What to set |
-|------|-------------|
-| Allow all groups but only reply on @mentions | `groups: { "*": { requireMention: true } }` |
-| Disable all group replies | `groupPolicy: "disabled"` |
-| Only specific groups | `groups: { "<group-id>": { ... } }` (no `"*"` key) |
-| Only you can trigger in groups | `groupPolicy: "allowlist"`, `groupAllowFrom: ["+1555..."]` |
+
+| Goal                                         | What to set                                                |
+| -------------------------------------------- | ---------------------------------------------------------- |
+| Allow all groups but only reply on @mentions | `groups: { "*": { requireMention: true } }`                |
+| Disable all group replies                    | `groupPolicy: "disabled"`                                  |
+| Only specific groups                         | `groups: { "<group-id>": { ... } }` (no `"*"` key)         |
+| Only you can trigger in groups               | `groupPolicy: "allowlist"`, `groupAllowFrom: ["+1555..."]` |
 
 ## Session keys
 
@@ -233,8 +229,7 @@ Replying to a bot message counts as an implicit mention (when the channel suppor
       {
         id: "main",
         groupChat: {
-<<<<<<< HEAD
-          mentionPatterns: ["@clawd", "moltbot", "\\+15555550123"],
+          mentionPatterns: ["@openclaw", "openclaw", "\\+15555550123"],
           historyLimit: 50
         }
       }
@@ -313,8 +308,16 @@ Common intents (copy/paste):
 }
 ```
 
+<<<<<<< HEAD
+<<<<<<< HEAD
+2) Allow only specific groups (WhatsApp)
+=======
+1. Allow only specific groups (WhatsApp)
+=======
 2. Allow only specific groups (WhatsApp)
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 ```json5
 {
   channels: {
@@ -328,8 +331,16 @@ Common intents (copy/paste):
 }
 ```
 
+<<<<<<< HEAD
+<<<<<<< HEAD
+3) Allow all groups but require mention (explicit)
+=======
+1. Allow all groups but require mention (explicit)
+=======
 3. Allow all groups but require mention (explicit)
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 ```json5
 {
   channels: {
@@ -340,8 +351,16 @@ Common intents (copy/paste):
 }
 ```
 
+<<<<<<< HEAD
+<<<<<<< HEAD
+4) Only the owner can trigger in groups (WhatsApp)
+=======
+1. Only the owner can trigger in groups (WhatsApp)
+=======
 4. Only the owner can trigger in groups (WhatsApp)
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 ```json5
 {
   channels: {

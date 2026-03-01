@@ -4,17 +4,16 @@ import {
   LineConfigSchema,
   processLineMessage,
   type ChannelPlugin,
-<<<<<<< HEAD
-  type MoltbotConfig,
-=======
-  type ChannelStatusIssue,
   type OpenClawConfig,
->>>>>>> 3fbf99d72 (fix(line): resolve TypeError in status command)
   type LineConfig,
   type LineChannelData,
   type ResolvedLineAccount,
+<<<<<<< HEAD
 } from "clawdbot/plugin-sdk";
 
+=======
+} from "openclaw/plugin-sdk";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { getLineRuntime } from "./runtime.js";
 
 // LINE channel metadata
@@ -47,7 +46,7 @@ export const linePlugin: ChannelPlugin<ResolvedLineAccount> = {
       if (!account.channelAccessToken) {
         throw new Error("LINE channel access token not configured");
       }
-      await line.pushMessageLine(id, "Moltbot: your access has been approved.", {
+      await line.pushMessageLine(id, "OpenClaw: your access has been approved.", {
         channelAccessToken: account.channelAccessToken,
       });
     },
@@ -159,7 +158,7 @@ export const linePlugin: ChannelPlugin<ResolvedLineAccount> = {
         allowFrom: account.config.allowFrom ?? [],
         policyPath: `${basePath}dmPolicy`,
         allowFromPath: basePath,
-        approveHint: "moltbot pairing approve line <code>",
+        approveHint: "openclaw pairing approve line <code>",
         normalizeEntry: (raw) => raw.replace(/^line:(?:user:)?/i, ""),
       };
     },
@@ -352,10 +351,9 @@ export const linePlugin: ChannelPlugin<ResolvedLineAccount> = {
       const createQuickReplyItems = runtime.channel.line.createQuickReplyItems;
 
       let lastResult: { messageId: string; chatId: string } | null = null;
-      const hasQuickReplies = Boolean(lineData.quickReplies?.length);
-      const quickReply = hasQuickReplies
-        ? createQuickReplyItems(lineData.quickReplies!)
-        : undefined;
+      const quickReplies = lineData.quickReplies ?? [];
+      const hasQuickReplies = quickReplies.length > 0;
+      const quickReply = hasQuickReplies ? createQuickReplyItems(quickReplies) : undefined;
 
       const sendMessageBatch = async (messages: Array<Record<string, unknown>>) => {
         if (messages.length === 0) {
@@ -438,7 +436,11 @@ export const linePlugin: ChannelPlugin<ResolvedLineAccount> = {
         for (let i = 0; i < chunks.length; i += 1) {
           const isLast = i === chunks.length - 1;
           if (isLast && hasQuickReplies) {
-            lastResult = await sendQuickReplies(to, chunks[i], lineData.quickReplies!, {
+<<<<<<< HEAD
+            lastResult = await sendQuickReplies(to, chunks[i]!, lineData.quickReplies!, {
+=======
+            lastResult = await sendQuickReplies(to, chunks[i], quickReplies, {
+>>>>>>> 19775abdd (fix: clean up plugin linting and types)
               verbose: false,
               accountId: accountId ?? undefined,
             });
@@ -652,7 +654,7 @@ export const linePlugin: ChannelPlugin<ResolvedLineAccount> = {
     },
     logoutAccount: async ({ accountId, cfg }) => {
       const envToken = process.env.LINE_CHANNEL_ACCESS_TOKEN?.trim() ?? "";
-      const nextCfg = { ...cfg } as MoltbotConfig;
+      const nextCfg = { ...cfg } as OpenClawConfig;
       const lineConfig = (cfg.channels?.line ?? {}) as LineConfig;
       const nextLine = { ...lineConfig };
       let cleared = false;

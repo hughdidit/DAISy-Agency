@@ -1,12 +1,19 @@
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
 import { resolveAgentConfig } from "../agent-scope.js";
 import { expandToolGroups } from "../tool-policy.js";
 import { DEFAULT_TOOL_ALLOW, DEFAULT_TOOL_DENY } from "./constants.js";
+=======
+import type { OpenClawConfig } from "../../config/config.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type {
   SandboxToolPolicy,
   SandboxToolPolicyResolved,
   SandboxToolPolicySource,
 } from "./types.js";
+import { resolveAgentConfig } from "../agent-scope.js";
+import { expandToolGroups } from "../tool-policy.js";
+import { DEFAULT_TOOL_ALLOW, DEFAULT_TOOL_DENY } from "./constants.js";
 
 type CompiledPattern =
   | { kind: "all" }
@@ -69,7 +76,7 @@ export function isToolAllowed(policy: SandboxToolPolicy, name: string) {
 }
 
 export function resolveSandboxToolPolicyForAgent(
-  cfg?: MoltbotConfig,
+  cfg?: OpenClawConfig,
   agentId?: string,
 ): SandboxToolPolicyResolved {
   const agentConfig = cfg && agentId ? resolveAgentConfig(cfg, agentId) : undefined;

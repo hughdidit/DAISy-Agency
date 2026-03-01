@@ -1,15 +1,24 @@
+import fs from "node:fs/promises";
+import os from "node:os";
+import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+<<<<<<< HEAD
 
-import type { MoltbotConfig } from "../../config/config.js";
+import type { OpenClawConfig } from "../../config/config.js";
 import { setActivePluginRegistry } from "../../plugins/runtime.js";
 import { createIMessageTestPlugin, createTestRegistry } from "../../test-utils/channel-plugins.js";
+=======
+import type { ChannelPlugin } from "../../channels/plugins/types.js";
+import type { OpenClawConfig } from "../../config/config.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { slackPlugin } from "../../../extensions/slack/src/channel.js";
 import { telegramPlugin } from "../../../extensions/telegram/src/channel.js";
 import { whatsappPlugin } from "../../../extensions/whatsapp/src/channel.js";
+import { jsonResult } from "../../agents/tools/common.js";
+import { setActivePluginRegistry } from "../../plugins/runtime.js";
+import { createIMessageTestPlugin, createTestRegistry } from "../../test-utils/channel-plugins.js";
 import { loadWebMedia } from "../../web/media.js";
 import { runMessageAction } from "./message-action-runner.js";
-import { jsonResult } from "../../agents/tools/common.js";
-import type { ChannelPlugin } from "../../channels/plugins/types.js";
 
 vi.mock("../../web/media.js", async () => {
   const actual = await vi.importActual<typeof import("../../web/media.js")>("../../web/media.js");
@@ -26,7 +35,7 @@ const slackConfig = {
       appToken: "xapp-test",
     },
   },
-} as MoltbotConfig;
+} as OpenClawConfig;
 
 const whatsappConfig = {
   channels: {
@@ -34,7 +43,7 @@ const whatsappConfig = {
       allowFrom: ["*"],
     },
   },
-} as MoltbotConfig;
+} as OpenClawConfig;
 
 describe("runMessageAction context isolation", () => {
   beforeEach(async () => {
@@ -263,7 +272,7 @@ describe("runMessageAction context isolation", () => {
           token: "tg-test",
         },
       },
-    } as MoltbotConfig;
+    } as OpenClawConfig;
 
     const result = await runMessageAction({
       cfg: multiConfig,
@@ -305,7 +314,7 @@ describe("runMessageAction context isolation", () => {
           },
         },
       },
-    } as MoltbotConfig;
+    } as OpenClawConfig;
 
     await expect(
       runMessageAction({
@@ -423,7 +432,7 @@ describe("runMessageAction sendAttachment hydration", () => {
           password: "test-password",
         },
       },
-    } as MoltbotConfig;
+    } as OpenClawConfig;
 
     const result = await runMessageAction({
       cfg,
@@ -447,8 +456,6 @@ describe("runMessageAction sendAttachment hydration", () => {
       Buffer.from("hello").toString("base64"),
     );
   });
-<<<<<<< HEAD
-=======
 
   it("rewrites sandboxed media paths for sendAttachment", async () => {
     const cfg = {
@@ -579,7 +586,7 @@ describe("runMessageAction sandboxed media validation", () => {
         params: {
           channel: "slack",
           target: "#C12345678",
-          message: "Hello\nMEDIA: ./data/note.ogg",
+          message: "Hello\\nMEDIA: ./data/note.ogg",
         },
         sandboxRoot: sandboxDir,
         dryRun: true,
@@ -607,7 +614,6 @@ describe("runMessageAction sandboxed media validation", () => {
       }),
     ).rejects.toThrow(/data:/i);
   });
->>>>>>> a6fd76efe (Message: clarify media schema + fix MEDIA newline)
 });
 
 describe("runMessageAction accountId defaults", () => {
@@ -652,7 +658,7 @@ describe("runMessageAction accountId defaults", () => {
 
   it("propagates defaultAccountId into params", async () => {
     await runMessageAction({
-      cfg: {} as MoltbotConfig,
+      cfg: {} as OpenClawConfig,
       action: "send",
       params: {
         channel: "discord",

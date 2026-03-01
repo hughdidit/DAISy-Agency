@@ -1,6 +1,10 @@
 import type { loadConfig } from "../config/config.js";
+<<<<<<< HEAD
 import { loadMoltbotPlugins } from "../plugins/loader.js";
+=======
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { GatewayRequestHandler } from "./server-methods/types.js";
+import { loadOpenClawPlugins } from "../plugins/loader.js";
 
 export function loadGatewayPlugins(params: {
   cfg: ReturnType<typeof loadConfig>;
@@ -14,7 +18,7 @@ export function loadGatewayPlugins(params: {
   coreGatewayHandlers: Record<string, GatewayRequestHandler>;
   baseMethods: string[];
 }) {
-  const pluginRegistry = loadMoltbotPlugins({
+  const pluginRegistry = loadOpenClawPlugins({
     config: params.cfg,
     workspaceDir: params.workspaceDir,
     logger: {

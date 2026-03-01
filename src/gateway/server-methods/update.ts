@@ -3,19 +3,14 @@ import { resolveMoltbotPackageRoot } from "../../infra/moltbot-root.js";
 import { scheduleGatewaySigusr1Restart } from "../../infra/restart.js";
 =======
 import type { GatewayRequestHandlers } from "./types.js";
-import { loadConfig } from "../../config/config.js";
 import { resolveOpenClawPackageRoot } from "../../infra/openclaw-root.js";
->>>>>>> bbe9cb302 (fix(update): honor update.channel for update.run)
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import {
   formatDoctorNonInteractiveHint,
   type RestartSentinelPayload,
   writeRestartSentinel,
 } from "../../infra/restart-sentinel.js";
-<<<<<<< HEAD
-=======
 import { scheduleGatewaySigusr1Restart } from "../../infra/restart.js";
-import { normalizeUpdateChannel } from "../../infra/update-channels.js";
->>>>>>> bbe9cb302 (fix(update): honor update.channel for update.run)
 import { runGatewayUpdate } from "../../infra/update-runner.js";
 import {
   ErrorCodes,
@@ -23,7 +18,6 @@ import {
   formatValidationErrors,
   validateUpdateRunParams,
 } from "../protocol/index.js";
-import type { GatewayRequestHandlers } from "./types.js";
 
 export const updateHandlers: GatewayRequestHandlers = {
   "update.run": async ({ params, respond }) => {
@@ -62,7 +56,7 @@ export const updateHandlers: GatewayRequestHandlers = {
       const config = loadConfig();
       const configChannel = normalizeUpdateChannel(config.update?.channel);
       const root =
-        (await resolveMoltbotPackageRoot({
+        (await resolveOpenClawPackageRoot({
           moduleUrl: import.meta.url,
           argv1: process.argv[1],
           cwd: process.cwd(),

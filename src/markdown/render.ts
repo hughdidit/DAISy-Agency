@@ -82,7 +82,6 @@ export function renderMarkdownWithMarkers(ir: MarkdownIR, options: RenderOptions
   }
 
   const linkStarts = new Map<number, RenderLink[]>();
-  const linkEnds = new Map<number, RenderLink[]>();
   if (options.buildLink) {
     for (const link of ir.links) {
       if (link.start === link.end) {
@@ -98,22 +97,26 @@ export function renderMarkdownWithMarkers(ir: MarkdownIR, options: RenderOptions
 <<<<<<< HEAD
       if (openBucket) openBucket.push(rendered);
       else linkStarts.set(rendered.start, [rendered]);
-      const closeBucket = linkEnds.get(rendered.end);
-      if (closeBucket) closeBucket.push(rendered);
-      else linkEnds.set(rendered.end, [rendered]);
-=======
-      if (openBucket) {
-        openBucket.push(rendered);
-      } else {
-        linkStarts.set(rendered.start, [rendered]);
-      }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
     }
   }
 
-  const points = [...boundaries].toSorted((a, b) => a - b);
+  const points = [...boundaries].sort((a, b) => a - b);
+<<<<<<< HEAD
+  const stack: MarkdownStyleSpan[] = [];
+=======
   // Unified stack for both styles and links, tracking close string and end position
   const stack: { close: string; end: number }[] = [];
+  type OpeningItem =
+    | { end: number; open: string; close: string; kind: "link"; index: number }
+    | {
+        end: number;
+        open: string;
+        close: string;
+        kind: "style";
+        style: MarkdownStyle;
+        index: number;
+      };
+>>>>>>> da71eaebd (fix: correct telegram html nesting (#4578) (thanks @ThanhNguyxn))
   let out = "";
 
   for (let i = 0; i < points.length; i += 1) {
@@ -127,28 +130,39 @@ export function renderMarkdownWithMarkers(ir: MarkdownIR, options: RenderOptions
       }
     }
 
-    // Open links first (so they close after styles that start at the same position)
+<<<<<<< HEAD
     const openingLinks = linkStarts.get(pos);
     if (openingLinks && openingLinks.length > 0) {
       for (const link of openingLinks) {
         out += link.open;
-        stack.push({ close: link.close, end: link.end });
+=======
+    const openingItems: OpeningItem[] = [];
+
+    const openingLinks = linkStarts.get(pos);
+    if (openingLinks && openingLinks.length > 0) {
+      for (const [index, link] of openingLinks.entries()) {
+        openingItems.push({
+          end: link.end,
+          open: link.open,
+          close: link.close,
+          kind: "link",
+          index,
+        });
+>>>>>>> da71eaebd (fix: correct telegram html nesting (#4578) (thanks @ThanhNguyxn))
       }
     }
 
     // Open styles second (so they close before links that start at the same position)
     const openingStyles = startsAt.get(pos);
     if (openingStyles) {
-      for (const span of openingStyles) {
+      for (const [index, span] of openingStyles.entries()) {
         const marker = styleMarkers[span.style];
 <<<<<<< HEAD
         if (!marker) continue;
+<<<<<<< HEAD
+        stack.push(span);
         out += marker.open;
-        stack.push({ close: marker.close, end: span.end });
 =======
-        if (!marker) {
-          continue;
-        }
         openingItems.push({
           end: span.end,
           open: marker.open,
@@ -162,12 +176,8 @@ export function renderMarkdownWithMarkers(ir: MarkdownIR, options: RenderOptions
 
     if (openingItems.length > 0) {
       openingItems.sort((a, b) => {
-        if (a.end !== b.end) {
-          return b.end - a.end;
-        }
-        if (a.kind !== b.kind) {
-          return a.kind === "link" ? -1 : 1;
-        }
+        if (a.end !== b.end) return b.end - a.end;
+        if (a.kind !== b.kind) return a.kind === "link" ? -1 : 1;
         if (a.kind === "style" && b.kind === "style") {
           return (STYLE_RANK.get(a.style) ?? 0) - (STYLE_RANK.get(b.style) ?? 0);
         }
@@ -178,7 +188,7 @@ export function renderMarkdownWithMarkers(ir: MarkdownIR, options: RenderOptions
       for (const item of openingItems) {
         out += item.open;
         stack.push({ close: item.close, end: item.end });
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
+>>>>>>> da71eaebd (fix: correct telegram html nesting (#4578) (thanks @ThanhNguyxn))
       }
     }
 

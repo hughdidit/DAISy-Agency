@@ -1,5 +1,20 @@
+import type {
+  MSTeamsAccessTokenProvider,
+  MSTeamsAttachmentLike,
+  MSTeamsGraphMediaResult,
+  MSTeamsInboundMedia,
+} from "./types.js";
 import { getMSTeamsRuntime } from "../runtime.js";
 import { downloadMSTeamsAttachments } from "./download.js";
+<<<<<<< HEAD
+import { GRAPH_ROOT, inferPlaceholder, isRecord, normalizeContentType, resolveAllowedHosts } from "./shared.js";
+import type {
+  MSTeamsAccessTokenProvider,
+  MSTeamsAttachmentLike,
+  MSTeamsGraphMediaResult,
+  MSTeamsInboundMedia,
+} from "./types.js";
+=======
 import {
   GRAPH_ROOT,
   inferPlaceholder,
@@ -7,12 +22,7 @@ import {
   normalizeContentType,
   resolveAllowedHosts,
 } from "./shared.js";
-import type {
-  MSTeamsAccessTokenProvider,
-  MSTeamsAttachmentLike,
-  MSTeamsGraphMediaResult,
-  MSTeamsInboundMedia,
-} from "./types.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 
 type GraphHostedContent = {
   id?: string | null;
@@ -215,6 +225,7 @@ export async function downloadMSTeamsGraphMedia(params: {
   tokenProvider?: MSTeamsAccessTokenProvider;
   maxBytes: number;
   allowHosts?: string[];
+  authAllowHosts?: string[];
   fetchFn?: typeof fetch;
   /** When true, embeds original filename in stored path for later extraction. */
   preserveFilenames?: boolean;
@@ -336,6 +347,7 @@ export async function downloadMSTeamsGraphMedia(params: {
     maxBytes: params.maxBytes,
     tokenProvider: params.tokenProvider,
     allowHosts,
+    authAllowHosts: params.authAllowHosts,
     fetchFn: params.fetchFn,
     preserveFilenames: params.preserveFilenames,
   });

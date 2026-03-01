@@ -10,16 +10,11 @@ import {
 } from "clawdbot/plugin-sdk";
 =======
 } from "openclaw/plugin-sdk";
-import type { CoreConfig } from "./types.js";
->>>>>>> eb3e9c649 (chore: fix vitest standalone configs and update package description (#11865))
+import type { CoreConfig, DmPolicy } from "./types.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { listMatrixDirectoryGroupsLive } from "./directory-live.js";
 import { resolveMatrixAccount } from "./matrix/accounts.js";
 import { ensureMatrixSdkInstalled, isMatrixSdkAvailable } from "./matrix/deps.js";
-<<<<<<< HEAD
-import type { CoreConfig, DmPolicy } from "./types.js";
-=======
-import { resolveMatrixTargets } from "./resolve-targets.js";
->>>>>>> 41d2993f7 (fix(matrix): require unique allowlist matches in wizard)
 
 const channel = "matrix" as const;
 
@@ -345,7 +340,7 @@ export const matrixOnboardingAdapter: ChannelOnboardingAdapter = {
     const deviceName = String(
       await prompter.text({
         message: "Matrix device name (optional)",
-        initialValue: existing.deviceName ?? "Moltbot Gateway",
+        initialValue: existing.deviceName ?? "OpenClaw Gateway",
       }),
     ).trim();
 

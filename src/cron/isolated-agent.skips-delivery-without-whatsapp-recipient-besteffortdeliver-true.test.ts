@@ -1,21 +1,23 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-
 import { beforeEach, describe, expect, it, vi } from "vitest";
-
-import { withTempHome as withTempHomeBase } from "../../test/helpers/temp-home.js";
 import type { CliDeps } from "../cli/deps.js";
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
+=======
+import type { OpenClawConfig } from "../config/config.js";
+import type { CronJob } from "./types.js";
+import { discordPlugin } from "../../extensions/discord/src/channel.js";
+import { setDiscordRuntime } from "../../extensions/discord/src/runtime.js";
+import { telegramPlugin } from "../../extensions/telegram/src/channel.js";
+import { setTelegramRuntime } from "../../extensions/telegram/src/runtime.js";
+import { whatsappPlugin } from "../../extensions/whatsapp/src/channel.js";
+import { setWhatsAppRuntime } from "../../extensions/whatsapp/src/runtime.js";
+import { withTempHome as withTempHomeBase } from "../../test/helpers/temp-home.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { setActivePluginRegistry } from "../plugins/runtime.js";
 import { createPluginRuntime } from "../plugins/runtime/index.js";
 import { createTestRegistry } from "../test-utils/channel-plugins.js";
-import type { CronJob } from "./types.js";
-import { discordPlugin } from "../../extensions/discord/src/channel.js";
-import { telegramPlugin } from "../../extensions/telegram/src/channel.js";
-import { whatsappPlugin } from "../../extensions/whatsapp/src/channel.js";
-import { setDiscordRuntime } from "../../extensions/discord/src/runtime.js";
-import { setTelegramRuntime } from "../../extensions/telegram/src/runtime.js";
-import { setWhatsAppRuntime } from "../../extensions/whatsapp/src/runtime.js";
 
 vi.mock("../agents/pi-embedded.js", () => ({
   abortEmbeddedPiRun: vi.fn().mockReturnValue(false),
@@ -35,11 +37,11 @@ import { runSubagentAnnounceFlow } from "../agents/subagent-announce.js";
 import { runCronIsolatedAgentTurn } from "./isolated-agent.js";
 
 async function withTempHome<T>(fn: (home: string) => Promise<T>): Promise<T> {
-  return withTempHomeBase(fn, { prefix: "moltbot-cron-" });
+  return withTempHomeBase(fn, { prefix: "openclaw-cron-" });
 }
 
 async function writeSessionStore(home: string) {
-  const dir = path.join(home, ".clawdbot", "sessions");
+  const dir = path.join(home, ".openclaw", "sessions");
   await fs.mkdir(dir, { recursive: true });
   const storePath = path.join(dir, "sessions.json");
   await fs.writeFile(
@@ -64,17 +66,17 @@ async function writeSessionStore(home: string) {
 function makeCfg(
   home: string,
   storePath: string,
-  overrides: Partial<MoltbotConfig> = {},
-): MoltbotConfig {
-  const base: MoltbotConfig = {
+  overrides: Partial<OpenClawConfig> = {},
+): OpenClawConfig {
+  const base: OpenClawConfig = {
     agents: {
       defaults: {
         model: "anthropic/claude-opus-4-5",
-        workspace: path.join(home, "clawd"),
+        workspace: path.join(home, "openclaw"),
       },
     },
     session: { store: storePath, mainKey: "main" },
-  } as MoltbotConfig;
+  } as OpenClawConfig;
   return { ...base, ...overrides };
 }
 
@@ -98,19 +100,20 @@ describe("runCronIsolatedAgentTurn", () => {
   beforeEach(() => {
     vi.mocked(runEmbeddedPiAgent).mockReset();
     vi.mocked(loadModelCatalog).mockResolvedValue([]);
-    vi.mocked(runSubagentAnnounceFlow).mockReset().mockResolvedValue(true);
 <<<<<<< HEAD
     const runtime = createPluginRuntime();
     setDiscordRuntime(runtime);
     setTelegramRuntime(runtime);
     setWhatsAppRuntime(runtime);
 =======
->>>>>>> 8fae55e8e (fix(cron): share isolated announce flow + harden cron scheduling/delivery (#11641))
+>>>>>>> 6341819d7 (fix: cron announce delivery path (#8540) (thanks @tyler6204))
     setActivePluginRegistry(
       createTestRegistry([
-        { pluginId: "whatsapp", plugin: whatsappPlugin, source: "test" },
-        { pluginId: "telegram", plugin: telegramPlugin, source: "test" },
-        { pluginId: "discord", plugin: discordPlugin, source: "test" },
+        {
+          pluginId: "telegram",
+          plugin: createOutboundTestPlugin({ id: "telegram", outbound: telegramOutbound }),
+          source: "test",
+        },
       ]),
     );
   });
@@ -193,17 +196,74 @@ describe("runCronIsolatedAgentTurn", () => {
         lane: "cron",
       });
 
+<<<<<<< HEAD
+        expect(res.status).toBe("ok");
+        expect(deps.sendMessageTelegram).toHaveBeenCalledWith(
+          "123",
+          "hello from cron",
+          expect.objectContaining({ verbose: false }),
+        );
+      } finally {
+        if (prevTelegramToken === undefined) {
+          delete process.env.TELEGRAM_BOT_TOKEN;
+        } else {
+          process.env.TELEGRAM_BOT_TOKEN = prevTelegramToken;
+        }
+      }
+=======
       expect(res.status).toBe("ok");
-      expect(runSubagentAnnounceFlow).toHaveBeenCalledTimes(1);
-      const announceArgs = vi.mocked(runSubagentAnnounceFlow).mock.calls[0]?.[0] as
-        | { roundOneReply?: string; requesterOrigin?: { threadId?: string | number } }
-        | undefined;
-      expect(announceArgs?.roundOneReply).toBe("Final weather summary");
-      expect(announceArgs?.requesterOrigin?.threadId).toBeUndefined();
+      expect(deps.sendMessageTelegram).toHaveBeenCalled();
+>>>>>>> 6341819d7 (fix: cron announce delivery path (#8540) (thanks @tyler6204))
     });
   });
 
-  it("passes resolved threadId into shared subagent announce flow", async () => {
+<<<<<<< HEAD
+  it("auto-delivers when explicit target is set without deliver flag", async () => {
+=======
+  it("announces only the final payload text", async () => {
+    await withTempHome(async (home) => {
+      const storePath = await writeSessionStore(home);
+      const deps: CliDeps = {
+        sendMessageWhatsApp: vi.fn(),
+        sendMessageTelegram: vi.fn(),
+        sendMessageDiscord: vi.fn(),
+        sendMessageSignal: vi.fn(),
+        sendMessageIMessage: vi.fn(),
+      };
+      vi.mocked(runEmbeddedPiAgent).mockResolvedValue({
+        payloads: [{ text: "Working on it..." }, { text: "Final weather summary" }],
+        meta: {
+          durationMs: 5,
+          agentMeta: { sessionId: "s", provider: "p", model: "m" },
+        },
+      });
+
+      const res = await runCronIsolatedAgentTurn({
+        cfg: makeCfg(home, storePath, {
+          channels: { telegram: { botToken: "t-1" } },
+        }),
+        deps,
+        job: {
+          ...makeJob({ kind: "agentTurn", message: "do it" }),
+          delivery: { mode: "announce", channel: "telegram", to: "123" },
+        },
+        message: "do it",
+        sessionKey: "cron:job-1",
+        lane: "cron",
+      });
+
+      expect(res.status).toBe("ok");
+      expect(deps.sendMessageTelegram).toHaveBeenCalledTimes(1);
+      expect(deps.sendMessageTelegram).toHaveBeenCalledWith(
+        "123",
+        "Final weather summary",
+        expect.any(Object),
+      );
+    });
+  });
+
+  it("skips announce when messaging tool already sent to target", async () => {
+>>>>>>> d90cac990 (fix: cron scheduler reliability, store hardening, and UX improvements (#10776))
     await withTempHome(async (home) => {
       const storePath = await writeSessionStore(home);
       await fs.writeFile(
@@ -298,11 +358,15 @@ describe("runCronIsolatedAgentTurn", () => {
       });
 
       expect(res.status).toBe("ok");
-      expect(runSubagentAnnounceFlow).not.toHaveBeenCalled();
 <<<<<<< HEAD
+      expect(deps.sendMessageTelegram).toHaveBeenCalledWith(
+        "telegram:group:-1001234567890:topic:321",
+        "hello from cron",
+        expect.objectContaining({ verbose: false }),
+      );
 =======
       expect(deps.sendMessageTelegram).not.toHaveBeenCalled();
->>>>>>> 8fae55e8e (fix(cron): share isolated announce flow + harden cron scheduling/delivery (#11641))
+>>>>>>> 6341819d7 (fix: cron announce delivery path (#8540) (thanks @tyler6204))
     });
   });
 
@@ -383,8 +447,12 @@ describe("runCronIsolatedAgentTurn", () => {
         lane: "cron",
       });
 
-      expect(res.status).toBe("error");
-      expect(res.error).toBe("cron announce delivery failed");
+      expect(res.status).toBe("ok");
+<<<<<<< HEAD
+      expect(deps.sendMessageWhatsApp).not.toHaveBeenCalled();
+=======
+      expect(deps.sendMessageTelegram).not.toHaveBeenCalled();
+>>>>>>> 6341819d7 (fix: cron announce delivery path (#8540) (thanks @tyler6204))
     });
   });
 
@@ -393,7 +461,14 @@ describe("runCronIsolatedAgentTurn", () => {
       const storePath = await writeSessionStore(home);
       const deps: CliDeps = {
         sendMessageWhatsApp: vi.fn(),
-        sendMessageTelegram: vi.fn(),
+<<<<<<< HEAD
+        sendMessageTelegram: vi.fn().mockResolvedValue({
+          messageId: "t1",
+          chatId: "123",
+        }),
+=======
+        sendMessageTelegram: vi.fn().mockRejectedValue(new Error("boom")),
+>>>>>>> 6341819d7 (fix: cron announce delivery path (#8540) (thanks @tyler6204))
         sendMessageDiscord: vi.fn(),
         sendMessageSignal: vi.fn(),
         sendMessageIMessage: vi.fn(),
@@ -405,14 +480,56 @@ describe("runCronIsolatedAgentTurn", () => {
           agentMeta: { sessionId: "s", provider: "p", model: "m" },
         },
       });
-      vi.mocked(runSubagentAnnounceFlow).mockResolvedValue(false);
 <<<<<<< HEAD
 
 =======
->>>>>>> 8fae55e8e (fix(cron): share isolated announce flow + harden cron scheduling/delivery (#11641))
+>>>>>>> 6341819d7 (fix: cron announce delivery path (#8540) (thanks @tyler6204))
+      const res = await runCronIsolatedAgentTurn({
+        cfg: makeCfg(home, storePath),
+        deps,
+<<<<<<< HEAD
+        job: makeJob({
+          kind: "agentTurn",
+          message: "do it",
+          deliver: true,
+          channel: "telegram",
+          to: "123",
+=======
+        job: {
+          ...makeJob({ kind: "agentTurn", message: "do it" }),
+          delivery: { mode: "announce", channel: "telegram", to: "123" },
+        },
+        message: "do it",
+        sessionKey: "cron:job-1",
+        lane: "cron",
+      });
+
+      expect(res.status).toBe("error");
+      expect(res.error).toBe("Error: boom");
+    });
+  });
+
+  it("ignores announce delivery failures when best-effort is enabled", async () => {
+    await withTempHome(async (home) => {
+      const storePath = await writeSessionStore(home);
+      const deps: CliDeps = {
+        sendMessageWhatsApp: vi.fn(),
+        sendMessageTelegram: vi.fn().mockRejectedValue(new Error("boom")),
+        sendMessageDiscord: vi.fn(),
+        sendMessageSignal: vi.fn(),
+        sendMessageIMessage: vi.fn(),
+      };
+      vi.mocked(runEmbeddedPiAgent).mockResolvedValue({
+        payloads: [{ text: "hello from cron" }],
+        meta: {
+          durationMs: 5,
+          agentMeta: { sessionId: "s", provider: "p", model: "m" },
+        },
+      });
       const res = await runCronIsolatedAgentTurn({
         cfg: makeCfg(home, storePath, {
           channels: { telegram: { botToken: "t-1" } },
+>>>>>>> 6341819d7 (fix: cron announce delivery path (#8540) (thanks @tyler6204))
         }),
         deps,
         job: {

@@ -1,18 +1,23 @@
 ---
-summary: "Agent runtime (embedded p-mono), workspace contract, and session bootstrap"
+summary: "Agent runtime (embedded pi-mono), workspace contract, and session bootstrap"
 read_when:
   - Changing agent runtime, workspace bootstrap, or session behavior
+title: "Agent Runtime"
 ---
 
 # Agent Runtime 🤖
 
+<<<<<<< HEAD
 Moltbot runs a single embedded agent runtime derived from **p-mono**.
+=======
+OpenClaw runs a single embedded agent runtime derived from **pi-mono**.
+>>>>>>> 9a1b44096 (Fix typo in agent.md from p-mono to pi-mono)
 
 ## Workspace (required)
 
-Moltbot uses a single agent workspace directory (`agents.defaults.workspace`) as the agent’s **only** working directory (`cwd`) for tools and context.
+OpenClaw uses a single agent workspace directory (`agents.defaults.workspace`) as the agent’s **only** working directory (`cwd`) for tools and context.
 
-Recommended: use `moltbot setup` to create `~/.clawdbot/moltbot.json` if missing and initialize the workspace files.
+Recommended: use `openclaw setup` to create `~/.openclaw/openclaw.json` if missing and initialize the workspace files.
 
 Full workspace layout + backup guide: [Agent workspace](/concepts/agent-workspace)
 
@@ -22,12 +27,7 @@ per-session workspaces under `agents.defaults.sandbox.workspaceRoot` (see
 
 ## Bootstrap files (injected)
 
-<<<<<<< HEAD
-Inside `agents.defaults.workspace`, Moltbot expects these user-editable files:
-=======
 Inside `agents.defaults.workspace`, OpenClaw expects these user-editable files:
-
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - `AGENTS.md` — operating instructions + “memory”
 - `SOUL.md` — persona, boundaries, tone
 - `TOOLS.md` — user-maintained tool notes (e.g. `imsg`, `sag`, conventions)
@@ -35,11 +35,11 @@ Inside `agents.defaults.workspace`, OpenClaw expects these user-editable files:
 - `IDENTITY.md` — agent name/vibe/emoji
 - `USER.md` — user profile + preferred address
 
-On the first turn of a new session, Moltbot injects the contents of these files directly into the agent context.
+On the first turn of a new session, OpenClaw injects the contents of these files directly into the agent context.
 
 Blank files are skipped. Large files are trimmed and truncated with a marker so prompts stay lean (read the file for full content).
 
-If a file is missing, Moltbot injects a single “missing file” marker line (and `moltbot setup` will create a safe default template).
+If a file is missing, OpenClaw injects a single “missing file” marker line (and `openclaw setup` will create a safe default template).
 
 `BOOTSTRAP.md` is only created for a **brand new workspace** (no other bootstrap files present). If you delete it after completing the ritual, it should not be recreated on later restarts.
 
@@ -58,36 +58,30 @@ guidance for how _you_ want them used.
 
 ## Skills
 
-<<<<<<< HEAD
-Moltbot loads skills from three locations (workspace wins on name conflict):
-=======
 OpenClaw loads skills from three locations (workspace wins on name conflict):
-
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - Bundled (shipped with the install)
-- Managed/local: `~/.clawdbot/skills`
+- Managed/local: `~/.openclaw/skills`
 - Workspace: `<workspace>/skills`
 
 Skills can be gated by config/env (see `skills` in [Gateway configuration](/gateway/configuration)).
 
-## p-mono integration
+## pi-mono integration
 
+<<<<<<< HEAD
 Moltbot reuses pieces of the p-mono codebase (models/tools), but **session management, discovery, and tool wiring are Moltbot-owned**.
+=======
+OpenClaw reuses pieces of the pi-mono codebase (models/tools), but **session management, discovery, and tool wiring are OpenClaw-owned**.
+>>>>>>> 97895a023 (Fix typo from 'p-mono' to 'pi-mono' in agent.md)
 
-- No p-coding agent runtime.
+- No pi-coding agent runtime.
 - No `~/.pi/agent` or `<workspace>/.pi` settings are consulted.
 
 ## Sessions
 
 Session transcripts are stored as JSONL at:
-<<<<<<< HEAD
-- `~/.clawdbot/agents/<agentId>/sessions/<SessionId>.jsonl`
-=======
-
 - `~/.openclaw/agents/<agentId>/sessions/<SessionId>.jsonl`
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
-The session ID is stable and chosen by Moltbot.
+The session ID is stable and chosen by OpenClaw.
 Legacy Pi/Tau session folders are **not** read.
 
 ## Steering while streaming
@@ -120,7 +114,7 @@ Model refs in config (for example `agents.defaults.model` and `agents.defaults.m
 
 - Use `provider/model` when configuring models.
 - If the model ID itself contains `/` (OpenRouter-style), include the provider prefix (example: `openrouter/moonshotai/kimi-k2`).
-- If you omit the provider, Moltbot treats the input as an alias or a model for the **default provider** (only works when there is no `/` in the model ID).
+- If you omit the provider, OpenClaw treats the input as an alias or a model for the **default provider** (only works when there is no `/` in the model ID).
 
 ## Configuration (minimal)
 

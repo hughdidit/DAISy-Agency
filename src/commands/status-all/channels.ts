@@ -1,7 +1,4 @@
-import crypto from "node:crypto";
 import fs from "node:fs";
-import { resolveChannelDefaultAccountId } from "../../channels/plugins/helpers.js";
-import { listChannelPlugins } from "../../channels/plugins/index.js";
 import type {
   ChannelAccountSnapshot,
   ChannelId,
@@ -9,6 +6,11 @@ import type {
 } from "../../channels/plugins/types.js";
 <<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
+=======
+import type { OpenClawConfig } from "../../config/config.js";
+import { resolveChannelDefaultAccountId } from "../../channels/plugins/helpers.js";
+import { listChannelPlugins } from "../../channels/plugins/index.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { formatAge } from "./format.js";
 =======
 import type { OpenClawConfig } from "../../config/config.js";
@@ -65,18 +67,19 @@ function existsSyncMaybe(p: string | undefined): boolean | null {
   }
 }
 
-function sha256HexPrefix(value: string, len = 8): string {
-  return crypto.createHash("sha256").update(value).digest("hex").slice(0, len);
-}
-
 function formatTokenHint(token: string, opts: { showSecrets: boolean }): string {
   const t = token.trim();
+<<<<<<< HEAD
+  if (!t) return "empty";
+  if (!opts.showSecrets) return `sha256:${sha256HexPrefix(t)} · len ${t.length}`;
+=======
   if (!t) {
     return "empty";
   }
   if (!opts.showSecrets) {
-    return `sha256:${sha256HexPrefix(t)} · len ${t.length}`;
+    return `sha256:${sha256HexPrefix(t, 8)} · len ${t.length}`;
   }
+>>>>>>> 421644940 (fix: guard resolveUserPath against undefined input (#10176))
   const head = t.slice(0, 4);
   const tail = t.slice(-4);
   if (t.length <= 10) {
@@ -96,7 +99,7 @@ const formatAccountLabel = (params: { accountId: string; name?: string }) => {
 const resolveAccountEnabled = (
   plugin: ChannelPlugin,
   account: unknown,
-  cfg: MoltbotConfig,
+  cfg: OpenClawConfig,
 ): boolean => {
   if (plugin.config.isEnabled) {
     return plugin.config.isEnabled(account, cfg);
@@ -108,7 +111,7 @@ const resolveAccountEnabled = (
 const resolveAccountConfigured = async (
   plugin: ChannelPlugin,
   account: unknown,
-  cfg: MoltbotConfig,
+  cfg: OpenClawConfig,
 ): Promise<boolean> => {
   if (plugin.config.isConfigured) {
     return await plugin.config.isConfigured(account, cfg);
@@ -120,7 +123,7 @@ const resolveAccountConfigured = async (
 const buildAccountSnapshot = (params: {
   plugin: ChannelPlugin;
   account: unknown;
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   accountId: string;
   enabled: boolean;
   configured: boolean;
@@ -136,7 +139,7 @@ const buildAccountSnapshot = (params: {
 
 const formatAllowFrom = (params: {
   plugin: ChannelPlugin;
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   accountId?: string | null;
   allowFrom: Array<string | number>;
 }) => {
@@ -152,7 +155,7 @@ const formatAllowFrom = (params: {
 
 const buildAccountNotes = (params: {
   plugin: ChannelPlugin;
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   entry: ChannelAccountRow;
 }) => {
   const { plugin, cfg, entry } = params;
@@ -242,7 +245,7 @@ function collectMissingPaths(accounts: ChannelAccountRow[]): string[] {
 
 function summarizeTokenConfig(params: {
   plugin: ChannelPlugin;
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   accounts: ChannelAccountRow[];
   showSecrets: boolean;
 }): { state: "ok" | "setup" | "warn" | null; detail: string | null } {
@@ -329,7 +332,7 @@ function summarizeTokenConfig(params: {
 // `status --all` channels table.
 // Keep this generic: channel-specific rules belong in the channel plugin.
 export async function buildChannelsTable(
-  cfg: MoltbotConfig,
+  cfg: OpenClawConfig,
   opts?: { showSecrets?: boolean },
 ): Promise<{
   rows: ChannelRow[];

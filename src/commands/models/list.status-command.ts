@@ -2,8 +2,14 @@ import path from "node:path";
 <<<<<<< HEAD
 import { resolveMoltbotAgentDir } from "../../agents/agent-paths.js";
 =======
-import { resolveAgentDir, resolveDefaultAgentId } from "../../agents/agent-scope.js";
->>>>>>> dd4715a2c (CLI: add --agent flag to models status)
+import type { RuntimeEnv } from "../../runtime.js";
+import { resolveOpenClawAgentDir } from "../../agents/agent-paths.js";
+import {
+  resolveAgentDir,
+  resolveAgentModelFallbacksOverride,
+  resolveAgentModelPrimary,
+} from "../../agents/agent-scope.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import {
   buildAuthHealthSummary,
   DEFAULT_OAUTH_WARN_MS,
@@ -19,21 +25,21 @@ import {
   buildModelAliasIndex,
   parseModelRef,
   resolveConfiguredModelRef,
+  resolveDefaultModelForAgent,
   resolveModelRefFromString,
 } from "../../agents/model-selection.js";
-import { CONFIG_PATH, loadConfig } from "../../config/config.js";
-import { getShellEnvAppliedKeys, shouldEnableShellEnvFallback } from "../../infra/shell-env.js";
+import { formatCliCommand } from "../../cli/command-format.js";
 import { withProgressTotals } from "../../cli/progress.js";
+import { CONFIG_PATH, loadConfig } from "../../config/config.js";
 import {
   formatUsageWindowSummary,
   loadProviderUsageSummary,
   resolveUsageProviderId,
   type UsageProviderId,
 } from "../../infra/provider-usage.js";
-import type { RuntimeEnv } from "../../runtime.js";
-import { colorize, theme } from "../../terminal/theme.js";
+import { getShellEnvAppliedKeys, shouldEnableShellEnvFallback } from "../../infra/shell-env.js";
 import { renderTable } from "../../terminal/table.js";
-import { formatCliCommand } from "../../cli/command-format.js";
+import { colorize, theme } from "../../terminal/theme.js";
 import { shortenHomePath } from "../../utils.js";
 import { resolveProviderAuthOverview } from "./list.auth-overview.js";
 import { isRich } from "./list.format.js";
@@ -44,8 +50,16 @@ import {
   sortProbeResults,
   type AuthProbeSummary,
 } from "./list.probe.js";
-import { normalizeAgentId } from "../../routing/session-key.js";
+<<<<<<< HEAD
 import { DEFAULT_MODEL, DEFAULT_PROVIDER, ensureFlagCompatibility } from "./shared.js";
+=======
+import {
+  DEFAULT_MODEL,
+  DEFAULT_PROVIDER,
+  ensureFlagCompatibility,
+  resolveKnownAgentId,
+} from "./shared.js";
+>>>>>>> f24e3cdae (fix: local updates for PR #4780)
 
 export async function modelsStatusCommand(
   opts: {
@@ -67,11 +81,19 @@ export async function modelsStatusCommand(
     throw new Error("--probe cannot be used with --plain output.");
   }
   const cfg = loadConfig();
-  const resolved = resolveConfiguredModelRef({
-    cfg,
-    defaultProvider: DEFAULT_PROVIDER,
-    defaultModel: DEFAULT_MODEL,
-  });
+  const agentId = resolveKnownAgentId({ cfg, rawAgentId: opts.agent });
+  const agentDir = agentId ? resolveAgentDir(cfg, agentId) : resolveOpenClawAgentDir();
+  const agentModelPrimary = agentId ? resolveAgentModelPrimary(cfg, agentId) : undefined;
+  const agentFallbacksOverride = agentId
+    ? resolveAgentModelFallbacksOverride(cfg, agentId)
+    : undefined;
+  const resolved = agentId
+    ? resolveDefaultModelForAgent({ cfg, agentId })
+    : resolveConfiguredModelRef({
+        cfg,
+        defaultProvider: DEFAULT_PROVIDER,
+        defaultModel: DEFAULT_MODEL,
+      });
 
   const modelConfig = cfg.agents?.defaults?.model as
     | { primary?: string; fallbacks?: string[] }
@@ -81,11 +103,13 @@ export async function modelsStatusCommand(
     | { primary?: string; fallbacks?: string[] }
     | string
     | undefined;
-  const rawModel =
+  const rawDefaultsModel =
     typeof modelConfig === "string" ? modelConfig.trim() : (modelConfig?.primary?.trim() ?? "");
+  const rawModel = agentModelPrimary ?? rawDefaultsModel;
   const resolvedLabel = `${resolved.provider}/${resolved.model}`;
   const defaultLabel = rawModel || resolvedLabel;
-  const fallbacks = typeof modelConfig === "object" ? (modelConfig?.fallbacks ?? []) : [];
+  const defaultsFallbacks = typeof modelConfig === "object" ? (modelConfig?.fallbacks ?? []) : [];
+  const fallbacks = agentFallbacksOverride ?? defaultsFallbacks;
   const imageModel =
     typeof imageConfig === "string" ? imageConfig.trim() : (imageConfig?.primary?.trim() ?? "");
   const imageFallbacks = typeof imageConfig === "object" ? (imageConfig?.fallbacks ?? []) : [];
@@ -101,16 +125,11 @@ export async function modelsStatusCommand(
   );
   const allowed = Object.keys(cfg.agents?.defaults?.models ?? {});
 
-<<<<<<< HEAD
-  const agentDir = resolveMoltbotAgentDir();
+  const agentDir = resolveOpenClawAgentDir();
   const store = ensureAuthProfileStore();
 =======
-  const agentId = opts.agent?.trim()
-    ? normalizeAgentId(opts.agent.trim())
-    : resolveDefaultAgentId(cfg);
-  const agentDir = resolveAgentDir(cfg, agentId);
   const store = ensureAuthProfileStore(agentDir);
->>>>>>> dd4715a2c (CLI: add --agent flag to models status)
+>>>>>>> f24e3cdae (fix: local updates for PR #4780)
   const modelsPath = path.join(agentDir, "models.json");
 
   const providersFromStore = new Set(
@@ -325,12 +344,21 @@ export async function modelsStatusCommand(
       JSON.stringify(
         {
           configPath: CONFIG_PATH,
+          ...(agentId ? { agentId } : {}),
           agentDir,
           defaultModel: defaultLabel,
           resolvedDefault: resolvedLabel,
           fallbacks,
           imageModel: imageModel || null,
           imageFallbacks,
+          ...(agentId
+            ? {
+                modelConfig: {
+                  defaultSource: agentModelPrimary ? "agent" : "defaults",
+                  fallbacksSource: agentFallbacksOverride !== undefined ? "agent" : "defaults",
+                },
+              }
+            : {}),
           aliases,
           allowed,
           auth: {
@@ -370,7 +398,10 @@ export async function modelsStatusCommand(
   }
 
   const rich = isRich(opts);
+  type ModelConfigSource = "agent" | "defaults";
   const label = (value: string) => colorize(rich, theme.accent, value.padEnd(14));
+  const labelWithSource = (value: string, source?: ModelConfigSource) =>
+    label(source ? `${value} (${source})` : value);
   const displayDefault =
     rawModel && rawModel !== resolvedLabel ? `${resolvedLabel} (from ${rawModel})` : resolvedLabel;
 
@@ -385,32 +416,34 @@ export async function modelsStatusCommand(
     )}`,
   );
   runtime.log(
-    `${label("Default")}${colorize(rich, theme.muted, ":")} ${colorize(
+    `${labelWithSource("Default", agentId ? (agentModelPrimary ? "agent" : "defaults") : undefined)}${colorize(
       rich,
-      theme.success,
-      displayDefault,
-    )}`,
+      theme.muted,
+      ":",
+    )} ${colorize(rich, theme.success, displayDefault)}`,
   );
   runtime.log(
-    `${label(`Fallbacks (${fallbacks.length || 0})`)}${colorize(rich, theme.muted, ":")} ${colorize(
+    `${labelWithSource(
+      `Fallbacks (${fallbacks.length || 0})`,
+      agentId ? (agentFallbacksOverride !== undefined ? "agent" : "defaults") : undefined,
+    )}${colorize(rich, theme.muted, ":")} ${colorize(
       rich,
       fallbacks.length ? theme.warn : theme.muted,
       fallbacks.length ? fallbacks.join(", ") : "-",
     )}`,
   );
   runtime.log(
-    `${label("Image model")}${colorize(rich, theme.muted, ":")} ${colorize(
-      rich,
-      imageModel ? theme.accentBright : theme.muted,
-      imageModel || "-",
-    )}`,
-  );
-  runtime.log(
-    `${label(`Image fallbacks (${imageFallbacks.length || 0})`)}${colorize(
+    `${labelWithSource("Image model", agentId ? "defaults" : undefined)}${colorize(
       rich,
       theme.muted,
       ":",
-    )} ${colorize(
+    )} ${colorize(rich, imageModel ? theme.accentBright : theme.muted, imageModel || "-")}`,
+  );
+  runtime.log(
+    `${labelWithSource(
+      `Image fallbacks (${imageFallbacks.length || 0})`,
+      agentId ? "defaults" : undefined,
+    )}${colorize(rich, theme.muted, ":")} ${colorize(
       rich,
       imageFallbacks.length ? theme.accentBright : theme.muted,
       imageFallbacks.length ? imageFallbacks.join(", ") : "-",
@@ -521,8 +554,8 @@ export async function modelsStatusCommand(
     for (const provider of missingProvidersInUse) {
       const hint =
         provider === "anthropic"
-          ? `Run \`claude setup-token\`, then \`${formatCliCommand("moltbot models auth setup-token")}\` or \`${formatCliCommand("moltbot configure")}\`.`
-          : `Run \`${formatCliCommand("moltbot configure")}\` or set an API key env var.`;
+          ? `Run \`claude setup-token\`, then \`${formatCliCommand("openclaw models auth setup-token")}\` or \`${formatCliCommand("openclaw configure")}\`.`
+          : `Run \`${formatCliCommand("openclaw configure")}\` or set an API key env var.`;
       runtime.log(`- ${theme.heading(provider)} ${hint}`);
     }
   }

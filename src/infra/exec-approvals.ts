@@ -3,7 +3,6 @@ import fs from "node:fs";
 import net from "node:net";
 import os from "node:os";
 import path from "node:path";
-
 import { DEFAULT_AGENT_ID } from "../routing/session-key.js";
 
 export type ExecHost = "sandbox" | "gateway" | "node";
@@ -61,8 +60,8 @@ const DEFAULT_SECURITY: ExecSecurity = "deny";
 const DEFAULT_ASK: ExecAsk = "on-miss";
 const DEFAULT_ASK_FALLBACK: ExecSecurity = "deny";
 const DEFAULT_AUTO_ALLOW_SKILLS = false;
-const DEFAULT_SOCKET = "~/.clawdbot/exec-approvals.sock";
-const DEFAULT_FILE = "~/.clawdbot/exec-approvals.json";
+const DEFAULT_SOCKET = "~/.openclaw/exec-approvals.sock";
+const DEFAULT_FILE = "~/.openclaw/exec-approvals.json";
 export const DEFAULT_SAFE_BINS = ["jq", "grep", "cut", "sort", "uniq", "head", "tail", "tr", "wc"];
 
 function hashExecApprovalsRaw(raw: string | null): string {
@@ -618,6 +617,24 @@ export type ExecCommandAnalysis = {
 };
 
 const DISALLOWED_PIPELINE_TOKENS = new Set([">", "<", "`", "\n", "\r", "(", ")"]);
+const DOUBLE_QUOTE_ESCAPES = new Set(["\\", '"', "$", "`", "\n", "\r"]);
+const WINDOWS_UNSUPPORTED_TOKENS = new Set([
+  "&",
+  "|",
+  "<",
+  ">",
+  "^",
+  "(",
+  ")",
+  "%",
+  "!",
+  "\n",
+  "\r",
+]);
+
+function isDoubleQuoteEscape(next: string | undefined): next is string {
+  return Boolean(next && DOUBLE_QUOTE_ESCAPES.has(next));
+}
 
 type IteratorAction = "split" | "skip" | "include" | { reject: string };
 
@@ -670,9 +687,28 @@ function iterateQuoteAware(
       continue;
     }
     if (inDouble) {
+<<<<<<< HEAD
+      if (ch === '"') inDouble = false;
+=======
+      if (ch === "\\" && isDoubleQuoteEscape(next)) {
+        buf += ch;
+        buf += next;
+        i += 1;
+        continue;
+      }
+      if (ch === "$" && next === "(") {
+        return { ok: false, reason: "unsupported shell token: $()" };
+      }
+      if (ch === "`") {
+        return { ok: false, reason: "unsupported shell token: `" };
+      }
+      if (ch === "\n" || ch === "\r") {
+        return { ok: false, reason: "unsupported shell token: newline" };
+      }
       if (ch === '"') {
         inDouble = false;
       }
+>>>>>>> d1ecb4607 (fix: harden exec allowlist parsing)
       buf += ch;
       continue;
     }
@@ -748,6 +784,86 @@ function splitShellPipeline(command: string): { ok: boolean; reason?: string; se
   return { ok: true, segments: result.parts };
 }
 
+function findWindowsUnsupportedToken(command: string): string | null {
+  for (const ch of command) {
+    if (WINDOWS_UNSUPPORTED_TOKENS.has(ch)) {
+      if (ch === "\n" || ch === "\r") {
+        return "newline";
+      }
+      return ch;
+    }
+  }
+  return null;
+}
+
+function tokenizeWindowsSegment(segment: string): string[] | null {
+  const tokens: string[] = [];
+  let buf = "";
+  let inDouble = false;
+
+  const pushToken = () => {
+    if (buf.length > 0) {
+      tokens.push(buf);
+      buf = "";
+    }
+  };
+
+  for (let i = 0; i < segment.length; i += 1) {
+    const ch = segment[i];
+    if (ch === '"') {
+      inDouble = !inDouble;
+      continue;
+    }
+    if (!inDouble && /\s/.test(ch)) {
+      pushToken();
+      continue;
+    }
+    buf += ch;
+  }
+
+  if (inDouble) {
+    return null;
+  }
+  pushToken();
+  return tokens.length > 0 ? tokens : null;
+}
+
+function analyzeWindowsShellCommand(params: {
+  command: string;
+  cwd?: string;
+  env?: NodeJS.ProcessEnv;
+}): ExecCommandAnalysis {
+  const unsupported = findWindowsUnsupportedToken(params.command);
+  if (unsupported) {
+    return {
+      ok: false,
+      reason: `unsupported windows shell token: ${unsupported}`,
+      segments: [],
+    };
+  }
+  const argv = tokenizeWindowsSegment(params.command);
+  if (!argv || argv.length === 0) {
+    return { ok: false, reason: "unable to parse windows command", segments: [] };
+  }
+  return {
+    ok: true,
+    segments: [
+      {
+        raw: params.command,
+        argv,
+        resolution: resolveCommandResolutionFromArgv(argv, params.cwd, params.env),
+      },
+    ],
+  };
+}
+
+function isWindowsPlatform(platform?: string | null): boolean {
+  const normalized = String(platform ?? "")
+    .trim()
+    .toLowerCase();
+  return normalized.startsWith("win");
+}
+
 function tokenizeShellSegment(segment: string): string[] | null {
   const tokens: string[] = [];
   let buf = "";
@@ -782,6 +898,12 @@ function tokenizeShellSegment(segment: string): string[] | null {
       continue;
     }
     if (inDouble) {
+      const next = segment[i + 1];
+      if (ch === "\\" && isDoubleQuoteEscape(next)) {
+        buf += next;
+        i += 1;
+        continue;
+      }
       if (ch === '"') {
         inDouble = false;
       } else {
@@ -835,7 +957,11 @@ export function analyzeShellCommand(params: {
   command: string;
   cwd?: string;
   env?: NodeJS.ProcessEnv;
+  platform?: string | null;
 }): ExecCommandAnalysis {
+  if (isWindowsPlatform(params.platform)) {
+    return analyzeWindowsShellCommand(params);
+  }
   // First try splitting by chain operators (&&, ||, ;)
   const chainParts = splitCommandChain(params.command);
   if (chainParts) {
@@ -1100,6 +1226,7 @@ function splitCommandChain(command: string): string[] | null {
 
   for (let i = 0; i < command.length; i += 1) {
     const ch = command[i];
+    const next = command[i + 1];
     if (escaped) {
       buf += ch;
       escaped = false;
@@ -1118,9 +1245,19 @@ function splitCommandChain(command: string): string[] | null {
       continue;
     }
     if (inDouble) {
+<<<<<<< HEAD
+      if (ch === '"') inDouble = false;
+=======
+      if (ch === "\\" && isDoubleQuoteEscape(next)) {
+        buf += ch;
+        buf += next;
+        i += 1;
+        continue;
+      }
       if (ch === '"') {
         inDouble = false;
       }
+>>>>>>> d1ecb4607 (fix: harden exec allowlist parsing)
       buf += ch;
       continue;
     }
@@ -1190,13 +1327,15 @@ export function evaluateShellAllowlist(params: {
   env?: NodeJS.ProcessEnv;
   skillBins?: Set<string>;
   autoAllowSkills?: boolean;
+  platform?: string | null;
 }): ExecAllowlistAnalysis {
-  const chainParts = splitCommandChain(params.command);
+  const chainParts = isWindowsPlatform(params.platform) ? null : splitCommandChain(params.command);
   if (!chainParts) {
     const analysis = analyzeShellCommand({
       command: params.command,
       cwd: params.cwd,
       env: params.env,
+      platform: params.platform,
     });
     if (!analysis.ok) {
       return {
@@ -1230,6 +1369,7 @@ export function evaluateShellAllowlist(params: {
       command: part,
       cwd: params.cwd,
       env: params.env,
+      platform: params.platform,
     });
     if (!analysis.ok) {
       return {

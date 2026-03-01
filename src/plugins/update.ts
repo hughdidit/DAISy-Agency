@@ -1,9 +1,13 @@
 import fs from "node:fs/promises";
+<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../config/config.js";
+=======
+import type { OpenClawConfig } from "../config/config.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { UpdateChannel } from "../infra/update-channels.js";
 import { resolveUserPath } from "../utils.js";
-import { discoverMoltbotPlugins } from "./discovery.js";
+import { discoverOpenClawPlugins } from "./discovery.js";
 import { installPluginFromNpmSpec, resolvePluginInstallDir } from "./install.js";
 import { recordPluginInstall } from "./installs.js";
 import { loadPluginManifest } from "./manifest.js";
@@ -25,7 +29,7 @@ export type PluginUpdateOutcome = {
 };
 
 export type PluginUpdateSummary = {
-  config: MoltbotConfig;
+  config: OpenClawConfig;
   changed: boolean;
   outcomes: PluginUpdateOutcome[];
 };
@@ -38,7 +42,7 @@ export type PluginChannelSyncSummary = {
 };
 
 export type PluginChannelSyncResult = {
-  config: MoltbotConfig;
+  config: OpenClawConfig;
   changed: boolean;
   summary: PluginChannelSyncSummary;
 };
@@ -62,7 +66,7 @@ async function readInstalledPackageVersion(dir: string): Promise<string | undefi
 function resolveBundledPluginSources(params: {
   workspaceDir?: string;
 }): Map<string, BundledPluginSource> {
-  const discovery = discoverMoltbotPlugins({ workspaceDir: params.workspaceDir });
+  const discovery = discoverOpenClawPlugins({ workspaceDir: params.workspaceDir });
   const bundled = new Map<string, BundledPluginSource>();
 
   for (const candidate of discovery.candidates) {
@@ -79,7 +83,7 @@ function resolveBundledPluginSources(params: {
     }
 
     const npmSpec =
-      candidate.packageMoltbot?.install?.npmSpec?.trim() ||
+      candidate.packageManifest?.install?.npmSpec?.trim() ||
       candidate.packageName?.trim() ||
       undefined;
 
@@ -139,7 +143,7 @@ function buildLoadPathHelpers(existing: string[]) {
 }
 
 export async function updateNpmInstalledPlugins(params: {
-  config: MoltbotConfig;
+  config: OpenClawConfig;
   logger?: PluginUpdateLogger;
   pluginIds?: string[];
   skipIds?: Set<string>;
@@ -190,7 +194,17 @@ export async function updateNpmInstalledPlugins(params: {
       continue;
     }
 
-    const installPath = record.installPath ?? resolvePluginInstallDir(pluginId);
+    let installPath: string;
+    try {
+      installPath = record.installPath ?? resolvePluginInstallDir(pluginId);
+    } catch (err) {
+      outcomes.push({
+        pluginId,
+        status: "error",
+        message: `Invalid install path for "${pluginId}": ${String(err)}`,
+      });
+      continue;
+    }
     const currentVersion = await readInstalledPackageVersion(installPath);
 
     if (params.dryRun) {
@@ -302,7 +316,7 @@ export async function updateNpmInstalledPlugins(params: {
 }
 
 export async function syncPluginsForUpdateChannel(params: {
-  config: MoltbotConfig;
+  config: OpenClawConfig;
   channel: UpdateChannel;
   workspaceDir?: string;
   logger?: PluginUpdateLogger;

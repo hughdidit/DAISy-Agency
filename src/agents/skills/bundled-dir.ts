@@ -5,8 +5,7 @@ import { resolveOpenClawPackageRootSync } from "../../infra/openclaw-root.js";
 
 <<<<<<< HEAD
 export function resolveBundledSkillsDir(): string | undefined {
-<<<<<<< HEAD
-  const override = process.env.CLAWDBOT_BUNDLED_SKILLS_DIR?.trim();
+  const override = process.env.OPENCLAW_BUNDLED_SKILLS_DIR?.trim();
   if (override) return override;
 =======
 =======

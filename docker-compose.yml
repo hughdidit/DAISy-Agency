@@ -1,56 +1,59 @@
 services:
-  moltbot-gateway:
-    image: ${CLAWDBOT_IMAGE:-moltbot:local}
+  openclaw-gateway:
+    image: ${OPENCLAW_IMAGE:-openclaw:local}
     environment:
       HOME: /home/node
       TERM: xterm-256color
-      CLAWDBOT_GATEWAY_TOKEN: ${CLAWDBOT_GATEWAY_TOKEN}
+      OPENCLAW_GATEWAY_TOKEN: ${OPENCLAW_GATEWAY_TOKEN}
       CLAUDE_AI_SESSION_KEY: ${CLAUDE_AI_SESSION_KEY}
       CLAUDE_WEB_SESSION_KEY: ${CLAUDE_WEB_SESSION_KEY}
       CLAUDE_WEB_COOKIE: ${CLAUDE_WEB_COOKIE}
+      DISCORD_BOT_TOKEN: ${DISCORD_BOT_TOKEN}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      CLAWDBOT_STATE_DIR: /home/node/.clawdbot
+      CLAWDBOT_GATEWAY_PORT: ${CLAWDBOT_GATEWAY_PORT}
+      CLAWDBOT_BRIDGE_PORT: ${CLAWDBOT_BRIDGE_PORT}
     volumes:
-      - ${CLAWDBOT_CONFIG_DIR}:/home/node/.clawdbot
-      - ${CLAWDBOT_WORKSPACE_DIR}:/home/node/clawd
+      - ${OPENCLAW_CONFIG_DIR}:/home/node/.openclaw
+      - ${OPENCLAW_WORKSPACE_DIR}:/home/node/.openclaw/workspace
     ports:
-<<<<<<< HEAD
-      - "${CLAWDBOT_GATEWAY_PORT:-18789}:18789"
-      - "${CLAWDBOT_BRIDGE_PORT:-18790}:18790"
-=======
-      - "${OPENCLAW_GATEWAY_PORT:-18789}:18789"
-      - "${OPENCLAW_BRIDGE_PORT:-18790}:18790"
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
+      - "${CLAWDBOT_GATEWAY_PORT}:${CLAWDBOT_GATEWAY_PORT}"
+      - "${CLAWDBOT_BRIDGE_PORT}:${CLAWDBOT_BRIDGE_PORT}"
     init: true
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "dist/index.js", "health", "--json", "--timeout", "10000"]
+      interval: 30s
+      timeout: 15s
+      retries: 3
+      start_period: 30s
     command:
       [
+<<<<<<< HEAD
         "node",
         "dist/index.js",
         "gateway",
         "--bind",
-<<<<<<< HEAD
-        "${CLAWDBOT_GATEWAY_BIND:-lan}",
+        "${CLAWDBOT_GATEWAY_BIND:-loopback}",
         "--port",
-        "${CLAWDBOT_GATEWAY_PORT:-18789}"
-=======
-        "${OPENCLAW_GATEWAY_BIND:-lan}",
-        "--port",
-        "${OPENCLAW_GATEWAY_PORT:-18789}",
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
+        "${CLAWDBOT_GATEWAY_PORT}",
+        "--allow-unconfigured"
       ]
 
-  moltbot-cli:
-    image: ${CLAWDBOT_IMAGE:-moltbot:local}
+  openclaw-cli:
+    image: ${OPENCLAW_IMAGE:-openclaw:local}
     environment:
       HOME: /home/node
       TERM: xterm-256color
+      OPENCLAW_GATEWAY_TOKEN: ${OPENCLAW_GATEWAY_TOKEN}
       BROWSER: echo
       CLAUDE_AI_SESSION_KEY: ${CLAUDE_AI_SESSION_KEY}
       CLAUDE_WEB_SESSION_KEY: ${CLAUDE_WEB_SESSION_KEY}
       CLAUDE_WEB_COOKIE: ${CLAUDE_WEB_COOKIE}
     volumes:
-      - ${CLAWDBOT_CONFIG_DIR}:/home/node/.clawdbot
-      - ${CLAWDBOT_WORKSPACE_DIR}:/home/node/clawd
+      - ${OPENCLAW_CONFIG_DIR}:/home/node/.openclaw
+      - ${OPENCLAW_WORKSPACE_DIR}:/home/node/.openclaw/workspace
     stdin_open: true
     tty: true
     init: true
-    entrypoint: ["node", "dist/index.js"]
+    entrypoint: ['node', 'dist/index.js']

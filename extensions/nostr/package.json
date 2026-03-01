@@ -2,21 +2,40 @@
 <<<<<<< HEAD
   "name": "@moltbot/nostr",
   "version": "2026.1.27-beta.1",
-  "type": "module",
-  "description": "Moltbot Nostr channel plugin for NIP-04 encrypted DMs",
-  "moltbot": {
 =======
   "name": "@openclaw/nostr",
-  "version": "2026.1.30",
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+  "version": "2026.1.29",
+>>>>>>> 62e4ad23d (chore: release 2026.1.29)
+=======
+  "version": "2026.2.2",
+=======
+  "version": "2026.2.3",
+>>>>>>> f895c9fba (chore: sync plugin versions to 2026.2.3)
+=======
+  "version": "2026.2.6-2",
+>>>>>>> ad4dd0422 (chore(release): 2026.2.6-2)
+=======
+  "version": "2026.2.6-3",
+>>>>>>> 9f703a44d (chore(release): 2026.2.6-3)
   "description": "OpenClaw Nostr channel plugin for NIP-04 encrypted DMs",
+>>>>>>> 1c4db9159 (chore: prepare 2026.2.2 release)
   "type": "module",
+<<<<<<< HEAD
+  "description": "OpenClaw Nostr channel plugin for NIP-04 encrypted DMs",
+=======
   "dependencies": {
-    "nostr-tools": "^2.22.1",
-    "openclaw": "workspace:*",
+    "nostr-tools": "^2.23.0",
     "zod": "^4.3.6"
   },
+  "devDependencies": {
+    "openclaw": "workspace:*"
+  },
+>>>>>>> aa91f6e70 (chore: Add `openclaw` to `devDependencies` for all extensions so that types resolve.)
   "openclaw": {
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
     "extensions": [
       "./index.ts"
     ],
@@ -31,15 +50,15 @@
       "quickstartAllowFrom": true
     },
     "install": {
-      "npmSpec": "@moltbot/nostr",
+      "npmSpec": "@openclaw/nostr",
       "localPath": "extensions/nostr",
       "defaultChoice": "npm"
     }
 <<<<<<< HEAD
   },
   "dependencies": {
-    "moltbot": "workspace:*",
-    "nostr-tools": "^2.20.0",
+    "nostr-tools": "^2.22.1",
+    "openclaw": "workspace:*",
     "zod": "^4.3.6"
 =======
 >>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)

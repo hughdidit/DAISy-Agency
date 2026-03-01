@@ -1,3 +1,5 @@
+import type { GatewayServiceRuntime } from "../daemon/service-runtime.js";
+import { formatCliCommand } from "../cli/command-format.js";
 import {
   resolveGatewayLaunchAgentLabel,
   resolveGatewaySystemdServiceName,
@@ -8,9 +10,7 @@ import {
   isSystemdUnavailableDetail,
   renderSystemdUnavailableHints,
 } from "../daemon/systemd-hints.js";
-import { formatCliCommand } from "../cli/command-format.js";
 import { isWSLEnv } from "../infra/wsl.js";
-import type { GatewayServiceRuntime } from "../daemon/service-runtime.js";
 import { getResolvedLoggerSettings } from "../logging.js";
 
 type RuntimeHintOptions = {
@@ -78,15 +78,14 @@ export function buildGatewayRuntimeHints(
     return hints;
   }
   if (runtime.cachedLabel && platform === "darwin") {
-    const label = resolveGatewayLaunchAgentLabel(env.CLAWDBOT_PROFILE);
+    const label = resolveGatewayLaunchAgentLabel(env.OPENCLAW_PROFILE);
     hints.push(
       `LaunchAgent label cached but plist missing. Clear with: launchctl bootout gui/$UID/${label}`,
     );
-    hints.push(`Then reinstall: ${formatCliCommand("moltbot gateway install", env)}`);
+    hints.push(`Then reinstall: ${formatCliCommand("openclaw gateway install", env)}`);
   }
   if (runtime.missingUnit) {
-<<<<<<< HEAD
-    hints.push(`Service not installed. Run: ${formatCliCommand("moltbot gateway install", env)}`);
+    hints.push(`Service not installed. Run: ${formatCliCommand("openclaw gateway install", env)}`);
     if (fileLog) hints.push(`File logs: ${fileLog}`);
 =======
     hints.push(`Service not installed. Run: ${formatCliCommand("openclaw gateway install", env)}`);
@@ -106,10 +105,10 @@ export function buildGatewayRuntimeHints(
       hints.push(`Launchd stdout (if installed): ${logs.stdoutPath}`);
       hints.push(`Launchd stderr (if installed): ${logs.stderrPath}`);
     } else if (platform === "linux") {
-      const unit = resolveGatewaySystemdServiceName(env.CLAWDBOT_PROFILE);
+      const unit = resolveGatewaySystemdServiceName(env.OPENCLAW_PROFILE);
       hints.push(`Logs: journalctl --user -u ${unit}.service -n 200 --no-pager`);
     } else if (platform === "win32") {
-      const task = resolveGatewayWindowsTaskName(env.CLAWDBOT_PROFILE);
+      const task = resolveGatewayWindowsTaskName(env.OPENCLAW_PROFILE);
       hints.push(`Logs: schtasks /Query /TN "${task}" /V /FO LIST`);
     }
   }

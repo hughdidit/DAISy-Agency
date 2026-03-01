@@ -1,50 +1,8 @@
-<<<<<<< HEAD
-import { loadConfig } from "../../config/config.js";
 import type { CostUsageSummary } from "../../infra/session-cost-usage.js";
-import { loadCostUsageSummary } from "../../infra/session-cost-usage.js";
-import { loadProviderUsageSummary } from "../../infra/provider-usage.js";
-import type { GatewayRequestHandlers } from "./types.js";
-=======
-import fs from "node:fs";
-import type { SessionEntry, SessionSystemPromptReport } from "../../config/sessions/types.js";
-import type {
-  CostUsageSummary,
-  SessionCostSummary,
-  SessionDailyLatency,
-  SessionDailyModelUsage,
-  SessionMessageCounts,
-  SessionLatencyStats,
-  SessionModelUsage,
-  SessionToolUsage,
-} from "../../infra/session-cost-usage.js";
 import type { GatewayRequestHandlers } from "./types.js";
 import { loadConfig } from "../../config/config.js";
-import { resolveSessionFilePath } from "../../config/sessions/paths.js";
 import { loadProviderUsageSummary } from "../../infra/provider-usage.js";
-import {
-  loadCostUsageSummary,
-  loadSessionCostSummary,
-  loadSessionUsageTimeSeries,
-  discoverAllSessions,
-  type DiscoveredSession,
-} from "../../infra/session-cost-usage.js";
-import { parseAgentSessionKey } from "../../routing/session-key.js";
-import {
-  ErrorCodes,
-  errorShape,
-  formatValidationErrors,
-  validateSessionsUsageParams,
-} from "../protocol/index.js";
-<<<<<<< HEAD
-import { loadCombinedSessionStoreForGateway, loadSessionEntry } from "../session-utils.js";
->>>>>>> 8a352c8f9 (Web UI: add token usage dashboard (#10072))
-=======
-import {
-  listAgentsForGateway,
-  loadCombinedSessionStoreForGateway,
-  loadSessionEntry,
-} from "../session-utils.js";
->>>>>>> 9271fcb3d (Gateway: fix multi-agent sessions.usage discovery (#11523))
+import { loadCostUsageSummary } from "../../infra/session-cost-usage.js";
 
 const COST_USAGE_CACHE_TTL_MS = 30_000;
 

@@ -1,6 +1,10 @@
+import type { OpenClawConfig } from "openclaw/plugin-sdk";
 import crypto from "node:crypto";
 import path from "node:path";
+<<<<<<< HEAD
 import type { MoltbotConfig } from "clawdbot/plugin-sdk";
+=======
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { resolveBlueBubblesAccount } from "./accounts.js";
 import { resolveChatGuidForTarget } from "./send.js";
 import { parseBlueBubblesTarget, normalizeBlueBubblesHandle } from "./targets.js";
@@ -16,7 +20,7 @@ export type BlueBubblesAttachmentOpts = {
   password?: string;
   accountId?: string;
   timeoutMs?: number;
-  cfg?: MoltbotConfig;
+  cfg?: OpenClawConfig;
 };
 
 const DEFAULT_ATTACHMENT_MAX_BYTES = 8 * 1024 * 1024;
@@ -26,7 +30,9 @@ const AUDIO_MIME_CAF = new Set(["audio/x-caf", "audio/caf"]);
 function sanitizeFilename(input: string | undefined, fallback: string): string {
   const trimmed = input?.trim() ?? "";
   const base = trimmed ? path.basename(trimmed) : "";
-  return base || fallback;
+  const name = base || fallback;
+  // Strip characters that could enable multipart header injection (CWE-93)
+  return name.replace(/[\r\n"\\]/g, "_");
 }
 
 function ensureExtension(filename: string, extension: string, fallbackBase: string): string {

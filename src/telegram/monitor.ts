@@ -1,19 +1,17 @@
 import { type RunOptions, run } from "@grammyjs/runner";
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
 import { loadConfig } from "../config/config.js";
+=======
+import type { OpenClawConfig } from "../config/config.js";
+import type { RuntimeEnv } from "../runtime.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { resolveAgentMaxConcurrent } from "../config/agent-limits.js";
+import { loadConfig } from "../config/config.js";
 import { computeBackoff, sleepWithAbort } from "../infra/backoff.js";
 import { formatErrorMessage } from "../infra/errors.js";
 <<<<<<< HEAD
 import { formatDurationMs } from "../infra/format-duration.js";
-<<<<<<< HEAD
-import type { RuntimeEnv } from "../runtime.js";
-=======
-=======
-import { formatDurationPrecise } from "../infra/format-time/format-duration.ts";
->>>>>>> a1123dd9b (Centralize date/time formatting utilities (#11831))
-import { registerUnhandledRejectionHandler } from "../infra/unhandled-rejections.js";
->>>>>>> 99b4f2a24 (fix(telegram): handle Grammy HttpError network failures (#3815) (#7195))
 import { resolveTelegramAccount } from "./accounts.js";
 import { resolveTelegramAllowedUpdates } from "./allowed-updates.js";
 import { createTelegramBot } from "./bot.js";
@@ -25,7 +23,7 @@ import { startTelegramWebhook } from "./webhook.js";
 export type MonitorTelegramOpts = {
   token?: string;
   accountId?: string;
-  config?: MoltbotConfig;
+  config?: OpenClawConfig;
   runtime?: RuntimeEnv;
   abortSignal?: AbortSignal;
   useWebhook?: boolean;
@@ -36,7 +34,7 @@ export type MonitorTelegramOpts = {
   webhookUrl?: string;
 };
 
-export function createTelegramRunnerOptions(cfg: MoltbotConfig): RunOptions<unknown> {
+export function createTelegramRunnerOptions(cfg: OpenClawConfig): RunOptions<unknown> {
   return {
     sink: {
       concurrency: resolveAgentMaxConcurrent(cfg),

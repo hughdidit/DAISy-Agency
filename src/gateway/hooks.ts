@@ -1,8 +1,12 @@
-import { randomUUID } from "node:crypto";
 import type { IncomingMessage } from "node:http";
-import { listChannelPlugins } from "../channels/plugins/index.js";
+import { randomUUID } from "node:crypto";
 import type { ChannelId } from "../channels/plugins/types.js";
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
+=======
+import type { OpenClawConfig } from "../config/config.js";
+import { listChannelPlugins } from "../channels/plugins/index.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { normalizeMessageChannel } from "../utils/message-channel.js";
 import { type HookMappingResolved, resolveHookMappings } from "./hooks-mapping.js";
 
@@ -16,8 +20,7 @@ export type HooksConfigResolved = {
   mappings: HookMappingResolved[];
 };
 
-<<<<<<< HEAD
-export function resolveHooksConfig(cfg: MoltbotConfig): HooksConfigResolved | null {
+export function resolveHooksConfig(cfg: OpenClawConfig): HooksConfigResolved | null {
   if (cfg.hooks?.enabled !== true) return null;
 =======
 export function resolveHooksConfig(cfg: OpenClawConfig): HooksConfigResolved | null {
@@ -48,23 +51,18 @@ export function resolveHooksConfig(cfg: OpenClawConfig): HooksConfigResolved | n
   };
 }
 
-export type HookTokenResult = {
-  token: string | undefined;
-  fromQuery: boolean;
-};
-
-export function extractHookToken(req: IncomingMessage, url: URL): HookTokenResult {
+export function extractHookToken(req: IncomingMessage): string | undefined {
   const auth =
     typeof req.headers.authorization === "string" ? req.headers.authorization.trim() : "";
   if (auth.toLowerCase().startsWith("bearer ")) {
     const token = auth.slice(7).trim();
-    if (token) {
-      return { token, fromQuery: false };
-    }
+<<<<<<< HEAD
+    if (token) return { token, fromQuery: false };
   }
   const headerToken =
-<<<<<<< HEAD
-    typeof req.headers["x-moltbot-token"] === "string" ? req.headers["x-moltbot-token"].trim() : "";
+    typeof req.headers["x-openclaw-token"] === "string"
+      ? req.headers["x-openclaw-token"].trim()
+      : "";
   if (headerToken) return { token: headerToken, fromQuery: false };
 =======
     typeof req.headers["x-openclaw-token"] === "string"
@@ -79,6 +77,20 @@ export function extractHookToken(req: IncomingMessage, url: URL): HookTokenResul
     return { token: queryToken.trim(), fromQuery: true };
   }
   return { token: undefined, fromQuery: false };
+=======
+    if (token) {
+      return token;
+    }
+  }
+  const headerToken =
+    typeof req.headers["x-openclaw-token"] === "string"
+      ? req.headers["x-openclaw-token"].trim()
+      : "";
+  if (headerToken) {
+    return headerToken;
+  }
+  return undefined;
+>>>>>>> 717129f7f (fix: silence unused hook token url param (#9436))
 }
 
 export async function readJsonBody(

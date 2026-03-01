@@ -1,20 +1,20 @@
 import { randomUUID } from "node:crypto";
-import type { MoltbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 import {
   loadConfig,
   resolveConfigPath,
   resolveGatewayPort,
   resolveStateDir,
 } from "../config/config.js";
-import { pickPrimaryTailnetIPv4 } from "../infra/tailnet.js";
 import { loadOrCreateDeviceIdentity } from "../infra/device-identity.js";
+import { pickPrimaryTailnetIPv4 } from "../infra/tailnet.js";
+import { loadGatewayTlsRuntime } from "../infra/tls/gateway.js";
 import {
   GATEWAY_CLIENT_MODES,
   GATEWAY_CLIENT_NAMES,
   type GatewayClientMode,
   type GatewayClientName,
 } from "../utils/message-channel.js";
-import { loadGatewayTlsRuntime } from "../infra/tls/gateway.js";
 import { GatewayClient } from "./client.js";
 import { pickPrimaryLanIPv4 } from "./net.js";
 import { PROTOCOL_VERSION } from "./protocol/index.js";
@@ -24,7 +24,7 @@ export type CallGatewayOptions = {
   token?: string;
   password?: string;
   tlsFingerprint?: string;
-  config?: MoltbotConfig;
+  config?: OpenClawConfig;
   method: string;
   params?: unknown;
   expectFinal?: boolean;
@@ -52,8 +52,45 @@ export type GatewayConnectionDetails = {
   message: string;
 };
 
+export type ExplicitGatewayAuth = {
+  token?: string;
+  password?: string;
+};
+
+export function resolveExplicitGatewayAuth(opts?: ExplicitGatewayAuth): ExplicitGatewayAuth {
+  const token =
+    typeof opts?.token === "string" && opts.token.trim().length > 0 ? opts.token.trim() : undefined;
+  const password =
+    typeof opts?.password === "string" && opts.password.trim().length > 0
+      ? opts.password.trim()
+      : undefined;
+  return { token, password };
+}
+
+export function ensureExplicitGatewayAuth(params: {
+  urlOverride?: string;
+  auth: ExplicitGatewayAuth;
+  errorHint: string;
+  configPath?: string;
+}): void {
+  if (!params.urlOverride) {
+    return;
+  }
+  if (params.auth.token || params.auth.password) {
+    return;
+  }
+  const message = [
+    "gateway url override requires explicit credentials",
+    params.errorHint,
+    params.configPath ? `Config: ${params.configPath}` : undefined,
+  ]
+    .filter(Boolean)
+    .join("\n");
+  throw new Error(message);
+}
+
 export function buildGatewayConnectionDetails(
-  options: { config?: MoltbotConfig; url?: string; configPath?: string } = {},
+  options: { config?: OpenClawConfig; url?: string; configPath?: string } = {},
 ): GatewayConnectionDetails {
   const config = options.config ?? loadConfig();
   const configPath =
@@ -116,13 +153,24 @@ export function buildGatewayConnectionDetails(
   };
 }
 
-export async function callGateway<T = unknown>(opts: CallGatewayOptions): Promise<T> {
-  const timeoutMs = opts.timeoutMs ?? 10_000;
+export async function callGateway<T = Record<string, unknown>>(
+  opts: CallGatewayOptions,
+): Promise<T> {
+  const timeoutMs =
+    typeof opts.timeoutMs === "number" && Number.isFinite(opts.timeoutMs) ? opts.timeoutMs : 10_000;
+  const safeTimerTimeoutMs = Math.max(1, Math.min(Math.floor(timeoutMs), 2_147_483_647));
   const config = opts.config ?? loadConfig();
   const isRemoteMode = config.gateway?.mode === "remote";
   const remote = isRemoteMode ? config.gateway?.remote : undefined;
   const urlOverride =
     typeof opts.url === "string" && opts.url.trim().length > 0 ? opts.url.trim() : undefined;
+  const explicitAuth = resolveExplicitGatewayAuth({ token: opts.token, password: opts.password });
+  ensureExplicitGatewayAuth({
+    urlOverride,
+    auth: explicitAuth,
+    errorHint: "Fix: pass --token or --password (or gatewayToken in tools).",
+    configPath: opts.configPath ?? resolveConfigPath(process.env, resolveStateDir(process.env)),
+  });
   const remoteUrl =
     typeof remote?.url === "string" && remote.url.trim().length > 0 ? remote.url.trim() : undefined;
   if (isRemoteMode && !urlOverride && !remoteUrl) {
@@ -158,29 +206,31 @@ export async function callGateway<T = unknown>(opts: CallGatewayOptions): Promis
     remoteTlsFingerprint ||
     (tlsRuntime?.enabled ? tlsRuntime.fingerprintSha256 : undefined);
   const token =
-    (typeof opts.token === "string" && opts.token.trim().length > 0
-      ? opts.token.trim()
-      : undefined) ||
-    (isRemoteMode
-      ? typeof remote?.token === "string" && remote.token.trim().length > 0
-        ? remote.token.trim()
-        : undefined
-      : process.env.CLAWDBOT_GATEWAY_TOKEN?.trim() ||
-        (typeof authToken === "string" && authToken.trim().length > 0
-          ? authToken.trim()
-          : undefined));
+    explicitAuth.token ||
+    (!urlOverride
+      ? isRemoteMode
+        ? typeof remote?.token === "string" && remote.token.trim().length > 0
+          ? remote.token.trim()
+          : undefined
+        : process.env.OPENCLAW_GATEWAY_TOKEN?.trim() ||
+          process.env.CLAWDBOT_GATEWAY_TOKEN?.trim() ||
+          (typeof authToken === "string" && authToken.trim().length > 0
+            ? authToken.trim()
+            : undefined)
+      : undefined);
   const password =
-    (typeof opts.password === "string" && opts.password.trim().length > 0
-      ? opts.password.trim()
-      : undefined) ||
-    process.env.CLAWDBOT_GATEWAY_PASSWORD?.trim() ||
-    (isRemoteMode
-      ? typeof remote?.password === "string" && remote.password.trim().length > 0
-        ? remote.password.trim()
-        : undefined
-      : typeof authPassword === "string" && authPassword.trim().length > 0
-        ? authPassword.trim()
-        : undefined);
+    explicitAuth.password ||
+    (!urlOverride
+      ? process.env.OPENCLAW_GATEWAY_PASSWORD?.trim() ||
+        process.env.CLAWDBOT_GATEWAY_PASSWORD?.trim() ||
+        (isRemoteMode
+          ? typeof remote?.password === "string" && remote.password.trim().length > 0
+            ? remote.password.trim()
+            : undefined
+          : typeof authPassword === "string" && authPassword.trim().length > 0
+            ? authPassword.trim()
+            : undefined)
+      : undefined);
 
   const formatCloseError = (code: number, reason: string) => {
     const reasonText = reason?.trim() || "no close reason";
@@ -251,7 +301,7 @@ export async function callGateway<T = unknown>(opts: CallGatewayOptions): Promis
       ignoreClose = true;
       client.stop();
       stop(new Error(formatTimeoutError()));
-    }, timeoutMs);
+    }, safeTimerTimeoutMs);
 
     client.start();
   });

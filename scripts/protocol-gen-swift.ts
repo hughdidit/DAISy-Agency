@@ -21,7 +21,7 @@ const outPaths = [
     "apps",
     "macos",
     "Sources",
-    "MoltbotProtocol",
+    "OpenClawProtocol",
     "GatewayModels.swift",
   ),
 =======
@@ -31,9 +31,9 @@ const outPaths = [
     repoRoot,
     "apps",
     "shared",
-    "MoltbotKit",
+    "OpenClawKit",
     "Sources",
-    "MoltbotProtocol",
+    "OpenClawProtocol",
     "GatewayModels.swift",
   ),
 ];

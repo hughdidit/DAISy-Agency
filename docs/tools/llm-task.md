@@ -3,6 +3,7 @@ summary: "JSON-only LLM tasks for workflows (optional plugin tool)"
 read_when:
   - You want a JSON-only LLM step inside workflows
   - You need schema-validated LLM output for automation
+title: "LLM Task"
 ---
 
 # LLM Task
@@ -11,7 +12,7 @@ read_when:
 returns structured output (optionally validated against JSON Schema).
 
 This is ideal for workflow engines like Lobster: you can add a single LLM step
-without writing custom Moltbot code for each workflow.
+without writing custom OpenClaw code for each workflow.
 
 ## Enable the plugin
 
@@ -27,7 +28,15 @@ without writing custom Moltbot code for each workflow.
 }
 ```
 
+<<<<<<< HEAD
+<<<<<<< HEAD
+2) Allowlist the tool (it is registered with `optional: true`):
+=======
+1. Allowlist the tool (it is registered with `optional: true`):
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
+=======
 2. Allowlist the tool (it is registered with `optional: true`):
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 
 ```json
 {
@@ -54,7 +63,7 @@ without writing custom Moltbot code for each workflow.
           "defaultProvider": "openai-codex",
           "defaultModel": "gpt-5.2",
           "defaultAuthProfileId": "main",
-          "allowedModels": ["openai-codex/gpt-5.2"],
+          "allowedModels": ["openai-codex/gpt-5.3-codex"],
           "maxTokens": 800,
           "timeoutMs": 30000
         }
@@ -87,7 +96,7 @@ Returns `details.json` containing the parsed JSON (and validates against
 ## Example: Lobster workflow step
 
 ```lobster
-clawd.invoke --tool llm-task --action json --args-json '{
+openclaw.invoke --tool llm-task --action json --args-json '{
   "prompt": "Given the input email, return intent and draft.",
   "input": {
     "subject": "Hello",

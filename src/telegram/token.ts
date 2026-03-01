@@ -1,6 +1,12 @@
 import fs from "node:fs";
+<<<<<<< HEAD
 
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
+=======
+import type { OpenClawConfig } from "../config/config.js";
+import type { TelegramAccountConfig } from "../config/types.telegram.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "../routing/session-key.js";
 
 export type TelegramTokenSource = "env" | "tokenFile" | "config" | "none";
@@ -17,39 +23,35 @@ type ResolveTelegramTokenOpts = {
 };
 
 export function resolveTelegramToken(
-  cfg?: MoltbotConfig,
+  cfg?: OpenClawConfig,
   opts: ResolveTelegramTokenOpts = {},
 ): TelegramTokenResolution {
   const accountId = normalizeAccountId(opts.accountId);
   const telegramCfg = cfg?.channels?.telegram;
+<<<<<<< HEAD
+  const accountCfg =
+    accountId !== DEFAULT_ACCOUNT_ID
+      ? telegramCfg?.accounts?.[accountId]
+      : telegramCfg?.accounts?.[DEFAULT_ACCOUNT_ID];
+=======
 
   // Account IDs are normalized for routing (e.g. lowercased). Config keys may not
   // be normalized, so resolve per-account config by matching normalized IDs.
-  const resolveAccountCfg = (id: string) => {
+  const resolveAccountCfg = (id: string): TelegramAccountConfig | undefined => {
     const accounts = telegramCfg?.accounts;
-<<<<<<< HEAD
-    if (!accounts || typeof accounts !== "object") return undefined;
-    // Direct hit (already normalized key)
-    const direct = (accounts as any)[id];
-    if (direct) return direct as any;
-=======
-    if (!accounts || typeof accounts !== "object" || Array.isArray(accounts)) {
-      return undefined;
-    }
+    if (!accounts || typeof accounts !== "object" || Array.isArray(accounts)) return undefined;
     // Direct hit (already normalized key)
     const direct = accounts[id];
-    if (direct) {
-      return direct;
-    }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
+    if (direct) return direct;
     // Fallback: match by normalized key
-    const matchKey = Object.keys(accounts).find((k) => normalizeAccountId(k) === id);
-    return matchKey ? ((accounts as any)[matchKey] as any) : undefined;
+    const matchKey = Object.keys(accounts).find((key) => normalizeAccountId(key) === id);
+    return matchKey ? accounts[matchKey] : undefined;
   };
 
   const accountCfg = resolveAccountCfg(
     accountId !== DEFAULT_ACCOUNT_ID ? accountId : DEFAULT_ACCOUNT_ID,
   );
+>>>>>>> e849df64d (fix: normalize telegram account token lookup (#5055) (thanks @jasonsschin))
   const accountTokenFile = accountCfg?.tokenFile?.trim();
   if (accountTokenFile) {
     if (!fs.existsSync(accountTokenFile)) {

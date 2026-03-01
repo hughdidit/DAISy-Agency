@@ -249,32 +249,16 @@ export function resolveConfigDir(
   env: NodeJS.ProcessEnv = process.env,
   homedir: () => string = os.homedir,
 ): string {
-<<<<<<< HEAD
-  const override = env.MOLTBOT_STATE_DIR?.trim() || env.CLAWDBOT_STATE_DIR?.trim();
-  if (override) return resolveUserPath(override);
-  const legacyDir = path.join(homedir(), ".clawdbot");
-  const newDir = path.join(homedir(), ".moltbot");
-=======
   const override = env.OPENCLAW_STATE_DIR?.trim() || env.CLAWDBOT_STATE_DIR?.trim();
-  if (override) {
-    return resolveUserPath(override);
-  }
+  if (override) return resolveUserPath(override);
   const newDir = path.join(homedir(), ".openclaw");
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
   try {
-    const hasLegacy = fs.existsSync(legacyDir);
     const hasNew = fs.existsSync(newDir);
-<<<<<<< HEAD
-    if (!hasLegacy && hasNew) return newDir;
-=======
-    if (hasNew) {
-      return newDir;
-    }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
+    if (hasNew) return newDir;
   } catch {
     // best-effort
   }
-  return legacyDir;
+  return newDir;
 }
 
 export function resolveHomeDir(): string | undefined {
@@ -346,5 +330,5 @@ export function formatTerminalLink(
   return `\u001b]8;;${safeUrl}\u0007${safeLabel}\u001b]8;;\u0007`;
 }
 
-// Configuration root; can be overridden via CLAWDBOT_STATE_DIR.
+// Configuration root; can be overridden via OPENCLAW_STATE_DIR.
 export const CONFIG_DIR = resolveConfigDir();

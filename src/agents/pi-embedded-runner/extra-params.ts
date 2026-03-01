@@ -1,8 +1,12 @@
 import type { StreamFn } from "@mariozechner/pi-agent-core";
 import type { SimpleStreamOptions } from "@mariozechner/pi-ai";
 import { streamSimple } from "@mariozechner/pi-ai";
+<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../../config/config.js";
+=======
+import type { OpenClawConfig } from "../../config/config.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { log } from "./logger.js";
 
 const OPENROUTER_APP_HEADERS: Record<string, string> = {
@@ -17,7 +21,7 @@ const OPENROUTER_APP_HEADERS: Record<string, string> = {
  * @internal Exported for testing only
  */
 export function resolveExtraParams(params: {
-  cfg: MoltbotConfig | undefined;
+  cfg: OpenClawConfig | undefined;
   provider: string;
   modelId: string;
 }): Record<string, unknown> | undefined {
@@ -26,30 +30,48 @@ export function resolveExtraParams(params: {
   return modelConfig?.params ? { ...modelConfig.params } : undefined;
 }
 
-<<<<<<< HEAD
-type CacheControlTtl = "5m" | "1h";
-=======
 type CacheRetention = "none" | "short" | "long";
-type CacheRetentionStreamOptions = Partial<SimpleStreamOptions> & {
-  cacheRetention?: CacheRetention;
-};
->>>>>>> e4f715536 (fix(ci): repair lint/build checks)
 
-function resolveCacheControlTtl(
+/**
+ * Resolve cacheRetention from extraParams, supporting both new `cacheRetention`
+ * and legacy `cacheControlTtl` values for backwards compatibility.
+ *
+ * Mapping: "5m" → "short", "1h" → "long"
+ *
+ * Only applies to Anthropic provider (OpenRouter uses openai-completions API
+ * with hardcoded cache_control, not the cacheRetention stream option).
+ */
+function resolveCacheRetention(
   extraParams: Record<string, unknown> | undefined,
   provider: string,
+<<<<<<< HEAD
   modelId: string,
 ): CacheControlTtl | undefined {
   const raw = extraParams?.cacheControlTtl;
-  if (raw !== "5m" && raw !== "1h") {
+  if (raw !== "5m" && raw !== "1h") return undefined;
+  if (provider === "anthropic") return raw;
+  if (provider === "openrouter" && modelId.startsWith("anthropic/")) return raw;
+=======
+): CacheRetention | undefined {
+  if (provider !== "anthropic") {
     return undefined;
   }
-  if (provider === "anthropic") {
-    return raw;
+
+  // Prefer new cacheRetention if present
+  const newVal = extraParams?.cacheRetention;
+  if (newVal === "none" || newVal === "short" || newVal === "long") {
+    return newVal;
   }
-  if (provider === "openrouter" && modelId.startsWith("anthropic/")) {
-    return raw;
+
+  // Fall back to legacy cacheControlTtl with mapping
+  const legacy = extraParams?.cacheControlTtl;
+  if (legacy === "5m") {
+    return "short";
   }
+  if (legacy === "1h") {
+    return "long";
+  }
+>>>>>>> ba4a55f6d (fix(agents): update cacheControlTtl to cacheRetention for pi-ai 0.50.9)
   return undefined;
 }
 
@@ -57,26 +79,21 @@ function createStreamFnWithExtraParams(
   baseStreamFn: StreamFn | undefined,
   extraParams: Record<string, unknown> | undefined,
   provider: string,
-  modelId: string,
 ): StreamFn | undefined {
   if (!extraParams || Object.keys(extraParams).length === 0) {
     return undefined;
   }
 
-<<<<<<< HEAD
-  const streamParams: Partial<SimpleStreamOptions> & { cacheControlTtl?: CacheControlTtl } = {};
-=======
-  const streamParams: CacheRetentionStreamOptions = {};
->>>>>>> e4f715536 (fix(ci): repair lint/build checks)
+  const streamParams: Partial<SimpleStreamOptions> = {};
   if (typeof extraParams.temperature === "number") {
     streamParams.temperature = extraParams.temperature;
   }
   if (typeof extraParams.maxTokens === "number") {
     streamParams.maxTokens = extraParams.maxTokens;
   }
-  const cacheControlTtl = resolveCacheControlTtl(extraParams, provider, modelId);
-  if (cacheControlTtl) {
-    streamParams.cacheControlTtl = cacheControlTtl;
+  const cacheRetention = resolveCacheRetention(extraParams, provider);
+  if (cacheRetention) {
+    streamParams.cacheRetention = cacheRetention;
   }
 
   if (Object.keys(streamParams).length === 0) {
@@ -96,13 +113,15 @@ function createStreamFnWithExtraParams(
 }
 
 /**
+<<<<<<< HEAD
+=======
  * Create a streamFn wrapper that adds OpenRouter app attribution headers.
  * These headers allow OpenClaw to appear on OpenRouter's leaderboard.
  */
 function createOpenRouterHeadersWrapper(baseStreamFn: StreamFn | undefined): StreamFn {
   const underlying = baseStreamFn ?? streamSimple;
   return (model, context, options) =>
-    underlying(model as Model<Api>, context, {
+    underlying(model, context, {
       ...options,
       headers: {
         ...OPENROUTER_APP_HEADERS,
@@ -112,6 +131,7 @@ function createOpenRouterHeadersWrapper(baseStreamFn: StreamFn | undefined): Str
 }
 
 /**
+>>>>>>> 083ec9325 (fix: cover OpenRouter attribution headers)
  * Apply extra params (like temperature) to an agent's streamFn.
  * Also adds OpenRouter app attribution headers when using the OpenRouter provider.
  *
@@ -119,7 +139,7 @@ function createOpenRouterHeadersWrapper(baseStreamFn: StreamFn | undefined): Str
  */
 export function applyExtraParamsToAgent(
   agent: { streamFn?: StreamFn },
-  cfg: MoltbotConfig | undefined,
+  cfg: OpenClawConfig | undefined,
   provider: string,
   modelId: string,
   extraParamsOverride?: Record<string, unknown>,
@@ -136,7 +156,7 @@ export function applyExtraParamsToAgent(
         )
       : undefined;
   const merged = Object.assign({}, extraParams, override);
-  const wrappedStreamFn = createStreamFnWithExtraParams(agent.streamFn, merged, provider, modelId);
+  const wrappedStreamFn = createStreamFnWithExtraParams(agent.streamFn, merged, provider);
 
   if (wrappedStreamFn) {
     log.debug(`applying extraParams to agent streamFn for ${provider}/${modelId}`);

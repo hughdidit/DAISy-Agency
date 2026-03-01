@@ -1,8 +1,7 @@
-import crypto from "node:crypto";
-
 import type { AgentToolResult } from "@mariozechner/pi-agent-core";
 import { Type } from "@sinclair/typebox";
-
+import crypto from "node:crypto";
+import type { OpenClawConfig } from "../../config/config.js";
 import {
   type CameraFacing,
   cameraTempPath,
@@ -17,7 +16,10 @@ import {
   writeScreenRecordToFile,
 } from "../../cli/nodes-screen.js";
 import { parseDurationMs } from "../../cli/parse-duration.js";
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
+=======
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { imageMimeFromFormat } from "../../media/mime.js";
 import { resolveSessionAgentId } from "../agent-scope.js";
 import { optionalStringEnum, stringEnum } from "../schema/typebox.js";
@@ -94,7 +96,7 @@ const NodesToolSchema = Type.Object({
 
 export function createNodesTool(options?: {
   agentSessionKey?: string;
-  config?: MoltbotConfig;
+  config?: OpenClawConfig;
 }): AnyAgentTool {
   const sessionKey = options?.agentSessionKey?.trim() || undefined;
   const agentId = resolveSessionAgentId({
@@ -444,6 +446,8 @@ export function createNodesTool(options?: {
             });
             return jsonResult(raw?.payload ?? {});
           }
+<<<<<<< HEAD
+=======
           case "invoke": {
             const node = readStringParam(params, "node", { required: true });
             const nodeId = await resolveNodeId(gatewayOpts, node);
@@ -456,7 +460,9 @@ export function createNodesTool(options?: {
                 invokeParams = JSON.parse(invokeParamsJson);
               } catch (err) {
                 const message = err instanceof Error ? err.message : String(err);
-                throw new Error(`invokeParamsJson must be valid JSON: ${message}`);
+                throw new Error(`invokeParamsJson must be valid JSON: ${message}`, {
+                  cause: err,
+                });
               }
             }
             const invokeTimeoutMs = parseTimeoutMs(params.invokeTimeoutMs);
@@ -469,6 +475,7 @@ export function createNodesTool(options?: {
             });
             return jsonResult(raw ?? {});
           }
+>>>>>>> d3bb32273 (fix: resolve check errors in nodes-tool and commands-ptt)
           default:
             throw new Error(`Unknown action: ${action}`);
         }

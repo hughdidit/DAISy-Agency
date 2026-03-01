@@ -1,28 +1,6 @@
 import type { Tab } from "./navigation.ts";
 import { connectGateway } from "./app-gateway.ts";
 import {
-<<<<<<< HEAD
-=======
-  startLogsPolling,
-  startNodesPolling,
-  stopLogsPolling,
-  stopNodesPolling,
-  startDebugPolling,
-  stopDebugPolling,
-} from "./app-polling.ts";
-import { observeTopbar, scheduleChatScroll, scheduleLogsScroll } from "./app-scroll.ts";
-import {
->>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
-  applySettingsFromUrl,
-  attachThemeListener,
-  detachThemeListener,
-  inferBasePath,
-  syncTabWithLocation,
-  syncThemeWithSettings,
-<<<<<<< HEAD
-} from "./app-settings";
-import { observeTopbar, scheduleChatScroll, scheduleLogsScroll } from "./app-scroll";
-import {
   startLogsPolling,
   startNodesPolling,
   stopLogsPolling,
@@ -30,14 +8,21 @@ import {
   startDebugPolling,
   stopDebugPolling,
 } from "./app-polling";
-=======
-} from "./app-settings.ts";
->>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
+import { observeTopbar, scheduleChatScroll, scheduleLogsScroll } from "./app-scroll";
+import {
+  applySettingsFromUrl,
+  attachThemeListener,
+  detachThemeListener,
+  inferBasePath,
+  syncTabWithLocation,
+  syncThemeWithSettings,
+} from "./app-settings";
 
 type LifecycleHost = {
   basePath: string;
   tab: Tab;
   chatHasAutoScrolled: boolean;
+  chatManualRefreshInFlight: boolean;
   chatLoading: boolean;
   chatMessages: unknown[];
   chatToolMessages: unknown[];
@@ -80,7 +65,17 @@ export function handleDisconnected(host: LifecycleHost) {
   host.topbarObserver = null;
 }
 
+<<<<<<< HEAD
+export function handleUpdated(
+  host: LifecycleHost,
+  changed: Map<PropertyKey, unknown>,
+) {
+=======
 export function handleUpdated(host: LifecycleHost, changed: Map<PropertyKey, unknown>) {
+  if (host.tab === "chat" && host.chatManualRefreshInFlight) {
+    return;
+  }
+>>>>>>> bc475f017 (fix(ui): smooth chat refresh scroll and suppress new-messages badge flash)
   if (
     host.tab === "chat" &&
     (changed.has("chatMessages") ||

@@ -1,17 +1,20 @@
+<<<<<<< HEAD
 import { format } from "node:util";
 <<<<<<< HEAD
 
-import type { RuntimeEnv, ReplyPayload, MoltbotConfig } from "clawdbot/plugin-sdk";
+import type { RuntimeEnv, ReplyPayload, OpenClawConfig } from "openclaw/plugin-sdk";
 
 =======
-import { createReplyPrefixOptions } from "openclaw/plugin-sdk";
->>>>>>> 5d82c8231 (feat: per-channel responsePrefix override (#9001))
+import type { RuntimeEnv, ReplyPayload, OpenClawConfig } from "openclaw/plugin-sdk";
+import { format } from "node:util";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { getTlonRuntime } from "../runtime.js";
-import { resolveTlonAccount } from "../types.js";
 import { normalizeShip, parseChannelNest } from "../targets.js";
+import { resolveTlonAccount } from "../types.js";
 import { authenticate } from "../urbit/auth.js";
-import { UrbitSSEClient } from "../urbit/sse-client.js";
 import { sendDm, sendGroupMessage } from "../urbit/send.js";
+import { UrbitSSEClient } from "../urbit/sse-client.js";
+import { fetchAllChannels } from "./discovery.js";
 import { cacheMessage, getChannelHistory } from "./history.js";
 import { createProcessedMessageTracker } from "./processed-messages.js";
 import {
@@ -21,7 +24,6 @@ import {
   isDmAllowed,
   isSummarizationRequest,
 } from "./utils.js";
-import { fetchAllChannels } from "./discovery.js";
 
 export type MonitorTlonOpts = {
   runtime?: RuntimeEnv;
@@ -58,7 +60,7 @@ type UrbitUpdate = {
 };
 
 function resolveChannelAuthorization(
-  cfg: MoltbotConfig,
+  cfg: OpenClawConfig,
   channelNest: string,
 ): { mode: "restricted" | "open"; allowedShips: string[] } {
   const tlonConfig = cfg.channels?.tlon as
@@ -76,8 +78,7 @@ function resolveChannelAuthorization(
 
 export async function monitorTlonProvider(opts: MonitorTlonOpts = {}): Promise<void> {
   const core = getTlonRuntime();
-<<<<<<< HEAD
-  const cfg = core.config.loadConfig() as MoltbotConfig;
+  const cfg = core.config.loadConfig() as OpenClawConfig;
   if (cfg.channels?.tlon?.enabled === false) return;
 =======
   const cfg = core.config.loadConfig();

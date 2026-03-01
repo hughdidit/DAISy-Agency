@@ -1,5 +1,5 @@
-import { TerminalStates, type CallId } from "../types.js";
 import type { CallManagerContext } from "./context.js";
+import { TerminalStates, type CallId } from "../types.js";
 import { persistCallRecord } from "./store.js";
 
 export function clearMaxDurationTimer(ctx: CallManagerContext, callId: CallId): void {
@@ -18,7 +18,7 @@ export function startMaxDurationTimer(params: {
   clearMaxDurationTimer(params.ctx, params.callId);
 
   const maxDurationMs = params.ctx.config.maxDurationSeconds * 1000;
-  console.log(
+  params.ctx.logger.info(
     `[voice-call] Starting max duration timer (${params.ctx.config.maxDurationSeconds}s) for call ${params.callId}`,
   );
 
@@ -26,7 +26,7 @@ export function startMaxDurationTimer(params: {
     params.ctx.maxDurationTimers.delete(params.callId);
     const call = params.ctx.activeCalls.get(params.callId);
     if (call && !TerminalStates.has(call.state)) {
-      console.log(
+      params.ctx.logger.info(
         `[voice-call] Max duration reached (${params.ctx.config.maxDurationSeconds}s), ending call ${params.callId}`,
       );
       call.endReason = "timeout";

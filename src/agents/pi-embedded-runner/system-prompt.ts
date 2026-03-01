@@ -1,9 +1,5 @@
 import type { AgentTool } from "@mariozechner/pi-agent-core";
-<<<<<<< HEAD
-=======
 import type { AgentSession } from "@mariozechner/pi-coding-agent";
-import type { MemoryCitationsMode } from "../../config/types.memory.js";
->>>>>>> 5d3af3bc6 (feat (memory): Implement new (opt-in) QMD memory backend)
 import type { ResolvedTimeFormat } from "../date-time.js";
 import type { EmbeddedContextFile } from "../pi-embedded-helpers.js";
 import type { EmbeddedSandboxInfo } from "./types.js";
@@ -80,25 +76,6 @@ export function buildEmbeddedSystemPrompt(params: {
   });
 }
 
-<<<<<<< HEAD
-export function createSystemPromptOverride(
-  systemPrompt: string,
-): (defaultPrompt: string) => string {
-  const trimmed = systemPrompt.trim();
-  return () => trimmed;
-=======
 export function createSystemPromptOverride(systemPrompt: string): string {
   return systemPrompt.trim();
-}
-
-export function applySystemPromptOverrideToSession(session: AgentSession, override: string) {
-  const prompt = override.trim();
-  session.agent.setSystemPrompt(prompt);
-  const mutableSession = session as unknown as {
-    _baseSystemPrompt?: string;
-    _rebuildSystemPrompt?: (toolNames: string[]) => string;
-  };
-  mutableSession._baseSystemPrompt = prompt;
-  mutableSession._rebuildSystemPrompt = () => prompt;
->>>>>>> 8d2f98fb0 (Fix subagent announce failover race (always emit lifecycle end + treat timeout=0 as no-timeout) (#6621))
 }

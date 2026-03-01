@@ -1,17 +1,20 @@
 import fs from "node:fs";
 import path from "node:path";
-
+import type { OpenClawConfig } from "../config/config.js";
+import type { RuntimeEnv } from "../runtime.js";
+import type { DoctorPrompter } from "./doctor-prompter.js";
 import {
   DEFAULT_SANDBOX_BROWSER_IMAGE,
   DEFAULT_SANDBOX_COMMON_IMAGE,
   DEFAULT_SANDBOX_IMAGE,
   resolveSandboxScope,
 } from "../agents/sandbox.js";
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
+=======
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { runCommandWithTimeout, runExec } from "../process/exec.js";
-import type { RuntimeEnv } from "../runtime.js";
 import { note } from "../terminal/note.js";
-import type { DoctorPrompter } from "./doctor-prompter.js";
 
 type SandboxScriptInfo = {
   scriptPath: string;
@@ -90,17 +93,17 @@ async function dockerImageExists(image: string): Promise<boolean> {
   }
 }
 
-function resolveSandboxDockerImage(cfg: MoltbotConfig): string {
+function resolveSandboxDockerImage(cfg: OpenClawConfig): string {
   const image = cfg.agents?.defaults?.sandbox?.docker?.image?.trim();
   return image ? image : DEFAULT_SANDBOX_IMAGE;
 }
 
-function resolveSandboxBrowserImage(cfg: MoltbotConfig): string {
+function resolveSandboxBrowserImage(cfg: OpenClawConfig): string {
   const image = cfg.agents?.defaults?.sandbox?.browser?.image?.trim();
   return image ? image : DEFAULT_SANDBOX_BROWSER_IMAGE;
 }
 
-function updateSandboxDockerImage(cfg: MoltbotConfig, image: string): MoltbotConfig {
+function updateSandboxDockerImage(cfg: OpenClawConfig, image: string): OpenClawConfig {
   return {
     ...cfg,
     agents: {
@@ -119,7 +122,7 @@ function updateSandboxDockerImage(cfg: MoltbotConfig, image: string): MoltbotCon
   };
 }
 
-function updateSandboxBrowserImage(cfg: MoltbotConfig, image: string): MoltbotConfig {
+function updateSandboxBrowserImage(cfg: OpenClawConfig, image: string): OpenClawConfig {
   return {
     ...cfg,
     agents: {
@@ -139,7 +142,7 @@ function updateSandboxBrowserImage(cfg: MoltbotConfig, image: string): MoltbotCo
 }
 
 type SandboxImageCheck = {
-  label: string;
+  kind: string;
   image: string;
   buildScript?: string;
   updateConfig: (image: string) => void;
@@ -158,12 +161,12 @@ async function handleMissingSandboxImage(
   const buildHint = params.buildScript
     ? `Build it with ${params.buildScript}.`
     : "Build or pull it first.";
-  note(`Sandbox ${params.label} image missing: ${params.image}. ${buildHint}`, "Sandbox");
+  note(`Sandbox ${params.kind} image missing: ${params.image}. ${buildHint}`, "Sandbox");
 
   let built = false;
   if (params.buildScript) {
     const build = await prompter.confirmSkipInNonInteractive({
-      message: `Build ${params.label} sandbox image now?`,
+      message: `Build ${params.kind} sandbox image now?`,
       initialValue: true,
     });
     if (build) {
@@ -177,10 +180,10 @@ async function handleMissingSandboxImage(
 }
 
 export async function maybeRepairSandboxImages(
-  cfg: MoltbotConfig,
+  cfg: OpenClawConfig,
   runtime: RuntimeEnv,
   prompter: DoctorPrompter,
-): Promise<MoltbotConfig> {
+): Promise<OpenClawConfig> {
   const sandbox = cfg.agents?.defaults?.sandbox;
   const mode = sandbox?.mode ?? "off";
   if (!sandbox || mode === "off") {
@@ -199,7 +202,7 @@ export async function maybeRepairSandboxImages(
   const dockerImage = resolveSandboxDockerImage(cfg);
   await handleMissingSandboxImage(
     {
-      label: "base",
+      kind: "base",
       image: dockerImage,
       buildScript:
         dockerImage === DEFAULT_SANDBOX_COMMON_IMAGE
@@ -219,7 +222,7 @@ export async function maybeRepairSandboxImages(
   if (sandbox.browser?.enabled) {
     await handleMissingSandboxImage(
       {
-        label: "browser",
+        kind: "browser",
         image: resolveSandboxBrowserImage(cfg),
         buildScript: "scripts/sandbox-browser-setup.sh",
         updateConfig: (image) => {
@@ -239,7 +242,7 @@ export async function maybeRepairSandboxImages(
   return next;
 }
 
-export function noteSandboxScopeWarnings(cfg: MoltbotConfig) {
+export function noteSandboxScopeWarnings(cfg: OpenClawConfig) {
   const globalSandbox = cfg.agents?.defaults?.sandbox;
   const agents = Array.isArray(cfg.agents?.list) ? cfg.agents.list : [];
   const warnings: string[] = [];

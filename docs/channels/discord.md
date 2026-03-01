@@ -2,6 +2,7 @@
 summary: "Discord bot support status, capabilities, and configuration"
 read_when:
   - Working on Discord channel features
+title: "Discord"
 ---
 
 # Discord (Bot API)
@@ -12,13 +13,7 @@ Status: ready for DM and guild text channels via the official Discord bot gatewa
 <<<<<<< HEAD
 1) Create a Discord bot and copy the bot token.
 2) In the Discord app settings, enable **Message Content Intent** (and **Server Members Intent** if you plan to use allowlists or name lookups).
-3) Set the token for Moltbot:
-=======
-
-1. Create a Discord bot and copy the bot token.
-2. In the Discord app settings, enable **Message Content Intent** (and **Server Members Intent** if you plan to use allowlists or name lookups).
-3. Set the token for OpenClaw:
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
+3) Set the token for OpenClaw:
    - Env: `DISCORD_BOT_TOKEN=...`
    - Or config: `channels.discord.token: "..."`.
    - If both are set, config takes precedence (env fallback is default-account only).
@@ -40,12 +35,7 @@ Minimal config:
 ```
 
 ## Goals
-<<<<<<< HEAD
-- Talk to Moltbot via Discord DMs or guild channels.
-=======
-
 - Talk to OpenClaw via Discord DMs or guild channels.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - Direct chats collapse into the agent's main session (default `agent:main:main`); guild channels stay isolated as `agent:<agentId>:discord:channel:<channelId>` (display names use `discord:<guildSlug>#<channelSlug>`).
 - Group DMs are ignored by default; enable via `channels.discord.dm.groupEnabled` and optionally restrict by `channels.discord.dm.groupChannels`.
 - Keep routing deterministic: replies always go back to the channel they arrived on.
@@ -54,12 +44,12 @@ Minimal config:
 
 1. Create a Discord application → Bot, enable the intents you need (DMs + guild messages + message content), and grab the bot token.
 2. Invite the bot to your server with the permissions required to read/send messages where you want to use it.
-3. Configure Moltbot with `channels.discord.token` (or `DISCORD_BOT_TOKEN` as a fallback).
+3. Configure OpenClaw with `channels.discord.token` (or `DISCORD_BOT_TOKEN` as a fallback).
 4. Run the gateway; it auto-starts the Discord channel when a token is available (config first, env fallback) and `channels.discord.enabled` is not `false`.
    - If you prefer env vars, set `DISCORD_BOT_TOKEN` (a config block is optional).
 5. Direct chats: use `user:<id>` (or a `<@id>` mention) when delivering; all turns land in the shared `main` session. Bare numeric IDs are ambiguous and rejected.
 6. Guild channels: use `channel:<channelId>` for delivery. Mentions are required by default and can be set per guild or per channel.
-7. Direct chats: secure by default via `channels.discord.dm.policy` (default: `"pairing"`). Unknown senders get a pairing code (expires after 1 hour); approve via `moltbot pairing approve discord <code>`.
+7. Direct chats: secure by default via `channels.discord.dm.policy` (default: `"pairing"`). Unknown senders get a pairing code (expires after 1 hour); approve via `openclaw pairing approve discord <code>`.
    - To keep old “open to anyone” behavior: set `channels.discord.dm.policy="open"` and `channels.discord.dm.allowFrom=["*"]`.
    - To hard-allowlist: set `channels.discord.dm.policy="allowlist"` and list senders in `channels.discord.dm.allowFrom`.
    - To ignore all DMs: set `channels.discord.dm.enabled=false` or `channels.discord.dm.policy="disabled"`.
@@ -91,7 +81,7 @@ Disable with:
 
 ## How to create your own bot
 
-This is the “Discord Developer Portal” setup for running Moltbot in a server (guild) channel like `#help`.
+This is the “Discord Developer Portal” setup for running OpenClaw in a server (guild) channel like `#help`.
 
 ### 1) Create the Discord app + bot user
 
@@ -100,12 +90,7 @@ This is the “Discord Developer Portal” setup for running Moltbot in a server
    - **Bot** → **Add Bot**
    - Copy the **Bot Token** (this is what you put in `DISCORD_BOT_TOKEN`)
 
-<<<<<<< HEAD
-### 2) Enable the gateway intents Moltbot needs
-=======
 ### 2) Enable the gateway intents OpenClaw needs
-
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 Discord blocks “privileged intents” unless you explicitly enable them.
 
 In **Bot** → **Privileged Gateway Intents**, enable:
@@ -139,12 +124,7 @@ Avoid **Administrator** unless you’re debugging and fully trust the bot.
 Copy the generated URL, open it, pick your server, and install the bot.
 
 ### 4) Get the ids (guild/user/channel)
-<<<<<<< HEAD
-Discord uses numeric ids everywhere; Moltbot config prefers ids.
-=======
-
 Discord uses numeric ids everywhere; OpenClaw config prefers ids.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 1. Discord (desktop/web) → **User Settings** → **Advanced** → enable **Developer Mode**
 2. Right-click:
@@ -152,7 +132,7 @@ Discord uses numeric ids everywhere; OpenClaw config prefers ids.
    - Channel (e.g. `#help`) → **Copy Channel ID**
    - Your user → **Copy User ID**
 
-### 5) Configure Moltbot
+### 5) Configure OpenClaw
 
 #### Token
 
@@ -213,6 +193,7 @@ Notes:
 - If `channels` is present, any channel not listed is denied by default.
 - Use a `"*"` channel entry to apply defaults across all channels; explicit channel entries override the wildcard.
 - Threads inherit parent channel config (allowlist, `requireMention`, skills, prompts, etc.) unless you add the thread channel id explicitly.
+- Owner hint: when a per-guild or per-channel `users` allowlist matches the sender, OpenClaw treats that sender as the owner in the system prompt. For a global owner across channels, set `commands.ownerAllowFrom`.
 - Bot-authored messages are ignored by default; set `channels.discord.allowBots=true` to allow them (own messages remain filtered).
 - Warning: If you allow replies to other bots (`channels.discord.allowBots=true`), prevent bot-to-bot reply loops with `requireMention`, `channels.discord.guilds.*.channels.<id>.users` allowlists, and/or clear guardrails in `AGENTS.md` and `SOUL.md`.
 
@@ -223,12 +204,7 @@ Notes:
 3. If nothing happens: check **Troubleshooting** below.
 
 ### Troubleshooting
-<<<<<<< HEAD
-- First: run `moltbot doctor` and `moltbot channels status --probe` (actionable warnings + quick audits).
-=======
-
 - First: run `openclaw doctor` and `openclaw channels status --probe` (actionable warnings + quick audits).
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - **“Used disallowed intents”**: enable **Message Content Intent** (and likely **Server Members Intent**) in the Developer Portal, then restart the gateway.
 - **Bot connects but never replies in a guild channel**:
   - Missing **Message Content Intent**, or
@@ -243,6 +219,11 @@ Notes:
 - `requireMention` must live under `channels.discord.guilds` (or a specific channel). `channels.discord.requireMention` at the top level is ignored.
 - **Permission audits** (`channels status --probe`) only check numeric channel IDs. If you use slugs/names as `channels.discord.guilds.*.channels` keys, the audit can’t verify permissions.
 - **DMs don’t work**: `channels.discord.dm.enabled=false`, `channels.discord.dm.policy="disabled"`, or you haven’t been approved yet (`channels.discord.dm.policy="pairing"`).
+- **Exec approvals in Discord**: Discord supports a **button UI** for exec approvals in DMs (Allow once / Always allow / Deny). `/approve <id> ...` is only for forwarded approvals and won’t resolve Discord’s button prompts. If you see `❌ Failed to submit approval: Error: unknown approval id` or the UI never shows up, check:
+  - `channels.discord.execApprovals.enabled: true` in your config.
+  - Your Discord user ID is listed in `channels.discord.execApprovals.approvers` (the UI is only sent to approvers).
+  - Use the buttons in the DM prompt (**Allow once**, **Always allow**, **Deny**).
+  - See [Exec approvals](/tools/exec-approvals) and [Slash commands](/tools/slash-commands) for the broader approvals and command flow.
 
 ## Capabilities & limits
 
@@ -302,16 +283,12 @@ Outbound Discord API calls retry on rate limits (429) using Discord `retry_after
         policy: "pairing", // pairing | allowlist | open | disabled
         allowFrom: ["123456789012345678", "steipete"],
         groupEnabled: false,
-<<<<<<< HEAD
-        groupChannels: ["clawd-dm"]
-=======
-        groupChannels: ["openclaw-dm"],
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
+        groupChannels: ["openclaw-dm"]
       },
       guilds: {
         "*": { requireMention: true },
         "123456789012345678": {
-          slug: "friends-of-clawd",
+          slug: "friends-of-openclaw",
           requireMention: false,
           reactionNotifications: "own",
           users: ["987654321098765432", "steipete"],
@@ -354,7 +331,7 @@ ack reaction after the bot replies.
 - `guilds.<id>.channels.<channel>.toolsBySender`: optional per-sender tool policy overrides within the channel (`"*"` wildcard supported).
 - `guilds.<id>.channels.<channel>.users`: optional per-channel user allowlist.
 - `guilds.<id>.channels.<channel>.skills`: skill filter (omit = all skills, empty = none).
-- `guilds.<id>.channels.<channel>.systemPrompt`: extra system prompt for the channel (combined with channel topic).
+- `guilds.<id>.channels.<channel>.systemPrompt`: extra system prompt for the channel. Discord channel topics are injected as **untrusted** context (not system prompt).
 - `guilds.<id>.channels.<channel>.enabled`: set `false` to disable the channel.
 - `guilds.<id>.channels`: channel rules (keys are channel slugs or ids).
 - `guilds.<id>.requireMention`: per-guild mention requirement (overridable per channel).
@@ -374,11 +351,7 @@ ack reaction after the bot replies.
   - `channels` (create/edit/delete channels + categories + permissions)
   - `roles` (role add/remove, default `false`)
   - `moderation` (timeout/kick/ban, default `false`)
-<<<<<<< HEAD
-=======
-  - `presence` (bot status/activity, default `false`)
 - `execApprovals`: Discord-only exec approval DMs (button UI). Supports `enabled`, `approvers`, `agentFilter`, `sessionFilter`.
->>>>>>> 5af322f71 (feat(discord): add set-presence action for bot activity and status)
 
 Reaction notifications use `guilds.<id>.reactionNotifications`:
 
@@ -387,6 +360,8 @@ Reaction notifications use `guilds.<id>.reactionNotifications`:
 - `all`: all reactions on all messages.
 - `allowlist`: reactions from `guilds.<id>.users` on all messages (empty list disables).
 
+<<<<<<< HEAD
+=======
 ### PluralKit (PK) support
 
 Enable PK lookups so proxied messages resolve to the underlying system + member.
@@ -399,10 +374,10 @@ sender as `Member (PK:System)` to avoid accidental Discord pings.
     discord: {
       pluralkit: {
         enabled: true,
-        token: "pk_live_..." // optional; required for private systems
-      }
-    }
-  }
+        token: "pk_live_...", // optional; required for private systems
+      },
+    },
+  },
 }
 ```
 
@@ -415,6 +390,7 @@ Allowlist notes (PK-enabled):
 - If PK lookups fail (e.g., private system without a token), proxied messages
   are treated as bot messages and are dropped unless `channels.discord.allowBots=true`.
 
+>>>>>>> 58f418592 (fix: Failing tests due to import sorting.)
 ### Tool action defaults
 
 | Action group   | Default  | Notes                              |
@@ -464,18 +440,13 @@ Allowlist matching notes:
 - When `guilds.<id>.channels` is omitted, all channels in the allowlisted guild are allowed.
 - To allow **no channels**, set `channels.discord.groupPolicy: "disabled"` (or keep an empty allowlist).
 - The configure wizard accepts `Guild/Channel` names (public + private) and resolves them to IDs when possible.
-- On startup, Moltbot resolves channel/user names in allowlists to IDs (when the bot can search members)
+- On startup, OpenClaw resolves channel/user names in allowlists to IDs (when the bot can search members)
   and logs the mapping; unresolved entries are kept as typed.
 
 Native command notes:
-<<<<<<< HEAD
-- The registered commands mirror Moltbot’s chat commands.
-=======
-
 - The registered commands mirror OpenClaw’s chat commands.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - Native commands honor the same allowlists as DMs/guild messages (`channels.discord.dm.allowFrom`, `channels.discord.guilds`, per-channel rules).
-- Slash commands may still be visible in Discord UI to users who aren’t allowlisted; Moltbot enforces allowlists on execution and replies “not authorized”.
+- Slash commands may still be visible in Discord UI to users who aren’t allowlisted; OpenClaw enforces allowlists on execution and replies “not authorized”.
 
 ## Tool actions
 
@@ -499,4 +470,4 @@ Emoji can be unicode (e.g., `✅`) or custom emoji syntax like `<:party_blob:123
 
 - Treat the bot token like a password; prefer the `DISCORD_BOT_TOKEN` env var on supervised hosts or lock down the config file permissions.
 - Only grant the bot permissions it needs (typically Read/Send Messages).
-- If the bot is stuck or rate limited, restart the gateway (`moltbot gateway --force`) after confirming no other processes own the Discord session.
+- If the bot is stuck or rate limited, restart the gateway (`openclaw gateway --force`) after confirming no other processes own the Discord session.

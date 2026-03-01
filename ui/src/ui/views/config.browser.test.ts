@@ -1,7 +1,5 @@
 import { render } from "lit";
 import { describe, expect, it, vi } from "vitest";
-<<<<<<< HEAD
-
 import { renderConfig } from "./config";
 =======
 import { renderConfig } from "./config.ts";

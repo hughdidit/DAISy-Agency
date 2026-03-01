@@ -1,3 +1,4 @@
+import { listAgentIds } from "../../agents/agent-scope.js";
 import { DEFAULT_MODEL, DEFAULT_PROVIDER } from "../../agents/defaults.js";
 import {
   buildModelAliasIndex,
@@ -5,11 +6,16 @@ import {
   parseModelRef,
   resolveModelRefFromString,
 } from "../../agents/model-selection.js";
+<<<<<<< HEAD
+=======
+import { formatCliCommand } from "../../cli/command-format.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import {
-  type MoltbotConfig,
+  type OpenClawConfig,
   readConfigFileSnapshot,
   writeConfigFile,
 } from "../../config/config.js";
+import { normalizeAgentId } from "../../routing/session-key.js";
 
 export const ensureFlagCompatibility = (opts: { json?: boolean; plain?: boolean }) => {
   if (opts.json && opts.plain) {
@@ -41,8 +47,8 @@ export const formatMs = (value?: number | null) => {
 };
 
 export async function updateConfig(
-  mutator: (cfg: MoltbotConfig) => MoltbotConfig,
-): Promise<MoltbotConfig> {
+  mutator: (cfg: OpenClawConfig) => OpenClawConfig,
+): Promise<OpenClawConfig> {
   const snapshot = await readConfigFileSnapshot();
   if (!snapshot.valid) {
     const issues = snapshot.issues.map((issue) => `- ${issue.path}: ${issue.message}`).join("\n");
@@ -53,7 +59,7 @@ export async function updateConfig(
   return next;
 }
 
-export function resolveModelTarget(params: { raw: string; cfg: MoltbotConfig }): {
+export function resolveModelTarget(params: { raw: string; cfg: OpenClawConfig }): {
   provider: string;
   model: string;
 } {
@@ -72,7 +78,7 @@ export function resolveModelTarget(params: { raw: string; cfg: MoltbotConfig }):
   return resolved.ref;
 }
 
-export function buildAllowlistSet(cfg: MoltbotConfig): Set<string> {
+export function buildAllowlistSet(cfg: OpenClawConfig): Set<string> {
   const allowed = new Set<string>();
   const models = cfg.agents?.defaults?.models ?? {};
   for (const raw of Object.keys(models)) {
@@ -96,16 +102,12 @@ export function normalizeAlias(alias: string): string {
   return trimmed;
 }
 
-<<<<<<< HEAD
-=======
 export function resolveKnownAgentId(params: {
   cfg: OpenClawConfig;
   rawAgentId?: string | null;
 }): string | undefined {
   const raw = params.rawAgentId?.trim();
-  if (!raw) {
-    return undefined;
-  }
+  if (!raw) return undefined;
   const agentId = normalizeAgentId(raw);
   const knownAgents = listAgentIds(params.cfg);
   if (!knownAgents.includes(agentId)) {
@@ -116,7 +118,6 @@ export function resolveKnownAgentId(params: {
   return agentId;
 }
 
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
 export { modelKey };
 export { DEFAULT_MODEL, DEFAULT_PROVIDER };
 

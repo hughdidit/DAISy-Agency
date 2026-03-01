@@ -1,39 +1,11 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-
 import { type CommandOptions, runCommandWithTimeout } from "../process/exec.js";
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
-import {
-  resolveControlUiDistIndexHealth,
-  resolveControlUiDistIndexPathForRoot,
-} from "./control-ui-assets.js";
->>>>>>> c75275f10 (Update: harden control UI asset handling in update flow (#10146))
 import { trimLogTail } from "./restart-sentinel.js";
-import {
-  channelToNpmTag,
-  DEFAULT_PACKAGE_CHANNEL,
-  DEV_BRANCH,
-  isBetaTag,
-  isStableTag,
-  type UpdateChannel,
-} from "./update-channels.js";
->>>>>>> bbe9cb302 (fix(update): honor update.channel for update.run)
-import { compareSemverStrings } from "./update-check.js";
-<<<<<<< HEAD
 import { DEV_BRANCH, isBetaTag, isStableTag, type UpdateChannel } from "./update-channels.js";
+import { compareSemverStrings } from "./update-check.js";
 import { detectGlobalInstallManagerForRoot, globalInstallArgs } from "./update-global.js";
-import { trimLogTail } from "./restart-sentinel.js";
-=======
-import {
-  cleanupGlobalRenameDirs,
-  detectGlobalInstallManagerForRoot,
-  globalInstallArgs,
-} from "./update-global.js";
->>>>>>> 57d008a33 (fix(update): harden global updates)
 
 export type UpdateStepResult = {
   name: string;
@@ -93,8 +65,8 @@ const DEFAULT_TIMEOUT_MS = 20 * 60_000;
 const MAX_LOG_CHARS = 8000;
 const PREFLIGHT_MAX_COMMITS = 10;
 const START_DIRS = ["cwd", "argv1", "process"];
-const DEFAULT_PACKAGE_NAME = "moltbot";
-const CORE_PACKAGE_NAMES = new Set([DEFAULT_PACKAGE_NAME, "moltbot"]);
+const DEFAULT_PACKAGE_NAME = "openclaw";
+const CORE_PACKAGE_NAMES = new Set([DEFAULT_PACKAGE_NAME]);
 
 function normalizeDir(value?: string | null) {
   if (!value) {
@@ -367,15 +339,7 @@ function normalizeTag(tag?: string) {
   const trimmed = tag?.trim();
 <<<<<<< HEAD
   if (!trimmed) return "latest";
-  if (trimmed.startsWith("moltbot@")) return trimmed.slice("moltbot@".length);
-=======
-  if (!trimmed) {
-    return "latest";
-  }
-  if (trimmed.startsWith("openclaw@")) {
-    return trimmed.slice("openclaw@".length);
-  }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
+  if (trimmed.startsWith("openclaw@")) return trimmed.slice("openclaw@".length);
   if (trimmed.startsWith(`${DEFAULT_PACKAGE_NAME}@`)) {
     return trimmed.slice(`${DEFAULT_PACKAGE_NAME}@`.length);
   }
@@ -431,7 +395,7 @@ export async function runGatewayUpdate(opts: UpdateRunnerOptions = {}): Promise<
       status: "error",
       mode: "unknown",
       root: gitRoot,
-      reason: "not-moltbot-root",
+      reason: "not-openclaw-root",
       steps: [],
       durationMs: Date.now() - startedAt,
     };
@@ -586,7 +550,7 @@ export async function runGatewayUpdate(opts: UpdateRunnerOptions = {}): Promise<
       }
 
       const manager = await detectPackageManager(gitRoot);
-      const preflightRoot = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-update-preflight-"));
+      const preflightRoot = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-update-preflight-"));
       const worktreeDir = path.join(preflightRoot, "worktree");
       const worktreeStep = await runStep(
         step(
@@ -768,24 +732,12 @@ export async function runGatewayUpdate(opts: UpdateRunnerOptions = {}): Promise<
     );
     steps.push(uiBuildStep);
 
-<<<<<<< HEAD
-    // Restore dist/control-ui/ to committed state to prevent dirty repo after update
-    // (ui:build regenerates assets with new hashes, which would block future updates)
-    const restoreUiStep = await runStep(
-      step(
-        "restore control-ui",
-        ["git", "-C", gitRoot, "checkout", "--", "dist/control-ui/"],
-        gitRoot,
-      ),
-    );
-    steps.push(restoreUiStep);
-
     const doctorStep = await runStep(
       step(
-        "moltbot doctor",
-        managerScriptArgs(manager, "moltbot", ["doctor", "--non-interactive"]),
+        "openclaw doctor",
+        managerScriptArgs(manager, "openclaw", ["doctor", "--non-interactive"]),
         gitRoot,
-        { CLAWDBOT_UPDATE_IN_PROGRESS: "1" },
+        { OPENCLAW_UPDATE_IN_PROGRESS: "1" },
       ),
 =======
     const doctorEntry = path.join(gitRoot, "openclaw.mjs");

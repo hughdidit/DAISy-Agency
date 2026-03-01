@@ -1,5 +1,9 @@
+<<<<<<< HEAD
 import type { ChannelGroupContext } from "clawdbot/plugin-sdk";
 
+=======
+import type { ChannelGroupContext } from "openclaw/plugin-sdk";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { resolveMattermostAccount } from "./mattermost/accounts.js";
 
 export function resolveMattermostGroupRequireMention(

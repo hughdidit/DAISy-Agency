@@ -15,25 +15,7 @@ const requiredPaths = [
   "dist/hooks/gmail.js",
   "dist/whatsapp/normalize.js",
 ];
-const forbiddenPrefixes = ["dist/Moltbot.app/"];
-=======
-const requiredPaths = ["dist/discord/send.js", "dist/hooks/gmail.js", "dist/whatsapp/normalize.js"];
-=======
-const requiredPaths = [
-  "dist/index.js",
-  "dist/entry.js",
-=======
-const requiredPathGroups = [
-  ["dist/index.js", "dist/index.mjs"],
-  ["dist/entry.js", "dist/entry.mjs"],
->>>>>>> 80d42eb0b (fix(docker): support .mjs entrypoints in images and e2e)
-  "dist/plugin-sdk/index.js",
-  "dist/plugin-sdk/index.d.ts",
-  "dist/build-info.json",
-];
->>>>>>> 539a15e63 (chore: prep 2026.2.2 docs/release checks)
 const forbiddenPrefixes = ["dist/OpenClaw.app/"];
->>>>>>> 76b5208b1 (chore: Also format `scripts` and `skills`.)
 
 type PackageJson = {
   name?: string;

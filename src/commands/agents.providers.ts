@@ -1,12 +1,18 @@
+import type { ChannelId } from "../channels/plugins/types.js";
+import type { OpenClawConfig } from "../config/config.js";
+import type { AgentBinding } from "../config/types.js";
 import { resolveChannelDefaultAccountId } from "../channels/plugins/helpers.js";
 import {
   getChannelPlugin,
   listChannelPlugins,
   normalizeChannelId,
 } from "../channels/plugins/index.js";
+<<<<<<< HEAD
 import type { ChannelId } from "../channels/plugins/types.js";
-import type { MoltbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 import type { AgentBinding } from "../config/types.js";
+=======
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { DEFAULT_ACCOUNT_ID } from "../routing/session-key.js";
 
 type ProviderAccountStatus = {
@@ -43,7 +49,7 @@ function formatProviderState(entry: ProviderAccountStatus): string {
 }
 
 export async function buildProviderStatusIndex(
-  cfg: MoltbotConfig,
+  cfg: OpenClawConfig,
 ): Promise<Map<string, ProviderAccountStatus>> {
   const map = new Map<string, ProviderAccountStatus>();
 
@@ -91,7 +97,7 @@ export async function buildProviderStatusIndex(
   return map;
 }
 
-function resolveDefaultAccountId(cfg: MoltbotConfig, provider: ChannelId): string {
+function resolveDefaultAccountId(cfg: OpenClawConfig, provider: ChannelId): string {
   const plugin = getChannelPlugin(provider);
   if (!plugin) {
     return DEFAULT_ACCOUNT_ID;
@@ -99,7 +105,7 @@ function resolveDefaultAccountId(cfg: MoltbotConfig, provider: ChannelId): strin
   return resolveChannelDefaultAccountId({ plugin, cfg });
 }
 
-function shouldShowProviderEntry(entry: ProviderAccountStatus, cfg: MoltbotConfig): boolean {
+function shouldShowProviderEntry(entry: ProviderAccountStatus, cfg: OpenClawConfig): boolean {
   const plugin = getChannelPlugin(entry.provider);
   if (!plugin) {
     return Boolean(entry.configured);
@@ -120,8 +126,7 @@ function formatProviderEntry(entry: ProviderAccountStatus): string {
   return `${label}: ${formatProviderState(entry)}`;
 }
 
-<<<<<<< HEAD
-export function summarizeBindings(cfg: MoltbotConfig, bindings: AgentBinding[]): string[] {
+export function summarizeBindings(cfg: OpenClawConfig, bindings: AgentBinding[]): string[] {
   if (bindings.length === 0) return [];
 =======
 export function summarizeBindings(cfg: OpenClawConfig, bindings: AgentBinding[]): string[] {
@@ -150,7 +155,7 @@ export function summarizeBindings(cfg: OpenClawConfig, bindings: AgentBinding[])
 
 export function listProvidersForAgent(params: {
   summaryIsDefault: boolean;
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   bindings: AgentBinding[];
   providerStatus: Map<string, ProviderAccountStatus>;
 }): string[] {

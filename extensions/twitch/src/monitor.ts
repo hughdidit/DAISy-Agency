@@ -5,16 +5,11 @@
  * resolves agent routes, and handles replies.
  */
 
-<<<<<<< HEAD
-import type { ReplyPayload, MoltbotConfig } from "clawdbot/plugin-sdk";
-=======
 import type { ReplyPayload, OpenClawConfig } from "openclaw/plugin-sdk";
-import { createReplyPrefixOptions } from "openclaw/plugin-sdk";
->>>>>>> 5d82c8231 (feat: per-channel responsePrefix override (#9001))
 import type { TwitchAccountConfig, TwitchChatMessage } from "./types.js";
 import { checkTwitchAccessControl } from "./access-control.js";
-import { getTwitchRuntime } from "./runtime.js";
 import { getOrCreateClientManager } from "./client-manager-registry.js";
+import { getTwitchRuntime } from "./runtime.js";
 import { stripMarkdownForTwitch } from "./utils/markdown.js";
 
 export type TwitchRuntimeEnv = {
@@ -25,7 +20,7 @@ export type TwitchRuntimeEnv = {
 export type TwitchMonitorOptions = {
   account: TwitchAccountConfig;
   accountId: string;
-  config: unknown; // MoltbotConfig
+  config: unknown; // OpenClawConfig
   runtime: TwitchRuntimeEnv;
   abortSignal: AbortSignal;
   statusSink?: (patch: { lastInboundAt?: number; lastOutboundAt?: number }) => void;
@@ -50,7 +45,7 @@ async function processTwitchMessage(params: {
   statusSink?: (patch: { lastInboundAt?: number; lastOutboundAt?: number }) => void;
 }): Promise<void> {
   const { message, account, accountId, config, runtime, core, statusSink } = params;
-  const cfg = config as MoltbotConfig;
+  const cfg = config as OpenClawConfig;
 
   const route = core.channel.routing.resolveAgentRoute({
     cfg,

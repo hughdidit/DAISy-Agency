@@ -1,9 +1,4 @@
 import { describe, expect, it, vi } from "vitest";
-<<<<<<< HEAD
-
-=======
-import { sleep } from "../utils.ts";
->>>>>>> 6b0d6e254 (chore: We have a sleep at home. The sleep at home:)
 import {
   removeAckReactionAfterReply,
   shouldAckReaction,

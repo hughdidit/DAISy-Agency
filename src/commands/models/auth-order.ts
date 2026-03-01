@@ -1,3 +1,4 @@
+import type { RuntimeEnv } from "../../runtime.js";
 import { resolveAgentDir, resolveDefaultAgentId } from "../../agents/agent-scope.js";
 import {
   type AuthProfileStore,
@@ -6,9 +7,13 @@ import {
 } from "../../agents/auth-profiles.js";
 import { normalizeProviderId } from "../../agents/model-selection.js";
 import { loadConfig } from "../../config/config.js";
+<<<<<<< HEAD
 import { normalizeAgentId } from "../../routing/session-key.js";
 import type { RuntimeEnv } from "../../runtime.js";
+=======
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { shortenHomePath } from "../../utils.js";
+import { resolveKnownAgentId } from "./shared.js";
 
 function resolveTargetAgent(
   cfg: ReturnType<typeof loadConfig>,
@@ -17,7 +22,7 @@ function resolveTargetAgent(
   agentId: string;
   agentDir: string;
 } {
-  const agentId = raw?.trim() ? normalizeAgentId(raw.trim()) : resolveDefaultAgentId(cfg);
+  const agentId = resolveKnownAgentId({ cfg, rawAgentId: raw }) ?? resolveDefaultAgentId(cfg);
   const agentDir = resolveAgentDir(cfg, agentId);
   return { agentId, agentDir };
 }

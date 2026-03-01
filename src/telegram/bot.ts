@@ -1,37 +1,24 @@
-<<<<<<< HEAD
+import type { ApiClientOptions } from "grammy";
 // @ts-nocheck
 import { sequentialize } from "@grammyjs/runner";
 import { apiThrottler } from "@grammyjs/transformer-throttler";
-<<<<<<< HEAD
-<<<<<<< HEAD
-import type { ApiClientOptions } from "grammy";
-=======
-import { ReactionTypeEmoji } from "@grammyjs/types";
->>>>>>> 147eba11f (chore: Manually fix TypeScript errors uncovered by sorting imports.)
-import { Bot, webhookCallback } from "grammy";
-=======
-import { type Message, ReactionTypeEmoji } from "@grammyjs/types";
-=======
-import type { ApiClientOptions } from "grammy";
-import { sequentialize } from "@grammyjs/runner";
-import { apiThrottler } from "@grammyjs/transformer-throttler";
-import { type Message, type UserFromGetMe, ReactionTypeEmoji } from "@grammyjs/types";
->>>>>>> 96abc1c86 (Telegram: remove @ts-nocheck from bot.ts, fix duplicate error handler, harden sticker caching (#9077))
 import { Bot, webhookCallback } from "grammy";
 import type { OpenClawConfig, ReplyToMode } from "../config/config.js";
 import type { RuntimeEnv } from "../runtime.js";
-import type { TelegramContext } from "./bot/types.js";
->>>>>>> da6de4981 (Telegram: use Grammy types directly, add typed Probe/Audit to plugin interface (#8403))
+import type { TelegramContext, TelegramMessage } from "./bot/types.js";
 import { resolveDefaultAgentId } from "../agents/agent-scope.js";
-import { isControlCommandMessage } from "../auto-reply/command-detection.js";
 import { resolveTextChunkLimit } from "../auto-reply/chunk.js";
+import { isControlCommandMessage } from "../auto-reply/command-detection.js";
 import { DEFAULT_GROUP_HISTORY_LIMIT, type HistoryEntry } from "../auto-reply/reply/history.js";
 import {
   isNativeCommandsExplicitlyDisabled,
   resolveNativeCommandsEnabled,
   resolveNativeSkillsEnabled,
 } from "../config/commands.js";
+<<<<<<< HEAD
 import type { MoltbotConfig, ReplyToMode } from "../config/config.js";
+=======
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { loadConfig } from "../config/config.js";
 import {
   resolveChannelGroupPolicy,
@@ -39,24 +26,19 @@ import {
 } from "../config/group-policy.js";
 import { loadSessionStore, resolveStorePath } from "../config/sessions.js";
 import { danger, logVerbose, shouldLogVerbose } from "../globals.js";
-import { createSubsystemLogger } from "../logging/subsystem.js";
 import { formatUncaughtError } from "../infra/errors.js";
 import { enqueueSystemEvent } from "../infra/system-events.js";
 import { getChildLogger } from "../logging.js";
+<<<<<<< HEAD
 import { withTelegramApiErrorLogging } from "./api-logging.js";
+=======
+import { createSubsystemLogger } from "../logging/subsystem.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { resolveAgentRoute } from "../routing/resolve-route.js";
 <<<<<<< HEAD
 import { resolveThreadSessionKeys } from "../routing/session-key.js";
-import type { RuntimeEnv } from "../runtime.js";
-=======
->>>>>>> 96abc1c86 (Telegram: remove @ts-nocheck from bot.ts, fix duplicate error handler, harden sticker caching (#9077))
 import { resolveTelegramAccount } from "./accounts.js";
-import {
-  buildTelegramGroupPeerId,
-  resolveTelegramForumThreadId,
-  resolveTelegramStreamMode,
-} from "./bot/helpers.js";
-import type { TelegramContext, TelegramMessage } from "./bot/types.js";
+import { withTelegramApiErrorLogging } from "./api-logging.js";
 import { registerTelegramHandlers } from "./bot-handlers.js";
 import { createTelegramMessageProcessor } from "./bot-message.js";
 import { registerTelegramNativeCommands } from "./bot-native-commands.js";
@@ -70,11 +52,10 @@ import {
 =======
 import {
   buildTelegramGroupPeerId,
-  buildTelegramParentPeer,
   resolveTelegramForumThreadId,
   resolveTelegramStreamMode,
 } from "./bot/helpers.js";
->>>>>>> ddedb56c0 (fix(telegram): pass parentPeer for forum topic binding inheritance (#9789))
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { resolveTelegramFetch } from "./fetch.js";
 import { wasSentByBot } from "./sent-message-cache.js";
 
@@ -88,7 +69,7 @@ export type TelegramBotOptions = {
   mediaMaxMb?: number;
   replyToMode?: ReplyToMode;
   proxyFetch?: typeof fetch;
-  config?: MoltbotConfig;
+  config?: OpenClawConfig;
   updateOffset?: {
     lastUpdateId?: number | null;
     onUpdateId?: (updateId: number) => void | Promise<void>;
@@ -272,7 +253,6 @@ export function createTelegramBot(opts: TelegramBotOptions) {
       : undefined) ??
     (opts.allowFrom && opts.allowFrom.length > 0 ? opts.allowFrom : undefined);
   const replyToMode = opts.replyToMode ?? telegramCfg.replyToMode ?? "first";
-  const streamMode = resolveTelegramStreamMode(telegramCfg);
   const nativeEnabled = resolveNativeCommandsEnabled({
     providerId: "telegram",
     providerSetting: telegramCfg.commands?.native,
@@ -291,6 +271,7 @@ export function createTelegramBot(opts: TelegramBotOptions) {
   const ackReactionScope = cfg.messages?.ackReactionScope ?? "group-mentions";
   const mediaMaxBytes = (opts.mediaMaxMb ?? telegramCfg.mediaMaxMb ?? 5) * 1024 * 1024;
   const logger = getChildLogger({ module: "telegram-auto-reply" });
+  const streamMode = resolveTelegramStreamMode(telegramCfg);
   let botHasTopicsEnabled: boolean | undefined;
   const resolveBotTopicsEnabled = async (ctx?: TelegramContext) => {
     if (typeof ctx?.me?.has_topics_enabled === "boolean") {
@@ -300,6 +281,17 @@ export function createTelegramBot(opts: TelegramBotOptions) {
     if (typeof botHasTopicsEnabled === "boolean") {
       return botHasTopicsEnabled;
     }
+<<<<<<< HEAD
+    if (typeof botHasTopicsEnabled === "boolean") return botHasTopicsEnabled;
+=======
+    if (typeof botHasTopicsEnabled === "boolean") {
+      return botHasTopicsEnabled;
+    }
+    if (typeof bot.api.getMe !== "function") {
+      botHasTopicsEnabled = false;
+      return botHasTopicsEnabled;
+    }
+>>>>>>> 37721ebd7 (fix: restore telegram draft streaming partials)
     try {
       const me = await withTelegramApiErrorLogging({
         operation: "getMe",

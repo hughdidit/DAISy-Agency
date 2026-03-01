@@ -1,6 +1,11 @@
+import type { OpenClawConfig } from "openclaw/plugin-sdk";
 import crypto from "node:crypto";
+import path from "node:path";
 import { resolveBlueBubblesAccount } from "./accounts.js";
+<<<<<<< HEAD
 import type { MoltbotConfig } from "clawdbot/plugin-sdk";
+=======
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { blueBubblesFetchWithTimeout, buildBlueBubblesApiUrl } from "./types.js";
 
 export type BlueBubblesChatOpts = {
@@ -8,7 +13,7 @@ export type BlueBubblesChatOpts = {
   password?: string;
   accountId?: string;
   timeoutMs?: number;
-  cfg?: MoltbotConfig;
+  cfg?: OpenClawConfig;
 };
 
 function resolveAccount(params: BlueBubblesChatOpts) {
@@ -336,10 +341,19 @@ export async function setGroupIconBlueBubbles(
   const parts: Uint8Array[] = [];
   const encoder = new TextEncoder();
 
+  // Sanitize filename to prevent multipart header injection (CWE-93)
+  const safeFilename = path.basename(filename).replace(/[\r\n"\\]/g, "_") || "icon.png";
+
   // Add file field named "icon" as per API spec
   parts.push(encoder.encode(`--${boundary}\r\n`));
   parts.push(
-    encoder.encode(`Content-Disposition: form-data; name="icon"; filename="${filename}"\r\n`),
+<<<<<<< HEAD
+    encoder.encode(
+      `Content-Disposition: form-data; name="icon"; filename="${filename}"\r\n`,
+    ),
+=======
+    encoder.encode(`Content-Disposition: form-data; name="icon"; filename="${safeFilename}"\r\n`),
+>>>>>>> 1007d71f0 (fix: comprehensive BlueBubbles and channel cleanup (#11093))
   );
   parts.push(
     encoder.encode(`Content-Type: ${opts.contentType ?? "application/octet-stream"}\r\n\r\n`),

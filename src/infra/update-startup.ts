@@ -1,13 +1,20 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-
 import type { loadConfig } from "../config/config.js";
+<<<<<<< HEAD
 import { resolveStateDir } from "../config/paths.js";
-import { resolveMoltbotPackageRoot } from "./moltbot-root.js";
+import { resolveOpenClawPackageRoot } from "./openclaw-root.js";
 import { compareSemverStrings, resolveNpmChannelTag, checkUpdateStatus } from "./update-check.js";
 import { normalizeUpdateChannel, DEFAULT_PACKAGE_CHANNEL } from "./update-channels.js";
 import { VERSION } from "../version.js";
+=======
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { formatCliCommand } from "../cli/command-format.js";
+import { resolveStateDir } from "../config/paths.js";
+import { VERSION } from "../version.js";
+import { resolveOpenClawPackageRoot } from "./openclaw-root.js";
+import { normalizeUpdateChannel, DEFAULT_PACKAGE_CHANNEL } from "./update-channels.js";
+import { compareSemverStrings, resolveNpmChannelTag, checkUpdateStatus } from "./update-check.js";
 
 type UpdateCheckState = {
   lastCheckedAt?: string;
@@ -69,7 +76,7 @@ export async function runGatewayUpdateCheck(params: {
     }
   }
 
-  const root = await resolveMoltbotPackageRoot({
+  const root = await resolveOpenClawPackageRoot({
     moduleUrl: import.meta.url,
     argv1: process.argv[1],
     cwd: process.cwd(),
@@ -105,7 +112,7 @@ export async function runGatewayUpdateCheck(params: {
       state.lastNotifiedVersion !== resolved.version || state.lastNotifiedTag !== tag;
     if (shouldNotify) {
       params.log.info(
-        `update available (${tag}): v${resolved.version} (current v${VERSION}). Run: ${formatCliCommand("moltbot update")}`,
+        `update available (${tag}): v${resolved.version} (current v${VERSION}). Run: ${formatCliCommand("openclaw update")}`,
       );
       nextState.lastNotifiedVersion = resolved.version;
       nextState.lastNotifiedTag = tag;

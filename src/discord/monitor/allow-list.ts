@@ -1,12 +1,11 @@
 import type { Guild, User } from "@buape/carbon";
-
+import type { AllowlistMatch } from "../../channels/allowlist-match.js";
 import {
   buildChannelKeyCandidates,
   resolveChannelEntryMatchWithFallback,
   resolveChannelMatchConfig,
   type ChannelMatchSource,
 } from "../../channels/channel-config.js";
-import type { AllowlistMatch } from "../../channels/allowlist-match.js";
 import { formatDiscordUserTag } from "./format.js";
 
 export type DiscordAllowList = {
@@ -153,6 +152,33 @@ export function resolveDiscordUserAllowed(params: {
     name: params.userName,
     tag: params.userTag,
   });
+}
+
+export function resolveDiscordOwnerAllowFrom(params: {
+  channelConfig?: DiscordChannelConfigResolved | null;
+  guildInfo?: DiscordGuildEntryResolved | null;
+  sender: { id: string; name?: string; tag?: string };
+}): string[] | undefined {
+  const rawAllowList = params.channelConfig?.users ?? params.guildInfo?.users;
+  if (!Array.isArray(rawAllowList) || rawAllowList.length === 0) {
+    return undefined;
+  }
+  const allowList = normalizeDiscordAllowList(rawAllowList, ["discord:", "user:", "pk:"]);
+  if (!allowList) {
+    return undefined;
+  }
+  const match = resolveDiscordAllowListMatch({
+    allowList,
+    candidate: {
+      id: params.sender.id,
+      name: params.sender.name,
+      tag: params.sender.tag,
+    },
+  });
+  if (!match.allowed || !match.matchKey || match.matchKey === "*") {
+    return undefined;
+  }
+  return [match.matchKey];
 }
 
 export function resolveDiscordCommandAuthorized(params: {

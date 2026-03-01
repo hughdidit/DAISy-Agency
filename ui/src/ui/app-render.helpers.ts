@@ -1,7 +1,5 @@
 import { html } from "lit";
 import { repeat } from "lit/directives/repeat.js";
-<<<<<<< HEAD
-
 import type { AppViewState } from "./app-view-state";
 <<<<<<< HEAD
 import { iconForTab, pathForTab, titleForTab, type Tab } from "./navigation";
@@ -10,31 +8,16 @@ import { loadChatHistory } from "./controllers/chat";
 import { refreshChat } from "./app-chat";
 import { syncUrlWithSessionKey } from "./app-settings";
 import type { SessionsListResult } from "./types";
-import type { ThemeMode } from "./theme";
-import type { ThemeTransitionContext } from "./theme-transition";
 =======
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { ThemeMode } from "./theme";
 import type { ThemeTransitionContext } from "./theme-transition";
 import type { SessionsListResult } from "./types";
-import { OpenClawApp } from "./app";
 import { refreshChat } from "./app-chat";
 import { syncUrlWithSessionKey } from "./app-settings";
-import { ChatState, loadChatHistory } from "./controllers/chat";
+import { loadChatHistory } from "./controllers/chat";
 import { icons } from "./icons";
 import { iconForTab, pathForTab, titleForTab, type Tab } from "./navigation";
->>>>>>> 27677dd8b (chore: Fix all TypeScript errors in `ui`.)
-=======
-import type { AppViewState } from "./app-view-state.ts";
-import type { ThemeTransitionContext } from "./theme-transition.ts";
-import type { ThemeMode } from "./theme.ts";
-import type { SessionsListResult } from "./types.ts";
-import { refreshChat } from "./app-chat.ts";
-import { syncUrlWithSessionKey } from "./app-settings.ts";
-import { OpenClawApp } from "./app.ts";
-import { ChatState, loadChatHistory } from "./controllers/chat.ts";
-import { icons } from "./icons.ts";
-import { iconForTab, pathForTab, titleForTab, type Tab } from "./navigation.ts";
->>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
 
 export function renderTab(state: AppViewState, tab: Tab) {
   const href = pathForTab(tab, state.basePath);
@@ -151,9 +134,29 @@ export function renderChatControls(state: AppViewState) {
       <button
         class="btn btn--sm btn--icon"
         ?disabled=${state.chatLoading || !state.connected}
+<<<<<<< HEAD
         @click=${() => {
-          (state as unknown as OpenClawApp).resetToolStream();
-          void refreshChat(state as unknown as Parameters<typeof refreshChat>[0]);
+          state.resetToolStream();
+          void loadChatHistory(state);
+=======
+        @click=${async () => {
+          const app = state as unknown as OpenClawApp;
+          app.chatManualRefreshInFlight = true;
+          app.chatNewMessagesBelow = false;
+          await app.updateComplete;
+          app.resetToolStream();
+          try {
+            await refreshChat(state as unknown as Parameters<typeof refreshChat>[0], {
+              scheduleScroll: false,
+            });
+            app.scrollToBottom({ smooth: true });
+          } finally {
+            requestAnimationFrame(() => {
+              app.chatManualRefreshInFlight = false;
+              app.chatNewMessagesBelow = false;
+            });
+          }
+>>>>>>> bc475f017 (fix(ui): smooth chat refresh scroll and suppress new-messages badge flash)
         }}
         title="Refresh chat data"
       >
@@ -206,6 +209,9 @@ export function renderChatControls(state: AppViewState) {
   `;
 }
 
+<<<<<<< HEAD
+function resolveSessionOptions(sessionKey: string, sessions: SessionsListResult | null) {
+=======
 type SessionDefaultsSnapshot = {
   mainSessionKey?: string;
   mainKey?: string;
@@ -231,13 +237,13 @@ function resolveMainSessionKey(
 }
 
 function resolveSessionDisplayName(key: string, row?: SessionsListResult["sessions"][number]) {
-  const label = row?.label?.trim();
-  if (label) {
+  const label = row?.label?.trim() || "";
+  const displayName = row?.displayName?.trim() || "";
+  if (label && label !== key) {
     return `${label} (${key})`;
   }
-  const displayName = row?.displayName?.trim();
-  if (displayName) {
-    return displayName;
+  if (displayName && displayName !== key) {
+    return `${key} (${displayName})`;
   }
   return key;
 }
@@ -247,6 +253,7 @@ function resolveSessionOptions(
   sessions: SessionsListResult | null,
   mainSessionKey?: string | null,
 ) {
+>>>>>>> d90cac990 (fix: cron scheduler reliability, store hardening, and UX improvements (#10776))
   const seen = new Set<string>();
   const options: Array<{ key: string; displayName?: string }> = [];
 

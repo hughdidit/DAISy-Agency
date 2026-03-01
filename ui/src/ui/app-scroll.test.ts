@@ -1,17 +1,19 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { handleChatScroll, scheduleChatScroll, resetChatScroll } from "./app-scroll.ts";
+import { handleChatScroll, scheduleChatScroll, resetChatScroll } from "./app-scroll";
 
 /* ------------------------------------------------------------------ */
 /*  Helpers                                                            */
 /* ------------------------------------------------------------------ */
 
 /** Minimal ScrollHost stub for unit tests. */
-function createScrollHost(overrides: {
-  scrollHeight?: number;
-  scrollTop?: number;
-  clientHeight?: number;
-  overflowY?: string;
-}) {
+function createScrollHost(
+  overrides: {
+    scrollHeight?: number;
+    scrollTop?: number;
+    clientHeight?: number;
+    overflowY?: string;
+  } = {},
+) {
   const {
     scrollHeight = 2000,
     scrollTop = 1500,

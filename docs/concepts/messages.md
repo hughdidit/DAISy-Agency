@@ -4,11 +4,12 @@ read_when:
   - Explaining how inbound messages become replies
   - Clarifying sessions, queueing modes, or streaming behavior
   - Documenting reasoning visibility and usage implications
+title: "Messages"
 ---
 
 # Messages
 
-This page ties together how Moltbot handles inbound messages, sessions, queueing,
+This page ties together how OpenClaw handles inbound messages, sessions, queueing,
 streaming, and reasoning visibility.
 
 ## Message flow (high level)
@@ -31,7 +32,7 @@ See [Configuration](/gateway/configuration) for full schema.
 
 ## Inbound dedupe
 
-Channels can redeliver the same message after reconnects. Moltbot keeps a
+Channels can redeliver the same message after reconnects. OpenClaw keeps a
 short-lived cache keyed by channel/account/peer/session/message id so duplicate
 deliveries do not trigger another agent run.
 
@@ -80,12 +81,7 @@ Details: [Session management](/concepts/session).
 
 ## Inbound bodies and history context
 
-<<<<<<< HEAD
-Moltbot separates the **prompt body** from the **command body**:
-=======
 OpenClaw separates the **prompt body** from the **command body**:
-
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - `Body`: prompt text sent to the agent. This may include channel envelopes and
   optional history wrappers.
 - `CommandBody`: raw user text for directive/command parsing.
@@ -139,12 +135,7 @@ Details: [Streaming + chunking](/concepts/streaming).
 
 ## Reasoning visibility and tokens
 
-<<<<<<< HEAD
-Moltbot can expose or hide model reasoning:
-=======
 OpenClaw can expose or hide model reasoning:
-
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - `/reasoning on|off|stream` controls visibility.
 - Reasoning content still counts toward token usage when produced by the model.
 - Telegram supports reasoning stream into the draft bubble.

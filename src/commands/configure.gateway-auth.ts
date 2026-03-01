@@ -1,9 +1,14 @@
+<<<<<<< HEAD
 import { ensureAuthProfileStore } from "../agents/auth-profiles.js";
 import type { MoltbotConfig, GatewayAuthConfig } from "../config/config.js";
+=======
+import type { OpenClawConfig, GatewayAuthConfig } from "../config/config.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { RuntimeEnv } from "../runtime.js";
 import type { WizardPrompter } from "../wizard/prompts.js";
-import { applyAuthChoice, resolvePreferredProviderForAuthChoice } from "./auth-choice.js";
+import { ensureAuthProfileStore } from "../agents/auth-profiles.js";
 import { promptAuthChoiceGrouped } from "./auth-choice-prompt.js";
+import { applyAuthChoice, resolvePreferredProviderForAuthChoice } from "./auth-choice.js";
 import {
   applyModelAllowlist,
   applyModelFallbacksFromSelection,
@@ -15,6 +20,7 @@ import {
 type GatewayAuthChoice = "token" | "password";
 
 const ANTHROPIC_OAUTH_MODEL_KEYS = [
+  "anthropic/claude-opus-4-6",
   "anthropic/claude-opus-4-5",
   "anthropic/claude-sonnet-4-5",
   "anthropic/claude-haiku-4-5",
@@ -39,10 +45,10 @@ export function buildGatewayAuthConfig(params: {
 }
 
 export async function promptAuthConfig(
-  cfg: MoltbotConfig,
+  cfg: OpenClawConfig,
   runtime: RuntimeEnv,
   prompter: WizardPrompter,
-): Promise<MoltbotConfig> {
+): Promise<OpenClawConfig> {
   const authChoice = await promptAuthChoiceGrouped({
     prompter,
     store: ensureAuthProfileStore(undefined, {
@@ -81,7 +87,7 @@ export async function promptAuthConfig(
     config: next,
     prompter,
     allowedKeys: anthropicOAuth ? ANTHROPIC_OAUTH_MODEL_KEYS : undefined,
-    initialSelections: anthropicOAuth ? ["anthropic/claude-opus-4-5"] : undefined,
+    initialSelections: anthropicOAuth ? ["anthropic/claude-opus-4-6"] : undefined,
     message: anthropicOAuth ? "Anthropic OAuth models" : undefined,
   });
   if (allowlistSelection.models) {

@@ -1,5 +1,5 @@
 import path from "node:path";
-
+import type { OpenClawConfig, ConfigValidationIssue } from "./types.js";
 import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../agents/agent-scope.js";
 import { CHANNEL_IDS, normalizeChatChannelId } from "../channels/registry.js";
 import {
@@ -12,8 +12,12 @@ import { validateJsonSchemaValue } from "../plugins/schema-validator.js";
 import { findDuplicateAgentDirs, formatDuplicateAgentDirError } from "./agent-dirs.js";
 import { applyAgentDefaults, applyModelDefaults, applySessionDefaults } from "./defaults.js";
 import { findLegacyConfigIssues } from "./legacy.js";
+<<<<<<< HEAD
 import type { MoltbotConfig, ConfigValidationIssue } from "./types.js";
 import { MoltbotSchema } from "./zod-schema.js";
+=======
+import { OpenClawSchema } from "./zod-schema.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 
 const AVATAR_SCHEME_RE = /^[a-z][a-z0-9+.-]*:/i;
 const AVATAR_DATA_RE = /^data:/i;
@@ -33,7 +37,7 @@ function isWorkspaceAvatarPath(value: string, workspaceDir: string): boolean {
   return !path.isAbsolute(relative);
 }
 
-function validateIdentityAvatar(config: MoltbotConfig): ConfigValidationIssue[] {
+function validateIdentityAvatar(config: OpenClawConfig): ConfigValidationIssue[] {
   const agents = config.agents?.list;
   if (!Array.isArray(agents) || agents.length === 0) {
     return [];
@@ -85,7 +89,7 @@ function validateIdentityAvatar(config: MoltbotConfig): ConfigValidationIssue[] 
 
 export function validateConfigObject(
   raw: unknown,
-): { ok: true; config: MoltbotConfig } | { ok: false; issues: ConfigValidationIssue[] } {
+): { ok: true; config: OpenClawConfig } | { ok: false; issues: ConfigValidationIssue[] } {
   const legacyIssues = findLegacyConfigIssues(raw);
   if (legacyIssues.length > 0) {
     return {
@@ -96,7 +100,7 @@ export function validateConfigObject(
       })),
     };
   }
-  const validated = MoltbotSchema.safeParse(raw);
+  const validated = OpenClawSchema.safeParse(raw);
   if (!validated.success) {
     return {
       ok: false,
@@ -106,7 +110,7 @@ export function validateConfigObject(
       })),
     };
   }
-  const duplicates = findDuplicateAgentDirs(validated.data as MoltbotConfig);
+  const duplicates = findDuplicateAgentDirs(validated.data as OpenClawConfig);
   if (duplicates.length > 0) {
     return {
       ok: false,
@@ -118,14 +122,14 @@ export function validateConfigObject(
       ],
     };
   }
-  const avatarIssues = validateIdentityAvatar(validated.data as MoltbotConfig);
+  const avatarIssues = validateIdentityAvatar(validated.data as OpenClawConfig);
   if (avatarIssues.length > 0) {
     return { ok: false, issues: avatarIssues };
   }
   return {
     ok: true,
     config: applyModelDefaults(
-      applyAgentDefaults(applySessionDefaults(validated.data as MoltbotConfig)),
+      applyAgentDefaults(applySessionDefaults(validated.data as OpenClawConfig)),
     ),
   };
 }
@@ -137,7 +141,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 export function validateConfigObjectWithPlugins(raw: unknown):
   | {
       ok: true;
-      config: MoltbotConfig;
+      config: OpenClawConfig;
       warnings: ConfigValidationIssue[];
     }
   | {

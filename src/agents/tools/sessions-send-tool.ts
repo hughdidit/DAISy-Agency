@@ -1,7 +1,6 @@
-import crypto from "node:crypto";
-
 import { Type } from "@sinclair/typebox";
-
+import crypto from "node:crypto";
+import type { AnyAgentTool } from "./common.js";
 import { loadConfig } from "../../config/config.js";
 import { callGateway } from "../../gateway/call.js";
 import {
@@ -15,7 +14,6 @@ import {
   INTERNAL_MESSAGE_CHANNEL,
 } from "../../utils/message-channel.js";
 import { AGENT_LANE_NESTED } from "../lanes.js";
-import type { AnyAgentTool } from "./common.js";
 import { jsonResult, readStringParam } from "./common.js";
 import {
   createAgentToAgentPolicy,
@@ -148,7 +146,7 @@ export function createSessionsSendTool(opts?: {
             return jsonResult({
               runId: crypto.randomUUID(),
               status: "forbidden",
-              error: `Session not visible from this sandboxed agent session: label=${labelParam}`,
+              error: "Session not visible from this sandboxed agent session.",
             });
           }
           return jsonResult({
@@ -163,7 +161,7 @@ export function createSessionsSendTool(opts?: {
             return jsonResult({
               runId: crypto.randomUUID(),
               status: "forbidden",
-              error: `Session not visible from this sandboxed agent session: label=${labelParam}`,
+              error: "Session not visible from this sandboxed agent session.",
             });
           }
           return jsonResult({

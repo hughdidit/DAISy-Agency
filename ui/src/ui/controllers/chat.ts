@@ -1,14 +1,7 @@
-<<<<<<< HEAD
-import { extractText } from "../chat/message-extract";
 import type { GatewayBrowserClient } from "../gateway";
-import { generateUUID } from "../uuid";
 import type { ChatAttachment } from "../ui-types";
-=======
-import type { GatewayBrowserClient } from "../gateway.ts";
-import type { ChatAttachment } from "../ui-types.ts";
-import { extractText } from "../chat/message-extract.ts";
-import { generateUUID } from "../uuid.ts";
->>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
+import { extractText } from "../chat/message-extract";
+import { generateUUID } from "../uuid";
 
 export type ChatState = {
   client: GatewayBrowserClient | null;
@@ -69,27 +62,11 @@ export async function sendChatMessage(
   state: ChatState,
   message: string,
   attachments?: ChatAttachment[],
-<<<<<<< HEAD
-): Promise<boolean> {
-  if (!state.client || !state.connected) return false;
-  const msg = message.trim();
-  const hasAttachments = attachments && attachments.length > 0;
-  if (!msg && !hasAttachments) return false;
-=======
 ): Promise<string | null> {
-  if (!state.client || !state.connected) {
-    return null;
-  }
+  if (!state.client || !state.connected) return null;
   const msg = message.trim();
   const hasAttachments = attachments && attachments.length > 0;
-<<<<<<< HEAD
-  if (!msg && !hasAttachments) {return null;}
->>>>>>> 5ba4586e5 (chore: lint the `ui` folder.)
-=======
-  if (!msg && !hasAttachments) {
-    return null;
-  }
->>>>>>> e9a32b83c (chore: Manually fix lint issues in `ui`.)
+  if (!msg && !hasAttachments) return null;
 
   const now = Date.now();
 
@@ -149,7 +126,7 @@ export async function sendChatMessage(
       idempotencyKey: runId,
       attachments: apiAttachments,
     });
-    return true;
+    return runId;
   } catch (err) {
     const error = String(err);
     state.chatRunId = null;
@@ -164,7 +141,7 @@ export async function sendChatMessage(
         timestamp: Date.now(),
       },
     ];
-    return false;
+    return null;
   } finally {
     state.chatSending = false;
   }
@@ -196,8 +173,7 @@ export function handleChatEvent(state: ChatState, payload?: ChatEventPayload) {
   }
 
   // Final from another run (e.g. sub-agent announce): refresh history to show new message.
-<<<<<<< HEAD
-  // See https://github.com/moltbot/moltbot/issues/1909
+  // See https://github.com/openclaw/openclaw/issues/1909
   if (
     payload.runId &&
     state.chatRunId &&

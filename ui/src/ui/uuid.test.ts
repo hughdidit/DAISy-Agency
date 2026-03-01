@@ -1,6 +1,4 @@
 import { describe, expect, it, vi } from "vitest";
-<<<<<<< HEAD
-
 import { generateUUID } from "./uuid";
 =======
 import { generateUUID } from "./uuid.ts";

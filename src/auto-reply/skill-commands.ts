@@ -1,9 +1,13 @@
 import fs from "node:fs";
+<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../config/config.js";
+=======
+import type { OpenClawConfig } from "../config/config.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { listAgentIds, resolveAgentWorkspaceDir } from "../agents/agent-scope.js";
-import { getRemoteSkillEligibility } from "../infra/skills-remote.js";
 import { buildWorkspaceSkillCommandSpecs, type SkillCommandSpec } from "../agents/skills.js";
+import { getRemoteSkillEligibility } from "../infra/skills-remote.js";
 import { listChatCommands } from "./commands-registry.js";
 
 function resolveReservedCommandNames(): Set<string> {
@@ -25,7 +29,7 @@ function resolveReservedCommandNames(): Set<string> {
 
 export function listSkillCommandsForWorkspace(params: {
   workspaceDir: string;
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   skillFilter?: string[];
 }): SkillCommandSpec[] {
   return buildWorkspaceSkillCommandSpecs(params.workspaceDir, {
@@ -37,17 +41,30 @@ export function listSkillCommandsForWorkspace(params: {
 }
 
 export function listSkillCommandsForAgents(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   agentIds?: string[];
 }): SkillCommandSpec[] {
   const used = resolveReservedCommandNames();
   const entries: SkillCommandSpec[] = [];
   const agentIds = params.agentIds ?? listAgentIds(params.cfg);
+  // Track visited workspace dirs to avoid registering duplicate commands
+  // when multiple agents share the same workspace directory (#5717).
+  const visitedDirs = new Set<string>();
   for (const agentId of agentIds) {
     const workspaceDir = resolveAgentWorkspaceDir(params.cfg, agentId);
+<<<<<<< HEAD
+    if (!fs.existsSync(workspaceDir)) continue;
+=======
     if (!fs.existsSync(workspaceDir)) {
       continue;
     }
+    // Resolve to canonical path to handle symlinks and relative paths
+    const canonicalDir = fs.realpathSync(workspaceDir);
+    if (visitedDirs.has(canonicalDir)) {
+      continue;
+    }
+    visitedDirs.add(canonicalDir);
+>>>>>>> 1007d71f0 (fix: comprehensive BlueBubbles and channel cleanup (#11093))
     const commands = buildWorkspaceSkillCommandSpecs(workspaceDir, {
       config: params.cfg,
       eligibility: { remote: getRemoteSkillEligibility() },

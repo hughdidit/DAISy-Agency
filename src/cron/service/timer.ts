@@ -1,21 +1,21 @@
 import type { HeartbeatRunResult } from "../../infra/heartbeat-wake.js";
 import type { CronJob } from "../types.js";
-<<<<<<< HEAD
+import type { CronEvent, CronServiceState } from "./state.js";
 import { computeJobNextRunAtMs, nextWakeAtMs, resolveJobPayloadTextForMain } from "./jobs.js";
 =======
 import type { CronEvent, CronServiceState } from "./state.js";
+import { resolveCronDeliveryPlan } from "../delivery.js";
 import {
   computeJobNextRunAtMs,
   nextWakeAtMs,
   recomputeNextRuns,
   resolveJobPayloadTextForMain,
 } from "./jobs.js";
->>>>>>> 313e2f2e8 (fix(cron): prevent recomputeNextRuns from skipping due jobs in onTimer (#9823))
+>>>>>>> d90cac990 (fix: cron scheduler reliability, store hardening, and UX improvements (#10776))
 import { locked } from "./locked.js";
-import type { CronEvent, CronServiceState } from "./state.js";
 import { ensureLoaded, persist } from "./store.js";
 
-const MAX_TIMEOUT_MS = 2 ** 31 - 1;
+const MAX_TIMER_DELAY_MS = 60_000;
 
 /**
  * Maximum wall-clock time for a single job execution. Acts as a safety net
@@ -142,13 +142,6 @@ export function armTimer(state: CronServiceState) {
   }
 <<<<<<< HEAD
   const delay = Math.max(nextAt - state.deps.nowMs(), 0);
-  // Avoid TimeoutOverflowWarning when a job is far in the future.
-  const clampedDelay = Math.min(delay, MAX_TIMEOUT_MS);
-  state.timer = setTimeout(() => {
-    void onTimer(state).catch((err) => {
-=======
-  const now = state.deps.nowMs();
-  const delay = Math.max(nextAt - now, 0);
   // Wake at least once a minute to avoid schedule drift and recover quickly
   // when the process was paused or wall-clock time jumps.
   const clampedDelay = Math.min(delay, MAX_TIMER_DELAY_MS);
@@ -156,18 +149,9 @@ export function armTimer(state: CronServiceState) {
     try {
       await onTimer(state);
     } catch (err) {
->>>>>>> 8fae55e8e (fix(cron): share isolated announce flow + harden cron scheduling/delivery (#11641))
       state.deps.log.error({ err: String(err) }, "cron: timer tick failed");
-    });
+    }
   }, clampedDelay);
-<<<<<<< HEAD
-  state.timer.unref?.();
-=======
-  state.deps.log.debug(
-    { nextAt, delayMs: clampedDelay, clamped: delay > MAX_TIMER_DELAY_MS },
-    "cron: timer armed",
-  );
->>>>>>> 8fae55e8e (fix(cron): share isolated announce flow + harden cron scheduling/delivery (#11641))
 }
 
 export async function onTimer(state: CronServiceState) {
@@ -176,6 +160,7 @@ export async function onTimer(state: CronServiceState) {
   }
   state.running = true;
   try {
+<<<<<<< HEAD
     await locked(state, async () => {
       // Reload persisted due-times without recomputing so runDueJobs sees
       // the original nextRunAtMs values.  Recomputing first would advance
@@ -184,9 +169,33 @@ export async function onTimer(state: CronServiceState) {
       await runDueJobs(state);
       recomputeNextRuns(state);
       await persist(state);
-    });
-<<<<<<< HEAD
+      armTimer(state);
 =======
+    const dueJobs = await locked(state, async () => {
+      await ensureLoaded(state, { forceReload: true, skipRecompute: true });
+      const due = findDueJobs(state);
+
+      if (due.length === 0) {
+        const changed = recomputeNextRuns(state);
+        if (changed) {
+          await persist(state);
+        }
+        return [];
+      }
+
+      const now = state.deps.nowMs();
+      for (const job of due) {
+        job.state.runningAtMs = now;
+        job.state.lastError = undefined;
+      }
+      await persist(state);
+
+      return due.map((j) => ({
+        id: j.id,
+        job: j,
+      }));
+>>>>>>> d90cac990 (fix: cron scheduler reliability, store hardening, and UX improvements (#10776))
+    });
 
     const results: Array<{
       jobId: string;
@@ -203,29 +212,10 @@ export async function onTimer(state: CronServiceState) {
       const startedAt = state.deps.nowMs();
       job.state.runningAtMs = startedAt;
       emit(state, { jobId: job.id, action: "started", runAtMs: startedAt });
-
-      const jobTimeoutMs =
-        job.payload.kind === "agentTurn" && typeof job.payload.timeoutSeconds === "number"
-          ? job.payload.timeoutSeconds * 1_000
-          : DEFAULT_JOB_TIMEOUT_MS;
-
       try {
-        let timeoutId: NodeJS.Timeout;
-        const result = await Promise.race([
-          executeJobCore(state, job),
-          new Promise<never>((_, reject) => {
-            timeoutId = setTimeout(
-              () => reject(new Error("cron: job execution timed out")),
-              jobTimeoutMs,
-            );
-          }),
-        ]).finally(() => clearTimeout(timeoutId!));
+        const result = await executeJobCore(state, job);
         results.push({ jobId: id, ...result, startedAt, endedAt: state.deps.nowMs() });
       } catch (err) {
-        state.deps.log.warn(
-          { jobId: id, jobName: job.name, timeoutMs: jobTimeoutMs },
-          `cron: job failed: ${String(err)}`,
-        );
         results.push({
           jobId: id,
           status: "error",
@@ -246,12 +236,26 @@ export async function onTimer(state: CronServiceState) {
             continue;
           }
 
-          const shouldDelete = applyJobResult(state, job, {
-            status: result.status,
-            error: result.error,
-            startedAt: result.startedAt,
-            endedAt: result.endedAt,
-          });
+          const startedAt = result.startedAt;
+          job.state.runningAtMs = undefined;
+          job.state.lastRunAtMs = startedAt;
+          job.state.lastStatus = result.status;
+          job.state.lastDurationMs = Math.max(0, result.endedAt - startedAt);
+          job.state.lastError = result.error;
+
+          const shouldDelete =
+            job.schedule.kind === "at" && result.status === "ok" && job.deleteAfterRun === true;
+
+          if (!shouldDelete) {
+            if (job.schedule.kind === "at" && result.status === "ok") {
+              job.enabled = false;
+              job.state.nextRunAtMs = undefined;
+            } else if (job.enabled) {
+              job.state.nextRunAtMs = computeJobNextRunAtMs(job, result.endedAt);
+            } else {
+              job.state.nextRunAtMs = undefined;
+            }
+          }
 
           emit(state, {
             jobId: job.id,
@@ -261,7 +265,7 @@ export async function onTimer(state: CronServiceState) {
             summary: result.summary,
             sessionId: result.sessionId,
             sessionKey: result.sessionKey,
-            runAtMs: result.startedAt,
+            runAtMs: startedAt,
             durationMs: job.state.lastDurationMs,
             nextRunAtMs: job.state.nextRunAtMs,
           });
@@ -270,17 +274,67 @@ export async function onTimer(state: CronServiceState) {
             state.store.jobs = state.store.jobs.filter((j) => j.id !== job.id);
             emit(state, { jobId: job.id, action: "removed" });
           }
+
+          job.updatedAtMs = result.endedAt;
         }
 
         recomputeNextRuns(state);
         await persist(state);
       });
     }
->>>>>>> 8fae55e8e (fix(cron): share isolated announce flow + harden cron scheduling/delivery (#11641))
   } finally {
     state.running = false;
-    // Always re-arm so transient errors (e.g. ENOSPC) don't kill the scheduler.
+<<<<<<< HEAD
+=======
     armTimer(state);
+>>>>>>> d90cac990 (fix: cron scheduler reliability, store hardening, and UX improvements (#10776))
+  }
+}
+
+function findDueJobs(state: CronServiceState): CronJob[] {
+  if (!state.store) {
+    return [];
+  }
+  const now = state.deps.nowMs();
+  return state.store.jobs.filter((j) => {
+    if (!j.enabled) {
+      return false;
+    }
+    if (typeof j.state.runningAtMs === "number") {
+      return false;
+    }
+    const next = j.state.nextRunAtMs;
+    return typeof next === "number" && now >= next;
+  });
+}
+
+export async function runMissedJobs(state: CronServiceState) {
+  if (!state.store) {
+    return;
+  }
+  const now = state.deps.nowMs();
+  const missed = state.store.jobs.filter((j) => {
+    if (!j.enabled) {
+      return false;
+    }
+    if (typeof j.state.runningAtMs === "number") {
+      return false;
+    }
+    const next = j.state.nextRunAtMs;
+    if (j.schedule.kind === "at" && j.state.lastStatus === "ok") {
+      return false;
+    }
+    return typeof next === "number" && now >= next;
+  });
+
+  if (missed.length > 0) {
+    state.deps.log.info(
+      { count: missed.length, jobIds: missed.map((j) => j.id) },
+      "cron: running missed jobs after restart",
+    );
+    for (const job of missed) {
+      await executeJob(state, job, now, { forced: false });
+    }
   }
 }
 
@@ -363,6 +417,99 @@ export async function runDueJobs(state: CronServiceState) {
   }
 }
 
+async function executeJobCore(
+  state: CronServiceState,
+  job: CronJob,
+): Promise<{
+  status: "ok" | "error" | "skipped";
+  error?: string;
+  summary?: string;
+  sessionId?: string;
+  sessionKey?: string;
+}> {
+  if (job.sessionTarget === "main") {
+    const text = resolveJobPayloadTextForMain(job);
+    if (!text) {
+      const kind = job.payload.kind;
+      return {
+        status: "skipped",
+        error:
+          kind === "systemEvent"
+            ? "main job requires non-empty systemEvent text"
+            : 'main job requires payload.kind="systemEvent"',
+      };
+    }
+    state.deps.enqueueSystemEvent(text, { agentId: job.agentId });
+    if (job.wakeMode === "now" && state.deps.runHeartbeatOnce) {
+      const reason = `cron:${job.id}`;
+      const delay = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
+      const maxWaitMs = 2 * 60_000;
+      const waitStartedAt = state.deps.nowMs();
+
+      let heartbeatResult: HeartbeatRunResult;
+      for (;;) {
+        heartbeatResult = await state.deps.runHeartbeatOnce({ reason });
+        if (
+          heartbeatResult.status !== "skipped" ||
+          heartbeatResult.reason !== "requests-in-flight"
+        ) {
+          break;
+        }
+        if (state.deps.nowMs() - waitStartedAt > maxWaitMs) {
+          state.deps.requestHeartbeatNow({ reason });
+          return { status: "ok", summary: text };
+        }
+        await delay(250);
+      }
+
+      if (heartbeatResult.status === "ran") {
+        return { status: "ok", summary: text };
+      } else if (heartbeatResult.status === "skipped") {
+        return { status: "skipped", error: heartbeatResult.reason, summary: text };
+      } else {
+        return { status: "error", error: heartbeatResult.reason, summary: text };
+      }
+    } else {
+      state.deps.requestHeartbeatNow({ reason: `cron:${job.id}` });
+      return { status: "ok", summary: text };
+    }
+  }
+
+  if (job.payload.kind !== "agentTurn") {
+    return { status: "skipped", error: "isolated job requires payload.kind=agentTurn" };
+  }
+
+  const res = await state.deps.runIsolatedAgentJob({
+    job,
+    message: job.payload.message,
+  });
+
+  // Post a short summary back to the main session.
+  const summaryText = res.summary?.trim();
+  const deliveryPlan = resolveCronDeliveryPlan(job);
+  if (summaryText && deliveryPlan.requested) {
+    const prefix = "Cron";
+    const label =
+      res.status === "error" ? `${prefix} (error): ${summaryText}` : `${prefix}: ${summaryText}`;
+    state.deps.enqueueSystemEvent(label, { agentId: job.agentId });
+    if (job.wakeMode === "now") {
+      state.deps.requestHeartbeatNow({ reason: `cron:${job.id}` });
+    }
+  }
+
+  return {
+    status: res.status,
+    error: res.error,
+    summary: res.summary,
+    sessionId: res.sessionId,
+    sessionKey: res.sessionKey,
+  };
+}
+
+/**
+ * Execute a job. This version is used by the `run` command and other
+ * places that need the full execution with state updates.
+ */
 export async function executeJob(
   state: CronServiceState,
   job: CronJob,
@@ -380,7 +527,16 @@ export async function executeJob(
 <<<<<<< HEAD
   let deleted = false;
 
-  const finish = async (status: "ok" | "error" | "skipped", err?: string, summary?: string) => {
+  const finish = async (
+    status: "ok" | "error" | "skipped",
+    err?: string,
+    summary?: string,
+<<<<<<< HEAD
+    outputText?: string,
+=======
+    session?: { sessionId?: string; sessionKey?: string },
+>>>>>>> d90cac990 (fix: cron scheduler reliability, store hardening, and UX improvements (#10776))
+  ) => {
     const endedAt = state.deps.nowMs();
     job.state.runningAtMs = undefined;
     job.state.lastRunAtMs = startedAt;
@@ -393,7 +549,6 @@ export async function executeJob(
 
     if (!shouldDelete) {
       if (job.schedule.kind === "at" && status === "ok") {
-        // One-shot job completed successfully; disable it.
         job.enabled = false;
         job.state.nextRunAtMs = undefined;
       } else if (job.enabled) {
@@ -409,6 +564,8 @@ export async function executeJob(
       status,
       error: err,
       summary,
+      sessionId: session?.sessionId,
+      sessionKey: session?.sessionKey,
       runAtMs: startedAt,
       durationMs: job.state.lastDurationMs,
       nextRunAtMs: job.state.nextRunAtMs,
@@ -429,79 +586,31 @@ export async function executeJob(
 >>>>>>> 8fae55e8e (fix(cron): share isolated announce flow + harden cron scheduling/delivery (#11641))
   };
   try {
-<<<<<<< HEAD
-    if (job.sessionTarget === "main") {
-      const text = resolveJobPayloadTextForMain(job);
-      if (!text) {
-        const kind = job.payload.kind;
-        await finish(
-          "skipped",
-          kind === "systemEvent"
-            ? "main job requires non-empty systemEvent text"
-            : 'main job requires payload.kind="systemEvent"',
-        );
-        return;
-      }
-      state.deps.enqueueSystemEvent(text, { agentId: job.agentId });
-      if (job.wakeMode === "now" && state.deps.runHeartbeatOnce) {
-        const reason = `cron:${job.id}`;
-        const delay = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
-        const maxWaitMs = 2 * 60_000;
-        const waitStartedAt = state.deps.nowMs();
-
-        let heartbeatResult: HeartbeatRunResult;
-        for (;;) {
-          heartbeatResult = await state.deps.runHeartbeatOnce({ reason });
-          if (
-            heartbeatResult.status !== "skipped" ||
-            heartbeatResult.reason !== "requests-in-flight"
-          ) {
-            break;
-          }
-          if (state.deps.nowMs() - waitStartedAt > maxWaitMs) {
-            heartbeatResult = {
-              status: "skipped",
-              reason: "timeout waiting for main lane to become idle",
-            };
-            break;
-          }
-          await delay(250);
-        }
-
-        if (heartbeatResult.status === "ran") {
-          await finish("ok", undefined, text);
-        } else if (heartbeatResult.status === "skipped") {
-          await finish("skipped", heartbeatResult.reason, text);
-        } else {
-          await finish("error", heartbeatResult.reason, text);
-        }
-      } else {
-        // wakeMode is "next-heartbeat" or runHeartbeatOnce not available
-        state.deps.requestHeartbeatNow({ reason: `cron:${job.id}` });
-        await finish("ok", undefined, text);
-      }
-      return;
-    }
-
-    if (job.payload.kind !== "agentTurn") {
-      await finish("skipped", "isolated job requires payload.kind=agentTurn");
-      return;
-    }
-
-    const res = await state.deps.runIsolatedAgentJob({
-      job,
-      message: job.payload.message,
+    const result = await executeJobCore(state, job);
+    await finish(result.status, result.error, result.summary, {
+      sessionId: result.sessionId,
+      sessionKey: result.sessionKey,
     });
+<<<<<<< HEAD
+<<<<<<< HEAD
+    if (res.status === "ok") await finish("ok", undefined, res.summary, res.outputText);
+    else if (res.status === "skipped")
+      await finish("skipped", undefined, res.summary, res.outputText);
+    else await finish("error", res.error ?? "cron job failed", res.summary, res.outputText);
+=======
 
     // Post a short summary back to the main session so the user sees
     // the cron result without opening the isolated session.
     const summaryText = res.summary?.trim();
-    if (summaryText) {
+    const deliveryMode = job.delivery?.mode ?? "announce";
+    if (summaryText && deliveryMode !== "none") {
       const prefix = "Cron";
       const label =
         res.status === "error" ? `${prefix} (error): ${summaryText}` : `${prefix}: ${summaryText}`;
       state.deps.enqueueSystemEvent(label, { agentId: job.agentId });
-      state.deps.requestHeartbeatNow({ reason: `cron:${job.id}` });
+      if (job.wakeMode === "now") {
+        state.deps.requestHeartbeatNow({ reason: `cron:${job.id}` });
+      }
     }
 
     if (res.status === "ok") {
@@ -511,12 +620,14 @@ export async function executeJob(
     } else {
       await finish("error", res.error ?? "cron job failed", res.summary);
     }
+>>>>>>> 6341819d7 (fix: cron announce delivery path (#8540) (thanks @tyler6204))
+=======
+>>>>>>> d90cac990 (fix: cron scheduler reliability, store hardening, and UX improvements (#10776))
   } catch (err) {
     await finish("error", String(err));
   } finally {
     job.updatedAtMs = nowMs;
     if (!opts.forced && job.enabled && !deleted) {
-      // Keep nextRunAtMs in sync in case the schedule advanced during a long run.
       job.state.nextRunAtMs = computeJobNextRunAtMs(job, state.deps.nowMs());
     }
 =======

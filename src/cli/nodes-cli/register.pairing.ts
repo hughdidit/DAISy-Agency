@@ -1,19 +1,10 @@
 import type { Command } from "commander";
-<<<<<<< HEAD
+import type { NodesRpcOpts } from "./types.js";
 import { defaultRuntime } from "../../runtime.js";
+import { renderTable } from "../../terminal/table.js";
+import { getNodesTheme, runNodesCommand } from "./cli-utils.js";
 import { formatAge, parsePairingList } from "./format.js";
-import { getNodesTheme, runNodesCommand } from "./cli-utils.js";
-=======
-import type { NodesRpcOpts } from "./types.js";
-import { formatTimeAgo } from "../../infra/format-time/format-relative.ts";
-import { defaultRuntime } from "../../runtime.js";
-import { renderTable } from "../../terminal/table.js";
-import { getNodesTheme, runNodesCommand } from "./cli-utils.js";
-import { parsePairingList } from "./format.js";
->>>>>>> a1123dd9b (Centralize date/time formatting utilities (#11831))
 import { callGatewayCli, nodesCallOpts, resolveNodeId } from "./rpc.js";
-import type { NodesRpcOpts } from "./types.js";
-import { renderTable } from "../../terminal/table.js";
 
 export function registerNodesPairingCommands(nodes: Command) {
   nodesCallOpts(

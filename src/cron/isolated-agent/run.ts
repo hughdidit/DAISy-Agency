@@ -1,3 +1,7 @@
+import type { MessagingToolSend } from "../../agents/pi-embedded-messaging.js";
+import type { OpenClawConfig } from "../../config/config.js";
+import type { AgentDefaultsConfig } from "../../config/types.js";
+import type { CronJob } from "../types.js";
 import {
   resolveAgentConfig,
   resolveAgentDir,
@@ -8,6 +12,11 @@ import {
 import { runCliAgent } from "../../agents/cli-runner.js";
 import { getCliSessionId, setCliSessionId } from "../../agents/cli-session.js";
 import { lookupContextTokens } from "../../agents/context.js";
+import {
+  formatUserTime,
+  resolveUserTimeFormat,
+  resolveUserTimezone,
+} from "../../agents/date-time.js";
 import { DEFAULT_CONTEXT_TOKENS, DEFAULT_MODEL, DEFAULT_PROVIDER } from "../../agents/defaults.js";
 import { loadModelCatalog } from "../../agents/model-catalog.js";
 import { runWithModelFallback } from "../../agents/model-fallback.js";
@@ -20,7 +29,6 @@ import {
   resolveThinkingDefault,
 } from "../../agents/model-selection.js";
 import { runEmbeddedPiAgent } from "../../agents/pi-embedded.js";
-import type { MessagingToolSend } from "../../agents/pi-embedded-messaging.js";
 import { buildWorkspaceSkillSnapshot } from "../../agents/skills.js";
 import { getSkillsSnapshotVersion } from "../../agents/skills/refresh.js";
 <<<<<<< HEAD
@@ -32,18 +40,12 @@ import {
 import { runSubagentAnnounceFlow } from "../../agents/subagent-announce.js";
 >>>>>>> 8fae55e8e (fix(cron): share isolated announce flow + harden cron scheduling/delivery (#11641))
 import { resolveAgentTimeoutMs } from "../../agents/timeout.js";
-import { hasNonzeroUsage } from "../../agents/usage.js";
+import { deriveSessionTotalTokens, hasNonzeroUsage } from "../../agents/usage.js";
 import { ensureAgentWorkspace } from "../../agents/workspace.js";
-import {
-<<<<<<< HEAD
-  formatUserTime,
-  resolveUserTimeFormat,
-  resolveUserTimezone,
-} from "../../agents/date-time.js";
 import {
   formatXHighModelHint,
 =======
->>>>>>> 7af00f040 (Optimize import)
+>>>>>>> 3b40227bc (fix: remove unused cron import)
   normalizeThinkLevel,
   normalizeVerboseLevel,
   supportsXHighThinking,
@@ -51,27 +53,13 @@ import {
 <<<<<<< HEAD
 import { createOutboundSendDeps, type CliDeps } from "../../cli/outbound-send-deps.js";
 <<<<<<< HEAD
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
+=======
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { resolveSessionTranscriptPath, updateSessionStore } from "../../config/sessions.js";
-import type { AgentDefaultsConfig } from "../../config/types.js";
-=======
-=======
-import { type CliDeps } from "../../cli/outbound-send-deps.js";
->>>>>>> 3f82daefd (feat(cron): enhance delivery modes and job configuration)
-=======
->>>>>>> 8fae55e8e (fix(cron): share isolated announce flow + harden cron scheduling/delivery (#11641))
-import {
-  resolveAgentMainSessionKey,
-  resolveSessionTranscriptPath,
-  updateSessionStore,
-} from "../../config/sessions.js";
-<<<<<<< HEAD
->>>>>>> 511c656cb (feat(cron): introduce delivery modes for isolated jobs)
-=======
->>>>>>> 8fae55e8e (fix(cron): share isolated announce flow + harden cron scheduling/delivery (#11641))
 import { registerAgentRunContext } from "../../infra/agent-events.js";
 import { getRemoteSkillEligibility } from "../../infra/skills-remote.js";
+import { logWarn } from "../../logger.js";
 import { buildAgentMainSessionKey, normalizeAgentId } from "../../routing/session-key.js";
 import {
   buildSafeExternalPrompt,
@@ -79,15 +67,10 @@ import {
   getHookType,
   isExternalHookSession,
 } from "../../security/external-content.js";
-<<<<<<< HEAD
-import { logWarn } from "../../logger.js";
-import type { CronJob } from "../types.js";
-=======
-import { resolveCronDeliveryPlan } from "../delivery.js";
->>>>>>> 511c656cb (feat(cron): introduce delivery modes for isolated jobs)
 import { resolveDeliveryTarget } from "./delivery-target.js";
 import {
   isHeartbeatOnlyResponse,
+  pickLastDeliverablePayload,
   pickLastNonEmptyTextFromPayloads,
   pickSummaryFromOutput,
   pickSummaryFromPayloads,
@@ -113,6 +96,8 @@ function matchesMessagingToolDeliveryTarget(
   return target.to === delivery.to;
 }
 
+<<<<<<< HEAD
+=======
 function resolveCronDeliveryBestEffort(job: CronJob): boolean {
   if (typeof job.delivery?.bestEffort === "boolean") {
     return job.delivery.bestEffort;
@@ -123,28 +108,19 @@ function resolveCronDeliveryBestEffort(job: CronJob): boolean {
   return false;
 }
 
-function resolveCronDeliveryFailure(
-  resolved: Awaited<ReturnType<typeof resolveDeliveryTarget>>,
-): Error | undefined {
-  if (resolved.error) {
-    return resolved.error;
-  }
-  if (!resolved.to) {
-    return new Error("cron delivery target is missing");
-  }
-  return undefined;
-}
-
+>>>>>>> 78fd19472 (fix: telegram forward metadata + cron delivery guard (#8392) (thanks @Glucksberg))
 export type RunCronAgentTurnResult = {
   status: "ok" | "error" | "skipped";
   summary?: string;
   /** Last non-empty agent text output (not truncated). */
   outputText?: string;
   error?: string;
+  sessionId?: string;
+  sessionKey?: string;
 };
 
 export async function runCronIsolatedAgentTurn(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   deps: CliDeps;
   job: CronJob;
   message: string;
@@ -175,7 +151,7 @@ export async function runCronIsolatedAgentTurn(params: {
   } else if (overrideModel) {
     agentCfg.model = overrideModel;
   }
-  const cfgWithAgentDefaults: MoltbotConfig = {
+  const cfgWithAgentDefaults: OpenClawConfig = {
     ...params.cfg,
     agents: Object.assign({}, params.cfg.agents, { defaults: agentCfg }),
   };
@@ -231,14 +207,12 @@ export async function runCronIsolatedAgentTurn(params: {
   }
   const modelOverrideRaw =
     params.job.payload.kind === "agentTurn" ? params.job.payload.model : undefined;
-  if (modelOverrideRaw !== undefined) {
-    if (typeof modelOverrideRaw !== "string") {
-      return { status: "error", error: "invalid model: expected string" };
-    }
+  const modelOverride = typeof modelOverrideRaw === "string" ? modelOverrideRaw.trim() : undefined;
+  if (modelOverride !== undefined && modelOverride.length > 0) {
     const resolvedOverride = resolveAllowedModelRef({
       cfg: cfgWithAgentDefaults,
       catalog: await loadCatalog(),
-      raw: modelOverrideRaw,
+      raw: modelOverride,
       defaultProvider: resolvedDefault.provider,
       defaultModel: resolvedDefault.model,
     });
@@ -255,6 +229,36 @@ export async function runCronIsolatedAgentTurn(params: {
     agentId,
     nowMs: now,
   });
+  const runSessionId = cronSession.sessionEntry.sessionId;
+  const runSessionKey = baseSessionKey.startsWith("cron:")
+    ? `${agentSessionKey}:run:${runSessionId}`
+    : agentSessionKey;
+  const persistSessionEntry = async () => {
+    cronSession.store[agentSessionKey] = cronSession.sessionEntry;
+    if (runSessionKey !== agentSessionKey) {
+      cronSession.store[runSessionKey] = cronSession.sessionEntry;
+    }
+    await updateSessionStore(cronSession.storePath, (store) => {
+      store[agentSessionKey] = cronSession.sessionEntry;
+      if (runSessionKey !== agentSessionKey) {
+        store[runSessionKey] = cronSession.sessionEntry;
+      }
+    });
+  };
+  const withRunSession = (
+    result: Omit<RunCronAgentTurnResult, "sessionId" | "sessionKey">,
+  ): RunCronAgentTurnResult => ({
+    ...result,
+    sessionId: runSessionId,
+    sessionKey: runSessionKey,
+  });
+  if (!cronSession.sessionEntry.label?.trim() && baseSessionKey.startsWith("cron:")) {
+    const labelSuffix =
+      typeof params.job.name === "string" && params.job.name.trim()
+        ? params.job.name.trim()
+        : params.job.id;
+    cronSession.sessionEntry.label = `Cron: ${labelSuffix}`;
+  }
 
   // Resolve thinking level - job thinking > hooks.gmail.thinking > agent default
   const hooksGmailThinking = isGmailHook
@@ -275,7 +279,10 @@ export async function runCronIsolatedAgentTurn(params: {
     });
   }
   if (thinkLevel === "xhigh" && !supportsXHighThinking(provider, model)) {
-    throw new Error(`Thinking level "xhigh" is only supported for ${formatXHighModelHint()}.`);
+    logWarn(
+      `[cron:${params.job.id}] Thinking level "xhigh" is not supported for ${provider}/${model}; downgrading to "high".`,
+    );
+    thinkLevel = "high";
   }
 
   const timeoutMs = resolveAgentTimeoutMs({
@@ -336,10 +343,13 @@ export async function runCronIsolatedAgentTurn(params: {
     // Internal/trusted source - use original format
     commandBody = `${base}\n${timeLine}`.trim();
   }
+<<<<<<< HEAD
+=======
   if (deliveryRequested) {
     commandBody =
-      `${commandBody}\n\nReturn your summary as plain text; it will be delivered by the main agent. If the task explicitly calls for messaging a specific external recipient, note who/where it should go instead of sending it yourself.`.trim();
+      `${commandBody}\n\nReturn your summary as plain text; it will be delivered automatically. If the task explicitly calls for messaging a specific external recipient, note who/where it should go instead of sending it yourself.`.trim();
   }
+>>>>>>> 6341819d7 (fix: cron announce delivery path (#8540) (thanks @tyler6204))
 
   const existingSnapshot = cronSession.sessionEntry.skillsSnapshot;
   const skillsSnapshotVersion = getSkillsSnapshotVersion(workspaceDir);
@@ -358,18 +368,12 @@ export async function runCronIsolatedAgentTurn(params: {
       updatedAt: Date.now(),
       skillsSnapshot,
     };
-    cronSession.store[agentSessionKey] = cronSession.sessionEntry;
-    await updateSessionStore(cronSession.storePath, (store) => {
-      store[agentSessionKey] = cronSession.sessionEntry;
-    });
+    await persistSessionEntry();
   }
 
   // Persist systemSent before the run, mirroring the inbound auto-reply behavior.
   cronSession.sessionEntry.systemSent = true;
-  cronSession.store[agentSessionKey] = cronSession.sessionEntry;
-  await updateSessionStore(cronSession.storePath, (store) => {
-    store[agentSessionKey] = cronSession.sessionEntry;
-  });
+  await persistSessionEntry();
 
   let runResult: Awaited<ReturnType<typeof runEmbeddedPiAgent>>;
   let fallbackProvider = provider;
@@ -399,6 +403,7 @@ export async function runCronIsolatedAgentTurn(params: {
           return runCliAgent({
             sessionId: cronSession.sessionEntry.sessionId,
             sessionKey: agentSessionKey,
+            agentId,
             sessionFile,
             workspaceDir,
             config: cfgWithAgentDefaults,
@@ -414,6 +419,7 @@ export async function runCronIsolatedAgentTurn(params: {
         return runEmbeddedPiAgent({
           sessionId: cronSession.sessionEntry.sessionId,
           sessionKey: agentSessionKey,
+          agentId,
           messageChannel,
           agentAccountId: resolvedDelivery.accountId,
           sessionFile,
@@ -438,7 +444,7 @@ export async function runCronIsolatedAgentTurn(params: {
     fallbackModel = fallbackResult.model;
     runEndedAt = Date.now();
   } catch (err) {
-    return { status: "error", error: String(err) };
+    return withRunSession({ status: "error", error: String(err) });
   }
 
   const payloads = runResult.payloads ?? [];
@@ -463,16 +469,15 @@ export async function runCronIsolatedAgentTurn(params: {
     if (hasNonzeroUsage(usage)) {
       const input = usage.input ?? 0;
       const output = usage.output ?? 0;
-      const promptTokens = input + (usage.cacheRead ?? 0) + (usage.cacheWrite ?? 0);
       cronSession.sessionEntry.inputTokens = input;
       cronSession.sessionEntry.outputTokens = output;
       cronSession.sessionEntry.totalTokens =
-        promptTokens > 0 ? promptTokens : (usage.total ?? input);
+        deriveSessionTotalTokens({
+          usage,
+          contextTokens,
+        }) ?? input;
     }
-    cronSession.store[agentSessionKey] = cronSession.sessionEntry;
-    await updateSessionStore(cronSession.storePath, (store) => {
-      store[agentSessionKey] = cronSession.sessionEntry;
-    });
+    await persistSessionEntry();
   }
   const firstText = payloads[0]?.text ?? "";
   const summary = pickSummaryFromPayloads(payloads) ?? pickSummaryFromOutput(firstText);
@@ -487,12 +492,8 @@ export async function runCronIsolatedAgentTurn(params: {
       : synthesizedText
         ? [{ text: synthesizedText }]
         : [];
-  const deliveryPayloadHasStructuredContent =
-    Boolean(deliveryPayload?.mediaUrl) ||
-    (deliveryPayload?.mediaUrls?.length ?? 0) > 0 ||
-    Object.keys(deliveryPayload?.channelData ?? {}).length > 0;
->>>>>>> 8fae55e8e (fix(cron): share isolated announce flow + harden cron scheduling/delivery (#11641))
   const deliveryBestEffort = resolveCronDeliveryBestEffort(params.job);
+>>>>>>> d90cac990 (fix: cron scheduler reliability, store hardening, and UX improvements (#10776))
 
   // Skip delivery for heartbeat-only responses (HEARTBEAT_OK with no real content).
   const ackMaxChars = resolveHeartbeatAckMaxChars(agentCfg);
@@ -509,28 +510,43 @@ export async function runCronIsolatedAgentTurn(params: {
     );
 
   if (deliveryRequested && !skipHeartbeatDelivery && !skipMessagingToolDelivery) {
-    const deliveryFailure = resolveCronDeliveryFailure(resolvedDelivery);
-    if (deliveryFailure) {
-      if (!deliveryBestEffort) {
+<<<<<<< HEAD
+    if (!resolvedDelivery.to) {
+      const reason =
+        resolvedDelivery.error?.message ?? "Cron delivery requires a recipient (--to).";
+      if (!bestEffortDeliver) {
         return {
           status: "error",
-          error: deliveryFailure.message,
+=======
+    if (resolvedDelivery.error) {
+      if (!deliveryBestEffort) {
+        return withRunSession({
+          status: "error",
+          error: resolvedDelivery.error.message,
+>>>>>>> 78fd19472 (fix: telegram forward metadata + cron delivery guard (#8392) (thanks @Glucksberg))
           summary,
           outputText,
-        };
-      }
-      logWarn(`[cron:${params.job.id}] ${deliveryFailure.message}`);
-      return { status: "ok", summary, outputText };
-    }
 <<<<<<< HEAD
-    const requesterSessionKey = resolveAgentMainSessionKey({
-      cfg: cfgWithAgentDefaults,
-      agentId,
-    });
-    const useExplicitOrigin = deliveryPlan.channel !== "last" || Boolean(deliveryPlan.to?.trim());
-    const requesterOrigin = useExplicitOrigin
-      ? {
+          error: reason,
+        };
 =======
+        });
+>>>>>>> d90cac990 (fix: cron scheduler reliability, store hardening, and UX improvements (#10776))
+      }
+<<<<<<< HEAD
+<<<<<<< HEAD
+      return {
+        status: "error",
+        error: "cron announce delivery failed",
+        summary,
+        outputText,
+      };
+=======
+      logWarn(`[cron:${params.job.id}] ${deliveryFailure.message}`);
+=======
+      logWarn(`[cron:${params.job.id}] ${resolvedDelivery.error.message}`);
+      return withRunSession({ status: "ok", summary, outputText });
+    }
     if (!resolvedDelivery.to) {
       const message = "cron delivery target is missing";
       if (!deliveryBestEffort) {
@@ -542,54 +558,43 @@ export async function runCronIsolatedAgentTurn(params: {
         });
       }
       logWarn(`[cron:${params.job.id}] ${message}`);
-      return withRunSession({ status: "ok", summary, outputText });
-    }
-    // Shared subagent announce flow is text-based; keep direct outbound delivery
-    // for media/channel payloads so structured content is preserved.
-    if (deliveryPayloadHasStructuredContent) {
-      try {
-        await deliverOutboundPayloads({
-          cfg: cfgWithAgentDefaults,
->>>>>>> 8fae55e8e (fix(cron): share isolated announce flow + harden cron scheduling/delivery (#11641))
-          channel: resolvedDelivery.channel,
-          to: resolvedDelivery.to,
-          accountId: resolvedDelivery.accountId,
-          threadId: resolvedDelivery.threadId,
 <<<<<<< HEAD
-        }
-      : undefined;
-    const outcome: SubagentRunOutcome = { status: "ok" };
-    const taskLabel = params.job.name?.trim() || "cron job";
-    const didAnnounce = await runSubagentAnnounceFlow({
-      childSessionKey: agentSessionKey,
-      childRunId: cronSession.sessionEntry.sessionId,
-      requesterSessionKey,
-      requesterOrigin,
-      requesterDisplayKey: requesterSessionKey,
-      task: taskLabel,
-      timeoutMs: 30_000,
-      cleanup: "keep",
-      roundOneReply: outputText ?? summary,
-      waitForCompletion: false,
-      label: `Cron: ${taskLabel}`,
-      outcome,
-    });
-    if (!didAnnounce && !deliveryBestEffort) {
-      return {
-        status: "error",
-        error: "cron announce delivery failed",
-        summary,
-        outputText,
-      };
+>>>>>>> 78fd19472 (fix: telegram forward metadata + cron delivery guard (#8392) (thanks @Glucksberg))
+      return { status: "ok", summary, outputText };
 =======
-          payloads: deliveryPayloads,
-          bestEffort: deliveryBestEffort,
-          deps: createOutboundSendDeps(params.deps),
-        });
-      } catch (err) {
-        if (!deliveryBestEffort) {
-          return withRunSession({ status: "error", summary, outputText, error: String(err) });
-        }
+      return withRunSession({ status: "ok", summary, outputText });
+>>>>>>> d90cac990 (fix: cron scheduler reliability, store hardening, and UX improvements (#10776))
+    }
+    try {
+      await deliverOutboundPayloads({
+        cfg: cfgWithAgentDefaults,
+        channel: resolvedDelivery.channel,
+        to: resolvedDelivery.to,
+        accountId: resolvedDelivery.accountId,
+        threadId: resolvedDelivery.threadId,
+        payloads: deliveryPayloads,
+        bestEffort: deliveryBestEffort,
+        deps: createOutboundSendDeps(params.deps),
+      });
+    } catch (err) {
+      if (!deliveryBestEffort) {
+        return withRunSession({ status: "error", summary, outputText, error: String(err) });
+      }
+>>>>>>> 6341819d7 (fix: cron announce delivery path (#8540) (thanks @tyler6204))
+    }
+    try {
+      await deliverOutboundPayloads({
+        cfg: cfgWithAgentDefaults,
+        channel: resolvedDelivery.channel,
+        to: resolvedDelivery.to,
+        accountId: resolvedDelivery.accountId,
+        payloads,
+        bestEffort: bestEffortDeliver,
+        deps: createOutboundSendDeps(params.deps),
+      });
+    } catch (err) {
+      if (!bestEffortDeliver) {
+        return { status: "error", summary, outputText, error: String(err) };
       }
     } else if (synthesizedText) {
       const announceSessionKey = resolveAgentMainSessionKey({
@@ -644,5 +649,5 @@ export async function runCronIsolatedAgentTurn(params: {
     }
   }
 
-  return { status: "ok", summary, outputText };
+  return withRunSession({ status: "ok", summary, outputText });
 }

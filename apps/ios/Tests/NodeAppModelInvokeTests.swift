@@ -1,16 +1,18 @@
 <<<<<<< HEAD
 import MoltbotKit
+=======
+import CoreLocation
+>>>>>>> 7b0a0f3da (iOS: wire node services and tests)
 import Foundation
+import OpenClawKit
 import Testing
 import UIKit
+<<<<<<< HEAD
 @testable import Moltbot
 =======
-import OpenClawKit
-import Foundation
-import Testing
-import UIKit
+import UserNotifications
 @testable import OpenClaw
->>>>>>> 4ab814fd5 (Revert "iOS: wire node services and tests")
+>>>>>>> 7b0a0f3da (iOS: wire node services and tests)
 
 private func withUserDefaults<T>(_ updates: [String: Any?], _ body: () throws -> T) rethrows -> T {
     let defaults = UserDefaults.standard
@@ -37,9 +39,6 @@ private func withUserDefaults<T>(_ updates: [String: Any?], _ body: () throws ->
     return try body()
 }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
 private final class TestNotificationCenter: NotificationCentering, @unchecked Sendable {
     private(set) var requestAuthorizationCalls = 0
     private(set) var addedRequests: [UNNotificationRequest] = []
@@ -117,24 +116,18 @@ private struct TestPhotosService: PhotosServicing {
 }
 
 private struct TestContactsService: ContactsServicing {
-    let searchPayload: OpenClawContactsSearchPayload
-    let addPayload: OpenClawContactsAddPayload
-    func search(params: OpenClawContactsSearchParams) async throws -> OpenClawContactsSearchPayload { searchPayload }
-    func add(params: OpenClawContactsAddParams) async throws -> OpenClawContactsAddPayload { addPayload }
+    let payload: OpenClawContactsSearchPayload
+    func search(params: OpenClawContactsSearchParams) async throws -> OpenClawContactsSearchPayload { payload }
 }
 
 private struct TestCalendarService: CalendarServicing {
-    let eventsPayload: OpenClawCalendarEventsPayload
-    let addPayload: OpenClawCalendarAddPayload
-    func events(params: OpenClawCalendarEventsParams) async throws -> OpenClawCalendarEventsPayload { eventsPayload }
-    func add(params: OpenClawCalendarAddParams) async throws -> OpenClawCalendarAddPayload { addPayload }
+    let payload: OpenClawCalendarEventsPayload
+    func events(params: OpenClawCalendarEventsParams) async throws -> OpenClawCalendarEventsPayload { payload }
 }
 
 private struct TestRemindersService: RemindersServicing {
-    let listPayload: OpenClawRemindersListPayload
-    let addPayload: OpenClawRemindersAddPayload
-    func list(params: OpenClawRemindersListParams) async throws -> OpenClawRemindersListPayload { listPayload }
-    func add(params: OpenClawRemindersAddParams) async throws -> OpenClawRemindersAddPayload { addPayload }
+    let payload: OpenClawRemindersListPayload
+    func list(params: OpenClawRemindersListParams) async throws -> OpenClawRemindersListPayload { payload }
 }
 
 private struct TestMotionService: MotionServicing {
@@ -158,8 +151,7 @@ private func makeTestAppModel(
     contactsService: ContactsServicing,
     calendarService: CalendarServicing,
     remindersService: RemindersServicing,
-    motionService: MotionServicing,
-    talkMode: TalkModeManager = TalkModeManager(allowSimulatorCapture: true)) -> NodeAppModel
+    motionService: MotionServicing) -> NodeAppModel
 {
     NodeAppModel(
         screen: ScreenController(),
@@ -172,71 +164,7 @@ private func makeTestAppModel(
         contactsService: contactsService,
         calendarService: calendarService,
         remindersService: remindersService,
-        motionService: motionService,
-        talkMode: talkMode)
-}
-
-@MainActor
-private func makeTalkTestAppModel(talkMode: TalkModeManager) -> NodeAppModel {
-    makeTestAppModel(
-        deviceStatusService: TestDeviceStatusService(
-            statusPayload: OpenClawDeviceStatusPayload(
-                battery: OpenClawBatteryStatusPayload(level: 0.5, state: .unplugged, lowPowerModeEnabled: false),
-                thermal: OpenClawThermalStatusPayload(state: .nominal),
-                storage: OpenClawStorageStatusPayload(totalBytes: 10, freeBytes: 5, usedBytes: 5),
-                network: OpenClawNetworkStatusPayload(
-                    status: .satisfied,
-                    isExpensive: false,
-                    isConstrained: false,
-                    interfaces: [.wifi]),
-                uptimeSeconds: 1),
-            infoPayload: OpenClawDeviceInfoPayload(
-                deviceName: "Test",
-                modelIdentifier: "Test1,1",
-                systemName: "iOS",
-                systemVersion: "1.0",
-                appVersion: "dev",
-                appBuild: "0",
-                locale: "en-US")),
-        photosService: TestPhotosService(payload: OpenClawPhotosLatestPayload(photos: [])),
-        contactsService: TestContactsService(
-            searchPayload: OpenClawContactsSearchPayload(contacts: []),
-            addPayload: OpenClawContactsAddPayload(contact: OpenClawContactPayload(
-                identifier: "c0",
-                displayName: "",
-                givenName: "",
-                familyName: "",
-                organizationName: "",
-                phoneNumbers: [],
-                emails: []))),
-        calendarService: TestCalendarService(
-            eventsPayload: OpenClawCalendarEventsPayload(events: []),
-            addPayload: OpenClawCalendarAddPayload(event: OpenClawCalendarEventPayload(
-                identifier: "e0",
-                title: "Test",
-                startISO: "2024-01-01T00:00:00Z",
-                endISO: "2024-01-01T00:10:00Z",
-                isAllDay: false,
-                location: nil,
-                calendarTitle: nil))),
-        remindersService: TestRemindersService(
-            listPayload: OpenClawRemindersListPayload(reminders: []),
-            addPayload: OpenClawRemindersAddPayload(reminder: OpenClawReminderPayload(
-                identifier: "r0",
-                title: "Test",
-                dueISO: nil,
-                completed: false,
-                listName: nil))),
-        motionService: TestMotionService(
-            activityPayload: OpenClawMotionActivityPayload(activities: []),
-            pedometerPayload: OpenClawPedometerPayload(
-                startISO: "2024-01-01T00:00:00Z",
-                endISO: "2024-01-01T01:00:00Z",
-                steps: nil,
-                distanceMeters: nil,
-                floorsAscended: nil,
-                floorsDescended: nil)),
-        talkMode: talkMode)
+        motionService: motionService)
 }
 
 private func decodePayload<T: Decodable>(_ json: String?, as type: T.Type) throws -> T {
@@ -244,13 +172,10 @@ private func decodePayload<T: Decodable>(_ json: String?, as type: T.Type) throw
     return try JSONDecoder().decode(type, from: data)
 }
 
->>>>>>> a884955cd (iOS: add write commands for contacts/calendar/reminders)
-=======
->>>>>>> 4ab814fd5 (Revert "iOS: wire node services and tests")
 @Suite(.serialized) struct NodeAppModelInvokeTests {
     @Test @MainActor func decodeParamsFailsWithoutJSON() {
         #expect(throws: Error.self) {
-            _ = try NodeAppModel._test_decodeParams(MoltbotCanvasNavigateParams.self, from: nil)
+            _ = try NodeAppModel._test_decodeParams(OpenClawCanvasNavigateParams.self, from: nil)
         }
     }
 
@@ -266,7 +191,7 @@ private func decodePayload<T: Decodable>(_ json: String?, as type: T.Type) throw
         let appModel = NodeAppModel()
         appModel.setScenePhase(.background)
 
-        let req = BridgeInvokeRequest(id: "bg", command: MoltbotCanvasCommand.present.rawValue)
+        let req = BridgeInvokeRequest(id: "bg", command: OpenClawCanvasCommand.present.rawValue)
         let res = await appModel._test_handleInvoke(req)
         #expect(res.ok == false)
         #expect(res.error?.code == .backgroundUnavailable)
@@ -274,7 +199,7 @@ private func decodePayload<T: Decodable>(_ json: String?, as type: T.Type) throw
 
     @Test @MainActor func handleInvokeRejectsCameraWhenDisabled() async {
         let appModel = NodeAppModel()
-        let req = BridgeInvokeRequest(id: "cam", command: MoltbotCameraCommand.snap.rawValue)
+        let req = BridgeInvokeRequest(id: "cam", command: OpenClawCameraCommand.snap.rawValue)
 
         let defaults = UserDefaults.standard
         let key = "camera.enabled"
@@ -296,13 +221,13 @@ private func decodePayload<T: Decodable>(_ json: String?, as type: T.Type) throw
 
     @Test @MainActor func handleInvokeRejectsInvalidScreenFormat() async {
         let appModel = NodeAppModel()
-        let params = MoltbotScreenRecordParams(format: "gif")
+        let params = OpenClawScreenRecordParams(format: "gif")
         let data = try? JSONEncoder().encode(params)
         let json = data.flatMap { String(data: $0, encoding: .utf8) }
 
         let req = BridgeInvokeRequest(
             id: "screen",
-            command: MoltbotScreenCommand.record.rawValue,
+            command: OpenClawScreenCommand.record.rawValue,
             paramsJSON: json)
 
         let res = await appModel._test_handleInvoke(req)
@@ -314,51 +239,61 @@ private func decodePayload<T: Decodable>(_ json: String?, as type: T.Type) throw
         let appModel = NodeAppModel()
         appModel.screen.navigate(to: "http://example.com")
 
-        let present = BridgeInvokeRequest(id: "present", command: MoltbotCanvasCommand.present.rawValue)
+        let present = BridgeInvokeRequest(id: "present", command: OpenClawCanvasCommand.present.rawValue)
         let presentRes = await appModel._test_handleInvoke(present)
         #expect(presentRes.ok == true)
         #expect(appModel.screen.urlString.isEmpty)
 
+<<<<<<< HEAD
         let navigateParams = MoltbotCanvasNavigateParams(url: "http://localhost:18789/")
+=======
+        // Loopback URLs are rejected (they are not meaningful for a remote gateway).
+        let navigateParams = OpenClawCanvasNavigateParams(url: "http://example.com/")
+>>>>>>> 6aedc54bd (iOS: alpha node app + setup-code onboarding (#11756))
         let navData = try JSONEncoder().encode(navigateParams)
         let navJSON = String(decoding: navData, as: UTF8.self)
         let navigate = BridgeInvokeRequest(
             id: "nav",
-            command: MoltbotCanvasCommand.navigate.rawValue,
+            command: OpenClawCanvasCommand.navigate.rawValue,
             paramsJSON: navJSON)
         let navRes = await appModel._test_handleInvoke(navigate)
         #expect(navRes.ok == true)
-        #expect(appModel.screen.urlString == "http://localhost:18789/")
+        #expect(appModel.screen.urlString == "http://example.com/")
 
-        let evalParams = MoltbotCanvasEvalParams(javaScript: "1+1")
+        let evalParams = OpenClawCanvasEvalParams(javaScript: "1+1")
         let evalData = try JSONEncoder().encode(evalParams)
         let evalJSON = String(decoding: evalData, as: UTF8.self)
         let eval = BridgeInvokeRequest(
             id: "eval",
-            command: MoltbotCanvasCommand.evalJS.rawValue,
+            command: OpenClawCanvasCommand.evalJS.rawValue,
             paramsJSON: evalJSON)
         let evalRes = await appModel._test_handleInvoke(eval)
         #expect(evalRes.ok == true)
         let payloadData = try #require(evalRes.payloadJSON?.data(using: .utf8))
         let payload = try JSONSerialization.jsonObject(with: payloadData) as? [String: Any]
         #expect(payload?["result"] as? String == "2")
+
+        let hide = BridgeInvokeRequest(id: "hide", command: OpenClawCanvasCommand.hide.rawValue)
+        let hideRes = await appModel._test_handleInvoke(hide)
+        #expect(hideRes.ok == true)
+        #expect(appModel.screen.urlString.isEmpty)
     }
 
     @Test @MainActor func handleInvokeA2UICommandsFailWhenHostMissing() async throws {
         let appModel = NodeAppModel()
 
-        let reset = BridgeInvokeRequest(id: "reset", command: MoltbotCanvasA2UICommand.reset.rawValue)
+        let reset = BridgeInvokeRequest(id: "reset", command: OpenClawCanvasA2UICommand.reset.rawValue)
         let resetRes = await appModel._test_handleInvoke(reset)
         #expect(resetRes.ok == false)
         #expect(resetRes.error?.message.contains("A2UI_HOST_NOT_CONFIGURED") == true)
 
         let jsonl = "{\"beginRendering\":{}}"
-        let pushParams = MoltbotCanvasA2UIPushJSONLParams(jsonl: jsonl)
+        let pushParams = OpenClawCanvasA2UIPushJSONLParams(jsonl: jsonl)
         let pushData = try JSONEncoder().encode(pushParams)
         let pushJSON = String(decoding: pushData, as: UTF8.self)
         let push = BridgeInvokeRequest(
             id: "push",
-            command: MoltbotCanvasA2UICommand.pushJSONL.rawValue,
+            command: OpenClawCanvasA2UICommand.pushJSONL.rawValue,
             paramsJSON: pushJSON)
         let pushRes = await appModel._test_handleInvoke(push)
         #expect(pushRes.ok == false)
@@ -373,9 +308,6 @@ private func decodePayload<T: Decodable>(_ json: String?, as type: T.Type) throw
         #expect(res.error?.code == .invalidRequest)
     }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
     @Test @MainActor func handleInvokeSystemNotifyCreatesNotificationRequest() async throws {
         let notifier = TestNotificationCenter(status: .notDetermined)
         let deviceStatus = TestDeviceStatusService(
@@ -397,41 +329,13 @@ private func decodePayload<T: Decodable>(_ json: String?, as type: T.Type) throw
                 appVersion: "dev",
                 appBuild: "0",
                 locale: "en-US"))
-        let emptyContact = OpenClawContactPayload(
-            identifier: "c0",
-            displayName: "",
-            givenName: "",
-            familyName: "",
-            organizationName: "",
-            phoneNumbers: [],
-            emails: [])
-        let emptyEvent = OpenClawCalendarEventPayload(
-            identifier: "e0",
-            title: "Test",
-            startISO: "2024-01-01T00:00:00Z",
-            endISO: "2024-01-01T00:30:00Z",
-            isAllDay: false,
-            location: nil,
-            calendarTitle: nil)
-        let emptyReminder = OpenClawReminderPayload(
-            identifier: "r0",
-            title: "Test",
-            dueISO: nil,
-            completed: false,
-            listName: nil)
         let appModel = makeTestAppModel(
             notificationCenter: notifier,
             deviceStatusService: deviceStatus,
             photosService: TestPhotosService(payload: OpenClawPhotosLatestPayload(photos: [])),
-            contactsService: TestContactsService(
-                searchPayload: OpenClawContactsSearchPayload(contacts: []),
-                addPayload: OpenClawContactsAddPayload(contact: emptyContact)),
-            calendarService: TestCalendarService(
-                eventsPayload: OpenClawCalendarEventsPayload(events: []),
-                addPayload: OpenClawCalendarAddPayload(event: emptyEvent)),
-            remindersService: TestRemindersService(
-                listPayload: OpenClawRemindersListPayload(reminders: []),
-                addPayload: OpenClawRemindersAddPayload(reminder: emptyReminder)),
+            contactsService: TestContactsService(payload: OpenClawContactsSearchPayload(contacts: [])),
+            calendarService: TestCalendarService(payload: OpenClawCalendarEventsPayload(events: [])),
+            remindersService: TestRemindersService(payload: OpenClawRemindersListPayload(reminders: [])),
             motionService: TestMotionService(
                 activityPayload: OpenClawMotionActivityPayload(activities: []),
                 pedometerPayload: OpenClawPedometerPayload(
@@ -456,91 +360,6 @@ private func decodePayload<T: Decodable>(_ json: String?, as type: T.Type) throw
         let request = try #require(notifier.addedRequests.first)
         #expect(request.content.title == "Hello")
         #expect(request.content.body == "World")
-    }
-
-    @Test @MainActor func handleInvokeChatPushCreatesNotification() async throws {
-        let notifier = TestNotificationCenter(status: .authorized)
-        let deviceStatus = TestDeviceStatusService(
-            statusPayload: OpenClawDeviceStatusPayload(
-                battery: OpenClawBatteryStatusPayload(level: 0.5, state: .charging, lowPowerModeEnabled: false),
-                thermal: OpenClawThermalStatusPayload(state: .nominal),
-                storage: OpenClawStorageStatusPayload(totalBytes: 100, freeBytes: 50, usedBytes: 50),
-                network: OpenClawNetworkStatusPayload(
-                    status: .satisfied,
-                    isExpensive: false,
-                    isConstrained: false,
-                    interfaces: [.wifi]),
-                uptimeSeconds: 10),
-            infoPayload: OpenClawDeviceInfoPayload(
-                deviceName: "Test",
-                modelIdentifier: "Test1,1",
-                systemName: "iOS",
-                systemVersion: "1.0",
-                appVersion: "dev",
-                appBuild: "0",
-                locale: "en-US"))
-        let emptyContact = OpenClawContactPayload(
-            identifier: "c0",
-            displayName: "",
-            givenName: "",
-            familyName: "",
-            organizationName: "",
-            phoneNumbers: [],
-            emails: [])
-        let emptyEvent = OpenClawCalendarEventPayload(
-            identifier: "e0",
-            title: "Test",
-            startISO: "2024-01-01T00:00:00Z",
-            endISO: "2024-01-01T00:30:00Z",
-            isAllDay: false,
-            location: nil,
-            calendarTitle: nil)
-        let emptyReminder = OpenClawReminderPayload(
-            identifier: "r0",
-            title: "Test",
-            dueISO: nil,
-            completed: false,
-            listName: nil)
-        let appModel = makeTestAppModel(
-            notificationCenter: notifier,
-            deviceStatusService: deviceStatus,
-            photosService: TestPhotosService(payload: OpenClawPhotosLatestPayload(photos: [])),
-            contactsService: TestContactsService(
-                searchPayload: OpenClawContactsSearchPayload(contacts: []),
-                addPayload: OpenClawContactsAddPayload(contact: emptyContact)),
-            calendarService: TestCalendarService(
-                eventsPayload: OpenClawCalendarEventsPayload(events: []),
-                addPayload: OpenClawCalendarAddPayload(event: emptyEvent)),
-            remindersService: TestRemindersService(
-                listPayload: OpenClawRemindersListPayload(reminders: []),
-                addPayload: OpenClawRemindersAddPayload(reminder: emptyReminder)),
-            motionService: TestMotionService(
-                activityPayload: OpenClawMotionActivityPayload(activities: []),
-                pedometerPayload: OpenClawPedometerPayload(
-                    startISO: "2024-01-01T00:00:00Z",
-                    endISO: "2024-01-01T01:00:00Z",
-                    steps: nil,
-                    distanceMeters: nil,
-                    floorsAscended: nil,
-                    floorsDescended: nil)))
-
-        let params = OpenClawChatPushParams(text: "Ping", speak: false)
-        let data = try JSONEncoder().encode(params)
-        let json = String(decoding: data, as: UTF8.self)
-        let req = BridgeInvokeRequest(
-            id: "chat-push",
-            command: OpenClawChatCommand.push.rawValue,
-            paramsJSON: json)
-        let res = await appModel._test_handleInvoke(req)
-        #expect(res.ok == true)
-        #expect(notifier.addedRequests.count == 1)
-        let request = try #require(notifier.addedRequests.first)
-        #expect(request.content.title == "OpenClaw")
-        #expect(request.content.body == "Ping")
-        let payloadJSON = try #require(res.payloadJSON)
-        let decoded = try JSONDecoder().decode(OpenClawChatPushPayload.self, from: Data(payloadJSON.utf8))
-        #expect((decoded.messageId ?? "").isEmpty == false)
-        #expect(request.identifier == decoded.messageId)
     }
 
     @Test @MainActor func handleInvokeDeviceAndDataCommandsReturnPayloads() async throws {
@@ -577,15 +396,6 @@ private func decodePayload<T: Decodable>(_ json: String?, as type: T.Type) throw
                     phoneNumbers: ["+1"],
                     emails: ["jane@example.com"]),
             ])
-        let contactsAddPayload = OpenClawContactsAddPayload(
-            contact: OpenClawContactPayload(
-                identifier: "c2",
-                displayName: "Added",
-                givenName: "Added",
-                familyName: "",
-                organizationName: "",
-                phoneNumbers: ["+2"],
-                emails: ["add@example.com"]))
         let calendarPayload = OpenClawCalendarEventsPayload(
             events: [
                 OpenClawCalendarEventPayload(
@@ -597,15 +407,6 @@ private func decodePayload<T: Decodable>(_ json: String?, as type: T.Type) throw
                     location: nil,
                     calendarTitle: "Work"),
             ])
-        let calendarAddPayload = OpenClawCalendarAddPayload(
-            event: OpenClawCalendarEventPayload(
-                identifier: "e2",
-                title: "Added Event",
-                startISO: "2024-01-02T00:00:00Z",
-                endISO: "2024-01-02T01:00:00Z",
-                isAllDay: false,
-                location: "HQ",
-                calendarTitle: "Work"))
         let remindersPayload = OpenClawRemindersListPayload(
             reminders: [
                 OpenClawReminderPayload(
@@ -615,13 +416,6 @@ private func decodePayload<T: Decodable>(_ json: String?, as type: T.Type) throw
                     completed: false,
                     listName: "Inbox"),
             ])
-        let remindersAddPayload = OpenClawRemindersAddPayload(
-            reminder: OpenClawReminderPayload(
-                identifier: "r2",
-                title: "Added Reminder",
-                dueISO: "2024-01-03T00:00:00Z",
-                completed: false,
-                listName: "Inbox"))
         let motionPayload = OpenClawMotionActivityPayload(
             activities: [
                 OpenClawMotionActivityEntry(
@@ -648,15 +442,9 @@ private func decodePayload<T: Decodable>(_ json: String?, as type: T.Type) throw
                 statusPayload: deviceStatusPayload,
                 infoPayload: deviceInfoPayload),
             photosService: TestPhotosService(payload: photosPayload),
-            contactsService: TestContactsService(
-                searchPayload: contactsPayload,
-                addPayload: contactsAddPayload),
-            calendarService: TestCalendarService(
-                eventsPayload: calendarPayload,
-                addPayload: calendarAddPayload),
-            remindersService: TestRemindersService(
-                listPayload: remindersPayload,
-                addPayload: remindersAddPayload),
+            contactsService: TestContactsService(payload: contactsPayload),
+            calendarService: TestCalendarService(payload: calendarPayload),
+            remindersService: TestRemindersService(payload: remindersPayload),
             motionService: TestMotionService(
                 activityPayload: motionPayload,
                 pedometerPayload: pedometerPayload))
@@ -685,61 +473,17 @@ private func decodePayload<T: Decodable>(_ json: String?, as type: T.Type) throw
         let decodedContacts = try decodePayload(contactsRes.payloadJSON, as: OpenClawContactsSearchPayload.self)
         #expect(decodedContacts == contactsPayload)
 
-        let contactsAddParams = OpenClawContactsAddParams(
-            givenName: "Added",
-            phoneNumbers: ["+2"],
-            emails: ["add@example.com"])
-        let contactsAddData = try JSONEncoder().encode(contactsAddParams)
-        let contactsAddReq = BridgeInvokeRequest(
-            id: "contacts-add",
-            command: OpenClawContactsCommand.add.rawValue,
-            paramsJSON: String(decoding: contactsAddData, as: UTF8.self))
-        let contactsAddRes = await appModel._test_handleInvoke(contactsAddReq)
-        #expect(contactsAddRes.ok == true)
-        let decodedContactsAdd = try decodePayload(contactsAddRes.payloadJSON, as: OpenClawContactsAddPayload.self)
-        #expect(decodedContactsAdd == contactsAddPayload)
-
         let calendarReq = BridgeInvokeRequest(id: "calendar", command: OpenClawCalendarCommand.events.rawValue)
         let calendarRes = await appModel._test_handleInvoke(calendarReq)
         #expect(calendarRes.ok == true)
         let decodedCalendar = try decodePayload(calendarRes.payloadJSON, as: OpenClawCalendarEventsPayload.self)
         #expect(decodedCalendar == calendarPayload)
 
-        let calendarAddParams = OpenClawCalendarAddParams(
-            title: "Added Event",
-            startISO: "2024-01-02T00:00:00Z",
-            endISO: "2024-01-02T01:00:00Z",
-            location: "HQ",
-            calendarTitle: "Work")
-        let calendarAddData = try JSONEncoder().encode(calendarAddParams)
-        let calendarAddReq = BridgeInvokeRequest(
-            id: "calendar-add",
-            command: OpenClawCalendarCommand.add.rawValue,
-            paramsJSON: String(decoding: calendarAddData, as: UTF8.self))
-        let calendarAddRes = await appModel._test_handleInvoke(calendarAddReq)
-        #expect(calendarAddRes.ok == true)
-        let decodedCalendarAdd = try decodePayload(calendarAddRes.payloadJSON, as: OpenClawCalendarAddPayload.self)
-        #expect(decodedCalendarAdd == calendarAddPayload)
-
         let remindersReq = BridgeInvokeRequest(id: "reminders", command: OpenClawRemindersCommand.list.rawValue)
         let remindersRes = await appModel._test_handleInvoke(remindersReq)
         #expect(remindersRes.ok == true)
         let decodedReminders = try decodePayload(remindersRes.payloadJSON, as: OpenClawRemindersListPayload.self)
         #expect(decodedReminders == remindersPayload)
-
-        let remindersAddParams = OpenClawRemindersAddParams(
-            title: "Added Reminder",
-            dueISO: "2024-01-03T00:00:00Z",
-            listName: "Inbox")
-        let remindersAddData = try JSONEncoder().encode(remindersAddParams)
-        let remindersAddReq = BridgeInvokeRequest(
-            id: "reminders-add",
-            command: OpenClawRemindersCommand.add.rawValue,
-            paramsJSON: String(decoding: remindersAddData, as: UTF8.self))
-        let remindersAddRes = await appModel._test_handleInvoke(remindersAddReq)
-        #expect(remindersAddRes.ok == true)
-        let decodedRemindersAdd = try decodePayload(remindersAddRes.payloadJSON, as: OpenClawRemindersAddPayload.self)
-        #expect(decodedRemindersAdd == remindersAddPayload)
 
         let motionReq = BridgeInvokeRequest(id: "motion", command: OpenClawMotionCommand.activity.rawValue)
         let motionRes = await appModel._test_handleInvoke(motionReq)
@@ -754,107 +498,9 @@ private func decodePayload<T: Decodable>(_ json: String?, as type: T.Type) throw
         #expect(decodedPedometer == pedometerPayload)
     }
 
-<<<<<<< HEAD
->>>>>>> a884955cd (iOS: add write commands for contacts/calendar/reminders)
-=======
-    @Test @MainActor func handleInvokePushToTalkReturnsTranscriptStatus() async throws {
-        let talkMode = TalkModeManager(allowSimulatorCapture: true)
-        talkMode.updateGatewayConnected(false)
-        let appModel = makeTalkTestAppModel(talkMode: talkMode)
-
-        let startReq = BridgeInvokeRequest(id: "ptt-start", command: OpenClawTalkCommand.pttStart.rawValue)
-        let startRes = await appModel._test_handleInvoke(startReq)
-        #expect(startRes.ok == true)
-        let startPayload = try decodePayload(startRes.payloadJSON, as: OpenClawTalkPTTStartPayload.self)
-        #expect(!startPayload.captureId.isEmpty)
-
-        talkMode._test_seedTranscript("Hello from PTT")
-
-        let stopReq = BridgeInvokeRequest(id: "ptt-stop", command: OpenClawTalkCommand.pttStop.rawValue)
-        let stopRes = await appModel._test_handleInvoke(stopReq)
-        #expect(stopRes.ok == true)
-        let stopPayload = try decodePayload(stopRes.payloadJSON, as: OpenClawTalkPTTStopPayload.self)
-        #expect(stopPayload.captureId == startPayload.captureId)
-        #expect(stopPayload.transcript == "Hello from PTT")
-        #expect(stopPayload.status == "offline")
-    }
-
-<<<<<<< HEAD
->>>>>>> 9f101d3a9 (iOS: add push-to-talk node commands)
-=======
-    @Test @MainActor func handleInvokePushToTalkCancelStopsSession() async throws {
-        let talkMode = TalkModeManager(allowSimulatorCapture: true)
-        talkMode.updateGatewayConnected(false)
-        let appModel = makeTalkTestAppModel(talkMode: talkMode)
-
-        let startReq = BridgeInvokeRequest(id: "ptt-start", command: OpenClawTalkCommand.pttStart.rawValue)
-        let startRes = await appModel._test_handleInvoke(startReq)
-        #expect(startRes.ok == true)
-        let startPayload = try decodePayload(startRes.payloadJSON, as: OpenClawTalkPTTStartPayload.self)
-
-        let cancelReq = BridgeInvokeRequest(id: "ptt-cancel", command: OpenClawTalkCommand.pttCancel.rawValue)
-        let cancelRes = await appModel._test_handleInvoke(cancelReq)
-        #expect(cancelRes.ok == true)
-        let cancelPayload = try decodePayload(cancelRes.payloadJSON, as: OpenClawTalkPTTStopPayload.self)
-        #expect(cancelPayload.captureId == startPayload.captureId)
-        #expect(cancelPayload.status == "cancelled")
-    }
-
-    @Test @MainActor func handleInvokePushToTalkOnceAutoStopsAfterSilence() async throws {
-        let talkMode = TalkModeManager(allowSimulatorCapture: true)
-        talkMode.updateGatewayConnected(false)
-        let appModel = makeTalkTestAppModel(talkMode: talkMode)
-
-        let onceReq = BridgeInvokeRequest(id: "ptt-once", command: OpenClawTalkCommand.pttOnce.rawValue)
-        let onceTask = Task { await appModel._test_handleInvoke(onceReq) }
-
-        for _ in 0..<5 where !talkMode.isPushToTalkActive {
-            await Task.yield()
-        }
-        #expect(talkMode.isPushToTalkActive == true)
-
-        talkMode._test_seedTranscript("Hello from PTT once")
-        talkMode._test_backdateLastHeard(seconds: 1.0)
-        await talkMode._test_runSilenceCheck()
-
-        let onceRes = await onceTask.value
-        #expect(onceRes.ok == true)
-        let oncePayload = try decodePayload(onceRes.payloadJSON, as: OpenClawTalkPTTStopPayload.self)
-        #expect(oncePayload.transcript == "Hello from PTT once")
-        #expect(oncePayload.status == "offline")
-    }
-
-<<<<<<< HEAD
->>>>>>> 1a48bce29 (iOS: add PTT once/cancel)
-=======
-    @Test @MainActor func handleInvokePushToTalkOnceStopsOnFinalTranscript() async throws {
-        let talkMode = TalkModeManager(allowSimulatorCapture: true)
-        talkMode.updateGatewayConnected(false)
-        let appModel = makeTalkTestAppModel(talkMode: talkMode)
-
-        let onceReq = BridgeInvokeRequest(id: "ptt-once-final", command: OpenClawTalkCommand.pttOnce.rawValue)
-        let onceTask = Task { await appModel._test_handleInvoke(onceReq) }
-
-        for _ in 0..<5 where !talkMode.isPushToTalkActive {
-            await Task.yield()
-        }
-        #expect(talkMode.isPushToTalkActive == true)
-
-        await talkMode._test_handleTranscript("Hello final", isFinal: true)
-
-        let onceRes = await onceTask.value
-        #expect(onceRes.ok == true)
-        let oncePayload = try decodePayload(onceRes.payloadJSON, as: OpenClawTalkPTTStopPayload.self)
-        #expect(oncePayload.transcript == "Hello final")
-        #expect(oncePayload.status == "offline")
-    }
-
->>>>>>> 532b9653b (iOS: wire node commands and incremental TTS)
-=======
->>>>>>> 4ab814fd5 (Revert "iOS: wire node services and tests")
     @Test @MainActor func handleDeepLinkSetsErrorWhenNotConnected() async {
         let appModel = NodeAppModel()
-        let url = URL(string: "moltbot://agent?message=hello")!
+        let url = URL(string: "openclaw://agent?message=hello")!
         await appModel.handleDeepLink(url: url)
         #expect(appModel.screen.errorText?.contains("Gateway not connected") == true)
     }
@@ -862,7 +508,7 @@ private func decodePayload<T: Decodable>(_ json: String?, as type: T.Type) throw
     @Test @MainActor func handleDeepLinkRejectsOversizedMessage() async {
         let appModel = NodeAppModel()
         let msg = String(repeating: "a", count: 20001)
-        let url = URL(string: "moltbot://agent?message=\(msg)")!
+        let url = URL(string: "openclaw://agent?message=\(msg)")!
         await appModel.handleDeepLink(url: url)
         #expect(appModel.screen.errorText?.contains("Deep link too large") == true)
     }

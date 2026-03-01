@@ -1,9 +1,8 @@
+import JSON5 from "json5";
 import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
-
-import JSON5 from "json5";
-import { getFileMtimeMs, isCacheEnabled, resolveCacheTtlMs } from "../cache-utils.js";
+import type { MsgContext } from "../../auto-reply/templating.js";
 import {
   deliveryContextFromSession,
   mergeDeliveryContext,
@@ -11,7 +10,7 @@ import {
   normalizeSessionDeliveryFields,
   type DeliveryContext,
 } from "../../utils/delivery-context.js";
-import type { MsgContext } from "../../auto-reply/templating.js";
+import { getFileMtimeMs, isCacheEnabled, resolveCacheTtlMs } from "../cache-utils.js";
 import { deriveSessionMetaPatch } from "./metadata.js";
 import { mergeSessionEntry, type SessionEntry } from "./types.js";
 
@@ -35,7 +34,7 @@ function isSessionStoreRecord(value: unknown): value is Record<string, SessionEn
 
 function getSessionStoreTtl(): number {
   return resolveCacheTtlMs({
-    envValue: process.env.CLAWDBOT_SESSION_CACHE_TTL_MS,
+    envValue: process.env.OPENCLAW_SESSION_CACHE_TTL_MS,
     defaultTtlMs: DEFAULT_SESSION_STORE_TTL_MS,
   });
 }
@@ -55,14 +54,18 @@ function invalidateSessionStoreCache(storePath: string): void {
 }
 
 function normalizeSessionEntryDelivery(entry: SessionEntry): SessionEntry {
+<<<<<<< HEAD
+  const normalized = normalizeSessionDeliveryFields(entry);
+=======
   const normalized = normalizeSessionDeliveryFields({
     channel: entry.channel,
     lastChannel: entry.lastChannel,
     lastTo: entry.lastTo,
     lastAccountId: entry.lastAccountId,
-    lastThreadId: entry.lastThreadId ?? entry.origin?.threadId,
+    lastThreadId: entry.lastThreadId ?? entry.deliveryContext?.threadId ?? entry.origin?.threadId,
     deliveryContext: entry.deliveryContext,
   });
+>>>>>>> 310eed825 (fix: preserve delivery thread fallback (#4911) (thanks @yevhen))
   const nextDelivery = normalized.deliveryContext;
   const sameDelivery =
     (entry.deliveryContext?.channel ?? undefined) === nextDelivery?.channel &&

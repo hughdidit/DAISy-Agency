@@ -30,13 +30,7 @@ function ensureChangelogEntry(changelogPath: string, version: string): boolean {
   const content = readFileSync(changelogPath, "utf8");
 <<<<<<< HEAD
   if (content.includes(`## ${version}`)) return false;
-  const entry = `## ${version}\n\n### Changes\n- Version alignment with core Moltbot release numbers.\n\n`;
-=======
-  if (content.includes(`## ${version}`)) {
-    return false;
-  }
   const entry = `## ${version}\n\n### Changes\n- Version alignment with core OpenClaw release numbers.\n\n`;
->>>>>>> 1838ab019 (chore: Enable linting in `scripts`.)
   if (content.startsWith("# Changelog\n\n")) {
     const next = content.replace("# Changelog\n\n", `# Changelog\n\n${entry}`);
     writeFileSync(changelogPath, next);

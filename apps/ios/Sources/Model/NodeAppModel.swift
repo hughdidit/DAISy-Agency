@@ -1,17 +1,17 @@
 <<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
 import MoltbotKit
 import Network
 =======
-=======
 import OpenClawChatUI
->>>>>>> 532b9653b (iOS: wire node commands and incremental TTS)
 import OpenClawKit
->>>>>>> f72ac60b0 (iOS: streamline notify timeouts)
+import OpenClawProtocol
+>>>>>>> 6aedc54bd (iOS: alpha node app + setup-code onboarding (#11756))
 import Observation
 import SwiftUI
 import UIKit
+import UserNotifications
+<<<<<<< HEAD
+=======
 
 // Wrap errors without pulling non-Sendable types into async notification paths.
 private struct NotificationCallError: Error, Sendable {
@@ -44,13 +44,7 @@ private final class NotificationInvokeLatch<T: Sendable>: @unchecked Sendable {
         cont?.resume(returning: response)
     }
 }
-=======
-import OpenClawKit
-import Network
-import Observation
-import SwiftUI
-import UIKit
->>>>>>> 4ab814fd5 (Revert "iOS: wire node services and tests")
+>>>>>>> 6aedc54bd (iOS: alpha node app + setup-code onboarding (#11756))
 
 @MainActor
 @Observable
@@ -63,37 +57,60 @@ final class NodeAppModel {
     }
 
     var isBackgrounded: Bool = false
-    let screen = ScreenController()
-    let camera = CameraController()
-    private let screenRecorder = ScreenRecordService()
+    let screen: ScreenController
+    private let camera: any CameraServicing
+    private let screenRecorder: any ScreenRecordingServicing
     var gatewayStatusText: String = "Offline"
     var gatewayServerName: String?
     var gatewayRemoteAddress: String?
     var connectedGatewayID: String?
+    var gatewayAutoReconnectEnabled: Bool = true
     var seamColorHex: String?
-    var mainSessionKey: String = "main"
+    private var mainSessionBaseKey: String = "main"
+    var selectedAgentId: String?
+    var gatewayDefaultAgentId: String?
+    var gatewayAgents: [AgentSummary] = []
 
-    private let gateway = GatewayNodeSession()
-    private var gatewayTask: Task<Void, Never>?
+    var mainSessionKey: String {
+        let base = SessionKey.normalizeMainKey(self.mainSessionBaseKey)
+        let agentId = (self.selectedAgentId ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        let defaultId = (self.gatewayDefaultAgentId ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        if agentId.isEmpty || (!defaultId.isEmpty && agentId == defaultId) { return base }
+        return SessionKey.makeAgentSessionKey(agentId: agentId, baseKey: base)
+    }
+
+    var activeAgentName: String {
+        let agentId = (self.selectedAgentId ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        let defaultId = (self.gatewayDefaultAgentId ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        let resolvedId = agentId.isEmpty ? defaultId : agentId
+        if resolvedId.isEmpty { return "Main" }
+        if let match = self.gatewayAgents.first(where: { $0.id == resolvedId }) {
+            let name = (match.name ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+            return name.isEmpty ? match.id : name
+        }
+        return resolvedId
+    }
+
+    // Primary "node" connection: used for device capabilities and node.invoke requests.
+    private let nodeGateway = GatewayNodeSession()
+    // Secondary "operator" connection: used for chat/talk/config/voicewake requests.
+    private let operatorGateway = GatewayNodeSession()
+    private var nodeGatewayTask: Task<Void, Never>?
+    private var operatorGatewayTask: Task<Void, Never>?
     private var voiceWakeSyncTask: Task<Void, Never>?
     @ObservationIgnored private var cameraHUDDismissTask: Task<Void, Never>?
 <<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-    @ObservationIgnored private var capabilityRouter: NodeCapabilityRouter
+    private let notificationCenter: NotificationCentering
+    let voiceWake = VoiceWakeManager()
+    let talkMode = TalkModeManager()
 =======
     @ObservationIgnored private lazy var capabilityRouter: NodeCapabilityRouter = self.buildCapabilityRouter()
->>>>>>> ff6114599 (iOS: update onboarding and gateway UI)
     private let gatewayHealthMonitor = GatewayHealthMonitor()
+    private var gatewayHealthMonitorDisabled = false
     private let notificationCenter: NotificationCentering
->>>>>>> 532b9653b (iOS: wire node commands and incremental TTS)
     let voiceWake = VoiceWakeManager()
-<<<<<<< HEAD
-    let talkMode = TalkModeManager()
-    private let locationService = LocationService()
-=======
     let talkMode: TalkModeManager
+>>>>>>> 6aedc54bd (iOS: alpha node app + setup-code onboarding (#11756))
     private let locationService: any LocationServicing
     private let deviceStatusService: any DeviceStatusServicing
     private let photosService: any PhotosServicing
@@ -101,26 +118,29 @@ final class NodeAppModel {
     private let calendarService: any CalendarServicing
     private let remindersService: any RemindersServicing
     private let motionService: any MotionServicing
->>>>>>> 9f101d3a9 (iOS: add push-to-talk node commands)
-=======
-    let voiceWake = VoiceWakeManager()
-    let talkMode = TalkModeManager()
-    private let locationService = LocationService()
->>>>>>> 4ab814fd5 (Revert "iOS: wire node services and tests")
+<<<<<<< HEAD
     private var lastAutoA2uiURL: String?
+=======
+    var lastAutoA2uiURL: String?
+    private var pttVoiceWakeSuspended = false
+    private var talkVoiceWakeSuspended = false
+    private var backgroundVoiceWakeSuspended = false
+    private var backgroundTalkSuspended = false
+    private var backgroundedAt: Date?
+    private var reconnectAfterBackgroundArmed = false
+>>>>>>> 6aedc54bd (iOS: alpha node app + setup-code onboarding (#11756))
 
     private var gatewayConnected = false
-    var gatewaySession: GatewayNodeSession { self.gateway }
+    private var operatorConnected = false
+    var gatewaySession: GatewayNodeSession { self.nodeGateway }
+    var operatorSession: GatewayNodeSession { self.operatorGateway }
+    private(set) var activeGatewayConnectConfig: GatewayConnectConfig?
 
     var cameraHUDText: String?
     var cameraHUDKind: CameraHUDKind?
     var cameraFlashNonce: Int = 0
     var screenRecordActive: Bool = false
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-    init() {
-=======
     init(
         screen: ScreenController = ScreenController(),
         camera: any CameraServicing = CameraController(),
@@ -132,8 +152,12 @@ final class NodeAppModel {
         contactsService: any ContactsServicing = ContactsService(),
         calendarService: any CalendarServicing = CalendarService(),
         remindersService: any RemindersServicing = RemindersService(),
+<<<<<<< HEAD
+        motionService: any MotionServicing = MotionService())
+=======
         motionService: any MotionServicing = MotionService(),
         talkMode: TalkModeManager = TalkModeManager())
+>>>>>>> 6aedc54bd (iOS: alpha node app + setup-code onboarding (#11756))
     {
         self.screen = screen
         self.camera = camera
@@ -146,12 +170,12 @@ final class NodeAppModel {
         self.calendarService = calendarService
         self.remindersService = remindersService
         self.motionService = motionService
-        self.talkMode = talkMode
-
->>>>>>> 9f101d3a9 (iOS: add push-to-talk node commands)
+<<<<<<< HEAD
 =======
-    init() {
->>>>>>> 4ab814fd5 (Revert "iOS: wire node services and tests")
+        self.talkMode = talkMode
+        GatewayDiagnostics.bootstrap()
+>>>>>>> 6aedc54bd (iOS: alpha node app + setup-code onboarding (#11756))
+
         self.voiceWake.configure { [weak self] cmd in
             guard let self else { return }
             let sessionKey = await MainActor.run { self.mainSessionKey }
@@ -164,9 +188,10 @@ final class NodeAppModel {
 
         let enabled = UserDefaults.standard.bool(forKey: "voiceWake.enabled")
         self.voiceWake.setEnabled(enabled)
-        self.talkMode.attachGateway(self.gateway)
+        self.talkMode.attachGateway(self.operatorGateway)
         let talkEnabled = UserDefaults.standard.bool(forKey: "talk.enabled")
-        self.talkMode.setEnabled(talkEnabled)
+        // Route through the coordinator so VoiceWake and Talk don't fight over the microphone.
+        self.setTalkEnabled(talkEnabled)
 
         // Wire up deep links from canvas taps
         self.screen.onDeepLink = { [weak self] url in
@@ -199,7 +224,7 @@ final class NodeAppModel {
         }()
         guard !userAction.isEmpty else { return }
 
-        guard let name = MoltbotCanvasA2UIAction.extractActionName(userAction) else { return }
+        guard let name = OpenClawCanvasA2UIAction.extractActionName(userAction) else { return }
         let actionId: String = {
             let id = (userAction["id"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
             return id.isEmpty ? UUID().uuidString : id
@@ -216,17 +241,20 @@ final class NodeAppModel {
             return raw.isEmpty ? "-" : raw
         }()
 
-        let host = UserDefaults.standard.string(forKey: "node.displayName") ?? UIDevice.current.name
+        let host = NodeDisplayName.resolve(
+            existing: UserDefaults.standard.string(forKey: "node.displayName"),
+            deviceName: UIDevice.current.name,
+            interfaceIdiom: UIDevice.current.userInterfaceIdiom)
         let instanceId = (UserDefaults.standard.string(forKey: "node.instanceId") ?? "ios-node").lowercased()
-        let contextJSON = MoltbotCanvasA2UIAction.compactJSON(userAction["context"])
+        let contextJSON = OpenClawCanvasA2UIAction.compactJSON(userAction["context"])
         let sessionKey = self.mainSessionKey
 
-        let messageContext = MoltbotCanvasA2UIAction.AgentMessageContext(
+        let messageContext = OpenClawCanvasA2UIAction.AgentMessageContext(
             actionName: name,
             session: .init(key: sessionKey, surfaceId: surfaceId),
             component: .init(id: sourceComponentId, host: host, instanceId: instanceId),
             contextJSON: contextJSON)
-        let message = MoltbotCanvasA2UIAction.formatAgentMessage(messageContext)
+        let message = OpenClawCanvasA2UIAction.formatAgentMessage(messageContext)
 
         let ok: Bool
         var errorText: String?
@@ -251,7 +279,7 @@ final class NodeAppModel {
             }
         }
 
-        let js = MoltbotCanvasA2UIAction.jsDispatchA2UIActionStatus(actionId: actionId, ok: ok, error: errorText)
+        let js = OpenClawCanvasA2UIAction.jsDispatchA2UIActionStatus(actionId: actionId, ok: ok, error: errorText)
         do {
             _ = try await self.screen.eval(javaScript: js)
         } catch {
@@ -259,11 +287,12 @@ final class NodeAppModel {
         }
     }
 
+<<<<<<< HEAD
     private func resolveA2UIHostURL() async -> String? {
         guard let raw = await self.gateway.currentCanvasHostUrl() else { return nil }
         let trimmed = raw.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty, let base = URL(string: trimmed) else { return nil }
-        return base.appendingPathComponent("__moltbot__/a2ui/").absoluteString + "?platform=ios"
+        return base.appendingPathComponent("__openclaw__/a2ui/").absoluteString + "?platform=ios"
     }
 
     private func showA2UIOnConnectIfNeeded() async {
@@ -279,13 +308,66 @@ final class NodeAppModel {
         self.lastAutoA2uiURL = nil
         self.screen.showDefaultCanvas()
     }
+=======
+>>>>>>> 6aedc54bd (iOS: alpha node app + setup-code onboarding (#11756))
 
     func setScenePhase(_ phase: ScenePhase) {
         switch phase {
         case .background:
             self.isBackgrounded = true
+            self.stopGatewayHealthMonitor()
+            self.backgroundedAt = Date()
+            self.reconnectAfterBackgroundArmed = true
+            // Be conservative: release the mic when the app backgrounds.
+            self.backgroundVoiceWakeSuspended = self.voiceWake.suspendForExternalAudioCapture()
+            self.backgroundTalkSuspended = self.talkMode.suspendForBackground()
         case .active, .inactive:
             self.isBackgrounded = false
+            if self.operatorConnected {
+                self.startGatewayHealthMonitor()
+            }
+            if phase == .active {
+                self.voiceWake.resumeAfterExternalAudioCapture(wasSuspended: self.backgroundVoiceWakeSuspended)
+                self.backgroundVoiceWakeSuspended = false
+                Task { [weak self] in
+                    guard let self else { return }
+                    let suspended = await MainActor.run { self.backgroundTalkSuspended }
+                    await MainActor.run { self.backgroundTalkSuspended = false }
+                    await self.talkMode.resumeAfterBackground(wasSuspended: suspended)
+                }
+            }
+            if phase == .active, self.reconnectAfterBackgroundArmed {
+                self.reconnectAfterBackgroundArmed = false
+                let backgroundedFor = self.backgroundedAt.map { Date().timeIntervalSince($0) } ?? 0
+                self.backgroundedAt = nil
+                // iOS may suspend network sockets in background without a clean close.
+                // On foreground, force a fresh handshake to avoid "connected but dead" states.
+                if backgroundedFor >= 3.0 {
+                    Task { [weak self] in
+                        guard let self else { return }
+                        let operatorWasConnected = await MainActor.run { self.operatorConnected }
+                        if operatorWasConnected {
+                            // Prefer keeping the connection if it's healthy; reconnect only when needed.
+                            let healthy = (try? await self.operatorGateway.request(
+                                method: "health",
+                                paramsJSON: nil,
+                                timeoutSeconds: 2)) != nil
+                            if healthy {
+                                await MainActor.run { self.startGatewayHealthMonitor() }
+                                return
+                            }
+                        }
+
+                        await self.operatorGateway.disconnect()
+                        await self.nodeGateway.disconnect()
+                        await MainActor.run {
+                            self.operatorConnected = false
+                            self.gatewayConnected = false
+                            self.talkMode.updateGatewayConnected(false)
+                        }
+                    }
+                }
+            }
         @unknown default:
             self.isBackgrounded = false
         }
@@ -293,13 +375,33 @@ final class NodeAppModel {
 
     func setVoiceWakeEnabled(_ enabled: Bool) {
         self.voiceWake.setEnabled(enabled)
+        if enabled {
+            // If talk is enabled, voice wake should not grab the mic.
+            if self.talkMode.isEnabled {
+                self.voiceWake.setSuppressedByTalk(true)
+                self.talkVoiceWakeSuspended = self.voiceWake.suspendForExternalAudioCapture()
+            }
+        } else {
+            self.voiceWake.setSuppressedByTalk(false)
+            self.talkVoiceWakeSuspended = false
+        }
     }
 
     func setTalkEnabled(_ enabled: Bool) {
+        if enabled {
+            // Voice wake holds the microphone continuously; talk mode needs exclusive access for STT.
+            // When talk is enabled from the UI, prioritize talk and pause voice wake.
+            self.voiceWake.setSuppressedByTalk(true)
+            self.talkVoiceWakeSuspended = self.voiceWake.suspendForExternalAudioCapture()
+        } else {
+            self.voiceWake.setSuppressedByTalk(false)
+            self.voiceWake.resumeAfterExternalAudioCapture(wasSuspended: self.talkVoiceWakeSuspended)
+            self.talkVoiceWakeSuspended = false
+        }
         self.talkMode.setEnabled(enabled)
     }
 
-    func requestLocationPermissions(mode: MoltbotLocationMode) async -> Bool {
+    func requestLocationPermissions(mode: OpenClawLocationMode) async -> Bool {
         guard mode != .off else { return true }
         let status = await self.locationService.ensureAuthorization(mode: mode)
         switch status {
@@ -312,6 +414,7 @@ final class NodeAppModel {
         }
     }
 
+<<<<<<< HEAD
     func connectToGateway(
         url: URL,
         gatewayStableID: String,
@@ -381,7 +484,7 @@ final class NodeAppModel {
                                 return BridgeInvokeResponse(
                                     id: req.id,
                                     ok: false,
-                                    error: MoltbotNodeError(
+                                    error: OpenClawNodeError(
                                         code: .unavailable,
                                         message: "UNAVAILABLE: node not ready"))
                             }
@@ -441,14 +544,15 @@ final class NodeAppModel {
         self.showLocalCanvasOnDisconnect()
     }
 
+=======
+>>>>>>> 6aedc54bd (iOS: alpha node app + setup-code onboarding (#11756))
     private func applyMainSessionKey(_ key: String?) {
         let trimmed = (key ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
-        let current = self.mainSessionKey.trimmingCharacters(in: .whitespacesAndNewlines)
-        if SessionKey.isCanonicalMainSessionKey(current) { return }
+        let current = self.mainSessionBaseKey.trimmingCharacters(in: .whitespacesAndNewlines)
         if trimmed == current { return }
-        self.mainSessionKey = trimmed
-        self.talkMode.updateMainSessionKey(trimmed)
+        self.mainSessionBaseKey = trimmed
+        self.talkMode.updateMainSessionKey(self.mainSessionKey)
     }
 
     var seamColor: Color {
@@ -470,7 +574,7 @@ final class NodeAppModel {
 
     private func refreshBrandingFromGateway() async {
         do {
-            let res = try await self.gateway.request(method: "config.get", paramsJSON: "{}", timeoutSeconds: 8)
+            let res = try await self.operatorGateway.request(method: "config.get", paramsJSON: "{}", timeoutSeconds: 8)
             guard let json = try JSONSerialization.jsonObject(with: res) as? [String: Any] else { return }
             guard let config = json["config"] as? [String: Any] else { return }
             let ui = config["ui"] as? [String: Any]
@@ -479,14 +583,50 @@ final class NodeAppModel {
             let mainKey = SessionKey.normalizeMainKey(session?["mainKey"] as? String)
             await MainActor.run {
                 self.seamColorHex = raw.isEmpty ? nil : raw
-                if !SessionKey.isCanonicalMainSessionKey(self.mainSessionKey) {
-                    self.mainSessionKey = mainKey
-                    self.talkMode.updateMainSessionKey(mainKey)
-                }
+                self.mainSessionBaseKey = mainKey
+                self.talkMode.updateMainSessionKey(self.mainSessionKey)
             }
         } catch {
+            if let gatewayError = error as? GatewayResponseError {
+                let lower = gatewayError.message.lowercased()
+                if lower.contains("unauthorized role") {
+                    return
+                }
+            }
             // ignore
         }
+    }
+
+    private func refreshAgentsFromGateway() async {
+        do {
+            let res = try await self.operatorGateway.request(method: "agents.list", paramsJSON: "{}", timeoutSeconds: 8)
+            let decoded = try JSONDecoder().decode(AgentsListResult.self, from: res)
+            await MainActor.run {
+                self.gatewayDefaultAgentId = decoded.defaultid
+                self.gatewayAgents = decoded.agents
+                self.applyMainSessionKey(decoded.mainkey)
+
+                let selected = (self.selectedAgentId ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+                if !selected.isEmpty && !decoded.agents.contains(where: { $0.id == selected }) {
+                    self.selectedAgentId = nil
+                }
+                self.talkMode.updateMainSessionKey(self.mainSessionKey)
+            }
+        } catch {
+            // Best-effort only.
+        }
+    }
+
+    func setSelectedAgentId(_ agentId: String?) {
+        let trimmed = (agentId ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        let stableID = (self.connectedGatewayID ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        if stableID.isEmpty {
+            self.selectedAgentId = trimmed.isEmpty ? nil : trimmed
+        } else {
+            self.selectedAgentId = trimmed.isEmpty ? nil : trimmed
+            GatewaySettingsStore.saveGatewaySelectedAgentId(stableID: stableID, agentId: self.selectedAgentId)
+        }
+        self.talkMode.updateMainSessionKey(self.mainSessionKey)
     }
 
     func setGlobalWakeWords(_ words: [String]) async {
@@ -501,7 +641,7 @@ final class NodeAppModel {
         else { return }
 
         do {
-            _ = try await self.gateway.request(method: "voicewake.set", paramsJSON: json, timeoutSeconds: 12)
+            _ = try await self.operatorGateway.request(method: "voicewake.set", paramsJSON: json, timeoutSeconds: 12)
         } catch {
             // Best-effort only.
         }
@@ -512,9 +652,11 @@ final class NodeAppModel {
         self.voiceWakeSyncTask = Task { [weak self] in
             guard let self else { return }
 
-            await self.refreshWakeWordsFromGateway()
+            if !(await self.isGatewayHealthMonitorDisabled()) {
+                await self.refreshWakeWordsFromGateway()
+            }
 
-            let stream = await self.gateway.subscribeServerEvents(bufferingNewest: 200)
+            let stream = await self.operatorGateway.subscribeServerEvents(bufferingNewest: 200)
             for await evt in stream {
                 if Task.isCancelled { return }
                 guard evt.event == "voicewake.changed" else { continue }
@@ -527,14 +669,66 @@ final class NodeAppModel {
         }
     }
 
+    private func startGatewayHealthMonitor() {
+        self.gatewayHealthMonitorDisabled = false
+        self.gatewayHealthMonitor.start(
+            check: { [weak self] in
+                guard let self else { return false }
+                if await self.isGatewayHealthMonitorDisabled() { return true }
+                do {
+                    let data = try await self.operatorGateway.request(method: "health", paramsJSON: nil, timeoutSeconds: 6)
+                    guard let decoded = try? JSONDecoder().decode(OpenClawGatewayHealthOK.self, from: data) else {
+                        return false
+                    }
+                    return decoded.ok ?? false
+                } catch {
+                    if let gatewayError = error as? GatewayResponseError {
+                        let lower = gatewayError.message.lowercased()
+                        if lower.contains("unauthorized role") {
+                            await self.setGatewayHealthMonitorDisabled(true)
+                            return true
+                        }
+                    }
+                    return false
+                }
+            },
+            onFailure: { [weak self] _ in
+                guard let self else { return }
+                await self.operatorGateway.disconnect()
+                await MainActor.run {
+                    self.operatorConnected = false
+                    self.talkMode.updateGatewayConnected(false)
+                }
+            })
+    }
+
+    private func stopGatewayHealthMonitor() {
+        self.gatewayHealthMonitor.stop()
+    }
+
     private func refreshWakeWordsFromGateway() async {
         do {
-            let data = try await self.gateway.request(method: "voicewake.get", paramsJSON: "{}", timeoutSeconds: 8)
+            let data = try await self.operatorGateway.request(method: "voicewake.get", paramsJSON: "{}", timeoutSeconds: 8)
             guard let triggers = VoiceWakePreferences.decodeGatewayTriggers(from: data) else { return }
             VoiceWakePreferences.saveTriggerWords(triggers)
         } catch {
+            if let gatewayError = error as? GatewayResponseError {
+                let lower = gatewayError.message.lowercased()
+                if lower.contains("unauthorized role") {
+                    await self.setGatewayHealthMonitorDisabled(true)
+                    return
+                }
+            }
             // Best-effort only.
         }
+    }
+
+    private func isGatewayHealthMonitorDisabled() -> Bool {
+        self.gatewayHealthMonitorDisabled
+    }
+
+    private func setGatewayHealthMonitorDisabled(_ disabled: Bool) {
+        self.gatewayHealthMonitorDisabled = disabled
     }
 
     func sendVoiceTranscript(text: String, sessionKey: String?) async throws {
@@ -554,7 +748,7 @@ final class NodeAppModel {
                 NSLocalizedDescriptionKey: "Failed to encode voice transcript payload as UTF-8",
             ])
         }
-        await self.gateway.sendEvent(event: "voice.transcript", payloadJSON: json)
+        await self.nodeGateway.sendEvent(event: "voice.transcript", payloadJSON: json)
     }
 
     func handleDeepLink(url: URL) async {
@@ -596,14 +790,14 @@ final class NodeAppModel {
         }
 
         // iOS gateway forwards to the gateway; no local auth prompts here.
-        // (Key-based unattended auth is handled on macOS for moltbot:// links.)
+        // (Key-based unattended auth is handled on macOS for openclaw:// links.)
         let data = try JSONEncoder().encode(link)
         guard let json = String(bytes: data, encoding: .utf8) else {
             throw NSError(domain: "NodeAppModel", code: 2, userInfo: [
                 NSLocalizedDescriptionKey: "Failed to encode agent request payload as UTF-8",
             ])
         }
-        await self.gateway.sendEvent(event: "agent.request", payloadJSON: json)
+        await self.nodeGateway.sendEvent(event: "agent.request", payloadJSON: json)
     }
 
     private func isGatewayConnected() async -> Bool {
@@ -617,7 +811,7 @@ final class NodeAppModel {
             return BridgeInvokeResponse(
                 id: req.id,
                 ok: false,
-                error: MoltbotNodeError(
+                error: OpenClawNodeError(
                     code: .backgroundUnavailable,
                     message: "NODE_BACKGROUND_UNAVAILABLE: canvas/camera/screen commands require foreground"))
         }
@@ -626,75 +820,13 @@ final class NodeAppModel {
             return BridgeInvokeResponse(
                 id: req.id,
                 ok: false,
-                error: MoltbotNodeError(
+                error: OpenClawNodeError(
                     code: .unavailable,
                     message: "CAMERA_DISABLED: enable Camera in iOS Settings → Camera → Allow Camera"))
         }
 
         do {
 <<<<<<< HEAD
-<<<<<<< HEAD
-            switch command {
-            case MoltbotLocationCommand.get.rawValue:
-                return try await self.handleLocationInvoke(req)
-            case MoltbotCanvasCommand.present.rawValue,
-                 MoltbotCanvasCommand.hide.rawValue,
-                 MoltbotCanvasCommand.navigate.rawValue,
-                 MoltbotCanvasCommand.evalJS.rawValue,
-                 MoltbotCanvasCommand.snapshot.rawValue:
-                return try await self.handleCanvasInvoke(req)
-            case MoltbotCanvasA2UICommand.reset.rawValue,
-                 MoltbotCanvasA2UICommand.push.rawValue,
-                 MoltbotCanvasA2UICommand.pushJSONL.rawValue:
-                return try await self.handleCanvasA2UIInvoke(req)
-            case MoltbotCameraCommand.list.rawValue,
-                 MoltbotCameraCommand.snap.rawValue,
-                 MoltbotCameraCommand.clip.rawValue:
-                return try await self.handleCameraInvoke(req)
-            case MoltbotScreenCommand.record.rawValue:
-                return try await self.handleScreenRecordInvoke(req)
-<<<<<<< HEAD
-=======
-            case OpenClawSystemCommand.notify.rawValue:
-                return try await self.handleSystemNotify(req)
-            case OpenClawDeviceCommand.status.rawValue,
-                 OpenClawDeviceCommand.info.rawValue:
-                return try await self.handleDeviceInvoke(req)
-            case OpenClawPhotosCommand.latest.rawValue:
-                return try await self.handlePhotosInvoke(req)
-            case OpenClawContactsCommand.search.rawValue,
-                 OpenClawContactsCommand.add.rawValue:
-                return try await self.handleContactsInvoke(req)
-            case OpenClawCalendarCommand.events.rawValue,
-                 OpenClawCalendarCommand.add.rawValue:
-                return try await self.handleCalendarInvoke(req)
-            case OpenClawRemindersCommand.list.rawValue,
-                 OpenClawRemindersCommand.add.rawValue:
-                return try await self.handleRemindersInvoke(req)
-            case OpenClawMotionCommand.activity.rawValue,
-                 OpenClawMotionCommand.pedometer.rawValue:
-                return try await self.handleMotionInvoke(req)
-<<<<<<< HEAD
->>>>>>> a884955cd (iOS: add write commands for contacts/calendar/reminders)
-=======
-            case OpenClawTalkCommand.pttStart.rawValue,
-                 OpenClawTalkCommand.pttStop.rawValue,
-                 OpenClawTalkCommand.pttCancel.rawValue,
-                 OpenClawTalkCommand.pttOnce.rawValue:
-                return try await self.handleTalkInvoke(req)
->>>>>>> 9f101d3a9 (iOS: add push-to-talk node commands)
-            default:
-                return BridgeInvokeResponse(
-                    id: req.id,
-                    ok: false,
-<<<<<<< HEAD
-                    error: MoltbotNodeError(code: .invalidRequest, message: "INVALID_REQUEST: unknown command"))
-=======
-            return try await self.capabilityRouter.handle(req)
-        } catch let error as NodeCapabilityRouter.RouterError {
-            switch error {
-            case .unknownCommand:
-=======
             switch command {
             case OpenClawLocationCommand.get.rawValue:
                 return try await self.handleLocationInvoke(req)
@@ -714,21 +846,43 @@ final class NodeAppModel {
                 return try await self.handleCameraInvoke(req)
             case OpenClawScreenCommand.record.rawValue:
                 return try await self.handleScreenRecordInvoke(req)
+            case OpenClawSystemCommand.notify.rawValue:
+                return try await self.handleSystemNotify(req)
+            case OpenClawDeviceCommand.status.rawValue,
+                 OpenClawDeviceCommand.info.rawValue:
+                return try await self.handleDeviceInvoke(req)
+            case OpenClawPhotosCommand.latest.rawValue:
+                return try await self.handlePhotosInvoke(req)
+            case OpenClawContactsCommand.search.rawValue:
+                return try await self.handleContactsInvoke(req)
+            case OpenClawCalendarCommand.events.rawValue:
+                return try await self.handleCalendarInvoke(req)
+            case OpenClawRemindersCommand.list.rawValue:
+                return try await self.handleRemindersInvoke(req)
+            case OpenClawMotionCommand.activity.rawValue,
+                 OpenClawMotionCommand.pedometer.rawValue:
+                return try await self.handleMotionInvoke(req)
             default:
->>>>>>> 4ab814fd5 (Revert "iOS: wire node services and tests")
+                return BridgeInvokeResponse(
+                    id: req.id,
+                    ok: false,
+<<<<<<< HEAD
+                    error: MoltbotNodeError(code: .invalidRequest, message: "INVALID_REQUEST: unknown command"))
+=======
+            return try await self.capabilityRouter.handle(req)
+        } catch let error as NodeCapabilityRouter.RouterError {
+            switch error {
+            case .unknownCommand:
                 return BridgeInvokeResponse(
                     id: req.id,
                     ok: false,
                     error: OpenClawNodeError(code: .invalidRequest, message: "INVALID_REQUEST: unknown command"))
-<<<<<<< HEAD
             case .handlerUnavailable:
                 return BridgeInvokeResponse(
                     id: req.id,
                     ok: false,
                     error: OpenClawNodeError(code: .unavailable, message: "node handler unavailable"))
->>>>>>> 532b9653b (iOS: wire node commands and incremental TTS)
-=======
->>>>>>> 4ab814fd5 (Revert "iOS: wire node services and tests")
+>>>>>>> 6aedc54bd (iOS: alpha node app + setup-code onboarding (#11756))
             }
 =======
                     error: OpenClawNodeError(code: .invalidRequest, message: "INVALID_REQUEST: unknown command"))
@@ -746,12 +900,13 @@ final class NodeAppModel {
             return BridgeInvokeResponse(
                 id: req.id,
                 ok: false,
-                error: MoltbotNodeError(code: .unavailable, message: error.localizedDescription))
+                error: OpenClawNodeError(code: .unavailable, message: error.localizedDescription))
         }
     }
 
     private func isBackgroundRestricted(_ command: String) -> Bool {
-        command.hasPrefix("canvas.") || command.hasPrefix("camera.") || command.hasPrefix("screen.")
+        command.hasPrefix("canvas.") || command.hasPrefix("camera.") || command.hasPrefix("screen.") ||
+            command.hasPrefix("talk.")
     }
 
     private func handleLocationInvoke(_ req: BridgeInvokeRequest) async throws -> BridgeInvokeResponse {
@@ -760,7 +915,7 @@ final class NodeAppModel {
             return BridgeInvokeResponse(
                 id: req.id,
                 ok: false,
-                error: MoltbotNodeError(
+                error: OpenClawNodeError(
                     code: .unavailable,
                     message: "LOCATION_DISABLED: enable Location in Settings"))
         }
@@ -768,12 +923,12 @@ final class NodeAppModel {
             return BridgeInvokeResponse(
                 id: req.id,
                 ok: false,
-                error: MoltbotNodeError(
+                error: OpenClawNodeError(
                     code: .backgroundUnavailable,
                     message: "LOCATION_BACKGROUND_UNAVAILABLE: background location requires Always"))
         }
-        let params = (try? Self.decodeParams(MoltbotLocationGetParams.self, from: req.paramsJSON)) ??
-            MoltbotLocationGetParams()
+        let params = (try? Self.decodeParams(OpenClawLocationGetParams.self, from: req.paramsJSON)) ??
+            OpenClawLocationGetParams()
         let desired = params.desiredAccuracy ??
             (self.isLocationPreciseEnabled() ? .precise : .balanced)
         let status = self.locationService.authorizationStatus()
@@ -781,7 +936,7 @@ final class NodeAppModel {
             return BridgeInvokeResponse(
                 id: req.id,
                 ok: false,
-                error: MoltbotNodeError(
+                error: OpenClawNodeError(
                     code: .unavailable,
                     message: "LOCATION_PERMISSION_REQUIRED: grant Location permission"))
         }
@@ -789,7 +944,7 @@ final class NodeAppModel {
             return BridgeInvokeResponse(
                 id: req.id,
                 ok: false,
-                error: MoltbotNodeError(
+                error: OpenClawNodeError(
                     code: .unavailable,
                     message: "LOCATION_PERMISSION_REQUIRED: enable Always for background access"))
         }
@@ -799,7 +954,7 @@ final class NodeAppModel {
             maxAgeMs: params.maxAgeMs,
             timeoutMs: params.timeoutMs)
         let isPrecise = self.locationService.accuracyAuthorization() == .fullAccuracy
-        let payload = MoltbotLocationPayload(
+        let payload = OpenClawLocationPayload(
             lat: location.coordinate.latitude,
             lon: location.coordinate.longitude,
             accuracyMeters: location.horizontalAccuracy,
@@ -821,13 +976,10 @@ final class NodeAppModel {
                 MoltbotCanvasPresentParams()
 =======
         case OpenClawCanvasCommand.present.rawValue:
+            // iOS ignores placement hints; canvas always fills the screen.
             let params = (try? Self.decodeParams(OpenClawCanvasPresentParams.self, from: req.paramsJSON)) ??
                 OpenClawCanvasPresentParams()
-<<<<<<< HEAD
-            // iOS ignores placement params (canvas presents full-screen).
->>>>>>> b17e6fdd0 (iOS: align node permissions and notifications)
-=======
->>>>>>> 821ed35be (Revert "iOS: align node permissions and notifications")
+>>>>>>> 7b0a0f3da (iOS: wire node services and tests)
             let url = params.url?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
             if url.isEmpty {
                 self.screen.showDefaultCanvas()
@@ -839,26 +991,23 @@ final class NodeAppModel {
         case MoltbotCanvasCommand.hide.rawValue:
 =======
         case OpenClawCanvasCommand.hide.rawValue:
+            self.screen.showDefaultCanvas()
 <<<<<<< HEAD
-<<<<<<< HEAD
-            self.showLocalCanvasOnDisconnect()
->>>>>>> b17e6fdd0 (iOS: align node permissions and notifications)
+>>>>>>> 7b0a0f3da (iOS: wire node services and tests)
 =======
->>>>>>> 821ed35be (Revert "iOS: align node permissions and notifications")
-=======
->>>>>>> 4ab814fd5 (Revert "iOS: wire node services and tests")
+>>>>>>> 6aedc54bd (iOS: alpha node app + setup-code onboarding (#11756))
             return BridgeInvokeResponse(id: req.id, ok: true)
-        case MoltbotCanvasCommand.navigate.rawValue:
-            let params = try Self.decodeParams(MoltbotCanvasNavigateParams.self, from: req.paramsJSON)
+        case OpenClawCanvasCommand.navigate.rawValue:
+            let params = try Self.decodeParams(OpenClawCanvasNavigateParams.self, from: req.paramsJSON)
             self.screen.navigate(to: params.url)
             return BridgeInvokeResponse(id: req.id, ok: true)
-        case MoltbotCanvasCommand.evalJS.rawValue:
-            let params = try Self.decodeParams(MoltbotCanvasEvalParams.self, from: req.paramsJSON)
+        case OpenClawCanvasCommand.evalJS.rawValue:
+            let params = try Self.decodeParams(OpenClawCanvasEvalParams.self, from: req.paramsJSON)
             let result = try await self.screen.eval(javaScript: params.javaScript)
             let payload = try Self.encodePayload(["result": result])
             return BridgeInvokeResponse(id: req.id, ok: true, payloadJSON: payload)
-        case MoltbotCanvasCommand.snapshot.rawValue:
-            let params = try? Self.decodeParams(MoltbotCanvasSnapshotParams.self, from: req.paramsJSON)
+        case OpenClawCanvasCommand.snapshot.rawValue:
+            let params = try? Self.decodeParams(OpenClawCanvasSnapshotParams.self, from: req.paramsJSON)
             let format = params?.format ?? .jpeg
             let maxWidth: CGFloat? = {
                 if let raw = params?.maxWidth, raw > 0 { return CGFloat(raw) }
@@ -882,19 +1031,19 @@ final class NodeAppModel {
             return BridgeInvokeResponse(
                 id: req.id,
                 ok: false,
-                error: MoltbotNodeError(code: .invalidRequest, message: "INVALID_REQUEST: unknown command"))
+                error: OpenClawNodeError(code: .invalidRequest, message: "INVALID_REQUEST: unknown command"))
         }
     }
 
     private func handleCanvasA2UIInvoke(_ req: BridgeInvokeRequest) async throws -> BridgeInvokeResponse {
         let command = req.command
         switch command {
-        case MoltbotCanvasA2UICommand.reset.rawValue:
+        case OpenClawCanvasA2UICommand.reset.rawValue:
             guard let a2uiUrl = await self.resolveA2UIHostURL() else {
                 return BridgeInvokeResponse(
                     id: req.id,
                     ok: false,
-                    error: MoltbotNodeError(
+                    error: OpenClawNodeError(
                         code: .unavailable,
                         message: "A2UI_HOST_NOT_CONFIGURED: gateway did not advertise canvas host"))
             }
@@ -903,31 +1052,40 @@ final class NodeAppModel {
                 return BridgeInvokeResponse(
                     id: req.id,
                     ok: false,
-                    error: MoltbotNodeError(
+                    error: OpenClawNodeError(
                         code: .unavailable,
                         message: "A2UI_HOST_UNAVAILABLE: A2UI host not reachable"))
             }
 
             let json = try await self.screen.eval(javaScript: """
             (() => {
-              if (!globalThis.clawdbotA2UI) return JSON.stringify({ ok: false, error: "missing moltbotA2UI" });
-              return JSON.stringify(globalThis.clawdbotA2UI.reset());
+              const host = globalThis.openclawA2UI;
+              if (!host) return JSON.stringify({ ok: false, error: "missing openclawA2UI" });
+              return JSON.stringify(host.reset());
             })()
             """)
             return BridgeInvokeResponse(id: req.id, ok: true, payloadJSON: json)
+<<<<<<< HEAD
         case MoltbotCanvasA2UICommand.push.rawValue, MoltbotCanvasA2UICommand.pushJSONL.rawValue:
             let messages: [AnyCodable]
             if command == MoltbotCanvasA2UICommand.pushJSONL.rawValue {
                 let params = try Self.decodeParams(MoltbotCanvasA2UIPushJSONLParams.self, from: req.paramsJSON)
                 messages = try MoltbotCanvasA2UIJSONL.decodeMessagesFromJSONL(params.jsonl)
+=======
+        case OpenClawCanvasA2UICommand.push.rawValue, OpenClawCanvasA2UICommand.pushJSONL.rawValue:
+            let messages: [OpenClawKit.AnyCodable]
+            if command == OpenClawCanvasA2UICommand.pushJSONL.rawValue {
+                let params = try Self.decodeParams(OpenClawCanvasA2UIPushJSONLParams.self, from: req.paramsJSON)
+                messages = try OpenClawCanvasA2UIJSONL.decodeMessagesFromJSONL(params.jsonl)
+>>>>>>> 6aedc54bd (iOS: alpha node app + setup-code onboarding (#11756))
             } else {
                 do {
-                    let params = try Self.decodeParams(MoltbotCanvasA2UIPushParams.self, from: req.paramsJSON)
+                    let params = try Self.decodeParams(OpenClawCanvasA2UIPushParams.self, from: req.paramsJSON)
                     messages = params.messages
                 } catch {
                     // Be forgiving: some clients still send JSONL payloads to `canvas.a2ui.push`.
-                    let params = try Self.decodeParams(MoltbotCanvasA2UIPushJSONLParams.self, from: req.paramsJSON)
-                    messages = try MoltbotCanvasA2UIJSONL.decodeMessagesFromJSONL(params.jsonl)
+                    let params = try Self.decodeParams(OpenClawCanvasA2UIPushJSONLParams.self, from: req.paramsJSON)
+                    messages = try OpenClawCanvasA2UIJSONL.decodeMessagesFromJSONL(params.jsonl)
                 }
             }
 
@@ -935,7 +1093,7 @@ final class NodeAppModel {
                 return BridgeInvokeResponse(
                     id: req.id,
                     ok: false,
-                    error: MoltbotNodeError(
+                    error: OpenClawNodeError(
                         code: .unavailable,
                         message: "A2UI_HOST_NOT_CONFIGURED: gateway did not advertise canvas host"))
             }
@@ -944,18 +1102,19 @@ final class NodeAppModel {
                 return BridgeInvokeResponse(
                     id: req.id,
                     ok: false,
-                    error: MoltbotNodeError(
+                    error: OpenClawNodeError(
                         code: .unavailable,
                         message: "A2UI_HOST_UNAVAILABLE: A2UI host not reachable"))
             }
 
-            let messagesJSON = try MoltbotCanvasA2UIJSONL.encodeMessagesJSONArray(messages)
+            let messagesJSON = try OpenClawCanvasA2UIJSONL.encodeMessagesJSONArray(messages)
             let js = """
             (() => {
               try {
-                if (!globalThis.clawdbotA2UI) return JSON.stringify({ ok: false, error: "missing moltbotA2UI" });
+                const host = globalThis.openclawA2UI;
+                if (!host) return JSON.stringify({ ok: false, error: "missing openclawA2UI" });
                 const messages = \(messagesJSON);
-                return JSON.stringify(globalThis.clawdbotA2UI.applyMessages(messages));
+                return JSON.stringify(host.applyMessages(messages));
               } catch (e) {
                 return JSON.stringify({ ok: false, error: String(e?.message ?? e) });
               }
@@ -967,24 +1126,24 @@ final class NodeAppModel {
             return BridgeInvokeResponse(
                 id: req.id,
                 ok: false,
-                error: MoltbotNodeError(code: .invalidRequest, message: "INVALID_REQUEST: unknown command"))
+                error: OpenClawNodeError(code: .invalidRequest, message: "INVALID_REQUEST: unknown command"))
         }
     }
 
     private func handleCameraInvoke(_ req: BridgeInvokeRequest) async throws -> BridgeInvokeResponse {
         switch req.command {
-        case MoltbotCameraCommand.list.rawValue:
+        case OpenClawCameraCommand.list.rawValue:
             let devices = await self.camera.listDevices()
             struct Payload: Codable {
                 var devices: [CameraController.CameraDeviceInfo]
             }
             let payload = try Self.encodePayload(Payload(devices: devices))
             return BridgeInvokeResponse(id: req.id, ok: true, payloadJSON: payload)
-        case MoltbotCameraCommand.snap.rawValue:
+        case OpenClawCameraCommand.snap.rawValue:
             self.showCameraHUD(text: "Taking photo…", kind: .photo)
             self.triggerCameraFlash()
-            let params = (try? Self.decodeParams(MoltbotCameraSnapParams.self, from: req.paramsJSON)) ??
-                MoltbotCameraSnapParams()
+            let params = (try? Self.decodeParams(OpenClawCameraSnapParams.self, from: req.paramsJSON)) ??
+                OpenClawCameraSnapParams()
             let res = try await self.camera.snap(params: params)
 
             struct Payload: Codable {
@@ -1000,9 +1159,9 @@ final class NodeAppModel {
                 height: res.height))
             self.showCameraHUD(text: "Photo captured", kind: .success, autoHideSeconds: 1.6)
             return BridgeInvokeResponse(id: req.id, ok: true, payloadJSON: payload)
-        case MoltbotCameraCommand.clip.rawValue:
-            let params = (try? Self.decodeParams(MoltbotCameraClipParams.self, from: req.paramsJSON)) ??
-                MoltbotCameraClipParams()
+        case OpenClawCameraCommand.clip.rawValue:
+            let params = (try? Self.decodeParams(OpenClawCameraClipParams.self, from: req.paramsJSON)) ??
+                OpenClawCameraClipParams()
 
             let suspended = (params.includeAudio ?? true) ? self.voiceWake.suspendForExternalAudioCapture() : false
             defer { self.voiceWake.resumeAfterExternalAudioCapture(wasSuspended: suspended) }
@@ -1027,13 +1186,13 @@ final class NodeAppModel {
             return BridgeInvokeResponse(
                 id: req.id,
                 ok: false,
-                error: MoltbotNodeError(code: .invalidRequest, message: "INVALID_REQUEST: unknown command"))
+                error: OpenClawNodeError(code: .invalidRequest, message: "INVALID_REQUEST: unknown command"))
         }
     }
 
     private func handleScreenRecordInvoke(_ req: BridgeInvokeRequest) async throws -> BridgeInvokeResponse {
-        let params = (try? Self.decodeParams(MoltbotScreenRecordParams.self, from: req.paramsJSON)) ??
-            MoltbotScreenRecordParams()
+        let params = (try? Self.decodeParams(OpenClawScreenRecordParams.self, from: req.paramsJSON)) ??
+            OpenClawScreenRecordParams()
         if let format = params.format, format.lowercased() != "mp4" {
             throw NSError(domain: "Screen", code: 30, userInfo: [
                 NSLocalizedDescriptionKey: "INVALID_REQUEST: screen format must be mp4",
@@ -1068,9 +1227,6 @@ final class NodeAppModel {
         return BridgeInvokeResponse(id: req.id, ok: true, payloadJSON: payload)
     }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
     private func handleSystemNotify(_ req: BridgeInvokeRequest) async throws -> BridgeInvokeResponse {
         let params = try Self.decodeParams(OpenClawSystemNotifyParams.self, from: req.paramsJSON)
         let title = params.title.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -1082,7 +1238,15 @@ final class NodeAppModel {
                 error: OpenClawNodeError(code: .invalidRequest, message: "INVALID_REQUEST: empty notification"))
         }
 
+<<<<<<< HEAD
+        let status = await self.notificationCenter.authorizationStatus()
+        if status == .notDetermined {
+            _ = try await self.notificationCenter.requestAuthorization(options: [.alert, .sound, .badge])
+        }
+        let finalStatus = await self.notificationCenter.authorizationStatus()
+=======
         let finalStatus = await self.requestNotificationAuthorizationIfNeeded()
+>>>>>>> 6aedc54bd (iOS: alpha node app + setup-code onboarding (#11756))
         guard finalStatus == .authorized || finalStatus == .provisional || finalStatus == .ephemeral else {
             return BridgeInvokeResponse(
                 id: req.id,
@@ -1090,6 +1254,19 @@ final class NodeAppModel {
                 error: OpenClawNodeError(code: .unavailable, message: "NOT_AUTHORIZED: notifications"))
         }
 
+<<<<<<< HEAD
+        let content = UNMutableNotificationContent()
+        content.title = title
+        content.body = body
+        let request = UNNotificationRequest(
+            identifier: UUID().uuidString,
+            content: content,
+            trigger: nil)
+        try await self.notificationCenter.add(request)
+        return BridgeInvokeResponse(id: req.id, ok: true)
+    }
+
+=======
         let addResult = await self.runNotificationCall(timeoutSeconds: 2.0) { [notificationCenter] in
             let content = UNMutableNotificationContent()
             content.title = title
@@ -1225,6 +1402,7 @@ final class NodeAppModel {
         }
     }
 
+>>>>>>> 6aedc54bd (iOS: alpha node app + setup-code onboarding (#11756))
     private func handleDeviceInvoke(_ req: BridgeInvokeRequest) async throws -> BridgeInvokeResponse {
         switch req.command {
         case OpenClawDeviceCommand.status.rawValue:
@@ -1252,6 +1430,29 @@ final class NodeAppModel {
     }
 
     private func handleContactsInvoke(_ req: BridgeInvokeRequest) async throws -> BridgeInvokeResponse {
+<<<<<<< HEAD
+        let params = (try? Self.decodeParams(OpenClawContactsSearchParams.self, from: req.paramsJSON)) ??
+            OpenClawContactsSearchParams()
+        let payload = try await self.contactsService.search(params: params)
+        let json = try Self.encodePayload(payload)
+        return BridgeInvokeResponse(id: req.id, ok: true, payloadJSON: json)
+    }
+
+    private func handleCalendarInvoke(_ req: BridgeInvokeRequest) async throws -> BridgeInvokeResponse {
+        let params = (try? Self.decodeParams(OpenClawCalendarEventsParams.self, from: req.paramsJSON)) ??
+            OpenClawCalendarEventsParams()
+        let payload = try await self.calendarService.events(params: params)
+        let json = try Self.encodePayload(payload)
+        return BridgeInvokeResponse(id: req.id, ok: true, payloadJSON: json)
+    }
+
+    private func handleRemindersInvoke(_ req: BridgeInvokeRequest) async throws -> BridgeInvokeResponse {
+        let params = (try? Self.decodeParams(OpenClawRemindersListParams.self, from: req.paramsJSON)) ??
+            OpenClawRemindersListParams()
+        let payload = try await self.remindersService.list(params: params)
+        let json = try Self.encodePayload(payload)
+        return BridgeInvokeResponse(id: req.id, ok: true, payloadJSON: json)
+=======
         switch req.command {
         case OpenClawContactsCommand.search.rawValue:
             let params = (try? Self.decodeParams(OpenClawContactsSearchParams.self, from: req.paramsJSON)) ??
@@ -1312,6 +1513,7 @@ final class NodeAppModel {
                 ok: false,
                 error: OpenClawNodeError(code: .invalidRequest, message: "INVALID_REQUEST: unknown command"))
         }
+>>>>>>> 6aedc54bd (iOS: alpha node app + setup-code onboarding (#11756))
     }
 
     private func handleMotionInvoke(_ req: BridgeInvokeRequest) async throws -> BridgeInvokeResponse {
@@ -1337,7 +1539,11 @@ final class NodeAppModel {
     }
 
 <<<<<<< HEAD
->>>>>>> 761188cd1 (iOS: fix node notify and identity)
+}
+
+private extension NodeAppModel {
+<<<<<<< HEAD
+    func locationMode() -> MoltbotLocationMode {
 =======
     private func handleTalkInvoke(_ req: BridgeInvokeRequest) async throws -> BridgeInvokeResponse {
         switch req.command {
@@ -1375,13 +1581,9 @@ final class NodeAppModel {
         }
     }
 
->>>>>>> 9f101d3a9 (iOS: add push-to-talk node commands)
 }
 
 private extension NodeAppModel {
-<<<<<<< HEAD
-    func locationMode() -> MoltbotLocationMode {
-=======
     // Central registry for node invoke routing to keep commands in one place.
     func buildCapabilityRouter() -> NodeCapabilityRouter {
         var handlers: [String: NodeCapabilityRouter.Handler] = [:]
@@ -1499,15 +1701,10 @@ private extension NodeAppModel {
         return NodeCapabilityRouter(handlers: handlers)
     }
 
-=======
-}
-
-private extension NodeAppModel {
->>>>>>> 4ab814fd5 (Revert "iOS: wire node services and tests")
     func locationMode() -> OpenClawLocationMode {
->>>>>>> 532b9653b (iOS: wire node commands and incremental TTS)
+>>>>>>> 6aedc54bd (iOS: alpha node app + setup-code onboarding (#11756))
         let raw = UserDefaults.standard.string(forKey: "location.enabledMode") ?? "off"
-        return MoltbotLocationMode(rawValue: raw) ?? .off
+        return OpenClawLocationMode(rawValue: raw) ?? .off
     }
 
     func isLocationPreciseEnabled() -> Bool {
@@ -1563,6 +1760,328 @@ private extension NodeAppModel {
     }
 }
 
+extension NodeAppModel {
+    func connectToGateway(
+        url: URL,
+        gatewayStableID: String,
+        tls: GatewayTLSParams?,
+        token: String?,
+        password: String?,
+        connectOptions: GatewayConnectOptions)
+    {
+        let stableID = gatewayStableID.trimmingCharacters(in: .whitespacesAndNewlines)
+        let effectiveStableID = stableID.isEmpty ? url.absoluteString : stableID
+        let sessionBox = tls.map { WebSocketSessionBox(session: GatewayTLSPinningSession(params: $0)) }
+
+        self.activeGatewayConnectConfig = GatewayConnectConfig(
+            url: url,
+            stableID: stableID,
+            tls: tls,
+            token: token,
+            password: password,
+            nodeOptions: connectOptions)
+        self.prepareForGatewayConnect(url: url, stableID: effectiveStableID)
+        self.startOperatorGatewayLoop(
+            url: url,
+            stableID: effectiveStableID,
+            token: token,
+            password: password,
+            nodeOptions: connectOptions,
+            sessionBox: sessionBox)
+        self.startNodeGatewayLoop(
+            url: url,
+            stableID: effectiveStableID,
+            token: token,
+            password: password,
+            nodeOptions: connectOptions,
+            sessionBox: sessionBox)
+    }
+
+    /// Preferred entry-point: apply a single config object and start both sessions.
+    func applyGatewayConnectConfig(_ cfg: GatewayConnectConfig) {
+        self.activeGatewayConnectConfig = cfg
+        self.connectToGateway(
+            url: cfg.url,
+            // Preserve the caller-provided stableID (may be empty) and let connectToGateway
+            // derive the effective stable id consistently for persistence keys.
+            gatewayStableID: cfg.stableID,
+            tls: cfg.tls,
+            token: cfg.token,
+            password: cfg.password,
+            connectOptions: cfg.nodeOptions)
+    }
+
+    func disconnectGateway() {
+        self.gatewayAutoReconnectEnabled = false
+        self.nodeGatewayTask?.cancel()
+        self.nodeGatewayTask = nil
+        self.operatorGatewayTask?.cancel()
+        self.operatorGatewayTask = nil
+        self.voiceWakeSyncTask?.cancel()
+        self.voiceWakeSyncTask = nil
+        self.gatewayHealthMonitor.stop()
+        Task {
+            await self.operatorGateway.disconnect()
+            await self.nodeGateway.disconnect()
+        }
+        self.gatewayStatusText = "Offline"
+        self.gatewayServerName = nil
+        self.gatewayRemoteAddress = nil
+        self.connectedGatewayID = nil
+        self.activeGatewayConnectConfig = nil
+        self.gatewayConnected = false
+        self.operatorConnected = false
+        self.talkMode.updateGatewayConnected(false)
+        self.seamColorHex = nil
+        self.mainSessionBaseKey = "main"
+        self.talkMode.updateMainSessionKey(self.mainSessionKey)
+        self.showLocalCanvasOnDisconnect()
+    }
+}
+
+private extension NodeAppModel {
+    func prepareForGatewayConnect(url: URL, stableID: String) {
+        self.gatewayAutoReconnectEnabled = true
+        self.nodeGatewayTask?.cancel()
+        self.operatorGatewayTask?.cancel()
+        self.gatewayHealthMonitor.stop()
+        self.gatewayServerName = nil
+        self.gatewayRemoteAddress = nil
+        self.connectedGatewayID = stableID
+        self.gatewayConnected = false
+        self.operatorConnected = false
+        self.voiceWakeSyncTask?.cancel()
+        self.voiceWakeSyncTask = nil
+        self.gatewayDefaultAgentId = nil
+        self.gatewayAgents = []
+        self.selectedAgentId = GatewaySettingsStore.loadGatewaySelectedAgentId(stableID: stableID)
+    }
+
+    func startOperatorGatewayLoop(
+        url: URL,
+        stableID: String,
+        token: String?,
+        password: String?,
+        nodeOptions: GatewayConnectOptions,
+        sessionBox: WebSocketSessionBox?)
+    {
+        // Operator session reconnects independently (chat/talk/config/voicewake), but we tie its
+        // lifecycle to the current gateway config so it doesn't keep running across Disconnect.
+        self.operatorGatewayTask = Task { [weak self] in
+            guard let self else { return }
+            var attempt = 0
+            while !Task.isCancelled {
+                if await self.isOperatorConnected() {
+                    try? await Task.sleep(nanoseconds: 1_000_000_000)
+                    continue
+                }
+
+                let effectiveClientId =
+                    GatewaySettingsStore.loadGatewayClientIdOverride(stableID: stableID) ?? nodeOptions.clientId
+                let operatorOptions = self.makeOperatorConnectOptions(
+                    clientId: effectiveClientId,
+                    displayName: nodeOptions.clientDisplayName)
+
+                do {
+                    try await self.operatorGateway.connect(
+                        url: url,
+                        token: token,
+                        password: password,
+                        connectOptions: operatorOptions,
+                        sessionBox: sessionBox,
+                        onConnected: { [weak self] in
+                            guard let self else { return }
+                            await MainActor.run {
+                                self.operatorConnected = true
+                                self.talkMode.updateGatewayConnected(true)
+                            }
+                            GatewayDiagnostics.log(
+                                "operator gateway connected host=\(url.host ?? "?") scheme=\(url.scheme ?? "?")")
+                            await self.refreshBrandingFromGateway()
+                            await self.refreshAgentsFromGateway()
+                            await self.startVoiceWakeSync()
+                            await MainActor.run { self.startGatewayHealthMonitor() }
+                        },
+                        onDisconnected: { [weak self] reason in
+                            guard let self else { return }
+                            await MainActor.run {
+                                self.operatorConnected = false
+                                self.talkMode.updateGatewayConnected(false)
+                            }
+                            GatewayDiagnostics.log("operator gateway disconnected reason=\(reason)")
+                            await MainActor.run { self.stopGatewayHealthMonitor() }
+                        },
+                        onInvoke: { req in
+                            // Operator session should not handle node.invoke requests.
+                            BridgeInvokeResponse(
+                                id: req.id,
+                                ok: false,
+                                error: OpenClawNodeError(
+                                    code: .invalidRequest,
+                                    message: "INVALID_REQUEST: operator session cannot invoke node commands"))
+                        })
+
+                    attempt = 0
+                    try? await Task.sleep(nanoseconds: 1_000_000_000)
+                } catch {
+                    attempt += 1
+                    GatewayDiagnostics.log("operator gateway connect error: \(error.localizedDescription)")
+                    let sleepSeconds = min(8.0, 0.5 * pow(1.7, Double(attempt)))
+                    try? await Task.sleep(nanoseconds: UInt64(sleepSeconds * 1_000_000_000))
+                }
+            }
+        }
+    }
+
+    func startNodeGatewayLoop(
+        url: URL,
+        stableID: String,
+        token: String?,
+        password: String?,
+        nodeOptions: GatewayConnectOptions,
+        sessionBox: WebSocketSessionBox?)
+    {
+        self.nodeGatewayTask = Task { [weak self] in
+            guard let self else { return }
+            var attempt = 0
+            var currentOptions = nodeOptions
+            var didFallbackClientId = false
+
+            while !Task.isCancelled {
+                if await self.isGatewayConnected() {
+                    try? await Task.sleep(nanoseconds: 1_000_000_000)
+                    continue
+                }
+                await MainActor.run {
+                    self.gatewayStatusText = (attempt == 0) ? "Connecting…" : "Reconnecting…"
+                    self.gatewayServerName = nil
+                    self.gatewayRemoteAddress = nil
+                }
+
+                do {
+                    let epochMs = Int(Date().timeIntervalSince1970 * 1000)
+                    GatewayDiagnostics.log("connect attempt epochMs=\(epochMs) url=\(url.absoluteString)")
+                    try await self.nodeGateway.connect(
+                        url: url,
+                        token: token,
+                        password: password,
+                        connectOptions: currentOptions,
+                        sessionBox: sessionBox,
+                        onConnected: { [weak self] in
+                            guard let self else { return }
+                            await MainActor.run {
+                                self.gatewayStatusText = "Connected"
+                                self.gatewayServerName = url.host ?? "gateway"
+                                self.gatewayConnected = true
+                                self.screen.errorText = nil
+                                UserDefaults.standard.set(true, forKey: "gateway.autoconnect")
+                            }
+                            GatewayDiagnostics.log(
+                                "gateway connected host=\(url.host ?? "?") scheme=\(url.scheme ?? "?")")
+                            if let addr = await self.nodeGateway.currentRemoteAddress() {
+                                await MainActor.run { self.gatewayRemoteAddress = addr }
+                            }
+                            await self.showA2UIOnConnectIfNeeded()
+                        },
+                        onDisconnected: { [weak self] reason in
+                            guard let self else { return }
+                            await MainActor.run {
+                                self.gatewayStatusText = "Disconnected: \(reason)"
+                                self.gatewayServerName = nil
+                                self.gatewayRemoteAddress = nil
+                                self.gatewayConnected = false
+                                self.showLocalCanvasOnDisconnect()
+                            }
+                            GatewayDiagnostics.log("gateway disconnected reason: \(reason)")
+                        },
+                        onInvoke: { [weak self] req in
+                            guard let self else {
+                                return BridgeInvokeResponse(
+                                    id: req.id,
+                                    ok: false,
+                                    error: OpenClawNodeError(
+                                        code: .unavailable,
+                                        message: "UNAVAILABLE: node not ready"))
+                            }
+                            return await self.handleInvoke(req)
+                        })
+
+                    attempt = 0
+                    try? await Task.sleep(nanoseconds: 1_000_000_000)
+                } catch {
+                    if Task.isCancelled { break }
+                    if !didFallbackClientId,
+                       let fallbackClientId = self.legacyClientIdFallback(
+                        currentClientId: currentOptions.clientId,
+                        error: error)
+                    {
+                        didFallbackClientId = true
+                        currentOptions.clientId = fallbackClientId
+                        GatewaySettingsStore.saveGatewayClientIdOverride(
+                            stableID: stableID,
+                            clientId: fallbackClientId)
+                        await MainActor.run { self.gatewayStatusText = "Gateway rejected client id. Retrying…" }
+                        continue
+                    }
+
+                    attempt += 1
+                    await MainActor.run {
+                        self.gatewayStatusText = "Gateway error: \(error.localizedDescription)"
+                        self.gatewayServerName = nil
+                        self.gatewayRemoteAddress = nil
+                        self.gatewayConnected = false
+                        self.showLocalCanvasOnDisconnect()
+                    }
+                    GatewayDiagnostics.log("gateway connect error: \(error.localizedDescription)")
+                    let sleepSeconds = min(8.0, 0.5 * pow(1.7, Double(attempt)))
+                    try? await Task.sleep(nanoseconds: UInt64(sleepSeconds * 1_000_000_000))
+                }
+            }
+
+            await MainActor.run {
+                self.gatewayStatusText = "Offline"
+                self.gatewayServerName = nil
+                self.gatewayRemoteAddress = nil
+                self.connectedGatewayID = nil
+                self.gatewayConnected = false
+                self.operatorConnected = false
+                self.talkMode.updateGatewayConnected(false)
+                self.seamColorHex = nil
+                self.mainSessionBaseKey = "main"
+                self.talkMode.updateMainSessionKey(self.mainSessionKey)
+                self.showLocalCanvasOnDisconnect()
+            }
+        }
+    }
+
+    func makeOperatorConnectOptions(clientId: String, displayName: String?) -> GatewayConnectOptions {
+        GatewayConnectOptions(
+            role: "operator",
+            scopes: ["operator.read", "operator.write", "operator.admin"],
+            caps: [],
+            commands: [],
+            permissions: [:],
+            clientId: clientId,
+            clientMode: "ui",
+            clientDisplayName: displayName,
+            includeDeviceIdentity: false)
+    }
+
+    func legacyClientIdFallback(currentClientId: String, error: Error) -> String? {
+        let normalizedClientId = currentClientId.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        guard normalizedClientId == "openclaw-ios" else { return nil }
+        let message = error.localizedDescription.lowercased()
+        guard message.contains("invalid connect params"), message.contains("/client/id") else {
+            return nil
+        }
+        return "moltbot-ios"
+    }
+
+    func isOperatorConnected() async -> Bool {
+        self.operatorConnected
+    }
+}
+
 #if DEBUG
 extension NodeAppModel {
     func _test_handleInvoke(_ req: BridgeInvokeRequest) async -> BridgeInvokeResponse {
@@ -1591,10 +2110,6 @@ extension NodeAppModel {
 
     func _test_handleCanvasA2UIAction(body: [String: Any]) async {
         await self.handleCanvasA2UIAction(body: body)
-    }
-
-    func _test_resolveA2UIHostURL() async -> String? {
-        await self.resolveA2UIHostURL()
     }
 
     func _test_showLocalCanvasOnDisconnect() {

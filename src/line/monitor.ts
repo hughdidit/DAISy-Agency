@@ -11,11 +11,21 @@ import { dispatchReplyWithBufferedBlockDispatcher } from "../auto-reply/reply/pr
 import { createReplyPrefixOptions } from "../channels/reply-prefix.js";
 >>>>>>> 5d82c8231 (feat: per-channel responsePrefix override (#9001))
 import { danger, logVerbose } from "../globals.js";
+=======
+import type { OpenClawConfig } from "../config/config.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { RuntimeEnv } from "../runtime.js";
-import { createLineBot } from "./bot.js";
-import { validateLineSignature } from "./signature.js";
+import type { LineChannelData, ResolvedLineAccount } from "./types.js";
+import { resolveEffectiveMessagesConfig } from "../agents/identity.js";
+import { chunkMarkdownText } from "../auto-reply/chunk.js";
+import { dispatchReplyWithBufferedBlockDispatcher } from "../auto-reply/reply/provider-dispatcher.js";
+import { danger, logVerbose } from "../globals.js";
 import { normalizePluginHttpPath } from "../plugins/http-path.js";
 import { registerPluginHttpRoute } from "../plugins/http-registry.js";
+import { deliverLineAutoReply } from "./auto-reply-delivery.js";
+import { createLineBot } from "./bot.js";
+import { processLineMessage } from "./markdown-to-line.js";
+import { sendLineReplyChunks } from "./reply-chunks.js";
 import {
   replyMessageLine,
   showLoadingAnimation,
@@ -29,20 +39,14 @@ import {
   createImageMessage,
   createLocationMessage,
 } from "./send.js";
+import { validateLineSignature } from "./signature.js";
 import { buildTemplateMessageFromPayload } from "./template-messages.js";
-import type { LineChannelData, ResolvedLineAccount } from "./types.js";
-import { dispatchReplyWithBufferedBlockDispatcher } from "../auto-reply/reply/provider-dispatcher.js";
-import { resolveEffectiveMessagesConfig } from "../agents/identity.js";
-import { chunkMarkdownText } from "../auto-reply/chunk.js";
-import { processLineMessage } from "./markdown-to-line.js";
-import { sendLineReplyChunks } from "./reply-chunks.js";
-import { deliverLineAutoReply } from "./auto-reply-delivery.js";
 
 export interface MonitorLineProviderOptions {
   channelAccessToken: string;
   channelSecret: string;
   accountId?: string;
-  config: MoltbotConfig;
+  config: OpenClawConfig;
   runtime: RuntimeEnv;
   abortSignal?: AbortSignal;
   webhookUrl?: string;

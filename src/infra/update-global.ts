@@ -9,13 +9,9 @@ export type CommandRunner = (
   options: { timeoutMs: number; cwd?: string; env?: NodeJS.ProcessEnv },
 ) => Promise<{ stdout: string; stderr: string; code: number | null }>;
 
-<<<<<<< HEAD
-=======
 const PRIMARY_PACKAGE_NAME = "openclaw";
 const ALL_PACKAGE_NAMES = [PRIMARY_PACKAGE_NAME] as const;
-const GLOBAL_RENAME_PREFIX = ".";
 
->>>>>>> 57d008a33 (fix(update): harden global updates)
 async function pathExists(targetPath: string): Promise<boolean> {
   try {
     await fs.access(targetPath);
@@ -63,13 +59,7 @@ export async function resolveGlobalPackageRoot(
   const root = await resolveGlobalRoot(manager, runCommand, timeoutMs);
 <<<<<<< HEAD
   if (!root) return null;
-  return path.join(root, "moltbot");
-=======
-  if (!root) {
-    return null;
-  }
   return path.join(root, PRIMARY_PACKAGE_NAME);
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
 }
 
 export async function detectGlobalInstallManagerForRoot(
@@ -97,32 +87,18 @@ export async function detectGlobalInstallManagerForRoot(
       continue;
     }
     const globalReal = await tryRealpath(globalRoot);
-<<<<<<< HEAD
-    const expected = path.join(globalReal, "moltbot");
-    if (path.resolve(expected) === path.resolve(pkgReal)) return manager;
-=======
     for (const name of ALL_PACKAGE_NAMES) {
       const expected = path.join(globalReal, name);
-      if (path.resolve(expected) === path.resolve(pkgReal)) {
-        return manager;
-      }
+      if (path.resolve(expected) === path.resolve(pkgReal)) return manager;
     }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
   }
 
   const bunGlobalRoot = resolveBunGlobalRoot();
   const bunGlobalReal = await tryRealpath(bunGlobalRoot);
-<<<<<<< HEAD
-  const bunExpected = path.join(bunGlobalReal, "moltbot");
-  if (path.resolve(bunExpected) === path.resolve(pkgReal)) return "bun";
-=======
   for (const name of ALL_PACKAGE_NAMES) {
     const bunExpected = path.join(bunGlobalReal, name);
-    if (path.resolve(bunExpected) === path.resolve(pkgReal)) {
-      return "bun";
-    }
+    if (path.resolve(bunExpected) === path.resolve(pkgReal)) return "bun";
   }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
 
   return null;
 }
@@ -135,29 +111,15 @@ export async function detectGlobalInstallManagerByPresence(
     const root = await resolveGlobalRoot(manager, runCommand, timeoutMs);
 <<<<<<< HEAD
     if (!root) continue;
-    if (await pathExists(path.join(root, "moltbot"))) return manager;
-  }
-
-  const bunRoot = resolveBunGlobalRoot();
-  if (await pathExists(path.join(bunRoot, "moltbot"))) return "bun";
-=======
-    if (!root) {
-      continue;
-    }
     for (const name of ALL_PACKAGE_NAMES) {
-      if (await pathExists(path.join(root, name))) {
-        return manager;
-      }
+      if (await pathExists(path.join(root, name))) return manager;
     }
   }
 
   const bunRoot = resolveBunGlobalRoot();
   for (const name of ALL_PACKAGE_NAMES) {
-    if (await pathExists(path.join(bunRoot, name))) {
-      return "bun";
-    }
+    if (await pathExists(path.join(bunRoot, name))) return "bun";
   }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
   return null;
 }
 

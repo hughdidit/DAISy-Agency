@@ -1,10 +1,14 @@
-import { getChannelPlugin, listChannelPlugins } from "../../channels/plugins/index.js";
-import { resolveChannelDefaultAccountId } from "../../channels/plugins/helpers.js";
 import type { ChannelCapabilities, ChannelPlugin } from "../../channels/plugins/types.js";
+import type { OpenClawConfig } from "../../config/config.js";
+import { resolveChannelDefaultAccountId } from "../../channels/plugins/helpers.js";
+import { getChannelPlugin, listChannelPlugins } from "../../channels/plugins/index.js";
 import { fetchChannelPermissionsDiscord } from "../../discord/send.js";
 import { parseDiscordTarget } from "../../discord/targets.js";
 import { danger } from "../../globals.js";
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
+=======
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { defaultRuntime, type RuntimeEnv } from "../../runtime.js";
 import { fetchSlackScopes, type SlackScopesResult } from "../../slack/scopes.js";
 import { theme } from "../../terminal/theme.js";
@@ -337,7 +341,7 @@ async function buildDiscordPermissions(params: {
 
 async function resolveChannelReports(params: {
   plugin: ChannelPlugin;
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   timeoutMs: number;
   accountOverride?: string;
   target?: string;

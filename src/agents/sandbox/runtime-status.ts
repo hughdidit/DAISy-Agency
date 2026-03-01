@@ -1,11 +1,15 @@
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
+=======
+import type { OpenClawConfig } from "../../config/config.js";
+import type { SandboxConfig, SandboxToolPolicyResolved } from "./types.js";
+import { formatCliCommand } from "../../cli/command-format.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { canonicalizeMainSessionAlias, resolveAgentMainSessionKey } from "../../config/sessions.js";
 import { resolveSessionAgentId } from "../agent-scope.js";
 import { expandToolGroups } from "../tool-policy.js";
-import { formatCliCommand } from "../../cli/command-format.js";
 import { resolveSandboxConfigForAgent } from "./config.js";
 import { resolveSandboxToolPolicyForAgent } from "./tool-policy.js";
-import type { SandboxConfig, SandboxToolPolicyResolved } from "./types.js";
 
 function shouldSandboxSession(cfg: SandboxConfig, sessionKey: string, mainSessionKey: string) {
   if (cfg.mode === "off") {
@@ -17,8 +21,10 @@ function shouldSandboxSession(cfg: SandboxConfig, sessionKey: string, mainSessio
   return sessionKey.trim() !== mainSessionKey.trim();
 }
 
-<<<<<<< HEAD
-function resolveMainSessionKeyForSandbox(params: { cfg?: MoltbotConfig; agentId: string }): string {
+function resolveMainSessionKeyForSandbox(params: {
+  cfg?: OpenClawConfig;
+  agentId: string;
+}): string {
   if (params.cfg?.session?.scope === "global") return "global";
 =======
 function resolveMainSessionKeyForSandbox(params: {
@@ -36,7 +42,7 @@ function resolveMainSessionKeyForSandbox(params: {
 }
 
 function resolveComparableSessionKeyForSandbox(params: {
-  cfg?: MoltbotConfig;
+  cfg?: OpenClawConfig;
   agentId: string;
   sessionKey: string;
 }): string {
@@ -47,7 +53,10 @@ function resolveComparableSessionKeyForSandbox(params: {
   });
 }
 
-export function resolveSandboxRuntimeStatus(params: { cfg?: MoltbotConfig; sessionKey?: string }): {
+export function resolveSandboxRuntimeStatus(params: {
+  cfg?: OpenClawConfig;
+  sessionKey?: string;
+}): {
   agentId: string;
   sessionKey: string;
   mainSessionKey: string;
@@ -81,7 +90,7 @@ export function resolveSandboxRuntimeStatus(params: { cfg?: MoltbotConfig; sessi
 }
 
 export function formatSandboxToolPolicyBlockedMessage(params: {
-  cfg?: MoltbotConfig;
+  cfg?: OpenClawConfig;
   sessionKey?: string;
   toolName: string;
 }): string | undefined {
@@ -133,7 +142,7 @@ export function formatSandboxToolPolicyBlockedMessage(params: {
     lines.push(`- Use main session key (direct): ${runtime.mainSessionKey}`);
   }
   lines.push(
-    `- See: ${formatCliCommand(`moltbot sandbox explain --session ${runtime.sessionKey}`)}`,
+    `- See: ${formatCliCommand(`openclaw sandbox explain --session ${runtime.sessionKey}`)}`,
   );
 
   return lines.join("\n");

@@ -1,7 +1,6 @@
 import { RateLimitError } from "@buape/carbon";
 import { ChannelType, Routes } from "discord-api-types/v10";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-
 import {
   addRoleDiscord,
   banMemberDiscord,
@@ -221,8 +220,8 @@ describe("uploadStickerDiscord", () => {
     await uploadStickerDiscord(
       {
         guildId: "g1",
-        name: "moltbot_wave",
-        description: "Moltbot waving",
+        name: "openclaw_wave",
+        description: "OpenClaw waving",
         tags: "👋",
         mediaUrl: "file:///tmp/wave.png",
       },
@@ -232,8 +231,8 @@ describe("uploadStickerDiscord", () => {
       Routes.guildStickers("g1"),
       expect.objectContaining({
         body: {
-          name: "moltbot_wave",
-          description: "Moltbot waving",
+          name: "openclaw_wave",
+          description: "OpenClaw waving",
           tags: "👋",
           files: [
             expect.objectContaining({

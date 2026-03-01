@@ -2,28 +2,7 @@
 name: eightctl
 description: Control Eight Sleep pods (status, temperature, alarms, schedules).
 homepage: https://eightctl.sh
-<<<<<<< HEAD
-metadata: {"moltbot":{"emoji":"🎛️","requires":{"bins":["eightctl"]},"install":[{"id":"go","kind":"go","module":"github.com/steipete/eightctl/cmd/eightctl@latest","bins":["eightctl"],"label":"Install eightctl (go)"}]}}
-=======
-metadata:
-  {
-    "openclaw":
-      {
-        "emoji": "🎛️",
-        "requires": { "bins": ["eightctl"] },
-        "install":
-          [
-            {
-              "id": "go",
-              "kind": "go",
-              "module": "github.com/steipete/eightctl/cmd/eightctl@latest",
-              "bins": ["eightctl"],
-              "label": "Install eightctl (go)",
-            },
-          ],
-      },
-  }
->>>>>>> 76b5208b1 (chore: Also format `scripts` and `skills`.)
+metadata: {"openclaw":{"emoji":"🎛️","requires":{"bins":["eightctl"]},"install":[{"id":"go","kind":"go","module":"github.com/steipete/eightctl/cmd/eightctl@latest","bins":["eightctl"],"label":"Install eightctl (go)"}]}}
 ---
 
 # eightctl

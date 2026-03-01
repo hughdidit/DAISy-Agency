@@ -1,8 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-<<<<<<< HEAD
-import { LEGACY_MACOS_APP_SOURCES_DIR, MACOS_APP_SOURCES_DIR } from "../compat/legacy-names.js";
+import { MACOS_APP_SOURCES_DIR } from "../compat/legacy-names.js";
 import { CronPayloadSchema } from "../gateway/protocol/schema.js";
 =======
 import { MACOS_APP_SOURCES_DIR } from "../compat/legacy-names.js";
@@ -24,15 +23,7 @@ function extractDeliveryModes(schema: SchemaLike): string[] {
 
 const UI_FILES = ["ui/src/ui/types.ts", "ui/src/ui/ui-types.ts", "ui/src/ui/views/cron.ts"];
 
-<<<<<<< HEAD
-const SWIFT_FILE_CANDIDATES = [
-  `${MACOS_APP_SOURCES_DIR}/GatewayConnection.swift`,
-  `${LEGACY_MACOS_APP_SOURCES_DIR}/GatewayConnection.swift`,
-];
-=======
-const SWIFT_MODEL_CANDIDATES = [`${MACOS_APP_SOURCES_DIR}/CronModels.swift`];
-const SWIFT_STATUS_CANDIDATES = [`${MACOS_APP_SOURCES_DIR}/GatewayConnection.swift`];
->>>>>>> f8d253406 (fix(cron): fix test failures and regenerate protocol files)
+const SWIFT_FILE_CANDIDATES = [`${MACOS_APP_SOURCES_DIR}/GatewayConnection.swift`];
 
 async function resolveSwiftFiles(cwd: string, candidates: string[]): Promise<string[]> {
   const matches: string[] = [];

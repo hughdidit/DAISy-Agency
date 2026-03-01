@@ -1,7 +1,13 @@
+<<<<<<< HEAD
 import { normalizeChannelId } from "../channels/plugins/index.js";
 import { normalizeAccountId } from "../routing/session-key.js";
 import type { MoltbotConfig } from "./config.js";
+=======
+import type { OpenClawConfig } from "./config.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { MarkdownTableMode } from "./types.base.js";
+import { normalizeChannelId } from "../channels/plugins/index.js";
+import { normalizeAccountId } from "../routing/session-key.js";
 
 type MarkdownConfigEntry = {
   markdown?: {
@@ -50,7 +56,7 @@ function resolveMarkdownModeFromSection(
 }
 
 export function resolveMarkdownTableMode(params: {
-  cfg?: Partial<MoltbotConfig>;
+  cfg?: Partial<OpenClawConfig>;
   channel?: string | null;
   accountId?: string | null;
 }): MarkdownTableMode {

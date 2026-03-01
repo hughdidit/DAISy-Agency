@@ -1,7 +1,8 @@
 ---
-summary: "When Moltbot shows typing indicators and how to tune them"
+summary: "When OpenClaw shows typing indicators and how to tune them"
 read_when:
   - Changing typing indicator behavior or defaults
+title: "Typing Indicators"
 ---
 
 # Typing indicators
@@ -11,13 +12,7 @@ Typing indicators are sent to the chat channel while a run is active. Use
 to control **how often** it refreshes.
 
 ## Defaults
-<<<<<<< HEAD
-When `agents.defaults.typingMode` is **unset**, Moltbot keeps the legacy behavior:
-=======
-
 When `agents.defaults.typingMode` is **unset**, OpenClaw keeps the legacy behavior:
-
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - **Direct chats**: typing starts immediately once the model loop begins.
 - **Group chats with a mention**: typing starts immediately.
 - **Group chats without a mention**: typing starts only when message text begins streaming.

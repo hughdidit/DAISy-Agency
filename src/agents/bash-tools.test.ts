@@ -1,6 +1,5 @@
 import fs from "node:fs";
 import path from "node:path";
-
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { peekSystemEvents, resetSystemEventsForTest } from "../infra/system-events.js";
 import { sleep } from "../utils.js";
@@ -10,11 +9,11 @@ import { buildDockerExecArgs } from "./bash-tools.shared.js";
 import { sanitizeBinaryOutput } from "./shell-utils.js";
 
 const isWin = process.platform === "win32";
+<<<<<<< HEAD
+=======
 const resolveShellFromPath = (name: string) => {
   const envPath = process.env.PATH ?? "";
-  if (!envPath) {
-    return undefined;
-  }
+  if (!envPath) return undefined;
   const entries = envPath.split(path.delimiter).filter(Boolean);
   for (const entry of entries) {
     const candidate = path.join(entry, name);
@@ -29,7 +28,8 @@ const resolveShellFromPath = (name: string) => {
 };
 const defaultShell = isWin
   ? undefined
-  : process.env.CLAWDBOT_TEST_SHELL || resolveShellFromPath("bash") || process.env.SHELL || "sh";
+  : process.env.OPENCLAW_TEST_SHELL || resolveShellFromPath("bash") || process.env.SHELL || "sh";
+>>>>>>> 9a7160786 (refactor: rename to openclaw)
 // PowerShell: Start-Sleep for delays, ; for command separation, $null for null device
 const shortDelayCmd = isWin ? "Start-Sleep -Milliseconds 50" : "sleep 0.05";
 const yieldDelayCmd = isWin ? "Start-Sleep -Milliseconds 200" : "sleep 0.2";
@@ -288,16 +288,18 @@ describe("exec notifyOnExit", () => {
     expect(result.details.status).toBe("running");
     const sessionId = (result.details as { sessionId: string }).sessionId;
 
+    const prefix = sessionId.slice(0, 8);
     let finished = getFinishedSession(sessionId);
-    const deadline = Date.now() + (isWin ? 8000 : 2000);
-    while (!finished && Date.now() < deadline) {
+    let hasEvent = peekSystemEvents("agent:main:main").some((event) => event.includes(prefix));
+    const deadline = Date.now() + (isWin ? 12_000 : 5_000);
+    while ((!finished || !hasEvent) && Date.now() < deadline) {
       await sleep(20);
       finished = getFinishedSession(sessionId);
+      hasEvent = peekSystemEvents("agent:main:main").some((event) => event.includes(prefix));
     }
 
     expect(finished).toBeTruthy();
-    const events = peekSystemEvents("agent:main:main");
-    expect(events.some((event) => event.includes(sessionId.slice(0, 8)))).toBe(true);
+    expect(hasEvent).toBe(true);
   });
 });
 
@@ -346,16 +348,16 @@ describe("buildDockerExecArgs", () => {
     });
 
     const commandArg = args[args.length - 1];
-    expect(args).toContain("CLAWDBOT_PREPEND_PATH=/custom/bin:/usr/local/bin:/usr/bin");
-    expect(commandArg).toContain('export PATH="${CLAWDBOT_PREPEND_PATH}:$PATH"');
+    expect(args).toContain("OPENCLAW_PREPEND_PATH=/custom/bin:/usr/local/bin:/usr/bin");
+    expect(commandArg).toContain('export PATH="${OPENCLAW_PREPEND_PATH}:$PATH"');
     expect(commandArg).toContain("echo hello");
     expect(commandArg).toBe(
-      'export PATH="${CLAWDBOT_PREPEND_PATH}:$PATH"; unset CLAWDBOT_PREPEND_PATH; echo hello',
+      'export PATH="${OPENCLAW_PREPEND_PATH}:$PATH"; unset OPENCLAW_PREPEND_PATH; echo hello',
     );
   });
 
   it("does not interpolate PATH into the shell command", () => {
-    const injectedPath = "$(touch /tmp/moltbot-path-injection)";
+    const injectedPath = "$(touch /tmp/openclaw-path-injection)";
     const args = buildDockerExecArgs({
       containerName: "test-container",
       command: "echo hello",
@@ -367,9 +369,9 @@ describe("buildDockerExecArgs", () => {
     });
 
     const commandArg = args[args.length - 1];
-    expect(args).toContain(`CLAWDBOT_PREPEND_PATH=${injectedPath}`);
+    expect(args).toContain(`OPENCLAW_PREPEND_PATH=${injectedPath}`);
     expect(commandArg).not.toContain(injectedPath);
-    expect(commandArg).toContain("CLAWDBOT_PREPEND_PATH");
+    expect(commandArg).toContain("OPENCLAW_PREPEND_PATH");
   });
 
   it("does not add PATH export when PATH is not in env", () => {

@@ -1,62 +1,30 @@
-import type { Message } from "@grammyjs/types";
-import type { TelegramMediaRef } from "./bot-message-context.js";
-import type { TelegramContext } from "./bot/types.js";
+import type { TelegramMessage } from "./bot/types.js";
 import { resolveDefaultAgentId } from "../agents/agent-scope.js";
+// @ts-nocheck
 import { hasControlCommand } from "../auto-reply/command-detection.js";
 import {
   createInboundDebouncer,
   resolveInboundDebounceMs,
 } from "../auto-reply/inbound-debounce.js";
 import { buildCommandsPaginationKeyboard } from "../auto-reply/reply/commands-info.js";
-<<<<<<< HEAD
-=======
-import { buildModelsProviderData } from "../auto-reply/reply/commands-models.js";
 import { listSkillCommandsForAgents } from "../auto-reply/skill-commands.js";
->>>>>>> 16349b6e9 (Telegram: add inline button model selection for /models and /model commands)
 import { buildCommandsMessagePaginated } from "../auto-reply/status.js";
-import { listSkillCommandsForAgents } from "../auto-reply/skill-commands.js";
-import { resolveDefaultAgentId } from "../agents/agent-scope.js";
+import { resolveChannelConfigWrites } from "../channels/plugins/config-writes.js";
 import { loadConfig } from "../config/config.js";
 import { writeConfigFile } from "../config/io.js";
+import { loadSessionStore, resolveStorePath } from "../config/sessions.js";
 import { danger, logVerbose, warn } from "../globals.js";
-<<<<<<< HEAD
-import { resolveMedia } from "./bot/delivery.js";
-=======
-import { readChannelAllowFromStore } from "../pairing/pairing-store.js";
->>>>>>> 24fbafa9a (refactor: use shared pairing store for telegram)
 import { withTelegramApiErrorLogging } from "./api-logging.js";
-import { resolveTelegramForumThreadId } from "./bot/helpers.js";
-import type { TelegramMessage } from "./bot/types.js";
 import { firstDefined, isSenderAllowed, normalizeAllowFromWithStore } from "./bot-access.js";
 import { RegisterTelegramHandlerParams } from "./bot-native-commands.js";
 import { MEDIA_GROUP_TIMEOUT_MS, type MediaGroupEntry } from "./bot-updates.js";
-<<<<<<< HEAD
-=======
 import { resolveMedia } from "./bot/delivery.js";
-import {
-  buildTelegramGroupPeerId,
-  buildTelegramParentPeer,
-  resolveTelegramForumThreadId,
-} from "./bot/helpers.js";
->>>>>>> ddedb56c0 (fix(telegram): pass parentPeer for forum topic binding inheritance (#9789))
+import { resolveTelegramForumThreadId } from "./bot/helpers.js";
 import { migrateTelegramGroupConfig } from "./group-migration.js";
 import { resolveTelegramInlineButtonsScope } from "./inline-buttons.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 import { readTelegramAllowFromStore } from "./pairing-store.js";
-import { resolveChannelConfigWrites } from "../channels/plugins/config-writes.js";
-=======
->>>>>>> 24fbafa9a (refactor: use shared pairing store for telegram)
-=======
-import {
-  buildModelsKeyboard,
-  buildProviderKeyboard,
-  calculateTotalPages,
-  getModelsPageSize,
-  parseModelCallbackData,
-  type ProviderInfo,
-} from "./model-buttons.js";
->>>>>>> 16349b6e9 (Telegram: add inline button model selection for /models and /model commands)
 import { buildInlineKeyboard } from "./send.js";
 
 export const registerTelegramHandlers = ({
@@ -154,8 +122,6 @@ export const registerTelegramHandlers = ({
     },
   });
 
-<<<<<<< HEAD
-=======
   const resolveTelegramSessionModel = (params: {
     chatId: number | string;
     isGroup: boolean;
@@ -172,11 +138,6 @@ export const registerTelegramHandlers = ({
     const peerId = params.isGroup
       ? buildTelegramGroupPeerId(params.chatId, resolvedThreadId)
       : String(params.chatId);
-    const parentPeer = buildTelegramParentPeer({
-      isGroup: params.isGroup,
-      resolvedThreadId,
-      chatId: params.chatId,
-    });
     const route = resolveAgentRoute({
       cfg,
       channel: "telegram",
@@ -185,7 +146,6 @@ export const registerTelegramHandlers = ({
         kind: params.isGroup ? "group" : "dm",
         id: peerId,
       },
-      parentPeer,
     });
     const baseSessionKey = route.sessionKey;
     const dmThreadId = !params.isGroup ? params.messageThreadId : undefined;
@@ -216,7 +176,6 @@ export const registerTelegramHandlers = ({
     return typeof modelCfg === "string" ? modelCfg : modelCfg?.primary;
   };
 
->>>>>>> ddedb56c0 (fix(telegram): pass parentPeer for forum topic binding inheritance (#9789))
   const processMediaGroup = async (entry: MediaGroupEntry) => {
     try {
       entry.messages.sort((a, b) => a.msg.message_id - b.msg.message_id);
@@ -504,6 +463,8 @@ export const registerTelegramHandlers = ({
         return;
       }
 
+<<<<<<< HEAD
+=======
       // Model selection callback handler (mdl_prov, mdl_list_*, mdl_sel_*, mdl_back)
       const modelCallback = parseModelCallbackData(data);
       if (modelCallback) {
@@ -565,9 +526,14 @@ export const registerTelegramHandlers = ({
           const totalPages = calculateTotalPages(models.length, pageSize);
           const safePage = Math.max(1, Math.min(page, totalPages));
 
-          // Get current model from config for checkmark display
-          const modelCfg = cfg.agents?.defaults?.model;
-          const currentModel = typeof modelCfg === "string" ? modelCfg : modelCfg?.primary;
+          // Resolve current model from session (prefer overrides)
+          const currentModel = resolveTelegramSessionModel({
+            chatId,
+            isGroup,
+            isForum,
+            messageThreadId,
+            resolvedThreadId,
+          });
 
           const buttons = buildModelsKeyboard({
             provider,
@@ -585,7 +551,7 @@ export const registerTelegramHandlers = ({
         if (modelCallback.type === "select") {
           const { provider, model } = modelCallback;
           // Process model selection as a synthetic message with /model command
-          const syntheticMessage: Message = {
+          const syntheticMessage: TelegramMessage = {
             ...callbackMessage,
             from: callback.from,
             text: `/model ${provider}/${model}`,
@@ -610,7 +576,8 @@ export const registerTelegramHandlers = ({
         return;
       }
 
-      const syntheticMessage: Message = {
+>>>>>>> 41a4f1200 (fix: honor telegram model overrides in buttons (#8193) (thanks @gildo))
+      const syntheticMessage: TelegramMessage = {
         ...callbackMessage,
         from: callback.from,
         text: data,

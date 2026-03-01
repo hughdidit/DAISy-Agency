@@ -4,15 +4,13 @@
  */
 
 import crypto from "node:crypto";
-
-import { loadCoreAgentDeps, type CoreConfig } from "./core-bridge.js";
-
 import type { VoiceCallConfig } from "./config.js";
+import { loadCoreAgentDeps, type CoreConfig } from "./core-bridge.js";
 
 export type VoiceResponseParams = {
   /** Voice call config */
   voiceConfig: VoiceCallConfig;
-  /** Core Moltbot config */
+  /** Core OpenClaw config */
   coreConfig: CoreConfig;
   /** Call ID for session tracking */
   callId: string;
@@ -154,7 +152,7 @@ export async function generateVoiceResponse(
 
     return { text };
   } catch (err) {
-    console.error(`[voice-call] Response generation failed:`, err);
+    console.error(`[voice-call] Response generation failed: ${err}`); // standalone util
     return { text: null, error: String(err) };
   }
 }

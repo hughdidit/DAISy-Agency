@@ -1,8 +1,7 @@
 import { createHash } from "node:crypto";
-import fs from "node:fs/promises";
 import fsSync from "node:fs";
+import fs from "node:fs/promises";
 import path from "node:path";
-
 import { resolveConfigPath, resolveGatewayLockDir, resolveStateDir } from "../config/paths.js";
 
 const DEFAULT_TIMEOUT_MS = 5000;
@@ -73,11 +72,16 @@ function isGatewayArgv(args: string[]): boolean {
   }
 
   const entryCandidates = [
-    "dist/index.js",
+<<<<<<< HEAD
     "dist/index.mjs",
+    "dist/index.mjs",
+=======
+    "dist/index.js",
+>>>>>>> 76361ae3a (revert: Switch back to `tsc` for compiling.)
     "dist/entry.js",
-    "moltbot.mjs",
+    "openclaw.mjs",
     "dist/entry.mjs",
+    "openclaw.mjs",
     "scripts/run-node.mjs",
     "src/index.ts",
   ];
@@ -86,7 +90,7 @@ function isGatewayArgv(args: string[]): boolean {
   }
 
   const exe = normalized[0] ?? "";
-  return exe.endsWith("/moltbot") || exe === "moltbot";
+  return exe.endsWith("/openclaw") || exe === "openclaw";
 }
 
 function readLinuxCmdline(pid: number): string[] | null {
@@ -182,7 +186,7 @@ export async function acquireGatewayLock(
   const env = opts.env ?? process.env;
   const allowInTests = opts.allowInTests === true;
   if (
-    env.CLAWDBOT_ALLOW_MULTI_GATEWAY === "1" ||
+    env.OPENCLAW_ALLOW_MULTI_GATEWAY === "1" ||
     (!allowInTests && (env.VITEST || env.NODE_ENV === "test"))
   ) {
     return null;

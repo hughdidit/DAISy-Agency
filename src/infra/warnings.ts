@@ -1,5 +1,4 @@
-<<<<<<< HEAD
-const warningFilterKey = Symbol.for("moltbot.warning-filter");
+const warningFilterKey = Symbol.for("openclaw.warning-filter");
 
 type Warning = Error & {
   code?: string;

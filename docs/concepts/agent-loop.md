@@ -2,19 +2,15 @@
 summary: "Agent loop lifecycle, streams, and wait semantics"
 read_when:
   - You need an exact walkthrough of the agent loop or lifecycle events
+title: "Agent Loop"
 ---
-<<<<<<< HEAD
-# Agent Loop (Moltbot)
-=======
-
 # Agent Loop (OpenClaw)
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 An agentic loop is the full “real” run of an agent: intake → context assembly → model inference →
 tool execution → streaming replies → persistence. It’s the authoritative path that turns a message
 into actions and a final reply, while keeping session state consistent.
 
-In Moltbot, a loop is a single, serialized run per session that emits lifecycle and stream events
+In OpenClaw, a loop is a single, serialized run per session that emits lifecycle and stream events
 as the model thinks, calls tools, and streams output. This doc explains how that authentic loop is
 wired end-to-end.
 
@@ -37,11 +33,7 @@ wired end-to-end.
    - subscribes to pi events and streams assistant/tool deltas
    - enforces timeout -> aborts run if exceeded
    - returns payloads + usage metadata
-<<<<<<< HEAD
-4) `subscribeEmbeddedPiSession` bridges pi-agent-core events to Moltbot `agent` stream:
-=======
-4. `subscribeEmbeddedPiSession` bridges pi-agent-core events to OpenClaw `agent` stream:
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
+4) `subscribeEmbeddedPiSession` bridges pi-agent-core events to OpenClaw `agent` stream:
    - tool events => `stream: "tool"`
    - assistant deltas => `stream: "assistant"`
    - lifecycle events => `stream: "lifecycle"` (`phase: "start" | "end" | "error"`)
@@ -64,23 +56,12 @@ wired end-to-end.
 - A session write lock is acquired; `SessionManager` is opened and prepared before streaming.
 
 ## Prompt assembly + system prompt
-<<<<<<< HEAD
-- System prompt is built from Moltbot’s base prompt, skills prompt, bootstrap context, and per-run overrides.
-=======
-
 - System prompt is built from OpenClaw’s base prompt, skills prompt, bootstrap context, and per-run overrides.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - Model-specific limits and compaction reserve tokens are enforced.
 - See [System prompt](/concepts/system-prompt) for what the model sees.
 
 ## Hook points (where you can intercept)
-<<<<<<< HEAD
-Moltbot has two hook systems:
-=======
-
 OpenClaw has two hook systems:
-
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - **Internal hooks** (Gateway hooks): event-driven scripts for commands and lifecycle events.
 - **Plugin hooks**: extension points inside the agent/tool lifecycle and gateway pipeline.
 

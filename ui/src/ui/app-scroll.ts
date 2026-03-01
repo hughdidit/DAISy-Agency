@@ -15,10 +15,15 @@ type ScrollHost = {
   topbarObserver: ResizeObserver | null;
 };
 
+<<<<<<< HEAD
 export function scheduleChatScroll(host: ScrollHost, force = false) {
+  if (host.chatScrollFrame) cancelAnimationFrame(host.chatScrollFrame);
+=======
+export function scheduleChatScroll(host: ScrollHost, force = false, smooth = false) {
   if (host.chatScrollFrame) {
     cancelAnimationFrame(host.chatScrollFrame);
   }
+>>>>>>> bc475f017 (fix(ui): smooth chat refresh scroll and suppress new-messages badge flash)
   if (host.chatScrollTimeout != null) {
     clearTimeout(host.chatScrollTimeout);
     host.chatScrollTimeout = null;
@@ -42,6 +47,15 @@ export function scheduleChatScroll(host: ScrollHost, force = false) {
     host.chatScrollFrame = requestAnimationFrame(() => {
       host.chatScrollFrame = null;
       const target = pickScrollTarget();
+<<<<<<< HEAD
+      if (!target) return;
+      const distanceFromBottom =
+        target.scrollHeight - target.scrollTop - target.clientHeight;
+      const shouldStick = force || host.chatUserNearBottom || distanceFromBottom < 200;
+      if (!shouldStick) return;
+      if (force) host.chatHasAutoScrolled = true;
+      target.scrollTop = target.scrollHeight;
+=======
       if (!target) {
         return;
       }
@@ -61,10 +75,25 @@ export function scheduleChatScroll(host: ScrollHost, force = false) {
       if (effectiveForce) {
         host.chatHasAutoScrolled = true;
       }
-      target.scrollTop = target.scrollHeight;
+      const smoothEnabled =
+        smooth &&
+        (typeof window === "undefined" ||
+          typeof window.matchMedia !== "function" ||
+          !window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+      const scrollTop = target.scrollHeight;
+      if (typeof target.scrollTo === "function") {
+        target.scrollTo({ top: scrollTop, behavior: smoothEnabled ? "smooth" : "auto" });
+      } else {
+        target.scrollTop = scrollTop;
+      }
+>>>>>>> bc475f017 (fix(ui): smooth chat refresh scroll and suppress new-messages badge flash)
       host.chatUserNearBottom = true;
-      host.chatNewMessagesBelow = false;
+<<<<<<< HEAD
       const retryDelay = force ? 150 : 120;
+=======
+      host.chatNewMessagesBelow = false;
+      const retryDelay = effectiveForce ? 150 : 120;
+>>>>>>> 822388fe9 (fix: address review feedback — retryDelay uses effectiveForce, default overrides param, @state() on chatNewMessagesBelow)
       host.chatScrollTimeout = window.setTimeout(() => {
         host.chatScrollTimeout = null;
         const latest = pickScrollTarget();
@@ -146,7 +175,7 @@ export function exportLogs(lines: string[], label: string) {
   const anchor = document.createElement("a");
   const stamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, "-");
   anchor.href = url;
-  anchor.download = `moltbot-logs-${label}-${stamp}.log`;
+  anchor.download = `openclaw-logs-${label}-${stamp}.log`;
   anchor.click();
   URL.revokeObjectURL(url);
 }

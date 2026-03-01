@@ -1,13 +1,16 @@
-import type { CoreConfig } from "./core-bridge.js";
 import type { VoiceCallConfig } from "./config.js";
+import type { CoreConfig } from "./core-bridge.js";
+import type { VoiceCallProvider } from "./providers/base.js";
+import type { TelephonyTtsRuntime } from "./telephony-tts.js";
 import { resolveVoiceCallConfig, validateProviderConfig } from "./config.js";
 import { CallManager } from "./manager.js";
+import type { Logger } from "./manager/context.js";
+import { defaultLogger } from "./manager/context.js";
 import type { VoiceCallProvider } from "./providers/base.js";
 import { MockProvider } from "./providers/mock.js";
 import { PlivoProvider } from "./providers/plivo.js";
 import { TelnyxProvider } from "./providers/telnyx.js";
 import { TwilioProvider } from "./providers/twilio.js";
-import type { TelephonyTtsRuntime } from "./telephony-tts.js";
 import { createTelephonyTtsProvider } from "./telephony-tts.js";
 import { startTunnel, type TunnelResult } from "./tunnel.js";
 import {
@@ -26,13 +29,6 @@ export type VoiceCallRuntime = {
   stop: () => Promise<void>;
 };
 
-type Logger = {
-  info: (message: string) => void;
-  warn: (message: string) => void;
-  error: (message: string) => void;
-  debug: (message: string) => void;
-};
-
 function isLoopbackBind(bind: string | undefined): boolean {
   if (!bind) {
     return false;
@@ -40,11 +36,17 @@ function isLoopbackBind(bind: string | undefined): boolean {
   return bind === "127.0.0.1" || bind === "::1" || bind === "localhost";
 }
 
-function resolveProvider(config: VoiceCallConfig): VoiceCallProvider {
+function resolveProvider(config: VoiceCallConfig, logger?: Logger): VoiceCallProvider {
   const allowNgrokFreeTierLoopbackBypass =
     config.tunnel?.provider === "ngrok" &&
     isLoopbackBind(config.serve?.bind) &&
-    (config.tunnel?.allowNgrokFreeTierLoopbackBypass || config.tunnel?.allowNgrokFreeTier || false);
+<<<<<<< HEAD
+    (config.tunnel?.allowNgrokFreeTierLoopbackBypass ||
+      config.tunnel?.allowNgrokFreeTier ||
+      false);
+=======
+    (config.tunnel?.allowNgrokFreeTierLoopbackBypass ?? false);
+>>>>>>> a749db982 (fix: harden voice-call webhook verification)
 
   switch (config.provider) {
     case "telnyx":
@@ -52,7 +54,7 @@ function resolveProvider(config: VoiceCallConfig): VoiceCallProvider {
         apiKey: config.telnyx?.apiKey,
         connectionId: config.telnyx?.connectionId,
         publicKey: config.telnyx?.publicKey,
-      });
+      }, logger);
     case "twilio":
       return new TwilioProvider(
         {
@@ -63,8 +65,16 @@ function resolveProvider(config: VoiceCallConfig): VoiceCallProvider {
           allowNgrokFreeTierLoopbackBypass,
           publicUrl: config.publicUrl,
           skipVerification: config.skipSignatureVerification,
+<<<<<<< HEAD
+          streamPath: config.streaming?.enabled
+            ? config.streaming.streamPath
+            : undefined,
+=======
           streamPath: config.streaming?.enabled ? config.streaming.streamPath : undefined,
+          webhookSecurity: config.webhookSecurity,
+>>>>>>> a749db982 (fix: harden voice-call webhook verification)
         },
+        logger,
       );
     case "plivo":
       return new PlivoProvider(
@@ -76,7 +86,9 @@ function resolveProvider(config: VoiceCallConfig): VoiceCallProvider {
           publicUrl: config.publicUrl,
           skipVerification: config.skipSignatureVerification,
           ringTimeoutSec: Math.max(1, Math.floor(config.ringTimeoutMs / 1000)),
+          webhookSecurity: config.webhookSecurity,
         },
+        logger,
       );
     case "mock":
       return new MockProvider();
@@ -92,12 +104,7 @@ export async function createVoiceCallRuntime(params: {
   logger?: Logger;
 }): Promise<VoiceCallRuntime> {
   const { config: rawConfig, coreConfig, ttsRuntime, logger } = params;
-  const log = logger ?? {
-    info: console.log,
-    warn: console.warn,
-    error: console.error,
-    debug: console.debug,
-  };
+  const log = logger ?? defaultLogger;
 
   const config = resolveVoiceCallConfig(rawConfig);
 
@@ -110,9 +117,15 @@ export async function createVoiceCallRuntime(params: {
     throw new Error(`Invalid voice-call config: ${validation.errors.join("; ")}`);
   }
 
-  const provider = resolveProvider(config);
-  const manager = new CallManager(config);
-  const webhookServer = new VoiceCallWebhookServer(config, manager, provider, coreConfig);
+  const provider = resolveProvider(config, log);
+  const manager = new CallManager(config, undefined, log);
+  const webhookServer = new VoiceCallWebhookServer(
+    config,
+    manager,
+    provider,
+    coreConfig,
+    log,
+  );
 
   const localUrl = await webhookServer.start();
 

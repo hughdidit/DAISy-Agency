@@ -1,6 +1,10 @@
-import { listChannelPlugins } from "../../channels/plugins/index.js";
 import type { ChannelPlugin } from "../../channels/plugins/types.js";
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
+=======
+import type { OpenClawConfig } from "../../config/config.js";
+import { listChannelPlugins } from "../../channels/plugins/index.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import {
   listDeliverableMessageChannels,
   type DeliverableMessageChannel,
@@ -23,7 +27,7 @@ function isAccountEnabled(account: unknown): boolean {
   return enabled !== false;
 }
 
-async function isPluginConfigured(plugin: ChannelPlugin, cfg: MoltbotConfig): Promise<boolean> {
+async function isPluginConfigured(plugin: ChannelPlugin, cfg: OpenClawConfig): Promise<boolean> {
   const accountIds = plugin.config.listAccountIds(cfg);
   if (accountIds.length === 0) {
     return false;
@@ -50,7 +54,7 @@ async function isPluginConfigured(plugin: ChannelPlugin, cfg: MoltbotConfig): Pr
 }
 
 export async function listConfiguredMessageChannels(
-  cfg: MoltbotConfig,
+  cfg: OpenClawConfig,
 ): Promise<MessageChannelId[]> {
   const channels: MessageChannelId[] = [];
   for (const plugin of listChannelPlugins()) {
@@ -65,7 +69,7 @@ export async function listConfiguredMessageChannels(
 }
 
 export async function resolveMessageChannelSelection(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   channel?: string | null;
 }): Promise<{ channel: MessageChannelId; configured: MessageChannelId[] }> {
   const normalized = normalizeMessageChannel(params.channel);

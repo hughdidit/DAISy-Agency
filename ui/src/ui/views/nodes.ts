@@ -1,11 +1,4 @@
 import { html, nothing } from "lit";
-
-import { clampText, formatAgo, formatList } from "../format";
-import type {
-  ExecApprovalsAllowlistEntry,
-  ExecApprovalsFile,
-  ExecApprovalsSnapshot,
-} from "../controllers/exec-approvals";
 import type {
   DevicePairingList,
   DeviceTokenSummary,
@@ -13,19 +6,12 @@ import type {
   PendingDevice,
 <<<<<<< HEAD
 } from "../controllers/devices";
-=======
-} from "../controllers/devices.ts";
 import type {
   ExecApprovalsAllowlistEntry,
   ExecApprovalsFile,
   ExecApprovalsSnapshot,
-} from "../controllers/exec-approvals.ts";
-<<<<<<< HEAD
-import { clampText, formatAgo, formatList } from "../format.ts";
->>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
-=======
-import { clampText, formatRelativeTimestamp, formatList } from "../format.ts";
->>>>>>> a1123dd9b (Centralize date/time formatting utilities (#11831))
+} from "../controllers/exec-approvals";
+import { clampText, formatAgo, formatList } from "../format";
 
 export type NodesProps = {
   loading: boolean;

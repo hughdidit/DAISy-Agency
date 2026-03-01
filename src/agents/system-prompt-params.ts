@@ -1,7 +1,11 @@
 import fs from "node:fs";
 import path from "node:path";
+<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../config/config.js";
+=======
+import type { OpenClawConfig } from "../config/config.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import {
   formatUserTime,
   resolveUserTimeFormat,
@@ -33,7 +37,7 @@ export type SystemPromptRuntimeParams = {
 };
 
 export function buildSystemPromptParams(params: {
-  config?: MoltbotConfig;
+  config?: OpenClawConfig;
   agentId?: string;
   runtime: Omit<RuntimeInfoInput, "agentId">;
   workspaceDir?: string;
@@ -60,7 +64,7 @@ export function buildSystemPromptParams(params: {
 }
 
 function resolveRepoRoot(params: {
-  config?: MoltbotConfig;
+  config?: OpenClawConfig;
   workspaceDir?: string;
   cwd?: string;
 }): string | undefined {

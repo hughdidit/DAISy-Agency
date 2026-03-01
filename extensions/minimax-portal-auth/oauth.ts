@@ -98,7 +98,9 @@ async function requestOAuthCode(params: {
     );
   }
   if (payload.state !== params.state) {
-    throw new Error("MiniMax OAuth state mismatch: possible CSRF attack or session corruption.");
+    throw new Error(
+      "MiniMax OAuth state mismatch: possible CSRF attack or session corruption.",
+    );
   }
   return payload;
 }
@@ -142,7 +144,9 @@ async function pollOAuthToken(params: {
     return {
       status: "error",
       message:
-        (payload?.base_resp?.status_msg ?? text) || "MiniMax OAuth failed to parse response.",
+        payload?.base_resp?.status_msg ??
+        text ||
+        "MiniMax OAuth failed to parse response.",
     };
   }
 
@@ -161,9 +165,9 @@ async function pollOAuthToken(params: {
   };
 
   if (tokenPayload.status === "error") {
-    return { status: "error", message: "An error occurred. Please try again later" };
+    return { status: "error", message: "An error occurred. Please try again later"};
   }
-
+  
   if (tokenPayload.status != "success") {
     return { status: "pending", message: "current user code is not authorized" };
   }
@@ -198,7 +202,7 @@ export async function loginMiniMaxPortalOAuth(params: {
   const noteLines = [
     `Open ${verificationUrl} to approve access.`,
     `If prompted, enter the code ${oauth.user_code}.`,
-    `Interval: ${oauth.interval ?? "default (2000ms)"}, Expires at: ${oauth.expired_in} unix timestamp`,
+    `Interval: ${oauth.interval ?? "default (2000ms)"}, Expires in: ${oauth.expired_in}ms`,
   ];
   await params.note(noteLines.join("\n"), "MiniMax OAuth");
 
@@ -210,6 +214,7 @@ export async function loginMiniMaxPortalOAuth(params: {
 
   let pollIntervalMs = oauth.interval ? oauth.interval : 2000;
   const expireTimeMs = oauth.expired_in;
+
 
   while (Date.now() < expireTimeMs) {
     params.progress.update("Waiting for MiniMax OAuth approval…");

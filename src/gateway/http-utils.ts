@@ -1,6 +1,5 @@
-import { randomUUID } from "node:crypto";
 import type { IncomingMessage } from "node:http";
-
+import { randomUUID } from "node:crypto";
 import { buildAgentMainSessionKey, normalizeAgentId } from "../routing/session-key.js";
 
 export function getHeader(req: IncomingMessage, name: string): string | undefined {
@@ -25,8 +24,9 @@ export function getBearerToken(req: IncomingMessage): string | undefined {
 
 export function resolveAgentIdFromHeader(req: IncomingMessage): string | undefined {
   const raw =
-<<<<<<< HEAD
-    getHeader(req, "x-moltbot-agent-id")?.trim() || getHeader(req, "x-moltbot-agent")?.trim() || "";
+    getHeader(req, "x-openclaw-agent-id")?.trim() ||
+    getHeader(req, "x-openclaw-agent")?.trim() ||
+    "";
   if (!raw) return undefined;
 =======
     getHeader(req, "x-openclaw-agent-id")?.trim() ||
@@ -46,7 +46,7 @@ export function resolveAgentIdFromModel(model: string | undefined): string | und
   }
 
   const m =
-    raw.match(/^moltbot[:/](?<agentId>[a-z0-9][a-z0-9_-]{0,63})$/i) ??
+    raw.match(/^openclaw[:/](?<agentId>[a-z0-9][a-z0-9_-]{0,63})$/i) ??
     raw.match(/^agent:(?<agentId>[a-z0-9][a-z0-9_-]{0,63})$/i);
   const agentId = m?.groups?.agentId;
   if (!agentId) {
@@ -74,8 +74,7 @@ export function resolveSessionKey(params: {
   user?: string | undefined;
   prefix: string;
 }): string {
-<<<<<<< HEAD
-  const explicit = getHeader(params.req, "x-moltbot-session-key")?.trim();
+  const explicit = getHeader(params.req, "x-openclaw-session-key")?.trim();
   if (explicit) return explicit;
 =======
   const explicit = getHeader(params.req, "x-openclaw-session-key")?.trim();

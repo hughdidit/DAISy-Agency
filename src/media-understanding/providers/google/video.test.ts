@@ -1,10 +1,5 @@
 <<<<<<< HEAD
 import { describe, expect, it } from "vitest";
-
-=======
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import * as ssrf from "../../../infra/net/ssrf.js";
->>>>>>> 991ed3ab5 (Tests: stub SSRF DNS pinning (#6619) (thanks @joshp123))
 import { describeGeminiVideo } from "./video.js";
 
 const TEST_NET_IP = "203.0.113.10";
@@ -20,7 +15,9 @@ const resolveRequestUrl = (input: RequestInfo | URL) => {
 };
 
 describe("describeGeminiVideo", () => {
-  let resolvePinnedHostnameSpy: ReturnType<typeof vi.spyOn> | undefined;
+<<<<<<< HEAD
+=======
+  let resolvePinnedHostnameSpy: ReturnType<typeof vi.spyOn>;
 
   beforeEach(() => {
     resolvePinnedHostnameSpy = vi
@@ -42,6 +39,7 @@ describe("describeGeminiVideo", () => {
     resolvePinnedHostnameSpy = undefined;
   });
 
+>>>>>>> 425003417 (fix: Remove `tsconfig.oxlint.json` AGAIN.)
   it("respects case-insensitive x-goog-api-key overrides", async () => {
     let seenKey: string | null = null;
     const fetchFn = async (_input: RequestInfo | URL, init?: RequestInit) => {

@@ -1,6 +1,4 @@
 import { html, nothing } from "lit";
-<<<<<<< HEAD
-
 import type { LogEntry, LogLevel } from "../types";
 =======
 import type { LogEntry, LogLevel } from "../types.ts";

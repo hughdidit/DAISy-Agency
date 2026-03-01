@@ -2,10 +2,8 @@
 import { spawn } from "node:child_process";
 import path from "node:path";
 import process from "node:process";
-
 import { applyCliProfileEnv, parseCliProfileArgs } from "./cli/profile.js";
-<<<<<<< HEAD
-import { isTruthyEnvValue } from "./infra/env.js";
+import { isTruthyEnvValue, normalizeEnv } from "./infra/env.js";
 import { installProcessWarningFilter } from "./infra/warnings.js";
 =======
 import { isTruthyEnvValue, normalizeEnv } from "./infra/env.js";
@@ -13,8 +11,9 @@ import { installProcessWarningFilter } from "./infra/warning-filter.js";
 >>>>>>> a1123dd9b (Centralize date/time formatting utilities (#11831))
 import { attachChildProcessBridge } from "./process/child-process-bridge.js";
 
-process.title = "moltbot";
+process.title = "openclaw";
 installProcessWarningFilter();
+normalizeEnv();
 
 if (process.argv.includes("--no-color")) {
   process.env.NO_COLOR = "1";
@@ -37,24 +36,14 @@ function hasExperimentalWarningSuppressed(): boolean {
 }
 
 function ensureExperimentalWarningSuppressed(): boolean {
-<<<<<<< HEAD
-  if (isTruthyEnvValue(process.env.CLAWDBOT_NO_RESPAWN)) return false;
-  if (isTruthyEnvValue(process.env.CLAWDBOT_NODE_OPTIONS_READY)) return false;
-=======
-  if (isTruthyEnvValue(process.env.OPENCLAW_NO_RESPAWN)) {
-    return false;
-  }
-  if (isTruthyEnvValue(process.env.OPENCLAW_NODE_OPTIONS_READY)) {
-    return false;
-  }
-<<<<<<< HEAD
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
+  if (isTruthyEnvValue(process.env.OPENCLAW_NO_RESPAWN)) return false;
+  if (isTruthyEnvValue(process.env.OPENCLAW_NODE_OPTIONS_READY)) return false;
   const nodeOptions = process.env.NODE_OPTIONS ?? "";
   if (hasExperimentalWarningSuppressed(nodeOptions)) {
     return false;
   }
 
-  process.env.CLAWDBOT_NODE_OPTIONS_READY = "1";
+  process.env.OPENCLAW_NODE_OPTIONS_READY = "1";
   process.env.NODE_OPTIONS = `${nodeOptions} ${EXPERIMENTAL_WARNING_FLAG}`.trim();
 
   const child = spawn(process.execPath, [...process.execArgv, ...process.argv.slice(1)], {
@@ -91,7 +80,7 @@ function ensureExperimentalWarningSuppressed(): boolean {
 
   child.once("error", (error) => {
     console.error(
-      "[moltbot] Failed to respawn CLI:",
+      "[openclaw] Failed to respawn CLI:",
       error instanceof Error ? (error.stack ?? error.message) : error,
     );
     process.exit(1);
@@ -174,7 +163,7 @@ if (!ensureExperimentalWarningSuppressed()) {
   const parsed = parseCliProfileArgs(process.argv);
   if (!parsed.ok) {
     // Keep it simple; Commander will handle rich help/errors after we strip flags.
-    console.error(`[moltbot] ${parsed.error}`);
+    console.error(`[openclaw] ${parsed.error}`);
     process.exit(2);
   }
 
@@ -188,7 +177,7 @@ if (!ensureExperimentalWarningSuppressed()) {
     .then(({ runCli }) => runCli(process.argv))
     .catch((error) => {
       console.error(
-        "[moltbot] Failed to start CLI:",
+        "[openclaw] Failed to start CLI:",
         error instanceof Error ? (error.stack ?? error.message) : error,
       );
       process.exitCode = 1;

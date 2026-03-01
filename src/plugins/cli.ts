@@ -1,15 +1,24 @@
 import type { Command } from "commander";
+<<<<<<< HEAD
 
 import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../agents/agent-scope.js";
-import type { MoltbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 import { loadConfig } from "../config/config.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
-import { loadMoltbotPlugins } from "./loader.js";
+import { loadOpenClawPlugins } from "./loader.js";
 import type { PluginLogger } from "./types.js";
+=======
+import type { OpenClawConfig } from "../config/config.js";
+import type { PluginLogger } from "./types.js";
+import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../agents/agent-scope.js";
+import { loadConfig } from "../config/config.js";
+import { createSubsystemLogger } from "../logging/subsystem.js";
+import { loadOpenClawPlugins } from "./loader.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 
 const log = createSubsystemLogger("plugins");
 
-export function registerPluginCliCommands(program: Command, cfg?: MoltbotConfig) {
+export function registerPluginCliCommands(program: Command, cfg?: OpenClawConfig) {
   const config = cfg ?? loadConfig();
   const workspaceDir = resolveAgentWorkspaceDir(config, resolveDefaultAgentId(config));
   const logger: PluginLogger = {
@@ -18,7 +27,7 @@ export function registerPluginCliCommands(program: Command, cfg?: MoltbotConfig)
     error: (msg: string) => log.error(msg),
     debug: (msg: string) => log.debug(msg),
   };
-  const registry = loadMoltbotPlugins({
+  const registry = loadOpenClawPlugins({
     config,
     workspaceDir,
     logger,

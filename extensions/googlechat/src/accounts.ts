@@ -1,7 +1,13 @@
+<<<<<<< HEAD
 import type { MoltbotConfig } from "clawdbot/plugin-sdk";
 import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "clawdbot/plugin-sdk";
 
+import type { GoogleChatAccountConfig, GoogleChatConfig } from "./types.config.js";
+=======
+import type { OpenClawConfig } from "openclaw/plugin-sdk";
+import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "openclaw/plugin-sdk";
 import type { GoogleChatAccountConfig } from "./types.config.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 
 export type GoogleChatCredentialSource = "file" | "inline" | "env" | "none";
 
@@ -18,8 +24,7 @@ export type ResolvedGoogleChatAccount = {
 const ENV_SERVICE_ACCOUNT = "GOOGLE_CHAT_SERVICE_ACCOUNT";
 const ENV_SERVICE_ACCOUNT_FILE = "GOOGLE_CHAT_SERVICE_ACCOUNT_FILE";
 
-<<<<<<< HEAD
-function listConfiguredAccountIds(cfg: MoltbotConfig): string[] {
+function listConfiguredAccountIds(cfg: OpenClawConfig): string[] {
   const accounts = (cfg.channels?.["googlechat"] as GoogleChatConfig | undefined)?.accounts;
   if (!accounts || typeof accounts !== "object") return [];
 =======
@@ -32,7 +37,7 @@ function listConfiguredAccountIds(cfg: OpenClawConfig): string[] {
   return Object.keys(accounts).filter(Boolean);
 }
 
-export function listGoogleChatAccountIds(cfg: MoltbotConfig): string[] {
+export function listGoogleChatAccountIds(cfg: OpenClawConfig): string[] {
   const ids = listConfiguredAccountIds(cfg);
   if (ids.length === 0) {
     return [DEFAULT_ACCOUNT_ID];
@@ -40,8 +45,7 @@ export function listGoogleChatAccountIds(cfg: MoltbotConfig): string[] {
   return ids.toSorted((a, b) => a.localeCompare(b));
 }
 
-<<<<<<< HEAD
-export function resolveDefaultGoogleChatAccountId(cfg: MoltbotConfig): string {
+export function resolveDefaultGoogleChatAccountId(cfg: OpenClawConfig): string {
   const channel = cfg.channels?.["googlechat"] as GoogleChatConfig | undefined;
   if (channel?.defaultAccount?.trim()) return channel.defaultAccount.trim();
 =======
@@ -59,18 +63,24 @@ export function resolveDefaultGoogleChatAccountId(cfg: OpenClawConfig): string {
 }
 
 function resolveAccountConfig(
-  cfg: MoltbotConfig,
+  cfg: OpenClawConfig,
   accountId: string,
 ): GoogleChatAccountConfig | undefined {
+<<<<<<< HEAD
+  const accounts = (cfg.channels?.["googlechat"] as GoogleChatConfig | undefined)?.accounts;
+  if (!accounts || typeof accounts !== "object") return undefined;
+  return accounts[accountId] as GoogleChatAccountConfig | undefined;
+=======
   const accounts = cfg.channels?.["googlechat"]?.accounts;
   if (!accounts || typeof accounts !== "object") {
     return undefined;
   }
-  return accounts[accountId] as GoogleChatAccountConfig | undefined;
+  return accounts[accountId];
+>>>>>>> 19775abdd (fix: clean up plugin linting and types)
 }
 
 function mergeGoogleChatAccountConfig(
-  cfg: MoltbotConfig,
+  cfg: OpenClawConfig,
   accountId: string,
 ): GoogleChatAccountConfig {
   const raw = cfg.channels?.["googlechat"] ?? {};
@@ -132,7 +142,7 @@ function resolveCredentialsFromConfig(params: {
 }
 
 export function resolveGoogleChatAccount(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   accountId?: string | null;
 }): ResolvedGoogleChatAccount {
   const accountId = normalizeAccountId(params.accountId);
@@ -153,7 +163,7 @@ export function resolveGoogleChatAccount(params: {
   };
 }
 
-export function listEnabledGoogleChatAccounts(cfg: MoltbotConfig): ResolvedGoogleChatAccount[] {
+export function listEnabledGoogleChatAccounts(cfg: OpenClawConfig): ResolvedGoogleChatAccount[] {
   return listGoogleChatAccountIds(cfg)
     .map((accountId) => resolveGoogleChatAccount({ cfg, accountId }))
     .filter((account) => account.enabled);

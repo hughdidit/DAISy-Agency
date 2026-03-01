@@ -3,6 +3,7 @@ summary: "Model provider overview with example configs + CLI flows"
 read_when:
   - You need a provider-by-provider model setup reference
   - You want example configs or CLI onboarding commands for model providers
+title: "Model Providers"
 ---
 
 # Model providers
@@ -12,25 +13,29 @@ For model selection rules, see [/concepts/models](/concepts/models).
 
 ## Quick rules
 
-- Model refs use `provider/model` (example: `opencode/claude-opus-4-5`).
+- Model refs use `provider/model` (example: `opencode/claude-opus-4-6`).
 - If you set `agents.defaults.models`, it becomes the allowlist.
-- CLI helpers: `moltbot onboard`, `moltbot models list`, `moltbot models set <provider/model>`.
+- CLI helpers: `openclaw onboard`, `openclaw models list`, `openclaw models set <provider/model>`.
 
 ## Built-in providers (pi-ai catalog)
 
-Moltbot ships with the pi‑ai catalog. These providers require **no**
+OpenClaw ships with the pi‑ai catalog. These providers require **no**
 `models.providers` config; just set auth + pick a model.
 
 ### OpenAI
 
 - Provider: `openai`
 - Auth: `OPENAI_API_KEY`
-- Example model: `openai/gpt-5.2`
-- CLI: `moltbot onboard --auth-choice openai-api-key`
+- Example model: `openai/gpt-5.1-codex`
+- CLI: `openclaw onboard --auth-choice openai-api-key`
 
 ```json5
 {
-  agents: { defaults: { model: { primary: "openai/gpt-5.2" } } },
+<<<<<<< HEAD
+  agents: { defaults: { model: { primary: "openai/gpt-5.2" } } }
+=======
+  agents: { defaults: { model: { primary: "openai/gpt-5.1-codex" } } },
+>>>>>>> 462905440 (chore: apply local workspace updates (#9911))
 }
 ```
 
@@ -38,12 +43,16 @@ Moltbot ships with the pi‑ai catalog. These providers require **no**
 
 - Provider: `anthropic`
 - Auth: `ANTHROPIC_API_KEY` or `claude setup-token`
-- Example model: `anthropic/claude-opus-4-5`
-- CLI: `moltbot onboard --auth-choice token` (paste setup-token) or `moltbot models auth paste-token --provider anthropic`
+- Example model: `anthropic/claude-opus-4-6`
+- CLI: `openclaw onboard --auth-choice token` (paste setup-token) or `openclaw models auth paste-token --provider anthropic`
 
 ```json5
 {
-  agents: { defaults: { model: { primary: "anthropic/claude-opus-4-5" } } },
+<<<<<<< HEAD
+  agents: { defaults: { model: { primary: "anthropic/claude-opus-4-5" } } }
+=======
+  agents: { defaults: { model: { primary: "anthropic/claude-opus-4-6" } } },
+>>>>>>> 462905440 (chore: apply local workspace updates (#9911))
 }
 ```
 
@@ -51,12 +60,16 @@ Moltbot ships with the pi‑ai catalog. These providers require **no**
 
 - Provider: `openai-codex`
 - Auth: OAuth (ChatGPT)
-- Example model: `openai-codex/gpt-5.2`
-- CLI: `moltbot onboard --auth-choice openai-codex` or `moltbot models auth login --provider openai-codex`
+- Example model: `openai-codex/gpt-5.3-codex`
+- CLI: `openclaw onboard --auth-choice openai-codex` or `openclaw models auth login --provider openai-codex`
 
 ```json5
 {
-  agents: { defaults: { model: { primary: "openai-codex/gpt-5.2" } } },
+<<<<<<< HEAD
+  agents: { defaults: { model: { primary: "openai-codex/gpt-5.2" } } }
+=======
+  agents: { defaults: { model: { primary: "openai-codex/gpt-5.3-codex" } } },
+>>>>>>> 462905440 (chore: apply local workspace updates (#9911))
 }
 ```
 
@@ -64,12 +77,16 @@ Moltbot ships with the pi‑ai catalog. These providers require **no**
 
 - Provider: `opencode`
 - Auth: `OPENCODE_API_KEY` (or `OPENCODE_ZEN_API_KEY`)
-- Example model: `opencode/claude-opus-4-5`
-- CLI: `moltbot onboard --auth-choice opencode-zen`
+- Example model: `opencode/claude-opus-4-6`
+- CLI: `openclaw onboard --auth-choice opencode-zen`
 
 ```json5
 {
-  agents: { defaults: { model: { primary: "opencode/claude-opus-4-5" } } },
+<<<<<<< HEAD
+  agents: { defaults: { model: { primary: "opencode/claude-opus-4-5" } } }
+=======
+  agents: { defaults: { model: { primary: "opencode/claude-opus-4-6" } } },
+>>>>>>> 462905440 (chore: apply local workspace updates (#9911))
 }
 ```
 
@@ -78,19 +95,19 @@ Moltbot ships with the pi‑ai catalog. These providers require **no**
 - Provider: `google`
 - Auth: `GEMINI_API_KEY`
 - Example model: `google/gemini-3-pro-preview`
-- CLI: `moltbot onboard --auth-choice gemini-api-key`
+- CLI: `openclaw onboard --auth-choice gemini-api-key`
 
-### Google Vertex / Antigravity / Gemini CLI
+### Google Vertex, Antigravity, and Gemini CLI
 
 - Providers: `google-vertex`, `google-antigravity`, `google-gemini-cli`
 - Auth: Vertex uses gcloud ADC; Antigravity/Gemini CLI use their respective auth flows
 - Antigravity OAuth is shipped as a bundled plugin (`google-antigravity-auth`, disabled by default).
-  - Enable: `moltbot plugins enable google-antigravity-auth`
-  - Login: `moltbot models auth login --provider google-antigravity --set-default`
+  - Enable: `openclaw plugins enable google-antigravity-auth`
+  - Login: `openclaw models auth login --provider google-antigravity --set-default`
 - Gemini CLI OAuth is shipped as a bundled plugin (`google-gemini-cli-auth`, disabled by default).
-  - Enable: `moltbot plugins enable google-gemini-cli-auth`
-  - Login: `moltbot models auth login --provider google-gemini-cli --set-default`
-  - Note: you do **not** paste a client id or secret into `moltbot.json`. The CLI login flow stores
+  - Enable: `openclaw plugins enable google-gemini-cli-auth`
+  - Login: `openclaw models auth login --provider google-gemini-cli --set-default`
+  - Note: you do **not** paste a client id or secret into `openclaw.json`. The CLI login flow stores
     tokens in auth profiles on the gateway host.
 
 ### Z.AI (GLM)
@@ -98,15 +115,15 @@ Moltbot ships with the pi‑ai catalog. These providers require **no**
 - Provider: `zai`
 - Auth: `ZAI_API_KEY`
 - Example model: `zai/glm-4.7`
-- CLI: `moltbot onboard --auth-choice zai-api-key`
+- CLI: `openclaw onboard --auth-choice zai-api-key`
   - Aliases: `z.ai/*` and `z-ai/*` normalize to `zai/*`
 
 ### Vercel AI Gateway
 
 - Provider: `vercel-ai-gateway`
 - Auth: `AI_GATEWAY_API_KEY`
-- Example model: `vercel-ai-gateway/anthropic/claude-opus-4.5`
-- CLI: `moltbot onboard --auth-choice ai-gateway-api-key`
+- Example model: `vercel-ai-gateway/anthropic/claude-opus-4.6`
+- CLI: `openclaw onboard --auth-choice ai-gateway-api-key`
 
 ### Other built-in providers
 
@@ -132,18 +149,40 @@ Moonshot uses OpenAI-compatible endpoints, so configure it as a custom provider:
 - Provider: `moonshot`
 - Auth: `MOONSHOT_API_KEY`
 - Example model: `moonshot/kimi-k2.5`
+- Kimi K2 model IDs:
+  <!-- moonshot-kimi-k2-model-refs:start -->
+  - `moonshot/kimi-k2.5`
+  - `moonshot/kimi-k2-0905-preview`
+  - `moonshot/kimi-k2-turbo-preview`
+  - `moonshot/kimi-k2-thinking`
+  - `moonshot/kimi-k2-thinking-turbo`
+<<<<<<< HEAD
+<<<<<<< HEAD
+  {/* moonshot-kimi-k2-model-refs:end */}
+<<<<<<< HEAD
+=======
+=======
+    {/_ moonshot-kimi-k2-model-refs:end _/}
+>>>>>>> 443ee26af (chore: oxfmt fixes)
+=======
+  <!-- moonshot-kimi-k2-model-refs:end -->
+>>>>>>> 92803facf (docs: preserve moonshot sync markers)
 
+<<<<<<< HEAD
+>>>>>>> 7fabe03a8 (docs: fix anchor link for Google Vertex/Antigravity/Gemini section (#5967))
+=======
 Kimi K2 model IDs:
 
-{/_ moonshot-kimi-k2-model-refs:start _/ && null}
+{/_moonshot-kimi-k2-model-refs:start_/ && null}
 
 - `moonshot/kimi-k2.5`
 - `moonshot/kimi-k2-0905-preview`
 - `moonshot/kimi-k2-turbo-preview`
 - `moonshot/kimi-k2-thinking`
 - `moonshot/kimi-k2-thinking-turbo`
-  {/_ moonshot-kimi-k2-model-refs:end _/ && null}
+  {/_moonshot-kimi-k2-model-refs:end_/ && null}
 
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 ```json5
 {
   agents: {
@@ -186,8 +225,8 @@ Qwen provides OAuth access to Qwen Coder + Vision via a device-code flow.
 Enable the bundled plugin, then log in:
 
 ```bash
-moltbot plugins enable qwen-portal-auth
-moltbot models auth login --provider qwen-portal --set-default
+openclaw plugins enable qwen-portal-auth
+openclaw models auth login --provider qwen-portal --set-default
 ```
 
 Model refs:
@@ -204,7 +243,7 @@ Synthetic provides Anthropic-compatible models behind the `synthetic` provider:
 - Provider: `synthetic`
 - Auth: `SYNTHETIC_API_KEY`
 - Example model: `synthetic/hf:MiniMaxAI/MiniMax-M2.1`
-- CLI: `moltbot onboard --auth-choice synthetic-api-key`
+- CLI: `openclaw onboard --auth-choice synthetic-api-key`
 
 ```json5
 {
@@ -241,7 +280,7 @@ Ollama is a local LLM runtime that provides an OpenAI-compatible API:
 - Provider: `ollama`
 - Auth: None required (local server)
 - Example model: `ollama/llama3.3`
-- Installation: https://ollama.ai
+- Installation: [https://ollama.ai](https://ollama.ai)
 
 ```bash
 # Install Ollama, then pull a model:
@@ -296,7 +335,7 @@ Example (OpenAI‑compatible):
 Notes:
 
 - For custom providers, `reasoning`, `input`, `cost`, `contextWindow`, and `maxTokens` are optional.
-  When omitted, Moltbot defaults to:
+  When omitted, OpenClaw defaults to:
   - `reasoning: false`
   - `input: ["text"]`
   - `cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 }`
@@ -307,9 +346,9 @@ Notes:
 ## CLI examples
 
 ```bash
-moltbot onboard --auth-choice opencode-zen
-moltbot models set opencode/claude-opus-4-5
-moltbot models list
+openclaw onboard --auth-choice opencode-zen
+openclaw models set opencode/claude-opus-4-6
+openclaw models list
 ```
 
 See also: [/gateway/configuration](/gateway/configuration) for full configuration examples.

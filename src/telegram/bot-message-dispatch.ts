@@ -1,21 +1,13 @@
-<<<<<<< HEAD
-// @ts-nocheck
-import { EmbeddedBlockChunker } from "../agents/pi-embedded-block-chunker.js";
-=======
-import type { Bot } from "grammy";
-import type { OpenClawConfig, ReplyToMode, TelegramAccountConfig } from "../config/types.js";
-import type { RuntimeEnv } from "../runtime.js";
-import type { TelegramMessageContext } from "./bot-message-context.js";
-import type { TelegramBotOptions } from "./bot.js";
-import type { TelegramStreamMode, TelegramContext } from "./bot/types.js";
 import { resolveAgentDir } from "../agents/agent-scope.js";
->>>>>>> 5d82c8231 (feat: per-channel responsePrefix override (#9001))
+// @ts-nocheck
 import {
   findModelInCatalog,
   loadModelCatalog,
   modelSupportsVision,
 } from "../agents/model-catalog.js";
+import { EmbeddedBlockChunker } from "../agents/pi-embedded-block-chunker.js";
 import { resolveDefaultModelForAgent } from "../agents/model-selection.js";
+import { EmbeddedBlockChunker } from "../agents/pi-embedded-block-chunker.js";
 import { resolveChunkMode } from "../auto-reply/chunk.js";
 import { clearHistoryEntriesIfEnabled } from "../auto-reply/reply/history.js";
 import { dispatchReplyWithBufferedBlockDispatcher } from "../auto-reply/reply/provider-dispatcher.js";
@@ -23,21 +15,14 @@ import { removeAckReactionAfterReply } from "../channels/ack-reactions.js";
 import { logAckFailure, logTypingFailure } from "../channels/logging.js";
 import { createReplyPrefixOptions } from "../channels/reply-prefix.js";
 import { createTypingCallbacks } from "../channels/typing.js";
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-import { OpenClawConfig } from "../config/config.js";
-=======
->>>>>>> 5d82c8231 (feat: per-channel responsePrefix override (#9001))
 import { resolveMarkdownTableMode } from "../config/markdown-tables.js";
->>>>>>> 147eba11f (chore: Manually fix TypeScript errors uncovered by sorting imports.)
 import { danger, logVerbose } from "../globals.js";
-import { resolveMarkdownTableMode } from "../config/markdown-tables.js";
 import { deliverReplies } from "./bot/delivery.js";
 import { resolveTelegramDraftStreamingChunking } from "./draft-chunking.js";
 import { createTelegramDraftStream } from "./draft-stream.js";
 import { cacheSticker, describeStickerImage } from "./sticker-cache.js";
-import { resolveAgentDir } from "../agents/agent-scope.js";
+
+const EMPTY_RESPONSE_FALLBACK = "No response generated. Please try again.";
 
 async function resolveStickerVisionSupport(cfg: OpenClawConfig, agentId: string) {
   try {
@@ -86,7 +71,7 @@ export const dispatchTelegramMessage = async ({
     msg,
     chatId,
     isGroup,
-    resolvedThreadId,
+    threadSpec,
     historyKey,
     historyLimit,
     groupHistories,
@@ -100,11 +85,12 @@ export const dispatchTelegramMessage = async ({
   } = context;
 
   const isPrivateChat = msg.chat.type === "private";
+  const draftThreadId = threadSpec.id;
   const draftMaxChars = Math.min(textLimit, 4096);
   const canStreamDraft =
     streamMode !== "off" &&
     isPrivateChat &&
-    typeof resolvedThreadId === "number" &&
+    typeof draftThreadId === "number" &&
     (await resolveBotTopicsEnabled(primaryCtx));
   const draftStream = canStreamDraft
     ? createTelegramDraftStream({
@@ -112,7 +98,7 @@ export const dispatchTelegramMessage = async ({
         chatId,
         draftId: msg.message_id || Date.now(),
         maxChars: draftMaxChars,
-        messageThreadId: resolvedThreadId,
+        thread: threadSpec,
         log: logVerbose,
         warn: logVerbose,
       })
@@ -252,6 +238,15 @@ export const dispatchTelegramMessage = async ({
     }
   }
 
+  const replyQuoteText =
+    ctxPayload.ReplyToIsQuote && ctxPayload.ReplyToBody
+      ? ctxPayload.ReplyToBody.trim() || undefined
+      : undefined;
+  const deliveryState = {
+    delivered: false,
+    skippedNonSilent: 0,
+  };
+
   const { queuedFinal } = await dispatchReplyWithBufferedBlockDispatcher({
     ctx: ctxPayload,
     cfg,
@@ -262,12 +257,7 @@ export const dispatchTelegramMessage = async ({
           await flushDraft();
           draftStream?.stop();
         }
-
-        const replyQuoteText =
-          ctxPayload.ReplyToIsQuote && ctxPayload.ReplyToBody
-            ? ctxPayload.ReplyToBody.trim() || undefined
-            : undefined;
-        await deliverReplies({
+        const result = await deliverReplies({
           replies: [payload],
           chatId: String(chatId),
           token: opts.token,
@@ -275,7 +265,7 @@ export const dispatchTelegramMessage = async ({
           bot,
           replyToMode,
           textLimit,
-          messageThreadId: resolvedThreadId,
+          thread: threadSpec,
           tableMode,
           chunkMode,
           onVoiceRecording: sendRecordVoice,
@@ -283,17 +273,12 @@ export const dispatchTelegramMessage = async ({
           replyQuoteText,
           notifyEmptyResponse: info.kind === "final",
         });
-<<<<<<< HEAD
-=======
         if (result.delivered) {
           deliveryState.delivered = true;
         }
       },
       onSkip: (_payload, info) => {
-        if (info.reason !== "silent") {
-          deliveryState.skippedNonSilent += 1;
-        }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
+        if (info.reason !== "silent") deliveryState.skippedNonSilent += 1;
       },
       onError: (err, info) => {
         runtime.error?.(danger(`telegram ${info.kind} reply failed: ${String(err)}`));
@@ -312,6 +297,7 @@ export const dispatchTelegramMessage = async ({
     },
     replyOptions: {
       skillFilter,
+<<<<<<< HEAD
       onPartialReply: draftStream ? (payload) => updateDraftFromPartial(payload.text) : undefined,
 <<<<<<< HEAD
       onReasoningStream: draftStream
@@ -321,7 +307,10 @@ export const dispatchTelegramMessage = async ({
             }
           }
         : undefined,
+=======
+>>>>>>> 37721ebd7 (fix: restore telegram draft streaming partials)
       disableBlockStreaming,
+      onPartialReply: draftStream ? (payload) => updateDraftFromPartial(payload.text) : undefined,
       onModelSelected: (ctx) => {
         prefixContext.onModelSelected(ctx);
       },
@@ -331,7 +320,27 @@ export const dispatchTelegramMessage = async ({
     },
   });
   draftStream?.stop();
-  if (!queuedFinal) {
+  let sentFallback = false;
+  if (!deliveryState.delivered && deliveryState.skippedNonSilent > 0) {
+    const result = await deliverReplies({
+      replies: [{ text: EMPTY_RESPONSE_FALLBACK }],
+      chatId: String(chatId),
+      token: opts.token,
+      runtime,
+      bot,
+      replyToMode,
+      textLimit,
+      thread: threadSpec,
+      tableMode,
+      chunkMode,
+      linkPreview: telegramCfg.linkPreview,
+      replyQuoteText,
+    });
+    sentFallback = result.delivered;
+  }
+
+  const hasFinalResponse = queuedFinal || sentFallback;
+  if (!hasFinalResponse) {
     if (isGroup && historyKey) {
       clearHistoryEntriesIfEnabled({ historyMap: groupHistories, historyKey, limit: historyLimit });
     }

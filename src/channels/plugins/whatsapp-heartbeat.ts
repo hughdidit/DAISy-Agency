@@ -3,7 +3,8 @@ import { normalizeChatChannelId } from "../../channels/registry.js";
 import type { MoltbotConfig } from "../../config/config.js";
 =======
 import type { OpenClawConfig } from "../../config/config.js";
->>>>>>> 9c4eab69c (iMessage: promote BlueBubbles and refresh docs/skills (#8415))
+import { normalizeChatChannelId } from "../../channels/registry.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { loadSessionStore, resolveStorePath } from "../../config/sessions.js";
 import { normalizeE164 } from "../../utils.js";
 import { normalizeChatChannelId } from "../registry.js";
@@ -11,7 +12,7 @@ import { normalizeChatChannelId } from "../registry.js";
 type HeartbeatRecipientsResult = { recipients: string[]; source: string };
 type HeartbeatRecipientsOpts = { to?: string; all?: boolean };
 
-function getSessionRecipients(cfg: MoltbotConfig) {
+function getSessionRecipients(cfg: OpenClawConfig) {
   const sessionCfg = cfg.session;
   const scope = sessionCfg?.scope ?? "per-sender";
   if (scope === "global") {
@@ -48,7 +49,7 @@ function getSessionRecipients(cfg: MoltbotConfig) {
 }
 
 export function resolveWhatsAppHeartbeatRecipients(
-  cfg: MoltbotConfig,
+  cfg: OpenClawConfig,
   opts: HeartbeatRecipientsOpts = {},
 ): HeartbeatRecipientsResult {
   if (opts.to) {

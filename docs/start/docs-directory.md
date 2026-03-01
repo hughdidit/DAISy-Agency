@@ -6,6 +6,7 @@ title: "Docs directory"
 ---
 
 <Note>
+This page is a curated index. If you are new, start with [Getting Started](/start/getting-started).
 For a complete map of the docs, see [Docs hubs](/start/hubs).
 </Note>
 
@@ -18,7 +19,7 @@ For a complete map of the docs, see [Docs hubs](/start/hubs).
 - [Slash commands](/tools/slash-commands)
 - [Multi-agent routing](/concepts/multi-agent)
 - [Updating and rollback](/install/updating)
-- [Pairing (DM and nodes)](/channels/pairing)
+- [Pairing (DM and nodes)](/start/pairing)
 - [Nix mode](/install/nix)
 - [OpenClaw assistant setup](/start/openclaw)
 - [Skills](/tools/skills)
@@ -40,8 +41,8 @@ For a complete map of the docs, see [Docs hubs](/start/hubs).
 - [Mattermost (plugin)](/channels/mattermost)
 - [BlueBubbles (iMessage)](/channels/bluebubbles)
 - [iMessage (legacy)](/channels/imessage)
-- [Groups](/channels/groups)
-- [WhatsApp group messages](/channels/group-messages)
+- [Groups](/concepts/groups)
+- [WhatsApp group messages](/concepts/group-messages)
 - [Media images](/nodes/images)
 - [Media audio](/nodes/audio)
 

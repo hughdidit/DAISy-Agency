@@ -2,6 +2,7 @@
 summary: "Telegram bot support status, capabilities, and configuration"
 read_when:
   - Working on Telegram features or webhooks
+title: "Telegram"
 ---
 
 # Telegram (Bot API)
@@ -9,9 +10,17 @@ read_when:
 Status: production-ready for bot DMs + groups via grammY. Long-polling by default; webhook optional.
 
 ## Quick setup (beginner)
+<<<<<<< HEAD
+<<<<<<< HEAD
+1) Create a bot with **@BotFather** and copy the token.
+2) Set the token:
+=======
+=======
 
-1. Create a bot with **@BotFather** and copy the token.
+>>>>>>> 443ee26af (chore: oxfmt fixes)
+1. Create a bot with **@BotFather** ([direct link](https://t.me/BotFather)). Confirm the handle is exactly `@BotFather`, then copy the token.
 2. Set the token:
+>>>>>>> 8ff75eaf1 (Docs: Direct link to BotFather on Telegram (#4064))
    - Env: `TELEGRAM_BOT_TOKEN=...`
    - Or config: `channels.telegram.botToken: "..."`.
    - If both are set, config takes precedence (env fallback is default-account only).
@@ -41,10 +50,19 @@ Minimal config:
 ## Setup (fast path)
 
 ### 1) Create a bot token (BotFather)
+<<<<<<< HEAD
+<<<<<<< HEAD
+1) Open Telegram and chat with **@BotFather**.
+2) Run `/newbot`, then follow the prompts (name + username ending in `bot`).
+3) Copy the token and store it safely.
+=======
+=======
 
-1. Open Telegram and chat with **@BotFather**.
+>>>>>>> 443ee26af (chore: oxfmt fixes)
+1. Open Telegram and chat with **@BotFather** ([direct link](https://t.me/BotFather)). Confirm the handle is exactly `@BotFather`.
 2. Run `/newbot`, then follow the prompts (name + username ending in `bot`).
 3. Copy the token and store it safely.
+>>>>>>> 8ff75eaf1 (Docs: Direct link to BotFather on Telegram (#4064))
 
 Optional BotFather settings:
 
@@ -73,9 +91,21 @@ If both env and config are set, config takes precedence.
 
 Multi-account support: use `channels.telegram.accounts` with per-account tokens and optional `name`. See [`gateway/configuration`](/gateway/configuration#telegramaccounts--discordaccounts--slackaccounts--signalaccounts--imessageaccounts) for the shared pattern.
 
+<<<<<<< HEAD
+<<<<<<< HEAD
+3) Start the gateway. Telegram starts when a token is resolved (config first, env fallback).
+4) DM access defaults to pairing. Approve the code when the bot is first contacted.
+5) For groups: add the bot, decide privacy/admin behavior (below), then set `channels.telegram.groups` to control mention gating + allowlists.
+=======
+1. Start the gateway. Telegram starts when a token is resolved (config first, env fallback).
+2. DM access defaults to pairing. Approve the code when the bot is first contacted.
+3. For groups: add the bot, decide privacy/admin behavior (below), then set `channels.telegram.groups` to control mention gating + allowlists.
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
+=======
 3. Start the gateway. Telegram starts when a token is resolved (config first, env fallback).
 4. DM access defaults to pairing. Approve the code when the bot is first contacted.
 5. For groups: add the bot, decide privacy/admin behavior (below), then set `channels.telegram.groups` to control mention gating + allowlists.
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 
 ## Token + privacy + permissions (Telegram side)
 
@@ -109,20 +139,27 @@ group messages, so use admin if you need full visibility.
 - Long-polling uses grammY runner with per-chat sequencing; overall concurrency is capped by `agents.defaults.maxConcurrent`.
 - Telegram Bot API does not support read receipts; there is no `sendReadReceipts` option.
 
+## Draft streaming
+
+OpenClaw can stream partial replies in Telegram DMs using `sendMessageDraft`.
+
+Requirements:
+
+- Threaded Mode enabled for the bot in @BotFather (forum topic mode).
+- Private chat threads only (Telegram includes `message_thread_id` on inbound messages).
+- `channels.telegram.streamMode` not set to `"off"` (default: `"partial"`, `"block"` enables chunked draft updates).
+
+Draft streaming is DM-only; Telegram does not support it in groups or channels.
+
 ## Formatting (Telegram HTML)
 
 - Outbound Telegram text uses `parse_mode: "HTML"` (Telegram’s supported tag subset).
 - Markdown-ish input is rendered into **Telegram-safe HTML** (bold/italic/strike/code/links); block elements are flattened to text with newlines/bullets.
 - Raw HTML from models is escaped to avoid Telegram parse errors.
-- If Telegram rejects the HTML payload, Moltbot retries the same message as plain text.
+- If Telegram rejects the HTML payload, OpenClaw retries the same message as plain text.
 
 ## Commands (native + custom)
-<<<<<<< HEAD
-Moltbot registers native commands (like `/status`, `/reset`, `/model`) with Telegram’s bot menu on startup.
-=======
-
 OpenClaw registers native commands (like `/status`, `/reset`, `/model`) with Telegram’s bot menu on startup.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 You can add custom commands to the menu via config:
 
 ```json5
@@ -138,7 +175,7 @@ You can add custom commands to the menu via config:
 }
 ```
 
-## Troubleshooting
+## Setup troubleshooting (commands)
 
 - `setMyCommands failed` in logs usually means outbound HTTPS/DNS is blocked to `api.telegram.org`.
 - If you see `sendMessage` or `sendChatAction` failures, check IPv6 routing and DNS.
@@ -146,16 +183,7 @@ You can add custom commands to the menu via config:
 More help: [Channel troubleshooting](/channels/troubleshooting).
 
 Notes:
-<<<<<<< HEAD
-- Custom commands are **menu entries only**; Moltbot does not implement them unless you handle them elsewhere.
-=======
-
 - Custom commands are **menu entries only**; OpenClaw does not implement them unless you handle them elsewhere.
-<<<<<<< HEAD
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
-=======
-- Some commands can be handled by plugins/skills without being registered in Telegram’s command menu. These still work when typed (they just won't show up in `/commands` / the menu).
->>>>>>> 730f86dd5 (Gateway/Plugins: device pairing + phone control plugins (#11755))
 - Command names are normalized (leading `/` stripped, lowercased) and must match `a-z`, `0-9`, `_` (1–32 chars).
 - Custom commands **cannot override native commands**. Conflicts are ignored and logged.
 - If `commands.native` is disabled, only custom commands are registered (or cleared if none).
@@ -243,19 +271,14 @@ Forward any message from the group to `@userinfobot` or `@getidsbot` on Telegram
 
 **Tip:** For your own user ID, DM the bot and it will reply with your user ID (pairing message), or use `/whoami` once commands are enabled.
 
-**Privacy note:** `@userinfobot` is a third-party bot. If you prefer, add the bot to the group, send a message, and use `moltbot logs --follow` to read `chat.id`, or use the Bot API `getUpdates`.
+**Privacy note:** `@userinfobot` is a third-party bot. If you prefer, add the bot to the group, send a message, and use `openclaw logs --follow` to read `chat.id`, or use the Bot API `getUpdates`.
 
 ## Config writes
 
 By default, Telegram is allowed to write config updates triggered by channel events or `/config set|unset`.
 
 This happens when:
-<<<<<<< HEAD
-- A group is upgraded to a supergroup and Telegram emits `migrate_to_chat_id` (chat ID changes). Moltbot can migrate `channels.telegram.groups` automatically.
-=======
-
 - A group is upgraded to a supergroup and Telegram emits `migrate_to_chat_id` (chat ID changes). OpenClaw can migrate `channels.telegram.groups` automatically.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - You run `/config set` or `/config unset` in a Telegram chat (requires `commands.config: true`).
 
 Disable with:
@@ -267,13 +290,7 @@ Disable with:
 ```
 
 ## Topics (forum supergroups)
-<<<<<<< HEAD
-Telegram forum topics include a `message_thread_id` per message. Moltbot:
-=======
-
 Telegram forum topics include a `message_thread_id` per message. OpenClaw:
-
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - Appends `:topic:<threadId>` to the Telegram group session key so each topic is isolated.
 - Sends typing indicators and replies with `message_thread_id` so responses stay in the topic.
 - General topic (thread id `1`) is special: message sends omit `message_thread_id` (Telegram rejects it), but typing indicators still include it.
@@ -281,7 +298,7 @@ Telegram forum topics include a `message_thread_id` per message. OpenClaw:
 - Topic-specific configuration is available under `channels.telegram.groups.<chatId>.topics.<threadId>` (skills, allowlists, auto-reply, system prompts, disable).
 - Topic configs inherit group settings (requireMention, allowlists, skills, prompts, enabled) unless overridden per topic.
 
-Private chats can include `message_thread_id` in some edge cases. Moltbot keeps the DM session key unchanged, but still uses the thread id for replies/draft streaming when it is present.
+Private chats can include `message_thread_id` in some edge cases. OpenClaw keeps the DM session key unchanged, but still uses the thread id for replies/draft streaming when it is present.
 
 ## Inline Buttons
 
@@ -366,9 +383,8 @@ Use the global setting when all Telegram bots/accounts should behave the same. U
 
 - Default: `channels.telegram.dmPolicy = "pairing"`. Unknown senders receive a pairing code; messages are ignored until approved (codes expire after 1 hour).
 - Approve via:
-<<<<<<< HEAD
-  - `moltbot pairing list telegram`
-  - `moltbot pairing approve telegram <CODE>`
+  - `openclaw pairing list telegram`
+  - `openclaw pairing approve telegram <CODE>`
 - Pairing is the default token exchange used for Telegram DMs. Details: [Pairing](/start/pairing)
 =======
   - `openclaw pairing list telegram`
@@ -382,17 +398,25 @@ Use the global setting when all Telegram bots/accounts should behave the same. U
 Safer (no third-party bot):
 <<<<<<< HEAD
 1) Start the gateway and DM your bot.
-2) Run `moltbot logs --follow` and look for `from.id`.
-=======
-
-1. Start the gateway and DM your bot.
-2. Run `openclaw logs --follow` and look for `from.id`.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
+2) Run `openclaw logs --follow` and look for `from.id`.
 
 Alternate (official Bot API):
+<<<<<<< HEAD
+1) DM your bot.
+2) Fetch updates with your bot token and read `message.from.id`:
+=======
 
 1. DM your bot.
 2. Fetch updates with your bot token and read `message.from.id`:
+<<<<<<< HEAD
+<<<<<<< HEAD
+
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
+=======
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
+=======
+
+>>>>>>> 578a6e27a (Docs: enable markdownlint autofixables except list numbering (#10476))
    ```bash
    curl "https://api.telegram.org/bot<bot_token>/getUpdates"
    ```
@@ -458,7 +482,7 @@ Controlled by `channels.telegram.replyToMode`:
 ## Audio messages (voice vs file)
 
 Telegram distinguishes **voice notes** (round bubble) from **audio files** (metadata card).
-Moltbot defaults to audio files for backward compatibility.
+OpenClaw defaults to audio files for backward compatibility.
 
 To force a voice note bubble in agent replies, include this tag anywhere in the reply:
 
@@ -481,11 +505,11 @@ For message tool sends, set `asVoice: true` with a voice-compatible audio `media
 
 ## Stickers
 
-Moltbot supports receiving and sending Telegram stickers with intelligent caching.
+OpenClaw supports receiving and sending Telegram stickers with intelligent caching.
 
 ### Receiving stickers
 
-When a user sends a sticker, Moltbot handles it based on the sticker type:
+When a user sends a sticker, OpenClaw handles it based on the sticker type:
 
 - **Static stickers (WEBP):** Downloaded and processed through vision. The sticker appears as a `<media:sticker>` placeholder in the message content.
 - **Animated stickers (TGS):** Skipped (Lottie format not supported for processing).
@@ -502,7 +526,7 @@ Template context field available when receiving stickers:
 
 ### Sticker cache
 
-Stickers are processed through the AI's vision capabilities to generate descriptions. Since the same stickers are often sent repeatedly, Moltbot caches these descriptions to avoid redundant API calls.
+Stickers are processed through the AI's vision capabilities to generate descriptions. Since the same stickers are often sent repeatedly, OpenClaw caches these descriptions to avoid redundant API calls.
 
 **How it works:**
 
@@ -510,7 +534,7 @@ Stickers are processed through the AI's vision capabilities to generate descript
 2. **Cache storage:** The description is saved along with the sticker's file ID, emoji, and set name.
 3. **Subsequent encounters:** When the same sticker is seen again, the cached description is used directly. The image is not sent to the AI.
 
-**Cache location:** `~/.clawdbot/telegram/sticker-cache.json`
+**Cache location:** `~/.openclaw/telegram/sticker-cache.json`
 
 **Cache entry format:**
 
@@ -614,7 +638,7 @@ The search uses fuzzy matching across description text, emoji characters, and se
 ## Streaming (drafts)
 
 Telegram can stream **draft bubbles** while the agent is generating a response.
-Moltbot uses Bot API `sendMessageDraft` (not real messages) and then sends the
+OpenClaw uses Bot API `sendMessageDraft` (not real messages) and then sends the
 final reply as a normal message.
 
 Requirements (Telegram Bot API 9.3+):
@@ -659,7 +683,7 @@ Outbound Telegram API calls retry on transient network/429 errors with exponenti
 ## Reaction notifications
 
 **How reactions work:**
-Telegram reactions arrive as **separate `message_reaction` events**, not as properties in message payloads. When a user adds a reaction, Moltbot:
+Telegram reactions arrive as **separate `message_reaction` events**, not as properties in message payloads. When a user adds a reaction, OpenClaw:
 
 1. Receives the `message_reaction` update from Telegram API
 2. Converts it to a **system event** with format: `"Telegram reaction added: {emoji} by {user} on msg {id}"`
@@ -697,19 +721,14 @@ The agent sees reactions as **system notifications** in the conversation history
 ```
 
 **Requirements:**
-<<<<<<< HEAD
-- Telegram bots must explicitly request `message_reaction` in `allowed_updates` (configured automatically by Moltbot)
-=======
-
 - Telegram bots must explicitly request `message_reaction` in `allowed_updates` (configured automatically by OpenClaw)
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - For webhook mode, reactions are included in the webhook `allowed_updates`
 - For polling mode, reactions are included in the `getUpdates` `allowed_updates`
 
 ## Delivery targets (CLI/cron)
 
 - Use a chat id (`123456789`) or a username (`@name`) as the target.
-- Example: `moltbot message send --channel telegram --target 123456789 --message "hi"`.
+- Example: `openclaw message send --channel telegram --target 123456789 --message "hi"`.
 
 ## Troubleshooting
 
@@ -717,8 +736,8 @@ The agent sees reactions as **system notifications** in the conversation history
 
 - If you set `channels.telegram.groups.*.requireMention=false`, Telegram’s Bot API **privacy mode** must be disabled.
   - BotFather: `/setprivacy` → **Disable** (then remove + re-add the bot to the group)
-- `moltbot channels status` shows a warning when config expects unmentioned group messages.
-- `moltbot channels status --probe` can additionally check membership for explicit numeric group IDs (it can’t audit wildcard `"*"` rules).
+- `openclaw channels status` shows a warning when config expects unmentioned group messages.
+- `openclaw channels status --probe` can additionally check membership for explicit numeric group IDs (it can’t audit wildcard `"*"` rules).
 - Quick test: `/activation always` (session-only; use config for persistence)
 
 **Bot not seeing group messages at all:**
@@ -726,7 +745,7 @@ The agent sees reactions as **system notifications** in the conversation history
 - If `channels.telegram.groups` is set, the group must be listed or use `"*"`
 - Check Privacy Settings in @BotFather → "Group Privacy" should be **OFF**
 - Verify bot is actually a member (not just an admin with no read access)
-- Check gateway logs: `moltbot logs --follow` (look for "skipping group message")
+- Check gateway logs: `openclaw logs --follow` (look for "skipping group message")
 
 **Bot responds to mentions but not `/activation always`:**
 
@@ -741,7 +760,7 @@ The agent sees reactions as **system notifications** in the conversation history
 **Long-polling aborts immediately on Node 22+ (often with proxies/custom fetch):**
 
 - Node 22+ is stricter about `AbortSignal` instances; foreign signals can abort `fetch` calls right away.
-- Upgrade to a Moltbot build that normalizes abort signals, or run the gateway on Node 20 until you can upgrade.
+- Upgrade to a OpenClaw build that normalizes abort signals, or run the gateway on Node 20 until you can upgrade.
 
 **Bot starts, then silently stops responding (or logs `HttpError: Network request ... failed`):**
 

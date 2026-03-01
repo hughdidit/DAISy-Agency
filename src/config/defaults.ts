@@ -1,9 +1,14 @@
+import type { OpenClawConfig } from "./types.js";
+import type { ModelDefinitionConfig } from "./types.models.js";
 import { DEFAULT_CONTEXT_TOKENS } from "../agents/defaults.js";
 import { parseModelRef } from "../agents/model-selection.js";
+<<<<<<< HEAD
 import { resolveTalkApiKey } from "./talk.js";
 import type { MoltbotConfig } from "./types.js";
+=======
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { DEFAULT_AGENT_MAX_CONCURRENT, DEFAULT_SUBAGENT_MAX_CONCURRENT } from "./agent-limits.js";
-import type { ModelDefinitionConfig } from "./types.models.js";
+import { resolveTalkApiKey } from "./talk.js";
 
 type WarnState = { warned: boolean };
 
@@ -13,7 +18,7 @@ type AnthropicAuthDefaultsMode = "api_key" | "oauth";
 
 const DEFAULT_MODEL_ALIASES: Readonly<Record<string, string>> = {
   // Anthropic (pi-ai catalog uses "latest" ids without date suffix)
-  opus: "anthropic/claude-opus-4-5",
+  opus: "anthropic/claude-opus-4-6",
   sonnet: "anthropic/claude-sonnet-4-5",
 
   // OpenAI
@@ -53,7 +58,7 @@ function resolveModelCost(
   };
 }
 
-function resolveAnthropicDefaultAuthMode(cfg: MoltbotConfig): AnthropicAuthDefaultsMode | null {
+function resolveAnthropicDefaultAuthMode(cfg: OpenClawConfig): AnthropicAuthDefaultsMode | null {
   const profiles = cfg.auth?.profiles ?? {};
   const anthropicProfiles = Object.entries(profiles).filter(
     ([, profile]) => profile?.provider === "anthropic",
@@ -110,7 +115,7 @@ export type SessionDefaultsOptions = {
   warnState?: WarnState;
 };
 
-export function applyMessageDefaults(cfg: MoltbotConfig): MoltbotConfig {
+export function applyMessageDefaults(cfg: OpenClawConfig): OpenClawConfig {
   const messages = cfg.messages;
   const hasAckScope = messages?.ackReactionScope !== undefined;
   if (hasAckScope) {
@@ -126,9 +131,9 @@ export function applyMessageDefaults(cfg: MoltbotConfig): MoltbotConfig {
 }
 
 export function applySessionDefaults(
-  cfg: MoltbotConfig,
+  cfg: OpenClawConfig,
   options: SessionDefaultsOptions = {},
-): MoltbotConfig {
+): OpenClawConfig {
   const session = cfg.session;
   if (!session || session.mainKey === undefined) {
     return cfg;
@@ -138,7 +143,7 @@ export function applySessionDefaults(
   const warn = options.warn ?? console.warn;
   const warnState = options.warnState ?? defaultWarnState;
 
-  const next: MoltbotConfig = {
+  const next: OpenClawConfig = {
     ...cfg,
     session: { ...session, mainKey: "main" },
   };
@@ -151,7 +156,7 @@ export function applySessionDefaults(
   return next;
 }
 
-export function applyTalkApiKey(config: MoltbotConfig): MoltbotConfig {
+export function applyTalkApiKey(config: OpenClawConfig): OpenClawConfig {
   const resolved = resolveTalkApiKey();
   if (!resolved) {
     return config;
@@ -169,7 +174,7 @@ export function applyTalkApiKey(config: MoltbotConfig): MoltbotConfig {
   };
 }
 
-export function applyModelDefaults(cfg: MoltbotConfig): MoltbotConfig {
+export function applyModelDefaults(cfg: OpenClawConfig): OpenClawConfig {
   let mutated = false;
   let nextCfg = cfg;
 
@@ -290,7 +295,7 @@ export function applyModelDefaults(cfg: MoltbotConfig): MoltbotConfig {
   };
 }
 
-export function applyAgentDefaults(cfg: MoltbotConfig): MoltbotConfig {
+export function applyAgentDefaults(cfg: OpenClawConfig): OpenClawConfig {
   const agents = cfg.agents;
   const defaults = agents?.defaults;
   const hasMax =
@@ -331,7 +336,7 @@ export function applyAgentDefaults(cfg: MoltbotConfig): MoltbotConfig {
   };
 }
 
-export function applyLoggingDefaults(cfg: MoltbotConfig): MoltbotConfig {
+export function applyLoggingDefaults(cfg: OpenClawConfig): OpenClawConfig {
   const logging = cfg.logging;
   if (!logging) {
     return cfg;
@@ -348,7 +353,7 @@ export function applyLoggingDefaults(cfg: MoltbotConfig): MoltbotConfig {
   };
 }
 
-export function applyContextPruningDefaults(cfg: MoltbotConfig): MoltbotConfig {
+export function applyContextPruningDefaults(cfg: OpenClawConfig): OpenClawConfig {
   const defaults = cfg.agents?.defaults;
   if (!defaults) {
     return cfg;
@@ -392,12 +397,16 @@ export function applyContextPruningDefaults(cfg: MoltbotConfig): MoltbotConfig {
       }
       const current = entry ?? {};
       const params = (current as { params?: Record<string, unknown> }).params ?? {};
-      if (typeof params.cacheControlTtl === "string") {
+<<<<<<< HEAD
+      if (typeof params.cacheControlTtl === "string") continue;
+=======
+      if (typeof params.cacheRetention === "string") {
         continue;
       }
+>>>>>>> ba4a55f6d (fix(agents): update cacheControlTtl to cacheRetention for pi-ai 0.50.9)
       nextModels[key] = {
         ...(current as Record<string, unknown>),
-        params: { ...params, cacheControlTtl: "1h" },
+        params: { ...params, cacheRetention: "short" },
       };
       modelsMutated = true;
     }
@@ -410,10 +419,10 @@ export function applyContextPruningDefaults(cfg: MoltbotConfig): MoltbotConfig {
         const entry = nextModels[key];
         const current = entry ?? {};
         const params = (current as { params?: Record<string, unknown> }).params ?? {};
-        if (typeof params.cacheControlTtl !== "string") {
+        if (typeof params.cacheRetention !== "string") {
           nextModels[key] = {
             ...(current as Record<string, unknown>),
-            params: { ...params, cacheControlTtl: "1h" },
+            params: { ...params, cacheRetention: "short" },
           };
           modelsMutated = true;
         }
@@ -439,7 +448,7 @@ export function applyContextPruningDefaults(cfg: MoltbotConfig): MoltbotConfig {
   };
 }
 
-export function applyCompactionDefaults(cfg: MoltbotConfig): MoltbotConfig {
+export function applyCompactionDefaults(cfg: OpenClawConfig): OpenClawConfig {
   const defaults = cfg.agents?.defaults;
   if (!defaults) {
     return cfg;

@@ -3,6 +3,7 @@ summary: "Session pruning: tool-result trimming to reduce context bloat"
 read_when:
   - You want to reduce LLM context growth from tool outputs
   - You are tuning agents.defaults.contextPruning
+title: "Session Pruning"
 ---
 
 # Session Pruning
@@ -13,15 +14,27 @@ Session pruning trims **old tool results** from the in-memory context right befo
 
 - When `mode: "cache-ttl"` is enabled and the last Anthropic call for the session is older than `ttl`.
 - Only affects the messages sent to the model for that request.
+<<<<<<< HEAD
+ - Only active for Anthropic API calls (and OpenRouter Anthropic models).
+ - For best results, match `ttl` to your model `cacheControlTtl`.
+ - After a prune, the TTL window resets so subsequent requests keep cache until `ttl` expires again.
+=======
 - Only active for Anthropic API calls (and OpenRouter Anthropic models).
-- For best results, match `ttl` to your model `cacheControlTtl`.
+- For best results, match `ttl` to your model `cacheRetention`.
 - After a prune, the TTL window resets so subsequent requests keep cache until `ttl` expires again.
+>>>>>>> 7a8a39a14 (docs: document cacheRetention parameter (#6270))
 
 ## Smart defaults (Anthropic)
 
 - **OAuth or setup-token** profiles: enable `cache-ttl` pruning and set heartbeat to `1h`.
+<<<<<<< HEAD
 - **API key** profiles: enable `cache-ttl` pruning, set heartbeat to `30m`, and default `cacheControlTtl` to `1h` on Anthropic models.
+<<<<<<< HEAD
 - If you set any of these values explicitly, Moltbot does **not** override them.
+=======
+- **API key** profiles: enable `cache-ttl` pruning, set heartbeat to `30m`, and default `cacheRetention: "short"` on Anthropic models.
+- If you set any of these values explicitly, OpenClaw does **not** override them.
+>>>>>>> 7a8a39a14 (docs: document cacheRetention parameter (#6270))
 
 ## What this improves (cost + cache behavior)
 
@@ -39,13 +52,25 @@ Session pruning trims **old tool results** from the in-memory context right befo
 - Tool results containing **image blocks** are skipped (never trimmed/cleared).
 
 ## Context window estimation
-
+<<<<<<< HEAD
+<<<<<<< HEAD
 Pruning uses an estimated context window (chars ≈ tokens × 4). The window size is resolved in this order:
+1) Model definition `contextWindow` (from the model registry).
+2) `models.providers.*.models[].contextWindow` override.
+3) `agents.defaults.contextTokens`.
+4) Default `200000` tokens.
+=======
+=======
 
-1. Model definition `contextWindow` (from the model registry).
-2. `models.providers.*.models[].contextWindow` override.
-3. `agents.defaults.contextTokens`.
-4. Default `200000` tokens.
+>>>>>>> e9f70e858 (fix: satisfy lint curly rule (#6310))
+Pruning uses an estimated context window (chars ≈ tokens × 4). The base window is resolved in this order:
+
+1. `models.providers.*.models[].contextWindow` override.
+2. Model definition `contextWindow` (from the model registry).
+3. Default `200000` tokens.
+
+If `agents.defaults.contextTokens` is set, it is treated as a cap (min) on the resolved window.
+>>>>>>> 0992c5a80 (fix: cap context window resolution (#6187) (thanks @iamEvanYT))
 
 ## Mode
 

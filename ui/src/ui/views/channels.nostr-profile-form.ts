@@ -5,8 +5,6 @@
  */
 
 import { html, nothing, type TemplateResult } from "lit";
-<<<<<<< HEAD
-
 import type { NostrProfile as NostrProfileType } from "../types";
 =======
 import type { NostrProfile as NostrProfileType } from "../types.ts";

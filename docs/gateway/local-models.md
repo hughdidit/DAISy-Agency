@@ -1,14 +1,15 @@
 ---
-summary: "Run Moltbot on local LLMs (LM Studio, vLLM, LiteLLM, custom OpenAI endpoints)"
+summary: "Run OpenClaw on local LLMs (LM Studio, vLLM, LiteLLM, custom OpenAI endpoints)"
 read_when:
   - You want to serve models from your own GPU box
   - You are wiring LM Studio or an OpenAI-compatible proxy
   - You need the safest local model guidance
+title: "Local Models"
 ---
 
 # Local models
 
-Local is doable, but Moltbot expects large context + strong defenses against prompt injection. Small cards truncate context and leak safety. Aim high: **≥2 maxed-out Mac Studios or equivalent GPU rig (~$30k+)**. A single **24 GB** GPU works only for lighter prompts with higher latency. Use the **largest / full-size model variant you can run**; aggressively quantized or “small” checkpoints raise prompt-injection risk (see [Security](/gateway/security)).
+Local is doable, but OpenClaw expects large context + strong defenses against prompt injection. Small cards truncate context and leak safety. Aim high: **≥2 maxed-out Mac Studios or equivalent GPU rig (~$30k+)**. A single **24 GB** GPU works only for lighter prompts with higher latency. Use the **largest / full-size model variant you can run**; aggressively quantized or “small” checkpoints raise prompt-injection risk (see [Security](/gateway/security)).
 
 ## Recommended: LM Studio + MiniMax M2.1 (Responses API, full-size)
 
@@ -20,10 +21,17 @@ Best current local stack. Load MiniMax M2.1 in LM Studio, enable the local serve
     defaults: {
       model: { primary: "lmstudio/minimax-m2.1-gs32" },
       models: {
+<<<<<<< HEAD
         "anthropic/claude-opus-4-5": { alias: "Opus" },
+        "lmstudio/minimax-m2.1-gs32": { alias: "Minimax" }
+      }
+    }
+=======
+        "anthropic/claude-opus-4-6": { alias: "Opus" },
         "lmstudio/minimax-m2.1-gs32": { alias: "Minimax" },
       },
     },
+>>>>>>> 462905440 (chore: apply local workspace updates (#9911))
   },
   models: {
     mode: "merge",
@@ -50,8 +58,21 @@ Best current local stack. Load MiniMax M2.1 in LM Studio, enable the local serve
 ```
 
 **Setup checklist**
-
+<<<<<<< HEAD
+<<<<<<< HEAD
 - Install LM Studio: https://lmstudio.ai
+=======
+
+<<<<<<< HEAD
+- Install LM Studio: [https://lmstudio.ai](https://lmstudio.ai)
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
+=======
+- Install LM Studio: https://lmstudio.ai
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
+=======
+
+- Install LM Studio: [https://lmstudio.ai](https://lmstudio.ai)
+>>>>>>> 578a6e27a (Docs: enable markdownlint autofixables except list numbering (#10476))
 - In LM Studio, download the **largest MiniMax M2.1 build available** (avoid “small”/heavily quantized variants), start the server, confirm `http://127.0.0.1:1234/v1/models` lists it.
 - Keep the model loaded; cold-load adds startup latency.
 - Adjust `contextWindow`/`maxTokens` if your LM Studio build differs.
@@ -67,14 +88,24 @@ Keep hosted models configured even when running local; use `models.mode: "merge"
     defaults: {
       model: {
         primary: "anthropic/claude-sonnet-4-5",
-        fallbacks: ["lmstudio/minimax-m2.1-gs32", "anthropic/claude-opus-4-5"],
+<<<<<<< HEAD
+        fallbacks: ["lmstudio/minimax-m2.1-gs32", "anthropic/claude-opus-4-5"]
+=======
+        fallbacks: ["lmstudio/minimax-m2.1-gs32", "anthropic/claude-opus-4-6"],
+>>>>>>> 462905440 (chore: apply local workspace updates (#9911))
       },
       models: {
         "anthropic/claude-sonnet-4-5": { alias: "Sonnet" },
         "lmstudio/minimax-m2.1-gs32": { alias: "MiniMax Local" },
-        "anthropic/claude-opus-4-5": { alias: "Opus" },
+<<<<<<< HEAD
+        "anthropic/claude-opus-4-5": { alias: "Opus" }
+      }
+    }
+=======
+        "anthropic/claude-opus-4-6": { alias: "Opus" },
       },
     },
+>>>>>>> 462905440 (chore: apply local workspace updates (#9911))
   },
   models: {
     mode: "merge",

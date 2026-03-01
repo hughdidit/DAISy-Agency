@@ -98,18 +98,20 @@ export function normalizeSessionDeliveryFields(source?: DeliveryContextSessionSo
 export function deliveryContextFromSession(
   entry?: DeliveryContextSessionSource & { origin?: { threadId?: string | number } },
 ): DeliveryContext | undefined {
-  if (!entry) {
-    return undefined;
-  }
+  if (!entry) return undefined;
+<<<<<<< HEAD
+  return normalizeSessionDeliveryFields(entry).deliveryContext;
+=======
   const source: DeliveryContextSessionSource = {
     channel: entry.channel,
     lastChannel: entry.lastChannel,
     lastTo: entry.lastTo,
     lastAccountId: entry.lastAccountId,
-    lastThreadId: entry.lastThreadId ?? entry.origin?.threadId,
+    lastThreadId: entry.lastThreadId ?? entry.deliveryContext?.threadId ?? entry.origin?.threadId,
     deliveryContext: entry.deliveryContext,
   };
   return normalizeSessionDeliveryFields(source).deliveryContext;
+>>>>>>> 310eed825 (fix: preserve delivery thread fallback (#4911) (thanks @yevhen))
 }
 
 export function mergeDeliveryContext(

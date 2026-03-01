@@ -1,14 +1,10 @@
+import type { RuntimeEnv } from "../runtime.js";
 import { lookupContextTokens } from "../agents/context.js";
 import { DEFAULT_CONTEXT_TOKENS, DEFAULT_MODEL, DEFAULT_PROVIDER } from "../agents/defaults.js";
 import { resolveConfiguredModelRef } from "../agents/model-selection.js";
 import { loadConfig } from "../config/config.js";
 import { loadSessionStore, resolveStorePath, type SessionEntry } from "../config/sessions.js";
 import { info } from "../globals.js";
-<<<<<<< HEAD
-import type { RuntimeEnv } from "../runtime.js";
-=======
-import { formatTimeAgo } from "../infra/format-time/format-relative.ts";
->>>>>>> a1123dd9b (Centralize date/time formatting utilities (#11831))
 import { isRich, theme } from "../terminal/theme.js";
 
 type SessionRow = {

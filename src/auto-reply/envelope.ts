@@ -1,16 +1,11 @@
+import type { OpenClawConfig } from "../config/config.js";
 import { resolveUserTimezone } from "../agents/date-time.js";
 import { normalizeChatType } from "../channels/chat-type.js";
 import { resolveSenderLabel, type SenderLabelParams } from "../channels/sender-label.js";
 <<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
 =======
-import {
-  resolveTimezone,
-  formatUtcTimestamp,
-  formatZonedTimestamp,
-} from "../infra/format-time/format-datetime.ts";
-import { formatTimeAgo } from "../infra/format-time/format-relative.ts";
->>>>>>> a1123dd9b (Centralize date/time formatting utilities (#11831))
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 
 export type AgentEnvelopeParams = {
   channel: string;
@@ -54,7 +49,7 @@ type ResolvedEnvelopeTimezone =
   | { mode: "local" }
   | { mode: "iana"; timeZone: string };
 
-export function resolveEnvelopeFormatOptions(cfg?: MoltbotConfig): EnvelopeFormatOptions {
+export function resolveEnvelopeFormatOptions(cfg?: OpenClawConfig): EnvelopeFormatOptions {
   const defaults = cfg?.agents?.defaults;
   return {
     timezone: defaults?.envelopeTimezone,

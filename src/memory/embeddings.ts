@@ -1,12 +1,24 @@
-import fsSync from "node:fs";
-
 import type { Llama, LlamaEmbeddingContext, LlamaModel } from "node-llama-cpp";
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
+=======
+import fsSync from "node:fs";
+import type { OpenClawConfig } from "../config/config.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { resolveUserPath } from "../utils.js";
 import { createGeminiEmbeddingProvider, type GeminiEmbeddingClient } from "./embeddings-gemini.js";
 import { createOpenAiEmbeddingProvider, type OpenAiEmbeddingClient } from "./embeddings-openai.js";
 import { createVoyageEmbeddingProvider, type VoyageEmbeddingClient } from "./embeddings-voyage.js";
 import { importNodeLlamaCpp } from "./node-llama.js";
+
+function sanitizeAndNormalizeEmbedding(vec: number[]): number[] {
+  const sanitized = vec.map((value) => (Number.isFinite(value) ? value : 0));
+  const magnitude = Math.sqrt(sanitized.reduce((sum, value) => sum + value * value, 0));
+  if (magnitude < 1e-10) {
+    return sanitized;
+  }
+  return sanitized.map((value) => value / magnitude);
+}
 
 export type { GeminiEmbeddingClient } from "./embeddings-gemini.js";
 export type { OpenAiEmbeddingClient } from "./embeddings-openai.js";
@@ -30,7 +42,7 @@ export type EmbeddingProviderResult = {
 };
 
 export type EmbeddingProviderOptions = {
-  config: MoltbotConfig;
+  config: OpenClawConfig;
   agentDir?: string;
   provider: "openai" | "local" | "gemini" | "voyage" | "auto";
   remote?: {
@@ -102,14 +114,22 @@ async function createLocalEmbeddingProvider(
     embedQuery: async (text) => {
       const ctx = await ensureContext();
       const embedding = await ctx.getEmbeddingFor(text);
-      return Array.from(embedding.vector);
+<<<<<<< HEAD
+      return Array.from(embedding.vector) as number[];
+=======
+      return sanitizeAndNormalizeEmbedding(Array.from(embedding.vector));
+>>>>>>> 5020bfa2a (fix: L2-normalize local embedding vectors to fix semantic search (#5332))
     },
     embedBatch: async (texts) => {
       const ctx = await ensureContext();
       const embeddings = await Promise.all(
         texts.map(async (text) => {
           const embedding = await ctx.getEmbeddingFor(text);
-          return Array.from(embedding.vector);
+<<<<<<< HEAD
+          return Array.from(embedding.vector) as number[];
+=======
+          return sanitizeAndNormalizeEmbedding(Array.from(embedding.vector));
+>>>>>>> 5020bfa2a (fix: L2-normalize local embedding vectors to fix semantic search (#5332))
         }),
       );
       return embeddings;
@@ -235,7 +255,7 @@ function formatLocalSetupError(err: unknown): string {
     "To enable local embeddings:",
     "1) Use Node 22 LTS (recommended for installs/updates)",
     missing
-      ? "2) Reinstall Moltbot (this should install node-llama-cpp): npm i -g moltbot@latest"
+      ? "2) Reinstall OpenClaw (this should install node-llama-cpp): npm i -g openclaw@latest"
       : null,
     "3) If you use pnpm: pnpm approve-builds (select node-llama-cpp), then pnpm rebuild node-llama-cpp",
     'Or set agents.defaults.memorySearch.provider = "openai" (remote).',

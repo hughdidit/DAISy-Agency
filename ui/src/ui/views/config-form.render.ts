@@ -2,14 +2,17 @@ import { html, nothing } from "lit";
 <<<<<<< HEAD
 import type { ConfigUiHints } from "../types";
 import { icons } from "../icons";
-import { hintForPath, humanize, schemaType, type JsonSchema } from "./config-form.shared";
-import { renderNode } from "./config-form.node";
+<<<<<<< HEAD
+import {
+  hintForPath,
+  humanize,
+  schemaType,
+  type JsonSchema,
+} from "./config-form.shared";
 =======
-import type { ConfigUiHints } from "../types.ts";
-import { icons } from "../icons.ts";
-import { renderNode } from "./config-form.node.ts";
-import { hintForPath, humanize, schemaType, type JsonSchema } from "./config-form.shared.ts";
->>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
+import { renderNode } from "./config-form.node";
+import { hintForPath, humanize, schemaType, type JsonSchema } from "./config-form.shared";
 
 export type ConfigFormProps = {
   schema: JsonSchema | null;

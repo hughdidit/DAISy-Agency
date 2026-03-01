@@ -1,19 +1,13 @@
-import { generateUUID } from "./uuid";
+import { buildDeviceAuthPayload } from "../../../src/gateway/device-auth.js";
 import {
   GATEWAY_CLIENT_MODES,
   GATEWAY_CLIENT_NAMES,
   type GatewayClientMode,
   type GatewayClientName,
 } from "../../../src/gateway/protocol/client-info.js";
-<<<<<<< HEAD
-import { buildDeviceAuthPayload } from "../../../src/gateway/device-auth.js";
-import { loadOrCreateDeviceIdentity, signDevicePayload } from "./device-identity";
 import { clearDeviceAuthToken, loadDeviceAuthToken, storeDeviceAuthToken } from "./device-auth";
-=======
-import { clearDeviceAuthToken, loadDeviceAuthToken, storeDeviceAuthToken } from "./device-auth.ts";
-import { loadOrCreateDeviceIdentity, signDevicePayload } from "./device-identity.ts";
-import { generateUUID } from "./uuid.ts";
->>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
+import { loadOrCreateDeviceIdentity, signDevicePayload } from "./device-identity";
+import { generateUUID } from "./uuid";
 
 export type GatewayEventFrame = {
   type: "event";

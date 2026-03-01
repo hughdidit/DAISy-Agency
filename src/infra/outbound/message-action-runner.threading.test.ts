@@ -5,11 +5,9 @@ import type { MoltbotConfig } from "../../config/config.js";
 =======
 import type { OpenClawConfig } from "../../config/config.js";
 import { slackPlugin } from "../../../extensions/slack/src/channel.js";
-import { telegramPlugin } from "../../../extensions/telegram/src/channel.js";
->>>>>>> 6ac5dd2c0 (test: cover telegram topic threadId auto-injection and subagent origin threading)
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { setActivePluginRegistry } from "../../plugins/runtime.js";
 import { createTestRegistry } from "../../test-utils/channel-plugins.js";
-import { slackPlugin } from "../../../extensions/slack/src/channel.js";
 
 const mocks = vi.hoisted(() => ({
   executeSendAction: vi.fn(),
@@ -45,7 +43,7 @@ const slackConfig = {
       appToken: "xapp-test",
     },
   },
-} as MoltbotConfig;
+} as OpenClawConfig;
 
 const telegramConfig = {
   channels: {
@@ -136,6 +134,8 @@ describe("runMessageAction threading auto-injection", () => {
     const call = mocks.executeSendAction.mock.calls[0]?.[0];
     expect(call?.ctx?.mirror?.sessionKey).toBe("agent:main:slack:channel:c123:thread:333.444");
   });
+<<<<<<< HEAD
+=======
 
   it("auto-injects telegram threadId from toolContext when omitted", async () => {
     mocks.executeSendAction.mockResolvedValue({
@@ -158,7 +158,63 @@ describe("runMessageAction threading auto-injection", () => {
       agentId: "main",
     });
 
-    const call = mocks.executeSendAction.mock.calls[0]?.[0] as { ctx?: { params?: any } };
+    const call = mocks.executeSendAction.mock.calls[0]?.[0] as {
+      ctx?: { params?: Record<string, unknown> };
+    };
+    expect(call?.ctx?.params?.threadId).toBe("42");
+  });
+
+  it("skips telegram auto-threading when target chat differs", async () => {
+    mocks.executeSendAction.mockResolvedValue({
+      handledBy: "plugin",
+      payload: {},
+    });
+
+    await runMessageAction({
+      cfg: telegramConfig,
+      action: "send",
+      params: {
+        channel: "telegram",
+        target: "telegram:999",
+        message: "hi",
+      },
+      toolContext: {
+        currentChannelId: "telegram:123",
+        currentThreadTs: "42",
+      },
+      agentId: "main",
+    });
+
+    const call = mocks.executeSendAction.mock.calls[0]?.[0] as {
+      ctx?: { params?: Record<string, unknown> };
+    };
+    expect(call?.ctx?.params?.threadId).toBeUndefined();
+  });
+
+  it("matches telegram target with internal prefix variations", async () => {
+    mocks.executeSendAction.mockResolvedValue({
+      handledBy: "plugin",
+      payload: {},
+    });
+
+    await runMessageAction({
+      cfg: telegramConfig,
+      action: "send",
+      params: {
+        channel: "telegram",
+        target: "telegram:group:123",
+        message: "hi",
+      },
+      toolContext: {
+        currentChannelId: "telegram:123",
+        currentThreadTs: "42",
+      },
+      agentId: "main",
+    });
+
+    const call = mocks.executeSendAction.mock.calls[0]?.[0] as {
+      ctx?: { params?: Record<string, unknown> };
+    };
     expect(call?.ctx?.params?.threadId).toBe("42");
   });
 
@@ -184,7 +240,10 @@ describe("runMessageAction threading auto-injection", () => {
       agentId: "main",
     });
 
-    const call = mocks.executeSendAction.mock.calls[0]?.[0] as { ctx?: { params?: any } };
+    const call = mocks.executeSendAction.mock.calls[0]?.[0] as {
+      ctx?: { params?: Record<string, unknown> };
+    };
     expect(call?.ctx?.params?.threadId).toBe("999");
   });
+>>>>>>> 01db1dde1 (fix: telegram topic auto-threading — use parseTelegramTarget, add tests (#7235) (thanks @Lukavyi))
 });

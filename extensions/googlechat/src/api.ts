@@ -1,8 +1,7 @@
 import crypto from "node:crypto";
-
 import type { ResolvedGoogleChatAccount } from "./accounts.js";
-import { getGoogleChatAccessToken } from "./auth.js";
 import type { GoogleChatReaction } from "./types.js";
+import { getGoogleChatAccessToken } from "./auth.js";
 
 const CHAT_API_BASE = "https://chat.googleapis.com/v1";
 const CHAT_UPLOAD_BASE = "https://chat.googleapis.com/upload/v1";
@@ -168,7 +167,7 @@ export async function uploadGoogleChatAttachment(params: {
   contentType?: string;
 }): Promise<{ attachmentUploadToken?: string }> {
   const { account, space, filename, buffer, contentType } = params;
-  const boundary = `moltbot-${crypto.randomUUID()}`;
+  const boundary = `openclaw-${crypto.randomUUID()}`;
   const metadata = JSON.stringify({ filename });
   const header = `--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${metadata}\r\n`;
   const mediaHeader = `--${boundary}\r\nContent-Type: ${contentType ?? "application/octet-stream"}\r\n\r\n`;

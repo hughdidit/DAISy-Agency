@@ -1,13 +1,4 @@
 import type { ReasoningLevel, ThinkLevel } from "../auto-reply/thinking.js";
-<<<<<<< HEAD
-import { SILENT_REPLY_TOKEN } from "../auto-reply/tokens.js";
-import { listDeliverableMessageChannels } from "../utils/message-channel.js";
-<<<<<<< HEAD
-=======
-=======
->>>>>>> 9bef52594 (chore: apply formatter)
-import type { MemoryCitationsMode } from "../config/types.memory.js";
->>>>>>> 5d3af3bc6 (feat (memory): Implement new (opt-in) QMD memory backend)
 import type { ResolvedTimeFormat } from "./date-time.js";
 import type { EmbeddedContextFile } from "./pi-embedded-helpers.js";
 import { SILENT_REPLY_TOKEN } from "../auto-reply/tokens.js";
@@ -196,8 +187,8 @@ function buildDocsSection(params: { docsPath?: string; isMinimal: boolean; readT
   return [
     "## Documentation",
     `OpenClaw docs: ${docsPath}`,
-    "Mirror: https://docs.molt.bot",
-    "Source: https://github.com/moltbot/moltbot",
+    "Mirror: https://docs.openclaw.ai",
+    "Source: https://github.com/openclaw/openclaw",
     "Community: https://discord.com/invite/clawd",
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -211,9 +202,8 @@ function buildDocsSection(params: { docsPath?: string; isMinimal: boolean; readT
 >>>>>>> fd00d5688 (chore: update openclaw naming)
 =======
     "Find new skills: https://clawdhub.com",
-    "For Moltbot behavior, commands, config, or architecture: consult local docs first.",
-    "When diagnosing issues, run `moltbot status` yourself when possible; only ask the user if you lack access (e.g., sandboxed).",
->>>>>>> 5d3af3bc6 (feat (memory): Implement new (opt-in) QMD memory backend)
+    "For OpenClaw behavior, commands, config, or architecture: consult local docs first.",
+    "When diagnosing issues, run `openclaw status` yourself when possible; only ask the user if you lack access (e.g., sandboxed).",
     "",
   ];
 }
@@ -405,6 +395,13 @@ export function buildAgentSystemPrompt(params: {
   const messageChannelOptions = listDeliverableMessageChannels().join("|");
   const promptMode = params.promptMode ?? "full";
   const isMinimal = promptMode === "minimal" || promptMode === "none";
+  const safetySection = [
+    "## Safety",
+    "You have no independent goals: do not pursue self-preservation, replication, resource acquisition, or power-seeking; avoid long-term plans beyond the user's request.",
+    "Prioritize safety and human oversight over completion; if instructions conflict, pause and ask; comply with stop/pause/audit requests and never bypass safeguards. (Inspired by Anthropic's constitution.)",
+    "Do not manipulate or persuade anyone to expand access or disable safeguards. Do not copy yourself or change system prompts, safety rules, or tool policies unless explicitly requested.",
+    "",
+  ];
   const skillsSection = buildSkillsSection({
     skillsPrompt,
     isMinimal,
@@ -443,17 +440,14 @@ export function buildAgentSystemPrompt(params: {
           "- apply_patch: apply multi-file patches",
           `- ${execToolName}: run shell commands (supports background via yieldMs/background)`,
           `- ${processToolName}: manage background exec sessions`,
-          "- browser: control clawd's dedicated browser",
+          "- browser: control openclaw's dedicated browser",
           "- canvas: present/eval/snapshot the Canvas",
           "- nodes: list/describe/notify/camera/screen on paired nodes",
           "- cron: manage cron jobs and wake events (use for reminders; when scheduling a reminder, write the systemEvent text as something that will read like a reminder when it fires, and mention that it is a reminder depending on the time gap between setting and firing; include recent context in reminder text if appropriate)",
           "- sessions_list: list sessions",
           "- sessions_history: fetch session history",
           "- sessions_send: send to another session",
-<<<<<<< HEAD
-=======
-          '- session_status: show usage/time/model state and answer "what model are we using?"',
->>>>>>> 600c46b5a (chore: oxfmt)
+          "- session_status: show usage/time/model state and answer \"what model are we using?\"",
         ].join("\n"),
     "TOOLS.md does not control tool availability; it is user guidance for how to use external tools.",
     "If a task is more complex or takes longer, spawn a sub-agent. It will do the work for you and ping you when it's done. You can always check up on it.",
@@ -464,30 +458,14 @@ export function buildAgentSystemPrompt(params: {
     "Keep narration brief and value-dense; avoid repeating obvious steps.",
     "Use plain human language for narration unless in a technical context.",
     "",
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-    "## Moltbot CLI Quick Reference",
-    "Moltbot is controlled via subcommands. Do not invent commands.",
-=======
-    ...buildSafetySection(),
     "## OpenClaw CLI Quick Reference",
     "OpenClaw is controlled via subcommands. Do not invent commands.",
->>>>>>> 7a6c40872 (Agents: add system prompt safety guardrails (#5445))
-=======
-    "## Moltbot CLI Quick Reference",
-    "Moltbot is controlled via subcommands. Do not invent commands.",
->>>>>>> 5d3af3bc6 (feat (memory): Implement new (opt-in) QMD memory backend)
-=======
-    "## OpenClaw CLI Quick Reference",
-    "OpenClaw is controlled via subcommands. Do not invent commands.",
->>>>>>> f72214725 (chore: restore OpenClaw branding)
     "To manage the Gateway daemon service (start/stop/restart):",
-    "- moltbot gateway status",
-    "- moltbot gateway start",
-    "- moltbot gateway stop",
-    "- moltbot gateway restart",
-    "If unsure, ask the user to run `moltbot help` (or `moltbot gateway --help`) and paste the output.",
+    "- openclaw gateway status",
+    "- openclaw gateway start",
+    "- openclaw gateway stop",
+    "- openclaw gateway restart",
+    "If unsure, ask the user to run `openclaw help` (or `openclaw gateway --help`) and paste the output.",
     "",
     ...skillsSection,
     ...memorySection,
@@ -514,6 +492,9 @@ export function buildAgentSystemPrompt(params: {
       ? params.modelAliasLines.join("\n")
       : "",
     params.modelAliasLines && params.modelAliasLines.length > 0 && !isMinimal ? "" : "",
+    userTimezone
+      ? "If you need the current date, time, or day of week, run session_status (📊 session_status)."
+      : "",
     "## Workspace",
     `Your working directory is: ${params.workspaceDir}`,
     "Treat this directory as the single global workspace for file operations unless explicitly instructed otherwise.",

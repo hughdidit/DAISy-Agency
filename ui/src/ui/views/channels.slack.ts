@@ -1,9 +1,7 @@
 import { html, nothing } from "lit";
-<<<<<<< HEAD
-
-import { formatAgo } from "../format";
 import type { SlackStatus } from "../types";
 import type { ChannelsProps } from "./channels.types";
+import { formatAgo } from "../format";
 import { renderChannelConfigSection } from "./channels.config";
 =======
 import type { SlackStatus } from "../types.ts";

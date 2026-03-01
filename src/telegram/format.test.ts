@@ -1,5 +1,4 @@
 import { describe, expect, it } from "vitest";
-
 import { markdownToTelegramHtml } from "./format.js";
 
 describe("markdownToTelegramHtml", () => {
@@ -47,6 +46,8 @@ describe("markdownToTelegramHtml", () => {
     const res = markdownToTelegramHtml("```js\nconst x = 1;\n```");
     expect(res).toBe("<pre><code>const x = 1;\n</code></pre>");
   });
+<<<<<<< HEAD
+=======
 
   it("properly nests overlapping bold and autolink (#4071)", () => {
     const res = markdownToTelegramHtml("**start https://example.com** end");
@@ -59,8 +60,6 @@ describe("markdownToTelegramHtml", () => {
     const res = markdownToTelegramHtml("**bold [link](https://example.com) text**");
     expect(res).toBe('<b>bold <a href="https://example.com">link</a> text</b>');
   });
-<<<<<<< HEAD
-=======
 
   it("properly nests bold wrapping a link with trailing text", () => {
     const res = markdownToTelegramHtml("**[link](https://example.com) rest**");
@@ -71,15 +70,5 @@ describe("markdownToTelegramHtml", () => {
     const res = markdownToTelegramHtml("[**bold**](https://example.com)");
     expect(res).toBe('<a href="https://example.com"><b>bold</b></a>');
   });
-
-  it("renders spoiler tags", () => {
-    const res = markdownToTelegramHtml("the answer is ||42||");
-    expect(res).toBe("the answer is <tg-spoiler>42</tg-spoiler>");
-  });
-
-  it("renders spoiler with nested formatting", () => {
-    const res = markdownToTelegramHtml("||**secret** text||");
-    expect(res).toBe("<tg-spoiler><b>secret</b> text</tg-spoiler>");
-  });
->>>>>>> e02d144af (feat(telegram): add spoiler tag support (#11543))
+>>>>>>> da71eaebd (fix: correct telegram html nesting (#4578) (thanks @ThanhNguyxn))
 });

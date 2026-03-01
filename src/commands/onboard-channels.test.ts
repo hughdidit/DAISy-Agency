@@ -1,17 +1,21 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../config/config.js";
+=======
+import type { OpenClawConfig } from "../config/config.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { RuntimeEnv } from "../runtime.js";
 import type { WizardPrompter } from "../wizard/prompts.js";
-import { setupChannels } from "./onboard-channels.js";
-import { setActivePluginRegistry } from "../plugins/runtime.js";
-import { createTestRegistry } from "../test-utils/channel-plugins.js";
 import { discordPlugin } from "../../extensions/discord/src/channel.js";
 import { imessagePlugin } from "../../extensions/imessage/src/channel.js";
 import { signalPlugin } from "../../extensions/signal/src/channel.js";
 import { slackPlugin } from "../../extensions/slack/src/channel.js";
 import { telegramPlugin } from "../../extensions/telegram/src/channel.js";
 import { whatsappPlugin } from "../../extensions/whatsapp/src/channel.js";
+import { setActivePluginRegistry } from "../plugins/runtime.js";
+import { createTestRegistry } from "../test-utils/channel-plugins.js";
+import { setupChannels } from "./onboard-channels.js";
 
 vi.mock("node:fs/promises", () => ({
   default: {
@@ -76,7 +80,7 @@ describe("setupChannels", () => {
       }),
     };
 
-    await setupChannels({} as MoltbotConfig, runtime, prompter, {
+    await setupChannels({} as OpenClawConfig, runtime, prompter, {
       skipConfirm: true,
       quickstartDefaults: true,
       forceAllowFromChannels: ["whatsapp"],
@@ -131,7 +135,7 @@ describe("setupChannels", () => {
             botToken: "token",
           },
         },
-      } as MoltbotConfig,
+      } as OpenClawConfig,
       runtime,
       prompter,
       {
@@ -195,7 +199,7 @@ describe("setupChannels", () => {
             enabled: false,
           },
         },
-      } as MoltbotConfig,
+      } as OpenClawConfig,
       runtime,
       prompter,
       {

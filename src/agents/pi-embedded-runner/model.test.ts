@@ -1,22 +1,15 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+<<<<<<< HEAD
 vi.mock("@mariozechner/pi-coding-agent", () => ({
-  AuthStorage: class {
-    mocked = true;
-  },
-  ModelRegistry: class {
-    find() {
-      return null;
-    }
-  },
+=======
+vi.mock("../pi-model-discovery.js", () => ({
+>>>>>>> 08ed62852 (chore: update deps and pi model discovery)
+  discoverAuthStorage: vi.fn(() => ({ mocked: true })),
+  discoverModels: vi.fn(() => ({ find: vi.fn(() => null) })),
 }));
 
-<<<<<<< HEAD
-import type { MoltbotConfig } from "../../config/config.js";
-=======
 import type { OpenClawConfig } from "../../config/config.js";
-import { discoverModels } from "../pi-model-discovery.js";
->>>>>>> 370bbcd89 (Model: add strict gpt-5.3-codex fallback for OpenAI Codex (fixes #9989) (#9995))
 import { buildInlineProviderModels, resolveModel } from "./model.js";
 
 const makeModel = (id: string) => ({
@@ -136,7 +129,7 @@ describe("resolveModel", () => {
           },
         },
       },
-    } as MoltbotConfig;
+    } as OpenClawConfig;
 
     const result = resolveModel("custom", "missing-model", "/tmp/agent", cfg);
 

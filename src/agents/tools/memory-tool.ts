@@ -1,28 +1,17 @@
 import { Type } from "@sinclair/typebox";
 <<<<<<< HEAD
+
 import type { MoltbotConfig } from "../../config/config.js";
-<<<<<<< HEAD
-=======
 =======
 import type { OpenClawConfig } from "../../config/config.js";
->>>>>>> f72214725 (chore: restore OpenClaw branding)
-import type { MemoryCitationsMode } from "../../config/types.memory.js";
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 5d3af3bc6 (feat (memory): Implement new (opt-in) QMD memory backend)
-=======
-=======
-import type { MemorySearchResult } from "../../memory/types.js";
 import type { AnyAgentTool } from "./common.js";
->>>>>>> 9bef52594 (chore: apply formatter)
-import { resolveMemoryBackendConfig } from "../../memory/backend-config.js";
->>>>>>> 1861e7636 (Memory: clamp QMD citations to injected budget)
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { getMemorySearchManager } from "../../memory/index.js";
 <<<<<<< HEAD
-import type { MemorySearchResult } from "../../memory/types.js";
 =======
+import type { MemorySearchResult } from "../../memory/types.js";
 import { parseAgentSessionKey } from "../../routing/session-key.js";
->>>>>>> 9bef52594 (chore: apply formatter)
+>>>>>>> edd6289f2 (fix: derive citations chat type via session parser)
 import { resolveSessionAgentId } from "../agent-scope.js";
 import { resolveMemorySearchConfig } from "../memory-search.js";
 import { jsonResult, readNumberParam, readStringParam } from "./common.js";
@@ -150,8 +139,10 @@ export function createMemoryGetTool(options: {
     },
   };
 }
+<<<<<<< HEAD
+=======
 
-function resolveMemoryCitationsMode(cfg: OpenClawConfig): MemoryCitationsMode {
+function resolveMemoryCitationsMode(cfg: MoltbotConfig): MemoryCitationsMode {
   const mode = cfg.memory?.citations;
   if (mode === "on" || mode === "off" || mode === "auto") {
     return mode;
@@ -220,39 +211,20 @@ function shouldIncludeCitations(params: {
 }
 
 function deriveChatTypeFromSessionKey(sessionKey?: string): "direct" | "group" | "channel" {
-  if (!sessionKey) {
+  const parsed = parseAgentSessionKey(sessionKey);
+  if (!parsed?.rest) {
     return "direct";
   }
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-  if (sessionKey.includes(":group:")) {
-=======
-  const tokens = parsed.rest.toLowerCase().split(":").filter(Boolean);
+  const tokens = parsed.rest
+    .toLowerCase()
+    .split(":")
+    .filter(Boolean);
   if (tokens.includes("channel")) {
     return "channel";
   }
   if (tokens.includes("group")) {
->>>>>>> 9bef52594 (chore: apply formatter)
-=======
-  const tokens = new Set(
-    parsed.rest
-      .toLowerCase()
-      .split(":")
-      .filter(Boolean),
-  );
-=======
-  const tokens = new Set(parsed.rest.toLowerCase().split(":").filter(Boolean));
->>>>>>> 5915d479d (chore: oxfmt)
-  if (tokens.has("channel")) {
-    return "channel";
-  }
-  if (tokens.has("group")) {
->>>>>>> 30098b04d (chore: fix lint warnings)
     return "group";
-  }
-  if (sessionKey.includes(":channel:")) {
-    return "channel";
   }
   return "direct";
 }
+>>>>>>> edd6289f2 (fix: derive citations chat type via session parser)

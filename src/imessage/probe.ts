@@ -1,12 +1,16 @@
+import type { RuntimeEnv } from "../runtime.js";
 import { detectBinary } from "../commands/onboard-helpers.js";
 import { loadConfig } from "../config/config.js";
 import { runCommandWithTimeout } from "../process/exec.js";
-import type { RuntimeEnv } from "../runtime.js";
 import { createIMessageRpcClient } from "./client.js";
+import { DEFAULT_IMESSAGE_PROBE_TIMEOUT_MS } from "./constants.js";
 
-/** Default timeout for iMessage probe operations (10 seconds). */
-export const DEFAULT_IMESSAGE_PROBE_TIMEOUT_MS = 10_000;
+<<<<<<< HEAD
+=======
+// Re-export for backwards compatibility
+export { DEFAULT_IMESSAGE_PROBE_TIMEOUT_MS } from "./constants.js";
 
+>>>>>>> f633a8cb2 (fix: address review comments)
 export type IMessageProbe = {
   ok: boolean;
   error?: string | null;
@@ -59,19 +63,29 @@ async function probeRpcSupport(cliPath: string, timeoutMs: number): Promise<RpcS
   }
 }
 
+/**
+ * Probe iMessage RPC availability.
+ * @param timeoutMs - Explicit timeout in ms. If undefined, uses config or default.
+ * @param opts - Additional options (cliPath, dbPath, runtime).
+ */
 export async function probeIMessage(
-  timeoutMs = DEFAULT_IMESSAGE_PROBE_TIMEOUT_MS,
+<<<<<<< HEAD
+  timeoutMs = 2000,
+=======
+  timeoutMs?: number,
+>>>>>>> f633a8cb2 (fix: address review comments)
   opts: IMessageProbeOptions = {},
 ): Promise<IMessageProbe> {
   const cfg = opts.cliPath || opts.dbPath ? undefined : loadConfig();
   const cliPath = opts.cliPath?.trim() || cfg?.channels?.imessage?.cliPath?.trim() || "imsg";
   const dbPath = opts.dbPath?.trim() || cfg?.channels?.imessage?.dbPath?.trim();
-  // Read probeTimeoutMs from config if not explicitly provided
+<<<<<<< HEAD
+=======
+  // Use explicit timeout if provided, otherwise fall back to config, then default
   const effectiveTimeout =
-    timeoutMs !== DEFAULT_IMESSAGE_PROBE_TIMEOUT_MS
-      ? timeoutMs
-      : cfg?.channels?.imessage?.probeTimeoutMs ?? DEFAULT_IMESSAGE_PROBE_TIMEOUT_MS;
+    timeoutMs ?? cfg?.channels?.imessage?.probeTimeoutMs ?? DEFAULT_IMESSAGE_PROBE_TIMEOUT_MS;
 
+>>>>>>> f633a8cb2 (fix: address review comments)
   const detected = await detectBinary(cliPath);
   if (!detected) {
     return { ok: false, error: `imsg not found (${cliPath})` };

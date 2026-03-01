@@ -20,102 +20,159 @@ When the operator says “release”, immediately do this preflight (no extra qu
 
 <<<<<<< HEAD
 1) **Version & metadata**
-- [ ] Bump `package.json` version (e.g., `2026.1.27-beta.1`).
-=======
-1. **Version & metadata**
-
 - [ ] Bump `package.json` version (e.g., `2026.1.29`).
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - [ ] Run `pnpm plugins:sync` to align extension package versions + changelogs.
-- [ ] Update CLI/version strings: [`src/cli/program.ts`](https://github.com/moltbot/moltbot/blob/main/src/cli/program.ts) and the Baileys user agent in [`src/provider-web.ts`](https://github.com/moltbot/moltbot/blob/main/src/provider-web.ts).
-- [ ] Confirm package metadata (name, description, repository, keywords, license) and `bin` map points to [`moltbot.mjs`](https://github.com/moltbot/moltbot/blob/main/moltbot.mjs) for `moltbot`.
+- [ ] Update CLI/version strings: [`src/cli/program.ts`](https://github.com/openclaw/openclaw/blob/main/src/cli/program.ts) and the Baileys user agent in [`src/provider-web.ts`](https://github.com/openclaw/openclaw/blob/main/src/provider-web.ts).
+- [ ] Confirm package metadata (name, description, repository, keywords, license) and `bin` map points to [`openclaw.mjs`](https://github.com/openclaw/openclaw/blob/main/openclaw.mjs) for `openclaw`.
 - [ ] If dependencies changed, run `pnpm install` so `pnpm-lock.yaml` is current.
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 2) **Build & artifacts**
 - [ ] If A2UI inputs changed, run `pnpm canvas:a2ui:bundle` and commit any updated [`src/canvas-host/a2ui/a2ui.bundle.js`](https://github.com/moltbot/moltbot/blob/main/src/canvas-host/a2ui/a2ui.bundle.js).
 =======
+1. **Build & artifacts**
+=======
 2. **Build & artifacts**
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 
 - [ ] If A2UI inputs changed, run `pnpm canvas:a2ui:bundle` and commit any updated [`src/canvas-host/a2ui/a2ui.bundle.js`](https://github.com/openclaw/openclaw/blob/main/src/canvas-host/a2ui/a2ui.bundle.js).
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 - [ ] `pnpm run build` (regenerates `dist/`).
 - [ ] Verify npm package `files` includes all required `dist/*` folders (notably `dist/node-host/**` and `dist/acp/**` for headless node + ACP CLI).
 - [ ] Confirm `dist/build-info.json` exists and includes the expected `commit` hash (CLI banner uses this for npm installs).
 - [ ] Optional: `npm pack --pack-destination /tmp` after the build; inspect the tarball contents and keep it handy for the GitHub release (do **not** commit it).
 
+<<<<<<< HEAD
+<<<<<<< HEAD
+3) **Changelog & docs**
+- [ ] Update `CHANGELOG.md` with user-facing highlights (create the file if missing); keep entries strictly descending by version.
+- [ ] Ensure README examples/flags match current CLI behavior (notably new commands or options).
+
+<<<<<<< HEAD
+4) **Validation**
+- [ ] `pnpm lint`
+=======
+4. **Validation**
+=======
+1. **Changelog & docs**
+=======
 3. **Changelog & docs**
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 
 - [ ] Update `CHANGELOG.md` with user-facing highlights (create the file if missing); keep entries strictly descending by version.
 - [ ] Ensure README examples/flags match current CLI behavior (notably new commands or options).
 
+<<<<<<< HEAD
+1. **Validation**
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
+=======
 4. **Validation**
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 
-- [ ] `pnpm lint`
+- [ ] `pnpm build`
+- [ ] `pnpm check`
+>>>>>>> 902f96805 (chore: Add `pnpm check` for fast repo checks.)
 - [ ] `pnpm test` (or `pnpm test:coverage` if you need coverage output)
-- [ ] `pnpm run build` (last sanity check after tests)
 - [ ] `pnpm release:check` (verifies npm pack contents)
-- [ ] `CLAWDBOT_INSTALL_SMOKE_SKIP_NONROOT=1 pnpm test:install:smoke` (Docker install smoke test, fast path; required before release)
-  - If the immediate previous npm release is known broken, set `CLAWDBOT_INSTALL_SMOKE_PREVIOUS=<last-good-version>` or `CLAWDBOT_INSTALL_SMOKE_SKIP_PREVIOUS=1` for the preinstall step.
-- [ ] (Optional) Full installer smoke (adds non-root + CLI coverage): `pnpm test:install:smoke`
+
 - [ ] (Optional) Installer E2E (Docker, runs `curl -fsSL https://molt.bot/install.sh | bash`, onboards, then runs real tool calls):
+=======
+- [ ] (Optional) Installer E2E (Docker, runs `curl -fsSL https://openclaw.ai/install.sh | bash`, onboards, then runs real tool calls):
+>>>>>>> 7a2c4d3cf (fix(docs): use canonical openclaw.ai domain instead of openclaw.bot)
   - `pnpm test:install:e2e:openai` (requires `OPENAI_API_KEY`)
   - `pnpm test:install:e2e:anthropic` (requires `ANTHROPIC_API_KEY`)
   - `pnpm test:install:e2e` (requires both keys; runs both providers)
 - [ ] (Optional) Spot-check the web gateway if your changes affect send/receive paths.
 
-5. **macOS app (Sparkle)**
+## Deployment verification workflow
 
+Use the Verify workflow in GitHub Actions to run `scripts/verify.sh` after a deploy. It requires two inputs:
+- `environment` (the target environment)
+- `deployed_ref` (the git ref or artifact identifier you want verified)
+
+The workflow exports `VERIFY_ENV`, `DEPLOYED_REF`, and `DRY_RUN` so `verify.sh` can log the runtime context.
+
+`scripts/verify.sh` supports additional env vars to perform concrete checks:
+- `VERIFY_HEALTH_URL` (required for HTTP checks): endpoint to fetch and validate.
+  - Optional: `VERIFY_HTTP_TIMEOUT` (seconds, default 10).
+  - If the health payload includes fields like `commit`, `git_sha`, or `version`, the script compares them to `DEPLOYED_REF`.
+- `VERIFY_SSH_HOST` (required for SSH checks): host to run remote checks against.
+  - Optional: `VERIFY_SSH_USER` (SSH username).
+  - `VERIFY_SYSTEMD_SERVICE` to assert `systemctl is-active`.
+  - `VERIFY_DOCKER_CONTAINER` to assert a running container; if `DEPLOYED_REF` is set, the image tag is checked for it.
+
+5) **macOS app (Sparkle)**
+=======
+1. **macOS app (Sparkle)**
+=======
+5. **macOS app (Sparkle)**
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
+
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 - [ ] Build + sign the macOS app, then zip it for distribution.
-- [ ] Generate the Sparkle appcast (HTML notes via [`scripts/make_appcast.sh`](https://github.com/moltbot/moltbot/blob/main/scripts/make_appcast.sh)) and update `appcast.xml`.
+- [ ] Generate the Sparkle appcast (HTML notes via [`scripts/make_appcast.sh`](https://github.com/openclaw/openclaw/blob/main/scripts/make_appcast.sh)) and update `appcast.xml`.
 - [ ] Keep the app zip (and optional dSYM zip) ready to attach to the GitHub release.
 - [ ] Follow [macOS release](/platforms/mac/release) for the exact commands and required env vars.
   - `APP_BUILD` must be numeric + monotonic (no `-beta`) so Sparkle compares versions correctly.
+<<<<<<< HEAD
   - If notarizing, use the `moltbot-notary` keychain profile created from App Store Connect API env vars (see [macOS release](/platforms/mac/release)).
+=======
+  - If notarizing, use the `openclaw-notary` keychain profile created from App Store Connect API env vars (see [macOS release](/platforms/mac/release)).
+
+<<<<<<< HEAD
+1. **Publish (npm)**
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
+=======
+6. **Publish (npm)**
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 
 6. **Publish (npm)**
 
 - [ ] Confirm git status is clean; commit and push as needed.
 - [ ] `npm login` (verify 2FA) if needed.
 - [ ] `npm publish --access public` (use `--tag beta` for pre-releases).
-- [ ] Verify the registry: `npm view moltbot version`, `npm view moltbot dist-tags`, and `npx -y moltbot@X.Y.Z --version` (or `--help`).
+- [ ] Verify the registry: `npm view openclaw version`, `npm view openclaw dist-tags`, and `npx -y openclaw@X.Y.Z --version` (or `--help`).
 
 ### Troubleshooting (notes from 2.0.0-beta2 release)
-<<<<<<< HEAD
-- **npm pack/publish hangs or produces huge tarball**: the macOS app bundle in `dist/Moltbot.app` (and release zips) get swept into the package. Fix by whitelisting publish contents via `package.json` `files` (include dist subdirs, docs, skills; exclude app bundles). Confirm with `npm pack --dry-run` that `dist/Moltbot.app` is not listed.
-=======
-
 - **npm pack/publish hangs or produces huge tarball**: the macOS app bundle in `dist/OpenClaw.app` (and release zips) get swept into the package. Fix by whitelisting publish contents via `package.json` `files` (include dist subdirs, docs, skills; exclude app bundles). Confirm with `npm pack --dry-run` that `dist/OpenClaw.app` is not listed.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - **npm auth web loop for dist-tags**: use legacy auth to get an OTP prompt:
-  - `NPM_CONFIG_AUTH_TYPE=legacy npm dist-tag add moltbot@X.Y.Z latest`
+  - `NPM_CONFIG_AUTH_TYPE=legacy npm dist-tag add openclaw@X.Y.Z latest`
 - **`npx` verification fails with `ECOMPROMISED: Lock compromised`**: retry with a fresh cache:
-  - `NPM_CONFIG_CACHE=/tmp/npm-cache-$(date +%s) npx -y moltbot@X.Y.Z --version`
+  - `NPM_CONFIG_CACHE=/tmp/npm-cache-$(date +%s) npx -y openclaw@X.Y.Z --version`
 - **Tag needs repointing after a late fix**: force-update and push the tag, then ensure the GitHub release assets still match:
   - `git tag -f vX.Y.Z && git push -f origin vX.Y.Z`
 
+<<<<<<< HEAD
+<<<<<<< HEAD
+7) **GitHub release + appcast**
+=======
+1. **GitHub release + appcast**
+=======
 7. **GitHub release + appcast**
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 - [ ] Tag and push: `git tag vX.Y.Z && git push origin vX.Y.Z` (or `git push --tags`).
-- [ ] Create/refresh the GitHub release for `vX.Y.Z` with **title `moltbot X.Y.Z`** (not just the tag); body should include the **full** changelog section for that version (Highlights + Changes + Fixes), inline (no bare links), and **must not repeat the title inside the body**.
-- [ ] Attach artifacts: `npm pack` tarball (optional), `Moltbot-X.Y.Z.zip`, and `Moltbot-X.Y.Z.dSYM.zip` (if generated).
+- [ ] Create/refresh the GitHub release for `vX.Y.Z` with **title `openclaw X.Y.Z`** (not just the tag); body should include the **full** changelog section for that version (Highlights + Changes + Fixes), inline (no bare links), and **must not repeat the title inside the body**.
+- [ ] Attach artifacts: `npm pack` tarball (optional), `OpenClaw-X.Y.Z.zip`, and `OpenClaw-X.Y.Z.dSYM.zip` (if generated).
 - [ ] Commit the updated `appcast.xml` and push it (Sparkle feeds from main).
-- [ ] From a clean temp directory (no `package.json`), run `npx -y moltbot@X.Y.Z send --help` to confirm install/CLI entrypoints work.
+- [ ] From a clean temp directory (no `package.json`), run `npx -y openclaw@X.Y.Z send --help` to confirm install/CLI entrypoints work.
 - [ ] Announce/share release notes.
 
 ## Plugin publish scope (npm)
 
-We only publish **existing npm plugins** under the `@moltbot/*` scope. Bundled
+We only publish **existing npm plugins** under the `@openclaw/*` scope. Bundled
 plugins that are not on npm stay **disk-tree only** (still shipped in
 `extensions/**`).
 
 Process to derive the list:
-<<<<<<< HEAD
-1) `npm search @moltbot --json` and capture the package names.
+1) `npm search @openclaw --json` and capture the package names.
 2) Compare with `extensions/*/package.json` names.
 3) Publish only the **intersection** (already on npm).
 
 Current npm plugin list (update as needed):
+<<<<<<< HEAD
 - @moltbot/bluebubbles
 - @moltbot/diagnostics-otel
 - @moltbot/discord
@@ -129,15 +186,10 @@ Current npm plugin list (update as needed):
 - @moltbot/zalouser
 =======
 
-1. `npm search @openclaw --json` and capture the package names.
-2. Compare with `extensions/*/package.json` names.
-3. Publish only the **intersection** (already on npm).
-
-Current npm plugin list (update as needed):
-
 - @openclaw/bluebubbles
 - @openclaw/diagnostics-otel
 - @openclaw/discord
+- @openclaw/feishu
 - @openclaw/lobster
 - @openclaw/matrix
 - @openclaw/msteams
@@ -146,7 +198,7 @@ Current npm plugin list (update as needed):
 - @openclaw/voice-call
 - @openclaw/zalo
 - @openclaw/zalouser
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
+>>>>>>> 529236732 (docs: update Feishu plugin docs)
 
 Release notes must also call out **new optional bundled plugins** that are **not
 on by default** (example: `tlon`).

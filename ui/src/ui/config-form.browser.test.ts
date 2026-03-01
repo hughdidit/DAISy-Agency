@@ -1,7 +1,5 @@
 import { render } from "lit";
 import { describe, expect, it, vi } from "vitest";
-<<<<<<< HEAD
-
 import { analyzeConfigSchema, renderConfigForm } from "./views/config-form";
 =======
 import { analyzeConfigSchema, renderConfigForm } from "./views/config-form.ts";

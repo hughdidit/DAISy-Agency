@@ -1,6 +1,4 @@
 import { html, nothing } from "lit";
-<<<<<<< HEAD
-
 import type { AppViewState } from "../app-view-state";
 =======
 import type { AppViewState } from "../app-view-state.ts";

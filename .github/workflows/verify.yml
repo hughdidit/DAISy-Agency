@@ -1,0 +1,58 @@
+name: Verify
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        required: true
+        type: choice
+        options: [staging, production]
+      deployed_ref:
+        required: false
+        type: string
+  workflow_call:
+    inputs:
+      environment:
+        required: true
+        type: string
+      deployed_ref:
+        required: false
+        type: string
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: verify-${{ inputs.environment }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud (WIF)
+        uses: google-github-actions/auth@6fc4af4b145ae7821d527454aa9bd537d1f2dc5f  # v2.1.7
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER || vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT || vars.GCP_SERVICE_ACCOUNT }}
+
+      - name: Install Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@6189d56e4096ee891640bb02ac264be376592d6a  # v2.1.2
+
+      - name: Run verification
+        run: |
+          chmod +x scripts/verify.sh
+          scripts/verify.sh
+        env:
+          VERIFY_ENV: ${{ inputs.environment }}
+          DEPLOYED_REF: ${{ inputs.deployed_ref }}
+          # GCE health check (moltbot health --json via gcloud SSH)
+          GCE_INSTANCE_NAME: ${{ secrets.GCE_INSTANCE_NAME || vars.GCE_INSTANCE_NAME }}
+          GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID || vars.GCP_PROJECT_ID }}
+          GCP_ZONE: ${{ secrets.GCP_ZONE || vars.GCP_ZONE }}
+          VERIFY_GCE_CONTAINER: ${{ secrets.VERIFY_GCE_CONTAINER || vars.VERIFY_GCE_CONTAINER }}
+          VERIFY_HEALTH_TIMEOUT: ${{ vars.VERIFY_HEALTH_TIMEOUT }}

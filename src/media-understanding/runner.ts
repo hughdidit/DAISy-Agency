@@ -2,37 +2,22 @@ import { constants as fsConstants } from "node:fs";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+<<<<<<< HEAD
 
-import type { MoltbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 import {
   findModelInCatalog,
   loadModelCatalog,
   modelSupportsVision,
 } from "../agents/model-catalog.js";
+=======
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { MsgContext } from "../auto-reply/templating.js";
-import { applyTemplate } from "../auto-reply/templating.js";
-import { requireApiKey, resolveApiKeyForProvider } from "../agents/model-auth.js";
-import { logVerbose, shouldLogVerbose } from "../globals.js";
-import { runExec } from "../process/exec.js";
+import type { OpenClawConfig } from "../config/config.js";
 import type {
   MediaUnderstandingConfig,
   MediaUnderstandingModelConfig,
 } from "../config/types.tools.js";
-import { MediaAttachmentCache, normalizeAttachments, selectAttachments } from "./attachments.js";
-import {
-  CLI_OUTPUT_MAX_BUFFER,
-  DEFAULT_AUDIO_MODELS,
-  DEFAULT_TIMEOUT_SECONDS,
-} from "./defaults.js";
-import { isMediaUnderstandingSkipError, MediaUnderstandingSkipError } from "./errors.js";
-import {
-  resolveMaxBytes,
-  resolveMaxChars,
-  resolveModelEntries,
-  resolvePrompt,
-  resolveScopeDecision,
-  resolveTimeoutMs,
-} from "./resolve.js";
 import type {
   MediaAttachment,
   MediaUnderstandingCapability,
@@ -41,12 +26,36 @@ import type {
   MediaUnderstandingOutput,
   MediaUnderstandingProvider,
 } from "./types.js";
+import { requireApiKey, resolveApiKeyForProvider } from "../agents/model-auth.js";
+import {
+  findModelInCatalog,
+  loadModelCatalog,
+  modelSupportsVision,
+} from "../agents/model-catalog.js";
+import { applyTemplate } from "../auto-reply/templating.js";
+import { logVerbose, shouldLogVerbose } from "../globals.js";
+import { runExec } from "../process/exec.js";
+import { MediaAttachmentCache, normalizeAttachments, selectAttachments } from "./attachments.js";
+import {
+  CLI_OUTPUT_MAX_BUFFER,
+  DEFAULT_AUDIO_MODELS,
+  DEFAULT_TIMEOUT_SECONDS,
+} from "./defaults.js";
+import { isMediaUnderstandingSkipError, MediaUnderstandingSkipError } from "./errors.js";
+import { describeImageWithModel } from "./providers/image.js";
 import {
   buildMediaUnderstandingRegistry,
   getMediaUnderstandingProvider,
   normalizeMediaProviderId,
 } from "./providers/index.js";
-import { describeImageWithModel } from "./providers/image.js";
+import {
+  resolveMaxBytes,
+  resolveMaxChars,
+  resolveModelEntries,
+  resolvePrompt,
+  resolveScopeDecision,
+  resolveTimeoutMs,
+} from "./resolve.js";
 import { estimateBase64Size, resolveVideoMaxBase64Bytes } from "./video.js";
 
 const AUTO_AUDIO_KEY_PROVIDERS = ["openai", "groq", "deepgram", "google"] as const;
@@ -54,7 +63,7 @@ const AUTO_IMAGE_KEY_PROVIDERS = ["openai", "anthropic", "google", "minimax"] as
 const AUTO_VIDEO_KEY_PROVIDERS = ["google"] as const;
 const DEFAULT_IMAGE_MODELS: Record<string, string> = {
   openai: "gpt-5-mini",
-  anthropic: "claude-opus-4-5",
+  anthropic: "claude-opus-4-6",
   google: "gemini-3-flash-preview",
   minimax: "MiniMax-VL-01",
 };
@@ -397,7 +406,7 @@ async function resolveGeminiCliEntry(
 }
 
 async function resolveKeyEntry(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   agentDir?: string;
   providerRegistry: ProviderRegistry;
   capability: MediaUnderstandingCapability;
@@ -481,7 +490,7 @@ async function resolveKeyEntry(params: {
 }
 
 async function resolveAutoEntries(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   agentDir?: string;
   providerRegistry: ProviderRegistry;
   capability: MediaUnderstandingCapability;
@@ -509,7 +518,7 @@ async function resolveAutoEntries(params: {
 }
 
 export async function resolveAutoImageModel(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   agentDir?: string;
   activeModel?: ActiveMediaModel;
 }): Promise<ActiveMediaModel | null> {
@@ -550,7 +559,7 @@ export async function resolveAutoImageModel(params: {
 }
 
 async function resolveActiveModelEntry(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   agentDir?: string;
   providerRegistry: ProviderRegistry;
   capability: MediaUnderstandingCapability;
@@ -809,7 +818,7 @@ function formatDecisionSummary(decision: MediaUnderstandingDecision): string {
 async function runProviderEntry(params: {
   capability: MediaUnderstandingCapability;
   entry: MediaUnderstandingModelConfig;
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   ctx: MsgContext;
   attachmentIndex: number;
   cache: MediaAttachmentCache;
@@ -993,7 +1002,7 @@ async function runProviderEntry(params: {
 async function runCliEntry(params: {
   capability: MediaUnderstandingCapability;
   entry: MediaUnderstandingModelConfig;
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   ctx: MsgContext;
   attachmentIndex: number;
   cache: MediaAttachmentCache;
@@ -1023,7 +1032,7 @@ async function runCliEntry(params: {
     maxBytes,
     timeoutMs,
   });
-  const outputDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-media-cli-"));
+  const outputDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-media-cli-"));
   const mediaPath = pathResult.path;
   const outputBase = path.join(outputDir, path.parse(mediaPath).name);
 
@@ -1071,7 +1080,7 @@ async function runCliEntry(params: {
 
 async function runAttachmentEntries(params: {
   capability: MediaUnderstandingCapability;
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   ctx: MsgContext;
   attachmentIndex: number;
   agentDir?: string;
@@ -1158,7 +1167,7 @@ async function runAttachmentEntries(params: {
 
 export async function runCapability(params: {
   capability: MediaUnderstandingCapability;
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   ctx: MsgContext;
   attachments: MediaAttachmentCache;
   media: MediaAttachment[];

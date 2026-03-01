@@ -1,7 +1,5 @@
 import { html } from "lit";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
-<<<<<<< HEAD
-
 import { icons } from "../icons";
 import { toSanitizedMarkdownHtml } from "../markdown";
 =======

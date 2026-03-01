@@ -1,18 +1,19 @@
 ---
-summary: "Model providers (LLMs) supported by Moltbot"
+summary: "Model providers (LLMs) supported by OpenClaw"
 read_when:
   - You want to choose a model provider
   - You want quick setup examples for LLM auth + model selection
+title: "Model Provider Quickstart"
 ---
 
 # Model Providers
 
-Moltbot can use many LLM providers. Pick one, authenticate, then set the default
+OpenClaw can use many LLM providers. Pick one, authenticate, then set the default
 model as `provider/model`.
 
-## Highlight: Venius (Venice AI)
+## Highlight: Venice (Venice AI)
 
-Venius is our recommended Venice AI setup for privacy-first inference with an option to use Opus for the hardest tasks.
+Venice is our recommended Venice AI setup for privacy-first inference with an option to use Opus for the hardest tasks.
 
 - Default: `venice/llama-3.3-70b`
 - Best overall: `venice/claude-opus-45` (Opus remains the strongest)
@@ -21,8 +22,7 @@ See [Venice AI](/providers/venice).
 
 ## Quick start (two steps)
 
-<<<<<<< HEAD
-1) Authenticate with the provider (usually via `moltbot onboard`).
+1) Authenticate with the provider (usually via `openclaw onboard`).
 2) Set the default model:
 =======
 1. Authenticate with the provider (usually via `openclaw onboard`).
@@ -31,7 +31,11 @@ See [Venice AI](/providers/venice).
 
 ```json5
 {
-  agents: { defaults: { model: { primary: "anthropic/claude-opus-4-5" } } },
+<<<<<<< HEAD
+  agents: { defaults: { model: { primary: "anthropic/claude-opus-4-5" } } }
+=======
+  agents: { defaults: { model: { primary: "anthropic/claude-opus-4-6" } } },
+>>>>>>> 462905440 (chore: apply local workspace updates (#9911))
 }
 ```
 
@@ -48,8 +52,7 @@ See [Venice AI](/providers/venice).
 - [Z.AI](/providers/zai)
 - [GLM models](/providers/glm)
 - [MiniMax](/providers/minimax)
-<<<<<<< HEAD
-- [Venius (Venice AI)](/providers/venice)
+- [Venice (Venice AI)](/providers/venice)
 - [Amazon Bedrock](/bedrock)
 =======
 - [Venice (Venice AI)](/providers/venice)

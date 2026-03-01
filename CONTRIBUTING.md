@@ -1,16 +1,11 @@
-# Contributing to Moltbot
+# Contributing to OpenClaw
 
 Welcome to the lobster tank! 🦞
 
 ## Quick Links
-<<<<<<< HEAD
-- **GitHub:** https://github.com/moltbot/moltbot
-=======
-
 - **GitHub:** https://github.com/openclaw/openclaw
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - **Discord:** https://discord.gg/qkhbAGHRBT
-- **X/Twitter:** [@steipete](https://x.com/steipete) / [@moltbot](https://x.com/moltbot)
+- **X/Twitter:** [@steipete](https://x.com/steipete) / [@openclaw](https://x.com/openclaw)
 
 ## Maintainers
 
@@ -23,10 +18,16 @@ Welcome to the lobster tank! 🦞
 - **Jos** - Telegram, API, Nix mode
   - GitHub: [@joshp123](https://github.com/joshp123) · X: [@jjpcodes](https://x.com/jjpcodes)
 
+- **Christoph Nakazawa** - JS Infra
+  - GitHub: [@cpojer](https://github.com/cpojer) · X: [@cnakazawa](https://x.com/cnakazawa)
+
+- **Gustavo Madeira Santana** - Multi-agents, CLI, web UI
+  - GitHub: [@gumadeiras](https://github.com/gumadeiras) · X: [@gumadeiras](https://x.com/gumadeiras)
+
 ## How to Contribute
 
 1. **Bugs & small fixes** → Open a PR!
-2. **New features / architecture** → Start a [GitHub Discussion](https://github.com/moltbot/moltbot/discussions) or ask in Discord first
+2. **New features / architecture** → Start a [GitHub Discussion](https://github.com/openclaw/openclaw/discussions) or ask in Discord first
 3. **Questions** → Discord #setup-help
 
 ## Before You PR
@@ -36,8 +37,8 @@ Welcome to the lobster tank! 🦞
 =======
 
 - Test locally with your OpenClaw instance
-- Run tests: `pnpm tsgo && pnpm format && pnpm lint && pnpm build && pnpm test`
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
+- Run tests: `pnpm build && pnpm check && pnpm test`
+>>>>>>> 902f96805 (chore: Add `pnpm check` for fast repo checks.)
 - Keep PRs focused (one thing per PR)
 - Describe what & why
 
@@ -78,4 +79,4 @@ We are currently prioritizing:
 - **Skills**: Expanding the library of bundled skills and improving the Skill Creation developer experience.
 - **Performance**: Optimizing token usage and compaction logic.
 
-Check the [GitHub Issues](https://github.com/moltbot/moltbot/issues) for "good first issue" labels!
+Check the [GitHub Issues](https://github.com/openclaw/openclaw/issues) for "good first issue" labels!

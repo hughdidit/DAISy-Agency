@@ -33,6 +33,7 @@ let listenerStarted = false;
 let listenerStop: (() => void) | null = null;
 // Use var to avoid TDZ when init runs across circular imports during bootstrap.
 var restoreAttempted = false;
+const SUBAGENT_ANNOUNCE_TIMEOUT_MS = 120_000;
 
 function persistSubagentRuns() {
   try {
@@ -68,7 +69,7 @@ function resumeSubagentRun(runId: string) {
       requesterOrigin,
       requesterDisplayKey: entry.requesterDisplayKey,
       task: entry.task,
-      timeoutMs: 30_000,
+      timeoutMs: SUBAGENT_ANNOUNCE_TIMEOUT_MS,
       cleanup: entry.cleanup,
       waitForCompletion: false,
       startedAt: entry.startedAt,
@@ -229,7 +230,7 @@ function ensureListener() {
       requesterOrigin,
       requesterDisplayKey: entry.requesterDisplayKey,
       task: entry.task,
-      timeoutMs: 30_000,
+      timeoutMs: SUBAGENT_ANNOUNCE_TIMEOUT_MS,
       cleanup: entry.cleanup,
       waitForCompletion: false,
       startedAt: entry.startedAt,
@@ -244,17 +245,23 @@ function ensureListener() {
 
 function finalizeSubagentCleanup(runId: string, cleanup: "delete" | "keep", didAnnounce: boolean) {
   const entry = subagentRuns.get(runId);
+<<<<<<< HEAD
+  if (!entry) return;
+  if (cleanup === "delete") {
+    subagentRuns.delete(runId);
+=======
   if (!entry) {
+    return;
+  }
+  if (!didAnnounce) {
+    // Allow retry on the next wake if announce was deferred or failed.
+    entry.cleanupHandled = false;
+>>>>>>> 191da1feb (fix: context overflow compaction and subagent announce improvements (#11664) (thanks @tyler6204))
+    persistSubagentRuns();
     return;
   }
   if (cleanup === "delete") {
     subagentRuns.delete(runId);
-    persistSubagentRuns();
-    return;
-  }
-  if (!didAnnounce) {
-    // Allow retry on the next wake if the announce failed.
-    entry.cleanupHandled = false;
     persistSubagentRuns();
     return;
   }
@@ -355,8 +362,9 @@ async function waitForSubagentCompletion(runId: string, waitTimeoutMs: number) {
       entry.endedAt = Date.now();
       mutated = true;
     }
+    const waitError = typeof wait.error === "string" ? wait.error : undefined;
     entry.outcome =
-      wait.status === "error" ? { status: "error", error: wait.error } : { status: "ok" };
+      wait.status === "error" ? { status: "error", error: waitError } : { status: "ok" };
     mutated = true;
     if (mutated) {
       persistSubagentRuns();
@@ -372,7 +380,7 @@ async function waitForSubagentCompletion(runId: string, waitTimeoutMs: number) {
       requesterOrigin,
       requesterDisplayKey: entry.requesterDisplayKey,
       task: entry.task,
-      timeoutMs: 30_000,
+      timeoutMs: SUBAGENT_ANNOUNCE_TIMEOUT_MS,
       cleanup: entry.cleanup,
       waitForCompletion: false,
       startedAt: entry.startedAt,

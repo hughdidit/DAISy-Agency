@@ -1,11 +1,15 @@
 import fs from "node:fs";
 import path from "node:path";
 import readline from "node:readline";
-
 import type { NormalizedUsage, UsageLike } from "../agents/usage.js";
+<<<<<<< HEAD
 import { normalizeUsage } from "../agents/usage.js";
 import type { MoltbotConfig } from "../config/config.js";
+=======
+import type { OpenClawConfig } from "../config/config.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { SessionEntry } from "../config/sessions/types.js";
+import { normalizeUsage } from "../agents/usage.js";
 import {
   resolveSessionFilePath,
   resolveSessionTranscriptsDirForAgent,
@@ -310,8 +314,7 @@ const applyCostTotal = (totals: CostUsageTotals, costTotal: number | undefined) 
 
 async function scanTranscriptFile(params: {
   filePath: string;
-<<<<<<< HEAD
-  config?: MoltbotConfig;
+  config?: OpenClawConfig;
   onEntry: (entry: ParsedUsageEntry) => void;
 =======
   config?: OpenClawConfig;
@@ -376,13 +379,7 @@ async function scanUsageFile(params: {
 export async function loadCostUsageSummary(params?: {
 <<<<<<< HEAD
   days?: number;
-  config?: MoltbotConfig;
-=======
-  startMs?: number;
-  endMs?: number;
-  days?: number; // Deprecated, for backwards compatibility
   config?: OpenClawConfig;
->>>>>>> 8a352c8f9 (Web UI: add token usage dashboard (#10072))
   agentId?: string;
 }): Promise<CostUsageSummary> {
   const now = new Date();
@@ -571,13 +568,7 @@ export async function loadSessionCostSummary(params: {
   sessionId?: string;
   sessionEntry?: SessionEntry;
   sessionFile?: string;
-<<<<<<< HEAD
-  config?: MoltbotConfig;
-=======
   config?: OpenClawConfig;
-  startMs?: number;
-  endMs?: number;
->>>>>>> 8a352c8f9 (Web UI: add token usage dashboard (#10072))
 }): Promise<SessionCostSummary | null> {
   const sessionFile =
     params.sessionFile ??

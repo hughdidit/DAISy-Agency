@@ -1,21 +1,22 @@
 ---
 summary: "Nostr DM channel via NIP-04 encrypted messages"
 read_when:
-  - You want Moltbot to receive DMs via Nostr
+  - You want OpenClaw to receive DMs via Nostr
   - You're setting up decentralized messaging
+title: "Nostr"
 ---
 
 # Nostr
 
 **Status:** Optional plugin (disabled by default).
 
-Nostr is a decentralized protocol for social networking. This channel enables Moltbot to receive and respond to encrypted direct messages (DMs) via NIP-04.
+Nostr is a decentralized protocol for social networking. This channel enables OpenClaw to receive and respond to encrypted direct messages (DMs) via NIP-04.
 
 ## Install (on demand)
 
 ### Onboarding (recommended)
 
-- The onboarding wizard (`moltbot onboard`) and `moltbot channels add` list optional channel plugins.
+- The onboarding wizard (`openclaw onboard`) and `openclaw channels add` list optional channel plugins.
 - Selecting Nostr prompts you to install the plugin on demand.
 
 Install defaults:
@@ -28,13 +29,13 @@ You can always override the choice in the prompt.
 ### Manual install
 
 ```bash
-moltbot plugins install @moltbot/nostr
+openclaw plugins install @openclaw/nostr
 ```
 
 Use a local checkout (dev workflows):
 
 ```bash
-moltbot plugins install --link <path-to-moltbot>/extensions/nostr
+openclaw plugins install --link <path-to-openclaw>/extensions/nostr
 ```
 
 Restart the Gateway after installing or enabling plugins.
@@ -48,7 +49,15 @@ Restart the Gateway after installing or enabling plugins.
 nak key generate
 ```
 
+<<<<<<< HEAD
+<<<<<<< HEAD
+2) Add to config:
+=======
+1. Add to config:
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
+=======
 2. Add to config:
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 
 ```json
 {
@@ -60,13 +69,29 @@ nak key generate
 }
 ```
 
+<<<<<<< HEAD
+<<<<<<< HEAD
+3) Export the key:
+=======
+1. Export the key:
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
+=======
 3. Export the key:
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 
 ```bash
 export NOSTR_PRIVATE_KEY="nsec1..."
 ```
 
+<<<<<<< HEAD
+<<<<<<< HEAD
+4) Restart the Gateway.
+=======
+1. Restart the Gateway.
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
+=======
 4. Restart the Gateway.
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 
 ## Configuration reference
 
@@ -92,14 +117,14 @@ Example:
     "nostr": {
       "privateKey": "${NOSTR_PRIVATE_KEY}",
       "profile": {
-        "name": "moltbot",
-        "displayName": "Moltbot",
+        "name": "openclaw",
+        "displayName": "OpenClaw",
         "about": "Personal assistant DM bot",
         "picture": "https://example.com/avatar.png",
         "banner": "https://example.com/banner.png",
         "website": "https://example.com",
-        "nip05": "moltbot@example.com",
-        "lud16": "moltbot@example.com"
+        "nip05": "openclaw@example.com",
+        "lud16": "openclaw@example.com"
       }
     }
   }

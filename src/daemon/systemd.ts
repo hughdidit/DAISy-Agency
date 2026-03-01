@@ -2,15 +2,15 @@ import { execFile } from "node:child_process";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { promisify } from "node:util";
+import type { GatewayServiceRuntime } from "./service-runtime.js";
 import { colorize, isRich, theme } from "../terminal/theme.js";
 import {
   formatGatewayServiceDescription,
   LEGACY_GATEWAY_SYSTEMD_SERVICE_NAMES,
   resolveGatewaySystemdServiceName,
 } from "./constants.js";
-import { parseKeyValueOutput } from "./runtime-parse.js";
-import type { GatewayServiceRuntime } from "./service-runtime.js";
 import { resolveHomeDir } from "./paths.js";
+import { parseKeyValueOutput } from "./runtime-parse.js";
 import {
   enableSystemdUserLinger,
   readSystemdUserLingerStatus,
@@ -39,11 +39,11 @@ function resolveSystemdUnitPathForName(
 }
 
 function resolveSystemdServiceName(env: Record<string, string | undefined>): string {
-  const override = env.CLAWDBOT_SYSTEMD_UNIT?.trim();
+  const override = env.OPENCLAW_SYSTEMD_UNIT?.trim();
   if (override) {
     return override.endsWith(".service") ? override.slice(0, -".service".length) : override;
   }
-  return resolveGatewaySystemdServiceName(env.CLAWDBOT_PROFILE);
+  return resolveGatewaySystemdServiceName(env.OPENCLAW_PROFILE);
 }
 
 function resolveSystemdUnitPath(env: Record<string, string | undefined>): string {
@@ -234,8 +234,8 @@ export async function installSystemdService({
   const serviceDescription =
     description ??
     formatGatewayServiceDescription({
-      profile: env.CLAWDBOT_PROFILE,
-      version: environment?.CLAWDBOT_SERVICE_VERSION ?? env.CLAWDBOT_SERVICE_VERSION,
+      profile: env.OPENCLAW_PROFILE,
+      version: environment?.OPENCLAW_SERVICE_VERSION ?? env.OPENCLAW_SERVICE_VERSION,
     });
   const unit = buildSystemdUnit({
     description: serviceDescription,
@@ -245,7 +245,7 @@ export async function installSystemdService({
   });
   await fs.writeFile(unitPath, unit, "utf8");
 
-  const serviceName = resolveGatewaySystemdServiceName(env.CLAWDBOT_PROFILE);
+  const serviceName = resolveGatewaySystemdServiceName(env.OPENCLAW_PROFILE);
   const unitName = `${serviceName}.service`;
   const reload = await execSystemctl(["--user", "daemon-reload"]);
   if (reload.code !== 0) {
@@ -276,7 +276,7 @@ export async function uninstallSystemdService({
   stdout: NodeJS.WritableStream;
 }): Promise<void> {
   await assertSystemdAvailable();
-  const serviceName = resolveGatewaySystemdServiceName(env.CLAWDBOT_PROFILE);
+  const serviceName = resolveGatewaySystemdServiceName(env.OPENCLAW_PROFILE);
   const unitName = `${serviceName}.service`;
   await execSystemctl(["--user", "disable", "--now", unitName]);
 

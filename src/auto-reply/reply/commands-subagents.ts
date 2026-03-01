@@ -1,7 +1,8 @@
 import crypto from "node:crypto";
-
-import { abortEmbeddedPiRun } from "../../agents/pi-embedded.js";
+import type { SubagentRunRecord } from "../../agents/subagent-registry.js";
+import type { CommandHandler } from "./commands-types.js";
 import { AGENT_LANE_SUBAGENT } from "../../agents/lanes.js";
+import { abortEmbeddedPiRun } from "../../agents/pi-embedded.js";
 import { listSubagentRunsForRequester } from "../../agents/subagent-registry.js";
 import {
   extractAssistantText,
@@ -10,7 +11,6 @@ import {
   sanitizeTextContent,
   stripToolMessages,
 } from "../../agents/tools/sessions-helpers.js";
-import type { SubagentRunRecord } from "../../agents/subagent-registry.js";
 import { loadSessionStore, resolveStorePath, updateSessionStore } from "../../config/sessions.js";
 import { callGateway } from "../../gateway/call.js";
 import { logVerbose } from "../../globals.js";
@@ -18,7 +18,8 @@ import { formatDurationCompact } from "../../infra/format-time/format-duration.t
 import { formatTimeAgo } from "../../infra/format-time/format-relative.ts";
 import { parseAgentSessionKey } from "../../routing/session-key.js";
 import { INTERNAL_MESSAGE_CHANNEL } from "../../utils/message-channel.js";
-<<<<<<< HEAD
+import { stopSubagentsForRequester } from "./abort.js";
+import { clearSessionQueues } from "./queue.js";
 import {
   formatAgeShort,
   formatDurationShort,
@@ -26,14 +27,6 @@ import {
   formatRunStatus,
   sortSubagentRuns,
 } from "./subagents-utils.js";
-import { stopSubagentsForRequester } from "./abort.js";
-import type { CommandHandler } from "./commands-types.js";
-import { clearSessionQueues } from "./queue.js";
-=======
-import { stopSubagentsForRequester } from "./abort.js";
-import { clearSessionQueues } from "./queue.js";
-import { formatRunLabel, formatRunStatus, sortSubagentRuns } from "./subagents-utils.js";
->>>>>>> a1123dd9b (Centralize date/time formatting utilities (#11831))
 
 type SubagentTargetResolution = {
   entry?: SubagentRunRecord;
@@ -390,10 +383,20 @@ export const handleSubagentsCommand: CommandHandler = async (params, allowTextCo
           lane: AGENT_LANE_SUBAGENT,
         },
         timeoutMs: 10_000,
+<<<<<<< HEAD
+      })) as { runId?: string };
+      if (response?.runId) runId = response.runId;
+=======
       });
-      if (response?.runId) {
-        runId = response.runId;
+      const responseRunId = typeof response?.runId === "string" ? response.runId : undefined;
+<<<<<<< HEAD
+      if (responseRunId) runId = responseRunId;
+>>>>>>> a42e1c82d (fix: restore tsc build and plugin install tests)
+=======
+      if (responseRunId) {
+        runId = responseRunId;
       }
+>>>>>>> ee26b68fe (fix: lint cleanups)
     } catch (err) {
       const messageText =
         err instanceof Error ? err.message : typeof err === "string" ? err : "error";
@@ -413,10 +416,11 @@ export const handleSubagentsCommand: CommandHandler = async (params, allowTextCo
       };
     }
     if (wait?.status === "error") {
+      const waitError = typeof wait.error === "string" ? wait.error : "unknown error";
       return {
         shouldContinue: false,
         reply: {
-          text: `⚠️ Subagent error: ${wait.error ?? "unknown error"} (run ${runId.slice(0, 8)}).`,
+          text: `⚠️ Subagent error: ${waitError} (run ${runId.slice(0, 8)}).`,
         },
       };
     }

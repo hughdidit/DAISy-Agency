@@ -1,13 +1,14 @@
 ---
 summary: "Voice Call plugin: outbound + inbound calls via Twilio/Telnyx/Plivo (plugin install + config + CLI)"
 read_when:
-  - You want to place an outbound voice call from Moltbot
+  - You want to place an outbound voice call from OpenClaw
   - You are configuring or developing the voice-call plugin
+title: "Voice Call Plugin"
 ---
 
 # Voice Call (plugin)
 
-Voice calls for Moltbot via a plugin. Supports outbound notifications and
+Voice calls for OpenClaw via a plugin. Supports outbound notifications and
 multi-turn conversations with inbound policies.
 
 Current providers:
@@ -22,7 +23,7 @@ Quick mental model:
 - Install plugin
 - Restart Gateway
 - Configure under `plugins.entries.voice-call.config`
-- Use `moltbot voicecall ...` or the `voice_call` tool
+- Use `openclaw voicecall ...` or the `voice_call` tool
 
 ## Where it runs (local vs remote)
 
@@ -35,7 +36,7 @@ If you use a remote Gateway, install/configure the plugin on the **machine runni
 ### Option A: install from npm (recommended)
 
 ```bash
-moltbot plugins install @moltbot/voice-call
+openclaw plugins install @openclaw/voice-call
 ```
 
 Restart the Gateway afterwards.
@@ -43,7 +44,7 @@ Restart the Gateway afterwards.
 ### Option B: install from a local folder (dev, no copying)
 
 ```bash
-moltbot plugins install ./extensions/voice-call
+openclaw plugins install ./extensions/voice-call
 cd ./extensions/voice-call && pnpm install
 ```
 
@@ -80,6 +81,12 @@ Set config under `plugins.entries.voice-call.config`:
             path: "/voice/webhook",
           },
 
+          // Webhook security (recommended for tunnels/proxies)
+          webhookSecurity: {
+            allowedHosts: ["voice.example.com"],
+            trustedProxyIPs: ["100.64.0.1"],
+          },
+
           // Public exposure (pick one)
           // publicUrl: "https://example.ngrok.app/voice/webhook",
           // tunnel: { provider: "ngrok" },
@@ -109,6 +116,38 @@ Notes:
 - If you use ngrok free tier, set `publicUrl` to the exact ngrok URL; signature verification is always enforced.
 - `tunnel.allowNgrokFreeTierLoopbackBypass: true` allows Twilio webhooks with invalid signatures **only** when `tunnel.provider="ngrok"` and `serve.bind` is loopback (ngrok local agent). Use for local dev only.
 - Ngrok free tier URLs can change or add interstitial behavior; if `publicUrl` drifts, Twilio signatures will fail. For production, prefer a stable domain or Tailscale funnel.
+
+## Webhook Security
+
+When a proxy or tunnel sits in front of the Gateway, the plugin reconstructs the
+public URL for signature verification. These options control which forwarded
+headers are trusted.
+
+`webhookSecurity.allowedHosts` allowlists hosts from forwarding headers.
+
+`webhookSecurity.trustForwardingHeaders` trusts forwarded headers without an allowlist.
+
+`webhookSecurity.trustedProxyIPs` only trusts forwarded headers when the request
+remote IP matches the list.
+
+Example with a stable public host:
+
+```json5
+{
+  plugins: {
+    entries: {
+      "voice-call": {
+        config: {
+          publicUrl: "https://voice.example.com/voice/webhook",
+          webhookSecurity: {
+            allowedHosts: ["voice.example.com"],
+          },
+        },
+      },
+    },
+  },
+}
+```
 
 ## TTS for calls
 
@@ -213,13 +252,13 @@ Auto-responses use the agent system. Tune with:
 ## CLI
 
 ```bash
-moltbot voicecall call --to "+15555550123" --message "Hello from Moltbot"
-moltbot voicecall continue --call-id <id> --message "Any questions?"
-moltbot voicecall speak --call-id <id> --message "One moment"
-moltbot voicecall end --call-id <id>
-moltbot voicecall status --call-id <id>
-moltbot voicecall tail
-moltbot voicecall expose --mode funnel
+openclaw voicecall call --to "+15555550123" --message "Hello from OpenClaw"
+openclaw voicecall continue --call-id <id> --message "Any questions?"
+openclaw voicecall speak --call-id <id> --message "One moment"
+openclaw voicecall end --call-id <id>
+openclaw voicecall status --call-id <id>
+openclaw voicecall tail
+openclaw voicecall expose --mode funnel
 ```
 
 ## Agent tool

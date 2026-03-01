@@ -4,11 +4,12 @@ read_when:
   - You need a beginner-friendly overview of logging
   - You want to configure log levels or formats
   - You are troubleshooting and need to find logs quickly
+title: "Logging"
 ---
 
 # Logging
 
-Moltbot logs in two places:
+OpenClaw logs in two places:
 
 - **File logs** (JSON lines) written by the Gateway.
 - **Console output** shown in terminals and the Control UI.
@@ -20,16 +21,16 @@ levels and formats.
 
 By default, the Gateway writes a rolling log file under:
 
-`/tmp/moltbot/moltbot-YYYY-MM-DD.log`
+`/tmp/openclaw/openclaw-YYYY-MM-DD.log`
 
 The date uses the gateway host's local timezone.
 
-You can override this in `~/.clawdbot/moltbot.json`:
+You can override this in `~/.openclaw/openclaw.json`:
 
 ```json
 {
   "logging": {
-    "file": "/path/to/moltbot.log"
+    "file": "/path/to/openclaw.log"
   }
 }
 ```
@@ -41,7 +42,7 @@ You can override this in `~/.clawdbot/moltbot.json`:
 Use the CLI to tail the gateway log file via RPC:
 
 ```bash
-moltbot logs --follow
+openclaw logs --follow
 ```
 
 Output modes:
@@ -62,7 +63,7 @@ In JSON mode, the CLI emits `type`-tagged objects:
 If the Gateway is unreachable, the CLI prints a short hint to run:
 
 ```bash
-moltbot doctor
+openclaw doctor
 ```
 
 ### Control UI (web)
@@ -75,7 +76,7 @@ See [/web/control-ui](/web/control-ui) for how to open it.
 To filter channel activity (WhatsApp/Telegram/etc), use:
 
 ```bash
-moltbot channels logs --channel whatsapp
+openclaw channels logs --channel whatsapp
 ```
 
 ## Log formats
@@ -97,13 +98,13 @@ Console formatting is controlled by `logging.consoleStyle`.
 
 ## Configuring logging
 
-All logging configuration lives under `logging` in `~/.clawdbot/moltbot.json`.
+All logging configuration lives under `logging` in `~/.openclaw/openclaw.json`.
 
 ```json
 {
   "logging": {
     "level": "info",
-    "file": "/tmp/moltbot/moltbot-YYYY-MM-DD.log",
+    "file": "/tmp/openclaw/openclaw-YYYY-MM-DD.log",
     "consoleLevel": "info",
     "consoleStyle": "pretty",
     "redactSensitive": "tools",
@@ -149,7 +150,7 @@ diagnostics + the exporter plugin are enabled.
 
 - **OpenTelemetry (OTel)**: the data model + SDKs for traces, metrics, and logs.
 - **OTLP**: the wire protocol used to export OTel data to a collector/backend.
-- Moltbot exports via **OTLP/HTTP (protobuf)** today.
+- OpenClaw exports via **OTLP/HTTP (protobuf)** today.
 
 ### Signals exported
 
@@ -209,7 +210,7 @@ Flags are case-insensitive and support wildcards (e.g. `telegram.*` or `*`).
 Env override (one-off):
 
 ```
-CLAWDBOT_DIAGNOSTICS=telegram.http,telegram.payload
+OPENCLAW_DIAGNOSTICS=telegram.http,telegram.payload
 ```
 
 Notes:
@@ -239,7 +240,7 @@ works with any OpenTelemetry collector/backend that accepts OTLP/HTTP.
       "enabled": true,
       "endpoint": "http://otel-collector:4318",
       "protocol": "http/protobuf",
-      "serviceName": "moltbot-gateway",
+      "serviceName": "openclaw-gateway",
       "traces": true,
       "metrics": true,
       "logs": true,
@@ -251,12 +252,7 @@ works with any OpenTelemetry collector/backend that accepts OTLP/HTTP.
 ```
 
 Notes:
-<<<<<<< HEAD
-- You can also enable the plugin with `moltbot plugins enable diagnostics-otel`.
-=======
-
 - You can also enable the plugin with `openclaw plugins enable diagnostics-otel`.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - `protocol` currently supports `http/protobuf` only. `grpc` is ignored.
 - Metrics include token usage, cost, context size, run duration, and message-flow
   counters/histograms (webhooks, queueing, session state, queue depth/wait).
@@ -269,42 +265,6 @@ Notes:
 ### Exported metrics (names + types)
 
 Model usage:
-<<<<<<< HEAD
-- `moltbot.tokens` (counter, attrs: `moltbot.token`, `moltbot.channel`,
-  `moltbot.provider`, `moltbot.model`)
-- `moltbot.cost.usd` (counter, attrs: `moltbot.channel`, `moltbot.provider`,
-  `moltbot.model`)
-- `moltbot.run.duration_ms` (histogram, attrs: `moltbot.channel`,
-  `moltbot.provider`, `moltbot.model`)
-- `moltbot.context.tokens` (histogram, attrs: `moltbot.context`,
-  `moltbot.channel`, `moltbot.provider`, `moltbot.model`)
-
-Message flow:
-- `moltbot.webhook.received` (counter, attrs: `moltbot.channel`,
-  `moltbot.webhook`)
-- `moltbot.webhook.error` (counter, attrs: `moltbot.channel`,
-  `moltbot.webhook`)
-- `moltbot.webhook.duration_ms` (histogram, attrs: `moltbot.channel`,
-  `moltbot.webhook`)
-- `moltbot.message.queued` (counter, attrs: `moltbot.channel`,
-  `moltbot.source`)
-- `moltbot.message.processed` (counter, attrs: `moltbot.channel`,
-  `moltbot.outcome`)
-- `moltbot.message.duration_ms` (histogram, attrs: `moltbot.channel`,
-  `moltbot.outcome`)
-
-Queues + sessions:
-- `moltbot.queue.lane.enqueue` (counter, attrs: `moltbot.lane`)
-- `moltbot.queue.lane.dequeue` (counter, attrs: `moltbot.lane`)
-- `moltbot.queue.depth` (histogram, attrs: `moltbot.lane` or
-  `moltbot.channel=heartbeat`)
-- `moltbot.queue.wait_ms` (histogram, attrs: `moltbot.lane`)
-- `moltbot.session.state` (counter, attrs: `moltbot.state`, `moltbot.reason`)
-- `moltbot.session.stuck` (counter, attrs: `moltbot.state`)
-- `moltbot.session.stuck_age_ms` (histogram, attrs: `moltbot.state`)
-- `moltbot.run.attempt` (counter, attrs: `moltbot.attempt`)
-=======
-
 - `openclaw.tokens` (counter, attrs: `openclaw.token`, `openclaw.channel`,
   `openclaw.provider`, `openclaw.model`)
 - `openclaw.cost.usd` (counter, attrs: `openclaw.channel`, `openclaw.provider`,
@@ -315,7 +275,6 @@ Queues + sessions:
   `openclaw.channel`, `openclaw.provider`, `openclaw.model`)
 
 Message flow:
-
 - `openclaw.webhook.received` (counter, attrs: `openclaw.channel`,
   `openclaw.webhook`)
 - `openclaw.webhook.error` (counter, attrs: `openclaw.channel`,
@@ -330,7 +289,6 @@ Message flow:
   `openclaw.outcome`)
 
 Queues + sessions:
-
 - `openclaw.queue.lane.enqueue` (counter, attrs: `openclaw.lane`)
 - `openclaw.queue.lane.dequeue` (counter, attrs: `openclaw.lane`)
 - `openclaw.queue.depth` (histogram, attrs: `openclaw.lane` or
@@ -340,26 +298,25 @@ Queues + sessions:
 - `openclaw.session.stuck` (counter, attrs: `openclaw.state`)
 - `openclaw.session.stuck_age_ms` (histogram, attrs: `openclaw.state`)
 - `openclaw.run.attempt` (counter, attrs: `openclaw.attempt`)
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 ### Exported spans (names + key attributes)
 
-- `moltbot.model.usage`
-  - `moltbot.channel`, `moltbot.provider`, `moltbot.model`
-  - `moltbot.sessionKey`, `moltbot.sessionId`
-  - `moltbot.tokens.*` (input/output/cache_read/cache_write/total)
-- `moltbot.webhook.processed`
-  - `moltbot.channel`, `moltbot.webhook`, `moltbot.chatId`
-- `moltbot.webhook.error`
-  - `moltbot.channel`, `moltbot.webhook`, `moltbot.chatId`,
-    `moltbot.error`
-- `moltbot.message.processed`
-  - `moltbot.channel`, `moltbot.outcome`, `moltbot.chatId`,
-    `moltbot.messageId`, `moltbot.sessionKey`, `moltbot.sessionId`,
-    `moltbot.reason`
-- `moltbot.session.stuck`
-  - `moltbot.state`, `moltbot.ageMs`, `moltbot.queueDepth`,
-    `moltbot.sessionKey`, `moltbot.sessionId`
+- `openclaw.model.usage`
+  - `openclaw.channel`, `openclaw.provider`, `openclaw.model`
+  - `openclaw.sessionKey`, `openclaw.sessionId`
+  - `openclaw.tokens.*` (input/output/cache_read/cache_write/total)
+- `openclaw.webhook.processed`
+  - `openclaw.channel`, `openclaw.webhook`, `openclaw.chatId`
+- `openclaw.webhook.error`
+  - `openclaw.channel`, `openclaw.webhook`, `openclaw.chatId`,
+    `openclaw.error`
+- `openclaw.message.processed`
+  - `openclaw.channel`, `openclaw.outcome`, `openclaw.chatId`,
+    `openclaw.messageId`, `openclaw.sessionKey`, `openclaw.sessionId`,
+    `openclaw.reason`
+- `openclaw.session.stuck`
+  - `openclaw.state`, `openclaw.ageMs`, `openclaw.queueDepth`,
+    `openclaw.sessionKey`, `openclaw.sessionId`
 
 ### Sampling + flushing
 
@@ -383,7 +340,7 @@ Queues + sessions:
 
 ## Troubleshooting tips
 
-- **Gateway not reachable?** Run `moltbot doctor` first.
+- **Gateway not reachable?** Run `openclaw doctor` first.
 - **Logs empty?** Check that the Gateway is running and writing to the file path
   in `logging.file`.
 - **Need more detail?** Set `logging.level` to `debug` or `trace` and retry.

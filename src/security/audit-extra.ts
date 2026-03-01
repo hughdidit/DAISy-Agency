@@ -1,25 +1,37 @@
+import JSON5 from "json5";
 import fs from "node:fs/promises";
 import path from "node:path";
+<<<<<<< HEAD
 
 import JSON5 from "json5";
 
-import type { MoltbotConfig, ConfigFileSnapshot } from "../config/config.js";
+import type { OpenClawConfig, ConfigFileSnapshot } from "../config/config.js";
+<<<<<<< HEAD
 import { createConfigIO } from "../config/config.js";
 import { resolveNativeSkillsEnabled } from "../config/commands.js";
 import { resolveOAuthDir } from "../config/paths.js";
 import { formatCliCommand } from "../cli/command-format.js";
 import { resolveDefaultAgentId } from "../agents/agent-scope.js";
+=======
+import type { SandboxToolPolicy } from "../agents/sandbox/types.js";
+import type { OpenClawConfig, ConfigFileSnapshot } from "../config/config.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { AgentToolsConfig } from "../config/types.tools.js";
-import { resolveBrowserConfig } from "../browser/config.js";
+import type { ExecFn } from "./windows-acl.js";
+import { resolveDefaultAgentId } from "../agents/agent-scope.js";
 import { isToolAllowedByPolicies } from "../agents/pi-tools.policy.js";
-import { resolveToolProfilePolicy } from "../agents/tool-policy.js";
 import {
   resolveSandboxConfigForAgent,
   resolveSandboxToolPolicyForAgent,
 } from "../agents/sandbox.js";
-import { resolveGatewayAuth } from "../gateway/auth.js";
-import type { SandboxToolPolicy } from "../agents/sandbox/types.js";
+import { resolveToolProfilePolicy } from "../agents/tool-policy.js";
+import { resolveBrowserConfig } from "../browser/config.js";
+import { formatCliCommand } from "../cli/command-format.js";
+import { resolveNativeSkillsEnabled } from "../config/commands.js";
+import { createConfigIO } from "../config/config.js";
 import { INCLUDE_KEY, MAX_INCLUDE_DEPTH } from "../config/includes.js";
+import { resolveOAuthDir } from "../config/paths.js";
+import { resolveGatewayAuth } from "../gateway/auth.js";
 import { normalizeAgentId } from "../routing/session-key.js";
 import {
   formatPermissionDetail,
@@ -27,7 +39,6 @@ import {
   inspectPathPermissions,
   safeStat,
 } from "./audit-fs.js";
-import type { ExecFn } from "./windows-acl.js";
 
 export type SecurityAuditFinding = {
   checkId: string;
@@ -56,7 +67,7 @@ function expandTilde(p: string, env: NodeJS.ProcessEnv): string | null {
   return null;
 }
 
-function summarizeGroupPolicy(cfg: MoltbotConfig): {
+function summarizeGroupPolicy(cfg: OpenClawConfig): {
   open: number;
   allowlist: number;
   other: number;
@@ -85,7 +96,7 @@ function summarizeGroupPolicy(cfg: MoltbotConfig): {
   return { open, allowlist, other };
 }
 
-export function collectAttackSurfaceSummaryFindings(cfg: MoltbotConfig): SecurityAuditFinding[] {
+export function collectAttackSurfaceSummaryFindings(cfg: OpenClawConfig): SecurityAuditFinding[] {
   const group = summarizeGroupPolicy(cfg);
   const elevated = cfg.tools?.elevated?.enabled !== false;
   const hooksEnabled = cfg.hooks?.enabled === true;
@@ -132,7 +143,7 @@ export function collectSyncedFolderFindings(params: {
       severity: "warn",
       title: "State/config path looks like a synced folder",
       detail: `stateDir=${params.stateDir}, configPath=${params.configPath}. Synced folders (iCloud/Dropbox/OneDrive/Google Drive) can leak tokens and transcripts onto other devices.`,
-      remediation: `Keep CLAWDBOT_STATE_DIR on a local-only volume and re-run "${formatCliCommand("moltbot security audit --fix")}".`,
+      remediation: `Keep OPENCLAW_STATE_DIR on a local-only volume and re-run "${formatCliCommand("openclaw security audit --fix")}".`,
     });
   }
   return findings;
@@ -143,7 +154,7 @@ function looksLikeEnvRef(value: string): boolean {
   return v.startsWith("${") && v.endsWith("}");
 }
 
-export function collectSecretsInConfigFindings(cfg: MoltbotConfig): SecurityAuditFinding[] {
+export function collectSecretsInConfigFindings(cfg: OpenClawConfig): SecurityAuditFinding[] {
   const findings: SecurityAuditFinding[] = [];
   const password =
     typeof cfg.gateway?.auth?.password === "string" ? cfg.gateway.auth.password.trim() : "";
@@ -155,7 +166,7 @@ export function collectSecretsInConfigFindings(cfg: MoltbotConfig): SecurityAudi
       detail:
         "gateway.auth.password is set in the config file; prefer environment variables for secrets when possible.",
       remediation:
-        "Prefer CLAWDBOT_GATEWAY_PASSWORD (env) and remove gateway.auth.password from disk.",
+        "Prefer OPENCLAW_GATEWAY_PASSWORD (env) and remove gateway.auth.password from disk.",
     });
   }
 
@@ -173,7 +184,7 @@ export function collectSecretsInConfigFindings(cfg: MoltbotConfig): SecurityAudi
   return findings;
 }
 
-export function collectHooksHardeningFindings(cfg: MoltbotConfig): SecurityAuditFinding[] {
+export function collectHooksHardeningFindings(cfg: OpenClawConfig): SecurityAuditFinding[] {
   const findings: SecurityAuditFinding[] = [];
   if (cfg.hooks?.enabled !== true) {
     return findings;
@@ -237,7 +248,7 @@ function addModel(models: ModelRef[], raw: unknown, source: string) {
   models.push({ id, source });
 }
 
-function collectModels(cfg: MoltbotConfig): ModelRef[] {
+function collectModels(cfg: OpenClawConfig): ModelRef[] {
   const out: ModelRef[] = [];
   addModel(out, cfg.agents?.defaults?.model?.primary, "agents.defaults.model.primary");
   for (const f of cfg.agents?.defaults?.model?.fallbacks ?? []) {
@@ -314,13 +325,15 @@ function isClaudeModel(id: string): boolean {
 }
 
 function isClaude45OrHigher(id: string): boolean {
-  // Match claude-*-4-5, claude-*-45, claude-*4.5, or opus-4-5/opus-45 variants
+  // Match claude-*-4-5+, claude-*-45+, claude-*4.5+, or future 5.x+ majors.
   // Examples that should match:
-  //   claude-opus-4-5, claude-opus-45, claude-4.5, venice/claude-opus-45
-  return /\bclaude-[^\s/]*?(?:-4-?5\b|4\.5\b)/i.test(id);
+  //   claude-opus-4-5, claude-opus-4-6, claude-opus-45, claude-4.6, claude-sonnet-5
+  return /\bclaude-[^\s/]*?(?:-4-?(?:[5-9]|[1-9]\d)\b|4\.(?:[5-9]|[1-9]\d)\b|-[5-9](?:\b|[.-]))/i.test(
+    id,
+  );
 }
 
-export function collectModelHygieneFindings(cfg: MoltbotConfig): SecurityAuditFinding[] {
+export function collectModelHygieneFindings(cfg: OpenClawConfig): SecurityAuditFinding[] {
   const findings: SecurityAuditFinding[] = [];
   const models = collectModels(cfg);
   if (models.length === 0) {
@@ -423,7 +436,7 @@ function pickToolPolicy(config?: { allow?: string[]; deny?: string[] }): Sandbox
 }
 
 function resolveToolPolicies(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   agentTools?: AgentToolsConfig;
   sandboxMode?: "off" | "non-main" | "all";
   agentId?: string | null;
@@ -453,7 +466,7 @@ function resolveToolPolicies(params: {
   return policies;
 }
 
-function hasWebSearchKey(cfg: MoltbotConfig, env: NodeJS.ProcessEnv): boolean {
+function hasWebSearchKey(cfg: OpenClawConfig, env: NodeJS.ProcessEnv): boolean {
   const search = cfg.tools?.web?.search;
   return Boolean(
     search?.apiKey ||
@@ -464,7 +477,7 @@ function hasWebSearchKey(cfg: MoltbotConfig, env: NodeJS.ProcessEnv): boolean {
   );
 }
 
-function isWebSearchEnabled(cfg: MoltbotConfig, env: NodeJS.ProcessEnv): boolean {
+function isWebSearchEnabled(cfg: OpenClawConfig, env: NodeJS.ProcessEnv): boolean {
   const enabled = cfg.tools?.web?.search?.enabled;
   if (enabled === false) {
     return false;
@@ -475,7 +488,7 @@ function isWebSearchEnabled(cfg: MoltbotConfig, env: NodeJS.ProcessEnv): boolean
   return hasWebSearchKey(cfg, env);
 }
 
-function isWebFetchEnabled(cfg: MoltbotConfig): boolean {
+function isWebFetchEnabled(cfg: OpenClawConfig): boolean {
   const enabled = cfg.tools?.web?.fetch?.enabled;
   if (enabled === false) {
     return false;
@@ -483,7 +496,7 @@ function isWebFetchEnabled(cfg: MoltbotConfig): boolean {
   return true;
 }
 
-function isBrowserEnabled(cfg: MoltbotConfig): boolean {
+function isBrowserEnabled(cfg: OpenClawConfig): boolean {
   try {
     return resolveBrowserConfig(cfg.browser, cfg).enabled;
   } catch {
@@ -492,7 +505,7 @@ function isBrowserEnabled(cfg: MoltbotConfig): boolean {
 }
 
 export function collectSmallModelRiskFindings(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   env: NodeJS.ProcessEnv;
 }): SecurityAuditFinding[] {
   const findings: SecurityAuditFinding[] = [];
@@ -587,7 +600,7 @@ export function collectSmallModelRiskFindings(params: {
 }
 
 export async function collectPluginsTrustFindings(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   stateDir: string;
 }): Promise<SecurityAuditFinding[]> {
   const findings: SecurityAuditFinding[] = [];
@@ -847,7 +860,7 @@ export async function collectIncludeFilePermFindings(params: {
 }
 
 export async function collectStateDeepFilesystemFindings(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   env: NodeJS.ProcessEnv;
   stateDir: string;
   platform?: NodeJS.Platform;
@@ -1002,7 +1015,7 @@ export async function collectStateDeepFilesystemFindings(params: {
   return findings;
 }
 
-function listGroupPolicyOpen(cfg: MoltbotConfig): string[] {
+function listGroupPolicyOpen(cfg: OpenClawConfig): string[] {
   const out: string[] = [];
   const channels = cfg.channels as Record<string, unknown> | undefined;
   if (!channels || typeof channels !== "object") {
@@ -1032,7 +1045,7 @@ function listGroupPolicyOpen(cfg: MoltbotConfig): string[] {
   return out;
 }
 
-export function collectExposureMatrixFindings(cfg: MoltbotConfig): SecurityAuditFinding[] {
+export function collectExposureMatrixFindings(cfg: OpenClawConfig): SecurityAuditFinding[] {
   const findings: SecurityAuditFinding[] = [];
   const openGroups = listGroupPolicyOpen(cfg);
   if (openGroups.length === 0) {
@@ -1064,8 +1077,6 @@ export async function readConfigSnapshotForAudit(params: {
     configPath: params.configPath,
   }).readConfigFileSnapshot();
 }
-<<<<<<< HEAD
-=======
 
 function isPathInside(basePath: string, candidatePath: string): boolean {
   const base = path.resolve(basePath);
@@ -1122,8 +1133,7 @@ function formatCodeSafetyDetails(findings: SkillScanFinding[], rootDir: string):
         relPath && relPath !== "." && !relPath.startsWith("..")
           ? relPath
           : path.basename(finding.file);
-      const normalizedPath = filePath.replaceAll("\\", "/");
-      return `  - [${finding.ruleId}] ${finding.message} (${normalizedPath}:${finding.line})`;
+      return `  - [${finding.ruleId}] ${finding.message} (${filePath}:${finding.line})`;
     })
     .join("\n");
 }
@@ -1302,4 +1312,3 @@ export async function collectInstalledSkillsCodeSafetyFindings(params: {
 
   return findings;
 }
->>>>>>> bccdc95a9 (Cap sessions_history payloads to prevent context overflow (#10000))

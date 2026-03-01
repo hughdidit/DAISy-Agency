@@ -1,17 +1,8 @@
-<<<<<<< HEAD
-import MoltbotKit
-=======
 import OpenClawKit
-<<<<<<< HEAD
-import AVFoundation
-import CoreLocation
->>>>>>> b17e6fdd0 (iOS: align node permissions and notifications)
-=======
->>>>>>> 821ed35be (Revert "iOS: align node permissions and notifications")
 import Foundation
 import Testing
 import UIKit
-@testable import Moltbot
+@testable import OpenClaw
 
 private func withUserDefaults<T>(_ updates: [String: Any?], _ body: () throws -> T) rethrows -> T {
     let defaults = UserDefaults.standard
@@ -58,7 +49,7 @@ private func withUserDefaults<T>(_ updates: [String: Any?], _ body: () throws ->
             "node.instanceId": "ios-test",
             "node.displayName": "Test Node",
             "camera.enabled": true,
-            "location.enabledMode": MoltbotLocationMode.always.rawValue,
+            "location.enabledMode": OpenClawLocationMode.always.rawValue,
             VoiceWakePreferences.enabledKey: true,
         ]) {
             let appModel = NodeAppModel()
@@ -77,25 +68,27 @@ private func withUserDefaults<T>(_ updates: [String: Any?], _ body: () throws ->
             #expect(caps.contains(OpenClawCapability.camera.rawValue))
             #expect(caps.contains(OpenClawCapability.location.rawValue))
             #expect(caps.contains(OpenClawCapability.voiceWake.rawValue))
->>>>>>> 4ab814fd5 (Revert "iOS: wire node services and tests")
+            #expect(caps.contains(OpenClawCapability.device.rawValue))
+            #expect(caps.contains(OpenClawCapability.photos.rawValue))
+            #expect(caps.contains(OpenClawCapability.contacts.rawValue))
+            #expect(caps.contains(OpenClawCapability.calendar.rawValue))
+            #expect(caps.contains(OpenClawCapability.reminders.rawValue))
+>>>>>>> 7b0a0f3da (iOS: wire node services and tests)
         }
     }
 
     @Test @MainActor func currentCommandsIncludeLocationWhenEnabled() {
         withUserDefaults([
             "node.instanceId": "ios-test",
-            "location.enabledMode": MoltbotLocationMode.whileUsing.rawValue,
+            "location.enabledMode": OpenClawLocationMode.whileUsing.rawValue,
         ]) {
             let appModel = NodeAppModel()
             let controller = GatewayConnectionController(appModel: appModel, startDiscovery: false)
             let commands = Set(controller._test_currentCommands())
 
-            #expect(commands.contains(MoltbotLocationCommand.get.rawValue))
+            #expect(commands.contains(OpenClawLocationCommand.get.rawValue))
         }
     }
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
 
     @Test @MainActor func currentCommandsExcludeShellAndIncludeNotifyAndDevice() {
         withUserDefaults([
@@ -106,7 +99,6 @@ private func withUserDefaults<T>(_ updates: [String: Any?], _ body: () throws ->
             let commands = Set(controller._test_currentCommands())
 
             #expect(commands.contains(OpenClawSystemCommand.notify.rawValue))
-            #expect(commands.contains(OpenClawChatCommand.push.rawValue))
             #expect(!commands.contains(OpenClawSystemCommand.run.rawValue))
             #expect(!commands.contains(OpenClawSystemCommand.which.rawValue))
             #expect(!commands.contains(OpenClawSystemCommand.execApprovalsGet.rawValue))
@@ -114,13 +106,6 @@ private func withUserDefaults<T>(_ updates: [String: Any?], _ body: () throws ->
 
             #expect(commands.contains(OpenClawDeviceCommand.status.rawValue))
             #expect(commands.contains(OpenClawDeviceCommand.info.rawValue))
-            #expect(commands.contains(OpenClawContactsCommand.add.rawValue))
-            #expect(commands.contains(OpenClawCalendarCommand.add.rawValue))
-            #expect(commands.contains(OpenClawRemindersCommand.add.rawValue))
-            #expect(commands.contains(OpenClawTalkCommand.pttStart.rawValue))
-            #expect(commands.contains(OpenClawTalkCommand.pttStop.rawValue))
-            #expect(commands.contains(OpenClawTalkCommand.pttCancel.rawValue))
-            #expect(commands.contains(OpenClawTalkCommand.pttOnce.rawValue))
         }
     }
 
@@ -140,7 +125,4 @@ private func withUserDefaults<T>(_ updates: [String: Any?], _ body: () throws ->
         #expect(keys.contains("reminders"))
         #expect(keys.contains("motion"))
     }
->>>>>>> a884955cd (iOS: add write commands for contacts/calendar/reminders)
-=======
->>>>>>> 4ab814fd5 (Revert "iOS: wire node services and tests")
 }

@@ -1,8 +1,6 @@
+import type { OAuthCredentials } from "@mariozechner/pi-ai";
 import { randomBytes } from "node:crypto";
 import { createServer } from "node:http";
-
-import type { OAuthCredentials } from "@mariozechner/pi-ai";
-
 import type { ChutesOAuthAppConfig } from "../agents/chutes-oauth.js";
 import {
   CHUTES_AUTHORIZE_ENDPOINT,
@@ -84,7 +82,7 @@ async function waitForLocalCallback(params: {
             "<!doctype html>",
             "<html><head><meta charset='utf-8' /></head>",
             "<body><h2>Chutes OAuth complete</h2>",
-            "<p>You can close this window and return to moltbot.</p></body></html>",
+            "<p>You can close this window and return to OpenClaw.</p></body></html>",
           ].join(""),
         );
         if (timeout) {

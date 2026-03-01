@@ -10,8 +10,15 @@ import {
   type ComponentData,
 } from "@buape/carbon";
 import { ApplicationCommandOptionType, ButtonStyle } from "discord-api-types/v10";
-<<<<<<< HEAD
-
+import type {
+  ChatCommandDefinition,
+  CommandArgDefinition,
+  CommandArgValues,
+  CommandArgs,
+  NativeCommandSpec,
+} from "../../auto-reply/commands-registry.js";
+import type { ReplyPayload } from "../../auto-reply/types.js";
+import type { OpenClawConfig, loadConfig } from "../../config/config.js";
 import { resolveEffectiveMessagesConfig, resolveHumanDelayConfig } from "../../agents/identity.js";
 =======
 import type {
@@ -35,31 +42,23 @@ import {
   resolveCommandArgMenu,
   serializeCommandArgs,
 } from "../../auto-reply/commands-registry.js";
-import type {
-  ChatCommandDefinition,
-  CommandArgDefinition,
-  CommandArgValues,
-  CommandArgs,
-  NativeCommandSpec,
-} from "../../auto-reply/commands-registry.js";
-import { dispatchReplyWithDispatcher } from "../../auto-reply/reply/provider-dispatcher.js";
-<<<<<<< HEAD
 import { finalizeInboundContext } from "../../auto-reply/reply/inbound-context.js";
+<<<<<<< HEAD
 import type { ReplyPayload } from "../../auto-reply/types.js";
 import type { MoltbotConfig, loadConfig } from "../../config/config.js";
 =======
+import { dispatchReplyWithDispatcher } from "../../auto-reply/reply/provider-dispatcher.js";
 import { resolveCommandAuthorizedFromAuthorizers } from "../../channels/command-gating.js";
-import { createReplyPrefixOptions } from "../../channels/reply-prefix.js";
->>>>>>> 5d82c8231 (feat: per-channel responsePrefix override (#9001))
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { buildPairingReply } from "../../pairing/pairing-messages.js";
 import {
   readChannelAllowFromStore,
   upsertChannelPairingRequest,
 } from "../../pairing/pairing-store.js";
 import { resolveAgentRoute } from "../../routing/resolve-route.js";
+import { buildUntrustedChannelMetadata } from "../../security/channel-metadata.js";
 import { loadWebMedia } from "../../web/media.js";
 import { chunkDiscordTextWithMode } from "../chunk.js";
-import { resolveCommandAuthorizedFromAuthorizers } from "../../channels/command-gating.js";
 import {
   allowListMatches,
   isDiscordGroupAllowedByPolicy,
@@ -67,13 +66,18 @@ import {
   normalizeDiscordSlug,
   resolveDiscordChannelConfigWithFallback,
   resolveDiscordGuildEntry,
+  resolveDiscordOwnerAllowFrom,
   resolveDiscordUserAllowed,
 } from "./allow-list.js";
-import { resolveDiscordSenderIdentity } from "./sender-identity.js";
+<<<<<<< HEAD
+import { formatDiscordUserTag } from "./format.js";
+=======
+>>>>>>> 58f418592 (fix: Failing tests due to import sorting.)
 import { resolveDiscordChannelInfo } from "./message-utils.js";
+import { resolveDiscordSenderIdentity } from "./sender-identity.js";
 import { resolveDiscordThreadParentInfo } from "./threading.js";
 
-type DiscordConfig = NonNullable<MoltbotConfig["channels"]>["discord"];
+type DiscordConfig = NonNullable<OpenClawConfig["channels"]>["discord"];
 
 function buildDiscordCommandOptions(params: {
   command: ChatCommandDefinition;
@@ -758,6 +762,11 @@ async function dispatchDiscordCommandInteraction(params: {
     parentPeer: threadParentId ? { kind: "channel", id: threadParentId } : undefined,
   });
   const conversationLabel = isDirectMessage ? (user.globalName ?? user.username) : channelId;
+  const ownerAllowFrom = resolveDiscordOwnerAllowFrom({
+    channelConfig,
+    guildInfo,
+    sender: { id: sender.id, name: sender.name, tag: sender.tag },
+  });
   const ctxPayload = finalizeInboundContext({
     Body: prompt,
     RawBody: prompt,
@@ -777,16 +786,25 @@ async function dispatchDiscordCommandInteraction(params: {
     GroupSubject: isGuild ? interaction.guild?.name : undefined,
     GroupSystemPrompt: isGuild
       ? (() => {
-          const channelTopic =
-            channel && "topic" in channel ? (channel.topic ?? undefined) : undefined;
-          const channelDescription = channelTopic?.trim();
-          const systemPromptParts = [
-            channelDescription ? `Channel topic: ${channelDescription}` : null,
-            channelConfig?.systemPrompt?.trim() || null,
-          ].filter((entry): entry is string => Boolean(entry));
+          const systemPromptParts = [channelConfig?.systemPrompt?.trim() || null].filter(
+            (entry): entry is string => Boolean(entry),
+          );
           return systemPromptParts.length > 0 ? systemPromptParts.join("\n\n") : undefined;
         })()
       : undefined,
+    UntrustedContext: isGuild
+      ? (() => {
+          const channelTopic =
+            channel && "topic" in channel ? (channel.topic ?? undefined) : undefined;
+          const untrustedChannelMetadata = buildUntrustedChannelMetadata({
+            source: "discord",
+            label: "Discord channel topic",
+            entries: [channelTopic],
+          });
+          return untrustedChannelMetadata ? [untrustedChannelMetadata] : undefined;
+        })()
+      : undefined,
+    OwnerAllowFrom: ownerAllowFrom,
     SenderName: user.globalName ?? user.username,
     SenderId: user.id,
     SenderUsername: user.username,

@@ -1,12 +1,15 @@
+import type { OpenClawConfig } from "openclaw/plugin-sdk";
 import crypto from "node:crypto";
-
 import { resolveBlueBubblesAccount } from "./accounts.js";
 import {
   extractHandleFromChatGuid,
   normalizeBlueBubblesHandle,
   parseBlueBubblesTarget,
 } from "./targets.js";
+<<<<<<< HEAD
 import type { MoltbotConfig } from "clawdbot/plugin-sdk";
+=======
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import {
   blueBubblesFetchWithTimeout,
   buildBlueBubblesApiUrl,
@@ -18,7 +21,7 @@ export type BlueBubblesSendOpts = {
   password?: string;
   accountId?: string;
   timeoutMs?: number;
-  cfg?: MoltbotConfig;
+  cfg?: OpenClawConfig;
   /** Message GUID to reply to (reply threading) */
   replyToMessageGuid?: string;
   /** Part index for reply (default: 0) */
@@ -333,6 +336,7 @@ async function createNewChatWithMessage(params: {
   const payload = {
     addresses: [params.address],
     message: params.message,
+    tempGuid: `temp-${crypto.randomUUID()}`,
   };
   const res = await blueBubblesFetchWithTimeout(
     url,
@@ -378,6 +382,11 @@ export async function sendMessageBlueBubbles(
   if (!trimmedText.trim()) {
     throw new Error("BlueBubbles send requires text");
   }
+  // Strip markdown early and validate - ensures messages like "***" or "---" don't become empty
+  const strippedText = stripMarkdown(trimmedText);
+  if (!strippedText.trim()) {
+    throw new Error("BlueBubbles send requires text (message was empty after markdown removal)");
+  }
 
   const account = resolveBlueBubblesAccount({
     cfg: opts.cfg ?? {},
@@ -407,7 +416,7 @@ export async function sendMessageBlueBubbles(
         baseUrl,
         password,
         address: target.address,
-        message: trimmedText,
+        message: strippedText,
         timeoutMs: opts.timeoutMs,
       });
     }
@@ -420,7 +429,7 @@ export async function sendMessageBlueBubbles(
   const payload: Record<string, unknown> = {
     chatGuid,
     tempGuid: crypto.randomUUID(),
-    message: trimmedText,
+    message: strippedText,
   };
   if (needsPrivateApi) {
     payload.method = "private-api";

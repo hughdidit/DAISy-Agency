@@ -1,9 +1,9 @@
 import type { Command } from "commander";
 import type { CronJob } from "../../cron/types.js";
-import { danger } from "../../globals.js";
-import { defaultRuntime } from "../../runtime.js";
-import { sanitizeAgentId } from "../../routing/session-key.js";
 import type { GatewayRpcOpts } from "../gateway-rpc.js";
+import { danger } from "../../globals.js";
+import { sanitizeAgentId } from "../../routing/session-key.js";
+import { defaultRuntime } from "../../runtime.js";
 import { addGatewayClientOptions, callGatewayFromCli } from "../gateway-rpc.js";
 import { parsePositiveIntOrUndefined } from "../program/helpers.js";
 import {
@@ -70,8 +70,13 @@ export function registerCronAddCommand(cron: Command) {
       .option("--delete-after-run", "Delete one-shot job after it succeeds", false)
       .option("--keep-after-run", "Keep one-shot job after it succeeds", false)
       .option("--agent <id>", "Agent id for this job")
-      .option("--session <target>", "Session target (main|isolated)")
+<<<<<<< HEAD
+      .option("--session <target>", "Session target (main|isolated)", "main")
       .option("--wake <mode>", "Wake mode (now|next-heartbeat)", "next-heartbeat")
+=======
+      .option("--session <target>", "Session target (main|isolated)")
+      .option("--wake <mode>", "Wake mode (now|next-heartbeat)", "now")
+>>>>>>> d90cac990 (fix: cron scheduler reliability, store hardening, and UX improvements (#10776))
       .option("--at <when>", "Run once at time (ISO) or +duration (e.g. 20m)")
       .option("--every <duration>", "Run every duration (e.g. 10m, 1h)")
       .option("--cron <expr>", "Cron expression (5-field)")
@@ -122,8 +127,19 @@ export function registerCronAddCommand(cron: Command) {
             };
           })();
 
+<<<<<<< HEAD
+          const sessionTargetRaw = typeof opts.session === "string" ? opts.session : "main";
+          const sessionTarget = sessionTargetRaw.trim() || "main";
+          if (sessionTarget !== "main" && sessionTarget !== "isolated") {
+            throw new Error("--session must be main or isolated");
+          }
+
           const wakeModeRaw = typeof opts.wake === "string" ? opts.wake : "next-heartbeat";
           const wakeMode = wakeModeRaw.trim() || "next-heartbeat";
+=======
+          const wakeModeRaw = typeof opts.wake === "string" ? opts.wake : "now";
+          const wakeMode = wakeModeRaw.trim() || "now";
+>>>>>>> d90cac990 (fix: cron scheduler reliability, store hardening, and UX improvements (#10776))
           if (wakeMode !== "now" && wakeMode !== "next-heartbeat") {
             throw new Error("--wake must be now or next-heartbeat");
           }

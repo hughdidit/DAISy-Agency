@@ -1,6 +1,4 @@
 import { createRequire } from "node:module";
-<<<<<<< HEAD
-
 import { installProcessWarningFilter } from "../infra/warnings.js";
 =======
 import { installProcessWarningFilter } from "../infra/warning-filter.js";

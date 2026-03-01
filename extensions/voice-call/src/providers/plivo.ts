@@ -1,6 +1,8 @@
 import crypto from "node:crypto";
-
 import type { PlivoConfig } from "../config.js";
+=======
+import type { PlivoConfig, WebhookSecurityConfig } from "../config.js";
+>>>>>>> a749db982 (fix: harden voice-call webhook verification)
 import type {
   HangupCallInput,
   InitiateCallInput,
@@ -13,9 +15,11 @@ import type {
   WebhookContext,
   WebhookVerificationResult,
 } from "../types.js";
-import { escapeXml } from "../voice-mapping.js";
-import { reconstructWebhookUrl, verifyPlivoWebhook } from "../webhook-security.js";
 import type { VoiceCallProvider } from "./base.js";
+import { escapeXml } from "../voice-mapping.js";
+import type { Logger } from "../manager/context.js";
+import { defaultLogger } from "../manager/context.js";
+import { reconstructWebhookUrl, verifyPlivoWebhook } from "../webhook-security.js";
 
 export interface PlivoProviderOptions {
   /** Override public URL origin for signature verification */
@@ -24,6 +28,8 @@ export interface PlivoProviderOptions {
   skipVerification?: boolean;
   /** Outbound ring timeout in seconds */
   ringTimeoutSec?: number;
+  /** Webhook security options (forwarded headers/allowlist) */
+  webhookSecurity?: WebhookSecurityConfig;
 }
 
 type PendingSpeak = { text: string; locale?: string };
@@ -47,7 +53,9 @@ export class PlivoProvider implements VoiceCallProvider {
   private pendingSpeakByCallId = new Map<string, PendingSpeak>();
   private pendingListenByCallId = new Map<string, PendingListen>();
 
-  constructor(config: PlivoConfig, options: PlivoProviderOptions = {}) {
+  private readonly logger: Logger;
+
+  constructor(config: PlivoConfig, options: PlivoProviderOptions = {}, logger?: Logger) {
     if (!config.authId) {
       throw new Error("Plivo Auth ID is required");
     }
@@ -59,6 +67,7 @@ export class PlivoProvider implements VoiceCallProvider {
     this.authToken = config.authToken;
     this.baseUrl = `https://api.plivo.com/v1/Account/${this.authId}`;
     this.options = options;
+    this.logger = logger ?? defaultLogger;
   }
 
   private async apiRequest<T = unknown>(params: {
@@ -93,10 +102,14 @@ export class PlivoProvider implements VoiceCallProvider {
     const result = verifyPlivoWebhook(ctx, this.authToken, {
       publicUrl: this.options.publicUrl,
       skipVerification: this.options.skipVerification,
+      allowedHosts: this.options.webhookSecurity?.allowedHosts,
+      trustForwardingHeaders: this.options.webhookSecurity?.trustForwardingHeaders,
+      trustedProxyIPs: this.options.webhookSecurity?.trustedProxyIPs,
+      remoteIP: ctx.remoteAddress,
     });
 
     if (!result.ok) {
-      console.warn(`[plivo] Webhook verification failed: ${result.reason}`);
+      this.logger.warn(`[plivo] Webhook verification failed: ${result.reason}`);
     }
 
     return { ok: result.ok, reason: result.reason };
@@ -113,7 +126,7 @@ export class PlivoProvider implements VoiceCallProvider {
     // Keep providerCallId mapping for later call control.
     const callUuid = parsed.get("CallUUID") || undefined;
     if (callUuid) {
-      const webhookBase = PlivoProvider.baseWebhookUrlFromCtx(ctx);
+      const webhookBase = this.baseWebhookUrlFromCtx(ctx);
       if (webhookBase) {
         this.callUuidToWebhookUrl.set(callUuid, webhookBase);
       }
@@ -445,10 +458,15 @@ export class PlivoProvider implements VoiceCallProvider {
     ctx: WebhookContext,
     opts: { flow: string; callId?: string },
   ): string | null {
+<<<<<<< HEAD
     const base = PlivoProvider.baseWebhookUrlFromCtx(ctx);
+    if (!base) return null;
+=======
+    const base = this.baseWebhookUrlFromCtx(ctx);
     if (!base) {
       return null;
     }
+>>>>>>> a749db982 (fix: harden voice-call webhook verification)
 
     const u = new URL(base);
     u.searchParams.set("provider", "plivo");
@@ -459,9 +477,16 @@ export class PlivoProvider implements VoiceCallProvider {
     return u.toString();
   }
 
-  private static baseWebhookUrlFromCtx(ctx: WebhookContext): string | null {
+  private baseWebhookUrlFromCtx(ctx: WebhookContext): string | null {
     try {
-      const u = new URL(reconstructWebhookUrl(ctx));
+      const u = new URL(
+        reconstructWebhookUrl(ctx, {
+          allowedHosts: this.options.webhookSecurity?.allowedHosts,
+          trustForwardingHeaders: this.options.webhookSecurity?.trustForwardingHeaders,
+          trustedProxyIPs: this.options.webhookSecurity?.trustedProxyIPs,
+          remoteIP: ctx.remoteAddress,
+        }),
+      );
       return `${u.origin}${u.pathname}`;
     } catch {
       return null;

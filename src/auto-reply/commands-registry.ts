@@ -1,8 +1,9 @@
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/types.js";
+=======
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { SkillCommandSpec } from "../agents/skills.js";
-import { getChatCommands, getNativeCommandSurfaces } from "./commands-registry.data.js";
-import { DEFAULT_MODEL, DEFAULT_PROVIDER } from "../agents/defaults.js";
-import { resolveConfiguredModelRef } from "../agents/model-selection.js";
+import type { OpenClawConfig } from "../config/types.js";
 import type {
   ChatCommandDefinition,
   CommandArgChoiceContext,
@@ -15,6 +16,9 @@ import type {
   NativeCommandSpec,
   ShouldHandleTextCommandsParams,
 } from "./commands-registry.types.js";
+import { DEFAULT_MODEL, DEFAULT_PROVIDER } from "../agents/defaults.js";
+import { resolveConfiguredModelRef } from "../agents/model-selection.js";
+import { getChatCommands, getNativeCommandSurfaces } from "./commands-registry.data.js";
 
 export type {
   ChatCommandDefinition,
@@ -97,8 +101,7 @@ export function listChatCommands(params?: {
   return [...commands, ...buildSkillCommandDefinitions(params.skillCommands)];
 }
 
-<<<<<<< HEAD
-export function isCommandEnabled(cfg: MoltbotConfig, commandKey: string): boolean {
+export function isCommandEnabled(cfg: OpenClawConfig, commandKey: string): boolean {
   if (commandKey === "config") return cfg.commands?.config === true;
   if (commandKey === "debug") return cfg.commands?.debug === true;
   if (commandKey === "bash") return cfg.commands?.bash === true;
@@ -118,7 +121,7 @@ export function isCommandEnabled(cfg: OpenClawConfig, commandKey: string): boole
 }
 
 export function listChatCommandsForConfig(
-  cfg: MoltbotConfig,
+  cfg: OpenClawConfig,
   params?: { skillCommands?: SkillCommandSpec[] },
 ): ChatCommandDefinition[] {
   const base = getChatCommands().filter((command) => isCommandEnabled(cfg, command.key));
@@ -162,7 +165,7 @@ export function listNativeCommandSpecs(params?: {
 }
 
 export function listNativeCommandSpecsForConfig(
-  cfg: MoltbotConfig,
+  cfg: OpenClawConfig,
   params?: { skillCommands?: SkillCommandSpec[]; provider?: string },
 ): NativeCommandSpec[] {
   return listChatCommandsForConfig(cfg, params)
@@ -287,12 +290,12 @@ export function buildCommandTextFromArgs(
   return buildCommandText(commandName, serializeCommandArgs(command, args));
 }
 
-function resolveDefaultCommandContext(cfg?: MoltbotConfig): {
+function resolveDefaultCommandContext(cfg?: OpenClawConfig): {
   provider: string;
   model: string;
 } {
   const resolved = resolveConfiguredModelRef({
-    cfg: cfg ?? ({} as MoltbotConfig),
+    cfg: cfg ?? ({} as OpenClawConfig),
     defaultProvider: DEFAULT_PROVIDER,
     defaultModel: DEFAULT_MODEL,
   });
@@ -307,7 +310,7 @@ export type ResolvedCommandArgChoice = { value: string; label: string };
 export function resolveCommandArgChoices(params: {
   command: ChatCommandDefinition;
   arg: CommandArgDefinition;
-  cfg?: MoltbotConfig;
+  cfg?: OpenClawConfig;
   provider?: string;
   model?: string;
 }): ResolvedCommandArgChoice[] {
@@ -337,7 +340,7 @@ export function resolveCommandArgChoices(params: {
 export function resolveCommandArgMenu(params: {
   command: ChatCommandDefinition;
   args?: CommandArgs;
-  cfg?: MoltbotConfig;
+  cfg?: OpenClawConfig;
 }): { arg: CommandArgDefinition; choices: ResolvedCommandArgChoice[]; title?: string } | null {
   const { command, args, cfg } = params;
   if (!command.args || !command.argsMenu) {
@@ -428,7 +431,7 @@ export function isCommandMessage(raw: string): boolean {
   return trimmed.startsWith("/");
 }
 
-export function getCommandDetection(_cfg?: MoltbotConfig): CommandDetection {
+export function getCommandDetection(_cfg?: OpenClawConfig): CommandDetection {
   const commands = getChatCommands();
   if (cachedDetection && cachedDetectionCommands === commands) {
     return cachedDetection;
@@ -461,7 +464,7 @@ export function getCommandDetection(_cfg?: MoltbotConfig): CommandDetection {
   return cachedDetection;
 }
 
-export function maybeResolveTextAlias(raw: string, cfg?: MoltbotConfig) {
+export function maybeResolveTextAlias(raw: string, cfg?: OpenClawConfig) {
   const trimmed = normalizeCommandBody(raw).trim();
   if (!trimmed.startsWith("/")) {
     return null;
@@ -484,7 +487,7 @@ export function maybeResolveTextAlias(raw: string, cfg?: MoltbotConfig) {
 
 export function resolveTextCommand(
   raw: string,
-  cfg?: MoltbotConfig,
+  cfg?: OpenClawConfig,
 ): {
   command: ChatCommandDefinition;
   args?: string;

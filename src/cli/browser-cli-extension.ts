@@ -1,39 +1,39 @@
+import type { Command } from "commander";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-
-import type { Command } from "commander";
-
+import { movePathToTrash } from "../browser/trash.js";
 import { STATE_DIR } from "../config/paths.js";
 import { danger, info } from "../globals.js";
 import { copyToClipboard } from "../infra/clipboard.js";
 import { defaultRuntime } from "../runtime.js";
-import { movePathToTrash } from "../browser/trash.js";
 import { formatDocsLink } from "../terminal/links.js";
 import { theme } from "../terminal/theme.js";
 import { shortenHomePath } from "../utils.js";
 import { formatCliCommand } from "./command-format.js";
 
+<<<<<<< HEAD
 function bundledExtensionRootDir() {
   const here = path.dirname(fileURLToPath(import.meta.url));
-
-  // `here` is the directory containing this file.
-  // - In source runs/tests, it's typically `<packageRoot>/src/cli`.
-  // - In transpiled builds, it's typically `<packageRoot>/dist/cli`.
-  // - In bundled builds, it may be `<packageRoot>/dist`.
-  // The bundled extension lives at `<packageRoot>/assets/chrome-extension`.
-  //
-  // Prefer the most common layouts first and fall back if needed.
-  const candidates = [
-    path.resolve(here, "../assets/chrome-extension"),
-    path.resolve(here, "../../assets/chrome-extension"),
-  ];
-  for (const candidate of candidates) {
+=======
+export function resolveBundledExtensionRootDir(
+  here = path.dirname(fileURLToPath(import.meta.url)),
+) {
+  let current = here;
+  while (true) {
+    const candidate = path.join(current, "assets", "chrome-extension");
     if (hasManifest(candidate)) {
       return candidate;
     }
+    const parent = path.dirname(current);
+    if (parent === current) {
+      break;
+    }
+    current = parent;
   }
-  return candidates[0];
+
+>>>>>>> 1ee1522da (fix: resolve bundled chrome extension assets (#8914) (thanks @kelvinCB))
+  return path.resolve(here, "../../assets/chrome-extension");
 }
 
 function installedExtensionRootDir() {
@@ -48,9 +48,9 @@ export async function installChromeExtension(opts?: {
   stateDir?: string;
   sourceDir?: string;
 }): Promise<{ path: string }> {
-  const src = opts?.sourceDir ?? bundledExtensionRootDir();
+  const src = opts?.sourceDir ?? resolveBundledExtensionRootDir();
   if (!hasManifest(src)) {
-    throw new Error("Bundled Chrome extension is missing. Reinstall Moltbot and try again.");
+    throw new Error("Bundled Chrome extension is missing. Reinstall OpenClaw and try again.");
   }
 
   const stateDir = opts?.stateDir ?? STATE_DIR;
@@ -105,9 +105,9 @@ export function registerBrowserExtensionCommands(
             "Next:",
             `- Chrome → chrome://extensions → enable “Developer mode”`,
             `- “Load unpacked” → select: ${displayPath}`,
-            `- Pin “Moltbot Browser Relay”, then click it on the tab (badge shows ON)`,
+            `- Pin “OpenClaw Browser Relay”, then click it on the tab (badge shows ON)`,
             "",
-            `${theme.muted("Docs:")} ${formatDocsLink("/tools/chrome-extension", "docs.molt.bot/tools/chrome-extension")}`,
+            `${theme.muted("Docs:")} ${formatDocsLink("/tools/chrome-extension", "docs.openclaw.ai/tools/chrome-extension")}`,
           ].join("\n"),
         ),
       );
@@ -123,8 +123,8 @@ export function registerBrowserExtensionCommands(
         defaultRuntime.error(
           danger(
             [
-              `Chrome extension is not installed. Run: "${formatCliCommand("moltbot browser extension install")}"`,
-              `Docs: ${formatDocsLink("/tools/chrome-extension", "docs.molt.bot/tools/chrome-extension")}`,
+              `Chrome extension is not installed. Run: "${formatCliCommand("openclaw browser extension install")}"`,
+              `Docs: ${formatDocsLink("/tools/chrome-extension", "docs.openclaw.ai/tools/chrome-extension")}`,
             ].join("\n"),
           ),
         );

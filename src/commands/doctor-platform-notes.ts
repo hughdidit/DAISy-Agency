@@ -3,8 +3,12 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
+<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../config/config.js";
+=======
+import type { OpenClawConfig } from "../config/config.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { note } from "../terminal/note.js";
 import { shortenHomePath } from "../utils.js";
 
@@ -17,20 +21,10 @@ function resolveHomeDir(): string {
 export async function noteMacLaunchAgentOverrides() {
 <<<<<<< HEAD
   if (process.platform !== "darwin") return;
-  const markerPath = path.join(resolveHomeDir(), ".clawdbot", "disable-launchagent");
-  const hasMarker = fs.existsSync(markerPath);
-  if (!hasMarker) return;
-=======
-  if (process.platform !== "darwin") {
-    return;
-  }
   const home = resolveHomeDir();
   const markerCandidates = [path.join(home, ".openclaw", "disable-launchagent")];
   const markerPath = markerCandidates.find((candidate) => fs.existsSync(candidate));
-  if (!markerPath) {
-    return;
-  }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
+  if (!markerPath) return;
 
   const displayMarkerPath = shortenHomePath(markerPath);
   const lines = [
@@ -51,7 +45,7 @@ async function launchctlGetenv(name: string): Promise<string | undefined> {
   }
 }
 
-function hasConfigGatewayCreds(cfg: MoltbotConfig): boolean {
+function hasConfigGatewayCreds(cfg: OpenClawConfig): boolean {
   const localToken =
     typeof cfg.gateway?.auth?.token === "string" ? cfg.gateway?.auth?.token.trim() : "";
   const localPassword =
@@ -64,7 +58,7 @@ function hasConfigGatewayCreds(cfg: MoltbotConfig): boolean {
 }
 
 export async function noteMacLaunchctlGatewayEnvOverrides(
-  cfg: MoltbotConfig,
+  cfg: OpenClawConfig,
   deps?: {
     platform?: NodeJS.Platform;
     getenv?: (name: string) => Promise<string | undefined>;
@@ -80,9 +74,35 @@ export async function noteMacLaunchctlGatewayEnvOverrides(
   }
 
   const getenv = deps?.getenv ?? launchctlGetenv;
-<<<<<<< HEAD
-  const envToken = await getenv("CLAWDBOT_GATEWAY_TOKEN");
-  const envPassword = await getenv("CLAWDBOT_GATEWAY_PASSWORD");
+  const deprecatedLaunchctlEntries = [
+    ["MOLTBOT_GATEWAY_TOKEN", await getenv("MOLTBOT_GATEWAY_TOKEN")],
+    ["MOLTBOT_GATEWAY_PASSWORD", await getenv("MOLTBOT_GATEWAY_PASSWORD")],
+    ["CLAWDBOT_GATEWAY_TOKEN", await getenv("CLAWDBOT_GATEWAY_TOKEN")],
+    ["CLAWDBOT_GATEWAY_PASSWORD", await getenv("CLAWDBOT_GATEWAY_PASSWORD")],
+  ].filter((entry): entry is [string, string] => Boolean(entry[1]?.trim()));
+  if (deprecatedLaunchctlEntries.length > 0) {
+    const lines = [
+      "- Deprecated launchctl environment variables detected (ignored).",
+      ...deprecatedLaunchctlEntries.map(
+        ([key]) =>
+          `- \`${key}\` is set; use \`OPENCLAW_${key.slice(key.indexOf("_") + 1)}\` instead.`,
+      ),
+    ];
+    (deps?.noteFn ?? note)(lines.join("\n"), "Gateway (macOS)");
+  }
+
+  const tokenEntries = [
+    ["OPENCLAW_GATEWAY_TOKEN", await getenv("OPENCLAW_GATEWAY_TOKEN")],
+  ] as const;
+  const passwordEntries = [
+    ["OPENCLAW_GATEWAY_PASSWORD", await getenv("OPENCLAW_GATEWAY_PASSWORD")],
+  ] as const;
+  const tokenEntry = tokenEntries.find(([, value]) => value?.trim());
+  const passwordEntry = passwordEntries.find(([, value]) => value?.trim());
+  const envToken = tokenEntry?.[1]?.trim() ?? "";
+  const envPassword = passwordEntry?.[1]?.trim() ?? "";
+  const envTokenKey = tokenEntry?.[0];
+  const envPasswordKey = passwordEntry?.[0];
   if (!envToken && !envPassword) return;
 =======
   const deprecatedLaunchctlEntries = [
@@ -121,19 +141,19 @@ export async function noteMacLaunchctlGatewayEnvOverrides(
 
   const lines = [
     "- launchctl environment overrides detected (can cause confusing unauthorized errors).",
-    envToken ? "- `CLAWDBOT_GATEWAY_TOKEN` is set; it overrides config tokens." : undefined,
+    envToken && envTokenKey
+      ? `- \`${envTokenKey}\` is set; it overrides config tokens.`
+      : undefined,
     envPassword
-      ? "- `CLAWDBOT_GATEWAY_PASSWORD` is set; it overrides config passwords."
+      ? `- \`${envPasswordKey ?? "OPENCLAW_GATEWAY_PASSWORD"}\` is set; it overrides config passwords.`
       : undefined,
     "- Clear overrides and restart the app/gateway:",
-    envToken ? "  launchctl unsetenv CLAWDBOT_GATEWAY_TOKEN" : undefined,
-    envPassword ? "  launchctl unsetenv CLAWDBOT_GATEWAY_PASSWORD" : undefined,
+    envTokenKey ? `  launchctl unsetenv ${envTokenKey}` : undefined,
+    envPasswordKey ? `  launchctl unsetenv ${envPasswordKey}` : undefined,
   ].filter((line): line is string => Boolean(line));
 
   (deps?.noteFn ?? note)(lines.join("\n"), "Gateway (macOS)");
 }
-<<<<<<< HEAD
-=======
 
 export function noteDeprecatedLegacyEnvVars(
   env: NodeJS.ProcessEnv = process.env,
@@ -145,9 +165,7 @@ export function noteDeprecatedLegacyEnvVars(
         (key.startsWith("MOLTBOT_") || key.startsWith("CLAWDBOT_")) && value?.trim(),
     )
     .map(([key]) => key);
-  if (entries.length === 0) {
-    return;
-  }
+  if (entries.length === 0) return;
 
   const lines = [
     "- Deprecated legacy environment variables detected (ignored).",
@@ -159,4 +177,3 @@ export function noteDeprecatedLegacyEnvVars(
   ];
   (deps?.noteFn ?? note)(lines.join("\n"), "Environment");
 }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)

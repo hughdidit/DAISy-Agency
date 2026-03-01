@@ -1,5 +1,4 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-
 import { registerSlackMonitorSlashCommands } from "./slash.js";
 
 const dispatchMock = vi.fn();
@@ -64,7 +63,12 @@ function createHarness(overrides?: {
     groupPolicy: overrides?.groupPolicy ?? "open",
     useAccessGroups: overrides?.useAccessGroups ?? true,
     channelsConfig: overrides?.channelsConfig,
-    slashCommand: { enabled: true, name: "clawd", ephemeral: true, sessionPrefix: "slack:slash" },
+    slashCommand: {
+      enabled: true,
+      name: "openclaw",
+      ephemeral: true,
+      sessionPrefix: "slack:slash",
+    },
     textLimit: 4000,
     app,
     isChannelAllowed: () => true,

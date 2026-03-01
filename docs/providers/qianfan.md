@@ -1,20 +1,15 @@
 ---
-<<<<<<< HEAD
-summary: "Use DeepSeek-V3.2 in OpenClaw"
-=======
-summary: "Use Qianfan's unified API to access many models in OpenClaw"
->>>>>>> fb5280e1b (optimize doc)
+summary: "Use Qifan's unified API to access many models in OpenClaw"
 read_when:
   - You want a single API key for many LLMs
   - You need Baidu Qianfan setup guidance
 title: "Qianfan"
 ---
 
-# Qianfan Provider Guide
+# Baidu Qianfan Provider Guide
 
 Qianfan is Baidu's MaaS platform, provides a **unified API** that routes requests to many models behind a single
 endpoint and API key. It is OpenAI-compatible, so most OpenAI SDKs work by switching the base URL.
-
 
 ## Prerequisites
 
@@ -29,64 +24,33 @@ endpoint and API key. It is OpenAI-compatible, so most OpenAI SDKs work by switc
 3. Generate an API key (format: `bce-v3/ALTAK-...`)
 4. Copy the API key for use with OpenClaw
 
-## Installation
-
-### Install OpenClaw
-
-```bash
-# Using npm
-npm install -g openclaw
-
-# Using pnpm
-pnpm add -g openclaw
-
-# Using bun
-bun add -g openclaw
-```
-
-### Verify Installation
-
-```bash
-openclaw --version
-```
-
-## Configuration Methods
-
-### Method 1: Environment Variable (Recommended)
-
-Set the `QIANFAN_API_KEY` environment variable:
-
-```bash
-# Bash/Zsh
-export QIANFAN_API_KEY="bce-v3/ALTAK-your-api-key-here"
-
-# Fish
-set -gx QIANFAN_API_KEY "bce-v3/ALTAK-your-api-key-here"
-
-# PowerShell
-$env:QIANFAN_API_KEY = "bce-v3/ALTAK-your-api-key-here"
-```
-
-Add to your shell profile (`~/.bashrc`, `~/.zshrc`, etc.) for persistence:
-
-```bash
-echo 'export QIANFAN_API_KEY="bce-v3/ALTAK-your-api-key-here"' >> ~/.bashrc
-source ~/.bashrc
-```
-
-### Method 2: Interactive Onboarding
-
-Run the onboarding wizard:
+## CLI setup
 
 ```bash
 openclaw onboard --auth-choice qianfan-api-key
 ```
 
+<<<<<<< HEAD
 Follow the prompts to enter your API key.
 
+<<<<<<< HEAD
+### Method 3: Non-Interactive Setup
 
+For CI/CD or scripted setups:
 
+```bash
+openclaw onboard \
+  --non-interactive \
+  --accept-risk \
+  --auth-choice token \
+  --token-provider qianfan \
+  --token "bce-v3/ALTAK-your-api-key-here"
+```
+
+### Method 4: Configuration File
+=======
 ### Method 3: Configuration File
+>>>>>>> ad759c944 (Optimize format)
 
 Configure manually via `openclaw.json`:
 
@@ -158,7 +122,7 @@ openclaw channels status --probe
 ## Model Details
 
 | Property          | Value                   |
-| ----------------- |-------------------------|
+| ----------------- | ----------------------- |
 | Provider          | `qianfan`               |
 | Model ID          | `deepseek-v3.2`         |
 | Model Reference   | `qianfan/deepseek-v3.2` |
@@ -177,22 +141,22 @@ The default model is `deepseek-v3.2`. You can configure additional models in you
     "providers": {
       "qianfan": {
         "models": [
-           {
-              "id": "deepseek-v3",
-              "name": "DeepSeek-V3",
-              "reasoning": false,
-              "input": ["text"],
-              "contextWindow": 131072,
-              "maxTokens": 16384
-           },
-           {
-              "id": "ernie-x1.1",
-              "name": "ERNIE-X1.1",
-              "reasoning": true,
-              "input": ["text"],
-              "contextWindow": 65536,
-              "maxTokens": 65536
-           }
+          {
+            "id": "deepseek-v3",
+            "name": "DeepSeek-V3",
+            "reasoning": false,
+            "input": ["text"],
+            "contextWindow": 131072,
+            "maxTokens": 16384
+          },
+          {
+            "id": "ernie-x1.1",
+            "name": "ERNIE-X1.1",
+            "reasoning": true,
+            "input": ["text"],
+            "contextWindow": 65536,
+            "maxTokens": 65536
+          }
         ]
       }
     }
@@ -276,15 +240,11 @@ OpenClaw uses the OpenAI-compatible API format (`openai-completions`), which Qia
 4. **Handle rate limits**: Implement appropriate retry logic for production use
 5. **Test locally first**: Verify your configuration before deploying
 
+=======
+>>>>>>> ff948a6dd (Optimize doc)
 ## Related Documentation
 
-<<<<<<< HEAD
 - [OpenClaw Configuration](/configuration)
 - [Model Providers](/models/providers)
 - [Agent Setup](/agents)
-=======
-- [OpenClaw Configuration](/gateway/configuration)
-- [Model Providers](/concepts/model-providers)
-- [Agent Setup](/concepts/agent)
->>>>>>> 929a3725d (docs: canonicalize docs paths and align zh navigation (#11428))
 - [Qianfan API Documentation](https://cloud.baidu.com/doc/qianfan-api/s/3m7of64lb)

@@ -1,9 +1,7 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-
 import { CronService } from "./service.js";
 
 const noopLogger = {
@@ -14,13 +12,29 @@ const noopLogger = {
 };
 
 async function makeStorePath() {
-  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-cron-"));
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-cron-"));
   return {
     storePath: path.join(dir, "cron", "jobs.json"),
     cleanup: async () => {
       await fs.rm(dir, { recursive: true, force: true });
     },
   };
+}
+
+async function waitForFirstJob(
+  cron: CronService,
+  predicate: (job: CronJob | undefined) => boolean,
+) {
+  let latest: CronJob | undefined;
+  for (let i = 0; i < 30; i++) {
+    const jobs = await cron.list({ includeDisabled: true });
+    latest = jobs[0];
+    if (predicate(latest)) {
+      return latest;
+    }
+    await vi.runOnlyPendingTimersAsync();
+  }
+  return latest;
 }
 
 describe("CronService", () => {
@@ -68,9 +82,9 @@ describe("CronService", () => {
     expect(enqueueSystemEvent).not.toHaveBeenCalled();
     expect(requestHeartbeatNow).not.toHaveBeenCalled();
 
-    const jobs = await cron.list({ includeDisabled: true });
-    expect(jobs[0]?.state.lastStatus).toBe("skipped");
-    expect(jobs[0]?.state.lastError).toMatch(/non-empty/i);
+    const job = await waitForFirstJob(cron, (current) => current?.state.lastStatus === "skipped");
+    expect(job?.state.lastStatus).toBe("skipped");
+    expect(job?.state.lastError).toMatch(/non-empty/i);
 
     cron.stop();
     await store.cleanup();

@@ -2,11 +2,16 @@ import {
   createReplyPrefixOptions,
   logInboundDrop,
   resolveControlCommandGate,
-  type MoltbotConfig,
+  type OpenClawConfig,
   type RuntimeEnv,
+<<<<<<< HEAD
 } from "clawdbot/plugin-sdk";
 
+=======
+} from "openclaw/plugin-sdk";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { ResolvedNextcloudTalkAccount } from "./accounts.js";
+import type { CoreConfig, NextcloudTalkInboundMessage } from "./types.js";
 import {
   normalizeNextcloudTalkAllowlist,
   resolveNextcloudTalkAllowlistMatch,
@@ -16,9 +21,8 @@ import {
   resolveNextcloudTalkRoomMatch,
 } from "./policy.js";
 import { resolveNextcloudTalkRoomKind } from "./room-info.js";
-import { sendMessageNextcloudTalk } from "./send.js";
 import { getNextcloudTalkRuntime } from "./runtime.js";
-import type { CoreConfig, NextcloudTalkInboundMessage } from "./types.js";
+import { sendMessageNextcloudTalk } from "./send.js";
 
 const CHANNEL_ID = "nextcloud-talk" as const;
 
@@ -116,19 +120,18 @@ export async function handleNextcloudTalkInbound(params: {
   const effectiveGroupAllowFrom = [...baseGroupAllowFrom, ...storeAllowList].filter(Boolean);
 
   const allowTextCommands = core.channel.commands.shouldHandleTextCommands({
-    cfg: config as MoltbotConfig,
+    cfg: config as OpenClawConfig,
     surface: CHANNEL_ID,
   });
   const useAccessGroups = config.commands?.useAccessGroups !== false;
   const senderAllowedForCommands = resolveNextcloudTalkAllowlistMatch({
     allowFrom: isGroup ? effectiveGroupAllowFrom : effectiveAllowFrom,
     senderId,
-    senderName,
   }).allowed;
 <<<<<<< HEAD
   const hasControlCommand = core.channel.text.hasControlCommand(
     rawBody,
-    config as MoltbotConfig,
+    config as OpenClawConfig,
   );
 =======
   const hasControlCommand = core.channel.text.hasControlCommand(rawBody, config as OpenClawConfig);
@@ -152,7 +155,6 @@ export async function handleNextcloudTalkInbound(params: {
       outerAllowFrom: effectiveGroupAllowFrom,
       innerAllowFrom: roomAllowFrom,
       senderId,
-      senderName,
     });
     if (!groupAllow.allowed) {
       runtime.log?.(`nextcloud-talk: drop group sender ${senderId} (policy=${groupPolicy})`);
@@ -167,7 +169,6 @@ export async function handleNextcloudTalkInbound(params: {
       const dmAllowed = resolveNextcloudTalkAllowlistMatch({
         allowFrom: effectiveAllowFrom,
         senderId,
-        senderName,
       }).allowed;
       if (!dmAllowed) {
         if (dmPolicy === "pairing") {
@@ -213,7 +214,7 @@ export async function handleNextcloudTalkInbound(params: {
 
 <<<<<<< HEAD
   const mentionRegexes = core.channel.mentions.buildMentionRegexes(
-    config as MoltbotConfig,
+    config as OpenClawConfig,
   );
 =======
   const mentionRegexes = core.channel.mentions.buildMentionRegexes(config as OpenClawConfig);
@@ -241,7 +242,7 @@ export async function handleNextcloudTalkInbound(params: {
   }
 
   const route = core.channel.routing.resolveAgentRoute({
-    cfg: config as MoltbotConfig,
+    cfg: config as OpenClawConfig,
     channel: CHANNEL_ID,
     accountId: account.accountId,
     peer: {
@@ -256,7 +257,7 @@ export async function handleNextcloudTalkInbound(params: {
   });
 <<<<<<< HEAD
   const envelopeOptions = core.channel.reply.resolveEnvelopeFormatOptions(
-    config as MoltbotConfig,
+    config as OpenClawConfig,
   );
 =======
   const envelopeOptions = core.channel.reply.resolveEnvelopeFormatOptions(config as OpenClawConfig);
@@ -318,7 +319,7 @@ export async function handleNextcloudTalkInbound(params: {
 
   await core.channel.reply.dispatchReplyWithBufferedBlockDispatcher({
     ctx: ctxPayload,
-    cfg: config as MoltbotConfig,
+    cfg: config as OpenClawConfig,
     dispatcherOptions: {
       ...prefixOptions,
       deliver: async (payload) => {

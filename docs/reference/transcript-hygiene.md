@@ -4,6 +4,7 @@ read_when:
   - You are debugging provider request rejections tied to transcript shape
   - You are changing transcript sanitization or tool-call repair logic
   - You are investigating tool-call id mismatches across providers
+title: "Transcript Hygiene"
 ---
 
 # Transcript Hygiene (Provider Fixups)
@@ -18,7 +19,10 @@ file is backed up alongside the session file.
 Scope includes:
 
 - Tool call id sanitization
-- Tool call input validation (drop malformed tool_use/tool_call blocks missing input or arguments)
+<<<<<<< HEAD
+=======
+- Tool call input validation
+>>>>>>> 118507953 (Docs: simplify transcript hygiene scope)
 - Tool result pairing repair
 - Turn validation / ordering
 - Thought signature cleanup
@@ -112,7 +116,7 @@ Implementation:
 
 ## Historical behavior (pre-2026.1.22)
 
-Before the 2026.1.22 release, Moltbot applied multiple layers of transcript hygiene:
+Before the 2026.1.22 release, OpenClaw applied multiple layers of transcript hygiene:
 
 - A **transcript-sanitize extension** ran on every context build and could:
   - Repair tool use/result pairing.

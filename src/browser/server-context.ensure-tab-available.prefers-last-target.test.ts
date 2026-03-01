@@ -1,16 +1,15 @@
 import { describe, expect, it, vi } from "vitest";
-
 import type { BrowserServerState } from "./server-context.js";
 import { createBrowserRouteContext } from "./server-context.js";
 
 vi.mock("./chrome.js", () => ({
   isChromeCdpReady: vi.fn(async () => true),
   isChromeReachable: vi.fn(async () => true),
-  launchClawdChrome: vi.fn(async () => {
+  launchOpenClawChrome: vi.fn(async () => {
     throw new Error("unexpected launch");
   }),
-  resolveClawdUserDataDir: vi.fn(() => "/tmp/clawd"),
-  stopClawdChrome: vi.fn(async () => {}),
+  resolveOpenClawUserDataDir: vi.fn(() => "/tmp/openclaw"),
+  stopOpenClawChrome: vi.fn(async () => {}),
 }));
 
 describe("browser server-context ensureTabAvailable", () => {
@@ -77,7 +76,7 @@ describe("browser server-context ensureTabAvailable", () => {
             cdpPort: 18792,
             color: "#00AA00",
           },
-          clawd: { cdpPort: 18800, color: "#FF4500" },
+          openclaw: { cdpPort: 18800, color: "#FF4500" },
         },
       },
       profiles: new Map(),
@@ -137,7 +136,7 @@ describe("browser server-context ensureTabAvailable", () => {
             cdpPort: 18792,
             color: "#00AA00",
           },
-          clawd: { cdpPort: 18800, color: "#FF4500" },
+          openclaw: { cdpPort: 18800, color: "#FF4500" },
         },
       },
       profiles: new Map(),
@@ -188,7 +187,7 @@ describe("browser server-context ensureTabAvailable", () => {
             cdpPort: 18792,
             color: "#00AA00",
           },
-          clawd: { cdpPort: 18800, color: "#FF4500" },
+          openclaw: { cdpPort: 18800, color: "#FF4500" },
         },
       },
       profiles: new Map(),

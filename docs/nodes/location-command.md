@@ -3,6 +3,7 @@ summary: "Location command for nodes (location.get), permission modes, and backg
 read_when:
   - Adding location node support or permissions UI
   - Designing background location + push flows
+title: "Location Command"
 ---
 
 # Location command (nodes)
@@ -101,12 +102,12 @@ Notes:
 ## Model/tooling integration
 
 - Tool surface: `nodes` tool adds `location_get` action (node required).
-- CLI: `moltbot nodes location get --node <id>`.
+- CLI: `openclaw nodes location get --node <id>`.
 - Agent guidelines: only call when user enabled location and understands the scope.
 
 ## UX copy (suggested)
 
 - Off: “Location sharing is disabled.”
-- While Using: “Only when Moltbot is open.”
+- While Using: “Only when OpenClaw is open.”
 - Always: “Allow background location. Requires system permission.”
 - Precise: “Use precise GPS location. Toggle off to share approximate location.”

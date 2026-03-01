@@ -1,10 +1,5 @@
 import type { AgentTool } from "@mariozechner/pi-agent-core";
 import { Type } from "@sinclair/typebox";
-<<<<<<< HEAD
-
-=======
-import { formatDurationCompact } from "../infra/format-time/format-duration.ts";
->>>>>>> a1123dd9b (Centralize date/time formatting utilities (#11831))
 import {
   deleteSession,
   drainSession,

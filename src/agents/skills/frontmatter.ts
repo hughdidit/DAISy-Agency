@@ -1,16 +1,22 @@
-import JSON5 from "json5";
 import type { Skill } from "@mariozechner/pi-coding-agent";
+<<<<<<< HEAD
 
-import { LEGACY_MANIFEST_KEY } from "../../compat/legacy-names.js";
+import { LEGACY_MANIFEST_KEYS, MANIFEST_KEY } from "../../compat/legacy-names.js";
 import { parseFrontmatterBlock } from "../../markdown/frontmatter.js";
 import { parseBooleanValue } from "../../utils/boolean.js";
+=======
+import JSON5 from "json5";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type {
-  MoltbotSkillMetadata,
+  OpenClawSkillMetadata,
   ParsedSkillFrontmatter,
   SkillEntry,
   SkillInstallSpec,
   SkillInvocationPolicy,
 } from "./types.js";
+import { LEGACY_MANIFEST_KEYS, MANIFEST_KEY } from "../../compat/legacy-names.js";
+import { parseFrontmatterBlock } from "../../markdown/frontmatter.js";
+import { parseBooleanValue } from "../../utils/boolean.js";
 
 export function parseFrontmatter(content: string): ParsedSkillFrontmatter {
   return parseFrontmatterBlock(content);
@@ -100,24 +106,25 @@ function parseFrontmatterBool(value: string | undefined, fallback: boolean): boo
   return parsed === undefined ? fallback : parsed;
 }
 
-export function resolveMoltbotMetadata(
+export function resolveOpenClawMetadata(
   frontmatter: ParsedSkillFrontmatter,
-): MoltbotSkillMetadata | undefined {
+): OpenClawSkillMetadata | undefined {
   const raw = getFrontmatterValue(frontmatter, "metadata");
   if (!raw) {
     return undefined;
   }
   try {
-<<<<<<< HEAD
-    const parsed = JSON5.parse(raw) as { moltbot?: unknown } & Partial<
-      Record<typeof LEGACY_MANIFEST_KEY, unknown>
-    >;
-=======
-    const parsed = JSON5.parse(raw);
-<<<<<<< HEAD
->>>>>>> 15792b153 (chore: Enable more lint rules, disable some that trigger a lot. Will clean up later.)
+    const parsed = JSON5.parse(raw) as Record<string, unknown>;
     if (!parsed || typeof parsed !== "object") return undefined;
-    const metadataRaw = parsed.moltbot ?? parsed[LEGACY_MANIFEST_KEY];
+    const metadataRawCandidates = [MANIFEST_KEY, ...LEGACY_MANIFEST_KEYS];
+    let metadataRaw: unknown;
+    for (const key of metadataRawCandidates) {
+      const candidate = parsed[key];
+      if (candidate && typeof candidate === "object") {
+        metadataRaw = candidate;
+        break;
+      }
+    }
     if (!metadataRaw || typeof metadataRaw !== "object") return undefined;
 =======
     if (!parsed || typeof parsed !== "object") {

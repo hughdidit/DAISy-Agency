@@ -1,9 +1,4 @@
-<<<<<<< HEAD
-import type { MoltbotConfig } from "../config/config.js";
-=======
 import type { OpenClawConfig } from "../config/config.js";
-import { SkillsInstallPreferences } from "./skills/types.js";
->>>>>>> 3282d22dd (chore: Fix TypeScript errors 3/n.)
 
 export {
   hasBinary,
@@ -19,7 +14,7 @@ export {
   applySkillEnvOverridesFromSnapshot,
 } from "./skills/env-overrides.js";
 export type {
-  MoltbotSkillMetadata,
+  OpenClawSkillMetadata,
   SkillEligibilityContext,
   SkillCommandSpec,
   SkillEntry,
@@ -37,16 +32,12 @@ export {
   syncSkillsToWorkspace,
 } from "./skills/workspace.js";
 
-<<<<<<< HEAD
-export function resolveSkillsInstallPreferences(config?: MoltbotConfig) {
-=======
-export function resolveSkillsInstallPreferences(config?: OpenClawConfig): SkillsInstallPreferences {
->>>>>>> 3282d22dd (chore: Fix TypeScript errors 3/n.)
+export function resolveSkillsInstallPreferences(config?: OpenClawConfig) {
   const raw = config?.skills?.install;
   const preferBrew = raw?.preferBrew ?? true;
   const managerRaw = typeof raw?.nodeManager === "string" ? raw.nodeManager.trim() : "";
   const manager = managerRaw.toLowerCase();
-  const nodeManager =
+  const nodeManager: SkillsInstallPreferences["nodeManager"] =
     manager === "pnpm" || manager === "yarn" || manager === "bun" || manager === "npm"
       ? manager
       : "npm";

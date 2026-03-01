@@ -1,3 +1,5 @@
+import type { Command } from "commander";
+
 export type ManagerLookupResult<T> = {
   manager: T | null;
   error?: string;
@@ -46,8 +48,6 @@ export async function runCommandWithRuntime(
     runtime.exit(1);
   }
 }
-<<<<<<< HEAD
-=======
 
 export function resolveOptionFromCommand<T>(
   command: Command | undefined,
@@ -55,12 +55,9 @@ export function resolveOptionFromCommand<T>(
 ): T | undefined {
   let current: Command | null | undefined = command;
   while (current) {
-    const opts = current.opts?.() ?? {};
-    if (opts[key] !== undefined) {
-      return opts[key];
-    }
+    const opts = (current.opts?.() ?? {}) as Record<string, T | undefined>;
+    if (opts[key] !== undefined) return opts[key];
     current = current.parent ?? undefined;
   }
   return undefined;
 }
->>>>>>> 15792b153 (chore: Enable more lint rules, disable some that trigger a lot. Will clean up later.)

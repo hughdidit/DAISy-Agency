@@ -1,10 +1,14 @@
 import { describe, expect, it } from "vitest";
+<<<<<<< HEAD
 
 import { MoltbotSchema } from "./zod-schema.js";
+=======
+import { OpenClawSchema } from "./zod-schema.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 
 describe("skills entries config schema", () => {
   it("accepts custom fields under config", () => {
-    const res = MoltbotSchema.safeParse({
+    const res = OpenClawSchema.safeParse({
       skills: {
         entries: {
           "custom-skill": {
@@ -22,7 +26,7 @@ describe("skills entries config schema", () => {
   });
 
   it("rejects unknown top-level fields", () => {
-    const res = MoltbotSchema.safeParse({
+    const res = OpenClawSchema.safeParse({
       skills: {
         entries: {
           "custom-skill": {

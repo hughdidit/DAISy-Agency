@@ -2,7 +2,7 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-IMAGE_NAME="moltbot-plugins-e2e"
+IMAGE_NAME="openclaw-plugins-e2e"
 
 echo "Building Docker image..."
 docker build -t "$IMAGE_NAME" -f "$ROOT_DIR/scripts/e2e/Dockerfile" "$ROOT_DIR"
@@ -21,17 +21,11 @@ echo "Running plugins Docker E2E..."
 	  fi
 	  export OPENCLAW_ENTRY
 
-<<<<<<< HEAD
-  home_dir=$(mktemp -d "/tmp/moltbot-plugins-e2e.XXXXXX")
+  home_dir=$(mktemp -d "/tmp/openclaw-plugins-e2e.XXXXXX")
   export HOME="$home_dir"
-  mkdir -p "$HOME/.clawdbot/extensions"
-=======
-	  home_dir=$(mktemp -d "/tmp/openclaw-plugins-e2e.XXXXXX")
-	  export HOME="$home_dir"
-  mkdir -p "$HOME/.openclaw/extensions/demo-plugin"
->>>>>>> 80d42eb0b (fix(docker): support .mjs entrypoints in images and e2e)
+  mkdir -p "$HOME/.openclaw/extensions"
 
-  cat > "$HOME/.clawdbot/extensions/demo-plugin.js" <<'"'"'JS'"'"'
+  cat > "$HOME/.openclaw/extensions/demo-plugin.js" <<'"'"'JS'"'"'
 module.exports = {
   id: "demo-plugin",
   name: "Demo Plugin",
@@ -44,6 +38,15 @@ module.exports = {
   },
 };
 JS
+  cat > "$HOME/.openclaw/extensions/demo-plugin/openclaw.plugin.json" <<'"'"'JSON'"'"'
+{
+  "id": "demo-plugin",
+  "configSchema": {
+    "type": "object",
+    "properties": {}
+  }
+}
+JSON
 
 	  node "$OPENCLAW_ENTRY" plugins list --json > /tmp/plugins.json
 
@@ -77,13 +80,13 @@ console.log("ok");
 NODE
 
   echo "Testing tgz install flow..."
-  pack_dir="$(mktemp -d "/tmp/moltbot-plugin-pack.XXXXXX")"
+  pack_dir="$(mktemp -d "/tmp/openclaw-plugin-pack.XXXXXX")"
   mkdir -p "$pack_dir/package"
   cat > "$pack_dir/package/package.json" <<'"'"'JSON'"'"'
 {
-  "name": "@moltbot/demo-plugin-tgz",
+  "name": "@openclaw/demo-plugin-tgz",
   "version": "0.0.1",
-  "moltbot": { "extensions": ["./index.js"] }
+  "openclaw": { "extensions": ["./index.js"] }
 }
 JSON
   cat > "$pack_dir/package/index.js" <<'"'"'JS'"'"'
@@ -95,6 +98,15 @@ module.exports = {
   },
 };
 JS
+  cat > "$pack_dir/package/openclaw.plugin.json" <<'"'"'JSON'"'"'
+{
+  "id": "demo-plugin-tgz",
+  "configSchema": {
+    "type": "object",
+    "properties": {}
+  }
+}
+JSON
   tar -czf /tmp/demo-plugin-tgz.tgz -C "$pack_dir" package
 
 	  node "$OPENCLAW_ENTRY" plugins install /tmp/demo-plugin-tgz.tgz
@@ -116,12 +128,12 @@ console.log("ok");
 NODE
 
   echo "Testing install from local folder (plugins.load.paths)..."
-  dir_plugin="$(mktemp -d "/tmp/moltbot-plugin-dir.XXXXXX")"
+  dir_plugin="$(mktemp -d "/tmp/openclaw-plugin-dir.XXXXXX")"
   cat > "$dir_plugin/package.json" <<'"'"'JSON'"'"'
 {
-  "name": "@moltbot/demo-plugin-dir",
+  "name": "@openclaw/demo-plugin-dir",
   "version": "0.0.1",
-  "moltbot": { "extensions": ["./index.js"] }
+  "openclaw": { "extensions": ["./index.js"] }
 }
 JSON
   cat > "$dir_plugin/index.js" <<'"'"'JS'"'"'
@@ -133,6 +145,15 @@ module.exports = {
   },
 };
 JS
+  cat > "$dir_plugin/openclaw.plugin.json" <<'"'"'JSON'"'"'
+{
+  "id": "demo-plugin-dir",
+  "configSchema": {
+    "type": "object",
+    "properties": {}
+  }
+}
+JSON
 
 	  node "$OPENCLAW_ENTRY" plugins install "$dir_plugin"
 	  node "$OPENCLAW_ENTRY" plugins list --json > /tmp/plugins3.json
@@ -153,13 +174,13 @@ console.log("ok");
 NODE
 
   echo "Testing install from npm spec (file:)..."
-  file_pack_dir="$(mktemp -d "/tmp/moltbot-plugin-filepack.XXXXXX")"
+  file_pack_dir="$(mktemp -d "/tmp/openclaw-plugin-filepack.XXXXXX")"
   mkdir -p "$file_pack_dir/package"
   cat > "$file_pack_dir/package/package.json" <<'"'"'JSON'"'"'
 {
-  "name": "@moltbot/demo-plugin-file",
+  "name": "@openclaw/demo-plugin-file",
   "version": "0.0.1",
-  "moltbot": { "extensions": ["./index.js"] }
+  "openclaw": { "extensions": ["./index.js"] }
 }
 JSON
   cat > "$file_pack_dir/package/index.js" <<'"'"'JS'"'"'
@@ -171,6 +192,15 @@ module.exports = {
   },
 };
 JS
+  cat > "$file_pack_dir/package/openclaw.plugin.json" <<'"'"'JSON'"'"'
+{
+  "id": "demo-plugin-file",
+  "configSchema": {
+    "type": "object",
+    "properties": {}
+  }
+}
+JSON
 
 	  node "$OPENCLAW_ENTRY" plugins install "file:$file_pack_dir/package"
 	  node "$OPENCLAW_ENTRY" plugins list --json > /tmp/plugins4.json

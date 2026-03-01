@@ -4,6 +4,7 @@ read_when:
   - Setting up BlueBubbles channel
   - Troubleshooting webhook pairing
   - Configuring iMessage on macOS
+title: "BlueBubbles"
 ---
 
 # BlueBubbles (macOS REST)
@@ -14,7 +15,7 @@ Status: bundled plugin that talks to the BlueBubbles macOS server over HTTP. **R
 
 - Runs on macOS via the BlueBubbles helper app ([bluebubbles.app](https://bluebubbles.app)).
 - Recommended/tested: macOS Sequoia (15). macOS Tahoe (26) works; edit is currently broken on Tahoe, and group icon updates may report success but not sync.
-- Moltbot talks to it through its REST API (`GET /api/v1/ping`, `POST /message/text`, `POST /chat/:id/*`).
+- OpenClaw talks to it through its REST API (`GET /api/v1/ping`, `POST /message/text`, `POST /chat/:id/*`).
 - Incoming messages arrive via webhooks; outgoing replies, typing indicators, read receipts, and tapbacks are REST calls.
 - Attachments and stickers are ingested as inbound media (and surfaced to the agent when possible).
 - Pairing/allowlist works the same way as other channels (`/channels/pairing` etc) with `channels.bluebubbles.allowFrom` + pairing codes.
@@ -25,7 +26,19 @@ Status: bundled plugin that talks to the BlueBubbles macOS server over HTTP. **R
 
 1. Install the BlueBubbles server on your Mac (follow the instructions at [bluebubbles.app/install](https://bluebubbles.app/install)).
 2. In the BlueBubbles config, enable the web API and set a password.
+<<<<<<< HEAD
 3. Run `moltbot onboard` and select BlueBubbles, or configure manually:
+=======
+3. Run `openclaw onboard` and select BlueBubbles, or configure manually:
+<<<<<<< HEAD
+<<<<<<< HEAD
+
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
+=======
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
+=======
+
+>>>>>>> 578a6e27a (Docs: enable markdownlint autofixables except list numbering (#10476))
    ```json5
    {
      channels: {
@@ -38,6 +51,7 @@ Status: bundled plugin that talks to the BlueBubbles macOS server over HTTP. **R
      },
    }
    ```
+
 4. Point BlueBubbles webhooks to your gateway (example: `https://your-gateway-host:3000/bluebubbles-webhook?password=<password>`).
 5. Start the gateway; it will register the webhook handler and start pairing.
 
@@ -120,7 +134,7 @@ launchctl load ~/Library/LaunchAgents/com.user.poke-messages.plist
 BlueBubbles is available in the interactive setup wizard:
 
 ```
-moltbot onboard
+openclaw onboard
 ```
 
 The wizard prompts for:
@@ -134,7 +148,7 @@ The wizard prompts for:
 You can also add BlueBubbles via CLI:
 
 ```
-moltbot channels add bluebubbles --http-url http://192.168.1.100:1234 --password <password>
+openclaw channels add bluebubbles --http-url http://192.168.1.100:1234 --password <password>
 ```
 
 ## Access control (DMs + groups)
@@ -144,9 +158,8 @@ DMs:
 - Default: `channels.bluebubbles.dmPolicy = "pairing"`.
 - Unknown senders receive a pairing code; messages are ignored until approved (codes expire after 1 hour).
 - Approve via:
-<<<<<<< HEAD
-  - `moltbot pairing list bluebubbles`
-  - `moltbot pairing approve bluebubbles <CODE>`
+  - `openclaw pairing list bluebubbles`
+  - `openclaw pairing approve bluebubbles <CODE>`
 - Pairing is the default token exchange. Details: [Pairing](/start/pairing)
 =======
   - `openclaw pairing list bluebubbles`
@@ -194,7 +207,7 @@ Per-group configuration:
 
 - **Typing indicators**: Sent automatically before and during response generation.
 - **Read receipts**: Controlled by `channels.bluebubbles.sendReadReceipts` (default: `true`).
-- **Typing indicators**: Moltbot sends typing start events; BlueBubbles clears typing automatically on send or timeout (manual stop via DELETE is unreliable).
+- **Typing indicators**: OpenClaw sends typing start events; BlueBubbles clears typing automatically on send or timeout (manual stop via DELETE is unreliable).
 
 ```json5
 {
@@ -248,13 +261,7 @@ Available actions:
   - Voice memos: set `asVoice: true` with **MP3** or **CAF** audio to send as an iMessage voice message. BlueBubbles converts MP3 → CAF when sending voice memos.
 
 ### Message IDs (short vs full)
-<<<<<<< HEAD
-Moltbot may surface *short* message IDs (e.g., `1`, `2`) to save tokens.
-=======
-
-OpenClaw may surface _short_ message IDs (e.g., `1`, `2`) to save tokens.
-
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
+OpenClaw may surface *short* message IDs (e.g., `1`, `2`) to save tokens.
 - `MessageSid` / `ReplyToId` can be short IDs.
 - `MessageSidFull` / `ReplyToIdFull` contain the provider full IDs.
 - Short IDs are in-memory; they can expire on restart or cache eviction.
@@ -275,9 +282,15 @@ Control whether responses are sent as a single message or streamed in blocks:
 {
   channels: {
     bluebubbles: {
-      blockStreaming: true, // enable block streaming (default behavior)
+<<<<<<< HEAD
+      blockStreaming: true  // enable block streaming (default behavior)
+    }
+  }
+=======
+      blockStreaming: true, // enable block streaming (off by default)
     },
   },
+>>>>>>> 9ef24fd40 (fix: flush block streaming on paragraph boundaries for chunkMode=newline (#7014))
 }
 ```
 
@@ -303,7 +316,7 @@ Provider options:
 - `channels.bluebubbles.groupAllowFrom`: Group sender allowlist.
 - `channels.bluebubbles.groups`: Per-group config (`requireMention`, etc.).
 - `channels.bluebubbles.sendReadReceipts`: Send read receipts (default: `true`).
-- `channels.bluebubbles.blockStreaming`: Enable block streaming (default: `true`).
+- `channels.bluebubbles.blockStreaming`: Enable block streaming (default: `false`; required for streaming replies).
 - `channels.bluebubbles.textChunkLimit`: Outbound chunk size in chars (default: 4000).
 - `channels.bluebubbles.chunkMode`: `length` (default) splits only when exceeding `textChunkLimit`; `newline` splits on blank lines (paragraph boundaries) before length chunking.
 - `channels.bluebubbles.mediaMaxMb`: Inbound media cap in MB (default: 8).
@@ -325,7 +338,7 @@ Prefer `chat_guid` for stable routing:
 - `chat_id:123`
 - `chat_identifier:...`
 - Direct handles: `+15555550123`, `user@example.com`
-  - If a direct handle does not have an existing DM chat, Moltbot will create one via `POST /api/v1/chat/new`. This requires the BlueBubbles Private API to be enabled.
+  - If a direct handle does not have an existing DM chat, OpenClaw will create one via `POST /api/v1/chat/new`. This requires the BlueBubbles Private API to be enabled.
 
 ## Security
 
@@ -337,15 +350,11 @@ Prefer `chat_guid` for stable routing:
 ## Troubleshooting
 
 - If typing/read events stop working, check the BlueBubbles webhook logs and verify the gateway path matches `channels.bluebubbles.webhookPath`.
-- Pairing codes expire after one hour; use `moltbot pairing list bluebubbles` and `moltbot pairing approve bluebubbles <code>`.
+- Pairing codes expire after one hour; use `openclaw pairing list bluebubbles` and `openclaw pairing approve bluebubbles <code>`.
 - Reactions require the BlueBubbles private API (`POST /api/v1/message/react`); ensure the server version exposes it.
 - Edit/unsend require macOS 13+ and a compatible BlueBubbles server version. On macOS 26 (Tahoe), edit is currently broken due to private API changes.
 - Group icon updates can be flaky on macOS 26 (Tahoe): the API may return success but the new icon does not sync.
-- Moltbot auto-hides known-broken actions based on the BlueBubbles server's macOS version. If edit still appears on macOS 26 (Tahoe), disable it manually with `channels.bluebubbles.actions.edit=false`.
-- For status/health info: `moltbot status --all` or `moltbot status --deep`.
+- OpenClaw auto-hides known-broken actions based on the BlueBubbles server's macOS version. If edit still appears on macOS 26 (Tahoe), disable it manually with `channels.bluebubbles.actions.edit=false`.
+- For status/health info: `openclaw status --all` or `openclaw status --deep`.
 
-<<<<<<< HEAD
-For general channel workflow reference, see [Channels](/channels) and the [Plugins](/plugins) guide.
-=======
-For general channel workflow reference, see [Channels](/channels) and the [Plugins](/tools/plugin) guide.
->>>>>>> 929a3725d (docs: canonicalize docs paths and align zh navigation (#11428))
+For general channel workflow reference, see [Channels](/channels) and the [Plugins](/plugin) guide.

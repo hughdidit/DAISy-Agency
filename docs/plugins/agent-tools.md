@@ -3,11 +3,12 @@ summary: "Write agent tools in a plugin (schemas, optional tools, allowlists)"
 read_when:
   - You want to add a new agent tool in a plugin
   - You need to make a tool opt-in via allowlists
+title: "Plugin Agent Tools"
 ---
 
 # Plugin agent tools
 
-Moltbot plugins can register **agent tools** (JSON‑schema functions) that are exposed
+OpenClaw plugins can register **agent tools** (JSON‑schema functions) that are exposed
 to the LLM during agent runs. Tools can be **required** (always available) or
 **optional** (opt‑in).
 

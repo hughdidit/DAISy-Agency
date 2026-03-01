@@ -1,17 +1,21 @@
 import type { HumanDelayConfig } from "../../config/types.js";
 import type { GetReplyOptions, ReplyPayload } from "../types.js";
+<<<<<<< HEAD
 import { normalizeReplyPayload } from "./normalize-reply.js";
+=======
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { ResponsePrefixContext } from "./response-prefix-template.js";
 import type { TypingController } from "./typing.js";
-<<<<<<< HEAD
-=======
-import { sleep } from "../../utils.js";
 import { normalizeReplyPayload, type NormalizeReplySkipReason } from "./normalize-reply.js";
->>>>>>> 6b0d6e254 (chore: We have a sleep at home. The sleep at home:)
 
 export type ReplyDispatchKind = "tool" | "block" | "final";
 
 type ReplyDispatchErrorHandler = (err: unknown, info: { kind: ReplyDispatchKind }) => void;
+
+type ReplyDispatchSkipHandler = (
+  payload: ReplyPayload,
+  info: { kind: ReplyDispatchKind; reason: NormalizeReplySkipReason },
+) => void;
 
 type ReplyDispatchDeliverer = (
   payload: ReplyPayload,
@@ -48,6 +52,8 @@ export type ReplyDispatcherOptions = {
   onHeartbeatStrip?: () => void;
   onIdle?: () => void;
   onError?: ReplyDispatchErrorHandler;
+  // AIDEV-NOTE: onSkip lets channels detect silent/empty drops (e.g. Telegram empty-response fallback).
+  onSkip?: ReplyDispatchSkipHandler;
   /** Human-like delay between block replies for natural rhythm. */
   humanDelay?: HumanDelayConfig;
 };
@@ -55,11 +61,13 @@ export type ReplyDispatcherOptions = {
 export type ReplyDispatcherWithTypingOptions = Omit<ReplyDispatcherOptions, "onIdle"> & {
   onReplyStart?: () => Promise<void> | void;
   onIdle?: () => void;
+  /** Called when the typing controller is cleaned up (e.g., on NO_REPLY). */
+  onCleanup?: () => void;
 };
 
 type ReplyDispatcherWithTypingResult = {
   dispatcher: ReplyDispatcher;
-  replyOptions: Pick<GetReplyOptions, "onReplyStart" | "onTypingController">;
+  replyOptions: Pick<GetReplyOptions, "onReplyStart" | "onTypingController" | "onTypingCleanup">;
   markDispatchIdle: () => void;
 };
 
@@ -71,15 +79,16 @@ export type ReplyDispatcher = {
   getQueuedCounts: () => Record<ReplyDispatchKind, number>;
 };
 
+type NormalizeReplyPayloadInternalOptions = Pick<
+  ReplyDispatcherOptions,
+  "responsePrefix" | "responsePrefixContext" | "responsePrefixContextProvider" | "onHeartbeatStrip"
+> & {
+  onSkip?: (reason: NormalizeReplySkipReason) => void;
+};
+
 function normalizeReplyPayloadInternal(
   payload: ReplyPayload,
-  opts: Pick<
-    ReplyDispatcherOptions,
-    | "responsePrefix"
-    | "responsePrefixContext"
-    | "responsePrefixContextProvider"
-    | "onHeartbeatStrip"
-  >,
+  opts: NormalizeReplyPayloadInternalOptions,
 ): ReplyPayload | null {
   // Prefer dynamic context provider over static context
   const prefixContext = opts.responsePrefixContextProvider?.() ?? opts.responsePrefixContext;
@@ -88,6 +97,7 @@ function normalizeReplyPayloadInternal(
     responsePrefix: opts.responsePrefix,
     responsePrefixContext: prefixContext,
     onHeartbeatStrip: opts.onHeartbeatStrip,
+    onSkip: opts.onSkip,
   });
 }
 
@@ -105,8 +115,13 @@ export function createReplyDispatcher(options: ReplyDispatcherOptions): ReplyDis
   };
 
   const enqueue = (kind: ReplyDispatchKind, payload: ReplyPayload) => {
-<<<<<<< HEAD
-    const normalized = normalizeReplyPayloadInternal(payload, options);
+    const normalized = normalizeReplyPayloadInternal(payload, {
+      responsePrefix: options.responsePrefix,
+      responsePrefixContext: options.responsePrefixContext,
+      responsePrefixContextProvider: options.responsePrefixContextProvider,
+      onHeartbeatStrip: options.onHeartbeatStrip,
+      onSkip: (reason) => options.onSkip?.(payload, { kind, reason }),
+    });
     if (!normalized) return false;
 =======
     const normalized = normalizeReplyPayloadInternal(payload, {
@@ -164,7 +179,7 @@ export function createReplyDispatcher(options: ReplyDispatcherOptions): ReplyDis
 export function createReplyDispatcherWithTyping(
   options: ReplyDispatcherWithTypingOptions,
 ): ReplyDispatcherWithTypingResult {
-  const { onReplyStart, onIdle, ...dispatcherOptions } = options;
+  const { onReplyStart, onIdle, onCleanup, ...dispatcherOptions } = options;
   let typingController: TypingController | undefined;
   const dispatcher = createReplyDispatcher({
     ...dispatcherOptions,
@@ -178,6 +193,7 @@ export function createReplyDispatcherWithTyping(
     dispatcher,
     replyOptions: {
       onReplyStart,
+      onTypingCleanup: onCleanup,
       onTypingController: (typing) => {
         typingController = typing;
       },

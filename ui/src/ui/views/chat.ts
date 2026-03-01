@@ -3,21 +3,24 @@ import { ref } from "lit/directives/ref.js";
 import { repeat } from "lit/directives/repeat.js";
 <<<<<<< HEAD
 import type { SessionsListResult } from "../types";
-import type { ChatAttachment, ChatQueueItem } from "../ui-types";
 import type { ChatItem, MessageGroup } from "../types/chat-types";
+<<<<<<< HEAD
 import { icons } from "../icons";
-import { normalizeMessage, normalizeRoleForGrouping } from "../chat/message-normalizer";
+import {
+  normalizeMessage,
+  normalizeRoleForGrouping,
+} from "../chat/message-normalizer";
 =======
-import type { SessionsListResult } from "../types.ts";
-import type { ChatItem, MessageGroup } from "../types/chat-types.ts";
-import type { ChatAttachment, ChatQueueItem } from "../ui-types.ts";
->>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
+import type { ChatAttachment, ChatQueueItem } from "../ui-types";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import {
   renderMessageGroup,
   renderReadingIndicatorGroup,
   renderStreamingGroup,
 <<<<<<< HEAD
 } from "../chat/grouped-render";
+import { normalizeMessage, normalizeRoleForGrouping } from "../chat/message-normalizer";
+import { icons } from "../icons";
 import { renderMarkdownSidebar } from "./markdown-sidebar";
 import "../components/resizable-divider";
 =======
@@ -99,7 +102,7 @@ function renderCompactionIndicator(status: CompactionIndicatorStatus | null | un
   // Show "compacting..." while active
   if (status.active) {
     return html`
-      <div class="callout info compaction-indicator compaction-indicator--active">
+      <div class="compaction-indicator compaction-indicator--active" role="status" aria-live="polite">
         ${icons.loader} Compacting context...
       </div>
     `;
@@ -110,7 +113,7 @@ function renderCompactionIndicator(status: CompactionIndicatorStatus | null | un
     const elapsed = Date.now() - status.completedAt;
     if (elapsed < COMPACTION_TOAST_DURATION_MS) {
       return html`
-        <div class="callout success compaction-indicator compaction-indicator--complete">
+        <div class="compaction-indicator compaction-indicator--complete" role="status" aria-live="polite">
           ${icons.check} Context compacted
         </div>
       `;
@@ -282,11 +285,16 @@ export function renderChat(props: ChatProps) {
 
       ${props.error ? html`<div class="callout danger">${props.error}</div>` : nothing}
 
+<<<<<<< HEAD
       ${renderCompactionIndicator(props.compactionStatus)}
 
+      ${props.focusMode
+        ? html`
+=======
       ${
         props.focusMode
           ? html`
+>>>>>>> 191da1feb (fix: context overflow compaction and subagent announce improvements (#11664) (thanks @tyler6204))
             <button
               class="chat-focus-exit"
               type="button"
@@ -364,6 +372,9 @@ export function renderChat(props: ChatProps) {
               </div>
             </div>
           `
+<<<<<<< HEAD
+        : nothing}
+=======
           : nothing
       }
 
@@ -371,7 +382,7 @@ export function renderChat(props: ChatProps) {
         props.showNewMessages
           ? html`
             <button
-              class="chat-new-messages"
+              class="btn chat-new-messages"
               type="button"
               @click=${props.onScrollToBottom}
             >
@@ -380,6 +391,7 @@ export function renderChat(props: ChatProps) {
           `
           : nothing
       }
+>>>>>>> 9f16de253 (style: update chat new-messages button)
 
       <div class="chat-compose">
         ${renderAttachmentPreview(props)}

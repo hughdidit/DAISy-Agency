@@ -1,8 +1,14 @@
+import type {
+  CommandHandler,
+  CommandHandlerResult,
+  HandleCommandsParams,
+} from "./commands-types.js";
 import { logVerbose } from "../../globals.js";
+import { createInternalHookEvent, triggerInternalHook } from "../../hooks/internal-hooks.js";
 import { resolveSendPolicy } from "../../sessions/send-policy.js";
 import { shouldHandleTextCommands } from "../commands-registry.js";
-import { createInternalHookEvent, triggerInternalHook } from "../../hooks/internal-hooks.js";
-import { routeReply } from "./route-reply.js";
+import { handleAllowlistCommand } from "./commands-allowlist.js";
+import { handleApproveCommand } from "./commands-approve.js";
 import { handleBashCommand } from "./commands-bash.js";
 import { handleCompactCommand } from "./commands-compact.js";
 import { handleConfigCommand, handleDebugCommand } from "./commands-config.js";
@@ -13,22 +19,8 @@ import {
   handleStatusCommand,
   handleWhoamiCommand,
 } from "./commands-info.js";
-import { handleAllowlistCommand } from "./commands-allowlist.js";
-import { handleApproveCommand } from "./commands-approve.js";
-import { handleSubagentsCommand } from "./commands-subagents.js";
 import { handleModelsCommand } from "./commands-models.js";
-<<<<<<< HEAD
-=======
 import { handlePluginCommand } from "./commands-plugin.js";
-<<<<<<< HEAD
-import { handlePTTCommand } from "./commands-ptt.js";
-<<<<<<< HEAD
->>>>>>> b7aac92ac (Gateway: add PTT chat + nodes CLI)
-import { handleTtsCommands } from "./commands-tts.js";
-=======
->>>>>>> 6cd3bc3a4 (iOS: improve gateway auto-connect and voice permissions)
-=======
->>>>>>> 4ab814fd5 (Revert "iOS: wire node services and tests")
 import {
   handleAbortTrigger,
   handleActivationCommand,
@@ -37,47 +29,13 @@ import {
   handleStopCommand,
   handleUsageCommand,
 } from "./commands-session.js";
-<<<<<<< HEAD
-import { handlePluginCommand } from "./commands-plugin.js";
-import type {
-  CommandHandler,
-  CommandHandlerResult,
-  HandleCommandsParams,
-} from "./commands-types.js";
-=======
 import { handleSubagentsCommand } from "./commands-subagents.js";
 import { handleTtsCommands } from "./commands-tts.js";
 import { routeReply } from "./route-reply.js";
->>>>>>> b7aac92ac (Gateway: add PTT chat + nodes CLI)
 
-const HANDLERS: CommandHandler[] = [
-  // Plugin commands are processed first, before built-in commands
-  handlePluginCommand,
-  handleBashCommand,
-  handleActivationCommand,
-  handleSendPolicyCommand,
-  handleUsageCommand,
-  handleRestartCommand,
-  handleTtsCommands,
-  handleHelpCommand,
-  handleCommandsListCommand,
-  handleStatusCommand,
-  handleAllowlistCommand,
-  handleApproveCommand,
-  handleContextCommand,
-  handleWhoamiCommand,
-  handleSubagentsCommand,
-  handleConfigCommand,
-  handleDebugCommand,
-  handleModelsCommand,
-  handleStopCommand,
-  handleCompactCommand,
-  handleAbortTrigger,
-];
+let HANDLERS: CommandHandler[] | null = null;
 
 export async function handleCommands(params: HandleCommandsParams): Promise<CommandHandlerResult> {
-<<<<<<< HEAD
-=======
   if (HANDLERS === null) {
     HANDLERS = [
       // Plugin commands are processed first, before built-in commands
@@ -104,7 +62,6 @@ export async function handleCommands(params: HandleCommandsParams): Promise<Comm
       handleAbortTrigger,
     ];
   }
->>>>>>> b7aac92ac (Gateway: add PTT chat + nodes CLI)
   const resetMatch = params.command.commandBodyNormalized.match(/^\/(new|reset)(?:\s|$)/);
   const resetRequested = Boolean(resetMatch);
   if (resetRequested && !params.command.isAuthorizedSender) {

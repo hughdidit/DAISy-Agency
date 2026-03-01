@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 import { loadWebMedia, resolveChannelMediaMaxBytes } from "clawdbot/plugin-sdk";
 import type { MoltbotConfig } from "clawdbot/plugin-sdk";
+=======
+import type { OpenClawConfig } from "openclaw/plugin-sdk";
+import { loadWebMedia, resolveChannelMediaMaxBytes } from "openclaw/plugin-sdk";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { createMSTeamsConversationStoreFs } from "./conversation-store-fs.js";
 import {
   classifyMSTeamsSendError,
@@ -21,7 +26,7 @@ import { resolveMSTeamsSendContext, type MSTeamsProactiveContext } from "./send-
 
 export type SendMSTeamsMessageParams = {
   /** Full config (for credentials) */
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   /** Conversation ID or user ID to send to */
   to: string;
   /** Message text */
@@ -48,7 +53,7 @@ const MSTEAMS_MAX_MEDIA_BYTES = 100 * 1024 * 1024;
 
 export type SendMSTeamsPollParams = {
   /** Full config (for credentials) */
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   /** Conversation ID or user ID to send to */
   to: string;
   /** Poll question */
@@ -67,7 +72,7 @@ export type SendMSTeamsPollResult = {
 
 export type SendMSTeamsCardParams = {
   /** Full config (for credentials) */
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   /** Conversation ID or user ID to send to */
   to: string;
   /** Adaptive Card JSON object */

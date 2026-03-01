@@ -1,14 +1,5 @@
-<<<<<<< HEAD
-import { formatAgo, formatDurationMs, formatMs } from "./format";
 import type { CronJob, GatewaySessionRow, PresenceEntry } from "./types";
-=======
-import type { CronJob, GatewaySessionRow, PresenceEntry } from "./types.ts";
-<<<<<<< HEAD
-import { formatAgo, formatDurationMs, formatMs } from "./format.ts";
->>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
-=======
-import { formatRelativeTimestamp, formatDurationHuman, formatMs } from "./format.ts";
->>>>>>> a1123dd9b (Centralize date/time formatting utilities (#11831))
+import { formatAgo, formatDurationMs, formatMs } from "./format";
 
 export function formatPresenceSummary(entry: PresenceEntry): string {
   const host = entry.host ?? "unknown";

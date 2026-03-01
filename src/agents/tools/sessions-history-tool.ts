@@ -1,14 +1,9 @@
 import { Type } from "@sinclair/typebox";
-
+import type { AnyAgentTool } from "./common.js";
 import { loadConfig } from "../../config/config.js";
 import { callGateway } from "../../gateway/call.js";
 import { capArrayByJsonBytes } from "../../gateway/session-utils.fs.js";
 import { isSubagentSessionKey, resolveAgentIdFromSessionKey } from "../../routing/session-key.js";
-<<<<<<< HEAD
-import type { AnyAgentTool } from "./common.js";
-=======
-import { truncateUtf16Safe } from "../../utils.js";
->>>>>>> bccdc95a9 (Cap sessions_history payloads to prevent context overflow (#10000))
 import { jsonResult, readStringParam } from "./common.js";
 import {
   createAgentToAgentPolicy,

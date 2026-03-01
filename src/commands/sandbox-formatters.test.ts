@@ -1,9 +1,4 @@
 import { describe, expect, it } from "vitest";
-<<<<<<< HEAD
-
-=======
-import { formatDurationCompact } from "../infra/format-time/format-duration.js";
->>>>>>> a1123dd9b (Centralize date/time formatting utilities (#11831))
 import {
   countMismatches,
   countRunning,

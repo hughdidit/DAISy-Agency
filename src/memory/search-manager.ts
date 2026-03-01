@@ -1,18 +1,4 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-import type { MoltbotConfig } from "../config/config.js";
-=======
-import { createSubsystemLogger } from "../logging/subsystem.js";
-=======
->>>>>>> 9bef52594 (chore: apply formatter)
-import type { MoltbotConfig } from "../config/config.js";
-=======
 import type { OpenClawConfig } from "../config/config.js";
->>>>>>> f72214725 (chore: restore OpenClaw branding)
-import type { ResolvedQmdConfig } from "./backend-config.js";
-<<<<<<< HEAD
->>>>>>> 5d3af3bc6 (feat (memory): Implement new (opt-in) QMD memory backend)
 import type { MemoryIndexManager } from "./manager.js";
 =======
 >>>>>>> dd8373a42 (fix(memory-qmd): write XDG index.yml + legacy compat)
@@ -79,12 +65,13 @@ export async function getMemorySearchManager(params: {
     return { manager: null, error: message };
   }
 }
+<<<<<<< HEAD
+=======
 
 class FallbackMemoryManager implements MemorySearchManager {
   private fallback: MemorySearchManager | null = null;
   private primaryFailed = false;
   private lastError?: string;
-  private cacheEvicted = false;
 
   constructor(
     private readonly deps: {
@@ -106,8 +93,6 @@ class FallbackMemoryManager implements MemorySearchManager {
         this.lastError = err instanceof Error ? err.message : String(err);
         log.warn(`qmd memory failed; switching to builtin index: ${this.lastError}`);
         await this.deps.primary.close?.().catch(() => {});
-        // Evict the failed wrapper so the next request can retry QMD with a fresh manager.
-        this.evictCacheEntry();
       }
     }
     const fallback = await this.ensureFallback();
@@ -192,7 +177,7 @@ class FallbackMemoryManager implements MemorySearchManager {
   async close() {
     await this.deps.primary.close?.();
     await this.fallback?.close?.();
-    this.evictCacheEntry();
+    this.onClose?.();
   }
 
   private async ensureFallback(): Promise<MemorySearchManager | null> {
@@ -207,20 +192,9 @@ class FallbackMemoryManager implements MemorySearchManager {
     this.fallback = fallback;
     return this.fallback;
   }
-
-  private evictCacheEntry(): void {
-    if (this.cacheEvicted) {
-      return;
-    }
-    this.cacheEvicted = true;
-    this.onClose?.();
-  }
 }
 
 function buildQmdCacheKey(agentId: string, config: ResolvedQmdConfig): string {
-<<<<<<< HEAD
-  return `${agentId}:${JSON.stringify(config)}`;
-=======
   return `${agentId}:${stableSerialize(config)}`;
 }
 
@@ -234,10 +208,10 @@ function sortValue(value: unknown): unknown {
   }
   if (value && typeof value === "object") {
     const sortedEntries = Object.keys(value as Record<string, unknown>)
-      .toSorted((a, b) => a.localeCompare(b))
+      .sort((a, b) => a.localeCompare(b))
       .map((key) => [key, sortValue((value as Record<string, unknown>)[key])]);
     return Object.fromEntries(sortedEntries);
   }
   return value;
->>>>>>> 30098b04d (chore: fix lint warnings)
 }
+>>>>>>> d0b98c75e (fix: make QMD cache key deterministic)

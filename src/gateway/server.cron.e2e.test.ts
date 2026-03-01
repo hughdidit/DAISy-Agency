@@ -52,9 +52,9 @@ async function waitForNonEmptyFile(pathname: string, timeoutMs = 2000) {
 
 describe("gateway server cron", () => {
   test("handles cron CRUD, normalization, and patch semantics", { timeout: 120_000 }, async () => {
-    const prevSkipCron = process.env.CLAWDBOT_SKIP_CRON;
-    process.env.CLAWDBOT_SKIP_CRON = "0";
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-gw-cron-"));
+    const prevSkipCron = process.env.OPENCLAW_SKIP_CRON;
+    process.env.OPENCLAW_SKIP_CRON = "0";
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-gw-cron-"));
     testState.cronStorePath = path.join(dir, "cron", "jobs.json");
     testState.sessionConfig = { mainKey: "primary" };
     testState.cronEnabled = false;
@@ -117,7 +117,7 @@ describe("gateway server cron", () => {
         | { schedule?: unknown; sessionTarget?: unknown; wakeMode?: unknown }
         | undefined;
       expect(wrappedPayload?.sessionTarget).toBe("main");
-      expect(wrappedPayload?.wakeMode).toBe("next-heartbeat");
+      expect(wrappedPayload?.wakeMode).toBe("now");
       expect((wrappedPayload?.schedule as { kind?: unknown } | undefined)?.kind).toBe("at");
 
       const patchRes = await rpcReq(ws, "cron.add", {
@@ -180,6 +180,32 @@ describe("gateway server cron", () => {
       expect(merged?.delivery?.mode).toBe("announce");
       expect(merged?.delivery?.channel).toBe("telegram");
       expect(merged?.delivery?.to).toBe("19098680");
+
+      const legacyDeliveryPatchRes = await rpcReq(ws, "cron.update", {
+        id: mergeJobId,
+        patch: {
+          payload: {
+            kind: "agentTurn",
+            deliver: true,
+            channel: "signal",
+            to: "+15550001111",
+            bestEffortDeliver: true,
+          },
+        },
+      });
+      expect(legacyDeliveryPatchRes.ok).toBe(true);
+      const legacyDeliveryPatched = legacyDeliveryPatchRes.payload as
+        | {
+            payload?: { kind?: unknown; message?: unknown };
+            delivery?: { mode?: unknown; channel?: unknown; to?: unknown; bestEffort?: unknown };
+          }
+        | undefined;
+      expect(legacyDeliveryPatched?.payload?.kind).toBe("agentTurn");
+      expect(legacyDeliveryPatched?.payload?.message).toBe("hello");
+      expect(legacyDeliveryPatched?.delivery?.mode).toBe("announce");
+      expect(legacyDeliveryPatched?.delivery?.channel).toBe("signal");
+      expect(legacyDeliveryPatched?.delivery?.to).toBe("+15550001111");
+      expect(legacyDeliveryPatched?.delivery?.bestEffort).toBe(true);
 
       const rejectRes = await rpcReq(ws, "cron.add", {
         name: "patch reject",
@@ -252,17 +278,17 @@ describe("gateway server cron", () => {
       testState.sessionConfig = undefined;
       testState.cronEnabled = undefined;
       if (prevSkipCron === undefined) {
-        delete process.env.CLAWDBOT_SKIP_CRON;
+        delete process.env.OPENCLAW_SKIP_CRON;
       } else {
-        process.env.CLAWDBOT_SKIP_CRON = prevSkipCron;
+        process.env.OPENCLAW_SKIP_CRON = prevSkipCron;
       }
     }
   });
 
   test("writes cron run history and auto-runs due jobs", async () => {
-    const prevSkipCron = process.env.CLAWDBOT_SKIP_CRON;
-    process.env.CLAWDBOT_SKIP_CRON = "0";
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-gw-cron-log-"));
+    const prevSkipCron = process.env.OPENCLAW_SKIP_CRON;
+    process.env.OPENCLAW_SKIP_CRON = "0";
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-gw-cron-log-"));
     testState.cronStorePath = path.join(dir, "cron", "jobs.json");
     testState.cronEnabled = undefined;
     await fs.mkdir(path.dirname(testState.cronStorePath), { recursive: true });
@@ -349,9 +375,9 @@ describe("gateway server cron", () => {
       testState.cronStorePath = undefined;
       testState.cronEnabled = undefined;
       if (prevSkipCron === undefined) {
-        delete process.env.CLAWDBOT_SKIP_CRON;
+        delete process.env.OPENCLAW_SKIP_CRON;
       } else {
-        process.env.CLAWDBOT_SKIP_CRON = prevSkipCron;
+        process.env.OPENCLAW_SKIP_CRON = prevSkipCron;
       }
     }
   }, 45_000);

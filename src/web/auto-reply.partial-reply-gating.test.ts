@@ -13,10 +13,17 @@ vi.mock("../agents/pi-embedded.js", () => ({
   resolveEmbeddedSessionLane: (key: string) => `session:${key.trim() || "main"}`,
 }));
 
+<<<<<<< HEAD
 import { runEmbeddedPiAgent } from "../agents/pi-embedded.js";
 import { resetInboundDedupe } from "../auto-reply/reply/inbound-dedupe.js";
 import { getReplyFromConfig } from "../auto-reply/reply.js";
 import type { MoltbotConfig } from "../config/config.js";
+=======
+import type { OpenClawConfig } from "../config/config.js";
+import { runEmbeddedPiAgent } from "../agents/pi-embedded.js";
+import { getReplyFromConfig } from "../auto-reply/reply.js";
+import { resetInboundDedupe } from "../auto-reply/reply/inbound-dedupe.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { monitorWebChannel } from "./auto-reply.js";
 import { resetLoadConfigMock, setLoadConfigMock } from "./test-helpers.js";
 
@@ -48,7 +55,7 @@ const rmDirWithRetries = async (dir: string): Promise<void> => {
 beforeEach(async () => {
   resetInboundDedupe();
   previousHome = process.env.HOME;
-  tempHome = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-web-home-"));
+  tempHome = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-web-home-"));
   process.env.HOME = tempHome;
 });
 
@@ -63,7 +70,7 @@ afterEach(async () => {
 const makeSessionStore = async (
   entries: Record<string, unknown> = {},
 ): Promise<{ storePath: string; cleanup: () => Promise<void> }> => {
-  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-session-"));
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-session-"));
   const storePath = path.join(dir, "sessions.json");
   await fs.writeFile(storePath, JSON.stringify(entries));
   const cleanup = async () => {
@@ -102,7 +109,7 @@ describe("partial reply gating", () => {
 
     const replyResolver = vi.fn().mockResolvedValue({ text: "final reply" });
 
-    const mockConfig: MoltbotConfig = {
+    const mockConfig: OpenClawConfig = {
       channels: { whatsapp: { allowFrom: ["*"] } },
     };
 
@@ -145,7 +152,7 @@ describe("partial reply gating", () => {
 
     const replyResolver = vi.fn().mockResolvedValue({ text: "final reply" });
 
-    const mockConfig: MoltbotConfig = {
+    const mockConfig: OpenClawConfig = {
       channels: {
         whatsapp: {
           allowFrom: ["*"],
@@ -195,7 +202,7 @@ describe("partial reply gating", () => {
 
     const replyResolver = vi.fn().mockResolvedValue(undefined);
 
-    const mockConfig: MoltbotConfig = {
+    const mockConfig: OpenClawConfig = {
       channels: { whatsapp: { allowFrom: ["*"] } },
       session: { store: store.storePath },
     };
@@ -253,7 +260,7 @@ describe("partial reply gating", () => {
 
     const replyResolver = vi.fn().mockResolvedValue(undefined);
 
-    const mockConfig: MoltbotConfig = {
+    const mockConfig: OpenClawConfig = {
       channels: { whatsapp: { allowFrom: ["*"] } },
       session: { store: store.storePath },
     };

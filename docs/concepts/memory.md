@@ -3,6 +3,7 @@ summary: "How OpenClaw memory works (workspace files + automatic memory flush)"
 read_when:
   - You want the memory file layout and workflow
   - You want to tune the automatic pre-compaction memory flush
+title: "Memory"
 ---
 
 # Memory
@@ -25,7 +26,7 @@ The default workspace layout uses two memory layers:
   - **Only load in the main, private session** (never in group contexts).
 
 These files live under the workspace (`agents.defaults.workspace`, default
-`~/clawd`). See [Agent workspace](/concepts/agent-workspace) for the full layout.
+`~/.openclaw/workspace`). See [Agent workspace](/concepts/agent-workspace) for the full layout.
 
 ## When to write memory
 
@@ -77,9 +78,7 @@ For the full compaction lifecycle, see
 
 ## Vector memory search
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-Moltbot can build a small vector index over `MEMORY.md` and `memory/*.md` (plus
+OpenClaw can build a small vector index over `MEMORY.md` and `memory/*.md` (plus
 any extra directories or files you opt in) so semantic queries can find related
 notes even when wording differs.
 =======
@@ -111,75 +110,67 @@ embeddings for memory search. For Gemini, use `GEMINI_API_KEY` or
 `models.providers.voyage.apiKey`. When using a custom OpenAI-compatible endpoint,
 set `memorySearch.remote.apiKey` (and optional `memorySearch.remote.headers`).
 
+<<<<<<< HEAD
+=======
 ### QMD backend (experimental)
 
 Set `memory.backend = "qmd"` to swap the built-in SQLite indexer for
 [QMD](https://github.com/tobi/qmd): a local-first search sidecar that combines
-BM25 + vectors + reranking. Markdown stays the source of truth; OpenClaw shells
+BM25 + vectors + reranking. Markdown stays the source of truth; Moltbot shells
 out to QMD for retrieval. Key points:
 
 **Prereqs**
-
 - Disabled by default. Opt in per-config (`memory.backend = "qmd"`).
-- Install the QMD CLI separately (`bun install -g github.com/tobi/qmd` or grab
+- Install the QMD CLI separately (`bun install -g https://github.com/tobi/qmd` or grab
   a release) and make sure the `qmd` binary is on the gateway’s `PATH`.
 - QMD needs an SQLite build that allows extensions (`brew install sqlite` on
   macOS).
 - QMD runs fully locally via Bun + `node-llama-cpp` and auto-downloads GGUF
   models from HuggingFace on first use (no separate Ollama daemon required).
 - The gateway runs QMD in a self-contained XDG home under
-  `~/.clawdbot/agents/<agentId>/qmd/` by setting `XDG_CONFIG_HOME` and
+  `~/.openclaw/agents/<agentId>/qmd/` by setting `XDG_CONFIG_HOME` and
   `XDG_CACHE_HOME`.
 - OS support: macOS and Linux work out of the box once Bun + SQLite are
   installed. Windows is best supported via WSL2.
 
 **How the sidecar runs**
-
 - The gateway writes a self-contained QMD home under
-<<<<<<< HEAD
-  `~/.clawdbot/agents/<agentId>/qmd/` (config + cache + sqlite DB).
+  `~/.openclaw/agents/<agentId>/qmd/` (config + cache + sqlite DB).
 - Collections are rewritten from `memory.qmd.paths` (plus default workspace
   memory files) into `index.yml`, then `qmd update` + `qmd embed` run on boot and
   on a configurable interval (`memory.qmd.update.interval`, default 5 m).
 - Searches run via `qmd query --json`. If QMD fails or the binary is missing,
-  OpenClaw automatically falls back to the builtin SQLite manager so memory tools
+  Moltbot automatically falls back to the builtin SQLite manager so memory tools
   keep working.
-<<<<<<< HEAD
-=======
-=======
-  `~/.openclaw/agents/<agentId>/qmd/` (config + cache + sqlite DB).
-- Collections are created via `qmd collection add` from `memory.qmd.paths`
-  (plus default workspace memory files), then `qmd update` + `qmd embed` run
-  on boot and on a configurable interval (`memory.qmd.update.interval`,
-  default 5 m).
-- Boot refresh now runs in the background by default so chat startup is not
-  blocked; set `memory.qmd.update.waitForBootSync = true` to keep the previous
-  blocking behavior.
-- Searches run via `qmd query --json`. If QMD fails or the binary is missing,
-  OpenClaw automatically falls back to the builtin SQLite manager so memory tools
-  keep working.
-- OpenClaw does not expose QMD embed batch-size tuning today; batch behavior is
-  controlled by QMD itself.
->>>>>>> ce715c4c5 (Memory: harden QMD startup, timeouts, and fallback recovery)
 - **First search may be slow**: QMD may download local GGUF models (reranker/query
   expansion) on the first `qmd query` run.
-  - OpenClaw sets `XDG_CONFIG_HOME`/`XDG_CACHE_HOME` automatically when it runs QMD.
-  - If you want to pre-download models manually (and warm the same index OpenClaw
+  - Moltbot sets `XDG_CONFIG_HOME`/`XDG_CACHE_HOME` automatically when it runs QMD.
+  - If you want to pre-download models manually (and warm the same index Moltbot
     uses), run a one-off query with the agent’s XDG dirs.
 
-    OpenClaw’s QMD state lives under your **state dir** (usually `~/.openclaw`, or
+<<<<<<< HEAD
+    Moltbot’s QMD state lives under your **state dir** (usually `~/.openclaw`, or
     legacy dirs like `~/.clawdbot` and `~/.moltbot`). You can point `qmd` at the exact same index
-    by exporting the same XDG vars OpenClaw uses:
+    by exporting the same XDG vars Moltbot uses:
 
     ```bash
-    # Pick the same state dir OpenClaw uses
+    # Pick the same state dir Moltbot uses
     STATE_DIR="${OPENCLAW_STATE_DIR:-${CLAWDBOT_STATE_DIR:-$HOME/.openclaw}}"
     if [ -d "$HOME/.clawdbot" ] && [ ! -d "$HOME/.openclaw" ] \
       && [ -z "${OPENCLAW_STATE_DIR:-}" ] && [ -z "${CLAWDBOT_STATE_DIR:-}" ]; then
       STATE_DIR="$HOME/.clawdbot"
     fi
+=======
+    OpenClaw’s QMD state lives under your **state dir** (defaults to `~/.openclaw`).
+    You can point `qmd` at the exact same index by exporting the same XDG vars
+    OpenClaw uses:
+
+    ```bash
+    # Pick the same state dir OpenClaw uses
+    STATE_DIR="${OPENCLAW_STATE_DIR:-$HOME/.openclaw}"
+>>>>>>> b37626ce6 (docs: finish renaming memory state dir references)
     if [ -d "$HOME/.moltbot" ] && [ ! -d "$HOME/.openclaw" ] \
-      && [ -z "${OPENCLAW_STATE_DIR:-}" ] && [ -z "${CLAWDBOT_STATE_DIR:-}" ]; then
+      && [ -z "${OPENCLAW_STATE_DIR:-}" ]; then
       STATE_DIR="$HOME/.moltbot"
     fi
 
@@ -193,32 +184,26 @@ out to QMD for retrieval. Key points:
     # Warm up / trigger first-time model downloads
     qmd query "test" -c memory-root --json >/dev/null 2>&1
     ```
->>>>>>> f72214725 (chore: restore OpenClaw branding)
 
 **Config surface (`memory.qmd.*`)**
-
 - `command` (default `qmd`): override the executable path.
 - `includeDefaultMemory` (default `true`): auto-index `MEMORY.md` + `memory/**/*.md`.
 - `paths[]`: add extra directories/files (`path`, optional `pattern`, optional
   stable `name`).
 - `sessions`: opt into session JSONL indexing (`enabled`, `retentionDays`,
   `exportDir`).
-- `update`: controls refresh cadence and maintenance execution:
-  (`interval`, `debounceMs`, `onBoot`, `waitForBootSync`, `embedInterval`,
-  `commandTimeoutMs`, `updateTimeoutMs`, `embedTimeoutMs`).
+- `update`: controls refresh cadence (`interval`, `debounceMs`, `onBoot`).
 - `limits`: clamp recall payload (`maxResults`, `maxSnippetChars`,
   `maxInjectedChars`, `timeoutMs`).
-- `scope`: same schema as [`session.sendPolicy`](/gateway/configuration#session).
+- `scope`: same schema as [`session.sendPolicy`](/reference/configuration#session-sendpolicy).
   Default is DM-only (`deny` all, `allow` direct chats); loosen it to surface QMD
   hits in groups/channels.
-- When `scope` denies a search, OpenClaw logs a warning with the derived
-  `channel`/`chatType` so empty results are easier to debug.
 - Snippets sourced outside the workspace show up as
   `qmd/<collection>/<relative-path>` in `memory_search` results; `memory_get`
   understands that prefix and reads from the configured QMD collection root.
-- When `memory.qmd.sessions.enabled = true`, OpenClaw exports sanitized session
+- When `memory.qmd.sessions.enabled = true`, Moltbot exports sanitized session
   transcripts (User/Assistant turns) into a dedicated QMD collection under
-  `~/.clawdbot/agents/<id>/qmd/sessions/`, so `memory_search` can recall recent
+  `~/.openclaw/agents/<id>/qmd/sessions/`, so `memory_search` can recall recent
   conversations without touching the builtin SQLite index.
 - `memory_search` snippets now include a `Source: <path#line>` footer when
   `memory.citations` is `auto`/`on`; set `memory.citations = "off"` to keep
@@ -248,13 +233,13 @@ memory: {
 ```
 
 **Citations & fallback**
-
 - `memory.citations` applies regardless of backend (`auto`/`on`/`off`).
 - When `qmd` runs, we tag `status().backend = "qmd"` so diagnostics show which
   engine served the results. If the QMD subprocess exits or JSON output can’t be
   parsed, the search manager logs a warning and returns the builtin provider
   (existing Markdown embeddings) until QMD recovers.
 
+>>>>>>> 20578da20 (Add how to trigger model downloads for qmd in documentation)
 ### Additional memory paths
 
 If you want to index Markdown files outside the default workspace layout, add
@@ -341,8 +326,8 @@ Why OpenAI batch is fast + cheap:
 - For large backfills, OpenAI is typically the fastest option we support because we can submit many embedding requests in a single batch job and let OpenAI process them asynchronously.
 - OpenAI offers discounted pricing for Batch API workloads, so large indexing runs are usually cheaper than sending the same requests synchronously.
 - See the OpenAI Batch API docs and pricing for details:
-  - https://platform.openai.com/docs/api-reference/batch
-  - https://platform.openai.com/pricing
+  - [https://platform.openai.com/docs/api-reference/batch](https://platform.openai.com/docs/api-reference/batch)
+  - [https://platform.openai.com/pricing](https://platform.openai.com/pricing)
 
 Config example:
 
@@ -383,7 +368,7 @@ Local mode:
 
 <<<<<<< HEAD
 - File type: Markdown only (`MEMORY.md`, `memory/**/*.md`, plus any `.md` files under `memorySearch.extraPaths`).
-- Index storage: per-agent SQLite at `~/.clawdbot/memory/<agentId>.sqlite` (configurable via `agents.defaults.memorySearch.store.path`, supports `{agentId}` token).
+- Index storage: per-agent SQLite at `~/.openclaw/memory/<agentId>.sqlite` (configurable via `agents.defaults.memorySearch.store.path`, supports `{agentId}` token).
 - Freshness: watcher on `MEMORY.md`, `memory/`, and `memorySearch.extraPaths` marks the index dirty (debounce 1.5s). Sync is scheduled on session start, on search, or on an interval and runs asynchronously. Session transcripts use delta thresholds to trigger background sync.
 =======
 - File type: Markdown only (`MEMORY.md`, `memory/**/*.md`).
@@ -392,29 +377,16 @@ Local mode:
 <<<<<<< HEAD
 >>>>>>> 5d3af3bc6 (feat (memory): Implement new (opt-in) QMD memory backend)
 - Reindex triggers: the index stores the embedding **provider/model + endpoint fingerprint + chunking params**. If any of those change, Moltbot automatically resets and reindexes the entire store.
-
-### Hybrid search (BM25 + vector)
-
-<<<<<<< HEAD
-<<<<<<< HEAD
-When enabled, Moltbot combines:
-<<<<<<< HEAD
 =======
-=======
+- File type: Markdown only (`MEMORY.md`, `memory/**/*.md`).
+- Index storage: per-agent SQLite at `~/.openclaw/memory/<agentId>.sqlite` (configurable via `agents.defaults.memorySearch.store.path`, supports `{agentId}` token).
+- Freshness: watcher on `MEMORY.md` + `memory/` marks the index dirty (debounce 1.5s). Sync is scheduled on session start, on search, or on an interval and runs asynchronously. Session transcripts use delta thresholds to trigger background sync.
 - Reindex triggers: the index stores the embedding **provider/model + endpoint fingerprint + chunking params**. If any of those change, OpenClaw automatically resets and reindexes the entire store.
+>>>>>>> b37626ce6 (docs: finish renaming memory state dir references)
 
 ### Hybrid search (BM25 + vector)
 
->>>>>>> f72214725 (chore: restore OpenClaw branding)
 When enabled, OpenClaw combines:
-
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
-=======
-When enabled, Moltbot combines:
->>>>>>> 5d3af3bc6 (feat (memory): Implement new (opt-in) QMD memory backend)
-=======
-
->>>>>>> 9bef52594 (chore: apply formatter)
 - **Vector similarity** (semantic match, wording can differ)
 - **BM25 keyword relevance** (exact tokens like IDs, env vars, code symbols)
 
@@ -446,12 +418,23 @@ Implementation sketch:
 - **Vector**: top `maxResults * candidateMultiplier` by cosine similarity.
 - **BM25**: top `maxResults * candidateMultiplier` by FTS5 BM25 rank (lower is better).
 
+<<<<<<< HEAD
+<<<<<<< HEAD
+2) Convert BM25 rank into a 0..1-ish score:
+- `textScore = 1 / (1 + max(0, bm25Rank))`
+
+3) Union candidates by chunk id and compute a weighted score:
+=======
+1. Convert BM25 rank into a 0..1-ish score:
+=======
 2. Convert BM25 rank into a 0..1-ish score:
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 
 - `textScore = 1 / (1 + max(0, bm25Rank))`
 
 3. Union candidates by chunk id and compute a weighted score:
 
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 - `finalScore = vectorWeight * vectorScore + textWeight * textScore`
 
 Notes:
@@ -525,7 +508,7 @@ Notes:
 - `memory_search` never blocks on indexing; results can be slightly stale until background sync finishes.
 - Results still include snippets only; `memory_get` remains limited to memory files.
 - Session indexing is isolated per agent (only that agent’s session logs are indexed).
-- Session logs live on disk (`~/.clawdbot/agents/<agentId>/sessions/*.jsonl`). Any process/user with filesystem access can read them, so treat disk access as the trust boundary. For stricter isolation, run agents under separate OS users or hosts.
+- Session logs live on disk (`~/.openclaw/agents/<agentId>/sessions/*.jsonl`). Any process/user with filesystem access can read them, so treat disk access as the trust boundary. For stricter isolation, run agents under separate OS users or hosts.
 
 Delta thresholds (defaults shown):
 

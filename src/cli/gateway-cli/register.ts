@@ -1,14 +1,20 @@
 import type { Command } from "commander";
+import type { CostUsageSummary } from "../../infra/session-cost-usage.js";
+import type { GatewayDiscoverOpts } from "./discover.js";
 import { gatewayStatusCommand } from "../../commands/gateway-status.js";
 import { formatHealthChannelLines, type HealthSummary } from "../../commands/health.js";
+import { loadConfig } from "../../config/config.js";
 import { discoverGatewayBeacons } from "../../infra/bonjour-discovery.js";
+<<<<<<< HEAD
 import type { CostUsageSummary } from "../../infra/session-cost-usage.js";
 import { WIDE_AREA_DISCOVERY_DOMAIN } from "../../infra/widearea-dns.js";
+=======
+import { resolveWideAreaDiscoveryDomain } from "../../infra/widearea-dns.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { defaultRuntime } from "../../runtime.js";
 import { formatDocsLink } from "../../terminal/links.js";
 import { colorize, isRich, theme } from "../../terminal/theme.js";
 import { formatTokenCount, formatUsd } from "../../utils/usage-format.js";
-import { withProgress } from "../progress.js";
 import { runCommandWithRuntime } from "../cli-utils.js";
 import {
   runDaemonInstall,
@@ -18,8 +24,8 @@ import {
   runDaemonStop,
   runDaemonUninstall,
 } from "../daemon-cli.js";
+import { withProgress } from "../progress.js";
 import { callGatewayCli, gatewayCallOpts } from "./call.js";
-import type { GatewayDiscoverOpts } from "./discover.js";
 import {
   dedupeBeacons,
   parseDiscoverTimeoutMs,
@@ -125,7 +131,7 @@ export function registerGatewayCli(program: Command) {
       .addHelpText(
         "after",
         () =>
-          `\n${theme.muted("Docs:")} ${formatDocsLink("/cli/gateway", "docs.molt.bot/cli/gateway")}\n`,
+          `\n${theme.muted("Docs:")} ${formatDocsLink("/cli/gateway", "docs.openclaw.ai/cli/gateway")}\n`,
       ),
   );
 
@@ -253,8 +259,7 @@ export function registerGatewayCli(program: Command) {
             return;
           }
           const rich = isRich();
-          const obj =
-            result && typeof result === "object" ? (result as Record<string, unknown>) : {};
+          const obj: Record<string, unknown> = result && typeof result === "object" ? result : {};
           const durationMs = typeof obj.durationMs === "number" ? obj.durationMs : null;
           defaultRuntime.log(colorize(rich, theme.heading, "Gateway Health"));
           defaultRuntime.log(
@@ -288,14 +293,17 @@ export function registerGatewayCli(program: Command) {
 
   gateway
     .command("discover")
-    .description(
-      `Discover gateways via Bonjour (multicast local. + unicast ${WIDE_AREA_DISCOVERY_DOMAIN})`,
-    )
+    .description("Discover gateways via Bonjour (local + wide-area if configured)")
     .option("--timeout <ms>", "Per-command timeout in ms", "2000")
     .option("--json", "Output JSON", false)
     .action(async (opts: GatewayDiscoverOpts) => {
       await runGatewayCommand(async () => {
+        const cfg = loadConfig();
+        const wideAreaDomain = resolveWideAreaDiscoveryDomain({
+          configDomain: cfg.discovery?.wideArea?.domain,
+        });
         const timeoutMs = parseDiscoverTimeoutMs(opts.timeout, 2000);
+        const domains = ["local.", ...(wideAreaDomain ? [wideAreaDomain] : [])];
         const beacons = await withProgress(
           {
             label: "Scanning for gateways…",
@@ -303,7 +311,7 @@ export function registerGatewayCli(program: Command) {
             enabled: opts.json !== true,
             delayMs: 0,
           },
-          async () => await discoverGatewayBeacons({ timeoutMs }),
+          async () => await discoverGatewayBeacons({ timeoutMs, wideAreaDomain }),
         );
 
         const deduped = dedupeBeacons(beacons).toSorted((a, b) =>
@@ -322,7 +330,7 @@ export function registerGatewayCli(program: Command) {
             JSON.stringify(
               {
                 timeoutMs,
-                domains: ["local.", WIDE_AREA_DISCOVERY_DOMAIN],
+                domains,
                 count: enriched.length,
                 beacons: enriched,
               },
@@ -339,7 +347,7 @@ export function registerGatewayCli(program: Command) {
           colorize(
             rich,
             theme.muted,
-            `Found ${deduped.length} gateway(s) · domains: local., ${WIDE_AREA_DISCOVERY_DOMAIN}`,
+            `Found ${deduped.length} gateway(s) · domains: ${domains.join(", ")}`,
           ),
         );
         if (deduped.length === 0) {

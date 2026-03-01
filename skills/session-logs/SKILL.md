@@ -1,11 +1,7 @@
 ---
 name: session-logs
 description: Search and analyze your own session logs (older/parent conversations) using jq.
-<<<<<<< HEAD
-metadata: {"moltbot":{"emoji":"📜","requires":{"bins":["jq","rg"]}}}
-=======
-metadata: { "openclaw": { "emoji": "📜", "requires": { "bins": ["jq", "rg"] } } }
->>>>>>> 76b5208b1 (chore: Also format `scripts` and `skills`.)
+metadata: {"openclaw":{"emoji":"📜","requires":{"bins":["jq","rg"]}}}
 ---
 
 # session-logs
@@ -14,7 +10,7 @@ Search your complete conversation history stored in session JSONL files. Use thi
 
 ## Trigger
 
-Use this skill when the user asks about prior chats, parent conversations, or historical context that isn’t in memory files.
+Use this skill when the user asks about prior chats, parent conversations, or historical context that isn't in memory files.
 
 ## Location
 

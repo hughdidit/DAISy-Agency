@@ -1,8 +1,8 @@
-import type { MoltbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 import type { ModelCatalogEntry } from "./model-catalog.js";
-import { normalizeGoogleModelId } from "./models-config.providers.js";
 import { resolveAgentModelPrimary } from "./agent-scope.js";
 import { DEFAULT_MODEL, DEFAULT_PROVIDER } from "./defaults.js";
+import { normalizeGoogleModelId } from "./models-config.providers.js";
 
 export type ModelRef = {
   provider: string;
@@ -14,6 +14,12 @@ export type ThinkLevel = "off" | "minimal" | "low" | "medium" | "high" | "xhigh"
 export type ModelAliasIndex = {
   byAlias: Map<string, { alias: string; ref: ModelRef }>;
   byKey: Map<string, string[]>;
+};
+
+const ANTHROPIC_MODEL_ALIASES: Record<string, string> = {
+  "opus-4.6": "claude-opus-4-6",
+  "opus-4.5": "claude-opus-4-5",
+  "sonnet-4.5": "claude-sonnet-4-5",
 };
 
 function normalizeAliasKey(value: string): string {
@@ -41,7 +47,7 @@ export function normalizeProviderId(provider: string): string {
   return normalized;
 }
 
-export function isCliProvider(provider: string, cfg?: MoltbotConfig): boolean {
+export function isCliProvider(provider: string, cfg?: OpenClawConfig): boolean {
   const normalized = normalizeProviderId(provider);
   if (normalized === "claude-cli") {
     return true;
@@ -59,13 +65,28 @@ function normalizeAnthropicModelId(model: string): string {
     return trimmed;
   }
   const lower = trimmed.toLowerCase();
+<<<<<<< HEAD
+<<<<<<< HEAD
+  if (lower === "opus-4.5") return "claude-opus-4-5";
+  if (lower === "sonnet-4.5") return "claude-sonnet-4-5";
+=======
+  if (lower === "opus-4.6") {
+    return "claude-opus-4-6";
+  }
   if (lower === "opus-4.5") {
     return "claude-opus-4-5";
+  }
+  if (lower === "opus-4.6") {
+    return "claude-opus-4-6";
   }
   if (lower === "sonnet-4.5") {
     return "claude-sonnet-4-5";
   }
+>>>>>>> eb80b9acb (feat: add Claude Opus 4.6 to built-in model catalog (#9853))
   return trimmed;
+=======
+  return ANTHROPIC_MODEL_ALIASES[lower] ?? trimmed;
+>>>>>>> 462905440 (chore: apply local workspace updates (#9911))
 }
 
 function normalizeProviderModelId(provider: string, model: string): string {
@@ -99,8 +120,35 @@ export function parseModelRef(raw: string, defaultProvider: string): ModelRef | 
   return { provider, model: normalizedModel };
 }
 
+export function resolveAllowlistModelKey(raw: string, defaultProvider: string): string | null {
+  const parsed = parseModelRef(raw, defaultProvider);
+  if (!parsed) {
+    return null;
+  }
+  return modelKey(parsed.provider, parsed.model);
+}
+
+export function buildConfiguredAllowlistKeys(params: {
+  cfg: OpenClawConfig | undefined;
+  defaultProvider: string;
+}): Set<string> | null {
+  const rawAllowlist = Object.keys(params.cfg?.agents?.defaults?.models ?? {});
+  if (rawAllowlist.length === 0) {
+    return null;
+  }
+
+  const keys = new Set<string>();
+  for (const raw of rawAllowlist) {
+    const key = resolveAllowlistModelKey(String(raw ?? ""), params.defaultProvider);
+    if (key) {
+      keys.add(key);
+    }
+  }
+  return keys.size > 0 ? keys : null;
+}
+
 export function buildModelAliasIndex(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   defaultProvider: string;
 }): ModelAliasIndex {
   const byAlias = new Map<string, { alias: string; ref: ModelRef }>();
@@ -151,7 +199,7 @@ export function resolveModelRefFromString(params: {
 }
 
 export function resolveConfiguredModelRef(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   defaultProvider: string;
   defaultModel: string;
 }): ModelRef {
@@ -177,7 +225,7 @@ export function resolveConfiguredModelRef(params: {
 
       // Default to anthropic if no provider is specified, but warn as this is deprecated.
       console.warn(
-        `[moltbot] Model "${trimmed}" specified without provider. Falling back to "anthropic/${trimmed}". Please use "anthropic/${trimmed}" in your config.`,
+        `[openclaw] Model "${trimmed}" specified without provider. Falling back to "anthropic/${trimmed}". Please use "anthropic/${trimmed}" in your config.`,
       );
       return { provider: "anthropic", model: trimmed };
     }
@@ -195,7 +243,7 @@ export function resolveConfiguredModelRef(params: {
 }
 
 export function resolveDefaultModelForAgent(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   agentId?: string;
 }): ModelRef {
   const agentModelOverride = params.agentId
@@ -227,7 +275,7 @@ export function resolveDefaultModelForAgent(params: {
 }
 
 export function buildAllowedModelSet(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   catalog: ModelCatalogEntry[];
   defaultProvider: string;
   defaultModel?: string;
@@ -309,7 +357,7 @@ export type ModelRefStatus = {
 };
 
 export function getModelRefStatus(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   catalog: ModelCatalogEntry[];
   ref: ModelRef;
   defaultProvider: string;
@@ -331,7 +379,7 @@ export function getModelRefStatus(params: {
 }
 
 export function resolveAllowedModelRef(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   catalog: ModelCatalogEntry[];
   raw: string;
   defaultProvider: string;
@@ -374,7 +422,7 @@ export function resolveAllowedModelRef(params: {
 }
 
 export function resolveThinkingDefault(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   provider: string;
   model: string;
   catalog?: ModelCatalogEntry[];
@@ -397,7 +445,7 @@ export function resolveThinkingDefault(params: {
  * Returns null if hooks.gmail.model is not set.
  */
 export function resolveHooksGmailModel(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   defaultProvider: string;
 }): ModelRef | null {
   const hooksModel = params.cfg.hooks?.gmail?.model;

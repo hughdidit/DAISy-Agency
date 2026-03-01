@@ -17,12 +17,18 @@ export function formatAgo(ms?: number | null): string {
     return "n/a";
   }
   const diff = Date.now() - ms;
+<<<<<<< HEAD
+  if (diff < 0) return "just now";
+  const sec = Math.round(diff / 1000);
+  if (sec < 60) return `${sec}s ago`;
+=======
   const absDiff = Math.abs(diff);
   const suffix = diff < 0 ? "from now" : "ago";
   const sec = Math.round(absDiff / 1000);
   if (sec < 60) {
-    return diff < 0 ? "just now" : `${sec}s ago`;
+    return diff < 0 ? "in <1m" : `${sec}s ago`;
   }
+>>>>>>> d90cac990 (fix: cron scheduler reliability, store hardening, and UX improvements (#10776))
   const min = Math.round(sec / 60);
   if (min < 60) {
     return `${min}m ${suffix}`;

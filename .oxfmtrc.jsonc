@@ -1,5 +1,12 @@
 {
   "$schema": "./node_modules/oxfmt/configuration_schema.json",
+<<<<<<< HEAD
+  "indentWidth": 2,
+  "printWidth": 100
+=======
+  "experimentalSortImports": {
+    "newlinesBetween": false,
+  },
   "experimentalSortPackageJson": {
     "sortScripts": true,
   },
@@ -14,4 +21,5 @@
     "Swabble/",
     "vendor/",
   ],
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 }

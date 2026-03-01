@@ -1,22 +1,19 @@
 import { html, nothing } from "lit";
-<<<<<<< HEAD
-
-import { formatToolDetail, resolveToolDisplay } from "../tool-display";
-import { icons } from "../icons";
 import type { ToolCard } from "../types/chat-types";
+import { icons } from "../icons";
+import { formatToolDetail, resolveToolDisplay } from "../tool-display";
 import { TOOL_INLINE_THRESHOLD } from "./constants";
-import { formatToolOutputForSidebar, getTruncatedPreview } from "./tool-helpers";
+<<<<<<< HEAD
+import {
+  formatToolOutputForSidebar,
+  getTruncatedPreview,
+} from "./tool-helpers";
 import { isToolResultMessage } from "./message-normalizer";
-import { extractTextCached } from "./message-extract";
 =======
-import type { ToolCard } from "../types/chat-types.ts";
-import { icons } from "../icons.ts";
-import { formatToolDetail, resolveToolDisplay } from "../tool-display.ts";
-import { TOOL_INLINE_THRESHOLD } from "./constants.ts";
-import { extractTextCached } from "./message-extract.ts";
-import { isToolResultMessage } from "./message-normalizer.ts";
-import { formatToolOutputForSidebar, getTruncatedPreview } from "./tool-helpers.ts";
->>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
+import { extractTextCached } from "./message-extract";
+import { isToolResultMessage } from "./message-normalizer";
+import { formatToolOutputForSidebar, getTruncatedPreview } from "./tool-helpers";
 
 export function extractToolCards(message: unknown): ToolCard[] {
   const m = message as Record<string, unknown>;

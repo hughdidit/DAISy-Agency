@@ -1,20 +1,25 @@
 import type { ChannelId } from "../../channels/plugins/types.js";
+<<<<<<< HEAD
 import { DEFAULT_CHAT_CHANNEL } from "../../channels/registry.js";
 import type { MoltbotConfig } from "../../config/config.js";
+=======
+import type { OpenClawConfig } from "../../config/config.js";
+import type { OutboundChannel } from "../../infra/outbound/targets.js";
+import { DEFAULT_CHAT_CHANNEL } from "../../channels/registry.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import {
   loadSessionStore,
   resolveAgentMainSessionKey,
   resolveStorePath,
 } from "../../config/sessions.js";
 import { resolveMessageChannelSelection } from "../../infra/outbound/channel-selection.js";
-import type { OutboundChannel } from "../../infra/outbound/targets.js";
 import {
   resolveOutboundTarget,
   resolveSessionDeliveryTarget,
 } from "../../infra/outbound/targets.js";
 
 export async function resolveDeliveryTarget(
-  cfg: MoltbotConfig,
+  cfg: OpenClawConfig,
   agentId: string,
   jobPayload: {
     channel?: "last" | ChannelId;
@@ -30,6 +35,7 @@ export async function resolveDeliveryTarget(
 }> {
   const requestedChannel = typeof jobPayload.channel === "string" ? jobPayload.channel : "last";
   const explicitTo = typeof jobPayload.to === "string" ? jobPayload.to : undefined;
+  const allowMismatchedLastTo = requestedChannel === "last";
 
   const sessionCfg = cfg.session;
   const mainSessionKey = resolveAgentMainSessionKey({ cfg, agentId });
@@ -41,7 +47,7 @@ export async function resolveDeliveryTarget(
     entry: main,
     requestedChannel,
     explicitTo,
-    allowMismatchedLastTo: true,
+    allowMismatchedLastTo,
   });
 
   let fallbackChannel: Exclude<OutboundChannel, "none"> | undefined;
@@ -60,7 +66,7 @@ export async function resolveDeliveryTarget(
         requestedChannel,
         explicitTo,
         fallbackChannel,
-        allowMismatchedLastTo: true,
+        allowMismatchedLastTo,
         mode: preliminary.mode,
       })
     : preliminary;

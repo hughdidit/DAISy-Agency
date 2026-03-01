@@ -1,4 +1,5 @@
 import type { CronJobCreate, CronJobPatch } from "../types.js";
+import type { CronServiceState } from "./state.js";
 import {
   applyJobPatch,
   computeJobNextRunAtMs,
@@ -9,9 +10,8 @@ import {
   recomputeNextRuns,
 } from "./jobs.js";
 import { locked } from "./locked.js";
-import type { CronServiceState } from "./state.js";
 import { ensureLoaded, persist, warnIfDisabled } from "./store.js";
-import { armTimer, emit, executeJob, stopTimer, wake } from "./timer.js";
+import { armTimer, emit, executeJob, runMissedJobs, stopTimer, wake } from "./timer.js";
 
 export async function start(state: CronServiceState) {
   await locked(state, async () => {
@@ -19,7 +19,18 @@ export async function start(state: CronServiceState) {
       state.deps.log.info({ enabled: false }, "cron: disabled");
       return;
     }
-    await ensureLoaded(state);
+    await ensureLoaded(state, { skipRecompute: true });
+    const jobs = state.store?.jobs ?? [];
+    for (const job of jobs) {
+      if (typeof job.state.runningAtMs === "number") {
+        state.deps.log.warn(
+          { jobId: job.id, runningAtMs: job.state.runningAtMs },
+          "cron: clearing stale running marker on startup",
+        );
+        job.state.runningAtMs = undefined;
+      }
+    }
+    await runMissedJobs(state);
     recomputeNextRuns(state);
     await persist(state);
     armTimer(state);
@@ -40,17 +51,7 @@ export function stop(state: CronServiceState) {
 
 export async function status(state: CronServiceState) {
   return await locked(state, async () => {
-<<<<<<< HEAD
-    await ensureLoaded(state);
-=======
     await ensureLoaded(state, { skipRecompute: true });
-    if (state.store) {
-      const changed = recomputeNextRuns(state);
-      if (changed) {
-        await persist(state);
-      }
-    }
->>>>>>> 8fae55e8e (fix(cron): share isolated announce flow + harden cron scheduling/delivery (#11641))
     return {
       enabled: state.deps.cronEnabled,
       storePath: state.deps.storePath,
@@ -62,17 +63,7 @@ export async function status(state: CronServiceState) {
 
 export async function list(state: CronServiceState, opts?: { includeDisabled?: boolean }) {
   return await locked(state, async () => {
-<<<<<<< HEAD
-    await ensureLoaded(state);
-=======
     await ensureLoaded(state, { skipRecompute: true });
-    if (state.store) {
-      const changed = recomputeNextRuns(state);
-      if (changed) {
-        await persist(state);
-      }
-    }
->>>>>>> 8fae55e8e (fix(cron): share isolated announce flow + harden cron scheduling/delivery (#11641))
     const includeDisabled = opts?.includeDisabled === true;
     const jobs = (state.store?.jobs ?? []).filter((j) => includeDisabled || j.enabled);
     return jobs.toSorted((a, b) => (a.state.nextRunAtMs ?? 0) - (b.state.nextRunAtMs ?? 0));
@@ -120,8 +111,6 @@ export async function update(state: CronServiceState, id: string, patch: CronJob
     const job = findJobOrThrow(state, id);
     const now = state.deps.nowMs();
     applyJobPatch(job, patch);
-<<<<<<< HEAD
-=======
     if (job.schedule.kind === "every") {
       const anchor = job.schedule.anchorMs;
       if (typeof anchor !== "number" || !Number.isFinite(anchor)) {
@@ -138,10 +127,6 @@ export async function update(state: CronServiceState, id: string, patch: CronJob
         };
       }
     }
-    const scheduleChanged = patch.schedule !== undefined;
-    const enabledChanged = patch.enabled !== undefined;
-
->>>>>>> 8fae55e8e (fix(cron): share isolated announce flow + harden cron scheduling/delivery (#11641))
     job.updatedAtMs = now;
     if (scheduleChanged || enabledChanged) {
       if (job.enabled) {
@@ -185,14 +170,18 @@ export async function remove(state: CronServiceState, id: string) {
 export async function run(state: CronServiceState, id: string, mode?: "due" | "force") {
   return await locked(state, async () => {
     warnIfDisabled(state, "run");
-    await ensureLoaded(state);
+    await ensureLoaded(state, { skipRecompute: true });
     const job = findJobOrThrow(state, id);
+    if (typeof job.state.runningAtMs === "number") {
+      return { ok: true, ran: false, reason: "already-running" as const };
+    }
     const now = state.deps.nowMs();
     const due = isJobDue(job, now, { forced: mode === "force" });
     if (!due) {
       return { ok: true, ran: false, reason: "not-due" as const };
     }
     await executeJob(state, job, now, { forced: mode === "force" });
+    recomputeNextRuns(state);
     await persist(state);
     armTimer(state);
     return { ok: true, ran: true } as const;

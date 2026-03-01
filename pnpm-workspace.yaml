@@ -5,14 +5,22 @@ packages:
   - extensions/*
 
 onlyBuiltDependencies:
-  - "@whiskeysockets/baileys"
+<<<<<<< HEAD
+  - '@whiskeysockets/baileys'
+  - '@lydell/node-pty'
+  - '@matrix-org/matrix-sdk-crypto-nodejs'
+=======
   - "@lydell/node-pty"
   - "@matrix-org/matrix-sdk-crypto-nodejs"
+  - "@napi-rs/canvas"
+  - "@whiskeysockets/baileys"
+>>>>>>> 28e1a65eb (chore: project hygiene — fix workspace:*, sandbox USER, dead config (#11289))
   - authenticate-pam
   - esbuild
+  - node-llama-cpp
   - protobufjs
   - sharp
 <<<<<<< HEAD
+  - '@napi-rs/canvas'
 =======
-  - "@napi-rs/canvas"
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
+>>>>>>> 28e1a65eb (chore: project hygiene — fix workspace:*, sandbox USER, dead config (#11289))

@@ -8,12 +8,18 @@ import {
   normalizeAccountId,
   setAccountEnabledInConfigSection,
   type ChannelPlugin,
+<<<<<<< HEAD
 } from "clawdbot/plugin-sdk";
 
 import { MattermostConfigSchema } from "./config-schema.js";
 import { resolveMattermostGroupRequireMention } from "./group-mentions.js";
 import { looksLikeMattermostTargetId, normalizeMattermostMessagingTarget } from "./normalize.js";
 import { mattermostOnboardingAdapter } from "./onboarding.js";
+=======
+} from "openclaw/plugin-sdk";
+import { MattermostConfigSchema } from "./config-schema.js";
+import { resolveMattermostGroupRequireMention } from "./group-mentions.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import {
   listMattermostAccountIds,
   resolveDefaultMattermostAccountId,
@@ -24,6 +30,8 @@ import { normalizeMattermostBaseUrl } from "./mattermost/client.js";
 import { monitorMattermostProvider } from "./mattermost/monitor.js";
 import { probeMattermost } from "./mattermost/probe.js";
 import { sendMessageMattermost } from "./mattermost/send.js";
+import { looksLikeMattermostTargetId, normalizeMattermostMessagingTarget } from "./normalize.js";
+import { mattermostOnboardingAdapter } from "./onboarding.js";
 import { getMattermostRuntime } from "./runtime.js";
 
 const meta = {

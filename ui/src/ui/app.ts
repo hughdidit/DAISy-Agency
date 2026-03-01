@@ -1,23 +1,10 @@
 import { LitElement } from "lit";
 import { customElement, state } from "lit/decorators.js";
-<<<<<<< HEAD
-<<<<<<< HEAD
-
-=======
 import type { EventLogEntry } from "./app-events";
-import type { AppViewState } from "./app-view-state";
 import type { DevicePairingList } from "./controllers/devices";
 import type { ExecApprovalRequest } from "./controllers/exec-approval";
 import type { ExecApprovalsFile, ExecApprovalsSnapshot } from "./controllers/exec-approvals";
-<<<<<<< HEAD
->>>>>>> 2af977f94 (fix(ui): add core state and logic for scroll control)
-=======
-import type { SkillMessage } from "./controllers/skills";
->>>>>>> 2a68bcbeb (feat(ui): add Agents dashboard)
 import type { GatewayBrowserClient, GatewayHelloOk } from "./gateway";
-import { resolveInjectedAssistantIdentity } from "./assistant-identity";
-import { loadSettings, type UiSettings } from "./storage";
-import { renderApp } from "./app-render";
 import type { Tab } from "./navigation";
 import type { ResolvedTheme, ThemeMode } from "./theme";
 =======
@@ -51,6 +38,7 @@ import type {
   NostrProfile,
 <<<<<<< HEAD
 } from "./types";
+<<<<<<< HEAD
 import { type ChatAttachment, type ChatQueueItem, type CronFormState } from "./ui-types";
 import type { EventLogEntry } from "./app-events";
 import { DEFAULT_CRON_FORM, DEFAULT_LOG_LEVEL_FILTERS } from "./app-defaults";
@@ -88,9 +76,8 @@ import {
   removeQueuedMessage as removeQueuedMessageInternal,
 } from "./app-chat";
 =======
-} from "./types.ts";
-import type { NostrProfileFormState } from "./views/channels.nostr-profile-form.ts";
->>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
+import type { NostrProfileFormState } from "./views/channels.nostr-profile-form";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import {
   handleChannelConfigReload as handleChannelConfigReloadInternal,
   handleChannelConfigSave as handleChannelConfigSaveInternal,
@@ -105,33 +92,26 @@ import {
   handleWhatsAppWait as handleWhatsAppWaitInternal,
 <<<<<<< HEAD
 } from "./app-channels";
-<<<<<<< HEAD
-import type { NostrProfileFormState } from "./views/channels.nostr-profile-form";
-=======
-=======
-} from "./app-channels.ts";
->>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
 import {
   handleAbortChat as handleAbortChatInternal,
   handleSendChat as handleSendChatInternal,
   removeQueuedMessage as removeQueuedMessageInternal,
-} from "./app-chat.ts";
-import { DEFAULT_CRON_FORM, DEFAULT_LOG_LEVEL_FILTERS } from "./app-defaults.ts";
-import { connectGateway as connectGatewayInternal } from "./app-gateway.ts";
+} from "./app-chat";
+import { DEFAULT_CRON_FORM, DEFAULT_LOG_LEVEL_FILTERS } from "./app-defaults";
+import { connectGateway as connectGatewayInternal } from "./app-gateway";
 import {
   handleConnected,
   handleDisconnected,
   handleFirstUpdated,
   handleUpdated,
-} from "./app-lifecycle.ts";
-import { renderApp } from "./app-render.ts";
+} from "./app-lifecycle";
+import { renderApp } from "./app-render";
 import {
   exportLogs as exportLogsInternal,
   handleChatScroll as handleChatScrollInternal,
   handleLogsScroll as handleLogsScrollInternal,
   resetChatScroll as resetChatScrollInternal,
-  scheduleChatScroll as scheduleChatScrollInternal,
-} from "./app-scroll.ts";
+} from "./app-scroll";
 import {
   applySettings as applySettingsInternal,
   loadCron as loadCronInternal,
@@ -139,30 +119,19 @@ import {
   setTab as setTabInternal,
   setTheme as setThemeInternal,
   onPopState as onPopStateInternal,
-} from "./app-settings.ts";
+} from "./app-settings";
 import {
   resetToolStream as resetToolStreamInternal,
   type ToolStreamEntry,
-<<<<<<< HEAD
-<<<<<<< HEAD
 } from "./app-tool-stream";
 import { resolveInjectedAssistantIdentity } from "./assistant-identity";
->>>>>>> 2af977f94 (fix(ui): add core state and logic for scroll control)
 import { loadAssistantIdentity as loadAssistantIdentityInternal } from "./controllers/assistant-identity";
-=======
-=======
-  type CompactionStatus,
->>>>>>> 8a352c8f9 (Web UI: add token usage dashboard (#10072))
-} from "./app-tool-stream.ts";
-import { resolveInjectedAssistantIdentity } from "./assistant-identity.ts";
-import { loadAssistantIdentity as loadAssistantIdentityInternal } from "./controllers/assistant-identity.ts";
-import { loadSettings, type UiSettings } from "./storage.ts";
-import { type ChatAttachment, type ChatQueueItem, type CronFormState } from "./ui-types.ts";
->>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
+import { loadSettings, type UiSettings } from "./storage";
+import { type ChatAttachment, type ChatQueueItem, type CronFormState } from "./ui-types";
 
 declare global {
   interface Window {
-    __CLAWDBOT_CONTROL_UI_BASE_PATH__?: string;
+    __OPENCLAW_CONTROL_UI_BASE_PATH__?: string;
   }
 }
 
@@ -181,8 +150,8 @@ function resolveOnboardingMode(): boolean {
   return normalized === "1" || normalized === "true" || normalized === "yes" || normalized === "on";
 }
 
-@customElement("moltbot-app")
-export class MoltbotApp extends LitElement {
+@customElement("openclaw-app")
+export class OpenClawApp extends LitElement {
   @state() settings: UiSettings = loadSettings();
   @state() password = "";
   @state() tab: Tab = "chat";
@@ -215,6 +184,7 @@ export class MoltbotApp extends LitElement {
   @state() chatThinkingLevel: string | null = null;
   @state() chatQueue: ChatQueueItem[] = [];
   @state() chatAttachments: ChatAttachment[] = [];
+  @state() chatManualRefreshInFlight = false;
   // Sidebar state for tool output viewing
   @state() sidebarOpen = false;
   @state() sidebarContent: string | null = null;
@@ -407,14 +377,20 @@ export class MoltbotApp extends LitElement {
   private chatScrollTimeout: number | null = null;
   private chatHasAutoScrolled = false;
   private chatUserNearBottom = true;
-  chatNewMessagesBelow = false;
+<<<<<<< HEAD
+=======
+  @state() chatNewMessagesBelow = false;
+>>>>>>> 822388fe9 (fix: address review feedback — retryDelay uses effectiveForce, default overrides param, @state() on chatNewMessagesBelow)
   private nodesPollInterval: number | null = null;
   private logsPollInterval: number | null = null;
   private debugPollInterval: number | null = null;
   private logsScrollFrame: number | null = null;
   private toolStreamById = new Map<string, ToolStreamEntry>();
   private toolStreamOrder: string[] = [];
-  refreshSessionsAfterChat = false;
+<<<<<<< HEAD
+=======
+  refreshSessionsAfterChat = new Set<string>();
+>>>>>>> 0b7aa8cf1 (feat(ui): refresh session list after chat commands in Web UI)
   basePath = "";
   private popStateHandler = () =>
     onPopStateInternal(this as unknown as Parameters<typeof onPopStateInternal>[0]);
@@ -471,12 +447,24 @@ export class MoltbotApp extends LitElement {
   }
 
   resetChatScroll() {
+<<<<<<< HEAD
+    resetChatScrollInternal(
+      this as unknown as Parameters<typeof resetChatScrollInternal>[0],
+=======
     resetChatScrollInternal(this as unknown as Parameters<typeof resetChatScrollInternal>[0]);
   }
 
-  scrollToBottom() {
+  scrollToBottom(opts?: { smooth?: boolean }) {
     resetChatScrollInternal(this as unknown as Parameters<typeof resetChatScrollInternal>[0]);
-    scheduleChatScrollInternal(this as unknown as Parameters<typeof scheduleChatScrollInternal>[0], true);
+    scheduleChatScrollInternal(
+      this as unknown as Parameters<typeof scheduleChatScrollInternal>[0],
+      true,
+<<<<<<< HEAD
+>>>>>>> 371114354 (chore: fix formatting and CI)
+=======
+      Boolean(opts?.smooth),
+>>>>>>> bc475f017 (fix(ui): smooth chat refresh scroll and suppress new-messages badge flash)
+    );
   }
 
   async loadAssistantIdentity() {

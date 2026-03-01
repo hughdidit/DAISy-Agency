@@ -3,19 +3,19 @@ summary: "Hooks: event-driven automation for commands and lifecycle events"
 read_when:
   - You want event-driven automation for /new, /reset, /stop, and agent lifecycle events
   - You want to build, install, or debug hooks
+title: "Hooks"
 ---
 
 # Hooks
 
-Hooks provide an extensible event-driven system for automating actions in response to agent commands and events. Hooks are automatically discovered from directories and can be managed via CLI commands, similar to how skills work in Moltbot.
+Hooks provide an extensible event-driven system for automating actions in response to agent commands and events. Hooks are automatically discovered from directories and can be managed via CLI commands, similar to how skills work in OpenClaw.
 
 ## Getting Oriented
 
 Hooks are small scripts that run when something happens. There are two kinds:
 
 - **Hooks** (this page): run inside the Gateway when agent events fire, like `/new`, `/reset`, `/stop`, or lifecycle events.
-<<<<<<< HEAD
-- **Webhooks**: external HTTP webhooks that let other systems trigger work in Moltbot. See [Webhook Hooks](/automation/webhook) or use `moltbot webhooks` for Gmail helper commands.
+- **Webhooks**: external HTTP webhooks that let other systems trigger work in OpenClaw. See [Webhook Hooks](/automation/webhook) or use `openclaw webhooks` for Gmail helper commands.
   
 =======
 - **Webhooks**: external HTTP webhooks that let other systems trigger work in OpenClaw. See [Webhook Hooks](/automation/webhook) or use `openclaw webhooks` for Gmail helper commands.
@@ -43,54 +43,54 @@ The hooks system allows you to:
 - Save session context to memory when `/new` is issued
 - Log all commands for auditing
 - Trigger custom automations on agent lifecycle events
-- Extend Moltbot's behavior without modifying core code
+- Extend OpenClaw's behavior without modifying core code
 
 ## Getting Started
 
 ### Bundled Hooks
 
-Moltbot ships with four bundled hooks that are automatically discovered:
+OpenClaw ships with four bundled hooks that are automatically discovered:
 
-- **💾 session-memory**: Saves session context to your agent workspace (default `~/clawd/memory/`) when you issue `/new`
-- **📝 command-logger**: Logs all command events to `~/.clawdbot/logs/commands.log`
+- **💾 session-memory**: Saves session context to your agent workspace (default `~/.openclaw/workspace/memory/`) when you issue `/new`
+- **📝 command-logger**: Logs all command events to `~/.openclaw/logs/commands.log`
 - **🚀 boot-md**: Runs `BOOT.md` when the gateway starts (requires internal hooks enabled)
 - **😈 soul-evil**: Swaps injected `SOUL.md` content with `SOUL_EVIL.md` during a purge window or by random chance
 
 List available hooks:
 
 ```bash
-moltbot hooks list
+openclaw hooks list
 ```
 
 Enable a hook:
 
 ```bash
-moltbot hooks enable session-memory
+openclaw hooks enable session-memory
 ```
 
 Check hook status:
 
 ```bash
-moltbot hooks check
+openclaw hooks check
 ```
 
 Get detailed information:
 
 ```bash
-moltbot hooks info session-memory
+openclaw hooks info session-memory
 ```
 
 ### Onboarding
 
-During onboarding (`moltbot onboard`), you'll be prompted to enable recommended hooks. The wizard automatically discovers eligible hooks and presents them for selection.
+During onboarding (`openclaw onboard`), you'll be prompted to enable recommended hooks. The wizard automatically discovers eligible hooks and presents them for selection.
 
 ## Hook Discovery
 
 Hooks are automatically discovered from three directories (in order of precedence):
 
 1. **Workspace hooks**: `<workspace>/hooks/` (per-agent, highest precedence)
-2. **Managed hooks**: `~/.clawdbot/hooks/` (user-installed, shared across workspaces)
-3. **Bundled hooks**: `<moltbot>/dist/hooks/bundled/` (shipped with Moltbot)
+2. **Managed hooks**: `~/.openclaw/hooks/` (user-installed, shared across workspaces)
+3. **Bundled hooks**: `<openclaw>/dist/hooks/bundled/` (shipped with OpenClaw)
 
 Managed hook directories can be either a **single hook** or a **hook pack** (package directory).
 
@@ -104,11 +104,11 @@ my-hook/
 
 ## Hook Packs (npm/archives)
 
-Hook packs are standard npm packages that export one or more hooks via `moltbot.hooks` in
+Hook packs are standard npm packages that export one or more hooks via `openclaw.hooks` in
 `package.json`. Install them with:
 
 ```bash
-moltbot hooks install <path-or-spec>
+openclaw hooks install <path-or-spec>
 ```
 
 Example `package.json`:
@@ -117,14 +117,14 @@ Example `package.json`:
 {
   "name": "@acme/my-hooks",
   "version": "0.1.0",
-  "moltbot": {
+  "openclaw": {
     "hooks": ["./hooks/my-hook", "./hooks/other-hook"]
   }
 }
 ```
 
 Each entry points to a hook directory containing `HOOK.md` and `handler.ts` (or `index.ts`).
-Hook packs can ship dependencies; they will be installed under `~/.clawdbot/hooks/<id>`.
+Hook packs can ship dependencies; they will be installed under `~/.openclaw/hooks/<id>`.
 
 ## Hook Structure
 
@@ -136,14 +136,8 @@ The `HOOK.md` file contains metadata in YAML frontmatter plus Markdown documenta
 ---
 name: my-hook
 description: "Short description of what this hook does"
-<<<<<<< HEAD
-homepage: https://docs.molt.bot/hooks#my-hook
-metadata: {"moltbot":{"emoji":"🔗","events":["command:new"],"requires":{"bins":["node"]}}}
-=======
 homepage: https://docs.openclaw.ai/hooks#my-hook
-metadata:
-  { "openclaw": { "emoji": "🔗", "events": ["command:new"], "requires": { "bins": ["node"] } } }
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
+metadata: {"openclaw":{"emoji":"🔗","events":["command:new"],"requires":{"bins":["node"]}}}
 ---
 
 # My Hook
@@ -167,7 +161,7 @@ No configuration needed.
 
 ### Metadata Fields
 
-The `metadata.moltbot` object supports:
+The `metadata.openclaw` object supports:
 
 - **`emoji`**: Display emoji for CLI (e.g., `"💾"`)
 - **`events`**: Array of events to listen for (e.g., `["command:new", "command:reset"]`)
@@ -227,7 +221,7 @@ Each event includes:
     senderId?: string,
     workspaceDir?: string,
     bootstrapFiles?: WorkspaceBootstrapFile[],
-    cfg?: MoltbotConfig
+    cfg?: OpenClawConfig
   }
 }
 ```
@@ -255,7 +249,7 @@ Triggered when the gateway starts:
 
 ### Tool Result Hooks (Plugin API)
 
-These hooks are not event-stream listeners; they let plugins synchronously adjust tool results before Moltbot persists them.
+These hooks are not event-stream listeners; they let plugins synchronously adjust tool results before OpenClaw persists them.
 
 - **`tool_result_persist`**: transform tool results before they are written to the session transcript. Must be synchronous; return the updated tool result payload or `undefined` to keep it as-is. See [Agent Loop](/concepts/agent-loop).
 
@@ -274,13 +268,13 @@ Planned event types:
 ### 1. Choose Location
 
 - **Workspace hooks** (`<workspace>/hooks/`): Per-agent, highest precedence
-- **Managed hooks** (`~/.clawdbot/hooks/`): Shared across workspaces
+- **Managed hooks** (`~/.openclaw/hooks/`): Shared across workspaces
 
 ### 2. Create Directory Structure
 
 ```bash
-mkdir -p ~/.clawdbot/hooks/my-hook
-cd ~/.clawdbot/hooks/my-hook
+mkdir -p ~/.openclaw/hooks/my-hook
+cd ~/.openclaw/hooks/my-hook
 ```
 
 ### 3. Create HOOK.md
@@ -289,11 +283,7 @@ cd ~/.clawdbot/hooks/my-hook
 ---
 name: my-hook
 description: "Does something useful"
-<<<<<<< HEAD
-metadata: {"moltbot":{"emoji":"🎯","events":["command:new"]}}
-=======
-metadata: { "openclaw": { "emoji": "🎯", "events": ["command:new"] } }
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
+metadata: {"openclaw":{"emoji":"🎯","events":["command:new"]}}
 ---
 
 # My Custom Hook
@@ -322,10 +312,10 @@ export default handler;
 
 ```bash
 # Verify hook is discovered
-moltbot hooks list
+openclaw hooks list
 
 # Enable it
-moltbot hooks enable my-hook
+openclaw hooks enable my-hook
 
 # Restart your gateway process (menu bar app restart on macOS, or restart your dev process)
 
@@ -419,49 +409,49 @@ The old config format still works for backwards compatibility:
 
 ```bash
 # List all hooks
-moltbot hooks list
+openclaw hooks list
 
 # Show only eligible hooks
-moltbot hooks list --eligible
+openclaw hooks list --eligible
 
 # Verbose output (show missing requirements)
-moltbot hooks list --verbose
+openclaw hooks list --verbose
 
 # JSON output
-moltbot hooks list --json
+openclaw hooks list --json
 ```
 
 ### Hook Information
 
 ```bash
 # Show detailed info about a hook
-moltbot hooks info session-memory
+openclaw hooks info session-memory
 
 # JSON output
-moltbot hooks info session-memory --json
+openclaw hooks info session-memory --json
 ```
 
 ### Check Eligibility
 
 ```bash
 # Show eligibility summary
-moltbot hooks check
+openclaw hooks check
 
 # JSON output
-moltbot hooks check --json
+openclaw hooks check --json
 ```
 
 ### Enable/Disable
 
 ```bash
 # Enable a hook
-moltbot hooks enable session-memory
+openclaw hooks enable session-memory
 
 # Disable a hook
-moltbot hooks disable command-logger
+openclaw hooks disable command-logger
 ```
 
-## Bundled Hooks
+## Bundled hook reference
 
 ### session-memory
 
@@ -471,7 +461,7 @@ Saves session context to memory when you issue `/new`.
 
 **Requirements**: `workspace.dir` must be configured
 
-**Output**: `<workspace>/memory/YYYY-MM-DD-slug.md` (defaults to `~/clawd`)
+**Output**: `<workspace>/memory/YYYY-MM-DD-slug.md` (defaults to `~/.openclaw/workspace`)
 
 **What it does**:
 
@@ -499,7 +489,7 @@ Saves session context to memory when you issue `/new`.
 **Enable**:
 
 ```bash
-moltbot hooks enable session-memory
+openclaw hooks enable session-memory
 ```
 
 ### command-logger
@@ -510,7 +500,7 @@ Logs all command events to a centralized audit file.
 
 **Requirements**: None
 
-**Output**: `~/.clawdbot/logs/commands.log`
+**Output**: `~/.openclaw/logs/commands.log`
 
 **What it does**:
 
@@ -529,19 +519,19 @@ Logs all command events to a centralized audit file.
 
 ```bash
 # View recent commands
-tail -n 20 ~/.clawdbot/logs/commands.log
+tail -n 20 ~/.openclaw/logs/commands.log
 
 # Pretty-print with jq
-cat ~/.clawdbot/logs/commands.log | jq .
+cat ~/.openclaw/logs/commands.log | jq .
 
 # Filter by action
-grep '"action":"new"' ~/.clawdbot/logs/commands.log | jq .
+grep '"action":"new"' ~/.openclaw/logs/commands.log | jq .
 ```
 
 **Enable**:
 
 ```bash
-moltbot hooks enable command-logger
+openclaw hooks enable command-logger
 ```
 
 ### soul-evil
@@ -557,7 +547,7 @@ Swaps injected `SOUL.md` content with `SOUL_EVIL.md` during a purge window or by
 **Enable**:
 
 ```bash
-moltbot hooks enable soul-evil
+openclaw hooks enable soul-evil
 ```
 
 **Config**:
@@ -598,7 +588,7 @@ Internal hooks must be enabled for this to run.
 **Enable**:
 
 ```bash
-moltbot hooks enable boot-md
+openclaw hooks enable boot-md
 ```
 
 ## Best Practices
@@ -655,21 +645,13 @@ const handler: HookHandler = async (event) => {
 Specify exact events in metadata when possible:
 
 ```yaml
-<<<<<<< HEAD
-metadata: {"moltbot":{"events":["command:new"]}}  # Specific
-=======
-metadata: { "openclaw": { "events": ["command:new"] } } # Specific
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
+metadata: {"openclaw":{"events":["command:new"]}}  # Specific
 ```
 
 Rather than:
 
 ```yaml
-<<<<<<< HEAD
-metadata: {"moltbot":{"events":["command"]}}      # General - more overhead
-=======
-metadata: { "openclaw": { "events": ["command"] } } # General - more overhead
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
+metadata: {"openclaw":{"events":["command"]}}      # General - more overhead
 ```
 
 ## Debugging
@@ -689,7 +671,7 @@ Registered hook: boot-md -> gateway:startup
 List all discovered hooks:
 
 ```bash
-moltbot hooks list --verbose
+openclaw hooks list --verbose
 ```
 
 ### Check Registration
@@ -708,7 +690,7 @@ const handler: HookHandler = async (event) => {
 Check why a hook isn't eligible:
 
 ```bash
-moltbot hooks info my-hook
+openclaw hooks info my-hook
 ```
 
 Look for missing requirements in the output.
@@ -724,7 +706,7 @@ Monitor gateway logs to see hook execution:
 ./scripts/clawlog.sh -f
 
 # Other platforms
-tail -f ~/.clawdbot/gateway.log
+tail -f ~/.openclaw/gateway.log
 ```
 
 ### Test Hooks Directly
@@ -800,20 +782,21 @@ Session reset
 1. Check directory structure:
 
    ```bash
-   ls -la ~/.clawdbot/hooks/my-hook/
+   ls -la ~/.openclaw/hooks/my-hook/
    # Should show: HOOK.md, handler.ts
    ```
 
 2. Verify HOOK.md format:
 
    ```bash
-   cat ~/.clawdbot/hooks/my-hook/HOOK.md
+   cat ~/.openclaw/hooks/my-hook/HOOK.md
    # Should have YAML frontmatter with name and metadata
    ```
 
 3. List all discovered hooks:
+
    ```bash
-   moltbot hooks list
+   openclaw hooks list
    ```
 
 ### Hook Not Eligible
@@ -821,7 +804,7 @@ Session reset
 Check requirements:
 
 ```bash
-moltbot hooks info my-hook
+openclaw hooks info my-hook
 ```
 
 Look for missing:
@@ -836,13 +819,14 @@ Look for missing:
 1. Verify hook is enabled:
 
    ```bash
-   moltbot hooks list
+   openclaw hooks list
    # Should show ✓ next to enabled hooks
    ```
 
 2. Restart your gateway process so hooks reload.
 
 3. Check gateway logs for errors:
+
    ```bash
    ./scripts/clawlog.sh | grep hook
    ```
@@ -883,8 +867,8 @@ node -e "import('./path/to/handler.ts').then(console.log)"
 1. Create hook directory:
 
    ```bash
-   mkdir -p ~/.clawdbot/hooks/my-hook
-   mv ./hooks/handlers/my-handler.ts ~/.clawdbot/hooks/my-hook/handler.ts
+   mkdir -p ~/.openclaw/hooks/my-hook
+   mv ./hooks/handlers/my-handler.ts ~/.openclaw/hooks/my-hook/handler.ts
    ```
 
 2. Create HOOK.md:
@@ -893,11 +877,7 @@ node -e "import('./path/to/handler.ts').then(console.log)"
    ---
    name: my-hook
    description: "My custom hook"
-<<<<<<< HEAD
-   metadata: {"moltbot":{"emoji":"🎯","events":["command:new"]}}
-=======
-   metadata: { "openclaw": { "emoji": "🎯", "events": ["command:new"] } }
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
+   metadata: {"openclaw":{"emoji":"🎯","events":["command:new"]}}
    ---
 
    # My Hook
@@ -921,8 +901,9 @@ node -e "import('./path/to/handler.ts').then(console.log)"
    ```
 
 4. Verify and restart your gateway process:
+
    ```bash
-   moltbot hooks list
+   openclaw hooks list
    # Should show: 🎯 my-hook ✓
    ```
 
@@ -937,6 +918,6 @@ node -e "import('./path/to/handler.ts').then(console.log)"
 ## See Also
 
 - [CLI Reference: hooks](/cli/hooks)
-- [Bundled Hooks README](https://github.com/moltbot/moltbot/tree/main/src/hooks/bundled)
+- [Bundled Hooks README](https://github.com/openclaw/openclaw/tree/main/src/hooks/bundled)
 - [Webhook Hooks](/automation/webhook)
 - [Configuration](/gateway/configuration#hooks)

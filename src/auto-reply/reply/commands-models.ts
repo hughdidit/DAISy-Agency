@@ -1,3 +1,7 @@
+import type { OpenClawConfig } from "../../config/config.js";
+import type { ReplyPayload } from "../types.js";
+import type { CommandHandler } from "./commands-types.js";
+import { DEFAULT_MODEL, DEFAULT_PROVIDER } from "../../agents/defaults.js";
 import { loadModelCatalog } from "../../agents/model-catalog.js";
 import {
   buildAllowedModelSet,
@@ -8,18 +12,11 @@ import {
 } from "../../agents/model-selection.js";
 <<<<<<< HEAD
 import { DEFAULT_MODEL, DEFAULT_PROVIDER } from "../../agents/defaults.js";
-import type { MoltbotConfig } from "../../config/config.js";
+import type { OpenClawConfig } from "../../config/config.js";
 import type { ReplyPayload } from "../types.js";
 import type { CommandHandler } from "./commands-types.js";
 =======
-import {
-  buildModelsKeyboard,
-  buildProviderKeyboard,
-  calculateTotalPages,
-  getModelsPageSize,
-  type ProviderInfo,
-} from "../../telegram/model-buttons.js";
->>>>>>> 16349b6e9 (Telegram: add inline button model selection for /models and /model commands)
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 
 const PAGE_SIZE_DEFAULT = 20;
 const PAGE_SIZE_MAX = 100;
@@ -181,7 +178,7 @@ function parseModelsArgs(raw: string): {
 }
 
 export async function resolveModelsCommandReply(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   commandBodyNormalized: string;
   surface?: string;
   currentModel?: string;

@@ -3,8 +3,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 export function resolveBundledPluginsDir(): string | undefined {
-<<<<<<< HEAD
-  const override = process.env.CLAWDBOT_BUNDLED_PLUGINS_DIR?.trim();
+  const override = process.env.OPENCLAW_BUNDLED_PLUGINS_DIR?.trim();
   if (override) return override;
 =======
   const override = process.env.OPENCLAW_BUNDLED_PLUGINS_DIR?.trim();

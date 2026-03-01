@@ -1,4 +1,4 @@
-import type { MemoryProviderStatus } from "../memory/types.js";
+import type { MemoryIndexManager } from "../memory/manager.js";
 import type { RuntimeEnv } from "../runtime.js";
 import { withProgress } from "../cli/progress.js";
 import { loadConfig } from "../config/config.js";
@@ -8,15 +8,6 @@ import { probeGateway } from "../gateway/probe.js";
 import { collectChannelStatusIssues } from "../infra/channels-status-issues.js";
 import { resolveOsSummary } from "../infra/os-summary.js";
 import { getTailnetHostname } from "../infra/tailscale.js";
-<<<<<<< HEAD
-import type { MemoryIndexManager } from "../memory/manager.js";
-=======
-import { getMemorySearchManager } from "../memory/index.js";
-<<<<<<< HEAD
-import type { MemoryProviderStatus } from "../memory/types.js";
->>>>>>> 5d3af3bc6 (feat (memory): Implement new (opt-in) QMD memory backend)
-=======
->>>>>>> 9bef52594 (chore: apply formatter)
 import { runExec } from "../process/exec.js";
 import { buildChannelsTable } from "./status-all/channels.js";
 import { getAgentLocalStatuses } from "./status.agent-local.js";
@@ -151,8 +142,8 @@ export async function scanStatus(
       progress.setLabel("Summarizing channels…");
       const channels = await buildChannelsTable(cfg, {
         // Show token previews in regular status; keep `status --all` redacted.
-        // Set `CLAWDBOT_SHOW_SECRETS=0` to force redaction.
-        showSecrets: process.env.CLAWDBOT_SHOW_SECRETS?.trim() !== "0",
+        // Set `OPENCLAW_SHOW_SECRETS=0` to force redaction.
+        showSecrets: process.env.OPENCLAW_SHOW_SECRETS?.trim() !== "0",
       });
       progress.tick();
 

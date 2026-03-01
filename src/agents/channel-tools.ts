@@ -1,12 +1,16 @@
-import { getChannelDock } from "../channels/dock.js";
-import { getChannelPlugin, listChannelPlugins } from "../channels/plugins/index.js";
-import { normalizeAnyChannelId } from "../channels/registry.js";
 import type {
   ChannelAgentTool,
   ChannelMessageActionName,
   ChannelPlugin,
 } from "../channels/plugins/types.js";
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
+=======
+import type { OpenClawConfig } from "../config/config.js";
+import { getChannelDock } from "../channels/dock.js";
+import { getChannelPlugin, listChannelPlugins } from "../channels/plugins/index.js";
+import { normalizeAnyChannelId } from "../channels/registry.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { defaultRuntime } from "../runtime.js";
 
 /**
@@ -14,7 +18,7 @@ import { defaultRuntime } from "../runtime.js";
  * Returns an empty array if channel is not found or has no actions configured.
  */
 export function listChannelSupportedActions(params: {
-  cfg?: MoltbotConfig;
+  cfg?: OpenClawConfig;
   channel?: string;
 }): ChannelMessageActionName[] {
   if (!params.channel) {
@@ -23,13 +27,7 @@ export function listChannelSupportedActions(params: {
   const plugin = getChannelPlugin(params.channel as Parameters<typeof getChannelPlugin>[0]);
 <<<<<<< HEAD
   if (!plugin?.actions?.listActions) return [];
-  const cfg = params.cfg ?? ({} as MoltbotConfig);
-=======
-  if (!plugin?.actions?.listActions) {
-    return [];
-  }
   const cfg = params.cfg ?? ({} as OpenClawConfig);
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
   return runPluginListActions(plugin, cfg);
 }
 
@@ -37,19 +35,13 @@ export function listChannelSupportedActions(params: {
  * Get the list of all supported message actions across all configured channels.
  */
 export function listAllChannelSupportedActions(params: {
-  cfg?: MoltbotConfig;
+  cfg?: OpenClawConfig;
 }): ChannelMessageActionName[] {
   const actions = new Set<ChannelMessageActionName>();
   for (const plugin of listChannelPlugins()) {
 <<<<<<< HEAD
     if (!plugin.actions?.listActions) continue;
-    const cfg = params.cfg ?? ({} as MoltbotConfig);
-=======
-    if (!plugin.actions?.listActions) {
-      continue;
-    }
     const cfg = params.cfg ?? ({} as OpenClawConfig);
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
     const channelActions = runPluginListActions(plugin, cfg);
     for (const action of channelActions) {
       actions.add(action);
@@ -58,7 +50,7 @@ export function listAllChannelSupportedActions(params: {
   return Array.from(actions);
 }
 
-export function listChannelAgentTools(params: { cfg?: MoltbotConfig }): ChannelAgentTool[] {
+export function listChannelAgentTools(params: { cfg?: OpenClawConfig }): ChannelAgentTool[] {
   // Channel docking: aggregate channel-owned tools (login, etc.).
   const tools: ChannelAgentTool[] = [];
   for (const plugin of listChannelPlugins()) {
@@ -75,7 +67,7 @@ export function listChannelAgentTools(params: { cfg?: MoltbotConfig }): ChannelA
 }
 
 export function resolveChannelMessageToolHints(params: {
-  cfg?: MoltbotConfig;
+  cfg?: OpenClawConfig;
   channel?: string | null;
   accountId?: string | null;
 }): string[] {
@@ -87,13 +79,7 @@ export function resolveChannelMessageToolHints(params: {
   const resolve = dock?.agentPrompt?.messageToolHints;
 <<<<<<< HEAD
   if (!resolve) return [];
-  const cfg = params.cfg ?? ({} as MoltbotConfig);
-=======
-  if (!resolve) {
-    return [];
-  }
   const cfg = params.cfg ?? ({} as OpenClawConfig);
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
   return (resolve({ cfg, accountId: params.accountId }) ?? [])
     .map((entry) => entry.trim())
     .filter(Boolean);
@@ -103,7 +89,7 @@ const loggedListActionErrors = new Set<string>();
 
 function runPluginListActions(
   plugin: ChannelPlugin,
-  cfg: MoltbotConfig,
+  cfg: OpenClawConfig,
 ): ChannelMessageActionName[] {
   if (!plugin.actions?.listActions) {
     return [];

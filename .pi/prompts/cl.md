@@ -1,19 +1,16 @@
 ---
 description: Audit changelog entries before release
 ---
-
 Audit changelog entries for all commits since the last release.
 
 ## Process
 
 1. **Find the last release tag:**
-
    ```bash
    git tag --sort=-version:refname | head -1
    ```
 
 2. **List all commits since that tag:**
-
    ```bash
    git log <tag>..HEAD --oneline
    ```
@@ -45,7 +42,6 @@ Audit changelog entries for all commits since the last release.
 ## Changelog Format Reference
 
 Sections (in order):
-
 - `### Breaking Changes` - API changes requiring migration
 - `### Added` - New features
 - `### Changed` - Changes to existing functionality
@@ -53,6 +49,5 @@ Sections (in order):
 - `### Removed` - Removed features
 
 Attribution:
-
 - Internal: `Fixed foo ([#123](https://github.com/badlogic/pi-mono/issues/123))`
 - External: `Added bar ([#456](https://github.com/badlogic/pi-mono/pull/456) by [@user](https://github.com/user))`

@@ -1,9 +1,4 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-<<<<<<< HEAD
-
-=======
-import { sleep } from "../utils.js";
->>>>>>> 6b0d6e254 (chore: We have a sleep at home. The sleep at home:)
 import { runClaudeCliAgent } from "./claude-cli-runner.js";
 
 const runCommandWithTimeoutMock = vi.fn();
@@ -51,7 +46,7 @@ describe("runClaudeCliAgent", () => {
     });
 
     await runClaudeCliAgent({
-      sessionId: "moltbot-session",
+      sessionId: "openclaw-session",
       sessionFile: "/tmp/session.jsonl",
       workspaceDir: "/tmp",
       prompt: "hi",
@@ -77,7 +72,7 @@ describe("runClaudeCliAgent", () => {
     });
 
     await runClaudeCliAgent({
-      sessionId: "moltbot-session",
+      sessionId: "openclaw-session",
       sessionFile: "/tmp/session.jsonl",
       workspaceDir: "/tmp",
       prompt: "hi",

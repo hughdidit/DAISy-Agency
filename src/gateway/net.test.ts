@@ -1,6 +1,5 @@
 <<<<<<< HEAD
 import { describe, expect, it } from "vitest";
-
 import { resolveGatewayListenHosts } from "./net.js";
 =======
 import os from "node:os";

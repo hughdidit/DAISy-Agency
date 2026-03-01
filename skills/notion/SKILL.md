@@ -2,15 +2,7 @@
 name: notion
 description: Notion API for creating and managing pages, databases, and blocks.
 homepage: https://developers.notion.com
-<<<<<<< HEAD
-metadata: {"moltbot":{"emoji":"📝","requires":{"env":["NOTION_API_KEY"]},"primaryEnv":"NOTION_API_KEY"}}
-=======
-metadata:
-  {
-    "openclaw":
-      { "emoji": "📝", "requires": { "env": ["NOTION_API_KEY"] }, "primaryEnv": "NOTION_API_KEY" },
-  }
->>>>>>> 76b5208b1 (chore: Also format `scripts` and `skills`.)
+metadata: {"openclaw":{"emoji":"📝","requires":{"env":["NOTION_API_KEY"]},"primaryEnv":"NOTION_API_KEY"}}
 ---
 
 # notion

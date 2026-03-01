@@ -1,6 +1,4 @@
 import { html, nothing } from "lit";
-<<<<<<< HEAD
-
 import type { ChannelAccountSnapshot } from "../types";
 import type { ChannelKey, ChannelsProps } from "./channels.types";
 =======

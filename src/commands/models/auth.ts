@@ -1,4 +1,5 @@
 import { confirm as clackConfirm, select as clackSelect, text as clackText } from "@clack/prompts";
+<<<<<<< HEAD
 
 import { upsertAuthProfile } from "../../agents/auth-profiles.js";
 import { normalizeProviderId } from "../../agents/model-selection.js";
@@ -10,7 +11,7 @@ import {
 import { resolveDefaultAgentWorkspaceDir } from "../../agents/workspace.js";
 import { parseDurationMs } from "../../cli/parse-duration.js";
 import { formatCliCommand } from "../../cli/command-format.js";
-import { readConfigFileSnapshot, type MoltbotConfig } from "../../config/config.js";
+import { readConfigFileSnapshot, type OpenClawConfig } from "../../config/config.js";
 import { logConfigUpdated } from "../../config/logging.js";
 import type { RuntimeEnv } from "../../runtime.js";
 import { stylePromptHint, stylePromptMessage } from "../../terminal/prompt-style.js";
@@ -21,13 +22,36 @@ import { createVpsAwareOAuthHandlers } from "../oauth-flow.js";
 import { updateConfig } from "./shared.js";
 import { resolvePluginProviders } from "../../plugins/providers.js";
 import { createClackPrompter } from "../../wizard/clack-prompter.js";
+=======
+import type { AuthProfileCredential } from "../../agents/auth-profiles/types.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type {
   ProviderAuthMethod,
   ProviderAuthResult,
   ProviderPlugin,
 } from "../../plugins/types.js";
-import type { AuthProfileCredential } from "../../agents/auth-profiles/types.js";
+import type { RuntimeEnv } from "../../runtime.js";
+import {
+  resolveAgentDir,
+  resolveAgentWorkspaceDir,
+  resolveDefaultAgentId,
+} from "../../agents/agent-scope.js";
+import { upsertAuthProfile } from "../../agents/auth-profiles.js";
+import { normalizeProviderId } from "../../agents/model-selection.js";
+import { resolveDefaultAgentWorkspaceDir } from "../../agents/workspace.js";
+import { formatCliCommand } from "../../cli/command-format.js";
+import { parseDurationMs } from "../../cli/parse-duration.js";
+import { readConfigFileSnapshot, type OpenClawConfig } from "../../config/config.js";
+import { logConfigUpdated } from "../../config/logging.js";
+import { resolvePluginProviders } from "../../plugins/providers.js";
+import { stylePromptHint, stylePromptMessage } from "../../terminal/prompt-style.js";
+import { createClackPrompter } from "../../wizard/clack-prompter.js";
 import { validateAnthropicSetupToken } from "../auth-token.js";
+import { isRemoteEnvironment } from "../oauth-env.js";
+import { createVpsAwareOAuthHandlers } from "../oauth-flow.js";
+import { applyAuthProfileConfig } from "../onboard-auth.js";
+import { openUrl } from "../onboard-helpers.js";
+import { updateConfig } from "./shared.js";
 
 const confirm = (params: Parameters<typeof clackConfirm>[0]) =>
   clackConfirm({
@@ -293,7 +317,7 @@ function mergeConfigPatch<T>(base: T, patch: unknown): T {
   return next as T;
 }
 
-function applyDefaultModel(cfg: MoltbotConfig, model: string): MoltbotConfig {
+function applyDefaultModel(cfg: OpenClawConfig, model: string): OpenClawConfig {
   const models = { ...cfg.agents?.defaults?.models };
   models[model] = models[model] ?? {};
 
@@ -346,7 +370,7 @@ export async function modelsAuthLoginCommand(opts: LoginOptions, runtime: Runtim
   const providers = resolvePluginProviders({ config, workspaceDir });
   if (providers.length === 0) {
     throw new Error(
-      `No provider plugins found. Install one via \`${formatCliCommand("moltbot plugins install")}\`.`,
+      `No provider plugins found. Install one via \`${formatCliCommand("openclaw plugins install")}\`.`,
     );
   }
 

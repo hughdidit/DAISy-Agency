@@ -1,29 +1,33 @@
-import fs from "node:fs";
 import type { IncomingMessage, ServerResponse } from "node:http";
+import fs from "node:fs";
 import path from "node:path";
 <<<<<<< HEAD
 import { fileURLToPath } from "node:url";
+<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../config/config.js";
 =======
 import type { OpenClawConfig } from "../config/config.js";
-import { resolveControlUiRootSync } from "../infra/control-ui-assets.js";
->>>>>>> 5935c4d23 (fix(ui): fix web UI after tsdown migration and typing changes)
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { DEFAULT_ASSISTANT_IDENTITY, resolveAssistantIdentity } from "./assistant-identity.js";
+import { authorizeGatewayConnect, isLocalDirectRequest, type ResolvedGatewayAuth } from "./auth.js";
 import {
   buildControlUiAvatarUrl,
   CONTROL_UI_AVATAR_PREFIX,
   normalizeControlUiBasePath,
   resolveAssistantAvatarUrl,
 } from "./control-ui-shared.js";
+import { sendUnauthorized, setSecurityHeaders } from "./http-common.js";
+import { getBearerToken } from "./http-utils.js";
 
 const ROOT_PREFIX = "/";
 
 export type ControlUiRequestOptions = {
   basePath?: string;
-  config?: MoltbotConfig;
+  config?: OpenClawConfig;
   agentId?: string;
-  root?: ControlUiRootState;
+  auth?: ResolvedGatewayAuth;
+  trustedProxies?: string[];
 };
 
 export type ControlUiRootState =
@@ -72,7 +76,14 @@ type ControlUiAvatarMeta = {
   avatarUrl: string | null;
 };
 
+function applyControlUiSecurityHeaders(res: ServerResponse) {
+  res.setHeader("X-Frame-Options", "DENY");
+  res.setHeader("Content-Security-Policy", "frame-ancestors 'none'");
+  res.setHeader("X-Content-Type-Options", "nosniff");
+}
+
 function sendJson(res: ServerResponse, status: number, body: unknown) {
+  setSecurityHeaders(res);
   res.statusCode = status;
   res.setHeader("Content-Type", "application/json; charset=utf-8");
   res.setHeader("Cache-Control", "no-cache");
@@ -83,11 +94,16 @@ function isValidAgentId(agentId: string): boolean {
   return /^[a-z0-9][a-z0-9_-]{0,63}$/i.test(agentId);
 }
 
-export function handleControlUiAvatarRequest(
+export async function handleControlUiAvatarRequest(
   req: IncomingMessage,
   res: ServerResponse,
-  opts: { basePath?: string; resolveAvatar: (agentId: string) => ControlUiAvatarResolution },
-): boolean {
+  opts: {
+    basePath?: string;
+    resolveAvatar: (agentId: string) => ControlUiAvatarResolution;
+    auth?: ResolvedGatewayAuth;
+    trustedProxies?: string[];
+  },
+): Promise<boolean> {
   const urlRaw = req.url;
   if (!urlRaw) {
     return false;
@@ -104,6 +120,20 @@ export function handleControlUiAvatarRequest(
     : `${CONTROL_UI_AVATAR_PREFIX}/`;
   if (!pathname.startsWith(pathWithBase)) {
     return false;
+  }
+
+  if (opts.auth && !isLocalDirectRequest(req, opts.trustedProxies)) {
+    const token = getBearerToken(req) ?? url.searchParams.get("token") ?? undefined;
+    const authResult = await authorizeGatewayConnect({
+      auth: opts.auth,
+      connectAuth: token ? { token, password: token } : null,
+      req,
+      trustedProxies: opts.trustedProxies,
+    });
+    if (!authResult.ok) {
+      sendUnauthorized(res);
+      return true;
+    }
   }
 
   const agentIdParts = pathname.slice(pathWithBase.length).split("/").filter(Boolean);
@@ -144,12 +174,14 @@ export function handleControlUiAvatarRequest(
 }
 
 function respondNotFound(res: ServerResponse) {
+  setSecurityHeaders(res);
   res.statusCode = 404;
   res.setHeader("Content-Type", "text/plain; charset=utf-8");
   res.end("Not Found");
 }
 
 function serveFile(res: ServerResponse, filePath: string) {
+  setSecurityHeaders(res);
   const ext = path.extname(filePath).toLowerCase();
   res.setHeader("Content-Type", contentTypeForExt(ext));
   // Static UI should never be cached aggressively while iterating; allow the
@@ -168,22 +200,16 @@ function injectControlUiConfig(html: string, opts: ControlUiInjectionOpts): stri
   const { basePath, assistantName, assistantAvatar } = opts;
   const script =
     `<script>` +
-    `window.__CLAWDBOT_CONTROL_UI_BASE_PATH__=${JSON.stringify(basePath)};` +
-    `window.__CLAWDBOT_ASSISTANT_NAME__=${JSON.stringify(
+    `window.__OPENCLAW_CONTROL_UI_BASE_PATH__=${JSON.stringify(basePath)};` +
+    `window.__OPENCLAW_ASSISTANT_NAME__=${JSON.stringify(
       assistantName ?? DEFAULT_ASSISTANT_IDENTITY.name,
     )};` +
-    `window.__CLAWDBOT_ASSISTANT_AVATAR__=${JSON.stringify(
+    `window.__OPENCLAW_ASSISTANT_AVATAR__=${JSON.stringify(
       assistantAvatar ?? DEFAULT_ASSISTANT_IDENTITY.avatar,
     )};` +
     `</script>`;
   // Check if already injected
-<<<<<<< HEAD
-  if (html.includes("__CLAWDBOT_ASSISTANT_NAME__")) return html;
-=======
-  if (html.includes("__OPENCLAW_ASSISTANT_NAME__")) {
-    return html;
-  }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
+  if (html.includes("__OPENCLAW_ASSISTANT_NAME__")) return html;
   const headClose = html.indexOf("</head>");
   if (headClose !== -1) {
     return `${html.slice(0, headClose)}${script}${html.slice(headClose)}`;
@@ -193,11 +219,12 @@ function injectControlUiConfig(html: string, opts: ControlUiInjectionOpts): stri
 
 interface ServeIndexHtmlOpts {
   basePath: string;
-  config?: MoltbotConfig;
+  config?: OpenClawConfig;
   agentId?: string;
 }
 
 function serveIndexHtml(res: ServerResponse, indexPath: string, opts: ServeIndexHtmlOpts) {
+  setSecurityHeaders(res);
   const { basePath, config, agentId } = opts;
   const identity = config
     ? resolveAssistantIdentity({ cfg: config, agentId })
@@ -238,11 +265,11 @@ function isSafeRelativePath(relPath: string) {
   return true;
 }
 
-export function handleControlUiHttpRequest(
+export async function handleControlUiHttpRequest(
   req: IncomingMessage,
   res: ServerResponse,
   opts?: ControlUiRequestOptions,
-): boolean {
+): Promise<boolean> {
   const urlRaw = req.url;
   if (!urlRaw) {
     return false;
@@ -260,6 +287,7 @@ export function handleControlUiHttpRequest(
 
   if (!basePath) {
     if (pathname === "/ui" || pathname.startsWith("/ui/")) {
+      applyControlUiSecurityHeaders(res);
       respondNotFound(res);
       return true;
     }
@@ -267,6 +295,7 @@ export function handleControlUiHttpRequest(
 
   if (basePath) {
     if (pathname === basePath) {
+      applyControlUiSecurityHeaders(res);
       res.statusCode = 302;
       res.setHeader("Location", `${basePath}/${url.search}`);
       res.end();
@@ -276,6 +305,24 @@ export function handleControlUiHttpRequest(
       return false;
     }
   }
+
+  if (opts?.auth && !isLocalDirectRequest(req, opts.trustedProxies)) {
+    const token = getBearerToken(req) ?? url.searchParams.get("token") ?? undefined;
+    const authResult = await authorizeGatewayConnect({
+      auth: opts.auth,
+      connectAuth: token ? { token, password: token } : null,
+      req,
+      trustedProxies: opts.trustedProxies,
+    });
+    if (!authResult.ok) {
+      sendUnauthorized(res);
+      return true;
+    }
+  }
+
+  const root = resolveControlUiRoot();
+=======
+  applyControlUiSecurityHeaders(res);
 
   const rootState = opts?.root;
   if (rootState?.kind === "invalid") {
@@ -303,6 +350,7 @@ export function handleControlUiHttpRequest(
           argv1: process.argv[1],
           cwd: process.cwd(),
         });
+>>>>>>> 66d8117d4 (fix: harden control ui framing + ws origin)
   if (!root) {
     res.statusCode = 503;
     res.setHeader("Content-Type", "text/plain; charset=utf-8");

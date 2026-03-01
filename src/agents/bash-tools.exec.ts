@@ -1,9 +1,9 @@
-import crypto from "node:crypto";
-import type { ChildProcessWithoutNullStreams } from "node:child_process";
-import path from "node:path";
 import type { AgentTool, AgentToolResult } from "@mariozechner/pi-agent-core";
+import type { ChildProcessWithoutNullStreams } from "node:child_process";
 import { Type } from "@sinclair/typebox";
-
+import crypto from "node:crypto";
+import path from "node:path";
+import type { BashSandboxConfig } from "./bash-tools.shared.js";
 import {
   type ExecAsk,
   type ExecHost,
@@ -28,6 +28,7 @@ import {
 import { enqueueSystemEvent } from "../infra/system-events.js";
 import { logInfo, logWarn } from "../logger.js";
 import { formatSpawnError, spawnWithFallback } from "../process/spawn-utils.js";
+import { parseAgentSessionKey, resolveAgentIdFromSessionKey } from "../routing/session-key.js";
 import {
   type ProcessSession,
   type SessionStdin,
@@ -38,7 +39,6 @@ import {
   markExited,
   tail,
 } from "./bash-process-registry.js";
-import type { BashSandboxConfig } from "./bash-tools.shared.js";
 import {
   buildDockerExecArgs,
   buildSandboxEnv,
@@ -51,12 +51,54 @@ import {
   resolveWorkdir,
   truncateMiddle,
 } from "./bash-tools.shared.js";
+import { buildCursorPositionResponse, stripDsrRequests } from "./pty-dsr.js";
+import { getShellConfig, sanitizeBinaryOutput } from "./shell-utils.js";
 import { callGatewayTool } from "./tools/gateway.js";
 import { listNodes, resolveNodeIdFromList } from "./tools/nodes-utils.js";
-import { getShellConfig, sanitizeBinaryOutput } from "./shell-utils.js";
-import { buildCursorPositionResponse, stripDsrRequests } from "./pty-dsr.js";
-import { parseAgentSessionKey, resolveAgentIdFromSessionKey } from "../routing/session-key.js";
 
+// Security: Blocklist of environment variables that could alter execution flow
+// or inject code when running on non-sandboxed hosts (Gateway/Node).
+const DANGEROUS_HOST_ENV_VARS = new Set([
+  "LD_PRELOAD",
+  "LD_LIBRARY_PATH",
+  "LD_AUDIT",
+  "DYLD_INSERT_LIBRARIES",
+  "DYLD_LIBRARY_PATH",
+  "NODE_OPTIONS",
+  "NODE_PATH",
+  "PYTHONPATH",
+  "PYTHONHOME",
+  "RUBYLIB",
+  "PERL5LIB",
+  "BASH_ENV",
+  "ENV",
+  "GCONV_PATH",
+  "IFS",
+  "SSLKEYLOGFILE",
+]);
+
+// Centralized sanitization helper.
+// Throws an error if dangerous variables or PATH modifications are detected on the host.
+function validateHostEnv(env: Record<string, string>): void {
+  for (const key of Object.keys(env)) {
+    const upperKey = key.toUpperCase();
+
+    // 1. Block known dangerous variables (Fail Closed)
+    if (DANGEROUS_HOST_ENV_VARS.has(upperKey)) {
+      throw new Error(
+        `Security Violation: Environment variable '${key}' is forbidden during host execution.`,
+      );
+    }
+
+    // 2. Strictly block PATH modification on host
+    // Allowing custom PATH on the gateway/node can lead to binary hijacking.
+    if (upperKey === "PATH") {
+      throw new Error(
+        "Security Violation: Custom 'PATH' variable is forbidden during host execution.",
+      );
+    }
+  }
+}
 const DEFAULT_MAX_OUTPUT = clampNumber(
   readEnvInt("PI_BASH_MAX_OUTPUT_CHARS"),
   200_000,
@@ -64,7 +106,7 @@ const DEFAULT_MAX_OUTPUT = clampNumber(
   200_000,
 );
 const DEFAULT_PENDING_MAX_OUTPUT = clampNumber(
-  readEnvInt("CLAWDBOT_BASH_PENDING_MAX_OUTPUT_CHARS"),
+  readEnvInt("OPENCLAW_BASH_PENDING_MAX_OUTPUT_CHARS"),
   200_000,
   1_000,
   200_000,
@@ -892,12 +934,15 @@ export function createExecTool(
       if (elevatedRequested && elevatedMode === "full") {
         security = "full";
       }
-      const configuredAsk = defaults?.ask ?? "on-miss";
+      const configuredAsk = defaults?.ask ?? "always";
       const requestedAsk = normalizeExecAsk(params.ask);
       let ask = maxAsk(configuredAsk, requestedAsk ?? configuredAsk);
       const bypassApprovals = elevatedRequested && elevatedMode === "full";
       if (bypassApprovals) {
         ask = "off";
+        warnings.push(
+          "elevated mode is 'full': command will execute with unrestricted security and no approval prompt",
+        );
       }
 
       const sandbox = host === "sandbox" ? defaults?.sandbox : undefined;
@@ -917,7 +962,15 @@ export function createExecTool(
       }
 
       const baseEnv = coerceEnv(process.env);
+
+      // Logic: Sandbox gets raw env. Host (gateway/node) must pass validation.
+      // We validate BEFORE merging to prevent any dangerous vars from entering the stream.
+      if (host !== "sandbox" && params.env) {
+        validateHostEnv(params.env);
+      }
+
       const mergedEnv = params.env ? { ...baseEnv, ...params.env } : baseEnv;
+
       const env = sandbox
         ? buildSandboxEnv({
             defaultPath: DEFAULT_PATH,
@@ -926,6 +979,7 @@ export function createExecTool(
             containerWorkdir: containerWorkdir ?? sandbox.containerWorkdir,
           })
         : mergedEnv;
+
       if (!sandbox && host === "gateway" && !params.env?.PATH) {
         const shellPath = getShellPathFromLoginShell({
           env: process.env,
@@ -977,7 +1031,9 @@ export function createExecTool(
           );
         }
         const argv = buildNodeShellCommand(params.command, nodeInfo?.platform);
+
         const nodeEnv = params.env ? { ...params.env } : undefined;
+
         if (nodeEnv) {
           applyPathPrepend(nodeEnv, defaultPathPrepend, { requireExisting: true });
         }
@@ -987,6 +1043,7 @@ export function createExecTool(
           safeBins: new Set(),
           cwd: workdir,
           env,
+          platform: nodeInfo?.platform,
         });
         let analysisOk = baseAllowlistEval.analysisOk;
         let allowlistSatisfied = false;
@@ -1014,6 +1071,7 @@ export function createExecTool(
                 safeBins: new Set(),
                 cwd: workdir,
                 env,
+                platform: nodeInfo?.platform,
               });
               allowlistSatisfied = allowlistEval.allowlistSatisfied;
               analysisOk = allowlistEval.analysisOk;
@@ -1082,11 +1140,17 @@ export function createExecTool(
                   sessionKey: defaults?.sessionKey,
                   timeoutMs: DEFAULT_APPROVAL_TIMEOUT_MS,
                 },
-              );
+<<<<<<< HEAD
+              )) as { decision?: string } | null;
               decision =
+=======
+              );
+              const decisionValue =
+>>>>>>> a42e1c82d (fix: restore tsc build and plugin install tests)
                 decisionResult && typeof decisionResult === "object"
-                  ? (decisionResult.decision ?? null)
-                  : null;
+                  ? (decisionResult as { decision?: unknown }).decision
+                  : undefined;
+              decision = typeof decisionValue === "string" ? decisionValue : null;
             } catch {
               emitExecSystemEvent(
                 `Exec denied (node=${nodeId} id=${approvalId}, approval-request-failed): ${commandText}`,
@@ -1177,28 +1241,50 @@ export function createExecTool(
         }
 
         const startedAt = Date.now();
-        const raw = await callGatewayTool<{
-          payload: {
-            exitCode: number;
-            success?: string;
+<<<<<<< HEAD
+        const raw = (await callGatewayTool(
+          "node.invoke",
+          { timeoutMs: invokeTimeoutMs },
+          buildInvokeParams(false, null),
+        )) as {
+          payload?: {
+            exitCode?: number;
+            timedOut?: boolean;
+            success?: boolean;
             stdout?: string;
             stderr?: string;
             error?: string;
           };
         }>("node.invoke", { timeoutMs: invokeTimeoutMs }, buildInvokeParams(false, null));
         const payload = raw?.payload ?? {};
+=======
+        const raw = await callGatewayTool(
+          "node.invoke",
+          { timeoutMs: invokeTimeoutMs },
+          buildInvokeParams(false, null),
+        );
+        const payload =
+          raw && typeof raw === "object" ? (raw as { payload?: unknown }).payload : undefined;
+        const payloadObj =
+          payload && typeof payload === "object" ? (payload as Record<string, unknown>) : {};
+        const stdout = typeof payloadObj.stdout === "string" ? payloadObj.stdout : "";
+        const stderr = typeof payloadObj.stderr === "string" ? payloadObj.stderr : "";
+        const errorText = typeof payloadObj.error === "string" ? payloadObj.error : "";
+        const success = typeof payloadObj.success === "boolean" ? payloadObj.success : false;
+        const exitCode = typeof payloadObj.exitCode === "number" ? payloadObj.exitCode : null;
+>>>>>>> a42e1c82d (fix: restore tsc build and plugin install tests)
         return {
           content: [
             {
               type: "text",
-              text: payload.stdout || payload.stderr || payload.error || "",
+              text: stdout || stderr || errorText || "",
             },
           ],
           details: {
-            status: payload.success ? "completed" : "failed",
-            exitCode: payload.exitCode ?? null,
+            status: success ? "completed" : "failed",
+            exitCode,
             durationMs: Date.now() - startedAt,
-            aggregated: [payload.stdout, payload.stderr, payload.error].filter(Boolean).join("\n"),
+            aggregated: [stdout, stderr, errorText].filter(Boolean).join("\n"),
             cwd: workdir,
           } satisfies ExecToolDetails,
         };
@@ -1218,6 +1304,7 @@ export function createExecTool(
           safeBins,
           cwd: workdir,
           env,
+          platform: process.platform,
         });
         const allowlistMatches = allowlistEval.allowlistMatches;
         const analysisOk = allowlistEval.analysisOk;
@@ -1260,11 +1347,17 @@ export function createExecTool(
                   sessionKey: defaults?.sessionKey,
                   timeoutMs: DEFAULT_APPROVAL_TIMEOUT_MS,
                 },
-              );
+<<<<<<< HEAD
+              )) as { decision?: string } | null;
               decision =
+=======
+              );
+              const decisionValue =
+>>>>>>> a42e1c82d (fix: restore tsc build and plugin install tests)
                 decisionResult && typeof decisionResult === "object"
-                  ? (decisionResult.decision ?? null)
-                  : null;
+                  ? (decisionResult as { decision?: unknown }).decision
+                  : undefined;
+              decision = typeof decisionValue === "string" ? decisionValue : null;
             } catch {
               emitExecSystemEvent(
                 `Exec denied (gateway id=${approvalId}, approval-request-failed): ${commandText}`,

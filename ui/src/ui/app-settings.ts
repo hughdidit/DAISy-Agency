@@ -1,34 +1,20 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
 import type { OpenClawApp } from "./app";
 import { refreshChat } from "./app-chat";
-=======
-import type { OpenClawApp } from "./app.ts";
-import type { AgentsListResult } from "./types.ts";
-import { refreshChat } from "./app-chat.ts";
->>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
 import {
   startLogsPolling,
   stopLogsPolling,
   startDebugPolling,
   stopDebugPolling,
-<<<<<<< HEAD
 } from "./app-polling";
 import { scheduleChatScroll, scheduleLogsScroll } from "./app-scroll";
-import { loadAgentIdentities, loadAgentIdentity } from "./controllers/agent-identity";
-import { loadAgentSkills } from "./controllers/agent-skills";
-import { loadAgents } from "./controllers/agents";
 import { loadChannels } from "./controllers/channels";
->>>>>>> 2a68bcbeb (feat(ui): add Agents dashboard)
 import { loadConfig, loadConfigSchema } from "./controllers/config";
 import { loadCronJobs, loadCronStatus } from "./controllers/cron";
-import { loadChannels } from "./controllers/channels";
 import { loadDebug } from "./controllers/debug";
-import { loadLogs } from "./controllers/logs";
 import { loadDevices } from "./controllers/devices";
-import { loadNodes } from "./controllers/nodes";
 import { loadExecApprovals } from "./controllers/exec-approvals";
+import { loadLogs } from "./controllers/logs";
+import { loadNodes } from "./controllers/nodes";
 import { loadPresence } from "./controllers/presence";
 import { loadSessions } from "./controllers/sessions";
 import { loadSkills } from "./controllers/skills";
@@ -62,6 +48,7 @@ import {
 import { saveSettings, type UiSettings } from "./storage";
 import { resolveTheme, type ResolvedTheme, type ThemeMode } from "./theme";
 import { startThemeTransition, type ThemeTransitionContext } from "./theme-transition";
+<<<<<<< HEAD
 import { scheduleChatScroll, scheduleLogsScroll } from "./app-scroll";
 import {
   startLogsPolling,
@@ -72,11 +59,7 @@ import {
 import { refreshChat } from "./app-chat";
 import type { MoltbotApp } from "./app";
 =======
-} from "./navigation.ts";
-import { saveSettings, type UiSettings } from "./storage.ts";
-import { startThemeTransition, type ThemeTransitionContext } from "./theme-transition.ts";
-import { resolveTheme, type ResolvedTheme, type ThemeMode } from "./theme.ts";
->>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 
 type SettingsHost = {
   settings: UiSettings;
@@ -99,6 +82,30 @@ type SettingsHost = {
   themeMediaHandler: ((event: MediaQueryListEvent) => void) | null;
   pendingGatewayUrl?: string | null;
 };
+
+function isTopLevelWindow(): boolean {
+  try {
+    return window.top === window.self;
+  } catch {
+    return false;
+  }
+}
+
+function normalizeGatewayUrl(raw: string): string | null {
+  const trimmed = raw.trim();
+  if (!trimmed) {
+    return null;
+  }
+  try {
+    const parsed = new URL(trimmed);
+    if (parsed.protocol !== "ws:" && parsed.protocol !== "wss:") {
+      return null;
+    }
+    return trimmed;
+  } catch {
+    return null;
+  }
+}
 
 export function applySettings(host: SettingsHost, next: UiSettings) {
   const normalized = {
@@ -140,16 +147,13 @@ export function applySettingsFromUrl(host: SettingsHost) {
   let shouldCleanUrl = false;
 
   if (tokenRaw != null) {
-    const token = tokenRaw.trim();
-    if (token && token !== host.settings.token) {
-      applySettings(host, { ...host.settings, token });
-    }
     params.delete("token");
     hashParams.delete("token");
     shouldCleanUrl = true;
   }
 
   if (passwordRaw != null) {
+<<<<<<< HEAD
     const password = passwordRaw.trim();
     if (password) {
 <<<<<<< HEAD
@@ -158,6 +162,8 @@ export function applySettingsFromUrl(host: SettingsHost) {
       (host as { password: string }).password = password;
 >>>>>>> 8a352c8f9 (Web UI: add token usage dashboard (#10072))
     }
+=======
+>>>>>>> 717129f7f (fix: silence unused hook token url param (#9436))
     params.delete("password");
     hashParams.delete("password");
     shouldCleanUrl = true;
@@ -176,8 +182,8 @@ export function applySettingsFromUrl(host: SettingsHost) {
   }
 
   if (gatewayUrlRaw != null) {
-    const gatewayUrl = gatewayUrlRaw.trim();
-    if (gatewayUrl && gatewayUrl !== host.settings.gatewayUrl) {
+    const gatewayUrl = normalizeGatewayUrl(gatewayUrlRaw);
+    if (gatewayUrl && gatewayUrl !== host.settings.gatewayUrl && isTopLevelWindow()) {
       host.pendingGatewayUrl = gatewayUrl;
     }
     params.delete("gatewayUrl");
@@ -234,68 +240,15 @@ export async function refreshActiveTab(host: SettingsHost) {
 <<<<<<< HEAD
   if (host.tab === "overview") await loadOverview(host);
   if (host.tab === "channels") await loadChannelsTab(host);
-  if (host.tab === "instances") await loadPresence(host as unknown as MoltbotApp);
-  if (host.tab === "sessions") await loadSessions(host as unknown as MoltbotApp);
+  if (host.tab === "instances") await loadPresence(host as unknown as OpenClawApp);
+  if (host.tab === "sessions") await loadSessions(host as unknown as OpenClawApp);
   if (host.tab === "cron") await loadCron(host);
-  if (host.tab === "skills") await loadSkills(host as unknown as MoltbotApp);
-=======
-  if (host.tab === "overview") {await loadOverview(host);}
-  if (host.tab === "channels") {await loadChannelsTab(host);}
-  if (host.tab === "instances") {await loadPresence(host as unknown as OpenClawApp);}
-  if (host.tab === "sessions") {await loadSessions(host as unknown as OpenClawApp);}
-  if (host.tab === "cron") {await loadCron(host);}
-  if (host.tab === "skills") {await loadSkills(host as unknown as OpenClawApp);}
->>>>>>> 5ba4586e5 (chore: lint the `ui` folder.)
-=======
-  if (host.tab === "overview") {
-    await loadOverview(host);
-  }
-  if (host.tab === "channels") {
-    await loadChannelsTab(host);
-  }
-  if (host.tab === "instances") {
-    await loadPresence(host as unknown as OpenClawApp);
-  }
-  if (host.tab === "sessions") {
-    await loadSessions(host as unknown as OpenClawApp);
-  }
-  if (host.tab === "cron") {
-    await loadCron(host);
-  }
-  if (host.tab === "skills") {
-    await loadSkills(host as unknown as OpenClawApp);
-  }
-<<<<<<< HEAD
->>>>>>> e9a32b83c (chore: Manually fix lint issues in `ui`.)
-=======
-  if (host.tab === "agents") {
-    await loadAgents(host as unknown as OpenClawApp);
-    await loadConfig(host as unknown as OpenClawApp);
-    const agentIds = host.agentsList?.agents?.map((entry) => entry.id) ?? [];
-    if (agentIds.length > 0) {
-      void loadAgentIdentities(host as unknown as OpenClawApp, agentIds);
-    }
-    const agentId =
-      host.agentsSelectedId ?? host.agentsList?.defaultId ?? host.agentsList?.agents?.[0]?.id;
-    if (agentId) {
-      void loadAgentIdentity(host as unknown as OpenClawApp, agentId);
-      if (host.agentsPanel === "skills") {
-        void loadAgentSkills(host as unknown as OpenClawApp, agentId);
-      }
-      if (host.agentsPanel === "channels") {
-        void loadChannels(host as unknown as OpenClawApp, false);
-      }
-      if (host.agentsPanel === "cron") {
-        void loadCron(host);
-      }
-    }
-  }
->>>>>>> 2a68bcbeb (feat(ui): add Agents dashboard)
+  if (host.tab === "skills") await loadSkills(host as unknown as OpenClawApp);
   if (host.tab === "nodes") {
-    await loadNodes(host as unknown as MoltbotApp);
-    await loadDevices(host as unknown as MoltbotApp);
-    await loadConfig(host as unknown as MoltbotApp);
-    await loadExecApprovals(host as unknown as MoltbotApp);
+    await loadNodes(host as unknown as OpenClawApp);
+    await loadDevices(host as unknown as OpenClawApp);
+    await loadConfig(host as unknown as OpenClawApp);
+    await loadExecApprovals(host as unknown as OpenClawApp);
   }
   if (host.tab === "chat") {
     await refreshChat(host as unknown as Parameters<typeof refreshChat>[0]);
@@ -305,17 +258,16 @@ export async function refreshActiveTab(host: SettingsHost) {
     );
   }
   if (host.tab === "config") {
-    await loadConfigSchema(host as unknown as MoltbotApp);
-    await loadConfig(host as unknown as MoltbotApp);
+    await loadConfigSchema(host as unknown as OpenClawApp);
+    await loadConfig(host as unknown as OpenClawApp);
   }
   if (host.tab === "debug") {
-    await loadDebug(host as unknown as MoltbotApp);
+    await loadDebug(host as unknown as OpenClawApp);
     host.eventLog = host.eventLogBuffer;
   }
   if (host.tab === "logs") {
     host.logsAtBottom = true;
-<<<<<<< HEAD
-    await loadLogs(host as unknown as MoltbotApp, { reset: true });
+    await loadLogs(host as unknown as OpenClawApp, { reset: true });
     scheduleLogsScroll(
       host as unknown as Parameters<typeof scheduleLogsScroll>[0],
       true,
@@ -331,16 +283,7 @@ export function inferBasePath() {
 <<<<<<< HEAD
 <<<<<<< HEAD
   if (typeof window === "undefined") return "";
-  const configured = window.__CLAWDBOT_CONTROL_UI_BASE_PATH__;
-=======
-  if (typeof window === "undefined") {return "";}
-=======
-  if (typeof window === "undefined") {
-    return "";
-  }
->>>>>>> e9a32b83c (chore: Manually fix lint issues in `ui`.)
   const configured = window.__OPENCLAW_CONTROL_UI_BASE_PATH__;
->>>>>>> 5ba4586e5 (chore: lint the `ui` folder.)
   if (typeof configured === "string" && configured.trim()) {
     return normalizeBasePath(configured);
   }
@@ -493,26 +436,26 @@ export function syncUrlWithSessionKey(host: SettingsHost, sessionKey: string, re
 
 export async function loadOverview(host: SettingsHost) {
   await Promise.all([
-    loadChannels(host as unknown as MoltbotApp, false),
-    loadPresence(host as unknown as MoltbotApp),
-    loadSessions(host as unknown as MoltbotApp),
-    loadCronStatus(host as unknown as MoltbotApp),
-    loadDebug(host as unknown as MoltbotApp),
+    loadChannels(host as unknown as OpenClawApp, false),
+    loadPresence(host as unknown as OpenClawApp),
+    loadSessions(host as unknown as OpenClawApp),
+    loadCronStatus(host as unknown as OpenClawApp),
+    loadDebug(host as unknown as OpenClawApp),
   ]);
 }
 
 export async function loadChannelsTab(host: SettingsHost) {
   await Promise.all([
-    loadChannels(host as unknown as MoltbotApp, true),
-    loadConfigSchema(host as unknown as MoltbotApp),
-    loadConfig(host as unknown as MoltbotApp),
+    loadChannels(host as unknown as OpenClawApp, true),
+    loadConfigSchema(host as unknown as OpenClawApp),
+    loadConfig(host as unknown as OpenClawApp),
   ]);
 }
 
 export async function loadCron(host: SettingsHost) {
   await Promise.all([
-    loadChannels(host as unknown as MoltbotApp, false),
-    loadCronStatus(host as unknown as MoltbotApp),
-    loadCronJobs(host as unknown as MoltbotApp),
+    loadChannels(host as unknown as OpenClawApp, false),
+    loadCronStatus(host as unknown as OpenClawApp),
+    loadCronJobs(host as unknown as OpenClawApp),
   ]);
 }

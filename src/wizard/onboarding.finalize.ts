@@ -1,31 +1,22 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-
+import type { OnboardOptions } from "../commands/onboard-types.js";
+import type { OpenClawConfig } from "../config/config.js";
+import type { RuntimeEnv } from "../runtime.js";
+import type { GatewayWizardSettings, WizardFlow } from "./onboarding.types.js";
+import type { WizardPrompter } from "./prompts.js";
 import { DEFAULT_BOOTSTRAP_FILENAME } from "../agents/workspace.js";
-<<<<<<< HEAD
-=======
-import { resolveCliName } from "../cli/cli-name.js";
 import { formatCliCommand } from "../cli/command-format.js";
-import { installCompletion } from "../cli/completion-cli.js";
 import {
   buildGatewayInstallPlan,
   gatewayInstallErrorHint,
 } from "../commands/daemon-install-helpers.js";
->>>>>>> 3e1419273 (onboard: use shared completion helpers for shell completion setup)
 import {
   DEFAULT_GATEWAY_DAEMON_RUNTIME,
   GATEWAY_DAEMON_RUNTIME_OPTIONS,
 } from "../commands/daemon-runtime.js";
-<<<<<<< HEAD
-=======
-import {
-  checkShellCompletionStatus,
-  ensureCompletionCacheExists,
-} from "../commands/doctor-completion.js";
 import { formatHealthCheckFailure } from "../commands/health-format.js";
->>>>>>> 3e1419273 (onboard: use shared completion helpers for shell completion setup)
 import { healthCommand } from "../commands/health.js";
-import { formatHealthCheckFailure } from "../commands/health-format.js";
 import {
   detectBrowserOpenSupport,
   formatControlUiSshHint,
@@ -34,31 +25,23 @@ import {
   waitForGatewayReachable,
   resolveControlUiLinks,
 } from "../commands/onboard-helpers.js";
+<<<<<<< HEAD
 import { formatCliCommand } from "../cli/command-format.js";
 import type { OnboardOptions } from "../commands/onboard-types.js";
 import type { MoltbotConfig } from "../config/config.js";
+=======
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { resolveGatewayService } from "../daemon/service.js";
 import { isSystemdUserServiceAvailable } from "../daemon/systemd.js";
 import { ensureControlUiAssetsBuilt } from "../infra/control-ui-assets.js";
-<<<<<<< HEAD
-import type { RuntimeEnv } from "../runtime.js";
-=======
-import { restoreTerminalState } from "../terminal/restore.js";
->>>>>>> 58d5b39c9 (Onboarding: keep TUI flow exclusive)
 import { runTui } from "../tui/tui.js";
 import { resolveUserPath } from "../utils.js";
-import {
-  buildGatewayInstallPlan,
-  gatewayInstallErrorHint,
-} from "../commands/daemon-install-helpers.js";
-import type { GatewayWizardSettings, WizardFlow } from "./onboarding.types.js";
-import type { WizardPrompter } from "./prompts.js";
 
 type FinalizeOnboardingOptions = {
   flow: WizardFlow;
   opts: OnboardOptions;
-  baseConfig: MoltbotConfig;
-  nextConfig: MoltbotConfig;
+  baseConfig: OpenClawConfig;
+  nextConfig: OpenClawConfig;
   workspaceDir: string;
   settings: GatewayWizardSettings;
   prompter: WizardPrompter;
@@ -236,8 +219,8 @@ export async function finalizeOnboardingWizard(
       await prompter.note(
         [
           "Docs:",
-          "https://docs.molt.bot/gateway/health",
-          "https://docs.molt.bot/gateway/troubleshooting",
+          "https://docs.openclaw.ai/gateway/health",
+          "https://docs.openclaw.ai/gateway/troubleshooting",
         ].join("\n"),
         "Health check help",
       );
@@ -271,18 +254,7 @@ export async function finalizeOnboardingWizard(
     customBindHost: settings.customBindHost,
     basePath: controlUiBasePath,
   });
-<<<<<<< HEAD
-  const tokenParam =
-    settings.authMode === "token" && settings.gatewayToken
-      ? `?token=${encodeURIComponent(settings.gatewayToken)}`
-      : "";
-  const authedUrl = `${links.httpUrl}${tokenParam}`;
-=======
-  const authedUrl =
-    settings.authMode === "token" && settings.gatewayToken
-      ? `${links.httpUrl}#token=${encodeURIComponent(settings.gatewayToken)}`
-      : links.httpUrl;
->>>>>>> c5194d814 (fix(dashboard): restore tokenized control ui links)
+  const dashboardUrl = links.httpUrl;
   const gatewayProbe = await probeGatewayReachable({
     url: links.wsUrl,
     token: settings.authMode === "token" ? settings.gatewayToken : undefined,
@@ -302,17 +274,10 @@ export async function finalizeOnboardingWizard(
 
   await prompter.note(
     [
-      `Web UI: ${links.httpUrl}`,
-<<<<<<< HEAD
-      tokenParam ? `Web UI (with token): ${authedUrl}` : undefined,
-=======
-      settings.authMode === "token" && settings.gatewayToken
-        ? `Web UI (with token): ${authedUrl}`
-        : undefined,
->>>>>>> c5194d814 (fix(dashboard): restore tokenized control ui links)
+      `Web UI: ${dashboardUrl}`,
       `Gateway WS: ${links.wsUrl}`,
       gatewayStatusLine,
-      "Docs: https://docs.molt.bot/web/control-ui",
+      "Docs: https://docs.openclaw.ai/web/control-ui",
     ]
       .filter(Boolean)
       .join("\n"),
@@ -341,18 +306,9 @@ export async function finalizeOnboardingWizard(
     await prompter.note(
       [
         "Gateway token: shared auth for the Gateway + Control UI.",
-<<<<<<< HEAD
-        "Stored in: ~/.clawdbot/moltbot.json (gateway.auth.token) or CLAWDBOT_GATEWAY_TOKEN.",
-        "Web UI stores a copy in this browser's localStorage (moltbot.control.settings.v1).",
-        `Get the tokenized link anytime: ${formatCliCommand("moltbot dashboard --no-open")}`,
-=======
         "Stored in: ~/.openclaw/openclaw.json (gateway.auth.token) or OPENCLAW_GATEWAY_TOKEN.",
-        `View token: ${formatCliCommand("openclaw config get gateway.auth.token")}`,
-        `Generate token: ${formatCliCommand("openclaw doctor --generate-gateway-token")}`,
         "Web UI stores a copy in this browser's localStorage (openclaw.control.settings.v1).",
-        `Open the dashboard anytime: ${formatCliCommand("openclaw dashboard --no-open")}`,
-        "If prompted: paste the token into Control UI settings (or use the tokenized dashboard URL).",
->>>>>>> c5194d814 (fix(dashboard): restore tokenized control ui links)
+        `Get the tokenized link anytime: ${formatCliCommand("openclaw dashboard --no-open")}`,
       ].join("\n"),
       "Token",
     );
@@ -384,7 +340,7 @@ export async function finalizeOnboardingWizard(
       if (seededInBackground) {
         await prompter.note(
           `Web UI seeded in the background. Open later with: ${formatCliCommand(
-            "moltbot dashboard --no-open",
+            "openclaw dashboard --no-open",
           )}`,
           "Web UI",
         );
@@ -395,35 +351,25 @@ export async function finalizeOnboardingWizard(
     } else if (hatchChoice === "web") {
       const browserSupport = await detectBrowserOpenSupport();
       if (browserSupport.ok) {
-        controlUiOpened = await openUrl(authedUrl);
+        controlUiOpened = await openUrl(dashboardUrl);
         if (!controlUiOpened) {
           controlUiOpenHint = formatControlUiSshHint({
             port: settings.port,
             basePath: controlUiBasePath,
-<<<<<<< HEAD
-            token: settings.gatewayToken,
-=======
-            token: settings.authMode === "token" ? settings.gatewayToken : undefined,
->>>>>>> c5194d814 (fix(dashboard): restore tokenized control ui links)
           });
         }
       } else {
         controlUiOpenHint = formatControlUiSshHint({
           port: settings.port,
           basePath: controlUiBasePath,
-<<<<<<< HEAD
-          token: settings.gatewayToken,
-=======
-          token: settings.authMode === "token" ? settings.gatewayToken : undefined,
->>>>>>> c5194d814 (fix(dashboard): restore tokenized control ui links)
         });
       }
       await prompter.note(
         [
-          `Dashboard link (with token): ${authedUrl}`,
+          `Dashboard link: ${dashboardUrl}`,
           controlUiOpened
-            ? "Opened in your browser. Keep that tab to control Moltbot."
-            : "Copy/paste this URL in a browser on this machine to control Moltbot.",
+            ? "Opened in your browser. Keep that tab to control OpenClaw."
+            : "Copy/paste this URL in a browser on this machine to control OpenClaw.",
           controlUiOpenHint,
         ]
           .filter(Boolean)
@@ -432,7 +378,7 @@ export async function finalizeOnboardingWizard(
       );
     } else {
       await prompter.note(
-        `When you're ready: ${formatCliCommand("moltbot dashboard --no-open")}`,
+        `When you're ready: ${formatCliCommand("openclaw dashboard --no-open")}`,
         "Later",
       );
     }
@@ -441,14 +387,15 @@ export async function finalizeOnboardingWizard(
   }
 
   await prompter.note(
-    ["Back up your agent workspace.", "Docs: https://docs.molt.bot/concepts/agent-workspace"].join(
-      "\n",
-    ),
+    [
+      "Back up your agent workspace.",
+      "Docs: https://docs.openclaw.ai/concepts/agent-workspace",
+    ].join("\n"),
     "Workspace backup",
   );
 
   await prompter.note(
-    "Running agents on your computer is risky — harden your setup: https://docs.molt.bot/security",
+    "Running agents on your computer is risky — harden your setup: https://docs.openclaw.ai/security",
     "Security",
   );
 
@@ -505,28 +452,26 @@ export async function finalizeOnboardingWizard(
   if (shouldOpenControlUi) {
     const browserSupport = await detectBrowserOpenSupport();
     if (browserSupport.ok) {
-      controlUiOpened = await openUrl(authedUrl);
+      controlUiOpened = await openUrl(dashboardUrl);
       if (!controlUiOpened) {
         controlUiOpenHint = formatControlUiSshHint({
           port: settings.port,
           basePath: controlUiBasePath,
-          token: settings.gatewayToken,
         });
       }
     } else {
       controlUiOpenHint = formatControlUiSshHint({
         port: settings.port,
         basePath: controlUiBasePath,
-        token: settings.gatewayToken,
       });
     }
 
     await prompter.note(
       [
-        `Dashboard link (with token): ${authedUrl}`,
+        `Dashboard link: ${dashboardUrl}`,
         controlUiOpened
-          ? "Opened in your browser. Keep that tab to control Moltbot."
-          : "Copy/paste this URL in a browser on this machine to control Moltbot.",
+          ? "Opened in your browser. Keep that tab to control OpenClaw."
+          : "Copy/paste this URL in a browser on this machine to control OpenClaw.",
         controlUiOpenHint,
       ]
         .filter(Boolean)
@@ -546,34 +491,34 @@ export async function finalizeOnboardingWizard(
           webSearchKey
             ? "API key: stored in config (tools.web.search.apiKey)."
             : "API key: provided via BRAVE_API_KEY env var (Gateway environment).",
-          "Docs: https://docs.molt.bot/tools/web",
+          "Docs: https://docs.openclaw.ai/tools/web",
         ].join("\n")
       : [
           "If you want your agent to be able to search the web, you’ll need an API key.",
           "",
-          "Moltbot uses Brave Search for the `web_search` tool. Without a Brave Search API key, web search won’t work.",
+          "OpenClaw uses Brave Search for the `web_search` tool. Without a Brave Search API key, web search won’t work.",
           "",
           "Set it up interactively:",
-          `- Run: ${formatCliCommand("moltbot configure --section web")}`,
+          `- Run: ${formatCliCommand("openclaw configure --section web")}`,
           "- Enable web_search and paste your Brave Search API key",
           "",
           "Alternative: set BRAVE_API_KEY in the Gateway environment (no config changes).",
-          "Docs: https://docs.molt.bot/tools/web",
+          "Docs: https://docs.openclaw.ai/tools/web",
         ].join("\n"),
     "Web search (optional)",
   );
 
   await prompter.note(
-    'What now: https://molt.bot/showcase ("What People Are Building").',
+    'What now: https://openclaw.ai/showcase ("What People Are Building").',
     "What now",
   );
 
   await prompter.outro(
     controlUiOpened
-      ? "Onboarding complete. Dashboard opened with your token; keep that tab to control Moltbot."
+      ? "Onboarding complete. Dashboard opened with your token; keep that tab to control OpenClaw."
       : seededInBackground
         ? "Onboarding complete. Web UI seeded in the background; open it anytime with the tokenized link above."
-        : "Onboarding complete. Use the tokenized dashboard link above to control Moltbot.",
+        : "Onboarding complete. Use the tokenized dashboard link above to control OpenClaw.",
   );
 
   return { launchedTui };

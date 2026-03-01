@@ -2,12 +2,11 @@ import { execFile } from "node:child_process";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { promisify } from "node:util";
-
+import type { GatewayServiceRuntime } from "./service-runtime.js";
 import { colorize, isRich, theme } from "../terminal/theme.js";
 import { formatGatewayServiceDescription, resolveGatewayWindowsTaskName } from "./constants.js";
 import { resolveGatewayStateDir } from "./paths.js";
 import { parseKeyValueOutput } from "./runtime-parse.js";
-import type { GatewayServiceRuntime } from "./service-runtime.js";
 
 const execFileAsync = promisify(execFile);
 
@@ -17,31 +16,15 @@ const formatLine = (label: string, value: string) => {
 };
 
 function resolveTaskName(env: Record<string, string | undefined>): string {
-<<<<<<< HEAD
-  const override = env.CLAWDBOT_WINDOWS_TASK_NAME?.trim();
-  if (override) return override;
-  return resolveGatewayWindowsTaskName(env.CLAWDBOT_PROFILE);
-}
-
-export function resolveTaskScriptPath(env: Record<string, string | undefined>): string {
-  const override = env.CLAWDBOT_TASK_SCRIPT?.trim();
-  if (override) return override;
-  const scriptName = env.CLAWDBOT_TASK_SCRIPT_NAME?.trim() || "gateway.cmd";
-=======
   const override = env.OPENCLAW_WINDOWS_TASK_NAME?.trim();
-  if (override) {
-    return override;
-  }
+  if (override) return override;
   return resolveGatewayWindowsTaskName(env.OPENCLAW_PROFILE);
 }
 
 export function resolveTaskScriptPath(env: Record<string, string | undefined>): string {
   const override = env.OPENCLAW_TASK_SCRIPT?.trim();
-  if (override) {
-    return override;
-  }
+  if (override) return override;
   const scriptName = env.OPENCLAW_TASK_SCRIPT_NAME?.trim() || "gateway.cmd";
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
   const stateDir = resolveGatewayStateDir(env);
   return path.join(stateDir, scriptName);
 }
@@ -271,8 +254,8 @@ export async function installScheduledTask({
   const taskDescription =
     description ??
     formatGatewayServiceDescription({
-      profile: env.CLAWDBOT_PROFILE,
-      version: environment?.CLAWDBOT_SERVICE_VERSION ?? env.CLAWDBOT_SERVICE_VERSION,
+      profile: env.OPENCLAW_PROFILE,
+      version: environment?.OPENCLAW_SERVICE_VERSION ?? env.OPENCLAW_SERVICE_VERSION,
     });
   const script = buildTaskScript({
     description: taskDescription,

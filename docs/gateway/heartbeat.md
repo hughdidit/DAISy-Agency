@@ -3,6 +3,7 @@ summary: "Heartbeat polling messages and notification rules"
 read_when:
   - Adjusting heartbeat cadence or messaging
   - Deciding between heartbeat and cron for scheduled tasks
+title: "Heartbeat"
 ---
 
 # Heartbeat (Gateway)
@@ -11,6 +12,8 @@ read_when:
 
 Heartbeat runs **periodic agent turns** in the main session so the model can
 surface anything that needs attention without spamming you.
+
+Troubleshooting: [/automation/troubleshooting](/automation/troubleshooting)
 
 ## Quick start (beginner)
 
@@ -64,7 +67,7 @@ stats” or “verify gateway health”), set `agents.defaults.heartbeat.prompt`
 ## Response contract
 
 - If nothing needs attention, reply with **`HEARTBEAT_OK`**.
-- During heartbeat runs, Moltbot treats `HEARTBEAT_OK` as an ack when it appears
+- During heartbeat runs, OpenClaw treats `HEARTBEAT_OK` as an ack when it appears
   at the **start or end** of the reply. The token is stripped and the reply is
   dropped if the remaining content is **≤ `ackMaxChars`** (default: 300).
 - If `HEARTBEAT_OK` appears in the **middle** of a reply, it is not treated
@@ -81,8 +84,13 @@ and logged; a message that is only `HEARTBEAT_OK` is dropped.
   agents: {
     defaults: {
       heartbeat: {
-        every: "30m", // default: 30m (0m disables)
+<<<<<<< HEAD
+        every: "30m",           // default: 30m (0m disables)
         model: "anthropic/claude-opus-4-5",
+=======
+        every: "30m", // default: 30m (0m disables)
+        model: "anthropic/claude-opus-4-6",
+>>>>>>> 462905440 (chore: apply local workspace updates (#9911))
         includeReasoning: false, // default: false (deliver separate Reasoning: message when available)
         target: "last", // last | none | <channel id> (core or plugin, e.g. "bluebubbles")
         to: "+15551234567", // optional channel-specific override
@@ -128,6 +136,13 @@ Example: two agents, only the second agent runs heartbeats.
           every: "1h",
           target: "whatsapp",
           to: "+15551234567",
+<<<<<<< HEAD
+          prompt: "Read HEARTBEAT.md if it exists (workspace context). Follow it strictly. Do not infer or repeat old tasks from prior chats. If nothing needs attention, reply HEARTBEAT_OK."
+        }
+      }
+    ]
+  }
+=======
           prompt: "Read HEARTBEAT.md if it exists (workspace context). Follow it strictly. Do not infer or repeat old tasks from prior chats. If nothing needs attention, reply HEARTBEAT_OK.",
         },
       },
@@ -135,6 +150,30 @@ Example: two agents, only the second agent runs heartbeats.
   },
 }
 ```
+
+### Active hours example
+
+Restrict heartbeats to business hours in a specific timezone:
+
+```json5
+{
+  agents: {
+    defaults: {
+      heartbeat: {
+        every: "30m",
+        target: "last",
+        activeHours: {
+          start: "09:00",
+          end: "22:00",
+          timezone: "America/New_York", // optional; uses your userTimezone if set, otherwise host tz
+        },
+      },
+    },
+  },
+}
+```
+
+Outside this window (before 9am or after 10pm Eastern), heartbeats are skipped. The next scheduled tick inside the window will run normally.
 
 ### Multi account example
 
@@ -162,6 +201,7 @@ Use `accountId` to target a specific account on multi-account channels like Tele
       },
     },
   },
+>>>>>>> d2aee7da6 (docs: add activeHours to heartbeat field notes and examples (#9366))
 }
 ```
 
@@ -172,8 +212,7 @@ Use `accountId` to target a specific account on multi-account channels like Tele
 - `includeReasoning`: when enabled, also deliver the separate `Reasoning:` message when available (same shape as `/reasoning on`).
 - `session`: optional session key for heartbeat runs.
   - `main` (default): agent main session.
-<<<<<<< HEAD
-  - Explicit session key (copy from `moltbot sessions --json` or the [sessions CLI](/cli/sessions)).
+  - Explicit session key (copy from `openclaw sessions --json` or the [sessions CLI](/cli/sessions)).
   - Session key formats: see [Sessions](/concepts/session) and [Groups](/concepts/groups).
 =======
   - Explicit session key (copy from `openclaw sessions --json` or the [sessions CLI](/cli/sessions)).
@@ -187,6 +226,11 @@ Use `accountId` to target a specific account on multi-account channels like Tele
 - `accountId`: optional account id for multi-account channels. When `target: "last"`, the account id applies to the resolved last channel if it supports accounts; otherwise it is ignored. If the account id does not match a configured account for the resolved channel, delivery is skipped.
 - `prompt`: overrides the default prompt body (not merged).
 - `ackMaxChars`: max chars allowed after `HEARTBEAT_OK` before delivery.
+- `activeHours`: restricts heartbeat runs to a time window. Object with `start` (HH:MM, inclusive), `end` (HH:MM exclusive; `24:00` allowed for end-of-day), and optional `timezone`.
+  - Omitted or `"user"`: uses your `agents.defaults.userTimezone` if set, otherwise falls back to the host system timezone.
+  - `"local"`: always uses the host system timezone.
+  - Any IANA identifier (e.g. `America/New_York`): used directly; if invalid, falls back to the `"user"` behavior above.
+  - Outside the active window, heartbeats are skipped until the next tick inside the window.
 
 ## Delivery behavior
 
@@ -232,7 +276,7 @@ Precedence: per-account → per-channel → channel defaults → built-in defaul
 - `showAlerts`: sends the alert content when the model returns a non-OK reply.
 - `useIndicator`: emits indicator events for UI status surfaces.
 
-If **all three** are false, Moltbot skips the heartbeat run entirely (no model call).
+If **all three** are false, OpenClaw skips the heartbeat run entirely (no model call).
 
 ### Per-channel vs per-account examples
 
@@ -271,7 +315,7 @@ agent to read it. Think of it as your “heartbeat checklist”: small, stable, 
 safe to include every 30 minutes.
 
 If `HEARTBEAT.md` exists but is effectively empty (only blank lines and markdown
-headers like `# Heading`), Moltbot skips the heartbeat run to save API calls.
+headers like `# Heading`), OpenClaw skips the heartbeat run to save API calls.
 If the file is missing, the heartbeat still runs and the model decides what to do.
 
 Keep it tiny (short checklist or reminders) to avoid prompt bloat.
@@ -308,7 +352,7 @@ Safety note: don’t put secrets (API keys, phone numbers, private tokens) into
 You can enqueue a system event and trigger an immediate heartbeat with:
 
 ```bash
-moltbot system event --text "Check for urgent follow-ups" --mode now
+openclaw system event --text "Check for urgent follow-ups" --mode now
 ```
 
 If multiple agents have `heartbeat` configured, a manual wake runs each of those

@@ -1,9 +1,4 @@
 import { afterEach, expect, test } from "vitest";
-<<<<<<< HEAD
-
-=======
-import { sleep } from "../utils";
->>>>>>> 6b0d6e254 (chore: We have a sleep at home. The sleep at home:)
 import { resetProcessRegistryForTests } from "./bash-process-registry";
 import { createExecTool } from "./bash-tools.exec";
 import { createProcessTool } from "./bash-tools.process";

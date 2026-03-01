@@ -1,6 +1,10 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
+<<<<<<< HEAD
 
 import type { MoltbotConfig } from "clawdbot/plugin-sdk";
+=======
+import type { OpenClawConfig } from "openclaw/plugin-sdk";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import {
   createReplyPrefixOptions,
   logAckFailure,
@@ -8,6 +12,7 @@ import {
   logTypingFailure,
   resolveAckReaction,
   resolveControlCommandGate,
+<<<<<<< HEAD
 } from "clawdbot/plugin-sdk";
 import { markBlueBubblesChatRead, sendBlueBubblesTyping } from "./chat.js";
 import { resolveChatGuidForTarget, sendMessageBlueBubbles } from "./send.js";
@@ -23,6 +28,23 @@ import type { ResolvedBlueBubblesAccount } from "./accounts.js";
 import { getBlueBubblesRuntime } from "./runtime.js";
 import { normalizeBlueBubblesReactionInput, sendBlueBubblesReaction } from "./reactions.js";
 import { fetchBlueBubblesServerInfo } from "./probe.js";
+=======
+} from "openclaw/plugin-sdk";
+import type { ResolvedBlueBubblesAccount } from "./accounts.js";
+import type { BlueBubblesAccountConfig, BlueBubblesAttachment } from "./types.js";
+import { downloadBlueBubblesAttachment } from "./attachments.js";
+import { markBlueBubblesChatRead, sendBlueBubblesTyping } from "./chat.js";
+import { sendBlueBubblesMedia } from "./media-send.js";
+import { fetchBlueBubblesServerInfo } from "./probe.js";
+import { normalizeBlueBubblesReactionInput, sendBlueBubblesReaction } from "./reactions.js";
+import { getBlueBubblesRuntime } from "./runtime.js";
+import { resolveChatGuidForTarget, sendMessageBlueBubbles } from "./send.js";
+import {
+  formatBlueBubblesChatTarget,
+  isAllowedBlueBubblesSender,
+  normalizeBlueBubblesHandle,
+} from "./targets.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 
 export type BlueBubblesRuntimeEnv = {
   log?: (message: string) => void;
@@ -31,7 +53,7 @@ export type BlueBubblesRuntimeEnv = {
 
 export type BlueBubblesMonitorOptions = {
   account: ResolvedBlueBubblesAccount;
-  config: MoltbotConfig;
+  config: OpenClawConfig;
   runtime: BlueBubblesRuntimeEnv;
   abortSignal: AbortSignal;
   statusSink?: (patch: { lastInboundAt?: number; lastOutboundAt?: number }) => void;
@@ -271,7 +293,7 @@ function logGroupAllowlistHint(params: {
 
 type WebhookTarget = {
   account: ResolvedBlueBubblesAccount;
-  config: MoltbotConfig;
+  config: OpenClawConfig;
   runtime: BlueBubblesRuntimeEnv;
   core: BlueBubblesCoreRuntime;
   path: string;
@@ -372,7 +394,7 @@ const targetDebouncers = new Map<
 >();
 
 function resolveBlueBubblesDebounceMs(
-  config: MoltbotConfig,
+  config: OpenClawConfig,
   core: BlueBubblesCoreRuntime,
 ): number {
   const inbound = config.messages?.inbound;
@@ -509,14 +531,29 @@ export function registerBlueBubblesWebhookTarget(target: WebhookTarget): () => v
   };
 }
 
-async function readJsonBody(req: IncomingMessage, maxBytes: number) {
+async function readJsonBody(req: IncomingMessage, maxBytes: number, timeoutMs = 30_000) {
   const chunks: Buffer[] = [];
   let total = 0;
   return await new Promise<{ ok: boolean; value?: unknown; error?: string }>((resolve) => {
+    let done = false;
+    const finish = (result: { ok: boolean; value?: unknown; error?: string }) => {
+      if (done) {
+        return;
+      }
+      done = true;
+      clearTimeout(timer);
+      resolve(result);
+    };
+
+    const timer = setTimeout(() => {
+      finish({ ok: false, error: "request body timeout" });
+      req.destroy();
+    }, timeoutMs);
+
     req.on("data", (chunk: Buffer) => {
       total += chunk.length;
       if (total > maxBytes) {
-        resolve({ ok: false, error: "payload too large" });
+        finish({ ok: false, error: "payload too large" });
         req.destroy();
         return;
       }
@@ -526,27 +563,30 @@ async function readJsonBody(req: IncomingMessage, maxBytes: number) {
       try {
         const raw = Buffer.concat(chunks).toString("utf8");
         if (!raw.trim()) {
-          resolve({ ok: false, error: "empty payload" });
+          finish({ ok: false, error: "empty payload" });
           return;
         }
         try {
-          resolve({ ok: true, value: JSON.parse(raw) as unknown });
+          finish({ ok: true, value: JSON.parse(raw) as unknown });
           return;
         } catch {
           const params = new URLSearchParams(raw);
           const payload = params.get("payload") ?? params.get("data") ?? params.get("message");
           if (payload) {
-            resolve({ ok: true, value: JSON.parse(payload) as unknown });
+            finish({ ok: true, value: JSON.parse(payload) as unknown });
             return;
           }
           throw new Error("invalid json");
         }
       } catch (err) {
-        resolve({ ok: false, error: err instanceof Error ? err.message : String(err) });
+        finish({ ok: false, error: err instanceof Error ? err.message : String(err) });
       }
     });
     req.on("error", (err) => {
-      resolve({ ok: false, error: err instanceof Error ? err.message : String(err) });
+      finish({ ok: false, error: err instanceof Error ? err.message : String(err) });
+    });
+    req.on("close", () => {
+      finish({ ok: false, error: "connection closed" });
     });
   });
 }
@@ -1081,7 +1121,7 @@ function maskSecret(value: string): string {
 }
 
 function resolveBlueBubblesAckReaction(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   agentId: string;
   core: BlueBubblesCoreRuntime;
   runtime: BlueBubblesRuntimeEnv;
@@ -2147,8 +2187,6 @@ async function processMessage(
   };
 
   let sentMessage = false;
-<<<<<<< HEAD
-=======
   let streamingActive = false;
   let typingRestartTimer: NodeJS.Timeout | undefined;
   const typingRestartDelayMs = 150;
@@ -2171,12 +2209,12 @@ async function processMessage(
       sendBlueBubblesTyping(chatGuidForActions, true, {
         cfg: config,
         accountId: account.accountId,
-      }).catch((err) => {
-        runtime.error?.(`[bluebubbles] typing restart failed: ${String(err)}`);
-      });
+      })
+        .catch((err) => {
+          runtime.error?.(`[bluebubbles] typing restart failed: ${String(err)}`);
+        });
     }, typingRestartDelayMs);
   };
->>>>>>> 8d2f98fb0 (Fix subagent announce failover race (always emit lifecycle end + treat timeout=0 as no-timeout) (#6621))
   try {
     const { onModelSelected, ...prefixOptions } = createReplyPrefixOptions({
       cfg: config,
@@ -2190,12 +2228,12 @@ async function processMessage(
       dispatcherOptions: {
 <<<<<<< HEAD
         deliver: async (payload) => {
+          const rawReplyToId = typeof payload.replyToId === "string" ? payload.replyToId.trim() : "";
 =======
-        ...prefixOptions,
         deliver: async (payload, info) => {
->>>>>>> 5d82c8231 (feat: per-channel responsePrefix override (#9001))
           const rawReplyToId =
             typeof payload.replyToId === "string" ? payload.replyToId.trim() : "";
+>>>>>>> 9ef24fd40 (fix: flush block streaming on paragraph boundaries for chunkMode=newline (#7014))
           // Resolve short ID (e.g., "5") to full UUID
           const replyToMessageGuid = rawReplyToId
             ? resolveBlueBubblesMessageId(rawReplyToId, { requireKnownShortId: true })
@@ -2228,6 +2266,9 @@ async function processMessage(
               maybeEnqueueOutboundMessageId(result.messageId, cachedBody);
               sentMessage = true;
               statusSink?.({ lastOutboundAt: Date.now() });
+              if (info.kind === "block") {
+                restartTypingSoon();
+              }
             }
             return;
           }
@@ -2263,27 +2304,26 @@ async function processMessage(
             maybeEnqueueOutboundMessageId(result.messageId, chunk);
             sentMessage = true;
             statusSink?.({ lastOutboundAt: Date.now() });
-            // In newline mode, restart typing after each chunk if more chunks remain
-            // Small delay allows the Apple API to finish clearing the typing state from message send
-            if (chunkMode === "newline" && i < chunks.length - 1 && chatGuidForActions) {
-              await new Promise((r) => setTimeout(r, 150));
-              sendBlueBubblesTyping(chatGuidForActions, true, {
-                cfg: config,
-                accountId: account.accountId,
-              }).catch(() => {
-                // Ignore typing errors
-              });
+            if (info.kind === "block") {
+              restartTypingSoon();
             }
           }
         },
         onReplyStart: async () => {
+<<<<<<< HEAD
+          if (!chatGuidForActions) return;
+          if (!baseUrl || !password) return;
+          logVerbose(core, runtime, `typing start chatGuid=${chatGuidForActions}`);
+=======
           if (!chatGuidForActions) {
             return;
           }
           if (!baseUrl || !password) {
             return;
           }
-          logVerbose(core, runtime, `typing start chatGuid=${chatGuidForActions}`);
+          streamingActive = true;
+          clearTypingRestartTimer();
+>>>>>>> 9ef24fd40 (fix: flush block streaming on paragraph boundaries for chunkMode=newline (#7014))
           try {
             await sendBlueBubblesTyping(chatGuidForActions, true, {
               cfg: config,
@@ -2294,12 +2334,9 @@ async function processMessage(
           }
         },
         onIdle: async () => {
-          if (!chatGuidForActions) {
-            return;
-          }
-          if (!baseUrl || !password) {
-            return;
-          }
+<<<<<<< HEAD
+          if (!chatGuidForActions) return;
+          if (!baseUrl || !password) return;
           try {
             await sendBlueBubblesTyping(chatGuidForActions, false, {
               cfg: config,
@@ -2308,6 +2345,16 @@ async function processMessage(
           } catch (err) {
             logVerbose(core, runtime, `typing stop failed: ${String(err)}`);
           }
+=======
+          if (!chatGuidForActions) {
+            return;
+          }
+          if (!baseUrl || !password) {
+            return;
+          }
+          // Intentionally no-op for block streaming. We stop typing in finally
+          // after the run completes to avoid flicker between paragraph blocks.
+>>>>>>> 9ef24fd40 (fix: flush block streaming on paragraph boundaries for chunkMode=newline (#7014))
         },
         onError: (err, info) => {
           runtime.error?.(`BlueBubbles ${info.kind} reply failed: ${String(err)}`);
@@ -2322,6 +2369,10 @@ async function processMessage(
       },
     });
   } finally {
+    const shouldStopTyping =
+      Boolean(chatGuidForActions && baseUrl && password) && (streamingActive || !sentMessage);
+    streamingActive = false;
+    clearTypingRestartTimer();
     if (sentMessage && chatGuidForActions && ackMessageId) {
       core.channel.reactions.removeAckReactionAfterReply({
         removeAfterReply: removeAckAfterReply,
@@ -2345,8 +2396,8 @@ async function processMessage(
         },
       });
     }
-    if (chatGuidForActions && baseUrl && password && !sentMessage) {
-      // Stop typing indicator when no message was sent (e.g., NO_REPLY)
+    if (shouldStopTyping) {
+      // Stop typing after streaming completes to avoid a stuck indicator.
       sendBlueBubblesTyping(chatGuidForActions, false, {
         cfg: config,
         accountId: account.accountId,
