@@ -1006,6 +1006,7 @@ let skillsSnapshot = cronSession.sessionEntry.skillsSnapshot;
     if (hasNonzeroUsage(usage)) {
       const input = usage.input ?? 0;
       const output = usage.output ?? 0;
+<<<<<<< HEAD
       const promptTokens = input + (usage.cacheRead ?? 0) + (usage.cacheWrite ?? 0);
       cronSession.sessionEntry.inputTokens = input;
       cronSession.sessionEntry.outputTokens = output;
@@ -1021,21 +1022,34 @@ let skillsSnapshot = cronSession.sessionEntry.skillsSnapshot;
 <<<<<<< HEAD
 >>>>>>> 957b88308 (fix(agents): stabilize overflow compaction retries and session context accounting (openclaw#14102) thanks @vpesh)
 =======
+=======
+      const totalTokens = deriveSessionTotalTokens({
+        usage,
+        contextTokens,
+        promptTokens,
+      });
+>>>>>>> fcb685978 (fix(memoryFlush): correct context token accounting for flush gating (#5343))
       cronSession.sessionEntry.inputTokens = input;
       cronSession.sessionEntry.outputTokens = output;
-      cronSession.sessionEntry.totalTokens = totalTokens;
-      cronSession.sessionEntry.totalTokensFresh = true;
+      const telemetryUsage: NonNullable<CronRunTelemetry["usage"]> = {
+        input_tokens: input,
+        output_tokens: output,
+      };
+      if (typeof totalTokens === "number" && Number.isFinite(totalTokens) && totalTokens > 0) {
+        cronSession.sessionEntry.totalTokens = totalTokens;
+        cronSession.sessionEntry.totalTokensFresh = true;
+        telemetryUsage.total_tokens = totalTokens;
+      } else {
+        cronSession.sessionEntry.totalTokens = undefined;
+        cronSession.sessionEntry.totalTokensFresh = false;
+      }
       cronSession.sessionEntry.cacheRead = usage.cacheRead ?? 0;
       cronSession.sessionEntry.cacheWrite = usage.cacheWrite ?? 0;
 
       telemetry = {
         model: modelUsed,
         provider: providerUsed,
-        usage: {
-          input_tokens: input,
-          output_tokens: output,
-          total_tokens: totalTokens,
-        },
+        usage: telemetryUsage,
       };
     } else {
       telemetry = {
