@@ -629,16 +629,6 @@ export function discoverMoltbotPlugins(params: {
 >>>>>>> 77c748304 (refactor(plugins): extract safety and provenance helpers)
   }
 
-  const globalDir = path.join(resolveConfigDir(), "extensions");
-  discoverInDirectory({
-    dir: globalDir,
-    origin: "global",
-    ownershipUid: params.ownershipUid,
-    candidates,
-    diagnostics,
-    seen,
-  });
-
   const bundledDir = resolveBundledPluginsDir();
   if (bundledDir) {
     discoverInDirectory({
@@ -650,6 +640,18 @@ export function discoverMoltbotPlugins(params: {
       seen,
     });
   }
+
+  // Keep auto-discovered global extensions behind bundled plugins.
+  // Users can still intentionally override via plugins.load.paths (origin=config).
+  const globalDir = path.join(resolveConfigDir(), "extensions");
+  discoverInDirectory({
+    dir: globalDir,
+    origin: "global",
+    ownershipUid: params.ownershipUid,
+    candidates,
+    diagnostics,
+    seen,
+  });
 
   return { candidates, diagnostics };
 }

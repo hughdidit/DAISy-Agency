@@ -679,6 +679,51 @@ describe("loadOpenClawPlugins", () => {
     expect(overridden?.origin).toBe("bundled");
   });
 
+<<<<<<< HEAD
+=======
+  it("prefers bundled plugin over auto-discovered global duplicate ids", () => {
+    const bundledDir = makeTempDir();
+    writePlugin({
+      id: "feishu",
+      body: `export default { id: "feishu", register() {} };`,
+      dir: bundledDir,
+      filename: "index.js",
+    });
+    process.env.OPENCLAW_BUNDLED_PLUGINS_DIR = bundledDir;
+
+    const stateDir = makeTempDir();
+    withEnv({ OPENCLAW_STATE_DIR: stateDir, CLAWDBOT_STATE_DIR: undefined }, () => {
+      const globalDir = path.join(stateDir, "extensions", "feishu");
+      fs.mkdirSync(globalDir, { recursive: true });
+      writePlugin({
+        id: "feishu",
+        body: `export default { id: "feishu", register() {} };`,
+        dir: globalDir,
+        filename: "index.js",
+      });
+
+      const registry = loadOpenClawPlugins({
+        cache: false,
+        config: {
+          plugins: {
+            allow: ["feishu"],
+            entries: {
+              feishu: { enabled: true },
+            },
+          },
+        },
+      });
+
+      const entries = registry.plugins.filter((entry) => entry.id === "feishu");
+      const loaded = entries.find((entry) => entry.status === "loaded");
+      const overridden = entries.find((entry) => entry.status === "disabled");
+      expect(loaded?.origin).toBe("bundled");
+      expect(overridden?.origin).toBe("global");
+      expect(overridden?.error).toContain("overridden by bundled plugin");
+    });
+  });
+
+>>>>>>> 577becf1a (fix(plugins): prioritize bundled duplicates in auto-discovery)
   it("warns when plugins.allow is empty and non-bundled plugins are discoverable", () => {
     process.env.OPENCLAW_BUNDLED_PLUGINS_DIR = "/nonexistent/bundled/plugins";
     const plugin = writePlugin({
