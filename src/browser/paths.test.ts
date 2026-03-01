@@ -267,6 +267,71 @@ describe("resolvePathWithinRoot", () => {
   });
 });
 
+<<<<<<< HEAD
+=======
+describe("resolveWritablePathWithinRoot", () => {
+  it("accepts a writable path under root when parent is a real directory", async () => {
+    await withFixtureRoot(async ({ uploadsDir }) => {
+      const result = await resolveWritablePathWithinRoot({
+        rootDir: uploadsDir,
+        requestedPath: "safe.txt",
+        scopeLabel: "uploads directory",
+      });
+      expect(result).toEqual({
+        ok: true,
+        path: path.resolve(uploadsDir, "safe.txt"),
+      });
+    });
+  });
+
+  it.runIf(process.platform !== "win32")(
+    "rejects write paths routed through a symlinked parent directory",
+    async () => {
+      await withFixtureRoot(async ({ baseDir, uploadsDir }) => {
+        const outsideDir = path.join(baseDir, "outside");
+        await fs.mkdir(outsideDir, { recursive: true });
+        const symlinkDir = path.join(uploadsDir, "escape-link");
+        await fs.symlink(outsideDir, symlinkDir);
+
+        const result = await resolveWritablePathWithinRoot({
+          rootDir: uploadsDir,
+          requestedPath: "escape-link/pwned.txt",
+          scopeLabel: "uploads directory",
+        });
+
+        expect(result.ok).toBe(false);
+        if (!result.ok) {
+          expect(result.error).toContain("must stay within uploads directory");
+        }
+      });
+    },
+  );
+
+  it.runIf(process.platform !== "win32")(
+    "rejects existing hardlinked files under root",
+    async () => {
+      await withFixtureRoot(async ({ baseDir, uploadsDir }) => {
+        const outsidePath = path.join(baseDir, "outside-target.txt");
+        await fs.writeFile(outsidePath, "outside", "utf8");
+        const hardlinkedPath = path.join(uploadsDir, "linked.txt");
+        await fs.link(outsidePath, hardlinkedPath);
+
+        const result = await resolveWritablePathWithinRoot({
+          rootDir: uploadsDir,
+          requestedPath: "linked.txt",
+          scopeLabel: "uploads directory",
+        });
+
+        expect(result.ok).toBe(false);
+        if (!result.ok) {
+          expect(result.error).toContain("must stay within uploads directory");
+        }
+      });
+    },
+  );
+});
+
+>>>>>>> 6a80e9db0 (fix(browser): harden writable output paths)
 describe("resolvePathsWithinRoot", () => {
   it("resolves all valid in-root paths", () => {
     const result = resolvePathsWithinRoot({

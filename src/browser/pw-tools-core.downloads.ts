@@ -26,8 +26,12 @@ import type { Page } from "playwright-core";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { resolvePreferredOpenClawTmpDir } from "../infra/tmp-openclaw-dir.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> b02c88d3e (Browser/Logging: share default openclaw tmp dir resolver)
 =======
+=======
+import { writeViaSiblingTempPath } from "./output-atomic.js";
+>>>>>>> 6a80e9db0 (fix(browser): harden writable output paths)
 import { DEFAULT_UPLOAD_DIR, resolveStrictExistingPathsWithinRoot } from "./paths.js";
 >>>>>>> ef326f5cd (fix(browser): revalidate upload paths at use time)
 import {
@@ -112,13 +116,25 @@ type DownloadPayload = {
 
 async function saveDownloadPayload(download: DownloadPayload, outPath: string) {
   const suggested = download.suggestedFilename?.() || "download.bin";
-  const resolvedOutPath = outPath?.trim() || buildTempDownloadPath(suggested);
+  const requestedPath = outPath?.trim();
+  const resolvedOutPath = path.resolve(requestedPath || buildTempDownloadPath(suggested));
   await fs.mkdir(path.dirname(resolvedOutPath), { recursive: true });
-  await download.saveAs?.(resolvedOutPath);
+
+  if (!requestedPath) {
+    await download.saveAs?.(resolvedOutPath);
+  } else {
+    await writeViaSiblingTempPath({
+      targetPath: resolvedOutPath,
+      writeTemp: async (tempPath) => {
+        await download.saveAs?.(tempPath);
+      },
+    });
+  }
+
   return {
     url: download.url?.() || "",
     suggestedFilename: suggested,
-    path: path.resolve(resolvedOutPath),
+    path: resolvedOutPath,
   };
 }
 
