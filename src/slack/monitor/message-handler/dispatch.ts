@@ -48,8 +48,12 @@ import { appendSlackStream, startSlackStream, stopSlackStream } from "../../stre
 =======
 import { createSlackDraftStream } from "../../draft-stream.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> bec974aba (feat(slack): stream partial replies via draft message updates)
 =======
+=======
+import { recordSlackThreadParticipation } from "../../sent-thread-cache.js";
+>>>>>>> bd78a7429 (feat(slack): track thread participation for auto-reply without @mention (#29165))
 import {
   applyAppendOnlyStreamUpdate,
   buildStatusFinalPreviewText,
@@ -270,6 +274,7 @@ export async function dispatchPreparedSlackMessage(prepared: PreparedSlackMessag
 
   let streamSession: SlackStreamSession | null = null;
   let streamFailed = false;
+  let usedReplyThreadTs: string | undefined;
 
 <<<<<<< HEAD
   /**
@@ -291,6 +296,10 @@ export async function dispatchPreparedSlackMessage(prepared: PreparedSlackMessag
       replyToMode: prepared.replyToMode,
       ...(slackIdentity ? { identity: slackIdentity } : {}),
     });
+    // Record the thread ts only after confirmed delivery success.
+    if (replyThreadTs) {
+      usedReplyThreadTs ??= replyThreadTs;
+    }
     replyPlan.markSent();
   };
 
@@ -330,6 +339,7 @@ export async function dispatchPreparedSlackMessage(prepared: PreparedSlackMessag
           teamId: ctx.teamId,
           userId: message.user,
         });
+        usedReplyThreadTs ??= streamThreadTs;
         replyPlan.markSent();
         return;
       }
@@ -518,7 +528,13 @@ export async function dispatchPreparedSlackMessage(prepared: PreparedSlackMessag
     token: ctx.botToken,
     accountId: account.accountId,
     maxChars: Math.min(ctx.textLimit, 4000),
-    resolveThreadTs: () => replyPlan.nextThreadTs(),
+    resolveThreadTs: () => {
+      const ts = replyPlan.nextThreadTs();
+      if (ts) {
+        usedReplyThreadTs ??= ts;
+      }
+      return ts;
+    },
     onMessageSent: () => replyPlan.markSent(),
     log: logVerbose,
     warn: logVerbose,
@@ -681,6 +697,14 @@ export async function dispatchPreparedSlackMessage(prepared: PreparedSlackMessag
   }
 
   const anyReplyDelivered = queuedFinal || (counts.block ?? 0) > 0 || (counts.final ?? 0) > 0;
+
+  // Record thread participation only when we actually delivered a reply and
+  // know the thread ts that was used (set by deliverNormally, streaming start,
+  // or draft stream). Falls back to statusThreadTs for edge cases.
+  const participationThreadTs = usedReplyThreadTs ?? statusThreadTs;
+  if (anyReplyDelivered && participationThreadTs) {
+    recordSlackThreadParticipation(account.accountId, message.channel, participationThreadTs);
+  }
 
   if (!anyReplyDelivered) {
     await draftStream.clear();
