@@ -135,6 +135,8 @@ export function registerDiscordListener(listeners: Array<object>, listener: obje
 }
 
 export class DiscordMessageListener extends MessageCreateListener {
+  private messageQueue: Promise<void> = Promise.resolve();
+
   constructor(
     private handler: DiscordMessageHandler,
     private logger?: Logger,
@@ -143,6 +145,7 @@ export class DiscordMessageListener extends MessageCreateListener {
   }
 
   async handle(data: DiscordMessageEvent, client: Client) {
+<<<<<<< HEAD
 <<<<<<< HEAD
     const startedAt = Date.now();
     const task = Promise.resolve(this.handler(data, client));
@@ -159,6 +162,27 @@ export class DiscordMessageListener extends MessageCreateListener {
         const logger = this.logger ?? discordEventQueueLog;
         logger.error(danger(`discord handler failed: ${String(err)}`));
       },
+=======
+    // Release Carbon's dispatch lane immediately, but keep our message handler
+    // serialized to avoid unbounded parallel model/IO work on traffic bursts.
+    this.messageQueue = this.messageQueue
+      .catch(() => {})
+      .then(() =>
+        runDiscordListenerWithSlowLog({
+          logger: this.logger,
+          listener: this.constructor.name,
+          event: this.type,
+          run: () => this.handler(data, client),
+          onError: (err) => {
+            const logger = this.logger ?? discordEventQueueLog;
+            logger.error(danger(`discord handler failed: ${String(err)}`));
+          },
+        }),
+      );
+    void this.messageQueue.catch((err) => {
+      const logger = this.logger ?? discordEventQueueLog;
+      logger.error(danger(`discord handler failed: ${String(err)}`));
+>>>>>>> 5056b6438 (fix(discord): harden reconnect recovery and preserve message delivery)
     });
   }
 }
