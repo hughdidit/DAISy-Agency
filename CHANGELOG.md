@@ -193,7 +193,11 @@ Docs: https://docs.openclaw.ai
 >>>>>>> dfbdab5a2 (fix(slack): map legacy streaming=false to off (openclaw#26020) thanks @chilu18)
 =======
 - Slack/Socket reconnect reliability: reconnect Socket Mode after disconnect/start failures using bounded exponential backoff with abort-aware waits, while preserving clean shutdown behavior and adding disconnect/error helper tests. (#27232) Thanks @pandego.
+<<<<<<< HEAD
 >>>>>>> 949faff5c (fix(slack): reconnect socket mode after disconnect (#27232))
+=======
+- Memory/QMD update+embed output cap: discard captured stdout for `qmd update` and `qmd embed` runs (while keeping stderr diagnostics) so large index progress output no longer fails sync with `produced too much output` during boot/refresh. (#28900) Thanks @Glucksberg.
+>>>>>>> 134296276 (fix(memory): discard stdout for qmd update/embed to prevent output cap failure (openclaw#28900) thanks @Glucksberg)
 - Onboarding/Custom providers: raise default custom-provider model context window to the runtime hard minimum (16k) and auto-heal existing custom model entries below that threshold during reconfiguration, preventing immediate `Model context window too small (4096 tokens)` failures. (#21653) Thanks @r4jiv007.
 >>>>>>> a623c9c8d (Onboarding: enforce custom model context minimum)
 - Web UI/Assistant text: strip internal `<relevant-memories>...</relevant-memories>` scaffolding from rendered assistant messages (while preserving code-fence literals), preventing memory-context leakage in chat output for models that echo internal blocks. (#29851) Thanks @Valkster70.
