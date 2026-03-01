@@ -2,11 +2,15 @@ import * as dns from "node:dns";
 import * as net from "node:net";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import { Agent, setGlobalDispatcher } from "undici";
 =======
 import { EnvHttpProxyAgent, setGlobalDispatcher } from "undici";
 >>>>>>> e6049345d (fix(telegram): preserve HTTP proxy env in global dispatcher workaround (#29940))
+=======
+import { EnvHttpProxyAgent, getGlobalDispatcher, setGlobalDispatcher } from "undici";
+>>>>>>> 666a4763e (Telegram: preserve proxy-aware global dispatcher)
 import type { TelegramNetworkConfig } from "../config/types.telegram.js";
 >>>>>>> 007807068 (fix(telegram): refresh global undici dispatcher for autoSelectFamily (#25682))
 import { resolveFetch } from "../infra/fetch.js";
@@ -21,6 +25,29 @@ let appliedAutoSelectFamily: boolean | null = null;
 let appliedDnsResultOrder: string | null = null;
 let appliedGlobalDispatcherAutoSelectFamily: boolean | null = null;
 const log = createSubsystemLogger("telegram/network");
+const PROXY_ENV_KEYS = [
+  "HTTPS_PROXY",
+  "HTTP_PROXY",
+  "ALL_PROXY",
+  "https_proxy",
+  "http_proxy",
+  "all_proxy",
+] as const;
+
+function hasProxyEnvConfigured(): boolean {
+  for (const key of PROXY_ENV_KEYS) {
+    const value = process.env[key];
+    if (typeof value === "string" && value.trim().length > 0) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function isProxyLikeDispatcher(dispatcher: unknown): boolean {
+  const ctorName = (dispatcher as { constructor?: { name?: string } })?.constructor?.name;
+  return typeof ctorName === "string" && ctorName.includes("ProxyAgent");
+}
 
 // Node 22 workaround: enable autoSelectFamily to allow IPv4 fallback on broken IPv6 networks.
 // Many networks have IPv6 configured but not routed, causing "Network is unreachable" errors.
@@ -63,19 +90,24 @@ function applyTelegramNetworkWorkarounds(network?: TelegramNetworkConfig): void 
     autoSelectDecision.value !== null &&
     autoSelectDecision.value !== appliedGlobalDispatcherAutoSelectFamily
   ) {
-    try {
-      setGlobalDispatcher(
-        new EnvHttpProxyAgent({
-          connect: {
-            autoSelectFamily: autoSelectDecision.value,
-            autoSelectFamilyAttemptTimeout: 300,
-          },
-        }),
-      );
-      appliedGlobalDispatcherAutoSelectFamily = autoSelectDecision.value;
-      log.info(`global undici dispatcher autoSelectFamily=${autoSelectDecision.value}`);
-    } catch {
-      // ignore if setGlobalDispatcher is unavailable
+    const existingGlobalDispatcher = getGlobalDispatcher();
+    const shouldPreserveExistingProxy =
+      isProxyLikeDispatcher(existingGlobalDispatcher) && !hasProxyEnvConfigured();
+    if (!shouldPreserveExistingProxy) {
+      try {
+        setGlobalDispatcher(
+          new EnvHttpProxyAgent({
+            connect: {
+              autoSelectFamily: autoSelectDecision.value,
+              autoSelectFamilyAttemptTimeout: 300,
+            },
+          }),
+        );
+        appliedGlobalDispatcherAutoSelectFamily = autoSelectDecision.value;
+        log.info(`global undici dispatcher autoSelectFamily=${autoSelectDecision.value}`);
+      } catch {
+        // ignore if setGlobalDispatcher is unavailable
+      }
     }
   }
 
