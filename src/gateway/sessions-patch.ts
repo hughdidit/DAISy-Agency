@@ -1,8 +1,8 @@
 import { randomUUID } from "node:crypto";
-<<<<<<< HEAD
-
-import { DEFAULT_MODEL, DEFAULT_PROVIDER } from "../agents/defaults.js";
 import type { ModelCatalogEntry } from "../agents/model-catalog.js";
+import type { OpenClawConfig } from "../config/config.js";
+import type { SessionEntry } from "../config/sessions.js";
+import { DEFAULT_MODEL, DEFAULT_PROVIDER } from "../agents/defaults.js";
 import { resolveAllowedModelRef, resolveConfiguredModelRef } from "../agents/model-selection.js";
 =======
 import type { ModelCatalogEntry } from "../agents/model-catalog.js";
@@ -22,8 +22,10 @@ import {
   supportsXHighThinking,
 } from "../auto-reply/thinking.js";
 <<<<<<< HEAD
-import type { OpenClawConfig } from "../config/config.js";
+import type { MoltbotConfig } from "../config/config.js";
 import type { SessionEntry } from "../config/sessions.js";
+=======
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { isSubagentSessionKey } from "../routing/session-key.js";
 =======
 import {
@@ -33,9 +35,9 @@ import {
 } from "../routing/session-key.js";
 >>>>>>> 38e6da1fe (TUI/Gateway: fix pi streaming + tool routing + model display + msg updating (#8432))
 import { applyVerboseOverride, parseVerboseOverride } from "../sessions/level-overrides.js";
+import { applyModelOverrideToSessionEntry } from "../sessions/model-overrides.js";
 import { normalizeSendPolicy } from "../sessions/send-policy.js";
 import { parseSessionLabel } from "../sessions/session-label.js";
-import { applyModelOverrideToSessionEntry } from "../sessions/model-overrides.js";
 import {
   ErrorCodes,
   type ErrorShape,

@@ -4,6 +4,7 @@ read_when:
   - You want Moonshot K2 (Moonshot Open Platform) vs Kimi Code setup
   - You need to understand separate endpoints, keys, and model refs
   - You want copy/paste config for either provider
+title: "Moonshot AI"
 ---
 
 # Moonshot AI (Kimi)
@@ -14,17 +15,49 @@ Kimi Code with `kimi-code/kimi-for-coding`.
 
 Current Kimi K2 model IDs:
 <<<<<<< HEAD
+<<<<<<< HEAD
 {/* moonshot-kimi-k2-ids:start */}
+<<<<<<< HEAD
 =======
-<!-- moonshot-kimi-k2-ids:start -->
+=======
+{/_ moonshot-kimi-k2-ids:start _/}
+>>>>>>> 443ee26af (chore: oxfmt fixes)
+=======
 
->>>>>>> b796f6ec0 (Security: harden web tools and file parsing (#4058))
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<!-- moonshot-kimi-k2-ids:start -->
+>>>>>>> 92803facf (docs: preserve moonshot sync markers)
+=======
+{/_moonshot-kimi-k2-ids:start_/ && null}
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
+=======
+{/_ moonshot-kimi-k2-ids:start _/ && null}
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
+=======
+{/_moonshot-kimi-k2-ids:start_/ && null}
+>>>>>>> 578a6e27a (Docs: enable markdownlint autofixables except list numbering (#10476))
+
+>>>>>>> 8582ed4d4 (Docs: fix Moonshot MDX comment marker (#6311))
 - `kimi-k2.5`
 - `kimi-k2-0905-preview`
 - `kimi-k2-turbo-preview`
 - `kimi-k2-thinking`
 - `kimi-k2-thinking-turbo`
-{/* moonshot-kimi-k2-ids:end */}
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<!-- moonshot-kimi-k2-ids:end -->
+=======
+  {/_moonshot-kimi-k2-ids:end_/ && null}
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
+=======
+  {/_ moonshot-kimi-k2-ids:end _/ && null}
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
+=======
+  {/_moonshot-kimi-k2-ids:end_/ && null}
+>>>>>>> 578a6e27a (Docs: enable markdownlint autofixables except list numbering (#10476))
 
 ```bash
 openclaw onboard --auth-choice moonshot-api-key
@@ -164,4 +197,4 @@ Note: Moonshot and Kimi Code are separate providers. Keys are not interchangeabl
 - Override pricing and context metadata in `models.providers` if needed.
 - If Moonshot publishes different context limits for a model, adjust
   `contextWindow` accordingly.
-- Use `https://api.moonshot.cn/v1` if you need the China endpoint.
+- Use `https://api.moonshot.ai/v1` for the international endpoint, and `https://api.moonshot.cn/v1` for the China endpoint.

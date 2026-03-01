@@ -18,19 +18,13 @@
 	<string>BNDL</string>
 	<key>CFBundleShortVersionString</key>
 <<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-	<string>2026.2.1</string>
-=======
-	<string>2026.2.3</string>
->>>>>>> e4b084c76 (chore: bump version to 2026.2.3)
-=======
-	<string>2026.2.4</string>
->>>>>>> 5031b283a (chore: bump version to 2026.2.4)
-=======
-	<string>2026.2.6</string>
->>>>>>> 677450cd9 (chore(release): bump version to 2026.2.6)
+	<string>2026.1.27-beta.1</string>
 	<key>CFBundleVersion</key>
-	<string>20260201</string>
+	<string>20260126</string>
+=======
+	<string>2026.2.2</string>
+	<key>CFBundleVersion</key>
+	<string>20260202</string>
+>>>>>>> 1c4db9159 (chore: prepare 2026.2.2 release)
 </dict>
 </plist>

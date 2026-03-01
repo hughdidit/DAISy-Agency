@@ -1,7 +1,7 @@
 import AppKit
-import OpenClawIPC
-import OpenClawKit
 import Foundation
+import MoltbotIPC
+import MoltbotKit
 import OSLog
 
 @MainActor

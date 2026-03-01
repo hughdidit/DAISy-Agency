@@ -1,5 +1,5 @@
-import OpenClawIPC
 import Foundation
+import MoltbotIPC
 
 extension OnboardingView {
     @MainActor

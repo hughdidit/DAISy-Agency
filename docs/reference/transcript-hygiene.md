@@ -4,6 +4,7 @@ read_when:
   - You are debugging provider request rejections tied to transcript shape
   - You are changing transcript sanitization or tool-call repair logic
   - You are investigating tool-call id mismatches across providers
+title: "Transcript Hygiene"
 ---
 # Transcript Hygiene (Provider Fixups)
 
@@ -13,6 +14,10 @@ provider requirements. They do **not** rewrite the stored JSONL transcript on di
 
 Scope includes:
 - Tool call id sanitization
+<<<<<<< HEAD
+=======
+- Tool call input validation
+>>>>>>> 118507953 (Docs: simplify transcript hygiene scope)
 - Tool result pairing repair
 - Turn validation / ordering
 - Thought signature cleanup

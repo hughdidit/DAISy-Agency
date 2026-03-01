@@ -22,6 +22,20 @@ The best way to help the project right now is by sending PRs.
 - Public Internet Exposure
 - Using OpenClaw in ways that the docs recommend not to
 
+<<<<<<< HEAD
+=======
+## Bug Bounties
+
+OpenClaw is a labor of love. There is no bug bounty program and no budget for paid reports. Please still disclose responsibly so we can fix issues quickly.
+The best way to help the project right now is by sending PRs.
+
+## Out of Scope
+
+- Public Internet Exposure
+- Using OpenClaw in ways that the docs recommend not to
+- Prompt injection attacks
+
+>>>>>>> a767c584c (Add prompt injection attacks to out of scope section)
 ## Operational Guidance
 
 For threat model + hardening guidance (including `openclaw security audit --deep` and `--fix`), see:
@@ -62,6 +76,10 @@ docker run --read-only --cap-drop=ALL \
   -v openclaw-data:/app/data \
   openclaw/openclaw:latest
 ```
+
+## Security Reviews
+
+Security reviews are conducted before major deployments and archived in [`docs/security/reviews/`](docs/security/reviews/).
 
 ## Security Scanning
 

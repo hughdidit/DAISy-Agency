@@ -82,20 +82,12 @@ targets:
         CFBundleDisplayName: OpenClaw
         CFBundleIconName: AppIcon
 <<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-        CFBundleShortVersionString: "2026.2.1"
-        CFBundleVersion: "20260201"
+        CFBundleShortVersionString: "2026.1.27-beta.1"
+        CFBundleVersion: "20260126"
 =======
-        CFBundleShortVersionString: "2026.2.3"
-=======
-        CFBundleShortVersionString: "2026.2.4"
->>>>>>> 5031b283a (chore: bump version to 2026.2.4)
-=======
-        CFBundleShortVersionString: "2026.2.6"
->>>>>>> 677450cd9 (chore(release): bump version to 2026.2.6)
+        CFBundleShortVersionString: "2026.2.2"
         CFBundleVersion: "20260202"
->>>>>>> e4b084c76 (chore: bump version to 2026.2.3)
+>>>>>>> 1c4db9159 (chore: prepare 2026.2.2 release)
         UILaunchScreen: {}
         UIApplicationSceneManifest:
           UIApplicationSupportsMultipleScenes: false
@@ -142,19 +134,12 @@ targets:
     info:
       path: Tests/Info.plist
       properties:
+<<<<<<< HEAD
+        CFBundleDisplayName: MoltbotTests
+        CFBundleShortVersionString: "2026.1.27-beta.1"
+        CFBundleVersion: "20260126"
+=======
         CFBundleDisplayName: OpenClawTests
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-        CFBundleShortVersionString: "2026.2.1"
-        CFBundleVersion: "20260201"
-=======
-        CFBundleShortVersionString: "2026.2.3"
-=======
-        CFBundleShortVersionString: "2026.2.4"
->>>>>>> 5031b283a (chore: bump version to 2026.2.4)
-=======
-        CFBundleShortVersionString: "2026.2.6"
->>>>>>> 677450cd9 (chore(release): bump version to 2026.2.6)
+        CFBundleShortVersionString: "2026.2.2"
         CFBundleVersion: "20260202"
->>>>>>> e4b084c76 (chore: bump version to 2026.2.3)
+>>>>>>> 1c4db9159 (chore: prepare 2026.2.2 release)

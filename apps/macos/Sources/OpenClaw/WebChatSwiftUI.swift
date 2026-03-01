@@ -1,8 +1,8 @@
 import AppKit
-import OpenClawChatUI
-import OpenClawKit
-import OpenClawProtocol
 import Foundation
+import MoltbotChatUI
+import MoltbotKit
+import MoltbotProtocol
 import OSLog
 import QuartzCore
 import SwiftUI

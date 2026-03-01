@@ -1,15 +1,6 @@
 import type { Tab } from "./navigation";
 import { connectGateway } from "./app-gateway";
 import {
-  applySettingsFromUrl,
-  attachThemeListener,
-  detachThemeListener,
-  inferBasePath,
-  syncTabWithLocation,
-  syncThemeWithSettings,
-} from "./app-settings";
-import { observeTopbar, scheduleChatScroll, scheduleLogsScroll } from "./app-scroll";
-import {
   startLogsPolling,
   startNodesPolling,
   stopLogsPolling,
@@ -17,11 +8,21 @@ import {
   startDebugPolling,
   stopDebugPolling,
 } from "./app-polling";
+import { observeTopbar, scheduleChatScroll, scheduleLogsScroll } from "./app-scroll";
+import {
+  applySettingsFromUrl,
+  attachThemeListener,
+  detachThemeListener,
+  inferBasePath,
+  syncTabWithLocation,
+  syncThemeWithSettings,
+} from "./app-settings";
 
 type LifecycleHost = {
   basePath: string;
   tab: Tab;
   chatHasAutoScrolled: boolean;
+  chatManualRefreshInFlight: boolean;
   chatLoading: boolean;
   chatMessages: unknown[];
   chatToolMessages: unknown[];
@@ -75,10 +76,17 @@ export function handleDisconnected(host: LifecycleHost) {
   host.topbarObserver = null;
 }
 
+<<<<<<< HEAD
 export function handleUpdated(
   host: LifecycleHost,
   changed: Map<PropertyKey, unknown>,
 ) {
+=======
+export function handleUpdated(host: LifecycleHost, changed: Map<PropertyKey, unknown>) {
+  if (host.tab === "chat" && host.chatManualRefreshInFlight) {
+    return;
+  }
+>>>>>>> bc475f017 (fix(ui): smooth chat refresh scroll and suppress new-messages badge flash)
   if (
     host.tab === "chat" &&
     (changed.has("chatMessages") ||

@@ -1,7 +1,16 @@
 import fs from "node:fs";
 import path from "node:path";
+<<<<<<< HEAD
 
+import {
+  DEFAULT_AGENTS_FILENAME,
+  DEFAULT_IDENTITY_FILENAME,
+  DEFAULT_SOUL_FILENAME,
+  DEFAULT_USER_FILENAME,
+} from "../agents/workspace.js";
+=======
 import { DEFAULT_AGENTS_FILENAME } from "../agents/workspace.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { shortenHomePath } from "../utils.js";
 
 export const MEMORY_SYSTEM_PROMPT = [

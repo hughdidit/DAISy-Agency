@@ -3,6 +3,7 @@ summary: "Use Anthropic Claude via API keys or setup-token in OpenClaw"
 read_when:
   - You want to use Anthropic models in OpenClaw
   - You want setup-token instead of API keys
+title: "Anthropic"
 ---
 # Anthropic (Claude)
 
@@ -39,10 +40,22 @@ openclaw onboard --anthropic-api-key "$ANTHROPIC_API_KEY"
 
 ## Prompt caching (Anthropic API)
 
-OpenClaw does **not** override Anthropic’s default cache TTL unless you set it.
+<<<<<<< HEAD
+Moltbot does **not** override Anthropic’s default cache TTL unless you set it.
 This is **API-only**; subscription auth does not honor TTL settings.
+=======
+OpenClaw supports Anthropic's prompt caching feature. This is **API-only**; subscription auth does not honor cache settings.
+>>>>>>> 7a8a39a14 (docs: document cacheRetention parameter (#6270))
 
-To set the TTL per model, use `cacheControlTtl` in the model `params`:
+### Configuration
+
+Use the `cacheRetention` parameter in your model config:
+
+| Value   | Cache Duration | Description                         |
+| ------- | -------------- | ----------------------------------- |
+| `none`  | No caching     | Disable prompt caching              |
+| `short` | 5 minutes      | Default for API Key auth            |
+| `long`  | 1 hour         | Extended cache (requires beta flag) |
 
 ```json5
 {
@@ -51,6 +64,7 @@ To set the TTL per model, use `cacheControlTtl` in the model `params`:
       models: {
 <<<<<<< HEAD
         "anthropic/claude-opus-4-5": {
+<<<<<<< HEAD
           params: { cacheControlTtl: "5m" } // or "1h"
         }
       }
@@ -67,7 +81,31 @@ To set the TTL per model, use `cacheControlTtl` in the model `params`:
 }
 ```
 
+Moltbot includes the `extended-cache-ttl-2025-04-11` beta flag for Anthropic API
+=======
+          params: { cacheRetention: "long" },
+        },
+      },
+    },
+  },
+}
+```
+
+### Defaults
+
+When using Anthropic API Key authentication, OpenClaw automatically applies `cacheRetention: "short"` (5-minute cache) for all Anthropic models. You can override this by explicitly setting `cacheRetention` in your config.
+
+### Legacy parameter
+
+The older `cacheControlTtl` parameter is still supported for backwards compatibility:
+
+- `"5m"` maps to `short`
+- `"1h"` maps to `long`
+
+We recommend migrating to the new `cacheRetention` parameter.
+
 OpenClaw includes the `extended-cache-ttl-2025-04-11` beta flag for Anthropic API
+>>>>>>> 7a8a39a14 (docs: document cacheRetention parameter (#6270))
 requests; keep it if you override provider headers (see [/gateway/configuration](/gateway/configuration)).
 
 ## Option B: Claude setup-token
@@ -94,14 +132,14 @@ If you generated the token on a different machine, paste it:
 openclaw models auth paste-token --provider anthropic
 ```
 
-### CLI setup
+### CLI setup (setup-token)
 
 ```bash
 # Paste a setup-token during onboarding
 openclaw onboard --auth-choice setup-token
 ```
 
-### Config snippet
+### Config snippet (setup-token)
 
 ```json5
 {

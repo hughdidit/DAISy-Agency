@@ -1,9 +1,15 @@
+import type { OpenClawConfig } from "../../../config/config.js";
+import type { RuntimeEnv } from "../../../runtime.js";
+import type { AuthChoice, OnboardOptions } from "../../onboard-types.js";
 import { upsertAuthProfile } from "../../../agents/auth-profiles.js";
 import { normalizeProviderId } from "../../../agents/model-selection.js";
 import { parseDurationMs } from "../../../cli/parse-duration.js";
-import type { OpenClawConfig } from "../../../config/config.js";
+<<<<<<< HEAD
+import type { MoltbotConfig } from "../../../config/config.js";
+=======
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { upsertSharedEnvVar } from "../../../infra/env-file.js";
-import type { RuntimeEnv } from "../../../runtime.js";
+import { shortenHomePath } from "../../../utils.js";
 import { buildTokenProfileId, validateAnthropicSetupToken } from "../../auth-token.js";
 import { applyGoogleGeminiModelDefault } from "../../google-gemini-model-default.js";
 import {
@@ -30,13 +36,7 @@ import {
   setVercelAiGatewayApiKey,
   setZaiApiKey,
 } from "../../onboard-auth.js";
-<<<<<<< HEAD
-import type { AuthChoice, OnboardOptions } from "../../onboard-types.js";
-=======
-import { applyOpenAIConfig } from "../../openai-model-default.js";
->>>>>>> 462905440 (chore: apply local workspace updates (#9911))
 import { resolveNonInteractiveApiKey } from "../api-keys.js";
-import { shortenHomePath } from "../../../utils.js";
 
 export async function applyNonInteractiveAuthChoice(params: {
   nextConfig: OpenClawConfig;

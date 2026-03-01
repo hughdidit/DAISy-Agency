@@ -1,6 +1,7 @@
 ---
 summary: "Slack setup for socket or HTTP webhook mode"
 read_when: "Setting up Slack or debugging Slack socket/HTTP mode"
+title: "Slack"
 ---
 
 # Slack
@@ -26,11 +27,20 @@ Minimal config:
 ```
 
 ### Setup
+<<<<<<< HEAD
 1) Create a Slack app (From scratch) in https://api.slack.com/apps.
 2) **Socket Mode** → toggle on. Then go to **Basic Information** → **App-Level Tokens** → **Generate Token and Scopes** with scope `connections:write`. Copy the **App Token** (`xapp-...`).
 3) **OAuth & Permissions** → add bot token scopes (use the manifest below). Click **Install to Workspace**. Copy the **Bot User OAuth Token** (`xoxb-...`).
 4) Optional: **OAuth & Permissions** → add **User Token Scopes** (see the read-only list below). Reinstall the app and copy the **User OAuth Token** (`xoxp-...`).
 5) **Event Subscriptions** → enable events and subscribe to:
+=======
+
+1. Create a Slack app (From scratch) in [https://api.slack.com/apps](https://api.slack.com/apps).
+2. **Socket Mode** → toggle on. Then go to **Basic Information** → **App-Level Tokens** → **Generate Token and Scopes** with scope `connections:write`. Copy the **App Token** (`xapp-...`).
+3. **OAuth & Permissions** → add bot token scopes (use the manifest below). Click **Install to Workspace**. Copy the **Bot User OAuth Token** (`xoxb-...`).
+4. Optional: **OAuth & Permissions** → add **User Token Scopes** (see the read-only list below). Reinstall the app and copy the **User OAuth Token** (`xoxp-...`).
+5. **Event Subscriptions** → enable events and subscribe to:
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
    - `message.*` (includes edits/deletes/thread broadcasts)
    - `app_mention`
    - `reaction_added`, `reaction_removed`
@@ -45,7 +55,11 @@ Use the manifest below so scopes and events stay in sync.
 
 Multi-account support: use `channels.slack.accounts` with per-account tokens and optional `name`. See [`gateway/configuration`](/gateway/configuration#telegramaccounts--discordaccounts--slackaccounts--signalaccounts--imessageaccounts) for the shared pattern.
 
-### OpenClaw config (minimal)
+<<<<<<< HEAD
+### Moltbot config (minimal)
+=======
+### OpenClaw config (Socket mode)
+>>>>>>> 1bf9f237f (docs: linting)
 
 Set tokens via env vars (recommended):
 - `SLACK_APP_TOKEN=xapp-...`
@@ -119,6 +133,7 @@ Example with userTokenReadOnly explicitly set (allow user token writes):
 Use HTTP webhook mode when your Gateway is reachable by Slack over HTTPS (typical for server deployments).
 HTTP mode uses the Events API + Interactivity + Slash Commands with a shared request URL.
 
+<<<<<<< HEAD
 ### Setup
 1) Create a Slack app and **disable Socket Mode** (optional if you only use HTTP).
 2) **Basic Information** → copy the **Signing Secret**.
@@ -126,6 +141,16 @@ HTTP mode uses the Events API + Interactivity + Slash Commands with a shared req
 4) **Event Subscriptions** → enable events and set the **Request URL** to your gateway webhook path (default `/slack/events`).
 5) **Interactivity & Shortcuts** → enable and set the same **Request URL**.
 6) **Slash Commands** → set the same **Request URL** for your command(s).
+=======
+### Setup (HTTP mode)
+
+1. Create a Slack app and **disable Socket Mode** (optional if you only use HTTP).
+2. **Basic Information** → copy the **Signing Secret**.
+3. **OAuth & Permissions** → install the app and copy the **Bot User OAuth Token** (`xoxb-...`).
+4. **Event Subscriptions** → enable events and set the **Request URL** to your gateway webhook path (default `/slack/events`).
+5. **Interactivity & Shortcuts** → enable and set the same **Request URL**.
+6. **Slash Commands** → set the same **Request URL** for your command(s).
+>>>>>>> 1bf9f237f (docs: linting)
 
 Example request URL:
 `https://gateway-host/slack/events`
@@ -245,29 +270,29 @@ If you enable native commands, add one `slash_commands` entry per command you wa
 ## Scopes (current vs optional)
 Slack's Conversations API is type-scoped: you only need the scopes for the
 conversation types you actually touch (channels, groups, im, mpim). See
-https://docs.slack.dev/apis/web-api/using-the-conversations-api/ for the overview.
+[https://docs.slack.dev/apis/web-api/using-the-conversations-api/](https://docs.slack.dev/apis/web-api/using-the-conversations-api/) for the overview.
 
 ### Bot token scopes (required)
 - `chat:write` (send/update/delete messages via `chat.postMessage`)
-  https://docs.slack.dev/reference/methods/chat.postMessage
+  [https://docs.slack.dev/reference/methods/chat.postMessage](https://docs.slack.dev/reference/methods/chat.postMessage)
 - `im:write` (open DMs via `conversations.open` for user DMs)
-  https://docs.slack.dev/reference/methods/conversations.open
+  [https://docs.slack.dev/reference/methods/conversations.open](https://docs.slack.dev/reference/methods/conversations.open)
 - `channels:history`, `groups:history`, `im:history`, `mpim:history`
-  https://docs.slack.dev/reference/methods/conversations.history
+  [https://docs.slack.dev/reference/methods/conversations.history](https://docs.slack.dev/reference/methods/conversations.history)
 - `channels:read`, `groups:read`, `im:read`, `mpim:read`
-  https://docs.slack.dev/reference/methods/conversations.info
+  [https://docs.slack.dev/reference/methods/conversations.info](https://docs.slack.dev/reference/methods/conversations.info)
 - `users:read` (user lookup)
-  https://docs.slack.dev/reference/methods/users.info
+  [https://docs.slack.dev/reference/methods/users.info](https://docs.slack.dev/reference/methods/users.info)
 - `reactions:read`, `reactions:write` (`reactions.get` / `reactions.add`)
-  https://docs.slack.dev/reference/methods/reactions.get
-  https://docs.slack.dev/reference/methods/reactions.add
+  [https://docs.slack.dev/reference/methods/reactions.get](https://docs.slack.dev/reference/methods/reactions.get)
+  [https://docs.slack.dev/reference/methods/reactions.add](https://docs.slack.dev/reference/methods/reactions.add)
 - `pins:read`, `pins:write` (`pins.list` / `pins.add` / `pins.remove`)
-  https://docs.slack.dev/reference/scopes/pins.read
-  https://docs.slack.dev/reference/scopes/pins.write
+  [https://docs.slack.dev/reference/scopes/pins.read](https://docs.slack.dev/reference/scopes/pins.read)
+  [https://docs.slack.dev/reference/scopes/pins.write](https://docs.slack.dev/reference/scopes/pins.write)
 - `emoji:read` (`emoji.list`)
-  https://docs.slack.dev/reference/scopes/emoji.read
+  [https://docs.slack.dev/reference/scopes/emoji.read](https://docs.slack.dev/reference/scopes/emoji.read)
 - `files:write` (uploads via `files.uploadV2`)
-  https://docs.slack.dev/messaging/working-with-files/#upload
+  [https://docs.slack.dev/messaging/working-with-files/#upload](https://docs.slack.dev/messaging/working-with-files/#upload)
 
 ### User token scopes (optional, read-only by default)
 Add these under **User Token Scopes** if you configure `channels.slack.userToken`.
@@ -284,9 +309,9 @@ Add these under **User Token Scopes** if you configure `channels.slack.userToken
 - `mpim:write` (only if we add group-DM open/DM start via `conversations.open`)
 - `groups:write` (only if we add private-channel management: create/rename/invite/archive)
 - `chat:write.public` (only if we want to post to channels the bot isn't in)
-  https://docs.slack.dev/reference/scopes/chat.write.public
+  [https://docs.slack.dev/reference/scopes/chat.write.public](https://docs.slack.dev/reference/scopes/chat.write.public)
 - `users:read.email` (only if we need email fields from `users.info`)
-  https://docs.slack.dev/changelog/2017-04-narrowing-email-access
+  [https://docs.slack.dev/changelog/2017-04-narrowing-email-access](https://docs.slack.dev/changelog/2017-04-narrowing-email-access)
 - `files:read` (only if we start listing/reading file metadata)
 
 ## Config
@@ -498,6 +523,32 @@ Slack tool actions can be gated with `channels.slack.actions.*`:
 - If you enable user-token writes, make sure the user token includes the write
   scopes you expect (`chat:write`, `reactions:write`, `pins:write`,
   `files:write`) or those operations will fail.
+
+## Troubleshooting
+
+Run this ladder first:
+
+```bash
+openclaw status
+openclaw gateway status
+openclaw logs --follow
+openclaw doctor
+openclaw channels status --probe
+```
+
+Then confirm DM pairing state if needed:
+
+```bash
+openclaw pairing list slack
+```
+
+Common failures:
+
+- Connected but no channel replies: channel blocked by `groupPolicy` or not in `channels.slack.channels` allowlist.
+- DMs ignored: sender not approved when `channels.slack.dm.policy="pairing"`.
+- API errors (`missing_scope`, `not_in_channel`, auth failures): bot/app tokens or Slack scopes are incomplete.
+
+For triage flow: [/channels/troubleshooting](/channels/troubleshooting).
 
 ## Notes
 - Mention gating is controlled via `channels.slack.channels` (set `requireMention` to `true`); `agents.list[].groupChat.mentionPatterns` (or `messages.groupChat.mentionPatterns`) also count as mentions.

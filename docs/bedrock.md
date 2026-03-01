@@ -3,6 +3,7 @@ summary: "Use Amazon Bedrock (Converse API) models with OpenClaw"
 read_when:
   - You want to use Amazon Bedrock models with OpenClaw
   - You need AWS credential/region setup for model calls
+title: "Amazon Bedrock"
 ---
 # Amazon Bedrock
 
@@ -63,7 +64,15 @@ export AWS_PROFILE="your-profile"
 export AWS_BEARER_TOKEN_BEDROCK="..."
 ```
 
+<<<<<<< HEAD
+<<<<<<< HEAD
 2) Add a Bedrock provider and model to your config (no `apiKey` required):
+=======
+1. Add a Bedrock provider and model to your config (no `apiKey` required):
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
+=======
+2. Add a Bedrock provider and model to your config (no `apiKey` required):
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 
 ```json5
 {

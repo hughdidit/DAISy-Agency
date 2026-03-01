@@ -2,6 +2,7 @@
 summary: "TypeBox schemas as the single source of truth for the gateway protocol"
 read_when:
   - Updating protocol schemas or codegen
+title: "TypeBox"
 ---
 # TypeBox as protocol source of truth
 
@@ -208,7 +209,15 @@ export type SystemEchoParams = Static<typeof SystemEchoParamsSchema>;
 export type SystemEchoResult = Static<typeof SystemEchoResultSchema>;
 ```
 
+<<<<<<< HEAD
+<<<<<<< HEAD
 2) **Validation**
+=======
+1. **Validation**
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
+=======
+2. **Validation**
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 
 In `src/gateway/protocol/index.ts`, export an AJV validator:
 
@@ -217,7 +226,15 @@ export const validateSystemEchoParams =
   ajv.compile<SystemEchoParams>(SystemEchoParamsSchema);
 ```
 
+<<<<<<< HEAD
+<<<<<<< HEAD
 3) **Server behavior**
+=======
+1. **Server behavior**
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
+=======
+3. **Server behavior**
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 
 Add a handler in `src/gateway/server-methods/system.ts`:
 
@@ -233,13 +250,29 @@ export const systemHandlers: GatewayRequestHandlers = {
 Register it in `src/gateway/server-methods.ts` (already merges `systemHandlers`),
 then add `"system.echo"` to `METHODS` in `src/gateway/server.ts`.
 
+<<<<<<< HEAD
+<<<<<<< HEAD
 4) **Regenerate**
+=======
+1. **Regenerate**
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
+=======
+4. **Regenerate**
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 
 ```bash
 pnpm protocol:check
 ```
 
+<<<<<<< HEAD
+<<<<<<< HEAD
 5) **Tests + docs**
+=======
+1. **Tests + docs**
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
+=======
+5. **Tests + docs**
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 
 Add a server test in `src/gateway/server.*.test.ts` and note the method in docs.
 
@@ -272,7 +305,19 @@ Unknown frame types are preserved as raw payloads for forward compatibility.
 Generated JSON Schema is in the repo at `dist/protocol.schema.json`. The
 published raw file is typically available at:
 
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+- https://raw.githubusercontent.com/moltbot/moltbot/main/dist/protocol.schema.json
+=======
+- [https://raw.githubusercontent.com/openclaw/openclaw/main/dist/protocol.schema.json](https://raw.githubusercontent.com/openclaw/openclaw/main/dist/protocol.schema.json)
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
+=======
 - https://raw.githubusercontent.com/openclaw/openclaw/main/dist/protocol.schema.json
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
+=======
+- [https://raw.githubusercontent.com/openclaw/openclaw/main/dist/protocol.schema.json](https://raw.githubusercontent.com/openclaw/openclaw/main/dist/protocol.schema.json)
+>>>>>>> 578a6e27a (Docs: enable markdownlint autofixables except list numbering (#10476))
 
 ## When you change schemas
 

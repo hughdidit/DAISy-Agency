@@ -1,19 +1,21 @@
+import type { TlsOptions } from "node:tls";
+import type { WebSocketServer } from "ws";
 import {
   createServer as createHttpServer,
   type Server as HttpServer,
   type IncomingMessage,
   type ServerResponse,
 } from "node:http";
+import { createHmac, timingSafeEqual } from "node:crypto";
 import { createServer as createHttpsServer } from "node:https";
-import type { TlsOptions } from "node:tls";
-import type { WebSocketServer } from "ws";
-import { handleA2uiHttpRequest } from "../canvas-host/a2ui.js";
 import type { CanvasHostHandler } from "../canvas-host/server.js";
-import { loadConfig } from "../config/config.js";
 import type { createSubsystemLogger } from "../logging/subsystem.js";
-import { handleSlackHttpRequest } from "../slack/http/index.js";
 import { resolveAgentAvatar } from "../agents/identity-avatar.js";
+import { handleA2uiHttpRequest } from "../canvas-host/a2ui.js";
+import { loadConfig } from "../config/config.js";
+import { handleSlackHttpRequest } from "../slack/http/index.js";
 import { handleControlUiAvatarRequest, handleControlUiHttpRequest } from "./control-ui.js";
+import { setSecurityHeaders } from "./http-common.js";
 import {
   extractHookToken,
   getHookChannelError,
@@ -26,7 +28,6 @@ import {
   resolveHookChannel,
   resolveHookDeliver,
 } from "./hooks.js";
-import { applyHookMappings } from "./hooks-mapping.js";
 import { handleOpenAiHttpRequest } from "./openai-http.js";
 import { handleOpenResponsesHttpRequest } from "./openresponses-http.js";
 import { handleToolsInvokeHttpRequest } from "./tools-invoke-http.js";
@@ -51,12 +52,20 @@ type HookDispatchers = {
 };
 
 function sendJson(res: ServerResponse, status: number, body: unknown) {
+  setSecurityHeaders(res);
   res.statusCode = status;
   res.setHeader("Content-Type", "application/json; charset=utf-8");
   res.end(JSON.stringify(body));
 }
 
 export type HooksRequestHandler = (req: IncomingMessage, res: ServerResponse) => Promise<boolean>;
+
+function safeTokenEqual(a: string, b: string): boolean {
+  const key = "webhook-cmp";
+  const ha = createHmac("sha256", key).update(a).digest();
+  const hb = createHmac("sha256", key).update(b).digest();
+  return timingSafeEqual(ha, hb);
+}
 
 export function createHooksRequestHandler(
   opts: {
@@ -76,8 +85,11 @@ export function createHooksRequestHandler(
       return false;
     }
 
+    // Apply security headers to all hook responses (including error paths).
+    setSecurityHeaders(res);
+
     const { token, fromQuery } = extractHookToken(req, url);
-    if (!token || token !== hooksConfig.token) {
+    if (!token || !safeTokenEqual(token, hooksConfig.token)) {
       res.statusCode = 401;
       res.setHeader("Content-Type", "text/plain; charset=utf-8");
       res.end("Unauthorized");
@@ -273,16 +285,20 @@ export function createGatewayHttpServer(opts: {
       }
       if (controlUiEnabled) {
         if (
-          handleControlUiAvatarRequest(req, res, {
+          await handleControlUiAvatarRequest(req, res, {
             basePath: controlUiBasePath,
             resolveAvatar: (agentId) => resolveAgentAvatar(configSnapshot, agentId),
+            auth: resolvedAuth,
+            trustedProxies,
           })
         )
           return;
         if (
-          handleControlUiHttpRequest(req, res, {
+          await handleControlUiHttpRequest(req, res, {
             basePath: controlUiBasePath,
             config: configSnapshot,
+            auth: resolvedAuth,
+            trustedProxies,
           })
         )
           return;

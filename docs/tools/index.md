@@ -2,7 +2,12 @@
 summary: "Agent tool surface for OpenClaw (browser, canvas, nodes, message, cron) replacing legacy `openclaw-*` skills"
 read_when:
   - Adding or modifying agent tools
+<<<<<<< HEAD
+  - Retiring or changing `moltbot-*` skills
+=======
   - Retiring or changing `openclaw-*` skills
+title: "Tools"
+>>>>>>> abcaa8c7a (Docs: add nav titles across docs (#5689))
 ---
 
 # Tools (OpenClaw)
@@ -360,7 +365,7 @@ Core actions:
 
 Notes:
 - `add` expects a full cron job object (same schema as `cron.add` RPC).
-- `update` uses `{ id, patch }`.
+- `update` uses `{ jobId, patch }` (`id` accepted for compatibility).
 
 ### `gateway`
 Restart or apply updates to the running Gateway process (in-place).

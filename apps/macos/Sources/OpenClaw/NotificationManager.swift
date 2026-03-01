@@ -1,5 +1,5 @@
-import OpenClawIPC
 import Foundation
+import MoltbotIPC
 import Security
 import UserNotifications
 

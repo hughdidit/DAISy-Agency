@@ -1,9 +1,11 @@
 import crypto from "node:crypto";
+<<<<<<< HEAD
 
 import type { CallId, CallRecord, CallState, NormalizedEvent } from "../types.js";
 import { TerminalStates } from "../types.js";
-import type { CallManagerContext } from "./context.js";
+import type { CallManagerContext, Logger } from "./context.js";
 import { findCall } from "./lookup.js";
+import { endCall } from "./outbound.js";
 import { addTranscriptEntry, transitionState } from "./state.js";
 import { persistCallRecord } from "./store.js";
 import {
@@ -12,29 +14,29 @@ import {
   resolveTranscriptWaiter,
   startMaxDurationTimer,
 } from "./timers.js";
-import { endCall } from "./outbound.js";
 
-function shouldAcceptInbound(config: CallManagerContext["config"], from: string | undefined): boolean {
+function shouldAcceptInbound(config: CallManagerContext["config"], from: string | undefined, logger: Logger): boolean {
   const { inboundPolicy: policy, allowFrom } = config;
 
   switch (policy) {
     case "disabled":
-      console.log("[voice-call] Inbound call rejected: policy is disabled");
+      logger.info("[voice-call] Inbound call rejected: policy is disabled");
       return false;
 
     case "open":
-      console.log("[voice-call] Inbound call accepted: policy is open");
+      logger.info("[voice-call] Inbound call accepted: policy is open");
       return true;
 
     case "allowlist":
     case "pairing": {
-      const normalized = from?.replace(/\D/g, "") || "";
-      const allowed = (allowFrom || []).some((num) => {
-        const normalizedAllow = num.replace(/\D/g, "");
-        return normalized.endsWith(normalizedAllow) || normalizedAllow.endsWith(normalized);
-      });
+      const normalized = normalizePhoneNumber(from);
+      if (!normalized) {
+        console.log("[voice-call] Inbound call rejected: missing caller ID");
+        return false;
+      }
+      const allowed = isAllowlistedCaller(normalized, allowFrom);
       const status = allowed ? "accepted" : "rejected";
-      console.log(
+      logger.info(
         `[voice-call] Inbound call ${status}: ${from} ${allowed ? "is in" : "not in"} allowlist`,
       );
       return allowed;
@@ -73,11 +75,11 @@ function createInboundCall(params: {
   params.ctx.providerCallIdMap.set(params.providerCallId, callId);
   persistCallRecord(params.ctx.storePath, callRecord);
 
-  console.log(`[voice-call] Created inbound call record: ${callId} from ${params.from}`);
+  params.ctx.logger.info(`[voice-call] Created inbound call record: ${callId} from ${params.from}`);
   return callRecord;
 }
 
-export function processEvent(ctx: CallManagerContext, event: NormalizedEvent): void {
+export async function processEvent(ctx: CallManagerContext, event: NormalizedEvent): Promise<void> {
   if (ctx.processedEventIds.has(event.id)) return;
   ctx.processedEventIds.add(event.id);
 
@@ -88,8 +90,17 @@ export function processEvent(ctx: CallManagerContext, event: NormalizedEvent): v
   });
 
   if (!call && event.direction === "inbound" && event.providerCallId) {
-    if (!shouldAcceptInbound(ctx.config, event.from)) {
-      // TODO: Could hang up the call here.
+    if (!shouldAcceptInbound(ctx.config, event.from, ctx.logger)) {
+      // Reject: hang up via provider directly (no call record exists yet)
+      try {
+        await ctx.provider?.hangupCall({
+          callId: event.providerCallId,
+          providerCallId: event.providerCallId,
+          reason: "hangup-bot",
+        });
+      } catch {
+        // Best-effort — call may have already ended
+      }
       return;
     }
 

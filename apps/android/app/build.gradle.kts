@@ -22,20 +22,12 @@ android {
     minSdk = 31
     targetSdk = 36
 <<<<<<< HEAD
-    versionCode = 202602010
-    versionName = "2026.2.1"
+    versionCode = 202601260
+    versionName = "2026.1.27-beta.1"
 =======
-    versionCode = 202602030
-<<<<<<< HEAD
-<<<<<<< HEAD
-    versionName = "2026.2.3"
->>>>>>> e4b084c76 (chore: bump version to 2026.2.3)
-=======
-    versionName = "2026.2.4"
->>>>>>> 5031b283a (chore: bump version to 2026.2.4)
-=======
-    versionName = "2026.2.6"
->>>>>>> 677450cd9 (chore(release): bump version to 2026.2.6)
+    versionCode = 202602020
+    versionName = "2026.2.2"
+>>>>>>> 1c4db9159 (chore: prepare 2026.2.2 release)
   }
 
   buildTypes {

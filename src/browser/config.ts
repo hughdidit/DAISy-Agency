@@ -1,10 +1,14 @@
+<<<<<<< HEAD
+import type { BrowserConfig, BrowserProfileConfig, MoltbotConfig } from "../config/config.js";
+=======
 import type { BrowserConfig, BrowserProfileConfig, OpenClawConfig } from "../config/config.js";
+import { resolveGatewayPort } from "../config/paths.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import {
   deriveDefaultBrowserCdpPortRange,
   deriveDefaultBrowserControlPort,
   DEFAULT_BROWSER_CONTROL_PORT,
 } from "../config/port-defaults.js";
-import { resolveGatewayPort } from "../config/paths.js";
 import {
   DEFAULT_OPENCLAW_BROWSER_COLOR,
   DEFAULT_OPENCLAW_BROWSER_ENABLED,
@@ -94,7 +98,7 @@ export function parseHttpUrl(raw: string, label: string) {
 }
 
 /**
- * Ensure the default "openclaw" profile exists in the profiles map.
+ * Ensure the default "daisy" profile exists in the profiles map.
  * Auto-creates it with the legacy CDP port (from browser.cdpUrl) or first port if missing.
  */
 function ensureDefaultProfile(
@@ -192,8 +196,14 @@ export function resolveBrowserConfig(
     controlPort,
   );
   const cdpProtocol = cdpInfo.parsed.protocol === "https:" ? "https" : "http";
+  const normalizedConfiguredDefaultProfile =
+    defaultProfileFromConfig?.toLowerCase() === "clawd" &&
+    !profiles[defaultProfileFromConfig] &&
+    profiles[DEFAULT_CLAWD_BROWSER_PROFILE_NAME]
+      ? DEFAULT_CLAWD_BROWSER_PROFILE_NAME
+      : defaultProfileFromConfig;
   const defaultProfile =
-    defaultProfileFromConfig ??
+    normalizedConfiguredDefaultProfile ??
     (profiles[DEFAULT_BROWSER_DEFAULT_PROFILE_NAME]
       ? DEFAULT_BROWSER_DEFAULT_PROFILE_NAME
       : DEFAULT_OPENCLAW_BROWSER_PROFILE_NAME);

@@ -19,6 +19,7 @@ public actor GatewayNodeSession {
     private var activeURL: URL?
     private var activeToken: String?
     private var activePassword: String?
+    private var activeConnectOptionsKey: String?
     private var connectOptions: GatewayConnectOptions?
     private var onConnected: (@Sendable () async -> Void)?
     private var onDisconnected: (@Sendable (String) async -> Void)?
@@ -57,6 +58,42 @@ public actor GatewayNodeSession {
 
     public init() {}
 
+    private func connectOptionsKey(_ options: GatewayConnectOptions) -> String {
+        func sorted(_ values: [String]) -> String {
+            values.map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+                .filter { !$0.isEmpty }
+                .sorted()
+                .joined(separator: ",")
+        }
+        let role = options.role.trimmingCharacters(in: .whitespacesAndNewlines)
+        let scopes = sorted(options.scopes)
+        let caps = sorted(options.caps)
+        let commands = sorted(options.commands)
+        let clientId = options.clientId.trimmingCharacters(in: .whitespacesAndNewlines)
+        let clientMode = options.clientMode.trimmingCharacters(in: .whitespacesAndNewlines)
+        let clientDisplayName = (options.clientDisplayName ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        let includeDeviceIdentity = options.includeDeviceIdentity ? "1" : "0"
+        let permissions = options.permissions
+            .map { key, value in
+                let trimmed = key.trimmingCharacters(in: .whitespacesAndNewlines)
+                return "\(trimmed)=\(value ? "1" : "0")"
+            }
+            .sorted()
+            .joined(separator: ",")
+
+        return [
+            role,
+            scopes,
+            caps,
+            commands,
+            clientId,
+            clientMode,
+            clientDisplayName,
+            includeDeviceIdentity,
+            permissions,
+        ].joined(separator: "|")
+    }
+
     public func connect(
         url: URL,
         token: String?,
@@ -67,9 +104,11 @@ public actor GatewayNodeSession {
         onDisconnected: @escaping @Sendable (String) async -> Void,
         onInvoke: @escaping @Sendable (BridgeInvokeRequest) async -> BridgeInvokeResponse
     ) async throws {
+        let nextOptionsKey = self.connectOptionsKey(connectOptions)
         let shouldReconnect = self.activeURL != url ||
             self.activeToken != token ||
             self.activePassword != password ||
+            self.activeConnectOptionsKey != nextOptionsKey ||
             self.channel == nil
 
         self.connectOptions = connectOptions
@@ -91,12 +130,13 @@ public actor GatewayNodeSession {
                 },
                 connectOptions: connectOptions,
                 disconnectHandler: { [weak self] reason in
-                    await self?.onDisconnected?(reason)
+                    await self?.handleChannelDisconnected(reason)
                 })
             self.channel = channel
             self.activeURL = url
             self.activeToken = token
             self.activePassword = password
+            self.activeConnectOptionsKey = nextOptionsKey
         }
 
         guard let channel = self.channel else {
@@ -109,7 +149,6 @@ public actor GatewayNodeSession {
             try await channel.connect()
             await onConnected()
         } catch {
-            await onDisconnected(error.localizedDescription)
             throw error
         }
     }
@@ -120,6 +159,11 @@ public actor GatewayNodeSession {
         self.activeURL = nil
         self.activeToken = nil
         self.activePassword = nil
+<<<<<<< HEAD:apps/shared/MoltbotKit/Sources/MoltbotKit/GatewayNodeSession.swift
+=======
+        self.activeConnectOptionsKey = nil
+        self.resetConnectionState()
+>>>>>>> 6aedc54bd (iOS: alpha node app + setup-code onboarding (#11756)):apps/shared/OpenClawKit/Sources/OpenClawKit/GatewayNodeSession.swift
     }
 
     public func currentCanvasHostUrl() -> String? {
@@ -187,6 +231,69 @@ public actor GatewayNodeSession {
         }
     }
 
+<<<<<<< HEAD:apps/shared/MoltbotKit/Sources/MoltbotKit/GatewayNodeSession.swift
+=======
+    private func resetConnectionState() {
+        self.hasNotifiedConnected = false
+        self.snapshotReceived = false
+        if !self.snapshotWaiters.isEmpty {
+            let waiters = self.snapshotWaiters
+            self.snapshotWaiters.removeAll()
+            for waiter in waiters {
+                waiter.resume(returning: false)
+            }
+        }
+    }
+
+    private func handleChannelDisconnected(_ reason: String) async {
+        // The underlying channel can auto-reconnect; resetting state here ensures we surface a fresh
+        // onConnected callback once a new snapshot arrives after reconnect.
+        self.resetConnectionState()
+        await self.onDisconnected?(reason)
+    }
+
+    private func markSnapshotReceived() {
+        self.snapshotReceived = true
+        if !self.snapshotWaiters.isEmpty {
+            let waiters = self.snapshotWaiters
+            self.snapshotWaiters.removeAll()
+            for waiter in waiters {
+                waiter.resume(returning: true)
+            }
+        }
+    }
+
+    private func waitForSnapshot(timeoutMs: Int) async -> Bool {
+        if self.snapshotReceived { return true }
+        let clamped = max(0, timeoutMs)
+        return await withCheckedContinuation { cont in
+            self.snapshotWaiters.append(cont)
+            Task { [weak self] in
+                guard let self else { return }
+                try? await Task.sleep(nanoseconds: UInt64(clamped) * 1_000_000)
+                await self.timeoutSnapshotWaiters()
+            }
+        }
+    }
+
+    private func timeoutSnapshotWaiters() {
+        guard !self.snapshotReceived else { return }
+        if !self.snapshotWaiters.isEmpty {
+            let waiters = self.snapshotWaiters
+            self.snapshotWaiters.removeAll()
+            for waiter in waiters {
+                waiter.resume(returning: false)
+            }
+        }
+    }
+
+    private func notifyConnectedIfNeeded() async {
+        guard !self.hasNotifiedConnected else { return }
+        self.hasNotifiedConnected = true
+        await self.onConnected?()
+    }
+
+>>>>>>> 6aedc54bd (iOS: alpha node app + setup-code onboarding (#11756)):apps/shared/OpenClawKit/Sources/OpenClawKit/GatewayNodeSession.swift
     private func handleEvent(_ evt: EventFrame) async {
         self.broadcastServerEvent(evt)
         guard evt.event == "node.invoke.request" else { return }

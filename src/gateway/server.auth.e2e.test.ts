@@ -1,8 +1,9 @@
 import { afterAll, beforeAll, describe, expect, test, vi } from "vitest";
 import { WebSocket } from "ws";
+import { GATEWAY_CLIENT_MODES, GATEWAY_CLIENT_NAMES } from "../utils/message-channel.js";
+import { buildDeviceAuthPayload } from "./device-auth.js";
 import { PROTOCOL_VERSION } from "./protocol/index.js";
 import { getHandshakeTimeoutMs } from "./server-constants.js";
-import { buildDeviceAuthPayload } from "./device-auth.js";
 import {
   connectReq,
   getFreePort,
@@ -12,7 +13,6 @@ import {
   startServerWithClient,
   testState,
 } from "./test-helpers.js";
-import { GATEWAY_CLIENT_MODES, GATEWAY_CLIENT_NAMES } from "../utils/message-channel.js";
 
 installGatewayTestHooks({ scope: "suite" });
 
@@ -525,6 +525,38 @@ describe("gateway server auth/connect", () => {
       delete process.env.OPENCLAW_GATEWAY_TOKEN;
     } else {
       process.env.OPENCLAW_GATEWAY_TOKEN = prevToken;
+    }
+  });
+
+  test("defaults to operator.read when scopes omitted", async () => {
+    const { approveDevicePairing, getPairedDevice, listDevicePairing } =
+      await import("../infra/device-pairing.js");
+    const { loadOrCreateDeviceIdentity } = await import("../infra/device-identity.js");
+    const { server, ws, prevToken } = await startServerWithClient("secret");
+
+    // Connect WITHOUT specifying scopes — should default to operator.read
+    const res = await connectReq(ws, { token: "secret" });
+    if (!res.ok) {
+      const list = await listDevicePairing();
+      const pending = list.pending.at(0);
+      expect(pending?.requestId).toBeDefined();
+      if (pending?.requestId) {
+        await approveDevicePairing(pending.requestId);
+      }
+    }
+
+    const identity = loadOrCreateDeviceIdentity();
+    const paired = await getPairedDevice(identity.deviceId);
+    // Must be operator.read, NOT operator.admin
+    expect(paired?.scopes).toContain("operator.read");
+    expect(paired?.scopes).not.toContain("operator.admin");
+
+    ws.close();
+    await server.close();
+    if (prevToken === undefined) {
+      delete process.env.CLAWDBOT_GATEWAY_TOKEN;
+    } else {
+      process.env.CLAWDBOT_GATEWAY_TOKEN = prevToken;
     }
   });
 

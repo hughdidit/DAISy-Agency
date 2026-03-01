@@ -1,20 +1,35 @@
 import path from "node:path";
+<<<<<<< HEAD
 
+import type { MoltbotConfig } from "../config/config.js";
+=======
+import { promisify } from "node:util";
 import type { OpenClawConfig } from "../config/config.js";
+import type { RuntimeEnv } from "../runtime.js";
+import type { DoctorOptions, DoctorPrompter } from "./doctor-prompter.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { resolveGatewayPort, resolveIsNixMode } from "../config/paths.js";
 import { findExtraGatewayServices, renderGatewayServiceCleanupHints } from "../daemon/inspect.js";
 import { renderSystemNodeWarning, resolveSystemNodeInfo } from "../daemon/runtime-paths.js";
-import { resolveGatewayService } from "../daemon/service.js";
 import {
   auditGatewayServiceConfig,
   needsNodeRuntimeMigration,
   SERVICE_AUDIT_CODES,
 } from "../daemon/service-audit.js";
-import type { RuntimeEnv } from "../runtime.js";
+import { resolveGatewayService } from "../daemon/service.js";
 import { note } from "../terminal/note.js";
+<<<<<<< HEAD
+import { buildGatewayInstallPlan, gatewayInstallErrorHint } from "./daemon-install-helpers.js";
+import {
+  DEFAULT_GATEWAY_DAEMON_RUNTIME,
+  GATEWAY_DAEMON_RUNTIME_OPTIONS,
+  type GatewayDaemonRuntime,
+} from "./daemon-runtime.js";
+import type { DoctorOptions, DoctorPrompter } from "./doctor-prompter.js";
+=======
 import { buildGatewayInstallPlan } from "./daemon-install-helpers.js";
 import { DEFAULT_GATEWAY_DAEMON_RUNTIME, type GatewayDaemonRuntime } from "./daemon-runtime.js";
-import type { DoctorOptions, DoctorPrompter } from "./doctor-prompter.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 
 function detectGatewayRuntime(programArguments: string[] | undefined): GatewayDaemonRuntime {
   const first = programArguments?.[0];

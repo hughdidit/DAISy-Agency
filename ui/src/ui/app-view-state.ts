@@ -1,3 +1,8 @@
+import type { EventLogEntry } from "./app-events";
+import type { DevicePairingList } from "./controllers/devices";
+import type { ExecApprovalRequest } from "./controllers/exec-approval";
+import type { ExecApprovalsFile, ExecApprovalsSnapshot } from "./controllers/exec-approvals";
+import type { SkillMessage } from "./controllers/skills";
 import type { GatewayBrowserClient, GatewayHelloOk } from "./gateway";
 import type { Tab } from "./navigation";
 import type { UiSettings } from "./storage";
@@ -20,6 +25,7 @@ import type {
   StatusSummary,
 } from "./types";
 import type { ChatAttachment, ChatQueueItem, CronFormState } from "./ui-types";
+<<<<<<< HEAD
 import type { EventLogEntry } from "./app-events";
 import type { SkillMessage } from "./controllers/skills";
 import type {
@@ -28,6 +34,8 @@ import type {
 } from "./controllers/exec-approvals";
 import type { DevicePairingList } from "./controllers/devices";
 import type { ExecApprovalRequest } from "./controllers/exec-approval";
+=======
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { NostrProfileFormState } from "./views/channels.nostr-profile-form";
 
 export type AppViewState = {
@@ -57,8 +65,18 @@ export type AppViewState = {
   chatAvatarUrl: string | null;
   chatThinkingLevel: string | null;
   chatQueue: ChatQueueItem[];
+  chatManualRefreshInFlight: boolean;
   nodesLoading: boolean;
   nodes: Array<Record<string, unknown>>;
+<<<<<<< HEAD
+=======
+  chatNewMessagesBelow: boolean;
+  sidebarOpen: boolean;
+  sidebarContent: string | null;
+  sidebarError: string | null;
+  splitRatio: number;
+  scrollToBottom: (opts?: { smooth?: boolean }) => void;
+>>>>>>> bc475f017 (fix(ui): smooth chat refresh scroll and suppress new-messages badge flash)
   devicesLoading: boolean;
   devicesError: string | null;
   devicesList: DevicePairingList | null;

@@ -1,6 +1,18 @@
 # Repository Guidelines
-- Repo: https://github.com/openclaw/openclaw
+- Repo: https://github.com/hughdidit/DAISy-Agency
+- Default Branch: daisy/dev
+- Upstream Mirror Branch: main
+- Staging Branch: daisy/dev
+- Production Branch: daisy/main 
 - GitHub issues/comments/PR comments: use literal multiline strings or `-F - <<'EOF'` (or $'...') for real newlines; never embed "\\n".
+
+## DAISy-Agency Fork Workflow
+- This is a fork of moltbot/moltbot
+- Default PR base branch: `daisy/dev` (not `main`)
+- **Never commit directly to `daisy/dev` or `daisy/main`** — always create a throwaway feature branch and merge via PR
+- Avoid merging from `upstream` remote — keep fork changes isolated
+- Avoid merging to `upstream` remote — keep fork changes isolated
+- Avoid merging to/from `main` and `dev` — they represent production and staging for CI/CD
 
 ## Project Structure & Module Organization
 - Source code: `src/` (CLI wiring in `src/cli`, commands in `src/commands`, web provider in `src/provider-web.ts`, infra in `src/infra`, media pipeline in `src/media`).
@@ -25,6 +37,14 @@
 - README (GitHub): keep absolute docs URLs (`https://docs.openclaw.ai/...`) so links work on GitHub.
 - Docs content must be generic: no personal device names/hostnames/paths; use placeholders like `user@gateway-host` and “gateway host”.
 
+## Docs i18n (zh-CN)
+
+- `docs/zh-CN/**` is generated; do not edit unless the user explicitly asks.
+- Pipeline: update English docs → adjust glossary (`docs/.i18n/glossary.zh-CN.json`) → run `scripts/docs-i18n` → apply targeted fixes only if instructed.
+- Translation memory: `docs/.i18n/zh-CN.tm.jsonl` (generated).
+- See `docs/.i18n/README.md`.
+- The pipeline can be slow/inefficient; if it’s dragging, ping @jospalmbier on Discord instead of hacking around it.
+
 ## exe.dev VM ops (general)
 - Access: stable path is `ssh exe.dev` then `ssh vm-name` (assume SSH key already set).
 - SSH flaky: use exe.dev web terminal or Shelley (web agent); keep a tmux session for long ops.
@@ -44,13 +64,19 @@
 - Run CLI in dev: `pnpm openclaw ...` (bun) or `pnpm dev`.
 - Node remains supported for running built output (`dist/*`) and production installs.
 - Mac packaging (dev): `scripts/package-mac-app.sh` defaults to current arch. Release checklist: `docs/platforms/mac/release.md`.
-- Type-check/build: `pnpm build`
+<<<<<<< HEAD
+- Type-check/build: `pnpm build` (tsc)
 - Lint/format: `pnpm lint` (oxlint), `pnpm format` (oxfmt)
+=======
+- Type-check/build: `pnpm build`
+- TypeScript checks: `pnpm tsgo`
+- Lint/format: `pnpm check`
+>>>>>>> 902f96805 (chore: Add `pnpm check` for fast repo checks.)
 - Tests: `pnpm test` (vitest); coverage: `pnpm test:coverage`
 
 ## Coding Style & Naming Conventions
 - Language: TypeScript (ESM). Prefer strict typing; avoid `any`.
-- Formatting/linting via Oxlint and Oxfmt; run `pnpm lint` before commits.
+- Formatting/linting via Oxlint and Oxfmt; run `pnpm check` before commits.
 - Add brief code comments for tricky or non-obvious logic.
 - Keep files concise; extract helpers instead of “V2” copies. Use existing patterns for CLI options and dependency injection via `createDefaultDeps`.
 - Aim to keep files under ~700 LOC; guideline only (not a hard guardrail). Split/refactor when it improves clarity or testability.
@@ -77,6 +103,8 @@
 - Group related changes; avoid bundling unrelated refactors.
 - Changelog workflow: keep latest released version at top (no `Unreleased`); after publishing, bump version and start a new top section.
 - PRs should summarize scope, note testing performed, and mention any user-facing changes or new flags.
+- Read this when submitting a PR: `docs/help/submitting-a-pr.md` ([Submitting a PR](https://docs.openclaw.ai/help/submitting-a-pr))
+- Read this when submitting an issue: `docs/help/submitting-an-issue.md` ([Submitting an Issue](https://docs.openclaw.ai/help/submitting-an-issue))
 - PR review flow: when given a PR link, review via `gh pr view`/`gh pr diff` and do **not** change branches.
 - PR review calls: prefer a single `gh pr view --json ...` to batch metadata/comments; run `gh pr diff` only when needed.
 - Before starting a review when a GH Issue/PR is pasted: run `git pull`; if there are local changes or unpushed commits, stop and alert the user before reviewing.
@@ -94,7 +122,7 @@
 
 ### PR Workflow (Review vs Land)
 - **Review mode (PR link only):** read `gh pr view/diff`; **do not** switch branches; **do not** change code.
-- **Landing mode:** create an integration branch from `main`, bring in PR commits (**prefer rebase** for linear history; **merge allowed** when complexity/conflicts make it safer), apply fixes, add changelog (+ thanks + PR #), run full gate **locally before committing** (`pnpm lint && pnpm build && pnpm test`), commit, merge back to `main`, then `git switch main` (never stay on a topic branch after landing). Important: contributor needs to be in git graph after this!
+- **Landing mode:** create an integration branch from `main`, bring in PR commits (**prefer rebase** for linear history; **merge allowed** when complexity/conflicts make it safer), apply fixes, add changelog (+ thanks + PR #), run full gate **locally before committing** (`pnpm build && pnpm check && pnpm test`), commit, merge back to `main`, then `git switch main` (never stay on a topic branch after landing). Important: contributor needs to be in git graph after this!
 
 ## Security & Configuration Tips
 - Web provider stores creds at `~/.clawdbot/credentials/`; rerun `openclaw login` if logged out.
@@ -107,6 +135,8 @@
 - Rebrand/migration issues or legacy config/service warnings: run `openclaw doctor` (see `docs/gateway/doctor.md`).
 
 ## Agent-Specific Notes
+- **WSL sudo/disruptive commands:** If a command requires `sudo` or kills processes (e.g., `pkill`, `rm .git/*.lock`), ask the user to run it manually in their terminal rather than attempting it via Bash tool.
+- **WSL git slowness:** Git operations on Windows filesystem (`/mnt/g/`) via WSL are extremely slow and can corrupt files. Use Git for Windows instead: `"/mnt/c/Program Files/Git/bin/git.exe" <command>`. This is FAR more efficient for GitHub interactions on network-mounted repos.
 - Vocabulary: "makeup" = "mac app".
 - Never edit `node_modules` (global/Homebrew/npm/git installs too). Updates overwrite. Skill notes go in `tools.md` or `AGENTS.md`.
 - Signal: "update fly" => `fly ssh console -a flawd-bot -C "bash -lc 'cd /data/clawd/openclaw && git pull --rebase origin main'"` then `fly machines restart e825232f34d058 -a flawd-bot`.
@@ -161,3 +191,24 @@
 - Publish: `npm publish --access public --otp="<otp>"` (run from the package dir).
 - Verify without local npmrc side effects: `npm view <pkg> version --userconfig "$(mktemp)"`.
 - Kill the tmux session after publish.
+
+# Claude Review Guidelines (DAISy-Agency / Moltbot thin fork)
+
+## Review scope (priority order)
+1) Correctness and safety (security, auth, secrets, permissions, data loss)
+2) CI/CD and workflow safety (required checks, concurrency, env gating)
+3) Maintainability (clear naming, modularity, tests)
+4) Style (only if it improves readability)
+
+## What to output in PR reviews
+- Top 3–7 actionable findings, each with:
+  - file path(s)
+  - risk level (low/med/high)
+  - a concrete fix suggestion
+- Avoid nitpicks unless they prevent bugs.
+- Be concise.
+
+## Repo-specific guardrails
+- Branch model: daisy/dev (integration), daisy/main (production)
+- Required check stability is critical: do not propose renaming required check names.
+- Prefer least-privilege permissions in workflows.

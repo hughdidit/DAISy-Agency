@@ -16,7 +16,15 @@ OpenClaw uses a dedicated workspace directory for the agent. Default: `~/.opencl
 mkdir -p ~/.openclaw/workspace
 ```
 
+<<<<<<< HEAD
+<<<<<<< HEAD
 2) Copy the default workspace templates into the workspace:
+=======
+1. Copy the default workspace templates into the workspace:
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
+=======
+2. Copy the default workspace templates into the workspace:
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 
 ```bash
 cp docs/reference/templates/AGENTS.md ~/.openclaw/workspace/AGENTS.md
@@ -24,13 +32,29 @@ cp docs/reference/templates/SOUL.md ~/.openclaw/workspace/SOUL.md
 cp docs/reference/templates/TOOLS.md ~/.openclaw/workspace/TOOLS.md
 ```
 
+<<<<<<< HEAD
+<<<<<<< HEAD
 3) Optional: if you want the personal assistant skill roster, replace AGENTS.md with this file:
+=======
+1. Optional: if you want the personal assistant skill roster, replace AGENTS.md with this file:
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
+=======
+3. Optional: if you want the personal assistant skill roster, replace AGENTS.md with this file:
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 
 ```bash
 cp docs/reference/AGENTS.default.md ~/.openclaw/workspace/AGENTS.md
 ```
 
+<<<<<<< HEAD
+<<<<<<< HEAD
 4) Optional: choose a different workspace by setting `agents.defaults.workspace` (supports `~`):
+=======
+1. Optional: choose a different workspace by setting `agents.defaults.workspace` (supports `~`):
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
+=======
+4. Optional: choose a different workspace by setting `agents.defaults.workspace` (supports `~`):
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 
 ```json5
 {
@@ -100,7 +124,6 @@ git commit -m "Add Clawd workspace"
 - **OpenHue CLI** — Philips Hue lighting control for scenes and automations.
 - **OpenAI Whisper** — Local speech-to-text for quick dictation and voicemail transcripts.
 - **Gemini CLI** — Google Gemini models from the terminal for fast Q&A.
-- **bird** — X/Twitter CLI to tweet, reply, read threads, and search without a browser.
 - **agent-tools** — Utility toolkit for automations and helper scripts.
 
 ## Usage Notes

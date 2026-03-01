@@ -1,6 +1,7 @@
 ---
 summary: "Fix Chrome/Brave/Edge/Chromium CDP startup issues for OpenClaw browser control on Linux"
 read_when: "Browser control fails on Linux, especially with snap Chromium"
+title: "Browser Troubleshooting"
 ---
 
 # Browser Troubleshooting (Linux)
@@ -9,7 +10,7 @@ read_when: "Browser control fails on Linux, especially with snap Chromium"
 
 OpenClaw's browser control server fails to launch Chrome/Brave/Edge/Chromium with the error:
 ```
-{"error":"Error: Failed to start Chrome CDP on port 18800 for profile \"openclaw\"."}
+{"error":"Error: Failed to start Chrome CDP on port 18800 for profile \"daisy\"."}
 ```
 
 ### Root Cause
@@ -63,23 +64,41 @@ If you must use snap Chromium, configure OpenClaw to attach to a manually-starte
 }
 ```
 
+<<<<<<< HEAD
+<<<<<<< HEAD
 2. Start Chromium manually:
+=======
+1. Start Chromium manually:
+=======
+2. Start Chromium manually:
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
+
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 ```bash
 chromium-browser --headless --no-sandbox --disable-gpu \
   --remote-debugging-port=18800 \
-  --user-data-dir=$HOME/.openclaw/browser/openclaw/user-data \
+  --user-data-dir=$HOME/.clawdbot/browser/daisy/user-data \
   about:blank &
 ```
 
+<<<<<<< HEAD
+<<<<<<< HEAD
 3. Optionally create a systemd user service to auto-start Chrome:
+=======
+1. Optionally create a systemd user service to auto-start Chrome:
+=======
+3. Optionally create a systemd user service to auto-start Chrome:
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
+
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 ```ini
-# ~/.config/systemd/user/openclaw-browser.service
+# ~/.config/systemd/user/daisy-browser.service
 [Unit]
-Description=OpenClaw Browser (Chrome CDP)
+Description=DAISy Browser (Chrome CDP)
 After=network.target
 
 [Service]
-ExecStart=/snap/bin/chromium --headless --no-sandbox --disable-gpu --remote-debugging-port=18800 --user-data-dir=%h/.openclaw/browser/openclaw/user-data about:blank
+ExecStart=/snap/bin/chromium --headless --no-sandbox --disable-gpu --remote-debugging-port=18800 --user-data-dir=%h/.clawdbot/browser/daisy/user-data about:blank
 Restart=on-failure
 RestartSec=5
 
@@ -87,7 +106,7 @@ RestartSec=5
 WantedBy=default.target
 ```
 
-Enable with: `systemctl --user enable --now openclaw-browser.service`
+Enable with: `systemctl --user enable --now daisy-browser.service`
 
 ### Verifying the Browser Works
 
@@ -119,11 +138,11 @@ You’re using the `chrome` profile (extension relay). It expects the OpenClaw
 browser extension to be attached to a live tab.
 
 Fix options:
-1. **Use the managed browser:** `openclaw browser start --browser-profile openclaw`
-   (or set `browser.defaultProfile: "openclaw"`).
+1. **Use the managed browser:** `moltbot browser start --browser-profile daisy`
+  (or set `browser.defaultProfile: "daisy"`).
 2. **Use the extension relay:** install the extension, open a tab, and click the
    OpenClaw extension icon to attach it.
 
 Notes:
 - The `chrome` profile uses your **system default Chromium browser** when possible.
-- Local `openclaw` profiles auto-assign `cdpPort`/`cdpUrl`; only set those for remote CDP.
+- Local `daisy` profiles auto-assign `cdpPort`/`cdpUrl`; only set those for remote CDP.

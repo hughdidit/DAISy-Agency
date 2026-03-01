@@ -1,14 +1,22 @@
 import { html } from "lit";
 import { repeat } from "lit/directives/repeat.js";
-
 import type { AppViewState } from "./app-view-state";
+<<<<<<< HEAD
 import { iconForTab, pathForTab, titleForTab, type Tab } from "./navigation";
 import { icons } from "./icons";
 import { loadChatHistory } from "./controllers/chat";
 import { syncUrlWithSessionKey } from "./app-settings";
 import type { SessionsListResult } from "./types";
+=======
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { ThemeMode } from "./theme";
 import type { ThemeTransitionContext } from "./theme-transition";
+import type { SessionsListResult } from "./types";
+import { refreshChat } from "./app-chat";
+import { syncUrlWithSessionKey } from "./app-settings";
+import { loadChatHistory } from "./controllers/chat";
+import { icons } from "./icons";
+import { iconForTab, pathForTab, titleForTab, type Tab } from "./navigation";
 
 export function renderTab(state: AppViewState, tab: Tab) {
   const href = pathForTab(tab, state.basePath);
@@ -85,9 +93,29 @@ export function renderChatControls(state: AppViewState) {
       <button
         class="btn btn--sm btn--icon"
         ?disabled=${state.chatLoading || !state.connected}
+<<<<<<< HEAD
         @click=${() => {
           state.resetToolStream();
           void loadChatHistory(state);
+=======
+        @click=${async () => {
+          const app = state as unknown as OpenClawApp;
+          app.chatManualRefreshInFlight = true;
+          app.chatNewMessagesBelow = false;
+          await app.updateComplete;
+          app.resetToolStream();
+          try {
+            await refreshChat(state as unknown as Parameters<typeof refreshChat>[0], {
+              scheduleScroll: false,
+            });
+            app.scrollToBottom({ smooth: true });
+          } finally {
+            requestAnimationFrame(() => {
+              app.chatManualRefreshInFlight = false;
+              app.chatNewMessagesBelow = false;
+            });
+          }
+>>>>>>> bc475f017 (fix(ui): smooth chat refresh scroll and suppress new-messages badge flash)
         }}
         title="Refresh chat history"
       >

@@ -1,7 +1,7 @@
 import AVFoundation
-import OpenClawChatUI
-import OpenClawKit
 import Foundation
+import MoltbotChatUI
+import MoltbotKit
 import OSLog
 import Speech
 

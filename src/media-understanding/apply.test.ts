@@ -1,11 +1,14 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-
 import { beforeEach, describe, expect, it, vi } from "vitest";
+<<<<<<< HEAD
 
-import type { OpenClawConfig } from "../config/config.js";
+import type { MoltbotConfig } from "../config/config.js";
+=======
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { MsgContext } from "../auto-reply/templating.js";
+import type { OpenClawConfig } from "../config/config.js";
 import { resolveApiKeyForProvider } from "../agents/model-auth.js";
 import { fetchRemoteMedia } from "../media/fetch.js";
 
@@ -587,141 +590,44 @@ describe("applyMediaUnderstanding", () => {
     expect(ctx.Body).toContain("a\tb\tc");
   });
 
-  it("treats cp1252-like audio attachments as text", async () => {
-    const { applyMediaUnderstanding } = await loadApply();
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-media-"));
-    const filePath = path.join(dir, "legacy.mp3");
-    const cp1252Bytes = Buffer.from([0x93, 0x48, 0x69, 0x94, 0x20, 0x54, 0x65, 0x73, 0x74]);
-    await fs.writeFile(filePath, cp1252Bytes);
+  // Windows NTFS disallows < and > in filenames; XML escaping is
+  // platform-independent string logic tested adequately on Linux/macOS.
+  it.skipIf(process.platform === "win32")(
+    "escapes XML special characters in filenames to prevent injection",
+    async () => {
+      const { applyMediaUnderstanding } = await loadApply();
+      const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-media-"));
+      // Create file with XML special characters in the name (what filesystem allows)
+      // Note: The sanitizeFilename in store.ts would strip most dangerous chars,
+      // but we test that even if some slip through, they get escaped in output
+      const filePath = path.join(dir, "file<test>.txt");
+      await fs.writeFile(filePath, "safe content");
 
-    const ctx: MsgContext = {
-      Body: "<media:audio>",
-      MediaPath: filePath,
-      MediaType: "audio/mpeg",
-    };
-    const cfg: OpenClawConfig = {
-      tools: {
-        media: {
-          audio: { enabled: false },
-          image: { enabled: false },
-          video: { enabled: false },
-        },
-      },
-    };
-
-    const result = await applyMediaUnderstanding({ ctx, cfg });
-
-    expect(result.appliedFile).toBe(true);
-    expect(ctx.Body).toContain("<file");
-    expect(ctx.Body).toContain("Hi");
-  });
-
-  it("skips binary audio attachments that are not text-like", async () => {
-    const { applyMediaUnderstanding } = await loadApply();
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-media-"));
-    const filePath = path.join(dir, "binary.mp3");
-    const bytes = Buffer.from(Array.from({ length: 256 }, (_, index) => index));
-    await fs.writeFile(filePath, bytes);
-
-    const ctx: MsgContext = {
-      Body: "<media:audio>",
-      MediaPath: filePath,
-      MediaType: "audio/mpeg",
-    };
-    const cfg: OpenClawConfig = {
-      tools: {
-        media: {
-          audio: { enabled: false },
-          image: { enabled: false },
-          video: { enabled: false },
-        },
-      },
-    };
-
-    const result = await applyMediaUnderstanding({ ctx, cfg });
-
-    expect(result.appliedFile).toBe(false);
-    expect(ctx.Body).toBe("<media:audio>");
-    expect(ctx.Body).not.toContain("<file");
-  });
-
-  it("respects configured allowedMimes for text-like audio attachments", async () => {
-    const { applyMediaUnderstanding } = await loadApply();
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-media-"));
-    const tsvPath = path.join(dir, "report.mp3");
-    const tsvText = "a\tb\tc\n1\t2\t3";
-    await fs.writeFile(tsvPath, tsvText);
-
-    const ctx: MsgContext = {
-      Body: "<media:audio>",
-      MediaPath: tsvPath,
-      MediaType: "audio/mpeg",
-    };
-    const cfg: OpenClawConfig = {
-      gateway: {
-        http: {
-          endpoints: {
-            responses: {
-              files: { allowedMimes: ["text/plain"] },
-            },
+      const ctx: MsgContext = {
+        Body: "<media:document>",
+        MediaPath: filePath,
+        MediaType: "text/plain",
+      };
+      const cfg: MoltbotConfig = {
+        tools: {
+          media: {
+            audio: { enabled: false },
+            image: { enabled: false },
+            video: { enabled: false },
           },
         },
-      },
-      tools: {
-        media: {
-          audio: { enabled: false },
-          image: { enabled: false },
-          video: { enabled: false },
-        },
-      },
-    };
+      };
 
-    const result = await applyMediaUnderstanding({ ctx, cfg });
+      const result = await applyMediaUnderstanding({ ctx, cfg });
 
-    expect(result.appliedFile).toBe(false);
-    expect(ctx.Body).toBe("<media:audio>");
-    expect(ctx.Body).not.toContain("<file");
-  });
-
-  it("escapes XML special characters in filenames to prevent injection", async () => {
-    const { applyMediaUnderstanding } = await loadApply();
-<<<<<<< HEAD
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-media-"));
-    // Create file with XML special characters in the name (what filesystem allows)
-=======
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-media-"));
-    // Use & in filename — valid on all platforms (including Windows, which
-    // forbids < and > in NTFS filenames) and still requires XML escaping.
->>>>>>> 9a7160786 (refactor: rename to openclaw)
-    // Note: The sanitizeFilename in store.ts would strip most dangerous chars,
-    // but we test that even if some slip through, they get escaped in output
-    const filePath = path.join(dir, "file<test>.txt");
-    await fs.writeFile(filePath, "safe content");
-
-    const ctx: MsgContext = {
-      Body: "<media:document>",
-      MediaPath: filePath,
-      MediaType: "text/plain",
-    };
-    const cfg: OpenClawConfig = {
-      tools: {
-        media: {
-          audio: { enabled: false },
-          image: { enabled: false },
-          video: { enabled: false },
-        },
-      },
-    };
-
-    const result = await applyMediaUnderstanding({ ctx, cfg });
-
-    expect(result.appliedFile).toBe(true);
-    // Verify XML special chars are escaped in the output
-    expect(ctx.Body).toContain("&lt;");
-    expect(ctx.Body).toContain("&gt;");
-    // The raw < and > should not appear unescaped in the name attribute
-    expect(ctx.Body).not.toMatch(/name="[^"]*<[^"]*"/);
-  });
+      expect(result.appliedFile).toBe(true);
+      // Verify XML special chars are escaped in the output
+      expect(ctx.Body).toContain("&lt;");
+      expect(ctx.Body).toContain("&gt;");
+      // The raw < and > should not appear unescaped in the name attribute
+      expect(ctx.Body).not.toMatch(/name="[^"]*<[^"]*"/);
+    },
+  );
 
   it("escapes file block content to prevent structure injection", async () => {
     const { applyMediaUnderstanding } = await loadApply();

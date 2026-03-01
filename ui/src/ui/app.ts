@@ -1,10 +1,10 @@
 import { LitElement, html, nothing } from "lit";
 import { customElement, state } from "lit/decorators.js";
-
+import type { EventLogEntry } from "./app-events";
+import type { DevicePairingList } from "./controllers/devices";
+import type { ExecApprovalRequest } from "./controllers/exec-approval";
+import type { ExecApprovalsFile, ExecApprovalsSnapshot } from "./controllers/exec-approvals";
 import type { GatewayBrowserClient, GatewayHelloOk } from "./gateway";
-import { resolveInjectedAssistantIdentity } from "./assistant-identity";
-import { loadSettings, type UiSettings } from "./storage";
-import { renderApp } from "./app-render";
 import type { Tab } from "./navigation";
 import type { ResolvedTheme, ThemeMode } from "./theme";
 import type {
@@ -24,6 +24,7 @@ import type {
   StatusSummary,
   NostrProfile,
 } from "./types";
+<<<<<<< HEAD
 import { type ChatAttachment, type ChatQueueItem, type CronFormState } from "./ui-types";
 import type { EventLogEntry } from "./app-events";
 import { DEFAULT_CRON_FORM, DEFAULT_LOG_LEVEL_FILTERS } from "./app-defaults";
@@ -63,6 +64,9 @@ import {
   handleSendChat as handleSendChatInternal,
   removeQueuedMessage as removeQueuedMessageInternal,
 } from "./app-chat";
+=======
+import type { NostrProfileFormState } from "./views/channels.nostr-profile-form";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import {
   handleChannelConfigReload as handleChannelConfigReloadInternal,
   handleChannelConfigSave as handleChannelConfigSaveInternal,
@@ -76,8 +80,42 @@ import {
   handleWhatsAppStart as handleWhatsAppStartInternal,
   handleWhatsAppWait as handleWhatsAppWaitInternal,
 } from "./app-channels";
-import type { NostrProfileFormState } from "./views/channels.nostr-profile-form";
+import {
+  handleAbortChat as handleAbortChatInternal,
+  handleSendChat as handleSendChatInternal,
+  removeQueuedMessage as removeQueuedMessageInternal,
+} from "./app-chat";
+import { DEFAULT_CRON_FORM, DEFAULT_LOG_LEVEL_FILTERS } from "./app-defaults";
+import { connectGateway as connectGatewayInternal } from "./app-gateway";
+import {
+  handleConnected,
+  handleDisconnected,
+  handleFirstUpdated,
+  handleUpdated,
+} from "./app-lifecycle";
+import { renderApp } from "./app-render";
+import {
+  exportLogs as exportLogsInternal,
+  handleChatScroll as handleChatScrollInternal,
+  handleLogsScroll as handleLogsScrollInternal,
+  resetChatScroll as resetChatScrollInternal,
+} from "./app-scroll";
+import {
+  applySettings as applySettingsInternal,
+  loadCron as loadCronInternal,
+  loadOverview as loadOverviewInternal,
+  setTab as setTabInternal,
+  setTheme as setThemeInternal,
+  onPopState as onPopStateInternal,
+} from "./app-settings";
+import {
+  resetToolStream as resetToolStreamInternal,
+  type ToolStreamEntry,
+} from "./app-tool-stream";
+import { resolveInjectedAssistantIdentity } from "./assistant-identity";
 import { loadAssistantIdentity as loadAssistantIdentityInternal } from "./controllers/assistant-identity";
+import { loadSettings, type UiSettings } from "./storage";
+import { type ChatAttachment, type ChatQueueItem, type CronFormState } from "./ui-types";
 
 declare global {
   interface Window {
@@ -130,6 +168,7 @@ export class OpenClawApp extends LitElement {
   @state() chatThinkingLevel: string | null = null;
   @state() chatQueue: ChatQueueItem[] = [];
   @state() chatAttachments: ChatAttachment[] = [];
+  @state() chatManualRefreshInFlight = false;
   // Sidebar state for tool output viewing
   @state() sidebarOpen = false;
   @state() sidebarContent: string | null = null;
@@ -258,6 +297,10 @@ export class OpenClawApp extends LitElement {
   private logsScrollFrame: number | null = null;
   private toolStreamById = new Map<string, ToolStreamEntry>();
   private toolStreamOrder: string[] = [];
+<<<<<<< HEAD
+=======
+  refreshSessionsAfterChat = new Set<string>();
+>>>>>>> 0b7aa8cf1 (feat(ui): refresh session list after chat commands in Web UI)
   basePath = "";
   private popStateHandler = () =>
     onPopStateInternal(
@@ -323,8 +366,23 @@ export class OpenClawApp extends LitElement {
   }
 
   resetChatScroll() {
+<<<<<<< HEAD
     resetChatScrollInternal(
       this as unknown as Parameters<typeof resetChatScrollInternal>[0],
+=======
+    resetChatScrollInternal(this as unknown as Parameters<typeof resetChatScrollInternal>[0]);
+  }
+
+  scrollToBottom(opts?: { smooth?: boolean }) {
+    resetChatScrollInternal(this as unknown as Parameters<typeof resetChatScrollInternal>[0]);
+    scheduleChatScrollInternal(
+      this as unknown as Parameters<typeof scheduleChatScrollInternal>[0],
+      true,
+<<<<<<< HEAD
+>>>>>>> 371114354 (chore: fix formatting and CI)
+=======
+      Boolean(opts?.smooth),
+>>>>>>> bc475f017 (fix(ui): smooth chat refresh scroll and suppress new-messages badge flash)
     );
   }
 

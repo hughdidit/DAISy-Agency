@@ -1,6 +1,4 @@
 import { describe, expect, it, vi } from "vitest";
-<<<<<<< HEAD
-
 import { createAgentEventHandler, createChatRunState } from "./server-chat.js";
 =======
 import { registerAgentRunContext, resetAgentRunContextForTest } from "../infra/agent-events.js";

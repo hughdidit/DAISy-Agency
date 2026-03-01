@@ -1,13 +1,7 @@
 import type { TUI } from "@mariozechner/pi-tui";
 import { describe, expect, it, vi } from "vitest";
-<<<<<<< HEAD
-
-=======
-import type { ChatLog } from "./components/chat-log.js";
 import type { AgentEvent, ChatEvent, TuiStateAccess } from "./tui-types.js";
->>>>>>> 38e6da1fe (TUI/Gateway: fix pi streaming + tool routing + model display + msg updating (#8432))
 import { createEventHandlers } from "./tui-event-handlers.js";
-import type { AgentEvent, ChatEvent, TuiStateAccess } from "./tui-types.js";
 
 type MockChatLog = Pick<
   ChatLog,

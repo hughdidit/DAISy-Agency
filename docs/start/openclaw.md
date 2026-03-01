@@ -3,6 +3,7 @@ summary: "End-to-end guide for running OpenClaw as a personal assistant with saf
 read_when:
   - Onboarding a new assistant instance
   - Reviewing safety/permission implications
+title: "Personal Assistant Setup"
 ---
 # Building a personal assistant with OpenClaw
 
@@ -22,6 +23,7 @@ Start conservative:
 
 ## Prerequisites
 
+<<<<<<< HEAD:docs/start/clawd.md
 - Node **22+**
 - OpenClaw available on PATH (recommended: global install)
 - A second phone number (SIM/eSIM/prepaid) for the assistant
@@ -42,6 +44,11 @@ pnpm build
 pnpm link --global
 ```
 
+=======
+- OpenClaw installed and onboarded — see [Getting Started](/start/getting-started) if you haven't done this yet
+- A second phone number (SIM/eSIM/prepaid) for the assistant
+
+>>>>>>> c18452598 (docs: restructure Get Started tab and improve onboarding flow (#9950)):docs/start/openclaw.md
 ## The two-phone setup (recommended)
 
 You want this:
@@ -71,13 +78,29 @@ If you link your personal WhatsApp to OpenClaw, every message to you becomes “
 openclaw channels login
 ```
 
+<<<<<<< HEAD:docs/start/clawd.md
+<<<<<<< HEAD:docs/start/clawd.md
 2) Start the Gateway (leave it running):
+=======
+1. Start the Gateway (leave it running):
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links):docs/start/openclaw.md
+=======
+2. Start the Gateway (leave it running):
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn):docs/start/openclaw.md
 
 ```bash
 openclaw gateway --port 18789
 ```
 
-3) Put a minimal config in `~/.openclaw/openclaw.json`:
+<<<<<<< HEAD:docs/start/clawd.md
+<<<<<<< HEAD:docs/start/clawd.md
+3) Put a minimal config in `~/.clawdbot/moltbot.json`:
+=======
+1. Put a minimal config in `~/.openclaw/openclaw.json`:
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links):docs/start/openclaw.md
+=======
+3. Put a minimal config in `~/.openclaw/openclaw.json`:
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn):docs/start/openclaw.md
 
 ```json5
 {
@@ -93,7 +116,11 @@ When onboarding finishes, we auto-open the dashboard with your gateway token and
 
 OpenClaw reads operating instructions and “memory” from its workspace directory.
 
-By default, OpenClaw uses `~/.openclaw/workspace` as the agent workspace, and will create it (plus starter `AGENTS.md`, `SOUL.md`, `TOOLS.md`, `IDENTITY.md`, `USER.md`) automatically on setup/first agent run. `BOOTSTRAP.md` is only created when the workspace is brand new (it should not come back after you delete it).
+<<<<<<< HEAD:docs/start/clawd.md
+By default, Moltbot uses `~/clawd` as the agent workspace, and will create it (plus starter `AGENTS.md`, `SOUL.md`, `TOOLS.md`, `IDENTITY.md`, `USER.md`) automatically on setup/first agent run. `BOOTSTRAP.md` is only created when the workspace is brand new (it should not come back after you delete it).
+=======
+By default, OpenClaw uses `~/.openclaw/workspace` as the agent workspace, and will create it (plus starter `AGENTS.md`, `SOUL.md`, `TOOLS.md`, `IDENTITY.md`, `USER.md`, `HEARTBEAT.md`) automatically on setup/first agent run. `BOOTSTRAP.md` is only created when the workspace is brand new (it should not come back after you delete it). `MEMORY.md` is optional (not auto-created); when present, it is loaded for normal sessions. Subagent sessions only inject `AGENTS.md` and `TOOLS.md`.
+>>>>>>> a4d5c7f67 (docs: add missing HEARTBEAT.md and MEMORY.md to bootstrap files list (#8105)):docs/start/openclaw.md
 
 Tip: treat this folder like OpenClaw’s “memory” and make it a git repo (ideally private) so your `AGENTS.md` + memory files are backed up. If git is installed, brand-new workspaces are auto-initialized.
 

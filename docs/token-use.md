@@ -3,6 +3,7 @@ summary: "How OpenClaw builds prompt context and reports token usage + costs"
 read_when:
   - Explaining token usage, costs, or context windows
   - Debugging context growth or compaction behavior
+title: "Token Use and Costs"
 ---
 # Token use & costs
 
@@ -83,7 +84,7 @@ re-caching the full prompt, reducing cache write costs.
 For Anthropic API pricing, cache reads are significantly cheaper than input
 tokens, while cache writes are billed at a higher multiplier. See Anthropic’s
 prompt caching pricing for the latest rates and TTL multipliers:
-https://docs.anthropic.com/docs/build-with-claude/prompt-caching
+[https://docs.anthropic.com/docs/build-with-claude/prompt-caching](https://docs.anthropic.com/docs/build-with-claude/prompt-caching)
 
 ### Example: keep 1h cache warm with heartbeat
 
@@ -95,7 +96,7 @@ agents:
     models:
       "anthropic/claude-opus-4-6":
         params:
-          cacheControlTtl: "1h"
+          cacheRetention: "long"
     heartbeat:
       every: "55m"
 ```

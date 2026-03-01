@@ -1,28 +1,20 @@
 import { getOAuthApiKey, type OAuthCredentials, type OAuthProvider } from "@mariozechner/pi-ai";
 import lockfile from "proper-lockfile";
+<<<<<<< HEAD
 
 import type { OpenClawConfig } from "../../config/config.js";
 import { refreshChutesTokens } from "../chutes-oauth.js";
+=======
+import type { OpenClawConfig } from "../../config/config.js";
+import type { AuthProfileStore } from "./types.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { refreshQwenPortalCredentials } from "../../providers/qwen-portal-oauth.js";
+import { refreshChutesTokens } from "../chutes-oauth.js";
 import { AUTH_STORE_LOCK_OPTIONS, log } from "./constants.js";
 import { formatAuthDoctorHint } from "./doctor.js";
 import { ensureAuthStoreFile, resolveAuthStorePath } from "./paths.js";
 import { suggestOAuthProfileIdForLegacyDefault } from "./repair.js";
 import { ensureAuthProfileStore, saveAuthProfileStore } from "./store.js";
-<<<<<<< HEAD
-import type { AuthProfileStore } from "./types.js";
-=======
-
-const OAUTH_PROVIDER_IDS = new Set<OAuthProvider>(
-  getOAuthProviders().map((provider) => provider.id),
-);
-
-const isOAuthProvider = (provider: string): provider is OAuthProvider =>
-  OAUTH_PROVIDER_IDS.has(provider);
-
-const resolveOAuthProvider = (provider: string): OAuthProvider | null =>
-  isOAuthProvider(provider) ? provider : null;
->>>>>>> 85cd55e22 (chore: bump to 2026.2.1)
 
 function buildOAuthApiKey(provider: string, credentials: OAuthCredentials): string {
   const needsProjectId = provider === "google-gemini-cli" || provider === "google-antigravity";

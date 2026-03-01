@@ -1,9 +1,16 @@
 ---
 summary: "OpenClaw on Oracle Cloud (Always Free ARM)"
 read_when:
+<<<<<<< HEAD
+  - Setting up Moltbot on Oracle Cloud
+  - Looking for low-cost VPS hosting for Moltbot
+  - Want 24/7 Moltbot on a small server
+=======
   - Setting up OpenClaw on Oracle Cloud
   - Looking for low-cost VPS hosting for OpenClaw
   - Want 24/7 OpenClaw on a small server
+title: "Oracle Cloud"
+>>>>>>> abcaa8c7a (Docs: add nav titles across docs (#5689))
 ---
 
 # OpenClaw on Oracle Cloud (OCI)
@@ -97,7 +104,11 @@ tailscale status
 ## 5) Install OpenClaw
 
 ```bash
-curl -fsSL https://openclaw.bot/install.sh | bash
+<<<<<<< HEAD
+curl -fsSL https://molt.bot/install.sh | bash
+=======
+curl -fsSL https://openclaw.ai/install.sh | bash
+>>>>>>> 7a2c4d3cf (fix(docs): use canonical openclaw.ai domain instead of openclaw.bot)
 source ~/.bashrc
 ```
 
@@ -288,4 +299,4 @@ tar -czvf openclaw-backup.tar.gz ~/.openclaw ~/.openclaw/workspace
 - [Tailscale integration](/gateway/tailscale) — full Tailscale docs
 - [Gateway configuration](/gateway/configuration) — all config options
 - [DigitalOcean guide](/platforms/digitalocean) — if you want paid + easier signup
-- [Hetzner guide](/platforms/hetzner) — Docker-based alternative
+- [Hetzner guide](/install/hetzner) — Docker-based alternative

@@ -1,15 +1,19 @@
 import { html, nothing } from "lit";
-
-import { formatToolDetail, resolveToolDisplay } from "../tool-display";
-import { icons } from "../icons";
 import type { ToolCard } from "../types/chat-types";
+import { icons } from "../icons";
+import { formatToolDetail, resolveToolDisplay } from "../tool-display";
 import { TOOL_INLINE_THRESHOLD } from "./constants";
+<<<<<<< HEAD
 import {
   formatToolOutputForSidebar,
   getTruncatedPreview,
 } from "./tool-helpers";
 import { isToolResultMessage } from "./message-normalizer";
+=======
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { extractTextCached } from "./message-extract";
+import { isToolResultMessage } from "./message-normalizer";
+import { formatToolOutputForSidebar, getTruncatedPreview } from "./tool-helpers";
 
 export function extractToolCards(message: unknown): ToolCard[] {
   const m = message as Record<string, unknown>;

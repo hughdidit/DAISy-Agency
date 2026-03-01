@@ -1,8 +1,8 @@
-import fs from 'node:fs';
-import path from 'node:path';
-import { spawnSync } from 'node:child_process';
-import { fileURLToPath } from 'node:url';
-import { setupGitHooks } from './setup-git-hooks.js';
+import { spawnSync } from "node:child_process";
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { setupGitHooks } from "./setup-git-hooks.js";
 
 function detectPackageManager(ua = process.env.npm_config_user_agent ?? '') {
   // Examples:

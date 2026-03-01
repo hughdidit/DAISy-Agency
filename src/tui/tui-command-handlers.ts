@@ -1,8 +1,4 @@
 import type { Component, TUI } from "@mariozechner/pi-tui";
-<<<<<<< HEAD
-=======
-import { randomUUID } from "node:crypto";
-import type { SessionsPatchResult } from "../gateway/protocol/index.js";
 import type { ChatLog } from "./components/chat-log.js";
 import type { GatewayChatClient } from "./gateway-chat.js";
 import type {
@@ -11,7 +7,6 @@ import type {
   TuiOptions,
   TuiStateAccess,
 } from "./tui-types.js";
->>>>>>> 38e6da1fe (TUI/Gateway: fix pi streaming + tool routing + model display + msg updating (#8432))
 import {
   formatThinkingLevels,
   normalizeUsageDisplay,
@@ -20,20 +15,12 @@ import {
 import { normalizeAgentId } from "../routing/session-key.js";
 import { formatRelativeTime } from "../utils/time-format.js";
 import { helpText, parseCommand } from "./commands.js";
-import type { ChatLog } from "./components/chat-log.js";
 import {
   createFilterableSelectList,
   createSearchableSelectList,
   createSettingsList,
 } from "./components/selectors.js";
-import type { GatewayChatClient } from "./gateway-chat.js";
 import { formatStatusSummary } from "./tui-status-summary.js";
-import type {
-  AgentSummary,
-  GatewayStatusSummary,
-  TuiOptions,
-  TuiStateAccess,
-} from "./tui-types.js";
 
 type CommandHandlerContext = {
   client: GatewayChatClient;

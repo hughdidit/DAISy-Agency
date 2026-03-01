@@ -1,9 +1,8 @@
 import type { WebClient as SlackWebClient } from "@slack/web-api";
-
 import type { FetchLike } from "../../media/fetch.js";
+import type { SlackFile } from "../types.js";
 import { fetchRemoteMedia } from "../../media/fetch.js";
 import { saveMediaBuffer } from "../../media/store.js";
-import type { SlackFile } from "../types.js";
 
 function normalizeHostname(hostname: string): string {
   const normalized = hostname.trim().toLowerCase().replace(/\.$/, "");

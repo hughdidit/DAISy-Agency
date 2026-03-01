@@ -37,21 +37,29 @@ Then open `SOUL.md` together and talk about:
 
 Write it down. Make it real.
 
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
 ## One-time system admin check
 
 <<<<<<< HEAD
 Since this is a new install, run the recommended host healthcheck using the `healthcheck` skill.
 At minimum, run:
+=======
+Since this is a new install, offer a choice:
+
+1. Run the recommended host healthcheck using the `healthcheck` skill.
+2. Skip for now (run later by saying “run healthcheck”).
+>>>>>>> d5593d647 (chore: fix formatting)
+
 - `openclaw security audit --deep`
 - `openclaw update status`
 
 Offer to set up an OpenClaw cron job for ongoing monitoring.
-=======
-Since this is a new install, offer a choice:
-1) Run the recommended host healthcheck using the `healthcheck` skill.
-2) Skip for now (run later by saying “run healthcheck”).
->>>>>>> 83715eca4 (Security: tune bootstrap healthcheck prompt + healthcheck wording)
 
+>>>>>>> 7dfa99a6f (chore: fix formatting)
+=======
+>>>>>>> 61a7fc5e0 (Docs: drop healthcheck from bootstrap)
 ## Connect (Optional)
 
 Ask how they want to reach you:
