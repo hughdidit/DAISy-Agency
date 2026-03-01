@@ -49,7 +49,7 @@ function cloneDefaultRuntime(channelId: ChannelId, accountId: string): ChannelAc
 }
 
 type ChannelManagerOptions = {
-  loadConfig: () => OpenClawConfig;
+  loadConfig: () => MoltbotConfig;
   channelLogs: Record<ChannelId, SubsystemLogger>;
   channelRuntimeEnvs: Record<ChannelId, RuntimeEnv>;
 };

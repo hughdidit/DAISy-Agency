@@ -36,7 +36,7 @@ export type SystemPromptRuntimeParams = {
 };
 
 export function buildSystemPromptParams(params: {
-  config?: OpenClawConfig;
+  config?: MoltbotConfig;
   agentId?: string;
   runtime: Omit<RuntimeInfoInput, "agentId">;
   workspaceDir?: string;
@@ -63,7 +63,7 @@ export function buildSystemPromptParams(params: {
 }
 
 function resolveRepoRoot(params: {
-  config?: OpenClawConfig;
+  config?: MoltbotConfig;
   workspaceDir?: string;
   cwd?: string;
 }): string | undefined {

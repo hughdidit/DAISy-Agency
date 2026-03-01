@@ -1,7 +1,7 @@
 <<<<<<< HEAD
 import { randomToken } from "../commands/onboard-helpers.js";
 import type { GatewayAuthChoice } from "../commands/onboard-types.js";
-import type { OpenClawConfig } from "../config/config.js";
+import type { MoltbotConfig } from "../config/config.js";
 import { findTailscaleBinary } from "../infra/tailscale.js";
 =======
 import type { GatewayAuthChoice } from "../commands/onboard-types.js";
@@ -19,8 +19,8 @@ import { findTailscaleBinary } from "../infra/tailscale.js";
 
 type ConfigureGatewayOptions = {
   flow: WizardFlow;
-  baseConfig: OpenClawConfig;
-  nextConfig: OpenClawConfig;
+  baseConfig: MoltbotConfig;
+  nextConfig: MoltbotConfig;
   localPort: number;
   quickstartGateway: QuickstartGatewayDefaults;
   prompter: WizardPrompter;
@@ -28,7 +28,7 @@ type ConfigureGatewayOptions = {
 };
 
 type ConfigureGatewayResult = {
-  nextConfig: OpenClawConfig;
+  nextConfig: MoltbotConfig;
   settings: GatewayWizardSettings;
 };
 
@@ -152,9 +152,7 @@ export async function configureGatewayForOnboarding(
   let tailscaleResetOnExit = flow === "quickstart" ? quickstartGateway.tailscaleResetOnExit : false;
   if (tailscaleMode !== "off" && flow !== "quickstart") {
     await prompter.note(
-      ["Docs:", "https://docs.openclaw.ai/gateway/tailscale", "https://docs.openclaw.ai/web"].join(
-        "\n",
-      ),
+      ["Docs:", "https://docs.molt.bot/gateway/tailscale", "https://docs.molt.bot/web"].join("\n"),
       "Tailscale",
     );
     tailscaleResetOnExit = Boolean(
@@ -189,9 +187,7 @@ export async function configureGatewayForOnboarding(
         placeholder: "Needed for multi-machine or non-loopback access",
         initialValue: quickstartGateway.token ?? "",
       });
-      // FIX: Ensure undefined becomes an empty string, not "undefined" string
-      const rawInput = tokenInput ? String(tokenInput).trim() : "";
-      gatewayToken = rawInput || randomToken();
+      gatewayToken = String(tokenInput).trim() || randomToken();
     }
   }
 

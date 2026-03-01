@@ -33,7 +33,7 @@ function extractGroupId(raw: string | undefined | null): string | undefined {
 }
 
 export function resolveGroupRequireMention(params: {
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   ctx: TemplateContext;
   groupResolution?: GroupKeyResolution;
 }): boolean {
@@ -60,7 +60,7 @@ export function defaultGroupActivation(requireMention: boolean): "always" | "men
 }
 
 export function buildGroupIntro(params: {
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   sessionCtx: TemplateContext;
   sessionEntry?: SessionEntry;
   defaultActivation: "always" | "mention";
@@ -101,7 +101,7 @@ export function buildGroupIntro(params: {
     : undefined;
   const silenceLine =
     activation === "always"
-      ? `If no response is needed, reply with exactly "${params.silentToken}" (and nothing else) so OpenClaw stays silent. Do not add any other words, punctuation, tags, markdown/code blocks, or explanations.`
+      ? `If no response is needed, reply with exactly "${params.silentToken}" (and nothing else) so Moltbot stays silent. Do not add any other words, punctuation, tags, markdown/code blocks, or explanations.`
       : undefined;
   const cautionLine =
     activation === "always"

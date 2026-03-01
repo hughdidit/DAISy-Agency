@@ -11,7 +11,7 @@ import { createOpenClawCodingTools } from "./pi-tools.js";
 
 describe("Agent-specific tool filtering", () => {
   it("should apply global tool policy when no agent-specific policy exists", () => {
-    const cfg: OpenClawConfig = {
+    const cfg: MoltbotConfig = {
       tools: {
         allow: ["read", "write"],
         deny: ["bash"],
@@ -20,13 +20,13 @@ describe("Agent-specific tool filtering", () => {
         list: [
           {
             id: "main",
-            workspace: "~/openclaw",
+            workspace: "~/clawd",
           },
         ],
       },
     };
 
-    const tools = createOpenClawCodingTools({
+    const tools = createMoltbotCodingTools({
       config: cfg,
       sessionKey: "agent:main:main",
       workspaceDir: "/tmp/test",
@@ -41,7 +41,7 @@ describe("Agent-specific tool filtering", () => {
   });
 
   it("should keep global tool policy when agent only sets tools.elevated", () => {
-    const cfg: OpenClawConfig = {
+    const cfg: MoltbotConfig = {
       tools: {
         deny: ["write"],
       },
@@ -49,7 +49,7 @@ describe("Agent-specific tool filtering", () => {
         list: [
           {
             id: "main",
-            workspace: "~/openclaw",
+            workspace: "~/clawd",
             tools: {
               elevated: {
                 enabled: true,
@@ -61,7 +61,7 @@ describe("Agent-specific tool filtering", () => {
       },
     };
 
-    const tools = createOpenClawCodingTools({
+    const tools = createMoltbotCodingTools({
       config: cfg,
       sessionKey: "agent:main:main",
       workspaceDir: "/tmp/test",
@@ -76,7 +76,7 @@ describe("Agent-specific tool filtering", () => {
   });
 
   it("should allow apply_patch when exec is allow-listed and applyPatch is enabled", () => {
-    const cfg: OpenClawConfig = {
+    const cfg: MoltbotConfig = {
       tools: {
         allow: ["read", "exec"],
         exec: {
@@ -85,7 +85,7 @@ describe("Agent-specific tool filtering", () => {
       },
     };
 
-    const tools = createOpenClawCodingTools({
+    const tools = createMoltbotCodingTools({
       config: cfg,
       sessionKey: "agent:main:main",
       workspaceDir: "/tmp/test",
@@ -101,7 +101,7 @@ describe("Agent-specific tool filtering", () => {
   });
 
   it("should apply agent-specific tool policy", () => {
-    const cfg: OpenClawConfig = {
+    const cfg: MoltbotConfig = {
       tools: {
         allow: ["read", "write", "exec"],
         deny: [],
@@ -110,7 +110,7 @@ describe("Agent-specific tool filtering", () => {
         list: [
           {
             id: "restricted",
-            workspace: "~/openclaw-restricted",
+            workspace: "~/clawd-restricted",
             tools: {
               allow: ["read"], // Agent override: only read
               deny: ["exec", "write", "edit"],
@@ -120,7 +120,7 @@ describe("Agent-specific tool filtering", () => {
       },
     };
 
-    const tools = createOpenClawCodingTools({
+    const tools = createMoltbotCodingTools({
       config: cfg,
       sessionKey: "agent:restricted:main",
       workspaceDir: "/tmp/test-restricted",
@@ -136,7 +136,7 @@ describe("Agent-specific tool filtering", () => {
   });
 
   it("should apply provider-specific tool policy", () => {
-    const cfg: OpenClawConfig = {
+    const cfg: MoltbotConfig = {
       tools: {
         allow: ["read", "write", "exec"],
         byProvider: {
@@ -147,7 +147,7 @@ describe("Agent-specific tool filtering", () => {
       },
     };
 
-    const tools = createOpenClawCodingTools({
+    const tools = createMoltbotCodingTools({
       config: cfg,
       sessionKey: "agent:main:main",
       workspaceDir: "/tmp/test-provider",
@@ -164,7 +164,7 @@ describe("Agent-specific tool filtering", () => {
   });
 
   it("should apply provider-specific tool profile overrides", () => {
-    const cfg: OpenClawConfig = {
+    const cfg: MoltbotConfig = {
       tools: {
         profile: "coding",
         byProvider: {
@@ -175,7 +175,7 @@ describe("Agent-specific tool filtering", () => {
       },
     };
 
-    const tools = createOpenClawCodingTools({
+    const tools = createMoltbotCodingTools({
       config: cfg,
       sessionKey: "agent:main:main",
       workspaceDir: "/tmp/test-provider-profile",
@@ -189,17 +189,17 @@ describe("Agent-specific tool filtering", () => {
   });
 
   it("should allow different tool policies for different agents", () => {
-    const cfg: OpenClawConfig = {
+    const cfg: MoltbotConfig = {
       agents: {
         list: [
           {
             id: "main",
-            workspace: "~/openclaw",
+            workspace: "~/clawd",
             // No tools restriction - all tools available
           },
           {
             id: "family",
-            workspace: "~/openclaw-family",
+            workspace: "~/clawd-family",
             tools: {
               allow: ["read"],
               deny: ["exec", "write", "edit", "process"],
@@ -210,7 +210,7 @@ describe("Agent-specific tool filtering", () => {
     };
 
     // main agent: all tools
-    const mainTools = createOpenClawCodingTools({
+    const mainTools = createMoltbotCodingTools({
       config: cfg,
       sessionKey: "agent:main:main",
       workspaceDir: "/tmp/test-main",
@@ -223,7 +223,7 @@ describe("Agent-specific tool filtering", () => {
     expect(mainToolNames).not.toContain("apply_patch");
 
     // family agent: restricted
-    const familyTools = createOpenClawCodingTools({
+    const familyTools = createMoltbotCodingTools({
       config: cfg,
       sessionKey: "agent:family:whatsapp:group:123",
       workspaceDir: "/tmp/test-family",
@@ -238,7 +238,7 @@ describe("Agent-specific tool filtering", () => {
   });
 
   it("should apply group tool policy overrides (group-specific beats wildcard)", () => {
-    const cfg: OpenClawConfig = {
+    const cfg: MoltbotConfig = {
       channels: {
         whatsapp: {
           groups: {
@@ -253,7 +253,7 @@ describe("Agent-specific tool filtering", () => {
       },
     };
 
-    const trustedTools = createOpenClawCodingTools({
+    const trustedTools = createMoltbotCodingTools({
       config: cfg,
       sessionKey: "agent:main:whatsapp:group:trusted",
       messageProvider: "whatsapp",
@@ -264,7 +264,7 @@ describe("Agent-specific tool filtering", () => {
     expect(trustedNames).toContain("read");
     expect(trustedNames).toContain("exec");
 
-    const defaultTools = createOpenClawCodingTools({
+    const defaultTools = createMoltbotCodingTools({
       config: cfg,
       sessionKey: "agent:main:whatsapp:group:unknown",
       messageProvider: "whatsapp",
@@ -277,7 +277,7 @@ describe("Agent-specific tool filtering", () => {
   });
 
   it("should apply per-sender tool policies for group tools", () => {
-    const cfg: OpenClawConfig = {
+    const cfg: MoltbotConfig = {
       channels: {
         whatsapp: {
           groups: {
@@ -292,7 +292,7 @@ describe("Agent-specific tool filtering", () => {
       },
     };
 
-    const aliceTools = createOpenClawCodingTools({
+    const aliceTools = createMoltbotCodingTools({
       config: cfg,
       sessionKey: "agent:main:whatsapp:group:family",
       senderId: "alice",
@@ -303,7 +303,7 @@ describe("Agent-specific tool filtering", () => {
     expect(aliceNames).toContain("read");
     expect(aliceNames).toContain("exec");
 
-    const bobTools = createOpenClawCodingTools({
+    const bobTools = createMoltbotCodingTools({
       config: cfg,
       sessionKey: "agent:main:whatsapp:group:family",
       senderId: "bob",
@@ -316,7 +316,7 @@ describe("Agent-specific tool filtering", () => {
   });
 
   it("should not let default sender policy override group tools", () => {
-    const cfg: OpenClawConfig = {
+    const cfg: MoltbotConfig = {
       channels: {
         whatsapp: {
           groups: {
@@ -333,7 +333,7 @@ describe("Agent-specific tool filtering", () => {
       },
     };
 
-    const adminTools = createOpenClawCodingTools({
+    const adminTools = createMoltbotCodingTools({
       config: cfg,
       sessionKey: "agent:main:whatsapp:group:locked",
       senderId: "admin",
@@ -346,7 +346,7 @@ describe("Agent-specific tool filtering", () => {
   });
 
   it("should resolve telegram group tool policy for topic session keys", () => {
-    const cfg: OpenClawConfig = {
+    const cfg: MoltbotConfig = {
       channels: {
         telegram: {
           groups: {
@@ -358,7 +358,7 @@ describe("Agent-specific tool filtering", () => {
       },
     };
 
-    const tools = createOpenClawCodingTools({
+    const tools = createMoltbotCodingTools({
       config: cfg,
       sessionKey: "agent:main:telegram:group:123:topic:456",
       messageProvider: "telegram",
@@ -371,7 +371,7 @@ describe("Agent-specific tool filtering", () => {
   });
 
   it("should inherit group tool policy for subagents from spawnedBy session keys", () => {
-    const cfg: OpenClawConfig = {
+    const cfg: MoltbotConfig = {
       channels: {
         whatsapp: {
           groups: {
@@ -383,7 +383,7 @@ describe("Agent-specific tool filtering", () => {
       },
     };
 
-    const tools = createOpenClawCodingTools({
+    const tools = createMoltbotCodingTools({
       config: cfg,
       sessionKey: "agent:main:subagent:test",
       spawnedBy: "agent:main:whatsapp:group:trusted",
@@ -396,7 +396,7 @@ describe("Agent-specific tool filtering", () => {
   });
 
   it("should apply global tool policy before agent-specific policy", () => {
-    const cfg: OpenClawConfig = {
+    const cfg: MoltbotConfig = {
       tools: {
         deny: ["browser"], // Global deny
       },
@@ -404,7 +404,7 @@ describe("Agent-specific tool filtering", () => {
         list: [
           {
             id: "work",
-            workspace: "~/openclaw-work",
+            workspace: "~/clawd-work",
             tools: {
               deny: ["exec", "process"], // Agent deny (override)
             },
@@ -413,7 +413,7 @@ describe("Agent-specific tool filtering", () => {
       },
     };
 
-    const tools = createOpenClawCodingTools({
+    const tools = createMoltbotCodingTools({
       config: cfg,
       sessionKey: "agent:work:slack:dm:user123",
       workspaceDir: "/tmp/test-work",
@@ -429,7 +429,7 @@ describe("Agent-specific tool filtering", () => {
   });
 
   it("should work with sandbox tools filtering", () => {
-    const cfg: OpenClawConfig = {
+    const cfg: MoltbotConfig = {
       agents: {
         defaults: {
           sandbox: {
@@ -440,7 +440,7 @@ describe("Agent-specific tool filtering", () => {
         list: [
           {
             id: "restricted",
-            workspace: "~/openclaw-restricted",
+            workspace: "~/clawd-restricted",
             sandbox: {
               mode: "all",
               scope: "agent",
@@ -462,7 +462,7 @@ describe("Agent-specific tool filtering", () => {
       },
     };
 
-    const tools = createOpenClawCodingTools({
+    const tools = createMoltbotCodingTools({
       config: cfg,
       sessionKey: "agent:restricted:main",
       workspaceDir: "/tmp/test-restricted",
@@ -502,13 +502,13 @@ describe("Agent-specific tool filtering", () => {
   });
 
   it("should run exec synchronously when process is denied", async () => {
-    const cfg: OpenClawConfig = {
+    const cfg: MoltbotConfig = {
       tools: {
         deny: ["process"],
       },
     };
 
-    const tools = createOpenClawCodingTools({
+    const tools = createMoltbotCodingTools({
       config: cfg,
       sessionKey: "agent:main:main",
       workspaceDir: "/tmp/test-main",

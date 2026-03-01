@@ -14,7 +14,7 @@ const plugin = {
   name: "Slack",
   description: "Slack channel plugin",
   configSchema: emptyPluginConfigSchema(),
-  register(api: OpenClawPluginApi) {
+  register(api: MoltbotPluginApi) {
     setSlackRuntime(api.runtime);
     api.registerChannel({ plugin: slackPlugin });
   },

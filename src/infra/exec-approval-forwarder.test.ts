@@ -28,7 +28,7 @@ describe("exec approval forwarder", () => {
     const deliver = vi.fn().mockResolvedValue([]);
     const cfg = {
       approvals: { exec: { enabled: true, mode: "session" } },
-    } as OpenClawConfig;
+    } as MoltbotConfig;
 
     const forwarder = createExecApprovalForwarder({
       getConfig: () => cfg,
@@ -63,7 +63,7 @@ describe("exec approval forwarder", () => {
           targets: [{ channel: "telegram", to: "123" }],
         },
       },
-    } as OpenClawConfig;
+    } as MoltbotConfig;
 
     const forwarder = createExecApprovalForwarder({
       getConfig: () => cfg,

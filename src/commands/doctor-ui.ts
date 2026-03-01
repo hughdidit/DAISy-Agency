@@ -14,7 +14,7 @@ export async function maybeRepairUiProtocolFreshness(
   _runtime: RuntimeEnv,
   prompter: DoctorPrompter,
 ) {
-  const root = await resolveOpenClawPackageRoot({
+  const root = await resolveMoltbotPackageRoot({
     moduleUrl: import.meta.url,
     argv1: process.argv[1],
     cwd: process.cwd(),

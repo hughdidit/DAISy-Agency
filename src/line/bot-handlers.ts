@@ -37,7 +37,7 @@ interface MediaRef {
 }
 
 export interface LineHandlerContext {
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   account: ResolvedLineAccount;
   runtime: RuntimeEnv;
   mediaMaxBytes: number;

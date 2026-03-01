@@ -14,7 +14,7 @@ const plugin = {
   name: "Matrix",
   description: "Matrix channel plugin (matrix-js-sdk)",
   configSchema: emptyPluginConfigSchema(),
-  register(api: OpenClawPluginApi) {
+  register(api: MoltbotPluginApi) {
     setMatrixRuntime(api.runtime);
     api.registerChannel({ plugin: matrixPlugin });
   },

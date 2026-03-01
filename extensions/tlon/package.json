@@ -24,18 +24,8 @@
   "description": "OpenClaw Tlon/Urbit channel plugin",
 >>>>>>> 1c4db9159 (chore: prepare 2026.2.2 release)
   "type": "module",
-<<<<<<< HEAD
-  "description": "OpenClaw Tlon/Urbit channel plugin",
-=======
-  "dependencies": {
-    "@urbit/aura": "^3.0.0",
-    "@urbit/http-api": "^3.0.0"
-  },
-  "devDependencies": {
-    "openclaw": "workspace:*"
-  },
->>>>>>> aa91f6e70 (chore: Add `openclaw` to `devDependencies` for all extensions so that types resolve.)
-  "openclaw": {
+  "description": "Moltbot Tlon/Urbit channel plugin",
+  "moltbot": {
     "extensions": [
       "./index.ts"
     ],
@@ -50,7 +40,7 @@
       "quickstartAllowFrom": true
     },
     "install": {
-      "npmSpec": "@openclaw/tlon",
+      "npmSpec": "@moltbot/tlon",
       "localPath": "extensions/tlon",
       "defaultChoice": "npm"
     }

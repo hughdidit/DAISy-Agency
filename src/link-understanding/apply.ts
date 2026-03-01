@@ -15,7 +15,7 @@ export type ApplyLinkUnderstandingResult = {
 
 export async function applyLinkUnderstanding(params: {
   ctx: MsgContext;
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
 }): Promise<ApplyLinkUnderstandingResult> {
   const result = await runLinkUnderstanding({
     cfg: params.cfg,

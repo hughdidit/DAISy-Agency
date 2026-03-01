@@ -17,7 +17,6 @@ import type { WizardPrompter, WizardSelectOption } from "../wizard/prompts.js";
 =======
 >>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { formatTokenK } from "./models/shared.js";
-import { OPENAI_CODEX_DEFAULT_MODEL } from "./openai-codex-model-default.js";
 
 const KEEP_VALUE = "__keep__";
 const MANUAL_VALUE = "__manual__";
@@ -29,7 +28,7 @@ const PROVIDER_FILTER_THRESHOLD = 30;
 const HIDDEN_ROUTER_MODELS = new Set(["openrouter/auto"]);
 
 type PromptDefaultModelParams = {
-  config: OpenClawConfig;
+  config: MoltbotConfig;
   prompter: WizardPrompter;
   allowKeep?: boolean;
   includeManual?: boolean;
@@ -44,7 +43,7 @@ type PromptModelAllowlistResult = { models?: string[] };
 
 function hasAuthForProvider(
   provider: string,
-  cfg: OpenClawConfig,
+  cfg: MoltbotConfig,
   store: ReturnType<typeof ensureAuthProfileStore>,
 ) {
   if (listProfilesForProvider(store, provider).length > 0) return true;
@@ -53,13 +52,13 @@ function hasAuthForProvider(
   return false;
 }
 
-function resolveConfiguredModelRaw(cfg: OpenClawConfig): string {
+function resolveConfiguredModelRaw(cfg: MoltbotConfig): string {
   const raw = cfg.agents?.defaults?.model as { primary?: string } | string | undefined;
   if (typeof raw === "string") return raw.trim();
   return raw?.primary?.trim() ?? "";
 }
 
-function resolveConfiguredModelKeys(cfg: OpenClawConfig): string[] {
+function resolveConfiguredModelKeys(cfg: MoltbotConfig): string[] {
   const models = cfg.agents?.defaults?.models ?? {};
   return Object.keys(models)
     .map((key) => String(key ?? "").trim())
@@ -272,7 +271,7 @@ export async function promptDefaultModel(
 }
 
 export async function promptModelAllowlist(params: {
-  config: OpenClawConfig;
+  config: MoltbotConfig;
   prompter: WizardPrompter;
   message?: string;
   agentDir?: string;
@@ -305,7 +304,7 @@ export async function promptModelAllowlist(params: {
         params.message ??
         "Allowlist models (comma-separated provider/model; blank to keep current)",
       initialValue: existingKeys.join(", "),
-      placeholder: `${OPENAI_CODEX_DEFAULT_MODEL}, anthropic/claude-opus-4-6`,
+      placeholder: "openai-codex/gpt-5.2, anthropic/claude-opus-4-5",
     });
     const parsed = String(raw ?? "")
       .split(",")
@@ -393,7 +392,7 @@ export async function promptModelAllowlist(params: {
   return { models: [] };
 }
 
-export function applyPrimaryModel(cfg: OpenClawConfig, model: string): OpenClawConfig {
+export function applyPrimaryModel(cfg: MoltbotConfig, model: string): MoltbotConfig {
   const defaults = cfg.agents?.defaults;
   const existingModel = defaults?.model;
   const existingModels = defaults?.models;
@@ -420,7 +419,7 @@ export function applyPrimaryModel(cfg: OpenClawConfig, model: string): OpenClawC
   };
 }
 
-export function applyModelAllowlist(cfg: OpenClawConfig, models: string[]): OpenClawConfig {
+export function applyModelAllowlist(cfg: MoltbotConfig, models: string[]): MoltbotConfig {
   const defaults = cfg.agents?.defaults;
   const normalized = normalizeModelKeys(models);
   if (normalized.length === 0) {
@@ -454,9 +453,9 @@ export function applyModelAllowlist(cfg: OpenClawConfig, models: string[]): Open
 }
 
 export function applyModelFallbacksFromSelection(
-  cfg: OpenClawConfig,
+  cfg: MoltbotConfig,
   selection: string[],
-): OpenClawConfig {
+): MoltbotConfig {
   const normalized = normalizeModelKeys(selection);
   if (normalized.length <= 1) return cfg;
 

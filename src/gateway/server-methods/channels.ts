@@ -38,7 +38,7 @@ type ChannelLogoutPayload = {
 export async function logoutChannelAccount(params: {
   channelId: ChannelId;
   accountId?: string | null;
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   context: GatewayRequestContext;
   plugin: ChannelPlugin;
 }): Promise<ChannelLogoutPayload> {

@@ -146,7 +146,7 @@ export function createSessionsSendTool(opts?: {
             return jsonResult({
               runId: crypto.randomUUID(),
               status: "forbidden",
-              error: "Session not visible from this sandboxed agent session.",
+              error: `Session not visible from this sandboxed agent session: label=${labelParam}`,
             });
           }
           return jsonResult({
@@ -161,7 +161,7 @@ export function createSessionsSendTool(opts?: {
             return jsonResult({
               runId: crypto.randomUUID(),
               status: "forbidden",
-              error: "Session not visible from this sandboxed agent session.",
+              error: `Session not visible from this sandboxed agent session: label=${labelParam}`,
             });
           }
           return jsonResult({

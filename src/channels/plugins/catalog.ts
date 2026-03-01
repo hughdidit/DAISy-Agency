@@ -2,8 +2,8 @@ import fs from "node:fs";
 import path from "node:path";
 <<<<<<< HEAD
 
-import { MANIFEST_KEY } from "../../compat/legacy-names.js";
-import { discoverOpenClawPlugins } from "../../plugins/discovery.js";
+import { LEGACY_MANIFEST_KEY } from "../../compat/legacy-names.js";
+import { discoverMoltbotPlugins } from "../../plugins/discovery.js";
 import type { PluginOrigin } from "../../plugins/types.js";
 import type { MoltbotPackageManifest } from "../../plugins/manifest.js";
 =======
@@ -57,7 +57,9 @@ type ExternalCatalogEntry = {
   name?: string;
   version?: string;
   description?: string;
-} & Partial<Record<ManifestKey, OpenClawPackageManifest>>;
+  moltbot?: MoltbotPackageManifest;
+  [LEGACY_MANIFEST_KEY]?: MoltbotPackageManifest;
+};
 
 const DEFAULT_CATALOG_PATHS = [
   path.join(CONFIG_DIR, "mpm", "plugins.json"),
@@ -65,9 +67,7 @@ const DEFAULT_CATALOG_PATHS = [
   path.join(CONFIG_DIR, "plugins", "catalog.json"),
 ];
 
-const ENV_CATALOG_PATHS = ["OPENCLAW_PLUGIN_CATALOG_PATHS", "OPENCLAW_MPM_CATALOG_PATHS"];
-
-type ManifestKey = typeof MANIFEST_KEY;
+const ENV_CATALOG_PATHS = ["CLAWDBOT_PLUGIN_CATALOG_PATHS", "CLAWDBOT_MPM_CATALOG_PATHS"];
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return Boolean(value && typeof value === "object" && !Array.isArray(value));
@@ -123,7 +123,7 @@ function loadExternalCatalogEntries(options: CatalogOptions): ExternalCatalogEnt
 }
 
 function toChannelMeta(params: {
-  channel: NonNullable<OpenClawPackageManifest["channel"]>;
+  channel: NonNullable<MoltbotPackageManifest["channel"]>;
   id: string;
 }): ChannelMeta | null {
   const label = params.channel.label?.trim();
@@ -171,7 +171,7 @@ function toChannelMeta(params: {
 }
 
 function resolveInstallInfo(params: {
-  manifest: OpenClawPackageManifest;
+  manifest: MoltbotPackageManifest;
   packageName?: string;
   packageDir?: string;
   workspaceDir?: string;
@@ -194,9 +194,9 @@ function buildCatalogEntry(candidate: {
   packageName?: string;
   packageDir?: string;
   workspaceDir?: string;
-  packageManifest?: OpenClawPackageManifest;
+  packageMoltbot?: MoltbotPackageManifest;
 }): ChannelPluginCatalogEntry | null {
-  const manifest = candidate.packageManifest;
+  const manifest = candidate.packageMoltbot;
   if (!manifest?.channel) return null;
   const id = manifest.channel.id?.trim();
   if (!id) return null;
@@ -213,10 +213,10 @@ function buildCatalogEntry(candidate: {
 }
 
 function buildExternalCatalogEntry(entry: ExternalCatalogEntry): ChannelPluginCatalogEntry | null {
-  const manifest = entry[MANIFEST_KEY];
+  const manifest = entry.moltbot ?? entry[LEGACY_MANIFEST_KEY];
   return buildCatalogEntry({
     packageName: entry.name,
-    packageManifest: manifest,
+    packageMoltbot: manifest,
   });
 }
 
@@ -251,7 +251,7 @@ export function buildChannelUiCatalog(
 export function listChannelPluginCatalogEntries(
   options: CatalogOptions = {},
 ): ChannelPluginCatalogEntry[] {
-  const discovery = discoverOpenClawPlugins({ workspaceDir: options.workspaceDir });
+  const discovery = discoverMoltbotPlugins({ workspaceDir: options.workspaceDir });
   const resolved = new Map<string, { entry: ChannelPluginCatalogEntry; priority: number }>();
 
   for (const candidate of discovery.candidates) {

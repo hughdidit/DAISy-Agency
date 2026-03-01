@@ -20,7 +20,7 @@ export type DispatchInboundResult = DispatchFromConfigResult;
 
 export async function dispatchInboundMessage(params: {
   ctx: MsgContext | FinalizedMsgContext;
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   dispatcher: ReplyDispatcher;
   replyOptions?: Omit<GetReplyOptions, "onToolResult" | "onBlockReply">;
   replyResolver?: typeof import("./reply.js").getReplyFromConfig;
@@ -37,7 +37,7 @@ export async function dispatchInboundMessage(params: {
 
 export async function dispatchInboundMessageWithBufferedDispatcher(params: {
   ctx: MsgContext | FinalizedMsgContext;
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   dispatcherOptions: ReplyDispatcherWithTypingOptions;
   replyOptions?: Omit<GetReplyOptions, "onToolResult" | "onBlockReply">;
   replyResolver?: typeof import("./reply.js").getReplyFromConfig;
@@ -63,7 +63,7 @@ export async function dispatchInboundMessageWithBufferedDispatcher(params: {
 
 export async function dispatchInboundMessageWithDispatcher(params: {
   ctx: MsgContext | FinalizedMsgContext;
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   dispatcherOptions: ReplyDispatcherOptions;
   replyOptions?: Omit<GetReplyOptions, "onToolResult" | "onBlockReply">;
   replyResolver?: typeof import("./reply.js").getReplyFromConfig;

@@ -77,7 +77,7 @@ import { loadGatewayTlsRuntime } from "./server/tls.js";
 
 export { __resetModelCatalogCacheForTest } from "./server-model-catalog.js";
 
-ensureOpenClawCliOnPath();
+ensureMoltbotCliOnPath();
 
 const log = createSubsystemLogger("gateway");
 const logCanvas = log.child("canvas");
@@ -153,13 +153,13 @@ export async function startGatewayServer(
   opts: GatewayServerOptions = {},
 ): Promise<GatewayServer> {
   // Ensure all default port derivations (browser/canvas) see the actual runtime port.
-  process.env.OPENCLAW_GATEWAY_PORT = String(port);
+  process.env.CLAWDBOT_GATEWAY_PORT = String(port);
   logAcceptedEnvOption({
-    key: "OPENCLAW_RAW_STREAM",
+    key: "CLAWDBOT_RAW_STREAM",
     description: "raw stream logging enabled",
   });
   logAcceptedEnvOption({
-    key: "OPENCLAW_RAW_STREAM_PATH",
+    key: "CLAWDBOT_RAW_STREAM_PATH",
     description: "raw stream log path override",
   });
 
@@ -173,7 +173,7 @@ export async function startGatewayServer(
     const { config: migrated, changes } = migrateLegacyConfig(configSnapshot.parsed);
     if (!migrated) {
       throw new Error(
-        `Legacy config entries detected but auto-migration failed. Run "${formatCliCommand("openclaw doctor")}" to migrate.`,
+        `Legacy config entries detected but auto-migration failed. Run "${formatCliCommand("moltbot doctor")}" to migrate.`,
       );
     }
     await writeConfigFile(migrated);
@@ -195,7 +195,7 @@ export async function startGatewayServer(
             .join("\n")
         : "Unknown validation issue.";
     throw new Error(
-      `Invalid config at ${configSnapshot.path}.\n${issues}\nRun "${formatCliCommand("openclaw doctor")}" to repair, then retry.`,
+      `Invalid config at ${configSnapshot.path}.\n${issues}\nRun "${formatCliCommand("moltbot doctor")}" to repair, then retry.`,
     );
   }
 
@@ -281,7 +281,6 @@ export async function startGatewayServer(
     wss,
     clients,
     broadcast,
-    broadcastToConnIds,
     agentRunSeq,
     dedupe,
     chatRunState,
@@ -290,7 +289,6 @@ export async function startGatewayServer(
     addChatRun,
     removeChatRun,
     chatAbortControllers,
-    toolEventRecipients,
   } = await createGatewayRuntimeState({
     cfg: cfgAtStart,
     bindHost,
@@ -357,7 +355,6 @@ export async function startGatewayServer(
       ? { enabled: true, fingerprintSha256: gatewayTls.fingerprintSha256 }
       : undefined,
     wideAreaDiscoveryEnabled: cfgAtStart.discovery?.wideArea?.enabled === true,
-    wideAreaDiscoveryDomain: cfgAtStart.discovery?.wideArea?.domain,
     tailscaleMode,
     mdnsMode: cfgAtStart.discovery?.mdns?.mode,
     logDiscovery,
@@ -401,13 +398,11 @@ export async function startGatewayServer(
   const agentUnsub = onAgentEvent(
     createAgentEventHandler({
       broadcast,
-      broadcastToConnIds,
       nodeSendToSession,
       agentRunSeq,
       chatRunState,
       resolveSessionKeyForRun,
       clearAgentRunContext,
-      toolEventRecipients,
     }),
   );
 
@@ -457,7 +452,6 @@ export async function startGatewayServer(
       incrementPresenceVersion,
       getHealthVersion,
       broadcast,
-      broadcastToConnIds,
       nodeSendToSession,
       nodeSendToAllSubscribed,
       nodeSubscribe,
@@ -472,7 +466,6 @@ export async function startGatewayServer(
       chatDeltaSentAt: chatRunState.deltaSentAt,
       addChatRun,
       removeChatRun,
-      registerToolEventRecipient: toolEventRecipients.add,
       dedupe,
       wizardSessions,
       findRunningWizard,

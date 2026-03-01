@@ -1,7 +1,7 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
 <<<<<<< HEAD
 
-import type { OpenClawConfig, MarkdownTableMode } from "openclaw/plugin-sdk";
+import type { MoltbotConfig, MarkdownTableMode } from "clawdbot/plugin-sdk";
 
 =======
 import type { OpenClawConfig, MarkdownTableMode } from "openclaw/plugin-sdk";
@@ -29,7 +29,7 @@ export type ZaloRuntimeEnv = {
 export type ZaloMonitorOptions = {
   token: string;
   account: ResolvedZaloAccount;
-  config: OpenClawConfig;
+  config: MoltbotConfig;
   runtime: ZaloRuntimeEnv;
   abortSignal: AbortSignal;
   useWebhook?: boolean;
@@ -98,7 +98,7 @@ async function readJsonBody(req: IncomingMessage, maxBytes: number) {
 type WebhookTarget = {
   token: string;
   account: ResolvedZaloAccount;
-  config: OpenClawConfig;
+  config: MoltbotConfig;
   runtime: ZaloRuntimeEnv;
   core: ZaloCoreRuntime;
   secret: string;
@@ -221,7 +221,7 @@ export async function handleZaloWebhookRequest(
 function startPollingLoop(params: {
   token: string;
   account: ResolvedZaloAccount;
-  config: OpenClawConfig;
+  config: MoltbotConfig;
   runtime: ZaloRuntimeEnv;
   core: ZaloCoreRuntime;
   abortSignal: AbortSignal;
@@ -284,7 +284,7 @@ async function processUpdate(
   update: ZaloUpdate,
   token: string,
   account: ResolvedZaloAccount,
-  config: OpenClawConfig,
+  config: MoltbotConfig,
   runtime: ZaloRuntimeEnv,
   core: ZaloCoreRuntime,
   mediaMaxMb: number,
@@ -335,7 +335,7 @@ async function handleTextMessage(
   message: ZaloMessage,
   token: string,
   account: ResolvedZaloAccount,
-  config: OpenClawConfig,
+  config: MoltbotConfig,
   runtime: ZaloRuntimeEnv,
   core: ZaloCoreRuntime,
   statusSink?: (patch: { lastInboundAt?: number; lastOutboundAt?: number }) => void,
@@ -363,7 +363,7 @@ async function handleImageMessage(
   message: ZaloMessage,
   token: string,
   account: ResolvedZaloAccount,
-  config: OpenClawConfig,
+  config: MoltbotConfig,
   runtime: ZaloRuntimeEnv,
   core: ZaloCoreRuntime,
   mediaMaxMb: number,
@@ -411,7 +411,7 @@ async function processMessageWithPipeline(params: {
   message: ZaloMessage;
   token: string;
   account: ResolvedZaloAccount;
-  config: OpenClawConfig;
+  config: MoltbotConfig;
   runtime: ZaloRuntimeEnv;
   core: ZaloCoreRuntime;
   text?: string;
@@ -620,7 +620,7 @@ async function deliverZaloReply(params: {
   chatId: string;
   runtime: ZaloRuntimeEnv;
   core: ZaloCoreRuntime;
-  config: OpenClawConfig;
+  config: MoltbotConfig;
   accountId?: string;
   statusSink?: (patch: { lastInboundAt?: number; lastOutboundAt?: number }) => void;
   fetcher?: ZaloFetch;

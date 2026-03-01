@@ -1,13 +1,13 @@
 ---
-summary: "Run OpenClaw with Ollama (local LLM runtime)"
+summary: "Run Moltbot with Ollama (local LLM runtime)"
 read_when:
-  - You want to run OpenClaw with local models via Ollama
+  - You want to run Moltbot with local models via Ollama
   - You need Ollama setup and configuration guidance
 title: "Ollama"
 ---
 # Ollama
 
-Ollama is a local LLM runtime that makes it easy to run open-source models on your machine. OpenClaw integrates with Ollama's OpenAI-compatible API and can **auto-discover tool-capable models** when you opt in with `OLLAMA_API_KEY` (or an auth profile) and do not define an explicit `models.providers.ollama` entry.
+Ollama is a local LLM runtime that makes it easy to run open-source models on your machine. Moltbot integrates with Ollama's OpenAI-compatible API and can **auto-discover tool-capable models** when you opt in with `OLLAMA_API_KEY` (or an auth profile) and do not define an explicit `models.providers.ollama` entry.
 
 ## Quick start
 
@@ -50,7 +50,7 @@ ollama pull deepseek-r1:32b
 export OLLAMA_API_KEY="ollama-local"
 
 # Or configure in your config file
-openclaw config set models.providers.ollama.apiKey "ollama-local"
+moltbot config set models.providers.ollama.apiKey "ollama-local"
 ```
 
 <<<<<<< HEAD
@@ -75,7 +75,7 @@ openclaw config set models.providers.ollama.apiKey "ollama-local"
 
 ## Model discovery (implicit provider)
 
-When you set `OLLAMA_API_KEY` (or an auth profile) and **do not** define `models.providers.ollama`, OpenClaw discovers models from the local Ollama instance at `http://127.0.0.1:11434`:
+When you set `OLLAMA_API_KEY` (or an auth profile) and **do not** define `models.providers.ollama`, Moltbot discovers models from the local Ollama instance at `http://127.0.0.1:11434`:
 
 - Queries `/api/tags` and `/api/show`
 - Keeps only models that report `tools` capability
@@ -90,7 +90,7 @@ To see what models are available:
 
 ```bash
 ollama list
-openclaw models list
+moltbot models list
 ```
 
 To add a new model, simply pull it with Ollama:
@@ -146,7 +146,7 @@ Use explicit config when:
 }
 ```
 
-If `OLLAMA_API_KEY` is set, you can omit `apiKey` in the provider entry and OpenClaw will fill it for availability checks.
+If `OLLAMA_API_KEY` is set, you can omit `apiKey` in the provider entry and Moltbot will fill it for availability checks.
 
 ### Custom base URL (explicit config)
 
@@ -193,7 +193,7 @@ Once configured, all your Ollama models are available:
 
 ### Reasoning models
 
-OpenClaw marks models as reasoning-capable when Ollama reports `thinking` in `/api/show`:
+Moltbot marks models as reasoning-capable when Ollama reports `thinking` in `/api/show`:
 
 ```bash
 ollama pull deepseek-r1:32b
@@ -205,7 +205,7 @@ Ollama is free and runs locally, so all model costs are set to $0.
 
 ### Context windows
 
-For auto-discovered models, OpenClaw uses the context window reported by Ollama when available, otherwise it defaults to `8192`. You can override `contextWindow` and `maxTokens` in explicit provider config.
+For auto-discovered models, Moltbot uses the context window reported by Ollama when available, otherwise it defaults to `8192`. You can override `contextWindow` and `maxTokens` in explicit provider config.
 
 ## Troubleshooting
 
@@ -225,7 +225,7 @@ curl http://localhost:11434/api/tags
 
 ### No models available
 
-OpenClaw only auto-discovers models that report tool support. If your model isn't listed, either:
+Moltbot only auto-discovers models that report tool support. If your model isn't listed, either:
 - Pull a tool-capable model, or
 - Define the model explicitly in `models.providers.ollama`.
 

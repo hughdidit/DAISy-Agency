@@ -1,7 +1,7 @@
 ---
-summary: "Use OpenAI via API keys or Codex subscription in OpenClaw"
+summary: "Use OpenAI via API keys or Codex subscription in Moltbot"
 read_when:
-  - You want to use OpenAI models in OpenClaw
+  - You want to use OpenAI models in Moltbot
   - You want Codex subscription auth instead of API keys
 title: "OpenAI"
 ---
@@ -18,9 +18,9 @@ Get your API key from the OpenAI dashboard.
 ### CLI setup
 
 ```bash
-openclaw onboard --auth-choice openai-api-key
+moltbot onboard --auth-choice openai-api-key
 # or non-interactive
-openclaw onboard --openai-api-key "$OPENAI_API_KEY"
+moltbot onboard --openai-api-key "$OPENAI_API_KEY"
 ```
 
 ### Config snippet
@@ -28,11 +28,7 @@ openclaw onboard --openai-api-key "$OPENAI_API_KEY"
 ```json5
 {
   env: { OPENAI_API_KEY: "sk-..." },
-<<<<<<< HEAD
   agents: { defaults: { model: { primary: "openai/gpt-5.2" } } }
-=======
-  agents: { defaults: { model: { primary: "openai/gpt-5.1-codex" } } },
->>>>>>> 462905440 (chore: apply local workspace updates (#9911))
 }
 ```
 
@@ -45,21 +41,17 @@ Codex cloud requires ChatGPT sign-in, while the Codex CLI supports ChatGPT or AP
 
 ```bash
 # Run Codex OAuth in the wizard
-openclaw onboard --auth-choice openai-codex
+moltbot onboard --auth-choice openai-codex
 
 # Or run OAuth directly
-openclaw models auth login --provider openai-codex
+moltbot models auth login --provider openai-codex
 ```
 
 ### Config snippet (Codex subscription)
 
 ```json5
 {
-<<<<<<< HEAD
   agents: { defaults: { model: { primary: "openai-codex/gpt-5.2" } } }
-=======
-  agents: { defaults: { model: { primary: "openai-codex/gpt-5.3-codex" } } },
->>>>>>> 462905440 (chore: apply local workspace updates (#9911))
 }
 ```
 

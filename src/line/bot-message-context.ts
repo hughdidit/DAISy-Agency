@@ -37,7 +37,7 @@ interface MediaRef {
 interface BuildLineMessageContextParams {
   event: MessageEvent;
   allMedia: MediaRef[];
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   account: ResolvedLineAccount;
 }
 
@@ -323,7 +323,7 @@ export async function buildLineMessageContext(params: BuildLineMessageContextPar
 
 export async function buildLinePostbackContext(params: {
   event: PostbackEvent;
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   account: ResolvedLineAccount;
 }) {
   const { event, cfg, account } = params;

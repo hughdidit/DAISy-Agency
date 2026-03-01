@@ -26,7 +26,7 @@ import { createModelSelectionState, resolveContextTokens } from "./model-selecti
 import { formatElevatedUnavailableMessage, resolveElevatedPermissions } from "./reply-elevated.js";
 import { stripInlineStatus } from "./reply-inline.js";
 
-type AgentDefaults = NonNullable<OpenClawConfig["agents"]>["defaults"];
+type AgentDefaults = NonNullable<MoltbotConfig["agents"]>["defaults"];
 type ExecOverrides = Pick<ExecToolDefaults, "host" | "security" | "ask" | "node">;
 
 export type ReplyDirectiveContinuation = {
@@ -88,7 +88,7 @@ export type ReplyDirectiveResult =
 
 export async function resolveReplyDirectives(params: {
   ctx: MsgContext;
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   agentId: string;
   agentDir: string;
   workspaceDir: string;

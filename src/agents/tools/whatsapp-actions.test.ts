@@ -17,7 +17,7 @@ vi.mock("../../web/outbound.js", () => ({
 
 const enabledConfig = {
   channels: { whatsapp: { actions: { reactions: true } } },
-} as OpenClawConfig;
+} as MoltbotConfig;
 
 describe("handleWhatsAppAction", () => {
   it("adds reactions", async () => {
@@ -99,7 +99,7 @@ describe("handleWhatsAppAction", () => {
   it("respects reaction gating", async () => {
     const cfg = {
       channels: { whatsapp: { actions: { reactions: false } } },
-    } as OpenClawConfig;
+    } as MoltbotConfig;
     await expect(
       handleWhatsAppAction(
         {

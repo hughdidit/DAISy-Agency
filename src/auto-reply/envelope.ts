@@ -49,7 +49,7 @@ type ResolvedEnvelopeTimezone =
   | { mode: "local" }
   | { mode: "iana"; timeZone: string };
 
-export function resolveEnvelopeFormatOptions(cfg?: OpenClawConfig): EnvelopeFormatOptions {
+export function resolveEnvelopeFormatOptions(cfg?: MoltbotConfig): EnvelopeFormatOptions {
   const defaults = cfg?.agents?.defaults;
   return {
     timezone: defaults?.envelopeTimezone,

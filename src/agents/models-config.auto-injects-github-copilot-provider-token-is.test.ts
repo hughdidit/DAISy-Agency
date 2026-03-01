@@ -10,10 +10,10 @@ import { withTempHome as withTempHomeBase } from "../../test/helpers/temp-home.j
 >>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 
 async function withTempHome<T>(fn: (home: string) => Promise<T>): Promise<T> {
-  return withTempHomeBase(fn, { prefix: "openclaw-models-" });
+  return withTempHomeBase(fn, { prefix: "moltbot-models-" });
 }
 
-const _MODELS_CONFIG: OpenClawConfig = {
+const _MODELS_CONFIG: MoltbotConfig = {
   models: {
     providers: {
       "custom-proxy": {
@@ -66,10 +66,10 @@ describe("models-config", () => {
           }),
         }));
 
-        const { ensureOpenClawModelsJson } = await import("./models-config.js");
+        const { ensureMoltbotModelsJson } = await import("./models-config.js");
 
         const agentDir = path.join(home, "agent-default-base-url");
-        await ensureOpenClawModelsJson({ models: { providers: {} } }, agentDir);
+        await ensureMoltbotModelsJson({ models: { providers: {} } }, agentDir);
 
         const raw = await fs.readFile(path.join(agentDir, "models.json"), "utf8");
         const parsed = JSON.parse(raw) as {
@@ -107,9 +107,9 @@ describe("models-config", () => {
           resolveCopilotApiToken,
         }));
 
-        const { ensureOpenClawModelsJson } = await import("./models-config.js");
+        const { ensureMoltbotModelsJson } = await import("./models-config.js");
 
-        await ensureOpenClawModelsJson({ models: { providers: {} } });
+        await ensureMoltbotModelsJson({ models: { providers: {} } });
 
         expect(resolveCopilotApiToken).toHaveBeenCalledWith(
           expect.objectContaining({ githubToken: "copilot-token" }),

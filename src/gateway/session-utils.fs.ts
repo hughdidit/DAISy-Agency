@@ -46,8 +46,7 @@ export function resolveSessionTranscriptCandidates(
   if (agentId) {
     candidates.push(resolveSessionTranscriptPath(sessionId, agentId));
   }
-  const home = os.homedir();
-  candidates.push(path.join(home, ".openclaw", "sessions", `${sessionId}.jsonl`));
+  candidates.push(path.join(os.homedir(), ".clawdbot", "sessions", `${sessionId}.jsonl`));
   return candidates;
 }
 

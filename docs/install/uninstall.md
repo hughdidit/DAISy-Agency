@@ -1,7 +1,7 @@
 ---
-summary: "Uninstall OpenClaw completely (CLI, service, state, workspace)"
+summary: "Uninstall Moltbot completely (CLI, service, state, workspace)"
 read_when:
-  - You want to remove OpenClaw from a machine
+  - You want to remove Moltbot from a machine
   - The gateway service is still running after uninstall
 title: "Uninstall"
 ---
@@ -9,7 +9,7 @@ title: "Uninstall"
 # Uninstall
 
 Two paths:
-- **Easy path** if `openclaw` is still installed.
+- **Easy path** if `moltbot` is still installed.
 - **Manual service removal** if the CLI is gone but the service is still running.
 
 ## Easy path (CLI still installed)
@@ -17,14 +17,14 @@ Two paths:
 Recommended: use the built-in uninstaller:
 
 ```bash
-openclaw uninstall
+moltbot uninstall
 ```
 
 Non-interactive (automation / npx):
 
 ```bash
-openclaw uninstall --all --yes --non-interactive
-npx -y openclaw uninstall --all --yes --non-interactive
+moltbot uninstall --all --yes --non-interactive
+npx -y moltbot uninstall --all --yes --non-interactive
 ```
 
 Manual steps (same result):
@@ -32,7 +32,7 @@ Manual steps (same result):
 1) Stop the gateway service:
 
 ```bash
-openclaw gateway stop
+moltbot gateway stop
 ```
 
 <<<<<<< HEAD
@@ -46,7 +46,7 @@ openclaw gateway stop
 >>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 
 ```bash
-openclaw gateway uninstall
+moltbot gateway uninstall
 ```
 
 <<<<<<< HEAD
@@ -60,10 +60,10 @@ openclaw gateway uninstall
 >>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 
 ```bash
-rm -rf "${OPENCLAW_STATE_DIR:-$HOME/.openclaw}"
+rm -rf "${CLAWDBOT_STATE_DIR:-$HOME/.clawdbot}"
 ```
 
-If you set `OPENCLAW_CONFIG_PATH` to a custom location outside the state dir, delete that file too.
+If you set `CLAWDBOT_CONFIG_PATH` to a custom location outside the state dir, delete that file too.
 
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -76,7 +76,7 @@ If you set `OPENCLAW_CONFIG_PATH` to a custom location outside the state dir, de
 >>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 
 ```bash
-rm -rf ~/.openclaw/workspace
+rm -rf ~/clawd
 ```
 
 <<<<<<< HEAD
@@ -90,9 +90,9 @@ rm -rf ~/.openclaw/workspace
 >>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 
 ```bash
-npm rm -g openclaw
-pnpm remove -g openclaw
-bun remove -g openclaw
+npm rm -g moltbot
+pnpm remove -g moltbot
+bun remove -g moltbot
 ```
 
 <<<<<<< HEAD
@@ -106,49 +106,49 @@ bun remove -g openclaw
 >>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 
 ```bash
-rm -rf /Applications/OpenClaw.app
+rm -rf /Applications/Moltbot.app
 ```
 
 Notes:
-- If you used profiles (`--profile` / `OPENCLAW_PROFILE`), repeat step 3 for each state dir (defaults are `~/.openclaw-<profile>`).
+- If you used profiles (`--profile` / `CLAWDBOT_PROFILE`), repeat step 3 for each state dir (defaults are `~/.clawdbot-<profile>`).
 - In remote mode, the state dir lives on the **gateway host**, so run steps 1-4 there too.
 
 ## Manual service removal (CLI not installed)
 
-Use this if the gateway service keeps running but `openclaw` is missing.
+Use this if the gateway service keeps running but `moltbot` is missing.
 
 ### macOS (launchd)
 
-Default label is `bot.molt.gateway` (or `bot.molt.<profile>`; legacy `com.openclaw.*` may still exist):
+Default label is `bot.molt.gateway` (or `bot.molt.<profile>`; legacy `com.clawdbot.*` may still exist):
 
 ```bash
 launchctl bootout gui/$UID/bot.molt.gateway
 rm -f ~/Library/LaunchAgents/bot.molt.gateway.plist
 ```
 
-If you used a profile, replace the label and plist name with `bot.molt.<profile>`. Remove any legacy `com.openclaw.*` plists if present.
+If you used a profile, replace the label and plist name with `bot.molt.<profile>`. Remove any legacy `com.clawdbot.*` plists if present.
 
 ### Linux (systemd user unit)
 
-Default unit name is `openclaw-gateway.service` (or `openclaw-gateway-<profile>.service`):
+Default unit name is `moltbot-gateway.service` (or `moltbot-gateway-<profile>.service`):
 
 ```bash
-systemctl --user disable --now openclaw-gateway.service
-rm -f ~/.config/systemd/user/openclaw-gateway.service
+systemctl --user disable --now moltbot-gateway.service
+rm -f ~/.config/systemd/user/moltbot-gateway.service
 systemctl --user daemon-reload
 ```
 
 ### Windows (Scheduled Task)
 
-Default task name is `OpenClaw Gateway` (or `OpenClaw Gateway (<profile>)`).
+Default task name is `Moltbot Gateway` (or `Moltbot Gateway (<profile>)`).
 The task script lives under your state dir.
 
 ```powershell
-schtasks /Delete /F /TN "OpenClaw Gateway"
-Remove-Item -Force "$env:USERPROFILE\.openclaw\gateway.cmd"
+schtasks /Delete /F /TN "Moltbot Gateway"
+Remove-Item -Force "$env:USERPROFILE\.clawdbot\gateway.cmd"
 ```
 
-If you used a profile, delete the matching task name and `~\.openclaw-<profile>\gateway.cmd`.
+If you used a profile, delete the matching task name and `~\.clawdbot-<profile>\gateway.cmd`.
 
 ## Normal install vs source checkout
 
@@ -164,7 +164,7 @@ Remove it with `npm rm -g openclaw` (or `pnpm remove -g` / `bun remove -g` if yo
 
 ### Source checkout (git clone)
 
-If you run from a repo checkout (`git clone` + `openclaw ...` / `bun run openclaw ...`):
+If you run from a repo checkout (`git clone` + `moltbot ...` / `bun run moltbot ...`):
 
 1) Uninstall the gateway service **before** deleting the repo (use the easy path above or manual service removal).
 2) Delete the repo directory.

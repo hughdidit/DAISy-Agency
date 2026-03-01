@@ -121,7 +121,7 @@ const vectorToBlob = (embedding: number[]): Buffer =>
 
 export class MemoryIndexManager {
   private readonly cacheKey: string;
-  private readonly cfg: OpenClawConfig;
+  private readonly cfg: MoltbotConfig;
   private readonly agentId: string;
   private readonly workspaceDir: string;
   private readonly settings: ResolvedMemorySearchConfig;
@@ -177,7 +177,7 @@ export class MemoryIndexManager {
   private syncing: Promise<void> | null = null;
 
   static async get(params: {
-    cfg: OpenClawConfig;
+    cfg: MoltbotConfig;
     agentId: string;
   }): Promise<MemoryIndexManager | null> {
     const { cfg, agentId } = params;
@@ -210,7 +210,7 @@ export class MemoryIndexManager {
 
   private constructor(params: {
     cacheKey: string;
-    cfg: OpenClawConfig;
+    cfg: MoltbotConfig;
     agentId: string;
     workspaceDir: string;
     settings: ResolvedMemorySearchConfig;

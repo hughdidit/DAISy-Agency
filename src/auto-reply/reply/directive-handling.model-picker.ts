@@ -73,7 +73,7 @@ export function buildModelPickerItems(catalog: ModelPickerCatalogEntry[]): Model
 
 export function resolveProviderEndpointLabel(
   provider: string,
-  cfg: OpenClawConfig,
+  cfg: MoltbotConfig,
 ): { endpoint?: string; api?: string } {
   const normalized = normalizeProviderId(provider);
   const providers = (cfg.models?.providers ?? {}) as Record<

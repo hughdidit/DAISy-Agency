@@ -35,7 +35,7 @@ type ProviderBlockStreamingConfig = {
 };
 
 function resolveProviderBlockStreamingCoalesce(params: {
-  cfg: OpenClawConfig | undefined;
+  cfg: MoltbotConfig | undefined;
   providerKey?: TextChunkProvider;
   accountId?: string | null;
 }): BlockStreamingCoalesceConfig | undefined {
@@ -57,7 +57,7 @@ export type BlockStreamingCoalescing = {
 };
 
 export function resolveBlockStreamingChunking(
-  cfg: OpenClawConfig | undefined,
+  cfg: MoltbotConfig | undefined,
   provider?: string,
   accountId?: string | null,
 ): {
@@ -94,7 +94,7 @@ export function resolveBlockStreamingChunking(
 }
 
 export function resolveBlockStreamingCoalescing(
-  cfg: OpenClawConfig | undefined,
+  cfg: MoltbotConfig | undefined,
   provider?: string,
   accountId?: string | null,
   chunking?: {

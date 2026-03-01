@@ -44,9 +44,7 @@ const parseArgs = (): Args => {
 
 const loadAuthProfiles = (agentId: string) => {
   const stateRoot =
-  process.env.OPENCLAW_STATE_DIR?.trim() ||
-  process.env.CLAWDBOT_STATE_DIR?.trim() ||
-  path.join(os.homedir(), ".openclaw");
+    process.env.CLAWDBOT_STATE_DIR?.trim() || path.join(os.homedir(), ".clawdbot");
   const authPath = path.join(stateRoot, "agents", agentId, "agent", "auth-profiles.json");
   if (!fs.existsSync(authPath)) throw new Error(`Missing: ${authPath}`);
   const store = JSON.parse(fs.readFileSync(authPath, "utf8")) as {
@@ -75,7 +73,7 @@ const fetchAnthropicOAuthUsage = async (token: string) => {
       Accept: "application/json",
       "anthropic-version": "2023-06-01",
       "anthropic-beta": "oauth-2025-04-20",
-      "User-Agent": "openclaw-debug",
+      "User-Agent": "moltbot-debug",
     },
   });
   const text = await res.text();

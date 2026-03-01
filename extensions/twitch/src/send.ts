@@ -33,12 +33,12 @@ export interface SendMessageResult {
 /**
  * Internal send function used by the outbound adapter.
  *
- * This function has access to the full OpenClaw config and handles
+ * This function has access to the full Moltbot config and handles
  * account resolution, markdown stripping, and actual message sending.
  *
  * @param channel - The channel name
  * @param text - The message text
- * @param cfg - Full OpenClaw configuration
+ * @param cfg - Full Moltbot configuration
  * @param accountId - Account ID to use
  * @param stripMarkdown - Whether to strip markdown (default: true)
  * @param logger - Logger instance
@@ -48,7 +48,7 @@ export interface SendMessageResult {
  * const result = await sendMessageTwitchInternal(
  *   "#mychannel",
  *   "Hello Twitch!",
- *   openclawConfig,
+ *   moltbotConfig,
  *   "default",
  *   true,
  *   console,
@@ -57,7 +57,7 @@ export interface SendMessageResult {
 export async function sendMessageTwitchInternal(
   channel: string,
   text: string,
-  cfg: OpenClawConfig,
+  cfg: MoltbotConfig,
   accountId: string = DEFAULT_ACCOUNT_ID,
   stripMarkdown: boolean = true,
   logger: Console = console,

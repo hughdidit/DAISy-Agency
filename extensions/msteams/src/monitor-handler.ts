@@ -1,4 +1,4 @@
-import type { OpenClawConfig, RuntimeEnv } from "openclaw/plugin-sdk";
+import type { MoltbotConfig, RuntimeEnv } from "clawdbot/plugin-sdk";
 import type { MSTeamsConversationStore } from "./conversation-store.js";
 <<<<<<< HEAD
 import {
@@ -31,7 +31,7 @@ export type MSTeamsActivityHandler = {
 };
 
 export type MSTeamsMessageHandlerDeps = {
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   runtime: RuntimeEnv;
   appId: string;
   adapter: MSTeamsAdapter;

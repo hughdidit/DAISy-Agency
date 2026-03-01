@@ -96,7 +96,7 @@ function forkSessionFromParent(params: {
 
 export async function initSessionState(params: {
   ctx: MsgContext;
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   commandAuthorized: boolean;
 }): Promise<SessionInitResult> {
   const { ctx, cfg, commandAuthorized } = params;

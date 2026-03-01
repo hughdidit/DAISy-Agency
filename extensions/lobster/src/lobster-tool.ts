@@ -239,7 +239,7 @@ function parseEnvelope(stdout: string): LobsterEnvelope {
   throw new Error("lobster returned invalid JSON envelope");
 }
 
-export function createLobsterTool(api: OpenClawPluginApi) {
+export function createLobsterTool(api: MoltbotPluginApi) {
   return {
     name: "lobster",
     description:

@@ -9,9 +9,9 @@ import { resolveMoltbotAgentDir } from "./agent-paths.js";
 import { resolveOpenClawAgentDir } from "./agent-paths.js";
 >>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 
-describe("resolveOpenClawAgentDir", () => {
-  const previousStateDir = process.env.OPENCLAW_STATE_DIR;
-  const previousAgentDir = process.env.OPENCLAW_AGENT_DIR;
+describe("resolveMoltbotAgentDir", () => {
+  const previousStateDir = process.env.CLAWDBOT_STATE_DIR;
+  const previousAgentDir = process.env.CLAWDBOT_AGENT_DIR;
   const previousPiAgentDir = process.env.PI_CODING_AGENT_DIR;
   let tempStateDir: string | null = null;
 
@@ -21,14 +21,14 @@ describe("resolveOpenClawAgentDir", () => {
       tempStateDir = null;
     }
     if (previousStateDir === undefined) {
-      delete process.env.OPENCLAW_STATE_DIR;
+      delete process.env.CLAWDBOT_STATE_DIR;
     } else {
-      process.env.OPENCLAW_STATE_DIR = previousStateDir;
+      process.env.CLAWDBOT_STATE_DIR = previousStateDir;
     }
     if (previousAgentDir === undefined) {
-      delete process.env.OPENCLAW_AGENT_DIR;
+      delete process.env.CLAWDBOT_AGENT_DIR;
     } else {
-      process.env.OPENCLAW_AGENT_DIR = previousAgentDir;
+      process.env.CLAWDBOT_AGENT_DIR = previousAgentDir;
     }
     if (previousPiAgentDir === undefined) {
       delete process.env.PI_CODING_AGENT_DIR;
@@ -38,23 +38,23 @@ describe("resolveOpenClawAgentDir", () => {
   });
 
   it("defaults to the multi-agent path when no overrides are set", async () => {
-    tempStateDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-agent-"));
-    process.env.OPENCLAW_STATE_DIR = tempStateDir;
-    delete process.env.OPENCLAW_AGENT_DIR;
+    tempStateDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-agent-"));
+    process.env.CLAWDBOT_STATE_DIR = tempStateDir;
+    delete process.env.CLAWDBOT_AGENT_DIR;
     delete process.env.PI_CODING_AGENT_DIR;
 
-    const resolved = resolveOpenClawAgentDir();
+    const resolved = resolveMoltbotAgentDir();
 
     expect(resolved).toBe(path.join(tempStateDir, "agents", "main", "agent"));
   });
 
-  it("honors OPENCLAW_AGENT_DIR overrides", async () => {
-    tempStateDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-agent-"));
+  it("honors CLAWDBOT_AGENT_DIR overrides", async () => {
+    tempStateDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-agent-"));
     const override = path.join(tempStateDir, "agent");
-    process.env.OPENCLAW_AGENT_DIR = override;
+    process.env.CLAWDBOT_AGENT_DIR = override;
     delete process.env.PI_CODING_AGENT_DIR;
 
-    const resolved = resolveOpenClawAgentDir();
+    const resolved = resolveMoltbotAgentDir();
 
     expect(resolved).toBe(path.resolve(override));
   });

@@ -46,7 +46,7 @@ export function normalizeSlackChannelType(
 }
 
 export type SlackMonitorContext = {
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   accountId: string;
   botToken: string;
   app: App;
@@ -119,7 +119,7 @@ export type SlackMonitorContext = {
 };
 
 export function createSlackMonitorContext(params: {
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   accountId: string;
   botToken: string;
   app: App;

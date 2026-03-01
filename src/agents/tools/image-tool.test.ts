@@ -40,8 +40,8 @@ describe("image tool implicit imageModel config", () => {
   });
 
   it("stays disabled without auth when no pairing is possible", async () => {
-    const agentDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-image-"));
-    const cfg: OpenClawConfig = {
+    const agentDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-image-"));
+    const cfg: MoltbotConfig = {
       agents: { defaults: { model: { primary: "openai/gpt-5.2" } } },
     };
     expect(resolveImageModelConfigForTool({ cfg, agentDir })).toBeNull();
@@ -49,11 +49,11 @@ describe("image tool implicit imageModel config", () => {
   });
 
   it("pairs minimax primary with MiniMax-VL-01 (and fallbacks) when auth exists", async () => {
-    const agentDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-image-"));
+    const agentDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-image-"));
     vi.stubEnv("MINIMAX_API_KEY", "minimax-test");
     vi.stubEnv("OPENAI_API_KEY", "openai-test");
     vi.stubEnv("ANTHROPIC_API_KEY", "anthropic-test");
-    const cfg: OpenClawConfig = {
+    const cfg: MoltbotConfig = {
       agents: { defaults: { model: { primary: "minimax/MiniMax-M2.1" } } },
     };
     expect(resolveImageModelConfigForTool({ cfg, agentDir })).toEqual({
@@ -64,14 +64,14 @@ describe("image tool implicit imageModel config", () => {
   });
 
   it("pairs a custom provider when it declares an image-capable model", async () => {
-    const agentDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-image-"));
+    const agentDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-image-"));
     await writeAuthProfiles(agentDir, {
       version: 1,
       profiles: {
         "acme:default": { type: "api_key", provider: "acme", key: "sk-test" },
       },
     });
-    const cfg: OpenClawConfig = {
+    const cfg: MoltbotConfig = {
       agents: { defaults: { model: { primary: "acme/text-1" } } },
       models: {
         providers: {
@@ -91,8 +91,8 @@ describe("image tool implicit imageModel config", () => {
   });
 
   it("prefers explicit agents.defaults.imageModel", async () => {
-    const agentDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-image-"));
-    const cfg: OpenClawConfig = {
+    const agentDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-image-"));
+    const cfg: MoltbotConfig = {
       agents: {
         defaults: {
           model: { primary: "minimax/MiniMax-M2.1" },
@@ -110,8 +110,8 @@ describe("image tool implicit imageModel config", () => {
     // because images are auto-injected into prompts. The tool description is
     // adjusted via modelHasVision to discourage redundant usage.
     vi.stubEnv("OPENAI_API_KEY", "test-key");
-    const agentDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-image-"));
-    const cfg: OpenClawConfig = {
+    const agentDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-image-"));
+    const cfg: MoltbotConfig = {
       agents: {
         defaults: {
           model: { primary: "acme/vision-1" },
@@ -138,7 +138,7 @@ describe("image tool implicit imageModel config", () => {
   });
 
   it("sandboxes image paths like the read tool", async () => {
-    const stateDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-image-sandbox-"));
+    const stateDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-image-sandbox-"));
     const agentDir = path.join(stateDir, "agent");
     const sandboxRoot = path.join(stateDir, "sandbox");
     await fs.mkdir(agentDir, { recursive: true });
@@ -146,7 +146,7 @@ describe("image tool implicit imageModel config", () => {
     await fs.writeFile(path.join(sandboxRoot, "img.png"), "fake", "utf8");
 
     vi.stubEnv("OPENAI_API_KEY", "openai-test");
-    const cfg: OpenClawConfig = {
+    const cfg: MoltbotConfig = {
       agents: { defaults: { model: { primary: "minimax/MiniMax-M2.1" } } },
     };
     const tool = createImageTool({ config: cfg, agentDir, sandboxRoot });
@@ -163,7 +163,7 @@ describe("image tool implicit imageModel config", () => {
   });
 
   it("rewrites inbound absolute paths into sandbox media/inbound", async () => {
-    const stateDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-image-sandbox-"));
+    const stateDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-image-sandbox-"));
     const agentDir = path.join(stateDir, "agent");
     const sandboxRoot = path.join(stateDir, "sandbox");
     await fs.mkdir(agentDir, { recursive: true });
@@ -191,7 +191,7 @@ describe("image tool implicit imageModel config", () => {
     global.fetch = fetch;
     vi.stubEnv("MINIMAX_API_KEY", "minimax-test");
 
-    const cfg: OpenClawConfig = {
+    const cfg: MoltbotConfig = {
       agents: {
         defaults: {
           model: { primary: "minimax/MiniMax-M2.1" },
@@ -205,7 +205,7 @@ describe("image tool implicit imageModel config", () => {
 
     const res = await tool.execute("t1", {
       prompt: "Describe the image.",
-      image: "@/Users/steipete/.openclaw/media/inbound/photo.png",
+      image: "@/Users/steipete/.clawdbot/media/inbound/photo.png",
     });
 
     expect(fetch).toHaveBeenCalledTimes(1);
@@ -262,9 +262,9 @@ describe("image tool MiniMax VLM routing", () => {
     // @ts-expect-error partial global
     global.fetch = fetch;
 
-    const agentDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-minimax-vlm-"));
+    const agentDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-minimax-vlm-"));
     vi.stubEnv("MINIMAX_API_KEY", "minimax-test");
-    const cfg: OpenClawConfig = {
+    const cfg: MoltbotConfig = {
       agents: { defaults: { model: { primary: "minimax/MiniMax-M2.1" } } },
     };
     const tool = createImageTool({ config: cfg, agentDir });
@@ -304,9 +304,9 @@ describe("image tool MiniMax VLM routing", () => {
     // @ts-expect-error partial global
     global.fetch = fetch;
 
-    const agentDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-minimax-vlm-"));
+    const agentDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-minimax-vlm-"));
     vi.stubEnv("MINIMAX_API_KEY", "minimax-test");
-    const cfg: OpenClawConfig = {
+    const cfg: MoltbotConfig = {
       agents: { defaults: { model: { primary: "minimax/MiniMax-M2.1" } } },
     };
     const tool = createImageTool({ config: cfg, agentDir });

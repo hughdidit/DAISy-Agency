@@ -24,14 +24,8 @@
   "description": "OpenClaw Telegram channel plugin",
 >>>>>>> 1c4db9159 (chore: prepare 2026.2.2 release)
   "type": "module",
-<<<<<<< HEAD
-  "description": "OpenClaw Telegram channel plugin",
-=======
-  "devDependencies": {
-    "openclaw": "workspace:*"
-  },
->>>>>>> aa91f6e70 (chore: Add `openclaw` to `devDependencies` for all extensions so that types resolve.)
-  "openclaw": {
+  "description": "Moltbot Telegram channel plugin",
+  "moltbot": {
     "extensions": [
       "./index.ts"
     ]

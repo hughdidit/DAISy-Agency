@@ -52,11 +52,11 @@ export type ChannelDock = {
   elevated?: ChannelElevatedAdapter;
   config?: {
     resolveAllowFrom?: (params: {
-      cfg: OpenClawConfig;
+      cfg: MoltbotConfig;
       accountId?: string | null;
     }) => Array<string | number> | undefined;
     formatAllowFrom?: (params: {
-      cfg: OpenClawConfig;
+      cfg: MoltbotConfig;
       accountId?: string | null;
       allowFrom: Array<string | number>;
     }) => string[];

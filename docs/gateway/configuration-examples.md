@@ -1,7 +1,7 @@
 ---
-summary: "Schema-accurate configuration examples for common OpenClaw setups"
+summary: "Schema-accurate configuration examples for common Moltbot setups"
 read_when:
-  - Learning how to configure OpenClaw
+  - Learning how to configure Moltbot
   - Looking for configuration examples
 <<<<<<< HEAD
   - Setting up Moltbot for the first time
@@ -19,12 +19,12 @@ Examples below are aligned with the current config schema. For the exhaustive re
 ### Absolute minimum
 ```json5
 {
-  agent: { workspace: "~/.openclaw/workspace" },
+  agent: { workspace: "~/clawd" },
   channels: { whatsapp: { allowFrom: ["+15555550123"] } }
 }
 ```
 
-Save to `~/.openclaw/openclaw.json` and you can DM the bot from that number.
+Save to `~/.clawdbot/moltbot.json` and you can DM the bot from that number.
 
 ### Recommended starter
 ```json5
@@ -35,7 +35,7 @@ Save to `~/.openclaw/openclaw.json` and you can DM the bot from that number.
     emoji: "🦞"
   },
   agent: {
-    workspace: "~/.openclaw/workspace",
+    workspace: "~/clawd",
     model: { primary: "anthropic/claude-sonnet-4-5" }
   },
   channels: {
@@ -90,7 +90,7 @@ Save to `~/.openclaw/openclaw.json` and you can DM the bot from that number.
   // Logging
   logging: {
     level: "info",
-    file: "/tmp/openclaw/openclaw.log",
+    file: "/tmp/moltbot/moltbot.log",
     consoleLevel: "info",
     consoleStyle: "pretty",
     redactSensitive: "tools"
@@ -98,7 +98,7 @@ Save to `~/.openclaw/openclaw.json` and you can DM the bot from that number.
 
   // Message formatting
   messages: {
-    messagePrefix: "[openclaw]",
+    messagePrefix: "[moltbot]",
     responsePrefix: ">",
     ackReaction: "👀",
     ackReactionScope: "group-mentions"
@@ -107,7 +107,7 @@ Save to `~/.openclaw/openclaw.json` and you can DM the bot from that number.
   // Routing + queue
   routing: {
     groupChat: {
-      mentionPatterns: ["@openclaw", "openclaw"],
+      mentionPatterns: ["@clawd", "moltbot"],
       historyLimit: 50
     },
     queue: {
@@ -160,7 +160,7 @@ Save to `~/.openclaw/openclaw.json` and you can DM the bot from that number.
       discord: { mode: "idle", idleMinutes: 10080 }
     },
     resetTriggers: ["/new", "/reset"],
-    store: "~/.openclaw/agents/default/sessions/sessions.json",
+    store: "~/.clawdbot/agents/default/sessions/sessions.json",
     typingIntervalSeconds: 5,
     sendPolicy: {
       default: "allow",
@@ -195,7 +195,7 @@ Save to `~/.openclaw/openclaw.json` and you can DM the bot from that number.
       dm: { enabled: true, allowFrom: ["steipete"] },
       guilds: {
         "123456789012345678": {
-          slug: "friends-of-openclaw",
+          slug: "friends-of-clawd",
           requireMention: false,
           channels: {
             general: { allow: true },
@@ -215,7 +215,7 @@ Save to `~/.openclaw/openclaw.json` and you can DM the bot from that number.
       dm: { enabled: true, allowFrom: ["U123"] },
       slashCommand: {
         enabled: true,
-        name: "openclaw",
+        name: "clawd",
         sessionPrefix: "slack:slash",
         ephemeral: true
       }
@@ -225,21 +225,17 @@ Save to `~/.openclaw/openclaw.json` and you can DM the bot from that number.
   // Agent runtime
   agents: {
     defaults: {
-      workspace: "~/.openclaw/workspace",
+      workspace: "~/clawd",
       userTimezone: "America/Chicago",
       model: {
         primary: "anthropic/claude-sonnet-4-5",
-<<<<<<< HEAD
         fallbacks: ["anthropic/claude-opus-4-5", "openai/gpt-5.2"]
-=======
-        fallbacks: ["anthropic/claude-opus-4-6", "openai/gpt-5.2"],
->>>>>>> 462905440 (chore: apply local workspace updates (#9911))
       },
       imageModel: {
         primary: "openrouter/anthropic/claude-sonnet-4-5"
       },
       models: {
-        "anthropic/claude-opus-4-6": { alias: "opus" },
+        "anthropic/claude-opus-4-5": { alias: "opus" },
         "anthropic/claude-sonnet-4-5": { alias: "sonnet" },
         "openai/gpt-5.2": { alias: "gpt" }
       },
@@ -282,9 +278,9 @@ Save to `~/.openclaw/openclaw.json` and you can DM the bot from that number.
       sandbox: {
         mode: "non-main",
         perSession: true,
-        workspaceRoot: "~/.openclaw/sandboxes",
+        workspaceRoot: "~/.clawdbot/sandboxes",
         docker: {
-          image: "openclaw-sandbox:bookworm-slim",
+          image: "moltbot-sandbox:bookworm-slim",
           workdir: "/workspace",
           readOnlyRoot: true,
           tmpfs: ["/tmp", "/var/tmp", "/run"],
@@ -349,7 +345,7 @@ Save to `~/.openclaw/openclaw.json` and you can DM the bot from that number.
   // Cron jobs
   cron: {
     enabled: true,
-    store: "~/.openclaw/cron/cron.json",
+    store: "~/.clawdbot/cron/cron.json",
     maxConcurrentRuns: 2
   },
 
@@ -359,7 +355,7 @@ Save to `~/.openclaw/openclaw.json` and you can DM the bot from that number.
     path: "/hooks",
     token: "shared-secret",
     presets: ["gmail"],
-    transformsDir: "~/.openclaw/hooks",
+    transformsDir: "~/.clawdbot/hooks",
     mappings: [
       {
         id: "gmail-hook",
@@ -379,7 +375,7 @@ Save to `~/.openclaw/openclaw.json` and you can DM the bot from that number.
       }
     ],
     gmail: {
-      account: "openclaw@gmail.com",
+      account: "moltbot@gmail.com",
       label: "INBOX",
       topic: "projects/<project-id>/topics/gog-gmail-watch",
       subscription: "gog-gmail-watch-push",
@@ -398,7 +394,7 @@ Save to `~/.openclaw/openclaw.json` and you can DM the bot from that number.
     mode: "local",
     port: 18789,
     bind: "loopback",
-    controlUi: { enabled: true, basePath: "/openclaw" },
+    controlUi: { enabled: true, basePath: "/moltbot" },
     auth: {
       mode: "token",
       token: "gateway-token",
@@ -435,7 +431,7 @@ Save to `~/.openclaw/openclaw.json` and you can DM the bot from that number.
 ### Multi-platform setup
 ```json5
 {
-  agent: { workspace: "~/.openclaw/workspace" },
+  agent: { workspace: "~/clawd" },
   channels: {
     whatsapp: { allowFrom: ["+15555550123"] },
     telegram: {
@@ -498,18 +494,12 @@ If more than one person can DM your bot (multiple entries in `allowFrom`, pairin
     }
   },
   agent: {
-    workspace: "~/.openclaw/workspace",
+    workspace: "~/clawd",
     model: {
       primary: "anthropic/claude-sonnet-4-5",
-<<<<<<< HEAD
       fallbacks: ["anthropic/claude-opus-4-5"]
     }
   }
-=======
-      fallbacks: ["anthropic/claude-opus-4-6"],
-    },
-  },
->>>>>>> 462905440 (chore: apply local workspace updates (#9911))
 }
 ```
 
@@ -542,19 +532,12 @@ If more than one person can DM your bot (multiple entries in `allowFrom`, pairin
     }
   },
   agent: {
-    workspace: "~/.openclaw/workspace",
+    workspace: "~/clawd",
     model: {
-<<<<<<< HEAD
       primary: "anthropic/claude-opus-4-5",
       fallbacks: ["minimax/MiniMax-M2.1"]
     }
   }
-=======
-      primary: "anthropic/claude-opus-4-6",
-      fallbacks: ["minimax/MiniMax-M2.1"],
-    },
-  },
->>>>>>> 462905440 (chore: apply local workspace updates (#9911))
 }
 ```
 
@@ -566,7 +549,7 @@ If more than one person can DM your bot (multiple entries in `allowFrom`, pairin
     theme: "professional assistant"
   },
   agent: {
-    workspace: "~/work-openclaw",
+    workspace: "~/work-clawd",
     elevated: { enabled: false }
   },
   channels: {
@@ -586,7 +569,7 @@ If more than one person can DM your bot (multiple entries in `allowFrom`, pairin
 ```json5
 {
   agent: {
-    workspace: "~/.openclaw/workspace",
+    workspace: "~/clawd",
     model: { primary: "lmstudio/minimax-m2.1-gs32" }
   },
   models: {

@@ -18,7 +18,7 @@ describe("resolveTelegramDraftStreamingChunking", () => {
   });
 
   it("clamps to telegram.textChunkLimit", () => {
-    const cfg: OpenClawConfig = {
+    const cfg: MoltbotConfig = {
       channels: { telegram: { allowFrom: ["*"], textChunkLimit: 150 } },
     };
     const chunking = resolveTelegramDraftStreamingChunking(cfg, "default");
@@ -30,7 +30,7 @@ describe("resolveTelegramDraftStreamingChunking", () => {
   });
 
   it("supports per-account overrides", () => {
-    const cfg: OpenClawConfig = {
+    const cfg: MoltbotConfig = {
       channels: {
         telegram: {
           allowFrom: ["*"],

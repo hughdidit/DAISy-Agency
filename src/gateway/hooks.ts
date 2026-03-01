@@ -20,7 +20,7 @@ export type HooksConfigResolved = {
   mappings: HookMappingResolved[];
 };
 
-export function resolveHooksConfig(cfg: OpenClawConfig): HooksConfigResolved | null {
+export function resolveHooksConfig(cfg: MoltbotConfig): HooksConfigResolved | null {
   if (cfg.hooks?.enabled !== true) return null;
   const token = cfg.hooks?.token?.trim();
   if (!token) {
@@ -58,9 +58,7 @@ export function extractHookToken(req: IncomingMessage, url: URL): HookTokenResul
     if (token) return { token, fromQuery: false };
   }
   const headerToken =
-    typeof req.headers["x-openclaw-token"] === "string"
-      ? req.headers["x-openclaw-token"].trim()
-      : "";
+    typeof req.headers["x-moltbot-token"] === "string" ? req.headers["x-moltbot-token"].trim() : "";
   if (headerToken) return { token: headerToken, fromQuery: false };
   const queryToken = url.searchParams.get("token");
   if (queryToken) return { token: queryToken.trim(), fromQuery: true };

@@ -100,7 +100,7 @@ const EXEC_EVENT_PROMPT =
   "Please relay the command output to the user in a helpful way. If the command succeeded, share the relevant output. " +
   "If it failed, explain what went wrong.";
 
-function resolveActiveHoursTimezone(cfg: OpenClawConfig, raw?: string): string {
+function resolveActiveHoursTimezone(cfg: MoltbotConfig, raw?: string): string {
   const trimmed = raw?.trim();
   if (!trimmed || trimmed === "user") {
     return resolveUserTimezone(cfg.agents?.defaults?.userTimezone);
@@ -152,7 +152,7 @@ function resolveMinutesInTimeZone(nowMs: number, timeZone: string): number | nul
 }
 
 function isWithinActiveHours(
-  cfg: OpenClawConfig,
+  cfg: MoltbotConfig,
   heartbeat?: HeartbeatConfig,
   nowMs?: number,
 ): boolean {
@@ -184,15 +184,15 @@ type HeartbeatAgentState = {
 
 export type HeartbeatRunner = {
   stop: () => void;
-  updateConfig: (cfg: OpenClawConfig) => void;
+  updateConfig: (cfg: MoltbotConfig) => void;
 };
 
-function hasExplicitHeartbeatAgents(cfg: OpenClawConfig) {
+function hasExplicitHeartbeatAgents(cfg: MoltbotConfig) {
   const list = cfg.agents?.list ?? [];
   return list.some((entry) => Boolean(entry?.heartbeat));
 }
 
-export function isHeartbeatEnabledForAgent(cfg: OpenClawConfig, agentId?: string): boolean {
+export function isHeartbeatEnabledForAgent(cfg: MoltbotConfig, agentId?: string): boolean {
   const resolvedAgentId = normalizeAgentId(agentId ?? resolveDefaultAgentId(cfg));
   const list = cfg.agents?.list ?? [];
   const hasExplicit = hasExplicitHeartbeatAgents(cfg);
@@ -204,10 +204,7 @@ export function isHeartbeatEnabledForAgent(cfg: OpenClawConfig, agentId?: string
   return resolvedAgentId === resolveDefaultAgentId(cfg);
 }
 
-function resolveHeartbeatConfig(
-  cfg: OpenClawConfig,
-  agentId?: string,
-): HeartbeatConfig | undefined {
+function resolveHeartbeatConfig(cfg: MoltbotConfig, agentId?: string): HeartbeatConfig | undefined {
   const defaults = cfg.agents?.defaults?.heartbeat;
   if (!agentId) return defaults;
   const overrides = resolveAgentConfig(cfg, agentId)?.heartbeat;
@@ -216,7 +213,7 @@ function resolveHeartbeatConfig(
 }
 
 export function resolveHeartbeatSummaryForAgent(
-  cfg: OpenClawConfig,
+  cfg: MoltbotConfig,
   agentId?: string,
 ): HeartbeatSummary {
   const defaults = cfg.agents?.defaults?.heartbeat;
@@ -263,7 +260,7 @@ export function resolveHeartbeatSummaryForAgent(
   };
 }
 
-function resolveHeartbeatAgents(cfg: OpenClawConfig): HeartbeatAgent[] {
+function resolveHeartbeatAgents(cfg: MoltbotConfig): HeartbeatAgent[] {
   const list = cfg.agents?.list ?? [];
   if (hasExplicitHeartbeatAgents(cfg)) {
     return list
@@ -279,7 +276,7 @@ function resolveHeartbeatAgents(cfg: OpenClawConfig): HeartbeatAgent[] {
 }
 
 export function resolveHeartbeatIntervalMs(
-  cfg: OpenClawConfig,
+  cfg: MoltbotConfig,
   overrideEvery?: string,
   heartbeat?: HeartbeatConfig,
 ) {
@@ -301,11 +298,11 @@ export function resolveHeartbeatIntervalMs(
   return ms;
 }
 
-export function resolveHeartbeatPrompt(cfg: OpenClawConfig, heartbeat?: HeartbeatConfig) {
+export function resolveHeartbeatPrompt(cfg: MoltbotConfig, heartbeat?: HeartbeatConfig) {
   return resolveHeartbeatPromptText(heartbeat?.prompt ?? cfg.agents?.defaults?.heartbeat?.prompt);
 }
 
-function resolveHeartbeatAckMaxChars(cfg: OpenClawConfig, heartbeat?: HeartbeatConfig) {
+function resolveHeartbeatAckMaxChars(cfg: MoltbotConfig, heartbeat?: HeartbeatConfig) {
   return Math.max(
     0,
     heartbeat?.ackMaxChars ??
@@ -315,7 +312,7 @@ function resolveHeartbeatAckMaxChars(cfg: OpenClawConfig, heartbeat?: HeartbeatC
 }
 
 function resolveHeartbeatSession(
-  cfg: OpenClawConfig,
+  cfg: MoltbotConfig,
   agentId?: string,
   heartbeat?: HeartbeatConfig,
 ) {
@@ -434,7 +431,7 @@ function normalizeHeartbeatReply(
 }
 
 export async function runHeartbeatOnce(opts: {
-  cfg?: OpenClawConfig;
+  cfg?: MoltbotConfig;
   agentId?: string;
   heartbeat?: HeartbeatConfig;
   reason?: string;
@@ -761,7 +758,7 @@ export async function runHeartbeatOnce(opts: {
 }
 
 export function startHeartbeatRunner(opts: {
-  cfg?: OpenClawConfig;
+  cfg?: MoltbotConfig;
   runtime?: RuntimeEnv;
   abortSignal?: AbortSignal;
   runOnce?: typeof runHeartbeatOnce;
@@ -807,7 +804,7 @@ export function startHeartbeatRunner(opts: {
     state.timer.unref?.();
   };
 
-  const updateConfig = (cfg: OpenClawConfig) => {
+  const updateConfig = (cfg: MoltbotConfig) => {
     if (state.stopped) return;
     const now = Date.now();
     const prevAgents = state.agents;

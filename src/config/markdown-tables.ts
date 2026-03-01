@@ -50,7 +50,7 @@ function resolveMarkdownModeFromSection(
 }
 
 export function resolveMarkdownTableMode(params: {
-  cfg?: Partial<OpenClawConfig>;
+  cfg?: Partial<MoltbotConfig>;
   channel?: string | null;
   accountId?: string | null;
 }): MarkdownTableMode {

@@ -10,7 +10,7 @@ import type { RuntimeEnv } from "../../runtime.js";
 import { createSlackMonitorContext, normalizeSlackChannelType } from "./context.js";
 
 const baseParams = () => ({
-  cfg: {} as OpenClawConfig,
+  cfg: {} as MoltbotConfig,
   accountId: "default",
   botToken: "token",
   app: { client: {} } as App,
@@ -34,7 +34,7 @@ const baseParams = () => ({
   replyToMode: "off" as const,
   slashCommand: {
     enabled: false,
-    name: "openclaw",
+    name: "clawd",
     sessionPrefix: "slack:slash",
     ephemeral: true,
   },

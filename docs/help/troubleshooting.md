@@ -210,7 +210,7 @@ Disable Advanced Security or add `docs.molt.bot` to the allowlist, then retry.
 
 <<<<<<< HEAD
 ```bash
-openclaw status --all
+moltbot status --all
 ```
 
 If you can, include the relevant log tail from `moltbot logs --follow`.

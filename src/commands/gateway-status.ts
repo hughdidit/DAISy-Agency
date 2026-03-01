@@ -3,7 +3,6 @@ import { withProgress } from "../cli/progress.js";
 import { loadConfig, resolveGatewayPort } from "../config/config.js";
 import { probeGateway } from "../gateway/probe.js";
 import { discoverGatewayBeacons } from "../infra/bonjour-discovery.js";
-import { resolveWideAreaDiscoveryDomain } from "../infra/widearea-dns.js";
 import { resolveSshConfig } from "../infra/ssh-config.js";
 import { parseSshTarget, startSshPortForward } from "../infra/ssh-tunnel.js";
 import { resolveWideAreaDiscoveryDomain } from "../infra/widearea-dns.js";
@@ -39,9 +38,6 @@ export async function gatewayStatusCommand(
   const cfg = loadConfig();
   const rich = isRich() && opts.json !== true;
   const overallTimeoutMs = parseTimeoutMs(opts.timeout, 3000);
-  const wideAreaDomain = resolveWideAreaDiscoveryDomain({
-    configDomain: cfg.discovery?.wideArea?.domain,
-  });
 
   const baseTargets = resolveTargets(cfg, opts.url);
   const network = buildNetworkHints(cfg);
@@ -49,7 +45,6 @@ export async function gatewayStatusCommand(
   const discoveryTimeoutMs = Math.min(1200, overallTimeoutMs);
   const discoveryPromise = discoverGatewayBeacons({
     timeoutMs: discoveryTimeoutMs,
-    wideAreaDomain,
   });
 
   let sshTarget = sanitizeSshTarget(opts.ssh) ?? sanitizeSshTarget(cfg.gateway?.remote?.sshTarget);
@@ -112,9 +107,7 @@ export async function gatewayStatusCommand(
             const base = user ? `${user}@${host.trim()}` : host.trim();
             return sshPort !== 22 ? `${base}:${sshPort}` : base;
           })
-          .filter((candidate): candidate is string =>
-            Boolean(candidate && parseSshTarget(candidate)),
-          );
+          .filter((x): x is string => Boolean(x));
         if (candidates.length > 0) sshTarget = candidates[0] ?? null;
       }
 
@@ -281,11 +274,10 @@ export async function gatewayStatusCommand(
 
   runtime.log("");
   runtime.log(colorize(rich, theme.heading, "Discovery (this machine)"));
-  const discoveryDomains = wideAreaDomain ? `local. + ${wideAreaDomain}` : "local.";
   runtime.log(
     discovery.length > 0
-      ? `Found ${discovery.length} gateway(s) via Bonjour (${discoveryDomains})`
-      : `Found 0 gateways via Bonjour (${discoveryDomains})`,
+      ? `Found ${discovery.length} gateway(s) via Bonjour (local. + moltbot.internal.)`
+      : "Found 0 gateways via Bonjour (local. + moltbot.internal.)",
   );
   if (discovery.length === 0) {
     runtime.log(

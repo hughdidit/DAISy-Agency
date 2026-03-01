@@ -2,7 +2,7 @@ import { getOAuthApiKey, type OAuthCredentials, type OAuthProvider } from "@mari
 import lockfile from "proper-lockfile";
 <<<<<<< HEAD
 
-import type { OpenClawConfig } from "../../config/config.js";
+import type { MoltbotConfig } from "../../config/config.js";
 import { refreshChutesTokens } from "../chutes-oauth.js";
 =======
 import type { OpenClawConfig } from "../../config/config.js";
@@ -89,7 +89,7 @@ async function refreshOAuthTokenWithLock(params: {
 }
 
 async function tryResolveOAuthProfile(params: {
-  cfg?: OpenClawConfig;
+  cfg?: MoltbotConfig;
   store: AuthProfileStore;
   profileId: string;
   agentDir?: string;
@@ -122,7 +122,7 @@ async function tryResolveOAuthProfile(params: {
 }
 
 export async function resolveApiKeyForProfile(params: {
-  cfg?: OpenClawConfig;
+  cfg?: MoltbotConfig;
   store: AuthProfileStore;
   profileId: string;
   agentDir?: string;

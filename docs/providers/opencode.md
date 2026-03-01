@@ -1,5 +1,5 @@
 ---
-summary: "Use OpenCode Zen (curated models) with OpenClaw"
+summary: "Use OpenCode Zen (curated models) with Moltbot"
 read_when:
   - You want OpenCode Zen for model access
   - You want a curated list of coding-friendly models
@@ -14,9 +14,9 @@ Zen is currently in beta.
 ## CLI setup
 
 ```bash
-openclaw onboard --auth-choice opencode-zen
+moltbot onboard --auth-choice opencode-zen
 # or non-interactive
-openclaw onboard --opencode-zen-api-key "$OPENCODE_API_KEY"
+moltbot onboard --opencode-zen-api-key "$OPENCODE_API_KEY"
 ```
 
 ## Config snippet
@@ -24,11 +24,7 @@ openclaw onboard --opencode-zen-api-key "$OPENCODE_API_KEY"
 ```json5
 {
   env: { OPENCODE_API_KEY: "sk-..." },
-<<<<<<< HEAD
   agents: { defaults: { model: { primary: "opencode/claude-opus-4-5" } } }
-=======
-  agents: { defaults: { model: { primary: "opencode/claude-opus-4-6" } } },
->>>>>>> 462905440 (chore: apply local workspace updates (#9911))
 }
 ```
 

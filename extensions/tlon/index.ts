@@ -14,7 +14,7 @@ const plugin = {
   name: "Tlon",
   description: "Tlon/Urbit channel plugin",
   configSchema: emptyPluginConfigSchema(),
-  register(api: OpenClawPluginApi) {
+  register(api: MoltbotPluginApi) {
     setTlonRuntime(api.runtime);
     api.registerChannel({ plugin: tlonPlugin });
   },

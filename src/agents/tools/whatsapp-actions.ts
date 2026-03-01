@@ -10,7 +10,7 @@ import { createActionGate, jsonResult, readReactionParams, readStringParam } fro
 
 export async function handleWhatsAppAction(
   params: Record<string, unknown>,
-  cfg: OpenClawConfig,
+  cfg: MoltbotConfig,
 ): Promise<AgentToolResult<unknown>> {
   const action = readStringParam(params, "action", { required: true });
   const isActionEnabled = createActionGate(cfg.channels?.whatsapp?.actions);

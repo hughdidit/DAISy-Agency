@@ -1,24 +1,17 @@
 import type { OAuthCredentials } from "@mariozechner/pi-ai";
-import { resolveOpenClawAgentDir } from "../agents/agent-paths.js";
+import { resolveMoltbotAgentDir } from "../agents/agent-paths.js";
 import { upsertAuthProfile } from "../agents/auth-profiles.js";
 
-const resolveAuthAgentDir = (agentDir?: string) => agentDir ?? resolveOpenClawAgentDir();
+const resolveAuthAgentDir = (agentDir?: string) => agentDir ?? resolveMoltbotAgentDir();
 
 export async function writeOAuthCredentials(
   provider: string,
   creds: OAuthCredentials,
   agentDir?: string,
 ): Promise<void> {
-<<<<<<< HEAD
   // Write to resolved agent dir so gateway finds credentials on startup.
   upsertAuthProfile({
     profileId: `${provider}:${creds.email ?? "default"}`,
-=======
-  const email =
-    typeof creds.email === "string" && creds.email.trim() ? creds.email.trim() : "default";
-  upsertAuthProfile({
-    profileId: `${provider}:${email}`,
->>>>>>> 08ed62852 (chore: update deps and pi model discovery)
     credential: {
       type: "oauth",
       provider,
@@ -121,7 +114,7 @@ export async function setVeniceApiKey(key: string, agentDir?: string) {
 
 export const ZAI_DEFAULT_MODEL_REF = "zai/glm-4.7";
 export const OPENROUTER_DEFAULT_MODEL_REF = "openrouter/auto";
-export const VERCEL_AI_GATEWAY_DEFAULT_MODEL_REF = "vercel-ai-gateway/anthropic/claude-opus-4.6";
+export const VERCEL_AI_GATEWAY_DEFAULT_MODEL_REF = "vercel-ai-gateway/anthropic/claude-opus-4.5";
 
 export async function setZaiApiKey(key: string, agentDir?: string) {
   // Write to resolved agent dir so gateway finds credentials on startup.

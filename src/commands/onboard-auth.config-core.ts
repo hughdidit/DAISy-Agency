@@ -35,7 +35,7 @@ import {
   MOONSHOT_DEFAULT_MODEL_REF,
 } from "./onboard-auth.models.js";
 
-export function applyZaiConfig(cfg: OpenClawConfig): OpenClawConfig {
+export function applyZaiConfig(cfg: MoltbotConfig): MoltbotConfig {
   const models = { ...cfg.agents?.defaults?.models };
   models[ZAI_DEFAULT_MODEL_REF] = {
     ...models[ZAI_DEFAULT_MODEL_REF],
@@ -63,7 +63,7 @@ export function applyZaiConfig(cfg: OpenClawConfig): OpenClawConfig {
   };
 }
 
-export function applyOpenrouterProviderConfig(cfg: OpenClawConfig): OpenClawConfig {
+export function applyOpenrouterProviderConfig(cfg: MoltbotConfig): MoltbotConfig {
   const models = { ...cfg.agents?.defaults?.models };
   models[OPENROUTER_DEFAULT_MODEL_REF] = {
     ...models[OPENROUTER_DEFAULT_MODEL_REF],
@@ -82,7 +82,7 @@ export function applyOpenrouterProviderConfig(cfg: OpenClawConfig): OpenClawConf
   };
 }
 
-export function applyVercelAiGatewayProviderConfig(cfg: OpenClawConfig): OpenClawConfig {
+export function applyVercelAiGatewayProviderConfig(cfg: MoltbotConfig): MoltbotConfig {
   const models = { ...cfg.agents?.defaults?.models };
   models[VERCEL_AI_GATEWAY_DEFAULT_MODEL_REF] = {
     ...models[VERCEL_AI_GATEWAY_DEFAULT_MODEL_REF],
@@ -101,7 +101,7 @@ export function applyVercelAiGatewayProviderConfig(cfg: OpenClawConfig): OpenCla
   };
 }
 
-export function applyVercelAiGatewayConfig(cfg: OpenClawConfig): OpenClawConfig {
+export function applyVercelAiGatewayConfig(cfg: MoltbotConfig): MoltbotConfig {
   const next = applyVercelAiGatewayProviderConfig(cfg);
   const existingModel = next.agents?.defaults?.model;
   return {
@@ -123,7 +123,7 @@ export function applyVercelAiGatewayConfig(cfg: OpenClawConfig): OpenClawConfig 
   };
 }
 
-export function applyOpenrouterConfig(cfg: OpenClawConfig): OpenClawConfig {
+export function applyOpenrouterConfig(cfg: MoltbotConfig): MoltbotConfig {
   const next = applyOpenrouterProviderConfig(cfg);
   const existingModel = next.agents?.defaults?.model;
   return {
@@ -145,7 +145,7 @@ export function applyOpenrouterConfig(cfg: OpenClawConfig): OpenClawConfig {
   };
 }
 
-export function applyMoonshotProviderConfig(cfg: OpenClawConfig): OpenClawConfig {
+export function applyMoonshotProviderConfig(cfg: MoltbotConfig): MoltbotConfig {
   const models = { ...cfg.agents?.defaults?.models };
   models[MOONSHOT_DEFAULT_MODEL_REF] = {
     ...models[MOONSHOT_DEFAULT_MODEL_REF],
@@ -188,7 +188,7 @@ export function applyMoonshotProviderConfig(cfg: OpenClawConfig): OpenClawConfig
   };
 }
 
-export function applyMoonshotConfig(cfg: OpenClawConfig): OpenClawConfig {
+export function applyMoonshotConfig(cfg: MoltbotConfig): MoltbotConfig {
   const next = applyMoonshotProviderConfig(cfg);
   const existingModel = next.agents?.defaults?.model;
   return {
@@ -210,7 +210,7 @@ export function applyMoonshotConfig(cfg: OpenClawConfig): OpenClawConfig {
   };
 }
 
-export function applyKimiCodeProviderConfig(cfg: OpenClawConfig): OpenClawConfig {
+export function applyKimiCodeProviderConfig(cfg: MoltbotConfig): MoltbotConfig {
   const models = { ...cfg.agents?.defaults?.models };
   models[KIMI_CODE_MODEL_REF] = {
     ...models[KIMI_CODE_MODEL_REF],
@@ -253,7 +253,7 @@ export function applyKimiCodeProviderConfig(cfg: OpenClawConfig): OpenClawConfig
   };
 }
 
-export function applyKimiCodeConfig(cfg: OpenClawConfig): OpenClawConfig {
+export function applyKimiCodeConfig(cfg: MoltbotConfig): MoltbotConfig {
   const next = applyKimiCodeProviderConfig(cfg);
   const existingModel = next.agents?.defaults?.model;
   return {
@@ -275,7 +275,7 @@ export function applyKimiCodeConfig(cfg: OpenClawConfig): OpenClawConfig {
   };
 }
 
-export function applySyntheticProviderConfig(cfg: OpenClawConfig): OpenClawConfig {
+export function applySyntheticProviderConfig(cfg: MoltbotConfig): MoltbotConfig {
   const models = { ...cfg.agents?.defaults?.models };
   models[SYNTHETIC_DEFAULT_MODEL_REF] = {
     ...models[SYNTHETIC_DEFAULT_MODEL_REF],
@@ -322,7 +322,7 @@ export function applySyntheticProviderConfig(cfg: OpenClawConfig): OpenClawConfi
   };
 }
 
-export function applySyntheticConfig(cfg: OpenClawConfig): OpenClawConfig {
+export function applySyntheticConfig(cfg: MoltbotConfig): MoltbotConfig {
   const next = applySyntheticProviderConfig(cfg);
   const existingModel = next.agents?.defaults?.model;
   return {
@@ -348,7 +348,7 @@ export function applySyntheticConfig(cfg: OpenClawConfig): OpenClawConfig {
  * Apply Venice provider configuration without changing the default model.
  * Registers Venice models and sets up the provider, but preserves existing model selection.
  */
-export function applyVeniceProviderConfig(cfg: OpenClawConfig): OpenClawConfig {
+export function applyVeniceProviderConfig(cfg: MoltbotConfig): MoltbotConfig {
   const models = { ...cfg.agents?.defaults?.models };
   models[VENICE_DEFAULT_MODEL_REF] = {
     ...models[VENICE_DEFAULT_MODEL_REF],
@@ -397,7 +397,7 @@ export function applyVeniceProviderConfig(cfg: OpenClawConfig): OpenClawConfig {
  * Apply Venice provider configuration AND set Venice as the default model.
  * Use this when Venice is the primary provider choice during onboarding.
  */
-export function applyVeniceConfig(cfg: OpenClawConfig): OpenClawConfig {
+export function applyVeniceConfig(cfg: MoltbotConfig): MoltbotConfig {
   const next = applyVeniceProviderConfig(cfg);
   const existingModel = next.agents?.defaults?.model;
   return {
@@ -420,7 +420,7 @@ export function applyVeniceConfig(cfg: OpenClawConfig): OpenClawConfig {
 }
 
 export function applyAuthProfileConfig(
-  cfg: OpenClawConfig,
+  cfg: MoltbotConfig,
   params: {
     profileId: string;
     provider: string;
@@ -428,7 +428,7 @@ export function applyAuthProfileConfig(
     email?: string;
     preferProfileFirst?: boolean;
   },
-): OpenClawConfig {
+): MoltbotConfig {
   const profiles = {
     ...cfg.auth?.profiles,
     [params.profileId]: {

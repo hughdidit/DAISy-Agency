@@ -14,28 +14,28 @@ import type { NostrProfile } from "./types";
 >>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { createNostrProfileFormState } from "./views/channels.nostr-profile-form";
 
-export async function handleWhatsAppStart(host: OpenClawApp, force: boolean) {
+export async function handleWhatsAppStart(host: MoltbotApp, force: boolean) {
   await startWhatsAppLogin(host, force);
   await loadChannels(host, true);
 }
 
-export async function handleWhatsAppWait(host: OpenClawApp) {
+export async function handleWhatsAppWait(host: MoltbotApp) {
   await waitWhatsAppLogin(host);
   await loadChannels(host, true);
 }
 
-export async function handleWhatsAppLogout(host: OpenClawApp) {
+export async function handleWhatsAppLogout(host: MoltbotApp) {
   await logoutWhatsApp(host);
   await loadChannels(host, true);
 }
 
-export async function handleChannelConfigSave(host: OpenClawApp) {
+export async function handleChannelConfigSave(host: MoltbotApp) {
   await saveConfig(host);
   await loadConfig(host);
   await loadChannels(host, true);
 }
 
-export async function handleChannelConfigReload(host: OpenClawApp) {
+export async function handleChannelConfigReload(host: MoltbotApp) {
   await loadConfig(host);
   await loadChannels(host, true);
 }
@@ -54,7 +54,7 @@ function parseValidationErrors(details: unknown): Record<string, string> {
   return errors;
 }
 
-function resolveNostrAccountId(host: OpenClawApp): string {
+function resolveNostrAccountId(host: MoltbotApp): string {
   const accounts = host.channelsSnapshot?.channelAccounts?.nostr ?? [];
   return accounts[0]?.accountId ?? host.nostrProfileAccountId ?? "default";
 }
@@ -64,7 +64,7 @@ function buildNostrProfileUrl(accountId: string, suffix = ""): string {
 }
 
 export function handleNostrProfileEdit(
-  host: OpenClawApp,
+  host: MoltbotApp,
   accountId: string,
   profile: NostrProfile | null,
 ) {
@@ -72,13 +72,13 @@ export function handleNostrProfileEdit(
   host.nostrProfileFormState = createNostrProfileFormState(profile ?? undefined);
 }
 
-export function handleNostrProfileCancel(host: OpenClawApp) {
+export function handleNostrProfileCancel(host: MoltbotApp) {
   host.nostrProfileFormState = null;
   host.nostrProfileAccountId = null;
 }
 
 export function handleNostrProfileFieldChange(
-  host: OpenClawApp,
+  host: MoltbotApp,
   field: keyof NostrProfile,
   value: string,
 ) {
@@ -97,7 +97,7 @@ export function handleNostrProfileFieldChange(
   };
 }
 
-export function handleNostrProfileToggleAdvanced(host: OpenClawApp) {
+export function handleNostrProfileToggleAdvanced(host: MoltbotApp) {
   const state = host.nostrProfileFormState;
   if (!state) return;
   host.nostrProfileFormState = {
@@ -106,7 +106,7 @@ export function handleNostrProfileToggleAdvanced(host: OpenClawApp) {
   };
 }
 
-export async function handleNostrProfileSave(host: OpenClawApp) {
+export async function handleNostrProfileSave(host: MoltbotApp) {
   const state = host.nostrProfileFormState;
   if (!state || state.saving) return;
   const accountId = resolveNostrAccountId(host);
@@ -172,7 +172,7 @@ export async function handleNostrProfileSave(host: OpenClawApp) {
   }
 }
 
-export async function handleNostrProfileImport(host: OpenClawApp) {
+export async function handleNostrProfileImport(host: MoltbotApp) {
   const state = host.nostrProfileFormState;
   if (!state || state.importing) return;
   const accountId = resolveNostrAccountId(host);

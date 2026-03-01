@@ -100,7 +100,7 @@ type BuildTelegramMessageContextParams = {
   storeAllowFrom: string[];
   options?: TelegramMessageContextOptions;
   bot: Bot;
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   account: { accountId: string };
   historyLimit: number;
   groupHistories: Map<string, HistoryEntry[]>;
@@ -115,7 +115,7 @@ type BuildTelegramMessageContextParams = {
 };
 
 async function resolveStickerVisionSupport(params: {
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   agentId?: string;
 }): Promise<boolean> {
   try {
@@ -276,14 +276,14 @@ export const buildTelegramMessageContext = async ({
                   bot.api.sendMessage(
                     chatId,
                     [
-                      "OpenClaw: access not configured.",
+                      "Moltbot: access not configured.",
                       "",
                       `Your Telegram user id: ${telegramUserId}`,
                       "",
                       `Pairing code: ${code}`,
                       "",
                       "Ask the bot owner to approve with:",
-                      formatCliCommand("openclaw pairing approve telegram <code>"),
+                      formatCliCommand("moltbot pairing approve telegram <code>"),
                     ].join("\n"),
                   ),
               });

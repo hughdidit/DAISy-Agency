@@ -125,7 +125,7 @@ function selectProbeModel(params: {
 }
 
 function buildProbeTargets(params: {
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   providers: string[];
   modelCandidates: string[];
   options: AuthProbeOptions;
@@ -268,7 +268,7 @@ function buildProbeTargets(params: {
 }
 
 async function probeTarget(params: {
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   agentId: string;
   agentDir: string;
   workspaceDir: string;
@@ -343,7 +343,7 @@ async function probeTarget(params: {
 }
 
 async function runTargetsWithConcurrency(params: {
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   targets: AuthProbeTarget[];
   timeoutMs: number;
   maxTokens: number;
@@ -354,7 +354,7 @@ async function runTargetsWithConcurrency(params: {
   const concurrency = Math.max(1, Math.min(targets.length || 1, params.concurrency));
 
   const agentId = resolveDefaultAgentId(cfg);
-  const agentDir = resolveOpenClawAgentDir();
+  const agentDir = resolveMoltbotAgentDir();
   const workspaceDir = resolveAgentWorkspaceDir(cfg, agentId) ?? resolveDefaultAgentWorkspaceDir();
   const sessionDir = resolveSessionTranscriptsDirForAgent(agentId);
 
@@ -397,7 +397,7 @@ async function runTargetsWithConcurrency(params: {
 }
 
 export async function runAuthProbes(params: {
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   providers: string[];
   modelCandidates: string[];
   options: AuthProbeOptions;

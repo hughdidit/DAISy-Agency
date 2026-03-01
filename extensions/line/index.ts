@@ -16,7 +16,7 @@ const plugin = {
   name: "LINE",
   description: "LINE Messaging API channel plugin",
   configSchema: emptyPluginConfigSchema(),
-  register(api: OpenClawPluginApi) {
+  register(api: MoltbotPluginApi) {
     setLineRuntime(api.runtime);
     api.registerChannel({ plugin: linePlugin });
     registerLineCardCommand(api);

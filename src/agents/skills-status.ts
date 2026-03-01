@@ -151,7 +151,7 @@ function normalizeInstallOptions(
 
 function buildSkillStatus(
   entry: SkillEntry,
-  config?: OpenClawConfig,
+  config?: MoltbotConfig,
   prefs?: SkillsInstallPreferences,
   eligibility?: SkillEligibilityContext,
 ): SkillStatusEntry {
@@ -261,7 +261,7 @@ function buildSkillStatus(
 export function buildWorkspaceSkillStatus(
   workspaceDir: string,
   opts?: {
-    config?: OpenClawConfig;
+    config?: MoltbotConfig;
     managedSkillsDir?: string;
     entries?: SkillEntry[];
     eligibility?: SkillEligibilityContext;

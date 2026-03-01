@@ -52,7 +52,7 @@ async function loadBootFile(
 }
 
 export async function runBootOnce(params: {
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   deps: CliDeps;
   workspaceDir: string;
 }): Promise<BootRunResult> {

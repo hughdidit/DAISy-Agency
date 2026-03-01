@@ -23,7 +23,7 @@ function isTruthy(value: unknown): boolean {
   return true;
 }
 
-export function resolveConfigPath(config: OpenClawConfig | undefined, pathStr: string) {
+export function resolveConfigPath(config: MoltbotConfig | undefined, pathStr: string) {
   const parts = pathStr.split(".").filter(Boolean);
   let current: unknown = config;
   for (const part of parts) {
@@ -33,7 +33,7 @@ export function resolveConfigPath(config: OpenClawConfig | undefined, pathStr: s
   return current;
 }
 
-export function isConfigPathTruthy(config: OpenClawConfig | undefined, pathStr: string): boolean {
+export function isConfigPathTruthy(config: MoltbotConfig | undefined, pathStr: string): boolean {
   const value = resolveConfigPath(config, pathStr);
   if (value === undefined && pathStr in DEFAULT_CONFIG_VALUES) {
     return DEFAULT_CONFIG_VALUES[pathStr] === true;
@@ -42,7 +42,7 @@ export function isConfigPathTruthy(config: OpenClawConfig | undefined, pathStr: 
 }
 
 export function resolveHookConfig(
-  config: OpenClawConfig | undefined,
+  config: MoltbotConfig | undefined,
   hookKey: string,
 ): HookConfig | undefined {
   const hooks = config?.hooks?.internal?.entries;
@@ -73,13 +73,13 @@ export function hasBinary(bin: string): boolean {
 
 export function shouldIncludeHook(params: {
   entry: HookEntry;
-  config?: OpenClawConfig;
+  config?: MoltbotConfig;
   eligibility?: HookEligibilityContext;
 }): boolean {
   const { entry, config, eligibility } = params;
   const hookKey = resolveHookKey(entry.hook.name, entry);
   const hookConfig = resolveHookConfig(config, hookKey);
-  const pluginManaged = entry.hook.source === "openclaw-plugin";
+  const pluginManaged = entry.hook.source === "moltbot-plugin";
   const osList = entry.metadata?.os ?? [];
   const remotePlatforms = eligibility?.remote?.platforms ?? [];
 

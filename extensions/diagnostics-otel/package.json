@@ -24,8 +24,8 @@
   "description": "OpenClaw diagnostics OpenTelemetry exporter",
 >>>>>>> 1c4db9159 (chore: prepare 2026.2.2 release)
   "type": "module",
-  "description": "OpenClaw diagnostics OpenTelemetry exporter",
-  "openclaw": {
+  "description": "Moltbot diagnostics OpenTelemetry exporter",
+  "moltbot": {
     "extensions": [
       "./index.ts"
     ]
@@ -42,16 +42,5 @@
     "@opentelemetry/sdk-node": "^0.211.0",
     "@opentelemetry/sdk-trace-base": "^2.5.0",
     "@opentelemetry/semantic-conventions": "^1.39.0"
-<<<<<<< HEAD
-=======
-  },
-  "devDependencies": {
-    "openclaw": "workspace:*"
-  },
-  "openclaw": {
-    "extensions": [
-      "./index.ts"
-    ]
->>>>>>> aa91f6e70 (chore: Add `openclaw` to `devDependencies` for all extensions so that types resolve.)
   }
 }

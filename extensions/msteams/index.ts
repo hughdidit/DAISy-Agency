@@ -14,7 +14,7 @@ const plugin = {
   name: "Microsoft Teams",
   description: "Microsoft Teams channel plugin (Bot Framework)",
   configSchema: emptyPluginConfigSchema(),
-  register(api: OpenClawPluginApi) {
+  register(api: MoltbotPluginApi) {
     setMSTeamsRuntime(api.runtime);
     api.registerChannel({ plugin: msteamsPlugin });
   },

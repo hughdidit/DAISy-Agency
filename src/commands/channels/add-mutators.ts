@@ -10,11 +10,11 @@ import { normalizeAccountId } from "../../routing/session-key.js";
 type ChatChannel = ChannelId;
 
 export function applyAccountName(params: {
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   channel: ChatChannel;
   accountId: string;
   name?: string;
-}): OpenClawConfig {
+}): MoltbotConfig {
   const accountId = normalizeAccountId(params.accountId);
   const plugin = getChannelPlugin(params.channel);
   const apply = plugin?.setup?.applyAccountName;
@@ -22,7 +22,7 @@ export function applyAccountName(params: {
 }
 
 export function applyChannelAccountConfig(params: {
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   channel: ChatChannel;
   accountId: string;
   name?: string;
@@ -56,7 +56,7 @@ export function applyChannelAccountConfig(params: {
   groupChannels?: string[];
   dmAllowlist?: string[];
   autoDiscoverChannels?: boolean;
-}): OpenClawConfig {
+}): MoltbotConfig {
   const accountId = normalizeAccountId(params.accountId);
   const plugin = getChannelPlugin(params.channel);
   const apply = plugin?.setup?.applyAccountConfig;

@@ -27,7 +27,7 @@ import { resolveNonInteractiveWorkspaceDir } from "./local/workspace.js";
 export async function runNonInteractiveOnboardingLocal(params: {
   opts: OnboardOptions;
   runtime: RuntimeEnv;
-  baseConfig: OpenClawConfig;
+  baseConfig: MoltbotConfig;
 }) {
   const { opts, runtime, baseConfig } = params;
   const mode = "local" as const;
@@ -38,7 +38,7 @@ export async function runNonInteractiveOnboardingLocal(params: {
     defaultWorkspaceDir: DEFAULT_WORKSPACE,
   });
 
-  let nextConfig: OpenClawConfig = {
+  let nextConfig: MoltbotConfig = {
     ...baseConfig,
     agents: {
       ...baseConfig.agents,
@@ -128,7 +128,7 @@ export async function runNonInteractiveOnboardingLocal(params: {
 
   if (!opts.json) {
     runtime.log(
-      `Tip: run \`${formatCliCommand("openclaw configure --section web")}\` to store your Brave API key for web_search. Docs: https://docs.openclaw.ai/tools/web`,
+      `Tip: run \`${formatCliCommand("moltbot configure --section web")}\` to store your Brave API key for web_search. Docs: https://docs.molt.bot/tools/web`,
     );
   }
 }

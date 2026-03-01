@@ -18,7 +18,7 @@ import { maskApiKey } from "./list.format.js";
 
 export function resolveProviderAuthOverview(params: {
   provider: string;
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   store: AuthProfileStore;
   modelsPath: string;
 }): ProviderAuthOverview {

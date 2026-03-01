@@ -18,7 +18,7 @@ read_when:
 <<<<<<< HEAD
 Moltbot’s runtime baseline is **Node 22+**.
 
-If you can run `npm install -g openclaw@latest` but later see `openclaw: command not found`, it’s almost always a **PATH** issue: the directory where npm puts global binaries isn’t on your shell’s PATH.
+If you can run `npm install -g moltbot@latest` but later see `moltbot: command not found`, it’s almost always a **PATH** issue: the directory where npm puts global binaries isn’t on your shell’s PATH.
 
 ## Quick diagnosis
 

@@ -20,7 +20,7 @@ import { addWildcardAllowFrom, promptAccountId } from "./helpers.js";
 
 const channel = "imessage" as const;
 
-function setIMessageDmPolicy(cfg: OpenClawConfig, dmPolicy: DmPolicy) {
+function setIMessageDmPolicy(cfg: MoltbotConfig, dmPolicy: DmPolicy) {
   const allowFrom =
     dmPolicy === "open" ? addWildcardAllowFrom(cfg.channels?.imessage?.allowFrom) : undefined;
   return {
@@ -37,10 +37,10 @@ function setIMessageDmPolicy(cfg: OpenClawConfig, dmPolicy: DmPolicy) {
 }
 
 function setIMessageAllowFrom(
-  cfg: OpenClawConfig,
+  cfg: MoltbotConfig,
   accountId: string,
   allowFrom: string[],
-): OpenClawConfig {
+): MoltbotConfig {
   if (accountId === DEFAULT_ACCOUNT_ID) {
     return {
       ...cfg,
@@ -79,10 +79,10 @@ function parseIMessageAllowFromInput(raw: string): string[] {
 }
 
 async function promptIMessageAllowFrom(params: {
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   prompter: WizardPrompter;
   accountId?: string;
-}): Promise<OpenClawConfig> {
+}): Promise<MoltbotConfig> {
   const accountId =
     params.accountId && normalizeAccountId(params.accountId)
       ? (normalizeAccountId(params.accountId) ?? DEFAULT_ACCOUNT_ID)
@@ -245,7 +245,7 @@ export const imessageOnboardingAdapter: ChannelOnboardingAdapter = {
     await prompter.note(
       [
         "This is still a work in progress.",
-        "Ensure OpenClaw has Full Disk Access to Messages DB.",
+        "Ensure Moltbot has Full Disk Access to Messages DB.",
         "Grant Automation permission for Messages when prompted.",
         "List chats with: imsg chats --limit 20",
         `Docs: ${formatDocsLink("/imessage", "imessage")}`,

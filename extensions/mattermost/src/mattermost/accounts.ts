@@ -29,26 +29,26 @@ export type ResolvedMattermostAccount = {
   blockStreamingCoalesce?: MattermostAccountConfig["blockStreamingCoalesce"];
 };
 
-function listConfiguredAccountIds(cfg: OpenClawConfig): string[] {
+function listConfiguredAccountIds(cfg: MoltbotConfig): string[] {
   const accounts = cfg.channels?.mattermost?.accounts;
   if (!accounts || typeof accounts !== "object") return [];
   return Object.keys(accounts).filter(Boolean);
 }
 
-export function listMattermostAccountIds(cfg: OpenClawConfig): string[] {
+export function listMattermostAccountIds(cfg: MoltbotConfig): string[] {
   const ids = listConfiguredAccountIds(cfg);
   if (ids.length === 0) return [DEFAULT_ACCOUNT_ID];
   return ids.sort((a, b) => a.localeCompare(b));
 }
 
-export function resolveDefaultMattermostAccountId(cfg: OpenClawConfig): string {
+export function resolveDefaultMattermostAccountId(cfg: MoltbotConfig): string {
   const ids = listMattermostAccountIds(cfg);
   if (ids.includes(DEFAULT_ACCOUNT_ID)) return DEFAULT_ACCOUNT_ID;
   return ids[0] ?? DEFAULT_ACCOUNT_ID;
 }
 
 function resolveAccountConfig(
-  cfg: OpenClawConfig,
+  cfg: MoltbotConfig,
   accountId: string,
 ): MattermostAccountConfig | undefined {
   const accounts = cfg.channels?.mattermost?.accounts;
@@ -57,7 +57,7 @@ function resolveAccountConfig(
 }
 
 function mergeMattermostAccountConfig(
-  cfg: OpenClawConfig,
+  cfg: MoltbotConfig,
   accountId: string,
 ): MattermostAccountConfig {
   const { accounts: _ignored, ...base } = (cfg.channels?.mattermost ??
@@ -74,7 +74,7 @@ function resolveMattermostRequireMention(config: MattermostAccountConfig): boole
 }
 
 export function resolveMattermostAccount(params: {
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   accountId?: string | null;
 }): ResolvedMattermostAccount {
   const accountId = normalizeAccountId(params.accountId);
@@ -113,7 +113,7 @@ export function resolveMattermostAccount(params: {
   };
 }
 
-export function listEnabledMattermostAccounts(cfg: OpenClawConfig): ResolvedMattermostAccount[] {
+export function listEnabledMattermostAccounts(cfg: MoltbotConfig): ResolvedMattermostAccount[] {
   return listMattermostAccountIds(cfg)
     .map((accountId) => resolveMattermostAccount({ cfg, accountId }))
     .filter((account) => account.enabled);

@@ -22,7 +22,7 @@ type ResolveTelegramTokenOpts = {
 };
 
 export function resolveTelegramToken(
-  cfg?: OpenClawConfig,
+  cfg?: MoltbotConfig,
   opts: ResolveTelegramTokenOpts = {},
 ): TelegramTokenResolution {
   const accountId = normalizeAccountId(opts.accountId);

@@ -19,7 +19,7 @@ import {
 } from "../../infra/outbound/targets.js";
 
 export async function resolveDeliveryTarget(
-  cfg: OpenClawConfig,
+  cfg: MoltbotConfig,
   agentId: string,
   jobPayload: {
     channel?: "last" | ChannelId;

@@ -1,4 +1,4 @@
-# OpenClaw (iOS)
+# Clawdbot (iOS)
 
 This is an **alpha** iOS app that connects to an OpenClaw Gateway as a `role: node`.
 

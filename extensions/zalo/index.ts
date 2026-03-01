@@ -15,7 +15,7 @@ const plugin = {
   name: "Zalo",
   description: "Zalo channel plugin (Bot API)",
   configSchema: emptyPluginConfigSchema(),
-  register(api: OpenClawPluginApi) {
+  register(api: MoltbotPluginApi) {
     setZaloRuntime(api.runtime);
     api.registerChannel({ plugin: zaloPlugin, dock: zaloDock });
     api.registerHttpHandler(handleZaloWebhookRequest);

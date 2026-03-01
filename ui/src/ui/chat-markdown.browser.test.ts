@@ -6,27 +6,27 @@ import { MoltbotApp } from "./app";
 import { OpenClawApp } from "./app";
 >>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 
-const originalConnect = OpenClawApp.prototype.connect;
+const originalConnect = MoltbotApp.prototype.connect;
 
 function mountApp(pathname: string) {
   window.history.replaceState({}, "", pathname);
-  const app = document.createElement("openclaw-app") as OpenClawApp;
+  const app = document.createElement("moltbot-app") as MoltbotApp;
   document.body.append(app);
   return app;
 }
 
 beforeEach(() => {
-  OpenClawApp.prototype.connect = () => {
+  MoltbotApp.prototype.connect = () => {
     // no-op: avoid real gateway WS connections in browser tests
   };
-  window.__OPENCLAW_CONTROL_UI_BASE_PATH__ = undefined;
+  window.__CLAWDBOT_CONTROL_UI_BASE_PATH__ = undefined;
   localStorage.clear();
   document.body.innerHTML = "";
 });
 
 afterEach(() => {
-  OpenClawApp.prototype.connect = originalConnect;
-  window.__OPENCLAW_CONTROL_UI_BASE_PATH__ = undefined;
+  MoltbotApp.prototype.connect = originalConnect;
+  window.__CLAWDBOT_CONTROL_UI_BASE_PATH__ = undefined;
   localStorage.clear();
   document.body.innerHTML = "";
 });

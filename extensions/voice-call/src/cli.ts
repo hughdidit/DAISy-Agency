@@ -24,21 +24,9 @@ function resolveMode(input: string): "off" | "serve" | "funnel" {
 }
 
 function resolveDefaultStorePath(config: VoiceCallConfig): string {
-  const preferred = path.join(os.homedir(), ".openclaw", "voice-calls");
-  const resolvedPreferred = resolveUserPath(preferred);
-  const existing =
-    [resolvedPreferred].find((dir) => {
-      try {
-        return (
-          fs.existsSync(path.join(dir, "calls.jsonl")) ||
-          fs.existsSync(dir)
-        );
-      } catch {
-        return false;
-      }
-    }) ?? resolvedPreferred;
-  const base = config.store?.trim() ? resolveUserPath(config.store) : existing;
-  return path.join(base, "calls.jsonl");
+  const base =
+    config.store?.trim() || path.join(os.homedir(), "clawd", "voice-calls");
+  return path.join(resolveUserPath(base), "calls.jsonl");
 }
 
 function sleep(ms: number): Promise<void> {
@@ -55,7 +43,7 @@ export function registerVoiceCallCli(params: {
   const root = program
     .command("voicecall")
     .description("Voice call utilities")
-    .addHelpText("after", () => `\nDocs: https://docs.openclaw.ai/cli/voicecall\n`);
+    .addHelpText("after", () => `\nDocs: https://docs.molt.bot/cli/voicecall\n`);
 
   root
     .command("call")

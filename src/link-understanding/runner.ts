@@ -103,7 +103,7 @@ async function runLinkEntries(params: {
 }
 
 export async function runLinkUnderstanding(params: {
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   ctx: MsgContext;
   message?: string;
 }): Promise<LinkUnderstandingResult> {

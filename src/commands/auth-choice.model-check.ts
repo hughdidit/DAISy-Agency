@@ -14,7 +14,7 @@ import type { WizardPrompter } from "../wizard/prompts.js";
 import { OPENAI_CODEX_DEFAULT_MODEL } from "./openai-codex-model-default.js";
 
 export async function warnIfModelConfigLooksOff(
-  config: OpenClawConfig,
+  config: MoltbotConfig,
   prompter: WizardPrompter,
   options?: { agentId?: string; agentDir?: string },
 ) {

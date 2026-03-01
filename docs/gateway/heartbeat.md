@@ -65,7 +65,7 @@ stats” or “verify gateway health”), set `agents.defaults.heartbeat.prompt`
 ## Response contract
 
 - If nothing needs attention, reply with **`HEARTBEAT_OK`**.
-- During heartbeat runs, OpenClaw treats `HEARTBEAT_OK` as an ack when it appears
+- During heartbeat runs, Moltbot treats `HEARTBEAT_OK` as an ack when it appears
   at the **start or end** of the reply. The token is stripped and the reply is
   dropped if the remaining content is **≤ `ackMaxChars`** (default: 300).
 - If `HEARTBEAT_OK` appears in the **middle** of a reply, it is not treated
@@ -82,13 +82,8 @@ and logged; a message that is only `HEARTBEAT_OK` is dropped.
   agents: {
     defaults: {
       heartbeat: {
-<<<<<<< HEAD
         every: "30m",           // default: 30m (0m disables)
         model: "anthropic/claude-opus-4-5",
-=======
-        every: "30m", // default: 30m (0m disables)
-        model: "anthropic/claude-opus-4-6",
->>>>>>> 462905440 (chore: apply local workspace updates (#9911))
         includeReasoning: false, // default: false (deliver separate Reasoning: message when available)
         target: "last",         // last | none | <channel id> (core or plugin, e.g. "bluebubbles")
         to: "+15551234567",     // optional channel-specific override
@@ -209,7 +204,7 @@ Use `accountId` to target a specific account on multi-account channels like Tele
 - `includeReasoning`: when enabled, also deliver the separate `Reasoning:` message when available (same shape as `/reasoning on`).
 - `session`: optional session key for heartbeat runs.
   - `main` (default): agent main session.
-  - Explicit session key (copy from `openclaw sessions --json` or the [sessions CLI](/cli/sessions)).
+  - Explicit session key (copy from `moltbot sessions --json` or the [sessions CLI](/cli/sessions)).
   - Session key formats: see [Sessions](/concepts/session) and [Groups](/concepts/groups).
 - `target`:
   - `last` (default): deliver to the last used external channel.
@@ -268,7 +263,7 @@ Precedence: per-account → per-channel → channel defaults → built-in defaul
 - `showAlerts`: sends the alert content when the model returns a non-OK reply.
 - `useIndicator`: emits indicator events for UI status surfaces.
 
-If **all three** are false, OpenClaw skips the heartbeat run entirely (no model call).
+If **all three** are false, Moltbot skips the heartbeat run entirely (no model call).
 
 ### Per-channel vs per-account examples
 
@@ -307,7 +302,7 @@ agent to read it. Think of it as your “heartbeat checklist”: small, stable, 
 safe to include every 30 minutes.
 
 If `HEARTBEAT.md` exists but is effectively empty (only blank lines and markdown
-headers like `# Heading`), OpenClaw skips the heartbeat run to save API calls.
+headers like `# Heading`), Moltbot skips the heartbeat run to save API calls.
 If the file is missing, the heartbeat still runs and the model decides what to do.
 
 Keep it tiny (short checklist or reminders) to avoid prompt bloat.
@@ -343,7 +338,7 @@ Safety note: don’t put secrets (API keys, phone numbers, private tokens) into
 You can enqueue a system event and trigger an immediate heartbeat with:
 
 ```bash
-openclaw system event --text "Check for urgent follow-ups" --mode now
+moltbot system event --text "Check for urgent follow-ups" --mode now
 ```
 
 If multiple agents have `heartbeat` configured, a manual wake runs each of those

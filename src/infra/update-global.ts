@@ -9,9 +9,6 @@ export type CommandRunner = (
   options: { timeoutMs: number; cwd?: string; env?: NodeJS.ProcessEnv },
 ) => Promise<{ stdout: string; stderr: string; code: number | null }>;
 
-const PRIMARY_PACKAGE_NAME = "openclaw";
-const ALL_PACKAGE_NAMES = [PRIMARY_PACKAGE_NAME] as const;
-
 async function pathExists(targetPath: string): Promise<boolean> {
   try {
     await fs.access(targetPath);
@@ -54,7 +51,7 @@ export async function resolveGlobalPackageRoot(
 ): Promise<string | null> {
   const root = await resolveGlobalRoot(manager, runCommand, timeoutMs);
   if (!root) return null;
-  return path.join(root, PRIMARY_PACKAGE_NAME);
+  return path.join(root, "moltbot");
 }
 
 export async function detectGlobalInstallManagerForRoot(
@@ -78,18 +75,14 @@ export async function detectGlobalInstallManagerForRoot(
     const globalRoot = res.stdout.trim();
     if (!globalRoot) continue;
     const globalReal = await tryRealpath(globalRoot);
-    for (const name of ALL_PACKAGE_NAMES) {
-      const expected = path.join(globalReal, name);
-      if (path.resolve(expected) === path.resolve(pkgReal)) return manager;
-    }
+    const expected = path.join(globalReal, "moltbot");
+    if (path.resolve(expected) === path.resolve(pkgReal)) return manager;
   }
 
   const bunGlobalRoot = resolveBunGlobalRoot();
   const bunGlobalReal = await tryRealpath(bunGlobalRoot);
-  for (const name of ALL_PACKAGE_NAMES) {
-    const bunExpected = path.join(bunGlobalReal, name);
-    if (path.resolve(bunExpected) === path.resolve(pkgReal)) return "bun";
-  }
+  const bunExpected = path.join(bunGlobalReal, "moltbot");
+  if (path.resolve(bunExpected) === path.resolve(pkgReal)) return "bun";
 
   return null;
 }
@@ -101,15 +94,11 @@ export async function detectGlobalInstallManagerByPresence(
   for (const manager of ["npm", "pnpm"] as const) {
     const root = await resolveGlobalRoot(manager, runCommand, timeoutMs);
     if (!root) continue;
-    for (const name of ALL_PACKAGE_NAMES) {
-      if (await pathExists(path.join(root, name))) return manager;
-    }
+    if (await pathExists(path.join(root, "moltbot"))) return manager;
   }
 
   const bunRoot = resolveBunGlobalRoot();
-  for (const name of ALL_PACKAGE_NAMES) {
-    if (await pathExists(path.join(bunRoot, name))) return "bun";
-  }
+  if (await pathExists(path.join(bunRoot, "moltbot"))) return "bun";
   return null;
 }
 

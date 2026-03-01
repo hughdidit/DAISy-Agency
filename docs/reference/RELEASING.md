@@ -17,10 +17,10 @@ When the operator says “release”, immediately do this preflight (no extra qu
 - Use Sparkle keys from `~/Library/CloudStorage/Dropbox/Backup/Sparkle` if needed.
 
 1) **Version & metadata**
-- [ ] Bump `package.json` version (e.g., `2026.1.29`).
+- [ ] Bump `package.json` version (e.g., `2026.1.27-beta.1`).
 - [ ] Run `pnpm plugins:sync` to align extension package versions + changelogs.
-- [ ] Update CLI/version strings: [`src/cli/program.ts`](https://github.com/openclaw/openclaw/blob/main/src/cli/program.ts) and the Baileys user agent in [`src/provider-web.ts`](https://github.com/openclaw/openclaw/blob/main/src/provider-web.ts).
-- [ ] Confirm package metadata (name, description, repository, keywords, license) and `bin` map points to [`openclaw.mjs`](https://github.com/openclaw/openclaw/blob/main/openclaw.mjs) for `openclaw`.
+- [ ] Update CLI/version strings: [`src/cli/program.ts`](https://github.com/moltbot/moltbot/blob/main/src/cli/program.ts) and the Baileys user agent in [`src/provider-web.ts`](https://github.com/moltbot/moltbot/blob/main/src/provider-web.ts).
+- [ ] Confirm package metadata (name, description, repository, keywords, license) and `bin` map points to [`moltbot.mjs`](https://github.com/moltbot/moltbot/blob/main/moltbot.mjs) for `moltbot`.
 - [ ] If dependencies changed, run `pnpm install` so `pnpm-lock.yaml` is current.
 
 <<<<<<< HEAD
@@ -108,7 +108,7 @@ The workflow exports `VERIFY_ENV`, `DEPLOYED_REF`, and `DRY_RUN` so `verify.sh` 
 
 >>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 - [ ] Build + sign the macOS app, then zip it for distribution.
-- [ ] Generate the Sparkle appcast (HTML notes via [`scripts/make_appcast.sh`](https://github.com/openclaw/openclaw/blob/main/scripts/make_appcast.sh)) and update `appcast.xml`.
+- [ ] Generate the Sparkle appcast (HTML notes via [`scripts/make_appcast.sh`](https://github.com/moltbot/moltbot/blob/main/scripts/make_appcast.sh)) and update `appcast.xml`.
 - [ ] Keep the app zip (and optional dSYM zip) ready to attach to the GitHub release.
 - [ ] Follow [macOS release](/platforms/mac/release) for the exact commands and required env vars.
   - `APP_BUILD` must be numeric + monotonic (no `-beta`) so Sparkle compares versions correctly.
@@ -128,14 +128,14 @@ The workflow exports `VERIFY_ENV`, `DEPLOYED_REF`, and `DRY_RUN` so `verify.sh` 
 - [ ] Confirm git status is clean; commit and push as needed.
 - [ ] `npm login` (verify 2FA) if needed.
 - [ ] `npm publish --access public` (use `--tag beta` for pre-releases).
-- [ ] Verify the registry: `npm view openclaw version`, `npm view openclaw dist-tags`, and `npx -y openclaw@X.Y.Z --version` (or `--help`).
+- [ ] Verify the registry: `npm view moltbot version`, `npm view moltbot dist-tags`, and `npx -y moltbot@X.Y.Z --version` (or `--help`).
 
 ### Troubleshooting (notes from 2.0.0-beta2 release)
-- **npm pack/publish hangs or produces huge tarball**: the macOS app bundle in `dist/OpenClaw.app` (and release zips) get swept into the package. Fix by whitelisting publish contents via `package.json` `files` (include dist subdirs, docs, skills; exclude app bundles). Confirm with `npm pack --dry-run` that `dist/OpenClaw.app` is not listed.
+- **npm pack/publish hangs or produces huge tarball**: the macOS app bundle in `dist/Moltbot.app` (and release zips) get swept into the package. Fix by whitelisting publish contents via `package.json` `files` (include dist subdirs, docs, skills; exclude app bundles). Confirm with `npm pack --dry-run` that `dist/Moltbot.app` is not listed.
 - **npm auth web loop for dist-tags**: use legacy auth to get an OTP prompt:
-  - `NPM_CONFIG_AUTH_TYPE=legacy npm dist-tag add openclaw@X.Y.Z latest`
+  - `NPM_CONFIG_AUTH_TYPE=legacy npm dist-tag add moltbot@X.Y.Z latest`
 - **`npx` verification fails with `ECOMPROMISED: Lock compromised`**: retry with a fresh cache:
-  - `NPM_CONFIG_CACHE=/tmp/npm-cache-$(date +%s) npx -y openclaw@X.Y.Z --version`
+  - `NPM_CONFIG_CACHE=/tmp/npm-cache-$(date +%s) npx -y moltbot@X.Y.Z --version`
 - **Tag needs repointing after a late fix**: force-update and push the tag, then ensure the GitHub release assets still match:
   - `git tag -f vX.Y.Z && git push -f origin vX.Y.Z`
 
@@ -150,20 +150,20 @@ The workflow exports `VERIFY_ENV`, `DEPLOYED_REF`, and `DRY_RUN` so `verify.sh` 
 
 >>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 - [ ] Tag and push: `git tag vX.Y.Z && git push origin vX.Y.Z` (or `git push --tags`).
-- [ ] Create/refresh the GitHub release for `vX.Y.Z` with **title `openclaw X.Y.Z`** (not just the tag); body should include the **full** changelog section for that version (Highlights + Changes + Fixes), inline (no bare links), and **must not repeat the title inside the body**.
-- [ ] Attach artifacts: `npm pack` tarball (optional), `OpenClaw-X.Y.Z.zip`, and `OpenClaw-X.Y.Z.dSYM.zip` (if generated).
+- [ ] Create/refresh the GitHub release for `vX.Y.Z` with **title `moltbot X.Y.Z`** (not just the tag); body should include the **full** changelog section for that version (Highlights + Changes + Fixes), inline (no bare links), and **must not repeat the title inside the body**.
+- [ ] Attach artifacts: `npm pack` tarball (optional), `Moltbot-X.Y.Z.zip`, and `Moltbot-X.Y.Z.dSYM.zip` (if generated).
 - [ ] Commit the updated `appcast.xml` and push it (Sparkle feeds from main).
-- [ ] From a clean temp directory (no `package.json`), run `npx -y openclaw@X.Y.Z send --help` to confirm install/CLI entrypoints work.
+- [ ] From a clean temp directory (no `package.json`), run `npx -y moltbot@X.Y.Z send --help` to confirm install/CLI entrypoints work.
 - [ ] Announce/share release notes.
 
 ## Plugin publish scope (npm)
 
-We only publish **existing npm plugins** under the `@openclaw/*` scope. Bundled
+We only publish **existing npm plugins** under the `@moltbot/*` scope. Bundled
 plugins that are not on npm stay **disk-tree only** (still shipped in
 `extensions/**`).
 
 Process to derive the list:
-1) `npm search @openclaw --json` and capture the package names.
+1) `npm search @moltbot --json` and capture the package names.
 2) Compare with `extensions/*/package.json` names.
 3) Publish only the **intersection** (already on npm).
 

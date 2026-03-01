@@ -80,7 +80,7 @@ function mergeConfigPatch<T>(base: T, patch: unknown): T {
   return next as T;
 }
 
-function applyDefaultModel(cfg: OpenClawConfig, model: string): OpenClawConfig {
+function applyDefaultModel(cfg: MoltbotConfig, model: string): MoltbotConfig {
   const models = { ...cfg.agents?.defaults?.models };
   models[model] = models[model] ?? {};
 
@@ -123,7 +123,7 @@ export async function applyAuthChoicePluginProvider(
   const defaultAgentId = resolveDefaultAgentId(nextConfig);
   const agentDir =
     params.agentDir ??
-    (agentId === defaultAgentId ? resolveOpenClawAgentDir() : resolveAgentDir(nextConfig, agentId));
+    (agentId === defaultAgentId ? resolveMoltbotAgentDir() : resolveAgentDir(nextConfig, agentId));
   const workspaceDir =
     resolveAgentWorkspaceDir(nextConfig, agentId) ?? resolveDefaultAgentWorkspaceDir();
 

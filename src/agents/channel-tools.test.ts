@@ -47,7 +47,7 @@ describe("channel tools", () => {
   });
 
   it("skips crashing plugins and logs once", () => {
-    const cfg = {} as OpenClawConfig;
+    const cfg = {} as MoltbotConfig;
     expect(listAllChannelSupportedActions({ cfg })).toEqual([]);
     expect(errorSpy).toHaveBeenCalledTimes(1);
 

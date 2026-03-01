@@ -8,7 +8,7 @@ import type { OpenClawConfig } from "../../config/config.js";
 import { loadSessionStore, resolveStorePath, type SessionEntry } from "../../config/sessions.js";
 
 export function resolveCronSession(params: {
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   sessionKey: string;
   nowMs: number;
   agentId: string;

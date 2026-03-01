@@ -5,7 +5,7 @@ import { resolveConfigDir, resolveUserPath } from "../utils.js";
 import { resolveBundledPluginsDir } from "./bundled-dir.js";
 import {
   getPackageManifestMetadata,
-  type OpenClawPackageManifest,
+  type MoltbotPackageManifest,
   type PackageManifest,
 } from "./manifest.js";
 
@@ -21,7 +21,7 @@ export type PluginCandidate = {
   packageVersion?: string;
   packageDescription?: string;
   packageDir?: string;
-  packageManifest?: OpenClawPackageManifest;
+  packageMoltbot?: MoltbotPackageManifest;
 };
 
 export type PluginDiscoveryResult = {
@@ -62,7 +62,7 @@ function deriveIdHint(params: {
   if (!rawPackageName) return base;
 
   // Prefer the unscoped name so config keys stay stable even when the npm
-  // package is scoped (example: @openclaw/voice-call -> voice-call).
+  // package is scoped (example: @moltbot/voice-call -> voice-call).
   const unscoped = rawPackageName.includes("/")
     ? (rawPackageName.split("/").pop() ?? rawPackageName)
     : rawPackageName;
@@ -96,7 +96,7 @@ function addCandidate(params: {
     packageVersion: manifest?.version?.trim() || undefined,
     packageDescription: manifest?.description?.trim() || undefined,
     packageDir: params.packageDir,
-    packageManifest: getPackageManifestMetadata(manifest ?? undefined),
+    packageMoltbot: getPackageManifestMetadata(manifest ?? undefined),
   });
 }
 
@@ -280,7 +280,7 @@ function discoverFromPath(params: {
   }
 }
 
-export function discoverOpenClawPlugins(params: {
+export function discoverMoltbotPlugins(params: {
   workspaceDir?: string;
   extraPaths?: string[];
 }): PluginDiscoveryResult {
@@ -305,17 +305,15 @@ export function discoverOpenClawPlugins(params: {
   }
   if (workspaceDir) {
     const workspaceRoot = resolveUserPath(workspaceDir);
-    const workspaceExtDirs = [path.join(workspaceRoot, ".openclaw", "extensions")];
-    for (const dir of workspaceExtDirs) {
-      discoverInDirectory({
-        dir,
-        origin: "workspace",
-        workspaceDir: workspaceRoot,
-        candidates,
-        diagnostics,
-        seen,
-      });
-    }
+    const workspaceExt = path.join(workspaceRoot, ".clawdbot", "extensions");
+    discoverInDirectory({
+      dir: workspaceExt,
+      origin: "workspace",
+      workspaceDir: workspaceRoot,
+      candidates,
+      diagnostics,
+      seen,
+    });
   }
 
   const globalDir = path.join(resolveConfigDir(), "extensions");

@@ -17,9 +17,9 @@ import {
   isTimeoutError,
 } from "./failover-error.js";
 import {
-  buildConfiguredAllowlistKeys,
   buildModelAliasIndex,
   modelKey,
+  parseModelRef,
   resolveConfiguredModelRef,
   resolveModelRefFromString,
 } from "./model-selection.js";
@@ -51,9 +51,8 @@ function shouldRethrowAbort(err: unknown): boolean {
   return isAbortError(err) && !isTimeoutError(err);
 }
 
-<<<<<<< HEAD
 function buildAllowedModelKeys(
-  cfg: OpenClawConfig | undefined,
+  cfg: MoltbotConfig | undefined,
   defaultProvider: string,
 ): Set<string> | null {
   const rawAllowlist = (() => {
@@ -70,10 +69,8 @@ function buildAllowedModelKeys(
   return keys.size > 0 ? keys : null;
 }
 
-=======
->>>>>>> 462905440 (chore: apply local workspace updates (#9911))
 function resolveImageFallbackCandidates(params: {
-  cfg: OpenClawConfig | undefined;
+  cfg: MoltbotConfig | undefined;
   defaultProvider: string;
   modelOverride?: string;
 }): ModelCandidate[] {
@@ -81,10 +78,7 @@ function resolveImageFallbackCandidates(params: {
     cfg: params.cfg ?? {},
     defaultProvider: params.defaultProvider,
   });
-  const allowlist = buildConfiguredAllowlistKeys({
-    cfg: params.cfg,
-    defaultProvider: params.defaultProvider,
-  });
+  const allowlist = buildAllowedModelKeys(params.cfg, params.defaultProvider);
   const seen = new Set<string>();
   const candidates: ModelCandidate[] = [];
 
@@ -137,7 +131,7 @@ function resolveImageFallbackCandidates(params: {
 }
 
 function resolveFallbackCandidates(params: {
-  cfg: OpenClawConfig | undefined;
+  cfg: MoltbotConfig | undefined;
   provider: string;
   model: string;
   /** Optional explicit fallbacks list; when provided (even empty), replaces agents.defaults.model.fallbacks. */
@@ -158,10 +152,7 @@ function resolveFallbackCandidates(params: {
     cfg: params.cfg ?? {},
     defaultProvider,
   });
-  const allowlist = buildConfiguredAllowlistKeys({
-    cfg: params.cfg,
-    defaultProvider,
-  });
+  const allowlist = buildAllowedModelKeys(params.cfg, defaultProvider);
   const seen = new Set<string>();
   const candidates: ModelCandidate[] = [];
 
@@ -204,7 +195,7 @@ function resolveFallbackCandidates(params: {
 }
 
 export async function runWithModelFallback<T>(params: {
-  cfg: OpenClawConfig | undefined;
+  cfg: MoltbotConfig | undefined;
   provider: string;
   model: string;
   agentDir?: string;
@@ -312,7 +303,7 @@ export async function runWithModelFallback<T>(params: {
 }
 
 export async function runWithImageModelFallback<T>(params: {
-  cfg: OpenClawConfig | undefined;
+  cfg: MoltbotConfig | undefined;
   modelOverride?: string;
   run: (provider: string, model: string) => Promise<T>;
   onError?: (attempt: {

@@ -43,7 +43,7 @@ type SessionKeyResolution = {
 };
 
 export function resolveSessionKeyForRequest(opts: {
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   to?: string;
   sessionId?: string;
   sessionKey?: string;
@@ -84,7 +84,7 @@ export function resolveSessionKeyForRequest(opts: {
 }
 
 export function resolveSession(opts: {
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   to?: string;
   sessionId?: string;
   sessionKey?: string;

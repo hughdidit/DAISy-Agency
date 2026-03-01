@@ -15,7 +15,7 @@ type RunResult = Awaited<
 >;
 
 export async function updateSessionStoreAfterAgentRun(params: {
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   contextTokensOverride?: number;
   sessionId: string;
   sessionKey: string;

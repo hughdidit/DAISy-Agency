@@ -84,7 +84,7 @@ function applySelectionToSession(params: {
 }
 
 export async function applyResetModelOverride(params: {
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   resetTriggered: boolean;
   bodyStripped?: string;
   sessionCtx: TemplateContext;

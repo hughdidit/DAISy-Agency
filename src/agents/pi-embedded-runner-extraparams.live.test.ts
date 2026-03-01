@@ -19,7 +19,7 @@ describeLive("pi embedded extra params (live)", () => {
   it("applies config maxTokens to openai streamFn", async () => {
     const model = getModel("openai", "gpt-5.2") as Model<"openai-completions">;
 
-    const cfg: OpenClawConfig = {
+    const cfg: MoltbotConfig = {
       agents: {
         defaults: {
           models: {

@@ -43,7 +43,7 @@ const slackConfig = {
       appToken: "xapp-test",
     },
   },
-} as OpenClawConfig;
+} as MoltbotConfig;
 
 describe("runMessageAction Slack threading", () => {
   beforeEach(async () => {

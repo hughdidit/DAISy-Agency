@@ -11,7 +11,7 @@ import { normalizeBasePath } from "./navigation";
 <<<<<<< HEAD
 import type { GatewayHelloOk } from "./gateway";
 import { parseAgentSessionKey } from "../../../src/sessions/session-key-utils.js";
-import type { OpenClawApp } from "./app";
+import type { MoltbotApp } from "./app";
 import type { ChatAttachment, ChatQueueItem } from "./ui-types";
 =======
 import { generateUUID } from "./uuid";
@@ -55,7 +55,7 @@ export function isChatStopCommand(text: string) {
 export async function handleAbortChat(host: ChatHost) {
   if (!host.connected) return;
   host.chatMessage = "";
-  await abortChatRun(host as unknown as OpenClawApp);
+  await abortChatRun(host as unknown as MoltbotApp);
 }
 
 function enqueueChatMessage(
@@ -185,13 +185,8 @@ export async function handleSendChat(
 
 export async function refreshChat(host: ChatHost, opts?: { scheduleScroll?: boolean }) {
   await Promise.all([
-<<<<<<< HEAD
     loadChatHistory(host as unknown as MoltbotApp),
     loadSessions(host as unknown as MoltbotApp),
-=======
-    loadChatHistory(host as unknown as OpenClawApp),
-    loadSessions(host as unknown as OpenClawApp, { activeMinutes: 0 }),
->>>>>>> 9a7160786 (refactor: rename to openclaw)
     refreshChatAvatar(host),
   ]);
 <<<<<<< HEAD

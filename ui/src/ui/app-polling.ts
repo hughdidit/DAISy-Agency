@@ -18,7 +18,7 @@ type PollingHost = {
 export function startNodesPolling(host: PollingHost) {
   if (host.nodesPollInterval != null) return;
   host.nodesPollInterval = window.setInterval(
-    () => void loadNodes(host as unknown as OpenClawApp, { quiet: true }),
+    () => void loadNodes(host as unknown as MoltbotApp, { quiet: true }),
     5000,
   );
 }
@@ -33,7 +33,7 @@ export function startLogsPolling(host: PollingHost) {
   if (host.logsPollInterval != null) return;
   host.logsPollInterval = window.setInterval(() => {
     if (host.tab !== "logs") return;
-    void loadLogs(host as unknown as OpenClawApp, { quiet: true });
+    void loadLogs(host as unknown as MoltbotApp, { quiet: true });
   }, 2000);
 }
 
@@ -47,7 +47,7 @@ export function startDebugPolling(host: PollingHost) {
   if (host.debugPollInterval != null) return;
   host.debugPollInterval = window.setInterval(() => {
     if (host.tab !== "debug") return;
-    void loadDebug(host as unknown as OpenClawApp);
+    void loadDebug(host as unknown as MoltbotApp);
   }, 3000);
 }
 

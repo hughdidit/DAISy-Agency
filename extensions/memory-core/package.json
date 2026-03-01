@@ -24,16 +24,16 @@
   "description": "OpenClaw core memory search plugin",
 >>>>>>> 1c4db9159 (chore: prepare 2026.2.2 release)
   "type": "module",
-  "description": "OpenClaw core memory search plugin",
-  "openclaw": {
+  "description": "Moltbot core memory search plugin",
+  "moltbot": {
     "extensions": [
       "./index.ts"
     ]
   },
   "peerDependencies": {
-    "openclaw": ">=2026.1.26"
+    "moltbot": ">=2026.1.26"
   },
   "devDependencies": {
-    "openclaw": "workspace:*"
+    "moltbot": "workspace:*"
   }
 }

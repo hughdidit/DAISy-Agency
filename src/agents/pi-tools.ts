@@ -42,7 +42,7 @@ import {
 import {
   assertRequiredParams,
   CLAUDE_PARAM_GROUPS,
-  createOpenClawReadTool,
+  createMoltbotReadTool,
   createSandboxedEditTool,
   createSandboxedReadTool,
   createSandboxedWriteTool,
@@ -52,7 +52,6 @@ import {
 } from "./pi-tools.read.js";
 import { cleanToolSchemaForGemini, normalizeToolParameters } from "./pi-tools.schema.js";
 import {
-  applyOwnerOnlyToolPolicy,
   buildPluginToolGroups,
   collectExplicitAllowlist,
   expandPolicyWithPluginGroups,
@@ -88,7 +87,7 @@ function isApplyPatchAllowedForModel(params: {
   });
 }
 
-function resolveExecConfig(cfg: OpenClawConfig | undefined) {
+function resolveExecConfig(cfg: MoltbotConfig | undefined) {
   const globalExec = cfg?.tools?.exec;
   return {
     host: globalExec?.host,
@@ -114,7 +113,7 @@ export const __testing = {
   assertRequiredParams,
 } as const;
 
-export function createOpenClawCodingTools(options?: {
+export function createMoltbotCodingTools(options?: {
   exec?: ExecToolDefaults & ProcessToolDefaults;
   messageProvider?: string;
   agentAccountId?: string;
@@ -124,7 +123,7 @@ export function createOpenClawCodingTools(options?: {
   sessionKey?: string;
   agentDir?: string;
   workspaceDir?: string;
-  config?: OpenClawConfig;
+  config?: MoltbotConfig;
   abortSignal?: AbortSignal;
   /**
    * Provider of the currently selected model (used for provider-specific tool quirks).
@@ -160,15 +159,6 @@ export function createOpenClawCodingTools(options?: {
   hasRepliedRef?: { value: boolean };
   /** If true, the model has native vision capability */
   modelHasVision?: boolean;
-<<<<<<< HEAD
-=======
-  /** Require explicit message targets (no implicit last-route sends). */
-  requireExplicitMessageTarget?: boolean;
-  /** If true, omit the message tool from the tool list. */
-  disableMessageTool?: boolean;
-  /** Whether the sender is an owner (required for owner-only tools). */
-  senderIsOwner?: boolean;
->>>>>>> 392bbddf2 (Security: owner-only tools + command auth hardening (#9202))
 }): AnyAgentTool[] {
   const execToolName = "exec";
   const sandbox = options?.sandbox?.enabled ? options.sandbox : undefined;
@@ -251,7 +241,7 @@ export function createOpenClawCodingTools(options?: {
         return [createSandboxedReadTool(sandboxRoot)];
       }
       const freshReadTool = createReadTool(workspaceRoot);
-      return [createOpenClawReadTool(freshReadTool)];
+      return [createMoltbotReadTool(freshReadTool)];
     }
     if (tool.name === "bash" || tool.name === execToolName) return [];
     if (tool.name === "write") {
@@ -320,7 +310,7 @@ export function createOpenClawCodingTools(options?: {
     processTool as unknown as AnyAgentTool,
     // Channel docking: include channel-defined agent tools (login, etc.).
     ...listChannelAgentTools({ cfg: options?.config }),
-    ...createOpenClawTools({
+    ...createMoltbotTools({
       sandboxBrowserBridgeUrl: sandbox?.browser?.bridgeUrl,
       allowHostBrowserControl: sandbox ? sandbox.browserAllowHostControl : true,
       agentSessionKey: options?.sessionKey,
@@ -355,28 +345,15 @@ export function createOpenClawCodingTools(options?: {
       requesterAgentIdOverride: agentId,
     }),
   ];
-  // Security: treat unknown/undefined as unauthorized (opt-in, not opt-out)
-  const senderIsOwner = options?.senderIsOwner === true;
-  const toolsByAuthorization = applyOwnerOnlyToolPolicy(tools, senderIsOwner);
   const coreToolNames = new Set(
-<<<<<<< HEAD
     tools
       .filter((tool) => !getPluginToolMeta(tool as AnyAgentTool))
-=======
-    toolsByAuthorization
-      .filter((tool) => !getPluginToolMeta(tool))
->>>>>>> 392bbddf2 (Security: owner-only tools + command auth hardening (#9202))
       .map((tool) => normalizeToolName(tool.name))
       .filter(Boolean),
   );
   const pluginGroups = buildPluginToolGroups({
-<<<<<<< HEAD
     tools,
     toolMeta: (tool) => getPluginToolMeta(tool as AnyAgentTool),
-=======
-    tools: toolsByAuthorization,
-    toolMeta: (tool) => getPluginToolMeta(tool),
->>>>>>> 392bbddf2 (Security: owner-only tools + command auth hardening (#9202))
   });
   const resolvePolicy = (policy: typeof profilePolicy, label: string) => {
     const resolved = stripPluginOnlyAllowlist(policy, pluginGroups, coreToolNames);
@@ -412,8 +389,8 @@ export function createOpenClawCodingTools(options?: {
   const subagentPolicyExpanded = expandPolicyWithPluginGroups(subagentPolicy, pluginGroups);
 
   const toolsFiltered = profilePolicyExpanded
-    ? filterToolsByPolicy(toolsByAuthorization, profilePolicyExpanded)
-    : toolsByAuthorization;
+    ? filterToolsByPolicy(tools, profilePolicyExpanded)
+    : tools;
   const providerProfileFiltered = providerProfileExpanded
     ? filterToolsByPolicy(toolsFiltered, providerProfileExpanded)
     : toolsFiltered;

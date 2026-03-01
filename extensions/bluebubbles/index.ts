@@ -15,7 +15,7 @@ const plugin = {
   name: "BlueBubbles",
   description: "BlueBubbles channel plugin (macOS app)",
   configSchema: emptyPluginConfigSchema(),
-  register(api: OpenClawPluginApi) {
+  register(api: MoltbotPluginApi) {
     setBlueBubblesRuntime(api.runtime);
     api.registerChannel({ plugin: bluebubblesPlugin });
     api.registerHttpHandler(handleBlueBubblesWebhookRequest);

@@ -7,7 +7,7 @@ import type { MoltbotConfig } from "../../config/config.js";
 import type { OpenClawConfig } from "../../config/config.js";
 >>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { ModelDefinitionConfig } from "../../config/types.js";
-import { resolveOpenClawAgentDir } from "../agent-paths.js";
+import { resolveMoltbotAgentDir } from "../agent-paths.js";
 import { DEFAULT_CONTEXT_TOKENS } from "../defaults.js";
 import { normalizeModelCompat } from "../model-compat.js";
 import { normalizeProviderId } from "../model-selection.js";
@@ -40,7 +40,7 @@ export function buildInlineProviderModels(
   });
 }
 
-export function buildModelAliasLines(cfg?: OpenClawConfig) {
+export function buildModelAliasLines(cfg?: MoltbotConfig) {
   const models = cfg?.agents?.defaults?.models ?? {};
   const entries: Array<{ alias: string; model: string }> = [];
   for (const [keyRaw, entryRaw] of Object.entries(models)) {
@@ -59,14 +59,14 @@ export function resolveModel(
   provider: string,
   modelId: string,
   agentDir?: string,
-  cfg?: OpenClawConfig,
+  cfg?: MoltbotConfig,
 ): {
   model?: Model<Api>;
   error?: string;
-  authStorage: AuthStorage;
-  modelRegistry: ModelRegistry;
+  authStorage: ReturnType<typeof discoverAuthStorage>;
+  modelRegistry: ReturnType<typeof discoverModels>;
 } {
-  const resolvedAgentDir = agentDir ?? resolveOpenClawAgentDir();
+  const resolvedAgentDir = agentDir ?? resolveMoltbotAgentDir();
   const authStorage = discoverAuthStorage(resolvedAgentDir);
   const modelRegistry = discoverModels(authStorage, resolvedAgentDir);
   const model = modelRegistry.find(provider, modelId) as Model<Api> | null;

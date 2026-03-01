@@ -1,9 +1,9 @@
 import type {
   ChannelAccountSnapshot,
-  OpenClawConfig,
+  MoltbotConfig,
   ReplyPayload,
   RuntimeEnv,
-} from "openclaw/plugin-sdk";
+} from "clawdbot/plugin-sdk";
 import {
   createReplyPrefixContext,
   createTypingCallbacks,
@@ -48,7 +48,7 @@ export type MonitorMattermostOpts = {
   botToken?: string;
   baseUrl?: string;
   accountId?: string;
-  config?: OpenClawConfig;
+  config?: MoltbotConfig;
   runtime?: RuntimeEnv;
   abortSignal?: AbortSignal;
   statusSink?: (patch: Partial<ChannelAccountSnapshot>) => void;

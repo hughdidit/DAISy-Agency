@@ -7,7 +7,7 @@ import { resolveMoltbotPackageRoot } from "../infra/moltbot-root.js";
 import { resolveOpenClawPackageRoot } from "../infra/openclaw-root.js";
 >>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 
-export async function resolveOpenClawDocsPath(params: {
+export async function resolveMoltbotDocsPath(params: {
   workspaceDir?: string;
   argv1?: string;
   cwd?: string;
@@ -19,7 +19,7 @@ export async function resolveOpenClawDocsPath(params: {
     if (fs.existsSync(workspaceDocs)) return workspaceDocs;
   }
 
-  const packageRoot = await resolveOpenClawPackageRoot({
+  const packageRoot = await resolveMoltbotPackageRoot({
     cwd: params.cwd,
     argv1: params.argv1,
     moduleUrl: params.moduleUrl,

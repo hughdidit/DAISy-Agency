@@ -43,7 +43,7 @@ import type {
   TelegramGroupConfig,
   TelegramTopicConfig,
 } from "../config/types.js";
-import type { OpenClawConfig } from "../config/config.js";
+import type { MoltbotConfig } from "../config/config.js";
 import type { RuntimeEnv } from "../runtime.js";
 =======
 import { resolveAgentRoute } from "../routing/resolve-route.js";
@@ -77,7 +77,7 @@ type TelegramCommandAuthResult = {
 
 type RegisterTelegramNativeCommandsParams = {
   bot: Bot;
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   runtime: RuntimeEnv;
   accountId: string;
   telegramCfg: TelegramAccountConfig;
@@ -101,7 +101,7 @@ type RegisterTelegramNativeCommandsParams = {
 async function resolveTelegramCommandAuth(params: {
   msg: NonNullable<TelegramNativeCommandContext["message"]>;
   bot: Bot;
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   telegramCfg: TelegramAccountConfig;
   allowFrom?: Array<string | number>;
   groupAllowFrom?: Array<string | number>;

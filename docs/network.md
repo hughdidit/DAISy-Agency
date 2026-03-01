@@ -8,7 +8,7 @@ title: "Network"
 ---
 # Network hub
 
-This hub links the core docs for how OpenClaw connects, pairs, and secures
+This hub links the core docs for how Moltbot connects, pairs, and secures
 devices across localhost, LAN, and tailnet.
 
 ## Core model

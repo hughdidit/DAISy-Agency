@@ -39,6 +39,7 @@ import { loadAndMaybeMigrateDoctorConfig } from "./doctor-config-flow.js";
 import { maybeRepairGatewayDaemon } from "./doctor-gateway-daemon-flow.js";
 import { checkGatewayHealth } from "./doctor-gateway-health.js";
 import {
+  maybeMigrateLegacyGatewayService,
   maybeRepairGatewayServiceConfig,
   maybeScanExtraGatewayServices,
 } from "./doctor-gateway-services.js";
@@ -46,7 +47,6 @@ import { noteSourceInstallIssues } from "./doctor-install.js";
 import {
   noteMacLaunchAgentOverrides,
   noteMacLaunchctlGatewayEnvOverrides,
-  noteDeprecatedLegacyEnvVars,
 } from "./doctor-platform-notes.js";
 import { createDoctorPrompter, type DoctorOptions } from "./doctor-prompter.js";
 import { maybeRepairSandboxImages, noteSandboxScopeWarnings } from "./doctor-sandbox.js";
@@ -66,7 +66,7 @@ import { ensureSystemdUserLingerInteractive } from "./systemd-linger.js";
 const intro = (message: string) => clackIntro(stylePromptTitle(message) ?? message);
 const outro = (message: string) => clackOutro(stylePromptTitle(message) ?? message);
 
-function resolveMode(cfg: OpenClawConfig): "local" | "remote" {
+function resolveMode(cfg: MoltbotConfig): "local" | "remote" {
   return cfg.gateway?.mode === "remote" ? "remote" : "local";
 }
 
@@ -76,9 +76,9 @@ export async function doctorCommand(
 ) {
   const prompter = createDoctorPrompter({ runtime, options });
   printWizardHeader(runtime);
-  intro("OpenClaw doctor");
+  intro("Moltbot doctor");
 
-  const root = await resolveOpenClawPackageRoot({
+  const root = await resolveMoltbotPackageRoot({
     moduleUrl: import.meta.url,
     argv1: process.argv[1],
     cwd: process.cwd(),
@@ -95,23 +95,22 @@ export async function doctorCommand(
 
   await maybeRepairUiProtocolFreshness(runtime, prompter);
   noteSourceInstallIssues(root);
-  noteDeprecatedLegacyEnvVars();
 
   const configResult = await loadAndMaybeMigrateDoctorConfig({
     options,
     confirm: (p) => prompter.confirm(p),
   });
-  let cfg: OpenClawConfig = configResult.cfg;
+  let cfg: MoltbotConfig = configResult.cfg;
 
   const configPath = configResult.path ?? CONFIG_PATH;
   if (!cfg.gateway?.mode) {
     const lines = [
       "gateway.mode is unset; gateway start will be blocked.",
-      `Fix: run ${formatCliCommand("openclaw configure")} and set Gateway mode (local/remote).`,
-      `Or set directly: ${formatCliCommand("openclaw config set gateway.mode local")}`,
+      `Fix: run ${formatCliCommand("moltbot configure")} and set Gateway mode (local/remote).`,
+      `Or set directly: ${formatCliCommand("moltbot config set gateway.mode local")}`,
     ];
     if (!fs.existsSync(configPath)) {
-      lines.push(`Missing config: run ${formatCliCommand("openclaw setup")} first.`);
+      lines.push(`Missing config: run ${formatCliCommand("moltbot setup")} first.`);
     }
     note(lines.join("\n"), "Gateway");
   }
@@ -193,6 +192,7 @@ export async function doctorCommand(
   cfg = await maybeRepairSandboxImages(cfg, runtime, prompter);
   noteSandboxScopeWarnings(cfg);
 
+  await maybeMigrateLegacyGatewayService(cfg, resolveMode(cfg), runtime, prompter);
   await maybeScanExtraGatewayServices(options);
   await maybeRepairGatewayServiceConfig(cfg, resolveMode(cfg), runtime, prompter);
   await noteMacLaunchAgentOverrides();
@@ -290,7 +290,7 @@ export async function doctorCommand(
       runtime.log(`Backup: ${shortenHomePath(backupPath)}`);
     }
   } else {
-    runtime.log(`Run "${formatCliCommand("openclaw doctor --fix")}" to apply changes.`);
+    runtime.log(`Run "${formatCliCommand("moltbot doctor --fix")}" to apply changes.`);
   }
 
   if (options.workspaceSuggestions !== false) {

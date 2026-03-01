@@ -15,7 +15,7 @@ export type PluginServicesHandle = {
 
 export async function startPluginServices(params: {
   registry: PluginRegistry;
-  config: OpenClawConfig;
+  config: MoltbotConfig;
   workspaceDir?: string;
 }): Promise<PluginServicesHandle> {
   const running: Array<{

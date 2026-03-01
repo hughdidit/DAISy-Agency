@@ -5,7 +5,7 @@ import path from "node:path";
 
 import JSON5 from "json5";
 
-import type { OpenClawConfig } from "../config/config.js";
+import type { MoltbotConfig } from "../config/config.js";
 import { createConfigIO } from "../config/config.js";
 import { resolveConfigPath, resolveOAuthDir, resolveStateDir } from "../config/paths.js";
 =======
@@ -194,13 +194,13 @@ async function safeAclReset(params: {
 }
 
 function setGroupPolicyAllowlist(params: {
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   channel: string;
   changes: string[];
   policyFlips: Set<string>;
 }): void {
   if (!params.cfg.channels) return;
-  const section = params.cfg.channels[params.channel as keyof OpenClawConfig["channels"]] as
+  const section = params.cfg.channels[params.channel as keyof MoltbotConfig["channels"]] as
     | Record<string, unknown>
     | undefined;
   if (!section || typeof section !== "object") return;
@@ -229,7 +229,7 @@ function setGroupPolicyAllowlist(params: {
 }
 
 function setWhatsAppGroupAllowFromFromStore(params: {
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   storeAllowFrom: string[];
   changes: string[];
   policyFlips: Set<string>;
@@ -259,8 +259,8 @@ function setWhatsAppGroupAllowFromFromStore(params: {
   }
 }
 
-function applyConfigFixes(params: { cfg: OpenClawConfig; env: NodeJS.ProcessEnv }): {
-  cfg: OpenClawConfig;
+function applyConfigFixes(params: { cfg: MoltbotConfig; env: NodeJS.ProcessEnv }): {
+  cfg: MoltbotConfig;
   changes: string[];
   policyFlips: Set<string>;
 } {
@@ -356,7 +356,7 @@ async function collectIncludePathsRecursive(params: {
 async function chmodCredentialsAndAgentState(params: {
   env: NodeJS.ProcessEnv;
   stateDir: string;
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   actions: SecurityFixAction[];
   applyPerms: (params: {
     path: string;

@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 <<<<<<< HEAD
 
-import type { BrowserProfileConfig, OpenClawConfig } from "../config/config.js";
+import type { BrowserProfileConfig, MoltbotConfig } from "../config/config.js";
 import { loadConfig, writeConfigFile } from "../config/config.js";
 import { deriveDefaultBrowserCdpPortRange } from "../config/port-defaults.js";
 import { DEFAULT_BROWSER_DEFAULT_PROFILE_NAME } from "./constants.js";
@@ -29,7 +29,7 @@ export type CreateProfileParams = {
   name: string;
   color?: string;
   cdpUrl?: string;
-  driver?: "openclaw" | "extension";
+  driver?: "clawd" | "extension";
 };
 
 export type CreateProfileResult = {
@@ -101,7 +101,7 @@ export function createBrowserProfilesService(ctx: BrowserRouteContext) {
       };
     }
 
-    const nextConfig: OpenClawConfig = {
+    const nextConfig: MoltbotConfig = {
       ...cfg,
       browser: {
         ...cfg.browser,
@@ -161,7 +161,7 @@ export function createBrowserProfilesService(ctx: BrowserRouteContext) {
         // ignore
       }
 
-      const userDataDir = resolveOpenClawUserDataDir(name);
+      const userDataDir = resolveClawdUserDataDir(name);
       const profileDir = path.dirname(userDataDir);
       if (fs.existsSync(profileDir)) {
         await movePathToTrash(profileDir);
@@ -170,7 +170,7 @@ export function createBrowserProfilesService(ctx: BrowserRouteContext) {
     }
 
     const { [name]: _removed, ...remainingProfiles } = profiles;
-    const nextConfig: OpenClawConfig = {
+    const nextConfig: MoltbotConfig = {
       ...cfg,
       browser: {
         ...cfg.browser,

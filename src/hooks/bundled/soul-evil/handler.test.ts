@@ -16,14 +16,14 @@ import handler from "./handler.js";
 
 describe("soul-evil hook", () => {
   it("skips subagent sessions", async () => {
-    const tempDir = await makeTempWorkspace("openclaw-soul-");
+    const tempDir = await makeTempWorkspace("moltbot-soul-");
     await writeWorkspaceFile({
       dir: tempDir,
       name: "SOUL_EVIL.md",
       content: "chaotic",
     });
 
-    const cfg: OpenClawConfig = {
+    const cfg: MoltbotConfig = {
       hooks: {
         internal: {
           entries: {

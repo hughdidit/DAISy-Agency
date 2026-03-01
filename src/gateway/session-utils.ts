@@ -9,11 +9,8 @@ import type {
 import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../agents/agent-scope.js";
 import { lookupContextTokens } from "../agents/context.js";
 import { DEFAULT_CONTEXT_TOKENS, DEFAULT_MODEL, DEFAULT_PROVIDER } from "../agents/defaults.js";
-import {
-  resolveConfiguredModelRef,
-  resolveDefaultModelForAgent,
-} from "../agents/model-selection.js";
-import { type OpenClawConfig, loadConfig } from "../config/config.js";
+import { resolveConfiguredModelRef } from "../agents/model-selection.js";
+import { type MoltbotConfig, loadConfig } from "../config/config.js";
 import { resolveStateDir } from "../config/paths.js";
 import {
   buildGroupDisplayName,
@@ -87,7 +84,7 @@ function isWorkspaceRelativePath(value: string): boolean {
 }
 
 function resolveIdentityAvatarUrl(
-  cfg: OpenClawConfig,
+  cfg: MoltbotConfig,
   agentId: string,
   avatar: string | undefined,
 ): string | undefined {
@@ -213,7 +210,7 @@ function listExistingAgentIdsFromDisk(): string[] {
   }
 }
 
-function listConfiguredAgentIds(cfg: OpenClawConfig): string[] {
+function listConfiguredAgentIds(cfg: MoltbotConfig): string[] {
   const agents = cfg.agents?.list ?? [];
   if (agents.length > 0) {
     const ids = new Set<string>();
@@ -241,7 +238,7 @@ function listConfiguredAgentIds(cfg: OpenClawConfig): string[] {
   return sorted;
 }
 
-export function listAgentsForGateway(cfg: OpenClawConfig): {
+export function listAgentsForGateway(cfg: MoltbotConfig): {
   defaultId: string;
   mainKey: string;
   scope: SessionScope;
@@ -303,14 +300,11 @@ function canonicalizeSessionKeyForAgent(agentId: string, key: string): string {
   return `agent:${normalizeAgentId(agentId)}:${key}`;
 }
 
-function resolveDefaultStoreAgentId(cfg: OpenClawConfig): string {
+function resolveDefaultStoreAgentId(cfg: MoltbotConfig): string {
   return normalizeAgentId(resolveDefaultAgentId(cfg));
 }
 
-export function resolveSessionStoreKey(params: {
-  cfg: OpenClawConfig;
-  sessionKey: string;
-}): string {
+export function resolveSessionStoreKey(params: { cfg: MoltbotConfig; sessionKey: string }): string {
   const raw = params.sessionKey.trim();
   if (!raw) return raw;
   if (raw === "global" || raw === "unknown") return raw;
@@ -335,7 +329,7 @@ export function resolveSessionStoreKey(params: {
   return canonicalizeSessionKeyForAgent(agentId, raw);
 }
 
-function resolveSessionStoreAgentId(cfg: OpenClawConfig, canonicalKey: string): string {
+function resolveSessionStoreAgentId(cfg: MoltbotConfig, canonicalKey: string): string {
   if (canonicalKey === "global" || canonicalKey === "unknown") {
     return resolveDefaultStoreAgentId(cfg);
   }
@@ -352,7 +346,7 @@ function canonicalizeSpawnedByForAgent(agentId: string, spawnedBy?: string): str
   return `agent:${normalizeAgentId(agentId)}:${raw}`;
 }
 
-export function resolveGatewaySessionStoreTarget(params: { cfg: OpenClawConfig; key: string }): {
+export function resolveGatewaySessionStoreTarget(params: { cfg: MoltbotConfig; key: string }): {
   agentId: string;
   storePath: string;
   canonicalKey: string;
@@ -408,7 +402,7 @@ function mergeSessionEntryIntoCombined(params: {
   }
 }
 
-export function loadCombinedSessionStoreForGateway(cfg: OpenClawConfig): {
+export function loadCombinedSessionStoreForGateway(cfg: MoltbotConfig): {
   storePath: string;
   store: Record<string, SessionEntry>;
 } {
@@ -451,7 +445,7 @@ export function loadCombinedSessionStoreForGateway(cfg: OpenClawConfig): {
   return { storePath, store: combined };
 }
 
-export function getSessionDefaults(cfg: OpenClawConfig): GatewaySessionsDefaults {
+export function getSessionDefaults(cfg: MoltbotConfig): GatewaySessionsDefaults {
   const resolved = resolveConfiguredModelRef({
     cfg,
     defaultProvider: DEFAULT_PROVIDER,
@@ -469,17 +463,14 @@ export function getSessionDefaults(cfg: OpenClawConfig): GatewaySessionsDefaults
 }
 
 export function resolveSessionModelRef(
-  cfg: OpenClawConfig,
+  cfg: MoltbotConfig,
   entry?: SessionEntry,
-  agentId?: string,
 ): { provider: string; model: string } {
-  const resolved = agentId
-    ? resolveDefaultModelForAgent({ cfg, agentId })
-    : resolveConfiguredModelRef({
-        cfg,
-        defaultProvider: DEFAULT_PROVIDER,
-        defaultModel: DEFAULT_MODEL,
-      });
+  const resolved = resolveConfiguredModelRef({
+    cfg,
+    defaultProvider: DEFAULT_PROVIDER,
+    defaultModel: DEFAULT_MODEL,
+  });
   let provider = resolved.provider;
   let model = resolved.model;
   const storedModelOverride = entry?.modelOverride?.trim();
@@ -491,7 +482,7 @@ export function resolveSessionModelRef(
 }
 
 export function listSessionsFromStore(params: {
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   storePath: string;
   store: Record<string, SessionEntry>;
   opts: import("./protocol/index.js").SessionsListParams;
@@ -561,11 +552,6 @@ export function listSessionsFromStore(params: {
         entry?.label ??
         originLabel;
       const deliveryFields = normalizeSessionDeliveryFields(entry);
-      const parsedAgent = parseAgentSessionKey(key);
-      const sessionAgentId = normalizeAgentId(parsedAgent?.agentId ?? resolveDefaultAgentId(cfg));
-      const resolvedModel = resolveSessionModelRef(cfg, entry, sessionAgentId);
-      const modelProvider = resolvedModel.provider ?? DEFAULT_PROVIDER;
-      const model = resolvedModel.model ?? DEFAULT_MODEL;
       return {
         key,
         entry,
@@ -591,8 +577,8 @@ export function listSessionsFromStore(params: {
         outputTokens: entry?.outputTokens,
         totalTokens: total,
         responseUsage: entry?.responseUsage,
-        modelProvider,
-        model,
+        modelProvider: entry?.modelProvider,
+        model: entry?.model,
         contextTokens: entry?.contextTokens,
         deliveryContext: deliveryFields.deliveryContext,
         lastChannel: deliveryFields.lastChannel ?? entry?.lastChannel,

@@ -12,7 +12,7 @@ import { getChannelDock } from "../../channels/dock.js";
 import { normalizeChannelId } from "../../channels/plugins/index.js";
 
 export function resolveReplyToMode(
-  cfg: OpenClawConfig,
+  cfg: MoltbotConfig,
   channel?: OriginatingChannelType,
   accountId?: string | null,
   chatType?: string | null,

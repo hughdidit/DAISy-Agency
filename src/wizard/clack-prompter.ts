@@ -58,17 +58,15 @@ export function createClackPrompter(): WizardPrompter {
           initialValues: params.initialValues,
         }),
       ),
-    text: async (params) => {
-      const validate = params.validate;
-      return guardCancel(
+    text: async (params) =>
+      guardCancel(
         await text({
           message: stylePromptMessage(params.message),
           initialValue: params.initialValue,
           placeholder: params.placeholder,
-          validate: validate ? (value) => validate(value ?? "") : undefined,
+          validate: params.validate,
         }),
-      );
-    },
+      ),
     confirm: async (params) =>
       guardCancel(
         await confirm({

@@ -4,7 +4,7 @@ import { complete } from "@mariozechner/pi-ai";
 import { discoverAuthStorage, discoverModels } from "@mariozechner/pi-coding-agent";
 
 import { getApiKeyForModel, requireApiKey } from "../../agents/model-auth.js";
-import { ensureOpenClawModelsJson } from "../../agents/models-config.js";
+import { ensureMoltbotModelsJson } from "../../agents/models-config.js";
 import { minimaxUnderstandImage } from "../../agents/minimax-vlm.js";
 =======
 import type { ImageDescriptionRequest, ImageDescriptionResult } from "../types.js";
@@ -18,7 +18,7 @@ import { coerceImageAssistantText } from "../../agents/tools/image-tool.helpers.
 export async function describeImageWithModel(
   params: ImageDescriptionRequest,
 ): Promise<ImageDescriptionResult> {
-  await ensureOpenClawModelsJson(params.cfg, params.agentDir);
+  await ensureMoltbotModelsJson(params.cfg, params.agentDir);
   const authStorage = discoverAuthStorage(params.agentDir);
   const modelRegistry = discoverModels(authStorage, params.agentDir);
   const model = modelRegistry.find(params.provider, params.model) as Model<Api> | null;

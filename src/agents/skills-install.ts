@@ -11,7 +11,6 @@ import type { OpenClawConfig } from "../config/config.js";
 >>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { resolveBrewExecutable } from "../infra/brew.js";
 import { runCommandWithTimeout } from "../process/exec.js";
-import { scanDirectoryWithSummary } from "../security/skill-scanner.js";
 import { CONFIG_DIR, ensureDir, resolveUserPath } from "../utils.js";
 import {
   hasBinary,
@@ -28,7 +27,7 @@ export type SkillInstallRequest = {
   skillName: string;
   installId: string;
   timeoutMs?: number;
-  config?: OpenClawConfig;
+  config?: MoltbotConfig;
 };
 
 export type SkillInstallResult = {
@@ -37,7 +36,6 @@ export type SkillInstallResult = {
   stdout: string;
   stderr: string;
   code: number | null;
-  warnings?: string[];
 };
 
 function isNodeReadableStream(value: unknown): value is NodeJS.ReadableStream {
@@ -73,57 +71,6 @@ function formatInstallFailureMessage(result: {
   const summary = summarizeInstallOutput(result.stderr) ?? summarizeInstallOutput(result.stdout);
   if (!summary) return `Install failed (${code})`;
   return `Install failed (${code}): ${summary}`;
-}
-
-function withWarnings(result: SkillInstallResult, warnings: string[]): SkillInstallResult {
-  if (warnings.length === 0) {
-    return result;
-  }
-  return {
-    ...result,
-    warnings: warnings.slice(),
-  };
-}
-
-function formatScanFindingDetail(
-  rootDir: string,
-  finding: { message: string; file: string; line: number },
-): string {
-  const relativePath = path.relative(rootDir, finding.file);
-  const filePath =
-    relativePath && relativePath !== "." && !relativePath.startsWith("..")
-      ? relativePath
-      : path.basename(finding.file);
-  return `${finding.message} (${filePath}:${finding.line})`;
-}
-
-async function collectSkillInstallScanWarnings(entry: SkillEntry): Promise<string[]> {
-  const warnings: string[] = [];
-  const skillName = entry.skill.name;
-  const skillDir = path.resolve(entry.skill.baseDir);
-
-  try {
-    const summary = await scanDirectoryWithSummary(skillDir);
-    if (summary.critical > 0) {
-      const criticalDetails = summary.findings
-        .filter((finding) => finding.severity === "critical")
-        .map((finding) => formatScanFindingDetail(skillDir, finding))
-        .join("; ");
-      warnings.push(
-        `WARNING: Skill "${skillName}" contains dangerous code patterns: ${criticalDetails}`,
-      );
-    } else if (summary.warn > 0) {
-      warnings.push(
-        `Skill "${skillName}" has ${summary.warn} suspicious code pattern(s). Run "openclaw security audit --deep" for details.`,
-      );
-    }
-  } catch (err) {
-    warnings.push(
-      `Skill "${skillName}" code safety scan failed (${String(err)}). Installation continues; run "openclaw security audit --deep" after install.`,
-    );
-  }
-
-  return warnings;
 }
 
 function resolveInstallId(spec: SkillInstallSpec, index: number): string {
@@ -374,51 +321,40 @@ export async function installSkill(params: SkillInstallRequest): Promise<SkillIn
   }
 
   const spec = findInstallSpec(entry, params.installId);
-  const warnings = await collectSkillInstallScanWarnings(entry);
   if (!spec) {
-    return withWarnings(
-      {
-        ok: false,
-        message: `Installer not found: ${params.installId}`,
-        stdout: "",
-        stderr: "",
-        code: null,
-      },
-      warnings,
-    );
+    return {
+      ok: false,
+      message: `Installer not found: ${params.installId}`,
+      stdout: "",
+      stderr: "",
+      code: null,
+    };
   }
   if (spec.kind === "download") {
-    const downloadResult = await installDownloadSpec({ entry, spec, timeoutMs });
-    return withWarnings(downloadResult, warnings);
+    return await installDownloadSpec({ entry, spec, timeoutMs });
   }
 
   const prefs = resolveSkillsInstallPreferences(params.config);
   const command = buildInstallCommand(spec, prefs);
   if (command.error) {
-    return withWarnings(
-      {
-        ok: false,
-        message: command.error,
-        stdout: "",
-        stderr: "",
-        code: null,
-      },
-      warnings,
-    );
+    return {
+      ok: false,
+      message: command.error,
+      stdout: "",
+      stderr: "",
+      code: null,
+    };
   }
 
   const brewExe = hasBinary("brew") ? "brew" : resolveBrewExecutable();
   if (spec.kind === "brew" && !brewExe) {
-    return withWarnings(
-      {
-        ok: false,
-        message: "brew not installed",
-        stdout: "",
-        stderr: "",
-        code: null,
-      },
-      warnings,
-    );
+    return {
+      ok: false,
+      message: "brew not installed",
+      stdout: "",
+      stderr: "",
+      code: null,
+    };
   }
   if (spec.kind === "uv" && !hasBinary("uv")) {
     if (brewExe) {
@@ -426,41 +362,32 @@ export async function installSkill(params: SkillInstallRequest): Promise<SkillIn
         timeoutMs,
       });
       if (brewResult.code !== 0) {
-        return withWarnings(
-          {
-            ok: false,
-            message: "Failed to install uv (brew)",
-            stdout: brewResult.stdout.trim(),
-            stderr: brewResult.stderr.trim(),
-            code: brewResult.code,
-          },
-          warnings,
-        );
+        return {
+          ok: false,
+          message: "Failed to install uv (brew)",
+          stdout: brewResult.stdout.trim(),
+          stderr: brewResult.stderr.trim(),
+          code: brewResult.code,
+        };
       }
     } else {
-      return withWarnings(
-        {
-          ok: false,
-          message: "uv not installed (install via brew)",
-          stdout: "",
-          stderr: "",
-          code: null,
-        },
-        warnings,
-      );
-    }
-  }
-  if (!command.argv || command.argv.length === 0) {
-    return withWarnings(
-      {
+      return {
         ok: false,
-        message: "invalid install command",
+        message: "uv not installed (install via brew)",
         stdout: "",
         stderr: "",
         code: null,
-      },
-      warnings,
-    );
+      };
+    }
+  }
+  if (!command.argv || command.argv.length === 0) {
+    return {
+      ok: false,
+      message: "invalid install command",
+      stdout: "",
+      stderr: "",
+      code: null,
+    };
   }
 
   if (spec.kind === "brew" && brewExe && command.argv[0] === "brew") {
@@ -473,28 +400,22 @@ export async function installSkill(params: SkillInstallRequest): Promise<SkillIn
         timeoutMs,
       });
       if (brewResult.code !== 0) {
-        return withWarnings(
-          {
-            ok: false,
-            message: "Failed to install go (brew)",
-            stdout: brewResult.stdout.trim(),
-            stderr: brewResult.stderr.trim(),
-            code: brewResult.code,
-          },
-          warnings,
-        );
+        return {
+          ok: false,
+          message: "Failed to install go (brew)",
+          stdout: brewResult.stdout.trim(),
+          stderr: brewResult.stderr.trim(),
+          code: brewResult.code,
+        };
       }
     } else {
-      return withWarnings(
-        {
-          ok: false,
-          message: "go not installed (install via brew)",
-          stdout: "",
-          stderr: "",
-          code: null,
-        },
-        warnings,
-      );
+      return {
+        ok: false,
+        message: "go not installed (install via brew)",
+        stdout: "",
+        stderr: "",
+        code: null,
+      };
     }
   }
 
@@ -521,14 +442,11 @@ export async function installSkill(params: SkillInstallRequest): Promise<SkillIn
   })();
 
   const success = result.code === 0;
-  return withWarnings(
-    {
-      ok: success,
-      message: success ? "Installed" : formatInstallFailureMessage(result),
-      stdout: result.stdout.trim(),
-      stderr: result.stderr.trim(),
-      code: result.code,
-    },
-    warnings,
-  );
+  return {
+    ok: success,
+    message: success ? "Installed" : formatInstallFailureMessage(result),
+    stdout: result.stdout.trim(),
+    stderr: result.stderr.trim(),
+    code: result.code,
+  };
 }

@@ -21,7 +21,7 @@ export type ReplyPrefixContextBundle = {
 };
 
 export function createReplyPrefixContext(params: {
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   agentId: string;
 }): ReplyPrefixContextBundle {
   const { cfg, agentId } = params;

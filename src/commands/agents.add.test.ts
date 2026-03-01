@@ -24,7 +24,7 @@ const runtime: RuntimeEnv = {
 };
 
 const baseSnapshot = {
-  path: "/tmp/openclaw.json",
+  path: "/tmp/moltbot.json",
   exists: true,
   raw: "{}",
   parsed: {},

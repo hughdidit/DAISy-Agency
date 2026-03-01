@@ -1,4 +1,4 @@
-export type OpenClawVersion = {
+export type MoltbotVersion = {
   major: number;
   minor: number;
   patch: number;
@@ -7,7 +7,7 @@ export type OpenClawVersion = {
 
 const VERSION_RE = /^v?(\d+)\.(\d+)\.(\d+)(?:-(\d+))?/;
 
-export function parseOpenClawVersion(raw: string | null | undefined): OpenClawVersion | null {
+export function parseMoltbotVersion(raw: string | null | undefined): MoltbotVersion | null {
   if (!raw) return null;
   const match = raw.trim().match(VERSION_RE);
   if (!match) return null;
@@ -20,12 +20,12 @@ export function parseOpenClawVersion(raw: string | null | undefined): OpenClawVe
   };
 }
 
-export function compareOpenClawVersions(
+export function compareMoltbotVersions(
   a: string | null | undefined,
   b: string | null | undefined,
 ): number | null {
-  const parsedA = parseOpenClawVersion(a);
-  const parsedB = parseOpenClawVersion(b);
+  const parsedA = parseMoltbotVersion(a);
+  const parsedB = parseMoltbotVersion(b);
   if (!parsedA || !parsedB) return null;
   if (parsedA.major !== parsedB.major) return parsedA.major < parsedB.major ? -1 : 1;
   if (parsedA.minor !== parsedB.minor) return parsedA.minor < parsedB.minor ? -1 : 1;

@@ -15,7 +15,7 @@ const plugin = {
   name: "Zalo Personal",
   description: "Zalo personal account messaging via zca-cli",
   configSchema: emptyPluginConfigSchema(),
-  register(api: OpenClawPluginApi) {
+  register(api: MoltbotPluginApi) {
     setZalouserRuntime(api.runtime);
     // Register channel plugin (for onboarding & gateway)
     api.registerChannel({ plugin: zalouserPlugin, dock: zalouserDock });

@@ -35,7 +35,7 @@ vi.mock("../pairing/pairing-store.js", () => ({
 }));
 
 vi.mock("../config/sessions.js", () => ({
-  resolveStorePath: vi.fn(() => "/tmp/openclaw-sessions.json"),
+  resolveStorePath: vi.fn(() => "/tmp/moltbot-sessions.json"),
   updateLastRoute: (...args: unknown[]) => updateLastRouteMock(...args),
   readSessionUpdatedAt: vi.fn(() => undefined),
   recordSessionMetaFromInbound: vi.fn().mockResolvedValue(undefined),
@@ -79,7 +79,7 @@ beforeEach(() => {
     },
     session: { mainKey: "main" },
     messages: {
-      groupChat: { mentionPatterns: ["@openclaw"] },
+      groupChat: { mentionPatterns: ["@clawd"] },
     },
   };
   requestMock.mockReset().mockImplementation((method: string) => {
@@ -218,7 +218,7 @@ describe("monitorIMessageProvider", () => {
           chat_id: 123,
           sender: "+15550001111",
           is_from_me: false,
-          text: "@openclaw hello",
+          text: "@clawd hello",
           is_group: true,
         },
       },
@@ -363,7 +363,7 @@ describe("monitorIMessageProvider", () => {
           chat_id: 42,
           sender: "+15550002222",
           is_from_me: false,
-          text: "@openclaw ping",
+          text: "@clawd ping",
           is_group: true,
           chat_name: "Lobster Squad",
           participants: ["+1555", "+1556"],
@@ -412,7 +412,7 @@ describe("monitorIMessageProvider", () => {
           chat_id: 202,
           sender: "+15550003333",
           is_from_me: false,
-          text: "@openclaw hi",
+          text: "@clawd hi",
           is_group: true,
         },
       },
@@ -447,7 +447,7 @@ describe("monitorIMessageProvider", () => {
           chat_id: 303,
           sender: "+15550003333",
           is_from_me: false,
-          text: "@openclaw hi",
+          text: "@clawd hi",
           is_group: true,
         },
       },
@@ -473,7 +473,7 @@ describe("monitorIMessageProvider", () => {
           chat_name: "Test Group",
           sender: "+15550001111",
           is_from_me: false,
-          text: "@openclaw hi",
+          text: "@clawd hi",
           is_group: true,
           created_at: "2026-01-17T00:00:00Z",
         },
@@ -488,7 +488,7 @@ describe("monitorIMessageProvider", () => {
     const ctx = replyMock.mock.calls[0]?.[0];
     const body = ctx?.Body ?? "";
     expect(body).toContain("Test Group id:99");
-    expect(body).toContain("+15550001111: @openclaw hi");
+    expect(body).toContain("+15550001111: @clawd hi");
   });
 
   it("includes reply context when imessage reply metadata is present", async () => {

@@ -24,14 +24,8 @@
   "description": "OpenClaw Mattermost channel plugin",
 >>>>>>> 1c4db9159 (chore: prepare 2026.2.2 release)
   "type": "module",
-<<<<<<< HEAD
-  "description": "OpenClaw Mattermost channel plugin",
-=======
-  "devDependencies": {
-    "openclaw": "workspace:*"
-  },
->>>>>>> aa91f6e70 (chore: Add `openclaw` to `devDependencies` for all extensions so that types resolve.)
-  "openclaw": {
+  "description": "Moltbot Mattermost channel plugin",
+  "moltbot": {
     "extensions": [
       "./index.ts"
     ],
@@ -45,7 +39,7 @@
       "order": 65
     },
     "install": {
-      "npmSpec": "@openclaw/mattermost",
+      "npmSpec": "@moltbot/mattermost",
       "localPath": "extensions/mattermost",
       "defaultChoice": "npm"
     }

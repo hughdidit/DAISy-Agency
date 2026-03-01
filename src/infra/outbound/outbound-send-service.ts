@@ -23,7 +23,7 @@ export type OutboundGatewayContext = {
 };
 
 export type OutboundSendContext = {
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   channel: ChannelId;
   params: Record<string, unknown>;
   accountId?: string | null;

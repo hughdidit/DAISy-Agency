@@ -52,7 +52,7 @@ describe("registerTelegramNativeCommands (plugin auth)", () => {
       },
     } as const;
 
-    const cfg = {} as OpenClawConfig;
+    const cfg = {} as MoltbotConfig;
     const telegramCfg = {} as TelegramAccountConfig;
     const resolveGroupPolicy = () =>
       ({

@@ -1,12 +1,12 @@
-import type { OpenClawConfig } from "../config/config.js";
+import type { MoltbotConfig } from "../config/config.js";
 
 export type PluginEnableResult = {
-  config: OpenClawConfig;
+  config: MoltbotConfig;
   enabled: boolean;
   reason?: string;
 };
 
-function ensureAllowlisted(cfg: OpenClawConfig, pluginId: string): OpenClawConfig {
+function ensureAllowlisted(cfg: MoltbotConfig, pluginId: string): MoltbotConfig {
   const allow = cfg.plugins?.allow;
   if (!Array.isArray(allow) || allow.includes(pluginId)) return cfg;
   return {
@@ -18,7 +18,7 @@ function ensureAllowlisted(cfg: OpenClawConfig, pluginId: string): OpenClawConfi
   };
 }
 
-export function enablePluginInConfig(cfg: OpenClawConfig, pluginId: string): PluginEnableResult {
+export function enablePluginInConfig(cfg: MoltbotConfig, pluginId: string): PluginEnableResult {
   if (cfg.plugins?.enabled === false) {
     return { config: cfg, enabled: false, reason: "plugins disabled" };
   }
@@ -33,7 +33,7 @@ export function enablePluginInConfig(cfg: OpenClawConfig, pluginId: string): Plu
       enabled: true,
     },
   };
-  let next: OpenClawConfig = {
+  let next: MoltbotConfig = {
     ...cfg,
     plugins: {
       ...cfg.plugins,

@@ -38,7 +38,7 @@ export interface MonitorLineProviderOptions {
   channelAccessToken: string;
   channelSecret: string;
   accountId?: string;
-  config: OpenClawConfig;
+  config: MoltbotConfig;
   runtime: RuntimeEnv;
   abortSignal?: AbortSignal;
   webhookUrl?: string;

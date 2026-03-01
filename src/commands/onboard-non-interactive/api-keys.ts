@@ -16,7 +16,7 @@ export type NonInteractiveApiKeySource = "flag" | "env" | "profile";
 
 async function resolveApiKeyFromProfiles(params: {
   provider: string;
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   agentDir?: string;
 }): Promise<string | null> {
   const store = ensureAuthProfileStore(params.agentDir);
@@ -41,7 +41,7 @@ async function resolveApiKeyFromProfiles(params: {
 
 export async function resolveNonInteractiveApiKey(params: {
   provider: string;
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   flagValue?: string;
   flagName: string;
   envVar: string;

@@ -15,7 +15,7 @@ vi.mock("../../agents/tools/slack-actions.js", () => ({
 
 describe("slack actions adapter", () => {
   it("forwards threadId for read", async () => {
-    const cfg = { channels: { slack: { botToken: "tok" } } } as OpenClawConfig;
+    const cfg = { channels: { slack: { botToken: "tok" } } } as MoltbotConfig;
     const actions = createSlackActions("slack");
 
     await actions.handleAction?.({

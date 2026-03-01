@@ -18,7 +18,7 @@ export function loadGatewayPlugins(params: {
   coreGatewayHandlers: Record<string, GatewayRequestHandler>;
   baseMethods: string[];
 }) {
-  const pluginRegistry = loadOpenClawPlugins({
+  const pluginRegistry = loadMoltbotPlugins({
     config: params.cfg,
     workspaceDir: params.workspaceDir,
     logger: {

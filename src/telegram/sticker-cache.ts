@@ -153,7 +153,7 @@ const VISION_PROVIDERS = ["openai", "anthropic", "google", "minimax"] as const;
 
 export interface DescribeStickerParams {
   imagePath: string;
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   agentDir?: string;
   agentId?: string;
 }
@@ -199,7 +199,7 @@ export async function describeStickerImage(params: DescribeStickerParams): Promi
       provider === "openai"
         ? "gpt-5-mini"
         : provider === "anthropic"
-          ? "claude-opus-4-6"
+          ? "claude-opus-4-5"
           : provider === "google"
             ? "gemini-3-flash-preview"
             : "MiniMax-VL-01";

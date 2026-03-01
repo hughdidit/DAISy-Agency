@@ -75,21 +75,20 @@ async function main() {
   }
 
   const baseDir = await fs.mkdtemp(
-    path.join(os.tmpdir(), "openclaw-zai-fallback-"),
+    path.join(os.tmpdir(), "moltbot-zai-fallback-"),
   );
   const stateDir = path.join(baseDir, "state");
-  const configPath = path.join(baseDir, "openclaw.json");
+  const configPath = path.join(baseDir, "moltbot.json");
   await fs.mkdir(stateDir, { recursive: true });
 
   const config = {
     agents: {
       defaults: {
         model: {
-          primary: "anthropic/claude-opus-4-6",
+          primary: "anthropic/claude-opus-4-5",
           fallbacks: ["zai/glm-4.7"],
         },
         models: {
-          "anthropic/claude-opus-4-6": {},
           "anthropic/claude-opus-4-5": {},
           "zai/glm-4.7": {},
         },
@@ -99,14 +98,10 @@ async function main() {
   await fs.writeFile(configPath, JSON.stringify(config, null, 2), "utf8");
 
   const sessionId =
-    process.env.OPENCLAW_ZAI_FALLBACK_SESSION_ID ??
-    process.env.CLAWDBOT_ZAI_FALLBACK_SESSION_ID ??
-    randomUUID();
+    process.env.CLAWDBOT_ZAI_FALLBACK_SESSION_ID ?? randomUUID();
 
   const baseEnv: NodeJS.ProcessEnv = {
     ...process.env,
-    OPENCLAW_CONFIG_PATH: configPath,
-    OPENCLAW_STATE_DIR: stateDir,
     CLAWDBOT_CONFIG_PATH: configPath,
     CLAWDBOT_STATE_DIR: stateDir,
     ZAI_API_KEY: zaiKey,
@@ -132,7 +127,7 @@ async function main() {
   const run1 = await runCommand(
     "run1",
     [
-      "openclaw",
+      "moltbot",
       "agent",
       "--local",
       "--session-id",
@@ -164,7 +159,7 @@ async function main() {
   const run2 = await runCommand(
     "run2",
     [
-      "openclaw",
+      "moltbot",
       "agent",
       "--local",
       "--session-id",

@@ -9,7 +9,7 @@ import type { OpenClawConfig } from "../config/types.js";
 import { resolveConfigPath } from "../config/paths.js";
 >>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 
-type LoggingConfig = OpenClawConfig["logging"];
+type LoggingConfig = MoltbotConfig["logging"];
 
 export function readLoggingConfig(): LoggingConfig | undefined {
   const configPath = resolveConfigPath();

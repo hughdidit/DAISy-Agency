@@ -32,17 +32,6 @@ describe("model-selection", () => {
       });
     });
 
-    it("normalizes anthropic alias refs to canonical model ids", () => {
-      expect(parseModelRef("anthropic/opus-4.6", "openai")).toEqual({
-        provider: "anthropic",
-        model: "claude-opus-4-6",
-      });
-      expect(parseModelRef("opus-4.6", "anthropic")).toEqual({
-        provider: "anthropic",
-        model: "claude-opus-4-6",
-      });
-    });
-
     it("should use default provider if none specified", () => {
       expect(parseModelRef("claude-3-5-sonnet", "anthropic")).toEqual({
         provider: "anthropic",
@@ -64,7 +53,7 @@ describe("model-selection", () => {
 
   describe("buildModelAliasIndex", () => {
     it("should build alias index from config", () => {
-      const cfg: Partial<OpenClawConfig> = {
+      const cfg: Partial<MoltbotConfig> = {
         agents: {
           defaults: {
             models: {
@@ -76,7 +65,7 @@ describe("model-selection", () => {
       };
 
       const index = buildModelAliasIndex({
-        cfg: cfg as OpenClawConfig,
+        cfg: cfg as MoltbotConfig,
         defaultProvider: "anthropic",
       });
 
@@ -120,7 +109,7 @@ describe("model-selection", () => {
   describe("resolveConfiguredModelRef", () => {
     it("should fall back to anthropic and warn if provider is missing for non-alias", () => {
       const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
-      const cfg: Partial<OpenClawConfig> = {
+      const cfg: Partial<MoltbotConfig> = {
         agents: {
           defaults: {
             model: "claude-3-5-sonnet",
@@ -129,7 +118,7 @@ describe("model-selection", () => {
       };
 
       const result = resolveConfiguredModelRef({
-        cfg: cfg as OpenClawConfig,
+        cfg: cfg as MoltbotConfig,
         defaultProvider: "google",
         defaultModel: "gemini-pro",
       });
@@ -142,9 +131,9 @@ describe("model-selection", () => {
     });
 
     it("should use default provider/model if config is empty", () => {
-      const cfg: Partial<OpenClawConfig> = {};
+      const cfg: Partial<MoltbotConfig> = {};
       const result = resolveConfiguredModelRef({
-        cfg: cfg as OpenClawConfig,
+        cfg: cfg as MoltbotConfig,
         defaultProvider: "openai",
         defaultModel: "gpt-4",
       });

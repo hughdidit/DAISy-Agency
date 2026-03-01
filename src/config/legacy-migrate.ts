@@ -8,7 +8,7 @@ import { applyLegacyMigrations } from "./legacy.js";
 import { validateConfigObjectWithPlugins } from "./validation.js";
 
 export function migrateLegacyConfig(raw: unknown): {
-  config: OpenClawConfig | null;
+  config: MoltbotConfig | null;
   changes: string[];
 } {
   const { next, changes } = applyLegacyMigrations(raw);

@@ -54,7 +54,7 @@ export const updateHandlers: GatewayRequestHandlers = {
     let result: Awaited<ReturnType<typeof runGatewayUpdate>>;
     try {
       const root =
-        (await resolveOpenClawPackageRoot({
+        (await resolveMoltbotPackageRoot({
           moduleUrl: import.meta.url,
           argv1: process.argv[1],
           cwd: process.cwd(),

@@ -1,5 +1,5 @@
 ---
-summary: "Use OpenRouter's unified API to access many models in OpenClaw"
+summary: "Use OpenRouter's unified API to access many models in Moltbot"
 read_when:
   - You want a single API key for many LLMs
 <<<<<<< HEAD
@@ -17,7 +17,7 @@ endpoint and API key. It is OpenAI-compatible, so most OpenAI SDKs work by switc
 ## CLI setup
 
 ```bash
-openclaw onboard --auth-choice apiKey --token-provider openrouter --token "$OPENROUTER_API_KEY"
+moltbot onboard --auth-choice apiKey --token-provider openrouter --token "$OPENROUTER_API_KEY"
 ```
 
 ## Config snippet

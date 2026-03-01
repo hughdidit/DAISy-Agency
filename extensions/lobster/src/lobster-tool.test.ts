@@ -10,7 +10,7 @@ import type { OpenClawPluginApi, OpenClawPluginToolContext } from "../../../src/
 >>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { createLobsterTool } from "./lobster-tool.js";
 
-async function writeFakeLobsterScript(scriptBody: string, prefix = "openclaw-lobster-plugin-") {
+async function writeFakeLobsterScript(scriptBody: string, prefix = "moltbot-lobster-plugin-") {
   const dir = await fs.mkdtemp(path.join(os.tmpdir(), prefix));
   const isWindows = process.platform === "win32";
 
@@ -65,7 +65,7 @@ function fakeApi(overrides: Partial<OpenClawPluginApi> = {}): OpenClawPluginApi 
   };
 }
 
-function fakeCtx(overrides: Partial<OpenClawPluginToolContext> = {}): OpenClawPluginToolContext {
+function fakeCtx(overrides: Partial<MoltbotPluginToolContext> = {}): MoltbotPluginToolContext {
   return {
     config: {} as any,
     workspaceDir: "/tmp",
@@ -108,7 +108,7 @@ describe("lobster plugin tool", () => {
       `const payload = ${JSON.stringify(payload)};\n` +
         `console.log("noise before json");\n` +
         `process.stdout.write(JSON.stringify(payload));\n`,
-      "openclaw-lobster-plugin-noisy-",
+      "moltbot-lobster-plugin-noisy-",
     );
 
     const originalPath = process.env.PATH;
@@ -221,7 +221,7 @@ describe("lobster plugin tool", () => {
   it("rejects invalid JSON from lobster", async () => {
     const { dir } = await writeFakeLobsterScript(
       `process.stdout.write("nope");\n`,
-      "openclaw-lobster-plugin-bad-",
+      "moltbot-lobster-plugin-bad-",
     );
 
     const originalPath = process.env.PATH;
@@ -242,7 +242,7 @@ describe("lobster plugin tool", () => {
 
   it("can be gated off in sandboxed contexts", async () => {
     const api = fakeApi();
-    const factoryTool = (ctx: OpenClawPluginToolContext) => {
+    const factoryTool = (ctx: MoltbotPluginToolContext) => {
       if (ctx.sandboxed) return null;
       return createLobsterTool(api);
     };

@@ -149,7 +149,7 @@ export function isReplySkip(text?: string) {
   return (text ?? "").trim() === REPLY_SKIP_TOKEN;
 }
 
-export function resolvePingPongTurns(cfg?: OpenClawConfig) {
+export function resolvePingPongTurns(cfg?: MoltbotConfig) {
   const raw = cfg?.session?.agentToAgent?.maxPingPongTurns;
   const fallback = DEFAULT_PING_PONG_TURNS;
   if (typeof raw !== "number" || !Number.isFinite(raw)) return fallback;

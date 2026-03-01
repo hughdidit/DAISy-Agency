@@ -1,7 +1,7 @@
 <<<<<<< HEAD
 import { describe, expect, it } from "vitest";
 
-import type { OpenClawConfig } from "openclaw/plugin-sdk";
+import type { MoltbotConfig } from "clawdbot/plugin-sdk";
 
 =======
 import type { OpenClawConfig } from "openclaw/plugin-sdk";
@@ -26,7 +26,7 @@ describe("msteams directory", () => {
           },
         },
       },
-    } as unknown as OpenClawConfig;
+    } as unknown as MoltbotConfig;
 
     expect(msteamsPlugin.directory).toBeTruthy();
     expect(msteamsPlugin.directory?.listPeers).toBeTruthy();

@@ -36,7 +36,7 @@ describe("resolveChannelCapabilities", () => {
           },
         },
       },
-    } satisfies Partial<OpenClawConfig>;
+    } satisfies Partial<MoltbotConfig>;
 
     expect(
       resolveChannelCapabilities({
@@ -57,7 +57,7 @@ describe("resolveChannelCapabilities", () => {
           },
         },
       },
-    } satisfies Partial<OpenClawConfig>;
+    } satisfies Partial<MoltbotConfig>;
 
     expect(
       resolveChannelCapabilities({
@@ -77,7 +77,7 @@ describe("resolveChannelCapabilities", () => {
           },
         },
       },
-    } satisfies Partial<OpenClawConfig>;
+    } satisfies Partial<MoltbotConfig>;
 
     expect(
       resolveChannelCapabilities({
@@ -100,7 +100,7 @@ describe("resolveChannelCapabilities", () => {
     );
     const cfg = {
       channels: { msteams: { capabilities: [" polls ", ""] } },
-    } satisfies Partial<OpenClawConfig>;
+    } satisfies Partial<MoltbotConfig>;
 
     expect(
       resolveChannelCapabilities({

@@ -126,7 +126,7 @@ export function resolveOutboundTarget(params: {
   channel: GatewayMessageChannel;
   to?: string;
   allowFrom?: string[];
-  cfg?: OpenClawConfig;
+  cfg?: MoltbotConfig;
   accountId?: string | null;
   mode?: ChannelOutboundTargetMode;
 }): OutboundTargetResolution {
@@ -134,7 +134,7 @@ export function resolveOutboundTarget(params: {
     return {
       ok: false,
       error: new Error(
-        `Delivering to WebChat is not supported via \`${formatCliCommand("openclaw agent")}\`; use WhatsApp/Telegram or run with --deliver=false.`,
+        `Delivering to WebChat is not supported via \`${formatCliCommand("moltbot agent")}\`; use WhatsApp/Telegram or run with --deliver=false.`,
       ),
     };
   }
@@ -179,7 +179,7 @@ export function resolveOutboundTarget(params: {
 }
 
 export function resolveHeartbeatDeliveryTarget(params: {
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   entry?: SessionEntry;
   heartbeat?: AgentDefaultsConfig["heartbeat"];
 }): OutboundTarget {
@@ -296,7 +296,7 @@ function resolveHeartbeatSenderId(params: {
 }
 
 export function resolveHeartbeatSenderContext(params: {
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   entry?: SessionEntry;
   delivery: OutboundTarget;
 }): HeartbeatSenderContext {

@@ -86,7 +86,7 @@ type ResolvedAuthCooldownConfig = {
 };
 
 function resolveAuthCooldownConfig(params: {
-  cfg?: OpenClawConfig;
+  cfg?: MoltbotConfig;
   providerId: string;
 }): ResolvedAuthCooldownConfig {
   const defaults = {
@@ -196,7 +196,7 @@ export async function markAuthProfileFailure(params: {
   store: AuthProfileStore;
   profileId: string;
   reason: AuthProfileFailureReason;
-  cfg?: OpenClawConfig;
+  cfg?: MoltbotConfig;
   agentDir?: string;
 }): Promise<void> {
   const { store, profileId, reason, agentDir, cfg } = params;

@@ -1,7 +1,7 @@
 import type { AssistantMessage } from "@mariozechner/pi-ai";
 <<<<<<< HEAD
 
-import type { OpenClawConfig } from "../../config/config.js";
+import type { MoltbotConfig } from "../../config/config.js";
 import { formatSandboxToolPolicyBlockedMessage } from "../sandbox.js";
 =======
 import type { OpenClawConfig } from "../../config/config.js";
@@ -257,7 +257,7 @@ export function formatRawAssistantErrorForUi(raw?: string): string {
 
 export function formatAssistantErrorText(
   msg: AssistantMessage,
-  opts?: { cfg?: OpenClawConfig; sessionKey?: string },
+  opts?: { cfg?: MoltbotConfig; sessionKey?: string },
 ): string | undefined {
   // Also format errors if errorMessage is present, even if stopReason isn't "error"
   const raw = (msg.errorMessage ?? "").trim();

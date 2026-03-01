@@ -14,7 +14,7 @@ const plugin = {
   name: "iMessage",
   description: "iMessage channel plugin",
   configSchema: emptyPluginConfigSchema(),
-  register(api: OpenClawPluginApi) {
+  register(api: MoltbotPluginApi) {
     setIMessageRuntime(api.runtime);
     api.registerChannel({ plugin: imessagePlugin });
   },

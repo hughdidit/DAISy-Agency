@@ -24,14 +24,8 @@
   "description": "OpenClaw Nextcloud Talk channel plugin",
 >>>>>>> 1c4db9159 (chore: prepare 2026.2.2 release)
   "type": "module",
-<<<<<<< HEAD
-  "description": "OpenClaw Nextcloud Talk channel plugin",
-=======
-  "devDependencies": {
-    "openclaw": "workspace:*"
-  },
->>>>>>> aa91f6e70 (chore: Add `openclaw` to `devDependencies` for all extensions so that types resolve.)
-  "openclaw": {
+  "description": "Moltbot Nextcloud Talk channel plugin",
+  "moltbot": {
     "extensions": [
       "./index.ts"
     ],
@@ -50,7 +44,7 @@
       "quickstartAllowFrom": true
     },
     "install": {
-      "npmSpec": "@openclaw/nextcloud-talk",
+      "npmSpec": "@moltbot/nextcloud-talk",
       "localPath": "extensions/nextcloud-talk",
       "defaultChoice": "npm"
     }

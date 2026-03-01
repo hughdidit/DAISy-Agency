@@ -92,7 +92,7 @@ const NodesToolSchema = Type.Object({
 
 export function createNodesTool(options?: {
   agentSessionKey?: string;
-  config?: OpenClawConfig;
+  config?: MoltbotConfig;
 }): AnyAgentTool {
   const sessionKey = options?.agentSessionKey?.trim() || undefined;
   const agentId = resolveSessionAgentId({

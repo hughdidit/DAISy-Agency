@@ -101,10 +101,10 @@ function redactText(text: string, patterns: RegExp[]): string {
 }
 
 function resolveConfigRedaction(): RedactOptions {
-  let cfg: OpenClawConfig["logging"] | undefined;
+  let cfg: MoltbotConfig["logging"] | undefined;
   try {
     const loaded = requireConfig("../config/config.js") as {
-      loadConfig?: () => OpenClawConfig;
+      loadConfig?: () => MoltbotConfig;
     };
     cfg = loaded.loadConfig?.().logging;
   } catch {

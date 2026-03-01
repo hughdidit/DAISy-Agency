@@ -16,7 +16,7 @@ export type RemovalResult = {
   skipped?: boolean;
 };
 
-export function collectWorkspaceDirs(cfg: OpenClawConfig | undefined): string[] {
+export function collectWorkspaceDirs(cfg: MoltbotConfig | undefined): string[] {
   const dirs = new Set<string>();
   const defaults = cfg?.agents?.defaults;
   if (typeof defaults?.workspace === "string" && defaults.workspace.trim()) {

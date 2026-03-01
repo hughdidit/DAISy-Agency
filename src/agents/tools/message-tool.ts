@@ -247,16 +247,15 @@ const MessageToolSchema = buildMessageToolSchemaFromActions(AllMessageActions, {
 type MessageToolOptions = {
   agentAccountId?: string;
   agentSessionKey?: string;
-  config?: OpenClawConfig;
+  config?: MoltbotConfig;
   currentChannelId?: string;
   currentChannelProvider?: string;
   currentThreadTs?: string;
   replyToMode?: "off" | "first" | "all";
   hasRepliedRef?: { value: boolean };
-  sandboxRoot?: string;
 };
 
-function buildMessageToolSchema(cfg: OpenClawConfig) {
+function buildMessageToolSchema(cfg: MoltbotConfig) {
   const actions = listChannelMessageActions(cfg);
   const includeButtons = supportsChannelMessageButtons(cfg);
   const includeCards = supportsChannelMessageCards(cfg);
@@ -294,7 +293,7 @@ function filterActionsForContext(params: {
 }
 
 function buildMessageToolDescription(options?: {
-  config?: OpenClawConfig;
+  config?: MoltbotConfig;
   currentChannel?: string;
   currentChannelId?: string;
 }): string {
@@ -398,7 +397,6 @@ export function createMessageTool(options?: MessageToolOptions): AnyAgentTool {
         agentId: options?.agentSessionKey
           ? resolveSessionAgentId({ sessionKey: options.agentSessionKey, config: cfg })
           : undefined,
-        sandboxRoot: options?.sandboxRoot,
         abortSignal: signal,
       });
 

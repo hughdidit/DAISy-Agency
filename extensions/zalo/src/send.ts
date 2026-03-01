@@ -13,7 +13,7 @@ import { resolveZaloToken } from "./token.js";
 export type ZaloSendOptions = {
   token?: string;
   accountId?: string;
-  cfg?: OpenClawConfig;
+  cfg?: MoltbotConfig;
   mediaUrl?: string;
   caption?: string;
   verbose?: boolean;

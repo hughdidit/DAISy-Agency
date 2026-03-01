@@ -10,7 +10,7 @@ title: "Twitch"
 ---
 # Twitch (plugin)
 
-Twitch chat support via IRC connection. OpenClaw connects as a Twitch user (bot account) to receive and send messages in channels.
+Twitch chat support via IRC connection. Moltbot connects as a Twitch user (bot account) to receive and send messages in channels.
 
 ## Plugin required
 
@@ -19,13 +19,13 @@ Twitch ships as a plugin and is not bundled with the core install.
 Install via CLI (npm registry):
 
 ```bash
-openclaw plugins install @openclaw/twitch
+moltbot plugins install @moltbot/twitch
 ```
 
 Local checkout (when running from a git repo):
 
 ```bash
-openclaw plugins install ./extensions/twitch
+moltbot plugins install ./extensions/twitch
 ```
 
 Details: [Plugins](/plugin)
@@ -67,8 +67,8 @@ Minimal config:
   channels: {
     twitch: {
       enabled: true,
-      username: "openclaw",              // Bot's Twitch account
-      accessToken: "oauth:abc123...",    // OAuth Access Token (or use OPENCLAW_TWITCH_ACCESS_TOKEN env var)
+      username: "moltbot",              // Bot's Twitch account
+      accessToken: "oauth:abc123...",    // OAuth Access Token (or use CLAWDBOT_TWITCH_ACCESS_TOKEN env var)
       clientId: "xyz789...",             // Client ID from Token Generator
       channel: "vevisk",                 // Which Twitch channel's chat to join (required)
       allowFrom: ["123456789"]           // (recommended) Your Twitch user ID only - get it from https://www.streamweasels.com/tools/convert-twitch-username-to-user-id/
@@ -99,7 +99,7 @@ No manual app registration needed. Tokens expire after several hours.
 
 **Env var (default account only):**
 ```bash
-OPENCLAW_TWITCH_ACCESS_TOKEN=oauth:abc123...
+CLAWDBOT_TWITCH_ACCESS_TOKEN=oauth:abc123...
 ```
 
 **Or config:**
@@ -108,7 +108,7 @@ OPENCLAW_TWITCH_ACCESS_TOKEN=oauth:abc123...
   channels: {
     twitch: {
       enabled: true,
-      username: "openclaw",
+      username: "moltbot",
       accessToken: "oauth:abc123...",
       clientId: "xyz789...",
       channel: "vevisk"
@@ -177,13 +177,13 @@ Example (one bot account in two channels):
     twitch: {
       accounts: {
         channel1: {
-          username: "openclaw",
+          username: "moltbot",
           accessToken: "oauth:abc123...",
           clientId: "xyz789...",
           channel: "vevisk"
         },
         channel2: {
-          username: "openclaw",
+          username: "moltbot",
           accessToken: "oauth:def456...",
           clientId: "uvw012...",
           channel: "secondchannel"
@@ -281,8 +281,8 @@ By default, `requireMention` is `true`. To disable and respond to all messages:
 First, run diagnostic commands:
 
 ```bash
-openclaw doctor
-openclaw channels status --probe
+moltbot doctor
+moltbot channels status --probe
 ```
 
 ### Bot doesn't respond to messages
@@ -342,7 +342,7 @@ Full example:
   channels: {
     twitch: {
       enabled: true,
-      username: "openclaw",
+      username: "moltbot",
       accessToken: "oauth:abc123...",
       clientId: "xyz789...",
       channel: "vevisk",

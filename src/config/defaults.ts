@@ -18,7 +18,7 @@ type AnthropicAuthDefaultsMode = "api_key" | "oauth";
 
 const DEFAULT_MODEL_ALIASES: Readonly<Record<string, string>> = {
   // Anthropic (pi-ai catalog uses "latest" ids without date suffix)
-  opus: "anthropic/claude-opus-4-6",
+  opus: "anthropic/claude-opus-4-5",
   sonnet: "anthropic/claude-sonnet-4-5",
 
   // OpenAI
@@ -58,7 +58,7 @@ function resolveModelCost(
   };
 }
 
-function resolveAnthropicDefaultAuthMode(cfg: OpenClawConfig): AnthropicAuthDefaultsMode | null {
+function resolveAnthropicDefaultAuthMode(cfg: MoltbotConfig): AnthropicAuthDefaultsMode | null {
   const profiles = cfg.auth?.profiles ?? {};
   const anthropicProfiles = Object.entries(profiles).filter(
     ([, profile]) => profile?.provider === "anthropic",
@@ -97,7 +97,7 @@ export type SessionDefaultsOptions = {
   warnState?: WarnState;
 };
 
-export function applyMessageDefaults(cfg: OpenClawConfig): OpenClawConfig {
+export function applyMessageDefaults(cfg: MoltbotConfig): MoltbotConfig {
   const messages = cfg.messages;
   const hasAckScope = messages?.ackReactionScope !== undefined;
   if (hasAckScope) return cfg;
@@ -111,9 +111,9 @@ export function applyMessageDefaults(cfg: OpenClawConfig): OpenClawConfig {
 }
 
 export function applySessionDefaults(
-  cfg: OpenClawConfig,
+  cfg: MoltbotConfig,
   options: SessionDefaultsOptions = {},
-): OpenClawConfig {
+): MoltbotConfig {
   const session = cfg.session;
   if (!session || session.mainKey === undefined) return cfg;
 
@@ -121,7 +121,7 @@ export function applySessionDefaults(
   const warn = options.warn ?? console.warn;
   const warnState = options.warnState ?? defaultWarnState;
 
-  const next: OpenClawConfig = {
+  const next: MoltbotConfig = {
     ...cfg,
     session: { ...session, mainKey: "main" },
   };
@@ -134,7 +134,7 @@ export function applySessionDefaults(
   return next;
 }
 
-export function applyTalkApiKey(config: OpenClawConfig): OpenClawConfig {
+export function applyTalkApiKey(config: MoltbotConfig): MoltbotConfig {
   const resolved = resolveTalkApiKey();
   if (!resolved) return config;
   const existing = config.talk?.apiKey?.trim();
@@ -148,7 +148,7 @@ export function applyTalkApiKey(config: OpenClawConfig): OpenClawConfig {
   };
 }
 
-export function applyModelDefaults(cfg: OpenClawConfig): OpenClawConfig {
+export function applyModelDefaults(cfg: MoltbotConfig): MoltbotConfig {
   let mutated = false;
   let nextCfg = cfg;
 
@@ -243,7 +243,7 @@ export function applyModelDefaults(cfg: OpenClawConfig): OpenClawConfig {
   };
 }
 
-export function applyAgentDefaults(cfg: OpenClawConfig): OpenClawConfig {
+export function applyAgentDefaults(cfg: MoltbotConfig): MoltbotConfig {
   const agents = cfg.agents;
   const defaults = agents?.defaults;
   const hasMax =
@@ -280,7 +280,7 @@ export function applyAgentDefaults(cfg: OpenClawConfig): OpenClawConfig {
   };
 }
 
-export function applyLoggingDefaults(cfg: OpenClawConfig): OpenClawConfig {
+export function applyLoggingDefaults(cfg: MoltbotConfig): MoltbotConfig {
   const logging = cfg.logging;
   if (!logging) return cfg;
   if (logging.redactSensitive) return cfg;
@@ -293,7 +293,7 @@ export function applyLoggingDefaults(cfg: OpenClawConfig): OpenClawConfig {
   };
 }
 
-export function applyContextPruningDefaults(cfg: OpenClawConfig): OpenClawConfig {
+export function applyContextPruningDefaults(cfg: MoltbotConfig): MoltbotConfig {
   const defaults = cfg.agents?.defaults;
   if (!defaults) return cfg;
 
@@ -331,16 +331,10 @@ export function applyContextPruningDefaults(cfg: OpenClawConfig): OpenClawConfig
       if (!parsed || parsed.provider !== "anthropic") continue;
       const current = entry ?? {};
       const params = (current as { params?: Record<string, unknown> }).params ?? {};
-<<<<<<< HEAD
       if (typeof params.cacheControlTtl === "string") continue;
-=======
-      if (typeof params.cacheRetention === "string") {
-        continue;
-      }
->>>>>>> ba4a55f6d (fix(agents): update cacheControlTtl to cacheRetention for pi-ai 0.50.9)
       nextModels[key] = {
         ...(current as Record<string, unknown>),
-        params: { ...params, cacheRetention: "short" },
+        params: { ...params, cacheControlTtl: "1h" },
       };
       modelsMutated = true;
     }
@@ -353,10 +347,10 @@ export function applyContextPruningDefaults(cfg: OpenClawConfig): OpenClawConfig
         const entry = nextModels[key];
         const current = entry ?? {};
         const params = (current as { params?: Record<string, unknown> }).params ?? {};
-        if (typeof params.cacheRetention !== "string") {
+        if (typeof params.cacheControlTtl !== "string") {
           nextModels[key] = {
             ...(current as Record<string, unknown>),
-            params: { ...params, cacheRetention: "short" },
+            params: { ...params, cacheControlTtl: "1h" },
           };
           modelsMutated = true;
         }
@@ -380,7 +374,7 @@ export function applyContextPruningDefaults(cfg: OpenClawConfig): OpenClawConfig
   };
 }
 
-export function applyCompactionDefaults(cfg: OpenClawConfig): OpenClawConfig {
+export function applyCompactionDefaults(cfg: MoltbotConfig): MoltbotConfig {
   const defaults = cfg.agents?.defaults;
   if (!defaults) return cfg;
   const compaction = defaults?.compaction;

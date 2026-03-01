@@ -6,17 +6,17 @@ title: "Groups"
 ---
 # Groups
 
-OpenClaw treats group chats consistently across surfaces: WhatsApp, Telegram, Discord, Slack, Signal, iMessage, Microsoft Teams.
+Moltbot treats group chats consistently across surfaces: WhatsApp, Telegram, Discord, Slack, Signal, iMessage, Microsoft Teams.
 
 ## Beginner intro (2 minutes)
-OpenClaw “lives” on your own messaging accounts. There is no separate WhatsApp bot user.
-If **you** are in a group, OpenClaw can see that group and respond there.
+Moltbot “lives” on your own messaging accounts. There is no separate WhatsApp bot user.
+If **you** are in a group, Moltbot can see that group and respond there.
 
 Default behavior:
 - Groups are restricted (`groupPolicy: "allowlist"`).
 - Replies require a mention unless you explicitly disable mention gating.
 
-Translation: allowlisted senders can trigger OpenClaw by mentioning it.
+Translation: allowlisted senders can trigger Moltbot by mentioning it.
 
 > TL;DR
 > - **DM access** is controlled by `*.allowFrom`.
@@ -217,7 +217,7 @@ Replying to a bot message counts as an implicit mention (when the channel suppor
       {
         id: "main",
         groupChat: {
-          mentionPatterns: ["@openclaw", "openclaw", "\\+15555550123"],
+          mentionPatterns: ["@clawd", "moltbot", "\\+15555550123"],
           historyLimit: 50
         }
       }

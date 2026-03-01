@@ -51,7 +51,7 @@ const rmDirWithRetries = async (dir: string): Promise<void> => {
 beforeEach(async () => {
   resetInboundDedupe();
   previousHome = process.env.HOME;
-  tempHome = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-web-home-"));
+  tempHome = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-web-home-"));
   process.env.HOME = tempHome;
 });
 
@@ -66,7 +66,7 @@ afterEach(async () => {
 const _makeSessionStore = async (
   entries: Record<string, unknown> = {},
 ): Promise<{ storePath: string; cleanup: () => Promise<void> }> => {
-  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-session-"));
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-session-"));
   const storePath = path.join(dir, "sessions.json");
   await fs.writeFile(storePath, JSON.stringify(entries));
   const cleanup = async () => {
@@ -119,7 +119,7 @@ describe("typing controller idle", () => {
       return { text: "final reply" };
     });
 
-    const mockConfig: OpenClawConfig = {
+    const mockConfig: MoltbotConfig = {
       channels: { whatsapp: { allowFrom: ["*"] } },
     };
 

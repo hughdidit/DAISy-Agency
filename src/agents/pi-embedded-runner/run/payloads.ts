@@ -29,7 +29,7 @@ export function buildEmbeddedRunPayloads(params: {
   toolMetas: ToolMetaEntry[];
   lastAssistant: AssistantMessage | undefined;
   lastToolError?: { toolName: string; meta?: string; error?: string };
-  config?: OpenClawConfig;
+  config?: MoltbotConfig;
   sessionKey: string;
   verboseLevel?: VerboseLevel;
   reasoningLevel?: ReasoningLevel;

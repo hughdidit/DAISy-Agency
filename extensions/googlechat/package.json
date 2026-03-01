@@ -24,8 +24,8 @@
   "description": "OpenClaw Google Chat channel plugin",
 >>>>>>> 1c4db9159 (chore: prepare 2026.2.2 release)
   "type": "module",
-  "description": "OpenClaw Google Chat channel plugin",
-  "openclaw": {
+  "description": "Moltbot Google Chat channel plugin",
+  "moltbot": {
     "extensions": [
       "./index.ts"
     ],
@@ -44,7 +44,7 @@
       "order": 55
     },
     "install": {
-      "npmSpec": "@openclaw/googlechat",
+      "npmSpec": "@moltbot/googlechat",
       "localPath": "extensions/googlechat",
       "defaultChoice": "npm"
     }
@@ -53,9 +53,9 @@
     "google-auth-library": "^10.5.0"
   },
   "devDependencies": {
-    "openclaw": "workspace:*"
+    "moltbot": "workspace:*"
   },
   "peerDependencies": {
-    "openclaw": ">=2026.1.26"
+    "moltbot": ">=2026.1.26"
   }
 }

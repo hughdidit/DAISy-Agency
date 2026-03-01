@@ -477,21 +477,21 @@ final class GatewayConnectionController {
     }
 
     private func currentCaps() -> [String] {
-        var caps = [OpenClawCapability.canvas.rawValue, OpenClawCapability.screen.rawValue]
+        var caps = [MoltbotCapability.canvas.rawValue, MoltbotCapability.screen.rawValue]
 
         // Default-on: if the key doesn't exist yet, treat it as enabled.
         let cameraEnabled =
             UserDefaults.standard.object(forKey: "camera.enabled") == nil
                 ? true
                 : UserDefaults.standard.bool(forKey: "camera.enabled")
-        if cameraEnabled { caps.append(OpenClawCapability.camera.rawValue) }
+        if cameraEnabled { caps.append(MoltbotCapability.camera.rawValue) }
 
         let voiceWakeEnabled = UserDefaults.standard.bool(forKey: VoiceWakePreferences.enabledKey)
-        if voiceWakeEnabled { caps.append(OpenClawCapability.voiceWake.rawValue) }
+        if voiceWakeEnabled { caps.append(MoltbotCapability.voiceWake.rawValue) }
 
         let locationModeRaw = UserDefaults.standard.string(forKey: "location.enabledMode") ?? "off"
-        let locationMode = OpenClawLocationMode(rawValue: locationModeRaw) ?? .off
-        if locationMode != .off { caps.append(OpenClawCapability.location.rawValue) }
+        let locationMode = MoltbotLocationMode(rawValue: locationModeRaw) ?? .off
+        if locationMode != .off { caps.append(MoltbotCapability.location.rawValue) }
 
         caps.append(OpenClawCapability.device.rawValue)
         caps.append(OpenClawCapability.photos.rawValue)
@@ -554,13 +554,13 @@ final class GatewayConnectionController {
         ]
 
         let caps = Set(self.currentCaps())
-        if caps.contains(OpenClawCapability.camera.rawValue) {
-            commands.append(OpenClawCameraCommand.list.rawValue)
-            commands.append(OpenClawCameraCommand.snap.rawValue)
-            commands.append(OpenClawCameraCommand.clip.rawValue)
+        if caps.contains(MoltbotCapability.camera.rawValue) {
+            commands.append(MoltbotCameraCommand.list.rawValue)
+            commands.append(MoltbotCameraCommand.snap.rawValue)
+            commands.append(MoltbotCameraCommand.clip.rawValue)
         }
-        if caps.contains(OpenClawCapability.location.rawValue) {
-            commands.append(OpenClawLocationCommand.get.rawValue)
+        if caps.contains(MoltbotCapability.location.rawValue) {
+            commands.append(MoltbotLocationCommand.get.rawValue)
         }
         if caps.contains(OpenClawCapability.device.rawValue) {
             commands.append(OpenClawDeviceCommand.status.rawValue)

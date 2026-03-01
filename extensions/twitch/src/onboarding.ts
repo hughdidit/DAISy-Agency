@@ -28,9 +28,9 @@ const channel = "twitch" as const;
  * Set Twitch account configuration
  */
 function setTwitchAccount(
-  cfg: OpenClawConfig,
+  cfg: MoltbotConfig,
   account: Partial<TwitchAccountConfig>,
-): OpenClawConfig {
+): MoltbotConfig {
   const existing = getAccountConfig(cfg, DEFAULT_ACCOUNT_ID);
   const merged: TwitchAccountConfig = {
     username: account.username ?? existing?.username ?? "",
@@ -78,7 +78,7 @@ async function noteTwitchSetupHelp(prompter: WizardPrompter): Promise<void> {
       "2. Generate a token with scopes: chat:read and chat:write",
       "   Use https://twitchtokengenerator.com/ or https://twitchapps.com/tmi/",
       "3. Copy the token (starts with 'oauth:') and Client ID",
-      "Env vars supported: OPENCLAW_TWITCH_ACCESS_TOKEN",
+      "Env vars supported: CLAWDBOT_TWITCH_ACCESS_TOKEN",
       `Docs: ${formatDocsLink("/channels/twitch", "channels/twitch")}`,
     ].join("\n"),
     "Twitch setup",
@@ -213,15 +213,15 @@ async function promptRefreshTokenSetup(
  * Configure with env token path (returns early if user chooses env token).
  */
 async function configureWithEnvToken(
-  cfg: OpenClawConfig,
+  cfg: MoltbotConfig,
   prompter: WizardPrompter,
   account: TwitchAccountConfig | null,
   envToken: string,
   forceAllowFrom: boolean,
   dmPolicy: ChannelOnboardingDmPolicy,
-): Promise<{ cfg: OpenClawConfig } | null> {
+): Promise<{ cfg: MoltbotConfig } | null> {
   const useEnv = await prompter.confirm({
-    message: "Twitch env var OPENCLAW_TWITCH_ACCESS_TOKEN detected. Use env token?",
+    message: "Twitch env var CLAWDBOT_TWITCH_ACCESS_TOKEN detected. Use env token?",
     initialValue: true,
   });
   if (!useEnv) {
@@ -249,10 +249,10 @@ async function configureWithEnvToken(
  * Set Twitch access control (role-based)
  */
 function setTwitchAccessControl(
-  cfg: OpenClawConfig,
+  cfg: MoltbotConfig,
   allowedRoles: TwitchRole[],
   requireMention: boolean,
-): OpenClawConfig {
+): MoltbotConfig {
   const account = getAccountConfig(cfg, DEFAULT_ACCOUNT_ID);
   if (!account) {
     return cfg;
@@ -280,7 +280,7 @@ const dmPolicy: ChannelOnboardingDmPolicy = {
   setPolicy: (cfg, policy) => {
     const allowedRoles: TwitchRole[] =
       policy === "open" ? ["all"] : policy === "allowlist" ? [] : ["moderator"];
-    return setTwitchAccessControl(cfg as OpenClawConfig, allowedRoles, true);
+    return setTwitchAccessControl(cfg as MoltbotConfig, allowedRoles, true);
   },
   promptAllowFrom: async ({ cfg, prompter }) => {
     const account = getAccountConfig(cfg, DEFAULT_ACCOUNT_ID);
@@ -297,7 +297,7 @@ const dmPolicy: ChannelOnboardingDmPolicy = {
       .map((s) => s.trim())
       .filter(Boolean);
 
-    return setTwitchAccount(cfg as OpenClawConfig, {
+    return setTwitchAccount(cfg as MoltbotConfig, {
       ...(account ?? undefined),
       allowFrom,
     });
@@ -324,7 +324,7 @@ export const twitchOnboardingAdapter: ChannelOnboardingAdapter = {
       await noteTwitchSetupHelp(prompter);
     }
 
-    const envToken = process.env.OPENCLAW_TWITCH_ACCESS_TOKEN?.trim();
+    const envToken = process.env.CLAWDBOT_TWITCH_ACCESS_TOKEN?.trim();
 
     // Check if env var is set and config is empty
     if (envToken && !account?.accessToken) {

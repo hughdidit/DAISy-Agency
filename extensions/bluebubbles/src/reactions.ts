@@ -12,7 +12,7 @@ export type BlueBubblesReactionOpts = {
   password?: string;
   accountId?: string;
   timeoutMs?: number;
-  cfg?: OpenClawConfig;
+  cfg?: MoltbotConfig;
 };
 
 const REACTION_TYPES = new Set([

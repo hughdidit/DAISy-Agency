@@ -85,7 +85,7 @@ export function resolveToolsBySender(
 }
 
 function resolveChannelGroups(
-  cfg: OpenClawConfig,
+  cfg: MoltbotConfig,
   channel: GroupPolicyChannel,
   accountId?: string | null,
 ): ChannelGroups | undefined {
@@ -108,7 +108,7 @@ function resolveChannelGroups(
 }
 
 export function resolveChannelGroupPolicy(params: {
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   channel: GroupPolicyChannel;
   groupId?: string | null;
   accountId?: string | null;
@@ -133,7 +133,7 @@ export function resolveChannelGroupPolicy(params: {
 }
 
 export function resolveChannelGroupRequireMention(params: {
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   channel: GroupPolicyChannel;
   groupId?: string | null;
   accountId?: string | null;
@@ -161,7 +161,7 @@ export function resolveChannelGroupRequireMention(params: {
 
 export function resolveChannelGroupToolsPolicy(
   params: {
-    cfg: OpenClawConfig;
+    cfg: MoltbotConfig;
     channel: GroupPolicyChannel;
     groupId?: string | null;
     accountId?: string | null;

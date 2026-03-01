@@ -14,7 +14,7 @@ const plugin = {
   name: "Mattermost",
   description: "Mattermost channel plugin",
   configSchema: emptyPluginConfigSchema(),
-  register(api: OpenClawPluginApi) {
+  register(api: MoltbotPluginApi) {
     setMattermostRuntime(api.runtime);
     api.registerChannel({ plugin: mattermostPlugin });
   },

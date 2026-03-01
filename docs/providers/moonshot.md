@@ -60,13 +60,13 @@ Current Kimi K2 model IDs:
 >>>>>>> 578a6e27a (Docs: enable markdownlint autofixables except list numbering (#10476))
 
 ```bash
-openclaw onboard --auth-choice moonshot-api-key
+moltbot onboard --auth-choice moonshot-api-key
 ```
 
 Kimi Code:
 
 ```bash
-openclaw onboard --auth-choice kimi-code-api-key
+moltbot onboard --auth-choice kimi-code-api-key
 ```
 
 Note: Moonshot and Kimi Code are separate providers. Keys are not interchangeable, endpoints differ, and model refs differ (Moonshot uses `moonshot/...`, Kimi Code uses `kimi-code/...`).

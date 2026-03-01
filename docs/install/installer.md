@@ -73,7 +73,7 @@ curl -fsSL https://openclaw.ai/install.sh | bash -s -- --help
 
 <<<<<<< HEAD
 ```powershell
-& ([scriptblock]::Create((iwr -useb https://openclaw.ai/install.ps1))) -?
+& ([scriptblock]::Create((iwr -useb https://molt.bot/install.ps1))) -?
 ```
 
 <<<<<<< HEAD
@@ -163,7 +163,7 @@ Recommended for most interactive installs on macOS/Linux/WSL.
 - Detect OS (macOS / Linux / WSL).
 - Ensure Node.js **22+** (macOS via Homebrew; Linux via NodeSource).
 - Choose install method:
-  - `npm` (default): `npm install -g openclaw@latest`
+  - `npm` (default): `npm install -g moltbot@latest`
   - `git`: clone/build a source checkout and install a wrapper script
 <<<<<<< HEAD
 - On Linux: avoid global npm permission errors by switching npm’s prefix to `~/.npm-global` when needed.
@@ -360,7 +360,7 @@ curl -fsSL https://openclaw.ai/install-cli.sh | bash -s -- --help
 <<<<<<< HEAD
 - Ensure Node.js **22+** (winget/Chocolatey/Scoop or manual).
 - Choose install method:
-  - `npm` (default): `npm install -g openclaw@latest`
+  - `npm` (default): `npm install -g moltbot@latest`
   - `git`: clone/build a source checkout and install a wrapper script
 - Runs `moltbot doctor --non-interactive` on upgrades and git installs (best effort).
 =======
@@ -380,15 +380,15 @@ curl -fsSL https://openclaw.ai/install-cli.sh | bash -s -- --help
 
 <<<<<<< HEAD
 ```powershell
-iwr -useb https://openclaw.ai/install.ps1 | iex
+iwr -useb https://molt.bot/install.ps1 | iex
 ```
 
 ```powershell
-iwr -useb https://openclaw.ai/install.ps1 | iex -InstallMethod git
+iwr -useb https://molt.bot/install.ps1 | iex -InstallMethod git
 ```
 
 ```powershell
-iwr -useb https://openclaw.ai/install.ps1 | iex -InstallMethod git -GitDir "C:\\openclaw"
+iwr -useb https://molt.bot/install.ps1 | iex -InstallMethod git -GitDir "C:\\moltbot"
 ```
 =======
   <Accordion title="Environment variables reference">
@@ -438,7 +438,7 @@ iwr -useb https://openclaw.ai/install.ps1 | iex -InstallMethod git -GitDir "C:\\
 
 <<<<<<< HEAD
 - **npm error spawn git / ENOENT**: install Git for Windows and reopen PowerShell, then rerun the installer.
-- **"openclaw" is not recognized**: your npm global bin folder is not on PATH. Most systems use
+- **"moltbot" is not recognized**: your npm global bin folder is not on PATH. Most systems use
   `%AppData%\\npm`. You can also run `npm config get prefix` and add `\\bin` to PATH, then reopen PowerShell.
 =======
 <Tabs>

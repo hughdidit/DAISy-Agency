@@ -2,7 +2,7 @@
  * Twitch channel plugin types.
  *
  * This file defines Twitch-specific types. Generic channel types are imported
- * from OpenClaw core.
+ * from Moltbot core.
  */
 
 import type {
@@ -149,5 +149,5 @@ import type { z } from "zod";
 import type { TwitchConfigSchema } from "./config-schema.js";
 export type TwitchConfig = z.infer<typeof TwitchConfigSchema>;
 
-export type { OpenClawConfig };
+export type { MoltbotConfig };
 export type { RuntimeEnv };

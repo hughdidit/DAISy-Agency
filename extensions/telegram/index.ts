@@ -14,7 +14,7 @@ const plugin = {
   name: "Telegram",
   description: "Telegram channel plugin",
   configSchema: emptyPluginConfigSchema(),
-  register(api: OpenClawPluginApi) {
+  register(api: MoltbotPluginApi) {
     setTelegramRuntime(api.runtime);
     api.registerChannel({ plugin: telegramPlugin });
   },

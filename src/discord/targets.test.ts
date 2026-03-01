@@ -79,7 +79,7 @@ describe("resolveDiscordChannelId", () => {
 });
 
 describe("resolveDiscordTarget", () => {
-  const cfg = { channels: { discord: {} } } as OpenClawConfig;
+  const cfg = { channels: { discord: {} } } as ClawdbotConfig;
   const listPeers = vi.mocked(listDiscordDirectoryPeersLive);
 
   beforeEach(() => {

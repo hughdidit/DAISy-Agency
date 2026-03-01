@@ -5,11 +5,11 @@ import { fileURLToPath } from "node:url";
 <<<<<<< HEAD
 import { createJiti } from "jiti";
 
-import type { OpenClawConfig } from "../config/config.js";
+import type { MoltbotConfig } from "../config/config.js";
 import type { GatewayRequestHandler } from "../gateway/server-methods/types.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import { resolveUserPath } from "../utils.js";
-import { discoverOpenClawPlugins } from "./discovery.js";
+import { discoverMoltbotPlugins } from "./discovery.js";
 import { loadPluginManifestRegistry } from "./manifest-registry.js";
 import {
   normalizePluginsConfig,
@@ -28,8 +28,8 @@ import type { OpenClawConfig } from "../config/config.js";
 import type { GatewayRequestHandler } from "../gateway/server-methods/types.js";
 >>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type {
-  OpenClawPluginDefinition,
-  OpenClawPluginModule,
+  MoltbotPluginDefinition,
+  MoltbotPluginModule,
   PluginDiagnostic,
   PluginLogger,
 } from "./types.js";
@@ -53,7 +53,7 @@ import { validateJsonSchemaValue } from "./schema-validator.js";
 export type PluginLoadResult = PluginRegistry;
 
 export type PluginLoadOptions = {
-  config?: OpenClawConfig;
+  config?: MoltbotConfig;
   workspaceDir?: string;
   logger?: PluginLogger;
   coreGatewayHandlers?: Record<string, GatewayRequestHandler>;
@@ -68,16 +68,14 @@ const defaultLogger = () => createSubsystemLogger("plugins");
 const resolvePluginSdkAlias = (): string | null => {
   try {
     const modulePath = fileURLToPath(import.meta.url);
-    const isProduction = process.env.NODE_ENV === "production";
-    const isTest = process.env.VITEST || process.env.NODE_ENV === "test";
+    const isDistRuntime = modulePath.split(path.sep).includes("dist");
+    const preferDist = process.env.VITEST || process.env.NODE_ENV === "test" || isDistRuntime;
     let cursor = path.dirname(modulePath);
     for (let i = 0; i < 6; i += 1) {
       const srcCandidate = path.join(cursor, "src", "plugin-sdk", "index.ts");
       const distCandidate = path.join(cursor, "dist", "plugin-sdk", "index.js");
-      const orderedCandidates = isProduction
-        ? isTest
-          ? [distCandidate, srcCandidate]
-          : [distCandidate]
+      const orderedCandidates = preferDist
+        ? [distCandidate, srcCandidate]
         : [srcCandidate, distCandidate];
       for (const candidate of orderedCandidates) {
         if (fs.existsSync(candidate)) return candidate;
@@ -122,8 +120,8 @@ function validatePluginConfig(params: {
 }
 
 function resolvePluginModuleExport(moduleExport: unknown): {
-  definition?: OpenClawPluginDefinition;
-  register?: OpenClawPluginDefinition["register"];
+  definition?: MoltbotPluginDefinition;
+  register?: MoltbotPluginDefinition["register"];
 } {
   const resolved =
     moduleExport &&
@@ -133,11 +131,11 @@ function resolvePluginModuleExport(moduleExport: unknown): {
       : moduleExport;
   if (typeof resolved === "function") {
     return {
-      register: resolved as OpenClawPluginDefinition["register"],
+      register: resolved as MoltbotPluginDefinition["register"],
     };
   }
   if (resolved && typeof resolved === "object") {
-    const def = resolved as OpenClawPluginDefinition;
+    const def = resolved as MoltbotPluginDefinition;
     const register = def.register ?? def.activate;
     return { definition: def, register };
   }
@@ -185,11 +183,7 @@ function pushDiagnostics(diagnostics: PluginDiagnostic[], append: PluginDiagnost
   diagnostics.push(...append);
 }
 
-<<<<<<< HEAD
 export function loadMoltbotPlugins(options: PluginLoadOptions = {}): PluginRegistry {
-=======
-export function loadOpenClawPlugins(options: PluginLoadOptions = {}): PluginRegistry {
->>>>>>> 9a7160786 (refactor: rename to openclaw)
   const cfg = options.config ?? {};
   const logger = options.logger ?? defaultLogger();
   const validateOnly = options.mode === "validate";
@@ -217,7 +211,7 @@ export function loadOpenClawPlugins(options: PluginLoadOptions = {}): PluginRegi
     coreGatewayHandlers: options.coreGatewayHandlers as Record<string, GatewayRequestHandler>,
   });
 
-  const discovery = discoverOpenClawPlugins({
+  const discovery = discoverMoltbotPlugins({
     workspaceDir: options.workspaceDir,
     extraPaths: normalized.loadPaths,
   });
@@ -236,7 +230,10 @@ export function loadOpenClawPlugins(options: PluginLoadOptions = {}): PluginRegi
     extensions: [".ts", ".tsx", ".mts", ".cts", ".mtsx", ".ctsx", ".js", ".mjs", ".cjs", ".json"],
     ...(pluginSdkAlias
       ? {
-          alias: { "openclaw/plugin-sdk": pluginSdkAlias },
+          alias: {
+            "clawdbot/plugin-sdk": pluginSdkAlias,
+            "moltbot/plugin-sdk": pluginSdkAlias,
+          },
         }
       : {}),
   });
@@ -314,9 +311,9 @@ export function loadOpenClawPlugins(options: PluginLoadOptions = {}): PluginRegi
       continue;
     }
 
-    let mod: OpenClawPluginModule | null = null;
+    let mod: MoltbotPluginModule | null = null;
     try {
-      mod = jiti(candidate.source) as OpenClawPluginModule;
+      mod = jiti(candidate.source) as MoltbotPluginModule;
     } catch (err) {
       logger.error(`[plugins] ${record.id} failed to load from ${record.source}: ${String(err)}`);
       record.status = "error";

@@ -14,7 +14,7 @@ const plugin = {
   name: "Signal",
   description: "Signal channel plugin",
   configSchema: emptyPluginConfigSchema(),
-  register(api: OpenClawPluginApi) {
+  register(api: MoltbotPluginApi) {
     setSignalRuntime(api.runtime);
     api.registerChannel({ plugin: signalPlugin });
   },

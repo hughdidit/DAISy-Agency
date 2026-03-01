@@ -13,7 +13,7 @@ import { getRemoteSkillEligibility } from "../../infra/skills-remote.js";
 import { drainSystemEventEntries } from "../../infra/system-events.js";
 
 export async function prependSystemEvents(params: {
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   sessionKey: string;
   isMainSession: boolean;
   isNewSession: boolean;
@@ -44,7 +44,7 @@ export async function prependSystemEvents(params: {
     }
   };
 
-  const resolveSystemEventTimezone = (cfg: OpenClawConfig) => {
+  const resolveSystemEventTimezone = (cfg: MoltbotConfig) => {
     const raw = cfg.agents?.defaults?.envelopeTimezone?.trim();
     if (!raw) return { mode: "local" as const };
     const lowered = raw.toLowerCase();
@@ -97,7 +97,7 @@ export async function prependSystemEvents(params: {
     return `${yyyy}-${mm}-${dd} ${hh}:${min}:${sec}${tz ? ` ${tz}` : ""}`;
   };
 
-  const formatSystemEventTimestamp = (ts: number, cfg: OpenClawConfig) => {
+  const formatSystemEventTimestamp = (ts: number, cfg: MoltbotConfig) => {
     const date = new Date(ts);
     if (Number.isNaN(date.getTime())) return "unknown-time";
     const zone = resolveSystemEventTimezone(cfg);
@@ -135,7 +135,7 @@ export async function ensureSkillSnapshot(params: {
   sessionId?: string;
   isFirstTurnInSession: boolean;
   workspaceDir: string;
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   /** If provided, only load skills with these names (for per-channel skill filtering) */
   skillFilter?: string[];
 }): Promise<{

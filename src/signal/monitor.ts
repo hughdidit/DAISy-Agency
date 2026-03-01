@@ -45,7 +45,7 @@ export type MonitorSignalOpts = {
   abortSignal?: AbortSignal;
   account?: string;
   accountId?: string;
-  config?: OpenClawConfig;
+  config?: MoltbotConfig;
   baseUrl?: string;
   autoStart?: boolean;
   startupTimeoutMs?: number;

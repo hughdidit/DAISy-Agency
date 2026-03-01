@@ -24,14 +24,14 @@ when the container is created.
 Auth is per-agent: each agent reads from its own `agentDir` auth store at:
 
 ```
-~/.openclaw/agents/<agentId>/agent/auth-profiles.json
+~/.clawdbot/agents/<agentId>/agent/auth-profiles.json
 ```
 
 Credentials are **not** shared between agents. Never reuse `agentDir` across agents.
 If you want to share creds, copy `auth-profiles.json` into the other agent's `agentDir`.
 
 For how sandboxing behaves at runtime, see [Sandboxing](/gateway/sandboxing).
-For debugging “why is this blocked?”, see [Sandbox vs Tool Policy vs Elevated](/gateway/sandbox-vs-tool-policy-vs-elevated) and `openclaw sandbox explain`.
+For debugging “why is this blocked?”, see [Sandbox vs Tool Policy vs Elevated](/gateway/sandbox-vs-tool-policy-vs-elevated) and `moltbot sandbox explain`.
 
 ---
 
@@ -47,13 +47,13 @@ For debugging “why is this blocked?”, see [Sandbox vs Tool Policy vs Elevate
         "id": "main",
         "default": true,
         "name": "Personal Assistant",
-        "workspace": "~/.openclaw/workspace",
+        "workspace": "~/clawd",
         "sandbox": { "mode": "off" }
       },
       {
         "id": "family",
         "name": "Family Bot",
-        "workspace": "~/.openclaw/workspace-family",
+        "workspace": "~/clawd-family",
         "sandbox": {
           "mode": "all",
           "scope": "agent"
@@ -95,12 +95,12 @@ For debugging “why is this blocked?”, see [Sandbox vs Tool Policy vs Elevate
     "list": [
       {
         "id": "personal",
-        "workspace": "~/.openclaw/workspace-personal",
+        "workspace": "~/clawd-personal",
         "sandbox": { "mode": "off" }
       },
       {
         "id": "work",
-        "workspace": "~/.openclaw/workspace-work",
+        "workspace": "~/clawd-work",
         "sandbox": {
           "mode": "all",
           "scope": "shared",
@@ -154,14 +154,14 @@ For debugging “why is this blocked?”, see [Sandbox vs Tool Policy vs Elevate
     "list": [
       {
         "id": "main",
-        "workspace": "~/.openclaw/workspace",
+        "workspace": "~/clawd",
         "sandbox": {
           "mode": "off"  // Override: main never sandboxed
         }
       },
       {
         "id": "public",
-        "workspace": "~/.openclaw/workspace-public",
+        "workspace": "~/clawd-public",
         "sandbox": {
           "mode": "all",  // Override: public always sandboxed
           "scope": "agent"
@@ -225,7 +225,7 @@ Tool policies (global, agent, sandbox) support `group:*` entries that expand to 
 - `group:automation`: `cron`, `gateway`
 - `group:messaging`: `message`
 - `group:nodes`: `nodes`
-- `group:openclaw`: all built-in OpenClaw tools (excludes provider plugins)
+- `group:moltbot`: all built-in Moltbot tools (excludes provider plugins)
 
 ### Elevated Mode
 `tools.elevated` is the global baseline (sender-based allowlist). `agents.list[].tools.elevated` can further restrict elevated for specific agents (both must allow).
@@ -245,7 +245,7 @@ Mitigation patterns:
 {
   "agents": {
     "defaults": {
-      "workspace": "~/.openclaw/workspace",
+      "workspace": "~/clawd",
       "sandbox": {
         "mode": "non-main"
       }
@@ -270,7 +270,7 @@ Mitigation patterns:
       {
         "id": "main",
         "default": true,
-        "workspace": "~/.openclaw/workspace",
+        "workspace": "~/clawd",
         "sandbox": { "mode": "off" }
       }
     ]
@@ -278,7 +278,7 @@ Mitigation patterns:
 }
 ```
 
-Legacy `agent.*` configs are migrated by `openclaw doctor`; prefer `agents.defaults` + `agents.list` going forward.
+Legacy `agent.*` configs are migrated by `moltbot doctor`; prefer `agents.defaults` + `agents.list` going forward.
 
 ---
 
@@ -331,12 +331,12 @@ After configuring multi-agent sandbox and tools:
 
 1. **Check agent resolution:**
    ```exec
-   openclaw agents list --bindings
+   moltbot agents list --bindings
    ```
 
 2. **Verify sandbox containers:**
    ```exec
-   docker ps --filter "name=openclaw-sbx-"
+   docker ps --filter "label=moltbot.sandbox=1"
    ```
 
 3. **Test tool restrictions:**
@@ -346,7 +346,7 @@ After configuring multi-agent sandbox and tools:
 4. **Monitor logs:**
 
    ```exec
-   tail -f "${OPENCLAW_STATE_DIR:-$HOME/.openclaw}/logs/gateway.log" | grep -E "routing|sandbox|tools"
+   tail -f "${CLAWDBOT_STATE_DIR:-$HOME/.clawdbot}/logs/gateway.log" | grep -E "routing|sandbox|tools"
    ```
 
 ---

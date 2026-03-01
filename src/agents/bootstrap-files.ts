@@ -22,7 +22,7 @@ export function makeBootstrapWarn(params: {
 
 export async function resolveBootstrapFilesForRun(params: {
   workspaceDir: string;
-  config?: OpenClawConfig;
+  config?: MoltbotConfig;
   sessionKey?: string;
   sessionId?: string;
   agentId?: string;
@@ -44,7 +44,7 @@ export async function resolveBootstrapFilesForRun(params: {
 
 export async function resolveBootstrapContextForRun(params: {
   workspaceDir: string;
-  config?: OpenClawConfig;
+  config?: MoltbotConfig;
   sessionKey?: string;
   sessionId?: string;
   agentId?: string;

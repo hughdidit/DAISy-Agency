@@ -22,7 +22,7 @@ function isTruthy(value: unknown): boolean {
   return true;
 }
 
-export function resolveConfigPath(config: OpenClawConfig | undefined, pathStr: string) {
+export function resolveConfigPath(config: MoltbotConfig | undefined, pathStr: string) {
   const parts = pathStr.split(".").filter(Boolean);
   let current: unknown = config;
   for (const part of parts) {
@@ -32,7 +32,7 @@ export function resolveConfigPath(config: OpenClawConfig | undefined, pathStr: s
   return current;
 }
 
-export function isConfigPathTruthy(config: OpenClawConfig | undefined, pathStr: string): boolean {
+export function isConfigPathTruthy(config: MoltbotConfig | undefined, pathStr: string): boolean {
   const value = resolveConfigPath(config, pathStr);
   if (value === undefined && pathStr in DEFAULT_CONFIG_VALUES) {
     return DEFAULT_CONFIG_VALUES[pathStr] === true;
@@ -41,7 +41,7 @@ export function isConfigPathTruthy(config: OpenClawConfig | undefined, pathStr: 
 }
 
 export function resolveSkillConfig(
-  config: OpenClawConfig | undefined,
+  config: MoltbotConfig | undefined,
   skillKey: string,
 ): SkillConfig | undefined {
   const skills = config?.skills?.entries;
@@ -62,13 +62,11 @@ function normalizeAllowlist(input: unknown): string[] | undefined {
   return normalized.length > 0 ? normalized : undefined;
 }
 
-const BUNDLED_SOURCES = new Set(["openclaw-bundled"]);
-
 function isBundledSkill(entry: SkillEntry): boolean {
-  return BUNDLED_SOURCES.has(entry.skill.source);
+  return entry.skill.source === "moltbot-bundled";
 }
 
-export function resolveBundledAllowlist(config?: OpenClawConfig): string[] | undefined {
+export function resolveBundledAllowlist(config?: MoltbotConfig): string[] | undefined {
   return normalizeAllowlist(config?.skills?.allowBundled);
 }
 
@@ -96,7 +94,7 @@ export function hasBinary(bin: string): boolean {
 
 export function shouldIncludeSkill(params: {
   entry: SkillEntry;
-  config?: OpenClawConfig;
+  config?: MoltbotConfig;
   eligibility?: SkillEligibilityContext;
 }): boolean {
   const { entry, config, eligibility } = params;

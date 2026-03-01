@@ -7,7 +7,7 @@ import type { OpenClawConfig } from "../config/config.js";
 >>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { buildSlackThreadingToolContext } from "./threading-tool-context.js";
 
-const emptyCfg = {} as OpenClawConfig;
+const emptyCfg = {} as MoltbotConfig;
 
 describe("buildSlackThreadingToolContext", () => {
   it("uses top-level replyToMode by default", () => {
@@ -15,7 +15,7 @@ describe("buildSlackThreadingToolContext", () => {
       channels: {
         slack: { replyToMode: "first" },
       },
-    } as OpenClawConfig;
+    } as MoltbotConfig;
     const result = buildSlackThreadingToolContext({
       cfg,
       accountId: null,
@@ -32,7 +32,7 @@ describe("buildSlackThreadingToolContext", () => {
           replyToModeByChatType: { direct: "all" },
         },
       },
-    } as OpenClawConfig;
+    } as MoltbotConfig;
     const result = buildSlackThreadingToolContext({
       cfg,
       accountId: null,
@@ -49,7 +49,7 @@ describe("buildSlackThreadingToolContext", () => {
           replyToModeByChatType: { direct: "all" },
         },
       },
-    } as OpenClawConfig;
+    } as MoltbotConfig;
     const result = buildSlackThreadingToolContext({
       cfg,
       accountId: null,
@@ -65,7 +65,7 @@ describe("buildSlackThreadingToolContext", () => {
           replyToMode: "first",
         },
       },
-    } as OpenClawConfig;
+    } as MoltbotConfig;
     const result = buildSlackThreadingToolContext({
       cfg,
       accountId: null,
@@ -82,7 +82,7 @@ describe("buildSlackThreadingToolContext", () => {
           dm: { replyToMode: "all" },
         },
       },
-    } as OpenClawConfig;
+    } as MoltbotConfig;
     const result = buildSlackThreadingToolContext({
       cfg,
       accountId: null,
@@ -96,7 +96,7 @@ describe("buildSlackThreadingToolContext", () => {
       channels: {
         slack: { replyToMode: "off" },
       },
-    } as OpenClawConfig;
+    } as MoltbotConfig;
     const result = buildSlackThreadingToolContext({
       cfg,
       accountId: null,

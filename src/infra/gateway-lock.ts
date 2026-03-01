@@ -68,14 +68,10 @@ function isGatewayArgv(args: string[]): boolean {
   if (!normalized.includes("gateway")) return false;
 
   const entryCandidates = [
-<<<<<<< HEAD
-    "dist/index.mjs",
-    "dist/index.mjs",
-=======
     "dist/index.js",
->>>>>>> 76361ae3a (revert: Switch back to `tsc` for compiling.)
+    "dist/index.mjs",
     "dist/entry.js",
-    "openclaw.mjs",
+    "moltbot.mjs",
     "dist/entry.mjs",
     "scripts/run-node.mjs",
     "src/index.ts",
@@ -85,7 +81,7 @@ function isGatewayArgv(args: string[]): boolean {
   }
 
   const exe = normalized[0] ?? "";
-  return exe.endsWith("/openclaw") || exe === "openclaw";
+  return exe.endsWith("/moltbot") || exe === "moltbot";
 }
 
 function readLinuxCmdline(pid: number): string[] | null {
@@ -165,7 +161,7 @@ export async function acquireGatewayLock(
   const env = opts.env ?? process.env;
   const allowInTests = opts.allowInTests === true;
   if (
-    env.OPENCLAW_ALLOW_MULTI_GATEWAY === "1" ||
+    env.CLAWDBOT_ALLOW_MULTI_GATEWAY === "1" ||
     (!allowInTests && (env.VITEST || env.NODE_ENV === "test"))
   ) {
     return null;

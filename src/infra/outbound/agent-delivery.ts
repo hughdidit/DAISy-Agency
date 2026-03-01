@@ -103,7 +103,7 @@ export function resolveAgentDeliveryPlan(params: {
 }
 
 export function resolveAgentOutboundTarget(params: {
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   plan: AgentDeliveryPlan;
   targetMode?: ChannelOutboundTargetMode;
   validateExplicitTarget?: boolean;

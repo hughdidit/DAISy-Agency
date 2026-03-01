@@ -17,14 +17,14 @@ vi.mock("../../../signal/send-reactions.js", () => ({
 
 describe("signalMessageActions", () => {
   it("returns no actions when no configured accounts exist", () => {
-    const cfg = {} as OpenClawConfig;
+    const cfg = {} as MoltbotConfig;
     expect(signalMessageActions.listActions({ cfg })).toEqual([]);
   });
 
   it("hides react when reactions are disabled", () => {
     const cfg = {
       channels: { signal: { account: "+15550001111", actions: { reactions: false } } },
-    } as OpenClawConfig;
+    } as MoltbotConfig;
     expect(signalMessageActions.listActions({ cfg })).toEqual(["send"]);
   });
 
@@ -38,7 +38,7 @@ describe("signalMessageActions", () => {
           },
         },
       },
-    } as OpenClawConfig;
+    } as MoltbotConfig;
     expect(signalMessageActions.listActions({ cfg })).toEqual(["send", "react"]);
   });
 
@@ -50,7 +50,7 @@ describe("signalMessageActions", () => {
   it("blocks reactions when action gate is disabled", async () => {
     const cfg = {
       channels: { signal: { account: "+15550001111", actions: { reactions: false } } },
-    } as OpenClawConfig;
+    } as MoltbotConfig;
 
     await expect(
       signalMessageActions.handleAction({
@@ -73,7 +73,7 @@ describe("signalMessageActions", () => {
           },
         },
       },
-    } as OpenClawConfig;
+    } as MoltbotConfig;
 
     await signalMessageActions.handleAction({
       action: "react",
@@ -91,7 +91,7 @@ describe("signalMessageActions", () => {
     sendReactionSignal.mockClear();
     const cfg = {
       channels: { signal: { account: "+15550001111" } },
-    } as OpenClawConfig;
+    } as MoltbotConfig;
 
     await signalMessageActions.handleAction({
       action: "react",
@@ -115,7 +115,7 @@ describe("signalMessageActions", () => {
   it("requires targetAuthor for group reactions", async () => {
     const cfg = {
       channels: { signal: { account: "+15550001111" } },
-    } as OpenClawConfig;
+    } as MoltbotConfig;
 
     await expect(
       signalMessageActions.handleAction({
@@ -131,7 +131,7 @@ describe("signalMessageActions", () => {
     sendReactionSignal.mockClear();
     const cfg = {
       channels: { signal: { account: "+15550001111" } },
-    } as OpenClawConfig;
+    } as MoltbotConfig;
 
     await signalMessageActions.handleAction({
       action: "react",

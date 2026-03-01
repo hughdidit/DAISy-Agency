@@ -192,12 +192,12 @@ export const resetTestPluginRegistry = () => {
 };
 
 const testConfigRoot = {
-  value: path.join(os.tmpdir(), `openclaw-gateway-test-${process.pid}-${crypto.randomUUID()}`),
+  value: path.join(os.tmpdir(), `moltbot-gateway-test-${process.pid}-${crypto.randomUUID()}`),
 };
 
 export const setTestConfigRoot = (root: string) => {
   testConfigRoot.value = root;
-  process.env.OPENCLAW_CONFIG_PATH = path.join(root, "openclaw.json");
+  process.env.CLAWDBOT_CONFIG_PATH = path.join(root, "moltbot.json");
 };
 
 export const testTailnetIPv4 = hoisted.testTailnetIPv4;
@@ -231,25 +231,20 @@ export const testIsNixMode = hoisted.testIsNixMode;
 export const sessionStoreSaveDelayMs = hoisted.sessionStoreSaveDelayMs;
 export const embeddedRunMock = hoisted.embeddedRunMock;
 
-vi.mock("../agents/pi-model-discovery.js", async () => {
-  const actual = await vi.importActual<typeof import("../agents/pi-model-discovery.js")>(
-    "../agents/pi-model-discovery.js",
+vi.mock("@mariozechner/pi-coding-agent", async () => {
+  const actual = await vi.importActual<typeof import("@mariozechner/pi-coding-agent")>(
+    "@mariozechner/pi-coding-agent",
   );
-
-  class MockModelRegistry extends actual.ModelRegistry {
-    override getAll(): ReturnType<typeof actual.ModelRegistry.prototype.getAll> {
-      if (!piSdkMock.enabled) {
-        return super.getAll();
-      }
-      piSdkMock.discoverCalls += 1;
-      // Cast to expected type for testing purposes
-      return piSdkMock.models as ReturnType<typeof actual.ModelRegistry.prototype.getAll>;
-    }
-  }
 
   return {
     ...actual,
-    ModelRegistry: MockModelRegistry,
+    discoverModels: (...args: unknown[]) => {
+      if (!piSdkMock.enabled) {
+        return (actual.discoverModels as (...args: unknown[]) => unknown)(...args);
+      }
+      piSdkMock.discoverCalls += 1;
+      return piSdkMock.models;
+    },
   };
 });
 
@@ -280,7 +275,7 @@ vi.mock("../config/sessions.js", async () => {
 
 vi.mock("../config/config.js", async () => {
   const actual = await vi.importActual<typeof import("../config/config.js")>("../config/config.js");
-  const resolveConfigPath = () => path.join(testConfigRoot.value, "openclaw.json");
+  const resolveConfigPath = () => path.join(testConfigRoot.value, "moltbot.json");
   const hashConfigRaw = (raw: string | null) =>
     crypto
       .createHash("sha256")
@@ -397,8 +392,8 @@ vi.mock("../config/config.js", async () => {
           ? (fileAgents.defaults as Record<string, unknown>)
           : {};
       const defaults = {
-        model: { primary: "anthropic/claude-opus-4-6" },
-        workspace: path.join(os.tmpdir(), "openclaw-gateway-test"),
+        model: { primary: "anthropic/claude-opus-4-5" },
+        workspace: path.join(os.tmpdir(), "clawd-gateway-test"),
         ...fileDefaults,
         ...testState.agentConfig,
       };
@@ -569,16 +564,5 @@ vi.mock("../cli/deps.js", async () => {
   };
 });
 
-vi.mock("../plugins/loader.js", async () => {
-  const actual =
-    await vi.importActual<typeof import("../plugins/loader.js")>("../plugins/loader.js");
-  return {
-    ...actual,
-    loadOpenClawPlugins: () => pluginRegistryState.registry,
-  };
-});
-
-process.env.OPENCLAW_SKIP_CHANNELS = "1";
-process.env.OPENCLAW_SKIP_CRON = "1";
-process.env.OPENCLAW_SKIP_CHANNELS = "1";
-process.env.OPENCLAW_SKIP_CRON = "1";
+process.env.CLAWDBOT_SKIP_CHANNELS = "1";
+process.env.CLAWDBOT_SKIP_CRON = "1";

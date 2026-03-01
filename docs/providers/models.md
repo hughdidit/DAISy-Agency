@@ -1,5 +1,5 @@
 ---
-summary: "Model providers (LLMs) supported by OpenClaw"
+summary: "Model providers (LLMs) supported by Moltbot"
 read_when:
   - You want to choose a model provider
   - You want quick setup examples for LLM auth + model selection
@@ -7,7 +7,7 @@ title: "Model Provider Quickstart"
 ---
 # Model Providers
 
-OpenClaw can use many LLM providers. Pick one, authenticate, then set the default
+Moltbot can use many LLM providers. Pick one, authenticate, then set the default
 model as `provider/model`.
 
 ## Highlight: Venice (Venice AI)
@@ -21,16 +21,12 @@ See [Venice AI](/providers/venice).
 
 ## Quick start (two steps)
 
-1) Authenticate with the provider (usually via `openclaw onboard`).
+1) Authenticate with the provider (usually via `moltbot onboard`).
 2) Set the default model:
 
 ```json5
 {
-<<<<<<< HEAD
   agents: { defaults: { model: { primary: "anthropic/claude-opus-4-5" } } }
-=======
-  agents: { defaults: { model: { primary: "anthropic/claude-opus-4-6" } } },
->>>>>>> 462905440 (chore: apply local workspace updates (#9911))
 }
 ```
 

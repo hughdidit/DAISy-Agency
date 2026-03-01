@@ -22,7 +22,7 @@ export function ensurePluginRegistryLoaded(): void {
     error: (msg) => log.error(msg),
     debug: (msg) => log.debug(msg),
   };
-  loadOpenClawPlugins({
+  loadMoltbotPlugins({
     config,
     workspaceDir,
     logger,

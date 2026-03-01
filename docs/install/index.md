@@ -2,7 +2,7 @@
 <<<<<<< HEAD
 summary: "Install Moltbot (recommended installer, global install, or from source)"
 read_when:
-  - Installing OpenClaw
+  - Installing Moltbot
   - You want to install from GitHub
 title: "Install Overview"
 =======
@@ -33,13 +33,13 @@ curl -fsSL https://openclaw.ai/install.sh | bash
 Windows (PowerShell):
 
 ```powershell
-iwr -useb https://openclaw.ai/install.ps1 | iex
+iwr -useb https://molt.bot/install.ps1 | iex
 ```
 
 Next step (if you skipped onboarding):
 
 ```bash
-openclaw onboard --install-daemon
+moltbot onboard --install-daemon
 ```
 =======
 Already followed [Getting Started](/start/getting-started)? You're all set — this page is for alternative install methods, platform-specific instructions, and maintenance.
@@ -136,7 +136,7 @@ curl -fsSL https://openclaw.ai/install.sh | bash -s -- --no-onboard
 
 <<<<<<< HEAD
 ```bash
-npm install -g openclaw@latest
+npm install -g moltbot@latest
 ```
 =======
     <Tabs>
@@ -152,7 +152,7 @@ npm install -g openclaw@latest
 
 <<<<<<< HEAD
 ```bash
-SHARP_IGNORE_GLOBAL_LIBVIPS=1 npm install -g openclaw@latest
+SHARP_IGNORE_GLOBAL_LIBVIPS=1 npm install -g moltbot@latest
 ```
 =======
           ```bash
@@ -201,7 +201,7 @@ pnpm requires explicit approval for packages with build scripts. After the first
 
 <<<<<<< HEAD
 ```bash
-openclaw onboard --install-daemon
+moltbot onboard --install-daemon
 ```
 =======
         ```bash
@@ -222,12 +222,12 @@ openclaw onboard --install-daemon
 
 <<<<<<< HEAD
 ```bash
-git clone https://github.com/openclaw/openclaw.git
-cd openclaw
+git clone https://github.com/moltbot/moltbot.git
+cd moltbot
 pnpm install
 pnpm ui:build # auto-installs UI deps on first run
 pnpm build
-openclaw onboard --install-daemon
+moltbot onboard --install-daemon
 ```
 
 Tip: if you don’t have a global install yet, run repo commands via `pnpm moltbot ...`.
@@ -276,7 +276,7 @@ Tip: if you don’t have a global install yet, run repo commands via `pnpm moltb
 
 The installer supports two methods:
 
-- `npm` (default): `npm install -g openclaw@latest`
+- `npm` (default): `npm install -g moltbot@latest`
 - `git`: clone/build from GitHub and run from a source checkout
 
 ### CLI flags
@@ -308,7 +308,7 @@ openclaw dashboard      # open the browser UI
 
 <<<<<<< HEAD
 - `--install-method npm|git`
-- `--git-dir <path>` (default: `~/openclaw`)
+- `--git-dir <path>` (default: `~/moltbot`)
 - `--no-git-update` (skip `git pull` when using an existing checkout)
 - `--no-prompt` (disable prompts; required in CI/automation)
 - `--dry-run` (print what would happen; make no changes)
@@ -318,15 +318,15 @@ openclaw dashboard      # open the browser UI
 
 Equivalent env vars (useful for automation):
 
-- `OPENCLAW_INSTALL_METHOD=git|npm`
-- `OPENCLAW_GIT_DIR=...`
-- `OPENCLAW_GIT_UPDATE=0|1`
-- `OPENCLAW_NO_PROMPT=1`
-- `OPENCLAW_DRY_RUN=1`
-- `OPENCLAW_NO_ONBOARD=1`
+- `CLAWDBOT_INSTALL_METHOD=git|npm`
+- `CLAWDBOT_GIT_DIR=...`
+- `CLAWDBOT_GIT_UPDATE=0|1`
+- `CLAWDBOT_NO_PROMPT=1`
+- `CLAWDBOT_DRY_RUN=1`
+- `CLAWDBOT_NO_ONBOARD=1`
 - `SHARP_IGNORE_GLOBAL_LIBVIPS=0|1` (default: `1`; avoids `sharp` building against system libvips)
 
-## Troubleshooting: `openclaw` not found (PATH)
+## Troubleshooting: `moltbot` not found (PATH)
 
 Quick diagnosis:
 =======

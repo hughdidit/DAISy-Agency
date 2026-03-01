@@ -24,17 +24,8 @@
   "description": "OpenClaw Zalo channel plugin",
 >>>>>>> 1c4db9159 (chore: prepare 2026.2.2 release)
   "type": "module",
-<<<<<<< HEAD
-  "description": "OpenClaw Zalo channel plugin",
-=======
-  "dependencies": {
-    "undici": "7.21.0"
-  },
-  "devDependencies": {
-    "openclaw": "workspace:*"
-  },
->>>>>>> aa91f6e70 (chore: Add `openclaw` to `devDependencies` for all extensions so that types resolve.)
-  "openclaw": {
+  "description": "Moltbot Zalo channel plugin",
+  "moltbot": {
     "extensions": [
       "./index.ts"
     ],
@@ -52,13 +43,13 @@
       "quickstartAllowFrom": true
     },
     "install": {
-      "npmSpec": "@openclaw/zalo",
+      "npmSpec": "@moltbot/zalo",
       "localPath": "extensions/zalo",
       "defaultChoice": "npm"
     }
   },
   "dependencies": {
-    "openclaw": "workspace:*",
-    "undici": "7.19.2"
+    "moltbot": "workspace:*",
+    "undici": "7.19.0"
   }
 }

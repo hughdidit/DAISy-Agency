@@ -13,7 +13,7 @@ const plugin = {
   name: "Diagnostics OpenTelemetry",
   description: "Export diagnostics events to OpenTelemetry",
   configSchema: emptyPluginConfigSchema(),
-  register(api: OpenClawPluginApi) {
+  register(api: MoltbotPluginApi) {
     api.registerService(createDiagnosticsOtelService());
   },
 };

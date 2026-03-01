@@ -19,7 +19,7 @@ export type ParsedCommand = {
 };
 
 export type SlashCommandOptions = {
-  cfg?: OpenClawConfig;
+  cfg?: MoltbotConfig;
   provider?: string;
   model?: string;
 };

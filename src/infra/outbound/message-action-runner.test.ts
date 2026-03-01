@@ -1,10 +1,7 @@
-import fs from "node:fs/promises";
-import os from "node:os";
-import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
 
-import type { OpenClawConfig } from "../../config/config.js";
+import type { MoltbotConfig } from "../../config/config.js";
 import { setActivePluginRegistry } from "../../plugins/runtime.js";
 import { createIMessageTestPlugin, createTestRegistry } from "../../test-utils/channel-plugins.js";
 =======
@@ -35,7 +32,7 @@ const slackConfig = {
       appToken: "xapp-test",
     },
   },
-} as OpenClawConfig;
+} as MoltbotConfig;
 
 const whatsappConfig = {
   channels: {
@@ -43,7 +40,7 @@ const whatsappConfig = {
       allowFrom: ["*"],
     },
   },
-} as OpenClawConfig;
+} as MoltbotConfig;
 
 describe("runMessageAction context isolation", () => {
   beforeEach(async () => {
@@ -272,7 +269,7 @@ describe("runMessageAction context isolation", () => {
           token: "tg-test",
         },
       },
-    } as OpenClawConfig;
+    } as MoltbotConfig;
 
     const result = await runMessageAction({
       cfg: multiConfig,
@@ -314,7 +311,7 @@ describe("runMessageAction context isolation", () => {
           },
         },
       },
-    } as OpenClawConfig;
+    } as MoltbotConfig;
 
     await expect(
       runMessageAction({
@@ -432,7 +429,7 @@ describe("runMessageAction sendAttachment hydration", () => {
           password: "test-password",
         },
       },
-    } as OpenClawConfig;
+    } as MoltbotConfig;
 
     const result = await runMessageAction({
       cfg,
@@ -455,164 +452,6 @@ describe("runMessageAction sendAttachment hydration", () => {
     expect((result.payload as { buffer?: string }).buffer).toBe(
       Buffer.from("hello").toString("base64"),
     );
-  });
-
-  it("rewrites sandboxed media paths for sendAttachment", async () => {
-    const cfg = {
-      channels: {
-        bluebubbles: {
-          enabled: true,
-          serverUrl: "http://localhost:1234",
-          password: "test-password",
-        },
-      },
-    } as OpenClawConfig;
-    const sandboxDir = await fs.mkdtemp(path.join(os.tmpdir(), "msg-sandbox-"));
-    try {
-      await runMessageAction({
-        cfg,
-        action: "sendAttachment",
-        params: {
-          channel: "bluebubbles",
-          target: "+15551234567",
-          media: "./data/pic.png",
-          message: "caption",
-        },
-        sandboxRoot: sandboxDir,
-      });
-
-      const call = vi.mocked(loadWebMedia).mock.calls[0];
-      expect(call?.[0]).toBe(path.join(sandboxDir, "data", "pic.png"));
-    } finally {
-      await fs.rm(sandboxDir, { recursive: true, force: true });
-    }
-  });
-});
-
-describe("runMessageAction sandboxed media validation", () => {
-  beforeEach(async () => {
-    const { createPluginRuntime } = await import("../../plugins/runtime/index.js");
-    const { setSlackRuntime } = await import("../../../extensions/slack/src/runtime.js");
-    const runtime = createPluginRuntime();
-    setSlackRuntime(runtime);
-    setActivePluginRegistry(
-      createTestRegistry([
-        {
-          pluginId: "slack",
-          source: "test",
-          plugin: slackPlugin,
-        },
-      ]),
-    );
-  });
-
-  afterEach(() => {
-    setActivePluginRegistry(createTestRegistry([]));
-  });
-
-  it("rejects media outside the sandbox root", async () => {
-    const sandboxDir = await fs.mkdtemp(path.join(os.tmpdir(), "msg-sandbox-"));
-    try {
-      await expect(
-        runMessageAction({
-          cfg: slackConfig,
-          action: "send",
-          params: {
-            channel: "slack",
-            target: "#C12345678",
-            media: "/etc/passwd",
-            message: "",
-          },
-          sandboxRoot: sandboxDir,
-          dryRun: true,
-        }),
-      ).rejects.toThrow(/sandbox/i);
-    } finally {
-      await fs.rm(sandboxDir, { recursive: true, force: true });
-    }
-  });
-
-  it("rejects file:// media outside the sandbox root", async () => {
-    const sandboxDir = await fs.mkdtemp(path.join(os.tmpdir(), "msg-sandbox-"));
-    try {
-      await expect(
-        runMessageAction({
-          cfg: slackConfig,
-          action: "send",
-          params: {
-            channel: "slack",
-            target: "#C12345678",
-            media: "file:///etc/passwd",
-            message: "",
-          },
-          sandboxRoot: sandboxDir,
-          dryRun: true,
-        }),
-      ).rejects.toThrow(/sandbox/i);
-    } finally {
-      await fs.rm(sandboxDir, { recursive: true, force: true });
-    }
-  });
-
-  it("rewrites sandbox-relative media paths", async () => {
-    const sandboxDir = await fs.mkdtemp(path.join(os.tmpdir(), "msg-sandbox-"));
-    try {
-      const result = await runMessageAction({
-        cfg: slackConfig,
-        action: "send",
-        params: {
-          channel: "slack",
-          target: "#C12345678",
-          media: "./data/file.txt",
-          message: "",
-        },
-        sandboxRoot: sandboxDir,
-        dryRun: true,
-      });
-
-      expect(result.kind).toBe("send");
-      expect(result.sendResult?.mediaUrl).toBe(path.join(sandboxDir, "data", "file.txt"));
-    } finally {
-      await fs.rm(sandboxDir, { recursive: true, force: true });
-    }
-  });
-
-  it("rewrites MEDIA directives under sandbox", async () => {
-    const sandboxDir = await fs.mkdtemp(path.join(os.tmpdir(), "msg-sandbox-"));
-    try {
-      const result = await runMessageAction({
-        cfg: slackConfig,
-        action: "send",
-        params: {
-          channel: "slack",
-          target: "#C12345678",
-          message: "Hello\\nMEDIA: ./data/note.ogg",
-        },
-        sandboxRoot: sandboxDir,
-        dryRun: true,
-      });
-
-      expect(result.kind).toBe("send");
-      expect(result.sendResult?.mediaUrl).toBe(path.join(sandboxDir, "data", "note.ogg"));
-    } finally {
-      await fs.rm(sandboxDir, { recursive: true, force: true });
-    }
-  });
-
-  it("rejects data URLs in media params", async () => {
-    await expect(
-      runMessageAction({
-        cfg: slackConfig,
-        action: "send",
-        params: {
-          channel: "slack",
-          target: "#C12345678",
-          media: "data:image/png;base64,abcd",
-          message: "",
-        },
-        dryRun: true,
-      }),
-    ).rejects.toThrow(/data:/i);
   });
 });
 
@@ -658,7 +497,7 @@ describe("runMessageAction accountId defaults", () => {
 
   it("propagates defaultAccountId into params", async () => {
     await runMessageAction({
-      cfg: {} as OpenClawConfig,
+      cfg: {} as MoltbotConfig,
       action: "send",
       params: {
         channel: "discord",

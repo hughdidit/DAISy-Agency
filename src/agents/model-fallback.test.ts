@@ -14,7 +14,7 @@ import { saveAuthProfileStore } from "./auth-profiles.js";
 import { AUTH_STORE_VERSION } from "./auth-profiles/constants.js";
 import { runWithModelFallback } from "./model-fallback.js";
 
-function makeCfg(overrides: Partial<OpenClawConfig> = {}): OpenClawConfig {
+function makeCfg(overrides: Partial<MoltbotConfig> = {}): MoltbotConfig {
   return {
     agents: {
       defaults: {
@@ -25,7 +25,7 @@ function makeCfg(overrides: Partial<OpenClawConfig> = {}): OpenClawConfig {
       },
     },
     ...overrides,
-  } as OpenClawConfig;
+  } as MoltbotConfig;
 }
 
 describe("runWithModelFallback", () => {
@@ -129,7 +129,7 @@ describe("runWithModelFallback", () => {
   });
 
   it("skips providers when all profiles are in cooldown", async () => {
-    const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-auth-"));
+    const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-auth-"));
     const provider = `cooldown-test-${crypto.randomUUID()}`;
     const profileId = `${provider}:default`;
 
@@ -184,7 +184,7 @@ describe("runWithModelFallback", () => {
   });
 
   it("does not skip when any profile is available", async () => {
-    const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-auth-"));
+    const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-auth-"));
     const provider = `cooldown-mixed-${crypto.randomUUID()}`;
     const profileA = `${provider}:a`;
     const profileB = `${provider}:b`;
@@ -283,7 +283,7 @@ describe("runWithModelFallback", () => {
           },
         },
       },
-    } as OpenClawConfig;
+    } as MoltbotConfig;
 
     const calls: Array<{ provider: string; model: string }> = [];
 
@@ -320,7 +320,7 @@ describe("runWithModelFallback", () => {
           },
         },
       },
-    } as OpenClawConfig;
+    } as MoltbotConfig;
 
     const calls: Array<{ provider: string; model: string }> = [];
 

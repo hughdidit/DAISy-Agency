@@ -11,14 +11,14 @@ import {
   resetModelCatalogCacheForTest,
 } from "./model-catalog.js";
 
-type PiSdkModule = typeof import("./pi-model-discovery.js");
+type PiSdkModule = typeof import("@mariozechner/pi-coding-agent");
 
 vi.mock("./models-config.js", () => ({
-  ensureOpenClawModelsJson: vi.fn().mockResolvedValue({ agentDir: "/tmp", wrote: false }),
+  ensureMoltbotModelsJson: vi.fn().mockResolvedValue({ agentDir: "/tmp", wrote: false }),
 }));
 
 vi.mock("./agent-paths.js", () => ({
-  resolveOpenClawAgentDir: () => "/tmp/openclaw",
+  resolveMoltbotAgentDir: () => "/tmp/moltbot",
 }));
 
 describe("loadModelCatalog", () => {
@@ -47,7 +47,7 @@ describe("loadModelCatalog", () => {
       } as unknown as PiSdkModule;
     });
 
-    const cfg = {} as OpenClawConfig;
+    const cfg = {} as MoltbotConfig;
     const first = await loadModelCatalog({ config: cfg });
     expect(first).toEqual([]);
 
@@ -79,7 +79,7 @@ describe("loadModelCatalog", () => {
         }) as unknown as PiSdkModule,
     );
 
-    const result = await loadModelCatalog({ config: {} as OpenClawConfig });
+    const result = await loadModelCatalog({ config: {} as MoltbotConfig });
     expect(result).toEqual([{ id: "gpt-4.1", name: "GPT-4.1", provider: "openai" }]);
     expect(warnSpy).toHaveBeenCalledTimes(1);
   });

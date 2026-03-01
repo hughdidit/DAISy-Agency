@@ -20,7 +20,7 @@ function resolveProfileUnusableUntil(stats: {
 }
 
 export function resolveAuthProfileOrder(params: {
-  cfg?: OpenClawConfig;
+  cfg?: MoltbotConfig;
   store: AuthProfileStore;
   provider: string;
   preferredProfile?: string;

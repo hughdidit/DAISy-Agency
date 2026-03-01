@@ -14,10 +14,10 @@ import { guardCancel, randomToken } from "./onboard-helpers.js";
 type GatewayAuthChoice = "token" | "password";
 
 export async function promptGatewayConfig(
-  cfg: OpenClawConfig,
+  cfg: MoltbotConfig,
   runtime: RuntimeEnv,
 ): Promise<{
-  config: OpenClawConfig;
+  config: MoltbotConfig;
   port: number;
   token?: string;
 }> {
@@ -143,9 +143,7 @@ export async function promptGatewayConfig(
   let tailscaleResetOnExit = false;
   if (tailscaleMode !== "off") {
     note(
-      ["Docs:", "https://docs.openclaw.ai/gateway/tailscale", "https://docs.openclaw.ai/web"].join(
-        "\n",
-      ),
+      ["Docs:", "https://docs.molt.bot/gateway/tailscale", "https://docs.molt.bot/web"].join("\n"),
       "Tailscale",
     );
     tailscaleResetOnExit = Boolean(
@@ -181,8 +179,7 @@ export async function promptGatewayConfig(
       }),
       runtime,
     );
-    const rawInput = tokenInput ? String(tokenInput).trim() : "";
-    gatewayToken = rawInput || randomToken();
+    gatewayToken = String(tokenInput).trim() || randomToken();
   }
 
   if (authMode === "password") {

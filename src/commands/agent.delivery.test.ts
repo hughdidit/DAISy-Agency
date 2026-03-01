@@ -41,7 +41,7 @@ describe("deliverAgentCommandResult", () => {
   });
 
   it("prefers explicit accountId for outbound delivery", async () => {
-    const cfg = {} as OpenClawConfig;
+    const cfg = {} as MoltbotConfig;
     const deps = {} as CliDeps;
     const runtime = {
       log: vi.fn(),
@@ -78,7 +78,7 @@ describe("deliverAgentCommandResult", () => {
   });
 
   it("falls back to session accountId for implicit delivery", async () => {
-    const cfg = {} as OpenClawConfig;
+    const cfg = {} as MoltbotConfig;
     const deps = {} as CliDeps;
     const runtime = {
       log: vi.fn(),
@@ -114,7 +114,7 @@ describe("deliverAgentCommandResult", () => {
   });
 
   it("does not infer accountId for explicit delivery targets", async () => {
-    const cfg = {} as OpenClawConfig;
+    const cfg = {} as MoltbotConfig;
     const deps = {} as CliDeps;
     const runtime = {
       log: vi.fn(),
@@ -154,7 +154,7 @@ describe("deliverAgentCommandResult", () => {
   });
 
   it("skips session accountId when channel differs", async () => {
-    const cfg = {} as OpenClawConfig;
+    const cfg = {} as MoltbotConfig;
     const deps = {} as CliDeps;
     const runtime = {
       log: vi.fn(),
@@ -190,7 +190,7 @@ describe("deliverAgentCommandResult", () => {
   });
 
   it("uses session last channel when none is provided", async () => {
-    const cfg = {} as OpenClawConfig;
+    const cfg = {} as MoltbotConfig;
     const deps = {} as CliDeps;
     const runtime = {
       log: vi.fn(),
@@ -225,7 +225,7 @@ describe("deliverAgentCommandResult", () => {
   });
 
   it("uses reply overrides for delivery routing", async () => {
-    const cfg = {} as OpenClawConfig;
+    const cfg = {} as MoltbotConfig;
     const deps = {} as CliDeps;
     const runtime = {
       log: vi.fn(),
@@ -265,7 +265,7 @@ describe("deliverAgentCommandResult", () => {
   });
 
   it("prefixes nested agent outputs with context", async () => {
-    const cfg = {} as OpenClawConfig;
+    const cfg = {} as MoltbotConfig;
     const deps = {} as CliDeps;
     const runtime = {
       log: vi.fn(),

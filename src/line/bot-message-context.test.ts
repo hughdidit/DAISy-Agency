@@ -15,7 +15,7 @@ import { buildLineMessageContext, buildLinePostbackContext } from "./bot-message
 describe("buildLineMessageContext", () => {
   let tmpDir: string;
   let storePath: string;
-  let cfg: OpenClawConfig;
+  let cfg: MoltbotConfig;
   const account: ResolvedLineAccount = {
     accountId: "default",
     enabled: true,
@@ -26,7 +26,7 @@ describe("buildLineMessageContext", () => {
   };
 
   beforeEach(async () => {
-    tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-line-context-"));
+    tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-line-context-"));
     storePath = path.join(tmpDir, "sessions.json");
     cfg = { session: { store: storePath } };
   });

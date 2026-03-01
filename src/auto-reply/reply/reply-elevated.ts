@@ -105,7 +105,7 @@ function isApprovedElevatedSender(params: {
 }
 
 export function resolveElevatedPermissions(params: {
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   agentId: string;
   ctx: MsgContext;
   provider: string;
@@ -194,7 +194,7 @@ export function formatElevatedUnavailableMessage(params: {
   lines.push("- agents.list[].tools.elevated.allowFrom.<provider>");
   if (params.sessionKey) {
     lines.push(
-      `See: ${formatCliCommand(`openclaw sandbox explain --session ${params.sessionKey}`)}`,
+      `See: ${formatCliCommand(`moltbot sandbox explain --session ${params.sessionKey}`)}`,
     );
   }
   return lines.join("\n");

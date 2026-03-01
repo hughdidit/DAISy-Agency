@@ -1,5 +1,4 @@
 import AjvPkg, { type ErrorObject } from "ajv";
-import type { SessionsPatchResult } from "../session-utils.types.js";
 import {
   type AgentEvent,
   AgentEventSchema,
@@ -498,7 +497,6 @@ export type {
   SessionsPreviewParams,
   SessionsResolveParams,
   SessionsPatchParams,
-  SessionsPatchResult,
   SessionsResetParams,
   SessionsDeleteParams,
   SessionsCompactParams,

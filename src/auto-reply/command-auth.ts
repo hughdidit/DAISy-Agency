@@ -14,13 +14,12 @@ export type CommandAuthorization = {
   providerId?: ChannelId;
   ownerList: string[];
   senderId?: string;
-  senderIsOwner: boolean;
   isAuthorizedSender: boolean;
   from?: string;
   to?: string;
 };
 
-function resolveProviderFromContext(ctx: MsgContext, cfg: OpenClawConfig): ChannelId | undefined {
+function resolveProviderFromContext(ctx: MsgContext, cfg: MoltbotConfig): ChannelId | undefined {
   const direct =
     normalizeAnyChannelId(ctx.Provider) ??
     normalizeAnyChannelId(ctx.Surface) ??
@@ -50,7 +49,7 @@ function resolveProviderFromContext(ctx: MsgContext, cfg: OpenClawConfig): Chann
 
 function formatAllowFromList(params: {
   dock?: ChannelDock;
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   accountId?: string | null;
   allowFrom: Array<string | number>;
 }): string[] {
@@ -64,7 +63,7 @@ function formatAllowFromList(params: {
 
 function normalizeAllowFromEntry(params: {
   dock?: ChannelDock;
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   accountId?: string | null;
   value: string;
 }): string[] {
@@ -77,51 +76,10 @@ function normalizeAllowFromEntry(params: {
   return normalized.filter((entry) => entry.trim().length > 0);
 }
 
-function resolveOwnerAllowFromList(params: {
-  dock?: ChannelDock;
-  cfg: OpenClawConfig;
-  accountId?: string | null;
-  providerId?: ChannelId;
-}): string[] {
-  const raw = params.cfg.commands?.ownerAllowFrom;
-  if (!Array.isArray(raw) || raw.length === 0) {
-    return [];
-  }
-  const filtered: string[] = [];
-  for (const entry of raw) {
-    const trimmed = String(entry ?? "").trim();
-    if (!trimmed) {
-      continue;
-    }
-    const separatorIndex = trimmed.indexOf(":");
-    if (separatorIndex > 0) {
-      const prefix = trimmed.slice(0, separatorIndex);
-      const channel = normalizeAnyChannelId(prefix);
-      if (channel) {
-        if (params.providerId && channel !== params.providerId) {
-          continue;
-        }
-        const remainder = trimmed.slice(separatorIndex + 1).trim();
-        if (remainder) {
-          filtered.push(remainder);
-        }
-        continue;
-      }
-    }
-    filtered.push(trimmed);
-  }
-  return formatAllowFromList({
-    dock: params.dock,
-    cfg: params.cfg,
-    accountId: params.accountId,
-    allowFrom: filtered,
-  });
-}
-
 function resolveSenderCandidates(params: {
   dock?: ChannelDock;
   providerId?: ChannelId;
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   accountId?: string | null;
   senderId?: string | null;
   senderE164?: string | null;
@@ -155,7 +113,7 @@ function resolveSenderCandidates(params: {
 
 export function resolveCommandAuthorization(params: {
   ctx: MsgContext;
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   commandAuthorized: boolean;
 }): CommandAuthorization {
   const { ctx, cfg, commandAuthorized } = params;
@@ -172,35 +130,20 @@ export function resolveCommandAuthorization(params: {
     accountId: ctx.AccountId,
     allowFrom: Array.isArray(allowFromRaw) ? allowFromRaw : [],
   });
-  const ownerAllowFromList = resolveOwnerAllowFromList({
-    dock,
-    cfg,
-    accountId: ctx.AccountId,
-    providerId,
-  });
   const allowAll =
     allowFromList.length === 0 || allowFromList.some((entry) => entry.trim() === "*");
 
-  const ownerCandidatesForCommands = allowAll ? [] : allowFromList.filter((entry) => entry !== "*");
-  if (!allowAll && ownerCandidatesForCommands.length === 0 && to) {
+  const ownerCandidates = allowAll ? [] : allowFromList.filter((entry) => entry !== "*");
+  if (!allowAll && ownerCandidates.length === 0 && to) {
     const normalizedTo = normalizeAllowFromEntry({
       dock,
       cfg,
       accountId: ctx.AccountId,
       value: to,
     });
-<<<<<<< HEAD
     if (normalizedTo.length > 0) ownerCandidates.push(...normalizedTo);
-=======
-    if (normalizedTo.length > 0) {
-      ownerCandidatesForCommands.push(...normalizedTo);
-    }
->>>>>>> 392bbddf2 (Security: owner-only tools + command auth hardening (#9202))
   }
-  const explicitOwners = ownerAllowFromList.filter((entry) => entry !== "*");
-  const ownerList = Array.from(
-    new Set(explicitOwners.length > 0 ? explicitOwners : ownerCandidatesForCommands),
-  );
+  const ownerList = Array.from(new Set(ownerCandidates));
 
   const senderCandidates = resolveSenderCandidates({
     dock,
@@ -214,25 +157,16 @@ export function resolveCommandAuthorization(params: {
   const matchedSender = ownerList.length
     ? senderCandidates.find((candidate) => ownerList.includes(candidate))
     : undefined;
-  const matchedCommandOwner = ownerCandidatesForCommands.length
-    ? senderCandidates.find((candidate) => ownerCandidatesForCommands.includes(candidate))
-    : undefined;
   const senderId = matchedSender ?? senderCandidates[0];
 
   const enforceOwner = Boolean(dock?.commands?.enforceOwnerForCommands);
-  const senderIsOwner = Boolean(matchedSender);
-  const isOwnerForCommands =
-    !enforceOwner ||
-    allowAll ||
-    ownerCandidatesForCommands.length === 0 ||
-    Boolean(matchedCommandOwner);
-  const isAuthorizedSender = commandAuthorized && isOwnerForCommands;
+  const isOwner = !enforceOwner || allowAll || ownerList.length === 0 || Boolean(matchedSender);
+  const isAuthorizedSender = commandAuthorized && isOwner;
 
   return {
     providerId,
     ownerList,
     senderId: senderId || undefined,
-    senderIsOwner,
     isAuthorizedSender,
     from: from || undefined,
     to: to || undefined,

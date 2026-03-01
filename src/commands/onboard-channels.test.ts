@@ -80,7 +80,7 @@ describe("setupChannels", () => {
       }),
     };
 
-    await setupChannels({} as OpenClawConfig, runtime, prompter, {
+    await setupChannels({} as MoltbotConfig, runtime, prompter, {
       skipConfirm: true,
       quickstartDefaults: true,
       forceAllowFromChannels: ["whatsapp"],
@@ -131,7 +131,7 @@ describe("setupChannels", () => {
             botToken: "token",
           },
         },
-      } as OpenClawConfig,
+      } as MoltbotConfig,
       runtime,
       prompter,
       {
@@ -193,7 +193,7 @@ describe("setupChannels", () => {
             enabled: false,
           },
         },
-      } as OpenClawConfig,
+      } as MoltbotConfig,
       runtime,
       prompter,
       {

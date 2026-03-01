@@ -1,14 +1,14 @@
 import { describe, expect, it, vi } from "vitest";
 
 const loadConfig = vi.fn();
-const ensureOpenClawModelsJson = vi.fn().mockResolvedValue(undefined);
-const resolveOpenClawAgentDir = vi.fn().mockReturnValue("/tmp/openclaw-agent");
+const ensureMoltbotModelsJson = vi.fn().mockResolvedValue(undefined);
+const resolveMoltbotAgentDir = vi.fn().mockReturnValue("/tmp/moltbot-agent");
 const ensureAuthProfileStore = vi.fn().mockReturnValue({ version: 1, profiles: {} });
 const listProfilesForProvider = vi.fn().mockReturnValue([]);
 const resolveAuthProfileDisplayLabel = vi.fn(({ profileId }: { profileId: string }) => profileId);
 const resolveAuthStorePathForDisplay = vi
   .fn()
-  .mockReturnValue("/tmp/openclaw-agent/auth-profiles.json");
+  .mockReturnValue("/tmp/moltbot-agent/auth-profiles.json");
 const resolveProfileUnusableUntilForDisplay = vi.fn().mockReturnValue(null);
 const resolveEnvApiKey = vi.fn().mockReturnValue(undefined);
 const resolveAwsSdkEnvVarName = vi.fn().mockReturnValue(undefined);
@@ -17,17 +17,17 @@ const discoverAuthStorage = vi.fn().mockReturnValue({});
 const discoverModels = vi.fn();
 
 vi.mock("../config/config.js", () => ({
-  CONFIG_PATH: "/tmp/openclaw.json",
-  STATE_DIR: "/tmp/openclaw-state",
+  CONFIG_PATH: "/tmp/moltbot.json",
+  STATE_DIR: "/tmp/moltbot-state",
   loadConfig,
 }));
 
 vi.mock("../agents/models-config.js", () => ({
-  ensureOpenClawModelsJson,
+  ensureMoltbotModelsJson,
 }));
 
 vi.mock("../agents/agent-paths.js", () => ({
-  resolveOpenClawAgentDir,
+  resolveMoltbotAgentDir,
 }));
 
 vi.mock("../agents/auth-profiles.js", () => ({
@@ -44,11 +44,7 @@ vi.mock("../agents/model-auth.js", () => ({
   getCustomProviderApiKey,
 }));
 
-<<<<<<< HEAD
 vi.mock("@mariozechner/pi-coding-agent", () => ({
-=======
-vi.mock("../agents/pi-model-discovery.js", () => ({
->>>>>>> 08ed62852 (chore: update deps and pi model discovery)
   discoverAuthStorage,
   discoverModels,
 }));

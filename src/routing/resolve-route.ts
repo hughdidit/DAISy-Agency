@@ -23,7 +23,7 @@ export type RoutePeer = {
 };
 
 export type ResolveAgentRouteInput = {
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   channel: string;
   accountId?: string | null;
   peer?: RoutePeer | null;
@@ -94,12 +94,12 @@ export function buildAgentSessionKey(params: {
   });
 }
 
-function listAgents(cfg: OpenClawConfig) {
+function listAgents(cfg: MoltbotConfig) {
   const agents = cfg.agents?.list;
   return Array.isArray(agents) ? agents : [];
 }
 
-function pickFirstExistingAgentId(cfg: OpenClawConfig, agentId: string): string {
+function pickFirstExistingAgentId(cfg: MoltbotConfig, agentId: string): string {
   const trimmed = (agentId ?? "").trim();
   if (!trimmed) return sanitizeAgentId(resolveDefaultAgentId(cfg));
   const normalized = normalizeAgentId(trimmed);

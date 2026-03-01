@@ -39,12 +39,12 @@ import {
 import { resolveNonInteractiveApiKey } from "../api-keys.js";
 
 export async function applyNonInteractiveAuthChoice(params: {
-  nextConfig: OpenClawConfig;
+  nextConfig: MoltbotConfig;
   authChoice: AuthChoice;
   opts: OnboardOptions;
   runtime: RuntimeEnv;
-  baseConfig: OpenClawConfig;
-}): Promise<OpenClawConfig | null> {
+  baseConfig: MoltbotConfig;
+}): Promise<MoltbotConfig | null> {
   const { authChoice, opts, runtime, baseConfig } = params;
   let nextConfig = params.nextConfig;
 
@@ -196,7 +196,7 @@ export async function applyNonInteractiveAuthChoice(params: {
     const result = upsertSharedEnvVar({ key: "OPENAI_API_KEY", value: key });
     process.env.OPENAI_API_KEY = key;
     runtime.log(`Saved OPENAI_API_KEY to ${shortenHomePath(result.path)}`);
-    return applyOpenAIConfig(nextConfig);
+    return nextConfig;
   }
 
   if (authChoice === "openrouter-api-key") {
@@ -363,8 +363,7 @@ export async function applyNonInteractiveAuthChoice(params: {
     authChoice === "oauth" ||
     authChoice === "chutes" ||
     authChoice === "openai-codex" ||
-    authChoice === "qwen-portal" ||
-    authChoice === "minimax-portal"
+    authChoice === "qwen-portal"
   ) {
     runtime.error("OAuth requires interactive mode.");
     runtime.exit(1);

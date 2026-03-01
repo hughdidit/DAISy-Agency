@@ -39,8 +39,7 @@ const logCommand: HookHandler = async (event) => {
 
   try {
     // Create log directory
-    const stateDir = process.env.OPENCLAW_STATE_DIR?.trim() || path.join(os.homedir(), ".openclaw");
-    const logDir = path.join(stateDir, "logs");
+    const logDir = path.join(os.homedir(), ".clawdbot", "logs");
     await fs.mkdir(logDir, { recursive: true });
 
     // Append to command log file

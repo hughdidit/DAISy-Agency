@@ -16,7 +16,7 @@ export type LinkChannelContext = {
 };
 
 export async function resolveLinkChannelContext(
-  cfg: OpenClawConfig,
+  cfg: MoltbotConfig,
 ): Promise<LinkChannelContext | null> {
   for (const plugin of listChannelPlugins()) {
     const accountIds = plugin.config.listAccountIds(cfg);

@@ -1,4 +1,4 @@
-import type { OpenClawConfig } from "../config/config.js";
+import type { MoltbotConfig } from "../config/config.js";
 import type { CliBackendConfig } from "../config/types.js";
 import { normalizeProviderId } from "./model-selection.js";
 
@@ -9,10 +9,8 @@ export type ResolvedCliBackend = {
 
 const CLAUDE_MODEL_ALIASES: Record<string, string> = {
   opus: "opus",
-  "opus-4.6": "opus",
   "opus-4.5": "opus",
   "opus-4": "opus",
-  "claude-opus-4-6": "opus",
   "claude-opus-4-5": "opus",
   "claude-opus-4": "opus",
   sonnet: "sonnet",
@@ -105,7 +103,7 @@ function mergeBackendConfig(base: CliBackendConfig, override?: CliBackendConfig)
   };
 }
 
-export function resolveCliBackendIds(cfg?: OpenClawConfig): Set<string> {
+export function resolveCliBackendIds(cfg?: MoltbotConfig): Set<string> {
   const ids = new Set<string>([
     normalizeBackendKey("claude-cli"),
     normalizeBackendKey("codex-cli"),
@@ -119,7 +117,7 @@ export function resolveCliBackendIds(cfg?: OpenClawConfig): Set<string> {
 
 export function resolveCliBackendConfig(
   provider: string,
-  cfg?: OpenClawConfig,
+  cfg?: MoltbotConfig,
 ): ResolvedCliBackend | null {
   const normalized = normalizeBackendKey(provider);
   const configured = cfg?.agents?.defaults?.cliBackends ?? {};

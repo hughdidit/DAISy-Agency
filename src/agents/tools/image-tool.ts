@@ -11,7 +11,7 @@ import {
   complete,
   type Model,
 } from "@mariozechner/pi-ai";
-import { discoverAuthStorage, discoverModels } from "../pi-model-discovery.js";
+import { discoverAuthStorage, discoverModels } from "@mariozechner/pi-coding-agent";
 import { Type } from "@sinclair/typebox";
 
 import type { MoltbotConfig } from "../../config/config.js";
@@ -43,15 +43,13 @@ import {
 } from "./image-tool.helpers.js";
 
 const DEFAULT_PROMPT = "Describe the image.";
-const ANTHROPIC_IMAGE_PRIMARY = "anthropic/claude-opus-4-6";
-const ANTHROPIC_IMAGE_FALLBACK = "anthropic/claude-opus-4-5";
 
 export const __testing = {
   decodeDataUrl,
   coerceImageAssistantText,
 } as const;
 
-function resolveDefaultModelRef(cfg?: OpenClawConfig): {
+function resolveDefaultModelRef(cfg?: MoltbotConfig): {
   provider: string;
   model: string;
 } {
@@ -83,7 +81,7 @@ function hasAuthForProvider(params: { provider: string; agentDir: string }): boo
  *   - fall back to OpenAI/Anthropic when available
  */
 export function resolveImageModelConfigForTool(params: {
-  cfg?: OpenClawConfig;
+  cfg?: MoltbotConfig;
   agentDir: string;
 }): ImageModelConfig | null {
   // Note: We intentionally do NOT gate based on primarySupportsImages here.
@@ -132,21 +130,12 @@ export function resolveImageModelConfigForTool(params: {
   } else if (primary.provider === "openai" && openaiOk) {
     preferred = "openai/gpt-5-mini";
   } else if (primary.provider === "anthropic" && anthropicOk) {
-    preferred = ANTHROPIC_IMAGE_PRIMARY;
+    preferred = "anthropic/claude-opus-4-5";
   }
 
   if (preferred?.trim()) {
-<<<<<<< HEAD
     if (openaiOk) addFallback("openai/gpt-5-mini");
     if (anthropicOk) addFallback("anthropic/claude-opus-4-5");
-=======
-    if (openaiOk) {
-      addFallback("openai/gpt-5-mini");
-    }
-    if (anthropicOk) {
-      addFallback(ANTHROPIC_IMAGE_FALLBACK);
-    }
->>>>>>> eb80b9acb (feat: add Claude Opus 4.6 to built-in model catalog (#9853))
     // Don't duplicate primary in fallbacks.
     const pruned = fallbacks.filter((ref) => ref !== preferred);
     return {
@@ -157,29 +146,20 @@ export function resolveImageModelConfigForTool(params: {
 
   // Cross-provider fallback when we can't pair with the primary provider.
   if (openaiOk) {
-<<<<<<< HEAD
     if (anthropicOk) addFallback("anthropic/claude-opus-4-5");
-=======
-    if (anthropicOk) {
-      addFallback(ANTHROPIC_IMAGE_FALLBACK);
-    }
->>>>>>> eb80b9acb (feat: add Claude Opus 4.6 to built-in model catalog (#9853))
     return {
       primary: "openai/gpt-5-mini",
       ...(fallbacks.length ? { fallbacks } : {}),
     };
   }
   if (anthropicOk) {
-    return {
-      primary: ANTHROPIC_IMAGE_PRIMARY,
-      fallbacks: [ANTHROPIC_IMAGE_FALLBACK],
-    };
+    return { primary: "anthropic/claude-opus-4-5" };
   }
 
   return null;
 }
 
-function pickMaxBytes(cfg?: OpenClawConfig, maxBytesMb?: number): number | undefined {
+function pickMaxBytes(cfg?: MoltbotConfig, maxBytesMb?: number): number | undefined {
   if (typeof maxBytesMb === "number" && Number.isFinite(maxBytesMb) && maxBytesMb > 0) {
     return Math.floor(maxBytesMb * 1024 * 1024);
   }
@@ -237,7 +217,7 @@ async function resolveSandboxedImagePath(params: {
 }
 
 async function runImagePrompt(params: {
-  cfg?: OpenClawConfig;
+  cfg?: MoltbotConfig;
   agentDir: string;
   imageModelConfig: ImageModelConfig;
   modelOverride?: string;
@@ -250,7 +230,7 @@ async function runImagePrompt(params: {
   model: string;
   attempts: Array<{ provider: string; model: string; error: string }>;
 }> {
-  const effectiveCfg: OpenClawConfig | undefined = params.cfg
+  const effectiveCfg: MoltbotConfig | undefined = params.cfg
     ? {
         ...params.cfg,
         agents: {
@@ -263,7 +243,7 @@ async function runImagePrompt(params: {
       }
     : undefined;
 
-  await ensureOpenClawModelsJson(effectiveCfg, params.agentDir);
+  await ensureMoltbotModelsJson(effectiveCfg, params.agentDir);
   const authStorage = discoverAuthStorage(params.agentDir);
   const modelRegistry = discoverModels(authStorage, params.agentDir);
 
@@ -324,7 +304,7 @@ async function runImagePrompt(params: {
 }
 
 export function createImageTool(options?: {
-  config?: OpenClawConfig;
+  config?: MoltbotConfig;
   agentDir?: string;
   sandboxRoot?: string;
   /** If true, the model has native vision capability and images in the prompt are auto-injected */

@@ -13,7 +13,7 @@ import type { ConfiguredEntry } from "./list.types.js";
 >>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { DEFAULT_MODEL, DEFAULT_PROVIDER, modelKey } from "./shared.js";
 
-export function resolveConfiguredEntries(cfg: OpenClawConfig) {
+export function resolveConfiguredEntries(cfg: MoltbotConfig) {
   const resolvedDefault = resolveConfiguredModelRef({
     cfg,
     defaultProvider: DEFAULT_PROVIDER,

@@ -26,7 +26,7 @@ const AWS_SECRET_KEY_ENV = "AWS_SECRET_ACCESS_KEY";
 const AWS_PROFILE_ENV = "AWS_PROFILE";
 
 function resolveProviderConfig(
-  cfg: OpenClawConfig | undefined,
+  cfg: MoltbotConfig | undefined,
   provider: string,
 ): ModelProviderConfig | undefined {
   const providers = cfg?.models?.providers ?? {};
@@ -48,7 +48,7 @@ function resolveProviderConfig(
 }
 
 export function getCustomProviderApiKey(
-  cfg: OpenClawConfig | undefined,
+  cfg: MoltbotConfig | undefined,
   provider: string,
 ): string | undefined {
   const entry = resolveProviderConfig(cfg, provider);
@@ -57,7 +57,7 @@ export function getCustomProviderApiKey(
 }
 
 function resolveProviderAuthOverride(
-  cfg: OpenClawConfig | undefined,
+  cfg: MoltbotConfig | undefined,
   provider: string,
 ): ModelProviderAuthMode | undefined {
   const entry = resolveProviderConfig(cfg, provider);
@@ -131,7 +131,7 @@ export type ResolvedProviderAuth = {
 
 export async function resolveApiKeyForProvider(params: {
   provider: string;
-  cfg?: OpenClawConfig;
+  cfg?: MoltbotConfig;
   profileId?: string;
   preferredProfile?: string;
   store?: AuthProfileStore;
@@ -213,7 +213,7 @@ export async function resolveApiKeyForProvider(params: {
     const hasCodex = listProfilesForProvider(store, "openai-codex").length > 0;
     if (hasCodex) {
       throw new Error(
-        'No API key found for provider "openai". You are authenticated with OpenAI Codex OAuth. Use openai-codex/gpt-5.3-codex (OAuth) or set OPENAI_API_KEY to use openai/gpt-5.1-codex.',
+        'No API key found for provider "openai". You are authenticated with OpenAI Codex OAuth. Use openai-codex/gpt-5.2 (ChatGPT OAuth) or set OPENAI_API_KEY for openai/gpt-5.2.',
       );
     }
   }
@@ -224,7 +224,7 @@ export async function resolveApiKeyForProvider(params: {
     [
       `No API key found for provider "${provider}".`,
       `Auth store: ${authStorePath} (agentDir: ${resolvedAgentDir}).`,
-      `Configure auth for this agent (${formatCliCommand("openclaw agents add <id>")}) or copy auth-profiles.json from the main agentDir.`,
+      `Configure auth for this agent (${formatCliCommand("moltbot agents add <id>")}) or copy auth-profiles.json from the main agentDir.`,
     ].join(" "),
   );
 }
@@ -272,17 +272,6 @@ export function resolveEnvApiKey(provider: string): EnvApiKeyResult | null {
     return pick("QWEN_OAUTH_TOKEN") ?? pick("QWEN_PORTAL_API_KEY");
   }
 
-<<<<<<< HEAD
-=======
-  if (normalized === "minimax-portal") {
-    return pick("MINIMAX_OAUTH_TOKEN") ?? pick("MINIMAX_API_KEY");
-  }
-
-  if (normalized === "kimi-coding") {
-    return pick("KIMI_API_KEY") ?? pick("KIMICODE_API_KEY");
-  }
-
->>>>>>> 1287328b6 (feat: add MiniMax OAuth plugin (#4521) (thanks @Maosghoul))
   const envMap: Record<string, string> = {
     openai: "OPENAI_API_KEY",
     google: "GEMINI_API_KEY",
@@ -307,7 +296,7 @@ export function resolveEnvApiKey(provider: string): EnvApiKeyResult | null {
 
 export function resolveModelAuthMode(
   provider?: string,
-  cfg?: OpenClawConfig,
+  cfg?: MoltbotConfig,
   store?: AuthProfileStore,
 ): ModelAuthMode | undefined {
   const resolved = provider?.trim();
@@ -349,7 +338,7 @@ export function resolveModelAuthMode(
 
 export async function getApiKeyForModel(params: {
   model: Model<Api>;
-  cfg?: OpenClawConfig;
+  cfg?: MoltbotConfig;
   profileId?: string;
   preferredProfile?: string;
   store?: AuthProfileStore;

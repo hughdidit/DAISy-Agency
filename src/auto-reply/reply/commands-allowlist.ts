@@ -140,7 +140,7 @@ function parseAllowlistCommand(raw: string): AllowlistCommand | null {
 }
 
 function normalizeAllowFrom(params: {
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   channelId: ChannelId;
   accountId?: string | null;
   values: Array<string | number>;
@@ -265,7 +265,7 @@ function resolveChannelAllowFromPaths(
 }
 
 async function resolveSlackNames(params: {
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   accountId?: string | null;
   entries: string[];
 }) {
@@ -281,7 +281,7 @@ async function resolveSlackNames(params: {
 }
 
 async function resolveDiscordNames(params: {
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   accountId?: string | null;
   entries: string[];
 }) {
