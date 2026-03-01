@@ -1,6 +1,10 @@
 <<<<<<< HEAD
 import type { MoltbotPluginApi, MoltbotConfig } from "clawdbot/plugin-sdk";
 import { emptyPluginConfigSchema } from "clawdbot/plugin-sdk";
+=======
+import type { OpenClawPluginApi } from "openclaw/plugin-sdk";
+import { emptyPluginConfigSchema } from "openclaw/plugin-sdk";
+>>>>>>> 230ca789e (chore: Lint extensions folder.)
 
 import { nostrPlugin } from "./src/channel.js";
 import { setNostrRuntime, getNostrRuntime } from "./src/runtime.js";

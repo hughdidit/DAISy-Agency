@@ -5,6 +5,7 @@ read_when:
   - Deciding where to run the Gateway
 title: "Platforms"
 ---
+
 # Platforms
 
 OpenClaw core is written in TypeScript. **Node is the recommended runtime**.

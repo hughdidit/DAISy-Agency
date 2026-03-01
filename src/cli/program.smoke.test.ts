@@ -22,6 +22,8 @@ const runtime = {
   }),
 };
 
+vi.mock("./plugin-registry.js", () => ({ ensurePluginRegistryLoaded: () => undefined }));
+
 vi.mock("../commands/message.js", () => ({ messageCommand }));
 vi.mock("../commands/status.js", () => ({ statusCommand }));
 vi.mock("../commands/configure.js", () => ({
@@ -56,6 +58,7 @@ vi.mock("../gateway/call.js", () => ({
   }),
 }));
 vi.mock("./deps.js", () => ({ createDefaultDeps: () => ({}) }));
+vi.mock("./preaction.js", () => ({ registerPreActionHooks: () => {} }));
 
 const { buildProgram } = await import("./program.js");
 
@@ -169,6 +172,12 @@ describe("cli program (smoke)", () => {
         authChoice: "moonshot-api-key",
         flag: "--moonshot-api-key",
         key: "sk-moonshot-test",
+        field: "moonshotApiKey",
+      },
+      {
+        authChoice: "moonshot-api-key-cn",
+        flag: "--moonshot-api-key",
+        key: "sk-moonshot-cn-test",
         field: "moonshotApiKey",
       },
       {

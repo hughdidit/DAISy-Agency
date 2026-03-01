@@ -158,7 +158,7 @@ describe("/models command", () => {
     agents: { defaults: { model: { primary: "anthropic/claude-opus-4-5" } } },
   } as unknown as OpenClawConfig;
 
-  it.each(["telegram", "discord", "whatsapp"])("lists providers on %s", async (surface) => {
+  it.each(["discord", "whatsapp"])("lists providers on %s (text)", async (surface) => {
     const params = buildParams("/models", cfg, { Provider: surface, Surface: surface });
     const result = await handleCommands(params);
     expect(result.shouldContinue).toBe(false);
@@ -167,8 +167,20 @@ describe("/models command", () => {
     expect(result.reply?.text).toContain("Use: /models <provider>");
   });
 
+  it("lists providers on telegram (buttons)", async () => {
+    const params = buildParams("/models", cfg, { Provider: "telegram", Surface: "telegram" });
+    const result = await handleCommands(params);
+    expect(result.shouldContinue).toBe(false);
+    expect(result.reply?.text).toBe("Select a provider:");
+    const buttons = (result.reply?.channelData as { telegram?: { buttons?: unknown[][] } })
+      ?.telegram?.buttons;
+    expect(buttons).toBeDefined();
+    expect(buttons?.length).toBeGreaterThan(0);
+  });
+
   it("lists provider models with pagination hints", async () => {
-    const params = buildParams("/models anthropic", cfg);
+    // Use discord surface for text-based output tests
+    const params = buildParams("/models anthropic", cfg, { Surface: "discord" });
     const result = await handleCommands(params);
     expect(result.shouldContinue).toBe(false);
     expect(result.reply?.text).toContain("Models (anthropic)");
@@ -179,7 +191,8 @@ describe("/models command", () => {
   });
 
   it("ignores page argument when all flag is present", async () => {
-    const params = buildParams("/models anthropic 3 all", cfg);
+    // Use discord surface for text-based output tests
+    const params = buildParams("/models anthropic 3 all", cfg, { Surface: "discord" });
     const result = await handleCommands(params);
     expect(result.shouldContinue).toBe(false);
     expect(result.reply?.text).toContain("Models (anthropic)");
@@ -189,7 +202,8 @@ describe("/models command", () => {
   });
 
   it("errors on out-of-range pages", async () => {
-    const params = buildParams("/models anthropic 4", cfg);
+    // Use discord surface for text-based output tests
+    const params = buildParams("/models anthropic 4", cfg, { Surface: "discord" });
     const result = await handleCommands(params);
     expect(result.shouldContinue).toBe(false);
     expect(result.reply?.text).toContain("Page out of range");
@@ -218,11 +232,16 @@ describe("/models command", () => {
       },
     } as unknown as OpenClawConfig;
 
-    const providerList = await handleCommands(buildParams("/models", customCfg));
+    // Use discord surface for text-based output tests
+    const providerList = await handleCommands(
+      buildParams("/models", customCfg, { Surface: "discord" }),
+    );
     expect(providerList.reply?.text).toContain("localai");
     expect(providerList.reply?.text).toContain("visionpro");
 
-    const result = await handleCommands(buildParams("/models localai", customCfg));
+    const result = await handleCommands(
+      buildParams("/models localai", customCfg, { Surface: "discord" }),
+    );
     expect(result.shouldContinue).toBe(false);
     expect(result.reply?.text).toContain("Models (localai)");
     expect(result.reply?.text).toContain("localai/ultra-chat");

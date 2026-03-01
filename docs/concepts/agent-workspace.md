@@ -5,6 +5,7 @@ read_when:
   - You want to back up or migrate an agent workspace
 title: "Agent Workspace"
 ---
+
 # Agent workspace
 
 The workspace is the agent's home. It is the only working directory used for
@@ -32,6 +33,10 @@ inside a sandbox workspace under `~/.openclaw/sandboxes`, not your host workspac
   agent: {
     workspace: "~/.openclaw/workspace"
   }
+=======
+    workspace: "~/.openclaw/workspace",
+  },
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 }
 ```
 
@@ -227,6 +232,6 @@ Suggested `.gitignore` starter:
 ## Advanced notes
 
 - Multi-agent routing can use different workspaces per agent. See
-  [Channel routing](/concepts/channel-routing) for routing configuration.
+  [Channel routing](/channels/channel-routing) for routing configuration.
 - If `agents.defaults.sandbox` is enabled, non-main sessions can use per-session sandbox
   workspaces under `agents.defaults.sandbox.workspaceRoot`.

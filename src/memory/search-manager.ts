@@ -1,8 +1,20 @@
 import type { OpenClawConfig } from "../config/config.js";
 import type { MemoryIndexManager } from "./manager.js";
+=======
+>>>>>>> dd8373a42 (fix(memory-qmd): write XDG index.yml + legacy compat)
+import type {
+  MemoryEmbeddingProbeResult,
+  MemorySearchManager,
+  MemorySyncProgressUpdate,
+} from "./types.js";
+import { createSubsystemLogger } from "../logging/subsystem.js";
+import { resolveMemoryBackendConfig } from "./backend-config.js";
+
+const log = createSubsystemLogger("memory");
+const QMD_MANAGER_CACHE = new Map<string, MemorySearchManager>();
 
 export type MemorySearchManagerResult = {
-  manager: MemoryIndexManager | null;
+  manager: MemorySearchManager | null;
   error?: string;
 };
 
@@ -10,6 +22,40 @@ export async function getMemorySearchManager(params: {
   cfg: OpenClawConfig;
   agentId: string;
 }): Promise<MemorySearchManagerResult> {
+  const resolved = resolveMemoryBackendConfig(params);
+  if (resolved.backend === "qmd" && resolved.qmd) {
+    const cacheKey = buildQmdCacheKey(params.agentId, resolved.qmd);
+    const cached = QMD_MANAGER_CACHE.get(cacheKey);
+    if (cached) {
+      return { manager: cached };
+    }
+    try {
+      const { QmdMemoryManager } = await import("./qmd-manager.js");
+      const primary = await QmdMemoryManager.create({
+        cfg: params.cfg,
+        agentId: params.agentId,
+        resolved,
+      });
+      if (primary) {
+        const wrapper = new FallbackMemoryManager(
+          {
+            primary,
+            fallbackFactory: async () => {
+              const { MemoryIndexManager } = await import("./manager.js");
+              return await MemoryIndexManager.get(params);
+            },
+          },
+          () => QMD_MANAGER_CACHE.delete(cacheKey),
+        );
+        QMD_MANAGER_CACHE.set(cacheKey, wrapper);
+        return { manager: wrapper };
+      }
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      log.warn(`qmd memory unavailable; falling back to builtin: ${message}`);
+    }
+  }
+
   try {
     const { MemoryIndexManager } = await import("./manager.js");
     const manager = await MemoryIndexManager.get(params);

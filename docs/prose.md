@@ -6,6 +6,7 @@ read_when:
   - You need to understand state storage
 title: "OpenProse"
 ---
+
 # OpenProse
 
 OpenProse is a portable, markdown-first workflow format for orchestrating AI sessions. In OpenClaw it ships as a plugin that installs an OpenProse skill pack plus a `/prose` slash command. Programs live in `.prose` files and can spawn multiple sub-agents with explicit control flow.
@@ -30,7 +31,7 @@ Restart the Gateway after enabling the plugin.
 
 Dev/local checkout: `openclaw plugins install ./extensions/open-prose`
 
-Related docs: [Plugins](/plugin), [Plugin manifest](/plugins/manifest), [Skills](/tools/skills).
+Related docs: [Plugins](/tools/plugin), [Plugin manifest](/plugins/manifest), [Skills](/tools/skills).
 
 ## Slash command
 
@@ -105,6 +106,7 @@ OpenProse supports multiple state backends:
 - **postgres** (experimental): requires `psql` and a connection string
 
 Notes:
+
 - sqlite/postgres are opt-in and experimental.
 - postgres credentials flow into subagent logs; use a dedicated, least-privileged DB.
 
@@ -119,9 +121,13 @@ OpenProse programs map to OpenClaw primitives:
 
 | OpenProse concept | OpenClaw tool |
 | --- | --- |
+=======
+| OpenProse concept         | OpenClaw tool    |
+| ------------------------- | ---------------- |
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 | Spawn session / Task tool | `sessions_spawn` |
-| File read/write | `read` / `write` |
-| Web fetch | `web_fetch` |
+| File read/write           | `read` / `write` |
+| Web fetch                 | `web_fetch`      |
 
 If your tool allowlist blocks these tools, OpenProse programs will fail. See [Skills config](/tools/skills-config).
 

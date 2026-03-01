@@ -221,7 +221,6 @@ enum WideAreaGatewayDiscovery {
         process.executableURL = URL(fileURLWithPath: path)
         process.arguments = args
         let outPipe = Pipe()
-        let errPipe = Pipe()
         process.standardOutput = outPipe
 <<<<<<< HEAD:apps/macos/Sources/MoltbotDiscovery/WideAreaGatewayDiscovery.swift
         process.standardError = errPipe

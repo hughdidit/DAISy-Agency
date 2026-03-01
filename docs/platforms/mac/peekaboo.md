@@ -6,6 +6,7 @@ read_when:
   - Changing PeekabooBridge protocol/paths
 title: "Peekaboo Bridge"
 ---
+
 # Peekaboo Bridge (macOS UI automation)
 
 OpenClaw can host **PeekabooBridge** as a local, permission‑aware UI automation
@@ -21,6 +22,7 @@ macOS app’s TCC permissions.
 ## Enable the bridge
 
 In the macOS app:
+
 - Settings → **Enable Peekaboo Bridge**
 
 When enabled, OpenClaw starts a local UNIX socket server. If disabled, the host

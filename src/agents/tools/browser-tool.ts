@@ -69,7 +69,9 @@ async function resolveBrowserNodeTarget(params: {
   if (params.sandboxBridgeUrl?.trim() && params.target !== "node" && !params.requestedNode) {
     return null;
   }
-  if (params.target && params.target !== "node") return null;
+  if (params.target && params.target !== "node") {
+    return null;
+  }
   if (mode === "manual" && params.target !== "node" && !params.requestedNode) {
     return null;
   }
@@ -92,7 +94,7 @@ async function resolveBrowserNodeTarget(params: {
 
   if (params.target === "node") {
     if (browserNodes.length === 1) {
-      const node = browserNodes[0]!;
+      const node = browserNodes[0];
       return { nodeId: node.nodeId, label: node.displayName ?? node.remoteIp ?? node.nodeId };
     }
     throw new Error(
@@ -100,10 +102,12 @@ async function resolveBrowserNodeTarget(params: {
     );
   }
 
-  if (mode === "manual") return null;
+  if (mode === "manual") {
+    return null;
+  }
 
   if (browserNodes.length === 1) {
-    const node = browserNodes[0]!;
+    const node = browserNodes[0];
     return { nodeId: node.nodeId, label: node.displayName ?? node.remoteIp ?? node.nodeId };
   }
   return null;
@@ -122,7 +126,7 @@ async function callBrowserProxy(params: {
     typeof params.timeoutMs === "number" && Number.isFinite(params.timeoutMs)
       ? Math.max(1, Math.floor(params.timeoutMs))
       : DEFAULT_BROWSER_PROXY_TIMEOUT_MS;
-  const payload = (await callGatewayTool(
+  const payload = await callGatewayTool<{ payloadJSON?: string; payload?: string }>(
     "node.invoke",
     { timeoutMs: gatewayTimeoutMs },
     {
@@ -138,11 +142,7 @@ async function callBrowserProxy(params: {
       },
       idempotencyKey: crypto.randomUUID(),
     },
-  )) as {
-    ok?: boolean;
-    payload?: BrowserProxyResult;
-    payloadJSON?: string | null;
-  };
+  );
   const parsed =
     payload?.payload ??
     (typeof payload?.payloadJSON === "string" && payload.payloadJSON
@@ -155,7 +155,9 @@ async function callBrowserProxy(params: {
 }
 
 async function persistProxyFiles(files: BrowserProxyFile[] | undefined) {
-  if (!files || files.length === 0) return new Map<string, string>();
+  if (!files || files.length === 0) {
+    return new Map<string, string>();
+  }
   const mapping = new Map<string, string>();
   for (const file of files) {
     const buffer = Buffer.from(file.base64, "base64");
@@ -166,7 +168,9 @@ async function persistProxyFiles(files: BrowserProxyFile[] | undefined) {
 }
 
 function applyProxyPaths(result: unknown, mapping: Map<string, string>) {
-  if (!result || typeof result !== "object") return;
+  if (!result || typeof result !== "object") {
+    return;
+  }
   const obj = result as Record<string, unknown>;
   if (typeof obj.path === "string" && mapping.has(obj.path)) {
     obj.path = mapping.get(obj.path);
@@ -405,15 +409,18 @@ export function createBrowserTool(opts?: {
                 });
             return jsonResult(result);
           }
-          if (targetId) await browserCloseTab(baseUrl, targetId, { profile });
-          else await browserAct(baseUrl, { kind: "close" }, { profile });
+          if (targetId) {
+            await browserCloseTab(baseUrl, targetId, { profile });
+          } else {
+            await browserAct(baseUrl, { kind: "close" }, { profile });
+          }
           return jsonResult({ ok: true });
         }
         case "snapshot": {
           const snapshotDefaults = loadConfig().browser?.snapshotDefaults;
           const format =
             params.snapshotFormat === "ai" || params.snapshotFormat === "aria"
-              ? (params.snapshotFormat as "ai" | "aria")
+              ? params.snapshotFormat
               : "ai";
           const mode =
             params.mode === "efficient"
@@ -595,7 +602,9 @@ export function createBrowserTool(opts?: {
         }
         case "upload": {
           const paths = Array.isArray(params.paths) ? params.paths.map((p) => String(p)) : [];
-          if (paths.length === 0) throw new Error("paths required");
+          if (paths.length === 0) {
+            throw new Error("paths required");
+          }
           const ref = readStringParam(params, "ref");
           const inputRef = readStringParam(params, "inputRef");
           const element = readStringParam(params, "element");
@@ -700,6 +709,7 @@ export function createBrowserTool(opts?: {
               }
               throw new Error(
                 `Chrome tab not found (stale targetId?). Run action=tabs profile="chrome" and use one of the returned targetIds.`,
+                { cause: err },
               );
             }
             throw err;

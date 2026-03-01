@@ -11,7 +11,8 @@ title: "plugins"
 Manage Gateway plugins/extensions (loaded in-process).
 
 Related:
-- Plugin system: [Plugins](/plugin)
+
+- Plugin system: [Plugins](/tools/plugin)
 - Plugin manifest + schema: [Plugin manifest](/plugins/manifest)
 - Security hardening: [Security](/gateway/security)
 

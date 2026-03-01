@@ -4,6 +4,7 @@ read_when:
   - Updating protocol schemas or codegen
 title: "TypeBox"
 ---
+
 # TypeBox as protocol source of truth
 
 Last updated: 2026-01-10
@@ -41,14 +42,14 @@ Client                    Gateway
 
 Common methods + events:
 
-| Category | Examples | Notes |
-| --- | --- | --- |
-| Core | `connect`, `health`, `status` | `connect` must be first |
-| Messaging | `send`, `poll`, `agent`, `agent.wait` | side-effects need `idempotencyKey` |
-| Chat | `chat.history`, `chat.send`, `chat.abort`, `chat.inject` | WebChat uses these |
-| Sessions | `sessions.list`, `sessions.patch`, `sessions.delete` | session admin |
-| Nodes | `node.list`, `node.invoke`, `node.pair.*` | Gateway WS + node actions |
-| Events | `tick`, `presence`, `agent`, `chat`, `health`, `shutdown` | server push |
+| Category  | Examples                                                  | Notes                              |
+| --------- | --------------------------------------------------------- | ---------------------------------- |
+| Core      | `connect`, `health`, `status`                             | `connect` must be first            |
+| Messaging | `send`, `poll`, `agent`, `agent.wait`                     | side-effects need `idempotencyKey` |
+| Chat      | `chat.history`, `chat.send`, `chat.abort`, `chat.inject`  | WebChat uses these                 |
+| Sessions  | `sessions.list`, `sessions.patch`, `sessions.delete`      | session admin                      |
+| Nodes     | `node.list`, `node.invoke`, `node.pair.*`                 | Gateway WS + node actions          |
+| Events    | `tick`, `presence`, `agent`, `chat`, `health`, `shutdown` | server push                        |
 
 Authoritative list lives in `src/gateway/server.ts` (`METHODS`, `EVENTS`).
 
@@ -115,7 +116,12 @@ Hello-ok response:
     "protocol": 2,
     "server": { "version": "dev", "connId": "ws-1" },
     "features": { "methods": ["health"], "events": ["tick"] },
-    "snapshot": { "presence": [], "health": {}, "stateVersion": { "presence": 0, "health": 0 }, "uptimeMs": 0 },
+    "snapshot": {
+      "presence": [],
+      "health": {},
+      "stateVersion": { "presence": 0, "health": 0 },
+      "uptimeMs": 0
+    },
     "policy": { "maxPayload": 1048576, "maxBufferedBytes": 1048576, "tickIntervalMs": 30000 }
   }
 }
@@ -147,22 +153,24 @@ import { WebSocket } from "ws";
 const ws = new WebSocket("ws://127.0.0.1:18789");
 
 ws.on("open", () => {
-  ws.send(JSON.stringify({
-    type: "req",
-    id: "c1",
-    method: "connect",
-    params: {
-      minProtocol: 3,
-      maxProtocol: 3,
-      client: {
-        id: "cli",
-        displayName: "example",
-        version: "dev",
-        platform: "node",
-        mode: "cli"
-      }
-    }
-  }));
+  ws.send(
+    JSON.stringify({
+      type: "req",
+      id: "c1",
+      method: "connect",
+      params: {
+        minProtocol: 3,
+        maxProtocol: 3,
+        client: {
+          id: "cli",
+          displayName: "example",
+          version: "dev",
+          platform: "node",
+          mode: "cli",
+        },
+      },
+    }),
+  );
 });
 
 ws.on("message", (data) => {
@@ -181,7 +189,7 @@ ws.on("message", (data) => {
 
 Example: add a new `system.echo` request that returns `{ ok: true, text }`.
 
-1) **Schema (source of truth)**
+1. **Schema (source of truth)**
 
 Add to `src/gateway/protocol/schema.ts`:
 
@@ -222,8 +230,7 @@ export type SystemEchoResult = Static<typeof SystemEchoResultSchema>;
 In `src/gateway/protocol/index.ts`, export an AJV validator:
 
 ```ts
-export const validateSystemEchoParams =
-  ajv.compile<SystemEchoParams>(SystemEchoParamsSchema);
+export const validateSystemEchoParams = ajv.compile<SystemEchoParams>(SystemEchoParamsSchema);
 ```
 
 <<<<<<< HEAD
@@ -321,6 +328,6 @@ published raw file is typically available at:
 
 ## When you change schemas
 
-1) Update the TypeBox schemas.
-2) Run `pnpm protocol:check`.
-3) Commit the regenerated schema + Swift models.
+1. Update the TypeBox schemas.
+2. Run `pnpm protocol:check`.
+3. Commit the regenerated schema + Swift models.

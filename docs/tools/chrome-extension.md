@@ -16,6 +16,7 @@ Attach/detach happens via a **single Chrome toolbar button**.
 ## What it is (concept)
 
 There are three parts:
+
 - **Browser control service** (Gateway or node): the API the agent/tool calls (via the Gateway)
 - **Local relay server** (loopback CDP): bridges between the control server and the extension (`http://127.0.0.1:18792` by default)
 - **Chrome MV3 extension**: attaches to the active tab using `chrome.debugger` and pipes CDP messages to the relay
@@ -24,7 +25,7 @@ OpenClaw then controls the attached tab through the normal `browser` tool surfac
 
 ## Install / load (unpacked)
 
-1) Install the extension to a stable local path:
+1. Install the extension to a stable local path:
 
 ```bash
 openclaw browser extension install
@@ -113,6 +114,7 @@ openclaw browser create-profile \
 - `!`: relay not reachable (most common: browser relay server isn’t running on this machine).
 
 If you see `!`:
+
 - Make sure the Gateway is running locally (default setup), or run a node host on this machine if the Gateway runs elsewhere.
 - Open the extension Options page; it shows whether the relay is reachable.
 
@@ -138,6 +140,7 @@ If your agent session is sandboxed (`agents.defaults.sandbox.mode != "off"`), th
 - Chrome extension relay takeover requires controlling the **host** browser control server.
 
 Options:
+
 - Easiest: use the extension from a **non-sandboxed** session/agent.
 - Or allow host browser control for sandboxed sessions:
 
@@ -147,11 +150,11 @@ Options:
     defaults: {
       sandbox: {
         browser: {
-          allowHostControl: true
-        }
-      }
-    }
-  }
+          allowHostControl: true,
+        },
+      },
+    },
+  },
 }
 ```
 
@@ -184,12 +187,14 @@ This is powerful and risky. Treat it like giving the model “hands on your brow
   - If you attach to your daily-driver profile/tab, you’re granting access to that account state.
 
 Recommendations:
+
 - Prefer a dedicated Chrome profile (separate from your personal browsing) for extension relay usage.
 - Keep the Gateway and any node hosts tailnet-only; rely on Gateway auth + node pairing.
 - Avoid exposing relay ports over LAN (`0.0.0.0`) and avoid Funnel (public).
 - The relay blocks non-extension origins and requires an internal auth token for CDP clients.
 
 Related:
+
 - Browser tool overview: [Browser](/tools/browser)
 - Security audit: [Security](/gateway/security)
 - Tailscale setup: [Tailscale](/gateway/tailscale)

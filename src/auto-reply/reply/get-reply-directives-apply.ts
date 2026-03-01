@@ -183,6 +183,7 @@ export async function applyInlineDirectiveOverrides(params: {
       currentVerboseLevel,
       currentReasoningLevel,
       currentElevatedLevel,
+      surface: ctx.Surface,
     });
     let statusReply: ReplyPayload | undefined;
     if (directives.hasStatusDirective && allowTextCommands && command.isAuthorizedSender) {
@@ -196,8 +197,8 @@ export async function applyInlineDirectiveOverrides(params: {
         model,
         contextTokens,
         resolvedThinkLevel: resolvedDefaultThinkLevel,
-        resolvedVerboseLevel: (currentVerboseLevel ?? "off") as VerboseLevel,
-        resolvedReasoningLevel: (currentReasoningLevel ?? "off") as ReasoningLevel,
+        resolvedVerboseLevel: currentVerboseLevel ?? "off",
+        resolvedReasoningLevel: currentReasoningLevel ?? "off",
         resolvedElevatedLevel,
         resolveDefaultThinkingLevel: async () => resolvedDefaultThinkLevel,
         isGroup,

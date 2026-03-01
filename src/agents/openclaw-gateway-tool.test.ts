@@ -29,7 +29,9 @@ describe("gateway tool", () => {
         config: { commands: { restart: true } },
       }).find((candidate) => candidate.name === "gateway");
       expect(tool).toBeDefined();
-      if (!tool) throw new Error("missing gateway tool");
+      if (!tool) {
+        throw new Error("missing gateway tool");
+      }
 
       const result = await tool.execute("call1", {
         action: "restart",
@@ -77,7 +79,9 @@ describe("gateway tool", () => {
       agentSessionKey: "agent:main:whatsapp:dm:+15555550123",
     }).find((candidate) => candidate.name === "gateway");
     expect(tool).toBeDefined();
-    if (!tool) throw new Error("missing gateway tool");
+    if (!tool) {
+      throw new Error("missing gateway tool");
+    }
 
     const raw = '{\n  agents: { defaults: { workspace: "~/openclaw" } }\n}\n';
     await tool.execute("call2", {
@@ -103,7 +107,9 @@ describe("gateway tool", () => {
       agentSessionKey: "agent:main:whatsapp:dm:+15555550123",
     }).find((candidate) => candidate.name === "gateway");
     expect(tool).toBeDefined();
-    if (!tool) throw new Error("missing gateway tool");
+    if (!tool) {
+      throw new Error("missing gateway tool");
+    }
 
     const raw = '{\n  channels: { telegram: { groups: { "*": { requireMention: false } } } }\n}\n';
     await tool.execute("call4", {
@@ -129,7 +135,9 @@ describe("gateway tool", () => {
       agentSessionKey: "agent:main:whatsapp:dm:+15555550123",
     }).find((candidate) => candidate.name === "gateway");
     expect(tool).toBeDefined();
-    if (!tool) throw new Error("missing gateway tool");
+    if (!tool) {
+      throw new Error("missing gateway tool");
+    }
 
     await tool.execute("call3", {
       action: "update.run",
@@ -144,5 +152,14 @@ describe("gateway tool", () => {
         sessionKey: "agent:main:whatsapp:dm:+15555550123",
       }),
     );
+    const updateCall = vi
+      .mocked(callGatewayTool)
+      .mock.calls.find((call) => call[0] === "update.run");
+    expect(updateCall).toBeDefined();
+    if (updateCall) {
+      const [, opts, params] = updateCall;
+      expect(opts).toMatchObject({ timeoutMs: 20 * 60_000 });
+      expect(params).toMatchObject({ timeoutMs: 20 * 60_000 });
+    }
   });
 });

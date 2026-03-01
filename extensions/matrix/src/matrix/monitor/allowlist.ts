@@ -71,7 +71,9 @@ export function resolveMatrixAllowListMatch(params: {
   userId?: string;
 }): MatrixAllowListMatch {
   const allowList = params.allowList;
-  if (allowList.length === 0) return { allowed: false };
+  if (allowList.length === 0) {
+    return { allowed: false };
+  }
   if (allowList.includes("*")) {
     return { allowed: true, matchKey: "*", matchSource: "wildcard" };
   }
@@ -82,7 +84,9 @@ export function resolveMatrixAllowListMatch(params: {
     { value: userId ? `user:${userId}` : "", source: "prefixed-user" },
   ];
   for (const candidate of candidates) {
-    if (!candidate.value) continue;
+    if (!candidate.value) {
+      continue;
+    }
     if (allowList.includes(candidate.value)) {
       return {
         allowed: true,

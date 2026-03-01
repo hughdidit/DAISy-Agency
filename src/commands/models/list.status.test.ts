@@ -71,6 +71,7 @@ const mocks = vi.hoisted(() => {
   };
 });
 
+<<<<<<< HEAD
 vi.mock("../../agents/agent-paths.js", () => ({
   resolveOpenClawAgentDir: mocks.resolveOpenClawAgentDir,
 }));

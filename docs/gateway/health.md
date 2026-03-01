@@ -4,6 +4,7 @@ read_when:
   - Diagnosing WhatsApp channel health
 title: "Health Checks"
 ---
+
 # Health Checks (CLI)
 
 Short guide to verify channel connectivity without guessing.

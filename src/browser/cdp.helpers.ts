@@ -76,7 +76,9 @@ function createCdpSender(ws: WebSocket) {
   };
 
   const closeWithError = (err: Error) => {
-    for (const [, p] of pending) p.reject(err);
+    for (const [, p] of pending) {
+      p.reject(err);
+    }
     pending.clear();
     try {
       ws.close();
@@ -88,9 +90,13 @@ function createCdpSender(ws: WebSocket) {
   ws.on("message", (data) => {
     try {
       const parsed = JSON.parse(rawDataToString(data)) as CdpResponse;
-      if (typeof parsed.id !== "number") return;
+      if (typeof parsed.id !== "number") {
+        return;
+      }
       const p = pending.get(parsed.id);
-      if (!p) return;
+      if (!p) {
+        return;
+      }
       pending.delete(parsed.id);
       if (parsed.error?.message) {
         p.reject(new Error(parsed.error.message));
@@ -115,7 +121,9 @@ export async function fetchJson<T>(url: string, timeoutMs = 1500, init?: Request
   try {
     const headers = getHeadersWithAuth(url, (init?.headers as Record<string, string>) || {});
     const res = await fetch(url, { ...init, headers, signal: ctrl.signal });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status}`);
+    }
     return (await res.json()) as T;
   } finally {
     clearTimeout(t);
@@ -128,7 +136,9 @@ export async function fetchOk(url: string, timeoutMs = 1500, init?: RequestInit)
   try {
     const headers = getHeadersWithAuth(url, (init?.headers as Record<string, string>) || {});
     const res = await fetch(url, { ...init, headers, signal: ctrl.signal });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status}`);
+    }
   } finally {
     clearTimeout(t);
   }

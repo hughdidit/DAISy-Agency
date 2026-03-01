@@ -1,6 +1,7 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
 import fs from "node:fs";
 import path from "node:path";
+<<<<<<< HEAD
 import { fileURLToPath } from "node:url";
 <<<<<<< HEAD
 
@@ -29,30 +30,10 @@ export type ControlUiRequestOptions = {
   trustedProxies?: string[];
 };
 
-function resolveControlUiRoot(): string | null {
-  const here = path.dirname(fileURLToPath(import.meta.url));
-  const execDir = (() => {
-    try {
-      return path.dirname(fs.realpathSync(process.execPath));
-    } catch {
-      return null;
-    }
-  })();
-  const candidates = [
-    // Packaged app: control-ui lives alongside the executable.
-    execDir ? path.resolve(execDir, "control-ui") : null,
-    // Running from dist: dist/gateway/control-ui.js -> dist/control-ui
-    path.resolve(here, "../control-ui"),
-    // Running from source: src/gateway/control-ui.ts -> dist/control-ui
-    path.resolve(here, "../../dist/control-ui"),
-    // Fallback to cwd (dev)
-    path.resolve(process.cwd(), "dist", "control-ui"),
-  ].filter((dir): dir is string => Boolean(dir));
-  for (const dir of candidates) {
-    if (fs.existsSync(path.join(dir, "index.html"))) return dir;
-  }
-  return null;
-}
+export type ControlUiRootState =
+  | { kind: "resolved"; path: string }
+  | { kind: "invalid"; path: string }
+  | { kind: "missing" };
 
 function contentTypeForExt(ext: string): string {
   switch (ext) {
@@ -124,8 +105,12 @@ export async function handleControlUiAvatarRequest(
   },
 ): Promise<boolean> {
   const urlRaw = req.url;
-  if (!urlRaw) return false;
-  if (req.method !== "GET" && req.method !== "HEAD") return false;
+  if (!urlRaw) {
+    return false;
+  }
+  if (req.method !== "GET" && req.method !== "HEAD") {
+    return false;
+  }
 
   const url = new URL(urlRaw, "http://localhost");
   const basePath = normalizeControlUiBasePath(opts.basePath);
@@ -133,7 +118,9 @@ export async function handleControlUiAvatarRequest(
   const pathWithBase = basePath
     ? `${basePath}${CONTROL_UI_AVATAR_PREFIX}/`
     : `${CONTROL_UI_AVATAR_PREFIX}/`;
-  if (!pathname.startsWith(pathWithBase)) return false;
+  if (!pathname.startsWith(pathWithBase)) {
+    return false;
+  }
 
   if (opts.auth && !isLocalDirectRequest(req, opts.trustedProxies)) {
     const token = getBearerToken(req) ?? url.searchParams.get("token") ?? undefined;
@@ -265,10 +252,16 @@ function serveIndexHtml(res: ServerResponse, indexPath: string, opts: ServeIndex
 }
 
 function isSafeRelativePath(relPath: string) {
-  if (!relPath) return false;
+  if (!relPath) {
+    return false;
+  }
   const normalized = path.posix.normalize(relPath);
-  if (normalized.startsWith("../") || normalized === "..") return false;
-  if (normalized.includes("\0")) return false;
+  if (normalized.startsWith("../") || normalized === "..") {
+    return false;
+  }
+  if (normalized.includes("\0")) {
+    return false;
+  }
   return true;
 }
 
@@ -278,7 +271,9 @@ export async function handleControlUiHttpRequest(
   opts?: ControlUiRequestOptions,
 ): Promise<boolean> {
   const urlRaw = req.url;
-  if (!urlRaw) return false;
+  if (!urlRaw) {
+    return false;
+  }
   if (req.method !== "GET" && req.method !== "HEAD") {
     res.statusCode = 405;
     res.setHeader("Content-Type", "text/plain; charset=utf-8");
@@ -306,7 +301,9 @@ export async function handleControlUiHttpRequest(
       res.end();
       return true;
     }
-    if (!pathname.startsWith(`${basePath}/`)) return false;
+    if (!pathname.startsWith(`${basePath}/`)) {
+      return false;
+    }
   }
 
   if (opts?.auth && !isLocalDirectRequest(req, opts.trustedProxies)) {
@@ -366,9 +363,13 @@ export async function handleControlUiHttpRequest(
   const uiPath =
     basePath && pathname.startsWith(`${basePath}/`) ? pathname.slice(basePath.length) : pathname;
   const rel = (() => {
-    if (uiPath === ROOT_PREFIX) return "";
+    if (uiPath === ROOT_PREFIX) {
+      return "";
+    }
     const assetsIndex = uiPath.indexOf("/assets/");
-    if (assetsIndex >= 0) return uiPath.slice(assetsIndex + 1);
+    if (assetsIndex >= 0) {
+      return uiPath.slice(assetsIndex + 1);
+    }
     return uiPath.slice(1);
   })();
   const requested = rel && !rel.endsWith("/") ? rel : `${rel}index.html`;

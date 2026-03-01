@@ -67,7 +67,9 @@ export async function deliverMatrixReplies(params: {
         chunkMode,
       )) {
         const trimmed = chunk.trim();
-        if (!trimmed) continue;
+        if (!trimmed) {
+          continue;
+        }
         await sendMessageMatrix(params.roomId, trimmed, {
           client: params.client,
           replyToId: shouldIncludeReply(replyToId) ? replyToId : undefined,

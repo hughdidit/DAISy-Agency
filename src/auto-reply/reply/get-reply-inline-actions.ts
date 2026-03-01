@@ -33,18 +33,25 @@ export type InlineActionResult =
       abortedLastRun: boolean;
     };
 
+// oxlint-disable-next-line typescript/no-explicit-any
 function extractTextFromToolResult(result: any): string | null {
-  if (!result || typeof result !== "object") return null;
+  if (!result || typeof result !== "object") {
+    return null;
+  }
   const content = (result as { content?: unknown }).content;
   if (typeof content === "string") {
     const trimmed = content.trim();
     return trimmed ? trimmed : null;
   }
-  if (!Array.isArray(content)) return null;
+  if (!Array.isArray(content)) {
+    return null;
+  }
 
   const parts: string[] = [];
   for (const block of content) {
-    if (!block || typeof block !== "object") continue;
+    if (!block || typeof block !== "object") {
+      continue;
+    }
     const rec = block as { type?: unknown; text?: unknown };
     if (rec.type === "text" && typeof rec.text === "string") {
       parts.push(rec.text);
@@ -195,6 +202,7 @@ export async function handleInlineActions(params: {
           command: rawArgs,
           commandName: skillInvocation.command.name,
           skillName: skillInvocation.command.skillName,
+          // oxlint-disable-next-line typescript/no-explicit-any
         } as any);
         const text = extractTextFromToolResult(result) ?? "✅ Done.";
         typing.cleanup();
@@ -220,8 +228,12 @@ export async function handleInlineActions(params: {
   }
 
   const sendInlineReply = async (reply?: ReplyPayload) => {
-    if (!reply) return;
-    if (!opts?.onBlockReply) return;
+    if (!reply) {
+      return;
+    }
+    if (!opts?.onBlockReply) {
+      return;
+    }
     await opts.onBlockReply(reply);
   };
 

@@ -142,7 +142,7 @@ describe("dispatchReplyFromConfig", () => {
     );
   });
 
-  it("does not provide onToolResult when routing cross-provider", async () => {
+  it("provides onToolResult in DM sessions", async () => {
     mocks.tryFastAbortFromMessage.mockResolvedValue({
       handled: false,
       aborted: false,
@@ -197,6 +197,8 @@ describe("dispatchReplyFromConfig", () => {
     };
 
     await dispatchReplyFromConfig({ ctx, cfg, dispatcher, replyResolver });
+    expect(dispatcher.sendFinalReply).toHaveBeenCalledTimes(1);
+  });
 
 <<<<<<< HEAD
     expect(mocks.routeReply).toHaveBeenCalledWith(

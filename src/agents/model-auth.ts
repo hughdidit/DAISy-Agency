@@ -31,19 +31,19 @@ function resolveProviderConfig(
 ): ModelProviderConfig | undefined {
   const providers = cfg?.models?.providers ?? {};
   const direct = providers[provider] as ModelProviderConfig | undefined;
-  if (direct) return direct;
+  if (direct) {
+    return direct;
+  }
   const normalized = normalizeProviderId(provider);
   if (normalized === provider) {
     const matched = Object.entries(providers).find(
       ([key]) => normalizeProviderId(key) === normalized,
     );
-    return matched?.[1] as ModelProviderConfig | undefined;
+    return matched?.[1];
   }
   return (
     (providers[normalized] as ModelProviderConfig | undefined) ??
-    (Object.entries(providers).find(([key]) => normalizeProviderId(key) === normalized)?.[1] as
-      | ModelProviderConfig
-      | undefined)
+    Object.entries(providers).find(([key]) => normalizeProviderId(key) === normalized)?.[1]
   );
 }
 
@@ -79,11 +79,15 @@ function resolveEnvSourceLabel(params: {
 }
 
 export function resolveAwsSdkEnvVarName(env: NodeJS.ProcessEnv = process.env): string | undefined {
-  if (env[AWS_BEARER_ENV]?.trim()) return AWS_BEARER_ENV;
+  if (env[AWS_BEARER_ENV]?.trim()) {
+    return AWS_BEARER_ENV;
+  }
   if (env[AWS_ACCESS_KEY_ENV]?.trim() && env[AWS_SECRET_KEY_ENV]?.trim()) {
     return AWS_ACCESS_KEY_ENV;
   }
-  if (env[AWS_PROFILE_ENV]?.trim()) return AWS_PROFILE_ENV;
+  if (env[AWS_PROFILE_ENV]?.trim()) {
+    return AWS_PROFILE_ENV;
+  }
   return undefined;
 }
 
@@ -237,7 +241,9 @@ export function resolveEnvApiKey(provider: string): EnvApiKeyResult | null {
   const applied = new Set(getShellEnvAppliedKeys());
   const pick = (envVar: string): EnvApiKeyResult | null => {
     const value = process.env[envVar]?.trim();
-    if (!value) return null;
+    if (!value) {
+      return null;
+    }
     const source = applied.has(envVar) ? `shell env: ${envVar}` : `env: ${envVar}`;
     return { apiKey: value, source };
   };
@@ -260,7 +266,9 @@ export function resolveEnvApiKey(provider: string): EnvApiKeyResult | null {
 
   if (normalized === "google-vertex") {
     const envKey = getEnvApiKey(normalized);
-    if (!envKey) return null;
+    if (!envKey) {
+      return null;
+    }
     return { apiKey: envKey, source: "gcloud adc" };
   }
 
@@ -286,22 +294,31 @@ export function resolveEnvApiKey(provider: string): EnvApiKeyResult | null {
   const envMap: Record<string, string> = {
     openai: "OPENAI_API_KEY",
     google: "GEMINI_API_KEY",
+    voyage: "VOYAGE_API_KEY",
     groq: "GROQ_API_KEY",
     deepgram: "DEEPGRAM_API_KEY",
     cerebras: "CEREBRAS_API_KEY",
     xai: "XAI_API_KEY",
     openrouter: "OPENROUTER_API_KEY",
     "vercel-ai-gateway": "AI_GATEWAY_API_KEY",
+    "cloudflare-ai-gateway": "CLOUDFLARE_AI_GATEWAY_API_KEY",
     moonshot: "MOONSHOT_API_KEY",
-    "kimi-code": "KIMICODE_API_KEY",
     minimax: "MINIMAX_API_KEY",
+    xiaomi: "XIAOMI_API_KEY",
     synthetic: "SYNTHETIC_API_KEY",
     venice: "VENICE_API_KEY",
     mistral: "MISTRAL_API_KEY",
     opencode: "OPENCODE_API_KEY",
+<<<<<<< HEAD
+    qianfan: "QIANFAN_API_KEY",
+=======
+    ollama: "OLLAMA_API_KEY",
+>>>>>>> 34a58b839 (fix(ollama): add streaming config and fix OLLAMA_API_KEY env var support (#9870))
   };
   const envVar = envMap[normalized];
-  if (!envVar) return null;
+  if (!envVar) {
+    return null;
+  }
   return pick(envVar);
 }
 
@@ -311,10 +328,14 @@ export function resolveModelAuthMode(
   store?: AuthProfileStore,
 ): ModelAuthMode | undefined {
   const resolved = provider?.trim();
-  if (!resolved) return undefined;
+  if (!resolved) {
+    return undefined;
+  }
 
   const authOverride = resolveProviderAuthOverride(cfg, resolved);
-  if (authOverride === "aws-sdk") return "aws-sdk";
+  if (authOverride === "aws-sdk") {
+    return "aws-sdk";
+  }
 
   const authStore = store ?? ensureAuthProfileStore();
   const profiles = listProfilesForProvider(authStore, resolved);
@@ -327,10 +348,18 @@ export function resolveModelAuthMode(
     const distinct = ["oauth", "token", "api_key"].filter((k) =>
       modes.has(k as "oauth" | "token" | "api_key"),
     );
-    if (distinct.length >= 2) return "mixed";
-    if (modes.has("oauth")) return "oauth";
-    if (modes.has("token")) return "token";
-    if (modes.has("api_key")) return "api-key";
+    if (distinct.length >= 2) {
+      return "mixed";
+    }
+    if (modes.has("oauth")) {
+      return "oauth";
+    }
+    if (modes.has("token")) {
+      return "token";
+    }
+    if (modes.has("api_key")) {
+      return "api-key";
+    }
   }
 
   if (authOverride === undefined && normalizeProviderId(resolved) === "amazon-bedrock") {
@@ -342,7 +371,9 @@ export function resolveModelAuthMode(
     return envKey.source.includes("OAUTH_TOKEN") ? "oauth" : "api-key";
   }
 
-  if (getCustomProviderApiKey(cfg, resolved)) return "api-key";
+  if (getCustomProviderApiKey(cfg, resolved)) {
+    return "api-key";
+  }
 
   return "unknown";
 }
@@ -367,6 +398,8 @@ export async function getApiKeyForModel(params: {
 
 export function requireApiKey(auth: ResolvedProviderAuth, provider: string): string {
   const key = auth.apiKey?.trim();
-  if (key) return key;
+  if (key) {
+    return key;
+  }
   throw new Error(`No API key resolved for provider "${provider}" (auth mode: ${auth.mode}).`);
 }

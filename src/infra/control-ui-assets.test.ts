@@ -3,6 +3,16 @@ import os from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { resolveControlUiDistIndexPath, resolveControlUiRepoRoot } from "./control-ui-assets.js";
+=======
+import {
+  resolveControlUiDistIndexHealth,
+  resolveControlUiDistIndexPath,
+  resolveControlUiDistIndexPathForRoot,
+  resolveControlUiRepoRoot,
+  resolveControlUiRootOverrideSync,
+  resolveControlUiRootSync,
+} from "./control-ui-assets.js";
+>>>>>>> 5935c4d23 (fix(ui): fix web UI after tsdown migration and typing changes)
 
 describe("control UI assets helpers", () => {
   it("resolves repo root from src argv1", async () => {

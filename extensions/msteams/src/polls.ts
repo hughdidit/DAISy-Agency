@@ -66,7 +66,9 @@ function extractSelections(value: unknown): string[] {
     return value.map(normalizeChoiceValue).filter((entry): entry is string => Boolean(entry));
   }
   const normalized = normalizeChoiceValue(value);
-  if (!normalized) return [];
+  if (!normalized) {
+    return [];
+  }
   if (normalized.includes(",")) {
     return normalized
       .split(",")
@@ -79,7 +81,9 @@ function extractSelections(value: unknown): string[] {
 function readNestedValue(value: unknown, keys: Array<string | number>): unknown {
   let current: unknown = value;
   for (const key of keys) {
-    if (!isRecord(current)) return undefined;
+    if (!isRecord(current)) {
+      return undefined;
+    }
     current = current[key as keyof typeof current];
   }
   return current;
@@ -94,7 +98,9 @@ export function extractMSTeamsPollVote(
   activity: { value?: unknown } | undefined,
 ): MSTeamsPollVote | null {
   const value = activity?.value;
-  if (!value || !isRecord(value)) return null;
+  if (!value || !isRecord(value)) {
+    return null;
+  }
   const pollId =
     readNestedString(value, ["openclawPollId"]) ??
     readNestedString(value, ["pollId"]) ??
@@ -104,6 +110,12 @@ export function extractMSTeamsPollVote(
     readNestedString(value, ["data", "pollId"]) ??
     readNestedString(value, ["data", "openclaw", "pollId"]);
   if (!pollId) return null;
+=======
+    readNestedString(value, ["data", "openclaw", "pollId"]);
+  if (!pollId) {
+    return null;
+  }
+>>>>>>> 230ca789e (chore: Lint extensions folder.)
 
   const directSelections = extractSelections(value.choices);
   const nestedSelections = extractSelections(readNestedValue(value, ["choices"]));
@@ -115,7 +127,9 @@ export function extractMSTeamsPollVote(
         ? nestedSelections
         : dataSelections;
 
-  if (selections.length === 0) return null;
+  if (selections.length === 0) {
+    return null;
+  }
 
   return {
     pollId,
@@ -211,7 +225,9 @@ export type MSTeamsPollStoreFsOptions = {
 };
 
 function parseTimestamp(value?: string): number | null {
-  if (!value) return null;
+  if (!value) {
+    return null;
+  }
   const parsed = Date.parse(value);
   return Number.isFinite(parsed) ? parsed : null;
 }
@@ -227,7 +243,9 @@ function pruneExpired(polls: Record<string, MSTeamsPoll>) {
 
 function pruneToLimit(polls: Record<string, MSTeamsPoll>) {
   const entries = Object.entries(polls);
-  if (entries.length <= MAX_POLLS) return polls;
+  if (entries.length <= MAX_POLLS) {
+    return polls;
+  }
   entries.sort((a, b) => {
     const aTs = parseTimestamp(a[1].updatedAt ?? a[1].createdAt) ?? 0;
     const bTs = parseTimestamp(b[1].updatedAt ?? b[1].createdAt) ?? 0;
@@ -286,7 +304,9 @@ export function createMSTeamsPollStoreFs(params?: MSTeamsPollStoreFsOptions): MS
     await withFileLock(filePath, empty, async () => {
       const data = await readStore();
       const poll = data.polls[params.pollId];
-      if (!poll) return null;
+      if (!poll) {
+        return null;
+      }
       const normalized = normalizeMSTeamsPollSelections(poll, params.selections);
       poll.votes[params.voterId] = normalized;
       poll.updatedAt = new Date().toISOString();

@@ -6,6 +6,7 @@ read_when:
   - Debugging gateway discovery or canvas commands
 title: "iOS App"
 ---
+
 # iOS App (Node)
 
 Availability: internal preview. The iOS app is not publicly distributed yet.
@@ -26,7 +27,7 @@ Availability: internal preview. The iOS app is not publicly distributed yet.
 
 ## Quick start (pair + connect)
 
-1) Start the Gateway:
+1. Start the Gateway:
 
 ```bash
 openclaw gateway --port 18789

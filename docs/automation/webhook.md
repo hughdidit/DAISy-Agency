@@ -21,18 +21,20 @@ Gateway can expose a small HTTP webhook endpoint for external triggers.
   hooks: {
     enabled: true,
     token: "shared-secret",
-    path: "/hooks"
-  }
+    path: "/hooks",
+  },
 }
 ```
 
 Notes:
+
 - `hooks.token` is required when `hooks.enabled=true`.
 - `hooks.path` defaults to `/hooks`.
 
 ## Auth
 
 Every request must include the hook token. Prefer headers:
+
 - `Authorization: Bearer <token>` (recommended)
 - `x-openclaw-token: <token>`
 - `?token=<token>` (deprecated; logs a warning and will be removed in a future major release)
@@ -42,6 +44,7 @@ Every request must include the hook token. Prefer headers:
 ### `POST /hooks/wake`
 
 Payload:
+
 ```json
 { "text": "System line", "mode": "now" }
 ```
@@ -50,12 +53,14 @@ Payload:
 - `mode` optional (`now` | `next-heartbeat`): Whether to trigger an immediate heartbeat (default `now`) or wait for the next periodic check.
 
 Effect:
+
 - Enqueues a system event for the **main** session
 - If `mode=now`, triggers an immediate heartbeat
 
 ### `POST /hooks/agent`
 
 Payload:
+
 ```json
 {
   "message": "Run this",
@@ -83,6 +88,7 @@ Payload:
 - `timeoutSeconds` optional (number): Maximum duration for the agent run in seconds.
 
 Effect:
+
 - Runs an **isolated** agent turn (own session key)
 - Always posts a summary into the **main** session
 - If `wakeMode=now`, triggers an immediate heartbeat
@@ -94,6 +100,7 @@ turn arbitrary payloads into `wake` or `agent` actions, with optional templates 
 code transforms.
 
 Mapping options (summary):
+
 - `hooks.presets: ["gmail"]` enables the built-in Gmail mapping.
 - `hooks.mappings` lets you define `match`, `action`, and templates in config.
 - `hooks.transformsDir` + `transform.module` loads a JS/TS module for custom logic.
@@ -105,6 +112,10 @@ Mapping options (summary):
   (dangerous; only for trusted internal sources).
 - `openclaw webhooks gmail setup` writes `hooks.gmail` config for `openclaw webhooks gmail run`.
 See [Gmail Pub/Sub](/automation/gmail-pubsub) for the full Gmail watch flow.
+=======
+- `openclaw webhooks gmail setup` writes `hooks.gmail` config for `openclaw webhooks gmail run`.
+  See [Gmail Pub/Sub](/automation/gmail-pubsub) for the full Gmail watch flow.
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 ## Responses
 

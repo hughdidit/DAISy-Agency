@@ -67,7 +67,9 @@ describe("exec PATH login shell merge", () => {
   });
 
   it("merges login-shell PATH for host=gateway", async () => {
-    if (isWin) return;
+    if (isWin) {
+      return;
+    }
     process.env.PATH = "/usr/bin";
 
     const { createExecTool } = await import("./bash-tools.exec.js");

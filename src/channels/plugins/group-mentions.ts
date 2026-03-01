@@ -33,9 +33,13 @@ type GroupMentionParams = {
 };
 
 function normalizeDiscordSlug(value?: string | null) {
-  if (!value) return "";
+  if (!value) {
+    return "";
+  }
   let text = value.trim().toLowerCase();
-  if (!text) return "";
+  if (!text) {
+    return "";
+  }
   text = text.replace(/^[@#]+/, "");
   text = text.replace(/[\s_]+/g, "-");
   text = text.replace(/[^a-z0-9-]+/g, "-");
@@ -45,7 +49,9 @@ function normalizeDiscordSlug(value?: string | null) {
 
 function normalizeSlackSlug(raw?: string | null) {
   const trimmed = raw?.trim().toLowerCase() ?? "";
-  if (!trimmed) return "";
+  if (!trimmed) {
+    return "";
+  }
   const dashed = trimmed.replace(/\s+/g, "-");
   const cleaned = dashed.replace(/[^a-z0-9#@._+-]+/g, "-");
   return cleaned.replace(/-{2,}/g, "-").replace(/^[-.]+|[-.]+$/g, "");
@@ -53,7 +59,9 @@ function normalizeSlackSlug(raw?: string | null) {
 
 function parseTelegramGroupId(value?: string | null) {
   const raw = value?.trim() ?? "";
-  if (!raw) return { chatId: undefined, topicId: undefined };
+  if (!raw) {
+    return { chatId: undefined, topicId: undefined };
+  }
   const parts = raw.split(":").filter(Boolean);
   if (
     parts.length >= 3 &&
@@ -75,7 +83,9 @@ function resolveTelegramRequireMention(params: {
   topicId?: string;
 }): boolean | undefined {
   const { cfg, chatId, topicId } = params;
-  if (!chatId) return undefined;
+  if (!chatId) {
+    return undefined;
+  }
   const groupConfig = cfg.channels?.telegram?.groups?.[chatId];
   const groupDefault = cfg.channels?.telegram?.groups?.["*"];
   const topicConfig = topicId && groupConfig?.topics ? groupConfig.topics[topicId] : undefined;
@@ -97,16 +107,24 @@ function resolveTelegramRequireMention(params: {
 }
 
 function resolveDiscordGuildEntry(guilds: DiscordConfig["guilds"], groupSpace?: string | null) {
-  if (!guilds || Object.keys(guilds).length === 0) return null;
+  if (!guilds || Object.keys(guilds).length === 0) {
+    return null;
+  }
   const space = groupSpace?.trim() ?? "";
-  if (space && guilds[space]) return guilds[space];
+  if (space && guilds[space]) {
+    return guilds[space];
+  }
   const normalized = normalizeDiscordSlug(space);
-  if (normalized && guilds[normalized]) return guilds[normalized];
+  if (normalized && guilds[normalized]) {
+    return guilds[normalized];
+  }
   if (normalized) {
     const match = Object.values(guilds).find(
       (entry) => normalizeDiscordSlug(entry?.slug ?? undefined) === normalized,
     );
-    if (match) return match;
+    if (match) {
+      return match;
+    }
   }
   return guilds["*"] ?? null;
 }
@@ -120,7 +138,9 @@ export function resolveTelegramGroupRequireMention(
     chatId,
     topicId,
   });
-  if (typeof requireMention === "boolean") return requireMention;
+  if (typeof requireMention === "boolean") {
+    return requireMention;
+  }
   return resolveChannelGroupRequireMention({
     cfg: params.cfg,
     channel: "telegram",
@@ -203,7 +223,9 @@ export function resolveSlackGroupRequireMention(params: GroupMentionParams): boo
   });
   const channels = account.channels ?? {};
   const keys = Object.keys(channels);
-  if (keys.length === 0) return true;
+  if (keys.length === 0) {
+    return true;
+  }
   const channelId = params.groupId?.trim();
   const groupChannel = params.groupChannel;
   const channelName = groupChannel?.replace(/^#/, "");
@@ -308,8 +330,12 @@ export function resolveDiscordGroupToolPolicy(
       senderUsername: params.senderUsername,
       senderE164: params.senderE164,
     });
-    if (senderPolicy) return senderPolicy;
-    if (entry?.tools) return entry.tools;
+    if (senderPolicy) {
+      return senderPolicy;
+    }
+    if (entry?.tools) {
+      return entry.tools;
+    }
   }
   const guildSenderPolicy = resolveToolsBySender({
     toolsBySender: guildEntry?.toolsBySender,
@@ -318,8 +344,12 @@ export function resolveDiscordGroupToolPolicy(
     senderUsername: params.senderUsername,
     senderE164: params.senderE164,
   });
-  if (guildSenderPolicy) return guildSenderPolicy;
-  if (guildEntry?.tools) return guildEntry.tools;
+  if (guildSenderPolicy) {
+    return guildSenderPolicy;
+  }
+  if (guildEntry?.tools) {
+    return guildEntry.tools;
+  }
   return undefined;
 }
 
@@ -332,7 +362,9 @@ export function resolveSlackGroupToolPolicy(
   });
   const channels = account.channels ?? {};
   const keys = Object.keys(channels);
-  if (keys.length === 0) return undefined;
+  if (keys.length === 0) {
+    return undefined;
+  }
   const channelId = params.groupId?.trim();
   const groupChannel = params.groupChannel;
   const channelName = groupChannel?.replace(/^#/, "");
@@ -360,8 +392,12 @@ export function resolveSlackGroupToolPolicy(
     senderUsername: params.senderUsername,
     senderE164: params.senderE164,
   });
-  if (senderPolicy) return senderPolicy;
-  if (resolved?.tools) return resolved.tools;
+  if (senderPolicy) {
+    return senderPolicy;
+  }
+  if (resolved?.tools) {
+    return resolved.tools;
+  }
   return undefined;
 }
 

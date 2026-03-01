@@ -54,6 +54,20 @@ function firecrawlError(): MockResponse {
   };
 }
 
+function textResponse(
+  text: string,
+  url = "https://example.com/",
+  contentType = "text/plain; charset=utf-8",
+): MockResponse {
+  return {
+    ok: true,
+    status: 200,
+    url,
+    headers: makeHeaders({ "content-type": contentType }),
+    text: async () => text,
+  };
+}
+
 function errorHtmlResponse(
   html: string,
   status = 404,
@@ -69,14 +83,32 @@ function errorHtmlResponse(
   };
 }
 function requestUrl(input: RequestInfo): string {
-  if (typeof input === "string") return input;
-  if (input instanceof URL) return input.toString();
-  if ("url" in input && typeof input.url === "string") return input.url;
+  if (typeof input === "string") {
+    return input;
+  }
+  if (input instanceof URL) {
+    return input.toString();
+  }
+  if ("url" in input && typeof input.url === "string") {
+    return input.url;
+  }
   return "";
 }
 
 describe("web_fetch extraction fallbacks", () => {
   const priorFetch = global.fetch;
+
+  beforeEach(() => {
+    vi.spyOn(ssrf, "resolvePinnedHostname").mockImplementation(async (hostname) => {
+      const normalized = hostname.trim().toLowerCase().replace(/\.$/, "");
+      const addresses = ["93.184.216.34", "93.184.216.35"];
+      return {
+        hostname: normalized,
+        addresses,
+        lookup: ssrf.createPinnedLookup({ hostname: normalized, addresses }),
+      };
+    });
+  });
 
   afterEach(() => {
     // @ts-expect-error restore
@@ -308,6 +340,37 @@ describe("web_fetch extraction fallbacks", () => {
     const details = result?.details as { extractor?: string; text?: string };
     expect(details.extractor).toBe("firecrawl");
     expect(details.text).toContain("firecrawl fallback");
+  });
+
+  it("wraps external content and clamps oversized maxChars", async () => {
+    const large = "a".repeat(80_000);
+    const mockFetch = vi.fn(
+      (input: RequestInfo) =>
+        Promise.resolve(textResponse(large, requestUrl(input))) as Promise<Response>,
+    );
+    // @ts-expect-error mock fetch
+    global.fetch = mockFetch;
+
+    const tool = createWebFetchTool({
+      config: {
+        tools: {
+          web: {
+            fetch: { cacheTtlMinutes: 0, firecrawl: { enabled: false }, maxCharsCap: 10_000 },
+          },
+        },
+      },
+      sandboxed: false,
+    });
+
+    const result = await tool?.execute?.("call", {
+      url: "https://example.com/large",
+      maxChars: 200_000,
+    });
+    const details = result?.details as { text?: string; length?: number; truncated?: boolean };
+    expect(details.text).toContain("<<<EXTERNAL_UNTRUSTED_CONTENT>>>");
+    expect(details.text).toContain("Source: Web Fetch");
+    expect(details.length).toBeLessThanOrEqual(10_000);
+    expect(details.truncated).toBe(true);
   });
   it("strips and truncates HTML from error responses", async () => {
     const long = "x".repeat(12_000);

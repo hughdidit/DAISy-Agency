@@ -1,5 +1,5 @@
-import type { LogLevel } from "./types";
-import type { CronFormState } from "./ui-types";
+import type { LogLevel } from "./types.ts";
+import type { CronFormState } from "./ui-types.ts";
 
 export const DEFAULT_LOG_LEVEL_FILTERS: Record<LogLevel, boolean> = {
   trace: true,
@@ -31,9 +31,8 @@ export const DEFAULT_CRON_FORM: CronFormState = {
   payloadKind: "agentTurn",
 >>>>>>> d90cac990 (fix: cron scheduler reliability, store hardening, and UX improvements (#10776))
   payloadText: "",
-  deliver: false,
-  channel: "last",
-  to: "",
+  deliveryMode: "announce",
+  deliveryChannel: "last",
+  deliveryTo: "",
   timeoutSeconds: "",
-  postToMainPrefix: "",
 };

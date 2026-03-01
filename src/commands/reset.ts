@@ -36,7 +36,9 @@ const selectStyled = <T>(params: Parameters<typeof select<T>>[0]) =>
   });
 
 async function stopGatewayIfRunning(runtime: RuntimeEnv) {
-  if (isNixMode) return;
+  if (isNixMode) {
+    return;
+  }
   const service = resolveGatewayService();
   let loaded = false;
   try {
@@ -45,7 +47,9 @@ async function stopGatewayIfRunning(runtime: RuntimeEnv) {
     runtime.error(`Gateway service check failed: ${String(err)}`);
     return;
   }
-  if (!loaded) return;
+  if (!loaded) {
+    return;
+  }
   try {
     await service.stop({ env: process.env, stdout: process.stdout });
   } catch (err) {

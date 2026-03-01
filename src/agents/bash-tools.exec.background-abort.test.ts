@@ -7,8 +7,6 @@ import {
 import { createExecTool } from "./bash-tools.exec";
 import { killProcessTree } from "./shell-utils";
 
-const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-
 afterEach(() => {
   resetProcessRegistryForTests();
 });
@@ -38,7 +36,9 @@ test("background exec is not killed when tool signal aborts", async () => {
     expect(running?.exited).toBe(false);
   } finally {
     const pid = running?.pid;
-    if (pid) killProcessTree(pid);
+    if (pid) {
+      killProcessTree(pid);
+    }
   }
 });
 
@@ -75,7 +75,9 @@ test("background exec still times out after tool signal abort", async () => {
     expect(finished?.status).toBe("failed");
   } finally {
     const pid = running?.pid;
-    if (pid) killProcessTree(pid);
+    if (pid) {
+      killProcessTree(pid);
+    }
   }
 });
 
@@ -104,7 +106,9 @@ test("yielded background exec is not killed when tool signal aborts", async () =
     expect(running?.exited).toBe(false);
   } finally {
     const pid = running?.pid;
-    if (pid) killProcessTree(pid);
+    if (pid) {
+      killProcessTree(pid);
+    }
   }
 });
 
@@ -134,6 +138,8 @@ test("yielded background exec still times out", async () => {
     expect(finished?.status).toBe("failed");
   } finally {
     const pid = running?.pid;
-    if (pid) killProcessTree(pid);
+    if (pid) {
+      killProcessTree(pid);
+    }
   }
 });

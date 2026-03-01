@@ -58,7 +58,9 @@ const findLatestMtime = (dirPath, shouldSkip) => {
   const queue = [dirPath];
   while (queue.length > 0) {
     const current = queue.pop();
-    if (!current) continue;
+    if (!current) {
+      continue;
+    }
     let entries = [];
     try {
       entries = fs.readdirSync(current, { withFileTypes: true });
@@ -71,10 +73,16 @@ const findLatestMtime = (dirPath, shouldSkip) => {
         queue.push(fullPath);
         continue;
       }
-      if (!entry.isFile()) continue;
-      if (shouldSkip?.(fullPath)) continue;
+      if (!entry.isFile()) {
+        continue;
+      }
+      if (shouldSkip?.(fullPath)) {
+        continue;
+      }
       const mtime = statMtime(fullPath);
-      if (mtime == null) continue;
+      if (mtime == null) {
+        continue;
+      }
       if (latest == null || mtime > latest) {
         latest = mtime;
       }
@@ -86,16 +94,24 @@ const findLatestMtime = (dirPath, shouldSkip) => {
 const shouldBuild = () => {
   if (env.OPENCLAW_FORCE_BUILD === '1') return true;
   const stampMtime = statMtime(buildStampPath);
-  if (stampMtime == null) return true;
-  if (statMtime(distEntry) == null) return true;
+  if (stampMtime == null) {
+    return true;
+  }
+  if (statMtime(distEntry) == null) {
+    return true;
+  }
 
   for (const filePath of configFiles) {
     const mtime = statMtime(filePath);
-    if (mtime != null && mtime > stampMtime) return true;
+    if (mtime != null && mtime > stampMtime) {
+      return true;
+    }
   }
 
   const srcMtime = findLatestMtime(srcRoot, isExcludedSource);
-  if (srcMtime != null && srcMtime > stampMtime) return true;
+  if (srcMtime != null && srcMtime > stampMtime) {
+    return true;
+  }
   return false;
 };
 

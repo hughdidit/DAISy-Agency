@@ -115,10 +115,8 @@ describe("models list/status", () => {
       contextWindow: 128000,
     };
 
-    discoverModels.mockReturnValue({
-      getAll: () => [model],
-      getAvailable: () => [model],
-    });
+    modelRegistryState.models = [model];
+    modelRegistryState.available = [model];
 
     const { modelsListCommand } = await import("./models/list.js");
     await modelsListCommand({ json: true }, runtime);
@@ -143,10 +141,8 @@ describe("models list/status", () => {
       contextWindow: 128000,
     };
 
-    discoverModels.mockReturnValue({
-      getAll: () => [model],
-      getAvailable: () => [model],
-    });
+    modelRegistryState.models = [model];
+    modelRegistryState.available = [model];
 
     const { modelsListCommand } = await import("./models/list.js");
     await modelsListCommand({ plain: true }, runtime);
@@ -180,10 +176,8 @@ describe("models list/status", () => {
       },
     ];
 
-    discoverModels.mockReturnValue({
-      getAll: () => models,
-      getAvailable: () => models,
-    });
+    modelRegistryState.models = models;
+    modelRegistryState.available = models;
 
     const { modelsListCommand } = await import("./models/list.js");
     await modelsListCommand({ all: true, provider: "z.ai", json: true }, runtime);
@@ -219,10 +213,8 @@ describe("models list/status", () => {
       },
     ];
 
-    discoverModels.mockReturnValue({
-      getAll: () => models,
-      getAvailable: () => models,
-    });
+    modelRegistryState.models = models;
+    modelRegistryState.available = models;
 
     const { modelsListCommand } = await import("./models/list.js");
     await modelsListCommand({ all: true, provider: "Z.AI", json: true }, runtime);
@@ -258,10 +250,8 @@ describe("models list/status", () => {
       },
     ];
 
-    discoverModels.mockReturnValue({
-      getAll: () => models,
-      getAvailable: () => models,
-    });
+    modelRegistryState.models = models;
+    modelRegistryState.available = models;
 
     const { modelsListCommand } = await import("./models/list.js");
     await modelsListCommand({ all: true, provider: "z-ai", json: true }, runtime);
@@ -287,10 +277,8 @@ describe("models list/status", () => {
       contextWindow: 128000,
     };
 
-    discoverModels.mockReturnValue({
-      getAll: () => [model],
-      getAvailable: () => [],
-    });
+    modelRegistryState.models = [model];
+    modelRegistryState.available = [];
 
     const { modelsListCommand } = await import("./models/list.js");
     await modelsListCommand({ all: true, json: true }, runtime);

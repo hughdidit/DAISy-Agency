@@ -34,13 +34,16 @@ function ensureExecutable(targetPath) {
   if (!fs.existsSync(targetPath)) return;
   try {
     const mode = fs.statSync(targetPath).mode & 0o777;
-    if (mode & 0o100) return;
+    if (mode & 0o100) {
+      return;
+    }
     fs.chmodSync(targetPath, 0o755);
   } catch (err) {
     console.warn(`[postinstall] chmod failed: ${err}`);
   }
 }
 
+<<<<<<< HEAD
 function hasGit(repoRoot) {
   const result = spawnSync('git', ['--version'], {
     cwd: repoRoot,
@@ -49,6 +52,8 @@ function hasGit(repoRoot) {
   return result.status === 0;
 }
 
+=======
+>>>>>>> 1838ab019 (chore: Enable linting in `scripts`.)
 function extractPackageName(key) {
   if (key.startsWith('@')) {
     const idx = key.indexOf('@', 1);
@@ -242,7 +247,9 @@ function applyPatchSet({ patchText, targetDir }) {
   resolvedTarget = fs.realpathSync(resolvedTarget);
 
   const files = parsePatch(patchText);
-  if (files.length === 0) return;
+  if (files.length === 0) {
+    return;
+  }
 
   for (const filePatch of files) {
     applyPatchToFile(resolvedTarget, filePatch);
@@ -299,6 +306,7 @@ function main() {
   ensureExecutable(path.join(repoRoot, "dist", "entry.js"));
 >>>>>>> a03d852d6 (chore: Migrate to tsdown, speed up JS bundling by ~10x (thanks @hyf0).)
   setupGitHooks({ repoRoot });
+  trySetupCompletion(repoRoot);
 
   if (!shouldApplyPnpmPatchedDependenciesFallback()) {
     return;
@@ -313,7 +321,9 @@ function main() {
   for (const [key, relPatchPath] of Object.entries(patched)) {
     if (typeof relPatchPath !== 'string' || !relPatchPath.trim()) continue;
     const pkgName = extractPackageName(String(key));
-    if (!pkgName) continue;
+    if (!pkgName) {
+      continue;
+    }
     applyPatchFile({
       targetDir: path.join('node_modules', ...pkgName.split('/')),
       patchPath: relPatchPath,

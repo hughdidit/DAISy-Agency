@@ -11,6 +11,7 @@ title: "directory"
 Directory lookups for channels that support it (contacts/peers, groups, and “me”).
 
 ## Common flags
+
 - `--channel <name>`: channel id/alias (required when multiple channels are configured; auto when only one is configured)
 - `--account <id>`: account id (default: channel default)
 - `--json`: output JSON

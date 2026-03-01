@@ -53,6 +53,7 @@ Works with npm, pnpm, or bun.
 New install? Start here: [Getting started](https://docs.openclaw.ai/start/getting-started)
 
 **Subscriptions (OAuth):**
+
 - **[Anthropic](https://www.anthropic.com/)** (Claude Pro/Max)
 - **[OpenAI](https://openai.com/)** (ChatGPT/Codex)
 
@@ -132,6 +133,7 @@ OpenClaw connects to real messaging surfaces. Treat inbound DMs as **untrusted i
 Full security guide: [Security](https://docs.openclaw.ai/gateway/security)
 
 Default behavior on Telegram/WhatsApp/Signal/iMessage/Microsoft Teams/Discord/Google Chat/Slack:
+
 - **DM pairing** (`dmPolicy="pairing"` / `channels.discord.dm.policy="pairing"` / `channels.slack.dm.policy="pairing"`): unknown senders receive a short pairing code and the bot does not process their message.
 - Approve with: `openclaw pairing approve <channel> <code>` (then the sender is added to a local allowlist store).
 - Public inbound DMs require an explicit opt-in: set `dmPolicy="open"` and include `"*"` in the channel allowlist (`allowFrom` / `channels.discord.dm.allowFrom` / `channels.slack.dm.allowFrom`).
@@ -241,7 +243,7 @@ It’s perfectly fine to run the Gateway on a small Linux instance. Clients (mac
 
 - **Gateway host** runs the exec tool and channel connections by default.
 - **Device nodes** run device‑local actions (`system.run`, camera, screen recording, notifications) via `node.invoke`.
-In short: exec runs where the Gateway lives; device actions run where the device lives.
+  In short: exec runs where the Gateway lives; device actions run where the device lives.
 
 Details: [Remote access](https://docs.openclaw.ai/gateway/remote) · [Nodes](https://docs.openclaw.ai/nodes) · [Security](https://docs.openclaw.ai/gateway/security)
 
@@ -260,7 +262,7 @@ Elevated bash (host permissions) is separate from macOS TCC:
 
 Details: [Nodes](https://docs.openclaw.ai/nodes) · [macOS app](https://docs.openclaw.ai/platforms/macos) · [Gateway protocol](https://docs.openclaw.ai/concepts/architecture)
 
-## Agent to Agent (sessions_* tools)
+## Agent to Agent (sessions\_\* tools)
 
 - Use these to coordinate work across sessions without jumping between chat surfaces.
 - `sessions_list` — discover active sessions (agents) and their metadata.
@@ -269,11 +271,11 @@ Details: [Nodes](https://docs.openclaw.ai/nodes) · [macOS app](https://docs.ope
 
 Details: [Session tools](https://docs.openclaw.ai/concepts/session-tool)
 
-## Skills registry (ClawdHub)
+## Skills registry (ClawHub)
 
-ClawdHub is a minimal skill registry. With ClawdHub enabled, the agent can search for skills automatically and pull in new ones as needed.
+ClawHub is a minimal skill registry. With ClawHub enabled, the agent can search for skills automatically and pull in new ones as needed.
 
-[ClawdHub](https://ClawdHub.com)
+[ClawHub](https://clawhub.com)
 
 ## Chat commands
 
@@ -359,15 +361,15 @@ Details: [Security guide](https://docs.openclaw.ai/gateway/security) · [Docker 
 ### [Telegram](https://docs.openclaw.ai/channels/telegram)
 
 - Set `TELEGRAM_BOT_TOKEN` or `channels.telegram.botToken` (env wins).
-- Optional: set `channels.telegram.groups` (with `channels.telegram.groups."*".requireMention`); when set, it is a group allowlist (include `"*"` to allow all). Also `channels.telegram.allowFrom` or `channels.telegram.webhookUrl` as needed.
+- Optional: set `channels.telegram.groups` (with `channels.telegram.groups."*".requireMention`); when set, it is a group allowlist (include `"*"` to allow all). Also `channels.telegram.allowFrom` or `channels.telegram.webhookUrl` + `channels.telegram.webhookSecret` as needed.
 
 ```json5
 {
   channels: {
     telegram: {
-      botToken: "123456:ABCDEF"
-    }
-  }
+      botToken: "123456:ABCDEF",
+    },
+  },
 }
 ```
 
@@ -384,9 +386,9 @@ Details: [Security guide](https://docs.openclaw.ai/gateway/security) · [Docker 
 {
   channels: {
     discord: {
-      token: "1234abcd"
-    }
-  }
+      token: "1234abcd",
+    },
+  },
 }
 ```
 
@@ -396,7 +398,13 @@ Details: [Security guide](https://docs.openclaw.ai/gateway/security) · [Docker 
 
 ### [iMessage](https://docs.openclaw.ai/channels/imessage)
 
-- macOS only; Messages must be signed in.
+- **Recommended** iMessage integration.
+- Configure `channels.bluebubbles.serverUrl` + `channels.bluebubbles.password` and a webhook (`channels.bluebubbles.webhookPath`).
+- The BlueBubbles server runs on macOS; the Gateway can run on macOS or elsewhere.
+
+### [iMessage (legacy)](https://docs.openclaw.ai/channels/imessage)
+
+- Legacy macOS-only integration via `imsg` (Messages must be signed in).
 - If `channels.imessage.groups` is set, it becomes a group allowlist; include `"*"` to allow all.
 
 ### [Microsoft Teams](https://docs.openclaw.ai/channels/msteams)
@@ -414,8 +422,8 @@ Browser control (optional):
 {
   browser: {
     enabled: true,
-    color: "#FF4500"
-  }
+    color: "#FF4500",
+  },
 }
 ```
 

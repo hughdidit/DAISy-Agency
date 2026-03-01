@@ -237,7 +237,7 @@ describe("removeAckReactionAfterReply", () => {
       remove,
       onError,
     });
-    await new Promise((resolve) => setTimeout(resolve, 0));
+    await sleep(0);
     expect(remove).toHaveBeenCalledTimes(1);
     expect(onError).not.toHaveBeenCalled();
   });
@@ -250,7 +250,7 @@ describe("removeAckReactionAfterReply", () => {
       ackReactionValue: "👀",
       remove,
     });
-    await new Promise((resolve) => setTimeout(resolve, 0));
+    await sleep(0);
     expect(remove).not.toHaveBeenCalled();
   });
 
@@ -262,7 +262,7 @@ describe("removeAckReactionAfterReply", () => {
       ackReactionValue: "👀",
       remove,
     });
-    await new Promise((resolve) => setTimeout(resolve, 0));
+    await sleep(0);
     expect(remove).not.toHaveBeenCalled();
   });
 });

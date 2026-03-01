@@ -148,7 +148,9 @@ import { formatNativeDependencyHint } from "./native-deps.js";
 let cachedVersion: string | null = null;
 
 function resolveVersion(): string {
-  if (cachedVersion) return cachedVersion;
+  if (cachedVersion) {
+    return cachedVersion;
+  }
   try {
     const require = createRequire(import.meta.url);
     const pkg = require("../../../package.json") as { version?: string };

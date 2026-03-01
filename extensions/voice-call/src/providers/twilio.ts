@@ -96,10 +96,14 @@ export class TwilioProvider implements VoiceCallProvider {
    */
   private deleteStoredTwimlForProviderCall(providerCallId: string): void {
     const webhookUrl = this.callWebhookUrls.get(providerCallId);
-    if (!webhookUrl) return;
+    if (!webhookUrl) {
+      return;
+    }
 
     const callIdMatch = webhookUrl.match(/callId=([^&]+)/);
-    if (!callIdMatch) return;
+    if (!callIdMatch) {
+      return;
+    }
 
     this.deleteStoredTwiml(callIdMatch[1]);
     this.streamAuthTokens.delete(providerCallId);
@@ -240,22 +244,20 @@ export class TwilioProvider implements VoiceCallProvider {
   /**
    * Parse Twilio direction to normalized format.
    */
-  private static parseDirection(
-    direction: string | null,
-  ): "inbound" | "outbound" | undefined {
-    if (direction === "inbound") return "inbound";
-    if (direction === "outbound-api" || direction === "outbound-dial")
+  private static parseDirection(direction: string | null): "inbound" | "outbound" | undefined {
+    if (direction === "inbound") {
+      return "inbound";
+    }
+    if (direction === "outbound-api" || direction === "outbound-dial") {
       return "outbound";
+    }
     return undefined;
   }
 
   /**
    * Convert Twilio webhook params to normalized event format.
    */
-  private normalizeEvent(
-    params: URLSearchParams,
-    callIdOverride?: string,
-  ): NormalizedEvent | null {
+  private normalizeEvent(params: URLSearchParams, callIdOverride?: string): NormalizedEvent | null {
     const callSid = params.get("CallSid") || "";
 
     const baseEvent = {
@@ -328,11 +330,12 @@ export class TwilioProvider implements VoiceCallProvider {
    * When a call is answered, connects to media stream for bidirectional audio.
    */
   private generateTwimlResponse(ctx?: WebhookContext): string {
-    if (!ctx) return TwilioProvider.EMPTY_TWIML;
+    if (!ctx) {
+      return TwilioProvider.EMPTY_TWIML;
+    }
 
     const params = new URLSearchParams(ctx.rawBody);
-    const type =
-      typeof ctx.query?.type === "string" ? ctx.query.type.trim() : undefined;
+    const type = typeof ctx.query?.type === "string" ? ctx.query.type.trim() : undefined;
     const isStatusCallback = type === "status";
     const callStatus = params.get("CallStatus");
     const direction = params.get("Direction");
@@ -421,9 +424,7 @@ export class TwilioProvider implements VoiceCallProvider {
     const origin = url.origin;
 
     // Convert https:// to wss:// for WebSocket
-    const wsOrigin = origin
-      .replace(/^https:\/\//, "wss://")
-      .replace(/^http:\/\//, "ws://");
+    const wsOrigin = origin.replace(/^https:\/\//, "wss://").replace(/^http:\/\//, "ws://");
 
     // Append the stream path
     const path = this.options.streamPath.startsWith("/")
@@ -501,10 +502,7 @@ export class TwilioProvider implements VoiceCallProvider {
       Timeout: "30",
     };
 
-    const result = await this.apiRequest<TwilioCallResponse>(
-      "/Calls.json",
-      params,
-    );
+    const result = await this.apiRequest<TwilioCallResponse>("/Calls.json", params);
 
     this.callWebhookUrls.set(result.sid, url.toString());
 
@@ -557,9 +555,7 @@ export class TwilioProvider implements VoiceCallProvider {
     // Fall back to TwiML <Say> (may not work on all accounts)
     const webhookUrl = this.callWebhookUrls.get(input.providerCallId);
     if (!webhookUrl) {
-      throw new Error(
-        "Missing webhook URL for this call (provider state not initialized)",
-      );
+      throw new Error("Missing webhook URL for this call (provider state not initialized)");
     }
 
     this.logger.warn(
@@ -585,10 +581,7 @@ export class TwilioProvider implements VoiceCallProvider {
    * Generates audio with core TTS, converts to mu-law, and streams via WebSocket.
    * Uses a queue to serialize playback and prevent overlapping audio.
    */
-  private async playTtsViaStream(
-    text: string,
-    streamSid: string,
-  ): Promise<void> {
+  private async playTtsViaStream(text: string, streamSid: string): Promise<void> {
     if (!this.ttsProvider || !this.mediaStreamHandler) {
       throw new Error("TTS provider and media stream handler required");
     }
@@ -603,12 +596,16 @@ export class TwilioProvider implements VoiceCallProvider {
       // Generate audio with core TTS (returns mu-law at 8kHz)
       const muLawAudio = await ttsProvider.synthesizeForTelephony(text);
       for (const chunk of chunkAudio(muLawAudio, CHUNK_SIZE)) {
-        if (signal.aborted) break;
+        if (signal.aborted) {
+          break;
+        }
         handler.sendAudio(streamSid, chunk);
 
         // Pace the audio to match real-time playback
         await new Promise((resolve) => setTimeout(resolve, CHUNK_DELAY_MS));
-        if (signal.aborted) break;
+        if (signal.aborted) {
+          break;
+        }
       }
 
       if (!signal.aborted) {
@@ -624,9 +621,7 @@ export class TwilioProvider implements VoiceCallProvider {
   async startListening(input: StartListeningInput): Promise<void> {
     const webhookUrl = this.callWebhookUrls.get(input.providerCallId);
     if (!webhookUrl) {
-      throw new Error(
-        "Missing webhook URL for this call (provider state not initialized)",
-      );
+      throw new Error("Missing webhook URL for this call (provider state not initialized)");
     }
 
     const twiml = `<?xml version="1.0" encoding="UTF-8"?>

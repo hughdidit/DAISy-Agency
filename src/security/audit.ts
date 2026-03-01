@@ -93,15 +93,21 @@ function countBySeverity(findings: SecurityAuditFinding[]): SecurityAuditSummary
   let warn = 0;
   let info = 0;
   for (const f of findings) {
-    if (f.severity === "critical") critical += 1;
-    else if (f.severity === "warn") warn += 1;
-    else info += 1;
+    if (f.severity === "critical") {
+      critical += 1;
+    } else if (f.severity === "warn") {
+      warn += 1;
+    } else {
+      info += 1;
+    }
   }
   return { critical, warn, info };
 }
 
 function normalizeAllowFromList(list: Array<string | number> | undefined | null): string[] {
-  if (!Array.isArray(list)) return [];
+  if (!Array.isArray(list)) {
+    return [];
+  }
   return list.map((v) => String(v).trim()).filter(Boolean);
 }
 
@@ -270,7 +276,7 @@ function collectGatewayConfigFindings(
   const hasPassword = typeof auth.password === "string" && auth.password.trim().length > 0;
   const hasSharedSecret =
     (auth.mode === "token" && hasToken) || (auth.mode === "password" && hasPassword);
-  const hasTailscaleAuth = auth.allowTailscale === true && tailscaleMode === "serve";
+  const hasTailscaleAuth = auth.allowTailscale && tailscaleMode === "serve";
   const hasGatewayAuth = hasSharedSecret || hasTailscaleAuth;
 
   if (bind !== "loopback" && !hasSharedSecret) {
@@ -379,11 +385,15 @@ function collectBrowserControlFindings(cfg: OpenClawConfig): SecurityAuditFindin
     return findings;
   }
 
-  if (!resolved.enabled) return findings;
+  if (!resolved.enabled) {
+    return findings;
+  }
 
   for (const name of Object.keys(resolved.profiles)) {
     const profile = resolveProfile(resolved, name);
-    if (!profile || profile.cdpIsLoopback) continue;
+    if (!profile || profile.cdpIsLoopback) {
+      continue;
+    }
     let url: URL;
     try {
       url = new URL(profile.cdpUrl);
@@ -406,7 +416,9 @@ function collectBrowserControlFindings(cfg: OpenClawConfig): SecurityAuditFindin
 
 function collectLoggingFindings(cfg: OpenClawConfig): SecurityAuditFinding[] {
   const redact = cfg.logging?.redactSensitive;
-  if (redact !== "off") return [];
+  if (redact !== "off") {
+    return [];
+  }
   return [
     {
       checkId: "logging.redact_off",
@@ -424,8 +436,12 @@ function collectElevatedFindings(cfg: OpenClawConfig): SecurityAuditFinding[] {
   const allowFrom = cfg.tools?.elevated?.allowFrom ?? {};
   const anyAllowFromKeys = Object.keys(allowFrom).length > 0;
 
-  if (enabled === false) return findings;
-  if (!anyAllowFromKeys) return findings;
+  if (enabled === false) {
+    return findings;
+  }
+  if (!anyAllowFromKeys) {
+    return findings;
+  }
 
   for (const [provider, list] of Object.entries(allowFrom)) {
     const normalized = normalizeAllowFromList(list);
@@ -456,9 +472,15 @@ async function collectChannelSecurityFindings(params: {
   const findings: SecurityAuditFinding[] = [];
 
   const coerceNativeSetting = (value: unknown): boolean | "auto" | undefined => {
-    if (value === true) return true;
-    if (value === false) return false;
-    if (value === "auto") return "auto";
+    if (value === true) {
+      return true;
+    }
+    if (value === false) {
+      return false;
+    }
+    if (value === "auto") {
+      return "auto";
+    }
     return undefined;
   };
 
@@ -532,7 +554,9 @@ async function collectChannelSecurityFindings(params: {
   };
 
   for (const plugin of params.plugins) {
-    if (!plugin.security) continue;
+    if (!plugin.security) {
+      continue;
+    }
     const accountIds = plugin.config.listAccountIds(params.cfg);
     const defaultAccountId = resolveChannelDefaultAccountId({
       plugin,
@@ -541,11 +565,15 @@ async function collectChannelSecurityFindings(params: {
     });
     const account = plugin.config.resolveAccount(params.cfg, defaultAccountId);
     const enabled = plugin.config.isEnabled ? plugin.config.isEnabled(account, params.cfg) : true;
-    if (!enabled) continue;
+    if (!enabled) {
+      continue;
+    }
     const configured = plugin.config.isConfigured
       ? await plugin.config.isConfigured(account, params.cfg)
       : true;
-    if (!configured) continue;
+    if (!configured) {
+      continue;
+    }
 
     if (plugin.id === "discord") {
       const discordCfg =
@@ -573,13 +601,21 @@ async function collectChannelSecurityFindings(params: {
         const guildEntries = (discordCfg.guilds as Record<string, unknown> | undefined) ?? {};
         const guildsConfigured = Object.keys(guildEntries).length > 0;
         const hasAnyUserAllowlist = Object.values(guildEntries).some((guild) => {
-          if (!guild || typeof guild !== "object") return false;
+          if (!guild || typeof guild !== "object") {
+            return false;
+          }
           const g = guild as Record<string, unknown>;
-          if (Array.isArray(g.users) && g.users.length > 0) return true;
+          if (Array.isArray(g.users) && g.users.length > 0) {
+            return true;
+          }
           const channels = g.channels;
-          if (!channels || typeof channels !== "object") return false;
+          if (!channels || typeof channels !== "object") {
+            return false;
+          }
           return Object.values(channels as Record<string, unknown>).some((channel) => {
-            if (!channel || typeof channel !== "object") return false;
+            if (!channel || typeof channel !== "object") {
+              return false;
+            }
             const c = channel as Record<string, unknown>;
             return Array.isArray(c.users) && c.users.length > 0;
           });
@@ -668,7 +704,9 @@ async function collectChannelSecurityFindings(params: {
             normalizeAllowFromList([...dmAllowFrom, ...storeAllowFrom]).length > 0;
           const channels = (slackCfg.channels as Record<string, unknown> | undefined) ?? {};
           const hasAnyChannelUsersAllowlist = Object.values(channels).some((value) => {
-            if (!value || typeof value !== "object") return false;
+            if (!value || typeof value !== "object") {
+              return false;
+            }
             const channel = value as Record<string, unknown>;
             return Array.isArray(channel.users) && channel.users.length > 0;
           });
@@ -712,7 +750,9 @@ async function collectChannelSecurityFindings(params: {
       });
       for (const message of warnings ?? []) {
         const trimmed = String(message).trim();
-        if (!trimmed) continue;
+        if (!trimmed) {
+          continue;
+        }
         findings.push({
           checkId: `channels.${plugin.id}.warning.${findings.length + 1}`,
           severity: classifyChannelWarningSeverity(trimmed),
@@ -724,7 +764,9 @@ async function collectChannelSecurityFindings(params: {
 
     if (plugin.id === "telegram") {
       const allowTextCommands = params.cfg.commands?.text !== false;
-      if (!allowTextCommands) continue;
+      if (!allowTextCommands) {
+        continue;
+      }
 
       const telegramCfg =
         (account as { config?: Record<string, unknown> } | null)?.config ??
@@ -736,7 +778,9 @@ async function collectChannelSecurityFindings(params: {
       const groupsConfigured = Boolean(groups) && Object.keys(groups ?? {}).length > 0;
       const groupAccessPossible =
         groupPolicy === "open" || (groupPolicy === "allowlist" && groupsConfigured);
-      if (!groupAccessPossible) continue;
+      if (!groupAccessPossible) {
+        continue;
+      }
 
       const storeAllowFrom = await readChannelAllowFromStore("telegram").catch(() => []);
       const storeHasWildcard = storeAllowFrom.some((v) => String(v).trim() === "*");
@@ -747,14 +791,22 @@ async function collectChannelSecurityFindings(params: {
       const anyGroupOverride = Boolean(
         groups &&
         Object.values(groups).some((value) => {
-          if (!value || typeof value !== "object") return false;
+          if (!value || typeof value !== "object") {
+            return false;
+          }
           const group = value as Record<string, unknown>;
           const allowFrom = Array.isArray(group.allowFrom) ? group.allowFrom : [];
-          if (allowFrom.length > 0) return true;
+          if (allowFrom.length > 0) {
+            return true;
+          }
           const topics = group.topics;
-          if (!topics || typeof topics !== "object") return false;
+          if (!topics || typeof topics !== "object") {
+            return false;
+          }
           return Object.values(topics as Record<string, unknown>).some((topicValue) => {
-            if (!topicValue || typeof topicValue !== "object") return false;
+            if (!topicValue || typeof topicValue !== "object") {
+              return false;
+            }
             const topic = topicValue as Record<string, unknown>;
             const topicAllow = Array.isArray(topic.allowFrom) ? topic.allowFrom : [];
             return topicAllow.length > 0;
@@ -780,6 +832,7 @@ async function collectChannelSecurityFindings(params: {
 
       if (!hasAnySenderAllowlist) {
         const providerSetting = (telegramCfg.commands as { nativeSkills?: unknown } | undefined)
+          // oxlint-disable-next-line typescript/no-explicit-any
           ?.nativeSkills as any;
         const skillsEnabled = resolveNativeSkillsEnabled({
           providerId: "telegram",
@@ -928,7 +981,7 @@ export async function runSecurityAudit(opts: SecurityAuditOptions): Promise<Secu
         })
       : undefined;
 
-  if (deep?.gateway?.attempted && deep.gateway.ok === false) {
+  if (deep?.gateway?.attempted && !deep.gateway.ok) {
     findings.push({
       checkId: "gateway.probe_failed",
       severity: "warn",

@@ -14,7 +14,9 @@ import { normalizeGroupActivation } from "../group-activation.js";
 
 function extractGroupId(raw: string | undefined | null): string | undefined {
   const trimmed = (raw ?? "").trim();
-  if (!trimmed) return undefined;
+  if (!trimmed) {
+    return undefined;
+  }
   const parts = trimmed.split(":").filter(Boolean);
   if (parts.length >= 3 && (parts[1] === "group" || parts[1] === "channel")) {
     return parts.slice(2).join(":") || undefined;
@@ -40,7 +42,9 @@ export function resolveGroupRequireMention(params: {
   const { cfg, ctx, groupResolution } = params;
   const rawChannel = groupResolution?.channel ?? ctx.Provider?.trim();
   const channel = normalizeChannelId(rawChannel);
-  if (!channel) return true;
+  if (!channel) {
+    return true;
+  }
   const groupId = groupResolution?.id ?? extractGroupId(ctx.From);
   const groupChannel = ctx.GroupChannel?.trim() ?? ctx.GroupSubject?.trim();
   const groupSpace = ctx.GroupSpace?.trim();
@@ -51,12 +55,14 @@ export function resolveGroupRequireMention(params: {
     groupSpace,
     accountId: ctx.AccountId,
   });
-  if (typeof requireMention === "boolean") return requireMention;
+  if (typeof requireMention === "boolean") {
+    return requireMention;
+  }
   return true;
 }
 
 export function defaultGroupActivation(requireMention: boolean): "always" | "mention" {
-  return requireMention === false ? "always" : "mention";
+  return !requireMention ? "always" : "mention";
 }
 
 export function buildGroupIntro(params: {
@@ -74,9 +80,15 @@ export function buildGroupIntro(params: {
   const providerKey = rawProvider?.toLowerCase() ?? "";
   const providerId = normalizeChannelId(rawProvider);
   const providerLabel = (() => {
-    if (!providerKey) return "chat";
-    if (isInternalMessageChannel(providerKey)) return "WebChat";
-    if (providerId) return getChannelPlugin(providerId)?.meta.label ?? providerId;
+    if (!providerKey) {
+      return "chat";
+    }
+    if (isInternalMessageChannel(providerKey)) {
+      return "WebChat";
+    }
+    if (providerId) {
+      return getChannelPlugin(providerId)?.meta.label ?? providerId;
+    }
     return `${providerKey.at(0)?.toUpperCase() ?? ""}${providerKey.slice(1)}`;
   })();
   const subjectLine = subject

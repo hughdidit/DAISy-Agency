@@ -21,7 +21,9 @@ export function cacheMessage(channelNest: string, message: TlonHistoryEntry) {
     messageCache.set(channelNest, []);
   }
   const cache = messageCache.get(channelNest);
-  if (!cache) return;
+  if (!cache) {
+    return;
+  }
   cache.unshift(message);
   if (cache.length > MAX_CACHED_MESSAGES) {
     cache.pop();
@@ -38,9 +40,13 @@ export async function fetchChannelHistory(
     const scryPath = `/channels/v4/${channelNest}/posts/newest/${count}/outline.json`;
     runtime?.log?.(`[tlon] Fetching history: ${scryPath}`);
 
+    // oxlint-disable-next-line typescript/no-explicit-any
     const data: any = await api.scry(scryPath);
-    if (!data) return [];
+    if (!data) {
+      return [];
+    }
 
+    // oxlint-disable-next-line typescript/no-explicit-any
     let posts: any[] = [];
     if (Array.isArray(data)) {
       posts = data;
@@ -66,7 +72,7 @@ export async function fetchChannelHistory(
 
     runtime?.log?.(`[tlon] Extracted ${messages.length} messages from history`);
     return messages;
-  } catch (error: any) {
+  } catch (error) {
     runtime?.log?.(`[tlon] Error fetching channel history: ${error?.message ?? String(error)}`);
     return [];
   }
@@ -84,8 +90,6 @@ export async function getChannelHistory(
     return cache.slice(0, count);
   }
 
-  runtime?.log?.(
-    `[tlon] Cache has ${cache.length} messages, need ${count}, fetching from scry...`,
-  );
+  runtime?.log?.(`[tlon] Cache has ${cache.length} messages, need ${count}, fetching from scry...`);
   return await fetchChannelHistory(api, channelNest, count, runtime);
 }

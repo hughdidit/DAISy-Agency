@@ -1,6 +1,8 @@
+import fs from "node:fs";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { peekSystemEvents, resetSystemEventsForTest } from "../infra/system-events.js";
+import { sleep } from "../utils.js";
 import { getFinishedSession, resetProcessRegistryForTests } from "./bash-process-registry.js";
 import { createExecTool, createProcessTool, execTool, processTool } from "./bash-tools.js";
 import { buildDockerExecArgs } from "./bash-tools.shared.js";
@@ -45,8 +47,6 @@ const normalizeText = (value?: string) =>
     .join("\n")
     .trim();
 
-const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-
 async function waitForCompletion(sessionId: string) {
   let status = "running";
   const deadline = Date.now() + (process.platform === "win32" ? 8000 : 2000);
@@ -72,11 +72,15 @@ describe("exec tool backgrounding", () => {
   const originalShell = process.env.SHELL;
 
   beforeEach(() => {
-    if (!isWin) process.env.SHELL = "/bin/bash";
+    if (!isWin && defaultShell) {
+      process.env.SHELL = defaultShell;
+    }
   });
 
   afterEach(() => {
-    if (!isWin) process.env.SHELL = originalShell;
+    if (!isWin) {
+      process.env.SHELL = originalShell;
+    }
   });
 
   it(
@@ -304,12 +308,16 @@ describe("exec PATH handling", () => {
   const originalShell = process.env.SHELL;
 
   beforeEach(() => {
-    if (!isWin) process.env.SHELL = "/bin/bash";
+    if (!isWin && defaultShell) {
+      process.env.SHELL = defaultShell;
+    }
   });
 
   afterEach(() => {
     process.env.PATH = originalPath;
-    if (!isWin) process.env.SHELL = originalShell;
+    if (!isWin) {
+      process.env.SHELL = originalShell;
+    }
   });
 
   it("prepends configured path entries", async () => {

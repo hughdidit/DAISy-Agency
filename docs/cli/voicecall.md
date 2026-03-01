@@ -11,6 +11,7 @@ title: "voicecall"
 `voicecall` is a plugin-provided command. It only appears if the voice-call plugin is installed and enabled.
 
 Primary doc:
+
 - Voice-call plugin: [Voice Call](/plugins/voice-call)
 
 ## Common commands
@@ -31,4 +32,3 @@ openclaw voicecall unexpose
 ```
 
 Security note: only expose the webhook endpoint to networks you trust. Prefer Tailscale Serve over Funnel when possible.
-

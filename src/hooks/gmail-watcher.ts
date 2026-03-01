@@ -80,12 +80,16 @@ function spawnGogServe(cfg: GmailHookRuntimeConfig): ChildProcess {
 
   child.stdout?.on("data", (data: Buffer) => {
     const line = data.toString().trim();
-    if (line) log.info(`[gog] ${line}`);
+    if (line) {
+      log.info(`[gog] ${line}`);
+    }
   });
 
   child.stderr?.on("data", (data: Buffer) => {
     const line = data.toString().trim();
-    if (!line) return;
+    if (!line) {
+      return;
+    }
     if (isAddressInUseError(line)) {
       addressInUse = true;
     }
@@ -97,7 +101,9 @@ function spawnGogServe(cfg: GmailHookRuntimeConfig): ChildProcess {
   });
 
   child.on("exit", (code, signal) => {
-    if (shuttingDown) return;
+    if (shuttingDown) {
+      return;
+    }
     if (addressInUse) {
       log.warn(
         "gog serve failed to bind (address already in use); stopping restarts. " +
@@ -109,7 +115,9 @@ function spawnGogServe(cfg: GmailHookRuntimeConfig): ChildProcess {
     log.warn(`gog exited (code=${code}, signal=${signal}); restarting in 5s`);
     watcherProcess = null;
     setTimeout(() => {
-      if (shuttingDown || !currentConfig) return;
+      if (shuttingDown || !currentConfig) {
+        return;
+      }
       watcherProcess = spawnGogServe(currentConfig);
     }, 5000);
   });
@@ -185,7 +193,9 @@ export async function startGmailWatcher(cfg: OpenClawConfig): Promise<GmailWatch
   // Set up renewal interval
   const renewMs = runtimeConfig.renewEveryMinutes * 60_000;
   renewInterval = setInterval(() => {
-    if (shuttingDown) return;
+    if (shuttingDown) {
+      return;
+    }
     void startGmailWatch(runtimeConfig);
   }, renewMs);
 

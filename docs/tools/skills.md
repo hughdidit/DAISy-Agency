@@ -16,6 +16,11 @@ Skills are loaded from **three** places:
 1) **Bundled skills**: shipped with the install (npm package or OpenClaw.app)
 2) **Managed/local skills**: `~/.openclaw/skills`
 3) **Workspace skills**: `<workspace>/skills`
+=======
+1. **Bundled skills**: shipped with the install (npm package or OpenClaw.app)
+2. **Managed/local skills**: `~/.openclaw/skills`
+3. **Workspace skills**: `<workspace>/skills`
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 If a skill name conflicts, precedence is:
 
@@ -44,9 +49,13 @@ Plugins can ship their own skills by listing `skills` directories in
 when the plugin is enabled and participate in the normal skill precedence rules.
 You can gate them via `metadata.openclaw.requires.config` on the plugin’s config
 entry. See [Plugins](/plugin) for discovery/config and [Tools](/tools) for the
+=======
+You can gate them via `metadata.openclaw.requires.config` on the plugin’s config
+entry. See [Plugins](/tools/plugin) for discovery/config and [Tools](/tools) for the
+>>>>>>> 929a3725d (docs: canonicalize docs paths and align zh navigation (#11428))
 tool surface those skills teach.
 
-## ClawdHub (install + sync)
+## ClawHub (install + sync)
 
 <<<<<<< HEAD
 ClawdHub is the public skills registry for Moltbot. Browse at
@@ -61,12 +70,13 @@ Full guide: [ClawHub](/tools/clawhub).
 Common flows:
 
 - Install a skill into your workspace:
-  - `clawdhub install <skill-slug>`
+  - `clawhub install <skill-slug>`
 - Update all installed skills:
-  - `clawdhub update --all`
+  - `clawhub update --all`
 - Sync (scan + publish updates):
-  - `clawdhub sync --all`
+  - `clawhub sync --all`
 
+<<<<<<< HEAD
 By default, `clawdhub` installs into `./skills` under your current working
 directory (or falls back to the configured OpenClaw workspace). OpenClaw picks
 that up as `<workspace>/skills` on the next session.
@@ -91,6 +101,7 @@ description: Generate or edit images via Gemini 3 Pro Image
 ```
 
 Notes:
+
 - We follow the AgentSkills spec for layout/intent.
 - The parser used by the embedded agent supports **single-line** frontmatter keys only.
 - `metadata` should be a **single-line JSON object**.
@@ -131,6 +142,7 @@ Fields under `metadata.openclaw`:
 - `install` — optional array of installer specs used by the macOS Skills UI (brew/node/go/uv/download).
 
 Note on sandboxing:
+
 - `requires.bins` is checked on the **host** at skill load time.
 - If an agent is sandboxed, the binary must also exist **inside the container**.
   Install it via `agents.defaults.sandbox.docker.setupCommand` (or a custom image).
@@ -150,6 +162,7 @@ metadata: {"openclaw":{"emoji":"♊️","requires":{"bins":["gemini"]},"install"
 ```
 
 Notes:
+
 - If multiple installers are listed, the gateway picks a **single** preferred option (brew when available, otherwise node).
 - If all installers are `download`, OpenClaw lists each entry so you can see the available artifacts.
 - Installer specs can include `os: ["darwin"|"linux"|"win32"]` to filter options by platform.
@@ -174,17 +187,17 @@ Bundled/managed skills can be toggled and supplied with env values:
         enabled: true,
         apiKey: "GEMINI_KEY_HERE",
         env: {
-          GEMINI_API_KEY: "GEMINI_KEY_HERE"
+          GEMINI_API_KEY: "GEMINI_KEY_HERE",
         },
         config: {
           endpoint: "https://example.invalid",
-          model: "nano-pro"
-        }
+          model: "nano-pro",
+        },
       },
       peekaboo: { enabled: true },
-      sag: { enabled: false }
-    }
-  }
+      sag: { enabled: false },
+    },
+  },
 }
 ```
 
@@ -194,6 +207,7 @@ Config keys match the **skill name** by default. If a skill defines
 `metadata.openclaw.skillKey`, use that key under `skills.entries`.
 
 Rules:
+
 - `enabled: false` disables the skill even if it’s bundled/installed.
 - `env`: injected **only if** the variable isn’t already set in the process.
 - `apiKey`: convenience for skills that declare `metadata.openclaw.primaryEnv`.
@@ -206,9 +220,15 @@ Rules:
 When an agent run starts, OpenClaw:
 1) Reads skill metadata.
 2) Applies any `skills.entries.<key>.env` or `skills.entries.<key>.apiKey` to
+=======
+When an agent run starts, OpenClaw:
+
+1. Reads skill metadata.
+2. Applies any `skills.entries.<key>.env` or `skills.entries.<key>.apiKey` to
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
    `process.env`.
-3) Builds the system prompt with **eligible** skills.
-4) Restores the original environment after the run ends.
+3. Builds the system prompt with **eligible** skills.
+4. Restores the original environment after the run ends.
 
 This is **scoped to the agent run**, not a global shell environment.
 
@@ -233,9 +253,9 @@ By default, OpenClaw watches skill folders and bumps the skills snapshot when `S
   skills: {
     load: {
       watch: true,
-      watchDebounceMs: 250
-    }
-  }
+      watchDebounceMs: 250,
+    },
+  },
 }
 ```
 
@@ -253,6 +273,7 @@ total = 195 + Σ (97 + len(name_escaped) + len(description_escaped) + len(locati
 ```
 
 Notes:
+
 - XML escaping expands `& < > " '` into entities (`&amp;`, `&lt;`, etc.), increasing length.
 - Token counts vary by model tokenizer. A rough OpenAI-style estimate is ~4 chars/token, so **97 chars ≈ 24 tokens** per skill plus your actual field lengths.
 

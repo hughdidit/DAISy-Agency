@@ -57,6 +57,7 @@
       "localPath": "extensions/matrix",
       "defaultChoice": "npm"
     }
+<<<<<<< HEAD
   },
   "dependencies": {
     "@matrix-org/matrix-sdk-crypto-nodejs": "^0.4.0",

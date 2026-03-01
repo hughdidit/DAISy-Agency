@@ -4,31 +4,33 @@ read_when:
   - Working on Discord channel features
 title: "Discord"
 ---
-# Discord (Bot API)
 
+# Discord (Bot API)
 
 Status: ready for DM and guild text channels via the official Discord bot gateway.
 
 ## Quick setup (beginner)
+<<<<<<< HEAD
 1) Create a Discord bot and copy the bot token.
 2) In the Discord app settings, enable **Message Content Intent** (and **Server Members Intent** if you plan to use allowlists or name lookups).
 3) Set the token for OpenClaw:
    - Env: `DISCORD_BOT_TOKEN=...`
    - Or config: `channels.discord.token: "..."`.
    - If both are set, config takes precedence (env fallback is default-account only).
-4) Invite the bot to your server with message permissions (create a private server if you just want DMs).
-5) Start the gateway.
-6) DM access is pairing by default; approve the pairing code on first contact.
+4. Invite the bot to your server with message permissions (create a private server if you just want DMs).
+5. Start the gateway.
+6. DM access is pairing by default; approve the pairing code on first contact.
 
 Minimal config:
+
 ```json5
 {
   channels: {
     discord: {
       enabled: true,
-      token: "YOUR_BOT_TOKEN"
-    }
-  }
+      token: "YOUR_BOT_TOKEN",
+    },
+  },
 }
 ```
 
@@ -39,6 +41,7 @@ Minimal config:
 - Keep routing deterministic: replies always go back to the channel they arrived on.
 
 ## How it works
+
 1. Create a Discord application → Bot, enable the intents you need (DMs + guild messages + message content), and grab the bot token.
 2. Invite the bot to your server with the permissions required to read/send messages where you want to use it.
 3. Configure OpenClaw with `channels.discord.token` (or `DISCORD_BOT_TOKEN` as a fallback).
@@ -65,12 +68,14 @@ Note: Slugs are lowercase with spaces replaced by `-`. Channel names are slugged
 Note: Guild context `[from:]` lines include `author.tag` + `id` to make ping-ready replies easy.
 
 ## Config writes
+
 By default, Discord is allowed to write config updates triggered by `/config set|unset` (requires `commands.config: true`).
 
 Disable with:
+
 ```json5
 {
-  channels: { discord: { configWrites: false } }
+  channels: { discord: { configWrites: false } },
 }
 ```
 
@@ -79,6 +84,7 @@ Disable with:
 This is the “Discord Developer Portal” setup for running OpenClaw in a server (guild) channel like `#help`.
 
 ### 1) Create the Discord app + bot user
+
 1. Discord Developer Portal → **Applications** → **New Application**
 2. In your app:
    - **Bot** → **Add Bot**
@@ -88,19 +94,23 @@ This is the “Discord Developer Portal” setup for running OpenClaw in a serve
 Discord blocks “privileged intents” unless you explicitly enable them.
 
 In **Bot** → **Privileged Gateway Intents**, enable:
+
 - **Message Content Intent** (required to read message text in most guilds; without it you’ll see “Used disallowed intents” or the bot will connect but not react to messages)
 - **Server Members Intent** (recommended; required for some member/user lookups and allowlist matching in guilds)
 
-You usually do **not** need **Presence Intent**.
+You usually do **not** need **Presence Intent**. Setting the bot's own presence (`setPresence` action) uses gateway OP3 and does not require this intent; it is only needed if you want to receive presence updates about other guild members.
 
 ### 3) Generate an invite URL (OAuth2 URL Generator)
+
 In your app: **OAuth2** → **URL Generator**
 
 **Scopes**
+
 - ✅ `bot`
 - ✅ `applications.commands` (required for native commands)
 
 **Bot Permissions** (minimal baseline)
+
 - ✅ View Channels
 - ✅ Send Messages
 - ✅ Read Message History
@@ -125,7 +135,9 @@ Discord uses numeric ids everywhere; OpenClaw config prefers ids.
 ### 5) Configure OpenClaw
 
 #### Token
+
 Set the bot token via env var (recommended on servers):
+
 - `DISCORD_BOT_TOKEN=...`
 
 Or via config:
@@ -135,15 +147,16 @@ Or via config:
   channels: {
     discord: {
       enabled: true,
-      token: "YOUR_BOT_TOKEN"
-    }
-  }
+      token: "YOUR_BOT_TOKEN",
+    },
+  },
 }
 ```
 
 Multi-account support: use `channels.discord.accounts` with per-account tokens and optional `name`. See [`gateway/configuration`](/gateway/configuration#telegramaccounts--discordaccounts--slackaccounts--signalaccounts--imessageaccounts) for the shared pattern.
 
 #### Allowlist + channel routing
+
 Example “single server, only allow me, only allow #help”:
 
 ```json5
@@ -153,26 +166,27 @@ Example “single server, only allow me, only allow #help”:
       enabled: true,
       dm: { enabled: false },
       guilds: {
-        "YOUR_GUILD_ID": {
+        YOUR_GUILD_ID: {
           users: ["YOUR_USER_ID"],
           requireMention: true,
           channels: {
-            help: { allow: true, requireMention: true }
-          }
-        }
+            help: { allow: true, requireMention: true },
+          },
+        },
       },
       retry: {
         attempts: 3,
         minDelayMs: 500,
         maxDelayMs: 30000,
-        jitter: 0.1
-      }
-    }
-  }
+        jitter: 0.1,
+      },
+    },
+  },
 }
 ```
 
 Notes:
+
 - `requireMention: true` means the bot only replies when mentioned (recommended for shared channels).
 - `agents.list[].groupChat.mentionPatterns` (or `messages.groupChat.mentionPatterns`) also count as mentions for guild messages.
 - Multi-agent override: set per-agent patterns on `agents.list[].groupChat.mentionPatterns`.
@@ -184,6 +198,7 @@ Notes:
 - Warning: If you allow replies to other bots (`channels.discord.allowBots=true`), prevent bot-to-bot reply loops with `requireMention`, `channels.discord.guilds.*.channels.<id>.users` allowlists, and/or clear guardrails in `AGENTS.md` and `SOUL.md`.
 
 ### 6) Verify it works
+
 1. Start the gateway.
 2. In your server channel, send: `@Krill hello` (or whatever your bot name is).
 3. If nothing happens: check **Troubleshooting** below.
@@ -211,6 +226,7 @@ Notes:
   - See [Exec approvals](/tools/exec-approvals) and [Slash commands](/tools/slash-commands) for the broader approvals and command flow.
 
 ## Capabilities & limits
+
 - DMs and guild text channels (threads are treated as separate channels; voice not supported).
 - Typing indicators sent best-effort; message chunking uses `channels.discord.textChunkLimit` (default 2000) and splits tall replies by line count (`channels.discord.maxLinesPerMessage`, default 17).
 - Optional newline chunking: set `channels.discord.chunkMode="newline"` to split on blank lines (paragraph boundaries) before length chunking.
@@ -220,6 +236,7 @@ Notes:
 - Native reply threading is **off by default**; enable with `channels.discord.replyToMode` and reply tags.
 
 ## Retry policy
+
 Outbound Discord API calls retry on rate limits (429) using Discord `retry_after` when available, with exponential backoff and jitter. Configure via `channels.discord.retry`. See [Retry policy](/concepts/retry).
 
 ## Config
@@ -234,9 +251,9 @@ Outbound Discord API calls retry on rate limits (429) using Discord `retry_after
       guilds: {
         "*": {
           channels: {
-            general: { allow: true }
-          }
-        }
+            general: { allow: true },
+          },
+        },
       },
       mediaMaxMb: 8,
       actions: {
@@ -257,7 +274,8 @@ Outbound Discord API calls retry on rate limits (429) using Discord `retry_after
         channels: true,
         voiceStatus: true,
         events: true,
-        moderation: false
+        moderation: false,
+        presence: false,
       },
       replyToMode: "off",
       dm: {
@@ -281,13 +299,13 @@ Outbound Discord API calls retry on rate limits (429) using Discord `retry_after
               requireMention: true,
               users: ["987654321098765432"],
               skills: ["search", "docs"],
-              systemPrompt: "Keep answers short."
-            }
-          }
-        }
-      }
-    }
-  }
+              systemPrompt: "Keep answers short.",
+            },
+          },
+        },
+      },
+    },
+  },
 }
 ```
 
@@ -325,6 +343,7 @@ ack reaction after the bot replies.
 - `historyLimit`: number of recent guild messages to include as context when replying to a mention (default 20; falls back to `messages.groupChat.historyLimit`; `0` disables).
 - `dmHistoryLimit`: DM history limit in user turns. Per-user overrides: `dms["<user_id>"].historyLimit`.
 - `retry`: retry policy for outbound Discord API calls (attempts, minDelayMs, maxDelayMs, jitter).
+- `pluralkit`: resolve PluralKit proxied messages so system members appear as distinct senders.
 - `actions`: per-action tool gates; omit to allow all (set `false` to disable).
   - `reactions` (covers react + read reactions)
   - `stickers`, `emojiUploads`, `stickerUploads`, `polls`, `permissions`, `messages`, `threads`, `pins`, `search`
@@ -335,6 +354,7 @@ ack reaction after the bot replies.
 - `execApprovals`: Discord-only exec approval DMs (button UI). Supports `enabled`, `approvers`, `agentFilter`, `sessionFilter`.
 
 Reaction notifications use `guilds.<id>.reactionNotifications`:
+
 - `off`: no reaction events.
 - `own`: reactions on the bot's own messages (default).
 - `all`: all reactions on all messages.
@@ -373,40 +393,46 @@ Allowlist notes (PK-enabled):
 >>>>>>> 58f418592 (fix: Failing tests due to import sorting.)
 ### Tool action defaults
 
-| Action group | Default | Notes |
-| --- | --- | --- |
-| reactions | enabled | React + list reactions + emojiList |
-| stickers | enabled | Send stickers |
-| emojiUploads | enabled | Upload emojis |
-| stickerUploads | enabled | Upload stickers |
-| polls | enabled | Create polls |
-| permissions | enabled | Channel permission snapshot |
-| messages | enabled | Read/send/edit/delete |
-| threads | enabled | Create/list/reply |
-| pins | enabled | Pin/unpin/list |
-| search | enabled | Message search (preview feature) |
-| memberInfo | enabled | Member info |
-| roleInfo | enabled | Role list |
-| channelInfo | enabled | Channel info + list |
-| channels | enabled | Channel/category management |
-| voiceStatus | enabled | Voice state lookup |
-| events | enabled | List/create scheduled events |
-| roles | disabled | Role add/remove |
-| moderation | disabled | Timeout/kick/ban |
+| Action group   | Default  | Notes                              |
+| -------------- | -------- | ---------------------------------- |
+| reactions      | enabled  | React + list reactions + emojiList |
+| stickers       | enabled  | Send stickers                      |
+| emojiUploads   | enabled  | Upload emojis                      |
+| stickerUploads | enabled  | Upload stickers                    |
+| polls          | enabled  | Create polls                       |
+| permissions    | enabled  | Channel permission snapshot        |
+| messages       | enabled  | Read/send/edit/delete              |
+| threads        | enabled  | Create/list/reply                  |
+| pins           | enabled  | Pin/unpin/list                     |
+| search         | enabled  | Message search (preview feature)   |
+| memberInfo     | enabled  | Member info                        |
+| roleInfo       | enabled  | Role list                          |
+| channelInfo    | enabled  | Channel info + list                |
+| channels       | enabled  | Channel/category management        |
+| voiceStatus    | enabled  | Voice state lookup                 |
+| events         | enabled  | List/create scheduled events       |
+| roles          | disabled | Role add/remove                    |
+| moderation     | disabled | Timeout/kick/ban                   |
+| presence       | disabled | Bot status/activity (setPresence)  |
+
 - `replyToMode`: `off` (default), `first`, or `all`. Applies only when the model includes a reply tag.
 
 ## Reply tags
+
 To request a threaded reply, the model can include one tag in its output:
+
 - `[[reply_to_current]]` — reply to the triggering Discord message.
 - `[[reply_to:<id>]]` — reply to a specific message id from context/history.
-Current message ids are appended to prompts as `[message_id: …]`; history entries already include ids.
+  Current message ids are appended to prompts as `[message_id: …]`; history entries already include ids.
 
 Behavior is controlled by `channels.discord.replyToMode`:
+
 - `off`: ignore tags.
 - `first`: only the first outbound chunk/attachment is a reply.
 - `all`: every outbound chunk/attachment is a reply.
 
 Allowlist matching notes:
+
 - `allowFrom`/`users`/`groupChannels` accept ids, names, tags, or mentions like `<@id>`.
 - Prefixes like `discord:`/`user:` (users) and `channel:` (group DMs) are supported.
 - Use `*` to allow any sender/channel.
@@ -423,7 +449,9 @@ Native command notes:
 - Slash commands may still be visible in Discord UI to users who aren’t allowlisted; OpenClaw enforces allowlists on execution and replies “not authorized”.
 
 ## Tool actions
+
 The agent can call `discord` with actions like:
+
 - `react` / `reactions` (add or list reactions)
 - `sticker`, `poll`, `permissions`
 - `readMessages`, `sendMessage`, `editMessage`, `deleteMessage`
@@ -433,11 +461,13 @@ The agent can call `discord` with actions like:
 - `searchMessages`, `memberInfo`, `roleInfo`, `roleAdd`, `roleRemove`, `emojiList`
 - `channelInfo`, `channelList`, `voiceStatus`, `eventList`, `eventCreate`
 - `timeout`, `kick`, `ban`
+- `setPresence` (bot activity and online status)
 
 Discord message ids are surfaced in the injected context (`[discord message id: …]` and history lines) so the agent can target them.
 Emoji can be unicode (e.g., `✅`) or custom emoji syntax like `<:party_blob:1234567890>`.
 
 ## Safety & ops
+
 - Treat the bot token like a password; prefer the `DISCORD_BOT_TOKEN` env var on supervised hosts or lock down the config file permissions.
 - Only grant the bot permissions it needs (typically Read/Send Messages).
 - If the bot is stuck or rate limited, restart the gateway (`openclaw gateway --force`) after confirming no other processes own the Discord session.

@@ -24,7 +24,9 @@ function expandPath(filePath: string): string {
 
 function resolveToCwd(filePath: string, cwd: string): string {
   const expanded = expandPath(filePath);
-  if (path.isAbsolute(expanded)) return expanded;
+  if (path.isAbsolute(expanded)) {
+    return expanded;
+  }
   return path.resolve(cwd, expanded);
 }
 
@@ -85,7 +87,9 @@ export async function resolveSandboxedMediaSource(params: {
 }
 
 async function assertNoSymlink(relative: string, root: string) {
-  if (!relative) return;
+  if (!relative) {
+    return;
+  }
   const parts = relative.split(path.sep).filter(Boolean);
   let current = root;
   for (const part of parts) {

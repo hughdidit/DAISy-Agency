@@ -24,6 +24,10 @@ export type ApplyAuthChoiceParams = {
   opts?: {
     tokenProvider?: string;
     token?: string;
+    cloudflareAiGatewayAccountId?: string;
+    cloudflareAiGatewayGatewayId?: string;
+    cloudflareAiGatewayApiKey?: string;
+    xaiApiKey?: string;
   };
 };
 
@@ -46,11 +50,14 @@ export async function applyAuthChoice(
     applyAuthChoiceGoogleGeminiCli,
     applyAuthChoiceCopilotProxy,
     applyAuthChoiceQwenPortal,
+    applyAuthChoiceXAI,
   ];
 
   for (const handler of handlers) {
     const result = await handler(params);
-    if (result) return result;
+    if (result) {
+      return result;
+    }
   }
 
   return { config: params.config };

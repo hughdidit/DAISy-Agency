@@ -113,7 +113,9 @@ async function promptToken(
       initialValue: envToken ?? "",
       validate: (value) => {
         const raw = String(value ?? "").trim();
-        if (!raw) return "Required";
+        if (!raw) {
+          return "Required";
+        }
         if (!raw.startsWith("oauth:")) {
           return "Token should start with 'oauth:'";
         }
@@ -273,8 +275,12 @@ const dmPolicy: ChannelOnboardingDmPolicy = {
   getCurrent: (cfg) => {
     const account = getAccountConfig(cfg, DEFAULT_ACCOUNT_ID);
     // Map allowedRoles to policy equivalent
-    if (account?.allowedRoles?.includes("all")) return "open";
-    if (account?.allowFrom && account.allowFrom.length > 0) return "allowlist";
+    if (account?.allowedRoles?.includes("all")) {
+      return "open";
+    }
+    if (account?.allowFrom && account.allowFrom.length > 0) {
+      return "allowlist";
+    }
     return "disabled";
   },
   setPolicy: (cfg, policy) => {

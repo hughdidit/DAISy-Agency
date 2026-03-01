@@ -137,7 +137,9 @@ export const msteamsPlugin: ChannelPlugin<ResolvedMSTeamsAccount> = {
     collectWarnings: ({ cfg }) => {
       const defaultGroupPolicy = cfg.channels?.defaults?.groupPolicy;
       const groupPolicy = cfg.channels?.msteams?.groupPolicy ?? defaultGroupPolicy ?? "allowlist";
-      if (groupPolicy !== "open") return [];
+      if (groupPolicy !== "open") {
+        return [];
+      }
       return [
         `- MS Teams groups: groupPolicy="open" allows any member to trigger (mention-gated). Set channels.msteams.groupPolicy="allowlist" + channels.msteams.groupAllowFrom to restrict senders.`,
       ];
@@ -161,8 +163,12 @@ export const msteamsPlugin: ChannelPlugin<ResolvedMSTeamsAccount> = {
     targetResolver: {
       looksLikeId: (raw) => {
         const trimmed = raw.trim();
-        if (!trimmed) return false;
-        if (/^conversation:/i.test(trimmed)) return true;
+        if (!trimmed) {
+          return false;
+        }
+        if (/^conversation:/i.test(trimmed)) {
+          return true;
+        }
         if (/^user:/i.test(trimmed)) {
           // Only treat as ID if the value after user: looks like a UUID
           const id = trimmed.slice("user:".length).trim();
@@ -180,11 +186,15 @@ export const msteamsPlugin: ChannelPlugin<ResolvedMSTeamsAccount> = {
       const ids = new Set<string>();
       for (const entry of cfg.channels?.msteams?.allowFrom ?? []) {
         const trimmed = String(entry).trim();
-        if (trimmed && trimmed !== "*") ids.add(trimmed);
+        if (trimmed && trimmed !== "*") {
+          ids.add(trimmed);
+        }
       }
       for (const userId of Object.keys(cfg.channels?.msteams?.dms ?? {})) {
         const trimmed = userId.trim();
-        if (trimmed) ids.add(trimmed);
+        if (trimmed) {
+          ids.add(trimmed);
+        }
       }
       return Array.from(ids)
         .map((raw) => raw.trim())
@@ -192,8 +202,12 @@ export const msteamsPlugin: ChannelPlugin<ResolvedMSTeamsAccount> = {
         .map((raw) => normalizeMSTeamsMessagingTarget(raw) ?? raw)
         .map((raw) => {
           const lowered = raw.toLowerCase();
-          if (lowered.startsWith("user:")) return raw;
-          if (lowered.startsWith("conversation:")) return raw;
+          if (lowered.startsWith("user:")) {
+            return raw;
+          }
+          if (lowered.startsWith("conversation:")) {
+            return raw;
+          }
           return `user:${raw}`;
         })
         .filter((id) => (q ? id.toLowerCase().includes(q) : true))
@@ -206,7 +220,9 @@ export const msteamsPlugin: ChannelPlugin<ResolvedMSTeamsAccount> = {
       for (const team of Object.values(cfg.channels?.msteams?.teams ?? {})) {
         for (const channelId of Object.keys(team.channels ?? {})) {
           const trimmed = channelId.trim();
-          if (trimmed && trimmed !== "*") ids.add(trimmed);
+          if (trimmed && trimmed !== "*") {
+            ids.add(trimmed);
+          }
         }
       }
       return Array.from(ids)
@@ -233,8 +249,7 @@ export const msteamsPlugin: ChannelPlugin<ResolvedMSTeamsAccount> = {
         note: undefined as string | undefined,
       }));
 
-      const stripPrefix = (value: string) =>
-        normalizeMSTeamsUserInput(value);
+      const stripPrefix = (value: string) => normalizeMSTeamsUserInput(value);
 
       if (kind === "user") {
         const pending: Array<{ input: string; query: string; index: number }> = [];
@@ -261,7 +276,9 @@ export const msteamsPlugin: ChannelPlugin<ResolvedMSTeamsAccount> = {
             });
             resolved.forEach((entry, idx) => {
               const target = results[pending[idx]?.index ?? -1];
-              if (!target) return;
+              if (!target) {
+                return;
+              }
               target.resolved = entry.resolved;
               target.id = entry.id;
               target.name = entry.name;
@@ -271,7 +288,9 @@ export const msteamsPlugin: ChannelPlugin<ResolvedMSTeamsAccount> = {
             runtime.error?.(`msteams resolve failed: ${String(err)}`);
             pending.forEach(({ index }) => {
               const entry = results[index];
-              if (entry) entry.note = "lookup failed";
+              if (entry) {
+                entry.note = "lookup failed";
+              }
             });
           }
         }
@@ -310,7 +329,9 @@ export const msteamsPlugin: ChannelPlugin<ResolvedMSTeamsAccount> = {
           });
           resolved.forEach((entry, idx) => {
             const target = results[pending[idx]?.index ?? -1];
-            if (!target) return;
+            if (!target) {
+              return;
+            }
             if (!entry.resolved || !entry.teamId) {
               target.resolved = false;
               target.note = entry.note;
@@ -322,19 +343,23 @@ export const msteamsPlugin: ChannelPlugin<ResolvedMSTeamsAccount> = {
               target.name =
                 entry.channelName && entry.teamName
                   ? `${entry.teamName}/${entry.channelName}`
-                  : entry.channelName ?? entry.teamName;
+                  : (entry.channelName ?? entry.teamName);
             } else {
               target.id = entry.teamId;
               target.name = entry.teamName;
               target.note = "team id";
             }
-            if (entry.note) target.note = entry.note;
+            if (entry.note) {
+              target.note = entry.note;
+            }
           });
         } catch (err) {
           runtime.error?.(`msteams resolve failed: ${String(err)}`);
           pending.forEach(({ index }) => {
             const entry = results[index];
-            if (entry) entry.note = "lookup failed";
+            if (entry) {
+              entry.note = "lookup failed";
+            }
           });
         }
       }
@@ -347,7 +372,9 @@ export const msteamsPlugin: ChannelPlugin<ResolvedMSTeamsAccount> = {
       const enabled =
         cfg.channels?.msteams?.enabled !== false &&
         Boolean(resolveMSTeamsCredentials(cfg.channels?.msteams));
-      if (!enabled) return [];
+      if (!enabled) {
+        return [];
+      }
       return ["poll"] satisfies ChannelMessageActionName[];
     },
     supportsCards: ({ cfg }) => {

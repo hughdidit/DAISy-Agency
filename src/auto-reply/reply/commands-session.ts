@@ -26,9 +26,13 @@ function resolveSessionEntryForKey(
   store: Record<string, SessionEntry> | undefined,
   sessionKey: string | undefined,
 ) {
-  if (!store || !sessionKey) return {};
+  if (!store || !sessionKey) {
+    return {};
+  }
   const direct = store[sessionKey];
-  if (direct) return { entry: direct, key: sessionKey };
+  if (direct) {
+    return { entry: direct, key: sessionKey };
+  }
   return {};
 }
 
@@ -40,7 +44,9 @@ function resolveAbortTarget(params: {
 }) {
   const targetSessionKey = params.ctx.CommandTargetSessionKey?.trim() || params.sessionKey;
   const { entry, key } = resolveSessionEntryForKey(params.sessionStore, targetSessionKey);
-  if (entry && key) return { entry, key, sessionId: entry.sessionId };
+  if (entry && key) {
+    return { entry, key, sessionId: entry.sessionId };
+  }
   if (params.sessionEntry && params.sessionKey) {
     return {
       entry: params.sessionEntry,
@@ -52,9 +58,13 @@ function resolveAbortTarget(params: {
 }
 
 export const handleActivationCommand: CommandHandler = async (params, allowTextCommands) => {
-  if (!allowTextCommands) return null;
+  if (!allowTextCommands) {
+    return null;
+  }
   const activationCommand = parseActivationCommand(params.command.commandBodyNormalized);
-  if (!activationCommand.hasCommand) return null;
+  if (!activationCommand.hasCommand) {
+    return null;
+  }
   if (!params.isGroup) {
     return {
       shouldContinue: false,
@@ -93,9 +103,13 @@ export const handleActivationCommand: CommandHandler = async (params, allowTextC
 };
 
 export const handleSendPolicyCommand: CommandHandler = async (params, allowTextCommands) => {
-  if (!allowTextCommands) return null;
+  if (!allowTextCommands) {
+    return null;
+  }
   const sendPolicyCommand = parseSendPolicyCommand(params.command.commandBodyNormalized);
-  if (!sendPolicyCommand.hasCommand) return null;
+  if (!sendPolicyCommand.hasCommand) {
+    return null;
+  }
   if (!params.command.isAuthorizedSender) {
     logVerbose(
       `Ignoring /send from unauthorized sender: ${params.command.senderId || "<unknown>"}`,
@@ -135,9 +149,13 @@ export const handleSendPolicyCommand: CommandHandler = async (params, allowTextC
 };
 
 export const handleUsageCommand: CommandHandler = async (params, allowTextCommands) => {
-  if (!allowTextCommands) return null;
+  if (!allowTextCommands) {
+    return null;
+  }
   const normalized = params.command.commandBodyNormalized;
-  if (normalized !== "/usage" && !normalized.startsWith("/usage ")) return null;
+  if (normalized !== "/usage" && !normalized.startsWith("/usage ")) {
+    return null;
+  }
   if (!params.command.isAuthorizedSender) {
     logVerbose(
       `Ignoring /usage from unauthorized sender: ${params.command.senderId || "<unknown>"}`,
@@ -199,8 +217,11 @@ export const handleUsageCommand: CommandHandler = async (params, allowTextComman
   const next = requested ?? (current === "off" ? "tokens" : current === "tokens" ? "full" : "off");
 
   if (params.sessionEntry && params.sessionStore && params.sessionKey) {
-    if (next === "off") delete params.sessionEntry.responseUsage;
-    else params.sessionEntry.responseUsage = next;
+    if (next === "off") {
+      delete params.sessionEntry.responseUsage;
+    } else {
+      params.sessionEntry.responseUsage = next;
+    }
     params.sessionEntry.updatedAt = Date.now();
     params.sessionStore[params.sessionKey] = params.sessionEntry;
     if (params.storePath) {
@@ -219,8 +240,12 @@ export const handleUsageCommand: CommandHandler = async (params, allowTextComman
 };
 
 export const handleRestartCommand: CommandHandler = async (params, allowTextCommands) => {
-  if (!allowTextCommands) return null;
-  if (params.command.commandBodyNormalized !== "/restart") return null;
+  if (!allowTextCommands) {
+    return null;
+  }
+  if (params.command.commandBodyNormalized !== "/restart") {
+    return null;
+  }
   if (!params.command.isAuthorizedSender) {
     logVerbose(
       `Ignoring /restart from unauthorized sender: ${params.command.senderId || "<unknown>"}`,
@@ -264,8 +289,12 @@ export const handleRestartCommand: CommandHandler = async (params, allowTextComm
 };
 
 export const handleStopCommand: CommandHandler = async (params, allowTextCommands) => {
-  if (!allowTextCommands) return null;
-  if (params.command.commandBodyNormalized !== "/stop") return null;
+  if (!allowTextCommands) {
+    return null;
+  }
+  if (params.command.commandBodyNormalized !== "/stop") {
+    return null;
+  }
   if (!params.command.isAuthorizedSender) {
     logVerbose(
       `Ignoring /stop from unauthorized sender: ${params.command.senderId || "<unknown>"}`,
@@ -293,7 +322,7 @@ export const handleStopCommand: CommandHandler = async (params, allowTextCommand
     params.sessionStore[abortTarget.key] = abortTarget.entry;
     if (params.storePath) {
       await updateSessionStore(params.storePath, (store) => {
-        store[abortTarget.key] = abortTarget.entry as SessionEntry;
+        store[abortTarget.key] = abortTarget.entry;
       });
     }
   } else if (params.command.abortKey) {
@@ -323,8 +352,12 @@ export const handleStopCommand: CommandHandler = async (params, allowTextCommand
 };
 
 export const handleAbortTrigger: CommandHandler = async (params, allowTextCommands) => {
-  if (!allowTextCommands) return null;
-  if (!isAbortTrigger(params.command.rawBodyNormalized)) return null;
+  if (!allowTextCommands) {
+    return null;
+  }
+  if (!isAbortTrigger(params.command.rawBodyNormalized)) {
+    return null;
+  }
   const abortTarget = resolveAbortTarget({
     ctx: params.ctx,
     sessionKey: params.sessionKey,
@@ -340,7 +373,7 @@ export const handleAbortTrigger: CommandHandler = async (params, allowTextComman
     params.sessionStore[abortTarget.key] = abortTarget.entry;
     if (params.storePath) {
       await updateSessionStore(params.storePath, (store) => {
-        store[abortTarget.key] = abortTarget.entry as SessionEntry;
+        store[abortTarget.key] = abortTarget.entry;
       });
     }
   } else if (params.command.abortKey) {

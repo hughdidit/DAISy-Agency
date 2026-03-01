@@ -44,11 +44,17 @@ function randomImageProbeCode(len = 6): string {
 }
 
 function editDistance(a: string, b: string): number {
-  if (a === b) return 0;
+  if (a === b) {
+    return 0;
+  }
   const aLen = a.length;
   const bLen = b.length;
-  if (aLen === 0) return bLen;
-  if (bLen === 0) return aLen;
+  if (aLen === 0) {
+    return bLen;
+  }
+  if (bLen === 0) {
+    return aLen;
+  }
 
   let prev = Array.from({ length: bLen + 1 }, (_v, idx) => idx);
   let curr = Array.from({ length: bLen + 1 }, () => 0);
@@ -81,7 +87,9 @@ function extractPayloadText(result: unknown): string {
 
 function parseJsonStringArray(name: string, raw?: string): string[] | undefined {
   const trimmed = raw?.trim();
-  if (!trimmed) return undefined;
+  if (!trimmed) {
+    return undefined;
+  }
   const parsed = JSON.parse(trimmed);
   if (!Array.isArray(parsed) || !parsed.every((entry) => typeof entry === "string")) {
     throw new Error(`${name} must be a JSON array of strings.`);
@@ -91,6 +99,7 @@ function parseJsonStringArray(name: string, raw?: string): string[] | undefined 
 
 function parseImageMode(raw?: string): "list" | "repeat" | undefined {
   const trimmed = raw?.trim();
+<<<<<<< HEAD
   if (!trimmed) return undefined;
   if (trimmed === "list" || trimmed === "repeat") return trimmed;
   throw new Error("OPENCLAW_LIVE_CLI_BACKEND_IMAGE_MODE must be 'list' or 'repeat'.");
@@ -120,15 +129,20 @@ async function getFreePort(): Promise<number> {
       }
       const port = addr.port;
       srv.close((err) => {
-        if (err) reject(err);
-        else resolve(port);
+        if (err) {
+          reject(err);
+        } else {
+          resolve(port);
+        }
       });
     });
   });
 }
 
 async function isPortFree(port: number): Promise<boolean> {
-  if (!Number.isFinite(port) || port <= 0 || port > 65535) return false;
+  if (!Number.isFinite(port) || port <= 0 || port > 65535) {
+    return false;
+  }
   return await new Promise((resolve) => {
     const srv = createServer();
     srv.once("error", () => resolve(false));
@@ -145,7 +159,9 @@ async function getFreeGatewayPort(): Promise<number> {
     const ok = (await Promise.all(candidates.map((candidate) => isPortFree(candidate)))).every(
       Boolean,
     );
-    if (ok) return port;
+    if (ok) {
+      return port;
+    }
   }
   throw new Error("failed to acquire a free gateway port block");
 }
@@ -154,11 +170,16 @@ async function connectClient(params: { url: string; token: string }) {
   return await new Promise<GatewayClient>((resolve, reject) => {
     let settled = false;
     const stop = (err?: Error, client?: GatewayClient) => {
-      if (settled) return;
+      if (settled) {
+        return;
+      }
       settled = true;
       clearTimeout(timer);
-      if (err) reject(err);
-      else resolve(client as GatewayClient);
+      if (err) {
+        reject(err);
+      } else {
+        resolve(client as GatewayClient);
+      }
     };
     const client = new GatewayClient({
       url: params.url,
@@ -387,7 +408,9 @@ describeLive("gateway live (cli backend)", () => {
         }
         const candidates = imageText.toUpperCase().match(/[A-Z0-9]{6,20}/g) ?? [];
         const bestDistance = candidates.reduce((best, cand) => {
-          if (Math.abs(cand.length - imageCode.length) > 2) return best;
+          if (Math.abs(cand.length - imageCode.length) > 2) {
+            return best;
+          }
           return Math.min(best, editDistance(cand, imageCode));
         }, Number.POSITIVE_INFINITY);
         if (!(bestDistance <= 5)) {
@@ -414,6 +437,48 @@ describeLive("gateway live (cli backend)", () => {
       else process.env.ANTHROPIC_API_KEY = previous.anthropicApiKey;
       if (previous.anthropicApiKeyOld === undefined) delete process.env.ANTHROPIC_API_KEY_OLD;
       else process.env.ANTHROPIC_API_KEY_OLD = previous.anthropicApiKeyOld;
+=======
+      if (previous.configPath === undefined) {
+        delete process.env.OPENCLAW_CONFIG_PATH;
+      } else {
+        process.env.OPENCLAW_CONFIG_PATH = previous.configPath;
+      }
+      if (previous.token === undefined) {
+        delete process.env.OPENCLAW_GATEWAY_TOKEN;
+      } else {
+        process.env.OPENCLAW_GATEWAY_TOKEN = previous.token;
+      }
+      if (previous.skipChannels === undefined) {
+        delete process.env.OPENCLAW_SKIP_CHANNELS;
+      } else {
+        process.env.OPENCLAW_SKIP_CHANNELS = previous.skipChannels;
+      }
+      if (previous.skipGmail === undefined) {
+        delete process.env.OPENCLAW_SKIP_GMAIL_WATCHER;
+      } else {
+        process.env.OPENCLAW_SKIP_GMAIL_WATCHER = previous.skipGmail;
+      }
+      if (previous.skipCron === undefined) {
+        delete process.env.OPENCLAW_SKIP_CRON;
+      } else {
+        process.env.OPENCLAW_SKIP_CRON = previous.skipCron;
+      }
+      if (previous.skipCanvas === undefined) {
+        delete process.env.OPENCLAW_SKIP_CANVAS_HOST;
+      } else {
+        process.env.OPENCLAW_SKIP_CANVAS_HOST = previous.skipCanvas;
+      }
+      if (previous.anthropicApiKey === undefined) {
+        delete process.env.ANTHROPIC_API_KEY;
+      } else {
+        process.env.ANTHROPIC_API_KEY = previous.anthropicApiKey;
+      }
+      if (previous.anthropicApiKeyOld === undefined) {
+        delete process.env.ANTHROPIC_API_KEY_OLD;
+      } else {
+        process.env.ANTHROPIC_API_KEY_OLD = previous.anthropicApiKeyOld;
+      }
+>>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
     }
   }, 60_000);
 });

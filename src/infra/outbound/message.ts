@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 import { getChannelPlugin, normalizeChannelId } from "../../channels/plugins/index.js";
+<<<<<<< HEAD
 import type { ChannelId } from "../../channels/plugins/types.js";
 import type { MoltbotConfig } from "../../config/config.js";
 =======
@@ -23,7 +24,6 @@ import {
   type OutboundSendDeps,
 } from "./deliver.js";
 import { normalizeReplyPayloadsForDelivery } from "./payloads.js";
-import type { OutboundChannel } from "./targets.js";
 import { resolveOutboundTarget } from "./targets.js";
 
 export type MessageGatewayOptions = {
@@ -121,7 +121,7 @@ export async function sendMessage(params: MessageSendParams): Promise<MessageSen
   if (!channel) {
     throw new Error(`Unknown channel: ${params.channel}`);
   }
-  const plugin = getChannelPlugin(channel as ChannelId);
+  const plugin = getChannelPlugin(channel);
   if (!plugin) {
     throw new Error(`Unknown channel: ${channel}`);
   }
@@ -154,7 +154,7 @@ export async function sendMessage(params: MessageSendParams): Promise<MessageSen
   }
 
   if (deliveryMode !== "gateway") {
-    const outboundChannel = channel as Exclude<OutboundChannel, "none">;
+    const outboundChannel = channel;
     const resolvedTarget = resolveOutboundTarget({
       channel: outboundChannel,
       to: params.to,
@@ -162,7 +162,9 @@ export async function sendMessage(params: MessageSendParams): Promise<MessageSen
       accountId: params.accountId,
       mode: "explicit",
     });
-    if (!resolvedTarget.ok) throw resolvedTarget.error;
+    if (!resolvedTarget.ok) {
+      throw resolvedTarget.error;
+    }
 
     const results = await deliverOutboundPayloads({
       cfg,
@@ -240,7 +242,7 @@ export async function sendPoll(params: MessagePollParams): Promise<MessagePollRe
     maxSelections: params.maxSelections,
     durationHours: params.durationHours,
   };
-  const plugin = getChannelPlugin(channel as ChannelId);
+  const plugin = getChannelPlugin(channel);
   const outbound = plugin?.outbound;
   if (!outbound?.sendPoll) {
     throw new Error(`Unsupported poll channel: ${channel}`);

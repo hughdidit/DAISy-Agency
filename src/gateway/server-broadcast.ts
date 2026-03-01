@@ -17,11 +17,17 @@ const EVENT_SCOPE_GUARDS: Record<string, string[]> = {
 
 function hasEventScope(client: GatewayWsClient, event: string): boolean {
   const required = EVENT_SCOPE_GUARDS[event];
-  if (!required) return true;
+  if (!required) {
+    return true;
+  }
   const role = client.connect.role ?? "operator";
-  if (role !== "operator") return false;
+  if (role !== "operator") {
+    return false;
+  }
   const scopes = Array.isArray(client.connect.scopes) ? client.connect.scopes : [];
-  if (scopes.includes(ADMIN_SCOPE)) return true;
+  if (scopes.includes(ADMIN_SCOPE)) {
+    return true;
+  }
   return required.some((scope) => scopes.includes(scope));
 }
 
@@ -71,7 +77,9 @@ export function createGatewayBroadcaster(params: { clients: Set<GatewayWsClient>
       }
 >>>>>>> 38e6da1fe (TUI/Gateway: fix pi streaming + tool routing + model display + msg updating (#8432))
       const slow = c.socket.bufferedAmount > MAX_BUFFERED_BYTES;
-      if (slow && opts?.dropIfSlow) continue;
+      if (slow && opts?.dropIfSlow) {
+        continue;
+      }
       if (slow) {
         try {
           c.socket.close(1008, "slow consumer");

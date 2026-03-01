@@ -25,7 +25,9 @@ const writesByPath = new Map<string, Promise<void>>();
 
 async function pruneIfNeeded(filePath: string, opts: { maxBytes: number; keepLines: number }) {
   const stat = await fs.stat(filePath).catch(() => null);
-  if (!stat || stat.size <= opts.maxBytes) return;
+  if (!stat || stat.size <= opts.maxBytes) {
+    return;
+  }
 
   const raw = await fs.readFile(filePath, "utf-8").catch(() => "");
   const lines = raw
@@ -66,12 +68,16 @@ export async function readCronRunLogEntries(
   const limit = Math.max(1, Math.min(5000, Math.floor(opts?.limit ?? 200)));
   const jobId = opts?.jobId?.trim() || undefined;
   const raw = await fs.readFile(path.resolve(filePath), "utf-8").catch(() => "");
-  if (!raw.trim()) return [];
+  if (!raw.trim()) {
+    return [];
+  }
   const parsed: CronRunLogEntry[] = [];
   const lines = raw.split("\n");
   for (let i = lines.length - 1; i >= 0 && parsed.length < limit; i--) {
     const line = lines[i]?.trim();
-    if (!line) continue;
+    if (!line) {
+      continue;
+    }
     try {
       const obj = JSON.parse(line) as Partial<CronRunLogEntry> | null;
 <<<<<<< HEAD
@@ -120,5 +126,5 @@ export async function readCronRunLogEntries(
       // ignore invalid lines
     }
   }
-  return parsed.reverse();
+  return parsed.toReversed();
 }

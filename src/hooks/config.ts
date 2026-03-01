@@ -16,10 +16,18 @@ const DEFAULT_CONFIG_VALUES: Record<string, boolean> = {
 };
 
 function isTruthy(value: unknown): boolean {
-  if (value === undefined || value === null) return false;
-  if (typeof value === "boolean") return value;
-  if (typeof value === "number") return value !== 0;
-  if (typeof value === "string") return value.trim().length > 0;
+  if (value === undefined || value === null) {
+    return false;
+  }
+  if (typeof value === "boolean") {
+    return value;
+  }
+  if (typeof value === "number") {
+    return value !== 0;
+  }
+  if (typeof value === "string") {
+    return value.trim().length > 0;
+  }
   return true;
 }
 
@@ -27,7 +35,9 @@ export function resolveConfigPath(config: OpenClawConfig | undefined, pathStr: s
   const parts = pathStr.split(".").filter(Boolean);
   let current: unknown = config;
   for (const part of parts) {
-    if (typeof current !== "object" || current === null) return undefined;
+    if (typeof current !== "object" || current === null) {
+      return undefined;
+    }
     current = (current as Record<string, unknown>)[part];
   }
   return current;
@@ -36,7 +46,7 @@ export function resolveConfigPath(config: OpenClawConfig | undefined, pathStr: s
 export function isConfigPathTruthy(config: OpenClawConfig | undefined, pathStr: string): boolean {
   const value = resolveConfigPath(config, pathStr);
   if (value === undefined && pathStr in DEFAULT_CONFIG_VALUES) {
-    return DEFAULT_CONFIG_VALUES[pathStr] === true;
+    return DEFAULT_CONFIG_VALUES[pathStr];
   }
   return isTruthy(value);
 }
@@ -46,9 +56,13 @@ export function resolveHookConfig(
   hookKey: string,
 ): HookConfig | undefined {
   const hooks = config?.hooks?.internal?.entries;
-  if (!hooks || typeof hooks !== "object") return undefined;
+  if (!hooks || typeof hooks !== "object") {
+    return undefined;
+  }
   const entry = (hooks as Record<string, HookConfig | undefined>)[hookKey];
-  if (!entry || typeof entry !== "object") return undefined;
+  if (!entry || typeof entry !== "object") {
+    return undefined;
+  }
   return entry;
 }
 
@@ -84,7 +98,9 @@ export function shouldIncludeHook(params: {
   const remotePlatforms = eligibility?.remote?.platforms ?? [];
 
   // Check if explicitly disabled
-  if (!pluginManaged && hookConfig?.enabled === false) return false;
+  if (!pluginManaged && hookConfig?.enabled === false) {
+    return false;
+  }
 
   // Check OS requirement
   if (
@@ -104,8 +120,12 @@ export function shouldIncludeHook(params: {
   const requiredBins = entry.metadata?.requires?.bins ?? [];
   if (requiredBins.length > 0) {
     for (const bin of requiredBins) {
-      if (hasBinary(bin)) continue;
-      if (eligibility?.remote?.hasBin?.(bin)) continue;
+      if (hasBinary(bin)) {
+        continue;
+      }
+      if (eligibility?.remote?.hasBin?.(bin)) {
+        continue;
+      }
       return false;
     }
   }
@@ -116,15 +136,21 @@ export function shouldIncludeHook(params: {
     const anyFound =
       requiredAnyBins.some((bin) => hasBinary(bin)) ||
       eligibility?.remote?.hasAnyBin?.(requiredAnyBins);
-    if (!anyFound) return false;
+    if (!anyFound) {
+      return false;
+    }
   }
 
   // Check required environment variables
   const requiredEnv = entry.metadata?.requires?.env ?? [];
   if (requiredEnv.length > 0) {
     for (const envName of requiredEnv) {
-      if (process.env[envName]) continue;
-      if (hookConfig?.env?.[envName]) continue;
+      if (process.env[envName]) {
+        continue;
+      }
+      if (hookConfig?.env?.[envName]) {
+        continue;
+      }
       return false;
     }
   }
@@ -133,7 +159,9 @@ export function shouldIncludeHook(params: {
   const requiredConfig = entry.metadata?.requires?.config ?? [];
   if (requiredConfig.length > 0) {
     for (const configPath of requiredConfig) {
-      if (!isConfigPathTruthy(config, configPath)) return false;
+      if (!isConfigPathTruthy(config, configPath)) {
+        return false;
+      }
     }
   }
 

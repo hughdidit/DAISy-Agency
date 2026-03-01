@@ -47,6 +47,7 @@ openclaw update status --timeout 10
 ```
 
 Options:
+
 - `--json`: print machine-readable status JSON.
 - `--timeout <seconds>`: timeout for checks (default is 3s).
 

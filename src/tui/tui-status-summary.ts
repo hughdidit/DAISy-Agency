@@ -1,5 +1,9 @@
 import type { GatewayStatusSummary } from "./tui-types.js";
 import { formatAge } from "../infra/channel-summary.js";
+=======
+import type { GatewayStatusSummary } from "./tui-types.js";
+import { formatTimeAgo } from "../infra/format-time/format-relative.ts";
+>>>>>>> a1123dd9b (Centralize date/time formatting utilities (#11831))
 import { formatTokenCount } from "../utils/usage-format.js";
 import { formatContextUsageLine } from "./tui-formatters.js";
 
@@ -14,7 +18,7 @@ export function formatStatusSummary(summary: GatewayStatusSummary) {
     const linked = summary.linkChannel.linked === true;
     const authAge =
       linked && typeof summary.linkChannel.authAgeMs === "number"
-        ? ` (last refreshed ${formatAge(summary.linkChannel.authAgeMs)})`
+        ? ` (last refreshed ${formatTimeAgo(summary.linkChannel.authAgeMs)})`
         : "";
     lines.push(`${linkLabel}: ${linked ? "linked" : "not linked"}${authAge}`);
   }
@@ -32,7 +36,9 @@ export function formatStatusSummary(summary: GatewayStatusSummary) {
   if (heartbeatAgents.length > 0) {
     const heartbeatParts = heartbeatAgents.map((agent) => {
       const agentId = agent.agentId ?? "unknown";
-      if (!agent.enabled || !agent.everyMs) return `disabled (${agentId})`;
+      if (!agent.enabled || !agent.everyMs) {
+        return `disabled (${agentId})`;
+      }
       return `${agent.every ?? "unknown"} (${agentId})`;
     });
     lines.push("");
@@ -61,7 +67,7 @@ export function formatStatusSummary(summary: GatewayStatusSummary) {
   if (recent.length > 0) {
     lines.push("Recent sessions:");
     for (const entry of recent) {
-      const ageLabel = typeof entry.age === "number" ? formatAge(entry.age) : "no activity";
+      const ageLabel = typeof entry.age === "number" ? formatTimeAgo(entry.age) : "no activity";
       const model = entry.model ?? "unknown";
       const usage = formatContextUsageLine({
         total: entry.totalTokens ?? null,

@@ -102,8 +102,12 @@ export type DaemonStatus = {
 };
 
 function shouldReportPortUsage(status: PortUsageStatus | undefined, rpcOk?: boolean) {
-  if (status !== "busy") return false;
-  if (rpcOk === true) return false;
+  if (status !== "busy") {
+    return false;
+  }
+  if (rpcOk === true) {
+    return false;
+  }
   return true;
 }
 
@@ -187,7 +191,7 @@ export async function gatherDaemonStatus(
   const probeUrl = probeUrlOverride ?? `ws://${probeHost}:${daemonPort}`;
   const probeNote =
     !probeUrlOverride && bindMode === "lan"
-      ? "Local probe uses loopback (127.0.0.1). bind=lan listens on 0.0.0.0 (all interfaces); use a LAN IP for remote clients."
+      ? `bind=lan listens on 0.0.0.0 (all interfaces); probing via ${probeHost}.`
       : !probeUrlOverride && bindMode === "loopback"
         ? "Loopback-only gateway; only local clients can connect."
         : undefined;
@@ -277,7 +281,9 @@ export async function gatherDaemonStatus(
 }
 
 export function renderPortDiagnosticsForCli(status: DaemonStatus, rpcOk?: boolean): string[] {
-  if (!status.port || !shouldReportPortUsage(status.port.status, rpcOk)) return [];
+  if (!status.port || !shouldReportPortUsage(status.port.status, rpcOk)) {
+    return [];
+  }
   return formatPortDiagnostics({
     port: status.port.port,
     status: status.port.status,

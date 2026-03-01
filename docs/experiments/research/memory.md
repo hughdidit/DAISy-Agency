@@ -16,12 +16,14 @@ This doc proposes an **offline-first** memory architecture that keeps Markdown a
 ## Why change?
 
 The current setup (one file per day) is excellent for:
+
 - “append-only” journaling
 - human editing
 - git-backed durability + auditability
 - low-friction capture (“just write it down”)
 
 It’s weak for:
+
 - high-recall retrieval (“what did we decide about X?”, “last time we tried Y?”)
 - entity-centric answers (“tell me about Alice / The Castle / warelay”) without rereading many files
 - opinion/preference stability (and evidence when it changes)
@@ -39,7 +41,8 @@ It’s weak for:
 
 Two pieces to blend:
 
-1) **Letta/MemGPT-style control loop**
+1. **Letta/MemGPT-style control loop**
+
 - keep a small “core” always in context (persona + key user facts)
 - everything else is out-of-context and retrieved via tools
 - memory writes are explicit tool calls (append/replace/insert), persisted, then re-injected next turn
@@ -84,6 +87,7 @@ Suggested workspace layout:
 ```
 
 Notes:
+
 - **Daily log stays daily log**. No need to turn it into JSON.
 - The `bank/` files are **curated**, produced by reflection jobs, and can still be edited by hand.
 - `memory.md` remains “small + core-ish”: the things you want Clawd to see every session.
@@ -97,6 +101,7 @@ Add a derived index under the workspace (not necessarily git tracked):
 ```
 
 Back it with:
+
 - SQLite schema for facts + entity links + opinion metadata
 - SQLite **FTS5** for lexical recall (fast, tiny, offline)
 - optional embeddings table for semantic recall (still offline)
@@ -110,6 +115,7 @@ The index is always **rebuildable from Markdown**.
 Hindsight’s key insight that matters here: store **narrative, self-contained facts**, not tiny snippets.
 
 Practical rule for `memory/YYYY-MM-DD.md`:
+
 - at end of day (or during), add a `## Retain` section with 2–5 bullets that are:
   - narrative (cross-turn context preserved)
   - self-contained (standalone makes sense later)
@@ -125,6 +131,7 @@ Example:
 ```
 
 Minimal parsing:
+
 - Type prefix: `W` (world), `B` (experience/biographical), `O` (opinion), `S` (observation/summary; usually generated)
 - Entities: `@Peter`, `@warelay`, etc (slugs map to `bank/entities/*.md`)
 - Opinion confidence: `O(c=0.0..1.0)` optional
@@ -134,12 +141,14 @@ If you don’t want authors to think about it: the reflect job can infer these b
 ### Recall: queries over the derived index
 
 Recall should support:
+
 - **lexical**: “find exact terms / names / commands” (FTS5)
 - **entity**: “tell me about X” (entity pages + entity-linked facts)
 - **temporal**: “what happened around Nov 27” / “since last week”
 - **opinion**: “what does Peter prefer?” (with confidence + evidence)
 
 Return format should be agent-friendly and cite sources:
+
 - `kind` (`world|experience|opinion|observation`)
 - `timestamp` (source day, or extracted time range if present)
 - `entities` (`["Peter","warelay"]`)
@@ -149,11 +158,13 @@ Return format should be agent-friendly and cite sources:
 ### Reflect: produce stable pages + update beliefs
 
 Reflection is a scheduled job (daily or heartbeat `ultrathink`) that:
+
 - updates `bank/entities/*.md` from recent facts (entity summaries)
 - updates `bank/opinions.md` confidence based on reinforcement/contradiction
 - optionally proposes edits to `memory.md` (“core-ish” durable facts)
 
 Opinion evolution (simple, explainable):
+
 - each opinion has:
   - statement
   - confidence `c ∈ [0,1]`
@@ -177,6 +188,7 @@ Recommendation: **deep integration in OpenClaw**, but keep a separable core libr
   - `openclaw memory reflect --since 7d`
 
 ### Why still split a library?
+
 - keep memory logic testable without gateway/runtime
 - reuse from other contexts (local scripts, future desktop app, etc.)
 
@@ -196,12 +208,14 @@ Pragmatic take for `~/.openclaw/workspace`:
   - recall quality is meaningfully bottlenecked by lexical search
 
 Offline-friendly alternatives (in increasing complexity):
+
 - SQLite FTS5 + metadata filters (zero ML)
 - Embeddings + brute force (works surprisingly far if chunk count is low)
 - HNSW index (common, robust; needs a library binding)
 - SuCo (research-grade; attractive if there’s a solid implementation you can embed)
 
 Open question:
+
 - what’s the **best** offline embedding model for “personal assistant memory” on your machines (laptop + desktop)?
   - if you already have Ollama: embed with a local model; otherwise ship a small embedding model in the toolchain.
 

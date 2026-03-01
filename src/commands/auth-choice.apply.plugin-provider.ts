@@ -50,7 +50,9 @@ function resolveProviderMatch(
 
 function pickAuthMethod(provider: ProviderPlugin, rawMethod?: string): ProviderAuthMethod | null {
   const raw = rawMethod?.trim();
-  if (!raw) return null;
+  if (!raw) {
+    return null;
+  }
   const normalized = raw.toLowerCase();
   return (
     provider.auth.find((method) => method.id.toLowerCase() === normalized) ??
@@ -107,7 +109,9 @@ export async function applyAuthChoicePluginProvider(
   params: ApplyAuthChoiceParams,
   options: PluginProviderAuthChoiceOptions,
 ): Promise<ApplyAuthChoiceResult | null> {
-  if (params.authChoice !== options.authChoice) return null;
+  if (params.authChoice !== options.authChoice) {
+    return null;
+  }
 
   const enableResult = enablePluginInConfig(params.config, options.pluginId);
   let nextConfig = enableResult.config;

@@ -119,16 +119,24 @@ function checkSenderRoles(params: { message: TwitchChatMessage; allowedRoles: st
   for (const role of allowedRoles) {
     switch (role) {
       case "moderator":
-        if (isMod) return true;
+        if (isMod) {
+          return true;
+        }
         break;
       case "owner":
-        if (isOwner) return true;
+        if (isOwner) {
+          return true;
+        }
         break;
       case "vip":
-        if (isVip) return true;
+        if (isVip) {
+          return true;
+        }
         break;
       case "subscriber":
-        if (isSub) return true;
+        if (isSub) {
+          return true;
+        }
         break;
     }
   }
@@ -147,7 +155,6 @@ export function extractMentions(message: string): string[] {
   const mentions: string[] = [];
   let match: RegExpExecArray | null;
 
-  // biome-ignore lint/suspicious/noAssignInExpressions: Standard regex iteration pattern
   while ((match = mentionRegex.exec(message)) !== null) {
     const username = match[1];
     if (username) {

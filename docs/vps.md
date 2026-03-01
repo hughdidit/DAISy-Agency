@@ -5,6 +5,7 @@ read_when:
   - You need a quick map of VPS/hosting guides
 title: "VPS Hosting"
 ---
+
 # VPS hosting
 
 This hub links to the supported VPS/hosting guides and explains how cloud

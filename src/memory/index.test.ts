@@ -77,7 +77,9 @@ describe("memory index", () => {
     };
     const result = await getMemorySearchManager({ cfg, agentId: "main" });
     expect(result.manager).not.toBeNull();
-    if (!result.manager) throw new Error("manager missing");
+    if (!result.manager) {
+      throw new Error("manager missing");
+    }
     manager = result.manager;
     await result.manager.sync({ force: true });
     const results = await result.manager.search("alpha");
@@ -128,7 +130,9 @@ describe("memory index", () => {
       agentId: "main",
     });
     expect(first.manager).not.toBeNull();
-    if (!first.manager) throw new Error("manager missing");
+    if (!first.manager) {
+      throw new Error("manager missing");
+    }
     await first.manager.sync({ force: true });
     await first.manager.close();
 
@@ -149,7 +153,9 @@ describe("memory index", () => {
       agentId: "main",
     });
     expect(second.manager).not.toBeNull();
-    if (!second.manager) throw new Error("manager missing");
+    if (!second.manager) {
+      throw new Error("manager missing");
+    }
     manager = second.manager;
     await second.manager.sync({ reason: "test" });
     const results = await second.manager.search("alpha");
@@ -175,7 +181,9 @@ describe("memory index", () => {
     };
     const result = await getMemorySearchManager({ cfg, agentId: "main" });
     expect(result.manager).not.toBeNull();
-    if (!result.manager) throw new Error("manager missing");
+    if (!result.manager) {
+      throw new Error("manager missing");
+    }
     manager = result.manager;
     await manager.sync({ force: true });
     const afterFirst = embedBatchCalls;
@@ -204,7 +212,9 @@ describe("memory index", () => {
     };
     const result = await getMemorySearchManager({ cfg, agentId: "main" });
     expect(result.manager).not.toBeNull();
-    if (!result.manager) throw new Error("manager missing");
+    if (!result.manager) {
+      throw new Error("manager missing");
+    }
     manager = result.manager;
 
     await manager.sync({ force: true });
@@ -243,11 +253,15 @@ describe("memory index", () => {
     };
     const result = await getMemorySearchManager({ cfg, agentId: "main" });
     expect(result.manager).not.toBeNull();
-    if (!result.manager) throw new Error("manager missing");
+    if (!result.manager) {
+      throw new Error("manager missing");
+    }
     manager = result.manager;
 
     const status = manager.status();
-    if (!status.fts?.available) return;
+    if (!status.fts?.available) {
+      return;
+    }
 
     await manager.sync({ force: true });
     const results = await manager.search("zebra");
@@ -292,11 +306,15 @@ describe("memory index", () => {
     };
     const result = await getMemorySearchManager({ cfg, agentId: "main" });
     expect(result.manager).not.toBeNull();
-    if (!result.manager) throw new Error("manager missing");
+    if (!result.manager) {
+      throw new Error("manager missing");
+    }
     manager = result.manager;
 
     const status = manager.status();
-    if (!status.fts?.available) return;
+    if (!status.fts?.available) {
+      return;
+    }
 
     await manager.sync({ force: true });
     const results = await manager.search("alpha beta id123");
@@ -346,11 +364,15 @@ describe("memory index", () => {
     };
     const result = await getMemorySearchManager({ cfg, agentId: "main" });
     expect(result.manager).not.toBeNull();
-    if (!result.manager) throw new Error("manager missing");
+    if (!result.manager) {
+      throw new Error("manager missing");
+    }
     manager = result.manager;
 
     const status = manager.status();
-    if (!status.fts?.available) return;
+    if (!status.fts?.available) {
+      return;
+    }
 
     await manager.sync({ force: true });
     const results = await manager.search("alpha beta id123");
@@ -380,7 +402,9 @@ describe("memory index", () => {
     };
     const result = await getMemorySearchManager({ cfg, agentId: "main" });
     expect(result.manager).not.toBeNull();
-    if (!result.manager) throw new Error("manager missing");
+    if (!result.manager) {
+      throw new Error("manager missing");
+    }
     manager = result.manager;
     const available = await result.manager.probeVectorAvailability();
     const status = result.manager.status();
@@ -406,7 +430,9 @@ describe("memory index", () => {
     };
     const result = await getMemorySearchManager({ cfg, agentId: "main" });
     expect(result.manager).not.toBeNull();
-    if (!result.manager) throw new Error("manager missing");
+    if (!result.manager) {
+      throw new Error("manager missing");
+    }
     manager = result.manager;
     await expect(result.manager.readFile({ relPath: "NOTES.md" })).rejects.toThrow("path required");
   });
@@ -433,7 +459,9 @@ describe("memory index", () => {
     };
     const result = await getMemorySearchManager({ cfg, agentId: "main" });
     expect(result.manager).not.toBeNull();
-    if (!result.manager) throw new Error("manager missing");
+    if (!result.manager) {
+      throw new Error("manager missing");
+    }
     manager = result.manager;
     await expect(result.manager.readFile({ relPath: "extra/extra.md" })).resolves.toEqual({
       path: "extra/extra.md",

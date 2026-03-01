@@ -4,45 +4,58 @@ read_when:
   - Working on WhatsApp/web channel behavior or inbox routing
 title: "WhatsApp"
 ---
-# WhatsApp (web channel)
 
+# WhatsApp (web channel)
 
 Status: WhatsApp Web via Baileys only. Gateway owns the session(s).
 
 ## Quick setup (beginner)
+<<<<<<< HEAD
 1) Use a **separate phone number** if possible (recommended).
 2) Configure WhatsApp in `~/.openclaw/openclaw.json`.
 3) Run `openclaw channels login` to scan the QR code (Linked Devices).
 4) Start the gateway.
+=======
+
+1. Use a **separate phone number** if possible (recommended).
+2. Configure WhatsApp in `~/.openclaw/openclaw.json`.
+3. Run `openclaw channels login` to scan the QR code (Linked Devices).
+4. Start the gateway.
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 Minimal config:
+
 ```json5
 {
   channels: {
     whatsapp: {
       dmPolicy: "allowlist",
-      allowFrom: ["+15551234567"]
-    }
-  }
+      allowFrom: ["+15551234567"],
+    },
+  },
 }
 ```
 
 ## Goals
+
 - Multiple WhatsApp accounts (multi-account) in one Gateway process.
 - Deterministic routing: replies return to WhatsApp, no model routing.
 - Model sees enough context to understand quoted replies.
 
 ## Config writes
+
 By default, WhatsApp is allowed to write config updates triggered by `/config set|unset` (requires `commands.config: true`).
 
 Disable with:
+
 ```json5
 {
-  channels: { whatsapp: { configWrites: false } }
+  channels: { whatsapp: { configWrites: false } },
 }
 ```
 
 ## Architecture (who owns what)
+
 - **Gateway** owns the Baileys socket and inbox loop.
 - **CLI / macOS app** talk to the gateway; no direct Baileys use.
 - **Active listener** is required for outbound sends; otherwise send fails fast.
@@ -57,14 +70,15 @@ Use a **separate phone number** for OpenClaw. Best UX, clean routing, no self-ch
 **WhatsApp Business:** You can use WhatsApp Business on the same device with a different number. Great for keeping your personal WhatsApp separate — install WhatsApp Business and register the OpenClaw number there.
 
 **Sample config (dedicated number, single-user allowlist):**
+
 ```json5
 {
   channels: {
     whatsapp: {
       dmPolicy: "allowlist",
-      allowFrom: ["+15551234567"]
-    }
-  }
+      allowFrom: ["+15551234567"],
+    },
+  },
 }
 ```
 
@@ -77,6 +91,7 @@ Quick fallback: run OpenClaw on **your own number**. Message yourself (WhatsApp 
 When the wizard asks for your personal WhatsApp number, enter the phone you will message from (the owner/sender), not the assistant number.
 
 **Sample config (personal number, self-chat):**
+
 ```json
 {
   "whatsapp": {
@@ -92,6 +107,7 @@ if `messages.responsePrefix` is unset. Set it explicitly to customize or disable
 the prefix (use `""` to remove it).
 
 ### Number sourcing tips
+
 - **Local eSIM** from your country's mobile carrier (most reliable)
   - Austria: [hot.at](https://www.hot.at)
   - UK: [giffgaff](https://www.giffgaff.com) — free SIM, no contract
@@ -119,6 +135,7 @@ the prefix (use `""` to remove it).
 - Logged-out socket => error instructs re-link.
 
 ## Inbound flow (DM + group)
+
 - WhatsApp events come from `messages.upsert` (Baileys).
 - Inbox listeners are detached on shutdown to avoid accumulating event handlers in tests/restarts.
 - Status/broadcast chats are ignored.
@@ -132,35 +149,40 @@ the prefix (use `""` to remove it).
 If you run OpenClaw on your **personal WhatsApp number**, enable `channels.whatsapp.selfChatMode` (see sample above).
 
 Behavior:
+
 - Outbound DMs never trigger pairing replies (prevents spamming contacts).
 - Inbound unknown senders still follow `channels.whatsapp.dmPolicy`.
 - Self-chat mode (allowFrom includes your number) avoids auto read receipts and ignores mention JIDs.
 - Read receipts sent for non-self-chat DMs.
 
 ## Read receipts
+
 By default, the gateway marks inbound WhatsApp messages as read (blue ticks) once they are accepted.
 
 Disable globally:
+
 ```json5
 {
-  channels: { whatsapp: { sendReadReceipts: false } }
+  channels: { whatsapp: { sendReadReceipts: false } },
 }
 ```
 
 Disable per account:
+
 ```json5
 {
   channels: {
     whatsapp: {
       accounts: {
-        personal: { sendReadReceipts: false }
-      }
-    }
-  }
+        personal: { sendReadReceipts: false },
+      },
+    },
+  },
 }
 ```
 
 Notes:
+
 - Self-chat mode always skips read receipts.
 
 ## WhatsApp FAQ: sending messages + pairing
@@ -170,6 +192,7 @@ No. Default DM policy is **pairing**, so unknown senders only get a pairing code
 
 **How does pairing work on WhatsApp?**  
 Pairing is a DM gate for unknown senders:
+
 - First DM from a new sender returns a short code (message is not processed).
 - Approve with: `openclaw pairing approve whatsapp <code>` (list with `openclaw pairing list whatsapp`).
 - Codes expire after 1 hour; pending requests are capped at 3 per channel.
@@ -181,6 +204,7 @@ Yes, by routing each sender to a different agent via `bindings` (peer `kind: "dm
 The wizard uses it to set your **allowlist/owner** so your own DMs are permitted. It’s not used for auto-sending. If you run on your personal WhatsApp number, use that same number and enable `channels.whatsapp.selfChatMode`.
 
 ## Message normalization (what the model sees)
+
 - `Body` is the current message body with envelope.
 - Quoted reply context is **always appended**:
 
@@ -198,6 +222,7 @@ The wizard uses it to set your **allowlist/owner** so your own DMs are permitted
   - `<media:image|video|audio|document|sticker>`
 
 ## Groups
+
 - Groups map to `agent:<agentId>:whatsapp:group:<jid>` sessions.
 - Group policy: `channels.whatsapp.groupPolicy = open|disabled|allowlist` (default `allowlist`).
 - Activation modes:
@@ -206,7 +231,7 @@ The wizard uses it to set your **allowlist/owner** so your own DMs are permitted
 - `/activation mention|always` is owner-only and must be sent as a standalone message.
 - Owner = `channels.whatsapp.allowFrom` (or self E.164 if unset).
 - **History injection** (pending-only):
-  - Recent *unprocessed* messages (default 50) inserted under:
+  - Recent _unprocessed_ messages (default 50) inserted under:
     `[Chat messages since your last reply - for context]` (messages already in the session are not re-injected)
   - Current message under:
     `[Current message - respond to this]`
@@ -214,6 +239,7 @@ The wizard uses it to set your **allowlist/owner** so your own DMs are permitted
 - Group metadata cached 5 min (subject + participants).
 
 ## Reply delivery (threading)
+
 - WhatsApp Web sends standard messages (no quoted reply threading in the current gateway).
 - Reply tags are ignored on this channel.
 
@@ -222,6 +248,7 @@ The wizard uses it to set your **allowlist/owner** so your own DMs are permitted
 WhatsApp can automatically send emoji reactions to incoming messages immediately upon receipt, before the bot generates a reply. This provides instant feedback to users that their message was received.
 
 **Configuration:**
+
 ```json
 {
   "whatsapp": {
@@ -235,6 +262,7 @@ WhatsApp can automatically send emoji reactions to incoming messages immediately
 ```
 
 **Options:**
+
 - `emoji` (string): Emoji to use for acknowledgment (e.g., "👀", "✅", "📨"). Empty or omitted = feature disabled.
 - `direct` (boolean, default: `true`): Send reactions in direct/DM chats.
 - `group` (string, default: `"mentions"`): Group chat behavior:
@@ -243,6 +271,7 @@ WhatsApp can automatically send emoji reactions to incoming messages immediately
   - `"never"`: Never react in groups
 
 **Per-account override:**
+
 ```json
 {
   "whatsapp": {
@@ -260,6 +289,7 @@ WhatsApp can automatically send emoji reactions to incoming messages immediately
 ```
 
 **Behavior notes:**
+
 - Reactions are sent **immediately** upon message receipt, before typing indicators or bot replies.
 - In groups with `requireMention: false` (activation: always), `group: "mentions"` will react to all messages (not just @mentions).
 - Fire-and-forget: reaction failures are logged but don't prevent the bot from replying.
@@ -267,18 +297,21 @@ WhatsApp can automatically send emoji reactions to incoming messages immediately
 - WhatsApp ignores `messages.ackReaction`; use `channels.whatsapp.ackReaction` instead.
 
 ## Agent tool (reactions)
+
 - Tool: `whatsapp` with `react` action (`chatJid`, `messageId`, `emoji`, optional `remove`).
 - Optional: `participant` (group sender), `fromMe` (reacting to your own message), `accountId` (multi-account).
 - Reaction removal semantics: see [/tools/reactions](/tools/reactions).
 - Tool gating: `channels.whatsapp.actions.reactions` (default: enabled).
 
 ## Limits
+
 - Outbound text is chunked to `channels.whatsapp.textChunkLimit` (default 4000).
 - Optional newline chunking: set `channels.whatsapp.chunkMode="newline"` to split on blank lines (paragraph boundaries) before length chunking.
 - Inbound media saves are capped by `channels.whatsapp.mediaMaxMb` (default 50 MB).
 - Outbound media items are capped by `agents.defaults.mediaMaxMb` (default 5 MB).
 
 ## Outbound send (text + media)
+
 - Uses active web listener; error if gateway not running.
 - Text chunking: 4k max per message (configurable via `channels.whatsapp.textChunkLimit`, optional `channels.whatsapp.chunkMode`).
 - Media:
@@ -291,17 +324,20 @@ WhatsApp can automatically send emoji reactions to incoming messages immediately
     - Gateway: `send` params include `gifPlayback: true`
 
 ## Voice notes (PTT audio)
+
 WhatsApp sends audio as **voice notes** (PTT bubble).
 - Best results: OGG/Opus. OpenClaw rewrites `audio/ogg` to `audio/ogg; codecs=opus`.
 - `[[audio_as_voice]]` is ignored for WhatsApp (audio already ships as voice note).
 
 ## Media limits + optimization
+
 - Default outbound cap: 5 MB (per media item).
 - Override: `agents.defaults.mediaMaxMb`.
 - Images are auto-optimized to JPEG under cap (resize + quality sweep).
 - Oversize media => error; media reply falls back to text warning.
 
 ## Heartbeats
+
 - **Gateway heartbeat** logs connection health (`web.heartbeatSeconds`, default 60s).
 - **Agent heartbeat** can be configured per agent (`agents.list[].heartbeat`) or globally
   via `agents.defaults.heartbeat` (fallback when no per-agent entries are set).
@@ -309,12 +345,14 @@ WhatsApp sends audio as **voice notes** (PTT bubble).
   - Delivery defaults to the last used channel (or configured target).
 
 ## Reconnect behavior
+
 - Backoff policy: `web.reconnect`:
   - `initialMs`, `maxMs`, `factor`, `jitter`, `maxAttempts`.
 - If maxAttempts reached, web monitoring stops (degraded).
 - Logged-out => stop and require re-link.
 
 ## Config quick map
+
 - `channels.whatsapp.dmPolicy` (DM policy: pairing/allowlist/open/disabled).
 - `channels.whatsapp.selfChatMode` (same-phone setup; bot uses your personal WhatsApp number).
 - `channels.whatsapp.allowFrom` (DM allowlist). WhatsApp uses E.164 phone numbers (no usernames).
@@ -346,6 +384,7 @@ WhatsApp sends audio as **voice notes** (PTT bubble).
 - `web.reconnect.*`
 
 ## Logs + troubleshooting
+
 - Subsystems: `whatsapp/inbound`, `whatsapp/outbound`, `web-heartbeat`, `web-reconnect`.
 - Log file: `/tmp/openclaw/openclaw-YYYY-MM-DD.log` (configurable).
 - Troubleshooting guide: [Gateway troubleshooting](/gateway/troubleshooting).
@@ -353,13 +392,16 @@ WhatsApp sends audio as **voice notes** (PTT bubble).
 ## Troubleshooting (quick)
 
 **Not linked / QR login required**
+
 - Symptom: `channels status` shows `linked: false` or warns “Not linked”.
 - Fix: run `openclaw channels login` on the gateway host and scan the QR (WhatsApp → Settings → Linked Devices).
 
 **Linked but disconnected / reconnect loop**
+
 - Symptom: `channels status` shows `running, disconnected` or warns “Linked but disconnected”.
 - Fix: `openclaw doctor` (or restart the gateway). If it persists, relink via `channels login` and inspect `openclaw logs --follow`.
 
 **Bun runtime**
+
 - Bun is **not recommended**. WhatsApp (Baileys) and Telegram are unreliable on Bun.
   Run the gateway with **Node**. (See Getting Started runtime note.)

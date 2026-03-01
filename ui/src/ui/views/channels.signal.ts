@@ -3,6 +3,12 @@ import type { SignalStatus } from "../types";
 import type { ChannelsProps } from "./channels.types";
 import { formatAgo } from "../format";
 import { renderChannelConfigSection } from "./channels.config";
+=======
+import type { SignalStatus } from "../types.ts";
+import type { ChannelsProps } from "./channels.types.ts";
+import { formatRelativeTimestamp } from "../format.ts";
+import { renderChannelConfigSection } from "./channels.config.ts";
+>>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
 
 export function renderSignalCard(params: {
   props: ChannelsProps;
@@ -32,26 +38,30 @@ export function renderSignalCard(params: {
         </div>
         <div>
           <span class="label">Last start</span>
-          <span>${signal?.lastStartAt ? formatAgo(signal.lastStartAt) : "n/a"}</span>
+          <span>${signal?.lastStartAt ? formatRelativeTimestamp(signal.lastStartAt) : "n/a"}</span>
         </div>
         <div>
           <span class="label">Last probe</span>
-          <span>${signal?.lastProbeAt ? formatAgo(signal.lastProbeAt) : "n/a"}</span>
+          <span>${signal?.lastProbeAt ? formatRelativeTimestamp(signal.lastProbeAt) : "n/a"}</span>
         </div>
       </div>
 
-      ${signal?.lastError
-        ? html`<div class="callout danger" style="margin-top: 12px;">
+      ${
+        signal?.lastError
+          ? html`<div class="callout danger" style="margin-top: 12px;">
             ${signal.lastError}
           </div>`
-        : nothing}
+          : nothing
+      }
 
-      ${signal?.probe
-        ? html`<div class="callout" style="margin-top: 12px;">
+      ${
+        signal?.probe
+          ? html`<div class="callout" style="margin-top: 12px;">
             Probe ${signal.probe.ok ? "ok" : "failed"} ·
             ${signal.probe.status ?? ""} ${signal.probe.error ?? ""}
           </div>`
-        : nothing}
+          : nothing
+      }
 
       ${renderChannelConfigSection({ channelId: "signal", props })}
 

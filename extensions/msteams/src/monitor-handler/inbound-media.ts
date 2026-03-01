@@ -102,7 +102,9 @@ export async function resolveMSTeamsInboundMedia(params: {
             mediaList = graphMedia.media;
             break;
           }
-          if (graphMedia.tokenError) break;
+          if (graphMedia.tokenError) {
+            break;
+          }
         }
         if (mediaList.length === 0) {
           log.debug("graph media fetch empty", { attempts });

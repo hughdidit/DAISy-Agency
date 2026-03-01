@@ -4,6 +4,7 @@ read_when:
   - Building or signing mac debug builds
 title: "macOS Signing"
 ---
+
 # mac signing (debug builds)
 
 This app is usually built from [`scripts/package-mac-app.sh`](https://github.com/openclaw/openclaw/blob/main/scripts/package-mac-app.sh), which now:
@@ -29,6 +30,7 @@ DISABLE_LIBRARY_VALIDATION=1 scripts/package-mac-app.sh   # dev-only Sparkle Tea
 ```
 
 ### Ad-hoc Signing Note
+
 When signing with `SIGN_IDENTITY="-"` (ad-hoc), the script automatically disables the **Hardened Runtime** (`--options runtime`). This is necessary to prevent crashes when the app attempts to load embedded frameworks (like Sparkle) that do not share the same Team ID. Ad-hoc signatures also break TCC permission persistence; see [macOS permissions](/platforms/mac/permissions) for recovery steps.
 
 ## Build metadata for About

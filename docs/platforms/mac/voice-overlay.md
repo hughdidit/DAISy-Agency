@@ -4,13 +4,15 @@ read_when:
   - Adjusting voice overlay behavior
 title: "Voice Overlay"
 ---
+
 # Voice Overlay Lifecycle (macOS)
 
 Audience: macOS app contributors. Goal: keep the voice overlay predictable when wake-word and push-to-talk overlap.
 
 <<<<<<< HEAD
 ### Current intent
-- If the overlay is already visible from wake-word and the user presses the hotkey, the hotkey session *adopts* the existing text instead of resetting it. The overlay stays up while the hotkey is held. When the user releases: send if there is trimmed text, otherwise dismiss.
+
+- If the overlay is already visible from wake-word and the user presses the hotkey, the hotkey session _adopts_ the existing text instead of resetting it. The overlay stays up while the hotkey is held. When the user releases: send if there is trimmed text, otherwise dismiss.
 - Wake-word alone still auto-sends on silence; push-to-talk sends immediately on release.
 
 ### Implemented (Dec 9, 2025)
@@ -62,6 +64,7 @@ Audience: macOS app contributors. Goal: keep the voice overlay predictable when 
   ```bash
   sudo log stream --predicate 'subsystem == "bot.molt" AND category CONTAINS "voicewake"' --level info --style compact
   ```
+
 - Verify only one active session token; stale callbacks should be dropped by the coordinator.
 - Ensure push-to-talk release always calls `endCapture` with the active token; if text is empty, expect `dismiss` without chime or send.
 

@@ -45,18 +45,33 @@ const slackConfig = {
   },
 } as OpenClawConfig;
 
-describe("runMessageAction Slack threading", () => {
+const telegramConfig = {
+  channels: {
+    telegram: {
+      botToken: "telegram-test",
+    },
+  },
+} as OpenClawConfig;
+
+describe("runMessageAction threading auto-injection", () => {
   beforeEach(async () => {
     const { createPluginRuntime } = await import("../../plugins/runtime/index.js");
     const { setSlackRuntime } = await import("../../../extensions/slack/src/runtime.js");
+    const { setTelegramRuntime } = await import("../../../extensions/telegram/src/runtime.js");
     const runtime = createPluginRuntime();
     setSlackRuntime(runtime);
+    setTelegramRuntime(runtime);
     setActivePluginRegistry(
       createTestRegistry([
         {
           pluginId: "slack",
           source: "test",
           plugin: slackPlugin,
+        },
+        {
+          pluginId: "telegram",
+          source: "test",
+          plugin: telegramPlugin,
         },
       ]),
     );

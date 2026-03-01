@@ -16,6 +16,7 @@ import {
   type GatewayClientName,
 } from "../utils/message-channel.js";
 import { GatewayClient } from "./client.js";
+import { pickPrimaryLanIPv4 } from "./net.js";
 import { PROTOCOL_VERSION } from "./protocol/index.js";
 
 export type CallGatewayOptions = {
@@ -101,11 +102,15 @@ export function buildGatewayConnectionDetails(
   const tailnetIPv4 = pickPrimaryTailnetIPv4();
   const bindMode = config.gateway?.bind ?? "loopback";
   const preferTailnet = bindMode === "tailnet" && !!tailnetIPv4;
+  const preferLan = bindMode === "lan";
+  const lanIPv4 = preferLan ? pickPrimaryLanIPv4() : undefined;
   const scheme = tlsEnabled ? "wss" : "ws";
   const localUrl =
     preferTailnet && tailnetIPv4
       ? `${scheme}://${tailnetIPv4}:${localPort}`
-      : `${scheme}://127.0.0.1:${localPort}`;
+      : preferLan && lanIPv4
+        ? `${scheme}://${lanIPv4}:${localPort}`
+        : `${scheme}://127.0.0.1:${localPort}`;
   const urlOverride =
     typeof options.url === "string" && options.url.trim().length > 0
       ? options.url.trim()
@@ -122,7 +127,9 @@ export function buildGatewayConnectionDetails(
         ? "missing gateway.remote.url (fallback local)"
         : preferTailnet && tailnetIPv4
           ? `local tailnet ${tailnetIPv4}`
-          : "local loopback";
+          : preferLan && lanIPv4
+            ? `local lan ${lanIPv4}`
+            : "local loopback";
   const remoteFallbackNote = remoteMisconfigured
     ? "Warn: gateway.mode=remote but gateway.remote.url is missing; set gateway.remote.url or switch gateway.mode=local."
     : undefined;
@@ -238,11 +245,16 @@ export async function callGateway<T = Record<string, unknown>>(
     let settled = false;
     let ignoreClose = false;
     const stop = (err?: Error, value?: T) => {
-      if (settled) return;
+      if (settled) {
+        return;
+      }
       settled = true;
       clearTimeout(timer);
-      if (err) reject(err);
-      else resolve(value as T);
+      if (err) {
+        reject(err);
+      } else {
+        resolve(value as T);
+      }
     };
 
     const client = new GatewayClient({
@@ -276,7 +288,9 @@ export async function callGateway<T = Record<string, unknown>>(
         }
       },
       onClose: (code, reason) => {
-        if (settled || ignoreClose) return;
+        if (settled || ignoreClose) {
+          return;
+        }
         ignoreClose = true;
         client.stop();
         stop(new Error(formatCloseError(code, reason)));

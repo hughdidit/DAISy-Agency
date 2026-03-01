@@ -33,11 +33,7 @@ import { importProfileFromRelays } from "./nostr-profile-import.js";
 // Test Helpers
 // ============================================================================
 
-function createMockRequest(
-  method: string,
-  url: string,
-  body?: unknown
-): IncomingMessage {
+function createMockRequest(method: string, url: string, body?: unknown): IncomingMessage {
   const socket = new Socket();
   const req = new IncomingMessage(socket);
   req.method = method;
@@ -59,8 +55,10 @@ function createMockRequest(
   return req;
 }
 
-function createMockResponse(): ServerResponse & { _getData: () => string; _getStatusCode: () => number } {
-  const socket = new Socket();
+function createMockResponse(): ServerResponse & {
+  _getData: () => string;
+  _getStatusCode: () => number;
+} {
   const res = new ServerResponse({} as IncomingMessage);
 
   let data = "";
@@ -72,7 +70,10 @@ function createMockResponse(): ServerResponse & { _getData: () => string; _getSt
   };
 
   res.end = function (chunk?: unknown) {
-    if (chunk) data += String(chunk);
+    if (chunk) {
+      // eslint-disable-next-line @typescript-eslint/no-base-to-string
+      data += String(chunk);
+    }
     return this;
   };
 

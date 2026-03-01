@@ -5,6 +5,7 @@ read_when:
   - You want item-based inputs, client tool calls, or SSE events
 title: "OpenResponses API"
 ---
+
 # OpenResponses API (HTTP)
 
 OpenClaw’s Gateway can serve an OpenResponses-compatible `POST /v1/responses` endpoint.
@@ -50,10 +51,10 @@ Set `gateway.http.endpoints.responses.enabled` to `true`:
   gateway: {
     http: {
       endpoints: {
-        responses: { enabled: true }
-      }
-    }
-  }
+        responses: { enabled: true },
+      },
+    },
+  },
 }
 ```
 
@@ -66,10 +67,10 @@ Set `gateway.http.endpoints.responses.enabled` to `false`:
   gateway: {
     http: {
       endpoints: {
-        responses: { enabled: false }
-      }
-    }
-  }
+        responses: { enabled: false },
+      },
+    },
+  },
 }
 ```
 
@@ -104,6 +105,7 @@ Accepted but **currently ignored**:
 ## Items (input)
 
 ### `message`
+
 Roles: `system`, `developer`, `user`, `assistant`.
 
 - `system` and `developer` are appended to the system prompt.
@@ -169,6 +171,7 @@ Allowed MIME types (current): `text/plain`, `text/markdown`, `text/html`, `text/
 Max size (current): 5MB.
 
 Current behavior:
+
 - File content is decoded and added to the **system prompt**, not the user message,
   so it stays ephemeral (not persisted in session history).
 - PDFs are parsed for text. If little text is found, the first pages are rasterized
@@ -178,6 +181,7 @@ PDF parsing uses the Node-friendly `pdfjs-dist` legacy build (no worker). The mo
 PDF.js build expects browser workers/DOM globals, so it is not used in the Gateway.
 
 URL fetch defaults:
+
 - `files.allowUrl`: `true`
 - `images.allowUrl`: `true`
 - Requests are guarded (DNS resolution, private IP blocking, redirect caps, timeouts).
@@ -196,7 +200,14 @@ Defaults can be tuned under `gateway.http.endpoints.responses`:
           maxBodyBytes: 20000000,
           files: {
             allowUrl: true,
-            allowedMimes: ["text/plain", "text/markdown", "text/html", "text/csv", "application/json", "application/pdf"],
+            allowedMimes: [
+              "text/plain",
+              "text/markdown",
+              "text/html",
+              "text/csv",
+              "application/json",
+              "application/pdf",
+            ],
             maxBytes: 5242880,
             maxChars: 200000,
             maxRedirects: 3,
@@ -204,24 +215,25 @@ Defaults can be tuned under `gateway.http.endpoints.responses`:
             pdf: {
               maxPages: 4,
               maxPixels: 4000000,
-              minTextChars: 200
-            }
+              minTextChars: 200,
+            },
           },
           images: {
             allowUrl: true,
             allowedMimes: ["image/jpeg", "image/png", "image/gif", "image/webp"],
             maxBytes: 10485760,
             maxRedirects: 3,
-            timeoutMs: 10000
-          }
-        }
-      }
-    }
-  }
+            timeoutMs: 10000,
+          },
+        },
+      },
+    },
+  },
 }
 ```
 
 Defaults when omitted:
+
 - `maxBodyBytes`: 20MB
 - `files.maxBytes`: 5MB
 - `files.maxChars`: 200k
@@ -243,6 +255,7 @@ Set `stream: true` to receive Server-Sent Events (SSE):
 - Stream ends with `data: [DONE]`
 
 Event types currently emitted:
+
 - `response.created`
 - `response.in_progress`
 - `response.output_item.added`
@@ -267,6 +280,7 @@ Errors use a JSON object like:
 ```
 
 Common cases:
+
 - `401` missing/invalid auth
 - `400` invalid request body
 - `405` wrong method
@@ -274,6 +288,7 @@ Common cases:
 ## Examples
 
 Non-streaming:
+
 ```bash
 curl -sS http://127.0.0.1:18789/v1/responses \
   -H 'Authorization: Bearer YOUR_TOKEN' \
@@ -286,6 +301,7 @@ curl -sS http://127.0.0.1:18789/v1/responses \
 ```
 
 Streaming:
+
 ```bash
 curl -N http://127.0.0.1:18789/v1/responses \
   -H 'Authorization: Bearer YOUR_TOKEN' \

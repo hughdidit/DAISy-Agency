@@ -104,6 +104,7 @@
 ## 2026.1.15
 
 ### Features
+
 - Bot Framework gateway monitor (Express + JWT auth) with configurable webhook path/port and `/api/messages` fallback.
 - Onboarding flow for Azure Bot credentials (config + env var detection) and DM policy setup.
 - Channel capabilities: DMs, group chats, channels, threads, media, polls, and `teams` alias.

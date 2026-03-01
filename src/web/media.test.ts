@@ -146,7 +146,9 @@ describe("web media loading", () => {
           if (name === "content-disposition") {
             return 'attachment; filename="report.pdf"';
           }
-          if (name === "content-type") return "application/pdf";
+          if (name === "content-type") {
+            return "application/pdf";
+          }
           return null;
         },
       },

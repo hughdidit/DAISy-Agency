@@ -5,6 +5,7 @@ read_when:
   - Debugging voice wake/session lifecycle issues
 title: "macOS Logging"
 ---
+
 # Logging (macOS)
 
 ## Rolling diagnostics file log (Debug pane)
@@ -16,6 +17,7 @@ OpenClaw routes macOS app logs through swift-log (unified logging by default) an
 - Clear: **Debug pane → Logs → App logging → “Clear”**
 
 Notes:
+
 - This is **off by default**. Enable only while actively debugging.
 - Treat the file as sensitive; don’t share it without review.
 
@@ -47,6 +49,7 @@ sudo install -m 644 -o root -g wheel /tmp/bot.molt.plist /Library/Preferences/Lo
 - View the richer output with the existing helper, e.g. `./scripts/clawlog.sh --category WebChat --last 5m`.
 
 ## Disable after debugging
+
 - Remove the override: `sudo rm /Library/Preferences/Logging/Subsystems/bot.molt.plist`.
 - Optionally run `sudo log config --reload` to force logd to drop the override immediately.
 - Remember this surface can include phone numbers and message bodies; keep the plist in place only while you actively need the extra detail.

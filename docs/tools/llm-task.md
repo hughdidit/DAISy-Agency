@@ -16,7 +16,7 @@ without writing custom OpenClaw code for each workflow.
 
 ## Enable the plugin
 
-1) Enable the plugin:
+1. Enable the plugin:
 
 ```json
 {

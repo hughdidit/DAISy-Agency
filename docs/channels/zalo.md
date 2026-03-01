@@ -4,43 +4,49 @@ read_when:
   - Working on Zalo features or webhooks
 title: "Zalo"
 ---
+
 # Zalo (Bot API)
 
 Status: experimental. Direct messages only; groups coming soon per Zalo docs.
 
 ## Plugin required
+
 Zalo ships as a plugin and is not bundled with the core install.
 - Install via CLI: `openclaw plugins install @openclaw/zalo`
 - Or select **Zalo** during onboarding and confirm the install prompt
-- Details: [Plugins](/plugin)
+- Details: [Plugins](/tools/plugin)
 
 ## Quick setup (beginner)
+<<<<<<< HEAD
 1) Install the Zalo plugin:
    - From a source checkout: `openclaw plugins install ./extensions/zalo`
    - From npm (if published): `openclaw plugins install @openclaw/zalo`
    - Or pick **Zalo** in onboarding and confirm the install prompt
-2) Set the token:
+2. Set the token:
    - Env: `ZALO_BOT_TOKEN=...`
    - Or config: `channels.zalo.botToken: "..."`.
-3) Restart the gateway (or finish onboarding).
-4) DM access is pairing by default; approve the pairing code on first contact.
+3. Restart the gateway (or finish onboarding).
+4. DM access is pairing by default; approve the pairing code on first contact.
 
 Minimal config:
+
 ```json5
 {
   channels: {
     zalo: {
       enabled: true,
       botToken: "12345689:abc-xyz",
-      dmPolicy: "pairing"
-    }
-  }
+      dmPolicy: "pairing",
+    },
+  },
 }
 ```
 
 ## What it is
+
 Zalo is a Vietnam-focused messaging app; its Bot API lets the Gateway run a bot for 1:1 conversations.
 It is a good fit for support or notifications where you want deterministic routing back to Zalo.
+
 - A Zalo Bot API channel owned by the Gateway.
 - Deterministic routing: replies go back to Zalo; the model never chooses channels.
 - DMs share the agent's main session.
@@ -61,6 +67,7 @@ It is a good fit for support or notifications where you want deterministic routi
 >>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 
 ### 2) Configure the token (env or config)
+
 Example:
 
 ```json5
@@ -69,9 +76,9 @@ Example:
     zalo: {
       enabled: true,
       botToken: "12345689:abc-xyz",
-      dmPolicy: "pairing"
-    }
-  }
+      dmPolicy: "pairing",
+    },
+  },
 }
 ```
 
@@ -93,11 +100,13 @@ Multi-account support: use `channels.zalo.accounts` with per-account tokens and 
 >>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 
 ## How it works (behavior)
+
 - Inbound messages are normalized into the shared channel envelope with media placeholders.
 - Replies always route back to the same Zalo chat.
 - Long-polling by default; webhook mode available with `channels.zalo.webhookUrl`.
 
 ## Limits
+
 - Outbound text is chunked to 2000 characters (Zalo API limit).
 - Media downloads/uploads are capped by `channels.zalo.mediaMaxMb` (default 5).
 - Streaming is blocked by default due to the 2000 char limit making streaming less useful.
@@ -105,14 +114,21 @@ Multi-account support: use `channels.zalo.accounts` with per-account tokens and 
 ## Access control (DMs)
 
 ### DM access
+
 - Default: `channels.zalo.dmPolicy = "pairing"`. Unknown senders receive a pairing code; messages are ignored until approved (codes expire after 1 hour).
 - Approve via:
   - `openclaw pairing list zalo`
   - `openclaw pairing approve zalo <CODE>`
 - Pairing is the default token exchange. Details: [Pairing](/start/pairing)
+=======
+  - `openclaw pairing list zalo`
+  - `openclaw pairing approve zalo <CODE>`
+- Pairing is the default token exchange. Details: [Pairing](/channels/pairing)
+>>>>>>> 929a3725d (docs: canonicalize docs paths and align zh navigation (#11428))
 - `channels.zalo.allowFrom` accepts numeric user IDs (no username lookup available).
 
 ## Long-polling vs webhook
+
 - Default: long-polling (no public URL required).
 - Webhook mode: set `channels.zalo.webhookUrl` and `channels.zalo.webhookSecret`.
   - The webhook secret must be 8-256 characters.
@@ -123,24 +139,27 @@ Multi-account support: use `channels.zalo.accounts` with per-account tokens and 
 **Note:** getUpdates (polling) and webhook are mutually exclusive per Zalo API docs.
 
 ## Supported message types
+
 - **Text messages**: Full support with 2000 character chunking.
 - **Image messages**: Download and process inbound images; send images via `sendPhoto`.
 - **Stickers**: Logged but not fully processed (no agent response).
 - **Unsupported types**: Logged (e.g., messages from protected users).
 
 ## Capabilities
-| Feature | Status |
-|---------|--------|
-| Direct messages | ✅ Supported |
-| Groups | ❌ Coming soon (per Zalo docs) |
-| Media (images) | ✅ Supported |
-| Reactions | ❌ Not supported |
-| Threads | ❌ Not supported |
-| Polls | ❌ Not supported |
-| Native commands | ❌ Not supported |
-| Streaming | ⚠️ Blocked (2000 char limit) |
+
+| Feature         | Status                         |
+| --------------- | ------------------------------ |
+| Direct messages | ✅ Supported                   |
+| Groups          | ❌ Coming soon (per Zalo docs) |
+| Media (images)  | ✅ Supported                   |
+| Reactions       | ❌ Not supported               |
+| Threads         | ❌ Not supported               |
+| Polls           | ❌ Not supported               |
+| Native commands | ❌ Not supported               |
+| Streaming       | ⚠️ Blocked (2000 char limit)   |
 
 ## Delivery targets (CLI/cron)
+
 - Use a chat id as the target.
 - Example: `openclaw message send --channel zalo --target 123456789 --message "hi"`.
 
@@ -152,15 +171,18 @@ Multi-account support: use `channels.zalo.accounts` with per-account tokens and 
 - Check gateway logs: `openclaw logs --follow`
 
 **Webhook not receiving events:**
+
 - Ensure webhook URL uses HTTPS
 - Verify secret token is 8-256 characters
 - Confirm the gateway HTTP endpoint is reachable on the configured path
 - Check that getUpdates polling is not running (they're mutually exclusive)
 
 ## Configuration reference (Zalo)
+
 Full configuration: [Configuration](/gateway/configuration)
 
 Provider options:
+
 - `channels.zalo.enabled`: enable/disable channel startup.
 - `channels.zalo.botToken`: bot token from Zalo Bot Platform.
 - `channels.zalo.tokenFile`: read token from file path.
@@ -173,6 +195,7 @@ Provider options:
 - `channels.zalo.proxy`: proxy URL for API requests.
 
 Multi-account options:
+
 - `channels.zalo.accounts.<id>.botToken`: per-account token.
 - `channels.zalo.accounts.<id>.tokenFile`: per-account token file.
 - `channels.zalo.accounts.<id>.name`: display name.

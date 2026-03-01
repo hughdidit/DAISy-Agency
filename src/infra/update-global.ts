@@ -39,10 +39,14 @@ export async function resolveGlobalRoot(
   runCommand: CommandRunner,
   timeoutMs: number,
 ): Promise<string | null> {
-  if (manager === "bun") return resolveBunGlobalRoot();
+  if (manager === "bun") {
+    return resolveBunGlobalRoot();
+  }
   const argv = manager === "pnpm" ? ["pnpm", "root", "-g"] : ["npm", "root", "-g"];
   const res = await runCommand(argv, { timeoutMs }).catch(() => null);
-  if (!res || res.code !== 0) return null;
+  if (!res || res.code !== 0) {
+    return null;
+  }
   const root = res.stdout.trim();
   return root || null;
 }
@@ -53,6 +57,7 @@ export async function resolveGlobalPackageRoot(
   timeoutMs: number,
 ): Promise<string | null> {
   const root = await resolveGlobalRoot(manager, runCommand, timeoutMs);
+<<<<<<< HEAD
   if (!root) return null;
   return path.join(root, PRIMARY_PACKAGE_NAME);
 }
@@ -74,9 +79,13 @@ export async function detectGlobalInstallManagerForRoot(
 
   for (const { manager, argv } of candidates) {
     const res = await runCommand(argv, { timeoutMs }).catch(() => null);
-    if (!res || res.code !== 0) continue;
+    if (!res || res.code !== 0) {
+      continue;
+    }
     const globalRoot = res.stdout.trim();
-    if (!globalRoot) continue;
+    if (!globalRoot) {
+      continue;
+    }
     const globalReal = await tryRealpath(globalRoot);
     for (const name of ALL_PACKAGE_NAMES) {
       const expected = path.join(globalReal, name);
@@ -100,6 +109,7 @@ export async function detectGlobalInstallManagerByPresence(
 ): Promise<GlobalInstallManager | null> {
   for (const manager of ["npm", "pnpm"] as const) {
     const root = await resolveGlobalRoot(manager, runCommand, timeoutMs);
+<<<<<<< HEAD
     if (!root) continue;
     for (const name of ALL_PACKAGE_NAMES) {
       if (await pathExists(path.join(root, name))) return manager;
@@ -114,7 +124,47 @@ export async function detectGlobalInstallManagerByPresence(
 }
 
 export function globalInstallArgs(manager: GlobalInstallManager, spec: string): string[] {
-  if (manager === "pnpm") return ["pnpm", "add", "-g", spec];
-  if (manager === "bun") return ["bun", "add", "-g", spec];
+  if (manager === "pnpm") {
+    return ["pnpm", "add", "-g", spec];
+  }
+  if (manager === "bun") {
+    return ["bun", "add", "-g", spec];
+  }
   return ["npm", "i", "-g", spec];
+}
+
+export async function cleanupGlobalRenameDirs(params: {
+  globalRoot: string;
+  packageName: string;
+}): Promise<{ removed: string[] }> {
+  const removed: string[] = [];
+  const root = params.globalRoot.trim();
+  const name = params.packageName.trim();
+  if (!root || !name) {
+    return { removed };
+  }
+  const prefix = `${GLOBAL_RENAME_PREFIX}${name}-`;
+  let entries: string[] = [];
+  try {
+    entries = await fs.readdir(root);
+  } catch {
+    return { removed };
+  }
+  for (const entry of entries) {
+    if (!entry.startsWith(prefix)) {
+      continue;
+    }
+    const target = path.join(root, entry);
+    try {
+      const stat = await fs.lstat(target);
+      if (!stat.isDirectory()) {
+        continue;
+      }
+      await fs.rm(target, { recursive: true, force: true });
+      removed.push(entry);
+    } catch {
+      // ignore cleanup failures
+    }
+  }
+  return { removed };
 }

@@ -88,7 +88,9 @@ export function createHooksRequestHandler(
   const { getHooksConfig, bindHost, port, logHooks, dispatchAgentHook, dispatchWakeHook } = opts;
   return async (req, res) => {
     const hooksConfig = getHooksConfig();
-    if (!hooksConfig) return false;
+    if (!hooksConfig) {
+      return false;
+    }
     const url = new URL(req.url ?? "/", `http://${bindHost}:${port}`);
     const basePath = hooksConfig.basePath;
     if (url.pathname !== basePath && !url.pathname.startsWith(`${basePath}/`)) {
@@ -227,20 +229,24 @@ export function createHooksRequestHandler(
 
 export function createGatewayHttpServer(opts: {
   canvasHost: CanvasHostHandler | null;
+  clients: Set<GatewayWsClient>;
   controlUiEnabled: boolean;
   controlUiBasePath: string;
+  controlUiRoot?: ControlUiRootState;
   openAiChatCompletionsEnabled: boolean;
   openResponsesEnabled: boolean;
   openResponsesConfig?: import("../config/types.gateway.js").GatewayHttpResponsesConfig;
   handleHooksRequest: HooksRequestHandler;
   handlePluginRequest?: HooksRequestHandler;
-  resolvedAuth: import("./auth.js").ResolvedGatewayAuth;
+  resolvedAuth: ResolvedGatewayAuth;
   tlsOptions?: TlsOptions;
 }): HttpServer {
   const {
     canvasHost,
+    clients,
     controlUiEnabled,
     controlUiBasePath,
+    controlUiRoot,
     openAiChatCompletionsEnabled,
     openResponsesEnabled,
     openResponsesConfig,
@@ -258,21 +264,30 @@ export function createGatewayHttpServer(opts: {
 
   async function handleRequest(req: IncomingMessage, res: ServerResponse) {
     // Don't interfere with WebSocket upgrades; ws handles the 'upgrade' event.
-    if (String(req.headers.upgrade ?? "").toLowerCase() === "websocket") return;
+    if (String(req.headers.upgrade ?? "").toLowerCase() === "websocket") {
+      return;
+    }
 
     try {
       const configSnapshot = loadConfig();
       const trustedProxies = configSnapshot.gateway?.trustedProxies ?? [];
-      if (await handleHooksRequest(req, res)) return;
+      if (await handleHooksRequest(req, res)) {
+        return;
+      }
       if (
         await handleToolsInvokeHttpRequest(req, res, {
           auth: resolvedAuth,
           trustedProxies,
         })
-      )
+      ) {
         return;
-      if (await handleSlackHttpRequest(req, res)) return;
-      if (handlePluginRequest && (await handlePluginRequest(req, res))) return;
+      }
+      if (await handleSlackHttpRequest(req, res)) {
+        return;
+      }
+      if (handlePluginRequest && (await handlePluginRequest(req, res))) {
+        return;
+      }
       if (openResponsesEnabled) {
         if (
           await handleOpenResponsesHttpRequest(req, res, {
@@ -280,8 +295,9 @@ export function createGatewayHttpServer(opts: {
             config: openResponsesConfig,
             trustedProxies,
           })
-        )
+        ) {
           return;
+        }
       }
       if (openAiChatCompletionsEnabled) {
         if (
@@ -289,8 +305,9 @@ export function createGatewayHttpServer(opts: {
             auth: resolvedAuth,
             trustedProxies,
           })
-        )
+        ) {
           return;
+        }
       }
       if (canvasHost) {
 <<<<<<< HEAD
@@ -327,8 +344,9 @@ export function createGatewayHttpServer(opts: {
             auth: resolvedAuth,
             trustedProxies,
           })
-        )
+        ) {
           return;
+        }
         if (
           await handleControlUiHttpRequest(req, res, {
             basePath: controlUiBasePath,
@@ -336,8 +354,9 @@ export function createGatewayHttpServer(opts: {
             auth: resolvedAuth,
             trustedProxies,
           })
-        )
+        ) {
           return;
+        }
       }
 
       res.statusCode = 404;

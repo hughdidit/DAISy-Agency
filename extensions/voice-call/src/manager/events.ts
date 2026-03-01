@@ -115,7 +115,9 @@ export async function processEvent(ctx: CallManagerContext, event: NormalizedEve
     event.callId = call.callId;
   }
 
-  if (!call) return;
+  if (!call) {
+    return;
+  }
 
   if (event.providerCallId && !call.providerCallId) {
     call.providerCallId = event.providerCallId;
@@ -168,7 +170,9 @@ export async function processEvent(ctx: CallManagerContext, event: NormalizedEve
       clearMaxDurationTimer(ctx, call.callId);
       rejectTranscriptWaiter(ctx, call.callId, `Call ended: ${event.reason}`);
       ctx.activeCalls.delete(call.callId);
-      if (call.providerCallId) ctx.providerCallIdMap.delete(call.providerCallId);
+      if (call.providerCallId) {
+        ctx.providerCallIdMap.delete(call.providerCallId);
+      }
       break;
 
     case "call.error":
@@ -179,7 +183,9 @@ export async function processEvent(ctx: CallManagerContext, event: NormalizedEve
         clearMaxDurationTimer(ctx, call.callId);
         rejectTranscriptWaiter(ctx, call.callId, `Call error: ${event.error}`);
         ctx.activeCalls.delete(call.callId);
-        if (call.providerCallId) ctx.providerCallIdMap.delete(call.providerCallId);
+        if (call.providerCallId) {
+          ctx.providerCallIdMap.delete(call.providerCallId);
+        }
       }
       break;
   }

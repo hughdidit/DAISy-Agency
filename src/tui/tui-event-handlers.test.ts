@@ -75,7 +75,9 @@ describe("tui-event-handlers: handleAgentEvent", () => {
     const { handleAgentEvent } = createEventHandlers({
 <<<<<<< HEAD
       // Casts are fine here: TUI runtime shape is larger than we need in unit tests.
+      // oxlint-disable-next-line typescript/no-explicit-any
       chatLog: chatLog as any,
+      // oxlint-disable-next-line typescript/no-explicit-any
       tui: tui as any,
 =======
       chatLog,
@@ -108,6 +110,7 @@ describe("tui-event-handlers: handleAgentEvent", () => {
     const { handleAgentEvent } = createEventHandlers({
 <<<<<<< HEAD
       chatLog: chatLog as any,
+      // oxlint-disable-next-line typescript/no-explicit-any
       tui: tui as any,
 =======
       chatLog,
@@ -136,6 +139,7 @@ describe("tui-event-handlers: handleAgentEvent", () => {
     const { handleAgentEvent } = createEventHandlers({
 <<<<<<< HEAD
       chatLog: { startTool: vi.fn(), updateToolResult: vi.fn() } as any,
+      // oxlint-disable-next-line typescript/no-explicit-any
       tui: tui as any,
 =======
       chatLog: {
@@ -169,6 +173,7 @@ describe("tui-event-handlers: handleAgentEvent", () => {
     const { handleChatEvent, handleAgentEvent } = createEventHandlers({
 <<<<<<< HEAD
       chatLog: chatLog as any,
+      // oxlint-disable-next-line typescript/no-explicit-any
       tui: tui as any,
 =======
       chatLog,
@@ -206,6 +211,7 @@ describe("tui-event-handlers: handleAgentEvent", () => {
     const { handleChatEvent, handleAgentEvent } = createEventHandlers({
 <<<<<<< HEAD
       chatLog: chatLog as any,
+      // oxlint-disable-next-line typescript/no-explicit-any
       tui: tui as any,
 =======
       chatLog,
@@ -269,6 +275,7 @@ describe("tui-event-handlers: handleAgentEvent", () => {
     const { handleChatEvent, handleAgentEvent } = createEventHandlers({
 <<<<<<< HEAD
       chatLog: chatLog as any,
+      // oxlint-disable-next-line typescript/no-explicit-any
       tui: tui as any,
 =======
       chatLog,

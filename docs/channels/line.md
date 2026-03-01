@@ -68,9 +68,9 @@ Minimal config:
       enabled: true,
       channelAccessToken: "LINE_CHANNEL_ACCESS_TOKEN",
       channelSecret: "LINE_CHANNEL_SECRET",
-      dmPolicy: "pairing"
-    }
-  }
+      dmPolicy: "pairing",
+    },
+  },
 }
 ```
 
@@ -86,9 +86,9 @@ Token/secret files:
   channels: {
     line: {
       tokenFile: "/path/to/line-token.txt",
-      secretFile: "/path/to/line-secret.txt"
-    }
-  }
+      secretFile: "/path/to/line-secret.txt",
+    },
+  },
 }
 ```
 
@@ -102,11 +102,11 @@ Multiple accounts:
         marketing: {
           channelAccessToken: "...",
           channelSecret: "...",
-          webhookPath: "/line/marketing"
-        }
-      }
-    }
-  }
+          webhookPath: "/line/marketing",
+        },
+      },
+    },
+  },
 }
 ```
 
@@ -158,11 +158,13 @@ messages.
         title: "Office",
         address: "123 Main St",
         latitude: 35.681236,
-        longitude: 139.767125
+        longitude: 139.767125,
       },
       flexMessage: {
         altText: "Status card",
-        contents: { /* Flex payload */ }
+        contents: {
+          /* Flex payload */
+        },
       },
       templateMessage: {
         type: "confirm",
@@ -170,10 +172,10 @@ messages.
         confirmLabel: "Yes",
         confirmData: "yes",
         cancelLabel: "No",
-        cancelData: "no"
-      }
-    }
-  }
+        cancelData: "no",
+      },
+    },
+  },
 }
 ```
 

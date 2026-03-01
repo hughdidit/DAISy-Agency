@@ -3,6 +3,12 @@ import type { SlackStatus } from "../types";
 import type { ChannelsProps } from "./channels.types";
 import { formatAgo } from "../format";
 import { renderChannelConfigSection } from "./channels.config";
+=======
+import type { SlackStatus } from "../types.ts";
+import type { ChannelsProps } from "./channels.types.ts";
+import { formatRelativeTimestamp } from "../format.ts";
+import { renderChannelConfigSection } from "./channels.config.ts";
+>>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
 
 export function renderSlackCard(params: {
   props: ChannelsProps;
@@ -28,26 +34,30 @@ export function renderSlackCard(params: {
         </div>
         <div>
           <span class="label">Last start</span>
-          <span>${slack?.lastStartAt ? formatAgo(slack.lastStartAt) : "n/a"}</span>
+          <span>${slack?.lastStartAt ? formatRelativeTimestamp(slack.lastStartAt) : "n/a"}</span>
         </div>
         <div>
           <span class="label">Last probe</span>
-          <span>${slack?.lastProbeAt ? formatAgo(slack.lastProbeAt) : "n/a"}</span>
+          <span>${slack?.lastProbeAt ? formatRelativeTimestamp(slack.lastProbeAt) : "n/a"}</span>
         </div>
       </div>
 
-      ${slack?.lastError
-        ? html`<div class="callout danger" style="margin-top: 12px;">
+      ${
+        slack?.lastError
+          ? html`<div class="callout danger" style="margin-top: 12px;">
             ${slack.lastError}
           </div>`
-        : nothing}
+          : nothing
+      }
 
-      ${slack?.probe
-        ? html`<div class="callout" style="margin-top: 12px;">
+      ${
+        slack?.probe
+          ? html`<div class="callout" style="margin-top: 12px;">
             Probe ${slack.probe.ok ? "ok" : "failed"} ·
             ${slack.probe.status ?? ""} ${slack.probe.error ?? ""}
           </div>`
-        : nothing}
+          : nothing
+      }
 
       ${renderChannelConfigSection({ channelId: "slack", props })}
 

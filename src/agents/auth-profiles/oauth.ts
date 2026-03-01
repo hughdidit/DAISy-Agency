@@ -67,7 +67,9 @@ async function refreshOAuthTokenWithLock(params: {
 
     const store = ensureAuthProfileStore(params.agentDir);
     const cred = store.profiles[params.profileId];
-    if (!cred || cred.type !== "oauth") return null;
+    if (!cred || cred.type !== "oauth") {
+      return null;
+    }
 
     if (Date.now() < cred.expires) {
       return {
@@ -135,10 +137,16 @@ async function tryResolveOAuthProfile(params: {
 }): Promise<{ apiKey: string; provider: string; email?: string } | null> {
   const { cfg, store, profileId } = params;
   const cred = store.profiles[profileId];
-  if (!cred || cred.type !== "oauth") return null;
+  if (!cred || cred.type !== "oauth") {
+    return null;
+  }
   const profileConfig = cfg?.auth?.profiles?.[profileId];
-  if (profileConfig && profileConfig.provider !== cred.provider) return null;
-  if (profileConfig && profileConfig.mode !== cred.type) return null;
+  if (profileConfig && profileConfig.provider !== cred.provider) {
+    return null;
+  }
+  if (profileConfig && profileConfig.mode !== cred.type) {
+    return null;
+  }
 
   if (Date.now() < cred.expires) {
     return {
@@ -152,7 +160,9 @@ async function tryResolveOAuthProfile(params: {
     profileId,
     agentDir: params.agentDir,
   });
-  if (!refreshed) return null;
+  if (!refreshed) {
+    return null;
+  }
   return {
     apiKey: refreshed.apiKey,
     provider: cred.provider,
@@ -168,20 +178,32 @@ export async function resolveApiKeyForProfile(params: {
 }): Promise<{ apiKey: string; provider: string; email?: string } | null> {
   const { cfg, store, profileId } = params;
   const cred = store.profiles[profileId];
-  if (!cred) return null;
+  if (!cred) {
+    return null;
+  }
   const profileConfig = cfg?.auth?.profiles?.[profileId];
-  if (profileConfig && profileConfig.provider !== cred.provider) return null;
+  if (profileConfig && profileConfig.provider !== cred.provider) {
+    return null;
+  }
   if (profileConfig && profileConfig.mode !== cred.type) {
     // Compatibility: treat "oauth" config as compatible with stored token profiles.
-    if (!(profileConfig.mode === "oauth" && cred.type === "token")) return null;
+    if (!(profileConfig.mode === "oauth" && cred.type === "token")) {
+      return null;
+    }
   }
 
   if (cred.type === "api_key") {
-    return { apiKey: cred.key, provider: cred.provider, email: cred.email };
+    const key = cred.key?.trim();
+    if (!key) {
+      return null;
+    }
+    return { apiKey: key, provider: cred.provider, email: cred.email };
   }
   if (cred.type === "token") {
     const token = cred.token?.trim();
-    if (!token) return null;
+    if (!token) {
+      return null;
+    }
     if (
       typeof cred.expires === "number" &&
       Number.isFinite(cred.expires) &&
@@ -205,7 +227,9 @@ export async function resolveApiKeyForProfile(params: {
       profileId,
       agentDir: params.agentDir,
     });
-    if (!result) return null;
+    if (!result) {
+      return null;
+    }
     return {
       apiKey: result.apiKey,
       provider: cred.provider,
@@ -235,7 +259,9 @@ export async function resolveApiKeyForProfile(params: {
           profileId: fallbackProfileId,
           agentDir: params.agentDir,
         });
-        if (fallbackResolved) return fallbackResolved;
+        if (fallbackResolved) {
+          return fallbackResolved;
+        }
       } catch {
         // keep original error
       }
@@ -277,6 +303,7 @@ export async function resolveApiKeyForProfile(params: {
       `OAuth token refresh failed for ${cred.provider}: ${message}. ` +
         "Please try again or re-authenticate." +
         (hint ? `\n\n${hint}` : ""),
+      { cause: error },
     );
   }
 }

@@ -54,10 +54,13 @@
       "localPath": "extensions/nostr",
       "defaultChoice": "npm"
     }
+<<<<<<< HEAD
   },
   "dependencies": {
     "nostr-tools": "^2.22.1",
     "openclaw": "workspace:*",
     "zod": "^4.3.6"
+=======
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
   }
 }

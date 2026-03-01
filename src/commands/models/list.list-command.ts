@@ -24,7 +24,9 @@ export async function modelsListCommand(
   const authStore = ensureAuthProfileStore();
   const providerFilter = (() => {
     const raw = opts.provider?.trim();
-    if (!raw) return undefined;
+    if (!raw) {
+      return undefined;
+    }
     const parsed = parseModelRef(`${raw}/_`, DEFAULT_PROVIDER);
     return parsed?.provider ?? raw.toLowerCase();
   })();
@@ -63,9 +65,11 @@ export async function modelsListCommand(
   };
 
   if (opts.all) {
-    const sorted = [...models].sort((a, b) => {
+    const sorted = [...models].toSorted((a, b) => {
       const p = a.provider.localeCompare(b.provider);
-      if (p !== 0) return p;
+      if (p !== 0) {
+        return p;
+      }
       return a.id.localeCompare(b.id);
     });
 
@@ -73,7 +77,9 @@ export async function modelsListCommand(
       if (providerFilter && model.provider.toLowerCase() !== providerFilter) {
         continue;
       }
-      if (opts.local && !isLocalBaseUrl(model.baseUrl)) continue;
+      if (opts.local && !isLocalBaseUrl(model.baseUrl)) {
+        continue;
+      }
       const key = modelKey(model.provider, model.id);
       const configured = configuredByKey.get(key);
       rows.push(
@@ -94,8 +100,12 @@ export async function modelsListCommand(
         continue;
       }
       const model = modelByKey.get(entry.key);
-      if (opts.local && model && !isLocalBaseUrl(model.baseUrl)) continue;
-      if (opts.local && !model) continue;
+      if (opts.local && model && !isLocalBaseUrl(model.baseUrl)) {
+        continue;
+      }
+      if (opts.local && !model) {
+        continue;
+      }
       rows.push(
         toModelRow({
           model,

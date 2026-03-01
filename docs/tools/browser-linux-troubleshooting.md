@@ -18,6 +18,7 @@ OpenClaw's browser control server fails to launch Chrome/Brave/Edge/Chromium wit
 On Ubuntu (and many Linux distros), the default Chromium installation is a **snap package**. Snap's AppArmor confinement interferes with how OpenClaw spawns and monitors the browser process.
 
 The `apt install chromium` command installs a stub package that redirects to snap:
+
 ```
 Note, selecting 'chromium-browser' instead of 'chromium'
 chromium-browser is already the newest version (2:1snap1-0ubuntu2).
@@ -53,6 +54,7 @@ Then update your OpenClaw config (`~/.openclaw/openclaw.json`):
 If you must use snap Chromium, configure OpenClaw to attach to a manually-started browser:
 
 1. Update config:
+
 ```json
 {
   "browser": {
@@ -111,11 +113,13 @@ Enable with: `systemctl --user enable --now daisy-browser.service`
 ### Verifying the Browser Works
 
 Check status:
+
 ```bash
 curl -s http://127.0.0.1:18791/ | jq '{running, pid, chosenBrowser}'
 ```
 
 Test browsing:
+
 ```bash
 curl -s -X POST http://127.0.0.1:18791/start
 curl -s http://127.0.0.1:18791/tabs
@@ -123,14 +127,14 @@ curl -s http://127.0.0.1:18791/tabs
 
 ### Config Reference
 
-| Option | Description | Default |
-|--------|-------------|---------|
-| `browser.enabled` | Enable browser control | `true` |
+| Option                   | Description                                                          | Default                                                     |
+| ------------------------ | -------------------------------------------------------------------- | ----------------------------------------------------------- |
+| `browser.enabled`        | Enable browser control                                               | `true`                                                      |
 | `browser.executablePath` | Path to a Chromium-based browser binary (Chrome/Brave/Edge/Chromium) | auto-detected (prefers default browser when Chromium-based) |
-| `browser.headless` | Run without GUI | `false` |
-| `browser.noSandbox` | Add `--no-sandbox` flag (needed for some Linux setups) | `false` |
-| `browser.attachOnly` | Don't launch browser, only attach to existing | `false` |
-| `browser.cdpPort` | Chrome DevTools Protocol port | `18800` |
+| `browser.headless`       | Run without GUI                                                      | `false`                                                     |
+| `browser.noSandbox`      | Add `--no-sandbox` flag (needed for some Linux setups)               | `false`                                                     |
+| `browser.attachOnly`     | Don't launch browser, only attach to existing                        | `false`                                                     |
+| `browser.cdpPort`        | Chrome DevTools Protocol port                                        | `18800`                                                     |
 
 ### Problem: "Chrome extension relay is running, but no tab is connected"
 
@@ -144,5 +148,6 @@ Fix options:
    OpenClaw extension icon to attach it.
 
 Notes:
+
 - The `chrome` profile uses your **system default Chromium browser** when possible.
 - Local `daisy` profiles auto-assign `cdpPort`/`cdpUrl`; only set those for remote CDP.

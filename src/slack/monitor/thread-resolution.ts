@@ -53,7 +53,9 @@ export function createSlackThreadTsResolver(params: {
 
   const getCached = (key: string, now: number) => {
     const entry = cache.get(key);
-    if (!entry) return undefined;
+    if (!entry) {
+      return undefined;
+    }
     if (ttlMs > 0 && now - entry.updatedAt > ttlMs) {
       cache.delete(key);
       return undefined;
@@ -71,8 +73,10 @@ export function createSlackThreadTsResolver(params: {
       return;
     }
     while (cache.size > maxSize) {
-      const oldestKey = cache.keys().next().value as string | undefined;
-      if (!oldestKey) break;
+      const oldestKey = cache.keys().next().value;
+      if (!oldestKey) {
+        break;
+      }
       cache.delete(oldestKey);
     }
   };

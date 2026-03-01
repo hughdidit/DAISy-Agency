@@ -108,9 +108,7 @@ All logging configuration lives under `logging` in `~/.openclaw/openclaw.json`.
     "consoleLevel": "info",
     "consoleStyle": "pretty",
     "redactSensitive": "tools",
-    "redactPatterns": [
-      "sk-.*"
-    ]
+    "redactPatterns": ["sk-.*"]
   }
 }
 ```
@@ -164,9 +162,11 @@ diagnostics + the exporter plugin are enabled.
 ### Diagnostic event catalog
 
 Model usage:
+
 - `model.usage`: tokens, cost, duration, context, provider/model/channel, session ids.
 
 Message flow:
+
 - `webhook.received`: webhook ingress per channel.
 - `webhook.processed`: webhook handled + duration.
 - `webhook.error`: webhook handler errors.
@@ -174,6 +174,7 @@ Message flow:
 - `message.processed`: outcome + duration + optional error.
 
 Queue + session:
+
 - `queue.lane.enqueue`: command queue lane enqueue + depth.
 - `queue.lane.dequeue`: command queue lane dequeue + wait time.
 - `session.state`: session state transition + reason.
@@ -213,6 +214,7 @@ OPENCLAW_DIAGNOSTICS=telegram.http,telegram.payload
 ```
 
 Notes:
+
 - Flag logs go to the standard log file (same as `logging.file`).
 - Output is still redacted according to `logging.redactSensitive`.
 - Full guide: [/diagnostics/flags](/diagnostics/flags).

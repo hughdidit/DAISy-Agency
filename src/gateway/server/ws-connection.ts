@@ -93,7 +93,9 @@ export function attachGatewayWsConnectionHandler(params: {
     let lastFrameId: string | undefined;
 
     const setCloseCause = (cause: string, meta?: Record<string, unknown>) => {
-      if (!closeCause) closeCause = cause;
+      if (!closeCause) {
+        closeCause = cause;
+      }
       if (meta && Object.keys(meta).length > 0) {
         closeMeta = { ...closeMeta, ...meta };
       }
@@ -123,10 +125,14 @@ export function attachGatewayWsConnectionHandler(params: {
     });
 
     const close = (code = 1000, reason?: string) => {
-      if (closed) return;
+      if (closed) {
+        return;
+      }
       closed = true;
       clearTimeout(handshakeTimer);
-      if (client) clients.delete(client);
+      if (client) {
+        clients.delete(client);
+      }
       try {
         socket.close(code, reason);
       } catch {

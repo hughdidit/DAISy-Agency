@@ -10,6 +10,7 @@ title: "agents"
 Manage isolated agents (workspaces + auth + routing).
 
 Related:
+
 - Multi-agent routing: [Multi-Agent Routing](/concepts/multi-agent)
 - Agent workspace: [Agent workspace](/concepts/agent-workspace)
 
@@ -34,6 +35,7 @@ Avatar paths resolve relative to the workspace root.
 ## Set identity
 
 `set-identity` writes fields into `agents.list[].identity`:
+
 - `name`
 - `theme`
 - `emoji`
@@ -68,5 +70,12 @@ Config sample:
       }
     ]
   }
+=======
+          avatar: "avatars/openclaw.png",
+        },
+      },
+    ],
+  },
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 }
 ```

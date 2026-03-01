@@ -22,10 +22,18 @@ export function inferSlackChannelType(
   channelId?: string | null,
 ): SlackMessageEvent["channel_type"] | undefined {
   const trimmed = channelId?.trim();
-  if (!trimmed) return undefined;
-  if (trimmed.startsWith("D")) return "im";
-  if (trimmed.startsWith("C")) return "channel";
-  if (trimmed.startsWith("G")) return "group";
+  if (!trimmed) {
+    return undefined;
+  }
+  if (trimmed.startsWith("D")) {
+    return "im";
+  }
+  if (trimmed.startsWith("C")) {
+    return "channel";
+  }
+  if (trimmed.startsWith("G")) {
+    return "group";
+  }
   return undefined;
 }
 
@@ -173,7 +181,9 @@ export function createSlackMonitorContext(params: {
   const defaultRequireMention = params.defaultRequireMention ?? true;
 
   const markMessageSeen = (channelId: string | undefined, ts?: string) => {
-    if (!channelId || !ts) return false;
+    if (!channelId || !ts) {
+      return false;
+    }
     return seenMessages.check(`${channelId}:${ts}`);
   };
 
@@ -182,7 +192,9 @@ export function createSlackMonitorContext(params: {
     channelType?: string | null;
   }) => {
     const channelId = p.channelId?.trim() ?? "";
-    if (!channelId) return params.mainKey;
+    if (!channelId) {
+      return params.mainKey;
+    }
     const channelType = normalizeSlackChannelType(p.channelType, channelId);
     const isDirectMessage = channelType === "im";
     const isGroup = channelType === "mpim";
@@ -201,7 +213,9 @@ export function createSlackMonitorContext(params: {
 
   const resolveChannelName = async (channelId: string) => {
     const cached = channelCache.get(channelId);
-    if (cached) return cached;
+    if (cached) {
+      return cached;
+    }
     try {
       const info = await params.app.client.conversations.info({
         token: params.botToken,
@@ -231,7 +245,9 @@ export function createSlackMonitorContext(params: {
 
   const resolveUserName = async (userId: string) => {
     const cached = userCache.get(userId);
-    if (cached) return cached;
+    if (cached) {
+      return cached;
+    }
     try {
       const info = await params.app.client.users.info({
         token: params.botToken,
@@ -252,7 +268,9 @@ export function createSlackMonitorContext(params: {
     threadTs?: string;
     status: string;
   }) => {
-    if (!p.threadTs) return;
+    if (!p.threadTs) {
+      return;
+    }
     const payload = {
       token: params.botToken,
       channel_id: p.channelId,
@@ -290,8 +308,12 @@ export function createSlackMonitorContext(params: {
     const isGroupDm = channelType === "mpim";
     const isRoom = channelType === "channel" || channelType === "group";
 
-    if (isDirectMessage && !params.dmEnabled) return false;
-    if (isGroupDm && !params.groupDmEnabled) return false;
+    if (isDirectMessage && !params.dmEnabled) {
+      return false;
+    }
+    if (isGroupDm && !params.groupDmEnabled) {
+      return false;
+    }
 
     if (isGroupDm && groupDmChannels.length > 0) {
       const allowList = normalizeAllowListLower(groupDmChannels);
@@ -305,7 +327,9 @@ export function createSlackMonitorContext(params: {
         .map((value) => value.toLowerCase());
       const permitted =
         allowList.includes("*") || candidates.some((candidate) => allowList.includes(candidate));
-      if (!permitted) return false;
+      if (!permitted) {
+        return false;
+      }
     }
 
     if (isRoom && p.channelId) {
@@ -346,7 +370,9 @@ export function createSlackMonitorContext(params: {
   };
 
   const shouldDropMismatchedSlackEvent = (body: unknown) => {
-    if (!body || typeof body !== "object") return false;
+    if (!body || typeof body !== "object") {
+      return false;
+    }
     const raw = body as { api_app_id?: unknown; team_id?: unknown };
     const incomingApiAppId = typeof raw.api_app_id === "string" ? raw.api_app_id : "";
     const incomingTeamId = typeof raw.team_id === "string" ? raw.team_id : "";

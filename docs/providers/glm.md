@@ -5,6 +5,7 @@ read_when:
   - You need the model naming convention and setup
 title: "GLM Models"
 ---
+
 # GLM models
 
 GLM is a **model family** (not a company) available through the Z.AI platform. In OpenClaw, GLM
@@ -21,7 +22,7 @@ openclaw onboard --auth-choice zai-api-key
 ```json5
 {
   env: { ZAI_API_KEY: "sk-..." },
-  agents: { defaults: { model: { primary: "zai/glm-4.7" } } }
+  agents: { defaults: { model: { primary: "zai/glm-4.7" } } },
 }
 ```
 

@@ -30,7 +30,9 @@ const COMMAND_ALIASES: Record<string, string> = {
 
 export function parseCommand(input: string): ParsedCommand {
   const trimmed = input.replace(/^\//, "").trim();
-  if (!trimmed) return { name: "", args: "" };
+  if (!trimmed) {
+    return { name: "", args: "" };
+  }
   const [name, ...rest] = trimmed.split(/\s+/);
   const normalized = name.toLowerCase();
   return {
@@ -129,7 +131,9 @@ export function getSlashCommands(options: SlashCommandOptions = {}): SlashComman
     const aliases = command.textAliases.length > 0 ? command.textAliases : [`/${command.key}`];
     for (const alias of aliases) {
       const name = alias.replace(/^\//, "").trim();
-      if (!name || seen.has(name)) continue;
+      if (!name || seen.has(name)) {
+        continue;
+      }
       seen.add(name);
       commands.push({ name, description: command.description });
     }

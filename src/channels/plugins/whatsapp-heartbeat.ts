@@ -7,6 +7,7 @@ import { normalizeChatChannelId } from "../../channels/registry.js";
 >>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { loadSessionStore, resolveStorePath } from "../../config/sessions.js";
 import { normalizeE164 } from "../../utils.js";
+import { normalizeChatChannelId } from "../registry.js";
 
 type HeartbeatRecipientsResult = { recipients: string[]; source: string };
 type HeartbeatRecipientsOpts = { to?: string; all?: boolean };
@@ -14,7 +15,9 @@ type HeartbeatRecipientsOpts = { to?: string; all?: boolean };
 function getSessionRecipients(cfg: OpenClawConfig) {
   const sessionCfg = cfg.session;
   const scope = sessionCfg?.scope ?? "per-sender";
-  if (scope === "global") return [];
+  if (scope === "global") {
+    return [];
+  }
   const storePath = resolveStorePath(cfg.session?.store);
   const store = loadSessionStore(storePath);
   const isGroupKey = (key: string) =>
@@ -32,12 +35,14 @@ function getSessionRecipients(cfg: OpenClawConfig) {
       updatedAt: entry?.updatedAt ?? 0,
     }))
     .filter(({ to }) => to.length > 1)
-    .sort((a, b) => b.updatedAt - a.updatedAt);
+    .toSorted((a, b) => b.updatedAt - a.updatedAt);
 
   // Dedupe while preserving recency ordering.
   const seen = new Set<string>();
   return recipients.filter((r) => {
-    if (seen.has(r.to)) return false;
+    if (seen.has(r.to)) {
+      return false;
+    }
     seen.add(r.to);
     return true;
   });

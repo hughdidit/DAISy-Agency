@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 const loadConfig = vi.fn();
 const resolveGatewayPort = vi.fn();
 const pickPrimaryTailnetIPv4 = vi.fn();
+const pickPrimaryLanIPv4 = vi.fn();
 
 let lastClientOptions: {
   url?: string;
@@ -29,10 +30,18 @@ vi.mock("../infra/tailnet.js", () => ({
   pickPrimaryTailnetIPv4,
 }));
 
+vi.mock("./net.js", () => ({
+  pickPrimaryLanIPv4,
+}));
+
 vi.mock("./client.js", () => ({
   describeGatewayCloseCode: (code: number) => {
-    if (code === 1000) return "normal closure";
-    if (code === 1006) return "abnormal closure (no close frame)";
+    if (code === 1000) {
+      return "normal closure";
+    }
+    if (code === 1006) {
+      return "abnormal closure (no close frame)";
+    }
     return undefined;
   },
   GatewayClient: class {
@@ -66,6 +75,7 @@ describe("callGateway url resolution", () => {
     loadConfig.mockReset();
     resolveGatewayPort.mockReset();
     pickPrimaryTailnetIPv4.mockReset();
+    pickPrimaryLanIPv4.mockReset();
     lastClientOptions = null;
     startMode = "hello";
     closeCode = 1006;
@@ -102,6 +112,28 @@ describe("callGateway url resolution", () => {
     expect(lastClientOptions?.url).toBe("ws://100.64.0.1:18800");
   });
 
+  it("uses LAN IP when bind is lan and LAN IP is available", async () => {
+    loadConfig.mockReturnValue({ gateway: { mode: "local", bind: "lan" } });
+    resolveGatewayPort.mockReturnValue(18800);
+    pickPrimaryTailnetIPv4.mockReturnValue(undefined);
+    pickPrimaryLanIPv4.mockReturnValue("192.168.1.42");
+
+    await callGateway({ method: "health" });
+
+    expect(lastClientOptions?.url).toBe("ws://192.168.1.42:18800");
+  });
+
+  it("falls back to loopback when bind is lan but no LAN IP found", async () => {
+    loadConfig.mockReturnValue({ gateway: { mode: "local", bind: "lan" } });
+    resolveGatewayPort.mockReturnValue(18800);
+    pickPrimaryTailnetIPv4.mockReturnValue(undefined);
+    pickPrimaryLanIPv4.mockReturnValue(undefined);
+
+    await callGateway({ method: "health" });
+
+    expect(lastClientOptions?.url).toBe("ws://127.0.0.1:18800");
+  });
+
   it("uses url override in remote mode even when remote url is missing", async () => {
     loadConfig.mockReturnValue({
       gateway: { mode: "remote", bind: "loopback", remote: {} },
@@ -125,6 +157,7 @@ describe("buildGatewayConnectionDetails", () => {
     loadConfig.mockReset();
     resolveGatewayPort.mockReset();
     pickPrimaryTailnetIPv4.mockReset();
+    pickPrimaryLanIPv4.mockReset();
   });
 
   it("uses explicit url overrides and omits bind details", () => {
@@ -164,6 +197,21 @@ describe("buildGatewayConnectionDetails", () => {
     expect(details.message).toContain("Gateway target: ws://127.0.0.1:18789");
   });
 
+  it("uses LAN IP and reports lan source when bind is lan", () => {
+    loadConfig.mockReturnValue({
+      gateway: { mode: "local", bind: "lan" },
+    });
+    resolveGatewayPort.mockReturnValue(18800);
+    pickPrimaryTailnetIPv4.mockReturnValue(undefined);
+    pickPrimaryLanIPv4.mockReturnValue("10.0.0.5");
+
+    const details = buildGatewayConnectionDetails();
+
+    expect(details.url).toBe("ws://10.0.0.5:18800");
+    expect(details.urlSource).toBe("local lan 10.0.0.5");
+    expect(details.bindDetail).toBe("Bind: lan");
+  });
+
   it("prefers remote url when configured", () => {
     loadConfig.mockReturnValue({
       gateway: {
@@ -189,6 +237,7 @@ describe("callGateway error details", () => {
     loadConfig.mockReset();
     resolveGatewayPort.mockReset();
     pickPrimaryTailnetIPv4.mockReset();
+    pickPrimaryLanIPv4.mockReset();
     lastClientOptions = null;
     startMode = "hello";
     closeCode = 1006;
@@ -322,6 +371,7 @@ describe("callGateway password resolution", () => {
     loadConfig.mockReset();
     resolveGatewayPort.mockReset();
     pickPrimaryTailnetIPv4.mockReset();
+    pickPrimaryLanIPv4.mockReset();
     lastClientOptions = null;
     startMode = "hello";
     closeCode = 1006;
@@ -423,6 +473,7 @@ describe("callGateway token resolution", () => {
     loadConfig.mockReset();
     resolveGatewayPort.mockReset();
     pickPrimaryTailnetIPv4.mockReset();
+    pickPrimaryLanIPv4.mockReset();
     lastClientOptions = null;
     startMode = "hello";
     closeCode = 1006;

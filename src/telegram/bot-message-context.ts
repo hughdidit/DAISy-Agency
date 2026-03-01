@@ -34,6 +34,7 @@ import type { DmPolicy, TelegramGroupConfig, TelegramTopicConfig } from "../conf
 >>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { logVerbose, shouldLogVerbose } from "../globals.js";
 import { recordChannelActivity } from "../infra/channel-activity.js";
+import { upsertChannelPairingRequest } from "../pairing/pairing-store.js";
 import { resolveAgentRoute } from "../routing/resolve-route.js";
 import { resolveThreadSessionKeys } from "../routing/session-key.js";
 import { withTelegramApiErrorLogging } from "./api-logging.js";
@@ -49,6 +50,7 @@ import {
   buildSenderName,
   buildTelegramGroupFrom,
   buildTelegramGroupPeerId,
+  buildTelegramParentPeer,
   buildTypingThreadParams,
   expandTextLinks,
   normalizeForwardedContext,
@@ -59,16 +61,10 @@ import {
 } from "./bot/helpers.js";
 import { upsertTelegramPairingRequest } from "./pairing-store.js";
 
-type TelegramMediaRef = {
+export type TelegramMediaRef = {
   path: string;
   contentType?: string;
-  stickerMetadata?: {
-    emoji?: string;
-    setName?: string;
-    fileId?: string;
-    fileUniqueId?: string;
-    cachedDescription?: string;
-  };
+  stickerMetadata?: StickerMetadata;
 };
 
 type TelegramMessageContextOptions = {
@@ -94,7 +90,7 @@ type ResolveGroupActivation = (params: {
 
 type ResolveGroupRequireMention = (chatId: string | number) => boolean;
 
-type BuildTelegramMessageContextParams = {
+export type BuildTelegramMessageContextParams = {
   primaryCtx: TelegramContext;
   allMedia: TelegramMediaRef[];
   storeAllowFrom: string[];
@@ -125,7 +121,9 @@ async function resolveStickerVisionSupport(params: {
       agentId: params.agentId,
     });
     const entry = findModelInCatalog(catalog, defaultModel.provider, defaultModel.model);
-    if (!entry) return false;
+    if (!entry) {
+      return false;
+    }
     return modelSupportsVision(entry);
   } catch {
     return false;
@@ -170,6 +168,7 @@ export const buildTelegramMessageContext = async ({
   const replyThreadId = threadSpec.id;
   const { groupConfig, topicConfig } = resolveTelegramGroupConfig(chatId, resolvedThreadId);
   const peerId = isGroup ? buildTelegramGroupPeerId(chatId, resolvedThreadId) : String(chatId);
+  const parentPeer = buildTelegramParentPeer({ isGroup, resolvedThreadId, chatId });
   const route = resolveAgentRoute({
     cfg,
     channel: "telegram",
@@ -178,6 +177,7 @@ export const buildTelegramMessageContext = async ({
       kind: isGroup ? "group" : "dm",
       id: peerId,
     },
+    parentPeer,
   });
   const baseSessionKey = route.sessionKey;
   // DMs: use raw messageThreadId for thread sessions (not forum topic ids)
@@ -228,7 +228,9 @@ export const buildTelegramMessageContext = async ({
 
   // DM access control (secure defaults): "pairing" (default) / "allowlist" / "open" / "disabled"
   if (!isGroup) {
-    if (dmPolicy === "disabled") return null;
+    if (dmPolicy === "disabled") {
+      return null;
+    }
 
     if (dmPolicy !== "open") {
       const candidate = String(chatId);
@@ -351,11 +353,19 @@ export const buildTelegramMessageContext = async ({
   const historyKey = isGroup ? buildTelegramGroupPeerId(chatId, resolvedThreadId) : undefined;
 
   let placeholder = "";
-  if (msg.photo) placeholder = "<media:image>";
-  else if (msg.video) placeholder = "<media:video>";
-  else if (msg.audio || msg.voice) placeholder = "<media:audio>";
-  else if (msg.document) placeholder = "<media:document>";
-  else if (msg.sticker) placeholder = "<media:sticker>";
+  if (msg.photo) {
+    placeholder = "<media:image>";
+  } else if (msg.video) {
+    placeholder = "<media:video>";
+  } else if (msg.video_note) {
+    placeholder = "<media:video>";
+  } else if (msg.audio || msg.voice) {
+    placeholder = "<media:audio>";
+  } else if (msg.document) {
+    placeholder = "<media:document>";
+  } else if (msg.sticker) {
+    placeholder = "<media:sticker>";
+  }
 
   // Check if sticker has a cached description - if so, use it instead of sending the image
   const cachedStickerDescription = allMedia[0]?.stickerMetadata?.cachedDescription;
@@ -376,8 +386,12 @@ export const buildTelegramMessageContext = async ({
   const rawTextSource = msg.text ?? msg.caption ?? "";
   const rawText = expandTextLinks(rawTextSource, msg.entities ?? msg.caption_entities).trim();
   let rawBody = [rawText, locationText].filter(Boolean).join("\n").trim();
-  if (!rawBody) rawBody = placeholder;
-  if (!rawBody && allMedia.length === 0) return null;
+  if (!rawBody) {
+    rawBody = placeholder;
+  }
+  if (!rawBody && allMedia.length === 0) {
+    return null;
+  }
 
   let bodyText = rawBody;
   if (!bodyText && allMedia.length > 0) {
@@ -595,6 +609,8 @@ export const buildTelegramMessageContext = async ({
     ForwardedFromUsername: forwardOrigin?.fromUsername,
     ForwardedFromTitle: forwardOrigin?.fromTitle,
     ForwardedFromSignature: forwardOrigin?.fromSignature,
+    ForwardedFromChatType: forwardOrigin?.fromChatType,
+    ForwardedFromMessageId: forwardOrigin?.fromMessageId,
     ForwardedDate: forwardOrigin?.date ? forwardOrigin.date * 1000 : undefined,
     Timestamp: msg.date ? msg.date * 1000 : undefined,
     WasMentioned: isGroup ? effectiveWasMentioned : undefined,
@@ -638,6 +654,8 @@ export const buildTelegramMessageContext = async ({
           channel: "telegram",
           to: String(chatId),
           accountId: route.accountId,
+          // Preserve DM topic threadId for replies (fixes #8891)
+          threadId: dmThreadId != null ? String(dmThreadId) : undefined,
         }
       : undefined,
     onRecordError: (err) => {
@@ -690,3 +708,7 @@ export const buildTelegramMessageContext = async ({
     accountId: account.accountId,
   };
 };
+
+export type TelegramMessageContext = NonNullable<
+  Awaited<ReturnType<typeof buildTelegramMessageContext>>
+>;

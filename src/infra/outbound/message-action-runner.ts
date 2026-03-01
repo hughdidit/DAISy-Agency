@@ -127,7 +127,9 @@ export function getToolResult(
 }
 
 function extractToolPayload(result: AgentToolResult<unknown>): unknown {
-  if (result.details !== undefined) return result.details;
+  if (result.details !== undefined) {
+    return result.details;
+  }
   const textBlock = Array.isArray(result.content)
     ? result.content.find(
         (block) =>
@@ -192,7 +194,9 @@ async function maybeApplyCrossContextMarker(params: {
     toolContext: params.toolContext,
     accountId: params.accountId ?? undefined,
   });
-  if (!decoration) return params.message;
+  if (!decoration) {
+    return params.message;
+  }
   return applyCrossContextMessageDecoration({
     params: params.args,
     message: params.message,
@@ -203,11 +207,17 @@ async function maybeApplyCrossContextMarker(params: {
 
 function readBooleanParam(params: Record<string, unknown>, key: string): boolean | undefined {
   const raw = params[key];
-  if (typeof raw === "boolean") return raw;
+  if (typeof raw === "boolean") {
+    return raw;
+  }
   if (typeof raw === "string") {
     const trimmed = raw.trim().toLowerCase();
-    if (trimmed === "true") return true;
-    if (trimmed === "false") return false;
+    if (trimmed === "true") {
+      return true;
+    }
+    if (trimmed === "false") {
+      return false;
+    }
   }
   return undefined;
 }
@@ -217,13 +227,23 @@ function resolveSlackAutoThreadId(params: {
   toolContext?: ChannelThreadingToolContext;
 }): string | undefined {
   const context = params.toolContext;
-  if (!context?.currentThreadTs || !context.currentChannelId) return undefined;
+  if (!context?.currentThreadTs || !context.currentChannelId) {
+    return undefined;
+  }
   // Only mirror auto-threading when Slack would reply in the active thread for this channel.
-  if (context.replyToMode !== "all" && context.replyToMode !== "first") return undefined;
+  if (context.replyToMode !== "all" && context.replyToMode !== "first") {
+    return undefined;
+  }
   const parsedTarget = parseSlackTarget(params.to, { defaultKind: "channel" });
-  if (!parsedTarget || parsedTarget.kind !== "channel") return undefined;
-  if (parsedTarget.id.toLowerCase() !== context.currentChannelId.toLowerCase()) return undefined;
-  if (context.replyToMode === "first" && context.hasRepliedRef?.value) return undefined;
+  if (!parsedTarget || parsedTarget.kind !== "channel") {
+    return undefined;
+  }
+  if (parsedTarget.id.toLowerCase() !== context.currentChannelId.toLowerCase()) {
+    return undefined;
+  }
+  if (context.replyToMode === "first" && context.hasRepliedRef?.value) {
+    return undefined;
+  }
   return context.currentThreadTs;
 }
 
@@ -303,14 +323,20 @@ function inferAttachmentFilename(params: {
       if (mediaHint.startsWith("file://")) {
         const filePath = fileURLToPath(mediaHint);
         const base = path.basename(filePath);
-        if (base) return base;
+        if (base) {
+          return base;
+        }
       } else if (/^https?:\/\//i.test(mediaHint)) {
         const url = new URL(mediaHint);
         const base = path.basename(url.pathname);
-        if (base) return base;
+        if (base) {
+          return base;
+        }
       } else {
         const base = path.basename(mediaHint);
-        if (base) return base;
+        if (base) {
+          return base;
+        }
       }
     } catch {
       // fall through to content-type based default
@@ -324,9 +350,13 @@ function normalizeBase64Payload(params: { base64?: string; contentType?: string 
   base64?: string;
   contentType?: string;
 } {
-  if (!params.base64) return { base64: params.base64, contentType: params.contentType };
+  if (!params.base64) {
+    return { base64: params.base64, contentType: params.contentType };
+  }
   const match = /^data:([^;]+);base64,(.*)$/i.exec(params.base64.trim());
-  if (!match) return { base64: params.base64, contentType: params.contentType };
+  if (!match) {
+    return { base64: params.base64, contentType: params.contentType };
+  }
   const [, mime, payload] = match;
   return {
     base64: payload,
@@ -389,7 +419,9 @@ async function hydrateSetGroupIconParams(params: {
   action: ChannelMessageActionName;
   dryRun?: boolean;
 }): Promise<void> {
-  if (params.action !== "setGroupIcon") return;
+  if (params.action !== "setGroupIcon") {
+    return;
+  }
 
   const mediaHint = readStringParam(params.args, "media", { trim: false });
   const fileHint =
@@ -446,7 +478,9 @@ async function hydrateSendAttachmentParams(params: {
   action: ChannelMessageActionName;
   dryRun?: boolean;
 }): Promise<void> {
-  if (params.action !== "sendAttachment") return;
+  if (params.action !== "sendAttachment") {
+    return;
+  }
 
   const mediaHint = readStringParam(params.args, "media", { trim: false });
   const fileHint =
@@ -456,7 +490,9 @@ async function hydrateSendAttachmentParams(params: {
     readStringParam(params.args, "contentType") ?? readStringParam(params.args, "mimeType");
   const caption = readStringParam(params.args, "caption", { allowEmpty: true })?.trim();
   const message = readStringParam(params.args, "message", { allowEmpty: true })?.trim();
-  if (!caption && message) params.args.caption = message;
+  if (!caption && message) {
+    params.args.caption = message;
+  }
 
   const rawBuffer = readStringParam(params.args, "buffer", { trim: false });
   const normalized = normalizeBase64Payload({
@@ -500,7 +536,9 @@ async function hydrateSendAttachmentParams(params: {
 
 function parseButtonsParam(params: Record<string, unknown>): void {
   const raw = params.buttons;
-  if (typeof raw !== "string") return;
+  if (typeof raw !== "string") {
+    return;
+  }
   const trimmed = raw.trim();
   if (!trimmed) {
     delete params.buttons;
@@ -515,7 +553,9 @@ function parseButtonsParam(params: Record<string, unknown>): void {
 
 function parseCardParam(params: Record<string, unknown>): void {
   const raw = params.card;
-  if (typeof raw !== "string") return;
+  if (typeof raw !== "string") {
+    return;
+  }
   const trimmed = raw.trim();
   if (!trimmed) {
     delete params.card;
@@ -595,7 +635,9 @@ type ResolvedActionContext = {
   abortSignal?: AbortSignal;
 };
 function resolveGateway(input: RunMessageActionParams): MessageActionRunnerGateway | undefined {
-  if (!input.gateway) return undefined;
+  if (!input.gateway) {
+    return undefined;
+  }
   return {
     url: input.gateway.url,
     token: input.gateway.token,
@@ -646,7 +688,9 @@ async function handleBroadcastAction(
           channel: targetChannel,
           input: target,
         });
-        if (!resolved.ok) throw resolved.error;
+        if (!resolved.ok) {
+          throw resolved.error;
+        }
         const sendResult = await runMessageAction({
           ...input,
           action: "send",
@@ -663,7 +707,9 @@ async function handleBroadcastAction(
           result: sendResult.kind === "send" ? sendResult.sendResult : undefined,
         });
       } catch (err) {
-        if (isAbortError(err)) throw err;
+        if (isAbortError(err)) {
+          throw err;
+        }
         results.push({
           channel: targetChannel,
           to: target,
@@ -675,7 +721,7 @@ async function handleBroadcastAction(
   }
   return {
     kind: "broadcast",
-    channel: (targetChannels[0] ?? "discord") as ChannelId,
+    channel: targetChannels[0] ?? "discord",
     action: "broadcast",
     handledBy: input.dryRun ? "dry-run" : "core",
     payload: { results },
@@ -727,13 +773,19 @@ async function handleSendAction(ctx: ResolvedActionContext): Promise<MessageActi
   const seenMedia = new Set<string>();
   const pushMedia = (value?: string | null) => {
     const trimmed = value?.trim();
-    if (!trimmed) return;
-    if (seenMedia.has(trimmed)) return;
+    if (!trimmed) {
+      return;
+    }
+    if (seenMedia.has(trimmed)) {
+      return;
+    }
     seenMedia.add(trimmed);
     mergedMediaUrls.push(trimmed);
   };
   pushMedia(mediaHint);
-  for (const url of parsed.mediaUrls ?? []) pushMedia(url);
+  for (const url of parsed.mediaUrls ?? []) {
+    pushMedia(url);
+  }
   pushMedia(parsed.mediaUrl);
 
   const normalizedMediaUrls = await normalizeSandboxMediaList({
@@ -745,7 +797,9 @@ async function handleSendAction(ctx: ResolvedActionContext): Promise<MessageActi
 
   message = parsed.text;
   params.message = message;
-  if (!params.replyTo && parsed.replyToId) params.replyTo = parsed.replyToId;
+  if (!params.replyTo && parsed.replyToId) {
+    params.replyTo = parsed.replyToId;
+  }
   if (!params.media) {
     // Use path/filePath if media not set, then fall back to parsed directives
     params.media = mergedMediaUrls[0] || undefined;

@@ -14,7 +14,6 @@ import {
 import {
   DEFAULT_GATEWAY_DAEMON_RUNTIME,
   GATEWAY_DAEMON_RUNTIME_OPTIONS,
-  type GatewayDaemonRuntime,
 } from "../commands/daemon-runtime.js";
 import { formatHealthCheckFailure } from "../commands/health-format.js";
 import { healthCommand } from "../commands/health.js";
@@ -22,7 +21,6 @@ import {
   detectBrowserOpenSupport,
   formatControlUiSshHint,
   openUrl,
-  openUrlInBackground,
   probeGatewayReachable,
   waitForGatewayReachable,
   resolveControlUiLinks,
@@ -50,7 +48,9 @@ type FinalizeOnboardingOptions = {
   runtime: RuntimeEnv;
 };
 
-export async function finalizeOnboardingWizard(options: FinalizeOnboardingOptions) {
+export async function finalizeOnboardingWizard(
+  options: FinalizeOnboardingOptions,
+): Promise<{ launchedTui: boolean }> {
   const { flow, opts, baseConfig, nextConfig, settings, prompter, runtime } = options;
 
   const withWizardProgress = async <T>(
@@ -116,12 +116,12 @@ export async function finalizeOnboardingWizard(options: FinalizeOnboardingOption
   if (installDaemon) {
     const daemonRuntime =
       flow === "quickstart"
-        ? (DEFAULT_GATEWAY_DAEMON_RUNTIME as GatewayDaemonRuntime)
-        : ((await prompter.select({
+        ? DEFAULT_GATEWAY_DAEMON_RUNTIME
+        : await prompter.select({
             message: "Gateway service runtime",
             options: GATEWAY_DAEMON_RUNTIME_OPTIONS,
             initialValue: opts.daemonRuntime ?? DEFAULT_GATEWAY_DAEMON_RUNTIME,
-          })) as GatewayDaemonRuntime);
+          });
     if (flow === "quickstart") {
       await prompter.note(
         "QuickStart uses Node for the Gateway service (stable + supported).",
@@ -131,14 +131,14 @@ export async function finalizeOnboardingWizard(options: FinalizeOnboardingOption
     const service = resolveGatewayService();
     const loaded = await service.isLoaded({ env: process.env });
     if (loaded) {
-      const action = (await prompter.select({
+      const action = await prompter.select({
         message: "Gateway service already installed",
         options: [
           { value: "restart", label: "Restart" },
           { value: "reinstall", label: "Reinstall" },
           { value: "skip", label: "Skip" },
         ],
-      })) as "restart" | "reinstall" | "skip";
+      });
       if (action === "restart") {
         await withWizardProgress(
           "Gateway service",
@@ -163,7 +163,7 @@ export async function finalizeOnboardingWizard(options: FinalizeOnboardingOption
       }
     }
 
-    if (!loaded || (loaded && (await service.isLoaded({ env: process.env })) === false)) {
+    if (!loaded || (loaded && !(await service.isLoaded({ env: process.env })))) {
       const progress = prompter.progress("Gateway service");
       let installError: string | null = null;
       try {
@@ -288,6 +288,7 @@ export async function finalizeOnboardingWizard(options: FinalizeOnboardingOption
   let controlUiOpenHint: string | undefined;
   let seededInBackground = false;
   let hatchChoice: "tui" | "web" | "later" | null = null;
+  let launchedTui = false;
 
   if (!opts.skipUi && gatewayProbe.ok) {
     if (hasBootstrap) {
@@ -312,7 +313,7 @@ export async function finalizeOnboardingWizard(options: FinalizeOnboardingOption
       "Token",
     );
 
-    hatchChoice = (await prompter.select({
+    hatchChoice = await prompter.select({
       message: "How do you want to hatch your bot?",
       options: [
         { value: "tui", label: "Hatch in TUI (recommended)" },
@@ -320,9 +321,10 @@ export async function finalizeOnboardingWizard(options: FinalizeOnboardingOption
         { value: "later", label: "Do this later" },
       ],
       initialValue: "tui",
-    })) as "tui" | "web" | "later";
+    });
 
     if (hatchChoice === "tui") {
+      restoreTerminalState("pre-onboarding tui");
       await runTui({
         url: links.wsUrl,
         token: settings.authMode === "token" ? settings.gatewayToken : undefined,
@@ -331,6 +333,7 @@ export async function finalizeOnboardingWizard(options: FinalizeOnboardingOption
         deliver: false,
         message: hasBootstrap ? "Wake up, my friend!" : undefined,
       });
+<<<<<<< HEAD
       if (settings.authMode === "token" && settings.gatewayToken) {
         seededInBackground = await openUrlInBackground(authedUrl);
       }
@@ -342,6 +345,9 @@ export async function finalizeOnboardingWizard(options: FinalizeOnboardingOption
           "Web UI",
         );
       }
+=======
+      launchedTui = true;
+>>>>>>> 58d5b39c9 (Onboarding: keep TUI flow exclusive)
     } else if (hatchChoice === "web") {
       const browserSupport = await detectBrowserOpenSupport();
       if (browserSupport.ok) {
@@ -392,6 +398,51 @@ export async function finalizeOnboardingWizard(options: FinalizeOnboardingOption
     "Running agents on your computer is risky — harden your setup: https://docs.openclaw.ai/security",
     "Security",
   );
+
+  // Shell completion setup
+  const cliName = resolveCliName();
+  const completionStatus = await checkShellCompletionStatus(cliName);
+
+  if (completionStatus.usesSlowPattern) {
+    // Case 1: Profile uses slow dynamic pattern - silently upgrade to cached version
+    const cacheGenerated = await ensureCompletionCacheExists(cliName);
+    if (cacheGenerated) {
+      await installCompletion(completionStatus.shell, true, cliName);
+    }
+  } else if (completionStatus.profileInstalled && !completionStatus.cacheExists) {
+    // Case 2: Profile has completion but no cache - auto-fix silently
+    await ensureCompletionCacheExists(cliName);
+  } else if (!completionStatus.profileInstalled) {
+    // Case 3: No completion at all - prompt to install
+    const installShellCompletion = await prompter.confirm({
+      message: `Enable ${completionStatus.shell} shell completion for ${cliName}?`,
+      initialValue: true,
+    });
+    if (installShellCompletion) {
+      // Generate cache first (required for fast shell startup)
+      const cacheGenerated = await ensureCompletionCacheExists(cliName);
+      if (cacheGenerated) {
+        // Install to shell profile
+        await installCompletion(completionStatus.shell, true, cliName);
+        const profileHint =
+          completionStatus.shell === "zsh"
+            ? "~/.zshrc"
+            : completionStatus.shell === "bash"
+              ? "~/.bashrc"
+              : "~/.config/fish/config.fish";
+        await prompter.note(
+          `Shell completion installed. Restart your shell or run: source ${profileHint}`,
+          "Shell completion",
+        );
+      } else {
+        await prompter.note(
+          `Failed to generate completion cache. Run \`${cliName} completion --install\` later.`,
+          "Shell completion",
+        );
+      }
+    }
+  }
+  // Case 4: Both profile and cache exist (using cached version) - all good, nothing to do
 
   const shouldOpenControlUi =
     !opts.skipUi &&
@@ -469,4 +520,6 @@ export async function finalizeOnboardingWizard(options: FinalizeOnboardingOption
         ? "Onboarding complete. Web UI seeded in the background; open it anytime with the tokenized link above."
         : "Onboarding complete. Use the tokenized dashboard link above to control OpenClaw.",
   );
+
+  return { launchedTui };
 }

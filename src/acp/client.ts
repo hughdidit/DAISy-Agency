@@ -30,7 +30,9 @@ export type AcpClientHandle = {
 };
 
 function toArgs(value: string[] | string | undefined): string[] {
-  if (!value) return [];
+  if (!value) {
+    return [];
+  }
   return Array.isArray(value) ? value : [value];
 }
 
@@ -44,7 +46,9 @@ function buildServerArgs(opts: AcpClientOptions): string[] {
 
 function printSessionUpdate(notification: SessionNotification): void {
   const update = notification.update;
-  if (!("sessionUpdate" in update)) return;
+  if (!("sessionUpdate" in update)) {
+    return;
+  }
 
   switch (update.sessionUpdate) {
     case "agent_message_chunk": {
@@ -65,7 +69,9 @@ function printSessionUpdate(notification: SessionNotification): void {
     }
     case "available_commands_update": {
       const names = update.availableCommands?.map((cmd) => `/${cmd.name}`).join(" ");
-      if (names) console.log(`\n[commands] ${names}`);
+      if (names) {
+        console.log(`\n[commands] ${names}`);
+      }
       return;
     }
     default:

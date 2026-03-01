@@ -131,7 +131,9 @@ export async function resolveSlackMedia(params: {
   const files = params.files ?? [];
   for (const file of files) {
     const url = file.url_private_download ?? file.url_private;
-    if (!url) continue;
+    if (!url) {
+      continue;
+    }
     try {
       // Note: fetchRemoteMedia calls fetchImpl(url) with the URL string today and
       // handles size limits internally. We ignore init options because
@@ -153,7 +155,9 @@ export async function resolveSlackMedia(params: {
         filePathHint: file.name,
         maxBytes: params.maxBytes,
       });
-      if (fetched.buffer.byteLength > params.maxBytes) continue;
+      if (fetched.buffer.byteLength > params.maxBytes) {
+        continue;
+      }
       const saved = await saveMediaBuffer(
         fetched.buffer,
         fetched.contentType ?? file.mimetype,
@@ -189,7 +193,9 @@ export async function resolveSlackThreadStarter(params: {
 }): Promise<SlackThreadStarter | null> {
   const cacheKey = `${params.channelId}:${params.threadTs}`;
   const cached = THREAD_STARTER_CACHE.get(cacheKey);
-  if (cached) return cached;
+  if (cached) {
+    return cached;
+  }
   try {
     const response = (await params.client.conversations.replies({
       channel: params.channelId,
@@ -199,7 +205,9 @@ export async function resolveSlackThreadStarter(params: {
     })) as { messages?: Array<{ text?: string; user?: string; ts?: string; files?: SlackFile[] }> };
     const message = response?.messages?.[0];
     const text = (message?.text ?? "").trim();
-    if (!message || !text) return null;
+    if (!message || !text) {
+      return null;
+    }
     const starter: SlackThreadStarter = {
       text,
       userId: message.user,

@@ -11,9 +11,10 @@ title: "skills"
 Inspect skills (bundled + workspace + managed overrides) and see what’s eligible vs missing requirements.
 
 Related:
+
 - Skills system: [Skills](/tools/skills)
 - Skills config: [Skills config](/tools/skills-config)
-- ClawdHub installs: [ClawdHub](/tools/clawdhub)
+- ClawHub installs: [ClawHub](/tools/clawhub)
 
 ## Commands
 
@@ -23,4 +24,3 @@ openclaw skills list --eligible
 openclaw skills info <name>
 openclaw skills check
 ```
-

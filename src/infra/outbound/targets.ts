@@ -1,6 +1,7 @@
 <<<<<<< HEAD
 import { getChannelPlugin, normalizeChannelId } from "../../channels/plugins/index.js";
 import { formatCliCommand } from "../../cli/command-format.js";
+<<<<<<< HEAD
 import type { ChannelId, ChannelOutboundTargetMode } from "../../channels/plugins/types.js";
 import type { MoltbotConfig } from "../../config/config.js";
 =======
@@ -139,7 +140,7 @@ export function resolveOutboundTarget(params: {
     };
   }
 
-  const plugin = getChannelPlugin(params.channel as ChannelId);
+  const plugin = getChannelPlugin(params.channel);
   if (!plugin) {
     return {
       ok: false,
@@ -191,7 +192,9 @@ export function resolveHeartbeatDeliveryTarget(params: {
     target = rawTarget;
   } else if (typeof rawTarget === "string") {
     const normalized = normalizeChannelId(rawTarget);
-    if (normalized) target = normalized;
+    if (normalized) {
+      target = normalized;
+    }
   }
 
   if (target === "none") {
@@ -212,11 +215,37 @@ export function resolveHeartbeatDeliveryTarget(params: {
     mode: "heartbeat",
   });
 
+  const heartbeatAccountId = heartbeat?.accountId?.trim();
+  // Use explicit accountId from heartbeat config if provided, otherwise fall back to session
+  let effectiveAccountId = heartbeatAccountId || resolvedTarget.accountId;
+
+  if (heartbeatAccountId && resolvedTarget.channel) {
+    const plugin = getChannelPlugin(resolvedTarget.channel);
+    const listAccountIds = plugin?.config.listAccountIds;
+    const accountIds = listAccountIds ? listAccountIds(cfg) : [];
+    if (accountIds.length > 0) {
+      const normalizedAccountId = normalizeAccountId(heartbeatAccountId);
+      const normalizedAccountIds = new Set(
+        accountIds.map((accountId) => normalizeAccountId(accountId)),
+      );
+      if (!normalizedAccountIds.has(normalizedAccountId)) {
+        return {
+          channel: "none",
+          reason: "unknown-account",
+          accountId: normalizedAccountId,
+          lastChannel: resolvedTarget.lastChannel,
+          lastAccountId: resolvedTarget.lastAccountId,
+        };
+      }
+      effectiveAccountId = normalizedAccountId;
+    }
+  }
+
   if (!resolvedTarget.channel || !resolvedTarget.to) {
     return {
       channel: "none",
       reason: "no-target",
-      accountId: resolvedTarget.accountId,
+      accountId: effectiveAccountId,
       lastChannel: resolvedTarget.lastChannel,
       lastAccountId: resolvedTarget.lastAccountId,
     };
@@ -226,27 +255,27 @@ export function resolveHeartbeatDeliveryTarget(params: {
     channel: resolvedTarget.channel,
     to: resolvedTarget.to,
     cfg,
-    accountId: resolvedTarget.accountId,
+    accountId: effectiveAccountId,
     mode: "heartbeat",
   });
   if (!resolved.ok) {
     return {
       channel: "none",
       reason: "no-target",
-      accountId: resolvedTarget.accountId,
+      accountId: effectiveAccountId,
       lastChannel: resolvedTarget.lastChannel,
       lastAccountId: resolvedTarget.lastAccountId,
     };
   }
 
   let reason: string | undefined;
-  const plugin = getChannelPlugin(resolvedTarget.channel as ChannelId);
+  const plugin = getChannelPlugin(resolvedTarget.channel);
   if (plugin?.config.resolveAllowFrom) {
     const explicit = resolveOutboundTarget({
       channel: resolvedTarget.channel,
       to: resolvedTarget.to,
       cfg,
-      accountId: resolvedTarget.accountId,
+      accountId: effectiveAccountId,
       mode: "explicit",
     });
     if (explicit.ok && explicit.to !== resolved.to) {
@@ -258,7 +287,7 @@ export function resolveHeartbeatDeliveryTarget(params: {
     channel: resolvedTarget.channel,
     to: resolved.to,
     reason,
-    accountId: resolvedTarget.accountId,
+    accountId: effectiveAccountId,
     lastChannel: resolvedTarget.lastChannel,
     lastAccountId: resolvedTarget.lastAccountId,
   };
@@ -286,12 +315,16 @@ function resolveHeartbeatSenderId(params: {
   }
   if (candidates.length > 0 && allowList.length > 0) {
     const matched = candidates.find((candidate) => allowList.includes(candidate));
-    if (matched) return matched;
+    if (matched) {
+      return matched;
+    }
   }
   if (candidates.length > 0 && allowList.length === 0) {
     return candidates[0];
   }
-  if (allowList.length > 0) return allowList[0];
+  if (allowList.length > 0) {
+    return allowList[0];
+  }
   return candidates[0] ?? "heartbeat";
 }
 
@@ -302,11 +335,13 @@ export function resolveHeartbeatSenderContext(params: {
 }): HeartbeatSenderContext {
   const provider =
     params.delivery.channel !== "none" ? params.delivery.channel : params.delivery.lastChannel;
+  const accountId =
+    params.delivery.accountId ??
+    (provider === params.delivery.lastChannel ? params.delivery.lastAccountId : undefined);
   const allowFrom = provider
     ? (getChannelPlugin(provider)?.config.resolveAllowFrom?.({
         cfg: params.cfg,
-        accountId:
-          provider === params.delivery.lastChannel ? params.delivery.lastAccountId : undefined,
+        accountId,
       }) ?? [])
     : [];
 

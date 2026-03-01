@@ -115,7 +115,9 @@ export function registerBrowserStateCommands(
         }
         const headers: Record<string, string> = {};
         for (const [k, v] of Object.entries(parsed as Record<string, unknown>)) {
-          if (typeof v === "string") headers[k] = v;
+          if (typeof v === "string") {
+            headers[k] = v;
+          }
         }
         const result = await callBrowserRequest(
           parent,

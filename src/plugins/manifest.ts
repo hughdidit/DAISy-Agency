@@ -29,7 +29,9 @@ export type PluginManifestLoadResult =
   | { ok: false; error: string; manifestPath: string };
 
 function normalizeStringList(value: unknown): string[] {
-  if (!Array.isArray(value)) return [];
+  if (!Array.isArray(value)) {
+    return [];
+  }
   return value.map((entry) => (typeof entry === "string" ? entry.trim() : "")).filter(Boolean);
 }
 
@@ -40,7 +42,9 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 export function resolvePluginManifestPath(rootDir: string): string {
   for (const filename of PLUGIN_MANIFEST_FILENAMES) {
     const candidate = path.join(rootDir, filename);
-    if (fs.existsSync(candidate)) return candidate;
+    if (fs.existsSync(candidate)) {
+      return candidate;
+    }
   }
   return path.join(rootDir, PLUGIN_MANIFEST_FILENAME);
 }

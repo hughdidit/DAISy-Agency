@@ -8,13 +8,19 @@ type ToolCall = { id: string; name?: string };
 
 function extractAssistantToolCalls(msg: Extract<AgentMessage, { role: "assistant" }>): ToolCall[] {
   const content = msg.content;
-  if (!Array.isArray(content)) return [];
+  if (!Array.isArray(content)) {
+    return [];
+  }
 
   const toolCalls: ToolCall[] = [];
   for (const block of content) {
-    if (!block || typeof block !== "object") continue;
+    if (!block || typeof block !== "object") {
+      continue;
+    }
     const rec = block as { type?: unknown; id?: unknown; name?: unknown };
-    if (typeof rec.id !== "string" || !rec.id) continue;
+    if (typeof rec.id !== "string" || !rec.id) {
+      continue;
+    }
     if (rec.type === "toolCall" || rec.type === "toolUse" || rec.type === "functionCall") {
       toolCalls.push({
         id: rec.id,
@@ -27,9 +33,13 @@ function extractAssistantToolCalls(msg: Extract<AgentMessage, { role: "assistant
 
 function extractToolResultId(msg: Extract<AgentMessage, { role: "toolResult" }>): string | null {
   const toolCallId = (msg as { toolCallId?: unknown }).toolCallId;
-  if (typeof toolCallId === "string" && toolCallId) return toolCallId;
+  if (typeof toolCallId === "string" && toolCallId) {
+    return toolCallId;
+  }
   const toolUseId = (msg as { toolUseId?: unknown }).toolUseId;
-  if (typeof toolUseId === "string" && toolUseId) return toolUseId;
+  if (typeof toolUseId === "string" && toolUseId) {
+    return toolUseId;
+  }
   return null;
 }
 
@@ -68,7 +78,9 @@ export function installSessionToolResultGuard(
   const allowSyntheticToolResults = opts?.allowSyntheticToolResults ?? true;
 
   const flushPendingToolResults = () => {
-    if (pending.size === 0) return;
+    if (pending.size === 0) {
+      return;
+    }
     if (allowSyntheticToolResults) {
       for (const [id, name] of pending.entries()) {
         const synthetic = makeMissingToolResult({ toolCallId: id, toolName: name });
@@ -85,10 +97,22 @@ export function installSessionToolResultGuard(
   };
 
   const guardedAppend = (message: AgentMessage) => {
+    let nextMessage = message;
     const role = (message as { role?: unknown }).role;
+    if (role === "assistant") {
+      const sanitized = sanitizeToolCallInputs([message]);
+      if (sanitized.length === 0) {
+        if (allowSyntheticToolResults && pending.size > 0) {
+          flushPendingToolResults();
+        }
+        return undefined;
+      }
+      nextMessage = sanitized[0];
+    }
+    const nextRole = (nextMessage as { role?: unknown }).role;
 
-    if (role === "toolResult") {
-      const id = extractToolResultId(message as Extract<AgentMessage, { role: "toolResult" }>);
+    if (nextRole === "toolResult") {
+      const id = extractToolResultId(nextMessage as Extract<AgentMessage, { role: "toolResult" }>);
       const toolName = id ? pending.get(id) : undefined;
 <<<<<<< HEAD
       if (id) pending.delete(id);
@@ -112,13 +136,13 @@ export function installSessionToolResultGuard(
     }
 
     const toolCalls =
-      role === "assistant"
-        ? extractAssistantToolCalls(message as Extract<AgentMessage, { role: "assistant" }>)
+      nextRole === "assistant"
+        ? extractAssistantToolCalls(nextMessage as Extract<AgentMessage, { role: "assistant" }>)
         : [];
 
     if (allowSyntheticToolResults) {
       // If previous tool calls are still pending, flush before non-tool results.
-      if (pending.size > 0 && (toolCalls.length === 0 || role !== "assistant")) {
+      if (pending.size > 0 && (toolCalls.length === 0 || nextRole !== "assistant")) {
         flushPendingToolResults();
       }
       // If new tool calls arrive while older ones are pending, flush the old ones first.
@@ -127,7 +151,7 @@ export function installSessionToolResultGuard(
       }
     }
 
-    const result = originalAppend(message as never);
+    const result = originalAppend(nextMessage as never);
 
     const sessionFile = (
       sessionManager as { getSessionFile?: () => string | null }

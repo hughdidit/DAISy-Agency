@@ -38,7 +38,9 @@ export async function modelsAuthOrderGetCommand(
   runtime: RuntimeEnv,
 ) {
   const rawProvider = opts.provider?.trim();
-  if (!rawProvider) throw new Error("Missing --provider.");
+  if (!rawProvider) {
+    throw new Error("Missing --provider.");
+  }
   const provider = normalizeProviderId(rawProvider);
 
   const cfg = loadConfig();
@@ -76,7 +78,9 @@ export async function modelsAuthOrderClearCommand(
   runtime: RuntimeEnv,
 ) {
   const rawProvider = opts.provider?.trim();
-  if (!rawProvider) throw new Error("Missing --provider.");
+  if (!rawProvider) {
+    throw new Error("Missing --provider.");
+  }
   const provider = normalizeProviderId(rawProvider);
 
   const cfg = loadConfig();
@@ -86,7 +90,9 @@ export async function modelsAuthOrderClearCommand(
     provider,
     order: null,
   });
-  if (!updated) throw new Error("Failed to update auth-profiles.json (lock busy?).");
+  if (!updated) {
+    throw new Error("Failed to update auth-profiles.json (lock busy?).");
+  }
 
   runtime.log(`Agent: ${agentId}`);
   runtime.log(`Provider: ${provider}`);
@@ -98,7 +104,9 @@ export async function modelsAuthOrderSetCommand(
   runtime: RuntimeEnv,
 ) {
   const rawProvider = opts.provider?.trim();
-  if (!rawProvider) throw new Error("Missing --provider.");
+  if (!rawProvider) {
+    throw new Error("Missing --provider.");
+  }
   const provider = normalizeProviderId(rawProvider);
 
   const cfg = loadConfig();
@@ -128,7 +136,9 @@ export async function modelsAuthOrderSetCommand(
     provider,
     order: requested,
   });
-  if (!updated) throw new Error("Failed to update auth-profiles.json (lock busy?).");
+  if (!updated) {
+    throw new Error("Failed to update auth-profiles.json (lock busy?).");
+  }
 
   runtime.log(`Agent: ${agentId}`);
   runtime.log(`Provider: ${provider}`);

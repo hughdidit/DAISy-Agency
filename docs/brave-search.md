@@ -46,10 +46,10 @@ or via `BRAVE_API_KEY` in the Gateway environment.
         provider: "brave",
         apiKey: "BRAVE_API_KEY_HERE",
         maxResults: 5,
-        timeoutSeconds: 30
-      }
-    }
-  }
+        timeoutSeconds: 30,
+      },
+    },
+  },
 }
 ```
 

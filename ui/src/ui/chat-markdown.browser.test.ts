@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 <<<<<<< HEAD
 
+<<<<<<< HEAD
 import { MoltbotApp } from "./app";
 =======
 import { OpenClawApp } from "./app";
@@ -50,9 +51,7 @@ describe("chat markdown rendering", () => {
 
     await app.updateComplete;
 
-    const toolCards = Array.from(
-      app.querySelectorAll<HTMLElement>(".chat-tool-card"),
-    );
+    const toolCards = Array.from(app.querySelectorAll<HTMLElement>(".chat-tool-card"));
     const toolCard = toolCards.find((card) =>
       card.querySelector(".chat-tool-card__preview, .chat-tool-card__inline"),
     );

@@ -7,6 +7,7 @@ const mocks = vi.hoisted(() => ({
   updateSessionStore: vi.fn(),
   agentCommand: vi.fn(),
   registerAgentRunContext: vi.fn(),
+  loadConfigReturn: {} as Record<string, unknown>,
 }));
 
 vi.mock("../session-utils.js", () => ({
@@ -31,7 +32,7 @@ vi.mock("../../commands/agent.js", () => ({
 }));
 
 vi.mock("../../config/config.js", () => ({
-  loadConfig: () => ({}),
+  loadConfig: () => mocks.loadConfigReturn,
 }));
 
 vi.mock("../../agents/agent-scope.js", () => ({
@@ -112,6 +113,88 @@ describe("gateway agent handler", () => {
     expect(capturedEntry).toBeDefined();
     expect(capturedEntry?.cliSessionIds).toEqual(existingCliSessionIds);
     expect(capturedEntry?.claudeCliSessionId).toBe(existingClaudeCliSessionId);
+  });
+
+  it("injects a timestamp into the message passed to agentCommand", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-01-29T01:30:00.000Z")); // Wed Jan 28, 8:30 PM EST
+    mocks.agentCommand.mockReset();
+
+    mocks.loadConfigReturn = {
+      agents: {
+        defaults: {
+          userTimezone: "America/New_York",
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+          timeFormat: "12",
+>>>>>>> 582a4e261 (feat(gateway): inject timestamps into agent handler messages)
+=======
+>>>>>>> 76391bba3 (refactor: use compact formatZonedTimestamp for injection)
+        },
+      },
+    };
+
+    mocks.loadSessionEntry.mockReturnValue({
+      cfg: mocks.loadConfigReturn,
+      storePath: "/tmp/sessions.json",
+      entry: {
+        sessionId: "existing-session-id",
+        updatedAt: Date.now(),
+      },
+      canonicalKey: "agent:main:main",
+    });
+    mocks.updateSessionStore.mockResolvedValue(undefined);
+    mocks.agentCommand.mockResolvedValue({
+      payloads: [{ text: "ok" }],
+      meta: { durationMs: 100 },
+    });
+
+    const respond = vi.fn();
+    await agentHandlers.agent({
+      params: {
+        message: "Is it the weekend?",
+        agentId: "main",
+        sessionKey: "agent:main:main",
+        idempotencyKey: "test-timestamp-inject",
+      },
+      respond,
+      context: makeContext(),
+      req: { type: "req", id: "ts-1", method: "agent" },
+      client: null,
+      isWebchatConnect: () => false,
+    });
+
+    // Wait for the async agentCommand call
+    await vi.waitFor(() => expect(mocks.agentCommand).toHaveBeenCalled());
+
+    const callArgs = mocks.agentCommand.mock.calls[0][0];
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+    expect(callArgs.message).toBe("[Wed 2026-01-28 20:30 EST] Is it the weekend?");
+=======
+    expect(callArgs.message).toMatch(
+      /^\[.*Wednesday.*January 28.*2026.*8:30 PM.*\] Is it the weekend\?$/,
+    );
+>>>>>>> 582a4e261 (feat(gateway): inject timestamps into agent handler messages)
+=======
+    expect(callArgs.message).toBe("[2026-01-28 20:30 EST] Is it the weekend?");
+>>>>>>> 76391bba3 (refactor: use compact formatZonedTimestamp for injection)
+=======
+    expect(callArgs.message).toBe("[Wed 2026-01-28 20:30 EST] Is it the weekend?");
+>>>>>>> a6c68e869 (feat: add 3-letter DOW prefix to injected timestamps)
+=======
+    expect(callArgs.message).toBe("[Current Date: Wed 2026-01-28 20:30 EST] Is it the weekend?");
+>>>>>>> b6c8c1e89 (feat: add "Current Date:" label to timestamp prefix)
+=======
+    expect(callArgs.message).toBe("[Wed 2026-01-28 20:30 EST] Is it the weekend?");
+>>>>>>> 8a5b139a9 (revert: drop "Current Date:" label, keep [Wed YYYY-MM-DD HH:MM TZ])
+
+    mocks.loadConfigReturn = {};
+    vi.useRealTimers();
   });
 
   it("handles missing cliSessionIds gracefully", async () => {

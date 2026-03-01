@@ -103,7 +103,9 @@ describe("openclaw-tools: subagents", () => {
       agentSessionKey: "discord:group:req",
       agentChannel: "discord",
     }).find((candidate) => candidate.name === "sessions_spawn");
-    if (!tool) throw new Error("missing sessions_spawn tool");
+    if (!tool) {
+      throw new Error("missing sessions_spawn tool");
+    }
 
     const result = await tool.execute("call1b", {
       task: "do thing",
@@ -115,9 +117,9 @@ describe("openclaw-tools: subagents", () => {
       runId: "run-1",
     });
 
-    await new Promise((resolve) => setTimeout(resolve, 0));
-    await new Promise((resolve) => setTimeout(resolve, 0));
-    await new Promise((resolve) => setTimeout(resolve, 0));
+    await sleep(0);
+    await sleep(0);
+    await sleep(0);
 
     const childWait = waitCalls.find((call) => call.runId === childRunId);
     expect(childWait?.timeoutMs).toBe(1000);

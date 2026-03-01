@@ -43,14 +43,31 @@ function resolveManifestCacheMs(env: NodeJS.ProcessEnv): number {
   const raw = env.OPENCLAW_PLUGIN_MANIFEST_CACHE_MS?.trim();
   if (raw === "" || raw === "0") return 0;
   if (!raw) return DEFAULT_MANIFEST_CACHE_MS;
+=======
+  const raw = env.OPENCLAW_PLUGIN_MANIFEST_CACHE_MS?.trim();
+  if (raw === "" || raw === "0") {
+    return 0;
+  }
+  if (!raw) {
+    return DEFAULT_MANIFEST_CACHE_MS;
+  }
+>>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
   const parsed = Number.parseInt(raw, 10);
-  if (!Number.isFinite(parsed)) return DEFAULT_MANIFEST_CACHE_MS;
+  if (!Number.isFinite(parsed)) {
+    return DEFAULT_MANIFEST_CACHE_MS;
+  }
   return Math.max(0, parsed);
 }
 
 function shouldUseManifestCache(env: NodeJS.ProcessEnv): boolean {
   const disabled = env.OPENCLAW_DISABLE_PLUGIN_MANIFEST_CACHE?.trim();
   if (disabled) return false;
+=======
+  const disabled = env.OPENCLAW_DISABLE_PLUGIN_MANIFEST_CACHE?.trim();
+  if (disabled) {
+    return false;
+  }
+>>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
   return resolveManifestCacheMs(env) > 0;
 }
 
@@ -118,7 +135,9 @@ export function loadPluginManifestRegistry(params: {
   const cacheEnabled = params.cache !== false && shouldUseManifestCache(env);
   if (cacheEnabled) {
     const cached = registryCache.get(cacheKey);
-    if (cached && cached.expiresAt > Date.now()) return cached.registry;
+    if (cached && cached.expiresAt > Date.now()) {
+      return cached.registry;
+    }
   }
 
   const discovery = params.candidates

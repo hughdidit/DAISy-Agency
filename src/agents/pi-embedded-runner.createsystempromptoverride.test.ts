@@ -73,7 +73,9 @@ const _ensureModels = (cfg: OpenClawConfig, agentDir: string) =>
   ensureOpenClawModelsJson(cfg, agentDir) as unknown;
 
 const _textFromContent = (content: unknown) => {
-  if (typeof content === "string") return content;
+  if (typeof content === "string") {
+    return content;
+  }
   if (Array.isArray(content) && content[0]?.type === "text") {
     return (content[0] as { text?: string }).text;
   }
@@ -97,7 +99,7 @@ const _readSessionMessages = async (sessionFile: string) => {
 };
 
 describe("createSystemPromptOverride", () => {
-  it("returns the override prompt regardless of default prompt", () => {
+  it("returns the override prompt trimmed", () => {
     const override = createSystemPromptOverride("OVERRIDE");
 <<<<<<< HEAD
     expect(override("DEFAULT")).toBe("OVERRIDE");

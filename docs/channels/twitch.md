@@ -8,6 +8,7 @@ read_when:
 title: "Twitch"
 >>>>>>> abcaa8c7a (Docs: add nav titles across docs (#5689))
 ---
+
 # Twitch (plugin)
 
 Twitch chat support via IRC connection. OpenClaw connects as a Twitch user (bot account) to receive and send messages in channels.
@@ -28,12 +29,12 @@ Local checkout (when running from a git repo):
 openclaw plugins install ./extensions/twitch
 ```
 
-Details: [Plugins](/plugin)
+Details: [Plugins](/tools/plugin)
 
 ## Quick setup (beginner)
 
-1) Create a dedicated Twitch account for the bot (or use an existing account).
-2) Generate credentials: [Twitch Token Generator](https://twitchtokengenerator.com/)
+1. Create a dedicated Twitch account for the bot (or use an existing account).
+2. Generate credentials: [Twitch Token Generator](https://twitchtokengenerator.com/)
    - Select **Bot Token**
    - Verify scopes `chat:read` and `chat:write` are selected
    - Copy the **Client ID** and **Access Token**
@@ -56,7 +57,7 @@ Details: [Plugins](/plugin)
 >>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
    - Or config: `channels.twitch.accessToken`
    - If both are set, config takes precedence (env fallback is default-account only).
-5) Start the gateway.
+5. Start the gateway.
 
 **⚠️ Important:** Add access control (`allowFrom` or `allowedRoles`) to prevent unauthorized users from triggering the bot. `requireMention` defaults to `true`.
 
@@ -74,6 +75,15 @@ Minimal config:
       allowFrom: ["123456789"]           // (recommended) Your Twitch user ID only - get it from https://www.streamweasels.com/tools/convert-twitch-username-to-user-id/
     }
   }
+=======
+      username: "openclaw", // Bot's Twitch account
+      accessToken: "oauth:abc123...", // OAuth Access Token (or use OPENCLAW_TWITCH_ACCESS_TOKEN env var)
+      clientId: "xyz789...", // Client ID from Token Generator
+      channel: "vevisk", // Which Twitch channel's chat to join (required)
+      allowFrom: ["123456789"], // (recommended) Your Twitch user ID only - get it from https://www.streamweasels.com/tools/convert-twitch-username-to-user-id/
+    },
+  },
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 }
 ```
 
@@ -89,6 +99,7 @@ Minimal config:
 ### Generate credentials
 
 Use [Twitch Token Generator](https://twitchtokengenerator.com/):
+
 - Select **Bot Token**
 - Verify scopes `chat:read` and `chat:write` are selected
 - Copy the **Client ID** and **Access Token**
@@ -98,11 +109,13 @@ No manual app registration needed. Tokens expire after several hours.
 ### Configure the bot
 
 **Env var (default account only):**
+
 ```bash
 OPENCLAW_TWITCH_ACCESS_TOKEN=oauth:abc123...
 ```
 
 **Or config:**
+
 ```json5
 {
   channels: {
@@ -111,9 +124,9 @@ OPENCLAW_TWITCH_ACCESS_TOKEN=oauth:abc123...
       username: "openclaw",
       accessToken: "oauth:abc123...",
       clientId: "xyz789...",
-      channel: "vevisk"
-    }
-  }
+      channel: "vevisk",
+    },
+  },
 }
 ```
 
@@ -157,9 +170,9 @@ For automatic token refresh, create your own Twitch application at [Twitch Devel
   channels: {
     twitch: {
       clientSecret: "your_client_secret",
-      refreshToken: "your_refresh_token"
-    }
-  }
+      refreshToken: "your_refresh_token",
+    },
+  },
 }
 ```
 
@@ -180,17 +193,17 @@ Example (one bot account in two channels):
           username: "openclaw",
           accessToken: "oauth:abc123...",
           clientId: "xyz789...",
-          channel: "vevisk"
+          channel: "vevisk",
         },
         channel2: {
           username: "openclaw",
           accessToken: "oauth:def456...",
           clientId: "uvw012...",
-          channel: "secondchannel"
-        }
-      }
-    }
-  }
+          channel: "secondchannel",
+        },
+      },
+    },
+  },
 }
 ```
 
@@ -206,11 +219,11 @@ Example (one bot account in two channels):
     twitch: {
       accounts: {
         default: {
-          allowedRoles: ["moderator", "vip"]
-        }
-      }
-    }
-  }
+          allowedRoles: ["moderator", "vip"],
+        },
+      },
+    },
+  },
 }
 ```
 
@@ -222,11 +235,11 @@ Example (one bot account in two channels):
     twitch: {
       accounts: {
         default: {
-          allowFrom: ["123456789", "987654321"]
-        }
-      }
-    }
-  }
+          allowFrom: ["123456789", "987654321"],
+        },
+      },
+    },
+  },
 }
 ```
 
@@ -268,11 +281,11 @@ By default, `requireMention` is `true`. To disable and respond to all messages:
     twitch: {
       accounts: {
         default: {
-          requireMention: false
-        }
-      }
-    }
-  }
+          requireMention: false,
+        },
+      },
+    },
+  },
 }
 ```
 
@@ -295,6 +308,7 @@ openclaw channels status --probe
 ### Token issues
 
 **"Failed to connect" or authentication errors:**
+
 - Verify `accessToken` is the OAuth access token value (typically starts with `oauth:` prefix)
 - Check token has `chat:read` and `chat:write` scopes
 - If using token refresh, verify `clientSecret` and `refreshToken` are set
@@ -302,18 +316,21 @@ openclaw channels status --probe
 ### Token refresh not working
 
 **Check logs for refresh events:**
+
 ```
 Using env token source for mybot
 Access token refreshed for user 123456 (expires in 14400s)
 ```
 
 If you see "token refresh disabled (no refresh token)":
+
 - Ensure `clientSecret` is provided
 - Ensure `refreshToken` is provided
 
 ## Config
 
 **Account config:**
+
 - `username` - Bot username
 - `accessToken` - OAuth access token with `chat:read` and `chat:write`
 - `clientId` - Twitch Client ID (from Token Generator or your app)
@@ -328,6 +345,7 @@ If you see "token refresh disabled (no refresh token)":
 - `requireMention` - Require @mention (default: `true`)
 
 **Provider options:**
+
 - `channels.twitch.enabled` - Enable/disable channel startup
 - `channels.twitch.username` - Bot username (simplified single-account config)
 - `channels.twitch.accessToken` - OAuth access token (simplified single-account config)
@@ -362,28 +380,29 @@ Full example:
           expiresIn: 14400,
           obtainmentTimestamp: 1706092800000,
           allowFrom: ["123456789", "987654321"],
-          allowedRoles: ["moderator"]
-        }
-      }
-    }
-  }
+          allowedRoles: ["moderator"],
+        },
+      },
+    },
+  },
 }
 ```
 
 ## Tool actions
 
 The agent can call `twitch` with action:
+
 - `send` - Send a message to a channel
 
 Example:
 
 ```json5
 {
-  "action": "twitch",
-  "params": {
-    "message": "Hello Twitch!",
-    "to": "#mychannel"
-  }
+  action: "twitch",
+  params: {
+    message: "Hello Twitch!",
+    to: "#mychannel",
+  },
 }
 ```
 

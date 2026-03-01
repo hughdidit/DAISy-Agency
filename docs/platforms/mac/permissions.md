@@ -6,6 +6,7 @@ read_when:
   - Changing bundle IDs or app install paths
 title: "macOS Permissions"
 ---
+
 # macOS permissions (TCC)
 
 macOS permission grants are fragile. TCC associates a permission grant with the
@@ -23,6 +24,7 @@ Ad-hoc signatures generate a new identity every build. macOS will forget previou
 grants, and prompts can disappear entirely until the stale entries are cleared.
 
 ## Recovery checklist when prompts disappear
+
 1. Quit the app.
 2. Remove the app entry in System Settings -> Privacy & Security.
 3. Relaunch the app from the same path and re-grant permissions.

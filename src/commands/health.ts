@@ -83,8 +83,12 @@ const debugHealth = (...args: unknown[]) => {
 };
 
 const formatDurationParts = (ms: number): string => {
-  if (!Number.isFinite(ms)) return "unknown";
-  if (ms < 1000) return `${Math.max(0, Math.round(ms))}ms`;
+  if (!Number.isFinite(ms)) {
+    return "unknown";
+  }
+  if (ms < 1000) {
+    return `${Math.max(0, Math.round(ms))}ms`;
+  }
   const units: Array<{ label: string; size: number }> = [
     { label: "w", size: 7 * 24 * 60 * 60 * 1000 },
     { label: "d", size: 24 * 60 * 60 * 1000 },
@@ -101,7 +105,9 @@ const formatDurationParts = (ms: number): string => {
       remaining -= value * unit.size;
     }
   }
-  if (parts.length === 0) return "0s";
+  if (parts.length === 0) {
+    return "0s";
+  }
   return parts.join(" ");
 };
 
@@ -115,10 +121,16 @@ const resolveAgentOrder = (cfg: ReturnType<typeof loadConfig>) => {
   const ordered: Array<{ id: string; name?: string }> = [];
 
   for (const entry of entries) {
-    if (!entry || typeof entry !== "object") continue;
-    if (typeof entry.id !== "string" || !entry.id.trim()) continue;
+    if (!entry || typeof entry !== "object") {
+      continue;
+    }
+    if (typeof entry.id !== "string" || !entry.id.trim()) {
+      continue;
+    }
     const id = normalizeAgentId(entry.id);
-    if (!id || seen.has(id)) continue;
+    if (!id || seen.has(id)) {
+      continue;
+    }
     seen.add(id);
     ordered.push({ id, name: typeof entry.name === "string" ? entry.name : undefined });
   }
@@ -139,7 +151,7 @@ const buildSessionSummary = (storePath: string) => {
   const sessions = Object.entries(store)
     .filter(([key]) => key !== "global" && key !== "unknown")
     .map(([key, entry]) => ({ key, updatedAt: entry?.updatedAt ?? 0 }))
-    .sort((a, b) => b.updatedAt - a.updatedAt);
+    .toSorted((a, b) => b.updatedAt - a.updatedAt);
   const recent = sessions.slice(0, 5).map((s) => ({
     key: s.key,
     updatedAt: s.updatedAt || null,
@@ -153,7 +165,9 @@ const buildSessionSummary = (storePath: string) => {
 };
 
 const isAccountEnabled = (account: unknown): boolean => {
-  if (!account || typeof account !== "object") return true;
+  if (!account || typeof account !== "object") {
+    return true;
+  }
   const enabled = (account as { enabled?: boolean }).enabled;
   return enabled !== false;
 };
@@ -163,9 +177,13 @@ const asRecord = (value: unknown): Record<string, unknown> | null =>
 
 const formatProbeLine = (probe: unknown, opts: { botUsernames?: string[] } = {}): string | null => {
   const record = asRecord(probe);
-  if (!record) return null;
+  if (!record) {
+    return null;
+  }
   const ok = typeof record.ok === "boolean" ? record.ok : undefined;
-  if (ok === undefined) return null;
+  if (ok === undefined) {
+    return null;
+  }
   const elapsedMs = typeof record.elapsedMs === "number" ? record.elapsedMs : null;
   const status = typeof record.status === "number" ? record.status : null;
   const error = typeof record.error === "string" ? record.error : null;
@@ -175,9 +193,13 @@ const formatProbeLine = (probe: unknown, opts: { botUsernames?: string[] } = {})
   const webhookUrl = webhook && typeof webhook.url === "string" ? webhook.url : null;
 
   const usernames = new Set<string>();
-  if (botUsername) usernames.add(botUsername);
+  if (botUsername) {
+    usernames.add(botUsername);
+  }
   for (const extra of opts.botUsernames ?? []) {
-    if (extra) usernames.add(extra);
+    if (extra) {
+      usernames.add(extra);
+    }
   }
 
   if (ok) {
@@ -185,21 +207,31 @@ const formatProbeLine = (probe: unknown, opts: { botUsernames?: string[] } = {})
     if (usernames.size > 0) {
       label += ` (@${Array.from(usernames).join(", @")})`;
     }
-    if (elapsedMs != null) label += ` (${elapsedMs}ms)`;
-    if (webhookUrl) label += ` - webhook ${webhookUrl}`;
+    if (elapsedMs != null) {
+      label += ` (${elapsedMs}ms)`;
+    }
+    if (webhookUrl) {
+      label += ` - webhook ${webhookUrl}`;
+    }
     return label;
   }
   let label = `failed (${status ?? "unknown"})`;
-  if (error) label += ` - ${error}`;
+  if (error) {
+    label += ` - ${error}`;
+  }
   return label;
 };
 
 const formatAccountProbeTiming = (summary: ChannelAccountHealthSummary): string | null => {
   const probe = asRecord(summary.probe);
-  if (!probe) return null;
+  if (!probe) {
+    return null;
+  }
   const elapsedMs = typeof probe.elapsedMs === "number" ? Math.round(probe.elapsedMs) : null;
   const ok = typeof probe.ok === "boolean" ? probe.ok : null;
-  if (elapsedMs == null && ok !== true) return null;
+  if (elapsedMs == null && ok !== true) {
+    return null;
+  }
 
   const accountId = summary.accountId || "default";
   const botRecord = asRecord(probe.bot);
@@ -213,14 +245,18 @@ const formatAccountProbeTiming = (summary: ChannelAccountHealthSummary): string 
 
 const isProbeFailure = (summary: ChannelAccountHealthSummary): boolean => {
   const probe = asRecord(summary.probe);
-  if (!probe) return false;
+  if (!probe) {
+    return false;
+  }
   const ok = typeof probe.ok === "boolean" ? probe.ok : null;
   return ok === false;
 };
 
 function styleHealthChannelLine(line: string): string {
   const colon = line.indexOf(":");
-  if (colon === -1) return line;
+  if (colon === -1) {
+    return line;
+  }
 
   const label = line.slice(0, colon + 1);
   const detail = line.slice(colon + 1).trimStart();
@@ -229,13 +265,27 @@ function styleHealthChannelLine(line: string): string {
   const applyPrefix = (prefix: string, color: (value: string) => string) =>
     `${label} ${color(detail.slice(0, prefix.length))}${detail.slice(prefix.length)}`;
 
-  if (normalized.startsWith("failed")) return applyPrefix("failed", theme.error);
-  if (normalized.startsWith("ok")) return applyPrefix("ok", theme.success);
-  if (normalized.startsWith("linked")) return applyPrefix("linked", theme.success);
-  if (normalized.startsWith("configured")) return applyPrefix("configured", theme.success);
-  if (normalized.startsWith("not linked")) return applyPrefix("not linked", theme.warn);
-  if (normalized.startsWith("not configured")) return applyPrefix("not configured", theme.muted);
-  if (normalized.startsWith("unknown")) return applyPrefix("unknown", theme.warn);
+  if (normalized.startsWith("failed")) {
+    return applyPrefix("failed", theme.error);
+  }
+  if (normalized.startsWith("ok")) {
+    return applyPrefix("ok", theme.success);
+  }
+  if (normalized.startsWith("linked")) {
+    return applyPrefix("linked", theme.success);
+  }
+  if (normalized.startsWith("configured")) {
+    return applyPrefix("configured", theme.success);
+  }
+  if (normalized.startsWith("not linked")) {
+    return applyPrefix("not linked", theme.warn);
+  }
+  if (normalized.startsWith("not configured")) {
+    return applyPrefix("not configured", theme.muted);
+  }
+  if (normalized.startsWith("unknown")) {
+    return applyPrefix("unknown", theme.warn);
+  }
 
   return line;
 }
@@ -255,7 +305,9 @@ export const formatHealthChannelLines = (
   const lines: string[] = [];
   for (const channelId of channelOrder) {
     const channelSummary = channels[channelId];
-    if (!channelSummary) continue;
+    if (!channelSummary) {
+      continue;
+    }
     const plugin = getChannelPlugin(channelId as never);
     const label = summary.channelLabels?.[channelId] ?? plugin?.meta.label ?? channelId;
     const accountSummaries = channelSummary.accounts ?? {};
@@ -444,8 +496,12 @@ export async function getHealthSnapshot(params?: {
         enabled,
         configured,
       };
-      if (probe !== undefined) snapshot.probe = probe;
-      if (lastProbeAt) snapshot.lastProbeAt = lastProbeAt;
+      if (probe !== undefined) {
+        snapshot.probe = probe;
+      }
+      if (lastProbeAt) {
+        snapshot.lastProbeAt = lastProbeAt;
+      }
 
       const summary = plugin.status?.buildChannelSummary
         ? await plugin.status.buildChannelSummary({
@@ -464,7 +520,9 @@ export async function getHealthSnapshot(params?: {
               probe,
               lastProbeAt,
             } satisfies ChannelAccountHealthSummary);
-      if (record.configured === undefined) record.configured = configured;
+      if (record.configured === undefined) {
+        record.configured = configured;
+      }
       if (record.lastProbeAt === undefined && lastProbeAt) {
         record.lastProbeAt = lastProbeAt;
       }
@@ -625,10 +683,14 @@ export async function healthCommand(
         for (const agent of entries) {
           const ids = byAgent.get(agent.agentId) ?? [];
           for (const id of ids) {
-            if (!accountIds.includes(id)) accountIds.push(id);
+            if (!accountIds.includes(id)) {
+              accountIds.push(id);
+            }
           }
         }
-        if (accountIds.length > 0) byChannel[channelId] = accountIds;
+        if (accountIds.length > 0) {
+          byChannel[channelId] = accountIds;
+        }
       }
       for (const [channelId, fallbackIds] of Object.entries(channelAccountFallbacks)) {
         if (!byChannel[channelId] || byChannel[channelId].length === 0) {
@@ -651,8 +713,12 @@ export async function healthCommand(
     }
     for (const plugin of listChannelPlugins()) {
       const channelSummary = summary.channels?.[plugin.id];
-      if (!channelSummary || channelSummary.linked !== true) continue;
-      if (!plugin.status?.logSelfId) continue;
+      if (!channelSummary || channelSummary.linked !== true) {
+        continue;
+      }
+      if (!plugin.status?.logSelfId) {
+        continue;
+      }
       const boundAccounts = channelBindings.get(plugin.id)?.get(defaultAgentId) ?? [];
       const accountIds = plugin.config.listAccountIds(cfg);
       const defaultAccountId = resolveChannelDefaultAccountId({

@@ -4,6 +4,7 @@ read_when:
   - Changing typing indicator behavior or defaults
 title: "Typing Indicators"
 ---
+
 # Typing indicators
 
 Typing indicators are sent to the chat channel while a run is active. Use
@@ -18,7 +19,9 @@ When `agents.defaults.typingMode` is **unset**, OpenClaw keeps the legacy behavi
 - **Heartbeat runs**: typing is disabled.
 
 ## Modes
+
 Set `agents.defaults.typingMode` to one of:
+
 - `never` — no typing indicator, ever.
 - `instant` — start typing **as soon as the model loop begins**, even if the run
   later returns only the silent reply token.
@@ -31,26 +34,29 @@ Order of “how early it fires”:
 `never` → `message` → `thinking` → `instant`
 
 ## Configuration
+
 ```json5
 {
   agent: {
     typingMode: "thinking",
-    typingIntervalSeconds: 6
-  }
+    typingIntervalSeconds: 6,
+  },
 }
 ```
 
 You can override mode or cadence per session:
+
 ```json5
 {
   session: {
     typingMode: "message",
-    typingIntervalSeconds: 4
-  }
+    typingIntervalSeconds: 4,
+  },
 }
 ```
 
 ## Notes
+
 - `message` mode won’t show typing for silent-only replies (e.g. the `NO_REPLY`
   token used to suppress output).
 - `thinking` only fires if the run streams reasoning (`reasoningLevel: "stream"`).

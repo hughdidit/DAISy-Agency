@@ -33,12 +33,16 @@ export function createMemorySearchTool(options: {
   agentSessionKey?: string;
 }): AnyAgentTool | null {
   const cfg = options.config;
-  if (!cfg) return null;
+  if (!cfg) {
+    return null;
+  }
   const agentId = resolveSessionAgentId({
     sessionKey: options.agentSessionKey,
     config: cfg,
   });
-  if (!resolveMemorySearchConfig(cfg, agentId)) return null;
+  if (!resolveMemorySearchConfig(cfg, agentId)) {
+    return null;
+  }
   return {
     label: "Memory Search",
     name: "memory_search",
@@ -57,17 +61,29 @@ export function createMemorySearchTool(options: {
         return jsonResult({ results: [], disabled: true, error });
       }
       try {
-        const results = await manager.search(query, {
+        const citationsMode = resolveMemoryCitationsMode(cfg);
+        const includeCitations = shouldIncludeCitations({
+          mode: citationsMode,
+          sessionKey: options.agentSessionKey,
+        });
+        const rawResults = await manager.search(query, {
           maxResults,
           minScore,
           sessionKey: options.agentSessionKey,
         });
         const status = manager.status();
+        const decorated = decorateCitations(rawResults, includeCitations);
+        const resolved = resolveMemoryBackendConfig({ cfg, agentId });
+        const results =
+          status.backend === "qmd"
+            ? clampResultsByInjectedChars(decorated, resolved.qmd?.limits.maxInjectedChars)
+            : decorated;
         return jsonResult({
           results,
           provider: status.provider,
           model: status.model,
           fallback: status.fallback,
+          citations: citationsMode,
         });
       } catch (err) {
         const message = err instanceof Error ? err.message : String(err);
@@ -82,17 +98,21 @@ export function createMemoryGetTool(options: {
   agentSessionKey?: string;
 }): AnyAgentTool | null {
   const cfg = options.config;
-  if (!cfg) return null;
+  if (!cfg) {
+    return null;
+  }
   const agentId = resolveSessionAgentId({
     sessionKey: options.agentSessionKey,
     config: cfg,
   });
-  if (!resolveMemorySearchConfig(cfg, agentId)) return null;
+  if (!resolveMemorySearchConfig(cfg, agentId)) {
+    return null;
+  }
   return {
     label: "Memory Get",
     name: "memory_get",
     description:
-      "Safe snippet read from MEMORY.md, memory/*.md, or configured memorySearch.extraPaths with optional from/lines; use after memory_search to pull only the needed lines and keep context small.",
+      "Safe snippet read from MEMORY.md or memory/*.md with optional from/lines; use after memory_search to pull only the needed lines and keep context small.",
     parameters: MemoryGetSchema,
     execute: async (_toolCallId, params) => {
       const relPath = readStringParam(params, "path", { required: true });

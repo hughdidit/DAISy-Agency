@@ -69,7 +69,9 @@ export function resolveStateDir(
 
 function resolveUserPath(input: string): string {
   const trimmed = input.trim();
-  if (!trimmed) return trimmed;
+  if (!trimmed) {
+    return trimmed;
+  }
   if (trimmed.startsWith("~")) {
     const expanded = trimmed.replace(/^~(?=$|[\\/])/, os.homedir());
     return path.resolve(expanded);
@@ -90,6 +92,12 @@ export function resolveCanonicalConfigPath(
 ): string {
   const override = env.OPENCLAW_CONFIG_PATH?.trim() || env.CLAWDBOT_CONFIG_PATH?.trim();
   if (override) return resolveUserPath(override);
+=======
+  const override = env.OPENCLAW_CONFIG_PATH?.trim() || env.CLAWDBOT_CONFIG_PATH?.trim();
+  if (override) {
+    return resolveUserPath(override);
+  }
+>>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
   return path.join(stateDir, CONFIG_FILENAME);
 }
 
@@ -109,7 +117,9 @@ export function resolveConfigPathCandidate(
       return false;
     }
   });
-  if (existing) return existing;
+  if (existing) {
+    return existing;
+  }
   return resolveCanonicalConfigPath(env, resolveStateDir(env, homedir));
 }
 
@@ -135,8 +145,12 @@ export function resolveConfigPath(
       return false;
     }
   });
-  if (existing) return existing;
-  if (stateOverride) return path.join(stateDir, CONFIG_FILENAME);
+  if (existing) {
+    return existing;
+  }
+  if (stateOverride) {
+    return path.join(stateDir, CONFIG_FILENAME);
+  }
   const defaultStateDir = resolveStateDir(env, homedir);
   if (path.resolve(stateDir) === path.resolve(defaultStateDir)) {
     return resolveConfigPathCandidate(env, homedir);
@@ -156,6 +170,12 @@ export function resolveDefaultConfigCandidates(
 ): string[] {
   const explicit = env.OPENCLAW_CONFIG_PATH?.trim() || env.CLAWDBOT_CONFIG_PATH?.trim();
   if (explicit) return [resolveUserPath(explicit)];
+=======
+  const explicit = env.OPENCLAW_CONFIG_PATH?.trim() || env.CLAWDBOT_CONFIG_PATH?.trim();
+  if (explicit) {
+    return [resolveUserPath(explicit)];
+  }
+>>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
 
   const candidates: string[] = [];
   const openclawStateDir = env.OPENCLAW_STATE_DIR?.trim() || env.CLAWDBOT_STATE_DIR?.trim();
@@ -201,6 +221,12 @@ export function resolveOAuthDir(
 ): string {
   const override = env.OPENCLAW_OAUTH_DIR?.trim();
   if (override) return resolveUserPath(override);
+=======
+  const override = env.OPENCLAW_OAUTH_DIR?.trim();
+  if (override) {
+    return resolveUserPath(override);
+  }
+>>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
   return path.join(stateDir, "credentials");
 }
 
@@ -218,11 +244,15 @@ export function resolveGatewayPort(
   const envRaw = env.OPENCLAW_GATEWAY_PORT?.trim() || env.CLAWDBOT_GATEWAY_PORT?.trim();
   if (envRaw) {
     const parsed = Number.parseInt(envRaw, 10);
-    if (Number.isFinite(parsed) && parsed > 0) return parsed;
+    if (Number.isFinite(parsed) && parsed > 0) {
+      return parsed;
+    }
   }
   const configPort = cfg?.gateway?.port;
   if (typeof configPort === "number" && Number.isFinite(configPort)) {
-    if (configPort > 0) return configPort;
+    if (configPort > 0) {
+      return configPort;
+    }
   }
   return DEFAULT_GATEWAY_PORT;
 }

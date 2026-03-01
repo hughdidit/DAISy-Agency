@@ -7,21 +7,30 @@ import { applySoulEvilOverride, resolveSoulEvilConfigFromHook } from "../../soul
 const HOOK_KEY = "soul-evil";
 
 const soulEvilHook: HookHandler = async (event) => {
-  if (!isAgentBootstrapEvent(event)) return;
+  if (!isAgentBootstrapEvent(event)) {
+    return;
+  }
 
   const context = event.context;
+<<<<<<< HEAD
   if (context.sessionKey && isSubagentSessionKey(context.sessionKey)) return;
   const cfg = context.cfg as OpenClawConfig | undefined;
   const hookConfig = resolveHookConfig(cfg, HOOK_KEY);
-  if (!hookConfig || hookConfig.enabled === false) return;
+  if (!hookConfig || hookConfig.enabled === false) {
+    return;
+  }
 
   const soulConfig = resolveSoulEvilConfigFromHook(hookConfig as Record<string, unknown>, {
     warn: (message) => console.warn(`[soul-evil] ${message}`),
   });
-  if (!soulConfig) return;
+  if (!soulConfig) {
+    return;
+  }
 
   const workspaceDir = context.workspaceDir;
-  if (!workspaceDir || !Array.isArray(context.bootstrapFiles)) return;
+  if (!workspaceDir || !Array.isArray(context.bootstrapFiles)) {
+    return;
+  }
 
   const updated = await applySoulEvilOverride({
     files: context.bootstrapFiles,

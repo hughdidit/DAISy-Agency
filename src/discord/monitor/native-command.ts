@@ -20,6 +20,18 @@ import type {
 import type { ReplyPayload } from "../../auto-reply/types.js";
 import type { OpenClawConfig, loadConfig } from "../../config/config.js";
 import { resolveEffectiveMessagesConfig, resolveHumanDelayConfig } from "../../agents/identity.js";
+=======
+import type {
+  ChatCommandDefinition,
+  CommandArgDefinition,
+  CommandArgValues,
+  CommandArgs,
+  NativeCommandSpec,
+} from "../../auto-reply/commands-registry.js";
+import type { ReplyPayload } from "../../auto-reply/types.js";
+import type { OpenClawConfig, loadConfig } from "../../config/config.js";
+import { resolveHumanDelayConfig } from "../../agents/identity.js";
+>>>>>>> 5d82c8231 (feat: per-channel responsePrefix override (#9001))
 import { resolveChunkMode, resolveTextChunkLimit } from "../../auto-reply/chunk.js";
 import {
   buildCommandTextFromArgs,
@@ -73,7 +85,9 @@ function buildDiscordCommandOptions(params: {
 }): CommandOptions | undefined {
   const { command, cfg } = params;
   const args = command.args;
-  if (!args || args.length === 0) return undefined;
+  if (!args || args.length === 0) {
+    return undefined;
+  }
   return args.map((arg) => {
     const required = arg.required ?? false;
     if (arg.type === "number") {
@@ -131,7 +145,9 @@ function readDiscordCommandArgs(
   interaction: CommandInteraction,
   definitions?: CommandArgDefinition[],
 ): CommandArgs | undefined {
-  if (!definitions || definitions.length === 0) return undefined;
+  if (!definitions || definitions.length === 0) {
+    return undefined;
+  }
   const values: CommandArgValues = {};
   for (const definition of definitions) {
     let value: string | number | boolean | null | undefined;
@@ -150,7 +166,9 @@ function readDiscordCommandArgs(
 }
 
 function chunkItems<T>(items: T[], size: number): T[][] {
-  if (size <= 0) return [items];
+  if (size <= 0) {
+    return [items];
+  }
   const rows: T[][] = [];
   for (let i = 0; i < items.length; i += size) {
     rows.push(items.slice(i, i + size));
@@ -178,16 +196,24 @@ function decodeDiscordCommandArgValue(value: string): string {
 }
 
 function isDiscordUnknownInteraction(error: unknown): boolean {
-  if (!error || typeof error !== "object") return false;
+  if (!error || typeof error !== "object") {
+    return false;
+  }
   const err = error as {
     discordCode?: number;
     status?: number;
     message?: string;
     rawBody?: { code?: number; message?: string };
   };
-  if (err.discordCode === 10062 || err.rawBody?.code === 10062) return true;
-  if (err.status === 404 && /Unknown interaction/i.test(err.message ?? "")) return true;
-  if (/Unknown interaction/i.test(err.rawBody?.message ?? "")) return true;
+  if (err.discordCode === 10062 || err.rawBody?.code === 10062) {
+    return true;
+  }
+  if (err.status === 404 && /Unknown interaction/i.test(err.message ?? "")) {
+    return true;
+  }
+  if (/Unknown interaction/i.test(err.rawBody?.message ?? "")) {
+    return true;
+  }
   return false;
 }
 
@@ -223,14 +249,18 @@ function buildDiscordCommandArgCustomId(params: {
 function parseDiscordCommandArgData(
   data: ComponentData,
 ): { command: string; arg: string; value: string; userId: string } | null {
-  if (!data || typeof data !== "object") return null;
+  if (!data || typeof data !== "object") {
+    return null;
+  }
   const coerce = (value: unknown) =>
     typeof value === "string" || typeof value === "number" ? String(value) : "";
   const rawCommand = coerce(data.command);
   const rawArg = coerce(data.arg);
   const rawValue = coerce(data.value);
   const rawUser = coerce(data.user);
-  if (!rawCommand || !rawArg || !rawValue || !rawUser) return null;
+  if (!rawCommand || !rawArg || !rawValue || !rawUser) {
+    return null;
+  }
   return {
     command: decodeDiscordCommandArgValue(rawCommand),
     arg: decodeDiscordCommandArgValue(rawArg),
@@ -283,7 +313,9 @@ async function handleDiscordCommandArgInteraction(
       components: [],
     }),
   );
-  if (!updated) return;
+  if (!updated) {
+    return;
+  }
   const commandArgs = createCommandArgsWithValue({
     argName: parsed.arg,
     value: parsed.value,
@@ -408,7 +440,7 @@ export function createDiscordNativeCommand(params: {
   accountId: string;
   sessionPrefix: string;
   ephemeralDefault: boolean;
-}) {
+}): Command {
   const { command, cfg, discordConfig, accountId, sessionPrefix, ephemeralDefault } = params;
   const commandDefinition =
     findCommandByNativeName(command.name, "discord") ??
@@ -439,6 +471,7 @@ export function createDiscordNativeCommand(params: {
           },
         ] satisfies CommandOptions)
       : undefined;
+
   return new (class extends Command {
     name = command.name;
     description = command.description;
@@ -512,7 +545,10 @@ async function dispatchDiscordCommandInteraction(params: {
 
   const useAccessGroups = cfg.commands?.useAccessGroups !== false;
   const user = interaction.user;
-  if (!user) return;
+  if (!user) {
+    return;
+  }
+  const sender = resolveDiscordSenderIdentity({ author: user, pluralkitInfo: null });
   const channel = interaction.channel;
   const channelType = channel?.type;
   const isDirectMessage = channelType === ChannelType.DM;
@@ -527,13 +563,14 @@ async function dispatchDiscordCommandInteraction(params: {
   const ownerAllowList = normalizeDiscordAllowList(discordConfig?.dm?.allowFrom ?? [], [
     "discord:",
     "user:",
+    "pk:",
   ]);
   const ownerOk =
     ownerAllowList && user
       ? allowListMatches(ownerAllowList, {
-          id: user.id,
-          name: user.username,
-          tag: formatDiscordUserTag(user),
+          id: sender.id,
+          name: sender.name,
+          tag: sender.tag,
         })
       : false;
   const guildInfo = resolveDiscordGuildEntry({
@@ -606,12 +643,12 @@ async function dispatchDiscordCommandInteraction(params: {
     if (dmPolicy !== "open") {
       const storeAllowFrom = await readChannelAllowFromStore("discord").catch(() => []);
       const effectiveAllowFrom = [...(discordConfig?.dm?.allowFrom ?? []), ...storeAllowFrom];
-      const allowList = normalizeDiscordAllowList(effectiveAllowFrom, ["discord:", "user:"]);
+      const allowList = normalizeDiscordAllowList(effectiveAllowFrom, ["discord:", "user:", "pk:"]);
       const permitted = allowList
         ? allowListMatches(allowList, {
-            id: user.id,
-            name: user.username,
-            tag: formatDiscordUserTag(user),
+            id: sender.id,
+            name: sender.name,
+            tag: sender.tag,
           })
         : false;
       if (!permitted) {
@@ -621,8 +658,8 @@ async function dispatchDiscordCommandInteraction(params: {
             channel: "discord",
             id: user.id,
             meta: {
-              tag: formatDiscordUserTag(user),
-              name: user.username ?? undefined,
+              tag: sender.tag,
+              name: sender.name,
             },
           });
           if (created) {
@@ -649,9 +686,9 @@ async function dispatchDiscordCommandInteraction(params: {
     const userOk = hasUserAllowlist
       ? resolveDiscordUserAllowed({
           allowList: channelUsers,
-          userId: user.id,
-          userName: user.username,
-          userTag: formatDiscordUserTag(user),
+          userId: sender.id,
+          userName: sender.name,
+          userTag: sender.tag,
         })
       : false;
     const authorizers = useAccessGroups
@@ -722,6 +759,7 @@ async function dispatchDiscordCommandInteraction(params: {
       kind: isDirectMessage ? "dm" : isGroupDm ? "group" : "channel",
       id: isDirectMessage ? user.id : channelId,
     },
+    parentPeer: threadParentId ? { kind: "channel", id: threadParentId } : undefined,
   });
   const conversationLabel = isDirectMessage ? (user.globalName ?? user.username) : channelId;
   const ownerAllowFrom = resolveDiscordOwnerAllowFrom({
@@ -770,7 +808,7 @@ async function dispatchDiscordCommandInteraction(params: {
     SenderName: user.globalName ?? user.username,
     SenderId: user.id,
     SenderUsername: user.username,
-    SenderTag: formatDiscordUserTag(user),
+    SenderTag: sender.tag,
     Provider: "discord" as const,
     Surface: "discord" as const,
     WasMentioned: true,
@@ -780,12 +818,19 @@ async function dispatchDiscordCommandInteraction(params: {
     CommandSource: "native" as const,
   });
 
+  const { onModelSelected, ...prefixOptions } = createReplyPrefixOptions({
+    cfg,
+    agentId: route.agentId,
+    channel: "discord",
+    accountId: route.accountId,
+  });
+
   let didReply = false;
   await dispatchReplyWithDispatcher({
     ctx: ctxPayload,
     cfg,
     dispatcherOptions: {
-      responsePrefix: resolveEffectiveMessagesConfig(cfg, route.agentId).responsePrefix,
+      ...prefixOptions,
       humanDelay: resolveHumanDelayConfig(cfg, route.agentId),
       deliver: async (payload) => {
         try {
@@ -818,6 +863,7 @@ async function dispatchDiscordCommandInteraction(params: {
         typeof discordConfig?.blockStreaming === "boolean"
           ? !discordConfig.blockStreaming
           : undefined,
+      onModelSelected,
     },
   });
 }
@@ -875,25 +921,35 @@ async function deliverDiscordInteractionReply(params: {
       maxLines: maxLinesPerMessage,
       chunkMode,
     });
-    if (!chunks.length && text) chunks.push(text);
+    if (!chunks.length && text) {
+      chunks.push(text);
+    }
     const caption = chunks[0] ?? "";
     await sendMessage(caption, media);
     for (const chunk of chunks.slice(1)) {
-      if (!chunk.trim()) continue;
+      if (!chunk.trim()) {
+        continue;
+      }
       await interaction.followUp({ content: chunk });
     }
     return;
   }
 
-  if (!text.trim()) return;
+  if (!text.trim()) {
+    return;
+  }
   const chunks = chunkDiscordTextWithMode(text, {
     maxChars: textLimit,
     maxLines: maxLinesPerMessage,
     chunkMode,
   });
-  if (!chunks.length && text) chunks.push(text);
+  if (!chunks.length && text) {
+    chunks.push(text);
+  }
   for (const chunk of chunks) {
-    if (!chunk.trim()) continue;
+    if (!chunk.trim()) {
+      continue;
+    }
     await sendMessage(chunk);
   }
 }

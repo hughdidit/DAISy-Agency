@@ -67,7 +67,7 @@ describe("media understanding auto-detect (e2e)", () => {
       await writeExecutable(
         binDir,
         "sherpa-onnx-offline",
-        "#!/usr/bin/env bash\n" + 'echo "{\\"text\\":\\"sherpa ok\\"}"\n',
+        `#!/usr/bin/env bash\necho "{\\"text\\":\\"sherpa ok\\"}"\n`,
       );
 
       process.env.PATH = `${binDir}:/usr/bin:/bin`;
@@ -146,7 +146,7 @@ describe("media understanding auto-detect (e2e)", () => {
       await writeExecutable(
         binDir,
         "gemini",
-        "#!/usr/bin/env bash\necho '{" + '\\"response\\":\\"gemini ok\\"' + "}'\n",
+        `#!/usr/bin/env bash\necho '{\\"response\\":\\"gemini ok\\"' + "}'\n`,
       );
 
       process.env.PATH = `${binDir}:/usr/bin:/bin`;

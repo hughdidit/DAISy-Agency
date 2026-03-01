@@ -49,9 +49,11 @@ export async function removeChannelConfigWizard(
         ],
       }),
       runtime,
-    ) as string;
+    );
 
-    if (channel === "done") return next;
+    if (channel === "done") {
+      return next;
+    }
 
     const label = getChannelPlugin(channel)?.meta.label ?? channel;
     const confirmed = guardCancel(
@@ -61,7 +63,9 @@ export async function removeChannelConfigWizard(
       }),
       runtime,
     );
-    if (!confirmed) continue;
+    if (!confirmed) {
+      continue;
+    }
 
     const nextChannels: Record<string, unknown> = { ...next.channels };
     delete nextChannels[channel];

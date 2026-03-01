@@ -51,7 +51,9 @@ export type {
  * Normalize a CDP WebSocket URL to use the correct base URL.
  */
 function normalizeWsUrl(raw: string | undefined, cdpBaseUrl: string): string | undefined {
-  if (!raw) return undefined;
+  if (!raw) {
+    return undefined;
+  }
   try {
     return normalizeCdpWsUrl(raw, cdpBaseUrl);
   } catch {
@@ -65,7 +67,9 @@ async function fetchJson<T>(url: string, timeoutMs = 1500, init?: RequestInit): 
   try {
     const headers = getHeadersWithAuth(url, (init?.headers as Record<string, string>) || {});
     const res = await fetch(url, { ...init, headers, signal: ctrl.signal });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status}`);
+    }
     return (await res.json()) as T;
   } finally {
     clearTimeout(t);
@@ -78,7 +82,9 @@ async function fetchOk(url: string, timeoutMs = 1500, init?: RequestInit): Promi
   try {
     const headers = getHeadersWithAuth(url, (init?.headers as Record<string, string>) || {});
     const res = await fetch(url, { ...init, headers, signal: ctrl.signal });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status}`);
+    }
   } finally {
     clearTimeout(t);
   }
@@ -93,7 +99,9 @@ function createProfileContext(
 ): ProfileContext {
   const state = () => {
     const current = opts.getState();
-    if (!current) throw new Error("Browser server not started");
+    if (!current) {
+      throw new Error("Browser server not started");
+    }
     return current;
   };
 
@@ -181,7 +189,9 @@ function createProfileContext(
       while (Date.now() < deadline) {
         const tabs = await listTabs().catch(() => [] as BrowserTab[]);
         const found = tabs.find((t) => t.targetId === createdViaCdp);
-        if (found) return found;
+        if (found) {
+          return found;
+        }
         await new Promise((r) => setTimeout(r, 100));
       }
       return { targetId: createdViaCdp, title: "", url, type: "page" };
@@ -212,7 +222,9 @@ function createProfileContext(
       throw err;
     });
 
-    if (!created.id) throw new Error("Failed to open tab (missing id)");
+    if (!created.id) {
+      throw new Error("Failed to open tab (missing id)");
+    }
     const profileState = getProfileState();
     profileState.lastTargetId = created.id;
     return {
@@ -225,7 +237,9 @@ function createProfileContext(
   };
 
   const resolveRemoteHttpTimeout = (timeoutMs: number | undefined) => {
-    if (profile.cdpIsLoopback) return timeoutMs ?? 300;
+    if (profile.cdpIsLoopback) {
+      return timeoutMs ?? 300;
+    }
     const resolved = state().resolved;
     if (typeof timeoutMs === "number" && Number.isFinite(timeoutMs)) {
       return Math.max(Math.floor(timeoutMs), resolved.remoteCdpTimeoutMs);
@@ -260,7 +274,9 @@ function createProfileContext(
     setProfileRunning(running);
     running.proc.on("exit", () => {
       // Guard against server teardown (e.g., SIGUSR1 restart)
-      if (!opts.getState()) return;
+      if (!opts.getState()) {
+        return;
+      }
       const profileState = getProfileState();
       if (profileState.running?.pid === running.pid) {
         setProfileRunning(null);
@@ -293,7 +309,9 @@ function createProfileContext(
         }
       }
 
-      if (await isReachable(600)) return;
+      if (await isReachable(600)) {
+        return;
+      }
       // Relay server is up, but no attached tab yet. Prompt user to attach.
       throw new Error(
         `Chrome extension relay is running, but no tab is connected. Click the OpenClaw Chrome extension icon on a tab to attach it (profile "${profile.name}").`,
@@ -303,7 +321,9 @@ function createProfileContext(
     if (!httpReachable) {
       if ((current.resolved.attachOnly || remoteCdp) && opts.onEnsureAttachTarget) {
         await opts.onEnsureAttachTarget(profile);
-        if (await isHttpReachable(1200)) return;
+        if (await isHttpReachable(1200)) {
+          return;
+        }
       }
       if (current.resolved.attachOnly || remoteCdp) {
         throw new Error(
@@ -318,7 +338,9 @@ function createProfileContext(
     }
 
     // Port is reachable - check if we own it
-    if (await isReachable()) return;
+    if (await isReachable()) {
+      return;
+    }
 
     // HTTP responds but WebSocket fails - port in use by something else
     if (!profileState.running) {
@@ -332,7 +354,9 @@ function createProfileContext(
     if (current.resolved.attachOnly || remoteCdp) {
       if (opts.onEnsureAttachTarget) {
         await opts.onEnsureAttachTarget(profile);
-        if (await isReachable(1200)) return;
+        if (await isReachable(1200)) {
+          return;
+        }
       }
       throw new Error(
         remoteCdp
@@ -379,7 +403,9 @@ function createProfileContext(
     const resolveById = (raw: string) => {
       const resolved = resolveTargetIdFromTabs(raw, candidates);
       if (!resolved.ok) {
-        if (resolved.reason === "ambiguous") return "AMBIGUOUS" as const;
+        if (resolved.reason === "ambiguous") {
+          return "AMBIGUOUS" as const;
+        }
         return null;
       }
       return candidates.find((t) => t.targetId === resolved.targetId) ?? null;
@@ -388,7 +414,9 @@ function createProfileContext(
     const pickDefault = () => {
       const last = profileState.lastTargetId?.trim() || "";
       const lastResolved = last ? resolveById(last) : null;
-      if (lastResolved && lastResolved !== "AMBIGUOUS") return lastResolved;
+      if (lastResolved && lastResolved !== "AMBIGUOUS") {
+        return lastResolved;
+      }
       // Prefer a real page tab first (avoid service workers/background targets).
       const page = candidates.find((t) => (t.type ?? "page") === "page");
       return page ?? candidates.at(0) ?? null;
@@ -404,7 +432,9 @@ function createProfileContext(
     if (chosen === "AMBIGUOUS") {
       throw new Error("ambiguous target id prefix");
     }
-    if (!chosen) throw new Error("tab not found");
+    if (!chosen) {
+      throw new Error("tab not found");
+    }
     profileState.lastTargetId = chosen.targetId;
     return chosen;
   };
@@ -474,6 +504,7 @@ function createProfileContext(
       return { stopped };
     }
     const profileState = getProfileState();
+<<<<<<< HEAD
     if (!profileState.running) return { stopped: false };
     await stopOpenClawChrome(profileState.running);
     setProfileRunning(null);
@@ -541,7 +572,9 @@ function createProfileContext(
 export function createBrowserRouteContext(opts: ContextOptions): BrowserRouteContext {
   const state = () => {
     const current = opts.getState();
-    if (!current) throw new Error("Browser server not started");
+    if (!current) {
+      throw new Error("Browser server not started");
+    }
     return current;
   };
 
@@ -563,7 +596,9 @@ export function createBrowserRouteContext(opts: ContextOptions): BrowserRouteCon
     for (const name of Object.keys(current.resolved.profiles)) {
       const profileState = current.profiles.get(name);
       const profile = resolveProfile(current.resolved, name);
-      if (!profile) continue;
+      if (!profile) {
+        continue;
+      }
 
       let tabCount = 0;
       let running = false;

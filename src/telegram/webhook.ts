@@ -71,8 +71,8 @@ export async function startTelegramWebhook(opts: {
       logWebhookReceived({ channel: "telegram", updateType: "telegram-post" });
     }
     const handled = handler(req, res);
-    if (handled && typeof (handled as Promise<void>).catch === "function") {
-      void (handled as Promise<void>)
+    if (handled && typeof handled.catch === "function") {
+      void handled
         .then(() => {
           if (diagnosticsEnabled) {
             logWebhookProcessed({
@@ -92,7 +92,9 @@ export async function startTelegramWebhook(opts: {
             });
           }
           runtime.log?.(`webhook handler failed: ${errMsg}`);
-          if (!res.headersSent) res.writeHead(500);
+          if (!res.headersSent) {
+            res.writeHead(500);
+          }
           res.end();
         });
     }

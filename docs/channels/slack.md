@@ -9,20 +9,22 @@ title: "Slack"
 ## Socket mode (default)
 
 ### Quick setup (beginner)
+<<<<<<< HEAD
 1) Create a Slack app and enable **Socket Mode**.
 2) Create an **App Token** (`xapp-...`) and **Bot Token** (`xoxb-...`).
 3) Set tokens for OpenClaw and start the gateway.
 
 Minimal config:
+
 ```json5
 {
   channels: {
     slack: {
       enabled: true,
       appToken: "xapp-...",
-      botToken: "xoxb-..."
-    }
-  }
+      botToken: "xoxb-...",
+    },
+  },
 }
 ```
 
@@ -47,9 +49,15 @@ Minimal config:
    - `member_joined_channel`, `member_left_channel`
    - `channel_rename`
    - `pin_added`, `pin_removed`
+<<<<<<< HEAD
 6) Invite the bot to channels you want it to read.
 7) Slash Commands → create `/openclaw` if you use `channels.slack.slashCommand`. If you enable native commands, add one slash command per built-in command (same names as `/help`). Native defaults to off for Slack unless you set `channels.slack.commands.native: true` (global `commands.native` is `"auto"` which leaves Slack off).
 8) App Home → enable the **Messages Tab** so users can DM the bot.
+=======
+6. Invite the bot to channels you want it to read.
+7. Slash Commands → create `/openclaw` if you use `channels.slack.slashCommand`. If you enable native commands, add one slash command per built-in command (same names as `/help`). Native defaults to off for Slack unless you set `channels.slack.commands.native: true` (global `commands.native` is `"auto"` which leaves Slack off).
+8. App Home → enable the **Messages Tab** so users can DM the bot.
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 Use the manifest below so scopes and events stay in sync.
 
@@ -62,6 +70,7 @@ Multi-account support: use `channels.slack.accounts` with per-account tokens and
 >>>>>>> 1bf9f237f (docs: linting)
 
 Set tokens via env vars (recommended):
+
 - `SLACK_APP_TOKEN=xapp-...`
 - `SLACK_BOT_TOKEN=xoxb-...`
 
@@ -73,9 +82,9 @@ Or via config:
     slack: {
       enabled: true,
       appToken: "xapp-...",
-      botToken: "xoxb-..."
-    }
-  }
+      botToken: "xoxb-...",
+    },
+  },
 }
 ```
 
@@ -90,20 +99,7 @@ User tokens are configured in the config file (no env var support). For
 multi-account, set `channels.slack.accounts.<id>.userToken`.
 
 Example with bot + app + user tokens:
-```json5
-{
-  channels: {
-    slack: {
-      enabled: true,
-      appToken: "xapp-...",
-      botToken: "xoxb-...",
-      userToken: "xoxp-..."
-    }
-  }
-}
-```
 
-Example with userTokenReadOnly explicitly set (allow user token writes):
 ```json5
 {
   channels: {
@@ -112,13 +108,29 @@ Example with userTokenReadOnly explicitly set (allow user token writes):
       appToken: "xapp-...",
       botToken: "xoxb-...",
       userToken: "xoxp-...",
-      userTokenReadOnly: false
-    }
-  }
+    },
+  },
+}
+```
+
+Example with userTokenReadOnly explicitly set (allow user token writes):
+
+```json5
+{
+  channels: {
+    slack: {
+      enabled: true,
+      appToken: "xapp-...",
+      botToken: "xoxb-...",
+      userToken: "xoxp-...",
+      userTokenReadOnly: false,
+    },
+  },
 }
 ```
 
 #### Token usage
+
 - Read operations (history, reactions list, pins list, emoji list, member info,
   search) prefer the user token when configured, otherwise the bot token.
 - Write operations (send/edit/delete messages, add/remove reactions, pin/unpin,
@@ -126,10 +138,12 @@ Example with userTokenReadOnly explicitly set (allow user token writes):
   no bot token is available, OpenClaw falls back to the user token.
 
 ### History context
+
 - `channels.slack.historyLimit` (or `channels.slack.accounts.*.historyLimit`) controls how many recent channel/group messages are wrapped into the prompt.
 - Falls back to `messages.groupChat.historyLimit`. Set `0` to disable (default 50).
 
 ## HTTP mode (Events API)
+
 Use HTTP webhook mode when your Gateway is reachable by Slack over HTTPS (typical for server deployments).
 HTTP mode uses the Events API + Interactivity + Slash Commands with a shared request URL.
 
@@ -164,9 +178,9 @@ Example request URL:
       mode: "http",
       botToken: "xoxb-...",
       signingSecret: "your-signing-secret",
-      webhookPath: "/slack/events"
-    }
-  }
+      webhookPath: "/slack/events",
+    },
+  },
 }
 ```
 
@@ -174,6 +188,7 @@ Multi-account HTTP mode: set `channels.slack.accounts.<id>.mode = "http"` and pr
 `webhookPath` per account so each Slack app can point to its own URL.
 
 ### Manifest (optional)
+
 Use this Slack app manifest to create the app quickly (adjust the name/command if you want). Include the
 user scopes if you plan to configure a user token.
 
@@ -268,11 +283,13 @@ user scopes if you plan to configure a user token.
 If you enable native commands, add one `slash_commands` entry per command you want to expose (matching the `/help` list). Override with `channels.slack.commands.native`.
 
 ## Scopes (current vs optional)
+
 Slack's Conversations API is type-scoped: you only need the scopes for the
 conversation types you actually touch (channels, groups, im, mpim). See
 [https://docs.slack.dev/apis/web-api/using-the-conversations-api/](https://docs.slack.dev/apis/web-api/using-the-conversations-api/) for the overview.
 
 ### Bot token scopes (required)
+
 - `chat:write` (send/update/delete messages via `chat.postMessage`)
   [https://docs.slack.dev/reference/methods/chat.postMessage](https://docs.slack.dev/reference/methods/chat.postMessage)
 - `im:write` (open DMs via `conversations.open` for user DMs)
@@ -295,6 +312,7 @@ conversation types you actually touch (channels, groups, im, mpim). See
   [https://docs.slack.dev/messaging/working-with-files/#upload](https://docs.slack.dev/messaging/working-with-files/#upload)
 
 ### User token scopes (optional, read-only by default)
+
 Add these under **User Token Scopes** if you configure `channels.slack.userToken`.
 
 - `channels:history`, `groups:history`, `im:history`, `mpim:history`
@@ -306,6 +324,7 @@ Add these under **User Token Scopes** if you configure `channels.slack.userToken
 - `search:read`
 
 ### Not needed today (but likely future)
+
 - `mpim:write` (only if we add group-DM open/DM start via `conversations.open`)
 - `groups:write` (only if we add private-channel management: create/rename/invite/archive)
 - `chat:write.public` (only if we want to post to channels the bot isn't in)
@@ -315,6 +334,7 @@ Add these under **User Token Scopes** if you configure `channels.slack.userToken
 - `files:read` (only if we start listing/reading file metadata)
 
 ## Config
+
 Slack uses Socket Mode only (no HTTP webhook server). Provide both tokens:
 
 ```json
@@ -365,6 +385,7 @@ Slack uses Socket Mode only (no HTTP webhook server). Provide both tokens:
 ```
 
 Tokens can also be supplied via env vars:
+
 - `SLACK_BOT_TOKEN`
 - `SLACK_APP_TOKEN`
 
@@ -373,6 +394,7 @@ Ack reactions are controlled globally via `messages.ackReaction` +
 ack reaction after the bot replies.
 
 ## Limits
+
 - Outbound text is chunked to `channels.slack.textChunkLimit` (default 4000).
 - Optional newline chunking: set `channels.slack.chunkMode="newline"` to split on blank lines (paragraph boundaries) before length chunking.
 - Media uploads are capped by `channels.slack.mediaMaxMb` (default 20).
@@ -380,87 +402,99 @@ ack reaction after the bot replies.
 ## Reply threading
 By default, OpenClaw replies in the main channel. Use `channels.slack.replyToMode` to control automatic threading:
 
-| Mode | Behavior |
-| --- | --- |
-| `off` | **Default.** Reply in main channel. Only thread if the triggering message was already in a thread. |
+By default, OpenClaw replies in the main channel. Use `channels.slack.replyToMode` to control automatic threading:
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
+
+| Mode    | Behavior                                                                                                                                                            |
+| ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `off`   | **Default.** Reply in main channel. Only thread if the triggering message was already in a thread.                                                                  |
 | `first` | First reply goes to thread (under the triggering message), subsequent replies go to main channel. Useful for keeping context visible while avoiding thread clutter. |
-| `all` | All replies go to thread. Keeps conversations contained but may reduce visibility. |
+| `all`   | All replies go to thread. Keeps conversations contained but may reduce visibility.                                                                                  |
 
 The mode applies to both auto-replies and agent tool calls (`slack sendMessage`).
 
 ### Per-chat-type threading
+
 You can configure different threading behavior per chat type by setting `channels.slack.replyToModeByChatType`:
 
 ```json5
 {
   channels: {
     slack: {
-      replyToMode: "off",        // default for channels
+      replyToMode: "off", // default for channels
       replyToModeByChatType: {
-        direct: "all",           // DMs always thread
-        group: "first"           // group DMs/MPIM thread first reply
+        direct: "all", // DMs always thread
+        group: "first", // group DMs/MPIM thread first reply
       },
-    }
-  }
+    },
+  },
 }
 ```
 
 Supported chat types:
+
 - `direct`: 1:1 DMs (Slack `im`)
 - `group`: group DMs / MPIMs (Slack `mpim`)
 - `channel`: standard channels (public/private)
 
 Precedence:
-1) `replyToModeByChatType.<chatType>`
-2) `replyToMode`
-3) Provider default (`off`)
+
+1. `replyToModeByChatType.<chatType>`
+2. `replyToMode`
+3. Provider default (`off`)
 
 Legacy `channels.slack.dm.replyToMode` is still accepted as a fallback for `direct` when no chat-type override is set.
 
 Examples:
 
 Thread DMs only:
+
 ```json5
 {
   channels: {
     slack: {
       replyToMode: "off",
-      replyToModeByChatType: { direct: "all" }
-    }
-  }
+      replyToModeByChatType: { direct: "all" },
+    },
+  },
 }
 ```
 
 Thread group DMs but keep channels in the root:
+
 ```json5
 {
   channels: {
     slack: {
       replyToMode: "off",
-      replyToModeByChatType: { group: "first" }
-    }
-  }
+      replyToModeByChatType: { group: "first" },
+    },
+  },
 }
 ```
 
 Make channels thread, keep DMs in the root:
+
 ```json5
 {
   channels: {
     slack: {
       replyToMode: "first",
-      replyToModeByChatType: { direct: "off", group: "off" }
-    }
-  }
+      replyToModeByChatType: { direct: "off", group: "off" },
+    },
+  },
 }
 ```
 
 ### Manual threading tags
+
 For fine-grained control, use these tags in agent responses:
+
 - `[[reply_to_current]]` — reply to the triggering message (start/continue thread).
 - `[[reply_to:<id>]]` — reply to a specific message id.
 
 ## Sessions + routing
+
 - DMs share the `main` session (like WhatsApp/Telegram).
 - Channels map to `agent:<agentId>:slack:channel:<channelId>` sessions.
 - Slash commands use `agent:<agentId>:slack:slash:<userId>` sessions (prefix configurable via `channels.slack.slashCommand.sessionPrefix`).
@@ -469,14 +503,17 @@ For fine-grained control, use these tags in agent responses:
 - Full command list + config: [Slash commands](/tools/slash-commands)
 
 ## DM security (pairing)
+
 - Default: `channels.slack.dm.policy="pairing"` — unknown DM senders get a pairing code (expires after 1 hour).
 - Approve via: `openclaw pairing approve slack <code>`.
 - To allow anyone: set `channels.slack.dm.policy="open"` and `channels.slack.dm.allowFrom=["*"]`.
 - `channels.slack.dm.allowFrom` accepts user IDs, @handles, or emails (resolved at startup when tokens allow). The wizard accepts usernames and resolves them to ids during setup when tokens allow.
 
 ## Group policy
+
 - `channels.slack.groupPolicy` controls channel handling (`open|disabled|allowlist`).
 - `allowlist` requires channels to be listed in `channels.slack.channels`.
+<<<<<<< HEAD
  - If you only set `SLACK_BOT_TOKEN`/`SLACK_APP_TOKEN` and never create a `channels.slack` section,
    the runtime defaults `groupPolicy` to `open`. Add `channels.slack.groupPolicy`,
    `channels.defaults.groupPolicy`, or a channel allowlist to lock it down.
@@ -485,8 +522,19 @@ For fine-grained control, use these tags in agent responses:
  - On startup, OpenClaw resolves channel/user names in allowlists to IDs (when tokens allow)
    and logs the mapping; unresolved entries are kept as typed.
  - To allow **no channels**, set `channels.slack.groupPolicy: "disabled"` (or keep an empty allowlist).
+=======
+- If you only set `SLACK_BOT_TOKEN`/`SLACK_APP_TOKEN` and never create a `channels.slack` section,
+  the runtime defaults `groupPolicy` to `open`. Add `channels.slack.groupPolicy`,
+  `channels.defaults.groupPolicy`, or a channel allowlist to lock it down.
+- The configure wizard accepts `#channel` names and resolves them to IDs when possible
+  (public + private); if multiple matches exist, it prefers the active channel.
+- On startup, OpenClaw resolves channel/user names in allowlists to IDs (when tokens allow)
+  and logs the mapping; unresolved entries are kept as typed.
+- To allow **no channels**, set `channels.slack.groupPolicy: "disabled"` (or keep an empty allowlist).
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 Channel options (`channels.slack.channels.<id>` or `channels.slack.channels.<name>`):
+
 - `allow`: allow/deny the channel when `groupPolicy="allowlist"`.
 - `requireMention`: mention gating for the channel.
 - `tools`: optional per-channel tool policy overrides (`allow`/`deny`/`alsoAllow`).
@@ -498,22 +546,26 @@ Channel options (`channels.slack.channels.<id>` or `channels.slack.channels.<nam
 - `enabled`: set `false` to disable the channel.
 
 ## Delivery targets
+
 Use these with cron/CLI sends:
+
 - `user:<id>` for DMs
 - `channel:<id>` for channels
 
 ## Tool actions
+
 Slack tool actions can be gated with `channels.slack.actions.*`:
 
-| Action group | Default | Notes |
-| --- | --- | --- |
-| reactions | enabled | React + list reactions |
-| messages | enabled | Read/send/edit/delete |
-| pins | enabled | Pin/unpin/list |
-| memberInfo | enabled | Member info |
-| emojiList | enabled | Custom emoji list |
+| Action group | Default | Notes                  |
+| ------------ | ------- | ---------------------- |
+| reactions    | enabled | React + list reactions |
+| messages     | enabled | Read/send/edit/delete  |
+| pins         | enabled | Pin/unpin/list         |
+| memberInfo   | enabled | Member info            |
+| emojiList    | enabled | Custom emoji list      |
 
 ## Security notes
+
 - Writes default to the bot token so state-changing actions stay scoped to the
   app's bot permissions and identity.
 - Setting `userTokenReadOnly: false` allows the user token to be used for write
@@ -551,6 +603,7 @@ Common failures:
 For triage flow: [/channels/troubleshooting](/channels/troubleshooting).
 
 ## Notes
+
 - Mention gating is controlled via `channels.slack.channels` (set `requireMention` to `true`); `agents.list[].groupChat.mentionPatterns` (or `messages.groupChat.mentionPatterns`) also count as mentions.
 - Multi-agent override: set per-agent patterns on `agents.list[].groupChat.mentionPatterns`.
 - Reaction notifications follow `channels.slack.reactionNotifications` (use `reactionAllowlist` with mode `allowlist`).

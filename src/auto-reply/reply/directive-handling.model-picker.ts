@@ -39,9 +39,15 @@ const PROVIDER_RANK = new Map<string, number>(
 function compareProvidersForPicker(a: string, b: string): number {
   const pa = PROVIDER_RANK.get(a);
   const pb = PROVIDER_RANK.get(b);
-  if (pa !== undefined && pb !== undefined) return pa - pb;
-  if (pa !== undefined) return -1;
-  if (pb !== undefined) return 1;
+  if (pa !== undefined && pb !== undefined) {
+    return pa - pb;
+  }
+  if (pa !== undefined) {
+    return -1;
+  }
+  if (pb !== undefined) {
+    return 1;
+  }
   return a.localeCompare(b);
 }
 
@@ -52,10 +58,14 @@ export function buildModelPickerItems(catalog: ModelPickerCatalogEntry[]): Model
   for (const entry of catalog) {
     const provider = normalizeProviderId(entry.provider);
     const model = entry.id?.trim();
-    if (!provider || !model) continue;
+    if (!provider || !model) {
+      continue;
+    }
 
     const key = `${provider}/${model}`;
-    if (seen.has(key)) continue;
+    if (seen.has(key)) {
+      continue;
+    }
     seen.add(key);
 
     out.push({ model, provider });
@@ -64,7 +74,9 @@ export function buildModelPickerItems(catalog: ModelPickerCatalogEntry[]): Model
   // Sort by provider preference first, then by model name
   out.sort((a, b) => {
     const providerOrder = compareProvidersForPicker(a.provider, b.provider);
-    if (providerOrder !== 0) return providerOrder;
+    if (providerOrder !== 0) {
+      return providerOrder;
+    }
     return a.model.toLowerCase().localeCompare(b.model.toLowerCase());
   });
 

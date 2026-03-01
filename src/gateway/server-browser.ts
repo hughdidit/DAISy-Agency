@@ -21,7 +21,9 @@ export async function startBrowserControlServerIfEnabled(): Promise<BrowserContr
     typeof (mod as { stopBrowserControlService?: unknown }).stopBrowserControlService === "function"
       ? (mod as { stopBrowserControlService: () => Promise<void> }).stopBrowserControlService
       : (mod as { stopBrowserControlServer?: () => Promise<void> }).stopBrowserControlServer;
-  if (!start) return null;
+  if (!start) {
+    return null;
+  }
   await start();
   return { stop: stop ?? (async () => {}) };
 }

@@ -7,7 +7,7 @@ import {
   PresenceUpdateListener,
 } from "@buape/carbon";
 import { danger } from "../../globals.js";
-import { formatDurationSeconds } from "../../infra/format-duration.js";
+import { formatDurationSeconds } from "../../infra/format-time/format-duration.ts";
 import { enqueueSystemEvent } from "../../infra/system-events.js";
 import { createSubsystemLogger } from "../../logging/subsystem.js";
 import { resolveAgentRoute } from "../../routing/resolve-route.js";
@@ -40,7 +40,9 @@ function logSlowDiscordListener(params: {
   event: string;
   durationMs: number;
 }) {
-  if (params.durationMs < DISCORD_SLOW_LISTENER_THRESHOLD_MS) return;
+  if (params.durationMs < DISCORD_SLOW_LISTENER_THRESHOLD_MS) {
+    return;
+  }
   const duration = formatDurationSeconds(params.durationMs, {
     decimals: 1,
     unit: "seconds",
@@ -179,10 +181,16 @@ async function handleDiscordReactionEvent(params: {
 }) {
   try {
     const { data, client, action, botUserId, guildEntries } = params;
-    if (!("user" in data)) return;
+    if (!("user" in data)) {
+      return;
+    }
     const user = data.user;
-    if (!user || user.bot) return;
-    if (!data.guild_id) return;
+    if (!user || user.bot) {
+      return;
+    }
+    if (!data.guild_id) {
+      return;
+    }
 
     const guildInfo = resolveDiscordGuildEntry({
       guild: data.guild ?? undefined,
@@ -193,7 +201,9 @@ async function handleDiscordReactionEvent(params: {
     }
 
     const channel = await client.fetchChannel(data.channel_id);
-    if (!channel) return;
+    if (!channel) {
+      return;
+    }
     const channelName = "name" in channel ? (channel.name ?? undefined) : undefined;
     const channelSlug = channelName ? normalizeDiscordSlug(channelName) : "";
     const channelType = "type" in channel ? channel.type : undefined;
@@ -225,9 +235,13 @@ async function handleDiscordReactionEvent(params: {
       parentSlug,
       scope: isThreadChannel ? "thread" : "channel",
     });
-    if (channelConfig?.allowed === false) return;
+    if (channelConfig?.allowed === false) {
+      return;
+    }
 
-    if (botUserId && user.id === botUserId) return;
+    if (botUserId && user.id === botUserId) {
+      return;
+    }
 
     const reactionMode = guildInfo?.reactionNotifications ?? "own";
     const message = await data.message.fetch().catch(() => null);
@@ -241,7 +255,9 @@ async function handleDiscordReactionEvent(params: {
       userTag: formatDiscordUserTag(user),
       allowlist: guildInfo?.users,
     });
-    if (!shouldNotify) return;
+    if (!shouldNotify) {
+      return;
+    }
 
     const emojiLabel = formatDiscordReactionEmoji(data.emoji);
     const actorLabel = formatDiscordUserTag(user);
@@ -261,6 +277,7 @@ async function handleDiscordReactionEvent(params: {
       accountId: params.accountId,
       guildId: data.guild_id ?? undefined,
       peer: { kind: "channel", id: data.channel_id },
+      parentPeer: parentId ? { kind: "channel", id: parentId } : undefined,
     });
     enqueueSystemEvent(text, {
       sessionKey: route.sessionKey,
@@ -289,7 +306,9 @@ export class DiscordPresenceListener extends PresenceUpdateListener {
         "user" in data && data.user && typeof data.user === "object" && "id" in data.user
           ? String(data.user.id)
           : undefined;
-      if (!userId) return;
+      if (!userId) {
+        return;
+      }
       setPresence(
         this.accountId,
         userId,

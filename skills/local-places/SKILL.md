@@ -7,7 +7,7 @@ metadata: {"openclaw":{"emoji":"📍","requires":{"bins":["uv"],"env":["GOOGLE_P
 
 # 📍 Local Places
 
-*Find places, Go fast*
+_Find places, Go fast_
 
 Search for nearby places using a local Google Places API proxy. Two-step flow: resolve location first, then search.
 
@@ -27,6 +27,7 @@ Requires `GOOGLE_PLACES_API_KEY` in `.env` or environment.
 1. **Check server:** `curl http://127.0.0.1:8000/ping`
 
 2. **Resolve location:**
+
 ```bash
 curl -X POST http://127.0.0.1:8000/locations/resolve \
   -H "Content-Type: application/json" \
@@ -34,6 +35,7 @@ curl -X POST http://127.0.0.1:8000/locations/resolve \
 ```
 
 3. **Search places:**
+
 ```bash
 curl -X POST http://127.0.0.1:8000/places/search \
   -H "Content-Type: application/json" \
@@ -46,6 +48,7 @@ curl -X POST http://127.0.0.1:8000/places/search \
 ```
 
 4. **Get details:**
+
 ```bash
 curl http://127.0.0.1:8000/places/{place_id}
 ```
@@ -77,7 +80,7 @@ curl http://127.0.0.1:8000/places/{place_id}
       "place_id": "ChIJ...",
       "name": "Coffee Shop",
       "address": "123 Main St",
-      "location": {"lat": 51.5, "lng": -0.1},
+      "location": { "lat": 51.5, "lng": -0.1 },
       "rating": 4.6,
       "price_level": 2,
       "types": ["cafe", "food"],

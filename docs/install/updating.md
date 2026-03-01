@@ -25,6 +25,7 @@ curl -fsSL https://openclaw.ai/install.sh | bash
 ```
 
 Notes:
+
 - Add `--no-onboard` if you don’t want the onboarding wizard to run again.
 - For **source installs**, use:
 
@@ -76,6 +77,7 @@ npm i -g openclaw@latest
 ```bash
 pnpm add -g openclaw@latest
 ```
+
 We do **not** recommend Bun for the Gateway runtime (WhatsApp/Telegram bugs).
 
 To switch update channels (git + npm installs):
@@ -113,6 +115,7 @@ openclaw update
 ```
 
 It runs a safe-ish update flow:
+
 - Requires a clean worktree.
 - Switches to the selected channel (tag or branch).
 - Fetches + rebases against the configured upstream (dev channel).
@@ -127,6 +130,12 @@ The Control UI has **Update & Restart** (RPC: `update.run`). It:
 1) Runs the same source-update flow as `openclaw update` (git checkout only).
 2) Writes a restart sentinel with a structured report (stdout/stderr tail).
 3) Restarts the gateway and pings the last active session with the report.
+=======
+
+1. Runs the same source-update flow as `openclaw update` (git checkout only).
+2. Writes a restart sentinel with a structured report (stdout/stderr tail).
+3. Restarts the gateway and pings the last active session with the report.
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 If the rebase fails, the gateway aborts and restarts without applying the update.
 
@@ -164,6 +173,7 @@ Doctor is the “safe update” command. It’s intentionally boring: repair + m
 Note: if you’re on a **source install** (git checkout), `openclaw doctor` will offer to run `openclaw update` first.
 
 Typical things it does:
+
 - Migrate deprecated config keys / legacy config file locations.
 - Audit DM policies and warn on risky “open” settings.
 - Check Gateway health and can offer to restart.

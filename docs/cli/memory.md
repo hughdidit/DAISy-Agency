@@ -12,6 +12,7 @@ Manage semantic memory indexing and search.
 Provided by the active memory plugin (default: `memory-core`; set `plugins.slots.memory = "none"` to disable).
 
 Related:
+
 - Memory concept: [Memory](/concepts/memory)
 <<<<<<< HEAD
  - Plugins: [Plugins](/plugins)
@@ -41,6 +42,7 @@ Common:
 - `--verbose`: emit detailed logs during probes and indexing.
 
 Notes:
+
 - `memory status --deep` probes vector + embedding availability.
 - `memory status --deep --index` runs a reindex if the store is dirty.
 - `memory index --verbose` prints per-phase details (provider, model, sources, batch activity).

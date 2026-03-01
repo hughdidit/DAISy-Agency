@@ -6,6 +6,7 @@ read_when:
   - You are debugging formatting regressions across channels
 title: "Markdown Formatting"
 ---
+
 # Markdown formatting
 
 OpenClaw formats outbound Markdown by converting it into a shared intermediate
@@ -48,12 +49,17 @@ IR (schematic):
 ```json
 {
   "text": "Hello world — see docs.",
+<<<<<<< HEAD
   "styles": [
     { "start": 6, "end": 11, "style": "bold" }
   ],
   "links": [
     { "start": 19, "end": 23, "href": "https://docs.openclaw.ai" }
   ]
+=======
+  "styles": [{ "start": 6, "end": 11, "style": "bold" }],
+  "links": [{ "start": 19, "end": 23, "href": "https://docs.openclaw.ai" }]
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 }
 ```
 

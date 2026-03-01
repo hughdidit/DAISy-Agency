@@ -7,7 +7,7 @@ const RECENT_TELEGRAM_UPDATE_MAX = 2000;
 
 export type MediaGroupEntry = {
   messages: Array<{
-    msg: TelegramMessage;
+    msg: Message;
     ctx: TelegramContext;
   }>;
   timer: ReturnType<typeof setTimeout>;
@@ -16,12 +16,12 @@ export type MediaGroupEntry = {
 export type TelegramUpdateKeyContext = {
   update?: {
     update_id?: number;
-    message?: TelegramMessage;
-    edited_message?: TelegramMessage;
+    message?: Message;
+    edited_message?: Message;
   };
   update_id?: number;
-  message?: TelegramMessage;
-  callbackQuery?: { id?: string; message?: TelegramMessage };
+  message?: Message;
+  callbackQuery?: { id?: string; message?: Message };
 };
 
 export const resolveTelegramUpdateId = (ctx: TelegramUpdateKeyContext) =>
@@ -29,9 +29,13 @@ export const resolveTelegramUpdateId = (ctx: TelegramUpdateKeyContext) =>
 
 export const buildTelegramUpdateKey = (ctx: TelegramUpdateKeyContext) => {
   const updateId = resolveTelegramUpdateId(ctx);
-  if (typeof updateId === "number") return `update:${updateId}`;
+  if (typeof updateId === "number") {
+    return `update:${updateId}`;
+  }
   const callbackId = ctx.callbackQuery?.id;
-  if (callbackId) return `callback:${callbackId}`;
+  if (callbackId) {
+    return `callback:${callbackId}`;
+  }
   const msg =
     ctx.message ?? ctx.update?.message ?? ctx.update?.edited_message ?? ctx.callbackQuery?.message;
   const chatId = msg?.chat?.id;

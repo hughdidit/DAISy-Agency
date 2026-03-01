@@ -25,7 +25,7 @@ import { buildMentionRegexes, matchesMentionPatterns } from "../../auto-reply/re
 import { createReplyDispatcher } from "../../auto-reply/reply/reply-dispatcher.js";
 import { resolveControlCommandGate } from "../../channels/command-gating.js";
 import { logInboundDrop } from "../../channels/logging.js";
-import { createReplyPrefixContext } from "../../channels/reply-prefix.js";
+import { createReplyPrefixOptions } from "../../channels/reply-prefix.js";
 import { recordInboundSession } from "../../channels/session.js";
 import { loadConfig } from "../../config/config.js";
 import {
@@ -75,7 +75,9 @@ async function detectRemoteHostFromCliPath(cliPath: string): Promise<string | un
 
     // Match user@host pattern first (e.g., openclaw@192.168.64.3)
     const userHostMatch = content.match(/\bssh\b[^\n]*?\s+([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+)/);
-    if (userHostMatch) return userHostMatch[1];
+    if (userHostMatch) {
+      return userHostMatch[1];
+    }
 
     // Fallback: match host-only before imsg command (e.g., ssh -T mac-mini imsg)
     const hostOnlyMatch = content.match(/\bssh\b[^\n]*?\s+([a-zA-Z][a-zA-Z0-9._-]*)\s+\S*\bimsg\b/);
@@ -96,16 +98,65 @@ function normalizeReplyField(value: unknown): string | undefined {
     const trimmed = value.trim();
     return trimmed ? trimmed : undefined;
   }
-  if (typeof value === "number") return String(value);
+  if (typeof value === "number") {
+    return String(value);
+  }
   return undefined;
 }
 
 function describeReplyContext(message: IMessagePayload): IMessageReplyContext | null {
   const body = normalizeReplyField(message.reply_to_text);
-  if (!body) return null;
+  if (!body) {
+    return null;
+  }
   const id = normalizeReplyField(message.reply_to_id);
   const sender = normalizeReplyField(message.reply_to_sender);
   return { body, id, sender };
+}
+
+/**
+ * Cache for recently sent messages, used for echo detection.
+ * Keys are scoped by conversation (accountId:target) so the same text in different chats is not conflated.
+ * Entries expire after 5 seconds; we do not forget on match so multiple echo deliveries are all filtered.
+ */
+class SentMessageCache {
+  private cache = new Map<string, number>();
+  private readonly ttlMs = 5000; // 5 seconds
+
+  remember(scope: string, text: string): void {
+    if (!text?.trim()) {
+      return;
+    }
+    const key = `${scope}:${text.trim()}`;
+    this.cache.set(key, Date.now());
+    this.cleanup();
+  }
+
+  has(scope: string, text: string): boolean {
+    if (!text?.trim()) {
+      return false;
+    }
+    const key = `${scope}:${text.trim()}`;
+    const timestamp = this.cache.get(key);
+    if (!timestamp) {
+      return false;
+    }
+    const age = Date.now() - timestamp;
+    if (age > this.ttlMs) {
+      this.cache.delete(key);
+      return false;
+    }
+    return true;
+  }
+
+  private cleanup(): void {
+    const now = Date.now();
+    for (const [text, timestamp] of this.cache.entries()) {
+      if (now - timestamp > this.ttlMs) {
+        this.cache.delete(text);
+      }
+    }
+  }
 }
 
 export async function monitorIMessageProvider(opts: MonitorIMessageOpts = {}): Promise<void> {
@@ -123,6 +174,7 @@ export async function monitorIMessageProvider(opts: MonitorIMessageOpts = {}): P
       DEFAULT_GROUP_HISTORY_LIMIT,
   );
   const groupHistories = new Map<string, HistoryEntry[]>();
+  const sentMessageCache = new SentMessageCache();
   const textLimit = resolveTextChunkLimit(cfg, "imessage", accountInfo.accountId);
   const allowFrom = normalizeAllowList(opts.allowFrom ?? imessageCfg.allowFrom);
   const groupAllowFrom = normalizeAllowList(
@@ -137,6 +189,7 @@ export async function monitorIMessageProvider(opts: MonitorIMessageOpts = {}): P
   const mediaMaxBytes = (opts.mediaMaxMb ?? imessageCfg.mediaMaxMb ?? 16) * 1024 * 1024;
   const cliPath = opts.cliPath ?? imessageCfg.cliPath ?? "imsg";
   const dbPath = opts.dbPath ?? imessageCfg.dbPath;
+  const probeTimeoutMs = imessageCfg.probeTimeoutMs ?? DEFAULT_IMESSAGE_PROBE_TIMEOUT_MS;
 
   // Resolve remoteHost: explicit config, or auto-detect from SSH wrapper script
   let remoteHost = imessageCfg.remoteHost;
@@ -152,7 +205,9 @@ export async function monitorIMessageProvider(opts: MonitorIMessageOpts = {}): P
     debounceMs: inboundDebounceMs,
     buildKey: (entry) => {
       const sender = entry.message.sender?.trim();
-      if (!sender) return null;
+      if (!sender) {
+        return null;
+      }
       const conversationId =
         entry.message.chat_id != null
           ? `chat:${entry.message.chat_id}`
@@ -161,13 +216,19 @@ export async function monitorIMessageProvider(opts: MonitorIMessageOpts = {}): P
     },
     shouldDebounce: (entry) => {
       const text = entry.message.text?.trim() ?? "";
-      if (!text) return false;
-      if (entry.message.attachments && entry.message.attachments.length > 0) return false;
+      if (!text) {
+        return false;
+      }
+      if (entry.message.attachments && entry.message.attachments.length > 0) {
+        return false;
+      }
       return !hasControlCommand(text, cfg);
     },
     onFlush: async (entries) => {
       const last = entries.at(-1);
-      if (!last) return;
+      if (!last) {
+        return;
+      }
       if (entries.length === 1) {
         await handleMessageNow(last.message);
         return;
@@ -191,9 +252,13 @@ export async function monitorIMessageProvider(opts: MonitorIMessageOpts = {}): P
   async function handleMessageNow(message: IMessagePayload) {
     const senderRaw = message.sender ?? "";
     const sender = senderRaw.trim();
-    if (!sender) return;
+    if (!sender) {
+      return;
+    }
     const senderNormalized = normalizeIMessageHandle(sender);
-    if (message.is_from_me) return;
+    if (message.is_from_me) {
+      return;
+    }
 
     const chatId = message.chat_id ?? undefined;
     const chatGuid = message.chat_guid ?? undefined;
@@ -223,7 +288,9 @@ export async function monitorIMessageProvider(opts: MonitorIMessageOpts = {}): P
     );
 
     const isGroup = Boolean(message.is_group) || treatAsGroupByConfig;
-    if (isGroup && !chatId) return;
+    if (isGroup && !chatId) {
+      return;
+    }
 
     const groupId = isGroup ? groupIdCandidate : undefined;
     const storeAllowFrom = await readChannelAllowFromStore("imessage").catch(() => []);
@@ -276,7 +343,9 @@ export async function monitorIMessageProvider(opts: MonitorIMessageOpts = {}): P
               chatIdentifier,
             }));
     if (!isGroup) {
-      if (dmPolicy === "disabled") return;
+      if (dmPolicy === "disabled") {
+        return;
+      }
       if (!dmAuthorized) {
         if (dmPolicy === "pairing") {
           const senderId = normalizeIMessageHandle(sender);
@@ -327,6 +396,17 @@ export async function monitorIMessageProvider(opts: MonitorIMessageOpts = {}): P
     });
     const mentionRegexes = buildMentionRegexes(cfg, route.agentId);
     const messageText = (message.text ?? "").trim();
+
+    // Echo detection: check if the received message matches a recently sent message (within 5 seconds).
+    // Scope by conversation so same text in different chats is not conflated.
+    const echoScope = `${accountInfo.accountId}:${isGroup ? formatIMessageChatTarget(chatId) : `imessage:${sender}`}`;
+    if (messageText && sentMessageCache.has(echoScope, messageText)) {
+      logVerbose(
+        `imessage: skipping echo message (matches recently sent text within 5s): "${truncateUtf16Safe(messageText, 50)}"`,
+      );
+      return;
+    }
+
     const attachments = includeAttachments ? (message.attachments ?? []) : [];
     // Filter to valid attachments with paths
     const validAttachments = attachments.filter((entry) => entry?.original_path && !entry?.missing);
@@ -339,7 +419,9 @@ export async function monitorIMessageProvider(opts: MonitorIMessageOpts = {}): P
     const kind = mediaKindFromMime(mediaType ?? undefined);
     const placeholder = kind ? `<media:${kind}>` : attachments?.length ? "<media:attachment>" : "";
     const bodyText = messageText || placeholder;
-    if (!bodyText) return;
+    if (!bodyText) {
+      return;
+    }
     const replyContext = describeReplyContext(message);
     const createdAt = message.created_at ? Date.parse(message.created_at) : undefined;
     const historyKey = isGroup
@@ -531,11 +613,15 @@ export async function monitorIMessageProvider(opts: MonitorIMessageOpts = {}): P
       );
     }
 
-    const prefixContext = createReplyPrefixContext({ cfg, agentId: route.agentId });
+    const { onModelSelected, ...prefixOptions } = createReplyPrefixOptions({
+      cfg,
+      agentId: route.agentId,
+      channel: "imessage",
+      accountId: route.accountId,
+    });
 
     const dispatcher = createReplyDispatcher({
-      responsePrefix: prefixContext.responsePrefix,
-      responsePrefixContextProvider: prefixContext.responsePrefixContextProvider,
+      ...prefixOptions,
       humanDelay: resolveHumanDelayConfig(cfg, route.agentId),
       deliver: async (payload) => {
         await deliverReplies({
@@ -546,6 +632,7 @@ export async function monitorIMessageProvider(opts: MonitorIMessageOpts = {}): P
           runtime,
           maxBytes: mediaMaxBytes,
           textLimit,
+          sentMessageCache,
         });
       },
       onError: (err, info) => {
@@ -562,7 +649,7 @@ export async function monitorIMessageProvider(opts: MonitorIMessageOpts = {}): P
           typeof accountInfo.config.blockStreaming === "boolean"
             ? !accountInfo.config.blockStreaming
             : undefined,
-        onModelSelected: prefixContext.onModelSelected,
+        onModelSelected,
       },
     });
     if (!queuedFinal) {
@@ -583,7 +670,9 @@ export async function monitorIMessageProvider(opts: MonitorIMessageOpts = {}): P
   const handleMessage = async (raw: unknown) => {
     const params = raw as { message?: IMessagePayload | null };
     const message = params?.message ?? null;
-    if (!message) return;
+    if (!message) {
+      return;
+    }
     await inboundDebouncer.enqueue({ message });
   };
 
@@ -596,8 +685,10 @@ export async function monitorIMessageProvider(opts: MonitorIMessageOpts = {}): P
     abortSignal: opts.abortSignal,
     runtime,
     check: async () => {
-      const probe = await probeIMessage(2000, { cliPath, dbPath, runtime });
-      if (probe.ok) return { ok: true };
+      const probe = await probeIMessage(probeTimeoutMs, { cliPath, dbPath, runtime });
+      if (probe.ok) {
+        return { ok: true };
+      }
       if (probe.fatal) {
         throw new Error(probe.error ?? "imsg rpc unavailable");
       }
@@ -605,7 +696,9 @@ export async function monitorIMessageProvider(opts: MonitorIMessageOpts = {}): P
     },
   });
 
-  if (opts.abortSignal?.aborted) return;
+  if (opts.abortSignal?.aborted) {
+    return;
+  }
 
   const client = await createIMessageRpcClient({
     cliPath,
@@ -647,7 +740,9 @@ export async function monitorIMessageProvider(opts: MonitorIMessageOpts = {}): P
     subscriptionId = result?.subscription ?? null;
     await client.waitForClose();
   } catch (err) {
-    if (abort?.aborted) return;
+    if (abort?.aborted) {
+      return;
+    }
     runtime.error?.(danger(`imessage: monitor failed: ${String(err)}`));
     throw err;
   } finally {

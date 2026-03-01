@@ -96,6 +96,7 @@ describe("state + config path candidates", () => {
       } else {
         process.env.HOME = previousHome;
       }
+<<<<<<< HEAD
       if (previousUserProfile === undefined) delete process.env.USERPROFILE;
       else process.env.USERPROFILE = previousUserProfile;
       if (previousHomeDrive === undefined) delete process.env.HOMEDRIVE;

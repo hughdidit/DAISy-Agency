@@ -74,6 +74,7 @@ The wizard starts with **QuickStart** (defaults) vs **Advanced** (full control).
 <<<<<<< HEAD
 <<<<<<< HEAD
 **QuickStart** keeps the defaults:
+
 - Local gateway (loopback)
 - Workspace default (or existing workspace)
 - Gateway port **18789**
@@ -108,7 +109,8 @@ The wizard starts with **QuickStart** (defaults) vs **Advanced** (full control).
 ## What the wizard does
 
 **Local mode (default)** walks you through:
-  - Model/auth (OpenAI Code (Codex) subscription OAuth, Anthropic API key (recommended) or setup-token (paste), plus MiniMax/GLM/Moonshot/AI Gateway options)
+
+- Model/auth (OpenAI Code (Codex) subscription OAuth, Anthropic API key (recommended) or setup-token (paste), plus MiniMax/GLM/Moonshot/AI Gateway options)
 - Workspace location + bootstrap files
 - Gateway settings (port/bind/auth/tailscale)
 - Providers (Telegram, WhatsApp, Discord, Google Chat, Mattermost (plugin), Signal)
@@ -163,7 +165,7 @@ openclaw agents add <name>
      - Config + credentials + sessions
      - Full reset (also removes workspace)
 
-2) **Model/Auth**
+2. **Model/Auth**
    - **Anthropic API key (recommended)**: uses `ANTHROPIC_API_KEY` if present or prompts for a key, then saves it for daemon use.
    - **Anthropic OAuth (Claude Code CLI)**: on macOS the wizard checks Keychain item "Claude Code-credentials" (choose "Always Allow" so launchd starts don't block); on Linux/Windows it reuses `~/.claude/.credentials.json` if present.
    - **Anthropic token (paste setup-token)**: run `claude setup-token` on any machine, then paste the token (you can name it; blank = default).
@@ -175,13 +177,15 @@ openclaw agents add <name>
    - **API key**: stores the key for you.
    - **Vercel AI Gateway (multi-model proxy)**: prompts for `AI_GATEWAY_API_KEY`.
    - More detail: [Vercel AI Gateway](/providers/vercel-ai-gateway)
+   - **Cloudflare AI Gateway**: prompts for Account ID, Gateway ID, and `CLOUDFLARE_AI_GATEWAY_API_KEY`.
+   - More detail: [Cloudflare AI Gateway](/providers/cloudflare-ai-gateway)
    - **MiniMax M2.1**: config is auto-written.
    - More detail: [MiniMax](/providers/minimax)
    - **Synthetic (Anthropic-compatible)**: prompts for `SYNTHETIC_API_KEY`.
    - More detail: [Synthetic](/providers/synthetic)
    - **Moonshot (Kimi K2)**: config is auto-written.
-   - **Kimi Code**: config is auto-written.
-   - More detail: [Moonshot AI (Kimi + Kimi Code)](/providers/moonshot)
+   - **Kimi Coding**: config is auto-written.
+   - More detail: [Moonshot AI (Kimi + Kimi Coding)](/providers/moonshot)
    - **Skip**: no auth configured yet.
    - Pick a default model from detected options (or enter provider/model manually).
    - Wizard runs a model check and warns if the configured model is unknown or missing auth.
@@ -193,12 +197,13 @@ openclaw agents add <name>
    - Seeds the workspace files needed for the agent bootstrap ritual.
    - Full workspace layout + backup guide: [Agent workspace](/concepts/agent-workspace)
 
-4) **Gateway**
+4. **Gateway**
    - Port, bind, auth mode, tailscale exposure.
    - Auth recommendation: keep **Token** even for loopback so local WS clients must authenticate.
    - Disable auth only if you fully trust every local process.
    - Non‑loopback binds still require auth.
 
+<<<<<<< HEAD
 5) **Channels**
 <<<<<<< HEAD
   - WhatsApp: optional QR login.
@@ -220,7 +225,7 @@ openclaw agents add <name>
    - DM security: default is pairing. First DM sends a code; approve via `openclaw pairing approve <channel> <code>` or use allowlists.
 >>>>>>> 9334dd801 (docs: Internal linking of channel pages)
 
-6) **Daemon install**
+6. **Daemon install**
    - macOS: LaunchAgent
      - Requires a logged-in user session; for headless, use a custom LaunchDaemon (not shipped).
    - Linux (and Windows via WSL2): systemd user unit
@@ -228,16 +233,17 @@ openclaw agents add <name>
      - May prompt for sudo (writes `/var/lib/systemd/linger`); it tries without sudo first.
    - **Runtime selection:** Node (recommended; required for WhatsApp/Telegram). Bun is **not recommended**.
 
+<<<<<<< HEAD
 7) **Health check**
    - Starts the Gateway (if needed) and runs `openclaw health`.
    - Tip: `openclaw status --deep` adds gateway health probes to status output (requires a reachable gateway).
 
-8) **Skills (recommended)**
+8. **Skills (recommended)**
    - Reads the available skills and checks requirements.
    - Lets you choose a node manager: **npm / pnpm** (bun not recommended).
    - Installs optional dependencies (some use Homebrew on macOS).
 
-9) **Finish**
+9. **Finish**
    - Summary + next steps, including iOS/Android/macOS apps for extra features.
   - If no GUI is detected, the wizard prints SSH port-forward instructions for the Control UI instead of opening a browser.
   - If the Control UI assets are missing, the wizard attempts to build them; fallback is `pnpm ui:build` (auto-installs UI deps).
@@ -345,11 +351,13 @@ Remote mode does **not** install or change anything on the remote host.
 </Info>
 
 What you’ll set:
+
 - Remote Gateway URL (`ws://...`)
 - Token if the remote Gateway requires auth (recommended)
 
 <<<<<<< HEAD
 Notes:
+
 - No remote installs or daemon changes are performed.
 =======
 <Note>
@@ -382,6 +390,10 @@ What it sets:
 Notes:
 <<<<<<< HEAD
 - Default workspaces follow `~/clawd-<agentId>`.
+=======
+
+- Default workspaces follow `~/.openclaw/workspace-<agentId>`.
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - Add `bindings` to route inbound messages (the wizard can do this).
 - Non-interactive flags: `--model`, `--agent-dir`, `--bind`, `--non-interactive`.
 
@@ -433,6 +445,19 @@ openclaw onboard --non-interactive \
   --mode local \
   --auth-choice ai-gateway-api-key \
   --ai-gateway-api-key "$AI_GATEWAY_API_KEY" \
+  --gateway-port 18789 \
+  --gateway-bind loopback
+```
+
+Cloudflare AI Gateway example:
+
+```bash
+openclaw onboard --non-interactive \
+  --mode local \
+  --auth-choice cloudflare-ai-gateway-api-key \
+  --cloudflare-ai-gateway-account-id "your-account-id" \
+  --cloudflare-ai-gateway-gateway-id "your-gateway-id" \
+  --cloudflare-ai-gateway-api-key "$CLOUDFLARE_AI_GATEWAY_API_KEY" \
   --gateway-port 18789 \
   --gateway-bind loopback
 ```
@@ -565,11 +590,13 @@ Clients (macOS app, Control UI) can render steps without re‑implementing onboa
 ## Signal setup (signal-cli)
 
 The wizard can install `signal-cli` from GitHub releases:
+
 - Downloads the appropriate release asset.
 - Stores it under `~/.openclaw/tools/signal-cli/<version>/`.
 - Writes `channels.signal.cliPath` to your config.
 
 Notes:
+
 - JVM builds require **Java 21**.
 - Native builds are used when available.
 - Windows uses WSL2; signal-cli install follows the Linux flow inside WSL.
@@ -618,7 +645,7 @@ RPC API, and a full list of config fields the wizard writes, see the
 - macOS app onboarding: [Onboarding](/start/onboarding)
 <<<<<<< HEAD
 - Config reference: [Gateway configuration](/gateway/configuration)
-- Providers: [WhatsApp](/channels/whatsapp), [Telegram](/channels/telegram), [Discord](/channels/discord), [Google Chat](/channels/googlechat), [Signal](/channels/signal), [iMessage](/channels/imessage)
+- Providers: [WhatsApp](/channels/whatsapp), [Telegram](/channels/telegram), [Discord](/channels/discord), [Google Chat](/channels/googlechat), [Signal](/channels/signal), [BlueBubbles](/channels/bluebubbles) (iMessage), [iMessage](/channels/imessage) (legacy)
 - Skills: [Skills](/tools/skills), [Skills config](/tools/skills-config)
 =======
 - Agent first-run ritual: [Agent Bootstrapping](/start/bootstrapping)

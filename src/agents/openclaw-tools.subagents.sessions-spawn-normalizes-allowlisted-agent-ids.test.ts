@@ -74,7 +74,9 @@ describe("openclaw-tools: subagents", () => {
       agentSessionKey: "main",
       agentChannel: "whatsapp",
     }).find((candidate) => candidate.name === "sessions_spawn");
-    if (!tool) throw new Error("missing sessions_spawn tool");
+    if (!tool) {
+      throw new Error("missing sessions_spawn tool");
+    }
 
     const result = await tool.execute("call10", {
       task: "do thing",
@@ -111,7 +113,9 @@ describe("openclaw-tools: subagents", () => {
       agentSessionKey: "main",
       agentChannel: "whatsapp",
     }).find((candidate) => candidate.name === "sessions_spawn");
-    if (!tool) throw new Error("missing sessions_spawn tool");
+    if (!tool) {
+      throw new Error("missing sessions_spawn tool");
+    }
 
     const result = await tool.execute("call9", {
       task: "do thing",
@@ -161,7 +165,12 @@ describe("openclaw-tools: subagents", () => {
       if (request.method === "agent.wait") {
         const params = request.params as { runId?: string; timeoutMs?: number } | undefined;
         waitCalls.push(params ?? {});
-        return { runId: params?.runId ?? "run-1", status: "ok", startedAt: 1000, endedAt: 2000 };
+        return {
+          runId: params?.runId ?? "run-1",
+          status: "ok",
+          startedAt: 1000,
+          endedAt: 2000,
+        };
       }
       if (request.method === "sessions.delete") {
         const params = request.params as { key?: string } | undefined;
@@ -175,7 +184,9 @@ describe("openclaw-tools: subagents", () => {
       agentSessionKey: "discord:group:req",
       agentChannel: "discord",
     }).find((candidate) => candidate.name === "sessions_spawn");
-    if (!tool) throw new Error("missing sessions_spawn tool");
+    if (!tool) {
+      throw new Error("missing sessions_spawn tool");
+    }
 
     const result = await tool.execute("call1", {
       task: "do thing",
@@ -253,7 +264,7 @@ describe("openclaw-tools: subagents", () => {
       | undefined;
     expect(second?.sessionKey).toBe("discord:group:req");
     expect(second?.deliver).toBe(true);
-    expect(second?.message).toContain("background task");
+    expect(second?.message).toContain("subagent task");
 
     const sendCalls = calls.filter((c) => c.method === "send");
     expect(sendCalls.length).toBe(0);
@@ -286,7 +297,12 @@ describe("openclaw-tools: subagents", () => {
       }
       if (request.method === "agent.wait") {
         const params = request.params as { runId?: string; timeoutMs?: number } | undefined;
-        return { runId: params?.runId ?? "run-1", status: "ok", startedAt: 1000, endedAt: 2000 };
+        return {
+          runId: params?.runId ?? "run-1",
+          status: "ok",
+          startedAt: 1000,
+          endedAt: 2000,
+        };
       }
       if (request.method === "sessions.delete" || request.method === "sessions.patch") {
         return { ok: true };
@@ -299,7 +315,9 @@ describe("openclaw-tools: subagents", () => {
       agentChannel: "whatsapp",
       agentAccountId: "kev",
     }).find((candidate) => candidate.name === "sessions_spawn");
-    if (!tool) throw new Error("missing sessions_spawn tool");
+    if (!tool) {
+      throw new Error("missing sessions_spawn tool");
+    }
 
     const result = await tool.execute("call2", {
       task: "do thing",

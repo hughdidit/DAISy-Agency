@@ -70,6 +70,7 @@
             <enclosure url="https://github.com/openclaw/openclaw/releases/download/v2026.2.4/OpenClaw-2026.2.4.zip" length="22530161" type="application/octet-stream" sparkle:edSignature="7eHUaQC6cx87HWbcaPh9T437+LqfE9VtQBf4p9JBjIyBrqGYxxp9KPvI5unEjg55j9j2djCXhseSMeyyRmvYBg=="/>
 >>>>>>> 5031b283a (chore: bump version to 2026.2.4)
         </item>
+<<<<<<< HEAD
         <item>
             <title>2026.1.24</title>
             <pubDate>Sun, 25 Jan 2026 13:31:05 +0000</pubDate>
@@ -149,6 +150,7 @@
 ]]></description>
             <enclosure url="https://github.com/openclaw/openclaw/releases/download/v2026.1.24/OpenClaw-2026.1.24.zip" length="12396700" type="application/octet-stream" sparkle:edSignature="u+XzKD3YwV8s79gIr7LK4OtDCcmp/b+cjNC6SHav3/1CVJegh02SsBKatrampox32XGx8P2+8c/+fHV+qpkHCA=="/>
         </item>
+<<<<<<< HEAD
         <item>
             <title>2026.1.23</title>
             <pubDate>Sat, 24 Jan 2026 13:02:18 +0000</pubDate>
@@ -236,5 +238,15 @@
 ]]></description>
             <enclosure url="https://github.com/openclaw/openclaw/releases/download/v2026.1.23/OpenClaw-2026.1.23.zip" length="22326233" type="application/octet-stream" sparkle:edSignature="p40dFczUfmMpsif4BrEUYVqUPG2WiBXleWgefwu4WiqjuyXbw7CAaH5CpQKig/k2qRLlE59kX7AR/qJqmy+yCA=="/>
         </item>
+=======
+>>>>>>> 77e703c69 (chore: update appcast for 2026.1.29)
+=======
+>>>>>>> 4f2166c50 (chore: update appcast for 2026.1.30)
+=======
+>>>>>>> d842b28a1 (docs: update appcast for 2026.2.1)
+=======
+>>>>>>> 95cd2210f (chore: update appcast for 2026.2.2)
+=======
+>>>>>>> 7f95cdac7 (chore(mac): update appcast for 2026.2.3)
     </channel>
 </rss>

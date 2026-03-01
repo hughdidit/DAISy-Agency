@@ -46,7 +46,9 @@ describe("media store redirects", () => {
       const res = new PassThrough();
       const req = {
         on: (event: string, handler: (...args: unknown[]) => void) => {
-          if (event === "error") res.on("error", handler);
+          if (event === "error") {
+            res.on("error", handler);
+          }
           return req;
         },
         end: () => undefined,
@@ -57,14 +59,14 @@ describe("media store redirects", () => {
         res.statusCode = 302;
         res.headers = { location: "https://example.com/final" };
         setImmediate(() => {
-          cb(res as unknown as Parameters<typeof cb>[0]);
+          cb(res as unknown);
           res.end();
         });
       } else {
         res.statusCode = 200;
         res.headers = { "content-type": "text/plain" };
         setImmediate(() => {
-          cb(res as unknown as Parameters<typeof cb>[0]);
+          cb(res as unknown);
           res.write("redirected");
           res.end();
         });
@@ -87,7 +89,9 @@ describe("media store redirects", () => {
       const res = new PassThrough();
       const req = {
         on: (event: string, handler: (...args: unknown[]) => void) => {
-          if (event === "error") res.on("error", handler);
+          if (event === "error") {
+            res.on("error", handler);
+          }
           return req;
         },
         end: () => undefined,
@@ -97,7 +101,7 @@ describe("media store redirects", () => {
       res.statusCode = 200;
       res.headers = {};
       setImmediate(() => {
-        cb(res as unknown as Parameters<typeof cb>[0]);
+        cb(res as unknown);
         const zip = new JSZip();
         zip.file(
           "[Content_Types].xml",

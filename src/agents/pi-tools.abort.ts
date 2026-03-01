@@ -63,14 +63,20 @@ export function wrapToolWithAbortSignal(
   tool: AnyAgentTool,
   abortSignal?: AbortSignal,
 ): AnyAgentTool {
-  if (!abortSignal) return tool;
+  if (!abortSignal) {
+    return tool;
+  }
   const execute = tool.execute;
-  if (!execute) return tool;
+  if (!execute) {
+    return tool;
+  }
   return {
     ...tool,
     execute: async (toolCallId, params, signal, onUpdate) => {
       const combined = combineAbortSignals(signal, abortSignal);
-      if (combined?.aborted) throwAbortError();
+      if (combined?.aborted) {
+        throwAbortError();
+      }
       return await execute(toolCallId, params, combined, onUpdate);
     },
   };

@@ -10,7 +10,7 @@ read_when:
 
 OpenClaw uses a dedicated workspace directory for the agent. Default: `~/.openclaw/workspace` (configurable via `agents.defaults.workspace`).
 
-1) Create the workspace (if it doesn’t already exist):
+1. Create the workspace (if it doesn’t already exist):
 
 ```bash
 mkdir -p ~/.openclaw/workspace
@@ -63,24 +63,29 @@ cp docs/reference/AGENTS.default.md ~/.openclaw/workspace/AGENTS.md
 ```
 
 ## Safety defaults
+
 - Don’t dump directories or secrets into chat.
 - Don’t run destructive commands unless explicitly asked.
 - Don’t send partial/streaming replies to external messaging surfaces (only final replies).
 
 ## Session start (required)
+
 - Read `SOUL.md`, `USER.md`, `memory.md`, and today+yesterday in `memory/`.
 - Do it before responding.
 
 ## Soul (required)
+
 - `SOUL.md` defines identity, tone, and boundaries. Keep it current.
 - If you change `SOUL.md`, tell the user.
 - You are a fresh instance each session; continuity lives in these files.
 
 ## Shared spaces (recommended)
+
 - You’re not the user’s voice; be careful in group chats or public channels.
 - Don’t share private data, contact info, or internal notes.
 
 ## Memory system (recommended)
+
 - Daily log: `memory/YYYY-MM-DD.md` (create `memory/` if needed).
 - Long-term memory: `memory.md` for durable facts, preferences, and decisions.
 - On session start, read today + yesterday + `memory.md` if present.
@@ -88,10 +93,12 @@ cp docs/reference/AGENTS.default.md ~/.openclaw/workspace/AGENTS.md
 - Avoid secrets unless explicitly requested.
 
 ## Tools & skills
+
 - Tools live in skills; follow each skill’s `SKILL.md` when you need it.
 - Keep environment-specific notes in `TOOLS.md` (Notes for Skills).
 
 ## Backup tip (recommended)
+
 If you treat this workspace as Clawd’s “memory”, make it a git repo (ideally private) so `AGENTS.md` and your memory files are backed up.
 
 ```bash
@@ -108,6 +115,7 @@ git commit -m "Add Clawd workspace"
 - Direct chats collapse into the agent's `main` session by default; groups stay isolated as `agent:<agentId>:<channel>:group:<id>` (rooms/channels: `agent:<agentId>:<channel>:channel:<id>`); heartbeats keep background tasks alive.
 
 ## Core Skills (enable in Settings → Skills)
+
 - **mcporter** — Tool server runtime/CLI for managing external skill backends.
 - **Peekaboo** — Fast macOS screenshots with optional AI vision analysis.
 - **camsnap** — Capture frames, clips, or motion alerts from RTSP/ONVIF security cams.

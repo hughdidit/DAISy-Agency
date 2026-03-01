@@ -18,7 +18,9 @@ export function registerMatrixAutoJoin(params: {
   const { client, cfg, runtime } = params;
   const core = getMatrixRuntime();
   const logVerbose = (message: string) => {
-    if (!core.logging.shouldLogVerbose()) return;
+    if (!core.logging.shouldLogVerbose()) {
+      return;
+    }
     runtime.log?.(message);
   };
   const autoJoin = cfg.channels?.matrix?.autoJoin ?? "always";
@@ -37,7 +39,9 @@ export function registerMatrixAutoJoin(params: {
 
   // For "allowlist" mode, handle invites manually
   client.on("room.invite", async (roomId: string, _inviteEvent: unknown) => {
-    if (autoJoin !== "allowlist") return;
+    if (autoJoin !== "allowlist") {
+      return;
+    }
 
     // Get room alias if available
     let alias: string | undefined;

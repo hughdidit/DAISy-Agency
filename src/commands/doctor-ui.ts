@@ -20,10 +20,16 @@ export async function maybeRepairUiProtocolFreshness(
     cwd: process.cwd(),
   });
 
-  if (!root) return;
+  if (!root) {
+    return;
+  }
 
   const schemaPath = path.join(root, "src/gateway/protocol/schema.ts");
-  const uiIndexPath = path.join(root, "dist/control-ui/index.html");
+  const uiHealth = await resolveControlUiDistIndexHealth({
+    root,
+    argv1: process.argv[1],
+  });
+  const uiIndexPath = uiHealth.indexPath ?? resolveControlUiDistIndexPathForRoot(root);
 
   try {
     const [schemaStats, uiStats] = await Promise.all([
@@ -71,7 +77,9 @@ export async function maybeRepairUiProtocolFreshness(
       return;
     }
 
-    if (!schemaStats || !uiStats) return;
+    if (!schemaStats || !uiStats) {
+      return;
+    }
 
     if (schemaStats.mtime > uiStats.mtime) {
       const uiMtimeIso = uiStats.mtime.toISOString();

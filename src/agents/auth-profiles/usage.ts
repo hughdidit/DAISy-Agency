@@ -11,7 +11,9 @@ function resolveProfileUnusableUntil(stats: ProfileUsageStats): number | null {
   const values = [stats.cooldownUntil, stats.disabledUntil]
     .filter((value): value is number => typeof value === "number")
     .filter((value) => Number.isFinite(value) && value > 0);
-  if (values.length === 0) return null;
+  if (values.length === 0) {
+    return null;
+  }
   return Math.max(...values);
 }
 
@@ -20,7 +22,9 @@ function resolveProfileUnusableUntil(stats: ProfileUsageStats): number | null {
  */
 export function isProfileInCooldown(store: AuthProfileStore, profileId: string): boolean {
   const stats = store.usageStats?.[profileId];
-  if (!stats) return false;
+  if (!stats) {
+    return false;
+  }
   const unusableUntil = resolveProfileUnusableUntil(stats);
   return unusableUntil ? Date.now() < unusableUntil : false;
 }
@@ -38,7 +42,9 @@ export async function markAuthProfileUsed(params: {
   const updated = await updateAuthProfileStoreWithLock({
     agentDir,
     updater: (freshStore) => {
-      if (!freshStore.profiles[profileId]) return false;
+      if (!freshStore.profiles[profileId]) {
+        return false;
+      }
       freshStore.usageStats = freshStore.usageStats ?? {};
       freshStore.usageStats[profileId] = {
         ...freshStore.usageStats[profileId],
@@ -56,7 +62,9 @@ export async function markAuthProfileUsed(params: {
     store.usageStats = updated.usageStats;
     return;
   }
-  if (!store.profiles[profileId]) return;
+  if (!store.profiles[profileId]) {
+    return;
+  }
 
   store.usageStats = store.usageStats ?? {};
   store.usageStats[profileId] = {
@@ -101,9 +109,13 @@ function resolveAuthCooldownConfig(params: {
   const cooldowns = params.cfg?.auth?.cooldowns;
   const billingOverride = (() => {
     const map = cooldowns?.billingBackoffHoursByProvider;
-    if (!map) return undefined;
+    if (!map) {
+      return undefined;
+    }
     for (const [key, value] of Object.entries(map)) {
-      if (normalizeProviderId(key) === params.providerId) return value;
+      if (normalizeProviderId(key) === params.providerId) {
+        return value;
+      }
     }
     return undefined;
   })();
@@ -143,7 +155,9 @@ export function resolveProfileUnusableUntilForDisplay(
   profileId: string,
 ): number | null {
   const stats = store.usageStats?.[profileId];
-  if (!stats) return null;
+  if (!stats) {
+    return null;
+  }
   return resolveProfileUnusableUntil(stats);
 }
 
@@ -204,7 +218,9 @@ export async function markAuthProfileFailure(params: {
     agentDir,
     updater: (freshStore) => {
       const profile = freshStore.profiles[profileId];
-      if (!profile) return false;
+      if (!profile) {
+        return false;
+      }
       freshStore.usageStats = freshStore.usageStats ?? {};
       const existing = freshStore.usageStats[profileId] ?? {};
 
@@ -228,7 +244,9 @@ export async function markAuthProfileFailure(params: {
     store.usageStats = updated.usageStats;
     return;
   }
-  if (!store.profiles[profileId]) return;
+  if (!store.profiles[profileId]) {
+    return;
+  }
 
   store.usageStats = store.usageStats ?? {};
   const existing = store.usageStats[profileId] ?? {};
@@ -279,7 +297,9 @@ export async function clearAuthProfileCooldown(params: {
   const updated = await updateAuthProfileStoreWithLock({
     agentDir,
     updater: (freshStore) => {
-      if (!freshStore.usageStats?.[profileId]) return false;
+      if (!freshStore.usageStats?.[profileId]) {
+        return false;
+      }
 
       freshStore.usageStats[profileId] = {
         ...freshStore.usageStats[profileId],
@@ -293,7 +313,9 @@ export async function clearAuthProfileCooldown(params: {
     store.usageStats = updated.usageStats;
     return;
   }
-  if (!store.usageStats?.[profileId]) return;
+  if (!store.usageStats?.[profileId]) {
+    return;
+  }
 
   store.usageStats[profileId] = {
     ...store.usageStats[profileId],

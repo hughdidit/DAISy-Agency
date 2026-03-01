@@ -14,6 +14,15 @@ export function formatCliCommand(
   const profile = normalizeProfileName(env.OPENCLAW_PROFILE);
   if (!profile) return normalizedCommand;
   if (!CLI_PREFIX_RE.test(normalizedCommand)) return normalizedCommand;
+=======
+  const profile = normalizeProfileName(env.OPENCLAW_PROFILE);
+  if (!profile) {
+    return normalizedCommand;
+  }
+  if (!CLI_PREFIX_RE.test(normalizedCommand)) {
+    return normalizedCommand;
+  }
+>>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
   if (PROFILE_FLAG_RE.test(normalizedCommand) || DEV_FLAG_RE.test(normalizedCommand)) {
     return normalizedCommand;
   }

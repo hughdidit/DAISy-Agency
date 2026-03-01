@@ -43,7 +43,9 @@ const SLACK_COMMAND_ARG_ACTION_ID = "openclaw_cmdarg";
 const SLACK_COMMAND_ARG_VALUE_PREFIX = "cmdarg";
 
 function chunkItems<T>(items: T[], size: number): T[][] {
-  if (size <= 0) return [items];
+  if (size <= 0) {
+    return [items];
+  }
   const rows: T[][] = [];
   for (let i = 0; i < items.length; i += size) {
     rows.push(items.slice(i, i + size));
@@ -72,11 +74,17 @@ function parseSlackCommandArgValue(raw?: string | null): {
   value: string;
   userId: string;
 } | null {
-  if (!raw) return null;
+  if (!raw) {
+    return null;
+  }
   const parts = raw.split("|");
-  if (parts.length !== 5 || parts[0] !== SLACK_COMMAND_ARG_VALUE_PREFIX) return null;
+  if (parts.length !== 5 || parts[0] !== SLACK_COMMAND_ARG_VALUE_PREFIX) {
+    return null;
+  }
   const [, command, arg, value, userId] = parts;
-  if (!command || !arg || !value || !userId) return null;
+  if (!command || !arg || !value || !userId) {
+    return null;
+  }
   const decode = (text: string) => {
     try {
       return decodeURIComponent(text);
@@ -88,7 +96,9 @@ function parseSlackCommandArgValue(raw?: string | null): {
   const decodedArg = decode(arg);
   const decodedValue = decode(value);
   const decodedUserId = decode(userId);
-  if (!decodedCommand || !decodedArg || !decodedValue || !decodedUserId) return null;
+  if (!decodedCommand || !decodedArg || !decodedValue || !decodedUserId) {
+    return null;
+  }
   return {
     command: decodedCommand,
     arg: decodedArg,
@@ -161,11 +171,14 @@ export function registerSlackMonitorSlashCommands(params: {
       }
       await ack();
 
-      if (ctx.botUserId && command.user_id === ctx.botUserId) return;
+      if (ctx.botUserId && command.user_id === ctx.botUserId) {
+        return;
+      }
 
       const channelInfo = await ctx.resolveChannelName(command.channel_id);
-      const channelType =
+      const rawChannelType =
         channelInfo?.type ?? (command.channel_name === "directmessage" ? "im" : undefined);
+      const channelType = normalizeSlackChannelType(rawChannelType, command.channel_id);
       const isDirectMessage = channelType === "im";
       const isGroupDm = channelType === "mpim";
       const isRoom = channelType === "channel" || channelType === "group";
@@ -419,11 +432,18 @@ export function registerSlackMonitorSlashCommands(params: {
         OriginatingTo: `user:${command.user_id}`,
       });
 
+      const { onModelSelected, ...prefixOptions } = createReplyPrefixOptions({
+        cfg,
+        agentId: route.agentId,
+        channel: "slack",
+        accountId: route.accountId,
+      });
+
       const { counts } = await dispatchReplyWithDispatcher({
         ctx: ctxPayload,
         cfg,
         dispatcherOptions: {
-          responsePrefix: resolveEffectiveMessagesConfig(cfg, route.agentId).responsePrefix,
+          ...prefixOptions,
           deliver: async (payload) => {
             await deliverSlackSlashReplies({
               replies: [payload],
@@ -442,7 +462,10 @@ export function registerSlackMonitorSlashCommands(params: {
             runtime.error?.(danger(`slack slash ${info.kind} reply failed: ${String(err)}`));
           },
         },
-        replyOptions: { skillFilter: channelConfig?.skills },
+        replyOptions: {
+          skillFilter: channelConfig?.skills,
+          onModelSelected,
+        },
       });
       if (counts.final + counts.tool + counts.block === 0) {
         await deliverSlackSlashReplies({
@@ -526,7 +549,9 @@ export function registerSlackMonitorSlashCommands(params: {
     logVerbose("slack: slash commands disabled");
   }
 
-  if (nativeCommands.length === 0 || !supportsInteractiveArgMenus) return;
+  if (nativeCommands.length === 0 || !supportsInteractiveArgMenus) {
+    return;
+  }
 
   const registerArgAction = (actionId: string) => {
     (

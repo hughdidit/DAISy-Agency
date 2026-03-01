@@ -4,6 +4,7 @@ read_when:
   - Debugging mac WebChat view or loopback port
 title: "WebChat"
 ---
+
 # WebChat (macOS app)
 
 The macOS menu bar app embeds the WebChat UI as a native SwiftUI view. It

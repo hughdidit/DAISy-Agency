@@ -47,7 +47,9 @@ describe("monitorSlackProvider tool results", () => {
 
     await waitForSlackEvent("message");
     const handler = getSlackHandlers()?.get("message");
-    if (!handler) throw new Error("Slack message handler not registered");
+    if (!handler) {
+      throw new Error("Slack message handler not registered");
+    }
 
     await handler({
       event: {
@@ -71,7 +73,9 @@ describe("monitorSlackProvider tool results", () => {
   it("reacts to mention-gated room messages when ackReaction is enabled", async () => {
     replyMock.mockResolvedValue(undefined);
     const client = getSlackClient();
-    if (!client) throw new Error("Slack client not registered");
+    if (!client) {
+      throw new Error("Slack client not registered");
+    }
     const conversations = client.conversations as {
       info: ReturnType<typeof vi.fn>;
     };
@@ -88,7 +92,9 @@ describe("monitorSlackProvider tool results", () => {
 
     await waitForSlackEvent("message");
     const handler = getSlackHandlers()?.get("message");
-    if (!handler) throw new Error("Slack message handler not registered");
+    if (!handler) {
+      throw new Error("Slack message handler not registered");
+    }
 
     await handler({
       event: {
@@ -133,7 +139,9 @@ describe("monitorSlackProvider tool results", () => {
 
     await waitForSlackEvent("message");
     const handler = getSlackHandlers()?.get("message");
-    if (!handler) throw new Error("Slack message handler not registered");
+    if (!handler) {
+      throw new Error("Slack message handler not registered");
+    }
 
     await handler({
       event: {
@@ -181,7 +189,9 @@ describe("monitorSlackProvider tool results", () => {
 
     await waitForSlackEvent("message");
     const handler = getSlackHandlers()?.get("message");
-    if (!handler) throw new Error("Slack message handler not registered");
+    if (!handler) {
+      throw new Error("Slack message handler not registered");
+    }
 
     const baseEvent = {
       type: "message",

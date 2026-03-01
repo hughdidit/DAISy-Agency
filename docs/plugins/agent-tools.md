@@ -5,6 +5,7 @@ read_when:
   - You need to make a tool opt-in via allowlists
 title: "Plugin Agent Tools"
 ---
+
 # Plugin agent tools
 
 OpenClaw plugins can register **agent tools** (JSON‑schema functions) that are exposed
@@ -71,18 +72,19 @@ Enable optional tools in `agents.list[].tools.allow` (or global `tools.allow`):
         id: "main",
         tools: {
           allow: [
-            "workflow_tool",  // specific tool name
-            "workflow",       // plugin id (enables all tools from that plugin)
-            "group:plugins"   // all plugin tools
-          ]
-        }
-      }
-    ]
-  }
+            "workflow_tool", // specific tool name
+            "workflow", // plugin id (enables all tools from that plugin)
+            "group:plugins", // all plugin tools
+          ],
+        },
+      },
+    ],
+  },
 }
 ```
 
 Other config knobs that affect tool availability:
+
 - Allowlists that only name plugin tools are treated as plugin opt-ins; core tools remain
   enabled unless you also include core tools or groups in the allowlist.
 - `tools.profile` / `agents.list[].tools.profile` (base allowlist)

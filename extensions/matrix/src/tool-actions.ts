@@ -38,8 +38,12 @@ const pinActions = new Set(["pinMessage", "unpinMessage", "listPins"]);
 
 function readRoomId(params: Record<string, unknown>, required = true): string {
   const direct = readStringParam(params, "roomId") ?? readStringParam(params, "channelId");
-  if (direct) return direct;
-  if (!required) return readStringParam(params, "to") ?? "";
+  if (direct) {
+    return direct;
+  }
+  if (!required) {
+    return readStringParam(params, "to") ?? "";
+  }
   return readStringParam(params, "to", { required: true });
 }
 
@@ -85,7 +89,8 @@ export async function handleMatrixAction(
           allowEmpty: true,
         });
         const mediaUrl = readStringParam(params, "mediaUrl");
-        const replyToId = readStringParam(params, "replyToId") ?? readStringParam(params, "replyTo");
+        const replyToId =
+          readStringParam(params, "replyToId") ?? readStringParam(params, "replyTo");
         const threadId = readStringParam(params, "threadId");
         const result = await sendMatrixMessage(to, content, {
           mediaUrl: mediaUrl ?? undefined,

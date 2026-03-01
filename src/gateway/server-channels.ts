@@ -34,7 +34,9 @@ function createRuntimeStore(): ChannelRuntimeStore {
 }
 
 function isAccountEnabled(account: unknown): boolean {
-  if (!account || typeof account !== "object") return true;
+  if (!account || typeof account !== "object") {
+    return true;
+  }
   const enabled = (account as { enabled?: boolean }).enabled;
   return enabled !== false;
 }
@@ -70,7 +72,9 @@ export function createChannelManager(opts: ChannelManagerOptions): ChannelManage
 
   const getStore = (channelId: ChannelId): ChannelRuntimeStore => {
     const existing = channelStores.get(channelId);
-    if (existing) return existing;
+    if (existing) {
+      return existing;
+    }
     const next = createRuntimeStore();
     channelStores.set(channelId, next);
     return next;
@@ -96,16 +100,22 @@ export function createChannelManager(opts: ChannelManagerOptions): ChannelManage
   const startChannel = async (channelId: ChannelId, accountId?: string) => {
     const plugin = getChannelPlugin(channelId);
     const startAccount = plugin?.gateway?.startAccount;
-    if (!startAccount) return;
+    if (!startAccount) {
+      return;
+    }
     const cfg = loadConfig();
     resetDirectoryCache({ channel: channelId, accountId });
     const store = getStore(channelId);
     const accountIds = accountId ? [accountId] : plugin.config.listAccountIds(cfg);
-    if (accountIds.length === 0) return;
+    if (accountIds.length === 0) {
+      return;
+    }
 
     await Promise.all(
       accountIds.map(async (id) => {
-        if (store.tasks.has(id)) return;
+        if (store.tasks.has(id)) {
+          return;
+        }
         const account = plugin.config.resolveAccount(cfg, id);
         const enabled = plugin.config.isEnabled
           ? plugin.config.isEnabled(account, cfg)
@@ -190,7 +200,9 @@ export function createChannelManager(opts: ChannelManagerOptions): ChannelManage
       Array.from(knownIds.values()).map(async (id) => {
         const abort = store.aborts.get(id);
         const task = store.tasks.get(id);
-        if (!abort && !task && !plugin?.gateway?.stopAccount) return;
+        if (!abort && !task && !plugin?.gateway?.stopAccount) {
+          return;
+        }
         abort?.abort();
         if (plugin?.gateway?.stopAccount) {
           const account = plugin.config.resolveAccount(cfg, id);
@@ -229,7 +241,9 @@ export function createChannelManager(opts: ChannelManagerOptions): ChannelManage
 
   const markChannelLoggedOut = (channelId: ChannelId, cleared: boolean, accountId?: string) => {
     const plugin = getChannelPlugin(channelId);
-    if (!plugin) return;
+    if (!plugin) {
+      return;
+    }
     const cfg = loadConfig();
     const resolvedId =
       accountId ??

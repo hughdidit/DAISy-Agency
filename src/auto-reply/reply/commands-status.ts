@@ -40,7 +40,9 @@ import { resolveSubagentLabel } from "./subagents-utils.js";
 
 function formatApiKeySnippet(apiKey: string): string {
   const compact = apiKey.replace(/\s+/g, "");
-  if (!compact) return "unknown";
+  if (!compact) {
+    return "unknown";
+  }
   const edge = compact.length >= 12 ? 6 : 4;
   const head = compact.slice(0, edge);
   const tail = compact.slice(-edge);
@@ -54,7 +56,9 @@ function resolveModelAuthLabel(
   agentDir?: string,
 ): string | undefined {
   const resolved = provider?.trim();
-  if (!resolved) return undefined;
+  if (!resolved) {
+    return undefined;
+  }
 
   const providerKey = normalizeProviderId(resolved);
   const store = ensureAuthProfileStore(agentDir, {
@@ -82,7 +86,7 @@ function resolveModelAuthLabel(
       const snippet = formatApiKeySnippet(profile.token);
       return `token ${snippet}${label ? ` (${label})` : ""}`;
     }
-    const snippet = formatApiKeySnippet(profile.key);
+    const snippet = formatApiKeySnippet(profile.key ?? "");
     return `api-key ${snippet}${label ? ` (${label})` : ""}`;
   }
 
@@ -167,7 +171,9 @@ export async function buildStatusReply(params: {
           maxWindows: 2,
           includeResets: true,
         });
-        if (summaryLine) usageLine = `📊 Usage: ${summaryLine}`;
+        if (summaryLine) {
+          usageLine = `📊 Usage: ${summaryLine}`;
+        }
       }
     } catch {
       usageLine = null;

@@ -60,8 +60,7 @@ export class VoiceCallWebhookServer {
    * Initialize media streaming with OpenAI Realtime STT.
    */
   private initializeMediaStreaming(): void {
-    const apiKey =
-      this.config.streaming?.openaiApiKey || process.env.OPENAI_API_KEY;
+    const apiKey = this.config.streaming?.openaiApiKey || process.env.OPENAI_API_KEY;
 
     if (!apiKey) {
       this.logger.warn(
@@ -126,8 +125,7 @@ export class VoiceCallWebhookServer {
 
         // Auto-respond in conversation mode (inbound always, outbound if mode is conversation)
         const callMode = call.metadata?.mode as string | undefined;
-        const shouldRespond =
-          call.direction === "inbound" || callMode === "conversation";
+        const shouldRespond = call.direction === "inbound" || callMode === "conversation";
         if (shouldRespond) {
           this.handleInboundResponse(call.callId, transcript).catch(async (err) => {
             this.logger.warn(`[voice-call] Failed to auto-respond: ${err}`);
@@ -153,10 +151,7 @@ export class VoiceCallWebhookServer {
         );
         // Register stream with provider for TTS routing
         if (this.provider.name === "twilio") {
-          (this.provider as TwilioProvider).registerCallStream(
-            callId,
-            streamSid,
-          );
+          (this.provider as TwilioProvider).registerCallStream(callId, streamSid);
         }
 
         // Speak initial message if one was provided when call was initiated
@@ -198,10 +193,7 @@ export class VoiceCallWebhookServer {
       // Handle WebSocket upgrades for media streams
       if (this.mediaStreamHandler) {
         this.server.on("upgrade", (request, socket, head) => {
-          const url = new URL(
-            request.url || "/",
-            `http://${request.headers.host}`,
-          );
+          const url = new URL(request.url || "/", `http://${request.headers.host}`);
 
           if (url.pathname === streamPath) {
             this.logger.info("[voice-call] WebSocket upgrade for media stream");
@@ -319,9 +311,7 @@ export class VoiceCallWebhookServer {
     res.statusCode = result.statusCode || 200;
 
     if (result.providerResponseHeaders) {
-      for (const [key, value] of Object.entries(
-        result.providerResponseHeaders,
-      )) {
+      for (const [key, value] of Object.entries(result.providerResponseHeaders)) {
         res.setHeader(key, value);
       }
     }
@@ -487,7 +477,9 @@ function runTailscaleCommand(
 
 export async function getTailscaleSelfInfo(): Promise<TailscaleSelfInfo | null> {
   const { code, stdout } = await runTailscaleCommand(["status", "--json"]);
-  if (code !== 0) return null;
+  if (code !== 0) {
+    return null;
+  }
 
   try {
     const status = JSON.parse(stdout);
@@ -546,9 +538,7 @@ export async function cleanupTailscaleExposureRoute(opts: {
  * Setup Tailscale serve/funnel for the webhook server.
  * This is a helper that shells out to `tailscale serve` or `tailscale funnel`.
  */
-export async function setupTailscaleExposure(
-  config: VoiceCallConfig,
-): Promise<string | null> {
+export async function setupTailscaleExposure(config: VoiceCallConfig): Promise<string | null> {
   if (config.tailscale.mode === "off") {
     return null;
   }
@@ -567,9 +557,7 @@ export async function setupTailscaleExposure(
 /**
  * Cleanup Tailscale serve/funnel.
  */
-export async function cleanupTailscaleExposure(
-  config: VoiceCallConfig,
-): Promise<void> {
+export async function cleanupTailscaleExposure(config: VoiceCallConfig): Promise<void> {
   if (config.tailscale.mode === "off") {
     return;
   }

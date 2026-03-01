@@ -151,7 +151,9 @@ describe("image tool implicit imageModel config", () => {
     };
     const tool = createImageTool({ config: cfg, agentDir, sandboxRoot });
     expect(tool).not.toBeNull();
-    if (!tool) throw new Error("expected image tool");
+    if (!tool) {
+      throw new Error("expected image tool");
+    }
 
     await expect(tool.execute("t1", { image: "https://example.com/a.png" })).rejects.toThrow(
       /Sandboxed image tool does not allow remote URLs/i,
@@ -201,7 +203,9 @@ describe("image tool implicit imageModel config", () => {
     };
     const tool = createImageTool({ config: cfg, agentDir, sandboxRoot });
     expect(tool).not.toBeNull();
-    if (!tool) throw new Error("expected image tool");
+    if (!tool) {
+      throw new Error("expected image tool");
+    }
 
     const res = await tool.execute("t1", {
       prompt: "Describe the image.",
@@ -269,7 +273,9 @@ describe("image tool MiniMax VLM routing", () => {
     };
     const tool = createImageTool({ config: cfg, agentDir });
     expect(tool).not.toBeNull();
-    if (!tool) throw new Error("expected image tool");
+    if (!tool) {
+      throw new Error("expected image tool");
+    }
 
     const res = await tool.execute("t1", {
       prompt: "Describe the image.",
@@ -311,7 +317,9 @@ describe("image tool MiniMax VLM routing", () => {
     };
     const tool = createImageTool({ config: cfg, agentDir });
     expect(tool).not.toBeNull();
-    if (!tool) throw new Error("expected image tool");
+    if (!tool) {
+      throw new Error("expected image tool");
+    }
 
     await expect(
       tool.execute("t1", {

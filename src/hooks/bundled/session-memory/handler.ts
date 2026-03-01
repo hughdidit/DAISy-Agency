@@ -46,7 +46,8 @@ async function getRecentSessionContent(
           if ((role === "user" || role === "assistant") && msg.content) {
             // Extract text content
             const text = Array.isArray(msg.content)
-              ? msg.content.find((c: any) => c.type === "text")?.text
+              ? // oxlint-disable-next-line typescript/no-explicit-any
+                msg.content.find((c: any) => c.type === "text")?.text
               : msg.content;
             if (text && !text.startsWith("/")) {
               allMessages.push(`${role}: ${text}`);
@@ -125,6 +126,7 @@ const saveSessionToMemory: HookHandler = async (event) => {
         messageCount,
       });
 
+<<<<<<< HEAD
       if (sessionContent && cfg) {
         log.debug("Calling generateSlugViaLLM...");
         // Dynamically import the LLM slug generator (avoids module caching issues)
@@ -134,6 +136,11 @@ const saveSessionToMemory: HookHandler = async (event) => {
         const slugGenPath = path.join(openclawRoot, "llm-slug-generator.js");
         const { generateSlugViaLLM } = await import(slugGenPath);
 
+=======
+      // Avoid calling the model provider in unit tests, keep hooks fast and deterministic.
+      if (sessionContent && cfg && !process.env.VITEST && process.env.NODE_ENV !== "test") {
+        log.debug("Calling generateSlugViaLLM...");
+>>>>>>> 4ba9809f1 (test(hooks): stabilize session-memory hook tests)
         // Use LLM to generate a descriptive slug
         slug = await generateSlugViaLLM({ sessionContent, cfg });
         log.debug("Generated slug", { slug });
@@ -142,7 +149,7 @@ const saveSessionToMemory: HookHandler = async (event) => {
 
     // If no slug, use timestamp
     if (!slug) {
-      const timeSlug = now.toISOString().split("T")[1]!.split(".")[0]!.replace(/:/g, "");
+      const timeSlug = now.toISOString().split("T")[1].split(".")[0].replace(/:/g, "");
       slug = timeSlug.slice(0, 4); // HHMM
       log.debug("Using fallback timestamp slug", { slug });
     }
@@ -156,7 +163,7 @@ const saveSessionToMemory: HookHandler = async (event) => {
     });
 
     // Format time as HH:MM:SS UTC
-    const timeStr = now.toISOString().split("T")[1]!.split(".")[0];
+    const timeStr = now.toISOString().split("T")[1].split(".")[0];
 
     // Extract context details
     const sessionId = (sessionEntry.sessionId as string) || "unknown";

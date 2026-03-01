@@ -3,6 +3,11 @@ import { describe, expect, it, vi } from "vitest";
 import type { CronJob } from "../types";
 import { DEFAULT_CRON_FORM } from "../app-defaults";
 import { renderCron, type CronProps } from "./cron";
+=======
+import type { CronJob } from "../types.ts";
+import { DEFAULT_CRON_FORM } from "../app-defaults.ts";
+import { renderCron, type CronProps } from "./cron.ts";
+>>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
 
 function createJob(id: string): CronJob {
   return {
@@ -64,7 +69,7 @@ describe("cron view", () => {
       container,
     );
 
-    const row = container.querySelector(".list-item-clickable") as HTMLElement | null;
+    const row = container.querySelector(".list-item-clickable");
     expect(row).not.toBeNull();
     row?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
 

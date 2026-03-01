@@ -59,7 +59,9 @@ const SessionStatusToolSchema = Type.Object({
 
 function formatApiKeySnippet(apiKey: string): string {
   const compact = apiKey.replace(/\s+/g, "");
-  if (!compact) return "unknown";
+  if (!compact) {
+    return "unknown";
+  }
   const edge = compact.length >= 12 ? 6 : 4;
   const head = compact.slice(0, edge);
   const tail = compact.slice(-edge);
@@ -73,7 +75,9 @@ function resolveModelAuthLabel(params: {
   agentDir?: string;
 }): string | undefined {
   const resolvedProvider = params.provider?.trim();
-  if (!resolvedProvider) return undefined;
+  if (!resolvedProvider) {
+    return undefined;
+  }
 
   const providerKey = normalizeProviderId(resolvedProvider);
   const store = ensureAuthProfileStore(params.agentDir, {
@@ -104,7 +108,7 @@ function resolveModelAuthLabel(params: {
     if (profile.type === "token") {
       return `token ${formatApiKeySnippet(profile.token)}${label ? ` (${label})` : ""}`;
     }
-    return `api-key ${formatApiKeySnippet(profile.key)}${label ? ` (${label})` : ""}`;
+    return `api-key ${formatApiKeySnippet(profile.key ?? "")}${label ? ` (${label})` : ""}`;
   }
 
   const envKey = resolveEnvApiKey(providerKey);
@@ -130,7 +134,9 @@ function resolveSessionEntry(params: {
   mainKey: string;
 }): { key: string; entry: SessionEntry } | null {
   const keyRaw = params.keyRaw.trim();
-  if (!keyRaw) return null;
+  if (!keyRaw) {
+    return null;
+  }
   const internal = resolveInternalSessionKey({
     key: keyRaw,
     alias: params.alias,
@@ -153,7 +159,9 @@ function resolveSessionEntry(params: {
 
   for (const key of candidates) {
     const entry = params.store[key];
-    if (entry) return { key, entry };
+    if (entry) {
+      return { key, entry };
+    }
   }
 
   return null;
@@ -165,11 +173,17 @@ function resolveSessionKeyFromSessionId(params: {
   agentId?: string;
 }): string | null {
   const trimmed = params.sessionId.trim();
-  if (!trimmed) return null;
+  if (!trimmed) {
+    return null;
+  }
   const { store } = loadCombinedSessionStoreForGateway(params.cfg);
   const match = Object.entries(store).find(([key, entry]) => {
-    if (entry?.sessionId !== trimmed) return false;
-    if (!params.agentId) return true;
+    if (entry?.sessionId !== trimmed) {
+      return false;
+    }
+    if (!params.agentId) {
+      return true;
+    }
     return resolveAgentIdFromSessionKey(key) === params.agentId;
   });
   return match?.[0] ?? null;
@@ -190,8 +204,12 @@ async function resolveModelOverride(params: {
     }
 > {
   const raw = params.raw.trim();
-  if (!raw) return { kind: "reset" };
-  if (raw.toLowerCase() === "default") return { kind: "reset" };
+  if (!raw) {
+    return { kind: "reset" };
+  }
+  if (raw.toLowerCase() === "default") {
+    return { kind: "reset" };
+  }
 
   const configDefault = resolveDefaultModelForAgent({
     cfg: params.cfg,
@@ -260,7 +278,9 @@ export function createSessionStatusTool(opts?: {
         opts?.agentSessionKey ?? requestedKeyRaw,
       );
       const ensureAgentAccess = (targetAgentId: string) => {
-        if (targetAgentId === requesterAgentId) return;
+        if (targetAgentId === requesterAgentId) {
+          return;
+        }
         // Gate cross-agent access behind tools.agentToAgent settings.
         if (!a2aPolicy.enabled) {
           throw new Error(

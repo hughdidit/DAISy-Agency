@@ -344,4 +344,27 @@ enum GatewayDiagnostics {
             try? FileManager.default.removeItem(at: url)
         }
     }
+=======
+    private static func ensureManualGatewayPassword() {
+        let defaults = UserDefaults.standard
+        let instanceId = defaults.string(forKey: self.instanceIdDefaultsKey)?
+            .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        guard !instanceId.isEmpty else { return }
+
+        let manualPassword = defaults.string(forKey: self.manualPasswordDefaultsKey)?
+            .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        guard !manualPassword.isEmpty else { return }
+
+        if self.loadGatewayPassword(instanceId: instanceId) == nil {
+            self.saveGatewayPassword(manualPassword, instanceId: instanceId)
+        }
+
+        if self.loadGatewayPassword(instanceId: instanceId) == manualPassword {
+            defaults.removeObject(forKey: self.manualPasswordDefaultsKey)
+        }
+    }
+
+>>>>>>> 84e115834 (Gateway: fix node invoke receive loop)
+=======
+>>>>>>> 4ab814fd5 (Revert "iOS: wire node services and tests")
 }

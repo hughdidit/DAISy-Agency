@@ -15,7 +15,7 @@ export function setCompactionSafeguardRuntime(
     return;
   }
 
-  const key = sessionManager as object;
+  const key = sessionManager;
   if (value === null) {
     REGISTRY.delete(key);
     return;
@@ -31,5 +31,5 @@ export function getCompactionSafeguardRuntime(
     return null;
   }
 
-  return REGISTRY.get(sessionManager as object) ?? null;
+  return REGISTRY.get(sessionManager) ?? null;
 }
