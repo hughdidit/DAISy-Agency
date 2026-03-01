@@ -214,6 +214,7 @@ Docs: https://docs.openclaw.ai
 =======
 ## Unreleased
 
+<<<<<<< HEAD
 ### Fixes
 
 <<<<<<< HEAD
@@ -224,6 +225,20 @@ Docs: https://docs.openclaw.ai
 =======
 =======
 =======
+=======
+### Changes
+
+- ACP/ACPX streaming: pin ACPX plugin support to `0.1.15`, add configurable ACPX command/version probing, and streamline ACP stream delivery (`final_only` default + reduced tool-event noise) with matching runtime and test updates. (#30036) Thanks @osolmaz.
+- OpenAI/Streaming transport: make `openai` Responses WebSocket-first by default (`transport: "auto"` with SSE fallback), add shared OpenAI WS stream/connection runtime wiring with per-session cleanup, and preserve server-side compaction payload mutation (`store` + `context_management`) on the WS path.
+- OpenAI/WebSocket warm-up: add optional OpenAI Responses WebSocket warm-up (`response.create` with `generate:false`), enable it by default for `openai/*`, and expose `params.openaiWsWarmup` for per-model enable/disable control.
+- Agents/Subagents runtime events: replace ad-hoc subagent completion system-message handoff with typed internal completion events (`task_completion`) that are rendered consistently across direct and queued announce paths, with gateway/CLI plumbing for structured `internalEvents`.
+
+### Fixes
+
+- ACP/Harness thread spawn routing: force ACP harness thread creation through `sessions_spawn` (`runtime: "acp"`, `thread: true`) and explicitly forbid `message action=thread-create` for ACP harness requests, avoiding misrouted `Unknown channel` errors. (#30957) Thanks @dutifulbob.
+- Security/Inbound metadata stripping: tighten sentinel matching and JSON-fence validation for inbound metadata stripping so user-authored lookalike lines no longer trigger unintended metadata removal.
+- Channels/Command parsing parity: align command-body parsing fields with channel command-gating text for Slack, Signal, Microsoft Teams, Mattermost, and BlueBubbles to avoid mention-strip mismatches and inconsistent command detection.
+>>>>>>> 51bccaf98 (chore(changelog): note internal events and ingress hardening)
 - CLI/Startup (Raspberry Pi + small hosts): speed up startup by avoiding unnecessary plugin preload on fast routes, adding root `--version` fast-path bootstrap bypass, parallelizing status JSON/non-JSON scans where safe, and enabling Node compile cache at startup with env override compatibility (`NODE_COMPILE_CACHE`, `NODE_DISABLE_COMPILE_CACHE`). (#5871) Thanks @BookCatKid and @vincentkoc for raising startup reports, and @lupuletic for related startup work in #27973.
 >>>>>>> 4b027927c (Changelog: credit startup performance reports)
 - Docs/Slack manifest scopes: add missing DM/group-DM bot scopes (`im:read`, `im:write`, `mpim:read`, `mpim:write`) to the Slack app manifest example so DM setup guidance is complete. (#29999) Thanks @JcMinarro.
