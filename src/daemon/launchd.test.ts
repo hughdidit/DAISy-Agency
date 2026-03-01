@@ -5,7 +5,11 @@ import { describe, expect, it } from "vitest";
 
 =======
 import { beforeEach, describe, expect, it, vi } from "vitest";
+<<<<<<< HEAD
 >>>>>>> 92f8c0fac (perf(test): speed up suites and reduce fs churn)
+=======
+import { LAUNCH_AGENT_THROTTLE_INTERVAL_SECONDS } from "./launchd-plist.js";
+>>>>>>> c0ce12551 (fix(gateway): shorten manual reinstall/restart delays)
 import {
   installLaunchAgent,
   isLaunchAgentListed,
@@ -418,7 +422,7 @@ describe("launchd install", () => {
     expect(plist).toContain("<true/>");
     expect(plist).not.toContain("<key>SuccessfulExit</key>");
     expect(plist).toContain("<key>ThrottleInterval</key>");
-    expect(plist).toContain("<integer>60</integer>");
+    expect(plist).toContain(`<integer>${LAUNCH_AGENT_THROTTLE_INTERVAL_SECONDS}</integer>`);
   });
 
   it("restarts LaunchAgent with bootout-bootstrap-kickstart order", async () => {
