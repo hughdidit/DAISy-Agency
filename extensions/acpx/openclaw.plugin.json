@@ -29,6 +29,17 @@
     }
   },
   "uiHints": {
+<<<<<<< HEAD
+=======
+    "command": {
+      "label": "acpx Command",
+      "help": "Optional path/command override for acpx (for example /home/user/repos/acpx/dist/cli.js). Leave unset to use plugin-local bundled acpx."
+    },
+    "expectedVersion": {
+      "label": "Expected acpx Version",
+      "help": "Exact version to enforce (for example 0.1.14) or \"any\" to skip strict version matching."
+    },
+>>>>>>> 63e607db9 (ACPX: pin plugin dependency to 0.1.14)
     "cwd": {
       "label": "Default Working Directory",
       "help": "Default cwd for ACP session operations when not set per session."
