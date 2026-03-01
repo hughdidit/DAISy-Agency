@@ -1,11 +1,15 @@
 import fs from "node:fs";
 import path from "node:path";
 import readline from "node:readline";
-
 import type { NormalizedUsage, UsageLike } from "../agents/usage.js";
+<<<<<<< HEAD
 import { normalizeUsage } from "../agents/usage.js";
 import type { MoltbotConfig } from "../config/config.js";
+=======
+import type { OpenClawConfig } from "../config/config.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { SessionEntry } from "../config/sessions/types.js";
+import { normalizeUsage } from "../agents/usage.js";
 import {
   resolveSessionFilePath,
   resolveSessionTranscriptsDirForAgent,
@@ -138,7 +142,7 @@ const applyCostTotal = (totals: CostUsageTotals, costTotal: number | undefined) 
 
 async function scanUsageFile(params: {
   filePath: string;
-  config?: MoltbotConfig;
+  config?: OpenClawConfig;
   onEntry: (entry: ParsedUsageEntry) => void;
 }): Promise<void> {
   const fileStream = fs.createReadStream(params.filePath, { encoding: "utf-8" });
@@ -170,7 +174,7 @@ async function scanUsageFile(params: {
 
 export async function loadCostUsageSummary(params?: {
   days?: number;
-  config?: MoltbotConfig;
+  config?: OpenClawConfig;
   agentId?: string;
 }): Promise<CostUsageSummary> {
   const days = Math.max(1, Math.floor(params?.days ?? 30));
@@ -233,7 +237,7 @@ export async function loadSessionCostSummary(params: {
   sessionId?: string;
   sessionEntry?: SessionEntry;
   sessionFile?: string;
-  config?: MoltbotConfig;
+  config?: OpenClawConfig;
 }): Promise<SessionCostSummary | null> {
   const sessionFile =
     params.sessionFile ??

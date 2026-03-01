@@ -1,11 +1,20 @@
 import type { SkillEligibilityContext, SkillEntry } from "../agents/skills.js";
+<<<<<<< HEAD
 import { loadWorkspaceSkillEntries } from "../agents/skills.js";
 import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../agents/agent-scope.js";
-import type { MoltbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 import { listNodePairing, updatePairedNodeMetadata } from "./node-pairing.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import { bumpSkillsSnapshotVersion } from "../agents/skills/refresh.js";
+=======
+import type { OpenClawConfig } from "../config/config.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { NodeRegistry } from "../gateway/node-registry.js";
+import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../agents/agent-scope.js";
+import { loadWorkspaceSkillEntries } from "../agents/skills.js";
+import { bumpSkillsSnapshotVersion } from "../agents/skills/refresh.js";
+import { createSubsystemLogger } from "../logging/subsystem.js";
+import { listNodePairing, updatePairedNodeMetadata } from "./node-pairing.js";
 
 type RemoteNodeRecord = {
   nodeId: string;
@@ -156,7 +165,7 @@ export function recordRemoteNodeBins(nodeId: string, bins: string[]) {
   upsertNode({ nodeId, bins });
 }
 
-function listWorkspaceDirs(cfg: MoltbotConfig): string[] {
+function listWorkspaceDirs(cfg: OpenClawConfig): string[] {
   const dirs = new Set<string>();
   const list = cfg.agents?.list;
   if (Array.isArray(list)) {
@@ -227,7 +236,7 @@ export async function refreshRemoteNodeBins(params: {
   platform?: string;
   deviceFamily?: string;
   commands?: string[];
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   timeoutMs?: number;
 }) {
   if (!remoteRegistry) return;
@@ -304,7 +313,7 @@ export function getRemoteSkillEligibility(): SkillEligibilityContext["remote"] |
   };
 }
 
-export async function refreshRemoteBinsForConnectedNodes(cfg: MoltbotConfig) {
+export async function refreshRemoteBinsForConnectedNodes(cfg: OpenClawConfig) {
   if (!remoteRegistry) return;
   const connected = remoteRegistry.listConnected();
   for (const node of connected) {

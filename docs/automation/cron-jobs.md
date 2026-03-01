@@ -4,6 +4,7 @@ read_when:
   - Scheduling background jobs or wakeups
   - Wiring automation that should run with or alongside heartbeats
   - Deciding between heartbeat and cron for scheduled tasks
+title: "Cron Jobs"
 ---
 # Cron jobs (Gateway scheduler)
 
@@ -15,16 +16,16 @@ the right time, and can optionally deliver output back to a chat.
 If you want *“run this every morning”* or *“poke the agent in 20 minutes”*,
 cron is the mechanism.
 
+Troubleshooting: [/automation/troubleshooting](/automation/troubleshooting)
+
 ## TL;DR
 - Cron runs **inside the Gateway** (not inside the model).
-- Jobs persist under `~/.clawdbot/cron/` so restarts don’t lose schedules.
+- Jobs persist under `~/.openclaw/cron/` so restarts don’t lose schedules.
 - Two execution styles:
   - **Main session**: enqueue a system event, then run on the next heartbeat.
   - **Isolated**: run a dedicated agent turn in `cron:<jobId>`, optionally deliver output.
 - Wakeups are first-class: a job can request “wake now” vs “next heartbeat”.
 
-<<<<<<< HEAD
-=======
 ## Quick start (actionable)
 
 Create a one-shot reminder, verify it exists, and run it immediately:
@@ -39,7 +40,7 @@ openclaw cron add \
   --delete-after-run
 
 openclaw cron list
-openclaw cron run <job-id>
+openclaw cron run <job-id> --force
 openclaw cron runs --id <job-id>
 ```
 
@@ -52,7 +53,7 @@ openclaw cron add \
   --tz "America/Los_Angeles" \
   --session isolated \
   --message "Summarize overnight updates." \
-  --announce \
+  --deliver \
   --channel slack \
   --to "channel:C1234567890"
 ```
@@ -68,7 +69,6 @@ The Gateway loads the file into memory and writes it back on changes, so manual 
 are only safe when the Gateway is stopped. Prefer `openclaw cron add/edit` or the cron
 tool call API for changes.
 
->>>>>>> d90cac990 (fix: cron scheduler reliability, store hardening, and UX improvements (#10776))
 ## Beginner-friendly overview
 Think of a cron job as: **when** to run + **what** to do.
 
@@ -248,13 +248,11 @@ the topic/thread into the `to` field:
 Prefixed targets like `telegram:...` / `telegram:group:...` are also accepted:
 - `telegram:group:-1001234567890:topic:123`
 
-<<<<<<< HEAD
-=======
 ## JSON schema for tool calls
 
 Use these shapes when calling Gateway `cron.*` tools directly (agent tool calls or RPC).
-CLI flags accept human durations like `20m`, but tool calls should use an ISO 8601 string
-for `schedule.at` and milliseconds for `schedule.everyMs`.
+CLI flags accept human durations like `20m`, but tool calls use epoch milliseconds for
+`atMs` and `everyMs` (ISO timestamps are accepted for `at` times).
 
 ### cron.add params
 
@@ -263,7 +261,7 @@ One-shot, main session job (system event):
 ```json
 {
   "name": "Reminder",
-  "schedule": { "kind": "at", "at": "2026-02-01T16:00:00Z" },
+  "schedule": { "kind": "at", "atMs": 1738262400000 },
   "sessionTarget": "main",
   "wakeMode": "now",
   "payload": { "kind": "systemEvent", "text": "Reminder text" },
@@ -281,26 +279,23 @@ Recurring, isolated job with delivery:
   "wakeMode": "next-heartbeat",
   "payload": {
     "kind": "agentTurn",
-    "message": "Summarize overnight updates."
-  },
-  "delivery": {
-    "mode": "announce",
+    "message": "Summarize overnight updates.",
+    "deliver": true,
     "channel": "slack",
     "to": "channel:C1234567890",
-    "bestEffort": true
-  }
+    "bestEffortDeliver": true
+  },
+  "isolation": { "postToMainPrefix": "Cron", "postToMainMode": "summary" }
 }
 ```
 
 Notes:
 
-- `schedule.kind`: `at` (`at`), `every` (`everyMs`), or `cron` (`expr`, optional `tz`).
-- `schedule.at` accepts ISO 8601 (timezone optional; treated as UTC when omitted).
-- `everyMs` is milliseconds.
+- `schedule.kind`: `at` (`atMs`), `every` (`everyMs`), or `cron` (`expr`, optional `tz`).
+- `atMs` and `everyMs` are epoch milliseconds.
 - `sessionTarget` must be `"main"` or `"isolated"` and must match `payload.kind`.
-- Optional fields: `agentId`, `description`, `enabled`, `deleteAfterRun` (defaults to true for `at`),
-  `delivery`.
-- `wakeMode` defaults to `"now"` when omitted.
+- Optional fields: `agentId`, `description`, `enabled`, `deleteAfterRun`, `isolation`.
+- `wakeMode` defaults to `"next-heartbeat"` when omitted.
 
 ### cron.update params
 
@@ -329,10 +324,9 @@ Notes:
 { "jobId": "job-123" }
 ```
 
->>>>>>> d90cac990 (fix: cron scheduler reliability, store hardening, and UX improvements (#10776))
 ## Storage & history
-- Job store: `~/.clawdbot/cron/jobs.json` (Gateway-managed JSON).
-- Run history: `~/.clawdbot/cron/runs/<jobId>.jsonl` (JSONL, auto-pruned).
+- Job store: `~/.openclaw/cron/jobs.json` (Gateway-managed JSON).
+- Run history: `~/.openclaw/cron/runs/<jobId>.jsonl` (JSONL, auto-pruned).
 - Override store path: `cron.store` in config.
 
 ## Configuration
@@ -341,7 +335,7 @@ Notes:
 {
   cron: {
     enabled: true, // default true
-    store: "~/.clawdbot/cron/jobs.json",
+    store: "~/.openclaw/cron/jobs.json",
     maxConcurrentRuns: 1 // default 1
   }
 }
@@ -349,13 +343,13 @@ Notes:
 
 Disable cron entirely:
 - `cron.enabled: false` (config)
-- `CLAWDBOT_SKIP_CRON=1` (env)
+- `OPENCLAW_SKIP_CRON=1` (env)
 
 ## CLI quickstart
 
 One-shot reminder (UTC ISO, auto-delete after success):
 ```bash
-moltbot cron add \
+openclaw cron add \
   --name "Send reminder" \
   --at "2026-01-12T18:00:00Z" \
   --session main \
@@ -366,7 +360,7 @@ moltbot cron add \
 
 One-shot reminder (main session, wake immediately):
 ```bash
-moltbot cron add \
+openclaw cron add \
   --name "Calendar check" \
   --at "20m" \
   --session main \
@@ -376,7 +370,7 @@ moltbot cron add \
 
 Recurring isolated job (deliver to WhatsApp):
 ```bash
-moltbot cron add \
+openclaw cron add \
   --name "Morning status" \
   --cron "0 7 * * *" \
   --tz "America/Los_Angeles" \
@@ -389,7 +383,7 @@ moltbot cron add \
 
 Recurring isolated job (deliver to a Telegram topic):
 ```bash
-moltbot cron add \
+openclaw cron add \
   --name "Nightly summary (topic)" \
   --cron "0 22 * * *" \
   --tz "America/Los_Angeles" \
@@ -401,8 +395,14 @@ moltbot cron add \
 ```
 
 Isolated job with model and thinking override:
+<<<<<<< HEAD
 ```bash
 moltbot cron add \
+=======
+
+```bash
+openclaw cron add \
+>>>>>>> 75093ebe1 (Docs: add actionable cron quick start (#5446))
   --name "Deep analysis" \
   --cron "0 6 * * 1" \
   --tz "America/Los_Angeles" \
@@ -413,34 +413,39 @@ moltbot cron add \
   --deliver \
   --channel whatsapp \
   --to "+15551234567"
+```
 
 Agent selection (multi-agent setups):
+
 ```bash
 # Pin a job to agent "ops" (falls back to default if that agent is missing)
-moltbot cron add --name "Ops sweep" --cron "0 6 * * *" --session isolated --message "Check ops queue" --agent ops
+openclaw cron add --name "Ops sweep" --cron "0 6 * * *" --session isolated --message "Check ops queue" --agent ops
 
 # Switch or clear the agent on an existing job
+<<<<<<< HEAD
 moltbot cron edit <jobId> --agent ops
 moltbot cron edit <jobId> --clear-agent
 ```
+=======
+openclaw cron edit <jobId> --agent ops
+openclaw cron edit <jobId> --clear-agent
+>>>>>>> 75093ebe1 (Docs: add actionable cron quick start (#5446))
 ```
 
 <<<<<<< HEAD
 Manual run (debug):
-```bash
-moltbot cron run <jobId> --force
-=======
-Manual run (force is the default, use `--due` to only run when due):
 
 ```bash
-openclaw cron run <jobId>
-openclaw cron run <jobId> --due
->>>>>>> d90cac990 (fix: cron scheduler reliability, store hardening, and UX improvements (#10776))
+<<<<<<< HEAD
+moltbot cron run <jobId> --force
+=======
+openclaw cron run <jobId> --force
+>>>>>>> 75093ebe1 (Docs: add actionable cron quick start (#5446))
 ```
 
 Edit an existing job (patch fields):
 ```bash
-moltbot cron edit <jobId> \
+openclaw cron edit <jobId> \
   --message "Updated prompt" \
   --model "opus" \
   --thinking low
@@ -448,23 +453,23 @@ moltbot cron edit <jobId> \
 
 Run history:
 ```bash
-moltbot cron runs --id <jobId> --limit 50
+openclaw cron runs --id <jobId> --limit 50
 ```
 
 Immediate system event without creating a job:
 ```bash
-moltbot system event --mode now --text "Next heartbeat: check battery."
+openclaw system event --mode now --text "Next heartbeat: check battery."
 ```
 
 ## Gateway API surface
 - `cron.list`, `cron.status`, `cron.add`, `cron.update`, `cron.remove`
 - `cron.run` (force or due), `cron.runs`
-For immediate system events without a job, use [`moltbot system event`](/cli/system).
+For immediate system events without a job, use [`openclaw system event`](/cli/system).
 
 ## Troubleshooting
 
 ### “Nothing runs”
-- Check cron is enabled: `cron.enabled` and `CLAWDBOT_SKIP_CRON`.
+- Check cron is enabled: `cron.enabled` and `OPENCLAW_SKIP_CRON`.
 - Check the Gateway is running continuously (cron runs inside the Gateway process).
 - For `cron` schedules: confirm timezone (`--tz`) vs the host timezone.
 

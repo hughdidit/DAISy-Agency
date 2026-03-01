@@ -1,5 +1,4 @@
 import crypto from "node:crypto";
-
 import type { WebhookContext } from "./types.js";
 
 /**
@@ -405,8 +404,12 @@ export function verifyTwilioWebhook(
     verificationUrl.includes(".ngrok-free.app") ||
     verificationUrl.includes(".ngrok.io");
 
-  if (isNgrokFreeTier && options?.allowNgrokFreeTierLoopbackBypass && isLoopback) {
-    console.warn(
+  if (
+    isNgrokFreeTier &&
+    options?.allowNgrokFreeTierLoopbackBypass &&
+    isLoopbackAddress(ctx.remoteAddress)
+  ) {
+    console.warn( // standalone util — caller logs through provider logger
       "[voice-call] Twilio signature validation failed (ngrok free tier compatibility, loopback only)",
     );
     return {

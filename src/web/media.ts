@@ -1,14 +1,8 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-<<<<<<< HEAD
-
-=======
-import type { SsrFPolicy } from "../infra/net/ssrf.js";
->>>>>>> 81c68f582 (fix: guard remote media fetches with SSRF checks)
 import { logVerbose, shouldLogVerbose } from "../globals.js";
 import { type MediaKind, maxBytesForKind, mediaKindFromMime } from "../media/constants.js";
-import { resolveUserPath } from "../utils.js";
 import { fetchRemoteMedia } from "../media/fetch.js";
 import {
   convertHeicToJpeg,
@@ -17,6 +11,7 @@ import {
   resizeToJpeg,
 } from "../media/image-ops.js";
 import { detectMime, extensionForMime } from "../media/mime.js";
+import { resolveUserPath } from "../utils.js";
 
 export type WebMediaResult = {
   buffer: Buffer;
@@ -194,9 +189,6 @@ async function loadWebMediaInternal(
   };
 
   if (/^https?:\/\//i.test(mediaUrl)) {
-<<<<<<< HEAD
-    const fetched = await fetchRemoteMedia({ url: mediaUrl });
-=======
     // Enforce a download cap during fetch to avoid unbounded memory usage.
     // For optimized images, allow fetching larger payloads before compression.
     const defaultFetchCap = maxBytesForKind("unknown");
@@ -206,8 +198,7 @@ async function loadWebMediaInternal(
         : optimizeImages
           ? Math.max(maxBytes, defaultFetchCap)
           : maxBytes;
-    const fetched = await fetchRemoteMedia({ url: mediaUrl, maxBytes: fetchCap, ssrfPolicy });
->>>>>>> 81c68f582 (fix: guard remote media fetches with SSRF checks)
+    const fetched = await fetchRemoteMedia({ url: mediaUrl, maxBytes: fetchCap });
     const { buffer, contentType, fileName } = fetched;
     const kind = mediaKindFromMime(contentType);
     return await clampAndFinalize({ buffer, contentType, kind, fileName });

@@ -1,7 +1,12 @@
 import type { ChannelId } from "../channels/plugins/types.js";
+<<<<<<< HEAD
 import { normalizeAccountId } from "../routing/session-key.js";
 import type { MoltbotConfig } from "./config.js";
+=======
+import type { OpenClawConfig } from "./config.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { GroupToolPolicyBySenderConfig, GroupToolPolicyConfig } from "./types.tools.js";
+import { normalizeAccountId } from "../routing/session-key.js";
 
 export type GroupPolicyChannel = ChannelId;
 
@@ -80,7 +85,7 @@ export function resolveToolsBySender(
 }
 
 function resolveChannelGroups(
-  cfg: MoltbotConfig,
+  cfg: OpenClawConfig,
   channel: GroupPolicyChannel,
   accountId?: string | null,
 ): ChannelGroups | undefined {
@@ -103,7 +108,7 @@ function resolveChannelGroups(
 }
 
 export function resolveChannelGroupPolicy(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   channel: GroupPolicyChannel;
   groupId?: string | null;
   accountId?: string | null;
@@ -128,7 +133,7 @@ export function resolveChannelGroupPolicy(params: {
 }
 
 export function resolveChannelGroupRequireMention(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   channel: GroupPolicyChannel;
   groupId?: string | null;
   accountId?: string | null;
@@ -156,7 +161,7 @@ export function resolveChannelGroupRequireMention(params: {
 
 export function resolveChannelGroupToolsPolicy(
   params: {
-    cfg: MoltbotConfig;
+    cfg: OpenClawConfig;
     channel: GroupPolicyChannel;
     groupId?: string | null;
     accountId?: string | null;

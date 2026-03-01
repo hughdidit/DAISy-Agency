@@ -1,7 +1,3 @@
-import { spawn, type ChildProcess } from "node:child_process";
-import * as readline from "node:readline";
-import { Readable, Writable } from "node:stream";
-
 import {
   ClientSideConnection,
   PROTOCOL_VERSION,
@@ -9,8 +5,15 @@ import {
   type RequestPermissionRequest,
   type SessionNotification,
 } from "@agentclientprotocol/sdk";
+<<<<<<< HEAD
 
 import { ensureMoltbotCliOnPath } from "../infra/path-env.js";
+=======
+import { spawn, type ChildProcess } from "node:child_process";
+import * as readline from "node:readline";
+import { Readable, Writable } from "node:stream";
+import { ensureOpenClawCliOnPath } from "../infra/path-env.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 
 export type AcpClientOptions = {
   cwd?: string;
@@ -75,8 +78,8 @@ export async function createAcpClient(opts: AcpClientOptions = {}): Promise<AcpC
   const verbose = Boolean(opts.verbose);
   const log = verbose ? (msg: string) => console.error(`[acp-client] ${msg}`) : () => {};
 
-  ensureMoltbotCliOnPath({ cwd });
-  const serverCommand = opts.serverCommand ?? "moltbot";
+  ensureOpenClawCliOnPath({ cwd });
+  const serverCommand = opts.serverCommand ?? "openclaw";
   const serverArgs = buildServerArgs(opts);
 
   log(`spawning: ${serverCommand} ${serverArgs.join(" ")}`);
@@ -122,7 +125,7 @@ export async function createAcpClient(opts: AcpClientOptions = {}): Promise<AcpC
       fs: { readTextFile: true, writeTextFile: true },
       terminal: true,
     },
-    clientInfo: { name: "moltbot-acp-client", version: "1.0.0" },
+    clientInfo: { name: "openclaw-acp-client", version: "1.0.0" },
   });
 
   log("creating session");
@@ -146,7 +149,7 @@ export async function runAcpClientInteractive(opts: AcpClientOptions = {}): Prom
     output: process.stdout,
   });
 
-  console.log("Moltbot ACP client");
+  console.log("OpenClaw ACP client");
   console.log(`Session: ${sessionId}`);
   console.log('Type a prompt, or "exit" to quit.\n');
 

@@ -1,6 +1,5 @@
 import type { AgentToolResult } from "@mariozechner/pi-agent-core";
 import type { ImageContent } from "@mariozechner/pi-ai";
-
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import { getImageMetadata, resizeToJpeg } from "../media/image-ops.js";
 
@@ -8,7 +7,7 @@ type ToolContentBlock = AgentToolResult<unknown>["content"][number];
 type ImageContentBlock = Extract<ToolContentBlock, { type: "image" }>;
 type TextContentBlock = Extract<ToolContentBlock, { type: "text" }>;
 
-// Anthropic Messages API limitations (observed in Moltbot sessions):
+// Anthropic Messages API limitations (observed in OpenClaw sessions):
 // - Images over ~2000px per side can fail in multi-image requests.
 // - Images over 5MB are rejected by the API.
 //

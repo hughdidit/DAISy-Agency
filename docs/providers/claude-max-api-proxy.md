@@ -4,6 +4,7 @@ read_when:
   - You want to use Claude Max subscription with OpenAI-compatible tools
   - You want a local API server that wraps Claude Code CLI
   - You want to save money by using subscription instead of API keys
+title: "Claude Max API Proxy"
 ---
 # Claude Max API Proxy
 
@@ -67,9 +68,9 @@ curl http://localhost:3456/v1/chat/completions \
   }'
 ```
 
-### With Moltbot
+### With OpenClaw
 
-You can point Moltbot at the proxy as a custom OpenAI-compatible endpoint:
+You can point OpenClaw at the proxy as a custom OpenAI-compatible endpoint:
 
 ```json5
 {
@@ -128,18 +129,18 @@ launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.claude-max-api.plist
 
 ## Links
 
-- **npm:** https://www.npmjs.com/package/claude-max-api-proxy
-- **GitHub:** https://github.com/atalovesyou/claude-max-api-proxy
-- **Issues:** https://github.com/atalovesyou/claude-max-api-proxy/issues
+- **npm:** [https://www.npmjs.com/package/claude-max-api-proxy](https://www.npmjs.com/package/claude-max-api-proxy)
+- **GitHub:** [https://github.com/atalovesyou/claude-max-api-proxy](https://github.com/atalovesyou/claude-max-api-proxy)
+- **Issues:** [https://github.com/atalovesyou/claude-max-api-proxy/issues](https://github.com/atalovesyou/claude-max-api-proxy/issues)
 
 ## Notes
 
-- This is a **community tool**, not officially supported by Anthropic or Moltbot
+- This is a **community tool**, not officially supported by Anthropic or OpenClaw
 - Requires an active Claude Max/Pro subscription with Claude Code CLI authenticated
 - The proxy runs locally and does not send data to any third-party servers
 - Streaming responses are fully supported
 
 ## See Also
 
-- [Anthropic provider](/providers/anthropic) - Native Moltbot integration with Claude setup-token or API keys
+- [Anthropic provider](/providers/anthropic) - Native OpenClaw integration with Claude setup-token or API keys
 - [OpenAI provider](/providers/openai) - For OpenAI/Codex subscriptions

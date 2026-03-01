@@ -1,7 +1,5 @@
 import JSZip from "jszip";
 import { describe, expect, it } from "vitest";
-<<<<<<< HEAD
-
 import { detectMime, extensionForMime, imageMimeFromFormat } from "./mime.js";
 =======
 import { detectMime, extensionForMime, imageMimeFromFormat, isAudioFileName } from "./mime.js";

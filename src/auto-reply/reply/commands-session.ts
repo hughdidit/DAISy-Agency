@@ -1,21 +1,25 @@
-import { abortEmbeddedPiRun } from "../../agents/pi-embedded.js";
 import type { SessionEntry } from "../../config/sessions.js";
+import type { CommandHandler } from "./commands-types.js";
+import { abortEmbeddedPiRun } from "../../agents/pi-embedded.js";
 import { updateSessionStore } from "../../config/sessions.js";
 import { logVerbose } from "../../globals.js";
 import { createInternalHookEvent, triggerInternalHook } from "../../hooks/internal-hooks.js";
+<<<<<<< HEAD
 import { scheduleGatewaySigusr1Restart, triggerMoltbotRestart } from "../../infra/restart.js";
+=======
+import { scheduleGatewaySigusr1Restart, triggerOpenClawRestart } from "../../infra/restart.js";
+import { loadCostUsageSummary, loadSessionCostSummary } from "../../infra/session-cost-usage.js";
+import { formatTokenCount, formatUsd } from "../../utils/usage-format.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { parseActivationCommand } from "../group-activation.js";
 import { parseSendPolicyCommand } from "../send-policy.js";
 import { normalizeUsageDisplay, resolveResponseUsageMode } from "../thinking.js";
-import { loadCostUsageSummary, loadSessionCostSummary } from "../../infra/session-cost-usage.js";
-import { formatTokenCount, formatUsd } from "../../utils/usage-format.js";
 import {
   formatAbortReplyText,
   isAbortTrigger,
   setAbortMemory,
   stopSubagentsForRequester,
 } from "./abort.js";
-import type { CommandHandler } from "./commands-types.js";
 import { clearSessionQueues } from "./queue.js";
 
 function resolveSessionEntryForKey(
@@ -237,11 +241,11 @@ export const handleRestartCommand: CommandHandler = async (params, allowTextComm
     return {
       shouldContinue: false,
       reply: {
-        text: "⚙️ Restarting moltbot in-process (SIGUSR1); back in a few seconds.",
+        text: "⚙️ Restarting OpenClaw in-process (SIGUSR1); back in a few seconds.",
       },
     };
   }
-  const restartMethod = triggerMoltbotRestart();
+  const restartMethod = triggerOpenClawRestart();
   if (!restartMethod.ok) {
     const detail = restartMethod.detail ? ` Details: ${restartMethod.detail}` : "";
     return {
@@ -254,7 +258,7 @@ export const handleRestartCommand: CommandHandler = async (params, allowTextComm
   return {
     shouldContinue: false,
     reply: {
-      text: `⚙️ Restarting moltbot via ${restartMethod.method}; give me a few seconds to come back online.`,
+      text: `⚙️ Restarting OpenClaw via ${restartMethod.method}; give me a few seconds to come back online.`,
     },
   };
 };

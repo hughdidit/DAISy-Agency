@@ -1,14 +1,12 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-
 import { describe, expect, it } from "vitest";
-
 import { resolveControlUiDistIndexPath, resolveControlUiRepoRoot } from "./control-ui-assets.js";
 
 describe("control UI assets helpers", () => {
   it("resolves repo root from src argv1", async () => {
-    const tmp = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-ui-"));
+    const tmp = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-ui-"));
     try {
       await fs.mkdir(path.join(tmp, "ui"), { recursive: true });
       await fs.writeFile(path.join(tmp, "ui", "vite.config.ts"), "export {};\n");
@@ -23,7 +21,7 @@ describe("control UI assets helpers", () => {
   });
 
   it("resolves repo root from dist argv1", async () => {
-    const tmp = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-ui-"));
+    const tmp = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-ui-"));
     try {
       await fs.mkdir(path.join(tmp, "ui"), { recursive: true });
       await fs.writeFile(path.join(tmp, "ui", "vite.config.ts"), "export {};\n");

@@ -9,16 +9,21 @@ import {
 } from "@mariozechner/pi-ai";
 >>>>>>> bcde2fca5 (fix: align embedded agent session setup)
 import lockfile from "proper-lockfile";
+<<<<<<< HEAD
 
-import type { MoltbotConfig } from "../../config/config.js";
+import type { OpenClawConfig } from "../../config/config.js";
 import { refreshChutesTokens } from "../chutes-oauth.js";
+=======
+import type { OpenClawConfig } from "../../config/config.js";
+import type { AuthProfileStore } from "./types.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { refreshQwenPortalCredentials } from "../../providers/qwen-portal-oauth.js";
+import { refreshChutesTokens } from "../chutes-oauth.js";
 import { AUTH_STORE_LOCK_OPTIONS, log } from "./constants.js";
 import { formatAuthDoctorHint } from "./doctor.js";
 import { ensureAuthStoreFile, resolveAuthStorePath } from "./paths.js";
 import { suggestOAuthProfileIdForLegacyDefault } from "./repair.js";
 import { ensureAuthProfileStore, saveAuthProfileStore } from "./store.js";
-import type { AuthProfileStore } from "./types.js";
 
 const OAUTH_PROVIDER_IDS = new Set<OAuthProvider>(
   getOAuthProviders().map((provider) => provider.id),
@@ -123,7 +128,7 @@ async function refreshOAuthTokenWithLock(params: {
 }
 
 async function tryResolveOAuthProfile(params: {
-  cfg?: MoltbotConfig;
+  cfg?: OpenClawConfig;
   store: AuthProfileStore;
   profileId: string;
   agentDir?: string;
@@ -156,7 +161,7 @@ async function tryResolveOAuthProfile(params: {
 }
 
 export async function resolveApiKeyForProfile(params: {
-  cfg?: MoltbotConfig;
+  cfg?: OpenClawConfig;
   store: AuthProfileStore;
   profileId: string;
   agentDir?: string;

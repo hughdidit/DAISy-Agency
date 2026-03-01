@@ -1,17 +1,22 @@
+import type { OpenClawConfig } from "../../config/config.js";
+import type { RuntimeEnv } from "../../runtime.js";
 import {
   ensureAuthProfileStore,
   resolveApiKeyForProfile,
   resolveAuthProfileOrder,
 } from "../../agents/auth-profiles.js";
 import { resolveEnvApiKey } from "../../agents/model-auth.js";
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
 import type { RuntimeEnv } from "../../runtime.js";
+=======
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 
 export type NonInteractiveApiKeySource = "flag" | "env" | "profile";
 
 async function resolveApiKeyFromProfiles(params: {
   provider: string;
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   agentDir?: string;
 }): Promise<string | null> {
   const store = ensureAuthProfileStore(params.agentDir);
@@ -36,7 +41,7 @@ async function resolveApiKeyFromProfiles(params: {
 
 export async function resolveNonInteractiveApiKey(params: {
   provider: string;
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   flagValue?: string;
   flagName: string;
   envVar: string;

@@ -3,6 +3,7 @@ summary: "Session pruning: tool-result trimming to reduce context bloat"
 read_when:
   - You want to reduce LLM context growth from tool outputs
   - You are tuning agents.defaults.contextPruning
+title: "Session Pruning"
 ---
 
 # Session Pruning
@@ -13,19 +14,27 @@ Session pruning trims **old tool results** from the in-memory context right befo
 
 - When `mode: "cache-ttl"` is enabled and the last Anthropic call for the session is older than `ttl`.
 - Only affects the messages sent to the model for that request.
+<<<<<<< HEAD
+ - Only active for Anthropic API calls (and OpenRouter Anthropic models).
+ - For best results, match `ttl` to your model `cacheControlTtl`.
+ - After a prune, the TTL window resets so subsequent requests keep cache until `ttl` expires again.
+=======
 - Only active for Anthropic API calls (and OpenRouter Anthropic models).
-- For best results, match `ttl` to your model `cacheControlTtl`.
+- For best results, match `ttl` to your model `cacheRetention`.
 - After a prune, the TTL window resets so subsequent requests keep cache until `ttl` expires again.
+>>>>>>> 7a8a39a14 (docs: document cacheRetention parameter (#6270))
 
 ## Smart defaults (Anthropic)
 
 - **OAuth or setup-token** profiles: enable `cache-ttl` pruning and set heartbeat to `1h`.
+<<<<<<< HEAD
 - **API key** profiles: enable `cache-ttl` pruning, set heartbeat to `30m`, and default `cacheControlTtl` to `1h` on Anthropic models.
 <<<<<<< HEAD
 - If you set any of these values explicitly, Moltbot does **not** override them.
 =======
+- **API key** profiles: enable `cache-ttl` pruning, set heartbeat to `30m`, and default `cacheRetention: "short"` on Anthropic models.
 - If you set any of these values explicitly, OpenClaw does **not** override them.
->>>>>>> 0992c5a80 (fix: cap context window resolution (#6187) (thanks @iamEvanYT))
+>>>>>>> 7a8a39a14 (docs: document cacheRetention parameter (#6270))
 
 ## What this improves (cost + cache behavior)
 

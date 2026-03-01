@@ -1,6 +1,6 @@
+import type { RuntimeEnv } from "../runtime.js";
 import { readConfigFileSnapshot, resolveGatewayPort } from "../config/config.js";
 import { copyToClipboard } from "../infra/clipboard.js";
-import type { RuntimeEnv } from "../runtime.js";
 import { defaultRuntime } from "../runtime.js";
 import {
   detectBrowserOpenSupport,
@@ -23,10 +23,7 @@ export async function dashboardCommand(
   const bind = cfg.gateway?.bind ?? "loopback";
   const basePath = cfg.gateway?.controlUi?.basePath;
   const customBindHost = cfg.gateway?.customBindHost;
-<<<<<<< HEAD
-  const token = cfg.gateway?.auth?.token ?? process.env.CLAWDBOT_GATEWAY_TOKEN ?? "";
-=======
->>>>>>> 717129f7f (fix: silence unused hook token url param (#9436))
+  const token = cfg.gateway?.auth?.token ?? process.env.OPENCLAW_GATEWAY_TOKEN ?? "";
 
   const links = resolveControlUiLinks({
     port,
@@ -59,7 +56,7 @@ export async function dashboardCommand(
   }
 
   if (opened) {
-    runtime.log("Opened in your browser. Keep that tab to control Moltbot.");
+    runtime.log("Opened in your browser. Keep that tab to control OpenClaw.");
   } else if (hint) {
     runtime.log(hint);
   }

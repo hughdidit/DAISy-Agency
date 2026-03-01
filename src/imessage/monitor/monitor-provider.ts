@@ -1,8 +1,9 @@
 import fs from "node:fs/promises";
-
+import type { IMessagePayload, MonitorIMessageOpts } from "./types.js";
 import { resolveHumanDelayConfig } from "../../agents/identity.js";
 import { resolveTextChunkLimit } from "../../auto-reply/chunk.js";
 import { hasControlCommand } from "../../auto-reply/command-detection.js";
+import { dispatchInboundMessage } from "../../auto-reply/dispatch.js";
 import {
   formatInboundEnvelope,
   formatInboundFromLabel,
@@ -12,8 +13,6 @@ import {
   createInboundDebouncer,
   resolveInboundDebounceMs,
 } from "../../auto-reply/inbound-debounce.js";
-import { dispatchInboundMessage } from "../../auto-reply/dispatch.js";
-import { finalizeInboundContext } from "../../auto-reply/reply/inbound-context.js";
 import {
   buildPendingHistoryContextFromMap,
   clearHistoryEntriesIfEnabled,
@@ -21,8 +20,10 @@ import {
   recordPendingHistoryEntryIfEnabled,
   type HistoryEntry,
 } from "../../auto-reply/reply/history.js";
+import { finalizeInboundContext } from "../../auto-reply/reply/inbound-context.js";
 import { buildMentionRegexes, matchesMentionPatterns } from "../../auto-reply/reply/mentions.js";
 import { createReplyDispatcher } from "../../auto-reply/reply/reply-dispatcher.js";
+import { resolveControlCommandGate } from "../../channels/command-gating.js";
 import { logInboundDrop } from "../../channels/logging.js";
 import { createReplyPrefixContext } from "../../channels/reply-prefix.js";
 import { recordInboundSession } from "../../channels/session.js";
@@ -42,7 +43,6 @@ import {
 } from "../../pairing/pairing-store.js";
 import { resolveAgentRoute } from "../../routing/resolve-route.js";
 import { truncateUtf16Safe } from "../../utils.js";
-import { resolveControlCommandGate } from "../../channels/command-gating.js";
 import { resolveIMessageAccount } from "../accounts.js";
 import { createIMessageRpcClient } from "../client.js";
 <<<<<<< HEAD
@@ -58,11 +58,10 @@ import {
 } from "../targets.js";
 import { deliverReplies } from "./deliver.js";
 import { normalizeAllowList, resolveRuntime } from "./runtime.js";
-import type { IMessagePayload, MonitorIMessageOpts } from "./types.js";
 
 /**
  * Try to detect remote host from an SSH wrapper script like:
- *   exec ssh -T moltbot@192.168.64.3 /opt/homebrew/bin/imsg "$@"
+ *   exec ssh -T openclaw@192.168.64.3 /opt/homebrew/bin/imsg "$@"
  *   exec ssh -T mac-mini imsg "$@"
  * Returns the user@host or host portion if found, undefined otherwise.
  */
@@ -74,7 +73,7 @@ async function detectRemoteHostFromCliPath(cliPath: string): Promise<string | un
       : cliPath;
     const content = await fs.readFile(expanded, "utf8");
 
-    // Match user@host pattern first (e.g., moltbot@192.168.64.3)
+    // Match user@host pattern first (e.g., openclaw@192.168.64.3)
     const userHostMatch = content.match(/\bssh\b[^\n]*?\s+([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+)/);
     if (userHostMatch) return userHostMatch[1];
 

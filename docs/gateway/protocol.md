@@ -4,12 +4,13 @@ read_when:
   - Implementing or updating gateway WS clients
   - Debugging protocol mismatches or connect failures
   - Regenerating protocol schema/models
+title: "Gateway Protocol"
 ---
 
 # Gateway protocol (WebSocket)
 
 The Gateway WS protocol is the **single control plane + node transport** for
-Moltbot. All clients (CLI, web UI, macOS app, iOS/Android nodes, headless
+OpenClaw. All clients (CLI, web UI, macOS app, iOS/Android nodes, headless
 nodes) connect over WebSocket and declare their **role** + **scope** at
 handshake time.
 
@@ -53,7 +54,7 @@ Client → Gateway:
     "permissions": {},
     "auth": { "token": "…" },
     "locale": "en-US",
-    "userAgent": "moltbot-cli/1.2.3",
+    "userAgent": "openclaw-cli/1.2.3",
     "device": {
       "id": "device_fingerprint",
       "publicKey": "…",
@@ -111,7 +112,7 @@ When a device token is issued, `hello-ok` also includes:
     "permissions": { "camera.capture": true, "screen.record": false },
     "auth": { "token": "…" },
     "locale": "en-US",
-    "userAgent": "moltbot-ios/1.2.3",
+    "userAgent": "openclaw-ios/1.2.3",
     "device": {
       "id": "device_fingerprint",
       "publicKey": "…",
@@ -144,6 +145,10 @@ Common scopes:
 - `operator.admin`
 - `operator.approvals`
 - `operator.pairing`
+
+When `scopes` is omitted or empty, operators default to `["operator.read"]`.
+Callers that need elevated access must request scopes explicitly in the connect
+handshake.
 
 ### Caps/commands/permissions (node)
 Nodes declare capability claims at connect time:
@@ -180,7 +185,7 @@ The Gateway treats these as **claims** and enforces server-side allowlists.
 
 ## Auth
 
-- If `CLAWDBOT_GATEWAY_TOKEN` (or `--token`) is set, `connect.params.auth.token`
+- If `OPENCLAW_GATEWAY_TOKEN` (or `--token`) is set, `connect.params.auth.token`
   must match or the socket is closed.
 - After pairing, the Gateway issues a **device token** scoped to the connection
   role + scopes. It is returned in `hello-ok.auth.deviceToken` and should be

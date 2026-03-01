@@ -1,15 +1,15 @@
-import fs from "node:fs/promises";
 import type { Command } from "commander";
+import fs from "node:fs/promises";
+import type { NodesRpcOpts } from "./types.js";
 import { randomIdempotencyKey } from "../../gateway/call.js";
 import { defaultRuntime } from "../../runtime.js";
+import { shortenHomePath } from "../../utils.js";
 import { writeBase64ToFile } from "../nodes-camera.js";
 import { canvasSnapshotTempPath, parseCanvasSnapshotPayload } from "../nodes-canvas.js";
 import { parseTimeoutMs } from "../nodes-run.js";
 import { buildA2UITextJsonl, validateA2UIJsonl } from "./a2ui-jsonl.js";
 import { getNodesTheme, runNodesCommand } from "./cli-utils.js";
 import { callGatewayCli, nodesCallOpts, resolveNodeId } from "./rpc.js";
-import type { NodesRpcOpts } from "./types.js";
-import { shortenHomePath } from "../../utils.js";
 
 async function invokeCanvas(opts: NodesRpcOpts, command: string, params?: Record<string, unknown>) {
   const nodeId = await resolveNodeId(opts, String(opts.node ?? ""));
@@ -221,7 +221,7 @@ export function registerNodesCanvasCommands(nodes: Command) {
           const { version, messageCount } = validateA2UIJsonl(jsonl);
           if (version === "v0.9") {
             throw new Error(
-              "Detected A2UI v0.9 JSONL (createSurface). Moltbot currently supports v0.8 only.",
+              "Detected A2UI v0.9 JSONL (createSurface). OpenClaw currently supports v0.8 only.",
             );
           }
           await invokeCanvas(opts, "canvas.a2ui.pushJSONL", { jsonl });

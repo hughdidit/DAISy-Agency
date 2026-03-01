@@ -1,5 +1,3 @@
-import { randomUUID } from "node:crypto";
-import fsSync from "node:fs";
 import {
   DisconnectReason,
   fetchLatestBaileysVersion,
@@ -7,13 +5,14 @@ import {
   makeWASocket,
   useMultiFileAuthState,
 } from "@whiskeysockets/baileys";
+import { randomUUID } from "node:crypto";
+import fsSync from "node:fs";
 import qrcode from "qrcode-terminal";
+import { formatCliCommand } from "../cli/command-format.js";
 import { danger, success } from "../globals.js";
 import { getChildLogger, toPinoLikeLogger } from "../logging.js";
 import { ensureDir, resolveUserPath } from "../utils.js";
 import { VERSION } from "../version.js";
-import { formatCliCommand } from "../cli/command-format.js";
-
 import {
   maybeRestoreCredsFromBackup,
   resolveDefaultWebAuthDir,
@@ -114,7 +113,7 @@ export async function createWaSocket(
     version,
     logger,
     printQRInTerminal: false,
-    browser: ["moltbot", "cli", VERSION],
+    browser: ["openclaw", "cli", VERSION],
     syncFullHistory: false,
     markOnlineOnConnect: false,
   });
@@ -137,7 +136,7 @@ export async function createWaSocket(
           if (status === DisconnectReason.loggedOut) {
             console.error(
               danger(
-                `WhatsApp session logged out. Run: ${formatCliCommand("moltbot channels login")}`,
+                `WhatsApp session logged out. Run: ${formatCliCommand("openclaw channels login")}`,
               ),
             );
           }

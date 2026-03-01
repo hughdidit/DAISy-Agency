@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-
 import { HISTORY_CONTEXT_MARKER } from "../auto-reply/reply/history.js";
 import { resetInboundDedupe } from "../auto-reply/reply/inbound-dedupe.js";
 import { CURRENT_MESSAGE_MARKER } from "../auto-reply/reply/mentions.js";
+import { monitorSlackProvider } from "./monitor.js";
 import {
   defaultSlackTestConfig,
   flush,
@@ -12,7 +12,6 @@ import {
   resetSlackTestState,
   waitForSlackEvent,
 } from "./monitor.test-helpers.js";
-import { monitorSlackProvider } from "./monitor.js";
 
 const { monitorSlackProvider } = await import("./monitor.js");
 
@@ -353,7 +352,7 @@ describe("monitorSlackProvider tool results", () => {
     slackTestState.config = {
       messages: {
         responsePrefix: "PFX",
-        groupChat: { mentionPatterns: ["\\bclawd\\b"] },
+        groupChat: { mentionPatterns: ["\\bopenclaw\\b"] },
       },
       channels: {
         slack: {
@@ -379,7 +378,7 @@ describe("monitorSlackProvider tool results", () => {
       event: {
         type: "message",
         user: "U1",
-        text: "clawd: hello",
+        text: "openclaw: hello",
         ts: "123",
         channel: "C1",
         channel_type: "channel",
@@ -398,7 +397,7 @@ describe("monitorSlackProvider tool results", () => {
     slackTestState.config = {
       messages: {
         responsePrefix: "PFX",
-        groupChat: { mentionPatterns: ["\\bclawd\\b"] },
+        groupChat: { mentionPatterns: ["\\bopenclaw\\b"] },
       },
       channels: {
         slack: {
@@ -424,7 +423,7 @@ describe("monitorSlackProvider tool results", () => {
       event: {
         type: "message",
         user: "U1",
-        text: "clawd: hello <@U2>",
+        text: "openclaw: hello <@U2>",
         ts: "123",
         channel: "C1",
         channel_type: "channel",

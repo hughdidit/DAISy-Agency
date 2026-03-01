@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
+<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../../config/config.js";
+=======
+import type { OpenClawConfig } from "../../config/config.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { resolveTelegramDraftStreamingChunking } from "./draft-chunking.js";
 
 describe("resolveTelegramDraftStreamingChunking", () => {
@@ -14,7 +18,7 @@ describe("resolveTelegramDraftStreamingChunking", () => {
   });
 
   it("clamps to telegram.textChunkLimit", () => {
-    const cfg: MoltbotConfig = {
+    const cfg: OpenClawConfig = {
       channels: { telegram: { allowFrom: ["*"], textChunkLimit: 150 } },
     };
     const chunking = resolveTelegramDraftStreamingChunking(cfg, "default");
@@ -26,7 +30,7 @@ describe("resolveTelegramDraftStreamingChunking", () => {
   });
 
   it("supports per-account overrides", () => {
-    const cfg: MoltbotConfig = {
+    const cfg: OpenClawConfig = {
       channels: {
         telegram: {
           allowFrom: ["*"],

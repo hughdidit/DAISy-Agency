@@ -1,7 +1,13 @@
+<<<<<<< HEAD
 import { getChannelDock } from "../../channels/dock.js";
 import { normalizeChannelId } from "../../channels/plugins/index.js";
 import type { MoltbotConfig } from "../../config/config.js";
+=======
+import type { OpenClawConfig } from "../../config/config.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { BlockStreamingCoalesceConfig } from "../../config/types.js";
+import { getChannelDock } from "../../channels/dock.js";
+import { normalizeChannelId } from "../../channels/plugins/index.js";
 import { normalizeAccountId } from "../../routing/session-key.js";
 import {
   INTERNAL_MESSAGE_CHANNEL,
@@ -29,7 +35,7 @@ type ProviderBlockStreamingConfig = {
 };
 
 function resolveProviderBlockStreamingCoalesce(params: {
-  cfg: MoltbotConfig | undefined;
+  cfg: OpenClawConfig | undefined;
   providerKey?: TextChunkProvider;
   accountId?: string | null;
 }): BlockStreamingCoalesceConfig | undefined {
@@ -53,7 +59,7 @@ export type BlockStreamingCoalescing = {
 };
 
 export function resolveBlockStreamingChunking(
-  cfg: MoltbotConfig | undefined,
+  cfg: OpenClawConfig | undefined,
   provider?: string,
   accountId?: string | null,
 ): {
@@ -96,7 +102,7 @@ export function resolveBlockStreamingChunking(
 }
 
 export function resolveBlockStreamingCoalescing(
-  cfg: MoltbotConfig | undefined,
+  cfg: OpenClawConfig | undefined,
   provider?: string,
   accountId?: string | null,
   chunking?: {

@@ -1,18 +1,24 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+<<<<<<< HEAD
 
 import { resolveDefaultAgentId } from "../agents/agent-scope.js";
 import type { MoltbotConfig } from "../config/config.js";
+=======
+import type { OpenClawConfig } from "../config/config.js";
+import type { SessionEntry } from "../config/sessions.js";
+import type { SessionScope } from "../config/sessions/types.js";
+import { resolveDefaultAgentId } from "../agents/agent-scope.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import {
-  resolveLegacyStateDir,
+  resolveLegacyStateDirs,
   resolveNewStateDir,
   resolveOAuthDir,
   resolveStateDir,
 } from "../config/paths.js";
-import type { SessionEntry } from "../config/sessions.js";
-import type { SessionScope } from "../config/sessions/types.js";
 import { saveSessionStore } from "../config/sessions.js";
+import { canonicalizeMainSessionAlias } from "../config/sessions/main-session.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import {
   buildAgentMainSessionKey,
@@ -20,7 +26,6 @@ import {
   DEFAULT_MAIN_KEY,
   normalizeAgentId,
 } from "../routing/session-key.js";
-import { canonicalizeMainSessionAlias } from "../config/sessions/main-session.js";
 import {
   ensureDir,
   existsDir,
@@ -316,30 +321,25 @@ export async function autoMigrateLegacyStateDir(params: {
   autoMigrateStateDirChecked = true;
 
   const env = params.env ?? process.env;
-  if (env.MOLTBOT_STATE_DIR?.trim() || env.CLAWDBOT_STATE_DIR?.trim()) {
+  if (env.OPENCLAW_STATE_DIR?.trim()) {
     return { migrated: false, skipped: true, changes: [], warnings: [] };
   }
 
   const homedir = params.homedir ?? os.homedir;
-  const legacyDir = resolveLegacyStateDir(homedir);
   const targetDir = resolveNewStateDir(homedir);
-<<<<<<< HEAD
-=======
-  const legacyDirs = resolveLegacyStateDirs(homedir);
-  let legacyDir = legacyDirs.find((dir) => {
+  const legacyDir = resolveLegacyStateDirs(homedir).find((dir) => {
     try {
       return fs.existsSync(dir);
     } catch {
       return false;
     }
   });
->>>>>>> b9afa3d33 (fix: migrate symlinked legacy state dirs)
   const warnings: string[] = [];
   const changes: string[] = [];
 
   let legacyStat: fs.Stats | null = null;
   try {
-    legacyStat = fs.lstatSync(legacyDir);
+    legacyStat = legacyDir ? fs.lstatSync(legacyDir) : null;
   } catch {
     legacyStat = null;
   }
@@ -353,7 +353,7 @@ export async function autoMigrateLegacyStateDir(params: {
 
 <<<<<<< HEAD
   if (legacyStat.isSymbolicLink()) {
-    const legacyTarget = resolveSymlinkTarget(legacyDir);
+    const legacyTarget = legacyDir ? resolveSymlinkTarget(legacyDir) : null;
     if (legacyTarget && path.resolve(legacyTarget) === path.resolve(targetDir)) {
 =======
   let symlinkDepth = 0;
@@ -392,11 +392,7 @@ export async function autoMigrateLegacyStateDir(params: {
       continue;
     }
     warnings.push(
-<<<<<<< HEAD
-      `Legacy state dir is a symlink (${legacyDir} → ${legacyTarget ?? "unknown"}); skipping auto-migration.`,
-=======
-      `Legacy state dir is a symlink (${legacyDir ?? "unknown"} → ${legacyTarget}); skipping auto-migration.`,
->>>>>>> b9afa3d33 (fix: migrate symlinked legacy state dirs)
+      `Legacy state dir is a symlink (${legacyDir ?? "unknown"} → ${legacyTarget ?? "unknown"}); skipping auto-migration.`,
     );
     return { migrated: false, skipped: false, changes, warnings };
   }
@@ -409,18 +405,23 @@ export async function autoMigrateLegacyStateDir(params: {
   }
 
   try {
+    if (!legacyDir) throw new Error("Legacy state dir not found");
     fs.renameSync(legacyDir, targetDir);
   } catch (err) {
-    warnings.push(`Failed to move legacy state dir (${legacyDir} → ${targetDir}): ${String(err)}`);
+    warnings.push(
+      `Failed to move legacy state dir (${legacyDir ?? "unknown"} → ${targetDir}): ${String(err)}`,
+    );
     return { migrated: false, skipped: false, changes, warnings };
   }
 
   try {
+    if (!legacyDir) throw new Error("Legacy state dir not found");
     fs.symlinkSync(targetDir, legacyDir, "dir");
     changes.push(formatStateDirMigration(legacyDir, targetDir));
   } catch (err) {
     try {
       if (process.platform === "win32") {
+        if (!legacyDir) throw new Error("Legacy state dir not found");
         fs.symlinkSync(targetDir, legacyDir, "junction");
         changes.push(formatStateDirMigration(legacyDir, targetDir));
       } else {
@@ -428,6 +429,7 @@ export async function autoMigrateLegacyStateDir(params: {
       }
     } catch (fallbackErr) {
       try {
+        if (!legacyDir) throw new Error("Legacy state dir not found");
         fs.renameSync(targetDir, legacyDir);
         warnings.push(
           `State dir migration rolled back (failed to link legacy path): ${String(fallbackErr)}`,
@@ -435,12 +437,12 @@ export async function autoMigrateLegacyStateDir(params: {
         return { migrated: false, skipped: false, changes: [], warnings };
       } catch (rollbackErr) {
         warnings.push(
-          `State dir moved but failed to link legacy path (${legacyDir} → ${targetDir}): ${String(fallbackErr)}`,
+          `State dir moved but failed to link legacy path (${legacyDir ?? "unknown"} → ${targetDir}): ${String(fallbackErr)}`,
         );
         warnings.push(
-          `Rollback failed; set MOLTBOT_STATE_DIR=${targetDir} to avoid split state: ${String(rollbackErr)}`,
+          `Rollback failed; set OPENCLAW_STATE_DIR=${targetDir} to avoid split state: ${String(rollbackErr)}`,
         );
-        changes.push(`State dir: ${legacyDir} → ${targetDir}`);
+        changes.push(`State dir: ${legacyDir ?? "unknown"} → ${targetDir}`);
       }
     }
   }
@@ -449,7 +451,7 @@ export async function autoMigrateLegacyStateDir(params: {
 }
 
 export async function detectLegacyStateMigrations(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   env?: NodeJS.ProcessEnv;
   homedir?: () => string;
 }): Promise<LegacyStateDetection> {
@@ -740,7 +742,7 @@ export async function runLegacyStateMigrations(params: {
 }
 
 export async function autoMigrateLegacyAgentDir(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   env?: NodeJS.ProcessEnv;
   homedir?: () => string;
   log?: MigrationLogger;
@@ -755,7 +757,7 @@ export async function autoMigrateLegacyAgentDir(params: {
 }
 
 export async function autoMigrateLegacyState(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   env?: NodeJS.ProcessEnv;
   homedir?: () => string;
   log?: MigrationLogger;
@@ -777,7 +779,7 @@ export async function autoMigrateLegacyState(params: {
     homedir: params.homedir,
     log: params.log,
   });
-  if (env.CLAWDBOT_AGENT_DIR?.trim() || env.PI_CODING_AGENT_DIR?.trim()) {
+  if (env.OPENCLAW_AGENT_DIR?.trim() || env.PI_CODING_AGENT_DIR?.trim()) {
     return {
       migrated: stateDirResult.migrated,
       skipped: true,

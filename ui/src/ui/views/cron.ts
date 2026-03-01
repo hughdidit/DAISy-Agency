@@ -1,6 +1,6 @@
 import { html, nothing } from "lit";
-<<<<<<< HEAD
-
+import type { ChannelUiMetaEntry, CronJob, CronRunLogEntry, CronStatus } from "../types";
+import type { CronFormState } from "../ui-types";
 import { formatMs } from "../format";
 import {
   formatCronPayload,
@@ -8,15 +8,6 @@ import {
   formatCronState,
   formatNextRun,
 } from "../presenter";
-import type { ChannelUiMetaEntry, CronJob, CronRunLogEntry, CronStatus } from "../types";
-import type { CronFormState } from "../ui-types";
-=======
-import type { ChannelUiMetaEntry, CronJob, CronRunLogEntry, CronStatus } from "../types.ts";
-import type { CronFormState } from "../ui-types.ts";
-import { formatAgo, formatMs } from "../format.ts";
-import { pathForTab } from "../navigation.ts";
-import { formatCronSchedule, formatNextRun } from "../presenter.ts";
->>>>>>> d90cac990 (fix: cron scheduler reliability, store hardening, and UX improvements (#10776))
 
 export type CronProps = {
   basePath: string;

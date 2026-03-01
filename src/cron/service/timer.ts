@@ -1,6 +1,6 @@
 import type { HeartbeatRunResult } from "../../infra/heartbeat-wake.js";
 import type { CronJob } from "../types.js";
-<<<<<<< HEAD
+import type { CronEvent, CronServiceState } from "./state.js";
 import { computeJobNextRunAtMs, nextWakeAtMs, resolveJobPayloadTextForMain } from "./jobs.js";
 =======
 import type { CronEvent, CronServiceState } from "./state.js";
@@ -13,7 +13,6 @@ import {
 } from "./jobs.js";
 >>>>>>> d90cac990 (fix: cron scheduler reliability, store hardening, and UX improvements (#10776))
 import { locked } from "./locked.js";
-import type { CronEvent, CronServiceState } from "./state.js";
 import { ensureLoaded, persist } from "./store.js";
 
 const MAX_TIMER_DELAY_MS = 60_000;

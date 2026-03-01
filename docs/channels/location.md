@@ -3,11 +3,12 @@ summary: "Inbound channel location parsing (Telegram + WhatsApp) and context fie
 read_when:
   - Adding or modifying channel location parsing
   - Using location context fields in agent prompts or tools
+title: "Channel Location Parsing"
 ---
 
 # Channel location parsing
 
-Moltbot normalizes shared locations from chat channels into:
+OpenClaw normalizes shared locations from chat channels into:
 - human-readable text appended to the inbound body, and
 - structured fields in the auto-reply context payload.
 

@@ -1,9 +1,8 @@
+import JSON5 from "json5";
 import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
-
-import JSON5 from "json5";
-import { getFileMtimeMs, isCacheEnabled, resolveCacheTtlMs } from "../cache-utils.js";
+import type { MsgContext } from "../../auto-reply/templating.js";
 import {
   deliveryContextFromSession,
   mergeDeliveryContext,
@@ -11,7 +10,7 @@ import {
   normalizeSessionDeliveryFields,
   type DeliveryContext,
 } from "../../utils/delivery-context.js";
-import type { MsgContext } from "../../auto-reply/templating.js";
+import { getFileMtimeMs, isCacheEnabled, resolveCacheTtlMs } from "../cache-utils.js";
 import { deriveSessionMetaPatch } from "./metadata.js";
 import { mergeSessionEntry, type SessionEntry } from "./types.js";
 
@@ -35,7 +34,7 @@ function isSessionStoreRecord(value: unknown): value is Record<string, SessionEn
 
 function getSessionStoreTtl(): number {
   return resolveCacheTtlMs({
-    envValue: process.env.CLAWDBOT_SESSION_CACHE_TTL_MS,
+    envValue: process.env.OPENCLAW_SESSION_CACHE_TTL_MS,
     defaultTtlMs: DEFAULT_SESSION_STORE_TTL_MS,
   });
 }

@@ -4,6 +4,7 @@ read_when:
   - Deciding how to schedule recurring tasks
   - Setting up background monitoring or notifications
   - Optimizing token usage for periodic checks
+title: "Cron vs Heartbeat"
 ---
 # Cron vs Heartbeat: When to Use Each
 
@@ -95,7 +96,7 @@ Cron jobs run at **exact times** and can run in isolated sessions without affect
 ### Cron example: Daily morning briefing
 
 ```bash
-moltbot cron add \
+openclaw cron add \
   --name "Morning briefing" \
   --cron "0 7 * * *" \
   --tz "America/New_York" \
@@ -112,7 +113,7 @@ This runs at exactly 7:00 AM New York time, uses Opus for quality, and delivers 
 ### Cron example: One-shot reminder
 
 ```bash
-moltbot cron add \
+openclaw cron add \
   --name "Meeting reminder" \
   --at "20m" \
   --session main \
@@ -168,13 +169,13 @@ The most efficient setup uses **both**:
 **Cron jobs** (precise timing):
 ```bash
 # Daily morning briefing at 7am
-moltbot cron add --name "Morning brief" --cron "0 7 * * *" --session isolated --message "..." --deliver
+openclaw cron add --name "Morning brief" --cron "0 7 * * *" --session isolated --message "..." --deliver
 
 # Weekly project review on Mondays at 9am
-moltbot cron add --name "Weekly review" --cron "0 9 * * 1" --session isolated --message "..." --model opus
+openclaw cron add --name "Weekly review" --cron "0 9 * * 1" --session isolated --message "..." --model opus
 
 # One-shot reminder
-moltbot cron add --name "Call back" --at "2h" --session main --system-event "Call back the client" --wake now
+openclaw cron add --name "Call back" --at "2h" --session main --system-event "Call back the client" --wake now
 ```
 
 
@@ -226,7 +227,7 @@ Use `--session main` with `--system-event` when you want:
 - No separate isolated run
 
 ```bash
-moltbot cron add \
+openclaw cron add \
   --name "Check project" \
   --every "4h" \
   --session main \
@@ -243,7 +244,7 @@ Use `--session isolated` when you want:
 - History that doesn't clutter main session
 
 ```bash
-moltbot cron add \
+openclaw cron add \
   --name "Deep analysis" \
   --cron "0 6 * * 0" \
   --session isolated \

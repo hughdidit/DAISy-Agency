@@ -6,16 +6,20 @@
  */
 
 import fs from "node:fs/promises";
-import path from "node:path";
 import os from "node:os";
+import path from "node:path";
 import { fileURLToPath } from "node:url";
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../../../config/config.js";
+=======
+import type { OpenClawConfig } from "../../../config/config.js";
+import type { HookHandler } from "../../hooks.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { resolveAgentWorkspaceDir } from "../../../agents/agent-scope.js";
 import { resolveStateDir } from "../../../config/paths.js";
 import { createSubsystemLogger } from "../../../logging/subsystem.js";
 import { resolveAgentIdFromSessionKey } from "../../../routing/session-key.js";
 import { resolveHookConfig } from "../../config.js";
-import type { HookHandler } from "../../hooks.js";
 
 const log = createSubsystemLogger("hooks/session-memory");
 
@@ -75,15 +79,11 @@ const saveSessionToMemory: HookHandler = async (event) => {
     log.debug("Hook triggered for /new command");
 
     const context = event.context || {};
-    const cfg = context.cfg as MoltbotConfig | undefined;
+    const cfg = context.cfg as OpenClawConfig | undefined;
     const agentId = resolveAgentIdFromSessionKey(event.sessionKey);
     const workspaceDir = cfg
       ? resolveAgentWorkspaceDir(cfg, agentId)
-<<<<<<< HEAD
-      : path.join(os.homedir(), "clawd");
-=======
-      : path.join(resolveStateDir(process.env, os.homedir), "workspace");
->>>>>>> ebe573040 (fix: use STATE_DIR instead of hardcoded ~/.openclaw for identity and canvas (#4824))
+      : path.join(os.homedir(), ".openclaw", "workspace");
     const memoryDir = path.join(workspaceDir, "memory");
     await fs.mkdir(memoryDir, { recursive: true });
 
@@ -130,8 +130,8 @@ const saveSessionToMemory: HookHandler = async (event) => {
         // Dynamically import the LLM slug generator (avoids module caching issues)
         // When compiled, handler is at dist/hooks/bundled/session-memory/handler.js
         // Going up ../.. puts us at dist/hooks/, so just add llm-slug-generator.js
-        const moltbotRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
-        const slugGenPath = path.join(moltbotRoot, "llm-slug-generator.js");
+        const openclawRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
+        const slugGenPath = path.join(openclawRoot, "llm-slug-generator.js");
         const { generateSlugViaLLM } = await import(slugGenPath);
 
         // Use LLM to generate a descriptive slug

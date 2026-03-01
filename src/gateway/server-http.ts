@@ -1,41 +1,21 @@
+import type { TlsOptions } from "node:tls";
+import type { WebSocketServer } from "ws";
 import {
   createServer as createHttpServer,
   type Server as HttpServer,
   type IncomingMessage,
   type ServerResponse,
 } from "node:http";
+import { createHmac, timingSafeEqual } from "node:crypto";
 import { createServer as createHttpsServer } from "node:https";
-<<<<<<< HEAD
-import type { TlsOptions } from "node:tls";
-import type { WebSocketServer } from "ws";
+import type { CanvasHostHandler } from "../canvas-host/server.js";
+import type { createSubsystemLogger } from "../logging/subsystem.js";
+import { resolveAgentAvatar } from "../agents/identity-avatar.js";
 import { handleA2uiHttpRequest } from "../canvas-host/a2ui.js";
-import type { CanvasHostHandler } from "../canvas-host/server.js";
-=======
-import type { CanvasHostHandler } from "../canvas-host/server.js";
-import type { createSubsystemLogger } from "../logging/subsystem.js";
-import { resolveAgentAvatar } from "../agents/identity-avatar.js";
-import {
-  A2UI_PATH,
-  CANVAS_HOST_PATH,
-  CANVAS_WS_PATH,
-  handleA2uiHttpRequest,
-} from "../canvas-host/a2ui.js";
->>>>>>> 47538bca4 (fix: Gateway canvas host bypasses auth and serves files unauthenticated)
 import { loadConfig } from "../config/config.js";
-import type { createSubsystemLogger } from "../logging/subsystem.js";
 import { handleSlackHttpRequest } from "../slack/http/index.js";
-<<<<<<< HEAD
-import { resolveAgentAvatar } from "../agents/identity-avatar.js";
 import { handleControlUiAvatarRequest, handleControlUiHttpRequest } from "./control-ui.js";
-=======
-import { authorizeGatewayConnect } from "./auth.js";
-import {
-  handleControlUiAvatarRequest,
-  handleControlUiHttpRequest,
-  type ControlUiRootState,
-} from "./control-ui.js";
-import { applyHookMappings } from "./hooks-mapping.js";
->>>>>>> 47538bca4 (fix: Gateway canvas host bypasses auth and serves files unauthenticated)
+import { setSecurityHeaders } from "./http-common.js";
 import {
   extractHookToken,
   getHookChannelError,
@@ -48,12 +28,6 @@ import {
   resolveHookChannel,
   resolveHookDeliver,
 } from "./hooks.js";
-<<<<<<< HEAD
-import { applyHookMappings } from "./hooks-mapping.js";
-=======
-import { sendUnauthorized } from "./http-common.js";
-import { getBearerToken } from "./http-utils.js";
->>>>>>> 47538bca4 (fix: Gateway canvas host bypasses auth and serves files unauthenticated)
 import { handleOpenAiHttpRequest } from "./openai-http.js";
 import { handleOpenResponsesHttpRequest } from "./openresponses-http.js";
 import { handleToolsInvokeHttpRequest } from "./tools-invoke-http.js";
@@ -78,6 +52,7 @@ type HookDispatchers = {
 };
 
 function sendJson(res: ServerResponse, status: number, body: unknown) {
+  setSecurityHeaders(res);
   res.statusCode = status;
   res.setHeader("Content-Type", "application/json; charset=utf-8");
   res.end(JSON.stringify(body));
@@ -94,6 +69,13 @@ function isCanvasPath(pathname: string): boolean {
 }
 
 export type HooksRequestHandler = (req: IncomingMessage, res: ServerResponse) => Promise<boolean>;
+
+function safeTokenEqual(a: string, b: string): boolean {
+  const key = "webhook-cmp";
+  const ha = createHmac("sha256", key).update(a).digest();
+  const hb = createHmac("sha256", key).update(b).digest();
+  return timingSafeEqual(ha, hb);
+}
 
 export function createHooksRequestHandler(
   opts: {
@@ -113,17 +95,11 @@ export function createHooksRequestHandler(
       return false;
     }
 
-    if (url.searchParams.has("token")) {
-      res.statusCode = 400;
-      res.setHeader("Content-Type", "text/plain; charset=utf-8");
-      res.end(
-        "Hook token must be provided via Authorization: Bearer <token> or X-OpenClaw-Token header (query parameters are not allowed).",
-      );
-      return true;
-    }
+    // Apply security headers to all hook responses (including error paths).
+    setSecurityHeaders(res);
 
-    const token = extractHookToken(req);
-    if (!token || token !== hooksConfig.token) {
+    const { token, fromQuery } = extractHookToken(req, url);
+    if (!token || !safeTokenEqual(token, hooksConfig.token)) {
       res.statusCode = 401;
       res.setHeader("Content-Type", "text/plain; charset=utf-8");
       res.end("Unauthorized");
@@ -134,7 +110,7 @@ export function createHooksRequestHandler(
       logHooks.warn(
         "Hook token provided via query parameter is deprecated for security reasons. " +
           "Tokens in URLs appear in logs, browser history, and referrer headers. " +
-          "Use Authorization: Bearer <token> or X-Moltbot-Token header instead.",
+          "Use Authorization: Bearer <token> or X-OpenClaw-Token header instead.",
       );
     }
 =======
@@ -345,16 +321,20 @@ export function createGatewayHttpServer(opts: {
       }
       if (controlUiEnabled) {
         if (
-          handleControlUiAvatarRequest(req, res, {
+          await handleControlUiAvatarRequest(req, res, {
             basePath: controlUiBasePath,
             resolveAvatar: (agentId) => resolveAgentAvatar(configSnapshot, agentId),
+            auth: resolvedAuth,
+            trustedProxies,
           })
         )
           return;
         if (
-          handleControlUiHttpRequest(req, res, {
+          await handleControlUiHttpRequest(req, res, {
             basePath: controlUiBasePath,
             config: configSnapshot,
+            auth: resolvedAuth,
+            trustedProxies,
           })
         )
           return;

@@ -1,5 +1,4 @@
 import { describe, expect, it, vi } from "vitest";
-
 import { createTelegramDraftStream } from "./draft-stream.js";
 
 describe("createTelegramDraftStream", () => {
@@ -9,7 +8,7 @@ describe("createTelegramDraftStream", () => {
       api: api as any,
       chatId: 123,
       draftId: 42,
-      thread: { id: 99, scope: "forum" },
+      messageThreadId: 99,
     });
 
     stream.update("Hello");
@@ -25,27 +24,11 @@ describe("createTelegramDraftStream", () => {
       api: api as any,
       chatId: 123,
       draftId: 42,
-      thread: { id: 1, scope: "forum" },
+      messageThreadId: 1,
     });
 
     stream.update("Hello");
 
     expect(api.sendMessageDraft).toHaveBeenCalledWith(123, 42, "Hello", undefined);
-  });
-
-  it("keeps message_thread_id for dm threads", () => {
-    const api = { sendMessageDraft: vi.fn().mockResolvedValue(true) };
-    const stream = createTelegramDraftStream({
-      api: api as any,
-      chatId: 123,
-      draftId: 42,
-      thread: { id: 1, scope: "dm" },
-    });
-
-    stream.update("Hello");
-
-    expect(api.sendMessageDraft).toHaveBeenCalledWith(123, 42, "Hello", {
-      message_thread_id: 1,
-    });
   });
 });

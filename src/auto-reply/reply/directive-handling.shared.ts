@@ -1,5 +1,5 @@
-import { formatCliCommand } from "../../cli/command-format.js";
 import type { ElevatedLevel, ReasoningLevel } from "./directives.js";
+import { formatCliCommand } from "../../cli/command-format.js";
 
 export const SYSTEM_MARK = "⚙️";
 
@@ -51,7 +51,7 @@ export function formatElevatedUnavailableText(params: {
   }
   if (params.sessionKey) {
     lines.push(
-      `See: ${formatCliCommand(`moltbot sandbox explain --session ${params.sessionKey}`)}`,
+      `See: ${formatCliCommand(`openclaw sandbox explain --session ${params.sessionKey}`)}`,
     );
   }
   return lines.join("\n");

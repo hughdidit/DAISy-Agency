@@ -1,10 +1,17 @@
 import fs from "node:fs";
 import path from "node:path";
+<<<<<<< HEAD
 
 import { DEFAULT_CLAWD_BROWSER_COLOR, DEFAULT_CLAWD_BROWSER_PROFILE_NAME } from "./constants.js";
+=======
+import {
+  DEFAULT_OPENCLAW_BROWSER_COLOR,
+  DEFAULT_OPENCLAW_BROWSER_PROFILE_NAME,
+} from "./constants.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 
 function decoratedMarkerPath(userDataDir: string) {
-  return path.join(userDataDir, ".clawd-profile-decorated");
+  return path.join(userDataDir, ".openclaw-profile-decorated");
 }
 
 function safeReadJson(filePath: string): Record<string, unknown> | null {
@@ -118,12 +125,12 @@ export function isProfileDecorated(
  * Best-effort profile decoration (name + lobster-orange). Chrome preference keys
  * vary by version; we keep this conservative and idempotent.
  */
-export function decorateClawdProfile(
+export function decorateOpenClawProfile(
   userDataDir: string,
   opts?: { name?: string; color?: string },
 ) {
-  const desiredName = opts?.name ?? DEFAULT_CLAWD_BROWSER_PROFILE_NAME;
-  const desiredColor = (opts?.color ?? DEFAULT_CLAWD_BROWSER_COLOR).toUpperCase();
+  const desiredName = opts?.name ?? DEFAULT_OPENCLAW_BROWSER_PROFILE_NAME;
+  const desiredColor = (opts?.color ?? DEFAULT_OPENCLAW_BROWSER_COLOR).toUpperCase();
   const desiredColorInt = parseHexRgbToSignedArgbInt(desiredColor);
 
   const localStatePath = path.join(userDataDir, "Local State");

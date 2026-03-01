@@ -1,11 +1,7 @@
+import type { CronJobCreate, CronJobPatch } from "./types.js";
 import { sanitizeAgentId } from "../routing/session-key.js";
 import { parseAbsoluteTimeMs } from "./parse.js";
 import { migrateLegacyCronPayload } from "./payload-migration.js";
-<<<<<<< HEAD
-import type { CronJobCreate, CronJobPatch } from "./types.js";
-=======
-import { inferLegacyName } from "./service/normalize.js";
->>>>>>> d90cac990 (fix: cron scheduler reliability, store hardening, and UX improvements (#10776))
 
 type UnknownRecord = Record<string, unknown>;
 

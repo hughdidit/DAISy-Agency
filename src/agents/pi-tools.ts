@@ -5,7 +5,16 @@ import {
   createWriteTool,
   readTool,
 } from "@mariozechner/pi-coding-agent";
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
+=======
+import type { OpenClawConfig } from "../config/config.js";
+import type { ModelAuthMode } from "./model-auth.js";
+import type { AnyAgentTool } from "./pi-tools.types.js";
+import type { SandboxContext } from "./sandbox.js";
+import { logWarn } from "../logger.js";
+import { getPluginToolMeta } from "../plugins/tools.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { isSubagentSessionKey } from "../routing/session-key.js";
 import { resolveGatewayMessageChannel } from "../utils/message-channel.js";
 import { createApplyPatchTool } from "./apply-patch.js";
@@ -16,8 +25,12 @@ import {
   type ProcessToolDefaults,
 } from "./bash-tools.js";
 import { listChannelAgentTools } from "./channel-tools.js";
+<<<<<<< HEAD
 import { createMoltbotTools } from "./moltbot-tools.js";
 import type { ModelAuthMode } from "./model-auth.js";
+=======
+import { createOpenClawTools } from "./openclaw-tools.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { wrapToolWithAbortSignal } from "./pi-tools.abort.js";
 import { wrapToolWithBeforeToolCallHook } from "./pi-tools.before-tool-call.js";
 import {
@@ -30,7 +43,7 @@ import {
 import {
   assertRequiredParams,
   CLAUDE_PARAM_GROUPS,
-  createMoltbotReadTool,
+  createOpenClawReadTool,
   createSandboxedEditTool,
   createSandboxedReadTool,
   createSandboxedWriteTool,
@@ -39,9 +52,8 @@ import {
   wrapToolParamNormalization,
 } from "./pi-tools.read.js";
 import { cleanToolSchemaForGemini, normalizeToolParameters } from "./pi-tools.schema.js";
-import type { AnyAgentTool } from "./pi-tools.types.js";
-import type { SandboxContext } from "./sandbox.js";
 import {
+  applyOwnerOnlyToolPolicy,
   buildPluginToolGroups,
   collectExplicitAllowlist,
   expandPolicyWithPluginGroups,
@@ -49,8 +61,6 @@ import {
   resolveToolProfilePolicy,
   stripPluginOnlyAllowlist,
 } from "./tool-policy.js";
-import { getPluginToolMeta } from "../plugins/tools.js";
-import { logWarn } from "../logger.js";
 
 function isOpenAIProvider(provider?: string) {
   const normalized = provider?.trim().toLowerCase();
@@ -79,7 +89,7 @@ function isApplyPatchAllowedForModel(params: {
   });
 }
 
-function resolveExecConfig(cfg: MoltbotConfig | undefined) {
+function resolveExecConfig(cfg: OpenClawConfig | undefined) {
   const globalExec = cfg?.tools?.exec;
   return {
     host: globalExec?.host,
@@ -105,7 +115,7 @@ export const __testing = {
   assertRequiredParams,
 } as const;
 
-export function createMoltbotCodingTools(options?: {
+export function createOpenClawCodingTools(options?: {
   exec?: ExecToolDefaults & ProcessToolDefaults;
   messageProvider?: string;
   agentAccountId?: string;
@@ -115,7 +125,7 @@ export function createMoltbotCodingTools(options?: {
   sessionKey?: string;
   agentDir?: string;
   workspaceDir?: string;
-  config?: MoltbotConfig;
+  config?: OpenClawConfig;
   abortSignal?: AbortSignal;
   /**
    * Provider of the currently selected model (used for provider-specific tool quirks).
@@ -151,6 +161,15 @@ export function createMoltbotCodingTools(options?: {
   hasRepliedRef?: { value: boolean };
   /** If true, the model has native vision capability */
   modelHasVision?: boolean;
+<<<<<<< HEAD
+=======
+  /** Require explicit message targets (no implicit last-route sends). */
+  requireExplicitMessageTarget?: boolean;
+  /** If true, omit the message tool from the tool list. */
+  disableMessageTool?: boolean;
+  /** Whether the sender is an owner (required for owner-only tools). */
+  senderIsOwner?: boolean;
+>>>>>>> 392bbddf2 (Security: owner-only tools + command auth hardening (#9202))
 }): AnyAgentTool[] {
   const execToolName = "exec";
   const sandbox = options?.sandbox?.enabled ? options.sandbox : undefined;
@@ -233,7 +252,7 @@ export function createMoltbotCodingTools(options?: {
         return [createSandboxedReadTool(sandboxRoot)];
       }
       const freshReadTool = createReadTool(workspaceRoot);
-      return [createMoltbotReadTool(freshReadTool)];
+      return [createOpenClawReadTool(freshReadTool)];
     }
     if (tool.name === "bash" || tool.name === execToolName) return [];
     if (tool.name === "write") {
@@ -302,7 +321,7 @@ export function createMoltbotCodingTools(options?: {
     processTool as unknown as AnyAgentTool,
     // Channel docking: include channel-defined agent tools (login, etc.).
     ...listChannelAgentTools({ cfg: options?.config }),
-    ...createMoltbotTools({
+    ...createOpenClawTools({
       sandboxBrowserBridgeUrl: sandbox?.browser?.bridgeUrl,
       allowHostBrowserControl: sandbox ? sandbox.browserAllowHostControl : true,
       agentSessionKey: options?.sessionKey,
@@ -337,15 +356,28 @@ export function createMoltbotCodingTools(options?: {
       requesterAgentIdOverride: agentId,
     }),
   ];
+  // Security: treat unknown/undefined as unauthorized (opt-in, not opt-out)
+  const senderIsOwner = options?.senderIsOwner === true;
+  const toolsByAuthorization = applyOwnerOnlyToolPolicy(tools, senderIsOwner);
   const coreToolNames = new Set(
+<<<<<<< HEAD
     tools
       .filter((tool) => !getPluginToolMeta(tool as AnyAgentTool))
+=======
+    toolsByAuthorization
+      .filter((tool) => !getPluginToolMeta(tool))
+>>>>>>> 392bbddf2 (Security: owner-only tools + command auth hardening (#9202))
       .map((tool) => normalizeToolName(tool.name))
       .filter(Boolean),
   );
   const pluginGroups = buildPluginToolGroups({
+<<<<<<< HEAD
     tools,
     toolMeta: (tool) => getPluginToolMeta(tool as AnyAgentTool),
+=======
+    tools: toolsByAuthorization,
+    toolMeta: (tool) => getPluginToolMeta(tool),
+>>>>>>> 392bbddf2 (Security: owner-only tools + command auth hardening (#9202))
   });
   const resolvePolicy = (policy: typeof profilePolicy, label: string) => {
     const resolved = stripPluginOnlyAllowlist(policy, pluginGroups, coreToolNames);
@@ -381,8 +413,8 @@ export function createMoltbotCodingTools(options?: {
   const subagentPolicyExpanded = expandPolicyWithPluginGroups(subagentPolicy, pluginGroups);
 
   const toolsFiltered = profilePolicyExpanded
-    ? filterToolsByPolicy(tools, profilePolicyExpanded)
-    : tools;
+    ? filterToolsByPolicy(toolsByAuthorization, profilePolicyExpanded)
+    : toolsByAuthorization;
   const providerProfileFiltered = providerProfileExpanded
     ? filterToolsByPolicy(toolsFiltered, providerProfileExpanded)
     : toolsFiltered;

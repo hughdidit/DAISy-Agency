@@ -3,7 +3,6 @@ import fs from "node:fs";
 import net from "node:net";
 import os from "node:os";
 import path from "node:path";
-
 import { DEFAULT_AGENT_ID } from "../routing/session-key.js";
 
 export type ExecHost = "sandbox" | "gateway" | "node";
@@ -61,8 +60,8 @@ const DEFAULT_SECURITY: ExecSecurity = "deny";
 const DEFAULT_ASK: ExecAsk = "on-miss";
 const DEFAULT_ASK_FALLBACK: ExecSecurity = "deny";
 const DEFAULT_AUTO_ALLOW_SKILLS = false;
-const DEFAULT_SOCKET = "~/.clawdbot/exec-approvals.sock";
-const DEFAULT_FILE = "~/.clawdbot/exec-approvals.json";
+const DEFAULT_SOCKET = "~/.openclaw/exec-approvals.sock";
+const DEFAULT_FILE = "~/.openclaw/exec-approvals.json";
 export const DEFAULT_SAFE_BINS = ["jq", "grep", "cut", "sort", "uniq", "head", "tail", "tr", "wc"];
 
 function hashExecApprovalsRaw(raw: string | null): string {

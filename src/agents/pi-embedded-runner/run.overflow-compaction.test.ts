@@ -35,7 +35,7 @@ vi.mock("../model-auth.js", () => ({
 }));
 
 vi.mock("../models-config.js", () => ({
-  ensureMoltbotModelsJson: vi.fn(async () => {}),
+  ensureOpenClawModelsJson: vi.fn(async () => {}),
 }));
 
 vi.mock("../context-window-guard.js", () => ({
@@ -66,7 +66,7 @@ vi.mock("../../utils/message-channel.js", () => ({
 }));
 
 vi.mock("../agent-paths.js", () => ({
-  resolveMoltbotAgentDir: vi.fn(() => "/tmp/agent-dir"),
+  resolveOpenClawAgentDir: vi.fn(() => "/tmp/agent-dir"),
 }));
 
 vi.mock("../auth-profiles.js", () => ({
@@ -155,19 +155,11 @@ vi.mock("../pi-embedded-helpers.js", async () => {
   };
 });
 
-import { runEmbeddedPiAgent } from "./run.js";
-import { runEmbeddedAttempt } from "./run/attempt.js";
-<<<<<<< HEAD
+import type { EmbeddedRunAttemptResult } from "./run/types.js";
 import { compactEmbeddedPiSessionDirect } from "./compact.js";
 import { log } from "./logger.js";
-
-import type { EmbeddedRunAttemptResult } from "./run/types.js";
-=======
-import {
-  sessionLikelyHasOversizedToolResults,
-  truncateOversizedToolResultsInSession,
-} from "./tool-result-truncation.js";
->>>>>>> 191da1feb (fix: context overflow compaction and subagent announce improvements (#11664) (thanks @tyler6204))
+import { runEmbeddedPiAgent } from "./run.js";
+import { runEmbeddedAttempt } from "./run/attempt.js";
 
 const mockedRunEmbeddedAttempt = vi.mocked(runEmbeddedAttempt);
 const mockedCompactDirect = vi.mocked(compactEmbeddedPiSessionDirect);

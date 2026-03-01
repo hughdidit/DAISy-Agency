@@ -1,11 +1,11 @@
-import { resolveChannelMediaMaxBytes, type MoltbotConfig, type PluginRuntime } from "clawdbot/plugin-sdk";
+import { resolveChannelMediaMaxBytes, type OpenClawConfig, type PluginRuntime } from "openclaw/plugin-sdk";
 import type { MSTeamsAccessTokenProvider } from "./attachments/types.js";
 import type {
   MSTeamsConversationStore,
   StoredConversationReference,
 } from "./conversation-store.js";
-import { createMSTeamsConversationStoreFs } from "./conversation-store-fs.js";
 import type { MSTeamsAdapter } from "./messenger.js";
+import { createMSTeamsConversationStoreFs } from "./conversation-store-fs.js";
 import { getMSTeamsRuntime } from "./runtime.js";
 import { createMSTeamsAdapter, loadMSTeamsSdkWithAuth } from "./sdk.js";
 import { resolveMSTeamsCredentials } from "./token.js";
@@ -84,7 +84,7 @@ async function findConversationReference(recipient: {
 }
 
 export async function resolveMSTeamsSendContext(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   to: string;
 }): Promise<MSTeamsProactiveContext> {
   const msteamsCfg = params.cfg.channels?.msteams;

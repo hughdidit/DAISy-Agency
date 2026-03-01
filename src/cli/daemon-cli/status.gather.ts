@@ -1,17 +1,23 @@
+import type { GatewayBindMode, GatewayControlUiConfig } from "../../config/types.js";
+import type { FindExtraGatewayServicesOptions } from "../../daemon/inspect.js";
+import type { ServiceConfigAudit } from "../../daemon/service-audit.js";
+import type { GatewayRpcOpts } from "./types.js";
 import {
   createConfigIO,
   resolveConfigPath,
   resolveGatewayPort,
   resolveStateDir,
 } from "../../config/config.js";
-import type { GatewayBindMode, GatewayControlUiConfig } from "../../config/types.js";
 import { readLastGatewayErrorLine } from "../../daemon/diagnostics.js";
-import type { FindExtraGatewayServicesOptions } from "../../daemon/inspect.js";
 import { findExtraGatewayServices } from "../../daemon/inspect.js";
+<<<<<<< HEAD
 import { findLegacyGatewayServices } from "../../daemon/legacy.js";
 import { resolveGatewayService } from "../../daemon/service.js";
 import type { ServiceConfigAudit } from "../../daemon/service-audit.js";
+=======
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { auditGatewayServiceConfig } from "../../daemon/service-audit.js";
+import { resolveGatewayService } from "../../daemon/service.js";
 import { resolveGatewayBindHost } from "../../gateway/net.js";
 import {
   formatPortDiagnostics,
@@ -22,7 +28,6 @@ import {
 import { pickPrimaryTailnetIPv4 } from "../../infra/tailnet.js";
 import { probeGatewayStatus } from "./probe.js";
 import { normalizeListenerAddress, parsePortFromArgs, pickProbeHostForBind } from "./shared.js";
-import type { GatewayRpcOpts } from "./types.js";
 
 type ConfigSummary = {
   path: string;
@@ -93,7 +98,6 @@ export type DaemonStatus = {
     error?: string;
     url?: string;
   };
-  legacyServices: Array<{ label: string; detail: string }>;
   extraServices: Array<{ label: string; detail: string; scope: string }>;
 };
 
@@ -210,9 +214,6 @@ export async function gatherDaemonStatus(
       }
     : undefined;
 
-  const legacyServices = await findLegacyGatewayServices(
-    process.env as Record<string, string | undefined>,
-  ).catch(() => []);
   const extraServices = await findExtraGatewayServices(
     process.env as Record<string, string | undefined>,
     { deep: Boolean(opts.deep) },
@@ -226,11 +227,11 @@ export async function gatherDaemonStatus(
         url: probeUrl,
         token:
           opts.rpc.token ||
-          mergedDaemonEnv.CLAWDBOT_GATEWAY_TOKEN ||
+          mergedDaemonEnv.OPENCLAW_GATEWAY_TOKEN ||
           daemonCfg.gateway?.auth?.token,
         password:
           opts.rpc.password ||
-          mergedDaemonEnv.CLAWDBOT_GATEWAY_PASSWORD ||
+          mergedDaemonEnv.OPENCLAW_GATEWAY_PASSWORD ||
           daemonCfg.gateway?.auth?.password,
         timeoutMs,
         json: opts.rpc.json,
@@ -271,7 +272,6 @@ export async function gatherDaemonStatus(
     ...(portCliStatus ? { portCli: portCliStatus } : {}),
     lastError,
     ...(rpc ? { rpc: { ...rpc, url: probeUrl } } : {}),
-    legacyServices,
     extraServices,
   };
 }

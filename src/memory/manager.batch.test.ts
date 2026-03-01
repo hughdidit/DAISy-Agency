@@ -1,9 +1,7 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-
 import { getMemorySearchManager, type MemoryIndexManager } from "./index.js";
 
 const embedBatch = vi.fn(async () => []);
@@ -50,7 +48,7 @@ describe("memory indexing with OpenAI batches", () => {
       }
       return realSetTimeout(handler, delay, ...args);
     }) as typeof setTimeout);
-    workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-mem-batch-"));
+    workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-mem-batch-"));
     indexPath = path.join(workspaceDir, "index.sqlite");
     await fs.mkdir(path.join(workspaceDir, "memory"));
   });

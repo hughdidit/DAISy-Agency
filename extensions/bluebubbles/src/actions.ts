@@ -9,14 +9,16 @@ import {
   type ChannelMessageActionAdapter,
   type ChannelMessageActionName,
   type ChannelToolSend,
+<<<<<<< HEAD
   type MoltbotConfig,
 } from "clawdbot/plugin-sdk";
 
+=======
+} from "openclaw/plugin-sdk";
+import type { BlueBubblesSendTarget } from "./types.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { resolveBlueBubblesAccount } from "./accounts.js";
-import { resolveBlueBubblesMessageId } from "./monitor.js";
-import { isMacOS26OrHigher } from "./probe.js";
-import { sendBlueBubblesReaction } from "./reactions.js";
-import { resolveChatGuidForTarget, sendMessageBlueBubbles } from "./send.js";
+import { sendBlueBubblesAttachment } from "./attachments.js";
 import {
   editBlueBubblesMessage,
   unsendBlueBubblesMessage,
@@ -26,9 +28,11 @@ import {
   removeBlueBubblesParticipant,
   leaveBlueBubblesChat,
 } from "./chat.js";
-import { sendBlueBubblesAttachment } from "./attachments.js";
+import { resolveBlueBubblesMessageId } from "./monitor.js";
+import { isMacOS26OrHigher } from "./probe.js";
+import { sendBlueBubblesReaction } from "./reactions.js";
+import { resolveChatGuidForTarget, sendMessageBlueBubbles } from "./send.js";
 import { normalizeBlueBubblesHandle, parseBlueBubblesTarget } from "./targets.js";
-import type { BlueBubblesSendTarget } from "./types.js";
 
 const providerId = "bluebubbles";
 
@@ -66,9 +70,9 @@ const SUPPORTED_ACTIONS = new Set<ChannelMessageActionName>(BLUEBUBBLES_ACTION_N
 
 export const bluebubblesMessageActions: ChannelMessageActionAdapter = {
   listActions: ({ cfg }) => {
-    const account = resolveBlueBubblesAccount({ cfg: cfg as MoltbotConfig });
+    const account = resolveBlueBubblesAccount({ cfg: cfg as OpenClawConfig });
     if (!account.enabled || !account.configured) return [];
-    const gate = createActionGate((cfg as MoltbotConfig).channels?.bluebubbles?.actions);
+    const gate = createActionGate((cfg as OpenClawConfig).channels?.bluebubbles?.actions);
     const actions = new Set<ChannelMessageActionName>();
     const macOS26 = isMacOS26OrHigher(account.accountId);
     for (const action of BLUEBUBBLES_ACTION_NAMES) {
@@ -90,12 +94,12 @@ export const bluebubblesMessageActions: ChannelMessageActionAdapter = {
   },
   handleAction: async ({ action, params, cfg, accountId, toolContext }) => {
     const account = resolveBlueBubblesAccount({
-      cfg: cfg as MoltbotConfig,
+      cfg: cfg as OpenClawConfig,
       accountId: accountId ?? undefined,
     });
     const baseUrl = account.config.serverUrl?.trim();
     const password = account.config.password?.trim();
-    const opts = { cfg: cfg as MoltbotConfig, accountId: accountId ?? undefined };
+    const opts = { cfg: cfg as OpenClawConfig, accountId: accountId ?? undefined };
 
     // Helper to resolve chatGuid from various params or session context
     const resolveChatGuid = async (): Promise<string> => {

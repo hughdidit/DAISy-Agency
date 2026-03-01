@@ -13,6 +13,10 @@ import {
   buildMentionRegexes,
   matchesMentionWithExplicit,
 } from "../../auto-reply/reply/mentions.js";
+import { formatAllowlistMatchMeta } from "../../channels/allowlist-match.js";
+import { resolveControlCommandGate } from "../../channels/command-gating.js";
+import { logInboundDrop } from "../../channels/logging.js";
+import { resolveMentionGatingWithBypass } from "../../channels/mention-gating.js";
 import { logVerbose, shouldLogVerbose } from "../../globals.js";
 import { recordChannelActivity } from "../../infra/channel-activity.js";
 import { enqueueSystemEvent } from "../../infra/system-events.js";
@@ -23,11 +27,7 @@ import {
   upsertChannelPairingRequest,
 } from "../../pairing/pairing-store.js";
 import { resolveAgentRoute } from "../../routing/resolve-route.js";
-import { resolveMentionGatingWithBypass } from "../../channels/mention-gating.js";
-import { formatAllowlistMatchMeta } from "../../channels/allowlist-match.js";
 import { sendMessageDiscord } from "../send.js";
-import { resolveControlCommandGate } from "../../channels/command-gating.js";
-import { logInboundDrop } from "../../channels/logging.js";
 import {
   allowListMatches,
   isDiscordGroupAllowedByPolicy,

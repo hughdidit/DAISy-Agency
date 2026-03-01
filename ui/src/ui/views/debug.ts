@@ -1,7 +1,6 @@
 import { html, nothing } from "lit";
-
-import { formatEventPayload } from "../presenter";
 import type { EventLogEntry } from "../app-events";
+import { formatEventPayload } from "../presenter";
 
 export type DebugProps = {
   loading: boolean;
@@ -55,7 +54,7 @@ export function renderDebug(props: DebugProps) {
             ${securitySummary
               ? html`<div class="callout ${securityTone}" style="margin-top: 8px;">
                   Security audit: ${securityLabel}${info > 0 ? ` · ${info} info` : ""}. Run
-                  <span class="mono">moltbot security audit --deep</span> for details.
+                  <span class="mono">openclaw security audit --deep</span> for details.
                 </div>`
               : nothing}
             <pre class="code-block">${JSON.stringify(props.status ?? {}, null, 2)}</pre>

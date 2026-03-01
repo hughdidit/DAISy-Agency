@@ -1,12 +1,16 @@
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
+=======
+import type { OpenClawConfig } from "../config/config.js";
+import type { EmbeddedContextFile } from "./pi-embedded-helpers.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { applyBootstrapHookOverrides } from "./bootstrap-hooks.js";
+import { buildBootstrapContextFiles, resolveBootstrapMaxChars } from "./pi-embedded-helpers.js";
 import {
   filterBootstrapFilesForSession,
   loadWorkspaceBootstrapFiles,
   type WorkspaceBootstrapFile,
 } from "./workspace.js";
-import { buildBootstrapContextFiles, resolveBootstrapMaxChars } from "./pi-embedded-helpers.js";
-import type { EmbeddedContextFile } from "./pi-embedded-helpers.js";
 
 export function makeBootstrapWarn(params: {
   sessionLabel: string;
@@ -18,7 +22,7 @@ export function makeBootstrapWarn(params: {
 
 export async function resolveBootstrapFilesForRun(params: {
   workspaceDir: string;
-  config?: MoltbotConfig;
+  config?: OpenClawConfig;
   sessionKey?: string;
   sessionId?: string;
   agentId?: string;
@@ -40,7 +44,7 @@ export async function resolveBootstrapFilesForRun(params: {
 
 export async function resolveBootstrapContextForRun(params: {
   workspaceDir: string;
-  config?: MoltbotConfig;
+  config?: OpenClawConfig;
   sessionKey?: string;
   sessionId?: string;
   agentId?: string;

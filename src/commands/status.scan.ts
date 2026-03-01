@@ -1,3 +1,5 @@
+import type { MemoryIndexManager } from "../memory/manager.js";
+import type { RuntimeEnv } from "../runtime.js";
 import { withProgress } from "../cli/progress.js";
 import { loadConfig } from "../config/config.js";
 import { buildGatewayConnectionDetails, callGateway } from "../gateway/call.js";
@@ -6,14 +8,12 @@ import { probeGateway } from "../gateway/probe.js";
 import { collectChannelStatusIssues } from "../infra/channels-status-issues.js";
 import { resolveOsSummary } from "../infra/os-summary.js";
 import { getTailnetHostname } from "../infra/tailscale.js";
-import type { MemoryIndexManager } from "../memory/manager.js";
 import { runExec } from "../process/exec.js";
-import type { RuntimeEnv } from "../runtime.js";
+import { buildChannelsTable } from "./status-all/channels.js";
 import { getAgentLocalStatuses } from "./status.agent-local.js";
 import { pickGatewaySelfPresence, resolveGatewayProbeAuth } from "./status.gateway-probe.js";
 import { getStatusSummary } from "./status.summary.js";
 import { getUpdateCheckResult } from "./status.update.js";
-import { buildChannelsTable } from "./status-all/channels.js";
 
 type MemoryStatusSnapshot = ReturnType<MemoryIndexManager["status"]> & {
   agentId: string;
@@ -140,8 +140,8 @@ export async function scanStatus(
       progress.setLabel("Summarizing channels…");
       const channels = await buildChannelsTable(cfg, {
         // Show token previews in regular status; keep `status --all` redacted.
-        // Set `CLAWDBOT_SHOW_SECRETS=0` to force redaction.
-        showSecrets: process.env.CLAWDBOT_SHOW_SECRETS?.trim() !== "0",
+        // Set `OPENCLAW_SHOW_SECRETS=0` to force redaction.
+        showSecrets: process.env.OPENCLAW_SHOW_SECRETS?.trim() !== "0",
       });
       progress.tick();
 

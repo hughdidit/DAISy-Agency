@@ -1,17 +1,7 @@
-<<<<<<< HEAD
-import { createServer } from "node:http";
 import type { AddressInfo } from "node:net";
 import type { Duplex } from "node:stream";
-
-=======
-import type { IncomingMessage } from "node:http";
-import type { AddressInfo } from "node:net";
-import type { Duplex } from "node:stream";
-import { randomBytes } from "node:crypto";
 import { createServer } from "node:http";
->>>>>>> a1e89afcc (fix: secure chrome extension relay cdp)
 import WebSocket, { WebSocketServer } from "ws";
-
 import { rawDataToString } from "../infra/ws.js";
 
 type CdpCommand = {
@@ -285,9 +275,9 @@ export async function ensureChromeExtensionRelayServer(opts: {
       case "Browser.getVersion":
         return {
           protocolVersion: "1.3",
-          product: "Chrome/Moltbot-Extension-Relay",
+          product: "Chrome/OpenClaw-Extension-Relay",
           revision: "0",
-          userAgent: "Moltbot-Extension-Relay",
+          userAgent: "OpenClaw-Extension-Relay",
           jsVersion: "V8",
         };
       case "Browser.setDownloadBehavior":
@@ -383,7 +373,7 @@ export async function ensureChromeExtensionRelayServer(opts: {
       (req.method === "GET" || req.method === "PUT")
     ) {
       const payload: Record<string, unknown> = {
-        Browser: "Moltbot/extension-relay",
+        Browser: "OpenClaw/extension-relay",
         "Protocol-Version": "1.3",
       };
       // Only advertise the WS URL if a real extension is connected.

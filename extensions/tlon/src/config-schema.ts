@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 import { z } from "zod";
 import { buildChannelConfigSchema } from "clawdbot/plugin-sdk";
+=======
+import { buildChannelConfigSchema } from "openclaw/plugin-sdk";
+import { z } from "zod";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 
 const ShipSchema = z.string().min(1);
 const ChannelNestSchema = z.string().min(1);

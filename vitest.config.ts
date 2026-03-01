@@ -7,16 +7,17 @@ const repoRoot = path.dirname(fileURLToPath(import.meta.url));
 const isCI = process.env.CI === "true" || process.env.GITHUB_ACTIONS === "true";
 const isWindows = process.platform === "win32";
 const localWorkers = Math.max(4, Math.min(16, os.cpus().length));
-const ciWorkers = isWindows ? 2 : 3;
+const ciWorkers = isWindows ? 1 : 3;
 
 export default defineConfig({
   resolve: {
     alias: {
-      "clawdbot/plugin-sdk": path.join(repoRoot, "src", "plugin-sdk", "index.ts"),
+      "openclaw/plugin-sdk": path.join(repoRoot, "src", "plugin-sdk", "index.ts"),
     },
   },
   test: {
-    testTimeout: 120_000,
+    fileParallelism: false,
+    testTimeout: isWindows ? 180_000 : 120_000,
     hookTimeout: isWindows ? 180_000 : 120_000,
     pool: "forks",
     maxWorkers: isCI ? ciWorkers : localWorkers,
@@ -32,7 +33,7 @@ export default defineConfig({
       "apps/macos/.build/**",
       "**/node_modules/**",
       "**/vendor/**",
-      "dist/Moltbot.app/**",
+      "dist/OpenClaw.app/**",
       "**/*.live.test.ts",
       "**/*.e2e.test.ts",
     ],

@@ -1,9 +1,14 @@
+<<<<<<< HEAD
 import { applyLegacyMigrations } from "./legacy.js";
 import type { MoltbotConfig } from "./types.js";
+=======
+import type { OpenClawConfig } from "./types.js";
+import { applyLegacyMigrations } from "./legacy.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { validateConfigObjectWithPlugins } from "./validation.js";
 
 export function migrateLegacyConfig(raw: unknown): {
-  config: MoltbotConfig | null;
+  config: OpenClawConfig | null;
   changes: string[];
 } {
   const { next, changes } = applyLegacyMigrations(raw);

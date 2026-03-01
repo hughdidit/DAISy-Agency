@@ -1,10 +1,4 @@
 import path from "node:path";
-<<<<<<< HEAD
-
-=======
-import type { LookupFn, SsrFPolicy } from "../infra/net/ssrf.js";
-import { fetchWithSsrFGuard } from "../infra/net/fetch-guard.js";
->>>>>>> 81c68f582 (fix: guard remote media fetches with SSRF checks)
 import { detectMime, extensionForMime } from "./mime.js";
 
 type FetchMediaResult = {

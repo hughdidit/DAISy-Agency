@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
+<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../config/config.js";
+=======
+import type { OpenClawConfig } from "../config/config.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import {
   CONTEXT_WINDOW_HARD_MIN_TOKENS,
   CONTEXT_WINDOW_WARN_BELOW_TOKENS,
@@ -72,7 +76,7 @@ describe("context-window-guard", () => {
           },
         },
       },
-    } satisfies MoltbotConfig;
+    } satisfies OpenClawConfig;
 
     const info = resolveContextWindowInfo({
       cfg,
@@ -89,7 +93,7 @@ describe("context-window-guard", () => {
   it("caps with agents.defaults.contextTokens", () => {
     const cfg = {
       agents: { defaults: { contextTokens: 20_000 } },
-    } satisfies MoltbotConfig;
+    } satisfies OpenClawConfig;
     const info = resolveContextWindowInfo({
       cfg,
       provider: "anthropic",

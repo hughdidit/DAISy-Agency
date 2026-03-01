@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 import { parseConfigPath, setConfigValueAtPath, unsetConfigValueAtPath } from "./config-paths.js";
 import type { MoltbotConfig } from "./types.js";
+=======
+import type { OpenClawConfig } from "./types.js";
+import { parseConfigPath, setConfigValueAtPath, unsetConfigValueAtPath } from "./config-paths.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 
 type OverrideTree = Record<string, unknown>;
 
@@ -64,7 +69,7 @@ export function unsetConfigOverride(pathRaw: string): {
   return { ok: true, removed };
 }
 
-export function applyConfigOverrides(cfg: MoltbotConfig): MoltbotConfig {
+export function applyConfigOverrides(cfg: OpenClawConfig): OpenClawConfig {
   if (!overrides || Object.keys(overrides).length === 0) return cfg;
-  return mergeOverrides(cfg, overrides) as MoltbotConfig;
+  return mergeOverrides(cfg, overrides) as OpenClawConfig;
 }

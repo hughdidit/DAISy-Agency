@@ -1,14 +1,15 @@
 ---
 summary: "Research notes: offline memory system for Clawd workspaces (Markdown source-of-truth + derived index)"
 read_when:
-  - Designing workspace memory (~/clawd) beyond daily Markdown logs
-  - Deciding: standalone CLI vs deep Moltbot integration
+  - Designing workspace memory (~/.openclaw/workspace) beyond daily Markdown logs
+  - Deciding: standalone CLI vs deep OpenClaw integration
   - Adding offline recall + reflection (retain/recall/reflect)
+title: "Workspace Memory Research"
 ---
 
 # Workspace Memory v2 (offline): research notes
 
-Target: Clawd-style workspace (`agents.defaults.workspace`, default `~/clawd`) where “memory” is stored as one Markdown file per day (`memory/YYYY-MM-DD.md`) plus a small set of stable files (e.g. `memory.md`, `SOUL.md`).
+Target: Clawd-style workspace (`agents.defaults.workspace`, default `~/.openclaw/workspace`) where “memory” is stored as one Markdown file per day (`memory/YYYY-MM-DD.md`) plus a small set of stable files (e.g. `memory.md`, `SOUL.md`).
 
 This doc proposes an **offline-first** memory architecture that keeps Markdown as the canonical, reviewable source of truth, but adds **structured recall** (search, entity summaries, confidence updates) via a derived index.
 
@@ -43,7 +44,16 @@ Two pieces to blend:
 - everything else is out-of-context and retrieved via tools
 - memory writes are explicit tool calls (append/replace/insert), persisted, then re-injected next turn
 
+<<<<<<< HEAD
+<<<<<<< HEAD
 2) **Hindsight-style memory substrate**
+=======
+1. **Hindsight-style memory substrate**
+=======
+2. **Hindsight-style memory substrate**
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
+
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 - separate what’s observed vs what’s believed vs what’s summarized
 - support retain/recall/reflect
 - confidence-bearing opinions that can evolve with evidence
@@ -53,12 +63,12 @@ Two pieces to blend:
 
 ### Canonical store (git-friendly)
 
-Keep `~/clawd` as canonical human-readable memory.
+Keep `~/.openclaw/workspace` as canonical human-readable memory.
 
 Suggested workspace layout:
 
 ```
-~/clawd/
+~/.openclaw/workspace/
   memory.md                    # small: durable facts + preferences (core-ish)
   memory/
     YYYY-MM-DD.md              # daily log (append; narrative)
@@ -83,7 +93,7 @@ Notes:
 Add a derived index under the workspace (not necessarily git tracked):
 
 ```
-~/clawd/.memory/index.sqlite
+~/.openclaw/workspace/.memory/index.sqlite
 ```
 
 Back it with:
@@ -155,16 +165,16 @@ Opinion evolution (simple, explainable):
 
 ## CLI integration: standalone vs deep integration
 
-Recommendation: **deep integration in Moltbot**, but keep a separable core library.
+Recommendation: **deep integration in OpenClaw**, but keep a separable core library.
 
-### Why integrate into Moltbot?
-- Moltbot already knows:
+### Why integrate into OpenClaw?
+- OpenClaw already knows:
   - the workspace path (`agents.defaults.workspace`)
   - the session model + heartbeats
   - logging + troubleshooting patterns
 - You want the agent itself to call the tools:
-  - `moltbot memory recall "…" --k 25 --since 30d`
-  - `moltbot memory reflect --since 7d`
+  - `openclaw memory recall "…" --k 25 --since 30d`
+  - `openclaw memory reflect --since 7d`
 
 ### Why still split a library?
 - keep memory logic testable without gateway/runtime
@@ -177,7 +187,7 @@ The memory tooling is intended to be a small CLI + library layer, but this is ex
 
 If “S-Collide” refers to **SuCo (Subspace Collision)**: it’s an ANN retrieval approach that targets strong recall/latency tradeoffs by using learned/structured collisions in subspaces (paper: arXiv 2411.14754, 2024).
 
-Pragmatic take for `~/clawd`:
+Pragmatic take for `~/.openclaw/workspace`:
 - **don’t start** with SuCo.
 - start with SQLite FTS + (optional) simple embeddings; you’ll get most UX wins immediately.
 - consider SuCo/HNSW/ScaNN-class solutions only once:

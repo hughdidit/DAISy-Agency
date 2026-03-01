@@ -1,12 +1,12 @@
 import type { Command } from "commander";
-import { defaultRuntime } from "../../runtime.js";
-import { emitCliBanner } from "../banner.js";
-import { getCommandPath, getVerboseFlag, hasHelpOrVersion } from "../argv.js";
-import { ensureConfigReady } from "./config-guard.js";
-import { ensurePluginRegistryLoaded } from "../plugin-registry.js";
-import { isTruthyEnvValue } from "../../infra/env.js";
 import { setVerbose } from "../../globals.js";
+import { isTruthyEnvValue } from "../../infra/env.js";
+import { defaultRuntime } from "../../runtime.js";
+import { getCommandPath, getVerboseFlag, hasHelpOrVersion } from "../argv.js";
+import { emitCliBanner } from "../banner.js";
 import { resolveCliName } from "../cli-name.js";
+import { ensurePluginRegistryLoaded } from "../plugin-registry.js";
+import { ensureConfigReady } from "./config-guard.js";
 
 function setProcessTitleForCommand(actionCommand: Command) {
   let current: Command = actionCommand;
@@ -29,7 +29,7 @@ export function registerPreActionHooks(program: Command, programVersion: string)
     if (hasHelpOrVersion(argv)) return;
     const commandPath = getCommandPath(argv, 2);
     const hideBanner =
-      isTruthyEnvValue(process.env.CLAWDBOT_HIDE_BANNER) ||
+      isTruthyEnvValue(process.env.OPENCLAW_HIDE_BANNER) ||
       commandPath[0] === "update" ||
       commandPath[0] === "completion" ||
       (commandPath[0] === "plugins" && commandPath[1] === "update");

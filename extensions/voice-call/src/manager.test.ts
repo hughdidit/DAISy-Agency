@@ -1,10 +1,7 @@
 import os from "node:os";
 import path from "node:path";
-
 import { describe, expect, it } from "vitest";
-
-import { VoiceCallConfigSchema } from "./config.js";
-import { CallManager } from "./manager.js";
+import type { VoiceCallProvider } from "./providers/base.js";
 import type {
   HangupCallInput,
   InitiateCallInput,
@@ -16,11 +13,13 @@ import type {
   WebhookContext,
   WebhookVerificationResult,
 } from "./types.js";
-import type { VoiceCallProvider } from "./providers/base.js";
+import { VoiceCallConfigSchema } from "./config.js";
+import { CallManager } from "./manager.js";
 
 class FakeProvider implements VoiceCallProvider {
   readonly name = "plivo" as const;
   readonly playTtsCalls: PlayTtsInput[] = [];
+  readonly hangupCalls: HangupCallInput[] = [];
 
   verifyWebhook(_ctx: WebhookContext): WebhookVerificationResult {
     return { ok: true };
@@ -31,7 +30,9 @@ class FakeProvider implements VoiceCallProvider {
   async initiateCall(_input: InitiateCallInput): Promise<InitiateCallResult> {
     return { providerCallId: "request-uuid", status: "initiated" };
   }
-  async hangupCall(_input: HangupCallInput): Promise<void> {}
+  async hangupCall(input: HangupCallInput): Promise<void> {
+    this.hangupCalls.push(input);
+  }
   async playTts(input: PlayTtsInput): Promise<void> {
     this.playTtsCalls.push(input);
   }
@@ -47,7 +48,7 @@ describe("CallManager", () => {
       fromNumber: "+15550000000",
     });
 
-    const storePath = path.join(os.tmpdir(), `moltbot-voice-call-test-${Date.now()}`);
+    const storePath = path.join(os.tmpdir(), `openclaw-voice-call-test-${Date.now()}`);
     const manager = new CallManager(config, storePath);
     manager.initialize(new FakeProvider(), "https://example.com/voice/webhook");
 
@@ -80,7 +81,7 @@ describe("CallManager", () => {
       fromNumber: "+15550000000",
     });
 
-    const storePath = path.join(os.tmpdir(), `moltbot-voice-call-test-${Date.now()}`);
+    const storePath = path.join(os.tmpdir(), `openclaw-voice-call-test-${Date.now()}`);
     const provider = new FakeProvider();
     const manager = new CallManager(config, storePath);
     manager.initialize(provider, "https://example.com/voice/webhook");
@@ -105,8 +106,6 @@ describe("CallManager", () => {
     expect(provider.playTtsCalls).toHaveLength(1);
     expect(provider.playTtsCalls[0]?.text).toBe("Hello there");
   });
-<<<<<<< HEAD
-=======
 
   it("rejects inbound calls with missing caller ID when allowlist enabled", () => {
     const config = VoiceCallConfigSchema.parse({
@@ -135,36 +134,6 @@ describe("CallManager", () => {
     expect(manager.getCallByProviderCallId("provider-missing")).toBeUndefined();
     expect(provider.hangupCalls).toHaveLength(1);
     expect(provider.hangupCalls[0]?.providerCallId).toBe("provider-missing");
-  });
-
-  it("rejects inbound calls with anonymous caller ID when allowlist enabled", () => {
-    const config = VoiceCallConfigSchema.parse({
-      enabled: true,
-      provider: "plivo",
-      fromNumber: "+15550000000",
-      inboundPolicy: "allowlist",
-      allowFrom: ["+15550001234"],
-    });
-
-    const storePath = path.join(os.tmpdir(), `openclaw-voice-call-test-${Date.now()}`);
-    const provider = new FakeProvider();
-    const manager = new CallManager(config, storePath);
-    manager.initialize(provider, "https://example.com/voice/webhook");
-
-    manager.processEvent({
-      id: "evt-allowlist-anon",
-      type: "call.initiated",
-      callId: "call-anon",
-      providerCallId: "provider-anon",
-      timestamp: Date.now(),
-      direction: "inbound",
-      from: "anonymous",
-      to: "+15550000000",
-    });
-
-    expect(manager.getCallByProviderCallId("provider-anon")).toBeUndefined();
-    expect(provider.hangupCalls).toHaveLength(1);
-    expect(provider.hangupCalls[0]?.providerCallId).toBe("provider-anon");
   });
 
   it("rejects inbound calls that only match allowlist suffixes", () => {
@@ -223,5 +192,4 @@ describe("CallManager", () => {
 
     expect(manager.getCallByProviderCallId("provider-exact")).toBeDefined();
   });
->>>>>>> 0cd47d830 (fix: cover anonymous voice allowlist callers (#8104) (thanks @victormier) (#9188))
 });

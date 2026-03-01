@@ -1,36 +1,29 @@
 import { type Bot, GrammyError, InputFile } from "grammy";
-import {
-  markdownToTelegramChunks,
-  markdownToTelegramHtml,
-  renderTelegramHtmlText,
-} from "../format.js";
-import { withTelegramApiErrorLogging } from "../api-logging.js";
-import { chunkMarkdownTextWithMode, type ChunkMode } from "../../auto-reply/chunk.js";
-import { splitTelegramCaption } from "../caption.js";
 import type { ReplyPayload } from "../../auto-reply/types.js";
 import type { ReplyToMode } from "../../config/config.js";
 import type { MarkdownTableMode } from "../../config/types.base.js";
+import type { RuntimeEnv } from "../../runtime.js";
+import type { StickerMetadata, TelegramContext } from "./types.js";
+import { chunkMarkdownTextWithMode, type ChunkMode } from "../../auto-reply/chunk.js";
 import { danger, logVerbose } from "../../globals.js";
 import { formatErrorMessage } from "../../infra/errors.js";
 import { mediaKindFromMime } from "../../media/constants.js";
 import { fetchRemoteMedia } from "../../media/fetch.js";
 import { isGifMedia } from "../../media/mime.js";
 import { saveMediaBuffer } from "../../media/store.js";
-import type { RuntimeEnv } from "../../runtime.js";
 import { loadWebMedia } from "../../web/media.js";
+import { withTelegramApiErrorLogging } from "../api-logging.js";
+import { splitTelegramCaption } from "../caption.js";
+import {
+  markdownToTelegramChunks,
+  markdownToTelegramHtml,
+  renderTelegramHtmlText,
+} from "../format.js";
 import { buildInlineKeyboard } from "../send.js";
+import { cacheSticker, getCachedSticker } from "../sticker-cache.js";
 import { resolveTelegramVoiceSend } from "../voice.js";
 <<<<<<< HEAD
 import { buildTelegramThreadParams, resolveTelegramReplyId } from "./helpers.js";
-import type { StickerMetadata, TelegramContext } from "./types.js";
-import { cacheSticker, getCachedSticker } from "../sticker-cache.js";
-=======
-import {
-  buildTelegramThreadParams,
-  resolveTelegramReplyId,
-  type TelegramThreadSpec,
-} from "./helpers.js";
->>>>>>> 19b8416a8 (fix: unify telegram thread handling)
 
 const PARSE_ERR_RE = /can't parse entities|parse entities|find end of the entity/i;
 const VOICE_FORBIDDEN_RE = /VOICE_MESSAGES_FORBIDDEN/;

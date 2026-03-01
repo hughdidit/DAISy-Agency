@@ -1,9 +1,14 @@
 import fs from "node:fs/promises";
 import path from "node:path";
+<<<<<<< HEAD
 
 import { resolveDefaultAgentWorkspaceDir } from "../agents/workspace.js";
 import type { MoltbotConfig } from "../config/config.js";
+=======
+import type { OpenClawConfig } from "../config/config.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { RuntimeEnv } from "../runtime.js";
+import { resolveDefaultAgentWorkspaceDir } from "../agents/workspace.js";
 import { resolveHomeDir, resolveUserPath, shortenHomeInString } from "../utils.js";
 
 export type RemovalResult = {
@@ -11,7 +16,7 @@ export type RemovalResult = {
   skipped?: boolean;
 };
 
-export function collectWorkspaceDirs(cfg: MoltbotConfig | undefined): string[] {
+export function collectWorkspaceDirs(cfg: OpenClawConfig | undefined): string[] {
   const dirs = new Set<string>();
   const defaults = cfg?.agents?.defaults;
   if (typeof defaults?.workspace === "string" && defaults.workspace.trim()) {

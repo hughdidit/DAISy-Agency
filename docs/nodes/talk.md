@@ -3,6 +3,7 @@ summary: "Talk mode: continuous speech conversations with ElevenLabs TTS"
 read_when:
   - Implementing Talk mode on macOS/iOS/Android
   - Changing voice/TTS/interrupt behavior
+title: "Talk Mode"
 ---
 # Talk Mode
 
@@ -40,7 +41,7 @@ Supported keys:
 - `seed`, `normalize`, `lang`, `output_format`, `latency_tier`
 - `once`
 
-## Config (`~/.clawdbot/moltbot.json`)
+## Config (`~/.openclaw/openclaw.json`)
 ```json5
 {
   "talk": {

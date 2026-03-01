@@ -1,9 +1,9 @@
 import { loadConfig } from "../config/config.js";
 import { resolveMarkdownTableMode } from "../config/markdown-tables.js";
+import { convertMarkdownTables } from "../markdown/tables.js";
 import { mediaKindFromMime } from "../media/constants.js";
 import { saveMediaBuffer } from "../media/store.js";
 import { loadWebMedia } from "../web/media.js";
-import { convertMarkdownTables } from "../markdown/tables.js";
 import { resolveIMessageAccount } from "./accounts.js";
 import { createIMessageRpcClient, type IMessageRpcClient } from "./client.js";
 import { formatIMessageChatTarget, type IMessageService, parseIMessageTarget } from "./targets.js";
@@ -119,7 +119,11 @@ export async function sendMessageIMessage(
   const client = opts.client ?? (await createIMessageRpcClient({ cliPath, dbPath }));
   const shouldClose = !opts.client;
   try {
-    const result = await client.request("send", params, {
+<<<<<<< HEAD
+    const result = await client.request<Record<string, unknown>>("send", params, {
+=======
+    const result = await client.request<{ ok?: string }>("send", params, {
+>>>>>>> 86d38c2d8 (chore: Oops, "long" is actually used + fix TypeScript error.)
       timeoutMs: opts.timeoutMs,
     });
     const resolvedId = resolveMessageId(result);

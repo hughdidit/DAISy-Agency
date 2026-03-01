@@ -3,13 +3,12 @@
  */
 
 import path from "node:path";
-
 import {
   detectMime,
   extensionForMime,
   extractOriginalFilename,
   getFileExtension,
-} from "clawdbot/plugin-sdk";
+} from "openclaw/plugin-sdk";
 
 /**
  * Detect MIME type from URL extension or data URL.

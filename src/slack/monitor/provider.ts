@@ -1,31 +1,31 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
-
 import SlackBolt from "@slack/bolt";
-
+import type { SessionScope } from "../../config/sessions.js";
+import type { RuntimeEnv } from "../../runtime.js";
+import type { MonitorSlackOpts } from "./types.js";
 import { resolveTextChunkLimit } from "../../auto-reply/chunk.js";
 import { DEFAULT_GROUP_HISTORY_LIMIT } from "../../auto-reply/reply/history.js";
 import { mergeAllowlist, summarizeMapping } from "../../channels/allowlists/resolve-utils.js";
 import { loadConfig } from "../../config/config.js";
+<<<<<<< HEAD
 import type { SessionScope } from "../../config/sessions.js";
 import type { DmPolicy, GroupPolicy } from "../../config/types.js";
+=======
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { warn } from "../../globals.js";
 import { normalizeMainKey } from "../../routing/session-key.js";
-import type { RuntimeEnv } from "../../runtime.js";
-
 import { resolveSlackAccount } from "../accounts.js";
+import { resolveSlackWebClientOptions } from "../client.js";
+import { normalizeSlackWebhookPath, registerSlackHttpHandler } from "../http/index.js";
 import { resolveSlackChannelAllowlist } from "../resolve-channels.js";
 import { resolveSlackUserAllowlist } from "../resolve-users.js";
 import { resolveSlackAppToken, resolveSlackBotToken } from "../token.js";
-import { normalizeSlackWebhookPath, registerSlackHttpHandler } from "../http/index.js";
-import { resolveSlackWebClientOptions } from "../client.js";
+import { normalizeAllowList } from "./allow-list.js";
 import { resolveSlackSlashCommandConfig } from "./commands.js";
 import { createSlackMonitorContext } from "./context.js";
 import { registerSlackMonitorEvents } from "./events.js";
 import { createSlackMessageHandler } from "./message-handler.js";
 import { registerSlackMonitorSlashCommands } from "./slash.js";
-import { normalizeAllowList } from "./allow-list.js";
-
-import type { MonitorSlackOpts } from "./types.js";
 
 const slackBoltModule = SlackBolt as typeof import("@slack/bolt") & {
   default?: typeof import("@slack/bolt");

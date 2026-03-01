@@ -2,16 +2,23 @@ import { spawn } from "node:child_process";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+<<<<<<< HEAD
 import { ensureSandboxWorkspaceForSession } from "../../agents/sandbox.js";
 import type { MoltbotConfig } from "../../config/config.js";
-import { logVerbose } from "../../globals.js";
-import { CONFIG_DIR } from "../../utils.js";
+=======
+import type { OpenClawConfig } from "../../config/config.js";
 import type { MsgContext, TemplateContext } from "../templating.js";
+import { assertSandboxPath } from "../../agents/sandbox-paths.js";
+import { ensureSandboxWorkspaceForSession } from "../../agents/sandbox.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
+import { logVerbose } from "../../globals.js";
+import { getMediaDir } from "../../media/store.js";
+import { CONFIG_DIR } from "../../utils.js";
 
 export async function stageSandboxMedia(params: {
   ctx: MsgContext;
   sessionCtx: TemplateContext;
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   sessionKey?: string;
   workspaceDir: string;
 }) {
@@ -32,7 +39,7 @@ export async function stageSandboxMedia(params: {
     workspaceDir,
   });
 
-  // For remote attachments without sandbox, use ~/.clawdbot/media (not agent workspace for privacy)
+  // For remote attachments without sandbox, use ~/.openclaw/media (not agent workspace for privacy)
   const remoteMediaCacheDir = ctx.MediaRemoteHost
     ? path.join(CONFIG_DIR, "media", "remote-cache", sessionKey)
     : null;
@@ -67,6 +74,21 @@ export async function stageSandboxMedia(params: {
       const source = resolveAbsolutePath(raw);
       if (!source) continue;
       if (staged.has(source)) continue;
+
+      // Local paths must be restricted to the media directory.
+      if (!ctx.MediaRemoteHost) {
+        const mediaDir = getMediaDir();
+        try {
+          await assertSandboxPath({
+            filePath: source,
+            cwd: mediaDir,
+            root: mediaDir,
+          });
+        } catch {
+          logVerbose(`Blocking attempt to stage media from outside media directory: ${source}`);
+          continue;
+        }
+      }
 
       const baseName = path.basename(source);
       if (!baseName) continue;

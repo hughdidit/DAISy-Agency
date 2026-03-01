@@ -1,10 +1,4 @@
 import { describe, expect, it } from "vitest";
-<<<<<<< HEAD
-=======
-import { formatAgo, stripThinkingTags } from "./format.ts";
->>>>>>> 6341819d7 (fix: cron announce delivery path (#8540) (thanks @tyler6204))
-
-<<<<<<< HEAD
 import { stripThinkingTags } from "./format";
 =======
 describe("formatAgo", () => {

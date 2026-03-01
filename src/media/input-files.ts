@@ -1,15 +1,10 @@
-<<<<<<< HEAD
-import { logWarn } from "../logger.js";
+import type { Dispatcher } from "undici";
 import {
   closeDispatcher,
   createPinnedDispatcher,
   resolvePinnedHostname,
 } from "../infra/net/ssrf.js";
-import type { Dispatcher } from "undici";
-=======
-import { fetchWithSsrFGuard } from "../infra/net/fetch-guard.js";
 import { logWarn } from "../logger.js";
->>>>>>> 81c68f582 (fix: guard remote media fetches with SSRF checks)
 
 type CanvasModule = typeof import("@napi-rs/canvas");
 type PdfJsModule = typeof import("pdfjs-dist/legacy/build/pdf.mjs");
@@ -164,7 +159,7 @@ export async function fetchWithGuard(params: {
       try {
         const response = await fetch(parsedUrl, {
           signal: controller.signal,
-          headers: { "User-Agent": "Moltbot-Gateway/1.0" },
+          headers: { "User-Agent": "OpenClaw-Gateway/1.0" },
           redirect: "manual",
           dispatcher,
         } as RequestInit & { dispatcher: Dispatcher });

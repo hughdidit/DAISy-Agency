@@ -2,6 +2,7 @@
 summary: "Zalo bot support status, capabilities, and configuration"
 read_when:
   - Working on Zalo features or webhooks
+title: "Zalo"
 ---
 # Zalo (Bot API)
 
@@ -9,14 +10,14 @@ Status: experimental. Direct messages only; groups coming soon per Zalo docs.
 
 ## Plugin required
 Zalo ships as a plugin and is not bundled with the core install.
-- Install via CLI: `moltbot plugins install @moltbot/zalo`
+- Install via CLI: `openclaw plugins install @openclaw/zalo`
 - Or select **Zalo** during onboarding and confirm the install prompt
 - Details: [Plugins](/plugin)
 
 ## Quick setup (beginner)
 1) Install the Zalo plugin:
-   - From a source checkout: `moltbot plugins install ./extensions/zalo`
-   - From npm (if published): `moltbot plugins install @moltbot/zalo`
+   - From a source checkout: `openclaw plugins install ./extensions/zalo`
+   - From npm (if published): `openclaw plugins install @openclaw/zalo`
    - Or pick **Zalo** in onboarding and confirm the install prompt
 2) Set the token:
    - Env: `ZALO_BOT_TOKEN=...`
@@ -48,9 +49,16 @@ It is a good fit for support or notifications where you want deterministic routi
 ## Setup (fast path)
 
 ### 1) Create a bot token (Zalo Bot Platform)
+<<<<<<< HEAD
 1) Go to **https://bot.zaloplatforms.com** and sign in.
 2) Create a new bot and configure its settings.
 3) Copy the bot token (format: `12345689:abc-xyz`).
+=======
+
+1. Go to [https://bot.zaloplatforms.com](https://bot.zaloplatforms.com) and sign in.
+2. Create a new bot and configure its settings.
+3. Copy the bot token (format: `12345689:abc-xyz`).
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 
 ### 2) Configure the token (env or config)
 Example:
@@ -71,8 +79,18 @@ Env option: `ZALO_BOT_TOKEN=...` (works for the default account only).
 
 Multi-account support: use `channels.zalo.accounts` with per-account tokens and optional `name`.
 
+<<<<<<< HEAD
+<<<<<<< HEAD
 3) Restart the gateway. Zalo starts when a token is resolved (env or config).
 4) DM access defaults to pairing. Approve the code when the bot is first contacted.
+=======
+1. Restart the gateway. Zalo starts when a token is resolved (env or config).
+2. DM access defaults to pairing. Approve the code when the bot is first contacted.
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
+=======
+3. Restart the gateway. Zalo starts when a token is resolved (env or config).
+4. DM access defaults to pairing. Approve the code when the bot is first contacted.
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 
 ## How it works (behavior)
 - Inbound messages are normalized into the shared channel envelope with media placeholders.
@@ -89,8 +107,8 @@ Multi-account support: use `channels.zalo.accounts` with per-account tokens and 
 ### DM access
 - Default: `channels.zalo.dmPolicy = "pairing"`. Unknown senders receive a pairing code; messages are ignored until approved (codes expire after 1 hour).
 - Approve via:
-  - `moltbot pairing list zalo`
-  - `moltbot pairing approve zalo <CODE>`
+  - `openclaw pairing list zalo`
+  - `openclaw pairing approve zalo <CODE>`
 - Pairing is the default token exchange. Details: [Pairing](/start/pairing)
 - `channels.zalo.allowFrom` accepts numeric user IDs (no username lookup available).
 
@@ -124,14 +142,14 @@ Multi-account support: use `channels.zalo.accounts` with per-account tokens and 
 
 ## Delivery targets (CLI/cron)
 - Use a chat id as the target.
-- Example: `moltbot message send --channel zalo --target 123456789 --message "hi"`.
+- Example: `openclaw message send --channel zalo --target 123456789 --message "hi"`.
 
 ## Troubleshooting
 
 **Bot doesn't respond:**
-- Check that the token is valid: `moltbot channels status --probe`
+- Check that the token is valid: `openclaw channels status --probe`
 - Verify the sender is approved (pairing or allowFrom)
-- Check gateway logs: `moltbot logs --follow`
+- Check gateway logs: `openclaw logs --follow`
 
 **Webhook not receiving events:**
 - Ensure webhook URL uses HTTPS

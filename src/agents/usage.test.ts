@@ -1,6 +1,4 @@
 import { describe, expect, it } from "vitest";
-<<<<<<< HEAD
-
 import { hasNonzeroUsage, normalizeUsage } from "./usage.js";
 =======
 import { deriveSessionTotalTokens, hasNonzeroUsage, normalizeUsage } from "./usage.js";

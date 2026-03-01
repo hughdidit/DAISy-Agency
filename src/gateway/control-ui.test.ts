@@ -1,6 +1,5 @@
 <<<<<<< HEAD
 import { describe, expect, it } from "vitest";
-
 import {
   buildControlUiAvatarUrl,
   normalizeControlUiBasePath,

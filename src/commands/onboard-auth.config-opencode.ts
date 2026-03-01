@@ -1,7 +1,12 @@
+<<<<<<< HEAD
 import { OPENCODE_ZEN_DEFAULT_MODEL_REF } from "../agents/opencode-zen-models.js";
 import type { MoltbotConfig } from "../config/config.js";
+=======
+import type { OpenClawConfig } from "../config/config.js";
+import { OPENCODE_ZEN_DEFAULT_MODEL_REF } from "../agents/opencode-zen-models.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 
-export function applyOpencodeZenProviderConfig(cfg: MoltbotConfig): MoltbotConfig {
+export function applyOpencodeZenProviderConfig(cfg: OpenClawConfig): OpenClawConfig {
   // Use the built-in opencode provider from pi-ai; only seed the allowlist alias.
   const models = { ...cfg.agents?.defaults?.models };
   models[OPENCODE_ZEN_DEFAULT_MODEL_REF] = {
@@ -21,7 +26,7 @@ export function applyOpencodeZenProviderConfig(cfg: MoltbotConfig): MoltbotConfi
   };
 }
 
-export function applyOpencodeZenConfig(cfg: MoltbotConfig): MoltbotConfig {
+export function applyOpencodeZenConfig(cfg: OpenClawConfig): OpenClawConfig {
   const next = applyOpencodeZenProviderConfig(cfg);
   return {
     ...next,

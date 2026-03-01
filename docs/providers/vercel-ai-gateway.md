@@ -2,7 +2,7 @@
 title: "Vercel AI Gateway"
 summary: "Vercel AI Gateway setup (auth + model selection)"
 read_when:
-  - You want to use Vercel AI Gateway with Moltbot
+  - You want to use Vercel AI Gateway with OpenClaw
   - You need the API key env var or CLI auth choice
 ---
 # Vercel AI Gateway
@@ -19,25 +19,39 @@ The [Vercel AI Gateway](https://vercel.com/ai-gateway) provides a unified API to
 1) Set the API key (recommended: store it for the Gateway):
 
 ```bash
-moltbot onboard --auth-choice ai-gateway-api-key
+openclaw onboard --auth-choice ai-gateway-api-key
 ```
 
+<<<<<<< HEAD
+<<<<<<< HEAD
 2) Set a default model:
+=======
+1. Set a default model:
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
+=======
+2. Set a default model:
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 
 ```json5
 {
   agents: {
     defaults: {
+<<<<<<< HEAD
       model: { primary: "vercel-ai-gateway/anthropic/claude-opus-4.5" }
     }
   }
+=======
+      model: { primary: "vercel-ai-gateway/anthropic/claude-opus-4.6" },
+    },
+  },
+>>>>>>> 462905440 (chore: apply local workspace updates (#9911))
 }
 ```
 
 ## Non-interactive example
 
 ```bash
-moltbot onboard --non-interactive \
+openclaw onboard --non-interactive \
   --mode local \
   --auth-choice ai-gateway-api-key \
   --ai-gateway-api-key "$AI_GATEWAY_API_KEY"
@@ -46,5 +60,5 @@ moltbot onboard --non-interactive \
 ## Environment note
 
 If the Gateway runs as a daemon (launchd/systemd), make sure `AI_GATEWAY_API_KEY`
-is available to that process (for example, in `~/.clawdbot/.env` or via
+is available to that process (for example, in `~/.openclaw/.env` or via
 `env.shellEnv`).

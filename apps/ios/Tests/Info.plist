@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>MoltbotTests</string>
+	<string>OpenClawTests</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -17,8 +17,14 @@
 	<key>CFBundlePackageType</key>
 	<string>BNDL</string>
 	<key>CFBundleShortVersionString</key>
+<<<<<<< HEAD
 	<string>2026.1.27-beta.1</string>
 	<key>CFBundleVersion</key>
 	<string>20260126</string>
+=======
+	<string>2026.2.2</string>
+	<key>CFBundleVersion</key>
+	<string>20260202</string>
+>>>>>>> 1c4db9159 (chore: prepare 2026.2.2 release)
 </dict>
 </plist>

@@ -1,42 +1,39 @@
 import { ChannelType } from "@buape/carbon";
+import type { ReplyPayload } from "../../auto-reply/types.js";
+import type { DiscordMessagePreflightContext } from "./message-handler.preflight.js";
 import { resolveAckReaction, resolveHumanDelayConfig } from "../../agents/identity.js";
-import {
-  removeAckReactionAfterReply,
-  shouldAckReaction as shouldAckReactionGate,
-} from "../../channels/ack-reactions.js";
-import { logTypingFailure, logAckFailure } from "../../channels/logging.js";
-import { createReplyPrefixContext } from "../../channels/reply-prefix.js";
-import { createTypingCallbacks } from "../../channels/typing.js";
+import { resolveChunkMode } from "../../auto-reply/chunk.js";
+import { dispatchInboundMessage } from "../../auto-reply/dispatch.js";
 import {
   formatInboundEnvelope,
   formatThreadStarterEnvelope,
   resolveEnvelopeFormatOptions,
 } from "../../auto-reply/envelope.js";
-import { dispatchInboundMessage } from "../../auto-reply/dispatch.js";
 import {
   buildPendingHistoryContextFromMap,
   clearHistoryEntriesIfEnabled,
 } from "../../auto-reply/reply/history.js";
 import { finalizeInboundContext } from "../../auto-reply/reply/inbound-context.js";
 import { createReplyDispatcherWithTyping } from "../../auto-reply/reply/reply-dispatcher.js";
-import type { ReplyPayload } from "../../auto-reply/types.js";
+import {
+  removeAckReactionAfterReply,
+  shouldAckReaction as shouldAckReactionGate,
+} from "../../channels/ack-reactions.js";
+import { logTypingFailure, logAckFailure } from "../../channels/logging.js";
+import { createReplyPrefixContext } from "../../channels/reply-prefix.js";
 import { recordInboundSession } from "../../channels/session.js";
-import { readSessionUpdatedAt, resolveStorePath } from "../../config/sessions.js";
-import { resolveChunkMode } from "../../auto-reply/chunk.js";
+import { createTypingCallbacks } from "../../channels/typing.js";
 import { resolveMarkdownTableMode } from "../../config/markdown-tables.js";
+import { readSessionUpdatedAt, resolveStorePath } from "../../config/sessions.js";
 import { danger, logVerbose, shouldLogVerbose } from "../../globals.js";
 import { buildAgentSessionKey } from "../../routing/resolve-route.js";
 import { resolveThreadSessionKeys } from "../../routing/session-key.js";
+import { buildUntrustedChannelMetadata } from "../../security/channel-metadata.js";
 import { truncateUtf16Safe } from "../../utils.js";
 import { reactMessageDiscord, removeReactionDiscord } from "../send.js";
 <<<<<<< HEAD
 import { normalizeDiscordSlug } from "./allow-list.js";
 import { formatDiscordUserTag, resolveTimestampMs } from "./format.js";
-import type { DiscordMessagePreflightContext } from "./message-handler.preflight.js";
-=======
-import { normalizeDiscordSlug, resolveDiscordOwnerAllowFrom } from "./allow-list.js";
-import { resolveTimestampMs } from "./format.js";
->>>>>>> d84eb4646 (fix: restore discord owner hint from allowlists)
 import {
   buildDiscordMediaPayload,
   resolveDiscordMessageText,
@@ -146,11 +143,31 @@ export async function processDiscordMessage(ctx: DiscordMessagePreflightContext)
   const forumContextLine = isForumStarter ? `[Forum parent: #${forumParentSlug}]` : null;
   const groupChannel = isGuildMessage && displayChannelSlug ? `#${displayChannelSlug}` : undefined;
   const groupSubject = isDirectMessage ? undefined : groupChannel;
+<<<<<<< HEAD
   const channelDescription = channelInfo?.topic?.trim();
   const systemPromptParts = [
     channelDescription ? `Channel topic: ${channelDescription}` : null,
     channelConfig?.systemPrompt?.trim() || null,
   ].filter((entry): entry is string => Boolean(entry));
+=======
+  const untrustedChannelMetadata = isGuildMessage
+    ? buildUntrustedChannelMetadata({
+        source: "discord",
+        label: "Discord channel topic",
+        entries: [channelInfo?.topic],
+      })
+    : undefined;
+  const senderName = sender.isPluralKit
+    ? (sender.name ?? author.username)
+    : (data.member?.nickname ?? author.globalName ?? author.username);
+  const senderUsername = sender.isPluralKit
+    ? (sender.tag ?? sender.name ?? author.username)
+    : author.username;
+  const senderTag = sender.tag;
+  const systemPromptParts = [channelConfig?.systemPrompt?.trim() || null].filter(
+    (entry): entry is string => Boolean(entry),
+  );
+>>>>>>> 35eb40a70 (fix(security): separate untrusted channel metadata from system prompt (thanks @KonstantinMirin))
   const groupSystemPrompt =
     systemPromptParts.length > 0 ? systemPromptParts.join("\n\n") : undefined;
   const ownerAllowFrom = resolveDiscordOwnerAllowFrom({
@@ -288,6 +305,7 @@ export async function processDiscordMessage(ctx: DiscordMessagePreflightContext)
     SenderTag: formatDiscordUserTag(author),
     GroupSubject: groupSubject,
     GroupChannel: groupChannel,
+    UntrustedContext: untrustedChannelMetadata ? [untrustedChannelMetadata] : undefined,
     GroupSystemPrompt: isGuildMessage ? groupSystemPrompt : undefined,
     GroupSpace: isGuildMessage ? (guildInfo?.id ?? guildSlug) || undefined : undefined,
     OwnerAllowFrom: ownerAllowFrom,

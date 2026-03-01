@@ -1,5 +1,4 @@
 import { z } from "zod";
-
 import {
   GroupChatSchema,
   InboundDebounceSchema,
@@ -112,6 +111,7 @@ export const CommandsSchema = z
     debug: z.boolean().optional(),
     restart: z.boolean().optional(),
     useAccessGroups: z.boolean().optional(),
+    ownerAllowFrom: z.array(z.union([z.string(), z.number()])).optional(),
   })
   .strict()
   .optional()

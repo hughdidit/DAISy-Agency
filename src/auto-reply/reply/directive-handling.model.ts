@@ -1,3 +1,6 @@
+import type { OpenClawConfig } from "../../config/config.js";
+import type { ReplyPayload } from "../types.js";
+import type { InlineDirectives } from "./directive-handling.parse.js";
 import { resolveAuthStorePathForDisplay } from "../../agents/auth-profiles.js";
 import {
   type ModelAliasIndex,
@@ -6,9 +9,12 @@ import {
   resolveConfiguredModelRef,
   resolveModelRefFromString,
 } from "../../agents/model-selection.js";
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
+=======
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { shortenHomePath } from "../../utils.js";
-import type { ReplyPayload } from "../types.js";
+import { resolveModelsCommandReply } from "./commands-models.js";
 import {
   formatAuthLabel,
   type ModelAuthDetailMode,
@@ -19,12 +25,10 @@ import {
   type ModelPickerCatalogEntry,
   resolveProviderEndpointLabel,
 } from "./directive-handling.model-picker.js";
-import type { InlineDirectives } from "./directive-handling.parse.js";
-import { resolveModelsCommandReply } from "./commands-models.js";
 import { type ModelDirectiveSelection, resolveModelDirectiveSelection } from "./model-selection.js";
 
 function buildModelPickerCatalog(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   defaultProvider: string;
   defaultModel: string;
   aliasIndex: ModelAliasIndex;
@@ -153,7 +157,7 @@ function buildModelPickerCatalog(params: {
 
 export async function maybeHandleModelDirectiveInfo(params: {
   directives: InlineDirectives;
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   agentDir: string;
   activeAgentId: string;
   provider: string;
@@ -271,7 +275,7 @@ export async function maybeHandleModelDirectiveInfo(params: {
 
 export function resolveModelSelectionFromDirective(params: {
   directives: InlineDirectives;
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   agentDir: string;
   defaultProvider: string;
   defaultModel: string;

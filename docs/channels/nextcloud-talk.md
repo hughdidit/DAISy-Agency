@@ -2,6 +2,7 @@
 summary: "Nextcloud Talk support status, capabilities, and configuration"
 read_when:
   - Working on Nextcloud Talk channel features
+title: "Nextcloud Talk"
 ---
 # Nextcloud Talk (plugin)
 
@@ -12,27 +13,54 @@ Nextcloud Talk ships as a plugin and is not bundled with the core install.
 
 Install via CLI (npm registry):
 ```bash
-moltbot plugins install @moltbot/nextcloud-talk
+openclaw plugins install @openclaw/nextcloud-talk
 ```
 
 Local checkout (when running from a git repo):
 ```bash
-moltbot plugins install ./extensions/nextcloud-talk
+openclaw plugins install ./extensions/nextcloud-talk
 ```
 
 If you choose Nextcloud Talk during configure/onboarding and a git checkout is detected,
-Moltbot will offer the local install path automatically.
+OpenClaw will offer the local install path automatically.
 
 Details: [Plugins](/plugin)
 
 ## Quick setup (beginner)
+<<<<<<< HEAD
 1) Install the Nextcloud Talk plugin.
 2) On your Nextcloud server, create a bot:
+=======
+
+1. Install the Nextcloud Talk plugin.
+2. On your Nextcloud server, create a bot:
+<<<<<<< HEAD
+<<<<<<< HEAD
+
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
+=======
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
+=======
+
+>>>>>>> 578a6e27a (Docs: enable markdownlint autofixables except list numbering (#10476))
    ```bash
-   ./occ talk:bot:install "Moltbot" "<shared-secret>" "<webhook-url>" --feature reaction
+   ./occ talk:bot:install "OpenClaw" "<shared-secret>" "<webhook-url>" --feature reaction
    ```
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
 3) Enable the bot in the target room settings.
 4) Configure Moltbot:
+=======
+
+=======
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
+=======
+
+>>>>>>> 578a6e27a (Docs: enable markdownlint autofixables except list numbering (#10476))
+3. Enable the bot in the target room settings.
+4. Configure OpenClaw:
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
    - Config: `channels.nextcloud-talk.baseUrl` + `channels.nextcloud-talk.botSecret`
    - Or env: `NEXTCLOUD_TALK_BOT_SECRET` (default account only)
 5) Restart the gateway (or finish onboarding).
@@ -60,8 +88,8 @@ Minimal config:
 ## Access control (DMs)
 - Default: `channels.nextcloud-talk.dmPolicy = "pairing"`. Unknown senders get a pairing code.
 - Approve via:
-  - `moltbot pairing list nextcloud-talk`
-  - `moltbot pairing approve nextcloud-talk <CODE>`
+  - `openclaw pairing list nextcloud-talk`
+  - `openclaw pairing approve nextcloud-talk <CODE>`
 - Public DMs: `channels.nextcloud-talk.dmPolicy="open"` plus `channels.nextcloud-talk.allowFrom=["*"]`.
 - `allowFrom` matches Nextcloud user IDs only; display names are ignored.
 

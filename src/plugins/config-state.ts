@@ -1,6 +1,11 @@
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
 import { defaultSlotIdForKey } from "./slots.js";
+=======
+import type { OpenClawConfig } from "../config/config.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { PluginRecord } from "./registry.js";
+import { defaultSlotIdForKey } from "./slots.js";
 
 export type NormalizedPluginsConfig = {
   enabled: boolean;
@@ -49,7 +54,7 @@ const normalizePluginEntries = (entries: unknown): NormalizedPluginsConfig["entr
 };
 
 export const normalizePluginsConfig = (
-  config?: MoltbotConfig["plugins"],
+  config?: OpenClawConfig["plugins"],
 ): NormalizedPluginsConfig => {
   const memorySlot = normalizeSlotValue(config?.slots?.memory);
   return {
@@ -66,13 +71,13 @@ export const normalizePluginsConfig = (
 
 <<<<<<< HEAD
 =======
-const hasExplicitMemorySlot = (plugins?: OpenClawConfig["plugins"]) =>
+const hasExplicitMemorySlot = (plugins?: MoltbotConfig["plugins"]) =>
   Boolean(plugins?.slots && Object.prototype.hasOwnProperty.call(plugins.slots, "memory"));
 
-const hasExplicitMemoryEntry = (plugins?: OpenClawConfig["plugins"]) =>
+const hasExplicitMemoryEntry = (plugins?: MoltbotConfig["plugins"]) =>
   Boolean(plugins?.entries && Object.prototype.hasOwnProperty.call(plugins.entries, "memory-core"));
 
-const hasExplicitPluginConfig = (plugins?: OpenClawConfig["plugins"]) => {
+const hasExplicitPluginConfig = (plugins?: MoltbotConfig["plugins"]) => {
   if (!plugins) return false;
   if (typeof plugins.enabled === "boolean") return true;
   if (Array.isArray(plugins.allow) && plugins.allow.length > 0) return true;
@@ -85,9 +90,9 @@ const hasExplicitPluginConfig = (plugins?: OpenClawConfig["plugins"]) => {
 };
 
 export function applyTestPluginDefaults(
-  cfg: OpenClawConfig,
+  cfg: MoltbotConfig,
   env: NodeJS.ProcessEnv = process.env,
-): OpenClawConfig {
+): MoltbotConfig {
   if (!env.VITEST) return cfg;
   const plugins = cfg.plugins;
   const explicitConfig = hasExplicitPluginConfig(plugins);
@@ -121,7 +126,7 @@ export function applyTestPluginDefaults(
 }
 
 export function isTestDefaultMemorySlotDisabled(
-  cfg: OpenClawConfig,
+  cfg: MoltbotConfig,
   env: NodeJS.ProcessEnv = process.env,
 ): boolean {
   if (!env.VITEST) return false;
@@ -132,7 +137,7 @@ export function isTestDefaultMemorySlotDisabled(
   return true;
 }
 
->>>>>>> d47b4e6f8 (fix: update config types)
+>>>>>>> 06289b36d (fix(security): harden SSH target handling (#4001))
 export function resolveEnableState(
   id: string,
   origin: PluginRecord["origin"],

@@ -1,4 +1,9 @@
+<<<<<<< HEAD
 import { afterEach, describe, expect, it, vi } from "vitest";
+=======
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import * as ssrf from "../../infra/net/ssrf.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 
 const lookupMock = vi.fn();
 

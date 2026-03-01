@@ -1,16 +1,17 @@
 ---
-summary: "Moltbot on Raspberry Pi (budget self-hosted setup)"
+summary: "OpenClaw on Raspberry Pi (budget self-hosted setup)"
 read_when:
-  - Setting up Moltbot on a Raspberry Pi
-  - Running Moltbot on ARM devices
+  - Setting up OpenClaw on a Raspberry Pi
+  - Running OpenClaw on ARM devices
   - Building a cheap always-on personal AI
+title: "Raspberry Pi"
 ---
 
-# Moltbot on Raspberry Pi
+# OpenClaw on Raspberry Pi
 
 ## Goal
 
-Run a persistent, always-on Moltbot Gateway on a Raspberry Pi for **~$35-80** one-time cost (no monthly fees).
+Run a persistent, always-on OpenClaw Gateway on a Raspberry Pi for **~$35-80** one-time cost (no monthly fees).
 
 Perfect for:
 - 24/7 personal AI assistant
@@ -105,19 +106,23 @@ echo 'vm.swappiness=10' | sudo tee -a /etc/sysctl.conf
 sudo sysctl -p
 ```
 
-## 6) Install Moltbot
+## 6) Install OpenClaw
 
 ### Option A: Standard Install (Recommended)
 
 ```bash
+<<<<<<< HEAD
 curl -fsSL https://molt.bot/install.sh | bash
+=======
+curl -fsSL https://openclaw.ai/install.sh | bash
+>>>>>>> 7a2c4d3cf (fix(docs): use canonical openclaw.ai domain instead of openclaw.bot)
 ```
 
 ### Option B: Hackable Install (For tinkering)
 
 ```bash
-git clone https://github.com/moltbot/moltbot.git
-cd moltbot
+git clone https://github.com/openclaw/openclaw.git
+cd openclaw
 npm install
 npm run build
 npm link
@@ -128,7 +133,7 @@ The hackable install gives you direct access to logs and code — useful for deb
 ## 7) Run Onboarding
 
 ```bash
-moltbot onboard --install-daemon
+openclaw onboard --install-daemon
 ```
 
 Follow the wizard:
@@ -141,13 +146,13 @@ Follow the wizard:
 
 ```bash
 # Check status
-moltbot status
+openclaw status
 
 # Check service
-sudo systemctl status moltbot
+sudo systemctl status openclaw
 
 # View logs
-journalctl -u moltbot -f
+journalctl -u openclaw -f
 ```
 
 ## 9) Access the Dashboard
@@ -170,8 +175,8 @@ curl -fsSL https://tailscale.com/install.sh | sh
 sudo tailscale up
 
 # Update config
-moltbot config set gateway.bind tailnet
-sudo systemctl restart moltbot
+openclaw config set gateway.bind tailnet
+sudo systemctl restart openclaw
 ```
 
 ---
@@ -218,7 +223,7 @@ htop
 
 ### Binary Compatibility
 
-Most Moltbot features work on ARM64, but some external binaries may need ARM builds:
+Most OpenClaw features work on ARM64, but some external binaries may need ARM builds:
 
 | Tool | ARM64 Status | Notes |
 |------|--------------|-------|
@@ -268,13 +273,13 @@ The onboarding wizard sets this up, but to verify:
 
 ```bash
 # Check service is enabled
-sudo systemctl is-enabled moltbot
+sudo systemctl is-enabled openclaw
 
 # Enable if not
-sudo systemctl enable moltbot
+sudo systemctl enable openclaw
 
 # Start on boot
-sudo systemctl start moltbot
+sudo systemctl start openclaw
 ```
 
 ---
@@ -301,12 +306,12 @@ free -h
 
 ```bash
 # Check logs
-journalctl -u moltbot --no-pager -n 100
+journalctl -u openclaw --no-pager -n 100
 
 # Common fix: rebuild
-cd ~/moltbot  # if using hackable install
+cd ~/openclaw  # if using hackable install
 npm run build
-sudo systemctl restart moltbot
+sudo systemctl restart openclaw
 ```
 
 ### ARM Binary Issues
@@ -349,6 +354,6 @@ echo 'wireless-power off' | sudo tee -a /etc/network/interfaces
 
 - [Linux guide](/platforms/linux) — general Linux setup
 - [DigitalOcean guide](/platforms/digitalocean) — cloud alternative
-- [Hetzner guide](/platforms/hetzner) — Docker setup
+- [Hetzner guide](/install/hetzner) — Docker setup
 - [Tailscale](/gateway/tailscale) — remote access
 - [Nodes](/nodes) — pair your laptop/phone with the Pi gateway

@@ -2,6 +2,7 @@
 summary: "Menu bar status logic and what is surfaced to users"
 read_when:
   - Tweaking mac menu UI or status logic
+title: "Menu Bar"
 ---
 # Menu Bar Status Logic
 
@@ -40,7 +41,7 @@ read_when:
 
 ## Status row text (menu)
 - While work is active: `<Session role> · <activity label>`
-  - Examples: `Main · exec: pnpm test`, `Other · read: apps/macos/Sources/Moltbot/AppState.swift`.
+  - Examples: `Main · exec: pnpm test`, `Other · read: apps/macos/Sources/OpenClaw/AppState.swift`.
 - When idle: falls back to the health summary.
 
 ## Event ingestion

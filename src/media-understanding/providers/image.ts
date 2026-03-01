@@ -1,17 +1,24 @@
 import type { Api, AssistantMessage, Context, Model } from "@mariozechner/pi-ai";
 import { complete } from "@mariozechner/pi-ai";
+<<<<<<< HEAD
 import { discoverAuthStorage, discoverModels } from "@mariozechner/pi-coding-agent";
 
 import { getApiKeyForModel, requireApiKey } from "../../agents/model-auth.js";
-import { ensureMoltbotModelsJson } from "../../agents/models-config.js";
+import { ensureOpenClawModelsJson } from "../../agents/models-config.js";
 import { minimaxUnderstandImage } from "../../agents/minimax-vlm.js";
-import { coerceImageAssistantText } from "../../agents/tools/image-tool.helpers.js";
+=======
 import type { ImageDescriptionRequest, ImageDescriptionResult } from "../types.js";
+import { minimaxUnderstandImage } from "../../agents/minimax-vlm.js";
+import { getApiKeyForModel, requireApiKey } from "../../agents/model-auth.js";
+import { ensureOpenClawModelsJson } from "../../agents/models-config.js";
+import { discoverAuthStorage, discoverModels } from "../../agents/pi-model-discovery.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
+import { coerceImageAssistantText } from "../../agents/tools/image-tool.helpers.js";
 
 export async function describeImageWithModel(
   params: ImageDescriptionRequest,
 ): Promise<ImageDescriptionResult> {
-  await ensureMoltbotModelsJson(params.cfg, params.agentDir);
+  await ensureOpenClawModelsJson(params.cfg, params.agentDir);
   const authStorage = discoverAuthStorage(params.agentDir);
   const modelRegistry = discoverModels(authStorage, params.agentDir);
   const model = modelRegistry.find(params.provider, params.model) as Model<Api> | null;

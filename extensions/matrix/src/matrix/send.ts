@@ -1,6 +1,10 @@
 import type { MatrixClient } from "@vector-im/matrix-bot-sdk";
+<<<<<<< HEAD
 
 import type { PollInput } from "clawdbot/plugin-sdk";
+=======
+import type { PollInput } from "openclaw/plugin-sdk";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { getMatrixRuntime } from "../runtime.js";
 import { buildPollStartContent, M_POLL_START } from "./poll-types.js";
 import { resolveMatrixClient, resolveMediaMaxBytes } from "./send/client.js";

@@ -2,6 +2,7 @@
 summary: "Remote access using SSH tunnels (Gateway WS) and tailnets"
 read_when:
   - Running or troubleshooting remote gateway setups
+title: "Remote Access"
 ---
 # Remote access (SSH, tunnels, and tailnets)
 
@@ -26,7 +27,7 @@ Run the Gateway on a persistent host and reach it via **Tailscale** or SSH.
 
 - **Best UX:** keep `gateway.bind: "loopback"` and use **Tailscale Serve** for the Control UI.
 - **Fallback:** keep loopback + SSH tunnel from any machine that needs access.
-- **Examples:** [exe.dev](/platforms/exe-dev) (easy VM) or [Hetzner](/platforms/hetzner) (production VPS).
+- **Examples:** [exe.dev](/install/exe-dev) (easy VM) or [Hetzner](/install/hetzner) (production VPS).
 
 This is ideal when your laptop sleeps often but you want the agent always-on.
 
@@ -34,7 +35,7 @@ This is ideal when your laptop sleeps often but you want the agent always-on.
 
 The laptop does **not** run the agent. It connects remotely:
 
-- Use the macOS app’s **Remote over SSH** mode (Settings → General → “Moltbot runs”).
+- Use the macOS app’s **Remote over SSH** mode (Settings → General → “OpenClaw runs”).
 - The app opens and manages the tunnel, so WebChat + health checks “just work.”
 
 Runbook: [macOS remote access](/platforms/mac/remote).
@@ -71,10 +72,12 @@ ssh -N -L 18789:127.0.0.1:18789 user@host
 ```
 
 With the tunnel up:
-- `moltbot health` and `moltbot status --deep` now reach the remote gateway via `ws://127.0.0.1:18789`.
-- `moltbot gateway {status,health,send,agent,call}` can also target the forwarded URL via `--url` when needed.
+- `openclaw health` and `openclaw status --deep` now reach the remote gateway via `ws://127.0.0.1:18789`.
+- `openclaw gateway {status,health,send,agent,call}` can also target the forwarded URL via `--url` when needed.
 
-Note: replace `18789` with your configured `gateway.port` (or `--port`/`CLAWDBOT_GATEWAY_PORT`).
+Note: replace `18789` with your configured `gateway.port` (or `--port`/`OPENCLAW_GATEWAY_PORT`).
+Note: when you pass `--url`, the CLI does not fall back to config or environment credentials.
+Include `--token` or `--password` explicitly. Missing explicit credentials is an error.
 
 ## CLI remote defaults
 

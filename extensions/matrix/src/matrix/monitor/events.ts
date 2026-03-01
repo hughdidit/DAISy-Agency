@@ -1,6 +1,10 @@
 import type { MatrixClient } from "@vector-im/matrix-bot-sdk";
+<<<<<<< HEAD
 import type { PluginRuntime } from "clawdbot/plugin-sdk";
 
+=======
+import type { PluginRuntime } from "openclaw/plugin-sdk";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { MatrixAuth } from "../client.js";
 import type { MatrixRawEvent } from "./types.js";
 import { EventType } from "./types.js";

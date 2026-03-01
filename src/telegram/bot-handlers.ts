@@ -1,3 +1,5 @@
+import type { TelegramMessage } from "./bot/types.js";
+import { resolveDefaultAgentId } from "../agents/agent-scope.js";
 // @ts-nocheck
 import { hasControlCommand } from "../auto-reply/command-detection.js";
 import {
@@ -5,41 +7,21 @@ import {
   resolveInboundDebounceMs,
 } from "../auto-reply/inbound-debounce.js";
 import { buildCommandsPaginationKeyboard } from "../auto-reply/reply/commands-info.js";
-<<<<<<< HEAD
-=======
-import { buildModelsProviderData } from "../auto-reply/reply/commands-models.js";
-import { resolveStoredModelOverride } from "../auto-reply/reply/model-selection.js";
 import { listSkillCommandsForAgents } from "../auto-reply/skill-commands.js";
->>>>>>> 41a4f1200 (fix: honor telegram model overrides in buttons (#8193) (thanks @gildo))
 import { buildCommandsMessagePaginated } from "../auto-reply/status.js";
-import { listSkillCommandsForAgents } from "../auto-reply/skill-commands.js";
-import { resolveDefaultAgentId } from "../agents/agent-scope.js";
+import { resolveChannelConfigWrites } from "../channels/plugins/config-writes.js";
 import { loadConfig } from "../config/config.js";
 import { writeConfigFile } from "../config/io.js";
 import { loadSessionStore, resolveStorePath } from "../config/sessions.js";
 import { danger, logVerbose, warn } from "../globals.js";
-<<<<<<< HEAD
-import { resolveMedia } from "./bot/delivery.js";
 import { withTelegramApiErrorLogging } from "./api-logging.js";
+import { firstDefined, isSenderAllowed, normalizeAllowFromWithStore } from "./bot-access.js";
+import { MEDIA_GROUP_TIMEOUT_MS, type MediaGroupEntry } from "./bot-updates.js";
+import { resolveMedia } from "./bot/delivery.js";
 import { resolveTelegramForumThreadId } from "./bot/helpers.js";
-import type { TelegramMessage } from "./bot/types.js";
-import { firstDefined, isSenderAllowed, normalizeAllowFromWithStore } from "./bot-access.js";
-import { MEDIA_GROUP_TIMEOUT_MS, type MediaGroupEntry } from "./bot-updates.js";
-=======
-import { readChannelAllowFromStore } from "../pairing/pairing-store.js";
-import { resolveAgentRoute } from "../routing/resolve-route.js";
-import { resolveThreadSessionKeys } from "../routing/session-key.js";
-import { withTelegramApiErrorLogging } from "./api-logging.js";
-import { firstDefined, isSenderAllowed, normalizeAllowFromWithStore } from "./bot-access.js";
-import { RegisterTelegramHandlerParams } from "./bot-native-commands.js";
-import { MEDIA_GROUP_TIMEOUT_MS, type MediaGroupEntry } from "./bot-updates.js";
-import { resolveMedia } from "./bot/delivery.js";
-import { buildTelegramGroupPeerId, resolveTelegramForumThreadId } from "./bot/helpers.js";
->>>>>>> 41a4f1200 (fix: honor telegram model overrides in buttons (#8193) (thanks @gildo))
 import { migrateTelegramGroupConfig } from "./group-migration.js";
 import { resolveTelegramInlineButtonsScope } from "./inline-buttons.js";
 import { readTelegramAllowFromStore } from "./pairing-store.js";
-import { resolveChannelConfigWrites } from "../channels/plugins/config-writes.js";
 import { buildInlineKeyboard } from "./send.js";
 
 export const registerTelegramHandlers = ({

@@ -1,11 +1,3 @@
-<<<<<<< HEAD
-import { randomUUID } from "node:crypto";
-import fsSync from "node:fs";
-import fs from "node:fs/promises";
-import path from "node:path";
-
-=======
->>>>>>> 23cfcd60d (Fix build regressions after merge)
 import type { DatabaseSync } from "node:sqlite";
 import chokidar, { type FSWatcher } from "chokidar";
 import { randomUUID } from "node:crypto";
@@ -18,23 +10,13 @@ import { resolveMemorySearchConfig } from "../agents/memory-search.js";
 import type { MoltbotConfig } from "../config/config.js";
 =======
 import type { OpenClawConfig } from "../config/config.js";
-import type {
-  MemoryEmbeddingProbeResult,
-  MemoryProviderStatus,
-  MemorySearchManager,
-  MemorySearchResult,
-  MemorySource,
-  MemorySyncProgressUpdate,
-} from "./types.js";
 import { resolveAgentDir, resolveAgentWorkspaceDir } from "../agents/agent-scope.js";
 import { resolveMemorySearchConfig } from "../agents/memory-search.js";
->>>>>>> 23cfcd60d (Fix build regressions after merge)
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { resolveSessionTranscriptsDirForAgent } from "../config/sessions/paths.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import { onSessionTranscriptUpdate } from "../sessions/transcript-events.js";
 import { resolveUserPath } from "../utils.js";
-<<<<<<< HEAD
-=======
 import { runGeminiEmbeddingBatches, type GeminiBatchRequest } from "./batch-gemini.js";
 import {
   OPENAI_BATCH_ENDPOINT,
@@ -43,7 +25,6 @@ import {
 } from "./batch-openai.js";
 import { DEFAULT_GEMINI_EMBEDDING_MODEL } from "./embeddings-gemini.js";
 import { DEFAULT_OPENAI_EMBEDDING_MODEL } from "./embeddings-openai.js";
->>>>>>> 23cfcd60d (Fix build regressions after merge)
 import {
   createEmbeddingProvider,
   type EmbeddingProvider,
@@ -51,18 +32,7 @@ import {
   type GeminiEmbeddingClient,
   type OpenAiEmbeddingClient,
 } from "./embeddings.js";
-<<<<<<< HEAD
-import { DEFAULT_GEMINI_EMBEDDING_MODEL } from "./embeddings-gemini.js";
-import { DEFAULT_OPENAI_EMBEDDING_MODEL } from "./embeddings-openai.js";
-import {
-  OPENAI_BATCH_ENDPOINT,
-  type OpenAiBatchRequest,
-  runOpenAiEmbeddingBatches,
-} from "./batch-openai.js";
-import { runGeminiEmbeddingBatches, type GeminiBatchRequest } from "./batch-gemini.js";
-=======
 import { bm25RankToScore, buildFtsQuery, mergeHybridResults } from "./hybrid.js";
->>>>>>> 23cfcd60d (Fix build regressions after merge)
 import {
   buildFileEntry,
   chunkMarkdown,
@@ -75,12 +45,10 @@ import {
   type MemoryFileEntry,
   parseEmbedding,
 } from "./internal.js";
-<<<<<<< HEAD
-import { bm25RankToScore, buildFtsQuery, mergeHybridResults } from "./hybrid.js";
 import { searchKeyword, searchVector } from "./manager-search.js";
 import { ensureMemoryIndexSchema } from "./memory-schema.js";
-import { requireNodeSqlite } from "./sqlite.js";
 import { loadSqliteVecExtension } from "./sqlite-vec.js";
+import { requireNodeSqlite } from "./sqlite.js";
 
 type MemorySource = "memory" | "sessions";
 
@@ -888,7 +856,7 @@ export class MemoryIndexManager {
     this.fts.available = result.ftsAvailable;
     if (result.ftsError) {
       this.fts.loadError = result.ftsError;
-      log.warn(`fts unavailable: ${result.ftsError}`);
+      log.debug(`fts unavailable: ${result.ftsError}`);
     }
   }
 

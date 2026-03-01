@@ -3,13 +3,14 @@ summary: "Browser-based control UI for the Gateway (chat, nodes, config)"
 read_when:
   - You want to operate the Gateway from a browser
   - You want Tailnet access without SSH tunnels
+title: "Control UI"
 ---
 # Control UI (browser)
 
 The Control UI is a small **Vite + Lit** single-page app served by the Gateway:
 
 - default: `http://<host>:18789/`
-- optional prefix: set `gateway.controlUi.basePath` (e.g. `/moltbot`)
+- optional prefix: set `gateway.controlUi.basePath` (e.g. `/openclaw`)
 
 It speaks **directly to the Gateway WebSocket** on the same port.
 
@@ -17,15 +18,45 @@ It speaks **directly to the Gateway WebSocket** on the same port.
 
 If the Gateway is running on the same computer, open:
 
-- http://127.0.0.1:18789/ (or http://localhost:18789/)
+- [http://127.0.0.1:18789/](http://127.0.0.1:18789/) (or [http://localhost:18789/](http://localhost:18789/))
 
-If the page fails to load, start the Gateway first: `moltbot gateway`.
+If the page fails to load, start the Gateway first: `openclaw gateway`.
 
 Auth is supplied during the WebSocket handshake via:
 - `connect.params.auth.token`
 - `connect.params.auth.password`
 The dashboard settings panel lets you store a token; passwords are not persisted.
 The onboarding wizard generates a gateway token by default, so paste it here on first connect.
+
+## Device pairing (first connection)
+
+When you connect to the Control UI from a new browser or device, the Gateway
+requires a **one-time pairing approval** — even if you're on the same Tailnet
+with `gateway.auth.allowTailscale: true`. This is a security measure to prevent
+unauthorized access.
+
+**What you'll see:** "disconnected (1008): pairing required"
+
+**To approve the device:**
+
+```bash
+# List pending requests
+openclaw devices list
+
+# Approve by request ID
+openclaw devices approve <requestId>
+```
+
+Once approved, the device is remembered and won't require re-approval unless
+you revoke it with `openclaw devices revoke --device <id> --role <role>`. See
+[Devices CLI](/cli/devices) for token rotation and revocation.
+
+**Notes:**
+
+- Local connections (`127.0.0.1`) are auto-approved.
+- Remote connections (LAN, Tailnet, etc.) require explicit approval.
+- Each browser profile generates a unique device ID, so switching browsers or
+  clearing browser data will require re-pairing.
 
 ## What it can do (today)
 - Chat with the model via Gateway WS (`chat.history`, `chat.send`, `chat.abort`, `chat.inject`)
@@ -37,7 +68,7 @@ The onboarding wizard generates a gateway token by default, so paste it here on 
 - Skills: status, enable/disable, install, API key updates (`skills.*`)
 - Nodes: list + caps (`node.list`)
 - Exec approvals: edit gateway or node allowlists + ask policy for `exec host=gateway/node` (`exec.approvals.*`)
-- Config: view/edit `~/.clawdbot/moltbot.json` (`config.get`, `config.set`)
+- Config: view/edit `~/.openclaw/openclaw.json` (`config.get`, `config.set`)
 - Config: apply + restart with validation (`config.apply`) and wake the last active session
 - Config writes include a base-hash guard to prevent clobbering concurrent edits
 - Config schema + form rendering (`config.schema`, including plugin + channel schemas); Raw JSON editor remains available
@@ -62,14 +93,14 @@ The onboarding wizard generates a gateway token by default, so paste it here on 
 Keep the Gateway on loopback and let Tailscale Serve proxy it with HTTPS:
 
 ```bash
-moltbot gateway --tailscale serve
+openclaw gateway --tailscale serve
 ```
 
 Open:
 - `https://<magicdns>/` (or your configured `gateway.controlUi.basePath`)
 
 By default, Serve requests can authenticate via Tailscale identity headers
-(`tailscale-user-login`) when `gateway.auth.allowTailscale` is `true`. Moltbot
+(`tailscale-user-login`) when `gateway.auth.allowTailscale` is `true`. OpenClaw
 verifies the identity by resolving the `x-forwarded-for` address with
 `tailscale whois` and matching it to the header, and only accepts these when the
 request hits loopback with Tailscale’s `x-forwarded-*` headers. Set
@@ -79,7 +110,7 @@ if you want to require a token/password even for Serve traffic.
 ### Bind to tailnet + token
 
 ```bash
-moltbot gateway --bind tailnet --token "$(openssl rand -hex 32)"
+openclaw gateway --bind tailnet --token "$(openssl rand -hex 32)"
 ```
 
 Then open:
@@ -91,7 +122,7 @@ Paste the token into the UI settings (sent as `connect.params.auth.token`).
 
 If you open the dashboard over plain HTTP (`http://<lan-ip>` or `http://<tailscale-ip>`),
 the browser runs in a **non-secure context** and blocks WebCrypto. By default,
-Moltbot **blocks** Control UI connections without device identity.
+OpenClaw **blocks** Control UI connections without device identity.
 
 **Recommended fix:** use HTTPS (Tailscale Serve) or open the UI locally:
 - `https://<magicdns>/` (Serve)
@@ -125,7 +156,7 @@ pnpm ui:build # auto-installs UI deps on first run
 Optional absolute base (when you want fixed asset URLs):
 
 ```bash
-CLAWDBOT_CONTROL_UI_BASE_PATH=/moltbot/ pnpm ui:build
+OPENCLAW_CONTROL_UI_BASE_PATH=/openclaw/ pnpm ui:build
 ```
 
 For local development (separate dev server):
@@ -158,6 +189,8 @@ http://localhost:5173/?gatewayUrl=wss://<gateway-host>:18789&token=<gateway-toke
 Notes:
 - `gatewayUrl` is stored in localStorage after load and removed from the URL.
 - `token` is stored in localStorage; `password` is kept in memory only.
+- When `gatewayUrl` is set, the UI does not fall back to config or environment credentials.
+  Provide `token` (or `password`) explicitly. Missing explicit credentials is an error.
 - Use `wss://` when the Gateway is behind TLS (Tailscale Serve, HTTPS proxy, etc.).
 - `gatewayUrl` is only accepted in a top-level window (not embedded) to prevent clickjacking.
 - For cross-origin dev setups (e.g. `pnpm ui:dev` to a remote Gateway), add the UI

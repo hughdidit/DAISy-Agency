@@ -1,6 +1,11 @@
 import { Type } from "@sinclair/typebox";
+<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../../config/config.js";
+=======
+import type { OpenClawConfig } from "../../config/config.js";
+import type { AnyAgentTool } from "./common.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { getMemorySearchManager } from "../../memory/index.js";
 <<<<<<< HEAD
 =======
@@ -9,7 +14,6 @@ import { parseAgentSessionKey } from "../../routing/session-key.js";
 >>>>>>> edd6289f2 (fix: derive citations chat type via session parser)
 import { resolveSessionAgentId } from "../agent-scope.js";
 import { resolveMemorySearchConfig } from "../memory-search.js";
-import type { AnyAgentTool } from "./common.js";
 import { jsonResult, readNumberParam, readStringParam } from "./common.js";
 
 const MemorySearchSchema = Type.Object({
@@ -25,7 +29,7 @@ const MemoryGetSchema = Type.Object({
 });
 
 export function createMemorySearchTool(options: {
-  config?: MoltbotConfig;
+  config?: OpenClawConfig;
   agentSessionKey?: string;
 }): AnyAgentTool | null {
   const cfg = options.config;
@@ -74,7 +78,7 @@ export function createMemorySearchTool(options: {
 }
 
 export function createMemoryGetTool(options: {
-  config?: MoltbotConfig;
+  config?: OpenClawConfig;
   agentSessionKey?: string;
 }): AnyAgentTool | null {
   const cfg = options.config;

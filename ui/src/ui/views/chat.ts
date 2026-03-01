@@ -2,18 +2,23 @@ import { html, nothing } from "lit";
 import { ref } from "lit/directives/ref.js";
 import { repeat } from "lit/directives/repeat.js";
 import type { SessionsListResult } from "../types";
-import type { ChatAttachment, ChatQueueItem } from "../ui-types";
 import type { ChatItem, MessageGroup } from "../types/chat-types";
+<<<<<<< HEAD
 import { icons } from "../icons";
 import {
   normalizeMessage,
   normalizeRoleForGrouping,
 } from "../chat/message-normalizer";
+=======
+import type { ChatAttachment, ChatQueueItem } from "../ui-types";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import {
   renderMessageGroup,
   renderReadingIndicatorGroup,
   renderStreamingGroup,
 } from "../chat/grouped-render";
+import { normalizeMessage, normalizeRoleForGrouping } from "../chat/message-normalizer";
+import { icons } from "../icons";
 import { renderMarkdownSidebar } from "./markdown-sidebar";
 import "../components/resizable-divider";
 
@@ -337,8 +342,6 @@ export function renderChat(props: ChatProps) {
           : nothing
       }
 
-      ${renderCompactionIndicator(props.compactionStatus)}
-
       ${
         props.showNewMessages
           ? html`
@@ -352,7 +355,7 @@ export function renderChat(props: ChatProps) {
           `
           : nothing
       }
->>>>>>> 191da1feb (fix: context overflow compaction and subagent announce improvements (#11664) (thanks @tyler6204))
+>>>>>>> 9f16de253 (style: update chat new-messages button)
 
       <div class="chat-compose">
         ${renderAttachmentPreview(props)}

@@ -1,7 +1,6 @@
 import type { AgentEvent, AgentMessage } from "@mariozechner/pi-agent-core";
-
-import type { ReasoningLevel } from "../auto-reply/thinking.js";
 import type { ReplyDirectiveParseResult } from "../auto-reply/reply/reply-directives.js";
+import type { ReasoningLevel } from "../auto-reply/thinking.js";
 import type { InlineCodeState } from "../markdown/code-spans.js";
 import type { EmbeddedBlockChunker } from "./pi-embedded-block-chunker.js";
 import type { MessagingToolSend } from "./pi-embedded-messaging.js";
@@ -40,7 +39,11 @@ export type EmbeddedPiSubscribeState = {
   blockState: { thinking: boolean; final: boolean; inlineCode: InlineCodeState };
   partialBlockState: { thinking: boolean; final: boolean; inlineCode: InlineCodeState };
   lastStreamedAssistant?: string;
+<<<<<<< HEAD
+=======
   lastStreamedAssistantCleaned?: string;
+  emittedAssistantUpdate: boolean;
+>>>>>>> 38e6da1fe (TUI/Gateway: fix pi streaming + tool routing + model display + msg updating (#8432))
   lastStreamedReasoning?: string;
   lastBlockReplyText?: string;
   assistantMessageIndex: number;

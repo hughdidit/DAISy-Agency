@@ -1,6 +1,5 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-
 import { runCommandWithTimeout } from "../process/exec.js";
 import { parseSemver } from "./runtime-guard.js";
 import { channelToNpmTag, type UpdateChannel } from "./update-channels.js";
@@ -303,7 +302,7 @@ export async function fetchNpmTagVersion(params: {
   const tag = params.tag;
   try {
     const res = await fetchWithTimeout(
-      `https://registry.npmjs.org/moltbot/${encodeURIComponent(tag)}`,
+      `https://registry.npmjs.org/openclaw/${encodeURIComponent(tag)}`,
       timeoutMs,
     );
     if (!res.ok) {

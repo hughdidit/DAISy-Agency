@@ -1,11 +1,11 @@
 import type { ChannelId } from "../channels/plugins/types.js";
-import type { StickerMetadata } from "../telegram/bot/types.js";
-import type { InternalMessageChannel } from "../utils/message-channel.js";
-import type { CommandArgs } from "./commands-registry.types.js";
 import type {
   MediaUnderstandingDecision,
   MediaUnderstandingOutput,
 } from "../media-understanding/types.js";
+import type { StickerMetadata } from "../telegram/bot/types.js";
+import type { InternalMessageChannel } from "../utils/message-channel.js";
+import type { CommandArgs } from "./commands-registry.types.js";
 
 /** Valid message channels for routing. */
 export type OriginatingChannelType = ChannelId | InternalMessageChannel;
@@ -70,7 +70,7 @@ export type MsgContext = {
   Sticker?: StickerMetadata;
   OutputDir?: string;
   OutputBase?: string;
-  /** Remote host for SCP when media lives on a different machine (e.g., moltbot@192.168.64.3). */
+  /** Remote host for SCP when media lives on a different machine (e.g., openclaw@192.168.64.3). */
   MediaRemoteHost?: string;
   Transcript?: string;
   MediaUnderstanding?: MediaUnderstandingOutput[];
@@ -87,13 +87,8 @@ export type MsgContext = {
   GroupSpace?: string;
   GroupMembers?: string;
   GroupSystemPrompt?: string;
-<<<<<<< HEAD
-=======
   /** Untrusted metadata that must not be treated as system instructions. */
   UntrustedContext?: string[];
-  /** Explicit owner allowlist overrides (trusted, configuration-derived). */
-  OwnerAllowFrom?: Array<string | number>;
->>>>>>> d84eb4646 (fix: restore discord owner hint from allowlists)
   SenderName?: string;
   SenderId?: string;
   SenderUsername?: string;

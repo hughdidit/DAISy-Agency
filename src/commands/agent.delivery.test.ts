@@ -1,9 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-
 import type { CliDeps } from "../cli/deps.js";
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
 import type { RuntimeEnv } from "../runtime.js";
+=======
+import type { OpenClawConfig } from "../config/config.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { SessionEntry } from "../config/sessions.js";
+import type { RuntimeEnv } from "../runtime.js";
 
 const mocks = vi.hoisted(() => ({
   deliverOutboundPayloads: vi.fn(async () => []),
@@ -37,7 +41,7 @@ describe("deliverAgentCommandResult", () => {
   });
 
   it("prefers explicit accountId for outbound delivery", async () => {
-    const cfg = {} as MoltbotConfig;
+    const cfg = {} as OpenClawConfig;
     const deps = {} as CliDeps;
     const runtime = {
       log: vi.fn(),
@@ -74,7 +78,7 @@ describe("deliverAgentCommandResult", () => {
   });
 
   it("falls back to session accountId for implicit delivery", async () => {
-    const cfg = {} as MoltbotConfig;
+    const cfg = {} as OpenClawConfig;
     const deps = {} as CliDeps;
     const runtime = {
       log: vi.fn(),
@@ -110,7 +114,7 @@ describe("deliverAgentCommandResult", () => {
   });
 
   it("does not infer accountId for explicit delivery targets", async () => {
-    const cfg = {} as MoltbotConfig;
+    const cfg = {} as OpenClawConfig;
     const deps = {} as CliDeps;
     const runtime = {
       log: vi.fn(),
@@ -150,7 +154,7 @@ describe("deliverAgentCommandResult", () => {
   });
 
   it("skips session accountId when channel differs", async () => {
-    const cfg = {} as MoltbotConfig;
+    const cfg = {} as OpenClawConfig;
     const deps = {} as CliDeps;
     const runtime = {
       log: vi.fn(),
@@ -186,7 +190,7 @@ describe("deliverAgentCommandResult", () => {
   });
 
   it("uses session last channel when none is provided", async () => {
-    const cfg = {} as MoltbotConfig;
+    const cfg = {} as OpenClawConfig;
     const deps = {} as CliDeps;
     const runtime = {
       log: vi.fn(),
@@ -221,7 +225,7 @@ describe("deliverAgentCommandResult", () => {
   });
 
   it("uses reply overrides for delivery routing", async () => {
-    const cfg = {} as MoltbotConfig;
+    const cfg = {} as OpenClawConfig;
     const deps = {} as CliDeps;
     const runtime = {
       log: vi.fn(),
@@ -261,7 +265,7 @@ describe("deliverAgentCommandResult", () => {
   });
 
   it("prefixes nested agent outputs with context", async () => {
-    const cfg = {} as MoltbotConfig;
+    const cfg = {} as OpenClawConfig;
     const deps = {} as CliDeps;
     const runtime = {
       log: vi.fn(),

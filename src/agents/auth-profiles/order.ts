@@ -1,7 +1,11 @@
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
+=======
+import type { OpenClawConfig } from "../../config/config.js";
+import type { AuthProfileStore } from "./types.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { normalizeProviderId } from "../model-selection.js";
 import { listProfilesForProvider } from "./profiles.js";
-import type { AuthProfileStore } from "./types.js";
 import { isProfileInCooldown } from "./usage.js";
 
 function resolveProfileUnusableUntil(stats: {
@@ -16,7 +20,7 @@ function resolveProfileUnusableUntil(stats: {
 }
 
 export function resolveAuthProfileOrder(params: {
-  cfg?: MoltbotConfig;
+  cfg?: OpenClawConfig;
   store: AuthProfileStore;
   provider: string;
   preferredProfile?: string;

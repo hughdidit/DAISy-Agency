@@ -1,13 +1,18 @@
+import type { ChannelId } from "../../channels/plugins/types.js";
+import type { ChannelChoice } from "../onboard-types.js";
 import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../../agents/agent-scope.js";
 import { listChannelPluginCatalogEntries } from "../../channels/plugins/catalog.js";
 import { getChannelPlugin, normalizeChannelId } from "../../channels/plugins/index.js";
+<<<<<<< HEAD
 import type { ChannelId } from "../../channels/plugins/types.js";
 import { writeConfigFile, type MoltbotConfig } from "../../config/config.js";
+=======
+import { writeConfigFile, type OpenClawConfig } from "../../config/config.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "../../routing/session-key.js";
 import { defaultRuntime, type RuntimeEnv } from "../../runtime.js";
 import { createClackPrompter } from "../../wizard/clack-prompter.js";
 import { setupChannels } from "../onboard-channels.js";
-import type { ChannelChoice } from "../onboard-types.js";
 import {
   ensureOnboardingPluginInstalled,
   reloadOnboardingPluginRegistry,
@@ -60,7 +65,7 @@ function parseList(value: string | undefined): string[] | undefined {
   return parsed.length > 0 ? parsed : undefined;
 }
 
-function resolveCatalogChannelEntry(raw: string, cfg: MoltbotConfig | null) {
+function resolveCatalogChannelEntry(raw: string, cfg: OpenClawConfig | null) {
   const trimmed = raw.trim().toLowerCase();
   if (!trimmed) return undefined;
   const workspaceDir = cfg ? resolveAgentWorkspaceDir(cfg, resolveDefaultAgentId(cfg)) : undefined;

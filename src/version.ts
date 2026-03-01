@@ -1,11 +1,6 @@
 import { createRequire } from "node:module";
 
-<<<<<<< HEAD
-declare const __CLAWDBOT_VERSION__: string | undefined;
-=======
 declare const __OPENCLAW_VERSION__: string | undefined;
-const CORE_PACKAGE_NAME = "openclaw";
->>>>>>> 4a59b7786 (fix: CLI harden update restart imports and fix nested bundle version resolution)
 
 const PACKAGE_JSON_CANDIDATES = [
   "../package.json",
@@ -55,31 +50,12 @@ function readVersionFromJsonCandidates(
   }
 }
 
-export function readVersionFromPackageJsonForModuleUrl(moduleUrl: string): string | null {
-  return readVersionFromJsonCandidates(moduleUrl, PACKAGE_JSON_CANDIDATES, {
-    requirePackageName: true,
-  });
-}
-
-export function readVersionFromBuildInfoForModuleUrl(moduleUrl: string): string | null {
-  return readVersionFromJsonCandidates(moduleUrl, BUILD_INFO_CANDIDATES);
-}
-
-export function resolveVersionFromModuleUrl(moduleUrl: string): string | null {
-  return (
-    readVersionFromPackageJsonForModuleUrl(moduleUrl) ||
-    readVersionFromBuildInfoForModuleUrl(moduleUrl)
-  );
-}
-
 // Single source of truth for the current OpenClaw version.
->>>>>>> a9bb96ade (fix: use build-info for version fallback)
 // - Embedded/bundled builds: injected define or env var.
 // - Dev/npm builds: package.json.
 export const VERSION =
-<<<<<<< HEAD
-  (typeof __CLAWDBOT_VERSION__ === "string" && __CLAWDBOT_VERSION__) ||
-  process.env.CLAWDBOT_BUNDLED_VERSION ||
+  (typeof __OPENCLAW_VERSION__ === "string" && __OPENCLAW_VERSION__) ||
+  process.env.OPENCLAW_BUNDLED_VERSION ||
   readVersionFromPackageJson() ||
   readVersionFromBuildInfo() ||
 =======

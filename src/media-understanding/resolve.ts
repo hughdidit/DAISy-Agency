@@ -1,10 +1,15 @@
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
+=======
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { MsgContext } from "../auto-reply/templating.js";
+import type { OpenClawConfig } from "../config/config.js";
 import type {
   MediaUnderstandingConfig,
   MediaUnderstandingModelConfig,
   MediaUnderstandingScopeConfig,
 } from "../config/types.tools.js";
+import type { MediaUnderstandingCapability } from "./types.js";
 import { logVerbose, shouldLogVerbose } from "../globals.js";
 import {
   DEFAULT_MAX_BYTES,
@@ -14,7 +19,6 @@ import {
 } from "./defaults.js";
 import { normalizeMediaProviderId } from "./providers/index.js";
 import { normalizeMediaUnderstandingChatType, resolveMediaUnderstandingScope } from "./scope.js";
-import type { MediaUnderstandingCapability } from "./types.js";
 
 export function resolveTimeoutMs(seconds: number | undefined, fallbackSeconds: number): number {
   const value = typeof seconds === "number" && Number.isFinite(seconds) ? seconds : fallbackSeconds;
@@ -34,7 +38,7 @@ export function resolvePrompt(
 export function resolveMaxChars(params: {
   capability: MediaUnderstandingCapability;
   entry: MediaUnderstandingModelConfig;
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   config?: MediaUnderstandingConfig;
 }): number | undefined {
   const { capability, entry, cfg } = params;
@@ -47,7 +51,7 @@ export function resolveMaxChars(params: {
 export function resolveMaxBytes(params: {
   capability: MediaUnderstandingCapability;
   entry: MediaUnderstandingModelConfig;
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   config?: MediaUnderstandingConfig;
 }): number {
   const configured =
@@ -59,7 +63,7 @@ export function resolveMaxBytes(params: {
 }
 
 export function resolveCapabilityConfig(
-  cfg: MoltbotConfig,
+  cfg: OpenClawConfig,
   capability: MediaUnderstandingCapability,
 ): MediaUnderstandingConfig | undefined {
   return cfg.tools?.media?.[capability];
@@ -89,7 +93,7 @@ function resolveEntryCapabilities(params: {
 }
 
 export function resolveModelEntries(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   capability: MediaUnderstandingCapability;
   config?: MediaUnderstandingConfig;
   providerRegistry: Map<string, { capabilities?: MediaUnderstandingCapability[] }>;
@@ -126,7 +130,7 @@ export function resolveModelEntries(params: {
     .map(({ entry }) => entry);
 }
 
-export function resolveConcurrency(cfg: MoltbotConfig): number {
+export function resolveConcurrency(cfg: OpenClawConfig): number {
   const configured = cfg.tools?.media?.concurrency;
   if (typeof configured === "number" && Number.isFinite(configured) && configured > 0) {
     return Math.floor(configured);
@@ -135,7 +139,7 @@ export function resolveConcurrency(cfg: MoltbotConfig): number {
 }
 
 export function resolveEntriesWithActiveFallback(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   capability: MediaUnderstandingCapability;
   config?: MediaUnderstandingConfig;
   providerRegistry: Map<string, { capabilities?: MediaUnderstandingCapability[] }>;

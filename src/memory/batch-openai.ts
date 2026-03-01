@@ -1,5 +1,5 @@
-import { retryAsync } from "../infra/retry.js";
 import type { OpenAiEmbeddingClient } from "./embeddings-openai.js";
+import { retryAsync } from "../infra/retry.js";
 import { hashText } from "./internal.js";
 
 export type OpenAiBatchRequest = {
@@ -103,7 +103,7 @@ async function submitOpenAiBatch(params: {
           endpoint: OPENAI_BATCH_ENDPOINT,
           completion_window: OPENAI_BATCH_COMPLETION_WINDOW,
           metadata: {
-            source: "moltbot-memory",
+            source: "openclaw-memory",
             agent: params.agentId,
           },
         }),

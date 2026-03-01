@@ -1,12 +1,11 @@
 import { spawn } from "node:child_process";
-
-import { defaultRuntime } from "../../runtime.js";
+import type { SandboxConfig, SandboxDockerConfig, SandboxWorkspaceAccess } from "./types.js";
 import { formatCliCommand } from "../../cli/command-format.js";
+import { defaultRuntime } from "../../runtime.js";
+import { computeSandboxConfigHash } from "./config-hash.js";
 import { DEFAULT_SANDBOX_IMAGE, SANDBOX_AGENT_WORKSPACE_MOUNT } from "./constants.js";
 import { readRegistry, updateRegistry } from "./registry.js";
-import { computeSandboxConfigHash } from "./config-hash.js";
 import { resolveSandboxAgentId, resolveSandboxScopeKey, slugifySessionKey } from "./shared.js";
-import type { SandboxConfig, SandboxDockerConfig, SandboxWorkspaceAccess } from "./types.js";
 
 const HOT_CONTAINER_WINDOW_MS = 5 * 60 * 1000;
 
@@ -113,11 +112,11 @@ export function buildSandboxCreateArgs(params: {
 }) {
   const createdAtMs = params.createdAtMs ?? Date.now();
   const args = ["create", "--name", params.name];
-  args.push("--label", "moltbot.sandbox=1");
-  args.push("--label", `moltbot.sessionKey=${params.scopeKey}`);
-  args.push("--label", `moltbot.createdAtMs=${createdAtMs}`);
+  args.push("--label", "openclaw.sandbox=1");
+  args.push("--label", `openclaw.sessionKey=${params.scopeKey}`);
+  args.push("--label", `openclaw.createdAtMs=${createdAtMs}`);
   if (params.configHash) {
-    args.push("--label", `moltbot.configHash=${params.configHash}`);
+    args.push("--label", `openclaw.configHash=${params.configHash}`);
   }
   for (const [key, value] of Object.entries(params.labels ?? {})) {
     if (key && value) args.push("--label", `${key}=${value}`);
@@ -208,25 +207,28 @@ async function createSandboxContainer(params: {
 }
 
 async function readContainerConfigHash(containerName: string): Promise<string | null> {
-  const result = await execDocker(
-    ["inspect", "-f", '{{ index .Config.Labels "moltbot.configHash" }}', containerName],
-    { allowFailure: true },
-  );
-  if (result.code !== 0) return null;
-  const raw = result.stdout.trim();
-  if (!raw || raw === "<no value>") return null;
-  return raw;
+  const readLabel = async (label: string) => {
+    const result = await execDocker(
+      ["inspect", "-f", `{{ index .Config.Labels "${label}" }}`, containerName],
+      { allowFailure: true },
+    );
+    if (result.code !== 0) return null;
+    const raw = result.stdout.trim();
+    if (!raw || raw === "<no value>") return null;
+    return raw;
+  };
+  return await readLabel("openclaw.configHash");
 }
 
 function formatSandboxRecreateHint(params: { scope: SandboxConfig["scope"]; sessionKey: string }) {
   if (params.scope === "session") {
-    return formatCliCommand(`moltbot sandbox recreate --session ${params.sessionKey}`);
+    return formatCliCommand(`openclaw sandbox recreate --session ${params.sessionKey}`);
   }
   if (params.scope === "agent") {
     const agentId = resolveSandboxAgentId(params.sessionKey) ?? "main";
-    return formatCliCommand(`moltbot sandbox recreate --agent ${agentId}`);
+    return formatCliCommand(`openclaw sandbox recreate --agent ${agentId}`);
   }
-  return formatCliCommand("moltbot sandbox recreate --all");
+  return formatCliCommand("openclaw sandbox recreate --all");
 }
 
 export async function ensureSandboxContainer(params: {

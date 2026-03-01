@@ -2,6 +2,7 @@
 summary: "WebSocket gateway architecture, components, and client flows"
 read_when:
   - Working on gateway protocol, clients, or transports
+title: "Gateway Architecture"
 ---
 # Gateway architecture
 
@@ -72,7 +73,7 @@ Client                    Gateway
 - After handshake:
   - Requests: `{type:"req", id, method, params}` → `{type:"res", id, ok, payload|error}`
   - Events: `{type:"event", event, payload, seq?, stateVersion?}`
-- If `CLAWDBOT_GATEWAY_TOKEN` (or `--token`) is set, `connect.params.auth.token`
+- If `OPENCLAW_GATEWAY_TOKEN` (or `--token`) is set, `connect.params.auth.token`
   must match or the socket closes.
 - Idempotency keys are required for side‑effecting methods (`send`, `agent`) to
   safely retry; the server keeps a short‑lived dedupe cache.
@@ -103,15 +104,17 @@ Details: [Gateway protocol](/gateway/protocol), [Pairing](/start/pairing),
 
 - Preferred: Tailscale or VPN.
 - Alternative: SSH tunnel
+
   ```bash
   ssh -N -L 18789:127.0.0.1:18789 user@host
   ```
+
 - The same handshake + auth token apply over the tunnel.
 - TLS + optional pinning can be enabled for WS in remote setups.
 
 ## Operations snapshot
 
-- Start: `moltbot gateway` (foreground, logs to stdout).
+- Start: `openclaw gateway` (foreground, logs to stdout).
 - Health: `health` over WS (also included in `hello-ok`).
 - Supervision: launchd/systemd for auto‑restart.
 

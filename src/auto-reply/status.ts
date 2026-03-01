@@ -1,18 +1,27 @@
 import fs from "node:fs";
-
+import type { SkillCommandSpec } from "../agents/skills.js";
+import type { OpenClawConfig } from "../config/config.js";
+import type { MediaUnderstandingDecision } from "../media-understanding/types.js";
+import type { CommandCategory } from "./commands-registry.types.js";
+import type { ElevatedLevel, ReasoningLevel, ThinkLevel, VerboseLevel } from "./thinking.js";
 import { lookupContextTokens } from "../agents/context.js";
 import { DEFAULT_CONTEXT_TOKENS, DEFAULT_MODEL, DEFAULT_PROVIDER } from "../agents/defaults.js";
 import { resolveModelAuthMode } from "../agents/model-auth.js";
 import { resolveConfiguredModelRef } from "../agents/model-selection.js";
 import { resolveSandboxRuntimeStatus } from "../agents/sandbox.js";
 import { derivePromptTokens, normalizeUsage, type UsageLike } from "../agents/usage.js";
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
+=======
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import {
   resolveMainSessionKey,
   resolveSessionFilePath,
   type SessionEntry,
   type SessionScope,
 } from "../config/sessions.js";
+import { resolveCommitHash } from "../infra/git-commit.js";
+import { listPluginCommands } from "../plugins/commands.js";
 import {
   getTtsMaxLength,
   getTtsProvider,
@@ -21,7 +30,6 @@ import {
   resolveTtsConfig,
   resolveTtsPrefsPath,
 } from "../tts/tts.js";
-import { resolveCommitHash } from "../infra/git-commit.js";
 import {
   estimateUsageCost,
   formatTokenCount as formatTokenCountShared,
@@ -34,13 +42,8 @@ import {
   listChatCommandsForConfig,
   type ChatCommandDefinition,
 } from "./commands-registry.js";
-import { listPluginCommands } from "../plugins/commands.js";
-import type { SkillCommandSpec } from "../agents/skills.js";
-import type { CommandCategory } from "./commands-registry.types.js";
-import type { ElevatedLevel, ReasoningLevel, ThinkLevel, VerboseLevel } from "./thinking.js";
-import type { MediaUnderstandingDecision } from "../media-understanding/types.js";
 
-type AgentConfig = Partial<NonNullable<NonNullable<MoltbotConfig["agents"]>["defaults"]>>;
+type AgentConfig = Partial<NonNullable<NonNullable<OpenClawConfig["agents"]>["defaults"]>>;
 
 export const formatTokenCount = formatTokenCountShared;
 
@@ -54,7 +57,7 @@ type QueueStatus = {
 };
 
 type StatusArgs = {
-  config?: MoltbotConfig;
+  config?: OpenClawConfig;
   agent: AgentConfig;
   sessionEntry?: SessionEntry;
   sessionKey?: string;
@@ -169,7 +172,7 @@ const readUsageFromSessionLog = (
       model?: string;
     }
   | undefined => {
-  // Transcripts are stored at the session file path (fallback: ~/.clawdbot/sessions/<SessionId>.jsonl)
+  // Transcripts are stored at the session file path (fallback: ~/.openclaw/sessions/<SessionId>.jsonl)
   if (!sessionId) return undefined;
   const logPath = resolveSessionFilePath(sessionId, sessionEntry);
   if (!fs.existsSync(logPath)) return undefined;
@@ -259,7 +262,7 @@ const formatMediaUnderstandingLine = (decisions?: MediaUnderstandingDecision[]) 
 };
 
 const formatVoiceModeLine = (
-  config?: MoltbotConfig,
+  config?: OpenClawConfig,
   sessionEntry?: SessionEntry,
 ): string | null => {
   if (!config) return null;
@@ -285,7 +288,7 @@ export function buildStatusMessage(args: StatusArgs): string {
       agents: {
         defaults: args.agent ?? {},
       },
-    } as MoltbotConfig,
+    } as OpenClawConfig,
     defaultProvider: DEFAULT_PROVIDER,
     defaultModel: DEFAULT_MODEL,
   });
@@ -406,7 +409,7 @@ export function buildStatusMessage(args: StatusArgs): string {
   const authLabel = authLabelValue ? ` · 🔑 ${authLabelValue}` : "";
   const modelLine = `🧠 Model: ${modelLabel}${authLabel}`;
   const commit = resolveCommitHash();
-  const versionLine = `🦞 Moltbot ${VERSION}${commit ? ` (${commit})` : ""}`;
+  const versionLine = `🦞 OpenClaw ${VERSION}${commit ? ` (${commit})` : ""}`;
   const usagePair = formatUsagePair(inputTokens, outputTokens);
   const costLine = costLabel ? `💵 Cost: ${costLabel}` : null;
   const usageCostLine =
@@ -468,7 +471,7 @@ function groupCommandsByCategory(
   return grouped;
 }
 
-export function buildHelpMessage(cfg?: MoltbotConfig): string {
+export function buildHelpMessage(cfg?: OpenClawConfig): string {
   const lines = ["ℹ️ Help", ""];
 
   lines.push("Session");
@@ -579,7 +582,7 @@ function formatCommandList(items: CommandsListItem[]): string {
 }
 
 export function buildCommandsMessage(
-  cfg?: MoltbotConfig,
+  cfg?: OpenClawConfig,
   skillCommands?: SkillCommandSpec[],
   options?: CommandsMessageOptions,
 ): string {
@@ -588,7 +591,7 @@ export function buildCommandsMessage(
 }
 
 export function buildCommandsMessagePaginated(
-  cfg?: MoltbotConfig,
+  cfg?: OpenClawConfig,
   skillCommands?: SkillCommandSpec[],
   options?: CommandsMessageOptions,
 ): CommandsMessageResult {

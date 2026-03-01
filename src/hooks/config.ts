@@ -1,8 +1,13 @@
 import fs from "node:fs";
 import path from "node:path";
+<<<<<<< HEAD
 import type { MoltbotConfig, HookConfig } from "../config/config.js";
 import { resolveHookKey } from "./frontmatter.js";
+=======
+import type { OpenClawConfig, HookConfig } from "../config/config.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { HookEligibilityContext, HookEntry } from "./types.js";
+import { resolveHookKey } from "./frontmatter.js";
 
 const DEFAULT_CONFIG_VALUES: Record<string, boolean> = {
   "browser.enabled": true,
@@ -18,7 +23,7 @@ function isTruthy(value: unknown): boolean {
   return true;
 }
 
-export function resolveConfigPath(config: MoltbotConfig | undefined, pathStr: string) {
+export function resolveConfigPath(config: OpenClawConfig | undefined, pathStr: string) {
   const parts = pathStr.split(".").filter(Boolean);
   let current: unknown = config;
   for (const part of parts) {
@@ -28,7 +33,7 @@ export function resolveConfigPath(config: MoltbotConfig | undefined, pathStr: st
   return current;
 }
 
-export function isConfigPathTruthy(config: MoltbotConfig | undefined, pathStr: string): boolean {
+export function isConfigPathTruthy(config: OpenClawConfig | undefined, pathStr: string): boolean {
   const value = resolveConfigPath(config, pathStr);
   if (value === undefined && pathStr in DEFAULT_CONFIG_VALUES) {
     return DEFAULT_CONFIG_VALUES[pathStr] === true;
@@ -37,7 +42,7 @@ export function isConfigPathTruthy(config: MoltbotConfig | undefined, pathStr: s
 }
 
 export function resolveHookConfig(
-  config: MoltbotConfig | undefined,
+  config: OpenClawConfig | undefined,
   hookKey: string,
 ): HookConfig | undefined {
   const hooks = config?.hooks?.internal?.entries;
@@ -68,13 +73,13 @@ export function hasBinary(bin: string): boolean {
 
 export function shouldIncludeHook(params: {
   entry: HookEntry;
-  config?: MoltbotConfig;
+  config?: OpenClawConfig;
   eligibility?: HookEligibilityContext;
 }): boolean {
   const { entry, config, eligibility } = params;
   const hookKey = resolveHookKey(entry.hook.name, entry);
   const hookConfig = resolveHookConfig(config, hookKey);
-  const pluginManaged = entry.hook.source === "moltbot-plugin";
+  const pluginManaged = entry.hook.source === "openclaw-plugin";
   const osList = entry.metadata?.os ?? [];
   const remotePlatforms = eligibility?.remote?.platforms ?? [];
 

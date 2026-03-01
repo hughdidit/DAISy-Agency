@@ -1,12 +1,19 @@
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
 import { getChannelDock } from "../channels/dock.js";
 import { resolveChannelGroupToolsPolicy } from "../config/group-policy.js";
 import { resolveAgentConfig, resolveAgentIdFromSessionKey } from "./agent-scope.js";
+=======
+import type { OpenClawConfig } from "../config/config.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { AnyAgentTool } from "./pi-tools.types.js";
 import type { SandboxToolPolicy } from "./sandbox.js";
-import { expandToolGroups, normalizeToolName } from "./tool-policy.js";
-import { normalizeMessageChannel } from "../utils/message-channel.js";
+import { getChannelDock } from "../channels/dock.js";
+import { resolveChannelGroupToolsPolicy } from "../config/group-policy.js";
 import { resolveThreadParentSessionKey } from "../sessions/session-key-utils.js";
+import { normalizeMessageChannel } from "../utils/message-channel.js";
+import { resolveAgentConfig, resolveAgentIdFromSessionKey } from "./agent-scope.js";
+import { expandToolGroups, normalizeToolName } from "./tool-policy.js";
 
 type CompiledPattern =
   | { kind: "all" }
@@ -73,7 +80,7 @@ const DEFAULT_SUBAGENT_TOOL_DENY = [
   "memory_get",
 ];
 
-export function resolveSubagentToolPolicy(cfg?: MoltbotConfig): SandboxToolPolicy {
+export function resolveSubagentToolPolicy(cfg?: OpenClawConfig): SandboxToolPolicy {
   const configured = cfg?.tools?.subagents?.tools;
   const deny = [
     ...DEFAULT_SUBAGENT_TOOL_DENY,
@@ -180,7 +187,7 @@ function resolveProviderToolPolicy(params: {
 }
 
 export function resolveEffectiveToolPolicy(params: {
-  config?: MoltbotConfig;
+  config?: OpenClawConfig;
   sessionKey?: string;
   modelProvider?: string;
   modelId?: string;
@@ -225,7 +232,7 @@ export function resolveEffectiveToolPolicy(params: {
 }
 
 export function resolveGroupToolPolicy(params: {
-  config?: MoltbotConfig;
+  config?: OpenClawConfig;
   sessionKey?: string;
   spawnedBy?: string | null;
   messageProvider?: string;

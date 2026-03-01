@@ -1,6 +1,10 @@
 import { describe, expect, it, vi } from "vitest";
+<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../../../config/config.js";
+=======
+import type { OpenClawConfig } from "../../../config/config.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { telegramOutbound } from "./telegram.js";
 
 describe("telegramOutbound.sendPayload", () => {
@@ -8,7 +12,7 @@ describe("telegramOutbound.sendPayload", () => {
     const sendTelegram = vi.fn(async () => ({ messageId: "m1", chatId: "c1" }));
 
     const result = await telegramOutbound.sendPayload?.({
-      cfg: {} as MoltbotConfig,
+      cfg: {} as OpenClawConfig,
       to: "telegram:123",
       text: "ignored",
       payload: {
@@ -41,7 +45,7 @@ describe("telegramOutbound.sendPayload", () => {
       .mockResolvedValueOnce({ messageId: "m2", chatId: "c1" });
 
     const result = await telegramOutbound.sendPayload?.({
-      cfg: {} as MoltbotConfig,
+      cfg: {} as OpenClawConfig,
       to: "telegram:123",
       text: "ignored",
       payload: {

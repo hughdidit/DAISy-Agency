@@ -3,10 +3,11 @@ summary: "Skills config schema and examples"
 read_when:
   - Adding or modifying skills config
   - Adjusting bundled allowlist or install behavior
+title: "Skills Config"
 ---
 # Skills Config
 
-All skills-related configuration lives under `skills` in `~/.clawdbot/moltbot.json`.
+All skills-related configuration lives under `skills` in `~/.openclaw/openclaw.json`.
 
 ```json5
 {
@@ -60,7 +61,7 @@ Per-skill fields:
 ## Notes
 
 - Keys under `entries` map to the skill name by default. If a skill defines
-  `metadata.moltbot.skillKey`, use that key instead.
+  `metadata.openclaw.skillKey`, use that key instead.
 - Changes to skills are picked up on the next agent turn when the watcher is enabled.
 
 ### Sandboxed skills + env vars

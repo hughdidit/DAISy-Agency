@@ -1,15 +1,19 @@
 import crypto from "node:crypto";
-import fs from "node:fs/promises";
 import fsSync from "node:fs";
+import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+<<<<<<< HEAD
 import { vi } from "vitest";
 
+=======
+import { Mock, vi } from "vitest";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { ChannelPlugin, ChannelOutboundAdapter } from "../channels/plugins/types.js";
-import { applyPluginAutoEnable } from "../config/plugin-auto-enable.js";
 import type { AgentBinding } from "../config/types.agents.js";
 import type { HooksConfig } from "../config/types.hooks.js";
 import type { PluginRegistry } from "../plugins/registry.js";
+import { applyPluginAutoEnable } from "../config/plugin-auto-enable.js";
 import { setActivePluginRegistry } from "../plugins/runtime.js";
 import { DEFAULT_ACCOUNT_ID } from "../routing/session-key.js";
 
@@ -188,12 +192,12 @@ export const resetTestPluginRegistry = () => {
 };
 
 const testConfigRoot = {
-  value: path.join(os.tmpdir(), `moltbot-gateway-test-${process.pid}-${crypto.randomUUID()}`),
+  value: path.join(os.tmpdir(), `openclaw-gateway-test-${process.pid}-${crypto.randomUUID()}`),
 };
 
 export const setTestConfigRoot = (root: string) => {
   testConfigRoot.value = root;
-  process.env.CLAWDBOT_CONFIG_PATH = path.join(root, "moltbot.json");
+  process.env.OPENCLAW_CONFIG_PATH = path.join(root, "openclaw.json");
 };
 
 export const testTailnetIPv4 = hoisted.testTailnetIPv4;
@@ -227,20 +231,25 @@ export const testIsNixMode = hoisted.testIsNixMode;
 export const sessionStoreSaveDelayMs = hoisted.sessionStoreSaveDelayMs;
 export const embeddedRunMock = hoisted.embeddedRunMock;
 
-vi.mock("@mariozechner/pi-coding-agent", async () => {
-  const actual = await vi.importActual<typeof import("@mariozechner/pi-coding-agent")>(
-    "@mariozechner/pi-coding-agent",
+vi.mock("../agents/pi-model-discovery.js", async () => {
+  const actual = await vi.importActual<typeof import("../agents/pi-model-discovery.js")>(
+    "../agents/pi-model-discovery.js",
   );
+
+  class MockModelRegistry extends actual.ModelRegistry {
+    override getAll(): ReturnType<typeof actual.ModelRegistry.prototype.getAll> {
+      if (!piSdkMock.enabled) {
+        return super.getAll();
+      }
+      piSdkMock.discoverCalls += 1;
+      // Cast to expected type for testing purposes
+      return piSdkMock.models as ReturnType<typeof actual.ModelRegistry.prototype.getAll>;
+    }
+  }
 
   return {
     ...actual,
-    discoverModels: (...args: unknown[]) => {
-      if (!piSdkMock.enabled) {
-        return (actual.discoverModels as (...args: unknown[]) => unknown)(...args);
-      }
-      piSdkMock.discoverCalls += 1;
-      return piSdkMock.models;
-    },
+    ModelRegistry: MockModelRegistry,
   };
 });
 
@@ -271,7 +280,7 @@ vi.mock("../config/sessions.js", async () => {
 
 vi.mock("../config/config.js", async () => {
   const actual = await vi.importActual<typeof import("../config/config.js")>("../config/config.js");
-  const resolveConfigPath = () => path.join(testConfigRoot.value, "moltbot.json");
+  const resolveConfigPath = () => path.join(testConfigRoot.value, "openclaw.json");
   const hashConfigRaw = (raw: string | null) =>
     crypto
       .createHash("sha256")
@@ -388,8 +397,8 @@ vi.mock("../config/config.js", async () => {
           ? (fileAgents.defaults as Record<string, unknown>)
           : {};
       const defaults = {
-        model: { primary: "anthropic/claude-opus-4-5" },
-        workspace: path.join(os.tmpdir(), "clawd-gateway-test"),
+        model: { primary: "anthropic/claude-opus-4-6" },
+        workspace: path.join(os.tmpdir(), "openclaw-gateway-test"),
         ...fileDefaults,
         ...testState.agentConfig,
       };
@@ -560,5 +569,16 @@ vi.mock("../cli/deps.js", async () => {
   };
 });
 
-process.env.CLAWDBOT_SKIP_CHANNELS = "1";
-process.env.CLAWDBOT_SKIP_CRON = "1";
+vi.mock("../plugins/loader.js", async () => {
+  const actual =
+    await vi.importActual<typeof import("../plugins/loader.js")>("../plugins/loader.js");
+  return {
+    ...actual,
+    loadOpenClawPlugins: () => pluginRegistryState.registry,
+  };
+});
+
+process.env.OPENCLAW_SKIP_CHANNELS = "1";
+process.env.OPENCLAW_SKIP_CRON = "1";
+process.env.OPENCLAW_SKIP_CHANNELS = "1";
+process.env.OPENCLAW_SKIP_CRON = "1";

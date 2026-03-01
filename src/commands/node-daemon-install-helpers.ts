@@ -1,3 +1,4 @@
+import type { NodeDaemonRuntime } from "./node-daemon-runtime.js";
 import { formatNodeServiceDescription } from "../daemon/constants.js";
 import { resolveNodeProgramArguments } from "../daemon/program-args.js";
 import {
@@ -7,7 +8,6 @@ import {
 } from "../daemon/runtime-paths.js";
 import { buildNodeServiceEnvironment } from "../daemon/service-env.js";
 import { resolveGatewayDevMode } from "./daemon-install-helpers.js";
-import type { NodeDaemonRuntime } from "./node-daemon-runtime.js";
 
 type WarnFn = (message: string, title?: string) => void;
 
@@ -58,7 +58,7 @@ export async function buildNodeInstallPlan(params: {
 
   const environment = buildNodeServiceEnvironment({ env: params.env });
   const description = formatNodeServiceDescription({
-    version: environment.CLAWDBOT_SERVICE_VERSION,
+    version: environment.OPENCLAW_SERVICE_VERSION,
   });
 
   return { programArguments, workingDirectory, environment, description };

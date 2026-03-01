@@ -1,11 +1,10 @@
 import crypto from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
-
 import type { BrowserRouteContext } from "../server-context.js";
+import type { BrowserRouteRegistrar } from "./types.js";
 import { handleRouteError, readBody, requirePwAi, resolveProfileContext } from "./agent.shared.js";
 import { toBoolean, toStringOrEmpty } from "./utils.js";
-import type { BrowserRouteRegistrar } from "./types.js";
 
 export function registerBrowserAgentDebugRoutes(
   app: BrowserRouteRegistrar,
@@ -112,7 +111,7 @@ export function registerBrowserAgentDebugRoutes(
       const pw = await requirePwAi(res, "trace stop");
       if (!pw) return;
       const id = crypto.randomUUID();
-      const dir = "/tmp/moltbot";
+      const dir = "/tmp/openclaw";
       await fs.mkdir(dir, { recursive: true });
       const tracePath = out.trim() || path.join(dir, `browser-trace-${id}.zip`);
       await pw.traceStopViaPlaywright({

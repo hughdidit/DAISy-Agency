@@ -1,7 +1,12 @@
-import { normalizeGatewayTokenInput, randomToken } from "../commands/onboard-helpers.js";
+<<<<<<< HEAD
+import { randomToken } from "../commands/onboard-helpers.js";
 import type { GatewayAuthChoice } from "../commands/onboard-types.js";
-import type { MoltbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 import { findTailscaleBinary } from "../infra/tailscale.js";
+=======
+import type { GatewayAuthChoice } from "../commands/onboard-types.js";
+import type { GatewayBindMode, GatewayTailscaleMode, OpenClawConfig } from "../config/config.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { RuntimeEnv } from "../runtime.js";
 import type {
   GatewayWizardSettings,
@@ -9,11 +14,13 @@ import type {
   WizardFlow,
 } from "./onboarding.types.js";
 import type { WizardPrompter } from "./prompts.js";
+import { normalizeGatewayTokenInput, randomToken } from "../commands/onboard-helpers.js";
+import { findTailscaleBinary } from "../infra/tailscale.js";
 
 type ConfigureGatewayOptions = {
   flow: WizardFlow;
-  baseConfig: MoltbotConfig;
-  nextConfig: MoltbotConfig;
+  baseConfig: OpenClawConfig;
+  nextConfig: OpenClawConfig;
   localPort: number;
   quickstartGateway: QuickstartGatewayDefaults;
   prompter: WizardPrompter;
@@ -21,7 +28,7 @@ type ConfigureGatewayOptions = {
 };
 
 type ConfigureGatewayResult = {
-  nextConfig: MoltbotConfig;
+  nextConfig: OpenClawConfig;
   settings: GatewayWizardSettings;
 };
 
@@ -159,7 +166,9 @@ export async function configureGatewayForOnboarding(
   let tailscaleResetOnExit = flow === "quickstart" ? quickstartGateway.tailscaleResetOnExit : false;
   if (tailscaleMode !== "off" && flow !== "quickstart") {
     await prompter.note(
-      ["Docs:", "https://docs.molt.bot/gateway/tailscale", "https://docs.molt.bot/web"].join("\n"),
+      ["Docs:", "https://docs.openclaw.ai/gateway/tailscale", "https://docs.openclaw.ai/web"].join(
+        "\n",
+      ),
       "Tailscale",
     );
     tailscaleResetOnExit = Boolean(
@@ -194,11 +203,9 @@ export async function configureGatewayForOnboarding(
         placeholder: "Needed for multi-machine or non-loopback access",
         initialValue: quickstartGateway.token ?? "",
       });
-<<<<<<< HEAD
-      gatewayToken = String(tokenInput).trim() || randomToken();
-=======
-      gatewayToken = normalizeGatewayTokenInput(tokenInput) || randomToken();
->>>>>>> e5a95b5b6 (fix: local updates for PR #4873)
+      // FIX: Ensure undefined becomes an empty string, not "undefined" string
+      const rawInput = tokenInput ? String(tokenInput).trim() : "";
+      gatewayToken = rawInput || randomToken();
     }
   }
 

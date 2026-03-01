@@ -1,11 +1,16 @@
 import {
   logInboundDrop,
   resolveControlCommandGate,
-  type MoltbotConfig,
+  type OpenClawConfig,
   type RuntimeEnv,
+<<<<<<< HEAD
 } from "clawdbot/plugin-sdk";
 
+=======
+} from "openclaw/plugin-sdk";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { ResolvedNextcloudTalkAccount } from "./accounts.js";
+import type { CoreConfig, NextcloudTalkInboundMessage } from "./types.js";
 import {
   normalizeNextcloudTalkAllowlist,
   resolveNextcloudTalkAllowlistMatch,
@@ -15,9 +20,8 @@ import {
   resolveNextcloudTalkRoomMatch,
 } from "./policy.js";
 import { resolveNextcloudTalkRoomKind } from "./room-info.js";
-import { sendMessageNextcloudTalk } from "./send.js";
 import { getNextcloudTalkRuntime } from "./runtime.js";
-import type { CoreConfig, NextcloudTalkInboundMessage } from "./types.js";
+import { sendMessageNextcloudTalk } from "./send.js";
 
 const CHANNEL_ID = "nextcloud-talk" as const;
 
@@ -114,7 +118,7 @@ export async function handleNextcloudTalkInbound(params: {
   const effectiveGroupAllowFrom = [...baseGroupAllowFrom, ...storeAllowList].filter(Boolean);
 
   const allowTextCommands = core.channel.commands.shouldHandleTextCommands({
-    cfg: config as MoltbotConfig,
+    cfg: config as OpenClawConfig,
     surface: CHANNEL_ID,
   });
   const useAccessGroups = config.commands?.useAccessGroups !== false;
@@ -124,7 +128,7 @@ export async function handleNextcloudTalkInbound(params: {
   }).allowed;
   const hasControlCommand = core.channel.text.hasControlCommand(
     rawBody,
-    config as MoltbotConfig,
+    config as OpenClawConfig,
   );
   const commandGate = resolveControlCommandGate({
     useAccessGroups,
@@ -208,7 +212,7 @@ export async function handleNextcloudTalkInbound(params: {
   }
 
   const mentionRegexes = core.channel.mentions.buildMentionRegexes(
-    config as MoltbotConfig,
+    config as OpenClawConfig,
   );
   const wasMentioned = mentionRegexes.length
     ? core.channel.mentions.matchesMentionPatterns(rawBody, mentionRegexes)
@@ -233,7 +237,7 @@ export async function handleNextcloudTalkInbound(params: {
   }
 
   const route = core.channel.routing.resolveAgentRoute({
-    cfg: config as MoltbotConfig,
+    cfg: config as OpenClawConfig,
     channel: CHANNEL_ID,
     accountId: account.accountId,
     peer: {
@@ -249,7 +253,7 @@ export async function handleNextcloudTalkInbound(params: {
     agentId: route.agentId,
   });
   const envelopeOptions = core.channel.reply.resolveEnvelopeFormatOptions(
-    config as MoltbotConfig,
+    config as OpenClawConfig,
   );
   const previousTimestamp = core.channel.session.readSessionUpdatedAt({
     storePath,
@@ -301,7 +305,7 @@ export async function handleNextcloudTalkInbound(params: {
 
   await core.channel.reply.dispatchReplyWithBufferedBlockDispatcher({
     ctx: ctxPayload,
-    cfg: config as MoltbotConfig,
+    cfg: config as OpenClawConfig,
     dispatcherOptions: {
       deliver: async (payload) => {
         await deliverNextcloudTalkReply({

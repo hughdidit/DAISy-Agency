@@ -1,6 +1,10 @@
 import { describe, expect, it, vi } from "vitest";
+<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../../../config/config.js";
+=======
+import type { OpenClawConfig } from "../../../config/config.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 type SendMessageDiscord = typeof import("../../../discord/send.js").sendMessageDiscord;
 type SendPollDiscord = typeof import("../../../discord/send.js").sendPollDiscord;
 
@@ -34,7 +38,7 @@ const loadDiscordMessageActions = async () => {
 
 describe("discord message actions", () => {
   it("lists channel and upload actions by default", async () => {
-    const cfg = { channels: { discord: { token: "d0" } } } as MoltbotConfig;
+    const cfg = { channels: { discord: { token: "d0" } } } as OpenClawConfig;
     const discordMessageActions = await loadDiscordMessageActions();
     const actions = discordMessageActions.listActions?.({ cfg }) ?? [];
 
@@ -46,7 +50,7 @@ describe("discord message actions", () => {
   it("respects disabled channel actions", async () => {
     const cfg = {
       channels: { discord: { token: "d0", actions: { channels: false } } },
-    } as MoltbotConfig;
+    } as OpenClawConfig;
     const discordMessageActions = await loadDiscordMessageActions();
     const actions = discordMessageActions.listActions?.({ cfg }) ?? [];
 
@@ -65,7 +69,7 @@ describe("handleDiscordMessageAction", () => {
         to: "channel:123",
         message: "hi",
       },
-      cfg: {} as MoltbotConfig,
+      cfg: {} as OpenClawConfig,
       accountId: "ops",
     });
 
@@ -90,7 +94,7 @@ describe("handleDiscordMessageAction", () => {
         pollOption: ["Yes", "No"],
         accountId: "marve",
       },
-      cfg: {} as MoltbotConfig,
+      cfg: {} as OpenClawConfig,
     });
 
     expect(sendPollDiscord).toHaveBeenCalledWith(
@@ -115,7 +119,7 @@ describe("handleDiscordMessageAction", () => {
         channelId: "123",
         message: "hi",
       },
-      cfg: {} as MoltbotConfig,
+      cfg: {} as OpenClawConfig,
       accountId: "ops",
     });
 
@@ -141,7 +145,7 @@ describe("handleDiscordMessageAction", () => {
         channelId: "123",
         message: "hi",
       },
-      cfg: {} as MoltbotConfig,
+      cfg: {} as OpenClawConfig,
       accountId: "ops",
     });
 

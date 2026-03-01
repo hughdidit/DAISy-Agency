@@ -1,6 +1,10 @@
 import { describe, expect, it, vi } from "vitest";
+<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../../../config/config.js";
+=======
+import type { OpenClawConfig } from "../../../config/config.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { telegramMessageActions } from "./telegram.js";
 
 const handleTelegramAction = vi.fn(async () => ({ ok: true }));
@@ -11,7 +15,7 @@ vi.mock("../../../agents/tools/telegram-actions.js", () => ({
 
 describe("telegramMessageActions", () => {
   it("excludes sticker actions when not enabled", () => {
-    const cfg = { channels: { telegram: { botToken: "tok" } } } as MoltbotConfig;
+    const cfg = { channels: { telegram: { botToken: "tok" } } } as OpenClawConfig;
     const actions = telegramMessageActions.listActions({ cfg });
     expect(actions).not.toContain("sticker");
     expect(actions).not.toContain("sticker-search");
@@ -19,7 +23,7 @@ describe("telegramMessageActions", () => {
 
   it("allows media-only sends and passes asVoice", async () => {
     handleTelegramAction.mockClear();
-    const cfg = { channels: { telegram: { botToken: "tok" } } } as MoltbotConfig;
+    const cfg = { channels: { telegram: { botToken: "tok" } } } as OpenClawConfig;
 
     await telegramMessageActions.handleAction({
       action: "send",
@@ -46,7 +50,7 @@ describe("telegramMessageActions", () => {
 
   it("passes silent flag for silent sends", async () => {
     handleTelegramAction.mockClear();
-    const cfg = { channels: { telegram: { botToken: "tok" } } } as MoltbotConfig;
+    const cfg = { channels: { telegram: { botToken: "tok" } } } as OpenClawConfig;
 
     await telegramMessageActions.handleAction({
       action: "send",
@@ -72,7 +76,7 @@ describe("telegramMessageActions", () => {
 
   it("maps edit action params into editMessage", async () => {
     handleTelegramAction.mockClear();
-    const cfg = { channels: { telegram: { botToken: "tok" } } } as MoltbotConfig;
+    const cfg = { channels: { telegram: { botToken: "tok" } } } as OpenClawConfig;
 
     await telegramMessageActions.handleAction({
       action: "edit",
@@ -101,7 +105,7 @@ describe("telegramMessageActions", () => {
 
   it("rejects non-integer messageId for edit before reaching telegram-actions", async () => {
     handleTelegramAction.mockClear();
-    const cfg = { channels: { telegram: { botToken: "tok" } } } as MoltbotConfig;
+    const cfg = { channels: { telegram: { botToken: "tok" } } } as OpenClawConfig;
 
     await expect(
       telegramMessageActions.handleAction({

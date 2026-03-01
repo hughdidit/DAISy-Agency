@@ -1,6 +1,10 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
+<<<<<<< HEAD
 
 import { createMoltbotTools } from "../agents/moltbot-tools.js";
+=======
+import { createOpenClawTools } from "../agents/openclaw-tools.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import {
   filterToolsByPolicy,
   resolveEffectiveToolPolicy,
@@ -21,9 +25,7 @@ import { logWarn } from "../logger.js";
 import { getPluginToolMeta } from "../plugins/tools.js";
 import { isSubagentSessionKey } from "../routing/session-key.js";
 import { normalizeMessageChannel } from "../utils/message-channel.js";
-
 import { authorizeGatewayConnect, type ResolvedGatewayAuth } from "./auth.js";
-import { getBearerToken, getHeader } from "./http-utils.js";
 import {
   readJsonBodyOrError,
   sendInvalidRequest,
@@ -31,6 +33,7 @@ import {
   sendMethodNotAllowed,
   sendUnauthorized,
 } from "./http-common.js";
+import { getBearerToken, getHeader } from "./http-utils.js";
 
 const DEFAULT_BODY_BYTES = 2 * 1024 * 1024;
 
@@ -117,8 +120,10 @@ export async function handleToolsInvokeHttpRequest(
     !rawSessionKey || rawSessionKey === "main" ? resolveMainSessionKey(cfg) : rawSessionKey;
 
   // Resolve message channel/account hints (optional headers) for policy inheritance.
-  const messageChannel = normalizeMessageChannel(getHeader(req, "x-moltbot-message-channel") ?? "");
-  const accountId = getHeader(req, "x-moltbot-account-id")?.trim() || undefined;
+  const messageChannel = normalizeMessageChannel(
+    getHeader(req, "x-openclaw-message-channel") ?? "",
+  );
+  const accountId = getHeader(req, "x-openclaw-account-id")?.trim() || undefined;
 
   const {
     agentId,
@@ -155,7 +160,7 @@ export async function handleToolsInvokeHttpRequest(
     : undefined;
 
   // Build tool list (core + plugin tools).
-  const allTools = createMoltbotTools({
+  const allTools = createOpenClawTools({
     agentSessionKey: sessionKey,
     agentChannel: messageChannel ?? undefined,
     agentAccountId: accountId,

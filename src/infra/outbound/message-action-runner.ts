@@ -1,44 +1,41 @@
+import type { AgentToolResult } from "@mariozechner/pi-agent-core";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-
-import type { AgentToolResult } from "@mariozechner/pi-agent-core";
-import {
-  readNumberParam,
-  readStringArrayParam,
-  readStringParam,
-} from "../../agents/tools/common.js";
-import { resolveSessionAgentId } from "../../agents/agent-scope.js";
-import { parseReplyDirectives } from "../../auto-reply/reply/reply-directives.js";
-import { dispatchChannelMessageAction } from "../../channels/plugins/message-actions.js";
-<<<<<<< HEAD
 import type {
   ChannelId,
   ChannelMessageActionName,
   ChannelThreadingToolContext,
 } from "../../channels/plugins/types.js";
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
 =======
+import type { OpenClawConfig } from "../../config/config.js";
+import type { OutboundSendDeps } from "./deliver.js";
+import type { MessagePollResult, MessageSendResult } from "./message.js";
+import { resolveSessionAgentId } from "../../agents/agent-scope.js";
+import {
+  readNumberParam,
+  readStringArrayParam,
+  readStringParam,
+} from "../../agents/tools/common.js";
+import { parseReplyDirectives } from "../../auto-reply/reply/reply-directives.js";
+import { dispatchChannelMessageAction } from "../../channels/plugins/message-actions.js";
 import { extensionForMime } from "../../media/mime.js";
 import { parseSlackTarget } from "../../slack/targets.js";
-import { parseTelegramTarget } from "../../telegram/targets.js";
-<<<<<<< HEAD
->>>>>>> eef247b7a (fix: auto-inject Telegram forum topic threadId in message tool)
-=======
->>>>>>> 01db1dde1 (fix: telegram topic auto-threading — use parseTelegramTarget, add tests (#7235) (thanks @Lukavyi))
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import {
   isDeliverableMessageChannel,
   normalizeMessageChannel,
   type GatewayClientMode,
   type GatewayClientName,
 } from "../../utils/message-channel.js";
+import { loadWebMedia } from "../../web/media.js";
 import {
   listConfiguredMessageChannels,
   resolveMessageChannelSelection,
 } from "./channel-selection.js";
 import { applyTargetToParams } from "./channel-target.js";
-import { ensureOutboundSessionEntry, resolveOutboundSessionRoute } from "./outbound-session.js";
-import type { OutboundSendDeps } from "./deliver.js";
-import type { MessagePollResult, MessageSendResult } from "./message.js";
+import { actionHasTarget, actionRequiresTarget } from "./message-action-spec.js";
 import {
   applyCrossContextDecoration,
   buildCrossContextDecoration,
@@ -47,11 +44,8 @@ import {
   shouldApplyCrossContextMarker,
 } from "./outbound-policy.js";
 import { executePollAction, executeSendAction } from "./outbound-send-service.js";
-import { actionHasTarget, actionRequiresTarget } from "./message-action-spec.js";
+import { ensureOutboundSessionEntry, resolveOutboundSessionRoute } from "./outbound-session.js";
 import { resolveChannelTarget, type ResolvedMessagingTarget } from "./target-resolver.js";
-import { loadWebMedia } from "../../web/media.js";
-import { extensionForMime } from "../../media/mime.js";
-import { parseSlackTarget } from "../../slack/targets.js";
 
 export type MessageActionRunnerGateway = {
   url?: string;
@@ -63,7 +57,7 @@ export type MessageActionRunnerGateway = {
 };
 
 export type RunMessageActionParams = {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   action: ChannelMessageActionName;
   params: Record<string, unknown>;
   defaultAccountId?: string;
@@ -72,6 +66,7 @@ export type RunMessageActionParams = {
   deps?: OutboundSendDeps;
   sessionKey?: string;
   agentId?: string;
+  sandboxRoot?: string;
   dryRun?: boolean;
   abortSignal?: AbortSignal;
 };
@@ -177,7 +172,7 @@ function applyCrossContextMessageDecoration({
 }
 
 async function maybeApplyCrossContextMarker(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   channel: ChannelId;
   action: ChannelMessageActionName;
   target: string;
@@ -269,7 +264,7 @@ function resolveTelegramAutoThreadId(params: {
 }
 
 function resolveAttachmentMaxBytes(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   channel: ChannelId;
   accountId?: string | null;
 }): number | undefined {
@@ -339,8 +334,55 @@ function normalizeBase64Payload(params: { base64?: string; contentType?: string 
   };
 }
 
+async function normalizeSandboxMediaParams(params: {
+  args: Record<string, unknown>;
+  sandboxRoot?: string;
+}): Promise<void> {
+  const sandboxRoot = params.sandboxRoot?.trim();
+  const mediaKeys: Array<"media" | "path" | "filePath"> = ["media", "path", "filePath"];
+  for (const key of mediaKeys) {
+    const raw = readStringParam(params.args, key, { trim: false });
+    if (!raw) {
+      continue;
+    }
+    assertMediaNotDataUrl(raw);
+    if (!sandboxRoot) {
+      continue;
+    }
+    const normalized = await resolveSandboxedMediaSource({ media: raw, sandboxRoot });
+    if (normalized !== raw) {
+      params.args[key] = normalized;
+    }
+  }
+}
+
+async function normalizeSandboxMediaList(params: {
+  values: string[];
+  sandboxRoot?: string;
+}): Promise<string[]> {
+  const sandboxRoot = params.sandboxRoot?.trim();
+  const normalized: string[] = [];
+  const seen = new Set<string>();
+  for (const value of params.values) {
+    const raw = value?.trim();
+    if (!raw) {
+      continue;
+    }
+    assertMediaNotDataUrl(raw);
+    const resolved = sandboxRoot
+      ? await resolveSandboxedMediaSource({ media: raw, sandboxRoot })
+      : raw;
+    if (seen.has(resolved)) {
+      continue;
+    }
+    seen.add(resolved);
+    normalized.push(resolved);
+  }
+  return normalized;
+}
+
 async function hydrateSetGroupIconParams(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   channel: ChannelId;
   accountId?: string | null;
   args: Record<string, unknown>;
@@ -397,7 +439,7 @@ async function hydrateSetGroupIconParams(params: {
 }
 
 async function hydrateSendAttachmentParams(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   channel: ChannelId;
   accountId?: string | null;
   args: Record<string, unknown>;
@@ -486,7 +528,7 @@ function parseCardParam(params: Record<string, unknown>): void {
   }
 }
 
-async function resolveChannel(cfg: MoltbotConfig, params: Record<string, unknown>) {
+async function resolveChannel(cfg: OpenClawConfig, params: Record<string, unknown>) {
   const channelHint = readStringParam(params, "channel");
   const selection = await resolveMessageChannelSelection({
     cfg,
@@ -496,7 +538,7 @@ async function resolveChannel(cfg: MoltbotConfig, params: Record<string, unknown
 }
 
 async function resolveActionTarget(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   channel: ChannelId;
   action: ChannelMessageActionName;
   args: Record<string, unknown>;
@@ -541,7 +583,7 @@ async function resolveActionTarget(params: {
 }
 
 type ResolvedActionContext = {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   params: Record<string, unknown>;
   channel: ChannelId;
   accountId?: string | null;
@@ -676,6 +718,9 @@ async function handleSendAction(ctx: ResolvedActionContext): Promise<MessageActi
       required: !mediaHint && !hasCard,
       allowEmpty: true,
     }) ?? "";
+  if (message.includes("\\n")) {
+    message = message.replaceAll("\\n", "\n");
+  }
 
   const parsed = parseReplyDirectives(message);
   const mergedMediaUrls: string[] = [];
@@ -690,6 +735,14 @@ async function handleSendAction(ctx: ResolvedActionContext): Promise<MessageActi
   pushMedia(mediaHint);
   for (const url of parsed.mediaUrls ?? []) pushMedia(url);
   pushMedia(parsed.mediaUrl);
+
+  const normalizedMediaUrls = await normalizeSandboxMediaList({
+    values: mergedMediaUrls,
+    sandboxRoot: input.sandboxRoot,
+  });
+  mergedMediaUrls.length = 0;
+  mergedMediaUrls.push(...normalizedMediaUrls);
+
   message = parsed.text;
   params.message = message;
   if (!params.replyTo && parsed.replyToId) params.replyTo = parsed.replyToId;
@@ -966,6 +1019,11 @@ export async function runMessageAction(
     params.accountId = accountId;
   }
   const dryRun = Boolean(input.dryRun ?? readBooleanParam(params, "dryRun"));
+
+  await normalizeSandboxMediaParams({
+    args: params,
+    sandboxRoot: input.sandboxRoot,
+  });
 
   await hydrateSendAttachmentParams({
     cfg,

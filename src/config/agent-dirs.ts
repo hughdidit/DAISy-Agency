@@ -1,9 +1,13 @@
 import os from "node:os";
 import path from "node:path";
+import type { OpenClawConfig } from "./types.js";
 import { DEFAULT_AGENT_ID, normalizeAgentId } from "../routing/session-key.js";
 import { resolveUserPath } from "../utils.js";
 import { resolveStateDir } from "./paths.js";
+<<<<<<< HEAD
 import type { MoltbotConfig } from "./types.js";
+=======
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 
 export type DuplicateAgentDir = {
   agentDir: string;
@@ -28,7 +32,7 @@ function canonicalizeAgentDir(agentDir: string): string {
   return resolved;
 }
 
-function collectReferencedAgentIds(cfg: MoltbotConfig): string[] {
+function collectReferencedAgentIds(cfg: OpenClawConfig): string[] {
   const ids = new Set<string>();
 
   const agents = Array.isArray(cfg.agents?.list) ? cfg.agents?.list : [];
@@ -54,7 +58,7 @@ function collectReferencedAgentIds(cfg: MoltbotConfig): string[] {
 }
 
 function resolveEffectiveAgentDir(
-  cfg: MoltbotConfig,
+  cfg: OpenClawConfig,
   agentId: string,
   deps?: { env?: NodeJS.ProcessEnv; homedir?: () => string },
 ): string {
@@ -69,7 +73,7 @@ function resolveEffectiveAgentDir(
 }
 
 export function findDuplicateAgentDirs(
-  cfg: MoltbotConfig,
+  cfg: OpenClawConfig,
   deps?: { env?: NodeJS.ProcessEnv; homedir?: () => string },
 ): DuplicateAgentDir[] {
   const byDir = new Map<string, { agentDir: string; agentIds: string[] }>();

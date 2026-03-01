@@ -27,7 +27,7 @@ const isWindowsCi = isCI && isWindows;
 const shardOverride = Number.parseInt(process.env.CLAWDBOT_TEST_SHARDS ?? "", 10);
 const shardCount = isWindowsCi ? (Number.isFinite(shardOverride) && shardOverride > 1 ? shardOverride : 2) : 1;
 const windowsCiArgs = isWindowsCi ? ["--no-file-parallelism", "--dangerouslyIgnoreUnhandledErrors"] : [];
-const overrideWorkers = Number.parseInt(process.env.CLAWDBOT_TEST_WORKERS ?? "", 10);
+const overrideWorkers = Number.parseInt(process.env.OPENCLAW_TEST_WORKERS ?? "", 10);
 const resolvedOverride = Number.isFinite(overrideWorkers) && overrideWorkers > 0 ? overrideWorkers : null;
 =======
 const shardOverride = Number.parseInt(process.env.OPENCLAW_TEST_SHARDS ?? "", 10);
@@ -53,6 +53,21 @@ const resolvedOverride =
 >>>>>>> d90cac990 (fix: cron scheduler reliability, store hardening, and UX improvements (#10776))
 const parallelRuns = isWindowsCi ? [] : runs.filter((entry) => entry.name !== "gateway");
 const serialRuns = isWindowsCi ? runs : runs.filter((entry) => entry.name === "gateway");
+=======
+const shardOverride = Number.parseInt(process.env.OPENCLAW_TEST_SHARDS ?? "", 10);
+const shardCount = isWindowsCi
+  ? Number.isFinite(shardOverride) && shardOverride > 1
+    ? shardOverride
+    : 2
+  : 1;
+const windowsCiArgs = isWindowsCi ? ["--dangerouslyIgnoreUnhandledErrors"] : [];
+const passthroughArgs = process.argv.slice(2);
+const overrideWorkers = Number.parseInt(process.env.OPENCLAW_TEST_WORKERS ?? "", 10);
+const resolvedOverride =
+  Number.isFinite(overrideWorkers) && overrideWorkers > 0 ? overrideWorkers : null;
+const parallelRuns = runs.filter((entry) => entry.name !== "gateway");
+const serialRuns = runs.filter((entry) => entry.name === "gateway");
+>>>>>>> 2d7428a7f (ci: re-enable parallel vitest on Windows CI)
 const localWorkers = Math.max(4, Math.min(16, os.cpus().length));
 const parallelCount = Math.max(1, parallelRuns.length);
 const perRunWorkers = Math.max(1, Math.floor(localWorkers / parallelCount));

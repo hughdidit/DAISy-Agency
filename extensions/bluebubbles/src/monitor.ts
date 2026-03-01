@@ -1,12 +1,17 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
+<<<<<<< HEAD
 
 import type { MoltbotConfig } from "clawdbot/plugin-sdk";
+=======
+import type { OpenClawConfig } from "openclaw/plugin-sdk";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import {
   logAckFailure,
   logInboundDrop,
   logTypingFailure,
   resolveAckReaction,
   resolveControlCommandGate,
+<<<<<<< HEAD
 } from "clawdbot/plugin-sdk";
 import { markBlueBubblesChatRead, sendBlueBubblesTyping } from "./chat.js";
 import { resolveChatGuidForTarget, sendMessageBlueBubbles } from "./send.js";
@@ -18,6 +23,23 @@ import type { ResolvedBlueBubblesAccount } from "./accounts.js";
 import { getBlueBubblesRuntime } from "./runtime.js";
 import { normalizeBlueBubblesReactionInput, sendBlueBubblesReaction } from "./reactions.js";
 import { fetchBlueBubblesServerInfo } from "./probe.js";
+=======
+} from "openclaw/plugin-sdk";
+import type { ResolvedBlueBubblesAccount } from "./accounts.js";
+import type { BlueBubblesAccountConfig, BlueBubblesAttachment } from "./types.js";
+import { downloadBlueBubblesAttachment } from "./attachments.js";
+import { markBlueBubblesChatRead, sendBlueBubblesTyping } from "./chat.js";
+import { sendBlueBubblesMedia } from "./media-send.js";
+import { fetchBlueBubblesServerInfo } from "./probe.js";
+import { normalizeBlueBubblesReactionInput, sendBlueBubblesReaction } from "./reactions.js";
+import { getBlueBubblesRuntime } from "./runtime.js";
+import { resolveChatGuidForTarget, sendMessageBlueBubbles } from "./send.js";
+import {
+  formatBlueBubblesChatTarget,
+  isAllowedBlueBubblesSender,
+  normalizeBlueBubblesHandle,
+} from "./targets.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 
 export type BlueBubblesRuntimeEnv = {
   log?: (message: string) => void;
@@ -26,7 +48,7 @@ export type BlueBubblesRuntimeEnv = {
 
 export type BlueBubblesMonitorOptions = {
   account: ResolvedBlueBubblesAccount;
-  config: MoltbotConfig;
+  config: OpenClawConfig;
   runtime: BlueBubblesRuntimeEnv;
   abortSignal: AbortSignal;
   statusSink?: (patch: { lastInboundAt?: number; lastOutboundAt?: number }) => void;
@@ -243,7 +265,7 @@ function logGroupAllowlistHint(params: {
 
 type WebhookTarget = {
   account: ResolvedBlueBubblesAccount;
-  config: MoltbotConfig;
+  config: OpenClawConfig;
   runtime: BlueBubblesRuntimeEnv;
   core: BlueBubblesCoreRuntime;
   path: string;
@@ -340,7 +362,7 @@ const targetDebouncers = new Map<
 >();
 
 function resolveBlueBubblesDebounceMs(
-  config: MoltbotConfig,
+  config: OpenClawConfig,
   core: BlueBubblesCoreRuntime,
 ): number {
   const inbound = config.messages?.inbound;
@@ -958,7 +980,7 @@ function maskSecret(value: string): string {
 }
 
 function resolveBlueBubblesAckReaction(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   agentId: string;
   core: BlueBubblesCoreRuntime;
   runtime: BlueBubblesRuntimeEnv;

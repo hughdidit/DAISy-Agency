@@ -1,11 +1,20 @@
+import type { OpenClawApp } from "./app";
+import { refreshChat } from "./app-chat";
+import {
+  startLogsPolling,
+  stopLogsPolling,
+  startDebugPolling,
+  stopDebugPolling,
+} from "./app-polling";
+import { scheduleChatScroll, scheduleLogsScroll } from "./app-scroll";
+import { loadChannels } from "./controllers/channels";
 import { loadConfig, loadConfigSchema } from "./controllers/config";
 import { loadCronJobs, loadCronStatus } from "./controllers/cron";
-import { loadChannels } from "./controllers/channels";
 import { loadDebug } from "./controllers/debug";
-import { loadLogs } from "./controllers/logs";
 import { loadDevices } from "./controllers/devices";
-import { loadNodes } from "./controllers/nodes";
 import { loadExecApprovals } from "./controllers/exec-approvals";
+import { loadLogs } from "./controllers/logs";
+import { loadNodes } from "./controllers/nodes";
 import { loadPresence } from "./controllers/presence";
 import { loadSessions } from "./controllers/sessions";
 import { loadSkills } from "./controllers/skills";
@@ -13,10 +22,13 @@ import { inferBasePathFromPathname, normalizeBasePath, normalizePath, pathForTab
 import { saveSettings, type UiSettings } from "./storage";
 import { resolveTheme, type ResolvedTheme, type ThemeMode } from "./theme";
 import { startThemeTransition, type ThemeTransitionContext } from "./theme-transition";
+<<<<<<< HEAD
 import { scheduleChatScroll, scheduleLogsScroll } from "./app-scroll";
 import { startLogsPolling, stopLogsPolling, startDebugPolling, stopDebugPolling } from "./app-polling";
 import { refreshChat } from "./app-chat";
 import type { MoltbotApp } from "./app";
+=======
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 
 type SettingsHost = {
   settings: UiSettings;
@@ -168,15 +180,15 @@ export function setTheme(
 export async function refreshActiveTab(host: SettingsHost) {
   if (host.tab === "overview") await loadOverview(host);
   if (host.tab === "channels") await loadChannelsTab(host);
-  if (host.tab === "instances") await loadPresence(host as unknown as MoltbotApp);
-  if (host.tab === "sessions") await loadSessions(host as unknown as MoltbotApp);
+  if (host.tab === "instances") await loadPresence(host as unknown as OpenClawApp);
+  if (host.tab === "sessions") await loadSessions(host as unknown as OpenClawApp);
   if (host.tab === "cron") await loadCron(host);
-  if (host.tab === "skills") await loadSkills(host as unknown as MoltbotApp);
+  if (host.tab === "skills") await loadSkills(host as unknown as OpenClawApp);
   if (host.tab === "nodes") {
-    await loadNodes(host as unknown as MoltbotApp);
-    await loadDevices(host as unknown as MoltbotApp);
-    await loadConfig(host as unknown as MoltbotApp);
-    await loadExecApprovals(host as unknown as MoltbotApp);
+    await loadNodes(host as unknown as OpenClawApp);
+    await loadDevices(host as unknown as OpenClawApp);
+    await loadConfig(host as unknown as OpenClawApp);
+    await loadExecApprovals(host as unknown as OpenClawApp);
   }
   if (host.tab === "chat") {
     await refreshChat(host as unknown as Parameters<typeof refreshChat>[0]);
@@ -186,16 +198,16 @@ export async function refreshActiveTab(host: SettingsHost) {
     );
   }
   if (host.tab === "config") {
-    await loadConfigSchema(host as unknown as MoltbotApp);
-    await loadConfig(host as unknown as MoltbotApp);
+    await loadConfigSchema(host as unknown as OpenClawApp);
+    await loadConfig(host as unknown as OpenClawApp);
   }
   if (host.tab === "debug") {
-    await loadDebug(host as unknown as MoltbotApp);
+    await loadDebug(host as unknown as OpenClawApp);
     host.eventLog = host.eventLogBuffer;
   }
   if (host.tab === "logs") {
     host.logsAtBottom = true;
-    await loadLogs(host as unknown as MoltbotApp, { reset: true });
+    await loadLogs(host as unknown as OpenClawApp, { reset: true });
     scheduleLogsScroll(
       host as unknown as Parameters<typeof scheduleLogsScroll>[0],
       true,
@@ -205,7 +217,7 @@ export async function refreshActiveTab(host: SettingsHost) {
 
 export function inferBasePath() {
   if (typeof window === "undefined") return "";
-  const configured = window.__CLAWDBOT_CONTROL_UI_BASE_PATH__;
+  const configured = window.__OPENCLAW_CONTROL_UI_BASE_PATH__;
   if (typeof configured === "string" && configured.trim()) {
     return normalizeBasePath(configured);
   }
@@ -331,26 +343,26 @@ export function syncUrlWithSessionKey(
 
 export async function loadOverview(host: SettingsHost) {
   await Promise.all([
-    loadChannels(host as unknown as MoltbotApp, false),
-    loadPresence(host as unknown as MoltbotApp),
-    loadSessions(host as unknown as MoltbotApp),
-    loadCronStatus(host as unknown as MoltbotApp),
-    loadDebug(host as unknown as MoltbotApp),
+    loadChannels(host as unknown as OpenClawApp, false),
+    loadPresence(host as unknown as OpenClawApp),
+    loadSessions(host as unknown as OpenClawApp),
+    loadCronStatus(host as unknown as OpenClawApp),
+    loadDebug(host as unknown as OpenClawApp),
   ]);
 }
 
 export async function loadChannelsTab(host: SettingsHost) {
   await Promise.all([
-    loadChannels(host as unknown as MoltbotApp, true),
-    loadConfigSchema(host as unknown as MoltbotApp),
-    loadConfig(host as unknown as MoltbotApp),
+    loadChannels(host as unknown as OpenClawApp, true),
+    loadConfigSchema(host as unknown as OpenClawApp),
+    loadConfig(host as unknown as OpenClawApp),
   ]);
 }
 
 export async function loadCron(host: SettingsHost) {
   await Promise.all([
-    loadChannels(host as unknown as MoltbotApp, false),
-    loadCronStatus(host as unknown as MoltbotApp),
-    loadCronJobs(host as unknown as MoltbotApp),
+    loadChannels(host as unknown as OpenClawApp, false),
+    loadCronStatus(host as unknown as OpenClawApp),
+    loadCronJobs(host as unknown as OpenClawApp),
   ]);
 }

@@ -1,19 +1,23 @@
 import fs from "node:fs/promises";
-
 import { describe, expect, it } from "vitest";
+<<<<<<< HEAD
 
 import { withTempHome } from "./test-helpers.js";
 import type { MoltbotConfig } from "./types.js";
+=======
+import type { OpenClawConfig } from "./types.js";
+import { withTempHome } from "./test-helpers.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 
 describe("config backup rotation", () => {
   it("keeps a 5-deep backup ring for config writes", async () => {
     await withTempHome(async () => {
       const { resolveConfigPath, writeConfigFile } = await import("./config.js");
       const configPath = resolveConfigPath();
-      const buildConfig = (version: number): MoltbotConfig =>
+      const buildConfig = (version: number): OpenClawConfig =>
         ({
           agents: { list: [{ id: `v${version}` }] },
-        }) as MoltbotConfig;
+        }) as OpenClawConfig;
 
       for (let version = 0; version <= 6; version += 1) {
         await writeConfigFile(buildConfig(version));

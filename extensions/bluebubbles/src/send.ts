@@ -1,16 +1,15 @@
+import type { OpenClawConfig } from "openclaw/plugin-sdk";
 import crypto from "node:crypto";
-<<<<<<< HEAD
-
-=======
-import { stripMarkdown } from "openclaw/plugin-sdk";
->>>>>>> 1007d71f0 (fix: comprehensive BlueBubbles and channel cleanup (#11093))
 import { resolveBlueBubblesAccount } from "./accounts.js";
 import {
   extractHandleFromChatGuid,
   normalizeBlueBubblesHandle,
   parseBlueBubblesTarget,
 } from "./targets.js";
+<<<<<<< HEAD
 import type { MoltbotConfig } from "clawdbot/plugin-sdk";
+=======
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import {
   blueBubblesFetchWithTimeout,
   buildBlueBubblesApiUrl,
@@ -22,7 +21,7 @@ export type BlueBubblesSendOpts = {
   password?: string;
   accountId?: string;
   timeoutMs?: number;
-  cfg?: MoltbotConfig;
+  cfg?: OpenClawConfig;
   /** Message GUID to reply to (reply threading) */
   replyToMessageGuid?: string;
   /** Part index for reply (default: 0) */

@@ -1,9 +1,9 @@
-import crypto from "node:crypto";
-import type { ChildProcessWithoutNullStreams } from "node:child_process";
-import path from "node:path";
 import type { AgentTool, AgentToolResult } from "@mariozechner/pi-agent-core";
+import type { ChildProcessWithoutNullStreams } from "node:child_process";
 import { Type } from "@sinclair/typebox";
-
+import crypto from "node:crypto";
+import path from "node:path";
+import type { BashSandboxConfig } from "./bash-tools.shared.js";
 import {
   type ExecAsk,
   type ExecHost,
@@ -28,6 +28,7 @@ import {
 import { enqueueSystemEvent } from "../infra/system-events.js";
 import { logInfo, logWarn } from "../logger.js";
 import { formatSpawnError, spawnWithFallback } from "../process/spawn-utils.js";
+import { parseAgentSessionKey, resolveAgentIdFromSessionKey } from "../routing/session-key.js";
 import {
   type ProcessSession,
   type SessionStdin,
@@ -38,7 +39,6 @@ import {
   markExited,
   tail,
 } from "./bash-process-registry.js";
-import type { BashSandboxConfig } from "./bash-tools.shared.js";
 import {
   buildDockerExecArgs,
   buildSandboxEnv,
@@ -51,14 +51,11 @@ import {
   resolveWorkdir,
   truncateMiddle,
 } from "./bash-tools.shared.js";
+import { buildCursorPositionResponse, stripDsrRequests } from "./pty-dsr.js";
+import { getShellConfig, sanitizeBinaryOutput } from "./shell-utils.js";
 import { callGatewayTool } from "./tools/gateway.js";
 import { listNodes, resolveNodeIdFromList } from "./tools/nodes-utils.js";
-import { getShellConfig, sanitizeBinaryOutput } from "./shell-utils.js";
-import { buildCursorPositionResponse, stripDsrRequests } from "./pty-dsr.js";
-import { parseAgentSessionKey, resolveAgentIdFromSessionKey } from "../routing/session-key.js";
 
-<<<<<<< HEAD
-=======
 // Security: Blocklist of environment variables that could alter execution flow
 // or inject code when running on non-sandboxed hosts (Gateway/Node).
 const DANGEROUS_HOST_ENV_VARS = new Set([
@@ -79,7 +76,6 @@ const DANGEROUS_HOST_ENV_VARS = new Set([
   "IFS",
   "SSLKEYLOGFILE",
 ]);
-const DANGEROUS_HOST_ENV_PREFIXES = ["DYLD_", "LD_"];
 
 // Centralized sanitization helper.
 // Throws an error if dangerous variables or PATH modifications are detected on the host.
@@ -88,11 +84,6 @@ function validateHostEnv(env: Record<string, string>): void {
     const upperKey = key.toUpperCase();
 
     // 1. Block known dangerous variables (Fail Closed)
-    if (DANGEROUS_HOST_ENV_PREFIXES.some((prefix) => upperKey.startsWith(prefix))) {
-      throw new Error(
-        `Security Violation: Environment variable '${key}' is forbidden during host execution.`,
-      );
-    }
     if (DANGEROUS_HOST_ENV_VARS.has(upperKey)) {
       throw new Error(
         `Security Violation: Environment variable '${key}' is forbidden during host execution.`,
@@ -108,7 +99,6 @@ function validateHostEnv(env: Record<string, string>): void {
     }
   }
 }
->>>>>>> a87a07ec8 (fix: harden host exec env validation (#4896) (thanks @HassanFleyah))
 const DEFAULT_MAX_OUTPUT = clampNumber(
   readEnvInt("PI_BASH_MAX_OUTPUT_CHARS"),
   200_000,
@@ -116,7 +106,7 @@ const DEFAULT_MAX_OUTPUT = clampNumber(
   200_000,
 );
 const DEFAULT_PENDING_MAX_OUTPUT = clampNumber(
-  readEnvInt("CLAWDBOT_BASH_PENDING_MAX_OUTPUT_CHARS"),
+  readEnvInt("OPENCLAW_BASH_PENDING_MAX_OUTPUT_CHARS"),
   200_000,
   1_000,
   200_000,
@@ -894,12 +884,15 @@ export function createExecTool(
       if (elevatedRequested && elevatedMode === "full") {
         security = "full";
       }
-      const configuredAsk = defaults?.ask ?? "on-miss";
+      const configuredAsk = defaults?.ask ?? "always";
       const requestedAsk = normalizeExecAsk(params.ask);
       let ask = maxAsk(configuredAsk, requestedAsk ?? configuredAsk);
       const bypassApprovals = elevatedRequested && elevatedMode === "full";
       if (bypassApprovals) {
         ask = "off";
+        warnings.push(
+          "elevated mode is 'full': command will execute with unrestricted security and no approval prompt",
+        );
       }
 
       const sandbox = host === "sandbox" ? defaults?.sandbox : undefined;
@@ -919,7 +912,15 @@ export function createExecTool(
       }
 
       const baseEnv = coerceEnv(process.env);
+
+      // Logic: Sandbox gets raw env. Host (gateway/node) must pass validation.
+      // We validate BEFORE merging to prevent any dangerous vars from entering the stream.
+      if (host !== "sandbox" && params.env) {
+        validateHostEnv(params.env);
+      }
+
       const mergedEnv = params.env ? { ...baseEnv, ...params.env } : baseEnv;
+
       const env = sandbox
         ? buildSandboxEnv({
             defaultPath: DEFAULT_PATH,
@@ -928,6 +929,7 @@ export function createExecTool(
             containerWorkdir: containerWorkdir ?? sandbox.containerWorkdir,
           })
         : mergedEnv;
+
       if (!sandbox && host === "gateway" && !params.env?.PATH) {
         const shellPath = getShellPathFromLoginShell({
           env: process.env,
@@ -978,7 +980,9 @@ export function createExecTool(
           );
         }
         const argv = buildNodeShellCommand(params.command, nodeInfo?.platform);
+
         const nodeEnv = params.env ? { ...params.env } : undefined;
+
         if (nodeEnv) {
           applyPathPrepend(nodeEnv, defaultPathPrepend, { requireExisting: true });
         }

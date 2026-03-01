@@ -1,5 +1,4 @@
 import type { LocationMessageEventContent, MatrixClient } from "@vector-im/matrix-bot-sdk";
-
 import {
   createReplyPrefixContext,
   createTypingCallbacks,
@@ -8,8 +7,9 @@ import {
   logTypingFailure,
   resolveControlCommandGate,
   type RuntimeEnv,
-} from "clawdbot/plugin-sdk";
+} from "openclaw/plugin-sdk";
 import type { CoreConfig, ReplyToMode } from "../../types.js";
+import type { MatrixRawEvent, RoomMessageEventContent } from "./types.js";
 import {
   formatPollAsText,
   isPollStartType,
@@ -18,17 +18,16 @@ import {
 } from "../poll-types.js";
 import { reactMatrixMessage, sendMessageMatrix, sendReadReceiptMatrix, sendTypingMatrix } from "../send.js";
 import {
+  normalizeMatrixAllowList,
   resolveMatrixAllowListMatch,
   resolveMatrixAllowListMatches,
-  normalizeAllowListLower,
 } from "./allowlist.js";
+import { resolveMatrixLocation, type MatrixLocationPayload } from "./location.js";
 import { downloadMatrixMedia } from "./media.js";
 import { resolveMentions } from "./mentions.js";
 import { deliverMatrixReplies } from "./replies.js";
 import { resolveMatrixRoomConfig } from "./rooms.js";
 import { resolveMatrixThreadRootId, resolveMatrixThreadTarget } from "./threads.js";
-import { resolveMatrixLocation, type MatrixLocationPayload } from "./location.js";
-import type { MatrixRawEvent, RoomMessageEventContent } from "./types.js";
 import { EventType, RelationType } from "./types.js";
 
 export type MatrixMonitorHandlerParams = {
@@ -37,7 +36,7 @@ export type MatrixMonitorHandlerParams = {
     logging: {
       shouldLogVerbose: () => boolean;
     };
-    channel: typeof import("clawdbot/plugin-sdk")["channel"];
+    channel: typeof import("openclaw/plugin-sdk")["channel"];
     system: {
       enqueueSystemEvent: (
         text: string,
@@ -59,7 +58,7 @@ export type MatrixMonitorHandlerParams = {
       : Record<string, unknown> | undefined
     : Record<string, unknown> | undefined;
   mentionRegexes: ReturnType<
-    typeof import("clawdbot/plugin-sdk")["channel"]["mentions"]["buildMentionRegexes"]
+    typeof import("openclaw/plugin-sdk")["channel"]["mentions"]["buildMentionRegexes"]
   >;
   groupPolicy: "open" | "allowlist" | "disabled";
   replyToMode: ReplyToMode;
@@ -219,13 +218,17 @@ export function createMatrixRoomMessageHandler(params: MatrixMonitorHandlerParam
       }
 
       const senderName = await getMemberDisplayName(roomId, senderId);
+<<<<<<< HEAD
       const storeAllowFrom = await core.channel.pairing.readAllowFromStore("matrix").catch(() => []);
       const effectiveAllowFrom = normalizeAllowListLower([...allowFrom, ...storeAllowFrom]);
+=======
+      const storeAllowFrom = await core.channel.pairing
+        .readAllowFromStore("matrix")
+        .catch(() => []);
+      const effectiveAllowFrom = normalizeMatrixAllowList([...allowFrom, ...storeAllowFrom]);
+>>>>>>> 8f3bfbd1c (fix(matrix): harden allowlists)
       const groupAllowFrom = cfg.channels?.matrix?.groupAllowFrom ?? [];
-      const effectiveGroupAllowFrom = normalizeAllowListLower([
-        ...groupAllowFrom,
-        ...storeAllowFrom,
-      ]);
+      const effectiveGroupAllowFrom = normalizeMatrixAllowList(groupAllowFrom);
       const groupAllowConfigured = effectiveGroupAllowFrom.length > 0;
 
       if (isDirectMessage) {
@@ -234,7 +237,6 @@ export function createMatrixRoomMessageHandler(params: MatrixMonitorHandlerParam
           const allowMatch = resolveMatrixAllowListMatch({
             allowList: effectiveAllowFrom,
             userId: senderId,
-            userName: senderName,
           });
           const allowMatchMeta = formatAllowlistMatchMeta(allowMatch);
           if (!allowMatch.allowed) {
@@ -252,12 +254,12 @@ export function createMatrixRoomMessageHandler(params: MatrixMonitorHandlerParam
                   await sendMessageMatrix(
                     `room:${roomId}`,
                     [
-                      "Moltbot: access not configured.",
+                      "OpenClaw: access not configured.",
                       "",
                       `Pairing code: ${code}`,
                       "",
                       "Ask the bot owner to approve with:",
-                      "moltbot pairing approve matrix <code>",
+                      "openclaw pairing approve matrix <code>",
                     ].join("\n"),
                     { client },
                   );
@@ -279,9 +281,8 @@ export function createMatrixRoomMessageHandler(params: MatrixMonitorHandlerParam
       const roomUsers = roomConfig?.users ?? [];
       if (isRoom && roomUsers.length > 0) {
         const userMatch = resolveMatrixAllowListMatch({
-          allowList: normalizeAllowListLower(roomUsers),
+          allowList: normalizeMatrixAllowList(roomUsers),
           userId: senderId,
-          userName: senderName,
         });
         if (!userMatch.allowed) {
           logVerboseMessage(
@@ -296,7 +297,6 @@ export function createMatrixRoomMessageHandler(params: MatrixMonitorHandlerParam
         const groupAllowMatch = resolveMatrixAllowListMatch({
           allowList: effectiveGroupAllowFrom,
           userId: senderId,
-          userName: senderName,
         });
         if (!groupAllowMatch.allowed) {
           logVerboseMessage(
@@ -368,21 +368,18 @@ export function createMatrixRoomMessageHandler(params: MatrixMonitorHandlerParam
       const senderAllowedForCommands = resolveMatrixAllowListMatches({
         allowList: effectiveAllowFrom,
         userId: senderId,
-        userName: senderName,
       });
       const senderAllowedForGroup = groupAllowConfigured
         ? resolveMatrixAllowListMatches({
             allowList: effectiveGroupAllowFrom,
             userId: senderId,
-            userName: senderName,
           })
         : false;
       const senderAllowedForRoomUsers =
         isRoom && roomUsers.length > 0
           ? resolveMatrixAllowListMatches({
-              allowList: normalizeAllowListLower(roomUsers),
+              allowList: normalizeMatrixAllowList(roomUsers),
               userId: senderId,
-              userName: senderName,
             })
           : false;
       const hasControlCommandInMessage = core.channel.text.hasControlCommand(bodyText, cfg);

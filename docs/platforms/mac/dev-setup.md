@@ -1,18 +1,19 @@
 ---
-summary: "Setup guide for developers working on the Moltbot macOS app"
+summary: "Setup guide for developers working on the OpenClaw macOS app"
 read_when:
   - Setting up the macOS development environment
+title: "macOS Dev Setup"
 ---
 # macOS Developer Setup
 
-This guide covers the necessary steps to build and run the Moltbot macOS application from source.
+This guide covers the necessary steps to build and run the OpenClaw macOS application from source.
 
 ## Prerequisites
 
 Before building the app, ensure you have the following installed:
 
-1.  **Xcode 26.2+**: Required for Swift development.
-2.  **Node.js 22+ & pnpm**: Required for the gateway, CLI, and packaging scripts.
+1. **Xcode 26.2+**: Required for Swift development.
+2. **Node.js 22+ & pnpm**: Required for the gateway, CLI, and packaging scripts.
 
 ## 1. Install Dependencies
 
@@ -24,7 +25,7 @@ pnpm install
 
 ## 2. Build and Package the App
 
-To build the macOS app and package it into `dist/Moltbot.app`, run:
+To build the macOS app and package it into `dist/OpenClaw.app`, run:
 
 ```bash
 ./scripts/package-mac-app.sh
@@ -33,22 +34,53 @@ To build the macOS app and package it into `dist/Moltbot.app`, run:
 If you don't have an Apple Developer ID certificate, the script will automatically use **ad-hoc signing** (`-`). 
 
 For dev run modes, signing flags, and Team ID troubleshooting, see the macOS app README:
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
 https://github.com/moltbot/moltbot/blob/main/apps/macos/README.md
+=======
+[https://github.com/openclaw/openclaw/blob/main/apps/macos/README.md](https://github.com/openclaw/openclaw/blob/main/apps/macos/README.md)
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
+=======
+https://github.com/openclaw/openclaw/blob/main/apps/macos/README.md
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
+=======
+[https://github.com/openclaw/openclaw/blob/main/apps/macos/README.md](https://github.com/openclaw/openclaw/blob/main/apps/macos/README.md)
+>>>>>>> 578a6e27a (Docs: enable markdownlint autofixables except list numbering (#10476))
 
 > **Note**: Ad-hoc signed apps may trigger security prompts. If the app crashes immediately with "Abort trap 6", see the [Troubleshooting](#troubleshooting) section.
 
 ## 3. Install the CLI
 
-The macOS app expects a global `moltbot` CLI install to manage background tasks.
+The macOS app expects a global `openclaw` CLI install to manage background tasks.
 
 **To install it (recommended):**
+<<<<<<< HEAD
 1.  Open the Moltbot app.
 2.  Go to the **General** settings tab.
 3.  Click **"Install CLI"**.
+=======
+
+<<<<<<< HEAD
+<<<<<<< HEAD
+1. Open the OpenClaw app.
+2. Go to the **General** settings tab.
+3. Click **"Install CLI"**.
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
+=======
+1.  Open the OpenClaw app.
+2.  Go to the **General** settings tab.
+3.  Click **"Install CLI"**.
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
+=======
+1. Open the OpenClaw app.
+2. Go to the **General** settings tab.
+3. Click **"Install CLI"**.
+>>>>>>> 578a6e27a (Docs: enable markdownlint autofixables except list numbering (#10476))
 
 Alternatively, install it manually:
 ```bash
-npm install -g moltbot@<version>
+npm install -g openclaw@<version>
 ```
 
 ## Troubleshooting
@@ -73,17 +105,30 @@ If the app crashes when you try to allow **Speech Recognition** or **Microphone*
 
 **Fix:**
 1. Reset the TCC permissions:
+
    ```bash
    tccutil reset All bot.molt.mac.debug
    ```
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
 2. If that fails, change the `BUNDLE_ID` temporarily in [`scripts/package-mac-app.sh`](https://github.com/moltbot/moltbot/blob/main/scripts/package-mac-app.sh) to force a "clean slate" from macOS.
+=======
+
+=======
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
+=======
+
+>>>>>>> 578a6e27a (Docs: enable markdownlint autofixables except list numbering (#10476))
+2. If that fails, change the `BUNDLE_ID` temporarily in [`scripts/package-mac-app.sh`](https://github.com/openclaw/openclaw/blob/main/scripts/package-mac-app.sh) to force a "clean slate" from macOS.
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 
 ### Gateway "Starting..." indefinitely
 If the gateway status stays on "Starting...", check if a zombie process is holding the port:
 
 ```bash
-moltbot gateway status
-moltbot gateway stop
+openclaw gateway status
+openclaw gateway stop
 
 # If you’re not using a LaunchAgent (dev mode / manual runs), find the listener:
 lsof -nP -iTCP:18789 -sTCP:LISTEN

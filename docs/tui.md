@@ -3,23 +3,39 @@ summary: "Terminal UI (TUI): connect to the Gateway from any machine"
 read_when:
   - You want a beginner-friendly walkthrough of the TUI
   - You need the complete list of TUI features, commands, and shortcuts
+title: "TUI"
 ---
 # TUI (Terminal UI)
 
 ## Quick start
 1) Start the Gateway.
 ```bash
-moltbot gateway
+openclaw gateway
 ```
+<<<<<<< HEAD
 2) Open the TUI.
+=======
+
+2. Open the TUI.
+
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 ```bash
-moltbot tui
+openclaw tui
 ```
+<<<<<<< HEAD
 3) Type a message and press Enter.
+=======
+
+<<<<<<< HEAD
+1. Type a message and press Enter.
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
+=======
+3. Type a message and press Enter.
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 
 Remote Gateway:
 ```bash
-moltbot tui --url ws://<host>:<port> --token <gateway-token>
+openclaw tui --url ws://<host>:<port> --token <gateway-token>
 ```
 Use `--password` if your Gateway uses password auth.
 
@@ -46,7 +62,7 @@ Use `--password` if your Gateway uses password auth.
 - Turn delivery on:
   - `/deliver on`
   - or the Settings panel
-  - or start with `moltbot tui --deliver`
+  - or start with `openclaw tui --deliver`
 
 ## Pickers + overlays
 - Model picker: list available models and set the session override.
@@ -119,16 +135,24 @@ Other Gateway slash commands (for example, `/context`) are forwarded to the Gate
 - `--thinking <level>`: Override thinking level for sends
 - `--timeout-ms <ms>`: Agent timeout in ms (defaults to `agents.defaults.timeoutSeconds`)
 
+Note: when you set `--url`, the TUI does not fall back to config or environment credentials.
+Pass `--token` or `--password` explicitly. Missing explicit credentials is an error.
+
 ## Troubleshooting
 
 No output after sending a message:
 - Run `/status` in the TUI to confirm the Gateway is connected and idle/busy.
-- Check the Gateway logs: `moltbot logs --follow`.
-- Confirm the agent can run: `moltbot status` and `moltbot models status`.
+- Check the Gateway logs: `openclaw logs --follow`.
+- Confirm the agent can run: `openclaw status` and `openclaw models status`.
 - If you expect messages in a chat channel, enable delivery (`/deliver on` or `--deliver`).
 - `--history-limit <n>`: History entries to load (default 200)
 
+<<<<<<< HEAD
 ## Troubleshooting
+=======
+## Connection troubleshooting
+
+>>>>>>> 1bf9f237f (docs: linting)
 - `disconnected`: ensure the Gateway is running and your `--url/--token/--password` are correct.
-- No agents in picker: check `moltbot agents list` and your routing config.
+- No agents in picker: check `openclaw agents list` and your routing config.
 - Empty session picker: you might be in global scope or have no sessions yet.

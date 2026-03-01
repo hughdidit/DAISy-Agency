@@ -1,14 +1,15 @@
 ---
 summary: "LINE Messaging API plugin setup, config, and usage"
 read_when:
-  - You want to connect Moltbot to LINE
+  - You want to connect OpenClaw to LINE
   - You need LINE webhook + credential setup
   - You want LINE-specific message options
+title: LINE
 ---
 
 # LINE (plugin)
 
-LINE connects to Moltbot via the LINE Messaging API. The plugin runs as a webhook
+LINE connects to OpenClaw via the LINE Messaging API. The plugin runs as a webhook
 receiver on the gateway and uses your channel access token + channel secret for
 authentication.
 
@@ -21,23 +22,32 @@ are not supported.
 Install the LINE plugin:
 
 ```bash
-moltbot plugins install @moltbot/line
+openclaw plugins install @openclaw/line
 ```
 
 Local checkout (when running from a git repo):
 
 ```bash
-moltbot plugins install ./extensions/line
+openclaw plugins install ./extensions/line
 ```
 
 ## Setup
 
+<<<<<<< HEAD
 1) Create a LINE Developers account and open the Console:
    https://developers.line.biz/console/
 2) Create (or pick) a Provider and add a **Messaging API** channel.
 3) Copy the **Channel access token** and **Channel secret** from the channel settings.
 4) Enable **Use webhook** in the Messaging API settings.
 5) Set the webhook URL to your gateway endpoint (HTTPS required):
+=======
+1. Create a LINE Developers account and open the Console:
+   [https://developers.line.biz/console/](https://developers.line.biz/console/)
+2. Create (or pick) a Provider and add a **Messaging API** channel.
+3. Copy the **Channel access token** and **Channel secret** from the channel settings.
+4. Enable **Use webhook** in the Messaging API settings.
+5. Set the webhook URL to your gateway endpoint (HTTPS required):
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 
 ```
 https://gateway-host/line/webhook
@@ -106,8 +116,8 @@ Direct messages default to pairing. Unknown senders get a pairing code and their
 messages are ignored until approved.
 
 ```bash
-moltbot pairing list line
-moltbot pairing approve line <CODE>
+openclaw pairing list line
+openclaw pairing approve line <CODE>
 ```
 
 Allowlists and policies:

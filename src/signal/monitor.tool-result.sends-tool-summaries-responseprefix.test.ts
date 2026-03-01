@@ -1,7 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+<<<<<<< HEAD
 
 import { resetInboundDedupe } from "../auto-reply/reply/inbound-dedupe.js";
 import type { MoltbotConfig } from "../config/config.js";
+=======
+import type { OpenClawConfig } from "../config/config.js";
+import { resetInboundDedupe } from "../auto-reply/reply/inbound-dedupe.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { peekSystemEvents, resetSystemEventsForTest } from "../infra/system-events.js";
 import { resolveAgentRoute } from "../routing/resolve-route.js";
 import { normalizeE164 } from "../utils.js";
@@ -39,7 +44,7 @@ vi.mock("../pairing/pairing-store.js", () => ({
 }));
 
 vi.mock("../config/sessions.js", () => ({
-  resolveStorePath: vi.fn(() => "/tmp/moltbot-sessions.json"),
+  resolveStorePath: vi.fn(() => "/tmp/openclaw-sessions.json"),
   updateLastRoute: (...args: unknown[]) => updateLastRouteMock(...args),
   readSessionUpdatedAt: vi.fn(() => undefined),
   recordSessionMetaFromInbound: vi.fn().mockResolvedValue(undefined),
@@ -412,7 +417,7 @@ describe("monitorSignalProvider tool results", () => {
     await flush();
 
     const route = resolveAgentRoute({
-      cfg: config as MoltbotConfig,
+      cfg: config as OpenClawConfig,
       channel: "signal",
       accountId: "default",
       peer: { kind: "dm", id: normalizeE164("+15550001111") },
@@ -468,7 +473,7 @@ describe("monitorSignalProvider tool results", () => {
     await flush();
 
     const route = resolveAgentRoute({
-      cfg: config as MoltbotConfig,
+      cfg: config as OpenClawConfig,
       channel: "signal",
       accountId: "default",
       peer: { kind: "dm", id: normalizeE164("+15550001111") },
