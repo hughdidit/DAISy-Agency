@@ -236,6 +236,12 @@ Docs: https://docs.openclaw.ai
 ### Fixes
 
 - ACP/Harness thread spawn routing: force ACP harness thread creation through `sessions_spawn` (`runtime: "acp"`, `thread: true`) and explicitly forbid `message action=thread-create` for ACP harness requests, avoiding misrouted `Unknown channel` errors. (#30957) Thanks @dutifulbob.
+<<<<<<< HEAD
+=======
+- Docs/ACP permissions: document the correct `permissionMode` default (`approve-reads`) and clarify non-interactive permission failure behavior/troubleshooting guidance. (#31044) Thanks @barronlroth.
+- Security/Logging utility hardening: remove `eval`-based command execution from `scripts/clawlog.sh`, switch to argv-safe command construction, and escape predicate literals for user-supplied search/category filters to block local command/predicate injection paths.
+- Security/ACPX Windows spawn hardening: resolve `.cmd/.bat` wrappers via PATH/PATHEXT and execute unwrapped Node/EXE entrypoints without shell parsing when possible, while preserving shell fallback for unknown custom wrappers to keep compatibility.
+>>>>>>> 9e6e7a3d6 (fix(acpx): harden windows cmd wrapper spawning)
 - Security/Inbound metadata stripping: tighten sentinel matching and JSON-fence validation for inbound metadata stripping so user-authored lookalike lines no longer trigger unintended metadata removal.
 - Channels/Command parsing parity: align command-body parsing fields with channel command-gating text for Slack, Signal, Microsoft Teams, Mattermost, and BlueBubbles to avoid mention-strip mismatches and inconsistent command detection.
 >>>>>>> 51bccaf98 (chore(changelog): note internal events and ingress hardening)
