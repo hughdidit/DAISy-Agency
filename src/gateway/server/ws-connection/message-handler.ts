@@ -355,7 +355,7 @@ export function attachGatewayWsMessageHandler(params: {
           requestedScopes.length > 0
             ? requestedScopes
             : role === "operator"
-              ? ["operator.admin"]
+              ? ["operator.read"]
               : [];
         connectParams.role = role;
         connectParams.scopes = scopes;

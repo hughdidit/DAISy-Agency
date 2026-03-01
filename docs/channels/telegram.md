@@ -2,6 +2,7 @@
 summary: "Telegram bot support status, capabilities, and configuration"
 read_when:
   - Working on Telegram features or webhooks
+title: "Telegram"
 ---
 # Telegram (Bot API)
 
@@ -9,8 +10,17 @@ read_when:
 Status: production-ready for bot DMs + groups via grammY. Long-polling by default; webhook optional.
 
 ## Quick setup (beginner)
+<<<<<<< HEAD
+<<<<<<< HEAD
 1) Create a bot with **@BotFather** and copy the token.
 2) Set the token:
+=======
+=======
+
+>>>>>>> 443ee26af (chore: oxfmt fixes)
+1. Create a bot with **@BotFather** ([direct link](https://t.me/BotFather)). Confirm the handle is exactly `@BotFather`, then copy the token.
+2. Set the token:
+>>>>>>> 8ff75eaf1 (Docs: Direct link to BotFather on Telegram (#4064))
    - Env: `TELEGRAM_BOT_TOKEN=...`
    - Or config: `channels.telegram.botToken: "..."`.
    - If both are set, config takes precedence (env fallback is default-account only).
@@ -37,9 +47,19 @@ Minimal config:
 
 ## Setup (fast path)
 ### 1) Create a bot token (BotFather)
+<<<<<<< HEAD
+<<<<<<< HEAD
 1) Open Telegram and chat with **@BotFather**.
 2) Run `/newbot`, then follow the prompts (name + username ending in `bot`).
 3) Copy the token and store it safely.
+=======
+=======
+
+>>>>>>> 443ee26af (chore: oxfmt fixes)
+1. Open Telegram and chat with **@BotFather** ([direct link](https://t.me/BotFather)). Confirm the handle is exactly `@BotFather`.
+2. Run `/newbot`, then follow the prompts (name + username ending in `bot`).
+3. Copy the token and store it safely.
+>>>>>>> 8ff75eaf1 (Docs: Direct link to BotFather on Telegram (#4064))
 
 Optional BotFather settings:
 - `/setjoingroups` — allow/deny adding the bot to groups.
@@ -66,9 +86,21 @@ If both env and config are set, config takes precedence.
 
 Multi-account support: use `channels.telegram.accounts` with per-account tokens and optional `name`. See [`gateway/configuration`](/gateway/configuration#telegramaccounts--discordaccounts--slackaccounts--signalaccounts--imessageaccounts) for the shared pattern.
 
+<<<<<<< HEAD
+<<<<<<< HEAD
 3) Start the gateway. Telegram starts when a token is resolved (config first, env fallback).
 4) DM access defaults to pairing. Approve the code when the bot is first contacted.
 5) For groups: add the bot, decide privacy/admin behavior (below), then set `channels.telegram.groups` to control mention gating + allowlists.
+=======
+1. Start the gateway. Telegram starts when a token is resolved (config first, env fallback).
+2. DM access defaults to pairing. Approve the code when the bot is first contacted.
+3. For groups: add the bot, decide privacy/admin behavior (below), then set `channels.telegram.groups` to control mention gating + allowlists.
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
+=======
+3. Start the gateway. Telegram starts when a token is resolved (config first, env fallback).
+4. DM access defaults to pairing. Approve the code when the bot is first contacted.
+5. For groups: add the bot, decide privacy/admin behavior (below), then set `channels.telegram.groups` to control mention gating + allowlists.
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 
 ## Token + privacy + permissions (Telegram side)
 
@@ -120,7 +152,7 @@ You can add custom commands to the menu via config:
 }
 ```
 
-## Troubleshooting
+## Setup troubleshooting (commands)
 
 - `setMyCommands failed` in logs usually means outbound HTTPS/DNS is blocked to `api.telegram.org`.
 - If you see `sendMessage` or `sendChatAction` failures, check IPv6 routing and DNS.
@@ -321,8 +353,22 @@ Safer (no third-party bot):
 2) Run `moltbot logs --follow` and look for `from.id`.
 
 Alternate (official Bot API):
+<<<<<<< HEAD
 1) DM your bot.
 2) Fetch updates with your bot token and read `message.from.id`:
+=======
+
+1. DM your bot.
+2. Fetch updates with your bot token and read `message.from.id`:
+<<<<<<< HEAD
+<<<<<<< HEAD
+
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
+=======
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
+=======
+
+>>>>>>> 578a6e27a (Docs: enable markdownlint autofixables except list numbering (#10476))
    ```bash
    curl "https://api.telegram.org/bot<bot_token>/getUpdates"
    ```

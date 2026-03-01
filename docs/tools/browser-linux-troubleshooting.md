@@ -1,6 +1,7 @@
 ---
 summary: "Fix Chrome/Brave/Edge/Chromium CDP startup issues for Moltbot browser control on Linux"
 read_when: "Browser control fails on Linux, especially with snap Chromium"
+title: "Browser Troubleshooting"
 ---
 
 # Browser Troubleshooting (Linux)
@@ -9,7 +10,7 @@ read_when: "Browser control fails on Linux, especially with snap Chromium"
 
 Moltbot's browser control server fails to launch Chrome/Brave/Edge/Chromium with the error:
 ```
-{"error":"Error: Failed to start Chrome CDP on port 18800 for profile \"clawd\"."}
+{"error":"Error: Failed to start Chrome CDP on port 18800 for profile \"daisy\"."}
 ```
 
 ### Root Cause
@@ -63,23 +64,41 @@ If you must use snap Chromium, configure Moltbot to attach to a manually-started
 }
 ```
 
+<<<<<<< HEAD
+<<<<<<< HEAD
 2. Start Chromium manually:
+=======
+1. Start Chromium manually:
+=======
+2. Start Chromium manually:
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
+
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 ```bash
 chromium-browser --headless --no-sandbox --disable-gpu \
   --remote-debugging-port=18800 \
-  --user-data-dir=$HOME/.clawdbot/browser/clawd/user-data \
+  --user-data-dir=$HOME/.clawdbot/browser/daisy/user-data \
   about:blank &
 ```
 
+<<<<<<< HEAD
+<<<<<<< HEAD
 3. Optionally create a systemd user service to auto-start Chrome:
+=======
+1. Optionally create a systemd user service to auto-start Chrome:
+=======
+3. Optionally create a systemd user service to auto-start Chrome:
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
+
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 ```ini
-# ~/.config/systemd/user/clawd-browser.service
+# ~/.config/systemd/user/daisy-browser.service
 [Unit]
-Description=Clawd Browser (Chrome CDP)
+Description=DAISy Browser (Chrome CDP)
 After=network.target
 
 [Service]
-ExecStart=/snap/bin/chromium --headless --no-sandbox --disable-gpu --remote-debugging-port=18800 --user-data-dir=%h/.clawdbot/browser/clawd/user-data about:blank
+ExecStart=/snap/bin/chromium --headless --no-sandbox --disable-gpu --remote-debugging-port=18800 --user-data-dir=%h/.clawdbot/browser/daisy/user-data about:blank
 Restart=on-failure
 RestartSec=5
 
@@ -87,7 +106,7 @@ RestartSec=5
 WantedBy=default.target
 ```
 
-Enable with: `systemctl --user enable --now clawd-browser.service`
+Enable with: `systemctl --user enable --now daisy-browser.service`
 
 ### Verifying the Browser Works
 
@@ -119,11 +138,11 @@ You’re using the `chrome` profile (extension relay). It expects the Moltbot
 browser extension to be attached to a live tab.
 
 Fix options:
-1. **Use the managed browser:** `moltbot browser start --browser-profile clawd`
-   (or set `browser.defaultProfile: "clawd"`).
+1. **Use the managed browser:** `moltbot browser start --browser-profile daisy`
+  (or set `browser.defaultProfile: "daisy"`).
 2. **Use the extension relay:** install the extension, open a tab, and click the
    Moltbot extension icon to attach it.
 
 Notes:
 - The `chrome` profile uses your **system default Chromium browser** when possible.
-- Local `clawd` profiles auto-assign `cdpPort`/`cdpUrl`; only set those for remote CDP.
+- Local `daisy` profiles auto-assign `cdpPort`/`cdpUrl`; only set those for remote CDP.

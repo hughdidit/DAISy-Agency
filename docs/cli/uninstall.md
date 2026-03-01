@@ -3,6 +3,7 @@ summary: "CLI reference for `moltbot uninstall` (remove gateway service + local 
 read_when:
   - You want to remove the gateway service and/or local state
   - You want a dry-run first
+title: "uninstall"
 ---
 
 # `moltbot uninstall`

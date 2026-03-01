@@ -9,12 +9,15 @@ import type { MoltbotConfig } from "../config/config.js";
 import type { OpenClawConfig } from "../config/config.js";
 >>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { DEFAULT_ASSISTANT_IDENTITY, resolveAssistantIdentity } from "./assistant-identity.js";
+import { authorizeGatewayConnect, isLocalDirectRequest, type ResolvedGatewayAuth } from "./auth.js";
 import {
   buildControlUiAvatarUrl,
   CONTROL_UI_AVATAR_PREFIX,
   normalizeControlUiBasePath,
   resolveAssistantAvatarUrl,
 } from "./control-ui-shared.js";
+import { sendUnauthorized, setSecurityHeaders } from "./http-common.js";
+import { getBearerToken } from "./http-utils.js";
 
 const ROOT_PREFIX = "/";
 
@@ -22,6 +25,8 @@ export type ControlUiRequestOptions = {
   basePath?: string;
   config?: MoltbotConfig;
   agentId?: string;
+  auth?: ResolvedGatewayAuth;
+  trustedProxies?: string[];
 };
 
 function resolveControlUiRoot(): string | null {
@@ -91,6 +96,7 @@ type ControlUiAvatarMeta = {
 };
 
 function sendJson(res: ServerResponse, status: number, body: unknown) {
+  setSecurityHeaders(res);
   res.statusCode = status;
   res.setHeader("Content-Type", "application/json; charset=utf-8");
   res.setHeader("Cache-Control", "no-cache");
@@ -101,11 +107,16 @@ function isValidAgentId(agentId: string): boolean {
   return /^[a-z0-9][a-z0-9_-]{0,63}$/i.test(agentId);
 }
 
-export function handleControlUiAvatarRequest(
+export async function handleControlUiAvatarRequest(
   req: IncomingMessage,
   res: ServerResponse,
-  opts: { basePath?: string; resolveAvatar: (agentId: string) => ControlUiAvatarResolution },
-): boolean {
+  opts: {
+    basePath?: string;
+    resolveAvatar: (agentId: string) => ControlUiAvatarResolution;
+    auth?: ResolvedGatewayAuth;
+    trustedProxies?: string[];
+  },
+): Promise<boolean> {
   const urlRaw = req.url;
   if (!urlRaw) return false;
   if (req.method !== "GET" && req.method !== "HEAD") return false;
@@ -117,6 +128,20 @@ export function handleControlUiAvatarRequest(
     ? `${basePath}${CONTROL_UI_AVATAR_PREFIX}/`
     : `${CONTROL_UI_AVATAR_PREFIX}/`;
   if (!pathname.startsWith(pathWithBase)) return false;
+
+  if (opts.auth && !isLocalDirectRequest(req, opts.trustedProxies)) {
+    const token = getBearerToken(req) ?? url.searchParams.get("token") ?? undefined;
+    const authResult = await authorizeGatewayConnect({
+      auth: opts.auth,
+      connectAuth: token ? { token, password: token } : null,
+      req,
+      trustedProxies: opts.trustedProxies,
+    });
+    if (!authResult.ok) {
+      sendUnauthorized(res);
+      return true;
+    }
+  }
 
   const agentIdParts = pathname.slice(pathWithBase.length).split("/").filter(Boolean);
   const agentId = agentIdParts[0] ?? "";
@@ -156,12 +181,14 @@ export function handleControlUiAvatarRequest(
 }
 
 function respondNotFound(res: ServerResponse) {
+  setSecurityHeaders(res);
   res.statusCode = 404;
   res.setHeader("Content-Type", "text/plain; charset=utf-8");
   res.end("Not Found");
 }
 
 function serveFile(res: ServerResponse, filePath: string) {
+  setSecurityHeaders(res);
   const ext = path.extname(filePath).toLowerCase();
   res.setHeader("Content-Type", contentTypeForExt(ext));
   // Static UI should never be cached aggressively while iterating; allow the
@@ -204,6 +231,7 @@ interface ServeIndexHtmlOpts {
 }
 
 function serveIndexHtml(res: ServerResponse, indexPath: string, opts: ServeIndexHtmlOpts) {
+  setSecurityHeaders(res);
   const { basePath, config, agentId } = opts;
   const identity = config
     ? resolveAssistantIdentity({ cfg: config, agentId })
@@ -238,11 +266,11 @@ function isSafeRelativePath(relPath: string) {
   return true;
 }
 
-export function handleControlUiHttpRequest(
+export async function handleControlUiHttpRequest(
   req: IncomingMessage,
   res: ServerResponse,
   opts?: ControlUiRequestOptions,
-): boolean {
+): Promise<boolean> {
   const urlRaw = req.url;
   if (!urlRaw) return false;
   if (req.method !== "GET" && req.method !== "HEAD") {
@@ -271,6 +299,20 @@ export function handleControlUiHttpRequest(
       return true;
     }
     if (!pathname.startsWith(`${basePath}/`)) return false;
+  }
+
+  if (opts?.auth && !isLocalDirectRequest(req, opts.trustedProxies)) {
+    const token = getBearerToken(req) ?? url.searchParams.get("token") ?? undefined;
+    const authResult = await authorizeGatewayConnect({
+      auth: opts.auth,
+      connectAuth: token ? { token, password: token } : null,
+      req,
+      trustedProxies: opts.trustedProxies,
+    });
+    if (!authResult.ok) {
+      sendUnauthorized(res);
+      return true;
+    }
   }
 
   const root = resolveControlUiRoot();

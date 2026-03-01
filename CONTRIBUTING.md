@@ -18,14 +18,26 @@ Welcome to the lobster tank! 🦞
 - **Jos** - Telegram, API, Nix mode
   - GitHub: [@joshp123](https://github.com/joshp123) · X: [@jjpcodes](https://x.com/jjpcodes)
 
+- **Christoph Nakazawa** - JS Infra
+  - GitHub: [@cpojer](https://github.com/cpojer) · X: [@cnakazawa](https://x.com/cnakazawa)
+
+- **Gustavo Madeira Santana** - Multi-agents, CLI, web UI
+  - GitHub: [@gumadeiras](https://github.com/gumadeiras) · X: [@gumadeiras](https://x.com/gumadeiras)
+
 ## How to Contribute
 1. **Bugs & small fixes** → Open a PR!
 2. **New features / architecture** → Start a [GitHub Discussion](https://github.com/moltbot/moltbot/discussions) or ask in Discord first
 3. **Questions** → Discord #setup-help
 
 ## Before You PR
+<<<<<<< HEAD
 - Test locally with your Moltbot instance
 - Run linter: `npm run lint`
+=======
+
+- Test locally with your OpenClaw instance
+- Run tests: `pnpm build && pnpm check && pnpm test`
+>>>>>>> 902f96805 (chore: Add `pnpm check` for fast repo checks.)
 - Keep PRs focused (one thing per PR)
 - Describe what & why
 

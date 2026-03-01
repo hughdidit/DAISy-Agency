@@ -3,6 +3,7 @@ summary: "Optional Docker-based setup and onboarding for Moltbot"
 read_when:
   - You want a containerized gateway instead of local installs
   - You are validating the Docker flow
+title: "Docker"
 ---
 
 # Docker (optional)
@@ -56,7 +57,7 @@ It writes config/workspace on the host:
 - `~/.clawdbot/`
 - `~/clawd`
 
-Running on a VPS? See [Hetzner (Docker VPS)](/platforms/hetzner).
+Running on a VPS? See [Hetzner (Docker VPS)](/install/hetzner).
 
 ### Manual flow (compose)
 
@@ -133,6 +134,85 @@ Notes:
 - If you change `CLAWDBOT_DOCKER_APT_PACKAGES`, rerun `docker-setup.sh` to rebuild
   the image.
 
+### Power-user / full-featured container (opt-in)
+
+The default Docker image is **security-first** and runs as the non-root `node`
+user. This keeps the attack surface small, but it means:
+
+- no system package installs at runtime
+- no Homebrew by default
+- no bundled Chromium/Playwright browsers
+
+If you want a more full-featured container, use these opt-in knobs:
+
+1) **Persist `/home/node`** so browser downloads and tool caches survive:
+
+```bash
+export OPENCLAW_HOME_VOLUME="openclaw_home"
+./docker-setup.sh
+```
+
+<<<<<<< HEAD
+<<<<<<< HEAD
+2) **Bake system deps into the image** (repeatable + persistent):
+=======
+1. **Bake system deps into the image** (repeatable + persistent):
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
+=======
+2. **Bake system deps into the image** (repeatable + persistent):
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
+
+```bash
+export OPENCLAW_DOCKER_APT_PACKAGES="git curl jq"
+./docker-setup.sh
+```
+
+<<<<<<< HEAD
+<<<<<<< HEAD
+3) **Install Playwright browsers without `npx`** (avoids npm override conflicts):
+=======
+1. **Install Playwright browsers without `npx`** (avoids npm override conflicts):
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
+=======
+3. **Install Playwright browsers without `npx`** (avoids npm override conflicts):
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
+
+```bash
+docker compose run --rm openclaw-cli \
+  node /app/node_modules/playwright-core/cli.js install chromium
+```
+
+If you need Playwright to install system deps, rebuild the image with
+`OPENCLAW_DOCKER_APT_PACKAGES` instead of using `--with-deps` at runtime.
+
+<<<<<<< HEAD
+<<<<<<< HEAD
+4) **Persist Playwright browser downloads**:
+=======
+1. **Persist Playwright browser downloads**:
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
+=======
+4. **Persist Playwright browser downloads**:
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
+
+- Set `PLAYWRIGHT_BROWSERS_PATH=/home/node/.cache/ms-playwright` in
+  `docker-compose.yml`.
+- Ensure `/home/node` persists via `OPENCLAW_HOME_VOLUME`, or mount
+  `/home/node/.cache/ms-playwright` via `OPENCLAW_EXTRA_MOUNTS`.
+
+### Permissions + EACCES
+
+The image runs as `node` (uid 1000). If you see permission errors on
+`/home/node/.openclaw`, make sure your host bind mounts are owned by uid 1000.
+
+Example (Linux host):
+
+```bash
+sudo chown -R 1000:1000 /path/to/openclaw-config /path/to/openclaw-workspace
+```
+
+If you choose to run as root for convenience, you accept the security tradeoff.
+
 ### Faster rebuilds (recommended)
 
 To speed up rebuilds, order your Dockerfile so dependency layers are cached.
@@ -208,7 +288,12 @@ pnpm test:docker:qr
 ### Notes
 
 - Gateway bind defaults to `lan` for container use.
+<<<<<<< HEAD
 - The gateway container is the source of truth for sessions (`~/.clawdbot/agents/<agentId>/sessions/`).
+=======
+- Dockerfile CMD uses `--allow-unconfigured`; mounted config with `gateway.mode` not `local` will still start. Override CMD to enforce the guard.
+- The gateway container is the source of truth for sessions (`~/.openclaw/agents/<agentId>/sessions/`).
+>>>>>>> d134a8c7f (docs: note docker allow-unconfigured behavior)
 
 ## Agent Sandbox (host gateway + Docker tools)
 

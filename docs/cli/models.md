@@ -3,6 +3,7 @@ summary: "CLI reference for `moltbot models` (status/list/set/scan, aliases, fal
 read_when:
   - You want to change default models or view provider auth status
   - You want to scan available models/providers and debug auth profiles
+title: "models"
 ---
 
 # `moltbot models`

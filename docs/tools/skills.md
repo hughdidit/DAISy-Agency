@@ -3,6 +3,7 @@ summary: "Skills: managed vs workspace, gating rules, and config/env wiring"
 read_when:
   - Adding or modifying skills
   - Changing skill gating or load rules
+title: "Skills"
 ---
 # Skills (Moltbot)
 
@@ -47,9 +48,15 @@ tool surface those skills teach.
 
 ## ClawdHub (install + sync)
 
+<<<<<<< HEAD
 ClawdHub is the public skills registry for Moltbot. Browse at
 https://clawdhub.com. Use it to discover, install, update, and back up skills.
 Full guide: [ClawdHub](/tools/clawdhub).
+=======
+ClawHub is the public skills registry for OpenClaw. Browse at
+[https://clawhub.com](https://clawhub.com). Use it to discover, install, update, and back up skills.
+Full guide: [ClawHub](/tools/clawhub).
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 
 Common flows:
 
@@ -66,7 +73,7 @@ that up as `<workspace>/skills` on the next session.
 
 ## Security notes
 
-- Treat third-party skills as **trusted code**. Read them before enabling.
+- Treat third-party skills as **untrusted code**. Read them before enabling.
 - Prefer sandboxed runs for untrusted inputs and risky tools. See [Sandboxing](/gateway/sandboxing).
 - `skills.entries.*.env` and `skills.entries.*.apiKey` inject secrets into the **host** process
   for that agent turn (not the sandbox). Keep secrets out of prompts and logs.
@@ -262,6 +269,18 @@ See [Skills config](/tools/skills-config) for the full configuration schema.
 
 ## Looking for more skills?
 
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
 Browse https://clawdhub.com.
+=======
+Browse [https://clawhub.com](https://clawhub.com).
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
+=======
+Browse https://clawhub.com.
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
+=======
+Browse [https://clawhub.com](https://clawhub.com).
+>>>>>>> 578a6e27a (Docs: enable markdownlint autofixables except list numbering (#10476))
 
 ---

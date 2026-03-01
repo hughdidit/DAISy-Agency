@@ -10,6 +10,9 @@
 import type { IncomingMessage } from "node:http";
 import type { Duplex } from "node:stream";
 import { WebSocket, WebSocketServer } from "ws";
+
+import type { Logger } from "./manager/context.js";
+import { defaultLogger } from "./manager/context.js";
 import type {
   OpenAIRealtimeSTTProvider,
   RealtimeSTTSession,
@@ -21,6 +24,8 @@ import type {
 export interface MediaStreamConfig {
   /** STT provider for transcription */
   sttProvider: OpenAIRealtimeSTTProvider;
+  /** Validate whether to accept a media stream for the given call ID */
+  shouldAcceptStream?: (params: { callId: string; streamSid: string; token?: string }) => boolean;
   /** Callback when transcript is received */
   onTranscript?: (callId: string, transcript: string) => void;
   /** Callback for partial transcripts (streaming UI) */
@@ -64,8 +69,11 @@ export class MediaStreamHandler {
   /** Active TTS playback controllers per stream */
   private ttsActiveControllers = new Map<string, AbortController>();
 
-  constructor(config: MediaStreamConfig) {
+  private readonly logger: Logger;
+
+  constructor(config: MediaStreamConfig, logger?: Logger) {
     this.config = config;
+    this.logger = logger ?? defaultLogger;
   }
 
   /**
@@ -90,6 +98,7 @@ export class MediaStreamHandler {
     _request: IncomingMessage,
   ): Promise<void> {
     let session: StreamSession | null = null;
+    const streamToken = this.getStreamToken(_request);
 
     ws.on("message", async (data: Buffer) => {
       try {
@@ -97,11 +106,11 @@ export class MediaStreamHandler {
 
         switch (message.event) {
           case "connected":
-            console.log("[MediaStream] Twilio connected");
+            this.logger.info("[MediaStream] Twilio connected");
             break;
 
           case "start":
-            session = await this.handleStart(ws, message);
+            session = await this.handleStart(ws, message, streamToken);
             break;
 
           case "media":
@@ -120,7 +129,7 @@ export class MediaStreamHandler {
             break;
         }
       } catch (error) {
-        console.error("[MediaStream] Error processing message:", error);
+        this.logger.error(`[MediaStream] Error processing message: ${error}`);
       }
     });
 
@@ -131,7 +140,7 @@ export class MediaStreamHandler {
     });
 
     ws.on("error", (error) => {
-      console.error("[MediaStream] WebSocket error:", error);
+      this.logger.error(`[MediaStream] WebSocket error: ${error}`);
     });
   }
 
@@ -141,13 +150,35 @@ export class MediaStreamHandler {
   private async handleStart(
     ws: WebSocket,
     message: TwilioMediaMessage,
+<<<<<<< HEAD
   ): Promise<StreamSession> {
     const streamSid = message.streamSid || "";
     const callSid = message.start?.callSid || "";
 
-    console.log(
+    this.logger.info(
       `[MediaStream] Stream started: ${streamSid} (call: ${callSid})`,
     );
+=======
+    streamToken?: string,
+  ): Promise<StreamSession | null> {
+    const streamSid = message.streamSid || "";
+    const callSid = message.start?.callSid || "";
+
+    console.log(`[MediaStream] Stream started: ${streamSid} (call: ${callSid})`);
+    if (!callSid) {
+      console.warn("[MediaStream] Missing callSid; closing stream");
+      ws.close(1008, "Missing callSid");
+      return null;
+    }
+    if (
+      this.config.shouldAcceptStream &&
+      !this.config.shouldAcceptStream({ callId: callSid, streamSid, token: streamToken })
+    ) {
+      console.warn(`[MediaStream] Rejecting stream for unknown call: ${callSid}`);
+      ws.close(1008, "Unknown call");
+      return null;
+    }
+>>>>>>> f8dfd034f (fix(voice-call): harden inbound policy)
 
     // Create STT session
     const sttSession = this.config.sttProvider.createSession();
@@ -179,9 +210,8 @@ export class MediaStreamHandler {
 
     // Connect to OpenAI STT (non-blocking, log errors but don't fail the call)
     sttSession.connect().catch((err) => {
-      console.warn(
-        `[MediaStream] STT connection failed (TTS still works):`,
-        err.message,
+      this.logger.warn(
+        `[MediaStream] STT connection failed (TTS still works): ${err.message}`,
       );
     });
 
@@ -192,12 +222,24 @@ export class MediaStreamHandler {
    * Handle stream stop event.
    */
   private handleStop(session: StreamSession): void {
-    console.log(`[MediaStream] Stream stopped: ${session.streamSid}`);
+    this.logger.info(`[MediaStream] Stream stopped: ${session.streamSid}`);
 
     this.clearTtsState(session.streamSid);
     session.sttSession.close();
     this.sessions.delete(session.streamSid);
     this.config.onDisconnect?.(session.callId);
+  }
+
+  private getStreamToken(request: IncomingMessage): string | undefined {
+    if (!request.url || !request.headers.host) {
+      return undefined;
+    }
+    try {
+      const url = new URL(request.url, `http://${request.headers.host}`);
+      return url.searchParams.get("token") ?? undefined;
+    } catch {
+      return undefined;
+    }
   }
 
   /**
@@ -340,7 +382,7 @@ export class MediaStreamHandler {
         if (entry.controller.signal.aborted) {
           entry.resolve();
         } else {
-          console.error("[MediaStream] TTS playback error:", error);
+          this.logger.error(`[MediaStream] TTS playback error: ${error}`);
           entry.reject(error);
         }
       } finally {

@@ -1,15 +1,64 @@
 ---
 summary: "Top-level overview of Moltbot, features, and purpose"
 read_when:
+<<<<<<< HEAD
   - Introducing Moltbot to newcomers
+=======
+  - Introducing OpenClaw to newcomers
+title: "OpenClaw"
+>>>>>>> abcaa8c7a (Docs: add nav titles across docs (#5689))
 ---
 # Moltbot 🦞
 
 > *"EXFOLIATE! EXFOLIATE!"* — A space lobster, probably
 
+<<<<<<< HEAD
 <p align="center">
+<<<<<<< HEAD
+<<<<<<< HEAD
   <img src="whatsapp-clawd.jpg" alt="Moltbot" width="420" />
+=======
+    <picture>
+        <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/openclaw/openclaw/main/docs/assets/openclaw-logo-text-dark.png">
+        <img src="https://raw.githubusercontent.com/openclaw/openclaw/main/docs/assets/openclaw-logo-text.png" alt="OpenClaw" width="420">
+    </picture>
+>>>>>>> 12e8a8410 (Update logo and contributor name in docs)
+=======
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="/assets/openclaw-logo-text.png" />
+    <source media="(prefers-color-scheme: light)" srcset="/assets/openclaw-logo-text-dark.png" />
+    <img src="/assets/openclaw-logo-text.png" alt="OpenClaw" width="520" />
+  </picture>
 </p>
+
+<p align="center">
+  <img src="whatsapp-openclaw.jpg" alt="OpenClaw" width="420" />
+>>>>>>> 62e4ad23d (chore: release 2026.1.29)
+=======
+
+<p align="center">
+<<<<<<< HEAD
+    <picture>
+        <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/openclaw/openclaw/main/docs/assets/openclaw-logo-text-dark.png">
+        <img src="https://raw.githubusercontent.com/openclaw/openclaw/main/docs/assets/openclaw-logo-text.png" alt="OpenClaw" width="500">
+    </picture>
+>>>>>>> 613724c26 (Update index.md)
+=======
+    <img
+        src="/assets/openclaw-logo-text-dark.png"
+        alt="OpenClaw"
+        width="500"
+        class="dark:hidden"
+    />
+    <img
+        src="/assets/openclaw-logo-text.png"
+        alt="OpenClaw"
+        width="500"
+        class="hidden dark:block"
+    />
+>>>>>>> 8978d1665 (Docs: fix index logo dark mode (#5474))
+</p>
+
 
 <p align="center">
   <strong>Any OS + WhatsApp/Telegram/Discord/iMessage gateway for AI agents (Pi).</strong><br />
@@ -24,8 +73,25 @@ read_when:
   <a href="/start/clawd">Moltbot assistant setup</a>
 </p>
 
+<<<<<<< HEAD
 Moltbot bridges WhatsApp (via WhatsApp Web / Baileys), Telegram (Bot API / grammY), Discord (Bot API / channels.discord.js), and iMessage (imsg CLI) to coding agents like [Pi](https://github.com/badlogic/pi-mono). Plugins add Mattermost (Bot API + WebSocket) and more.
 Moltbot also powers [Clawd](https://clawd.me), the space‑lobster assistant.
+=======
+## What is OpenClaw?
+
+OpenClaw is a **self-hosted gateway** that connects your favorite chat apps — WhatsApp, Telegram, Discord, iMessage, and more — to AI coding agents like Pi. You run a single Gateway process on your own machine (or a server), and it becomes the bridge between your messaging apps and an always-available AI assistant.
+
+**Who is it for?** Developers and power users who want a personal AI assistant they can message from anywhere — without giving up control of their data or relying on a hosted service.
+
+**What makes it different?**
+
+- **Self-hosted**: runs on your hardware, your rules
+- **Multi-channel**: one Gateway serves WhatsApp, Telegram, Discord, and more simultaneously
+- **Agent-native**: built for coding agents with tool use, sessions, memory, and multi-agent routing
+- **Open source**: MIT licensed, community-driven
+
+**What do you need?** Node 22+, an API key (Anthropic recommended), and 5 minutes.
+>>>>>>> c18452598 (docs: restructure Get Started tab and improve onboarding flow (#9950))
 
 ## Start here
 
@@ -38,9 +104,66 @@ immediately. If it fails, start the Gateway first: `moltbot gateway`.
 
 ## Dashboard (browser Control UI)
 
+<<<<<<< HEAD
 The dashboard is the browser Control UI for chat, config, nodes, sessions, and more.
 Local default: http://127.0.0.1:18789/
 Remote access: [Web surfaces](/web) and [Tailscale](/gateway/tailscale)
+=======
+<Columns>
+  <Card title="Multi-channel gateway" icon="network">
+    WhatsApp, Telegram, Discord, and iMessage with a single Gateway process.
+  </Card>
+  <Card title="Plugin channels" icon="plug">
+    Add Mattermost and more with extension packages.
+  </Card>
+  <Card title="Multi-agent routing" icon="route">
+    Isolated sessions per agent, workspace, or sender.
+  </Card>
+  <Card title="Media support" icon="image">
+    Send and receive images, audio, and documents.
+  </Card>
+  <Card title="Web Control UI" icon="monitor">
+    Browser dashboard for chat, config, sessions, and nodes.
+  </Card>
+  <Card title="Mobile nodes" icon="smartphone">
+    Pair iOS and Android nodes with Canvas support.
+  </Card>
+</Columns>
+
+## Quick start
+
+<Steps>
+  <Step title="Install OpenClaw">
+    ```bash
+    npm install -g openclaw@latest
+    ```
+  </Step>
+  <Step title="Onboard and install the service">
+    ```bash
+    openclaw onboard --install-daemon
+    ```
+  </Step>
+  <Step title="Pair WhatsApp and start the Gateway">
+    ```bash
+    openclaw channels login
+    openclaw gateway --port 18789
+    ```
+  </Step>
+</Steps>
+
+Need the full install and dev setup? See [Quick start](/start/quickstart).
+
+## Dashboard
+
+Open the browser Control UI after the Gateway starts.
+
+- Local default: [http://127.0.0.1:18789/](http://127.0.0.1:18789/)
+- Remote access: [Web surfaces](/web) and [Tailscale](/gateway/tailscale)
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
+
+<p align="center">
+  <img src="whatsapp-openclaw.jpg" alt="OpenClaw" width="420" />
+</p>
 
 ## How it works
 
@@ -222,8 +345,8 @@ Example:
 
 ## Credits
 
-- **Peter Steinberger** ([@steipete](https://twitter.com/steipete)) — Creator, lobster whisperer
-- **Mario Zechner** ([@badlogicc](https://twitter.com/badlogicgames)) — Pi creator, security pen-tester
+- **Peter Steinberger** ([@steipete](https://x.com/steipete)) — Creator, lobster whisperer
+- **Mario Zechner** ([@badlogicc](https://x.com/badlogicgames)) — Pi creator, security pen-tester
 - **Clawd** — The space lobster who demanded a better name
 
 ## Core Contributors
