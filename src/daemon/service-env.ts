@@ -1,4 +1,5 @@
 import path from "node:path";
+
 import { VERSION } from "../version.js";
 import {
   GATEWAY_SERVICE_KIND,

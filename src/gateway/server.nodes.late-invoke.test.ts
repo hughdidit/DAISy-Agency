@@ -1,7 +1,8 @@
 import { afterAll, beforeAll, describe, expect, test, vi } from "vitest";
 import { WebSocket } from "ws";
-import { loadOrCreateDeviceIdentity } from "../infra/device-identity.js";
+
 import { GATEWAY_CLIENT_MODES, GATEWAY_CLIENT_NAMES } from "../utils/message-channel.js";
+import { loadOrCreateDeviceIdentity } from "../infra/device-identity.js";
 
 vi.mock("../infra/update-runner.js", () => ({
   runGatewayUpdate: vi.fn(async () => ({

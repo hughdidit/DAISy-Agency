@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+
 import { buildMessagingTarget, ensureTargetId, requireTargetKind } from "./targets.js";
 
 describe("ensureTargetId", () => {

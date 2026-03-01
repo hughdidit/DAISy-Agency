@@ -1,4 +1,5 @@
 import type { GatewayClient } from "../gateway/client.js";
+
 import type { AcpServerOptions } from "./types.js";
 import { readBool, readString } from "./meta.js";
 

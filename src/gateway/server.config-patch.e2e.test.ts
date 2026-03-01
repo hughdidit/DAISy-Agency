@@ -2,7 +2,9 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
+
 import { resolveConfigSnapshotHash } from "../config/config.js";
+
 import {
   connectOk,
   installGatewayTestHooks,

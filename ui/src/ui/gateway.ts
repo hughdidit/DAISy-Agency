@@ -1,13 +1,13 @@
-import { buildDeviceAuthPayload } from "../../../src/gateway/device-auth.js";
+import { generateUUID } from "./uuid";
 import {
   GATEWAY_CLIENT_MODES,
   GATEWAY_CLIENT_NAMES,
   type GatewayClientMode,
   type GatewayClientName,
 } from "../../../src/gateway/protocol/client-info.js";
-import { clearDeviceAuthToken, loadDeviceAuthToken, storeDeviceAuthToken } from "./device-auth";
+import { buildDeviceAuthPayload } from "../../../src/gateway/device-auth.js";
 import { loadOrCreateDeviceIdentity, signDevicePayload } from "./device-identity";
-import { generateUUID } from "./uuid";
+import { clearDeviceAuthToken, loadDeviceAuthToken, storeDeviceAuthToken } from "./device-auth";
 
 export type GatewayEventFrame = {
   type: "event";

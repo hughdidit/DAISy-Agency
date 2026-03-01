@@ -1,7 +1,8 @@
 import { createHash } from "node:crypto";
-import fsSync from "node:fs";
 import fs from "node:fs/promises";
+import fsSync from "node:fs";
 import path from "node:path";
+
 import { resolveConfigPath, resolveGatewayLockDir, resolveStateDir } from "../config/paths.js";
 
 const DEFAULT_TIMEOUT_MS = 5000;

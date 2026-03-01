@@ -1,4 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
+
+import { browserOpenTab, browserSnapshot, browserStatus, browserTabs } from "./client.js";
 import {
   browserAct,
   browserArmDialog,
@@ -8,7 +10,6 @@ import {
   browserPdfSave,
   browserScreenshotAction,
 } from "./client-actions.js";
-import { browserOpenTab, browserSnapshot, browserStatus, browserTabs } from "./client.js";
 
 describe("browser client", () => {
   afterEach(() => {

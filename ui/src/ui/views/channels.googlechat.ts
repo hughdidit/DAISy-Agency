@@ -1,8 +1,9 @@
 import { html, nothing } from "lit";
-import type { GoogleChatStatus } from "../types";
-import type { ChannelsProps } from "./channels.types";
+
 import { formatAgo } from "../format";
+import type { GoogleChatStatus } from "../types";
 import { renderChannelConfigSection } from "./channels.config";
+import type { ChannelsProps } from "./channels.types";
 
 export function renderGoogleChatCard(params: {
   props: ChannelsProps;

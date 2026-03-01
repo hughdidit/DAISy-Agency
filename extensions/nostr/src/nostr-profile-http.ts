@@ -9,8 +9,9 @@
 
 import type { IncomingMessage, ServerResponse } from "node:http";
 import { z } from "zod";
-import { publishNostrProfile, getNostrProfileState } from "./channel.js";
+
 import { NostrProfileSchema, type NostrProfile } from "./config-schema.js";
+import { publishNostrProfile, getNostrProfileState } from "./channel.js";
 import { importProfileFromRelays, mergeProfiles } from "./nostr-profile-import.js";
 
 // ============================================================================

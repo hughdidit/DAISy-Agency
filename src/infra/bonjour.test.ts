@@ -1,5 +1,7 @@
 import os from "node:os";
+
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
 import * as logging from "../logging.js";
 
 const mocks = vi.hoisted(() => ({

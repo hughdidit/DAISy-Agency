@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+
 import { resolveFetch } from "../infra/fetch.js";
 
 export type SignalRpcOptions = {

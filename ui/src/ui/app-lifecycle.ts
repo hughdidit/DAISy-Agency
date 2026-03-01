@@ -1,15 +1,6 @@
 import type { Tab } from "./navigation";
 import { connectGateway } from "./app-gateway";
 import {
-  startLogsPolling,
-  startNodesPolling,
-  stopLogsPolling,
-  stopNodesPolling,
-  startDebugPolling,
-  stopDebugPolling,
-} from "./app-polling";
-import { observeTopbar, scheduleChatScroll, scheduleLogsScroll } from "./app-scroll";
-import {
   applySettingsFromUrl,
   attachThemeListener,
   detachThemeListener,
@@ -17,6 +8,15 @@ import {
   syncTabWithLocation,
   syncThemeWithSettings,
 } from "./app-settings";
+import { observeTopbar, scheduleChatScroll, scheduleLogsScroll } from "./app-scroll";
+import {
+  startLogsPolling,
+  startNodesPolling,
+  stopLogsPolling,
+  stopNodesPolling,
+  startDebugPolling,
+  stopDebugPolling,
+} from "./app-polling";
 
 type LifecycleHost = {
   basePath: string;

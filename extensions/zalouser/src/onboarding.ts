@@ -10,13 +10,8 @@ import {
   normalizeAccountId,
   promptAccountId,
   promptChannelAccessConfig,
-<<<<<<< HEAD
 } from "clawdbot/plugin-sdk";
 
-=======
-} from "openclaw/plugin-sdk";
-import type { ZcaFriend, ZcaGroup } from "./types.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import {
   listZalouserAccountIds,
   resolveDefaultZalouserAccountId,
@@ -24,6 +19,7 @@ import {
   checkZcaAuthenticated,
 } from "./accounts.js";
 import { runZca, runZcaInteractive, checkZcaInstalled, parseJsonOutput } from "./zca.js";
+import type { ZcaFriend, ZcaGroup } from "./types.js";
 
 const channel = "zalouser" as const;
 

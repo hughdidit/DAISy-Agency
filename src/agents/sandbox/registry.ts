@@ -1,4 +1,5 @@
 import fs from "node:fs/promises";
+
 import {
   SANDBOX_BROWSER_REGISTRY_PATH,
   SANDBOX_REGISTRY_PATH,

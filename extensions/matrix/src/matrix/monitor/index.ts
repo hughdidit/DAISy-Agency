@@ -1,17 +1,11 @@
 import { format } from "node:util";
-<<<<<<< HEAD
 
 import {
   mergeAllowlist,
   summarizeMapping,
   type RuntimeEnv,
 } from "clawdbot/plugin-sdk";
-=======
-import { mergeAllowlist, summarizeMapping, type RuntimeEnv } from "openclaw/plugin-sdk";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { CoreConfig, ReplyToMode } from "../../types.js";
-import { resolveMatrixTargets } from "../../resolve-targets.js";
-import { getMatrixRuntime } from "../../runtime.js";
 import { setActiveMatrixClient } from "../active-client.js";
 import {
   isBunRuntime,
@@ -25,6 +19,8 @@ import { createDirectRoomTracker } from "./direct.js";
 import { registerMatrixMonitorEvents } from "./events.js";
 import { createMatrixRoomMessageHandler } from "./handler.js";
 import { createMatrixRoomInfoResolver } from "./room-info.js";
+import { resolveMatrixTargets } from "../../resolve-targets.js";
+import { getMatrixRuntime } from "../../runtime.js";
 
 export type MonitorMatrixOpts = {
   runtime?: RuntimeEnv;

@@ -1,5 +1,5 @@
-import type { IconName } from "./icons";
 import rawConfig from "./tool-display.json";
+import type { IconName } from "./icons";
 
 type ToolDisplayActionSpec = {
   label?: string;

@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+
 import { resolveSlackChannelConfig } from "./channel-config.js";
 
 describe("resolveSlackChannelConfig", () => {

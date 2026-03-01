@@ -1,4 +1,5 @@
 import { randomBytes } from "node:crypto";
+
 import {
   type MoltbotConfig,
   DEFAULT_GATEWAY_PORT,

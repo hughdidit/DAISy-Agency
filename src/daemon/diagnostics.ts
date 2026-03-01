@@ -1,4 +1,5 @@
 import fs from "node:fs/promises";
+
 import { resolveGatewayLogPaths } from "./launchd.js";
 
 const GATEWAY_LOG_ERROR_PATTERNS = [

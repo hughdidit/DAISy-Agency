@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+
 import { extractFilename, extractMessageId, getMimeType, isLocalPath } from "./media-helpers.js";
 
 describe("msteams media-helpers", () => {

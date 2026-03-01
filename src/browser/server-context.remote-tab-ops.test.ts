@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
+
 import type { BrowserServerState } from "./server-context.js";
 
 vi.mock("./chrome.js", () => ({

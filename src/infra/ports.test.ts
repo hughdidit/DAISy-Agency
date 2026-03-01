@@ -1,5 +1,6 @@
 import net from "node:net";
 import { describe, expect, it, vi } from "vitest";
+
 import {
   buildPortHints,
   classifyPortListener,

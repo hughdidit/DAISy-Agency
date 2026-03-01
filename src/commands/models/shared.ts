@@ -1,4 +1,3 @@
-import { listAgentIds } from "../../agents/agent-scope.js";
 import { DEFAULT_MODEL, DEFAULT_PROVIDER } from "../../agents/defaults.js";
 import {
   buildModelAliasIndex,
@@ -6,10 +5,6 @@ import {
   parseModelRef,
   resolveModelRefFromString,
 } from "../../agents/model-selection.js";
-<<<<<<< HEAD
-=======
-import { formatCliCommand } from "../../cli/command-format.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import {
   type MoltbotConfig,
   readConfigFileSnapshot,

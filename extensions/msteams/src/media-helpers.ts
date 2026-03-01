@@ -3,6 +3,7 @@
  */
 
 import path from "node:path";
+
 import {
   detectMime,
   extensionForMime,

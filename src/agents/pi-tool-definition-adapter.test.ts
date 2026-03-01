@@ -1,5 +1,6 @@
 import type { AgentTool } from "@mariozechner/pi-agent-core";
 import { describe, expect, it } from "vitest";
+
 import { toToolDefinitions } from "./pi-tool-definition-adapter.js";
 
 describe("pi tool definition adapter", () => {

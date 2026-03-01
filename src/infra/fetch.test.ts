@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
+
 import { wrapFetchWithAbortSignal } from "./fetch.js";
 
 describe("wrapFetchWithAbortSignal", () => {

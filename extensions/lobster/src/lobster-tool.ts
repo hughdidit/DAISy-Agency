@@ -2,12 +2,8 @@ import { Type } from "@sinclair/typebox";
 import { spawn } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
-<<<<<<< HEAD
 
 import type { MoltbotPluginApi } from "../../../src/plugins/types.js";
-=======
-import type { OpenClawPluginApi } from "../../../src/plugins/types.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 
 type LobsterEnvelope =
   | {

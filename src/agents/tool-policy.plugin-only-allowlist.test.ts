@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+
 import { stripPluginOnlyAllowlist, type PluginToolGroups } from "./tool-policy.js";
 
 const pluginGroups: PluginToolGroups = {

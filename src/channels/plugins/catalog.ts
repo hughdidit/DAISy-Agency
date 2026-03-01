@@ -1,19 +1,12 @@
 import fs from "node:fs";
 import path from "node:path";
-<<<<<<< HEAD
 
 import { LEGACY_MANIFEST_KEY } from "../../compat/legacy-names.js";
 import { discoverMoltbotPlugins } from "../../plugins/discovery.js";
 import type { PluginOrigin } from "../../plugins/types.js";
 import type { MoltbotPackageManifest } from "../../plugins/manifest.js";
-=======
-import type { OpenClawPackageManifest } from "../../plugins/manifest.js";
-import type { PluginOrigin } from "../../plugins/types.js";
-import type { ChannelMeta } from "./types.js";
-import { MANIFEST_KEY } from "../../compat/legacy-names.js";
-import { discoverOpenClawPlugins } from "../../plugins/discovery.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { CONFIG_DIR, resolveUserPath } from "../../utils.js";
+import type { ChannelMeta } from "./types.js";
 
 export type ChannelUiMetaEntry = {
   id: string;

@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
+
 import type { SlackMonitorContext } from "../context.js";
 import { prepareSlackMessage } from "./prepare.js";
 

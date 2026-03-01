@@ -3,7 +3,6 @@ import os from "node:os";
 import path from "node:path";
 import { afterAll, beforeAll, beforeEach, describe, expect, test, vi } from "vitest";
 import { WebSocket } from "ws";
-import { DEFAULT_PROVIDER } from "../agents/defaults.js";
 import {
   connectOk,
   embeddedRunMock,
@@ -15,6 +14,7 @@ import {
   testState,
   writeSessionStore,
 } from "./test-helpers.js";
+import { DEFAULT_PROVIDER } from "../agents/defaults.js";
 
 const sessionCleanupMocks = vi.hoisted(() => ({
   clearSessionQueues: vi.fn(() => ({ followupCleared: 0, laneCleared: 0, keys: [] })),

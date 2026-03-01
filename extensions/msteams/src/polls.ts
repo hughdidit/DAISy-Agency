@@ -1,4 +1,5 @@
 import crypto from "node:crypto";
+
 import { resolveMSTeamsStorePath } from "./storage.js";
 import { readJsonFile, withFileLock, writeJsonFile } from "./store-fs.js";
 

@@ -1,6 +1,5 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import type { GatewayRequestHandlers } from "./types.js";
 import { getResolvedLoggerSettings } from "../../logging.js";
 import {
   ErrorCodes,
@@ -8,6 +7,7 @@ import {
   formatValidationErrors,
   validateLogsTailParams,
 } from "../protocol/index.js";
+import type { GatewayRequestHandlers } from "./types.js";
 
 const DEFAULT_LIMIT = 500;
 const DEFAULT_MAX_BYTES = 250_000;

@@ -1,6 +1,6 @@
-import { resolveMatrixRoomId } from "../send.js";
-import { resolveActionClient } from "./client.js";
 import { EventType, type MatrixActionClientOpts } from "./types.js";
+import { resolveActionClient } from "./client.js";
+import { resolveMatrixRoomId } from "../send.js";
 
 export async function getMatrixMemberInfo(
   userId: string,

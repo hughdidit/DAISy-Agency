@@ -1,10 +1,10 @@
-import type { Dispatcher } from "undici";
+import { logWarn } from "../logger.js";
 import {
   closeDispatcher,
   createPinnedDispatcher,
   resolvePinnedHostname,
 } from "../infra/net/ssrf.js";
-import { logWarn } from "../logger.js";
+import type { Dispatcher } from "undici";
 
 type CanvasModule = typeof import("@napi-rs/canvas");
 type PdfJsModule = typeof import("pdfjs-dist/legacy/build/pdf.mjs");

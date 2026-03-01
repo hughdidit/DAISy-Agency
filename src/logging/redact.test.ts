@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+
 import { getDefaultRedactPatterns, redactSensitiveText } from "./redact.js";
 
 const defaults = getDefaultRedactPatterns();

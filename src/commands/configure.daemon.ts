@@ -1,10 +1,9 @@
-import type { RuntimeEnv } from "../runtime.js";
-import { withProgress } from "../cli/progress.js";
-import { loadConfig } from "../config/config.js";
+import { buildGatewayInstallPlan, gatewayInstallErrorHint } from "./daemon-install-helpers.js";
 import { resolveGatewayService } from "../daemon/service.js";
+import { withProgress } from "../cli/progress.js";
+import type { RuntimeEnv } from "../runtime.js";
 import { note } from "../terminal/note.js";
 import { confirm, select } from "./configure.shared.js";
-import { buildGatewayInstallPlan, gatewayInstallErrorHint } from "./daemon-install-helpers.js";
 import {
   DEFAULT_GATEWAY_DAEMON_RUNTIME,
   GATEWAY_DAEMON_RUNTIME_OPTIONS,
@@ -12,6 +11,7 @@ import {
 } from "./daemon-runtime.js";
 import { guardCancel } from "./onboard-helpers.js";
 import { ensureSystemdUserLingerInteractive } from "./systemd-linger.js";
+import { loadConfig } from "../config/config.js";
 
 export async function maybeInstallDaemon(params: {
   runtime: RuntimeEnv;

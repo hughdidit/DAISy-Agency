@@ -4,7 +4,6 @@ import { defaultLogger, sanitizeLogValue } from "../../manager/context.js";
 import { verifyTwilioWebhook } from "../../webhook-security.js";
 
 import type { TwilioProviderOptions } from "../twilio.js";
-import { verifyTwilioWebhook } from "../../webhook-security.js";
 
 export function verifyTwilioProviderWebhook(params: {
   ctx: WebhookContext;

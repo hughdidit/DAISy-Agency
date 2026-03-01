@@ -1,6 +1,5 @@
-import type { CoreConfig } from "../types.js";
-import type { MatrixActionClient, MatrixActionClientOpts } from "./types.js";
 import { getMatrixRuntime } from "../../runtime.js";
+import type { CoreConfig } from "../types.js";
 import { getActiveMatrixClient } from "../active-client.js";
 import {
   createMatrixClient,
@@ -8,6 +7,7 @@ import {
   resolveMatrixAuth,
   resolveSharedMatrixClient,
 } from "../client.js";
+import type { MatrixActionClient, MatrixActionClientOpts } from "./types.js";
 
 export function ensureNodeRuntime() {
   if (isBunRuntime()) {

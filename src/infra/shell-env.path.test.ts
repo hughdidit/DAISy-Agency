@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
+
 import { getShellPathFromLoginShell, resetShellPathCacheForTests } from "./shell-env.js";
 
 describe("getShellPathFromLoginShell", () => {

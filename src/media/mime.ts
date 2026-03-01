@@ -1,5 +1,6 @@
-import { fileTypeFromBuffer } from "file-type";
 import path from "node:path";
+
+import { fileTypeFromBuffer } from "file-type";
 import { type MediaKind, mediaKindFromMime } from "./constants.js";
 
 // Map common mimes to preferred file extensions.

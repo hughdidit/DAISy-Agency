@@ -1,8 +1,9 @@
 import { html, nothing } from "lit";
-import type { GatewaySessionRow, SessionsListResult } from "../types";
+
 import { formatAgo } from "../format";
-import { pathForTab } from "../navigation";
 import { formatSessionTokens } from "../presenter";
+import { pathForTab } from "../navigation";
+import type { GatewaySessionRow, SessionsListResult } from "../types";
 
 export type SessionsProps = {
   loading: boolean;

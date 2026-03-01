@@ -1,6 +1,3 @@
-import { resolveMatrixRoomId, sendMessageMatrix } from "../send.js";
-import { resolveActionClient } from "./client.js";
-import { summarizeMatrixRawEvent } from "./summary.js";
 import {
   EventType,
   MsgType,
@@ -10,6 +7,9 @@ import {
   type MatrixRawEvent,
   type RoomMessageEventContent,
 } from "./types.js";
+import { resolveActionClient } from "./client.js";
+import { summarizeMatrixRawEvent } from "./summary.js";
+import { resolveMatrixRoomId, sendMessageMatrix } from "../send.js";
 
 export async function sendMatrixMessage(
   to: string,

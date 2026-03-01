@@ -1,8 +1,9 @@
 import path from "node:path";
-import type { SubagentRunRecord } from "./subagent-registry.js";
+
 import { STATE_DIR } from "../config/paths.js";
 import { loadJsonFile, saveJsonFile } from "../infra/json-file.js";
 import { normalizeDeliveryContext } from "../utils/delivery-context.js";
+import type { SubagentRunRecord } from "./subagent-registry.js";
 
 export type PersistedSubagentRegistryVersion = 1 | 2;
 

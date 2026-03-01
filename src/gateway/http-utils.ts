@@ -1,5 +1,6 @@
-import type { IncomingMessage } from "node:http";
 import { randomUUID } from "node:crypto";
+import type { IncomingMessage } from "node:http";
+
 import { buildAgentMainSessionKey, normalizeAgentId } from "../routing/session-key.js";
 
 export function getHeader(req: IncomingMessage, name: string): string | undefined {

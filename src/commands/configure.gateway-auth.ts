@@ -1,14 +1,9 @@
-<<<<<<< HEAD
 import { ensureAuthProfileStore } from "../agents/auth-profiles.js";
 import type { MoltbotConfig, GatewayAuthConfig } from "../config/config.js";
-=======
-import type { OpenClawConfig, GatewayAuthConfig } from "../config/config.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { RuntimeEnv } from "../runtime.js";
 import type { WizardPrompter } from "../wizard/prompts.js";
-import { ensureAuthProfileStore } from "../agents/auth-profiles.js";
-import { promptAuthChoiceGrouped } from "./auth-choice-prompt.js";
 import { applyAuthChoice, resolvePreferredProviderForAuthChoice } from "./auth-choice.js";
+import { promptAuthChoiceGrouped } from "./auth-choice-prompt.js";
 import {
   applyModelAllowlist,
   applyModelFallbacksFromSelection,

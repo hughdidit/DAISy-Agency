@@ -1,7 +1,8 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
+
 import type { PluginHttpRouteRegistration, PluginRegistry } from "./registry.js";
-import { normalizePluginHttpPath } from "./http-path.js";
 import { requireActivePluginRegistry } from "./runtime.js";
+import { normalizePluginHttpPath } from "./http-path.js";
 
 export type PluginHttpRouteHandler = (
   req: IncomingMessage,

@@ -1,5 +1,3 @@
-import { resolveMatrixRoomId } from "../send.js";
-import { resolveActionClient } from "./client.js";
 import {
   EventType,
   RelationType,
@@ -8,6 +6,8 @@ import {
   type MatrixReactionSummary,
   type ReactionEventContent,
 } from "./types.js";
+import { resolveActionClient } from "./client.js";
+import { resolveMatrixRoomId } from "../send.js";
 
 export async function listMatrixReactions(
   roomId: string,

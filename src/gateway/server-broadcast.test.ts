@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
-import type { GatewayWsClient } from "./server/ws-types.js";
+
 import { createGatewayBroadcaster } from "./server-broadcast.js";
+import type { GatewayWsClient } from "./server/ws-types.js";
 
 type TestSocket = {
   bufferedAmount: number;

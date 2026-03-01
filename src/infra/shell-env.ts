@@ -1,4 +1,5 @@
 import { execFileSync } from "node:child_process";
+
 import { isTruthyEnvValue } from "./env.js";
 
 const DEFAULT_TIMEOUT_MS = 15_000;

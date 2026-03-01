@@ -3,7 +3,6 @@ import os from "node:os";
 import path from "node:path";
 import { describe, expect, test, vi } from "vitest";
 import { emitAgentEvent } from "../infra/agent-events.js";
-import { __setMaxChatHistoryMessagesBytesForTest } from "./server-constants.js";
 import {
   connectOk,
   getReplyFromConfig,
@@ -15,6 +14,7 @@ import {
   testState,
   writeSessionStore,
 } from "./test-helpers.js";
+import { __setMaxChatHistoryMessagesBytesForTest } from "./server-constants.js";
 installGatewayTestHooks({ scope: "suite" });
 async function waitFor(condition: () => boolean, timeoutMs = 1500) {
   const deadline = Date.now() + timeoutMs;

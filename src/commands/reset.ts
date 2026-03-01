@@ -1,6 +1,5 @@
 import { cancel, confirm, isCancel, select } from "@clack/prompts";
-import type { RuntimeEnv } from "../runtime.js";
-import { formatCliCommand } from "../cli/command-format.js";
+
 import {
   isNixMode,
   loadConfig,
@@ -9,7 +8,9 @@ import {
   resolveStateDir,
 } from "../config/config.js";
 import { resolveGatewayService } from "../daemon/service.js";
+import type { RuntimeEnv } from "../runtime.js";
 import { stylePromptHint, stylePromptMessage, stylePromptTitle } from "../terminal/prompt-style.js";
+import { formatCliCommand } from "../cli/command-format.js";
 import {
   collectWorkspaceDirs,
   isPathWithin,

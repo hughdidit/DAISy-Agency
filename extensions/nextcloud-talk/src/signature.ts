@@ -1,4 +1,5 @@
 import { createHmac, randomBytes } from "node:crypto";
+
 import type { NextcloudTalkWebhookHeaders } from "./types.js";
 
 const SIGNATURE_HEADER = "x-nextcloud-talk-signature";

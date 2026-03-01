@@ -1,4 +1,5 @@
 import { Type } from "@sinclair/typebox";
+
 import { NonEmptyString, SessionLabelString } from "./primitives.js";
 
 export const AgentEventSchema = Type.Object(

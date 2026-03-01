@@ -1,14 +1,10 @@
 import { describe, expect, it, vi } from "vitest";
-<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../../config/config.js";
-=======
-import type { OpenClawConfig } from "../../config/config.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { MsgContext } from "../templating.js";
-import { callGateway } from "../../gateway/call.js";
 import { buildCommandContext, handleCommands } from "./commands.js";
 import { parseInlineDirectives } from "./directive-handling.js";
+import { callGateway } from "../../gateway/call.js";
 
 vi.mock("../../gateway/call.js", () => ({
   callGateway: vi.fn(),

@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import type {
   MessageEvent,
   TextEventMessage,
@@ -11,14 +10,6 @@ import { formatInboundEnvelope, resolveEnvelopeFormatOptions } from "../auto-rep
 import { finalizeInboundContext } from "../auto-reply/reply/inbound-context.js";
 import { formatLocationText, toLocationContext } from "../channels/location.js";
 import type { MoltbotConfig } from "../config/config.js";
-=======
-import type { MessageEvent, StickerEventMessage, EventSource, PostbackEvent } from "@line/bot-sdk";
-import type { OpenClawConfig } from "../config/config.js";
-import type { ResolvedLineAccount } from "./types.js";
-import { formatInboundEnvelope, resolveEnvelopeFormatOptions } from "../auto-reply/envelope.js";
-import { finalizeInboundContext } from "../auto-reply/reply/inbound-context.js";
-import { formatLocationText, toLocationContext } from "../channels/location.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import {
   readSessionUpdatedAt,
   recordSessionMetaFromInbound,
@@ -28,6 +19,7 @@ import {
 import { logVerbose, shouldLogVerbose } from "../globals.js";
 import { recordChannelActivity } from "../infra/channel-activity.js";
 import { resolveAgentRoute } from "../routing/resolve-route.js";
+import type { ResolvedLineAccount } from "./types.js";
 
 interface MediaRef {
   path: string;

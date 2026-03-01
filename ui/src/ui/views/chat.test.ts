@@ -1,5 +1,6 @@
 import { render } from "lit";
 import { describe, expect, it, vi } from "vitest";
+
 import type { SessionsListResult } from "../types";
 import { renderChat, type ChatProps } from "./chat";
 

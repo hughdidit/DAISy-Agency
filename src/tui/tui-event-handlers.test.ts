@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
-import type { AgentEvent, ChatEvent, TuiStateAccess } from "./tui-types.js";
+
 import { createEventHandlers } from "./tui-event-handlers.js";
+import type { AgentEvent, ChatEvent, TuiStateAccess } from "./tui-types.js";
 
 type MockChatLog = {
   startTool: ReturnType<typeof vi.fn>;

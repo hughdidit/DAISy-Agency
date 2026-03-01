@@ -1,5 +1,4 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import type { OpenClawConfig } from "./types.js";
 import {
   applyConfigOverrides,
   getConfigOverrides,
@@ -7,10 +6,7 @@ import {
   setConfigOverride,
   unsetConfigOverride,
 } from "./runtime-overrides.js";
-<<<<<<< HEAD
 import type { MoltbotConfig } from "./types.js";
-=======
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 
 describe("runtime overrides", () => {
   beforeEach(() => {

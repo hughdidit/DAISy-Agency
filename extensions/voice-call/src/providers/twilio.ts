@@ -1,7 +1,7 @@
 import crypto from "node:crypto";
+
 import type { TwilioConfig } from "../config.js";
 import type { MediaStreamHandler } from "../media-stream.js";
-import type { TelephonyTtsProvider } from "../telephony-tts.js";
 import type {
   HangupCallInput,
   InitiateCallInput,
@@ -20,8 +20,6 @@ import type { TelephonyTtsProvider } from "../telephony-tts.js";
 import type { Logger } from "../manager/context.js";
 import { defaultLogger } from "../manager/context.js";
 import type { VoiceCallProvider } from "./base.js";
-import { chunkAudio } from "../telephony-audio.js";
-import { escapeXml, mapVoiceToPolly } from "../voice-mapping.js";
 import { twilioApiRequest } from "./twilio/api.js";
 import { verifyTwilioProviderWebhook } from "./twilio/webhook.js";
 

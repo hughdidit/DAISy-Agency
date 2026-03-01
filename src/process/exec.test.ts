@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+
 import { runCommandWithTimeout } from "./exec.js";
 
 describe("runCommandWithTimeout", () => {

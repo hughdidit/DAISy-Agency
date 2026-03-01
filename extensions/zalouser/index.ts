@@ -1,14 +1,9 @@
-<<<<<<< HEAD
 import type { MoltbotPluginApi } from "clawdbot/plugin-sdk";
 import { emptyPluginConfigSchema } from "clawdbot/plugin-sdk";
 
-=======
-import type { OpenClawPluginApi } from "openclaw/plugin-sdk";
-import { emptyPluginConfigSchema } from "openclaw/plugin-sdk";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { zalouserDock, zalouserPlugin } from "./src/channel.js";
-import { setZalouserRuntime } from "./src/runtime.js";
 import { ZalouserToolSchema, executeZalouserTool } from "./src/tool.js";
+import { setZalouserRuntime } from "./src/runtime.js";
 
 const plugin = {
   id: "zalouser",

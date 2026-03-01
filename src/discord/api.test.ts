@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+
 import { fetchDiscord } from "./api.js";
 
 function jsonResponse(body: unknown, status = 200) {

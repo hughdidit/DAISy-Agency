@@ -1,5 +1,7 @@
 import { EventEmitter } from "node:events";
+
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
 import { resetLogger, setLoggerOverride } from "../logging.js";
 
 vi.mock("./session.js", () => {
@@ -16,8 +18,8 @@ vi.mock("./session.js", () => {
   };
 });
 
-import type { waitForWaConnection } from "./session.js";
 import { loginWeb } from "./login.js";
+import type { waitForWaConnection } from "./session.js";
 
 const { createWaSocket } = await import("./session.js");
 

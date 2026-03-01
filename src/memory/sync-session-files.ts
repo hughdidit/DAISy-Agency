@@ -1,6 +1,7 @@
 import type { DatabaseSync } from "node:sqlite";
-import type { SessionFileEntry } from "./session-files.js";
+
 import { createSubsystemLogger } from "../logging/subsystem.js";
+import type { SessionFileEntry } from "./session-files.js";
 import {
   buildSessionEntry,
   listSessionFilesForAgent,

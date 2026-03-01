@@ -1,6 +1,6 @@
 import type { GatewayBrowserClient } from "../gateway";
-import type { SessionsListResult } from "../types";
 import { toNumber } from "../format";
+import type { SessionsListResult } from "../types";
 
 export type SessionsState = {
   client: GatewayBrowserClient | null;

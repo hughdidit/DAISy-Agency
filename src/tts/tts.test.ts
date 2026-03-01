@@ -1,5 +1,7 @@
-import { completeSimple } from "@mariozechner/pi-ai";
 import { describe, expect, it, vi, beforeEach } from "vitest";
+
+import { completeSimple } from "@mariozechner/pi-ai";
+
 import { getApiKeyForModel } from "../agents/model-auth.js";
 import { resolveModel } from "../agents/pi-embedded-runner/model.js";
 import * as tts from "./tts.js";

@@ -1,4 +1,5 @@
 import process from "node:process";
+
 import { extractErrorCode, formatUncaughtError } from "./errors.js";
 
 type UnhandledRejectionHandler = (reason: unknown) => boolean;

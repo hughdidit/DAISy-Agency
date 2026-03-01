@@ -1,15 +1,10 @@
-import type { Command } from "commander";
 import { confirm, isCancel, select, spinner } from "@clack/prompts";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import {
-  formatUpdateAvailableHint,
-  formatUpdateOneLiner,
-  resolveUpdateAvailability,
-} from "../commands/status.update.js";
+import type { Command } from "commander";
+
 import { readConfigFileSnapshot, writeConfigFile } from "../config/config.js";
-<<<<<<< HEAD
 import { resolveMoltbotPackageRoot } from "../infra/moltbot-root.js";
 import {
   checkUpdateStatus,
@@ -17,25 +12,14 @@ import {
   fetchNpmTagVersion,
   resolveNpmChannelTag,
 } from "../infra/update-check.js";
-=======
-import { resolveOpenClawPackageRoot } from "../infra/openclaw-root.js";
-import { trimLogTail } from "../infra/restart-sentinel.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { parseSemver } from "../infra/runtime-guard.js";
 import {
-  channelToNpmTag,
-  DEFAULT_GIT_CHANNEL,
-  DEFAULT_PACKAGE_CHANNEL,
-  formatUpdateChannelLabel,
-  normalizeUpdateChannel,
-  resolveEffectiveUpdateChannel,
-} from "../infra/update-channels.js";
-import {
-  checkUpdateStatus,
-  compareSemverStrings,
-  fetchNpmTagVersion,
-  resolveNpmChannelTag,
-} from "../infra/update-check.js";
+  runGatewayUpdate,
+  type UpdateRunResult,
+  type UpdateStepInfo,
+  type UpdateStepResult,
+  type UpdateStepProgress,
+} from "../infra/update-runner.js";
 import {
   detectGlobalInstallManagerByPresence,
   detectGlobalInstallManagerForRoot,
@@ -44,22 +28,29 @@ import {
   type GlobalInstallManager,
 } from "../infra/update-global.js";
 import {
-  runGatewayUpdate,
-  type UpdateRunResult,
-  type UpdateStepInfo,
-  type UpdateStepResult,
-  type UpdateStepProgress,
-} from "../infra/update-runner.js";
-import { syncPluginsForUpdateChannel, updateNpmInstalledPlugins } from "../plugins/update.js";
-import { runCommandWithTimeout } from "../process/exec.js";
+  channelToNpmTag,
+  DEFAULT_GIT_CHANNEL,
+  DEFAULT_PACKAGE_CHANNEL,
+  formatUpdateChannelLabel,
+  normalizeUpdateChannel,
+  resolveEffectiveUpdateChannel,
+} from "../infra/update-channels.js";
+import { trimLogTail } from "../infra/restart-sentinel.js";
 import { defaultRuntime } from "../runtime.js";
 import { formatDocsLink } from "../terminal/links.js";
-import { stylePromptHint, stylePromptMessage } from "../terminal/prompt-style.js";
-import { renderTable } from "../terminal/table.js";
-import { theme } from "../terminal/theme.js";
-import { replaceCliName, resolveCliName } from "./cli-name.js";
 import { formatCliCommand } from "./command-format.js";
+import { replaceCliName, resolveCliName } from "./cli-name.js";
+import { stylePromptHint, stylePromptMessage } from "../terminal/prompt-style.js";
+import { theme } from "../terminal/theme.js";
+import { renderTable } from "../terminal/table.js";
 import { formatHelpExamples } from "./help-format.js";
+import {
+  formatUpdateAvailableHint,
+  formatUpdateOneLiner,
+  resolveUpdateAvailability,
+} from "../commands/status.update.js";
+import { syncPluginsForUpdateChannel, updateNpmInstalledPlugins } from "../plugins/update.js";
+import { runCommandWithTimeout } from "../process/exec.js";
 
 export type UpdateCommandOptions = {
   json?: boolean;

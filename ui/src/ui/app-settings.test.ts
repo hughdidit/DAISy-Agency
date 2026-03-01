@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
 import type { Tab } from "./navigation";
 import { setTabFromRoute } from "./app-settings";
 

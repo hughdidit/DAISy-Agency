@@ -4,8 +4,10 @@
  */
 
 import crypto from "node:crypto";
-import type { VoiceCallConfig } from "./config.js";
+
 import { loadCoreAgentDeps, type CoreConfig } from "./core-bridge.js";
+
+import type { VoiceCallConfig } from "./config.js";
 
 export type VoiceResponseParams = {
   /** Voice call config */

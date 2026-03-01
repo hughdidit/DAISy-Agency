@@ -1,7 +1,7 @@
-import type { WebhookRequestBody } from "@line/bot-sdk";
 import type { Request, Response, NextFunction } from "express";
-import type { RuntimeEnv } from "../runtime.js";
+import type { WebhookRequestBody } from "@line/bot-sdk";
 import { logVerbose, danger } from "../globals.js";
+import type { RuntimeEnv } from "../runtime.js";
 import { validateLineSignature } from "./signature.js";
 
 export interface LineWebhookOptions {

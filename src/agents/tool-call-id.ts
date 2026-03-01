@@ -1,5 +1,6 @@
-import type { AgentMessage } from "@mariozechner/pi-agent-core";
 import { createHash } from "node:crypto";
+
+import type { AgentMessage } from "@mariozechner/pi-agent-core";
 
 export type ToolCallIdMode = "strict" | "strict9";
 

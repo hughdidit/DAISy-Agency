@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+
 import { createDedupeCache } from "./dedupe.js";
 
 describe("createDedupeCache", () => {

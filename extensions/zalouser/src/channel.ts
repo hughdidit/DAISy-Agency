@@ -16,12 +16,7 @@ import {
   migrateBaseNameToDefaultAccount,
   normalizeAccountId,
   setAccountEnabledInConfigSection,
-<<<<<<< HEAD
 } from "clawdbot/plugin-sdk";
-=======
-} from "openclaw/plugin-sdk";
-import type { ZcaFriend, ZcaGroup, ZcaUserInfo } from "./types.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import {
   listZalouserAccountIds,
   resolveDefaultZalouserAccountId,
@@ -30,12 +25,13 @@ import {
   checkZcaAuthenticated,
   type ResolvedZalouserAccount,
 } from "./accounts.js";
-import { ZalouserConfigSchema } from "./config-schema.js";
 import { zalouserOnboardingAdapter } from "./onboarding.js";
-import { probeZalouser } from "./probe.js";
 import { sendMessageZalouser } from "./send.js";
-import { collectZalouserStatusIssues } from "./status-issues.js";
 import { checkZcaInstalled, parseJsonOutput, runZca, runZcaInteractive } from "./zca.js";
+import type { ZcaFriend, ZcaGroup, ZcaUserInfo } from "./types.js";
+import { ZalouserConfigSchema } from "./config-schema.js";
+import { collectZalouserStatusIssues } from "./status-issues.js";
+import { probeZalouser } from "./probe.js";
 
 const meta = {
   id: "zalouser",

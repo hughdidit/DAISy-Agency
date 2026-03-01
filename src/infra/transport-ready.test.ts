@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
+
 import { waitForTransportReady } from "./transport-ready.js";
 
 describe("waitForTransportReady", () => {

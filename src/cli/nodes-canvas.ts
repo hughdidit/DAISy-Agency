@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import * as os from "node:os";
 import * as path from "node:path";
+
 import { resolveCliName } from "./cli-name.js";
 
 export type CanvasSnapshotPayload = {

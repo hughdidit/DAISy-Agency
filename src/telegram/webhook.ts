@@ -1,13 +1,11 @@
-import { webhookCallback } from "grammy";
-<<<<<<< HEAD
-import type { MoltbotConfig } from "../config/config.js";
-=======
 import { createServer } from "node:http";
-import type { OpenClawConfig } from "../config/config.js";
-import type { RuntimeEnv } from "../runtime.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
+
+import { webhookCallback } from "grammy";
+import type { MoltbotConfig } from "../config/config.js";
 import { isDiagnosticsEnabled } from "../infra/diagnostic-events.js";
 import { formatErrorMessage } from "../infra/errors.js";
+import type { RuntimeEnv } from "../runtime.js";
+import { defaultRuntime } from "../runtime.js";
 import {
   logWebhookError,
   logWebhookProcessed,
@@ -15,10 +13,9 @@ import {
   startDiagnosticHeartbeat,
   stopDiagnosticHeartbeat,
 } from "../logging/diagnostic.js";
-import { defaultRuntime } from "../runtime.js";
 import { resolveTelegramAllowedUpdates } from "./allowed-updates.js";
-import { withTelegramApiErrorLogging } from "./api-logging.js";
 import { createTelegramBot } from "./bot.js";
+import { withTelegramApiErrorLogging } from "./api-logging.js";
 
 export async function startTelegramWebhook(opts: {
   token: string;

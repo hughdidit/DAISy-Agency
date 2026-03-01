@@ -1,6 +1,6 @@
 import type { BrowserRouteContext } from "../server-context.js";
-import type { BrowserRequest, BrowserResponse, BrowserRouteRegistrar } from "./types.js";
 import { registerBrowserRoutes } from "./index.js";
+import type { BrowserRequest, BrowserResponse, BrowserRouteRegistrar } from "./types.js";
 
 type BrowserDispatchRequest = {
   method: "GET" | "POST" | "DELETE";

@@ -1,6 +1,8 @@
 import fs from "node:fs";
 import path from "node:path";
+
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
 import { isPathWithinBase } from "../../test/helpers/paths.js";
 import { withTempHome } from "../../test/helpers/temp-home.js";
 

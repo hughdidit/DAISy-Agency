@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+
 import * as mod from "./channel-web.js";
 
 describe("channel-web barrel", () => {

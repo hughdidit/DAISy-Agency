@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+
 import { hasNonzeroUsage, normalizeUsage } from "./usage.js";
 
 describe("normalizeUsage", () => {
