@@ -229,19 +229,17 @@ if (!ensureExperimentalWarningSuppressed()) {
       process.argv = parsed.argv;
     }
 
-    if (tryHandleRootVersionFastPath(process.argv)) {
-      return;
+    if (!tryHandleRootVersionFastPath(process.argv)) {
+      import("./cli/run-main.js")
+        .then(({ runCli }) => runCli(process.argv))
+        .catch((error) => {
+          console.error(
+            "[openclaw] Failed to start CLI:",
+            error instanceof Error ? (error.stack ?? error.message) : error,
+          );
+          process.exitCode = 1;
+        });
     }
-
-    import("./cli/run-main.js")
-      .then(({ runCli }) => runCli(process.argv))
-      .catch((error) => {
-        console.error(
-          "[openclaw] Failed to start CLI:",
-          error instanceof Error ? (error.stack ?? error.message) : error,
-        );
-        process.exitCode = 1;
-      });
   }
 >>>>>>> 153adc4c8 (Entry: fast-path root version command)
 }
