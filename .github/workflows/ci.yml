@@ -373,12 +373,15 @@ jobs:
 >>>>>>> 13f2fa0c5 (ci: avoid bun setup API flake in node checks)
 
 <<<<<<< HEAD
+<<<<<<< HEAD
       - name: Run ${{ matrix.task }}
 =======
       - name: Configure vitest JSON reports
         if: (github.event_name != 'push' || matrix.runtime != 'bun') && matrix.task == 'test' && matrix.runtime == 'node'
         run: echo "OPENCLAW_VITEST_REPORT_DIR=$RUNNER_TEMP/vitest-reports" >> "$GITHUB_ENV"
 
+=======
+>>>>>>> 94a5d28d2 (CI: remove Vitest JSON report artifacts (#30976))
       - name: Configure Node test resources
         if: (github.event_name != 'push' || matrix.runtime != 'bun') && matrix.task == 'test' && matrix.runtime == 'node'
         run: |
@@ -394,21 +397,6 @@ jobs:
         if: matrix.runtime != 'bun' || github.event_name != 'push'
 >>>>>>> 47bfb765a (ci: skip bun matrix steps on push runs)
         run: ${{ matrix.command }}
-
-      - name: Summarize slowest tests
-        if: (github.event_name != 'push' || matrix.runtime != 'bun') && matrix.task == 'test' && matrix.runtime == 'node'
-        run: |
-          node scripts/vitest-slowest.mjs --dir "$OPENCLAW_VITEST_REPORT_DIR" --top 50 --out "$RUNNER_TEMP/vitest-slowest.md" > /dev/null
-          echo "Slowest test summary written to $RUNNER_TEMP/vitest-slowest.md"
-
-      - name: Upload vitest reports
-        if: (github.event_name != 'push' || matrix.runtime != 'bun') && matrix.task == 'test' && matrix.runtime == 'node'
-        uses: actions/upload-artifact@v4
-        with:
-          name: vitest-reports-${{ runner.os }}-${{ matrix.runtime }}
-          path: |
-            ${{ env.OPENCLAW_VITEST_REPORT_DIR }}
-            ${{ runner.temp }}/vitest-slowest.md
 
   # Types, lint, and format check.
   check:
@@ -790,13 +778,10 @@ jobs:
           echo "OPENCLAW_TEST_SHARDS=${{ matrix.shard_count }}" >> "$GITHUB_ENV"
           echo "OPENCLAW_TEST_SHARD_INDEX=${{ matrix.shard_index }}" >> "$GITHUB_ENV"
 
-      - name: Configure vitest JSON reports
-        if: matrix.task == 'test'
-        run: echo "OPENCLAW_VITEST_REPORT_DIR=$RUNNER_TEMP/vitest-reports" >> "$GITHUB_ENV"
-
       - name: Run ${{ matrix.task }} (${{ matrix.runtime }})
         run: ${{ matrix.command }}
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
   checks-macos:
@@ -827,6 +812,8 @@ jobs:
             ${{ runner.temp }}/vitest-slowest.md
 
 >>>>>>> 8fce7dc9b (perf(test): add vitest slowest report artifact)
+=======
+>>>>>>> 94a5d28d2 (CI: remove Vitest JSON report artifacts (#30976))
   # Consolidated macOS job: runs TS tests + Swift lint/build/test sequentially
   # on a single runner. GitHub limits macOS concurrent jobs to 5 per org;
   # running 4 separate jobs per PR (as before) starved the queue. One job

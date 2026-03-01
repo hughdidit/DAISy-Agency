@@ -1,7 +1,6 @@
 import { spawn } from "node:child_process";
 import fs from "node:fs";
 import os from "node:os";
-import path from "node:path";
 
 const pnpm = process.platform === "win32" ? "pnpm.cmd" : "pnpm";
 
@@ -82,6 +81,7 @@ const WARNING_SUPPRESSION_FLAGS = [
   "--disable-warning=DEP0060",
 ];
 
+<<<<<<< HEAD
 function resolveReportDir() {
   const raw = process.env.OPENCLAW_VITEST_REPORT_DIR?.trim();
   if (!raw) {
@@ -120,24 +120,56 @@ function buildReporterArgs(entry, extraArgs) {
   const outputFile = path.join(reportDir, `vitest-${entry.name}${shardSuffix}.json`);
   return ["--reporter=default", "--reporter=json", "--outputFile", outputFile];
 }
+=======
+const DEFAULT_CI_MAX_OLD_SPACE_SIZE_MB = 4096;
+const maxOldSpaceSizeMb = (() => {
+  // CI can hit Node heap limits (especially on large suites). Allow override, default to 4GB.
+  const raw = process.env.OPENCLAW_TEST_MAX_OLD_SPACE_SIZE_MB ?? "";
+  const parsed = Number.parseInt(raw, 10);
+  if (Number.isFinite(parsed) && parsed > 0) {
+    return parsed;
+  }
+  if (isCI && !isWindows) {
+    return DEFAULT_CI_MAX_OLD_SPACE_SIZE_MB;
+  }
+  return null;
+})();
+>>>>>>> 94a5d28d2 (CI: remove Vitest JSON report artifacts (#30976))
 
 const runOnce = (entry, extraArgs = []) =>
   new Promise((resolve) => {
 <<<<<<< HEAD
 =======
     const maxWorkers = maxWorkersForRun(entry.name);
+<<<<<<< HEAD
     const reporterArgs = buildReporterArgs(entry, extraArgs);
 >>>>>>> 8fce7dc9b (perf(test): add vitest slowest report artifact)
+=======
+    // vmForks with a single worker has shown cross-file leakage in extension suites.
+    // Fall back to process forks when we intentionally clamp that lane to one worker.
+    const entryArgs =
+      entry.name === "extensions" && maxWorkers === 1 && entry.args.includes("--pool=vmForks")
+        ? entry.args.map((arg) => (arg === "--pool=vmForks" ? "--pool=forks" : arg))
+        : entry.args;
+>>>>>>> 94a5d28d2 (CI: remove Vitest JSON report artifacts (#30976))
     const args = maxWorkers
       ? [
           ...entry.args,
           "--maxWorkers",
           String(maxWorkers),
+<<<<<<< HEAD
           ...reporterArgs,
           ...windowsCiArgs,
           ...extraArgs,
         ]
       : [...entry.args, ...reporterArgs, ...windowsCiArgs, ...extraArgs];
+=======
+          ...silentArgs,
+          ...windowsCiArgs,
+          ...extraArgs,
+        ]
+      : [...entryArgs, ...silentArgs, ...windowsCiArgs, ...extraArgs];
+>>>>>>> 94a5d28d2 (CI: remove Vitest JSON report artifacts (#30976))
     const nodeOptions = process.env.NODE_OPTIONS ?? "";
     const nextNodeOptions = WARNING_SUPPRESSION_FLAGS.reduce(
       (acc, flag) => (acc.includes(flag) ? acc : `${acc} ${flag}`.trim()),
