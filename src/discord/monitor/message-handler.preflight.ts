@@ -52,6 +52,7 @@ import {
 import { resolveAgentRoute } from "../../routing/resolve-route.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { resolveMentionGatingWithBypass } from "../../channels/mention-gating.js";
 import { formatAllowlistMatchMeta } from "../../channels/allowlist-match.js";
 =======
@@ -62,6 +63,9 @@ import { resolveAgentIdFromSessionKey } from "../../routing/session-key.js";
 =======
 import { readStoreAllowFromForDmPolicy } from "../../security/dm-policy-shared.js";
 >>>>>>> cd80c7e7f (refactor: unify dm policy store reads and reason codes)
+=======
+import { DEFAULT_ACCOUNT_ID, resolveAgentIdFromSessionKey } from "../../routing/session-key.js";
+>>>>>>> 50e2674df (fix(discord): unify dm command auth gating)
 import { fetchPluralKitMessageInfo } from "../pluralkit.js";
 >>>>>>> 8e2b17e0c (Discord: add PluralKit sender identity resolver (#5838))
 import { sendMessageDiscord } from "../send.js";
@@ -72,7 +76,6 @@ import {
   isDiscordGroupAllowedByPolicy,
   normalizeDiscordAllowList,
   normalizeDiscordSlug,
-  resolveDiscordAllowListMatch,
   resolveDiscordChannelConfigWithFallback,
   resolveDiscordGuildEntry,
 <<<<<<< HEAD
@@ -83,6 +86,7 @@ import {
   resolveDiscordUserAllowed,
   resolveGroupDmAllow,
 } from "./allow-list.js";
+import { resolveDiscordDmCommandAccess } from "./dm-command-auth.js";
 import {
   formatDiscordUserTag,
   resolveDiscordSystemLocation,
@@ -246,12 +250,18 @@ export async function preflightDiscordMessage(
   }
 
   const dmPolicy = params.discordConfig?.dmPolicy ?? params.discordConfig?.dm?.policy ?? "pairing";
+<<<<<<< HEAD
+=======
+  const useAccessGroups = params.cfg.commands?.useAccessGroups !== false;
+  const resolvedAccountId = params.accountId ?? DEFAULT_ACCOUNT_ID;
+>>>>>>> 50e2674df (fix(discord): unify dm command auth gating)
   let commandAuthorized = true;
   if (isDirectMessage) {
     if (dmPolicy === "disabled") {
       logVerbose("discord: drop dm (dmPolicy: disabled)");
       return null;
     }
+<<<<<<< HEAD
     if (dmPolicy !== "open") {
 <<<<<<< HEAD
       const storeAllowFrom = await readChannelAllowFromStore("discord").catch(() => []);
@@ -310,13 +320,63 @@ export async function preflightDiscordMessage(
             }
           }
         } else {
+=======
+    const dmAccess = await resolveDiscordDmCommandAccess({
+      accountId: resolvedAccountId,
+      dmPolicy,
+      configuredAllowFrom: params.allowFrom ?? [],
+      sender: {
+        id: sender.id,
+        name: sender.name,
+        tag: sender.tag,
+      },
+      allowNameMatching: isDangerousNameMatchingEnabled(params.discordConfig),
+      useAccessGroups,
+    });
+    commandAuthorized = dmAccess.commandAuthorized;
+    if (dmAccess.decision !== "allow") {
+      const allowMatchMeta = formatAllowlistMatchMeta(
+        dmAccess.allowMatch.allowed ? dmAccess.allowMatch : undefined,
+      );
+      if (dmAccess.decision === "pairing") {
+        const { code, created } = await upsertChannelPairingRequest({
+          channel: "discord",
+          id: author.id,
+          accountId: resolvedAccountId,
+          meta: {
+            tag: formatDiscordUserTag(author),
+            name: author.username ?? undefined,
+          },
+        });
+        if (created) {
+>>>>>>> 50e2674df (fix(discord): unify dm command auth gating)
           logVerbose(
-            `Blocked unauthorized discord sender ${sender.id} (dmPolicy=${dmPolicy}, ${allowMatchMeta})`,
+            `discord pairing request sender=${author.id} tag=${formatDiscordUserTag(author)} (${allowMatchMeta})`,
           );
+          try {
+            await sendMessageDiscord(
+              `user:${author.id}`,
+              buildPairingReply({
+                channel: "discord",
+                idLine: `Your Discord user id: ${author.id}`,
+                code,
+              }),
+              {
+                token: params.token,
+                rest: params.client.rest,
+                accountId: params.accountId,
+              },
+            );
+          } catch (err) {
+            logVerbose(`discord pairing reply failed for ${author.id}: ${String(err)}`);
+          }
         }
-        return null;
+      } else {
+        logVerbose(
+          `Blocked unauthorized discord sender ${sender.id} (dmPolicy=${dmPolicy}, ${allowMatchMeta})`,
+        );
       }
-      commandAuthorized = true;
+      return null;
     }
   }
 
@@ -693,6 +753,7 @@ export async function preflightDiscordMessage(
           tag: sender.tag,
         })
       : false;
+<<<<<<< HEAD
     const channelUsers = channelConfig?.users ?? guildInfo?.users;
     const usersOk =
       Array.isArray(channelUsers) && channelUsers.length > 0
@@ -704,6 +765,8 @@ export async function preflightDiscordMessage(
           })
         : false;
     const useAccessGroups = params.cfg.commands?.useAccessGroups !== false;
+=======
+>>>>>>> 50e2674df (fix(discord): unify dm command auth gating)
     const commandGate = resolveControlCommandGate({
       useAccessGroups,
       authorizers: [

@@ -139,7 +139,6 @@ import { resolveAgentRoute } from "../../routing/resolve-route.js";
 import { resolveAgentIdFromSessionKey } from "../../routing/session-key.js";
 >>>>>>> 8178ea472 (feat: thread-bound subagents on Discord (#21805))
 import { buildUntrustedChannelMetadata } from "../../security/channel-metadata.js";
-import { readStoreAllowFromForDmPolicy } from "../../security/dm-policy-shared.js";
 import { chunkItems } from "../../utils/chunk-items.js";
 >>>>>>> 19f53543d (refactor(utils): share chunkItems helper)
 import { loadWebMedia } from "../../web/media.js";
@@ -159,6 +158,26 @@ import {
   resolveDiscordOwnerAllowFrom,
 >>>>>>> 555eb3f62 (refactor(discord): share member access state)
 } from "./allow-list.js";
+<<<<<<< HEAD
+=======
+import { resolveDiscordDmCommandAccess } from "./dm-command-auth.js";
+import { resolveDiscordChannelInfo } from "./message-utils.js";
+import {
+  readDiscordModelPickerRecentModels,
+  recordDiscordModelPickerRecentModel,
+  type DiscordModelPickerPreferenceScope,
+} from "./model-picker-preferences.js";
+import {
+  DISCORD_MODEL_PICKER_CUSTOM_ID_KEY,
+  loadDiscordModelPickerData,
+  parseDiscordModelPickerData,
+  renderDiscordModelPickerModelsView,
+  renderDiscordModelPickerProvidersView,
+  renderDiscordModelPickerRecentsView,
+  toDiscordModelPickerMessagePayload,
+  type DiscordModelPickerCommandContext,
+} from "./model-picker.js";
+>>>>>>> 50e2674df (fix(discord): unify dm command auth gating)
 import { resolveDiscordSenderIdentity } from "./sender-identity.js";
 <<<<<<< HEAD
 import { resolveDiscordChannelInfo } from "./message-utils.js";
@@ -1419,6 +1438,7 @@ async function dispatchDiscordCommandInteraction(params: {
       await respond("Discord DMs are disabled.");
       return;
     }
+<<<<<<< HEAD
     if (dmPolicy !== "open") {
 <<<<<<< HEAD
       const storeAllowFrom = await readChannelAllowFromStore("discord").catch(() => []);
@@ -1464,10 +1484,46 @@ async function dispatchDiscordCommandInteraction(params: {
           }
         } else {
           await respond("You are not authorized to use this command.", { ephemeral: true });
+=======
+    const dmAccess = await resolveDiscordDmCommandAccess({
+      accountId,
+      dmPolicy,
+      configuredAllowFrom: discordConfig?.allowFrom ?? discordConfig?.dm?.allowFrom ?? [],
+      sender: {
+        id: sender.id,
+        name: sender.name,
+        tag: sender.tag,
+      },
+      allowNameMatching: isDangerousNameMatchingEnabled(discordConfig),
+      useAccessGroups,
+    });
+    commandAuthorized = dmAccess.commandAuthorized;
+    if (dmAccess.decision !== "allow") {
+      if (dmAccess.decision === "pairing") {
+        const { code, created } = await upsertChannelPairingRequest({
+          channel: "discord",
+          id: user.id,
+          accountId,
+          meta: {
+            tag: sender.tag,
+            name: sender.name,
+          },
+        });
+        if (created) {
+          await respond(
+            buildPairingReply({
+              channel: "discord",
+              idLine: `Your Discord user id: ${user.id}`,
+              code,
+            }),
+            { ephemeral: true },
+          );
+>>>>>>> 50e2674df (fix(discord): unify dm command auth gating)
         }
-        return;
+      } else {
+        await respond("You are not authorized to use this command.", { ephemeral: true });
       }
-      commandAuthorized = true;
+      return;
     }
   }
   if (!isDirectMessage) {
