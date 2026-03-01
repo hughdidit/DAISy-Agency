@@ -312,6 +312,7 @@ Docs: https://docs.openclaw.ai
 >>>>>>> e4d22fb07 (fix(browser): fail closed browser auth bootstrap)
 - Docs/Slack manifest scopes: add missing DM/group-DM bot scopes (`im:read`, `im:write`, `mpim:read`, `mpim:write`) to the Slack app manifest example so DM setup guidance is complete. (#29999) Thanks @JcMinarro.
 - Slack/Onboarding token help: update setup text to include the “From manifest” app-creation path and current install wording for obtaining the `xoxb-` bot token. (#30846) Thanks @yzhong52.
+<<<<<<< HEAD
 >>>>>>> a179a0d37 (Slack onboarding: improve token help note with manifest option (openclaw#30846) thanks @yzhong52)
 - Slack/Bot attachment-only messages: when `allowBots: true`, bot messages with empty `text` now include non-forwarded attachment `text`/`fallback` content so webhook alerts are not silently dropped. (#27616)
 <<<<<<< HEAD
@@ -319,6 +320,11 @@ Docs: https://docs.openclaw.ai
 =======
 - Slack/Inbound media auth + HTML guard: keep Slack auth headers on forwarded shared attachment image downloads, and reject login/error HTML payloads (while allowing expected `.html` uploads) when resolving Slack media so auth failures do not silently pass as files. (#18642)
 >>>>>>> e0571399a (fix(slack): reject HTML responses when downloading media (#4665))
+=======
+- Telegram/Thread fallback safety: when Telegram returns `message thread not found`, retry without `message_thread_id` only for DM-thread sends (not forum topics), and suppress first-attempt danger logs when retry succeeds. Landed from contributor PR #30892 by @liuxiaopai-ai. Thanks @liuxiaopai-ai.
+- Slack/Bot attachment-only messages: when `allowBots: true`, bot messages with empty `text` now include non-forwarded attachment `text`/`fallback` content so webhook alerts are not silently dropped. (#27616) Thanks @lailoo.
+- Slack/Inbound media auth + HTML guard: keep Slack auth headers on forwarded shared attachment image downloads, and reject login/error HTML payloads (while allowing expected `.html` uploads) when resolving Slack media so auth failures do not silently pass as files. (#18642) Thanks @tumf.
+>>>>>>> e6e3a7b49 (fix(telegram): retry DM thread sends without message_thread_id [AI-assisted])
 - Slack/Security ingress mismatch guard: drop slash-command and interaction payloads when app/team identifiers do not match the active Slack account context (including nested `team.id` interaction payloads), preventing cross-app or cross-workspace payload injection into system-event handling. (#29091) Thanks @Solvely-Colin.
 >>>>>>> 0f36ee5a2 (Slack: harden slash and interactions ingress checks (openclaw#29091) thanks @Solvely-Colin)
 - Cron/Failure alerts: add configurable repeated-failure alerting with per-job overrides and Web UI cron editor support (`inherit|disabled|custom` with threshold/cooldown/channel/target fields). (#24789) Thanks xbrak.
