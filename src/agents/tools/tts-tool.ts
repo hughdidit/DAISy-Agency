@@ -20,7 +20,7 @@ const TtsToolSchema = Type.Object({
 });
 
 export function createTtsTool(opts?: {
-  config?: MoltbotConfig;
+  config?: OpenClawConfig;
   agentChannel?: GatewayMessageChannel;
 }): AnyAgentTool {
   return {

@@ -34,7 +34,7 @@ export type RouteReplyParams = {
   /** Thread id for replies (Telegram topic id or Matrix thread event id). */
   threadId?: string | number;
   /** Config for provider-specific settings. */
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   /** Optional abort signal for cooperative cancellation. */
   abortSignal?: AbortSignal;
   /** Mirror reply into session transcript (default: true when sessionKey is set). */

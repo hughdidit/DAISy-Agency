@@ -6,7 +6,7 @@ import type { MoltbotConfig } from "../../config/config.js";
 import { createSubsystemLogger } from "../../logging/subsystem.js";
 import { recordPluginInstall } from "../../plugins/installs.js";
 import { enablePluginInConfig } from "../../plugins/enable.js";
-import { loadMoltbotPlugins } from "../../plugins/loader.js";
+import { loadOpenClawPlugins } from "../../plugins/loader.js";
 import { installPluginFromNpmSpec } from "../../plugins/install.js";
 =======
 import type { OpenClawConfig } from "../../config/config.js";
@@ -23,7 +23,7 @@ import { loadOpenClawPlugins } from "../../plugins/loader.js";
 type InstallChoice = "npm" | "local" | "skip";
 
 type InstallResult = {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   installed: boolean;
 };
 
@@ -58,7 +58,7 @@ function resolveLocalPath(
   return null;
 }
 
-function addPluginLoadPath(cfg: MoltbotConfig, pluginPath: string): MoltbotConfig {
+function addPluginLoadPath(cfg: OpenClawConfig, pluginPath: string): OpenClawConfig {
   const existing = cfg.plugins?.load?.paths ?? [];
   const merged = Array.from(new Set([...existing, pluginPath]));
   return {
@@ -104,7 +104,7 @@ async function promptInstallChoice(params: {
 }
 
 function resolveInstallDefaultChoice(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   entry: ChannelPluginCatalogEntry;
   localPath?: string | null;
 }): InstallChoice {
@@ -123,7 +123,7 @@ function resolveInstallDefaultChoice(params: {
 }
 
 export async function ensureOnboardingPluginInstalled(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   entry: ChannelPluginCatalogEntry;
   prompter: WizardPrompter;
   runtime: RuntimeEnv;
@@ -197,14 +197,14 @@ export async function ensureOnboardingPluginInstalled(params: {
 }
 
 export function reloadOnboardingPluginRegistry(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   runtime: RuntimeEnv;
   workspaceDir?: string;
 }): void {
   const workspaceDir =
     params.workspaceDir ?? resolveAgentWorkspaceDir(params.cfg, resolveDefaultAgentId(params.cfg));
   const log = createSubsystemLogger("plugins");
-  loadMoltbotPlugins({
+  loadOpenClawPlugins({
     config: params.cfg,
     workspaceDir,
     cache: false,

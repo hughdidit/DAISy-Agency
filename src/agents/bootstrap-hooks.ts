@@ -12,7 +12,7 @@ import { resolveAgentIdFromSessionKey } from "../routing/session-key.js";
 export async function applyBootstrapHookOverrides(params: {
   files: WorkspaceBootstrapFile[];
   workspaceDir: string;
-  config?: MoltbotConfig;
+  config?: OpenClawConfig;
   sessionKey?: string;
   sessionId?: string;
   agentId?: string;

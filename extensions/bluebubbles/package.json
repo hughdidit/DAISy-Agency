@@ -24,8 +24,14 @@
   "description": "OpenClaw BlueBubbles channel plugin",
 >>>>>>> 1c4db9159 (chore: prepare 2026.2.2 release)
   "type": "module",
-  "description": "Moltbot BlueBubbles channel plugin",
-  "moltbot": {
+<<<<<<< HEAD
+  "description": "OpenClaw BlueBubbles channel plugin",
+=======
+  "devDependencies": {
+    "openclaw": "workspace:*"
+  },
+>>>>>>> aa91f6e70 (chore: Add `openclaw` to `devDependencies` for all extensions so that types resolve.)
+  "openclaw": {
     "extensions": [
       "./index.ts"
     ],
@@ -47,7 +53,7 @@
       "order": 75
     },
     "install": {
-      "npmSpec": "@moltbot/bluebubbles",
+      "npmSpec": "@openclaw/bluebubbles",
       "localPath": "extensions/bluebubbles",
       "defaultChoice": "npm"
     }

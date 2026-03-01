@@ -18,17 +18,17 @@ export type PluginHookLoadResult = {
   errors: string[];
 };
 
-function resolveHookDir(api: MoltbotPluginApi, dir: string): string {
+function resolveHookDir(api: OpenClawPluginApi, dir: string): string {
   if (path.isAbsolute(dir)) return dir;
   return path.resolve(path.dirname(api.source), dir);
 }
 
-function normalizePluginHookEntry(api: MoltbotPluginApi, entry: HookEntry): HookEntry {
+function normalizePluginHookEntry(api: OpenClawPluginApi, entry: HookEntry): HookEntry {
   return {
     ...entry,
     hook: {
       ...entry.hook,
-      source: "moltbot-plugin",
+      source: "openclaw-plugin",
       pluginId: api.id,
     },
     metadata: {
@@ -41,7 +41,7 @@ function normalizePluginHookEntry(api: MoltbotPluginApi, entry: HookEntry): Hook
 
 async function loadHookHandler(
   entry: HookEntry,
-  api: MoltbotPluginApi,
+  api: OpenClawPluginApi,
 ): Promise<InternalHookHandler | null> {
   try {
     const url = pathToFileURL(entry.hook.handlerPath).href;
@@ -61,13 +61,13 @@ async function loadHookHandler(
 }
 
 export async function registerPluginHooksFromDir(
-  api: MoltbotPluginApi,
+  api: OpenClawPluginApi,
   dir: string,
 ): Promise<PluginHookLoadResult> {
   const resolvedDir = resolveHookDir(api, dir);
   const hooks = loadHookEntriesFromDir({
     dir: resolvedDir,
-    source: "moltbot-plugin",
+    source: "openclaw-plugin",
     pluginId: api.id,
   });
 

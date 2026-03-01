@@ -26,7 +26,7 @@ export function buildPluginStatusReport(params?: {
     : (resolveAgentWorkspaceDir(config, resolveDefaultAgentId(config)) ??
       resolveDefaultAgentWorkspaceDir());
 
-  const registry = loadMoltbotPlugins({
+  const registry = loadOpenClawPlugins({
     config,
     workspaceDir,
     logger: {

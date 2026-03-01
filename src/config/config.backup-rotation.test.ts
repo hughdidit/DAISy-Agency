@@ -14,10 +14,10 @@ describe("config backup rotation", () => {
     await withTempHome(async () => {
       const { resolveConfigPath, writeConfigFile } = await import("./config.js");
       const configPath = resolveConfigPath();
-      const buildConfig = (version: number): MoltbotConfig =>
+      const buildConfig = (version: number): OpenClawConfig =>
         ({
           agents: { list: [{ id: `v${version}` }] },
-        }) as MoltbotConfig;
+        }) as OpenClawConfig;
 
       for (let version = 0; version <= 6; version += 1) {
         await writeConfigFile(buildConfig(version));

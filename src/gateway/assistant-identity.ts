@@ -51,7 +51,7 @@ function normalizeAvatarValue(value: string | undefined): string | undefined {
 }
 
 export function resolveAssistantIdentity(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   agentId?: string | null;
   workspaceDir?: string | null;
 }): AssistantIdentity {

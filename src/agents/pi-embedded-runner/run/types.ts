@@ -18,9 +18,6 @@ import type { AuthStorage, ModelRegistry } from "../../pi-model-discovery.js";
 import type { SkillSnapshot } from "../../skills.js";
 import type { ClientToolDefinition } from "./params.js";
 
-type AuthStorage = ReturnType<typeof discoverAuthStorage>;
-type ModelRegistry = ReturnType<typeof discoverModels>;
-
 export type EmbeddedRunAttemptParams = {
   sessionId: string;
   sessionKey?: string;
@@ -41,6 +38,8 @@ export type EmbeddedRunAttemptParams = {
   senderName?: string | null;
   senderUsername?: string | null;
   senderE164?: string | null;
+  /** Whether the sender is an owner (required for owner-only tools). */
+  senderIsOwner?: boolean;
   currentChannelId?: string;
   currentThreadTs?: string;
   replyToMode?: "off" | "first" | "all";
@@ -48,7 +47,7 @@ export type EmbeddedRunAttemptParams = {
   sessionFile: string;
   workspaceDir: string;
   agentDir?: string;
-  config?: MoltbotConfig;
+  config?: OpenClawConfig;
   skillsSnapshot?: SkillSnapshot;
   prompt: string;
   images?: ImageContent[];

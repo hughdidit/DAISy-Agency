@@ -26,8 +26,8 @@ Two easy ways to access it:
 2) **Open it via CLI**:
 
 ```bash
-moltbot browser start
-moltbot browser open https://x.com
+openclaw browser start
+openclaw browser open https://x.com
 ```
 
 If you have multiple profiles, pass `--browser-profile <name>` (the default managed profile is `daisy`).

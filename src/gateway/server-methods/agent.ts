@@ -44,8 +44,13 @@ import { waitForAgentJob } from "./agent-job.js";
 import { injectTimestamp, timestampOptsFromConfig } from "./agent-timestamp.js";
 
 export const agentHandlers: GatewayRequestHandlers = {
+<<<<<<< HEAD
   agent: async ({ params, respond, context }) => {
     const p = params as Record<string, unknown>;
+=======
+  agent: async ({ params, respond, context, client }) => {
+    const p = params;
+>>>>>>> 38e6da1fe (TUI/Gateway: fix pi streaming + tool routing + model display + msg updating (#8432))
     if (!validateAgentParams(p)) {
       respond(
         false,
@@ -291,6 +296,14 @@ export const agentHandlers: GatewayRequestHandlers = {
     }
 
     const runId = idem;
+    const connId = typeof client?.connId === "string" ? client.connId : undefined;
+    const wantsToolEvents = hasGatewayClientCap(
+      client?.connect?.caps,
+      GATEWAY_CLIENT_CAPS.TOOL_EVENTS,
+    );
+    if (connId && wantsToolEvents) {
+      context.registerToolEventRecipient(runId, connId);
+    }
 
     const wantsDelivery = request.deliver === true;
     const explicitTo =

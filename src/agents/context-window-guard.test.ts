@@ -76,7 +76,7 @@ describe("context-window-guard", () => {
           },
         },
       },
-    } satisfies MoltbotConfig;
+    } satisfies OpenClawConfig;
 
     const info = resolveContextWindowInfo({
       cfg,
@@ -93,7 +93,7 @@ describe("context-window-guard", () => {
   it("falls back to agents.defaults.contextTokens", () => {
     const cfg = {
       agents: { defaults: { contextTokens: 20_000 } },
-    } satisfies MoltbotConfig;
+    } satisfies OpenClawConfig;
     const info = resolveContextWindowInfo({
       cfg,
       provider: "anthropic",

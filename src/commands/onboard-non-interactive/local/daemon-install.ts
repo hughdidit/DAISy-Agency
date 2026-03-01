@@ -12,7 +12,7 @@ import { DEFAULT_GATEWAY_DAEMON_RUNTIME, isGatewayDaemonRuntime } from "../../da
 import { ensureSystemdUserLingerNonInteractive } from "../../systemd-linger.js";
 
 export async function installGatewayDaemonNonInteractive(params: {
-  nextConfig: MoltbotConfig;
+  nextConfig: OpenClawConfig;
   opts: OnboardOptions;
   runtime: RuntimeEnv;
   port: number;

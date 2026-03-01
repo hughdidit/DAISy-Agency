@@ -51,7 +51,7 @@ export function coerceImageAssistantText(params: {
   throw new Error(`Image model returned no text (${params.provider}/${params.model}).`);
 }
 
-export function coerceImageModelConfig(cfg?: MoltbotConfig): ImageModelConfig {
+export function coerceImageModelConfig(cfg?: OpenClawConfig): ImageModelConfig {
   const imageModel = cfg?.agents?.defaults?.imageModel as
     | { primary?: string; fallbacks?: string[] }
     | string
@@ -65,7 +65,7 @@ export function coerceImageModelConfig(cfg?: MoltbotConfig): ImageModelConfig {
 }
 
 export function resolveProviderVisionModelFromConfig(params: {
-  cfg?: MoltbotConfig;
+  cfg?: OpenClawConfig;
   provider: string;
 }): string | null {
   const providerCfg = params.cfg?.models?.providers?.[params.provider] as unknown as

@@ -98,7 +98,6 @@ export type DaemonStatus = {
     error?: string;
     url?: string;
   };
-  legacyServices: Array<{ label: string; detail: string }>;
   extraServices: Array<{ label: string; detail: string; scope: string }>;
 };
 
@@ -215,9 +214,6 @@ export async function gatherDaemonStatus(
       }
     : undefined;
 
-  const legacyServices = await findLegacyGatewayServices(
-    process.env as Record<string, string | undefined>,
-  ).catch(() => []);
   const extraServices = await findExtraGatewayServices(
     process.env as Record<string, string | undefined>,
     { deep: Boolean(opts.deep) },
@@ -231,11 +227,11 @@ export async function gatherDaemonStatus(
         url: probeUrl,
         token:
           opts.rpc.token ||
-          mergedDaemonEnv.CLAWDBOT_GATEWAY_TOKEN ||
+          mergedDaemonEnv.OPENCLAW_GATEWAY_TOKEN ||
           daemonCfg.gateway?.auth?.token,
         password:
           opts.rpc.password ||
-          mergedDaemonEnv.CLAWDBOT_GATEWAY_PASSWORD ||
+          mergedDaemonEnv.OPENCLAW_GATEWAY_PASSWORD ||
           daemonCfg.gateway?.auth?.password,
         timeoutMs,
         json: opts.rpc.json,
@@ -276,7 +272,6 @@ export async function gatherDaemonStatus(
     ...(portCliStatus ? { portCli: portCliStatus } : {}),
     lastError,
     ...(rpc ? { rpc: { ...rpc, url: probeUrl } } : {}),
-    legacyServices,
     extraServices,
   };
 }

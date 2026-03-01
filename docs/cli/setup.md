@@ -1,14 +1,14 @@
 ---
-summary: "CLI reference for `moltbot setup` (initialize config + workspace)"
+summary: "CLI reference for `openclaw setup` (initialize config + workspace)"
 read_when:
   - You’re doing first-run setup without the full onboarding wizard
   - You want to set the default workspace path
 title: "setup"
 ---
 
-# `moltbot setup`
+# `openclaw setup`
 
-Initialize `~/.clawdbot/moltbot.json` and the agent workspace.
+Initialize `~/.openclaw/openclaw.json` and the agent workspace.
 
 Related:
 - Getting started: [Getting started](/start/getting-started)
@@ -17,13 +17,13 @@ Related:
 ## Examples
 
 ```bash
-moltbot setup
-moltbot setup --workspace ~/clawd
+openclaw setup
+openclaw setup --workspace ~/.openclaw/workspace
 ```
 
 To run the wizard via setup:
 
 ```bash
-moltbot setup --wizard
+openclaw setup --wizard
 ```
 

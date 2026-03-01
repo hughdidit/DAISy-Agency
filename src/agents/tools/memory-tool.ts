@@ -24,7 +24,7 @@ const MemoryGetSchema = Type.Object({
 });
 
 export function createMemorySearchTool(options: {
-  config?: MoltbotConfig;
+  config?: OpenClawConfig;
   agentSessionKey?: string;
 }): AnyAgentTool | null {
   const cfg = options.config;
@@ -73,7 +73,7 @@ export function createMemorySearchTool(options: {
 }
 
 export function createMemoryGetTool(options: {
-  config?: MoltbotConfig;
+  config?: OpenClawConfig;
   agentSessionKey?: string;
 }): AnyAgentTool | null {
   const cfg = options.config;

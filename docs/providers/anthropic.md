@@ -1,14 +1,14 @@
 ---
-summary: "Use Anthropic Claude via API keys or setup-token in Moltbot"
+summary: "Use Anthropic Claude via API keys or setup-token in OpenClaw"
 read_when:
-  - You want to use Anthropic models in Moltbot
+  - You want to use Anthropic models in OpenClaw
   - You want setup-token instead of API keys
 title: "Anthropic"
 ---
 # Anthropic (Claude)
 
 Anthropic builds the **Claude** model family and provides access via an API.
-In Moltbot you can authenticate with an API key or a **setup-token**.
+In OpenClaw you can authenticate with an API key or a **setup-token**.
 
 ## Option A: Anthropic API key
 
@@ -18,11 +18,11 @@ Create your API key in the Anthropic Console.
 ### CLI setup
 
 ```bash
-moltbot onboard
+openclaw onboard
 # choose: Anthropic API key
 
 # or non-interactive
-moltbot onboard --anthropic-api-key "$ANTHROPIC_API_KEY"
+openclaw onboard --anthropic-api-key "$ANTHROPIC_API_KEY"
 ```
 
 ### Config snippet
@@ -30,7 +30,11 @@ moltbot onboard --anthropic-api-key "$ANTHROPIC_API_KEY"
 ```json5
 {
   env: { ANTHROPIC_API_KEY: "sk-ant-..." },
+<<<<<<< HEAD
   agents: { defaults: { model: { primary: "anthropic/claude-opus-4-5" } } }
+=======
+  agents: { defaults: { model: { primary: "anthropic/claude-opus-4-6" } } },
+>>>>>>> 462905440 (chore: apply local workspace updates (#9911))
 }
 ```
 
@@ -58,6 +62,7 @@ Use the `cacheRetention` parameter in your model config:
   agents: {
     defaults: {
       models: {
+<<<<<<< HEAD
         "anthropic/claude-opus-4-5": {
 <<<<<<< HEAD
           params: { cacheControlTtl: "5m" } // or "1h"
@@ -65,6 +70,14 @@ Use the `cacheRetention` parameter in your model config:
       }
     }
   }
+=======
+        "anthropic/claude-opus-4-6": {
+          params: { cacheRetention: "long" },
+        },
+      },
+    },
+  },
+>>>>>>> 462905440 (chore: apply local workspace updates (#9911))
 }
 ```
 
@@ -107,36 +120,40 @@ Setup-tokens are created by the **Claude Code CLI**, not the Anthropic Console. 
 claude setup-token
 ```
 
-Paste the token into Moltbot (wizard: **Anthropic token (paste setup-token)**), or run it on the gateway host:
+Paste the token into OpenClaw (wizard: **Anthropic token (paste setup-token)**), or run it on the gateway host:
 
 ```bash
-moltbot models auth setup-token --provider anthropic
+openclaw models auth setup-token --provider anthropic
 ```
 
 If you generated the token on a different machine, paste it:
 
 ```bash
-moltbot models auth paste-token --provider anthropic
+openclaw models auth paste-token --provider anthropic
 ```
 
 ### CLI setup (setup-token)
 
 ```bash
 # Paste a setup-token during onboarding
-moltbot onboard --auth-choice setup-token
+openclaw onboard --auth-choice setup-token
 ```
 
 ### Config snippet (setup-token)
 
 ```json5
 {
+<<<<<<< HEAD
   agents: { defaults: { model: { primary: "anthropic/claude-opus-4-5" } } }
+=======
+  agents: { defaults: { model: { primary: "anthropic/claude-opus-4-6" } } },
+>>>>>>> 462905440 (chore: apply local workspace updates (#9911))
 }
 ```
 
 ## Notes
 
-- Generate the setup-token with `claude setup-token` and paste it, or run `moltbot models auth setup-token` on the gateway host.
+- Generate the setup-token with `claude setup-token` and paste it, or run `openclaw models auth setup-token` on the gateway host.
 - If you see “OAuth token refresh failed …” on a Claude subscription, re-auth with a setup-token. See [/gateway/troubleshooting#oauth-token-refresh-failed-anthropic-claude-subscription](/gateway/troubleshooting#oauth-token-refresh-failed-anthropic-claude-subscription).
 - Auth details + reuse rules are in [/concepts/oauth](/concepts/oauth).
 
@@ -146,19 +163,19 @@ moltbot onboard --auth-choice setup-token
 - Claude subscription auth can expire or be revoked. Re-run `claude setup-token`
   and paste it into the **gateway host**.
 - If the Claude CLI login lives on a different machine, use
-  `moltbot models auth paste-token --provider anthropic` on the gateway host.
+  `openclaw models auth paste-token --provider anthropic` on the gateway host.
 
 **No API key found for provider "anthropic"**
 - Auth is **per agent**. New agents don’t inherit the main agent’s keys.
 - Re-run onboarding for that agent, or paste a setup-token / API key on the
-  gateway host, then verify with `moltbot models status`.
+  gateway host, then verify with `openclaw models status`.
 
 **No credentials found for profile `anthropic:default`**
-- Run `moltbot models status` to see which auth profile is active.
+- Run `openclaw models status` to see which auth profile is active.
 - Re-run onboarding, or paste a setup-token / API key for that profile.
 
 **No available auth profile (all in cooldown/unavailable)**
-- Check `moltbot models status --json` for `auth.unusableProfiles`.
+- Check `openclaw models status --json` for `auth.unusableProfiles`.
 - Add another Anthropic profile or wait for cooldown.
 
 More: [/gateway/troubleshooting](/gateway/troubleshooting) and [/help/faq](/help/faq).

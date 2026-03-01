@@ -28,7 +28,7 @@ import {
 import { type ModelDirectiveSelection, resolveModelDirectiveSelection } from "./model-selection.js";
 
 function buildModelPickerCatalog(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   defaultProvider: string;
   defaultModel: string;
   aliasIndex: ModelAliasIndex;
@@ -157,7 +157,7 @@ function buildModelPickerCatalog(params: {
 
 export async function maybeHandleModelDirectiveInfo(params: {
   directives: InlineDirectives;
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   agentDir: string;
   activeAgentId: string;
   provider: string;
@@ -275,7 +275,7 @@ export async function maybeHandleModelDirectiveInfo(params: {
 
 export function resolveModelSelectionFromDirective(params: {
   directives: InlineDirectives;
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   agentDir: string;
   defaultProvider: string;
   defaultModel: string;

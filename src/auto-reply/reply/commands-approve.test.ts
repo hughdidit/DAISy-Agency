@@ -14,7 +14,7 @@ vi.mock("../../gateway/call.js", () => ({
   callGateway: vi.fn(),
 }));
 
-function buildParams(commandBody: string, cfg: MoltbotConfig, ctxOverrides?: Partial<MsgContext>) {
+function buildParams(commandBody: string, cfg: OpenClawConfig, ctxOverrides?: Partial<MsgContext>) {
   const ctx = {
     Body: commandBody,
     CommandBody: commandBody,
@@ -57,7 +57,7 @@ describe("/approve command", () => {
     const cfg = {
       commands: { text: true },
       channels: { whatsapp: { allowFrom: ["*"] } },
-    } as MoltbotConfig;
+    } as OpenClawConfig;
     const params = buildParams("/approve", cfg);
     const result = await handleCommands(params);
     expect(result.shouldContinue).toBe(false);
@@ -68,7 +68,7 @@ describe("/approve command", () => {
     const cfg = {
       commands: { text: true },
       channels: { whatsapp: { allowFrom: ["*"] } },
-    } as MoltbotConfig;
+    } as OpenClawConfig;
     const params = buildParams("/approve abc allow-once", cfg, { SenderId: "123" });
 
     const mockCallGateway = vi.mocked(callGateway);

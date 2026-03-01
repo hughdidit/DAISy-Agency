@@ -16,7 +16,7 @@ import {
   resolveImplicitProviders,
 } from "./models-config.providers.js";
 
-type ModelsConfig = NonNullable<MoltbotConfig["models"]>;
+type ModelsConfig = NonNullable<OpenClawConfig["models"]>;
 
 const DEFAULT_MODE: NonNullable<ModelsConfig["mode"]> = "merge";
 
@@ -77,12 +77,12 @@ async function readJson(pathname: string): Promise<unknown> {
   }
 }
 
-export async function ensureMoltbotModelsJson(
-  config?: MoltbotConfig,
+export async function ensureOpenClawModelsJson(
+  config?: OpenClawConfig,
   agentDirOverride?: string,
 ): Promise<{ agentDir: string; wrote: boolean }> {
   const cfg = config ?? loadConfig();
-  const agentDir = agentDirOverride?.trim() ? agentDirOverride.trim() : resolveMoltbotAgentDir();
+  const agentDir = agentDirOverride?.trim() ? agentDirOverride.trim() : resolveOpenClawAgentDir();
 
   const explicitProviders = (cfg.models?.providers ?? {}) as Record<string, ProviderConfig>;
   const implicitProviders = await resolveImplicitProviders({ agentDir });

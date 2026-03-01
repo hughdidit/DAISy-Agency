@@ -30,7 +30,7 @@ function createRun(params: {
       sessionId: "sess",
       sessionFile: "/tmp/session.json",
       workspaceDir: "/tmp",
-      config: {} as MoltbotConfig,
+      config: {} as OpenClawConfig,
       provider: "openai",
       model: "gpt-test",
       timeoutMs: 10_000,

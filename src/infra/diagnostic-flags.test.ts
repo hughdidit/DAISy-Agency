@@ -11,9 +11,9 @@ describe("diagnostic flags", () => {
   it("merges config + env flags", () => {
     const cfg = {
       diagnostics: { flags: ["telegram.http", "cache.*"] },
-    } as MoltbotConfig;
+    } as OpenClawConfig;
     const env = {
-      CLAWDBOT_DIAGNOSTICS: "foo,bar",
+      OPENCLAW_DIAGNOSTICS: "foo,bar",
     } as NodeJS.ProcessEnv;
 
     const flags = resolveDiagnosticFlags(cfg, env);
@@ -24,12 +24,12 @@ describe("diagnostic flags", () => {
   });
 
   it("treats env true as wildcard", () => {
-    const env = { CLAWDBOT_DIAGNOSTICS: "1" } as NodeJS.ProcessEnv;
+    const env = { OPENCLAW_DIAGNOSTICS: "1" } as NodeJS.ProcessEnv;
     expect(isDiagnosticFlagEnabled("anything.here", undefined, env)).toBe(true);
   });
 
   it("treats env false as disabled", () => {
-    const env = { CLAWDBOT_DIAGNOSTICS: "0" } as NodeJS.ProcessEnv;
+    const env = { OPENCLAW_DIAGNOSTICS: "0" } as NodeJS.ProcessEnv;
     expect(isDiagnosticFlagEnabled("telegram.http", undefined, env)).toBe(false);
   });
 });

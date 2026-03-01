@@ -37,7 +37,7 @@ type ActiveBashJob =
 
 let activeJob: ActiveBashJob | null = null;
 
-function resolveForegroundMs(cfg: MoltbotConfig): number {
+function resolveForegroundMs(cfg: OpenClawConfig): number {
   const raw = cfg.commands?.bashForegroundMs;
   if (typeof raw !== "number" || Number.isNaN(raw)) return DEFAULT_FOREGROUND_MS;
   return clampInt(raw, 0, MAX_FOREGROUND_MS);
@@ -91,7 +91,7 @@ function parseBashRequest(raw: string): BashRequest | null {
 
 function resolveRawCommandBody(params: {
   ctx: MsgContext;
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   agentId?: string;
   isGroup: boolean;
 }) {
@@ -173,7 +173,7 @@ function formatElevatedUnavailableMessage(params: {
   lines.push("- agents.list[].tools.elevated.allowFrom.<provider>");
   if (params.sessionKey) {
     lines.push(
-      `See: ${formatCliCommand(`moltbot sandbox explain --session ${params.sessionKey}`)}`,
+      `See: ${formatCliCommand(`openclaw sandbox explain --session ${params.sessionKey}`)}`,
     );
   }
   return lines.join("\n");
@@ -181,7 +181,7 @@ function formatElevatedUnavailableMessage(params: {
 
 export async function handleBashChatCommand(params: {
   ctx: MsgContext;
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   agentId?: string;
   sessionKey: string;
   isGroup: boolean;
@@ -193,7 +193,7 @@ export async function handleBashChatCommand(params: {
 }): Promise<ReplyPayload> {
   if (params.cfg.commands?.bash !== true) {
     return {
-      text: "⚠️ bash is disabled. Set commands.bash=true to enable. Docs: https://docs.molt.bot/tools/slash-commands#config",
+      text: "⚠️ bash is disabled. Set commands.bash=true to enable. Docs: https://docs.openclaw.ai/tools/slash-commands#config",
     };
   }
 

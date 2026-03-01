@@ -20,6 +20,7 @@ import {
 type GatewayAuthChoice = "token" | "password";
 
 const ANTHROPIC_OAUTH_MODEL_KEYS = [
+  "anthropic/claude-opus-4-6",
   "anthropic/claude-opus-4-5",
   "anthropic/claude-sonnet-4-5",
   "anthropic/claude-haiku-4-5",
@@ -42,10 +43,10 @@ export function buildGatewayAuthConfig(params: {
 }
 
 export async function promptAuthConfig(
-  cfg: MoltbotConfig,
+  cfg: OpenClawConfig,
   runtime: RuntimeEnv,
   prompter: WizardPrompter,
-): Promise<MoltbotConfig> {
+): Promise<OpenClawConfig> {
   const authChoice = await promptAuthChoiceGrouped({
     prompter,
     store: ensureAuthProfileStore(undefined, {
@@ -84,7 +85,7 @@ export async function promptAuthConfig(
     config: next,
     prompter,
     allowedKeys: anthropicOAuth ? ANTHROPIC_OAUTH_MODEL_KEYS : undefined,
-    initialSelections: anthropicOAuth ? ["anthropic/claude-opus-4-5"] : undefined,
+    initialSelections: anthropicOAuth ? ["anthropic/claude-opus-4-6"] : undefined,
     message: anthropicOAuth ? "Anthropic OAuth models" : undefined,
   });
   if (allowlistSelection.models) {

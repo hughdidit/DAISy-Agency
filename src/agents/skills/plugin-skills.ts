@@ -18,7 +18,7 @@ const log = createSubsystemLogger("skills");
 
 export function resolvePluginSkillDirs(params: {
   workspaceDir: string;
-  config?: MoltbotConfig;
+  config?: OpenClawConfig;
 }): string[] {
   const workspaceDir = params.workspaceDir.trim();
   if (!workspaceDir) return [];

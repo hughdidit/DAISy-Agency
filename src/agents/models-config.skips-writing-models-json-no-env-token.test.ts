@@ -10,10 +10,10 @@ import { withTempHome as withTempHomeBase } from "../../test/helpers/temp-home.j
 >>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 
 async function withTempHome<T>(fn: (home: string) => Promise<T>): Promise<T> {
-  return withTempHomeBase(fn, { prefix: "moltbot-models-" });
+  return withTempHomeBase(fn, { prefix: "openclaw-models-" });
 }
 
-const MODELS_CONFIG: MoltbotConfig = {
+const MODELS_CONFIG: OpenClawConfig = {
   models: {
     providers: {
       "custom-proxy": {
@@ -69,10 +69,10 @@ describe("models-config", () => {
 
       try {
         vi.resetModules();
-        const { ensureMoltbotModelsJson } = await import("./models-config.js");
+        const { ensureOpenClawModelsJson } = await import("./models-config.js");
 
         const agentDir = path.join(home, "agent-empty");
-        const result = await ensureMoltbotModelsJson(
+        const result = await ensureOpenClawModelsJson(
           {
             models: { providers: {} },
           },
@@ -104,12 +104,12 @@ describe("models-config", () => {
   it("writes models.json for configured providers", async () => {
     await withTempHome(async () => {
       vi.resetModules();
-      const { ensureMoltbotModelsJson } = await import("./models-config.js");
-      const { resolveMoltbotAgentDir } = await import("./agent-paths.js");
+      const { ensureOpenClawModelsJson } = await import("./models-config.js");
+      const { resolveOpenClawAgentDir } = await import("./agent-paths.js");
 
-      await ensureMoltbotModelsJson(MODELS_CONFIG);
+      await ensureOpenClawModelsJson(MODELS_CONFIG);
 
-      const modelPath = path.join(resolveMoltbotAgentDir(), "models.json");
+      const modelPath = path.join(resolveOpenClawAgentDir(), "models.json");
       const raw = await fs.readFile(modelPath, "utf8");
       const parsed = JSON.parse(raw) as {
         providers: Record<string, { baseUrl?: string }>;
@@ -124,12 +124,12 @@ describe("models-config", () => {
       const prevKey = process.env.MINIMAX_API_KEY;
       process.env.MINIMAX_API_KEY = "sk-minimax-test";
       try {
-        const { ensureMoltbotModelsJson } = await import("./models-config.js");
-        const { resolveMoltbotAgentDir } = await import("./agent-paths.js");
+        const { ensureOpenClawModelsJson } = await import("./models-config.js");
+        const { resolveOpenClawAgentDir } = await import("./agent-paths.js");
 
-        await ensureMoltbotModelsJson({});
+        await ensureOpenClawModelsJson({});
 
-        const modelPath = path.join(resolveMoltbotAgentDir(), "models.json");
+        const modelPath = path.join(resolveOpenClawAgentDir(), "models.json");
         const raw = await fs.readFile(modelPath, "utf8");
         const parsed = JSON.parse(raw) as {
           providers: Record<
@@ -158,12 +158,12 @@ describe("models-config", () => {
       const prevKey = process.env.SYNTHETIC_API_KEY;
       process.env.SYNTHETIC_API_KEY = "sk-synthetic-test";
       try {
-        const { ensureMoltbotModelsJson } = await import("./models-config.js");
-        const { resolveMoltbotAgentDir } = await import("./agent-paths.js");
+        const { ensureOpenClawModelsJson } = await import("./models-config.js");
+        const { resolveOpenClawAgentDir } = await import("./agent-paths.js");
 
-        await ensureMoltbotModelsJson({});
+        await ensureOpenClawModelsJson({});
 
-        const modelPath = path.join(resolveMoltbotAgentDir(), "models.json");
+        const modelPath = path.join(resolveOpenClawAgentDir(), "models.json");
         const raw = await fs.readFile(modelPath, "utf8");
         const parsed = JSON.parse(raw) as {
           providers: Record<

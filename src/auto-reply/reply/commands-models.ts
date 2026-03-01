@@ -12,7 +12,7 @@ import {
 } from "../../agents/model-selection.js";
 <<<<<<< HEAD
 import { DEFAULT_MODEL, DEFAULT_PROVIDER } from "../../agents/defaults.js";
-import type { MoltbotConfig } from "../../config/config.js";
+import type { OpenClawConfig } from "../../config/config.js";
 import type { ReplyPayload } from "../types.js";
 import type { CommandHandler } from "./commands-types.js";
 =======
@@ -77,7 +77,7 @@ function parseModelsArgs(raw: string): {
 }
 
 export async function resolveModelsCommandReply(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   commandBodyNormalized: string;
 }): Promise<ReplyPayload | null> {
   const body = params.commandBodyNormalized.trim();

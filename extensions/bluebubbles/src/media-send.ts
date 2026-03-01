@@ -2,7 +2,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 <<<<<<< HEAD
 
-import { resolveChannelMediaMaxBytes, type MoltbotConfig } from "clawdbot/plugin-sdk";
+import { resolveChannelMediaMaxBytes, type OpenClawConfig } from "openclaw/plugin-sdk";
 
 =======
 import { resolveChannelMediaMaxBytes, type OpenClawConfig } from "openclaw/plugin-sdk";
@@ -53,7 +53,7 @@ function resolveFilenameFromSource(source?: string): string | undefined {
 }
 
 export async function sendBlueBubblesMedia(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   to: string;
   mediaUrl?: string;
   mediaPath?: string;

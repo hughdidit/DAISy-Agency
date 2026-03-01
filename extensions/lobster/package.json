@@ -25,7 +25,16 @@
 >>>>>>> 1c4db9159 (chore: prepare 2026.2.2 release)
   "type": "module",
   "description": "Lobster workflow tool plugin (typed pipelines + resumable approvals)",
-  "moltbot": {
+>>>>>>> 85cd55e22 (chore: bump to 2026.2.1)
+  "type": "module",
+<<<<<<< HEAD
+  "description": "Lobster workflow tool plugin (typed pipelines + resumable approvals)",
+=======
+  "devDependencies": {
+    "openclaw": "workspace:*"
+  },
+>>>>>>> aa91f6e70 (chore: Add `openclaw` to `devDependencies` for all extensions so that types resolve.)
+  "openclaw": {
     "extensions": [
       "./index.ts"
     ]

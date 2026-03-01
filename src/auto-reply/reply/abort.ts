@@ -67,7 +67,7 @@ function resolveAbortTargetKey(ctx: MsgContext): string | undefined {
 }
 
 function normalizeRequesterSessionKey(
-  cfg: MoltbotConfig,
+  cfg: OpenClawConfig,
   key: string | undefined,
 ): string | undefined {
   const cleaned = key?.trim();
@@ -77,7 +77,7 @@ function normalizeRequesterSessionKey(
 }
 
 export function stopSubagentsForRequester(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   requesterSessionKey?: string;
 }): { stopped: number } {
   const requesterKey = normalizeRequesterSessionKey(params.cfg, params.requesterSessionKey);
@@ -120,7 +120,7 @@ export function stopSubagentsForRequester(params: {
 
 export async function tryFastAbortFromMessage(params: {
   ctx: FinalizedMsgContext;
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
 }): Promise<{ handled: boolean; aborted: boolean; stoppedSubagents?: number }> {
   const { ctx, cfg } = params;
   const targetKey = resolveAbortTargetKey(ctx);

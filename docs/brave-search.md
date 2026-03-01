@@ -8,7 +8,7 @@ title: "Brave Search"
 
 # Brave Search API
 
-Moltbot uses Brave Search as the default provider for `web_search`.
+OpenClaw uses Brave Search as the default provider for `web_search`.
 
 ## Enable web search
 

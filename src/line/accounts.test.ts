@@ -27,7 +27,7 @@ describe("LINE accounts", () => {
 
   describe("resolveLineAccount", () => {
     it("resolves account from config", () => {
-      const cfg: MoltbotConfig = {
+      const cfg: OpenClawConfig = {
         channels: {
           line: {
             enabled: true,
@@ -52,7 +52,7 @@ describe("LINE accounts", () => {
       process.env.LINE_CHANNEL_ACCESS_TOKEN = "env-token";
       process.env.LINE_CHANNEL_SECRET = "env-secret";
 
-      const cfg: MoltbotConfig = {
+      const cfg: OpenClawConfig = {
         channels: {
           line: {
             enabled: true,
@@ -68,7 +68,7 @@ describe("LINE accounts", () => {
     });
 
     it("resolves named account", () => {
-      const cfg: MoltbotConfig = {
+      const cfg: OpenClawConfig = {
         channels: {
           line: {
             enabled: true,
@@ -94,7 +94,7 @@ describe("LINE accounts", () => {
     });
 
     it("returns empty token when not configured", () => {
-      const cfg: MoltbotConfig = {};
+      const cfg: OpenClawConfig = {};
 
       const account = resolveLineAccount({ cfg });
 
@@ -106,7 +106,7 @@ describe("LINE accounts", () => {
 
   describe("listLineAccountIds", () => {
     it("returns default account when configured at base level", () => {
-      const cfg: MoltbotConfig = {
+      const cfg: OpenClawConfig = {
         channels: {
           line: {
             channelAccessToken: "test-token",
@@ -120,7 +120,7 @@ describe("LINE accounts", () => {
     });
 
     it("returns named accounts", () => {
-      const cfg: MoltbotConfig = {
+      const cfg: OpenClawConfig = {
         channels: {
           line: {
             accounts: {
@@ -139,7 +139,7 @@ describe("LINE accounts", () => {
 
     it("returns default from env", () => {
       process.env.LINE_CHANNEL_ACCESS_TOKEN = "env-token";
-      const cfg: MoltbotConfig = {};
+      const cfg: OpenClawConfig = {};
 
       const ids = listLineAccountIds(cfg);
 
@@ -149,7 +149,7 @@ describe("LINE accounts", () => {
 
   describe("resolveDefaultLineAccountId", () => {
     it("returns default when configured", () => {
-      const cfg: MoltbotConfig = {
+      const cfg: OpenClawConfig = {
         channels: {
           line: {
             channelAccessToken: "test-token",
@@ -163,7 +163,7 @@ describe("LINE accounts", () => {
     });
 
     it("returns first named account when default not configured", () => {
-      const cfg: MoltbotConfig = {
+      const cfg: OpenClawConfig = {
         channels: {
           line: {
             accounts: {

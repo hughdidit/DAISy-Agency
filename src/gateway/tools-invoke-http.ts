@@ -120,8 +120,10 @@ export async function handleToolsInvokeHttpRequest(
     !rawSessionKey || rawSessionKey === "main" ? resolveMainSessionKey(cfg) : rawSessionKey;
 
   // Resolve message channel/account hints (optional headers) for policy inheritance.
-  const messageChannel = normalizeMessageChannel(getHeader(req, "x-moltbot-message-channel") ?? "");
-  const accountId = getHeader(req, "x-moltbot-account-id")?.trim() || undefined;
+  const messageChannel = normalizeMessageChannel(
+    getHeader(req, "x-openclaw-message-channel") ?? "",
+  );
+  const accountId = getHeader(req, "x-openclaw-account-id")?.trim() || undefined;
 
   const {
     agentId,
@@ -158,7 +160,7 @@ export async function handleToolsInvokeHttpRequest(
     : undefined;
 
   // Build tool list (core + plugin tools).
-  const allTools = createMoltbotTools({
+  const allTools = createOpenClawTools({
     agentSessionKey: sessionKey,
     agentChannel: messageChannel ?? undefined,
     agentAccountId: accountId,

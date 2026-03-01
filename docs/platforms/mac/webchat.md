@@ -20,7 +20,7 @@ agent (with a session switcher for other sessions).
 - Auto‑open for testing:
 
   ```bash
-  dist/Moltbot.app/Contents/MacOS/Moltbot --webchat
+  dist/OpenClaw.app/Contents/MacOS/OpenClaw --webchat
   ```
 
 - Logs: `./scripts/clawlog.sh` (subsystem `bot.molt`, category `WebChatSwiftUI`).

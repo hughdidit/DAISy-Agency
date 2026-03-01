@@ -38,7 +38,7 @@ export function resolvePrompt(
 export function resolveMaxChars(params: {
   capability: MediaUnderstandingCapability;
   entry: MediaUnderstandingModelConfig;
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   config?: MediaUnderstandingConfig;
 }): number | undefined {
   const { capability, entry, cfg } = params;
@@ -51,7 +51,7 @@ export function resolveMaxChars(params: {
 export function resolveMaxBytes(params: {
   capability: MediaUnderstandingCapability;
   entry: MediaUnderstandingModelConfig;
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   config?: MediaUnderstandingConfig;
 }): number {
   const configured =
@@ -63,7 +63,7 @@ export function resolveMaxBytes(params: {
 }
 
 export function resolveCapabilityConfig(
-  cfg: MoltbotConfig,
+  cfg: OpenClawConfig,
   capability: MediaUnderstandingCapability,
 ): MediaUnderstandingConfig | undefined {
   return cfg.tools?.media?.[capability];
@@ -93,7 +93,7 @@ function resolveEntryCapabilities(params: {
 }
 
 export function resolveModelEntries(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   capability: MediaUnderstandingCapability;
   config?: MediaUnderstandingConfig;
   providerRegistry: Map<string, { capabilities?: MediaUnderstandingCapability[] }>;
@@ -130,7 +130,7 @@ export function resolveModelEntries(params: {
     .map(({ entry }) => entry);
 }
 
-export function resolveConcurrency(cfg: MoltbotConfig): number {
+export function resolveConcurrency(cfg: OpenClawConfig): number {
   const configured = cfg.tools?.media?.concurrency;
   if (typeof configured === "number" && Number.isFinite(configured) && configured > 0) {
     return Math.floor(configured);
@@ -139,7 +139,7 @@ export function resolveConcurrency(cfg: MoltbotConfig): number {
 }
 
 export function resolveEntriesWithActiveFallback(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   capability: MediaUnderstandingCapability;
   config?: MediaUnderstandingConfig;
   providerRegistry: Map<string, { capabilities?: MediaUnderstandingCapability[] }>;

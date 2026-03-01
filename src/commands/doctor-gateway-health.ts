@@ -12,7 +12,7 @@ import { healthCommand } from "./health.js";
 
 export async function checkGatewayHealth(params: {
   runtime: RuntimeEnv;
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   timeoutMs?: number;
 }) {
   const gatewayDetails = buildGatewayConnectionDetails({ config: params.cfg });

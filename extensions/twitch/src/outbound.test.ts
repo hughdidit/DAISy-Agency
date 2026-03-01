@@ -53,7 +53,7 @@ describe("outbound", () => {
         },
       },
     },
-  } as unknown as MoltbotConfig;
+  } as unknown as OpenClawConfig;
 
   beforeEach(() => {
     vi.clearAllMocks();

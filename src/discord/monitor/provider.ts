@@ -47,7 +47,7 @@ import {
 export type MonitorDiscordOpts = {
   token?: string;
   accountId?: string;
-  config?: MoltbotConfig;
+  config?: OpenClawConfig;
   runtime?: RuntimeEnv;
   abortSignal?: AbortSignal;
   mediaMaxMb?: number;

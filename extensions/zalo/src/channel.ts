@@ -2,8 +2,8 @@ import type {
   ChannelAccountSnapshot,
   ChannelDock,
   ChannelPlugin,
-  MoltbotConfig,
-} from "clawdbot/plugin-sdk";
+  OpenClawConfig,
+} from "openclaw/plugin-sdk";
 import {
   applyAccountNameToChannelSection,
   buildChannelConfigSchema,
@@ -63,7 +63,7 @@ export const zaloDock: ChannelDock = {
   outbound: { textChunkLimit: 2000 },
   config: {
     resolveAllowFrom: ({ cfg, accountId }) =>
-      (resolveZaloAccount({ cfg: cfg as MoltbotConfig, accountId }).config.allowFrom ?? []).map(
+      (resolveZaloAccount({ cfg: cfg as OpenClawConfig, accountId }).config.allowFrom ?? []).map(
         (entry) => String(entry),
       ),
     formatAllowFrom: ({ allowFrom }) =>
@@ -97,12 +97,12 @@ export const zaloPlugin: ChannelPlugin<ResolvedZaloAccount> = {
   reload: { configPrefixes: ["channels.zalo"] },
   configSchema: buildChannelConfigSchema(ZaloConfigSchema),
   config: {
-    listAccountIds: (cfg) => listZaloAccountIds(cfg as MoltbotConfig),
-    resolveAccount: (cfg, accountId) => resolveZaloAccount({ cfg: cfg as MoltbotConfig, accountId }),
-    defaultAccountId: (cfg) => resolveDefaultZaloAccountId(cfg as MoltbotConfig),
+    listAccountIds: (cfg) => listZaloAccountIds(cfg as OpenClawConfig),
+    resolveAccount: (cfg, accountId) => resolveZaloAccount({ cfg: cfg as OpenClawConfig, accountId }),
+    defaultAccountId: (cfg) => resolveDefaultZaloAccountId(cfg as OpenClawConfig),
     setAccountEnabled: ({ cfg, accountId, enabled }) =>
       setAccountEnabledInConfigSection({
-        cfg: cfg as MoltbotConfig,
+        cfg: cfg as OpenClawConfig,
         sectionKey: "zalo",
         accountId,
         enabled,
@@ -110,7 +110,7 @@ export const zaloPlugin: ChannelPlugin<ResolvedZaloAccount> = {
       }),
     deleteAccount: ({ cfg, accountId }) =>
       deleteAccountFromConfigSection({
-        cfg: cfg as MoltbotConfig,
+        cfg: cfg as OpenClawConfig,
         sectionKey: "zalo",
         accountId,
         clearBaseFields: ["botToken", "tokenFile", "name"],
@@ -124,7 +124,7 @@ export const zaloPlugin: ChannelPlugin<ResolvedZaloAccount> = {
       tokenSource: account.tokenSource,
     }),
     resolveAllowFrom: ({ cfg, accountId }) =>
-      (resolveZaloAccount({ cfg: cfg as MoltbotConfig, accountId }).config.allowFrom ?? []).map(
+      (resolveZaloAccount({ cfg: cfg as OpenClawConfig, accountId }).config.allowFrom ?? []).map(
         (entry) => String(entry),
       ),
     formatAllowFrom: ({ allowFrom }) =>
@@ -138,7 +138,7 @@ export const zaloPlugin: ChannelPlugin<ResolvedZaloAccount> = {
     resolveDmPolicy: ({ cfg, accountId, account }) => {
       const resolvedAccountId = accountId ?? account.accountId ?? DEFAULT_ACCOUNT_ID;
       const useAccountPath = Boolean(
-        (cfg as MoltbotConfig).channels?.zalo?.accounts?.[resolvedAccountId],
+        (cfg as OpenClawConfig).channels?.zalo?.accounts?.[resolvedAccountId],
       );
       const basePath = useAccountPath
         ? `channels.zalo.accounts.${resolvedAccountId}.`
@@ -174,7 +174,7 @@ export const zaloPlugin: ChannelPlugin<ResolvedZaloAccount> = {
   directory: {
     self: async () => null,
     listPeers: async ({ cfg, accountId, query, limit }) => {
-      const account = resolveZaloAccount({ cfg: cfg as MoltbotConfig, accountId });
+      const account = resolveZaloAccount({ cfg: cfg as OpenClawConfig, accountId });
       const q = query?.trim().toLowerCase() || "";
       const peers = Array.from(
         new Set(
@@ -195,7 +195,7 @@ export const zaloPlugin: ChannelPlugin<ResolvedZaloAccount> = {
     resolveAccountId: ({ accountId }) => normalizeAccountId(accountId),
     applyAccountName: ({ cfg, accountId, name }) =>
       applyAccountNameToChannelSection({
-        cfg: cfg as MoltbotConfig,
+        cfg: cfg as OpenClawConfig,
         channelKey: "zalo",
         accountId,
         name,
@@ -211,7 +211,7 @@ export const zaloPlugin: ChannelPlugin<ResolvedZaloAccount> = {
     },
     applyAccountConfig: ({ cfg, accountId, input }) => {
       const namedConfig = applyAccountNameToChannelSection({
-        cfg: cfg as MoltbotConfig,
+        cfg: cfg as OpenClawConfig,
         channelKey: "zalo",
         accountId,
         name: input.name,
@@ -240,7 +240,7 @@ export const zaloPlugin: ChannelPlugin<ResolvedZaloAccount> = {
                     : {}),
             },
           },
-        } as MoltbotConfig;
+        } as OpenClawConfig;
       }
       return {
         ...next,
@@ -263,14 +263,14 @@ export const zaloPlugin: ChannelPlugin<ResolvedZaloAccount> = {
             },
           },
         },
-      } as MoltbotConfig;
+      } as OpenClawConfig;
     },
   },
   pairing: {
     idLabel: "zaloUserId",
     normalizeAllowEntry: (entry) => entry.replace(/^(zalo|zl):/i, ""),
     notifyApproval: async ({ cfg, id }) => {
-      const account = resolveZaloAccount({ cfg: cfg as MoltbotConfig });
+      const account = resolveZaloAccount({ cfg: cfg as OpenClawConfig });
       if (!account.token) throw new Error("Zalo token not configured");
       await sendMessageZalo(id, PAIRING_APPROVED_MESSAGE, { token: account.token });
     },
@@ -303,7 +303,7 @@ export const zaloPlugin: ChannelPlugin<ResolvedZaloAccount> = {
     sendText: async ({ to, text, accountId, cfg }) => {
       const result = await sendMessageZalo(to, text, {
         accountId: accountId ?? undefined,
-        cfg: cfg as MoltbotConfig,
+        cfg: cfg as OpenClawConfig,
       });
       return {
         channel: "zalo",
@@ -316,7 +316,7 @@ export const zaloPlugin: ChannelPlugin<ResolvedZaloAccount> = {
       const result = await sendMessageZalo(to, text, {
         accountId: accountId ?? undefined,
         mediaUrl,
-        cfg: cfg as MoltbotConfig,
+        cfg: cfg as OpenClawConfig,
       });
       return {
         channel: "zalo",
@@ -389,7 +389,7 @@ export const zaloPlugin: ChannelPlugin<ResolvedZaloAccount> = {
       return monitorZaloProvider({
         token,
         account,
-        config: ctx.cfg as MoltbotConfig,
+        config: ctx.cfg as OpenClawConfig,
         runtime: ctx.runtime,
         abortSignal: ctx.abortSignal,
         useWebhook: Boolean(account.config.webhookUrl),

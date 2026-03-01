@@ -12,7 +12,7 @@ import {
 
 describe("applyGoogleGeminiModelDefault", () => {
   it("sets gemini default when model is unset", () => {
-    const cfg: MoltbotConfig = { agents: { defaults: {} } };
+    const cfg: OpenClawConfig = { agents: { defaults: {} } };
     const applied = applyGoogleGeminiModelDefault(cfg);
     expect(applied.changed).toBe(true);
     expect(applied.next.agents?.defaults?.model).toEqual({
@@ -21,7 +21,7 @@ describe("applyGoogleGeminiModelDefault", () => {
   });
 
   it("overrides existing model", () => {
-    const cfg: MoltbotConfig = {
+    const cfg: OpenClawConfig = {
       agents: { defaults: { model: "anthropic/claude-opus-4-5" } },
     };
     const applied = applyGoogleGeminiModelDefault(cfg);
@@ -32,7 +32,7 @@ describe("applyGoogleGeminiModelDefault", () => {
   });
 
   it("no-ops when already gemini default", () => {
-    const cfg: MoltbotConfig = {
+    const cfg: OpenClawConfig = {
       agents: { defaults: { model: GOOGLE_GEMINI_DEFAULT_MODEL } },
     };
     const applied = applyGoogleGeminiModelDefault(cfg);

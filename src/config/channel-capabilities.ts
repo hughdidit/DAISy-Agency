@@ -51,7 +51,7 @@ function resolveAccountCapabilities(params: {
 }
 
 export function resolveChannelCapabilities(params: {
-  cfg?: Partial<MoltbotConfig>;
+  cfg?: Partial<OpenClawConfig>;
   channel?: string | null;
   accountId?: string | null;
 }): string[] | undefined {

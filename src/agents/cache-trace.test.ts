@@ -11,7 +11,7 @@ import { createCacheTrace } from "./cache-trace.js";
 describe("createCacheTrace", () => {
   it("returns null when diagnostics cache tracing is disabled", () => {
     const trace = createCacheTrace({
-      cfg: {} as MoltbotConfig,
+      cfg: {} as OpenClawConfig,
       env: {},
     });
 
@@ -25,7 +25,7 @@ describe("createCacheTrace", () => {
         diagnostics: {
           cacheTrace: {
             enabled: true,
-            filePath: "~/.clawdbot/logs/cache-trace.jsonl",
+            filePath: "~/.openclaw/logs/cache-trace.jsonl",
           },
         },
       },
@@ -37,7 +37,7 @@ describe("createCacheTrace", () => {
     });
 
     expect(trace).not.toBeNull();
-    expect(trace?.filePath).toBe(resolveUserPath("~/.clawdbot/logs/cache-trace.jsonl"));
+    expect(trace?.filePath).toBe(resolveUserPath("~/.openclaw/logs/cache-trace.jsonl"));
 
     trace?.recordStage("session:loaded", {
       messages: [],
@@ -84,7 +84,7 @@ describe("createCacheTrace", () => {
         },
       },
       env: {
-        CLAWDBOT_CACHE_TRACE: "0",
+        OPENCLAW_CACHE_TRACE: "0",
       },
       writer: {
         filePath: "memory",

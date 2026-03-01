@@ -69,7 +69,7 @@ export function unsetConfigOverride(pathRaw: string): {
   return { ok: true, removed };
 }
 
-export function applyConfigOverrides(cfg: MoltbotConfig): MoltbotConfig {
+export function applyConfigOverrides(cfg: OpenClawConfig): OpenClawConfig {
   if (!overrides || Object.keys(overrides).length === 0) return cfg;
-  return mergeOverrides(cfg, overrides) as MoltbotConfig;
+  return mergeOverrides(cfg, overrides) as OpenClawConfig;
 }

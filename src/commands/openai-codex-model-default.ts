@@ -1,7 +1,7 @@
-import type { MoltbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 import type { AgentModelListConfig } from "../config/types.js";
 
-export const OPENAI_CODEX_DEFAULT_MODEL = "openai-codex/gpt-5.2";
+export const OPENAI_CODEX_DEFAULT_MODEL = "openai-codex/gpt-5.3-codex";
 
 function shouldSetOpenAICodexModel(model?: string): boolean {
   const trimmed = model?.trim();
@@ -20,8 +20,8 @@ function resolvePrimaryModel(model?: AgentModelListConfig | string): string | un
   return undefined;
 }
 
-export function applyOpenAICodexModelDefault(cfg: MoltbotConfig): {
-  next: MoltbotConfig;
+export function applyOpenAICodexModelDefault(cfg: OpenClawConfig): {
+  next: OpenClawConfig;
   changed: boolean;
 } {
   const current = resolvePrimaryModel(cfg.agents?.defaults?.model);

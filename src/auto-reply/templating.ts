@@ -70,7 +70,7 @@ export type MsgContext = {
   Sticker?: StickerMetadata;
   OutputDir?: string;
   OutputBase?: string;
-  /** Remote host for SCP when media lives on a different machine (e.g., moltbot@192.168.64.3). */
+  /** Remote host for SCP when media lives on a different machine (e.g., openclaw@192.168.64.3). */
   MediaRemoteHost?: string;
   Transcript?: string;
   MediaUnderstanding?: MediaUnderstandingOutput[];
@@ -87,6 +87,8 @@ export type MsgContext = {
   GroupSpace?: string;
   GroupMembers?: string;
   GroupSystemPrompt?: string;
+  /** Untrusted metadata that must not be treated as system instructions. */
+  UntrustedContext?: string[];
   SenderName?: string;
   SenderId?: string;
   SenderUsername?: string;

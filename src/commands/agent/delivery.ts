@@ -51,7 +51,7 @@ function logNestedOutput(runtime: RuntimeEnv, opts: AgentCommandOpts, output: st
 }
 
 export async function deliverAgentCommandResult(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   deps: CliDeps;
   runtime: RuntimeEnv;
   opts: AgentCommandOpts;

@@ -4,14 +4,14 @@ import path from "node:path";
 import sharp from "sharp";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { optimizeImageToPng } from "../media/image-ops.js";
-import { loadWebMedia, optimizeImageToJpeg } from "./media.js";
+import { loadWebMedia, loadWebMediaRaw, optimizeImageToJpeg } from "./media.js";
 
 const tmpFiles: string[] = [];
 
 async function writeTempFile(buffer: Buffer, ext: string): Promise<string> {
   const file = path.join(
     os.tmpdir(),
-    `moltbot-media-${Date.now()}-${Math.random().toString(16).slice(2)}${ext}`,
+    `openclaw-media-${Date.now()}-${Math.random().toString(16).slice(2)}${ext}`,
   );
   tmpFiles.push(file);
   await fs.writeFile(file, buffer);
@@ -101,6 +101,22 @@ describe("web media loading", () => {
 
     await expect(loadWebMedia("https://example.com/missing.jpg", 1024 * 1024)).rejects.toThrow(
       /Failed to fetch media from https:\/\/example\.com\/missing\.jpg.*HTTP 404/i,
+    );
+
+    fetchMock.mockRestore();
+  });
+
+  it("respects maxBytes for raw URL fetches", async () => {
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValueOnce({
+      ok: true,
+      body: true,
+      arrayBuffer: async () => Buffer.alloc(2048).buffer,
+      headers: { get: () => "image/png" },
+      status: 200,
+    } as Response);
+
+    await expect(loadWebMediaRaw("https://example.com/too-big.png", 1024)).rejects.toThrow(
+      /exceeds maxBytes 1024/i,
     );
 
     fetchMock.mockRestore();

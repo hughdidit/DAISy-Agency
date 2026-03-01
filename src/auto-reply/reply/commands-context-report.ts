@@ -5,7 +5,7 @@ import { resolveSessionAgentIds } from "../../agents/agent-scope.js";
 import { resolveBootstrapContextForRun } from "../../agents/bootstrap-files.js";
 import { resolveDefaultModelForAgent } from "../../agents/model-selection.js";
 import { resolveBootstrapMaxChars } from "../../agents/pi-embedded-helpers.js";
-import { createMoltbotCodingTools } from "../../agents/pi-tools.js";
+import { createOpenClawCodingTools } from "../../agents/pi-tools.js";
 import { resolveSandboxRuntimeStatus } from "../../agents/sandbox.js";
 import { buildWorkspaceSkillSnapshot } from "../../agents/skills.js";
 import { getSkillsSnapshotVersion } from "../../agents/skills/refresh.js";
@@ -77,7 +77,7 @@ async function resolveContextReport(
   });
   const tools = (() => {
     try {
-      return createMoltbotCodingTools({
+      return createOpenClawCodingTools({
         config: params.cfg,
         workspaceDir,
         sessionKey: params.sessionKey,
@@ -86,6 +86,7 @@ async function resolveContextReport(
         groupChannel: params.sessionEntry?.groupChannel ?? undefined,
         groupSpace: params.sessionEntry?.space ?? undefined,
         spawnedBy: params.sessionEntry?.spawnedBy ?? undefined,
+        senderIsOwner: params.command.senderIsOwner,
         modelProvider: params.provider,
         modelId: params.model,
       });

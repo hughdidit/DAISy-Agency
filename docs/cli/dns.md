@@ -1,5 +1,5 @@
 ---
-summary: "CLI reference for `moltbot dns` (wide-area discovery helpers)"
+summary: "CLI reference for `openclaw dns` (wide-area discovery helpers)"
 read_when:
   - You want wide-area discovery (DNS-SD) via Tailscale + CoreDNS
 <<<<<<< HEAD
@@ -10,7 +10,7 @@ title: "dns"
 >>>>>>> abcaa8c7a (Docs: add nav titles across docs (#5689))
 ---
 
-# `moltbot dns`
+# `openclaw dns`
 
 DNS helpers for wide-area discovery (Tailscale + CoreDNS). Currently focused on macOS + Homebrew CoreDNS.
 
@@ -21,7 +21,6 @@ Related:
 ## Setup
 
 ```bash
-moltbot dns setup
-moltbot dns setup --apply
+openclaw dns setup
+openclaw dns setup --apply
 ```
-

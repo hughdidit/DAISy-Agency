@@ -25,7 +25,7 @@ function resolveReservedCommandNames(): Set<string> {
 
 export function listSkillCommandsForWorkspace(params: {
   workspaceDir: string;
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   skillFilter?: string[];
 }): SkillCommandSpec[] {
   return buildWorkspaceSkillCommandSpecs(params.workspaceDir, {
@@ -37,7 +37,7 @@ export function listSkillCommandsForWorkspace(params: {
 }
 
 export function listSkillCommandsForAgents(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   agentIds?: string[];
 }): SkillCommandSpec[] {
   const used = resolveReservedCommandNames();

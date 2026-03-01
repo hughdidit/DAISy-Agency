@@ -1,4 +1,4 @@
-import type { MoltbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 import type { ModelDefinitionConfig } from "../config/types.models.js";
 import {
   DEFAULT_COPILOT_API_BASE_URL,
@@ -14,14 +14,16 @@ import {
 } from "./synthetic-models.js";
 import { discoverVeniceModels, VENICE_BASE_URL } from "./venice-models.js";
 
-type ModelsConfig = NonNullable<MoltbotConfig["models"]>;
+type ModelsConfig = NonNullable<OpenClawConfig["models"]>;
 export type ProviderConfig = NonNullable<ModelsConfig["providers"]>[string];
 
 const MINIMAX_API_BASE_URL = "https://api.minimax.chat/v1";
+const MINIMAX_PORTAL_BASE_URL = "https://api.minimax.io/anthropic";
 const MINIMAX_DEFAULT_MODEL_ID = "MiniMax-M2.1";
 const MINIMAX_DEFAULT_VISION_MODEL_ID = "MiniMax-VL-01";
 const MINIMAX_DEFAULT_CONTEXT_WINDOW = 200000;
 const MINIMAX_DEFAULT_MAX_TOKENS = 8192;
+const MINIMAX_OAUTH_PLACEHOLDER = "minimax-oauth";
 // Pricing: MiniMax doesn't publish public rates. Override in models.json for accurate costs.
 const MINIMAX_API_COST = {
   input: 15,
@@ -268,6 +270,24 @@ function buildMinimaxProvider(): ProviderConfig {
   };
 }
 
+function buildMinimaxPortalProvider(): ProviderConfig {
+  return {
+    baseUrl: MINIMAX_PORTAL_BASE_URL,
+    api: "anthropic-messages",
+    models: [
+      {
+        id: MINIMAX_DEFAULT_MODEL_ID,
+        name: "MiniMax M2.1",
+        reasoning: false,
+        input: ["text"],
+        cost: MINIMAX_API_COST,
+        contextWindow: MINIMAX_DEFAULT_CONTEXT_WINDOW,
+        maxTokens: MINIMAX_DEFAULT_MAX_TOKENS,
+      },
+    ],
+  };
+}
+
 function buildMoonshotProvider(): ProviderConfig {
   return {
     baseUrl: MOONSHOT_BASE_URL,
@@ -374,6 +394,14 @@ export async function resolveImplicitProviders(params: {
     providers.minimax = { ...buildMinimaxProvider(), apiKey: minimaxKey };
   }
 
+  const minimaxOauthProfile = listProfilesForProvider(authStore, "minimax-portal");
+  if (minimaxOauthProfile.length > 0) {
+    providers["minimax-portal"] = {
+      ...buildMinimaxPortalProvider(),
+      apiKey: MINIMAX_OAUTH_PLACEHOLDER,
+    };
+  }
+
   const moonshotKey =
     resolveEnvApiKeyVarName("moonshot") ??
     resolveApiKeyFromProfiles({ provider: "moonshot", store: authStore });
@@ -459,15 +487,15 @@ export async function resolveImplicitCopilotProvider(params: {
 
   // pi-coding-agent's ModelRegistry marks a model "available" only if its
   // `AuthStorage` has auth configured for that provider (via auth.json/env/etc).
-  // Our Copilot auth lives in Moltbot's auth-profiles store instead, so we also
+  // Our Copilot auth lives in OpenClaw's auth-profiles store instead, so we also
   // write a runtime-only auth.json entry for pi-coding-agent to pick up.
   //
-  // This is safe because it's (1) within Moltbot's agent dir, (2) contains the
+  // This is safe because it's (1) within OpenClaw's agent dir, (2) contains the
   // GitHub token (not the exchanged Copilot token), and (3) matches existing
   // patterns for OAuth-like providers in pi-coding-agent.
   // Note: we deliberately do not write pi-coding-agent's `auth.json` here.
-  // Moltbot uses its own auth store and exchanges tokens at runtime.
-  // `models list` uses Moltbot's auth heuristics for availability.
+  // OpenClaw uses its own auth store and exchanges tokens at runtime.
+  // `models list` uses OpenClaw's auth heuristics for availability.
 
   // We intentionally do NOT define custom models for Copilot in models.json.
   // pi-coding-agent treats providers with models as replacements requiring apiKey.
@@ -480,7 +508,7 @@ export async function resolveImplicitCopilotProvider(params: {
 
 export async function resolveImplicitBedrockProvider(params: {
   agentDir: string;
-  config?: MoltbotConfig;
+  config?: OpenClawConfig;
   env?: NodeJS.ProcessEnv;
 }): Promise<ProviderConfig | null> {
   const env = params.env ?? process.env;

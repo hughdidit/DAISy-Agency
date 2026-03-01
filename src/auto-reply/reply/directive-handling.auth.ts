@@ -28,7 +28,7 @@ const maskApiKey = (value: string): string => {
 
 export const resolveAuthLabel = async (
   provider: string,
-  cfg: MoltbotConfig,
+  cfg: OpenClawConfig,
   modelsPath: string,
   agentDir?: string,
   mode: ModelAuthDetailMode = "compact",
@@ -205,7 +205,7 @@ export const formatAuthLabel = (auth: { label: string; source: string }) => {
 export const resolveProfileOverride = (params: {
   rawProfile?: string;
   provider: string;
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   agentDir?: string;
 }): { profileId?: string; error?: string } => {
   const raw = params.rawProfile?.trim();

@@ -8,7 +8,7 @@ import { OpenClawSchema } from "./zod-schema.js";
 
 describe("skills entries config schema", () => {
   it("accepts custom fields under config", () => {
-    const res = MoltbotSchema.safeParse({
+    const res = OpenClawSchema.safeParse({
       skills: {
         entries: {
           "custom-skill": {
@@ -26,7 +26,7 @@ describe("skills entries config schema", () => {
   });
 
   it("rejects unknown top-level fields", () => {
-    const res = MoltbotSchema.safeParse({
+    const res = OpenClawSchema.safeParse({
       skills: {
         entries: {
           "custom-skill": {

@@ -9,7 +9,7 @@ import { resolveUserPath } from "../../../utils.js";
 
 export function resolveNonInteractiveWorkspaceDir(params: {
   opts: OnboardOptions;
-  baseConfig: MoltbotConfig;
+  baseConfig: OpenClawConfig;
   defaultWorkspaceDir: string;
 }) {
   const raw = (

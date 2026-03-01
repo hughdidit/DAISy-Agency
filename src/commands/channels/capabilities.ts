@@ -295,7 +295,7 @@ async function buildDiscordPermissions(params: {
 
 async function resolveChannelReports(params: {
   plugin: ChannelPlugin;
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   timeoutMs: number;
   accountOverride?: string;
   target?: string;

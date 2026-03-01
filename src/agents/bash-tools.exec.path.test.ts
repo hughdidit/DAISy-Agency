@@ -78,8 +78,15 @@ describe("exec PATH login shell merge", () => {
     expect(shellPathMock).toHaveBeenCalledTimes(1);
   });
 
+<<<<<<< HEAD
   it("skips login-shell PATH when env.PATH is provided", async () => {
     if (isWin) return;
+=======
+  it("throws security violation when env.PATH is provided", async () => {
+    if (isWin) {
+      return;
+    }
+>>>>>>> 0a5821a81 (fix(security): enforce strict environment variable validation in exec tool (#4896))
     process.env.PATH = "/usr/bin";
 
     const { createExecTool } = await import("./bash-tools.exec.js");
@@ -88,6 +95,7 @@ describe("exec PATH login shell merge", () => {
     shellPathMock.mockClear();
 
     const tool = createExecTool({ host: "gateway", security: "full", ask: "off" });
+<<<<<<< HEAD
     const result = await tool.execute("call1", {
       command: "echo $PATH",
       env: { PATH: "/explicit/bin" },
@@ -95,6 +103,16 @@ describe("exec PATH login shell merge", () => {
     const text = normalizeText(result.content.find((c) => c.type === "text")?.text);
 
     expect(text).toBe("/explicit/bin");
+=======
+
+    await expect(
+      tool.execute("call1", {
+        command: "echo $PATH",
+        env: { PATH: "/explicit/bin" },
+      }),
+    ).rejects.toThrow(/Security Violation: Custom 'PATH' variable is forbidden/);
+
+>>>>>>> 0a5821a81 (fix(security): enforce strict environment variable validation in exec tool (#4896))
     expect(shellPathMock).not.toHaveBeenCalled();
   });
 });

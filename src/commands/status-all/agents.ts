@@ -19,7 +19,7 @@ async function fileExists(p: string): Promise<boolean> {
   }
 }
 
-export async function getAgentLocalStatuses(cfg: MoltbotConfig) {
+export async function getAgentLocalStatuses(cfg: OpenClawConfig) {
   const agentList = listAgentsForGateway(cfg);
   const now = Date.now();
 

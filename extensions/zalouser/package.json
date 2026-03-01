@@ -24,12 +24,19 @@
   "description": "OpenClaw Zalo Personal Account plugin via zca-cli",
 >>>>>>> 1c4db9159 (chore: prepare 2026.2.2 release)
   "type": "module",
-  "description": "Moltbot Zalo Personal Account plugin via zca-cli",
+  "description": "OpenClaw Zalo Personal Account plugin via zca-cli",
   "dependencies": {
-    "moltbot": "workspace:*",
-    "@sinclair/typebox": "0.34.47"
+<<<<<<< HEAD
+    "@sinclair/typebox": "0.34.47",
+    "openclaw": "workspace:*"
+=======
+    "@sinclair/typebox": "0.34.48"
+>>>>>>> 28e1a65eb (chore: project hygiene — fix workspace:*, sandbox USER, dead config (#11289))
   },
-  "moltbot": {
+  "devDependencies": {
+    "openclaw": "workspace:*"
+  },
+  "openclaw": {
     "extensions": [
       "./index.ts"
     ],
@@ -47,7 +54,7 @@
       "quickstartAllowFrom": true
     },
     "install": {
-      "npmSpec": "@moltbot/zalouser",
+      "npmSpec": "@openclaw/zalouser",
       "localPath": "extensions/zalouser",
       "defaultChoice": "npm"
     }

@@ -61,7 +61,7 @@ describe("send", () => {
         },
       },
     },
-  } as unknown as MoltbotConfig;
+  } as unknown as OpenClawConfig;
 
   beforeEach(() => {
     vi.clearAllMocks();

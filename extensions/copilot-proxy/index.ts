@@ -1,4 +1,4 @@
-import { emptyPluginConfigSchema } from "clawdbot/plugin-sdk";
+import { emptyPluginConfigSchema } from "openclaw/plugin-sdk";
 
 const DEFAULT_BASE_URL = "http://localhost:3000/v1";
 const DEFAULT_API_KEY = "n/a";
@@ -11,6 +11,7 @@ const DEFAULT_MODEL_IDS = [
   "gpt-5.1-codex",
   "gpt-5.1-codex-max",
   "gpt-5-mini",
+  "claude-opus-4.6",
   "claude-opus-4.5",
   "claude-sonnet-4.5",
   "claude-haiku-4.5",

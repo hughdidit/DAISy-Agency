@@ -9,7 +9,7 @@ import { HEARTBEAT_TOKEN, SILENT_REPLY_TOKEN } from "../tokens.js";
 import { createReplyDispatcher } from "./reply-dispatcher.js";
 import { createReplyToModeFilter, resolveReplyToMode } from "./reply-threading.js";
 
-const emptyCfg = {} as MoltbotConfig;
+const emptyCfg = {} as OpenClawConfig;
 
 describe("createReplyDispatcher", () => {
   it("drops empty payloads and silent tokens without media", async () => {
@@ -181,7 +181,7 @@ describe("resolveReplyToMode", () => {
         discord: { replyToMode: "first" },
         slack: { replyToMode: "all" },
       },
-    } as MoltbotConfig;
+    } as OpenClawConfig;
     expect(resolveReplyToMode(cfg, "telegram")).toBe("all");
     expect(resolveReplyToMode(cfg, "discord")).toBe("first");
     expect(resolveReplyToMode(cfg, "slack")).toBe("all");
@@ -195,7 +195,7 @@ describe("resolveReplyToMode", () => {
           replyToModeByChatType: { direct: "all", group: "first" },
         },
       },
-    } as MoltbotConfig;
+    } as OpenClawConfig;
     expect(resolveReplyToMode(cfg, "slack", null, "direct")).toBe("all");
     expect(resolveReplyToMode(cfg, "slack", null, "group")).toBe("first");
     expect(resolveReplyToMode(cfg, "slack", null, "channel")).toBe("off");
@@ -209,7 +209,7 @@ describe("resolveReplyToMode", () => {
           replyToMode: "first",
         },
       },
-    } as MoltbotConfig;
+    } as OpenClawConfig;
     expect(resolveReplyToMode(cfg, "slack", null, "direct")).toBe("first");
     expect(resolveReplyToMode(cfg, "slack", null, "channel")).toBe("first");
   });
@@ -222,7 +222,7 @@ describe("resolveReplyToMode", () => {
           dm: { replyToMode: "all" },
         },
       },
-    } as MoltbotConfig;
+    } as OpenClawConfig;
     expect(resolveReplyToMode(cfg, "slack", null, "direct")).toBe("all");
     expect(resolveReplyToMode(cfg, "slack", null, "channel")).toBe("off");
   });

@@ -1,11 +1,15 @@
 import { describe, expect, it, vi } from "vitest";
 
+<<<<<<< HEAD
 vi.mock("@mariozechner/pi-coding-agent", () => ({
+=======
+vi.mock("../pi-model-discovery.js", () => ({
+>>>>>>> 08ed62852 (chore: update deps and pi model discovery)
   discoverAuthStorage: vi.fn(() => ({ mocked: true })),
   discoverModels: vi.fn(() => ({ find: vi.fn(() => null) })),
 }));
 
-import type { MoltbotConfig } from "../../config/config.js";
+import type { OpenClawConfig } from "../../config/config.js";
 import { buildInlineProviderModels, resolveModel } from "./model.js";
 
 const makeModel = (id: string) => ({
@@ -119,7 +123,7 @@ describe("resolveModel", () => {
           },
         },
       },
-    } as MoltbotConfig;
+    } as OpenClawConfig;
 
     const result = resolveModel("custom", "missing-model", "/tmp/agent", cfg);
 

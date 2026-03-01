@@ -24,7 +24,7 @@ describe("resolveOutboundTarget", () => {
   });
 
   it("falls back to whatsapp allowFrom via config", () => {
-    const cfg: MoltbotConfig = {
+    const cfg: OpenClawConfig = {
       channels: { whatsapp: { allowFrom: ["+1555"] } },
     };
     const res = resolveOutboundTarget({

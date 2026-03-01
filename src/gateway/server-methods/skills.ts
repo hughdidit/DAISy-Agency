@@ -20,7 +20,7 @@ import {
   validateSkillsUpdateParams,
 } from "../protocol/index.js";
 
-function listWorkspaceDirs(cfg: MoltbotConfig): string[] {
+function listWorkspaceDirs(cfg: OpenClawConfig): string[] {
   const dirs = new Set<string>();
   const list = cfg.agents?.list;
   if (Array.isArray(list)) {
@@ -176,7 +176,7 @@ export const skillsHandlers: GatewayRequestHandlers = {
     }
     entries[p.skillKey] = current;
     skills.entries = entries;
-    const nextConfig: MoltbotConfig = {
+    const nextConfig: OpenClawConfig = {
       ...cfg,
       skills,
     };

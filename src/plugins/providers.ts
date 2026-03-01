@@ -13,7 +13,7 @@ export function resolvePluginProviders(params: {
   config?: PluginLoadOptions["config"];
   workspaceDir?: string;
 }): ProviderPlugin[] {
-  const registry = loadMoltbotPlugins({
+  const registry = loadOpenClawPlugins({
     config: params.config,
     workspaceDir: params.workspaceDir,
     logger: {

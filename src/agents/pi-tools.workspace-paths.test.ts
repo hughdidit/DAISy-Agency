@@ -2,7 +2,7 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { createMoltbotCodingTools } from "./pi-tools.js";
+import { createOpenClawCodingTools } from "./pi-tools.js";
 
 async function withTempDir<T>(prefix: string, fn: (dir: string) => Promise<T>) {
   // Capture cwd BEFORE creating temp dir to avoid ENOENT if cwd is a deleted temp dir
@@ -92,8 +92,8 @@ describe.sequential("workspace path resolution", () => {
   });
 
   it("defaults exec cwd to workspaceDir when workdir is omitted", async () => {
-    await withTempDir("moltbot-ws-", async (workspaceDir) => {
-      const tools = createMoltbotCodingTools({ workspaceDir });
+    await withTempDir("openclaw-ws-", async (workspaceDir) => {
+      const tools = createOpenClawCodingTools({ workspaceDir });
       const execTool = tools.find((tool) => tool.name === "exec");
       expect(execTool).toBeDefined();
 
@@ -114,9 +114,9 @@ describe.sequential("workspace path resolution", () => {
   });
 
   it("lets exec workdir override the workspace default", async () => {
-    await withTempDir("moltbot-ws-", async (workspaceDir) => {
-      await withTempDir("moltbot-override-", async (overrideDir) => {
-        const tools = createMoltbotCodingTools({ workspaceDir });
+    await withTempDir("openclaw-ws-", async (workspaceDir) => {
+      await withTempDir("openclaw-override-", async (overrideDir) => {
+        const tools = createOpenClawCodingTools({ workspaceDir });
         const execTool = tools.find((tool) => tool.name === "exec");
         expect(execTool).toBeDefined();
 
@@ -141,19 +141,19 @@ describe.sequential("workspace path resolution", () => {
 
 describe.sequential("sandboxed workspace paths", () => {
   it("uses sandbox workspace for relative read/write/edit", async () => {
-    await withTempDir("moltbot-sandbox-", async (sandboxDir) => {
-      await withTempDir("moltbot-workspace-", async (workspaceDir) => {
+    await withTempDir("openclaw-sandbox-", async (sandboxDir) => {
+      await withTempDir("openclaw-workspace-", async (workspaceDir) => {
         const sandbox = {
           enabled: true,
           sessionKey: "sandbox:test",
           workspaceDir: sandboxDir,
           agentWorkspaceDir: workspaceDir,
           workspaceAccess: "rw",
-          containerName: "moltbot-sbx-test",
+          containerName: "openclaw-sbx-test",
           containerWorkdir: "/workspace",
           docker: {
-            image: "moltbot-sandbox:bookworm-slim",
-            containerPrefix: "moltbot-sbx-",
+            image: "openclaw-sandbox:bookworm-slim",
+            containerPrefix: "openclaw-sbx-",
             workdir: "/workspace",
             readOnlyRoot: true,
             tmpfs: [],
@@ -170,7 +170,7 @@ describe.sequential("sandboxed workspace paths", () => {
         await fs.writeFile(path.join(sandboxDir, testFile), "sandbox read", "utf8");
         await fs.writeFile(path.join(workspaceDir, testFile), "workspace read", "utf8");
 
-        const tools = createMoltbotCodingTools({ workspaceDir, sandbox });
+        const tools = createOpenClawCodingTools({ workspaceDir, sandbox });
         const readTool = tools.find((tool) => tool.name === "read");
         const writeTool = tools.find((tool) => tool.name === "write");
         const editTool = tools.find((tool) => tool.name === "edit");

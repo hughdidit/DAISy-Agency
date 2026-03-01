@@ -119,7 +119,11 @@ export async function sendMessageIMessage(
   const client = opts.client ?? (await createIMessageRpcClient({ cliPath, dbPath }));
   const shouldClose = !opts.client;
   try {
+<<<<<<< HEAD
     const result = await client.request<Record<string, unknown>>("send", params, {
+=======
+    const result = await client.request<{ ok?: string }>("send", params, {
+>>>>>>> 86d38c2d8 (chore: Oops, "long" is actually used + fix TypeScript error.)
       timeoutMs: opts.timeoutMs,
     });
     const resolvedId = resolveMessageId(result);

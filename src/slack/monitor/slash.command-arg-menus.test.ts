@@ -67,7 +67,12 @@ function createHarness() {
     groupPolicy: "open",
     useAccessGroups: false,
     channelsConfig: undefined,
-    slashCommand: { enabled: true, name: "clawd", ephemeral: true, sessionPrefix: "slack:slash" },
+    slashCommand: {
+      enabled: true,
+      name: "openclaw",
+      ephemeral: true,
+      sessionPrefix: "slack:slash",
+    },
     textLimit: 4000,
     app,
     isChannelAllowed: () => true,
@@ -125,7 +130,7 @@ describe("Slack native command argument menus", () => {
     const { actions, ctx, account } = createHarness();
     registerSlackMonitorSlashCommands({ ctx: ctx as never, account: account as never });
 
-    const handler = actions.get("moltbot_cmdarg");
+    const handler = actions.get("openclaw_cmdarg");
     if (!handler) throw new Error("Missing arg-menu action handler");
 
     const respond = vi.fn().mockResolvedValue(undefined);
@@ -151,7 +156,7 @@ describe("Slack native command argument menus", () => {
     const { actions, ctx, account } = createHarness();
     registerSlackMonitorSlashCommands({ ctx: ctx as never, account: account as never });
 
-    const handler = actions.get("moltbot_cmdarg");
+    const handler = actions.get("openclaw_cmdarg");
     if (!handler) throw new Error("Missing arg-menu action handler");
 
     const respond = vi.fn().mockResolvedValue(undefined);
@@ -179,7 +184,7 @@ describe("Slack native command argument menus", () => {
     const { actions, postEphemeral, ctx, account } = createHarness();
     registerSlackMonitorSlashCommands({ ctx: ctx as never, account: account as never });
 
-    const handler = actions.get("moltbot_cmdarg");
+    const handler = actions.get("openclaw_cmdarg");
     if (!handler) throw new Error("Missing arg-menu action handler");
 
     await handler({
@@ -201,7 +206,7 @@ describe("Slack native command argument menus", () => {
     const { actions, postEphemeral, ctx, account } = createHarness();
     registerSlackMonitorSlashCommands({ ctx: ctx as never, account: account as never });
 
-    const handler = actions.get("moltbot_cmdarg");
+    const handler = actions.get("openclaw_cmdarg");
     if (!handler) throw new Error("Missing arg-menu action handler");
 
     await handler({

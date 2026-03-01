@@ -10,7 +10,6 @@ import type { DoctorOptions, DoctorPrompter } from "./doctor-prompter.js";
 >>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { resolveGatewayPort, resolveIsNixMode } from "../config/paths.js";
 import { findExtraGatewayServices, renderGatewayServiceCleanupHints } from "../daemon/inspect.js";
-import { findLegacyGatewayServices, uninstallLegacyGatewayServices } from "../daemon/legacy.js";
 import { renderSystemNodeWarning, resolveSystemNodeInfo } from "../daemon/runtime-paths.js";
 import {
   auditGatewayServiceConfig,
@@ -53,92 +52,8 @@ function normalizeExecutablePath(value: string): string {
   return path.resolve(value);
 }
 
-export async function maybeMigrateLegacyGatewayService(
-  cfg: MoltbotConfig,
-  mode: "local" | "remote",
-  runtime: RuntimeEnv,
-  prompter: DoctorPrompter,
-) {
-  const legacyServices = await findLegacyGatewayServices(process.env);
-  if (legacyServices.length === 0) return;
-
-  note(
-    legacyServices.map((svc) => `- ${svc.label} (${svc.platform}, ${svc.detail})`).join("\n"),
-    "Legacy gateway services detected",
-  );
-
-  const migrate = await prompter.confirmSkipInNonInteractive({
-    message: "Migrate legacy gateway services to Moltbot now?",
-    initialValue: true,
-  });
-  if (!migrate) return;
-
-  try {
-    await uninstallLegacyGatewayServices({
-      env: process.env,
-      stdout: process.stdout,
-    });
-  } catch (err) {
-    runtime.error(`Legacy service cleanup failed: ${String(err)}`);
-    return;
-  }
-
-  if (resolveIsNixMode(process.env)) {
-    note("Nix mode detected; skip installing services.", "Gateway");
-    return;
-  }
-
-  if (mode === "remote") {
-    note("Gateway mode is remote; skipped local service install.", "Gateway");
-    return;
-  }
-
-  const service = resolveGatewayService();
-  const loaded = await service.isLoaded({ env: process.env });
-  if (loaded) {
-    note(`Moltbot ${service.label} already ${service.loadedText}.`, "Gateway");
-    return;
-  }
-
-  const install = await prompter.confirmSkipInNonInteractive({
-    message: "Install Moltbot gateway service now?",
-    initialValue: true,
-  });
-  if (!install) return;
-
-  const daemonRuntime = await prompter.select<GatewayDaemonRuntime>(
-    {
-      message: "Gateway service runtime",
-      options: GATEWAY_DAEMON_RUNTIME_OPTIONS,
-      initialValue: DEFAULT_GATEWAY_DAEMON_RUNTIME,
-    },
-    DEFAULT_GATEWAY_DAEMON_RUNTIME,
-  );
-  const port = resolveGatewayPort(cfg, process.env);
-  const { programArguments, workingDirectory, environment } = await buildGatewayInstallPlan({
-    env: process.env,
-    port,
-    token: cfg.gateway?.auth?.token ?? process.env.CLAWDBOT_GATEWAY_TOKEN,
-    runtime: daemonRuntime,
-    warn: (message, title) => note(message, title),
-    config: cfg,
-  });
-  try {
-    await service.install({
-      env: process.env,
-      stdout: process.stdout,
-      programArguments,
-      workingDirectory,
-      environment,
-    });
-  } catch (err) {
-    runtime.error(`Gateway service install failed: ${String(err)}`);
-    note(gatewayInstallErrorHint(), "Gateway");
-  }
-}
-
 export async function maybeRepairGatewayServiceConfig(
-  cfg: MoltbotConfig,
+  cfg: OpenClawConfig,
   mode: "local" | "remote",
   runtime: RuntimeEnv,
   prompter: DoctorPrompter,
@@ -185,7 +100,7 @@ export async function maybeRepairGatewayServiceConfig(
   const { programArguments, workingDirectory, environment } = await buildGatewayInstallPlan({
     env: process.env,
     port,
-    token: cfg.gateway?.auth?.token ?? process.env.CLAWDBOT_GATEWAY_TOKEN,
+    token: cfg.gateway?.auth?.token ?? process.env.OPENCLAW_GATEWAY_TOKEN,
     runtime: needsNodeRuntime && systemNodePath ? "node" : runtimeChoice,
     nodePath: systemNodePath ?? undefined,
     warn: (message, title) => note(message, title),

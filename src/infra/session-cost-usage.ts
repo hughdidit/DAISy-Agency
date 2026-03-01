@@ -142,7 +142,7 @@ const applyCostTotal = (totals: CostUsageTotals, costTotal: number | undefined) 
 
 async function scanUsageFile(params: {
   filePath: string;
-  config?: MoltbotConfig;
+  config?: OpenClawConfig;
   onEntry: (entry: ParsedUsageEntry) => void;
 }): Promise<void> {
   const fileStream = fs.createReadStream(params.filePath, { encoding: "utf-8" });
@@ -174,7 +174,7 @@ async function scanUsageFile(params: {
 
 export async function loadCostUsageSummary(params?: {
   days?: number;
-  config?: MoltbotConfig;
+  config?: OpenClawConfig;
   agentId?: string;
 }): Promise<CostUsageSummary> {
   const days = Math.max(1, Math.floor(params?.days ?? 30));
@@ -237,7 +237,7 @@ export async function loadSessionCostSummary(params: {
   sessionId?: string;
   sessionEntry?: SessionEntry;
   sessionFile?: string;
-  config?: MoltbotConfig;
+  config?: OpenClawConfig;
 }): Promise<SessionCostSummary | null> {
   const sessionFile =
     params.sessionFile ??

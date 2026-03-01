@@ -8,7 +8,7 @@ const baseConfig = {
       groups: { "*": { requireMention: true } },
     },
   },
-  session: { store: "/tmp/moltbot-sessions.json" },
+  session: { store: "/tmp/openclaw-sessions.json" },
 } as const;
 
 describe("applyGroupGating", () => {

@@ -12,7 +12,7 @@ export type BlueBubblesChatOpts = {
   password?: string;
   accountId?: string;
   timeoutMs?: number;
-  cfg?: MoltbotConfig;
+  cfg?: OpenClawConfig;
 };
 
 function resolveAccount(params: BlueBubblesChatOpts) {

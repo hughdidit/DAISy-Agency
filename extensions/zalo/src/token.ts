@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 <<<<<<< HEAD
 
-import { DEFAULT_ACCOUNT_ID } from "clawdbot/plugin-sdk";
+import { DEFAULT_ACCOUNT_ID } from "openclaw/plugin-sdk";
 
 =======
 import { DEFAULT_ACCOUNT_ID } from "openclaw/plugin-sdk";

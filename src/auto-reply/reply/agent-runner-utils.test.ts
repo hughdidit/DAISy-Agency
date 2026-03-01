@@ -9,7 +9,7 @@ import type { TemplateContext } from "../templating.js";
 import { buildThreadingToolContext } from "./agent-runner-utils.js";
 
 describe("buildThreadingToolContext", () => {
-  const cfg = {} as MoltbotConfig;
+  const cfg = {} as OpenClawConfig;
 
   it("uses conversation id for WhatsApp", () => {
     const sessionCtx = {
@@ -101,7 +101,7 @@ describe("buildThreadingToolContext", () => {
 
     const result = buildThreadingToolContext({
       sessionCtx,
-      config: { channels: { slack: { replyToMode: "all" } } } as MoltbotConfig,
+      config: { channels: { slack: { replyToMode: "all" } } } as OpenClawConfig,
       hasRepliedRef: undefined,
     });
 

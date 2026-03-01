@@ -24,8 +24,14 @@
   "description": "OpenClaw Gemini CLI OAuth provider plugin",
 >>>>>>> 1c4db9159 (chore: prepare 2026.2.2 release)
   "type": "module",
-  "description": "Moltbot Gemini CLI OAuth provider plugin",
-  "moltbot": {
+<<<<<<< HEAD
+  "description": "OpenClaw Gemini CLI OAuth provider plugin",
+=======
+  "devDependencies": {
+    "openclaw": "workspace:*"
+  },
+>>>>>>> aa91f6e70 (chore: Add `openclaw` to `devDependencies` for all extensions so that types resolve.)
+  "openclaw": {
     "extensions": [
       "./index.ts"
     ]

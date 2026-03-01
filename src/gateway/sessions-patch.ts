@@ -4,6 +4,13 @@ import type { OpenClawConfig } from "../config/config.js";
 import type { SessionEntry } from "../config/sessions.js";
 import { DEFAULT_MODEL, DEFAULT_PROVIDER } from "../agents/defaults.js";
 import { resolveAllowedModelRef, resolveConfiguredModelRef } from "../agents/model-selection.js";
+=======
+import type { ModelCatalogEntry } from "../agents/model-catalog.js";
+import type { OpenClawConfig } from "../config/config.js";
+import type { SessionEntry } from "../config/sessions.js";
+import { resolveDefaultAgentId } from "../agents/agent-scope.js";
+import { resolveAllowedModelRef, resolveDefaultModelForAgent } from "../agents/model-selection.js";
+>>>>>>> 38e6da1fe (TUI/Gateway: fix pi streaming + tool routing + model display + msg updating (#8432))
 import { normalizeGroupActivation } from "../auto-reply/group-activation.js";
 import {
   formatThinkingLevels,
@@ -20,6 +27,13 @@ import type { SessionEntry } from "../config/sessions.js";
 =======
 >>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { isSubagentSessionKey } from "../routing/session-key.js";
+=======
+import {
+  isSubagentSessionKey,
+  normalizeAgentId,
+  parseAgentSessionKey,
+} from "../routing/session-key.js";
+>>>>>>> 38e6da1fe (TUI/Gateway: fix pi streaming + tool routing + model display + msg updating (#8432))
 import { applyVerboseOverride, parseVerboseOverride } from "../sessions/level-overrides.js";
 import { applyModelOverrideToSessionEntry } from "../sessions/model-overrides.js";
 import { normalizeSendPolicy } from "../sessions/send-policy.js";
@@ -60,7 +74,7 @@ function normalizeExecAsk(raw: string): "off" | "on-miss" | "always" | undefined
 }
 
 export async function applySessionsPatchToStore(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   store: Record<string, SessionEntry>;
   storeKey: string;
   patch: SessionsPatchParams;
@@ -68,6 +82,9 @@ export async function applySessionsPatchToStore(params: {
 }): Promise<{ ok: true; entry: SessionEntry } | { ok: false; error: ErrorShape }> {
   const { cfg, store, storeKey, patch } = params;
   const now = Date.now();
+  const parsedAgent = parseAgentSessionKey(storeKey);
+  const sessionAgentId = normalizeAgentId(parsedAgent?.agentId ?? resolveDefaultAgentId(cfg));
+  const resolvedDefault = resolveDefaultModelForAgent({ cfg, agentId: sessionAgentId });
 
   const existing = store[storeKey];
   const next: SessionEntry = existing
@@ -118,11 +135,6 @@ export async function applySessionsPatchToStore(params: {
     } else if (raw !== undefined) {
       const normalized = normalizeThinkLevel(String(raw));
       if (!normalized) {
-        const resolvedDefault = resolveConfiguredModelRef({
-          cfg,
-          defaultProvider: DEFAULT_PROVIDER,
-          defaultModel: DEFAULT_MODEL,
-        });
         const hintProvider = existing?.providerOverride?.trim() || resolvedDefault.provider;
         const hintModel = existing?.modelOverride?.trim() || resolvedDefault.model;
         return invalid(
@@ -225,11 +237,6 @@ export async function applySessionsPatchToStore(params: {
 
   if ("model" in patch) {
     const raw = patch.model;
-    const resolvedDefault = resolveConfiguredModelRef({
-      cfg,
-      defaultProvider: DEFAULT_PROVIDER,
-      defaultModel: DEFAULT_MODEL,
-    });
     if (raw === null) {
       applyModelOverrideToSessionEntry({
         entry: next,
@@ -274,11 +281,6 @@ export async function applySessionsPatchToStore(params: {
   }
 
   if (next.thinkingLevel === "xhigh") {
-    const resolvedDefault = resolveConfiguredModelRef({
-      cfg,
-      defaultProvider: DEFAULT_PROVIDER,
-      defaultModel: DEFAULT_MODEL,
-    });
     const effectiveProvider = next.providerOverride ?? resolvedDefault.provider;
     const effectiveModel = next.modelOverride ?? resolvedDefault.model;
     if (!supportsXHighThinking(effectiveProvider, effectiveModel)) {

@@ -30,7 +30,7 @@ describe("gateway hooks helpers", () => {
         token: "secret",
         path: "hooks///",
       },
-    } as MoltbotConfig;
+    } as OpenClawConfig;
     const resolved = resolveHooksConfig(base);
     expect(resolved?.basePath).toBe("/hooks");
     expect(resolved?.token).toBe("secret");
@@ -39,7 +39,7 @@ describe("gateway hooks helpers", () => {
   test("resolveHooksConfig rejects root path", () => {
     const cfg = {
       hooks: { enabled: true, token: "x", path: "/" },
-    } as MoltbotConfig;
+    } as OpenClawConfig;
     expect(() => resolveHooksConfig(cfg)).toThrow("hooks.path may not be '/'");
   });
 
@@ -47,7 +47,7 @@ describe("gateway hooks helpers", () => {
     const req = {
       headers: {
         authorization: "Bearer top",
-        "x-moltbot-token": "header",
+        "x-openclaw-token": "header",
       },
     } as unknown as IncomingMessage;
     const url = new URL("http://localhost/hooks/wake?token=query");
@@ -56,7 +56,7 @@ describe("gateway hooks helpers", () => {
     expect(result1.fromQuery).toBe(false);
 
     const req2 = {
-      headers: { "x-moltbot-token": "header" },
+      headers: { "x-openclaw-token": "header" },
     } as unknown as IncomingMessage;
     const result2 = extractHookToken(req2, url);
     expect(result2.token).toBe("header");

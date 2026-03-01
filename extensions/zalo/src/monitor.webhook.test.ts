@@ -42,7 +42,7 @@ describe("handleZaloWebhookRequest", () => {
     const unregister = registerZaloWebhookTarget({
       token: "tok",
       account,
-      config: {} as MoltbotConfig,
+      config: {} as OpenClawConfig,
       runtime: {},
       core,
       secret: "secret",

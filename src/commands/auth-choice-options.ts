@@ -51,7 +51,7 @@ const AUTH_CHOICE_GROUP_DEFS: {
     value: "minimax",
     label: "MiniMax",
     hint: "M2.1 (recommended)",
-    choices: ["minimax-api", "minimax-api-lightning"],
+    choices: ["minimax-portal", "minimax-api", "minimax-api-lightning"],
   },
   {
     value: "qwen",
@@ -164,6 +164,18 @@ export function buildAuthChoiceOptions(params: {
     hint: "Uses the bundled Gemini CLI auth plugin",
   });
   options.push({ value: "zai-api-key", label: "Z.AI (GLM 4.7) API key" });
+<<<<<<< HEAD
+=======
+  options.push({
+    value: "xiaomi-api-key",
+    label: "Xiaomi API key",
+  });
+  options.push({
+    value: "minimax-portal",
+    label: "MiniMax OAuth",
+    hint: "OAuth new users enjoy a 3-day free trial of the MiniMax Coding Plan!",
+  });
+>>>>>>> 1287328b6 (feat: add MiniMax OAuth plugin (#4521) (thanks @Maosghoul))
   options.push({ value: "qwen-portal", label: "Qwen OAuth" });
   options.push({
     value: "copilot-proxy",

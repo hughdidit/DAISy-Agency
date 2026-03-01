@@ -23,7 +23,7 @@ import { createTelegramBot } from "./bot.js";
 export async function startTelegramWebhook(opts: {
   token: string;
   accountId?: string;
-  config?: MoltbotConfig;
+  config?: OpenClawConfig;
   path?: string;
   port?: number;
   host?: string;

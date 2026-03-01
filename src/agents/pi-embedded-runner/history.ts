@@ -44,7 +44,7 @@ export function limitHistoryTurns(
  */
 export function getDmHistoryLimitFromSessionKey(
   sessionKey: string | undefined,
-  config: MoltbotConfig | undefined,
+  config: OpenClawConfig | undefined,
 ): number | undefined {
   if (!sessionKey || !config) return undefined;
 
@@ -75,7 +75,7 @@ export function getDmHistoryLimitFromSessionKey(
   };
 
   const resolveProviderConfig = (
-    cfg: MoltbotConfig | undefined,
+    cfg: OpenClawConfig | undefined,
     providerId: string,
   ): { dmHistoryLimit?: number; dms?: Record<string, { historyLimit?: number }> } | undefined => {
     const channels = cfg?.channels;

@@ -40,11 +40,11 @@ function isOptionalToolAllowed(params: {
 }
 
 export function resolvePluginTools(params: {
-  context: MoltbotPluginToolContext;
+  context: OpenClawPluginToolContext;
   existingToolNames?: Set<string>;
   toolAllowlist?: string[];
 }): AnyAgentTool[] {
-  const registry = loadMoltbotPlugins({
+  const registry = loadOpenClawPlugins({
     config: params.context.config,
     workspaceDir: params.context.workspaceDir,
     logger: {

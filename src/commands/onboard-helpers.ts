@@ -42,7 +42,7 @@ export function guardCancel<T>(value: T | symbol, runtime: RuntimeEnv): T {
   return value as T;
 }
 
-export function summarizeExistingConfig(config: MoltbotConfig): string {
+export function summarizeExistingConfig(config: OpenClawConfig): string {
   const rows: string[] = [];
   const defaults = config.agents?.defaults;
   if (defaults?.workspace) rows.push(shortenHomeInString(`workspace: ${defaults.workspace}`));
@@ -71,9 +71,9 @@ export function randomToken(): string {
 export function printWizardHeader(runtime: RuntimeEnv) {
   const header = [
     "▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄",
-    "██░▄▀▄░██░▄▄▄░██░████▄▄░▄▄██░▄▄▀██░▄▄▄░█▄▄░▄▄██",
-    "██░█░█░██░███░██░██████░████░▄▄▀██░███░███░████",
-    "██░███░██░▀▀▀░██░▀▀░███░████░▀▀░██░▀▀▀░███░████",
+    "█████░█████░█████░█░░░█░█████░█░░░░░░███░░█░░░█",
+    "█░░░█░█░░░█░███░░░██░░█░█░░░░░█░░░░░█░░░█░█░█░█",
+    "█████░████░░█████░█░░██░█████░█████░█████░██░██",
     "▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀",
     "               🦞 FRESH DAILY 🦞                ",
     " ",
@@ -82,9 +82,9 @@ export function printWizardHeader(runtime: RuntimeEnv) {
 }
 
 export function applyWizardMetadata(
-  cfg: MoltbotConfig,
+  cfg: OpenClawConfig,
   params: { command: string; mode: OnboardMode },
-): MoltbotConfig {
+): OpenClawConfig {
   const commit = process.env.GIT_COMMIT?.trim() || process.env.GIT_SHA?.trim() || undefined;
   return {
     ...cfg,
@@ -184,8 +184,8 @@ export function formatControlUiSshHint(params: {
     localUrl,
     authedUrl,
     "Docs:",
-    "https://docs.molt.bot/gateway/remote",
-    "https://docs.molt.bot/web/control-ui",
+    "https://docs.openclaw.ai/gateway/remote",
+    "https://docs.openclaw.ai/web/control-ui",
   ]
     .filter(Boolean)
     .join("\n");

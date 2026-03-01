@@ -34,7 +34,7 @@ import {
 } from "./directive-handling.shared.js";
 
 function resolveExecDefaults(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   sessionEntry?: SessionEntry;
   agentId?: string;
 }): { host: ExecHost; security: ExecSecurity; ask: ExecAsk; node?: string } {
@@ -64,7 +64,7 @@ function resolveExecDefaults(params: {
 }
 
 export async function handleDirectiveOnly(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   directives: InlineDirectives;
   sessionEntry: SessionEntry;
   sessionStore: Record<string, SessionEntry>;

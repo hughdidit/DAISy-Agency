@@ -16,7 +16,7 @@ const plugin = {
   name: "Twitch",
   description: "Twitch channel plugin",
   configSchema: emptyPluginConfigSchema(),
-  register(api: MoltbotPluginApi) {
+  register(api: OpenClawPluginApi) {
     setTwitchRuntime(api.runtime);
     api.registerChannel({ plugin: twitchPlugin as any });
   },

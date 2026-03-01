@@ -64,7 +64,7 @@ const GatewayToolSchema = Type.Object({
 
 export function createGatewayTool(opts?: {
   agentSessionKey?: string;
-  config?: MoltbotConfig;
+  config?: OpenClawConfig;
 }): AnyAgentTool {
   return {
     label: "Gateway",

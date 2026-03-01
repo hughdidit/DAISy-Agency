@@ -32,7 +32,7 @@ function canonicalizeAgentDir(agentDir: string): string {
   return resolved;
 }
 
-function collectReferencedAgentIds(cfg: MoltbotConfig): string[] {
+function collectReferencedAgentIds(cfg: OpenClawConfig): string[] {
   const ids = new Set<string>();
 
   const agents = Array.isArray(cfg.agents?.list) ? cfg.agents?.list : [];
@@ -58,7 +58,7 @@ function collectReferencedAgentIds(cfg: MoltbotConfig): string[] {
 }
 
 function resolveEffectiveAgentDir(
-  cfg: MoltbotConfig,
+  cfg: OpenClawConfig,
   agentId: string,
   deps?: { env?: NodeJS.ProcessEnv; homedir?: () => string },
 ): string {
@@ -73,7 +73,7 @@ function resolveEffectiveAgentDir(
 }
 
 export function findDuplicateAgentDirs(
-  cfg: MoltbotConfig,
+  cfg: OpenClawConfig,
   deps?: { env?: NodeJS.ProcessEnv; homedir?: () => string },
 ): DuplicateAgentDir[] {
   const byDir = new Map<string, { agentDir: string; agentIds: string[] }>();

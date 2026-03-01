@@ -77,7 +77,7 @@ function resolveThreadTsFromContext(
 
 export async function handleSlackAction(
   params: Record<string, unknown>,
-  cfg: MoltbotConfig,
+  cfg: OpenClawConfig,
   context?: SlackActionContext,
 ): Promise<AgentToolResult<unknown>> {
   const resolveChannelId = () =>

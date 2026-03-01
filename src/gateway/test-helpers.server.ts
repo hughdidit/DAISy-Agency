@@ -43,6 +43,7 @@ let previousConfigPath: string | undefined;
 let previousSkipBrowserControl: string | undefined;
 let previousSkipGmailWatcher: string | undefined;
 let previousSkipCanvasHost: string | undefined;
+let previousBundledPluginsDir: string | undefined;
 let tempHome: string | undefined;
 let tempConfigRoot: string | undefined;
 
@@ -75,22 +76,26 @@ export async function writeSessionStore(params: {
 async function setupGatewayTestHome() {
   previousHome = process.env.HOME;
   previousUserProfile = process.env.USERPROFILE;
-  previousStateDir = process.env.CLAWDBOT_STATE_DIR;
-  previousConfigPath = process.env.CLAWDBOT_CONFIG_PATH;
-  previousSkipBrowserControl = process.env.CLAWDBOT_SKIP_BROWSER_CONTROL_SERVER;
-  previousSkipGmailWatcher = process.env.CLAWDBOT_SKIP_GMAIL_WATCHER;
-  previousSkipCanvasHost = process.env.CLAWDBOT_SKIP_CANVAS_HOST;
-  tempHome = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-gateway-home-"));
+  previousStateDir = process.env.OPENCLAW_STATE_DIR;
+  previousConfigPath = process.env.OPENCLAW_CONFIG_PATH;
+  previousSkipBrowserControl = process.env.OPENCLAW_SKIP_BROWSER_CONTROL_SERVER;
+  previousSkipGmailWatcher = process.env.OPENCLAW_SKIP_GMAIL_WATCHER;
+  previousSkipCanvasHost = process.env.OPENCLAW_SKIP_CANVAS_HOST;
+  previousBundledPluginsDir = process.env.OPENCLAW_BUNDLED_PLUGINS_DIR;
+  tempHome = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-gateway-home-"));
   process.env.HOME = tempHome;
   process.env.USERPROFILE = tempHome;
-  process.env.CLAWDBOT_STATE_DIR = path.join(tempHome, ".clawdbot");
-  delete process.env.CLAWDBOT_CONFIG_PATH;
+  process.env.OPENCLAW_STATE_DIR = path.join(tempHome, ".openclaw");
+  delete process.env.OPENCLAW_CONFIG_PATH;
 }
 
 function applyGatewaySkipEnv() {
-  process.env.CLAWDBOT_SKIP_BROWSER_CONTROL_SERVER = "1";
-  process.env.CLAWDBOT_SKIP_GMAIL_WATCHER = "1";
-  process.env.CLAWDBOT_SKIP_CANVAS_HOST = "1";
+  process.env.OPENCLAW_SKIP_BROWSER_CONTROL_SERVER = "1";
+  process.env.OPENCLAW_SKIP_GMAIL_WATCHER = "1";
+  process.env.OPENCLAW_SKIP_CANVAS_HOST = "1";
+  process.env.OPENCLAW_BUNDLED_PLUGINS_DIR = tempHome
+    ? path.join(tempHome, "openclaw-test-no-bundled-extensions")
+    : "openclaw-test-no-bundled-extensions";
 }
 
 async function resetGatewayTestState(options: { uniqueConfigRoot: boolean }) {
@@ -102,8 +107,8 @@ async function resetGatewayTestState(options: { uniqueConfigRoot: boolean }) {
   }
   applyGatewaySkipEnv();
   tempConfigRoot = options.uniqueConfigRoot
-    ? await fs.mkdtemp(path.join(tempHome, "moltbot-test-"))
-    : path.join(tempHome, ".clawdbot-test");
+    ? await fs.mkdtemp(path.join(tempHome, "openclaw-test-"))
+    : path.join(tempHome, ".openclaw-test");
   setTestConfigRoot(tempConfigRoot);
   sessionStoreSaveDelayMs.value = 0;
   testTailnetIPv4.value = undefined;
@@ -149,17 +154,38 @@ async function cleanupGatewayTestHome(options: { restoreEnv: boolean }) {
     else process.env.HOME = previousHome;
     if (previousUserProfile === undefined) delete process.env.USERPROFILE;
     else process.env.USERPROFILE = previousUserProfile;
-    if (previousStateDir === undefined) delete process.env.CLAWDBOT_STATE_DIR;
-    else process.env.CLAWDBOT_STATE_DIR = previousStateDir;
-    if (previousConfigPath === undefined) delete process.env.CLAWDBOT_CONFIG_PATH;
-    else process.env.CLAWDBOT_CONFIG_PATH = previousConfigPath;
+    if (previousStateDir === undefined) delete process.env.OPENCLAW_STATE_DIR;
+    else process.env.OPENCLAW_STATE_DIR = previousStateDir;
+    if (previousConfigPath === undefined) delete process.env.OPENCLAW_CONFIG_PATH;
+    else process.env.OPENCLAW_CONFIG_PATH = previousConfigPath;
     if (previousSkipBrowserControl === undefined)
-      delete process.env.CLAWDBOT_SKIP_BROWSER_CONTROL_SERVER;
-    else process.env.CLAWDBOT_SKIP_BROWSER_CONTROL_SERVER = previousSkipBrowserControl;
-    if (previousSkipGmailWatcher === undefined) delete process.env.CLAWDBOT_SKIP_GMAIL_WATCHER;
-    else process.env.CLAWDBOT_SKIP_GMAIL_WATCHER = previousSkipGmailWatcher;
-    if (previousSkipCanvasHost === undefined) delete process.env.CLAWDBOT_SKIP_CANVAS_HOST;
-    else process.env.CLAWDBOT_SKIP_CANVAS_HOST = previousSkipCanvasHost;
+      delete process.env.OPENCLAW_SKIP_BROWSER_CONTROL_SERVER;
+<<<<<<< HEAD
+    else process.env.OPENCLAW_SKIP_BROWSER_CONTROL_SERVER = previousSkipBrowserControl;
+    if (previousSkipGmailWatcher === undefined) delete process.env.OPENCLAW_SKIP_GMAIL_WATCHER;
+    else process.env.OPENCLAW_SKIP_GMAIL_WATCHER = previousSkipGmailWatcher;
+    if (previousSkipCanvasHost === undefined) delete process.env.OPENCLAW_SKIP_CANVAS_HOST;
+    else process.env.OPENCLAW_SKIP_CANVAS_HOST = previousSkipCanvasHost;
+=======
+    } else {
+      process.env.OPENCLAW_SKIP_BROWSER_CONTROL_SERVER = previousSkipBrowserControl;
+    }
+    if (previousSkipGmailWatcher === undefined) {
+      delete process.env.OPENCLAW_SKIP_GMAIL_WATCHER;
+    } else {
+      process.env.OPENCLAW_SKIP_GMAIL_WATCHER = previousSkipGmailWatcher;
+    }
+    if (previousSkipCanvasHost === undefined) {
+      delete process.env.OPENCLAW_SKIP_CANVAS_HOST;
+    } else {
+      process.env.OPENCLAW_SKIP_CANVAS_HOST = previousSkipCanvasHost;
+    }
+    if (previousBundledPluginsDir === undefined) {
+      delete process.env.OPENCLAW_BUNDLED_PLUGINS_DIR;
+    } else {
+      process.env.OPENCLAW_BUNDLED_PLUGINS_DIR = previousBundledPluginsDir;
+    }
+>>>>>>> bc88e58fc (security: add skill/plugin code safety scanner (#9806))
   }
   if (options.restoreEnv && tempHome) {
     await fs.rm(tempHome, {
@@ -251,12 +277,14 @@ export function onceMessage<T = unknown>(
 
 export async function startGatewayServer(port: number, opts?: GatewayServerOptions) {
   const mod = await serverModulePromise;
-  return await mod.startGatewayServer(port, opts);
+  const resolvedOpts =
+    opts?.controlUiEnabled === undefined ? { ...opts, controlUiEnabled: false } : opts;
+  return await mod.startGatewayServer(port, resolvedOpts);
 }
 
 export async function startServerWithClient(token?: string, opts?: GatewayServerOptions) {
   let port = await getFreePort();
-  const prev = process.env.CLAWDBOT_GATEWAY_TOKEN;
+  const prev = process.env.OPENCLAW_GATEWAY_TOKEN;
   if (typeof token === "string") {
     testState.gatewayAuth = { mode: "token", token };
   }
@@ -266,9 +294,9 @@ export async function startServerWithClient(token?: string, opts?: GatewayServer
       ? (testState.gatewayAuth as { token?: string }).token
       : undefined);
   if (fallbackToken === undefined) {
-    delete process.env.CLAWDBOT_GATEWAY_TOKEN;
+    delete process.env.OPENCLAW_GATEWAY_TOKEN;
   } else {
-    process.env.CLAWDBOT_GATEWAY_TOKEN = fallbackToken;
+    process.env.OPENCLAW_GATEWAY_TOKEN = fallbackToken;
   }
 
   let server: Awaited<ReturnType<typeof startGatewayServer>> | null = null;
@@ -287,7 +315,30 @@ export async function startServerWithClient(token?: string, opts?: GatewayServer
   }
 
   const ws = new WebSocket(`ws://127.0.0.1:${port}`);
-  await new Promise<void>((resolve) => ws.once("open", resolve));
+  await new Promise<void>((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error("timeout waiting for ws open")), 10_000);
+    const cleanup = () => {
+      clearTimeout(timer);
+      ws.off("open", onOpen);
+      ws.off("error", onError);
+      ws.off("close", onClose);
+    };
+    const onOpen = () => {
+      cleanup();
+      resolve();
+    };
+    const onError = (err: unknown) => {
+      cleanup();
+      reject(err instanceof Error ? err : new Error(String(err)));
+    };
+    const onClose = (code: number, reason: Buffer) => {
+      cleanup();
+      reject(new Error(`closed ${code}: ${reason.toString()}`));
+    };
+    ws.once("open", onOpen);
+    ws.once("error", onError);
+    ws.once("close", onClose);
+  });
   return { server, ws, port, prevToken: prev };
 }
 
@@ -345,13 +396,13 @@ export async function connectReq(
       ? undefined
       : typeof (testState.gatewayAuth as { token?: unknown } | undefined)?.token === "string"
         ? ((testState.gatewayAuth as { token?: string }).token ?? undefined)
-        : process.env.CLAWDBOT_GATEWAY_TOKEN;
+        : process.env.OPENCLAW_GATEWAY_TOKEN;
   const defaultPassword =
     opts?.skipDefaultAuth === true
       ? undefined
       : typeof (testState.gatewayAuth as { password?: unknown } | undefined)?.password === "string"
         ? ((testState.gatewayAuth as { password?: string }).password ?? undefined)
-        : process.env.CLAWDBOT_GATEWAY_PASSWORD;
+        : process.env.OPENCLAW_GATEWAY_PASSWORD;
   const token = opts?.token ?? defaultToken;
   const password = opts?.password ?? defaultPassword;
   const requestedScopes = Array.isArray(opts?.scopes) ? opts?.scopes : [];

@@ -284,7 +284,7 @@ function mergeConfig(
 }
 
 export function resolveMemorySearchConfig(
-  cfg: MoltbotConfig,
+  cfg: OpenClawConfig,
   agentId: string,
 ): ResolvedMemorySearchConfig | null {
   const defaults = cfg.agents?.defaults?.memorySearch;

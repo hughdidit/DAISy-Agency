@@ -38,7 +38,7 @@ function createRuntime(): { runtime: PluginRuntime; mocks: LineRuntimeMocks } {
   const sendMessageLine = vi.fn(async () => ({ messageId: "m-media", chatId: "c1" }));
   const chunkMarkdownText = vi.fn((text: string) => [text]);
   const resolveTextChunkLimit = vi.fn(() => 123);
-  const resolveLineAccount = vi.fn(({ cfg, accountId }: { cfg: MoltbotConfig; accountId?: string }) => {
+  const resolveLineAccount = vi.fn(({ cfg, accountId }: { cfg: OpenClawConfig; accountId?: string }) => {
     const resolved = accountId ?? "default";
     const lineConfig = (cfg.channels?.line ?? {}) as {
       accounts?: Record<string, Record<string, unknown>>;
@@ -95,7 +95,7 @@ describe("linePlugin outbound.sendPayload", () => {
   it("sends flex message without dropping text", async () => {
     const { runtime, mocks } = createRuntime();
     setLineRuntime(runtime);
-    const cfg = { channels: { line: {} } } as MoltbotConfig;
+    const cfg = { channels: { line: {} } } as OpenClawConfig;
 
     const payload = {
       text: "Now playing:",
@@ -126,7 +126,7 @@ describe("linePlugin outbound.sendPayload", () => {
   it("sends template message without dropping text", async () => {
     const { runtime, mocks } = createRuntime();
     setLineRuntime(runtime);
-    const cfg = { channels: { line: {} } } as MoltbotConfig;
+    const cfg = { channels: { line: {} } } as OpenClawConfig;
 
     const payload = {
       text: "Choose one:",
@@ -162,7 +162,7 @@ describe("linePlugin outbound.sendPayload", () => {
   it("attaches quick replies when no text chunks are present", async () => {
     const { runtime, mocks } = createRuntime();
     setLineRuntime(runtime);
-    const cfg = { channels: { line: {} } } as MoltbotConfig;
+    const cfg = { channels: { line: {} } } as OpenClawConfig;
 
     const payload = {
       channelData: {
@@ -202,7 +202,7 @@ describe("linePlugin outbound.sendPayload", () => {
   it("sends media before quick-reply text so buttons stay visible", async () => {
     const { runtime, mocks } = createRuntime();
     setLineRuntime(runtime);
-    const cfg = { channels: { line: {} } } as MoltbotConfig;
+    const cfg = { channels: { line: {} } } as OpenClawConfig;
 
     const payload = {
       text: "Hello",
@@ -240,7 +240,7 @@ describe("linePlugin outbound.sendPayload", () => {
   it("uses configured text chunk limit for payloads", async () => {
     const { runtime, mocks } = createRuntime();
     setLineRuntime(runtime);
-    const cfg = { channels: { line: { textChunkLimit: 123 } } } as MoltbotConfig;
+    const cfg = { channels: { line: { textChunkLimit: 123 } } } as OpenClawConfig;
 
     const payload = {
       text: "Hello world",
@@ -300,7 +300,7 @@ describe("linePlugin groups.resolveRequireMention", () => {
           },
         },
       },
-    } as MoltbotConfig;
+    } as OpenClawConfig;
 
     const requireMention = linePlugin.groups.resolveRequireMention({
       cfg,

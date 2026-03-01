@@ -80,7 +80,7 @@ async function maybeRepairLaunchAgentBootstrap(params: {
 }
 
 export async function maybeRepairGatewayDaemon(params: {
-  cfg: MoltbotConfig;
+  cfg: OpenClawConfig;
   runtime: RuntimeEnv;
   prompter: DoctorPrompter;
   options: DoctorOptions;
@@ -110,7 +110,10 @@ export async function maybeRepairGatewayDaemon(params: {
       prompter: params.prompter,
     });
     await maybeRepairLaunchAgentBootstrap({
-      env: { ...process.env, CLAWDBOT_LAUNCHD_LABEL: resolveNodeLaunchAgentLabel() },
+      env: {
+        ...process.env,
+        OPENCLAW_LAUNCHD_LABEL: resolveNodeLaunchAgentLabel(),
+      },
       title: "Node",
       runtime: params.runtime,
       prompter: params.prompter,
@@ -162,7 +165,7 @@ export async function maybeRepairGatewayDaemon(params: {
         const { programArguments, workingDirectory, environment } = await buildGatewayInstallPlan({
           env: process.env,
           port,
-          token: params.cfg.gateway?.auth?.token ?? process.env.CLAWDBOT_GATEWAY_TOKEN,
+          token: params.cfg.gateway?.auth?.token ?? process.env.OPENCLAW_GATEWAY_TOKEN,
           runtime: daemonRuntime,
           warn: (message, title) => note(message, title),
           config: params.cfg,
@@ -211,9 +214,9 @@ export async function maybeRepairGatewayDaemon(params: {
   }
 
   if (process.platform === "darwin") {
-    const label = resolveGatewayLaunchAgentLabel(process.env.CLAWDBOT_PROFILE);
+    const label = resolveGatewayLaunchAgentLabel(process.env.OPENCLAW_PROFILE);
     note(
-      `LaunchAgent loaded; stopping requires "${formatCliCommand("moltbot gateway stop")}" or launchctl bootout gui/$UID/${label}.`,
+      `LaunchAgent loaded; stopping requires "${formatCliCommand("openclaw gateway stop")}" or launchctl bootout gui/$UID/${label}.`,
       "Gateway",
     );
   }
