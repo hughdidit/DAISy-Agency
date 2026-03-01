@@ -240,7 +240,11 @@ export class OpenClawApp extends LitElement {
   @state() sessionsIncludeGlobal = true;
   @state() sessionsIncludeUnknown = false;
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+  @state() sessionsHideCron = true;
+>>>>>>> 266d32006 (feat(ui): add hide-cron toggle to chat session selector (#26976))
 
   @state() usageLoading = false;
   @state() usageResult: import("./types.js").SessionsUsageResult | null = null;

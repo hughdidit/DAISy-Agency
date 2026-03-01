@@ -145,7 +145,11 @@ export type AppViewState = {
   sessionsIncludeGlobal: boolean;
   sessionsIncludeUnknown: boolean;
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+  sessionsHideCron: boolean;
+>>>>>>> 266d32006 (feat(ui): add hide-cron toggle to chat session selector (#26976))
   usageLoading: boolean;
   usageResult: SessionsUsageResult | null;
   usageCostSummary: CostUsageSummary | null;
