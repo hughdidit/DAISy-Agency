@@ -1,8 +1,18 @@
 import fs from "node:fs";
 import path from "node:path";
+<<<<<<< HEAD
 import { assertNoPathAliasEscape, type PathAliasPolicy } from "./path-alias-guards.js";
 import { isNotFoundPathError, isPathInside } from "./path-guards.js";
 import { openVerifiedFileSync, type SafeOpenSyncFailureReason } from "./safe-open-sync.js";
+=======
+import { resolveBoundaryPath, resolveBoundaryPathSync } from "./boundary-path.js";
+import type { PathAliasPolicy } from "./path-alias-guards.js";
+import {
+  openVerifiedFileSync,
+  type SafeOpenSyncAllowedType,
+  type SafeOpenSyncFailureReason,
+} from "./safe-open-sync.js";
+>>>>>>> 687f5779d (sandbox: allow directory boundary checks for mkdirp)
 
 type BoundaryReadFs = Pick<
   typeof fs,
@@ -28,6 +38,7 @@ export type OpenBoundaryFileSyncParams = {
   rootRealPath?: string;
   maxBytes?: number;
   rejectHardlinks?: boolean;
+  allowedTypes?: readonly SafeOpenSyncAllowedType[];
   skipLexicalRootCheck?: boolean;
   ioFs?: BoundaryReadFs;
 };
@@ -113,6 +124,7 @@ export function openBoundaryFileSync(params: OpenBoundaryFileSyncParams): Bounda
     resolvedPath,
     rejectHardlinks: params.rejectHardlinks ?? true,
     maxBytes: params.maxBytes,
+    allowedTypes: params.allowedTypes,
     ioFs,
   });
   if (!opened.ok) {
