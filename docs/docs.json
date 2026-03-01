@@ -1149,12 +1149,26 @@
               },
               {
                 "group": "First steps",
+<<<<<<< HEAD
                 "pages": ["start/getting-started", "start/wizard", "start/onboarding"]
 >>>>>>> c18452598 (docs: restructure Get Started tab and improve onboarding flow (#9950))
+=======
+                "pages": [
+                  "start/getting-started",
+                  "start/quickstart",
+                  "start/onboarding-overview",
+                  "start/wizard",
+                  "start/onboarding"
+                ]
+>>>>>>> eb2079355 (Docs: add all unlisted docs routes to navigation (#31027))
               },
               {
                 "group": "Guides",
-                "pages": ["start/openclaw"]
+                "pages": [
+                  "start/openclaw",
+                  "start/wizard-cli-reference",
+                  "start/wizard-cli-automation"
+                ]
               }
             ]
           },
@@ -1176,6 +1190,7 @@
               {
                 "group": "Hosting and deployment",
                 "pages": [
+                  "vps",
                   "install/fly",
                   "install/hetzner",
                   "install/gcp",
@@ -1243,6 +1258,7 @@
               {
                 "group": "Fundamentals",
                 "pages": [
+                  "pi",
                   "concepts/architecture",
                   "concepts/agent",
                   "concepts/agent-loop",
@@ -1289,10 +1305,15 @@
               {
                 "group": "Built-in tools",
                 "pages": [
+                  "brave-search",
+                  "perplexity",
                   "tools/lobster",
                   "tools/llm-task",
                   "tools/diffs",
                   "tools/exec",
+                  "tools/exec-approvals",
+                  "tools/firecrawl",
+                  "tools/loop-detection",
                   "tools/web",
                   "tools/apply-patch",
                   "tools/elevated",
@@ -1316,6 +1337,7 @@
               {
                 "group": "Skills and extensions",
                 "pages": [
+                  "tools/creating-skills",
                   "tools/slash-commands",
                   "tools/skills",
                   "tools/skills-config",
@@ -1329,7 +1351,14 @@
 <<<<<<< HEAD
 =======
                 "group": "Extensions",
-                "pages": ["plugins/community", "plugins/voice-call", "plugins/zalouser"]
+                "pages": [
+                  "plugins/community",
+                  "plugins/voice-call",
+                  "plugins/zalouser",
+                  "plugins/manifest",
+                  "plugins/agent-tools",
+                  "prose"
+                ]
               },
               {
 >>>>>>> 0978d63ed (docs: add community plugins guide)
@@ -1351,12 +1380,14 @@
                 "pages": [
                   "nodes/index",
                   "nodes/troubleshooting",
+                  "nodes/media-understanding",
                   "nodes/images",
                   "nodes/audio",
                   "nodes/camera",
                   "nodes/talk",
                   "nodes/voicewake",
-                  "nodes/location-command"
+                  "nodes/location-command",
+                  "tts"
                 ]
               }
             ]
@@ -1378,11 +1409,29 @@
                   "providers/anthropic",
                   "providers/openai",
                   "providers/openrouter",
+<<<<<<< HEAD
                   "bedrock",
+=======
+                  "providers/cloudflare-ai-gateway",
+                  "providers/claude-max-api-proxy",
+                  "providers/deepgram",
+                  "providers/github-copilot",
+                  "providers/huggingface",
+                  "providers/kilocode",
+                  "providers/litellm",
+                  "providers/bedrock",
+>>>>>>> eb2079355 (Docs: add all unlisted docs routes to navigation (#31027))
                   "providers/vercel-ai-gateway",
                   "providers/moonshot",
                   "providers/minimax",
+                  "providers/nvidia",
+                  "providers/ollama",
                   "providers/opencode",
+                  "providers/qwen",
+                  "providers/together",
+                  "providers/venice",
+                  "providers/vllm",
+                  "providers/xiaomi",
                   "providers/glm",
                   "providers/zai",
                   "providers/synthetic"
@@ -1401,7 +1450,10 @@
                   "platforms/linux",
                   "platforms/windows",
                   "platforms/android",
-                  "platforms/ios"
+                  "platforms/ios",
+                  "platforms/digitalocean",
+                  "platforms/oracle",
+                  "platforms/raspberry-pi"
                 ]
               },
               {
@@ -1470,6 +1522,7 @@
                       "gateway/protocol",
                       "gateway/bridge-protocol",
                       "gateway/openai-http-api",
+                      "gateway/openresponses-http-api",
                       "gateway/tools-invoke-http-api",
                       "gateway/cli-backends",
                       "gateway/local-models"
@@ -1487,7 +1540,12 @@
               },
               {
                 "group": "Security",
-                "pages": ["security/formal-verification"]
+                "pages": [
+                  "security/formal-verification",
+                  "security/README",
+                  "security/THREAT-MODEL-ATLAS",
+                  "security/CONTRIBUTING-THREAT-MODEL"
+                ]
               },
               {
                 "group": "Web interfaces",
@@ -1563,19 +1621,29 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
                 "pages": ["reference/wizard", "reference/token-use", "channels/grammy"]
 =======
+=======
+>>>>>>> eb2079355 (Docs: add all unlisted docs routes to navigation (#31027))
                 "pages": [
                   "reference/wizard",
                   "reference/token-use",
                   "reference/prompt-caching",
+<<<<<<< HEAD
                   "channels/grammy"
                 ]
 >>>>>>> 46dee2660 (docs(reference): add prompt-caching guide and knobs)
 =======
                 "pages": ["reference/wizard", "reference/token-use", "reference/prompt-caching"]
 >>>>>>> 035a2dbb4 (docs: consolidate grammy links to telegram)
+=======
+                  "reference/api-usage-costs",
+                  "reference/transcript-hygiene",
+                  "date-time"
+                ]
+>>>>>>> eb2079355 (Docs: add all unlisted docs routes to navigation (#31027))
               },
               {
                 "group": "Concept internals",
@@ -1597,7 +1665,14 @@
               {
                 "group": "Experiments",
                 "pages": [
+                  "design/kilo-gateway-integration",
                   "experiments/onboarding-config-protocol",
+                  "experiments/plans/acp-thread-bound-agents",
+                  "experiments/plans/acp-unified-streaming-refactor",
+                  "experiments/plans/browser-evaluate-cdp-refactor",
+                  "experiments/plans/openresponses-gateway",
+                  "experiments/plans/pty-process-supervision",
+                  "experiments/plans/session-binding-channel-agnostic",
                   "experiments/research/memory",
                   "experiments/proposals/model-config"
                 ]
@@ -1618,12 +1693,21 @@
               {
                 "group": "Environment and debugging",
                 "pages": [
+<<<<<<< HEAD
                   "install/node",
                   "environment",
                   "debugging",
                   "testing",
                   "scripts",
                   "reference/session-management-compaction"
+=======
+                  "help/environment",
+                  "help/debugging",
+                  "help/testing",
+                  "help/scripts",
+                  "debug/node-issue",
+                  "diagnostics/flags"
+>>>>>>> eb2079355 (Docs: add all unlisted docs routes to navigation (#31027))
                 ]
               },
               {
@@ -1640,7 +1724,7 @@
               },
               {
                 "group": "Developer setup",
-                "pages": ["start/setup"]
+                "pages": ["start/setup", "pi-dev"]
               },
               {
                 "group": "Contributing",
@@ -1673,6 +1757,7 @@
                 "group": "第一步",
                 "pages": [
                   "zh-CN/start/getting-started",
+                  "zh-CN/start/quickstart",
                   "zh-CN/start/wizard",
                   "zh-CN/start/onboarding"
                 ]
@@ -1711,6 +1796,7 @@
               {
                 "group": "托管与部署",
                 "pages": [
+                  "zh-CN/vps",
                   "zh-CN/install/fly",
                   "zh-CN/install/hetzner",
                   "zh-CN/install/gcp",
@@ -1739,15 +1825,21 @@
                 "pages": [
                   "zh-CN/channels/whatsapp",
                   "zh-CN/channels/telegram",
+                  "zh-CN/channels/grammy",
                   "zh-CN/channels/discord",
                   "zh-CN/channels/slack",
                   "zh-CN/channels/googlechat",
                   "zh-CN/channels/mattermost",
                   "zh-CN/channels/signal",
                   "zh-CN/channels/imessage",
+                  "zh-CN/channels/bluebubbles",
+                  "zh-CN/channels/nextcloud-talk",
                   "zh-CN/channels/msteams",
                   "zh-CN/channels/line",
                   "zh-CN/channels/matrix",
+                  "zh-CN/channels/nostr",
+                  "zh-CN/channels/tlon",
+                  "zh-CN/channels/twitch",
                   "zh-CN/channels/zalo",
                   "zh-CN/channels/zalouser"
                 ]
@@ -1772,6 +1864,7 @@
               {
                 "group": "基础",
                 "pages": [
+                  "zh-CN/pi",
                   "zh-CN/concepts/architecture",
                   "zh-CN/concepts/agent",
                   "zh-CN/concepts/agent-loop",
@@ -1817,9 +1910,13 @@
               {
                 "group": "内置工具",
                 "pages": [
+                  "zh-CN/brave-search",
+                  "zh-CN/perplexity",
                   "zh-CN/tools/lobster",
                   "zh-CN/tools/llm-task",
                   "zh-CN/tools/exec",
+                  "zh-CN/tools/exec-approvals",
+                  "zh-CN/tools/firecrawl",
                   "zh-CN/tools/web",
                   "zh-CN/tools/apply-patch",
                   "zh-CN/tools/elevated",
@@ -1847,6 +1944,7 @@
               {
                 "group": "技能与扩展",
                 "pages": [
+                  "zh-CN/tools/creating-skills",
                   "zh-CN/tools/slash-commands",
                   "zh-CN/tools/skills",
                   "zh-CN/tools/skills-config",
@@ -1857,6 +1955,19 @@
                 ]
               },
               {
+<<<<<<< HEAD
+=======
+                "group": "扩展",
+                "pages": [
+                  "zh-CN/plugins/voice-call",
+                  "zh-CN/plugins/zalouser",
+                  "zh-CN/plugins/manifest",
+                  "zh-CN/plugins/agent-tools",
+                  "zh-CN/prose"
+                ]
+              },
+              {
+>>>>>>> eb2079355 (Docs: add all unlisted docs routes to navigation (#31027))
                 "group": "自动化",
                 "pages": [
                   "zh-CN/hooks",
@@ -1873,12 +1984,18 @@
                 "group": "媒体与设备",
                 "pages": [
                   "zh-CN/nodes/index",
+<<<<<<< HEAD
+=======
+                  "zh-CN/nodes/troubleshooting",
+                  "zh-CN/nodes/media-understanding",
+>>>>>>> eb2079355 (Docs: add all unlisted docs routes to navigation (#31027))
                   "zh-CN/nodes/images",
                   "zh-CN/nodes/audio",
                   "zh-CN/nodes/camera",
                   "zh-CN/nodes/talk",
                   "zh-CN/nodes/voicewake",
-                  "zh-CN/nodes/location-command"
+                  "zh-CN/nodes/location-command",
+                  "zh-CN/tts"
                 ]
               }
             ]
@@ -1906,9 +2023,16 @@
                   "zh-CN/providers/openrouter",
                   "zh-CN/bedrock",
                   "zh-CN/providers/vercel-ai-gateway",
+                  "zh-CN/providers/claude-max-api-proxy",
+                  "zh-CN/providers/deepgram",
+                  "zh-CN/providers/github-copilot",
                   "zh-CN/providers/moonshot",
                   "zh-CN/providers/minimax",
+                  "zh-CN/providers/ollama",
                   "zh-CN/providers/opencode",
+                  "zh-CN/providers/qwen",
+                  "zh-CN/providers/venice",
+                  "zh-CN/providers/xiaomi",
                   "zh-CN/providers/glm",
                   "zh-CN/providers/zai",
                   "zh-CN/providers/synthetic"
@@ -1927,7 +2051,10 @@
                   "zh-CN/platforms/linux",
                   "zh-CN/platforms/windows",
                   "zh-CN/platforms/android",
-                  "zh-CN/platforms/ios"
+                  "zh-CN/platforms/ios",
+                  "zh-CN/platforms/digitalocean",
+                  "zh-CN/platforms/oracle",
+                  "zh-CN/platforms/raspberry-pi"
                 ]
               },
               {
@@ -1992,6 +2119,7 @@
                       "zh-CN/gateway/protocol",
                       "zh-CN/gateway/bridge-protocol",
                       "zh-CN/gateway/openai-http-api",
+                      "zh-CN/gateway/openresponses-http-api",
                       "zh-CN/gateway/tools-invoke-http-api",
                       "zh-CN/gateway/cli-backends",
                       "zh-CN/gateway/local-models"
@@ -2017,6 +2145,10 @@
                 ]
               },
               {
+                "group": "运维专题",
+                "pages": ["zh-CN/network", "zh-CN/logging"]
+              },
+              {
                 "group": "安全",
                 "pages": ["zh-CN/security/formal-verification"]
               },
@@ -2039,14 +2171,17 @@
                 "group": "CLI 命令",
                 "pages": [
                   "zh-CN/cli/index",
+                  "zh-CN/cli/acp",
                   "zh-CN/cli/agent",
                   "zh-CN/cli/agents",
                   "zh-CN/cli/approvals",
                   "zh-CN/cli/browser",
                   "zh-CN/cli/channels",
+                  "zh-CN/cli/config",
                   "zh-CN/cli/configure",
                   "zh-CN/cli/cron",
                   "zh-CN/cli/dashboard",
+                  "zh-CN/cli/devices",
                   "zh-CN/cli/directory",
                   "zh-CN/cli/dns",
                   "zh-CN/cli/docs",
@@ -2058,6 +2193,7 @@
                   "zh-CN/cli/memory",
                   "zh-CN/cli/message",
                   "zh-CN/cli/models",
+                  "zh-CN/cli/node",
                   "zh-CN/cli/nodes",
                   "zh-CN/cli/onboard",
                   "zh-CN/cli/pairing",
@@ -2073,7 +2209,8 @@
                   "zh-CN/cli/tui",
                   "zh-CN/cli/uninstall",
                   "zh-CN/cli/update",
-                  "zh-CN/cli/voicecall"
+                  "zh-CN/cli/voicecall",
+                  "zh-CN/cli/webhooks"
                 ]
               },
               {
@@ -2096,6 +2233,19 @@
               },
               {
                 "group": "技术参考",
+<<<<<<< HEAD
+=======
+                "pages": [
+                  "zh-CN/reference/wizard",
+                  "zh-CN/reference/token-use",
+                  "zh-CN/reference/api-usage-costs",
+                  "zh-CN/reference/transcript-hygiene",
+                  "zh-CN/date-time"
+                ]
+              },
+              {
+                "group": "概念内部机制",
+>>>>>>> eb2079355 (Docs: add all unlisted docs routes to navigation (#31027))
                 "pages": [
                   "zh-CN/concepts/typebox",
                   "zh-CN/concepts/markdown-formatting",
@@ -2117,10 +2267,21 @@
                 "group": "实验性功能",
                 "pages": [
                   "zh-CN/experiments/onboarding-config-protocol",
+                  "zh-CN/experiments/plans/openresponses-gateway",
                   "zh-CN/experiments/plans/cron-add-hardening",
                   "zh-CN/experiments/plans/group-policy-hardening",
                   "zh-CN/experiments/research/memory",
                   "zh-CN/experiments/proposals/model-config"
+                ]
+              },
+              {
+                "group": "重构方案",
+                "pages": [
+                  "zh-CN/refactor/clawnet",
+                  "zh-CN/refactor/exec-host",
+                  "zh-CN/refactor/outbound-session-mirroring",
+                  "zh-CN/refactor/plugin-sdk",
+                  "zh-CN/refactor/strict-config"
                 ]
               }
             ]
@@ -2139,6 +2300,7 @@
               {
                 "group": "环境与调试",
                 "pages": [
+<<<<<<< HEAD
                   "zh-CN/environment",
                   "zh-CN/debugging",
                   "zh-CN/testing",
@@ -2149,10 +2311,31 @@
               {
                 "group": "开发者工作流",
                 "pages": ["zh-CN/start/setup"]
+=======
+                  "zh-CN/help/environment",
+                  "zh-CN/help/debugging",
+                  "zh-CN/help/testing",
+                  "zh-CN/help/scripts",
+                  "zh-CN/debug/node-issue",
+                  "zh-CN/diagnostics/flags"
+                ]
+              },
+              {
+                "group": "Node 运行时",
+                "pages": ["zh-CN/install/node"]
+              },
+              {
+                "group": "压缩机制内部参考",
+                "pages": ["zh-CN/reference/session-management-compaction"]
+              },
+              {
+                "group": "开发者设置",
+                "pages": ["zh-CN/start/setup", "zh-CN/pi-dev"]
+>>>>>>> eb2079355 (Docs: add all unlisted docs routes to navigation (#31027))
               },
               {
                 "group": "文档元信息",
-                "pages": ["zh-CN/start/hubs", "zh-CN/start/docs-directory"]
+                "pages": ["zh-CN/start/hubs", "zh-CN/start/docs-directory", "zh-CN/AGENTS"]
               }
             ]
           }
