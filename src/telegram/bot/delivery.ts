@@ -205,7 +205,9 @@ export async function deliverReplies(params: {
       continue;
     }
     const replyToId = replyToMode === "off" ? undefined : resolveTelegramReplyId(reply.replyToId);
-    const replyToMessageIdForPayload =
+    // Evaluate lazily so `hasReplied` is checked at each send site.
+    // When replyToMode is "first", only the first chunk/media item gets the reply-to.
+    const resolveReplyTo = () =>
       replyToId && (replyToMode === "all" || !hasReplied) ? replyToId : undefined;
     const mediaList = reply.mediaUrls?.length
       ? reply.mediaUrls
@@ -218,7 +220,6 @@ export async function deliverReplies(params: {
     const replyMarkup = buildInlineKeyboard(telegramData?.buttons);
     if (mediaList.length === 0) {
       const chunks = chunkText(reply.text || "");
-      let sentTextChunk = false;
       for (let i = 0; i < chunks.length; i += 1) {
         const chunk = chunks[i];
         if (!chunk) {
@@ -226,8 +227,9 @@ export async function deliverReplies(params: {
         }
         // Only attach buttons to the first chunk.
         const shouldAttachButtons = i === 0 && replyMarkup;
+        const replyToForChunk = resolveReplyTo();
         await sendTelegramText(bot, chatId, chunk.html, runtime, {
-          replyToMessageId: replyToMessageIdForPayload,
+          replyToMessageId: replyToForChunk,
           replyQuoteText,
           messageThreadId,
           textMode: "html",
@@ -235,6 +237,7 @@ export async function deliverReplies(params: {
           linkPreview,
           replyMarkup: shouldAttachButtons ? replyMarkup : undefined,
         });
+<<<<<<< HEAD
 <<<<<<< HEAD
         if (replyToId && !hasReplied) {
           hasReplied = true;
@@ -247,6 +250,13 @@ export async function deliverReplies(params: {
         hasReplied = true;
 >>>>>>> 087dca8fa (fix(subagent): harden read-tool overflow guards and sticky reply threading (#19508))
       }
+=======
+        if (replyToForChunk && !hasReplied) {
+          hasReplied = true;
+        }
+        markDelivered();
+      }
+>>>>>>> 2a381e6d7 (fix(telegram): replyToMode 'first' now only applies reply-to to first chunk)
       continue;
     }
     // media with optional caption on first item
@@ -275,7 +285,7 @@ export async function deliverReplies(params: {
         pendingFollowUpText = followUpText;
       }
       first = false;
-      const replyToMessageId = replyToMessageIdForPayload;
+      const replyToMessageId = resolveReplyTo();
       const shouldAttachButtonsToMedia = isFirstMedia && replyMarkup && !followUpText;
       const mediaParams: Record<string, unknown> = {
         caption: htmlCaption,
@@ -340,12 +350,16 @@ export async function deliverReplies(params: {
                 text: fallbackText,
                 chunkText,
 <<<<<<< HEAD
+<<<<<<< HEAD
                 replyToId,
                 replyToMode,
                 hasReplied,
                 messageThreadId,
 =======
                 replyToId: replyToMessageIdForPayload,
+=======
+                replyToId: resolveReplyTo(),
+>>>>>>> 2a381e6d7 (fix(telegram): replyToMode 'first' now only applies reply-to to first chunk)
                 thread,
 >>>>>>> 087dca8fa (fix(subagent): harden read-tool overflow guards and sticky reply threading (#19508))
                 linkPreview,
@@ -353,8 +367,12 @@ export async function deliverReplies(params: {
                 replyQuoteText,
               });
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
               if (replyToMessageIdForPayload && !hasReplied) {
+=======
+              if (replyToId && !hasReplied) {
+>>>>>>> 2a381e6d7 (fix(telegram): replyToMode 'first' now only applies reply-to to first chunk)
                 hasReplied = true;
               }
               markDelivered();
@@ -423,12 +441,17 @@ export async function deliverReplies(params: {
         const chunks = chunkText(pendingFollowUpText);
         for (let i = 0; i < chunks.length; i += 1) {
           const chunk = chunks[i];
+          const replyToForFollowUp = resolveReplyTo();
           await sendTelegramText(bot, chatId, chunk.html, runtime, {
+<<<<<<< HEAD
 <<<<<<< HEAD
             replyToMessageId: replyToMessageIdFollowup,
             messageThreadId,
 =======
             replyToMessageId: replyToMessageIdForPayload,
+=======
+            replyToMessageId: replyToForFollowUp,
+>>>>>>> 2a381e6d7 (fix(telegram): replyToMode 'first' now only applies reply-to to first chunk)
             thread,
 >>>>>>> 087dca8fa (fix(subagent): harden read-tool overflow guards and sticky reply threading (#19508))
             textMode: "html",
@@ -437,17 +460,20 @@ export async function deliverReplies(params: {
             replyMarkup: i === 0 ? replyMarkup : undefined,
           });
 <<<<<<< HEAD
+<<<<<<< HEAD
           if (replyToId && !hasReplied) {
             hasReplied = true;
           }
 =======
+=======
+          if (replyToForFollowUp && !hasReplied) {
+            hasReplied = true;
+          }
+>>>>>>> 2a381e6d7 (fix(telegram): replyToMode 'first' now only applies reply-to to first chunk)
           markDelivered();
 >>>>>>> 087dca8fa (fix(subagent): harden read-tool overflow guards and sticky reply threading (#19508))
         }
         pendingFollowUpText = undefined;
-      }
-      if (replyToMessageIdForPayload && !hasReplied) {
-        hasReplied = true;
       }
     }
   }
@@ -669,10 +695,12 @@ async function sendTelegramVoiceFallbackText(opts: {
   replyQuoteText?: string;
 }): Promise<void> {
   const chunks = opts.chunkText(opts.text);
+  let appliedReplyTo = false;
   for (let i = 0; i < chunks.length; i += 1) {
     const chunk = chunks[i];
+    const replyToForChunk = !appliedReplyTo ? opts.replyToId : undefined;
     await sendTelegramText(opts.bot, opts.chatId, chunk.html, opts.runtime, {
-      replyToMessageId: opts.replyToId,
+      replyToMessageId: replyToForChunk,
       replyQuoteText: opts.replyQuoteText,
       messageThreadId: opts.messageThreadId,
       textMode: "html",
@@ -680,6 +708,9 @@ async function sendTelegramVoiceFallbackText(opts: {
       linkPreview: opts.linkPreview,
       replyMarkup: i === 0 ? opts.replyMarkup : undefined,
     });
+    if (replyToForChunk) {
+      appliedReplyTo = true;
+    }
   }
 }
 
