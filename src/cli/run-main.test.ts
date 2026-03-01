@@ -3,22 +3,22 @@ import { rewriteUpdateFlagArgv } from "./run-main.js";
 
 describe("rewriteUpdateFlagArgv", () => {
   it("leaves argv unchanged when --update is absent", () => {
-    const argv = ["node", "entry.js", "status"];
+    const argv = ["node", "entry.mjs", "status"];
     expect(rewriteUpdateFlagArgv(argv)).toBe(argv);
   });
 
   it("rewrites --update into the update command", () => {
-    expect(rewriteUpdateFlagArgv(["node", "entry.js", "--update"])).toEqual([
+    expect(rewriteUpdateFlagArgv(["node", "entry.mjs", "--update"])).toEqual([
       "node",
-      "entry.js",
+      "entry.mjs",
       "update",
     ]);
   });
 
   it("preserves global flags that appear before --update", () => {
-    expect(rewriteUpdateFlagArgv(["node", "entry.js", "--profile", "p", "--update"])).toEqual([
+    expect(rewriteUpdateFlagArgv(["node", "entry.mjs", "--profile", "p", "--update"])).toEqual([
       "node",
-      "entry.js",
+      "entry.mjs",
       "--profile",
       "p",
       "update",
@@ -26,9 +26,9 @@ describe("rewriteUpdateFlagArgv", () => {
   });
 
   it("keeps update options after the rewritten command", () => {
-    expect(rewriteUpdateFlagArgv(["node", "entry.js", "--update", "--json"])).toEqual([
+    expect(rewriteUpdateFlagArgv(["node", "entry.mjs", "--update", "--json"])).toEqual([
       "node",
-      "entry.js",
+      "entry.mjs",
       "update",
       "--json",
     ]);

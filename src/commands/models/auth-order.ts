@@ -13,6 +13,7 @@ import type { RuntimeEnv } from "../../runtime.js";
 =======
 >>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { shortenHomePath } from "../../utils.js";
+import { resolveKnownAgentId } from "./shared.js";
 
 function resolveTargetAgent(
   cfg: ReturnType<typeof loadConfig>,
@@ -21,7 +22,7 @@ function resolveTargetAgent(
   agentId: string;
   agentDir: string;
 } {
-  const agentId = raw?.trim() ? normalizeAgentId(raw.trim()) : resolveDefaultAgentId(cfg);
+  const agentId = resolveKnownAgentId({ cfg, rawAgentId: raw }) ?? resolveDefaultAgentId(cfg);
   const agentDir = resolveAgentDir(cfg, agentId);
   return { agentId, agentDir };
 }

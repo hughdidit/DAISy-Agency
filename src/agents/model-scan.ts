@@ -325,7 +325,11 @@ async function mapWithConcurrency<T, R>(
   opts?: { onProgress?: (completed: number, total: number) => void },
 ): Promise<R[]> {
   const limit = Math.max(1, Math.floor(concurrency));
+<<<<<<< HEAD
   const results = Array.from({ length: items.length }) as R[];
+=======
+  const results: R[] = Array.from({ length: items.length }, () => undefined as R);
+>>>>>>> a42e1c82d (fix: restore tsc build and plugin install tests)
   let nextIndex = 0;
   let completed = 0;
 

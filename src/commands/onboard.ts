@@ -63,6 +63,7 @@ export async function onboardCommand(opts: OnboardOptions, runtime: RuntimeEnv =
   if (process.platform === "win32") {
     runtime.log(
       [
+<<<<<<< HEAD
         "Windows detected.",
         "WSL2 is strongly recommended; native Windows is untested and more problematic.",
         "Guide: https://docs.openclaw.ai/windows",

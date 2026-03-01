@@ -386,7 +386,11 @@ If you don’t have a global install yet, run it via `pnpm openclaw onboard`.
 
 ### How do I open the dashboard after onboarding
 
+<<<<<<< HEAD
 The wizard now opens your browser with a tokenized dashboard URL right after onboarding and also prints the full link (with token) in the summary. Keep that tab open; if it didn’t launch, copy/paste the printed URL on the same machine. Tokens stay local to your host-nothing is fetched from the browser.
+=======
+The wizard opens your browser with a clean (non-tokenized) dashboard URL right after onboarding and also prints the link in the summary. Keep that tab open; if it didn't launch, copy/paste the printed URL on the same machine.
+>>>>>>> 717129f7f (fix: silence unused hook token url param (#9436))
 
 ### How do I authenticate the dashboard token on localhost vs remote
 

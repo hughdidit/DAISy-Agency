@@ -300,6 +300,7 @@ async function probeTarget(params: {
     await runEmbeddedPiAgent({
       sessionId,
       sessionFile,
+      agentId,
       workspaceDir,
       agentDir,
       config: cfg,

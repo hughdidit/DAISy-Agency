@@ -95,6 +95,11 @@ const _makeSessionStore = async (
 };
 
 describe("web auto-reply", () => {
+<<<<<<< HEAD
+=======
+  let resolvePinnedHostnameSpy: ReturnType<typeof vi.spyOn>;
+
+>>>>>>> 425003417 (fix: Remove `tsconfig.oxlint.json` AGAIN.)
   beforeEach(() => {
     vi.clearAllMocks();
     resetBaileysMocks();

@@ -246,7 +246,6 @@ export function createTelegramBot(opts: TelegramBotOptions) {
       : undefined) ??
     (opts.allowFrom && opts.allowFrom.length > 0 ? opts.allowFrom : undefined);
   const replyToMode = opts.replyToMode ?? telegramCfg.replyToMode ?? "first";
-  const streamMode = resolveTelegramStreamMode(telegramCfg);
   const nativeEnabled = resolveNativeCommandsEnabled({
     providerId: "telegram",
     providerSetting: telegramCfg.commands?.native,
@@ -265,6 +264,7 @@ export function createTelegramBot(opts: TelegramBotOptions) {
   const ackReactionScope = cfg.messages?.ackReactionScope ?? "group-mentions";
   const mediaMaxBytes = (opts.mediaMaxMb ?? telegramCfg.mediaMaxMb ?? 5) * 1024 * 1024;
   const logger = getChildLogger({ module: "telegram-auto-reply" });
+  const streamMode = resolveTelegramStreamMode(telegramCfg);
   let botHasTopicsEnabled: boolean | undefined;
   const resolveBotTopicsEnabled = async (ctx?: TelegramContext) => {
     const fromCtx = ctx?.me as { has_topics_enabled?: boolean } | undefined;
@@ -272,7 +272,17 @@ export function createTelegramBot(opts: TelegramBotOptions) {
       botHasTopicsEnabled = fromCtx.has_topics_enabled;
       return botHasTopicsEnabled;
     }
+<<<<<<< HEAD
     if (typeof botHasTopicsEnabled === "boolean") return botHasTopicsEnabled;
+=======
+    if (typeof botHasTopicsEnabled === "boolean") {
+      return botHasTopicsEnabled;
+    }
+    if (typeof bot.api.getMe !== "function") {
+      botHasTopicsEnabled = false;
+      return botHasTopicsEnabled;
+    }
+>>>>>>> 37721ebd7 (fix: restore telegram draft streaming partials)
     try {
       const me = (await withTelegramApiErrorLogging({
         operation: "getMe",

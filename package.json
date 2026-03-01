@@ -24,6 +24,7 @@
   "exports": {
     ".": "./dist/index.js",
     "./plugin-sdk": "./dist/plugin-sdk/index.js",
+<<<<<<< HEAD
     "./plugin-sdk/*": "./dist/plugin-sdk/*",
     "./cli-entry": "./openclaw.mjs"
   },

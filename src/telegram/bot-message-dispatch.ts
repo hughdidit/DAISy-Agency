@@ -1,11 +1,11 @@
 import { resolveAgentDir } from "../agents/agent-scope.js";
 // @ts-nocheck
-import { EmbeddedBlockChunker } from "../agents/pi-embedded-block-chunker.js";
 import {
   findModelInCatalog,
   loadModelCatalog,
   modelSupportsVision,
 } from "../agents/model-catalog.js";
+import { EmbeddedBlockChunker } from "../agents/pi-embedded-block-chunker.js";
 import { resolveDefaultModelForAgent } from "../agents/model-selection.js";
 import { EmbeddedBlockChunker } from "../agents/pi-embedded-block-chunker.js";
 import { resolveChunkMode } from "../auto-reply/chunk.js";
@@ -21,6 +21,8 @@ import { deliverReplies } from "./bot/delivery.js";
 import { resolveTelegramDraftStreamingChunking } from "./draft-chunking.js";
 import { createTelegramDraftStream } from "./draft-stream.js";
 import { cacheSticker, describeStickerImage } from "./sticker-cache.js";
+
+const EMPTY_RESPONSE_FALLBACK = "No response generated. Please try again.";
 
 async function resolveStickerVisionSupport(cfg, agentId) {
   try {
@@ -52,7 +54,7 @@ export const dispatchTelegramMessage = async ({
     msg,
     chatId,
     isGroup,
-    resolvedThreadId,
+    threadSpec,
     historyKey,
     historyLimit,
     groupHistories,
@@ -66,11 +68,12 @@ export const dispatchTelegramMessage = async ({
   } = context;
 
   const isPrivateChat = msg.chat.type === "private";
+  const draftThreadId = threadSpec.id;
   const draftMaxChars = Math.min(textLimit, 4096);
   const canStreamDraft =
     streamMode !== "off" &&
     isPrivateChat &&
-    typeof resolvedThreadId === "number" &&
+    typeof draftThreadId === "number" &&
     (await resolveBotTopicsEnabled(primaryCtx));
   const draftStream = canStreamDraft
     ? createTelegramDraftStream({
@@ -78,7 +81,7 @@ export const dispatchTelegramMessage = async ({
         chatId,
         draftId: msg.message_id || Date.now(),
         maxChars: draftMaxChars,
-        messageThreadId: resolvedThreadId,
+        thread: threadSpec,
         log: logVerbose,
         warn: logVerbose,
       })
@@ -199,6 +202,15 @@ export const dispatchTelegramMessage = async ({
     }
   }
 
+  const replyQuoteText =
+    ctxPayload.ReplyToIsQuote && ctxPayload.ReplyToBody
+      ? ctxPayload.ReplyToBody.trim() || undefined
+      : undefined;
+  const deliveryState = {
+    delivered: false,
+    skippedNonSilent: 0,
+  };
+
   const { queuedFinal } = await dispatchReplyWithBufferedBlockDispatcher({
     ctx: ctxPayload,
     cfg,
@@ -210,12 +222,7 @@ export const dispatchTelegramMessage = async ({
           await flushDraft();
           draftStream?.stop();
         }
-
-        const replyQuoteText =
-          ctxPayload.ReplyToIsQuote && ctxPayload.ReplyToBody
-            ? ctxPayload.ReplyToBody.trim() || undefined
-            : undefined;
-        await deliverReplies({
+        const result = await deliverReplies({
           replies: [payload],
           chatId: String(chatId),
           token: opts.token,
@@ -223,13 +230,19 @@ export const dispatchTelegramMessage = async ({
           bot,
           replyToMode,
           textLimit,
-          messageThreadId: resolvedThreadId,
+          thread: threadSpec,
           tableMode,
           chunkMode,
           onVoiceRecording: sendRecordVoice,
           linkPreview: telegramCfg.linkPreview,
           replyQuoteText,
         });
+        if (result.delivered) {
+          deliveryState.delivered = true;
+        }
+      },
+      onSkip: (_payload, info) => {
+        if (info.reason !== "silent") deliveryState.skippedNonSilent += 1;
       },
       onError: (err, info) => {
         runtime.error?.(danger(`telegram ${info.kind} reply failed: ${String(err)}`));
@@ -248,20 +261,44 @@ export const dispatchTelegramMessage = async ({
     },
     replyOptions: {
       skillFilter,
+<<<<<<< HEAD
       onPartialReply: draftStream ? (payload) => updateDraftFromPartial(payload.text) : undefined,
       onReasoningStream: draftStream
         ? (payload) => {
             if (payload.text) draftStream.update(payload.text);
           }
         : undefined,
+=======
+>>>>>>> 37721ebd7 (fix: restore telegram draft streaming partials)
       disableBlockStreaming,
+      onPartialReply: draftStream ? (payload) => updateDraftFromPartial(payload.text) : undefined,
       onModelSelected: (ctx) => {
         prefixContext.onModelSelected(ctx);
       },
     },
   });
   draftStream?.stop();
-  if (!queuedFinal) {
+  let sentFallback = false;
+  if (!deliveryState.delivered && deliveryState.skippedNonSilent > 0) {
+    const result = await deliverReplies({
+      replies: [{ text: EMPTY_RESPONSE_FALLBACK }],
+      chatId: String(chatId),
+      token: opts.token,
+      runtime,
+      bot,
+      replyToMode,
+      textLimit,
+      thread: threadSpec,
+      tableMode,
+      chunkMode,
+      linkPreview: telegramCfg.linkPreview,
+      replyQuoteText,
+    });
+    sentFallback = result.delivered;
+  }
+
+  const hasFinalResponse = queuedFinal || sentFallback;
+  if (!hasFinalResponse) {
     if (isGroup && historyKey) {
       clearHistoryEntriesIfEnabled({ historyMap: groupHistories, historyKey, limit: historyLimit });
     }

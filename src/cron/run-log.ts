@@ -8,6 +8,8 @@ export type CronRunLogEntry = {
   status?: "ok" | "error" | "skipped";
   error?: string;
   summary?: string;
+  sessionId?: string;
+  sessionKey?: string;
   runAtMs?: number;
   durationMs?: number;
   nextRunAtMs?: number;
@@ -72,12 +74,48 @@ export async function readCronRunLogEntries(
     if (!line) continue;
     try {
       const obj = JSON.parse(line) as Partial<CronRunLogEntry> | null;
+<<<<<<< HEAD
       if (!obj || typeof obj !== "object") continue;
       if (obj.action !== "finished") continue;
       if (typeof obj.jobId !== "string" || obj.jobId.trim().length === 0) continue;
       if (typeof obj.ts !== "number" || !Number.isFinite(obj.ts)) continue;
       if (jobId && obj.jobId !== jobId) continue;
       parsed.push(obj as CronRunLogEntry);
+=======
+      if (!obj || typeof obj !== "object") {
+        continue;
+      }
+      if (obj.action !== "finished") {
+        continue;
+      }
+      if (typeof obj.jobId !== "string" || obj.jobId.trim().length === 0) {
+        continue;
+      }
+      if (typeof obj.ts !== "number" || !Number.isFinite(obj.ts)) {
+        continue;
+      }
+      if (jobId && obj.jobId !== jobId) {
+        continue;
+      }
+      const entry: CronRunLogEntry = {
+        ts: obj.ts,
+        jobId: obj.jobId,
+        action: "finished",
+        status: obj.status,
+        error: obj.error,
+        summary: obj.summary,
+        runAtMs: obj.runAtMs,
+        durationMs: obj.durationMs,
+        nextRunAtMs: obj.nextRunAtMs,
+      };
+      if (typeof obj.sessionId === "string" && obj.sessionId.trim().length > 0) {
+        entry.sessionId = obj.sessionId;
+      }
+      if (typeof obj.sessionKey === "string" && obj.sessionKey.trim().length > 0) {
+        entry.sessionKey = obj.sessionKey;
+      }
+      parsed.push(entry);
+>>>>>>> d90cac990 (fix: cron scheduler reliability, store hardening, and UX improvements (#10776))
     } catch {
       // ignore invalid lines
     }

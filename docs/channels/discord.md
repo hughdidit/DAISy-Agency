@@ -179,6 +179,7 @@ Notes:
 - If `channels` is present, any channel not listed is denied by default.
 - Use a `"*"` channel entry to apply defaults across all channels; explicit channel entries override the wildcard.
 - Threads inherit parent channel config (allowlist, `requireMention`, skills, prompts, etc.) unless you add the thread channel id explicitly.
+- Owner hint: when a per-guild or per-channel `users` allowlist matches the sender, OpenClaw treats that sender as the owner in the system prompt. For a global owner across channels, set `commands.ownerAllowFrom`.
 - Bot-authored messages are ignored by default; set `channels.discord.allowBots=true` to allow them (own messages remain filtered).
 - Warning: If you allow replies to other bots (`channels.discord.allowBots=true`), prevent bot-to-bot reply loops with `requireMention`, `channels.discord.guilds.*.channels.<id>.users` allowlists, and/or clear guardrails in `AGENTS.md` and `SOUL.md`.
 
@@ -312,7 +313,7 @@ ack reaction after the bot replies.
 - `guilds.<id>.channels.<channel>.toolsBySender`: optional per-sender tool policy overrides within the channel (`"*"` wildcard supported).
 - `guilds.<id>.channels.<channel>.users`: optional per-channel user allowlist.
 - `guilds.<id>.channels.<channel>.skills`: skill filter (omit = all skills, empty = none).
-- `guilds.<id>.channels.<channel>.systemPrompt`: extra system prompt for the channel (combined with channel topic).
+- `guilds.<id>.channels.<channel>.systemPrompt`: extra system prompt for the channel. Discord channel topics are injected as **untrusted** context (not system prompt).
 - `guilds.<id>.channels.<channel>.enabled`: set `false` to disable the channel.
 - `guilds.<id>.channels`: channel rules (keys are channel slugs or ids).
 - `guilds.<id>.requireMention`: per-guild mention requirement (overridable per channel).
@@ -339,6 +340,37 @@ Reaction notifications use `guilds.<id>.reactionNotifications`:
 - `all`: all reactions on all messages.
 - `allowlist`: reactions from `guilds.<id>.users` on all messages (empty list disables).
 
+<<<<<<< HEAD
+=======
+### PluralKit (PK) support
+
+Enable PK lookups so proxied messages resolve to the underlying system + member.
+When enabled, OpenClaw uses the member identity for allowlists and labels the
+sender as `Member (PK:System)` to avoid accidental Discord pings.
+
+```json5
+{
+  channels: {
+    discord: {
+      pluralkit: {
+        enabled: true,
+        token: "pk_live_...", // optional; required for private systems
+      },
+    },
+  },
+}
+```
+
+Allowlist notes (PK-enabled):
+
+- Use `pk:<memberId>` in `dm.allowFrom`, `guilds.<id>.users`, or per-channel `users`.
+- Member display names are also matched by name/slug.
+- Lookups use the **original** Discord message ID (the pre-proxy message), so
+  the PK API only resolves it within its 30-minute window.
+- If PK lookups fail (e.g., private system without a token), proxied messages
+  are treated as bot messages and are dropped unless `channels.discord.allowBots=true`.
+
+>>>>>>> 58f418592 (fix: Failing tests due to import sorting.)
 ### Tool action defaults
 
 | Action group | Default | Notes |

@@ -23,6 +23,7 @@ export type WebMediaResult = {
 type WebMediaOptions = {
   maxBytes?: number;
   optimizeImages?: boolean;
+  ssrfPolicy?: SsrFPolicy;
 };
 
 const HEIC_MIME_RE = /^image\/hei[cf]$/i;
@@ -110,7 +111,7 @@ async function loadWebMediaInternal(
   mediaUrl: string,
   options: WebMediaOptions = {},
 ): Promise<WebMediaResult> {
-  const { maxBytes, optimizeImages = true } = options;
+  const { maxBytes, optimizeImages = true, ssrfPolicy } = options;
   // Use fileURLToPath for proper handling of file:// URLs (handles file://localhost/path, etc.)
   if (mediaUrl.startsWith("file://")) {
     try {
@@ -225,20 +226,27 @@ async function loadWebMediaInternal(
   });
 }
 
-export async function loadWebMedia(mediaUrl: string, maxBytes?: number): Promise<WebMediaResult> {
+export async function loadWebMedia(
+  mediaUrl: string,
+  maxBytes?: number,
+  options?: { ssrfPolicy?: SsrFPolicy },
+): Promise<WebMediaResult> {
   return await loadWebMediaInternal(mediaUrl, {
     maxBytes,
     optimizeImages: true,
+    ssrfPolicy: options?.ssrfPolicy,
   });
 }
 
 export async function loadWebMediaRaw(
   mediaUrl: string,
   maxBytes?: number,
+  options?: { ssrfPolicy?: SsrFPolicy },
 ): Promise<WebMediaResult> {
   return await loadWebMediaInternal(mediaUrl, {
     maxBytes,
     optimizeImages: false,
+    ssrfPolicy: options?.ssrfPolicy,
   });
 }
 

@@ -135,12 +135,12 @@ LOGINCTL
     "npm-to-git" \
     "$npm_bin daemon install --force" \
     "$npm_entry" \
-    "node $git_entry doctor --repair --force" \
+    "node $git_cli doctor --repair --force" \
     "$git_entry"
 
   run_flow \
     "git-to-npm" \
-    "node $git_entry daemon install --force" \
+    "node $git_cli daemon install --force" \
     "$git_entry" \
     "$npm_bin doctor --repair --force" \
     "$npm_entry"

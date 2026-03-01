@@ -9,7 +9,7 @@ import { findTailscaleBinary } from "../infra/tailscale.js";
 import { note } from "../terminal/note.js";
 import { buildGatewayAuthConfig } from "./configure.gateway-auth.js";
 import { confirm, select, text } from "./configure.shared.js";
-import { guardCancel, randomToken } from "./onboard-helpers.js";
+import { guardCancel, normalizeGatewayTokenInput, randomToken } from "./onboard-helpers.js";
 
 type GatewayAuthChoice = "token" | "password";
 

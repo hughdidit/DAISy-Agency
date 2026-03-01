@@ -48,6 +48,30 @@ type SettingsHost = {
   pendingGatewayUrl?: string | null;
 };
 
+function isTopLevelWindow(): boolean {
+  try {
+    return window.top === window.self;
+  } catch {
+    return false;
+  }
+}
+
+function normalizeGatewayUrl(raw: string): string | null {
+  const trimmed = raw.trim();
+  if (!trimmed) {
+    return null;
+  }
+  try {
+    const parsed = new URL(trimmed);
+    if (parsed.protocol !== "ws:" && parsed.protocol !== "wss:") {
+      return null;
+    }
+    return trimmed;
+  } catch {
+    return null;
+  }
+}
+
 export function applySettings(host: SettingsHost, next: UiSettings) {
   const normalized = {
     ...next,
@@ -79,19 +103,18 @@ export function applySettingsFromUrl(host: SettingsHost) {
   let shouldCleanUrl = false;
 
   if (tokenRaw != null) {
-    const token = tokenRaw.trim();
-    if (token && token !== host.settings.token) {
-      applySettings(host, { ...host.settings, token });
-    }
     params.delete("token");
     shouldCleanUrl = true;
   }
 
   if (passwordRaw != null) {
+<<<<<<< HEAD
     const password = passwordRaw.trim();
     if (password) {
       (host as { password: string }).password = password;
     }
+=======
+>>>>>>> 717129f7f (fix: silence unused hook token url param (#9436))
     params.delete("password");
     shouldCleanUrl = true;
   }
@@ -109,8 +132,8 @@ export function applySettingsFromUrl(host: SettingsHost) {
   }
 
   if (gatewayUrlRaw != null) {
-    const gatewayUrl = gatewayUrlRaw.trim();
-    if (gatewayUrl && gatewayUrl !== host.settings.gatewayUrl) {
+    const gatewayUrl = normalizeGatewayUrl(gatewayUrlRaw);
+    if (gatewayUrl && gatewayUrl !== host.settings.gatewayUrl && isTopLevelWindow()) {
       host.pendingGatewayUrl = gatewayUrl;
     }
     params.delete("gatewayUrl");

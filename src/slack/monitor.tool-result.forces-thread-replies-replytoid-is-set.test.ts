@@ -11,6 +11,8 @@ import {
   waitForSlackEvent,
 } from "./monitor.test-helpers.js";
 
+const { monitorSlackProvider } = await import("./monitor.js");
+
 const slackTestState = getSlackTestState();
 const { sendMock, replyMock, reactMock, upsertPairingRequestMock } = slackTestState;
 

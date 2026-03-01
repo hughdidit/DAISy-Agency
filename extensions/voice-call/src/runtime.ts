@@ -38,9 +38,13 @@ function resolveProvider(config: VoiceCallConfig, logger?: Logger): VoiceCallPro
   const allowNgrokFreeTierLoopbackBypass =
     config.tunnel?.provider === "ngrok" &&
     isLoopbackBind(config.serve?.bind) &&
+<<<<<<< HEAD
     (config.tunnel?.allowNgrokFreeTierLoopbackBypass ||
       config.tunnel?.allowNgrokFreeTier ||
       false);
+=======
+    (config.tunnel?.allowNgrokFreeTierLoopbackBypass ?? false);
+>>>>>>> a749db982 (fix: harden voice-call webhook verification)
 
   switch (config.provider) {
     case "telnyx":
@@ -59,9 +63,14 @@ function resolveProvider(config: VoiceCallConfig, logger?: Logger): VoiceCallPro
           allowNgrokFreeTierLoopbackBypass,
           publicUrl: config.publicUrl,
           skipVerification: config.skipSignatureVerification,
+<<<<<<< HEAD
           streamPath: config.streaming?.enabled
             ? config.streaming.streamPath
             : undefined,
+=======
+          streamPath: config.streaming?.enabled ? config.streaming.streamPath : undefined,
+          webhookSecurity: config.webhookSecurity,
+>>>>>>> a749db982 (fix: harden voice-call webhook verification)
         },
         logger,
       );
@@ -75,6 +84,7 @@ function resolveProvider(config: VoiceCallConfig, logger?: Logger): VoiceCallPro
           publicUrl: config.publicUrl,
           skipVerification: config.skipSignatureVerification,
           ringTimeoutSec: Math.max(1, Math.floor(config.ringTimeoutMs / 1000)),
+          webhookSecurity: config.webhookSecurity,
         },
         logger,
       );

@@ -1,3 +1,6 @@
+import { execFile } from "node:child_process";
+import fs from "node:fs/promises";
+import os from "node:os";
 import path from "node:path";
 <<<<<<< HEAD
 
@@ -30,6 +33,8 @@ import type { DoctorOptions, DoctorPrompter } from "./doctor-prompter.js";
 import { buildGatewayInstallPlan } from "./daemon-install-helpers.js";
 import { DEFAULT_GATEWAY_DAEMON_RUNTIME, type GatewayDaemonRuntime } from "./daemon-runtime.js";
 >>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
+
+const execFileAsync = promisify(execFile);
 
 function detectGatewayRuntime(programArguments: string[] | undefined): GatewayDaemonRuntime {
   const first = programArguments?.[0];
@@ -165,7 +170,11 @@ export async function maybeRepairGatewayServiceConfig(
   }
 }
 
-export async function maybeScanExtraGatewayServices(options: DoctorOptions) {
+export async function maybeScanExtraGatewayServices(
+  options: DoctorOptions,
+  runtime: RuntimeEnv,
+  prompter: DoctorPrompter,
+) {
   const extraServices = await findExtraGatewayServices(process.env, {
     deep: options.deep,
   });
@@ -175,6 +184,47 @@ export async function maybeScanExtraGatewayServices(options: DoctorOptions) {
     extraServices.map((svc) => `- ${svc.label} (${svc.scope}, ${svc.detail})`).join("\n"),
     "Other gateway-like services detected",
   );
+
+  const legacyServices = extraServices.filter((svc) => svc.legacy === true);
+  if (legacyServices.length > 0) {
+    const shouldRemove = await prompter.confirmSkipInNonInteractive({
+      message: "Remove legacy gateway services (clawdbot/moltbot) now?",
+      initialValue: true,
+    });
+    if (shouldRemove) {
+      const removed: string[] = [];
+      const failed: string[] = [];
+      for (const svc of legacyServices) {
+        if (svc.platform !== "darwin") {
+          failed.push(`${svc.label} (${svc.platform})`);
+          continue;
+        }
+        if (svc.scope !== "user") {
+          failed.push(`${svc.label} (${svc.scope})`);
+          continue;
+        }
+        const plistPath = extractDetailPath(svc.detail, "plist:");
+        if (!plistPath) {
+          failed.push(`${svc.label} (missing plist path)`);
+          continue;
+        }
+        const dest = await cleanupLegacyLaunchdService({
+          label: svc.label,
+          plistPath,
+        });
+        removed.push(dest ? `${svc.label} -> ${dest}` : svc.label);
+      }
+      if (removed.length > 0) {
+        note(removed.map((line) => `- ${line}`).join("\n"), "Legacy gateway removed");
+      }
+      if (failed.length > 0) {
+        note(failed.map((line) => `- ${line}`).join("\n"), "Legacy gateway cleanup skipped");
+      }
+      if (removed.length > 0) {
+        runtime.log("Legacy gateway services removed. Installing OpenClaw gateway next.");
+      }
+    }
+  }
 
   const cleanupHints = renderGatewayServiceCleanupHints();
   if (cleanupHints.length > 0) {

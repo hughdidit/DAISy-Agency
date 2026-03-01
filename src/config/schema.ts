@@ -200,6 +200,11 @@ const FIELD_LABELS: Record<string, string> = {
   "tools.web.fetch.maxRedirects": "Web Fetch Max Redirects",
   "tools.web.fetch.userAgent": "Web Fetch User-Agent",
   "gateway.controlUi.basePath": "Control UI Base Path",
+<<<<<<< HEAD
+=======
+  "gateway.controlUi.root": "Control UI Assets Root",
+  "gateway.controlUi.allowedOrigins": "Control UI Allowed Origins",
+>>>>>>> 66d8117d4 (fix: harden control ui framing + ws origin)
   "gateway.controlUi.allowInsecureAuth": "Allow Insecure Control UI Auth",
   "gateway.controlUi.dangerouslyDisableDeviceAuth": "Dangerously Disable Control UI Device Auth",
   "gateway.http.endpoints.chatCompletions.enabled": "OpenAI Chat Completions Endpoint",

@@ -1,4 +1,5 @@
 import type { AgentMessage } from "@mariozechner/pi-agent-core";
+import type { TextContent } from "@mariozechner/pi-ai";
 import type { SessionManager } from "@mariozechner/pi-coding-agent";
 import { emitSessionTranscriptUpdate } from "../sessions/transcript-events.js";
 import { makeMissingToolResult } from "./session-transcript-repair.js";
@@ -89,9 +90,20 @@ export function installSessionToolResultGuard(
     if (role === "toolResult") {
       const id = extractToolResultId(message as Extract<AgentMessage, { role: "toolResult" }>);
       const toolName = id ? pending.get(id) : undefined;
+<<<<<<< HEAD
       if (id) pending.delete(id);
       return originalAppend(
         persistToolResult(message, {
+=======
+      if (id) {
+        pending.delete(id);
+      }
+      // Apply hard size cap before persistence to prevent oversized tool results
+      // from consuming the entire context window on subsequent LLM calls.
+      const capped = capToolResultSize(nextMessage);
+      return originalAppend(
+        persistToolResult(capped, {
+>>>>>>> 0deb8b0da (fix: recover from context overflow caused by oversized tool results (#11579))
           toolCallId: id ?? undefined,
           toolName,
           isSynthetic: false,

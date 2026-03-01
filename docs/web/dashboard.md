@@ -40,6 +40,7 @@ Prefer localhost, Tailscale Serve, or an SSH tunnel.
 
 ## Fast path (recommended)
 
+<<<<<<< HEAD
 - After onboarding, the CLI now auto-opens the dashboard with your token and prints the same tokenized link.
 - Re-open anytime: `openclaw dashboard` (copies link, opens browser if possible, shows SSH hint if headless).
 - The token stays local (query param only); the UI strips it after first load and saves it in localStorage.

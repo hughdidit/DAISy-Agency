@@ -21,9 +21,15 @@ export const DEFAULT_CRON_FORM: CronFormState = {
   everyUnit: "minutes",
   cronExpr: "0 7 * * *",
   cronTz: "",
+<<<<<<< HEAD
   sessionTarget: "main",
   wakeMode: "next-heartbeat",
   payloadKind: "systemEvent",
+=======
+  sessionTarget: "isolated",
+  wakeMode: "now",
+  payloadKind: "agentTurn",
+>>>>>>> d90cac990 (fix: cron scheduler reliability, store hardening, and UX improvements (#10776))
   payloadText: "",
   deliver: false,
   channel: "last",

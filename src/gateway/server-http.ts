@@ -58,6 +58,16 @@ function sendJson(res: ServerResponse, status: number, body: unknown) {
   res.end(JSON.stringify(body));
 }
 
+function isCanvasPath(pathname: string): boolean {
+  return (
+    pathname === A2UI_PATH ||
+    pathname.startsWith(`${A2UI_PATH}/`) ||
+    pathname === CANVAS_HOST_PATH ||
+    pathname.startsWith(`${CANVAS_HOST_PATH}/`) ||
+    pathname === CANVAS_WS_PATH
+  );
+}
+
 export type HooksRequestHandler = (req: IncomingMessage, res: ServerResponse) => Promise<boolean>;
 
 function safeTokenEqual(a: string, b: string): boolean {
@@ -95,6 +105,7 @@ export function createHooksRequestHandler(
       res.end("Unauthorized");
       return true;
     }
+<<<<<<< HEAD
     if (fromQuery) {
       logHooks.warn(
         "Hook token provided via query parameter is deprecated for security reasons. " +
@@ -102,6 +113,8 @@ export function createHooksRequestHandler(
           "Use Authorization: Bearer <token> or X-OpenClaw-Token header instead.",
       );
     }
+=======
+>>>>>>> 717129f7f (fix: silence unused hook token url param (#9436))
 
     if (req.method !== "POST") {
       res.statusCode = 405;
@@ -280,8 +293,31 @@ export function createGatewayHttpServer(opts: {
           return;
       }
       if (canvasHost) {
+<<<<<<< HEAD
         if (await handleA2uiHttpRequest(req, res)) return;
         if (await canvasHost.handleHttpRequest(req, res)) return;
+=======
+        const url = new URL(req.url ?? "/", `http://${req.headers.host ?? "localhost"}`);
+        if (isCanvasPath(url.pathname)) {
+          const token = getBearerToken(req);
+          const authResult = await authorizeGatewayConnect({
+            auth: resolvedAuth,
+            connectAuth: token ? { token, password: token } : null,
+            req,
+            trustedProxies,
+          });
+          if (!authResult.ok) {
+            sendUnauthorized(res);
+            return;
+          }
+        }
+        if (await handleA2uiHttpRequest(req, res)) {
+          return;
+        }
+        if (await canvasHost.handleHttpRequest(req, res)) {
+          return;
+        }
+>>>>>>> 47538bca4 (fix: Gateway canvas host bypasses auth and serves files unauthenticated)
       }
       if (controlUiEnabled) {
         if (
@@ -321,12 +357,47 @@ export function attachGatewayUpgradeHandler(opts: {
   httpServer: HttpServer;
   wss: WebSocketServer;
   canvasHost: CanvasHostHandler | null;
+  resolvedAuth: import("./auth.js").ResolvedGatewayAuth;
 }) {
-  const { httpServer, wss, canvasHost } = opts;
+  const { httpServer, wss, canvasHost, resolvedAuth } = opts;
   httpServer.on("upgrade", (req, socket, head) => {
+<<<<<<< HEAD
     if (canvasHost?.handleUpgrade(req, socket, head)) return;
     wss.handleUpgrade(req, socket, head, (ws) => {
       wss.emit("connection", ws, req);
+=======
+    void (async () => {
+      if (canvasHost) {
+        const url = new URL(req.url ?? "/", `http://${req.headers.host ?? "localhost"}`);
+        if (url.pathname === CANVAS_WS_PATH) {
+          const configSnapshot = loadConfig();
+          const token = getBearerToken(req);
+          const authResult = await authorizeGatewayConnect({
+            auth: resolvedAuth,
+            connectAuth: token ? { token, password: token } : null,
+            req,
+            trustedProxies: configSnapshot.gateway?.trustedProxies ?? [],
+          });
+          if (!authResult.ok) {
+            socket.write("HTTP/1.1 401 Unauthorized\r\nConnection: close\r\n\r\n");
+            socket.destroy();
+            return;
+          }
+        }
+      }
+      if (canvasHost?.handleUpgrade(req, socket, head)) {
+        return;
+      }
+      wss.handleUpgrade(req, socket, head, (ws) => {
+        wss.emit("connection", ws, req);
+      });
+    })().catch(() => {
+      try {
+        socket.destroy();
+      } catch {
+        // ignore
+      }
+>>>>>>> 47538bca4 (fix: Gateway canvas host bypasses auth and serves files unauthenticated)
     });
   });
 }

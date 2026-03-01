@@ -16,7 +16,7 @@ const compiler = "tsdown";
 >>>>>>> a03d852d6 (chore: Migrate to tsdown, speed up JS bundling by ~10x (thanks @hyf0).)
 
 const distRoot = path.join(cwd, "dist");
-const distEntry = path.join(distRoot, "entry.js");
+const distEntry = path.join(distRoot, "entry.mjs");
 const buildStampPath = path.join(distRoot, ".buildstamp");
 const srcRoot = path.join(cwd, "src");
 const configFiles = [path.join(cwd, "tsconfig.json"), path.join(cwd, "package.json")];

@@ -112,3 +112,18 @@ describe("resolveControlUiLinks", () => {
     expect(links.wsUrl).toBe("ws://127.0.0.1:18789");
   });
 });
+
+describe("normalizeGatewayTokenInput", () => {
+  it("returns empty string for undefined or null", () => {
+    expect(normalizeGatewayTokenInput(undefined)).toBe("");
+    expect(normalizeGatewayTokenInput(null)).toBe("");
+  });
+
+  it("trims string input", () => {
+    expect(normalizeGatewayTokenInput("  token  ")).toBe("token");
+  });
+
+  it("returns empty string for non-string input", () => {
+    expect(normalizeGatewayTokenInput(123)).toBe("");
+  });
+});

@@ -99,10 +99,18 @@ const _readSessionMessages = async (sessionFile: string) => {
 describe("createSystemPromptOverride", () => {
   it("returns the override prompt regardless of default prompt", () => {
     const override = createSystemPromptOverride("OVERRIDE");
+<<<<<<< HEAD
     expect(override("DEFAULT")).toBe("OVERRIDE");
   });
   it("returns an empty string for blank overrides", () => {
     const override = createSystemPromptOverride("  \n  ");
     expect(override("DEFAULT")).toBe("");
+=======
+    expect(override()).toBe("OVERRIDE");
+  });
+  it("returns an empty string for blank overrides", () => {
+    const override = createSystemPromptOverride("  \n  ");
+    expect(override()).toBe("");
+>>>>>>> 9ae1b732e (fix: align tool definition adapter)
   });
 });

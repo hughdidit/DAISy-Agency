@@ -12,8 +12,27 @@ import { theme } from "../terminal/theme.js";
 import { shortenHomePath } from "../utils.js";
 import { formatCliCommand } from "./command-format.js";
 
+<<<<<<< HEAD
 function bundledExtensionRootDir() {
   const here = path.dirname(fileURLToPath(import.meta.url));
+=======
+export function resolveBundledExtensionRootDir(
+  here = path.dirname(fileURLToPath(import.meta.url)),
+) {
+  let current = here;
+  while (true) {
+    const candidate = path.join(current, "assets", "chrome-extension");
+    if (hasManifest(candidate)) {
+      return candidate;
+    }
+    const parent = path.dirname(current);
+    if (parent === current) {
+      break;
+    }
+    current = parent;
+  }
+
+>>>>>>> 1ee1522da (fix: resolve bundled chrome extension assets (#8914) (thanks @kelvinCB))
   return path.resolve(here, "../../assets/chrome-extension");
 }
 
@@ -29,7 +48,7 @@ export async function installChromeExtension(opts?: {
   stateDir?: string;
   sourceDir?: string;
 }): Promise<{ path: string }> {
-  const src = opts?.sourceDir ?? bundledExtensionRootDir();
+  const src = opts?.sourceDir ?? resolveBundledExtensionRootDir();
   if (!hasManifest(src)) {
     throw new Error("Bundled Chrome extension is missing. Reinstall OpenClaw and try again.");
   }

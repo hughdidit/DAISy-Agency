@@ -21,6 +21,22 @@ async function makeStorePath() {
   };
 }
 
+async function waitForFirstJob(
+  cron: CronService,
+  predicate: (job: CronJob | undefined) => boolean,
+) {
+  let latest: CronJob | undefined;
+  for (let i = 0; i < 30; i++) {
+    const jobs = await cron.list({ includeDisabled: true });
+    latest = jobs[0];
+    if (predicate(latest)) {
+      return latest;
+    }
+    await vi.runOnlyPendingTimersAsync();
+  }
+  return latest;
+}
+
 describe("CronService", () => {
   beforeEach(() => {
     vi.useFakeTimers();
@@ -66,9 +82,9 @@ describe("CronService", () => {
     expect(enqueueSystemEvent).not.toHaveBeenCalled();
     expect(requestHeartbeatNow).not.toHaveBeenCalled();
 
-    const jobs = await cron.list({ includeDisabled: true });
-    expect(jobs[0]?.state.lastStatus).toBe("skipped");
-    expect(jobs[0]?.state.lastError).toMatch(/non-empty/i);
+    const job = await waitForFirstJob(cron, (current) => current?.state.lastStatus === "skipped");
+    expect(job?.state.lastStatus).toBe("skipped");
+    expect(job?.state.lastError).toMatch(/non-empty/i);
 
     cron.stop();
     await store.cleanup();

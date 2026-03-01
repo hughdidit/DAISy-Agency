@@ -116,6 +116,12 @@ Access `https://<vm-name>.exe.xyz/?token=YOUR-TOKEN-FROM-TERMINAL` (see the Cont
 devices with `openclaw devices list` and `openclaw devices approve <requestId>`. When in doubt,
 >>>>>>> d54605bd8 (docs: improve exe.dev setup instructions (#4675))
 use Shelley from your browser!
+=======
+Access `https://<vm-name>.exe.xyz/` (see the Control UI output from onboarding). If it prompts for auth, paste the
+token from `gateway.auth.token` on the VM (retrieve with `openclaw config get gateway.auth.token`, or generate one
+with `openclaw doctor --generate-gateway-token`). Approve devices with `openclaw devices list` and
+`openclaw devices approve <requestId>`. When in doubt, use Shelley from your browser!
+>>>>>>> 717129f7f (fix: silence unused hook token url param (#9436)):docs/install/exe-dev.md
 
 ## Remote Access
 

@@ -187,6 +187,7 @@ describe("openclaw-tools: subagents", () => {
       runId: "run-1",
     });
 
+<<<<<<< HEAD:src/agents/clawdbot-tools.subagents.sessions-spawn-normalizes-allowlisted-agent-ids.test.ts
     if (!childRunId) throw new Error("missing child runId");
     emitAgentEvent({
       runId: childRunId,
@@ -201,6 +202,27 @@ describe("openclaw-tools: subagents", () => {
     await new Promise((resolve) => setTimeout(resolve, 0));
     await new Promise((resolve) => setTimeout(resolve, 0));
     await new Promise((resolve) => setTimeout(resolve, 0));
+=======
+    if (!childRunId) {
+      throw new Error("missing child runId");
+    }
+    vi.useFakeTimers();
+    try {
+      emitAgentEvent({
+        runId: childRunId,
+        stream: "lifecycle",
+        data: {
+          phase: "end",
+          startedAt: 1234,
+          endedAt: 2345,
+        },
+      });
+
+      await vi.runAllTimersAsync();
+    } finally {
+      vi.useRealTimers();
+    }
+>>>>>>> 191da1feb (fix: context overflow compaction and subagent announce improvements (#11664) (thanks @tyler6204)):src/agents/openclaw-tools.subagents.sessions-spawn-normalizes-allowlisted-agent-ids.test.ts
 
     const childWait = waitCalls.find((call) => call.runId === childRunId);
     expect(childWait?.timeoutMs).toBe(1000);
@@ -289,6 +311,7 @@ describe("openclaw-tools: subagents", () => {
       runId: "run-1",
     });
 
+<<<<<<< HEAD:src/agents/clawdbot-tools.subagents.sessions-spawn-normalizes-allowlisted-agent-ids.test.ts
     if (!childRunId) throw new Error("missing child runId");
     emitAgentEvent({
       runId: childRunId,
@@ -303,6 +326,27 @@ describe("openclaw-tools: subagents", () => {
     await new Promise((resolve) => setTimeout(resolve, 0));
     await new Promise((resolve) => setTimeout(resolve, 0));
     await new Promise((resolve) => setTimeout(resolve, 0));
+=======
+    if (!childRunId) {
+      throw new Error("missing child runId");
+    }
+    vi.useFakeTimers();
+    try {
+      emitAgentEvent({
+        runId: childRunId,
+        stream: "lifecycle",
+        data: {
+          phase: "end",
+          startedAt: 1000,
+          endedAt: 2000,
+        },
+      });
+
+      await vi.runAllTimersAsync();
+    } finally {
+      vi.useRealTimers();
+    }
+>>>>>>> 191da1feb (fix: context overflow compaction and subagent announce improvements (#11664) (thanks @tyler6204)):src/agents/openclaw-tools.subagents.sessions-spawn-normalizes-allowlisted-agent-ids.test.ts
 
     const agentCalls = calls.filter((call) => call.method === "agent");
     expect(agentCalls).toHaveLength(2);

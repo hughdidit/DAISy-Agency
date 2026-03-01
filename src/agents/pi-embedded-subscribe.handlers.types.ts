@@ -8,6 +8,7 @@ import type {
   BlockReplyChunking,
   SubscribeEmbeddedPiSessionParams,
 } from "./pi-embedded-subscribe.types.js";
+import type { NormalizedUsage } from "./usage.js";
 
 export type EmbeddedSubscribeLogger = {
   debug: (message: string) => void;
@@ -36,6 +37,7 @@ export type EmbeddedPiSubscribeState = {
   deltaBuffer: string;
   blockBuffer: string;
   blockState: { thinking: boolean; final: boolean; inlineCode: InlineCodeState };
+  partialBlockState: { thinking: boolean; final: boolean; inlineCode: InlineCodeState };
   lastStreamedAssistant?: string;
 <<<<<<< HEAD
 =======
@@ -86,6 +88,10 @@ export type EmbeddedPiSubscribeContext = {
     text: string,
     options?: { final?: boolean },
   ) => ReplyDirectiveParseResult | null;
+  consumePartialReplyDirectives: (
+    text: string,
+    options?: { final?: boolean },
+  ) => ReplyDirectiveParseResult | null;
   resetAssistantMessageState: (nextAssistantTextBaseline: number) => void;
   resetForCompactionRetry: () => void;
   finalizeAssistantTexts: (args: {
@@ -98,6 +104,10 @@ export type EmbeddedPiSubscribeContext = {
   noteCompactionRetry: () => void;
   resolveCompactionRetry: () => void;
   maybeResolveCompactionWait: () => void;
+  recordAssistantUsage: (usage: unknown) => void;
+  incrementCompactionCount: () => void;
+  getUsageTotals: () => NormalizedUsage | undefined;
+  getCompactionCount: () => number;
 };
 
 export type EmbeddedPiSubscribeEvent =
