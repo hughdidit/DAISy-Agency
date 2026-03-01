@@ -10,6 +10,12 @@ export type CronRetryConfig = {
   retryOn?: CronRetryOn[];
 };
 
+export type CronFailureAlertConfig = {
+  enabled?: boolean;
+  after?: number;
+  cooldownMs?: number;
+};
+
 export type CronConfig = {
   enabled?: boolean;
   store?: string;
@@ -48,5 +54,9 @@ export type CronConfig = {
     maxBytes?: number | string;
     keepLines?: number;
   };
+<<<<<<< HEAD
 >>>>>>> eff3c5c70 (Session/Cron maintenance hardening and cleanup UX (#24753))
+=======
+  failureAlert?: CronFailureAlertConfig;
+>>>>>>> 4637b90c0 (feat(cron): configurable failure alerts for repeated job errors (openclaw#24789) thanks @0xbrak)
 };

@@ -4,6 +4,7 @@ import type {
   CronJob,
   CronJobCreate,
   CronJobPatch,
+  CronMessageChannel,
   CronRunOutcome,
   CronRunStatus,
   CronRunTelemetry,
@@ -139,7 +140,16 @@ export type CronServiceDeps = {
     } & CronRunOutcome &
       CronRunTelemetry
   >;
+<<<<<<< HEAD
 >>>>>>> 80c7d04ad (refactor(cron): reuse shared run outcome telemetry types)
+=======
+  sendCronFailureAlert?: (params: {
+    job: CronJob;
+    text: string;
+    channel: CronMessageChannel;
+    to?: string;
+  }) => Promise<void>;
+>>>>>>> 4637b90c0 (feat(cron): configurable failure alerts for repeated job errors (openclaw#24789) thanks @0xbrak)
   onEvent?: (evt: CronEvent) => void;
 };
 
