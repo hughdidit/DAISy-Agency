@@ -74,7 +74,18 @@ COPY . .
 =======
 USER node
 COPY --chown=node:node . .
+<<<<<<< HEAD
 >>>>>>> 6a2778720 (Docker: restore pre-change ownership steps)
+=======
+# Normalize copied plugin/agent paths so plugin safety checks do not reject
+# world-writable directories inherited from source file modes.
+RUN for dir in /app/extensions /app/.agent /app/.agents; do \
+      if [ -d "$dir" ]; then \
+        find "$dir" -type d -exec chmod 755 {} +; \
+        find "$dir" -type f -exec chmod 644 {} +; \
+      fi; \
+    done
+>>>>>>> 577f2fa54 (fix(docker): harden /app/extensions permissions to 755 (#30191))
 RUN pnpm build
 <<<<<<< HEAD
 <<<<<<< HEAD
