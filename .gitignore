@@ -112,4 +112,7 @@ dist/protocol.schema.json
 
 # Synthing
 **/.stfolder/
+<<<<<<< HEAD
 >>>>>>> ad666c5f3 (Fixed Discord channel name (#24281))
+=======
+>>>>>>> 59fd394bf (docs(changelog): add #29521 voice tts entry (thanks @gregmousseau))

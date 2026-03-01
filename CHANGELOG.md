@@ -29,6 +29,7 @@ Docs: https://docs.openclaw.ai
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ## 2026.1.31
 =======
 =======
@@ -73,6 +74,8 @@ Docs: https://docs.openclaw.ai
 - Android/Voice: fix streaming TTS chunks queued correctly when WebSocket is still connecting — moved null-webSocket guard inside the send block so initial chunks are queued rather than causing a false diverge restart.
 
 >>>>>>> 4748ba491 (fix(android): chat history refresh and mic capture improvements for voice)
+=======
+>>>>>>> 59fd394bf (docs(changelog): add #29521 voice tts entry (thanks @gregmousseau))
 ## 2026.2.27
 
 ### Changes
@@ -95,11 +98,15 @@ Docs: https://docs.openclaw.ai
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 =======
 =======
 =======
+=======
+- Android/Voice screen TTS: stream assistant speech via ElevenLabs WebSocket in Talk Mode, stop cleanly on speaker mute/barge-in, and ignore stale out-of-order stream events. (#29521) Thanks @gregmousseau.
+>>>>>>> 59fd394bf (docs(changelog): add #29521 voice tts entry (thanks @gregmousseau))
 - Web UI/Cron: include configured agent model defaults/fallbacks in cron model suggestions so scheduled-job model autocomplete reflects configured models. (#29709)
 - Cron/Delivery: disable the agent messaging tool when `delivery.mode` is `"none"` so cron output is not sent to Telegram or other channels. (#21808)
 >>>>>>> f10734760 (fix(ui-cron): include configured model suggestions for scheduled jobs (openclaw#29709) thanks @Sid-Qin)
