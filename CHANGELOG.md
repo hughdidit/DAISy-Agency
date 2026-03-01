@@ -218,8 +218,15 @@ Docs: https://docs.openclaw.ai
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
+=======
+- Docs/Slack manifest scopes: add missing DM/group-DM bot scopes (`im:read`, `im:write`, `mpim:read`, `mpim:write`) to the Slack app manifest example so DM setup guidance is complete. (#29999) Thanks @JcMinarro.
+- Slack/Bot attachment-only messages: when `allowBots: true`, bot messages with empty `text` now include non-forwarded attachment `text`/`fallback` content so webhook alerts are not silently dropped. (#27616)
+- Slack/Inbound media auth + HTML guard: keep Slack auth headers on forwarded shared attachment image downloads, and reject login/error HTML payloads (while allowing expected `.html` uploads) when resolving Slack media so auth failures do not silently pass as files. (#18642)
+- Slack/Security ingress mismatch guard: drop slash-command and interaction payloads when app/team identifiers do not match the active Slack account context (including nested `team.id` interaction payloads), preventing cross-app or cross-workspace payload injection into system-event handling. (#29091) Thanks @Solvely-Colin.
+>>>>>>> b9e07ad7b (docs(slack): add missing DM scopes to manifest (openclaw#29999) thanks @JcMinarro)
 - Cron/Failure alerts: add configurable repeated-failure alerting with per-job overrides and Web UI cron editor support (`inherit|disabled|custom` with threshold/cooldown/channel/target fields). (#24789) Thanks xbrak.
 - Cron/Isolated model defaults: resolve isolated cron `subagents.model` (including object-form `primary`) through allowlist-aware model selection so isolated cron runs honor subagent model defaults unless explicitly overridden by job payload model. (#11474) Thanks @AnonO6.
 - Cron/Isolated sessions list: persist the intended pre-run model/provider on isolated cron session entries so `sessions_list` reflects payload/session model overrides even when runs fail before post-run telemetry persistence. (#21279) Thanks @altaywtf.
