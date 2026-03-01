@@ -26,7 +26,7 @@ vi.mock("../../auto-reply/reply/reply-dispatcher.js", () => ({
   })),
 }));
 
-const { processDiscordMessage } = await import("./message-handler.process.js");
+import { processDiscordMessage } from "./message-handler.process.js";
 
 async function createBaseContext(overrides: Record<string, unknown> = {}) {
   const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-discord-"));
@@ -102,7 +102,6 @@ describe("processDiscordMessage ack reactions", () => {
     const ctx = await createBaseContext({
       shouldRequireMention: false,
       effectiveWasMentioned: false,
-      sender: { label: "user" },
     });
 
     await processDiscordMessage(ctx as any);
@@ -114,7 +113,6 @@ describe("processDiscordMessage ack reactions", () => {
     const ctx = await createBaseContext({
       shouldRequireMention: true,
       effectiveWasMentioned: true,
-      sender: { label: "user" },
     });
 
     await processDiscordMessage(ctx as any);

@@ -125,7 +125,7 @@ export async function scanStatus(
 
       progress.setLabel("Querying channel status…");
       const channelsStatus = gatewayReachable
-        ? await callGateway({
+        ? await callGateway<Record<string, unknown>>({
             method: "channels.status",
             params: {
               probe: false,

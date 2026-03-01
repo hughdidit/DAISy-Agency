@@ -34,7 +34,7 @@ export async function checkGatewayHealth(params: {
 
   if (healthOk) {
     try {
-      const status = await callGateway({
+      const status = await callGateway<Record<string, unknown>>({
         method: "channels.status",
         params: { probe: true, timeoutMs: 5000 },
         timeoutMs: 6000,

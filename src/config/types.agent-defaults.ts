@@ -122,7 +122,7 @@ export type AgentDefaultsConfig = {
    * Include elapsed time in message envelopes ("on" | "off", default: "on").
    */
   envelopeElapsed?: "on" | "off";
-  /** Optional context window cap (used for runtime estimates + status %). */
+  /** Optional display-only context window override (used for % in status UIs). */
   contextTokens?: number;
   /** Optional CLI backends for text-only fallback (claude-cli, etc.). */
   cliBackends?: Record<string, CliBackendConfig>;

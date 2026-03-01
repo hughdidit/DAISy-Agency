@@ -86,17 +86,11 @@ export function registerNodesStatusCommands(nodes: Command) {
         await runNodesCommand("status", async () => {
           const connectedOnly = Boolean(opts.connected);
           const sinceMs = parseSinceMs(opts.lastConnected, "Invalid --last-connected");
-<<<<<<< HEAD
           const result = (await callGatewayCli("node.list", opts, {})) as unknown;
           const obj =
             typeof result === "object" && result !== null
               ? (result as Record<string, unknown>)
               : {};
-=======
-          const result = await callGatewayCli("node.list", opts, {});
-          const obj: Record<string, unknown> =
-            typeof result === "object" && result !== null ? result : {};
->>>>>>> a42e1c82d (fix: restore tsc build and plugin install tests)
           const { ok, warn, muted } = getNodesTheme();
           const tableWidth = Math.max(60, (process.stdout.columns ?? 120) - 1);
           const now = Date.now();
@@ -205,8 +199,10 @@ export function registerNodesStatusCommands(nodes: Command) {
             return;
           }
 
-          const obj: Record<string, unknown> =
-            typeof result === "object" && result !== null ? result : {};
+          const obj =
+            typeof result === "object" && result !== null
+              ? (result as Record<string, unknown>)
+              : {};
           const displayName = typeof obj.displayName === "string" ? obj.displayName : nodeId;
           const connected = Boolean(obj.connected);
           const paired = Boolean(obj.paired);

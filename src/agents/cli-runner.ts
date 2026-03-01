@@ -12,7 +12,6 @@ import { shouldLogVerbose } from "../globals.js";
 import { isTruthyEnvValue } from "../infra/env.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import { runCommandWithTimeout } from "../process/exec.js";
-<<<<<<< HEAD
 import { resolveUserPath } from "../utils.js";
 <<<<<<< HEAD
 import { resolveMoltbotDocsPath } from "./docs-path.js";
@@ -45,7 +44,6 @@ const log = createSubsystemLogger("agent/claude-cli");
 export async function runCliAgent(params: {
   sessionId: string;
   sessionKey?: string;
-  agentId?: string;
   sessionFile: string;
   workspaceDir: string;
   config?: OpenClawConfig;
@@ -62,21 +60,7 @@ export async function runCliAgent(params: {
   images?: ImageContent[];
 }): Promise<EmbeddedPiRunResult> {
   const started = Date.now();
-  const workspaceResolution = resolveRunWorkspaceDir({
-    workspaceDir: params.workspaceDir,
-    sessionKey: params.sessionKey,
-    agentId: params.agentId,
-    config: params.config,
-  });
-  const resolvedWorkspace = workspaceResolution.workspaceDir;
-  const redactedSessionId = redactRunIdentifier(params.sessionId);
-  const redactedSessionKey = redactRunIdentifier(params.sessionKey);
-  const redactedWorkspace = redactRunIdentifier(resolvedWorkspace);
-  if (workspaceResolution.usedFallback) {
-    log.warn(
-      `[workspace-fallback] caller=runCliAgent reason=${workspaceResolution.fallbackReason} run=${params.runId} session=${redactedSessionId} sessionKey=${redactedSessionKey} agent=${workspaceResolution.agentId} workspace=${redactedWorkspace}`,
-    );
-  }
+  const resolvedWorkspace = resolveUserPath(params.workspaceDir);
   const workspaceDir = resolvedWorkspace;
 
   const backendResolved = resolveCliBackendConfig(params.provider, params.config);
@@ -326,7 +310,6 @@ export async function runCliAgent(params: {
 export async function runClaudeCliAgent(params: {
   sessionId: string;
   sessionKey?: string;
-  agentId?: string;
   sessionFile: string;
   workspaceDir: string;
   config?: OpenClawConfig;
@@ -344,7 +327,6 @@ export async function runClaudeCliAgent(params: {
   return runCliAgent({
     sessionId: params.sessionId,
     sessionKey: params.sessionKey,
-    agentId: params.agentId,
     sessionFile: params.sessionFile,
     workspaceDir: params.workspaceDir,
     config: params.config,

@@ -22,7 +22,6 @@ import {
 import { buildInlineKeyboard } from "../send.js";
 import { cacheSticker, getCachedSticker } from "../sticker-cache.js";
 import { resolveTelegramVoiceSend } from "../voice.js";
-<<<<<<< HEAD
 import { buildTelegramThreadParams, resolveTelegramReplyId } from "./helpers.js";
 
 const PARSE_ERR_RE = /can't parse entities|parse entities|find end of the entity/i;
@@ -36,7 +35,7 @@ export async function deliverReplies(params: {
   bot: Bot;
   replyToMode: ReplyToMode;
   textLimit: number;
-  thread?: TelegramThreadSpec | null;
+  messageThreadId?: number;
   tableMode?: MarkdownTableMode;
   chunkMode?: ChunkMode;
   /** Callback invoked before sending a voice message to switch typing indicator. */
@@ -45,11 +44,7 @@ export async function deliverReplies(params: {
   linkPreview?: boolean;
   /** Optional quote text for Telegram reply_parameters. */
   replyQuoteText?: string;
-<<<<<<< HEAD
 }) {
-=======
-}): Promise<{ delivered: boolean }> {
->>>>>>> 718bc3f9c (fix: avoid silent telegram empty replies (#3796) (#3796))
   const {
     replies,
     chatId,
@@ -57,19 +52,12 @@ export async function deliverReplies(params: {
     bot,
     replyToMode,
     textLimit,
-    thread,
+    messageThreadId,
     linkPreview,
     replyQuoteText,
   } = params;
   const chunkMode = params.chunkMode ?? "length";
   let hasReplied = false;
-<<<<<<< HEAD
-=======
-  let hasDelivered = false;
-  const markDelivered = () => {
-    hasDelivered = true;
-  };
->>>>>>> 718bc3f9c (fix: avoid silent telegram empty replies (#3796) (#3796))
   const chunkText = (markdown: string) => {
     const markdownChunks =
       chunkMode === "newline"
@@ -120,13 +108,12 @@ export async function deliverReplies(params: {
           replyToMessageId:
             replyToId && (replyToMode === "all" || !hasReplied) ? replyToId : undefined,
           replyQuoteText,
-          thread,
+          messageThreadId,
           textMode: "html",
           plainText: chunk.text,
           linkPreview,
           replyMarkup: shouldAttachButtons ? replyMarkup : undefined,
         });
-        markDelivered();
         if (replyToId && !hasReplied) {
           hasReplied = true;
         }
@@ -168,8 +155,8 @@ export async function deliverReplies(params: {
         ...(shouldAttachButtonsToMedia ? { reply_markup: replyMarkup } : {}),
         ...buildTelegramSendParams({
           replyToMessageId,
+          messageThreadId,
           replyQuoteText,
-          thread,
         }),
       };
       if (isGif) {
@@ -178,21 +165,18 @@ export async function deliverReplies(params: {
           runtime,
           fn: () => bot.api.sendAnimation(chatId, file, { ...mediaParams }),
         });
-        markDelivered();
       } else if (kind === "image") {
         await withTelegramApiErrorLogging({
           operation: "sendPhoto",
           runtime,
           fn: () => bot.api.sendPhoto(chatId, file, { ...mediaParams }),
         });
-        markDelivered();
       } else if (kind === "video") {
         await withTelegramApiErrorLogging({
           operation: "sendVideo",
           runtime,
           fn: () => bot.api.sendVideo(chatId, file, { ...mediaParams }),
         });
-        markDelivered();
       } else if (kind === "audio") {
         const { useVoice } = resolveTelegramVoiceSend({
           wantsVoice: reply.audioAsVoice === true, // default false (backward compatible)
@@ -211,7 +195,6 @@ export async function deliverReplies(params: {
               shouldLog: (err) => !isVoiceMessagesForbidden(err),
               fn: () => bot.api.sendVoice(chatId, file, { ...mediaParams }),
             });
-            markDelivered();
           } catch (voiceErr) {
             // Fall back to text if voice messages are forbidden in this chat.
             // This happens when the recipient has Telegram Premium privacy settings
@@ -233,12 +216,11 @@ export async function deliverReplies(params: {
                 replyToId,
                 replyToMode,
                 hasReplied,
-                thread,
+                messageThreadId,
                 linkPreview,
                 replyMarkup,
                 replyQuoteText,
               });
-              markDelivered();
               // Skip this media item; continue with next.
               continue;
             }
@@ -251,7 +233,6 @@ export async function deliverReplies(params: {
             runtime,
             fn: () => bot.api.sendAudio(chatId, file, { ...mediaParams }),
           });
-          markDelivered();
         }
       } else {
         await withTelegramApiErrorLogging({
@@ -259,7 +240,6 @@ export async function deliverReplies(params: {
           runtime,
           fn: () => bot.api.sendDocument(chatId, file, { ...mediaParams }),
         });
-        markDelivered();
       }
       if (replyToId && !hasReplied) {
         hasReplied = true;
@@ -274,13 +254,12 @@ export async function deliverReplies(params: {
             replyToId && (replyToMode === "all" || !hasReplied) ? replyToId : undefined;
           await sendTelegramText(bot, chatId, chunk.html, runtime, {
             replyToMessageId: replyToMessageIdFollowup,
-            thread,
+            messageThreadId,
             textMode: "html",
             plainText: chunk.text,
             linkPreview,
             replyMarkup: i === 0 ? replyMarkup : undefined,
           });
-          markDelivered();
           if (replyToId && !hasReplied) {
             hasReplied = true;
           }
@@ -289,11 +268,6 @@ export async function deliverReplies(params: {
       }
     }
   }
-<<<<<<< HEAD
-=======
-
-  return { delivered: hasDelivered };
->>>>>>> 718bc3f9c (fix: avoid silent telegram empty replies (#3796) (#3796))
 }
 
 export async function resolveMedia(
@@ -441,7 +415,7 @@ async function sendTelegramVoiceFallbackText(opts: {
   replyToId?: number;
   replyToMode: ReplyToMode;
   hasReplied: boolean;
-  thread?: TelegramThreadSpec | null;
+  messageThreadId?: number;
   linkPreview?: boolean;
   replyMarkup?: ReturnType<typeof buildInlineKeyboard>;
   replyQuoteText?: string;
@@ -454,7 +428,7 @@ async function sendTelegramVoiceFallbackText(opts: {
       replyToMessageId:
         opts.replyToId && (opts.replyToMode === "all" || !hasReplied) ? opts.replyToId : undefined,
       replyQuoteText: opts.replyQuoteText,
-      thread: opts.thread,
+      messageThreadId: opts.messageThreadId,
       textMode: "html",
       plainText: chunk.text,
       linkPreview: opts.linkPreview,
@@ -469,10 +443,10 @@ async function sendTelegramVoiceFallbackText(opts: {
 
 function buildTelegramSendParams(opts?: {
   replyToMessageId?: number;
-  thread?: TelegramThreadSpec | null;
+  messageThreadId?: number;
   replyQuoteText?: string;
 }): Record<string, unknown> {
-  const threadParams = buildTelegramThreadParams(opts?.thread);
+  const threadParams = buildTelegramThreadParams(opts?.messageThreadId);
   const params: Record<string, unknown> = {};
   const quoteText = opts?.replyQuoteText?.trim();
   if (opts?.replyToMessageId) {
@@ -499,7 +473,7 @@ async function sendTelegramText(
   opts?: {
     replyToMessageId?: number;
     replyQuoteText?: string;
-    thread?: TelegramThreadSpec | null;
+    messageThreadId?: number;
     textMode?: "markdown" | "html";
     plainText?: string;
     linkPreview?: boolean;
@@ -509,7 +483,7 @@ async function sendTelegramText(
   const baseParams = buildTelegramSendParams({
     replyToMessageId: opts?.replyToMessageId,
     replyQuoteText: opts?.replyQuoteText,
-    thread: opts?.thread,
+    messageThreadId: opts?.messageThreadId,
   });
   // Add link_preview_options when link preview is disabled.
   const linkPreviewEnabled = opts?.linkPreview ?? true;

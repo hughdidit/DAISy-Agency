@@ -560,10 +560,10 @@ async function runGatewayModelSuite(params: GatewayModelSuiteParams) {
           // Ensure session exists + override model for this run.
           // Reset between models: avoids cross-provider transcript incompatibilities
           // (notably OpenAI Responses requiring reasoning replay for function_call items).
-          await client.request("sessions.reset", {
+          await client.request<Record<string, unknown>>("sessions.reset", {
             key: sessionKey,
           });
-          await client.request("sessions.patch", {
+          await client.request<Record<string, unknown>>("sessions.patch", {
             key: sessionKey,
             model: modelKey,
           });
@@ -1113,11 +1113,11 @@ describeLive("gateway live (dev agent, profile keys)", () => {
     try {
       const sessionKey = `agent:${agentId}:live-zai-fallback`;
 
-      await client.request("sessions.patch", {
+      await client.request<Record<string, unknown>>("sessions.patch", {
         key: sessionKey,
         model: "anthropic/claude-opus-4-5",
       });
-      await client.request("sessions.reset", {
+      await client.request<Record<string, unknown>>("sessions.reset", {
         key: sessionKey,
       });
 
@@ -1149,7 +1149,7 @@ describeLive("gateway live (dev agent, profile keys)", () => {
         throw new Error(`anthropic tool probe missing nonce: ${toolText}`);
       }
 
-      await client.request("sessions.patch", {
+      await client.request<Record<string, unknown>>("sessions.patch", {
         key: sessionKey,
         model: "zai/glm-4.7",
       });

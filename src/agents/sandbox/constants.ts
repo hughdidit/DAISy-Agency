@@ -1,3 +1,4 @@
+import os from "node:os";
 import path from "node:path";
 import { CHANNEL_IDS } from "../../channels/registry.js";
 import { STATE_DIR } from "../../config/config.js";
@@ -40,8 +41,5 @@ export const SANDBOX_AGENT_WORKSPACE_MOUNT = "/agent";
 
 const resolvedSandboxStateDir = STATE_DIR ?? path.join(os.homedir(), ".openclaw");
 export const SANDBOX_STATE_DIR = path.join(resolvedSandboxStateDir, "sandbox");
-=======
-export const SANDBOX_STATE_DIR = path.join(STATE_DIR, "sandbox");
->>>>>>> ebe573040 (fix: use STATE_DIR instead of hardcoded ~/.openclaw for identity and canvas (#4824))
 export const SANDBOX_REGISTRY_PATH = path.join(SANDBOX_STATE_DIR, "containers.json");
 export const SANDBOX_BROWSER_REGISTRY_PATH = path.join(SANDBOX_STATE_DIR, "browsers.json");

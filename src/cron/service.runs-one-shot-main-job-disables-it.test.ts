@@ -3,7 +3,6 @@ import os from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { HeartbeatRunResult } from "../infra/heartbeat-wake.js";
-import type { CronJob } from "./types.js";
 import { CronService } from "./service.js";
 
 const noopLogger = {
@@ -21,18 +20,6 @@ async function makeStorePath() {
       await fs.rm(dir, { recursive: true, force: true });
     },
   };
-}
-
-async function waitForJobs(cron: CronService, predicate: (jobs: CronJob[]) => boolean) {
-  let latest: CronJob[] = [];
-  for (let i = 0; i < 30; i++) {
-    latest = await cron.list({ includeDisabled: true });
-    if (predicate(latest)) {
-      return latest;
-    }
-    await vi.runOnlyPendingTimersAsync();
-  }
-  return latest;
 }
 
 describe("CronService", () => {
@@ -79,9 +66,7 @@ describe("CronService", () => {
     vi.setSystemTime(new Date("2025-12-13T00:00:02.000Z"));
     await vi.runOnlyPendingTimersAsync();
 
-    const jobs = await waitForJobs(cron, (items) =>
-      items.some((item) => item.id === job.id && !item.enabled),
-    );
+    const jobs = await cron.list({ includeDisabled: true });
     const updated = jobs.find((j) => j.id === job.id);
     expect(updated?.enabled).toBe(false);
     expect(enqueueSystemEvent).toHaveBeenCalledWith("hello", {
@@ -123,7 +108,7 @@ describe("CronService", () => {
     vi.setSystemTime(new Date("2025-12-13T00:00:02.000Z"));
     await vi.runOnlyPendingTimersAsync();
 
-    const jobs = await waitForJobs(cron, (items) => !items.some((item) => item.id === job.id));
+    const jobs = await cron.list({ includeDisabled: true });
     expect(jobs.find((j) => j.id === job.id)).toBeUndefined();
     expect(enqueueSystemEvent).toHaveBeenCalledWith("hello", {
       agentId: undefined,
@@ -198,49 +183,6 @@ describe("CronService", () => {
     await store.cleanup();
   });
 
-  it("wakeMode now falls back to queued heartbeat when main lane stays busy", async () => {
-    const store = await makeStorePath();
-    const enqueueSystemEvent = vi.fn();
-    const requestHeartbeatNow = vi.fn();
-    const runHeartbeatOnce = vi.fn(async () => ({
-      status: "skipped" as const,
-      reason: "requests-in-flight",
-    }));
-
-    const cron = new CronService({
-      storePath: store.storePath,
-      cronEnabled: true,
-      log: noopLogger,
-      enqueueSystemEvent,
-      requestHeartbeatNow,
-      runHeartbeatOnce,
-      runIsolatedAgentJob: vi.fn(async () => ({ status: "ok" })),
-    });
-
-    await cron.start();
-    const job = await cron.add({
-      name: "wakeMode now fallback",
-      enabled: true,
-      schedule: { kind: "at", at: new Date(1).toISOString() },
-      sessionTarget: "main",
-      wakeMode: "now",
-      payload: { kind: "systemEvent", text: "hello" },
-    });
-
-    const runPromise = cron.run(job.id, "force");
-    await vi.advanceTimersByTimeAsync(125_000);
-    await runPromise;
-
-    expect(runHeartbeatOnce).toHaveBeenCalled();
-    expect(requestHeartbeatNow).toHaveBeenCalled();
-    expect(job.state.lastStatus).toBe("ok");
-    expect(job.state.lastError).toBeUndefined();
-
-    await cron.list({ includeDisabled: true });
-    cron.stop();
-    await store.cleanup();
-  });
-
   it("runs an isolated job and posts summary to main", async () => {
     const store = await makeStorePath();
     const enqueueSystemEvent = vi.fn();
@@ -267,14 +209,13 @@ describe("CronService", () => {
       schedule: { kind: "at", atMs },
       sessionTarget: "isolated",
       wakeMode: "now",
-      payload: { kind: "agentTurn", message: "do it" },
-      delivery: { mode: "announce" },
+      payload: { kind: "agentTurn", message: "do it", deliver: false },
     });
 
     vi.setSystemTime(new Date("2025-12-13T00:00:01.000Z"));
     await vi.runOnlyPendingTimersAsync();
 
-    await waitForJobs(cron, (items) => items.some((item) => item.state.lastStatus === "ok"));
+    await cron.list({ includeDisabled: true });
     expect(runIsolatedAgentJob).toHaveBeenCalledTimes(1);
     expect(enqueueSystemEvent).toHaveBeenCalledWith("Cron: done", {
       agentId: undefined,
@@ -412,13 +353,12 @@ describe("CronService", () => {
       schedule: { kind: "at", atMs },
       sessionTarget: "isolated",
       wakeMode: "now",
-      payload: { kind: "agentTurn", message: "do it" },
-      delivery: { mode: "announce" },
+      payload: { kind: "agentTurn", message: "do it", deliver: false },
     });
 
     vi.setSystemTime(new Date("2025-12-13T00:00:01.000Z"));
     await vi.runOnlyPendingTimersAsync();
-    await waitForJobs(cron, (items) => items.some((item) => item.state.lastStatus === "error"));
+    await cron.list({ includeDisabled: true });
 
     expect(enqueueSystemEvent).toHaveBeenCalledWith("Cron (error): last output", {
       agentId: undefined,
@@ -512,7 +452,7 @@ describe("CronService", () => {
     expect(enqueueSystemEvent).not.toHaveBeenCalled();
     expect(requestHeartbeatNow).not.toHaveBeenCalled();
 
-    const jobs = await waitForJobs(cron, (items) => items[0]?.state.lastStatus === "skipped");
+    const jobs = await cron.list({ includeDisabled: true });
     expect(jobs[0]?.state.lastStatus).toBe("skipped");
     expect(jobs[0]?.state.lastError).toMatch(/main job requires/i);
 

@@ -113,7 +113,7 @@ if [[ "${SKIP_TSC:-0}" != "1" ]]; then
   echo "📦 Building JS (pnpm tsc)"
   (cd "$ROOT_DIR" && pnpm tsc -p tsconfig.json --noEmit false)
 else
-  echo "📦 Skipping JS build (SKIP_TSC=1)"
+  echo "📦 Skipping TS build (SKIP_TSC=1)"
 fi
 
 if [[ "${SKIP_UI_BUILD:-0}" != "1" ]]; then

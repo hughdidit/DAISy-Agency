@@ -79,11 +79,7 @@ import { log } from "./logger.js";
 import { buildModelAliasLines, resolveModel } from "./model.js";
 import { buildEmbeddedSandboxInfo } from "./sandbox-info.js";
 import { prewarmSessionFile, trackSessionManagerAccess } from "./session-manager-cache.js";
-import {
-  applySystemPromptOverrideToSession,
-  buildEmbeddedSystemPrompt,
-  createSystemPromptOverride,
-} from "./system-prompt.js";
+import { buildEmbeddedSystemPrompt, createSystemPromptOverride } from "./system-prompt.js";
 import { splitSdkTools } from "./tool-split.js";
 import { describeUnknownError, mapThinkingLevel, resolveExecToolDefaults } from "./utils.js";
 
@@ -367,7 +363,7 @@ export async function compactEmbeddedPiSessionDirect(
       userTimeFormat,
       contextFiles,
     });
-    const systemPromptOverride = createSystemPromptOverride(appendPrompt);
+    const systemPrompt = createSystemPromptOverride(appendPrompt);
 
     const sessionLock = await acquireSessionWriteLock({
       sessionFile: params.sessionFile,
@@ -428,17 +424,6 @@ export async function compactEmbeddedPiSessionDirect(
       await resourceLoader.reload();
 
       ({ session } = await createAgentSession({
-=======
-=======
->>>>>>> bcde2fca5 (fix: align embedded agent session setup)
-=======
-      });
-      await resourceLoader.reload();
->>>>>>> 3367b2aa2 (fix: align embedded runner with session API changes)
-=======
->>>>>>> e58291e07 (fix: align embedded runner with pi-coding-agent API)
-      const { session } = await createAgentSession({
->>>>>>> d2a852b98 (fix: align embedded session setup with sdk)
         cwd: resolvedWorkspace,
         agentDir,
         authStorage,
@@ -447,35 +432,10 @@ export async function compactEmbeddedPiSessionDirect(
         thinkingLevel: mapThinkingLevel(params.thinkLevel),
         tools: builtInTools,
         customTools,
-        additionalExtensionPaths,
         sessionManager,
         settingsManager,
         resourceLoader,
       }));
-=======
-        additionalExtensionPaths,
-        skills: [],
-        contextFiles: [],
-        systemPrompt,
-=======
-        systemPrompt,
-        additionalExtensionPaths,
-        skills: [],
-        contextFiles: [],
->>>>>>> bcde2fca5 (fix: align embedded agent session setup)
-      });
->>>>>>> d2a852b98 (fix: align embedded session setup with sdk)
-=======
-        resourceLoader,
-=======
->>>>>>> e58291e07 (fix: align embedded runner with pi-coding-agent API)
-      });
-<<<<<<< HEAD
-      applySystemPromptOverrideToSession(session, systemPromptOverride);
->>>>>>> 3367b2aa2 (fix: align embedded runner with session API changes)
-=======
-      applySystemPromptOverrideToSession(session, systemPromptOverride());
->>>>>>> d03eca845 (fix: harden plugin and hook install paths)
 
       try {
         const prior = await sanitizeSessionHistory({

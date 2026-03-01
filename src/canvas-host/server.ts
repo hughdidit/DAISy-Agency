@@ -8,8 +8,6 @@ import * as fsSync from "node:fs";
 import fs from "node:fs/promises";
 import http, { type IncomingMessage, type Server, type ServerResponse } from "node:http";
 import os from "node:os";
-=======
->>>>>>> ebe573040 (fix: use STATE_DIR instead of hardcoded ~/.openclaw for identity and canvas (#4824))
 import path from "node:path";
 import { type WebSocket, WebSocketServer } from "ws";
 import type { RuntimeEnv } from "../runtime.js";

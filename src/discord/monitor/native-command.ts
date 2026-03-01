@@ -54,15 +54,10 @@ import {
   normalizeDiscordSlug,
   resolveDiscordChannelConfigWithFallback,
   resolveDiscordGuildEntry,
-  resolveDiscordOwnerAllowFrom,
   resolveDiscordUserAllowed,
 } from "./allow-list.js";
-<<<<<<< HEAD
 import { formatDiscordUserTag } from "./format.js";
-=======
->>>>>>> 58f418592 (fix: Failing tests due to import sorting.)
 import { resolveDiscordChannelInfo } from "./message-utils.js";
-import { resolveDiscordSenderIdentity } from "./sender-identity.js";
 import { resolveDiscordThreadParentInfo } from "./threading.js";
 
 type DiscordConfig = NonNullable<OpenClawConfig["channels"]>["discord"];
@@ -724,11 +719,6 @@ async function dispatchDiscordCommandInteraction(params: {
     },
   });
   const conversationLabel = isDirectMessage ? (user.globalName ?? user.username) : channelId;
-  const ownerAllowFrom = resolveDiscordOwnerAllowFrom({
-    channelConfig,
-    guildInfo,
-    sender: { id: sender.id, name: sender.name, tag: sender.tag },
-  });
   const ctxPayload = finalizeInboundContext({
     Body: prompt,
     RawBody: prompt,
@@ -766,7 +756,6 @@ async function dispatchDiscordCommandInteraction(params: {
           return untrustedChannelMetadata ? [untrustedChannelMetadata] : undefined;
         })()
       : undefined,
-    OwnerAllowFrom: ownerAllowFrom,
     SenderName: user.globalName ?? user.username,
     SenderId: user.id,
     SenderUsername: user.username,

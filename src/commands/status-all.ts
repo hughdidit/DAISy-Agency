@@ -228,7 +228,7 @@ export async function statusAllCommand(
       : { error: gatewayProbe?.error ?? "gateway unreachable" };
 
     const channelsStatus = gatewayReachable
-      ? await callGateway({
+      ? await callGateway<Record<string, unknown>>({
           method: "channels.status",
           params: { probe: false, timeoutMs: opts?.timeoutMs ?? 10_000 },
           timeoutMs: Math.min(8000, opts?.timeoutMs ?? 10_000),

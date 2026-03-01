@@ -17,11 +17,6 @@ import { formatLocationText, type NormalizedLocation } from "../../channels/loca
 
 const TELEGRAM_GENERAL_TOPIC_ID = 1;
 
-export type TelegramThreadSpec = {
-  id?: number;
-  scope: "dm" | "forum" | "none";
-};
-
 /**
  * Resolve the thread ID for Telegram forum topics.
  * For non-forum groups, returns undefined even if messageThreadId is present
@@ -43,41 +38,17 @@ export function resolveTelegramForumThreadId(params: {
   return params.messageThreadId;
 }
 
-export function resolveTelegramThreadSpec(params: {
-  isGroup: boolean;
-  isForum?: boolean;
-  messageThreadId?: number | null;
-}): TelegramThreadSpec {
-  if (params.isGroup) {
-    const id = resolveTelegramForumThreadId({
-      isForum: params.isForum,
-      messageThreadId: params.messageThreadId,
-    });
-    return {
-      id,
-      scope: params.isForum ? "forum" : "none",
-    };
-  }
-  if (params.messageThreadId == null) {
-    return { scope: "dm" };
-  }
-  return {
-    id: params.messageThreadId,
-    scope: "dm",
-  };
-}
-
 /**
  * Build thread params for Telegram API calls (messages, media).
  * General forum topic (id=1) must be treated like a regular supergroup send:
  * Telegram rejects sendMessage/sendMedia with message_thread_id=1 ("thread not found").
  */
-export function buildTelegramThreadParams(thread?: TelegramThreadSpec | null) {
-  if (!thread?.id) {
+export function buildTelegramThreadParams(messageThreadId?: number) {
+  if (messageThreadId == null) {
     return undefined;
   }
-  const normalized = Math.trunc(thread.id);
-  if (normalized === TELEGRAM_GENERAL_TOPIC_ID && thread.scope === "forum") {
+  const normalized = Math.trunc(messageThreadId);
+  if (normalized === TELEGRAM_GENERAL_TOPIC_ID) {
     return undefined;
   }
   return { message_thread_id: normalized };
@@ -94,9 +65,9 @@ export function buildTypingThreadParams(messageThreadId?: number) {
   return { message_thread_id: Math.trunc(messageThreadId) };
 }
 
-export function resolveTelegramStreamMode(telegramCfg?: {
-  streamMode?: TelegramStreamMode;
-}): TelegramStreamMode {
+export function resolveTelegramStreamMode(
+  telegramCfg: Pick<TelegramAccountConfig, "streamMode"> | undefined,
+): TelegramStreamMode {
   const raw = telegramCfg?.streamMode?.trim().toLowerCase();
   if (raw === "off" || raw === "partial" || raw === "block") return raw;
   return "partial";
@@ -248,13 +219,6 @@ export type TelegramForwardedContext = {
   fromUsername?: string;
   fromTitle?: string;
   fromSignature?: string;
-<<<<<<< HEAD
-=======
-  /** Original chat type from forward_from_chat (e.g. "channel", "supergroup", "group"). */
-  fromChatType?: Chat["type"];
-  /** Original message ID in the source chat (channel forwards). */
-  fromMessageId?: number;
->>>>>>> b2361292e (fix: trim legacy signature fallback, type fromChatType as union)
 };
 
 function normalizeForwardedUserLabel(user: TelegramForwardUser) {
@@ -321,14 +285,6 @@ function buildForwardedContextFromChat(params: {
   if (!display) return null;
   const signature = params.signature?.trim() || undefined;
   const from = signature ? `${display} (${signature})` : display;
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-  const chatType = (params.chat.type?.trim() || undefined) as TelegramChatType | undefined;
->>>>>>> b2361292e (fix: trim legacy signature fallback, type fromChatType as union)
-=======
-  const chatType = (params.chat.type?.trim() || undefined) as Chat["type"] | undefined;
->>>>>>> 78fd19472 (fix: telegram forward metadata + cron delivery guard (#8392) (thanks @Glucksberg))
   return {
     from,
     date: params.date,

@@ -276,32 +276,10 @@ export async function dispatchReplyFromConfig(params: {
     let accumulatedBlockText = "";
     let blockCount = 0;
 
-    const shouldSendToolSummaries = ctx.ChatType !== "group" && ctx.CommandSource !== "native";
-
     const replyResult = await (params.replyResolver ?? getReplyFromConfig)(
       ctx,
       {
         ...params.replyOptions,
-        onToolResult: shouldSendToolSummaries
-          ? (payload: ReplyPayload) => {
-              const run = async () => {
-                const ttsPayload = await maybeApplyTtsToPayload({
-                  payload,
-                  cfg,
-                  channel: ttsChannel,
-                  kind: "tool",
-                  inboundAudio,
-                  ttsAuto: sessionTtsAuto,
-                });
-                if (shouldRouteToOriginating) {
-                  await sendPayloadAsync(ttsPayload, undefined, false);
-                } else {
-                  dispatcher.sendToolResult(ttsPayload);
-                }
-              };
-              return run();
-            }
-          : undefined,
         onBlockReply: (payload: ReplyPayload, context) => {
           const run = async () => {
             // Accumulate block text for TTS generation after streaming
@@ -324,16 +302,6 @@ export async function dispatchReplyFromConfig(params: {
               await sendPayloadAsync(ttsPayload, context?.abortSignal, false);
             } else {
               dispatcher.sendBlockReply(ttsPayload);
-            }
-          };
-          return run();
-        },
-        onToolResult: (payload: ReplyPayload) => {
-          const run = async () => {
-            if (shouldRouteToOriginating) {
-              await sendPayloadAsync(payload, undefined, false);
-            } else {
-              dispatcher.sendBlockReply(payload);
             }
           };
           return run();

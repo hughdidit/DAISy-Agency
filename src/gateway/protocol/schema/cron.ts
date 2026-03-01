@@ -42,14 +42,8 @@ export const CronPayloadSchema = Type.Union([
       model: Type.Optional(Type.String()),
       thinking: Type.Optional(Type.String()),
       timeoutSeconds: Type.Optional(Type.Integer({ minimum: 1 })),
-<<<<<<< HEAD
       deliver: Type.Optional(Type.Boolean()),
       channel: Type.Optional(Type.Union([Type.Literal("last"), NonEmptyString])),
-=======
-      allowUnsafeExternalContent: Type.Optional(Type.Boolean()),
-      deliver: Type.Optional(Type.Boolean()),
-      channel: Type.Optional(Type.String()),
->>>>>>> d90cac990 (fix: cron scheduler reliability, store hardening, and UX improvements (#10776))
       to: Type.Optional(Type.String()),
       bestEffortDeliver: Type.Optional(Type.Boolean()),
     },
@@ -72,14 +66,8 @@ export const CronPayloadPatchSchema = Type.Union([
       model: Type.Optional(Type.String()),
       thinking: Type.Optional(Type.String()),
       timeoutSeconds: Type.Optional(Type.Integer({ minimum: 1 })),
-<<<<<<< HEAD
       deliver: Type.Optional(Type.Boolean()),
       channel: Type.Optional(Type.Union([Type.Literal("last"), NonEmptyString])),
-=======
-      allowUnsafeExternalContent: Type.Optional(Type.Boolean()),
-      deliver: Type.Optional(Type.Boolean()),
-      channel: Type.Optional(Type.String()),
->>>>>>> d90cac990 (fix: cron scheduler reliability, store hardening, and UX improvements (#10776))
       to: Type.Optional(Type.String()),
       bestEffortDeliver: Type.Optional(Type.Boolean()),
     },
@@ -248,8 +236,6 @@ export const CronRunLogEntrySchema = Type.Object(
     ),
     error: Type.Optional(Type.String()),
     summary: Type.Optional(Type.String()),
-    sessionId: Type.Optional(NonEmptyString),
-    sessionKey: Type.Optional(NonEmptyString),
     runAtMs: Type.Optional(Type.Integer({ minimum: 0 })),
     durationMs: Type.Optional(Type.Integer({ minimum: 0 })),
     nextRunAtMs: Type.Optional(Type.Integer({ minimum: 0 })),

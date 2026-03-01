@@ -105,7 +105,7 @@ describe("installPluginFromArchive", () => {
       }),
       "utf-8",
     );
-    fs.writeFileSync(path.join(pkgDir, "dist", "index.mjs"), "export {};", "utf-8");
+    fs.writeFileSync(path.join(pkgDir, "dist", "index.js"), "export {};", "utf-8");
 
     const archivePath = packToArchive({
       pkgDir,
@@ -124,7 +124,7 @@ describe("installPluginFromArchive", () => {
     expect(result.pluginId).toBe("voice-call");
     expect(result.targetDir).toBe(path.join(stateDir, "extensions", "voice-call"));
     expect(fs.existsSync(path.join(result.targetDir, "package.json"))).toBe(true);
-    expect(fs.existsSync(path.join(result.targetDir, "dist", "index.mjs"))).toBe(true);
+    expect(fs.existsSync(path.join(result.targetDir, "dist", "index.js"))).toBe(true);
   });
 
   it("rejects installing when plugin already exists", async () => {
@@ -196,7 +196,7 @@ describe("installPluginFromArchive", () => {
     expect(result.pluginId).toBe("zipper");
     expect(result.targetDir).toBe(path.join(stateDir, "extensions", "zipper"));
     expect(fs.existsSync(path.join(result.targetDir, "package.json"))).toBe(true);
-    expect(fs.existsSync(path.join(result.targetDir, "dist", "index.mjs"))).toBe(true);
+    expect(fs.existsSync(path.join(result.targetDir, "dist", "index.js"))).toBe(true);
   });
 
   it("allows updates when mode is update", async () => {

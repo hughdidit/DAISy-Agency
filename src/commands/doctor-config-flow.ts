@@ -1,11 +1,6 @@
 <<<<<<< HEAD
 import fs from "node:fs";
 import path from "node:path";
-=======
-import fs from "node:fs/promises";
-import path from "node:path";
-
->>>>>>> a155e2f8a (fix: migrate legacy config)
 import type { ZodIssue } from "zod";
 
 import type { MoltbotConfig } from "../config/config.js";
@@ -33,7 +28,6 @@ import { resolveHomeDir } from "../utils.js";
 import { normalizeLegacyConfigValues } from "./doctor-legacy-config.js";
 >>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { autoMigrateLegacyStateDir } from "./doctor-state-migrations.js";
-import { resolveHomeDir } from "../utils.js";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return Boolean(value && typeof value === "object" && !Array.isArray(value));
@@ -150,11 +144,6 @@ export async function loadAndMaybeMigrateDoctorConfig(params: {
   }
   if (stateDirResult.warnings.length > 0) {
     note(stateDirResult.warnings.map((entry) => `- ${entry}`).join("\n"), "Doctor warnings");
-  }
-
-  const legacyConfigChanges = await maybeMigrateLegacyConfig();
-  if (legacyConfigChanges.length > 0) {
-    note(legacyConfigChanges.map((entry) => `- ${entry}`).join("\n"), "Doctor changes");
   }
 
   let snapshot = await readConfigFileSnapshot();

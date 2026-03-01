@@ -379,7 +379,7 @@ export class GatewayClient {
     return null;
   }
 
-  async request<T = Record<string, unknown>>(
+  async request<T = unknown>(
     method: string,
     params?: unknown,
     opts?: { expectFinal?: boolean },

@@ -11,23 +11,8 @@ describe("normalizeThinkLevel", () => {
     expect(normalizeThinkLevel("mid")).toBe("medium");
   });
 
-  it("accepts xhigh aliases", () => {
+  it("accepts xhigh", () => {
     expect(normalizeThinkLevel("xhigh")).toBe("xhigh");
-    expect(normalizeThinkLevel("x-high")).toBe("xhigh");
-    expect(normalizeThinkLevel("x_high")).toBe("xhigh");
-    expect(normalizeThinkLevel("x high")).toBe("xhigh");
-  });
-
-  it("accepts extra-high aliases as xhigh", () => {
-    expect(normalizeThinkLevel("extra-high")).toBe("xhigh");
-    expect(normalizeThinkLevel("extra high")).toBe("xhigh");
-    expect(normalizeThinkLevel("extra_high")).toBe("xhigh");
-    expect(normalizeThinkLevel("  extra high  ")).toBe("xhigh");
-  });
-
-  it("does not over-match nearby xhigh words", () => {
-    expect(normalizeThinkLevel("extra-highest")).toBeUndefined();
-    expect(normalizeThinkLevel("xhigher")).toBeUndefined();
   });
 
   it("accepts on as low", () => {

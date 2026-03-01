@@ -327,7 +327,7 @@ function enablePluginEntry(cfg: OpenClawConfig, pluginId: string): OpenClawConfi
     ...cfg.plugins?.entries,
     [pluginId]: {
       ...(cfg.plugins?.entries?.[pluginId] as Record<string, unknown> | undefined),
-      enabled: false,
+      enabled: true,
     },
   };
   return {
@@ -335,6 +335,7 @@ function enablePluginEntry(cfg: OpenClawConfig, pluginId: string): OpenClawConfi
     plugins: {
       ...cfg.plugins,
       entries,
+      ...(cfg.plugins?.enabled === false ? { enabled: true } : {}),
     },
   };
 }
@@ -373,15 +374,8 @@ export function applyPluginAutoEnable(params: {
     const allow = next.plugins?.allow;
     const allowMissing = Array.isArray(allow) && !allow.includes(entry.pluginId);
     const alreadyEnabled = next.plugins?.entries?.[entry.pluginId]?.enabled === true;
-<<<<<<< HEAD
     if (alreadyEnabled && !allowMissing) continue;
     next = enablePluginEntry(next, entry.pluginId);
-=======
-    if (alreadyEnabled && !allowMissing) {
-      continue;
-    }
-    next = registerPluginEntry(next, entry.pluginId);
->>>>>>> 1007d71f0 (fix: comprehensive BlueBubbles and channel cleanup (#11093))
     next = ensureAllowlisted(next, entry.pluginId);
     changes.push(formatAutoEnableChange(entry));
   }

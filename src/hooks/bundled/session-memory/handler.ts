@@ -16,12 +16,8 @@ import type { OpenClawConfig } from "../../../config/config.js";
 import type { HookHandler } from "../../hooks.js";
 >>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { resolveAgentWorkspaceDir } from "../../../agents/agent-scope.js";
-import { resolveStateDir } from "../../../config/paths.js";
-import { createSubsystemLogger } from "../../../logging/subsystem.js";
 import { resolveAgentIdFromSessionKey } from "../../../routing/session-key.js";
 import { resolveHookConfig } from "../../config.js";
-
-const log = createSubsystemLogger("hooks/session-memory");
 
 /**
  * Read recent messages from session file for slug generation
@@ -76,7 +72,7 @@ const saveSessionToMemory: HookHandler = async (event) => {
   }
 
   try {
-    log.debug("Hook triggered for /new command");
+    console.log("[session-memory] Hook triggered for /new command");
 
     const context = event.context || {};
     const cfg = context.cfg as OpenClawConfig | undefined;
@@ -99,11 +95,9 @@ const saveSessionToMemory: HookHandler = async (event) => {
     const currentSessionId = sessionEntry.sessionId as string;
     const currentSessionFile = sessionEntry.sessionFile as string;
 
-    log.debug("Session context resolved", {
-      sessionId: currentSessionId,
-      sessionFile: currentSessionFile,
-      hasCfg: Boolean(cfg),
-    });
+    console.log("[session-memory] Current sessionId:", currentSessionId);
+    console.log("[session-memory] Current sessionFile:", currentSessionFile);
+    console.log("[session-memory] cfg present:", !!cfg);
 
     const sessionFile = currentSessionFile || undefined;
 
@@ -120,13 +114,10 @@ const saveSessionToMemory: HookHandler = async (event) => {
     if (sessionFile) {
       // Get recent conversation content
       sessionContent = await getRecentSessionContent(sessionFile, messageCount);
-      log.debug("Session content loaded", {
-        length: sessionContent?.length ?? 0,
-        messageCount,
-      });
+      console.log("[session-memory] sessionContent length:", sessionContent?.length || 0);
 
       if (sessionContent && cfg) {
-        log.debug("Calling generateSlugViaLLM...");
+        console.log("[session-memory] Calling generateSlugViaLLM...");
         // Dynamically import the LLM slug generator (avoids module caching issues)
         // When compiled, handler is at dist/hooks/bundled/session-memory/handler.js
         // Going up ../.. puts us at dist/hooks/, so just add llm-slug-generator.js
@@ -136,7 +127,7 @@ const saveSessionToMemory: HookHandler = async (event) => {
 
         // Use LLM to generate a descriptive slug
         slug = await generateSlugViaLLM({ sessionContent, cfg });
-        log.debug("Generated slug", { slug });
+        console.log("[session-memory] Generated slug:", slug);
       }
     }
 
@@ -144,16 +135,14 @@ const saveSessionToMemory: HookHandler = async (event) => {
     if (!slug) {
       const timeSlug = now.toISOString().split("T")[1]!.split(".")[0]!.replace(/:/g, "");
       slug = timeSlug.slice(0, 4); // HHMM
-      log.debug("Using fallback timestamp slug", { slug });
+      console.log("[session-memory] Using fallback timestamp slug:", slug);
     }
 
     // Create filename with date and slug
     const filename = `${dateStr}-${slug}.md`;
     const memoryFilePath = path.join(memoryDir, filename);
-    log.debug("Memory file path resolved", {
-      filename,
-      path: memoryFilePath.replace(os.homedir(), "~"),
-    });
+    console.log("[session-memory] Generated filename:", filename);
+    console.log("[session-memory] Full path:", memoryFilePath);
 
     // Format time as HH:MM:SS UTC
     const timeStr = now.toISOString().split("T")[1]!.split(".")[0];
@@ -181,21 +170,16 @@ const saveSessionToMemory: HookHandler = async (event) => {
 
     // Write to new memory file
     await fs.writeFile(memoryFilePath, entry, "utf-8");
-    log.debug("Memory file written successfully");
+    console.log("[session-memory] Memory file written successfully");
 
     // Log completion (but don't send user-visible confirmation - it's internal housekeeping)
     const relPath = memoryFilePath.replace(os.homedir(), "~");
-    log.info(`Session context saved to ${relPath}`);
+    console.log(`[session-memory] Session context saved to ${relPath}`);
   } catch (err) {
-    if (err instanceof Error) {
-      log.error("Failed to save session memory", {
-        errorName: err.name,
-        errorMessage: err.message,
-        stack: err.stack,
-      });
-    } else {
-      log.error("Failed to save session memory", { error: String(err) });
-    }
+    console.error(
+      "[session-memory] Failed to save session memory:",
+      err instanceof Error ? err.message : String(err),
+    );
   }
 };
 

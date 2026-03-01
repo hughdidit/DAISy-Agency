@@ -1,14 +1,6 @@
 import { Cron } from "croner";
 import type { CronSchedule } from "./types.js";
 
-function resolveCronTimezone(tz?: string) {
-  const trimmed = typeof tz === "string" ? tz.trim() : "";
-  if (trimmed) {
-    return trimmed;
-  }
-  return Intl.DateTimeFormat().resolvedOptions().timeZone;
-}
-
 export function computeNextRunAtMs(schedule: CronSchedule, nowMs: number): number | undefined {
   if (schedule.kind === "at") {
     return schedule.atMs > nowMs ? schedule.atMs : undefined;
@@ -26,20 +18,9 @@ export function computeNextRunAtMs(schedule: CronSchedule, nowMs: number): numbe
   const expr = schedule.expr.trim();
   if (!expr) return undefined;
   const cron = new Cron(expr, {
-    timezone: resolveCronTimezone(schedule.tz),
+    timezone: schedule.tz?.trim() || undefined,
     catch: false,
   });
-  let cursor = nowMs;
-  for (let attempt = 0; attempt < 3; attempt++) {
-    const next = cron.nextRun(new Date(cursor));
-    if (!next) {
-      return undefined;
-    }
-    const nextMs = next.getTime();
-    if (Number.isFinite(nextMs) && nextMs > nowMs) {
-      return nextMs;
-    }
-    cursor += 1_000;
-  }
-  return undefined;
+  const next = cron.nextRun(new Date(nowMs));
+  return next ? next.getTime() : undefined;
 }

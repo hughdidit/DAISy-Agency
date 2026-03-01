@@ -53,19 +53,7 @@ export async function runNonInteractiveOnboardingLocal(params: {
     },
   };
 
-  const inferredAuthChoice = inferAuthChoiceFromFlags(opts);
-  if (!opts.authChoice && inferredAuthChoice.matches.length > 1) {
-    runtime.error(
-      [
-        "Multiple API key flags were provided for non-interactive onboarding.",
-        "Use a single provider flag or pass --auth-choice explicitly.",
-        `Flags: ${inferredAuthChoice.matches.map((match) => match.label).join(", ")}`,
-      ].join("\n"),
-    );
-    runtime.exit(1);
-    return;
-  }
-  const authChoice = opts.authChoice ?? inferredAuthChoice.choice ?? "skip";
+  const authChoice = opts.authChoice ?? "skip";
   const nextConfigAfterAuth = await applyNonInteractiveAuthChoice({
     nextConfig,
     authChoice,

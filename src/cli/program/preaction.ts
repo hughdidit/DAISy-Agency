@@ -31,7 +31,6 @@ export function registerPreActionHooks(program: Command, programVersion: string)
     const hideBanner =
       isTruthyEnvValue(process.env.OPENCLAW_HIDE_BANNER) ||
       commandPath[0] === "update" ||
-      commandPath[0] === "completion" ||
       (commandPath[0] === "plugins" && commandPath[1] === "update");
     if (!hideBanner) {
       emitCliBanner(programVersion);
@@ -41,7 +40,7 @@ export function registerPreActionHooks(program: Command, programVersion: string)
     if (!verbose) {
       process.env.NODE_NO_WARNINGS ??= "1";
     }
-    if (commandPath[0] === "doctor" || commandPath[0] === "completion") return;
+    if (commandPath[0] === "doctor") return;
     await ensureConfigReady({ runtime: defaultRuntime, commandPath });
     // Load plugins for commands that need channel access
     if (PLUGIN_REQUIRED_COMMANDS.has(commandPath[0])) {

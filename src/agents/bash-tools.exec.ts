@@ -992,7 +992,6 @@ export function createExecTool(
           safeBins: new Set(),
           cwd: workdir,
           env,
-          platform: nodeInfo?.platform,
         });
         let analysisOk = baseAllowlistEval.analysisOk;
         let allowlistSatisfied = false;
@@ -1020,7 +1019,6 @@ export function createExecTool(
                 safeBins: new Set(),
                 cwd: workdir,
                 env,
-                platform: nodeInfo?.platform,
               });
               allowlistSatisfied = allowlistEval.allowlistSatisfied;
               analysisOk = allowlistEval.analysisOk;
@@ -1089,17 +1087,11 @@ export function createExecTool(
                   sessionKey: defaults?.sessionKey,
                   timeoutMs: DEFAULT_APPROVAL_TIMEOUT_MS,
                 },
-<<<<<<< HEAD
               )) as { decision?: string } | null;
               decision =
-=======
-              );
-              const decisionValue =
->>>>>>> a42e1c82d (fix: restore tsc build and plugin install tests)
                 decisionResult && typeof decisionResult === "object"
-                  ? (decisionResult as { decision?: unknown }).decision
-                  : undefined;
-              decision = typeof decisionValue === "string" ? decisionValue : null;
+                  ? (decisionResult.decision ?? null)
+                  : null;
             } catch {
               emitExecSystemEvent(
                 `Exec denied (node=${nodeId} id=${approvalId}, approval-request-failed): ${commandText}`,
@@ -1188,7 +1180,6 @@ export function createExecTool(
         }
 
         const startedAt = Date.now();
-<<<<<<< HEAD
         const raw = (await callGatewayTool(
           "node.invoke",
           { timeoutMs: invokeTimeoutMs },
@@ -1204,34 +1195,18 @@ export function createExecTool(
           };
         };
         const payload = raw?.payload ?? {};
-=======
-        const raw = await callGatewayTool(
-          "node.invoke",
-          { timeoutMs: invokeTimeoutMs },
-          buildInvokeParams(false, null),
-        );
-        const payload =
-          raw && typeof raw === "object" ? (raw as { payload?: unknown }).payload : undefined;
-        const payloadObj =
-          payload && typeof payload === "object" ? (payload as Record<string, unknown>) : {};
-        const stdout = typeof payloadObj.stdout === "string" ? payloadObj.stdout : "";
-        const stderr = typeof payloadObj.stderr === "string" ? payloadObj.stderr : "";
-        const errorText = typeof payloadObj.error === "string" ? payloadObj.error : "";
-        const success = typeof payloadObj.success === "boolean" ? payloadObj.success : false;
-        const exitCode = typeof payloadObj.exitCode === "number" ? payloadObj.exitCode : null;
->>>>>>> a42e1c82d (fix: restore tsc build and plugin install tests)
         return {
           content: [
             {
               type: "text",
-              text: stdout || stderr || errorText || "",
+              text: payload.stdout || payload.stderr || payload.error || "",
             },
           ],
           details: {
-            status: success ? "completed" : "failed",
-            exitCode,
+            status: payload.success ? "completed" : "failed",
+            exitCode: payload.exitCode ?? null,
             durationMs: Date.now() - startedAt,
-            aggregated: [stdout, stderr, errorText].filter(Boolean).join("\n"),
+            aggregated: [payload.stdout, payload.stderr, payload.error].filter(Boolean).join("\n"),
             cwd: workdir,
           } satisfies ExecToolDetails,
         };
@@ -1251,7 +1226,6 @@ export function createExecTool(
           safeBins,
           cwd: workdir,
           env,
-          platform: process.platform,
         });
         const allowlistMatches = allowlistEval.allowlistMatches;
         const analysisOk = allowlistEval.analysisOk;
@@ -1294,17 +1268,11 @@ export function createExecTool(
                   sessionKey: defaults?.sessionKey,
                   timeoutMs: DEFAULT_APPROVAL_TIMEOUT_MS,
                 },
-<<<<<<< HEAD
               )) as { decision?: string } | null;
               decision =
-=======
-              );
-              const decisionValue =
->>>>>>> a42e1c82d (fix: restore tsc build and plugin install tests)
                 decisionResult && typeof decisionResult === "object"
-                  ? (decisionResult as { decision?: unknown }).decision
-                  : undefined;
-              decision = typeof decisionValue === "string" ? decisionValue : null;
+                  ? (decisionResult.decision ?? null)
+                  : null;
             } catch {
               emitExecSystemEvent(
                 `Exec denied (gateway id=${approvalId}, approval-request-failed): ${commandText}`,

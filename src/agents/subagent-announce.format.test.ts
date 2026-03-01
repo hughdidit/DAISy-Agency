@@ -1,8 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const agentSpy = vi.fn(async () => ({ runId: "run-main", status: "ok" }));
-const sessionsDeleteSpy = vi.fn();
-const readLatestAssistantReplyMock = vi.fn(async () => "raw subagent reply");
 const embeddedRunMock = {
   isEmbeddedPiRunActive: vi.fn(() => false),
   isEmbeddedPiRunStreaming: vi.fn(() => false),
@@ -26,24 +24,14 @@ vi.mock("../gateway/call.js", () => ({
     if (typed.method === "agent.wait") {
       return { status: "error", startedAt: 10, endedAt: 20, error: "boom" };
     }
-<<<<<<< HEAD
     if (typed.method === "sessions.patch") return {};
     if (typed.method === "sessions.delete") return {};
-=======
-    if (typed.method === "sessions.patch") {
-      return {};
-    }
-    if (typed.method === "sessions.delete") {
-      sessionsDeleteSpy(typed);
-      return {};
-    }
->>>>>>> 191da1feb (fix: context overflow compaction and subagent announce improvements (#11664) (thanks @tyler6204))
     return {};
   }),
 }));
 
 vi.mock("./tools/agent-step.js", () => ({
-  readLatestAssistantReply: readLatestAssistantReplyMock,
+  readLatestAssistantReply: vi.fn(async () => "raw subagent reply"),
 }));
 
 vi.mock("../config/sessions.js", () => ({
@@ -68,12 +56,10 @@ vi.mock("../config/config.js", async (importOriginal) => {
 describe("subagent announce formatting", () => {
   beforeEach(() => {
     agentSpy.mockClear();
-    sessionsDeleteSpy.mockClear();
     embeddedRunMock.isEmbeddedPiRunActive.mockReset().mockReturnValue(false);
     embeddedRunMock.isEmbeddedPiRunStreaming.mockReset().mockReturnValue(false);
     embeddedRunMock.queueEmbeddedPiMessage.mockReset().mockReturnValue(false);
     embeddedRunMock.waitForEmbeddedPiRunEnd.mockReset().mockResolvedValue(true);
-    readLatestAssistantReplyMock.mockReset().mockResolvedValue("raw subagent reply");
     sessionStore = {};
     configOverride = {
       session: {
@@ -200,7 +186,7 @@ describe("subagent announce formatting", () => {
     });
 
     expect(didAnnounce).toBe(true);
-    await expect.poll(() => agentSpy.mock.calls.length).toBe(1);
+    await new Promise((r) => setTimeout(r, 5));
 
     const call = agentSpy.mock.calls[0]?.[0] as { params?: Record<string, unknown> };
     expect(call?.params?.channel).toBe("whatsapp");
@@ -287,95 +273,6 @@ describe("subagent announce formatting", () => {
     expect(call?.params?.accountId).toBe("acct-123");
   });
 
-  it("retries reading subagent output when early lifecycle completion had no text", async () => {
-    const { runSubagentAnnounceFlow } = await import("./subagent-announce.js");
-    embeddedRunMock.isEmbeddedPiRunActive.mockReturnValueOnce(true).mockReturnValue(false);
-    embeddedRunMock.waitForEmbeddedPiRunEnd.mockResolvedValue(true);
-    readLatestAssistantReplyMock
-      .mockResolvedValueOnce(undefined)
-      .mockResolvedValueOnce("Read #12 complete.");
-    sessionStore = {
-      "agent:main:subagent:test": {
-        sessionId: "child-session-1",
-      },
-    };
-
-    await runSubagentAnnounceFlow({
-      childSessionKey: "agent:main:subagent:test",
-      childRunId: "run-child",
-      requesterSessionKey: "agent:main:main",
-      requesterDisplayKey: "main",
-      task: "context-stress-test",
-      timeoutMs: 1000,
-      cleanup: "keep",
-      waitForCompletion: false,
-      startedAt: 10,
-      endedAt: 20,
-      outcome: { status: "ok" },
-    });
-
-    expect(embeddedRunMock.waitForEmbeddedPiRunEnd).toHaveBeenCalledWith("child-session-1", 1000);
-    const call = agentSpy.mock.calls[0]?.[0] as { params?: { message?: string } };
-    expect(call?.params?.message).toContain("Read #12 complete.");
-    expect(call?.params?.message).not.toContain("(no output)");
-  });
-
-  it("defers announce when child run is still active after wait timeout", async () => {
-    const { runSubagentAnnounceFlow } = await import("./subagent-announce.js");
-    embeddedRunMock.isEmbeddedPiRunActive.mockReturnValue(true);
-    embeddedRunMock.waitForEmbeddedPiRunEnd.mockResolvedValue(false);
-    sessionStore = {
-      "agent:main:subagent:test": {
-        sessionId: "child-session-active",
-      },
-    };
-
-    const didAnnounce = await runSubagentAnnounceFlow({
-      childSessionKey: "agent:main:subagent:test",
-      childRunId: "run-child-active",
-      requesterSessionKey: "agent:main:main",
-      requesterDisplayKey: "main",
-      task: "context-stress-test",
-      timeoutMs: 1000,
-      cleanup: "keep",
-      waitForCompletion: false,
-      startedAt: 10,
-      endedAt: 20,
-      outcome: { status: "ok" },
-    });
-
-    expect(didAnnounce).toBe(false);
-    expect(agentSpy).not.toHaveBeenCalled();
-  });
-
-  it("does not delete child session when announce is deferred for an active run", async () => {
-    const { runSubagentAnnounceFlow } = await import("./subagent-announce.js");
-    embeddedRunMock.isEmbeddedPiRunActive.mockReturnValue(true);
-    embeddedRunMock.waitForEmbeddedPiRunEnd.mockResolvedValue(false);
-    sessionStore = {
-      "agent:main:subagent:test": {
-        sessionId: "child-session-active",
-      },
-    };
-
-    const didAnnounce = await runSubagentAnnounceFlow({
-      childSessionKey: "agent:main:subagent:test",
-      childRunId: "run-child-active-delete",
-      requesterSessionKey: "agent:main:main",
-      requesterDisplayKey: "main",
-      task: "context-stress-test",
-      timeoutMs: 1000,
-      cleanup: "delete",
-      waitForCompletion: false,
-      startedAt: 10,
-      endedAt: 20,
-      outcome: { status: "ok" },
-    });
-
-    expect(didAnnounce).toBe(false);
-    expect(sessionsDeleteSpy).not.toHaveBeenCalled();
-  });
-
   it("normalizes requesterOrigin for direct announce delivery", async () => {
     const { runSubagentAnnounceFlow } = await import("./subagent-announce.js");
     embeddedRunMock.isEmbeddedPiRunActive.mockReturnValue(false);
@@ -400,44 +297,6 @@ describe("subagent announce formatting", () => {
     const call = agentSpy.mock.calls[0]?.[0] as { params?: Record<string, unknown> };
     expect(call?.params?.channel).toBe("whatsapp");
     expect(call?.params?.accountId).toBe("acct-987");
-  });
-
-  it("prefers requesterOrigin channel over stale session lastChannel in queued announce", async () => {
-    const { runSubagentAnnounceFlow } = await import("./subagent-announce.js");
-    embeddedRunMock.isEmbeddedPiRunActive.mockReturnValue(true);
-    embeddedRunMock.isEmbeddedPiRunStreaming.mockReturnValue(false);
-    // Session store has stale whatsapp channel, but the requesterOrigin says bluebubbles.
-    sessionStore = {
-      "agent:main:main": {
-        sessionId: "session-stale",
-        lastChannel: "whatsapp",
-        queueMode: "collect",
-        queueDebounceMs: 0,
-      },
-    };
-
-    const didAnnounce = await runSubagentAnnounceFlow({
-      childSessionKey: "agent:main:subagent:test",
-      childRunId: "run-stale-channel",
-      requesterSessionKey: "main",
-      requesterOrigin: { channel: "bluebubbles", to: "bluebubbles:chat_guid:123" },
-      requesterDisplayKey: "main",
-      task: "do thing",
-      timeoutMs: 1000,
-      cleanup: "keep",
-      waitForCompletion: false,
-      startedAt: 10,
-      endedAt: 20,
-      outcome: { status: "ok" },
-    });
-
-    expect(didAnnounce).toBe(true);
-    await expect.poll(() => agentSpy.mock.calls.length).toBe(1);
-
-    const call = agentSpy.mock.calls[0]?.[0] as { params?: Record<string, unknown> };
-    // The channel should match requesterOrigin, NOT the stale session entry.
-    expect(call?.params?.channel).toBe("bluebubbles");
-    expect(call?.params?.to).toBe("bluebubbles:chat_guid:123");
   });
 
   it("splits collect-mode announces when accountId differs", async () => {
@@ -484,7 +343,7 @@ describe("subagent announce formatting", () => {
       outcome: { status: "ok" },
     });
 
-    await expect.poll(() => agentSpy.mock.calls.length).toBe(2);
+    await new Promise((r) => setTimeout(r, 5));
 
     const accountIds = agentSpy.mock.calls.map(
       (call) => (call[0] as { params?: Record<string, unknown> }).params?.accountId,

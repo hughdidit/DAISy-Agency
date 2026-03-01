@@ -3,6 +3,7 @@ import type { ThinkLevel } from "../../auto-reply/thinking.js";
 import type { RunEmbeddedPiAgentParams } from "./run/params.js";
 import type { EmbeddedPiAgentMeta, EmbeddedPiRunResult } from "./types.js";
 import { enqueueCommandInLane } from "../../process/command-queue.js";
+import { resolveUserPath } from "../../utils.js";
 import { isMarkdownCapableMessageChannel } from "../../utils/message-channel.js";
 import { resolveOpenClawAgentDir } from "../agent-paths.js";
 import {
@@ -65,66 +66,6 @@ function scrubAnthropicRefusalMagic(prompt: string): string {
   );
 }
 
-type UsageAccumulator = {
-  input: number;
-  output: number;
-  cacheRead: number;
-  cacheWrite: number;
-  total: number;
-};
-
-const createUsageAccumulator = (): UsageAccumulator => ({
-  input: 0,
-  output: 0,
-  cacheRead: 0,
-  cacheWrite: 0,
-  total: 0,
-});
-
-const hasUsageValues = (
-  usage: ReturnType<typeof normalizeUsage>,
-): usage is NonNullable<ReturnType<typeof normalizeUsage>> =>
-  !!usage &&
-  [usage.input, usage.output, usage.cacheRead, usage.cacheWrite, usage.total].some(
-    (value) => typeof value === "number" && Number.isFinite(value) && value > 0,
-  );
-
-const mergeUsageIntoAccumulator = (
-  target: UsageAccumulator,
-  usage: ReturnType<typeof normalizeUsage>,
-) => {
-  if (!hasUsageValues(usage)) {
-    return;
-  }
-  target.input += usage.input ?? 0;
-  target.output += usage.output ?? 0;
-  target.cacheRead += usage.cacheRead ?? 0;
-  target.cacheWrite += usage.cacheWrite ?? 0;
-  target.total +=
-    usage.total ??
-    (usage.input ?? 0) + (usage.output ?? 0) + (usage.cacheRead ?? 0) + (usage.cacheWrite ?? 0);
-};
-
-const toNormalizedUsage = (usage: UsageAccumulator) => {
-  const hasUsage =
-    usage.input > 0 ||
-    usage.output > 0 ||
-    usage.cacheRead > 0 ||
-    usage.cacheWrite > 0 ||
-    usage.total > 0;
-  if (!hasUsage) {
-    return undefined;
-  }
-  const derivedTotal = usage.input + usage.output + usage.cacheRead + usage.cacheWrite;
-  return {
-    input: usage.input || undefined,
-    output: usage.output || undefined,
-    cacheRead: usage.cacheRead || undefined,
-    cacheWrite: usage.cacheWrite || undefined,
-    total: usage.total || derivedTotal || undefined,
-  };
-};
-
 export async function runEmbeddedPiAgent(
   params: RunEmbeddedPiAgentParams,
 ): Promise<EmbeddedPiRunResult> {
@@ -147,21 +88,7 @@ export async function runEmbeddedPiAgent(
   return enqueueSession(() =>
     enqueueGlobal(async () => {
       const started = Date.now();
-      const workspaceResolution = resolveRunWorkspaceDir({
-        workspaceDir: params.workspaceDir,
-        sessionKey: params.sessionKey,
-        agentId: params.agentId,
-        config: params.config,
-      });
-      const resolvedWorkspace = workspaceResolution.workspaceDir;
-      const redactedSessionId = redactRunIdentifier(params.sessionId);
-      const redactedSessionKey = redactRunIdentifier(params.sessionKey);
-      const redactedWorkspace = redactRunIdentifier(resolvedWorkspace);
-      if (workspaceResolution.usedFallback) {
-        log.warn(
-          `[workspace-fallback] caller=runEmbeddedPiAgent reason=${workspaceResolution.fallbackReason} run=${params.runId} session=${redactedSessionId} sessionKey=${redactedSessionKey} agent=${workspaceResolution.agentId} workspace=${redactedWorkspace}`,
-        );
-      }
+      const resolvedWorkspace = resolveUserPath(params.workspaceDir);
       const prevCwd = process.cwd();
 
       const provider = (params.provider ?? DEFAULT_PROVIDER).trim() || DEFAULT_PROVIDER;
@@ -364,11 +291,7 @@ export async function runEmbeddedPiAgent(
         }
       }
 
-      const MAX_OVERFLOW_COMPACTION_ATTEMPTS = 3;
-      let overflowCompactionAttempts = 0;
-      let toolResultTruncationAttempted = false;
-      const usageAccumulator = createUsageAccumulator();
-      let autoCompactionCount = 0;
+      let overflowCompactionAttempted = false;
       try {
         while (true) {
           attemptedThinking.add(thinkLevel);
@@ -395,7 +318,7 @@ export async function runEmbeddedPiAgent(
             replyToMode: params.replyToMode,
             hasRepliedRef: params.hasRepliedRef,
             sessionFile: params.sessionFile,
-            workspaceDir: resolvedWorkspace,
+            workspaceDir: params.workspaceDir,
             agentDir,
             config: params.config,
             skillsSnapshot: params.skillsSnapshot,
@@ -407,7 +330,6 @@ export async function runEmbeddedPiAgent(
             model,
             authStorage,
             modelRegistry,
-            agentId: workspaceResolution.agentId,
             thinkLevel,
             verboseLevel: params.verboseLevel,
             reasoningLevel: params.reasoningLevel,
@@ -435,119 +357,26 @@ export async function runEmbeddedPiAgent(
           });
 
           const { aborted, promptError, timedOut, sessionIdUsed, lastAssistant } = attempt;
-          mergeUsageIntoAccumulator(
-            usageAccumulator,
-            attempt.attemptUsage ?? normalizeUsage(lastAssistant?.usage as UsageLike),
-          );
-          autoCompactionCount += Math.max(0, attempt.compactionCount ?? 0);
-          const formattedAssistantErrorText = lastAssistant
-            ? formatAssistantErrorText(lastAssistant, {
-                cfg: params.config,
-                sessionKey: params.sessionKey ?? params.sessionId,
-              })
-            : undefined;
-          const assistantErrorText =
-            lastAssistant?.stopReason === "error"
-              ? lastAssistant.errorMessage?.trim() || formattedAssistantErrorText
-              : undefined;
 
-          const contextOverflowError = !aborted
-            ? (() => {
-                if (promptError) {
-                  const errorText = describeUnknownError(promptError);
-                  if (isContextOverflowError(errorText)) {
-                    return { text: errorText, source: "promptError" as const };
-                  }
-                  // Prompt submission failed with a non-overflow error. Do not
-                  // inspect prior assistant errors from history for this attempt.
-                  return null;
-                }
-                if (assistantErrorText && isContextOverflowError(assistantErrorText)) {
-                  return { text: assistantErrorText, source: "assistantError" as const };
-                }
-                return null;
-              })()
-            : null;
-
-          if (contextOverflowError) {
-            const errorText = contextOverflowError.text;
-            const msgCount = attempt.messagesSnapshot?.length ?? 0;
-            log.warn(
-              `[context-overflow-diag] sessionKey=${params.sessionKey ?? params.sessionId} ` +
-                `provider=${provider}/${modelId} source=${contextOverflowError.source} ` +
-                `messages=${msgCount} sessionFile=${params.sessionFile} ` +
-                `compactionAttempts=${overflowCompactionAttempts} error=${errorText.slice(0, 200)}`,
-            );
-            const isCompactionFailure = isCompactionFailureError(errorText);
-            // Attempt auto-compaction on context overflow (not compaction_failure)
-            if (
-              !isCompactionFailure &&
-              overflowCompactionAttempts < MAX_OVERFLOW_COMPACTION_ATTEMPTS
-            ) {
-              overflowCompactionAttempts++;
-              log.warn(
-                `context overflow detected (attempt ${overflowCompactionAttempts}/${MAX_OVERFLOW_COMPACTION_ATTEMPTS}); attempting auto-compaction for ${provider}/${modelId}`,
-              );
-              const compactResult = await compactEmbeddedPiSessionDirect({
-                sessionId: params.sessionId,
-                sessionKey: params.sessionKey,
-                messageChannel: params.messageChannel,
-                messageProvider: params.messageProvider,
-                agentAccountId: params.agentAccountId,
-                authProfileId: lastProfileId,
-                sessionFile: params.sessionFile,
-                workspaceDir: resolvedWorkspace,
-                agentDir,
-                config: params.config,
-                skillsSnapshot: params.skillsSnapshot,
-                senderIsOwner: params.senderIsOwner,
-                provider,
-                model: modelId,
-                thinkLevel,
-                reasoningLevel: params.reasoningLevel,
-                bashElevated: params.bashElevated,
-                extraSystemPrompt: params.extraSystemPrompt,
-                ownerNumbers: params.ownerNumbers,
-              });
-              if (compactResult.compacted) {
-                autoCompactionCount += 1;
-                log.info(`auto-compaction succeeded for ${provider}/${modelId}; retrying prompt`);
-                continue;
-              }
-              log.warn(
-                `auto-compaction failed for ${provider}/${modelId}: ${compactResult.reason ?? "nothing to compact"}`,
-              );
-            }
-            // Fallback: try truncating oversized tool results in the session.
-            // This handles the case where a single tool result exceeds the
-            // context window and compaction cannot reduce it further.
-            if (!toolResultTruncationAttempted) {
-              const contextWindowTokens = ctxInfo.tokens;
-              const hasOversized = attempt.messagesSnapshot
-                ? sessionLikelyHasOversizedToolResults({
-                    messages: attempt.messagesSnapshot,
-                    contextWindowTokens,
-                  })
-                : false;
-
-              if (hasOversized) {
-                toolResultTruncationAttempted = true;
+          if (promptError && !aborted) {
+            const errorText = describeUnknownError(promptError);
+            if (isContextOverflowError(errorText)) {
+              const isCompactionFailure = isCompactionFailureError(errorText);
+              // Attempt auto-compaction on context overflow (not compaction_failure)
+              if (!isCompactionFailure && !overflowCompactionAttempted) {
                 log.warn(
-                  `[context-overflow-recovery] Attempting tool result truncation for ${provider}/${modelId} ` +
-                    `(contextWindow=${contextWindowTokens} tokens)`,
+                  `context overflow detected; attempting auto-compaction for ${provider}/${modelId}`,
                 );
-                const truncResult = await truncateOversizedToolResultsInSession({
-                  sessionFile: params.sessionFile,
-                  contextWindowTokens,
+                overflowCompactionAttempted = true;
+                const compactResult = await compactEmbeddedPiSessionDirect({
                   sessionId: params.sessionId,
                   sessionKey: params.sessionKey,
-<<<<<<< HEAD
                   messageChannel: params.messageChannel,
                   messageProvider: params.messageProvider,
                   agentAccountId: params.agentAccountId,
                   authProfileId: lastProfileId,
                   sessionFile: params.sessionFile,
-                  workspaceDir: resolvedWorkspace,
+                  workspaceDir: params.workspaceDir,
                   agentDir,
                   config: params.config,
                   skillsSnapshot: params.skillsSnapshot,
@@ -559,47 +388,37 @@ export async function runEmbeddedPiAgent(
                   bashElevated: params.bashElevated,
                   extraSystemPrompt: params.extraSystemPrompt,
                   ownerNumbers: params.ownerNumbers,
-=======
->>>>>>> 191da1feb (fix: context overflow compaction and subagent announce improvements (#11664) (thanks @tyler6204))
                 });
-                if (truncResult.truncated) {
-                  log.info(
-                    `[context-overflow-recovery] Truncated ${truncResult.truncatedCount} tool result(s); retrying prompt`,
-                  );
-                  // Session is now smaller; allow compaction retries again.
-                  overflowCompactionAttempts = 0;
+                if (compactResult.compacted) {
+                  log.info(`auto-compaction succeeded for ${provider}/${modelId}; retrying prompt`);
                   continue;
                 }
                 log.warn(
-                  `[context-overflow-recovery] Tool result truncation did not help: ${truncResult.reason ?? "unknown"}`,
+                  `auto-compaction failed for ${provider}/${modelId}: ${compactResult.reason ?? "nothing to compact"}`,
                 );
               }
+              const kind = isCompactionFailure ? "compaction_failure" : "context_overflow";
+              return {
+                payloads: [
+                  {
+                    text:
+                      "Context overflow: prompt too large for the model. " +
+                      "Try again with less input or a larger-context model.",
+                    isError: true,
+                  },
+                ],
+                meta: {
+                  durationMs: Date.now() - started,
+                  agentMeta: {
+                    sessionId: sessionIdUsed,
+                    provider,
+                    model: model.id,
+                  },
+                  systemPromptReport: attempt.systemPromptReport,
+                  error: { kind, message: errorText },
+                },
+              };
             }
-            const kind = isCompactionFailure ? "compaction_failure" : "context_overflow";
-            return {
-              payloads: [
-                {
-                  text:
-                    "Context overflow: prompt too large for the model. " +
-                    "Try again with less input or a larger-context model.",
-                  isError: true,
-                },
-              ],
-              meta: {
-                durationMs: Date.now() - started,
-                agentMeta: {
-                  sessionId: sessionIdUsed,
-                  provider,
-                  model: model.id,
-                },
-                systemPromptReport: attempt.systemPromptReport,
-                error: { kind, message: errorText },
-              },
-            };
-          }
-
-          if (promptError && !aborted) {
-            const errorText = describeUnknownError(promptError);
             // Handle role ordering errors with a user-friendly message
             if (/incorrect role information|roles must alternate/i.test(errorText)) {
               return {
@@ -792,13 +611,12 @@ export async function runEmbeddedPiAgent(
             }
           }
 
-          const usage = toNormalizedUsage(usageAccumulator);
+          const usage = normalizeUsage(lastAssistant?.usage as UsageLike);
           const agentMeta: EmbeddedPiAgentMeta = {
             sessionId: sessionIdUsed,
             provider: lastAssistant?.provider ?? provider,
             model: lastAssistant?.model ?? model.id,
             usage,
-            compactionCount: autoCompactionCount > 0 ? autoCompactionCount : undefined,
           };
 
           const payloads = buildEmbeddedRunPayloads({

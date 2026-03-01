@@ -41,7 +41,6 @@ describe("discord processDiscordMessage inbound contract", () => {
       historyLimit: 0,
       mediaMaxBytes: 1024,
       textLimit: 4000,
-      sender: { label: "user" },
       replyToMode: "off",
       ackReactionScope: "direct",
       groupPolicy: "open",

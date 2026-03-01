@@ -254,7 +254,11 @@ export async function finalizeOnboardingWizard(options: FinalizeOnboardingOption
     customBindHost: settings.customBindHost,
     basePath: controlUiBasePath,
   });
-  const dashboardUrl = links.httpUrl;
+  const tokenParam =
+    settings.authMode === "token" && settings.gatewayToken
+      ? `?token=${encodeURIComponent(settings.gatewayToken)}`
+      : "";
+  const authedUrl = `${links.httpUrl}${tokenParam}`;
   const gatewayProbe = await probeGatewayReachable({
     url: links.wsUrl,
     token: settings.authMode === "token" ? settings.gatewayToken : undefined,
@@ -274,7 +278,8 @@ export async function finalizeOnboardingWizard(options: FinalizeOnboardingOption
 
   await prompter.note(
     [
-      `Web UI: ${dashboardUrl}`,
+      `Web UI: ${links.httpUrl}`,
+      tokenParam ? `Web UI (with token): ${authedUrl}` : undefined,
       `Gateway WS: ${links.wsUrl}`,
       gatewayStatusLine,
       "Docs: https://docs.openclaw.ai/web/control-ui",
@@ -345,22 +350,24 @@ export async function finalizeOnboardingWizard(options: FinalizeOnboardingOption
     } else if (hatchChoice === "web") {
       const browserSupport = await detectBrowserOpenSupport();
       if (browserSupport.ok) {
-        controlUiOpened = await openUrl(dashboardUrl);
+        controlUiOpened = await openUrl(authedUrl);
         if (!controlUiOpened) {
           controlUiOpenHint = formatControlUiSshHint({
             port: settings.port,
             basePath: controlUiBasePath,
+            token: settings.gatewayToken,
           });
         }
       } else {
         controlUiOpenHint = formatControlUiSshHint({
           port: settings.port,
           basePath: controlUiBasePath,
+          token: settings.gatewayToken,
         });
       }
       await prompter.note(
         [
-          `Dashboard link: ${dashboardUrl}`,
+          `Dashboard link (with token): ${authedUrl}`,
           controlUiOpened
             ? "Opened in your browser. Keep that tab to control OpenClaw."
             : "Copy/paste this URL in a browser on this machine to control OpenClaw.",
@@ -401,23 +408,25 @@ export async function finalizeOnboardingWizard(options: FinalizeOnboardingOption
   if (shouldOpenControlUi) {
     const browserSupport = await detectBrowserOpenSupport();
     if (browserSupport.ok) {
-      controlUiOpened = await openUrl(dashboardUrl);
+      controlUiOpened = await openUrl(authedUrl);
       if (!controlUiOpened) {
         controlUiOpenHint = formatControlUiSshHint({
           port: settings.port,
           basePath: controlUiBasePath,
+          token: settings.gatewayToken,
         });
       }
     } else {
       controlUiOpenHint = formatControlUiSshHint({
         port: settings.port,
         basePath: controlUiBasePath,
+        token: settings.gatewayToken,
       });
     }
 
     await prompter.note(
       [
-        `Dashboard link: ${dashboardUrl}`,
+        `Dashboard link (with token): ${authedUrl}`,
         controlUiOpened
           ? "Opened in your browser. Keep that tab to control OpenClaw."
           : "Copy/paste this URL in a browser on this machine to control OpenClaw.",

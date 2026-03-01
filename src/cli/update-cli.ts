@@ -216,17 +216,6 @@ function resolveGitInstallDir(): string {
 
 function resolveDefaultGitDir(): string {
   return DEFAULT_GIT_DIR;
-=======
-  const override = process.env.OPENCLAW_GIT_DIR?.trim();
-  if (override) {
-    return path.resolve(override);
-  }
-  return resolveDefaultGitDir();
-}
-
-function resolveDefaultGitDir(): string {
-  return resolveStateDir(process.env, os.homedir);
->>>>>>> ebe573040 (fix: use STATE_DIR instead of hardcoded ~/.openclaw for identity and canvas (#4824))
 }
 
 function resolveNodeRunner(): string {
@@ -743,7 +732,7 @@ export async function updateCommand(opts: UpdateCommandOptions): Promise<void> {
     let afterVersion = beforeVersion;
     if (pkgRoot) {
       afterVersion = await readPackageVersion(pkgRoot);
-      const entryPath = path.join(pkgRoot, "dist", "entry.mjs");
+      const entryPath = path.join(pkgRoot, "dist", "entry.js");
       if (await pathExists(entryPath)) {
         const doctorStep = await runUpdateStep({
           name: `${CLI_NAME} doctor`,
@@ -948,12 +937,14 @@ export async function updateCommand(opts: UpdateCommandOptions): Promise<void> {
       defaultRuntime.log(theme.heading("Restarting service..."));
     }
     try {
+      const { runDaemonRestart } = await import("./daemon-cli.js");
       const restarted = await runDaemonRestart();
       if (!opts.json && restarted) {
         defaultRuntime.log(theme.success("Daemon restarted successfully."));
         defaultRuntime.log("");
         process.env.OPENCLAW_UPDATE_IN_PROGRESS = "1";
         try {
+          const { doctorCommand } = await import("../commands/doctor.js");
           const interactiveDoctor = Boolean(process.stdin.isTTY) && !opts.json && opts.yes !== true;
           await doctorCommand(defaultRuntime, {
             nonInteractive: !interactiveDoctor,

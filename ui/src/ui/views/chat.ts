@@ -88,7 +88,7 @@ function renderCompactionIndicator(status: CompactionIndicatorStatus | null | un
   // Show "compacting..." while active
   if (status.active) {
     return html`
-      <div class="compaction-indicator compaction-indicator--active" role="status" aria-live="polite">
+      <div class="callout info compaction-indicator compaction-indicator--active">
         ${icons.loader} Compacting context...
       </div>
     `;
@@ -99,7 +99,7 @@ function renderCompactionIndicator(status: CompactionIndicatorStatus | null | un
     const elapsed = Date.now() - status.completedAt;
     if (elapsed < COMPACTION_TOAST_DURATION_MS) {
       return html`
-        <div class="compaction-indicator compaction-indicator--complete" role="status" aria-live="polite">
+        <div class="callout success compaction-indicator compaction-indicator--complete">
           ${icons.check} Context compacted
         </div>
       `;
@@ -254,16 +254,10 @@ export function renderChat(props: ChatProps) {
         ? html`<div class="callout danger">${props.error}</div>`
         : nothing}
 
-<<<<<<< HEAD
       ${renderCompactionIndicator(props.compactionStatus)}
 
       ${props.focusMode
         ? html`
-=======
-      ${
-        props.focusMode
-          ? html`
->>>>>>> 191da1feb (fix: context overflow compaction and subagent announce improvements (#11664) (thanks @tyler6204))
             <button
               class="chat-focus-exit"
               type="button"

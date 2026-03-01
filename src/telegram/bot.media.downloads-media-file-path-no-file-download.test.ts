@@ -10,16 +10,6 @@ const sendChatActionSpy = vi.fn();
 const cacheStickerSpy = vi.fn();
 const getCachedStickerSpy = vi.fn();
 const describeStickerImageSpy = vi.fn();
-<<<<<<< HEAD
-=======
-const resolvePinnedHostname = ssrf.resolvePinnedHostname;
-const lookupMock = vi.fn();
-<<<<<<< HEAD
-let resolvePinnedHostnameSpy: ReturnType<typeof vi.spyOn> | null = null;
->>>>>>> 9bd64c8a1 (fix: expand SSRF guard coverage)
-=======
-let resolvePinnedHostnameSpy: ReturnType<typeof vi.spyOn> = null;
->>>>>>> 425003417 (fix: Remove `tsconfig.oxlint.json` AGAIN.)
 
 type ApiStub = {
   config: { use: (arg: unknown) => void };
@@ -36,19 +26,6 @@ const apiStub: ApiStub = {
 beforeEach(() => {
   vi.useRealTimers();
   resetInboundDedupe();
-<<<<<<< HEAD
-=======
-  lookupMock.mockResolvedValue([{ address: "93.184.216.34", family: 4 }]);
-  resolvePinnedHostnameSpy = vi
-    .spyOn(ssrf, "resolvePinnedHostname")
-    .mockImplementation((hostname) => resolvePinnedHostname(hostname, lookupMock));
-});
-
-afterEach(() => {
-  lookupMock.mockReset();
-  resolvePinnedHostnameSpy?.mockRestore();
-  resolvePinnedHostnameSpy = null;
->>>>>>> 9bd64c8a1 (fix: expand SSRF guard coverage)
 });
 
 vi.mock("grammy", () => ({
@@ -179,14 +156,7 @@ describe("telegram inbound media", () => {
       });
 
       expect(runtimeError).not.toHaveBeenCalled();
-<<<<<<< HEAD
       expect(fetchSpy).toHaveBeenCalledWith("https://api.telegram.org/file/bottok/photos/1.jpg");
-=======
-      expect(fetchSpy).toHaveBeenCalledWith(
-        "https://api.telegram.org/file/bottok/photos/1.jpg",
-        expect.objectContaining({ redirect: "manual" }),
-      );
->>>>>>> 9bd64c8a1 (fix: expand SSRF guard coverage)
       expect(replySpy).toHaveBeenCalledTimes(1);
       const payload = replySpy.mock.calls[0][0];
       expect(payload.Body).toContain("<media:image>");
@@ -241,14 +211,7 @@ describe("telegram inbound media", () => {
     });
 
     expect(runtimeError).not.toHaveBeenCalled();
-<<<<<<< HEAD
     expect(proxyFetch).toHaveBeenCalledWith("https://api.telegram.org/file/bottok/photos/2.jpg");
-=======
-    expect(proxyFetch).toHaveBeenCalledWith(
-      "https://api.telegram.org/file/bottok/photos/2.jpg",
-      expect.objectContaining({ redirect: "manual" }),
-    );
->>>>>>> 9bd64c8a1 (fix: expand SSRF guard coverage)
 
     globalFetchSpy.mockRestore();
   });
@@ -521,10 +484,6 @@ describe("telegram stickers", () => {
       expect(runtimeError).not.toHaveBeenCalled();
       expect(fetchSpy).toHaveBeenCalledWith(
         "https://api.telegram.org/file/bottok/stickers/sticker.webp",
-<<<<<<< HEAD
-=======
-        expect.objectContaining({ redirect: "manual" }),
->>>>>>> 9bd64c8a1 (fix: expand SSRF guard coverage)
       );
       expect(replySpy).toHaveBeenCalledTimes(1);
       const payload = replySpy.mock.calls[0][0];

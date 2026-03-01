@@ -1,6 +1,5 @@
 export type CompactionSafeguardRuntimeValue = {
   maxHistoryShare?: number;
-  contextWindowTokens?: number;
 };
 
 // Session-scoped runtime registry keyed by object identity.

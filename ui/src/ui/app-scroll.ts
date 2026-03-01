@@ -82,12 +82,7 @@ export function scheduleChatScroll(host: ScrollHost, force = false, smooth = fal
       }
 >>>>>>> bc475f017 (fix(ui): smooth chat refresh scroll and suppress new-messages badge flash)
       host.chatUserNearBottom = true;
-<<<<<<< HEAD
       const retryDelay = force ? 150 : 120;
-=======
-      host.chatNewMessagesBelow = false;
-      const retryDelay = effectiveForce ? 150 : 120;
->>>>>>> 822388fe9 (fix: address review feedback — retryDelay uses effectiveForce, default overrides param, @state() on chatNewMessagesBelow)
       host.chatScrollTimeout = window.setTimeout(() => {
         host.chatScrollTimeout = null;
         const latest = pickScrollTarget();

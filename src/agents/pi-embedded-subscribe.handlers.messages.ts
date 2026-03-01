@@ -26,18 +26,6 @@ import {
   promoteThinkingTagsToBlocks,
 } from "./pi-embedded-utils.js";
 
-const stripTrailingDirective = (text: string): string => {
-  const openIndex = text.lastIndexOf("[[");
-  if (openIndex < 0) {
-    return text;
-  }
-  const closeIndex = text.indexOf("]]", openIndex + 2);
-  if (closeIndex >= 0) {
-    return text;
-  }
-  return text.slice(0, openIndex);
-};
-
 export function handleMessageStart(
   ctx: EmbeddedPiSubscribeContext,
   evt: AgentEvent & { message: AgentMessage },
@@ -126,38 +114,20 @@ export function handleMessageUpdate(
       inlineCode: createInlineCodeState(),
     })
     .trim();
-  if (next) {
-    const visibleDelta = chunk ? ctx.stripBlockTags(chunk, ctx.state.partialBlockState) : "";
-    const parsedDelta = visibleDelta ? ctx.consumePartialReplyDirectives(visibleDelta) : null;
-    const parsedFull = parseReplyDirectives(stripTrailingDirective(next));
-    const cleanedText = parsedFull.text;
-    const mediaUrls = parsedDelta?.mediaUrls;
-    const hasMedia = Boolean(mediaUrls && mediaUrls.length > 0);
-    const hasAudio = Boolean(parsedDelta?.audioAsVoice);
-    const previousCleaned = ctx.state.lastStreamedAssistantCleaned ?? "";
-
-    let shouldEmit = false;
-    let deltaText = "";
-    if (!cleanedText && !hasMedia && !hasAudio) {
-      shouldEmit = false;
-    } else if (previousCleaned && !cleanedText.startsWith(previousCleaned)) {
-      shouldEmit = false;
-    } else {
-      deltaText = cleanedText.slice(previousCleaned.length);
-      shouldEmit = Boolean(deltaText || hasMedia || hasAudio);
-    }
-
-    ctx.state.lastStreamedAssistant = next;
-    ctx.state.lastStreamedAssistantCleaned = cleanedText;
-
-    if (shouldEmit) {
+  if (next && next !== ctx.state.lastStreamedAssistant) {
+    const previousText = ctx.state.lastStreamedAssistant ?? "";
+    const { text: cleanedText, mediaUrls } = parseReplyDirectives(next);
+    const { text: previousCleanedText } = parseReplyDirectives(previousText);
+    if (cleanedText.startsWith(previousCleanedText)) {
+      const deltaText = cleanedText.slice(previousCleanedText.length);
+      ctx.state.lastStreamedAssistant = next;
       emitAgentEvent({
         runId: ctx.params.runId,
         stream: "assistant",
         data: {
           text: cleanedText,
           delta: deltaText,
-          mediaUrls: hasMedia ? mediaUrls : undefined,
+          mediaUrls: mediaUrls?.length ? mediaUrls : undefined,
         },
       });
       void ctx.params.onAgentEvent?.({
@@ -165,14 +135,14 @@ export function handleMessageUpdate(
         data: {
           text: cleanedText,
           delta: deltaText,
-          mediaUrls: hasMedia ? mediaUrls : undefined,
+          mediaUrls: mediaUrls?.length ? mediaUrls : undefined,
         },
       });
       ctx.state.emittedAssistantUpdate = true;
       if (ctx.params.onPartialReply && ctx.state.shouldEmitPartialReplies) {
         void ctx.params.onPartialReply({
           text: cleanedText,
-          mediaUrls: hasMedia ? mediaUrls : undefined,
+          mediaUrls: mediaUrls?.length ? mediaUrls : undefined,
         });
       }
     }
@@ -200,12 +170,7 @@ export function handleMessageEnd(
   const msg = evt.message;
   if (msg?.role !== "assistant") return;
 
-<<<<<<< HEAD
   const assistantMessage = msg as AssistantMessage;
-=======
-  const assistantMessage = msg;
-  ctx.recordAssistantUsage((assistantMessage as { usage?: unknown }).usage);
->>>>>>> 191da1feb (fix: context overflow compaction and subagent announce improvements (#11664) (thanks @tyler6204))
   promoteThinkingTagsToBlocks(assistantMessage);
 
   const rawText = extractAssistantText(assistantMessage);
@@ -369,5 +334,4 @@ export function handleMessageEnd(
   ctx.state.blockState.final = false;
   ctx.state.blockState.inlineCode = createInlineCodeState();
   ctx.state.lastStreamedAssistant = undefined;
-  ctx.state.lastStreamedAssistantCleaned = undefined;
 }

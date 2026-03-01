@@ -17,11 +17,7 @@ import {
   mergeDeliveryContext,
   normalizeDeliveryContext,
 } from "../utils/delivery-context.js";
-import {
-  isEmbeddedPiRunActive,
-  queueEmbeddedPiMessage,
-  waitForEmbeddedPiRunEnd,
-} from "./pi-embedded.js";
+import { isEmbeddedPiRunActive, queueEmbeddedPiMessage } from "./pi-embedded.js";
 import { type AnnounceQueueItem, enqueueAnnounce } from "./subagent-announce-queue.js";
 import { readLatestAssistantReply } from "./tools/agent-step.js";
 
@@ -96,10 +92,7 @@ function resolveAnnounceOrigin(
   entry?: DeliveryContextSource,
   requesterOrigin?: DeliveryContext,
 ): DeliveryContext | undefined {
-  // requesterOrigin (captured at spawn time) reflects the channel the user is
-  // actually on and must take priority over the session entry, which may carry
-  // stale lastChannel / lastTo values from a previous channel interaction.
-  return mergeDeliveryContext(requesterOrigin, deliveryContextFromSession(entry));
+  return mergeDeliveryContext(deliveryContextFromSession(entry), requesterOrigin);
 }
 
 async function sendAnnounce(item: AnnounceQueueItem) {
@@ -250,35 +243,6 @@ async function buildSubagentStatsLine(params: {
   return `Stats: ${parts.join(" \u2022 ")}`;
 }
 
-function loadSessionEntryByKey(sessionKey: string) {
-  const cfg = loadConfig();
-  const agentId = resolveAgentIdFromSessionKey(sessionKey);
-  const storePath = resolveStorePath(cfg.session?.store, { agentId });
-  const store = loadSessionStore(storePath);
-  return store[sessionKey];
-}
-
-async function readLatestAssistantReplyWithRetry(params: {
-  sessionKey: string;
-  initialReply?: string;
-  maxWaitMs: number;
-}): Promise<string | undefined> {
-  let reply = params.initialReply?.trim() ? params.initialReply : undefined;
-  if (reply) {
-    return reply;
-  }
-
-  const deadline = Date.now() + Math.max(0, Math.min(params.maxWaitMs, 15_000));
-  while (Date.now() < deadline) {
-    await new Promise((resolve) => setTimeout(resolve, 300));
-    const latest = await readLatestAssistantReply({ sessionKey: params.sessionKey });
-    if (latest?.trim()) {
-      return latest;
-    }
-  }
-  return reply;
-}
-
 export function buildSubagentSystemPrompt(params: {
   requesterSessionKey?: string;
   requesterOrigin?: DeliveryContext;
@@ -353,65 +317,29 @@ export async function runSubagentAnnounceFlow(params: {
   outcome?: SubagentRunOutcome;
 }): Promise<boolean> {
   let didAnnounce = false;
-  let shouldDeleteChildSession = params.cleanup === "delete";
   try {
     const requesterOrigin = normalizeDeliveryContext(params.requesterOrigin);
-    const childSessionId = (() => {
-      const entry = loadSessionEntryByKey(params.childSessionKey);
-      return typeof entry?.sessionId === "string" && entry.sessionId.trim()
-        ? entry.sessionId.trim()
-        : undefined;
-    })();
-    const settleTimeoutMs = Math.min(Math.max(params.timeoutMs, 1), 120_000);
     let reply = params.roundOneReply;
     let outcome: SubagentRunOutcome | undefined = params.outcome;
-    // Lifecycle "end" can arrive before auto-compaction retries finish. If the
-    // subagent is still active, wait for the embedded run to fully settle.
-    if (childSessionId && isEmbeddedPiRunActive(childSessionId)) {
-      const settled = await waitForEmbeddedPiRunEnd(childSessionId, settleTimeoutMs);
-      if (!settled && isEmbeddedPiRunActive(childSessionId)) {
-        // The child run is still active (e.g., compaction retry still in progress).
-        // Defer announcement so we don't report stale/partial output.
-        // Keep the child session so output is not lost while the run is still active.
-        shouldDeleteChildSession = false;
-        return false;
-      }
-    }
-
     if (!reply && params.waitForCompletion !== false) {
-<<<<<<< HEAD
       const waitMs = Math.min(params.timeoutMs, 60_000);
       const wait = (await callGateway({
-=======
-      const waitMs = settleTimeoutMs;
-      const wait = await callGateway<{
-        status?: string;
-        startedAt?: number;
-        endedAt?: number;
-        error?: string;
-      }>({
->>>>>>> 191da1feb (fix: context overflow compaction and subagent announce improvements (#11664) (thanks @tyler6204))
         method: "agent.wait",
         params: {
           runId: params.childRunId,
           timeoutMs: waitMs,
         },
         timeoutMs: waitMs + 2000,
-<<<<<<< HEAD
       })) as {
         status?: string;
         error?: string;
         startedAt?: number;
         endedAt?: number;
       };
-=======
-      });
-      const waitError = typeof wait?.error === "string" ? wait.error : undefined;
->>>>>>> a42e1c82d (fix: restore tsc build and plugin install tests)
       if (wait?.status === "timeout") {
         outcome = { status: "timeout" };
       } else if (wait?.status === "error") {
-        outcome = { status: "error", error: waitError };
+        outcome = { status: "error", error: wait.error };
       } else if (wait?.status === "ok") {
         outcome = { status: "ok" };
       }
@@ -424,34 +352,18 @@ export async function runSubagentAnnounceFlow(params: {
       if (wait?.status === "timeout") {
         if (!outcome) outcome = { status: "timeout" };
       }
-      reply = await readLatestAssistantReply({ sessionKey: params.childSessionKey });
-    }
-
-    if (!reply) {
-      reply = await readLatestAssistantReply({ sessionKey: params.childSessionKey });
-    }
-
-    if (!reply?.trim()) {
-      reply = await readLatestAssistantReplyWithRetry({
+      reply = await readLatestAssistantReply({
         sessionKey: params.childSessionKey,
-        initialReply: reply,
-        maxWaitMs: params.timeoutMs,
       });
     }
 
-<<<<<<< HEAD
-    if (!outcome) outcome = { status: "unknown" };
-=======
-    if (!reply?.trim() && childSessionId && isEmbeddedPiRunActive(childSessionId)) {
-      // Avoid announcing "(no output)" while the child run is still producing output.
-      shouldDeleteChildSession = false;
-      return false;
+    if (!reply) {
+      reply = await readLatestAssistantReply({
+        sessionKey: params.childSessionKey,
+      });
     }
 
-    if (!outcome) {
-      outcome = { status: "unknown" };
-    }
->>>>>>> 191da1feb (fix: context overflow compaction and subagent announce improvements (#11664) (thanks @tyler6204))
+    if (!outcome) outcome = { status: "unknown" };
 
     // Build stats
     const statsLine = await buildSubagentStatsLine({
@@ -542,7 +454,7 @@ export async function runSubagentAnnounceFlow(params: {
         // Best-effort
       }
     }
-    if (shouldDeleteChildSession) {
+    if (params.cleanup === "delete") {
       try {
         await callGateway({
           method: "sessions.delete",

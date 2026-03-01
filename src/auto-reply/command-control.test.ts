@@ -7,28 +7,19 @@ import type { OpenClawConfig } from "../config/config.js";
 import type { MsgContext } from "./templating.js";
 >>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { setActivePluginRegistry } from "../plugins/runtime.js";
-import { createOutboundTestPlugin, createTestRegistry } from "../test-utils/channel-plugins.js";
+import { createTestRegistry } from "../test-utils/channel-plugins.js";
 import { resolveCommandAuthorization } from "./command-auth.js";
 import { hasControlCommand, hasInlineCommandTokens } from "./command-detection.js";
 import { listChatCommands } from "./commands-registry.js";
 import { parseActivationCommand } from "./group-activation.js";
 import { parseSendPolicyCommand } from "./send-policy.js";
 
-const createRegistry = () =>
-  createTestRegistry([
-    {
-      pluginId: "discord",
-      plugin: createOutboundTestPlugin({ id: "discord", outbound: { deliveryMode: "direct" } }),
-      source: "test",
-    },
-  ]);
-
 beforeEach(() => {
-  setActivePluginRegistry(createRegistry());
+  setActivePluginRegistry(createTestRegistry([]));
 });
 
 afterEach(() => {
-  setActivePluginRegistry(createRegistry());
+  setActivePluginRegistry(createTestRegistry([]));
 });
 
 describe("resolveCommandAuthorization", () => {

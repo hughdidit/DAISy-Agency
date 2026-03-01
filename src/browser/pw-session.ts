@@ -356,8 +356,7 @@ async function findPageByTargetId(
         .replace(/\/+$/, "")
         .replace(/^ws:/, "http:")
         .replace(/\/cdp$/, "");
-      const listUrl = `${baseUrl}/json/list`;
-      const response = await fetch(listUrl, { headers: getHeadersWithAuth(listUrl) });
+      const response = await fetch(`${baseUrl}/json/list`);
       if (response.ok) {
         const targets = (await response.json()) as Array<{
           id: string;

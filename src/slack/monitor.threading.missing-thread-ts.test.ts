@@ -1,7 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { resetInboundDedupe } from "../auto-reply/reply/inbound-dedupe.js";
-
-const { monitorSlackProvider } = await import("./monitor.js");
+import { monitorSlackProvider } from "./monitor.js";
 
 const sendMock = vi.fn();
 const replyMock = vi.fn();

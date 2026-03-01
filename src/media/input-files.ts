@@ -112,6 +112,10 @@ export const DEFAULT_INPUT_PDF_MAX_PAGES = 4;
 export const DEFAULT_INPUT_PDF_MAX_PIXELS = 4_000_000;
 export const DEFAULT_INPUT_PDF_MIN_TEXT_CHARS = 200;
 
+function isRedirectStatus(status: number): boolean {
+  return status === 301 || status === 302 || status === 303 || status === 307 || status === 308;
+}
+
 export function normalizeMimeType(value: string | undefined): string | undefined {
   if (!value) return undefined;
   const [raw] = value.split(";");
@@ -143,19 +147,21 @@ export async function fetchWithGuard(params: {
   timeoutMs: number;
   maxRedirects: number;
 }): Promise<InputFetchResult> {
-  const { response, release } = await fetchWithSsrFGuard({
-    url: params.url,
-    maxRedirects: params.maxRedirects,
-    timeoutMs: params.timeoutMs,
-    init: { headers: { "User-Agent": "OpenClaw-Gateway/1.0" } },
-  });
+  let currentUrl = params.url;
+  let redirectCount = 0;
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), params.timeoutMs);
 
   try {
-    if (!response.ok) {
-      throw new Error(`Failed to fetch: ${response.status} ${response.statusText}`);
-    }
+    while (true) {
+      const parsedUrl = new URL(currentUrl);
+      if (!["http:", "https:"].includes(parsedUrl.protocol)) {
+        throw new Error(`Invalid URL protocol: ${parsedUrl.protocol}. Only HTTP/HTTPS allowed.`);
+      }
+      const pinned = await resolvePinnedHostname(parsedUrl.hostname);
+      const dispatcher = createPinnedDispatcher(pinned);
 
-<<<<<<< HEAD
       try {
         const response = await fetch(parsedUrl, {
           signal: controller.signal,
@@ -203,29 +209,10 @@ export async function fetchWithGuard(params: {
         return { buffer, mimeType, contentType };
       } finally {
         await closeDispatcher(dispatcher);
-=======
-    const contentLength = response.headers.get("content-length");
-    if (contentLength) {
-      const size = parseInt(contentLength, 10);
-      if (size > params.maxBytes) {
-        throw new Error(`Content too large: ${size} bytes (limit: ${params.maxBytes} bytes)`);
->>>>>>> 81c68f582 (fix: guard remote media fetches with SSRF checks)
       }
     }
-
-    const buffer = Buffer.from(await response.arrayBuffer());
-    if (buffer.byteLength > params.maxBytes) {
-      throw new Error(
-        `Content too large: ${buffer.byteLength} bytes (limit: ${params.maxBytes} bytes)`,
-      );
-    }
-
-    const contentType = response.headers.get("content-type") || undefined;
-    const parsed = parseContentType(contentType);
-    const mimeType = parsed.mimeType ?? "application/octet-stream";
-    return { buffer, mimeType, contentType };
   } finally {
-    await release();
+    clearTimeout(timeoutId);
   }
 }
 
