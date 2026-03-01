@@ -46,7 +46,12 @@ Moltbot ships with the pi‑ai catalog. These providers require **no**
 - Optional rotation: `OPENAI_API_KEYS`, `OPENAI_API_KEY_1`, `OPENAI_API_KEY_2`, plus `OPENCLAW_LIVE_OPENAI_KEY` (single override)
 - Example model: `openai/gpt-5.1-codex`
 - CLI: `openclaw onboard --auth-choice openai-api-key`
+<<<<<<< HEAD
 >>>>>>> 2e91552f0 (feat(agents): add generic provider api key rotation (#19587))
+=======
+- Default transport is `auto` (WebSocket-first, SSE fallback)
+- Override per model via `agents.defaults.models["openai/<model>"].params.transport` (`"sse"`, `"websocket"`, or `"auto"`)
+>>>>>>> 7ced38b5e (feat(agents): make openai responses websocket-first with fallback)
 
 ```json5
 {
