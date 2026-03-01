@@ -504,6 +504,47 @@ export const FIELD_HELP: Record<string, string> = {
     "Use this legacy ElevenLabs API key for Talk mode only during migration, and keep secrets in env-backed storage. Prefer talk.providers.elevenlabs.apiKey (fallback: ELEVENLABS_API_KEY).",
   "talk.interruptOnSpeech":
     "If true (default), stop assistant speech when the user starts speaking in Talk mode. Keep enabled for conversational turn-taking.",
+<<<<<<< HEAD:src/config/schema.field-metadata.ts
+=======
+  acp: "ACP runtime controls for enabling dispatch, selecting backends, constraining allowed agent targets, and tuning streamed turn projection behavior.",
+  "acp.enabled":
+    "Global ACP feature gate. Keep disabled unless ACP runtime + policy are configured.",
+  "acp.dispatch.enabled":
+    "Independent dispatch gate for ACP session turns. Disable to keep ACP commands available while blocking ACP turn execution.",
+  "acp.backend":
+    "Default ACP runtime backend id (for example: acpx). Must match a registered ACP runtime plugin backend.",
+  "acp.defaultAgent":
+    "Fallback ACP target agent id used when ACP spawns do not specify an explicit target.",
+  "acp.allowedAgents":
+    "Allowlist of ACP target agent ids permitted for ACP runtime sessions. Empty means no additional allowlist restriction.",
+  "acp.maxConcurrentSessions":
+    "Maximum concurrently active ACP sessions across this gateway process.",
+  "acp.stream":
+    "ACP streaming projection controls for chunk sizing, metadata visibility, and deduped delivery behavior.",
+  "acp.stream.coalesceIdleMs":
+    "Coalescer idle flush window in milliseconds for ACP streamed text before block replies are emitted.",
+  "acp.stream.maxChunkChars":
+    "Maximum chunk size for ACP streamed block projection before splitting into multiple block replies.",
+  "acp.stream.metaMode":
+    "ACP metadata projection mode: off suppresses status/tool lines, minimal dedupes aggressively, verbose streams non-identical updates.",
+  "acp.stream.showUsage":
+    "When true, usage_update events are projected as system lines only when usage values change.",
+  "acp.stream.deliveryMode":
+    "ACP delivery style: live streams block chunks incrementally, final_only buffers text deltas until terminal turn events.",
+  "acp.stream.maxTurnChars":
+    "Maximum assistant text characters projected per ACP turn before truncation notice is emitted.",
+  "acp.stream.maxToolSummaryChars":
+    "Maximum characters for projected ACP tool lifecycle/progress summary lines.",
+  "acp.stream.maxStatusChars": "Maximum characters for projected ACP status/meta lines.",
+  "acp.stream.maxMetaEventsPerTurn":
+    "Maximum ACP meta events projected per turn (text deltas continue unaffected).",
+  "acp.stream.tagVisibility":
+    "Per-sessionUpdate visibility overrides for ACP projection (for example usage_update, available_commands_update).",
+  "acp.runtime.ttlMinutes":
+    "Idle runtime TTL in minutes for ACP session workers before eligible cleanup.",
+  "acp.runtime.installCommand":
+    "Optional operator install/setup command shown by `/acp install` and `/acp doctor` when ACP backend wiring is missing.",
+>>>>>>> 2466a9bb1 (ACP: carry dedupe/projector updates onto configurable acpx branch):src/config/schema.help.ts
   "agents.list.*.skills":
     "Optional allowlist of skills for this agent (omit = all skills; empty = no skills).",
   "agents.list[].skills":

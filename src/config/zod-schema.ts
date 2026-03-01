@@ -327,6 +327,49 @@ export const OpenClawSchema = z
       })
       .strict()
       .optional(),
+<<<<<<< HEAD
+=======
+    acp: z
+      .object({
+        enabled: z.boolean().optional(),
+        dispatch: z
+          .object({
+            enabled: z.boolean().optional(),
+          })
+          .strict()
+          .optional(),
+        backend: z.string().optional(),
+        defaultAgent: z.string().optional(),
+        allowedAgents: z.array(z.string()).optional(),
+        maxConcurrentSessions: z.number().int().positive().optional(),
+        stream: z
+          .object({
+            coalesceIdleMs: z.number().int().nonnegative().optional(),
+            maxChunkChars: z.number().int().positive().optional(),
+            metaMode: z
+              .union([z.literal("off"), z.literal("minimal"), z.literal("verbose")])
+              .optional(),
+            showUsage: z.boolean().optional(),
+            deliveryMode: z.union([z.literal("live"), z.literal("final_only")]).optional(),
+            maxTurnChars: z.number().int().positive().optional(),
+            maxToolSummaryChars: z.number().int().positive().optional(),
+            maxStatusChars: z.number().int().positive().optional(),
+            maxMetaEventsPerTurn: z.number().int().positive().optional(),
+            tagVisibility: z.record(z.string(), z.boolean()).optional(),
+          })
+          .strict()
+          .optional(),
+        runtime: z
+          .object({
+            ttlMinutes: z.number().int().positive().optional(),
+            installCommand: z.string().optional(),
+          })
+          .strict()
+          .optional(),
+      })
+      .strict()
+      .optional(),
+>>>>>>> 2466a9bb1 (ACP: carry dedupe/projector updates onto configurable acpx branch)
     models: ModelsConfigSchema,
     nodeHost: NodeHostSchema,
     agents: AgentsSchema,
