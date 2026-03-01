@@ -1,9 +1,11 @@
-import type { AssistantMessage } from "@mariozechner/pi-ai";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+
+import type { AssistantMessage } from "@mariozechner/pi-ai";
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
-import type { OpenClawConfig } from "../config/config.js";
+
+import type { MoltbotConfig } from "../config/config.js";
 import type { EmbeddedRunAttemptResult } from "./pi-embedded-runner/run/types.js";
 
 const runEmbeddedAttemptMock = vi.fn<Promise<EmbeddedRunAttemptResult>, [unknown]>();
@@ -61,7 +63,7 @@ const makeAttempt = (overrides: Partial<EmbeddedRunAttemptResult>): EmbeddedRunA
   ...overrides,
 });
 
-const makeConfig = (opts?: { fallbacks?: string[]; apiKey?: string }): OpenClawConfig =>
+const makeConfig = (opts?: { fallbacks?: string[]; apiKey?: string }): MoltbotConfig =>
   ({
     agents: {
       defaults: {
@@ -90,7 +92,7 @@ const makeConfig = (opts?: { fallbacks?: string[]; apiKey?: string }): OpenClawC
         },
       },
     },
-  }) satisfies OpenClawConfig;
+  }) satisfies MoltbotConfig;
 
 const writeAuthStore = async (
   agentDir: string,
@@ -121,125 +123,9 @@ const writeAuthStore = async (
 
 describe("runEmbeddedPiAgent auth profile rotation", () => {
   it("rotates for auto-pinned profiles", async () => {
-    const agentDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-agent-"));
-    const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-workspace-"));
+    const agentDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-agent-"));
+    const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-workspace-"));
     try {
-<<<<<<< HEAD
-=======
-      return await run({ agentDir, workspaceDir, now });
-    } finally {
-      await fs.rm(agentDir, { recursive: true, force: true });
-      await fs.rm(workspaceDir, { recursive: true, force: true });
-    }
-  } finally {
-    vi.useRealTimers();
-  }
-}
-
-async function withAgentWorkspace<T>(
-  run: (ctx: { agentDir: string; workspaceDir: string }) => Promise<T>,
-) {
-  const agentDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-agent-"));
-  const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-workspace-"));
-  try {
-    return await run({ agentDir, workspaceDir });
-  } finally {
-    await fs.rm(agentDir, { recursive: true, force: true });
-    await fs.rm(workspaceDir, { recursive: true, force: true });
-  }
-}
-
-async function runTurnWithCooldownSeed(params: {
-  sessionKey: string;
-  runId: string;
-  authProfileId: string | undefined;
-  authProfileIdSource: "auto" | "user";
-}) {
-  return await withTimedAgentWorkspace(async ({ agentDir, workspaceDir, now }) => {
-    await writeAuthStore(agentDir, {
-      usageStats: {
-        "openai:p1": { lastUsed: 1, cooldownUntil: now + 60 * 60 * 1000 },
-        "openai:p2": { lastUsed: 2 },
-      },
-    });
-    mockSingleSuccessfulAttempt();
-
-    await runEmbeddedPiAgent({
-      sessionId: "session:test",
-      sessionKey: params.sessionKey,
-      sessionFile: path.join(workspaceDir, "session.jsonl"),
-      workspaceDir,
-      agentDir,
-      config: makeConfig(),
-      prompt: "hello",
-      provider: "openai",
-      model: "mock-1",
-      authProfileId: params.authProfileId,
-      authProfileIdSource: params.authProfileIdSource,
-      timeoutMs: 5_000,
-      runId: params.runId,
-    });
-
-    expect(runEmbeddedAttemptMock).toHaveBeenCalledTimes(1);
-    return { usageStats: await readUsageStats(agentDir), now };
-  });
-}
-
-describe("runEmbeddedPiAgent auth profile rotation", () => {
-  it("rotates for auto-pinned profiles across retryable stream failures", async () => {
-    const cases = [
-      {
-        errorMessage: "rate limit",
-        sessionKey: "agent:test:auto",
-        runId: "run:auto",
-      },
-      {
-        errorMessage: "request ended without sending any chunks",
-        sessionKey: "agent:test:empty-chunk-stream",
-        runId: "run:empty-chunk-stream",
-      },
-    ] as const;
-
-    for (const testCase of cases) {
-      runEmbeddedAttemptMock.mockClear();
-      await withAgentWorkspace(async ({ agentDir, workspaceDir }) => {
-        await writeAuthStore(agentDir);
-        mockFailedThenSuccessfulAttempt(testCase.errorMessage);
-        await runAutoPinnedOpenAiTurn({
-          agentDir,
-          workspaceDir,
-          sessionKey: testCase.sessionKey,
-          runId: testCase.runId,
-        });
-
-        expect(runEmbeddedAttemptMock).toHaveBeenCalledTimes(2);
-        await expectProfileP2UsageUpdated(agentDir);
-      });
-    }
-  });
-
-  it("rotates on timeout without cooling down the timed-out profile", async () => {
-    await withAgentWorkspace(async ({ agentDir, workspaceDir }) => {
-      await writeAuthStore(agentDir);
-      mockFailedThenSuccessfulAttempt("request ended without sending any chunks");
-
-      await runAutoPinnedOpenAiTurn({
-        agentDir,
-        workspaceDir,
-        sessionKey: "agent:test:timeout-no-cooldown",
-        runId: "run:timeout-no-cooldown",
-      });
-
-      expect(runEmbeddedAttemptMock).toHaveBeenCalledTimes(2);
-      const usageStats = await readUsageStats(agentDir);
-      expect(typeof usageStats["openai:p2"]?.lastUsed).toBe("number");
-      expect(usageStats["openai:p1"]?.cooldownUntil).toBeUndefined();
-    });
-  });
-
-  it("does not rotate for compaction timeouts", async () => {
-    await withAgentWorkspace(async ({ agentDir, workspaceDir }) => {
->>>>>>> 3e2849c57 (fix: align timeout cooldown behavior docs/tests (#22622) (thanks @vageeshkumar))
       await writeAuthStore(agentDir);
 
       runEmbeddedAttemptMock
@@ -291,8 +177,8 @@ describe("runEmbeddedPiAgent auth profile rotation", () => {
   });
 
   it("does not rotate for user-pinned profiles", async () => {
-    const agentDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-agent-"));
-    const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-workspace-"));
+    const agentDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-agent-"));
+    const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-workspace-"));
     try {
       await writeAuthStore(agentDir);
 
@@ -337,8 +223,8 @@ describe("runEmbeddedPiAgent auth profile rotation", () => {
   it("honors user-pinned profiles even when in cooldown", async () => {
     vi.useFakeTimers();
     try {
-      const agentDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-agent-"));
-      const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-workspace-"));
+      const agentDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-agent-"));
+      const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-workspace-"));
       const now = Date.now();
       vi.setSystemTime(now);
 
@@ -403,8 +289,8 @@ describe("runEmbeddedPiAgent auth profile rotation", () => {
   });
 
   it("ignores user-locked profile when provider mismatches", async () => {
-    const agentDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-agent-"));
-    const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-workspace-"));
+    const agentDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-agent-"));
+    const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-workspace-"));
     try {
       await writeAuthStore(agentDir, { includeAnthropic: true });
 
@@ -444,8 +330,8 @@ describe("runEmbeddedPiAgent auth profile rotation", () => {
   it("skips profiles in cooldown during initial selection", async () => {
     vi.useFakeTimers();
     try {
-      const agentDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-agent-"));
-      const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-workspace-"));
+      const agentDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-agent-"));
+      const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-workspace-"));
       const now = Date.now();
       vi.setSystemTime(now);
 
@@ -509,8 +395,8 @@ describe("runEmbeddedPiAgent auth profile rotation", () => {
   it("fails over when all profiles are in cooldown and fallbacks are configured", async () => {
     vi.useFakeTimers();
     try {
-      const agentDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-agent-"));
-      const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-workspace-"));
+      const agentDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-agent-"));
+      const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-workspace-"));
       const now = Date.now();
       vi.setSystemTime(now);
 
@@ -555,8 +441,8 @@ describe("runEmbeddedPiAgent auth profile rotation", () => {
   });
 
   it("fails over when auth is unavailable and fallbacks are configured", async () => {
-    const agentDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-agent-"));
-    const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-workspace-"));
+    const agentDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-agent-"));
+    const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-workspace-"));
     const previousOpenAiKey = process.env.OPENAI_API_KEY;
     delete process.env.OPENAI_API_KEY;
     try {
@@ -592,64 +478,11 @@ describe("runEmbeddedPiAgent auth profile rotation", () => {
     }
   });
 
-  it("uses the active erroring model in billing failover errors", async () => {
-    const agentDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-agent-"));
-    const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-workspace-"));
-    try {
-      await writeAuthStore(agentDir);
-      runEmbeddedAttemptMock.mockResolvedValueOnce(
-        makeAttempt({
-          assistantTexts: [],
-          lastAssistant: buildAssistant({
-            stopReason: "error",
-            errorMessage: "insufficient credits",
-            provider: "openai",
-            model: "mock-rotated",
-          }),
-        }),
-      );
-
-      let thrown: unknown;
-      try {
-        await runEmbeddedPiAgent({
-          sessionId: "session:test",
-          sessionKey: "agent:test:billing-failover-active-model",
-          sessionFile: path.join(workspaceDir, "session.jsonl"),
-          workspaceDir,
-          agentDir,
-          config: makeConfig({ fallbacks: ["openai/mock-2"] }),
-          prompt: "hello",
-          provider: "openai",
-          model: "mock-1",
-          authProfileId: "openai:p1",
-          authProfileIdSource: "user",
-          timeoutMs: 5_000,
-          runId: "run:billing-failover-active-model",
-        });
-      } catch (err) {
-        thrown = err;
-      }
-
-      expect(thrown).toMatchObject({
-        name: "FailoverError",
-        reason: "billing",
-        provider: "openai",
-        model: "mock-rotated",
-      });
-      expect(thrown).toBeInstanceOf(Error);
-      expect((thrown as Error).message).toContain("openai (mock-rotated) returned a billing error");
-      expect(runEmbeddedAttemptMock).toHaveBeenCalledTimes(1);
-    } finally {
-      await fs.rm(agentDir, { recursive: true, force: true });
-      await fs.rm(workspaceDir, { recursive: true, force: true });
-    }
-  });
-
   it("skips profiles in cooldown when rotating after failure", async () => {
     vi.useFakeTimers();
     try {
-      const agentDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-agent-"));
-      const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-workspace-"));
+      const agentDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-agent-"));
+      const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-workspace-"));
       const now = Date.now();
       vi.setSystemTime(now);
 

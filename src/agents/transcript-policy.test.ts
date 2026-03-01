@@ -43,8 +43,6 @@ describe("resolveTranscriptPolicy", () => {
     expect(policy.sanitizeToolCallIds).toBe(false);
     expect(policy.toolCallIdMode).toBeUndefined();
   });
-<<<<<<< HEAD
-=======
 
   it("enables user-turn merge for strict OpenAI-compatible providers", () => {
     const policy = resolveTranscriptPolicy({
@@ -76,5 +74,4 @@ describe("resolveTranscriptPolicy", () => {
     });
     expect(policy.validateAnthropicTurns).toBe(false);
   });
->>>>>>> 792bd6195 (fix: recognize Bedrock as Anthropic-compatible in transcript policy)
 });

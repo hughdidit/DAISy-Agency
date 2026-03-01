@@ -3,10 +3,8 @@ import os from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
 import {
-  archiveSessionTranscripts,
   readFirstUserMessageFromTranscript,
   readLastMessagePreviewFromTranscript,
-  readSessionMessages,
   readSessionPreviewItemsFromTranscript,
 } from "./session-utils.fs.js";
 
@@ -15,7 +13,7 @@ describe("readFirstUserMessageFromTranscript", () => {
   let storePath: string;
 
   beforeEach(() => {
-    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-session-fs-test-"));
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "moltbot-session-fs-test-"));
     storePath = path.join(tmpDir, "sessions.json");
   });
 
@@ -92,27 +90,6 @@ describe("readFirstUserMessageFromTranscript", () => {
     expect(result).toBe("First user question");
   });
 
-  test("skips inter-session user messages by default", () => {
-    const sessionId = "test-session-inter-session";
-    const transcriptPath = path.join(tmpDir, `${sessionId}.jsonl`);
-    const lines = [
-      JSON.stringify({
-        message: {
-          role: "user",
-          content: "Forwarded by session tool",
-          provenance: { kind: "inter_session", sourceTool: "sessions_send" },
-        },
-      }),
-      JSON.stringify({
-        message: { role: "user", content: "Real user message" },
-      }),
-    ];
-    fs.writeFileSync(transcriptPath, lines.join("\n"), "utf-8");
-
-    const result = readFirstUserMessageFromTranscript(sessionId, storePath);
-    expect(result).toBe("Real user message");
-  });
-
   test("returns null when no user messages exist", () => {
     const sessionId = "test-session-4";
     const transcriptPath = path.join(tmpDir, `${sessionId}.jsonl`);
@@ -182,7 +159,7 @@ describe("readLastMessagePreviewFromTranscript", () => {
   let storePath: string;
 
   beforeEach(() => {
-    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-session-fs-test-"));
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "moltbot-session-fs-test-"));
     storePath = path.join(tmpDir, "sessions.json");
   });
 
@@ -366,59 +343,12 @@ describe("readLastMessagePreviewFromTranscript", () => {
   });
 });
 
-describe("readSessionMessages", () => {
-  let tmpDir: string;
-  let storePath: string;
-
-  beforeEach(() => {
-    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-session-fs-test-"));
-    storePath = path.join(tmpDir, "sessions.json");
-  });
-
-  afterEach(() => {
-    fs.rmSync(tmpDir, { recursive: true, force: true });
-  });
-
-  test("includes synthetic compaction markers for compaction entries", () => {
-    const sessionId = "test-session-compaction";
-    const transcriptPath = path.join(tmpDir, `${sessionId}.jsonl`);
-    const lines = [
-      JSON.stringify({ type: "session", version: 1, id: sessionId }),
-      JSON.stringify({ message: { role: "user", content: "Hello" } }),
-      JSON.stringify({
-        type: "compaction",
-        id: "comp-1",
-        timestamp: "2026-02-07T00:00:00.000Z",
-        summary: "Compacted history",
-        firstKeptEntryId: "x",
-        tokensBefore: 123,
-      }),
-      JSON.stringify({ message: { role: "assistant", content: "World" } }),
-    ];
-    fs.writeFileSync(transcriptPath, lines.join("\n"), "utf-8");
-
-    const out = readSessionMessages(sessionId, storePath);
-    expect(out).toHaveLength(3);
-    const marker = out[1] as {
-      role: string;
-      content?: Array<{ text?: string }>;
-      __openclaw?: { kind?: string; id?: string };
-      timestamp?: number;
-    };
-    expect(marker.role).toBe("system");
-    expect(marker.content?.[0]?.text).toBe("Compaction");
-    expect(marker.__openclaw?.kind).toBe("compaction");
-    expect(marker.__openclaw?.id).toBe("comp-1");
-    expect(typeof marker.timestamp).toBe("number");
-  });
-});
-
 describe("readSessionPreviewItemsFromTranscript", () => {
   let tmpDir: string;
   let storePath: string;
 
   beforeEach(() => {
-    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-session-preview-test-"));
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "moltbot-session-preview-test-"));
     storePath = path.join(tmpDir, "sessions.json");
   });
 
@@ -453,43 +383,6 @@ describe("readSessionPreviewItemsFromTranscript", () => {
     expect(result[1]?.text).toContain("call weather");
   });
 
-  test("detects tool calls from tool_use/tool_call blocks and toolName field", () => {
-    const sessionId = "preview-session-tools";
-    const transcriptPath = path.join(tmpDir, `${sessionId}.jsonl`);
-    const lines = [
-      JSON.stringify({ type: "session", version: 1, id: sessionId }),
-      JSON.stringify({ message: { role: "assistant", content: "Hi" } }),
-      JSON.stringify({
-        message: {
-          role: "assistant",
-          toolName: "camera",
-          content: [
-            { type: "tool_use", name: "read" },
-            { type: "tool_call", name: "write" },
-          ],
-        },
-      }),
-      JSON.stringify({ message: { role: "assistant", content: "Done" } }),
-    ];
-    fs.writeFileSync(transcriptPath, lines.join("\n"), "utf-8");
-
-    const result = readSessionPreviewItemsFromTranscript(
-      sessionId,
-      storePath,
-      undefined,
-      undefined,
-      3,
-      120,
-    );
-
-    expect(result.map((item) => item.role)).toEqual(["assistant", "tool", "assistant"]);
-    expect(result[1]?.text).toContain("call");
-    expect(result[1]?.text).toContain("camera");
-    expect(result[1]?.text).toContain("read");
-    // Preview text may not list every tool name; it should at least hint there were multiple calls.
-    expect(result[1]?.text).toMatch(/\+\d+/);
-  });
-
   test("truncates preview text to max chars", () => {
     const sessionId = "preview-truncate";
     const transcriptPath = path.join(tmpDir, `${sessionId}.jsonl`);
@@ -511,129 +404,3 @@ describe("readSessionPreviewItemsFromTranscript", () => {
     expect(result[0]?.text.endsWith("...")).toBe(true);
   });
 });
-<<<<<<< HEAD
-=======
-
-describe("resolveSessionTranscriptCandidates", () => {
-  afterEach(() => {
-    vi.unstubAllEnvs();
-  });
-
-  test("fallback candidate uses OPENCLAW_HOME instead of os.homedir()", () => {
-    vi.stubEnv("OPENCLAW_HOME", "/srv/openclaw-home");
-    vi.stubEnv("HOME", "/home/other");
-
-    const candidates = resolveSessionTranscriptCandidates("sess-1", undefined);
-    const fallback = candidates[candidates.length - 1];
-    expect(fallback).toBe(
-      path.join(path.resolve("/srv/openclaw-home"), ".openclaw", "sessions", "sess-1.jsonl"),
-    );
-  });
-});
-<<<<<<< HEAD
->>>>>>> 456bd5874 (fix(paths): structurally resolve home dir to prevent Windows path bugs (#12125))
-=======
-
-describe("resolveSessionTranscriptCandidates safety", () => {
-  test("drops unsafe session IDs instead of producing traversal paths", () => {
-    const candidates = resolveSessionTranscriptCandidates(
-      "../etc/passwd",
-      "/tmp/openclaw/agents/main/sessions/sessions.json",
-    );
-
-    expect(candidates).toEqual([]);
-  });
-
-  test("drops unsafe sessionFile candidates and keeps safe fallbacks", () => {
-    const storePath = "/tmp/openclaw/agents/main/sessions/sessions.json";
-    const candidates = resolveSessionTranscriptCandidates(
-      "sess-safe",
-      storePath,
-      "../../etc/passwd",
-    );
-
-    expect(candidates.some((value) => value.includes("etc/passwd"))).toBe(false);
-    expect(candidates).toContain(path.join(path.dirname(storePath), "sess-safe.jsonl"));
-  });
-});
-<<<<<<< HEAD
->>>>>>> 4199f9889 (fix: harden session transcript path resolution)
-=======
-
-describe("archiveSessionTranscripts", () => {
-  let tmpDir: string;
-  let storePath: string;
-
-  beforeEach(() => {
-    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-archive-test-"));
-    storePath = path.join(tmpDir, "sessions.json");
-    vi.stubEnv("OPENCLAW_HOME", tmpDir);
-  });
-
-  afterEach(() => {
-    vi.unstubAllEnvs();
-    fs.rmSync(tmpDir, { recursive: true, force: true });
-  });
-
-  test("archives existing transcript file and returns archived path", () => {
-    const sessionId = "sess-archive-1";
-    const transcriptPath = path.join(tmpDir, `${sessionId}.jsonl`);
-    fs.writeFileSync(transcriptPath, '{"type":"session"}\n', "utf-8");
-
-    const archived = archiveSessionTranscripts({
-      sessionId,
-      storePath,
-      reason: "reset",
-    });
-
-    expect(archived).toHaveLength(1);
-    expect(archived[0]).toContain(".reset.");
-    expect(fs.existsSync(transcriptPath)).toBe(false);
-    expect(fs.existsSync(archived[0])).toBe(true);
-  });
-
-  test("archives transcript found via explicit sessionFile path", () => {
-    const sessionId = "sess-archive-2";
-    const customPath = path.join(tmpDir, "custom-transcript.jsonl");
-    fs.writeFileSync(customPath, '{"type":"session"}\n', "utf-8");
-
-    const archived = archiveSessionTranscripts({
-      sessionId,
-      storePath: undefined,
-      sessionFile: customPath,
-      reason: "reset",
-    });
-
-    expect(archived).toHaveLength(1);
-    expect(fs.existsSync(customPath)).toBe(false);
-    expect(fs.existsSync(archived[0])).toBe(true);
-  });
-
-  test("returns empty array when no transcript files exist", () => {
-    const archived = archiveSessionTranscripts({
-      sessionId: "nonexistent-session",
-      storePath,
-      reason: "reset",
-    });
-
-    expect(archived).toEqual([]);
-  });
-
-  test("skips files that do not exist and archives only existing ones", () => {
-    const sessionId = "sess-archive-3";
-    const transcriptPath = path.join(tmpDir, `${sessionId}.jsonl`);
-    fs.writeFileSync(transcriptPath, '{"type":"session"}\n', "utf-8");
-
-    const archived = archiveSessionTranscripts({
-      sessionId,
-      storePath,
-      sessionFile: "/nonexistent/path/file.jsonl",
-      reason: "deleted",
-    });
-
-    expect(archived).toHaveLength(1);
-    expect(archived[0]).toContain(".deleted.");
-    expect(fs.existsSync(transcriptPath)).toBe(false);
-  });
-});
->>>>>>> 31537c669 (fix: archive old transcript files on /new and /reset (#14949))

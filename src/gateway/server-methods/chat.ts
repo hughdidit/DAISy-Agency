@@ -1,24 +1,20 @@
-import { CURRENT_SESSION_VERSION } from "@mariozechner/pi-coding-agent";
 import { randomUUID } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
-import type { MsgContext } from "../../auto-reply/templating.js";
-import type { GatewayRequestContext, GatewayRequestHandlers } from "./types.js";
+
+import { CURRENT_SESSION_VERSION } from "@mariozechner/pi-coding-agent";
 import { resolveSessionAgentId } from "../../agents/agent-scope.js";
+import { resolveEffectiveMessagesConfig, resolveIdentityName } from "../../agents/identity.js";
 import { resolveThinkingDefault } from "../../agents/model-selection.js";
 import { resolveAgentTimeoutMs } from "../../agents/timeout.js";
 import { dispatchInboundMessage } from "../../auto-reply/dispatch.js";
 import { createReplyDispatcher } from "../../auto-reply/reply/reply-dispatcher.js";
-import { createReplyPrefixOptions } from "../../channels/reply-prefix.js";
-import { resolveSessionFilePath } from "../../config/sessions.js";
-import { resolveSendPolicy } from "../../sessions/send-policy.js";
-<<<<<<< HEAD
-=======
 import {
-  stripInlineDirectiveTagsForDisplay,
-  stripInlineDirectiveTagsFromMessageForDisplay,
-} from "../../utils/directive-tags.js";
->>>>>>> 78c3c2a54 (fix: stabilize flaky tests and sanitize directive-only chat tags)
+  extractShortModelName,
+  type ResponsePrefixContext,
+} from "../../auto-reply/reply/response-prefix-template.js";
+import type { MsgContext } from "../../auto-reply/templating.js";
+import { resolveSendPolicy } from "../../sessions/send-policy.js";
 import { INTERNAL_MESSAGE_CHANNEL } from "../../utils/message-channel.js";
 import {
   abortChatRunById,
@@ -27,8 +23,6 @@ import {
   resolveChatRunExpiresAtMs,
 } from "../chat-abort.js";
 import { type ChatImageContent, parseMessageWithAttachments } from "../chat-attachments.js";
-import { stripEnvelopeFromMessages } from "../chat-sanitize.js";
-import { GATEWAY_CLIENT_CAPS, hasGatewayClientCap } from "../protocol/client-info.js";
 import {
   ErrorCodes,
   errorShape,
@@ -45,8 +39,9 @@ import {
   readSessionMessages,
   resolveSessionModelRef,
 } from "../session-utils.js";
+import { stripEnvelopeFromMessages } from "../chat-sanitize.js";
 import { formatForLog } from "../ws-log.js";
-import { injectTimestamp, timestampOptsFromConfig } from "./agent-timestamp.js";
+import type { GatewayRequestContext, GatewayRequestHandlers } from "./types.js";
 
 type TranscriptAppendResult = {
   ok: boolean;
@@ -61,28 +56,16 @@ function resolveTranscriptPath(params: {
   sessionFile?: string;
 }): string | null {
   const { sessionId, storePath, sessionFile } = params;
-  if (!storePath && !sessionFile) {
-    return null;
-  }
-  try {
-    const sessionsDir = storePath ? path.dirname(storePath) : undefined;
-    return resolveSessionFilePath(
-      sessionId,
-      sessionFile ? { sessionFile } : undefined,
-      sessionsDir ? { sessionsDir } : undefined,
-    );
-  } catch {
-    return null;
-  }
+  if (sessionFile) return sessionFile;
+  if (!storePath) return null;
+  return path.join(path.dirname(storePath), `${sessionId}.jsonl`);
 }
 
 function ensureTranscriptFile(params: { transcriptPath: string; sessionId: string }): {
   ok: boolean;
   error?: string;
 } {
-  if (fs.existsSync(params.transcriptPath)) {
-    return { ok: true };
-  }
+  if (fs.existsSync(params.transcriptPath)) return { ok: true };
   try {
     fs.mkdirSync(path.dirname(params.transcriptPath), { recursive: true });
     const header = {
@@ -173,11 +156,7 @@ function broadcastChatFinal(params: {
     sessionKey: params.sessionKey,
     seq,
     state: "final" as const,
-<<<<<<< HEAD
     message: params.message,
-=======
-    message: stripInlineDirectiveTagsFromMessageForDisplay(params.message),
->>>>>>> 78c3c2a54 (fix: stabilize flaky tests and sanitize directive-only chat tags)
   };
   params.context.broadcast("chat", payload);
   params.context.nodeSendToSession(params.sessionKey, "chat", payload);
@@ -235,8 +214,7 @@ export const chatHandlers: GatewayRequestHandlers = {
       if (configured) {
         thinkingLevel = configured;
       } else {
-        const sessionAgentId = resolveSessionAgentId({ sessionKey, config: cfg });
-        const { provider, model } = resolveSessionModelRef(cfg, entry, sessionAgentId);
+        const { provider, model } = resolveSessionModelRef(cfg, entry);
         const catalog = await context.loadGatewayModelCatalog();
         thinkingLevel = resolveThinkingDefault({
           cfg,
@@ -246,13 +224,11 @@ export const chatHandlers: GatewayRequestHandlers = {
         });
       }
     }
-    const verboseLevel = entry?.verboseLevel ?? cfg.agents?.defaults?.verboseDefault;
     respond(true, {
       sessionKey,
       sessionId,
       messages: capped,
       thinkingLevel,
-      verboseLevel,
     });
   },
   "chat.abort": ({ params, respond, context }) => {
@@ -386,8 +362,7 @@ export const chatHandlers: GatewayRequestHandlers = {
         return;
       }
     }
-    const rawSessionKey = p.sessionKey;
-    const { cfg, entry, canonicalKey: sessionKey } = loadSessionEntry(rawSessionKey);
+    const { cfg, entry } = loadSessionEntry(p.sessionKey);
     const timeoutMs = resolveAgentTimeoutMs({
       cfg,
       overrideMs: p.timeoutMs,
@@ -398,7 +373,7 @@ export const chatHandlers: GatewayRequestHandlers = {
     const sendPolicy = resolveSendPolicy({
       cfg,
       entry,
-      sessionKey,
+      sessionKey: p.sessionKey,
       channel: entry?.channel,
       chatType: entry?.chatType,
     });
@@ -423,7 +398,7 @@ export const chatHandlers: GatewayRequestHandlers = {
           broadcast: context.broadcast,
           nodeSendToSession: context.nodeSendToSession,
         },
-        { sessionKey: rawSessionKey, stopReason: "stop" },
+        { sessionKey: p.sessionKey, stopReason: "stop" },
       );
       respond(true, { ok: true, aborted: res.aborted, runIds: res.runIds });
       return;
@@ -451,10 +426,11 @@ export const chatHandlers: GatewayRequestHandlers = {
       context.chatAbortControllers.set(clientRunId, {
         controller: abortController,
         sessionId: entry?.sessionId ?? clientRunId,
-        sessionKey: rawSessionKey,
+        sessionKey: p.sessionKey,
         startedAtMs: now,
         expiresAtMs: resolveChatRunExpiresAtMs({ now, timeoutMs }),
       });
+
       const ackPayload = {
         runId: clientRunId,
         status: "started" as const,
@@ -467,18 +443,13 @@ export const chatHandlers: GatewayRequestHandlers = {
       );
       const commandBody = injectThinking ? `/think ${p.thinking} ${parsedMessage}` : parsedMessage;
       const clientInfo = client?.connect?.client;
-      // Inject timestamp so agents know the current date/time.
-      // Only BodyForAgent gets the timestamp — Body stays raw for UI display.
-      // See: https://github.com/moltbot/moltbot/issues/3658
-      const stampedMessage = injectTimestamp(parsedMessage, timestampOptsFromConfig(cfg));
-
       const ctx: MsgContext = {
         Body: parsedMessage,
-        BodyForAgent: stampedMessage,
+        BodyForAgent: parsedMessage,
         BodyForCommands: commandBody,
         RawBody: parsedMessage,
         CommandBody: commandBody,
-        SessionKey: sessionKey,
+        SessionKey: p.sessionKey,
         Provider: INTERNAL_MESSAGE_CHANNEL,
         Surface: INTERNAL_MESSAGE_CHANNEL,
         OriginatingChannel: INTERNAL_MESSAGE_CHANNEL,
@@ -488,32 +459,26 @@ export const chatHandlers: GatewayRequestHandlers = {
         SenderId: clientInfo?.id,
         SenderName: clientInfo?.displayName,
         SenderUsername: clientInfo?.displayName,
-        GatewayClientScopes: client?.connect?.scopes,
       };
 
       const agentId = resolveSessionAgentId({
-        sessionKey,
+        sessionKey: p.sessionKey,
         config: cfg,
       });
-      const { onModelSelected, ...prefixOptions } = createReplyPrefixOptions({
-        cfg,
-        agentId,
-        channel: INTERNAL_MESSAGE_CHANNEL,
-      });
+      let prefixContext: ResponsePrefixContext = {
+        identityName: resolveIdentityName(cfg, agentId),
+      };
       const finalReplyParts: string[] = [];
       const dispatcher = createReplyDispatcher({
-        ...prefixOptions,
+        responsePrefix: resolveEffectiveMessagesConfig(cfg, agentId).responsePrefix,
+        responsePrefixContextProvider: () => prefixContext,
         onError: (err) => {
           context.logGateway.warn(`webchat dispatch failed: ${formatForLog(err)}`);
         },
         deliver: async (payload, info) => {
-          if (info.kind !== "final") {
-            return;
-          }
+          if (info.kind !== "final") return;
           const text = payload.text?.trim() ?? "";
-          if (!text) {
-            return;
-          }
+          if (!text) return;
           finalReplyParts.push(text);
         },
       });
@@ -527,18 +492,16 @@ export const chatHandlers: GatewayRequestHandlers = {
           runId: clientRunId,
           abortSignal: abortController.signal,
           images: parsedImages.length > 0 ? parsedImages : undefined,
-          onAgentRunStart: (runId) => {
+          disableBlockStreaming: true,
+          onAgentRunStart: () => {
             agentRunStarted = true;
-            const connId = typeof client?.connId === "string" ? client.connId : undefined;
-            const wantsToolEvents = hasGatewayClientCap(
-              client?.connect?.caps,
-              GATEWAY_CLIENT_CAPS.TOOL_EVENTS,
-            );
-            if (connId && wantsToolEvents) {
-              context.registerToolEventRecipient(runId, connId);
-            }
           },
-          onModelSelected,
+          onModelSelected: (ctx) => {
+            prefixContext.provider = ctx.provider;
+            prefixContext.model = extractShortModelName(ctx.model);
+            prefixContext.modelFull = `${ctx.provider}/${ctx.model}`;
+            prefixContext.thinkingLevel = ctx.thinkLevel ?? "off";
+          },
         },
       })
         .then(() => {
@@ -550,8 +513,9 @@ export const chatHandlers: GatewayRequestHandlers = {
               .trim();
             let message: Record<string, unknown> | undefined;
             if (combinedReply) {
-              const { storePath: latestStorePath, entry: latestEntry } =
-                loadSessionEntry(sessionKey);
+              const { storePath: latestStorePath, entry: latestEntry } = loadSessionEntry(
+                p.sessionKey,
+              );
               const sessionId = latestEntry?.sessionId ?? entry?.sessionId ?? clientRunId;
               const appended = appendAssistantTranscriptMessage({
                 message: combinedReply,
@@ -579,7 +543,7 @@ export const chatHandlers: GatewayRequestHandlers = {
             broadcastChatFinal({
               context,
               runId: clientRunId,
-              sessionKey: rawSessionKey,
+              sessionKey: p.sessionKey,
               message,
             });
           }
@@ -604,7 +568,7 @@ export const chatHandlers: GatewayRequestHandlers = {
           broadcastChatError({
             context,
             runId: clientRunId,
-            sessionKey: rawSessionKey,
+            sessionKey: p.sessionKey,
             errorMessage: String(err),
           });
         })
@@ -649,8 +613,7 @@ export const chatHandlers: GatewayRequestHandlers = {
     };
 
     // Load session to find transcript file
-    const rawSessionKey = p.sessionKey;
-    const { storePath, entry } = loadSessionEntry(rawSessionKey);
+    const { storePath, entry } = loadSessionEntry(p.sessionKey);
     const sessionId = entry?.sessionId;
     if (!sessionId || !storePath) {
       respond(false, undefined, errorShape(ErrorCodes.INVALID_REQUEST, "session not found"));
@@ -705,17 +668,13 @@ export const chatHandlers: GatewayRequestHandlers = {
     // Broadcast to webchat for immediate UI update
     const chatPayload = {
       runId: `inject-${messageId}`,
-      sessionKey: rawSessionKey,
+      sessionKey: p.sessionKey,
       seq: 0,
       state: "final" as const,
-<<<<<<< HEAD
       message: transcriptEntry.message,
-=======
-      message: stripInlineDirectiveTagsFromMessageForDisplay(appended.message),
->>>>>>> 78c3c2a54 (fix: stabilize flaky tests and sanitize directive-only chat tags)
     };
     context.broadcast("chat", chatPayload);
-    context.nodeSendToSession(rawSessionKey, "chat", chatPayload);
+    context.nodeSendToSession(p.sessionKey, "chat", chatPayload);
 
     respond(true, { ok: true, messageId });
   },

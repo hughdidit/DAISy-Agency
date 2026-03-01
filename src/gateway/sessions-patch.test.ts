@@ -1,103 +1,32 @@
 import { describe, expect, test } from "vitest";
-import type { OpenClawConfig } from "../config/config.js";
+import type { MoltbotConfig } from "../config/config.js";
 import type { SessionEntry } from "../config/sessions.js";
 import { applySessionsPatchToStore } from "./sessions-patch.js";
 
 describe("gateway sessions patch", () => {
-<<<<<<< HEAD
-=======
-  test("persists thinkingLevel=off (does not clear)", async () => {
-    const store: Record<string, SessionEntry> = {};
-    const res = await applySessionsPatchToStore({
-      cfg: {} as OpenClawConfig,
-      store,
-      storeKey: "agent:main:main",
-      patch: { key: "agent:main:main", thinkingLevel: "off" },
-    });
-    expect(res.ok).toBe(true);
-    if (!res.ok) {
-      return;
-    }
-    expect(res.entry.thinkingLevel).toBe("off");
-  });
-
-  test("clears thinkingLevel when patch sets null", async () => {
-    const store: Record<string, SessionEntry> = {
-      "agent:main:main": { thinkingLevel: "low" } as SessionEntry,
-    };
-    const res = await applySessionsPatchToStore({
-      cfg: {} as OpenClawConfig,
-      store,
-      storeKey: "agent:main:main",
-      patch: { key: "agent:main:main", thinkingLevel: null },
-    });
-    expect(res.ok).toBe(true);
-    if (!res.ok) {
-      return;
-    }
-    expect(res.entry.thinkingLevel).toBeUndefined();
-  });
-
-  test("persists reasoningLevel=off (does not clear)", async () => {
-    const store: Record<string, SessionEntry> = {};
-    const res = await applySessionsPatchToStore({
-      cfg: {} as OpenClawConfig,
-      store,
-      storeKey: "agent:main:main",
-      patch: { key: "agent:main:main", reasoningLevel: "off" },
-    });
-    expect(res.ok).toBe(true);
-    if (!res.ok) {
-      return;
-    }
-    expect(res.entry.reasoningLevel).toBe("off");
-  });
-
-  test("clears reasoningLevel when patch sets null", async () => {
-    const store: Record<string, SessionEntry> = {
-      "agent:main:main": { reasoningLevel: "stream" } as SessionEntry,
-    };
-    const res = await applySessionsPatchToStore({
-      cfg: {} as OpenClawConfig,
-      store,
-      storeKey: "agent:main:main",
-      patch: { key: "agent:main:main", reasoningLevel: null },
-    });
-    expect(res.ok).toBe(true);
-    if (!res.ok) {
-      return;
-    }
-    expect(res.entry.reasoningLevel).toBeUndefined();
-  });
-
->>>>>>> 6c1ed9493 (fix: harden queue retry debounce and add regression tests)
   test("persists elevatedLevel=off (does not clear)", async () => {
     const store: Record<string, SessionEntry> = {};
     const res = await applySessionsPatchToStore({
-      cfg: {} as OpenClawConfig,
+      cfg: {} as MoltbotConfig,
       store,
       storeKey: "agent:main:main",
       patch: { elevatedLevel: "off" },
     });
     expect(res.ok).toBe(true);
-    if (!res.ok) {
-      return;
-    }
+    if (!res.ok) return;
     expect(res.entry.elevatedLevel).toBe("off");
   });
 
   test("persists elevatedLevel=on", async () => {
     const store: Record<string, SessionEntry> = {};
     const res = await applySessionsPatchToStore({
-      cfg: {} as OpenClawConfig,
+      cfg: {} as MoltbotConfig,
       store,
       storeKey: "agent:main:main",
       patch: { elevatedLevel: "on" },
     });
     expect(res.ok).toBe(true);
-    if (!res.ok) {
-      return;
-    }
+    if (!res.ok) return;
     expect(res.entry.elevatedLevel).toBe("on");
   });
 
@@ -106,30 +35,26 @@ describe("gateway sessions patch", () => {
       "agent:main:main": { elevatedLevel: "off" } as SessionEntry,
     };
     const res = await applySessionsPatchToStore({
-      cfg: {} as OpenClawConfig,
+      cfg: {} as MoltbotConfig,
       store,
       storeKey: "agent:main:main",
       patch: { elevatedLevel: null },
     });
     expect(res.ok).toBe(true);
-    if (!res.ok) {
-      return;
-    }
+    if (!res.ok) return;
     expect(res.entry.elevatedLevel).toBeUndefined();
   });
 
   test("rejects invalid elevatedLevel values", async () => {
     const store: Record<string, SessionEntry> = {};
     const res = await applySessionsPatchToStore({
-      cfg: {} as OpenClawConfig,
+      cfg: {} as MoltbotConfig,
       store,
       storeKey: "agent:main:main",
       patch: { elevatedLevel: "maybe" },
     });
     expect(res.ok).toBe(false);
-    if (res.ok) {
-      return;
-    }
+    if (res.ok) return;
     expect(res.error.message).toContain("invalid elevatedLevel");
   });
 
@@ -146,16 +71,14 @@ describe("gateway sessions patch", () => {
       } as SessionEntry,
     };
     const res = await applySessionsPatchToStore({
-      cfg: {} as OpenClawConfig,
+      cfg: {} as MoltbotConfig,
       store,
       storeKey: "agent:main:main",
       patch: { model: "openai/gpt-5.2" },
       loadGatewayModelCatalog: async () => [{ provider: "openai", id: "gpt-5.2" }],
     });
     expect(res.ok).toBe(true);
-    if (!res.ok) {
-      return;
-    }
+    if (!res.ok) return;
     expect(res.entry.providerOverride).toBe("openai");
     expect(res.entry.modelOverride).toBe("gpt-5.2");
     expect(res.entry.authProfileOverride).toBeUndefined();

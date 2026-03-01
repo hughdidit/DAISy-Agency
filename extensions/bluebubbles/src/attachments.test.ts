@@ -1,16 +1,7 @@
-<<<<<<< HEAD
 import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
-=======
-import type { PluginRuntime } from "openclaw/plugin-sdk";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import "./test-mocks.js";
+
 import { downloadBlueBubblesAttachment, sendBlueBubblesAttachment } from "./attachments.js";
-import { getCachedBlueBubblesPrivateApiStatus } from "./probe.js";
-import { setBlueBubblesRuntime } from "./runtime.js";
-import { installBlueBubblesFetchTestHooks } from "./test-harness.js";
->>>>>>> 73d93dee6 (fix: enforce inbound media max-bytes during remote fetch)
 import type { BlueBubblesAttachment } from "./types.js";
-import { downloadBlueBubblesAttachment, sendBlueBubblesAttachment } from "./attachments.js";
 
 vi.mock("./accounts.js", () => ({
   resolveBlueBubblesAccount: vi.fn(({ cfg, accountId }) => {
@@ -25,33 +16,7 @@ vi.mock("./accounts.js", () => ({
 }));
 
 const mockFetch = vi.fn();
-const fetchRemoteMediaMock = vi.fn(
-  async (params: {
-    url: string;
-    maxBytes?: number;
-    fetchImpl?: (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>;
-  }) => {
-    const fetchFn = params.fetchImpl ?? fetch;
-    const res = await fetchFn(params.url);
-    if (!res.ok) {
-      const text = await res.text().catch(() => "unknown");
-      throw new Error(
-        `Failed to fetch media from ${params.url}: HTTP ${res.status}; body: ${text}`,
-      );
-    }
-    const buffer = Buffer.from(await res.arrayBuffer());
-    if (typeof params.maxBytes === "number" && buffer.byteLength > params.maxBytes) {
-      throw new Error(`payload exceeds maxBytes ${params.maxBytes}`);
-    }
-    return {
-      buffer,
-      contentType: res.headers.get("content-type") ?? undefined,
-      fileName: undefined,
-    };
-  },
-);
 
-<<<<<<< HEAD
 describe("downloadBlueBubblesAttachment", () => {
   beforeEach(() => {
     vi.stubGlobal("fetch", mockFetch);
@@ -60,27 +25,6 @@ describe("downloadBlueBubblesAttachment", () => {
 
   afterEach(() => {
     vi.unstubAllGlobals();
-=======
-installBlueBubblesFetchTestHooks({
-  mockFetch,
-  privateApiStatusMock: vi.mocked(getCachedBlueBubblesPrivateApiStatus),
-});
-
-const runtimeStub = {
-  channel: {
-    media: {
-      fetchRemoteMedia:
-        fetchRemoteMediaMock as unknown as PluginRuntime["channel"]["media"]["fetchRemoteMedia"],
-    },
-  },
-} as unknown as PluginRuntime;
-
-describe("downloadBlueBubblesAttachment", () => {
-  beforeEach(() => {
-    fetchRemoteMediaMock.mockClear();
-    mockFetch.mockReset();
-    setBlueBubblesRuntime(runtimeStub);
->>>>>>> 73d93dee6 (fix: enforce inbound media max-bytes during remote fetch)
   });
 
   it("throws when guid is missing", async () => {
@@ -190,7 +134,7 @@ describe("downloadBlueBubblesAttachment", () => {
         serverUrl: "http://localhost:1234",
         password: "test",
       }),
-    ).rejects.toThrow("Attachment not found");
+    ).rejects.toThrow("download failed (404): Attachment not found");
   });
 
   it("throws when attachment exceeds max bytes", async () => {
@@ -299,13 +243,6 @@ describe("sendBlueBubblesAttachment", () => {
   beforeEach(() => {
     vi.stubGlobal("fetch", mockFetch);
     mockFetch.mockReset();
-<<<<<<< HEAD
-=======
-    fetchRemoteMediaMock.mockClear();
-    setBlueBubblesRuntime(runtimeStub);
-    vi.mocked(getCachedBlueBubblesPrivateApiStatus).mockReset();
-    vi.mocked(getCachedBlueBubblesPrivateApiStatus).mockReturnValue(null);
->>>>>>> 73d93dee6 (fix: enforce inbound media max-bytes during remote fetch)
   });
 
   afterEach(() => {

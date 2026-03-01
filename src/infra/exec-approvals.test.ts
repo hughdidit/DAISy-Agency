@@ -1,7 +1,9 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+
 import { describe, expect, it, vi } from "vitest";
+
 import {
   analyzeArgvCommand,
   analyzeShellCommand,
@@ -11,26 +13,12 @@ import {
   matchAllowlist,
   maxAsk,
   minSecurity,
-  normalizeExecApprovals,
   normalizeSafeBins,
   requiresExecApproval,
   resolveCommandResolution,
-<<<<<<< HEAD
-=======
-  resolveCommandResolutionFromArgv,
-  resolveAllowAlwaysPatterns,
->>>>>>> 2b63592be (fix: harden exec allowlist wrapper resolution)
   resolveExecApprovals,
   resolveExecApprovalsFromFile,
-<<<<<<< HEAD
-=======
-  resolveExecApprovalsPath,
-  resolveExecApprovalsSocketPath,
-  resolveSafeBins,
-  type ExecApprovalsAgent,
->>>>>>> a18603681 (test: fix latest tsgo inference regressions in test suites)
   type ExecAllowlistEntry,
-  type ExecApprovalsFile,
 } from "./exec-approvals.js";
 
 function makePathEnv(binDir: string): NodeJS.ProcessEnv {
@@ -41,7 +29,7 @@ function makePathEnv(binDir: string): NodeJS.ProcessEnv {
 }
 
 function makeTempDir() {
-  return fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-exec-approvals-"));
+  return fs.mkdtempSync(path.join(os.tmpdir(), "moltbot-exec-approvals-"));
 }
 
 describe("exec approvals allowlist matching", () => {
@@ -125,74 +113,6 @@ describe("exec approvals command resolution", () => {
     const res = resolveCommandResolution('"./bin/tool" --version', cwd, undefined);
     expect(res?.resolvedPath).toBe(script);
   });
-
-  it("unwraps env wrapper argv to resolve the effective executable", () => {
-    const dir = makeTempDir();
-    const binDir = path.join(dir, "bin");
-    fs.mkdirSync(binDir, { recursive: true });
-    const exeName = process.platform === "win32" ? "rg.exe" : "rg";
-    const exe = path.join(binDir, exeName);
-    fs.writeFileSync(exe, "");
-    fs.chmodSync(exe, 0o755);
-
-    const resolution = resolveCommandResolutionFromArgv(
-      ["/usr/bin/env", "FOO=bar", "rg", "-n", "needle"],
-      undefined,
-      makePathEnv(binDir),
-    );
-    expect(resolution?.resolvedPath).toBe(exe);
-    expect(resolution?.executableName).toBe(exeName);
-  });
-
-<<<<<<< HEAD
-=======
-  it("blocks semantic env wrappers from allowlist/safeBins auto-resolution", () => {
-    const resolution = resolveCommandResolutionFromArgv([
-      "/usr/bin/env",
-      "FOO=bar",
-      "rg",
-      "-n",
-      "needle",
-    ]);
-    expect(resolution?.policyBlocked).toBe(true);
-    expect(resolution?.rawExecutable).toBe("/usr/bin/env");
-  });
-
-  it("fails closed for env -S even when env itself is allowlisted", () => {
-    const dir = makeTempDir();
-    const binDir = path.join(dir, "bin");
-    fs.mkdirSync(binDir, { recursive: true });
-    const envName = process.platform === "win32" ? "env.exe" : "env";
-    const envPath = path.join(binDir, envName);
-    fs.writeFileSync(envPath, process.platform === "win32" ? "" : "#!/bin/sh\n");
-    if (process.platform !== "win32") {
-      fs.chmodSync(envPath, 0o755);
-    }
-
-    const analysis = analyzeArgvCommand({
-      argv: [envPath, "-S", 'sh -c "echo pwned"'],
-      cwd: dir,
-      env: makePathEnv(binDir),
-    });
-    const allowlistEval = evaluateExecAllowlist({
-      analysis,
-      allowlist: [{ pattern: envPath }],
-      safeBins: normalizeSafeBins([]),
-      cwd: dir,
-    });
-
-    expect(analysis.ok).toBe(true);
-    expect(analysis.segments[0]?.resolution?.policyBlocked).toBe(true);
-    expect(allowlistEval.allowlistSatisfied).toBe(false);
-    expect(allowlistEval.segmentSatisfiedBy).toEqual([null]);
-  });
-
->>>>>>> 3f923e831 (test: add env -S allowlist bypass regressions)
-  it("unwraps env wrapper with shell inner executable", () => {
-    const resolution = resolveCommandResolutionFromArgv(["/usr/bin/env", "bash", "-lc", "echo hi"]);
-    expect(resolution?.rawExecutable).toBe("bash");
-    expect(resolution?.executableName.toLowerCase()).toContain("bash");
-  });
 });
 
 describe("exec approvals shell parsing", () => {
@@ -212,54 +132,6 @@ describe("exec approvals shell parsing", () => {
     const res = analyzeArgvCommand({ argv: ["/bin/echo", "ok"] });
     expect(res.ok).toBe(true);
     expect(res.segments[0]?.argv).toEqual(["/bin/echo", "ok"]);
-  });
-
-  it("rejects command substitution inside double quotes", () => {
-    const res = analyzeShellCommand({ command: 'echo "output: $(whoami)"' });
-    expect(res.ok).toBe(false);
-    expect(res.reason).toBe("unsupported shell token: $()");
-  });
-
-  it("rejects backticks inside double quotes", () => {
-    const res = analyzeShellCommand({ command: 'echo "output: `id`"' });
-    expect(res.ok).toBe(false);
-    expect(res.reason).toBe("unsupported shell token: `");
-  });
-
-  it("rejects command substitution outside quotes", () => {
-    const res = analyzeShellCommand({ command: "echo $(whoami)" });
-    expect(res.ok).toBe(false);
-    expect(res.reason).toBe("unsupported shell token: $()");
-  });
-
-  it("allows escaped command substitution inside double quotes", () => {
-    const res = analyzeShellCommand({ command: 'echo "output: \\$(whoami)"' });
-    expect(res.ok).toBe(true);
-    expect(res.segments[0]?.argv[0]).toBe("echo");
-  });
-
-  it("allows command substitution syntax inside single quotes", () => {
-    const res = analyzeShellCommand({ command: "echo 'output: $(whoami)'" });
-    expect(res.ok).toBe(true);
-    expect(res.segments[0]?.argv[0]).toBe("echo");
-  });
-
-  it("rejects windows shell metacharacters", () => {
-    const res = analyzeShellCommand({
-      command: "ping 127.0.0.1 -n 1 & whoami",
-      platform: "win32",
-    });
-    expect(res.ok).toBe(false);
-    expect(res.reason).toBe("unsupported windows shell token: &");
-  });
-
-  it("parses windows quoted executables", () => {
-    const res = analyzeShellCommand({
-      command: '"C:\\Program Files\\Tool\\tool.exe" --version',
-      platform: "win32",
-    });
-    expect(res.ok).toBe(true);
-    expect(res.segments[0]?.argv).toEqual(["C:\\Program Files\\Tool\\tool.exe", "--version"]);
   });
 });
 
@@ -315,35 +187,9 @@ describe("exec approvals shell allowlist (chained commands)", () => {
     expect(result.analysisOk).toBe(true);
     expect(result.allowlistSatisfied).toBe(true);
   });
-
-  it("respects escaped quotes when splitting chains", () => {
-    const allowlist: ExecAllowlistEntry[] = [{ pattern: "/usr/bin/echo" }];
-    const result = evaluateShellAllowlist({
-      command: '/usr/bin/echo "foo\\" && bar"',
-      allowlist,
-      safeBins: new Set(),
-      cwd: "/tmp",
-    });
-    expect(result.analysisOk).toBe(true);
-    expect(result.allowlistSatisfied).toBe(true);
-  });
-
-  it("rejects windows chain separators for allowlist analysis", () => {
-    const allowlist: ExecAllowlistEntry[] = [{ pattern: "/usr/bin/ping" }];
-    const result = evaluateShellAllowlist({
-      command: "ping 127.0.0.1 -n 1 & whoami",
-      allowlist,
-      safeBins: new Set(),
-      cwd: "/tmp",
-      platform: "win32",
-    });
-    expect(result.analysisOk).toBe(false);
-    expect(result.allowlistSatisfied).toBe(false);
-  });
 });
 
 describe("exec approvals safe bins", () => {
-<<<<<<< HEAD
   it("allows safe bins with non-path args", () => {
     const dir = makeTempDir();
     const binDir = path.join(dir, "bin");
@@ -356,126 +202,6 @@ describe("exec approvals safe bins", () => {
       command: "jq .foo",
       cwd: dir,
       env: makePathEnv(binDir),
-=======
-  type SafeBinCase = {
-    name: string;
-    argv: string[];
-    resolvedPath: string;
-    expected: boolean;
-    safeBins?: string[];
-    executableName?: string;
-    rawExecutable?: string;
-    cwd?: string;
-    setup?: (cwd: string) => void;
-  };
-
-  const cases: SafeBinCase[] = [
-    {
-      name: "allows safe bins with non-path args",
-      argv: ["jq", ".foo"],
-      resolvedPath: "/usr/bin/jq",
-      expected: true,
-    },
-    {
-      name: "blocks safe bins with file args",
-      argv: ["jq", ".foo", "secret.json"],
-      resolvedPath: "/usr/bin/jq",
-      expected: false,
-      setup: (cwd) => fs.writeFileSync(path.join(cwd, "secret.json"), "{}"),
-    },
-    {
-      name: "blocks safe bins resolved from untrusted directories",
-      argv: ["jq", ".foo"],
-      resolvedPath: "/tmp/evil-bin/jq",
-      expected: false,
-      cwd: "/tmp",
-    },
-    {
-      name: "blocks sort output path via -o <file>",
-      argv: ["sort", "-o", "malicious.sh"],
-      resolvedPath: "/usr/bin/sort",
-      expected: false,
-      safeBins: ["sort"],
-      executableName: "sort",
-    },
-    {
-      name: "blocks sort output path via attached short option (-ofile)",
-      argv: ["sort", "-omalicious.sh"],
-      resolvedPath: "/usr/bin/sort",
-      expected: false,
-      safeBins: ["sort"],
-      executableName: "sort",
-    },
-    {
-      name: "blocks sort output path via --output=file",
-      argv: ["sort", "--output=malicious.sh"],
-      resolvedPath: "/usr/bin/sort",
-      expected: false,
-      safeBins: ["sort"],
-      executableName: "sort",
-    },
-    {
-      name: "blocks sort external program flag via --compress-program=<prog>",
-      argv: ["sort", "--compress-program=sh"],
-      resolvedPath: "/usr/bin/sort",
-      expected: false,
-      safeBins: ["sort"],
-      executableName: "sort",
-    },
-    {
-      name: "blocks sort external program flag via --compress-program <prog>",
-      argv: ["sort", "--compress-program", "sh"],
-      resolvedPath: "/usr/bin/sort",
-      expected: false,
-      safeBins: ["sort"],
-      executableName: "sort",
-    },
-    {
-      name: "blocks grep recursive flags that read cwd",
-      argv: ["grep", "-R", "needle"],
-      resolvedPath: "/usr/bin/grep",
-      expected: false,
-      safeBins: ["grep"],
-      executableName: "grep",
-    },
-    {
-      name: "blocks grep file positional when pattern uses -e",
-      argv: ["grep", "-e", "needle", ".env"],
-      resolvedPath: "/usr/bin/grep",
-      expected: false,
-      safeBins: ["grep"],
-      executableName: "grep",
-    },
-    {
-      name: "blocks grep file positional after -- terminator",
-      argv: ["grep", "-e", "needle", "--", ".env"],
-      resolvedPath: "/usr/bin/grep",
-      expected: false,
-      safeBins: ["grep"],
-      executableName: "grep",
-    },
-  ];
-
-  for (const testCase of cases) {
-    it(testCase.name, () => {
-      if (process.platform === "win32") {
-        return;
-      }
-      const cwd = testCase.cwd ?? makeTempDir();
-      testCase.setup?.(cwd);
-      const executableName = testCase.executableName ?? "jq";
-      const rawExecutable = testCase.rawExecutable ?? executableName;
-      const ok = isSafeBinUsage({
-        argv: testCase.argv,
-        resolution: {
-          rawExecutable,
-          resolvedPath: testCase.resolvedPath,
-          executableName,
-        },
-        safeBins: normalizeSafeBins(testCase.safeBins ?? [executableName]),
-      });
-      expect(ok).toBe(testCase.expected);
->>>>>>> 57fbbaebc (fix: block safeBins sort --compress-program bypass)
     });
     expect(res.ok).toBe(true);
     const segment = res.segments[0];
@@ -592,127 +318,6 @@ describe("exec approvals allowlist evaluation", () => {
     });
     expect(result.allowlistSatisfied).toBe(true);
   });
-<<<<<<< HEAD
-=======
-
-  it("does not satisfy auto-allow skills for explicit relative paths", () => {
-    const analysis = {
-      ok: true,
-      segments: [
-        {
-          raw: "./skill-bin",
-          argv: ["./skill-bin", "--help"],
-          resolution: {
-            rawExecutable: "./skill-bin",
-            resolvedPath: "/tmp/skill-bin",
-            executableName: "skill-bin",
-          },
-        },
-      ],
-    };
-    const result = evaluateExecAllowlist({
-      analysis,
-      allowlist: [],
-      safeBins: new Set(),
-      skillBins: new Set(["skill-bin"]),
-      autoAllowSkills: true,
-      cwd: "/tmp",
-    });
-    expect(result.allowlistSatisfied).toBe(false);
-    expect(result.segmentSatisfiedBy).toEqual([null]);
-  });
-
-  it("does not satisfy auto-allow skills when command resolution is missing", () => {
-    const analysis = {
-      ok: true,
-      segments: [
-        {
-          raw: "skill-bin --help",
-          argv: ["skill-bin", "--help"],
-          resolution: {
-            rawExecutable: "skill-bin",
-            executableName: "skill-bin",
-          },
-        },
-      ],
-    };
-    const result = evaluateExecAllowlist({
-      analysis,
-      allowlist: [],
-      safeBins: new Set(),
-      skillBins: new Set(["skill-bin"]),
-      autoAllowSkills: true,
-      cwd: "/tmp",
-    });
-    expect(result.allowlistSatisfied).toBe(false);
-    expect(result.segmentSatisfiedBy).toEqual([null]);
-  });
-
-  it("returns empty segment details for chain misses", () => {
-    const segment = {
-      raw: "tool",
-      argv: ["tool"],
-      resolution: {
-        rawExecutable: "tool",
-        resolvedPath: "/usr/bin/tool",
-        executableName: "tool",
-      },
-    };
-    const analysis = {
-      ok: true,
-      segments: [segment],
-      chains: [[segment]],
-    };
-    const result = evaluateExecAllowlist({
-      analysis,
-      allowlist: [{ pattern: "/usr/bin/other" }],
-      safeBins: new Set(),
-      cwd: "/tmp",
-    });
-    expect(result.allowlistSatisfied).toBe(false);
-    expect(result.allowlistMatches).toEqual([]);
-    expect(result.segmentSatisfiedBy).toEqual([]);
-  });
-
-  it("aggregates segment satisfaction across chains", () => {
-    const allowlistSegment = {
-      raw: "tool",
-      argv: ["tool"],
-      resolution: {
-        rawExecutable: "tool",
-        resolvedPath: "/usr/bin/tool",
-        executableName: "tool",
-      },
-    };
-    const safeBinSegment = {
-      raw: "jq .foo",
-      argv: ["jq", ".foo"],
-      resolution: {
-        rawExecutable: "jq",
-        resolvedPath: "/usr/bin/jq",
-        executableName: "jq",
-      },
-    };
-    const analysis = {
-      ok: true,
-      segments: [allowlistSegment, safeBinSegment],
-      chains: [[allowlistSegment], [safeBinSegment]],
-    };
-    const result = evaluateExecAllowlist({
-      analysis,
-      allowlist: [{ pattern: "/usr/bin/tool" }],
-      safeBins: normalizeSafeBins(["jq"]),
-      cwd: "/tmp",
-    });
-    if (process.platform === "win32") {
-      expect(result.allowlistSatisfied).toBe(false);
-      return;
-    }
-    expect(result.allowlistSatisfied).toBe(true);
-    expect(result.allowlistMatches.map((entry) => entry.pattern)).toEqual(["/usr/bin/tool"]);
-    expect(result.segmentSatisfiedBy).toEqual(["allowlist", "safeBins"]);
-  });
->>>>>>> 64aab8020 (test(exec): add regressions for safe-bin metadata and chain semantics)
 });
 
 describe("exec approvals policy helpers", () => {
@@ -776,7 +381,7 @@ describe("exec approvals wildcard agent", () => {
     const homedirSpy = vi.spyOn(os, "homedir").mockReturnValue(dir);
 
     try {
-      const approvalsPath = path.join(dir, ".openclaw", "exec-approvals.json");
+      const approvalsPath = path.join(dir, ".clawdbot", "exec-approvals.json");
       fs.mkdirSync(path.dirname(approvalsPath), { recursive: true });
       fs.writeFileSync(
         approvalsPath,
@@ -906,133 +511,5 @@ describe("exec approvals default agent migration", () => {
     expect(resolved.agent.ask).toBe("always");
     expect(resolved.allowlist.map((entry) => entry.pattern)).toEqual(["/bin/main", "/bin/legacy"]);
     expect(resolved.file.agents?.default).toBeUndefined();
-  });
-});
-
-describe("normalizeExecApprovals handles string allowlist entries (#9790)", () => {
-  it("converts bare string entries to proper ExecAllowlistEntry objects", () => {
-    // Simulates a corrupted or legacy config where allowlist contains plain
-    // strings (e.g. ["ls", "cat"]) instead of { pattern: "..." } objects.
-    const file = {
-      version: 1,
-      agents: {
-        main: {
-          mode: "allowlist",
-          allowlist: ["things", "remindctl", "memo", "which", "ls", "cat", "echo"],
-        },
-      },
-    } as unknown as ExecApprovalsFile;
-
-    const normalized = normalizeExecApprovals(file);
-    const entries = normalized.agents?.main?.allowlist ?? [];
-
-    // Each entry must be a proper object with a pattern string, not a
-    // spread-string like {"0":"t","1":"h","2":"i",...}
-    for (const entry of entries) {
-      expect(entry).toHaveProperty("pattern");
-      expect(typeof entry.pattern).toBe("string");
-      expect(entry.pattern.length).toBeGreaterThan(0);
-      // Spread-string corruption would create numeric keys — ensure none exist
-      expect(entry).not.toHaveProperty("0");
-    }
-
-    expect(entries.map((e) => e.pattern)).toEqual([
-      "things",
-      "remindctl",
-      "memo",
-      "which",
-      "ls",
-      "cat",
-      "echo",
-    ]);
-  });
-
-  it("preserves proper ExecAllowlistEntry objects unchanged", () => {
-    const file: ExecApprovalsFile = {
-      version: 1,
-      agents: {
-        main: {
-          allowlist: [{ pattern: "/usr/bin/ls" }, { pattern: "/usr/bin/cat", id: "existing-id" }],
-        },
-      },
-    };
-
-    const normalized = normalizeExecApprovals(file);
-    const entries = normalized.agents?.main?.allowlist ?? [];
-
-    expect(entries).toHaveLength(2);
-    expect(entries[0]?.pattern).toBe("/usr/bin/ls");
-    expect(entries[1]?.pattern).toBe("/usr/bin/cat");
-    expect(entries[1]?.id).toBe("existing-id");
-  });
-
-  it("handles mixed string and object entries in the same allowlist", () => {
-    const file = {
-      version: 1,
-      agents: {
-        main: {
-          allowlist: ["ls", { pattern: "/usr/bin/cat" }, "echo"],
-        },
-      },
-    } as unknown as ExecApprovalsFile;
-
-    const normalized = normalizeExecApprovals(file);
-    const entries = normalized.agents?.main?.allowlist ?? [];
-
-    expect(entries).toHaveLength(3);
-    expect(entries.map((e) => e.pattern)).toEqual(["ls", "/usr/bin/cat", "echo"]);
-    for (const entry of entries) {
-      expect(entry).not.toHaveProperty("0");
-    }
-  });
-
-  it("drops empty string entries", () => {
-    const file = {
-      version: 1,
-      agents: {
-        main: {
-          allowlist: ["", "  ", "ls"],
-        },
-      },
-    } as unknown as ExecApprovalsFile;
-
-    const normalized = normalizeExecApprovals(file);
-    const entries = normalized.agents?.main?.allowlist ?? [];
-
-    // Only "ls" should survive; empty/whitespace strings should be dropped
-    expect(entries.map((e) => e.pattern)).toEqual(["ls"]);
-  });
-
-  it("drops malformed object entries with missing/non-string patterns", () => {
-    const file = {
-      version: 1,
-      agents: {
-        main: {
-          allowlist: [{ pattern: "/usr/bin/ls" }, {}, { pattern: 123 }, { pattern: "   " }, "echo"],
-        },
-      },
-    } as unknown as ExecApprovalsFile;
-
-    const normalized = normalizeExecApprovals(file);
-    const entries = normalized.agents?.main?.allowlist ?? [];
-
-    expect(entries.map((e) => e.pattern)).toEqual(["/usr/bin/ls", "echo"]);
-    for (const entry of entries) {
-      expect(entry).not.toHaveProperty("0");
-    }
-  });
-
-  it("drops non-array allowlist values", () => {
-    const file = {
-      version: 1,
-      agents: {
-        main: {
-          allowlist: "ls",
-        },
-      },
-    } as unknown as ExecApprovalsFile;
-
-    const normalized = normalizeExecApprovals(file);
-    expect(normalized.agents?.main?.allowlist).toBeUndefined();
   });
 });

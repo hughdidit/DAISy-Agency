@@ -37,8 +37,6 @@ export const AgentDefaultsSchema = z
             alias: z.string().optional(),
             /** Provider-specific API parameters (e.g., GLM-4.7 thinking mode). */
             params: z.record(z.string(), z.unknown()).optional(),
-            /** Enable streaming for this model (default: true, false for Ollama to avoid SDK issue #1205). */
-            streaming: z.boolean().optional(),
           })
           .strict(),
       )
@@ -140,27 +138,6 @@ export const AgentDefaultsSchema = z
     subagents: z
       .object({
         maxConcurrent: z.number().int().positive().optional(),
-<<<<<<< HEAD
-=======
-        maxSpawnDepth: z
-          .number()
-          .int()
-          .min(1)
-          .max(5)
-          .optional()
-          .describe(
-            "Maximum nesting depth for sub-agent spawning. Default is 2 (sub-agents can spawn sub-sub-agents).",
-          ),
-        maxChildrenPerAgent: z
-          .number()
-          .int()
-          .min(1)
-          .max(20)
-          .optional()
-          .describe(
-            "Maximum number of active children a single agent session can spawn (default: 5).",
-          ),
->>>>>>> fe57bea08 (Subagents: restore announce chain + fix nested retry/drop regressions (#22223))
         archiveAfterMinutes: z.number().int().positive().optional(),
         model: z
           .union([
@@ -173,12 +150,6 @@ export const AgentDefaultsSchema = z
               .strict(),
           ])
           .optional(),
-        thinking: z.string().optional(),
-<<<<<<< HEAD
-=======
-        runTimeoutSeconds: z.number().int().min(0).optional(),
-        announceTimeoutMs: z.number().int().positive().optional(),
->>>>>>> 8bcd405b1 (fix: add .int() to runTimeoutSeconds zod schema for consistency)
       })
       .strict()
       .optional(),

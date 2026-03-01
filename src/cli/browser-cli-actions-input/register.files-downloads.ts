@@ -1,57 +1,14 @@
 import type { Command } from "commander";
 import { danger } from "../../globals.js";
 import { defaultRuntime } from "../../runtime.js";
-import { shortenHomePath } from "../../utils.js";
 import { callBrowserRequest, type BrowserParentOpts } from "../browser-cli-shared.js";
 import { resolveBrowserActionContext } from "./shared.js";
+import { shortenHomePath } from "../../utils.js";
 
 export function registerBrowserFilesAndDownloadsCommands(
   browser: Command,
   parentOpts: (cmd: Command) => BrowserParentOpts,
 ) {
-<<<<<<< HEAD
-=======
-  const resolveTimeoutAndTarget = (opts: { timeoutMs?: unknown; targetId?: unknown }) => {
-    const timeoutMs = Number.isFinite(opts.timeoutMs) ? Number(opts.timeoutMs) : undefined;
-    const targetId =
-      typeof opts.targetId === "string" ? opts.targetId.trim() || undefined : undefined;
-    return { timeoutMs, targetId };
-  };
-
-  const runDownloadCommand = async (
-    cmd: Command,
-    opts: { timeoutMs?: unknown; targetId?: unknown },
-    request: { path: string; body: Record<string, unknown> },
-  ) => {
-    const { parent, profile } = resolveBrowserActionContext(cmd, parentOpts);
-    try {
-      const { timeoutMs, targetId } = resolveTimeoutAndTarget(opts);
-      const result = await callBrowserRequest<{ download: { path: string } }>(
-        parent,
-        {
-          method: "POST",
-          path: request.path,
-          query: profile ? { profile } : undefined,
-          body: {
-            ...request.body,
-            targetId,
-            timeoutMs,
-          },
-        },
-        { timeoutMs: timeoutMs ?? 20000 },
-      );
-      if (parent?.json) {
-        defaultRuntime.log(JSON.stringify(result, null, 2));
-        return;
-      }
-      defaultRuntime.log(`downloaded: ${shortenHomePath(result.download.path)}`);
-    } catch (err) {
-      defaultRuntime.error(danger(String(err)));
-      defaultRuntime.exit(1);
-    }
-  };
-
->>>>>>> 3f621d13f (refactor(cli): dedupe browser debug and download opts)
   browser
     .command("upload")
     .description("Arm file upload for the next file chooser")
@@ -68,12 +25,7 @@ export function registerBrowserFilesAndDownloadsCommands(
     .action(async (paths: string[], opts, cmd) => {
       const { parent, profile } = resolveBrowserActionContext(cmd, parentOpts);
       try {
-<<<<<<< HEAD
         const timeoutMs = Number.isFinite(opts.timeoutMs) ? opts.timeoutMs : undefined;
-=======
-        const normalizedPaths = normalizeUploadPaths(paths);
-        const { timeoutMs, targetId } = resolveTimeoutAndTarget(opts);
->>>>>>> 3f621d13f (refactor(cli): dedupe browser debug and download opts)
         const result = await callBrowserRequest<{ download: { path: string } }>(
           parent,
           {
@@ -85,7 +37,7 @@ export function registerBrowserFilesAndDownloadsCommands(
               ref: opts.ref?.trim() || undefined,
               inputRef: opts.inputRef?.trim() || undefined,
               element: opts.element?.trim() || undefined,
-              targetId,
+              targetId: opts.targetId?.trim() || undefined,
               timeoutMs,
             },
           },
@@ -105,7 +57,7 @@ export function registerBrowserFilesAndDownloadsCommands(
   browser
     .command("waitfordownload")
     .description("Wait for the next download (and save it)")
-    .argument("[path]", "Save path (default: os.tmpdir()/openclaw/downloads/...)")
+    .argument("[path]", "Save path (default: /tmp/moltbot/downloads/...)")
     .option("--target-id <id>", "CDP target id (or unique prefix)")
     .option(
       "--timeout-ms <ms>",
@@ -203,7 +155,7 @@ export function registerBrowserFilesAndDownloadsCommands(
         return;
       }
       try {
-        const { timeoutMs, targetId } = resolveTimeoutAndTarget(opts);
+        const timeoutMs = Number.isFinite(opts.timeoutMs) ? opts.timeoutMs : undefined;
         const result = await callBrowserRequest(
           parent,
           {
@@ -213,7 +165,7 @@ export function registerBrowserFilesAndDownloadsCommands(
             body: {
               accept,
               promptText: opts.prompt?.trim() || undefined,
-              targetId,
+              targetId: opts.targetId?.trim() || undefined,
               timeoutMs,
             },
           },

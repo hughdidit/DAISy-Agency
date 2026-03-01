@@ -1,0 +1,35 @@
+name: Promote to Production
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_run_id:
+        description: "Docker release run ID (release-metadata source)"
+        required: true
+      image_ref:
+        description: "Optional override: full image ref"
+        required: false
+      dry_run:
+        description: "If true, do not perform real deployment"
+        required: true
+        default: true
+        type: boolean
+
+permissions:
+  id-token: write
+  contents: read
+  actions: read
+
+concurrency:
+  group: promote-production
+  cancel-in-progress: false
+
+jobs:
+  deploy_prod:
+    uses: ./.github/workflows/deploy.yml
+    with:
+      environment: production
+      release_run_id: ${{ inputs.release_run_id }}
+      image_ref: ${{ inputs.image_ref }}
+      dry_run: ${{ inputs.dry_run }}
+    secrets: inherit

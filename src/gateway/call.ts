@@ -1,27 +1,21 @@
 import { randomUUID } from "node:crypto";
-import type { OpenClawConfig } from "../config/config.js";
+import type { MoltbotConfig } from "../config/config.js";
 import {
   loadConfig,
   resolveConfigPath,
   resolveGatewayPort,
   resolveStateDir,
 } from "../config/config.js";
-import { loadOrCreateDeviceIdentity } from "../infra/device-identity.js";
 import { pickPrimaryTailnetIPv4 } from "../infra/tailnet.js";
-import { loadGatewayTlsRuntime } from "../infra/tls/gateway.js";
+import { loadOrCreateDeviceIdentity } from "../infra/device-identity.js";
 import {
   GATEWAY_CLIENT_MODES,
   GATEWAY_CLIENT_NAMES,
   type GatewayClientMode,
   type GatewayClientName,
 } from "../utils/message-channel.js";
+import { loadGatewayTlsRuntime } from "../infra/tls/gateway.js";
 import { GatewayClient } from "./client.js";
-<<<<<<< HEAD
-import { pickPrimaryLanIPv4 } from "./net.js";
-=======
-import type { OperatorScope } from "./method-scopes.js";
-import { isSecureWebSocketUrl, pickPrimaryLanIPv4 } from "./net.js";
->>>>>>> a40c10d3e (fix: harden agent gateway authorization scopes)
 import { PROTOCOL_VERSION } from "./protocol/index.js";
 
 export type CallGatewayOptions = {
@@ -29,7 +23,7 @@ export type CallGatewayOptions = {
   token?: string;
   password?: string;
   tlsFingerprint?: string;
-  config?: OpenClawConfig;
+  config?: MoltbotConfig;
   method: string;
   params?: unknown;
   expectFinal?: boolean;
@@ -42,7 +36,6 @@ export type CallGatewayOptions = {
   instanceId?: string;
   minProtocol?: number;
   maxProtocol?: number;
-  scopes?: OperatorScope[];
   /**
    * Overrides the config path shown in connection error details.
    * Does not affect config loading; callers still control auth via opts.token/password/env/config.
@@ -58,45 +51,8 @@ export type GatewayConnectionDetails = {
   message: string;
 };
 
-export type ExplicitGatewayAuth = {
-  token?: string;
-  password?: string;
-};
-
-export function resolveExplicitGatewayAuth(opts?: ExplicitGatewayAuth): ExplicitGatewayAuth {
-  const token =
-    typeof opts?.token === "string" && opts.token.trim().length > 0 ? opts.token.trim() : undefined;
-  const password =
-    typeof opts?.password === "string" && opts.password.trim().length > 0
-      ? opts.password.trim()
-      : undefined;
-  return { token, password };
-}
-
-export function ensureExplicitGatewayAuth(params: {
-  urlOverride?: string;
-  auth: ExplicitGatewayAuth;
-  errorHint: string;
-  configPath?: string;
-}): void {
-  if (!params.urlOverride) {
-    return;
-  }
-  if (params.auth.token || params.auth.password) {
-    return;
-  }
-  const message = [
-    "gateway url override requires explicit credentials",
-    params.errorHint,
-    params.configPath ? `Config: ${params.configPath}` : undefined,
-  ]
-    .filter(Boolean)
-    .join("\n");
-  throw new Error(message);
-}
-
 export function buildGatewayConnectionDetails(
-  options: { config?: OpenClawConfig; url?: string; configPath?: string } = {},
+  options: { config?: MoltbotConfig; url?: string; configPath?: string } = {},
 ): GatewayConnectionDetails {
   const config = options.config ?? loadConfig();
   const configPath =
@@ -108,15 +64,11 @@ export function buildGatewayConnectionDetails(
   const tailnetIPv4 = pickPrimaryTailnetIPv4();
   const bindMode = config.gateway?.bind ?? "loopback";
   const preferTailnet = bindMode === "tailnet" && !!tailnetIPv4;
-  const preferLan = bindMode === "lan";
-  const lanIPv4 = preferLan ? pickPrimaryLanIPv4() : undefined;
   const scheme = tlsEnabled ? "wss" : "ws";
   const localUrl =
     preferTailnet && tailnetIPv4
       ? `${scheme}://${tailnetIPv4}:${localPort}`
-      : preferLan && lanIPv4
-        ? `${scheme}://${lanIPv4}:${localPort}`
-        : `${scheme}://127.0.0.1:${localPort}`;
+      : `${scheme}://127.0.0.1:${localPort}`;
   const urlOverride =
     typeof options.url === "string" && options.url.trim().length > 0
       ? options.url.trim()
@@ -133,9 +85,7 @@ export function buildGatewayConnectionDetails(
         ? "missing gateway.remote.url (fallback local)"
         : preferTailnet && tailnetIPv4
           ? `local tailnet ${tailnetIPv4}`
-          : preferLan && lanIPv4
-            ? `local lan ${lanIPv4}`
-            : "local loopback";
+          : "local loopback";
   const remoteFallbackNote = remoteMisconfigured
     ? "Warn: gateway.mode=remote but gateway.remote.url is missing; set gateway.remote.url or switch gateway.mode=local."
     : undefined;
@@ -159,24 +109,13 @@ export function buildGatewayConnectionDetails(
   };
 }
 
-export async function callGateway<T = Record<string, unknown>>(
-  opts: CallGatewayOptions,
-): Promise<T> {
-  const timeoutMs =
-    typeof opts.timeoutMs === "number" && Number.isFinite(opts.timeoutMs) ? opts.timeoutMs : 10_000;
-  const safeTimerTimeoutMs = Math.max(1, Math.min(Math.floor(timeoutMs), 2_147_483_647));
+export async function callGateway<T = unknown>(opts: CallGatewayOptions): Promise<T> {
+  const timeoutMs = opts.timeoutMs ?? 10_000;
   const config = opts.config ?? loadConfig();
   const isRemoteMode = config.gateway?.mode === "remote";
   const remote = isRemoteMode ? config.gateway?.remote : undefined;
   const urlOverride =
     typeof opts.url === "string" && opts.url.trim().length > 0 ? opts.url.trim() : undefined;
-  const explicitAuth = resolveExplicitGatewayAuth({ token: opts.token, password: opts.password });
-  ensureExplicitGatewayAuth({
-    urlOverride,
-    auth: explicitAuth,
-    errorHint: "Fix: pass --token or --password (or gatewayToken in tools).",
-    configPath: opts.configPath ?? resolveConfigPath(process.env, resolveStateDir(process.env)),
-  });
   const remoteUrl =
     typeof remote?.url === "string" && remote.url.trim().length > 0 ? remote.url.trim() : undefined;
   if (isRemoteMode && !urlOverride && !remoteUrl) {
@@ -212,31 +151,29 @@ export async function callGateway<T = Record<string, unknown>>(
     remoteTlsFingerprint ||
     (tlsRuntime?.enabled ? tlsRuntime.fingerprintSha256 : undefined);
   const token =
-    explicitAuth.token ||
-    (!urlOverride
-      ? isRemoteMode
-        ? typeof remote?.token === "string" && remote.token.trim().length > 0
-          ? remote.token.trim()
-          : undefined
-        : process.env.OPENCLAW_GATEWAY_TOKEN?.trim() ||
-          process.env.CLAWDBOT_GATEWAY_TOKEN?.trim() ||
-          (typeof authToken === "string" && authToken.trim().length > 0
-            ? authToken.trim()
-            : undefined)
-      : undefined);
+    (typeof opts.token === "string" && opts.token.trim().length > 0
+      ? opts.token.trim()
+      : undefined) ||
+    (isRemoteMode
+      ? typeof remote?.token === "string" && remote.token.trim().length > 0
+        ? remote.token.trim()
+        : undefined
+      : process.env.CLAWDBOT_GATEWAY_TOKEN?.trim() ||
+        (typeof authToken === "string" && authToken.trim().length > 0
+          ? authToken.trim()
+          : undefined));
   const password =
-    explicitAuth.password ||
-    (!urlOverride
-      ? process.env.OPENCLAW_GATEWAY_PASSWORD?.trim() ||
-        process.env.CLAWDBOT_GATEWAY_PASSWORD?.trim() ||
-        (isRemoteMode
-          ? typeof remote?.password === "string" && remote.password.trim().length > 0
-            ? remote.password.trim()
-            : undefined
-          : typeof authPassword === "string" && authPassword.trim().length > 0
-            ? authPassword.trim()
-            : undefined)
-      : undefined);
+    (typeof opts.password === "string" && opts.password.trim().length > 0
+      ? opts.password.trim()
+      : undefined) ||
+    process.env.CLAWDBOT_GATEWAY_PASSWORD?.trim() ||
+    (isRemoteMode
+      ? typeof remote?.password === "string" && remote.password.trim().length > 0
+        ? remote.password.trim()
+        : undefined
+      : typeof authPassword === "string" && authPassword.trim().length > 0
+        ? authPassword.trim()
+        : undefined);
 
   const formatCloseError = (code: number, reason: string) => {
     const reasonText = reason?.trim() || "no close reason";
@@ -247,23 +184,15 @@ export async function callGateway<T = Record<string, unknown>>(
   };
   const formatTimeoutError = () =>
     `gateway timeout after ${timeoutMs}ms\n${connectionDetails.message}`;
-  const scopes = Array.isArray(opts.scopes)
-    ? opts.scopes
-    : ["operator.admin", "operator.approvals", "operator.pairing"];
   return await new Promise<T>((resolve, reject) => {
     let settled = false;
     let ignoreClose = false;
     const stop = (err?: Error, value?: T) => {
-      if (settled) {
-        return;
-      }
+      if (settled) return;
       settled = true;
       clearTimeout(timer);
-      if (err) {
-        reject(err);
-      } else {
-        resolve(value as T);
-      }
+      if (err) reject(err);
+      else resolve(value as T);
     };
 
     const client = new GatewayClient({
@@ -278,7 +207,7 @@ export async function callGateway<T = Record<string, unknown>>(
       platform: opts.platform,
       mode: opts.mode ?? GATEWAY_CLIENT_MODES.CLI,
       role: "operator",
-      scopes,
+      scopes: ["operator.admin", "operator.approvals", "operator.pairing"],
       deviceIdentity: loadOrCreateDeviceIdentity(),
       minProtocol: opts.minProtocol ?? PROTOCOL_VERSION,
       maxProtocol: opts.maxProtocol ?? PROTOCOL_VERSION,
@@ -297,9 +226,7 @@ export async function callGateway<T = Record<string, unknown>>(
         }
       },
       onClose: (code, reason) => {
-        if (settled || ignoreClose) {
-          return;
-        }
+        if (settled || ignoreClose) return;
         ignoreClose = true;
         client.stop();
         stop(new Error(formatCloseError(code, reason)));
@@ -310,7 +237,7 @@ export async function callGateway<T = Record<string, unknown>>(
       ignoreClose = true;
       client.stop();
       stop(new Error(formatTimeoutError()));
-    }, safeTimerTimeoutMs);
+    }, timeoutMs);
 
     client.start();
   });

@@ -10,10 +10,19 @@ vi.mock("../infra/shell-env.js", async (importOriginal) => {
   return { ...mod, getShellPathFromLoginShell: () => null };
 });
 async function withTempDir<T>(prefix: string, fn: (dir: string) => Promise<T>) {
+  // Capture cwd BEFORE creating temp dir to avoid ENOENT if cwd is a deleted temp dir
+  const prevCwd = process.cwd();
   const dir = await fs.mkdtemp(path.join(os.tmpdir(), prefix));
   try {
     return await fn(dir);
   } finally {
+    // Restore cwd before cleanup to avoid ENOENT when deleting current directory
+    try {
+      process.chdir(prevCwd);
+    } catch {
+      // If prevCwd is gone, fall back to tmpdir
+      process.chdir(os.tmpdir());
+    }
     await fs.rm(dir, { recursive: true, force: true });
   }
 }
@@ -23,78 +32,66 @@ function getTextContent(result?: { content?: Array<{ type: string; text?: string
   return textBlock?.text ?? "";
 }
 
-describe("workspace path resolution", () => {
+describe.sequential("workspace path resolution", () => {
   it("reads relative paths against workspaceDir even after cwd changes", async () => {
-    await withTempDir("openclaw-ws-", async (workspaceDir) => {
-      await withTempDir("openclaw-cwd-", async (otherDir) => {
+    await withTempDir("moltbot-ws-", async (workspaceDir) => {
+      await withTempDir("moltbot-cwd-", async (otherDir) => {
         const testFile = "read.txt";
         const contents = "workspace read ok";
         await fs.writeFile(path.join(workspaceDir, testFile), contents, "utf8");
 
-        const cwdSpy = vi.spyOn(process, "cwd").mockReturnValue(otherDir);
-        try {
-          const tools = createOpenClawCodingTools({ workspaceDir });
-          const readTool = tools.find((tool) => tool.name === "read");
-          expect(readTool).toBeDefined();
+        process.chdir(otherDir);
+        const tools = createMoltbotCodingTools({ workspaceDir });
+        const readTool = tools.find((tool) => tool.name === "read");
+        expect(readTool).toBeDefined();
 
-          const result = await readTool?.execute("ws-read", { path: testFile });
-          expect(getTextContent(result)).toContain(contents);
-        } finally {
-          cwdSpy.mockRestore();
-        }
+        const result = await readTool?.execute("ws-read", { path: testFile });
+        expect(getTextContent(result)).toContain(contents);
       });
     });
   });
 
   it("writes relative paths against workspaceDir even after cwd changes", async () => {
-    await withTempDir("openclaw-ws-", async (workspaceDir) => {
-      await withTempDir("openclaw-cwd-", async (otherDir) => {
+    await withTempDir("moltbot-ws-", async (workspaceDir) => {
+      await withTempDir("moltbot-cwd-", async (otherDir) => {
         const testFile = "write.txt";
         const contents = "workspace write ok";
 
-        const cwdSpy = vi.spyOn(process, "cwd").mockReturnValue(otherDir);
-        try {
-          const tools = createOpenClawCodingTools({ workspaceDir });
-          const writeTool = tools.find((tool) => tool.name === "write");
-          expect(writeTool).toBeDefined();
+        process.chdir(otherDir);
+        const tools = createMoltbotCodingTools({ workspaceDir });
+        const writeTool = tools.find((tool) => tool.name === "write");
+        expect(writeTool).toBeDefined();
 
-          await writeTool?.execute("ws-write", {
-            path: testFile,
-            content: contents,
-          });
+        await writeTool?.execute("ws-write", {
+          path: testFile,
+          content: contents,
+        });
 
-          const written = await fs.readFile(path.join(workspaceDir, testFile), "utf8");
-          expect(written).toBe(contents);
-        } finally {
-          cwdSpy.mockRestore();
-        }
+        const written = await fs.readFile(path.join(workspaceDir, testFile), "utf8");
+        expect(written).toBe(contents);
       });
     });
   });
 
   it("edits relative paths against workspaceDir even after cwd changes", async () => {
-    await withTempDir("openclaw-ws-", async (workspaceDir) => {
-      await withTempDir("openclaw-cwd-", async (otherDir) => {
+    await withTempDir("moltbot-ws-", async (workspaceDir) => {
+      await withTempDir("moltbot-cwd-", async (otherDir) => {
         const testFile = "edit.txt";
         await fs.writeFile(path.join(workspaceDir, testFile), "hello world", "utf8");
 
-        const cwdSpy = vi.spyOn(process, "cwd").mockReturnValue(otherDir);
-        try {
-          const tools = createOpenClawCodingTools({ workspaceDir });
-          const editTool = tools.find((tool) => tool.name === "edit");
-          expect(editTool).toBeDefined();
+        process.chdir(otherDir);
+        const tools = createMoltbotCodingTools({ workspaceDir });
+        const editTool = tools.find((tool) => tool.name === "edit");
+        expect(editTool).toBeDefined();
 
-          await editTool?.execute("ws-edit", {
-            path: testFile,
-            oldText: "world",
-            newText: "openclaw",
-          });
+        await editTool?.execute("ws-edit", {
+          path: testFile,
+          oldText: "world",
+          newText: "moltbot",
+        });
 
-          const updated = await fs.readFile(path.join(workspaceDir, testFile), "utf8");
-          expect(updated).toBe("hello openclaw");
-        } finally {
-          cwdSpy.mockRestore();
-        }
+        const updated = await fs.readFile(path.join(workspaceDir, testFile), "utf8");
+        expect(updated).toBe("hello moltbot");
       });
     });
   });
@@ -153,7 +150,7 @@ describe("workspace path resolution", () => {
   });
 });
 
-describe("sandboxed workspace paths", () => {
+describe.sequential("sandboxed workspace paths", () => {
   it("uses sandbox workspace for relative read/write/edit", async () => {
     await withTempDir("openclaw-sandbox-", async (sandboxDir) => {
       await withTempDir("openclaw-workspace-", async (workspaceDir) => {

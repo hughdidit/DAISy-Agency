@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { sensitive } from "./zod-schema.sensitive.js";
 
 export const HookMappingSchema = z
   .object({
@@ -13,12 +12,7 @@ export const HookMappingSchema = z
     action: z.union([z.literal("wake"), z.literal("agent")]).optional(),
     wakeMode: z.union([z.literal("now"), z.literal("next-heartbeat")]).optional(),
     name: z.string().optional(),
-<<<<<<< HEAD
     sessionKey: z.string().optional(),
-=======
-    agentId: z.string().optional(),
-    sessionKey: z.string().optional().register(sensitive),
->>>>>>> 96318641d (fix: Finish credential redaction that was merged unfinished (#13073))
     messageTemplate: z.string().optional(),
     textTemplate: z.string().optional(),
     deliver: z.boolean().optional(),
@@ -99,7 +93,7 @@ export const HooksGmailSchema = z
     label: z.string().optional(),
     topic: z.string().optional(),
     subscription: z.string().optional(),
-    pushToken: z.string().optional().register(sensitive),
+    pushToken: z.string().optional(),
     hookUrl: z.string().optional(),
     includeBody: z.boolean().optional(),
     maxBytes: z.number().int().positive().optional(),

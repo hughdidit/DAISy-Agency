@@ -1,8 +1,6 @@
-import type { ChannelOutboundTargetMode } from "../../channels/plugins/types.js";
-import type { OpenClawConfig } from "../../config/config.js";
-import type { SessionEntry } from "../../config/sessions.js";
-import type { OutboundTargetResolution } from "./targets.js";
 import { DEFAULT_CHAT_CHANNEL } from "../../channels/registry.js";
+import type { ChannelOutboundTargetMode } from "../../channels/plugins/types.js";
+import type { SessionEntry } from "../../config/sessions.js";
 import { normalizeAccountId } from "../../utils/account-id.js";
 import {
   INTERNAL_MESSAGE_CHANNEL,
@@ -16,6 +14,8 @@ import {
   resolveSessionDeliveryTarget,
   type SessionDeliveryTarget,
 } from "./targets.js";
+import type { MoltbotConfig } from "../../config/config.js";
+import type { OutboundTargetResolution } from "./targets.js";
 
 export type AgentDeliveryPlan = {
   baseDelivery: SessionDeliveryTarget;
@@ -44,60 +44,28 @@ export function resolveAgentDeliveryPlan(params: {
       ? params.explicitTo.trim()
       : undefined;
 
-<<<<<<< HEAD
-=======
-  // Resolve turn-source channel for cross-channel safety.
-  const normalizedTurnSource = params.turnSourceChannel
-    ? normalizeMessageChannel(params.turnSourceChannel)
-    : undefined;
-  const turnSourceChannel =
-    normalizedTurnSource && isDeliverableMessageChannel(normalizedTurnSource)
-      ? normalizedTurnSource
-      : undefined;
-  const turnSourceTo =
-    typeof params.turnSourceTo === "string" && params.turnSourceTo.trim()
-      ? params.turnSourceTo.trim()
-      : undefined;
-  const turnSourceAccountId = normalizeAccountId(params.turnSourceAccountId);
-  const turnSourceThreadId =
-    params.turnSourceThreadId != null && params.turnSourceThreadId !== ""
-      ? params.turnSourceThreadId
-      : undefined;
-
->>>>>>> 885452f5c (fix: fail-closed shared-session reply routing (#24571) (thanks @brandonwise))
   const baseDelivery = resolveSessionDeliveryTarget({
     entry: params.sessionEntry,
     requestedChannel: requestedChannel === INTERNAL_MESSAGE_CHANNEL ? "last" : requestedChannel,
     explicitTo,
     explicitThreadId: params.explicitThreadId,
-<<<<<<< HEAD
-=======
-    turnSourceChannel,
-    turnSourceTo,
-    turnSourceAccountId,
-    turnSourceThreadId,
->>>>>>> 885452f5c (fix: fail-closed shared-session reply routing (#24571) (thanks @brandonwise))
   });
 
   const resolvedChannel = (() => {
-    if (requestedChannel === INTERNAL_MESSAGE_CHANNEL) {
-      return INTERNAL_MESSAGE_CHANNEL;
-    }
+    if (requestedChannel === INTERNAL_MESSAGE_CHANNEL) return INTERNAL_MESSAGE_CHANNEL;
     if (requestedChannel === "last") {
       if (baseDelivery.channel && baseDelivery.channel !== INTERNAL_MESSAGE_CHANNEL) {
         return baseDelivery.channel;
       }
-      return INTERNAL_MESSAGE_CHANNEL;
+      return params.wantsDelivery ? DEFAULT_CHAT_CHANNEL : INTERNAL_MESSAGE_CHANNEL;
     }
 
-    if (isGatewayMessageChannel(requestedChannel)) {
-      return requestedChannel;
-    }
+    if (isGatewayMessageChannel(requestedChannel)) return requestedChannel;
 
     if (baseDelivery.channel && baseDelivery.channel !== INTERNAL_MESSAGE_CHANNEL) {
       return baseDelivery.channel;
     }
-    return INTERNAL_MESSAGE_CHANNEL;
+    return params.wantsDelivery ? DEFAULT_CHAT_CHANNEL : INTERNAL_MESSAGE_CHANNEL;
   })();
 
   const deliveryTargetMode = explicitTo
@@ -130,7 +98,7 @@ export function resolveAgentDeliveryPlan(params: {
 }
 
 export function resolveAgentOutboundTarget(params: {
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   plan: AgentDeliveryPlan;
   targetMode?: ChannelOutboundTargetMode;
   validateExplicitTarget?: boolean;

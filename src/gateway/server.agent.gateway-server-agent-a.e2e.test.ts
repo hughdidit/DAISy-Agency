@@ -113,13 +113,9 @@ const createStubChannelPlugin = (params: {
     deliveryMode: "direct",
     resolveTarget: ({ to, allowFrom }) => {
       const trimmed = to?.trim() ?? "";
-      if (trimmed) {
-        return { ok: true, to: trimmed };
-      }
+      if (trimmed) return { ok: true, to: trimmed };
       const first = allowFrom?.[0];
-      if (first) {
-        return { ok: true, to: String(first) };
-      }
+      if (first) return { ok: true, to: String(first) };
       return {
         ok: false,
         error: new Error(`missing target for ${params.id}`),
@@ -171,7 +167,7 @@ describe("gateway server agent", () => {
   test("agent marks implicit delivery when lastTo is stale", async () => {
     setRegistry(defaultRegistry);
     testState.allowFrom = ["+436769770569"];
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-gw-"));
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-gw-"));
     testState.sessionStorePath = path.join(dir, "sessions.json");
     await writeSessionStore({
       entries: {
@@ -203,7 +199,7 @@ describe("gateway server agent", () => {
 
   test("agent forwards sessionKey to agentCommand", async () => {
     setRegistry(defaultRegistry);
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-gw-"));
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-gw-"));
     testState.sessionStorePath = path.join(dir, "sessions.json");
     await writeSessionStore({
       entries: {
@@ -231,7 +227,7 @@ describe("gateway server agent", () => {
 
   test("agent derives sessionKey from agentId", async () => {
     setRegistry(defaultRegistry);
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-gw-"));
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-gw-"));
     testState.sessionStorePath = path.join(dir, "sessions.json");
     testState.agentsConfig = { list: [{ id: "ops" }] };
     await writeSessionStore({
@@ -289,7 +285,7 @@ describe("gateway server agent", () => {
   test("agent forwards accountId to agentCommand", async () => {
     setRegistry(defaultRegistry);
     testState.allowFrom = ["+1555"];
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-gw-"));
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-gw-"));
     testState.sessionStorePath = path.join(dir, "sessions.json");
     await writeSessionStore({
       entries: {
@@ -324,7 +320,7 @@ describe("gateway server agent", () => {
   test("agent avoids lastAccountId when explicit to is provided", async () => {
     setRegistry(defaultRegistry);
     testState.allowFrom = ["+1555"];
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-gw-"));
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-gw-"));
     testState.sessionStorePath = path.join(dir, "sessions.json");
     await writeSessionStore({
       entries: {
@@ -357,7 +353,7 @@ describe("gateway server agent", () => {
   test("agent keeps explicit accountId when explicit to is provided", async () => {
     setRegistry(defaultRegistry);
     testState.allowFrom = ["+1555"];
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-gw-"));
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-gw-"));
     testState.sessionStorePath = path.join(dir, "sessions.json");
     await writeSessionStore({
       entries: {
@@ -391,7 +387,7 @@ describe("gateway server agent", () => {
   test("agent falls back to lastAccountId for implicit delivery", async () => {
     setRegistry(defaultRegistry);
     testState.allowFrom = ["+1555"];
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-gw-"));
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-gw-"));
     testState.sessionStorePath = path.join(dir, "sessions.json");
     await writeSessionStore({
       entries: {
@@ -422,7 +418,7 @@ describe("gateway server agent", () => {
 
   test("agent forwards image attachments as images[]", async () => {
     setRegistry(defaultRegistry);
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-gw-"));
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-gw-"));
     testState.sessionStorePath = path.join(dir, "sessions.json");
     await writeSessionStore({
       entries: {
@@ -460,11 +456,10 @@ describe("gateway server agent", () => {
     expect(images[0]?.data).toBe(BASE_IMAGE_PNG);
   });
 
-<<<<<<< HEAD
   test("agent falls back to whatsapp when delivery requested and no last channel exists", async () => {
     setRegistry(defaultRegistry);
     testState.allowFrom = ["+1555"];
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-gw-"));
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-gw-"));
     testState.sessionStorePath = path.join(dir, "sessions.json");
     await writeSessionStore({
       entries: {
@@ -489,38 +484,11 @@ describe("gateway server agent", () => {
     expect(call.deliver).toBe(true);
     expect(call.sessionId).toBe("sess-main-missing-provider");
     testState.allowFrom = undefined;
-=======
-  test("agent errors when delivery requested and no last channel exists", async () => {
-    setRegistry(defaultRegistry);
-    testState.allowFrom = ["+1555"];
-    try {
-      await setTestSessionStore({
-        entries: {
-          main: {
-            sessionId: "sess-main-missing-provider",
-            updatedAt: Date.now(),
-          },
-        },
-      });
-      const res = await rpcReq(ws, "agent", {
-        message: "hi",
-        sessionKey: "main",
-        deliver: true,
-        idempotencyKey: "idem-agent-missing-provider",
-      });
-      expect(res.ok).toBe(false);
-      expect(res.error?.code).toBe("INVALID_REQUEST");
-      expect(res.error?.message).toContain("Channel is required");
-      expect(vi.mocked(agentCommand)).not.toHaveBeenCalled();
-    } finally {
-      testState.allowFrom = undefined;
-    }
->>>>>>> 1cd3b3090 (fix: stop hardcoded channel fallback and auto-pick sole configured channel (#23357) (thanks @lbo728))
   });
 
   test("agent routes main last-channel whatsapp", async () => {
     setRegistry(defaultRegistry);
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-gw-"));
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-gw-"));
     testState.sessionStorePath = path.join(dir, "sessions.json");
     await writeSessionStore({
       entries: {
@@ -553,7 +521,7 @@ describe("gateway server agent", () => {
 
   test("agent routes main last-channel telegram", async () => {
     setRegistry(defaultRegistry);
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-gw-"));
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-gw-"));
     testState.sessionStorePath = path.join(dir, "sessions.json");
     await writeSessionStore({
       entries: {
@@ -585,7 +553,7 @@ describe("gateway server agent", () => {
 
   test("agent routes main last-channel discord", async () => {
     setRegistry(defaultRegistry);
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-gw-"));
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-gw-"));
     testState.sessionStorePath = path.join(dir, "sessions.json");
     await writeSessionStore({
       entries: {
@@ -617,7 +585,7 @@ describe("gateway server agent", () => {
 
   test("agent routes main last-channel slack", async () => {
     setRegistry(defaultRegistry);
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-gw-"));
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-gw-"));
     testState.sessionStorePath = path.join(dir, "sessions.json");
     await writeSessionStore({
       entries: {
@@ -649,7 +617,7 @@ describe("gateway server agent", () => {
 
   test("agent routes main last-channel signal", async () => {
     setRegistry(defaultRegistry);
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-gw-"));
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-gw-"));
     testState.sessionStorePath = path.join(dir, "sessions.json");
     await writeSessionStore({
       entries: {

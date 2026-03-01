@@ -1,14 +1,5 @@
 import type { AgentToolResult } from "@mariozechner/pi-agent-core";
-import type { OpenClawConfig } from "../../config/config.js";
-<<<<<<< HEAD
-=======
-import { resolveTelegramAccount } from "../../telegram/accounts.js";
-import type { TelegramButtonStyle, TelegramInlineButtons } from "../../telegram/button-types.js";
->>>>>>> a03fec2a3 (fix: use per-account action config for Discord and Telegram gating)
-import {
-  resolveTelegramInlineButtonsScope,
-  resolveTelegramTargetChatType,
-} from "../../telegram/inline-buttons.js";
+import type { MoltbotConfig } from "../../config/config.js";
 import { resolveTelegramReactionLevel } from "../../telegram/reaction-level.js";
 import {
   deleteMessageTelegram,
@@ -19,6 +10,10 @@ import {
 } from "../../telegram/send.js";
 import { getCacheStats, searchStickers } from "../../telegram/sticker-cache.js";
 import { resolveTelegramToken } from "../../telegram/token.js";
+import {
+  resolveTelegramInlineButtonsScope,
+  resolveTelegramTargetChatType,
+} from "../../telegram/inline-buttons.js";
 import {
   createActionGate,
   jsonResult,
@@ -37,9 +32,7 @@ export function readTelegramButtons(
   params: Record<string, unknown>,
 ): TelegramButton[][] | undefined {
   const raw = params.buttons;
-  if (raw == null) {
-    return undefined;
-  }
+  if (raw == null) return undefined;
   if (!Array.isArray(raw)) {
     throw new Error("buttons must be an array of button rows");
   }
@@ -76,12 +69,11 @@ export function readTelegramButtons(
 
 export async function handleTelegramAction(
   params: Record<string, unknown>,
-  cfg: OpenClawConfig,
+  cfg: MoltbotConfig,
 ): Promise<AgentToolResult<unknown>> {
   const action = readStringParam(params, "action", { required: true });
   const accountId = readStringParam(params, "accountId");
-  const account = resolveTelegramAccount({ cfg, accountId });
-  const isActionEnabled = createActionGate(account.config.actions);
+  const isActionEnabled = createActionGate(cfg.channels?.telegram?.actions);
 
   if (action === "react") {
     // Check reaction level first

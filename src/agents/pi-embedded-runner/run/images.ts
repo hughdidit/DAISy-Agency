@@ -1,18 +1,14 @@
+import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-<<<<<<< HEAD
-=======
+
 import type { ImageContent } from "@mariozechner/pi-ai";
-import { resolveUserPath } from "../../../utils.js";
-import { loadWebMedia } from "../../../web/media.js";
-import type { ImageSanitizationLimits } from "../../image-sanitization.js";
-<<<<<<< HEAD
->>>>>>> 6dcc052bb (fix: stabilize model catalog and pi discovery auth storage compatibility)
-=======
+
 import { assertSandboxPath } from "../../sandbox-paths.js";
->>>>>>> 370d11554 (fix: enforce workspaceOnly for native prompt image autoload)
-import type { SandboxFsBridge } from "../../sandbox/fs-bridge.js";
 import { sanitizeImageBlocks } from "../../tool-images.js";
+import { extractTextFromMessage } from "../../../tui/tui-formatters.js";
+import { loadWebMedia } from "../../../web/media.js";
+import { resolveUserPath } from "../../../utils.js";
 import { log } from "../logger.js";
 
 /**
@@ -84,15 +80,9 @@ export function detectImageReferences(prompt: string): DetectedImageRef[] {
   // Helper to add a path ref
   const addPathRef = (raw: string) => {
     const trimmed = raw.trim();
-    if (!trimmed || seen.has(trimmed.toLowerCase())) {
-      return;
-    }
-    if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) {
-      return;
-    }
-    if (!isImageExtension(trimmed)) {
-      return;
-    }
+    if (!trimmed || seen.has(trimmed.toLowerCase())) return;
+    if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) return;
+    if (!isImageExtension(trimmed)) return;
     seen.add(trimmed.toLowerCase());
     const resolved = trimmed.startsWith("~") ? resolveUserPath(trimmed) : trimmed;
     refs.push({ raw: trimmed, type: "path", resolved });
@@ -128,9 +118,7 @@ export function detectImageReferences(prompt: string): DetectedImageRef[] {
     /\[Image:\s*source:\s*([^\]]+\.(?:png|jpe?g|gif|webp|bmp|tiff?|heic|heif))\]/gi;
   while ((match = messageImagePattern.exec(prompt)) !== null) {
     const raw = match[1]?.trim();
-    if (raw) {
-      addPathRef(raw);
-    }
+    if (raw) addPathRef(raw);
   }
 
   // Remote HTTP(S) URLs are intentionally ignored. Native image injection is local-only.
@@ -139,9 +127,7 @@ export function detectImageReferences(prompt: string): DetectedImageRef[] {
   const fileUrlPattern = /file:\/\/[^\s<>"'`\]]+\.(?:png|jpe?g|gif|webp|bmp|tiff?|heic|heif)/gi;
   while ((match = fileUrlPattern.exec(prompt)) !== null) {
     const raw = match[0];
-    if (seen.has(raw.toLowerCase())) {
-      continue;
-    }
+    if (seen.has(raw.toLowerCase())) continue;
     seen.add(raw.toLowerCase());
     // Use fileURLToPath for proper handling (e.g., file://localhost/path)
     try {
@@ -162,9 +148,7 @@ export function detectImageReferences(prompt: string): DetectedImageRef[] {
     /(?:^|\s|["'`(])((\.\.?\/|[~/])[^\s"'`()[\]]*\.(?:png|jpe?g|gif|webp|bmp|tiff?|heic|heif))/gi;
   while ((match = pathPattern.exec(prompt)) !== null) {
     // Use capture group 1 (the path without delimiter prefix); skip if undefined
-    if (match[1]) {
-      addPathRef(match[1]);
-    }
+    if (match[1]) addPathRef(match[1]);
   }
 
   return refs;
@@ -183,8 +167,8 @@ export async function loadImageFromRef(
   workspaceDir: string,
   options?: {
     maxBytes?: number;
-    workspaceOnly?: boolean;
-    sandbox?: { root: string; bridge: SandboxFsBridge };
+    /** If set, enforce that file paths are within this sandbox root */
+    sandboxRoot?: string;
   },
 ): Promise<ImageContent | null> {
   try {
@@ -196,42 +180,46 @@ export async function loadImageFromRef(
       return null;
     }
 
-    // Resolve paths relative to sandbox or workspace as needed
-    if (ref.type === "path") {
-      if (options?.sandbox) {
-        try {
-          const resolved = options.sandbox.bridge.resolvePath({
-            filePath: targetPath,
-            cwd: options.sandbox.root,
-          });
-          targetPath = resolved.hostPath;
-        } catch (err) {
-          log.debug(
-            `Native image: sandbox validation failed for ${ref.resolved}: ${err instanceof Error ? err.message : String(err)}`,
-          );
-          return null;
-        }
-      } else if (!path.isAbsolute(targetPath)) {
-        targetPath = path.resolve(workspaceDir, targetPath);
-      }
-      if (options?.workspaceOnly) {
-        const root = options?.sandbox?.root ?? workspaceDir;
-        await assertSandboxPath({
+    // For file paths, resolve relative to the appropriate root:
+    // - When sandbox is enabled, resolve relative to sandboxRoot for security
+    // - Otherwise, resolve relative to workspaceDir
+    // Note: ref.resolved may already be absolute (e.g., after ~ expansion in detectImageReferences),
+    // in which case we skip relative resolution.
+    if (ref.type === "path" && !path.isAbsolute(targetPath)) {
+      const resolveRoot = options?.sandboxRoot ?? workspaceDir;
+      targetPath = path.resolve(resolveRoot, targetPath);
+    }
+
+    // Enforce sandbox restrictions if sandboxRoot is set
+    if (ref.type === "path" && options?.sandboxRoot) {
+      try {
+        const validated = await assertSandboxPath({
           filePath: targetPath,
-          cwd: root,
-          root,
+          cwd: options.sandboxRoot,
+          root: options.sandboxRoot,
         });
+        targetPath = validated.resolved;
+      } catch (err) {
+        // Log the actual error for debugging (sandbox violation or other path error)
+        log.debug(
+          `Native image: sandbox validation failed for ${ref.resolved}: ${err instanceof Error ? err.message : String(err)}`,
+        );
+        return null;
+      }
+    }
+
+    // Check file exists for local paths
+    if (ref.type === "path") {
+      try {
+        await fs.stat(targetPath);
+      } catch {
+        log.debug(`Native image: file not found: ${targetPath}`);
+        return null;
       }
     }
 
     // loadWebMedia handles local file paths (including file:// URLs)
-    const media = options?.sandbox
-      ? await loadWebMedia(targetPath, {
-          maxBytes: options.maxBytes,
-          readFile: (filePath) =>
-            options.sandbox!.bridge.readFile({ filePath, cwd: options.sandbox!.root }),
-        })
-      : await loadWebMedia(targetPath, options?.maxBytes);
+    const media = await loadWebMedia(targetPath, options?.maxBytes);
 
     if (media.kind !== "image") {
       log.debug(`Native image: not an image file: ${targetPath} (got ${media.kind})`);
@@ -279,13 +267,9 @@ function detectImagesFromHistory(messages: unknown[]): DetectedImageRef[] {
   const seen = new Set<string>();
 
   const messageHasImageContent = (msg: unknown): boolean => {
-    if (!msg || typeof msg !== "object") {
-      return false;
-    }
+    if (!msg || typeof msg !== "object") return false;
     const content = (msg as { content?: unknown }).content;
-    if (!Array.isArray(content)) {
-      return false;
-    }
+    if (!Array.isArray(content)) return false;
     return content.some(
       (part) =>
         part != null && typeof part === "object" && (part as { type?: string }).type === "image",
@@ -294,30 +278,20 @@ function detectImagesFromHistory(messages: unknown[]): DetectedImageRef[] {
 
   for (let i = 0; i < messages.length; i++) {
     const msg = messages[i];
-    if (!msg || typeof msg !== "object") {
-      continue;
-    }
+    if (!msg || typeof msg !== "object") continue;
     const message = msg as { role?: string };
     // Only scan user messages for image references
-    if (message.role !== "user") {
-      continue;
-    }
+    if (message.role !== "user") continue;
     // Skip if message already has image content (prevents reloading each turn)
-    if (messageHasImageContent(msg)) {
-      continue;
-    }
+    if (messageHasImageContent(msg)) continue;
 
     const text = extractTextFromMessage(msg);
-    if (!text) {
-      continue;
-    }
+    if (!text) continue;
 
     const refs = detectImageReferences(text);
     for (const ref of refs) {
       const key = ref.resolved.toLowerCase();
-      if (seen.has(key)) {
-        continue;
-      }
+      if (seen.has(key)) continue;
       seen.add(key);
       allRefs.push({ ...ref, messageIndex: i });
     }
@@ -346,12 +320,8 @@ export async function detectAndLoadPromptImages(params: {
   existingImages?: ImageContent[];
   historyMessages?: unknown[];
   maxBytes?: number;
-<<<<<<< HEAD
-=======
-  maxDimensionPx?: number;
-  workspaceOnly?: boolean;
->>>>>>> 370d11554 (fix: enforce workspaceOnly for native prompt image autoload)
-  sandbox?: { root: string; bridge: SandboxFsBridge };
+  /** If set, enforce that file paths are within this sandbox root */
+  sandboxRoot?: string;
 }): Promise<{
   /** Images for the current prompt (existingImages + detected in current prompt) */
   images: ImageContent[];
@@ -412,8 +382,7 @@ export async function detectAndLoadPromptImages(params: {
   for (const ref of allRefs) {
     const image = await loadImageFromRef(ref, params.workspaceDir, {
       maxBytes: params.maxBytes,
-      workspaceOnly: params.workspaceOnly,
-      sandbox: params.sandbox,
+      sandboxRoot: params.sandboxRoot,
     });
     if (image) {
       if (ref.messageIndex !== undefined) {

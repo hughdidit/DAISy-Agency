@@ -56,14 +56,12 @@ export type {
   ChannelThreadingContext,
   ChannelThreadingToolContext,
   ChannelToolSend,
-  BaseProbeResult,
-  BaseTokenResolution,
 } from "../channels/plugins/types.js";
 export type { ChannelConfigSchema, ChannelPlugin } from "../channels/plugins/types.plugin.js";
 export type {
-  OpenClawPluginApi,
-  OpenClawPluginService,
-  OpenClawPluginServiceContext,
+  MoltbotPluginApi,
+  MoltbotPluginService,
+  MoltbotPluginServiceContext,
 } from "../plugins/types.js";
 export type {
   GatewayRequestHandler,
@@ -74,7 +72,7 @@ export type { PluginRuntime } from "../plugins/runtime/types.js";
 export { normalizePluginHttpPath } from "../plugins/http-path.js";
 export { registerPluginHttpRoute } from "../plugins/http-registry.js";
 export { emptyPluginConfigSchema } from "../plugins/config-schema.js";
-export type { OpenClawConfig } from "../config/config.js";
+export type { MoltbotConfig } from "../config/config.js";
 export type { ChannelDock } from "../channels/dock.js";
 export { getChatChannelMeta } from "../channels/registry.js";
 export type {
@@ -96,10 +94,6 @@ export type {
   MSTeamsReplyStyle,
   MSTeamsTeamConfig,
 } from "../config/types.js";
-export {
-  resolveRuntimeGroupPolicy,
-  type RuntimeGroupPolicyResolution,
-} from "../config/runtime-group-policy.js";
 export {
   DiscordConfigSchema,
   GoogleChatConfigSchema,
@@ -128,46 +122,12 @@ export { resolveAckReaction } from "../agents/identity.js";
 export type { ReplyPayload } from "../auto-reply/types.js";
 export type { ChunkMode } from "../auto-reply/chunk.js";
 export { SILENT_REPLY_TOKEN, isSilentReplyText } from "../auto-reply/tokens.js";
-export {
-  approveDevicePairing,
-  listDevicePairing,
-  rejectDevicePairing,
-} from "../infra/device-pairing.js";
-<<<<<<< HEAD
-=======
-export { createDedupeCache } from "../infra/dedupe.js";
-export type { DedupeCache } from "../infra/dedupe.js";
-export { formatErrorMessage } from "../infra/errors.js";
-export {
-  DEFAULT_WEBHOOK_BODY_TIMEOUT_MS,
-  DEFAULT_WEBHOOK_MAX_BODY_BYTES,
-  RequestBodyLimitError,
-  installRequestBodyLimitGuard,
-  isRequestBodyLimitError,
-  readJsonBodyWithLimit,
-  readRequestBodyWithLimit,
-  requestBodyErrorToText,
-} from "../infra/http-body.js";
-
-export { fetchWithSsrFGuard } from "../infra/net/fetch-guard.js";
-export {
-  SsrFBlockedError,
-  isBlockedHostname,
-  isBlockedHostnameOrIp,
-  isPrivateIpAddress,
-} from "../infra/net/ssrf.js";
-export type { LookupFn, SsrFPolicy } from "../infra/net/ssrf.js";
-export { rawDataToString } from "../infra/ws.js";
-export { isWSLSync, isWSL2Sync, isWSLEnv } from "../infra/wsl.js";
-export { isTruthyEnvValue } from "../infra/env.js";
->>>>>>> d51929ecb (fix: block ISATAP SSRF bypass via shared host/ip guard)
 export { resolveToolsBySender } from "../config/group-policy.js";
 export {
   buildPendingHistoryContextFromMap,
   clearHistoryEntries,
   clearHistoryEntriesIfEnabled,
   DEFAULT_GROUP_HISTORY_LIMIT,
-  evictOldHistoryKeys,
   recordPendingHistoryEntry,
   recordPendingHistoryEntryIfEnabled,
 } from "../auto-reply/reply/history.js";
@@ -188,7 +148,7 @@ export {
   shouldAckReactionForWhatsApp,
 } from "../channels/ack-reactions.js";
 export { createTypingCallbacks } from "../channels/typing.js";
-export { createReplyPrefixContext, createReplyPrefixOptions } from "../channels/reply-prefix.js";
+export { createReplyPrefixContext } from "../channels/reply-prefix.js";
 export { logAckFailure, logInboundDrop, logTypingFailure } from "../channels/logging.js";
 export { resolveChannelMediaMaxBytes } from "../channels/plugins/media-limits.js";
 export type { NormalizedLocation } from "../channels/location.js";
@@ -260,19 +220,6 @@ export {
   readStringParam,
 } from "../agents/tools/common.js";
 export { formatDocsLink } from "../terminal/links.js";
-<<<<<<< HEAD
-=======
-export {
-  DM_GROUP_ACCESS_REASON,
-  readStoreAllowFromForDmPolicy,
-  resolveDmAllowState,
-  resolveDmGroupAccessDecision,
-  resolveDmGroupAccessWithCommandGate,
-  resolveDmGroupAccessWithLists,
-  resolveEffectiveAllowFromLists,
-} from "../security/dm-policy-shared.js";
-export type { DmGroupAccessReasonCode } from "../security/dm-policy-shared.js";
->>>>>>> 64de4b6d6 (fix: enforce explicit group auth boundaries across channels)
 export type { HookEntry } from "../hooks/types.js";
 export { normalizeE164 } from "../utils.js";
 export { missingTargetError } from "../infra/outbound/target-errors.js";
@@ -359,7 +306,6 @@ export {
   normalizeTelegramMessagingTarget,
 } from "../channels/plugins/normalize/telegram.js";
 export { collectTelegramStatusIssues } from "../channels/plugins/status-issues/telegram.js";
-export { type TelegramProbe } from "../telegram/probe.js";
 
 // Channel: Signal
 export {

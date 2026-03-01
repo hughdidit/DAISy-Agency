@@ -1,7 +1,7 @@
-import OpenClawKit
-import OpenClawProtocol
 import Cocoa
 import Foundation
+import MoltbotKit
+import MoltbotProtocol
 import Observation
 import OSLog
 

@@ -1,7 +1,8 @@
 import type { AgentEvent } from "@mariozechner/pi-agent-core";
-import type { EmbeddedPiSubscribeContext } from "./pi-embedded-subscribe.handlers.types.js";
+
 import { emitAgentEvent } from "../infra/agent-events.js";
 import { createInlineCodeState } from "../markdown/code-spans.js";
+import type { EmbeddedPiSubscribeContext } from "./pi-embedded-subscribe.handlers.types.js";
 
 export function handleAgentStart(ctx: EmbeddedPiSubscribeContext) {
   ctx.log.debug(`embedded run agent start: runId=${ctx.params.runId}`);
@@ -21,7 +22,6 @@ export function handleAgentStart(ctx: EmbeddedPiSubscribeContext) {
 
 export function handleAutoCompactionStart(ctx: EmbeddedPiSubscribeContext) {
   ctx.state.compactionInFlight = true;
-  ctx.incrementCompactionCount();
   ctx.ensureCompactionPromise();
   ctx.log.debug(`embedded run compaction start: runId=${ctx.params.runId}`);
   emitAgentEvent({
@@ -35,7 +35,6 @@ export function handleAutoCompactionStart(ctx: EmbeddedPiSubscribeContext) {
   });
 }
 
-<<<<<<< HEAD
 export function handleAutoCompactionEnd(
   ctx: EmbeddedPiSubscribeContext,
   evt: AgentEvent & { willRetry?: unknown },
@@ -46,33 +45,6 @@ export function handleAutoCompactionEnd(
     ctx.noteCompactionRetry();
     ctx.resetForCompactionRetry();
     ctx.log.debug(`embedded run compaction retry: runId=${ctx.params.runId}`);
-=======
-  ctx.log.debug(`embedded run agent end: runId=${ctx.params.runId} isError=${isError}`);
-
-  if (isError && lastAssistant) {
-    const friendlyError = formatAssistantErrorText(lastAssistant, {
-      cfg: ctx.params.config,
-      sessionKey: ctx.params.sessionKey,
-      provider: lastAssistant.provider,
-      model: lastAssistant.model,
-    });
-    emitAgentEvent({
-      runId: ctx.params.runId,
-      stream: "lifecycle",
-      data: {
-        phase: "error",
-        error: friendlyError || lastAssistant.errorMessage || "LLM request failed.",
-        endedAt: Date.now(),
-      },
-    });
-    void ctx.params.onAgentEvent?.({
-      stream: "lifecycle",
-      data: {
-        phase: "error",
-        error: friendlyError || lastAssistant.errorMessage || "LLM request failed.",
-      },
-    });
->>>>>>> 3d4ef5604 (fix: include provider and model name in billing error message (#20510))
   } else {
     ctx.maybeResolveCompactionWait();
   }

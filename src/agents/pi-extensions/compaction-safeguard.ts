@@ -1,13 +1,9 @@
 import type { AgentMessage } from "@mariozechner/pi-agent-core";
 import type { ExtensionAPI, FileOperations } from "@mariozechner/pi-coding-agent";
-import fs from "node:fs";
-import path from "node:path";
-import { extractSections } from "../../auto-reply/reply/post-compaction-context.js";
 import {
   BASE_CHUNK_RATIO,
   MIN_CHUNK_RATIO,
   SAFETY_MARGIN,
-  SUMMARIZATION_OVERHEAD_TOKENS,
   computeAdaptiveChunkRatio,
   estimateMessagesTokens,
   isOversizedForSummary,
@@ -16,16 +12,8 @@ import {
   summarizeInStages,
 } from "../compaction.js";
 import { getCompactionSafeguardRuntime } from "./compaction-safeguard-runtime.js";
-<<<<<<< HEAD
 const FALLBACK_SUMMARY =
   "Summary unavailable due to context limits. Older messages were truncated.";
-=======
-
-const log = createSubsystemLogger("compaction-safeguard");
-
-// Track session managers that have already logged the missing-model warning to avoid log spam.
-const missedModelWarningSessions = new WeakSet<object>();
->>>>>>> ea47ab29b (fix: cancel compaction instead of truncating history when summarization fails (#10711))
 const TURN_PREFIX_INSTRUCTIONS =
   "This summary covers the prefix of a split turn. Focus on the original request," +
   " early progress, and any details needed to understand the retained suffix.";
@@ -44,16 +32,12 @@ function normalizeFailureText(text: string): string {
 }
 
 function truncateFailureText(text: string, maxChars: number): string {
-  if (text.length <= maxChars) {
-    return text;
-  }
+  if (text.length <= maxChars) return text;
   return `${text.slice(0, Math.max(0, maxChars - 3))}...`;
 }
 
 function formatToolFailureMeta(details: unknown): string | undefined {
-  if (!details || typeof details !== "object") {
-    return undefined;
-  }
+  if (!details || typeof details !== "object") return undefined;
   const record = details as Record<string, unknown>;
   const status = typeof record.status === "string" ? record.status : undefined;
   const exitCode =
@@ -61,24 +45,16 @@ function formatToolFailureMeta(details: unknown): string | undefined {
       ? record.exitCode
       : undefined;
   const parts: string[] = [];
-  if (status) {
-    parts.push(`status=${status}`);
-  }
-  if (exitCode !== undefined) {
-    parts.push(`exitCode=${exitCode}`);
-  }
+  if (status) parts.push(`status=${status}`);
+  if (exitCode !== undefined) parts.push(`exitCode=${exitCode}`);
   return parts.length > 0 ? parts.join(" ") : undefined;
 }
 
 function extractToolResultText(content: unknown): string {
-  if (!Array.isArray(content)) {
-    return "";
-  }
+  if (!Array.isArray(content)) return "";
   const parts: string[] = [];
   for (const block of content) {
-    if (!block || typeof block !== "object") {
-      continue;
-    }
+    if (!block || typeof block !== "object") continue;
     const rec = block as { type?: unknown; text?: unknown };
     if (rec.type === "text" && typeof rec.text === "string") {
       parts.push(rec.text);
@@ -92,13 +68,9 @@ function collectToolFailures(messages: AgentMessage[]): ToolFailure[] {
   const seen = new Set<string>();
 
   for (const message of messages) {
-    if (!message || typeof message !== "object") {
-      continue;
-    }
+    if (!message || typeof message !== "object") continue;
     const role = (message as { role?: unknown }).role;
-    if (role !== "toolResult") {
-      continue;
-    }
+    if (role !== "toolResult") continue;
     const toolResult = message as {
       toolCallId?: unknown;
       toolName?: unknown;
@@ -106,13 +78,9 @@ function collectToolFailures(messages: AgentMessage[]): ToolFailure[] {
       details?: unknown;
       isError?: unknown;
     };
-    if (toolResult.isError !== true) {
-      continue;
-    }
+    if (toolResult.isError !== true) continue;
     const toolCallId = typeof toolResult.toolCallId === "string" ? toolResult.toolCallId : "";
-    if (!toolCallId || seen.has(toolCallId)) {
-      continue;
-    }
+    if (!toolCallId || seen.has(toolCallId)) continue;
     seen.add(toolCallId);
 
     const toolName =
@@ -133,9 +101,7 @@ function collectToolFailures(messages: AgentMessage[]): ToolFailure[] {
 }
 
 function formatToolFailuresSection(failures: ToolFailure[]): string {
-  if (failures.length === 0) {
-    return "";
-  }
+  if (failures.length === 0) return "";
   const lines = failures.slice(0, MAX_TOOL_FAILURES).map((failure) => {
     const meta = failure.meta ? ` (${failure.meta})` : "";
     return `- ${failure.toolName}${meta}: ${failure.summary}`;
@@ -151,8 +117,8 @@ function computeFileLists(fileOps: FileOperations): {
   modifiedFiles: string[];
 } {
   const modified = new Set([...fileOps.edited, ...fileOps.written]);
-  const readFiles = [...fileOps.read].filter((f) => !modified.has(f)).toSorted();
-  const modifiedFiles = [...modified].toSorted();
+  const readFiles = [...fileOps.read].filter((f) => !modified.has(f)).sort();
+  const modifiedFiles = [...modified].sort();
   return { readFiles, modifiedFiles };
 }
 
@@ -164,9 +130,7 @@ function formatFileOperations(readFiles: string[], modifiedFiles: string[]): str
   if (modifiedFiles.length > 0) {
     sections.push(`<modified-files>\n${modifiedFiles.join("\n")}\n</modified-files>`);
   }
-  if (sections.length === 0) {
-    return "";
-  }
+  if (sections.length === 0) return "";
   return `\n\n${sections.join("\n\n")}`;
 }
 
@@ -180,10 +144,10 @@ export default function compactionSafeguardExtension(api: ExtensionAPI): void {
       ...preparation.turnPrefixMessages,
     ]);
     const toolFailureSection = formatToolFailuresSection(toolFailures);
+    const fallbackSummary = `${FALLBACK_SUMMARY}${toolFailureSection}${fileOpsSummary}`;
 
     const model = ctx.model;
     if (!model) {
-<<<<<<< HEAD
       return {
         compaction: {
           summary: fallbackSummary,
@@ -192,36 +156,26 @@ export default function compactionSafeguardExtension(api: ExtensionAPI): void {
           details: { readFiles, modifiedFiles },
         },
       };
-=======
-      // Log warning once per session when both models are missing (diagnostic for future issues).
-      // Use a WeakSet to track which session managers have already logged the warning.
-      if (!ctx.model && !runtime?.model && !missedModelWarningSessions.has(ctx.sessionManager)) {
-        missedModelWarningSessions.add(ctx.sessionManager);
-        console.warn(
-          "[compaction-safeguard] Both ctx.model and runtime.model are undefined. " +
-            "Compaction summarization will not run. This indicates extensionRunner.initialize() " +
-            "was not called and model was not passed through runtime registry.",
-        );
-      }
-      return { cancel: true };
->>>>>>> ea47ab29b (fix: cancel compaction instead of truncating history when summarization fails (#10711))
     }
 
     const apiKey = await ctx.modelRegistry.getApiKey(model);
     if (!apiKey) {
-      console.warn(
-        "Compaction safeguard: no API key available; cancelling compaction to preserve history.",
-      );
-      return { cancel: true };
+      return {
+        compaction: {
+          summary: fallbackSummary,
+          firstKeptEntryId: preparation.firstKeptEntryId,
+          tokensBefore: preparation.tokensBefore,
+          details: { readFiles, modifiedFiles },
+        },
+      };
     }
 
     try {
-      const runtime = getCompactionSafeguardRuntime(ctx.sessionManager);
-      const modelContextWindow = resolveContextWindowTokens(model);
-      const contextWindowTokens = runtime?.contextWindowTokens ?? modelContextWindow;
+      const contextWindowTokens = resolveContextWindowTokens(model);
       const turnPrefixMessages = preparation.turnPrefixMessages ?? [];
       let messagesToSummarize = preparation.messagesToSummarize;
 
+      const runtime = getCompactionSafeguardRuntime(ctx.sessionManager);
       const maxHistoryShare = runtime?.maxHistoryShare ?? 0.5;
 
       const tokensBefore =
@@ -264,8 +218,7 @@ export default function compactionSafeguardExtension(api: ExtensionAPI): void {
                 );
                 const droppedMaxChunkTokens = Math.max(
                   1,
-                  Math.floor(contextWindowTokens * droppedChunkRatio) -
-                    SUMMARIZATION_OVERHEAD_TOKENS,
+                  Math.floor(contextWindowTokens * droppedChunkRatio),
                 );
                 droppedSummary = await summarizeInStages({
                   messages: pruned.droppedMessagesList,
@@ -290,15 +243,10 @@ export default function compactionSafeguardExtension(api: ExtensionAPI): void {
         }
       }
 
-      // Use adaptive chunk ratio based on message sizes, reserving headroom for
-      // the summarization prompt, system prompt, previous summary, and reasoning budget
-      // that generateSummary adds on top of the serialized conversation chunk.
+      // Use adaptive chunk ratio based on message sizes
       const allMessages = [...messagesToSummarize, ...turnPrefixMessages];
       const adaptiveRatio = computeAdaptiveChunkRatio(allMessages, contextWindowTokens);
-      const maxChunkTokens = Math.max(
-        1,
-        Math.floor(contextWindowTokens * adaptiveRatio) - SUMMARIZATION_OVERHEAD_TOKENS,
-      );
+      const maxChunkTokens = Math.max(1, Math.floor(contextWindowTokens * adaptiveRatio));
       const reserveTokens = Math.max(1, Math.floor(preparation.settings.reserveTokens));
 
       // Feed dropped-messages summary as previousSummary so the main summarization
@@ -345,17 +293,19 @@ export default function compactionSafeguardExtension(api: ExtensionAPI): void {
         },
       };
     } catch (error) {
-<<<<<<< HEAD
       console.warn(
         `Compaction summarization failed; truncating history: ${
-=======
-      log.warn(
-        `Compaction summarization failed; cancelling compaction to preserve history: ${
->>>>>>> ea47ab29b (fix: cancel compaction instead of truncating history when summarization fails (#10711))
           error instanceof Error ? error.message : String(error)
         }`,
       );
-      return { cancel: true };
+      return {
+        compaction: {
+          summary: fallbackSummary,
+          firstKeptEntryId: preparation.firstKeptEntryId,
+          tokensBefore: preparation.tokensBefore,
+          details: { readFiles, modifiedFiles },
+        },
+      };
     }
   });
 }

@@ -1,3 +1,5 @@
+import { sanitizeBinaryOutput } from "../../agents/shell-utils.js";
+import type { ExecApprovalDecision } from "../../infra/exec-approvals.js";
 import type { ExecApprovalForwarder } from "../../infra/exec-approval-forwarder.js";
 import type { ExecApprovalDecision } from "../../infra/exec-approvals.js";
 import type { ExecApprovalManager } from "../exec-approval-manager.js";
@@ -54,7 +56,7 @@ export function createExecApprovalHandlers(
         return;
       }
       const request = {
-        command: p.command,
+        command: sanitizeBinaryOutput(p.command).replace(/\r/g, ""),
         cwd: p.cwd ?? null,
         host: p.host ?? null,
         security: p.security ?? null,

@@ -1,22 +1,17 @@
 import { html, nothing } from "lit";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
-import type { AssistantIdentity } from "../assistant-identity.ts";
-import type { MessageGroup } from "../types/chat-types.ts";
-import { toSanitizedMarkdownHtml } from "../markdown.ts";
-<<<<<<< HEAD
-=======
-import { detectTextDirection } from "../text-direction.ts";
-import type { MessageGroup, ToolCard } from "../types/chat-types.ts";
-import { agentLogoUrl } from "../views/agents-utils.ts";
->>>>>>> e697ec273 (UI: polish dashboard — agents overview, chat toolbar, debug & login UX (#23553))
-import { renderCopyAsMarkdownButton } from "./copy-as-markdown.ts";
+
+import type { AssistantIdentity } from "../assistant-identity";
+import { toSanitizedMarkdownHtml } from "../markdown";
+import type { MessageGroup } from "../types/chat-types";
+import { renderCopyAsMarkdownButton } from "./copy-as-markdown";
+import { isToolResultMessage, normalizeRoleForGrouping } from "./message-normalizer";
 import {
   extractTextCached,
   extractThinkingCached,
   formatReasoningMarkdown,
-} from "./message-extract.ts";
-import { isToolResultMessage, normalizeRoleForGrouping } from "./message-normalizer.ts";
-import { extractToolCards, renderToolCardSidebar } from "./tool-cards.ts";
+} from "./message-extract";
+import { extractToolCards, renderToolCardSidebar } from "./tool-cards";
 
 type ImageBlock = {
   url: string;
@@ -30,19 +25,19 @@ function extractImages(message: unknown): ImageBlock[] {
 
   if (Array.isArray(content)) {
     for (const block of content) {
-      if (typeof block !== "object" || block === null) {
-        continue;
-      }
+      if (typeof block !== "object" || block === null) continue;
       const b = block as Record<string, unknown>;
 
       if (b.type === "image") {
         // Handle source object format (from sendChatMessage)
         const source = b.source as Record<string, unknown> | undefined;
         if (source?.type === "base64" && typeof source.data === "string") {
-          const data = source.data;
+          const data = source.data as string;
           const mediaType = (source.media_type as string) || "image/png";
           // If data is already a data URL, use it directly
-          const url = data.startsWith("data:") ? data : `data:${mediaType};base64,${data}`;
+          const url = data.startsWith("data:")
+            ? data
+            : `data:${mediaType};base64,${data}`;
           images.push({ url });
         } else if (typeof b.url === "string") {
           images.push({ url: b.url });
@@ -60,10 +55,10 @@ function extractImages(message: unknown): ImageBlock[] {
   return images;
 }
 
-export function renderReadingIndicatorGroup(assistant?: AssistantIdentity, basePath?: string) {
+export function renderReadingIndicatorGroup(assistant?: AssistantIdentity) {
   return html`
     <div class="chat-group assistant">
-      ${renderAvatar("assistant", assistant, basePath)}
+      ${renderAvatar("assistant", assistant)}
       <div class="chat-group-messages">
         <div class="chat-bubble chat-reading-indicator" aria-hidden="true">
           <span class="chat-reading-indicator__dots">
@@ -80,7 +75,6 @@ export function renderStreamingGroup(
   startedAt: number,
   onOpenSidebar?: (content: string) => void,
   assistant?: AssistantIdentity,
-  basePath?: string,
 ) {
   const timestamp = new Date(startedAt).toLocaleTimeString([], {
     hour: "numeric",
@@ -90,7 +84,7 @@ export function renderStreamingGroup(
 
   return html`
     <div class="chat-group assistant">
-      ${renderAvatar("assistant", assistant, basePath)}
+      ${renderAvatar("assistant", assistant)}
       <div class="chat-group-messages">
         ${renderGroupedMessage(
           {
@@ -117,11 +111,6 @@ export function renderMessageGroup(
     showReasoning: boolean;
     assistantName?: string;
     assistantAvatar?: string | null;
-<<<<<<< HEAD
-=======
-    basePath?: string;
-    onDelete?: () => void;
->>>>>>> e697ec273 (UI: polish dashboard — agents overview, chat toolbar, debug & login UX (#23553))
   },
 ) {
   const normalizedRole = normalizeRoleForGrouping(group.role);
@@ -133,7 +122,11 @@ export function renderMessageGroup(
         ? assistantName
         : normalizedRole;
   const roleClass =
-    normalizedRole === "user" ? "user" : normalizedRole === "assistant" ? "assistant" : "other";
+    normalizedRole === "user"
+      ? "user"
+      : normalizedRole === "assistant"
+        ? "assistant"
+        : "other";
   const timestamp = new Date(group.timestamp).toLocaleTimeString([], {
     hour: "numeric",
     minute: "2-digit",
@@ -141,20 +134,17 @@ export function renderMessageGroup(
 
   return html`
     <div class="chat-group ${roleClass}">
-      ${renderAvatar(
-        group.role,
-        {
-          name: assistantName,
-          avatar: opts.assistantAvatar ?? null,
-        },
-        opts.basePath,
-      )}
+      ${renderAvatar(group.role, {
+        name: assistantName,
+        avatar: opts.assistantAvatar ?? null,
+      })}
       <div class="chat-group-messages">
         ${group.messages.map((item, index) =>
           renderGroupedMessage(
             item.message,
             {
-              isStreaming: group.isStreaming && index === group.messages.length - 1,
+              isStreaming:
+                group.isStreaming && index === group.messages.length - 1,
               showReasoning: opts.showReasoning,
             },
             opts.onOpenSidebar,
@@ -172,7 +162,6 @@ export function renderMessageGroup(
 function renderAvatar(
   role: string,
   assistant?: Pick<AssistantIdentity, "name" | "avatar">,
-  basePath?: string,
 ) {
   const normalized = normalizeRoleForGrouping(role);
   const assistantName = assistant?.name?.trim() || "Assistant";
@@ -190,7 +179,7 @@ function renderAvatar(
       ? "user"
       : normalized === "assistant"
         ? "assistant"
-        : normalized === "tool"
+      : normalized === "tool"
           ? "tool"
           : "other";
 
@@ -202,26 +191,7 @@ function renderAvatar(
         alt="${assistantName}"
       />`;
     }
-    /* Use OpenClaw logo instead of emoji (e.g. ✨) for assistant avatar */
-    const logoUrl = basePath ? agentLogoUrl(basePath) : "";
-    if (logoUrl) {
-      return html`<img
-        class="chat-avatar ${className} chat-avatar--logo"
-        src="${logoUrl}"
-        alt="${assistantName}"
-      />`;
-    }
     return html`<div class="chat-avatar ${className}">${assistantAvatar}</div>`;
-  }
-
-  /* Assistant with no custom avatar: use logo when basePath available */
-  if (normalized === "assistant" && basePath) {
-    const logoUrl = agentLogoUrl(basePath);
-    return html`<img
-      class="chat-avatar ${className} chat-avatar--logo"
-      src="${logoUrl}"
-      alt="${assistantName}"
-    />`;
   }
 
   return html`<div class="chat-avatar ${className}">${initial}</div>`;
@@ -229,14 +199,14 @@ function renderAvatar(
 
 function isAvatarUrl(value: string): boolean {
   return (
-    /^https?:\/\//i.test(value) || /^data:image\//i.test(value) || value.startsWith("/") // Relative paths from avatar endpoint
+    /^https?:\/\//i.test(value) ||
+    /^data:image\//i.test(value) ||
+    /^\//.test(value) // Relative paths from avatar endpoint
   );
 }
 
 function renderMessageImages(images: ImageBlock[]) {
-  if (images.length === 0) {
-    return nothing;
-  }
+  if (images.length === 0) return nothing;
 
   return html`
     <div class="chat-message-images">
@@ -275,9 +245,13 @@ function renderGroupedMessage(
 
   const extractedText = extractTextCached(message);
   const extractedThinking =
-    opts.showReasoning && role === "assistant" ? extractThinkingCached(message) : null;
+    opts.showReasoning && role === "assistant"
+      ? extractThinkingCached(message)
+      : null;
   const markdownBase = extractedText?.trim() ? extractedText : null;
-  const reasoningMarkdown = extractedThinking ? formatReasoningMarkdown(extractedThinking) : null;
+  const reasoningMarkdown = extractedThinking
+    ? formatReasoningMarkdown(extractedThinking)
+    : null;
   const markdown = markdownBase;
   const canCopyMarkdown = role === "assistant" && Boolean(markdown?.trim());
 
@@ -291,29 +265,25 @@ function renderGroupedMessage(
     .join(" ");
 
   if (!markdown && hasToolCards && isToolResult) {
-    return html`${toolCards.map((card) => renderToolCardSidebar(card, onOpenSidebar))}`;
+    return html`${toolCards.map((card) =>
+      renderToolCardSidebar(card, onOpenSidebar),
+    )}`;
   }
 
-  if (!markdown && !hasToolCards && !hasImages) {
-    return nothing;
-  }
+  if (!markdown && !hasToolCards && !hasImages) return nothing;
 
   return html`
     <div class="${bubbleClasses}">
       ${canCopyMarkdown ? renderCopyAsMarkdownButton(markdown!) : nothing}
       ${renderMessageImages(images)}
-      ${
-        reasoningMarkdown
-          ? html`<div class="chat-thinking">${unsafeHTML(
-              toSanitizedMarkdownHtml(reasoningMarkdown),
-            )}</div>`
-          : nothing
-      }
-      ${
-        markdown
-          ? html`<div class="chat-text">${unsafeHTML(toSanitizedMarkdownHtml(markdown))}</div>`
-          : nothing
-      }
+      ${reasoningMarkdown
+        ? html`<div class="chat-thinking">${unsafeHTML(
+            toSanitizedMarkdownHtml(reasoningMarkdown),
+          )}</div>`
+        : nothing}
+      ${markdown
+        ? html`<div class="chat-text">${unsafeHTML(toSanitizedMarkdownHtml(markdown))}</div>`
+        : nothing}
       ${toolCards.map((card) => renderToolCardSidebar(card, onOpenSidebar))}
     </div>
   `;

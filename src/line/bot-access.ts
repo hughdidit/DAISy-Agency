@@ -6,12 +6,8 @@ export type NormalizedAllowFrom = {
 
 function normalizeAllowEntry(value: string | number): string {
   const trimmed = String(value).trim();
-  if (!trimmed) {
-    return "";
-  }
-  if (trimmed === "*") {
-    return "*";
-  }
+  if (!trimmed) return "";
+  if (trimmed === "*") return "*";
   return trimmed.replace(/^line:(?:user:)?/i, "");
 }
 
@@ -28,7 +24,6 @@ export const normalizeAllowFrom = (list?: Array<string | number>): NormalizedAll
 export const normalizeAllowFromWithStore = (params: {
   allowFrom?: Array<string | number>;
   storeAllowFrom?: string[];
-<<<<<<< HEAD
 }): NormalizedAllowFrom => {
   const combined = [...(params.allowFrom ?? []), ...(params.storeAllowFrom ?? [])];
   return normalizeAllowFrom(combined);
@@ -36,30 +31,18 @@ export const normalizeAllowFromWithStore = (params: {
 
 export const firstDefined = <T>(...values: Array<T | undefined>) => {
   for (const value of values) {
-    if (typeof value !== "undefined") {
-      return value;
-    }
+    if (typeof value !== "undefined") return value;
   }
   return undefined;
 };
-=======
-  dmPolicy?: string;
-}): NormalizedAllowFrom => normalizeAllowFrom(mergeAllowFromSources(params));
->>>>>>> 0bd9f0d4a (fix: enforce strict allowlist across pairing stores (#23017))
 
 export const isSenderAllowed = (params: {
   allow: NormalizedAllowFrom;
   senderId?: string;
 }): boolean => {
   const { allow, senderId } = params;
-  if (!allow.hasEntries) {
-    return false;
-  }
-  if (allow.hasWildcard) {
-    return true;
-  }
-  if (!senderId) {
-    return false;
-  }
+  if (!allow.hasEntries) return false;
+  if (allow.hasWildcard) return true;
+  if (!senderId) return false;
   return allow.entries.includes(senderId);
 };

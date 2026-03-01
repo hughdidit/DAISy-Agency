@@ -1,5 +1,5 @@
-import OpenClawIPC
 import Foundation
+import MoltbotIPC
 import Testing
 
 @Suite struct CanvasIPCTests {

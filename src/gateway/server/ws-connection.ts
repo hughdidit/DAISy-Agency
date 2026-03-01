@@ -1,59 +1,23 @@
-import type { WebSocket, WebSocketServer } from "ws";
 import { randomUUID } from "node:crypto";
-import type { createSubsystemLogger } from "../../logging/subsystem.js";
-import type { ResolvedGatewayAuth } from "../auth.js";
-import type { GatewayRequestContext, GatewayRequestHandlers } from "../server-methods/types.js";
-import type { GatewayWsClient } from "./ws-types.js";
+
+import type { WebSocket, WebSocketServer } from "ws";
 import { resolveCanvasHostUrl } from "../../infra/canvas-host-url.js";
 import { listSystemPresence, upsertPresence } from "../../infra/system-presence.js";
+import type { createSubsystemLogger } from "../../logging/subsystem.js";
 import { isWebchatClient } from "../../utils/message-channel.js";
+
+import type { ResolvedGatewayAuth } from "../auth.js";
 import { isLoopbackAddress } from "../net.js";
 import { getHandshakeTimeoutMs } from "../server-constants.js";
+import type { GatewayRequestContext, GatewayRequestHandlers } from "../server-methods/types.js";
 import { formatError } from "../server-utils.js";
 import { logWs } from "../ws-log.js";
 import { getHealthVersion, getPresenceVersion, incrementPresenceVersion } from "./health-state.js";
 import { attachGatewayWsMessageHandler } from "./ws-connection/message-handler.js";
+import type { GatewayWsClient } from "./ws-types.js";
 
 type SubsystemLogger = ReturnType<typeof createSubsystemLogger>;
 
-<<<<<<< HEAD
-=======
-const LOG_HEADER_MAX_LEN = 300;
-const LOG_HEADER_FORMAT_REGEX = /\p{Cf}/gu;
-
-function replaceControlChars(value: string): string {
-  let cleaned = "";
-  for (const char of value) {
-    const codePoint = char.codePointAt(0);
-    if (
-      codePoint !== undefined &&
-      (codePoint <= 0x1f || (codePoint >= 0x7f && codePoint <= 0x9f))
-    ) {
-      cleaned += " ";
-      continue;
-    }
-    cleaned += char;
-  }
-  return cleaned;
-}
-const sanitizeLogValue = (value: string | undefined): string | undefined => {
-  if (!value) {
-    return undefined;
-  }
-  const cleaned = replaceControlChars(value)
-    .replace(LOG_HEADER_FORMAT_REGEX, " ")
-    .replace(/\s+/g, " ")
-    .trim();
-  if (!cleaned) {
-    return undefined;
-  }
-  if (cleaned.length <= LOG_HEADER_MAX_LEN) {
-    return cleaned;
-  }
-  return truncateUtf16Safe(cleaned, LOG_HEADER_MAX_LEN);
-};
-
->>>>>>> e84318e4b (fix: replace control-char regex with explicit sanitizer)
 export function attachGatewayWsConnectionHandler(params: {
   wss: WebSocketServer;
   clients: Set<GatewayWsClient>;
@@ -131,9 +95,7 @@ export function attachGatewayWsConnectionHandler(params: {
     let lastFrameId: string | undefined;
 
     const setCloseCause = (cause: string, meta?: Record<string, unknown>) => {
-      if (!closeCause) {
-        closeCause = cause;
-      }
+      if (!closeCause) closeCause = cause;
       if (meta && Object.keys(meta).length > 0) {
         closeMeta = { ...closeMeta, ...meta };
       }
@@ -163,14 +125,10 @@ export function attachGatewayWsConnectionHandler(params: {
     });
 
     const close = (code = 1000, reason?: string) => {
-      if (closed) {
-        return;
-      }
+      if (closed) return;
       closed = true;
       clearTimeout(handshakeTimer);
-      if (client) {
-        clients.delete(client);
-      }
+      if (client) clients.delete(client);
       try {
         socket.close(code, reason);
       } catch {

@@ -1,19 +1,13 @@
 import crypto from "node:crypto";
-import type { ExecToolDefaults } from "../../agents/bash-tools.js";
-import type { OpenClawConfig } from "../../config/config.js";
-import type { MsgContext, TemplateContext } from "../templating.js";
-import type { GetReplyOptions, ReplyPayload } from "../types.js";
-import type { buildCommandContext } from "./commands.js";
-import type { InlineDirectives } from "./directive-handling.js";
-import type { createModelSelectionState } from "./model-selection.js";
-import type { TypingController } from "./typing.js";
-import { resolveSessionAuthProfileOverride } from "../../agents/auth-profiles/session-override.js";
 import {
   abortEmbeddedPiRun,
   isEmbeddedPiRunActive,
   isEmbeddedPiRunStreaming,
   resolveEmbeddedSessionLane,
 } from "../../agents/pi-embedded.js";
+import { resolveSessionAuthProfileOverride } from "../../agents/auth-profiles/session-override.js";
+import type { ExecToolDefaults } from "../../agents/bash-tools.js";
+import type { MoltbotConfig } from "../../config/config.js";
 import {
   resolveGroupSessionKey,
   resolveSessionFilePath,
@@ -23,10 +17,10 @@ import {
 import { logVerbose } from "../../globals.js";
 import { clearCommandLane, getQueueSize } from "../../process/command-queue.js";
 import { normalizeMainKey } from "../../routing/session-key.js";
-import { INTERNAL_MESSAGE_CHANNEL } from "../../utils/message-channel.js";
 import { isReasoningTagProvider } from "../../utils/provider-utils.js";
 import { hasControlCommand } from "../command-detection.js";
 import { buildInboundMediaNote } from "../media-note.js";
+import type { MsgContext, TemplateContext } from "../templating.js";
 import {
   type ElevatedLevel,
   formatXHighModelHint,
@@ -37,29 +31,33 @@ import {
   type VerboseLevel,
 } from "../thinking.js";
 import { SILENT_REPLY_TOKEN } from "../tokens.js";
+import type { GetReplyOptions, ReplyPayload } from "../types.js";
 import { runReplyAgent } from "./agent-runner.js";
 import { applySessionHints } from "./body.js";
-import { buildGroupIntro } from "./groups.js";
-import { resolveQueueSettings } from "./queue.js";
 import { routeReply } from "./route-reply.js";
+import type { buildCommandContext } from "./commands.js";
+import type { InlineDirectives } from "./directive-handling.js";
+import { buildGroupIntro } from "./groups.js";
+import type { createModelSelectionState } from "./model-selection.js";
+import { resolveQueueSettings } from "./queue.js";
 import { ensureSkillSnapshot, prependSystemEvents } from "./session-updates.js";
+import type { TypingController } from "./typing.js";
 import { resolveTypingMode } from "./typing-mode.js";
-import { appendUntrustedContext } from "./untrusted-context.js";
 
-type AgentDefaults = NonNullable<OpenClawConfig["agents"]>["defaults"];
+type AgentDefaults = NonNullable<MoltbotConfig["agents"]>["defaults"];
 type ExecOverrides = Pick<ExecToolDefaults, "host" | "security" | "ask" | "node">;
 
 const BARE_SESSION_RESET_PROMPT =
-  "A new session was started via /new or /reset. Greet the user in your configured persona, if one is provided. Be yourself - use your defined voice, mannerisms, and mood. Keep it to 1-3 sentences and ask what they want to do. If the runtime model differs from default_model in the system prompt, mention the default model. Do not mention internal steps, files, tools, or reasoning.";
+  "A new session was started via /new or /reset. Say hi briefly (1-2 sentences) and ask what the user wants to do next. If the runtime model differs from default_model in the system prompt, mention the default model in the greeting. Do not mention internal steps, files, tools, or reasoning.";
 
 type RunPreparedReplyParams = {
   ctx: MsgContext;
   sessionCtx: TemplateContext;
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   agentId: string;
   agentDir: string;
   agentCfg: AgentDefaults;
-  sessionCfg: OpenClawConfig["session"];
+  sessionCfg: MoltbotConfig["session"];
   commandAuthorized: boolean;
   command: ReturnType<typeof buildCommandContext>;
   commandSource: string;
@@ -78,7 +76,6 @@ type RunPreparedReplyParams = {
     minChars: number;
     maxChars: number;
     breakPreference: "paragraph" | "newline" | "sentence";
-    flushOnParagraph?: boolean;
   };
   resolvedBlockStreamingBreak: "text_end" | "message_end";
   modelState: Awaited<ReturnType<typeof createModelSelectionState>>;
@@ -163,21 +160,11 @@ export async function runPreparedReply(
   const isGroupChat = sessionCtx.ChatType === "group";
   const wasMentioned = ctx.WasMentioned === true;
   const isHeartbeat = opts?.isHeartbeat === true;
-  const typingPolicy =
-    opts?.typingPolicy ??
-    (isHeartbeat
-      ? "heartbeat"
-      : ctx.OriginatingChannel === INTERNAL_MESSAGE_CHANNEL
-        ? "internal_webchat"
-        : "auto");
-  const suppressTyping = opts?.suppressTyping === true;
   const typingMode = resolveTypingMode({
     configured: sessionCfg?.typingMode ?? agentCfg?.typingMode,
     isGroupChat,
     wasMentioned,
     isHeartbeat,
-    typingPolicy,
-    suppressTyping,
   });
   const shouldInjectGroupIntro = Boolean(
     isGroupChat && (isFirstTurnInSession || sessionEntry?.groupActivationNeedsSystemIntro),
@@ -239,7 +226,6 @@ export async function runPreparedReply(
     isNewSession,
     prefixedBodyBase,
   });
-  prefixedBodyBase = appendUntrustedContext(prefixedBodyBase, sessionCtx.UntrustedContext);
   const threadStarterBody = ctx.ThreadStarterBody?.trim();
   const threadStarterNote =
     isNewSession && threadStarterBody
@@ -262,7 +248,7 @@ export async function runPreparedReply(
   const prefixedBody = [threadStarterNote, prefixedBodyBase].filter(Boolean).join("\n\n");
   const mediaNote = buildInboundMediaNote(ctx);
   const mediaReplyHint = mediaNote
-    ? "To send an image back, prefer the message tool (media/path/filePath). If you must inline, use MEDIA:https://example.com/image.jpg (spaces ok, quote if needed) or a safe relative path like MEDIA:./image.jpg. Avoid absolute paths (MEDIA:/...) and ~ paths — they are blocked for security. Keep caption in the text body."
+    ? "To send an image back, prefer the message tool (media/path/filePath). If you must inline, use MEDIA:/path or MEDIA:https://example.com/image.jpg (spaces ok, quote if needed). Keep caption in the text body."
     : undefined;
   let prefixedCommandBody = mediaNote
     ? [mediaNote, mediaReplyHint, prefixedBody ?? ""].filter(Boolean).join("\n").trim()
@@ -299,7 +285,6 @@ export async function runPreparedReply(
     }
   }
   if (resetTriggered && command.isAuthorizedSender) {
-    // oxlint-disable-next-line typescript/no-explicit-any
     const channel = ctx.OriginatingChannel || (command.channel as any);
     const to = ctx.OriginatingTo || command.from || command.to;
     if (channel && to) {
@@ -380,17 +365,7 @@ export async function runPreparedReply(
       agentDir,
       sessionId: sessionIdFinal,
       sessionKey,
-<<<<<<< HEAD
-      messageProvider:
-        sessionCtx.OriginatingChannel?.trim().toLowerCase() ||
-        sessionCtx.Provider?.trim().toLowerCase() ||
-        undefined,
-=======
-      messageProvider: resolveOriginMessageProvider({
-        originatingChannel: ctx.OriginatingChannel ?? sessionCtx.OriginatingChannel,
-        provider: ctx.Surface ?? ctx.Provider ?? sessionCtx.Provider,
-      }),
->>>>>>> 37a138c55 (fix: harden typing lifecycle and cross-channel suppression)
+      messageProvider: sessionCtx.Provider?.trim().toLowerCase() || undefined,
       agentAccountId: sessionCtx.AccountId,
       groupId: resolveGroupSessionKey(sessionCtx)?.id ?? undefined,
       groupChannel: sessionCtx.GroupChannel?.trim() ?? sessionCtx.GroupSubject?.trim(),
@@ -399,7 +374,6 @@ export async function runPreparedReply(
       senderName: sessionCtx.SenderName?.trim() || undefined,
       senderUsername: sessionCtx.SenderUsername?.trim() || undefined,
       senderE164: sessionCtx.SenderE164?.trim() || undefined,
-      senderIsOwner: command.senderIsOwner,
       sessionFile,
       workspaceDir,
       config: cfg,

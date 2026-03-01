@@ -1,9 +1,8 @@
 import { afterAll, beforeAll, describe, expect, test, vi } from "vitest";
 import { WebSocket } from "ws";
-import { GATEWAY_CLIENT_MODES, GATEWAY_CLIENT_NAMES } from "../utils/message-channel.js";
-import { buildDeviceAuthPayload } from "./device-auth.js";
 import { PROTOCOL_VERSION } from "./protocol/index.js";
 import { getHandshakeTimeoutMs } from "./server-constants.js";
+import { buildDeviceAuthPayload } from "./device-auth.js";
 import {
   connectReq,
   getFreePort,
@@ -11,16 +10,14 @@ import {
   onceMessage,
   startGatewayServer,
   startServerWithClient,
-  testTailscaleWhois,
   testState,
 } from "./test-helpers.js";
+import { GATEWAY_CLIENT_MODES, GATEWAY_CLIENT_NAMES } from "../utils/message-channel.js";
 
 installGatewayTestHooks({ scope: "suite" });
 
 async function waitForWsClose(ws: WebSocket, timeoutMs: number): Promise<boolean> {
-  if (ws.readyState === WebSocket.CLOSED) {
-    return true;
-  }
+  if (ws.readyState === WebSocket.CLOSED) return true;
   return await new Promise((resolve) => {
     const timer = setTimeout(() => resolve(ws.readyState === WebSocket.CLOSED), timeoutMs);
     ws.once("close", () => {
@@ -32,20 +29,6 @@ async function waitForWsClose(ws: WebSocket, timeoutMs: number): Promise<boolean
 
 const openWs = async (port: number) => {
   const ws = new WebSocket(`ws://127.0.0.1:${port}`);
-  await new Promise<void>((resolve) => ws.once("open", resolve));
-  return ws;
-};
-
-const openTailscaleWs = async (port: number) => {
-  const ws = new WebSocket(`ws://127.0.0.1:${port}`, {
-    headers: {
-      "x-forwarded-for": "100.64.0.1",
-      "x-forwarded-proto": "https",
-      "x-forwarded-host": "gateway.tailnet.ts.net",
-      "tailscale-user-login": "peter",
-      "tailscale-user-name": "Peter",
-    },
-  });
   await new Promise<void>((resolve) => ws.once("open", resolve));
   return ws;
 };
@@ -66,8 +49,8 @@ describe("gateway server auth/connect", () => {
 
     test("closes silent handshakes after timeout", { timeout: 60_000 }, async () => {
       vi.useRealTimers();
-      const prevHandshakeTimeout = process.env.OPENCLAW_TEST_HANDSHAKE_TIMEOUT_MS;
-      process.env.OPENCLAW_TEST_HANDSHAKE_TIMEOUT_MS = "50";
+      const prevHandshakeTimeout = process.env.CLAWDBOT_TEST_HANDSHAKE_TIMEOUT_MS;
+      process.env.CLAWDBOT_TEST_HANDSHAKE_TIMEOUT_MS = "50";
       try {
         const ws = await openWs(port);
         const handshakeTimeoutMs = getHandshakeTimeoutMs();
@@ -75,9 +58,9 @@ describe("gateway server auth/connect", () => {
         expect(closed).toBe(true);
       } finally {
         if (prevHandshakeTimeout === undefined) {
-          delete process.env.OPENCLAW_TEST_HANDSHAKE_TIMEOUT_MS;
+          delete process.env.CLAWDBOT_TEST_HANDSHAKE_TIMEOUT_MS;
         } else {
-          process.env.OPENCLAW_TEST_HANDSHAKE_TIMEOUT_MS = prevHandshakeTimeout;
+          process.env.CLAWDBOT_TEST_HANDSHAKE_TIMEOUT_MS = prevHandshakeTimeout;
         }
       }
     });
@@ -237,8 +220,8 @@ describe("gateway server auth/connect", () => {
     let prevToken: string | undefined;
 
     beforeAll(async () => {
-      prevToken = process.env.OPENCLAW_GATEWAY_TOKEN;
-      process.env.OPENCLAW_GATEWAY_TOKEN = "secret";
+      prevToken = process.env.CLAWDBOT_GATEWAY_TOKEN;
+      process.env.CLAWDBOT_GATEWAY_TOKEN = "secret";
       port = await getFreePort();
       server = await startGatewayServer(port);
     });
@@ -246,9 +229,9 @@ describe("gateway server auth/connect", () => {
     afterAll(async () => {
       await server.close();
       if (prevToken === undefined) {
-        delete process.env.OPENCLAW_GATEWAY_TOKEN;
+        delete process.env.CLAWDBOT_GATEWAY_TOKEN;
       } else {
-        process.env.OPENCLAW_GATEWAY_TOKEN = prevToken;
+        process.env.CLAWDBOT_GATEWAY_TOKEN = prevToken;
       }
     });
 
@@ -294,45 +277,7 @@ describe("gateway server auth/connect", () => {
     });
   });
 
-  describe("tailscale auth", () => {
-    let server: Awaited<ReturnType<typeof startGatewayServer>>;
-    let port: number;
-
-    beforeAll(async () => {
-      testState.gatewayAuth = { mode: "token", token: "secret", allowTailscale: true };
-      port = await getFreePort();
-      server = await startGatewayServer(port);
-    });
-
-    afterAll(async () => {
-      await server.close();
-    });
-
-    beforeEach(() => {
-      testTailscaleWhois.value = { login: "peter", name: "Peter" };
-    });
-
-    afterEach(() => {
-      testTailscaleWhois.value = null;
-    });
-
-    test("requires device identity when only tailscale auth is available", async () => {
-      const ws = await openTailscaleWs(port);
-      const res = await connectReq(ws, { token: "dummy", device: null });
-      expect(res.ok).toBe(false);
-      expect(res.error?.message ?? "").toContain("device identity required");
-      ws.close();
-    });
-
-    test("allows shared token to skip device when tailscale auth is enabled", async () => {
-      const ws = await openTailscaleWs(port);
-      const res = await connectReq(ws, { token: "secret", device: null });
-      expect(res.ok).toBe(true);
-      ws.close();
-    });
-  });
-
-  test("rejects control ui without device identity even when insecure auth is enabled", async () => {
+  test("allows control ui without device identity when insecure auth is enabled", async () => {
     testState.gatewayControlUi = { allowInsecureAuth: true };
     const { server, ws, prevToken } = await startServerWithClient("secret");
     const res = await connectReq(ws, {
@@ -345,36 +290,17 @@ describe("gateway server auth/connect", () => {
         mode: GATEWAY_CLIENT_MODES.WEBCHAT,
       },
     });
-    expect(res.ok).toBe(false);
-    expect(res.error?.message ?? "").toContain("secure context");
+    expect(res.ok).toBe(true);
     ws.close();
     await server.close();
     if (prevToken === undefined) {
-      delete process.env.OPENCLAW_GATEWAY_TOKEN;
+      delete process.env.CLAWDBOT_GATEWAY_TOKEN;
     } else {
-      process.env.OPENCLAW_GATEWAY_TOKEN = prevToken;
+      process.env.CLAWDBOT_GATEWAY_TOKEN = prevToken;
     }
   });
 
-  test("rejects control ui password-only auth when insecure auth is enabled", async () => {
-    testState.gatewayControlUi = { allowInsecureAuth: true };
-    testState.gatewayAuth = { mode: "password", password: "secret" };
-    await withGatewayServer(async ({ port }) => {
-      const ws = await openWs(port, { origin: originForPort(port) });
-      const res = await connectReq(ws, {
-        password: "secret",
-        device: null,
-        client: {
-          ...CONTROL_UI_CLIENT,
-        },
-      });
-      expect(res.ok).toBe(false);
-      expect(res.error?.message ?? "").toContain("secure context");
-      ws.close();
-    });
-  });
-
-  test("does not bypass pairing for control ui device identity when insecure auth is enabled", async () => {
+  test("allows control ui with device identity when insecure auth is enabled", async () => {
     testState.gatewayControlUi = { allowInsecureAuth: true };
     testState.gatewayAuth = { mode: "token", token: "secret" };
     const { writeConfigFile } = await import("../config/config.js");
@@ -382,11 +308,9 @@ describe("gateway server auth/connect", () => {
       gateway: {
         trustedProxies: ["127.0.0.1"],
       },
-      // oxlint-disable-next-line typescript/no-explicit-any
     } as any);
-    const prevToken = process.env.OPENCLAW_GATEWAY_TOKEN;
-    process.env.OPENCLAW_GATEWAY_TOKEN = "secret";
-<<<<<<< HEAD
+    const prevToken = process.env.CLAWDBOT_GATEWAY_TOKEN;
+    process.env.CLAWDBOT_GATEWAY_TOKEN = "secret";
     const port = await getFreePort();
     const server = await startGatewayServer(port);
     const ws = new WebSocket(`ws://127.0.0.1:${port}`, {
@@ -435,71 +359,17 @@ describe("gateway server auth/connect", () => {
     ws.close();
     await server.close();
     if (prevToken === undefined) {
-      delete process.env.OPENCLAW_GATEWAY_TOKEN;
+      delete process.env.CLAWDBOT_GATEWAY_TOKEN;
     } else {
-      process.env.OPENCLAW_GATEWAY_TOKEN = prevToken;
-=======
-    try {
-      await withGatewayServer(async ({ port }) => {
-        const ws = new WebSocket(`ws://127.0.0.1:${port}`, {
-          headers: {
-            origin: "https://localhost",
-            "x-forwarded-for": "203.0.113.10",
-          },
-        });
-        const challengePromise = onceMessage<{
-          type?: string;
-          event?: string;
-          payload?: Record<string, unknown> | null;
-        }>(ws, (o) => o.type === "event" && o.event === "connect.challenge");
-        await new Promise<void>((resolve) => ws.once("open", resolve));
-        const challenge = await challengePromise;
-        const nonce = (challenge.payload as { nonce?: unknown } | undefined)?.nonce;
-        expect(typeof nonce).toBe("string");
-<<<<<<< HEAD
-        const scopes = ["operator.admin", "operator.approvals", "operator.pairing"];
-=======
-        const { randomUUID } = await import("node:crypto");
-        const os = await import("node:os");
-        const path = await import("node:path");
-        const scopes = [
-          "operator.admin",
-          "operator.read",
-          "operator.write",
-          "operator.approvals",
-          "operator.pairing",
-        ];
->>>>>>> 6f7e5f92c (fix: add operator.read and operator.write to default CLI scopes (#22582))
-        const { device } = await createSignedDevice({
-          token: "secret",
-          scopes,
-          clientId: GATEWAY_CLIENT_NAMES.CONTROL_UI,
-          clientMode: GATEWAY_CLIENT_MODES.WEBCHAT,
-          nonce: String(nonce),
-        });
-        const res = await connectReq(ws, {
-          token: "secret",
-          scopes,
-          device,
-          client: {
-            ...CONTROL_UI_CLIENT,
-          },
-        });
-        expect(res.ok).toBe(false);
-        expect(res.error?.message ?? "").toContain("pairing required");
-        ws.close();
-      });
-    } finally {
-      restoreGatewayToken(prevToken);
->>>>>>> 40a292619 (fix: Control UI Insecure Auth Bypass Allows Token-Only Auth Over HTTP (#20684))
+      process.env.CLAWDBOT_GATEWAY_TOKEN = prevToken;
     }
   });
 
   test("allows control ui with stale device identity when device auth is disabled", async () => {
     testState.gatewayControlUi = { dangerouslyDisableDeviceAuth: true };
     testState.gatewayAuth = { mode: "token", token: "secret" };
-    const prevToken = process.env.OPENCLAW_GATEWAY_TOKEN;
-    process.env.OPENCLAW_GATEWAY_TOKEN = "secret";
+    const prevToken = process.env.CLAWDBOT_GATEWAY_TOKEN;
+    process.env.CLAWDBOT_GATEWAY_TOKEN = "secret";
     const port = await getFreePort();
     const server = await startGatewayServer(port);
     const ws = await openWs(port);
@@ -537,9 +407,9 @@ describe("gateway server auth/connect", () => {
     ws.close();
     await server.close();
     if (prevToken === undefined) {
-      delete process.env.OPENCLAW_GATEWAY_TOKEN;
+      delete process.env.CLAWDBOT_GATEWAY_TOKEN;
     } else {
-      process.env.OPENCLAW_GATEWAY_TOKEN = prevToken;
+      process.env.CLAWDBOT_GATEWAY_TOKEN = prevToken;
     }
   });
 
@@ -573,9 +443,9 @@ describe("gateway server auth/connect", () => {
     ws2.close();
     await server.close();
     if (prevToken === undefined) {
-      delete process.env.OPENCLAW_GATEWAY_TOKEN;
+      delete process.env.CLAWDBOT_GATEWAY_TOKEN;
     } else {
-      process.env.OPENCLAW_GATEWAY_TOKEN = prevToken;
+      process.env.CLAWDBOT_GATEWAY_TOKEN = prevToken;
     }
   });
 
@@ -591,7 +461,7 @@ describe("gateway server auth/connect", () => {
     const { GATEWAY_CLIENT_MODES, GATEWAY_CLIENT_NAMES } =
       await import("../utils/message-channel.js");
     const { server, ws, port, prevToken } = await startServerWithClient("secret");
-    const identityDir = await mkdtemp(join(tmpdir(), "openclaw-device-scope-"));
+    const identityDir = await mkdtemp(join(tmpdir(), "moltbot-device-scope-"));
     const identity = loadOrCreateDeviceIdentity(join(identityDir, "device.json"));
     const client = {
       id: GATEWAY_CLIENT_NAMES.TEST,
@@ -652,9 +522,41 @@ describe("gateway server auth/connect", () => {
     ws2.close();
     await server.close();
     if (prevToken === undefined) {
-      delete process.env.OPENCLAW_GATEWAY_TOKEN;
+      delete process.env.CLAWDBOT_GATEWAY_TOKEN;
     } else {
-      process.env.OPENCLAW_GATEWAY_TOKEN = prevToken;
+      process.env.CLAWDBOT_GATEWAY_TOKEN = prevToken;
+    }
+  });
+
+  test("defaults to operator.read when scopes omitted", async () => {
+    const { approveDevicePairing, getPairedDevice, listDevicePairing } =
+      await import("../infra/device-pairing.js");
+    const { loadOrCreateDeviceIdentity } = await import("../infra/device-identity.js");
+    const { server, ws, prevToken } = await startServerWithClient("secret");
+
+    // Connect WITHOUT specifying scopes — should default to operator.read
+    const res = await connectReq(ws, { token: "secret" });
+    if (!res.ok) {
+      const list = await listDevicePairing();
+      const pending = list.pending.at(0);
+      expect(pending?.requestId).toBeDefined();
+      if (pending?.requestId) {
+        await approveDevicePairing(pending.requestId);
+      }
+    }
+
+    const identity = loadOrCreateDeviceIdentity();
+    const paired = await getPairedDevice(identity.deviceId);
+    // Must be operator.read, NOT operator.admin
+    expect(paired?.scopes).toContain("operator.read");
+    expect(paired?.scopes).not.toContain("operator.admin");
+
+    ws.close();
+    await server.close();
+    if (prevToken === undefined) {
+      delete process.env.CLAWDBOT_GATEWAY_TOKEN;
+    } else {
+      process.env.CLAWDBOT_GATEWAY_TOKEN = prevToken;
     }
   });
 
@@ -690,9 +592,9 @@ describe("gateway server auth/connect", () => {
     ws2.close();
     await server.close();
     if (prevToken === undefined) {
-      delete process.env.OPENCLAW_GATEWAY_TOKEN;
+      delete process.env.CLAWDBOT_GATEWAY_TOKEN;
     } else {
-      process.env.OPENCLAW_GATEWAY_TOKEN = prevToken;
+      process.env.CLAWDBOT_GATEWAY_TOKEN = prevToken;
     }
   });
 

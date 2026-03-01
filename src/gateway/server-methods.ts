@@ -1,25 +1,3 @@
-import type { GatewayRequestHandlers, GatewayRequestOptions } from "./server-methods/types.js";
-<<<<<<< HEAD
-=======
-import { formatControlPlaneActor, resolveControlPlaneActor } from "./control-plane-audit.js";
-import { consumeControlPlaneWriteBudget } from "./control-plane-rate-limit.js";
-<<<<<<< HEAD
->>>>>>> ff74d89e8 (fix: harden gateway control-plane restart protections)
-=======
-import {
-  ADMIN_SCOPE,
-  APPROVALS_SCOPE,
-  isAdminOnlyMethod,
-  isApprovalMethod,
-  isNodeRoleMethod,
-  isPairingMethod,
-  isReadMethod,
-  isWriteMethod,
-  PAIRING_SCOPE,
-  READ_SCOPE,
-  WRITE_SCOPE,
-} from "./method-scopes.js";
->>>>>>> a40c10d3e (fix: harden agent gateway authorization scopes)
 import { ErrorCodes, errorShape } from "./protocol/index.js";
 import { agentHandlers } from "./server-methods/agent.js";
 import { agentsHandlers } from "./server-methods/agents.js";
@@ -41,24 +19,20 @@ import { skillsHandlers } from "./server-methods/skills.js";
 import { systemHandlers } from "./server-methods/system.js";
 import { talkHandlers } from "./server-methods/talk.js";
 import { ttsHandlers } from "./server-methods/tts.js";
+import type { GatewayRequestHandlers, GatewayRequestOptions } from "./server-methods/types.js";
 import { updateHandlers } from "./server-methods/update.js";
 import { usageHandlers } from "./server-methods/usage.js";
 import { voicewakeHandlers } from "./server-methods/voicewake.js";
 import { webHandlers } from "./server-methods/web.js";
 import { wizardHandlers } from "./server-methods/wizard.js";
 
-<<<<<<< HEAD
 const ADMIN_SCOPE = "operator.admin";
 const READ_SCOPE = "operator.read";
 const WRITE_SCOPE = "operator.write";
 const APPROVALS_SCOPE = "operator.approvals";
 const PAIRING_SCOPE = "operator.pairing";
 
-const APPROVAL_METHODS = new Set([
-  "exec.approval.request",
-  "exec.approval.waitDecision",
-  "exec.approval.resolve",
-]);
+const APPROVAL_METHODS = new Set(["exec.approval.request", "exec.approval.resolve"]);
 const NODE_ROLE_METHODS = new Set(["node.invoke.result", "node.event", "skills.bins"]);
 const PAIRING_METHODS = new Set([
   "node.pair.request",
@@ -98,8 +72,6 @@ const READ_METHODS = new Set([
   "node.list",
   "node.describe",
   "chat.history",
-  "config.get",
-  "talk.config",
 ]);
 const WRITE_METHODS = new Set([
   "send",
@@ -117,19 +89,13 @@ const WRITE_METHODS = new Set([
   "chat.abort",
   "browser.request",
 ]);
-=======
->>>>>>> a40c10d3e (fix: harden agent gateway authorization scopes)
-const CONTROL_PLANE_WRITE_METHODS = new Set(["config.apply", "config.patch", "update.run"]);
+
 function authorizeGatewayMethod(method: string, client: GatewayRequestOptions["client"]) {
-  if (!client?.connect) {
-    return null;
-  }
+  if (!client?.connect) return null;
   const role = client.connect.role ?? "operator";
   const scopes = client.connect.scopes ?? [];
-  if (isNodeRoleMethod(method)) {
-    if (role === "node") {
-      return null;
-    }
+  if (NODE_ROLE_METHODS.has(method)) {
+    if (role === "node") return null;
     return errorShape(ErrorCodes.INVALID_REQUEST, `unauthorized role: ${role}`);
   }
   if (role === "node") {
@@ -138,34 +104,42 @@ function authorizeGatewayMethod(method: string, client: GatewayRequestOptions["c
   if (role !== "operator") {
     return errorShape(ErrorCodes.INVALID_REQUEST, `unauthorized role: ${role}`);
   }
-  if (scopes.includes(ADMIN_SCOPE)) {
-    return null;
-  }
-  if (isApprovalMethod(method) && !scopes.includes(APPROVALS_SCOPE)) {
+  if (scopes.includes(ADMIN_SCOPE)) return null;
+  if (APPROVAL_METHODS.has(method) && !scopes.includes(APPROVALS_SCOPE)) {
     return errorShape(ErrorCodes.INVALID_REQUEST, "missing scope: operator.approvals");
   }
-  if (isPairingMethod(method) && !scopes.includes(PAIRING_SCOPE)) {
+  if (PAIRING_METHODS.has(method) && !scopes.includes(PAIRING_SCOPE)) {
     return errorShape(ErrorCodes.INVALID_REQUEST, "missing scope: operator.pairing");
   }
-  if (isReadMethod(method) && !(scopes.includes(READ_SCOPE) || scopes.includes(WRITE_SCOPE))) {
+  if (READ_METHODS.has(method) && !(scopes.includes(READ_SCOPE) || scopes.includes(WRITE_SCOPE))) {
     return errorShape(ErrorCodes.INVALID_REQUEST, "missing scope: operator.read");
   }
-  if (isWriteMethod(method) && !scopes.includes(WRITE_SCOPE)) {
+  if (WRITE_METHODS.has(method) && !scopes.includes(WRITE_SCOPE)) {
     return errorShape(ErrorCodes.INVALID_REQUEST, "missing scope: operator.write");
   }
-  if (isApprovalMethod(method)) {
-    return null;
+  if (APPROVAL_METHODS.has(method)) return null;
+  if (PAIRING_METHODS.has(method)) return null;
+  if (READ_METHODS.has(method)) return null;
+  if (WRITE_METHODS.has(method)) return null;
+  if (ADMIN_METHOD_PREFIXES.some((prefix) => method.startsWith(prefix))) {
+    return errorShape(ErrorCodes.INVALID_REQUEST, "missing scope: operator.admin");
   }
-  if (isPairingMethod(method)) {
-    return null;
-  }
-  if (isReadMethod(method)) {
-    return null;
-  }
-  if (isWriteMethod(method)) {
-    return null;
-  }
-  if (isAdminOnlyMethod(method)) {
+  if (
+    method.startsWith("config.") ||
+    method.startsWith("wizard.") ||
+    method.startsWith("update.") ||
+    method === "channels.logout" ||
+    method === "skills.install" ||
+    method === "skills.update" ||
+    method === "cron.add" ||
+    method === "cron.update" ||
+    method === "cron.remove" ||
+    method === "cron.run" ||
+    method === "sessions.patch" ||
+    method === "sessions.reset" ||
+    method === "sessions.delete" ||
+    method === "sessions.compact"
+  ) {
     return errorShape(ErrorCodes.INVALID_REQUEST, "missing scope: operator.admin");
   }
   return errorShape(ErrorCodes.INVALID_REQUEST, "missing scope: operator.admin");
@@ -207,32 +181,6 @@ export async function handleGatewayRequest(
   if (authError) {
     respond(false, undefined, authError);
     return;
-  }
-  if (CONTROL_PLANE_WRITE_METHODS.has(req.method)) {
-    const budget = consumeControlPlaneWriteBudget({ client });
-    if (!budget.allowed) {
-      const actor = resolveControlPlaneActor(client);
-      context.logGateway.warn(
-        `control-plane write rate-limited method=${req.method} ${formatControlPlaneActor(actor)} retryAfterMs=${budget.retryAfterMs} key=${budget.key}`,
-      );
-      respond(
-        false,
-        undefined,
-        errorShape(
-          ErrorCodes.UNAVAILABLE,
-          `rate limit exceeded for ${req.method}; retry after ${Math.ceil(budget.retryAfterMs / 1000)}s`,
-          {
-            retryable: true,
-            retryAfterMs: budget.retryAfterMs,
-            details: {
-              method: req.method,
-              limit: "3 per 60s",
-            },
-          },
-        ),
-      );
-      return;
-    }
   }
   const handler = opts.extraHandlers?.[req.method] ?? coreGatewayHandlers[req.method];
   if (!handler) {

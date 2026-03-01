@@ -1,30 +1,5 @@
 {
   "$schema": "./node_modules/oxfmt/configuration_schema.json",
-  "experimentalSortImports": {
-    "newlinesBetween": false,
-  },
-  "experimentalSortPackageJson": {
-    "sortScripts": true,
-  },
-  "ignorePatterns": [
-    "apps/",
-    "assets/",
-<<<<<<< HEAD
-=======
-    "CLAUDE.md",
-    "docker-compose.yml",
->>>>>>> 1685a0dd1 (fix: remove trailing newline from CLAUDE.md symlink target (#21160))
-    "dist/",
-    "docs/_layouts/",
-    "node_modules/",
-    "patches/",
-    "pnpm-lock.yaml/",
-<<<<<<< HEAD
-=======
-    "src/gateway/server-methods/CLAUDE.md",
-    "src/auto-reply/reply/export-html/",
->>>>>>> 1685a0dd1 (fix: remove trailing newline from CLAUDE.md symlink target (#21160))
-    "Swabble/",
-    "vendor/",
-  ],
+  "indentWidth": 2,
+  "printWidth": 100
 }

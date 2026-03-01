@@ -1,10 +1,7 @@
-import type { FinalizedMsgContext } from "../../../auto-reply/templating.js";
-import type { ResolvedSlackAccount } from "../../accounts.js";
-import type { SlackMessageEvent } from "../../types.js";
-import type { PreparedSlackMessage } from "./types.js";
 import { resolveAckReaction } from "../../../agents/identity.js";
 import { hasControlCommand } from "../../../auto-reply/command-detection.js";
 import { shouldHandleTextCommands } from "../../../auto-reply/commands-registry.js";
+import type { FinalizedMsgContext } from "../../../auto-reply/templating.js";
 import {
   formatInboundEnvelope,
   formatThreadStarterEnvelope,
@@ -19,32 +16,37 @@ import {
   buildMentionRegexes,
   matchesMentionWithExplicit,
 } from "../../../auto-reply/reply/mentions.js";
-import {
-  shouldAckReaction as shouldAckReactionGate,
-  type AckReactionScope,
-} from "../../../channels/ack-reactions.js";
-import { formatAllowlistMatchMeta } from "../../../channels/allowlist-match.js";
-import { resolveControlCommandGate } from "../../../channels/command-gating.js";
-import { resolveConversationLabel } from "../../../channels/conversation-label.js";
-import { logInboundDrop } from "../../../channels/logging.js";
-import { resolveMentionGatingWithBypass } from "../../../channels/mention-gating.js";
-import { recordInboundSession } from "../../../channels/session.js";
-import { readSessionUpdatedAt, resolveStorePath } from "../../../config/sessions.js";
 import { logVerbose, shouldLogVerbose } from "../../../globals.js";
 import { enqueueSystemEvent } from "../../../infra/system-events.js";
 import { buildPairingReply } from "../../../pairing/pairing-messages.js";
 import { upsertChannelPairingRequest } from "../../../pairing/pairing-store.js";
 import { resolveAgentRoute } from "../../../routing/resolve-route.js";
 import { resolveThreadSessionKeys } from "../../../routing/session-key.js";
-import { buildUntrustedChannelMetadata } from "../../../security/channel-metadata.js";
+import {
+  shouldAckReaction as shouldAckReactionGate,
+  type AckReactionScope,
+} from "../../../channels/ack-reactions.js";
+import { resolveMentionGatingWithBypass } from "../../../channels/mention-gating.js";
+import { resolveConversationLabel } from "../../../channels/conversation-label.js";
+import { resolveControlCommandGate } from "../../../channels/command-gating.js";
+import { logInboundDrop } from "../../../channels/logging.js";
+import { formatAllowlistMatchMeta } from "../../../channels/allowlist-match.js";
+import { recordInboundSession } from "../../../channels/session.js";
+import { readSessionUpdatedAt, resolveStorePath } from "../../../config/sessions.js";
+
+import type { ResolvedSlackAccount } from "../../accounts.js";
 import { reactSlackMessage } from "../../actions.js";
 import { sendMessageSlack } from "../../send.js";
+import type { SlackMessageEvent } from "../../types.js";
 import { resolveSlackThreadContext } from "../../threading.js";
+
 import { resolveSlackAllowListMatch, resolveSlackUserAllowed } from "../allow-list.js";
 import { resolveSlackEffectiveAllowFrom } from "../auth.js";
 import { resolveSlackChannelConfig } from "../channel-config.js";
 import { normalizeSlackChannelType, type SlackMonitorContext } from "../context.js";
 import { resolveSlackMedia, resolveSlackThreadStarter } from "../media.js";
+
+import type { PreparedSlackMessage } from "./types.js";
 
 export async function prepareSlackMessage(params: {
   ctx: SlackMonitorContext;
@@ -90,9 +92,7 @@ export async function prepareSlackMessage(params: {
 
   const isBotMessage = Boolean(message.bot_id);
   if (isBotMessage) {
-    if (message.user && ctx.botUserId && message.user === ctx.botUserId) {
-      return null;
-    }
+    if (message.user && ctx.botUserId && message.user === ctx.botUserId) return null;
     if (!allowBots) {
       logVerbose(`slack: drop bot message ${message.bot_id ?? "unknown"} (allowBots=false)`);
       return null;
@@ -121,9 +121,7 @@ export async function prepareSlackMessage(params: {
     return null;
   }
 
-  const { allowFromLower } = await resolveSlackEffectiveAllowFrom(ctx, {
-    includePairingStore: isDirectMessage,
-  });
+  const { allowFromLower } = await resolveSlackEffectiveAllowFrom(ctx);
 
   if (isDirectMessage) {
     const directUserId = message.user;
@@ -338,45 +336,8 @@ export async function prepareSlackMessage(params: {
     token: ctx.botToken,
     maxBytes: ctx.mediaMaxBytes,
   });
-<<<<<<< HEAD
   const rawBody = (message.text ?? "").trim() || media?.placeholder || "";
-=======
-
-  // Resolve forwarded message content (text + media) from Slack attachments
-  const attachmentContent = await resolveSlackAttachmentContent({
-    attachments: message.attachments,
-    token: ctx.botToken,
-    maxBytes: ctx.mediaMaxBytes,
-  });
-
-  // Merge forwarded media into the message's media array
-  const mergedMedia = [...(media ?? []), ...(attachmentContent?.media ?? [])];
-  const effectiveDirectMedia = mergedMedia.length > 0 ? mergedMedia : null;
-
-  const mediaPlaceholder = effectiveDirectMedia
-    ? effectiveDirectMedia.map((m) => m.placeholder).join(" ")
-    : undefined;
-
-  // When files were attached but all downloads failed, create a fallback
-  // placeholder so the message is still delivered to the agent instead of
-  // being silently dropped (#25064).
-  const fileOnlyFallback =
-    !mediaPlaceholder && (message.files?.length ?? 0) > 0
-      ? message
-          .files!.slice(0, MAX_SLACK_MEDIA_FILES)
-          .map((f) => f.name?.trim() || "file")
-          .join(", ")
-      : undefined;
-  const fileOnlyPlaceholder = fileOnlyFallback ? `[Slack file: ${fileOnlyFallback}]` : undefined;
-
-  const rawBody =
-    [(message.text ?? "").trim(), attachmentContent?.text, mediaPlaceholder, fileOnlyPlaceholder]
-      .filter(Boolean)
-      .join("\n") || "";
->>>>>>> b247cd6d6 (fix: harden Slack file-only fallback placeholder (#25181) (thanks @justinhuangcode))
-  if (!rawBody) {
-    return null;
-  }
+  if (!rawBody) return null;
 
   const ackReaction = resolveAckReaction(cfg, route.agentId);
   const ackReactionValue = ackReaction ?? "";
@@ -434,15 +395,7 @@ export async function prepareSlackMessage(params: {
       GroupSubject: isRoomish ? roomLabel : undefined,
       From: slackFrom,
     }) ?? (isDirectMessage ? senderName : roomLabel);
-<<<<<<< HEAD
   const textWithId = `${rawBody}\n[slack message id: ${message.ts} channel: ${message.channel}]`;
-=======
-  const threadInfo =
-    isThreadReply && threadTs
-      ? ` thread_ts: ${threadTs}${message.parent_user_id ? ` parent_user_id: ${message.parent_user_id}` : ""}`
-      : "";
-  const textWithId = `${rawBody}\n[slack message id: ${message.ts} channel: ${message.channel}${threadInfo}]`;
->>>>>>> a43136c85 (fix: align slack thread footer metadata with reply semantics (#14625) (thanks @bennewton999))
   const storePath = resolveStorePath(ctx.cfg.session?.store, {
     agentId: route.agentId,
   });
@@ -486,16 +439,15 @@ export async function prepareSlackMessage(params: {
 
   const slackTo = isDirectMessage ? `user:${message.user}` : `channel:${message.channel}`;
 
-  const untrustedChannelMetadata = isRoomish
-    ? buildUntrustedChannelMetadata({
-        source: "slack",
-        label: "Slack channel description",
-        entries: [channelInfo?.topic, channelInfo?.purpose],
-      })
-    : undefined;
-  const systemPromptParts = [channelConfig?.systemPrompt?.trim() || null].filter(
-    (entry): entry is string => Boolean(entry),
-  );
+  const channelDescription = [channelInfo?.topic, channelInfo?.purpose]
+    .map((entry) => entry?.trim())
+    .filter((entry): entry is string => Boolean(entry))
+    .filter((entry, index, list) => list.indexOf(entry) === index)
+    .join("\n");
+  const systemPromptParts = [
+    channelDescription ? `Channel description: ${channelDescription}` : null,
+    channelConfig?.systemPrompt?.trim() || null,
+  ].filter((entry): entry is string => Boolean(entry));
   const groupSystemPrompt =
     systemPromptParts.length > 0 ? systemPromptParts.join("\n\n") : undefined;
 
@@ -554,7 +506,6 @@ export async function prepareSlackMessage(params: {
     ConversationLabel: envelopeFrom,
     GroupSubject: isRoomish ? roomLabel : undefined,
     GroupSystemPrompt: isRoomish ? groupSystemPrompt : undefined,
-    UntrustedContext: untrustedChannelMetadata ? [untrustedChannelMetadata] : undefined,
     SenderName: senderName,
     SenderId: senderId,
     Provider: "slack" as const,
@@ -601,9 +552,7 @@ export async function prepareSlackMessage(params: {
   });
 
   const replyTarget = ctxPayload.To ?? undefined;
-  if (!replyTarget) {
-    return null;
-  }
+  if (!replyTarget) return null;
 
   if (shouldLogVerbose()) {
     logVerbose(`slack inbound: channel=${message.channel} from=${slackFrom} preview="${preview}"`);

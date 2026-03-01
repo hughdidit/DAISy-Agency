@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+
 import { getMatrixRuntime } from "../runtime.js";
 
 export type MatrixStoredCredentials = {
@@ -12,25 +13,14 @@ export type MatrixStoredCredentials = {
   lastUsedAt?: string;
 };
 
-<<<<<<< HEAD
 const CREDENTIALS_FILENAME = "credentials.json";
-=======
-function credentialsFilename(accountId?: string | null): string {
-  const normalized = normalizeAccountId(accountId);
-  if (normalized === DEFAULT_ACCOUNT_ID) {
-    return "credentials.json";
-  }
-  // normalizeAccountId produces lowercase [a-z0-9-] strings, already filesystem-safe.
-  // Different raw IDs that normalize to the same value are the same logical account.
-  return `credentials-${normalized}.json`;
-}
->>>>>>> da00f6cf8 (fix: deep-merge nested config, prefer default account in send fallback, simplify credential filenames)
 
 export function resolveMatrixCredentialsDir(
   env: NodeJS.ProcessEnv = process.env,
   stateDir?: string,
 ): string {
-  const resolvedStateDir = stateDir ?? getMatrixRuntime().state.resolveStateDir(env, os.homedir);
+  const resolvedStateDir =
+    stateDir ?? getMatrixRuntime().state.resolveStateDir(env, os.homedir);
   return path.join(resolvedStateDir, "credentials", "matrix");
 }
 
@@ -44,9 +34,7 @@ export function loadMatrixCredentials(
 ): MatrixStoredCredentials | null {
   const credPath = resolveMatrixCredentialsPath(env);
   try {
-    if (!fs.existsSync(credPath)) {
-      return null;
-    }
+    if (!fs.existsSync(credPath)) return null;
     const raw = fs.readFileSync(credPath, "utf-8");
     const parsed = JSON.parse(raw) as Partial<MatrixStoredCredentials>;
     if (
@@ -85,9 +73,7 @@ export function saveMatrixCredentials(
 
 export function touchMatrixCredentials(env: NodeJS.ProcessEnv = process.env): void {
   const existing = loadMatrixCredentials(env);
-  if (!existing) {
-    return;
-  }
+  if (!existing) return;
 
   existing.lastUsedAt = new Date().toISOString();
   const credPath = resolveMatrixCredentialsPath(env);

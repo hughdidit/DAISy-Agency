@@ -1,13 +1,21 @@
 name: Workflow Sanity
 
 on:
-  pull_request:
   push:
-    branches: [main]
-
+    branches:
+      - daisy/main
+      - daisy/dev
+  pull_request:
+    branches:
+      - daisy/main
+      - daisy/dev
+  workflow_dispatch:
 concurrency:
-  group: workflow-sanity-${{ github.event.pull_request.number || github.sha }}
+  group: workflow-sanity-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
+
+permissions:
+  contents: read
 
 jobs:
   no-tabs:
@@ -40,3 +48,6 @@ jobs:
               print(f"- {path}")
             sys.exit(1)
           PY
+
+      - name: Run actionlint
+        uses: rhysd/actionlint@v1

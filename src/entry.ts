@@ -2,64 +2,40 @@
 import { spawn } from "node:child_process";
 import path from "node:path";
 import process from "node:process";
-import { fileURLToPath } from "node:url";
+
 import { applyCliProfileEnv, parseCliProfileArgs } from "./cli/profile.js";
-import { isTruthyEnvValue, normalizeEnv } from "./infra/env.js";
-import { isMainModule } from "./infra/is-main.js";
-import { installProcessWarningFilter } from "./infra/warning-filter.js";
+import { isTruthyEnvValue } from "./infra/env.js";
+import { installProcessWarningFilter } from "./infra/warnings.js";
 import { attachChildProcessBridge } from "./process/child-process-bridge.js";
 
-// Guard: only run entry-point logic when this file is the main module.
-// The bundler may import entry.js as a shared dependency when dist/index.js
-// is the actual entry point; without this guard the top-level code below
-// would call runCli a second time, starting a duplicate gateway that fails
-// on the lock / port and crashes the process.
-if (!isMainModule({ currentFile: fileURLToPath(import.meta.url) })) {
-  // Imported as a dependency — skip all entry-point side effects.
-} else {
-  process.title = "openclaw";
-  installProcessWarningFilter();
-  normalizeEnv();
+process.title = "moltbot";
+installProcessWarningFilter();
 
-  if (process.argv.includes("--no-color")) {
-    process.env.NO_COLOR = "1";
-    process.env.FORCE_COLOR = "0";
-  }
+if (process.argv.includes("--no-color")) {
+  process.env.NO_COLOR = "1";
+  process.env.FORCE_COLOR = "0";
+}
 
-  const EXPERIMENTAL_WARNING_FLAG = "--disable-warning=ExperimentalWarning";
+const EXPERIMENTAL_WARNING_FLAG = "--disable-warning=ExperimentalWarning";
 
-  function hasExperimentalWarningSuppressed(): boolean {
-    const nodeOptions = process.env.NODE_OPTIONS ?? "";
-    if (nodeOptions.includes(EXPERIMENTAL_WARNING_FLAG) || nodeOptions.includes("--no-warnings")) {
-      return true;
-    }
-<<<<<<< HEAD
-  }
-  return false;
+function hasExperimentalWarningSuppressed(nodeOptions: string): boolean {
+  if (!nodeOptions) return false;
+  return nodeOptions.includes(EXPERIMENTAL_WARNING_FLAG) || nodeOptions.includes("--no-warnings");
 }
 
 function ensureExperimentalWarningSuppressed(): boolean {
-  if (isTruthyEnvValue(process.env.OPENCLAW_NO_RESPAWN)) {
-    return false;
-  }
-  if (isTruthyEnvValue(process.env.OPENCLAW_NODE_OPTIONS_READY)) {
-    return false;
-  }
-  if (hasExperimentalWarningSuppressed()) {
-    return false;
-  }
+  if (isTruthyEnvValue(process.env.CLAWDBOT_NO_RESPAWN)) return false;
+  if (isTruthyEnvValue(process.env.CLAWDBOT_NODE_OPTIONS_READY)) return false;
+  const nodeOptions = process.env.NODE_OPTIONS ?? "";
+  if (hasExperimentalWarningSuppressed(nodeOptions)) return false;
 
-  // Respawn guard (and keep recursion bounded if something goes wrong).
-  process.env.OPENCLAW_NODE_OPTIONS_READY = "1";
-  // Pass flag as a Node CLI option, not via NODE_OPTIONS (--disable-warning is disallowed in NODE_OPTIONS).
-  const child = spawn(
-    process.execPath,
-    [EXPERIMENTAL_WARNING_FLAG, ...process.execArgv, ...process.argv.slice(1)],
-    {
-      stdio: "inherit",
-      env: process.env,
-    },
-  );
+  process.env.CLAWDBOT_NODE_OPTIONS_READY = "1";
+  process.env.NODE_OPTIONS = `${nodeOptions} ${EXPERIMENTAL_WARNING_FLAG}`.trim();
+
+  const child = spawn(process.execPath, [...process.execArgv, ...process.argv.slice(1)], {
+    stdio: "inherit",
+    env: process.env,
+  });
 
   attachChildProcessBridge(child);
 
@@ -67,52 +43,25 @@ function ensureExperimentalWarningSuppressed(): boolean {
     if (signal) {
       process.exitCode = 1;
       return;
-=======
-    for (const arg of process.execArgv) {
-      if (arg === EXPERIMENTAL_WARNING_FLAG || arg === "--no-warnings") {
-        return true;
-      }
->>>>>>> 26acb7745 (fix: guard entry.ts top-level code with isMainModule to prevent duplicate gateway start)
     }
-    return false;
-  }
+    process.exit(code ?? 1);
+  });
 
-  function ensureExperimentalWarningSuppressed(): boolean {
-    if (shouldSkipRespawnForArgv(process.argv)) {
-      return false;
-    }
-    if (isTruthyEnvValue(process.env.OPENCLAW_NO_RESPAWN)) {
-      return false;
-    }
-    if (isTruthyEnvValue(process.env.OPENCLAW_NODE_OPTIONS_READY)) {
-      return false;
-    }
-    if (hasExperimentalWarningSuppressed()) {
-      return false;
-    }
-
-    // Respawn guard (and keep recursion bounded if something goes wrong).
-    process.env.OPENCLAW_NODE_OPTIONS_READY = "1";
-    // Pass flag as a Node CLI option, not via NODE_OPTIONS (--disable-warning is disallowed in NODE_OPTIONS).
-    const child = spawn(
-      process.execPath,
-      [EXPERIMENTAL_WARNING_FLAG, ...process.execArgv, ...process.argv.slice(1)],
-      {
-        stdio: "inherit",
-        env: process.env,
-      },
+  child.once("error", (error) => {
+    console.error(
+      "[moltbot] Failed to respawn CLI:",
+      error instanceof Error ? (error.stack ?? error.message) : error,
     );
+    process.exit(1);
+  });
 
-    attachChildProcessBridge(child);
+  // Parent must not continue running the CLI.
+  return true;
+}
 
-<<<<<<< HEAD
 function normalizeWindowsArgv(argv: string[]): string[] {
-  if (process.platform !== "win32") {
-    return argv;
-  }
-  if (argv.length < 2) {
-    return argv;
-  }
+  if (process.platform !== "win32") return argv;
+  if (argv.length < 2) return argv;
   const stripControlChars = (value: string): string => {
     let out = "";
     for (let i = 0; i < value.length; i += 1) {
@@ -133,9 +82,7 @@ function normalizeWindowsArgv(argv: string[]): string[] {
   const execPathLower = execPath.toLowerCase();
   const execBase = path.basename(execPath).toLowerCase();
   const isExecPath = (value: string | undefined): boolean => {
-    if (!value) {
-      return false;
-    }
+    if (!value) return false;
     const lower = normalizeCandidate(value).toLowerCase();
     return (
       lower === execPathLower ||
@@ -154,9 +101,7 @@ function normalizeWindowsArgv(argv: string[]): string[] {
     i += 1;
   }
   const filtered = next.filter((arg, index) => index === 0 || !isExecPath(arg));
-  if (filtered.length < 3) {
-    return filtered;
-  }
+  if (filtered.length < 3) return filtered;
   const cleaned = [...filtered];
   for (let i = 2; i < cleaned.length; ) {
     const arg = cleaned[i];
@@ -174,52 +119,28 @@ function normalizeWindowsArgv(argv: string[]): string[] {
 }
 
 process.argv = normalizeWindowsArgv(process.argv);
-=======
-    child.once("exit", (code, signal) => {
-      if (signal) {
-        process.exitCode = 1;
-        return;
-      }
-      process.exit(code ?? 1);
-    });
->>>>>>> 26acb7745 (fix: guard entry.ts top-level code with isMainModule to prevent duplicate gateway start)
 
-    child.once("error", (error) => {
+if (!ensureExperimentalWarningSuppressed()) {
+  const parsed = parseCliProfileArgs(process.argv);
+  if (!parsed.ok) {
+    // Keep it simple; Commander will handle rich help/errors after we strip flags.
+    console.error(`[moltbot] ${parsed.error}`);
+    process.exit(2);
+  }
+
+  if (parsed.profile) {
+    applyCliProfileEnv({ profile: parsed.profile });
+    // Keep Commander and ad-hoc argv checks consistent.
+    process.argv = parsed.argv;
+  }
+
+  import("./cli/run-main.js")
+    .then(({ runCli }) => runCli(process.argv))
+    .catch((error) => {
       console.error(
-        "[openclaw] Failed to respawn CLI:",
+        "[moltbot] Failed to start CLI:",
         error instanceof Error ? (error.stack ?? error.message) : error,
       );
-      process.exit(1);
+      process.exitCode = 1;
     });
-
-    // Parent must not continue running the CLI.
-    return true;
-  }
-
-  process.argv = normalizeWindowsArgv(process.argv);
-
-  if (!ensureExperimentalWarningSuppressed()) {
-    const parsed = parseCliProfileArgs(process.argv);
-    if (!parsed.ok) {
-      // Keep it simple; Commander will handle rich help/errors after we strip flags.
-      console.error(`[openclaw] ${parsed.error}`);
-      process.exit(2);
-    }
-
-    if (parsed.profile) {
-      applyCliProfileEnv({ profile: parsed.profile });
-      // Keep Commander and ad-hoc argv checks consistent.
-      process.argv = parsed.argv;
-    }
-
-    import("./cli/run-main.js")
-      .then(({ runCli }) => runCli(process.argv))
-      .catch((error) => {
-        console.error(
-          "[openclaw] Failed to start CLI:",
-          error instanceof Error ? (error.stack ?? error.message) : error,
-        );
-        process.exitCode = 1;
-      });
-  }
 }

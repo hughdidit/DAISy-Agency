@@ -1,18 +1,10 @@
 import { EventEmitter } from "node:events";
+
 import type { AgentMessage, AgentTool } from "@mariozechner/pi-agent-core";
-import type { SessionManager } from "@mariozechner/pi-coding-agent";
 import type { TSchema } from "@sinclair/typebox";
-<<<<<<< HEAD
-import { EventEmitter } from "node:events";
-import type { TranscriptPolicy } from "../transcript-policy.js";
-=======
-import type { OpenClawConfig } from "../../config/config.js";
->>>>>>> 6dcc052bb (fix: stabilize model catalog and pi discovery auth storage compatibility)
+import type { SessionManager } from "@mariozechner/pi-coding-agent";
+
 import { registerUnhandledRejectionHandler } from "../../infra/unhandled-rejections.js";
-import {
-  hasInterSessionUserProvenance,
-  normalizeInputProvenance,
-} from "../../sessions/input-provenance.js";
 import {
   downgradeOpenAIReasoningBlocks,
   isCompactionFailureError,
@@ -20,17 +12,12 @@ import {
   sanitizeGoogleTurnOrdering,
   sanitizeSessionMessagesImages,
 } from "../pi-embedded-helpers.js";
+import { sanitizeToolUseResultPairing } from "../session-transcript-repair.js";
+import { log } from "./logger.js";
+import { describeUnknownError } from "./utils.js";
 import { cleanToolSchemaForGemini } from "../pi-tools.schema.js";
-import {
-  sanitizeToolCallInputs,
-  sanitizeToolUseResultPairing,
-} from "../session-transcript-repair.js";
 import type { TranscriptPolicy } from "../transcript-policy.js";
 import { resolveTranscriptPolicy } from "../transcript-policy.js";
-import { makeZeroUsageSnapshot } from "../usage.js";
-import { log } from "./logger.js";
-import { dropThinkingBlocks } from "./thinking.js";
-import { describeUnknownError } from "./utils.js";
 
 const GOOGLE_TURN_ORDERING_CUSTOM_TYPE = "google-turn-ordering-bootstrap";
 const GOOGLE_SCHEMA_UNSUPPORTED_KEYWORDS = new Set([
@@ -55,21 +42,13 @@ const GOOGLE_SCHEMA_UNSUPPORTED_KEYWORDS = new Set([
   "minProperties",
   "maxProperties",
 ]);
-
 const ANTIGRAVITY_SIGNATURE_RE = /^[A-Za-z0-9+/]+={0,2}$/;
-const INTER_SESSION_PREFIX_BASE = "[Inter-session message]";
 
 function isValidAntigravitySignature(value: unknown): value is string {
-  if (typeof value !== "string") {
-    return false;
-  }
+  if (typeof value !== "string") return false;
   const trimmed = value.trim();
-  if (!trimmed) {
-    return false;
-  }
-  if (trimmed.length % 4 !== 0) {
-    return false;
-  }
+  if (!trimmed) return false;
+  if (trimmed.length % 4 !== 0) return false;
   return ANTIGRAVITY_SIGNATURE_RE.test(trimmed);
 }
 
@@ -81,7 +60,7 @@ function sanitizeAntigravityThinkingBlocks(messages: AgentMessage[]): AgentMessa
       out.push(msg);
       continue;
     }
-    const assistant = msg;
+    const assistant = msg as Extract<AgentMessage, { role: "assistant" }>;
     if (!Array.isArray(assistant.content)) {
       out.push(msg);
       continue;
@@ -107,12 +86,6 @@ function sanitizeAntigravityThinkingBlocks(messages: AgentMessage[]): AgentMessa
       const candidate =
         rec.thinkingSignature ?? rec.signature ?? rec.thought_signature ?? rec.thoughtSignature;
       if (!isValidAntigravitySignature(candidate)) {
-        // Preserve reasoning content as plain text when signatures are invalid/missing.
-        // Antigravity Claude rejects unsigned thinking blocks, but dropping them loses context.
-        const thinkingText = (block as { thinking?: unknown }).thinking;
-        if (typeof thinkingText === "string" && thinkingText.trim()) {
-          nextContent.push({ type: "text", text: thinkingText } as AssistantContentBlock);
-        }
         contentChanged = true;
         continue;
       }
@@ -139,157 +112,8 @@ function sanitizeAntigravityThinkingBlocks(messages: AgentMessage[]): AgentMessa
   return touched ? out : messages;
 }
 
-function buildInterSessionPrefix(message: AgentMessage): string {
-  const provenance = normalizeInputProvenance((message as { provenance?: unknown }).provenance);
-  if (!provenance) {
-    return INTER_SESSION_PREFIX_BASE;
-  }
-  const details = [
-    provenance.sourceSessionKey ? `sourceSession=${provenance.sourceSessionKey}` : undefined,
-    provenance.sourceChannel ? `sourceChannel=${provenance.sourceChannel}` : undefined,
-    provenance.sourceTool ? `sourceTool=${provenance.sourceTool}` : undefined,
-  ].filter(Boolean);
-  if (details.length === 0) {
-    return INTER_SESSION_PREFIX_BASE;
-  }
-  return `${INTER_SESSION_PREFIX_BASE} ${details.join(" ")}`;
-}
-
-function annotateInterSessionUserMessages(messages: AgentMessage[]): AgentMessage[] {
-  let touched = false;
-  const out: AgentMessage[] = [];
-  for (const msg of messages) {
-    if (!hasInterSessionUserProvenance(msg as { role?: unknown; provenance?: unknown })) {
-      out.push(msg);
-      continue;
-    }
-    const prefix = buildInterSessionPrefix(msg);
-    const user = msg as Extract<AgentMessage, { role: "user" }>;
-    if (typeof user.content === "string") {
-      if (user.content.startsWith(prefix)) {
-        out.push(msg);
-        continue;
-      }
-      touched = true;
-      out.push({
-        ...(msg as unknown as Record<string, unknown>),
-        content: `${prefix}\n${user.content}`,
-      } as AgentMessage);
-      continue;
-    }
-    if (!Array.isArray(user.content)) {
-      out.push(msg);
-      continue;
-    }
-
-    const textIndex = user.content.findIndex(
-      (block) =>
-        block &&
-        typeof block === "object" &&
-        (block as { type?: unknown }).type === "text" &&
-        typeof (block as { text?: unknown }).text === "string",
-    );
-
-    if (textIndex >= 0) {
-      const existing = user.content[textIndex] as { type: "text"; text: string };
-      if (existing.text.startsWith(prefix)) {
-        out.push(msg);
-        continue;
-      }
-      const nextContent = [...user.content];
-      nextContent[textIndex] = {
-        ...existing,
-        text: `${prefix}\n${existing.text}`,
-      };
-      touched = true;
-      out.push({
-        ...(msg as unknown as Record<string, unknown>),
-        content: nextContent,
-      } as AgentMessage);
-      continue;
-    }
-
-    touched = true;
-    out.push({
-      ...(msg as unknown as Record<string, unknown>),
-      content: [{ type: "text", text: prefix }, ...user.content],
-    } as AgentMessage);
-  }
-  return touched ? out : messages;
-}
-
-<<<<<<< HEAD
-=======
-function parseMessageTimestamp(value: unknown): number | null {
-  if (typeof value === "number" && Number.isFinite(value)) {
-    return value;
-  }
-  if (typeof value === "string") {
-    const parsed = Date.parse(value);
-    if (Number.isFinite(parsed)) {
-      return parsed;
-    }
-  }
-  return null;
-}
-
-function stripStaleAssistantUsageBeforeLatestCompaction(messages: AgentMessage[]): AgentMessage[] {
-  let latestCompactionSummaryIndex = -1;
-  let latestCompactionTimestamp: number | null = null;
-  for (let i = 0; i < messages.length; i += 1) {
-    const entry = messages[i];
-    if (entry?.role !== "compactionSummary") {
-      continue;
-    }
-    latestCompactionSummaryIndex = i;
-    latestCompactionTimestamp = parseMessageTimestamp(
-      (entry as { timestamp?: unknown }).timestamp ?? null,
-    );
-  }
-  if (latestCompactionSummaryIndex === -1) {
-    return messages;
-  }
-
-  const out = [...messages];
-  let touched = false;
-  for (let i = 0; i < out.length; i += 1) {
-    const candidate = out[i] as
-      | (AgentMessage & { usage?: unknown; timestamp?: unknown })
-      | undefined;
-    if (!candidate || candidate.role !== "assistant") {
-      continue;
-    }
-    if (!candidate.usage || typeof candidate.usage !== "object") {
-      continue;
-    }
-
-    const messageTimestamp = parseMessageTimestamp(candidate.timestamp);
-    const staleByTimestamp =
-      latestCompactionTimestamp !== null &&
-      messageTimestamp !== null &&
-      messageTimestamp <= latestCompactionTimestamp;
-    const staleByLegacyOrdering = i < latestCompactionSummaryIndex;
-    if (!staleByTimestamp && !staleByLegacyOrdering) {
-      continue;
-    }
-
-    // pi-coding-agent expects assistant usage to always be present during context
-    // accounting. Keep stale snapshots structurally valid, but zeroed out.
-    const candidateRecord = candidate as unknown as Record<string, unknown>;
-    out[i] = {
-      ...candidateRecord,
-      usage: makeZeroUsageSnapshot(),
-    } as unknown as AgentMessage;
-    touched = true;
-  }
-  return touched ? out : messages;
-}
-
->>>>>>> 7e0b3f16e (fix: preserve assistant usage snapshots during compaction cleanup)
 function findUnsupportedSchemaKeywords(schema: unknown, path: string): string[] {
-  if (!schema || typeof schema !== "object") {
-    return [];
-  }
+  if (!schema || typeof schema !== "object") return [];
   if (Array.isArray(schema)) {
     return schema.flatMap((item, index) =>
       findUnsupportedSchemaKeywords(item, `${path}[${index}]`),
@@ -307,9 +131,7 @@ function findUnsupportedSchemaKeywords(schema: unknown, path: string): string[] 
     }
   }
   for (const [key, value] of Object.entries(record)) {
-    if (key === "properties") {
-      continue;
-    }
+    if (key === "properties") continue;
     if (GOOGLE_SCHEMA_UNSUPPORTED_KEYWORDS.has(key)) {
       violations.push(`${path}.${key}`);
     }
@@ -327,21 +149,11 @@ export function sanitizeToolsForGoogle<
   tools: AgentTool<TSchemaType, TResult>[];
   provider: string;
 }): AgentTool<TSchemaType, TResult>[] {
-<<<<<<< HEAD
   if (params.provider !== "google-antigravity" && params.provider !== "google-gemini-cli") {
-=======
-  // Cloud Code Assist uses the OpenAPI 3.03 `parameters` field for both Gemini
-  // AND Claude models.  This field does not support JSON Schema keywords such as
-  // patternProperties, additionalProperties, $ref, etc.  We must clean schemas
-  // for every provider that routes through this path.
-  if (params.provider !== "google-gemini-cli" && params.provider !== "google-antigravity") {
->>>>>>> 59e58bf81 (fix: strip unsupported JSON Schema keywords for Claude via Cloud Code Assist (openclaw#20124) thanks @ephraimm)
     return params.tools;
   }
   return params.tools.map((tool) => {
-    if (!tool.parameters || typeof tool.parameters !== "object") {
-      return tool;
-    }
+    if (!tool.parameters || typeof tool.parameters !== "object") return tool;
     return {
       ...tool,
       parameters: cleanToolSchemaForGemini(
@@ -394,9 +206,7 @@ export function onUnhandledCompactionFailure(cb: CompactionFailureListener): () 
 
 registerUnhandledRejectionHandler((reason) => {
   const message = describeUnknownError(reason);
-  if (!isCompactionFailureError(message)) {
-    return false;
-  }
+  if (!isCompactionFailureError(message)) return false;
   log.error(`Auto-compaction failed (unhandled): ${message}`);
   compactionFailureEmitter.emit("failure", message);
   return true;
@@ -418,9 +228,7 @@ function readLastModelSnapshot(sessionManager: SessionManager): ModelSnapshotEnt
     const entries = sessionManager.getEntries();
     for (let i = entries.length - 1; i >= 0; i--) {
       const entry = entries[i] as CustomEntryLike;
-      if (entry?.type !== "custom" || entry?.customType !== MODEL_SNAPSHOT_CUSTOM_TYPE) {
-        continue;
-      }
+      if (entry?.type !== "custom" || entry?.customType !== MODEL_SNAPSHOT_CUSTOM_TYPE) continue;
       const data = entry?.data as ModelSnapshotEntry | undefined;
       if (data && typeof data === "object") {
         return data;
@@ -514,28 +322,19 @@ export async function sanitizeSessionHistory(params: {
       provider: params.provider,
       modelId: params.modelId,
     });
-  const withInterSessionMarkers = annotateInterSessionUserMessages(params.messages);
-  const sanitizedImages = await sanitizeSessionMessagesImages(
-    withInterSessionMarkers,
-    "session:history",
-    {
-      sanitizeMode: policy.sanitizeMode,
-      sanitizeToolCallIds: policy.sanitizeToolCallIds,
-      toolCallIdMode: policy.toolCallIdMode,
-      preserveSignatures: policy.preserveSignatures,
-      sanitizeThoughtSignatures: policy.sanitizeThoughtSignatures,
-    },
-  );
-  const droppedThinking = policy.dropThinkingBlocks
-    ? dropThinkingBlocks(sanitizedImages)
+  const sanitizedImages = await sanitizeSessionMessagesImages(params.messages, "session:history", {
+    sanitizeMode: policy.sanitizeMode,
+    sanitizeToolCallIds: policy.sanitizeToolCallIds,
+    toolCallIdMode: policy.toolCallIdMode,
+    preserveSignatures: policy.preserveSignatures,
+    sanitizeThoughtSignatures: policy.sanitizeThoughtSignatures,
+  });
+  const sanitizedThinking = policy.normalizeAntigravityThinkingBlocks
+    ? sanitizeAntigravityThinkingBlocks(sanitizedImages)
     : sanitizedImages;
-  const sanitizedThinking = policy.sanitizeThinkingSignatures
-    ? sanitizeAntigravityThinkingBlocks(droppedThinking)
-    : droppedThinking;
-  const sanitizedToolCalls = sanitizeToolCallInputs(sanitizedThinking);
   const repairedTools = policy.repairToolUseResultPairing
-    ? sanitizeToolUseResultPairing(sanitizedToolCalls)
-    : sanitizedToolCalls;
+    ? sanitizeToolUseResultPairing(sanitizedThinking)
+    : sanitizedThinking;
 
   const isOpenAIResponsesApi =
     params.modelApi === "openai-responses" || params.modelApi === "openai-codex-responses";
@@ -549,16 +348,10 @@ export async function sanitizeSessionHistory(params: {
         modelId: params.modelId,
       })
     : false;
-<<<<<<< HEAD
   const sanitizedOpenAI =
     isOpenAIResponsesApi && modelChanged
       ? downgradeOpenAIReasoningBlocks(repairedTools)
       : repairedTools;
-=======
-  const sanitizedOpenAI = isOpenAIResponsesApi
-    ? downgradeOpenAIReasoningBlocks(sanitizedToolResults)
-    : sanitizedToolResults;
->>>>>>> 46bf210e0 (fix: always drop orphaned OpenAI reasoning blocks in session history)
 
   if (hasSnapshot && (!priorSnapshot || modelChanged)) {
     appendModelSnapshot(params.sessionManager, {

@@ -1,16 +1,6 @@
 import { describe, expect, it } from "vitest";
-<<<<<<< HEAD
+
 import { detectAndLoadPromptImages, detectImageReferences, modelSupportsImages } from "./images.js";
-=======
-import { createHostSandboxFsBridge } from "../../test-helpers/host-sandbox-fs-bridge.js";
-import { createUnsafeMountedSandbox } from "../../test-helpers/unsafe-mounted-sandbox.js";
-import {
-  detectAndLoadPromptImages,
-  detectImageReferences,
-  loadImageFromRef,
-  modelSupportsImages,
-} from "./images.js";
->>>>>>> 370d11554 (fix: enforce workspaceOnly for native prompt image autoload)
 
 describe("detectImageReferences", () => {
   it("detects absolute file paths with common extensions", () => {
@@ -135,8 +125,8 @@ describe("detectImageReferences", () => {
   it("detects multiple images in [media attached: ...] format", () => {
     // Multi-file format uses separate brackets on separate lines
     const prompt = `[media attached: 2 files]
-[media attached 1/2: /Users/tyleryust/.openclaw/media/IMG_6430.jpeg (image/jpeg)]
-[media attached 2/2: /Users/tyleryust/.openclaw/media/IMG_6431.jpeg (image/jpeg)]
+[media attached 1/2: /Users/tyleryust/.clawdbot/media/IMG_6430.jpeg (image/jpeg)]
+[media attached 2/2: /Users/tyleryust/.clawdbot/media/IMG_6431.jpeg (image/jpeg)]
 what about these images?`;
     const refs = detectImageReferences(prompt);
 
@@ -175,7 +165,7 @@ what is this?`;
 
   it("handles paths with spaces in filename", () => {
     // URL after | is https, not a local path, so only the local path should be detected
-    const prompt = `[media attached: /Users/test/.openclaw/media/ChatGPT Image Apr 21, 2025.png (image/png) | https://example.com/same.png]
+    const prompt = `[media attached: /Users/test/.clawdbot/media/ChatGPT Image Apr 21, 2025.png (image/png) | https://example.com/same.png]
 what is this?`;
     const refs = detectImageReferences(prompt);
 
@@ -239,77 +229,5 @@ describe("detectAndLoadPromptImages", () => {
     expect(result.detectedRefs).toHaveLength(0);
     expect(result.images).toHaveLength(0);
     expect(result.historyImagesByIndex.size).toBe(0);
-  });
-
-  it("blocks prompt image refs outside workspace when sandbox workspaceOnly is enabled", async () => {
-    const stateDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-native-image-sandbox-"));
-    const sandboxRoot = path.join(stateDir, "sandbox");
-    const agentRoot = path.join(stateDir, "agent");
-    await fs.mkdir(sandboxRoot, { recursive: true });
-    await fs.mkdir(agentRoot, { recursive: true });
-    const pngB64 =
-      "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/woAAn8B9FD5fHAAAAAASUVORK5CYII=";
-    await fs.writeFile(path.join(agentRoot, "secret.png"), Buffer.from(pngB64, "base64"));
-    const sandbox = createUnsafeMountedSandbox({ sandboxRoot, agentRoot });
-    const bridge = sandbox.fsBridge;
-    if (!bridge) {
-      throw new Error("sandbox fs bridge missing");
-    }
-
-    try {
-      const result = await detectAndLoadPromptImages({
-        prompt: "Inspect /agent/secret.png",
-        workspaceDir: sandboxRoot,
-        model: { input: ["text", "image"] },
-        workspaceOnly: true,
-        sandbox: { root: sandbox.workspaceDir, bridge },
-      });
-
-      expect(result.detectedRefs).toHaveLength(1);
-      expect(result.loadedCount).toBe(0);
-      expect(result.skippedCount).toBe(1);
-      expect(result.images).toHaveLength(0);
-    } finally {
-      await fs.rm(stateDir, { recursive: true, force: true });
-    }
-  });
-
-  it("blocks history image refs outside workspace when sandbox workspaceOnly is enabled", async () => {
-    const stateDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-native-image-sandbox-"));
-    const sandboxRoot = path.join(stateDir, "sandbox");
-    const agentRoot = path.join(stateDir, "agent");
-    await fs.mkdir(sandboxRoot, { recursive: true });
-    await fs.mkdir(agentRoot, { recursive: true });
-    const pngB64 =
-      "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/woAAn8B9FD5fHAAAAAASUVORK5CYII=";
-    await fs.writeFile(path.join(agentRoot, "secret.png"), Buffer.from(pngB64, "base64"));
-    const sandbox = createUnsafeMountedSandbox({ sandboxRoot, agentRoot });
-    const bridge = sandbox.fsBridge;
-    if (!bridge) {
-      throw new Error("sandbox fs bridge missing");
-    }
-
-    try {
-      const result = await detectAndLoadPromptImages({
-        prompt: "No inline image in this turn.",
-        workspaceDir: sandboxRoot,
-        model: { input: ["text", "image"] },
-        workspaceOnly: true,
-        historyMessages: [
-          {
-            role: "user",
-            content: [{ type: "text", text: "Previous image /agent/secret.png" }],
-          },
-        ],
-        sandbox: { root: sandbox.workspaceDir, bridge },
-      });
-
-      expect(result.detectedRefs).toHaveLength(1);
-      expect(result.loadedCount).toBe(0);
-      expect(result.skippedCount).toBe(1);
-      expect(result.historyImagesByIndex.size).toBe(0);
-    } finally {
-      await fs.rm(stateDir, { recursive: true, force: true });
-    }
   });
 });

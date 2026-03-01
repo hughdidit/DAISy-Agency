@@ -1,19 +1,12 @@
 import type { TypingMode } from "../../config/types.js";
-<<<<<<< HEAD
-=======
 import { isSilentReplyText, SILENT_REPLY_TOKEN } from "../tokens.js";
-import type { TypingPolicy } from "../types.js";
->>>>>>> 37a138c55 (fix: harden typing lifecycle and cross-channel suppression)
 import type { TypingController } from "./typing.js";
-import { isSilentReplyText, SILENT_REPLY_TOKEN } from "../tokens.js";
 
 export type TypingModeContext = {
   configured?: TypingMode;
   isGroupChat: boolean;
   wasMentioned: boolean;
   isHeartbeat: boolean;
-  typingPolicy?: TypingPolicy;
-  suppressTyping?: boolean;
 };
 
 export const DEFAULT_GROUP_TYPING_MODE: TypingMode = "message";
@@ -23,24 +16,10 @@ export function resolveTypingMode({
   isGroupChat,
   wasMentioned,
   isHeartbeat,
-  typingPolicy,
-  suppressTyping,
 }: TypingModeContext): TypingMode {
-  if (
-    isHeartbeat ||
-    typingPolicy === "heartbeat" ||
-    typingPolicy === "system_event" ||
-    typingPolicy === "internal_webchat" ||
-    suppressTyping
-  ) {
-    return "never";
-  }
-  if (configured) {
-    return configured;
-  }
-  if (!isGroupChat || wasMentioned) {
-    return "instant";
-  }
+  if (isHeartbeat) return "never";
+  if (configured) return configured;
+  if (!isGroupChat || wasMentioned) return "instant";
   return DEFAULT_GROUP_TYPING_MODE;
 }
 
@@ -72,33 +51,23 @@ export function createTypingSignaler(params: {
 
   const isRenderableText = (text?: string): boolean => {
     const trimmed = text?.trim();
-    if (!trimmed) {
-      return false;
-    }
+    if (!trimmed) return false;
     return !isSilentReplyText(trimmed, SILENT_REPLY_TOKEN);
   };
 
   const signalRunStart = async () => {
-    if (disabled || !shouldStartImmediately) {
-      return;
-    }
+    if (disabled || !shouldStartImmediately) return;
     await typing.startTypingLoop();
   };
 
   const signalMessageStart = async () => {
-    if (disabled || !shouldStartOnMessageStart) {
-      return;
-    }
-    if (!hasRenderableText) {
-      return;
-    }
+    if (disabled || !shouldStartOnMessageStart) return;
+    if (!hasRenderableText) return;
     await typing.startTypingLoop();
   };
 
   const signalTextDelta = async (text?: string) => {
-    if (disabled) {
-      return;
-    }
+    if (disabled) return;
     const renderable = isRenderableText(text);
     if (renderable) {
       hasRenderableText = true;
@@ -118,20 +87,14 @@ export function createTypingSignaler(params: {
   };
 
   const signalReasoningDelta = async () => {
-    if (disabled || !shouldStartOnReasoning) {
-      return;
-    }
-    if (!hasRenderableText) {
-      return;
-    }
+    if (disabled || !shouldStartOnReasoning) return;
+    if (!hasRenderableText) return;
     await typing.startTypingLoop();
     typing.refreshTypingTtl();
   };
 
   const signalToolStart = async () => {
-    if (disabled) {
-      return;
-    }
+    if (disabled) return;
     // Start typing as soon as tools begin executing, even before the first text delta.
     if (!typing.isActive()) {
       await typing.startTypingLoop();

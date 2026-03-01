@@ -1,9 +1,9 @@
 import { ensureAuthProfileStore } from "../agents/auth-profiles.js";
-import type { OpenClawConfig, GatewayAuthConfig } from "../config/config.js";
+import type { MoltbotConfig, GatewayAuthConfig } from "../config/config.js";
 import type { RuntimeEnv } from "../runtime.js";
 import type { WizardPrompter } from "../wizard/prompts.js";
-import { promptAuthChoiceGrouped } from "./auth-choice-prompt.js";
 import { applyAuthChoice, resolvePreferredProviderForAuthChoice } from "./auth-choice.js";
+import { promptAuthChoiceGrouped } from "./auth-choice-prompt.js";
 import {
   applyModelAllowlist,
   applyModelFallbacksFromSelection,
@@ -11,16 +11,10 @@ import {
   promptDefaultModel,
   promptModelAllowlist,
 } from "./model-picker.js";
-<<<<<<< HEAD
-=======
-import { promptCustomApiConfig } from "./onboard-custom.js";
-import { randomToken } from "./onboard-helpers.js";
->>>>>>> f8c91b3c5 (fix: prevent undefined token in gateway auth config (#13809))
 
 type GatewayAuthChoice = "token" | "password";
 
 const ANTHROPIC_OAUTH_MODEL_KEYS = [
-  "anthropic/claude-opus-4-6",
   "anthropic/claude-opus-4-5",
   "anthropic/claude-sonnet-4-5",
   "anthropic/claude-haiku-4-5",
@@ -34,23 +28,19 @@ export function buildGatewayAuthConfig(params: {
 }): GatewayAuthConfig | undefined {
   const allowTailscale = params.existing?.allowTailscale;
   const base: GatewayAuthConfig = {};
-  if (typeof allowTailscale === "boolean") {
-    base.allowTailscale = allowTailscale;
-  }
+  if (typeof allowTailscale === "boolean") base.allowTailscale = allowTailscale;
 
   if (params.mode === "token") {
-    // Guard against undefined/empty token to prevent JSON.stringify from writing the string "undefined"
-    const safeToken = params.token?.trim() || randomToken();
-    return { ...base, mode: "token", token: safeToken };
+    return { ...base, mode: "token", token: params.token };
   }
   return { ...base, mode: "password", password: params.password };
 }
 
 export async function promptAuthConfig(
-  cfg: OpenClawConfig,
+  cfg: MoltbotConfig,
   runtime: RuntimeEnv,
   prompter: WizardPrompter,
-): Promise<OpenClawConfig> {
+): Promise<MoltbotConfig> {
   const authChoice = await promptAuthChoiceGrouped({
     prompter,
     store: ensureAuthProfileStore(undefined, {
@@ -89,7 +79,7 @@ export async function promptAuthConfig(
     config: next,
     prompter,
     allowedKeys: anthropicOAuth ? ANTHROPIC_OAUTH_MODEL_KEYS : undefined,
-    initialSelections: anthropicOAuth ? ["anthropic/claude-opus-4-6"] : undefined,
+    initialSelections: anthropicOAuth ? ["anthropic/claude-opus-4-5"] : undefined,
     message: anthropicOAuth ? "Anthropic OAuth models" : undefined,
   });
   if (allowlistSelection.models) {

@@ -114,10 +114,11 @@ gcloud services enable compute.googleapis.com
 
 **Machine types:**
 
-| Type     | Specs                    | Cost               | Notes              |
-| -------- | ------------------------ | ------------------ | ------------------ |
-| e2-small | 2 vCPU, 2GB RAM          | ~$12/mo            | Recommended        |
-| e2-micro | 2 vCPU (shared), 1GB RAM | Free tier eligible | May OOM under load |
+| Type      | Specs                    | Cost               | Notes                                        |
+| --------- | ------------------------ | ------------------ | -------------------------------------------- |
+| e2-medium | 2 vCPU, 4GB RAM          | ~$25/mo            | Most reliable for local Docker builds        |
+| e2-small  | 2 vCPU, 2GB RAM          | ~$12/mo            | Minimum recommended for Docker build         |
+| e2-micro  | 2 vCPU (shared), 1GB RAM | Free tier eligible | Often fails with Docker build OOM (exit 137) |
 
 **CLI:**
 
@@ -266,10 +267,6 @@ services:
       # Recommended: keep the Gateway loopback-only on the VM; access via SSH tunnel.
       # To expose it publicly, remove the `127.0.0.1:` prefix and firewall accordingly.
       - "127.0.0.1:${OPENCLAW_GATEWAY_PORT}:18789"
-
-      # Optional: only if you run iOS/Android nodes against this VM and need Canvas host.
-      # If you expose this publicly, read /gateway/security and firewall accordingly.
-      # - "18793:18793"
     command:
       [
         "node",
@@ -354,8 +351,6 @@ docker compose build
 docker compose up -d openclaw-gateway
 ```
 
-<<<<<<< HEAD
-=======
 If build fails with `Killed` / `exit code 137` during `pnpm install --frozen-lockfile`, the VM is out of memory. Use `e2-small` minimum, or `e2-medium` for more reliable first builds.
 
 When binding to LAN (`OPENCLAW_GATEWAY_BIND=lan`), configure a trusted browser origin before continuing:
@@ -366,7 +361,6 @@ docker compose run --rm openclaw-cli config set gateway.controlUi.allowedOrigins
 
 If you changed the gateway port, replace `18789` with your configured port.
 
->>>>>>> 35976da7a (fix: harden Docker/GCP onboarding flow (#26253) (thanks @pandego))
 Verify binaries:
 
 ```bash
@@ -479,7 +473,7 @@ Ensure your account has the required IAM permissions (Compute OS Login or Comput
 
 **Out of memory (OOM)**
 
-If using e2-micro and hitting OOM, upgrade to e2-small or e2-medium:
+If Docker build fails with `Killed` and `exit code 137`, the VM was OOM-killed. Upgrade to e2-small (minimum) or e2-medium (recommended for reliable local builds):
 
 ```bash
 # Stop the VM first

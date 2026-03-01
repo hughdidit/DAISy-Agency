@@ -20,7 +20,6 @@ const runtime = {
   }),
 };
 
-<<<<<<< HEAD:src/cli/program.nodes-media.test.ts
 vi.mock("../commands/message.js", () => ({ messageCommand }));
 vi.mock("../commands/status.js", () => ({ statusCommand }));
 vi.mock("../commands/configure.js", () => ({
@@ -52,37 +51,6 @@ vi.mock("../gateway/call.js", () => ({
   }),
 }));
 vi.mock("./deps.js", () => ({ createDefaultDeps: () => ({}) }));
-=======
-const IOS_NODE = {
-  nodeId: "ios-node",
-  displayName: "iOS Node",
-  remoteIp: "192.168.0.88",
-  connected: true,
-} as const;
-
-function mockCameraGateway(
-  command: "camera.snap" | "camera.clip",
-  payload: Record<string, unknown>,
-) {
-  callGateway.mockImplementation(async (opts: { method?: string }) => {
-    if (opts.method === "node.list") {
-      return {
-        ts: Date.now(),
-        nodes: [IOS_NODE],
-      };
-    }
-    if (opts.method === "node.invoke") {
-      return {
-        ok: true,
-        nodeId: IOS_NODE.nodeId,
-        command,
-        payload,
-      };
-    }
-    return { ok: true };
-  });
-}
->>>>>>> 6c0dca30b (fix: accept auth code in chutes oauth manual flow):src/cli/program.nodes-media.e2e.test.ts
 
 const { buildProgram } = await import("./program.js");
 
@@ -128,7 +96,7 @@ describe("cli program (nodes media)", () => {
     const facings = invokeCalls
       .map((call) => (call.params?.params as { facing?: string } | undefined)?.facing)
       .filter(Boolean)
-      .toSorted((a, b) => a.localeCompare(b));
+      .sort((a, b) => a.localeCompare(b));
     expect(facings).toEqual(["back", "front"]);
 
     const out = String(runtime.log.mock.calls[0]?.[0] ?? "");
@@ -206,7 +174,7 @@ describe("cli program (nodes media)", () => {
 
     const out = String(runtime.log.mock.calls[0]?.[0] ?? "");
     const mediaPath = out.replace(/^MEDIA:/, "").trim();
-    expect(mediaPath).toMatch(/openclaw-camera-clip-front-.*\.mp4$/);
+    expect(mediaPath).toMatch(/moltbot-camera-clip-front-.*\.mp4$/);
 
     try {
       await expect(fs.readFile(mediaPath, "utf8")).resolves.toBe("hi");
@@ -453,7 +421,7 @@ describe("cli program (nodes media)", () => {
 
     const out = String(runtime.log.mock.calls[0]?.[0] ?? "");
     const mediaPath = out.replace(/^MEDIA:/, "").trim();
-    expect(mediaPath).toMatch(/openclaw-canvas-snapshot-.*\.png$/);
+    expect(mediaPath).toMatch(/moltbot-canvas-snapshot-.*\.png$/);
 
     try {
       await expect(fs.readFile(mediaPath, "utf8")).resolves.toBe("hi");

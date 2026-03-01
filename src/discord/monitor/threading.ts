@@ -1,12 +1,12 @@
 import { ChannelType, type Client } from "@buape/carbon";
 import { Routes } from "discord-api-types/v10";
-import type { ReplyToMode } from "../../config/config.js";
-import type { DiscordChannelConfigResolved } from "./allow-list.js";
-import type { DiscordMessageEvent } from "./listeners.js";
 import { createReplyReferencePlanner } from "../../auto-reply/reply/reply-reference.js";
+import type { ReplyToMode } from "../../config/config.js";
 import { logVerbose } from "../../globals.js";
 import { buildAgentSessionKey } from "../../routing/resolve-route.js";
 import { truncateUtf16Safe } from "../../utils.js";
+import type { DiscordChannelConfigResolved } from "./allow-list.js";
+import type { DiscordMessageEvent } from "./listeners.js";
 import { resolveDiscordChannelInfo } from "./message-utils.js";
 
 export type DiscordThreadChannel = {
@@ -35,41 +35,6 @@ export function __resetDiscordThreadStarterCacheForTest() {
   DISCORD_THREAD_STARTER_CACHE.clear();
 }
 
-<<<<<<< HEAD
-=======
-// Get cached entry with TTL check, refresh LRU position on hit
-function getCachedThreadStarter(key: string, now: number): DiscordThreadStarter | undefined {
-  const entry = DISCORD_THREAD_STARTER_CACHE.get(key);
-  if (!entry) {
-    return undefined;
-  }
-  // Check TTL expiry
-  if (now - entry.updatedAt > DISCORD_THREAD_STARTER_CACHE_TTL_MS) {
-    DISCORD_THREAD_STARTER_CACHE.delete(key);
-    return undefined;
-  }
-  // Refresh LRU position by re-inserting (Map maintains insertion order)
-  DISCORD_THREAD_STARTER_CACHE.delete(key);
-  DISCORD_THREAD_STARTER_CACHE.set(key, { ...entry, updatedAt: now });
-  return entry.value;
-}
-
-// Set cached entry with LRU eviction when max size exceeded
-function setCachedThreadStarter(key: string, value: DiscordThreadStarter, now: number): void {
-  // Remove existing entry first (to update LRU position)
-  DISCORD_THREAD_STARTER_CACHE.delete(key);
-  DISCORD_THREAD_STARTER_CACHE.set(key, { value, updatedAt: now });
-  // Evict oldest entries (first in Map) when over max size
-  while (DISCORD_THREAD_STARTER_CACHE.size > DISCORD_THREAD_STARTER_CACHE_MAX) {
-    const iter = DISCORD_THREAD_STARTER_CACHE.keys().next();
-    if (iter.done) {
-      break;
-    }
-    DISCORD_THREAD_STARTER_CACHE.delete(iter.value);
-  }
-}
-
->>>>>>> 4d0443391 (fix: use iterator.done check for LRU eviction)
 function isDiscordThreadType(type: ChannelType | undefined): boolean {
   return (
     type === ChannelType.PublicThread ||
@@ -83,9 +48,7 @@ export function resolveDiscordThreadChannel(params: {
   message: DiscordMessageEvent["message"];
   channelInfo: import("./message-utils.js").DiscordChannelInfo | null;
 }): DiscordThreadChannel | null {
-  if (!params.isGuildMessage) {
-    return null;
-  }
+  if (!params.isGuildMessage) return null;
   const { message, channelInfo } = params;
   const channel = "channel" in message ? (message as { channel?: unknown }).channel : undefined;
   const isThreadChannel =
@@ -94,12 +57,8 @@ export function resolveDiscordThreadChannel(params: {
     "isThread" in channel &&
     typeof (channel as { isThread?: unknown }).isThread === "function" &&
     (channel as { isThread: () => boolean }).isThread();
-  if (isThreadChannel) {
-    return channel as unknown as DiscordThreadChannel;
-  }
-  if (!isDiscordThreadType(channelInfo?.type)) {
-    return null;
-  }
+  if (isThreadChannel) return channel as unknown as DiscordThreadChannel;
+  if (!isDiscordThreadType(channelInfo?.type)) return null;
   return {
     id: message.channelId,
     name: channelInfo?.name ?? undefined,
@@ -117,9 +76,7 @@ export async function resolveDiscordThreadParentInfo(params: {
   const { threadChannel, channelInfo, client } = params;
   const parentId =
     threadChannel.parentId ?? threadChannel.parent?.id ?? channelInfo?.parentId ?? undefined;
-  if (!parentId) {
-    return {};
-  }
+  if (!parentId) return {};
   let parentName = threadChannel.parent?.name;
   const parentInfo = await resolveDiscordChannelInfo(client, parentId);
   parentName = parentName ?? parentInfo?.name;
@@ -136,17 +93,13 @@ export async function resolveDiscordThreadStarter(params: {
 }): Promise<DiscordThreadStarter | null> {
   const cacheKey = params.channel.id;
   const cached = DISCORD_THREAD_STARTER_CACHE.get(cacheKey);
-  if (cached) {
-    return cached;
-  }
+  if (cached) return cached;
   try {
     const parentType = params.parentType;
     const isForumParent =
       parentType === ChannelType.GuildForum || parentType === ChannelType.GuildMedia;
     const messageChannelId = isForumParent ? params.channel.id : params.parentId;
-    if (!messageChannelId) {
-      return null;
-    }
+    if (!messageChannelId) return null;
     const starter = (await params.client.rest.get(
       Routes.channelMessage(messageChannelId, params.channel.id),
     )) as {
@@ -160,13 +113,9 @@ export async function resolveDiscordThreadStarter(params: {
       };
       timestamp?: string | null;
     };
-    if (!starter) {
-      return null;
-    }
+    if (!starter) return null;
     const text = starter.content?.trim() ?? starter.embeds?.[0]?.description?.trim() ?? "";
-    if (!text) {
-      return null;
-    }
+    if (!text) return null;
     const author =
       starter.member?.nick ??
       starter.member?.displayName ??
@@ -193,16 +142,10 @@ export function resolveDiscordReplyTarget(opts: {
   replyToId?: string;
   hasReplied: boolean;
 }): string | undefined {
-  if (opts.replyToMode === "off") {
-    return undefined;
-  }
+  if (opts.replyToMode === "off") return undefined;
   const replyToId = opts.replyToId?.trim();
-  if (!replyToId) {
-    return undefined;
-  }
-  if (opts.replyToMode === "all") {
-    return replyToId;
-  }
+  if (!replyToId) return undefined;
+  if (opts.replyToMode === "all") return replyToId;
   return opts.hasReplied ? undefined : replyToId;
 }
 
@@ -240,13 +183,9 @@ export function resolveDiscordAutoThreadContext(params: {
   createdThreadId?: string | null;
 }): DiscordAutoThreadContext | null {
   const createdThreadId = String(params.createdThreadId ?? "").trim();
-  if (!createdThreadId) {
-    return null;
-  }
+  if (!createdThreadId) return null;
   const messageChannelId = params.messageChannelId.trim();
-  if (!messageChannelId) {
-    return null;
-  }
+  if (!messageChannelId) return null;
 
   const threadSessionKey = buildAgentSessionKey({
     agentId: params.agentId,
@@ -286,9 +225,7 @@ export async function resolveDiscordAutoThreadReplyPlan(params: {
   agentId: string;
   channel: string;
 }): Promise<DiscordAutoThreadReplyPlan> {
-  // Prefer the resolved thread channel ID when available so replies stay in-thread.
-  const targetChannelId = params.threadChannel?.id ?? params.message.channelId;
-  const originalReplyTarget = `channel:${targetChannelId}`;
+  const originalReplyTarget = `channel:${params.message.channelId}`;
   const createdThreadId = await maybeCreateDiscordAutoThread({
     client: params.client,
     message: params.message,
@@ -325,15 +262,9 @@ export async function maybeCreateDiscordAutoThread(params: {
   baseText: string;
   combinedBody: string;
 }): Promise<string | undefined> {
-  if (!params.isGuildMessage) {
-    return undefined;
-  }
-  if (!params.channelConfig?.autoThread) {
-    return undefined;
-  }
-  if (params.threadChannel) {
-    return undefined;
-  }
+  if (!params.isGuildMessage) return undefined;
+  if (!params.channelConfig?.autoThread) return undefined;
+  if (params.threadChannel) return undefined;
   try {
     const threadName = sanitizeDiscordThreadName(
       params.baseText || params.combinedBody || "Thread",
@@ -368,11 +299,6 @@ export function resolveDiscordReplyDeliveryPlan(params: {
   const originalReplyTarget = params.replyTarget;
   let deliverTarget = originalReplyTarget;
   let replyTarget = originalReplyTarget;
-<<<<<<< HEAD
-=======
-
-  // When a new thread was created, route to the new thread.
->>>>>>> 71939523a (fix: normalize Discord autoThread reply target (#8302) (thanks @gavinbmoore))
   if (params.createdThreadId) {
     deliverTarget = `channel:${params.createdThreadId}`;
     replyTarget = deliverTarget;

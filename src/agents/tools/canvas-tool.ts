@@ -1,12 +1,9 @@
 import crypto from "node:crypto";
 import fs from "node:fs/promises";
-<<<<<<< HEAD
-=======
+
 import { Type } from "@sinclair/typebox";
->>>>>>> 6dcc052bb (fix: stabilize model catalog and pi discovery auth storage compatibility)
 import { writeBase64ToFile } from "../../cli/nodes-camera.js";
 import { canvasSnapshotTempPath, parseCanvasSnapshotPayload } from "../../cli/nodes-canvas.js";
-import type { OpenClawConfig } from "../../config/config.js";
 import { imageMimeFromFormat } from "../../media/mime.js";
 import { optionalStringEnum, stringEnum } from "../schema/typebox.js";
 import { type AnyAgentTool, imageResult, jsonResult, readStringParam } from "./common.js";
@@ -167,9 +164,7 @@ export function createCanvasTool(): AnyAgentTool {
               : typeof params.jsonlPath === "string" && params.jsonlPath.trim()
                 ? await fs.readFile(params.jsonlPath.trim(), "utf8")
                 : "";
-          if (!jsonl.trim()) {
-            throw new Error("jsonl or jsonlPath required");
-          }
+          if (!jsonl.trim()) throw new Error("jsonl or jsonlPath required");
           await invoke("canvas.a2ui.pushJSONL", { jsonl });
           return jsonResult({ ok: true });
         }

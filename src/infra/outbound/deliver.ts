@@ -1,16 +1,3 @@
-<<<<<<< HEAD
-import type { ReplyPayload } from "../../auto-reply/types.js";
-import type { ChannelOutboundAdapter } from "../../channels/plugins/types.js";
-import type { OpenClawConfig } from "../../config/config.js";
-import type { sendMessageDiscord } from "../../discord/send.js";
-import type { sendMessageIMessage } from "../../imessage/send.js";
-import type { sendMessageSlack } from "../../slack/send.js";
-import type { sendMessageTelegram } from "../../telegram/send.js";
-import type { sendMessageWhatsApp } from "../../web/outbound.js";
-import type { NormalizedOutboundPayload } from "./payloads.js";
-import type { OutboundChannel } from "./targets.js";
-=======
->>>>>>> 6dcc052bb (fix: stabilize model catalog and pi discovery auth storage compatibility)
 import {
   chunkByParagraph,
   chunkMarkdownTextWithMode,
@@ -20,56 +7,27 @@ import {
 import type { ReplyPayload } from "../../auto-reply/types.js";
 import { resolveChannelMediaMaxBytes } from "../../channels/plugins/media-limits.js";
 import { loadChannelOutboundAdapter } from "../../channels/plugins/outbound/load.js";
-import type {
-  ChannelOutboundAdapter,
-  ChannelOutboundContext,
-} from "../../channels/plugins/types.js";
-import type { OpenClawConfig } from "../../config/config.js";
+import type { ChannelOutboundAdapter } from "../../channels/plugins/types.js";
+import type { MoltbotConfig } from "../../config/config.js";
 import { resolveMarkdownTableMode } from "../../config/markdown-tables.js";
+import type { sendMessageDiscord } from "../../discord/send.js";
+import type { sendMessageIMessage } from "../../imessage/send.js";
+import { markdownToSignalTextChunks, type SignalTextStyleRange } from "../../signal/format.js";
+import { sendMessageSignal } from "../../signal/send.js";
+import type { sendMessageSlack } from "../../slack/send.js";
+import type { sendMessageTelegram } from "../../telegram/send.js";
+import type { sendMessageWhatsApp } from "../../web/outbound.js";
 import {
   appendAssistantMessageToSessionTranscript,
   resolveMirroredTranscriptText,
 } from "../../config/sessions.js";
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
-import type { sendMessageDiscord } from "../../discord/send.js";
-import { createInternalHookEvent, triggerInternalHook } from "../../hooks/internal-hooks.js";
-import type { sendMessageIMessage } from "../../imessage/send.js";
->>>>>>> 6dcc052bb (fix: stabilize model catalog and pi discovery auth storage compatibility)
-import { getAgentScopedMediaLocalRoots } from "../../media/local-roots.js";
-import { getGlobalHookRunner } from "../../plugins/hook-runner-global.js";
->>>>>>> e927fd1e3 (fix: allow agent workspace directories in media local roots (#17136))
-import { markdownToSignalTextChunks, type SignalTextStyleRange } from "../../signal/format.js";
-import { sendMessageSignal } from "../../signal/send.js";
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-import { throwIfAborted } from "./abort.js";
-import { ackDelivery, enqueueDelivery, failDelivery } from "./delivery-queue.js";
->>>>>>> 207e2c5af (fix: add outbound delivery crash recovery (#15636) (thanks @nabbilkhan) (#15636))
-=======
-import type { sendMessageSlack } from "../../slack/send.js";
-import type { sendMessageTelegram } from "../../telegram/send.js";
-import type { sendMessageWhatsApp } from "../../web/outbound.js";
-import { throwIfAborted } from "./abort.js";
-import { ackDelivery, enqueueDelivery, failDelivery } from "./delivery-queue.js";
-import type { OutboundIdentity } from "./identity.js";
 import type { NormalizedOutboundPayload } from "./payloads.js";
->>>>>>> 6dcc052bb (fix: stabilize model catalog and pi discovery auth storage compatibility)
 import { normalizeReplyPayloadsForDelivery } from "./payloads.js";
 import type { OutboundChannel } from "./targets.js";
 
 export type { NormalizedOutboundPayload } from "./payloads.js";
 export { normalizeOutboundPayloads } from "./payloads.js";
 
-<<<<<<< HEAD
-=======
-const log = createSubsystemLogger("outbound/deliver");
-const TELEGRAM_TEXT_LIMIT = 4096;
-
->>>>>>> 69c39368e (fix: enforce telegram shared outbound chunking)
 type SendMatrixMessage = (
   to: string,
   text: string,
@@ -124,7 +82,7 @@ function throwIfAborted(abortSignal?: AbortSignal): void {
 
 // Channel docking: outbound delivery delegates to plugin.outbound adapters.
 async function createChannelHandler(params: {
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   channel: Exclude<OutboundChannel, "none">;
   to: string;
   accountId?: string;
@@ -132,11 +90,6 @@ async function createChannelHandler(params: {
   threadId?: string | number | null;
   deps?: OutboundSendDeps;
   gifPlayback?: boolean;
-<<<<<<< HEAD
-=======
-  silent?: boolean;
-  mediaLocalRoots?: readonly string[];
->>>>>>> e927fd1e3 (fix: allow agent workspace directories in media local roots (#17136))
 }): Promise<ChannelHandler> {
   const outbound = await loadChannelOutboundAdapter(params.channel);
   if (!outbound?.sendText || !outbound?.sendMedia) {
@@ -152,11 +105,6 @@ async function createChannelHandler(params: {
     threadId: params.threadId,
     deps: params.deps,
     gifPlayback: params.gifPlayback,
-<<<<<<< HEAD
-=======
-    silent: params.silent,
-    mediaLocalRoots: params.mediaLocalRoots,
->>>>>>> e927fd1e3 (fix: allow agent workspace directories in media local roots (#17136))
   });
   if (!handler) {
     throw new Error(`Outbound not configured for channel: ${params.channel}`);
@@ -166,7 +114,7 @@ async function createChannelHandler(params: {
 
 function createPluginHandler(params: {
   outbound?: ChannelOutboundAdapter;
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   channel: Exclude<OutboundChannel, "none">;
   to: string;
   accountId?: string;
@@ -174,16 +122,9 @@ function createPluginHandler(params: {
   threadId?: string | number | null;
   deps?: OutboundSendDeps;
   gifPlayback?: boolean;
-<<<<<<< HEAD
-=======
-  silent?: boolean;
-  mediaLocalRoots?: readonly string[];
->>>>>>> e927fd1e3 (fix: allow agent workspace directories in media local roots (#17136))
 }): ChannelHandler | null {
   const outbound = params.outbound;
-  if (!outbound?.sendText || !outbound?.sendMedia) {
-    return null;
-  }
+  if (!outbound?.sendText || !outbound?.sendMedia) return null;
   const sendText = outbound.sendText;
   const sendMedia = outbound.sendMedia;
   const chunker = outbound.chunker ?? null;
@@ -204,11 +145,6 @@ function createPluginHandler(params: {
             threadId: params.threadId,
             gifPlayback: params.gifPlayback,
             deps: params.deps,
-<<<<<<< HEAD
-=======
-            silent: params.silent,
-            mediaLocalRoots: params.mediaLocalRoots,
->>>>>>> e927fd1e3 (fix: allow agent workspace directories in media local roots (#17136))
             payload,
           })
       : undefined,
@@ -222,11 +158,6 @@ function createPluginHandler(params: {
         threadId: params.threadId,
         gifPlayback: params.gifPlayback,
         deps: params.deps,
-<<<<<<< HEAD
-=======
-        silent: params.silent,
-        mediaLocalRoots: params.mediaLocalRoots,
->>>>>>> e927fd1e3 (fix: allow agent workspace directories in media local roots (#17136))
       }),
     sendMedia: async (caption, mediaUrl) =>
       sendMedia({
@@ -239,105 +170,12 @@ function createPluginHandler(params: {
         threadId: params.threadId,
         gifPlayback: params.gifPlayback,
         deps: params.deps,
-<<<<<<< HEAD
-=======
-        silent: params.silent,
-        mediaLocalRoots: params.mediaLocalRoots,
->>>>>>> e927fd1e3 (fix: allow agent workspace directories in media local roots (#17136))
       }),
   };
 }
 
-const isAbortError = (err: unknown): boolean => err instanceof Error && err.name === "AbortError";
-
 export async function deliverOutboundPayloads(params: {
-  cfg: OpenClawConfig;
-  channel: Exclude<OutboundChannel, "none">;
-  to: string;
-  accountId?: string;
-  payloads: ReplyPayload[];
-  replyToId?: string | null;
-  threadId?: string | number | null;
-  deps?: OutboundSendDeps;
-  gifPlayback?: boolean;
-  abortSignal?: AbortSignal;
-  bestEffort?: boolean;
-  onError?: (err: unknown, payload: NormalizedOutboundPayload) => void;
-  onPayload?: (payload: NormalizedOutboundPayload) => void;
-  /** Active agent id for media local-root scoping. */
-  agentId?: string;
-  mirror?: {
-    sessionKey: string;
-    agentId?: string;
-    text?: string;
-    mediaUrls?: string[];
-  };
-<<<<<<< HEAD
-=======
-  silent?: boolean;
-  /** @internal Skip write-ahead queue (used by crash-recovery to avoid re-enqueueing). */
-  skipQueue?: boolean;
-}): Promise<OutboundDeliveryResult[]> {
-  const { channel, to, payloads } = params;
-
-  // Write-ahead delivery queue: persist before sending, remove after success.
-  const queueId = params.skipQueue
-    ? null
-    : await enqueueDelivery({
-        channel,
-        to,
-        accountId: params.accountId,
-        payloads,
-        threadId: params.threadId,
-        replyToId: params.replyToId,
-        bestEffort: params.bestEffort,
-        gifPlayback: params.gifPlayback,
-        silent: params.silent,
-        mirror: params.mirror,
-      }).catch(() => null); // Best-effort — don't block delivery if queue write fails.
-
-  // Wrap onError to detect partial failures under bestEffort mode.
-  // When bestEffort is true, per-payload errors are caught and passed to onError
-  // without throwing — so the outer try/catch never fires. We track whether any
-  // payload failed so we can call failDelivery instead of ackDelivery.
-  let hadPartialFailure = false;
-  const wrappedParams = params.onError
-    ? {
-        ...params,
-        onError: (err: unknown, payload: NormalizedOutboundPayload) => {
-          hadPartialFailure = true;
-          params.onError!(err, payload);
-        },
-      }
-    : params;
-
-  try {
-    const results = await deliverOutboundPayloadsCore(wrappedParams);
-    if (queueId) {
-      if (hadPartialFailure) {
-        await failDelivery(queueId, "partial delivery failure (bestEffort)").catch(() => {});
-      } else {
-        await ackDelivery(queueId).catch(() => {}); // Best-effort cleanup.
-      }
-    }
-    return results;
-  } catch (err) {
-    if (queueId) {
-      if (isAbortError(err)) {
-        await ackDelivery(queueId).catch(() => {});
-      } else {
-        await failDelivery(queueId, err instanceof Error ? err.message : String(err)).catch(
-          () => {},
-        );
-      }
-    }
-    throw err;
-  }
-}
-
-/** Core delivery logic (extracted for queue wrapper). */
-async function deliverOutboundPayloadsCore(params: {
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   channel: Exclude<OutboundChannel, "none">;
   to: string;
   accountId?: string;
@@ -356,18 +194,12 @@ async function deliverOutboundPayloadsCore(params: {
     text?: string;
     mediaUrls?: string[];
   };
-  silent?: boolean;
->>>>>>> 207e2c5af (fix: add outbound delivery crash recovery (#15636) (thanks @nabbilkhan) (#15636))
 }): Promise<OutboundDeliveryResult[]> {
   const { cfg, channel, to, payloads } = params;
   const accountId = params.accountId;
   const deps = params.deps;
   const abortSignal = params.abortSignal;
   const sendSignal = params.deps?.sendSignal ?? sendMessageSignal;
-  const mediaLocalRoots = getAgentScopedMediaLocalRoots(
-    cfg,
-    params.agentId ?? params.mirror?.agentId,
-  );
   const results: OutboundDeliveryResult[] = [];
   const handler = await createChannelHandler({
     cfg,
@@ -378,21 +210,12 @@ async function deliverOutboundPayloadsCore(params: {
     replyToId: params.replyToId,
     threadId: params.threadId,
     gifPlayback: params.gifPlayback,
-<<<<<<< HEAD
-=======
-    silent: params.silent,
-    mediaLocalRoots,
->>>>>>> e927fd1e3 (fix: allow agent workspace directories in media local roots (#17136))
   });
-  const configuredTextLimit = handler.chunker
+  const textLimit = handler.chunker
     ? resolveTextChunkLimit(cfg, channel, accountId, {
         fallbackLimit: handler.textChunkLimit,
       })
     : undefined;
-  const textLimit =
-    channel === "telegram" && typeof configuredTextLimit === "number"
-      ? Math.min(configuredTextLimit, TELEGRAM_TEXT_LIMIT)
-      : configuredTextLimit;
   const chunkMode = handler.chunker ? resolveChunkMode(cfg, channel, accountId) : "length";
   const isSignalChannel = channel === "signal";
   const signalTableMode = isSignalChannel
@@ -421,14 +244,10 @@ async function deliverOutboundPayloadsCore(params: {
           ? chunkMarkdownTextWithMode(text, textLimit, "newline")
           : chunkByParagraph(text, textLimit);
 
-      if (!blockChunks.length && text) {
-        blockChunks.push(text);
-      }
+      if (!blockChunks.length && text) blockChunks.push(text);
       for (const blockChunk of blockChunks) {
         const chunks = handler.chunker(blockChunk, textLimit);
-        if (!chunks.length && blockChunk) {
-          chunks.push(blockChunk);
-        }
+        if (!chunks.length && blockChunk) chunks.push(blockChunk);
         for (const chunk of chunks) {
           throwIfAborted(abortSignal);
           results.push(await handler.sendText(chunk));
@@ -489,7 +308,6 @@ async function deliverOutboundPayloadsCore(params: {
         accountId: accountId ?? undefined,
         textMode: "plain",
         textStyles: formatted.styles,
-        mediaLocalRoots,
       })),
     };
   };
@@ -500,36 +318,11 @@ async function deliverOutboundPayloadsCore(params: {
       mediaUrls: payload.mediaUrls ?? (payload.mediaUrl ? [payload.mediaUrl] : []),
       channelData: payload.channelData,
     };
-    const emitMessageSent = (success: boolean, error?: string) => {
-      if (!hookRunner?.hasHooks("message_sent")) {
-        return;
-      }
-      void hookRunner
-        .runMessageSent(
-          {
-            to,
-            content: payloadSummary.text,
-            success,
-            ...(error ? { error } : {}),
-          },
-          {
-            channelId: channel,
-            accountId: accountId ?? undefined,
-          },
-        )
-        .catch(() => {});
-    };
     try {
       throwIfAborted(abortSignal);
       params.onPayload?.(payloadSummary);
-<<<<<<< HEAD
       if (handler.sendPayload && payload.channelData) {
         results.push(await handler.sendPayload(payload));
-=======
-      if (handler.sendPayload && effectivePayload.channelData) {
-        results.push(await handler.sendPayload(effectivePayload));
-        emitMessageSent(true);
->>>>>>> 1d8bda4a2 (fix: emit message_sent hook for all successful outbound paths (#15104))
         continue;
       }
       if (payloadSummary.mediaUrls.length === 0) {
@@ -538,7 +331,6 @@ async function deliverOutboundPayloadsCore(params: {
         } else {
           await sendTextChunks(payloadSummary.text);
         }
-        emitMessageSent(true);
         continue;
       }
 
@@ -553,16 +345,8 @@ async function deliverOutboundPayloadsCore(params: {
           results.push(await handler.sendMedia(caption, url));
         }
       }
-<<<<<<< HEAD
     } catch (err) {
-=======
-      emitMessageSent(true);
-    } catch (err) {
-      emitMessageSent(false, err instanceof Error ? err.message : String(err));
->>>>>>> 1d8bda4a2 (fix: emit message_sent hook for all successful outbound paths (#15104))
-      if (!params.bestEffort) {
-        throw err;
-      }
+      if (!params.bestEffort) throw err;
       params.onError?.(err, payloadSummary);
     }
   }

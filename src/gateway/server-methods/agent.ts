@@ -1,7 +1,6 @@
 import { randomUUID } from "node:crypto";
-import type { GatewayRequestHandlers } from "./types.js";
-import { listAgentIds } from "../../agents/agent-scope.js";
 import { agentCommand } from "../../commands/agent.js";
+import { listAgentIds } from "../../agents/agent-scope.js";
 import { loadConfig } from "../../config/config.js";
 import {
   resolveAgentIdFromSessionKey,
@@ -15,14 +14,7 @@ import {
   resolveAgentDeliveryPlan,
   resolveAgentOutboundTarget,
 } from "../../infra/outbound/agent-delivery.js";
-<<<<<<< HEAD
-import { normalizeAgentId } from "../../routing/session-key.js";
-=======
-import { resolveMessageChannelSelection } from "../../infra/outbound/channel-selection.js";
-import { classifySessionKeyShape, normalizeAgentId } from "../../routing/session-key.js";
->>>>>>> 1cd3b3090 (fix: stop hardcoded channel fallback and auto-pick sole configured channel (#23357) (thanks @lbo728))
 import { defaultRuntime } from "../../runtime.js";
-import { normalizeInputProvenance, type InputProvenance } from "../../sessions/input-provenance.js";
 import { resolveSendPolicy } from "../../sessions/send-policy.js";
 import { normalizeSessionDeliveryFields } from "../../utils/delivery-context.js";
 import {
@@ -31,11 +23,11 @@ import {
   isGatewayMessageChannel,
   normalizeMessageChannel,
 } from "../../utils/message-channel.js";
-import { resolveAssistantIdentity } from "../assistant-identity.js";
+import { normalizeAgentId } from "../../routing/session-key.js";
 import { parseMessageWithAttachments } from "../chat-attachments.js";
-import { resolveAssistantAvatarUrl } from "../control-ui-shared.js";
-import { GATEWAY_CLIENT_CAPS, hasGatewayClientCap } from "../protocol/client-info.js";
 import {
+  type AgentIdentityParams,
+  type AgentWaitParams,
   ErrorCodes,
   errorShape,
   formatValidationErrors,
@@ -45,12 +37,14 @@ import {
 } from "../protocol/index.js";
 import { loadSessionEntry } from "../session-utils.js";
 import { formatForLog } from "../ws-log.js";
+import { resolveAssistantIdentity } from "../assistant-identity.js";
+import { resolveAssistantAvatarUrl } from "../control-ui-shared.js";
 import { waitForAgentJob } from "./agent-job.js";
-import { injectTimestamp, timestampOptsFromConfig } from "./agent-timestamp.js";
+import type { GatewayRequestHandlers } from "./types.js";
 
 export const agentHandlers: GatewayRequestHandlers = {
-  agent: async ({ params, respond, context, client }) => {
-    const p = params;
+  agent: async ({ params, respond, context }) => {
+    const p = params as Record<string, unknown>;
     if (!validateAgentParams(p)) {
       respond(
         false,
@@ -91,7 +85,6 @@ export const agentHandlers: GatewayRequestHandlers = {
       timeout?: number;
       label?: string;
       spawnedBy?: string;
-      inputProvenance?: InputProvenance;
     };
     const cfg = loadConfig();
     const idem = request.idempotencyKey;
@@ -104,7 +97,6 @@ export const agentHandlers: GatewayRequestHandlers = {
     let resolvedGroupSpace: string | undefined = groupSpaceRaw || undefined;
     let spawnedByValue =
       typeof request.spawnedBy === "string" ? request.spawnedBy.trim() : undefined;
-    const inputProvenance = normalizeInputProvenance(request.inputProvenance);
     const cached = context.dedupe.get(`agent:${idem}`);
     if (cached) {
       respond(cached.ok, cached.payload, cached.error, {
@@ -131,7 +123,7 @@ export const agentHandlers: GatewayRequestHandlers = {
         }))
         .filter((a) => a.content) ?? [];
 
-    let message = (request.message ?? "").trim();
+    let message = request.message.trim();
     let images: Array<{ type: "image"; data: string; mimeType: string }> = [];
     if (normalizedAttachments.length > 0) {
       try {
@@ -146,13 +138,6 @@ export const agentHandlers: GatewayRequestHandlers = {
         return;
       }
     }
-
-    // Inject timestamp into messages that don't already have one.
-    // Channel messages (Discord, Telegram, etc.) get timestamps via envelope
-    // formatting in a separate code path — they never reach this handler.
-    // See: https://github.com/moltbot/moltbot/issues/3658
-    message = injectTimestamp(message, timestampOptsFromConfig(cfg));
-
     const isKnownGatewayChannel = (value: string): boolean => isGatewayMessageChannel(value);
     const channelHints = [request.channel, request.replyChannel]
       .filter((value): value is string => typeof value === "string")
@@ -305,14 +290,6 @@ export const agentHandlers: GatewayRequestHandlers = {
     }
 
     const runId = idem;
-    const connId = typeof client?.connId === "string" ? client.connId : undefined;
-    const wantsToolEvents = hasGatewayClientCap(
-      client?.connect?.caps,
-      GATEWAY_CLIENT_CAPS.TOOL_EVENTS,
-    );
-    if (connId && wantsToolEvents) {
-      context.registerToolEventRecipient(runId, connId);
-    }
 
     const wantsDelivery = request.deliver === true;
     const explicitTo =
@@ -325,16 +302,6 @@ export const agentHandlers: GatewayRequestHandlers = {
       typeof request.threadId === "string" && request.threadId.trim()
         ? request.threadId.trim()
         : undefined;
-    const turnSourceChannel =
-      typeof request.channel === "string" && request.channel.trim()
-        ? request.channel.trim()
-        : undefined;
-    const turnSourceTo =
-      typeof request.to === "string" && request.to.trim() ? request.to.trim() : undefined;
-    const turnSourceAccountId =
-      typeof request.accountId === "string" && request.accountId.trim()
-        ? request.accountId.trim()
-        : undefined;
     const deliveryPlan = resolveAgentDeliveryPlan({
       sessionEntry,
       requestedChannel: request.replyChannel ?? request.channel,
@@ -342,59 +309,24 @@ export const agentHandlers: GatewayRequestHandlers = {
       explicitThreadId,
       accountId: request.replyAccountId ?? request.accountId,
       wantsDelivery,
-      turnSourceChannel,
-      turnSourceTo,
-      turnSourceAccountId,
-      turnSourceThreadId: explicitThreadId,
     });
 
-    let resolvedChannel = deliveryPlan.resolvedChannel;
-    let deliveryTargetMode = deliveryPlan.deliveryTargetMode;
-    let resolvedAccountId = deliveryPlan.resolvedAccountId;
+    const resolvedChannel = deliveryPlan.resolvedChannel;
+    const deliveryTargetMode = deliveryPlan.deliveryTargetMode;
+    const resolvedAccountId = deliveryPlan.resolvedAccountId;
     let resolvedTo = deliveryPlan.resolvedTo;
-    let effectivePlan = deliveryPlan;
-
-    if (wantsDelivery && resolvedChannel === INTERNAL_MESSAGE_CHANNEL) {
-      const cfgResolved = cfgForAgent ?? cfg;
-      try {
-        const selection = await resolveMessageChannelSelection({ cfg: cfgResolved });
-        resolvedChannel = selection.channel;
-        deliveryTargetMode = deliveryTargetMode ?? "implicit";
-        effectivePlan = {
-          ...deliveryPlan,
-          resolvedChannel,
-          deliveryTargetMode,
-          resolvedAccountId,
-        };
-      } catch (err) {
-        respond(false, undefined, errorShape(ErrorCodes.INVALID_REQUEST, String(err)));
-        return;
-      }
-    }
 
     if (!resolvedTo && isDeliverableMessageChannel(resolvedChannel)) {
       const cfgResolved = cfgForAgent ?? cfg;
       const fallback = resolveAgentOutboundTarget({
         cfg: cfgResolved,
-        plan: effectivePlan,
-        targetMode: deliveryTargetMode ?? "implicit",
+        plan: deliveryPlan,
+        targetMode: "implicit",
         validateExplicitTarget: false,
       });
       if (fallback.resolvedTarget?.ok) {
         resolvedTo = fallback.resolvedTo;
       }
-    }
-
-    if (wantsDelivery && resolvedChannel === INTERNAL_MESSAGE_CHANNEL) {
-      respond(
-        false,
-        undefined,
-        errorShape(
-          ErrorCodes.INVALID_REQUEST,
-          "delivery channel is required: pass --channel/--reply-channel or use a main session with a previous channel",
-        ),
-      );
-      return;
     }
 
     const deliver = request.deliver === true && resolvedChannel !== INTERNAL_MESSAGE_CHANNEL;
@@ -445,7 +377,6 @@ export const agentHandlers: GatewayRequestHandlers = {
         runId,
         lane: request.lane,
         extraSystemPrompt: request.extraSystemPrompt,
-        inputProvenance,
       },
       defaultRuntime,
       context.deps,
@@ -499,7 +430,7 @@ export const agentHandlers: GatewayRequestHandlers = {
       );
       return;
     }
-    const p = params;
+    const p = params as AgentIdentityParams;
     const agentIdRaw = typeof p.agentId === "string" ? p.agentId.trim() : "";
     const sessionKeyRaw = typeof p.sessionKey === "string" ? p.sessionKey.trim() : "";
     let agentId = agentIdRaw ? normalizeAgentId(agentIdRaw) : undefined;
@@ -540,8 +471,8 @@ export const agentHandlers: GatewayRequestHandlers = {
       );
       return;
     }
-    const p = params;
-    const runId = (p.runId ?? "").trim();
+    const p = params as AgentWaitParams;
+    const runId = p.runId.trim();
     const timeoutMs =
       typeof p.timeoutMs === "number" && Number.isFinite(p.timeoutMs)
         ? Math.max(0, Math.floor(p.timeoutMs))

@@ -1,5 +1,4 @@
 import type { ModelDefinitionConfig } from "../config/types.js";
-import { QIANFAN_BASE_URL, QIANFAN_DEFAULT_MODEL_ID } from "../agents/models-config.providers.js";
 
 export const DEFAULT_MINIMAX_BASE_URL = "https://api.minimax.io/v1";
 export const MINIMAX_API_BASE_URL = "https://api.minimax.io/anthropic";
@@ -9,48 +8,24 @@ export const DEFAULT_MINIMAX_CONTEXT_WINDOW = 200000;
 export const DEFAULT_MINIMAX_MAX_TOKENS = 8192;
 
 export const MOONSHOT_BASE_URL = "https://api.moonshot.ai/v1";
-export const MOONSHOT_CN_BASE_URL = "https://api.moonshot.cn/v1";
-export const MOONSHOT_DEFAULT_MODEL_ID = "kimi-k2.5";
+export const MOONSHOT_DEFAULT_MODEL_ID = "kimi-k2-0905-preview";
 export const MOONSHOT_DEFAULT_MODEL_REF = `moonshot/${MOONSHOT_DEFAULT_MODEL_ID}`;
 export const MOONSHOT_DEFAULT_CONTEXT_WINDOW = 256000;
 export const MOONSHOT_DEFAULT_MAX_TOKENS = 8192;
-export const KIMI_CODING_MODEL_ID = "k2p5";
-export const KIMI_CODING_MODEL_REF = `kimi-coding/${KIMI_CODING_MODEL_ID}`;
+export const KIMI_CODE_BASE_URL = "https://api.kimi.com/coding/v1";
+export const KIMI_CODE_MODEL_ID = "kimi-for-coding";
+export const KIMI_CODE_MODEL_REF = `kimi-code/${KIMI_CODE_MODEL_ID}`;
+export const KIMI_CODE_CONTEXT_WINDOW = 262144;
+export const KIMI_CODE_MAX_TOKENS = 32768;
+export const KIMI_CODE_HEADERS = { "User-Agent": "KimiCLI/0.77" } as const;
+export const KIMI_CODE_COMPAT = { supportsDeveloperRole: false } as const;
 
-export { QIANFAN_BASE_URL, QIANFAN_DEFAULT_MODEL_ID };
-export const QIANFAN_DEFAULT_MODEL_REF = `qianfan/${QIANFAN_DEFAULT_MODEL_ID}`;
-
-<<<<<<< HEAD
 // Pricing: MiniMax doesn't publish public rates. Override in models.json for accurate costs.
-=======
-export const ZAI_CODING_GLOBAL_BASE_URL = "https://api.z.ai/api/coding/paas/v4";
-export const ZAI_CODING_CN_BASE_URL = "https://open.bigmodel.cn/api/coding/paas/v4";
-export const ZAI_GLOBAL_BASE_URL = "https://api.z.ai/api/paas/v4";
-export const ZAI_CN_BASE_URL = "https://open.bigmodel.cn/api/paas/v4";
-export const ZAI_DEFAULT_MODEL_ID = "glm-5";
-
-export function resolveZaiBaseUrl(endpoint?: string): string {
-  switch (endpoint) {
-    case "coding-cn":
-      return ZAI_CODING_CN_BASE_URL;
-    case "global":
-      return ZAI_GLOBAL_BASE_URL;
-    case "cn":
-      return ZAI_CN_BASE_URL;
-    case "coding-global":
-      return ZAI_CODING_GLOBAL_BASE_URL;
-    default:
-      return ZAI_GLOBAL_BASE_URL;
-  }
-}
-
-// Pricing per 1M tokens (USD) — https://platform.minimaxi.com/document/Price
->>>>>>> efdec3925 (fix: correct MiniMax M2.5 pricing (was ~50x too high) (openclaw#22755) thanks @miloudbelarebia)
 export const MINIMAX_API_COST = {
-  input: 0.3,
-  output: 1.2,
-  cacheRead: 0.03,
-  cacheWrite: 0.12,
+  input: 15,
+  output: 60,
+  cacheRead: 2,
+  cacheWrite: 10,
 };
 export const MINIMAX_HOSTED_COST = {
   input: 0,
@@ -65,6 +40,12 @@ export const MINIMAX_LM_STUDIO_COST = {
   cacheWrite: 0,
 };
 export const MOONSHOT_DEFAULT_COST = {
+  input: 0,
+  output: 0,
+  cacheRead: 0,
+  cacheWrite: 0,
+};
+export const KIMI_CODE_DEFAULT_COST = {
   input: 0,
   output: 0,
   cacheRead: 0,
@@ -113,7 +94,7 @@ export function buildMinimaxApiModelDefinition(modelId: string): ModelDefinition
 export function buildMoonshotModelDefinition(): ModelDefinitionConfig {
   return {
     id: MOONSHOT_DEFAULT_MODEL_ID,
-    name: "Kimi K2.5",
+    name: "Kimi K2 0905 Preview",
     reasoning: false,
     input: ["text"],
     cost: MOONSHOT_DEFAULT_COST,
@@ -122,26 +103,16 @@ export function buildMoonshotModelDefinition(): ModelDefinitionConfig {
   };
 }
 
-export const XAI_BASE_URL = "https://api.x.ai/v1";
-export const XAI_DEFAULT_MODEL_ID = "grok-4";
-export const XAI_DEFAULT_MODEL_REF = `xai/${XAI_DEFAULT_MODEL_ID}`;
-export const XAI_DEFAULT_CONTEXT_WINDOW = 131072;
-export const XAI_DEFAULT_MAX_TOKENS = 8192;
-export const XAI_DEFAULT_COST = {
-  input: 0,
-  output: 0,
-  cacheRead: 0,
-  cacheWrite: 0,
-};
-
-export function buildXaiModelDefinition(): ModelDefinitionConfig {
+export function buildKimiCodeModelDefinition(): ModelDefinitionConfig {
   return {
-    id: XAI_DEFAULT_MODEL_ID,
-    name: "Grok 4",
-    reasoning: false,
+    id: KIMI_CODE_MODEL_ID,
+    name: "Kimi For Coding",
+    reasoning: true,
     input: ["text"],
-    cost: XAI_DEFAULT_COST,
-    contextWindow: XAI_DEFAULT_CONTEXT_WINDOW,
-    maxTokens: XAI_DEFAULT_MAX_TOKENS,
+    cost: KIMI_CODE_DEFAULT_COST,
+    contextWindow: KIMI_CODE_CONTEXT_WINDOW,
+    maxTokens: KIMI_CODE_MAX_TOKENS,
+    headers: KIMI_CODE_HEADERS,
+    compat: KIMI_CODE_COMPAT,
   };
 }

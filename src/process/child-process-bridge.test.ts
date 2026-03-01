@@ -2,7 +2,9 @@ import { spawn } from "node:child_process";
 import net from "node:net";
 import path from "node:path";
 import process from "node:process";
+
 import { afterEach, describe, expect, it } from "vitest";
+
 import { attachChildProcessBridge } from "./child-process-bridge.js";
 
 function waitForLine(stream: NodeJS.ReadableStream, timeoutMs = 10_000): Promise<string> {
@@ -88,9 +90,7 @@ describe("attachChildProcessBridge", () => {
     const afterSigterm = process.listeners("SIGTERM");
     const addedSigterm = afterSigterm.find((listener) => !beforeSigterm.has(listener));
 
-    if (!child.stdout) {
-      throw new Error("expected stdout");
-    }
+    if (!child.stdout) throw new Error("expected stdout");
     const portLine = await waitForLine(child.stdout);
     const port = Number(portLine);
     expect(Number.isFinite(port)).toBe(true);
@@ -98,9 +98,7 @@ describe("attachChildProcessBridge", () => {
     expect(await canConnect(port)).toBe(true);
 
     // Simulate systemd sending SIGTERM to the parent process.
-    if (!addedSigterm) {
-      throw new Error("expected SIGTERM listener");
-    }
+    if (!addedSigterm) throw new Error("expected SIGTERM listener");
     addedSigterm();
 
     await new Promise<void>((resolve, reject) => {
@@ -110,12 +108,8 @@ describe("attachChildProcessBridge", () => {
         resolve();
       });
     });
-<<<<<<< HEAD
 
     await new Promise((r) => setTimeout(r, 250));
     expect(await canConnect(port)).toBe(false);
   }, 20_000);
-=======
-  }, 15_000);
->>>>>>> fa89ae8e9 (fix: stabilize swift protocol generation and flaky tests)
 });

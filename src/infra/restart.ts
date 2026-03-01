@@ -1,11 +1,8 @@
 import { spawnSync } from "node:child_process";
-import { resolveGatewayPort } from "../config/paths.js";
 import {
   resolveGatewayLaunchAgentLabel,
   resolveGatewaySystemdServiceName,
 } from "../daemon/constants.js";
-import { createSubsystemLogger } from "../logging/subsystem.js";
-import { resolveLsofCommandSync } from "./ports-lsof.js";
 
 export type RestartAttempt = {
   ok: boolean;
@@ -16,135 +13,14 @@ export type RestartAttempt = {
 
 const SPAWN_TIMEOUT_MS = 2000;
 const SIGUSR1_AUTH_GRACE_MS = 5000;
-<<<<<<< HEAD
-=======
-const DEFAULT_DEFERRAL_POLL_MS = 500;
-const DEFAULT_DEFERRAL_MAX_WAIT_MS = 30_000;
-const RESTART_COOLDOWN_MS = 30_000;
-
-const restartLog = createSubsystemLogger("restart");
->>>>>>> ff74d89e8 (fix: harden gateway control-plane restart protections)
 
 let sigusr1AuthorizedCount = 0;
 let sigusr1AuthorizedUntil = 0;
 let sigusr1ExternalAllowed = false;
-let preRestartCheck: (() => number) | null = null;
-<<<<<<< HEAD
-let sigusr1Emitted = false;
-=======
-let restartCycleToken = 0;
-let emittedRestartToken = 0;
-let consumedRestartToken = 0;
-let lastRestartEmittedAt = 0;
-let pendingRestartTimer: ReturnType<typeof setTimeout> | null = null;
-let pendingRestartDueAt = 0;
-let pendingRestartReason: string | undefined;
-
-function hasUnconsumedRestartSignal(): boolean {
-  return emittedRestartToken > consumedRestartToken;
-}
->>>>>>> ff74d89e8 (fix: harden gateway control-plane restart protections)
-
-function clearPendingScheduledRestart(): void {
-  if (pendingRestartTimer) {
-    clearTimeout(pendingRestartTimer);
-  }
-  pendingRestartTimer = null;
-  pendingRestartDueAt = 0;
-  pendingRestartReason = undefined;
-}
-
-export type RestartAuditInfo = {
-  actor?: string;
-  deviceId?: string;
-  clientIp?: string;
-  changedPaths?: string[];
-};
-
-function summarizeChangedPaths(paths: string[] | undefined, maxPaths = 6): string | null {
-  if (!Array.isArray(paths) || paths.length === 0) {
-    return null;
-  }
-  if (paths.length <= maxPaths) {
-    return paths.join(",");
-  }
-  const head = paths.slice(0, maxPaths).join(",");
-  return `${head},+${paths.length - maxPaths} more`;
-}
-
-function formatRestartAudit(audit: RestartAuditInfo | undefined): string {
-  const actor = typeof audit?.actor === "string" && audit.actor.trim() ? audit.actor.trim() : null;
-  const deviceId =
-    typeof audit?.deviceId === "string" && audit.deviceId.trim() ? audit.deviceId.trim() : null;
-  const clientIp =
-    typeof audit?.clientIp === "string" && audit.clientIp.trim() ? audit.clientIp.trim() : null;
-  const changed = summarizeChangedPaths(audit?.changedPaths);
-  const fields = [];
-  if (actor) {
-    fields.push(`actor=${actor}`);
-  }
-  if (deviceId) {
-    fields.push(`device=${deviceId}`);
-  }
-  if (clientIp) {
-    fields.push(`ip=${clientIp}`);
-  }
-  if (changed) {
-    fields.push(`changedPaths=${changed}`);
-  }
-  return fields.length > 0 ? fields.join(" ") : "actor=<unknown>";
-}
-
-/**
- * Register a callback that scheduleGatewaySigusr1Restart checks before emitting SIGUSR1.
- * The callback should return the number of pending items (0 = safe to restart).
- */
-export function setPreRestartDeferralCheck(fn: () => number): void {
-  preRestartCheck = fn;
-}
-
-/**
- * Emit an authorized SIGUSR1 gateway restart, guarded against duplicate emissions.
- * Returns true if SIGUSR1 was emitted, false if a restart was already emitted.
- * Both scheduleGatewaySigusr1Restart and the config watcher should use this
- * to ensure only one restart fires.
- */
-export function emitGatewayRestart(): boolean {
-<<<<<<< HEAD
-  if (sigusr1Emitted) {
-    return false;
-  }
-  sigusr1Emitted = true;
-=======
-  if (hasUnconsumedRestartSignal()) {
-    clearPendingScheduledRestart();
-    return false;
-  }
-  clearPendingScheduledRestart();
-  const cycleToken = ++restartCycleToken;
-  emittedRestartToken = cycleToken;
->>>>>>> ff74d89e8 (fix: harden gateway control-plane restart protections)
-  authorizeGatewaySigusr1Restart();
-  try {
-    if (process.listenerCount("SIGUSR1") > 0) {
-      process.emit("SIGUSR1");
-    } else {
-      process.kill(process.pid, "SIGUSR1");
-    }
-  } catch {
-    /* ignore */
-  }
-  lastRestartEmittedAt = Date.now();
-  return true;
-}
 
 function resetSigusr1AuthorizationIfExpired(now = Date.now()) {
-  if (sigusr1AuthorizedCount <= 0) {
-    return;
-  }
-  if (now <= sigusr1AuthorizedUntil) {
-    return;
-  }
+  if (sigusr1AuthorizedCount <= 0) return;
+  if (now <= sigusr1AuthorizedUntil) return;
   sigusr1AuthorizedCount = 0;
   sigusr1AuthorizedUntil = 0;
 }
@@ -157,7 +33,7 @@ export function isGatewaySigusr1RestartExternallyAllowed() {
   return sigusr1ExternalAllowed;
 }
 
-function authorizeGatewaySigusr1Restart(delayMs = 0) {
+export function authorizeGatewaySigusr1Restart(delayMs = 0) {
   const delay = Math.max(0, Math.floor(delayMs));
   const expiresAt = Date.now() + delay + SIGUSR1_AUTH_GRACE_MS;
   sigusr1AuthorizedCount += 1;
@@ -168,13 +44,7 @@ function authorizeGatewaySigusr1Restart(delayMs = 0) {
 
 export function consumeGatewaySigusr1RestartAuthorization(): boolean {
   resetSigusr1AuthorizationIfExpired();
-  if (sigusr1AuthorizedCount <= 0) {
-    return false;
-  }
-  // Reset the emission guard so the next restart cycle can fire.
-  // The run loop re-enters startGatewayServer() after close(), which
-  // re-registers setPreRestartDeferralCheck and can schedule new restarts.
-  sigusr1Emitted = false;
+  if (sigusr1AuthorizedCount <= 0) return false;
   sigusr1AuthorizedCount -= 1;
   if (sigusr1AuthorizedCount <= 0) {
     sigusr1AuthorizedUntil = 0;
@@ -193,12 +63,8 @@ function formatSpawnDetail(result: {
     return text.replace(/\s+/g, " ").trim();
   };
   if (result.error) {
-    if (result.error instanceof Error) {
-      return result.error.message;
-    }
-    if (typeof result.error === "string") {
-      return result.error;
-    }
+    if (result.error instanceof Error) return result.error.message;
+    if (typeof result.error === "string") return result.error;
     try {
       return JSON.stringify(result.error);
     } catch {
@@ -206,16 +72,10 @@ function formatSpawnDetail(result: {
     }
   }
   const stderr = clean(result.stderr);
-  if (stderr) {
-    return stderr;
-  }
+  if (stderr) return stderr;
   const stdout = clean(result.stdout);
-  if (stdout) {
-    return stdout;
-  }
-  if (typeof result.status === "number") {
-    return `exit ${result.status}`;
-  }
+  if (stdout) return stdout;
+  if (typeof result.status === "number") return `exit ${result.status}`;
   return "unknown error";
 }
 
@@ -227,112 +87,16 @@ function normalizeSystemdUnit(raw?: string, profile?: string): string {
   return unit.endsWith(".service") ? unit : `${unit}.service`;
 }
 
-/**
- * Find PIDs of gateway processes listening on the given port using synchronous lsof.
- * Returns only PIDs that belong to openclaw gateway processes (not the current process).
- */
-export function findGatewayPidsOnPortSync(port: number): number[] {
-  if (process.platform === "win32") {
-    return [];
-  }
-  const lsof = resolveLsofCommandSync();
-  const res = spawnSync(lsof, ["-nP", `-iTCP:${port}`, "-sTCP:LISTEN", "-Fpc"], {
-    encoding: "utf8",
-    timeout: SPAWN_TIMEOUT_MS,
-  });
-  if (res.error || res.status !== 0) {
-    return [];
-  }
-  const pids: number[] = [];
-  let currentPid: number | undefined;
-  let currentCmd: string | undefined;
-  for (const line of res.stdout.split(/\r?\n/).filter(Boolean)) {
-    if (line.startsWith("p")) {
-      if (currentPid != null && currentCmd && currentCmd.toLowerCase().includes("openclaw")) {
-        pids.push(currentPid);
-      }
-      const parsed = Number.parseInt(line.slice(1), 10);
-      currentPid = Number.isFinite(parsed) && parsed > 0 ? parsed : undefined;
-      currentCmd = undefined;
-    } else if (line.startsWith("c")) {
-      currentCmd = line.slice(1);
-    }
-  }
-  if (currentPid != null && currentCmd && currentCmd.toLowerCase().includes("openclaw")) {
-    pids.push(currentPid);
-  }
-  return pids.filter((pid) => pid !== process.pid);
-}
-
-const STALE_SIGTERM_WAIT_MS = 300;
-const STALE_SIGKILL_WAIT_MS = 200;
-
-/**
- * Synchronously terminate stale gateway processes.
- * Sends SIGTERM, waits briefly, then SIGKILL for survivors.
- */
-function terminateStaleProcessesSync(pids: number[]): number[] {
-  if (pids.length === 0) {
-    return [];
-  }
-  const killed: number[] = [];
-  for (const pid of pids) {
-    try {
-      process.kill(pid, "SIGTERM");
-      killed.push(pid);
-    } catch {
-      // ESRCH — already gone
-    }
-  }
-  if (killed.length === 0) {
-    return killed;
-  }
-  spawnSync("sleep", [String(STALE_SIGTERM_WAIT_MS / 1000)], { timeout: 2000 });
-  for (const pid of killed) {
-    try {
-      process.kill(pid, 0);
-      process.kill(pid, "SIGKILL");
-    } catch {
-      // already gone
-    }
-  }
-  spawnSync("sleep", [String(STALE_SIGKILL_WAIT_MS / 1000)], { timeout: 2000 });
-  return killed;
-}
-
-/**
- * Inspect the gateway port and kill any stale gateway processes holding it.
- * Called before service restart commands to prevent port conflicts.
- */
-function cleanStaleGatewayProcessesSync(): number[] {
-  try {
-    const port = resolveGatewayPort(undefined, process.env);
-    const stalePids = findGatewayPidsOnPortSync(port);
-    if (stalePids.length === 0) {
-      return [];
-    }
-    restartLog.warn(
-      `killing ${stalePids.length} stale gateway process(es) before restart: ${stalePids.join(", ")}`,
-    );
-    return terminateStaleProcessesSync(stalePids);
-  } catch {
-    return [];
-  }
-}
-
-export function triggerOpenClawRestart(): RestartAttempt {
+export function triggerMoltbotRestart(): RestartAttempt {
   if (process.env.VITEST || process.env.NODE_ENV === "test") {
     return { ok: true, method: "supervisor", detail: "test mode" };
   }
-
-  cleanStaleGatewayProcessesSync();
-
   const tried: string[] = [];
   if (process.platform !== "darwin") {
     if (process.platform === "linux") {
       const unit = normalizeSystemdUnit(
-        process.env.OPENCLAW_SYSTEMD_UNIT,
-        process.env.OPENCLAW_PROFILE,
+        process.env.CLAWDBOT_SYSTEMD_UNIT,
+        process.env.CLAWDBOT_PROFILE,
       );
       const userArgs = ["--user", "restart", unit];
       tried.push(`systemctl ${userArgs.join(" ")}`);
@@ -366,8 +130,8 @@ export function triggerOpenClawRestart(): RestartAttempt {
   }
 
   const label =
-    process.env.OPENCLAW_LAUNCHD_LABEL ||
-    resolveGatewayLaunchAgentLabel(process.env.OPENCLAW_PROFILE);
+    process.env.CLAWDBOT_LAUNCHD_LABEL ||
+    resolveGatewayLaunchAgentLabel(process.env.CLAWDBOT_PROFILE);
   const uid = typeof process.getuid === "function" ? process.getuid() : undefined;
   const target = uid !== undefined ? `gui/${uid}/${label}` : label;
   const args = ["kickstart", "-k", target];
@@ -394,14 +158,11 @@ export type ScheduledRestart = {
   delayMs: number;
   reason?: string;
   mode: "emit" | "signal";
-  coalesced: boolean;
-  cooldownMsApplied: number;
 };
 
 export function scheduleGatewaySigusr1Restart(opts?: {
   delayMs?: number;
   reason?: string;
-  audit?: RestartAuditInfo;
 }): ScheduledRestart {
   const delayMsRaw =
     typeof opts?.delayMs === "number" && Number.isFinite(opts.delayMs)
@@ -412,115 +173,27 @@ export function scheduleGatewaySigusr1Restart(opts?: {
     typeof opts?.reason === "string" && opts.reason.trim()
       ? opts.reason.trim().slice(0, 200)
       : undefined;
-<<<<<<< HEAD
-  const DEFERRAL_POLL_MS = 500;
-  const DEFERRAL_MAX_WAIT_MS = 30_000;
-
+  authorizeGatewaySigusr1Restart(delayMs);
+  const pid = process.pid;
+  const hasListener = process.listenerCount("SIGUSR1") > 0;
   setTimeout(() => {
-    if (!preRestartCheck) {
-      emitGatewayRestart();
-      return;
-    }
-    let pending: number;
     try {
-      pending = preRestartCheck();
+      if (hasListener) {
+        process.emit("SIGUSR1");
+      } else {
+        process.kill(pid, "SIGUSR1");
+      }
     } catch {
-      emitGatewayRestart();
-      return;
+      /* ignore */
     }
-    if (pending <= 0) {
-      emitGatewayRestart();
-      return;
-    }
-    // Poll until pending work drains or timeout
-    let waited = 0;
-    const poll = setInterval(() => {
-      waited += DEFERRAL_POLL_MS;
-      let current: number;
-      try {
-        current = preRestartCheck!();
-      } catch {
-        current = 0;
-      }
-      if (current <= 0 || waited >= DEFERRAL_MAX_WAIT_MS) {
-        clearInterval(poll);
-        emitGatewayRestart();
-      }
-    }, DEFERRAL_POLL_MS);
   }, delayMs);
-=======
-  const mode = process.listenerCount("SIGUSR1") > 0 ? "emit" : "signal";
-  const nowMs = Date.now();
-  const cooldownMsApplied = Math.max(0, lastRestartEmittedAt + RESTART_COOLDOWN_MS - nowMs);
-  const requestedDueAt = nowMs + delayMs + cooldownMsApplied;
-
-  if (hasUnconsumedRestartSignal()) {
-    restartLog.warn(
-      `restart request coalesced (already in-flight) reason=${reason ?? "unspecified"} ${formatRestartAudit(opts?.audit)}`,
-    );
-    return {
-      ok: true,
-      pid: process.pid,
-      signal: "SIGUSR1",
-      delayMs: 0,
-      reason,
-      mode,
-      coalesced: true,
-      cooldownMsApplied,
-    };
-  }
-
-  if (pendingRestartTimer) {
-    const remainingMs = Math.max(0, pendingRestartDueAt - nowMs);
-    const shouldPullEarlier = requestedDueAt < pendingRestartDueAt;
-    if (shouldPullEarlier) {
-      restartLog.warn(
-        `restart request rescheduled earlier reason=${reason ?? "unspecified"} pendingReason=${pendingRestartReason ?? "unspecified"} oldDelayMs=${remainingMs} newDelayMs=${Math.max(0, requestedDueAt - nowMs)} ${formatRestartAudit(opts?.audit)}`,
-      );
-      clearPendingScheduledRestart();
-    } else {
-      restartLog.warn(
-        `restart request coalesced (already scheduled) reason=${reason ?? "unspecified"} pendingReason=${pendingRestartReason ?? "unspecified"} delayMs=${remainingMs} ${formatRestartAudit(opts?.audit)}`,
-      );
-      return {
-        ok: true,
-        pid: process.pid,
-        signal: "SIGUSR1",
-        delayMs: remainingMs,
-        reason,
-        mode,
-        coalesced: true,
-        cooldownMsApplied,
-      };
-    }
-  }
-
-  pendingRestartDueAt = requestedDueAt;
-  pendingRestartReason = reason;
-  pendingRestartTimer = setTimeout(
-    () => {
-      pendingRestartTimer = null;
-      pendingRestartDueAt = 0;
-      pendingRestartReason = undefined;
-      const pendingCheck = preRestartCheck;
-      if (!pendingCheck) {
-        emitGatewayRestart();
-        return;
-      }
-      deferGatewayRestartUntilIdle({ getPendingCount: pendingCheck });
-    },
-    Math.max(0, requestedDueAt - nowMs),
-  );
->>>>>>> ff74d89e8 (fix: harden gateway control-plane restart protections)
   return {
     ok: true,
-    pid: process.pid,
+    pid,
     signal: "SIGUSR1",
-    delayMs: Math.max(0, requestedDueAt - nowMs),
+    delayMs,
     reason,
-    mode,
-    coalesced: false,
-    cooldownMsApplied,
+    mode: hasListener ? "emit" : "signal",
   };
 }
 
@@ -529,15 +202,5 @@ export const __testing = {
     sigusr1AuthorizedCount = 0;
     sigusr1AuthorizedUntil = 0;
     sigusr1ExternalAllowed = false;
-    preRestartCheck = null;
-<<<<<<< HEAD
-    sigusr1Emitted = false;
-=======
-    restartCycleToken = 0;
-    emittedRestartToken = 0;
-    consumedRestartToken = 0;
-    lastRestartEmittedAt = 0;
-    clearPendingScheduledRestart();
->>>>>>> ff74d89e8 (fix: harden gateway control-plane restart protections)
   },
 };

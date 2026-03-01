@@ -1,8 +1,4 @@
-<<<<<<< HEAD
 import { describe, expect, it, vi, beforeEach } from "vitest";
-=======
-import { beforeEach, describe, expect, it, vi } from "vitest";
->>>>>>> c0cd3c3c0 (fix: add safety timeout to session.compact() to prevent lane deadlock (#16533))
 
 vi.mock("./run/attempt.js", () => ({
   runEmbeddedAttempt: vi.fn(),
@@ -39,7 +35,7 @@ vi.mock("../model-auth.js", () => ({
 }));
 
 vi.mock("../models-config.js", () => ({
-  ensureOpenClawModelsJson: vi.fn(async () => {}),
+  ensureMoltbotModelsJson: vi.fn(async () => {}),
 }));
 
 vi.mock("../context-window-guard.js", () => ({
@@ -61,26 +57,19 @@ vi.mock("../../process/command-queue.js", () => ({
   enqueueCommandInLane: vi.fn((_lane: string, task: () => unknown) => task()),
 }));
 
-<<<<<<< HEAD
 vi.mock("../../utils.js", () => ({
   resolveUserPath: vi.fn((p: string) => p),
 }));
 
-=======
->>>>>>> c0cd3c3c0 (fix: add safety timeout to session.compact() to prevent lane deadlock (#16533))
 vi.mock("../../utils/message-channel.js", () => ({
   isMarkdownCapableMessageChannel: vi.fn(() => true),
 }));
 
 vi.mock("../agent-paths.js", () => ({
-  resolveOpenClawAgentDir: vi.fn(() => "/tmp/agent-dir"),
+  resolveMoltbotAgentDir: vi.fn(() => "/tmp/agent-dir"),
 }));
 
 vi.mock("../auth-profiles.js", () => ({
-<<<<<<< HEAD
-=======
-  isProfileInCooldown: vi.fn(() => false),
->>>>>>> c0cd3c3c0 (fix: add safety timeout to session.compact() to prevent lane deadlock (#16533))
   markAuthProfileFailure: vi.fn(async () => {}),
   markAuthProfileGood: vi.fn(async () => {}),
   markAuthProfileUsed: vi.fn(async () => {}),
@@ -93,41 +82,16 @@ vi.mock("../defaults.js", () => ({
 }));
 
 vi.mock("../failover-error.js", () => ({
-  FailoverError: class extends Error {},
+  FailoverError: class extends Error {
+    constructor(msg: string) {
+      super(msg);
+    }
+  },
   resolveFailoverStatus: vi.fn(),
 }));
 
 vi.mock("../usage.js", () => ({
-<<<<<<< HEAD
   normalizeUsage: vi.fn(() => undefined),
-  hasNonzeroUsage: vi.fn(() => false),
-=======
-  normalizeUsage: vi.fn((usage?: unknown) =>
-    usage && typeof usage === "object" ? usage : undefined,
-  ),
-  derivePromptTokens: vi.fn(
-    (usage?: { input?: number; cacheRead?: number; cacheWrite?: number }) => {
-      if (!usage) {
-        return undefined;
-      }
-      const input = usage.input ?? 0;
-      const cacheRead = usage.cacheRead ?? 0;
-      const cacheWrite = usage.cacheWrite ?? 0;
-      const sum = input + cacheRead + cacheWrite;
-      return sum > 0 ? sum : undefined;
-    },
-  ),
-}));
-
-vi.mock("../workspace-run.js", () => ({
-  resolveRunWorkspaceDir: vi.fn((params: { workspaceDir: string }) => ({
-    workspaceDir: params.workspaceDir,
-    usedFallback: false,
-    fallbackReason: undefined,
-    agentId: "main",
-  })),
-  redactRunIdentifier: vi.fn((value?: string) => value ?? ""),
->>>>>>> c0cd3c3c0 (fix: add safety timeout to session.compact() to prevent lane deadlock (#16533))
 }));
 
 vi.mock("./lanes.js", () => ({
@@ -141,10 +105,6 @@ vi.mock("./logger.js", () => ({
     info: vi.fn(),
     warn: vi.fn(),
     error: vi.fn(),
-<<<<<<< HEAD
-=======
-    isEnabled: vi.fn(() => false),
->>>>>>> c0cd3c3c0 (fix: add safety timeout to session.compact() to prevent lane deadlock (#16533))
   },
 }));
 
@@ -152,38 +112,22 @@ vi.mock("./run/payloads.js", () => ({
   buildEmbeddedRunPayloads: vi.fn(() => []),
 }));
 
-vi.mock("./tool-result-truncation.js", () => ({
-  truncateOversizedToolResultsInSession: vi.fn(async () => ({
-    truncated: false,
-    truncatedCount: 0,
-    reason: "no oversized tool results",
-  })),
-  sessionLikelyHasOversizedToolResults: vi.fn(() => false),
-}));
-
 vi.mock("./utils.js", () => ({
   describeUnknownError: vi.fn((err: unknown) => {
-    if (err instanceof Error) {
-      return err.message;
-    }
+    if (err instanceof Error) return err.message;
     return String(err);
   }),
 }));
 
-<<<<<<< HEAD
 vi.mock("../pi-embedded-helpers.js", async () => {
   return {
     isCompactionFailureError: (msg?: string) => {
-      if (!msg) {
-        return false;
-      }
+      if (!msg) return false;
       const lower = msg.toLowerCase();
       return lower.includes("request_too_large") && lower.includes("summarization failed");
     },
     isContextOverflowError: (msg?: string) => {
-      if (!msg) {
-        return false;
-      }
+      if (!msg) return false;
       const lower = msg.toLowerCase();
       return lower.includes("request_too_large") || lower.includes("request size exceeds");
     },
@@ -191,61 +135,23 @@ vi.mock("../pi-embedded-helpers.js", async () => {
     isFailoverErrorMessage: vi.fn(() => false),
     isAuthAssistantError: vi.fn(() => false),
     isRateLimitAssistantError: vi.fn(() => false),
-    isBillingAssistantError: vi.fn(() => false),
     classifyFailoverReason: vi.fn(() => null),
     formatAssistantErrorText: vi.fn(() => ""),
-    parseImageSizeError: vi.fn(() => null),
     pickFallbackThinkingLevel: vi.fn(() => null),
     isTimeoutErrorMessage: vi.fn(() => false),
     parseImageDimensionError: vi.fn(() => null),
   };
 });
 
-import type { EmbeddedRunAttemptResult } from "./run/types.js";
+import { runEmbeddedPiAgent } from "./run.js";
+import { runEmbeddedAttempt } from "./run/attempt.js";
 import { compactEmbeddedPiSessionDirect } from "./compact.js";
 import { log } from "./logger.js";
-import { runEmbeddedPiAgent } from "./run.js";
-import { runEmbeddedAttempt } from "./run/attempt.js";
-import {
-  sessionLikelyHasOversizedToolResults,
-  truncateOversizedToolResultsInSession,
-} from "./tool-result-truncation.js";
-
-const mockedRunEmbeddedAttempt = vi.mocked(runEmbeddedAttempt);
-const mockedCompactDirect = vi.mocked(compactEmbeddedPiSessionDirect);
-const mockedSessionLikelyHasOversizedToolResults = vi.mocked(sessionLikelyHasOversizedToolResults);
-const mockedTruncateOversizedToolResultsInSession = vi.mocked(
-  truncateOversizedToolResultsInSession,
-);
-=======
-vi.mock("../pi-embedded-helpers.js", () => ({
-  formatBillingErrorMessage: vi.fn(() => ""),
-  classifyFailoverReason: vi.fn(() => null),
-  formatAssistantErrorText: vi.fn(() => ""),
-  isAuthAssistantError: vi.fn(() => false),
-  isBillingAssistantError: vi.fn(() => false),
-  isCompactionFailureError: vi.fn(() => false),
-  isLikelyContextOverflowError: vi.fn((msg?: string) => {
-    const lower = (msg ?? "").toLowerCase();
-    return lower.includes("request_too_large") || lower.includes("context window exceeded");
-  }),
-  isFailoverAssistantError: vi.fn(() => false),
-  isFailoverErrorMessage: vi.fn(() => false),
-  parseImageSizeError: vi.fn(() => null),
-  parseImageDimensionError: vi.fn(() => null),
-  isRateLimitAssistantError: vi.fn(() => false),
-  isTimeoutErrorMessage: vi.fn(() => false),
-  pickFallbackThinkingLevel: vi.fn(() => null),
-}));
 
 import type { EmbeddedRunAttemptResult } from "./run/types.js";
-import { compactEmbeddedPiSessionDirect } from "./compact.js";
-import { runEmbeddedPiAgent } from "./run.js";
-import { runEmbeddedAttempt } from "./run/attempt.js";
 
 const mockedRunEmbeddedAttempt = vi.mocked(runEmbeddedAttempt);
 const mockedCompactDirect = vi.mocked(compactEmbeddedPiSessionDirect);
->>>>>>> c0cd3c3c0 (fix: add safety timeout to session.compact() to prevent lane deadlock (#16533))
 
 function makeAttemptResult(
   overrides: Partial<EmbeddedRunAttemptResult> = {},
@@ -253,10 +159,6 @@ function makeAttemptResult(
   return {
     aborted: false,
     timedOut: false,
-<<<<<<< HEAD
-=======
-    timedOutDuringCompaction: false,
->>>>>>> c0cd3c3c0 (fix: add safety timeout to session.compact() to prevent lane deadlock (#16533))
     promptError: null,
     sessionIdUsed: "test-session",
     assistantTexts: ["Hello!"],
@@ -271,7 +173,6 @@ function makeAttemptResult(
   };
 }
 
-<<<<<<< HEAD
 const baseParams = {
   sessionId: "test-session",
   sessionKey: "test-key",
@@ -285,23 +186,9 @@ const baseParams = {
 describe("overflow compaction in run loop", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockedSessionLikelyHasOversizedToolResults.mockReturnValue(false);
-    mockedTruncateOversizedToolResultsInSession.mockResolvedValue({
-      truncated: false,
-      truncatedCount: 0,
-      reason: "no oversized tool results",
-    });
   });
 
   it("retries after successful compaction on context overflow promptError", async () => {
-=======
-describe("runEmbeddedPiAgent overflow compaction trigger routing", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
-  it("passes trigger=overflow when retrying compaction after context overflow", async () => {
->>>>>>> c0cd3c3c0 (fix: add safety timeout to session.compact() to prevent lane deadlock (#16533))
     const overflowError = new Error("request_too_large: Request size exceeds model context window");
 
     mockedRunEmbeddedAttempt
@@ -318,7 +205,6 @@ describe("runEmbeddedPiAgent overflow compaction trigger routing", () => {
       },
     });
 
-<<<<<<< HEAD
     const result = await runEmbeddedPiAgent(baseParams);
 
     expect(mockedCompactDirect).toHaveBeenCalledTimes(1);
@@ -327,9 +213,7 @@ describe("runEmbeddedPiAgent overflow compaction trigger routing", () => {
     );
     expect(mockedRunEmbeddedAttempt).toHaveBeenCalledTimes(2);
     expect(log.warn).toHaveBeenCalledWith(
-      expect.stringContaining(
-        "context overflow detected (attempt 1/3); attempting auto-compaction",
-      ),
+      expect.stringContaining("context overflow detected; attempting auto-compaction"),
     );
     expect(log.info).toHaveBeenCalledWith(expect.stringContaining("auto-compaction succeeded"));
     // Should not be an error result
@@ -356,105 +240,31 @@ describe("runEmbeddedPiAgent overflow compaction trigger routing", () => {
     expect(log.warn).toHaveBeenCalledWith(expect.stringContaining("auto-compaction failed"));
   });
 
-  it("falls back to tool-result truncation and retries when oversized results are detected", async () => {
+  it("returns error if overflow happens again after compaction", async () => {
     const overflowError = new Error("request_too_large: Request size exceeds model context window");
 
     mockedRunEmbeddedAttempt
-      .mockResolvedValueOnce(
-        makeAttemptResult({
-          promptError: overflowError,
-          messagesSnapshot: [{ role: "assistant", content: "big tool output" }],
-        }),
-      )
-      .mockResolvedValueOnce(makeAttemptResult({ promptError: null }));
-
-    mockedCompactDirect.mockResolvedValueOnce({
-      ok: false,
-      compacted: false,
-      reason: "nothing to compact",
-    });
-    mockedSessionLikelyHasOversizedToolResults.mockReturnValue(true);
-    mockedTruncateOversizedToolResultsInSession.mockResolvedValueOnce({
-      truncated: true,
-      truncatedCount: 1,
-    });
-
-    const result = await runEmbeddedPiAgent(baseParams);
-
-    expect(mockedCompactDirect).toHaveBeenCalledTimes(1);
-    expect(mockedSessionLikelyHasOversizedToolResults).toHaveBeenCalledWith(
-      expect.objectContaining({ contextWindowTokens: 200000 }),
-    );
-    expect(mockedTruncateOversizedToolResultsInSession).toHaveBeenCalledWith(
-      expect.objectContaining({ sessionFile: "/tmp/session.json" }),
-    );
-    expect(mockedRunEmbeddedAttempt).toHaveBeenCalledTimes(2);
-    expect(log.info).toHaveBeenCalledWith(expect.stringContaining("Truncated 1 tool result(s)"));
-    expect(result.meta.error).toBeUndefined();
-  });
-
-  it("retries compaction up to 3 times before giving up", async () => {
-    const overflowError = new Error("request_too_large: Request size exceeds model context window");
-
-    // 4 overflow errors: 3 compaction retries + final failure
-    mockedRunEmbeddedAttempt
-      .mockResolvedValueOnce(makeAttemptResult({ promptError: overflowError }))
-      .mockResolvedValueOnce(makeAttemptResult({ promptError: overflowError }))
       .mockResolvedValueOnce(makeAttemptResult({ promptError: overflowError }))
       .mockResolvedValueOnce(makeAttemptResult({ promptError: overflowError }));
 
-    mockedCompactDirect
-      .mockResolvedValueOnce({
-        ok: true,
-        compacted: true,
-        result: { summary: "Compacted 1", firstKeptEntryId: "entry-3", tokensBefore: 180000 },
-      })
-      .mockResolvedValueOnce({
-        ok: true,
-        compacted: true,
-        result: { summary: "Compacted 2", firstKeptEntryId: "entry-5", tokensBefore: 160000 },
-      })
-      .mockResolvedValueOnce({
-        ok: true,
-        compacted: true,
-        result: { summary: "Compacted 3", firstKeptEntryId: "entry-7", tokensBefore: 140000 },
-      });
+    mockedCompactDirect.mockResolvedValueOnce({
+      ok: true,
+      compacted: true,
+      result: {
+        summary: "Compacted",
+        firstKeptEntryId: "entry-3",
+        tokensBefore: 180000,
+      },
+    });
 
     const result = await runEmbeddedPiAgent(baseParams);
 
-    // Compaction attempted 3 times (max)
-    expect(mockedCompactDirect).toHaveBeenCalledTimes(3);
-    // 4 attempts: 3 overflow+compact+retry cycles + final overflow → error
-    expect(mockedRunEmbeddedAttempt).toHaveBeenCalledTimes(4);
+    // Compaction attempted only once
+    expect(mockedCompactDirect).toHaveBeenCalledTimes(1);
+    // Two attempts: first overflow -> compact -> retry -> second overflow -> return error
+    expect(mockedRunEmbeddedAttempt).toHaveBeenCalledTimes(2);
     expect(result.meta.error?.kind).toBe("context_overflow");
     expect(result.payloads?.[0]?.isError).toBe(true);
-  });
-
-  it("succeeds after second compaction attempt", async () => {
-    const overflowError = new Error("request_too_large: Request size exceeds model context window");
-
-    mockedRunEmbeddedAttempt
-      .mockResolvedValueOnce(makeAttemptResult({ promptError: overflowError }))
-      .mockResolvedValueOnce(makeAttemptResult({ promptError: overflowError }))
-      .mockResolvedValueOnce(makeAttemptResult({ promptError: null }));
-
-    mockedCompactDirect
-      .mockResolvedValueOnce({
-        ok: true,
-        compacted: true,
-        result: { summary: "Compacted 1", firstKeptEntryId: "entry-3", tokensBefore: 180000 },
-      })
-      .mockResolvedValueOnce({
-        ok: true,
-        compacted: true,
-        result: { summary: "Compacted 2", firstKeptEntryId: "entry-5", tokensBefore: 160000 },
-      });
-
-    const result = await runEmbeddedPiAgent(baseParams);
-
-    expect(mockedCompactDirect).toHaveBeenCalledTimes(2);
-    expect(mockedRunEmbeddedAttempt).toHaveBeenCalledTimes(3);
-    expect(result.meta.error).toBeUndefined();
   });
 
   it("does not attempt compaction for compaction_failure errors", async () => {
@@ -471,72 +281,5 @@ describe("runEmbeddedPiAgent overflow compaction trigger routing", () => {
     expect(mockedCompactDirect).not.toHaveBeenCalled();
     expect(mockedRunEmbeddedAttempt).toHaveBeenCalledTimes(1);
     expect(result.meta.error?.kind).toBe("compaction_failure");
-  });
-
-  it("retries after successful compaction on assistant context overflow errors", async () => {
-    mockedRunEmbeddedAttempt
-      .mockResolvedValueOnce(
-        makeAttemptResult({
-          promptError: null,
-          lastAssistant: {
-            stopReason: "error",
-            errorMessage: "request_too_large: Request size exceeds model context window",
-          } as EmbeddedRunAttemptResult["lastAssistant"],
-        }),
-      )
-      .mockResolvedValueOnce(makeAttemptResult({ promptError: null }));
-
-    mockedCompactDirect.mockResolvedValueOnce({
-      ok: true,
-      compacted: true,
-      result: {
-        summary: "Compacted session",
-        firstKeptEntryId: "entry-5",
-        tokensBefore: 150000,
-      },
-    });
-
-    const result = await runEmbeddedPiAgent(baseParams);
-
-    expect(mockedCompactDirect).toHaveBeenCalledTimes(1);
-    expect(mockedRunEmbeddedAttempt).toHaveBeenCalledTimes(2);
-    expect(log.warn).toHaveBeenCalledWith(expect.stringContaining("source=assistantError"));
-    expect(result.meta.error).toBeUndefined();
-  });
-
-  it("does not treat stale assistant overflow as current-attempt overflow when promptError is non-overflow", async () => {
-    mockedRunEmbeddedAttempt.mockResolvedValue(
-      makeAttemptResult({
-        promptError: new Error("transport disconnected"),
-        lastAssistant: {
-          stopReason: "error",
-          errorMessage: "request_too_large: Request size exceeds model context window",
-        } as EmbeddedRunAttemptResult["lastAssistant"],
-      }),
-    );
-
-    await expect(runEmbeddedPiAgent(baseParams)).rejects.toThrow("transport disconnected");
-
-    expect(mockedCompactDirect).not.toHaveBeenCalled();
-    expect(log.warn).not.toHaveBeenCalledWith(expect.stringContaining("source=assistantError"));
-=======
-    await runEmbeddedPiAgent({
-      sessionId: "test-session",
-      sessionKey: "test-key",
-      sessionFile: "/tmp/session.json",
-      workspaceDir: "/tmp/workspace",
-      prompt: "hello",
-      timeoutMs: 30000,
-      runId: "run-1",
-    });
-
-    expect(mockedCompactDirect).toHaveBeenCalledTimes(1);
-    expect(mockedCompactDirect).toHaveBeenCalledWith(
-      expect.objectContaining({
-        trigger: "overflow",
-        authProfileId: "test-profile",
-      }),
-    );
->>>>>>> c0cd3c3c0 (fix: add safety timeout to session.compact() to prevent lane deadlock (#16533))
   });
 });

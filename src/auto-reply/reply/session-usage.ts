@@ -1,9 +1,5 @@
 import { setCliSessionId } from "../../agents/cli-session.js";
-import {
-  deriveSessionTotalTokens,
-  hasNonzeroUsage,
-  type NormalizedUsage,
-} from "../../agents/usage.js";
+import { hasNonzeroUsage, type NormalizedUsage } from "../../agents/usage.js";
 import {
   type SessionSystemPromptReport,
   type SessionEntry,
@@ -15,13 +11,6 @@ export async function persistSessionUsageUpdate(params: {
   storePath?: string;
   sessionKey?: string;
   usage?: NormalizedUsage;
-  /**
-   * Usage from the last individual API call (not accumulated). When provided,
-   * this is used for `totalTokens` instead of the accumulated `usage` so that
-   * context-window utilization reflects the actual current context size rather
-   * than the sum of input tokens across all API calls in the run.
-   */
-  lastCallUsage?: NormalizedUsage;
   modelUsed?: string;
   providerUsed?: string;
   contextTokensUsed?: number;
@@ -30,9 +19,7 @@ export async function persistSessionUsageUpdate(params: {
   logLabel?: string;
 }): Promise<void> {
   const { storePath, sessionKey } = params;
-  if (!storePath || !sessionKey) {
-    return;
-  }
+  if (!storePath || !sessionKey) return;
 
   const label = params.logLabel ? `${params.logLabel} ` : "";
   if (hasNonzeroUsage(params.usage)) {
@@ -43,37 +30,15 @@ export async function persistSessionUsageUpdate(params: {
         update: async (entry) => {
           const input = params.usage?.input ?? 0;
           const output = params.usage?.output ?? 0;
-          const resolvedContextTokens = params.contextTokensUsed ?? entry.contextTokens;
-          const hasPromptTokens =
-            typeof params.promptTokens === "number" &&
-            Number.isFinite(params.promptTokens) &&
-            params.promptTokens > 0;
-          const hasFreshContextSnapshot = Boolean(params.lastCallUsage) || hasPromptTokens;
-          // Use last-call usage for totalTokens when available. The accumulated
-          // `usage.input` sums input tokens from every API call in the run
-          // (tool-use loops, compaction retries), overstating actual context.
-          // `lastCallUsage` reflects only the final API call — the true context.
-          const usageForContext = params.lastCallUsage ?? params.usage;
-          const totalTokens = hasFreshContextSnapshot
-            ? deriveSessionTotalTokens({
-                usage: usageForContext,
-                contextTokens: resolvedContextTokens,
-<<<<<<< HEAD
-              }) ?? input,
-=======
-                promptTokens: params.promptTokens,
-              })
-            : undefined;
+          const promptTokens =
+            input + (params.usage?.cacheRead ?? 0) + (params.usage?.cacheWrite ?? 0);
           const patch: Partial<SessionEntry> = {
             inputTokens: input,
             outputTokens: output,
-            // Missing a last-call snapshot means context utilization is stale/unknown.
-            totalTokens,
-            totalTokensFresh: typeof totalTokens === "number",
->>>>>>> fd076eb43 (fix: /status shows incorrect context percentage — totalTokens clamped to contextTokens (#15114) (#15133))
+            totalTokens: promptTokens > 0 ? promptTokens : (params.usage?.total ?? input),
             modelProvider: params.providerUsed ?? entry.modelProvider,
             model: params.modelUsed ?? entry.model,
-            contextTokens: resolvedContextTokens,
+            contextTokens: params.contextTokensUsed ?? entry.contextTokens,
             systemPromptReport: params.systemPromptReport ?? entry.systemPromptReport,
             updatedAt: Date.now(),
           };

@@ -5,19 +5,9 @@ import {
   createWriteTool,
   readTool,
 } from "@mariozechner/pi-coding-agent";
-import type { OpenClawConfig } from "../config/config.js";
-<<<<<<< HEAD
-import type { ModelAuthMode } from "./model-auth.js";
-import type { AnyAgentTool } from "./pi-tools.types.js";
-import type { SandboxContext } from "./sandbox.js";
-=======
-import type { ToolLoopDetectionConfig } from "../config/types.tools.js";
->>>>>>> 6dcc052bb (fix: stabilize model catalog and pi discovery auth storage compatibility)
-import { logWarn } from "../logger.js";
-import { getPluginToolMeta } from "../plugins/tools.js";
+import type { MoltbotConfig } from "../config/config.js";
 import { isSubagentSessionKey } from "../routing/session-key.js";
 import { resolveGatewayMessageChannel } from "../utils/message-channel.js";
-import { resolveAgentConfig } from "./agent-scope.js";
 import { createApplyPatchTool } from "./apply-patch.js";
 import {
   createExecTool,
@@ -26,14 +16,9 @@ import {
   type ProcessToolDefaults,
 } from "./bash-tools.js";
 import { listChannelAgentTools } from "./channel-tools.js";
-<<<<<<< HEAD
-=======
-import { resolveImageSanitizationLimits } from "./image-sanitization.js";
+import { createMoltbotTools } from "./moltbot-tools.js";
 import type { ModelAuthMode } from "./model-auth.js";
->>>>>>> 6dcc052bb (fix: stabilize model catalog and pi discovery auth storage compatibility)
-import { createOpenClawTools } from "./openclaw-tools.js";
 import { wrapToolWithAbortSignal } from "./pi-tools.abort.js";
-import { wrapToolWithBeforeToolCallHook } from "./pi-tools.before-tool-call.js";
 import {
   filterToolsByPolicy,
   isToolAllowedByPolicies,
@@ -44,7 +29,7 @@ import {
 import {
   assertRequiredParams,
   CLAUDE_PARAM_GROUPS,
-  createOpenClawReadTool,
+  createMoltbotReadTool,
   createSandboxedEditTool,
   createSandboxedReadTool,
   createSandboxedWriteTool,
@@ -53,18 +38,9 @@ import {
   wrapToolParamNormalization,
 } from "./pi-tools.read.js";
 import { cleanToolSchemaForGemini, normalizeToolParameters } from "./pi-tools.schema.js";
-<<<<<<< HEAD
-=======
 import type { AnyAgentTool } from "./pi-tools.types.js";
 import type { SandboxContext } from "./sandbox.js";
-import { getSubagentDepthFromSessionStore } from "./subagent-depth.js";
 import {
-  applyToolPolicyPipeline,
-  buildDefaultToolPolicyPipelineSteps,
-} from "./tool-policy-pipeline.js";
->>>>>>> 6dcc052bb (fix: stabilize model catalog and pi discovery auth storage compatibility)
-import {
-  applyOwnerOnlyToolPolicy,
   buildPluginToolGroups,
   collectExplicitAllowlist,
   expandPolicyWithPluginGroups,
@@ -72,6 +48,8 @@ import {
   resolveToolProfilePolicy,
   stripPluginOnlyAllowlist,
 } from "./tool-policy.js";
+import { getPluginToolMeta } from "../plugins/tools.js";
+import { logWarn } from "../logger.js";
 
 function isOpenAIProvider(provider?: string) {
   const normalized = provider?.trim().toLowerCase();
@@ -84,13 +62,9 @@ function isApplyPatchAllowedForModel(params: {
   allowModels?: string[];
 }) {
   const allowModels = Array.isArray(params.allowModels) ? params.allowModels : [];
-  if (allowModels.length === 0) {
-    return true;
-  }
+  if (allowModels.length === 0) return true;
   const modelId = params.modelId?.trim();
-  if (!modelId) {
-    return false;
-  }
+  if (!modelId) return false;
   const normalizedModelId = modelId.toLowerCase();
   const provider = params.modelProvider?.trim().toLowerCase();
   const normalizedFull =
@@ -99,32 +73,26 @@ function isApplyPatchAllowedForModel(params: {
       : normalizedModelId;
   return allowModels.some((entry) => {
     const normalized = entry.trim().toLowerCase();
-    if (!normalized) {
-      return false;
-    }
+    if (!normalized) return false;
     return normalized === normalizedModelId || normalized === normalizedFull;
   });
 }
 
-function resolveExecConfig(params: { cfg?: OpenClawConfig; agentId?: string }) {
-  const cfg = params.cfg;
+function resolveExecConfig(cfg: MoltbotConfig | undefined) {
   const globalExec = cfg?.tools?.exec;
-  const agentExec =
-    cfg && params.agentId ? resolveAgentConfig(cfg, params.agentId)?.tools?.exec : undefined;
   return {
-    host: agentExec?.host ?? globalExec?.host,
-    security: agentExec?.security ?? globalExec?.security,
-    ask: agentExec?.ask ?? globalExec?.ask,
-    node: agentExec?.node ?? globalExec?.node,
-    pathPrepend: agentExec?.pathPrepend ?? globalExec?.pathPrepend,
-    safeBins: agentExec?.safeBins ?? globalExec?.safeBins,
-    backgroundMs: agentExec?.backgroundMs ?? globalExec?.backgroundMs,
-    timeoutSec: agentExec?.timeoutSec ?? globalExec?.timeoutSec,
-    approvalRunningNoticeMs:
-      agentExec?.approvalRunningNoticeMs ?? globalExec?.approvalRunningNoticeMs,
-    cleanupMs: agentExec?.cleanupMs ?? globalExec?.cleanupMs,
-    notifyOnExit: agentExec?.notifyOnExit ?? globalExec?.notifyOnExit,
-    applyPatch: agentExec?.applyPatch ?? globalExec?.applyPatch,
+    host: globalExec?.host,
+    security: globalExec?.security,
+    ask: globalExec?.ask,
+    node: globalExec?.node,
+    pathPrepend: globalExec?.pathPrepend,
+    safeBins: globalExec?.safeBins,
+    backgroundMs: globalExec?.backgroundMs,
+    timeoutSec: globalExec?.timeoutSec,
+    approvalRunningNoticeMs: globalExec?.approvalRunningNoticeMs,
+    cleanupMs: globalExec?.cleanupMs,
+    notifyOnExit: globalExec?.notifyOnExit,
+    applyPatch: globalExec?.applyPatch,
   };
 }
 
@@ -136,7 +104,7 @@ export const __testing = {
   assertRequiredParams,
 } as const;
 
-export function createOpenClawCodingTools(options?: {
+export function createMoltbotCodingTools(options?: {
   exec?: ExecToolDefaults & ProcessToolDefaults;
   messageProvider?: string;
   agentAccountId?: string;
@@ -146,7 +114,7 @@ export function createOpenClawCodingTools(options?: {
   sessionKey?: string;
   agentDir?: string;
   workspaceDir?: string;
-  config?: OpenClawConfig;
+  config?: MoltbotConfig;
   abortSignal?: AbortSignal;
   /**
    * Provider of the currently selected model (used for provider-specific tool quirks).
@@ -182,15 +150,7 @@ export function createOpenClawCodingTools(options?: {
   hasRepliedRef?: { value: boolean };
   /** If true, the model has native vision capability */
   modelHasVision?: boolean;
-  /** Require explicit message targets (no implicit last-route sends). */
-  requireExplicitMessageTarget?: boolean;
-  /** If true, omit the message tool from the tool list. */
-  disableMessageTool?: boolean;
-  /** Whether the sender is an owner (required for owner-only tools). */
-  senderIsOwner?: boolean;
 }): AnyAgentTool[] {
-  const rawMessageProvider = options?.messageProvider?.trim().toLowerCase();
-  const isVoiceMessageProvider = rawMessageProvider === "voice";
   const execToolName = "exec";
   const sandbox = options?.sandbox?.enabled ? options.sandbox : undefined;
   const {
@@ -227,9 +187,7 @@ export function createOpenClawCodingTools(options?: {
   const providerProfilePolicy = resolveToolProfilePolicy(providerProfile);
 
   const mergeAlsoAllow = (policy: typeof profilePolicy, alsoAllow?: string[]) => {
-    if (!policy?.allow || !Array.isArray(alsoAllow) || alsoAllow.length === 0) {
-      return policy;
-    }
+    if (!policy?.allow || !Array.isArray(alsoAllow) || alsoAllow.length === 0) return policy;
     return { ...policy, allow: Array.from(new Set([...policy.allow, ...alsoAllow])) };
   };
 
@@ -254,9 +212,8 @@ export function createOpenClawCodingTools(options?: {
     sandbox?.tools,
     subagentPolicy,
   ]);
-  const execConfig = resolveExecConfig({ cfg: options?.config, agentId });
+  const execConfig = resolveExecConfig(options?.config);
   const sandboxRoot = sandbox?.workspaceDir;
-  const sandboxFsBridge = sandbox?.fsBridge;
   const allowWorkspaceWrites = sandbox?.workspaceAccess !== "ro";
   const workspaceRoot = options?.workspaceDir ?? process.cwd();
   const applyPatchConfig = options?.config?.tools?.exec?.applyPatch;
@@ -269,43 +226,28 @@ export function createOpenClawCodingTools(options?: {
       allowModels: applyPatchConfig?.allowModels,
     });
 
-  if (sandboxRoot && !sandboxFsBridge) {
-    throw new Error("Sandbox filesystem bridge is unavailable.");
-  }
-
   const base = (codingTools as unknown as AnyAgentTool[]).flatMap((tool) => {
     if (tool.name === readTool.name) {
       if (sandboxRoot) {
-        return [
-          createSandboxedReadTool({
-            root: sandboxRoot,
-            bridge: sandboxFsBridge!,
-          }),
-        ];
+        return [createSandboxedReadTool(sandboxRoot)];
       }
       const freshReadTool = createReadTool(workspaceRoot);
-      return [createOpenClawReadTool(freshReadTool)];
+      return [createMoltbotReadTool(freshReadTool)];
     }
-    if (tool.name === "bash" || tool.name === execToolName) {
-      return [];
-    }
+    if (tool.name === "bash" || tool.name === execToolName) return [];
     if (tool.name === "write") {
-      if (sandboxRoot) {
-        return [];
-      }
+      if (sandboxRoot) return [];
       // Wrap with param normalization for Claude Code compatibility
       return [
         wrapToolParamNormalization(createWriteTool(workspaceRoot), CLAUDE_PARAM_GROUPS.write),
       ];
     }
     if (tool.name === "edit") {
-      if (sandboxRoot) {
-        return [];
-      }
+      if (sandboxRoot) return [];
       // Wrap with param normalization for Claude Code compatibility
       return [wrapToolParamNormalization(createEditTool(workspaceRoot), CLAUDE_PARAM_GROUPS.edit)];
     }
-    return [tool];
+    return [tool as AnyAgentTool];
   });
   const { cleanupMs: cleanupMsOverride, ...execDefaults } = options?.exec ?? {};
   const execTool = createExecTool({
@@ -345,19 +287,13 @@ export function createOpenClawCodingTools(options?: {
       ? null
       : createApplyPatchTool({
           cwd: sandboxRoot ?? workspaceRoot,
-          sandbox:
-            sandboxRoot && allowWorkspaceWrites
-              ? { root: sandboxRoot, bridge: sandboxFsBridge! }
-              : undefined,
+          sandboxRoot: sandboxRoot && allowWorkspaceWrites ? sandboxRoot : undefined,
         });
   const tools: AnyAgentTool[] = [
     ...base,
     ...(sandboxRoot
       ? allowWorkspaceWrites
-        ? [
-            createSandboxedEditTool({ root: sandboxRoot, bridge: sandboxFsBridge! }),
-            createSandboxedWriteTool({ root: sandboxRoot, bridge: sandboxFsBridge! }),
-          ]
+        ? [createSandboxedEditTool(sandboxRoot), createSandboxedWriteTool(sandboxRoot)]
         : []
       : []),
     ...(applyPatchTool ? [applyPatchTool as unknown as AnyAgentTool] : []),
@@ -365,7 +301,7 @@ export function createOpenClawCodingTools(options?: {
     processTool as unknown as AnyAgentTool,
     // Channel docking: include channel-defined agent tools (login, etc.).
     ...listChannelAgentTools({ cfg: options?.config }),
-    ...createOpenClawTools({
+    ...createMoltbotTools({
       sandboxBrowserBridgeUrl: sandbox?.browser?.bridgeUrl,
       allowHostBrowserControl: sandbox ? sandbox.browserAllowHostControl : true,
       agentSessionKey: options?.sessionKey,
@@ -378,7 +314,6 @@ export function createOpenClawCodingTools(options?: {
       agentGroupSpace: options?.groupSpace ?? null,
       agentDir: options?.agentDir,
       sandboxRoot,
-      sandboxFsBridge,
       workspaceDir: options?.workspaceDir,
       sandboxed: !!sandbox,
       config: options?.config,
@@ -398,32 +333,18 @@ export function createOpenClawCodingTools(options?: {
       replyToMode: options?.replyToMode,
       hasRepliedRef: options?.hasRepliedRef,
       modelHasVision: options?.modelHasVision,
-      requireExplicitMessageTarget: options?.requireExplicitMessageTarget,
-      disableMessageTool: options?.disableMessageTool,
       requesterAgentIdOverride: agentId,
-      senderIsOwner: options?.senderIsOwner,
     }),
   ];
-  const toolsForMessageProvider = isVoiceMessageProvider
-    ? tools.filter((tool) => tool.name !== "tts")
-    : tools;
-  // Security: treat unknown/undefined as unauthorized (opt-in, not opt-out)
-  const senderIsOwner = options?.senderIsOwner === true;
-<<<<<<< HEAD
-  const toolsByAuthorization = applyOwnerOnlyToolPolicy(tools, senderIsOwner);
   const coreToolNames = new Set(
-    toolsByAuthorization
-      .filter((tool) => !getPluginToolMeta(tool))
+    tools
+      .filter((tool) => !getPluginToolMeta(tool as AnyAgentTool))
       .map((tool) => normalizeToolName(tool.name))
       .filter(Boolean),
   );
   const pluginGroups = buildPluginToolGroups({
-=======
-  const toolsByAuthorization = applyOwnerOnlyToolPolicy(toolsForMessageProvider, senderIsOwner);
-  const subagentFiltered = applyToolPolicyPipeline({
->>>>>>> 8f8e2b13b (fix: disable tts tool for voice provider)
-    tools: toolsByAuthorization,
-    toolMeta: (tool) => getPluginToolMeta(tool),
+    tools,
+    toolMeta: (tool) => getPluginToolMeta(tool as AnyAgentTool),
   });
   const resolvePolicy = (policy: typeof profilePolicy, label: string) => {
     const resolved = stripPluginOnlyAllowlist(policy, pluginGroups, coreToolNames);
@@ -459,8 +380,8 @@ export function createOpenClawCodingTools(options?: {
   const subagentPolicyExpanded = expandPolicyWithPluginGroups(subagentPolicy, pluginGroups);
 
   const toolsFiltered = profilePolicyExpanded
-    ? filterToolsByPolicy(toolsByAuthorization, profilePolicyExpanded)
-    : toolsByAuthorization;
+    ? filterToolsByPolicy(tools, profilePolicyExpanded)
+    : tools;
   const providerProfileFiltered = providerProfileExpanded
     ? filterToolsByPolicy(toolsFiltered, providerProfileExpanded)
     : toolsFiltered;
@@ -488,15 +409,9 @@ export function createOpenClawCodingTools(options?: {
   // Always normalize tool JSON Schemas before handing them to pi-agent/pi-ai.
   // Without this, some providers (notably OpenAI) will reject root-level union schemas.
   const normalized = subagentFiltered.map(normalizeToolParameters);
-  const withHooks = normalized.map((tool) =>
-    wrapToolWithBeforeToolCallHook(tool, {
-      agentId,
-      sessionKey: options?.sessionKey,
-    }),
-  );
   const withAbort = options?.abortSignal
-    ? withHooks.map((tool) => wrapToolWithAbortSignal(tool, options.abortSignal))
-    : withHooks;
+    ? normalized.map((tool) => wrapToolWithAbortSignal(tool, options.abortSignal))
+    : normalized;
 
   // NOTE: Keep canonical (lowercase) tool names here.
   // pi-ai's Anthropic OAuth transport remaps tool names to Claude Code-style names

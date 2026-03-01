@@ -223,75 +223,27 @@ describe("buildServiceEnvironment", () => {
     } else {
       expect(env.PATH).toContain("/usr/bin");
     }
-    expect(env.OPENCLAW_GATEWAY_PORT).toBe("18789");
-    expect(env.OPENCLAW_GATEWAY_TOKEN).toBe("secret");
-    expect(env.OPENCLAW_SERVICE_MARKER).toBe("openclaw");
-    expect(env.OPENCLAW_SERVICE_KIND).toBe("gateway");
-    expect(typeof env.OPENCLAW_SERVICE_VERSION).toBe("string");
-    expect(env.OPENCLAW_SYSTEMD_UNIT).toBe("openclaw-gateway.service");
+    expect(env.CLAWDBOT_GATEWAY_PORT).toBe("18789");
+    expect(env.CLAWDBOT_GATEWAY_TOKEN).toBe("secret");
+    expect(env.CLAWDBOT_SERVICE_MARKER).toBe("moltbot");
+    expect(env.CLAWDBOT_SERVICE_KIND).toBe("gateway");
+    expect(typeof env.CLAWDBOT_SERVICE_VERSION).toBe("string");
+    expect(env.CLAWDBOT_SYSTEMD_UNIT).toBe("moltbot-gateway.service");
     if (process.platform === "darwin") {
-      expect(env.OPENCLAW_LAUNCHD_LABEL).toBe("ai.openclaw.gateway");
+      expect(env.CLAWDBOT_LAUNCHD_LABEL).toBe("bot.molt.gateway");
     }
   });
 
   it("uses profile-specific unit and label", () => {
     const env = buildServiceEnvironment({
-      env: { HOME: "/home/user", OPENCLAW_PROFILE: "work" },
+      env: { HOME: "/home/user", CLAWDBOT_PROFILE: "work" },
       port: 18789,
     });
-    expect(env.OPENCLAW_SYSTEMD_UNIT).toBe("openclaw-gateway-work.service");
+    expect(env.CLAWDBOT_SYSTEMD_UNIT).toBe("moltbot-gateway-work.service");
     if (process.platform === "darwin") {
-      expect(env.OPENCLAW_LAUNCHD_LABEL).toBe("ai.openclaw.work");
+      expect(env.CLAWDBOT_LAUNCHD_LABEL).toBe("bot.molt.work");
     }
   });
-<<<<<<< HEAD
-=======
-
-  it("forwards proxy environment variables for launchd/systemd runtime", () => {
-    const env = buildServiceEnvironment({
-      env: {
-        HOME: "/home/user",
-        HTTP_PROXY: " http://proxy.local:7890 ",
-        HTTPS_PROXY: "https://proxy.local:7890",
-        NO_PROXY: "localhost,127.0.0.1",
-        http_proxy: "http://proxy.local:7890",
-        all_proxy: "socks5://proxy.local:1080",
-      },
-      port: 18789,
-    });
-
-    expect(env.HTTP_PROXY).toBe("http://proxy.local:7890");
-    expect(env.HTTPS_PROXY).toBe("https://proxy.local:7890");
-    expect(env.NO_PROXY).toBe("localhost,127.0.0.1");
-    expect(env.http_proxy).toBe("http://proxy.local:7890");
-    expect(env.all_proxy).toBe("socks5://proxy.local:1080");
-  });
-  it("defaults NODE_EXTRA_CA_CERTS to system cert bundle on macOS", () => {
-    const env = buildServiceEnvironment({
-      env: { HOME: "/home/user" },
-      port: 18789,
-      platform: "darwin",
-    });
-    expect(env.NODE_EXTRA_CA_CERTS).toBe("/etc/ssl/cert.pem");
-  });
-
-  it("does not default NODE_EXTRA_CA_CERTS on non-macOS", () => {
-    const env = buildServiceEnvironment({
-      env: { HOME: "/home/user" },
-      port: 18789,
-      platform: "linux",
-    });
-    expect(env.NODE_EXTRA_CA_CERTS).toBeUndefined();
-  });
-
-  it("respects user-provided NODE_EXTRA_CA_CERTS over the default", () => {
-    const env = buildServiceEnvironment({
-      env: { HOME: "/home/user", NODE_EXTRA_CA_CERTS: "/custom/certs/ca.pem" },
-      port: 18789,
-    });
-    expect(env.NODE_EXTRA_CA_CERTS).toBe("/custom/certs/ca.pem");
-  });
->>>>>>> 6b59c8757 (fix: add missing closing brace in proxy env test)
 });
 
 describe("buildNodeServiceEnvironment", () => {
@@ -301,89 +253,4 @@ describe("buildNodeServiceEnvironment", () => {
     });
     expect(env.HOME).toBe("/home/user");
   });
-<<<<<<< HEAD
-=======
-
-  it("forwards proxy environment variables for node services", () => {
-    const env = buildNodeServiceEnvironment({
-      env: {
-        HOME: "/home/user",
-        HTTPS_PROXY: " https://proxy.local:7890 ",
-        no_proxy: "localhost,127.0.0.1",
-      },
-    });
-
-    expect(env.HTTPS_PROXY).toBe("https://proxy.local:7890");
-    expect(env.no_proxy).toBe("localhost,127.0.0.1");
-  });
-
-  it("forwards TMPDIR for node services", () => {
-    const env = buildNodeServiceEnvironment({
-      env: { HOME: "/home/user", TMPDIR: "/tmp/custom" },
-    });
-    expect(env.TMPDIR).toBe("/tmp/custom");
-  });
-
-  it("falls back to os.tmpdir for node services when TMPDIR is not set", () => {
-    const env = buildNodeServiceEnvironment({
-      env: { HOME: "/home/user" },
-    });
-    expect(env.TMPDIR).toBe(os.tmpdir());
-  });
-
-  it("defaults NODE_EXTRA_CA_CERTS to system cert bundle on macOS for node services", () => {
-    const env = buildNodeServiceEnvironment({
-      env: { HOME: "/home/user" },
-      platform: "darwin",
-    });
-    expect(env.NODE_EXTRA_CA_CERTS).toBe("/etc/ssl/cert.pem");
-  });
-
-  it("does not default NODE_EXTRA_CA_CERTS on non-macOS for node services", () => {
-    const env = buildNodeServiceEnvironment({
-      env: { HOME: "/home/user" },
-      platform: "linux",
-    });
-    expect(env.NODE_EXTRA_CA_CERTS).toBeUndefined();
-  });
-
-  it("respects user-provided NODE_EXTRA_CA_CERTS for node services", () => {
-    const env = buildNodeServiceEnvironment({
-      env: { HOME: "/home/user", NODE_EXTRA_CA_CERTS: "/custom/certs/ca.pem" },
-    });
-    expect(env.NODE_EXTRA_CA_CERTS).toBe("/custom/certs/ca.pem");
-  });
-});
-
-describe("resolveGatewayStateDir", () => {
-  it("uses the default state dir when no overrides are set", () => {
-    const env = { HOME: "/Users/test" };
-    expect(resolveGatewayStateDir(env)).toBe(path.join("/Users/test", ".openclaw"));
-  });
-
-  it("appends the profile suffix when set", () => {
-    const env = { HOME: "/Users/test", OPENCLAW_PROFILE: "rescue" };
-    expect(resolveGatewayStateDir(env)).toBe(path.join("/Users/test", ".openclaw-rescue"));
-  });
-
-  it("treats default profiles as the base state dir", () => {
-    const env = { HOME: "/Users/test", OPENCLAW_PROFILE: "Default" };
-    expect(resolveGatewayStateDir(env)).toBe(path.join("/Users/test", ".openclaw"));
-  });
-
-  it("uses OPENCLAW_STATE_DIR when provided", () => {
-    const env = { HOME: "/Users/test", OPENCLAW_STATE_DIR: "/var/lib/openclaw" };
-    expect(resolveGatewayStateDir(env)).toBe(path.resolve("/var/lib/openclaw"));
-  });
-
-  it("expands ~ in OPENCLAW_STATE_DIR", () => {
-    const env = { HOME: "/Users/test", OPENCLAW_STATE_DIR: "~/openclaw-state" };
-    expect(resolveGatewayStateDir(env)).toBe(path.resolve("/Users/test/openclaw-state"));
-  });
-
-  it("preserves Windows absolute paths without HOME", () => {
-    const env = { OPENCLAW_STATE_DIR: "C:\\State\\openclaw" };
-    expect(resolveGatewayStateDir(env)).toBe("C:\\State\\openclaw");
-  });
->>>>>>> 9d52dcf1f (fix: stabilize launchd CA env tests (#27915) (thanks @Lukavyi))
 });

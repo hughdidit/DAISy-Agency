@@ -1,77 +1,26 @@
 import { MatrixClient } from "@vector-im/matrix-bot-sdk";
+
 import type { CoreConfig } from "../types.js";
-import type { MatrixAuth, MatrixResolvedConfig } from "./types.js";
 import { getMatrixRuntime } from "../../runtime.js";
 import { ensureMatrixSdkLoggingConfigured } from "./logging.js";
+import type { MatrixAuth, MatrixResolvedConfig } from "./types.js";
 
 function clean(value?: string): string {
   return value?.trim() ?? "";
 }
 
-<<<<<<< HEAD
 export function resolveMatrixConfig(
-=======
-/** Shallow-merge known nested config sub-objects so partial overrides inherit base values. */
-function deepMergeConfig(
-  base: Record<string, unknown>,
-  override: Record<string, unknown>,
-): Record<string, unknown> {
-  const merged = { ...base, ...override };
-  // Merge known nested objects (dm, actions) so partial overrides keep base fields
-  for (const key of ["dm", "actions"] as const) {
-    if (
-      typeof base[key] === "object" &&
-      base[key] !== null &&
-      typeof override[key] === "object" &&
-      override[key] !== null
-    ) {
-      merged[key] = {
-        ...(base[key] as Record<string, unknown>),
-        ...(override[key] as Record<string, unknown>),
-      };
-    }
-  }
-  return merged;
-}
-
-/**
- * Resolve Matrix config for a specific account, with fallback to top-level config.
- * This supports both multi-account (channels.matrix.accounts.*) and
- * single-account (channels.matrix.*) configurations.
- */
-export function resolveMatrixConfigForAccount(
->>>>>>> da00f6cf8 (fix: deep-merge nested config, prefer default account in send fallback, simplify credential filenames)
   cfg: CoreConfig = getMatrixRuntime().config.loadConfig() as CoreConfig,
   env: NodeJS.ProcessEnv = process.env,
 ): MatrixResolvedConfig {
-<<<<<<< HEAD
   const matrix = cfg.channels?.matrix ?? {};
-=======
-  const normalizedAccountId = normalizeAccountId(accountId);
-  const matrixBase = cfg.channels?.matrix ?? {};
-
-  // Try to get account-specific config first (direct lookup, then case-insensitive fallback)
-  let accountConfig = matrixBase.accounts?.[normalizedAccountId];
-  if (!accountConfig && matrixBase.accounts) {
-    for (const key of Object.keys(matrixBase.accounts)) {
-      if (normalizeAccountId(key) === normalizedAccountId) {
-        accountConfig = matrixBase.accounts[key];
-        break;
-      }
-    }
-  }
-
-  // Deep merge: account-specific values override top-level values, preserving
-  // nested object inheritance (dm, actions, groups) so partial overrides work.
-  const useAccountConfig = accountConfig !== undefined;
-  const matrix = useAccountConfig ? deepMergeConfig(matrixBase, accountConfig) : matrixBase;
-
->>>>>>> a6dd50fed (fix: normalize account config keys for case-insensitive matching)
   const homeserver = clean(matrix.homeserver) || clean(env.MATRIX_HOMESERVER);
   const userId = clean(matrix.userId) || clean(env.MATRIX_USER_ID);
-  const accessToken = clean(matrix.accessToken) || clean(env.MATRIX_ACCESS_TOKEN) || undefined;
+  const accessToken =
+    clean(matrix.accessToken) || clean(env.MATRIX_ACCESS_TOKEN) || undefined;
   const password = clean(matrix.password) || clean(env.MATRIX_PASSWORD) || undefined;
-  const deviceName = clean(matrix.deviceName) || clean(env.MATRIX_DEVICE_NAME) || undefined;
+  const deviceName =
+    clean(matrix.deviceName) || clean(env.MATRIX_DEVICE_NAME) || undefined;
   const initialSyncLimit =
     typeof matrix.initialSyncLimit === "number"
       ? Math.max(0, Math.floor(matrix.initialSyncLimit))
@@ -157,7 +106,9 @@ export async function resolveMatrixAuth(params?: {
   }
 
   if (!resolved.userId) {
-    throw new Error("Matrix userId is required when no access token is configured (matrix.userId)");
+    throw new Error(
+      "Matrix userId is required when no access token is configured (matrix.userId)",
+    );
   }
 
   if (!resolved.password) {
@@ -174,7 +125,7 @@ export async function resolveMatrixAuth(params?: {
       type: "m.login.password",
       identifier: { type: "m.id.user", user: resolved.userId },
       password: resolved.password,
-      initial_device_display_name: resolved.deviceName ?? "OpenClaw Gateway",
+      initial_device_display_name: resolved.deviceName ?? "Moltbot Gateway",
     }),
   });
 

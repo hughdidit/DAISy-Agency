@@ -1,11 +1,13 @@
+import WebSocket from "ws";
+
 import type {
   ChannelAccountSnapshot,
-  OpenClawConfig,
+  MoltbotConfig,
   ReplyPayload,
   RuntimeEnv,
-} from "openclaw/plugin-sdk";
+} from "clawdbot/plugin-sdk";
 import {
-  createReplyPrefixOptions,
+  createReplyPrefixContext,
   createTypingCallbacks,
   logInboundDrop,
   logTypingFailure,
@@ -14,11 +16,10 @@ import {
   DEFAULT_GROUP_HISTORY_LIMIT,
   recordPendingHistoryEntryIfEnabled,
   resolveControlCommandGate,
-  resolveRuntimeGroupPolicy,
   resolveChannelMediaMaxBytes,
   type HistoryEntry,
-} from "openclaw/plugin-sdk";
-import WebSocket from "ws";
+} from "clawdbot/plugin-sdk";
+
 import { getMattermostRuntime } from "../runtime.js";
 import { resolveMattermostAccount } from "./accounts.js";
 import {
@@ -44,13 +45,13 @@ export type MonitorMattermostOpts = {
   botToken?: string;
   baseUrl?: string;
   accountId?: string;
-  config?: OpenClawConfig;
+  config?: MoltbotConfig;
   runtime?: RuntimeEnv;
   abortSignal?: AbortSignal;
   statusSink?: (patch: Partial<ChannelAccountSnapshot>) => void;
 };
 
-type FetchLike = (input: URL | RequestInfo, init?: RequestInit) => Promise<Response>;
+type FetchLike = typeof fetch;
 type MediaKind = "image" | "audio" | "video" | "document" | "unknown";
 
 type MattermostEventPayload = {
@@ -95,9 +96,7 @@ function resolveRuntime(opts: MonitorMattermostOpts): RuntimeEnv {
 }
 
 function normalizeMention(text: string, mention: string | undefined): string {
-  if (!mention) {
-    return text.trim();
-  }
+  if (!mention) return text.trim();
   const escaped = mention.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   const re = new RegExp(`@${escaped}\\b`, "gi");
   return text.replace(re, " ").replace(/\s+/g, " ").trim();
@@ -114,9 +113,7 @@ function stripOncharPrefix(
 ): { triggered: boolean; stripped: string } {
   const trimmed = text.trimStart();
   for (const prefix of prefixes) {
-    if (!prefix) {
-      continue;
-    }
+    if (!prefix) continue;
     if (trimmed.startsWith(prefix)) {
       return {
         triggered: true,
@@ -133,37 +130,23 @@ function isSystemPost(post: MattermostPost): boolean {
 }
 
 function channelKind(channelType?: string | null): "dm" | "group" | "channel" {
-  if (!channelType) {
-    return "channel";
-  }
+  if (!channelType) return "channel";
   const normalized = channelType.trim().toUpperCase();
-  if (normalized === "D") {
-    return "dm";
-  }
-  if (normalized === "G") {
-    return "group";
-  }
+  if (normalized === "D") return "dm";
+  if (normalized === "G") return "group";
   return "channel";
 }
 
 function channelChatType(kind: "dm" | "group" | "channel"): "direct" | "group" | "channel" {
-  if (kind === "dm") {
-    return "direct";
-  }
-  if (kind === "group") {
-    return "group";
-  }
+  if (kind === "dm") return "direct";
+  if (kind === "group") return "group";
   return "channel";
 }
 
 function normalizeAllowEntry(entry: string): string {
   const trimmed = entry.trim();
-  if (!trimmed) {
-    return "";
-  }
-  if (trimmed === "*") {
-    return "*";
-  }
+  if (!trimmed) return "";
+  if (trimmed === "*") return "*";
   return trimmed
     .replace(/^(mattermost|user):/i, "")
     .replace(/^@/, "")
@@ -171,7 +154,9 @@ function normalizeAllowEntry(entry: string): string {
 }
 
 function normalizeAllowList(entries: Array<string | number>): string[] {
-  const normalized = entries.map((entry) => normalizeAllowEntry(String(entry))).filter(Boolean);
+  const normalized = entries
+    .map((entry) => normalizeAllowEntry(String(entry)))
+    .filter(Boolean);
   return Array.from(new Set(normalized));
 }
 
@@ -181,12 +166,8 @@ function isSenderAllowed(params: {
   allowFrom: string[];
 }): boolean {
   const allowFrom = params.allowFrom;
-  if (allowFrom.length === 0) {
-    return false;
-  }
-  if (allowFrom.includes("*")) {
-    return true;
-  }
+  if (allowFrom.length === 0) return false;
+  if (allowFrom.includes("*")) return true;
   const normalizedSenderId = normalizeAllowEntry(params.senderId);
   const normalizedSenderName = params.senderName ? normalizeAllowEntry(params.senderName) : "";
   return allowFrom.some(
@@ -202,9 +183,7 @@ type MattermostMediaInfo = {
 };
 
 function buildMattermostAttachmentPlaceholder(mediaList: MattermostMediaInfo[]): string {
-  if (mediaList.length === 0) {
-    return "";
-  }
+  if (mediaList.length === 0) return "";
   if (mediaList.length === 1) {
     const kind = mediaList[0].kind === "unknown" ? "document" : mediaList[0].kind;
     return `<media:${kind}>`;
@@ -239,9 +218,7 @@ function buildMattermostMediaPayload(mediaList: MattermostMediaInfo[]): {
 
 function buildMattermostWsUrl(baseUrl: string): string {
   const normalized = normalizeMattermostBaseUrl(baseUrl);
-  if (!normalized) {
-    throw new Error("Mattermost baseUrl is required");
-  }
+  if (!normalized) throw new Error("Mattermost baseUrl is required");
   const wsBase = normalized.replace(/^http/i, "ws");
   return `${wsBase}/api/v4/websocket`;
 }
@@ -277,9 +254,7 @@ export async function monitorMattermostProvider(opts: MonitorMattermostOpts = {}
   const userCache = new Map<string, { value: MattermostUser | null; expiresAt: number }>();
   const logger = core.logging.getChildLogger({ module: "mattermost" });
   const logVerboseMessage = (message: string) => {
-    if (!core.logging.shouldLogVerbose()) {
-      return;
-    }
+    if (!core.logging.shouldLogVerbose()) return;
     logger.debug?.(message);
   };
   const mediaMaxBytes =
@@ -293,19 +268,6 @@ export async function monitorMattermostProvider(opts: MonitorMattermostOpts = {}
     cfg.messages?.groupChat?.historyLimit ?? DEFAULT_GROUP_HISTORY_LIMIT,
   );
   const channelHistories = new Map<string, HistoryEntry[]>();
-  const defaultGroupPolicy = cfg.channels?.defaults?.groupPolicy;
-  const { groupPolicy, providerMissingFallbackApplied } = resolveRuntimeGroupPolicy({
-    providerConfigPresent: cfg.channels?.mattermost !== undefined,
-    groupPolicy: account.config.groupPolicy,
-    defaultGroupPolicy,
-    configuredFallbackPolicy: "allowlist",
-    missingProviderFallbackPolicy: "allowlist",
-  });
-  if (providerMissingFallbackApplied) {
-    logVerboseMessage(
-      'mattermost: channels.mattermost is missing; defaulting groupPolicy to "allowlist" (group messages blocked until explicitly configured).',
-    );
-  }
 
   const fetchWithAuth: FetchLike = (input, init) => {
     const headers = new Headers(init?.headers);
@@ -316,10 +278,8 @@ export async function monitorMattermostProvider(opts: MonitorMattermostOpts = {}
   const resolveMattermostMedia = async (
     fileIds?: string[] | null,
   ): Promise<MattermostMediaInfo[]> => {
-    const ids = (fileIds ?? []).map((id) => id?.trim()).filter(Boolean);
-    if (ids.length === 0) {
-      return [];
-    }
+    const ids = (fileIds ?? []).map((id) => id?.trim()).filter(Boolean) as string[];
+    if (ids.length === 0) return [];
     const out: MattermostMediaInfo[] = [];
     for (const fileId of ids) {
       try {
@@ -354,9 +314,7 @@ export async function monitorMattermostProvider(opts: MonitorMattermostOpts = {}
 
   const resolveChannelInfo = async (channelId: string): Promise<MattermostChannel | null> => {
     const cached = channelCache.get(channelId);
-    if (cached && cached.expiresAt > Date.now()) {
-      return cached.value;
-    }
+    if (cached && cached.expiresAt > Date.now()) return cached.value;
     try {
       const info = await fetchMattermostChannel(client, channelId);
       channelCache.set(channelId, {
@@ -376,9 +334,7 @@ export async function monitorMattermostProvider(opts: MonitorMattermostOpts = {}
 
   const resolveUserInfo = async (userId: string): Promise<MattermostUser | null> => {
     const cached = userCache.get(userId);
-    if (cached && cached.expiresAt > Date.now()) {
-      return cached.value;
-    }
+    if (cached && cached.expiresAt > Date.now()) return cached.value;
     try {
       const info = await fetchMattermostUser(client, userId);
       userCache.set(userId, {
@@ -402,31 +358,19 @@ export async function monitorMattermostProvider(opts: MonitorMattermostOpts = {}
     messageIds?: string[],
   ) => {
     const channelId = post.channel_id ?? payload.data?.channel_id ?? payload.broadcast?.channel_id;
-    if (!channelId) {
-      return;
-    }
+    if (!channelId) return;
 
     const allMessageIds = messageIds?.length ? messageIds : post.id ? [post.id] : [];
-    if (allMessageIds.length === 0) {
-      return;
-    }
+    if (allMessageIds.length === 0) return;
     const dedupeEntries = allMessageIds.map((id) =>
       recentInboundMessages.check(`${account.accountId}:${id}`),
     );
-    if (dedupeEntries.length > 0 && dedupeEntries.every(Boolean)) {
-      return;
-    }
+    if (dedupeEntries.length > 0 && dedupeEntries.every(Boolean)) return;
 
     const senderId = post.user_id ?? payload.broadcast?.user_id;
-    if (!senderId) {
-      return;
-    }
-    if (senderId === botUserId) {
-      return;
-    }
-    if (isSystemPost(post)) {
-      return;
-    }
+    if (!senderId) return;
+    if (senderId === botUserId) return;
+    if (isSystemPost(post)) return;
 
     const channelInfo = await resolveChannelInfo(channelId);
     const channelType = payload.data?.channel_type ?? channelInfo?.type ?? undefined;
@@ -439,12 +383,12 @@ export async function monitorMattermostProvider(opts: MonitorMattermostOpts = {}
       senderId;
     const rawText = post.message?.trim() || "";
     const dmPolicy = account.config.dmPolicy ?? "pairing";
+    const defaultGroupPolicy = cfg.channels?.defaults?.groupPolicy;
+    const groupPolicy = account.config.groupPolicy ?? defaultGroupPolicy ?? "allowlist";
     const configAllowFrom = normalizeAllowList(account.config.allowFrom ?? []);
     const configGroupAllowFrom = normalizeAllowList(account.config.groupAllowFrom ?? []);
     const storeAllowFrom = normalizeAllowList(
-      dmPolicy === "allowlist"
-        ? []
-        : await core.channel.pairing.readAllowFromStore("mattermost").catch(() => []),
+      await core.channel.pairing.readAllowFromStore("mattermost").catch(() => []),
     );
     const effectiveAllowFrom = Array.from(new Set([...configAllowFrom, ...storeAllowFrom]));
     const effectiveGroupAllowFrom = Array.from(
@@ -460,19 +404,10 @@ export async function monitorMattermostProvider(opts: MonitorMattermostOpts = {}
     const hasControlCommand = core.channel.text.hasControlCommand(rawText, cfg);
     const isControlCommand = allowTextCommands && hasControlCommand;
     const useAccessGroups = cfg.commands?.useAccessGroups !== false;
-<<<<<<< HEAD
     const senderAllowedForCommands = isSenderAllowed({
       senderId,
       senderName,
       allowFrom: effectiveAllowFrom,
-=======
-    const commandDmAllowFrom = kind === "direct" ? effectiveAllowFrom : normalizedAllowFrom;
-    const senderAllowedForCommands = isMattermostSenderAllowed({
-      senderId,
-      senderName,
-      allowFrom: commandDmAllowFrom,
-      allowNameMatching,
->>>>>>> 64de4b6d6 (fix: enforce explicit group auth boundaries across channels)
     });
     const groupAllowedForCommands = isSenderAllowed({
       senderId,
@@ -482,7 +417,7 @@ export async function monitorMattermostProvider(opts: MonitorMattermostOpts = {}
     const commandGate = resolveControlCommandGate({
       useAccessGroups,
       authorizers: [
-        { configured: commandDmAllowFrom.length > 0, allowed: senderAllowedForCommands },
+        { configured: effectiveAllowFrom.length > 0, allowed: senderAllowedForCommands },
         {
           configured: effectiveGroupAllowFrom.length > 0,
           allowed: groupAllowedForCommands,
@@ -491,14 +426,8 @@ export async function monitorMattermostProvider(opts: MonitorMattermostOpts = {}
       allowTextCommands,
       hasControlCommand,
     });
-<<<<<<< HEAD
     const commandAuthorized =
-      kind === "dm"
-        ? dmPolicy === "open" || senderAllowedForCommands
-        : commandGate.commandAuthorized;
-=======
-    const commandAuthorized = commandGate.commandAuthorized;
->>>>>>> dc6e4a5b1 (fix: harden dm command authorization in open mode)
+      kind === "dm" ? dmPolicy === "open" || senderAllowedForCommands : commandGate.commandAuthorized;
 
     if (kind === "dm") {
       if (dmPolicy === "disabled") {
@@ -512,7 +441,9 @@ export async function monitorMattermostProvider(opts: MonitorMattermostOpts = {}
             id: senderId,
             meta: { name: senderName },
           });
-          logVerboseMessage(`mattermost: pairing request sender=${senderId} created=${created}`);
+          logVerboseMessage(
+            `mattermost: pairing request sender=${senderId} created=${created}`,
+          );
           if (created) {
             try {
               await sendMessageMattermost(
@@ -526,11 +457,15 @@ export async function monitorMattermostProvider(opts: MonitorMattermostOpts = {}
               );
               opts.statusSink?.({ lastOutboundAt: Date.now() });
             } catch (err) {
-              logVerboseMessage(`mattermost: pairing reply failed for ${senderId}: ${String(err)}`);
+              logVerboseMessage(
+                `mattermost: pairing reply failed for ${senderId}: ${String(err)}`,
+              );
             }
           }
         } else {
-          logVerboseMessage(`mattermost: drop dm sender=${senderId} (dmPolicy=${dmPolicy})`);
+          logVerboseMessage(
+            `mattermost: drop dm sender=${senderId} (dmPolicy=${dmPolicy})`,
+          );
         }
         return;
       }
@@ -545,7 +480,9 @@ export async function monitorMattermostProvider(opts: MonitorMattermostOpts = {}
           return;
         }
         if (!groupAllowedForCommands) {
-          logVerboseMessage(`mattermost: drop group sender=${senderId} (not in groupAllowFrom)`);
+          logVerboseMessage(
+            `mattermost: drop group sender=${senderId} (not in groupAllowFrom)`,
+          );
           return;
         }
       }
@@ -605,15 +542,14 @@ export async function monitorMattermostProvider(opts: MonitorMattermostOpts = {}
         historyMap: channelHistories,
         limit: historyLimit,
         historyKey: historyKey ?? "",
-        entry:
-          historyKey && trimmed
-            ? {
-                sender: pendingSender,
-                body: trimmed,
-                timestamp: typeof post.create_at === "number" ? post.create_at : undefined,
-                messageId: post.id ?? undefined,
-              }
-            : null,
+        entry: historyKey && trimmed
+          ? {
+              sender: pendingSender,
+              body: trimmed,
+              timestamp: typeof post.create_at === "number" ? post.create_at : undefined,
+              messageId: post.id ?? undefined,
+            }
+          : null,
       });
     };
 
@@ -631,7 +567,7 @@ export async function monitorMattermostProvider(opts: MonitorMattermostOpts = {}
         channel: "mattermost",
         accountId: account.accountId,
         groupId: channelId,
-      });
+      }) !== false;
     const shouldBypassMention =
       isControlCommand && shouldRequireMention && !wasMentioned && commandAuthorized;
     const effectiveWasMentioned = wasMentioned || shouldBypassMention || oncharTriggered;
@@ -653,9 +589,7 @@ export async function monitorMattermostProvider(opts: MonitorMattermostOpts = {}
     const bodySource = oncharTriggered ? oncharResult.stripped : rawText;
     const baseText = [bodySource, mediaPlaceholder].filter(Boolean).join("\n").trim();
     const bodyText = normalizeMention(baseText, botUsername);
-    if (!bodyText) {
-      return;
-    }
+    if (!bodyText) return;
 
     core.channel.activity.record({
       channel: "mattermost",
@@ -773,26 +707,16 @@ export async function monitorMattermostProvider(opts: MonitorMattermostOpts = {}
       `mattermost inbound: from=${ctxPayload.From} len=${bodyText.length} preview="${previewLine}"`,
     );
 
-    const textLimit = core.channel.text.resolveTextChunkLimit(
-      cfg,
-      "mattermost",
-      account.accountId,
-      {
-        fallbackLimit: account.textChunkLimit ?? 4000,
-      },
-    );
+    const textLimit = core.channel.text.resolveTextChunkLimit(cfg, "mattermost", account.accountId, {
+      fallbackLimit: account.textChunkLimit ?? 4000,
+    });
     const tableMode = core.channel.text.resolveMarkdownTableMode({
       cfg,
       channel: "mattermost",
       accountId: account.accountId,
     });
 
-    const { onModelSelected, ...prefixOptions } = createReplyPrefixOptions({
-      cfg,
-      agentId: route.agentId,
-      channel: "mattermost",
-      accountId: account.accountId,
-    });
+    const prefixContext = createReplyPrefixContext({ cfg, agentId: route.agentId });
 
     const typingCallbacks = createTypingCallbacks({
       start: () => sendTypingIndicator(channelId, threadRootId),
@@ -807,7 +731,8 @@ export async function monitorMattermostProvider(opts: MonitorMattermostOpts = {}
     });
     const { dispatcher, replyOptions, markDispatchIdle } =
       core.channel.reply.createReplyDispatcherWithTyping({
-        ...prefixOptions,
+        responsePrefix: prefixContext.responsePrefix,
+        responsePrefixContextProvider: prefixContext.responsePrefixContextProvider,
         humanDelay: core.channel.reply.resolveHumanDelayConfig(cfg, route.agentId),
         deliver: async (payload: ReplyPayload) => {
           const mediaUrls = payload.mediaUrls ?? (payload.mediaUrl ? [payload.mediaUrl] : []);
@@ -820,9 +745,7 @@ export async function monitorMattermostProvider(opts: MonitorMattermostOpts = {}
             );
             const chunks = core.channel.text.chunkMarkdownTextWithMode(text, textLimit, chunkMode);
             for (const chunk of chunks.length > 0 ? chunks : [text]) {
-              if (!chunk) {
-                continue;
-              }
+              if (!chunk) continue;
               await sendMessageMattermost(to, chunk, {
                 accountId: account.accountId,
                 replyToId: threadRootId,
@@ -846,184 +769,25 @@ export async function monitorMattermostProvider(opts: MonitorMattermostOpts = {}
           runtime.error?.(`mattermost ${info.kind} reply failed: ${String(err)}`);
         },
         onReplyStart: typingCallbacks.onReplyStart,
-        onIdle: typingCallbacks.onIdle,
-        onCleanup: typingCallbacks.onCleanup,
       });
 
-    try {
-      await core.channel.reply.dispatchReplyFromConfig({
-        ctx: ctxPayload,
-        cfg,
-        dispatcher,
-        replyOptions: {
-          ...replyOptions,
-          disableBlockStreaming:
-            typeof account.blockStreaming === "boolean" ? !account.blockStreaming : undefined,
-          onModelSelected,
-        },
-      });
-      if (historyKey) {
-        clearHistoryEntriesIfEnabled({
-          historyMap: channelHistories,
-          historyKey,
-          limit: historyLimit,
-        });
-      }
-    } finally {
-      dispatcher.markComplete();
-      try {
-        await dispatcher.waitForIdle();
-      } finally {
-        markDispatchIdle();
-      }
-    }
-  };
-
-<<<<<<< HEAD
-=======
-  const handleReactionEvent = async (payload: MattermostEventPayload) => {
-    const reactionData = payload.data?.reaction;
-    if (!reactionData) {
-      return;
-    }
-    let reaction: MattermostReaction | null = null;
-    if (typeof reactionData === "string") {
-      try {
-        reaction = JSON.parse(reactionData) as MattermostReaction;
-      } catch {
-        return;
-      }
-    } else if (typeof reactionData === "object") {
-      reaction = reactionData as MattermostReaction;
-    }
-    if (!reaction) {
-      return;
-    }
-
-    const userId = reaction.user_id?.trim();
-    const postId = reaction.post_id?.trim();
-    const emojiName = reaction.emoji_name?.trim();
-    if (!userId || !postId || !emojiName) {
-      return;
-    }
-
-    // Skip reactions from the bot itself
-    if (userId === botUserId) {
-      return;
-    }
-
-    const isRemoved = payload.event === "reaction_removed";
-    const action = isRemoved ? "removed" : "added";
-
-    const senderInfo = await resolveUserInfo(userId);
-    const senderName = senderInfo?.username?.trim() || userId;
-
-    // Resolve the channel from broadcast or post to route to the correct agent session
-    const channelId = payload.broadcast?.channel_id;
-    if (!channelId) {
-      // Without a channel id we cannot verify DM/group policies — drop to be safe
-      logVerboseMessage(
-        `mattermost: drop reaction (no channel_id in broadcast, cannot enforce policy)`,
-      );
-      return;
-    }
-    const channelInfo = await resolveChannelInfo(channelId);
-    if (!channelInfo?.type) {
-      // Cannot determine channel type — drop to avoid policy bypass
-      logVerboseMessage(`mattermost: drop reaction (cannot resolve channel type for ${channelId})`);
-      return;
-    }
-    const kind = channelKind(channelInfo.type);
-
-    // Enforce DM/group policy and allowlist checks (same as normal messages)
-    if (kind === "direct") {
-      const dmPolicy = account.config.dmPolicy ?? "pairing";
-      if (dmPolicy === "disabled") {
-        logVerboseMessage(`mattermost: drop reaction (dmPolicy=disabled sender=${userId})`);
-        return;
-      }
-      // For pairing/allowlist modes, only allow reactions from approved senders
-      if (dmPolicy !== "open") {
-        const configAllowFrom = normalizeAllowList(account.config.allowFrom ?? []);
-        const storeAllowFrom = normalizeAllowList(
-          dmPolicy === "allowlist"
-            ? []
-            : await core.channel.pairing.readAllowFromStore("mattermost").catch(() => []),
-        );
-        const effectiveAllowFrom = Array.from(new Set([...configAllowFrom, ...storeAllowFrom]));
-        const allowed = isSenderAllowed({
-          senderId: userId,
-          senderName,
-          allowFrom: effectiveAllowFrom,
-        });
-        if (!allowed) {
-          logVerboseMessage(
-            `mattermost: drop reaction (dmPolicy=${dmPolicy} sender=${userId} not allowed)`,
-          );
-          return;
-        }
-      }
-    } else if (kind) {
-      if (groupPolicy === "disabled") {
-        logVerboseMessage(`mattermost: drop reaction (groupPolicy=disabled channel=${channelId})`);
-        return;
-      }
-      if (groupPolicy === "allowlist") {
-        const dmPolicyForStore = account.config.dmPolicy ?? "pairing";
-        const configAllowFrom = normalizeAllowList(account.config.allowFrom ?? []);
-        const configGroupAllowFrom = normalizeAllowList(account.config.groupAllowFrom ?? []);
-        const storeAllowFrom = normalizeAllowList(
-          dmPolicyForStore === "allowlist"
-            ? []
-            : await core.channel.pairing.readAllowFromStore("mattermost").catch(() => []),
-        );
-        const effectiveGroupAllowFrom = Array.from(
-          new Set([
-            ...(configGroupAllowFrom.length > 0 ? configGroupAllowFrom : configAllowFrom),
-            ...storeAllowFrom,
-          ]),
-        );
-        // Drop when allowlist is empty (same as normal message handler)
-        const allowed =
-          effectiveGroupAllowFrom.length > 0 &&
-          isSenderAllowed({
-            senderId: userId,
-            senderName,
-            allowFrom: effectiveGroupAllowFrom,
-          });
-        if (!allowed) {
-          logVerboseMessage(`mattermost: drop reaction (groupPolicy=allowlist sender=${userId})`);
-          return;
-        }
-      }
-    }
-
-    const teamId = channelInfo?.team_id ?? undefined;
-    const route = core.channel.routing.resolveAgentRoute({
+    await core.channel.reply.dispatchReplyFromConfig({
+      ctx: ctxPayload,
       cfg,
-      channel: "mattermost",
-      accountId: account.accountId,
-      teamId,
-      peer: {
-        kind,
-        id: kind === "direct" ? userId : channelId,
+      dispatcher,
+      replyOptions: {
+        ...replyOptions,
+        disableBlockStreaming:
+          typeof account.blockStreaming === "boolean" ? !account.blockStreaming : undefined,
+        onModelSelected: prefixContext.onModelSelected,
       },
     });
-    const sessionKey = route.sessionKey;
-
-    const eventText = `Mattermost reaction ${action}: :${emojiName}: by @${senderName} on post ${postId} in channel ${channelId}`;
-
-    core.system.enqueueSystemEvent(eventText, {
-      sessionKey,
-      contextKey: `mattermost:reaction:${postId}:${emojiName}:${userId}:${action}`,
-    });
-
-    logVerboseMessage(
-      `mattermost reaction: ${action} :${emojiName}: by ${senderName} on ${postId}`,
-    );
+    markDispatchIdle();
+    if (historyKey) {
+      clearHistoryEntriesIfEnabled({ historyMap: channelHistories, historyKey, limit: historyLimit });
+    }
   };
 
->>>>>>> 0bd9f0d4a (fix: enforce strict allowlist across pairing stores (#23017))
   const inboundDebounceMs = core.channel.debounce.resolveInboundDebounceMs({
     cfg,
     channel: "mattermost",
@@ -1038,28 +802,20 @@ export async function monitorMattermostProvider(opts: MonitorMattermostOpts = {}
         entry.post.channel_id ??
         entry.payload.data?.channel_id ??
         entry.payload.broadcast?.channel_id;
-      if (!channelId) {
-        return null;
-      }
+      if (!channelId) return null;
       const threadId = entry.post.root_id?.trim();
       const threadKey = threadId ? `thread:${threadId}` : "channel";
       return `mattermost:${account.accountId}:${channelId}:${threadKey}`;
     },
     shouldDebounce: (entry) => {
-      if (entry.post.file_ids && entry.post.file_ids.length > 0) {
-        return false;
-      }
+      if (entry.post.file_ids && entry.post.file_ids.length > 0) return false;
       const text = entry.post.message?.trim() ?? "";
-      if (!text) {
-        return false;
-      }
+      if (!text) return false;
       return !core.channel.text.hasControlCommand(text, cfg);
     },
     onFlush: async (entries) => {
       const last = entries.at(-1);
-      if (!last) {
-        return;
-      }
+      if (!last) return;
       if (entries.length === 1) {
         await handlePost(last.post, last.payload);
         return;
@@ -1073,7 +829,7 @@ export async function monitorMattermostProvider(opts: MonitorMattermostOpts = {}
         message: combinedText,
         file_ids: [],
       };
-      const ids = entries.map((entry) => entry.post.id).filter(Boolean);
+      const ids = entries.map((entry) => entry.post.id).filter(Boolean) as string[];
       await handlePost(mergedPost, last.payload, ids.length > 0 ? ids : undefined);
     },
     onError: (err) => {
@@ -1113,13 +869,9 @@ export async function monitorMattermostProvider(opts: MonitorMattermostOpts = {}
         } catch {
           return;
         }
-        if (payload.event !== "posted") {
-          return;
-        }
+        if (payload.event !== "posted") return;
         const postData = payload.data?.post;
-        if (!postData) {
-          return;
-        }
+        if (!postData) return;
         let post: MattermostPost | null = null;
         if (typeof postData === "string") {
           try {
@@ -1130,9 +882,7 @@ export async function monitorMattermostProvider(opts: MonitorMattermostOpts = {}
         } else if (typeof postData === "object") {
           post = postData as MattermostPost;
         }
-        if (!post) {
-          return;
-        }
+        if (!post) return;
         try {
           await debouncer.enqueue({ post, payload });
         } catch (err) {
@@ -1165,9 +915,7 @@ export async function monitorMattermostProvider(opts: MonitorMattermostOpts = {}
 
   while (!opts.abortSignal?.aborted) {
     await connectOnce();
-    if (opts.abortSignal?.aborted) {
-      return;
-    }
+    if (opts.abortSignal?.aborted) return;
     await new Promise((resolve) => setTimeout(resolve, 2000));
   }
 }

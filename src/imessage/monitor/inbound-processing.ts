@@ -20,6 +20,10 @@ import {
   resolveChannelGroupRequireMention,
 } from "../../config/group-policy.js";
 import { resolveAgentRoute } from "../../routing/resolve-route.js";
+import {
+  DM_GROUP_ACCESS_REASON,
+  resolveDmGroupAccessWithLists,
+} from "../../security/dm-policy-shared.js";
 import { truncateUtf16Safe } from "../../utils.js";
 import {
   formatIMessageChatTarget,
@@ -138,16 +142,6 @@ export function resolveIMessageInboundDecision(params: {
   }
 
   const groupId = isGroup ? groupIdCandidate : undefined;
-<<<<<<< HEAD
-  const storeAllowFrom = params.dmPolicy === "allowlist" ? [] : params.storeAllowFrom;
-  const effectiveDmAllowFrom = Array.from(new Set([...params.allowFrom, ...storeAllowFrom]))
-    .map((v) => String(v).trim())
-    .filter(Boolean);
-  // Keep DM pairing-store authorization scoped to DMs; group access must come from explicit group allowlist config.
-  const effectiveGroupAllowFrom = Array.from(new Set(params.groupAllowFrom))
-    .map((v) => String(v).trim())
-    .filter(Boolean);
-=======
   const accessDecision = resolveDmGroupAccessWithLists({
     isGroup,
     dmPolicy: params.dmPolicy,
@@ -167,65 +161,41 @@ export function resolveIMessageInboundDecision(params: {
   });
   const effectiveDmAllowFrom = accessDecision.effectiveAllowFrom;
   const effectiveGroupAllowFrom = accessDecision.effectiveGroupAllowFrom;
->>>>>>> dc6e4a5b1 (fix: harden dm command authorization in open mode)
 
-  if (isGroup) {
-    if (params.groupPolicy === "disabled") {
-      params.logVerbose?.("Blocked iMessage group message (groupPolicy: disabled)");
-      return { kind: "drop", reason: "groupPolicy disabled" };
-    }
-    if (params.groupPolicy === "allowlist") {
-      if (effectiveGroupAllowFrom.length === 0) {
+  if (accessDecision.decision !== "allow") {
+    if (isGroup) {
+      if (accessDecision.reasonCode === DM_GROUP_ACCESS_REASON.GROUP_POLICY_DISABLED) {
+        params.logVerbose?.("Blocked iMessage group message (groupPolicy: disabled)");
+        return { kind: "drop", reason: "groupPolicy disabled" };
+      }
+      if (accessDecision.reasonCode === DM_GROUP_ACCESS_REASON.GROUP_POLICY_EMPTY_ALLOWLIST) {
         params.logVerbose?.(
           "Blocked iMessage group message (groupPolicy: allowlist, no groupAllowFrom)",
         );
         return { kind: "drop", reason: "groupPolicy allowlist (empty groupAllowFrom)" };
       }
-      const allowed = isAllowedIMessageSender({
-        allowFrom: effectiveGroupAllowFrom,
-        sender,
-        chatId,
-        chatGuid,
-        chatIdentifier,
-      });
-      if (!allowed) {
+      if (accessDecision.reasonCode === DM_GROUP_ACCESS_REASON.GROUP_POLICY_NOT_ALLOWLISTED) {
         params.logVerbose?.(`Blocked iMessage sender ${sender} (not in groupAllowFrom)`);
         return { kind: "drop", reason: "not in groupAllowFrom" };
       }
+      params.logVerbose?.(`Blocked iMessage group message (${accessDecision.reason})`);
+      return { kind: "drop", reason: accessDecision.reason };
     }
-    if (groupListPolicy.allowlistEnabled && !groupListPolicy.allowed) {
-      params.logVerbose?.(
-        `imessage: skipping group message (${groupId ?? "unknown"}) not in allowlist`,
-      );
-      return { kind: "drop", reason: "group id not in allowlist" };
-    }
-  }
-
-  const dmHasWildcard = effectiveDmAllowFrom.includes("*");
-  const dmAuthorized =
-    params.dmPolicy === "open"
-      ? true
-      : dmHasWildcard ||
-        (effectiveDmAllowFrom.length > 0 &&
-          isAllowedIMessageSender({
-            allowFrom: effectiveDmAllowFrom,
-            sender,
-            chatId,
-            chatGuid,
-            chatIdentifier,
-          }));
-
-  if (!isGroup) {
-    if (params.dmPolicy === "disabled") {
+    if (accessDecision.reasonCode === DM_GROUP_ACCESS_REASON.DM_POLICY_DISABLED) {
       return { kind: "drop", reason: "dmPolicy disabled" };
     }
-    if (!dmAuthorized) {
-      if (params.dmPolicy === "pairing") {
-        return { kind: "pairing", senderId: senderNormalized };
-      }
-      params.logVerbose?.(`Blocked iMessage sender ${sender} (dmPolicy=${params.dmPolicy})`);
-      return { kind: "drop", reason: "dmPolicy blocked" };
+    if (accessDecision.decision === "pairing") {
+      return { kind: "pairing", senderId: senderNormalized };
     }
+    params.logVerbose?.(`Blocked iMessage sender ${sender} (dmPolicy=${params.dmPolicy})`);
+    return { kind: "drop", reason: "dmPolicy blocked" };
+  }
+
+  if (isGroup && groupListPolicy.allowlistEnabled && !groupListPolicy.allowed) {
+    params.logVerbose?.(
+      `imessage: skipping group message (${groupId ?? "unknown"}) not in allowlist`,
+    );
+    return { kind: "drop", reason: "group id not in allowlist" };
   }
 
   const route = resolveAgentRoute({

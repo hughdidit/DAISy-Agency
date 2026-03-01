@@ -1,16 +1,11 @@
 import type { SlackEventMiddlewareArgs } from "@slack/bolt";
-<<<<<<< HEAD
-import type { SlackMonitorContext } from "../context.js";
-import type { SlackReactionEvent } from "../types.js";
+
 import { danger } from "../../../globals.js";
-=======
-import { danger, logVerbose } from "../../../globals.js";
->>>>>>> aedf62ac7 (fix: harden discord and slack reaction ingress authorization)
 import { enqueueSystemEvent } from "../../../infra/system-events.js";
-import { resolveDmGroupAccessWithLists } from "../../../security/dm-policy-shared.js";
-import { resolveSlackAllowListMatch } from "../allow-list.js";
-import { resolveSlackEffectiveAllowFrom } from "../auth.js";
+
 import { resolveSlackChannelLabel } from "../channel-config.js";
+import type { SlackMonitorContext } from "../context.js";
+import type { SlackMessageEvent, SlackReactionEvent } from "../types.js";
 
 export function registerSlackReactionEvents(params: { ctx: SlackMonitorContext }) {
   const { ctx } = params;
@@ -18,12 +13,10 @@ export function registerSlackReactionEvents(params: { ctx: SlackMonitorContext }
   const handleReactionEvent = async (event: SlackReactionEvent, action: string) => {
     try {
       const item = event.item;
-      if (!item || item.type !== "message") {
-        return;
-      }
+      if (!item || item.type !== "message") return;
 
       const channelInfo = item.channel ? await ctx.resolveChannelName(item.channel) : {};
-      const channelType = channelInfo?.type;
+      const channelType = channelInfo?.type as SlackMessageEvent["channel_type"];
       if (
         !ctx.isChannelAllowed({
           channelId: item.channel,
@@ -39,33 +32,6 @@ export function registerSlackReactionEvents(params: { ctx: SlackMonitorContext }
         channelName: channelInfo?.name,
       });
       const actorInfo = event.user ? await ctx.resolveUserName(event.user) : undefined;
-      if (channelType === "im") {
-        if (!event.user) {
-          return;
-        }
-        const { allowFromLower } = await resolveSlackEffectiveAllowFrom(ctx);
-        const access = resolveDmGroupAccessWithLists({
-          isGroup: false,
-          dmPolicy: ctx.dmPolicy,
-          groupPolicy: ctx.groupPolicy,
-          allowFrom: allowFromLower,
-          groupAllowFrom: [],
-          storeAllowFrom: [],
-          isSenderAllowed: (allowList) =>
-            resolveSlackAllowListMatch({
-              allowList,
-              id: event.user,
-              name: actorInfo?.name,
-              allowNameMatching: ctx.allowNameMatching,
-            }).allowed,
-        });
-        if (access.decision !== "allow") {
-          logVerbose(
-            `slack: drop reaction sender ${event.user} (dmPolicy=${ctx.dmPolicy}, decision=${access.decision}, reason=${access.reason})`,
-          );
-          return;
-        }
-      }
       const actorLabel = actorInfo?.name ?? event.user;
       const emojiLabel = event.reaction ?? "emoji";
       const authorInfo = event.item_user ? await ctx.resolveUserName(event.item_user) : undefined;
@@ -88,9 +54,7 @@ export function registerSlackReactionEvents(params: { ctx: SlackMonitorContext }
   ctx.app.event(
     "reaction_added",
     async ({ event, body }: SlackEventMiddlewareArgs<"reaction_added">) => {
-      if (ctx.shouldDropMismatchedSlackEvent(body)) {
-        return;
-      }
+      if (ctx.shouldDropMismatchedSlackEvent(body)) return;
       await handleReactionEvent(event as SlackReactionEvent, "added");
     },
   );
@@ -98,9 +62,7 @@ export function registerSlackReactionEvents(params: { ctx: SlackMonitorContext }
   ctx.app.event(
     "reaction_removed",
     async ({ event, body }: SlackEventMiddlewareArgs<"reaction_removed">) => {
-      if (ctx.shouldDropMismatchedSlackEvent(body)) {
-        return;
-      }
+      if (ctx.shouldDropMismatchedSlackEvent(body)) return;
       await handleReactionEvent(event as SlackReactionEvent, "removed");
     },
   );

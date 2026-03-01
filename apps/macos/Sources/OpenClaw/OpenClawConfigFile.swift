@@ -1,5 +1,5 @@
-import OpenClawProtocol
 import Foundation
+import MoltbotProtocol
 
 enum OpenClawConfigFile {
     private static let logger = Logger(subsystem: "ai.openclaw", category: "config")

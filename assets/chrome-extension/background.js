@@ -26,21 +26,6 @@ const childSessionToTab = new Map()
 /** @type {Map<number, {resolve:(v:any)=>void, reject:(e:Error)=>void}>} */
 const pending = new Map()
 
-<<<<<<< HEAD
-=======
-// Per-tab operation locks prevent double-attach races.
-/** @type {Set<number>} */
-const tabOperationLocks = new Set()
-
-// Tabs currently in a detach/re-attach cycle after navigation.
-/** @type {Set<number>} */
-const reattachPending = new Set()
-
-// Reconnect state for exponential backoff.
-let reconnectAttempt = 0
-let reconnectTimer = null
-
->>>>>>> 67bac62c2 (fix: Chrome relay extension auto-reattach after SPA navigation)
 function nowStack() {
   try {
     return new Error().stack || ''
@@ -124,26 +109,13 @@ function onRelayClosed(reason) {
     p.reject(new Error(`Relay disconnected (${reason})`))
   }
 
-<<<<<<< HEAD
   for (const tabId of tabs.keys()) {
     void chrome.debugger.detach({ tabId }).catch(() => {})
     setBadge(tabId, 'connecting')
     void chrome.action.setTitle({
       tabId,
-      title: 'OpenClaw Browser Relay: disconnected (click to re-attach)',
+      title: 'Moltbot Browser Relay: disconnected (click to re-attach)',
     })
-=======
-  reattachPending.clear()
-
-  for (const [tabId, tab] of tabs.entries()) {
-    if (tab.state === 'connected') {
-      setBadge(tabId, 'connecting')
-      void chrome.action.setTitle({
-        tabId,
-        title: 'OpenClaw Browser Relay: relay reconnecting…',
-      })
-    }
->>>>>>> 67bac62c2 (fix: Chrome relay extension auto-reattach after SPA navigation)
   }
   tabs.clear()
   tabBySession.clear()
@@ -253,7 +225,7 @@ async function attachTab(tabId, opts = {}) {
   tabBySession.set(sessionId, tabId)
   void chrome.action.setTitle({
     tabId,
-    title: 'OpenClaw Browser Relay: attached (click to detach)',
+    title: 'Moltbot Browser Relay: attached (click to detach)',
   })
 
   if (!opts.skipAttachedEvent) {
@@ -306,7 +278,7 @@ async function detachTab(tabId, reason) {
   setBadge(tabId, 'off')
   void chrome.action.setTitle({
     tabId,
-    title: 'OpenClaw Browser Relay (click to attach/detach)',
+    title: 'Moltbot Browser Relay (click to attach/detach)',
   })
 }
 
@@ -325,42 +297,18 @@ async function connectOrToggleForActiveTab() {
   setBadge(tabId, 'connecting')
   void chrome.action.setTitle({
     tabId,
-    title: 'OpenClaw Browser Relay: connecting to local relay…',
+    title: 'Moltbot Browser Relay: connecting to local relay…',
   })
 
   try {
-<<<<<<< HEAD
     await ensureRelayConnection()
     await attachTab(tabId)
   } catch (err) {
     tabs.delete(tabId)
     setBadge(tabId, 'error')
-=======
-    if (reattachPending.has(tabId)) {
-      reattachPending.delete(tabId)
-      setBadge(tabId, 'off')
-      void chrome.action.setTitle({
-        tabId,
-        title: 'OpenClaw Browser Relay (click to attach/detach)',
-      })
-      return
-    }
-
-    const existing = tabs.get(tabId)
-    if (existing?.state === 'connected') {
-      await detachTab(tabId, 'toggle')
-      return
-    }
-
-    // User is manually connecting — cancel any pending reconnect.
-    cancelReconnect()
-
-    tabs.set(tabId, { state: 'connecting' })
-    setBadge(tabId, 'connecting')
->>>>>>> 67bac62c2 (fix: Chrome relay extension auto-reattach after SPA navigation)
     void chrome.action.setTitle({
       tabId,
-      title: 'OpenClaw Browser Relay: relay not running (open options for setup)',
+      title: 'Moltbot Browser Relay: relay not running (open options for setup)',
     })
     void maybeOpenHelpOnce()
     // Extra breadcrumbs in chrome://extensions service worker logs.
@@ -475,7 +423,6 @@ function onDebuggerEvent(source, method, params) {
   }
 }
 
-<<<<<<< HEAD
 function onDebuggerDetach(source, reason) {
   const tabId = source.tabId
   if (!tabId) return
@@ -484,175 +431,6 @@ function onDebuggerDetach(source, reason) {
 }
 
 chrome.action.onClicked.addListener(() => void connectOrToggleForActiveTab())
-=======
-async function onDebuggerDetach(source, reason) {
-  const tabId = source.tabId
-  if (!tabId) return
-  if (!tabs.has(tabId)) return
-
-  // User explicitly cancelled or DevTools replaced the connection — respect their intent
-  if (reason === 'canceled_by_user' || reason === 'replaced_with_devtools') {
-    void detachTab(tabId, reason)
-    return
-  }
-
-  // Check if tab still exists — distinguishes navigation from tab close
-  let tabInfo
-  try {
-    tabInfo = await chrome.tabs.get(tabId)
-  } catch {
-    // Tab is gone (closed) — normal cleanup
-    void detachTab(tabId, reason)
-    return
-  }
-
-  if (tabInfo.url?.startsWith('chrome://') || tabInfo.url?.startsWith('chrome-extension://')) {
-    void detachTab(tabId, reason)
-    return
-  }
-
-  if (reattachPending.has(tabId)) return
-
-  const oldTab = tabs.get(tabId)
-  const oldSessionId = oldTab?.sessionId
-  const oldTargetId = oldTab?.targetId
-
-  if (oldSessionId) tabBySession.delete(oldSessionId)
-  tabs.delete(tabId)
-  for (const [childSessionId, parentTabId] of childSessionToTab.entries()) {
-    if (parentTabId === tabId) childSessionToTab.delete(childSessionId)
-  }
-
-  if (oldSessionId && oldTargetId) {
-    try {
-      sendToRelay({
-        method: 'forwardCDPEvent',
-        params: {
-          method: 'Target.detachedFromTarget',
-          params: { sessionId: oldSessionId, targetId: oldTargetId, reason: 'navigation-reattach' },
-        },
-      })
-    } catch {
-      // Relay may be down.
-    }
-  }
-
-  reattachPending.add(tabId)
-  setBadge(tabId, 'connecting')
-  void chrome.action.setTitle({
-    tabId,
-    title: 'OpenClaw Browser Relay: re-attaching after navigation…',
-  })
-
-  const delays = [300, 700, 1500]
-  for (let attempt = 0; attempt < delays.length; attempt++) {
-    await new Promise((r) => setTimeout(r, delays[attempt]))
-
-    if (!reattachPending.has(tabId)) return
-
-    try {
-      await chrome.tabs.get(tabId)
-    } catch {
-      reattachPending.delete(tabId)
-      setBadge(tabId, 'off')
-      return
-    }
-
-    if (!relayWs || relayWs.readyState !== WebSocket.OPEN) {
-      reattachPending.delete(tabId)
-      setBadge(tabId, 'error')
-      void chrome.action.setTitle({
-        tabId,
-        title: 'OpenClaw Browser Relay: relay disconnected during re-attach',
-      })
-      return
-    }
-
-    try {
-      await attachTab(tabId)
-      reattachPending.delete(tabId)
-      return
-    } catch {
-      // continue retries
-    }
-  }
-
-  reattachPending.delete(tabId)
-  setBadge(tabId, 'off')
-  void chrome.action.setTitle({
-    tabId,
-    title: 'OpenClaw Browser Relay: re-attach failed (click to retry)',
-  })
-}
-
-// Tab lifecycle listeners — clean up stale entries.
-chrome.tabs.onRemoved.addListener((tabId) => void whenReady(() => {
-  reattachPending.delete(tabId)
-  if (!tabs.has(tabId)) return
-  const tab = tabs.get(tabId)
-  if (tab?.sessionId) tabBySession.delete(tab.sessionId)
-  tabs.delete(tabId)
-  for (const [childSessionId, parentTabId] of childSessionToTab.entries()) {
-    if (parentTabId === tabId) childSessionToTab.delete(childSessionId)
-  }
-  if (tab?.sessionId && tab?.targetId) {
-    try {
-      sendToRelay({
-        method: 'forwardCDPEvent',
-        params: {
-          method: 'Target.detachedFromTarget',
-          params: { sessionId: tab.sessionId, targetId: tab.targetId, reason: 'tab_closed' },
-        },
-      })
-    } catch {
-      // Relay may be down.
-    }
-  }
-  void persistState()
-}))
-
-chrome.tabs.onReplaced.addListener((addedTabId, removedTabId) => void whenReady(() => {
-  const tab = tabs.get(removedTabId)
-  if (!tab) return
-  tabs.delete(removedTabId)
-  tabs.set(addedTabId, tab)
-  if (tab.sessionId) {
-    tabBySession.set(tab.sessionId, addedTabId)
-  }
-  for (const [childSessionId, parentTabId] of childSessionToTab.entries()) {
-    if (parentTabId === removedTabId) {
-      childSessionToTab.set(childSessionId, addedTabId)
-    }
-  }
-  setBadge(addedTabId, 'on')
-  void persistState()
-}))
-
-// Register debugger listeners at module scope so detach/event handling works
-// even when the relay WebSocket is down.
-chrome.debugger.onEvent.addListener((...args) => void whenReady(() => onDebuggerEvent(...args)))
-chrome.debugger.onDetach.addListener((...args) => void whenReady(() => onDebuggerDetach(...args)))
-
-chrome.action.onClicked.addListener(() => void whenReady(() => connectOrToggleForActiveTab()))
-
-// Refresh badge after navigation completes — service worker may have restarted
-// during navigation, losing ephemeral badge state.
-chrome.webNavigation.onCompleted.addListener(({ tabId, frameId }) => void whenReady(() => {
-  if (frameId !== 0) return
-  const tab = tabs.get(tabId)
-  if (tab?.state === 'connected') {
-    setBadge(tabId, relayWs && relayWs.readyState === WebSocket.OPEN ? 'on' : 'connecting')
-  }
-}))
-
-// Refresh badge when user switches to an attached tab.
-chrome.tabs.onActivated.addListener(({ tabId }) => void whenReady(() => {
-  const tab = tabs.get(tabId)
-  if (tab?.state === 'connected') {
-    setBadge(tabId, relayWs && relayWs.readyState === WebSocket.OPEN ? 'on' : 'connecting')
-  }
-}))
->>>>>>> 67bac62c2 (fix: Chrome relay extension auto-reattach after SPA navigation)
 
 chrome.runtime.onInstalled.addListener(() => {
   // Useful: first-time instructions.

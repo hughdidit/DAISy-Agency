@@ -1,19 +1,19 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+
 import sharp from "sharp";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import * as ssrf from "../infra/net/ssrf.js";
-import { resolvePreferredOpenClawTmpDir } from "../infra/tmp-openclaw-dir.js";
+import { afterEach, describe, expect, it, vi } from "vitest";
+
 import { optimizeImageToPng } from "../media/image-ops.js";
-import { loadWebMedia, loadWebMediaRaw, optimizeImageToJpeg } from "./media.js";
+import { loadWebMedia, optimizeImageToJpeg } from "./media.js";
 
 const tmpFiles: string[] = [];
 
 async function writeTempFile(buffer: Buffer, ext: string): Promise<string> {
   const file = path.join(
     os.tmpdir(),
-    `openclaw-media-${Date.now()}-${Math.random().toString(16).slice(2)}${ext}`,
+    `moltbot-media-${Date.now()}-${Math.random().toString(16).slice(2)}${ext}`,
   );
   tmpFiles.push(file);
   await fs.writeFile(file, buffer);
@@ -30,56 +30,12 @@ function buildDeterministicBytes(length: number): Buffer {
   return buffer;
 }
 
-async function createLargeTestJpeg(): Promise<{ buffer: Buffer; file: string }> {
-<<<<<<< HEAD
-  const buffer = await sharp({
-=======
-  return { buffer: largeJpegBuffer, file: largeJpegFile };
-}
-
-function cloneStatWithDev<T extends { dev: number | bigint }>(stat: T, dev: number | bigint): T {
-  return Object.assign(Object.create(Object.getPrototypeOf(stat)), stat, { dev }) as T;
-}
-
-beforeAll(async () => {
-  fixtureRoot = await fs.mkdtemp(
-    path.join(resolvePreferredOpenClawTmpDir(), "openclaw-media-test-"),
-  );
-  largeJpegBuffer = await sharp({
->>>>>>> d94d21f9b (test: isolate local media regression fixtures to allowed roots (#22369))
-    create: {
-      width: 1600,
-      height: 1600,
-      channels: 3,
-      background: "#ff0000",
-    },
-  })
-    .jpeg({ quality: 95 })
-    .toBuffer();
-
-  const file = await writeTempFile(buffer, ".jpg");
-  return { buffer, file };
-}
-
 afterEach(async () => {
   await Promise.all(tmpFiles.map((file) => fs.rm(file, { force: true })));
   tmpFiles.length = 0;
-  vi.restoreAllMocks();
 });
 
 describe("web media loading", () => {
-  beforeEach(() => {
-    vi.spyOn(ssrf, "resolvePinnedHostname").mockImplementation(async (hostname) => {
-      const normalized = hostname.trim().toLowerCase().replace(/\.$/, "");
-      const addresses = ["93.184.216.34"];
-      return {
-        hostname: normalized,
-        addresses,
-        lookup: ssrf.createPinnedLookup({ hostname: normalized, addresses }),
-      };
-    });
-  });
-
   it("compresses large local images under the provided cap", async () => {
     const buffer = await sharp({
       create: {
@@ -100,25 +56,6 @@ describe("web media loading", () => {
     expect(result.kind).toBe("image");
     expect(result.buffer.length).toBeLessThanOrEqual(cap);
     expect(result.buffer.length).toBeLessThan(buffer.length);
-  });
-
-  it("optimizes images when options object omits optimizeImages", async () => {
-    const { buffer, file } = await createLargeTestJpeg();
-    const cap = Math.max(1, Math.floor(buffer.length * 0.8));
-
-    const result = await loadWebMedia(file, { maxBytes: cap });
-
-    expect(result.buffer.length).toBeLessThanOrEqual(cap);
-    expect(result.buffer.length).toBeLessThan(buffer.length);
-  });
-
-  it("allows callers to disable optimization via options object", async () => {
-    const { buffer, file } = await createLargeTestJpeg();
-    const cap = Math.max(1, Math.floor(buffer.length * 0.8));
-
-    await expect(loadWebMedia(file, { maxBytes: cap, optimizeImages: false })).rejects.toThrow(
-      /Media exceeds/i,
-    );
   });
 
   it("sniffs mime before extension when loading local files", async () => {
@@ -171,22 +108,6 @@ describe("web media loading", () => {
     fetchMock.mockRestore();
   });
 
-  it("respects maxBytes for raw URL fetches", async () => {
-    const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValueOnce({
-      ok: true,
-      body: true,
-      arrayBuffer: async () => Buffer.alloc(2048).buffer,
-      headers: { get: () => "image/png" },
-      status: 200,
-    } as Response);
-
-    await expect(loadWebMediaRaw("https://example.com/too-big.png", 1024)).rejects.toThrow(
-      /exceeds maxBytes 1024/i,
-    );
-
-    fetchMock.mockRestore();
-  });
-
   it("uses content-disposition filename when available", async () => {
     const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValueOnce({
       ok: true,
@@ -197,9 +118,7 @@ describe("web media loading", () => {
           if (name === "content-disposition") {
             return 'attachment; filename="report.pdf"';
           }
-          if (name === "content-type") {
-            return "application/pdf";
-          }
+          if (name === "content-type") return "application/pdf";
           return null;
         },
       },
@@ -340,160 +259,6 @@ describe("web media loading", () => {
 
     expect(result.kind).toBe("image");
     expect(result.contentType).toBe("image/jpeg");
-<<<<<<< HEAD
     expect(result.buffer.length).toBeLessThanOrEqual(cap);
-=======
-    expect(result.buffer.length).toBeLessThanOrEqual(fallbackPngCap);
-  });
-});
-
-describe("Discord voice message input hardening", () => {
-  it("rejects local paths outside allowed media roots", async () => {
-    const candidate = path.join(process.cwd(), "package.json");
-    await expect(sendVoiceMessageDiscord("channel:123", candidate)).rejects.toThrow(
-      /Local media path is not under an allowed directory/i,
-    );
-  });
-
-  it("blocks SSRF targets when given a private-network URL", async () => {
-    await expect(
-      sendVoiceMessageDiscord("channel:123", "http://127.0.0.1/voice.ogg"),
-    ).rejects.toThrow(/Failed to fetch media|Blocked|private|internal/i);
-  });
-
-  it("rejects non-http URL schemes", async () => {
-    await expect(
-      sendVoiceMessageDiscord("channel:123", "rtsp://example.com/voice.ogg"),
-    ).rejects.toThrow(/Local media path is not under an allowed directory|ENOENT|no such file/i);
-  });
-});
-
-describe("local media root guard", () => {
-  it("rejects local paths outside allowed roots", async () => {
-    // Explicit roots that don't contain the temp file.
-    await expect(
-      loadWebMedia(tinyPngFile, 1024 * 1024, { localRoots: ["/nonexistent-root"] }),
-    ).rejects.toMatchObject({ code: "path-not-allowed" });
-  });
-
-  it("allows local paths under an explicit root", async () => {
-    const result = await loadWebMedia(tinyPngFile, 1024 * 1024, {
-      localRoots: [resolvePreferredOpenClawTmpDir()],
-    });
-    expect(result.kind).toBe("image");
-  });
-
-  it("accepts win32 dev=0 stat mismatch for local file loads", async () => {
-    const actualLstat = await fs.lstat(tinyPngFile);
-    const actualStat = await fs.stat(tinyPngFile);
-    const zeroDev = typeof actualLstat.dev === "bigint" ? 0n : 0;
-
-    const platformSpy = vi.spyOn(process, "platform", "get").mockReturnValue("win32");
-    const lstatSpy = vi
-      .spyOn(fs, "lstat")
-      .mockResolvedValue(cloneStatWithDev(actualLstat, zeroDev));
-    const statSpy = vi.spyOn(fs, "stat").mockResolvedValue(cloneStatWithDev(actualStat, zeroDev));
-
-    try {
-      const result = await loadWebMedia(tinyPngFile, 1024 * 1024, {
-        localRoots: [resolvePreferredOpenClawTmpDir()],
-      });
-      expect(result.kind).toBe("image");
-      expect(result.buffer.length).toBeGreaterThan(0);
-    } finally {
-      statSpy.mockRestore();
-      lstatSpy.mockRestore();
-      platformSpy.mockRestore();
-    }
-  });
-
-  it("requires readFile override for localRoots bypass", async () => {
-    await expect(
-      loadWebMedia(tinyPngFile, {
-        maxBytes: 1024 * 1024,
-        localRoots: "any",
-      }),
-    ).rejects.toBeInstanceOf(LocalMediaAccessError);
-    await expect(
-      loadWebMedia(tinyPngFile, {
-        maxBytes: 1024 * 1024,
-        localRoots: "any",
-      }),
-    ).rejects.toMatchObject({ code: "unsafe-bypass" });
-  });
-
-  it("allows any path when localRoots is 'any'", async () => {
-    const result = await loadWebMedia(tinyPngFile, {
-      maxBytes: 1024 * 1024,
-      localRoots: "any",
-      readFile: (filePath) => fs.readFile(filePath),
-    });
-    expect(result.kind).toBe("image");
-  });
-
-  it("rejects filesystem root entries in localRoots", async () => {
-    await expect(
-      loadWebMedia(tinyPngFile, 1024 * 1024, {
-        localRoots: [path.parse(tinyPngFile).root],
-      }),
-    ).rejects.toMatchObject({ code: "invalid-root" });
-  });
-
-  it("allows default OpenClaw state workspace and sandbox roots", async () => {
-    const stateDir = resolveStateDir();
-    const readFile = vi.fn(async () => Buffer.from("generated-media"));
-
-    await expect(
-      loadWebMedia(path.join(stateDir, "workspace", "tmp", "render.bin"), {
-        maxBytes: 1024 * 1024,
-        readFile,
-      }),
-    ).resolves.toEqual(
-      expect.objectContaining({
-        kind: "unknown",
-      }),
-    );
-
-    await expect(
-      loadWebMedia(path.join(stateDir, "sandboxes", "session-1", "frame.bin"), {
-        maxBytes: 1024 * 1024,
-        readFile,
-      }),
-    ).resolves.toEqual(
-      expect.objectContaining({
-        kind: "unknown",
-      }),
-    );
->>>>>>> d94d21f9b (test: isolate local media regression fixtures to allowed roots (#22369))
-  });
-
-  it("rejects default OpenClaw state per-agent workspace-* roots without explicit local roots", async () => {
-    const { STATE_DIR } = await import("../config/paths.js");
-    const readFile = vi.fn(async () => Buffer.from("generated-media"));
-
-    await expect(
-      loadWebMedia(path.join(STATE_DIR, "workspace-clawdy", "tmp", "render.bin"), {
-        maxBytes: 1024 * 1024,
-        readFile,
-      }),
-    ).rejects.toThrow(/not under an allowed directory/i);
-  });
-
-  it("allows per-agent workspace-* paths with explicit local roots", async () => {
-    const { STATE_DIR } = await import("../config/paths.js");
-    const readFile = vi.fn(async () => Buffer.from("generated-media"));
-    const agentWorkspaceDir = path.join(STATE_DIR, "workspace-clawdy");
-
-    await expect(
-      loadWebMedia(path.join(agentWorkspaceDir, "tmp", "render.bin"), {
-        maxBytes: 1024 * 1024,
-        localRoots: [agentWorkspaceDir],
-        readFile,
-      }),
-    ).resolves.toEqual(
-      expect.objectContaining({
-        kind: "unknown",
-      }),
-    );
   });
 });

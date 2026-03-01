@@ -1,11 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { resetInboundDedupe } from "../auto-reply/reply/inbound-dedupe.js";
-import * as ssrf from "../infra/net/ssrf.js";
-<<<<<<< HEAD
 import { MEDIA_GROUP_TIMEOUT_MS } from "./bot-updates.js";
-=======
-import { onSpy, saveMediaBufferSpy, sendChatActionSpy } from "./bot.media.e2e-harness.js";
->>>>>>> a01849e16 (test(telegram): cover triple-dash inbound media path regression)
 
 const useSpy = vi.fn();
 const middlewareUseSpy = vi.fn();
@@ -15,9 +10,6 @@ const sendChatActionSpy = vi.fn();
 const cacheStickerSpy = vi.fn();
 const getCachedStickerSpy = vi.fn();
 const describeStickerImageSpy = vi.fn();
-const resolvePinnedHostname = ssrf.resolvePinnedHostname;
-const lookupMock = vi.fn();
-let resolvePinnedHostnameSpy: ReturnType<typeof vi.spyOn> = null;
 
 type ApiStub = {
   config: { use: (arg: unknown) => void };
@@ -34,16 +26,6 @@ const apiStub: ApiStub = {
 beforeEach(() => {
   vi.useRealTimers();
   resetInboundDedupe();
-  lookupMock.mockResolvedValue([{ address: "93.184.216.34", family: 4 }]);
-  resolvePinnedHostnameSpy = vi
-    .spyOn(ssrf, "resolvePinnedHostname")
-    .mockImplementation((hostname) => resolvePinnedHostname(hostname, lookupMock));
-});
-
-afterEach(() => {
-  lookupMock.mockReset();
-  resolvePinnedHostnameSpy?.mockRestore();
-  resolvePinnedHostnameSpy = null;
 });
 
 vi.mock("grammy", () => ({
@@ -106,9 +88,9 @@ vi.mock("./sticker-cache.js", () => ({
   describeStickerImage: (...args: unknown[]) => describeStickerImageSpy(...args),
 }));
 
-vi.mock("../pairing/pairing-store.js", () => ({
-  readChannelAllowFromStore: vi.fn(async () => [] as string[]),
-  upsertChannelPairingRequest: vi.fn(async () => ({
+vi.mock("./pairing-store.js", () => ({
+  readTelegramAllowFromStore: vi.fn(async () => [] as string[]),
+  upsertTelegramPairingRequest: vi.fn(async () => ({
     code: "PAIRCODE",
     created: true,
   })),
@@ -124,7 +106,7 @@ vi.mock("../auto-reply/reply.js", () => {
 
 describe("telegram inbound media", () => {
   // Parallel vitest shards can make this suite slower than the standalone run.
-  const INBOUND_MEDIA_TEST_TIMEOUT_MS = process.platform === "win32" ? 120_000 : 90_000;
+  const INBOUND_MEDIA_TEST_TIMEOUT_MS = process.platform === "win32" ? 60_000 : 45_000;
 
   it(
     "downloads media via file_path (no file.download)",
@@ -169,61 +151,17 @@ describe("telegram inbound media", () => {
           photo: [{ file_id: "fid" }],
           date: 1736380800, // 2025-01-09T00:00:00Z
         },
-        me: { username: "openclaw_bot" },
+        me: { username: "moltbot_bot" },
         getFile: async () => ({ file_path: "photos/1.jpg" }),
       });
 
       expect(runtimeError).not.toHaveBeenCalled();
-      expect(fetchSpy).toHaveBeenCalledWith(
-        "https://api.telegram.org/file/bottok/photos/1.jpg",
-        expect.objectContaining({ redirect: "manual" }),
-      );
+      expect(fetchSpy).toHaveBeenCalledWith("https://api.telegram.org/file/bottok/photos/1.jpg");
       expect(replySpy).toHaveBeenCalledTimes(1);
       const payload = replySpy.mock.calls[0][0];
       expect(payload.Body).toContain("<media:image>");
 
       fetchSpy.mockRestore();
-    },
-    INBOUND_MEDIA_TEST_TIMEOUT_MS,
-  );
-
-  it(
-    "keeps Telegram inbound media paths with triple-dash ids",
-    async () => {
-      const runtimeError = vi.fn();
-      const { handler, replySpy } = await createBotHandlerWithOptions({ runtimeError });
-      const fetchSpy = mockTelegramFileDownload({
-        contentType: "image/jpeg",
-        bytes: new Uint8Array([0xff, 0xd8, 0xff, 0x00]),
-      });
-      const inboundPath = "/tmp/media/inbound/file_1095---f00a04a2-99a0-4d98-99b0-dfe61c5a4198.jpg";
-      saveMediaBufferSpy.mockResolvedValueOnce({
-        id: "media",
-        path: inboundPath,
-        size: 4,
-        contentType: "image/jpeg",
-      });
-
-      try {
-        await handler({
-          message: {
-            message_id: 1001,
-            chat: { id: 1234, type: "private" },
-            photo: [{ file_id: "fid" }],
-            date: 1736380800,
-          },
-          me: { username: "openclaw_bot" },
-          getFile: async () => ({ file_path: "photos/1.jpg" }),
-        });
-
-        expect(runtimeError).not.toHaveBeenCalled();
-        expect(replySpy).toHaveBeenCalledTimes(1);
-        const payload = replySpy.mock.calls[0]?.[0] as { Body?: string; MediaPaths?: string[] };
-        expect(payload.Body).toContain("<media:image>");
-        expect(payload.MediaPaths).toContain(inboundPath);
-      } finally {
-        fetchSpy.mockRestore();
-      }
     },
     INBOUND_MEDIA_TEST_TIMEOUT_MS,
   );
@@ -268,20 +206,16 @@ describe("telegram inbound media", () => {
         chat: { id: 1234, type: "private" },
         photo: [{ file_id: "fid" }],
       },
-      me: { username: "openclaw_bot" },
+      me: { username: "moltbot_bot" },
       getFile: async () => ({ file_path: "photos/2.jpg" }),
     });
 
     expect(runtimeError).not.toHaveBeenCalled();
-    expect(proxyFetch).toHaveBeenCalledWith(
-      "https://api.telegram.org/file/bottok/photos/2.jpg",
-      expect.objectContaining({ redirect: "manual" }),
-    );
+    expect(proxyFetch).toHaveBeenCalledWith("https://api.telegram.org/file/bottok/photos/2.jpg");
 
     globalFetchSpy.mockRestore();
   });
 
-<<<<<<< HEAD
   it("logs a handler error when getFile returns no file_path", async () => {
     const { createTelegramBot } = await import("./bot.js");
     const replyModule = await import("../auto-reply/reply.js");
@@ -290,9 +224,6 @@ describe("telegram inbound media", () => {
     onSpy.mockReset();
     replySpy.mockReset();
 
-=======
-  it("handles missing file_path from getFile without crashing", async () => {
->>>>>>> b79c89fc9 (fix: stabilize CI type and test harness coverage)
     const runtimeLog = vi.fn();
     const runtimeError = vi.fn();
     const fetchSpy = vi.spyOn(globalThis, "fetch" as never);
@@ -318,13 +249,16 @@ describe("telegram inbound media", () => {
         chat: { id: 1234, type: "private" },
         photo: [{ file_id: "fid" }],
       },
-      me: { username: "openclaw_bot" },
+      me: { username: "moltbot_bot" },
       getFile: async () => ({}),
     });
 
     expect(fetchSpy).not.toHaveBeenCalled();
     expect(replySpy).not.toHaveBeenCalled();
-    expect(runtimeError).not.toHaveBeenCalled();
+    expect(runtimeError).toHaveBeenCalledTimes(1);
+    const msg = String(runtimeError.mock.calls[0]?.[0] ?? "");
+    expect(msg).toContain("handler failed:");
+    expect(msg).toContain("file_path");
 
     fetchSpy.mockRestore();
   });
@@ -385,7 +319,7 @@ describe("telegram media groups", () => {
           media_group_id: "album123",
           photo: [{ file_id: "photo1" }],
         },
-        me: { username: "openclaw_bot" },
+        me: { username: "moltbot_bot" },
         getFile: async () => ({ file_path: "photos/photo1.jpg" }),
       });
 
@@ -397,7 +331,7 @@ describe("telegram media groups", () => {
           media_group_id: "album123",
           photo: [{ file_id: "photo2" }],
         },
-        me: { username: "openclaw_bot" },
+        me: { username: "moltbot_bot" },
         getFile: async () => ({ file_path: "photos/photo2.jpg" }),
       });
 
@@ -451,7 +385,7 @@ describe("telegram media groups", () => {
           media_group_id: "albumA",
           photo: [{ file_id: "photoA1" }],
         },
-        me: { username: "openclaw_bot" },
+        me: { username: "moltbot_bot" },
         getFile: async () => ({ file_path: "photos/photoA1.jpg" }),
       });
 
@@ -464,7 +398,7 @@ describe("telegram media groups", () => {
           media_group_id: "albumB",
           photo: [{ file_id: "photoB1" }],
         },
-        me: { username: "openclaw_bot" },
+        me: { username: "moltbot_bot" },
         getFile: async () => ({ file_path: "photos/photoB1.jpg" }),
       });
 
@@ -543,14 +477,13 @@ describe("telegram stickers", () => {
           },
           date: 1736380800,
         },
-        me: { username: "openclaw_bot" },
+        me: { username: "moltbot_bot" },
         getFile: async () => ({ file_path: "stickers/sticker.webp" }),
       });
 
       expect(runtimeError).not.toHaveBeenCalled();
       expect(fetchSpy).toHaveBeenCalledWith(
         "https://api.telegram.org/file/bottok/stickers/sticker.webp",
-        expect.objectContaining({ redirect: "manual" }),
       );
       expect(replySpy).toHaveBeenCalledTimes(1);
       const payload = replySpy.mock.calls[0][0];
@@ -625,7 +558,7 @@ describe("telegram stickers", () => {
           },
           date: 1736380800,
         },
-        me: { username: "openclaw_bot" },
+        me: { username: "moltbot_bot" },
         getFile: async () => ({ file_path: "stickers/sticker.webp" }),
       });
 
@@ -691,7 +624,7 @@ describe("telegram stickers", () => {
           },
           date: 1736380800,
         },
-        me: { username: "openclaw_bot" },
+        me: { username: "moltbot_bot" },
         getFile: async () => ({ file_path: "stickers/animated.tgs" }),
       });
 
@@ -751,7 +684,7 @@ describe("telegram stickers", () => {
           },
           date: 1736380800,
         },
-        me: { username: "openclaw_bot" },
+        me: { username: "moltbot_bot" },
         getFile: async () => ({ file_path: "stickers/video.webm" }),
       });
 
@@ -804,7 +737,7 @@ describe("telegram text fragments", () => {
           date: 1736380800,
           text: part1,
         },
-        me: { username: "openclaw_bot" },
+        me: { username: "moltbot_bot" },
         getFile: async () => ({}),
       });
 
@@ -815,7 +748,7 @@ describe("telegram text fragments", () => {
           date: 1736380801,
           text: part2,
         },
-        me: { username: "openclaw_bot" },
+        me: { username: "moltbot_bot" },
         getFile: async () => ({}),
       });
 

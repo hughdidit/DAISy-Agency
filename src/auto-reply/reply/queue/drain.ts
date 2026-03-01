@@ -1,4 +1,3 @@
-import type { FollowupRun } from "./types.js";
 import { defaultRuntime } from "../../../runtime.js";
 import {
   buildCollectPrompt,
@@ -8,15 +7,14 @@ import {
 } from "../../../utils/queue-helpers.js";
 import { isRoutableChannel } from "../route-reply.js";
 import { FOLLOWUP_QUEUES } from "./state.js";
+import type { FollowupRun } from "./types.js";
 
 export function scheduleFollowupDrain(
   key: string,
   runFollowup: (run: FollowupRun) => Promise<void>,
 ): void {
   const queue = FOLLOWUP_QUEUES.get(key);
-  if (!queue || queue.draining) {
-    return;
-  }
+  if (!queue || queue.draining) return;
   queue.draining = true;
   void (async () => {
     try {
@@ -30,9 +28,7 @@ export function scheduleFollowupDrain(
           // Debug: `pnpm test src/auto-reply/reply/queue.collect-routing.test.ts`
           if (forceIndividualCollect) {
             const next = queue.items.shift();
-            if (!next) {
-              break;
-            }
+            if (!next) break;
             await runFollowup(next);
             continue;
           }
@@ -59,9 +55,7 @@ export function scheduleFollowupDrain(
           if (isCrossChannel) {
             forceIndividualCollect = true;
             const next = queue.items.shift();
-            if (!next) {
-              break;
-            }
+            if (!next) break;
             await runFollowup(next);
             continue;
           }
@@ -69,9 +63,7 @@ export function scheduleFollowupDrain(
           const items = queue.items.splice(0, queue.items.length);
           const summary = buildQueueSummaryPrompt({ state: queue, noun: "message" });
           const run = items.at(-1)?.run ?? queue.lastRun;
-          if (!run) {
-            break;
-          }
+          if (!run) break;
 
           // Preserve originating channel from items when collecting same-channel.
           const originatingChannel = items.find((i) => i.originatingChannel)?.originatingChannel;
@@ -104,40 +96,17 @@ export function scheduleFollowupDrain(
         const summaryPrompt = buildQueueSummaryPrompt({ state: queue, noun: "message" });
         if (summaryPrompt) {
           const run = queue.lastRun;
-          if (!run) {
-            break;
-          }
-<<<<<<< HEAD
+          if (!run) break;
           await runFollowup({
             prompt: summaryPrompt,
             run,
             enqueuedAt: Date.now(),
           });
-=======
-          if (
-            !(await drainNextQueueItem(queue.items, async (item) => {
-              await runFollowup({
-                prompt: summaryPrompt,
-                run,
-                enqueuedAt: Date.now(),
-                originatingChannel: item.originatingChannel,
-                originatingTo: item.originatingTo,
-                originatingAccountId: item.originatingAccountId,
-                originatingThreadId: item.originatingThreadId,
-              });
-            }))
-          ) {
-            break;
-          }
-          clearQueueSummaryState(queue);
->>>>>>> ccbeb332e (fix: harden routing/session isolation for followups and heartbeat)
           continue;
         }
 
         const next = queue.items.shift();
-        if (!next) {
-          break;
-        }
+        if (!next) break;
         await runFollowup(next);
       }
     } catch (err) {

@@ -1,26 +1,25 @@
 import type { Client } from "@buape/carbon";
-import type { HistoryEntry } from "../../auto-reply/reply/history.js";
-import type { ReplyToMode } from "../../config/config.js";
-import type { RuntimeEnv } from "../../runtime.js";
-import type { DiscordGuildEntryResolved } from "./allow-list.js";
-import type { DiscordMessageEvent, DiscordMessageHandler } from "./listeners.js";
+
 import { hasControlCommand } from "../../auto-reply/command-detection.js";
 import {
   createInboundDebouncer,
   resolveInboundDebounceMs,
 } from "../../auto-reply/inbound-debounce.js";
-import { resolveRuntimeGroupPolicy } from "../../config/runtime-group-policy.js";
+import type { HistoryEntry } from "../../auto-reply/reply/history.js";
+import type { ReplyToMode } from "../../config/config.js";
 import { danger } from "../../globals.js";
+import type { RuntimeEnv } from "../../runtime.js";
+import type { DiscordGuildEntryResolved } from "./allow-list.js";
+import type { DiscordMessageEvent, DiscordMessageHandler } from "./listeners.js";
 import { preflightDiscordMessage } from "./message-handler.preflight.js";
 import { processDiscordMessage } from "./message-handler.process.js";
 import { resolveDiscordMessageText } from "./message-utils.js";
 
 type LoadedConfig = ReturnType<typeof import("../../config/config.js").loadConfig>;
 type DiscordConfig = NonNullable<
-  import("../../config/config.js").OpenClawConfig["channels"]
+  import("../../config/config.js").MoltbotConfig["channels"]
 >["discord"];
 
-<<<<<<< HEAD
 export function createDiscordMessageHandler(params: {
   cfg: LoadedConfig;
   discordConfig: DiscordConfig;
@@ -40,18 +39,6 @@ export function createDiscordMessageHandler(params: {
   guildEntries?: Record<string, DiscordGuildEntryResolved>;
 }): DiscordMessageHandler {
   const groupPolicy = params.discordConfig?.groupPolicy ?? "open";
-=======
-export function createDiscordMessageHandler(
-  params: DiscordMessageHandlerParams,
-): DiscordMessageHandler {
-  const { groupPolicy } = resolveRuntimeGroupPolicy({
-    providerConfigPresent: params.cfg.channels?.discord !== undefined,
-    groupPolicy: params.discordConfig?.groupPolicy,
-    defaultGroupPolicy: params.cfg.channels?.defaults?.groupPolicy,
-    configuredFallbackPolicy: "open",
-    missingProviderFallbackPolicy: "allowlist",
-  });
->>>>>>> 777817392 (fix: fail closed missing provider group policy across message channels (#23367) (thanks @bmendonca3))
   const ackReactionScope = params.cfg.messages?.ackReactionScope ?? "group-mentions";
   const debounceMs = resolveInboundDebounceMs({ cfg: params.cfg, channel: "discord" });
 
@@ -60,34 +47,22 @@ export function createDiscordMessageHandler(
     buildKey: (entry) => {
       const message = entry.data.message;
       const authorId = entry.data.author?.id;
-      if (!message || !authorId) {
-        return null;
-      }
+      if (!message || !authorId) return null;
       const channelId = message.channelId;
-      if (!channelId) {
-        return null;
-      }
+      if (!channelId) return null;
       return `discord:${params.accountId}:${channelId}:${authorId}`;
     },
     shouldDebounce: (entry) => {
       const message = entry.data.message;
-      if (!message) {
-        return false;
-      }
-      if (message.attachments && message.attachments.length > 0) {
-        return false;
-      }
+      if (!message) return false;
+      if (message.attachments && message.attachments.length > 0) return false;
       const baseText = resolveDiscordMessageText(message, { includeForwarded: false });
-      if (!baseText.trim()) {
-        return false;
-      }
+      if (!baseText.trim()) return false;
       return !hasControlCommand(baseText, params.cfg);
     },
     onFlush: async (entries) => {
       const last = entries.at(-1);
-      if (!last) {
-        return;
-      }
+      if (!last) return;
       if (entries.length === 1) {
         const ctx = await preflightDiscordMessage({
           ...params,
@@ -96,9 +71,7 @@ export function createDiscordMessageHandler(
           data: last.data,
           client: last.client,
         });
-        if (!ctx) {
-          return;
-        }
+        if (!ctx) return;
         await processDiscordMessage(ctx);
         return;
       }
@@ -127,9 +100,7 @@ export function createDiscordMessageHandler(
         data: syntheticData,
         client: last.client,
       });
-      if (!ctx) {
-        return;
-      }
+      if (!ctx) return;
       if (entries.length > 1) {
         const ids = entries.map((entry) => entry.data.message?.id).filter(Boolean) as string[];
         if (ids.length > 0) {

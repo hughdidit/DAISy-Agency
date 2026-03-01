@@ -1,10 +1,9 @@
 import type { AssistantMessage } from "@mariozechner/pi-ai";
-import type { ReasoningLevel, VerboseLevel } from "../../../auto-reply/thinking.js";
-import type { OpenClawConfig } from "../../../config/config.js";
-import type { ToolResultFormat } from "../../pi-embedded-subscribe.js";
 import { parseReplyDirectives } from "../../../auto-reply/reply/reply-directives.js";
+import type { ReasoningLevel, VerboseLevel } from "../../../auto-reply/thinking.js";
 import { isSilentReplyText, SILENT_REPLY_TOKEN } from "../../../auto-reply/tokens.js";
 import { formatToolAggregate } from "../../../auto-reply/tool-meta.js";
+import type { MoltbotConfig } from "../../../config/config.js";
 import {
   formatAssistantErrorText,
   formatRawAssistantErrorForUi,
@@ -17,85 +16,17 @@ import {
   extractAssistantThinking,
   formatReasoningMessage,
 } from "../../pi-embedded-utils.js";
-import { isLikelyMutatingToolName } from "../../tool-mutation.js";
+import type { ToolResultFormat } from "../../pi-embedded-subscribe.js";
 
 type ToolMetaEntry = { toolName: string; meta?: string };
-<<<<<<< HEAD
-=======
-type LastToolError = {
-  toolName: string;
-  meta?: string;
-  error?: string;
-  mutatingAction?: boolean;
-  actionFingerprint?: string;
-};
-
-const RECOVERABLE_TOOL_ERROR_KEYWORDS = [
-  "required",
-  "missing",
-  "invalid",
-  "must be",
-  "must have",
-  "needs",
-  "requires",
-] as const;
-
-function isRecoverableToolError(error: string | undefined): boolean {
-  const errorLower = (error ?? "").toLowerCase();
-  return RECOVERABLE_TOOL_ERROR_KEYWORDS.some((keyword) => errorLower.includes(keyword));
-}
-
-function shouldShowToolErrorWarning(params: {
-  lastToolError: LastToolError;
-  hasUserFacingReply: boolean;
-  suppressToolErrors: boolean;
-  suppressToolErrorWarnings?: boolean;
-  verboseLevel?: VerboseLevel;
-}): boolean {
-  if (params.suppressToolErrorWarnings) {
-    return false;
-  }
-  const normalizedToolName = params.lastToolError.toolName.trim().toLowerCase();
-  const verboseEnabled = params.verboseLevel === "on" || params.verboseLevel === "full";
-  if ((normalizedToolName === "exec" || normalizedToolName === "bash") && !verboseEnabled) {
-    return false;
-  }
-  // sessions_send timeouts and errors are transient inter-session communication
-  // issues — the message may still have been delivered. Suppress warnings to
-  // prevent raw error text from leaking into the chat surface (#23989).
-  if (normalizedToolName === "sessions_send") {
-    return { showWarning: false, includeDetails };
-  }
-  const isMutatingToolError =
-    params.lastToolError.mutatingAction ?? isLikelyMutatingToolName(params.lastToolError.toolName);
-  if (isMutatingToolError) {
-    return true;
-  }
-  if (params.suppressToolErrors) {
-    return false;
-  }
-  return !params.hasUserFacingReply && !isRecoverableToolError(params.lastToolError.error);
-}
->>>>>>> 6b05916c1 (fix: gate Telegram exec tool warnings behind verbose mode (#20560))
 
 export function buildEmbeddedRunPayloads(params: {
   assistantTexts: string[];
   toolMetas: ToolMetaEntry[];
   lastAssistant: AssistantMessage | undefined;
-  lastToolError?: {
-    toolName: string;
-    meta?: string;
-    error?: string;
-    mutatingAction?: boolean;
-    actionFingerprint?: string;
-  };
-  config?: OpenClawConfig;
+  lastToolError?: { toolName: string; meta?: string; error?: string };
+  config?: MoltbotConfig;
   sessionKey: string;
-<<<<<<< HEAD
-=======
-  provider?: string;
-  model?: string;
->>>>>>> 3d4ef5604 (fix: include provider and model name in billing error message (#20510))
   verboseLevel?: VerboseLevel;
   reasoningLevel?: ReasoningLevel;
   toolResultFormat?: ToolResultFormat;
@@ -106,7 +37,6 @@ export function buildEmbeddedRunPayloads(params: {
   mediaUrls?: string[];
   replyToId?: string;
   isError?: boolean;
-  isReasoning?: boolean;
   audioAsVoice?: boolean;
   replyToTag?: boolean;
   replyToCurrent?: boolean;
@@ -115,7 +45,6 @@ export function buildEmbeddedRunPayloads(params: {
     text: string;
     media?: string[];
     isError?: boolean;
-    isReasoning?: boolean;
     audioAsVoice?: boolean;
     replyToId?: string;
     replyToTag?: boolean;
@@ -128,11 +57,6 @@ export function buildEmbeddedRunPayloads(params: {
     ? formatAssistantErrorText(params.lastAssistant, {
         cfg: params.config,
         sessionKey: params.sessionKey,
-<<<<<<< HEAD
-=======
-        provider: params.provider,
-        model: params.model,
->>>>>>> 3d4ef5604 (fix: include provider and model name in billing error message (#20510))
       })
     : undefined;
   const rawErrorMessage = lastAssistantErrored
@@ -152,9 +76,7 @@ export function buildEmbeddedRunPayloads(params: {
     : null;
   const normalizedErrorText = errorText ? normalizeTextForComparison(errorText) : null;
   const genericErrorText = "The AI service returned an error. Please try again.";
-  if (errorText) {
-    replyItems.push({ text: errorText, isError: true });
-  }
+  if (errorText) replyItems.push({ text: errorText, isError: true });
 
   const inlineToolResults =
     params.inlineToolResultsAllowed && params.verboseLevel !== "off" && params.toolMetas.length > 0;
@@ -188,51 +110,31 @@ export function buildEmbeddedRunPayloads(params: {
     params.lastAssistant && params.reasoningLevel === "on"
       ? formatReasoningMessage(extractAssistantThinking(params.lastAssistant))
       : "";
-  if (reasoningText) {
-    replyItems.push({ text: reasoningText, isReasoning: true });
-  }
+  if (reasoningText) replyItems.push({ text: reasoningText });
 
   const fallbackAnswerText = params.lastAssistant ? extractAssistantText(params.lastAssistant) : "";
   const shouldSuppressRawErrorText = (text: string) => {
-    if (!lastAssistantErrored) {
-      return false;
-    }
+    if (!lastAssistantErrored) return false;
     const trimmed = text.trim();
-    if (!trimmed) {
-      return false;
-    }
+    if (!trimmed) return false;
     if (errorText) {
       const normalized = normalizeTextForComparison(trimmed);
-      if (normalized && normalizedErrorText && normalized === normalizedErrorText) {
-        return true;
-      }
-      if (trimmed === genericErrorText) {
-        return true;
-      }
+      if (normalized && normalizedErrorText && normalized === normalizedErrorText) return true;
+      if (trimmed === genericErrorText) return true;
     }
-    if (rawErrorMessage && trimmed === rawErrorMessage) {
-      return true;
-    }
-    if (formattedRawErrorMessage && trimmed === formattedRawErrorMessage) {
-      return true;
-    }
+    if (rawErrorMessage && trimmed === rawErrorMessage) return true;
+    if (formattedRawErrorMessage && trimmed === formattedRawErrorMessage) return true;
     if (normalizedRawErrorText) {
       const normalized = normalizeTextForComparison(trimmed);
-      if (normalized && normalized === normalizedRawErrorText) {
-        return true;
-      }
+      if (normalized && normalized === normalizedRawErrorText) return true;
     }
     if (normalizedFormattedRawErrorMessage) {
       const normalized = normalizeTextForComparison(trimmed);
-      if (normalized && normalized === normalizedFormattedRawErrorMessage) {
-        return true;
-      }
+      if (normalized && normalized === normalizedFormattedRawErrorMessage) return true;
     }
     if (rawErrorFingerprint) {
       const fingerprint = getApiErrorPayloadFingerprint(trimmed);
-      if (fingerprint && fingerprint === rawErrorFingerprint) {
-        return true;
-      }
+      if (fingerprint && fingerprint === rawErrorFingerprint) return true;
     }
     return isRawApiErrorPayload(trimmed);
   };
@@ -267,7 +169,6 @@ export function buildEmbeddedRunPayloads(params: {
   }
 
   if (params.lastToolError) {
-<<<<<<< HEAD
     const lastAssistantHasToolCalls =
       Array.isArray(params.lastAssistant?.content) &&
       params.lastAssistant?.content.some((block) =>
@@ -289,51 +190,22 @@ export function buildEmbeddedRunPayloads(params: {
       errorLower.includes("must have") ||
       errorLower.includes("needs") ||
       errorLower.includes("requires");
-    const isMutatingToolError =
-      params.lastToolError.mutatingAction ??
-      isLikelyMutatingToolName(params.lastToolError.toolName);
-    const shouldShowToolError = isMutatingToolError || (!hasUserFacingReply && !isRecoverableError);
-=======
-    const shouldShowToolError = shouldShowToolErrorWarning({
-      lastToolError: params.lastToolError,
-      hasUserFacingReply: hasUserFacingAssistantReply,
-      suppressToolErrors: Boolean(params.config?.messages?.suppressToolErrors),
-      suppressToolErrorWarnings: params.suppressToolErrorWarnings,
-      verboseLevel: params.verboseLevel,
-    });
->>>>>>> 6b05916c1 (fix: gate Telegram exec tool warnings behind verbose mode (#20560))
 
-    // Always surface mutating tool failures so we do not silently confirm actions that did not happen.
-    // Otherwise, keep the previous behavior and only surface non-recoverable failures when no reply exists.
-    if (shouldShowToolError) {
+    // Show tool errors only when:
+    // 1. There's no user-facing reply AND the error is not recoverable
+    // Recoverable errors (validation, missing params) are already in the model's context
+    // and shouldn't be surfaced to users since the model should retry.
+    if (!hasUserFacingReply && !isRecoverableError) {
       const toolSummary = formatToolAggregate(
         params.lastToolError.toolName,
         params.lastToolError.meta ? [params.lastToolError.meta] : undefined,
         { markdown: useMarkdown },
       );
-      const verboseErrorDetailsEnabled =
-        params.verboseLevel === "on" || params.verboseLevel === "full";
-      const errorSuffix =
-        verboseErrorDetailsEnabled && params.lastToolError.error
-          ? `: ${params.lastToolError.error}`
-          : "";
-      const warningText = `⚠️ ${toolSummary} failed${errorSuffix}`;
-      const normalizedWarning = normalizeTextForComparison(warningText);
-      const duplicateWarning = normalizedWarning
-        ? replyItems.some((item) => {
-            if (!item.text) {
-              return false;
-            }
-            const normalizedExisting = normalizeTextForComparison(item.text);
-            return normalizedExisting.length > 0 && normalizedExisting === normalizedWarning;
-          })
-        : false;
-      if (!duplicateWarning) {
-        replyItems.push({
-          text: warningText,
-          isError: true,
-        });
-      }
+      const errorSuffix = params.lastToolError.error ? `: ${params.lastToolError.error}` : "";
+      replyItems.push({
+        text: `⚠️ ${toolSummary} failed${errorSuffix}`,
+        isError: true,
+      });
     }
   }
 
@@ -350,12 +222,8 @@ export function buildEmbeddedRunPayloads(params: {
       audioAsVoice: item.audioAsVoice || Boolean(hasAudioAsVoiceTag && item.media?.length),
     }))
     .filter((p) => {
-      if (!p.text && !p.mediaUrl && (!p.mediaUrls || p.mediaUrls.length === 0)) {
-        return false;
-      }
-      if (p.text && isSilentReplyText(p.text, SILENT_REPLY_TOKEN)) {
-        return false;
-      }
+      if (!p.text && !p.mediaUrl && (!p.mediaUrls || p.mediaUrls.length === 0)) return false;
+      if (p.text && isSilentReplyText(p.text, SILENT_REPLY_TOKEN)) return false;
       return true;
     });
 }

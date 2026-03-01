@@ -2,7 +2,55 @@ import Foundation
 import Testing
 @testable import OpenClaw
 
+/// These cases cover optional `security=allowlist` behavior.
+/// Default install posture remains deny-by-default for exec on macOS node-host.
 struct ExecAllowlistTests {
+    private struct ShellParserParityFixture: Decodable {
+        struct Case: Decodable {
+            let id: String
+            let command: String
+            let ok: Bool
+            let executables: [String]
+        }
+
+        let cases: [Case]
+    }
+
+    private struct WrapperResolutionParityFixture: Decodable {
+        struct Case: Decodable {
+            let id: String
+            let argv: [String]
+            let expectedRawExecutable: String?
+        }
+
+        let cases: [Case]
+    }
+
+    private static func loadShellParserParityCases() throws -> [ShellParserParityFixture.Case] {
+        let fixtureURL = self.fixtureURL(filename: "exec-allowlist-shell-parser-parity.json")
+        let data = try Data(contentsOf: fixtureURL)
+        let fixture = try JSONDecoder().decode(ShellParserParityFixture.self, from: data)
+        return fixture.cases
+    }
+
+    private static func loadWrapperResolutionParityCases() throws -> [WrapperResolutionParityFixture.Case] {
+        let fixtureURL = self.fixtureURL(filename: "exec-wrapper-resolution-parity.json")
+        let data = try Data(contentsOf: fixtureURL)
+        let fixture = try JSONDecoder().decode(WrapperResolutionParityFixture.self, from: data)
+        return fixture.cases
+    }
+
+    private static func fixtureURL(filename: String) -> URL {
+        var repoRoot = URL(fileURLWithPath: #filePath)
+        for _ in 0..<5 {
+            repoRoot.deleteLastPathComponent()
+        }
+        return repoRoot
+            .appendingPathComponent("test")
+            .appendingPathComponent("fixtures")
+            .appendingPathComponent(filename)
+    }
+
     @Test func matchUsesResolvedPath() {
         let entry = ExecAllowlistEntry(pattern: "/opt/homebrew/bin/rg")
         let resolution = ExecCommandResolution(
@@ -14,7 +62,7 @@ struct ExecAllowlistTests {
         #expect(match?.pattern == entry.pattern)
     }
 
-    @Test func matchUsesBasenameForSimplePattern() {
+    @Test func matchIgnoresBasenamePattern() {
         let entry = ExecAllowlistEntry(pattern: "rg")
         let resolution = ExecCommandResolution(
             rawExecutable: "rg",
@@ -22,11 +70,22 @@ struct ExecAllowlistTests {
             executableName: "rg",
             cwd: nil)
         let match = ExecAllowlistMatcher.match(entries: [entry], resolution: resolution)
-        #expect(match?.pattern == entry.pattern)
+        #expect(match == nil)
+    }
+
+    @Test func matchIgnoresBasenameForRelativeExecutable() {
+        let entry = ExecAllowlistEntry(pattern: "echo")
+        let resolution = ExecCommandResolution(
+            rawExecutable: "./echo",
+            resolvedPath: "/tmp/oc-basename/echo",
+            executableName: "echo",
+            cwd: "/tmp/oc-basename")
+        let match = ExecAllowlistMatcher.match(entries: [entry], resolution: resolution)
+        #expect(match == nil)
     }
 
     @Test func matchIsCaseInsensitive() {
-        let entry = ExecAllowlistEntry(pattern: "RG")
+        let entry = ExecAllowlistEntry(pattern: "/OPT/HOMEBREW/BIN/RG")
         let resolution = ExecCommandResolution(
             rawExecutable: "rg",
             resolvedPath: "/opt/homebrew/bin/rg",
@@ -46,8 +105,6 @@ struct ExecAllowlistTests {
         let match = ExecAllowlistMatcher.match(entries: [entry], resolution: resolution)
         #expect(match?.pattern == entry.pattern)
     }
-<<<<<<< HEAD
-=======
 
     @Test func resolveForAllowlistSplitsShellChains() {
         let command = ["/bin/sh", "-lc", "echo allowlisted && /usr/bin/touch /tmp/openclaw-allowlist-test"]
@@ -120,6 +177,17 @@ struct ExecAllowlistTests {
         }
     }
 
+    @Test func resolveMatchesSharedWrapperResolutionFixture() throws {
+        let fixtures = try Self.loadWrapperResolutionParityCases()
+        for fixture in fixtures {
+            let resolution = ExecCommandResolution.resolve(
+                command: fixture.argv,
+                cwd: nil,
+                env: ["PATH": "/usr/bin:/bin"])
+            #expect(resolution?.rawExecutable == fixture.expectedRawExecutable)
+        }
+    }
+
     @Test func resolveForAllowlistTreatsPlainShInvocationAsDirectExec() {
         let command = ["/bin/sh", "./script.sh"]
         let resolutions = ExecCommandResolution.resolveForAllowlist(
@@ -178,5 +246,4 @@ struct ExecAllowlistTests {
             resolutions: resolutions)
         #expect(full.count == 2)
     }
->>>>>>> 2b63592be (fix: harden exec allowlist wrapper resolution)
 }

@@ -1,7 +1,5 @@
-import { AuthStorage, ModelRegistry } from "@mariozechner/pi-coding-agent";
+import fs from "node:fs";
 import path from "node:path";
-<<<<<<< HEAD
-=======
 import * as PiCodingAgent from "@mariozechner/pi-coding-agent";
 import type {
   AuthStorage as PiAuthStorage,
@@ -9,7 +7,6 @@ import type {
 } from "@mariozechner/pi-coding-agent";
 import { ensureAuthProfileStore } from "./auth-profiles.js";
 import { resolvePiCredentialMapFromStore, type PiCredentialMap } from "./pi-auth-credentials.js";
->>>>>>> 5c0255477 (fix: tolerate missing pi-coding-agent backend export)
 
 const PiAuthStorageClass = PiCodingAgent.AuthStorage;
 const PiModelRegistryClass = PiCodingAgent.ModelRegistry;
@@ -45,12 +42,6 @@ function createInMemoryAuthStorageBackend(
   };
 }
 
-<<<<<<< HEAD
-function createAuthStorage(AuthStorageLike: unknown, path: string) {
-  const withFactory = AuthStorageLike as { create?: (path: string) => unknown };
-  if (typeof withFactory.create === "function") {
-    return withFactory.create(path) as AuthStorage;
-=======
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
@@ -138,22 +129,21 @@ function createAuthStorage(AuthStorageLike: unknown, path: string, creds: PiCred
       }
       withRuntimeOverride.setRuntimeApiKey(provider, credential.access);
     }
->>>>>>> 5c0255477 (fix: tolerate missing pi-coding-agent backend export)
   }
-  return new (AuthStorageLike as { new (path: string): unknown })(path) as AuthStorage;
+  return withRuntimeOverride;
+}
+
+function resolvePiCredentials(agentDir: string): PiCredentialMap {
+  const store = ensureAuthProfileStore(agentDir, { allowKeychainPrompt: false });
+  return resolvePiCredentialMapFromStore(store);
 }
 
 // Compatibility helpers for pi-coding-agent 0.50+ (discover* helpers removed).
-<<<<<<< HEAD
-export function discoverAuthStorage(agentDir: string): AuthStorage {
-  return createAuthStorage(AuthStorage, path.join(agentDir, "auth.json"));
-=======
 export function discoverAuthStorage(agentDir: string): PiAuthStorage {
   const credentials = resolvePiCredentials(agentDir);
   const authPath = path.join(agentDir, "auth.json");
   scrubLegacyStaticAuthJsonEntries(authPath);
   return createAuthStorage(PiAuthStorageClass, authPath, credentials);
->>>>>>> 5c0255477 (fix: tolerate missing pi-coding-agent backend export)
 }
 
 export function discoverModels(authStorage: PiAuthStorage, agentDir: string): PiModelRegistry {

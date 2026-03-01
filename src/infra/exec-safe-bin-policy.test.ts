@@ -1,7 +1,6 @@
+import fs from "node:fs";
+import path from "node:path";
 import { describe, expect, it } from "vitest";
-<<<<<<< HEAD
-import { SAFE_BIN_PROFILES, validateSafeBinArgv } from "./exec-safe-bin-policy.js";
-=======
 import {
   SAFE_BIN_PROFILE_FIXTURES,
   SAFE_BIN_PROFILES,
@@ -24,7 +23,6 @@ function buildDeniedFlagArgvVariants(flag: string): string[][] {
   }
   return [[flag]];
 }
->>>>>>> 64aab8020 (test(exec): add regressions for safe-bin metadata and chain semantics)
 
 describe("exec safe bin policy grep", () => {
   const grepProfile = SAFE_BIN_PROFILES.grep;
@@ -52,14 +50,13 @@ describe("exec safe bin policy sort", () => {
   it("allows stdin-only sort flags", () => {
     expect(validateSafeBinArgv(["-S", "1M"], sortProfile)).toBe(true);
     expect(validateSafeBinArgv(["--key=1,1"], sortProfile)).toBe(true);
+    expect(validateSafeBinArgv(["--ke=1,1"], sortProfile)).toBe(true);
   });
 
   it("blocks sort --compress-program in safe-bin mode", () => {
     expect(validateSafeBinArgv(["--compress-program=sh"], sortProfile)).toBe(false);
     expect(validateSafeBinArgv(["--compress-program", "sh"], sortProfile)).toBe(false);
   });
-<<<<<<< HEAD
-=======
 
   it("blocks denied long-option abbreviations in safe-bin mode", () => {
     expect(validateSafeBinArgv(["--compress-prog=sh"], sortProfile)).toBe(false);
@@ -140,5 +137,4 @@ describe("exec safe bin policy docs parity", () => {
     const expected = renderSafeBinDeniedFlagsDocBullets();
     expect(actual).toBe(expected);
   });
->>>>>>> 64aab8020 (test(exec): add regressions for safe-bin metadata and chain semantics)
 });

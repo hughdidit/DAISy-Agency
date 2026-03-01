@@ -1,14 +1,11 @@
-import type { AgentCommandOpts } from "./agent/types.js";
 import {
   listAgentIds,
   resolveAgentDir,
   resolveAgentModelFallbacksOverride,
   resolveAgentModelPrimary,
-  resolveAgentSkillsFilter,
   resolveAgentWorkspaceDir,
 } from "../agents/agent-scope.js";
 import { ensureAuthProfileStore } from "../agents/auth-profiles.js";
-import { clearSessionAuthProfileOverride } from "../agents/auth-profiles/session-override.js";
 import { runCliAgent } from "../agents/cli-runner.js";
 import { getCliSessionId } from "../agents/cli-session.js";
 import { DEFAULT_MODEL, DEFAULT_PROVIDER } from "../agents/defaults.js";
@@ -35,7 +32,6 @@ import {
   type ThinkLevel,
   type VerboseLevel,
 } from "../auto-reply/thinking.js";
-import { formatCliCommand } from "../cli/command-format.js";
 import { type CliDeps, createDefaultDeps } from "../cli/deps.js";
 import { loadConfig } from "../config/config.js";
 import {
@@ -50,16 +46,19 @@ import {
   registerAgentRunContext,
 } from "../infra/agent-events.js";
 import { getRemoteSkillEligibility } from "../infra/skills-remote.js";
-import { normalizeAgentId } from "../routing/session-key.js";
 import { defaultRuntime, type RuntimeEnv } from "../runtime.js";
+import { formatCliCommand } from "../cli/command-format.js";
 import { applyVerboseOverride } from "../sessions/level-overrides.js";
-import { applyModelOverrideToSessionEntry } from "../sessions/model-overrides.js";
 import { resolveSendPolicy } from "../sessions/send-policy.js";
+import { applyModelOverrideToSessionEntry } from "../sessions/model-overrides.js";
+import { clearSessionAuthProfileOverride } from "../agents/auth-profiles/session-override.js";
 import { resolveMessageChannel } from "../utils/message-channel.js";
 import { deliverAgentCommandResult } from "./agent/delivery.js";
 import { resolveAgentRunContext } from "./agent/run-context.js";
-import { updateSessionStoreAfterAgentRun } from "./agent/session-store.js";
 import { resolveSession } from "./agent/session.js";
+import { updateSessionStoreAfterAgentRun } from "./agent/session-store.js";
+import type { AgentCommandOpts } from "./agent/types.js";
+import { normalizeAgentId } from "../routing/session-key.js";
 
 export async function agentCommand(
   opts: AgentCommandOpts,
@@ -67,9 +66,7 @@ export async function agentCommand(
   deps: CliDeps = createDefaultDeps(),
 ) {
   const body = (opts.message ?? "").trim();
-  if (!body) {
-    throw new Error("Message (--message) is required");
-  }
+  if (!body) throw new Error("Message (--message) is required");
   if (!opts.to && !opts.sessionId && !opts.sessionKey && !opts.agentId) {
     throw new Error("Pass --to <E.164>, --session-id, or --agent to choose a session");
   }
@@ -81,7 +78,7 @@ export async function agentCommand(
     const knownAgents = listAgentIds(cfg);
     if (!knownAgents.includes(agentIdOverride)) {
       throw new Error(
-        `Unknown agent id "${agentIdOverrideRaw}". Use "${formatCliCommand("openclaw agents list")}" to see configured agents.`,
+        `Unknown agent id "${agentIdOverrideRaw}". Use "${formatCliCommand("moltbot agents list")}" to see configured agents.`,
       );
     }
   }
@@ -188,13 +185,11 @@ export async function agentCommand(
 
     const needsSkillsSnapshot = isNewSession || !sessionEntry?.skillsSnapshot;
     const skillsSnapshotVersion = getSkillsSnapshotVersion(workspaceDir);
-    const skillFilter = resolveAgentSkillsFilter(cfg, sessionAgentId);
     const skillsSnapshot = needsSkillsSnapshot
       ? buildWorkspaceSkillSnapshot(workspaceDir, {
           config: cfg,
           eligibility: { remote: getRemoteSkillEligibility() },
           snapshotVersion: skillsSnapshotVersion,
-          skillFilter,
         })
       : sessionEntry?.skillsSnapshot;
 
@@ -222,7 +217,8 @@ export async function agentCommand(
         sessionEntry ?? { sessionId, updatedAt: Date.now() };
       const next: SessionEntry = { ...entry, sessionId, updatedAt: Date.now() };
       if (thinkOverride) {
-        next.thinkingLevel = thinkOverride;
+        if (thinkOverride === "off") delete next.thinkingLevel;
+        else next.thinkingLevel = thinkOverride;
       }
       applyVerboseOverride(next, verboseOverride);
       sessionStore[sessionKey] = next;
@@ -265,7 +261,6 @@ export async function agentCommand(
     let allowedModelKeys = new Set<string>();
     let allowedModelCatalog: Awaited<ReturnType<typeof loadModelCatalog>> = [];
     let modelCatalog: Awaited<ReturnType<typeof loadModelCatalog>> | null = null;
-    let allowAnyModel = false;
 
     if (needsModelCatalog) {
       modelCatalog = await loadModelCatalog({ config: cfg });
@@ -277,7 +272,6 @@ export async function agentCommand(
       });
       allowedModelKeys = allowed.allowedKeys;
       allowedModelCatalog = allowed.allowedCatalog;
-      allowAnyModel = allowed.allowAny ?? false;
     }
 
     if (sessionEntry && sessionStore && sessionKey && hasStoredOverride) {
@@ -287,13 +281,8 @@ export async function agentCommand(
       if (overrideModel) {
         const key = modelKey(overrideProvider, overrideModel);
         if (
-<<<<<<< HEAD
           !isCliProvider(overrideProvider, cfg) &&
           allowedModelKeys.size > 0 &&
-=======
-          !isCliProvider(normalizedOverride.provider, cfg) &&
-          !allowAnyModel &&
->>>>>>> 87dd89696 (fix: sessions_sspawn model override ignored for sub-agents)
           !allowedModelKeys.has(key)
         ) {
           const { updated } = applyModelOverrideToSessionEntry({
@@ -316,13 +305,8 @@ export async function agentCommand(
       const candidateProvider = storedProviderOverride || defaultProvider;
       const key = modelKey(candidateProvider, storedModelOverride);
       if (
-<<<<<<< HEAD
         isCliProvider(candidateProvider, cfg) ||
         allowedModelKeys.size === 0 ||
-=======
-        isCliProvider(normalizedStored.provider, cfg) ||
-        allowAnyModel ||
->>>>>>> 87dd89696 (fix: sessions_sspawn model override ignored for sub-agents)
         allowedModelKeys.has(key)
       ) {
         provider = candidateProvider;
@@ -406,7 +390,6 @@ export async function agentCommand(
             return runCliAgent({
               sessionId,
               sessionKey,
-              agentId: sessionAgentId,
               sessionFile,
               workspaceDir,
               config: cfg,
@@ -427,7 +410,6 @@ export async function agentCommand(
           return runEmbeddedPiAgent({
             sessionId,
             sessionKey,
-            agentId: sessionAgentId,
             messageChannel,
             agentAccountId: runContext.accountId,
             messageTo: opts.replyTo ?? opts.to,
@@ -440,7 +422,6 @@ export async function agentCommand(
             currentThreadTs: runContext.currentThreadTs,
             replyToMode: runContext.replyToMode,
             hasRepliedRef: runContext.hasRepliedRef,
-            senderIsOwner: true,
             sessionFile,
             workspaceDir,
             config: cfg,
@@ -461,7 +442,6 @@ export async function agentCommand(
             lane: opts.lane,
             abortSignal: opts.abortSignal,
             extraSystemPrompt: opts.extraSystemPrompt,
-            inputProvenance: opts.inputProvenance,
             streamParams: opts.streamParams,
             agentDir,
             onAgentEvent: (evt) => {

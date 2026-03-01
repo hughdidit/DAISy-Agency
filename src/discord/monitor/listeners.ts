@@ -6,26 +6,21 @@ import {
   MessageReactionRemoveListener,
   PresenceUpdateListener,
 } from "@buape/carbon";
-import { danger, logVerbose } from "../../globals.js";
-import { formatDurationSeconds } from "../../infra/format-time/format-duration.ts";
+
+import { danger } from "../../globals.js";
+import { formatDurationSeconds } from "../../infra/format-duration.js";
 import { enqueueSystemEvent } from "../../infra/system-events.js";
+import { setPresence } from "./presence-cache.js";
 import { createSubsystemLogger } from "../../logging/subsystem.js";
-import { readChannelAllowFromStore } from "../../pairing/pairing-store.js";
 import { resolveAgentRoute } from "../../routing/resolve-route.js";
-import { resolveDmGroupAccessWithLists } from "../../security/dm-policy-shared.js";
 import {
-  isDiscordGroupAllowedByPolicy,
-  normalizeDiscordAllowList,
   normalizeDiscordSlug,
-  resolveDiscordAllowListMatch,
   resolveDiscordChannelConfigWithFallback,
-  resolveGroupDmAllow,
   resolveDiscordGuildEntry,
   shouldEmitDiscordReactionNotification,
 } from "./allow-list.js";
 import { formatDiscordReactionEmoji, formatDiscordUserTag } from "./format.js";
 import { resolveDiscordChannelInfo } from "./message-utils.js";
-import { setPresence } from "./presence-cache.js";
 
 type LoadedConfig = ReturnType<typeof import("../../config/config.js").loadConfig>;
 type RuntimeEnv = import("../../runtime.js").RuntimeEnv;
@@ -37,25 +32,6 @@ export type DiscordMessageHandler = (data: DiscordMessageEvent, client: Client) 
 
 type DiscordReactionEvent = Parameters<MessageReactionAddListener["handle"]>[0];
 
-<<<<<<< HEAD
-=======
-type DiscordReactionListenerParams = {
-  cfg: LoadedConfig;
-  accountId: string;
-  runtime: RuntimeEnv;
-  botUserId?: string;
-  dmEnabled: boolean;
-  groupDmEnabled: boolean;
-  groupDmChannels: string[];
-  dmPolicy: "open" | "pairing" | "allowlist" | "disabled";
-  allowFrom: string[];
-  groupPolicy: "open" | "allowlist" | "disabled";
-  allowNameMatching: boolean;
-  guildEntries?: Record<string, import("./allow-list.js").DiscordGuildEntryResolved>;
-  logger: Logger;
-};
-
->>>>>>> aedf62ac7 (fix: harden discord and slack reaction ingress authorization)
 const DISCORD_SLOW_LISTENER_THRESHOLD_MS = 30_000;
 const discordEventQueueLog = createSubsystemLogger("discord/event-queue");
 
@@ -65,9 +41,7 @@ function logSlowDiscordListener(params: {
   event: string;
   durationMs: number;
 }) {
-  if (params.durationMs < DISCORD_SLOW_LISTENER_THRESHOLD_MS) {
-    return;
-  }
+  if (params.durationMs < DISCORD_SLOW_LISTENER_THRESHOLD_MS) return;
   const duration = formatDurationSeconds(params.durationMs, {
     decimals: 1,
     unit: "seconds",
@@ -101,7 +75,8 @@ export class DiscordMessageListener extends MessageCreateListener {
 
   async handle(data: DiscordMessageEvent, client: Client) {
     const startedAt = Date.now();
-    await this.handler(data, client)
+    const task = Promise.resolve(this.handler(data, client));
+    void task
       .catch((err) => {
         const logger = this.logger ?? discordEventQueueLog;
         logger.error(danger(`discord handler failed: ${String(err)}`));
@@ -193,42 +168,6 @@ export class DiscordReactionRemoveListener extends MessageReactionRemoveListener
   }
 }
 
-<<<<<<< HEAD
-=======
-async function runDiscordReactionHandler(params: {
-  data: DiscordReactionEvent;
-  client: Client;
-  action: "added" | "removed";
-  handlerParams: DiscordReactionListenerParams;
-  listener: string;
-  event: string;
-}): Promise<void> {
-  await runDiscordListenerWithSlowLog({
-    logger: params.handlerParams.logger,
-    listener: params.listener,
-    event: params.event,
-    run: () =>
-      handleDiscordReactionEvent({
-        data: params.data,
-        client: params.client,
-        action: params.action,
-        cfg: params.handlerParams.cfg,
-        accountId: params.handlerParams.accountId,
-        botUserId: params.handlerParams.botUserId,
-        dmEnabled: params.handlerParams.dmEnabled,
-        groupDmEnabled: params.handlerParams.groupDmEnabled,
-        groupDmChannels: params.handlerParams.groupDmChannels,
-        dmPolicy: params.handlerParams.dmPolicy,
-        allowFrom: params.handlerParams.allowFrom,
-        groupPolicy: params.handlerParams.groupPolicy,
-        allowNameMatching: params.handlerParams.allowNameMatching,
-        guildEntries: params.handlerParams.guildEntries,
-        logger: params.handlerParams.logger,
-      }),
-  });
-}
-
->>>>>>> aedf62ac7 (fix: harden discord and slack reaction ingress authorization)
 async function handleDiscordReactionEvent(params: {
   data: DiscordReactionEvent;
   client: Client;
@@ -236,226 +175,36 @@ async function handleDiscordReactionEvent(params: {
   cfg: LoadedConfig;
   accountId: string;
   botUserId?: string;
-<<<<<<< HEAD
-=======
-  dmEnabled: boolean;
-  groupDmEnabled: boolean;
-  groupDmChannels: string[];
-  dmPolicy: "open" | "pairing" | "allowlist" | "disabled";
-  allowFrom: string[];
-  groupPolicy: "open" | "allowlist" | "disabled";
-  allowNameMatching: boolean;
->>>>>>> aedf62ac7 (fix: harden discord and slack reaction ingress authorization)
   guildEntries?: Record<string, import("./allow-list.js").DiscordGuildEntryResolved>;
   logger: Logger;
 }) {
   try {
     const { data, client, action, botUserId, guildEntries } = params;
-    if (!("user" in data)) {
-      return;
-    }
+    if (!("user" in data)) return;
     const user = data.user;
-    if (!user || user.bot) {
-      return;
-    }
-    const isGuildMessage = Boolean(data.guild_id);
-    const guildInfo = isGuildMessage
-      ? resolveDiscordGuildEntry({
-          guild: data.guild ?? undefined,
-          guildEntries,
-        })
-      : null;
-    if (isGuildMessage && guildEntries && Object.keys(guildEntries).length > 0 && !guildInfo) {
+    if (!user || user.bot) return;
+    if (!data.guild_id) return;
+
+    const guildInfo = resolveDiscordGuildEntry({
+      guild: data.guild ?? undefined,
+      guildEntries,
+    });
+    if (guildEntries && Object.keys(guildEntries).length > 0 && !guildInfo) {
       return;
     }
 
     const channel = await client.fetchChannel(data.channel_id);
-    if (!channel) {
-      return;
-    }
+    if (!channel) return;
     const channelName = "name" in channel ? (channel.name ?? undefined) : undefined;
     const channelSlug = channelName ? normalizeDiscordSlug(channelName) : "";
     const channelType = "type" in channel ? channel.type : undefined;
-    const isDirectMessage = channelType === ChannelType.DM;
-    const isGroupDm = channelType === ChannelType.GroupDM;
     const isThreadChannel =
       channelType === ChannelType.PublicThread ||
       channelType === ChannelType.PrivateThread ||
       channelType === ChannelType.AnnouncementThread;
-    if (isDirectMessage && !params.dmEnabled) {
-      return;
-    }
-    if (isGroupDm && !params.groupDmEnabled) {
-      return;
-    }
     let parentId = "parentId" in channel ? (channel.parentId ?? undefined) : undefined;
     let parentName: string | undefined;
     let parentSlug = "";
-<<<<<<< HEAD
-=======
-    const memberRoleIds = Array.isArray(data.rawMember?.roles)
-      ? data.rawMember.roles.map((roleId: string) => String(roleId))
-      : [];
-    let reactionBase: { baseText: string; contextKey: string } | null = null;
-    const resolveReactionBase = () => {
-      if (reactionBase) {
-        return reactionBase;
-      }
-      const emojiLabel = formatDiscordReactionEmoji(data.emoji);
-      const actorLabel = formatDiscordUserTag(user);
-      const guildSlug =
-        guildInfo?.slug ||
-        (data.guild?.name
-          ? normalizeDiscordSlug(data.guild.name)
-          : (data.guild_id ?? (isGroupDm ? "group-dm" : "dm")));
-      const channelLabel = channelSlug
-        ? `#${channelSlug}`
-        : channelName
-          ? `#${normalizeDiscordSlug(channelName)}`
-          : `#${data.channel_id}`;
-      const baseText = `Discord reaction ${action}: ${emojiLabel} by ${actorLabel} on ${guildSlug} ${channelLabel} msg ${data.message_id}`;
-      const contextKey = `discord:reaction:${action}:${data.message_id}:${user.id}:${emojiLabel}`;
-      reactionBase = { baseText, contextKey };
-      return reactionBase;
-    };
-    const isDirectReactionAuthorized = async () => {
-      if (!isDirectMessage) {
-        return true;
-      }
-      const storeAllowFrom =
-        params.dmPolicy === "allowlist"
-          ? []
-          : await readChannelAllowFromStore("discord").catch(() => []);
-      const access = resolveDmGroupAccessWithLists({
-        isGroup: false,
-        dmPolicy: params.dmPolicy,
-        groupPolicy: params.groupPolicy,
-        allowFrom: params.allowFrom,
-        groupAllowFrom: [],
-        storeAllowFrom,
-        isSenderAllowed: (allowEntries) => {
-          const allowList = normalizeDiscordAllowList(allowEntries, ["discord:", "user:", "pk:"]);
-          const allowMatch = allowList
-            ? resolveDiscordAllowListMatch({
-                allowList,
-                candidate: {
-                  id: user.id,
-                  name: user.username,
-                  tag: formatDiscordUserTag(user),
-                },
-                allowNameMatching: params.allowNameMatching,
-              })
-            : { allowed: false };
-          return allowMatch.allowed;
-        },
-      });
-      if (access.decision !== "allow") {
-        logVerbose(
-          `discord reaction blocked sender=${user.id} (dmPolicy=${params.dmPolicy}, decision=${access.decision}, reason=${access.reason})`,
-        );
-        return false;
-      }
-      return true;
-    };
-    const emitReaction = (text: string, parentPeerId?: string) => {
-      const { contextKey } = resolveReactionBase();
-      const route = resolveAgentRoute({
-        cfg: params.cfg,
-        channel: "discord",
-        accountId: params.accountId,
-        guildId: data.guild_id ?? undefined,
-        memberRoleIds,
-        peer: {
-          kind: isDirectMessage ? "direct" : isGroupDm ? "group" : "channel",
-          id: isDirectMessage ? user.id : data.channel_id,
-        },
-        parentPeer: parentPeerId ? { kind: "channel", id: parentPeerId } : undefined,
-      });
-      enqueueSystemEvent(text, {
-        sessionKey: route.sessionKey,
-        contextKey,
-      });
-    };
-    const shouldNotifyReaction = (options: {
-      mode: "off" | "own" | "all" | "allowlist";
-      messageAuthorId?: string;
-    }) =>
-      shouldEmitDiscordReactionNotification({
-        mode: options.mode,
-        botId: botUserId,
-        messageAuthorId: options.messageAuthorId,
-        userId: user.id,
-        userName: user.username,
-        userTag: formatDiscordUserTag(user),
-        allowlist: guildInfo?.users,
-        allowNameMatching: params.allowNameMatching,
-      });
-    const emitReactionWithAuthor = (message: { author?: User } | null) => {
-      const { baseText } = resolveReactionBase();
-      const authorLabel = message?.author ? formatDiscordUserTag(message.author) : undefined;
-      const text = authorLabel ? `${baseText} from ${authorLabel}` : baseText;
-      emitReaction(text, parentId);
-    };
-    const loadThreadParentInfo = async () => {
-      if (!parentId) {
-        return;
-      }
-      const parentInfo = await resolveDiscordChannelInfo(client, parentId);
-      parentName = parentInfo?.name;
-      parentSlug = parentName ? normalizeDiscordSlug(parentName) : "";
-    };
-    const resolveThreadChannelConfig = () =>
-      resolveDiscordChannelConfigWithFallback({
-        guildInfo,
-        channelId: data.channel_id,
-        channelName,
-        channelSlug,
-        parentId,
-        parentName,
-        parentSlug,
-        scope: "thread",
-      });
-    const isGuildReactionAllowed = (channelConfig: { allowed?: boolean } | null) => {
-      if (!isGuildMessage) {
-        return true;
-      }
-      const channelAllowlistConfigured =
-        Boolean(guildInfo?.channels) && Object.keys(guildInfo?.channels ?? {}).length > 0;
-      const channelAllowed = channelConfig?.allowed !== false;
-      if (
-        !isDiscordGroupAllowedByPolicy({
-          groupPolicy: params.groupPolicy,
-          guildAllowlisted: Boolean(guildInfo),
-          channelAllowlistConfigured,
-          channelAllowed,
-        })
-      ) {
-        return false;
-      }
-      if (channelConfig?.allowed === false) {
-        return false;
-      }
-      return true;
-    };
-
-    if (!(await isDirectReactionAuthorized())) {
-      return;
-    }
-
-    if (
-      isGroupDm &&
-      !resolveGroupDmAllow({
-        channels: params.groupDmChannels,
-        channelId: data.channel_id,
-        channelName,
-        channelSlug,
-      })
-    ) {
-      return;
-    }
-
-    // Parallelize async operations for thread channels
->>>>>>> aedf62ac7 (fix: harden discord and slack reaction ingress authorization)
     if (isThreadChannel) {
       if (!parentId) {
         const channelInfo = await resolveDiscordChannelInfo(client, data.channel_id);
@@ -466,20 +215,6 @@ async function handleDiscordReactionEvent(params: {
         parentName = parentInfo?.name;
         parentSlug = parentName ? normalizeDiscordSlug(parentName) : "";
       }
-<<<<<<< HEAD
-=======
-      if (!isGuildReactionAllowed(channelConfig)) {
-        return;
-      }
-
-      const messageAuthorId = message?.author?.id ?? undefined;
-      if (!shouldNotifyReaction({ mode: reactionMode, messageAuthorId })) {
-        return;
-      }
-
-      emitReactionWithAuthor(message);
-      return;
->>>>>>> aedf62ac7 (fix: harden discord and slack reaction ingress authorization)
     }
     const channelConfig = resolveDiscordChannelConfigWithFallback({
       guildInfo,
@@ -491,16 +226,9 @@ async function handleDiscordReactionEvent(params: {
       parentSlug,
       scope: isThreadChannel ? "thread" : "channel",
     });
-    if (channelConfig?.allowed === false) {
-      return;
-    }
-    if (!isGuildReactionAllowed(channelConfig)) {
-      return;
-    }
+    if (channelConfig?.allowed === false) return;
 
-    if (botUserId && user.id === botUserId) {
-      return;
-    }
+    if (botUserId && user.id === botUserId) return;
 
     const reactionMode = guildInfo?.reactionNotifications ?? "own";
     const message = await data.message.fetch().catch(() => null);
@@ -514,17 +242,12 @@ async function handleDiscordReactionEvent(params: {
       userTag: formatDiscordUserTag(user),
       allowlist: guildInfo?.users,
     });
-    if (!shouldNotify) {
-      return;
-    }
+    if (!shouldNotify) return;
 
     const emojiLabel = formatDiscordReactionEmoji(data.emoji);
     const actorLabel = formatDiscordUserTag(user);
     const guildSlug =
-      guildInfo?.slug ||
-      (data.guild?.name
-        ? normalizeDiscordSlug(data.guild.name)
-        : (data.guild_id ?? (isGroupDm ? "group-dm" : "dm")));
+      guildInfo?.slug || (data.guild?.name ? normalizeDiscordSlug(data.guild.name) : data.guild_id);
     const channelLabel = channelSlug
       ? `#${channelSlug}`
       : channelName
@@ -533,20 +256,12 @@ async function handleDiscordReactionEvent(params: {
     const authorLabel = message?.author ? formatDiscordUserTag(message.author) : undefined;
     const baseText = `Discord reaction ${action}: ${emojiLabel} by ${actorLabel} on ${guildSlug} ${channelLabel} msg ${data.message_id}`;
     const text = authorLabel ? `${baseText} from ${authorLabel}` : baseText;
-    const memberRoleIds = Array.isArray(data.member?.roles)
-      ? data.member.roles.map((roleId: string) => String(roleId))
-      : [];
     const route = resolveAgentRoute({
       cfg: params.cfg,
       channel: "discord",
       accountId: params.accountId,
       guildId: data.guild_id ?? undefined,
-      memberRoleIds,
-      peer: {
-        kind: isDirectMessage ? "direct" : isGroupDm ? "group" : "channel",
-        id: isDirectMessage ? user.id : data.channel_id,
-      },
-      parentPeer: parentId ? { kind: "channel", id: parentId } : undefined,
+      peer: { kind: "channel", id: data.channel_id },
     });
     enqueueSystemEvent(text, {
       sessionKey: route.sessionKey,
@@ -575,9 +290,7 @@ export class DiscordPresenceListener extends PresenceUpdateListener {
         "user" in data && data.user && typeof data.user === "object" && "id" in data.user
           ? String(data.user.id)
           : undefined;
-      if (!userId) {
-        return;
-      }
+      if (!userId) return;
       setPresence(
         this.accountId,
         userId,

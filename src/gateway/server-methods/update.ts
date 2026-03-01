@@ -1,21 +1,18 @@
-import type { GatewayRequestHandlers } from "./types.js";
-import { loadConfig } from "../../config/config.js";
-import { resolveOpenClawPackageRoot } from "../../infra/openclaw-root.js";
+import { resolveMoltbotPackageRoot } from "../../infra/moltbot-root.js";
+import { scheduleGatewaySigusr1Restart } from "../../infra/restart.js";
 import {
   formatDoctorNonInteractiveHint,
   type RestartSentinelPayload,
   writeRestartSentinel,
 } from "../../infra/restart-sentinel.js";
-import { scheduleGatewaySigusr1Restart } from "../../infra/restart.js";
-import { normalizeUpdateChannel } from "../../infra/update-channels.js";
 import { runGatewayUpdate } from "../../infra/update-runner.js";
-<<<<<<< HEAD
 import {
   ErrorCodes,
   errorShape,
   formatValidationErrors,
   validateUpdateRunParams,
 } from "../protocol/index.js";
+import type { GatewayRequestHandlers } from "./types.js";
 
 export const updateHandlers: GatewayRequestHandlers = {
   "update.run": async ({ params, respond }) => {
@@ -43,21 +40,6 @@ export const updateHandlers: GatewayRequestHandlers = {
       typeof restartDelayMsRaw === "number" && Number.isFinite(restartDelayMsRaw)
         ? Math.max(0, Math.floor(restartDelayMsRaw))
         : undefined;
-=======
-import { formatControlPlaneActor, resolveControlPlaneActor } from "../control-plane-audit.js";
-import { validateUpdateRunParams } from "../protocol/index.js";
-import { parseRestartRequestParams } from "./restart-request.js";
-import { assertValidParams } from "./validation.js";
-
-export const updateHandlers: GatewayRequestHandlers = {
-  "update.run": async ({ params, respond, client, context }) => {
-    if (!assertValidParams(params, validateUpdateRunParams, "update.run", respond)) {
-      return;
-    }
-    const actor = resolveControlPlaneActor(client);
-    const { sessionKey, note, restartDelayMs } = parseRestartRequestParams(params);
-    const { deliveryContext, threadId } = extractDeliveryInfo(sessionKey);
->>>>>>> ff74d89e8 (fix: harden gateway control-plane restart protections)
     const timeoutMsRaw = (params as { timeoutMs?: unknown }).timeoutMs;
     const timeoutMs =
       typeof timeoutMsRaw === "number" && Number.isFinite(timeoutMsRaw)
@@ -66,10 +48,8 @@ export const updateHandlers: GatewayRequestHandlers = {
 
     let result: Awaited<ReturnType<typeof runGatewayUpdate>>;
     try {
-      const config = loadConfig();
-      const configChannel = normalizeUpdateChannel(config.update?.channel);
       const root =
-        (await resolveOpenClawPackageRoot({
+        (await resolveMoltbotPackageRoot({
           moduleUrl: import.meta.url,
           argv1: process.argv[1],
           cwd: process.cwd(),
@@ -78,7 +58,6 @@ export const updateHandlers: GatewayRequestHandlers = {
         timeoutMs,
         cwd: root,
         argv1: process.argv[1],
-        channel: configChannel ?? undefined,
       });
     } catch (err) {
       result = {
@@ -125,35 +104,15 @@ export const updateHandlers: GatewayRequestHandlers = {
       sentinelPath = null;
     }
 
-    // Only restart the gateway when the update actually succeeded.
-    // Restarting after a failed update leaves the process in a broken state
-    // (corrupted node_modules, partial builds) and causes a crash loop.
-    const restart =
-      result.status === "ok"
-        ? scheduleGatewaySigusr1Restart({
-            delayMs: restartDelayMs,
-            reason: "update.run",
-            audit: {
-              actor: actor.actor,
-              deviceId: actor.deviceId,
-              clientIp: actor.clientIp,
-              changedPaths: [],
-            },
-          })
-        : null;
-    context?.logGateway?.info(
-      `update.run completed ${formatControlPlaneActor(actor)} changedPaths=<n/a> restartReason=update.run status=${result.status}`,
-    );
-    if (restart?.coalesced) {
-      context?.logGateway?.warn(
-        `update.run restart coalesced ${formatControlPlaneActor(actor)} delayMs=${restart.delayMs}`,
-      );
-    }
+    const restart = scheduleGatewaySigusr1Restart({
+      delayMs: restartDelayMs,
+      reason: "update.run",
+    });
 
     respond(
       true,
       {
-        ok: result.status !== "error",
+        ok: true,
         result,
         restart,
         sentinel: {

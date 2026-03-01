@@ -1,15 +1,13 @@
-import type { OpenClawConfig } from "../../config/config.js";
-import type { AuthProfileFailureReason, AuthProfileStore, ProfileUsageStats } from "./types.js";
+import type { MoltbotConfig } from "../../config/config.js";
 import { normalizeProviderId } from "../model-selection.js";
 import { saveAuthProfileStore, updateAuthProfileStoreWithLock } from "./store.js";
+import type { AuthProfileFailureReason, AuthProfileStore, ProfileUsageStats } from "./types.js";
 
 function resolveProfileUnusableUntil(stats: ProfileUsageStats): number | null {
   const values = [stats.cooldownUntil, stats.disabledUntil]
     .filter((value): value is number => typeof value === "number")
     .filter((value) => Number.isFinite(value) && value > 0);
-  if (values.length === 0) {
-    return null;
-  }
+  if (values.length === 0) return null;
   return Math.max(...values);
 }
 
@@ -18,37 +16,9 @@ function resolveProfileUnusableUntil(stats: ProfileUsageStats): number | null {
  */
 export function isProfileInCooldown(store: AuthProfileStore, profileId: string): boolean {
   const stats = store.usageStats?.[profileId];
-  if (!stats) {
-    return false;
-  }
+  if (!stats) return false;
   const unusableUntil = resolveProfileUnusableUntil(stats);
   return unusableUntil ? Date.now() < unusableUntil : false;
-}
-
-/**
- * Return the soonest `unusableUntil` timestamp (ms epoch) among the given
- * profiles, or `null` when no profile has a recorded cooldown. Note: the
- * returned timestamp may be in the past if the cooldown has already expired.
- */
-export function getSoonestCooldownExpiry(
-  store: AuthProfileStore,
-  profileIds: string[],
-): number | null {
-  let soonest: number | null = null;
-  for (const id of profileIds) {
-    const stats = store.usageStats?.[id];
-    if (!stats) {
-      continue;
-    }
-    const until = resolveProfileUnusableUntil(stats);
-    if (typeof until !== "number" || !Number.isFinite(until) || until <= 0) {
-      continue;
-    }
-    if (soonest === null || until < soonest) {
-      soonest = until;
-    }
-  }
-  return soonest;
 }
 
 /**
@@ -64,9 +34,7 @@ export async function markAuthProfileUsed(params: {
   const updated = await updateAuthProfileStoreWithLock({
     agentDir,
     updater: (freshStore) => {
-      if (!freshStore.profiles[profileId]) {
-        return false;
-      }
+      if (!freshStore.profiles[profileId]) return false;
       freshStore.usageStats = freshStore.usageStats ?? {};
       freshStore.usageStats[profileId] = {
         ...freshStore.usageStats[profileId],
@@ -84,9 +52,7 @@ export async function markAuthProfileUsed(params: {
     store.usageStats = updated.usageStats;
     return;
   }
-  if (!store.profiles[profileId]) {
-    return;
-  }
+  if (!store.profiles[profileId]) return;
 
   store.usageStats = store.usageStats ?? {};
   store.usageStats[profileId] = {
@@ -116,7 +82,7 @@ type ResolvedAuthCooldownConfig = {
 };
 
 function resolveAuthCooldownConfig(params: {
-  cfg?: OpenClawConfig;
+  cfg?: MoltbotConfig;
   providerId: string;
 }): ResolvedAuthCooldownConfig {
   const defaults = {
@@ -131,13 +97,9 @@ function resolveAuthCooldownConfig(params: {
   const cooldowns = params.cfg?.auth?.cooldowns;
   const billingOverride = (() => {
     const map = cooldowns?.billingBackoffHoursByProvider;
-    if (!map) {
-      return undefined;
-    }
+    if (!map) return undefined;
     for (const [key, value] of Object.entries(map)) {
-      if (normalizeProviderId(key) === params.providerId) {
-        return value;
-      }
+      if (normalizeProviderId(key) === params.providerId) return value;
     }
     return undefined;
   })();
@@ -177,21 +139,8 @@ export function resolveProfileUnusableUntilForDisplay(
   profileId: string,
 ): number | null {
   const stats = store.usageStats?.[profileId];
-  if (!stats) {
-    return null;
-  }
+  if (!stats) return null;
   return resolveProfileUnusableUntil(stats);
-}
-
-function keepActiveWindowOrRecompute(params: {
-  existingUntil: number | undefined;
-  now: number;
-  recomputedUntil: number;
-}): number {
-  const { existingUntil, now, recomputedUntil } = params;
-  const hasActiveWindow =
-    typeof existingUntil === "number" && Number.isFinite(existingUntil) && existingUntil > now;
-  return hasActiveWindow ? existingUntil : recomputedUntil;
 }
 
 function computeNextProfileUsageStats(params: {
@@ -225,45 +174,11 @@ function computeNextProfileUsageStats(params: {
       baseMs: params.cfgResolved.billingBackoffMs,
       maxMs: params.cfgResolved.billingMaxMs,
     });
-<<<<<<< HEAD
-<<<<<<< HEAD
     updatedStats.disabledUntil = params.now + backoffMs;
     updatedStats.disabledReason = "billing";
   } else {
     const backoffMs = calculateAuthProfileCooldownMs(nextErrorCount);
     updatedStats.cooldownUntil = params.now + backoffMs;
-=======
-    const existingDisabledUntil = params.existing.disabledUntil;
-    const hasActiveDisabledWindow =
-      typeof existingDisabledUntil === "number" &&
-      Number.isFinite(existingDisabledUntil) &&
-      existingDisabledUntil > params.now;
-=======
->>>>>>> 07527e22c (refactor(auth-profiles): centralize active-window logic + strengthen regression coverage)
-    // Keep active disable windows immutable so retries within the window cannot
-    // extend recovery time indefinitely.
-    updatedStats.disabledUntil = keepActiveWindowOrRecompute({
-      existingUntil: params.existing.disabledUntil,
-      now: params.now,
-      recomputedUntil: params.now + backoffMs,
-    });
-    updatedStats.disabledReason = "billing";
-  } else {
-    const backoffMs = calculateAuthProfileCooldownMs(nextErrorCount);
-    // Keep active cooldown windows immutable so retries within the window
-    // cannot push recovery further out.
-<<<<<<< HEAD
-    updatedStats.cooldownUntil = hasActiveCooldownWindow
-      ? existingCooldownUntil
-      : params.now + backoffMs;
->>>>>>> 7c3c406a3 (fix: keep auth-profile cooldown windows immutable in-window (#23536) (thanks @arosstale))
-=======
-    updatedStats.cooldownUntil = keepActiveWindowOrRecompute({
-      existingUntil: params.existing.cooldownUntil,
-      now: params.now,
-      recomputedUntil: params.now + backoffMs,
-    });
->>>>>>> 07527e22c (refactor(auth-profiles): centralize active-window logic + strengthen regression coverage)
   }
 
   return updatedStats;
@@ -277,7 +192,7 @@ export async function markAuthProfileFailure(params: {
   store: AuthProfileStore;
   profileId: string;
   reason: AuthProfileFailureReason;
-  cfg?: OpenClawConfig;
+  cfg?: MoltbotConfig;
   agentDir?: string;
 }): Promise<void> {
   const { store, profileId, reason, agentDir, cfg } = params;
@@ -285,9 +200,7 @@ export async function markAuthProfileFailure(params: {
     agentDir,
     updater: (freshStore) => {
       const profile = freshStore.profiles[profileId];
-      if (!profile) {
-        return false;
-      }
+      if (!profile) return false;
       freshStore.usageStats = freshStore.usageStats ?? {};
       const existing = freshStore.usageStats[profileId] ?? {};
 
@@ -311,9 +224,7 @@ export async function markAuthProfileFailure(params: {
     store.usageStats = updated.usageStats;
     return;
   }
-  if (!store.profiles[profileId]) {
-    return;
-  }
+  if (!store.profiles[profileId]) return;
 
   store.usageStats = store.usageStats ?? {};
   const existing = store.usageStats[profileId] ?? {};
@@ -364,9 +275,7 @@ export async function clearAuthProfileCooldown(params: {
   const updated = await updateAuthProfileStoreWithLock({
     agentDir,
     updater: (freshStore) => {
-      if (!freshStore.usageStats?.[profileId]) {
-        return false;
-      }
+      if (!freshStore.usageStats?.[profileId]) return false;
 
       freshStore.usageStats[profileId] = {
         ...freshStore.usageStats[profileId],
@@ -380,9 +289,7 @@ export async function clearAuthProfileCooldown(params: {
     store.usageStats = updated.usageStats;
     return;
   }
-  if (!store.usageStats?.[profileId]) {
-    return;
-  }
+  if (!store.usageStats?.[profileId]) return;
 
   store.usageStats[profileId] = {
     ...store.usageStats[profileId],

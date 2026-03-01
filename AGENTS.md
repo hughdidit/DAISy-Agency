@@ -1,7 +1,18 @@
 # Repository Guidelines
-
-- Repo: https://github.com/openclaw/openclaw
+- Repo: https://github.com/hughdidit/DAISy-Agency
+- Default Branch: daisy/dev
+- Upstream Mirror Branch: main
+- Staging Branch: daisy/dev
+- Production Branch: daisy/main 
 - GitHub issues/comments/PR comments: use literal multiline strings or `-F - <<'EOF'` (or $'...') for real newlines; never embed "\\n".
+
+## DAISy-Agency Fork Workflow
+- This is a fork of moltbot/moltbot
+- Default PR base branch: `daisy/dev` (not `main`)
+- **Never commit directly to `daisy/dev` or `daisy/main`** — always create a throwaway feature branch and merge via PR
+- Avoid merging from `upstream` remote — keep fork changes isolated
+- Avoid merging to `upstream` remote — keep fork changes isolated
+- Avoid merging to/from `main` and `dev` — they represent production and staging for CI/CD
 
 ## Project Structure & Module Organization
 
@@ -132,7 +143,8 @@
 - Rebrand/migration issues or legacy config/service warnings: run `openclaw doctor` (see `docs/gateway/doctor.md`).
 
 ## Agent-Specific Notes
-
+- **WSL sudo/disruptive commands:** If a command requires `sudo` or kills processes (e.g., `pkill`, `rm .git/*.lock`), ask the user to run it manually in their terminal rather than attempting it via Bash tool.
+- **WSL git slowness:** Git operations on Windows filesystem (`/mnt/g/`) via WSL are extremely slow and can corrupt files. Use Git for Windows instead: `"/mnt/c/Program Files/Git/bin/git.exe" <command>`. This is FAR more efficient for GitHub interactions on network-mounted repos.
 - Vocabulary: "makeup" = "mac app".
 - Never edit `node_modules` (global/Homebrew/npm/git installs too). Updates overwrite. Skill notes go in `tools.md` or `AGENTS.md`.
 - Signal: "update fly" => `fly ssh console -a flawd-bot -C "bash -lc 'cd /data/clawd/openclaw && git pull --rebase origin main'"` then `fly machines restart e825232f34d058 -a flawd-bot`.
@@ -188,3 +200,24 @@
 - Publish: `npm publish --access public --otp="<otp>"` (run from the package dir).
 - Verify without local npmrc side effects: `npm view <pkg> version --userconfig "$(mktemp)"`.
 - Kill the tmux session after publish.
+
+# Claude Review Guidelines (DAISy-Agency / Moltbot thin fork)
+
+## Review scope (priority order)
+1) Correctness and safety (security, auth, secrets, permissions, data loss)
+2) CI/CD and workflow safety (required checks, concurrency, env gating)
+3) Maintainability (clear naming, modularity, tests)
+4) Style (only if it improves readability)
+
+## What to output in PR reviews
+- Top 3–7 actionable findings, each with:
+  - file path(s)
+  - risk level (low/med/high)
+  - a concrete fix suggestion
+- Avoid nitpicks unless they prevent bugs.
+- Be concise.
+
+## Repo-specific guardrails
+- Branch model: daisy/dev (integration), daisy/main (production)
+- Required check stability is critical: do not propose renaming required check names.
+- Prefer least-privilege permissions in workflows.

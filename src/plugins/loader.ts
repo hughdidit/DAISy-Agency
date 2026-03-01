@@ -1,40 +1,37 @@
-import { createJiti } from "jiti";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-<<<<<<< HEAD
-=======
 import { createJiti } from "jiti";
->>>>>>> 87603b5c4 (fix: sync built-in channel enablement across config paths)
-import type { OpenClawConfig } from "../config/config.js";
+
+import type { MoltbotConfig } from "../config/config.js";
 import type { GatewayRequestHandler } from "../gateway/server-methods/types.js";
-import type {
-  OpenClawPluginDefinition,
-  OpenClawPluginModule,
-  PluginDiagnostic,
-  PluginLogger,
-} from "./types.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import { resolveUserPath } from "../utils.js";
-import { clearPluginCommands } from "./commands.js";
+import { discoverMoltbotPlugins } from "./discovery.js";
+import { loadPluginManifestRegistry } from "./manifest-registry.js";
 import {
   normalizePluginsConfig,
-  resolveEffectiveEnableState,
+  resolveEnableState,
   resolveMemorySlotDecision,
   type NormalizedPluginsConfig,
 } from "./config-state.js";
-import { discoverOpenClawPlugins } from "./discovery.js";
 import { initializeGlobalHookRunner } from "./hook-runner-global.js";
-import { loadPluginManifestRegistry } from "./manifest-registry.js";
+import { clearPluginCommands } from "./commands.js";
 import { createPluginRegistry, type PluginRecord, type PluginRegistry } from "./registry.js";
-import { setActivePluginRegistry } from "./runtime.js";
 import { createPluginRuntime } from "./runtime/index.js";
+import { setActivePluginRegistry } from "./runtime.js";
 import { validateJsonSchemaValue } from "./schema-validator.js";
+import type {
+  MoltbotPluginDefinition,
+  MoltbotPluginModule,
+  PluginDiagnostic,
+  PluginLogger,
+} from "./types.js";
 
 export type PluginLoadResult = PluginRegistry;
 
 export type PluginLoadOptions = {
-  config?: OpenClawConfig;
+  config?: MoltbotConfig;
   workspaceDir?: string;
   logger?: PluginLogger;
   coreGatewayHandlers?: Record<string, GatewayRequestHandler>;
@@ -49,26 +46,20 @@ const defaultLogger = () => createSubsystemLogger("plugins");
 const resolvePluginSdkAlias = (): string | null => {
   try {
     const modulePath = fileURLToPath(import.meta.url);
-    const isProduction = process.env.NODE_ENV === "production";
-    const isTest = process.env.VITEST || process.env.NODE_ENV === "test";
+    const isDistRuntime = modulePath.split(path.sep).includes("dist");
+    const preferDist = process.env.VITEST || process.env.NODE_ENV === "test" || isDistRuntime;
     let cursor = path.dirname(modulePath);
     for (let i = 0; i < 6; i += 1) {
       const srcCandidate = path.join(cursor, "src", "plugin-sdk", "index.ts");
       const distCandidate = path.join(cursor, "dist", "plugin-sdk", "index.js");
-      const orderedCandidates = isProduction
-        ? isTest
-          ? [distCandidate, srcCandidate]
-          : [distCandidate]
+      const orderedCandidates = preferDist
+        ? [distCandidate, srcCandidate]
         : [srcCandidate, distCandidate];
       for (const candidate of orderedCandidates) {
-        if (fs.existsSync(candidate)) {
-          return candidate;
-        }
+        if (fs.existsSync(candidate)) return candidate;
       }
       const parent = path.dirname(cursor);
-      if (parent === cursor) {
-        break;
-      }
+      if (parent === cursor) break;
       cursor = parent;
     }
   } catch {
@@ -107,8 +98,8 @@ function validatePluginConfig(params: {
 }
 
 function resolvePluginModuleExport(moduleExport: unknown): {
-  definition?: OpenClawPluginDefinition;
-  register?: OpenClawPluginDefinition["register"];
+  definition?: MoltbotPluginDefinition;
+  register?: MoltbotPluginDefinition["register"];
 } {
   const resolved =
     moduleExport &&
@@ -118,11 +109,11 @@ function resolvePluginModuleExport(moduleExport: unknown): {
       : moduleExport;
   if (typeof resolved === "function") {
     return {
-      register: resolved as OpenClawPluginDefinition["register"],
+      register: resolved as MoltbotPluginDefinition["register"],
     };
   }
   if (resolved && typeof resolved === "object") {
-    const def = resolved as OpenClawPluginDefinition;
+    const def = resolved as MoltbotPluginDefinition;
     const register = def.register ?? def.activate;
     return { definition: def, register };
   }
@@ -166,39 +157,11 @@ function createPluginRecord(params: {
   };
 }
 
-<<<<<<< HEAD
-=======
-function recordPluginError(params: {
-  logger: PluginLogger;
-  registry: PluginRegistry;
-  record: PluginRecord;
-  seenIds: Map<string, PluginRecord["origin"]>;
-  pluginId: string;
-  origin: PluginRecord["origin"];
-  error: unknown;
-  logPrefix: string;
-  diagnosticMessagePrefix: string;
-}) {
-  const errorText = String(params.error);
-  params.logger.error(`${params.logPrefix}${errorText}`);
-  params.record.status = "error";
-  params.record.error = errorText;
-  params.registry.plugins.push(params.record);
-  params.seenIds.set(params.pluginId, params.origin);
-  params.registry.diagnostics.push({
-    level: "error",
-    pluginId: params.record.id,
-    source: params.record.source,
-    message: `${params.diagnosticMessagePrefix}${errorText}`,
-  });
-}
-
->>>>>>> 87603b5c4 (fix: sync built-in channel enablement across config paths)
 function pushDiagnostics(diagnostics: PluginDiagnostic[], append: PluginDiagnostic[]) {
   diagnostics.push(...append);
 }
 
-export function loadOpenClawPlugins(options: PluginLoadOptions = {}): PluginRegistry {
+export function loadMoltbotPlugins(options: PluginLoadOptions = {}): PluginRegistry {
   const cfg = options.config ?? {};
   const logger = options.logger ?? defaultLogger();
   const validateOnly = options.mode === "validate";
@@ -226,7 +189,7 @@ export function loadOpenClawPlugins(options: PluginLoadOptions = {}): PluginRegi
     coreGatewayHandlers: options.coreGatewayHandlers as Record<string, GatewayRequestHandler>,
   });
 
-  const discovery = discoverOpenClawPlugins({
+  const discovery = discoverMoltbotPlugins({
     workspaceDir: options.workspaceDir,
     extraPaths: normalized.loadPaths,
   });
@@ -245,7 +208,10 @@ export function loadOpenClawPlugins(options: PluginLoadOptions = {}): PluginRegi
     extensions: [".ts", ".tsx", ".mts", ".cts", ".mtsx", ".ctsx", ".js", ".mjs", ".cjs", ".json"],
     ...(pluginSdkAlias
       ? {
-          alias: { "openclaw/plugin-sdk": pluginSdkAlias },
+          alias: {
+            "clawdbot/plugin-sdk": pluginSdkAlias,
+            "moltbot/plugin-sdk": pluginSdkAlias,
+          },
         }
       : {}),
   });
@@ -284,16 +250,7 @@ export function loadOpenClawPlugins(options: PluginLoadOptions = {}): PluginRegi
       continue;
     }
 
-<<<<<<< HEAD
     const enableState = resolveEnableState(pluginId, candidate.origin, normalized);
-=======
-    const enableState = resolveEffectiveEnableState({
-      id: pluginId,
-      origin: candidate.origin,
-      config: normalized,
-      rootConfig: cfg,
-    });
->>>>>>> 87603b5c4 (fix: sync built-in channel enablement across config paths)
     const entry = normalized.entries[pluginId];
     const record = createPluginRecord({
       id: pluginId,
@@ -332,9 +289,9 @@ export function loadOpenClawPlugins(options: PluginLoadOptions = {}): PluginRegi
       continue;
     }
 
-    let mod: OpenClawPluginModule | null = null;
+    let mod: MoltbotPluginModule | null = null;
     try {
-      mod = jiti(candidate.source) as OpenClawPluginModule;
+      mod = jiti(candidate.source) as MoltbotPluginModule;
     } catch (err) {
       logger.error(`[plugins] ${record.id} failed to load from ${record.source}: ${String(err)}`);
       record.status = "error";
@@ -451,7 +408,7 @@ export function loadOpenClawPlugins(options: PluginLoadOptions = {}): PluginRegi
 
     try {
       const result = register(api);
-      if (result && typeof result.then === "function") {
+      if (result && typeof (result as Promise<void>).then === "function") {
         registry.diagnostics.push({
           level: "warn",
           pluginId: record.id,

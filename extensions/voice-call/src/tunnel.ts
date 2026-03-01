@@ -97,7 +97,7 @@ export async function startNgrokTunnel(config: {
           // Add path to the public URL
           const fullUrl = publicUrl + config.path;
 
-          console.log(`[voice-call] ngrok tunnel active: ${fullUrl}`);
+          console.log(`[voice-call] ngrok tunnel active: ${fullUrl}`); // standalone util
 
           resolve({
             publicUrl: fullUrl,
@@ -239,7 +239,9 @@ export async function startTailscaleTunnel(config: {
       clearTimeout(timeout);
       if (code === 0) {
         const publicUrl = `https://${dnsName}${path}`;
-        console.log(`[voice-call] Tailscale ${config.mode} active: ${publicUrl}`);
+        console.log( // standalone util
+          `[voice-call] Tailscale ${config.mode} active: ${publicUrl}`,
+        );
 
         resolve({
           publicUrl,

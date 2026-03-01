@@ -8,13 +8,9 @@ const LIVE = isTruthyEnvValue(process.env.GEMINI_LIVE_TEST) || isTruthyEnvValue(
 const describeLive = LIVE && GEMINI_KEY ? describe : describe.skip;
 
 describeLive("gemini live switch", () => {
-<<<<<<< HEAD
   it("handles unsigned tool calls from Antigravity when switching to Gemini 3", async () => {
     const now = Date.now();
     const model = getModel("google", "gemini-3-pro-preview");
-=======
-  const googleModels = ["gemini-3-pro-preview", "gemini-2.5-pro"] as const;
->>>>>>> 780bbbd06 (fix: restore CI checks after #23012 (thanks @druide67))
 
     const res = await completeSimple(
       model,

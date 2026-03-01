@@ -4,11 +4,11 @@ import path from "node:path";
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, test, vi } from "vitest";
 import { WebSocket } from "ws";
 import type { ChannelPlugin } from "../channels/plugins/types.js";
-import type { PluginRegistry } from "../plugins/registry.js";
-import { whatsappPlugin } from "../../extensions/whatsapp/src/channel.js";
 import { emitAgentEvent, registerAgentRunContext } from "../infra/agent-events.js";
+import type { PluginRegistry } from "../plugins/registry.js";
 import { setActivePluginRegistry } from "../plugins/runtime.js";
 import { GATEWAY_CLIENT_MODES, GATEWAY_CLIENT_NAMES } from "../utils/message-channel.js";
+import { whatsappPlugin } from "../../extensions/whatsapp/src/channel.js";
 import {
   agentCommand,
   connectOk,
@@ -127,11 +127,7 @@ describe("gateway server agent", () => {
     setActivePluginRegistry(emptyRegistry);
   });
 
-<<<<<<< HEAD
   test("agent routes main last-channel msteams", async () => {
-=======
-  test("agent errors when deliver=true and last-channel plugin is unavailable", async () => {
->>>>>>> 1cd3b3090 (fix: stop hardcoded channel fallback and auto-pick sole configured channel (#23357) (thanks @lbo728))
     const registry = createRegistry([
       {
         pluginId: "msteams",
@@ -141,7 +137,7 @@ describe("gateway server agent", () => {
     ]);
     registryState.registry = registry;
     setActivePluginRegistry(registry);
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-gw-"));
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-gw-"));
     testState.sessionStorePath = path.join(dir, "sessions.json");
     await writeSessionStore({
       entries: {
@@ -160,7 +156,6 @@ describe("gateway server agent", () => {
       deliver: true,
       idempotencyKey: "idem-agent-last-msteams",
     });
-<<<<<<< HEAD
     expect(res.ok).toBe(true);
 
     const spy = vi.mocked(agentCommand);
@@ -170,12 +165,6 @@ describe("gateway server agent", () => {
     expect(call.deliver).toBe(true);
     expect(call.bestEffortDeliver).toBe(true);
     expect(call.sessionId).toBe("sess-teams");
-=======
-    expect(res.ok).toBe(false);
-    expect(res.error?.code).toBe("INVALID_REQUEST");
-    expect(res.error?.message).toContain("Channel is required");
-    expect(vi.mocked(agentCommand)).not.toHaveBeenCalled();
->>>>>>> 1cd3b3090 (fix: stop hardcoded channel fallback and auto-pick sole configured channel (#23357) (thanks @lbo728))
   });
 
   test("agent accepts channel aliases (imsg/teams)", async () => {
@@ -188,7 +177,7 @@ describe("gateway server agent", () => {
     ]);
     registryState.registry = registry;
     setActivePluginRegistry(registry);
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-gw-"));
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-gw-"));
     testState.sessionStorePath = path.join(dir, "sessions.json");
     await writeSessionStore({
       entries: {
@@ -240,9 +229,9 @@ describe("gateway server agent", () => {
     expect(res.error?.code).toBe("INVALID_REQUEST");
   });
 
-  test("agent errors when deliver=true and last channel is webchat", async () => {
+  test("agent ignores webchat last-channel for routing", async () => {
     testState.allowFrom = ["+1555"];
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-gw-"));
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-gw-"));
     testState.sessionStorePath = path.join(dir, "sessions.json");
     await writeSessionStore({
       entries: {
@@ -261,7 +250,6 @@ describe("gateway server agent", () => {
       deliver: true,
       idempotencyKey: "idem-agent-webchat",
     });
-<<<<<<< HEAD
     expect(res.ok).toBe(true);
 
     const spy = vi.mocked(agentCommand);
@@ -271,16 +259,10 @@ describe("gateway server agent", () => {
     expect(call.deliver).toBe(true);
     expect(call.bestEffortDeliver).toBe(true);
     expect(call.sessionId).toBe("sess-main-webchat");
-=======
-    expect(res.ok).toBe(false);
-    expect(res.error?.code).toBe("INVALID_REQUEST");
-    expect(res.error?.message).toMatch(/Channel is required|runtime not initialized/);
-    expect(vi.mocked(agentCommand)).not.toHaveBeenCalled();
->>>>>>> 1cd3b3090 (fix: stop hardcoded channel fallback and auto-pick sole configured channel (#23357) (thanks @lbo728))
   });
 
   test("agent uses webchat for internal runs when last provider is webchat", async () => {
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-gw-"));
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-gw-"));
     testState.sessionStorePath = path.join(dir, "sessions.json");
     await writeSessionStore({
       entries: {
@@ -413,7 +395,7 @@ describe("gateway server agent", () => {
   });
 
   test("agent events stream to webchat clients when run context is registered", async () => {
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-gw-"));
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-gw-"));
     testState.sessionStorePath = path.join(dir, "sessions.json");
     await writeSessionStore({
       entries: {
@@ -440,9 +422,7 @@ describe("gateway server agent", () => {
     const finalChatP = onceMessage(
       webchatWs,
       (o) => {
-        if (o.type !== "event" || o.event !== "chat") {
-          return false;
-        }
+        if (o.type !== "event" || o.event !== "chat") return false;
         const payload = o.payload as { state?: unknown; runId?: unknown } | undefined;
         return payload?.state === "final" && payload.runId === "run-auto-1";
       },

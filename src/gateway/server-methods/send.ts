@@ -1,15 +1,16 @@
-import type { GatewayRequestContext, GatewayRequestHandlers } from "./types.js";
-import { resolveSessionAgentId } from "../../agents/agent-scope.js";
 import { getChannelPlugin, normalizeChannelId } from "../../channels/plugins/index.js";
-import { createOutboundSendDeps } from "../../cli/deps.js";
+import type { ChannelId } from "../../channels/plugins/types.js";
+import { DEFAULT_CHAT_CHANNEL } from "../../channels/registry.js";
 import { loadConfig } from "../../config/config.js";
-import { resolveMessageChannelSelection } from "../../infra/outbound/channel-selection.js";
+import { createOutboundSendDeps } from "../../cli/deps.js";
 import { deliverOutboundPayloads } from "../../infra/outbound/deliver.js";
+import { normalizeReplyPayloadsForDelivery } from "../../infra/outbound/payloads.js";
 import {
   ensureOutboundSessionEntry,
   resolveOutboundSessionRoute,
 } from "../../infra/outbound/outbound-session.js";
-import { normalizeReplyPayloadsForDelivery } from "../../infra/outbound/payloads.js";
+import { resolveSessionAgentId } from "../../agents/agent-scope.js";
+import type { OutboundChannel } from "../../infra/outbound/targets.js";
 import { resolveOutboundTarget } from "../../infra/outbound/targets.js";
 import { normalizePollInput } from "../../polls.js";
 import {
@@ -20,6 +21,7 @@ import {
   validateSendParams,
 } from "../protocol/index.js";
 import { formatForLog } from "../ws-log.js";
+import type { GatewayRequestContext, GatewayRequestHandlers } from "./types.js";
 
 type InflightResult = {
   ok: boolean;
@@ -44,7 +46,7 @@ const getInflightMap = (context: GatewayRequestContext) => {
 
 export const sendHandlers: GatewayRequestHandlers = {
   send: async ({ params, respond, context }) => {
-    const p = params;
+    const p = params as Record<string, unknown>;
     if (!validateSendParams(p)) {
       respond(
         false,
@@ -97,22 +99,13 @@ export const sendHandlers: GatewayRequestHandlers = {
       );
       return;
     }
-    const cfg = loadConfig();
-    let channel = normalizedChannel;
-    if (!channel) {
-      try {
-        channel = (await resolveMessageChannelSelection({ cfg })).channel;
-      } catch (err) {
-        respond(false, undefined, errorShape(ErrorCodes.INVALID_REQUEST, String(err)));
-        return;
-      }
-    }
+    const channel = normalizedChannel ?? DEFAULT_CHAT_CHANNEL;
     const accountId =
       typeof request.accountId === "string" && request.accountId.trim().length
         ? request.accountId.trim()
         : undefined;
-    const outboundChannel = channel;
-    const plugin = getChannelPlugin(channel);
+    const outboundChannel = channel as Exclude<OutboundChannel, "none">;
+    const plugin = getChannelPlugin(channel as ChannelId);
     if (!plugin) {
       respond(
         false,
@@ -124,6 +117,7 @@ export const sendHandlers: GatewayRequestHandlers = {
 
     const work = (async (): Promise<InflightResult> => {
       try {
+        const cfg = loadConfig();
         const resolved = resolveOutboundTarget({
           channel: outboundChannel,
           to,
@@ -178,14 +172,7 @@ export const sendHandlers: GatewayRequestHandlers = {
           channel: outboundChannel,
           to: resolved.to,
           accountId,
-<<<<<<< HEAD
           payloads: [{ text: message, mediaUrl: request.mediaUrl, mediaUrls }],
-=======
-          payloads: [{ text: message, mediaUrl, mediaUrls }],
-          agentId: providedSessionKey
-            ? resolveSessionAgentId({ sessionKey: providedSessionKey, config: cfg })
-            : derivedAgentId,
->>>>>>> e927fd1e3 (fix: allow agent workspace directories in media local roots (#17136))
           gifPlayback: request.gifPlayback,
           deps: outboundDeps,
           mirror: providedSessionKey
@@ -214,15 +201,9 @@ export const sendHandlers: GatewayRequestHandlers = {
           messageId: result.messageId,
           channel,
         };
-        if ("chatId" in result) {
-          payload.chatId = result.chatId;
-        }
-        if ("channelId" in result) {
-          payload.channelId = result.channelId;
-        }
-        if ("toJid" in result) {
-          payload.toJid = result.toJid;
-        }
+        if ("chatId" in result) payload.chatId = result.chatId;
+        if ("channelId" in result) payload.channelId = result.channelId;
+        if ("toJid" in result) payload.toJid = result.toJid;
         if ("conversationId" in result) {
           payload.conversationId = result.conversationId;
         }
@@ -256,7 +237,7 @@ export const sendHandlers: GatewayRequestHandlers = {
     }
   },
   poll: async ({ params, respond, context }) => {
-    const p = params;
+    const p = params as Record<string, unknown>;
     if (!validatePollParams(p)) {
       respond(
         false,
@@ -297,39 +278,7 @@ export const sendHandlers: GatewayRequestHandlers = {
       );
       return;
     }
-<<<<<<< HEAD
     const channel = normalizedChannel ?? DEFAULT_CHAT_CHANNEL;
-=======
-    const cfg = loadConfig();
-    let channel = normalizedChannel;
-    if (!channel) {
-      try {
-        channel = (await resolveMessageChannelSelection({ cfg })).channel;
-      } catch (err) {
-        respond(false, undefined, errorShape(ErrorCodes.INVALID_REQUEST, String(err)));
-        return;
-      }
-    }
-    if (typeof request.durationSeconds === "number" && channel !== "telegram") {
-      respond(
-        false,
-        undefined,
-        errorShape(
-          ErrorCodes.INVALID_REQUEST,
-          "durationSeconds is only supported for Telegram polls",
-        ),
-      );
-      return;
-    }
-    if (typeof request.isAnonymous === "boolean" && channel !== "telegram") {
-      respond(
-        false,
-        undefined,
-        errorShape(ErrorCodes.INVALID_REQUEST, "isAnonymous is only supported for Telegram polls"),
-      );
-      return;
-    }
->>>>>>> 1cd3b3090 (fix: stop hardcoded channel fallback and auto-pick sole configured channel (#23357) (thanks @lbo728))
     const poll = {
       question: request.question,
       options: request.options,
@@ -341,7 +290,7 @@ export const sendHandlers: GatewayRequestHandlers = {
         ? request.accountId.trim()
         : undefined;
     try {
-      const plugin = getChannelPlugin(channel);
+      const plugin = getChannelPlugin(channel as ChannelId);
       const outbound = plugin?.outbound;
       if (!outbound?.sendPoll) {
         respond(
@@ -351,8 +300,9 @@ export const sendHandlers: GatewayRequestHandlers = {
         );
         return;
       }
+      const cfg = loadConfig();
       const resolved = resolveOutboundTarget({
-        channel: channel,
+        channel: channel as Exclude<OutboundChannel, "none">,
         to,
         cfg,
         accountId,
@@ -376,18 +326,10 @@ export const sendHandlers: GatewayRequestHandlers = {
         messageId: result.messageId,
         channel,
       };
-      if (result.toJid) {
-        payload.toJid = result.toJid;
-      }
-      if (result.channelId) {
-        payload.channelId = result.channelId;
-      }
-      if (result.conversationId) {
-        payload.conversationId = result.conversationId;
-      }
-      if (result.pollId) {
-        payload.pollId = result.pollId;
-      }
+      if (result.toJid) payload.toJid = result.toJid;
+      if (result.channelId) payload.channelId = result.channelId;
+      if (result.conversationId) payload.conversationId = result.conversationId;
+      if (result.pollId) payload.pollId = result.pollId;
       context.dedupe.set(`poll:${idem}`, {
         ts: Date.now(),
         ok: true,

@@ -13,13 +13,6 @@ export type ModelSelectedContext = {
   thinkLevel: string | undefined;
 };
 
-export type TypingPolicy =
-  | "auto"
-  | "user_message"
-  | "system_event"
-  | "internal_webchat"
-  | "heartbeat";
-
 export type GetReplyOptions = {
   /** Override run id for agent events (defaults to random UUID). */
   runId?: string;
@@ -30,21 +23,8 @@ export type GetReplyOptions = {
   /** Notifies when an agent run actually starts (useful for webchat command handling). */
   onAgentRunStart?: (runId: string) => void;
   onReplyStart?: () => Promise<void> | void;
-  /** Called when the typing controller cleans up (e.g., run ended with NO_REPLY). */
-  onTypingCleanup?: () => void;
   onTypingController?: (typing: TypingController) => void;
   isHeartbeat?: boolean;
-<<<<<<< HEAD
-=======
-  /** Policy-level typing control for run classes (user/system/internal/heartbeat). */
-  typingPolicy?: TypingPolicy;
-  /** Force-disable typing indicators for this run (system/internal/cross-channel routes). */
-  suppressTyping?: boolean;
-  /** Resolved heartbeat model override (provider/model string from merged per-agent config). */
-  heartbeatModelOverride?: string;
-  /** If true, suppress tool error warning payloads for this run. */
-  suppressToolErrorWarnings?: boolean;
->>>>>>> 37a138c55 (fix: harden typing lifecycle and cross-channel suppression)
   onPartialReply?: (payload: ReplyPayload) => Promise<void> | void;
   onReasoningStream?: (payload: ReplyPayload) => Promise<void> | void;
   onBlockReply?: (payload: ReplyPayload, context?: BlockReplyContext) => Promise<void> | void;
@@ -72,9 +52,6 @@ export type ReplyPayload = {
   /** Send audio as voice message (bubble) instead of audio file. Defaults to false. */
   audioAsVoice?: boolean;
   isError?: boolean;
-  /** Marks this payload as a reasoning/thinking block. Channels that do not
-   *  have a dedicated reasoning lane (e.g. WhatsApp, web) should suppress it. */
-  isReasoning?: boolean;
   /** Channel-specific payload data (per-channel envelope). */
   channelData?: Record<string, unknown>;
 };

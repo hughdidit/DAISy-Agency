@@ -1,18 +1,13 @@
 import fs from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
-<<<<<<< HEAD
 import { describe, expect, it, vi } from "vitest";
-=======
-import { beforeEach, describe, expect, it, vi } from "vitest";
+
 import { loadSessionStore, saveSessionStore, type SessionEntry } from "../../config/sessions.js";
->>>>>>> ccbeb332e (fix: harden routing/session isolation for followups and heartbeat)
 import type { FollowupRun } from "./queue.js";
-import { loadSessionStore, saveSessionStore, type SessionEntry } from "../../config/sessions.js";
 import { createMockTypingController } from "./test-helpers.js";
 
 const runEmbeddedPiAgentMock = vi.fn();
-const routeReplyMock = vi.fn();
 
 vi.mock("../../agents/model-fallback.js", () => ({
   runWithModelFallback: async ({
@@ -34,20 +29,7 @@ vi.mock("../../agents/pi-embedded.js", () => ({
   runEmbeddedPiAgent: (params: unknown) => runEmbeddedPiAgentMock(params),
 }));
 
-vi.mock("./route-reply.js", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("./route-reply.js")>();
-  return {
-    ...actual,
-    routeReply: (...args: unknown[]) => routeReplyMock(...args),
-  };
-});
-
 import { createFollowupRunner } from "./followup-runner.js";
-
-beforeEach(() => {
-  routeReplyMock.mockReset();
-  routeReplyMock.mockResolvedValue({ ok: true });
-});
 
 const baseQueuedRun = (messageProvider = "whatsapp"): FollowupRun =>
   ({
@@ -79,47 +61,10 @@ const baseQueuedRun = (messageProvider = "whatsapp"): FollowupRun =>
     },
   }) as FollowupRun;
 
-<<<<<<< HEAD
-=======
-function createQueuedRun(
-  overrides: Partial<Omit<FollowupRun, "run">> & { run?: Partial<FollowupRun["run"]> } = {},
-): FollowupRun {
-  const base = baseQueuedRun();
-  return {
-    ...base,
-    ...overrides,
-    run: {
-      ...base.run,
-      ...overrides.run,
-    },
-  };
-}
-
-function mockCompactionRun(params: {
-  willRetry: boolean;
-  result: {
-    payloads: Array<{ text: string }>;
-    meta: Record<string, unknown>;
-  };
-}) {
-  runEmbeddedPiAgentMock.mockImplementationOnce(
-    async (args: {
-      onAgentEvent?: (evt: { stream: string; data: Record<string, unknown> }) => void;
-    }) => {
-      args.onAgentEvent?.({
-        stream: "compaction",
-        data: { phase: "end", willRetry: params.willRetry },
-      });
-      return params.result;
-    },
-  );
-}
-
->>>>>>> b0bb3cca8 (test(types): fix ts narrowing regressions in followup and matrix queue tests)
 describe("createFollowupRunner compaction", () => {
   it("adds verbose auto-compaction notice and tracks count", async () => {
     const storePath = path.join(
-      await fs.mkdtemp(path.join(tmpdir(), "openclaw-compaction-")),
+      await fs.mkdtemp(path.join(tmpdir(), "moltbot-compaction-")),
       "sessions.json",
     );
     const sessionEntry: SessionEntry = {
@@ -187,68 +132,6 @@ describe("createFollowupRunner compaction", () => {
     expect(onBlockReply.mock.calls[0][0].text).toContain("Auto-compaction complete");
     expect(sessionStore.main.compactionCount).toBe(1);
   });
-
-  it("updates totalTokens after auto-compaction using lastCallUsage", async () => {
-    const storePath = path.join(
-      await fs.mkdtemp(path.join(tmpdir(), "openclaw-followup-compaction-")),
-      "sessions.json",
-    );
-    const sessionKey = "main";
-    const sessionEntry: SessionEntry = {
-      sessionId: "session",
-      updatedAt: Date.now(),
-      totalTokens: 180_000,
-      compactionCount: 0,
-    };
-    const sessionStore: Record<string, SessionEntry> = { [sessionKey]: sessionEntry };
-    await saveSessionStore(storePath, sessionStore);
-    const onBlockReply = vi.fn(async () => {});
-
-    runEmbeddedPiAgentMock.mockImplementationOnce(
-      async (params: {
-        onAgentEvent?: (evt: { stream: string; data: Record<string, unknown> }) => void;
-      }) => {
-        params.onAgentEvent?.({
-          stream: "compaction",
-          data: { phase: "end", willRetry: false },
-        });
-        return {
-          payloads: [{ text: "done" }],
-          meta: {
-            agentMeta: {
-              // Accumulated usage across pre+post compaction calls.
-              usage: { input: 190_000, output: 8_000, total: 198_000 },
-              // Last call usage reflects post-compaction context.
-              lastCallUsage: { input: 11_000, output: 2_000, total: 13_000 },
-              model: "claude-opus-4-5",
-              provider: "anthropic",
-            },
-          },
-        };
-      },
-    );
-
-    const runner = createFollowupRunner({
-      opts: { onBlockReply },
-      typing: createMockTypingController(),
-      typingMode: "instant",
-      sessionEntry,
-      sessionStore,
-      sessionKey,
-      storePath,
-      defaultModel: "anthropic/claude-opus-4-5",
-      agentCfgContextTokens: 200_000,
-    });
-
-    await runner(baseQueuedRun());
-
-    const store = loadSessionStore(storePath, { skipCache: true });
-    expect(store[sessionKey]?.compactionCount).toBe(1);
-    expect(store[sessionKey]?.totalTokens).toBe(11_000);
-    // We only keep the total estimate after compaction.
-    expect(store[sessionKey]?.inputTokens).toBeUndefined();
-    expect(store[sessionKey]?.outputTokens).toBeUndefined();
-  });
 });
 
 describe("createFollowupRunner messaging tool dedupe", () => {
@@ -313,93 +196,9 @@ describe("createFollowupRunner messaging tool dedupe", () => {
     expect(onBlockReply).not.toHaveBeenCalled();
   });
 
-<<<<<<< HEAD
-=======
-  it("suppresses replies when provider is synthetic but originating channel matches", async () => {
-    const onBlockReply = vi.fn(async () => {});
-    runEmbeddedPiAgentMock.mockResolvedValueOnce({
-      payloads: [{ text: "hello world!" }],
-      messagingToolSentTexts: ["different message"],
-      messagingToolSentTargets: [{ tool: "telegram", provider: "telegram", to: "268300329" }],
-      meta: {},
-    });
-
-    const runner = createMessagingDedupeRunner(onBlockReply);
-
-    await runner({
-      ...baseQueuedRun("heartbeat"),
-      originatingChannel: "telegram",
-      originatingTo: "268300329",
-    } as FollowupRun);
-
-    expect(onBlockReply).not.toHaveBeenCalled();
-  });
-
-  it("does not suppress replies for same target when account differs", async () => {
-    const onBlockReply = vi.fn(async () => {});
-    runEmbeddedPiAgentMock.mockResolvedValueOnce({
-      payloads: [{ text: "hello world!" }],
-      messagingToolSentTexts: ["different message"],
-      messagingToolSentTargets: [
-        { tool: "telegram", provider: "telegram", to: "268300329", accountId: "work" },
-      ],
-      meta: {},
-    });
-
-    const runner = createMessagingDedupeRunner(onBlockReply);
-
-    await runner({
-      ...baseQueuedRun("heartbeat"),
-      originatingChannel: "telegram",
-      originatingTo: "268300329",
-      originatingAccountId: "personal",
-    } as FollowupRun);
-
-    expect(routeReplyMock).toHaveBeenCalledWith(
-      expect.objectContaining({
-        channel: "telegram",
-        to: "268300329",
-        accountId: "personal",
-      }),
-    );
-    expect(onBlockReply).not.toHaveBeenCalled();
-  });
-
-  it("drops media URL from payload when messaging tool already sent it", async () => {
-    const onBlockReply = vi.fn(async () => {});
-    runEmbeddedPiAgentMock.mockResolvedValueOnce({
-      payloads: [{ mediaUrl: "/tmp/img.png" }],
-      messagingToolSentMediaUrls: ["/tmp/img.png"],
-      meta: {},
-    });
-
-    const runner = createMessagingDedupeRunner(onBlockReply);
-
-    await runner(baseQueuedRun());
-
-    // Media stripped → payload becomes non-renderable → not delivered.
-    expect(onBlockReply).not.toHaveBeenCalled();
-  });
-
-  it("delivers media payload when not a duplicate", async () => {
-    const onBlockReply = vi.fn(async () => {});
-    runEmbeddedPiAgentMock.mockResolvedValueOnce({
-      payloads: [{ mediaUrl: "/tmp/img.png" }],
-      messagingToolSentMediaUrls: ["/tmp/other.png"],
-      meta: {},
-    });
-
-    const runner = createMessagingDedupeRunner(onBlockReply);
-
-    await runner(baseQueuedRun());
-
-    expect(onBlockReply).toHaveBeenCalledTimes(1);
-  });
-
->>>>>>> ccbeb332e (fix: harden routing/session isolation for followups and heartbeat)
   it("persists usage even when replies are suppressed", async () => {
     const storePath = path.join(
-      await fs.mkdtemp(path.join(tmpdir(), "openclaw-followup-usage-")),
+      await fs.mkdtemp(path.join(tmpdir(), "moltbot-followup-usage-")),
       "sessions.json",
     );
     const sessionKey = "main";
@@ -414,8 +213,7 @@ describe("createFollowupRunner messaging tool dedupe", () => {
       messagingToolSentTargets: [{ tool: "slack", provider: "slack", to: "channel:C1" }],
       meta: {
         agentMeta: {
-          usage: { input: 1_000, output: 50 },
-          lastCallUsage: { input: 400, output: 20 },
+          usage: { input: 10, output: 5 },
           model: "claude-opus-4-5",
           provider: "anthropic",
         },
@@ -437,62 +235,7 @@ describe("createFollowupRunner messaging tool dedupe", () => {
 
     expect(onBlockReply).not.toHaveBeenCalled();
     const store = loadSessionStore(storePath, { skipCache: true });
-    // totalTokens should reflect the last call usage snapshot, not the accumulated input.
-    expect(store[sessionKey]?.totalTokens).toBe(400);
+    expect(store[sessionKey]?.totalTokens ?? 0).toBeGreaterThan(0);
     expect(store[sessionKey]?.model).toBe("claude-opus-4-5");
-    // Accumulated usage is still stored for usage/cost tracking.
-    expect(store[sessionKey]?.inputTokens).toBe(1_000);
-    expect(store[sessionKey]?.outputTokens).toBe(50);
-  });
-
-  it("does not fall back to dispatcher when explicit origin routing fails", async () => {
-    const onBlockReply = vi.fn(async () => {});
-    runEmbeddedPiAgentMock.mockResolvedValueOnce({
-      payloads: [{ text: "hello world!" }],
-      meta: {},
-    });
-    routeReplyMock.mockResolvedValueOnce({
-      ok: false,
-      error: "forced route failure",
-    });
-
-    const runner = createMessagingDedupeRunner(onBlockReply);
-
-    await runner({
-      ...baseQueuedRun("webchat"),
-      originatingChannel: "discord",
-      originatingTo: "channel:C1",
-    } as FollowupRun);
-
-    expect(routeReplyMock).toHaveBeenCalled();
-    expect(onBlockReply).not.toHaveBeenCalled();
-  });
-
-  it("routes followups with originating account/thread metadata", async () => {
-    const onBlockReply = vi.fn(async () => {});
-    runEmbeddedPiAgentMock.mockResolvedValueOnce({
-      payloads: [{ text: "hello world!" }],
-      meta: {},
-    });
-
-    const runner = createMessagingDedupeRunner(onBlockReply);
-
-    await runner({
-      ...baseQueuedRun("webchat"),
-      originatingChannel: "discord",
-      originatingTo: "channel:C1",
-      originatingAccountId: "work",
-      originatingThreadId: "1739142736.000100",
-    } as FollowupRun);
-
-    expect(routeReplyMock).toHaveBeenCalledWith(
-      expect.objectContaining({
-        channel: "discord",
-        to: "channel:C1",
-        accountId: "work",
-        threadId: "1739142736.000100",
-      }),
-    );
-    expect(onBlockReply).not.toHaveBeenCalled();
   });
 });

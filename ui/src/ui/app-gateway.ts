@@ -1,40 +1,31 @@
-import type { EventLogEntry } from "./app-events.ts";
-import type { OpenClawApp } from "./app.ts";
-import type { ExecApprovalRequest } from "./controllers/exec-approval.ts";
-import type { GatewayEventFrame, GatewayHelloOk } from "./gateway.ts";
-import type { Tab } from "./navigation.ts";
-import type { UiSettings } from "./storage.ts";
-import type { AgentsListResult, PresenceEntry, HealthSnapshot, StatusSummary } from "./types.ts";
-import { CHAT_SESSIONS_ACTIVE_MINUTES, flushChatQueueForEvent } from "./app-chat.ts";
+import { loadChatHistory } from "./controllers/chat";
+import { loadDevices } from "./controllers/devices";
+import { loadNodes } from "./controllers/nodes";
+import { loadAgents } from "./controllers/agents";
+import type { GatewayEventFrame, GatewayHelloOk } from "./gateway";
+import { GatewayBrowserClient } from "./gateway";
+import type { EventLogEntry } from "./app-events";
+import type { AgentsListResult, PresenceEntry, HealthSnapshot, StatusSummary } from "./types";
+import type { Tab } from "./navigation";
+import type { UiSettings } from "./storage";
+import { handleAgentEvent, resetToolStream, type AgentEventPayload } from "./app-tool-stream";
+import { flushChatQueueForEvent } from "./app-chat";
 import {
   applySettings,
   loadCron,
   refreshActiveTab,
   setLastActiveSessionKey,
-} from "./app-settings.ts";
-import { handleAgentEvent, resetToolStream, type AgentEventPayload } from "./app-tool-stream.ts";
-import { loadAgents } from "./controllers/agents.ts";
-import { loadAssistantIdentity } from "./controllers/assistant-identity.ts";
-import { loadChatHistory } from "./controllers/chat.ts";
-import { handleChatEvent, type ChatEventPayload } from "./controllers/chat.ts";
-import { loadDevices } from "./controllers/devices.ts";
+} from "./app-settings";
+import { handleChatEvent, type ChatEventPayload } from "./controllers/chat";
 import {
   addExecApproval,
   parseExecApprovalRequested,
   parseExecApprovalResolved,
   removeExecApproval,
-} from "./controllers/exec-approval.ts";
-import { loadNodes } from "./controllers/nodes.ts";
-import { loadSessions } from "./controllers/sessions.ts";
-<<<<<<< HEAD
-=======
-import {
-  resolveGatewayErrorDetailCode,
-  type GatewayEventFrame,
-  type GatewayHelloOk,
-} from "./gateway.ts";
->>>>>>> bbdfba569 (fix: harden connect auth flow and exec policy diagnostics)
-import { GatewayBrowserClient } from "./gateway.ts";
+} from "./controllers/exec-approval";
+import type { MoltbotApp } from "./app";
+import type { ExecApprovalRequest } from "./controllers/exec-approval";
+import { loadAssistantIdentity } from "./controllers/assistant-identity";
 
 type GatewayHost = {
   settings: UiSettings;
@@ -43,7 +34,6 @@ type GatewayHost = {
   connected: boolean;
   hello: GatewayHelloOk | null;
   lastError: string | null;
-  lastErrorCode: string | null;
   onboarding?: boolean;
   eventLogBuffer: EventLogEntry[];
   eventLog: EventLogEntry[];
@@ -60,7 +50,6 @@ type GatewayHost = {
   assistantAgentId: string | null;
   sessionKey: string;
   chatRunId: string | null;
-  refreshSessionsAfterChat: Set<string>;
   execApprovalQueue: ExecApprovalRequest[];
   execApprovalError: string | null;
 };
@@ -78,26 +67,21 @@ function normalizeSessionKeyForDefaults(
 ): string {
   const raw = (value ?? "").trim();
   const mainSessionKey = defaults.mainSessionKey?.trim();
-  if (!mainSessionKey) {
-    return raw;
-  }
-  if (!raw) {
-    return mainSessionKey;
-  }
+  if (!mainSessionKey) return raw;
+  if (!raw) return mainSessionKey;
   const mainKey = defaults.mainKey?.trim() || "main";
   const defaultAgentId = defaults.defaultAgentId?.trim();
   const isAlias =
     raw === "main" ||
     raw === mainKey ||
     (defaultAgentId &&
-      (raw === `agent:${defaultAgentId}:main` || raw === `agent:${defaultAgentId}:${mainKey}`));
+      (raw === `agent:${defaultAgentId}:main` ||
+        raw === `agent:${defaultAgentId}:${mainKey}`));
   return isAlias ? mainSessionKey : raw;
 }
 
 function applySessionDefaults(host: GatewayHost, defaults?: SessionDefaultsSnapshot) {
-  if (!defaults?.mainSessionKey) {
-    return;
-  }
+  if (!defaults?.mainSessionKey) return;
   const resolvedSessionKey = normalizeSessionKeyForDefaults(host.sessionKey, defaults);
   const resolvedSettingsSessionKey = normalizeSessionKeyForDefaults(
     host.settings.sessionKey,
@@ -126,7 +110,6 @@ function applySessionDefaults(host: GatewayHost, defaults?: SessionDefaultsSnaps
 
 export function connectGateway(host: GatewayHost) {
   host.lastError = null;
-  host.lastErrorCode = null;
   host.hello = null;
   host.connected = false;
   host.execApprovalQueue = [];
@@ -137,12 +120,11 @@ export function connectGateway(host: GatewayHost) {
     url: host.settings.gatewayUrl,
     token: host.settings.token.trim() ? host.settings.token : undefined,
     password: host.password.trim() ? host.password : undefined,
-    clientName: "openclaw-control-ui",
+    clientName: "moltbot-control-ui",
     mode: "webchat",
     onHello: (hello) => {
       host.connected = true;
       host.lastError = null;
-      host.lastErrorCode = null;
       host.hello = hello;
       applySnapshot(host, hello);
       // Reset orphaned chat run state from before disconnect.
@@ -151,40 +133,22 @@ export function connectGateway(host: GatewayHost) {
       (host as unknown as { chatStream: string | null }).chatStream = null;
       (host as unknown as { chatStreamStartedAt: number | null }).chatStreamStartedAt = null;
       resetToolStream(host as unknown as Parameters<typeof resetToolStream>[0]);
-      void loadAssistantIdentity(host as unknown as OpenClawApp);
-      void loadAgents(host as unknown as OpenClawApp);
-      void loadNodes(host as unknown as OpenClawApp, { quiet: true });
-      void loadDevices(host as unknown as OpenClawApp, { quiet: true });
+      void loadAssistantIdentity(host as unknown as MoltbotApp);
+      void loadAgents(host as unknown as MoltbotApp);
+      void loadNodes(host as unknown as MoltbotApp, { quiet: true });
+      void loadDevices(host as unknown as MoltbotApp, { quiet: true });
       void refreshActiveTab(host as unknown as Parameters<typeof refreshActiveTab>[0]);
     },
-<<<<<<< HEAD
     onClose: ({ code, reason }) => {
-=======
-    onClose: ({ code, reason, error }) => {
-      if (host.client !== client) {
-        return;
-      }
->>>>>>> bbdfba569 (fix: harden connect auth flow and exec policy diagnostics)
       host.connected = false;
       // Code 1012 = Service Restart (expected during config saves, don't show as error)
-      host.lastErrorCode =
-        resolveGatewayErrorDetailCode(error) ??
-        (typeof error?.code === "string" ? error.code : null);
       if (code !== 1012) {
-        if (error?.message) {
-          host.lastError = error.message;
-          return;
-        }
         host.lastError = `disconnected (${code}): ${reason || "no reason"}`;
-      } else {
-        host.lastError = null;
-        host.lastErrorCode = null;
       }
     },
     onEvent: (evt) => handleGatewayEvent(host, evt),
     onGap: ({ expected, received }) => {
       host.lastError = `event gap detected (expected seq ${expected}, got ${received}); refresh recommended`;
-      host.lastErrorCode = null;
     },
   });
   host.client.start();
@@ -208,9 +172,7 @@ function handleGatewayEventUnsafe(host: GatewayHost, evt: GatewayEventFrame) {
   }
 
   if (evt.event === "agent") {
-    if (host.onboarding) {
-      return;
-    }
+    if (host.onboarding) return;
     handleAgentEvent(
       host as unknown as Parameters<typeof handleAgentEvent>[0],
       evt.payload as AgentEventPayload | undefined,
@@ -226,23 +188,14 @@ function handleGatewayEventUnsafe(host: GatewayHost, evt: GatewayEventFrame) {
         payload.sessionKey,
       );
     }
-    const state = handleChatEvent(host as unknown as OpenClawApp, payload);
+    const state = handleChatEvent(host as unknown as MoltbotApp, payload);
     if (state === "final" || state === "error" || state === "aborted") {
       resetToolStream(host as unknown as Parameters<typeof resetToolStream>[0]);
-      void flushChatQueueForEvent(host as unknown as Parameters<typeof flushChatQueueForEvent>[0]);
-      const runId = payload?.runId;
-      if (runId && host.refreshSessionsAfterChat.has(runId)) {
-        host.refreshSessionsAfterChat.delete(runId);
-        if (state === "final") {
-          void loadSessions(host as unknown as OpenClawApp, {
-            activeMinutes: CHAT_SESSIONS_ACTIVE_MINUTES,
-          });
-        }
-      }
+      void flushChatQueueForEvent(
+        host as unknown as Parameters<typeof flushChatQueueForEvent>[0],
+      );
     }
-    if (state === "final") {
-      void loadChatHistory(host as unknown as OpenClawApp);
-    }
+    if (state === "final") void loadChatHistory(host as unknown as MoltbotApp);
     return;
   }
 
@@ -261,7 +214,7 @@ function handleGatewayEventUnsafe(host: GatewayHost, evt: GatewayEventFrame) {
   }
 
   if (evt.event === "device.pair.requested" || evt.event === "device.pair.resolved") {
-    void loadDevices(host as unknown as OpenClawApp, { quiet: true });
+    void loadDevices(host as unknown as MoltbotApp, { quiet: true });
   }
 
   if (evt.event === "exec.approval.requested") {

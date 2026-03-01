@@ -27,10 +27,10 @@ async function withTempHome<T>(fn: (home: string) => Promise<T>): Promise<T> {
     },
     {
       env: {
-        OPENCLAW_AGENT_DIR: (home) => path.join(home, ".openclaw", "agent"),
-        PI_CODING_AGENT_DIR: (home) => path.join(home, ".openclaw", "agent"),
+        CLAWDBOT_AGENT_DIR: (home) => path.join(home, ".clawdbot", "agent"),
+        PI_CODING_AGENT_DIR: (home) => path.join(home, ".clawdbot", "agent"),
       },
-      prefix: "openclaw-reply-",
+      prefix: "moltbot-reply-",
     },
   );
 }
@@ -72,7 +72,7 @@ describe("directive behavior", () => {
           agents: {
             defaults: {
               model: { primary: "anthropic/claude-opus-4-5" },
-              workspace: path.join(home, "openclaw"),
+              workspace: path.join(home, "clawd"),
               models: {
                 "anthropic/claude-opus-4-5": {},
                 "openai/gpt-4.1-mini": {},
@@ -105,7 +105,7 @@ describe("directive behavior", () => {
           agents: {
             defaults: {
               model: { primary: "anthropic/claude-opus-4-5" },
-              workspace: path.join(home, "openclaw"),
+              workspace: path.join(home, "clawd"),
               models: {
                 "anthropic/claude-opus-4-5": {},
                 "openai/gpt-4.1-mini": {},
@@ -145,7 +145,7 @@ describe("directive behavior", () => {
                 fallbacks: ["openai/gpt-4.1-mini"],
               },
               imageModel: { primary: "minimax/MiniMax-M2.1" },
-              workspace: path.join(home, "openclaw"),
+              workspace: path.join(home, "clawd"),
             },
           },
           session: { store: storePath },
@@ -183,7 +183,7 @@ describe("directive behavior", () => {
           agents: {
             defaults: {
               model: { primary: "anthropic/claude-opus-4-5" },
-              workspace: path.join(home, "openclaw"),
+              workspace: path.join(home, "clawd"),
               models: {
                 "anthropic/claude-opus-4-5": {},
                 "openai/gpt-4.1-mini": {},
@@ -203,15 +203,10 @@ describe("directive behavior", () => {
           },
           session: { store: storePath },
         },
-<<<<<<< HEAD
       );
 
       const text = Array.isArray(res) ? res[0]?.text : res?.text;
       expect(text).toContain("Model set to minimax");
-=======
-      });
-      expect(text).toContain("Models (minimax");
->>>>>>> cb84c537f (fix: normalize status auth cost handling and models header tests)
       expect(text).toContain("minimax/MiniMax-M2.1");
       expect(runEmbeddedPiAgent).not.toHaveBeenCalled();
     });
@@ -228,7 +223,7 @@ describe("directive behavior", () => {
           agents: {
             defaults: {
               model: { primary: "anthropic/claude-opus-4-5" },
-              workspace: path.join(home, "openclaw"),
+              workspace: path.join(home, "clawd"),
               models: {
                 "anthropic/claude-opus-4-5": {},
               },
@@ -256,7 +251,7 @@ describe("directive behavior", () => {
           agents: {
             defaults: {
               model: { primary: "anthropic/claude-opus-4-5" },
-              workspace: path.join(home, "openclaw"),
+              workspace: path.join(home, "clawd"),
               models: {
                 "anthropic/claude-opus-4-5": {},
                 "openai/gpt-4.1-mini": {},
@@ -286,7 +281,7 @@ describe("directive behavior", () => {
           agents: {
             defaults: {
               model: { primary: "openai/gpt-4.1-mini" },
-              workspace: path.join(home, "openclaw"),
+              workspace: path.join(home, "clawd"),
               models: {
                 "openai/gpt-4.1-mini": {},
                 "anthropic/claude-opus-4-5": { alias: "Opus" },

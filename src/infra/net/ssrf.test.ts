@@ -1,16 +1,11 @@
 import { describe, expect, it } from "vitest";
+import { blockedIpv6MulticastLiterals } from "../../shared/net/ip-test-fixtures.js";
 import { normalizeFingerprint } from "../tls/fingerprint.js";
 import { isBlockedHostnameOrIp, isPrivateIpAddress } from "./ssrf.js";
 
 const privateIpCases = [
-<<<<<<< HEAD
-<<<<<<< HEAD
-  "::ffff:127.0.0.1",
-=======
-=======
   "198.18.0.1",
   "198.19.255.254",
->>>>>>> 3af9d1f8e (fix: scope Telegram RFC2544 SSRF exception to policy opt-in (#24982) (thanks @stakeswky))
   "198.51.100.42",
   "203.0.113.10",
   "192.0.0.8",
@@ -23,7 +18,6 @@ const privateIpCases = [
   "::ffff:127.0.0.1",
   "::ffff:198.18.0.1",
   "64:ff9b::198.51.100.42",
->>>>>>> 9df80b73e (fix: allow RFC2544 benchmark range (198.18.0.0/15) through SSRF filter)
   "0:0:0:0:0:ffff:7f00:1",
   "0000:0000:0000:0000:0000:ffff:7f00:0001",
   "::127.0.0.1",
@@ -45,17 +39,13 @@ const privateIpCases = [
   "fe80::1%lo0",
   "fd00::1",
   "fec0::1",
-  "ff02::1",
-  "ff05::1:3",
-  "[ff02::1]",
+  ...blockedIpv6MulticastLiterals,
   "2001:db8:1234::5efe:127.0.0.1",
   "2001:db8:1234:1:200:5efe:7f00:1",
 ];
 
 const publicIpCases = [
   "93.184.216.34",
-<<<<<<< HEAD
-=======
   "198.17.255.255",
   "198.20.0.1",
   "198.51.99.1",
@@ -63,7 +53,6 @@ const publicIpCases = [
   "203.0.112.1",
   "203.0.114.1",
   "223.255.255.255",
->>>>>>> 9df80b73e (fix: allow RFC2544 benchmark range (198.18.0.0/15) through SSRF filter)
   "2606:4700:4700::1111",
   "2001:db8::1",
   "64:ff9b::8.8.8.8",
@@ -75,18 +64,41 @@ const publicIpCases = [
 ];
 
 const malformedIpv6Cases = ["::::", "2001:db8::gggg"];
+const unsupportedLegacyIpv4Cases = [
+  "0177.0.0.1",
+  "0x7f.0.0.1",
+  "127.1",
+  "2130706433",
+  "0x7f000001",
+  "017700000001",
+  "8.8.2056",
+  "0x08080808",
+  "08.0.0.1",
+  "0x7g.0.0.1",
+  "127..0.1",
+  "999.1.1.1",
+];
+
+const nonIpHostnameCases = ["example.com", "abc.123.example", "1password.com", "0x.example.com"];
 
 describe("ssrf ip classification", () => {
-  it.each(privateIpCases)("classifies %s as private", (address) => {
-    expect(isPrivateIpAddress(address)).toBe(true);
+  it("classifies blocked ip literals as private", () => {
+    const blockedCases = [...privateIpCases, ...malformedIpv6Cases, ...unsupportedLegacyIpv4Cases];
+    for (const address of blockedCases) {
+      expect(isPrivateIpAddress(address)).toBe(true);
+    }
   });
 
-  it.each(publicIpCases)("classifies %s as public", (address) => {
-    expect(isPrivateIpAddress(address)).toBe(false);
+  it("classifies public ip literals as non-private", () => {
+    for (const address of publicIpCases) {
+      expect(isPrivateIpAddress(address)).toBe(false);
+    }
   });
 
-  it.each(malformedIpv6Cases)("fails closed for malformed IPv6 %s", (address) => {
-    expect(isPrivateIpAddress(address)).toBe(true);
+  it("does not treat hostnames as ip literals", () => {
+    for (const hostname of nonIpHostnameCases) {
+      expect(isPrivateIpAddress(hostname)).toBe(false);
+    }
   });
 });
 
@@ -108,8 +120,6 @@ describe("isBlockedHostnameOrIp", () => {
     expect(isBlockedHostnameOrIp("2001:db8:1234::5efe:127.0.0.1")).toBe(true);
     expect(isBlockedHostnameOrIp("2001:db8::1")).toBe(false);
   });
-<<<<<<< HEAD
-=======
 
   it("blocks IPv4 special-use ranges but allows adjacent public ranges", () => {
     expect(isBlockedHostnameOrIp("198.18.0.1")).toBe(true);
@@ -130,5 +140,4 @@ describe("isBlockedHostnameOrIp", () => {
     expect(isBlockedHostnameOrIp("127.1")).toBe(true);
     expect(isBlockedHostnameOrIp("2130706433")).toBe(true);
   });
->>>>>>> 9df80b73e (fix: allow RFC2544 benchmark range (198.18.0.0/15) through SSRF filter)
 });

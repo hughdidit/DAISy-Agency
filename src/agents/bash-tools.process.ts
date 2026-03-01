@@ -1,6 +1,6 @@
 import type { AgentTool } from "@mariozechner/pi-agent-core";
 import { Type } from "@sinclair/typebox";
-import { formatDurationCompact } from "../infra/format-time/format-duration.ts";
+
 import {
   deleteSession,
   drainSession,
@@ -13,6 +13,7 @@ import {
 } from "./bash-process-registry.js";
 import {
   deriveSessionName,
+  formatDuration,
   killSession,
   pad,
   sliceLogLines,
@@ -43,7 +44,7 @@ const processSchema = Type.Object({
 
 export function createProcessTool(
   defaults?: ProcessToolDefaults,
-  // oxlint-disable-next-line typescript/no-explicit-any
+  // biome-ignore lint/suspicious/noExplicitAny: TypeBox schema type from pi-agent-core uses a different module instance.
 ): AgentTool<any> {
   if (defaults?.cleanupMs !== undefined) {
     setJobTtlMs(defaults.cleanupMs);
@@ -115,10 +116,10 @@ export function createProcessTool(
             exitSignal: s.exitSignal ?? undefined,
           }));
         const lines = [...running, ...finished]
-          .toSorted((a, b) => b.startedAt - a.startedAt)
+          .sort((a, b) => b.startedAt - a.startedAt)
           .map((s) => {
             const label = s.name ? truncateMiddle(s.name, 80) : truncateMiddle(s.command, 120);
-            return `${s.sessionId} ${pad(s.status, 9)} ${formatDurationCompact(s.runtimeMs) ?? "n/a"} :: ${label}`;
+            return `${s.sessionId} ${pad(s.status, 9)} ${formatDuration(s.runtimeMs)} :: ${label}`;
           });
         return {
           content: [
@@ -183,7 +184,6 @@ export function createProcessTool(
             };
           }
           if (!scopedSession.backgrounded) {
-<<<<<<< HEAD
             return {
               content: [
                 {
@@ -193,18 +193,6 @@ export function createProcessTool(
               ],
               details: { status: "failed" },
             };
-=======
-            return failText(`Session ${params.sessionId} is not backgrounded.`);
-          }
-          const pollWaitMs = resolvePollWaitMs(params.timeout);
-          if (pollWaitMs > 0 && !scopedSession.exited) {
-            const deadline = Date.now() + pollWaitMs;
-            while (!scopedSession.exited && Date.now() < deadline) {
-              await new Promise((resolve) =>
-                setTimeout(resolve, Math.max(0, Math.min(250, deadline - Date.now()))),
-              );
-            }
->>>>>>> d07d24eeb (fix: clamp poll sleep duration to non-negative in bash-tools process (#24889))
           }
           const { stdout, stderr } = drainSession(scopedSession);
           const exited = scopedSession.exited;
@@ -349,11 +337,8 @@ export function createProcessTool(
           }
           await new Promise<void>((resolve, reject) => {
             stdin.write(params.data ?? "", (err) => {
-              if (err) {
-                reject(err);
-              } else {
-                resolve();
-              }
+              if (err) reject(err);
+              else resolve();
             });
           });
           if (params.eof) {
@@ -429,11 +414,8 @@ export function createProcessTool(
           }
           await new Promise<void>((resolve, reject) => {
             stdin.write(data, (err) => {
-              if (err) {
-                reject(err);
-              } else {
-                resolve();
-              }
+              if (err) reject(err);
+              else resolve();
             });
           });
           return {
@@ -490,11 +472,8 @@ export function createProcessTool(
           }
           await new Promise<void>((resolve, reject) => {
             stdin.write("\r", (err) => {
-              if (err) {
-                reject(err);
-              } else {
-                resolve();
-              }
+              if (err) reject(err);
+              else resolve();
             });
           });
           return {
@@ -561,11 +540,8 @@ export function createProcessTool(
           }
           await new Promise<void>((resolve, reject) => {
             stdin.write(payload, (err) => {
-              if (err) {
-                reject(err);
-              } else {
-                resolve();
-              }
+              if (err) reject(err);
+              else resolve();
             });
           });
           return {

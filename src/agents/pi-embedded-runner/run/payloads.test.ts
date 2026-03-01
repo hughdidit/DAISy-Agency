@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import type { AssistantMessage } from "@mariozechner/pi-ai";
 import { describe, expect, it } from "vitest";
 import { buildEmbeddedRunPayloads } from "./payloads.js";
@@ -81,25 +80,6 @@ describe("buildEmbeddedRunPayloads", () => {
     expect(payloads.some((payload) => payload.text?.includes("request_id"))).toBe(false);
   });
 
-<<<<<<< HEAD:src/agents/pi-embedded-runner/run/payloads.test.ts
-=======
-  it("includes provider and model context for billing errors", () => {
-    const payloads = buildPayloads({
-      lastAssistant: makeAssistant({
-        model: "claude-3-5-sonnet",
-        errorMessage: "insufficient credits",
-        content: [{ type: "text", text: "insufficient credits" }],
-      }),
-      provider: "Anthropic",
-      model: "claude-3-5-sonnet",
-    });
-
-    expect(payloads).toHaveLength(1);
-    expect(payloads[0]?.text).toBe(formatBillingErrorMessage("Anthropic", "claude-3-5-sonnet"));
-    expect(payloads[0]?.isError).toBe(true);
-  });
-
->>>>>>> 3d4ef5604 (fix: include provider and model name in billing error message (#20510)):src/agents/pi-embedded-runner/run/payloads.e2e.test.ts
   it("suppresses raw error JSON even when errorMessage is missing", () => {
     const lastAssistant = makeAssistant({ errorMessage: undefined });
     const payloads = buildEmbeddedRunPayloads({
@@ -168,17 +148,11 @@ describe("buildEmbeddedRunPayloads", () => {
     expect(payloads[0]?.text).toBe("All good");
   });
 
-<<<<<<<< HEAD:src/agents/pi-embedded-runner/run/payloads.test.ts
   it("adds tool error fallback when the assistant only invoked tools", () => {
     const payloads = buildEmbeddedRunPayloads({
       assistantTexts: [],
       toolMetas: [],
       lastAssistant: {
-========
-  it("adds tool error fallback when the assistant only invoked tools and verbose mode is on", () => {
-    const payloads = buildPayloads({
-      lastAssistant: makeAssistant({
->>>>>>>> 6b05916c1 (fix: gate Telegram exec tool warnings behind verbose mode (#20560)):src/agents/pi-embedded-runner/run/payloads.e2e.test.ts
         stopReason: "toolUse",
         content: [
           {
@@ -190,65 +164,25 @@ describe("buildEmbeddedRunPayloads", () => {
         ],
       } as AssistantMessage,
       lastToolError: { toolName: "exec", error: "Command exited with code 1" },
-<<<<<<<< HEAD:src/agents/pi-embedded-runner/run/payloads.test.ts
       sessionKey: "session:telegram",
       inlineToolResultsAllowed: false,
       verboseLevel: "off",
       reasoningLevel: "off",
       toolResultFormat: "plain",
-========
-      verboseLevel: "on",
->>>>>>>> 6b05916c1 (fix: gate Telegram exec tool warnings behind verbose mode (#20560)):src/agents/pi-embedded-runner/run/payloads.e2e.test.ts
-=======
-import { describe, expect, it } from "vitest";
-import { buildEmbeddedRunPayloads } from "./payloads.js";
-
-type BuildPayloadParams = Parameters<typeof buildEmbeddedRunPayloads>[0];
-
-function buildPayloads(overrides: Partial<BuildPayloadParams> = {}) {
-  return buildEmbeddedRunPayloads({
-    assistantTexts: [],
-    toolMetas: [],
-    lastAssistant: undefined,
-    sessionKey: "session:telegram",
-    inlineToolResultsAllowed: false,
-    verboseLevel: "off",
-    reasoningLevel: "off",
-    toolResultFormat: "plain",
-    ...overrides,
-  });
-}
-
-describe("buildEmbeddedRunPayloads tool-error warnings", () => {
-  it("suppresses exec tool errors when verbose mode is off", () => {
-    const payloads = buildPayloads({
-      lastToolError: { toolName: "exec", error: "command failed" },
-      verboseLevel: "off",
-    });
-
-    expect(payloads).toHaveLength(0);
-  });
-
-  it("shows exec tool errors when verbose mode is on", () => {
-    const payloads = buildPayloads({
-      lastToolError: { toolName: "exec", error: "command failed" },
-      verboseLevel: "on",
->>>>>>> 6b05916c1 (fix: gate Telegram exec tool warnings behind verbose mode (#20560))
     });
 
     expect(payloads).toHaveLength(1);
     expect(payloads[0]?.isError).toBe(true);
     expect(payloads[0]?.text).toContain("Exec");
-<<<<<<< HEAD
     expect(payloads[0]?.text).toContain("code 1");
   });
 
-  it("suppresses recoverable tool errors containing 'required' for non-mutating tools", () => {
+  it("suppresses recoverable tool errors containing 'required'", () => {
     const payloads = buildEmbeddedRunPayloads({
       assistantTexts: [],
       toolMetas: [],
       lastAssistant: undefined,
-      lastToolError: { toolName: "browser", error: "url required" },
+      lastToolError: { toolName: "message", meta: "reply", error: "text required" },
       sessionKey: "session:telegram",
       inlineToolResultsAllowed: false,
       verboseLevel: "off",
@@ -260,12 +194,12 @@ describe("buildEmbeddedRunPayloads tool-error warnings", () => {
     expect(payloads).toHaveLength(0);
   });
 
-  it("suppresses recoverable tool errors containing 'missing' for non-mutating tools", () => {
+  it("suppresses recoverable tool errors containing 'missing'", () => {
     const payloads = buildEmbeddedRunPayloads({
       assistantTexts: [],
       toolMetas: [],
       lastAssistant: undefined,
-      lastToolError: { toolName: "browser", error: "url missing" },
+      lastToolError: { toolName: "message", error: "messageId missing" },
       sessionKey: "session:telegram",
       inlineToolResultsAllowed: false,
       verboseLevel: "off",
@@ -276,12 +210,12 @@ describe("buildEmbeddedRunPayloads tool-error warnings", () => {
     expect(payloads).toHaveLength(0);
   });
 
-  it("suppresses recoverable tool errors containing 'invalid' for non-mutating tools", () => {
+  it("suppresses recoverable tool errors containing 'invalid'", () => {
     const payloads = buildEmbeddedRunPayloads({
       assistantTexts: [],
       toolMetas: [],
       lastAssistant: undefined,
-      lastToolError: { toolName: "browser", error: "invalid parameter: url" },
+      lastToolError: { toolName: "message", error: "invalid parameter: to" },
       sessionKey: "session:telegram",
       inlineToolResultsAllowed: false,
       verboseLevel: "off",
@@ -290,113 +224,6 @@ describe("buildEmbeddedRunPayloads tool-error warnings", () => {
     });
 
     expect(payloads).toHaveLength(0);
-  });
-
-  it("shows recoverable tool errors for mutating tools", () => {
-    const payloads = buildEmbeddedRunPayloads({
-      assistantTexts: [],
-      toolMetas: [],
-      lastAssistant: undefined,
-      lastToolError: { toolName: "message", meta: "reply", error: "text required" },
-      sessionKey: "session:telegram",
-      inlineToolResultsAllowed: false,
-      verboseLevel: "off",
-      reasoningLevel: "off",
-      toolResultFormat: "plain",
-=======
-    expect(payloads[0]?.text).toContain("command failed");
-  });
-
-  it("keeps non-exec mutating tool failures visible", () => {
-    const payloads = buildPayloads({
-      lastToolError: { toolName: "write", error: "permission denied" },
-      verboseLevel: "off",
->>>>>>> 6b05916c1 (fix: gate Telegram exec tool warnings behind verbose mode (#20560))
-    });
-
-    expect(payloads).toHaveLength(1);
-    expect(payloads[0]?.isError).toBe(true);
-<<<<<<< HEAD
-    expect(payloads[0]?.text).toContain("required");
-  });
-
-  it("shows mutating tool errors even when assistant output exists", () => {
-    const payloads = buildEmbeddedRunPayloads({
-      assistantTexts: ["Done."],
-      toolMetas: [],
-      lastAssistant: { stopReason: "end_turn" } as AssistantMessage,
-      lastToolError: { toolName: "write", error: "file missing" },
-      sessionKey: "session:telegram",
-      inlineToolResultsAllowed: false,
-      verboseLevel: "off",
-      reasoningLevel: "off",
-      toolResultFormat: "plain",
-    });
-
-    expect(payloads).toHaveLength(2);
-    expect(payloads[0]?.text).toBe("Done.");
-    expect(payloads[1]?.isError).toBe(true);
-    expect(payloads[1]?.text).toContain("missing");
-  });
-
-  it("does not treat session_status read failures as mutating when explicitly flagged", () => {
-    const payloads = buildEmbeddedRunPayloads({
-      assistantTexts: ["Status loaded."],
-      toolMetas: [],
-      lastAssistant: { stopReason: "end_turn" } as AssistantMessage,
-      lastToolError: {
-        toolName: "session_status",
-        error: "model required",
-        mutatingAction: false,
-      },
-      sessionKey: "session:telegram",
-      inlineToolResultsAllowed: false,
-      verboseLevel: "off",
-      reasoningLevel: "off",
-      toolResultFormat: "plain",
-    });
-
-    expect(payloads).toHaveLength(1);
-    expect(payloads[0]?.text).toBe("Status loaded.");
-  });
-
-  it("dedupes identical tool warning text already present in assistant output", () => {
-    const seed = buildEmbeddedRunPayloads({
-      assistantTexts: [],
-      toolMetas: [],
-      lastAssistant: undefined,
-      lastToolError: {
-        toolName: "write",
-        error: "file missing",
-        mutatingAction: true,
-      },
-      sessionKey: "session:telegram",
-      inlineToolResultsAllowed: false,
-      verboseLevel: "off",
-      reasoningLevel: "off",
-      toolResultFormat: "plain",
-    });
-    const warningText = seed[0]?.text;
-    expect(warningText).toBeTruthy();
-
-    const payloads = buildEmbeddedRunPayloads({
-      assistantTexts: [warningText ?? ""],
-      toolMetas: [],
-      lastAssistant: { stopReason: "end_turn" } as AssistantMessage,
-      lastToolError: {
-        toolName: "write",
-        error: "file missing",
-        mutatingAction: true,
-      },
-      sessionKey: "session:telegram",
-      inlineToolResultsAllowed: false,
-      verboseLevel: "off",
-      reasoningLevel: "off",
-      toolResultFormat: "plain",
-    });
-
-    expect(payloads).toHaveLength(1);
-    expect(payloads[0]?.text).toBe(warningText);
   });
 
   it("shows non-recoverable tool errors to the user", () => {
@@ -416,46 +243,5 @@ describe("buildEmbeddedRunPayloads tool-error warnings", () => {
     expect(payloads).toHaveLength(1);
     expect(payloads[0]?.isError).toBe(true);
     expect(payloads[0]?.text).toContain("connection timeout");
-=======
-    expect(payloads[0]?.text).toContain("Write");
-<<<<<<< HEAD
->>>>>>> 6b05916c1 (fix: gate Telegram exec tool warnings behind verbose mode (#20560))
-=======
-    expect(payloads[0]?.text).not.toContain("permission denied");
-  });
-
-  it("includes mutating tool error details when verbose mode is on", () => {
-    const payloads = buildPayloads({
-      lastToolError: { toolName: "write", error: "permission denied" },
-      verboseLevel: "on",
-    });
-
-    expect(payloads).toHaveLength(1);
-    expect(payloads[0]?.isError).toBe(true);
-    expect(payloads[0]?.text).toContain("Write");
-    expect(payloads[0]?.text).toContain("permission denied");
->>>>>>> 835be4392 (fix: gate tool error details behind verbose)
-  });
-
-  it("suppresses sessions_send errors to avoid leaking transient relay failures", () => {
-    const payloads = buildPayloads({
-      lastToolError: { toolName: "sessions_send", error: "delivery timeout" },
-      verboseLevel: "on",
-    });
-
-    expect(payloads).toHaveLength(0);
-  });
-
-  it("suppresses sessions_send errors even when marked mutating", () => {
-    const payloads = buildPayloads({
-      lastToolError: {
-        toolName: "sessions_send",
-        error: "delivery timeout",
-        mutatingAction: true,
-      },
-      verboseLevel: "on",
-    });
-
-    expect(payloads).toHaveLength(0);
   });
 });

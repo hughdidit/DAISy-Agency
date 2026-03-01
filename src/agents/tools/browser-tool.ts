@@ -1,14 +1,3 @@
-import crypto from "node:crypto";
-import type { AgentToolResult } from "@mariozechner/pi-agent-core";
-import {
-  browserAct,
-  browserArmDialog,
-  browserArmFileChooser,
-  browserConsoleMessages,
-  browserNavigate,
-  browserPdfSave,
-  browserScreenshotAction,
-} from "../../browser/client-actions.js";
 import {
   browserCloseTab,
   browserFocusTab,
@@ -20,66 +9,26 @@ import {
   browserStop,
   browserTabs,
 } from "../../browser/client.js";
+import {
+  browserAct,
+  browserArmDialog,
+  browserArmFileChooser,
+  browserConsoleMessages,
+  browserNavigate,
+  browserPdfSave,
+  browserScreenshotAction,
+} from "../../browser/client-actions.js";
+import crypto from "node:crypto";
+
 import { resolveBrowserConfig } from "../../browser/config.js";
 import { DEFAULT_AI_SNAPSHOT_MAX_CHARS } from "../../browser/constants.js";
 import { loadConfig } from "../../config/config.js";
 import { saveMediaBuffer } from "../../media/store.js";
+import { listNodes, resolveNodeIdFromList, type NodeListNode } from "./nodes-utils.js";
 import { BrowserToolSchema } from "./browser-tool.schema.js";
 import { type AnyAgentTool, imageResultFromFile, jsonResult, readStringParam } from "./common.js";
 import { callGatewayTool } from "./gateway.js";
-import { listNodes, resolveNodeIdFromList, type NodeListNode } from "./nodes-utils.js";
 
-<<<<<<< HEAD
-=======
-function wrapBrowserExternalJson(params: {
-  kind: "snapshot" | "console" | "tabs";
-  payload: unknown;
-  includeWarning?: boolean;
-}): { wrappedText: string; safeDetails: Record<string, unknown> } {
-  const extractedText = JSON.stringify(params.payload, null, 2);
-  const wrappedText = wrapExternalContent(extractedText, {
-    source: "browser",
-    includeWarning: params.includeWarning ?? true,
-  });
-  return {
-    wrappedText,
-    safeDetails: {
-      ok: true,
-      externalContent: {
-        untrusted: true,
-        source: "browser",
-        kind: params.kind,
-        wrapped: true,
-      },
-    },
-  };
-}
-
-function formatTabsToolResult(tabs: unknown[]): AgentToolResult<unknown> {
-  const wrapped = wrapBrowserExternalJson({
-    kind: "tabs",
-    payload: { tabs },
-    includeWarning: false,
-  });
-  const content: AgentToolResult<unknown>["content"] = [
-    { type: "text", text: wrapped.wrappedText },
-  ];
-  return {
-    content,
-    details: { ...wrapped.safeDetails, tabCount: tabs.length },
-  };
-}
-
-function readOptionalTargetAndTimeout(params: Record<string, unknown>) {
-  const targetId = typeof params.targetId === "string" ? params.targetId.trim() : undefined;
-  const timeoutMs =
-    typeof params.timeoutMs === "number" && Number.isFinite(params.timeoutMs)
-      ? params.timeoutMs
-      : undefined;
-  return { targetId, timeoutMs };
-}
-
->>>>>>> 7c109f573 (fix: resolve ci type errors and reconnect test flake)
 type BrowserProxyFile = {
   path: string;
   base64: string;
@@ -121,9 +70,7 @@ async function resolveBrowserNodeTarget(params: {
   if (params.sandboxBridgeUrl?.trim() && params.target !== "node" && !params.requestedNode) {
     return null;
   }
-  if (params.target && params.target !== "node") {
-    return null;
-  }
+  if (params.target && params.target !== "node") return null;
   if (mode === "manual" && params.target !== "node" && !params.requestedNode) {
     return null;
   }
@@ -146,7 +93,7 @@ async function resolveBrowserNodeTarget(params: {
 
   if (params.target === "node") {
     if (browserNodes.length === 1) {
-      const node = browserNodes[0];
+      const node = browserNodes[0]!;
       return { nodeId: node.nodeId, label: node.displayName ?? node.remoteIp ?? node.nodeId };
     }
     throw new Error(
@@ -154,12 +101,10 @@ async function resolveBrowserNodeTarget(params: {
     );
   }
 
-  if (mode === "manual") {
-    return null;
-  }
+  if (mode === "manual") return null;
 
   if (browserNodes.length === 1) {
-    const node = browserNodes[0];
+    const node = browserNodes[0]!;
     return { nodeId: node.nodeId, label: node.displayName ?? node.remoteIp ?? node.nodeId };
   }
   return null;
@@ -178,7 +123,7 @@ async function callBrowserProxy(params: {
     typeof params.timeoutMs === "number" && Number.isFinite(params.timeoutMs)
       ? Math.max(1, Math.floor(params.timeoutMs))
       : DEFAULT_BROWSER_PROXY_TIMEOUT_MS;
-  const payload = await callGatewayTool<{ payloadJSON?: string; payload?: string }>(
+  const payload = (await callGatewayTool(
     "node.invoke",
     { timeoutMs: gatewayTimeoutMs },
     {
@@ -194,22 +139,24 @@ async function callBrowserProxy(params: {
       },
       idempotencyKey: crypto.randomUUID(),
     },
-  );
+  )) as {
+    ok?: boolean;
+    payload?: BrowserProxyResult;
+    payloadJSON?: string | null;
+  };
   const parsed =
     payload?.payload ??
     (typeof payload?.payloadJSON === "string" && payload.payloadJSON
       ? (JSON.parse(payload.payloadJSON) as BrowserProxyResult)
       : null);
-  if (!parsed || typeof parsed !== "object" || !("result" in parsed)) {
+  if (!parsed || typeof parsed !== "object") {
     throw new Error("browser proxy failed");
   }
   return parsed;
 }
 
 async function persistProxyFiles(files: BrowserProxyFile[] | undefined) {
-  if (!files || files.length === 0) {
-    return new Map<string, string>();
-  }
+  if (!files || files.length === 0) return new Map<string, string>();
   const mapping = new Map<string, string>();
   for (const file of files) {
     const buffer = Buffer.from(file.base64, "base64");
@@ -220,9 +167,7 @@ async function persistProxyFiles(files: BrowserProxyFile[] | undefined) {
 }
 
 function applyProxyPaths(result: unknown, mapping: Map<string, string>) {
-  if (!result || typeof result !== "object") {
-    return;
-  }
+  if (!result || typeof result !== "object") return;
   const obj = result as Record<string, unknown>;
   if (typeof obj.path === "string" && mapping.has(obj.path)) {
     obj.path = mapping.get(obj.path);
@@ -263,7 +208,7 @@ function resolveBrowserBaseUrl(params: {
   }
   if (!resolved.enabled) {
     throw new Error(
-      "Browser control is disabled. Set browser.enabled=true in ~/.openclaw/openclaw.json.",
+      "Browser control is disabled. Set browser.enabled=true in ~/.clawdbot/moltbot.json.",
     );
   }
   return undefined;
@@ -280,11 +225,11 @@ export function createBrowserTool(opts?: {
     label: "Browser",
     name: "browser",
     description: [
-      "Control the browser via OpenClaw's browser control server (status/start/stop/profiles/tabs/open/snapshot/screenshot/actions).",
-      'Profiles: use profile="chrome" for Chrome extension relay takeover (your existing Chrome tabs). Use profile="openclaw" for the isolated openclaw-managed browser.',
+      "Control the browser via Moltbot's browser control server (status/start/stop/profiles/tabs/open/snapshot/screenshot/actions).",
+      'Profiles: use profile="chrome" for Chrome extension relay takeover (your existing Chrome tabs). Use profile="clawd" for the isolated clawd-managed browser.',
       'If the user mentions the Chrome extension / Browser Relay / toolbar button / “attach tab”, ALWAYS use profile="chrome" (do not ask which profile).',
       'When a node-hosted browser proxy is available, the tool may auto-route to it. Pin a node with node=<id|name> or target="node".',
-      "Chrome extension relay needs an attached tab: user must click the OpenClaw Browser Relay toolbar icon on the tab (badge ON). If no tab is connected, ask them to attach it.",
+      "Chrome extension relay needs an attached tab: user must click the Moltbot Browser Relay toolbar icon on the tab (badge ON). If no tab is connected, ask them to attach it.",
       "When using refs from snapshot (e.g. e12), keep the same tab: prefer passing targetId from the snapshot response into subsequent actions (act/click/type/etc).",
       'For stable, self-resolving refs across calls, use snapshot with refs="aria" (Playwright aria-ref ids). Default refs="role" are role+name-based.',
       "Use snapshot+act for UI automation. Avoid act:wait by default; use only in exceptional cases when no reliable UI state exists.",
@@ -461,18 +406,15 @@ export function createBrowserTool(opts?: {
                 });
             return jsonResult(result);
           }
-          if (targetId) {
-            await browserCloseTab(baseUrl, targetId, { profile });
-          } else {
-            await browserAct(baseUrl, { kind: "close" }, { profile });
-          }
+          if (targetId) await browserCloseTab(baseUrl, targetId, { profile });
+          else await browserAct(baseUrl, { kind: "close" }, { profile });
           return jsonResult({ ok: true });
         }
         case "snapshot": {
           const snapshotDefaults = loadConfig().browser?.snapshotDefaults;
           const format =
             params.snapshotFormat === "ai" || params.snapshotFormat === "aria"
-              ? params.snapshotFormat
+              ? (params.snapshotFormat as "ai" | "aria")
               : "ai";
           const mode =
             params.mode === "efficient"
@@ -556,36 +498,8 @@ export function createBrowserTool(opts?: {
               });
             }
             return {
-<<<<<<< HEAD
               content: [{ type: "text", text: snapshot.snapshot }],
               details: snapshot,
-=======
-              content: [{ type: "text" as const, text: wrappedSnapshot }],
-              details: safeDetails,
-            };
-          }
-          {
-            const wrapped = wrapBrowserExternalJson({
-              kind: "snapshot",
-              payload: snapshot,
-            });
-            return {
-              content: [{ type: "text" as const, text: wrapped.wrappedText }],
-              details: {
-                ...wrapped.safeDetails,
-                format: "aria",
-                targetId: snapshot.targetId,
-                url: snapshot.url,
-                nodeCount: snapshot.nodes.length,
-                externalContent: {
-                  untrusted: true,
-                  source: "browser",
-                  kind: "snapshot",
-                  format: "aria",
-                  wrapped: true,
-                },
-              },
->>>>>>> 08fb38f72 (Fix: resolve pnpm check type regressions)
             };
           }
           return jsonResult(snapshot);
@@ -661,34 +575,7 @@ export function createBrowserTool(opts?: {
                 targetId,
               },
             });
-<<<<<<< HEAD
             return jsonResult(result);
-=======
-            return {
-              content: [{ type: "text" as const, text: wrapped.wrappedText }],
-              details: {
-                ...wrapped.safeDetails,
-                targetId: typeof result.targetId === "string" ? result.targetId : undefined,
-                messageCount: Array.isArray(result.messages) ? result.messages.length : undefined,
-              },
-            };
-          }
-          {
-            const result = await browserConsoleMessages(baseUrl, { level, targetId, profile });
-            const wrapped = wrapBrowserExternalJson({
-              kind: "console",
-              payload: result,
-              includeWarning: false,
-            });
-            return {
-              content: [{ type: "text" as const, text: wrapped.wrappedText }],
-              details: {
-                ...wrapped.safeDetails,
-                targetId: result.targetId,
-                messageCount: result.messages.length,
-              },
-            };
->>>>>>> 08fb38f72 (Fix: resolve pnpm check type regressions)
           }
           return jsonResult(await browserConsoleMessages(baseUrl, { level, targetId, profile }));
         }
@@ -703,15 +590,13 @@ export function createBrowserTool(opts?: {
               })) as Awaited<ReturnType<typeof browserPdfSave>>)
             : await browserPdfSave(baseUrl, { targetId, profile });
           return {
-            content: [{ type: "text" as const, text: `FILE:${result.path}` }],
+            content: [{ type: "text", text: `FILE:${result.path}` }],
             details: result,
           };
         }
         case "upload": {
           const paths = Array.isArray(params.paths) ? params.paths.map((p) => String(p)) : [];
-          if (paths.length === 0) {
-            throw new Error("paths required");
-          }
+          if (paths.length === 0) throw new Error("paths required");
           const ref = readStringParam(params, "ref");
           const inputRef = readStringParam(params, "inputRef");
           const element = readStringParam(params, "element");
@@ -811,13 +696,11 @@ export function createBrowserTool(opts?: {
                 : await browserTabs(baseUrl, { profile }).catch(() => []);
               if (!tabs.length) {
                 throw new Error(
-                  "No Chrome tabs are attached via the OpenClaw Browser Relay extension. Click the toolbar icon on the tab you want to control (badge ON), then retry.",
-                  { cause: err },
+                  "No Chrome tabs are attached via the Moltbot Browser Relay extension. Click the toolbar icon on the tab you want to control (badge ON), then retry.",
                 );
               }
               throw new Error(
                 `Chrome tab not found (stale targetId?). Run action=tabs profile="chrome" and use one of the returned targetIds.`,
-                { cause: err },
               );
             }
             throw err;

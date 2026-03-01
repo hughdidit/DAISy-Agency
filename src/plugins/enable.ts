@@ -1,21 +1,14 @@
-import type { OpenClawConfig } from "../config/config.js";
-<<<<<<< HEAD
-=======
-import { ensurePluginAllowlisted } from "../config/plugins-allowlist.js";
-import { setPluginEnabledInConfig } from "./toggle-config.js";
->>>>>>> 87603b5c4 (fix: sync built-in channel enablement across config paths)
+import type { MoltbotConfig } from "../config/config.js";
 
 export type PluginEnableResult = {
-  config: OpenClawConfig;
+  config: MoltbotConfig;
   enabled: boolean;
   reason?: string;
 };
 
-function ensureAllowlisted(cfg: OpenClawConfig, pluginId: string): OpenClawConfig {
+function ensureAllowlisted(cfg: MoltbotConfig, pluginId: string): MoltbotConfig {
   const allow = cfg.plugins?.allow;
-  if (!Array.isArray(allow) || allow.includes(pluginId)) {
-    return cfg;
-  }
+  if (!Array.isArray(allow) || allow.includes(pluginId)) return cfg;
   return {
     ...cfg,
     plugins: {
@@ -25,14 +18,13 @@ function ensureAllowlisted(cfg: OpenClawConfig, pluginId: string): OpenClawConfi
   };
 }
 
-export function enablePluginInConfig(cfg: OpenClawConfig, pluginId: string): PluginEnableResult {
+export function enablePluginInConfig(cfg: MoltbotConfig, pluginId: string): PluginEnableResult {
   if (cfg.plugins?.enabled === false) {
     return { config: cfg, enabled: false, reason: "plugins disabled" };
   }
   if (cfg.plugins?.deny?.includes(pluginId)) {
     return { config: cfg, enabled: false, reason: "blocked by denylist" };
   }
-<<<<<<< HEAD
 
   const entries = {
     ...cfg.plugins?.entries,
@@ -41,7 +33,7 @@ export function enablePluginInConfig(cfg: OpenClawConfig, pluginId: string): Plu
       enabled: true,
     },
   };
-  let next: OpenClawConfig = {
+  let next: MoltbotConfig = {
     ...cfg,
     plugins: {
       ...cfg.plugins,
@@ -49,9 +41,5 @@ export function enablePluginInConfig(cfg: OpenClawConfig, pluginId: string): Plu
     },
   };
   next = ensureAllowlisted(next, pluginId);
-=======
-  let next = setPluginEnabledInConfig(cfg, resolvedId, true);
-  next = ensurePluginAllowlisted(next, resolvedId);
->>>>>>> 87603b5c4 (fix: sync built-in channel enablement across config paths)
   return { config: next, enabled: true };
 }

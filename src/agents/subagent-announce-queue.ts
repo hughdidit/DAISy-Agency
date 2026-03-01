@@ -40,8 +40,6 @@ type AnnounceQueueState = {
   droppedCount: number;
   summaryLines: string[];
   send: (item: AnnounceQueueItem) => Promise<void>;
-  /** Consecutive drain failures — drives exponential backoff on errors. */
-  consecutiveFailures: number;
 };
 
 const ANNOUNCE_QUEUES = new Map<string, AnnounceQueueState>();
@@ -77,7 +75,6 @@ function getAnnounceQueue(
     droppedCount: 0,
     summaryLines: [],
     send,
-    consecutiveFailures: 0,
   };
   ANNOUNCE_QUEUES.set(key, created);
   return created;
@@ -85,9 +82,7 @@ function getAnnounceQueue(
 
 function scheduleAnnounceDrain(key: string) {
   const queue = ANNOUNCE_QUEUES.get(key);
-  if (!queue || queue.draining) {
-    return;
-  }
+  if (!queue || queue.draining) return;
   queue.draining = true;
   void (async () => {
     try {
@@ -97,27 +92,19 @@ function scheduleAnnounceDrain(key: string) {
         if (queue.mode === "collect") {
           if (forceIndividualCollect) {
             const next = queue.items.shift();
-            if (!next) {
-              break;
-            }
+            if (!next) break;
             await queue.send(next);
             continue;
           }
           const isCrossChannel = hasCrossChannelItems(queue.items, (item) => {
-            if (!item.origin) {
-              return {};
-            }
-            if (!item.originKey) {
-              return { cross: true };
-            }
+            if (!item.origin) return {};
+            if (!item.originKey) return { cross: true };
             return { key: item.originKey };
           });
           if (isCrossChannel) {
             forceIndividualCollect = true;
             const next = queue.items.shift();
-            if (!next) {
-              break;
-            }
+            if (!next) break;
             await queue.send(next);
             continue;
           }
@@ -130,9 +117,7 @@ function scheduleAnnounceDrain(key: string) {
             renderItem: (item, idx) => `---\nQueued #${idx + 1}\n${item.prompt}`.trim(),
           });
           const last = items.at(-1);
-          if (!last) {
-            break;
-          }
+          if (!last) break;
           await queue.send({ ...last, prompt });
           continue;
         }
@@ -140,34 +125,17 @@ function scheduleAnnounceDrain(key: string) {
         const summaryPrompt = buildQueueSummaryPrompt({ state: queue, noun: "announce" });
         if (summaryPrompt) {
           const next = queue.items.shift();
-          if (!next) {
-            break;
-          }
+          if (!next) break;
           await queue.send({ ...next, prompt: summaryPrompt });
           continue;
         }
 
         const next = queue.items.shift();
-        if (!next) {
-          break;
-        }
+        if (!next) break;
         await queue.send(next);
       }
-      // Drain succeeded — reset failure counter.
-      queue.consecutiveFailures = 0;
     } catch (err) {
-<<<<<<< HEAD
       defaultRuntime.error?.(`announce queue drain failed for ${key}: ${String(err)}`);
-=======
-      queue.consecutiveFailures++;
-      // Exponential backoff on consecutive failures: 2s, 4s, 8s, ... capped at 60s.
-      const errorBackoffMs = Math.min(1000 * Math.pow(2, queue.consecutiveFailures), 60_000);
-      const retryDelayMs = Math.max(errorBackoffMs, queue.debounceMs);
-      queue.lastEnqueuedAt = Date.now() + retryDelayMs - queue.debounceMs;
-      defaultRuntime.error?.(
-        `announce queue drain failed for ${key} (attempt ${queue.consecutiveFailures}, retry in ${Math.round(retryDelayMs / 1000)}s): ${String(err)}`,
-      );
->>>>>>> e3da57d95 (fix: add exponential backoff to announce queue drain on failure (#24783))
     } finally {
       queue.draining = false;
       if (queue.items.length === 0 && queue.droppedCount === 0) {
@@ -186,8 +154,7 @@ export function enqueueAnnounce(params: {
   send: (item: AnnounceQueueItem) => Promise<void>;
 }): boolean {
   const queue = getAnnounceQueue(params.key, params.settings, params.send);
-  // Preserve any retry backoff marker already encoded in lastEnqueuedAt.
-  queue.lastEnqueuedAt = Math.max(queue.lastEnqueuedAt, Date.now());
+  queue.lastEnqueuedAt = Date.now();
 
   const shouldEnqueue = applyQueueDropPolicy({
     queue,

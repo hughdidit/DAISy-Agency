@@ -1,18 +1,7 @@
 import { randomUUID } from "node:crypto";
-<<<<<<< HEAD
 import fs from "node:fs/promises";
 import path from "node:path";
 import { resolveStateDir } from "../config/paths.js";
-=======
-import {
-  createAsyncLock,
-  pruneExpiredPending,
-  readJsonFile,
-  resolvePairingPaths,
-  writeJsonAtomic,
-} from "./pairing-files.js";
-import { generatePairingToken, verifyPairingToken } from "./pairing-token.js";
->>>>>>> 48b3d7096 (fix: harden device pairing token generation and verification (#16535))
 
 export type NodePairingPendingRequest = {
   requestId: string;
@@ -155,13 +144,13 @@ function normalizeNodeId(nodeId: string) {
 }
 
 function newToken() {
-  return generatePairingToken();
+  return randomUUID().replaceAll("-", "");
 }
 
 export async function listNodePairing(baseDir?: string): Promise<NodePairingList> {
   const state = await loadState(baseDir);
-  const pending = Object.values(state.pendingById).toSorted((a, b) => b.ts - a.ts);
-  const paired = Object.values(state.pairedByNodeId).toSorted(
+  const pending = Object.values(state.pendingById).sort((a, b) => b.ts - a.ts);
+  const paired = Object.values(state.pairedByNodeId).sort(
     (a, b) => b.approvedAtMs - a.approvedAtMs,
   );
   return { pending, paired };
@@ -227,9 +216,7 @@ export async function approveNodePairing(
   return await withLock(async () => {
     const state = await loadState(baseDir);
     const pending = state.pendingById[requestId];
-    if (!pending) {
-      return null;
-    }
+    if (!pending) return null;
 
     const now = Date.now();
     const existing = state.pairedByNodeId[pending.nodeId];
@@ -263,28 +250,12 @@ export async function rejectNodePairing(
   baseDir?: string,
 ): Promise<{ requestId: string; nodeId: string } | null> {
   return await withLock(async () => {
-<<<<<<< HEAD
     const state = await loadState(baseDir);
     const pending = state.pendingById[requestId];
-    if (!pending) {
-      return null;
-    }
+    if (!pending) return null;
     delete state.pendingById[requestId];
     await persistState(state, baseDir);
     return { requestId, nodeId: pending.nodeId };
-=======
-    return await rejectPendingPairingRequest<
-      NodePairingPendingRequest,
-      NodePairingStateFile,
-      "nodeId"
-    >({
-      requestId,
-      idKey: "nodeId",
-      loadState: () => loadState(baseDir),
-      persistState: (state) => persistState(state, baseDir),
-      getId: (pending: NodePairingPendingRequest) => pending.nodeId,
-    });
->>>>>>> 7c109f573 (fix: resolve ci type errors and reconnect test flake)
   });
 }
 
@@ -296,10 +267,8 @@ export async function verifyNodeToken(
   const state = await loadState(baseDir);
   const normalized = normalizeNodeId(nodeId);
   const node = state.pairedByNodeId[normalized];
-  if (!node) {
-    return { ok: false };
-  }
-  return verifyPairingToken(token, node.token) ? { ok: true, node } : { ok: false };
+  if (!node) return { ok: false };
+  return node.token === token ? { ok: true, node } : { ok: false };
 }
 
 export async function updatePairedNodeMetadata(
@@ -311,9 +280,7 @@ export async function updatePairedNodeMetadata(
     const state = await loadState(baseDir);
     const normalized = normalizeNodeId(nodeId);
     const existing = state.pairedByNodeId[normalized];
-    if (!existing) {
-      return;
-    }
+    if (!existing) return;
 
     const next: NodePairingPairedNode = {
       ...existing,
@@ -346,13 +313,9 @@ export async function renamePairedNode(
     const state = await loadState(baseDir);
     const normalized = normalizeNodeId(nodeId);
     const existing = state.pairedByNodeId[normalized];
-    if (!existing) {
-      return null;
-    }
+    if (!existing) return null;
     const trimmed = displayName.trim();
-    if (!trimmed) {
-      throw new Error("displayName required");
-    }
+    if (!trimmed) throw new Error("displayName required");
     const next: NodePairingPairedNode = { ...existing, displayName: trimmed };
     state.pairedByNodeId[normalized] = next;
     await persistState(state, baseDir);

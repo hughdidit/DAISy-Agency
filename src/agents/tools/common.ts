@@ -1,13 +1,11 @@
 import fs from "node:fs/promises";
-<<<<<<< HEAD
-=======
+
 import type { AgentTool, AgentToolResult } from "@mariozechner/pi-agent-core";
->>>>>>> 6dcc052bb (fix: stabilize model catalog and pi discovery auth storage compatibility)
+
 import { detectMime } from "../../media/mime.js";
-import type { ImageSanitizationLimits } from "../image-sanitization.js";
 import { sanitizeToolResultImages } from "../tool-images.js";
 
-// oxlint-disable-next-line typescript/no-explicit-any
+// biome-ignore lint/suspicious/noExplicitAny: TypeBox schema type from pi-agent-core uses a different module instance.
 export type AnyAgentTool = AgentTool<any, unknown>;
 
 export type StringParamOptions = {
@@ -22,23 +20,12 @@ export type ActionGate<T extends Record<string, boolean | undefined>> = (
   defaultValue?: boolean,
 ) => boolean;
 
-export class ToolInputError extends Error {
-  readonly status = 400;
-
-  constructor(message: string) {
-    super(message);
-    this.name = "ToolInputError";
-  }
-}
-
 export function createActionGate<T extends Record<string, boolean | undefined>>(
   actions: T | undefined,
 ): ActionGate<T> {
   return (key, defaultValue = true) => {
     const value = actions?.[key];
-    if (value === undefined) {
-      return defaultValue;
-    }
+    if (value === undefined) return defaultValue;
     return value !== false;
   };
 }
@@ -61,16 +48,12 @@ export function readStringParam(
   const { required = false, trim = true, label = key, allowEmpty = false } = options;
   const raw = params[key];
   if (typeof raw !== "string") {
-    if (required) {
-      throw new ToolInputError(`${label} required`);
-    }
+    if (required) throw new Error(`${label} required`);
     return undefined;
   }
   const value = trim ? raw.trim() : raw;
   if (!value && !allowEmpty) {
-    if (required) {
-      throw new ToolInputError(`${label} required`);
-    }
+    if (required) throw new Error(`${label} required`);
     return undefined;
   }
   return value;
@@ -88,13 +71,9 @@ export function readStringOrNumberParam(
   }
   if (typeof raw === "string") {
     const value = raw.trim();
-    if (value) {
-      return value;
-    }
+    if (value) return value;
   }
-  if (required) {
-    throw new ToolInputError(`${label} required`);
-  }
+  if (required) throw new Error(`${label} required`);
   return undefined;
 }
 
@@ -112,15 +91,11 @@ export function readNumberParam(
     const trimmed = raw.trim();
     if (trimmed) {
       const parsed = Number.parseFloat(trimmed);
-      if (Number.isFinite(parsed)) {
-        value = parsed;
-      }
+      if (Number.isFinite(parsed)) value = parsed;
     }
   }
   if (value === undefined) {
-    if (required) {
-      throw new ToolInputError(`${label} required`);
-    }
+    if (required) throw new Error(`${label} required`);
     return undefined;
   }
   return integer ? Math.trunc(value) : value;
@@ -149,9 +124,7 @@ export function readStringArrayParam(
       .map((entry) => entry.trim())
       .filter(Boolean);
     if (values.length === 0) {
-      if (required) {
-        throw new ToolInputError(`${label} required`);
-      }
+      if (required) throw new Error(`${label} required`);
       return undefined;
     }
     return values;
@@ -159,16 +132,12 @@ export function readStringArrayParam(
   if (typeof raw === "string") {
     const value = raw.trim();
     if (!value) {
-      if (required) {
-        throw new ToolInputError(`${label} required`);
-      }
+      if (required) throw new Error(`${label} required`);
       return undefined;
     }
     return [value];
   }
-  if (required) {
-    throw new ToolInputError(`${label} required`);
-  }
+  if (required) throw new Error(`${label} required`);
   return undefined;
 }
 
@@ -194,7 +163,7 @@ export function readReactionParams(
     allowEmpty: true,
   });
   if (remove && !emoji) {
-    throw new ToolInputError(options.removeErrorMessage);
+    throw new Error(options.removeErrorMessage);
   }
   return { emoji, remove, isEmpty: !emoji };
 }

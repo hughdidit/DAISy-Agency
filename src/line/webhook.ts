@@ -1,7 +1,7 @@
-import type { WebhookRequestBody } from "@line/bot-sdk";
 import type { Request, Response, NextFunction } from "express";
-import type { RuntimeEnv } from "../runtime.js";
+import type { WebhookRequestBody } from "@line/bot-sdk";
 import { logVerbose, danger } from "../globals.js";
+import type { RuntimeEnv } from "../runtime.js";
 import { validateLineSignature } from "./signature.js";
 
 export interface LineWebhookOptions {
@@ -14,9 +14,7 @@ function readRawBody(req: Request): string | null {
   const rawBody =
     (req as { rawBody?: string | Buffer }).rawBody ??
     (typeof req.body === "string" || Buffer.isBuffer(req.body) ? req.body : null);
-  if (!rawBody) {
-    return null;
-  }
+  if (!rawBody) return null;
   return Buffer.isBuffer(rawBody) ? rawBody.toString("utf-8") : rawBody;
 }
 
@@ -31,9 +29,7 @@ function parseWebhookBody(req: Request, rawBody: string): WebhookRequestBody | n
   }
 }
 
-export function createLineWebhookMiddleware(
-  options: LineWebhookOptions,
-): (req: Request, res: Response, _next: NextFunction) => Promise<void> {
+export function createLineWebhookMiddleware(options: LineWebhookOptions) {
   const { channelSecret, onEvents, runtime } = options;
 
   return async (req: Request, res: Response, _next: NextFunction): Promise<void> => {
@@ -41,17 +37,6 @@ export function createLineWebhookMiddleware(
       const signature = req.headers["x-line-signature"];
 
       if (!signature || typeof signature !== "string") {
-<<<<<<< HEAD
-=======
-        if (rawBody) {
-          const body = parseWebhookBody(req, rawBody);
-          if (body && Array.isArray(body.events) && body.events.length === 0) {
-            logVerbose("line: webhook verification request (empty events, no signature) - 200 OK");
-            res.status(200).json({ status: "ok" });
-            return;
-          }
-        }
->>>>>>> abf42abd4 (fix: LINE webhook verification 200; fix tsgo error (#16582) (thanks @arosstale))
         res.status(400).json({ error: "Missing X-Line-Signature header" });
         return;
       }
@@ -100,10 +85,7 @@ export interface StartLineWebhookOptions {
   path?: string;
 }
 
-export function startLineWebhook(options: StartLineWebhookOptions): {
-  path: string;
-  handler: (req: Request, res: Response, _next: NextFunction) => Promise<void>;
-} {
+export function startLineWebhook(options: StartLineWebhookOptions) {
   const path = options.path ?? "/line/webhook";
   const middleware = createLineWebhookMiddleware({
     channelSecret: options.channelSecret,

@@ -1,17 +1,12 @@
-<<<<<<< HEAD
-=======
-import { getChannelDock } from "../channels/dock.js";
-import { DEFAULT_SUBAGENT_MAX_SPAWN_DEPTH } from "../config/agent-limits.js";
->>>>>>> fe57bea08 (Subagents: restore announce chain + fix nested retry/drop regressions (#22223))
-import type { OpenClawConfig } from "../config/config.js";
-import type { AnyAgentTool } from "./pi-tools.types.js";
-import type { SandboxToolPolicy } from "./sandbox.js";
+import type { MoltbotConfig } from "../config/config.js";
 import { getChannelDock } from "../channels/dock.js";
 import { resolveChannelGroupToolsPolicy } from "../config/group-policy.js";
-import { resolveThreadParentSessionKey } from "../sessions/session-key-utils.js";
-import { normalizeMessageChannel } from "../utils/message-channel.js";
 import { resolveAgentConfig, resolveAgentIdFromSessionKey } from "./agent-scope.js";
+import type { AnyAgentTool } from "./pi-tools.types.js";
+import type { SandboxToolPolicy } from "./sandbox.js";
 import { expandToolGroups, normalizeToolName } from "./tool-policy.js";
+import { normalizeMessageChannel } from "../utils/message-channel.js";
+import { resolveThreadParentSessionKey } from "../sessions/session-key-utils.js";
 
 type CompiledPattern =
   | { kind: "all" }
@@ -20,15 +15,9 @@ type CompiledPattern =
 
 function compilePattern(pattern: string): CompiledPattern {
   const normalized = normalizeToolName(pattern);
-  if (!normalized) {
-    return { kind: "exact", value: "" };
-  }
-  if (normalized === "*") {
-    return { kind: "all" };
-  }
-  if (!normalized.includes("*")) {
-    return { kind: "exact", value: normalized };
-  }
+  if (!normalized) return { kind: "exact", value: "" };
+  if (normalized === "*") return { kind: "all" };
+  if (!normalized.includes("*")) return { kind: "exact", value: normalized };
   const escaped = normalized.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   return {
     kind: "regex",
@@ -37,9 +26,7 @@ function compilePattern(pattern: string): CompiledPattern {
 }
 
 function compilePatterns(patterns?: string[]): CompiledPattern[] {
-  if (!Array.isArray(patterns)) {
-    return [];
-  }
+  if (!Array.isArray(patterns)) return [];
   return expandToolGroups(patterns)
     .map(compilePattern)
     .filter((pattern) => pattern.kind !== "exact" || pattern.value);
@@ -47,15 +34,9 @@ function compilePatterns(patterns?: string[]): CompiledPattern[] {
 
 function matchesAny(name: string, patterns: CompiledPattern[]): boolean {
   for (const pattern of patterns) {
-    if (pattern.kind === "all") {
-      return true;
-    }
-    if (pattern.kind === "exact" && name === pattern.value) {
-      return true;
-    }
-    if (pattern.kind === "regex" && pattern.value.test(name)) {
-      return true;
-    }
+    if (pattern.kind === "all") return true;
+    if (pattern.kind === "exact" && name === pattern.value) return true;
+    if (pattern.kind === "regex" && pattern.value.test(name)) return true;
   }
   return false;
 }
@@ -65,18 +46,10 @@ function makeToolPolicyMatcher(policy: SandboxToolPolicy) {
   const allow = compilePatterns(policy.allow);
   return (name: string) => {
     const normalized = normalizeToolName(name);
-    if (matchesAny(normalized, deny)) {
-      return false;
-    }
-    if (allow.length === 0) {
-      return true;
-    }
-    if (matchesAny(normalized, allow)) {
-      return true;
-    }
-    if (normalized === "apply_patch" && matchesAny("exec", allow)) {
-      return true;
-    }
+    if (matchesAny(normalized, deny)) return false;
+    if (allow.length === 0) return true;
+    if (matchesAny(normalized, allow)) return true;
+    if (normalized === "apply_patch" && matchesAny("exec", allow)) return true;
     return false;
   };
 }
@@ -100,35 +73,23 @@ const DEFAULT_SUBAGENT_TOOL_DENY = [
   "memory_get",
 ];
 
-export function resolveSubagentToolPolicy(cfg?: OpenClawConfig): SandboxToolPolicy {
+export function resolveSubagentToolPolicy(cfg?: MoltbotConfig): SandboxToolPolicy {
   const configured = cfg?.tools?.subagents?.tools;
-<<<<<<< HEAD
   const deny = [
     ...DEFAULT_SUBAGENT_TOOL_DENY,
     ...(Array.isArray(configured?.deny) ? configured.deny : []),
   ];
-=======
-  const maxSpawnDepth =
-    cfg?.agents?.defaults?.subagents?.maxSpawnDepth ?? DEFAULT_SUBAGENT_MAX_SPAWN_DEPTH;
-  const effectiveDepth = typeof depth === "number" && depth >= 0 ? depth : 1;
-  const baseDeny = resolveSubagentDenyList(effectiveDepth, maxSpawnDepth);
-  const deny = [...baseDeny, ...(Array.isArray(configured?.deny) ? configured.deny : [])];
->>>>>>> fe57bea08 (Subagents: restore announce chain + fix nested retry/drop regressions (#22223))
   const allow = Array.isArray(configured?.allow) ? configured.allow : undefined;
   return { allow, deny };
 }
 
 export function isToolAllowedByPolicyName(name: string, policy?: SandboxToolPolicy): boolean {
-  if (!policy) {
-    return true;
-  }
+  if (!policy) return true;
   return makeToolPolicyMatcher(policy)(name);
 }
 
 export function filterToolsByPolicy(tools: AnyAgentTool[], policy?: SandboxToolPolicy) {
-  if (!policy) {
-    return tools;
-  }
+  if (!policy) return tools;
   const matcher = makeToolPolicyMatcher(policy);
   return tools.filter((tool) => matcher(tool.name));
 }
@@ -141,9 +102,7 @@ type ToolPolicyConfig = {
 };
 
 function unionAllow(base?: string[], extra?: string[]) {
-  if (!Array.isArray(extra) || extra.length === 0) {
-    return base;
-  }
+  if (!Array.isArray(extra) || extra.length === 0) return base;
   // If the user is using alsoAllow without an allowlist, treat it as additive on top of
   // an implicit allow-all policy.
   if (!Array.isArray(base) || base.length === 0) {
@@ -153,18 +112,14 @@ function unionAllow(base?: string[], extra?: string[]) {
 }
 
 function pickToolPolicy(config?: ToolPolicyConfig): SandboxToolPolicy | undefined {
-  if (!config) {
-    return undefined;
-  }
+  if (!config) return undefined;
   const allow = Array.isArray(config.allow)
     ? unionAllow(config.allow, config.alsoAllow)
     : Array.isArray(config.alsoAllow) && config.alsoAllow.length > 0
       ? unionAllow(undefined, config.alsoAllow)
       : undefined;
   const deny = Array.isArray(config.deny) ? config.deny : undefined;
-  if (!allow && !deny) {
-    return undefined;
-  }
+  if (!allow && !deny) return undefined;
   return { allow, deny };
 }
 
@@ -177,26 +132,18 @@ function resolveGroupContextFromSessionKey(sessionKey?: string | null): {
   groupId?: string;
 } {
   const raw = (sessionKey ?? "").trim();
-  if (!raw) {
-    return {};
-  }
+  if (!raw) return {};
   const base = resolveThreadParentSessionKey(raw) ?? raw;
   const parts = base.split(":").filter(Boolean);
   let body = parts[0] === "agent" ? parts.slice(2) : parts;
   if (body[0] === "subagent") {
     body = body.slice(1);
   }
-  if (body.length < 3) {
-    return {};
-  }
+  if (body.length < 3) return {};
   const [channel, kind, ...rest] = body;
-  if (kind !== "group" && kind !== "channel") {
-    return {};
-  }
+  if (kind !== "group" && kind !== "channel") return {};
   const groupId = rest.join(":").trim();
-  if (!groupId) {
-    return {};
-  }
+  if (!groupId) return {};
   return { channel: channel.trim().toLowerCase(), groupId };
 }
 
@@ -206,21 +153,15 @@ function resolveProviderToolPolicy(params: {
   modelId?: string;
 }): ToolPolicyConfig | undefined {
   const provider = params.modelProvider?.trim();
-  if (!provider || !params.byProvider) {
-    return undefined;
-  }
+  if (!provider || !params.byProvider) return undefined;
 
   const entries = Object.entries(params.byProvider);
-  if (entries.length === 0) {
-    return undefined;
-  }
+  if (entries.length === 0) return undefined;
 
   const lookup = new Map<string, ToolPolicyConfig>();
   for (const [key, value] of entries) {
     const normalized = normalizeProviderKey(key);
-    if (!normalized) {
-      continue;
-    }
+    if (!normalized) continue;
     lookup.set(normalized, value);
   }
 
@@ -233,15 +174,13 @@ function resolveProviderToolPolicy(params: {
 
   for (const key of candidates) {
     const match = lookup.get(key);
-    if (match) {
-      return match;
-    }
+    if (match) return match;
   }
   return undefined;
 }
 
 export function resolveEffectiveToolPolicy(params: {
-  config?: OpenClawConfig;
+  config?: MoltbotConfig;
   sessionKey?: string;
   modelProvider?: string;
   modelId?: string;
@@ -286,7 +225,7 @@ export function resolveEffectiveToolPolicy(params: {
 }
 
 export function resolveGroupToolPolicy(params: {
-  config?: OpenClawConfig;
+  config?: MoltbotConfig;
   sessionKey?: string;
   spawnedBy?: string | null;
   messageProvider?: string;
@@ -299,20 +238,14 @@ export function resolveGroupToolPolicy(params: {
   senderUsername?: string | null;
   senderE164?: string | null;
 }): SandboxToolPolicy | undefined {
-  if (!params.config) {
-    return undefined;
-  }
+  if (!params.config) return undefined;
   const sessionContext = resolveGroupContextFromSessionKey(params.sessionKey);
   const spawnedContext = resolveGroupContextFromSessionKey(params.spawnedBy);
   const groupId = params.groupId ?? sessionContext.groupId ?? spawnedContext.groupId;
-  if (!groupId) {
-    return undefined;
-  }
+  if (!groupId) return undefined;
   const channelRaw = params.messageProvider ?? sessionContext.channel ?? spawnedContext.channel;
   const channel = normalizeMessageChannel(channelRaw);
-  if (!channel) {
-    return undefined;
-  }
+  if (!channel) return undefined;
   let dock;
   try {
     dock = getChannelDock(channel);

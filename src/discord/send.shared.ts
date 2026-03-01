@@ -1,14 +1,15 @@
-import type { RESTAPIPoll } from "discord-api-types/rest/v10";
 import { RequestClient } from "@buape/carbon";
 import { PollLayoutType } from "discord-api-types/payloads/v10";
+import type { RESTAPIPoll } from "discord-api-types/rest/v10";
 import { Routes } from "discord-api-types/v10";
-import type { ChunkMode } from "../auto-reply/chunk.js";
-import type { RetryConfig } from "../infra/retry.js";
+
 import { loadConfig } from "../config/config.js";
+import type { RetryConfig } from "../infra/retry.js";
 import { createDiscordRetryRunner, type RetryRunner } from "../infra/retry-policy.js";
 import { normalizePollDurationHours, normalizePollInput, type PollInput } from "../polls.js";
 import { loadWebMedia } from "../web/media.js";
 import { resolveDiscordAccount } from "./accounts.js";
+import type { ChunkMode } from "../auto-reply/chunk.js";
 import { chunkDiscordTextWithMode } from "./chunk.js";
 import { fetchChannelPermissionsDiscord, isThreadChannelType } from "./send.permissions.js";
 import { DiscordSendError } from "./send.types.js";
@@ -44,9 +45,7 @@ type DiscordClientOpts = {
 
 function resolveToken(params: { explicit?: string; accountId: string; fallbackToken?: string }) {
   const explicit = normalizeDiscordToken(params.explicit);
-  if (explicit) {
-    return explicit;
-  }
+  if (explicit) return explicit;
   const fallback = normalizeDiscordToken(params.fallbackToken);
   if (!fallback) {
     throw new Error(
@@ -184,18 +183,14 @@ function normalizeDiscordPollInput(input: PollInput): RESTAPIPoll {
 }
 
 function getDiscordErrorCode(err: unknown) {
-  if (!err || typeof err !== "object") {
-    return undefined;
-  }
+  if (!err || typeof err !== "object") return undefined;
   const candidate =
     "code" in err && err.code !== undefined
       ? err.code
       : "rawError" in err && err.rawError && typeof err.rawError === "object"
         ? (err.rawError as { code?: unknown }).code
         : undefined;
-  if (typeof candidate === "number") {
-    return candidate;
-  }
+  if (typeof candidate === "number") return candidate;
   if (typeof candidate === "string" && /^\d+$/.test(candidate)) {
     return Number(candidate);
   }
@@ -211,9 +206,7 @@ async function buildDiscordSendError(
     hasMedia: boolean;
   },
 ) {
-  if (err instanceof DiscordSendError) {
-    return err;
-  }
+  if (err instanceof DiscordSendError) return err;
   const code = getDiscordErrorCode(err);
   if (code === DISCORD_CANNOT_DM) {
     return new DiscordSendError(
@@ -221,9 +214,7 @@ async function buildDiscordSendError(
       { kind: "dm-blocked" },
     );
   }
-  if (code !== DISCORD_MISSING_PERMISSIONS) {
-    return err;
-  }
+  if (code !== DISCORD_MISSING_PERMISSIONS) return err;
 
   let missing: string[] = [];
   try {
@@ -297,9 +288,7 @@ async function sendDiscordText(
     maxLines: maxLinesPerMessage,
     chunkMode,
   });
-  if (!chunks.length && text) {
-    chunks.push(text);
-  }
+  if (!chunks.length && text) chunks.push(text);
   if (chunks.length === 1) {
     const res = (await request(
       () =>
@@ -341,14 +330,12 @@ async function sendDiscordMedia(
   channelId: string,
   text: string,
   mediaUrl: string,
-  mediaLocalRoots: readonly string[] | undefined,
   replyTo: string | undefined,
   request: DiscordRequest,
   maxLinesPerMessage?: number,
   embeds?: unknown[],
   chunkMode?: ChunkMode,
 ) {
-<<<<<<< HEAD
   const media = await loadWebMedia(mediaUrl);
   const chunks = text
     ? chunkDiscordTextWithMode(text, {
@@ -357,13 +344,7 @@ async function sendDiscordMedia(
         chunkMode,
       })
     : [];
-  if (!chunks.length && text) {
-    chunks.push(text);
-  }
-=======
-  const media = await loadWebMedia(mediaUrl, { localRoots: mediaLocalRoots });
-  const chunks = text ? buildDiscordTextChunks(text, { maxLinesPerMessage, chunkMode }) : [];
->>>>>>> e927fd1e3 (fix: allow agent workspace directories in media local roots (#17136))
+  if (!chunks.length && text) chunks.push(text);
   const caption = chunks[0] ?? "";
   const messageReference = replyTo ? { message_id: replyTo, fail_if_not_exists: false } : undefined;
   const res = (await request(
@@ -384,9 +365,7 @@ async function sendDiscordMedia(
     "media",
   )) as { id: string; channel_id: string };
   for (const chunk of chunks.slice(1)) {
-    if (!chunk.trim()) {
-      continue;
-    }
+    if (!chunk.trim()) continue;
     await sendDiscordText(
       rest,
       channelId,

@@ -39,7 +39,7 @@ describe("withWhatsAppPrefix", () => {
 
 describe("ensureDir", () => {
   it("creates nested directory", async () => {
-    const tmp = await fs.promises.mkdtemp(path.join(os.tmpdir(), "openclaw-test-"));
+    const tmp = await fs.promises.mkdtemp(path.join(os.tmpdir(), "moltbot-test-"));
     const target = path.join(tmp, "nested", "dir");
     await ensureDir(target);
     expect(fs.existsSync(target)).toBe(true);
@@ -79,18 +79,19 @@ describe("jidToE164", () => {
   it("maps @lid using reverse mapping file", () => {
     const mappingPath = path.join(CONFIG_DIR, "credentials", "lid-mapping-123_reverse.json");
     const original = fs.readFileSync;
-    const spy = vi.spyOn(fs, "readFileSync").mockImplementation((...args) => {
-      if (args[0] === mappingPath) {
-        return `"5551234"`;
-      }
-      return original(...args);
-    });
+    const spy = vi
+      .spyOn(fs, "readFileSync")
+      // biome-ignore lint/suspicious/noExplicitAny: forwarding to native signature
+      .mockImplementation((path: any, encoding?: any) => {
+        if (path === mappingPath) return `"5551234"`;
+        return original(path, encoding);
+      });
     expect(jidToE164("123@lid")).toBe("+5551234");
     spy.mockRestore();
   });
 
   it("maps @lid from authDir mapping files", () => {
-    const authDir = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-auth-"));
+    const authDir = fs.mkdtempSync(path.join(os.tmpdir(), "moltbot-auth-"));
     const mappingPath = path.join(authDir, "lid-mapping-456_reverse.json");
     fs.writeFileSync(mappingPath, JSON.stringify("5559876"));
     expect(jidToE164("456@lid", { authDir })).toBe("+5559876");
@@ -98,7 +99,7 @@ describe("jidToE164", () => {
   });
 
   it("maps @hosted.lid from authDir mapping files", () => {
-    const authDir = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-auth-"));
+    const authDir = fs.mkdtempSync(path.join(os.tmpdir(), "moltbot-auth-"));
     const mappingPath = path.join(authDir, "lid-mapping-789_reverse.json");
     fs.writeFileSync(mappingPath, JSON.stringify(4440001));
     expect(jidToE164("789@hosted.lid", { authDir })).toBe("+4440001");
@@ -110,8 +111,8 @@ describe("jidToE164", () => {
   });
 
   it("falls back through lidMappingDirs in order", () => {
-    const first = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-lid-a-"));
-    const second = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-lid-b-"));
+    const first = fs.mkdtempSync(path.join(os.tmpdir(), "moltbot-lid-a-"));
+    const second = fs.mkdtempSync(path.join(os.tmpdir(), "moltbot-lid-b-"));
     const mappingPath = path.join(second, "lid-mapping-321_reverse.json");
     fs.writeFileSync(mappingPath, JSON.stringify("123321"));
     expect(jidToE164("321@lid", { lidMappingDirs: [first, second] })).toBe("+123321");
@@ -121,10 +122,10 @@ describe("jidToE164", () => {
 });
 
 describe("resolveConfigDir", () => {
-  it("prefers ~/.openclaw when legacy dir is missing", async () => {
-    const root = await fs.promises.mkdtemp(path.join(os.tmpdir(), "openclaw-config-dir-"));
+  it("prefers ~/.moltbot when legacy dir is missing", async () => {
+    const root = await fs.promises.mkdtemp(path.join(os.tmpdir(), "moltbot-config-dir-"));
     try {
-      const newDir = path.join(root, ".openclaw");
+      const newDir = path.join(root, ".moltbot");
       await fs.promises.mkdir(newDir, { recursive: true });
       const resolved = resolveConfigDir({} as NodeJS.ProcessEnv, () => root);
       expect(resolved).toBe(newDir);
@@ -134,46 +135,6 @@ describe("resolveConfigDir", () => {
   });
 });
 
-<<<<<<< HEAD
-=======
-describe("resolveHomeDir", () => {
-  it("prefers OPENCLAW_HOME over HOME", () => {
-    vi.stubEnv("OPENCLAW_HOME", "/srv/openclaw-home");
-    vi.stubEnv("HOME", "/home/other");
-
-    expect(resolveHomeDir()).toBe(path.resolve("/srv/openclaw-home"));
-
-    vi.unstubAllEnvs();
-  });
-});
-
-describe("shortenHomePath", () => {
-  it("uses $OPENCLAW_HOME prefix when OPENCLAW_HOME is set", () => {
-    vi.stubEnv("OPENCLAW_HOME", "/srv/openclaw-home");
-    vi.stubEnv("HOME", "/home/other");
-
-    expect(shortenHomePath(`${path.resolve("/srv/openclaw-home")}/.openclaw/openclaw.json`)).toBe(
-      "$OPENCLAW_HOME/.openclaw/openclaw.json",
-    );
-
-    vi.unstubAllEnvs();
-  });
-});
-
-describe("shortenHomeInString", () => {
-  it("uses $OPENCLAW_HOME replacement when OPENCLAW_HOME is set", () => {
-    vi.stubEnv("OPENCLAW_HOME", "/srv/openclaw-home");
-    vi.stubEnv("HOME", "/home/other");
-
-    expect(
-      shortenHomeInString(`config: ${path.resolve("/srv/openclaw-home")}/.openclaw/openclaw.json`),
-    ).toBe("config: $OPENCLAW_HOME/.openclaw/openclaw.json");
-
-    vi.unstubAllEnvs();
-  });
-});
-
->>>>>>> 456bd5874 (fix(paths): structurally resolve home dir to prevent Windows path bugs (#12125))
 describe("resolveJidToE164", () => {
   it("resolves @lid via lidLookup when mapping file is missing", async () => {
     const lidLookup = {
@@ -198,15 +159,10 @@ describe("resolveUserPath", () => {
   });
 
   it("expands ~/ to home dir", () => {
-    expect(resolveUserPath("~/openclaw")).toBe(path.resolve(os.homedir(), "openclaw"));
+    expect(resolveUserPath("~/clawd")).toBe(path.resolve(os.homedir(), "clawd"));
   });
 
   it("resolves relative paths", () => {
     expect(resolveUserPath("tmp/dir")).toBe(path.resolve("tmp/dir"));
-  });
-
-  it("keeps blank paths blank", () => {
-    expect(resolveUserPath("")).toBe("");
-    expect(resolveUserPath("   ")).toBe("");
   });
 });

@@ -33,8 +33,6 @@ export type GuardedFetchResult = {
 };
 
 const DEFAULT_MAX_REDIRECTS = 3;
-<<<<<<< HEAD
-=======
 const ENV_PROXY_KEYS = [
   "HTTP_PROXY",
   "HTTPS_PROXY",
@@ -49,7 +47,6 @@ const CROSS_ORIGIN_REDIRECT_SENSITIVE_HEADERS = [
   "cookie",
   "cookie2",
 ];
->>>>>>> 46003e85b (fix: unify web tool proxy path (#27430) (thanks @kevinWangSheng))
 
 function hasEnvProxyConfigured(): boolean {
   for (const key of ENV_PROXY_KEYS) {
@@ -63,6 +60,17 @@ function hasEnvProxyConfigured(): boolean {
 
 function isRedirectStatus(status: number): boolean {
   return status === 301 || status === 302 || status === 303 || status === 307 || status === 308;
+}
+
+function stripSensitiveHeadersForCrossOriginRedirect(init?: RequestInit): RequestInit | undefined {
+  if (!init?.headers) {
+    return init;
+  }
+  const headers = new Headers(init.headers);
+  for (const header of CROSS_ORIGIN_REDIRECT_SENSITIVE_HEADERS) {
+    headers.delete(header);
+  }
+  return { ...init, headers };
 }
 
 function buildAbortSignal(params: { timeoutMs?: number; signal?: AbortSignal }): {
@@ -79,13 +87,8 @@ function buildAbortSignal(params: { timeoutMs?: number; signal?: AbortSignal }):
   }
 
   const controller = new AbortController();
-<<<<<<< HEAD
-  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
-  const onAbort = () => controller.abort();
-=======
   const timeoutId = setTimeout(controller.abort.bind(controller), timeoutMs);
   const onAbort = bindAbortRelay(controller);
->>>>>>> 7ec60d644 (fix: use relayAbort helper for addEventListener to preserve AbortError reason)
   if (signal) {
     if (signal.aborted) {
       controller.abort();
@@ -132,6 +135,7 @@ export async function fetchWithSsrFGuard(params: GuardedFetchOptions): Promise<G
 
   const visited = new Set<string>();
   let currentUrl = params.url;
+  let currentInit = params.init ? { ...params.init } : undefined;
   let redirectCount = 0;
 
   while (true) {
@@ -160,7 +164,7 @@ export async function fetchWithSsrFGuard(params: GuardedFetchOptions): Promise<G
       }
 
       const init: RequestInit & { dispatcher?: Dispatcher } = {
-        ...(params.init ? { ...params.init } : {}),
+        ...(currentInit ? { ...currentInit } : {}),
         redirect: "manual",
         ...(dispatcher ? { dispatcher } : {}),
         ...(signal ? { signal } : {}),
@@ -179,10 +183,14 @@ export async function fetchWithSsrFGuard(params: GuardedFetchOptions): Promise<G
           await release(dispatcher);
           throw new Error(`Too many redirects (limit: ${maxRedirects})`);
         }
-        const nextUrl = new URL(location, parsedUrl).toString();
+        const nextParsedUrl = new URL(location, parsedUrl);
+        const nextUrl = nextParsedUrl.toString();
         if (visited.has(nextUrl)) {
           await release(dispatcher);
           throw new Error("Redirect loop detected");
+        }
+        if (nextParsedUrl.origin !== parsedUrl.origin) {
+          currentInit = stripSensitiveHeadersForCrossOriginRedirect(currentInit);
         }
         visited.add(nextUrl);
         void response.body?.cancel();

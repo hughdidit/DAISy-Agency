@@ -1,30 +1,14 @@
 import fs from "node:fs/promises";
-import os from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { CronService } from "./service.js";
+import { createCronStoreHarness, createNoopLogger } from "./service.test-harness.js";
+import { DEFAULT_TOP_OF_HOUR_STAGGER_MS } from "./stagger.js";
 import { loadCronStore } from "./store.js";
 
-const noopLogger = {
-  debug: vi.fn(),
-  info: vi.fn(),
-  warn: vi.fn(),
-  error: vi.fn(),
-};
+const noopLogger = createNoopLogger();
+const { makeStorePath } = createCronStoreHarness({ prefix: "openclaw-cron-migrate-" });
 
-async function makeStorePath() {
-  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-cron-migrate-"));
-  return {
-    dir,
-    storePath: path.join(dir, "cron", "jobs.json"),
-    cleanup: async () => {
-      await fs.rm(dir, { recursive: true, force: true });
-    },
-  };
-}
-
-<<<<<<< HEAD
-=======
 async function writeLegacyStore(storePath: string, legacyJob: Record<string, unknown>) {
   await fs.mkdir(path.dirname(storePath), { recursive: true });
   await fs.writeFile(storePath, JSON.stringify({ version: 1, jobs: [legacyJob] }, null, 2));
@@ -78,7 +62,6 @@ async function migrateLegacyJob(legacyJob: Record<string, unknown>) {
   }
 }
 
->>>>>>> eabf187fa (test(cron): dedupe migration and regression fixtures)
 describe("cron store migration", () => {
   beforeEach(() => {
     noopLogger.debug.mockClear();
@@ -93,48 +76,6 @@ describe("cron store migration", () => {
 
   it("migrates isolated jobs to announce delivery and drops isolation", async () => {
     const atMs = 1_700_000_000_000;
-<<<<<<< HEAD
-    const legacyJob = {
-      id: "job-1",
-      agentId: undefined,
-      name: "Legacy job",
-      description: null,
-      enabled: true,
-      deleteAfterRun: false,
-      createdAtMs: 1_700_000_000_000,
-      updatedAtMs: 1_700_000_000_000,
-      schedule: { kind: "at", atMs },
-      sessionTarget: "isolated",
-      wakeMode: "next-heartbeat",
-      payload: {
-        kind: "agentTurn",
-        message: "hi",
-        deliver: true,
-        channel: "telegram",
-        to: "7200373102",
-        bestEffortDeliver: true,
-      },
-      isolation: { postToMainPrefix: "Cron" },
-      state: {},
-    };
-    await fs.mkdir(path.dirname(store.storePath), { recursive: true });
-    await fs.writeFile(store.storePath, JSON.stringify({ version: 1, jobs: [legacyJob] }, null, 2));
-
-    const cron = new CronService({
-      storePath: store.storePath,
-      cronEnabled: true,
-      log: noopLogger,
-      enqueueSystemEvent: vi.fn(),
-      requestHeartbeatNow: vi.fn(),
-      runIsolatedAgentJob: vi.fn(async () => ({ status: "ok" })),
-    });
-
-    await cron.start();
-    cron.stop();
-
-    const loaded = await loadCronStore(store.storePath);
-    const migrated = loaded.jobs[0] as Record<string, unknown>;
-=======
     const migrated = await migrateLegacyJob(
       makeLegacyJob({
         id: "job-1",
@@ -153,7 +94,6 @@ describe("cron store migration", () => {
       }),
     );
     expect(migrated.sessionKey).toBe("agent:main:discord:channel:ops");
->>>>>>> eabf187fa (test(cron): dedupe migration and regression fixtures)
     expect(migrated.delivery).toEqual({
       mode: "announce",
       channel: "telegram",
@@ -175,43 +115,6 @@ describe("cron store migration", () => {
 
   it("adds anchorMs to legacy every schedules", async () => {
     const createdAtMs = 1_700_000_000_000;
-<<<<<<< HEAD
-    const legacyJob = {
-      id: "job-every-legacy",
-      agentId: undefined,
-      name: "Legacy every",
-      description: null,
-      enabled: true,
-      deleteAfterRun: false,
-      createdAtMs,
-      updatedAtMs: createdAtMs,
-      schedule: { kind: "every", everyMs: 120_000 },
-      sessionTarget: "main",
-      wakeMode: "next-heartbeat",
-      payload: {
-        kind: "systemEvent",
-        text: "tick",
-      },
-      state: {},
-    };
-    await fs.mkdir(path.dirname(store.storePath), { recursive: true });
-    await fs.writeFile(store.storePath, JSON.stringify({ version: 1, jobs: [legacyJob] }, null, 2));
-
-    const cron = new CronService({
-      storePath: store.storePath,
-      cronEnabled: true,
-      log: noopLogger,
-      enqueueSystemEvent: vi.fn(),
-      requestHeartbeatNow: vi.fn(),
-      runIsolatedAgentJob: vi.fn(async () => ({ status: "ok" })),
-    });
-
-    await cron.start();
-    cron.stop();
-
-    const loaded = await loadCronStore(store.storePath);
-    const migrated = loaded.jobs[0] as Record<string, unknown>;
-=======
     const migrated = await migrateLegacyJob(
       makeLegacyJob({
         id: "job-every-legacy",
@@ -221,13 +124,10 @@ describe("cron store migration", () => {
         schedule: { kind: "every", everyMs: 120_000 },
       }),
     );
->>>>>>> eabf187fa (test(cron): dedupe migration and regression fixtures)
     const schedule = migrated.schedule as Record<string, unknown>;
     expect(schedule.kind).toBe("every");
     expect(schedule.anchorMs).toBe(createdAtMs);
   });
-<<<<<<< HEAD
-=======
 
   it("adds default staggerMs to legacy recurring top-of-hour cron schedules", async () => {
     const createdAtMs = 1_700_000_000_000;
@@ -278,5 +178,4 @@ describe("cron store migration", () => {
     expect(schedule.kind).toBe("cron");
     expect(schedule.staggerMs).toBeUndefined();
   });
->>>>>>> eabf187fa (test(cron): dedupe migration and regression fixtures)
 });

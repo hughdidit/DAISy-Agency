@@ -8,13 +8,7 @@ import type {
   PostbackEvent,
   EventSource,
 } from "@line/bot-sdk";
-import type { OpenClawConfig } from "../config/config.js";
-<<<<<<< HEAD
-import type { RuntimeEnv } from "../runtime.js";
-import type { LineGroupConfig, ResolvedLineAccount } from "./types.js";
-=======
-import { resolveRuntimeGroupPolicy } from "../config/runtime-group-policy.js";
->>>>>>> 777817392 (fix: fail closed missing provider group policy across message channels (#23367) (thanks @bmendonca3))
+import type { MoltbotConfig } from "../config/config.js";
 import { danger, logVerbose } from "../globals.js";
 import { resolvePairingIdLabel } from "../pairing/pairing-labels.js";
 import { buildPairingReply } from "../pairing/pairing-messages.js";
@@ -22,14 +16,16 @@ import {
   readChannelAllowFromStore,
   upsertChannelPairingRequest,
 } from "../pairing/pairing-store.js";
-import { firstDefined, isSenderAllowed, normalizeAllowFromWithStore } from "./bot-access.js";
+import type { RuntimeEnv } from "../runtime.js";
 import {
   buildLineMessageContext,
   buildLinePostbackContext,
   type LineInboundContext,
 } from "./bot-message-context.js";
+import { firstDefined, isSenderAllowed, normalizeAllowFromWithStore } from "./bot-access.js";
 import { downloadLineMedia } from "./download.js";
 import { pushMessageLine, replyMessageLine } from "./send.js";
+import type { LineGroupConfig, ResolvedLineAccount } from "./types.js";
 
 interface MediaRef {
   path: string;
@@ -37,14 +33,13 @@ interface MediaRef {
 }
 
 export interface LineHandlerContext {
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   account: ResolvedLineAccount;
   runtime: RuntimeEnv;
   mediaMaxBytes: number;
   processMessage: (ctx: LineInboundContext) => Promise<void>;
 }
 
-<<<<<<< HEAD
 type LineSourceInfo = {
   userId?: string;
   groupId?: string;
@@ -66,9 +61,6 @@ function getSourceInfo(source: EventSource): LineSourceInfo {
   const isGroup = source.type === "group" || source.type === "room";
   return { userId, groupId, roomId, isGroup };
 }
-=======
-let lineGroupPolicyFallbackWarned = false;
->>>>>>> 777817392 (fix: fail closed missing provider group policy across message channels (#23367) (thanks @bmendonca3))
 
 function resolveLineGroupConfig(params: {
   config: ResolvedLineAccount["config"];
@@ -95,9 +87,7 @@ async function sendLinePairingReply(params: {
     channel: "line",
     id: senderId,
   });
-  if (!created) {
-    return;
-  }
+  if (!created) return;
   logVerbose(`line pairing request sender=${senderId}`);
   const idLabel = (() => {
     try {
@@ -139,13 +129,11 @@ async function shouldProcessLineEvent(
   const { cfg, account } = context;
   const { userId, groupId, roomId, isGroup } = getSourceInfo(event.source);
   const senderId = userId ?? "";
-  const dmPolicy = account.config.dmPolicy ?? "pairing";
 
   const storeAllowFrom = await readChannelAllowFromStore("line").catch(() => []);
   const effectiveDmAllow = normalizeAllowFromWithStore({
     allowFrom: account.config.allowFrom,
     storeAllowFrom,
-    dmPolicy,
   });
   const groupConfig = resolveLineGroupConfig({ config: account.config, groupId, roomId });
   const groupAllowOverride = groupConfig?.allowFrom;
@@ -160,22 +148,10 @@ async function shouldProcessLineEvent(
   const effectiveGroupAllow = normalizeAllowFromWithStore({
     allowFrom: groupAllowFrom,
     storeAllowFrom,
-    dmPolicy,
   });
+  const dmPolicy = account.config.dmPolicy ?? "pairing";
   const defaultGroupPolicy = cfg.channels?.defaults?.groupPolicy;
-  const { groupPolicy, providerMissingFallbackApplied } = resolveRuntimeGroupPolicy({
-    providerConfigPresent: cfg.channels?.line !== undefined,
-    groupPolicy: account.config.groupPolicy,
-    defaultGroupPolicy,
-    configuredFallbackPolicy: "allowlist",
-    missingProviderFallbackPolicy: "allowlist",
-  });
-  if (providerMissingFallbackApplied && !lineGroupPolicyFallbackWarned) {
-    lineGroupPolicyFallbackWarned = true;
-    logVerbose(
-      'line: channels.line is missing; defaulting groupPolicy to "allowlist" (group messages blocked until explicitly configured).',
-    );
-  }
+  const groupPolicy = account.config.groupPolicy ?? defaultGroupPolicy ?? "allowlist";
 
   if (isGroup) {
     if (groupConfig?.enabled === false) {
@@ -243,9 +219,7 @@ async function handleMessageEvent(event: MessageEvent, context: LineHandlerConte
   const { cfg, account, runtime, mediaMaxBytes, processMessage } = context;
   const message = event.message;
 
-  if (!(await shouldProcessLineEvent(event, context))) {
-    return;
-  }
+  if (!(await shouldProcessLineEvent(event, context))) return;
 
   // Download media if applicable
   const allMedia: MediaRef[] = [];
@@ -316,18 +290,14 @@ async function handlePostbackEvent(
   const data = event.postback.data;
   logVerbose(`line: received postback: ${data}`);
 
-  if (!(await shouldProcessLineEvent(event, context))) {
-    return;
-  }
+  if (!(await shouldProcessLineEvent(event, context))) return;
 
   const postbackContext = await buildLinePostbackContext({
     event,
     cfg: context.cfg,
     account: context.account,
   });
-  if (!postbackContext) {
-    return;
-  }
+  if (!postbackContext) return;
 
   await context.processMessage(postbackContext);
 }

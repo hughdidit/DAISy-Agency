@@ -2,48 +2,34 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { OpenClawConfig } from "../config/config.js";
-import { telegramPlugin } from "../../extensions/telegram/src/channel.js";
-import { setTelegramRuntime } from "../../extensions/telegram/src/runtime.js";
-import { whatsappPlugin } from "../../extensions/whatsapp/src/channel.js";
-import { setWhatsAppRuntime } from "../../extensions/whatsapp/src/runtime.js";
 import { HEARTBEAT_PROMPT } from "../auto-reply/heartbeat.js";
 import * as replyModule from "../auto-reply/reply.js";
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-import type { ReplyPayload } from "../auto-reply/types.js";
-=======
->>>>>>> 21087c5c7 (test: fix rebase-introduced tsgo regressions)
-import { whatsappOutbound } from "../channels/plugins/outbound/whatsapp.js";
-import type { OpenClawConfig } from "../config/config.js";
->>>>>>> a18603681 (test: fix latest tsgo inference regressions in test suites)
+import type { MoltbotConfig } from "../config/config.js";
 import {
   resolveAgentIdFromSessionKey,
   resolveAgentMainSessionKey,
   resolveMainSessionKey,
   resolveStorePath,
 } from "../config/sessions.js";
-import { setActivePluginRegistry } from "../plugins/runtime.js";
-import { createPluginRuntime } from "../plugins/runtime/index.js";
 import { buildAgentPeerSessionKey } from "../routing/session-key.js";
-import { createTestRegistry } from "../test-utils/channel-plugins.js";
 import {
   isHeartbeatEnabledForAgent,
   resolveHeartbeatIntervalMs,
   resolveHeartbeatPrompt,
   runHeartbeatOnce,
 } from "./heartbeat-runner.js";
-import {
-  resolveHeartbeatDeliveryTarget,
-  resolveHeartbeatSenderContext,
-} from "./outbound/targets.js";
-import { enqueueSystemEvent, resetSystemEventsForTest } from "./system-events.js";
+import { resolveHeartbeatDeliveryTarget } from "./outbound/targets.js";
+import { setActivePluginRegistry } from "../plugins/runtime.js";
+import { createPluginRuntime } from "../plugins/runtime/index.js";
+import { createTestRegistry } from "../test-utils/channel-plugins.js";
+import { telegramPlugin } from "../../extensions/telegram/src/channel.js";
+import { whatsappPlugin } from "../../extensions/whatsapp/src/channel.js";
+import { setTelegramRuntime } from "../../extensions/telegram/src/runtime.js";
+import { setWhatsAppRuntime } from "../../extensions/whatsapp/src/runtime.js";
 
 // Avoid pulling optional runtime deps during isolated runs.
 vi.mock("jiti", () => ({ createJiti: () => () => ({}) }));
 
-<<<<<<< HEAD
 beforeEach(() => {
   const runtime = createPluginRuntime();
   setTelegramRuntime(runtime);
@@ -54,96 +40,6 @@ beforeEach(() => {
       { pluginId: "telegram", plugin: telegramPlugin, source: "test" },
     ]),
   );
-=======
-let previousRegistry: ReturnType<typeof getActivePluginRegistry> | null = null;
-let testRegistry: ReturnType<typeof getActivePluginRegistry> | null = null;
-
-let fixtureRoot = "";
-let fixtureCount = 0;
-
-const createCaseDir = async (prefix: string, { skipHeartbeatFile = false } = {}) => {
-  const dir = path.join(fixtureRoot, `${prefix}-${fixtureCount++}`);
-  await fs.mkdir(dir, { recursive: true });
-  if (!skipHeartbeatFile) {
-    await fs.writeFile(path.join(dir, "HEARTBEAT.md"), "- Check status\n", "utf-8");
-  }
-  return dir;
-};
-
-beforeAll(async () => {
-  previousRegistry = getActivePluginRegistry();
-
-  const whatsappPlugin = createOutboundTestPlugin({ id: "whatsapp", outbound: whatsappOutbound });
-  whatsappPlugin.config = {
-    ...whatsappPlugin.config,
-    resolveAllowFrom: ({ cfg }) =>
-      cfg.channels?.whatsapp?.allowFrom?.map((entry) => String(entry)) ?? [],
-  };
-
-  const telegramPlugin = createOutboundTestPlugin({
-    id: "telegram",
-    outbound: {
-      deliveryMode: "direct",
-      sendText: async ({ to, text, deps, accountId }) => {
-        if (!deps?.sendTelegram) {
-          throw new Error("sendTelegram missing");
-        }
-        const res = await deps.sendTelegram(to, text, {
-          verbose: false,
-          accountId: accountId ?? undefined,
-        });
-        return { channel: "telegram", messageId: res.messageId, chatId: res.chatId };
-      },
-      sendMedia: async ({ to, text, mediaUrl, deps, accountId }) => {
-        if (!deps?.sendTelegram) {
-          throw new Error("sendTelegram missing");
-        }
-        const res = await deps.sendTelegram(to, text, {
-          verbose: false,
-          accountId: accountId ?? undefined,
-          mediaUrl,
-        });
-        return { channel: "telegram", messageId: res.messageId, chatId: res.chatId };
-      },
-    },
-  });
-  telegramPlugin.config = {
-    ...telegramPlugin.config,
-    listAccountIds: (cfg) => Object.keys(cfg.channels?.telegram?.accounts ?? {}),
-    resolveAllowFrom: ({ cfg, accountId }) => {
-      const channel = cfg.channels?.telegram;
-      const normalized = accountId?.trim();
-      if (normalized && channel?.accounts?.[normalized]?.allowFrom) {
-        return channel.accounts[normalized].allowFrom?.map((entry) => String(entry)) ?? [];
-      }
-      return channel?.allowFrom?.map((entry) => String(entry)) ?? [];
-    },
-  };
-
-  testRegistry = createTestRegistry([
-    { pluginId: "whatsapp", plugin: whatsappPlugin, source: "test" },
-    { pluginId: "telegram", plugin: telegramPlugin, source: "test" },
-  ]);
-  setActivePluginRegistry(testRegistry);
-
-  fixtureRoot = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-heartbeat-suite-"));
-});
-
-beforeEach(() => {
-  resetSystemEventsForTest();
-  if (testRegistry) {
-    setActivePluginRegistry(testRegistry);
-  }
-});
-
-afterAll(async () => {
-  if (fixtureRoot) {
-    await fs.rm(fixtureRoot, { recursive: true, force: true });
-  }
-  if (previousRegistry) {
-    setActivePluginRegistry(previousRegistry);
-  }
->>>>>>> f855d0be4 (fix: skip heartbeat when HEARTBEAT.md does not exist (#20461))
 });
 
 describe("resolveHeartbeatIntervalMs", () => {
@@ -199,7 +95,7 @@ describe("resolveHeartbeatPrompt", () => {
   });
 
   it("uses a trimmed override when configured", () => {
-    const cfg: OpenClawConfig = {
+    const cfg: MoltbotConfig = {
       agents: { defaults: { heartbeat: { prompt: "  ping  " } } },
     };
     expect(resolveHeartbeatPrompt(cfg)).toBe("ping");
@@ -208,7 +104,7 @@ describe("resolveHeartbeatPrompt", () => {
 
 describe("isHeartbeatEnabledForAgent", () => {
   it("enables only explicit heartbeat agents when configured", () => {
-    const cfg: OpenClawConfig = {
+    const cfg: MoltbotConfig = {
       agents: {
         defaults: { heartbeat: { every: "30m" } },
         list: [{ id: "main" }, { id: "ops", heartbeat: { every: "1h" } }],
@@ -219,7 +115,7 @@ describe("isHeartbeatEnabledForAgent", () => {
   });
 
   it("falls back to default agent when no explicit heartbeat entries", () => {
-    const cfg: OpenClawConfig = {
+    const cfg: MoltbotConfig = {
       agents: {
         defaults: { heartbeat: { every: "30m" } },
         list: [{ id: "main" }, { id: "ops" }],
@@ -237,7 +133,7 @@ describe("resolveHeartbeatDeliveryTarget", () => {
   };
 
   it("respects target none", () => {
-    const cfg: OpenClawConfig = {
+    const cfg: MoltbotConfig = {
       agents: { defaults: { heartbeat: { target: "none" } } },
     };
     expect(resolveHeartbeatDeliveryTarget({ cfg, entry: baseEntry })).toEqual({
@@ -250,7 +146,7 @@ describe("resolveHeartbeatDeliveryTarget", () => {
   });
 
   it("uses last route by default", () => {
-    const cfg: OpenClawConfig = {};
+    const cfg: MoltbotConfig = {};
     const entry = {
       ...baseEntry,
       lastChannel: "whatsapp" as const,
@@ -266,7 +162,7 @@ describe("resolveHeartbeatDeliveryTarget", () => {
   });
 
   it("normalizes explicit WhatsApp targets when allowFrom is '*'", () => {
-    const cfg: OpenClawConfig = {
+    const cfg: MoltbotConfig = {
       agents: {
         defaults: {
           heartbeat: { target: "whatsapp", to: "whatsapp:(555) 123" },
@@ -284,7 +180,7 @@ describe("resolveHeartbeatDeliveryTarget", () => {
   });
 
   it("skips when last route is webchat", () => {
-    const cfg: OpenClawConfig = {};
+    const cfg: MoltbotConfig = {};
     const entry = {
       ...baseEntry,
       lastChannel: "webchat" as const,
@@ -300,7 +196,7 @@ describe("resolveHeartbeatDeliveryTarget", () => {
   });
 
   it("applies allowFrom fallback for WhatsApp targets", () => {
-    const cfg: OpenClawConfig = {
+    const cfg: MoltbotConfig = {
       agents: { defaults: { heartbeat: { target: "whatsapp", to: "+1999" } } },
       channels: { whatsapp: { allowFrom: ["+1555", "+1666"] } },
     };
@@ -320,7 +216,7 @@ describe("resolveHeartbeatDeliveryTarget", () => {
   });
 
   it("keeps WhatsApp group targets even with allowFrom set", () => {
-    const cfg: OpenClawConfig = {
+    const cfg: MoltbotConfig = {
       channels: { whatsapp: { allowFrom: ["+1555"] } },
     };
     const entry = {
@@ -338,7 +234,7 @@ describe("resolveHeartbeatDeliveryTarget", () => {
   });
 
   it("normalizes prefixed WhatsApp group targets for heartbeat delivery", () => {
-    const cfg: OpenClawConfig = {
+    const cfg: MoltbotConfig = {
       channels: { whatsapp: { allowFrom: ["+1555"] } },
     };
     const entry = {
@@ -356,7 +252,7 @@ describe("resolveHeartbeatDeliveryTarget", () => {
   });
 
   it("keeps explicit telegram targets", () => {
-    const cfg: OpenClawConfig = {
+    const cfg: MoltbotConfig = {
       agents: { defaults: { heartbeat: { target: "telegram", to: "123" } } },
     };
     expect(resolveHeartbeatDeliveryTarget({ cfg, entry: baseEntry })).toEqual({
@@ -368,44 +264,8 @@ describe("resolveHeartbeatDeliveryTarget", () => {
     });
   });
 
-  it("uses explicit heartbeat accountId when provided", () => {
-    const cfg: OpenClawConfig = {
-      agents: {
-        defaults: {
-          heartbeat: { target: "telegram", to: "123", accountId: "work" },
-        },
-      },
-      channels: { telegram: { accounts: { work: { botToken: "token" } } } },
-    };
-    expect(resolveHeartbeatDeliveryTarget({ cfg, entry: baseEntry })).toEqual({
-      channel: "telegram",
-      to: "123",
-      accountId: "work",
-      lastChannel: undefined,
-      lastAccountId: undefined,
-    });
-  });
-
-  it("skips when explicit heartbeat accountId is unknown", () => {
-    const cfg: OpenClawConfig = {
-      agents: {
-        defaults: {
-          heartbeat: { target: "telegram", to: "123", accountId: "missing" },
-        },
-      },
-      channels: { telegram: { accounts: { work: { botToken: "token" } } } },
-    };
-    expect(resolveHeartbeatDeliveryTarget({ cfg, entry: baseEntry })).toEqual({
-      channel: "none",
-      reason: "unknown-account",
-      accountId: "missing",
-      lastChannel: undefined,
-      lastAccountId: undefined,
-    });
-  });
-
   it("prefers per-agent heartbeat overrides when provided", () => {
-    const cfg: OpenClawConfig = {
+    const cfg: MoltbotConfig = {
       agents: { defaults: { heartbeat: { target: "telegram", to: "123" } } },
     };
     const heartbeat = { target: "whatsapp", to: "+1555" } as const;
@@ -425,42 +285,9 @@ describe("resolveHeartbeatDeliveryTarget", () => {
   });
 });
 
-describe("resolveHeartbeatSenderContext", () => {
-  it("prefers delivery accountId for allowFrom resolution", () => {
-    const cfg: OpenClawConfig = {
-      channels: {
-        telegram: {
-          allowFrom: ["111"],
-          accounts: {
-            work: { allowFrom: ["222"], botToken: "token" },
-          },
-        },
-      },
-    };
-    const entry = {
-      sessionId: "sid",
-      updatedAt: Date.now(),
-      lastChannel: "telegram" as const,
-      lastTo: "111",
-      lastAccountId: "default",
-    };
-    const delivery = {
-      channel: "telegram" as const,
-      to: "999",
-      accountId: "work",
-      lastChannel: "telegram" as const,
-      lastAccountId: "default",
-    };
-
-    const ctx = resolveHeartbeatSenderContext({ cfg, entry, delivery });
-
-    expect(ctx.allowFrom).toEqual(["222"]);
-  });
-});
-
 describe("runHeartbeatOnce", () => {
   it("skips when agent heartbeat is not enabled", async () => {
-    const cfg: OpenClawConfig = {
+    const cfg: MoltbotConfig = {
       agents: {
         defaults: { heartbeat: { every: "30m" } },
         list: [{ id: "main" }, { id: "ops", heartbeat: { every: "1h" } }],
@@ -475,7 +302,7 @@ describe("runHeartbeatOnce", () => {
   });
 
   it("skips outside active hours", async () => {
-    const cfg: OpenClawConfig = {
+    const cfg: MoltbotConfig = {
       agents: {
         defaults: {
           userTimezone: "UTC",
@@ -499,11 +326,11 @@ describe("runHeartbeatOnce", () => {
   });
 
   it("uses the last non-empty payload for delivery", async () => {
-    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-hb-"));
+    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-hb-"));
     const storePath = path.join(tmpDir, "sessions.json");
     const replySpy = vi.spyOn(replyModule, "getReplyFromConfig");
     try {
-      const cfg: OpenClawConfig = {
+      const cfg: MoltbotConfig = {
         agents: {
           defaults: {
             workspace: tmpDir,
@@ -557,11 +384,11 @@ describe("runHeartbeatOnce", () => {
   });
 
   it("uses per-agent heartbeat overrides and session keys", async () => {
-    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-hb-"));
+    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-hb-"));
     const storePath = path.join(tmpDir, "sessions.json");
     const replySpy = vi.spyOn(replyModule, "getReplyFromConfig");
     try {
-      const cfg: OpenClawConfig = {
+      const cfg: MoltbotConfig = {
         agents: {
           defaults: {
             heartbeat: { every: "30m", prompt: "Default prompt" },
@@ -570,7 +397,6 @@ describe("runHeartbeatOnce", () => {
             { id: "main", default: true },
             {
               id: "ops",
-              workspace: tmpDir,
               heartbeat: { every: "5m", target: "whatsapp", prompt: "Ops check" },
             },
           ],
@@ -582,87 +408,6 @@ describe("runHeartbeatOnce", () => {
 
       await fs.writeFile(
         storePath,
-<<<<<<< HEAD
-=======
-        JSON.stringify({
-          [sessionKey]: {
-            sessionId: "sid",
-            updatedAt: Date.now(),
-            lastChannel: "whatsapp",
-            lastTo: "+1555",
-          },
-        }),
-      );
-      replySpy.mockResolvedValue([{ text: "Final alert" }]);
-      const sendWhatsApp = vi.fn().mockResolvedValue({
-        messageId: "m1",
-        toJid: "jid",
-      });
-      await runHeartbeatOnce({
-        cfg,
-        agentId: "ops",
-        deps: {
-          sendWhatsApp,
-          getQueueSize: () => 0,
-          nowMs: () => 0,
-          webAuthExists: async () => true,
-          hasActiveWebListener: () => true,
-        },
-      });
-      expect(sendWhatsApp).toHaveBeenCalledTimes(1);
-      expect(sendWhatsApp).toHaveBeenCalledWith("+1555", "Final alert", expect.any(Object));
-      expect(replySpy).toHaveBeenCalledWith(
-        expect.objectContaining({
-          Body: expect.stringMatching(/Ops check[\s\S]*Current time: /),
-          SessionKey: sessionKey,
-          From: "+1555",
-          To: "+1555",
-          OriginatingChannel: "whatsapp",
-          OriginatingTo: "+1555",
-          Provider: "heartbeat",
-        }),
-        expect.objectContaining({ isHeartbeat: true, suppressToolErrorWarnings: false }),
-        cfg,
-      );
-    } finally {
-      replySpy.mockRestore();
-    }
-  });
-
-  it("reuses non-default agent sessionFile from templated stores", async () => {
-    const tmpDir = await createCaseDir("hb-templated-store");
-    const storeTemplate = path.join(tmpDir, "agents", "{agentId}", "sessions", "sessions.json");
-    const replySpy = vi.spyOn(replyModule, "getReplyFromConfig");
-    const agentId = "ops";
-    try {
-      const cfg: OpenClawConfig = {
-        agents: {
-          defaults: {
-            heartbeat: { every: "30m", prompt: "Default prompt" },
-          },
-          list: [
-            { id: "main", default: true },
-            {
-              id: agentId,
-              workspace: tmpDir,
-              heartbeat: { every: "5m", target: "whatsapp", prompt: "Ops check" },
-            },
-          ],
-        },
-        channels: { whatsapp: { allowFrom: ["*"] } },
-        session: { store: storeTemplate },
-      };
-      const sessionKey = resolveAgentMainSessionKey({ cfg, agentId });
-      const storePath = resolveStorePath(storeTemplate, { agentId });
-      const sessionsDir = path.dirname(storePath);
-      const sessionId = "sid-ops";
-      const sessionFile = path.join(sessionsDir, `${sessionId}.jsonl`);
-
-      await fs.mkdir(sessionsDir, { recursive: true });
-      await fs.writeFile(sessionFile, "", "utf-8");
-      await fs.writeFile(
-        storePath,
->>>>>>> f855d0be4 (fix: skip heartbeat when HEARTBEAT.md does not exist (#20461))
         JSON.stringify(
           {
             [sessionKey]: {
@@ -709,12 +454,12 @@ describe("runHeartbeatOnce", () => {
   });
 
   it("runs heartbeats in the explicit session key when configured", async () => {
-    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-hb-"));
+    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-hb-"));
     const storePath = path.join(tmpDir, "sessions.json");
     const replySpy = vi.spyOn(replyModule, "getReplyFromConfig");
     try {
       const groupId = "120363401234567890@g.us";
-      const cfg: OpenClawConfig = {
+      const cfg: MoltbotConfig = {
         agents: {
           defaults: {
             workspace: tmpDir,
@@ -792,11 +537,11 @@ describe("runHeartbeatOnce", () => {
   });
 
   it("suppresses duplicate heartbeat payloads within 24h", async () => {
-    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-hb-"));
+    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-hb-"));
     const storePath = path.join(tmpDir, "sessions.json");
     const replySpy = vi.spyOn(replyModule, "getReplyFromConfig");
     try {
-      const cfg: OpenClawConfig = {
+      const cfg: MoltbotConfig = {
         agents: {
           defaults: {
             workspace: tmpDir,
@@ -848,11 +593,11 @@ describe("runHeartbeatOnce", () => {
   });
 
   it("can include reasoning payloads when enabled", async () => {
-    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-hb-"));
+    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-hb-"));
     const storePath = path.join(tmpDir, "sessions.json");
     const replySpy = vi.spyOn(replyModule, "getReplyFromConfig");
     try {
-      const cfg: OpenClawConfig = {
+      const cfg: MoltbotConfig = {
         agents: {
           defaults: {
             workspace: tmpDir,
@@ -920,11 +665,11 @@ describe("runHeartbeatOnce", () => {
   });
 
   it("delivers reasoning even when the main heartbeat reply is HEARTBEAT_OK", async () => {
-    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-hb-"));
+    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-hb-"));
     const storePath = path.join(tmpDir, "sessions.json");
     const replySpy = vi.spyOn(replyModule, "getReplyFromConfig");
     try {
-      const cfg: OpenClawConfig = {
+      const cfg: MoltbotConfig = {
         agents: {
           defaults: {
             workspace: tmpDir,
@@ -991,11 +736,11 @@ describe("runHeartbeatOnce", () => {
   });
 
   it("loads the default agent session from templated stores", async () => {
-    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-hb-"));
+    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-hb-"));
     const storeTemplate = path.join(tmpDir, "agents", "{agentId}", "sessions.json");
     const replySpy = vi.spyOn(replyModule, "getReplyFromConfig");
     try {
-      const cfg: OpenClawConfig = {
+      const cfg: MoltbotConfig = {
         agents: {
           defaults: { workspace: tmpDir, heartbeat: { every: "5m" } },
           list: [{ id: "work", default: true }],
@@ -1055,7 +800,7 @@ describe("runHeartbeatOnce", () => {
   });
 
   it("skips heartbeat when HEARTBEAT.md is effectively empty (saves API calls)", async () => {
-    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-hb-"));
+    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-hb-"));
     const storePath = path.join(tmpDir, "sessions.json");
     const workspaceDir = path.join(tmpDir, "workspace");
     const replySpy = vi.spyOn(replyModule, "getReplyFromConfig");
@@ -1069,7 +814,7 @@ describe("runHeartbeatOnce", () => {
         "utf-8",
       );
 
-      const cfg: OpenClawConfig = {
+      const cfg: MoltbotConfig = {
         agents: {
           defaults: {
             workspace: workspaceDir,
@@ -1126,83 +871,8 @@ describe("runHeartbeatOnce", () => {
     }
   });
 
-  it("does not skip interval heartbeat when HEARTBEAT.md is empty but tagged cron events are queued", async () => {
-    const tmpDir = await createCaseDir("openclaw-hb");
-    const storePath = path.join(tmpDir, "sessions.json");
-    const workspaceDir = path.join(tmpDir, "workspace");
-    const replySpy = vi.spyOn(replyModule, "getReplyFromConfig");
-    try {
-      await fs.mkdir(workspaceDir, { recursive: true });
-      await fs.writeFile(
-        path.join(workspaceDir, "HEARTBEAT.md"),
-        "# HEARTBEAT.md\n\n## Tasks\n\n",
-        "utf-8",
-      );
-
-      const cfg: OpenClawConfig = {
-        agents: {
-          defaults: {
-            workspace: workspaceDir,
-            heartbeat: { every: "5m", target: "whatsapp" },
-          },
-        },
-        channels: { whatsapp: { allowFrom: ["*"] } },
-        session: { store: storePath },
-      };
-      const sessionKey = resolveMainSessionKey(cfg);
-
-      await fs.writeFile(
-        storePath,
-        JSON.stringify(
-          {
-            [sessionKey]: {
-              sessionId: "sid",
-              updatedAt: Date.now(),
-              lastChannel: "whatsapp",
-              lastTo: "+1555",
-            },
-          },
-          null,
-          2,
-        ),
-      );
-
-      enqueueSystemEvent("Cron: QMD maintenance completed", {
-        sessionKey,
-        contextKey: "cron:qmd-maintenance",
-      });
-
-      replySpy.mockResolvedValue({ text: "Relay this cron update now" });
-      const sendWhatsApp = vi.fn().mockResolvedValue({
-        messageId: "m1",
-        toJid: "jid",
-      });
-
-      const res = await runHeartbeatOnce({
-        cfg,
-        reason: "interval",
-        deps: {
-          sendWhatsApp,
-          getQueueSize: () => 0,
-          nowMs: () => 0,
-          webAuthExists: async () => true,
-          hasActiveWebListener: () => true,
-        },
-      });
-
-      expect(res.status).toBe("ran");
-      expect(replySpy).toHaveBeenCalledTimes(1);
-      const calledCtx = replySpy.mock.calls[0]?.[0] as { Provider?: string; Body?: string };
-      expect(calledCtx.Provider).toBe("cron-event");
-      expect(calledCtx.Body).toContain("scheduled reminder has been triggered");
-      expect(sendWhatsApp).toHaveBeenCalledTimes(1);
-    } finally {
-      replySpy.mockRestore();
-    }
-  });
-
   it("runs heartbeat when HEARTBEAT.md has actionable content", async () => {
-    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-hb-"));
+    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-hb-"));
     const storePath = path.join(tmpDir, "sessions.json");
     const workspaceDir = path.join(tmpDir, "workspace");
     const replySpy = vi.spyOn(replyModule, "getReplyFromConfig");
@@ -1216,7 +886,7 @@ describe("runHeartbeatOnce", () => {
         "utf-8",
       );
 
-      const cfg: OpenClawConfig = {
+      const cfg: MoltbotConfig = {
         agents: {
           defaults: {
             workspace: workspaceDir,
@@ -1271,13 +941,8 @@ describe("runHeartbeatOnce", () => {
     }
   });
 
-<<<<<<< HEAD
   it("runs heartbeat when HEARTBEAT.md does not exist (lets LLM decide)", async () => {
-    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-hb-"));
-=======
-  it("skips heartbeat when HEARTBEAT.md does not exist (saves API calls)", async () => {
-    const tmpDir = await createCaseDir("openclaw-hb");
->>>>>>> f855d0be4 (fix: skip heartbeat when HEARTBEAT.md does not exist (#20461))
+    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-hb-"));
     const storePath = path.join(tmpDir, "sessions.json");
     const workspaceDir = path.join(tmpDir, "workspace");
     const replySpy = vi.spyOn(replyModule, "getReplyFromConfig");
@@ -1285,7 +950,7 @@ describe("runHeartbeatOnce", () => {
       await fs.mkdir(workspaceDir, { recursive: true });
       // Don't create HEARTBEAT.md - it doesn't exist
 
-      const cfg: OpenClawConfig = {
+      const cfg: MoltbotConfig = {
         agents: {
           defaults: {
             workspace: workspaceDir,
@@ -1330,148 +995,9 @@ describe("runHeartbeatOnce", () => {
         },
       });
 
-      // Should skip - no HEARTBEAT.md means nothing actionable
-      expect(res.status).toBe("skipped");
-      if (res.status === "skipped") {
-        expect(res.reason).toBe("no-heartbeat-file");
-      }
-      expect(replySpy).not.toHaveBeenCalled();
-      expect(sendWhatsApp).not.toHaveBeenCalled();
-    } finally {
-      replySpy.mockRestore();
-    }
-  });
-
-  it("does not skip wake-triggered heartbeat when HEARTBEAT.md does not exist", async () => {
-    const tmpDir = await createCaseDir("openclaw-hb");
-    const storePath = path.join(tmpDir, "sessions.json");
-    const workspaceDir = path.join(tmpDir, "workspace");
-    const replySpy = vi.spyOn(replyModule, "getReplyFromConfig");
-    try {
-      await fs.mkdir(workspaceDir, { recursive: true });
-      // Don't create HEARTBEAT.md
-
-      const cfg: OpenClawConfig = {
-        agents: {
-          defaults: {
-            workspace: workspaceDir,
-            heartbeat: { every: "5m", target: "whatsapp" },
-          },
-        },
-        channels: { whatsapp: { allowFrom: ["*"] } },
-        session: { store: storePath },
-      };
-      const sessionKey = resolveMainSessionKey(cfg);
-
-      await fs.writeFile(
-        storePath,
-        JSON.stringify(
-          {
-            [sessionKey]: {
-              sessionId: "sid",
-              updatedAt: Date.now(),
-              lastChannel: "whatsapp",
-              lastTo: "+1555",
-            },
-          },
-          null,
-          2,
-        ),
-      );
-
-      replySpy.mockResolvedValue({ text: "wake event processed" });
-      const sendWhatsApp = vi.fn().mockResolvedValue({
-        messageId: "m1",
-        toJid: "jid",
-      });
-
-      const res = await runHeartbeatOnce({
-        cfg,
-        reason: "wake",
-        deps: {
-          sendWhatsApp,
-          getQueueSize: () => 0,
-          nowMs: () => 0,
-          webAuthExists: async () => true,
-          hasActiveWebListener: () => true,
-        },
-      });
-
-      // Wake events should still run even without HEARTBEAT.md
+      // Should run (not skip) - let LLM decide since file doesn't exist
       expect(res.status).toBe("ran");
       expect(replySpy).toHaveBeenCalled();
-      expect(sendWhatsApp).toHaveBeenCalledTimes(1);
-    } finally {
-      replySpy.mockRestore();
-    }
-  });
-
-  it("does not skip interval heartbeat when tagged cron events are queued and HEARTBEAT.md is missing", async () => {
-    const tmpDir = await createCaseDir("openclaw-hb");
-    const storePath = path.join(tmpDir, "sessions.json");
-    const workspaceDir = path.join(tmpDir, "workspace");
-    const replySpy = vi.spyOn(replyModule, "getReplyFromConfig");
-    try {
-      await fs.mkdir(workspaceDir, { recursive: true });
-      // Don't create HEARTBEAT.md
-
-      const cfg: OpenClawConfig = {
-        agents: {
-          defaults: {
-            workspace: workspaceDir,
-            heartbeat: { every: "5m", target: "whatsapp" },
-          },
-        },
-        channels: { whatsapp: { allowFrom: ["*"] } },
-        session: { store: storePath },
-      };
-      const sessionKey = resolveMainSessionKey(cfg);
-
-      await fs.writeFile(
-        storePath,
-        JSON.stringify(
-          {
-            [sessionKey]: {
-              sessionId: "sid",
-              updatedAt: Date.now(),
-              lastChannel: "whatsapp",
-              lastTo: "+1555",
-            },
-          },
-          null,
-          2,
-        ),
-      );
-
-      enqueueSystemEvent("Cron: QMD maintenance completed", {
-        sessionKey,
-        contextKey: "cron:qmd-maintenance",
-      });
-
-      replySpy.mockResolvedValue({ text: "Relay this cron update now" });
-      const sendWhatsApp = vi.fn().mockResolvedValue({
-        messageId: "m1",
-        toJid: "jid",
-      });
-
-      const res = await runHeartbeatOnce({
-        cfg,
-        reason: "interval",
-        deps: {
-          sendWhatsApp,
-          getQueueSize: () => 0,
-          nowMs: () => 0,
-          webAuthExists: async () => true,
-          hasActiveWebListener: () => true,
-        },
-      });
-
-      expect(res.status).toBe("ran");
-      expect(replySpy).toHaveBeenCalledTimes(1);
-      const calledCtx = replySpy.mock.calls[0]?.[0] as { Provider?: string; Body?: string };
-      expect(calledCtx.Provider).toBe("cron-event");
-      expect(calledCtx.Body).toContain("scheduled reminder has been triggered");
-      expect(sendWhatsApp).toHaveBeenCalledTimes(1);
     } finally {
       replySpy.mockRestore();
       await fs.rm(tmpDir, { recursive: true, force: true });

@@ -14,17 +14,13 @@ export type AuthChoiceGroupId =
   | "copilot"
   | "openrouter"
   | "ai-gateway"
-  | "cloudflare-ai-gateway"
   | "moonshot"
   | "zai"
-  | "xiaomi"
   | "opencode-zen"
   | "minimax"
   | "synthetic"
   | "venice"
-  | "qwen"
-  | "qianfan"
-  | "xai";
+  | "qwen";
 
 export type AuthChoiceGroup = {
   value: AuthChoiceGroupId;
@@ -54,79 +50,14 @@ const AUTH_CHOICE_GROUP_DEFS: {
   {
     value: "minimax",
     label: "MiniMax",
-<<<<<<< HEAD
     hint: "M2.1 (recommended)",
-    choices: ["minimax-portal", "minimax-api", "minimax-api-lightning"],
-=======
-    hint: "M2.5 (recommended)",
-    choices: ["minimax-portal", "minimax-api", "minimax-api-key-cn", "minimax-api-lightning"],
->>>>>>> 0cfea4629 (fix: wire minimax-api-key-cn onboarding (#15191) (thanks @liuy))
-  },
-  {
-    value: "moonshot",
-    label: "Moonshot AI (Kimi K2.5)",
-    hint: "Kimi K2.5 + Kimi Coding",
-    choices: ["moonshot-api-key", "moonshot-api-key-cn", "kimi-code-api-key"],
-  },
-  {
-    value: "google",
-    label: "Google",
-    hint: "Gemini API key + OAuth",
-    choices: ["gemini-api-key", "google-antigravity", "google-gemini-cli"],
-  },
-  {
-    value: "xai",
-    label: "xAI (Grok)",
-    hint: "API key",
-    choices: ["xai-api-key"],
-  },
-  {
-    value: "openrouter",
-    label: "OpenRouter",
-    hint: "API key",
-    choices: ["openrouter-api-key"],
+    choices: ["minimax-api", "minimax-api-lightning"],
   },
   {
     value: "qwen",
     label: "Qwen",
     hint: "OAuth",
     choices: ["qwen-portal"],
-  },
-  {
-    value: "zai",
-    label: "Z.AI (GLM 4.7)",
-    hint: "API key",
-    choices: ["zai-api-key"],
-  },
-  {
-    value: "qianfan",
-    label: "Qianfan",
-    hint: "API key",
-    choices: ["qianfan-api-key"],
-  },
-  {
-    value: "copilot",
-    label: "Copilot",
-    hint: "GitHub + local proxy",
-    choices: ["github-copilot", "copilot-proxy"],
-  },
-  {
-    value: "ai-gateway",
-    label: "Vercel AI Gateway",
-    hint: "API key",
-    choices: ["ai-gateway-api-key"],
-  },
-  {
-    value: "opencode-zen",
-    label: "OpenCode Zen",
-    hint: "API key",
-    choices: ["opencode-zen"],
-  },
-  {
-    value: "xiaomi",
-    label: "Xiaomi",
-    hint: "API key",
-    choices: ["xiaomi-api-key"],
   },
   {
     value: "synthetic",
@@ -141,171 +72,49 @@ const AUTH_CHOICE_GROUP_DEFS: {
     choices: ["venice-api-key"],
   },
   {
-    value: "cloudflare-ai-gateway",
-    label: "Cloudflare AI Gateway",
-    hint: "Account ID + Gateway ID + API key",
-    choices: ["cloudflare-ai-gateway-api-key"],
-  },
-];
-
-<<<<<<< HEAD
-=======
-const BASE_AUTH_CHOICE_OPTIONS: ReadonlyArray<AuthChoiceOption> = [
-  {
-    value: "token",
-    label: "Anthropic token (paste setup-token)",
-    hint: "run `claude setup-token` elsewhere, then paste the token here",
+    value: "google",
+    label: "Google",
+    hint: "Gemini API key + OAuth",
+    choices: ["gemini-api-key", "google-antigravity", "google-gemini-cli"],
   },
   {
-    value: "openai-codex",
-    label: "OpenAI Codex (ChatGPT OAuth)",
-  },
-  { value: "chutes", label: "Chutes (OAuth)" },
-  {
-    value: "vllm",
-    label: "vLLM (custom URL + model)",
-    hint: "Local/self-hosted OpenAI-compatible server",
-  },
-  { value: "openai-api-key", label: "OpenAI API key" },
-  { value: "xai-api-key", label: "xAI (Grok) API key" },
-  {
-    value: "qianfan-api-key",
-    label: "Qianfan API key",
-  },
-  { value: "openrouter-api-key", label: "OpenRouter API key" },
-  {
-    value: "litellm-api-key",
-    label: "LiteLLM API key",
-    hint: "Unified gateway for 100+ LLM providers",
+    value: "copilot",
+    label: "Copilot",
+    hint: "GitHub + local proxy",
+    choices: ["github-copilot", "copilot-proxy"],
   },
   {
-    value: "ai-gateway-api-key",
-    label: "Vercel AI Gateway API key",
+    value: "openrouter",
+    label: "OpenRouter",
+    hint: "API key",
+    choices: ["openrouter-api-key"],
   },
   {
-    value: "cloudflare-ai-gateway-api-key",
-    label: "Cloudflare AI Gateway",
-    hint: "Account ID + Gateway ID + API key",
+    value: "ai-gateway",
+    label: "Vercel AI Gateway",
+    hint: "API key",
+    choices: ["ai-gateway-api-key"],
   },
   {
-    value: "moonshot-api-key",
-    label: "Kimi API key (.ai)",
+    value: "moonshot",
+    label: "Moonshot AI",
+    hint: "Kimi K2 + Kimi Code",
+    choices: ["moonshot-api-key", "kimi-code-api-key"],
   },
   {
-    value: "moonshot-api-key-cn",
-    label: "Kimi API key (.cn)",
+    value: "zai",
+    label: "Z.AI (GLM 4.7)",
+    hint: "API key",
+    choices: ["zai-api-key"],
   },
-  {
-    value: "kimi-code-api-key",
-    label: "Kimi Code API key (subscription)",
-  },
-  { value: "synthetic-api-key", label: "Synthetic API key" },
-  {
-    value: "venice-api-key",
-    label: "Venice AI API key",
-    hint: "Privacy-focused inference (uncensored models)",
-  },
-  {
-    value: "together-api-key",
-    label: "Together AI API key",
-    hint: "Access to Llama, DeepSeek, Qwen, and more open models",
-  },
-  {
-    value: "huggingface-api-key",
-    label: "Hugging Face API key (HF token)",
-    hint: "Inference Providers — OpenAI-compatible chat",
-  },
-  {
-    value: "github-copilot",
-    label: "GitHub Copilot (GitHub device login)",
-    hint: "Uses GitHub device flow",
-  },
-  { value: "gemini-api-key", label: "Google Gemini API key" },
-  {
-    value: "google-antigravity",
-    label: "Google Antigravity OAuth",
-    hint: "Uses the bundled Antigravity auth plugin",
-  },
-  {
-    value: "google-gemini-cli",
-    label: "Google Gemini CLI OAuth",
-    hint: "Uses the bundled Gemini CLI auth plugin",
-  },
-  { value: "zai-api-key", label: "Z.AI API key" },
-  {
-    value: "zai-coding-global",
-    label: "Coding-Plan-Global",
-    hint: "GLM Coding Plan Global (api.z.ai)",
-  },
-  {
-    value: "zai-coding-cn",
-    label: "Coding-Plan-CN",
-    hint: "GLM Coding Plan CN (open.bigmodel.cn)",
-  },
-  {
-    value: "zai-global",
-    label: "Global",
-    hint: "Z.AI Global (api.z.ai)",
-  },
-  {
-    value: "zai-cn",
-    label: "CN",
-    hint: "Z.AI CN (open.bigmodel.cn)",
-  },
-  {
-    value: "xiaomi-api-key",
-    label: "Xiaomi API key",
-  },
-  {
-    value: "minimax-portal",
-    label: "MiniMax OAuth",
-    hint: "Oauth plugin for MiniMax",
-  },
-  { value: "qwen-portal", label: "Qwen OAuth" },
-  {
-    value: "copilot-proxy",
-    label: "Copilot Proxy (local)",
-    hint: "Local proxy for VS Code Copilot models",
-  },
-  { value: "apiKey", label: "Anthropic API key" },
   {
     value: "opencode-zen",
-    label: "OpenCode Zen (multi-model proxy)",
-    hint: "Claude, GPT, Gemini via opencode.ai/zen",
+    label: "OpenCode Zen",
+    hint: "API key",
+    choices: ["opencode-zen"],
   },
-  { value: "minimax-api", label: "MiniMax M2.5" },
-  {
-    value: "minimax-api-key-cn",
-    label: "MiniMax M2.5 (CN)",
-    hint: "China endpoint (api.minimaxi.com)",
-  },
-  {
-    value: "minimax-api-lightning",
-    label: "MiniMax M2.5 Lightning",
-    hint: "Faster, higher output cost",
-  },
-  { value: "custom-api-key", label: "Custom Provider" },
 ];
 
-export function formatAuthChoiceChoicesForCli(params?: {
-  includeSkip?: boolean;
-  includeLegacyAliases?: boolean;
-}): string {
-  const includeSkip = params?.includeSkip ?? true;
-  const includeLegacyAliases = params?.includeLegacyAliases ?? false;
-  const values = BASE_AUTH_CHOICE_OPTIONS.map((opt) => opt.value);
-
-  if (includeSkip) {
-    values.push("skip");
-  }
-  if (includeLegacyAliases) {
-    values.push(...AUTH_CHOICE_LEGACY_ALIASES_FOR_CLI);
-  }
-
-  return values.join("|");
-}
-
->>>>>>> 0cfea4629 (fix: wire minimax-api-key-cn onboarding (#15191) (thanks @liuy))
 export function buildAuthChoiceOptions(params: {
   store: AuthProfileStore;
   includeSkip: boolean;
@@ -325,30 +134,13 @@ export function buildAuthChoiceOptions(params: {
   });
   options.push({ value: "chutes", label: "Chutes (OAuth)" });
   options.push({ value: "openai-api-key", label: "OpenAI API key" });
-  options.push({ value: "xai-api-key", label: "xAI (Grok) API key" });
-  options.push({
-    value: "qianfan-api-key",
-    label: "Qianfan API key",
-  });
   options.push({ value: "openrouter-api-key", label: "OpenRouter API key" });
   options.push({
     value: "ai-gateway-api-key",
     label: "Vercel AI Gateway API key",
   });
-  options.push({
-    value: "cloudflare-ai-gateway-api-key",
-    label: "Cloudflare AI Gateway",
-    hint: "Account ID + Gateway ID + API key",
-  });
-  options.push({
-    value: "moonshot-api-key",
-    label: "Kimi API key (.ai)",
-  });
-  options.push({
-    value: "moonshot-api-key-cn",
-    label: "Kimi API key (.cn)",
-  });
-  options.push({ value: "kimi-code-api-key", label: "Kimi Code API key (subscription)" });
+  options.push({ value: "moonshot-api-key", label: "Moonshot AI API key" });
+  options.push({ value: "kimi-code-api-key", label: "Kimi Code API key" });
   options.push({ value: "synthetic-api-key", label: "Synthetic API key" });
   options.push({
     value: "venice-api-key",
@@ -372,15 +164,6 @@ export function buildAuthChoiceOptions(params: {
     hint: "Uses the bundled Gemini CLI auth plugin",
   });
   options.push({ value: "zai-api-key", label: "Z.AI (GLM 4.7) API key" });
-  options.push({
-    value: "xiaomi-api-key",
-    label: "Xiaomi API key",
-  });
-  options.push({
-    value: "minimax-portal",
-    label: "MiniMax OAuth",
-    hint: "Oauth plugin for MiniMax",
-  });
   options.push({ value: "qwen-portal", label: "Qwen OAuth" });
   options.push({
     value: "copilot-proxy",

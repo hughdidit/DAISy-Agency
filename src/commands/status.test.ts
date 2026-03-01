@@ -3,15 +3,15 @@ import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 let previousProfile: string | undefined;
 
 beforeAll(() => {
-  previousProfile = process.env.OPENCLAW_PROFILE;
-  process.env.OPENCLAW_PROFILE = "isolated";
+  previousProfile = process.env.CLAWDBOT_PROFILE;
+  process.env.CLAWDBOT_PROFILE = "isolated";
 });
 
 afterAll(() => {
   if (previousProfile === undefined) {
-    delete process.env.OPENCLAW_PROFILE;
+    delete process.env.CLAWDBOT_PROFILE;
   } else {
-    process.env.OPENCLAW_PROFILE = previousProfile;
+    process.env.CLAWDBOT_PROFILE = previousProfile;
   }
 });
 
@@ -23,7 +23,6 @@ const mocks = vi.hoisted(() => ({
       thinkingLevel: "low",
       inputTokens: 2_000,
       outputTokens: 3_000,
-      totalTokens: 5_000,
       contextTokens: 10_000,
       model: "pi:opus",
       sessionId: "abc123",
@@ -95,7 +94,7 @@ vi.mock("../memory/manager.js", () => ({
         files: 2,
         chunks: 3,
         dirty: false,
-        workspaceDir: "/tmp/openclaw",
+        workspaceDir: "/tmp/clawd",
         dbPath: "/tmp/memory.sqlite",
         provider: "openai",
         model: "text-embedding-3-small",
@@ -104,12 +103,7 @@ vi.mock("../memory/manager.js", () => ({
         sourceCounts: [{ source: "memory", files: 2, chunks: 3 }],
         cache: { enabled: true, entries: 10, maxEntries: 500 },
         fts: { enabled: true, available: true },
-        vector: {
-          enabled: true,
-          available: true,
-          extensionPath: "/opt/vec0.dylib",
-          dims: 1024,
-        },
+        vector: { enabled: true, available: true, extensionPath: "/opt/vec0.dylib", dims: 1024 },
       }),
       close: vi.fn(async () => {}),
       __agentId: agentId,
@@ -121,12 +115,6 @@ vi.mock("../config/sessions.js", () => ({
   loadSessionStore: mocks.loadSessionStore,
   resolveMainSessionKey: mocks.resolveMainSessionKey,
   resolveStorePath: mocks.resolveStorePath,
-  resolveFreshSessionTotalTokens: vi.fn(
-    (entry?: { totalTokens?: number; totalTokensFresh?: boolean }) =>
-      typeof entry?.totalTokens === "number" && entry?.totalTokensFresh !== false
-        ? entry.totalTokens
-        : undefined,
-  ),
   readSessionUpdatedAt: vi.fn(() => undefined),
   recordSessionMetaFromInbound: vi.fn().mockResolvedValue(undefined),
 }));
@@ -216,8 +204,8 @@ vi.mock("../gateway/call.js", async (importOriginal) => {
 vi.mock("../gateway/session-utils.js", () => ({
   listAgentsForGateway: mocks.listAgentsForGateway,
 }));
-vi.mock("../infra/openclaw-root.js", () => ({
-  resolveOpenClawPackageRoot: vi.fn().mockResolvedValue("/tmp/openclaw"),
+vi.mock("../infra/moltbot-root.js", () => ({
+  resolveMoltbotPackageRoot: vi.fn().mockResolvedValue("/tmp/moltbot"),
 }));
 vi.mock("../infra/os-summary.js", () => ({
   resolveOsSummary: () => ({
@@ -229,11 +217,11 @@ vi.mock("../infra/os-summary.js", () => ({
 }));
 vi.mock("../infra/update-check.js", () => ({
   checkUpdateStatus: vi.fn().mockResolvedValue({
-    root: "/tmp/openclaw",
+    root: "/tmp/moltbot",
     installKind: "git",
     packageManager: "pnpm",
     git: {
-      root: "/tmp/openclaw",
+      root: "/tmp/moltbot",
       branch: "main",
       upstream: "origin/main",
       dirty: false,
@@ -244,8 +232,8 @@ vi.mock("../infra/update-check.js", () => ({
     deps: {
       manager: "pnpm",
       status: "ok",
-      lockfilePath: "/tmp/openclaw/pnpm-lock.yaml",
-      markerPath: "/tmp/openclaw/node_modules/.modules.yaml",
+      lockfilePath: "/tmp/moltbot/pnpm-lock.yaml",
+      markerPath: "/tmp/moltbot/node_modules/.modules.yaml",
     },
     registry: { latestVersion: "0.0.0" },
   }),
@@ -310,7 +298,6 @@ describe("statusCommand", () => {
     expect(payload.sessions.defaults.model).toBeTruthy();
     expect(payload.sessions.defaults.contextTokens).toBeGreaterThan(0);
     expect(payload.sessions.recent[0].percentUsed).toBe(50);
-    expect(payload.sessions.recent[0].totalTokensFresh).toBe(true);
     expect(payload.sessions.recent[0].remainingTokens).toBe(5000);
     expect(payload.sessions.recent[0].flags).toContain("verbose:on");
     expect(payload.securityAudit.summary.critical).toBe(1);
@@ -319,60 +306,11 @@ describe("statusCommand", () => {
     expect(payload.nodeService.label).toBe("LaunchAgent");
   });
 
-  it("surfaces unknown usage when totalTokens is missing", async () => {
-    const originalLoadSessionStore = mocks.loadSessionStore.getMockImplementation();
-    mocks.loadSessionStore.mockReturnValue({
-      "+1000": {
-        updatedAt: Date.now() - 60_000,
-        inputTokens: 2_000,
-        outputTokens: 3_000,
-        contextTokens: 10_000,
-        model: "pi:opus",
-      },
-    });
-
-    (runtime.log as vi.Mock).mockClear();
-    await statusCommand({ json: true }, runtime as never);
-    const payload = JSON.parse((runtime.log as vi.Mock).mock.calls.at(-1)?.[0]);
-    expect(payload.sessions.recent[0].totalTokens).toBeNull();
-    expect(payload.sessions.recent[0].totalTokensFresh).toBe(false);
-    expect(payload.sessions.recent[0].percentUsed).toBeNull();
-    expect(payload.sessions.recent[0].remainingTokens).toBeNull();
-
-    if (originalLoadSessionStore) {
-      mocks.loadSessionStore.mockImplementation(originalLoadSessionStore);
-    }
-  });
-
-  it("prints unknown usage in formatted output when totalTokens is missing", async () => {
-    const originalLoadSessionStore = mocks.loadSessionStore.getMockImplementation();
-    mocks.loadSessionStore.mockReturnValue({
-      "+1000": {
-        updatedAt: Date.now() - 60_000,
-        inputTokens: 2_000,
-        outputTokens: 3_000,
-        contextTokens: 10_000,
-        model: "pi:opus",
-      },
-    });
-
-    try {
-      (runtime.log as vi.Mock).mockClear();
-      await statusCommand({}, runtime as never);
-      const logs = (runtime.log as vi.Mock).mock.calls.map((c) => String(c[0]));
-      expect(logs.some((line) => line.includes("unknown/") && line.includes("(?%)"))).toBe(true);
-    } finally {
-      if (originalLoadSessionStore) {
-        mocks.loadSessionStore.mockImplementation(originalLoadSessionStore);
-      }
-    }
-  });
-
   it("prints formatted lines otherwise", async () => {
     (runtime.log as vi.Mock).mockClear();
     await statusCommand({}, runtime as never);
     const logs = (runtime.log as vi.Mock).mock.calls.map((c) => String(c[0]));
-    expect(logs.some((l) => l.includes("OpenClaw status"))).toBe(true);
+    expect(logs.some((l) => l.includes("Moltbot status"))).toBe(true);
     expect(logs.some((l) => l.includes("Overview"))).toBe(true);
     expect(logs.some((l) => l.includes("Security audit"))).toBe(true);
     expect(logs.some((l) => l.includes("Summary:"))).toBe(true);
@@ -392,17 +330,17 @@ describe("statusCommand", () => {
     expect(
       logs.some(
         (l) =>
-          l.includes("openclaw status --all") ||
-          l.includes("openclaw --profile isolated status --all") ||
-          l.includes("openclaw status --all") ||
-          l.includes("openclaw --profile isolated status --all"),
+          l.includes("moltbot status --all") ||
+          l.includes("moltbot --profile isolated status --all") ||
+          l.includes("moltbot status --all") ||
+          l.includes("moltbot --profile isolated status --all"),
       ),
     ).toBe(true);
   });
 
   it("shows gateway auth when reachable", async () => {
-    const prevToken = process.env.OPENCLAW_GATEWAY_TOKEN;
-    process.env.OPENCLAW_GATEWAY_TOKEN = "abcd1234";
+    const prevToken = process.env.CLAWDBOT_GATEWAY_TOKEN;
+    process.env.CLAWDBOT_GATEWAY_TOKEN = "abcd1234";
     try {
       mocks.probeGateway.mockResolvedValueOnce({
         ok: true,
@@ -420,11 +358,8 @@ describe("statusCommand", () => {
       const logs = (runtime.log as vi.Mock).mock.calls.map((c) => String(c[0]));
       expect(logs.some((l) => l.includes("auth token"))).toBe(true);
     } finally {
-      if (prevToken === undefined) {
-        delete process.env.OPENCLAW_GATEWAY_TOKEN;
-      } else {
-        process.env.OPENCLAW_GATEWAY_TOKEN = prevToken;
-      }
+      if (prevToken === undefined) delete process.env.CLAWDBOT_GATEWAY_TOKEN;
+      else process.env.CLAWDBOT_GATEWAY_TOKEN = prevToken;
     }
   });
 
@@ -472,95 +407,6 @@ describe("statusCommand", () => {
     expect(logs.join("\n")).toMatch(/WARN/);
   });
 
-<<<<<<< HEAD
-=======
-  it("prints requestId-aware recovery guidance when gateway pairing is required", async () => {
-    mocks.probeGateway.mockResolvedValueOnce({
-      ok: false,
-      url: "ws://127.0.0.1:18789",
-      connectLatencyMs: null,
-      error: "connect failed: pairing required (requestId: req-123)",
-      close: { code: 1008, reason: "pairing required (requestId: req-123)" },
-      health: null,
-      status: null,
-      presence: null,
-      configSnapshot: null,
-    });
-
-    runtimeLogMock.mockClear();
-    await statusCommand({}, runtime as never);
-    const logs = runtimeLogMock.mock.calls.map((c: unknown[]) => String(c[0]));
-    const joined = logs.join("\n");
-    expect(joined).toContain("Gateway pairing approval required.");
-    expect(joined).toContain("devices approve req-123");
-    expect(joined).toContain("devices approve --latest");
-    expect(joined).toContain("devices list");
-  });
-
-  it("prints fallback recovery guidance when pairing requestId is unavailable", async () => {
-    mocks.probeGateway.mockResolvedValueOnce({
-      ok: false,
-      url: "ws://127.0.0.1:18789",
-      connectLatencyMs: null,
-      error: "connect failed: pairing required",
-      close: { code: 1008, reason: "connect failed" },
-      health: null,
-      status: null,
-      presence: null,
-      configSnapshot: null,
-    });
-
-    runtimeLogMock.mockClear();
-    await statusCommand({}, runtime as never);
-    const logs = runtimeLogMock.mock.calls.map((c: unknown[]) => String(c[0]));
-    const joined = logs.join("\n");
-    expect(joined).toContain("Gateway pairing approval required.");
-    expect(joined).not.toContain("devices approve req-");
-    expect(joined).toContain("devices approve --latest");
-    expect(joined).toContain("devices list");
-  });
-
-  it("does not render unsafe requestId content into approval command hints", async () => {
-    mocks.probeGateway.mockResolvedValueOnce({
-      ok: false,
-      url: "ws://127.0.0.1:18789",
-      connectLatencyMs: null,
-      error: "connect failed: pairing required (requestId: req-123;rm -rf /)",
-      close: { code: 1008, reason: "pairing required (requestId: req-123;rm -rf /)" },
-      health: null,
-      status: null,
-      presence: null,
-      configSnapshot: null,
-    });
-
-    runtimeLogMock.mockClear();
-    await statusCommand({}, runtime as never);
-    const joined = runtimeLogMock.mock.calls.map((c: unknown[]) => String(c[0])).join("\n");
-    expect(joined).toContain("Gateway pairing approval required.");
-    expect(joined).not.toContain("devices approve req-123;rm -rf /");
-    expect(joined).toContain("devices approve --latest");
-  });
-
-  it("extracts requestId from close reason when error text omits it", async () => {
-    mocks.probeGateway.mockResolvedValueOnce({
-      ok: false,
-      url: "ws://127.0.0.1:18789",
-      connectLatencyMs: null,
-      error: "connect failed: pairing required",
-      close: { code: 1008, reason: "pairing required (requestId: req-close-456)" },
-      health: null,
-      status: null,
-      presence: null,
-      configSnapshot: null,
-    });
-
-    runtimeLogMock.mockClear();
-    await statusCommand({}, runtime as never);
-    const joined = runtimeLogMock.mock.calls.map((c: unknown[]) => String(c[0])).join("\n");
-    expect(joined).toContain("devices approve req-close-456");
-  });
-
->>>>>>> 69a541c3f (fix: sanitize pairing recovery requestId hints (#24771) (thanks @markmusson))
   it("includes sessions across agents in JSON output", async () => {
     const originalAgents = mocks.listAgentsForGateway.getMockImplementation();
     const originalResolveStorePath = mocks.resolveStorePath.getMockImplementation();
@@ -585,7 +431,6 @@ describe("statusCommand", () => {
             updatedAt: Date.now() - 120_000,
             inputTokens: 1_000,
             outputTokens: 1_000,
-            totalTokens: 2_000,
             contextTokens: 10_000,
             model: "pi:opus",
           },
@@ -598,7 +443,6 @@ describe("statusCommand", () => {
           thinkingLevel: "low",
           inputTokens: 2_000,
           outputTokens: 3_000,
-          totalTokens: 5_000,
           contextTokens: 10_000,
           model: "pi:opus",
           sessionId: "abc123",
@@ -615,14 +459,10 @@ describe("statusCommand", () => {
       payload.sessions.recent.some((sess: { key?: string }) => sess.key === "agent:ops:main"),
     ).toBe(true);
 
-    if (originalAgents) {
-      mocks.listAgentsForGateway.mockImplementation(originalAgents);
-    }
-    if (originalResolveStorePath) {
+    if (originalAgents) mocks.listAgentsForGateway.mockImplementation(originalAgents);
+    if (originalResolveStorePath)
       mocks.resolveStorePath.mockImplementation(originalResolveStorePath);
-    }
-    if (originalLoadSessionStore) {
+    if (originalLoadSessionStore)
       mocks.loadSessionStore.mockImplementation(originalLoadSessionStore);
-    }
   });
 });

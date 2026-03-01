@@ -1,11 +1,8 @@
-<<<<<<< HEAD
-import { describe, expect, it, vi } from "vitest";
-import { createTelegramDraftStream } from "./draft-stream.js";
-
-=======
 import type { Bot } from "grammy";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { createTelegramDraftStream } from "./draft-stream.js";
+
+type TelegramDraftStreamParams = Parameters<typeof createTelegramDraftStream>[0];
 
 function createMockDraftApi(sendMessageImpl?: () => Promise<{ message_id: number }>) {
   return {
@@ -23,10 +20,17 @@ function createThreadedDraftStream(
   api: ReturnType<typeof createMockDraftApi>,
   thread: { id: number; scope: "forum" | "dm" },
 ) {
+  return createDraftStream(api, { thread });
+}
+
+function createDraftStream(
+  api: ReturnType<typeof createMockDraftApi>,
+  overrides: Omit<Partial<TelegramDraftStreamParams>, "api" | "chatId"> = {},
+) {
   return createTelegramDraftStream({
     api: api as unknown as Bot["api"],
     chatId: 123,
-    thread,
+    ...overrides,
   });
 }
 
@@ -39,23 +43,91 @@ async function expectInitialForumSend(
   );
 }
 
->>>>>>> 63b4c500d (fix: prevent Telegram preview stream cross-edit race (#23202))
+function createForceNewMessageHarness(params: { throttleMs?: number } = {}) {
+  const api = createMockDraftApi();
+  api.sendMessage
+    .mockResolvedValueOnce({ message_id: 17 })
+    .mockResolvedValueOnce({ message_id: 42 });
+  const stream = createDraftStream(
+    api,
+    params.throttleMs != null ? { throttleMs: params.throttleMs } : {},
+  );
+  return { api, stream };
+}
+
 describe("createTelegramDraftStream", () => {
-  it("passes message_thread_id when provided", () => {
-    const api = { sendMessageDraft: vi.fn().mockResolvedValue(true) };
-    const stream = createTelegramDraftStream({
-      api: api as unknown as Bot["api"],
-      chatId: 123,
-      draftId: 42,
-      thread: { id: 99, scope: "forum" },
+  it("sends stream preview message with message_thread_id when provided", async () => {
+    const api = createMockDraftApi();
+    const stream = createForumDraftStream(api);
+
+    stream.update("Hello");
+    await expectInitialForumSend(api);
+  });
+
+  it("edits existing stream preview message on subsequent updates", async () => {
+    const api = createMockDraftApi();
+    const stream = createForumDraftStream(api);
+
+    stream.update("Hello");
+    await expectInitialForumSend(api);
+    await (api.sendMessage.mock.results[0]?.value as Promise<unknown>);
+
+    stream.update("Hello again");
+    await stream.flush();
+
+    expect(api.editMessageText).toHaveBeenCalledWith(123, 17, "Hello again");
+  });
+
+  it("waits for in-flight updates before final flush edit", async () => {
+    let resolveSend: ((value: { message_id: number }) => void) | undefined;
+    const firstSend = new Promise<{ message_id: number }>((resolve) => {
+      resolveSend = resolve;
     });
+    const api = createMockDraftApi(() => firstSend);
+    const stream = createForumDraftStream(api);
+
+    stream.update("Hello");
+    await vi.waitFor(() => expect(api.sendMessage).toHaveBeenCalledTimes(1));
+    stream.update("Hello final");
+    const flushPromise = stream.flush();
+    expect(api.editMessageText).not.toHaveBeenCalled();
+
+    resolveSend?.({ message_id: 17 });
+    await flushPromise;
+
+    expect(api.editMessageText).toHaveBeenCalledWith(123, 17, "Hello final");
+  });
+
+  it("omits message_thread_id for general topic id", async () => {
+    const api = createMockDraftApi();
+    const stream = createThreadedDraftStream(api, { id: 1, scope: "forum" });
 
     stream.update("Hello");
 
-<<<<<<< HEAD
-    expect(api.sendMessageDraft).toHaveBeenCalledWith(123, 42, "Hello", {
-      message_thread_id: 99,
-=======
+    await vi.waitFor(() => expect(api.sendMessage).toHaveBeenCalledWith(123, "Hello", undefined));
+  });
+
+  it("includes message_thread_id for dm threads and clears preview on cleanup", async () => {
+    const api = createMockDraftApi();
+    const stream = createThreadedDraftStream(api, { id: 42, scope: "dm" });
+
+    stream.update("Hello");
+    await vi.waitFor(() =>
+      expect(api.sendMessage).toHaveBeenCalledWith(123, "Hello", { message_thread_id: 42 }),
+    );
+    await stream.clear();
+
+    expect(api.deleteMessage).toHaveBeenCalledWith(123, 17);
+  });
+
+  it("creates new message after forceNewMessage is called", async () => {
+    const { api, stream } = createForceNewMessageHarness();
+
+    // First message
+    stream.update("Hello");
+    await stream.flush();
+    expect(api.sendMessage).toHaveBeenCalledTimes(1);
+
     // Normal edit (same message)
     stream.update("Hello edited");
     await stream.flush();
@@ -71,24 +143,10 @@ describe("createTelegramDraftStream", () => {
     expect(api.sendMessage).toHaveBeenLastCalledWith(123, "After thinking", undefined);
   });
 
-<<<<<<< HEAD
-=======
   it("sends first update immediately after forceNewMessage within throttle window", async () => {
     vi.useFakeTimers();
     try {
-      const api = {
-        sendMessage: vi
-          .fn()
-          .mockResolvedValueOnce({ message_id: 17 })
-          .mockResolvedValueOnce({ message_id: 42 }),
-        editMessageText: vi.fn().mockResolvedValue(true),
-        deleteMessage: vi.fn().mockResolvedValue(true),
-      };
-      const stream = createTelegramDraftStream({
-        api: api as unknown as Bot["api"],
-        chatId: 123,
-        throttleMs: 1000,
-      });
+      const { api, stream } = createForceNewMessageHarness({ throttleMs: 1000 });
 
       stream.update("Hello");
       await vi.waitFor(() => expect(api.sendMessage).toHaveBeenCalledTimes(1));
@@ -142,7 +200,6 @@ describe("createTelegramDraftStream", () => {
     expect(api.editMessageText).not.toHaveBeenCalledWith(123, 17, "Message B partial");
   });
 
->>>>>>> 63b4c500d (fix: prevent Telegram preview stream cross-edit race (#23202))
   it("supports rendered previews with parse_mode", async () => {
     const api = createMockDraftApi();
     const stream = createTelegramDraftStream({
@@ -228,44 +285,9 @@ describe("draft stream initial message debounce", () => {
       await stream.flush();
 
       expect(api.sendMessage).toHaveBeenCalledWith(123, "Ok.", undefined);
->>>>>>> ab256b8ec (fix: split telegram reasoning and answer draft streams (#20774))
     });
   });
 
-<<<<<<< HEAD
-  it("omits message_thread_id for general topic id", () => {
-    const api = { sendMessageDraft: vi.fn().mockResolvedValue(true) };
-    const stream = createTelegramDraftStream({
-      // oxlint-disable-next-line typescript/no-explicit-any
-      api: api as any,
-      chatId: 123,
-      draftId: 42,
-      thread: { id: 1, scope: "forum" },
-    });
-
-    stream.update("Hello");
-
-    expect(api.sendMessageDraft).toHaveBeenCalledWith(123, 42, "Hello", undefined);
-  });
-
-<<<<<<< HEAD
-  it("keeps message_thread_id for dm threads", () => {
-    const api = { sendMessageDraft: vi.fn().mockResolvedValue(true) };
-=======
-  it("omits message_thread_id for dm threads and clears preview on cleanup", async () => {
-    const api = {
-      sendMessage: vi.fn().mockResolvedValue({ message_id: 17 }),
-      editMessageText: vi.fn().mockResolvedValue(true),
-      deleteMessage: vi.fn().mockResolvedValue(true),
-    };
->>>>>>> cc0bfa0f3 (fix(telegram): restore thread_id=1 handling for DMs (regression from 19b8416a8) (openclaw#10942) thanks @garnetlyx)
-    const stream = createTelegramDraftStream({
-      // oxlint-disable-next-line typescript/no-explicit-any
-      api: api as any,
-      chatId: 123,
-      draftId: 42,
-      thread: { id: 1, scope: "dm" },
-=======
   describe("minInitialChars threshold", () => {
     it("does not send first message below threshold", async () => {
       const api = createMockApi();
@@ -331,17 +353,9 @@ describe("draft stream initial message debounce", () => {
 
       expect(api.editMessageText).toHaveBeenCalled();
       expect(api.sendMessage).toHaveBeenCalledTimes(1); // still only 1 send
->>>>>>> 63b4c500d (fix: prevent Telegram preview stream cross-edit race (#23202))
     });
+  });
 
-<<<<<<< HEAD
-    stream.update("Hello");
-<<<<<<< HEAD
-=======
-    await vi.waitFor(() => expect(api.sendMessage).toHaveBeenCalledWith(123, "Hello", undefined));
-    await stream.clear();
->>>>>>> cc0bfa0f3 (fix(telegram): restore thread_id=1 handling for DMs (regression from 19b8416a8) (openclaw#10942) thanks @garnetlyx)
-=======
   describe("default behavior without debounce params", () => {
     it("sends immediately without minInitialChars set (backward compatible)", async () => {
       const api = createMockApi();
@@ -350,10 +364,11 @@ describe("draft stream initial message debounce", () => {
         chatId: 123,
         // no minInitialChars (backward-compatible behavior)
       });
->>>>>>> 63b4c500d (fix: prevent Telegram preview stream cross-edit race (#23202))
 
-    expect(api.sendMessageDraft).toHaveBeenCalledWith(123, 42, "Hello", {
-      message_thread_id: 1,
+      stream.update("Hi");
+      await stream.flush();
+
+      expect(api.sendMessage).toHaveBeenCalledWith(123, "Hi", undefined);
     });
   });
 });

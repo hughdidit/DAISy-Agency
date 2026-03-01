@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { OpenClawConfig } from "../../config/config.js";
+
+import type { MoltbotConfig } from "../../config/config.js";
 import type { MsgContext } from "../templating.js";
 import type { GetReplyOptions, ReplyPayload } from "../types.js";
 import type { ReplyDispatcher } from "./reply-dispatcher.js";
@@ -64,7 +65,6 @@ function createDispatcher(): ReplyDispatcher {
     sendFinalReply: vi.fn(() => true),
     waitForIdle: vi.fn(async () => {}),
     getQueuedCounts: vi.fn(() => ({ tool: 0, block: 0, final: 0 })),
-    markComplete: vi.fn(),
   };
 }
 
@@ -84,7 +84,7 @@ describe("dispatchReplyFromConfig", () => {
       aborted: false,
     });
     mocks.routeReply.mockClear();
-    const cfg = {} as OpenClawConfig;
+    const cfg = {} as MoltbotConfig;
     const dispatcher = createDispatcher();
     const ctx = buildTestCtx({
       Provider: "slack",
@@ -96,7 +96,7 @@ describe("dispatchReplyFromConfig", () => {
     const replyResolver = async (
       _ctx: MsgContext,
       _opts: GetReplyOptions | undefined,
-      _cfg: OpenClawConfig,
+      _cfg: MoltbotConfig,
     ) => ({ text: "hi" }) satisfies ReplyPayload;
     await dispatchReplyFromConfig({ ctx, cfg, dispatcher, replyResolver });
 
@@ -110,7 +110,7 @@ describe("dispatchReplyFromConfig", () => {
       aborted: false,
     });
     mocks.routeReply.mockClear();
-    const cfg = {} as OpenClawConfig;
+    const cfg = {} as MoltbotConfig;
     const dispatcher = createDispatcher();
     const ctx = buildTestCtx({
       Provider: "slack",
@@ -123,7 +123,7 @@ describe("dispatchReplyFromConfig", () => {
     const replyResolver = async (
       _ctx: MsgContext,
       _opts: GetReplyOptions | undefined,
-      _cfg: OpenClawConfig,
+      _cfg: MoltbotConfig,
     ) => ({ text: "hi" }) satisfies ReplyPayload;
     await dispatchReplyFromConfig({ ctx, cfg, dispatcher, replyResolver });
 
@@ -138,11 +138,13 @@ describe("dispatchReplyFromConfig", () => {
     );
   });
 
-<<<<<<< HEAD
-=======
-  it("forces suppressTyping when routing to a different originating channel", async () => {
-    setNoAbort();
-    const cfg = emptyConfig;
+  it("does not provide onToolResult when routing cross-provider", async () => {
+    mocks.tryFastAbortFromMessage.mockResolvedValue({
+      handled: false,
+      aborted: false,
+    });
+    mocks.routeReply.mockClear();
+    const cfg = {} as MoltbotConfig;
     const dispatcher = createDispatcher();
     const ctx = buildTestCtx({
       Provider: "slack",
@@ -150,177 +152,22 @@ describe("dispatchReplyFromConfig", () => {
       OriginatingTo: "telegram:999",
     });
 
-    const replyResolver = async (_ctx: MsgContext, opts?: GetReplyOptions) => {
-      expect(opts?.suppressTyping).toBe(true);
-      expect(opts?.typingPolicy).toBe("system_event");
-      return { text: "hi" } satisfies ReplyPayload;
-    };
-
-    await dispatchReplyFromConfig({ ctx, cfg, dispatcher, replyResolver });
-  });
-
-  it("forces suppressTyping for internal webchat turns", async () => {
-    setNoAbort();
-    const cfg = emptyConfig;
-    const dispatcher = createDispatcher();
-    const ctx = buildTestCtx({
-      Provider: "webchat",
-      Surface: "webchat",
-      OriginatingChannel: "webchat",
-      OriginatingTo: "session:abc",
-    });
-
-    const replyResolver = async (_ctx: MsgContext, opts?: GetReplyOptions) => {
-      expect(opts?.suppressTyping).toBe(true);
-      expect(opts?.typingPolicy).toBe("internal_webchat");
-      return { text: "hi" } satisfies ReplyPayload;
-    };
-
-    await dispatchReplyFromConfig({ ctx, cfg, dispatcher, replyResolver });
-  });
-
-  it("routes media-only tool results when summaries are suppressed", async () => {
-    setNoAbort();
-    mocks.routeReply.mockClear();
-    const cfg = emptyConfig;
-    const dispatcher = createDispatcher();
-    const ctx = buildTestCtx({
-      Provider: "slack",
-      ChatType: "group",
-      AccountId: "acc-1",
-      OriginatingChannel: "telegram",
-      OriginatingTo: "telegram:999",
-    });
-
-    const replyResolver = async (
-      _ctx: MsgContext,
-      opts?: GetReplyOptions,
-      _cfg?: OpenClawConfig,
-    ) => {
-      expect(opts?.onToolResult).toBeDefined();
-      await opts?.onToolResult?.({
-        text: "NO_REPLY",
-        mediaUrls: ["https://example.com/tts-routed.opus"],
-      });
-      return undefined;
-    };
-
-    await dispatchReplyFromConfig({ ctx, cfg, dispatcher, replyResolver });
-
-    expect(dispatcher.sendToolResult).not.toHaveBeenCalled();
-    expect(dispatcher.sendFinalReply).not.toHaveBeenCalled();
-    expect(mocks.routeReply).toHaveBeenCalledTimes(1);
-    const routed = mocks.routeReply.mock.calls[0]?.[0] as { payload?: ReplyPayload } | undefined;
-    expect(routed?.payload?.mediaUrls).toEqual(["https://example.com/tts-routed.opus"]);
-    expect(routed?.payload?.text).toBeUndefined();
-  });
-
->>>>>>> 37a138c55 (fix: harden typing lifecycle and cross-channel suppression)
-  it("provides onToolResult in DM sessions", async () => {
-    mocks.tryFastAbortFromMessage.mockResolvedValue({
-      handled: false,
-      aborted: false,
-    });
-    mocks.routeReply.mockClear();
-    const cfg = {} as OpenClawConfig;
-    const dispatcher = createDispatcher();
-    const ctx = buildTestCtx({
-      Provider: "telegram",
-      ChatType: "direct",
-    });
-
     const replyResolver = async (
       _ctx: MsgContext,
       opts: GetReplyOptions | undefined,
-      _cfg: OpenClawConfig,
-    ) => {
-      expect(opts?.onToolResult).toBeDefined();
-      expect(typeof opts?.onToolResult).toBe("function");
-      return { text: "hi" } satisfies ReplyPayload;
-    };
-
-    await dispatchReplyFromConfig({ ctx, cfg, dispatcher, replyResolver });
-    expect(dispatcher.sendFinalReply).toHaveBeenCalledTimes(1);
-  });
-
-  it("does not provide onToolResult in group sessions", async () => {
-    mocks.tryFastAbortFromMessage.mockResolvedValue({
-      handled: false,
-      aborted: false,
-    });
-    const cfg = {} as OpenClawConfig;
-    const dispatcher = createDispatcher();
-    const ctx = buildTestCtx({
-      Provider: "telegram",
-      ChatType: "group",
-    });
-
-    const replyResolver = async (
-      _ctx: MsgContext,
-      opts: GetReplyOptions | undefined,
-      _cfg: OpenClawConfig,
+      _cfg: MoltbotConfig,
     ) => {
       expect(opts?.onToolResult).toBeUndefined();
       return { text: "hi" } satisfies ReplyPayload;
     };
 
     await dispatchReplyFromConfig({ ctx, cfg, dispatcher, replyResolver });
-    expect(dispatcher.sendFinalReply).toHaveBeenCalledTimes(1);
-  });
 
-  it("sends tool results via dispatcher in DM sessions", async () => {
-    mocks.tryFastAbortFromMessage.mockResolvedValue({
-      handled: false,
-      aborted: false,
-    });
-    const cfg = {} as OpenClawConfig;
-    const dispatcher = createDispatcher();
-    const ctx = buildTestCtx({
-      Provider: "telegram",
-      ChatType: "direct",
-    });
-
-    const replyResolver = async (
-      _ctx: MsgContext,
-      opts: GetReplyOptions | undefined,
-      _cfg: OpenClawConfig,
-    ) => {
-      // Simulate tool result emission
-      await opts?.onToolResult?.({ text: "🔧 exec: ls" });
-      return { text: "done" } satisfies ReplyPayload;
-    };
-
-    await dispatchReplyFromConfig({ ctx, cfg, dispatcher, replyResolver });
-    expect(dispatcher.sendToolResult).toHaveBeenCalledWith(
-      expect.objectContaining({ text: "🔧 exec: ls" }),
+    expect(mocks.routeReply).toHaveBeenCalledWith(
+      expect.objectContaining({
+        payload: expect.objectContaining({ text: "hi" }),
+      }),
     );
-    expect(dispatcher.sendFinalReply).toHaveBeenCalledTimes(1);
-  });
-
-  it("does not provide onToolResult for native slash commands", async () => {
-    mocks.tryFastAbortFromMessage.mockResolvedValue({
-      handled: false,
-      aborted: false,
-    });
-    const cfg = {} as OpenClawConfig;
-    const dispatcher = createDispatcher();
-    const ctx = buildTestCtx({
-      Provider: "telegram",
-      ChatType: "direct",
-      CommandSource: "native",
-    });
-
-    const replyResolver = async (
-      _ctx: MsgContext,
-      opts: GetReplyOptions | undefined,
-      _cfg: OpenClawConfig,
-    ) => {
-      expect(opts?.onToolResult).toBeUndefined();
-      return { text: "hi" } satisfies ReplyPayload;
-    };
-
-    await dispatchReplyFromConfig({ ctx, cfg, dispatcher, replyResolver });
-    expect(dispatcher.sendFinalReply).toHaveBeenCalledTimes(1);
   });
 
   it("fast-aborts without calling the reply resolver", async () => {
@@ -328,7 +175,7 @@ describe("dispatchReplyFromConfig", () => {
       handled: true,
       aborted: true,
     });
-    const cfg = {} as OpenClawConfig;
+    const cfg = {} as MoltbotConfig;
     const dispatcher = createDispatcher();
     const ctx = buildTestCtx({
       Provider: "telegram",
@@ -350,7 +197,7 @@ describe("dispatchReplyFromConfig", () => {
       aborted: true,
       stoppedSubagents: 2,
     });
-    const cfg = {} as OpenClawConfig;
+    const cfg = {} as MoltbotConfig;
     const dispatcher = createDispatcher();
     const ctx = buildTestCtx({
       Provider: "telegram",
@@ -374,7 +221,7 @@ describe("dispatchReplyFromConfig", () => {
       handled: false,
       aborted: false,
     });
-    const cfg = {} as OpenClawConfig;
+    const cfg = {} as MoltbotConfig;
     const ctx = buildTestCtx({
       Provider: "whatsapp",
       OriginatingChannel: "whatsapp",
@@ -405,7 +252,7 @@ describe("dispatchReplyFromConfig", () => {
       aborted: false,
     });
     hookMocks.runner.hasHooks.mockReturnValue(true);
-    const cfg = {} as OpenClawConfig;
+    const cfg = {} as MoltbotConfig;
     const dispatcher = createDispatcher();
     const ctx = buildTestCtx({
       Provider: "slack",
@@ -455,7 +302,7 @@ describe("dispatchReplyFromConfig", () => {
       handled: false,
       aborted: false,
     });
-    const cfg = { diagnostics: { enabled: true } } as OpenClawConfig;
+    const cfg = { diagnostics: { enabled: true } } as MoltbotConfig;
     const dispatcher = createDispatcher();
     const ctx = buildTestCtx({
       Provider: "slack",
@@ -488,7 +335,7 @@ describe("dispatchReplyFromConfig", () => {
       handled: false,
       aborted: false,
     });
-    const cfg = { diagnostics: { enabled: true } } as OpenClawConfig;
+    const cfg = { diagnostics: { enabled: true } } as MoltbotConfig;
     const ctx = buildTestCtx({
       Provider: "whatsapp",
       OriginatingChannel: "whatsapp",
@@ -518,48 +365,5 @@ describe("dispatchReplyFromConfig", () => {
         reason: "duplicate",
       }),
     );
-  });
-
-  it("suppresses isReasoning payloads from final replies (WhatsApp channel)", async () => {
-    setNoAbort();
-    const dispatcher = createDispatcher();
-    const ctx = buildTestCtx({ Provider: "whatsapp" });
-    const replyResolver = async () =>
-      [
-        { text: "Reasoning:\n_thinking..._", isReasoning: true },
-        { text: "The answer is 42" },
-      ] satisfies ReplyPayload[];
-    await dispatchReplyFromConfig({ ctx, cfg: emptyConfig, dispatcher, replyResolver });
-    const finalCalls = (dispatcher.sendFinalReply as ReturnType<typeof vi.fn>).mock.calls;
-    expect(finalCalls).toHaveLength(1);
-    expect(finalCalls[0][0]).toMatchObject({ text: "The answer is 42" });
-  });
-
-  it("suppresses isReasoning payloads from block replies (generic dispatch path)", async () => {
-    setNoAbort();
-    const dispatcher = createDispatcher();
-    const ctx = buildTestCtx({ Provider: "whatsapp" });
-    const blockReplySentTexts: string[] = [];
-    const replyResolver = async (
-      _ctx: MsgContext,
-      opts?: GetReplyOptions,
-    ): Promise<ReplyPayload> => {
-      // Simulate block reply with reasoning payload
-      await opts?.onBlockReply?.({ text: "Reasoning:\n_thinking..._", isReasoning: true });
-      await opts?.onBlockReply?.({ text: "The answer is 42" });
-      return { text: "The answer is 42" };
-    };
-    // Capture what actually gets dispatched as block replies
-    (dispatcher.sendBlockReply as ReturnType<typeof vi.fn>).mockImplementation(
-      (payload: ReplyPayload) => {
-        if (payload.text) {
-          blockReplySentTexts.push(payload.text);
-        }
-        return true;
-      },
-    );
-    await dispatchReplyFromConfig({ ctx, cfg: emptyConfig, dispatcher, replyResolver });
-    expect(blockReplySentTexts).not.toContain("Reasoning:\n_thinking..._");
-    expect(blockReplySentTexts).toContain("The answer is 42");
   });
 });

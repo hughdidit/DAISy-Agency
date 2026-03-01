@@ -1,25 +1,16 @@
 import fs from "node:fs";
 import path from "node:path";
-import type {
-  GatewayAgentRow,
-  GatewaySessionRow,
-  GatewaySessionsDefaults,
-  SessionsListResult,
-} from "./session-utils.types.js";
+
 import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../agents/agent-scope.js";
 import { lookupContextTokens } from "../agents/context.js";
 import { DEFAULT_CONTEXT_TOKENS, DEFAULT_MODEL, DEFAULT_PROVIDER } from "../agents/defaults.js";
-import {
-  resolveConfiguredModelRef,
-  resolveDefaultModelForAgent,
-} from "../agents/model-selection.js";
-import { type OpenClawConfig, loadConfig } from "../config/config.js";
+import { resolveConfiguredModelRef } from "../agents/model-selection.js";
+import { type MoltbotConfig, loadConfig } from "../config/config.js";
 import { resolveStateDir } from "../config/paths.js";
 import {
   buildGroupDisplayName,
   canonicalizeMainSessionAlias,
   loadSessionStore,
-  resolveFreshSessionTotalTokens,
   resolveMainSessionKey,
   resolveStorePath,
   type SessionEntry,
@@ -30,16 +21,20 @@ import {
   normalizeMainKey,
   parseAgentSessionKey,
 } from "../routing/session-key.js";
-import { isCronRunSessionKey } from "../sessions/session-key-utils.js";
 import { normalizeSessionDeliveryFields } from "../utils/delivery-context.js";
 import {
   readFirstUserMessageFromTranscript,
   readLastMessagePreviewFromTranscript,
 } from "./session-utils.fs.js";
+import type {
+  GatewayAgentRow,
+  GatewaySessionRow,
+  GatewaySessionsDefaults,
+  SessionsListResult,
+} from "./session-utils.types.js";
 
 export {
   archiveFileOnDisk,
-  archiveSessionTranscripts,
   capArrayByJsonBytes,
   readFirstUserMessageFromTranscript,
   readLastMessagePreviewFromTranscript,
@@ -83,48 +78,30 @@ function resolveAvatarMime(filePath: string): string {
 }
 
 function isWorkspaceRelativePath(value: string): boolean {
-  if (!value) {
-    return false;
-  }
-  if (value.startsWith("~")) {
-    return false;
-  }
-  if (AVATAR_SCHEME_RE.test(value) && !WINDOWS_ABS_RE.test(value)) {
-    return false;
-  }
+  if (!value) return false;
+  if (value.startsWith("~")) return false;
+  if (AVATAR_SCHEME_RE.test(value) && !WINDOWS_ABS_RE.test(value)) return false;
   return true;
 }
 
 function resolveIdentityAvatarUrl(
-  cfg: OpenClawConfig,
+  cfg: MoltbotConfig,
   agentId: string,
   avatar: string | undefined,
 ): string | undefined {
-  if (!avatar) {
-    return undefined;
-  }
+  if (!avatar) return undefined;
   const trimmed = avatar.trim();
-  if (!trimmed) {
-    return undefined;
-  }
-  if (AVATAR_DATA_RE.test(trimmed) || AVATAR_HTTP_RE.test(trimmed)) {
-    return trimmed;
-  }
-  if (!isWorkspaceRelativePath(trimmed)) {
-    return undefined;
-  }
+  if (!trimmed) return undefined;
+  if (AVATAR_DATA_RE.test(trimmed) || AVATAR_HTTP_RE.test(trimmed)) return trimmed;
+  if (!isWorkspaceRelativePath(trimmed)) return undefined;
   const workspaceDir = resolveAgentWorkspaceDir(cfg, agentId);
   const workspaceRoot = path.resolve(workspaceDir);
   const resolved = path.resolve(workspaceRoot, trimmed);
   const relative = path.relative(workspaceRoot, resolved);
-  if (relative.startsWith("..") || path.isAbsolute(relative)) {
-    return undefined;
-  }
+  if (relative.startsWith("..") || path.isAbsolute(relative)) return undefined;
   try {
     const stat = fs.statSync(resolved);
-    if (!stat.isFile() || stat.size > AVATAR_MAX_BYTES) {
-      return undefined;
-    }
+    if (!stat.isFile() || stat.size > AVATAR_MAX_BYTES) return undefined;
     const buffer = fs.readFileSync(resolved);
     const mime = resolveAvatarMime(resolved);
     return `data:${mime};base64,${buffer.toString("base64")}`;
@@ -144,14 +121,10 @@ function formatSessionIdPrefix(sessionId: string, updatedAt?: number | null): st
 }
 
 function truncateTitle(text: string, maxLen: number): string {
-  if (text.length <= maxLen) {
-    return text;
-  }
+  if (text.length <= maxLen) return text;
   const cut = text.slice(0, maxLen - 1);
   const lastSpace = cut.lastIndexOf(" ");
-  if (lastSpace > maxLen * 0.6) {
-    return cut.slice(0, lastSpace) + "…";
-  }
+  if (lastSpace > maxLen * 0.6) return cut.slice(0, lastSpace) + "…";
   return cut + "…";
 }
 
@@ -159,9 +132,7 @@ export function deriveSessionTitle(
   entry: SessionEntry | undefined,
   firstUserMessage?: string | null,
 ): string | undefined {
-  if (!entry) {
-    return undefined;
-  }
+  if (!entry) return undefined;
 
   if (entry.displayName?.trim()) {
     return entry.displayName.trim();
@@ -195,12 +166,8 @@ export function loadSessionEntry(sessionKey: string) {
 }
 
 export function classifySessionKey(key: string, entry?: SessionEntry): GatewaySessionRow["kind"] {
-  if (key === "global") {
-    return "global";
-  }
-  if (key === "unknown") {
-    return "unknown";
-  }
+  if (key === "global") return "global";
+  if (key === "unknown") return "unknown";
   if (entry?.chatType === "group" || entry?.chatType === "channel") {
     return "group";
   }
@@ -244,14 +211,12 @@ function listExistingAgentIdsFromDisk(): string[] {
   }
 }
 
-function listConfiguredAgentIds(cfg: OpenClawConfig): string[] {
+function listConfiguredAgentIds(cfg: MoltbotConfig): string[] {
   const agents = cfg.agents?.list ?? [];
   if (agents.length > 0) {
     const ids = new Set<string>();
     for (const entry of agents) {
-      if (entry?.id) {
-        ids.add(normalizeAgentId(entry.id));
-      }
+      if (entry?.id) ids.add(normalizeAgentId(entry.id));
     }
     const defaultId = normalizeAgentId(resolveDefaultAgentId(cfg));
     ids.add(defaultId);
@@ -265,9 +230,7 @@ function listConfiguredAgentIds(cfg: OpenClawConfig): string[] {
   const ids = new Set<string>();
   const defaultId = normalizeAgentId(resolveDefaultAgentId(cfg));
   ids.add(defaultId);
-  for (const id of listExistingAgentIdsFromDisk()) {
-    ids.add(id);
-  }
+  for (const id of listExistingAgentIdsFromDisk()) ids.add(id);
   const sorted = Array.from(ids).filter(Boolean);
   sorted.sort((a, b) => a.localeCompare(b));
   if (sorted.includes(defaultId)) {
@@ -276,7 +239,7 @@ function listConfiguredAgentIds(cfg: OpenClawConfig): string[] {
   return sorted;
 }
 
-export function listAgentsForGateway(cfg: OpenClawConfig): {
+export function listAgentsForGateway(cfg: MoltbotConfig): {
   defaultId: string;
   mainKey: string;
   scope: SessionScope;
@@ -290,9 +253,7 @@ export function listAgentsForGateway(cfg: OpenClawConfig): {
     { name?: string; identity?: GatewayAgentRow["identity"] }
   >();
   for (const entry of cfg.agents?.list ?? []) {
-    if (!entry?.id) {
-      continue;
-    }
+    if (!entry?.id) continue;
     const identity = entry.identity
       ? {
           name: entry.identity.name?.trim() || undefined,
@@ -335,30 +296,19 @@ export function listAgentsForGateway(cfg: OpenClawConfig): {
 }
 
 function canonicalizeSessionKeyForAgent(agentId: string, key: string): string {
-  if (key === "global" || key === "unknown") {
-    return key;
-  }
-  if (key.startsWith("agent:")) {
-    return key;
-  }
+  if (key === "global" || key === "unknown") return key;
+  if (key.startsWith("agent:")) return key;
   return `agent:${normalizeAgentId(agentId)}:${key}`;
 }
 
-function resolveDefaultStoreAgentId(cfg: OpenClawConfig): string {
+function resolveDefaultStoreAgentId(cfg: MoltbotConfig): string {
   return normalizeAgentId(resolveDefaultAgentId(cfg));
 }
 
-export function resolveSessionStoreKey(params: {
-  cfg: OpenClawConfig;
-  sessionKey: string;
-}): string {
-  const raw = (params.sessionKey ?? "").trim();
-  if (!raw) {
-    return raw;
-  }
-  if (raw === "global" || raw === "unknown") {
-    return raw;
-  }
+export function resolveSessionStoreKey(params: { cfg: MoltbotConfig; sessionKey: string }): string {
+  const raw = params.sessionKey.trim();
+  if (!raw) return raw;
+  if (raw === "global" || raw === "unknown") return raw;
 
   const parsed = parseAgentSessionKey(raw);
   if (parsed) {
@@ -368,9 +318,7 @@ export function resolveSessionStoreKey(params: {
       agentId,
       sessionKey: raw,
     });
-    if (canonical !== raw) {
-      return canonical;
-    }
+    if (canonical !== raw) return canonical;
     return raw;
   }
 
@@ -382,32 +330,24 @@ export function resolveSessionStoreKey(params: {
   return canonicalizeSessionKeyForAgent(agentId, raw);
 }
 
-function resolveSessionStoreAgentId(cfg: OpenClawConfig, canonicalKey: string): string {
+function resolveSessionStoreAgentId(cfg: MoltbotConfig, canonicalKey: string): string {
   if (canonicalKey === "global" || canonicalKey === "unknown") {
     return resolveDefaultStoreAgentId(cfg);
   }
   const parsed = parseAgentSessionKey(canonicalKey);
-  if (parsed?.agentId) {
-    return normalizeAgentId(parsed.agentId);
-  }
+  if (parsed?.agentId) return normalizeAgentId(parsed.agentId);
   return resolveDefaultStoreAgentId(cfg);
 }
 
 function canonicalizeSpawnedByForAgent(agentId: string, spawnedBy?: string): string | undefined {
   const raw = spawnedBy?.trim();
-  if (!raw) {
-    return undefined;
-  }
-  if (raw === "global" || raw === "unknown") {
-    return raw;
-  }
-  if (raw.startsWith("agent:")) {
-    return raw;
-  }
+  if (!raw) return undefined;
+  if (raw === "global" || raw === "unknown") return raw;
+  if (raw.startsWith("agent:")) return raw;
   return `agent:${normalizeAgentId(agentId)}:${raw}`;
 }
 
-export function resolveGatewaySessionStoreTarget(params: { cfg: OpenClawConfig; key: string }): {
+export function resolveGatewaySessionStoreTarget(params: { cfg: MoltbotConfig; key: string }): {
   agentId: string;
   storePath: string;
   canonicalKey: string;
@@ -429,9 +369,7 @@ export function resolveGatewaySessionStoreTarget(params: { cfg: OpenClawConfig; 
 
   const storeKeys = new Set<string>();
   storeKeys.add(canonicalKey);
-  if (key && key !== canonicalKey) {
-    storeKeys.add(key);
-  }
+  if (key && key !== canonicalKey) storeKeys.add(key);
   return {
     agentId,
     storePath,
@@ -465,7 +403,7 @@ function mergeSessionEntryIntoCombined(params: {
   }
 }
 
-export function loadCombinedSessionStoreForGateway(cfg: OpenClawConfig): {
+export function loadCombinedSessionStoreForGateway(cfg: MoltbotConfig): {
   storePath: string;
   store: Record<string, SessionEntry>;
 } {
@@ -508,7 +446,7 @@ export function loadCombinedSessionStoreForGateway(cfg: OpenClawConfig): {
   return { storePath, store: combined };
 }
 
-export function getSessionDefaults(cfg: OpenClawConfig): GatewaySessionsDefaults {
+export function getSessionDefaults(cfg: MoltbotConfig): GatewaySessionsDefaults {
   const resolved = resolveConfiguredModelRef({
     cfg,
     defaultProvider: DEFAULT_PROVIDER,
@@ -526,46 +464,16 @@ export function getSessionDefaults(cfg: OpenClawConfig): GatewaySessionsDefaults
 }
 
 export function resolveSessionModelRef(
-  cfg: OpenClawConfig,
+  cfg: MoltbotConfig,
   entry?: SessionEntry,
-  agentId?: string,
 ): { provider: string; model: string } {
-  const resolved = agentId
-    ? resolveDefaultModelForAgent({ cfg, agentId })
-    : resolveConfiguredModelRef({
-        cfg,
-        defaultProvider: DEFAULT_PROVIDER,
-        defaultModel: DEFAULT_MODEL,
-      });
+  const resolved = resolveConfiguredModelRef({
+    cfg,
+    defaultProvider: DEFAULT_PROVIDER,
+    defaultModel: DEFAULT_MODEL,
+  });
   let provider = resolved.provider;
   let model = resolved.model;
-<<<<<<< HEAD
-=======
-  const runtimeModel = entry?.model?.trim();
-  const runtimeProvider = entry?.modelProvider?.trim();
-  if (runtimeModel) {
-    if (runtimeProvider) {
-      // Provider is explicitly recorded — use it directly. Re-parsing the
-      // model string through parseModelRef would incorrectly split OpenRouter
-      // vendor-prefixed model names (e.g. model="anthropic/claude-haiku-4.5"
-      // with provider="openrouter") into { provider: "anthropic" }, discarding
-      // the stored OpenRouter provider and causing direct API calls to a
-      // provider the user has no credentials for.
-      return { provider: runtimeProvider, model: runtimeModel };
-    }
-    const parsedRuntime = parseModelRef(runtimeModel, provider || DEFAULT_PROVIDER);
-    if (parsedRuntime) {
-      provider = parsedRuntime.provider;
-      model = parsedRuntime.model;
-    } else {
-      model = runtimeModel;
-    }
-    return { provider, model };
-  }
-
-  // Fall back to explicit per-session override (set at spawn/model-patch time),
-  // then finally to configured defaults.
->>>>>>> 4cad67438 (fix: preserve stored provider in resolveSessionModelRef for vendor-prefixed models (#22753))
   const storedModelOverride = entry?.modelOverride?.trim();
   if (storedModelOverride) {
     provider = entry?.providerOverride?.trim() || provider;
@@ -575,7 +483,7 @@ export function resolveSessionModelRef(
 }
 
 export function listSessionsFromStore(params: {
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   storePath: string;
   store: Record<string, SessionEntry>;
   opts: import("./protocol/index.js").SessionsListParams;
@@ -598,47 +506,30 @@ export function listSessionsFromStore(params: {
 
   let sessions = Object.entries(store)
     .filter(([key]) => {
-      if (isCronRunSessionKey(key)) {
-        return false;
-      }
-      if (!includeGlobal && key === "global") {
-        return false;
-      }
-      if (!includeUnknown && key === "unknown") {
-        return false;
-      }
+      if (!includeGlobal && key === "global") return false;
+      if (!includeUnknown && key === "unknown") return false;
       if (agentId) {
-        if (key === "global" || key === "unknown") {
-          return false;
-        }
+        if (key === "global" || key === "unknown") return false;
         const parsed = parseAgentSessionKey(key);
-        if (!parsed) {
-          return false;
-        }
+        if (!parsed) return false;
         return normalizeAgentId(parsed.agentId) === agentId;
       }
       return true;
     })
     .filter(([key, entry]) => {
-      if (!spawnedBy) {
-        return true;
-      }
-      if (key === "unknown" || key === "global") {
-        return false;
-      }
+      if (!spawnedBy) return true;
+      if (key === "unknown" || key === "global") return false;
       return entry?.spawnedBy === spawnedBy;
     })
     .filter(([, entry]) => {
-      if (!label) {
-        return true;
-      }
+      if (!label) return true;
       return entry?.label === label;
     })
     .map(([key, entry]) => {
       const updatedAt = entry?.updatedAt ?? null;
-      const total = resolveFreshSessionTotalTokens(entry);
-      const totalTokensFresh =
-        typeof entry?.totalTokens === "number" ? entry?.totalTokensFresh !== false : false;
+      const input = entry?.inputTokens ?? 0;
+      const output = entry?.outputTokens ?? 0;
+      const total = entry?.totalTokens ?? input + output;
       const parsed = parseGroupKey(key);
       const channel = entry?.channel ?? parsed?.channel;
       const subject = entry?.subject;
@@ -662,11 +553,6 @@ export function listSessionsFromStore(params: {
         entry?.label ??
         originLabel;
       const deliveryFields = normalizeSessionDeliveryFields(entry);
-      const parsedAgent = parseAgentSessionKey(key);
-      const sessionAgentId = normalizeAgentId(parsedAgent?.agentId ?? resolveDefaultAgentId(cfg));
-      const resolvedModel = resolveSessionModelRef(cfg, entry, sessionAgentId);
-      const modelProvider = resolvedModel.provider ?? DEFAULT_PROVIDER;
-      const model = resolvedModel.model ?? DEFAULT_MODEL;
       return {
         key,
         entry,
@@ -691,10 +577,9 @@ export function listSessionsFromStore(params: {
         inputTokens: entry?.inputTokens,
         outputTokens: entry?.outputTokens,
         totalTokens: total,
-        totalTokensFresh,
         responseUsage: entry?.responseUsage,
-        modelProvider,
-        model,
+        modelProvider: entry?.modelProvider,
+        model: entry?.model,
         contextTokens: entry?.contextTokens,
         deliveryContext: deliveryFields.deliveryContext,
         lastChannel: deliveryFields.lastChannel ?? entry?.lastChannel,
@@ -702,7 +587,7 @@ export function listSessionsFromStore(params: {
         lastAccountId: deliveryFields.lastAccountId ?? entry?.lastAccountId,
       };
     })
-    .toSorted((a, b) => (b.updatedAt ?? 0) - (a.updatedAt ?? 0));
+    .sort((a, b) => (b.updatedAt ?? 0) - (a.updatedAt ?? 0));
 
   if (search) {
     sessions = sessions.filter((s) => {
@@ -740,9 +625,7 @@ export function listSessionsFromStore(params: {
           storePath,
           entry.sessionFile,
         );
-        if (lastMsg) {
-          lastMessagePreview = lastMsg;
-        }
+        if (lastMsg) lastMessagePreview = lastMsg;
       }
     }
     return { ...rest, derivedTitle, lastMessagePreview } satisfies GatewaySessionRow;

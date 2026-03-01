@@ -1,6 +1,7 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
-import type { BlueBubblesSendTarget } from "./types.js";
+
 import { sendMessageBlueBubbles, resolveChatGuidForTarget } from "./send.js";
+import type { BlueBubblesSendTarget } from "./types.js";
 
 vi.mock("./accounts.js", () => ({
   resolveBlueBubblesAccount: vi.fn(({ cfg, accountId }) => {
@@ -370,16 +371,6 @@ describe("send", () => {
       ).rejects.toThrow("requires text");
     });
 
-    it("throws when text becomes empty after markdown stripping", async () => {
-      // Edge case: input like "***" or "---" passes initial check but becomes empty after stripMarkdown
-      await expect(
-        sendMessageBlueBubbles("+15551234567", "***", {
-          serverUrl: "http://localhost:1234",
-          password: "test",
-        }),
-      ).rejects.toThrow("empty after markdown removal");
-    });
-
     it("throws when serverUrl is missing", async () => {
       await expect(sendMessageBlueBubbles("+15551234567", "Hello", {})).rejects.toThrow(
         "serverUrl is required",
@@ -448,77 +439,6 @@ describe("send", () => {
       expect(body.method).toBeUndefined();
     });
 
-    it("strips markdown formatting from outbound messages", async () => {
-      mockFetch
-        .mockResolvedValueOnce({
-          ok: true,
-          json: () =>
-            Promise.resolve({
-              data: [
-                {
-                  guid: "iMessage;-;+15551234567",
-                  participants: [{ address: "+15551234567" }],
-                },
-              ],
-            }),
-        })
-        .mockResolvedValueOnce({
-          ok: true,
-          text: () =>
-            Promise.resolve(
-              JSON.stringify({
-                data: { guid: "msg-uuid-stripped" },
-              }),
-            ),
-        });
-
-      const result = await sendMessageBlueBubbles(
-        "+15551234567",
-        "**Bold** and *italic* with `code`\n## Header",
-        {
-          serverUrl: "http://localhost:1234",
-          password: "test",
-        },
-      );
-
-      expect(result.messageId).toBe("msg-uuid-stripped");
-
-      const sendCall = mockFetch.mock.calls[1];
-      const body = JSON.parse(sendCall[1].body);
-      // Markdown should be stripped: no asterisks, backticks, or hashes
-      expect(body.message).toBe("Bold and italic with code\nHeader");
-    });
-
-    it("strips markdown when creating a new chat", async () => {
-      mockFetch
-        .mockResolvedValueOnce({
-          ok: true,
-          json: () => Promise.resolve({ data: [] }),
-        })
-        .mockResolvedValueOnce({
-          ok: true,
-          text: () =>
-            Promise.resolve(
-              JSON.stringify({
-                data: { guid: "new-msg-stripped" },
-              }),
-            ),
-        });
-
-      const result = await sendMessageBlueBubbles("+15550009999", "**Welcome** to the _chat_!", {
-        serverUrl: "http://localhost:1234",
-        password: "test",
-      });
-
-      expect(result.messageId).toBe("new-msg-stripped");
-
-      const createCall = mockFetch.mock.calls[1];
-      expect(createCall[0]).toContain("/api/v1/chat/new");
-      const body = JSON.parse(createCall[1].body);
-      // Markdown should be stripped
-      expect(body.message).toBe("Welcome to the chat!");
-    });
-
     it("creates a new chat when handle target is missing", async () => {
       mockFetch
         .mockResolvedValueOnce({
@@ -571,7 +491,6 @@ describe("send", () => {
     });
 
     it("uses private-api when reply metadata is present", async () => {
-<<<<<<< HEAD
       mockFetch
         .mockResolvedValueOnce({
           ok: true,
@@ -594,11 +513,6 @@ describe("send", () => {
               }),
             ),
         });
-=======
-      vi.mocked(getCachedBlueBubblesPrivateApiStatus).mockReturnValueOnce(true);
-      mockResolvedHandleTarget();
-      mockSendResponse({ data: { guid: "msg-uuid-124" } });
->>>>>>> 37f12eb7e (fix: align BlueBubbles private-api null fallback + warning (#23459) (thanks @echoVic))
 
       const result = await sendMessageBlueBubbles("+15551234567", "Replying", {
         serverUrl: "http://localhost:1234",
@@ -618,7 +532,6 @@ describe("send", () => {
     });
 
     it("normalizes effect names and uses private-api for effects", async () => {
-<<<<<<< HEAD
       mockFetch
         .mockResolvedValueOnce({
           ok: true,
@@ -641,11 +554,6 @@ describe("send", () => {
               }),
             ),
         });
-=======
-      vi.mocked(getCachedBlueBubblesPrivateApiStatus).mockReturnValueOnce(true);
-      mockResolvedHandleTarget();
-      mockSendResponse({ data: { guid: "msg-uuid-125" } });
->>>>>>> 37f12eb7e (fix: align BlueBubbles private-api null fallback + warning (#23459) (thanks @echoVic))
 
       const result = await sendMessageBlueBubbles("+15551234567", "Hello", {
         serverUrl: "http://localhost:1234",
@@ -660,34 +568,6 @@ describe("send", () => {
       const body = JSON.parse(sendCall[1].body);
       expect(body.method).toBe("private-api");
       expect(body.effectId).toBe("com.apple.MobileSMS.expressivesend.invisibleink");
-    });
-
-    it("warns and downgrades private-api features when status is unknown", async () => {
-      const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
-      mockResolvedHandleTarget();
-      mockSendResponse({ data: { guid: "msg-uuid-unknown" } });
-
-      try {
-        const result = await sendMessageBlueBubbles("+15551234567", "Reply fallback", {
-          serverUrl: "http://localhost:1234",
-          password: "test",
-          replyToMessageGuid: "reply-guid-123",
-          effectId: "invisible ink",
-        });
-
-        expect(result.messageId).toBe("msg-uuid-unknown");
-        expect(warnSpy).toHaveBeenCalledTimes(1);
-        expect(warnSpy.mock.calls[0]?.[0]).toContain("Private API status unknown");
-
-        const sendCall = mockFetch.mock.calls[1];
-        const body = JSON.parse(sendCall[1].body);
-        expect(body.method).toBeUndefined();
-        expect(body.selectedMessageGuid).toBeUndefined();
-        expect(body.partIndex).toBeUndefined();
-        expect(body.effectId).toBeUndefined();
-      } finally {
-        warnSpy.mockRestore();
-      }
     });
 
     it("sends message with chat_guid target directly", async () => {

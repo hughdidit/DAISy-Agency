@@ -1,20 +1,19 @@
 import crypto from "node:crypto";
-import type { TypingMode } from "../../config/types.js";
-import type { OriginatingChannelType } from "../templating.js";
-import type { GetReplyOptions, ReplyPayload } from "../types.js";
-import type { FollowupRun } from "./queue.js";
-import type { TypingController } from "./typing.js";
 import { resolveAgentModelFallbacksOverride } from "../../agents/agent-scope.js";
 import { lookupContextTokens } from "../../agents/context.js";
 import { DEFAULT_CONTEXT_TOKENS } from "../../agents/defaults.js";
 import { runWithModelFallback } from "../../agents/model-fallback.js";
 import { runEmbeddedPiAgent } from "../../agents/pi-embedded.js";
 import { resolveAgentIdFromSessionKey, type SessionEntry } from "../../config/sessions.js";
+import type { TypingMode } from "../../config/types.js";
 import { logVerbose } from "../../globals.js";
 import { registerAgentRunContext } from "../../infra/agent-events.js";
 import { defaultRuntime } from "../../runtime.js";
 import { stripHeartbeatToken } from "../heartbeat.js";
+import type { OriginatingChannelType } from "../templating.js";
 import { isSilentReplyText, SILENT_REPLY_TOKEN } from "../tokens.js";
+import type { GetReplyOptions, ReplyPayload } from "../types.js";
+import type { FollowupRun } from "./queue.js";
 import {
   applyReplyThreading,
   filterMessagingToolDuplicates,
@@ -22,7 +21,9 @@ import {
 } from "./reply-payloads.js";
 import { resolveReplyToMode } from "./reply-threading.js";
 import { isRoutableChannel, routeReply } from "./route-reply.js";
-import { incrementRunCompactionCount, persistRunSessionUsage } from "./session-run-accounting.js";
+import { persistSessionUsageUpdate } from "./session-usage.js";
+import { incrementCompactionCount } from "./session-updates.js";
+import type { TypingController } from "./typing.js";
 import { createTypingSignaler } from "./typing-mode.js";
 
 export function createFollowupRunner(params: {
@@ -96,10 +97,13 @@ export function createFollowupRunner(params: {
           cfg: queued.run.config,
         });
         if (!result.ok) {
-          // Keep origin isolation strict: do not fall back to the current
-          // dispatcher when explicit origin routing failed.
+          // Log error and fall back to dispatcher if available.
           const errorMsg = result.error ?? "unknown error";
           logVerbose(`followup queue: route-reply failed: ${errorMsg}`);
+          // Fallback: try the dispatcher if routing failed.
+          if (opts?.onBlockReply) {
+            await opts.onBlockReply(payload);
+          }
         }
       } else if (opts?.onBlockReply) {
         await opts.onBlockReply(payload);
@@ -136,7 +140,6 @@ export function createFollowupRunner(params: {
             return runEmbeddedPiAgent({
               sessionId: queued.run.sessionId,
               sessionKey: queued.run.sessionKey,
-              agentId: queued.run.agentId,
               messageProvider: queued.run.messageProvider,
               agentAccountId: queued.run.agentAccountId,
               messageTo: queued.originatingTo,
@@ -169,9 +172,7 @@ export function createFollowupRunner(params: {
               runId,
               blockReplyBreak: queued.run.blockReplyBreak,
               onAgentEvent: (evt) => {
-                if (evt.stream !== "compaction") {
-                  return;
-                }
+                if (evt.stream !== "compaction") return;
                 const phase = typeof evt.data.phase === "string" ? evt.data.phase : "";
                 const willRetry = Boolean(evt.data.willRetry);
                 if (phase === "end" && !willRetry) {
@@ -190,31 +191,19 @@ export function createFollowupRunner(params: {
         return;
       }
 
-<<<<<<< HEAD
-      const usage = runResult.meta.agentMeta?.usage;
-      const modelUsed = runResult.meta.agentMeta?.model ?? fallbackModel ?? defaultModel;
-=======
-      const usage = runResult?.meta?.agentMeta?.usage;
-      const promptTokens = runResult?.meta?.agentMeta?.promptTokens;
-      const modelUsed = runResult?.meta?.agentMeta?.model ?? fallbackModel ?? defaultModel;
->>>>>>> d64906918 (fix: add optional chaining to runResult.meta accesses to prevent crashes on aborted runs)
-      const contextTokensUsed =
-        agentCfgContextTokens ??
-        lookupContextTokens(modelUsed) ??
-        sessionEntry?.contextTokens ??
-        DEFAULT_CONTEXT_TOKENS;
-
       if (storePath && sessionKey) {
-        await persistRunSessionUsage({
+        const usage = runResult.meta.agentMeta?.usage;
+        const modelUsed = runResult.meta.agentMeta?.model ?? fallbackModel ?? defaultModel;
+        const contextTokensUsed =
+          agentCfgContextTokens ??
+          lookupContextTokens(modelUsed) ??
+          sessionEntry?.contextTokens ??
+          DEFAULT_CONTEXT_TOKENS;
+
+        await persistSessionUsageUpdate({
           storePath,
           sessionKey,
           usage,
-<<<<<<< HEAD
-          lastCallUsage: runResult.meta.agentMeta?.lastCallUsage,
-=======
-          lastCallUsage: runResult?.meta?.agentMeta?.lastCallUsage,
-          promptTokens,
->>>>>>> d64906918 (fix: add optional chaining to runResult.meta accesses to prevent crashes on aborted runs)
           modelUsed,
           providerUsed: fallbackProvider,
           contextTokensUsed,
@@ -223,19 +212,13 @@ export function createFollowupRunner(params: {
       }
 
       const payloadArray = runResult.payloads ?? [];
-      if (payloadArray.length === 0) {
-        return;
-      }
+      if (payloadArray.length === 0) return;
       const sanitizedPayloads = payloadArray.flatMap((payload) => {
         const text = payload.text;
-        if (!text || !text.includes("HEARTBEAT_OK")) {
-          return [payload];
-        }
+        if (!text || !text.includes("HEARTBEAT_OK")) return [payload];
         const stripped = stripHeartbeatToken(text, { mode: "message" });
         const hasMedia = Boolean(payload.mediaUrl) || (payload.mediaUrls?.length ?? 0) > 0;
-        if (stripped.shouldSkip && !hasMedia) {
-          return [];
-        }
+        if (stripped.shouldSkip && !hasMedia) return [];
         return [{ ...payload, text: stripped.text }];
       });
       const replyToChannel =
@@ -259,25 +242,21 @@ export function createFollowupRunner(params: {
         sentTexts: runResult.messagingToolSentTexts ?? [],
       });
       const suppressMessagingToolReplies = shouldSuppressMessagingToolReplies({
-        messageProvider: queued.originatingChannel ?? queued.run.messageProvider,
+        messageProvider: queued.run.messageProvider,
         messagingToolSentTargets: runResult.messagingToolSentTargets,
         originatingTo: queued.originatingTo,
-        accountId: queued.originatingAccountId ?? queued.run.agentAccountId,
+        accountId: queued.run.agentAccountId,
       });
       const finalPayloads = suppressMessagingToolReplies ? [] : dedupedPayloads;
 
-      if (finalPayloads.length === 0) {
-        return;
-      }
+      if (finalPayloads.length === 0) return;
 
       if (autoCompactionCompleted) {
-        const count = await incrementRunCompactionCount({
+        const count = await incrementCompactionCount({
           sessionEntry,
           sessionStore,
           sessionKey,
           storePath,
-          lastCallUsage: runResult?.meta?.agentMeta?.lastCallUsage,
-          contextTokensUsed,
         });
         if (queued.run.verboseLevel && queued.run.verboseLevel !== "off") {
           const suffix = typeof count === "number" ? ` (count ${count})` : "";

@@ -1,14 +1,5 @@
 import type { MatrixClient } from "@vector-im/matrix-bot-sdk";
-<<<<<<< HEAD
-<<<<<<< HEAD
-import type { CoreConfig } from "../types.js";
-=======
-import { normalizeAccountId } from "openclaw/plugin-sdk";
-=======
-import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "openclaw/plugin-sdk";
->>>>>>> da00f6cf8 (fix: deep-merge nested config, prefer default account in send fallback, simplify credential filenames)
-import type { CoreConfig } from "../../types.js";
->>>>>>> c89b8d99f (fix: normalize accountId in active-client and send/client for consistent keying)
+
 import { getMatrixRuntime } from "../../runtime.js";
 import { getActiveMatrixClient } from "../active-client.js";
 import {
@@ -17,6 +8,7 @@ import {
   resolveMatrixAuth,
   resolveSharedMatrixClient,
 } from "../client.js";
+import type { CoreConfig } from "../types.js";
 
 const getCore = () => getMatrixRuntime();
 
@@ -26,46 +18,8 @@ export function ensureNodeRuntime() {
   }
 }
 
-<<<<<<< HEAD
 export function resolveMediaMaxBytes(): number | undefined {
   const cfg = getCore().config.loadConfig() as CoreConfig;
-<<<<<<< HEAD
-=======
-  // Check account-specific config first (normalize to ensure consistent keying)
-  const normalized = normalizeAccountId(accountId);
-  const accountConfig = cfg.channels?.matrix?.accounts?.[normalized];
-=======
-/** Look up account config with case-insensitive key fallback. */
-function findAccountConfig(
-  accounts: Record<string, unknown> | undefined,
-  accountId: string,
-): Record<string, unknown> | undefined {
-  if (!accounts) return undefined;
-  const normalized = normalizeAccountId(accountId);
-  // Direct lookup first
-  if (accounts[normalized]) return accounts[normalized] as Record<string, unknown>;
-  // Case-insensitive fallback
-  for (const key of Object.keys(accounts)) {
-    if (normalizeAccountId(key) === normalized) {
-      return accounts[key] as Record<string, unknown>;
-    }
-  }
-  return undefined;
-}
-
-export function resolveMediaMaxBytes(accountId?: string): number | undefined {
-  const cfg = getCore().config.loadConfig() as CoreConfig;
-  // Check account-specific config first (case-insensitive key matching)
-  const accountConfig = findAccountConfig(
-    cfg.channels?.matrix?.accounts as Record<string, unknown> | undefined,
-    accountId ?? "",
-  );
->>>>>>> bf4e34844 (fix: de-duplicate normalized account IDs and add case-insensitive config lookup to send/client)
-  if (typeof accountConfig?.mediaMaxMb === "number") {
-    return (accountConfig.mediaMaxMb as number) * 1024 * 1024;
-  }
-  // Fall back to top-level config
->>>>>>> c89b8d99f (fix: normalize accountId in active-client and send/client for consistent keying)
   if (typeof cfg.channels?.matrix?.mediaMaxMb === "number") {
     return cfg.channels.matrix.mediaMaxMb * 1024 * 1024;
   }
@@ -77,63 +31,23 @@ export async function resolveMatrixClient(opts: {
   timeoutMs?: number;
 }): Promise<{ client: MatrixClient; stopOnDone: boolean }> {
   ensureNodeRuntime();
-  if (opts.client) {
-    return { client: opts.client, stopOnDone: false };
-  }
-<<<<<<< HEAD
+  if (opts.client) return { client: opts.client, stopOnDone: false };
   const active = getActiveMatrixClient();
-=======
-  const accountId =
-    typeof opts.accountId === "string" && opts.accountId.trim().length > 0
-      ? normalizeAccountId(opts.accountId)
-      : undefined;
-  // Try to get the client for the specific account
-  const active = getActiveMatrixClient(accountId);
->>>>>>> 2b685b08c (fix: harden matrix multi-account routing (#7286) (thanks @emonty))
-  if (active) {
-    return { client: active, stopOnDone: false };
-  }
-<<<<<<< HEAD
-=======
-  // When no account is specified, try the default account first; only fall back to
-  // any active client as a last resort (prevents sending from an arbitrary account).
-  if (!accountId) {
-    const defaultClient = getActiveMatrixClient(DEFAULT_ACCOUNT_ID);
-    if (defaultClient) {
-      return { client: defaultClient, stopOnDone: false };
-    }
-    const anyActive = getAnyActiveMatrixClient();
-    if (anyActive) {
-      return { client: anyActive, stopOnDone: false };
-    }
-  }
->>>>>>> da00f6cf8 (fix: deep-merge nested config, prefer default account in send fallback, simplify credential filenames)
-  const shouldShareClient = Boolean(process.env.OPENCLAW_GATEWAY_PORT);
+  if (active) return { client: active, stopOnDone: false };
+  const shouldShareClient = Boolean(process.env.CLAWDBOT_GATEWAY_PORT);
   if (shouldShareClient) {
     const client = await resolveSharedMatrixClient({
       timeoutMs: opts.timeoutMs,
-<<<<<<< HEAD
     });
     return { client, stopOnDone: false };
   }
   const auth = await resolveMatrixAuth();
-=======
-      accountId,
-    });
-    return { client, stopOnDone: false };
-  }
-  const auth = await resolveMatrixAuth({ accountId });
->>>>>>> 2b685b08c (fix: harden matrix multi-account routing (#7286) (thanks @emonty))
   const client = await createMatrixClient({
     homeserver: auth.homeserver,
     userId: auth.userId,
     accessToken: auth.accessToken,
     encryption: auth.encryption,
     localTimeoutMs: opts.timeoutMs,
-<<<<<<< HEAD
-=======
-    accountId,
->>>>>>> 2b685b08c (fix: harden matrix multi-account routing (#7286) (thanks @emonty))
   });
   if (auth.encryption && client.crypto) {
     try {

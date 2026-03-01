@@ -1,4 +1,3 @@
-import type { DiscordPluralKitConfig } from "../discord/pluralkit.js";
 import type {
   BlockStreamingCoalesceConfig,
   DmPolicy,
@@ -36,12 +35,8 @@ export type DiscordGuildChannelConfig = {
   enabled?: boolean;
   /** Optional allowlist for channel senders (ids or names). */
   users?: Array<string | number>;
-  /** Optional allowlist for channel senders by role ID. */
-  roles?: Array<string | number>;
   /** Optional system prompt snippet for this channel. */
   systemPrompt?: string;
-  /** If false, omit thread starter context for this channel (default: true). */
-  includeThreadStarter?: boolean;
 };
 
 export type DiscordReactionNotificationMode = "off" | "own" | "all" | "allowlist";
@@ -54,10 +49,7 @@ export type DiscordGuildEntry = {
   toolsBySender?: GroupToolPolicyBySenderConfig;
   /** Reaction notification mode (off|own|all|allowlist). Default: own. */
   reactionNotifications?: DiscordReactionNotificationMode;
-  /** Optional allowlist for guild senders (ids or names). */
   users?: Array<string | number>;
-  /** Optional allowlist for guild senders by role ID. */
-  roles?: Array<string | number>;
   channels?: Record<string, DiscordGuildChannelConfig>;
 };
 
@@ -80,8 +72,6 @@ export type DiscordActionConfig = {
   emojiUploads?: boolean;
   stickerUploads?: boolean;
   channels?: boolean;
-  /** Enable bot presence/activity changes (default: false). */
-  presence?: boolean;
 };
 
 export type DiscordIntentsConfig = {
@@ -100,20 +90,6 @@ export type DiscordExecApprovalConfig = {
   agentFilter?: string[];
   /** Only forward approvals matching these session key patterns (substring or regex). */
   sessionFilter?: string[];
-<<<<<<< HEAD
-=======
-  /** Delete approval DMs after approval, denial, or timeout. Default: false. */
-  cleanupAfterResolve?: boolean;
-  /** Where to send approval prompts. "dm" sends to approver DMs (default), "channel" sends to the
-   *  originating Discord channel, "both" sends to both. When target is "channel" or "both", buttons
-   *  are only usable by configured approvers; other users receive an ephemeral denial. */
-  target?: "dm" | "channel" | "both";
->>>>>>> 5ba72bd9b (fix: add discord exec approval channel targeting (#16051) (thanks @leonnardo))
-};
-
-export type DiscordAgentComponentsConfig = {
-  /** Enable agent-controlled interactive components (buttons, select menus). Default: true. */
-  enabled?: boolean;
 };
 
 export type DiscordAccountConfig = {
@@ -172,14 +148,8 @@ export type DiscordAccountConfig = {
   heartbeat?: ChannelHeartbeatVisibilityConfig;
   /** Exec approval forwarding configuration. */
   execApprovals?: DiscordExecApprovalConfig;
-  /** Agent-controlled interactive components (buttons, select menus). */
-  agentComponents?: DiscordAgentComponentsConfig;
   /** Privileged Gateway Intents (must also be enabled in Discord Developer Portal). */
   intents?: DiscordIntentsConfig;
-  /** PluralKit identity resolution for proxied messages. */
-  pluralkit?: DiscordPluralKitConfig;
-  /** Outbound response prefix override for this channel/account. */
-  responsePrefix?: string;
 };
 
 export type DiscordConfig = {
