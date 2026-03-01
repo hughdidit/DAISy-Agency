@@ -232,6 +232,58 @@ describe("buildAgentSystemPrompt", () => {
     expect(prompt).toContain("sessions_send");
   });
 
+<<<<<<< HEAD
+=======
+  it("documents ACP sessions_spawn agent targeting requirements", () => {
+    const prompt = buildAgentSystemPrompt({
+      workspaceDir: "/tmp/openclaw",
+      toolNames: ["sessions_spawn"],
+    });
+
+    expect(prompt).toContain("sessions_spawn");
+    expect(prompt).toContain(
+      'runtime="acp" requires `agentId` unless `acp.defaultAgent` is configured',
+    );
+    expect(prompt).toContain("not agents_list");
+  });
+
+  it("guides harness requests to ACP thread-bound spawns", () => {
+    const prompt = buildAgentSystemPrompt({
+      workspaceDir: "/tmp/openclaw",
+      toolNames: ["sessions_spawn", "subagents", "agents_list", "exec"],
+    });
+
+    expect(prompt).toContain(
+      'For requests like "do this in codex/claude code/gemini", treat it as ACP harness intent',
+    );
+    expect(prompt).toContain(
+      'On Discord, default ACP harness requests to thread-bound persistent sessions (`thread: true`, `mode: "session"`)',
+    );
+    expect(prompt).toContain(
+      "do not route ACP harness requests through `subagents`/`agents_list` or local PTY exec flows",
+    );
+    expect(prompt).toContain(
+      'do not call `message` with `action=thread-create`; use `sessions_spawn` (`runtime: "acp"`, `thread: true`) as the single thread creation path',
+    );
+  });
+
+  it("omits ACP harness guidance when ACP is disabled", () => {
+    const prompt = buildAgentSystemPrompt({
+      workspaceDir: "/tmp/openclaw",
+      toolNames: ["sessions_spawn", "subagents", "agents_list", "exec"],
+      acpEnabled: false,
+    });
+
+    expect(prompt).not.toContain(
+      'For requests like "do this in codex/claude code/gemini", treat it as ACP harness intent',
+    );
+    expect(prompt).not.toContain('runtime="acp" requires `agentId`');
+    expect(prompt).not.toContain("not ACP harness ids");
+    expect(prompt).toContain("- sessions_spawn: Spawn an isolated sub-agent session");
+    expect(prompt).toContain("- agents_list: List OpenClaw agent ids allowed for sessions_spawn");
+  });
+
+>>>>>>> 4fc7ecf08 (ACP: force sessions_spawn as the only harness thread creation path (#30957))
   it("preserves tool casing in the prompt", () => {
     const prompt = buildAgentSystemPrompt({
       workspaceDir: "/tmp/clawd",
