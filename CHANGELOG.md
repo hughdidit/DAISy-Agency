@@ -167,7 +167,11 @@ Docs: https://docs.openclaw.ai
 >>>>>>> 4ba0a4d4f (fix(slack): wrap session key in backticks to prevent emoji shortcode parsing (openclaw#30266) thanks @pushkarsingh32)
 =======
 - Slack/Socket Mode slash startup: treat `app.options()` registration as best-effort and fall back to static arg menus when listener registration fails, preventing Slack monitor startup crash loops on receiver init edge cases. (#21715)
+<<<<<<< HEAD
 >>>>>>> 3aad6c8bd (fix(slack): guard Socket Mode listeners access during startup (openclaw#28702) thanks @Glucksberg)
+=======
+- Slack/Legacy streaming config: map boolean `channels.slack.streaming=false` to unified streaming mode `off` (with `nativeStreaming=false`) so legacy configs correctly disable draft preview/native streaming instead of defaulting to `partial`. (#25990) Thanks @chilu18.
+>>>>>>> dfbdab5a2 (fix(slack): map legacy streaming=false to off (openclaw#26020) thanks @chilu18)
 - Onboarding/Custom providers: raise default custom-provider model context window to the runtime hard minimum (16k) and auto-heal existing custom model entries below that threshold during reconfiguration, preventing immediate `Model context window too small (4096 tokens)` failures. (#21653) Thanks @r4jiv007.
 >>>>>>> a623c9c8d (Onboarding: enforce custom model context minimum)
 - Web UI/Assistant text: strip internal `<relevant-memories>...</relevant-memories>` scaffolding from rendered assistant messages (while preserving code-fence literals), preventing memory-context leakage in chat output for models that echo internal blocks. (#29851) Thanks @Valkster70.
