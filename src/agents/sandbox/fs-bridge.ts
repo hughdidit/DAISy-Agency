@@ -32,8 +32,12 @@ type PathSafetyOptions = {
   action: string;
   allowFinalSymlink?: boolean;
   requireWritable?: boolean;
+<<<<<<< HEAD
   allowMissingTarget?: boolean;
   allowedTypes?: readonly SafeOpenSyncAllowedType[];
+=======
+  allowedType?: SafeOpenSyncAllowedType;
+>>>>>>> dcd19da42 (refactor: simplify sandbox boundary open flow)
 };
 
 export type SandboxResolvedPath = {
@@ -286,7 +290,7 @@ class SandboxFsBridgeImpl implements SandboxFsBridge {
 >>>>>>> 687f5779d (sandbox: allow directory boundary checks for mkdirp)
     });
     if (!guarded.ok) {
-      if (guarded.reason !== "path" || options.allowMissingTarget === false) {
+      if (guarded.reason !== "path") {
         throw guarded.error instanceof Error
           ? guarded.error
           : new Error(
