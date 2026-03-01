@@ -10,8 +10,18 @@ import { StickerFormatType, type APIAttachment, type APIStickerItem } from "disc
 import { buildMediaPayload } from "../../channels/plugins/media-payload.js";
 >>>>>>> 0183610db (refactor: de-duplicate channel runtime and payload helpers)
 import { logVerbose } from "../../globals.js";
+<<<<<<< HEAD
 import { fetchRemoteMedia } from "../../media/fetch.js";
+=======
+import type { SsrFPolicy } from "../../infra/net/ssrf.js";
+import { fetchRemoteMedia, type FetchLike } from "../../media/fetch.js";
+>>>>>>> 39a45121d (fix(discord,slack): add SSRF policy for media downloads in proxy environments (#25475))
 import { saveMediaBuffer } from "../../media/store.js";
+
+const DISCORD_MEDIA_SSRF_POLICY: SsrFPolicy = {
+  allowedHostnames: ["cdn.discordapp.com", "media.discordapp.net"],
+  allowRfc2544BenchmarkRange: true,
+};
 
 export type DiscordMediaInfo = {
   path: string;
@@ -227,6 +237,12 @@ async function appendResolvedMediaFromAttachments(params: {
       const fetched = await fetchRemoteMedia({
         url: attachment.url,
         filePathHint: attachment.filename ?? attachment.url,
+<<<<<<< HEAD
+=======
+        maxBytes: params.maxBytes,
+        fetchImpl: params.fetchImpl,
+        ssrfPolicy: DISCORD_MEDIA_SSRF_POLICY,
+>>>>>>> 39a45121d (fix(discord,slack): add SSRF policy for media downloads in proxy environments (#25475))
       });
       const saved = await saveMediaBuffer(
         fetched.buffer,
@@ -316,6 +332,12 @@ async function appendResolvedMediaFromStickers(params: {
         const fetched = await fetchRemoteMedia({
           url: candidate.url,
           filePathHint: candidate.fileName,
+<<<<<<< HEAD
+=======
+          maxBytes: params.maxBytes,
+          fetchImpl: params.fetchImpl,
+          ssrfPolicy: DISCORD_MEDIA_SSRF_POLICY,
+>>>>>>> 39a45121d (fix(discord,slack): add SSRF policy for media downloads in proxy environments (#25475))
         });
         const saved = await saveMediaBuffer(
           fetched.buffer,

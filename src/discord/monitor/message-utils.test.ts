@@ -92,6 +92,12 @@ describe("resolveForwardedMediaList", () => {
     expect(fetchRemoteMedia).toHaveBeenCalledWith({
       url: attachment.url,
       filePathHint: attachment.filename,
+<<<<<<< HEAD
+=======
+      maxBytes: 512,
+      fetchImpl: undefined,
+      ssrfPolicy: expect.objectContaining({ allowRfc2544BenchmarkRange: true }),
+>>>>>>> 39a45121d (fix(discord,slack): add SSRF policy for media downloads in proxy environments (#25475))
     });
     expect(saveMediaBuffer).toHaveBeenCalledTimes(1);
     expect(saveMediaBuffer).toHaveBeenCalledWith(expect.any(Buffer), "image/png", "inbound", 512);
@@ -132,6 +138,12 @@ describe("resolveForwardedMediaList", () => {
     expect(fetchRemoteMedia).toHaveBeenCalledWith({
       url: "https://media.discordapp.net/stickers/sticker-1.png",
       filePathHint: "wave.png",
+<<<<<<< HEAD
+=======
+      maxBytes: 512,
+      fetchImpl: undefined,
+      ssrfPolicy: expect.objectContaining({ allowRfc2544BenchmarkRange: true }),
+>>>>>>> 39a45121d (fix(discord,slack): add SSRF policy for media downloads in proxy environments (#25475))
     });
     expect(saveMediaBuffer).toHaveBeenCalledTimes(1);
     expect(saveMediaBuffer).toHaveBeenCalledWith(expect.any(Buffer), "image/png", "inbound", 512);
@@ -198,6 +210,12 @@ describe("resolveMediaList", () => {
     expect(fetchRemoteMedia).toHaveBeenCalledWith({
       url: "https://media.discordapp.net/stickers/sticker-2.png",
       filePathHint: "hello.png",
+<<<<<<< HEAD
+=======
+      maxBytes: 512,
+      fetchImpl: undefined,
+      ssrfPolicy: expect.objectContaining({ allowRfc2544BenchmarkRange: true }),
+>>>>>>> 39a45121d (fix(discord,slack): add SSRF policy for media downloads in proxy environments (#25475))
     });
     expect(saveMediaBuffer).toHaveBeenCalledTimes(1);
     expect(saveMediaBuffer).toHaveBeenCalledWith(expect.any(Buffer), "image/png", "inbound", 512);
@@ -208,6 +226,37 @@ describe("resolveMediaList", () => {
         placeholder: "<media:sticker>",
       },
     ]);
+  });
+});
+
+describe("Discord media SSRF policy", () => {
+  beforeEach(() => {
+    fetchRemoteMedia.mockClear();
+    saveMediaBuffer.mockClear();
+  });
+
+  it("passes ssrfPolicy with Discord CDN allowedHostnames and allowRfc2544BenchmarkRange", async () => {
+    fetchRemoteMedia.mockResolvedValueOnce({
+      buffer: Buffer.from("img"),
+      contentType: "image/png",
+    });
+    saveMediaBuffer.mockResolvedValueOnce({
+      path: "/tmp/a.png",
+      contentType: "image/png",
+    });
+
+    await resolveMediaList(
+      asMessage({
+        attachments: [{ id: "a1", url: "https://cdn.discordapp.com/a.png", filename: "a.png" }],
+      }),
+      1024,
+    );
+
+    const policy = fetchRemoteMedia.mock.calls[0][0].ssrfPolicy;
+    expect(policy).toEqual({
+      allowedHostnames: ["cdn.discordapp.com", "media.discordapp.net"],
+      allowRfc2544BenchmarkRange: true,
+    });
   });
 });
 
