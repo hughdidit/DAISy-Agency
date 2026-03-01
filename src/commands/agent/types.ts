@@ -1,3 +1,4 @@
+import type { AgentInternalEvent } from "../../agents/internal-events.js";
 import type { ClientToolDefinition } from "../../agents/pi-embedded-runner/run/params.js";
 import type { ChannelOutboundTargetMode } from "../../channels/plugins/types.js";
 
@@ -72,6 +73,11 @@ export type AgentCommandOpts = {
   lane?: string;
   runId?: string;
   extraSystemPrompt?: string;
+<<<<<<< HEAD
+=======
+  internalEvents?: AgentInternalEvent[];
+  inputProvenance?: InputProvenance;
+>>>>>>> 4c43fccb3 (feat(agents): use structured internal completion events)
   /** Per-call stream param overrides (best-effort). */
   streamParams?: AgentStreamParams;
 };

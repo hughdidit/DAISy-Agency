@@ -72,6 +72,7 @@ import {
   buildAnnounceIdempotencyKey,
   resolveQueueAnnounceId,
 } from "./announce-idempotency.js";
+import { formatAgentInternalEventsForPrompt, type AgentInternalEvent } from "./internal-events.js";
 import {
   isEmbeddedPiRunActive,
   queueEmbeddedPiMessage,
@@ -715,6 +716,7 @@ async function sendAnnounce(item: AnnounceQueueItem) {
       to: requesterIsSubagent ? undefined : origin?.to,
       threadId: requesterIsSubagent ? undefined : threadId,
       deliver: !requesterIsSubagent,
+      internalEvents: item.internalEvents,
       idempotencyKey,
     },
     timeoutMs: announceTimeoutMs,
@@ -757,8 +759,10 @@ async function maybeQueueSubagentAnnounce(params: {
   requesterSessionKey: string;
   announceId?: string;
   triggerMessage: string;
+  steerMessage: string;
   summaryLine?: string;
   requesterOrigin?: DeliveryContext;
+  internalEvents?: AgentInternalEvent[];
   signal?: AbortSignal;
 }): Promise<"steered" | "queued" | "none"> {
   if (params.signal?.aborted) {
@@ -780,7 +784,7 @@ async function maybeQueueSubagentAnnounce(params: {
 
   const shouldSteer = queueSettings.mode === "steer" || queueSettings.mode === "steer-backlog";
   if (shouldSteer) {
-    const steered = queueEmbeddedPiMessage(sessionId, params.triggerMessage);
+    const steered = queueEmbeddedPiMessage(sessionId, params.steerMessage);
     if (steered) {
       return "steered";
     }
@@ -799,6 +803,7 @@ async function maybeQueueSubagentAnnounce(params: {
         announceId: params.announceId,
         prompt: params.triggerMessage,
         summaryLine: params.summaryLine,
+        internalEvents: params.internalEvents,
         enqueuedAt: Date.now(),
         sessionKey: canonicalKey,
         origin,
@@ -871,6 +876,7 @@ async function sendSubagentAnnounceDirectly(params: {
   targetRequesterSessionKey: string;
   triggerMessage: string;
   completionMessage?: string;
+  internalEvents?: AgentInternalEvent[];
   expectsCompletionMessage: boolean;
   bestEffortDeliver?: boolean;
   completionRouteMode?: "bound" | "fallback" | "hook";
@@ -1004,6 +1010,7 @@ async function sendSubagentAnnounceDirectly(params: {
             message: params.triggerMessage,
             deliver: shouldDeliverExternally,
             bestEffortDeliver: params.bestEffortDeliver,
+            internalEvents: params.internalEvents,
             channel: shouldDeliverExternally ? directChannel : undefined,
             accountId: shouldDeliverExternally ? directOrigin?.accountId : undefined,
             to: shouldDeliverExternally ? directTo : undefined,
@@ -1032,7 +1039,9 @@ async function deliverSubagentAnnouncement(params: {
   requesterSessionKey: string;
   announceId?: string;
   triggerMessage: string;
+  steerMessage: string;
   completionMessage?: string;
+  internalEvents?: AgentInternalEvent[];
   summaryLine?: string;
   requesterOrigin?: DeliveryContext;
   completionDirectOrigin?: DeliveryContext;
@@ -1141,8 +1150,10 @@ async function deliverSubagentAnnouncement(params: {
         requesterSessionKey: params.requesterSessionKey,
         announceId: params.announceId,
         triggerMessage: params.triggerMessage,
+        steerMessage: params.steerMessage,
         summaryLine: params.summaryLine,
         requesterOrigin: params.requesterOrigin,
+        internalEvents: params.internalEvents,
         signal: params.signal,
       }),
     direct: async () =>
@@ -1150,6 +1161,7 @@ async function deliverSubagentAnnouncement(params: {
         targetRequesterSessionKey: params.targetRequesterSessionKey,
         triggerMessage: params.triggerMessage,
         completionMessage: params.completionMessage,
+        internalEvents: params.internalEvents,
         directIdempotencyKey: params.directIdempotencyKey,
         completionDirectOrigin: params.completionDirectOrigin,
         completionRouteMode: params.completionRouteMode,
@@ -1350,7 +1362,15 @@ function buildAnnounceReplyInstruction(params: {
   if (params.expectsCompletionMessage) {
     return `A completed ${params.announceType} is ready for user delivery. Convert the result above into your normal assistant voice and send that user-facing update now. Keep this internal context private (don't mention system/log/stats/session details or announce type).`;
   }
-  return `A completed ${params.announceType} is ready for user delivery. Convert the result above into your normal assistant voice and send that user-facing update now. Keep this internal context private (don't mention system/log/stats/session details or announce type), and do not copy the system message verbatim. Reply ONLY: ${SILENT_REPLY_TOKEN} if this exact result was already delivered to the user in this same turn.`;
+  return `A completed ${params.announceType} is ready for user delivery. Convert the result above into your normal assistant voice and send that user-facing update now. Keep this internal context private (don't mention system/log/stats/session details or announce type), and do not copy the internal event text verbatim. Reply ONLY: ${SILENT_REPLY_TOKEN} if this exact result was already delivered to the user in this same turn.`;
+}
+
+function buildAnnounceSteerMessage(events: AgentInternalEvent[]): string {
+  const rendered = formatAgentInternalEventsForPrompt(events);
+  if (!rendered) {
+    return "A background task finished. Process the completion update now.";
+  }
+  return rendered;
 }
 
 export async function runSubagentAnnounceFlow(params: {
@@ -1544,6 +1564,8 @@ export async function runSubagentAnnounceFlow(params: {
     const findings = reply || "(no output)";
     let completionMessage = "";
     let triggerMessage = "";
+    let steerMessage = "";
+    let internalEvents: AgentInternalEvent[] = [];
 
     let requesterIsSubagent = requesterDepth >= 1;
     // If the requester subagent has already finished, bubble the announce to its
@@ -1612,15 +1634,23 @@ export async function runSubagentAnnounceFlow(params: {
       outcome,
       announceType,
     });
-    const internalSummaryMessage = [
-      `[System Message] [sessionId: ${announceSessionId}] A ${announceType} "${taskLabel}" just ${statusLabel}.`,
-      "",
-      "Result:",
-      findings,
-      "",
-      statsLine,
-    ].join("\n");
-    triggerMessage = [internalSummaryMessage, "", replyInstruction].join("\n");
+    internalEvents = [
+      {
+        type: "task_completion",
+        source: announceType === "cron job" ? "cron" : "subagent",
+        childSessionKey: params.childSessionKey,
+        childSessionId: announceSessionId,
+        announceType,
+        taskLabel,
+        status: outcome.status,
+        statusLabel,
+        result: findings,
+        statsLine,
+        replyInstruction,
+      },
+    ];
+    triggerMessage = buildAnnounceSteerMessage(internalEvents);
+    steerMessage = triggerMessage;
 
     const announceId = buildAnnounceIdFromChildRun({
       childSessionKey: params.childSessionKey,
@@ -1700,7 +1730,9 @@ export async function runSubagentAnnounceFlow(params: {
       requesterSessionKey: targetRequesterSessionKey,
       announceId,
       triggerMessage,
+      steerMessage,
       completionMessage,
+      internalEvents,
       summaryLine: taskLabel,
       requesterOrigin:
         expectsCompletionMessage && !requesterIsSubagent

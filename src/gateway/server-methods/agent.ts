@@ -20,6 +20,7 @@ import type { GatewayRequestHandlerOptions, GatewayRequestHandlers } from "./typ
 =======
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { listAgentIds } from "../../agents/agent-scope.js";
+import type { AgentInternalEvent } from "../../agents/internal-events.js";
 import { BARE_SESSION_RESET_PROMPT } from "../../auto-reply/reply/session-reset-prompt.js";
 >>>>>>> 616658d4b (fix (gateway/agent): route bare /new and /reset through sessions.reset)
 import { agentCommand } from "../../commands/agent.js";
@@ -221,6 +222,7 @@ export const agentHandlers: GatewayRequestHandlers = {
       groupSpace?: string;
       lane?: string;
       extraSystemPrompt?: string;
+      internalEvents?: AgentInternalEvent[];
       idempotencyKey: string;
       timeout?: number;
       bestEffortDeliver?: boolean;
@@ -620,6 +622,11 @@ export const agentHandlers: GatewayRequestHandlers = {
         runId,
         lane: request.lane,
         extraSystemPrompt: request.extraSystemPrompt,
+<<<<<<< HEAD
+=======
+        internalEvents: request.internalEvents,
+        inputProvenance,
+>>>>>>> 4c43fccb3 (feat(agents): use structured internal completion events)
       },
       defaultRuntime,
       context.deps,
