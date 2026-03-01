@@ -1,8 +1,12 @@
 import * as dns from "node:dns";
 import * as net from "node:net";
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import { Agent, setGlobalDispatcher } from "undici";
+=======
+import { EnvHttpProxyAgent, setGlobalDispatcher } from "undici";
+>>>>>>> e6049345d (fix(telegram): preserve HTTP proxy env in global dispatcher workaround (#29940))
 import type { TelegramNetworkConfig } from "../config/types.telegram.js";
 >>>>>>> 007807068 (fix(telegram): refresh global undici dispatcher for autoSelectFamily (#25682))
 import { resolveFetch } from "../infra/fetch.js";
@@ -61,7 +65,7 @@ function applyTelegramNetworkWorkarounds(network?: TelegramNetworkConfig): void 
   ) {
     try {
       setGlobalDispatcher(
-        new Agent({
+        new EnvHttpProxyAgent({
           connect: {
             autoSelectFamily: autoSelectDecision.value,
             autoSelectFamilyAttemptTimeout: 300,
