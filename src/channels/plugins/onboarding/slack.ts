@@ -307,7 +307,7 @@ async function promptSlackAllowFrom(params: {
   });
 >>>>>>> 32a1273d8 (refactor(onboarding): dedupe channel allowlist flows)
   const resolved = resolveSlackAccount({ cfg: params.cfg, accountId });
-  const token = resolved.config.userToken ?? resolved.config.botToken ?? "";
+  const token = resolved.userToken ?? resolved.botToken ?? "";
   const existing =
     params.cfg.channels?.slack?.allowFrom ?? params.cfg.channels?.slack?.dm?.allowFrom ?? [];
   const parseId = (value: string) =>
