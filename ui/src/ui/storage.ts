@@ -1,6 +1,12 @@
 const KEY = "moltbot.control.settings.v1";
 
+<<<<<<< HEAD
 import type { ThemeMode } from "./theme";
+=======
+import { isSupportedLocale } from "../i18n/index.ts";
+import { inferBasePathFromPathname, normalizeBasePath } from "./navigation.ts";
+import type { ThemeMode } from "./theme.ts";
+>>>>>>> 5d7314db2 (fix(control-ui): include basePath in default WebSocket URL (#30228))
 
 export type UiSettings = {
   gatewayUrl: string;
@@ -18,7 +24,14 @@ export type UiSettings = {
 export function loadSettings(): UiSettings {
   const defaultUrl = (() => {
     const proto = location.protocol === "https:" ? "wss" : "ws";
-    return `${proto}://${location.host}`;
+    const configured =
+      typeof window !== "undefined" &&
+      typeof window.__OPENCLAW_CONTROL_UI_BASE_PATH__ === "string" &&
+      window.__OPENCLAW_CONTROL_UI_BASE_PATH__.trim();
+    const basePath = configured
+      ? normalizeBasePath(configured)
+      : inferBasePathFromPathname(location.pathname);
+    return `${proto}://${location.host}${basePath}`;
   })();
 
   const defaults: UiSettings = {
