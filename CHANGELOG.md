@@ -77,10 +77,15 @@ Docs: https://docs.openclaw.ai
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 =======
 =======
+=======
+- Web UI/Cron: include configured agent model defaults/fallbacks in cron model suggestions so scheduled-job model autocomplete reflects configured models. (#29709)
+- Cron/Delivery: disable the agent messaging tool when `delivery.mode` is `"none"` so cron output is not sent to Telegram or other channels. (#21808)
+>>>>>>> f10734760 (fix(ui-cron): include configured model suggestions for scheduled jobs (openclaw#29709) thanks @Sid-Qin)
 - Feishu/Reply media attachments: send Feishu reply `mediaUrl`/`mediaUrls` payloads as attachments alongside text/streamed replies in the reply dispatcher, including legacy fallback when `mediaUrls` is empty. (#28959)
 <<<<<<< HEAD
 <<<<<<< HEAD
