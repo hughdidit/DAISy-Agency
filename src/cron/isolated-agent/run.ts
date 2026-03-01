@@ -862,12 +862,25 @@ let skillsSnapshot = cronSession.sessionEntry.skillsSnapshot;
 >>>>>>> aef1d5530 (fix(cron): normalize skill-filter snapshots and split isolated run helpers)
   }
 
-  // Persist systemSent before the run, mirroring the inbound auto-reply behavior.
+  // Persist the intended model and systemSent before the run so that
+  // sessions_list reflects the cron override even if the run fails or is
+  // still in progress (#21057).  Best-effort: a filesystem error here
+  // must not prevent the actual agent run from executing.
+  cronSession.sessionEntry.modelProvider = provider;
+  cronSession.sessionEntry.model = model;
   cronSession.sessionEntry.systemSent = true;
+<<<<<<< HEAD
   cronSession.store[agentSessionKey] = cronSession.sessionEntry;
   await updateSessionStore(cronSession.storePath, (store) => {
     store[agentSessionKey] = cronSession.sessionEntry;
   });
+=======
+  try {
+    await persistSessionEntry();
+  } catch (err) {
+    logWarn(`[cron:${params.job.id}] Failed to persist pre-run session entry: ${String(err)}`);
+  }
+>>>>>>> 98e30dc2a (fix(cron): handle sessions list cron model override (openclaw#21279) thanks @altaywtf)
 
   // Resolve auth profile for the session, mirroring the inbound auto-reply path
   // (get-reply-run.ts). Without this, isolated cron sessions fall back to env-var
