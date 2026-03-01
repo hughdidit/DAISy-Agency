@@ -41,6 +41,7 @@ import { createTypingCallbacks } from "../../../channels/typing.js";
 import { createReplyDispatcherWithTyping } from "../../../auto-reply/reply/reply-dispatcher.js";
 import { resolveStorePath, updateLastRoute } from "../../../config/sessions.js";
 import { danger, logVerbose, shouldLogVerbose } from "../../../globals.js";
+import { resolveAgentOutboundIdentity } from "../../../infra/outbound/identity.js";
 import { removeSlackReaction } from "../../actions.js";
 <<<<<<< HEAD
 import { appendSlackStream, startSlackStream, stopSlackStream } from "../../streaming.js";
@@ -139,6 +140,16 @@ export async function dispatchPreparedSlackMessage(prepared: PreparedSlackMessag
   const { ctx, account, message, route } = prepared;
   const cfg = ctx.cfg;
   const runtime = ctx.runtime;
+
+  // Resolve agent identity for Slack chat:write.customize overrides.
+  const outboundIdentity = resolveAgentOutboundIdentity(cfg, route.agentId);
+  const slackIdentity = outboundIdentity
+    ? {
+        username: outboundIdentity.name,
+        iconUrl: outboundIdentity.avatarUrl,
+        iconEmoji: outboundIdentity.emoji,
+      }
+    : undefined;
 
   if (prepared.isDirectMessage) {
     const sessionCfg = cfg.session;
@@ -278,6 +289,7 @@ export async function dispatchPreparedSlackMessage(prepared: PreparedSlackMessag
       textLimit: ctx.textLimit,
       replyThreadTs,
       replyToMode: ctx.replyToMode,
+      ...(slackIdentity ? { identity: slackIdentity } : {}),
     });
     replyPlan.markSent();
   };
