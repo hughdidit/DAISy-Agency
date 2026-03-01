@@ -1,3 +1,5 @@
+import fs from "node:fs";
+import path from "node:path";
 import type { PluginLogger } from "openclaw/plugin-sdk";
 import { ACPX_LOCAL_INSTALL_COMMAND, ACPX_PINNED_VERSION, ACPX_PLUGIN_ROOT } from "./config.js";
 import { resolveSpawnFailure, spawnAndCollect } from "./runtime-internals/process.js";
@@ -25,7 +27,56 @@ function extractVersion(stdout: string, stderr: string): string | null {
   return match?.[0] ?? null;
 }
 
+<<<<<<< HEAD
 export async function checkPinnedAcpxVersion(params: {
+=======
+function isExpectedVersionConfigured(value: string | undefined): value is string {
+  return typeof value === "string" && value.trim().length > 0;
+}
+
+function supportsPathResolution(command: string): boolean {
+  return path.isAbsolute(command) || command.includes("/") || command.includes("\\");
+}
+
+function isUnsupportedVersionProbe(stdout: string, stderr: string): boolean {
+  const combined = `${stdout}\n${stderr}`.toLowerCase();
+  return combined.includes("unknown option") && combined.includes("--version");
+}
+
+function resolveVersionFromPackage(command: string, cwd: string): string | null {
+  if (!supportsPathResolution(command)) {
+    return null;
+  }
+  const commandPath = path.isAbsolute(command) ? command : path.resolve(cwd, command);
+  let current: string;
+  try {
+    current = path.dirname(fs.realpathSync(commandPath));
+  } catch {
+    return null;
+  }
+  while (true) {
+    const packageJsonPath = path.join(current, "package.json");
+    try {
+      const parsed = JSON.parse(fs.readFileSync(packageJsonPath, "utf8")) as {
+        name?: unknown;
+        version?: unknown;
+      };
+      if (parsed.name === "acpx" && typeof parsed.version === "string" && parsed.version.trim()) {
+        return parsed.version.trim();
+      }
+    } catch {
+      // no-op; continue walking up
+    }
+    const parent = path.dirname(current);
+    if (parent === current) {
+      return null;
+    }
+    current = parent;
+  }
+}
+
+export async function checkAcpxVersion(params: {
+>>>>>>> b12c909ea (ACPX: pin 0.1.15 and tolerate missing --version in health check)
   command: string;
   cwd?: string;
   expectedVersion?: string;
@@ -59,6 +110,26 @@ export async function checkPinnedAcpxVersion(params: {
   }
 
   if ((result.code ?? 0) !== 0) {
+    if (hasExpectedVersion && isUnsupportedVersionProbe(result.stdout, result.stderr)) {
+      const installedVersion = resolveVersionFromPackage(params.command, cwd);
+      if (installedVersion) {
+        if (expectedVersion && installedVersion !== expectedVersion) {
+          return {
+            ok: false,
+            reason: "version-mismatch",
+            message: `acpx version mismatch: found ${installedVersion}, expected ${expectedVersion}`,
+            expectedVersion,
+            installCommand,
+            installedVersion,
+          };
+        }
+        return {
+          ok: true,
+          version: installedVersion,
+          expectedVersion,
+        };
+      }
+    }
     const stderr = result.stderr.trim();
     return {
       ok: false,

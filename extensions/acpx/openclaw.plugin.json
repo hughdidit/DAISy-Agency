@@ -37,7 +37,7 @@
     },
     "expectedVersion": {
       "label": "Expected acpx Version",
-      "help": "Exact version to enforce (for example 0.1.14) or \"any\" to skip strict version matching."
+      "help": "Exact version to enforce (for example 0.1.15) or \"any\" to skip strict version matching."
     },
 >>>>>>> 63e607db9 (ACPX: pin plugin dependency to 0.1.14)
     "cwd": {

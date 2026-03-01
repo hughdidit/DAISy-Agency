@@ -9,9 +9,13 @@ export const ACPX_NON_INTERACTIVE_POLICIES = ["deny", "fail"] as const;
 export type AcpxNonInteractivePermissionPolicy = (typeof ACPX_NON_INTERACTIVE_POLICIES)[number];
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 export const ACPX_PINNED_VERSION = "0.1.13";
 =======
 export const ACPX_PINNED_VERSION = "0.1.14";
+=======
+export const ACPX_PINNED_VERSION = "0.1.15";
+>>>>>>> b12c909ea (ACPX: pin 0.1.15 and tolerate missing --version in health check)
 export const ACPX_VERSION_ANY = "any";
 >>>>>>> 63e607db9 (ACPX: pin plugin dependency to 0.1.14)
 const ACPX_BIN_NAME = process.platform === "win32" ? "acpx.cmd" : "acpx";
