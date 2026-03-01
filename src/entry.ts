@@ -1,7 +1,12 @@
 #!/usr/bin/env node
 import { spawn } from "node:child_process";
 import process from "node:process";
+<<<<<<< HEAD
 
+=======
+import { fileURLToPath } from "node:url";
+import { isRootVersionInvocation } from "./cli/argv.js";
+>>>>>>> 153adc4c8 (Entry: fast-path root version command)
 import { applyCliProfileEnv, parseCliProfileArgs } from "./cli/profile.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -183,4 +188,60 @@ if (!ensureExperimentalWarningSuppressed()) {
       );
       process.exitCode = 1;
     });
+<<<<<<< HEAD
+=======
+
+    // Parent must not continue running the CLI.
+    return true;
+  }
+
+  function tryHandleRootVersionFastPath(argv: string[]): boolean {
+    if (!isRootVersionInvocation(argv)) {
+      return false;
+    }
+    import("./version.js")
+      .then(({ VERSION }) => {
+        console.log(VERSION);
+      })
+      .catch((error) => {
+        console.error(
+          "[openclaw] Failed to resolve version:",
+          error instanceof Error ? (error.stack ?? error.message) : error,
+        );
+        process.exitCode = 1;
+      });
+    return true;
+  }
+
+  process.argv = normalizeWindowsArgv(process.argv);
+
+  if (!ensureExperimentalWarningSuppressed()) {
+    const parsed = parseCliProfileArgs(process.argv);
+    if (!parsed.ok) {
+      // Keep it simple; Commander will handle rich help/errors after we strip flags.
+      console.error(`[openclaw] ${parsed.error}`);
+      process.exit(2);
+    }
+
+    if (parsed.profile) {
+      applyCliProfileEnv({ profile: parsed.profile });
+      // Keep Commander and ad-hoc argv checks consistent.
+      process.argv = parsed.argv;
+    }
+
+    if (tryHandleRootVersionFastPath(process.argv)) {
+      return;
+    }
+
+    import("./cli/run-main.js")
+      .then(({ runCli }) => runCli(process.argv))
+      .catch((error) => {
+        console.error(
+          "[openclaw] Failed to start CLI:",
+          error instanceof Error ? (error.stack ?? error.message) : error,
+        );
+        process.exitCode = 1;
+      });
+  }
+>>>>>>> 153adc4c8 (Entry: fast-path root version command)
 }
