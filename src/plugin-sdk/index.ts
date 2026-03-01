@@ -258,6 +258,21 @@ export { readJsonFileWithFallback, writeJsonFileAtomically } from "./json-store.
 <<<<<<< HEAD
 =======
 export { buildRandomTempFilePath, withTempDownloadPath } from "./temp-path.js";
+<<<<<<< HEAD
+=======
+export {
+  materializeWindowsSpawnProgram,
+  resolveWindowsExecutablePath,
+  resolveWindowsSpawnProgram,
+} from "./windows-spawn.js";
+export type {
+  ResolveWindowsSpawnProgramParams,
+  WindowsSpawnInvocation,
+  WindowsSpawnProgram,
+  WindowsSpawnResolution,
+} from "./windows-spawn.js";
+export { resolvePreferredOpenClawTmpDir } from "../infra/tmp-openclaw-dir.js";
+>>>>>>> 12c125702 (fix(acpx): share windows wrapper resolver and add strict hardening mode)
 export {
   runPluginCommandWithTimeout,
   type PluginCommandRunOptions,
