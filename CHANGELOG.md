@@ -132,6 +132,7 @@ Docs: https://docs.openclaw.ai
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 =======
@@ -143,6 +144,10 @@ Docs: https://docs.openclaw.ai
 =======
 =======
 =======
+=======
+- Docs/Slack manifest scopes: add missing DM/group-DM bot scopes (`im:read`, `im:write`, `mpim:read`, `mpim:write`) to the Slack app manifest example so DM setup guidance is complete. (#29999) Thanks @JcMinarro.
+- Slack/Onboarding token help: update setup text to include the “From manifest” app-creation path and current install wording for obtaining the `xoxb-` bot token. (#30846) Thanks @yzhong52.
+>>>>>>> a179a0d37 (Slack onboarding: improve token help note with manifest option (openclaw#30846) thanks @yzhong52)
 - Slack/Bot attachment-only messages: when `allowBots: true`, bot messages with empty `text` now include non-forwarded attachment `text`/`fallback` content so webhook alerts are not silently dropped. (#27616)
 <<<<<<< HEAD
 >>>>>>> 43ddb4135 (fix(slack): extract attachment text for bot messages with empty text (#27616) (#27642))
