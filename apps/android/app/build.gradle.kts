@@ -17,6 +17,7 @@ android {
     }
   }
 
+<<<<<<< HEAD
   defaultConfig {
     applicationId = "ai.openclaw.android"
     minSdk = 31
@@ -111,6 +112,18 @@ android {
     ndk {
       // Support all major ABIs — native libs are tiny (~47 KB per ABI)
       abiFilters += listOf("armeabi-v7a", "arm64-v8a", "x86", "x86_64")
+=======
+    defaultConfig {
+        applicationId = "ai.openclaw.android"
+        minSdk = 31
+        targetSdk = 36
+        versionCode = 202603010
+        versionName = "2026.3.1"
+        ndk {
+            // Support all major ABIs — native libs are tiny (~47 KB per ABI)
+            abiFilters += listOf("armeabi-v7a", "arm64-v8a", "x86", "x86_64")
+        }
+>>>>>>> e7cafed42 (chore(release): bump version to 2026.3.1)
     }
 >>>>>>> 1ff15e60d (chore(release): bump versions to 2026.2.14)
   }

@@ -16,6 +16,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   "version": "2026.1.27-beta.1",
 =======
   "version": "2026.1.30",
@@ -64,6 +65,9 @@
 =======
   "version": "2026.2.27",
 >>>>>>> fe807e4be (chore(release): bump 2026.2.27 and split changelog)
+=======
+  "version": "2026.3.1",
+>>>>>>> e7cafed42 (chore(release): bump version to 2026.3.1)
   "description": "OpenClaw Zalo Personal Account plugin via zca-cli",
 >>>>>>> 85cd55e22 (chore: bump to 2026.2.1)
   "type": "module",

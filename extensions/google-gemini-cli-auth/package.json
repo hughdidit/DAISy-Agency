@@ -16,6 +16,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   "version": "2026.1.27-beta.1",
 =======
   "version": "2026.1.30",
@@ -63,6 +64,9 @@
 =======
   "version": "2026.2.27",
 >>>>>>> fe807e4be (chore(release): bump 2026.2.27 and split changelog)
+=======
+  "version": "2026.3.1",
+>>>>>>> e7cafed42 (chore(release): bump version to 2026.3.1)
   "private": true,
 >>>>>>> 1872d0c59 (chore: bump version to 2026.2.10)
   "description": "OpenClaw Gemini CLI OAuth provider plugin",
