@@ -35,14 +35,25 @@ export async function resolveSlackEffectiveAllowFrom(
   options?: { includePairingStore?: boolean },
 ) {
   const includePairingStore = options?.includePairingStore === true;
-  const storeAllowFrom = includePairingStore
-    ? await readStoreAllowFromForDmPolicy({
+  let storeAllowFrom: string[] = [];
+  if (includePairingStore) {
+    try {
+      const resolved = await readStoreAllowFromForDmPolicy({
         provider: "slack",
         dmPolicy: ctx.dmPolicy,
+<<<<<<< HEAD
         readStore: (provider) => readChannelAllowFromStore(provider),
       })
     : [];
 >>>>>>> d6eefe2e7 (style: format auth boundary updates)
+=======
+      });
+      storeAllowFrom = Array.isArray(resolved) ? resolved : [];
+    } catch {
+      storeAllowFrom = [];
+    }
+  }
+>>>>>>> eddaf1947 (fix(slack): guard allow-from store resolution in monitor auth (#21967))
   const allowFrom = normalizeAllowList([...ctx.allowFrom, ...storeAllowFrom]);
   const allowFromLower = normalizeAllowListLower(allowFrom);
   return { allowFrom, allowFromLower };
