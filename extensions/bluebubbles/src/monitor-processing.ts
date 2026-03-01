@@ -858,12 +858,125 @@ export async function processMessage(
     return true;
   };
 
+<<<<<<< HEAD
   const ctxPayload = {
+=======
+  // History: in-memory rolling map with bounded API backfill retries
+  const historyLimit = isGroup
+    ? (account.config.historyLimit ?? 0)
+    : (account.config.dmHistoryLimit ?? 0);
+
+  const historyIdentifier =
+    chatGuid ||
+    chatIdentifier ||
+    (chatId ? String(chatId) : null) ||
+    (isGroup ? null : message.senderId) ||
+    "";
+  const historyKey = historyIdentifier
+    ? buildAccountScopedHistoryKey(account.accountId, historyIdentifier)
+    : "";
+
+  // Record the current message into rolling history
+  if (historyKey && historyLimit > 0) {
+    const nowMs = Date.now();
+    const senderLabel = message.fromMe ? "me" : message.senderName || message.senderId;
+    const normalizedHistoryBody = truncateHistoryBody(text, MAX_STORED_HISTORY_ENTRY_CHARS);
+    const currentEntries = recordPendingHistoryEntryIfEnabled({
+      historyMap: chatHistories,
+      limit: historyLimit,
+      historyKey,
+      entry: normalizedHistoryBody
+        ? {
+            sender: senderLabel,
+            body: normalizedHistoryBody,
+            timestamp: message.timestamp ?? nowMs,
+            messageId: message.messageId ?? undefined,
+          }
+        : null,
+    });
+    pruneHistoryBackfillState();
+
+    const backfillAttempt = planHistoryBackfillAttempt(historyKey, nowMs);
+    if (backfillAttempt) {
+      try {
+        const backfillResult = await fetchBlueBubblesHistory(historyIdentifier, historyLimit, {
+          cfg: config,
+          accountId: account.accountId,
+        });
+        if (backfillResult.resolved) {
+          markHistoryBackfillResolved(historyKey);
+        }
+        if (backfillResult.entries.length > 0) {
+          const apiEntries: HistoryEntry[] = [];
+          for (const entry of backfillResult.entries) {
+            const body = truncateHistoryBody(entry.body, MAX_STORED_HISTORY_ENTRY_CHARS);
+            if (!body) {
+              continue;
+            }
+            apiEntries.push({
+              sender: entry.sender,
+              body,
+              timestamp: entry.timestamp,
+              messageId: entry.messageId,
+            });
+          }
+          const merged = mergeHistoryEntries({
+            apiEntries,
+            currentEntries:
+              currentEntries.length > 0 ? currentEntries : (chatHistories.get(historyKey) ?? []),
+            limit: historyLimit,
+          });
+          if (chatHistories.has(historyKey)) {
+            chatHistories.delete(historyKey);
+          }
+          chatHistories.set(historyKey, merged);
+          evictOldHistoryKeys(chatHistories);
+          logVerbose(
+            core,
+            runtime,
+            `backfilled ${backfillResult.entries.length} history messages for ${isGroup ? "group" : "DM"}: ${historyIdentifier}`,
+          );
+        } else if (!backfillResult.resolved) {
+          const remainingAttempts = HISTORY_BACKFILL_MAX_ATTEMPTS - backfillAttempt.attempts;
+          const nextBackoffMs = Math.max(backfillAttempt.nextAttemptAt - nowMs, 0);
+          logVerbose(
+            core,
+            runtime,
+            `history backfill unresolved for ${historyIdentifier}; retries left=${Math.max(remainingAttempts, 0)} next_in_ms=${nextBackoffMs}`,
+          );
+        }
+      } catch (err) {
+        const remainingAttempts = HISTORY_BACKFILL_MAX_ATTEMPTS - backfillAttempt.attempts;
+        const nextBackoffMs = Math.max(backfillAttempt.nextAttemptAt - nowMs, 0);
+        logVerbose(
+          core,
+          runtime,
+          `history backfill failed for ${historyIdentifier}: ${String(err)} (retries left=${Math.max(remainingAttempts, 0)} next_in_ms=${nextBackoffMs})`,
+        );
+      }
+    }
+  }
+
+  // Build inbound history from the in-memory map
+  let inboundHistory: Array<{ sender: string; body: string; timestamp?: number }> | undefined;
+  if (historyKey && historyLimit > 0) {
+    const entries = chatHistories.get(historyKey);
+    if (entries && entries.length > 0) {
+      inboundHistory = buildInboundHistorySnapshot({
+        entries,
+        limit: historyLimit,
+      });
+    }
+  }
+  const commandBody = messageText.trim();
+
+  const ctxPayload = core.channel.reply.finalizeInboundContext({
+>>>>>>> 8e48520d7 (fix(channels): align command-body parsing sources)
     Body: body,
     BodyForAgent: body,
     RawBody: rawBody,
-    CommandBody: rawBody,
-    BodyForCommands: rawBody,
+    CommandBody: commandBody,
+    BodyForCommands: commandBody,
     MediaUrl: mediaUrls[0],
     MediaUrls: mediaUrls.length > 0 ? mediaUrls : undefined,
     MediaPath: mediaPaths[0],
