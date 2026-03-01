@@ -253,6 +253,11 @@ Docs: https://docs.openclaw.ai
 >>>>>>> e90429794 (Web UI: strip relevant-memories scaffolding)
 - Dashboard/Sessions: allow authenticated Control UI clients to delete and patch sessions while still blocking regular webchat clients from session mutation RPCs, fixing Dashboard session delete failures. (#21264) Thanks @jskoiz.
 - TUI/Session model status: clear stale runtime model identity when model overrides change so `/model` updates are reflected immediately in `sessions.patch` responses and `sessions.list` status surfaces. (#28619) Thanks @lejean2000.
+<<<<<<< HEAD
+=======
+- Agents/Session status: read thinking/verbose/reasoning levels from persisted session state in `session_status` output when resolved levels are not provided, so status reflects runtime toggles correctly. (#30129) Thanks @YuzuruS.
+- Agents/Tool-name recovery chain: normalize streamed alias/case tool names against the allowed set, preserve whitespace-only streamed placeholders to avoid collapsing to empty names, and repair/guard persisted blank `toolResult.toolName` values from matching tool calls to reduce repeated `Tool not found` loops in long sessions. Landed from contributor PRs #30620 and #30735 by @Sid-Qin, plus #30881 by @liuxiaopai-ai. Thanks @Sid-Qin and @liuxiaopai-ai.
+>>>>>>> ee03ade0d (fix(agents): harden tool-name normalization and transcript repair)
 - TUI/SIGTERM shutdown: ignore `setRawMode EBADF` teardown errors during `SIGTERM` exit so long-running TUI sessions do not crash on terminal shutdown races, while still rethrowing unrelated stop errors. (#29430) Thanks @Cormazabal.
 - Memory/Hybrid recall: when strict hybrid scoring yields no hits, preserve keyword-backed matches using a text-weight floor so freshly indexed lexical canaries no longer disappear behind `minScore` filtering. (#29112) Thanks @ceo-nada.
 - Cron/Reminder session routing: preserve `job.sessionKey` for `sessionTarget="main"` runs so queued reminders wake and deliver in the originating scoped session/channel instead of being forced to the agent main session.

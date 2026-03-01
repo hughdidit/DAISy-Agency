@@ -58,6 +58,42 @@ function capToolResultSize(msg: AgentMessage): AgentMessage {
 }
 >>>>>>> 21dfac972 (refactor(agents): share tool call id extraction)
 
+function trimNonEmptyString(value: unknown): string | undefined {
+  if (typeof value !== "string") {
+    return undefined;
+  }
+  const trimmed = value.trim();
+  return trimmed || undefined;
+}
+
+function normalizePersistedToolResultName(
+  message: AgentMessage,
+  fallbackName?: string,
+): AgentMessage {
+  if ((message as { role?: unknown }).role !== "toolResult") {
+    return message;
+  }
+  const toolResult = message as Extract<AgentMessage, { role: "toolResult" }>;
+  const rawToolName = (toolResult as { toolName?: unknown }).toolName;
+  const normalizedToolName = trimNonEmptyString(rawToolName);
+  if (normalizedToolName) {
+    if (rawToolName === normalizedToolName) {
+      return toolResult;
+    }
+    return { ...toolResult, toolName: normalizedToolName };
+  }
+
+  const normalizedFallback = trimNonEmptyString(fallbackName);
+  if (normalizedFallback) {
+    return { ...toolResult, toolName: normalizedFallback };
+  }
+
+  if (typeof rawToolName === "string") {
+    return { ...toolResult, toolName: "unknown" };
+  }
+  return toolResult;
+}
+
 export function installSessionToolResultGuard(
   sessionManager: SessionManager,
   opts?: {
@@ -175,12 +211,16 @@ export function installSessionToolResultGuard(
         pending.delete(id);
       }
 <<<<<<< HEAD
+<<<<<<< HEAD
       return originalAppend(
         persistToolResult(nextMessage, {
 =======
+=======
+      const normalizedToolResult = normalizePersistedToolResultName(nextMessage, toolName);
+>>>>>>> ee03ade0d (fix(agents): harden tool-name normalization and transcript repair)
       // Apply hard size cap before persistence to prevent oversized tool results
       // from consuming the entire context window on subsequent LLM calls.
-      const capped = capToolResultSize(persistMessage(nextMessage));
+      const capped = capToolResultSize(persistMessage(normalizedToolResult));
       const persisted = applyBeforeWriteHook(
         persistToolResult(capped, {
 >>>>>>> 15fe87e6b (feat: add before_message_write plugin hook)

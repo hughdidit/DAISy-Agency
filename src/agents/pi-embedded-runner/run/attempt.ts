@@ -227,6 +227,7 @@ import { buildSystemPromptParams } from "../../system-prompt-params.js";
 import { buildSystemPromptReport } from "../../system-prompt-report.js";
 import { sanitizeToolCallIdsForCloudCodeAssist } from "../../tool-call-id.js";
 import { resolveEffectiveToolFsWorkspaceOnly } from "../../tool-fs-policy.js";
+import { normalizeToolName } from "../../tool-policy.js";
 import { resolveTranscriptPolicy } from "../../transcript-policy.js";
 >>>>>>> 878b4e0ed (refactor: unify tools.fs workspaceOnly resolution)
 import { DEFAULT_BOOTSTRAP_FILENAME } from "../../workspace.js";
@@ -411,7 +412,41 @@ export function wrapOllamaCompatNumCtx(baseFn: StreamFn | undefined, numCtx: num
     });
 }
 
-function trimWhitespaceFromToolCallNamesInMessage(message: unknown): void {
+function normalizeToolCallNameForDispatch(rawName: string, allowedToolNames?: Set<string>): string {
+  const trimmed = rawName.trim();
+  if (!trimmed) {
+    // Keep whitespace-only placeholders unchanged so they do not collapse to
+    // empty names (which can later surface as toolName="" loops).
+    return rawName;
+  }
+  if (!allowedToolNames || allowedToolNames.size === 0) {
+    return trimmed;
+  }
+  if (allowedToolNames.has(trimmed)) {
+    return trimmed;
+  }
+  const normalized = normalizeToolName(trimmed);
+  if (allowedToolNames.has(normalized)) {
+    return normalized;
+  }
+  const folded = trimmed.toLowerCase();
+  let caseInsensitiveMatch: string | null = null;
+  for (const name of allowedToolNames) {
+    if (name.toLowerCase() !== folded) {
+      continue;
+    }
+    if (caseInsensitiveMatch && caseInsensitiveMatch !== name) {
+      return trimmed;
+    }
+    caseInsensitiveMatch = name;
+  }
+  return caseInsensitiveMatch ?? trimmed;
+}
+
+function trimWhitespaceFromToolCallNamesInMessage(
+  message: unknown,
+  allowedToolNames?: Set<string>,
+): void {
   if (!message || typeof message !== "object") {
     return;
   }
@@ -427,20 +462,21 @@ function trimWhitespaceFromToolCallNamesInMessage(message: unknown): void {
     if (typedBlock.type !== "toolCall" || typeof typedBlock.name !== "string") {
       continue;
     }
-    const trimmed = typedBlock.name.trim();
-    if (trimmed !== typedBlock.name) {
-      typedBlock.name = trimmed;
+    const normalized = normalizeToolCallNameForDispatch(typedBlock.name, allowedToolNames);
+    if (normalized !== typedBlock.name) {
+      typedBlock.name = normalized;
     }
   }
 }
 
 function wrapStreamTrimToolCallNames(
   stream: ReturnType<typeof streamSimple>,
+  allowedToolNames?: Set<string>,
 ): ReturnType<typeof streamSimple> {
   const originalResult = stream.result.bind(stream);
   stream.result = async () => {
     const message = await originalResult();
-    trimWhitespaceFromToolCallNamesInMessage(message);
+    trimWhitespaceFromToolCallNamesInMessage(message, allowedToolNames);
     return message;
   };
 
@@ -456,8 +492,8 @@ function wrapStreamTrimToolCallNames(
               partial?: unknown;
               message?: unknown;
             };
-            trimWhitespaceFromToolCallNamesInMessage(event.partial);
-            trimWhitespaceFromToolCallNamesInMessage(event.message);
+            trimWhitespaceFromToolCallNamesInMessage(event.partial, allowedToolNames);
+            trimWhitespaceFromToolCallNamesInMessage(event.message, allowedToolNames);
           }
           return result;
         },
@@ -473,13 +509,18 @@ function wrapStreamTrimToolCallNames(
   return stream;
 }
 
-export function wrapStreamFnTrimToolCallNames(baseFn: StreamFn): StreamFn {
+export function wrapStreamFnTrimToolCallNames(
+  baseFn: StreamFn,
+  allowedToolNames?: Set<string>,
+): StreamFn {
   return (model, context, options) => {
     const maybeStream = baseFn(model, context, options);
     if (maybeStream && typeof maybeStream === "object" && "then" in maybeStream) {
-      return Promise.resolve(maybeStream).then((stream) => wrapStreamTrimToolCallNames(stream));
+      return Promise.resolve(maybeStream).then((stream) =>
+        wrapStreamTrimToolCallNames(stream, allowedToolNames),
+      );
     }
-    return wrapStreamTrimToolCallNames(maybeStream);
+    return wrapStreamTrimToolCallNames(maybeStream, allowedToolNames);
   };
 }
 
@@ -1192,7 +1233,10 @@ export async function runEmbeddedAttempt(
       // Some models emit tool names with surrounding whitespace (e.g. " read ").
       // pi-agent-core dispatches tool calls with exact string matching, so normalize
       // names on the live response stream before tool execution.
-      activeSession.agent.streamFn = wrapStreamFnTrimToolCallNames(activeSession.agent.streamFn);
+      activeSession.agent.streamFn = wrapStreamFnTrimToolCallNames(
+        activeSession.agent.streamFn,
+        allowedToolNames,
+      );
 
 >>>>>>> 6b317b1f1 (fix(agents): normalize whitespace-padded tool call names before dispatch (#27094))
       if (anthropicPayloadLogger) {
