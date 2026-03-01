@@ -277,6 +277,29 @@ export async function ensureLoaded(
   const jobs = (loaded.jobs ?? []) as unknown as Array<Record<string, unknown>>;
   let mutated = false;
   for (const raw of jobs) {
+<<<<<<< HEAD
+=======
+    const state = raw.state;
+    if (!state || typeof state !== "object" || Array.isArray(state)) {
+      raw.state = {};
+      mutated = true;
+    }
+
+    const rawId = typeof raw.id === "string" ? raw.id.trim() : "";
+    const legacyJobId = typeof raw.jobId === "string" ? raw.jobId.trim() : "";
+    if (!rawId && legacyJobId) {
+      raw.id = legacyJobId;
+      mutated = true;
+    } else if (rawId && raw.id !== rawId) {
+      raw.id = rawId;
+      mutated = true;
+    }
+    if ("jobId" in raw) {
+      delete raw.jobId;
+      mutated = true;
+    }
+
+>>>>>>> 504c1f360 (fix(cron): migrate legacy schedule cron fields on load (#28889))
     const nameRaw = raw.name;
     if (typeof nameRaw !== "string" || nameRaw.trim().length === 0) {
       raw.name = inferLegacyName({
@@ -305,6 +328,22 @@ export async function ensureLoaded(
 
     if (typeof raw.enabled !== "boolean") {
       raw.enabled = true;
+      mutated = true;
+    }
+
+    const wakeModeRaw = typeof raw.wakeMode === "string" ? raw.wakeMode.trim().toLowerCase() : "";
+    if (wakeModeRaw === "next-heartbeat") {
+      if (raw.wakeMode !== "next-heartbeat") {
+        raw.wakeMode = "next-heartbeat";
+        mutated = true;
+      }
+    } else if (wakeModeRaw === "now") {
+      if (raw.wakeMode !== "now") {
+        raw.wakeMode = "now";
+        mutated = true;
+      }
+    } else {
+      raw.wakeMode = "now";
       mutated = true;
     }
 
@@ -365,13 +404,24 @@ export async function ensureLoaded(
       }
 
       const exprRaw = typeof sched.expr === "string" ? sched.expr.trim() : "";
-      if (typeof sched.expr === "string" && sched.expr !== exprRaw) {
-        sched.expr = exprRaw;
+      const legacyCronRaw = typeof sched.cron === "string" ? sched.cron.trim() : "";
+      let normalizedExpr = exprRaw;
+      if (!normalizedExpr && legacyCronRaw) {
+        normalizedExpr = legacyCronRaw;
+        sched.expr = normalizedExpr;
         mutated = true;
       }
-      if ((kind === "cron" || sched.kind === "cron") && exprRaw) {
+      if (typeof sched.expr === "string" && sched.expr !== normalizedExpr) {
+        sched.expr = normalizedExpr;
+        mutated = true;
+      }
+      if ("cron" in sched) {
+        delete sched.cron;
+        mutated = true;
+      }
+      if ((kind === "cron" || sched.kind === "cron") && normalizedExpr) {
         const explicitStaggerMs = normalizeCronStaggerMs(sched.staggerMs);
-        const defaultStaggerMs = resolveDefaultCronStaggerMs(exprRaw);
+        const defaultStaggerMs = resolveDefaultCronStaggerMs(normalizedExpr);
         const targetStaggerMs = explicitStaggerMs ?? defaultStaggerMs;
         if (targetStaggerMs === undefined) {
           if ("staggerMs" in sched) {
