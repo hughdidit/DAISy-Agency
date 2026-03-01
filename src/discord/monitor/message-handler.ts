@@ -88,8 +88,15 @@ export function createDiscordMessageHandler(
     groupPolicy: params.discordConfig?.groupPolicy,
     defaultGroupPolicy: params.cfg.channels?.defaults?.groupPolicy,
   });
+<<<<<<< HEAD
 >>>>>>> 85e5ed3f7 (refactor(channels): centralize runtime group policy handling)
   const ackReactionScope = params.cfg.messages?.ackReactionScope ?? "group-mentions";
+=======
+  const ackReactionScope =
+    params.discordConfig?.ackReactionScope ??
+    params.cfg.messages?.ackReactionScope ??
+    "group-mentions";
+>>>>>>> 5b64b96c6 (fix(discord): add ackReactionScope channel override + off/none values (#28268))
   const debounceMs = resolveInboundDebounceMs({ cfg: params.cfg, channel: "discord" });
 
   const debouncer = createInboundDebouncer<{ data: DiscordMessageEvent; client: Client }>({
