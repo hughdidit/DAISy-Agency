@@ -70,7 +70,42 @@ This means the stored Anthropic OAuth token expired and the refresh failed.
 If you’re on a Claude subscription (no API key), the most reliable fix is to
 switch to a **Claude Code setup-token** and paste it on the **gateway host**.
 
+<<<<<<< HEAD
 **Recommended (setup-token):**
+=======
+## Anthropic 429 extra usage required for long context
+
+Use this when logs/errors include:
+`HTTP 429: rate_limit_error: Extra usage is required for long context requests`.
+
+```bash
+openclaw logs --follow
+openclaw models status
+openclaw config get agents.defaults.models
+```
+
+Look for:
+
+- Selected Anthropic Opus/Sonnet model has `params.context1m: true`.
+- Current Anthropic credential is not eligible for long-context usage.
+- Requests fail only on long sessions/model runs that need the 1M beta path.
+
+Fix options:
+
+1. Disable `context1m` for that model to fall back to the normal context window.
+2. Use an Anthropic API key with billing, or enable Anthropic Extra Usage on the subscription account.
+3. Configure fallback models so runs continue when Anthropic long-context requests are rejected.
+
+Related:
+
+- [/providers/anthropic](/providers/anthropic)
+- [/reference/token-use](/reference/token-use)
+- [/help/faq#why-am-i-seeing-http-429-ratelimiterror-from-anthropic](/help/faq#why-am-i-seeing-http-429-ratelimiterror-from-anthropic)
+
+## No replies
+
+If channels are up but nothing answers, check routing and policy before reconnecting anything.
+>>>>>>> 063c4f00e (docs: clarify Anthropic context1m long-context requirements)
 
 ```bash
 # Run on the gateway host (paste the setup-token)

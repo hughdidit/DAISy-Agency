@@ -21,8 +21,45 @@ moltbot doctor
 
 If the gateway is reachable, deep probes:
 
+<<<<<<< HEAD
 ```bash
 moltbot status --deep
+=======
+- `openclaw status` → shows configured channels and no obvious auth errors.
+- `openclaw status --all` → full report is present and shareable.
+- `openclaw gateway probe` → expected gateway target is reachable.
+- `openclaw gateway status` → `Runtime: running` and `RPC probe: ok`.
+- `openclaw doctor` → no blocking config/service errors.
+- `openclaw channels status --probe` → channels report `connected` or `ready`.
+- `openclaw logs --follow` → steady activity, no repeating fatal errors.
+
+## Anthropic long context 429
+
+If you see:
+`HTTP 429: rate_limit_error: Extra usage is required for long context requests`,
+go to [/gateway/troubleshooting#anthropic-429-extra-usage-required-for-long-context](/gateway/troubleshooting#anthropic-429-extra-usage-required-for-long-context).
+
+## Decision tree
+
+```mermaid
+flowchart TD
+  A[OpenClaw is not working] --> B{What breaks first}
+  B --> C[No replies]
+  B --> D[Dashboard or Control UI will not connect]
+  B --> E[Gateway will not start or service not running]
+  B --> F[Channel connects but messages do not flow]
+  B --> G[Cron or heartbeat did not fire or did not deliver]
+  B --> H[Node is paired but camera canvas screen exec fails]
+  B --> I[Browser tool fails]
+
+  C --> C1[/No replies section/]
+  D --> D1[/Control UI section/]
+  E --> E1[/Gateway section/]
+  F --> F1[/Channel flow section/]
+  G --> G1[/Automation section/]
+  H --> H1[/Node tools section/]
+  I --> I1[/Browser section/]
+>>>>>>> 063c4f00e (docs: clarify Anthropic context1m long-context requirements)
 ```
 
 ## Common “it broke” cases
