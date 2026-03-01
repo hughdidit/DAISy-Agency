@@ -45,10 +45,13 @@ import { recordChannelActivity } from "../../infra/channel-activity.js";
 import { enqueueSystemEvent } from "../../infra/system-events.js";
 import { getChildLogger } from "../../logging.js";
 import { buildPairingReply } from "../../pairing/pairing-messages.js";
+<<<<<<< HEAD
 import {
   readChannelAllowFromStore,
   upsertChannelPairingRequest,
 } from "../../pairing/pairing-store.js";
+=======
+>>>>>>> 75596e937 (refactor(discord): unify DM command auth handling)
 import { resolveAgentRoute } from "../../routing/resolve-route.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -87,6 +90,7 @@ import {
   resolveGroupDmAllow,
 } from "./allow-list.js";
 import { resolveDiscordDmCommandAccess } from "./dm-command-auth.js";
+import { handleDiscordDmCommandDecision } from "./dm-command-decision.js";
 import {
   formatDiscordUserTag,
   resolveDiscordSystemLocation,
@@ -254,7 +258,11 @@ export async function preflightDiscordMessage(
 =======
   const useAccessGroups = params.cfg.commands?.useAccessGroups !== false;
   const resolvedAccountId = params.accountId ?? DEFAULT_ACCOUNT_ID;
+<<<<<<< HEAD
 >>>>>>> 50e2674df (fix(discord): unify dm command auth gating)
+=======
+  const allowNameMatching = isDangerousNameMatchingEnabled(params.discordConfig);
+>>>>>>> 75596e937 (refactor(discord): unify DM command auth handling)
   let commandAuthorized = true;
   if (isDirectMessage) {
     if (dmPolicy === "disabled") {
@@ -330,7 +338,7 @@ export async function preflightDiscordMessage(
         name: sender.name,
         tag: sender.tag,
       },
-      allowNameMatching: isDangerousNameMatchingEnabled(params.discordConfig),
+      allowNameMatching,
       useAccessGroups,
     });
     commandAuthorized = dmAccess.commandAuthorized;
@@ -338,10 +346,12 @@ export async function preflightDiscordMessage(
       const allowMatchMeta = formatAllowlistMatchMeta(
         dmAccess.allowMatch.allowed ? dmAccess.allowMatch : undefined,
       );
-      if (dmAccess.decision === "pairing") {
-        const { code, created } = await upsertChannelPairingRequest({
-          channel: "discord",
+      await handleDiscordDmCommandDecision({
+        dmAccess,
+        accountId: resolvedAccountId,
+        sender: {
           id: author.id,
+<<<<<<< HEAD
           accountId: resolvedAccountId,
           meta: {
             tag: formatDiscordUserTag(author),
@@ -350,6 +360,12 @@ export async function preflightDiscordMessage(
         });
         if (created) {
 >>>>>>> 50e2674df (fix(discord): unify dm command auth gating)
+=======
+          tag: formatDiscordUserTag(author),
+          name: author.username ?? undefined,
+        },
+        onPairingCreated: async (code) => {
+>>>>>>> 75596e937 (refactor(discord): unify DM command auth handling)
           logVerbose(
             `discord pairing request sender=${author.id} tag=${formatDiscordUserTag(author)} (${allowMatchMeta})`,
           );
@@ -370,12 +386,13 @@ export async function preflightDiscordMessage(
           } catch (err) {
             logVerbose(`discord pairing reply failed for ${author.id}: ${String(err)}`);
           }
-        }
-      } else {
-        logVerbose(
-          `Blocked unauthorized discord sender ${sender.id} (dmPolicy=${dmPolicy}, ${allowMatchMeta})`,
-        );
-      }
+        },
+        onUnauthorized: async () => {
+          logVerbose(
+            `Blocked unauthorized discord sender ${sender.id} (dmPolicy=${dmPolicy}, ${allowMatchMeta})`,
+          );
+        },
+      });
       return null;
     }
   }
@@ -737,6 +754,10 @@ export async function preflightDiscordMessage(
     guildInfo,
     memberRoleIds,
     sender,
+<<<<<<< HEAD
+=======
+    allowNameMatching,
+>>>>>>> 75596e937 (refactor(discord): unify DM command auth handling)
   });
 >>>>>>> 555eb3f62 (refactor(discord): share member access state)
 
@@ -747,11 +768,23 @@ export async function preflightDiscordMessage(
       "pk:",
     ]);
     const ownerOk = ownerAllowList
+<<<<<<< HEAD
       ? allowListMatches(ownerAllowList, {
           id: sender.id,
           name: sender.name,
           tag: sender.tag,
         })
+=======
+      ? allowListMatches(
+          ownerAllowList,
+          {
+            id: sender.id,
+            name: sender.name,
+            tag: sender.tag,
+          },
+          { allowNameMatching },
+        )
+>>>>>>> 75596e937 (refactor(discord): unify DM command auth handling)
       : false;
 <<<<<<< HEAD
     const channelUsers = channelConfig?.users ?? guildInfo?.users;

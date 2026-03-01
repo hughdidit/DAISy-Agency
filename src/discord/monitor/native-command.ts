@@ -127,10 +127,13 @@ import { createSubsystemLogger } from "../../logging/subsystem.js";
 import { getAgentScopedMediaLocalRoots } from "../../media/local-roots.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { buildPairingReply } from "../../pairing/pairing-messages.js";
+<<<<<<< HEAD
 import {
   readChannelAllowFromStore,
   upsertChannelPairingRequest,
 } from "../../pairing/pairing-store.js";
+=======
+>>>>>>> 75596e937 (refactor(discord): unify DM command auth handling)
 import { resolveAgentRoute } from "../../routing/resolve-route.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -161,6 +164,7 @@ import {
 <<<<<<< HEAD
 =======
 import { resolveDiscordDmCommandAccess } from "./dm-command-auth.js";
+import { handleDiscordDmCommandDecision } from "./dm-command-decision.js";
 import { resolveDiscordChannelInfo } from "./message-utils.js";
 import {
   readDiscordModelPickerRecentModels,
@@ -1350,6 +1354,7 @@ async function dispatchDiscordCommandInteraction(params: {
   const memberRoleIds = Array.isArray(interaction.rawData.member?.roles)
     ? interaction.rawData.member.roles.map((roleId: string) => String(roleId))
     : [];
+  const allowNameMatching = isDangerousNameMatchingEnabled(discordConfig);
   const ownerAllowList = normalizeDiscordAllowList(
     discordConfig?.allowFrom ?? discordConfig?.dm?.allowFrom ?? [],
     ["discord:", "user:", "pk:"],
@@ -1357,11 +1362,23 @@ async function dispatchDiscordCommandInteraction(params: {
 >>>>>>> 47b6cde8c (refactor(config): add dmPolicy aliases for Slack/Discord)
   const ownerOk =
     ownerAllowList && user
+<<<<<<< HEAD
       ? allowListMatches(ownerAllowList, {
           id: sender.id,
           name: sender.name,
           tag: sender.tag,
         })
+=======
+      ? allowListMatches(
+          ownerAllowList,
+          {
+            id: sender.id,
+            name: sender.name,
+            tag: sender.tag,
+          },
+          { allowNameMatching },
+        )
+>>>>>>> 75596e937 (refactor(discord): unify DM command auth handling)
       : false;
   const guildInfo = resolveDiscordGuildEntry({
     guild: interaction.guild ?? undefined,
@@ -1494,22 +1511,20 @@ async function dispatchDiscordCommandInteraction(params: {
         name: sender.name,
         tag: sender.tag,
       },
-      allowNameMatching: isDangerousNameMatchingEnabled(discordConfig),
+      allowNameMatching,
       useAccessGroups,
     });
     commandAuthorized = dmAccess.commandAuthorized;
     if (dmAccess.decision !== "allow") {
-      if (dmAccess.decision === "pairing") {
-        const { code, created } = await upsertChannelPairingRequest({
-          channel: "discord",
+      await handleDiscordDmCommandDecision({
+        dmAccess,
+        accountId,
+        sender: {
           id: user.id,
-          accountId,
-          meta: {
-            tag: sender.tag,
-            name: sender.name,
-          },
-        });
-        if (created) {
+          tag: sender.tag,
+          name: sender.name,
+        },
+        onPairingCreated: async (code) => {
           await respond(
             buildPairingReply({
               channel: "discord",
@@ -1518,11 +1533,19 @@ async function dispatchDiscordCommandInteraction(params: {
             }),
             { ephemeral: true },
           );
+<<<<<<< HEAD
 >>>>>>> 50e2674df (fix(discord): unify dm command auth gating)
         }
       } else {
         await respond("You are not authorized to use this command.", { ephemeral: true });
       }
+=======
+        },
+        onUnauthorized: async () => {
+          await respond("You are not authorized to use this command.", { ephemeral: true });
+        },
+      });
+>>>>>>> 75596e937 (refactor(discord): unify DM command auth handling)
       return;
     }
   }
@@ -1544,6 +1567,10 @@ async function dispatchDiscordCommandInteraction(params: {
       guildInfo,
       memberRoleIds,
       sender,
+<<<<<<< HEAD
+=======
+      allowNameMatching,
+>>>>>>> 75596e937 (refactor(discord): unify DM command auth handling)
     });
 >>>>>>> 555eb3f62 (refactor(discord): share member access state)
     const authorizers = useAccessGroups
@@ -1648,6 +1675,15 @@ async function dispatchDiscordCommandInteraction(params: {
       }
     : route;
   const conversationLabel = isDirectMessage ? (user.globalName ?? user.username) : channelId;
+<<<<<<< HEAD
+=======
+  const ownerAllowFrom = resolveDiscordOwnerAllowFrom({
+    channelConfig,
+    guildInfo,
+    sender: { id: sender.id, name: sender.name, tag: sender.tag },
+    allowNameMatching,
+  });
+>>>>>>> 75596e937 (refactor(discord): unify DM command auth handling)
   const ctxPayload = finalizeInboundContext({
     Body: prompt,
     BodyForAgent: prompt,
