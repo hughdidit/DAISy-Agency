@@ -1,7 +1,12 @@
 import { beforeEach, describe, expect, it } from "vitest";
+<<<<<<< HEAD
 
 import { prependSystemEvents } from "../auto-reply/reply/session-updates.js";
 import type { MoltbotConfig } from "../config/config.js";
+=======
+import type { OpenClawConfig } from "../config/config.js";
+import { prependSystemEvents } from "../auto-reply/reply/session-updates.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { resolveMainSessionKey } from "../config/sessions.js";
 import { enqueueSystemEvent, peekSystemEvents, resetSystemEventsForTest } from "./system-events.js";
 

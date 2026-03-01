@@ -1,7 +1,13 @@
+<<<<<<< HEAD
 import type { MoltbotConfig } from "clawdbot/plugin-sdk";
 import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "clawdbot/plugin-sdk";
 
 import type { GoogleChatAccountConfig, GoogleChatConfig } from "./types.config.js";
+=======
+import type { OpenClawConfig } from "openclaw/plugin-sdk";
+import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "openclaw/plugin-sdk";
+import type { GoogleChatAccountConfig } from "./types.config.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 
 export type GoogleChatCredentialSource = "file" | "inline" | "env" | "none";
 

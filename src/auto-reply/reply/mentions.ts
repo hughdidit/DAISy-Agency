@@ -1,8 +1,13 @@
+import type { OpenClawConfig } from "../../config/config.js";
+import type { MsgContext } from "../templating.js";
 import { resolveAgentConfig } from "../../agents/agent-scope.js";
 import { getChannelDock } from "../../channels/dock.js";
 import { normalizeChannelId } from "../../channels/plugins/index.js";
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
 import type { MsgContext } from "../templating.js";
+=======
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 
 function escapeRegExp(text: string): string {
   return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");

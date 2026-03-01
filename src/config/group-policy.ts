@@ -1,7 +1,12 @@
 import type { ChannelId } from "../channels/plugins/types.js";
+<<<<<<< HEAD
 import { normalizeAccountId } from "../routing/session-key.js";
 import type { MoltbotConfig } from "./config.js";
+=======
+import type { OpenClawConfig } from "./config.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { GroupToolPolicyBySenderConfig, GroupToolPolicyConfig } from "./types.tools.js";
+import { normalizeAccountId } from "../routing/session-key.js";
 
 export type GroupPolicyChannel = ChannelId;
 

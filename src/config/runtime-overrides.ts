@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 import { parseConfigPath, setConfigValueAtPath, unsetConfigValueAtPath } from "./config-paths.js";
 import type { MoltbotConfig } from "./types.js";
+=======
+import type { OpenClawConfig } from "./types.js";
+import { parseConfigPath, setConfigValueAtPath, unsetConfigValueAtPath } from "./config-paths.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 
 type OverrideTree = Record<string, unknown>;
 

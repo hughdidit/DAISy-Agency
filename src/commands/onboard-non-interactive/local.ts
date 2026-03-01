@@ -1,8 +1,13 @@
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
+=======
+import type { OpenClawConfig } from "../../config/config.js";
+import type { RuntimeEnv } from "../../runtime.js";
+import type { OnboardOptions } from "../onboard-types.js";
+import { formatCliCommand } from "../../cli/command-format.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { resolveGatewayPort, writeConfigFile } from "../../config/config.js";
 import { logConfigUpdated } from "../../config/logging.js";
-import type { RuntimeEnv } from "../../runtime.js";
-import { formatCliCommand } from "../../cli/command-format.js";
 import { DEFAULT_GATEWAY_DAEMON_RUNTIME } from "../daemon-runtime.js";
 import { healthCommand } from "../health.js";
 import {
@@ -12,8 +17,6 @@ import {
   resolveControlUiLinks,
   waitForGatewayReachable,
 } from "../onboard-helpers.js";
-import type { OnboardOptions } from "../onboard-types.js";
-
 import { applyNonInteractiveAuthChoice } from "./local/auth-choice.js";
 import { installGatewayDaemonNonInteractive } from "./local/daemon-install.js";
 import { applyNonInteractiveGatewayConfig } from "./local/gateway-config.js";

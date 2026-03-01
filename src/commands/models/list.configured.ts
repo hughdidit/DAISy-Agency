@@ -1,11 +1,16 @@
+import type { OpenClawConfig } from "../../config/config.js";
+import type { ConfiguredEntry } from "./list.types.js";
 import {
   buildModelAliasIndex,
   parseModelRef,
   resolveConfiguredModelRef,
   resolveModelRefFromString,
 } from "../../agents/model-selection.js";
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
 import type { ConfiguredEntry } from "./list.types.js";
+=======
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { DEFAULT_MODEL, DEFAULT_PROVIDER, modelKey } from "./shared.js";
 
 export function resolveConfiguredEntries(cfg: MoltbotConfig) {

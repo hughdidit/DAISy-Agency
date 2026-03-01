@@ -1,8 +1,17 @@
+<<<<<<< HEAD
 import fs from "node:fs";
 import path from "node:path";
 import type { ZodIssue } from "zod";
 
 import type { MoltbotConfig } from "../config/config.js";
+=======
+import type { ZodIssue } from "zod";
+import fs from "node:fs/promises";
+import path from "node:path";
+import type { OpenClawConfig } from "../config/config.js";
+import type { DoctorOptions } from "./doctor-prompter.js";
+import { formatCliCommand } from "../cli/command-format.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import {
   MoltbotSchema,
   CONFIG_PATH,
@@ -10,10 +19,14 @@ import {
   readConfigFileSnapshot,
 } from "../config/config.js";
 import { applyPluginAutoEnable } from "../config/plugin-auto-enable.js";
-import { formatCliCommand } from "../cli/command-format.js";
 import { note } from "../terminal/note.js";
+<<<<<<< HEAD
 import { normalizeLegacyConfigValues } from "./doctor-legacy-config.js";
 import type { DoctorOptions } from "./doctor-prompter.js";
+=======
+import { resolveHomeDir } from "../utils.js";
+import { normalizeLegacyConfigValues } from "./doctor-legacy-config.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { autoMigrateLegacyStateDir } from "./doctor-state-migrations.js";
 
 function isRecord(value: unknown): value is Record<string, unknown> {

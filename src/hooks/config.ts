@@ -1,8 +1,13 @@
 import fs from "node:fs";
 import path from "node:path";
+<<<<<<< HEAD
 import type { MoltbotConfig, HookConfig } from "../config/config.js";
 import { resolveHookKey } from "./frontmatter.js";
+=======
+import type { OpenClawConfig, HookConfig } from "../config/config.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { HookEligibilityContext, HookEntry } from "./types.js";
+import { resolveHookKey } from "./frontmatter.js";
 
 const DEFAULT_CONFIG_VALUES: Record<string, boolean> = {
   "browser.enabled": true,

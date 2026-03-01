@@ -1,7 +1,10 @@
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
 
+=======
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { describe, expect, it, vi } from "vitest";
-
+import type { OpenClawConfig } from "../config/config.js";
 import { noteMacLaunchctlGatewayEnvOverrides } from "./doctor-platform-notes.js";
 
 describe("noteMacLaunchctlGatewayEnvOverrides", () => {

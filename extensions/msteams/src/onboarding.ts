@@ -10,14 +10,19 @@ import {
   DEFAULT_ACCOUNT_ID,
   formatDocsLink,
   promptChannelAccessConfig,
+<<<<<<< HEAD
 } from "clawdbot/plugin-sdk";
 
 import { resolveMSTeamsCredentials } from "./token.js";
+=======
+} from "openclaw/plugin-sdk";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import {
   parseMSTeamsTeamEntry,
   resolveMSTeamsChannelAllowlist,
   resolveMSTeamsUserAllowlist,
 } from "./resolve-allowlist.js";
+import { resolveMSTeamsCredentials } from "./token.js";
 
 const channel = "msteams" as const;
 

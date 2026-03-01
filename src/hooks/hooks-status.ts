@@ -1,9 +1,13 @@
 import path from "node:path";
+<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../config/config.js";
+=======
+import type { OpenClawConfig } from "../config/config.js";
+import type { HookEligibilityContext, HookEntry, HookInstallSpec } from "./types.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { CONFIG_DIR } from "../utils.js";
 import { hasBinary, isConfigPathTruthy, resolveConfigPath, resolveHookConfig } from "./config.js";
-import type { HookEligibilityContext, HookEntry, HookInstallSpec } from "./types.js";
 import { loadWorkspaceHookEntries } from "./workspace.js";
 
 export type HookStatusConfigCheck = {

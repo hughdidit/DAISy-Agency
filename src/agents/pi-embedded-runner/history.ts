@@ -1,6 +1,10 @@
 import type { AgentMessage } from "@mariozechner/pi-agent-core";
+<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../../config/config.js";
+=======
+import type { OpenClawConfig } from "../../config/config.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 
 const THREAD_SUFFIX_REGEX = /^(.*)(?::(?:thread|topic):\d+)$/i;
 

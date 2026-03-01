@@ -1,9 +1,13 @@
 import fs from "node:fs/promises";
-
 import { describe, expect, it } from "vitest";
+<<<<<<< HEAD
 
 import { withTempHome } from "./test-helpers.js";
 import type { MoltbotConfig } from "./types.js";
+=======
+import type { OpenClawConfig } from "./types.js";
+import { withTempHome } from "./test-helpers.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 
 describe("config backup rotation", () => {
   it("keeps a 5-deep backup ring for config writes", async () => {

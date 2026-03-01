@@ -1,5 +1,8 @@
 import { type Api, completeSimple, type Model } from "@mariozechner/pi-ai";
+<<<<<<< HEAD
 import { discoverAuthStorage, discoverModels } from "@mariozechner/pi-coding-agent";
+=======
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { Type } from "@sinclair/typebox";
 import { describe, expect, it } from "vitest";
 import { loadConfig } from "../config/config.js";
@@ -14,6 +17,7 @@ import { isModernModelRef } from "./live-model-filter.js";
 import { getApiKeyForModel, requireApiKey } from "./model-auth.js";
 import { ensureMoltbotModelsJson } from "./models-config.js";
 import { isRateLimitErrorMessage } from "./pi-embedded-helpers/errors.js";
+import { discoverAuthStorage, discoverModels } from "./pi-model-discovery.js";
 
 const LIVE = isTruthyEnvValue(process.env.LIVE) || isTruthyEnvValue(process.env.CLAWDBOT_LIVE_TEST);
 const DIRECT_ENABLED = Boolean(process.env.CLAWDBOT_LIVE_MODELS?.trim());

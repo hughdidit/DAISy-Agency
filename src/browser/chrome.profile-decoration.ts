@@ -1,7 +1,14 @@
 import fs from "node:fs";
 import path from "node:path";
+<<<<<<< HEAD
 
 import { DEFAULT_CLAWD_BROWSER_COLOR, DEFAULT_CLAWD_BROWSER_PROFILE_NAME } from "./constants.js";
+=======
+import {
+  DEFAULT_OPENCLAW_BROWSER_COLOR,
+  DEFAULT_OPENCLAW_BROWSER_PROFILE_NAME,
+} from "./constants.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 
 function decoratedMarkerPath(userDataDir: string) {
   return path.join(userDataDir, ".clawd-profile-decorated");

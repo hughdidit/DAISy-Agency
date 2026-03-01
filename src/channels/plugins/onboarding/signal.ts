@@ -1,7 +1,16 @@
+<<<<<<< HEAD
 import { detectBinary } from "../../../commands/onboard-helpers.js";
 import { installSignalCli } from "../../../commands/signal-install.js";
 import type { MoltbotConfig } from "../../../config/config.js";
+=======
+import type { OpenClawConfig } from "../../../config/config.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { DmPolicy } from "../../../config/types.js";
+import type { WizardPrompter } from "../../../wizard/prompts.js";
+import type { ChannelOnboardingAdapter, ChannelOnboardingDmPolicy } from "../onboarding-types.js";
+import { formatCliCommand } from "../../../cli/command-format.js";
+import { detectBinary } from "../../../commands/onboard-helpers.js";
+import { installSignalCli } from "../../../commands/signal-install.js";
 import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "../../../routing/session-key.js";
 import {
   listSignalAccountIds,
@@ -9,10 +18,7 @@ import {
   resolveSignalAccount,
 } from "../../../signal/accounts.js";
 import { formatDocsLink } from "../../../terminal/links.js";
-import { formatCliCommand } from "../../../cli/command-format.js";
 import { normalizeE164 } from "../../../utils.js";
-import type { WizardPrompter } from "../../../wizard/prompts.js";
-import type { ChannelOnboardingAdapter, ChannelOnboardingDmPolicy } from "../onboarding-types.js";
 import { addWildcardAllowFrom, promptAccountId } from "./helpers.js";
 
 const channel = "signal" as const;

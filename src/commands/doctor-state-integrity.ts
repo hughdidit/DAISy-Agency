@@ -1,9 +1,14 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+<<<<<<< HEAD
 
 import { resolveDefaultAgentId } from "../agents/agent-scope.js";
 import type { MoltbotConfig } from "../config/config.js";
+=======
+import type { OpenClawConfig } from "../config/config.js";
+import { resolveDefaultAgentId } from "../agents/agent-scope.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { resolveOAuthDir, resolveStateDir } from "../config/paths.js";
 import {
   loadSessionStore,

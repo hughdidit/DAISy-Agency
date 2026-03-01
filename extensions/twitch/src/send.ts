@@ -5,9 +5,15 @@
  * They support dependency injection via the `deps` parameter for testability.
  */
 
+<<<<<<< HEAD
 import { DEFAULT_ACCOUNT_ID, getAccountConfig } from "./config.js";
 import { getClientManager as getRegistryClientManager } from "./client-manager-registry.js";
 import type { MoltbotConfig } from "clawdbot/plugin-sdk";
+=======
+import type { OpenClawConfig } from "openclaw/plugin-sdk";
+import { getClientManager as getRegistryClientManager } from "./client-manager-registry.js";
+import { DEFAULT_ACCOUNT_ID, getAccountConfig } from "./config.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { resolveTwitchToken } from "./token.js";
 import { stripMarkdownForTwitch } from "./utils/markdown.js";
 import { generateMessageId, isAccountConfigured, normalizeTwitchChannel } from "./utils/twitch.js";

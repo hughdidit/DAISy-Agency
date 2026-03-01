@@ -1,5 +1,8 @@
+<<<<<<< HEAD
 import { formatLocationText, type NormalizedLocation } from "../../channels/location.js";
 import type { TelegramAccountConfig } from "../../config/types.telegram.js";
+=======
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type {
   TelegramForwardChat,
   TelegramForwardOrigin,
@@ -10,6 +13,7 @@ import type {
   TelegramStreamMode,
   TelegramVenue,
 } from "./types.js";
+import { formatLocationText, type NormalizedLocation } from "../../channels/location.js";
 
 const TELEGRAM_GENERAL_TOPIC_ID = 1;
 

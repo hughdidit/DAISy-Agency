@@ -1,5 +1,5 @@
-import { normalizeProfileName } from "./profile-utils.js";
 import { replaceCliName, resolveCliName } from "./cli-name.js";
+import { normalizeProfileName } from "./profile-utils.js";
 
 const CLI_PREFIX_RE = /^(?:pnpm|npm|bunx|npx)\s+(?:moltbot|moltbot)\b|^(?:moltbot|moltbot)\b/;
 const PROFILE_FLAG_RE = /(?:^|\s)--profile(?:\s|=|$)/;

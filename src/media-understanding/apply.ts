@@ -1,7 +1,17 @@
 import path from "node:path";
+<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../config/config.js";
+=======
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { MsgContext } from "../auto-reply/templating.js";
+import type { OpenClawConfig } from "../config/config.js";
+import type {
+  MediaUnderstandingCapability,
+  MediaUnderstandingDecision,
+  MediaUnderstandingOutput,
+  MediaUnderstandingProvider,
+} from "./types.js";
 import { finalizeInboundContext } from "../auto-reply/reply/inbound-context.js";
 import { logVerbose, shouldLogVerbose } from "../globals.js";
 import {
@@ -17,20 +27,14 @@ import {
   normalizeMimeList,
   normalizeMimeType,
 } from "../media/input-files.js";
+import { resolveAttachmentKind } from "./attachments.js";
+import { runWithConcurrency } from "./concurrency.js";
 import {
   extractMediaUserText,
   formatAudioTranscripts,
   formatMediaUnderstandingBody,
 } from "./format.js";
-import type {
-  MediaUnderstandingCapability,
-  MediaUnderstandingDecision,
-  MediaUnderstandingOutput,
-  MediaUnderstandingProvider,
-} from "./types.js";
-import { runWithConcurrency } from "./concurrency.js";
 import { resolveConcurrency } from "./resolve.js";
-import { resolveAttachmentKind } from "./attachments.js";
 import {
   type ActiveMediaModel,
   buildProviderRegistry,

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import type { MoltbotConfig } from "../config/config.js";
@@ -6,9 +7,18 @@ import { runSecurityAudit } from "./audit.js";
 import { discordPlugin } from "../../extensions/discord/src/channel.js";
 import { slackPlugin } from "../../extensions/slack/src/channel.js";
 import { telegramPlugin } from "../../extensions/telegram/src/channel.js";
+=======
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import type { ChannelPlugin } from "../channels/plugins/types.js";
+import type { OpenClawConfig } from "../config/config.js";
+import { discordPlugin } from "../../extensions/discord/src/channel.js";
+import { slackPlugin } from "../../extensions/slack/src/channel.js";
+import { telegramPlugin } from "../../extensions/telegram/src/channel.js";
+import { runSecurityAudit } from "./audit.js";
 
 const isWindows = process.platform === "win32";
 

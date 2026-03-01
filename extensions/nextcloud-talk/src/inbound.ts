@@ -3,9 +3,14 @@ import {
   resolveControlCommandGate,
   type MoltbotConfig,
   type RuntimeEnv,
+<<<<<<< HEAD
 } from "clawdbot/plugin-sdk";
 
+=======
+} from "openclaw/plugin-sdk";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { ResolvedNextcloudTalkAccount } from "./accounts.js";
+import type { CoreConfig, NextcloudTalkInboundMessage } from "./types.js";
 import {
   normalizeNextcloudTalkAllowlist,
   resolveNextcloudTalkAllowlistMatch,
@@ -15,9 +20,8 @@ import {
   resolveNextcloudTalkRoomMatch,
 } from "./policy.js";
 import { resolveNextcloudTalkRoomKind } from "./room-info.js";
-import { sendMessageNextcloudTalk } from "./send.js";
 import { getNextcloudTalkRuntime } from "./runtime.js";
-import type { CoreConfig, NextcloudTalkInboundMessage } from "./types.js";
+import { sendMessageNextcloudTalk } from "./send.js";
 
 const CHANNEL_ID = "nextcloud-talk" as const;
 

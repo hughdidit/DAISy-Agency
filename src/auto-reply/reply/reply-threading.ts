@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 import { getChannelDock } from "../../channels/dock.js";
 import { normalizeChannelId } from "../../channels/plugins/index.js";
 import type { MoltbotConfig } from "../../config/config.js";
+=======
+import type { OpenClawConfig } from "../../config/config.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { ReplyToMode } from "../../config/types.js";
 import type { OriginatingChannelType } from "../templating.js";
 import type { ReplyPayload } from "../types.js";
+import { getChannelDock } from "../../channels/dock.js";
+import { normalizeChannelId } from "../../channels/plugins/index.js";
 
 export function resolveReplyToMode(
   cfg: MoltbotConfig,

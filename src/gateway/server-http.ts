@@ -1,3 +1,5 @@
+import type { TlsOptions } from "node:tls";
+import type { WebSocketServer } from "ws";
 import {
   createServer as createHttpServer,
   type Server as HttpServer,
@@ -6,14 +8,12 @@ import {
 } from "node:http";
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { createServer as createHttpsServer } from "node:https";
-import type { TlsOptions } from "node:tls";
-import type { WebSocketServer } from "ws";
-import { handleA2uiHttpRequest } from "../canvas-host/a2ui.js";
 import type { CanvasHostHandler } from "../canvas-host/server.js";
-import { loadConfig } from "../config/config.js";
 import type { createSubsystemLogger } from "../logging/subsystem.js";
-import { handleSlackHttpRequest } from "../slack/http/index.js";
 import { resolveAgentAvatar } from "../agents/identity-avatar.js";
+import { handleA2uiHttpRequest } from "../canvas-host/a2ui.js";
+import { loadConfig } from "../config/config.js";
+import { handleSlackHttpRequest } from "../slack/http/index.js";
 import { handleControlUiAvatarRequest, handleControlUiHttpRequest } from "./control-ui.js";
 import { setSecurityHeaders } from "./http-common.js";
 import {
@@ -28,7 +28,6 @@ import {
   resolveHookChannel,
   resolveHookDeliver,
 } from "./hooks.js";
-import { applyHookMappings } from "./hooks-mapping.js";
 import { handleOpenAiHttpRequest } from "./openai-http.js";
 import { handleOpenResponsesHttpRequest } from "./openresponses-http.js";
 import { handleToolsInvokeHttpRequest } from "./tools-invoke-http.js";

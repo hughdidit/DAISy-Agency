@@ -1,13 +1,23 @@
-import fs from "node:fs";
-import path from "node:path";
-
 import {
   formatSkillsForPrompt,
   loadSkillsFromDir,
   type Skill,
 } from "@mariozechner/pi-coding-agent";
+<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../../config/config.js";
+=======
+import fs from "node:fs";
+import path from "node:path";
+import type { OpenClawConfig } from "../../config/config.js";
+import type {
+  ParsedSkillFrontmatter,
+  SkillEligibilityContext,
+  SkillCommandSpec,
+  SkillEntry,
+  SkillSnapshot,
+} from "./types.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { createSubsystemLogger } from "../../logging/subsystem.js";
 import { CONFIG_DIR, resolveUserPath } from "../../utils.js";
 import { resolveBundledSkillsDir } from "./bundled-dir.js";
@@ -19,13 +29,6 @@ import {
 } from "./frontmatter.js";
 import { resolvePluginSkillDirs } from "./plugin-skills.js";
 import { serializeByKey } from "./serialize.js";
-import type {
-  ParsedSkillFrontmatter,
-  SkillEligibilityContext,
-  SkillCommandSpec,
-  SkillEntry,
-  SkillSnapshot,
-} from "./types.js";
 
 const fsp = fs.promises;
 const skillsLogger = createSubsystemLogger("skills");

@@ -1,7 +1,11 @@
 import chokidar from "chokidar";
+import type { OpenClawConfig, ConfigFileSnapshot, GatewayReloadMode } from "../config/config.js";
 import { type ChannelId, listChannelPlugins } from "../channels/plugins/index.js";
 import { getActivePluginRegistry } from "../plugins/runtime.js";
+<<<<<<< HEAD
 import type { MoltbotConfig, ConfigFileSnapshot, GatewayReloadMode } from "../config/config.js";
+=======
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 
 export type GatewayReloadSettings = {
   mode: GatewayReloadMode;

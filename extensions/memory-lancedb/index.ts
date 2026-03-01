@@ -6,6 +6,7 @@
  * Provides seamless auto-recall and auto-capture via lifecycle hooks.
  */
 
+<<<<<<< HEAD
 import { Type } from "@sinclair/typebox";
 import * as lancedb from "@lancedb/lancedb";
 import OpenAI from "openai";
@@ -13,6 +14,14 @@ import { randomUUID } from "node:crypto";
 import type { MoltbotPluginApi } from "clawdbot/plugin-sdk";
 import { stringEnum } from "clawdbot/plugin-sdk";
 
+=======
+import type { OpenClawPluginApi } from "openclaw/plugin-sdk";
+import * as lancedb from "@lancedb/lancedb";
+import { Type } from "@sinclair/typebox";
+import { randomUUID } from "node:crypto";
+import OpenAI from "openai";
+import { stringEnum } from "openclaw/plugin-sdk";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import {
   MEMORY_CATEGORIES,
   type MemoryCategory,

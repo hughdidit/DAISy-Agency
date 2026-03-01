@@ -1,6 +1,15 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
+<<<<<<< HEAD
 
 import { openUrl, resolveBrowserOpenCommand, resolveControlUiLinks } from "./onboard-helpers.js";
+=======
+import {
+  normalizeGatewayTokenInput,
+  openUrl,
+  resolveBrowserOpenCommand,
+  resolveControlUiLinks,
+} from "./onboard-helpers.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 
 const mocks = vi.hoisted(() => ({
   runCommandWithTimeout: vi.fn(async () => ({

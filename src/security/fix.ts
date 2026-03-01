@@ -1,16 +1,23 @@
+import JSON5 from "json5";
 import fs from "node:fs/promises";
 import path from "node:path";
+<<<<<<< HEAD
 
 import JSON5 from "json5";
 
 import type { MoltbotConfig } from "../config/config.js";
 import { createConfigIO } from "../config/config.js";
 import { resolveConfigPath, resolveOAuthDir, resolveStateDir } from "../config/paths.js";
+=======
+import type { OpenClawConfig } from "../config/config.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { resolveDefaultAgentId } from "../agents/agent-scope.js";
+import { createConfigIO } from "../config/config.js";
 import { INCLUDE_KEY, MAX_INCLUDE_DEPTH } from "../config/includes.js";
-import { normalizeAgentId } from "../routing/session-key.js";
+import { resolveConfigPath, resolveOAuthDir, resolveStateDir } from "../config/paths.js";
 import { readChannelAllowFromStore } from "../pairing/pairing-store.js";
 import { runExec } from "../process/exec.js";
+import { normalizeAgentId } from "../routing/session-key.js";
 import { createIcaclsResetCommand, formatIcaclsResetCommand, type ExecFn } from "./windows-acl.js";
 
 export type SecurityFixChmodAction = {

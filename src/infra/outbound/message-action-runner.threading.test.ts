@@ -1,9 +1,13 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../../config/config.js";
+=======
+import type { OpenClawConfig } from "../../config/config.js";
+import { slackPlugin } from "../../../extensions/slack/src/channel.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { setActivePluginRegistry } from "../../plugins/runtime.js";
 import { createTestRegistry } from "../../test-utils/channel-plugins.js";
-import { slackPlugin } from "../../../extensions/slack/src/channel.js";
 
 const mocks = vi.hoisted(() => ({
   executeSendAction: vi.fn(),

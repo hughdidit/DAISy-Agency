@@ -1,8 +1,12 @@
+<<<<<<< HEAD
 import type { MoltbotConfig } from "clawdbot/plugin-sdk";
 
+=======
+import type { OpenClawConfig } from "openclaw/plugin-sdk";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { ZaloFetch } from "./api.js";
-import { sendMessage, sendPhoto } from "./api.js";
 import { resolveZaloAccount } from "./accounts.js";
+import { sendMessage, sendPhoto } from "./api.js";
 import { resolveZaloProxyFetch } from "./proxy.js";
 import { resolveZaloToken } from "./token.js";
 

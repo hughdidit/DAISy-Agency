@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 import { loadWebMedia, resolveChannelMediaMaxBytes } from "clawdbot/plugin-sdk";
 import type { MoltbotConfig } from "clawdbot/plugin-sdk";
+=======
+import type { OpenClawConfig } from "openclaw/plugin-sdk";
+import { loadWebMedia, resolveChannelMediaMaxBytes } from "openclaw/plugin-sdk";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { createMSTeamsConversationStoreFs } from "./conversation-store-fs.js";
 import {
   classifyMSTeamsSendError,

@@ -2,16 +2,27 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { OpenClawConfig } from "../config/config.js";
+import { telegramPlugin } from "../../extensions/telegram/src/channel.js";
+import { setTelegramRuntime } from "../../extensions/telegram/src/runtime.js";
+import { whatsappPlugin } from "../../extensions/whatsapp/src/channel.js";
+import { setWhatsAppRuntime } from "../../extensions/whatsapp/src/runtime.js";
 import { HEARTBEAT_PROMPT } from "../auto-reply/heartbeat.js";
 import * as replyModule from "../auto-reply/reply.js";
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
+=======
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import {
   resolveAgentIdFromSessionKey,
   resolveAgentMainSessionKey,
   resolveMainSessionKey,
   resolveStorePath,
 } from "../config/sessions.js";
+import { setActivePluginRegistry } from "../plugins/runtime.js";
+import { createPluginRuntime } from "../plugins/runtime/index.js";
 import { buildAgentPeerSessionKey } from "../routing/session-key.js";
+import { createTestRegistry } from "../test-utils/channel-plugins.js";
 import {
   isHeartbeatEnabledForAgent,
   resolveHeartbeatIntervalMs,
@@ -19,13 +30,6 @@ import {
   runHeartbeatOnce,
 } from "./heartbeat-runner.js";
 import { resolveHeartbeatDeliveryTarget } from "./outbound/targets.js";
-import { setActivePluginRegistry } from "../plugins/runtime.js";
-import { createPluginRuntime } from "../plugins/runtime/index.js";
-import { createTestRegistry } from "../test-utils/channel-plugins.js";
-import { telegramPlugin } from "../../extensions/telegram/src/channel.js";
-import { whatsappPlugin } from "../../extensions/whatsapp/src/channel.js";
-import { setTelegramRuntime } from "../../extensions/telegram/src/runtime.js";
-import { setWhatsAppRuntime } from "../../extensions/whatsapp/src/runtime.js";
 
 // Avoid pulling optional runtime deps during isolated runs.
 vi.mock("jiti", () => ({ createJiti: () => () => ({}) }));

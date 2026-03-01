@@ -1,5 +1,8 @@
+import { type Api, type Context, complete, type Model } from "@mariozechner/pi-ai";
+import { Type } from "@sinclair/typebox";
 import fs from "node:fs/promises";
 import path from "node:path";
+<<<<<<< HEAD
 
 import {
   type Api,
@@ -12,6 +15,10 @@ import { discoverAuthStorage, discoverModels } from "@mariozechner/pi-coding-age
 import { Type } from "@sinclair/typebox";
 
 import type { MoltbotConfig } from "../../config/config.js";
+=======
+import type { OpenClawConfig } from "../../config/config.js";
+import type { AnyAgentTool } from "./common.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { resolveUserPath } from "../../utils.js";
 import { loadWebMedia } from "../../web/media.js";
 import { ensureAuthProfileStore, listProfilesForProvider } from "../auth-profiles.js";
@@ -20,9 +27,13 @@ import { minimaxUnderstandImage } from "../minimax-vlm.js";
 import { getApiKeyForModel, requireApiKey, resolveEnvApiKey } from "../model-auth.js";
 import { runWithImageModelFallback } from "../model-fallback.js";
 import { resolveConfiguredModelRef } from "../model-selection.js";
+<<<<<<< HEAD
 import { ensureMoltbotModelsJson } from "../models-config.js";
+=======
+import { ensureOpenClawModelsJson } from "../models-config.js";
+import { discoverAuthStorage, discoverModels } from "../pi-model-discovery.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { assertSandboxPath } from "../sandbox-paths.js";
-import type { AnyAgentTool } from "./common.js";
 import {
   coerceImageAssistantText,
   coerceImageModelConfig,

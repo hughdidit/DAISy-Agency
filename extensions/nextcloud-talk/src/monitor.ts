@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from "node:http";
 
 import type { RuntimeEnv } from "clawdbot/plugin-sdk";
@@ -6,12 +7,20 @@ import { resolveNextcloudTalkAccount } from "./accounts.js";
 import { handleNextcloudTalkInbound } from "./inbound.js";
 import { getNextcloudTalkRuntime } from "./runtime.js";
 import { extractNextcloudTalkHeaders, verifyNextcloudTalkSignature } from "./signature.js";
+=======
+import type { RuntimeEnv } from "openclaw/plugin-sdk";
+import { createServer, type IncomingMessage, type Server, type ServerResponse } from "node:http";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type {
   CoreConfig,
   NextcloudTalkInboundMessage,
   NextcloudTalkWebhookPayload,
   NextcloudTalkWebhookServerOptions,
 } from "./types.js";
+import { resolveNextcloudTalkAccount } from "./accounts.js";
+import { handleNextcloudTalkInbound } from "./inbound.js";
+import { getNextcloudTalkRuntime } from "./runtime.js";
+import { extractNextcloudTalkHeaders, verifyNextcloudTalkSignature } from "./signature.js";
 
 const DEFAULT_WEBHOOK_PORT = 8788;
 const DEFAULT_WEBHOOK_HOST = "0.0.0.0";

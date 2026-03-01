@@ -1,8 +1,12 @@
 import fs from "node:fs";
 import path from "node:path";
+<<<<<<< HEAD
 
 import { LEGACY_MANIFEST_KEY, LEGACY_PLUGIN_MANIFEST_FILENAME } from "../compat/legacy-names.js";
+=======
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { PluginConfigUiHint, PluginKind } from "./types.js";
+import { MANIFEST_KEY } from "../compat/legacy-names.js";
 
 export const PLUGIN_MANIFEST_FILENAME = "moltbot.plugin.json";
 export const PLUGIN_MANIFEST_FILENAMES = [

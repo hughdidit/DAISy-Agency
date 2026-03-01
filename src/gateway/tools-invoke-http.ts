@@ -1,6 +1,10 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
+<<<<<<< HEAD
 
 import { createMoltbotTools } from "../agents/moltbot-tools.js";
+=======
+import { createOpenClawTools } from "../agents/openclaw-tools.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import {
   filterToolsByPolicy,
   resolveEffectiveToolPolicy,
@@ -21,9 +25,7 @@ import { logWarn } from "../logger.js";
 import { getPluginToolMeta } from "../plugins/tools.js";
 import { isSubagentSessionKey } from "../routing/session-key.js";
 import { normalizeMessageChannel } from "../utils/message-channel.js";
-
 import { authorizeGatewayConnect, type ResolvedGatewayAuth } from "./auth.js";
-import { getBearerToken, getHeader } from "./http-utils.js";
 import {
   readJsonBodyOrError,
   sendInvalidRequest,
@@ -31,6 +33,7 @@ import {
   sendMethodNotAllowed,
   sendUnauthorized,
 } from "./http-common.js";
+import { getBearerToken, getHeader } from "./http-utils.js";
 
 const DEFAULT_BODY_BYTES = 2 * 1024 * 1024;
 

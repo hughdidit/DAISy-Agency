@@ -1,8 +1,13 @@
 import fs from "node:fs";
 import path from "node:path";
+<<<<<<< HEAD
 import type { MoltbotConfig, SkillConfig } from "../../config/config.js";
 import { resolveSkillKey } from "./frontmatter.js";
+=======
+import type { OpenClawConfig, SkillConfig } from "../../config/config.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { SkillEligibilityContext, SkillEntry } from "./types.js";
+import { resolveSkillKey } from "./frontmatter.js";
 
 const DEFAULT_CONFIG_VALUES: Record<string, boolean> = {
   "browser.enabled": true,

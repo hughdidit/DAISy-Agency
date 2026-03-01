@@ -1,8 +1,13 @@
 import type { MatrixClient } from "@vector-im/matrix-bot-sdk";
+<<<<<<< HEAD
 
 import type { MarkdownTableMode, ReplyPayload, RuntimeEnv } from "clawdbot/plugin-sdk";
 import { sendMessageMatrix } from "../send.js";
+=======
+import type { MarkdownTableMode, ReplyPayload, RuntimeEnv } from "openclaw/plugin-sdk";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { getMatrixRuntime } from "../../runtime.js";
+import { sendMessageMatrix } from "../send.js";
 
 export async function deliverMatrixReplies(params: {
   replies: ReplyPayload[];

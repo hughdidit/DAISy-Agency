@@ -1,9 +1,14 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
+<<<<<<< HEAD
 import { setupInternalHooks } from "./onboard-hooks.js";
 import type { MoltbotConfig } from "../config/config.js";
+=======
+import type { OpenClawConfig } from "../config/config.js";
+import type { HookStatusReport } from "../hooks/hooks-status.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { RuntimeEnv } from "../runtime.js";
 import type { WizardPrompter } from "../wizard/prompts.js";
-import type { HookStatusReport } from "../hooks/hooks-status.js";
+import { setupInternalHooks } from "./onboard-hooks.js";
 
 // Mock hook discovery modules
 vi.mock("../hooks/hooks-status.js", () => ({

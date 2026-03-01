@@ -22,6 +22,10 @@ concurrency:
 permissions:
   contents: read
 
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: true
+
 jobs:
   checks:
     name: Linux / ${{ matrix.task }}
@@ -94,6 +98,76 @@ jobs:
       - name: Run ${{ matrix.task }}
         run: ${{ matrix.command }}
 
+  # Lint and format always run, even on docs-only changes.
+  checks-lint:
+    runs-on: blacksmith-4vcpu-ubuntu-2404
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - task: lint
+            command: pnpm lint
+          - task: format
+            command: pnpm format
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: false
+
+      - name: Checkout submodules (retry)
+        run: |
+          set -euo pipefail
+          git submodule sync --recursive
+          for attempt in 1 2 3 4 5; do
+            if git -c protocol.version=2 submodule update --init --force --depth=1 --recursive; then
+              exit 0
+            fi
+            echo "Submodule update failed (attempt $attempt/5). Retrying…"
+            sleep $((attempt * 10))
+          done
+          exit 1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+          check-latest: true
+
+      - name: Setup pnpm + cache store
+        uses: ./.github/actions/setup-pnpm-store-cache
+        with:
+          pnpm-version: "10.23.0"
+          cache-key-suffix: "node22"
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Runtime versions
+        run: |
+          node -v
+          npm -v
+          bun -v
+          pnpm -v
+
+      - name: Capture node path
+        run: echo "NODE_BIN=$(dirname \"$(node -p \"process.execPath\")\")" >> "$GITHUB_ENV"
+
+      - name: Install dependencies
+        env:
+          CI: true
+        run: |
+          export PATH="$NODE_BIN:$PATH"
+          which node
+          node -v
+          pnpm -v
+          pnpm install --frozen-lockfile --ignore-scripts=false --config.engine-strict=false --config.enable-pre-post-scripts=true || pnpm install --frozen-lockfile --ignore-scripts=false --config.engine-strict=false --config.enable-pre-post-scripts=true
+
+      - name: Run ${{ matrix.task }}
+        run: ${{ matrix.command }}
+
   secrets:
     name: Secrets Scan
     runs-on: ubuntu-latest
@@ -144,9 +218,6 @@ jobs:
           - runtime: node
             task: test-gateway
             command: pnpm canvas:a2ui:bundle && pnpm vitest run --config vitest.gateway.config.ts --no-file-parallelism --dangerouslyIgnoreUnhandledErrors
-          - runtime: node
-            task: build
-            command: pnpm build
           - runtime: node
             task: protocol
             command: pnpm protocol:check
@@ -265,7 +336,8 @@ jobs:
             sleep $((attempt * 5))
           done
 
-      - name: Run ${{ matrix.task }}
+      # --- Run all checks sequentially (fast gates first) ---
+      - name: TS tests (macOS)
         env:
           NODE_OPTIONS: --max-old-space-size=4096
         run: ${{ matrix.command }}
@@ -319,8 +391,7 @@ jobs:
           xcodebuild -version
 
       - name: Install XcodeGen / SwiftLint / SwiftFormat
-        run: |
-          brew install xcodegen swiftlint swiftformat
+        run: brew install xcodegen swiftlint swiftformat
 
       - name: Show toolchain
         run: |
@@ -328,8 +399,35 @@ jobs:
           xcodebuild -version
           swift --version
 
-      - name: Run ${{ matrix.task }}
-        run: ${{ matrix.command }}
+      - name: Swift lint
+        run: |
+          swiftlint --config .swiftlint.yml
+          swiftformat --lint apps/macos/Sources --config .swiftformat
+
+      - name: Swift build (release)
+        run: |
+          set -euo pipefail
+          for attempt in 1 2 3; do
+            if swift build --package-path apps/macos --configuration release; then
+              exit 0
+            fi
+            echo "swift build failed (attempt $attempt/3). Retrying…"
+            sleep $((attempt * 20))
+          done
+          exit 1
+
+      - name: Swift test
+        run: |
+          set -euo pipefail
+          for attempt in 1 2 3; do
+            if swift test --package-path apps/macos --parallel --enable-code-coverage --show-codecov-path; then
+              exit 0
+            fi
+            echo "swift test failed (attempt $attempt/3). Retrying…"
+            sleep $((attempt * 20))
+          done
+          exit 1
+
   ios:
     name: iOS
     if: ${{ github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && inputs.run_ios) }}

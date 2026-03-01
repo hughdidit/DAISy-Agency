@@ -1,13 +1,20 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-
 import type { loadConfig } from "../config/config.js";
+<<<<<<< HEAD
 import { resolveStateDir } from "../config/paths.js";
 import { resolveMoltbotPackageRoot } from "./moltbot-root.js";
 import { compareSemverStrings, resolveNpmChannelTag, checkUpdateStatus } from "./update-check.js";
 import { normalizeUpdateChannel, DEFAULT_PACKAGE_CHANNEL } from "./update-channels.js";
 import { VERSION } from "../version.js";
+=======
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { formatCliCommand } from "../cli/command-format.js";
+import { resolveStateDir } from "../config/paths.js";
+import { VERSION } from "../version.js";
+import { resolveOpenClawPackageRoot } from "./openclaw-root.js";
+import { normalizeUpdateChannel, DEFAULT_PACKAGE_CHANNEL } from "./update-channels.js";
+import { compareSemverStrings, resolveNpmChannelTag, checkUpdateStatus } from "./update-check.js";
 
 type UpdateCheckState = {
   lastCheckedAt?: string;

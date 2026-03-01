@@ -1,17 +1,24 @@
 import fs from "node:fs/promises";
 import path from "node:path";
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
 import { STATE_DIR } from "../config/paths.js";
 import { loadJsonFile, saveJsonFile } from "../infra/json-file.js";
 import { logVerbose } from "../globals.js";
+=======
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { ModelCatalogEntry } from "../agents/model-catalog.js";
+import type { OpenClawConfig } from "../config/config.js";
+import { resolveApiKeyForProvider } from "../agents/model-auth.js";
 import {
   findModelInCatalog,
   loadModelCatalog,
   modelSupportsVision,
 } from "../agents/model-catalog.js";
-import { resolveApiKeyForProvider } from "../agents/model-auth.js";
 import { resolveDefaultModelForAgent } from "../agents/model-selection.js";
+import { STATE_DIR } from "../config/paths.js";
+import { logVerbose } from "../globals.js";
+import { loadJsonFile, saveJsonFile } from "../infra/json-file.js";
 import { resolveAutoImageModel } from "../media-understanding/runner.js";
 
 const CACHE_FILE = path.join(STATE_DIR, "telegram", "sticker-cache.json");

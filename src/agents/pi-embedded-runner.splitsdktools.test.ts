@@ -1,5 +1,5 @@
-import fs from "node:fs/promises";
 import type { AgentTool, AgentToolResult } from "@mariozechner/pi-agent-core";
+import fs from "node:fs/promises";
 import { describe, expect, it, vi } from "vitest";
 import type { MoltbotConfig } from "../config/config.js";
 import { ensureMoltbotModelsJson } from "./models-config.js";

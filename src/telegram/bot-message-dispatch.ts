@@ -1,3 +1,4 @@
+import { resolveAgentDir } from "../agents/agent-scope.js";
 // @ts-nocheck
 import { EmbeddedBlockChunker } from "../agents/pi-embedded-block-chunker.js";
 import {
@@ -6,6 +7,7 @@ import {
   modelSupportsVision,
 } from "../agents/model-catalog.js";
 import { resolveDefaultModelForAgent } from "../agents/model-selection.js";
+import { EmbeddedBlockChunker } from "../agents/pi-embedded-block-chunker.js";
 import { resolveChunkMode } from "../auto-reply/chunk.js";
 import { clearHistoryEntriesIfEnabled } from "../auto-reply/reply/history.js";
 import { dispatchReplyWithBufferedBlockDispatcher } from "../auto-reply/reply/provider-dispatcher.js";
@@ -13,13 +15,12 @@ import { removeAckReactionAfterReply } from "../channels/ack-reactions.js";
 import { logAckFailure, logTypingFailure } from "../channels/logging.js";
 import { createReplyPrefixContext } from "../channels/reply-prefix.js";
 import { createTypingCallbacks } from "../channels/typing.js";
-import { danger, logVerbose } from "../globals.js";
 import { resolveMarkdownTableMode } from "../config/markdown-tables.js";
+import { danger, logVerbose } from "../globals.js";
 import { deliverReplies } from "./bot/delivery.js";
 import { resolveTelegramDraftStreamingChunking } from "./draft-chunking.js";
 import { createTelegramDraftStream } from "./draft-stream.js";
 import { cacheSticker, describeStickerImage } from "./sticker-cache.js";
-import { resolveAgentDir } from "../agents/agent-scope.js";
 
 async function resolveStickerVisionSupport(cfg, agentId) {
   try {

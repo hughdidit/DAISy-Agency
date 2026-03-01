@@ -1,18 +1,26 @@
+import { type Api, completeSimple, type Model } from "@mariozechner/pi-ai";
 import { randomUUID } from "node:crypto";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+<<<<<<< HEAD
 
 import { type Api, completeSimple, type Model } from "@mariozechner/pi-ai";
 import { discoverAuthStorage, discoverModels } from "@mariozechner/pi-coding-agent";
+=======
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { describe, expect, it } from "vitest";
-import { isTruthyEnvValue } from "../infra/env.js";
 import {
   ANTHROPIC_SETUP_TOKEN_PREFIX,
   validateAnthropicSetupToken,
 } from "../commands/auth-token.js";
 import { loadConfig } from "../config/config.js";
+<<<<<<< HEAD
 import { resolveMoltbotAgentDir } from "./agent-paths.js";
+=======
+import { isTruthyEnvValue } from "../infra/env.js";
+import { resolveOpenClawAgentDir } from "./agent-paths.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import {
   type AuthProfileCredential,
   ensureAuthProfileStore,
@@ -20,7 +28,12 @@ import {
 } from "./auth-profiles.js";
 import { getApiKeyForModel, requireApiKey } from "./model-auth.js";
 import { normalizeProviderId, parseModelRef } from "./model-selection.js";
+<<<<<<< HEAD
 import { ensureMoltbotModelsJson } from "./models-config.js";
+=======
+import { ensureOpenClawModelsJson } from "./models-config.js";
+import { discoverAuthStorage, discoverModels } from "./pi-model-discovery.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 
 const LIVE = isTruthyEnvValue(process.env.LIVE) || isTruthyEnvValue(process.env.CLAWDBOT_LIVE_TEST);
 const SETUP_TOKEN_RAW = process.env.CLAWDBOT_LIVE_SETUP_TOKEN?.trim() ?? "";

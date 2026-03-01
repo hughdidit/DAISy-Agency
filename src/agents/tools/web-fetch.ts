@@ -1,16 +1,27 @@
+import type { Dispatcher } from "undici";
 import { Type } from "@sinclair/typebox";
+<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../../config/config.js";
+=======
+import type { OpenClawConfig } from "../../config/config.js";
+import type { AnyAgentTool } from "./common.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import {
   closeDispatcher,
   createPinnedDispatcher,
   resolvePinnedHostname,
   SsrFBlockedError,
 } from "../../infra/net/ssrf.js";
-import type { Dispatcher } from "undici";
 import { stringEnum } from "../schema/typebox.js";
-import type { AnyAgentTool } from "./common.js";
 import { jsonResult, readNumberParam, readStringParam } from "./common.js";
+import {
+  extractReadableContent,
+  htmlToMarkdown,
+  markdownToText,
+  truncateText,
+  type ExtractMode,
+} from "./web-fetch-utils.js";
 import {
   CacheEntry,
   DEFAULT_CACHE_TTL_MINUTES,
@@ -23,13 +34,6 @@ import {
   withTimeout,
   writeCache,
 } from "./web-shared.js";
-import {
-  extractReadableContent,
-  htmlToMarkdown,
-  markdownToText,
-  truncateText,
-  type ExtractMode,
-} from "./web-fetch-utils.js";
 
 export { extractReadableContent } from "./web-fetch-utils.js";
 

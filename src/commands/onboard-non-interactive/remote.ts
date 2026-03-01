@@ -1,10 +1,14 @@
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
+=======
+import type { OpenClawConfig } from "../../config/config.js";
+import type { RuntimeEnv } from "../../runtime.js";
+import type { OnboardOptions } from "../onboard-types.js";
+import { formatCliCommand } from "../../cli/command-format.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { writeConfigFile } from "../../config/config.js";
 import { logConfigUpdated } from "../../config/logging.js";
-import type { RuntimeEnv } from "../../runtime.js";
-import { formatCliCommand } from "../../cli/command-format.js";
 import { applyWizardMetadata } from "../onboard-helpers.js";
-import type { OnboardOptions } from "../onboard-types.js";
 
 export async function runNonInteractiveOnboardingRemote(params: {
   opts: OnboardOptions;

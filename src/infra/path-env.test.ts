@@ -1,10 +1,13 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-
 import { describe, expect, it } from "vitest";
+<<<<<<< HEAD
 
 import { ensureMoltbotCliOnPath } from "./path-env.js";
+=======
+import { ensureOpenClawCliOnPath } from "./path-env.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 
 describe("ensureMoltbotCliOnPath", () => {
   it("prepends the bundled app bin dir when a sibling moltbot exists", async () => {

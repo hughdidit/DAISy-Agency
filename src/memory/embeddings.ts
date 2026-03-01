@@ -1,7 +1,10 @@
-import fsSync from "node:fs";
-
 import type { Llama, LlamaEmbeddingContext, LlamaModel } from "node-llama-cpp";
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
+=======
+import fsSync from "node:fs";
+import type { OpenClawConfig } from "../config/config.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { resolveUserPath } from "../utils.js";
 import { createGeminiEmbeddingProvider, type GeminiEmbeddingClient } from "./embeddings-gemini.js";
 import { createOpenAiEmbeddingProvider, type OpenAiEmbeddingClient } from "./embeddings-openai.js";

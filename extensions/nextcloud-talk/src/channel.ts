@@ -9,8 +9,13 @@ import {
   type ChannelPlugin,
   type MoltbotConfig,
   type ChannelSetupInput,
+<<<<<<< HEAD
 } from "clawdbot/plugin-sdk";
 
+=======
+} from "openclaw/plugin-sdk";
+import type { CoreConfig } from "./types.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import {
   listNextcloudTalkAccountIds,
   resolveDefaultNextcloudTalkAccountId,
@@ -21,10 +26,9 @@ import { NextcloudTalkConfigSchema } from "./config-schema.js";
 import { monitorNextcloudTalkProvider } from "./monitor.js";
 import { looksLikeNextcloudTalkTargetId, normalizeNextcloudTalkMessagingTarget } from "./normalize.js";
 import { nextcloudTalkOnboardingAdapter } from "./onboarding.js";
+import { resolveNextcloudTalkGroupToolPolicy } from "./policy.js";
 import { getNextcloudTalkRuntime } from "./runtime.js";
 import { sendMessageNextcloudTalk } from "./send.js";
-import type { CoreConfig } from "./types.js";
-import { resolveNextcloudTalkGroupToolPolicy } from "./policy.js";
 
 const meta = {
   id: "nextcloud-talk",

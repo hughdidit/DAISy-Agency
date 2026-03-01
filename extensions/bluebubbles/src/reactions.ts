@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 import { resolveBlueBubblesAccount } from "./accounts.js";
 import type { MoltbotConfig } from "clawdbot/plugin-sdk";
+=======
+import type { OpenClawConfig } from "openclaw/plugin-sdk";
+import { resolveBlueBubblesAccount } from "./accounts.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { blueBubblesFetchWithTimeout, buildBlueBubblesApiUrl } from "./types.js";
 
 export type BlueBubblesReactionOpts = {

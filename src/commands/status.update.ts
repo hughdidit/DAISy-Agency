@@ -1,10 +1,14 @@
+<<<<<<< HEAD
 import { resolveMoltbotPackageRoot } from "../infra/moltbot-root.js";
+=======
+import { formatCliCommand } from "../cli/command-format.js";
+import { resolveOpenClawPackageRoot } from "../infra/openclaw-root.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import {
   checkUpdateStatus,
   compareSemverStrings,
   type UpdateCheckResult,
 } from "../infra/update-check.js";
-import { formatCliCommand } from "../cli/command-format.js";
 import { VERSION } from "../version.js";
 
 export async function getUpdateCheckResult(params: {

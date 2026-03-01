@@ -1,8 +1,14 @@
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
 import { resolveCommandAuthorization } from "../command-auth.js";
 import { normalizeCommandBody } from "../commands-registry.js";
+=======
+import type { OpenClawConfig } from "../../config/config.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { MsgContext } from "../templating.js";
 import type { CommandContext } from "./commands-types.js";
+import { resolveCommandAuthorization } from "../command-auth.js";
+import { normalizeCommandBody } from "../commands-registry.js";
 import { stripMentions } from "./mentions.js";
 
 export function buildCommandContext(params: {

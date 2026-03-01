@@ -1,7 +1,11 @@
+<<<<<<< HEAD
 import type { MoltbotConfig } from "clawdbot/plugin-sdk";
+=======
+import type { OpenClawConfig } from "openclaw/plugin-sdk";
+import type { NostrProfile } from "./config-schema.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { getPublicKeyFromPrivate } from "./nostr-bus.js";
 import { DEFAULT_RELAYS } from "./nostr-bus.js";
-import type { NostrProfile } from "./config-schema.js";
 
 export interface NostrAccountConfig {
   enabled?: boolean;

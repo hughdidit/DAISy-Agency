@@ -1,13 +1,20 @@
+import type { Api, Model } from "@mariozechner/pi-ai";
 import { randomBytes, randomUUID } from "node:crypto";
 import fs from "node:fs/promises";
 import { createServer } from "node:net";
 import os from "node:os";
 import path from "node:path";
+<<<<<<< HEAD
 
 import type { Api, Model } from "@mariozechner/pi-ai";
 import { discoverAuthStorage, discoverModels } from "@mariozechner/pi-coding-agent";
 import { describe, it } from "vitest";
 import { resolveMoltbotAgentDir } from "../agents/agent-paths.js";
+=======
+import { describe, it } from "vitest";
+import type { OpenClawConfig, ModelProviderConfig } from "../config/types.js";
+import { resolveOpenClawAgentDir } from "../agents/agent-paths.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { resolveAgentWorkspaceDir } from "../agents/agent-scope.js";
 import {
   type AuthProfileStore,
@@ -21,9 +28,15 @@ import {
 } from "../agents/live-auth-keys.js";
 import { isModernModelRef } from "../agents/live-model-filter.js";
 import { getApiKeyForModel } from "../agents/model-auth.js";
+<<<<<<< HEAD
 import { ensureMoltbotModelsJson } from "../agents/models-config.js";
 import { loadConfig } from "../config/config.js";
 import type { MoltbotConfig, ModelProviderConfig } from "../config/types.js";
+=======
+import { ensureOpenClawModelsJson } from "../agents/models-config.js";
+import { discoverAuthStorage, discoverModels } from "../agents/pi-model-discovery.js";
+import { loadConfig } from "../config/config.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { isTruthyEnvValue } from "../infra/env.js";
 import { DEFAULT_AGENT_ID } from "../routing/session-key.js";
 import { GATEWAY_CLIENT_MODES, GATEWAY_CLIENT_NAMES } from "../utils/message-channel.js";

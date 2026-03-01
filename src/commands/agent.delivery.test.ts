@@ -1,9 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-
 import type { CliDeps } from "../cli/deps.js";
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
 import type { RuntimeEnv } from "../runtime.js";
+=======
+import type { OpenClawConfig } from "../config/config.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { SessionEntry } from "../config/sessions.js";
+import type { RuntimeEnv } from "../runtime.js";
 
 const mocks = vi.hoisted(() => ({
   deliverOutboundPayloads: vi.fn(async () => []),

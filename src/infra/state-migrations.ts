@@ -1,18 +1,24 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+<<<<<<< HEAD
 
 import { resolveDefaultAgentId } from "../agents/agent-scope.js";
 import type { MoltbotConfig } from "../config/config.js";
+=======
+import type { OpenClawConfig } from "../config/config.js";
+import type { SessionEntry } from "../config/sessions.js";
+import type { SessionScope } from "../config/sessions/types.js";
+import { resolveDefaultAgentId } from "../agents/agent-scope.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import {
   resolveLegacyStateDir,
   resolveNewStateDir,
   resolveOAuthDir,
   resolveStateDir,
 } from "../config/paths.js";
-import type { SessionEntry } from "../config/sessions.js";
-import type { SessionScope } from "../config/sessions/types.js";
 import { saveSessionStore } from "../config/sessions.js";
+import { canonicalizeMainSessionAlias } from "../config/sessions/main-session.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import {
   buildAgentMainSessionKey,
@@ -20,7 +26,6 @@ import {
   DEFAULT_MAIN_KEY,
   normalizeAgentId,
 } from "../routing/session-key.js";
-import { canonicalizeMainSessionAlias } from "../config/sessions/main-session.js";
 import {
   ensureDir,
   existsDir,

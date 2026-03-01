@@ -1,7 +1,11 @@
 import fs from "node:fs";
 import path from "node:path";
+<<<<<<< HEAD
 
 import { resolveMoltbotPackageRoot } from "../infra/moltbot-root.js";
+=======
+import { resolveOpenClawPackageRoot } from "../infra/openclaw-root.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 
 export async function resolveMoltbotDocsPath(params: {
   workspaceDir?: string;

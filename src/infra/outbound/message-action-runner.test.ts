@@ -1,15 +1,21 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../../config/config.js";
 import { setActivePluginRegistry } from "../../plugins/runtime.js";
 import { createIMessageTestPlugin, createTestRegistry } from "../../test-utils/channel-plugins.js";
+=======
+import type { ChannelPlugin } from "../../channels/plugins/types.js";
+import type { OpenClawConfig } from "../../config/config.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { slackPlugin } from "../../../extensions/slack/src/channel.js";
 import { telegramPlugin } from "../../../extensions/telegram/src/channel.js";
 import { whatsappPlugin } from "../../../extensions/whatsapp/src/channel.js";
+import { jsonResult } from "../../agents/tools/common.js";
+import { setActivePluginRegistry } from "../../plugins/runtime.js";
+import { createIMessageTestPlugin, createTestRegistry } from "../../test-utils/channel-plugins.js";
 import { loadWebMedia } from "../../web/media.js";
 import { runMessageAction } from "./message-action-runner.js";
-import { jsonResult } from "../../agents/tools/common.js";
-import type { ChannelPlugin } from "../../channels/plugins/types.js";
 
 vi.mock("../../web/media.js", async () => {
   const actual = await vi.importActual<typeof import("../../web/media.js")>("../../web/media.js");

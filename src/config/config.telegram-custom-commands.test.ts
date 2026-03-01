@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
+<<<<<<< HEAD
 
 import { MoltbotSchema } from "./zod-schema.js";
+=======
+import { OpenClawSchema } from "./zod-schema.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 
 describe("telegram custom commands schema", () => {
   it("normalizes custom commands", () => {

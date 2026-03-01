@@ -1,7 +1,13 @@
+<<<<<<< HEAD
 import { describe, expect, it, vi, beforeEach } from "vitest";
 
 import { bluebubblesMessageActions } from "./actions.js";
 import type { MoltbotConfig } from "clawdbot/plugin-sdk";
+=======
+import type { OpenClawConfig } from "openclaw/plugin-sdk";
+import { describe, expect, it, vi, beforeEach } from "vitest";
+import { bluebubblesMessageActions } from "./actions.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 
 vi.mock("./accounts.js", () => ({
   resolveBlueBubblesAccount: vi.fn(({ cfg, accountId }) => {

@@ -1,15 +1,19 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-
 import { describe, expect, it, vi } from "vitest";
+<<<<<<< HEAD
 
 import { buildModelAliasIndex } from "../../agents/model-selection.js";
 import type { MoltbotConfig } from "../../config/config.js";
+=======
+import type { OpenClawConfig } from "../../config/config.js";
+import { buildModelAliasIndex } from "../../agents/model-selection.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { enqueueSystemEvent, resetSystemEventsForTest } from "../../infra/system-events.js";
-import { initSessionState } from "./session.js";
 import { applyResetModelOverride } from "./session-reset-model.js";
 import { prependSystemEvents } from "./session-updates.js";
+import { initSessionState } from "./session.js";
 
 vi.mock("../../agents/model-catalog.js", () => ({
   loadModelCatalog: vi.fn(async () => [

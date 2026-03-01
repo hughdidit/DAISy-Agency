@@ -9,7 +9,6 @@
 
 import type { IncomingMessage } from "node:http";
 import type { Duplex } from "node:stream";
-
 import { WebSocket, WebSocketServer } from "ws";
 
 import type { Logger } from "./manager/context.js";

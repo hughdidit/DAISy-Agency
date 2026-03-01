@@ -1,5 +1,6 @@
-import { metrics, trace, SpanStatusCode } from "@opentelemetry/api";
 import type { SeverityNumber } from "@opentelemetry/api-logs";
+import type { DiagnosticEventPayload, OpenClawPluginService } from "openclaw/plugin-sdk";
+import { metrics, trace, SpanStatusCode } from "@opentelemetry/api";
 import { OTLPLogExporter } from "@opentelemetry/exporter-logs-otlp-http";
 import { OTLPMetricExporter } from "@opentelemetry/exporter-metrics-otlp-http";
 import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
@@ -9,9 +10,13 @@ import { PeriodicExportingMetricReader } from "@opentelemetry/sdk-metrics";
 import { NodeSDK } from "@opentelemetry/sdk-node";
 import { ParentBasedSampler, TraceIdRatioBasedSampler } from "@opentelemetry/sdk-trace-base";
 import { SemanticResourceAttributes } from "@opentelemetry/semantic-conventions";
+<<<<<<< HEAD
 
 import type { MoltbotPluginService, DiagnosticEventPayload } from "clawdbot/plugin-sdk";
 import { onDiagnosticEvent, registerLogTransport } from "clawdbot/plugin-sdk";
+=======
+import { onDiagnosticEvent, registerLogTransport } from "openclaw/plugin-sdk";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 
 const DEFAULT_SERVICE_NAME = "moltbot";
 

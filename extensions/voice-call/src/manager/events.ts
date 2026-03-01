@@ -1,9 +1,11 @@
 import crypto from "node:crypto";
+<<<<<<< HEAD
 
 import type { CallId, CallRecord, CallState, NormalizedEvent } from "../types.js";
 import { TerminalStates } from "../types.js";
 import type { CallManagerContext, Logger } from "./context.js";
 import { findCall } from "./lookup.js";
+import { endCall } from "./outbound.js";
 import { addTranscriptEntry, transitionState } from "./state.js";
 import { persistCallRecord } from "./store.js";
 import {
@@ -12,7 +14,6 @@ import {
   resolveTranscriptWaiter,
   startMaxDurationTimer,
 } from "./timers.js";
-import { endCall } from "./outbound.js";
 
 function shouldAcceptInbound(config: CallManagerContext["config"], from: string | undefined, logger: Logger): boolean {
   const { inboundPolicy: policy, allowFrom } = config;

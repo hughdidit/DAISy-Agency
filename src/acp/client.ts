@@ -1,7 +1,3 @@
-import { spawn, type ChildProcess } from "node:child_process";
-import * as readline from "node:readline";
-import { Readable, Writable } from "node:stream";
-
 import {
   ClientSideConnection,
   PROTOCOL_VERSION,
@@ -9,8 +5,15 @@ import {
   type RequestPermissionRequest,
   type SessionNotification,
 } from "@agentclientprotocol/sdk";
+<<<<<<< HEAD
 
 import { ensureMoltbotCliOnPath } from "../infra/path-env.js";
+=======
+import { spawn, type ChildProcess } from "node:child_process";
+import * as readline from "node:readline";
+import { Readable, Writable } from "node:stream";
+import { ensureOpenClawCliOnPath } from "../infra/path-env.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 
 export type AcpClientOptions = {
   cwd?: string;
