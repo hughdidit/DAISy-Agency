@@ -104,6 +104,10 @@ Docs: https://docs.openclaw.ai
 =======
 ## Unreleased
 
+### Changes
+
+- ACP/ACPX streaming: pin ACPX plugin support to `0.1.15`, add configurable ACPX command/version probing, and streamline ACP stream delivery (`final_only` default + reduced tool-event noise) with matching runtime and test updates. (#30036) Thanks @osolmaz.
+
 ### Fixes
 
 <<<<<<< HEAD
