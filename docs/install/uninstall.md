@@ -3,6 +3,7 @@ summary: "Uninstall Moltbot completely (CLI, service, state, workspace)"
 read_when:
   - You want to remove Moltbot from a machine
   - The gateway service is still running after uninstall
+title: "Uninstall"
 ---
 
 # Uninstall
@@ -34,13 +35,29 @@ Manual steps (same result):
 moltbot gateway stop
 ```
 
+<<<<<<< HEAD
+<<<<<<< HEAD
 2) Uninstall the gateway service (launchd/systemd/schtasks):
+=======
+1. Uninstall the gateway service (launchd/systemd/schtasks):
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
+=======
+2. Uninstall the gateway service (launchd/systemd/schtasks):
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 
 ```bash
 moltbot gateway uninstall
 ```
 
+<<<<<<< HEAD
+<<<<<<< HEAD
 3) Delete state + config:
+=======
+1. Delete state + config:
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
+=======
+3. Delete state + config:
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 
 ```bash
 rm -rf "${CLAWDBOT_STATE_DIR:-$HOME/.clawdbot}"
@@ -48,13 +65,29 @@ rm -rf "${CLAWDBOT_STATE_DIR:-$HOME/.clawdbot}"
 
 If you set `CLAWDBOT_CONFIG_PATH` to a custom location outside the state dir, delete that file too.
 
+<<<<<<< HEAD
+<<<<<<< HEAD
 4) Delete your workspace (optional, removes agent files):
+=======
+1. Delete your workspace (optional, removes agent files):
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
+=======
+4. Delete your workspace (optional, removes agent files):
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 
 ```bash
 rm -rf ~/clawd
 ```
 
+<<<<<<< HEAD
+<<<<<<< HEAD
 5) Remove the CLI install (pick the one you used):
+=======
+1. Remove the CLI install (pick the one you used):
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
+=======
+5. Remove the CLI install (pick the one you used):
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 
 ```bash
 npm rm -g moltbot
@@ -62,7 +95,15 @@ pnpm remove -g moltbot
 bun remove -g moltbot
 ```
 
+<<<<<<< HEAD
+<<<<<<< HEAD
 6) If you installed the macOS app:
+=======
+1. If you installed the macOS app:
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
+=======
+6. If you installed the macOS app:
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 
 ```bash
 rm -rf /Applications/Moltbot.app
@@ -113,8 +154,13 @@ If you used a profile, delete the matching task name and `~\.clawdbot-<profile>\
 
 ### Normal install (install.sh / npm / pnpm / bun)
 
+<<<<<<< HEAD
 If you used `https://molt.bot/install.sh` or `install.ps1`, the CLI was installed with `npm install -g moltbot@latest`.
 Remove it with `npm rm -g moltbot` (or `pnpm remove -g` / `bun remove -g` if you installed that way).
+=======
+If you used `https://openclaw.ai/install.sh` or `install.ps1`, the CLI was installed with `npm install -g openclaw@latest`.
+Remove it with `npm rm -g openclaw` (or `pnpm remove -g` / `bun remove -g` if you installed that way).
+>>>>>>> 7a2c4d3cf (fix(docs): use canonical openclaw.ai domain instead of openclaw.bot)
 
 ### Source checkout (git clone)
 

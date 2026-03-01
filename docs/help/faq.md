@@ -1,5 +1,10 @@
 ---
+<<<<<<< HEAD
 summary: "Frequently asked questions about Moltbot setup, configuration, and usage"
+=======
+summary: "Frequently asked questions about OpenClaw setup, configuration, and usage"
+title: "FAQ"
+>>>>>>> abcaa8c7a (Docs: add nav titles across docs (#5689))
 ---
 # FAQ
 
@@ -7,7 +12,7 @@ Quick answers plus deeper troubleshooting for real-world setups (local dev, VPS,
 
 ## Table of contents
 
-- [Quick start and first-run setup](#quick-start-and-firstrun-setup)
+- [Quick start and first-run setup]
   - [Im stuck whats the fastest way to get unstuck?](#im-stuck-whats-the-fastest-way-to-get-unstuck)
   - [What’s the recommended way to install and set up Moltbot?](#whats-the-recommended-way-to-install-and-set-up-moltbot)
   - [How do I open the dashboard after onboarding?](#how-do-i-open-the-dashboard-after-onboarding)
@@ -17,8 +22,13 @@ Quick answers plus deeper troubleshooting for real-world setups (local dev, VPS,
   - [Any tips for Raspberry Pi installs?](#any-tips-for-raspberry-pi-installs)
   - [It is stuck on "wake up my friend" / onboarding will not hatch. What now?](#it-is-stuck-on-wake-up-my-friend-onboarding-will-not-hatch-what-now)
   - [Can I migrate my setup to a new machine (Mac mini) without redoing onboarding?](#can-i-migrate-my-setup-to-a-new-machine-mac-mini-without-redoing-onboarding)
+<<<<<<< HEAD
   - [Where do I see what’s new in the latest version?](#where-do-i-see-whats-new-in-the-latest-version)
   - [I can't access docs.molt.bot (SSL error). What now?](#i-cant-access-docsmoltbot-ssl-error-what-now)
+=======
+  - [Where do I see what is new in the latest version?](#where-do-i-see-what-is-new-in-the-latest-version)
+  - [I can't access docs.openclaw.ai (SSL error). What now?](#i-cant-access-docsopenclawai-ssl-error-what-now)
+>>>>>>> c8af8e955 (Docs: clarify whats new FAQ heading (#7394))
   - [What’s the difference between stable and beta?](#whats-the-difference-between-stable-and-beta)
 - [How do I install the beta version, and what’s the difference between beta and dev?](#how-do-i-install-the-beta-version-and-whats-the-difference-between-beta-and-dev)
   - [How do I try the latest bits?](#how-do-i-try-the-latest-bits)
@@ -35,7 +45,7 @@ Quick answers plus deeper troubleshooting for real-world setups (local dev, VPS,
   - [Can I use Claude Max subscription without an API key](#can-i-use-claude-max-subscription-without-an-api-key)
   - [How does Anthropic "setup-token" auth work?](#how-does-anthropic-setuptoken-auth-work)
   - [Where do I find an Anthropic setup-token?](#where-do-i-find-an-anthropic-setuptoken)
-  - [Do you support Claude subscription auth (Claude Code OAuth)?](#do-you-support-claude-subscription-auth-claude-code-oauth)
+  - [Do you support Claude subscription auth (Claude Pro or Max)?](#do-you-support-claude-subscription-auth-claude-pro-or-max)
   - [Why am I seeing `HTTP 429: rate_limit_error` from Anthropic?](#why-am-i-seeing-http-429-ratelimiterror-from-anthropic)
   - [Is AWS Bedrock supported?](#is-aws-bedrock-supported)
   - [How does Codex auth work?](#how-does-codex-auth-work)
@@ -71,8 +81,13 @@ Quick answers plus deeper troubleshooting for real-world setups (local dev, VPS,
   - [The bot freezes while doing heavy work. How do I offload that?](#the-bot-freezes-while-doing-heavy-work-how-do-i-offload-that)
   - [Cron or reminders do not fire. What should I check?](#cron-or-reminders-do-not-fire-what-should-i-check)
   - [How do I install skills on Linux?](#how-do-i-install-skills-on-linux)
+<<<<<<< HEAD
   - [Can Moltbot run tasks on a schedule or continuously in the background?](#can-moltbot-run-tasks-on-a-schedule-or-continuously-in-the-background)
   - [Can I run Apple/macOS-only skills from Linux?](#can-i-run-applemacosonly-skills-from-linux)
+=======
+  - [Can OpenClaw run tasks on a schedule or continuously in the background?](#can-openclaw-run-tasks-on-a-schedule-or-continuously-in-the-background)
+  - [Can I run Apple macOS-only skills from Linux?](#can-i-run-apple-macos-only-skills-from-linux)
+>>>>>>> 1bf9f237f (docs: linting)
   - [Do you have a Notion or HeyGen integration?](#do-you-have-a-notion-or-heygen-integration)
   - [How do I install the Chrome extension for browser takeover?](#how-do-i-install-the-chrome-extension-for-browser-takeover)
 - [Sandboxing and memory](#sandboxing-and-memory)
@@ -100,7 +115,7 @@ Quick answers plus deeper troubleshooting for real-world setups (local dev, VPS,
   - [How do I run a central Gateway with specialized workers across devices?](#how-do-i-run-a-central-gateway-with-specialized-workers-across-devices)
   - [Can the Moltbot browser run headless?](#can-the-moltbot-browser-run-headless)
   - [How do I use Brave for browser control?](#how-do-i-use-brave-for-browser-control)
-- [Remote gateways + nodes](#remote-gateways-nodes)
+- [Remote gateways and nodes](#remote-gateways-and-nodes)
   - [How do commands propagate between Telegram, the gateway, and nodes?](#how-do-commands-propagate-between-telegram-the-gateway-and-nodes)
   - [How can my agent access my computer if the Gateway is hosted remotely?](#how-can-my-agent-access-my-computer-if-the-gateway-is-hosted-remotely)
   - [Tailscale is connected but I get no replies. What now?](#tailscale-is-connected-but-i-get-no-replies-what-now)
@@ -114,10 +129,17 @@ Quick answers plus deeper troubleshooting for real-world setups (local dev, VPS,
   - [How do I connect a Mac node to a remote Gateway (Tailscale Serve)?](#how-do-i-connect-a-mac-node-to-a-remote-gateway-tailscale-serve)
   - [Should I install on a second laptop or just add a node?](#should-i-install-on-a-second-laptop-or-just-add-a-node)
 - [Env vars and .env loading](#env-vars-and-env-loading)
+<<<<<<< HEAD
   - [How does Moltbot load environment variables?](#how-does-moltbot-load-environment-variables)
   - [“I started the Gateway via the service and my env vars disappeared.” What now?](#i-started-the-gateway-via-the-service-and-my-env-vars-disappeared-what-now)
   - [I set `COPILOT_GITHUB_TOKEN`, but models status shows “Shell env: off.” Why?](#i-set-copilotgithubtoken-but-models-status-shows-shell-env-off-why)
 - [Sessions & multiple chats](#sessions-multiple-chats)
+=======
+  - [How does OpenClaw load environment variables?](#how-does-openclaw-load-environment-variables)
+  - ["I started the Gateway via the service and my env vars disappeared." What now?](#i-started-the-gateway-via-the-service-and-my-env-vars-disappeared-what-now)
+  - [I set `COPILOT_GITHUB_TOKEN`, but models status shows "Shell env: off." Why?](#i-set-copilotgithubtoken-but-models-status-shows-shell-env-off-why)
+- [Sessions and multiple chats](#sessions-and-multiple-chats)
+>>>>>>> 1bf9f237f (docs: linting)
   - [How do I start a fresh conversation?](#how-do-i-start-a-fresh-conversation)
   - [Do sessions reset automatically if I never send `/new`?](#do-sessions-reset-automatically-if-i-never-send-new)
   - [Is there a way to make a team of Moltbots one CEO and many agents](#is-there-a-way-to-make-a-team-of-moltbots-one-ceo-and-many-agents)
@@ -175,9 +197,15 @@ Quick answers plus deeper troubleshooting for real-world setups (local dev, VPS,
   - [Telegram setMyCommands fails with network errors. What should I check?](#telegram-setmycommands-fails-with-network-errors-what-should-i-check)
   - [TUI shows no output. What should I check?](#tui-shows-no-output-what-should-i-check)
   - [How do I completely stop then start the Gateway?](#how-do-i-completely-stop-then-start-the-gateway)
+<<<<<<< HEAD
   - [ELI5: `moltbot gateway restart` vs `moltbot gateway`](#eli5-moltbot-gateway-restart-vs-moltbot-gateway)
   - [What’s the fastest way to get more details when something fails?](#whats-the-fastest-way-to-get-more-details-when-something-fails)
 - [Media & attachments](#media-attachments)
+=======
+  - [ELI5: `openclaw gateway restart` vs `openclaw gateway`](#eli5-openclaw-gateway-restart-vs-openclaw-gateway)
+  - [What's the fastest way to get more details when something fails?](#whats-the-fastest-way-to-get-more-details-when-something-fails)
+- [Media and attachments](#media-and-attachments)
+>>>>>>> 1bf9f237f (docs: linting)
   - [My skill generated an image/PDF, but nothing was sent](#my-skill-generated-an-imagepdf-but-nothing-was-sent)
 - [Security and access control](#security-and-access-control)
   - [Is it safe to expose Moltbot to inbound DMs?](#is-it-safe-to-expose-moltbot-to-inbound-dms)
@@ -235,11 +263,24 @@ Quick answers plus deeper troubleshooting for real-world setups (local dev, VPS,
    ```
    Repairs/migrates config/state + runs health checks. See [Doctor](/gateway/doctor).
 
+<<<<<<< HEAD
 7) **Gateway snapshot**
+=======
+7. **Gateway snapshot**
+<<<<<<< HEAD
+<<<<<<< HEAD
+
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
+=======
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
+=======
+
+>>>>>>> 578a6e27a (Docs: enable markdownlint autofixables except list numbering (#10476))
    ```bash
    moltbot health --json
    moltbot health --verbose   # shows the target URL + config path on errors
    ```
+
    Asks the running gateway for a full snapshot (WS-only). See [Health](/gateway/health).
 
 ## Quick start and first-run setup
@@ -250,15 +291,19 @@ Use a local AI agent that can **see your machine**. That is far more effective t
 in Discord, because most "I'm stuck" cases are **local config or environment issues** that
 remote helpers cannot inspect.
 
-- **Claude Code**: https://www.anthropic.com/claude-code/
-- **OpenAI Codex**: https://openai.com/codex/
+- **Claude Code**: [https://www.anthropic.com/claude-code/](https://www.anthropic.com/claude-code/)
+- **OpenAI Codex**: [https://openai.com/codex/](https://openai.com/codex/)
 
 These tools can read the repo, run commands, inspect logs, and help fix your machine-level
 setup (PATH, services, permissions, auth files). Give them the **full source checkout** via
 the hackable (git) install:
 
 ```bash
+<<<<<<< HEAD
 curl -fsSL https://molt.bot/install.sh | bash -s -- --install-method git
+=======
+curl -fsSL https://openclaw.ai/install.sh | bash -s -- --install-method git
+>>>>>>> 7a2c4d3cf (fix(docs): use canonical openclaw.ai domain instead of openclaw.bot)
 ```
 
 This installs Moltbot **from a git checkout**, so the agent can read the code + docs and
@@ -269,8 +314,23 @@ Tip: ask the agent to **plan and supervise** the fix (step-by-step), then execut
 necessary commands. That keeps changes small and easier to audit.
 
 If you discover a real bug or fix, please file a GitHub issue or send a PR:
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
 https://github.com/moltbot/moltbot/issues
 https://github.com/moltbot/moltbot/pulls
+=======
+[https://github.com/openclaw/openclaw/issues](https://github.com/openclaw/openclaw/issues)
+[https://github.com/openclaw/openclaw/pulls](https://github.com/openclaw/openclaw/pulls)
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
+=======
+https://github.com/openclaw/openclaw/issues
+https://github.com/openclaw/openclaw/pulls
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
+=======
+[https://github.com/openclaw/openclaw/issues](https://github.com/openclaw/openclaw/issues)
+[https://github.com/openclaw/openclaw/pulls](https://github.com/openclaw/openclaw/pulls)
+>>>>>>> 578a6e27a (Docs: enable markdownlint autofixables except list numbering (#10476))
 
 Start with these commands (share outputs when asking for help):
 
@@ -291,13 +351,22 @@ Other useful CLI checks: `moltbot status --all`, `moltbot logs --follow`,
 Quick debug loop: [First 60 seconds if something's broken](#first-60-seconds-if-somethings-broken).
 Install docs: [Install](/install), [Installer flags](/install/installer), [Updating](/install/updating).
 
+<<<<<<< HEAD
 ### Whats the recommended way to install and set up Moltbot
+=======
+### What's the recommended way to install and set up OpenClaw
+>>>>>>> 49a3e3795 (docs: fix missing apostrophes in FAQ headers)
 
 The repo recommends running from source and using the onboarding wizard:
 
 ```bash
+<<<<<<< HEAD
 curl -fsSL https://molt.bot/install.sh | bash
 moltbot onboard --install-daemon
+=======
+curl -fsSL https://openclaw.ai/install.sh | bash
+openclaw onboard --install-daemon
+>>>>>>> 7a2c4d3cf (fix(docs): use canonical openclaw.ai domain instead of openclaw.bot)
 ```
 
 The wizard can also build UI assets automatically. After onboarding, you typically run the Gateway on port **18789**.
@@ -369,13 +438,25 @@ and tokens stay at 0, the agent never ran.
 ```bash
 moltbot gateway restart
 ```
+<<<<<<< HEAD
 2) Check status + auth:
+=======
+
+2. Check status + auth:
+
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 ```bash
 moltbot status
 moltbot models status
 moltbot logs --follow
 ```
+<<<<<<< HEAD
 3) If it still hangs, run:
+=======
+
+3. If it still hangs, run:
+
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 ```bash
 moltbot doctor
 ```
@@ -405,10 +486,23 @@ Related: [Migrating](/install/migrating), [Where things live on disk](/help/faq#
 [Agent workspace](/concepts/agent-workspace), [Doctor](/gateway/doctor),
 [Remote mode](/gateway/remote).
 
-### Where do I see whats new in the latest version
+### Where do I see what is new in the latest version
 
+<<<<<<< HEAD
 Check the GitHub changelog:  
 https://github.com/moltbot/moltbot/blob/main/CHANGELOG.md
+=======
+Check the GitHub changelog:
+<<<<<<< HEAD
+<<<<<<< HEAD
+[https://github.com/openclaw/openclaw/blob/main/CHANGELOG.md](https://github.com/openclaw/openclaw/blob/main/CHANGELOG.md)
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
+=======
+https://github.com/openclaw/openclaw/blob/main/CHANGELOG.md
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
+=======
+[https://github.com/openclaw/openclaw/blob/main/CHANGELOG.md](https://github.com/openclaw/openclaw/blob/main/CHANGELOG.md)
+>>>>>>> 578a6e27a (Docs: enable markdownlint autofixables except list numbering (#10476))
 
 Newest entries are at the top. If the top section is marked **Unreleased**, the next dated
 section is the latest shipped version. Entries are grouped by **Highlights**, **Changes**, and
@@ -416,6 +510,7 @@ section is the latest shipped version. Entries are grouped by **Highlights**, **
 
 ### I cant access docsmoltbot SSL error What now
 
+<<<<<<< HEAD
 Some Comcast/Xfinity connections incorrectly block `docs.molt.bot` via Xfinity
 Advanced Security. Disable it or allowlist `docs.molt.bot`, then retry. More
 detail: [Troubleshooting](/help/troubleshooting#docsmoltbot-shows-an-ssl-error-comcastxfinity).
@@ -423,8 +518,25 @@ Please help us unblock it by reporting here: https://spa.xfinity.com/check_url_s
 
 If you still can't reach the site, the docs are mirrored on GitHub:
 https://github.com/moltbot/moltbot/tree/main/docs
+=======
+Some Comcast/Xfinity connections incorrectly block `docs.openclaw.ai` via Xfinity
+Advanced Security. Disable it or allowlist `docs.openclaw.ai`, then retry. More
+detail: [Troubleshooting](/help/troubleshooting#docsopenclawai-shows-an-ssl-error-comcastxfinity).
+Please help us unblock it by reporting here: [https://spa.xfinity.com/check_url_status](https://spa.xfinity.com/check_url_status).
 
-### Whats the difference between stable and beta
+If you still can't reach the site, the docs are mirrored on GitHub:
+<<<<<<< HEAD
+<<<<<<< HEAD
+[https://github.com/openclaw/openclaw/tree/main/docs](https://github.com/openclaw/openclaw/tree/main/docs)
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
+=======
+https://github.com/openclaw/openclaw/tree/main/docs
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
+=======
+[https://github.com/openclaw/openclaw/tree/main/docs](https://github.com/openclaw/openclaw/tree/main/docs)
+>>>>>>> 578a6e27a (Docs: enable markdownlint autofixables except list numbering (#10476))
+
+### What's the difference between stable and beta
 
 **Stable** and **beta** are **npm dist‑tags**, not separate code lines:
 - `latest` = stable
@@ -434,8 +546,21 @@ We ship builds to **beta**, test them, and once a build is solid we **promote
 that same version to `latest`**. That’s why beta and stable can point at the
 **same version**.
 
+<<<<<<< HEAD
 See what changed:  
 https://github.com/moltbot/moltbot/blob/main/CHANGELOG.md
+=======
+See what changed:
+<<<<<<< HEAD
+<<<<<<< HEAD
+[https://github.com/openclaw/openclaw/blob/main/CHANGELOG.md](https://github.com/openclaw/openclaw/blob/main/CHANGELOG.md)
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
+=======
+https://github.com/openclaw/openclaw/blob/main/CHANGELOG.md
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
+=======
+[https://github.com/openclaw/openclaw/blob/main/CHANGELOG.md](https://github.com/openclaw/openclaw/blob/main/CHANGELOG.md)
+>>>>>>> 578a6e27a (Docs: enable markdownlint autofixables except list numbering (#10476))
 
 ### How do I install the beta version and whats the difference between beta and dev
 
@@ -445,15 +570,35 @@ https://github.com/moltbot/moltbot/blob/main/CHANGELOG.md
 One‑liners (macOS/Linux):
 
 ```bash
+<<<<<<< HEAD
 curl -fsSL --proto '=https' --tlsv1.2 https://molt.bot/install.sh | bash -s -- --beta
 ```
 
 ```bash
 curl -fsSL --proto '=https' --tlsv1.2 https://molt.bot/install.sh | bash -s -- --install-method git
+=======
+curl -fsSL --proto '=https' --tlsv1.2 https://openclaw.ai/install.sh | bash -s -- --beta
+```
+
+```bash
+curl -fsSL --proto '=https' --tlsv1.2 https://openclaw.ai/install.sh | bash -s -- --install-method git
+>>>>>>> 7a2c4d3cf (fix(docs): use canonical openclaw.ai domain instead of openclaw.bot)
 ```
 
 Windows installer (PowerShell):
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
 https://molt.bot/install.ps1
+=======
+[https://openclaw.ai/install.ps1](https://openclaw.ai/install.ps1)
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
+=======
+https://openclaw.ai/install.ps1
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
+=======
+[https://openclaw.ai/install.ps1](https://openclaw.ai/install.ps1)
+>>>>>>> 578a6e27a (Docs: enable markdownlint autofixables except list numbering (#10476))
 
 More detail: [Development channels](/install/development-channels) and [Installer flags](/install/installer).
 
@@ -476,9 +621,22 @@ moltbot update --channel dev
 ```
 This switches to the `main` branch and updates from source.
 
+<<<<<<< HEAD
+<<<<<<< HEAD
 2) **Hackable install (from the installer site):**
+=======
+1. **Hackable install (from the installer site):**
+=======
+2. **Hackable install (from the installer site):**
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
+
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 ```bash
+<<<<<<< HEAD
 curl -fsSL https://molt.bot/install.sh | bash -s -- --install-method git
+=======
+curl -fsSL https://openclaw.ai/install.sh | bash -s -- --install-method git
+>>>>>>> 7a2c4d3cf (fix(docs): use canonical openclaw.ai domain instead of openclaw.bot)
 ```
 That gives you a local repo you can edit, then update via git.
 
@@ -498,19 +656,31 @@ Docs: [Update](/cli/update), [Development channels](/install/development-channel
 Re-run the installer with **verbose output**:
 
 ```bash
+<<<<<<< HEAD
 curl -fsSL https://molt.bot/install.sh | bash -s -- --verbose
+=======
+curl -fsSL https://openclaw.ai/install.sh | bash -s -- --verbose
+>>>>>>> 7a2c4d3cf (fix(docs): use canonical openclaw.ai domain instead of openclaw.bot)
 ```
 
 Beta install with verbose:
 
 ```bash
+<<<<<<< HEAD
 curl -fsSL https://molt.bot/install.sh | bash -s -- --beta --verbose
+=======
+curl -fsSL https://openclaw.ai/install.sh | bash -s -- --beta --verbose
+>>>>>>> 7a2c4d3cf (fix(docs): use canonical openclaw.ai domain instead of openclaw.bot)
 ```
 
 For a hackable (git) install:
 
 ```bash
+<<<<<<< HEAD
 curl -fsSL https://molt.bot/install.sh | bash -s -- --install-method git --verbose
+=======
+curl -fsSL https://openclaw.ai/install.sh | bash -s -- --install-method git --verbose
+>>>>>>> 7a2c4d3cf (fix(docs): use canonical openclaw.ai domain instead of openclaw.bot)
 ```
 
 More options: [Installer flags](/install/installer).
@@ -526,9 +696,11 @@ Two common Windows issues:
 **2) moltbot is not recognized after install**
 - Your npm global bin folder is not on PATH.
 - Check the path:
+
   ```powershell
   npm config get prefix
   ```
+
 - Ensure `<prefix>\\bin` is on PATH (on most systems it is `%AppData%\\npm`).
 - Close and reopen PowerShell after updating PATH.
 
@@ -541,7 +713,11 @@ Use the **hackable (git) install** so you have the full source and docs locally,
 your bot (or Claude/Codex) *from that folder* so it can read the repo and answer precisely.
 
 ```bash
+<<<<<<< HEAD
 curl -fsSL https://molt.bot/install.sh | bash -s -- --install-method git
+=======
+curl -fsSL https://openclaw.ai/install.sh | bash -s -- --install-method git
+>>>>>>> 7a2c4d3cf (fix(docs): use canonical openclaw.ai domain instead of openclaw.bot)
 ```
 
 More detail: [Install](/install) and [Installer flags](/install/installer).
@@ -558,7 +734,11 @@ Short answer: follow the Linux guide, then run the onboarding wizard.
 
 Any Linux VPS works. Install on the server, then use SSH/Tailscale to reach the Gateway.
 
+<<<<<<< HEAD
 Guides: [exe.dev](/platforms/exe-dev), [Hetzner](/platforms/hetzner), [Fly.io](/platforms/fly).  
+=======
+Guides: [exe.dev](/install/exe-dev), [Hetzner](/install/hetzner), [Fly.io](/install/fly).
+>>>>>>> c18452598 (docs: restructure Get Started tab and improve onboarding flow (#9950))
 Remote access: [Gateway remote](/gateway/remote).
 
 ### Where are the cloudVPS install guides
@@ -566,9 +746,9 @@ Remote access: [Gateway remote](/gateway/remote).
 We keep a **hosting hub** with the common providers. Pick one and follow the guide:
 
 - [VPS hosting](/vps) (all providers in one place)
-- [Fly.io](/platforms/fly)
-- [Hetzner](/platforms/hetzner)
-- [exe.dev](/platforms/exe-dev)
+- [Fly.io](/install/fly)
+- [Hetzner](/install/hetzner)
+- [exe.dev](/install/exe-dev)
 
 How it works in the cloud: the **Gateway runs on the server**, and you access it
 from your laptop/phone via the Control UI (or Tailscale/SSH). Your state + workspace
@@ -652,7 +832,7 @@ claude setup-token
 
 Copy the token it prints, then choose **Anthropic token (paste setup-token)** in the wizard. If you want to run it on the gateway host, use `moltbot models auth setup-token --provider anthropic`. If you ran `claude setup-token` elsewhere, paste it on the gateway host with `moltbot models auth paste-token --provider anthropic`. See [Anthropic](/providers/anthropic).
 
-### Do you support Claude subscription auth (Claude Pro/Max)
+### Do you support Claude subscription auth (Claude Pro or Max)
 
 Yes — via **setup-token**. Moltbot no longer reuses Claude Code CLI OAuth tokens; use a setup-token or an Anthropic API key. Generate the token anywhere and paste it on the gateway host. See [Anthropic](/providers/anthropic) and [OAuth](/concepts/oauth).
 
@@ -784,7 +964,7 @@ brew install <formula>
 If you run Moltbot via systemd, ensure the service PATH includes `/home/linuxbrew/.linuxbrew/bin` (or your brew prefix) so `brew`-installed tools resolve in non‑login shells.
 Recent builds also prepend common user bin dirs on Linux systemd services (for example `~/.local/bin`, `~/.npm-global/bin`, `~/.local/share/pnpm`, `~/.bun/bin`) and honor `PNPM_HOME`, `NPM_CONFIG_PREFIX`, `BUN_INSTALL`, `VOLTA_HOME`, `ASDF_DATA_DIR`, `NVM_DIR`, and `FNM_DIR` when set.
 
-### Whats the difference between the hackable git install and npm install
+### What's the difference between the hackable git install and npm install
 
 - **Hackable (git) install:** full source checkout, editable, best for contributors.
   You run builds locally and can patch code/docs.
@@ -872,7 +1052,7 @@ Baseline guidance:
 
 If you are on Windows, **WSL2 is the easiest VM style setup** and has the best tooling
 compatibility. See [Windows](/platforms/windows), [VPS hosting](/vps).
-If you are running macOS in a VM, see [macOS VM](/platforms/macos-vm).
+If you are running macOS in a VM, see [macOS VM](/install/macos-vm).
 
 ## What is Moltbot?
 
@@ -880,7 +1060,7 @@ If you are running macOS in a VM, see [macOS VM](/platforms/macos-vm).
 
 Moltbot is a personal AI assistant you run on your own devices. It replies on the messaging surfaces you already use (WhatsApp, Telegram, Slack, Mattermost (plugin), Discord, Google Chat, Signal, iMessage, WebChat) and can also do voice + a live Canvas on supported platforms. The **Gateway** is the always-on control plane; the assistant is the product.
 
-### Whats the value proposition
+### What's the value proposition
 
 Moltbot is not “just a Claude wrapper.” It’s a **local-first control plane** that lets you run a
 capable assistant on **your own hardware**, reachable from the chat apps you already use, with
@@ -946,7 +1126,19 @@ Advantages:
 - **Always-on Gateway** (run on a VPS, interact from anywhere)
 - **Nodes** for local browser/screen/camera/exec
 
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
 Showcase: https://molt.bot/showcase
+=======
+Showcase: [https://openclaw.ai/showcase](https://openclaw.ai/showcase)
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
+=======
+Showcase: https://openclaw.ai/showcase
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
+=======
+Showcase: [https://openclaw.ai/showcase](https://openclaw.ai/showcase)
+>>>>>>> 578a6e27a (Docs: enable markdownlint autofixables except list numbering (#10476))
 
 ## Skills and automation
 
@@ -1000,8 +1192,21 @@ Docs: [Cron jobs](/automation/cron-jobs), [Cron vs Heartbeat](/automation/cron-v
 
 ### How do I install skills on Linux
 
+<<<<<<< HEAD
 Use **ClawdHub** (CLI) or drop skills into your workspace. The macOS Skills UI isn’t available on Linux.
 Browse skills at https://clawdhub.com.
+=======
+Use **ClawHub** (CLI) or drop skills into your workspace. The macOS Skills UI isn't available on Linux.
+<<<<<<< HEAD
+<<<<<<< HEAD
+Browse skills at [https://clawhub.com](https://clawhub.com).
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
+=======
+Browse skills at https://clawhub.com.
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
+=======
+Browse skills at [https://clawhub.com](https://clawhub.com).
+>>>>>>> 578a6e27a (Docs: enable markdownlint autofixables except list numbering (#10476))
 
 Install the ClawdHub CLI (pick one package manager):
 
@@ -1024,7 +1229,7 @@ Yes. Use the Gateway scheduler:
 Docs: [Cron jobs](/automation/cron-jobs), [Cron vs Heartbeat](/automation/cron-vs-heartbeat),
 [Heartbeat](/gateway/heartbeat).
 
-**Can I run Apple macOS only skills from Linux**
+### Can I run Apple macOS-only skills from Linux?
 
 Not directly. macOS skills are gated by `metadata.moltbot.os` plus required binaries, and skills only appear in the system prompt when they are eligible on the **Gateway host**. On Linux, `darwin`-only skills (like `imsg`, `apple-notes`, `apple-reminders`) will not load unless you override the gating.
 
@@ -1039,14 +1244,44 @@ Run the Gateway on Linux, pair a macOS node (menubar app), and set **Node Run Co
 **Option C - proxy macOS binaries over SSH (advanced).**  
 Keep the Gateway on Linux, but make the required CLI binaries resolve to SSH wrappers that run on a Mac. Then override the skill to allow Linux so it stays eligible.
 
+<<<<<<< HEAD
 1) Create an SSH wrapper for the binary (example: `imsg`):
+=======
+1. Create an SSH wrapper for the binary (example: `memo` for Apple Notes):
+<<<<<<< HEAD
+<<<<<<< HEAD
+
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
+=======
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
+=======
+
+>>>>>>> 578a6e27a (Docs: enable markdownlint autofixables except list numbering (#10476))
    ```bash
    #!/usr/bin/env bash
    set -euo pipefail
    exec ssh -T user@mac-host /opt/homebrew/bin/imsg "$@"
    ```
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
 2) Put the wrapper on `PATH` on the Linux host (for example `~/bin/imsg`).
 3) Override the skill metadata (workspace or `~/.clawdbot/skills`) to allow Linux:
+=======
+=======
+>>>>>>> 578a6e27a (Docs: enable markdownlint autofixables except list numbering (#10476))
+
+2. Put the wrapper on `PATH` on the Linux host (for example `~/bin/memo`).
+3. Override the skill metadata (workspace or `~/.openclaw/skills`) to allow Linux:
+
+<<<<<<< HEAD
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
+=======
+2. Put the wrapper on `PATH` on the Linux host (for example `~/bin/memo`).
+3. Override the skill metadata (workspace or `~/.openclaw/skills`) to allow Linux:
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
+=======
+>>>>>>> 578a6e27a (Docs: enable markdownlint autofixables except list numbering (#10476))
    ```markdown
    ---
    name: imsg
@@ -1054,9 +1289,21 @@ Keep the Gateway on Linux, but make the required CLI binaries resolve to SSH wra
    metadata: {"moltbot":{"os":["darwin","linux"],"requires":{"bins":["imsg"]}}}
    ---
    ```
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
 4) Start a new session so the skills snapshot refreshes.
 
 For iMessage specifically, you can also point `channels.imessage.cliPath` at an SSH wrapper (Moltbot only needs stdio). See [iMessage](/channels/imessage).
+=======
+
+=======
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
+=======
+
+>>>>>>> 578a6e27a (Docs: enable markdownlint autofixables except list numbering (#10476))
+4. Start a new session so the skills snapshot refreshes.
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 
 ### Do you have a Notion or HeyGen integration
 
@@ -1104,6 +1351,19 @@ You still need to click the extension button on the tab you want to control (it 
 ### Is there a dedicated sandboxing doc
 
 Yes. See [Sandboxing](/gateway/sandboxing). For Docker-specific setup (full gateway in Docker or sandbox images), see [Docker](/install/docker).
+
+### Docker feels limited How do I enable full features
+
+The default image is security-first and runs as the `node` user, so it does not
+include system packages, Homebrew, or bundled browsers. For a fuller setup:
+
+- Persist `/home/node` with `OPENCLAW_HOME_VOLUME` so caches survive.
+- Bake system deps into the image with `OPENCLAW_DOCKER_APT_PACKAGES`.
+- Install Playwright browsers via the bundled CLI:
+  `node /app/node_modules/playwright-core/cli.js install chromium`
+- Set `PLAYWRIGHT_BROWSERS_PATH` and ensure the path is persisted.
+
+Docs: [Docker](/install/docker), [Browser](/tools/browser).
 
 **Can I keep DMs personal but make groups public sandboxed with one agent**
 
@@ -1230,7 +1490,7 @@ AGENTS.md or MEMORY.md** rather than relying on chat history.
 
 See [Agent workspace](/concepts/agent-workspace) and [Memory](/concepts/memory).
 
-### Whats the recommended backup strategy
+### What's the recommended backup strategy
 
 Put your **agent workspace** in a **private** git repo and back it up somewhere
 private (for example GitHub private). This captures memory + AGENTS/SOUL/USER
@@ -1387,7 +1647,7 @@ Headless uses the **same Chromium engine** and works for most automation (forms,
 Set `browser.executablePath` to your Brave binary (or any Chromium-based browser) and restart the Gateway.
 See the full config examples in [Browser](/tools/browser#use-brave-or-another-chromium-based-browser).
 
-## Remote gateways + nodes
+## Remote gateways and nodes
 
 ### How do commands propagate between Telegram the gateway and nodes
 
@@ -1409,7 +1669,19 @@ Typical setup:
 3) Ensure the Gateway WS is reachable (tailnet bind or SSH tunnel).
 4) Open the macOS app locally and connect in **Remote over SSH** mode (or direct tailnet)
    so it can register as a node.
+<<<<<<< HEAD
 5) Approve the node on the Gateway:
+=======
+5. Approve the node on the Gateway:
+<<<<<<< HEAD
+<<<<<<< HEAD
+
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
+=======
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
+=======
+
+>>>>>>> 578a6e27a (Docs: enable markdownlint autofixables except list numbering (#10476))
    ```bash
    moltbot nodes pending
    moltbot nodes approve <requestId>
@@ -1526,7 +1798,7 @@ Avoid it:
 
 Docs: [Config](/cli/config), [Configure](/cli/configure), [Doctor](/gateway/doctor).
 
-### Whats a minimal sane config for a first install
+### What's a minimal sane config for a first install
 
 ```json5
 {
@@ -1541,12 +1813,36 @@ This sets your workspace and restricts who can trigger the bot.
 
 Minimal steps:
 
+<<<<<<< HEAD
 1) **Install + login on the VPS**
+=======
+1. **Install + login on the VPS**
+<<<<<<< HEAD
+<<<<<<< HEAD
+
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
+=======
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
+=======
+
+>>>>>>> 578a6e27a (Docs: enable markdownlint autofixables except list numbering (#10476))
    ```bash
    curl -fsSL https://tailscale.com/install.sh | sh
    sudo tailscale up
    ```
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
 2) **Install + login on your Mac**
+=======
+
+=======
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
+=======
+
+>>>>>>> 578a6e27a (Docs: enable markdownlint autofixables except list numbering (#10476))
+2. **Install + login on your Mac**
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
    - Use the Tailscale app and sign in to the same tailnet.
 3) **Enable MagicDNS (recommended)**
    - In the Tailscale admin console, enable MagicDNS so the VPS has a stable name.
@@ -1568,7 +1864,19 @@ Recommended setup:
 1) **Make sure the VPS + Mac are on the same tailnet**.
 2) **Use the macOS app in Remote mode** (SSH target can be the tailnet hostname).
    The app will tunnel the Gateway port and connect as a node.
+<<<<<<< HEAD
 3) **Approve the node** on the gateway:
+=======
+3. **Approve the node** on the gateway:
+<<<<<<< HEAD
+<<<<<<< HEAD
+
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
+=======
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
+=======
+
+>>>>>>> 578a6e27a (Docs: enable markdownlint autofixables except list numbering (#10476))
    ```bash
    moltbot nodes pending
    moltbot nodes approve <requestId>
@@ -1630,12 +1938,23 @@ your login shell automatically.
 If the Gateway runs as a service (launchd/systemd), it won’t inherit your shell
 environment. Fix by doing one of these:
 
+<<<<<<< HEAD
 1) Put the token in `~/.clawdbot/.env`:
    ```
    COPILOT_GITHUB_TOKEN=...
    ```
 2) Or enable shell import (`env.shellEnv.enabled: true`).
 3) Or add it to your config `env` block (applies only if missing).
+=======
+1. Put the token in `~/.openclaw/.env`:
+
+   ```
+   COPILOT_GITHUB_TOKEN=...
+   ```
+
+2. Or enable shell import (`env.shellEnv.enabled: true`).
+3. Or add it to your config `env` block (applies only if missing).
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 
 Then restart the gateway and recheck:
 ```bash
@@ -1645,7 +1964,7 @@ moltbot models status
 Copilot tokens are read from `COPILOT_GITHUB_TOKEN` (also `GH_TOKEN` / `GITHUB_TOKEN`).
 See [/concepts/model-providers](/concepts/model-providers) and [/environment](/environment).
 
-## Sessions & multiple chats
+## Sessions and multiple chats
 
 ### How do I start a fresh conversation
 
@@ -1725,6 +2044,7 @@ Use one of these:
   or `/compact <instructions>` to guide the summary.
 
 - **Reset** (fresh session ID for the same chat key):
+
   ```
   /new
   /reset
@@ -1897,9 +2217,15 @@ Use **model commands** or edit only the **model** fields. Avoid full config repl
 
 Safe options:
 - `/model` in chat (quick, per-session)
+<<<<<<< HEAD
 - `moltbot models set ...` (updates just model config)
 - `moltbot configure --section models` (interactive)
 - edit `agents.defaults.model` in `~/.clawdbot/moltbot.json`
+=======
+- `openclaw models set ...` (updates just model config)
+- `openclaw configure --section model` (interactive)
+- edit `agents.defaults.model` in `~/.openclaw/openclaw.json`
+>>>>>>> 9201e140c (Fix typo in FAQ regarding model configuration command (#6048))
 
 Avoid `config.apply` with a partial object unless you intend to replace the whole config.
 If you did overwrite config, restore from backup or re-run `moltbot doctor` to repair.
@@ -1988,10 +2314,23 @@ Fix checklist:
    exists in env/auth profiles so the provider can be injected.
 3) Use the exact model id (case‑sensitive): `minimax/MiniMax-M2.1` or
    `minimax/MiniMax-M2.1-lightning`.
+<<<<<<< HEAD
 4) Run:
+=======
+4. Run:
+<<<<<<< HEAD
+<<<<<<< HEAD
+
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
+=======
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
+=======
+
+>>>>>>> 578a6e27a (Docs: enable markdownlint autofixables except list numbering (#10476))
    ```bash
    moltbot models list
    ```
+
    and pick from the list (or `/model list` in chat).
 
 See [MiniMax](/providers/minimax) and [Models](/concepts/models).
@@ -2152,10 +2491,23 @@ can’t find it in its auth store.
 - **If you want to use an API key instead**
   - Put `ANTHROPIC_API_KEY` in `~/.clawdbot/.env` on the **gateway host**.
   - Clear any pinned order that forces a missing profile:
+
     ```bash
     moltbot models auth order clear --provider anthropic
     ```
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
 - **Confirm you’re running commands on the gateway host**
+=======
+
+=======
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
+=======
+
+>>>>>>> 578a6e27a (Docs: enable markdownlint autofixables except list numbering (#10476))
+- **Confirm you're running commands on the gateway host**
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
   - In remote mode, auth profiles live on the gateway machine, not your laptop.
 
 ### Why did it also try Google Gemini and fail
@@ -2522,11 +2874,11 @@ Docs: [Gateway service runbook](/gateway).
 If you installed the service, use the gateway commands. Use `moltbot gateway` when
 you want a one-off, foreground run.
 
-### Whats the fastest way to get more details when something fails
+### What's the fastest way to get more details when something fails
 
 Start the Gateway with `--verbose` to get more console detail. Then inspect the log file for channel auth, model routing, and RPC errors.
 
-## Media & attachments
+## Media and attachments
 
 ### My skill generated an imagePDF but nothing was sent
 

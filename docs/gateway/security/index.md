@@ -2,6 +2,7 @@
 summary: "Security considerations and threat model for running an AI gateway with shell access"
 read_when:
   - Adding features that widen access or automation
+title: "Security"
 ---
 # Security 🔒
 
@@ -39,7 +40,7 @@ Start with the smallest access that still works, then widen it as you gain confi
 
 - **Inbound access** (DM policies, group policies, allowlists): can strangers trigger the bot?
 - **Tool blast radius** (elevated tools + open rooms): could prompt injection turn into shell/file/network actions?
-- **Network exposure** (Gateway bind/auth, Tailscale Serve/Funnel).
+- **Network exposure** (Gateway bind/auth, Tailscale Serve/Funnel, weak/short auth tokens).
 - **Browser control exposure** (remote nodes, relay ports, remote CDP endpoints).
 - **Local disk hygiene** (permissions, symlinks, config includes, “synced folder” paths).
 - **Plugins** (extensions exist without an explicit allowlist).
@@ -212,7 +213,16 @@ By default, Moltbot routes **all DMs into the main session** so your assistant h
 }
 ```
 
-This prevents cross-user context leakage while keeping group chats isolated. If you run multiple accounts on the same channel, use `per-account-channel-peer` instead. If the same person contacts you on multiple channels, use `session.identityLinks` to collapse those DM sessions into one canonical identity. See [Session Management](/concepts/session) and [Configuration](/gateway/configuration).
+This prevents cross-user context leakage while keeping group chats isolated.
+
+### Secure DM mode (recommended)
+
+Treat the snippet above as **secure DM mode**:
+
+- Default: `session.dmScope: "main"` (all DMs share one session for continuity).
+- Secure DM mode: `session.dmScope: "per-channel-peer"` (each channel+sender pair gets an isolated DM context).
+
+If you run multiple accounts on the same channel, use `per-account-channel-peer` instead. If the same person contacts you on multiple channels, use `session.identityLinks` to collapse those DM sessions into one canonical identity. See [Session Management](/concepts/session) and [Configuration](/gateway/configuration).
 
 ## Allowlists (DM + groups) — terminology
 
@@ -721,18 +731,22 @@ If it fails, there are new candidates not yet in the baseline.
 ### If CI fails
 
 1. Reproduce locally:
+
    ```bash
    detect-secrets scan --baseline .secrets.baseline
    ```
+
 2. Understand the tools:
    - `detect-secrets scan` finds candidates and compares them to the baseline.
    - `detect-secrets audit` opens an interactive review to mark each baseline
      item as real or false positive.
 3. For real secrets: rotate/remove them, then re-run the scan to update the baseline.
 4. For false positives: run the interactive audit and mark them as false:
+
    ```bash
    detect-secrets audit .secrets.baseline
    ```
+
 5. If you need new excludes, add them to `.detect-secrets.cfg` and regenerate the
    baseline with matching `--exclude-files` / `--exclude-lines` flags (the config
    file is reference-only; detect-secrets doesn’t read it automatically).
@@ -762,7 +776,19 @@ Mario asking for find ~
 
 Found a vulnerability in Moltbot? Please report responsibly:
 
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
 1. Email: security@clawd.bot
+=======
+1. Email: [security@openclaw.ai](mailto:security@openclaw.ai)
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
+=======
+1. Email: security@openclaw.ai
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
+=======
+1. Email: [security@openclaw.ai](mailto:security@openclaw.ai)
+>>>>>>> 578a6e27a (Docs: enable markdownlint autofixables except list numbering (#10476))
 2. Don't post publicly until fixed
 3. We'll credit you (unless you prefer anonymity)
 

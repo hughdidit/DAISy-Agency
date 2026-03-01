@@ -3,6 +3,7 @@ summary: "Zalo personal account support via zca-cli (QR login), capabilities, an
 read_when:
   - Setting up Zalo Personal for Moltbot
   - Debugging Zalo Personal login or message flow
+title: "Zalo Personal"
 ---
 # Zalo Personal (unofficial)
 
@@ -40,8 +41,18 @@ The Gateway machine must have the `zca` binary available in `PATH`.
 }
 ```
 
+<<<<<<< HEAD
+<<<<<<< HEAD
 4) Restart the Gateway (or finish onboarding).
 5) DM access defaults to pairing; approve the pairing code on first contact.
+=======
+1. Restart the Gateway (or finish onboarding).
+2. DM access defaults to pairing; approve the pairing code on first contact.
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
+=======
+4. Restart the Gateway (or finish onboarding).
+5. DM access defaults to pairing; approve the pairing code on first contact.
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 
 ## What it is
 - Uses `zca listen` to receive inbound messages.

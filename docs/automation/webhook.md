@@ -2,7 +2,12 @@
 summary: "Webhook ingress for wake and isolated agent runs"
 read_when:
   - Adding or changing webhook endpoints
+<<<<<<< HEAD
   - Wiring external systems into Moltbot
+=======
+  - Wiring external systems into OpenClaw
+title: "Webhooks"
+>>>>>>> abcaa8c7a (Docs: add nav titles across docs (#5689))
 ---
 
 # Webhooks

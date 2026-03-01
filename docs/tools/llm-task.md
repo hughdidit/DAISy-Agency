@@ -3,6 +3,7 @@ summary: "JSON-only LLM tasks for workflows (optional plugin tool)"
 read_when:
   - You want a JSON-only LLM step inside workflows
   - You need schema-validated LLM output for automation
+title: "LLM Task"
 ---
 
 # LLM Task
@@ -27,7 +28,15 @@ without writing custom Moltbot code for each workflow.
 }
 ```
 
+<<<<<<< HEAD
+<<<<<<< HEAD
 2) Allowlist the tool (it is registered with `optional: true`):
+=======
+1. Allowlist the tool (it is registered with `optional: true`):
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
+=======
+2. Allowlist the tool (it is registered with `optional: true`):
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 
 ```json
 {

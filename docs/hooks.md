@@ -3,6 +3,7 @@ summary: "Hooks: event-driven automation for commands and lifecycle events"
 read_when:
   - You want event-driven automation for /new, /reset, /stop, and agent lifecycle events
   - You want to build, install, or debug hooks
+title: "Hooks"
 ---
 # Hooks
 
@@ -439,7 +440,7 @@ moltbot hooks enable session-memory
 moltbot hooks disable command-logger
 ```
 
-## Bundled Hooks
+## Bundled hook reference
 
 ### session-memory
 
@@ -776,6 +777,7 @@ Session reset
    ```
 
 3. List all discovered hooks:
+
    ```bash
    moltbot hooks list
    ```
@@ -805,6 +807,7 @@ Look for missing:
 2. Restart your gateway process so hooks reload.
 
 3. Check gateway logs for errors:
+
    ```bash
    ./scripts/clawlog.sh | grep hook
    ```
@@ -876,6 +879,7 @@ node -e "import('./path/to/handler.ts').then(console.log)"
    ```
 
 4. Verify and restart your gateway process:
+
    ```bash
    moltbot hooks list
    # Should show: 🎯 my-hook ✓

@@ -4,6 +4,7 @@ read_when:
   - Adding agent-controlled browser automation
   - Debugging why daisy is interfering with your own Chrome
   - Implementing browser settings + lifecycle in the macOS app
+title: "Browser (OpenClaw-managed)"
 ---
 
 # Browser (daisy-managed)
@@ -257,8 +258,18 @@ moltbot browser extension install
 - “Load unpacked” → select the directory printed by `moltbot browser extension path`
 - Pin the extension, then click it on the tab you want to control (badge shows `ON`).
 
+<<<<<<< HEAD
+<<<<<<< HEAD
 2) Use it:
 - CLI: `moltbot browser --browser-profile chrome tabs`
+=======
+1. Use it:
+=======
+2. Use it:
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
+
+- CLI: `openclaw browser --browser-profile chrome tabs`
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 - Agent tool: `browser` with `profile="chrome"`
 
 Optional: if you want a different name or relay port, create your own profile:
@@ -326,6 +337,20 @@ For the Chrome extension relay driver, ARIA snapshots and screenshots require Pl
 If you see `Playwright is not available in this gateway build`, install the full
 Playwright package (not `playwright-core`) and restart the gateway, or reinstall
 Moltbot with browser support.
+
+#### Docker Playwright install
+
+If your Gateway runs in Docker, avoid `npx playwright` (npm override conflicts).
+Use the bundled CLI instead:
+
+```bash
+docker compose run --rm openclaw-cli \
+  node /app/node_modules/playwright-core/cli.js install chromium
+```
+
+To persist browser downloads, set `PLAYWRIGHT_BROWSERS_PATH` (for example,
+`/home/node/.cache/ms-playwright`) and make sure `/home/node` is persisted via
+`OPENCLAW_HOME_VOLUME` or a bind mount. See [Docker](/install/docker).
 
 ## How it works (internal)
 

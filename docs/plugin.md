@@ -3,6 +3,7 @@ summary: "Moltbot plugins/extensions: discovery, config, and safety"
 read_when:
   - Adding or modifying plugins/extensions
   - Documenting plugin install or load rules
+title: "Plugins"
 ---
 # Plugins (Extensions)
 
@@ -23,13 +24,29 @@ Fast path:
 moltbot plugins list
 ```
 
+<<<<<<< HEAD
+<<<<<<< HEAD
 2) Install an official plugin (example: Voice Call):
+=======
+1. Install an official plugin (example: Voice Call):
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
+=======
+2. Install an official plugin (example: Voice Call):
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 
 ```bash
 moltbot plugins install @moltbot/voice-call
 ```
 
+<<<<<<< HEAD
+<<<<<<< HEAD
 3) Restart the Gateway, then configure under `plugins.entries.<id>.config`.
+=======
+1. Restart the Gateway, then configure under `plugins.entries.<id>.config`.
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
+=======
+3. Restart the Gateway, then configure under `plugins.entries.<id>.config`.
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 
 See [Voice Call](/plugins/voice-call) for a concrete example plugin.
 
@@ -90,16 +107,39 @@ Moltbot scans, in order:
 1) Config paths
 - `plugins.load.paths` (file or directory)
 
+<<<<<<< HEAD
+<<<<<<< HEAD
 2) Workspace extensions
 - `<workspace>/.clawdbot/extensions/*.ts`
 - `<workspace>/.clawdbot/extensions/*/index.ts`
+=======
+1. Workspace extensions
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
+=======
+2. Workspace extensions
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 
 3) Global extensions
 - `~/.clawdbot/extensions/*.ts`
 - `~/.clawdbot/extensions/*/index.ts`
 
+<<<<<<< HEAD
+<<<<<<< HEAD
 4) Bundled extensions (shipped with Moltbot, **disabled by default**)
 - `<moltbot>/extensions/*`
+=======
+1. Global extensions
+=======
+3. Global extensions
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
+
+- `~/.openclaw/extensions/*.ts`
+- `~/.openclaw/extensions/*/index.ts`
+
+4. Bundled extensions (shipped with OpenClaw, **disabled by default**)
+
+- `<openclaw>/extensions/*`
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 
 Bundled plugins must be enabled explicitly via `plugins.entries.<id>.enabled`
 or `moltbot plugins enable <id>`. Installed plugins are enabled by default,
@@ -416,23 +456,59 @@ Model provider docs live under `/providers/*`.
 - All channel config lives under `channels.<id>`.
 - Prefer `channels.<id>.accounts.<accountId>` for multi‑account setups.
 
+<<<<<<< HEAD
+<<<<<<< HEAD
 2) Define the channel metadata
+=======
+1. Define the channel metadata
+=======
+2. Define the channel metadata
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
+
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 - `meta.label`, `meta.selectionLabel`, `meta.docsPath`, `meta.blurb` control CLI/UI lists.
 - `meta.docsPath` should point at a docs page like `/channels/<id>`.
 - `meta.preferOver` lets a plugin replace another channel (auto-enable prefers it).
 - `meta.detailLabel` and `meta.systemImage` are used by UIs for detail text/icons.
 
+<<<<<<< HEAD
+<<<<<<< HEAD
 3) Implement the required adapters
+=======
+1. Implement the required adapters
+=======
+3. Implement the required adapters
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
+
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 - `config.listAccountIds` + `config.resolveAccount`
 - `capabilities` (chat types, media, threads, etc.)
 - `outbound.deliveryMode` + `outbound.sendText` (for basic send)
 
+<<<<<<< HEAD
+<<<<<<< HEAD
 4) Add optional adapters as needed
+=======
+1. Add optional adapters as needed
+=======
+4. Add optional adapters as needed
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
+
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 - `setup` (wizard), `security` (DM policy), `status` (health/diagnostics)
 - `gateway` (start/stop/login), `mentions`, `threading`, `streaming`
 - `actions` (message actions), `commands` (native command behavior)
 
+<<<<<<< HEAD
+<<<<<<< HEAD
 5) Register the channel in your plugin
+=======
+1. Register the channel in your plugin
+=======
+5. Register the channel in your plugin
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
+
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 - `api.registerChannel({ plugin })`
 
 Minimal config example:

@@ -2,7 +2,12 @@
 summary: "CLI reference for `moltbot dns` (wide-area discovery helpers)"
 read_when:
   - You want wide-area discovery (DNS-SD) via Tailscale + CoreDNS
+<<<<<<< HEAD
   - You’re setting up split DNS for moltbot.internal
+=======
+  - You’re setting up split DNS for a custom discovery domain (example: openclaw.internal)
+title: "dns"
+>>>>>>> abcaa8c7a (Docs: add nav titles across docs (#5689))
 ---
 
 # `moltbot dns`

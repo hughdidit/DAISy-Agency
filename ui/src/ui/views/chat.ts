@@ -325,7 +325,26 @@ export function renderChat(props: ChatProps) {
               </div>
             </div>
           `
+<<<<<<< HEAD
         : nothing}
+=======
+          : nothing
+      }
+
+      ${
+        props.showNewMessages
+          ? html`
+            <button
+              class="btn chat-new-messages"
+              type="button"
+              @click=${props.onScrollToBottom}
+            >
+              New messages ${icons.arrowDown}
+            </button>
+          `
+          : nothing
+      }
+>>>>>>> 9f16de253 (style: update chat new-messages button)
 
       <div class="chat-compose">
         ${renderAttachmentPreview(props)}

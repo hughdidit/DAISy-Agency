@@ -24,12 +24,18 @@ import type { VoiceCallProvider } from "./base.js";
  * Uses Telnyx Call Control API v2 for managing calls.
  * @see https://developers.telnyx.com/docs/api/v2/call-control
  */
+export interface TelnyxProviderOptions {
+  /** Allow unsigned webhooks when no public key is configured */
+  allowUnsignedWebhooks?: boolean;
+}
+
 export class TelnyxProvider implements VoiceCallProvider {
   readonly name = "telnyx" as const;
 
   private readonly apiKey: string;
   private readonly connectionId: string;
   private readonly publicKey: string | undefined;
+  private readonly options: TelnyxProviderOptions;
   private readonly baseUrl = "https://api.telnyx.com/v2";
 
   private readonly logger: Logger;
@@ -82,8 +88,14 @@ export class TelnyxProvider implements VoiceCallProvider {
    */
   verifyWebhook(ctx: WebhookContext): WebhookVerificationResult {
     if (!this.publicKey) {
-      // No public key configured, skip verification (not recommended for production)
-      return { ok: true };
+      if (this.options.allowUnsignedWebhooks) {
+        console.warn("[telnyx] Webhook verification skipped (no public key configured)");
+        return { ok: true, reason: "verification skipped (no public key configured)" };
+      }
+      return {
+        ok: false,
+        reason: "Missing telnyx.publicKey (configure to verify webhooks)",
+      };
     }
 
     const signature = ctx.headers["telnyx-signature-ed25519"];
