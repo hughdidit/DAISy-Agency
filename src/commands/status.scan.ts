@@ -191,7 +191,7 @@ async function scanStatusJsonFast(opts: {
     gatewaySelf,
     channelIssues,
     agentStatus,
-    channels: [],
+    channels: { rows: [], details: [] },
     summary,
     memory,
     memoryPlugin,
@@ -213,7 +213,7 @@ export async function scanStatus(
     {
       label: "Scanning status…",
       total: 10,
-      enabled: opts.json !== true,
+      enabled: true,
     },
     async (progress) => {
       progress.setLabel("Loading config…");
@@ -283,13 +283,11 @@ export async function scanStatus(
       progress.tick();
 
       progress.setLabel("Summarizing channels…");
-      const channels = opts.json
-        ? []
-        : await buildChannelsTable(cfg, {
-            // Show token previews in regular status; keep `status --all` redacted.
-            // Set `CLAWDBOT_SHOW_SECRETS=0` to force redaction.
-            showSecrets: process.env.CLAWDBOT_SHOW_SECRETS?.trim() !== "0",
-          });
+      const channels = await buildChannelsTable(cfg, {
+        // Show token previews in regular status; keep `status --all` redacted.
+        // Set `CLAWDBOT_SHOW_SECRETS=0` to force redaction.
+        showSecrets: process.env.CLAWDBOT_SHOW_SECRETS?.trim() !== "0",
+      });
       progress.tick();
 
       progress.setLabel("Checking memory…");
