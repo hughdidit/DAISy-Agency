@@ -3,7 +3,6 @@ summary: "CLI reference for `moltbot message` (send + channel actions)"
 read_when:
   - Adding or modifying message CLI actions
   - Changing outbound channel behavior
-title: "message"
 ---
 
 # `moltbot message`

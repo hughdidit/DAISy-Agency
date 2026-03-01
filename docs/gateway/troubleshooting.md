@@ -1,29 +1,14 @@
 ---
-<<<<<<< HEAD
 summary: "Quick troubleshooting guide for common Moltbot failures"
-=======
-summary: "Deep troubleshooting runbook for gateway, channels, automation, nodes, and browser"
->>>>>>> 9a3f62cb8 (docs: add symptom-first troubleshooting hub and deep runbooks (#11196))
 read_when:
-  - The troubleshooting hub pointed you here for deeper diagnosis
-  - You need stable symptom based runbook sections with exact commands
-title: "Troubleshooting"
+  - Investigating runtime issues or failures
 ---
-<<<<<<< HEAD
 # Troubleshooting 🔧
 
 When Moltbot misbehaves, here's how to fix it.
-=======
 
-# Gateway troubleshooting
+Start with the FAQ’s [First 60 seconds](/help/faq#first-60-seconds-if-somethings-broken) if you just want a quick triage recipe. This page goes deeper on runtime failures and diagnostics.
 
-This page is the deep runbook.
-Start at [/help/troubleshooting](/help/troubleshooting) if you want the fast triage flow first.
->>>>>>> 9a3f62cb8 (docs: add symptom-first troubleshooting hub and deep runbooks (#11196))
-
-## Command ladder
-
-<<<<<<< HEAD
 Provider-specific shortcuts: [/channels/troubleshooting](/channels/troubleshooting)
 
 ## Status & Diagnostics
@@ -54,11 +39,9 @@ Auth is **per agent**, so a new agent won’t inherit the main agent’s keys.
 Fix options:
 - Re-run onboarding and choose **Anthropic** for that agent.
 - Or paste a setup-token on the **gateway host**:
-
   ```bash
   moltbot models auth setup-token --provider anthropic
   ```
-
 - Or copy `auth-profiles.json` from the main agent dir to the new agent dir.
 
 Verify:
@@ -129,17 +112,13 @@ Doctor/service will show runtime state (PID/last exit) and log hints.
 
 **Enable more logging:**
 - Bump file log detail (persisted JSONL):
-
   ```json
   { "logging": { "level": "debug" } }
   ```
-
 - Bump console verbosity (TTY output only):
-
   ```json
   { "logging": { "consoleLevel": "debug", "consoleStyle": "pretty" } }
   ```
-
 - Quick tip: `--verbose` affects **console** output only. File logs remain controlled by `logging.level`.
 
 See [/logging](/logging) for a full overview of formats, config, and access.
@@ -151,20 +130,16 @@ Gateway refuses to start.
 
 **Fix (recommended):**
 - Run the wizard and set the Gateway run mode to **Local**:
-
   ```bash
   moltbot configure
   ```
-
 - Or set it directly:
-
   ```bash
   moltbot config set gateway.mode local
   ```
 
 **If you meant to run a remote Gateway instead:**
 - Set a remote URL and keep `gateway.mode=remote`:
-
   ```bash
   moltbot config set gateway.mode remote
   moltbot config set gateway.remote.url "wss://gateway.example.com"
@@ -325,25 +300,12 @@ grep -n "agents\\|groupChat\\|mentionPatterns\\|channels\\.whatsapp\\.groups\\|c
 moltbot logs --follow
 # or if you want quick filters:
 tail -f "$(ls -t /tmp/moltbot/moltbot-*.log | head -1)" | grep "blocked\\|skip\\|unauthorized"
-=======
-Run these first, in this order:
-
-```bash
-openclaw status
-openclaw gateway status
-openclaw logs --follow
-openclaw doctor
-openclaw channels status --probe
->>>>>>> 9a3f62cb8 (docs: add symptom-first troubleshooting hub and deep runbooks (#11196))
 ```
 
-Expected healthy signals:
+### Pairing Code Not Arriving
 
-- `openclaw gateway status` shows `Runtime: running` and `RPC probe: ok`.
-- `openclaw doctor` reports no blocking config/service issues.
-- `openclaw channels status --probe` shows connected/ready channels.
+If `dmPolicy` is `pairing`, unknown senders should receive a code and their message is ignored until approved.
 
-<<<<<<< HEAD
 **Check 1:** Is a pending request already waiting?
 ```bash
 moltbot pairing list <channel>
@@ -412,185 +374,24 @@ moltbot status --deep
 
 # View recent connection events
 moltbot logs --limit 200 | grep "connection\\|disconnect\\|logout"
-=======
-## No replies
-
-If channels are up but nothing answers, check routing and policy before reconnecting anything.
-
-```bash
-openclaw status
-openclaw channels status --probe
-openclaw pairing list <channel>
-openclaw config get channels
-openclaw logs --follow
 ```
 
-Look for:
-
-- Pairing pending for DM senders.
-- Group mention gating (`requireMention`, `mentionPatterns`).
-- Channel/group allowlist mismatches.
-
-Common signatures:
-
-- `drop guild message (mention required` → group message ignored until mention.
-- `pairing request` → sender needs approval.
-- `blocked` / `allowlist` → sender/channel was filtered by policy.
-
-Related:
-
-- [/channels/troubleshooting](/channels/troubleshooting)
-- [/start/pairing](/start/pairing)
-- [/concepts/groups](/concepts/groups)
-
-## Dashboard control ui connectivity
-
-When dashboard/control UI will not connect, validate URL, auth mode, and secure context assumptions.
+**Fix:** Usually reconnects automatically once the Gateway is running. If you’re stuck, restart the Gateway process (however you supervise it), or run it manually with verbose output:
 
 ```bash
-openclaw gateway status
-openclaw status
-openclaw logs --follow
-openclaw doctor
-openclaw gateway status --json
-```
-
-Look for:
-
-- Correct probe URL and dashboard URL.
-- Auth mode/token mismatch between client and gateway.
-- HTTP usage where device identity is required.
-
-Common signatures:
-
-- `device identity required` → non-secure context or missing device auth.
-- `unauthorized` / reconnect loop → token/password mismatch.
-- `gateway connect failed:` → wrong host/port/url target.
-
-Related:
-
-- [/web/control-ui](/web/control-ui)
-- [/gateway/authentication](/gateway/authentication)
-- [/gateway/remote](/gateway/remote)
-
-## Gateway service not running
-
-Use this when service is installed but process does not stay up.
-
-```bash
-openclaw gateway status
-openclaw status
-openclaw logs --follow
-openclaw doctor
-openclaw gateway status --deep
-```
-
-Look for:
-
-- `Runtime: stopped` with exit hints.
-- Service config mismatch (`Config (cli)` vs `Config (service)`).
-- Port/listener conflicts.
-
-Common signatures:
-
-- `Gateway start blocked: set gateway.mode=local` → local gateway mode is not enabled.
-- `refusing to bind gateway ... without auth` → non-loopback bind without token/password.
-- `another gateway instance is already listening` / `EADDRINUSE` → port conflict.
-
-Related:
-
-- [/gateway/background-process](/gateway/background-process)
-- [/gateway/configuration](/gateway/configuration)
-- [/gateway/doctor](/gateway/doctor)
-
-## Channel connected messages not flowing
-
-If channel state is connected but message flow is dead, focus on policy, permissions, and channel specific delivery rules.
-
-```bash
-openclaw channels status --probe
-openclaw pairing list <channel>
-openclaw status --deep
-openclaw logs --follow
-openclaw config get channels
->>>>>>> 9a3f62cb8 (docs: add symptom-first troubleshooting hub and deep runbooks (#11196))
-```
-
-Look for:
-
-- DM policy (`pairing`, `allowlist`, `open`, `disabled`).
-- Group allowlist and mention requirements.
-- Missing channel API permissions/scopes.
-
-Common signatures:
-
-- `mention required` → message ignored by group mention policy.
-- `pairing` / pending approval traces → sender is not approved.
-- `missing_scope`, `not_in_channel`, `Forbidden`, `401/403` → channel auth/permissions issue.
-
-Related:
-
-- [/channels/troubleshooting](/channels/troubleshooting)
-- [/channels/whatsapp](/channels/whatsapp)
-- [/channels/telegram](/channels/telegram)
-- [/channels/discord](/channels/discord)
-
-## Cron and heartbeat delivery
-
-If cron or heartbeat did not run or did not deliver, verify scheduler state first, then delivery target.
-
-```bash
-<<<<<<< HEAD
 moltbot gateway --verbose
-=======
-openclaw cron status
-openclaw cron list
-openclaw cron runs --id <jobId> --limit 20
-openclaw system heartbeat last
-openclaw logs --follow
->>>>>>> 9a3f62cb8 (docs: add symptom-first troubleshooting hub and deep runbooks (#11196))
 ```
 
-Look for:
-
-- Cron enabled and next wake present.
-- Job run history status (`ok`, `skipped`, `error`).
-- Heartbeat skip reasons (`quiet-hours`, `requests-in-flight`, `alerts-disabled`).
-
-Common signatures:
-
-- `cron: scheduler disabled; jobs will not run automatically` → cron disabled.
-- `cron: timer tick failed` → scheduler tick failed; check file/log/runtime errors.
-- `heartbeat skipped` with `reason=quiet-hours` → outside active hours window.
-- `heartbeat: unknown accountId` → invalid account id for heartbeat delivery target.
-
-Related:
-
-- [/automation/troubleshooting](/automation/troubleshooting)
-- [/automation/cron-jobs](/automation/cron-jobs)
-- [/gateway/heartbeat](/gateway/heartbeat)
-
-## Node paired tool fails
-
-If a node is paired but tools fail, isolate foreground, permission, and approval state.
+If you’re logged out / unlinked:
 
 ```bash
-<<<<<<< HEAD
 moltbot channels logout
 trash "${CLAWDBOT_STATE_DIR:-$HOME/.clawdbot}/credentials" # if logout can't cleanly remove everything
 moltbot channels login --verbose       # re-scan QR
-=======
-openclaw nodes status
-openclaw nodes describe --node <idOrNameOrIp>
-openclaw approvals get --node <idOrNameOrIp>
-openclaw logs --follow
-openclaw status
->>>>>>> 9a3f62cb8 (docs: add symptom-first troubleshooting hub and deep runbooks (#11196))
 ```
 
-Look for:
+### Media Send Failing
 
-<<<<<<< HEAD
 **Check 1:** Is the file path valid?
 ```bash
 ls -la /path/to/your/image.jpg
@@ -636,64 +437,18 @@ Notes:
 - `moltbot doctor` reports every invalid entry.
 - `moltbot doctor --fix` applies migrations/repairs and rewrites the config.
 - Diagnostic commands like `moltbot logs`, `moltbot health`, `moltbot status`, `moltbot gateway status`, and `moltbot gateway probe` still run even if the config is invalid.
-=======
-- Node online with expected capabilities.
-- OS permission grants for camera/mic/location/screen.
-- Exec approvals and allowlist state.
 
-Common signatures:
+### “All models failed” — what should I check first?
 
-- `NODE_BACKGROUND_UNAVAILABLE` → node app must be in foreground.
-- `*_PERMISSION_REQUIRED` / `LOCATION_PERMISSION_REQUIRED` → missing OS permission.
-- `SYSTEM_RUN_DENIED: approval required` → exec approval pending.
-- `SYSTEM_RUN_DENIED: allowlist miss` → command blocked by allowlist.
-
-Related:
-
-- [/nodes/troubleshooting](/nodes/troubleshooting)
-- [/nodes/index](/nodes/index)
-- [/tools/exec-approvals](/tools/exec-approvals)
-
-## Browser tool fails
-
-Use this when browser tool actions fail even though the gateway itself is healthy.
-
-```bash
-openclaw browser status
-openclaw browser start --browser-profile openclaw
-openclaw browser profiles
-openclaw logs --follow
-openclaw doctor
-```
-
-Look for:
-
-- Valid browser executable path.
-- CDP profile reachability.
-- Extension relay tab attachment for `profile="chrome"`.
->>>>>>> 9a3f62cb8 (docs: add symptom-first troubleshooting hub and deep runbooks (#11196))
-
-Common signatures:
-
-<<<<<<< HEAD
 - **Credentials** present for the provider(s) being tried (auth profiles + env vars).
 - **Model routing**: confirm `agents.defaults.model.primary` and fallbacks are models you can access.
 - **Gateway logs** in `/tmp/moltbot/…` for the exact provider error.
 - **Model status**: use `/model status` (chat) or `moltbot models status` (CLI).
-=======
-- `Failed to start Chrome CDP on port` → browser process failed to launch.
-- `browser.executablePath not found` → configured path is invalid.
-- `Chrome extension relay is running, but no tab is connected` → extension relay not attached.
-- `Browser attachOnly is enabled ... not reachable` → attach-only profile has no reachable target.
->>>>>>> 9a3f62cb8 (docs: add symptom-first troubleshooting hub and deep runbooks (#11196))
 
-Related:
+### I’m running on my personal WhatsApp number — why is self-chat weird?
 
-- [/tools/browser-linux-troubleshooting](/tools/browser-linux-troubleshooting)
-- [/tools/chrome-extension](/tools/chrome-extension)
-- [/tools/browser](/tools/browser)
+Enable self-chat mode and allowlist your own number:
 
-<<<<<<< HEAD
 ```json5
 {
   channels: {
@@ -705,43 +460,29 @@ Related:
   }
 }
 ```
-=======
-## If you upgraded and something suddenly broke
->>>>>>> 9a3f62cb8 (docs: add symptom-first troubleshooting hub and deep runbooks (#11196))
 
-Most post-upgrade breakage is config drift or stricter defaults now being enforced.
+See [WhatsApp setup](/channels/whatsapp).
 
-### 1) Auth and URL override behavior changed
+### WhatsApp logged me out. How do I re‑auth?
+
+Run the login command again and scan the QR code:
 
 ```bash
-<<<<<<< HEAD
 moltbot channels login
-=======
-openclaw gateway status
-openclaw config get gateway.mode
-openclaw config get gateway.remote.url
-openclaw config get gateway.auth.mode
->>>>>>> 9a3f62cb8 (docs: add symptom-first troubleshooting hub and deep runbooks (#11196))
 ```
 
-What to check:
+### Build errors on `main` — what’s the standard fix path?
 
-<<<<<<< HEAD
 1) `git pull origin main && pnpm install`
 2) `moltbot doctor`
 3) Check GitHub issues or Discord
 4) Temporary workaround: check out an older commit
-=======
-- If `gateway.mode=remote`, CLI calls may be targeting remote while your local service is fine.
-- Explicit `--url` calls do not fall back to stored credentials.
->>>>>>> 9a3f62cb8 (docs: add symptom-first troubleshooting hub and deep runbooks (#11196))
 
-Common signatures:
+### npm install fails (allow-build-scripts / missing tar or yargs). What now?
 
-- `gateway connect failed:` → wrong URL target.
-- `unauthorized` → endpoint reachable but wrong auth.
+If you’re running from source, use the repo’s package manager: **pnpm** (preferred).
+The repo declares `packageManager: "pnpm@…"`.
 
-<<<<<<< HEAD
 Typical recovery:
 ```bash
 git status   # ensure you’re in the repo root
@@ -749,56 +490,10 @@ pnpm install
 pnpm build
 moltbot doctor
 moltbot gateway restart
-=======
-### 2) Bind and auth guardrails are stricter
-
-```bash
-openclaw config get gateway.bind
-openclaw config get gateway.auth.token
-openclaw gateway status
-openclaw logs --follow
 ```
 
-What to check:
+Why: pnpm is the configured package manager for this repo.
 
-- Non-loopback binds (`lan`, `tailnet`, `custom`) need auth configured.
-- Old keys like `gateway.token` do not replace `gateway.auth.token`.
-
-Common signatures:
-
-- `refusing to bind gateway ... without auth` → bind+auth mismatch.
-- `RPC probe: failed` while runtime is running → gateway alive but inaccessible with current auth/url.
-
-### 3) Pairing and device identity state changed
-
-```bash
-openclaw devices list
-openclaw pairing list <channel>
-openclaw logs --follow
-openclaw doctor
-```
-
-What to check:
-
-- Pending device approvals for dashboard/nodes.
-- Pending DM pairing approvals after policy or identity changes.
-
-Common signatures:
-
-- `device identity required` → device auth not satisfied.
-- `pairing required` → sender/device must be approved.
-
-If the service config and runtime still disagree after checks, reinstall service metadata from the same profile/state directory:
-
-```bash
-openclaw gateway install --force
-openclaw gateway restart
->>>>>>> 9a3f62cb8 (docs: add symptom-first troubleshooting hub and deep runbooks (#11196))
-```
-
-Related:
-
-<<<<<<< HEAD
 ### How do I switch between git installs and npm installs?
 
 Use the **website installer** and select the install method with a flag. It
@@ -806,26 +501,17 @@ upgrades in place and rewrites the gateway service to point at the new install.
 
 Switch **to git install**:
 ```bash
-<<<<<<< HEAD
 curl -fsSL https://molt.bot/install.sh | bash -s -- --install-method git --no-onboard
-=======
-curl -fsSL https://openclaw.ai/install.sh | bash -s -- --install-method git --no-onboard
->>>>>>> 7a2c4d3cf (fix(docs): use canonical openclaw.ai domain instead of openclaw.bot)
 ```
 
 Switch **to npm global**:
 ```bash
-<<<<<<< HEAD
 curl -fsSL https://molt.bot/install.sh | bash
-=======
-curl -fsSL https://openclaw.ai/install.sh | bash
->>>>>>> 7a2c4d3cf (fix(docs): use canonical openclaw.ai domain instead of openclaw.bot)
 ```
 
 Notes:
 - The git flow only rebases if the repo is clean. Commit or stash changes first.
 - After switching, run:
-
   ```bash
   moltbot doctor
   moltbot gateway restart
@@ -1026,8 +712,3 @@ Then set in config:
 ```
 
 **Full guide:** See [browser-linux-troubleshooting](/tools/browser-linux-troubleshooting)
-=======
-- [/gateway/pairing](/gateway/pairing)
-- [/gateway/authentication](/gateway/authentication)
-- [/gateway/background-process](/gateway/background-process)
->>>>>>> 9a3f62cb8 (docs: add symptom-first troubleshooting hub and deep runbooks (#11196))

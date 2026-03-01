@@ -4,7 +4,6 @@ read_when:
   - You want a reliable fallback when API providers fail
   - You are running Claude Code CLI or other local AI CLIs and want to reuse them
   - You need a text-only, tool-free path that still supports sessions and images
-title: "CLI Backends"
 ---
 # CLI backends (fallback runtime)
 

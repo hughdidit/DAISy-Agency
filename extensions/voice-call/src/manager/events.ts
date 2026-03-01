@@ -28,12 +28,11 @@ function shouldAcceptInbound(config: CallManagerContext["config"], from: string 
 
     case "allowlist":
     case "pairing": {
-      const normalized = normalizePhoneNumber(from);
-      if (!normalized) {
-        console.log("[voice-call] Inbound call rejected: missing caller ID");
-        return false;
-      }
-      const allowed = isAllowlistedCaller(normalized, allowFrom);
+      const normalized = from?.replace(/\D/g, "") || "";
+      const allowed = (allowFrom || []).some((num) => {
+        const normalizedAllow = num.replace(/\D/g, "");
+        return normalized.endsWith(normalizedAllow) || normalizedAllow.endsWith(normalized);
+      });
       const status = allowed ? "accepted" : "rejected";
       logger.info(
         `[voice-call] Inbound call ${status}: ${from} ${allowed ? "is in" : "not in"} allowlist`,

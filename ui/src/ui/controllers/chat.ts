@@ -55,11 +55,11 @@ export async function sendChatMessage(
   state: ChatState,
   message: string,
   attachments?: ChatAttachment[],
-): Promise<string | null> {
-  if (!state.client || !state.connected) return null;
+): Promise<boolean> {
+  if (!state.client || !state.connected) return false;
   const msg = message.trim();
   const hasAttachments = attachments && attachments.length > 0;
-  if (!msg && !hasAttachments) return null;
+  if (!msg && !hasAttachments) return false;
 
   const now = Date.now();
 
@@ -117,7 +117,7 @@ export async function sendChatMessage(
       idempotencyKey: runId,
       attachments: apiAttachments,
     });
-    return runId;
+    return true;
   } catch (err) {
     const error = String(err);
     state.chatRunId = null;
@@ -132,7 +132,7 @@ export async function sendChatMessage(
         timestamp: Date.now(),
       },
     ];
-    return null;
+    return false;
   } finally {
     state.chatSending = false;
   }

@@ -1,7 +1,6 @@
 ---
 summary: "SSH tunnel setup for Moltbot.app connecting to a remote gateway"
 read_when: "Connecting the macOS app to a remote gateway over SSH"
-title: "Remote Gateway Setup"
 ---
 
 # Running Moltbot.app with a Remote Gateway

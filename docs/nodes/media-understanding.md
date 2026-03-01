@@ -3,7 +3,6 @@ summary: "Inbound image/audio/video understanding (optional) with provider + CLI
 read_when:
   - Designing or refactoring media understanding
   - Tuning inbound audio/video/image preprocessing
-title: "Media Understanding"
 ---
 # Media Understanding (Inbound) — 2026-01-17
 

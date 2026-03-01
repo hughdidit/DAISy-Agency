@@ -3,7 +3,6 @@ summary: "Run Moltbot with Ollama (local LLM runtime)"
 read_when:
   - You want to run Moltbot with local models via Ollama
   - You need Ollama setup and configuration guidance
-title: "Ollama"
 ---
 # Ollama
 
@@ -11,19 +10,7 @@ Ollama is a local LLM runtime that makes it easy to run open-source models on yo
 
 ## Quick start
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
 1) Install Ollama: https://ollama.ai
-=======
-1. Install Ollama: [https://ollama.ai](https://ollama.ai)
->>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
-=======
-1. Install Ollama: https://ollama.ai
->>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
-=======
-1. Install Ollama: [https://ollama.ai](https://ollama.ai)
->>>>>>> 578a6e27a (Docs: enable markdownlint autofixables except list numbering (#10476))
 
 2) Pull a model:
 
@@ -35,15 +22,7 @@ ollama pull qwen2.5-coder:32b
 ollama pull deepseek-r1:32b
 ```
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 3) Enable Ollama for Moltbot (any value works; Ollama doesn't require a real key):
-=======
-1. Enable Ollama for OpenClaw (any value works; Ollama doesn't require a real key):
->>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
-=======
-3. Enable Ollama for OpenClaw (any value works; Ollama doesn't require a real key):
->>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 
 ```bash
 # Set environment variable
@@ -53,15 +32,7 @@ export OLLAMA_API_KEY="ollama-local"
 moltbot config set models.providers.ollama.apiKey "ollama-local"
 ```
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 4) Use Ollama models:
-=======
-1. Use Ollama models:
->>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
-=======
-4. Use Ollama models:
->>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 
 ```json5
 {
@@ -175,17 +146,10 @@ Once configured, all your Ollama models are available:
     defaults: {
       model: {
         primary: "ollama/llama3.3",
-<<<<<<< HEAD
         fallback: ["ollama/qwen2.5-coder:32b"]
       }
     }
   }
-=======
-        fallbacks: ["ollama/qwen2.5-coder:32b"],
-      },
-    },
-  },
->>>>>>> 679bb087d (docs: fix incorrect model.fallback to model.fallbacks in Ollama config (#9384) (#9749))
 }
 ```
 

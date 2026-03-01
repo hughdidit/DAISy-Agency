@@ -4,7 +4,6 @@ read_when:
   - Setting up BlueBubbles channel
   - Troubleshooting webhook pairing
   - Configuring iMessage on macOS
-title: "BlueBubbles"
 ---
 # BlueBubbles (macOS REST)
 
@@ -23,19 +22,7 @@ Status: bundled plugin that talks to the BlueBubbles macOS server over HTTP. **R
 ## Quick start
 1. Install the BlueBubbles server on your Mac (follow the instructions at [bluebubbles.app/install](https://bluebubbles.app/install)).
 2. In the BlueBubbles config, enable the web API and set a password.
-<<<<<<< HEAD
 3. Run `moltbot onboard` and select BlueBubbles, or configure manually:
-=======
-3. Run `openclaw onboard` and select BlueBubbles, or configure manually:
-<<<<<<< HEAD
-<<<<<<< HEAD
-
->>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
-=======
->>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
-=======
-
->>>>>>> 578a6e27a (Docs: enable markdownlint autofixables except list numbering (#10476))
    ```json5
    {
      channels: {
@@ -48,7 +35,6 @@ Status: bundled plugin that talks to the BlueBubbles macOS server over HTTP. **R
      }
    }
    ```
-
 4. Point BlueBubbles webhooks to your gateway (example: `https://your-gateway-host:3000/bluebubbles-webhook?password=<password>`).
 5. Start the gateway; it will register the webhook handler and start pairing.
 
@@ -244,4 +230,4 @@ Prefer `chat_guid` for stable routing:
 - Moltbot auto-hides known-broken actions based on the BlueBubbles server's macOS version. If edit still appears on macOS 26 (Tahoe), disable it manually with `channels.bluebubbles.actions.edit=false`.
 - For status/health info: `moltbot status --all` or `moltbot status --deep`.
 
-For general channel workflow reference, see [Channels](/channels) and the [Plugins](/plugin) guide.
+For general channel workflow reference, see [Channels](/channels) and the [Plugins](/plugins) guide.

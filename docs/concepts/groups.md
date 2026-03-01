@@ -2,7 +2,6 @@
 summary: "Group chat behavior across surfaces (WhatsApp/Telegram/Discord/Slack/Signal/iMessage/Microsoft Teams)"
 read_when:
   - Changing group chat behavior or mention gating
-title: "Groups"
 ---
 # Groups
 
@@ -34,13 +33,12 @@ otherwise -> reply
 ![Group message flow](/images/groups-flow.svg)
 
 If you want...
-
-| Goal                                         | What to set                                                |
-| -------------------------------------------- | ---------------------------------------------------------- |
-| Allow all groups but only reply on @mentions | `groups: { "*": { requireMention: true } }`                |
-| Disable all group replies                    | `groupPolicy: "disabled"`                                  |
-| Only specific groups                         | `groups: { "<group-id>": { ... } }` (no `"*"` key)         |
-| Only you can trigger in groups               | `groupPolicy: "allowlist"`, `groupAllowFrom: ["+1555..."]` |
+| Goal | What to set |
+|------|-------------|
+| Allow all groups but only reply on @mentions | `groups: { "*": { requireMention: true } }` |
+| Disable all group replies | `groupPolicy: "disabled"` |
+| Only specific groups | `groups: { "<group-id>": { ... } }` (no `"*"` key) |
+| Only you can trigger in groups | `groupPolicy: "allowlist"`, `groupAllowFrom: ["+1555..."]` |
 
 ## Session keys
 - Group sessions use `agent:<agentId>:<channel>:group:<id>` session keys (rooms/channels use `agent:<agentId>:<channel>:channel:<id>`).
@@ -282,16 +280,7 @@ Common intents (copy/paste):
 }
 ```
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 2) Allow only specific groups (WhatsApp)
-=======
-1. Allow only specific groups (WhatsApp)
-=======
-2. Allow only specific groups (WhatsApp)
->>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
-
->>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 ```json5
 {
   channels: {
@@ -305,16 +294,7 @@ Common intents (copy/paste):
 }
 ```
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 3) Allow all groups but require mention (explicit)
-=======
-1. Allow all groups but require mention (explicit)
-=======
-3. Allow all groups but require mention (explicit)
->>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
-
->>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 ```json5
 {
   channels: {
@@ -325,16 +305,7 @@ Common intents (copy/paste):
 }
 ```
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 4) Only the owner can trigger in groups (WhatsApp)
-=======
-1. Only the owner can trigger in groups (WhatsApp)
-=======
-4. Only the owner can trigger in groups (WhatsApp)
->>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
-
->>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 ```json5
 {
   channels: {

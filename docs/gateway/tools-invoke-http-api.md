@@ -3,7 +3,6 @@ summary: "Invoke a single tool directly via the Gateway HTTP endpoint"
 read_when:
   - Calling tools without running a full agent turn
   - Building automations that need tool policy enforcement
-title: "Tools Invoke API"
 ---
 # Tools Invoke (HTTP)
 

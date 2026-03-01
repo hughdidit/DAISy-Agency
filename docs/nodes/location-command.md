@@ -3,7 +3,6 @@ summary: "Location command for nodes (location.get), permission modes, and backg
 read_when:
   - Adding location node support or permissions UI
   - Designing background location + push flows
-title: "Location Command"
 ---
 
 # Location command (nodes)

@@ -3,7 +3,6 @@ summary: "Windows (WSL2) support + companion app status"
 read_when:
   - Installing Moltbot on Windows
   - Looking for Windows companion app status
-title: "Windows (WSL2)"
 ---
 # Windows (WSL2)
 
@@ -17,7 +16,7 @@ Native Windows companion apps are planned.
 ## Install (WSL2)
 - [Getting Started](/start/getting-started) (use inside WSL)
 - [Install & updates](/install/updating)
-- Official WSL2 guide (Microsoft): [https://learn.microsoft.com/windows/wsl/install](https://learn.microsoft.com/windows/wsl/install)
+- Official WSL2 guide (Microsoft): https://learn.microsoft.com/windows/wsl/install
 
 ## Gateway
 - [Gateway runbook](/gateway)

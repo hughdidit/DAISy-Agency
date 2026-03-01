@@ -14,8 +14,6 @@ import { OpenAIRealtimeSTTProvider } from "./providers/stt-openai-realtime.js";
 import type { TwilioProvider } from "./providers/twilio.js";
 import type { NormalizedEvent, WebhookContext } from "./types.js";
 
-const MAX_WEBHOOK_BODY_BYTES = 1024 * 1024;
-
 /**
  * HTTP server for receiving voice call webhooks from providers.
  * Supports WebSocket upgrades for media streams when streaming is enabled.
@@ -80,20 +78,6 @@ export class VoiceCallWebhookServer {
 
     const streamConfig: MediaStreamConfig = {
       sttProvider,
-      shouldAcceptStream: ({ callId, token }) => {
-        const call = this.manager.getCallByProviderCallId(callId);
-        if (!call) {
-          return false;
-        }
-        if (this.provider.name === "twilio") {
-          const twilio = this.provider as TwilioProvider;
-          if (!twilio.isValidStreamToken(callId, token)) {
-            console.warn(`[voice-call] Rejecting media stream: invalid token for ${callId}`);
-            return false;
-          }
-        }
-        return true;
-      },
       onTranscript: (providerCallId, transcript) => {
         this.logger.info(
           `[voice-call] Transcript for ${providerCallId}: ${transcript}`,
@@ -269,17 +253,7 @@ export class VoiceCallWebhookServer {
     }
 
     // Read body
-    let body = "";
-    try {
-      body = await this.readBody(req, MAX_WEBHOOK_BODY_BYTES);
-    } catch (err) {
-      if (err instanceof Error && err.message === "PayloadTooLarge") {
-        res.statusCode = 413;
-        res.end("Payload Too Large");
-        return;
-      }
-      throw err;
-    }
+    const body = await this.readBody(req);
 
     // Build webhook context
     const ctx: WebhookContext = {
@@ -333,19 +307,10 @@ export class VoiceCallWebhookServer {
   /**
    * Read request body as string.
    */
-  private readBody(req: http.IncomingMessage, maxBytes: number): Promise<string> {
+  private readBody(req: http.IncomingMessage): Promise<string> {
     return new Promise((resolve, reject) => {
       const chunks: Buffer[] = [];
-      let totalBytes = 0;
-      req.on("data", (chunk: Buffer) => {
-        totalBytes += chunk.length;
-        if (totalBytes > maxBytes) {
-          req.destroy();
-          reject(new Error("PayloadTooLarge"));
-          return;
-        }
-        chunks.push(chunk);
-      });
+      req.on("data", (chunk) => chunks.push(chunk));
       req.on("end", () => resolve(Buffer.concat(chunks).toString("utf-8")));
       req.on("error", reject);
     });

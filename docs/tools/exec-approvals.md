@@ -4,7 +4,6 @@ read_when:
   - Configuring exec approvals or allowlists
   - Implementing exec approval UX in the macOS app
   - Reviewing sandbox escape prompts and implications
-title: "Exec Approvals"
 ---
 
 # Exec approvals
@@ -94,12 +93,7 @@ Patterns should resolve to **binary paths** (basename-only entries are ignored).
 Legacy `agents.default` entries are migrated to `agents.main` on load.
 
 Examples:
-<<<<<<< HEAD
 - `~/Projects/**/bin/bird`
-=======
-
-- `~/Projects/**/bin/peekaboo`
->>>>>>> 31a7e4f93 (chore(skills): remove bird skill)
 - `~/.local/bin/*`
 - `/opt/homebrew/bin/rg`
 

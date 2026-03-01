@@ -3,7 +3,6 @@ summary: "Moltbot CLI reference for `moltbot` commands, subcommands, and options
 read_when:
   - Adding or modifying CLI commands or options
   - Documenting new command surfaces
-title: "CLI Reference"
 ---
 
 # CLI reference

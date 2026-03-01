@@ -4,7 +4,6 @@ read_when:
   - Implementing node pairing approvals without macOS UI
   - Adding CLI flows for approving remote nodes
   - Extending gateway protocol with node management
-title: "Gateway-Owned Pairing"
 ---
 # Gateway-owned pairing (Option B)
 

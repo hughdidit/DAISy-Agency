@@ -2,7 +2,6 @@
 summary: "Direct `moltbot agent` CLI runs (with optional delivery)"
 read_when:
   - Adding or modifying the agent CLI entrypoint
-title: "Agent Send"
 ---
 # `moltbot agent` (direct agent runs)
 

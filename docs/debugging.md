@@ -4,7 +4,6 @@ read_when:
   - You need to inspect raw model output for reasoning leakage
   - You want to run the Gateway in watch mode while iterating
   - You need a repeatable debugging workflow
-title: "Debugging"
 ---
 
 # Debugging

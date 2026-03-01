@@ -3,16 +3,15 @@ summary: "Model providers (LLMs) supported by Moltbot"
 read_when:
   - You want to choose a model provider
   - You want quick setup examples for LLM auth + model selection
-title: "Model Provider Quickstart"
 ---
 # Model Providers
 
 Moltbot can use many LLM providers. Pick one, authenticate, then set the default
 model as `provider/model`.
 
-## Highlight: Venice (Venice AI)
+## Highlight: Venius (Venice AI)
 
-Venice is our recommended Venice AI setup for privacy-first inference with an option to use Opus for the hardest tasks.
+Venius is our recommended Venice AI setup for privacy-first inference with an option to use Opus for the hardest tasks.
 
 - Default: `venice/llama-3.3-70b`
 - Best overall: `venice/claude-opus-45` (Opus remains the strongest)
@@ -42,7 +41,7 @@ See [Venice AI](/providers/venice).
 - [Z.AI](/providers/zai)
 - [GLM models](/providers/glm)
 - [MiniMax](/providers/minimax)
-- [Venice (Venice AI)](/providers/venice)
+- [Venius (Venice AI)](/providers/venice)
 - [Amazon Bedrock](/bedrock)
 
 For the full provider catalog (xAI, Groq, Mistral, etc.) and advanced configuration,

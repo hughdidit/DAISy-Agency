@@ -1,7 +1,3 @@
----
-title: "Creating Skills"
----
-
 # Creating Custom Skills 🛠
 
 Moltbot is designed to be easily extensible. "Skills" are the primary way to add new capabilities to your assistant.

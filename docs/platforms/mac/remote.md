@@ -2,7 +2,6 @@
 summary: "macOS app flow for controlling a remote Moltbot gateway over SSH"
 read_when:
   - Setting up or debugging remote mac control
-title: "Remote Control"
 ---
 # Remote Moltbot (macOS ⇄ remote host)
 

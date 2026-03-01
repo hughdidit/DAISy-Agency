@@ -1,16 +1,11 @@
 ---
-summary: "Agent runtime (embedded pi-mono), workspace contract, and session bootstrap"
+summary: "Agent runtime (embedded p-mono), workspace contract, and session bootstrap"
 read_when:
   - Changing agent runtime, workspace bootstrap, or session behavior
-title: "Agent Runtime"
 ---
 # Agent Runtime 🤖
 
-<<<<<<< HEAD
 Moltbot runs a single embedded agent runtime derived from **p-mono**.
-=======
-OpenClaw runs a single embedded agent runtime derived from **pi-mono**.
->>>>>>> 9a1b44096 (Fix typo in agent.md from p-mono to pi-mono)
 
 ## Workspace (required)
 
@@ -64,15 +59,11 @@ Moltbot loads skills from three locations (workspace wins on name conflict):
 
 Skills can be gated by config/env (see `skills` in [Gateway configuration](/gateway/configuration)).
 
-## pi-mono integration
+## p-mono integration
 
-<<<<<<< HEAD
 Moltbot reuses pieces of the p-mono codebase (models/tools), but **session management, discovery, and tool wiring are Moltbot-owned**.
-=======
-OpenClaw reuses pieces of the pi-mono codebase (models/tools), but **session management, discovery, and tool wiring are OpenClaw-owned**.
->>>>>>> 97895a023 (Fix typo from 'p-mono' to 'pi-mono' in agent.md)
 
-- No pi-coding agent runtime.
+- No p-coding agent runtime.
 - No `~/.pi/agent` or `<workspace>/.pi` settings are consulted.
 
 ## Sessions

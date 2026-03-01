@@ -3,7 +3,6 @@ summary: "Run multiple Moltbot Gateways on one host (isolation, ports, and profi
 read_when:
   - Running more than one Gateway on the same machine
   - You need isolated config/state/ports per Gateway
-title: "Multiple Gateways"
 ---
 # Multiple Gateways (same host)
 

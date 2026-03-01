@@ -3,7 +3,6 @@ summary: "Use OpenCode Zen (curated models) with Moltbot"
 read_when:
   - You want OpenCode Zen for model access
   - You want a curated list of coding-friendly models
-title: "OpenCode Zen"
 ---
 # OpenCode Zen
 

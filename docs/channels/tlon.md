@@ -2,7 +2,6 @@
 summary: "Tlon/Urbit support status, capabilities, and configuration"
 read_when:
   - Working on Tlon/Urbit channel features
-title: "Tlon"
 ---
 # Tlon (plugin)
 

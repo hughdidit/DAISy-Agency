@@ -4,7 +4,6 @@ read_when:
   - You use `moltbot browser` and want examples for common tasks
   - You want to control a browser running on another machine via a node host
   - You want to use the Chrome extension relay (attach/detach via toolbar button)
-title: "browser"
 ---
 
 # `moltbot browser`

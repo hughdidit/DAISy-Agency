@@ -130,7 +130,6 @@ export class MoltbotApp extends LitElement {
   @state() chatThinkingLevel: string | null = null;
   @state() chatQueue: ChatQueueItem[] = [];
   @state() chatAttachments: ChatAttachment[] = [];
-  @state() chatManualRefreshInFlight = false;
   // Sidebar state for tool output viewing
   @state() sidebarOpen = false;
   @state() sidebarContent: string | null = null;
@@ -259,10 +258,6 @@ export class MoltbotApp extends LitElement {
   private logsScrollFrame: number | null = null;
   private toolStreamById = new Map<string, ToolStreamEntry>();
   private toolStreamOrder: string[] = [];
-<<<<<<< HEAD
-=======
-  refreshSessionsAfterChat = new Set<string>();
->>>>>>> 0b7aa8cf1 (feat(ui): refresh session list after chat commands in Web UI)
   basePath = "";
   private popStateHandler = () =>
     onPopStateInternal(
@@ -328,23 +323,8 @@ export class MoltbotApp extends LitElement {
   }
 
   resetChatScroll() {
-<<<<<<< HEAD
     resetChatScrollInternal(
       this as unknown as Parameters<typeof resetChatScrollInternal>[0],
-=======
-    resetChatScrollInternal(this as unknown as Parameters<typeof resetChatScrollInternal>[0]);
-  }
-
-  scrollToBottom(opts?: { smooth?: boolean }) {
-    resetChatScrollInternal(this as unknown as Parameters<typeof resetChatScrollInternal>[0]);
-    scheduleChatScrollInternal(
-      this as unknown as Parameters<typeof scheduleChatScrollInternal>[0],
-      true,
-<<<<<<< HEAD
->>>>>>> 371114354 (chore: fix formatting and CI)
-=======
-      Boolean(opts?.smooth),
->>>>>>> bc475f017 (fix(ui): smooth chat refresh scroll and suppress new-messages badge flash)
     );
   }
 

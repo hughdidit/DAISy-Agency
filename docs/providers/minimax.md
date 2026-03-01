@@ -3,7 +3,6 @@ summary: "Use MiniMax M2.1 in Moltbot"
 read_when:
   - You want MiniMax models in Moltbot
   - You need MiniMax setup guidance
-title: "MiniMax"
 ---
 # MiniMax
 
@@ -36,30 +35,7 @@ MiniMax highlights these improvements in M2.1:
 
 ## Choose a setup
 
-<<<<<<< HEAD
 ### MiniMax M2.1 — recommended
-=======
-### MiniMax OAuth (Coding Plan) — recommended
-
-**Best for:** quick setup with MiniMax Coding Plan via OAuth, no API key required.
-
-Enable the bundled OAuth plugin and authenticate:
-
-```bash
-openclaw plugins enable minimax-portal-auth  # skip if already loaded.
-openclaw gateway restart  # restart if gateway is already running
-openclaw onboard --auth-choice minimax-portal
-```
-
-You will be prompted to select an endpoint:
-
-- **Global** - International users (`api.minimax.io`)
-- **CN** - Users in China (`api.minimaxi.com`)
-
-See [MiniMax OAuth plugin README](https://github.com/openclaw/openclaw/tree/main/extensions/minimax-portal-auth) for details.
-
-### MiniMax M2.1 (API key)
->>>>>>> bce8c0eb1 (fix(docs): update MiniMax plugin URL from legacy moltbot org)
 
 **Best for:** hosted MiniMax with Anthropic-compatible API.
 
@@ -181,7 +157,7 @@ Use the interactive config wizard to set MiniMax without editing JSON:
 - Model refs are `minimax/<model>`.
 - Coding Plan usage API: `https://api.minimaxi.com/v1/api/openplatform/coding_plan/remains` (requires a coding plan key).
 - Update pricing values in `models.json` if you need exact cost tracking.
-- Referral link for MiniMax Coding Plan (10% off): [https://platform.minimax.io/subscribe/coding-plan?code=DbXJTRClnb&source=link](https://platform.minimax.io/subscribe/coding-plan?code=DbXJTRClnb&source=link)
+- Referral link for MiniMax Coding Plan (10% off): https://platform.minimax.io/subscribe/coding-plan?code=DbXJTRClnb&source=link
 - See [/concepts/model-providers](/concepts/model-providers) for provider rules.
 - Use `moltbot models list` and `moltbot models set minimax/MiniMax-M2.1` to switch.
 

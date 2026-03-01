@@ -9,7 +9,6 @@ import type { CallMode, VoiceCallConfig } from "./config.js";
 import type { Logger } from "./manager/context.js";
 import { defaultLogger } from "./manager/context.js";
 import type { VoiceCallProvider } from "./providers/base.js";
-import { isAllowlistedCaller, normalizePhoneNumber } from "./allowlist.js";
 import {
   type CallId,
   type CallRecord,
@@ -482,7 +481,6 @@ export class CallManager {
 
       case "allowlist":
       case "pairing": {
-<<<<<<< HEAD
         const normalized = from?.replace(/\D/g, "") || "";
         const allowed = (allowFrom || []).some((num) => {
           const normalizedAllow = num.replace(/\D/g, "");
@@ -491,14 +489,6 @@ export class CallManager {
             normalizedAllow.endsWith(normalized)
           );
         });
-=======
-        const normalized = normalizePhoneNumber(from);
-        if (!normalized) {
-          console.log("[voice-call] Inbound call rejected: missing caller ID");
-          return false;
-        }
-        const allowed = isAllowlistedCaller(normalized, allowFrom);
->>>>>>> f8dfd034f (fix(voice-call): harden inbound policy)
         const status = allowed ? "accepted" : "rejected";
         this.logger.info(
           `[voice-call] Inbound call ${status}: ${from} ${allowed ? "is in" : "not in"} allowlist`,
@@ -688,25 +678,6 @@ export class CallManager {
     }
 
     this.persistCallRecord(call);
-  }
-
-  private async rejectInboundCall(event: NormalizedEvent): Promise<void> {
-    if (!this.provider || !event.providerCallId) {
-      return;
-    }
-    const callId = event.callId || event.providerCallId;
-    try {
-      await this.provider.hangupCall({
-        callId,
-        providerCallId: event.providerCallId,
-        reason: "hangup-bot",
-      });
-    } catch (err) {
-      console.warn(
-        `[voice-call] Failed to reject inbound call ${event.providerCallId}:`,
-        err instanceof Error ? err.message : err,
-      );
-    }
   }
 
   private maybeSpeakInitialMessageOnAnswered(call: CallRecord): void {

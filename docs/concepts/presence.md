@@ -4,7 +4,6 @@ read_when:
   - Debugging the Instances tab
   - Investigating duplicate or stale instance rows
   - Changing gateway WS connect or system-event beacons
-title: "Presence"
 ---
 # Presence
 

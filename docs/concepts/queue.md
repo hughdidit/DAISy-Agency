@@ -2,7 +2,6 @@
 summary: "Command queue design that serializes inbound auto-reply runs"
 read_when:
   - Changing auto-reply execution or concurrency
-title: "Command Queue"
 ---
 # Command Queue (2026-01-16)
 

@@ -3,7 +3,6 @@ summary: "Model provider overview with example configs + CLI flows"
 read_when:
   - You need a provider-by-provider model setup reference
   - You want example configs or CLI onboarding commands for model providers
-title: "Model Providers"
 ---
 # Model providers
 
@@ -80,7 +79,7 @@ Moltbot ships with the pi‑ai catalog. These providers require **no**
 - Example model: `google/gemini-3-pro-preview`
 - CLI: `moltbot onboard --auth-choice gemini-api-key`
 
-### Google Vertex, Antigravity, and Gemini CLI
+### Google Vertex / Antigravity / Gemini CLI
 
 - Providers: `google-vertex`, `google-antigravity`, `google-gemini-cli`
 - Auth: Vertex uses gcloud ADC; Antigravity/Gemini CLI use their respective auth flows
@@ -133,39 +132,13 @@ Moonshot uses OpenAI-compatible endpoints, so configure it as a custom provider:
 - Auth: `MOONSHOT_API_KEY`
 - Example model: `moonshot/kimi-k2.5`
 - Kimi K2 model IDs:
-  <!-- moonshot-kimi-k2-model-refs:start -->
+  {/* moonshot-kimi-k2-model-refs:start */}
   - `moonshot/kimi-k2.5`
   - `moonshot/kimi-k2-0905-preview`
   - `moonshot/kimi-k2-turbo-preview`
   - `moonshot/kimi-k2-thinking`
   - `moonshot/kimi-k2-thinking-turbo`
-<<<<<<< HEAD
-<<<<<<< HEAD
   {/* moonshot-kimi-k2-model-refs:end */}
-<<<<<<< HEAD
-=======
-=======
-    {/_ moonshot-kimi-k2-model-refs:end _/}
->>>>>>> 443ee26af (chore: oxfmt fixes)
-=======
-  <!-- moonshot-kimi-k2-model-refs:end -->
->>>>>>> 92803facf (docs: preserve moonshot sync markers)
-
-<<<<<<< HEAD
->>>>>>> 7fabe03a8 (docs: fix anchor link for Google Vertex/Antigravity/Gemini section (#5967))
-=======
-Kimi K2 model IDs:
-
-{/_moonshot-kimi-k2-model-refs:start_/ && null}
-
-- `moonshot/kimi-k2.5`
-- `moonshot/kimi-k2-0905-preview`
-- `moonshot/kimi-k2-turbo-preview`
-- `moonshot/kimi-k2-thinking`
-- `moonshot/kimi-k2-thinking-turbo`
-  {/_moonshot-kimi-k2-model-refs:end_/ && null}
-
->>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 ```json5
 {
   agents: {
@@ -273,7 +246,7 @@ Ollama is a local LLM runtime that provides an OpenAI-compatible API:
 - Provider: `ollama`
 - Auth: None required (local server)
 - Example model: `ollama/llama3.3`
-- Installation: [https://ollama.ai](https://ollama.ai)
+- Installation: https://ollama.ai
 
 ```bash
 # Install Ollama, then pull a model:

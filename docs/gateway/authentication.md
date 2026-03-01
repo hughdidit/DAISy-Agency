@@ -3,7 +3,6 @@ summary: "Model authentication: OAuth, API keys, and setup-token"
 read_when:
   - Debugging model auth or OAuth expiry
   - Documenting authentication or credential storage
-title: "Authentication"
 ---
 # Authentication
 
@@ -26,17 +25,8 @@ export ANTHROPIC_API_KEY="..."
 moltbot models status
 ```
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 3) If the Gateway runs under systemd/launchd, prefer putting the key in
 `~/.clawdbot/.env` so the daemon can read it:
-=======
-1. If the Gateway runs under systemd/launchd, prefer putting the key in
-=======
-3. If the Gateway runs under systemd/launchd, prefer putting the key in
->>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
-   `~/.openclaw/.env` so the daemon can read it:
->>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 
 ```bash
 cat >> ~/.clawdbot/.env <<'EOF'

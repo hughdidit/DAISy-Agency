@@ -2,7 +2,6 @@
 summary: "All configuration options for ~/.clawdbot/moltbot.json with examples"
 read_when:
   - Adding or modifying config fields
-title: "Configuration"
 ---
 # Configuration 🔧
 
@@ -1245,14 +1244,13 @@ Thread session isolation:
 - `channels.slack.thread.inheritParent` controls whether new thread sessions inherit the parent channel transcript (default: false).
 
 Slack action groups (gate `slack` tool actions):
-
-| Action group | Default | Notes                  |
-| ------------ | ------- | ---------------------- |
-| reactions    | enabled | React + list reactions |
-| messages     | enabled | Read/send/edit/delete  |
-| pins         | enabled | Pin/unpin/list         |
-| memberInfo   | enabled | Member info            |
-| emojiList    | enabled | Custom emoji list      |
+| Action group | Default | Notes |
+| --- | --- | --- |
+| reactions | enabled | React + list reactions |
+| messages | enabled | Read/send/edit/delete |
+| pins | enabled | Pin/unpin/list |
+| memberInfo | enabled | Member info |
+| emojiList | enabled | Custom emoji list |
 
 ### `channels.mattermost` (bot token)
 
@@ -1383,7 +1381,7 @@ working directory). The path must exist to be used.
 
 ### `agents.defaults.skipBootstrap`
 
-Disables automatic creation of the workspace bootstrap files (`AGENTS.md`, `SOUL.md`, `TOOLS.md`, `IDENTITY.md`, `USER.md`, `HEARTBEAT.md`, and `BOOTSTRAP.md`).
+Disables automatic creation of the workspace bootstrap files (`AGENTS.md`, `SOUL.md`, `TOOLS.md`, `IDENTITY.md`, `USER.md`, and `BOOTSTRAP.md`).
 
 Use this for pre-seeded deployments where your workspace files come from a repo.
 
@@ -1875,13 +1873,11 @@ Block streaming:
 - `agents.defaults.blockStreamingChunk`: soft chunking for streamed blocks. Defaults to
   800–1200 chars, prefers paragraph breaks (`\n\n`), then newlines, then sentences.
   Example:
-
   ```json5
   {
     agents: { defaults: { blockStreamingChunk: { minChars: 800, maxChars: 1200 } } }
   }
   ```
-
 - `agents.defaults.blockStreamingCoalesce`: merge streamed blocks before sending.
   Defaults to `{ idleMs: 1000 }` and inherits `minChars` from `blockStreamingChunk`
   with `maxChars` capped to the channel text limit. Signal/Slack/Discord/Google Chat default
@@ -1895,25 +1891,12 @@ Block streaming:
   Modes: `off` (default), `natural` (800–2500ms), `custom` (use `minMs`/`maxMs`).
   Per-agent override: `agents.list[].humanDelay`.
   Example:
-
   ```json5
   {
     agents: { defaults: { humanDelay: { mode: "natural" } } }
   }
   ```
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
 See [/concepts/streaming](/concepts/streaming) for behavior + chunking details.
-=======
-
-=======
->>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
-=======
-
->>>>>>> 578a6e27a (Docs: enable markdownlint autofixables except list numbering (#10476))
-  See [/concepts/streaming](/concepts/streaming) for behavior + chunking details.
->>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 
 Typing indicators:
 - `agents.defaults.typingMode`: `"never" | "instant" | "thinking" | "message"`. Defaults to
@@ -1972,7 +1955,7 @@ Note: `applyPatch` is only under `tools.exec`.
 - `tools.web.fetch.readability` (default true; disable to use basic HTML cleanup only)
 - `tools.web.fetch.firecrawl.enabled` (default true when an API key is set)
 - `tools.web.fetch.firecrawl.apiKey` (optional; defaults to `FIRECRAWL_API_KEY`)
-- `tools.web.fetch.firecrawl.baseUrl` (default [https://api.firecrawl.dev](https://api.firecrawl.dev))
+- `tools.web.fetch.firecrawl.baseUrl` (default https://api.firecrawl.dev)
 - `tools.web.fetch.firecrawl.onlyMainContent` (default true)
 - `tools.web.fetch.firecrawl.maxAgeMs` (optional)
 - `tools.web.fetch.firecrawl.timeoutSeconds` (optional)
@@ -2357,7 +2340,7 @@ Select the model via `agents.defaults.model.primary` (provider/model).
 
 OpenCode Zen is a multi-model gateway with per-model endpoints. Moltbot uses
 the built-in `opencode` provider from pi-ai; set `OPENCODE_API_KEY` (or
-`OPENCODE_ZEN_API_KEY`) from [https://opencode.ai/auth](https://opencode.ai/auth).
+`OPENCODE_ZEN_API_KEY`) from https://opencode.ai/auth.
 
 Notes:
 - Model refs use `opencode/<modelId>` (example: `opencode/claude-opus-4-5`).
@@ -2675,7 +2658,6 @@ Fields:
   - `per-peer`: isolate DMs by sender id across channels.
   - `per-channel-peer`: isolate DMs per channel + sender (recommended for multi-user inboxes).
   - `per-account-channel-peer`: isolate DMs per account + channel + sender (recommended for multi-account inboxes).
-  - Secure DM mode (recommended): set `session.dmScope: "per-channel-peer"` when multiple people can DM the bot (shared inboxes, multi-person allowlists, or `dmPolicy: "open"`).
 - `identityLinks`: map canonical ids to provider-prefixed peers so the same person shares a DM session across channels when using `per-peer`, `per-channel-peer`, or `per-account-channel-peer`.
   - Example: `alice: ["telegram:123456789", "discord:987654321012345678"]`.
 - `reset`: primary reset policy. Defaults to daily resets at 4:00 AM local time on the gateway host.
@@ -3226,7 +3208,7 @@ moltbot dns setup --apply
 }
 ```
 
-## Media model template variables
+## Template variables
 
 Template placeholders are expanded in `tools.media.*.models[].args` and `tools.media.models[].args` (and any future templated argument fields).
 

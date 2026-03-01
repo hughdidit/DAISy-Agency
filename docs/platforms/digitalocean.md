@@ -1,14 +1,8 @@
 ---
 summary: "Moltbot on DigitalOcean (simple paid VPS option)"
 read_when:
-<<<<<<< HEAD
   - Setting up Moltbot on DigitalOcean
   - Looking for cheap VPS hosting for Moltbot
-=======
-  - Setting up OpenClaw on DigitalOcean
-  - Looking for cheap VPS hosting for OpenClaw
-title: "DigitalOcean"
->>>>>>> abcaa8c7a (Docs: add nav titles across docs (#5689))
 ---
 
 # Moltbot on DigitalOcean
@@ -31,7 +25,7 @@ If you want a $0/month option and don’t mind ARM + provider-specific setup, se
 
 **Picking a provider:**
 - DigitalOcean: simplest UX + predictable setup (this guide)
-- Hetzner: good price/perf (see [Hetzner guide](/install/hetzner))
+- Hetzner: good price/perf (see [Hetzner guide](/platforms/hetzner))
 - Oracle Cloud: can be $0/month, but is more finicky and ARM-only (see [Oracle guide](/platforms/oracle))
 
 ---
@@ -70,13 +64,8 @@ apt update && apt upgrade -y
 curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
 apt install -y nodejs
 
-<<<<<<< HEAD
 # Install Moltbot
 curl -fsSL https://molt.bot/install.sh | bash
-=======
-# Install OpenClaw
-curl -fsSL https://openclaw.ai/install.sh | bash
->>>>>>> 7a2c4d3cf (fix(docs): use canonical openclaw.ai domain instead of openclaw.bot)
 
 # Verify
 moltbot --version
@@ -248,7 +237,7 @@ free -h
 
 ## See Also
 
-- [Hetzner guide](/install/hetzner) — cheaper, more powerful
+- [Hetzner guide](/platforms/hetzner) — cheaper, more powerful
 - [Docker install](/install/docker) — containerized setup
 - [Tailscale](/gateway/tailscale) — secure remote access
 - [Configuration](/gateway/configuration) — full config reference

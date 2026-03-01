@@ -4,7 +4,6 @@ read_when:
   - You want to enqueue a system event without creating a cron job
   - You need to enable or disable heartbeats
   - You want to inspect system presence entries
-title: "system"
 ---
 
 # `moltbot system`

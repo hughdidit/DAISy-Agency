@@ -1,21 +1,11 @@
 ---
-<<<<<<< HEAD
 summary: "Setup guide: keep your Moltbot setup tailored while staying up-to-date"
-=======
-summary: "Advanced setup and development workflows for OpenClaw"
->>>>>>> 675c26b2b (Docs: streamline start and install docs (#9648))
 read_when:
   - Setting up a new machine
   - You want “latest + greatest” without breaking your personal setup
-title: "Setup"
 ---
 
 # Setup
-
-<Note>
-If you are setting up for the first time, start with [Getting Started](/start/getting-started).
-For wizard details, see [Onboarding Wizard](/start/wizard).
-</Note>
 
 Last updated: 2026-01-01
 
@@ -50,14 +40,6 @@ moltbot setup
 
 If you don’t have a global install yet, run it via `pnpm moltbot setup`.
 
-## Run the Gateway from this repo
-
-After `pnpm build`, you can run the packaged CLI directly:
-
-```bash
-node openclaw.mjs gateway --port 18789 --verbose
-```
-
 ## Stable workflow (macOS app first)
 
 1) Install + launch **Moltbot.app** (menu bar).
@@ -69,15 +51,7 @@ node openclaw.mjs gateway --port 18789 --verbose
 moltbot channels login
 ```
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 5) Sanity check:
-=======
-1. Sanity check:
->>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
-=======
-5. Sanity check:
->>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 
 ```bash
 moltbot health

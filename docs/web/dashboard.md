@@ -2,7 +2,6 @@
 summary: "Gateway dashboard (Control UI) access and auth"
 read_when:
   - Changing dashboard authentication or exposure modes
-title: "Dashboard"
 ---
 # Dashboard (Control UI)
 
@@ -10,21 +9,7 @@ The Gateway dashboard is the browser Control UI served at `/` by default
 (override with `gateway.controlUi.basePath`).
 
 Quick open (local Gateway):
-<<<<<<< HEAD
-<<<<<<< HEAD
 - http://127.0.0.1:18789/ (or http://localhost:18789/)
-=======
-
-<<<<<<< HEAD
-- [http://127.0.0.1:18789/](http://127.0.0.1:18789/) (or [http://localhost:18789/](http://localhost:18789/))
->>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
-=======
-- http://127.0.0.1:18789/ (or http://localhost:18789/)
->>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
-=======
-
-- [http://127.0.0.1:18789/](http://127.0.0.1:18789/) (or [http://localhost:18789/](http://localhost:18789/))
->>>>>>> 578a6e27a (Docs: enable markdownlint autofixables except list numbering (#10476))
 
 Key references:
 - [Control UI](/web/control-ui) for usage and UI capabilities.

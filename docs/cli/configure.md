@@ -2,7 +2,6 @@
 summary: "CLI reference for `moltbot configure` (interactive configuration prompts)"
 read_when:
   - You want to tweak credentials, devices, or agent defaults interactively
-title: "configure"
 ---
 
 # `moltbot configure`

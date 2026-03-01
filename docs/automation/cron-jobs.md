@@ -4,7 +4,6 @@ read_when:
   - Scheduling background jobs or wakeups
   - Wiring automation that should run with or alongside heartbeats
   - Deciding between heartbeat and cron for scheduled tasks
-title: "Cron Jobs"
 ---
 # Cron jobs (Gateway scheduler)
 
@@ -16,8 +15,6 @@ the right time, and can optionally deliver output back to a chat.
 If you want *“run this every morning”* or *“poke the agent in 20 minutes”*,
 cron is the mechanism.
 
-Troubleshooting: [/automation/troubleshooting](/automation/troubleshooting)
-
 ## TL;DR
 - Cron runs **inside the Gateway** (not inside the model).
 - Jobs persist under `~/.clawdbot/cron/` so restarts don’t lose schedules.
@@ -25,49 +22,6 @@ Troubleshooting: [/automation/troubleshooting](/automation/troubleshooting)
   - **Main session**: enqueue a system event, then run on the next heartbeat.
   - **Isolated**: run a dedicated agent turn in `cron:<jobId>`, optionally deliver output.
 - Wakeups are first-class: a job can request “wake now” vs “next heartbeat”.
-
-## Quick start (actionable)
-
-Create a one-shot reminder, verify it exists, and run it immediately:
-
-```bash
-openclaw cron add \
-  --name "Reminder" \
-  --at "2026-02-01T16:00:00Z" \
-  --session main \
-  --system-event "Reminder: check the cron docs draft" \
-  --wake now \
-  --delete-after-run
-
-openclaw cron list
-openclaw cron run <job-id> --force
-openclaw cron runs --id <job-id>
-```
-
-Schedule a recurring isolated job with delivery:
-
-```bash
-openclaw cron add \
-  --name "Morning brief" \
-  --cron "0 7 * * *" \
-  --tz "America/Los_Angeles" \
-  --session isolated \
-  --message "Summarize overnight updates." \
-  --deliver \
-  --channel slack \
-  --to "channel:C1234567890"
-```
-
-## Tool-call equivalents (Gateway cron tool)
-
-For the canonical JSON shapes and examples, see [JSON schema for tool calls](/automation/cron-jobs#json-schema-for-tool-calls).
-
-## Where cron jobs are stored
-
-Cron jobs are persisted on the Gateway host at `~/.openclaw/cron/jobs.json` by default.
-The Gateway loads the file into memory and writes it back on changes, so manual edits
-are only safe when the Gateway is stopped. Prefer `openclaw cron add/edit` or the cron
-tool call API for changes.
 
 ## Beginner-friendly overview
 Think of a cron job as: **when** to run + **what** to do.
@@ -196,82 +150,6 @@ the topic/thread into the `to` field:
 Prefixed targets like `telegram:...` / `telegram:group:...` are also accepted:
 - `telegram:group:-1001234567890:topic:123`
 
-## JSON schema for tool calls
-
-Use these shapes when calling Gateway `cron.*` tools directly (agent tool calls or RPC).
-CLI flags accept human durations like `20m`, but tool calls use epoch milliseconds for
-`atMs` and `everyMs` (ISO timestamps are accepted for `at` times).
-
-### cron.add params
-
-One-shot, main session job (system event):
-
-```json
-{
-  "name": "Reminder",
-  "schedule": { "kind": "at", "atMs": 1738262400000 },
-  "sessionTarget": "main",
-  "wakeMode": "now",
-  "payload": { "kind": "systemEvent", "text": "Reminder text" },
-  "deleteAfterRun": true
-}
-```
-
-Recurring, isolated job with delivery:
-
-```json
-{
-  "name": "Morning brief",
-  "schedule": { "kind": "cron", "expr": "0 7 * * *", "tz": "America/Los_Angeles" },
-  "sessionTarget": "isolated",
-  "wakeMode": "next-heartbeat",
-  "payload": {
-    "kind": "agentTurn",
-    "message": "Summarize overnight updates.",
-    "deliver": true,
-    "channel": "slack",
-    "to": "channel:C1234567890",
-    "bestEffortDeliver": true
-  },
-  "isolation": { "postToMainPrefix": "Cron", "postToMainMode": "summary" }
-}
-```
-
-Notes:
-
-- `schedule.kind`: `at` (`atMs`), `every` (`everyMs`), or `cron` (`expr`, optional `tz`).
-- `atMs` and `everyMs` are epoch milliseconds.
-- `sessionTarget` must be `"main"` or `"isolated"` and must match `payload.kind`.
-- Optional fields: `agentId`, `description`, `enabled`, `deleteAfterRun`, `isolation`.
-- `wakeMode` defaults to `"next-heartbeat"` when omitted.
-
-### cron.update params
-
-```json
-{
-  "jobId": "job-123",
-  "patch": {
-    "enabled": false,
-    "schedule": { "kind": "every", "everyMs": 3600000 }
-  }
-}
-```
-
-Notes:
-
-- `jobId` is canonical; `id` is accepted for compatibility.
-- Use `agentId: null` in the patch to clear an agent binding.
-
-### cron.run and cron.remove params
-
-```json
-{ "jobId": "job-123", "mode": "force" }
-```
-
-```json
-{ "jobId": "job-123" }
-```
-
 ## Storage & history
 - Job store: `~/.clawdbot/cron/jobs.json` (Gateway-managed JSON).
 - Run history: `~/.clawdbot/cron/runs/<jobId>.jsonl` (JSONL, auto-pruned).
@@ -343,14 +221,8 @@ moltbot cron add \
 ```
 
 Isolated job with model and thinking override:
-<<<<<<< HEAD
 ```bash
 moltbot cron add \
-=======
-
-```bash
-openclaw cron add \
->>>>>>> 75093ebe1 (Docs: add actionable cron quick start (#5446))
   --name "Deep analysis" \
   --cron "0 6 * * 1" \
   --tz "America/Los_Angeles" \
@@ -361,33 +233,21 @@ openclaw cron add \
   --deliver \
   --channel whatsapp \
   --to "+15551234567"
-```
 
 Agent selection (multi-agent setups):
-
 ```bash
 # Pin a job to agent "ops" (falls back to default if that agent is missing)
 moltbot cron add --name "Ops sweep" --cron "0 6 * * *" --session isolated --message "Check ops queue" --agent ops
 
 # Switch or clear the agent on an existing job
-<<<<<<< HEAD
 moltbot cron edit <jobId> --agent ops
 moltbot cron edit <jobId> --clear-agent
 ```
-=======
-openclaw cron edit <jobId> --agent ops
-openclaw cron edit <jobId> --clear-agent
->>>>>>> 75093ebe1 (Docs: add actionable cron quick start (#5446))
 ```
 
 Manual run (debug):
-
 ```bash
-<<<<<<< HEAD
 moltbot cron run <jobId> --force
-=======
-openclaw cron run <jobId> --force
->>>>>>> 75093ebe1 (Docs: add actionable cron quick start (#5446))
 ```
 
 Edit an existing job (patch fields):

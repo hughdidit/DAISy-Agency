@@ -2,7 +2,6 @@
 summary: "Routing rules per channel (WhatsApp, Telegram, Discord, Slack) and shared context"
 read_when:
   - Changing channel routing or inbox behavior
-title: "Channel Routing"
 ---
 # Channels & routing
 

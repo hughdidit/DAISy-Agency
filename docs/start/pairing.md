@@ -3,12 +3,7 @@ summary: "Pairing overview: approve who can DM you + which nodes can join"
 read_when:
   - Setting up DM access control
   - Pairing a new iOS/Android node
-<<<<<<< HEAD
   - Reviewing Moltbot security posture
-=======
-  - Reviewing OpenClaw security posture
-title: "Pairing"
->>>>>>> abcaa8c7a (Docs: add nav titles across docs (#5689))
 ---
 
 # Pairing
@@ -63,7 +58,7 @@ moltbot devices approve <requestId>
 moltbot devices reject <requestId>
 ```
 
-### Node pairing state storage
+### Where the state lives
 
 Stored under `~/.clawdbot/devices/`:
 - `pending.json` (short-lived; pending requests expire)

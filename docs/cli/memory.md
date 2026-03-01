@@ -3,7 +3,6 @@ summary: "CLI reference for `moltbot memory` (status/index/search)"
 read_when:
   - You want to index or search semantic memory
   - You’re debugging memory availability or indexing
-title: "memory"
 ---
 
 # `moltbot memory`
@@ -13,11 +12,7 @@ Provided by the active memory plugin (default: `memory-core`; set `plugins.slots
 
 Related:
 - Memory concept: [Memory](/concepts/memory)
-<<<<<<< HEAD
  - Plugins: [Plugins](/plugins)
-=======
-- Plugins: [Plugins](/plugin)
->>>>>>> d1dc60774 (Docs: fix broken /plugins links (#9308))
 
 ## Examples
 

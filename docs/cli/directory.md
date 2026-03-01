@@ -3,7 +3,6 @@ summary: "CLI reference for `moltbot directory` (self, peers, groups)"
 read_when:
   - You want to look up contacts/groups/self ids for a channel
   - You are developing a channel directory adapter
-title: "directory"
 ---
 
 # `moltbot directory`

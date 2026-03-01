@@ -4,7 +4,6 @@ read_when:
   - You are changing markdown formatting or chunking for outbound channels
   - You are adding a new channel formatter or style mapping
   - You are debugging formatting regressions across channels
-title: "Markdown Formatting"
 ---
 # Markdown formatting
 

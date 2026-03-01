@@ -4,7 +4,6 @@ read_when:
   - You want automated server deployment with security hardening
   - You need firewall-isolated setup with VPN access
   - You're deploying to remote Debian/Ubuntu servers
-title: "Ansible"
 ---
 
 # Ansible Installation

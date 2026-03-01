@@ -3,12 +3,7 @@ summary: "Schema-accurate configuration examples for common Moltbot setups"
 read_when:
   - Learning how to configure Moltbot
   - Looking for configuration examples
-<<<<<<< HEAD
   - Setting up Moltbot for the first time
-=======
-  - Setting up OpenClaw for the first time
-title: "Configuration Examples"
->>>>>>> abcaa8c7a (Docs: add nav titles across docs (#5689))
 ---
 # Configuration Examples
 
@@ -445,32 +440,6 @@ Save to `~/.clawdbot/moltbot.json` and you can DM the bot from that number.
       dm: { allowFrom: ["yourname"] }
     }
   }
-}
-```
-
-### Secure DM mode (shared inbox / multi-user DMs)
-
-If more than one person can DM your bot (multiple entries in `allowFrom`, pairing approvals for multiple people, or `dmPolicy: "open"`), enable **secure DM mode** so DMs from different senders don’t share one context by default:
-
-```json5
-{
-  // Secure DM mode (recommended for multi-user or sensitive DM agents)
-  session: { dmScope: "per-channel-peer" },
-
-  channels: {
-    // Example: WhatsApp multi-user inbox
-    whatsapp: {
-      dmPolicy: "allowlist",
-      allowFrom: ["+15555550123", "+15555550124"],
-    },
-
-    // Example: Discord multi-user inbox
-    discord: {
-      enabled: true,
-      token: "YOUR_DISCORD_BOT_TOKEN",
-      dm: { enabled: true, allowFrom: ["alice", "bob"] },
-    },
-  },
 }
 ```
 

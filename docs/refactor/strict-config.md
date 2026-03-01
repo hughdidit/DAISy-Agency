@@ -4,7 +4,6 @@ read_when:
   - Designing or implementing config validation behavior
   - Working on config migrations or doctor workflows
   - Handling plugin config schemas or plugin load gating
-title: "Strict Config Validation"
 ---
 # Strict config validation (doctor-only migrations)
 

@@ -3,7 +3,6 @@ summary: "Terminal UI (TUI): connect to the Gateway from any machine"
 read_when:
   - You want a beginner-friendly walkthrough of the TUI
   - You need the complete list of TUI features, commands, and shortcuts
-title: "TUI"
 ---
 # TUI (Terminal UI)
 
@@ -12,26 +11,11 @@ title: "TUI"
 ```bash
 moltbot gateway
 ```
-<<<<<<< HEAD
 2) Open the TUI.
-=======
-
-2. Open the TUI.
-
->>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 ```bash
 moltbot tui
 ```
-<<<<<<< HEAD
 3) Type a message and press Enter.
-=======
-
-<<<<<<< HEAD
-1. Type a message and press Enter.
->>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
-=======
-3. Type a message and press Enter.
->>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 
 Remote Gateway:
 ```bash
@@ -144,12 +128,7 @@ No output after sending a message:
 - If you expect messages in a chat channel, enable delivery (`/deliver on` or `--deliver`).
 - `--history-limit <n>`: History entries to load (default 200)
 
-<<<<<<< HEAD
 ## Troubleshooting
-=======
-## Connection troubleshooting
-
->>>>>>> 1bf9f237f (docs: linting)
 - `disconnected`: ensure the Gateway is running and your `--url/--token/--password` are correct.
 - No agents in picker: check `moltbot agents list` and your routing config.
 - Empty session picker: you might be in global scope or have no sessions yet.

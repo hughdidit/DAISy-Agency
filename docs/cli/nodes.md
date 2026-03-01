@@ -3,7 +3,6 @@ summary: "CLI reference for `moltbot nodes` (list/status/approve/invoke, camera/
 read_when:
   - You’re managing paired nodes (cameras, screen, canvas)
   - You need to approve requests or invoke node commands
-title: "nodes"
 ---
 
 # `moltbot nodes`

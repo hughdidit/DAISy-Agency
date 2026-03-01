@@ -19,15 +19,9 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-<<<<<<< HEAD
 	<string>2026.1.27-beta.1</string>
 	<key>CFBundleVersion</key>
 	<string>20260126</string>
-=======
-	<string>2026.2.2</string>
-	<key>CFBundleVersion</key>
-	<string>20260202</string>
->>>>>>> 1c4db9159 (chore: prepare 2026.2.2 release)
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsArbitraryLoadsInWebContent</key>
@@ -46,21 +40,7 @@
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Moltbot uses your location when you allow location sharing.</string>
 	<key>NSMicrophoneUsageDescription</key>
-<<<<<<< HEAD
 	<string>Moltbot needs microphone access for voice wake.</string>
-=======
-	<string>OpenClaw needs microphone access for voice wake.</string>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>OpenClaw can read recent photos when requested via the gateway.</string>
-	<key>NSContactsUsageDescription</key>
-	<string>OpenClaw can read your contacts when requested via the gateway.</string>
-	<key>NSCalendarsUsageDescription</key>
-	<string>OpenClaw can read your calendar events when requested via the gateway.</string>
-	<key>NSRemindersUsageDescription</key>
-	<string>OpenClaw can read your reminders when requested via the gateway.</string>
-	<key>NSMotionUsageDescription</key>
-	<string>OpenClaw can read motion activity and pedometer data when requested via the gateway.</string>
->>>>>>> 7b0a0f3da (iOS: wire node services and tests)
 	<key>NSSpeechRecognitionUsageDescription</key>
 	<string>Moltbot uses on-device speech recognition for voice wake.</string>
 	<key>UIApplicationSceneManifest</key>

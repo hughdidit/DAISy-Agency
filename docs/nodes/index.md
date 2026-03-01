@@ -4,7 +4,6 @@ read_when:
   - Pairing iOS/Android nodes to a gateway
   - Using node canvas/camera for agent context
   - Adding new node commands or CLI helpers
-title: "Nodes"
 ---
 
 # Nodes
@@ -18,7 +17,6 @@ macOS can also run in **node mode**: the menubar app connects to the Gateway’s
 Notes:
 - Nodes are **peripherals**, not gateways. They don’t run the gateway service.
 - Telegram/WhatsApp/etc. messages land on the **gateway**, not on nodes.
-- Troubleshooting runbook: [/nodes/troubleshooting](/nodes/troubleshooting)
 
 ## Pairing + status
 
@@ -58,28 +56,6 @@ On the node machine:
 ```bash
 moltbot node run --host <gateway-host> --port 18789 --display-name "Build Node"
 ```
-
-### Remote gateway via SSH tunnel (loopback bind)
-
-If the Gateway binds to loopback (`gateway.bind=loopback`, default in local mode),
-remote node hosts cannot connect directly. Create an SSH tunnel and point the
-node host at the local end of the tunnel.
-
-Example (node host -> gateway host):
-
-```bash
-# Terminal A (keep running): forward local 18790 -> gateway 127.0.0.1:18789
-ssh -N -L 18790:127.0.0.1:18789 user@gateway-host
-
-# Terminal B: export the gateway token and connect through the tunnel
-export OPENCLAW_GATEWAY_TOKEN="<gateway-token>"
-openclaw node run --host 127.0.0.1 --port 18790 --display-name "Build Node"
-```
-
-Notes:
-
-- The token is `gateway.auth.token` from the gateway config (`~/.openclaw/openclaw.json` on the gateway host).
-- `openclaw node run` reads `OPENCLAW_GATEWAY_TOKEN` for auth.
 
 ### Start a node host (service)
 
@@ -325,10 +301,5 @@ Notes:
 
 ## Mac node mode
 
-<<<<<<< HEAD
 - The macOS menubar app connects to the Gateway WS server as a node (so `moltbot nodes …` works against this Mac).
 - In remote mode, the app opens an SSH tunnel for the Gateway port and connects to `localhost`.
-=======
-- The macOS menubar app connects to the Gateway WS server as a node (so `openclaw nodes …` works against this Mac).
-- In remote mode, the app opens an SSH tunnel for the Gateway port and connects to `localhost`.
->>>>>>> 63c9fac9f (Docs: clarify node host SSH tunnel flow)

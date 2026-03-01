@@ -4,7 +4,6 @@ read_when:
   - You want to enable web_search or web_fetch
   - You need Brave Search API key setup
   - You want to use Perplexity Sonar for web search
-title: "Web Tools"
 ---
 
 # Web tools
@@ -71,23 +70,9 @@ Example: switch to Perplexity Sonar (direct API):
 
 ## Getting a Brave API key
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
 1) Create a Brave Search API account at https://brave.com/search/api/
 2) In the dashboard, choose the **Data for Search** plan (not “Data for AI”) and generate an API key.
 3) Run `moltbot configure --section web` to store the key in config (recommended), or set `BRAVE_API_KEY` in your environment.
-=======
-1. Create a Brave Search API account at [https://brave.com/search/api/](https://brave.com/search/api/)
-=======
-1. Create a Brave Search API account at https://brave.com/search/api/
->>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
-=======
-1. Create a Brave Search API account at [https://brave.com/search/api/](https://brave.com/search/api/)
->>>>>>> 578a6e27a (Docs: enable markdownlint autofixables except list numbering (#10476))
-2. In the dashboard, choose the **Data for Search** plan (not “Data for AI”) and generate an API key.
-3. Run `openclaw configure --section web` to store the key in config (recommended), or set `BRAVE_API_KEY` in your environment.
->>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 
 Brave provides a free tier plus paid plans; check the Brave API portal for the
 current limits and pricing.
@@ -109,23 +94,9 @@ crypto/prepaid).
 
 ### Getting an OpenRouter API key
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
 1) Create an account at https://openrouter.ai/
 2) Add credits (supports crypto, prepaid, or credit card)
 3) Generate an API key in your account settings
-=======
-1. Create an account at [https://openrouter.ai/](https://openrouter.ai/)
-=======
-1. Create an account at https://openrouter.ai/
->>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
-=======
-1. Create an account at [https://openrouter.ai/](https://openrouter.ai/)
->>>>>>> 578a6e27a (Docs: enable markdownlint autofixables except list numbering (#10476))
-2. Add credits (supports crypto, prepaid, or credit card)
-3. Generate an API key in your account settings
->>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 
 ### Setting up Perplexity search
 
@@ -235,12 +206,12 @@ await web_search({
 
 Fetch a URL and extract readable content.
 
-### web_fetch requirements
+### Requirements
 
 - `tools.web.fetch.enabled` must not be `false` (default: enabled)
 - Optional Firecrawl fallback: set `tools.web.fetch.firecrawl.apiKey` or `FIRECRAWL_API_KEY`.
 
-### web_fetch config
+### Config
 
 ```json5
 {
@@ -268,7 +239,7 @@ Fetch a URL and extract readable content.
 }
 ```
 
-### web_fetch tool parameters
+### Tool parameters
 
 - `url` (required, http/https only)
 - `extractMode` (`markdown` | `text`)
