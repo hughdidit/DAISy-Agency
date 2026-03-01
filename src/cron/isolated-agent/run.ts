@@ -1093,17 +1093,29 @@ let skillsSnapshot = cronSession.sessionEntry.skillsSnapshot;
 >>>>>>> 8fae55e8e (fix(cron): share isolated announce flow + harden cron scheduling/delivery (#11641))
   const deliveryBestEffort = resolveCronDeliveryBestEffort(params.job);
   const hasErrorPayload = payloads.some((payload) => payload?.isError === true);
+  const runLevelError = runResult.meta?.error;
+  const lastErrorPayloadIndex = payloads.findLastIndex((payload) => payload?.isError === true);
+  const hasSuccessfulPayloadAfterLastError =
+    !runLevelError &&
+    lastErrorPayloadIndex >= 0 &&
+    payloads
+      .slice(lastErrorPayloadIndex + 1)
+      .some((payload) => payload?.isError !== true && Boolean(payload?.text?.trim()));
+  // Tool wrappers can emit transient/false-positive error payloads before a valid final
+  // assistant payload.  Only treat payload errors as recoverable when (a) the run itself
+  // did not report a model/context-level error and (b) a non-error payload follows.
+  const hasFatalErrorPayload = hasErrorPayload && !hasSuccessfulPayloadAfterLastError;
   const lastErrorPayloadText = [...payloads]
     .toReversed()
     .find((payload) => payload?.isError === true && Boolean(payload?.text?.trim()))
     ?.text?.trim();
-  const embeddedRunError = hasErrorPayload
+  const embeddedRunError = hasFatalErrorPayload
     ? (lastErrorPayloadText ?? "cron isolated run returned an error payload")
     : undefined;
   const resolveRunOutcome = (params?: { delivered?: boolean; deliveryAttempted?: boolean }) =>
     withRunSession({
-      status: hasErrorPayload ? "error" : "ok",
-      ...(hasErrorPayload
+      status: hasFatalErrorPayload ? "error" : "ok",
+      ...(hasFatalErrorPayload
         ? { error: embeddedRunError ?? "cron isolated run returned an error payload" }
         : {}),
       summary,
@@ -1538,8 +1550,12 @@ let skillsSnapshot = cronSession.sessionEntry.skillsSnapshot;
       deliveryAttempted:
         deliveryResult.result.deliveryAttempted ?? deliveryResult.deliveryAttempted,
     };
+<<<<<<< HEAD
 >>>>>>> b37dc4224 (fix(cron): suppress fallback summary after attempted announce delivery)
     if (!hasErrorPayload || deliveryResult.result.status !== "ok") {
+=======
+    if (!hasFatalErrorPayload || deliveryResult.result.status !== "ok") {
+>>>>>>> d509a81a1 (fix(cron): treat transient tool error payloads as recoverable (openclaw#29527) thanks @Sid-Qin)
       return resultWithDeliveryMeta;
     }
 <<<<<<< HEAD
