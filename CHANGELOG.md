@@ -149,7 +149,11 @@ Docs: https://docs.openclaw.ai
 =======
 - CLI/Startup (Raspberry Pi + small hosts): speed up startup by avoiding unnecessary plugin preload on fast routes, adding root `--version` fast-path bootstrap bypass, parallelizing status JSON/non-JSON scans where safe, and enabling Node compile cache at startup with env override compatibility (`NODE_COMPILE_CACHE`, `NODE_DISABLE_COMPILE_CACHE`). (#5871) Thanks @BookCatKid and @vincentkoc for raising startup reports, and @lupuletic for related startup work in #27973.
 - Telegram/Outbound API proxy env: keep the Node 22 `autoSelectFamily` global-dispatcher workaround while restoring env-proxy support by using `EnvHttpProxyAgent` so `HTTP_PROXY`/`HTTPS_PROXY` continue to apply to outbound requests. (#26207) Thanks @qsysbio-cjw for reporting and @rylena and @vincentkoc for work.
+<<<<<<< HEAD
 >>>>>>> e6049345d (fix(telegram): preserve HTTP proxy env in global dispatcher workaround (#29940))
+=======
+- Browser/Security: fail closed on browser-control auth bootstrap errors; if auto-auth setup fails and no explicit token/password exists, browser control server startup now aborts instead of starting unauthenticated. This ships in the next npm release. Thanks @ijxpwastaken.
+>>>>>>> e4d22fb07 (fix(browser): fail closed browser auth bootstrap)
 - Docs/Slack manifest scopes: add missing DM/group-DM bot scopes (`im:read`, `im:write`, `mpim:read`, `mpim:write`) to the Slack app manifest example so DM setup guidance is complete. (#29999) Thanks @JcMinarro.
 - Slack/Onboarding token help: update setup text to include the “From manifest” app-creation path and current install wording for obtaining the `xoxb-` bot token. (#30846) Thanks @yzhong52.
 >>>>>>> a179a0d37 (Slack onboarding: improve token help note with manifest option (openclaw#30846) thanks @yzhong52)
