@@ -978,6 +978,10 @@ Optional **Docker sandboxing** for the embedded agent. See [Sandboxing](/gateway
 **`docker.binds`** mounts additional host directories; global and per-agent binds are merged.
 
 **Sandboxed browser** (`sandbox.browser.enabled`): Chromium + CDP in a container. noVNC URL injected into system prompt. Does not require `browser.enabled` in main config.
+<<<<<<< HEAD
+=======
+noVNC observer access uses VNC auth by default and OpenClaw emits a short-lived token URL that serves a local bootstrap page; noVNC password is passed via URL fragment (instead of URL query).
+>>>>>>> 002539c01 (fix(security): harden sandbox novnc observer flow)
 
 - `allowHostControl: false` (default) blocks sandboxed sessions from targeting the host browser.
 <<<<<<< HEAD

@@ -28,8 +28,21 @@ import {
   execDocker,
   readDockerPort,
 } from "./docker.js";
+<<<<<<< HEAD
 import { updateBrowserRegistry } from "./registry.js";
 import { slugifySessionKey } from "./shared.js";
+=======
+import {
+  buildNoVncObserverTokenUrl,
+  consumeNoVncObserverToken,
+  generateNoVncPassword,
+  isNoVncEnabled,
+  NOVNC_PASSWORD_ENV_KEY,
+  issueNoVncObserverToken,
+} from "./novnc-auth.js";
+import { readBrowserRegistry, updateBrowserRegistry } from "./registry.js";
+import { resolveSandboxAgentId, slugifySessionKey } from "./shared.js";
+>>>>>>> 002539c01 (fix(security): harden sandbox novnc observer flow)
 import { isToolAllowed } from "./tool-policy.js";
 import type { SandboxBrowserContext, SandboxConfig } from "./types.js";
 
@@ -359,8 +372,19 @@ export async function ensureSandboxBrowser(params: {
   });
 
   const noVncUrl =
+<<<<<<< HEAD
     mappedNoVnc && params.cfg.browser.enableNoVnc && !params.cfg.browser.headless
       ? `http://127.0.0.1:${mappedNoVnc}/vnc.html?autoconnect=1&resize=remote`
+=======
+    mappedNoVnc && noVncEnabled
+      ? (() => {
+          const token = issueNoVncObserverToken({
+            noVncPort: mappedNoVnc,
+            password: noVncPassword,
+          });
+          return buildNoVncObserverTokenUrl(resolvedBridge.baseUrl, token);
+        })()
+>>>>>>> 002539c01 (fix(security): harden sandbox novnc observer flow)
       : undefined;
 
   return {

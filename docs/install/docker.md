@@ -393,8 +393,12 @@ Notes:
 =======
 - Browser containers default to a dedicated Docker network (`openclaw-sandbox-browser`) instead of global `bridge`.
 - Optional `agents.defaults.sandbox.browser.cdpSourceRange` restricts container-edge CDP ingress by CIDR (for example `172.21.0.1/32`).
+<<<<<<< HEAD
 - noVNC observer access is password-protected by default; OpenClaw provides a short-lived observer token URL instead of sharing the raw password in the URL.
 >>>>>>> f48698a50 (fix(security): harden sandbox browser network defaults)
+=======
+- noVNC observer access is password-protected by default; OpenClaw provides a short-lived observer token URL that serves a local bootstrap page and keeps the password in URL fragment (instead of URL query).
+>>>>>>> 002539c01 (fix(security): harden sandbox novnc observer flow)
 
 Use config:
 
