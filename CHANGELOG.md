@@ -119,7 +119,24 @@ Docs: https://docs.openclaw.ai
 ### Fixes
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+- ACP/Harness thread spawn routing: force ACP harness thread creation through `sessions_spawn` (`runtime: "acp"`, `thread: true`) and explicitly forbid `message action=thread-create` for ACP harness requests, avoiding misrouted `Unknown channel` errors. (#30957) Thanks @dutifulbob.
+- Docs/ACP permissions: document the correct `permissionMode` default (`approve-reads`) and clarify non-interactive permission failure behavior/troubleshooting guidance. (#31044) Thanks @barronlroth.
+- Security/Inbound metadata stripping: tighten sentinel matching and JSON-fence validation for inbound metadata stripping so user-authored lookalike lines no longer trigger unintended metadata removal.
+- Channels/Command parsing parity: align command-body parsing fields with channel command-gating text for Slack, Signal, Microsoft Teams, Mattermost, and BlueBubbles to avoid mention-strip mismatches and inconsistent command detection.
+- CLI/Startup (Raspberry Pi + small hosts): speed up startup by avoiding unnecessary plugin preload on fast routes, adding root `--version` fast-path bootstrap bypass, parallelizing status JSON/non-JSON scans where safe, and enabling Node compile cache at startup with env override compatibility (`NODE_COMPILE_CACHE`, `NODE_DISABLE_COMPILE_CACHE`). (#5871) Thanks @BookCatKid and @vincentkoc for raising startup reports, and @lupuletic for related startup work in #27973.
+- Doctor/macOS state-dir safety: warn when OpenClaw state resolves inside iCloud Drive (`~/Library/Mobile Documents/com~apple~CloudDocs/...`) or `~/Library/CloudStorage/...`, because sync-backed paths can cause slower I/O and lock/sync races. (#31004) Thanks @vincentkoc.
+- CLI/Startup follow-up: add root `--help` fast-path bootstrap bypass with strict root-only matching, lazily resolve CLI channel options only when commands need them, merge build-time startup metadata (`dist/cli-startup-metadata.json`) with runtime catalog discovery so dynamic catalogs are preserved, and add low-power Linux doctor hints for compile-cache placement and respawn tuning. (#30975) Thanks @vincentkoc.
+- Telegram/Outbound API proxy env: keep the Node 22 `autoSelectFamily` global-dispatcher workaround while restoring env-proxy support by using `EnvHttpProxyAgent` so `HTTP_PROXY`/`HTTPS_PROXY` continue to apply to outbound requests. (#26207) Thanks @qsysbio-cjw for reporting and @rylena and @vincentkoc for work.
+- Browser/Security: fail closed on browser-control auth bootstrap errors; if auto-auth setup fails and no explicit token/password exists, browser control server startup now aborts instead of starting unauthenticated. This ships in the next npm release. Thanks @ijxpwastaken.
+- Sandbox/noVNC hardening: increase observer password entropy, shorten observer token lifetime, and replace noVNC token redirect with a bootstrap page that keeps credentials out of `Location` query strings and adds strict no-cache/no-referrer headers.
+- Docs/Slack manifest scopes: add missing DM/group-DM bot scopes (`im:read`, `im:write`, `mpim:read`, `mpim:write`) to the Slack app manifest example so DM setup guidance is complete. (#29999) Thanks @JcMinarro.
+- Slack/Onboarding token help: update setup text to include the “From manifest” app-creation path and current install wording for obtaining the `xoxb-` bot token. (#30846) Thanks @yzhong52.
+- Slack/Bot attachment-only messages: when `allowBots: true`, bot messages with empty `text` now include non-forwarded attachment `text`/`fallback` content so webhook alerts are not silently dropped. (#27616)
+- Slack/Inbound media auth + HTML guard: keep Slack auth headers on forwarded shared attachment image downloads, and reject login/error HTML payloads (while allowing expected `.html` uploads) when resolving Slack media so auth failures do not silently pass as files. (#18642)
+>>>>>>> ccb415b69 (fix: align ACP permission docs defaults (#31044) (thanks @barronlroth))
 - Slack/Security ingress mismatch guard: drop slash-command and interaction payloads when app/team identifiers do not match the active Slack account context (including nested `team.id` interaction payloads), preventing cross-app or cross-workspace payload injection into system-event handling. (#29091) Thanks @Solvely-Colin.
 - Cron/Failure alerts: add configurable repeated-failure alerting with per-job overrides and Web UI cron editor support (`inherit|disabled|custom` with threshold/cooldown/channel/target fields). (#24789) Thanks xbrak.
 - Cron/Isolated model defaults: resolve isolated cron `subagents.model` (including object-form `primary`) through allowlist-aware model selection so isolated cron runs honor subagent model defaults unless explicitly overridden by job payload model. (#11474) Thanks @AnonO6.
