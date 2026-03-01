@@ -1,13 +1,8 @@
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
-=======
-import type { OpenClawConfig } from "../../config/config.js";
-import type { RuntimeEnv } from "../../runtime.js";
-import type { OnboardOptions } from "../onboard-types.js";
-import { formatCliCommand } from "../../cli/command-format.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { resolveGatewayPort, writeConfigFile } from "../../config/config.js";
 import { logConfigUpdated } from "../../config/logging.js";
+import type { RuntimeEnv } from "../../runtime.js";
+import { formatCliCommand } from "../../cli/command-format.js";
 import { DEFAULT_GATEWAY_DAEMON_RUNTIME } from "../daemon-runtime.js";
 import { healthCommand } from "../health.js";
 import {
@@ -17,6 +12,8 @@ import {
   resolveControlUiLinks,
   waitForGatewayReachable,
 } from "../onboard-helpers.js";
+import type { OnboardOptions } from "../onboard-types.js";
+
 import { applyNonInteractiveAuthChoice } from "./local/auth-choice.js";
 import { installGatewayDaemonNonInteractive } from "./local/daemon-install.js";
 import { applyNonInteractiveGatewayConfig } from "./local/gateway-config.js";
@@ -27,7 +24,7 @@ import { resolveNonInteractiveWorkspaceDir } from "./local/workspace.js";
 export async function runNonInteractiveOnboardingLocal(params: {
   opts: OnboardOptions;
   runtime: RuntimeEnv;
-  baseConfig: OpenClawConfig;
+  baseConfig: MoltbotConfig;
 }) {
   const { opts, runtime, baseConfig } = params;
   const mode = "local" as const;
@@ -38,7 +35,7 @@ export async function runNonInteractiveOnboardingLocal(params: {
     defaultWorkspaceDir: DEFAULT_WORKSPACE,
   });
 
-  let nextConfig: OpenClawConfig = {
+  let nextConfig: MoltbotConfig = {
     ...baseConfig,
     agents: {
       ...baseConfig.agents,
@@ -53,19 +50,7 @@ export async function runNonInteractiveOnboardingLocal(params: {
     },
   };
 
-  const inferredAuthChoice = inferAuthChoiceFromFlags(opts);
-  if (!opts.authChoice && inferredAuthChoice.matches.length > 1) {
-    runtime.error(
-      [
-        "Multiple API key flags were provided for non-interactive onboarding.",
-        "Use a single provider flag or pass --auth-choice explicitly.",
-        `Flags: ${inferredAuthChoice.matches.map((match) => match.label).join(", ")}`,
-      ].join("\n"),
-    );
-    runtime.exit(1);
-    return;
-  }
-  const authChoice = opts.authChoice ?? inferredAuthChoice.choice ?? "skip";
+  const authChoice = opts.authChoice ?? "skip";
   const nextConfigAfterAuth = await applyNonInteractiveAuthChoice({
     nextConfig,
     authChoice,
@@ -73,9 +58,7 @@ export async function runNonInteractiveOnboardingLocal(params: {
     runtime,
     baseConfig,
   });
-  if (!nextConfigAfterAuth) {
-    return;
-  }
+  if (!nextConfigAfterAuth) return;
   nextConfig = nextConfigAfterAuth;
 
   const gatewayBasePort = resolveGatewayPort(baseConfig);
@@ -85,9 +68,7 @@ export async function runNonInteractiveOnboardingLocal(params: {
     runtime,
     defaultPort: gatewayBasePort,
   });
-  if (!gatewayResult) {
-    return;
-  }
+  if (!gatewayResult) return;
   nextConfig = gatewayResult.nextConfig;
 
   nextConfig = applyNonInteractiveSkillsConfig({ nextConfig, opts, runtime });
@@ -144,7 +125,7 @@ export async function runNonInteractiveOnboardingLocal(params: {
 
   if (!opts.json) {
     runtime.log(
-      `Tip: run \`${formatCliCommand("openclaw configure --section web")}\` to store your Brave API key for web_search. Docs: https://docs.openclaw.ai/tools/web`,
+      `Tip: run \`${formatCliCommand("moltbot configure --section web")}\` to store your Brave API key for web_search. Docs: https://docs.molt.bot/tools/web`,
     );
   }
 }

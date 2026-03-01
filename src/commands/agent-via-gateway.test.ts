@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("../gateway/call.js", () => ({
@@ -11,16 +12,12 @@ vi.mock("./agent.js", () => ({
   agentCommand: vi.fn(),
 }));
 
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
-=======
-import type { OpenClawConfig } from "../config/config.js";
-import type { RuntimeEnv } from "../runtime.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import * as configModule from "../config/config.js";
 import { callGateway } from "../gateway/call.js";
-import { agentCliCommand } from "./agent-via-gateway.js";
+import type { RuntimeEnv } from "../runtime.js";
 import { agentCommand } from "./agent.js";
+import { agentCliCommand } from "./agent-via-gateway.js";
 
 const runtime: RuntimeEnv = {
   log: vi.fn(),
@@ -30,7 +27,7 @@ const runtime: RuntimeEnv = {
 
 const configSpy = vi.spyOn(configModule, "loadConfig");
 
-function mockConfig(storePath: string, overrides?: Partial<OpenClawConfig>) {
+function mockConfig(storePath: string, overrides?: Partial<MoltbotConfig>) {
   configSpy.mockReturnValue({
     agents: {
       defaults: {
@@ -53,7 +50,7 @@ beforeEach(() => {
 
 describe("agentCliCommand", () => {
   it("uses gateway by default", async () => {
-    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-agent-cli-"));
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "moltbot-agent-cli-"));
     const store = path.join(dir, "sessions.json");
     mockConfig(store);
 
@@ -78,7 +75,7 @@ describe("agentCliCommand", () => {
   });
 
   it("falls back to embedded agent when gateway fails", async () => {
-    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-agent-cli-"));
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "moltbot-agent-cli-"));
     const store = path.join(dir, "sessions.json");
     mockConfig(store);
 
@@ -100,7 +97,7 @@ describe("agentCliCommand", () => {
   });
 
   it("skips gateway when --local is set", async () => {
-    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-agent-cli-"));
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "moltbot-agent-cli-"));
     const store = path.join(dir, "sessions.json");
     mockConfig(store);
 

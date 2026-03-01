@@ -1,12 +1,14 @@
 import path from "node:path";
+
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
+
+import { resolveBootstrapContextForRun, resolveBootstrapFilesForRun } from "./bootstrap-files.js";
+import { makeTempWorkspace } from "../test-helpers/workspace.js";
 import {
   clearInternalHooks,
   registerInternalHook,
   type AgentBootstrapHookContext,
 } from "../hooks/internal-hooks.js";
-import { makeTempWorkspace } from "../test-helpers/workspace.js";
-import { resolveBootstrapContextForRun, resolveBootstrapFilesForRun } from "./bootstrap-files.js";
 
 describe("resolveBootstrapFilesForRun", () => {
   beforeEach(() => clearInternalHooks());
@@ -26,7 +28,7 @@ describe("resolveBootstrapFilesForRun", () => {
       ];
     });
 
-    const workspaceDir = await makeTempWorkspace("openclaw-bootstrap-");
+    const workspaceDir = await makeTempWorkspace("moltbot-bootstrap-");
     const files = await resolveBootstrapFilesForRun({ workspaceDir });
 
     expect(files.some((file) => file.name === "EXTRA.md")).toBe(true);
@@ -51,7 +53,7 @@ describe("resolveBootstrapContextForRun", () => {
       ];
     });
 
-    const workspaceDir = await makeTempWorkspace("openclaw-bootstrap-");
+    const workspaceDir = await makeTempWorkspace("moltbot-bootstrap-");
     const result = await resolveBootstrapContextForRun({ workspaceDir });
     const extra = result.contextFiles.find((file) => file.path === "EXTRA.md");
 

@@ -1,6 +1,6 @@
-<<<<<<< HEAD
 import type { APIMessage } from "discord-api-types/v10";
 import { Routes } from "discord-api-types/v10";
+import { resolveDiscordRest } from "./send.shared.js";
 import type {
   DiscordMessageEdit,
   DiscordMessageQuery,
@@ -9,7 +9,6 @@ import type {
   DiscordThreadCreate,
   DiscordThreadList,
 } from "./send.types.js";
-import { resolveDiscordRest } from "./send.shared.js";
 
 export async function readMessagesDiscord(
   channelId: string,
@@ -22,18 +21,10 @@ export async function readMessagesDiscord(
       ? Math.min(Math.max(Math.floor(query.limit), 1), 100)
       : undefined;
   const params: Record<string, string | number> = {};
-  if (limit) {
-    params.limit = limit;
-  }
-  if (query.before) {
-    params.before = query.before;
-  }
-  if (query.after) {
-    params.after = query.after;
-  }
-  if (query.around) {
-    params.around = query.around;
-  }
+  if (limit) params.limit = limit;
+  if (query.before) params.before = query.before;
+  if (query.after) params.after = query.after;
+  if (query.around) params.around = query.around;
   return (await rest.get(Routes.channelMessages(channelId), params)) as APIMessage[];
 }
 
@@ -106,26 +97,7 @@ export async function createThreadDiscord(
   if (payload.autoArchiveMinutes) {
     body.auto_archive_duration = payload.autoArchiveMinutes;
   }
-  let channelType: ChannelType | undefined;
-  if (!payload.messageId) {
-    // Only detect channel kind for route-less thread creation.
-    // If this lookup fails, keep prior behavior and let Discord validate.
-    try {
-      const channel = (await rest.get(Routes.channel(channelId))) as APIChannel | null | undefined;
-      channelType = channel?.type;
-    } catch {
-      channelType = undefined;
-    }
-  }
-  const isForumLike =
-    channelType === ChannelType.GuildForum || channelType === ChannelType.GuildMedia;
-  if (isForumLike) {
-    const starterContent = payload.content?.trim() ? payload.content : payload.name;
-    body.message = { content: starterContent };
-  }
-  const route = payload.messageId
-    ? Routes.threads(channelId, payload.messageId)
-    : Routes.threads(channelId);
+  const route = Routes.threads(channelId, payload.messageId);
   return await rest.post(route, { body });
 }
 
@@ -136,12 +108,8 @@ export async function listThreadsDiscord(payload: DiscordThreadList, opts: Disco
       throw new Error("channelId required to list archived threads");
     }
     const params: Record<string, string | number> = {};
-    if (payload.before) {
-      params.before = payload.before;
-    }
-    if (payload.limit) {
-      params.limit = payload.limit;
-    }
+    if (payload.before) params.before = payload.before;
+    if (payload.limit) params.limit = payload.limit;
     return await rest.get(Routes.channelThreads(payload.channelId, "public"), params);
   }
   return await rest.get(Routes.guildActiveThreads(payload.guildId));

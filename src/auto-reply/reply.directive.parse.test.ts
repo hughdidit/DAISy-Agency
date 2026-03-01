@@ -1,4 +1,6 @@
 import { describe, expect, it } from "vitest";
+
+import { extractStatusDirective } from "./reply/directives.js";
 import {
   extractElevatedDirective,
   extractExecDirective,
@@ -8,7 +10,6 @@ import {
   extractThinkDirective,
   extractVerboseDirective,
 } from "./reply.js";
-import { extractStatusDirective } from "./reply/directives.js";
 
 describe("directive parsing", () => {
   it("ignores verbose directive inside URL", () => {

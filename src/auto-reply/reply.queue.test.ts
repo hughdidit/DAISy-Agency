@@ -1,5 +1,7 @@
 import path from "node:path";
+
 import { afterEach, describe, expect, it, vi } from "vitest";
+
 import { pollUntil } from "../../test/helpers/poll.js";
 import { withTempHome as withTempHomeBase } from "../../test/helpers/temp-home.js";
 import {
@@ -34,7 +36,7 @@ async function withTempHome<T>(fn: (home: string) => Promise<T>): Promise<T> {
       vi.mocked(runEmbeddedPiAgent).mockReset();
       return await fn(home);
     },
-    { prefix: "openclaw-queue-" },
+    { prefix: "moltbot-queue-" },
   );
 }
 
@@ -43,7 +45,7 @@ function makeCfg(home: string, queue?: Record<string, unknown>) {
     agents: {
       defaults: {
         model: "anthropic/claude-opus-4-5",
-        workspace: path.join(home, "openclaw"),
+        workspace: path.join(home, "clawd"),
       },
     },
     channels: { whatsapp: { allowFrom: ["*"] } },

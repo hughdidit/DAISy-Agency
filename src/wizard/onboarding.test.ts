@@ -2,10 +2,11 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { describe, expect, it, vi } from "vitest";
-import type { RuntimeEnv } from "../runtime.js";
-import type { WizardPrompter } from "./prompts.js";
+
 import { DEFAULT_BOOTSTRAP_FILENAME } from "../agents/workspace.js";
+import type { RuntimeEnv } from "../runtime.js";
 import { runOnboardingWizard } from "./onboarding.js";
+import type { WizardPrompter } from "./prompts.js";
 
 const setupChannels = vi.hoisted(() => vi.fn(async (cfg) => cfg));
 const setupSkills = vi.hoisted(() => vi.fn(async (cfg) => cfg));
@@ -76,7 +77,7 @@ vi.mock("../tui/tui.js", () => ({
 describe("runOnboardingWizard", () => {
   it("exits when config is invalid", async () => {
     readConfigFileSnapshot.mockResolvedValueOnce({
-      path: "/tmp/.openclaw/openclaw.json",
+      path: "/tmp/.clawdbot/moltbot.json",
       exists: true,
       raw: "{}",
       parsed: {},
@@ -173,13 +174,11 @@ describe("runOnboardingWizard", () => {
   it("launches TUI without auto-delivery when hatching", async () => {
     runTui.mockClear();
 
-    const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-onboard-"));
+    const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-onboard-"));
     await fs.writeFile(path.join(workspaceDir, DEFAULT_BOOTSTRAP_FILENAME), "{}");
 
     const select: WizardPrompter["select"] = vi.fn(async (opts) => {
-      if (opts.message === "How do you want to hatch your bot?") {
-        return "tui";
-      }
+      if (opts.message === "How do you want to hatch your bot?") return "tui";
       return "quickstart";
     });
 
@@ -231,12 +230,10 @@ describe("runOnboardingWizard", () => {
   it("offers TUI hatch even without BOOTSTRAP.md", async () => {
     runTui.mockClear();
 
-    const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-onboard-"));
+    const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-onboard-"));
 
     const select: WizardPrompter["select"] = vi.fn(async (opts) => {
-      if (opts.message === "How do you want to hatch your bot?") {
-        return "tui";
-      }
+      if (opts.message === "How do you want to hatch your bot?") return "tui";
       return "quickstart";
     });
 

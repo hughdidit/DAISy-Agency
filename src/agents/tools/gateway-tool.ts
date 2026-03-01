@@ -1,28 +1,20 @@
 import { Type } from "@sinclair/typebox";
-<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../../config/config.js";
-=======
-import type { OpenClawConfig } from "../../config/config.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { loadConfig, resolveConfigSnapshotHash } from "../../config/io.js";
 import { loadSessionStore, resolveStorePath } from "../../config/sessions.js";
+import { scheduleGatewaySigusr1Restart } from "../../infra/restart.js";
 import {
   formatDoctorNonInteractiveHint,
   type RestartSentinelPayload,
   writeRestartSentinel,
 } from "../../infra/restart-sentinel.js";
-import { scheduleGatewaySigusr1Restart } from "../../infra/restart.js";
 import { stringEnum } from "../schema/typebox.js";
 import { type AnyAgentTool, jsonResult, readStringParam } from "./common.js";
 import { callGatewayTool } from "./gateway.js";
 
-const DEFAULT_UPDATE_TIMEOUT_MS = 20 * 60_000;
-
 function resolveBaseHashFromSnapshot(snapshot: unknown): string | undefined {
-  if (!snapshot || typeof snapshot !== "object") {
-    return undefined;
-  }
+  if (!snapshot || typeof snapshot !== "object") return undefined;
   const hashValue = (snapshot as { hash?: unknown }).hash;
   const rawValue = (snapshot as { raw?: unknown }).raw;
   const hash = resolveConfigSnapshotHash({
@@ -68,7 +60,7 @@ const GatewayToolSchema = Type.Object({
 
 export function createGatewayTool(opts?: {
   agentSessionKey?: string;
-  config?: OpenClawConfig;
+  config?: MoltbotConfig;
 }): AnyAgentTool {
   return {
     label: "Gateway",
@@ -240,15 +232,11 @@ export function createGatewayTool(opts?: {
           typeof params.restartDelayMs === "number" && Number.isFinite(params.restartDelayMs)
             ? Math.floor(params.restartDelayMs)
             : undefined;
-        const updateGatewayOpts = {
-          ...gatewayOpts,
-          timeoutMs: timeoutMs ?? DEFAULT_UPDATE_TIMEOUT_MS,
-        };
-        const result = await callGatewayTool("update.run", updateGatewayOpts, {
+        const result = await callGatewayTool("update.run", gatewayOpts, {
           sessionKey,
           note,
           restartDelayMs,
-          timeoutMs: timeoutMs ?? DEFAULT_UPDATE_TIMEOUT_MS,
+          timeoutMs,
         });
         return jsonResult({ ok: true, result });
       }

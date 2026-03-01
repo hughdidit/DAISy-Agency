@@ -1,9 +1,10 @@
 import type { Server } from "node:http";
 import type { AddressInfo } from "node:net";
 import express from "express";
+
 import type { ResolvedBrowserConfig } from "./config.js";
-import type { BrowserRouteRegistrar } from "./routes/types.js";
 import { registerBrowserRoutes } from "./routes/index.js";
+import type { BrowserRouteRegistrar } from "./routes/types.js";
 import {
   type BrowserServerState,
   createBrowserRouteContext,
@@ -34,9 +35,7 @@ export async function startBrowserBridgeServer(params: {
   if (authToken) {
     app.use((req, res, next) => {
       const auth = String(req.headers.authorization ?? "").trim();
-      if (auth === `Bearer ${authToken}`) {
-        return next();
-      }
+      if (auth === `Bearer ${authToken}`) return next();
       res.status(401).send("Unauthorized");
     });
   }

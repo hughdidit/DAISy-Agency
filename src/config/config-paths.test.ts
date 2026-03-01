@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+
 import {
   getConfigValueAtPath,
   parseConfigPath,
@@ -20,9 +21,7 @@ describe("config paths", () => {
   it("sets, gets, and unsets nested values", () => {
     const root: Record<string, unknown> = {};
     const parsed = parseConfigPath("foo.bar");
-    if (!parsed.ok || !parsed.path) {
-      throw new Error("path parse failed");
-    }
+    if (!parsed.ok || !parsed.path) throw new Error("path parse failed");
     setConfigValueAtPath(root, parsed.path, 123);
     expect(getConfigValueAtPath(root, parsed.path)).toBe(123);
     expect(unsetConfigValueAtPath(root, parsed.path)).toBe(true);

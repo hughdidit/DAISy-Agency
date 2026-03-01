@@ -1,57 +1,37 @@
-import { resolveAgentDir } from "../agents/agent-scope.js";
 // @ts-nocheck
+import { EmbeddedBlockChunker } from "../agents/pi-embedded-block-chunker.js";
 import {
   findModelInCatalog,
   loadModelCatalog,
   modelSupportsVision,
 } from "../agents/model-catalog.js";
-import { EmbeddedBlockChunker } from "../agents/pi-embedded-block-chunker.js";
 import { resolveDefaultModelForAgent } from "../agents/model-selection.js";
-import { EmbeddedBlockChunker } from "../agents/pi-embedded-block-chunker.js";
 import { resolveChunkMode } from "../auto-reply/chunk.js";
 import { clearHistoryEntriesIfEnabled } from "../auto-reply/reply/history.js";
 import { dispatchReplyWithBufferedBlockDispatcher } from "../auto-reply/reply/provider-dispatcher.js";
 import { removeAckReactionAfterReply } from "../channels/ack-reactions.js";
 import { logAckFailure, logTypingFailure } from "../channels/logging.js";
-import { createReplyPrefixOptions } from "../channels/reply-prefix.js";
+import { createReplyPrefixContext } from "../channels/reply-prefix.js";
 import { createTypingCallbacks } from "../channels/typing.js";
-import { resolveMarkdownTableMode } from "../config/markdown-tables.js";
 import { danger, logVerbose } from "../globals.js";
+import { resolveMarkdownTableMode } from "../config/markdown-tables.js";
 import { deliverReplies } from "./bot/delivery.js";
 import { resolveTelegramDraftStreamingChunking } from "./draft-chunking.js";
 import { createTelegramDraftStream } from "./draft-stream.js";
 import { cacheSticker, describeStickerImage } from "./sticker-cache.js";
+import { resolveAgentDir } from "../agents/agent-scope.js";
 
-const EMPTY_RESPONSE_FALLBACK = "No response generated. Please try again.";
-
-async function resolveStickerVisionSupport(cfg: OpenClawConfig, agentId: string) {
+async function resolveStickerVisionSupport(cfg, agentId) {
   try {
     const catalog = await loadModelCatalog({ config: cfg });
     const defaultModel = resolveDefaultModelForAgent({ cfg, agentId });
     const entry = findModelInCatalog(catalog, defaultModel.provider, defaultModel.model);
-    if (!entry) {
-      return false;
-    }
+    if (!entry) return false;
     return modelSupportsVision(entry);
   } catch {
     return false;
   }
 }
-
-type ResolveBotTopicsEnabled = (ctx: TelegramContext) => boolean | Promise<boolean>;
-
-type DispatchTelegramMessageParams = {
-  context: TelegramMessageContext;
-  bot: Bot;
-  cfg: OpenClawConfig;
-  runtime: RuntimeEnv;
-  replyToMode: ReplyToMode;
-  streamMode: TelegramStreamMode;
-  textLimit: number;
-  telegramCfg: TelegramAccountConfig;
-  opts: Pick<TelegramBotOptions, "token">;
-  resolveBotTopicsEnabled: ResolveBotTopicsEnabled;
-};
 
 export const dispatchTelegramMessage = async ({
   context,
@@ -64,14 +44,14 @@ export const dispatchTelegramMessage = async ({
   telegramCfg,
   opts,
   resolveBotTopicsEnabled,
-}: DispatchTelegramMessageParams) => {
+}) => {
   const {
     ctxPayload,
     primaryCtx,
     msg,
     chatId,
     isGroup,
-    threadSpec,
+    resolvedThreadId,
     historyKey,
     historyLimit,
     groupHistories,
@@ -85,12 +65,11 @@ export const dispatchTelegramMessage = async ({
   } = context;
 
   const isPrivateChat = msg.chat.type === "private";
-  const draftThreadId = threadSpec.id;
   const draftMaxChars = Math.min(textLimit, 4096);
   const canStreamDraft =
     streamMode !== "off" &&
     isPrivateChat &&
-    typeof draftThreadId === "number" &&
+    typeof resolvedThreadId === "number" &&
     (await resolveBotTopicsEnabled(primaryCtx));
   const draftStream = canStreamDraft
     ? createTelegramDraftStream({
@@ -98,7 +77,7 @@ export const dispatchTelegramMessage = async ({
         chatId,
         draftId: msg.message_id || Date.now(),
         maxChars: draftMaxChars,
-        thread: threadSpec,
+        messageThreadId: resolvedThreadId,
         log: logVerbose,
         warn: logVerbose,
       })
@@ -111,12 +90,8 @@ export const dispatchTelegramMessage = async ({
   let lastPartialText = "";
   let draftText = "";
   const updateDraftFromPartial = (text?: string) => {
-    if (!draftStream || !text) {
-      return;
-    }
-    if (text === lastPartialText) {
-      return;
-    }
+    if (!draftStream || !text) return;
+    if (text === lastPartialText) return;
     if (streamMode === "partial") {
       lastPartialText = text;
       draftStream.update(text);
@@ -131,9 +106,7 @@ export const dispatchTelegramMessage = async ({
       draftText = "";
     }
     lastPartialText = text;
-    if (!delta) {
-      return;
-    }
+    if (!delta) return;
     if (!draftChunker) {
       draftText = text;
       draftStream.update(draftText);
@@ -149,9 +122,7 @@ export const dispatchTelegramMessage = async ({
     });
   };
   const flushDraft = async () => {
-    if (!draftStream) {
-      return;
-    }
+    if (!draftStream) return;
     if (draftChunker?.hasBuffered()) {
       draftChunker.drain({
         force: true,
@@ -160,9 +131,7 @@ export const dispatchTelegramMessage = async ({
         },
       });
       draftChunker.reset();
-      if (draftText) {
-        draftStream.update(draftText);
-      }
+      if (draftText) draftStream.update(draftText);
     }
     await draftStream.flush();
   };
@@ -171,12 +140,7 @@ export const dispatchTelegramMessage = async ({
     Boolean(draftStream) ||
     (typeof telegramCfg.blockStreaming === "boolean" ? !telegramCfg.blockStreaming : undefined);
 
-  const { onModelSelected, ...prefixOptions } = createReplyPrefixOptions({
-    cfg,
-    agentId: route.agentId,
-    channel: "telegram",
-    accountId: route.accountId,
-  });
+  const prefixContext = createReplyPrefixContext({ cfg, agentId: route.agentId });
   const tableMode = resolveMarkdownTableMode({
     cfg,
     channel: "telegram",
@@ -187,7 +151,7 @@ export const dispatchTelegramMessage = async ({
   // Handle uncached stickers: get a dedicated vision description before dispatch
   // This ensures we cache a raw description rather than a conversational response
   const sticker = ctxPayload.Sticker;
-  if (sticker?.fileId && sticker.fileUniqueId && ctxPayload.MediaPath) {
+  if (sticker?.fileUniqueId && ctxPayload.MediaPath) {
     const agentDir = resolveAgentDir(cfg, route.agentId);
     const stickerSupportsVision = await resolveStickerVisionSupport(cfg, route.agentId);
     let description = sticker.cachedDescription ?? null;
@@ -221,43 +185,36 @@ export const dispatchTelegramMessage = async ({
       }
 
       // Cache the description for future encounters
-      if (sticker.fileId) {
-        cacheSticker({
-          fileId: sticker.fileId,
-          fileUniqueId: sticker.fileUniqueId,
-          emoji: sticker.emoji,
-          setName: sticker.setName,
-          description,
-          cachedAt: new Date().toISOString(),
-          receivedFrom: ctxPayload.From,
-        });
-        logVerbose(`telegram: cached sticker description for ${sticker.fileUniqueId}`);
-      } else {
-        logVerbose(`telegram: skipped sticker cache (missing fileId)`);
-      }
+      cacheSticker({
+        fileId: sticker.fileId,
+        fileUniqueId: sticker.fileUniqueId,
+        emoji: sticker.emoji,
+        setName: sticker.setName,
+        description,
+        cachedAt: new Date().toISOString(),
+        receivedFrom: ctxPayload.From,
+      });
+      logVerbose(`telegram: cached sticker description for ${sticker.fileUniqueId}`);
     }
   }
-
-  const replyQuoteText =
-    ctxPayload.ReplyToIsQuote && ctxPayload.ReplyToBody
-      ? ctxPayload.ReplyToBody.trim() || undefined
-      : undefined;
-  const deliveryState = {
-    delivered: false,
-    skippedNonSilent: 0,
-  };
 
   const { queuedFinal } = await dispatchReplyWithBufferedBlockDispatcher({
     ctx: ctxPayload,
     cfg,
     dispatcherOptions: {
-      ...prefixOptions,
+      responsePrefix: prefixContext.responsePrefix,
+      responsePrefixContextProvider: prefixContext.responsePrefixContextProvider,
       deliver: async (payload, info) => {
         if (info.kind === "final") {
           await flushDraft();
           draftStream?.stop();
         }
-        const result = await deliverReplies({
+
+        const replyQuoteText =
+          ctxPayload.ReplyToIsQuote && ctxPayload.ReplyToBody
+            ? ctxPayload.ReplyToBody.trim() || undefined
+            : undefined;
+        await deliverReplies({
           replies: [payload],
           chatId: String(chatId),
           token: opts.token,
@@ -265,20 +222,13 @@ export const dispatchTelegramMessage = async ({
           bot,
           replyToMode,
           textLimit,
-          thread: threadSpec,
+          messageThreadId: resolvedThreadId,
           tableMode,
           chunkMode,
           onVoiceRecording: sendRecordVoice,
           linkPreview: telegramCfg.linkPreview,
           replyQuoteText,
-          notifyEmptyResponse: info.kind === "final",
         });
-        if (result.delivered) {
-          deliveryState.delivered = true;
-        }
-      },
-      onSkip: (_payload, info) => {
-        if (info.reason !== "silent") deliveryState.skippedNonSilent += 1;
       },
       onError: (err, info) => {
         runtime.error?.(danger(`telegram ${info.kind} reply failed: ${String(err)}`));
@@ -297,50 +247,20 @@ export const dispatchTelegramMessage = async ({
     },
     replyOptions: {
       skillFilter,
-<<<<<<< HEAD
       onPartialReply: draftStream ? (payload) => updateDraftFromPartial(payload.text) : undefined,
-<<<<<<< HEAD
       onReasoningStream: draftStream
         ? (payload) => {
-            if (payload.text) {
-              draftStream.update(payload.text);
-            }
+            if (payload.text) draftStream.update(payload.text);
           }
         : undefined,
-=======
->>>>>>> 37721ebd7 (fix: restore telegram draft streaming partials)
       disableBlockStreaming,
-      onPartialReply: draftStream ? (payload) => updateDraftFromPartial(payload.text) : undefined,
       onModelSelected: (ctx) => {
         prefixContext.onModelSelected(ctx);
       },
-=======
-      onModelSelected,
->>>>>>> 5d82c8231 (feat: per-channel responsePrefix override (#9001))
     },
   });
   draftStream?.stop();
-  let sentFallback = false;
-  if (!deliveryState.delivered && deliveryState.skippedNonSilent > 0) {
-    const result = await deliverReplies({
-      replies: [{ text: EMPTY_RESPONSE_FALLBACK }],
-      chatId: String(chatId),
-      token: opts.token,
-      runtime,
-      bot,
-      replyToMode,
-      textLimit,
-      thread: threadSpec,
-      tableMode,
-      chunkMode,
-      linkPreview: telegramCfg.linkPreview,
-      replyQuoteText,
-    });
-    sentFallback = result.delivered;
-  }
-
-  const hasFinalResponse = queuedFinal || sentFallback;
-  if (!hasFinalResponse) {
+  if (!queuedFinal) {
     if (isGroup && historyKey) {
       clearHistoryEntriesIfEnabled({ historyMap: groupHistories, historyKey, limit: historyLimit });
     }
@@ -352,9 +272,7 @@ export const dispatchTelegramMessage = async ({
     ackReactionValue: ackReactionPromise ? "ack" : null,
     remove: () => reactionApi?.(chatId, msg.message_id ?? 0, []) ?? Promise.resolve(),
     onError: (err) => {
-      if (!msg.message_id) {
-        return;
-      }
+      if (!msg.message_id) return;
       logAckFailure({
         log: logVerbose,
         channel: "telegram",

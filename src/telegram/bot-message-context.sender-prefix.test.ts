@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
+
 import { buildTelegramMessageContext } from "./bot-message-context.js";
 
 describe("buildTelegramMessageContext sender prefix", () => {
@@ -24,7 +25,7 @@ describe("buildTelegramMessageContext sender prefix", () => {
         },
       } as never,
       cfg: {
-        agents: { defaults: { model: "anthropic/claude-opus-4-5", workspace: "/tmp/openclaw" } },
+        agents: { defaults: { model: "anthropic/claude-opus-4-5", workspace: "/tmp/clawd" } },
         channels: { telegram: {} },
         messages: { groupChat: { mentionPatterns: [] } },
       } as never,
@@ -71,7 +72,7 @@ describe("buildTelegramMessageContext sender prefix", () => {
         },
       } as never,
       cfg: {
-        agents: { defaults: { model: "anthropic/claude-opus-4-5", workspace: "/tmp/openclaw" } },
+        agents: { defaults: { model: "anthropic/claude-opus-4-5", workspace: "/tmp/clawd" } },
         channels: { telegram: {} },
         messages: { groupChat: { mentionPatterns: [] } },
       } as never,
@@ -117,7 +118,7 @@ describe("buildTelegramMessageContext sender prefix", () => {
         },
       } as never,
       cfg: {
-        agents: { defaults: { model: "anthropic/claude-opus-4-5", workspace: "/tmp/openclaw" } },
+        agents: { defaults: { model: "anthropic/claude-opus-4-5", workspace: "/tmp/clawd" } },
         channels: { telegram: {} },
         messages: { groupChat: { mentionPatterns: [] } },
       } as never,

@@ -1,3 +1,5 @@
+import os from "node:os";
+
 import { logDebug, logWarn } from "../logger.js";
 import { getLogger } from "../logging.js";
 import { ignoreCiaoCancellationRejection } from "./bonjour-ciao.js";
@@ -26,31 +28,20 @@ export type GatewayBonjourAdvertiseOpts = {
 };
 
 function isDisabledByEnv() {
-  if (isTruthyEnvValue(process.env.OPENCLAW_DISABLE_BONJOUR)) return true;
+  if (isTruthyEnvValue(process.env.CLAWDBOT_DISABLE_BONJOUR)) return true;
   if (process.env.NODE_ENV === "test") return true;
   if (process.env.VITEST) return true;
-=======
-  if (isTruthyEnvValue(process.env.OPENCLAW_DISABLE_BONJOUR)) {
-    return true;
-  }
-  if (process.env.NODE_ENV === "test") {
-    return true;
-  }
-  if (process.env.VITEST) {
-    return true;
-  }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
   return false;
 }
 
 function safeServiceName(name: string) {
   const trimmed = name.trim();
-  return trimmed.length > 0 ? trimmed : "OpenClaw";
+  return trimmed.length > 0 ? trimmed : "Moltbot";
 }
 
 function prettifyInstanceName(name: string) {
   const normalized = name.trim().replace(/\s+/g, " ");
-  return normalized.replace(/\s+\(OpenClaw\)\s*$/i, "").trim() || normalized;
+  return normalized.replace(/\s+\(Moltbot\)\s*$/i, "").trim() || normalized;
 }
 
 type BonjourService = {
@@ -99,19 +90,16 @@ export async function startGatewayBonjourAdvertiser(
   // mDNS service instance names are single DNS labels; dots in hostnames (like
   // `Mac.localdomain`) can confuse some resolvers/browsers and break discovery.
   // Keep only the first label and normalize away a trailing `.local`.
-  const hostnameRaw =
-    process.env.OPENCLAW_MDNS_HOSTNAME?.trim() ||
-    process.env.CLAWDBOT_MDNS_HOSTNAME?.trim() ||
-    "openclaw";
   const hostname =
-    hostnameRaw
+    os
+      .hostname()
       .replace(/\.local$/i, "")
       .split(".")[0]
-      .trim() || "openclaw";
+      .trim() || "moltbot";
   const instanceName =
     typeof opts.instanceName === "string" && opts.instanceName.trim()
       ? opts.instanceName.trim()
-      : `${hostname} (OpenClaw)`;
+      : `${hostname} (Moltbot)`;
   const displayName = prettifyInstanceName(instanceName);
 
   const txtBase: Record<string, string> = {
@@ -152,7 +140,7 @@ export async function startGatewayBonjourAdvertiser(
 
   const gateway = responder.createService({
     name: safeServiceName(instanceName),
-    type: "openclaw-gw",
+    type: "moltbot-gw",
     protocol: Protocol.TCP,
     port: opts.gatewayPort,
     domain: "local",
@@ -223,12 +211,8 @@ export async function startGatewayBonjourAdvertiser(
   const watchdog = setInterval(() => {
     for (const { label, svc } of services) {
       const stateUnknown = (svc as { serviceState?: unknown }).serviceState;
-      if (typeof stateUnknown !== "string") {
-        continue;
-      }
-      if (stateUnknown === "announced" || stateUnknown === "announcing") {
-        continue;
-      }
+      if (typeof stateUnknown !== "string") continue;
+      if (stateUnknown === "announced" || stateUnknown === "announcing") continue;
 
       let key = label;
       try {
@@ -238,9 +222,7 @@ export async function startGatewayBonjourAdvertiser(
       }
       const now = Date.now();
       const last = lastRepairAttempt.get(key) ?? 0;
-      if (now - last < 30_000) {
-        continue;
-      }
+      if (now - last < 30_000) continue;
       lastRepairAttempt.set(key, now);
 
       logWarn(

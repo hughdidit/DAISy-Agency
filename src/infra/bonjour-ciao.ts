@@ -1,4 +1,5 @@
 import { logDebug } from "../logger.js";
+
 import { formatBonjourError } from "./bonjour-errors.js";
 
 export function ignoreCiaoCancellationRejection(reason: unknown): boolean {

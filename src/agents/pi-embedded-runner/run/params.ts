@@ -1,11 +1,7 @@
 import type { ImageContent } from "@mariozechner/pi-ai";
 import type { ReasoningLevel, ThinkLevel, VerboseLevel } from "../../../auto-reply/thinking.js";
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../../../config/config.js";
-=======
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { AgentStreamParams } from "../../../commands/agent/types.js";
-import type { OpenClawConfig } from "../../../config/config.js";
 import type { enqueueCommand } from "../../../process/command-queue.js";
 import type { ExecElevatedDefaults, ExecToolDefaults } from "../../bash-tools.js";
 import type { BlockReplyChunking, ToolResultFormat } from "../../pi-embedded-subscribe.js";
@@ -24,7 +20,6 @@ export type ClientToolDefinition = {
 export type RunEmbeddedPiAgentParams = {
   sessionId: string;
   sessionKey?: string;
-  agentId?: string;
   messageChannel?: string;
   messageProvider?: string;
   agentAccountId?: string;
@@ -44,8 +39,6 @@ export type RunEmbeddedPiAgentParams = {
   senderName?: string | null;
   senderUsername?: string | null;
   senderE164?: string | null;
-  /** Whether the sender is an owner (required for owner-only tools). */
-  senderIsOwner?: boolean;
   /** Current channel ID for auto-threading (Slack). */
   currentChannelId?: string;
   /** Current thread timestamp for auto-threading (Slack). */
@@ -54,14 +47,10 @@ export type RunEmbeddedPiAgentParams = {
   replyToMode?: "off" | "first" | "all";
   /** Mutable ref to track if a reply was sent (for "first" mode). */
   hasRepliedRef?: { value: boolean };
-  /** Require explicit message tool targets (no implicit last-route sends). */
-  requireExplicitMessageTarget?: boolean;
-  /** If true, omit the message tool from the tool list. */
-  disableMessageTool?: boolean;
   sessionFile: string;
   workspaceDir: string;
   agentDir?: string;
-  config?: OpenClawConfig;
+  config?: MoltbotConfig;
   skillsSnapshot?: SkillSnapshot;
   prompt: string;
   images?: ImageContent[];

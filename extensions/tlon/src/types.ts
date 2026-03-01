@@ -1,4 +1,4 @@
-import type { OpenClawConfig } from "openclaw/plugin-sdk";
+import type { MoltbotConfig } from "clawdbot/plugin-sdk";
 
 export type TlonResolvedAccount = {
   accountId: string;
@@ -14,7 +14,7 @@ export type TlonResolvedAccount = {
   showModelSignature: boolean | null;
 };
 
-export function resolveTlonAccount(cfg: OpenClawConfig, accountId?: string | null): TlonResolvedAccount {
+export function resolveTlonAccount(cfg: MoltbotConfig, accountId?: string | null): TlonResolvedAccount {
   const base = cfg.channels?.tlon as
     | {
         name?: string;
@@ -47,19 +47,17 @@ export function resolveTlonAccount(cfg: OpenClawConfig, accountId?: string | nul
   }
 
   const useDefault = !accountId || accountId === "default";
-  const account = useDefault ? base : base.accounts?.[accountId];
+  const account = useDefault ? base : (base.accounts?.[accountId] as Record<string, unknown> | undefined);
 
   const ship = (account?.ship ?? base.ship ?? null) as string | null;
   const url = (account?.url ?? base.url ?? null) as string | null;
   const code = (account?.code ?? base.code ?? null) as string | null;
   const groupChannels = (account?.groupChannels ?? base.groupChannels ?? []) as string[];
   const dmAllowlist = (account?.dmAllowlist ?? base.dmAllowlist ?? []) as string[];
-  const autoDiscoverChannels = (account?.autoDiscoverChannels ??
-    base.autoDiscoverChannels ??
-    null) as boolean | null;
-  const showModelSignature = (account?.showModelSignature ?? base.showModelSignature ?? null) as
-    | boolean
-    | null;
+  const autoDiscoverChannels =
+    (account?.autoDiscoverChannels ?? base.autoDiscoverChannels ?? null) as boolean | null;
+  const showModelSignature =
+    (account?.showModelSignature ?? base.showModelSignature ?? null) as boolean | null;
   const configured = Boolean(ship && url && code);
 
   return {
@@ -77,13 +75,11 @@ export function resolveTlonAccount(cfg: OpenClawConfig, accountId?: string | nul
   };
 }
 
-export function listTlonAccountIds(cfg: OpenClawConfig): string[] {
+export function listTlonAccountIds(cfg: MoltbotConfig): string[] {
   const base = cfg.channels?.tlon as
     | { ship?: string; accounts?: Record<string, Record<string, unknown>> }
     | undefined;
-  if (!base) {
-    return [];
-  }
+  if (!base) return [];
   const accounts = base.accounts ?? {};
   return [...(base.ship ? ["default"] : []), ...Object.keys(accounts)];
 }

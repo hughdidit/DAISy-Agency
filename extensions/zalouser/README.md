@@ -1,6 +1,6 @@
-# @openclaw/zalouser
+# @clawdbot/zalouser
 
-OpenClaw extension for Zalo Personal Account messaging via [zca-cli](https://zca-cli.dev).
+Clawdbot extension for Zalo Personal Account messaging via [zca-cli](https://zca-cli.dev).
 
 > **Warning:** Using Zalo automation may result in account suspension or ban. Use at your own risk. This is an unofficial integration.
 
@@ -16,8 +16,8 @@ OpenClaw extension for Zalo Personal Account messaging via [zca-cli](https://zca
 
 Install `zca` CLI and ensure it's in your PATH:
 
-**macOS / Linux:**
 
+**macOS / Linux:**
 ```bash
 curl -fsSL https://get.zca-cli.dev/install.sh | bash
 
@@ -32,7 +32,6 @@ curl -fsSL https://get.zca-cli.dev/install.sh | bash -s uninstall
 ```
 
 **Windows (PowerShell):**
-
 ```powershell
 irm https://get.zca-cli.dev/install.ps1 | iex
 
@@ -51,19 +50,16 @@ iex "& { $(irm https://get.zca-cli.dev/install.ps1) } -Uninstall"
 Download binary directly:
 
 **macOS / Linux:**
-
 ```bash
 curl -fsSL https://get.zca-cli.dev/latest/zca-darwin-arm64 -o zca && chmod +x zca
 ```
 
 **Windows (PowerShell):**
-
 ```powershell
 Invoke-WebRequest -Uri https://get.zca-cli.dev/latest/zca-windows-x64.exe -OutFile zca.exe
 ```
 
 Available binaries:
-
 - `zca-darwin-arm64` - macOS Apple Silicon
 - `zca-darwin-x64` - macOS Intel
 - `zca-linux-arm64` - Linux ARM64
@@ -77,7 +73,7 @@ See [zca-cli](https://zca-cli.dev) for manual download (binaries for macOS/Linux
 ### Option 1: Onboarding Wizard (Recommended)
 
 ```bash
-openclaw onboard
+clawdbot onboard
 # Select "Zalo Personal" from channel list
 # Follow QR code login flow
 ```
@@ -85,14 +81,14 @@ openclaw onboard
 ### Option 2: Login (QR, on the Gateway machine)
 
 ```bash
-openclaw channels login --channel zalouser
+clawdbot channels login --channel zalouser
 # Scan QR code with Zalo app
 ```
 
 ### Send a Message
 
 ```bash
-openclaw message send --channel zalouser --target <threadId> --message "Hello from OpenClaw!"
+clawdbot message send --channel zalouser --target <threadId> --message "Hello from Clawdbot!"
 ```
 
 ## Configuration
@@ -103,7 +99,7 @@ After onboarding, your config will include:
 channels:
   zalouser:
     enabled: true
-    dmPolicy: pairing # pairing | allowlist | open | disabled
+    dmPolicy: pairing  # pairing | allowlist | open | disabled
 ```
 
 For multi-account:
@@ -127,19 +123,19 @@ channels:
 ### Authentication
 
 ```bash
-openclaw channels login --channel zalouser              # Login via QR
-openclaw channels login --channel zalouser --account work
-openclaw channels status --probe
-openclaw channels logout --channel zalouser
+clawdbot channels login --channel zalouser              # Login via QR
+clawdbot channels login --channel zalouser --account work
+clawdbot channels status --probe
+clawdbot channels logout --channel zalouser
 ```
 
 ### Directory (IDs, contacts, groups)
 
 ```bash
-openclaw directory self --channel zalouser
-openclaw directory peers list --channel zalouser --query "name"
-openclaw directory groups list --channel zalouser --query "work"
-openclaw directory groups members --channel zalouser --group-id <id>
+clawdbot directory self --channel zalouser
+clawdbot directory peers list --channel zalouser --query "name"
+clawdbot directory groups list --channel zalouser --query "work"
+clawdbot directory groups members --channel zalouser --group-id <id>
 ```
 
 ### Account Management
@@ -156,16 +152,16 @@ zca account label <profile> "Work Account"
 
 ```bash
 # Text
-openclaw message send --channel zalouser --target <threadId> --message "message"
+clawdbot message send --channel zalouser --target <threadId> --message "message"
 
 # Media (URL)
-openclaw message send --channel zalouser --target <threadId> --message "caption" --media-url "https://example.com/img.jpg"
+clawdbot message send --channel zalouser --target <threadId> --message "caption" --media-url "https://example.com/img.jpg"
 ```
 
 ### Listener
 
 The listener runs inside the Gateway when the channel is enabled. For debugging,
-use `openclaw channels logs --channel zalouser` or run `zca listen` directly.
+use `clawdbot channels logs --channel zalouser` or run `zca listen` directly.
 
 ### Data Access
 
@@ -191,8 +187,8 @@ zca me id
 Use `--profile` or `-p` to work with multiple accounts:
 
 ```bash
-openclaw channels login --channel zalouser --account work
-openclaw message send --channel zalouser --account work --target <id> --message "Hello"
+clawdbot channels login --channel zalouser --account work
+clawdbot message send --channel zalouser --account work --target <id> --message "Hello"
 ZCA_PROFILE=work zca listen
 ```
 

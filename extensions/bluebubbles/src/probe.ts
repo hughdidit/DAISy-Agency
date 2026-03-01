@@ -16,9 +16,7 @@ export type BlueBubblesServerInfo = {
   computer_id?: string;
 };
 
-/** Cache server info by account ID to avoid repeated API calls.
- * Size-capped to prevent unbounded growth (#4948). */
-const MAX_SERVER_INFO_CACHE_SIZE = 64;
+/** Cache server info by account ID to avoid repeated API calls */
 const serverInfoCache = new Map<string, { info: BlueBubblesServerInfo; expires: number }>();
 const CACHE_TTL_MS = 10 * 60 * 1000; // 10 minutes
 
@@ -38,9 +36,7 @@ export async function fetchBlueBubblesServerInfo(params: {
 }): Promise<BlueBubblesServerInfo | null> {
   const baseUrl = params.baseUrl?.trim();
   const password = params.password?.trim();
-  if (!baseUrl || !password) {
-    return null;
-  }
+  if (!baseUrl || !password) return null;
 
   const cacheKey = buildCacheKey(params.accountId);
   const cached = serverInfoCache.get(cacheKey);
@@ -51,20 +47,11 @@ export async function fetchBlueBubblesServerInfo(params: {
   const url = buildBlueBubblesApiUrl({ baseUrl, path: "/api/v1/server/info", password });
   try {
     const res = await blueBubblesFetchWithTimeout(url, { method: "GET" }, params.timeoutMs ?? 5000);
-    if (!res.ok) {
-      return null;
-    }
+    if (!res.ok) return null;
     const payload = (await res.json().catch(() => null)) as Record<string, unknown> | null;
     const data = payload?.data as BlueBubblesServerInfo | undefined;
     if (data) {
       serverInfoCache.set(cacheKey, { info: data, expires: Date.now() + CACHE_TTL_MS });
-      // Evict oldest entries if cache exceeds max size
-      if (serverInfoCache.size > MAX_SERVER_INFO_CACHE_SIZE) {
-        const oldest = serverInfoCache.keys().next().value;
-        if (oldest !== undefined) {
-          serverInfoCache.delete(oldest);
-        }
-      }
     }
     return data ?? null;
   } catch {
@@ -89,9 +76,7 @@ export function getCachedBlueBubblesServerInfo(accountId?: string): BlueBubblesS
  * Parse macOS version string (e.g., "15.0.1" or "26.0") into major version number.
  */
 export function parseMacOSMajorVersion(version?: string | null): number | null {
-  if (!version) {
-    return null;
-  }
+  if (!version) return null;
   const match = /^(\d+)/.exec(version.trim());
   return match ? Number.parseInt(match[1], 10) : null;
 }
@@ -102,9 +87,7 @@ export function parseMacOSMajorVersion(version?: string | null): number | null {
  */
 export function isMacOS26OrHigher(accountId?: string): boolean {
   const info = getCachedBlueBubblesServerInfo(accountId);
-  if (!info?.os_version) {
-    return false;
-  }
+  if (!info?.os_version) return false;
   const major = parseMacOSMajorVersion(info.os_version);
   return major !== null && major >= 26;
 }
@@ -121,15 +104,15 @@ export async function probeBlueBubbles(params: {
 }): Promise<BlueBubblesProbe> {
   const baseUrl = params.baseUrl?.trim();
   const password = params.password?.trim();
-  if (!baseUrl) {
-    return { ok: false, error: "serverUrl not configured" };
-  }
-  if (!password) {
-    return { ok: false, error: "password not configured" };
-  }
+  if (!baseUrl) return { ok: false, error: "serverUrl not configured" };
+  if (!password) return { ok: false, error: "password not configured" };
   const url = buildBlueBubblesApiUrl({ baseUrl, path: "/api/v1/ping", password });
   try {
-    const res = await blueBubblesFetchWithTimeout(url, { method: "GET" }, params.timeoutMs);
+    const res = await blueBubblesFetchWithTimeout(
+      url,
+      { method: "GET" },
+      params.timeoutMs,
+    );
     if (!res.ok) {
       return { ok: false, status: res.status, error: `HTTP ${res.status}` };
     }

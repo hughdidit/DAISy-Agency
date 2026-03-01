@@ -10,11 +10,11 @@ import {
   spinner,
   text,
 } from "@clack/prompts";
-import type { WizardProgress, WizardPrompter } from "./prompts.js";
 import { createCliProgress } from "../cli/progress.js";
 import { note as emitNote } from "../terminal/note.js";
 import { stylePromptHint, stylePromptMessage, stylePromptTitle } from "../terminal/prompt-style.js";
 import { theme } from "../terminal/theme.js";
+import type { WizardProgress, WizardPrompter } from "./prompts.js";
 import { WizardCancelledError } from "./prompts.js";
 
 function guardCancel<T>(value: T | symbol): T {
@@ -22,7 +22,7 @@ function guardCancel<T>(value: T | symbol): T {
     cancel(stylePromptTitle("Setup cancelled.") ?? "Setup cancelled.");
     throw new WizardCancelledError();
   }
-  return value;
+  return value as T;
 }
 
 export function createClackPrompter(): WizardPrompter {
@@ -58,17 +58,15 @@ export function createClackPrompter(): WizardPrompter {
           initialValues: params.initialValues,
         }),
       ),
-    text: async (params) => {
-      const validate = params.validate;
-      return guardCancel(
+    text: async (params) =>
+      guardCancel(
         await text({
           message: stylePromptMessage(params.message),
           initialValue: params.initialValue,
           placeholder: params.placeholder,
-          validate: validate ? (value) => validate(value ?? "") : undefined,
+          validate: params.validate,
         }),
-      );
-    },
+      ),
     confirm: async (params) =>
       guardCancel(
         await confirm({

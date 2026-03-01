@@ -1,5 +1,5 @@
-import { join, parse } from "node:path";
 import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
+import { join, parse } from "node:path";
 
 // Mock fs module before importing the module under test
 const mockExistsSync = vi.fn();
@@ -83,12 +83,8 @@ describe("extractGeminiCliCredentials", () => {
 
     mockExistsSync.mockImplementation((p: string) => {
       const normalized = normalizePath(p);
-      if (normalized === normalizePath(fakeGeminiPath)) {
-        return true;
-      }
-      if (normalized === normalizePath(fakeOauth2Path)) {
-        return true;
-      }
+      if (normalized === normalizePath(fakeGeminiPath)) return true;
+      if (normalized === normalizePath(fakeOauth2Path)) return true;
       return false;
     });
     mockRealpathSync.mockReturnValue(fakeResolvedPath);
@@ -164,12 +160,8 @@ describe("extractGeminiCliCredentials", () => {
 
     mockExistsSync.mockImplementation((p: string) => {
       const normalized = normalizePath(p);
-      if (normalized === normalizePath(fakeGeminiPath)) {
-        return true;
-      }
-      if (normalized === normalizePath(fakeOauth2Path)) {
-        return true;
-      }
+      if (normalized === normalizePath(fakeGeminiPath)) return true;
+      if (normalized === normalizePath(fakeOauth2Path)) return true;
       return false;
     });
     mockRealpathSync.mockReturnValue(fakeResolvedPath);
@@ -213,12 +205,8 @@ describe("extractGeminiCliCredentials", () => {
 
     mockExistsSync.mockImplementation((p: string) => {
       const normalized = normalizePath(p);
-      if (normalized === normalizePath(fakeGeminiPath)) {
-        return true;
-      }
-      if (normalized === normalizePath(fakeOauth2Path)) {
-        return true;
-      }
+      if (normalized === normalizePath(fakeGeminiPath)) return true;
+      if (normalized === normalizePath(fakeOauth2Path)) return true;
       return false;
     });
     mockRealpathSync.mockReturnValue(fakeResolvedPath);

@@ -1,19 +1,13 @@
-<<<<<<< HEAD
 import { formatCliCommand } from "../cli/command-format.js";
-import type { OpenClawConfig } from "../config/config.js";
+import type { MoltbotConfig } from "../config/config.js";
 import { readConfigFileSnapshot } from "../config/config.js";
-=======
-import type { OpenClawConfig } from "../config/config.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { RuntimeEnv } from "../runtime.js";
-import { formatCliCommand } from "../cli/command-format.js";
-import { readConfigFileSnapshot } from "../config/config.js";
 
 export function createQuietRuntime(runtime: RuntimeEnv): RuntimeEnv {
   return { ...runtime, log: () => {} };
 }
 
-export async function requireValidConfig(runtime: RuntimeEnv): Promise<OpenClawConfig | null> {
+export async function requireValidConfig(runtime: RuntimeEnv): Promise<MoltbotConfig | null> {
   const snapshot = await readConfigFileSnapshot();
   if (snapshot.exists && !snapshot.valid) {
     const issues =
@@ -21,7 +15,7 @@ export async function requireValidConfig(runtime: RuntimeEnv): Promise<OpenClawC
         ? snapshot.issues.map((issue) => `- ${issue.path}: ${issue.message}`).join("\n")
         : "Unknown validation issue.";
     runtime.error(`Config invalid:\n${issues}`);
-    runtime.error(`Fix the config or run ${formatCliCommand("openclaw doctor")}.`);
+    runtime.error(`Fix the config or run ${formatCliCommand("moltbot doctor")}.`);
     runtime.exit(1);
     return null;
   }

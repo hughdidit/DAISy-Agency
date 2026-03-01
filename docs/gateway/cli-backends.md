@@ -4,12 +4,10 @@ read_when:
   - You want a reliable fallback when API providers fail
   - You are running Claude Code CLI or other local AI CLIs and want to reuse them
   - You need a text-only, tool-free path that still supports sessions and images
-title: "CLI Backends"
 ---
-
 # CLI backends (fallback runtime)
 
-OpenClaw can run **local AI CLIs** as a **text-only fallback** when API providers are down,
+Moltbot can run **local AI CLIs** as a **text-only fallback** when API providers are down,
 rate-limited, or temporarily misbehaving. This is intentionally conservative:
 
 - **Tools are disabled** (no tool calls).
@@ -22,16 +20,16 @@ want “always works” text responses without relying on external APIs.
 
 ## Beginner-friendly quick start
 
-You can use Claude Code CLI **without any config** (OpenClaw ships a built-in default):
+You can use Claude Code CLI **without any config** (Moltbot ships a built-in default):
 
 ```bash
-openclaw agent --message "hi" --model claude-cli/opus-4.6
+moltbot agent --message "hi" --model claude-cli/opus-4.5
 ```
 
 Codex CLI also works out of the box:
 
 ```bash
-openclaw agent --message "hi" --model codex-cli/gpt-5.3-codex
+moltbot agent --message "hi" --model codex-cli/gpt-5.2-codex
 ```
 
 If your gateway runs under launchd/systemd and PATH is minimal, add just the
@@ -43,11 +41,11 @@ command path:
     defaults: {
       cliBackends: {
         "claude-cli": {
-          command: "/opt/homebrew/bin/claude",
-        },
-      },
-    },
-  },
+          command: "/opt/homebrew/bin/claude"
+        }
+      }
+    }
+  }
 }
 ```
 
@@ -62,9 +60,10 @@ Add a CLI backend to your fallback list so it only runs when primary models fail
   agents: {
     defaults: {
       model: {
-<<<<<<< HEAD
         primary: "anthropic/claude-opus-4-5",
-        fallbacks: ["claude-cli/opus-4.5"],
+        fallbacks: [
+          "claude-cli/opus-4.5"
+        ]
       },
       models: {
         "anthropic/claude-opus-4-5": { alias: "Opus" },
@@ -72,25 +71,12 @@ Add a CLI backend to your fallback list so it only runs when primary models fail
       }
     }
   }
-=======
-        primary: "anthropic/claude-opus-4-6",
-        fallbacks: ["claude-cli/opus-4.6", "claude-cli/opus-4.5"],
-      },
-      models: {
-        "anthropic/claude-opus-4-6": { alias: "Opus" },
-        "claude-cli/opus-4.6": {},
-        "claude-cli/opus-4.5": {},
-      },
-    },
-  },
->>>>>>> 462905440 (chore: apply local workspace updates (#9911))
 }
 ```
 
 Notes:
-
 - If you use `agents.defaults.models` (allowlist), you must include `claude-cli/...`.
-- If the primary provider fails (auth, rate limits, timeouts), OpenClaw will
+- If the primary provider fails (auth, rate limits, timeouts), Moltbot will
   try the CLI backend next.
 
 ## Configuration overview
@@ -116,7 +102,7 @@ The provider id becomes the left side of your model ref:
     defaults: {
       cliBackends: {
         "claude-cli": {
-          command: "/opt/homebrew/bin/claude",
+          command: "/opt/homebrew/bin/claude"
         },
         "my-cli": {
           command: "my-cli",
@@ -125,9 +111,8 @@ The provider id becomes the left side of your model ref:
           input: "arg",
           modelArg: "--model",
           modelAliases: {
-            "claude-opus-4-6": "opus",
             "claude-opus-4-5": "opus",
-            "claude-sonnet-4-5": "sonnet",
+            "claude-sonnet-4-5": "sonnet"
           },
           sessionArg: "--session",
           sessionMode: "existing",
@@ -136,29 +121,21 @@ The provider id becomes the left side of your model ref:
           systemPromptWhen: "first",
           imageArg: "--image",
           imageMode: "repeat",
-          serialize: true,
-        },
-      },
-    },
-  },
+          serialize: true
+        }
+      }
+    }
+  }
 }
 ```
 
 ## How it works
 
-<<<<<<< HEAD
 1) **Selects a backend** based on the provider prefix (`claude-cli/...`).
-2) **Builds a system prompt** using the same OpenClaw prompt + workspace context.
+2) **Builds a system prompt** using the same Moltbot prompt + workspace context.
 3) **Executes the CLI** with a session id (if supported) so history stays consistent.
 4) **Parses output** (JSON or plain text) and returns the final text.
 5) **Persists session ids** per backend, so follow-ups reuse the same CLI session.
-=======
-1. **Selects a backend** based on the provider prefix (`claude-cli/...`).
-2. **Builds a system prompt** using the same OpenClaw prompt + workspace context.
-3. **Executes the CLI** with a session id (if supported) so history stays consistent.
-4. **Parses output** (JSON or plain text) and returns the final text.
-5. **Persists session ids** per backend, so follow-ups reuse the same CLI session.
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 ## Sessions
 
@@ -182,8 +159,8 @@ imageArg: "--image",
 imageMode: "repeat"
 ```
 
-OpenClaw will write base64 images to temp files. If `imageArg` is set, those
-paths are passed as CLI args. If `imageArg` is missing, OpenClaw appends the
+Moltbot will write base64 images to temp files. If `imageArg` is set, those
+paths are passed as CLI args. If `imageArg` is missing, Moltbot appends the
 file paths to the prompt (path injection), which is enough for CLIs that auto-
 load local files from plain paths (Claude Code CLI behavior).
 
@@ -195,14 +172,13 @@ load local files from plain paths (Claude Code CLI behavior).
 - `output: "text"` treats stdout as the final response.
 
 Input modes:
-
 - `input: "arg"` (default) passes the prompt as the last CLI arg.
 - `input: "stdin"` sends the prompt via stdin.
 - If the prompt is very long and `maxPromptArgChars` is set, stdin is used.
 
 ## Defaults (built-in)
 
-OpenClaw ships a default for `claude-cli`:
+Moltbot ships a default for `claude-cli`:
 
 - `command: "claude"`
 - `args: ["-p", "--output-format", "json", "--dangerously-skip-permissions"]`
@@ -213,7 +189,7 @@ OpenClaw ships a default for `claude-cli`:
 - `systemPromptWhen: "first"`
 - `sessionMode: "always"`
 
-OpenClaw also ships a default for `codex-cli`:
+Moltbot also ships a default for `codex-cli`:
 
 - `command: "codex"`
 - `args: ["exec","--json","--color","never","--sandbox","read-only","--skip-git-repo-check"]`
@@ -228,12 +204,12 @@ Override only if needed (common: absolute `command` path).
 
 ## Limitations
 
-- **No OpenClaw tools** (the CLI backend never receives tool calls). Some CLIs
+- **No Moltbot tools** (the CLI backend never receives tool calls). Some CLIs
   may still run their own agent tooling.
 - **No streaming** (CLI output is collected then returned).
 - **Structured outputs** depend on the CLI’s JSON format.
 - **Codex CLI sessions** resume via text output (no JSONL), which is less
-  structured than the initial `--json` run. OpenClaw sessions still work
+  structured than the initial `--json` run. Moltbot sessions still work
   normally.
 
 ## Troubleshooting

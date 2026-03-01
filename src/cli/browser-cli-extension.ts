@@ -1,38 +1,21 @@
-import type { Command } from "commander";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { movePathToTrash } from "../browser/trash.js";
+
+import type { Command } from "commander";
+
 import { STATE_DIR } from "../config/paths.js";
 import { danger, info } from "../globals.js";
 import { copyToClipboard } from "../infra/clipboard.js";
 import { defaultRuntime } from "../runtime.js";
+import { movePathToTrash } from "../browser/trash.js";
 import { formatDocsLink } from "../terminal/links.js";
 import { theme } from "../terminal/theme.js";
 import { shortenHomePath } from "../utils.js";
 import { formatCliCommand } from "./command-format.js";
 
-<<<<<<< HEAD
 function bundledExtensionRootDir() {
   const here = path.dirname(fileURLToPath(import.meta.url));
-=======
-export function resolveBundledExtensionRootDir(
-  here = path.dirname(fileURLToPath(import.meta.url)),
-) {
-  let current = here;
-  while (true) {
-    const candidate = path.join(current, "assets", "chrome-extension");
-    if (hasManifest(candidate)) {
-      return candidate;
-    }
-    const parent = path.dirname(current);
-    if (parent === current) {
-      break;
-    }
-    current = parent;
-  }
-
->>>>>>> 1ee1522da (fix: resolve bundled chrome extension assets (#8914) (thanks @kelvinCB))
   return path.resolve(here, "../../assets/chrome-extension");
 }
 
@@ -48,9 +31,9 @@ export async function installChromeExtension(opts?: {
   stateDir?: string;
   sourceDir?: string;
 }): Promise<{ path: string }> {
-  const src = opts?.sourceDir ?? resolveBundledExtensionRootDir();
+  const src = opts?.sourceDir ?? bundledExtensionRootDir();
   if (!hasManifest(src)) {
-    throw new Error("Bundled Chrome extension is missing. Reinstall OpenClaw and try again.");
+    throw new Error("Bundled Chrome extension is missing. Reinstall Moltbot and try again.");
   }
 
   const stateDir = opts?.stateDir ?? STATE_DIR;
@@ -105,9 +88,9 @@ export function registerBrowserExtensionCommands(
             "Next:",
             `- Chrome → chrome://extensions → enable “Developer mode”`,
             `- “Load unpacked” → select: ${displayPath}`,
-            `- Pin “OpenClaw Browser Relay”, then click it on the tab (badge shows ON)`,
+            `- Pin “Moltbot Browser Relay”, then click it on the tab (badge shows ON)`,
             "",
-            `${theme.muted("Docs:")} ${formatDocsLink("/tools/chrome-extension", "docs.openclaw.ai/tools/chrome-extension")}`,
+            `${theme.muted("Docs:")} ${formatDocsLink("/tools/chrome-extension", "docs.molt.bot/tools/chrome-extension")}`,
           ].join("\n"),
         ),
       );
@@ -123,8 +106,8 @@ export function registerBrowserExtensionCommands(
         defaultRuntime.error(
           danger(
             [
-              `Chrome extension is not installed. Run: "${formatCliCommand("openclaw browser extension install")}"`,
-              `Docs: ${formatDocsLink("/tools/chrome-extension", "docs.openclaw.ai/tools/chrome-extension")}`,
+              `Chrome extension is not installed. Run: "${formatCliCommand("moltbot browser extension install")}"`,
+              `Docs: ${formatDocsLink("/tools/chrome-extension", "docs.molt.bot/tools/chrome-extension")}`,
             ].join("\n"),
           ),
         );
@@ -137,8 +120,6 @@ export function registerBrowserExtensionCommands(
       const displayPath = shortenHomePath(dir);
       defaultRuntime.log(displayPath);
       const copied = await copyToClipboard(dir).catch(() => false);
-      if (copied) {
-        defaultRuntime.error(info("Copied to clipboard."));
-      }
+      if (copied) defaultRuntime.error(info("Copied to clipboard."));
     });
 }

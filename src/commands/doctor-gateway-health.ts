@@ -1,18 +1,14 @@
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
-=======
-import type { OpenClawConfig } from "../config/config.js";
-import type { RuntimeEnv } from "../runtime.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { buildGatewayConnectionDetails, callGateway } from "../gateway/call.js";
 import { collectChannelStatusIssues } from "../infra/channels-status-issues.js";
+import type { RuntimeEnv } from "../runtime.js";
 import { note } from "../terminal/note.js";
-import { formatHealthCheckFailure } from "./health-format.js";
 import { healthCommand } from "./health.js";
+import { formatHealthCheckFailure } from "./health-format.js";
 
 export async function checkGatewayHealth(params: {
   runtime: RuntimeEnv;
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   timeoutMs?: number;
 }) {
   const gatewayDetails = buildGatewayConnectionDetails({ config: params.cfg });
@@ -34,7 +30,7 @@ export async function checkGatewayHealth(params: {
 
   if (healthOk) {
     try {
-      const status = await callGateway({
+      const status = await callGateway<Record<string, unknown>>({
         method: "channels.status",
         params: { probe: true, timeoutMs: 5000 },
         timeoutMs: 6000,

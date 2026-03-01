@@ -1,40 +1,20 @@
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
-=======
-import type { OpenClawConfig } from "../../config/config.js";
-import type { SandboxConfig, SandboxToolPolicyResolved } from "./types.js";
-import { formatCliCommand } from "../../cli/command-format.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { canonicalizeMainSessionAlias, resolveAgentMainSessionKey } from "../../config/sessions.js";
 import { resolveSessionAgentId } from "../agent-scope.js";
 import { expandToolGroups } from "../tool-policy.js";
+import { formatCliCommand } from "../../cli/command-format.js";
 import { resolveSandboxConfigForAgent } from "./config.js";
 import { resolveSandboxToolPolicyForAgent } from "./tool-policy.js";
+import type { SandboxConfig, SandboxToolPolicyResolved } from "./types.js";
 
 function shouldSandboxSession(cfg: SandboxConfig, sessionKey: string, mainSessionKey: string) {
-  if (cfg.mode === "off") {
-    return false;
-  }
-  if (cfg.mode === "all") {
-    return true;
-  }
+  if (cfg.mode === "off") return false;
+  if (cfg.mode === "all") return true;
   return sessionKey.trim() !== mainSessionKey.trim();
 }
 
-function resolveMainSessionKeyForSandbox(params: {
-  cfg?: OpenClawConfig;
-  agentId: string;
-}): string {
+function resolveMainSessionKeyForSandbox(params: { cfg?: MoltbotConfig; agentId: string }): string {
   if (params.cfg?.session?.scope === "global") return "global";
-=======
-function resolveMainSessionKeyForSandbox(params: {
-  cfg?: OpenClawConfig;
-  agentId: string;
-}): string {
-  if (params.cfg?.session?.scope === "global") {
-    return "global";
-  }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
   return resolveAgentMainSessionKey({
     cfg: params.cfg,
     agentId: params.agentId,
@@ -42,7 +22,7 @@ function resolveMainSessionKeyForSandbox(params: {
 }
 
 function resolveComparableSessionKeyForSandbox(params: {
-  cfg?: OpenClawConfig;
+  cfg?: MoltbotConfig;
   agentId: string;
   sessionKey: string;
 }): string {
@@ -53,10 +33,7 @@ function resolveComparableSessionKeyForSandbox(params: {
   });
 }
 
-export function resolveSandboxRuntimeStatus(params: {
-  cfg?: OpenClawConfig;
-  sessionKey?: string;
-}): {
+export function resolveSandboxRuntimeStatus(params: { cfg?: MoltbotConfig; sessionKey?: string }): {
   agentId: string;
   sessionKey: string;
   mainSessionKey: string;
@@ -90,31 +67,25 @@ export function resolveSandboxRuntimeStatus(params: {
 }
 
 export function formatSandboxToolPolicyBlockedMessage(params: {
-  cfg?: OpenClawConfig;
+  cfg?: MoltbotConfig;
   sessionKey?: string;
   toolName: string;
 }): string | undefined {
   const tool = params.toolName.trim().toLowerCase();
-  if (!tool) {
-    return undefined;
-  }
+  if (!tool) return undefined;
 
   const runtime = resolveSandboxRuntimeStatus({
     cfg: params.cfg,
     sessionKey: params.sessionKey,
   });
-  if (!runtime.sandboxed) {
-    return undefined;
-  }
+  if (!runtime.sandboxed) return undefined;
 
   const deny = new Set(expandToolGroups(runtime.toolPolicy.deny));
   const allow = expandToolGroups(runtime.toolPolicy.allow);
   const allowSet = allow.length > 0 ? new Set(allow) : null;
   const blockedByDeny = deny.has(tool);
   const blockedByAllow = allowSet ? !allowSet.has(tool) : false;
-  if (!blockedByDeny && !blockedByAllow) {
-    return undefined;
-  }
+  if (!blockedByDeny && !blockedByAllow) return undefined;
 
   const reasons: string[] = [];
   const fixes: string[] = [];
@@ -135,14 +106,12 @@ export function formatSandboxToolPolicyBlockedMessage(params: {
   lines.push(`Reason: ${reasons.join(" + ")}`);
   lines.push("Fix:");
   lines.push(`- agents.defaults.sandbox.mode=off (disable sandbox)`);
-  for (const fix of fixes) {
-    lines.push(`- ${fix}`);
-  }
+  for (const fix of fixes) lines.push(`- ${fix}`);
   if (runtime.mode === "non-main") {
     lines.push(`- Use main session key (direct): ${runtime.mainSessionKey}`);
   }
   lines.push(
-    `- See: ${formatCliCommand(`openclaw sandbox explain --session ${runtime.sessionKey}`)}`,
+    `- See: ${formatCliCommand(`moltbot sandbox explain --session ${runtime.sessionKey}`)}`,
   );
 
   return lines.join("\n");

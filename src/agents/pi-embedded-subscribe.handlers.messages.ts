@@ -1,21 +1,13 @@
 import type { AgentEvent, AgentMessage } from "@mariozechner/pi-agent-core";
-<<<<<<< HEAD
 import type { AssistantMessage } from "@mariozechner/pi-ai";
 
-=======
-import type { EmbeddedPiSubscribeContext } from "./pi-embedded-subscribe.handlers.types.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { parseReplyDirectives } from "../auto-reply/reply/reply-directives.js";
 import { emitAgentEvent } from "../infra/agent-events.js";
-import { createInlineCodeState } from "../markdown/code-spans.js";
 import {
   isMessagingToolDuplicateNormalized,
   normalizeTextForComparison,
 } from "./pi-embedded-helpers.js";
-<<<<<<< HEAD
 import type { EmbeddedPiSubscribeContext } from "./pi-embedded-subscribe.handlers.types.js";
-=======
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { appendRawStream } from "./pi-embedded-subscribe.raw-stream.js";
 import {
   extractAssistantText,
@@ -25,27 +17,14 @@ import {
   formatReasoningMessage,
   promoteThinkingTagsToBlocks,
 } from "./pi-embedded-utils.js";
-
-const stripTrailingDirective = (text: string): string => {
-  const openIndex = text.lastIndexOf("[[");
-  if (openIndex < 0) {
-    return text;
-  }
-  const closeIndex = text.indexOf("]]", openIndex + 2);
-  if (closeIndex >= 0) {
-    return text;
-  }
-  return text.slice(0, openIndex);
-};
+import { createInlineCodeState } from "../markdown/code-spans.js";
 
 export function handleMessageStart(
   ctx: EmbeddedPiSubscribeContext,
   evt: AgentEvent & { message: AgentMessage },
 ) {
   const msg = evt.message;
-  if (msg?.role !== "assistant") {
-    return;
-  }
+  if (msg?.role !== "assistant") return;
 
   // KNOWN: Resetting at `text_end` is unsafe (late/duplicate end events).
   // ASSUME: `message_start` is the only reliable boundary for “new assistant message begins”.
@@ -62,9 +41,7 @@ export function handleMessageUpdate(
   evt: AgentEvent & { message: AgentMessage; assistantMessageEvent?: unknown },
 ) {
   const msg = evt.message;
-  if (msg?.role !== "assistant") {
-    return;
-  }
+  if (msg?.role !== "assistant") return;
 
   const assistantEvent = evt.assistantMessageEvent;
   const assistantRecord =
@@ -130,38 +107,20 @@ export function handleMessageUpdate(
       inlineCode: createInlineCodeState(),
     })
     .trim();
-  if (next) {
-    const visibleDelta = chunk ? ctx.stripBlockTags(chunk, ctx.state.partialBlockState) : "";
-    const parsedDelta = visibleDelta ? ctx.consumePartialReplyDirectives(visibleDelta) : null;
-    const parsedFull = parseReplyDirectives(stripTrailingDirective(next));
-    const cleanedText = parsedFull.text;
-    const mediaUrls = parsedDelta?.mediaUrls;
-    const hasMedia = Boolean(mediaUrls && mediaUrls.length > 0);
-    const hasAudio = Boolean(parsedDelta?.audioAsVoice);
-    const previousCleaned = ctx.state.lastStreamedAssistantCleaned ?? "";
-
-    let shouldEmit = false;
-    let deltaText = "";
-    if (!cleanedText && !hasMedia && !hasAudio) {
-      shouldEmit = false;
-    } else if (previousCleaned && !cleanedText.startsWith(previousCleaned)) {
-      shouldEmit = false;
-    } else {
-      deltaText = cleanedText.slice(previousCleaned.length);
-      shouldEmit = Boolean(deltaText || hasMedia || hasAudio);
-    }
-
-    ctx.state.lastStreamedAssistant = next;
-    ctx.state.lastStreamedAssistantCleaned = cleanedText;
-
-    if (shouldEmit) {
+  if (next && next !== ctx.state.lastStreamedAssistant) {
+    const previousText = ctx.state.lastStreamedAssistant ?? "";
+    const { text: cleanedText, mediaUrls } = parseReplyDirectives(next);
+    const { text: previousCleanedText } = parseReplyDirectives(previousText);
+    if (cleanedText.startsWith(previousCleanedText)) {
+      const deltaText = cleanedText.slice(previousCleanedText.length);
+      ctx.state.lastStreamedAssistant = next;
       emitAgentEvent({
         runId: ctx.params.runId,
         stream: "assistant",
         data: {
           text: cleanedText,
           delta: deltaText,
-          mediaUrls: hasMedia ? mediaUrls : undefined,
+          mediaUrls: mediaUrls?.length ? mediaUrls : undefined,
         },
       });
       void ctx.params.onAgentEvent?.({
@@ -169,14 +128,13 @@ export function handleMessageUpdate(
         data: {
           text: cleanedText,
           delta: deltaText,
-          mediaUrls: hasMedia ? mediaUrls : undefined,
+          mediaUrls: mediaUrls?.length ? mediaUrls : undefined,
         },
       });
-      ctx.state.emittedAssistantUpdate = true;
       if (ctx.params.onPartialReply && ctx.state.shouldEmitPartialReplies) {
         void ctx.params.onPartialReply({
           text: cleanedText,
-          mediaUrls: hasMedia ? mediaUrls : undefined,
+          mediaUrls: mediaUrls?.length ? mediaUrls : undefined,
         });
       }
     }
@@ -202,16 +160,9 @@ export function handleMessageEnd(
   evt: AgentEvent & { message: AgentMessage },
 ) {
   const msg = evt.message;
-  if (msg?.role !== "assistant") {
-    return;
-  }
+  if (msg?.role !== "assistant") return;
 
-<<<<<<< HEAD
   const assistantMessage = msg as AssistantMessage;
-=======
-  const assistantMessage = msg;
-  ctx.recordAssistantUsage((assistantMessage as { usage?: unknown }).usage);
->>>>>>> 191da1feb (fix: context overflow compaction and subagent announce improvements (#11664) (thanks @tyler6204))
   promoteThinkingTagsToBlocks(assistantMessage);
 
   const rawText = extractAssistantText(assistantMessage);
@@ -230,44 +181,6 @@ export function handleMessageEnd(
       ? extractAssistantThinking(assistantMessage) || extractThinkingFromTaggedText(rawText)
       : "";
   const formattedReasoning = rawThinking ? formatReasoningMessage(rawThinking) : "";
-  const trimmedText = text.trim();
-  const parsedText = trimmedText ? parseReplyDirectives(stripTrailingDirective(trimmedText)) : null;
-  let cleanedText = parsedText?.text ?? "";
-  let mediaUrls = parsedText?.mediaUrls;
-  let hasMedia = Boolean(mediaUrls && mediaUrls.length > 0);
-
-  if (!cleanedText && !hasMedia) {
-    const rawTrimmed = rawText.trim();
-    const rawStrippedFinal = rawTrimmed.replace(/<\s*\/?\s*final\s*>/gi, "").trim();
-    const rawCandidate = rawStrippedFinal || rawTrimmed;
-    if (rawCandidate) {
-      const parsedFallback = parseReplyDirectives(stripTrailingDirective(rawCandidate));
-      cleanedText = parsedFallback.text ?? rawCandidate;
-      mediaUrls = parsedFallback.mediaUrls;
-      hasMedia = Boolean(mediaUrls && mediaUrls.length > 0);
-    }
-  }
-
-  if (!ctx.state.emittedAssistantUpdate && (cleanedText || hasMedia)) {
-    emitAgentEvent({
-      runId: ctx.params.runId,
-      stream: "assistant",
-      data: {
-        text: cleanedText,
-        delta: cleanedText,
-        mediaUrls: hasMedia ? mediaUrls : undefined,
-      },
-    });
-    void ctx.params.onAgentEvent?.({
-      stream: "assistant",
-      data: {
-        text: cleanedText,
-        delta: cleanedText,
-        mediaUrls: hasMedia ? mediaUrls : undefined,
-      },
-    });
-    ctx.state.emittedAssistantUpdate = true;
-  }
 
   const addedDuringMessage = ctx.state.assistantTexts.length > ctx.state.assistantTextBaseline;
   const chunkerHasBuffered = ctx.blockChunker?.hasBuffered() ?? false;
@@ -283,16 +196,12 @@ export function handleMessageEnd(
   const shouldEmitReasoningBeforeAnswer =
     shouldEmitReasoning && ctx.state.blockReplyBreak === "message_end" && !addedDuringMessage;
   const maybeEmitReasoning = () => {
-    if (!shouldEmitReasoning || !formattedReasoning) {
-      return;
-    }
+    if (!shouldEmitReasoning || !formattedReasoning) return;
     ctx.state.lastReasoningSent = formattedReasoning;
     void onBlockReply?.({ text: formattedReasoning });
   };
 
-  if (shouldEmitReasoningBeforeAnswer) {
-    maybeEmitReasoning();
-  }
+  if (shouldEmitReasoningBeforeAnswer) maybeEmitReasoning();
 
   if (
     (ctx.state.blockReplyBreak === "message_end" ||
@@ -343,9 +252,7 @@ export function handleMessageEnd(
     }
   }
 
-  if (!shouldEmitReasoningBeforeAnswer) {
-    maybeEmitReasoning();
-  }
+  if (!shouldEmitReasoningBeforeAnswer) maybeEmitReasoning();
   if (ctx.state.streamReasoning && rawThinking) {
     ctx.emitReasoningStream(rawThinking);
   }
@@ -381,5 +288,4 @@ export function handleMessageEnd(
   ctx.state.blockState.final = false;
   ctx.state.blockState.inlineCode = createInlineCodeState();
   ctx.state.lastStreamedAssistant = undefined;
-  ctx.state.lastStreamedAssistantCleaned = undefined;
 }

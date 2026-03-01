@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+
 import { normalizeIMessageMessagingTarget } from "./imessage.js";
 
 describe("imessage target normalization", () => {

@@ -1,11 +1,7 @@
-import type { ChannelAccountSnapshot, ChannelPlugin } from "../channels/plugins/types.js";
-<<<<<<< HEAD
-import type { MoltbotConfig } from "../config/config.js";
-=======
-import type { OpenClawConfig } from "../config/config.js";
 import { resolveChannelDefaultAccountId } from "../channels/plugins/helpers.js";
 import { listChannelPlugins } from "../channels/plugins/index.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
+import type { ChannelAccountSnapshot, ChannelPlugin } from "../channels/plugins/types.js";
+import type { MoltbotConfig } from "../config/config.js";
 
 export type LinkChannelContext = {
   linked: boolean;
@@ -16,7 +12,7 @@ export type LinkChannelContext = {
 };
 
 export async function resolveLinkChannelContext(
-  cfg: OpenClawConfig,
+  cfg: MoltbotConfig,
 ): Promise<LinkChannelContext | null> {
   for (const plugin of listChannelPlugins()) {
     const accountIds = plugin.config.listAccountIds(cfg);
@@ -45,12 +41,10 @@ export async function resolveLinkChannelContext(
           snapshot,
         })
       : undefined;
-    const summaryRecord = summary;
+    const summaryRecord = summary as Record<string, unknown> | undefined;
     const linked =
       summaryRecord && typeof summaryRecord.linked === "boolean" ? summaryRecord.linked : null;
-    if (linked === null) {
-      continue;
-    }
+    if (linked === null) continue;
     const authAgeMs =
       summaryRecord && typeof summaryRecord.authAgeMs === "number" ? summaryRecord.authAgeMs : null;
     return { linked, authAgeMs, account, accountId: defaultAccountId, plugin };

@@ -12,9 +12,7 @@ function isExecutable(filePath: string): boolean {
 }
 
 function normalizePathValue(value: unknown): string | undefined {
-  if (typeof value !== "string") {
-    return undefined;
-  }
+  if (typeof value !== "string") return undefined;
   const trimmed = value.trim();
   return trimmed ? trimmed : undefined;
 }
@@ -53,14 +51,10 @@ export function resolveBrewExecutable(opts?: {
   const candidates: string[] = [];
 
   const brewFile = normalizePathValue(env.HOMEBREW_BREW_FILE);
-  if (brewFile) {
-    candidates.push(brewFile);
-  }
+  if (brewFile) candidates.push(brewFile);
 
   const prefix = normalizePathValue(env.HOMEBREW_PREFIX);
-  if (prefix) {
-    candidates.push(path.join(prefix, "bin", "brew"));
-  }
+  if (prefix) candidates.push(path.join(prefix, "bin", "brew"));
 
   // Linuxbrew defaults.
   candidates.push(path.join(homeDir, ".linuxbrew", "bin", "brew"));
@@ -70,9 +64,7 @@ export function resolveBrewExecutable(opts?: {
   candidates.push("/opt/homebrew/bin/brew", "/usr/local/bin/brew");
 
   for (const candidate of candidates) {
-    if (isExecutable(candidate)) {
-      return candidate;
-    }
+    if (isExecutable(candidate)) return candidate;
   }
 
   return undefined;

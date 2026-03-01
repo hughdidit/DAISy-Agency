@@ -1,7 +1,10 @@
 import { afterEach, expect, test } from "vitest";
+
 import { resetProcessRegistryForTests } from "./bash-process-registry";
 import { createExecTool } from "./bash-tools.exec";
 import { createProcessTool } from "./bash-tools.process";
+
+const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 afterEach(() => {
   resetProcessRegistryForTests();
@@ -29,7 +32,7 @@ test("process send-keys encodes Enter for pty sessions", async () => {
 
   const deadline = Date.now() + (process.platform === "win32" ? 4000 : 2000);
   while (Date.now() < deadline) {
-    await sleep(50);
+    await wait(50);
     const poll = await processTool.execute("toolcall", { action: "poll", sessionId });
     const details = poll.details as { status?: string; aggregated?: string };
     if (details.status !== "running") {
@@ -63,7 +66,7 @@ test("process submit sends Enter for pty sessions", async () => {
 
   const deadline = Date.now() + (process.platform === "win32" ? 4000 : 2000);
   while (Date.now() < deadline) {
-    await sleep(50);
+    await wait(50);
     const poll = await processTool.execute("toolcall", { action: "poll", sessionId });
     const details = poll.details as { status?: string; aggregated?: string };
     if (details.status !== "running") {

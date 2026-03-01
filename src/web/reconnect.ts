@@ -1,10 +1,6 @@
 import { randomUUID } from "node:crypto";
-<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../config/config.js";
-=======
-import type { OpenClawConfig } from "../config/config.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { BackoffPolicy } from "../infra/backoff.js";
 import { computeBackoff, sleepWithAbort } from "../infra/backoff.js";
 
@@ -23,16 +19,14 @@ export const DEFAULT_RECONNECT_POLICY: ReconnectPolicy = {
 
 const clamp = (val: number, min: number, max: number) => Math.max(min, Math.min(max, val));
 
-export function resolveHeartbeatSeconds(cfg: OpenClawConfig, overrideSeconds?: number): number {
+export function resolveHeartbeatSeconds(cfg: MoltbotConfig, overrideSeconds?: number): number {
   const candidate = overrideSeconds ?? cfg.web?.heartbeatSeconds;
-  if (typeof candidate === "number" && candidate > 0) {
-    return candidate;
-  }
+  if (typeof candidate === "number" && candidate > 0) return candidate;
   return DEFAULT_HEARTBEAT_SECONDS;
 }
 
 export function resolveReconnectPolicy(
-  cfg: OpenClawConfig,
+  cfg: MoltbotConfig,
   overrides?: Partial<ReconnectPolicy>,
 ): ReconnectPolicy {
   const reconnectOverrides = cfg.web?.reconnect ?? {};

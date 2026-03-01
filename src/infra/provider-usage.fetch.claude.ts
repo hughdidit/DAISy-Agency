@@ -1,6 +1,6 @@
-import type { ProviderUsageSnapshot, UsageWindow } from "./provider-usage.types.js";
 import { fetchJson } from "./provider-usage.fetch.shared.js";
 import { clampPercent, PROVIDER_LABELS } from "./provider-usage.shared.js";
+import type { ProviderUsageSnapshot, UsageWindow } from "./provider-usage.types.js";
 
 type ClaudeUsageResponse = {
   five_hour?: { utilization?: number; resets_at?: string };
@@ -19,14 +19,10 @@ type ClaudeWebUsageResponse = ClaudeUsageResponse;
 function resolveClaudeWebSessionKey(): string | undefined {
   const direct =
     process.env.CLAUDE_AI_SESSION_KEY?.trim() ?? process.env.CLAUDE_WEB_SESSION_KEY?.trim();
-  if (direct?.startsWith("sk-ant-")) {
-    return direct;
-  }
+  if (direct?.startsWith("sk-ant-")) return direct;
 
   const cookieHeader = process.env.CLAUDE_WEB_COOKIE?.trim();
-  if (!cookieHeader) {
-    return undefined;
-  }
+  if (!cookieHeader) return undefined;
   const stripped = cookieHeader.replace(/^cookie:\\s*/i, "");
   const match = stripped.match(/(?:^|;\\s*)sessionKey=([^;\\s]+)/i);
   const value = match?.[1]?.trim();
@@ -49,15 +45,11 @@ async function fetchClaudeWebUsage(
     timeoutMs,
     fetchFn,
   );
-  if (!orgRes.ok) {
-    return null;
-  }
+  if (!orgRes.ok) return null;
 
   const orgs = (await orgRes.json()) as ClaudeWebOrganizationsResponse;
   const orgId = orgs?.[0]?.uuid?.trim();
-  if (!orgId) {
-    return null;
-  }
+  if (!orgId) return null;
 
   const usageRes = await fetchJson(
     `https://claude.ai/api/organizations/${orgId}/usage`,
@@ -65,9 +57,7 @@ async function fetchClaudeWebUsage(
     timeoutMs,
     fetchFn,
   );
-  if (!usageRes.ok) {
-    return null;
-  }
+  if (!usageRes.ok) return null;
 
   const data = (await usageRes.json()) as ClaudeWebUsageResponse;
   const windows: UsageWindow[] = [];
@@ -96,9 +86,7 @@ async function fetchClaudeWebUsage(
     });
   }
 
-  if (windows.length === 0) {
-    return null;
-  }
+  if (windows.length === 0) return null;
   return {
     provider: "anthropic",
     displayName: PROVIDER_LABELS.anthropic,
@@ -116,7 +104,7 @@ export async function fetchClaudeUsage(
     {
       headers: {
         Authorization: `Bearer ${token}`,
-        "User-Agent": "openclaw",
+        "User-Agent": "moltbot",
         Accept: "application/json",
         "anthropic-version": "2023-06-01",
         "anthropic-beta": "oauth-2025-04-20",
@@ -133,9 +121,7 @@ export async function fetchClaudeUsage(
         error?: { message?: unknown } | null;
       };
       const raw = data?.error?.message;
-      if (typeof raw === "string" && raw.trim()) {
-        message = raw.trim();
-      }
+      if (typeof raw === "string" && raw.trim()) message = raw.trim();
     } catch {
       // ignore parse errors
     }
@@ -147,9 +133,7 @@ export async function fetchClaudeUsage(
       const sessionKey = resolveClaudeWebSessionKey();
       if (sessionKey) {
         const web = await fetchClaudeWebUsage(sessionKey, timeoutMs, fetchFn);
-        if (web) {
-          return web;
-        }
+        if (web) return web;
       }
     }
 

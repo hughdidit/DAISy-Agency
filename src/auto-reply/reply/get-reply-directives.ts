@@ -1,20 +1,14 @@
 import type { ExecToolDefaults } from "../../agents/bash-tools.js";
 import type { ModelAliasIndex } from "../../agents/model-selection.js";
 import type { SkillCommandSpec } from "../../agents/skills.js";
-<<<<<<< HEAD
 import { resolveSandboxRuntimeStatus } from "../../agents/sandbox.js";
 import type { MoltbotConfig } from "../../config/config.js";
-=======
-import type { OpenClawConfig } from "../../config/config.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { SessionEntry } from "../../config/sessions.js";
+import { listChatCommands, shouldHandleTextCommands } from "../commands-registry.js";
+import { listSkillCommandsForWorkspace } from "../skill-commands.js";
 import type { MsgContext, TemplateContext } from "../templating.js";
 import type { ElevatedLevel, ReasoningLevel, ThinkLevel, VerboseLevel } from "../thinking.js";
 import type { GetReplyOptions, ReplyPayload } from "../types.js";
-import type { TypingController } from "./typing.js";
-import { resolveSandboxRuntimeStatus } from "../../agents/sandbox.js";
-import { listChatCommands, shouldHandleTextCommands } from "../commands-registry.js";
-import { listSkillCommandsForWorkspace } from "../skill-commands.js";
 import { resolveBlockStreamingChunking } from "./block-streaming.js";
 import { buildCommandContext } from "./commands.js";
 import { type InlineDirectives, parseInlineDirectives } from "./directive-handling.js";
@@ -25,8 +19,9 @@ import { CURRENT_MESSAGE_MARKER, stripMentions, stripStructuralPrefixes } from "
 import { createModelSelectionState, resolveContextTokens } from "./model-selection.js";
 import { formatElevatedUnavailableMessage, resolveElevatedPermissions } from "./reply-elevated.js";
 import { stripInlineStatus } from "./reply-inline.js";
+import type { TypingController } from "./typing.js";
 
-type AgentDefaults = NonNullable<OpenClawConfig["agents"]>["defaults"];
+type AgentDefaults = NonNullable<MoltbotConfig["agents"]>["defaults"];
 type ExecOverrides = Pick<ExecToolDefaults, "host" | "security" | "ask" | "node">;
 
 export type ReplyDirectiveContinuation = {
@@ -51,7 +46,6 @@ export type ReplyDirectiveContinuation = {
     minChars: number;
     maxChars: number;
     breakPreference: "paragraph" | "newline" | "sentence";
-    flushOnParagraph?: boolean;
   };
   resolvedBlockStreamingBreak: "text_end" | "message_end";
   provider: string;
@@ -79,9 +73,7 @@ function resolveExecOverrides(params: {
     (params.sessionEntry?.execSecurity as ExecOverrides["security"]);
   const ask = params.directives.execAsk ?? (params.sessionEntry?.execAsk as ExecOverrides["ask"]);
   const node = params.directives.execNode ?? params.sessionEntry?.execNode;
-  if (!host && !security && !ask && !node) {
-    return undefined;
-  }
+  if (!host && !security && !ask && !node) return undefined;
   return { host, security, ask, node };
 }
 
@@ -91,7 +83,7 @@ export type ReplyDirectiveResult =
 
 export async function resolveReplyDirectives(params: {
   ctx: MsgContext;
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   agentId: string;
   agentDir: string;
   workspaceDir: string;
@@ -278,9 +270,7 @@ export async function resolveReplyDirectives(params: {
       };
   const existingBody = sessionCtx.BodyStripped ?? sessionCtx.Body ?? "";
   let cleanedBody = (() => {
-    if (!existingBody) {
-      return parsedDirectives.cleaned;
-    }
+    if (!existingBody) return parsedDirectives.cleaned;
     if (!sessionCtx.CommandBody && !sessionCtx.RawBody) {
       return parseInlineDirectives(existingBody, {
         modelAliases: configuredAliases,
@@ -349,20 +339,20 @@ export async function resolveReplyDirectives(params: {
   });
   const defaultActivation = defaultGroupActivation(requireMention);
   const resolvedThinkLevel =
-    directives.thinkLevel ??
+    (directives.thinkLevel as ThinkLevel | undefined) ??
     (sessionEntry?.thinkingLevel as ThinkLevel | undefined) ??
     (agentCfg?.thinkingDefault as ThinkLevel | undefined);
 
   const resolvedVerboseLevel =
-    directives.verboseLevel ??
+    (directives.verboseLevel as VerboseLevel | undefined) ??
     (sessionEntry?.verboseLevel as VerboseLevel | undefined) ??
     (agentCfg?.verboseDefault as VerboseLevel | undefined);
   const resolvedReasoningLevel: ReasoningLevel =
-    directives.reasoningLevel ??
+    (directives.reasoningLevel as ReasoningLevel | undefined) ??
     (sessionEntry?.reasoningLevel as ReasoningLevel | undefined) ??
     "off";
   const resolvedElevatedLevel = elevatedAllowed
-    ? (directives.elevatedLevel ??
+    ? ((directives.elevatedLevel as ElevatedLevel | undefined) ??
       (sessionEntry?.elevatedLevel as ElevatedLevel | undefined) ??
       (agentCfg?.elevatedDefault as ElevatedLevel | undefined) ??
       "on")

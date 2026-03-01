@@ -1,16 +1,12 @@
-import type { ChannelAccountSnapshot } from "../channels/plugins/types.js";
-<<<<<<< HEAD
-import type { MoltbotConfig } from "../config/config.js";
-=======
-import type { OpenClawConfig } from "../config/config.js";
-import type { createSubsystemLogger } from "../logging/subsystem.js";
-import type { RuntimeEnv } from "../runtime.js";
 import { resolveChannelDefaultAccountId } from "../channels/plugins/helpers.js";
 import { type ChannelId, getChannelPlugin, listChannelPlugins } from "../channels/plugins/index.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
+import type { ChannelAccountSnapshot } from "../channels/plugins/types.js";
+import type { MoltbotConfig } from "../config/config.js";
 import { formatErrorMessage } from "../infra/errors.js";
 import { resetDirectoryCache } from "../infra/outbound/target-resolver.js";
+import type { createSubsystemLogger } from "../logging/subsystem.js";
 import { DEFAULT_ACCOUNT_ID } from "../routing/session-key.js";
+import type { RuntimeEnv } from "../runtime.js";
 
 export type ChannelRuntimeSnapshot = {
   channels: Partial<Record<ChannelId, ChannelAccountSnapshot>>;
@@ -34,9 +30,7 @@ function createRuntimeStore(): ChannelRuntimeStore {
 }
 
 function isAccountEnabled(account: unknown): boolean {
-  if (!account || typeof account !== "object") {
-    return true;
-  }
+  if (!account || typeof account !== "object") return true;
   const enabled = (account as { enabled?: boolean }).enabled;
   return enabled !== false;
 }
@@ -51,7 +45,7 @@ function cloneDefaultRuntime(channelId: ChannelId, accountId: string): ChannelAc
 }
 
 type ChannelManagerOptions = {
-  loadConfig: () => OpenClawConfig;
+  loadConfig: () => MoltbotConfig;
   channelLogs: Record<ChannelId, SubsystemLogger>;
   channelRuntimeEnvs: Record<ChannelId, RuntimeEnv>;
 };
@@ -72,9 +66,7 @@ export function createChannelManager(opts: ChannelManagerOptions): ChannelManage
 
   const getStore = (channelId: ChannelId): ChannelRuntimeStore => {
     const existing = channelStores.get(channelId);
-    if (existing) {
-      return existing;
-    }
+    if (existing) return existing;
     const next = createRuntimeStore();
     channelStores.set(channelId, next);
     return next;
@@ -100,22 +92,16 @@ export function createChannelManager(opts: ChannelManagerOptions): ChannelManage
   const startChannel = async (channelId: ChannelId, accountId?: string) => {
     const plugin = getChannelPlugin(channelId);
     const startAccount = plugin?.gateway?.startAccount;
-    if (!startAccount) {
-      return;
-    }
+    if (!startAccount) return;
     const cfg = loadConfig();
     resetDirectoryCache({ channel: channelId, accountId });
     const store = getStore(channelId);
     const accountIds = accountId ? [accountId] : plugin.config.listAccountIds(cfg);
-    if (accountIds.length === 0) {
-      return;
-    }
+    if (accountIds.length === 0) return;
 
     await Promise.all(
       accountIds.map(async (id) => {
-        if (store.tasks.has(id)) {
-          return;
-        }
+        if (store.tasks.has(id)) return;
         const account = plugin.config.resolveAccount(cfg, id);
         const enabled = plugin.config.isEnabled
           ? plugin.config.isEnabled(account, cfg)
@@ -200,9 +186,7 @@ export function createChannelManager(opts: ChannelManagerOptions): ChannelManage
       Array.from(knownIds.values()).map(async (id) => {
         const abort = store.aborts.get(id);
         const task = store.tasks.get(id);
-        if (!abort && !task && !plugin?.gateway?.stopAccount) {
-          return;
-        }
+        if (!abort && !task && !plugin?.gateway?.stopAccount) return;
         abort?.abort();
         if (plugin?.gateway?.stopAccount) {
           const account = plugin.config.resolveAccount(cfg, id);
@@ -241,9 +225,7 @@ export function createChannelManager(opts: ChannelManagerOptions): ChannelManage
 
   const markChannelLoggedOut = (channelId: ChannelId, cleared: boolean, accountId?: string) => {
     const plugin = getChannelPlugin(channelId);
-    if (!plugin) {
-      return;
-    }
+    if (!plugin) return;
     const cfg = loadConfig();
     const resolvedId =
       accountId ??

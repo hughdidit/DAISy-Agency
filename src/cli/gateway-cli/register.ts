@@ -1,20 +1,14 @@
 import type { Command } from "commander";
-import type { CostUsageSummary } from "../../infra/session-cost-usage.js";
-import type { GatewayDiscoverOpts } from "./discover.js";
 import { gatewayStatusCommand } from "../../commands/gateway-status.js";
 import { formatHealthChannelLines, type HealthSummary } from "../../commands/health.js";
-import { loadConfig } from "../../config/config.js";
 import { discoverGatewayBeacons } from "../../infra/bonjour-discovery.js";
-<<<<<<< HEAD
 import type { CostUsageSummary } from "../../infra/session-cost-usage.js";
 import { WIDE_AREA_DISCOVERY_DOMAIN } from "../../infra/widearea-dns.js";
-=======
-import { resolveWideAreaDiscoveryDomain } from "../../infra/widearea-dns.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { defaultRuntime } from "../../runtime.js";
 import { formatDocsLink } from "../../terminal/links.js";
 import { colorize, isRich, theme } from "../../terminal/theme.js";
 import { formatTokenCount, formatUsd } from "../../utils/usage-format.js";
+import { withProgress } from "../progress.js";
 import { runCommandWithRuntime } from "../cli-utils.js";
 import {
   runDaemonInstall,
@@ -24,8 +18,8 @@ import {
   runDaemonStop,
   runDaemonUninstall,
 } from "../daemon-cli.js";
-import { withProgress } from "../progress.js";
 import { callGatewayCli, gatewayCallOpts } from "./call.js";
+import type { GatewayDiscoverOpts } from "./discover.js";
 import {
   dedupeBeacons,
   parseDiscoverTimeoutMs,
@@ -36,13 +30,9 @@ import {
 import { addGatewayRunCommand } from "./run.js";
 
 function styleHealthChannelLine(line: string, rich: boolean): string {
-  if (!rich) {
-    return line;
-  }
+  if (!rich) return line;
   const colon = line.indexOf(":");
-  if (colon === -1) {
-    return line;
-  }
+  if (colon === -1) return line;
 
   const label = line.slice(0, colon + 1);
   const detail = line.slice(colon + 1).trimStart();
@@ -51,27 +41,13 @@ function styleHealthChannelLine(line: string, rich: boolean): string {
   const applyPrefix = (prefix: string, color: (value: string) => string) =>
     `${label} ${color(detail.slice(0, prefix.length))}${detail.slice(prefix.length)}`;
 
-  if (normalized.startsWith("failed")) {
-    return applyPrefix("failed", theme.error);
-  }
-  if (normalized.startsWith("ok")) {
-    return applyPrefix("ok", theme.success);
-  }
-  if (normalized.startsWith("linked")) {
-    return applyPrefix("linked", theme.success);
-  }
-  if (normalized.startsWith("configured")) {
-    return applyPrefix("configured", theme.success);
-  }
-  if (normalized.startsWith("not linked")) {
-    return applyPrefix("not linked", theme.warn);
-  }
-  if (normalized.startsWith("not configured")) {
-    return applyPrefix("not configured", theme.muted);
-  }
-  if (normalized.startsWith("unknown")) {
-    return applyPrefix("unknown", theme.warn);
-  }
+  if (normalized.startsWith("failed")) return applyPrefix("failed", theme.error);
+  if (normalized.startsWith("ok")) return applyPrefix("ok", theme.success);
+  if (normalized.startsWith("linked")) return applyPrefix("linked", theme.success);
+  if (normalized.startsWith("configured")) return applyPrefix("configured", theme.success);
+  if (normalized.startsWith("not linked")) return applyPrefix("not linked", theme.warn);
+  if (normalized.startsWith("not configured")) return applyPrefix("not configured", theme.muted);
+  if (normalized.startsWith("unknown")) return applyPrefix("unknown", theme.warn);
 
   return line;
 }
@@ -85,14 +61,10 @@ function runGatewayCommand(action: () => Promise<void>, label?: string) {
 }
 
 function parseDaysOption(raw: unknown, fallback = 30): number {
-  if (typeof raw === "number" && Number.isFinite(raw)) {
-    return Math.max(1, Math.floor(raw));
-  }
+  if (typeof raw === "number" && Number.isFinite(raw)) return Math.max(1, Math.floor(raw));
   if (typeof raw === "string" && raw.trim() !== "") {
     const parsed = Number(raw);
-    if (Number.isFinite(parsed)) {
-      return Math.max(1, Math.floor(parsed));
-    }
+    if (Number.isFinite(parsed)) return Math.max(1, Math.floor(parsed));
   }
   return fallback;
 }
@@ -131,7 +103,7 @@ export function registerGatewayCli(program: Command) {
       .addHelpText(
         "after",
         () =>
-          `\n${theme.muted("Docs:")} ${formatDocsLink("/cli/gateway", "docs.openclaw.ai/cli/gateway")}\n`,
+          `\n${theme.muted("Docs:")} ${formatDocsLink("/cli/gateway", "docs.molt.bot/cli/gateway")}\n`,
       ),
   );
 
@@ -259,7 +231,8 @@ export function registerGatewayCli(program: Command) {
             return;
           }
           const rich = isRich();
-          const obj: Record<string, unknown> = result && typeof result === "object" ? result : {};
+          const obj =
+            result && typeof result === "object" ? (result as Record<string, unknown>) : {};
           const durationMs = typeof obj.durationMs === "number" ? obj.durationMs : null;
           defaultRuntime.log(colorize(rich, theme.heading, "Gateway Health"));
           defaultRuntime.log(
@@ -293,17 +266,14 @@ export function registerGatewayCli(program: Command) {
 
   gateway
     .command("discover")
-    .description("Discover gateways via Bonjour (local + wide-area if configured)")
+    .description(
+      `Discover gateways via Bonjour (multicast local. + unicast ${WIDE_AREA_DISCOVERY_DOMAIN})`,
+    )
     .option("--timeout <ms>", "Per-command timeout in ms", "2000")
     .option("--json", "Output JSON", false)
     .action(async (opts: GatewayDiscoverOpts) => {
       await runGatewayCommand(async () => {
-        const cfg = loadConfig();
-        const wideAreaDomain = resolveWideAreaDiscoveryDomain({
-          configDomain: cfg.discovery?.wideArea?.domain,
-        });
         const timeoutMs = parseDiscoverTimeoutMs(opts.timeout, 2000);
-        const domains = ["local.", ...(wideAreaDomain ? [wideAreaDomain] : [])];
         const beacons = await withProgress(
           {
             label: "Scanning for gateways…",
@@ -311,10 +281,10 @@ export function registerGatewayCli(program: Command) {
             enabled: opts.json !== true,
             delayMs: 0,
           },
-          async () => await discoverGatewayBeacons({ timeoutMs, wideAreaDomain }),
+          async () => await discoverGatewayBeacons({ timeoutMs }),
         );
 
-        const deduped = dedupeBeacons(beacons).toSorted((a, b) =>
+        const deduped = dedupeBeacons(beacons).sort((a, b) =>
           String(a.displayName || a.instanceName).localeCompare(
             String(b.displayName || b.instanceName),
           ),
@@ -330,7 +300,7 @@ export function registerGatewayCli(program: Command) {
             JSON.stringify(
               {
                 timeoutMs,
-                domains,
+                domains: ["local.", WIDE_AREA_DISCOVERY_DOMAIN],
                 count: enriched.length,
                 beacons: enriched,
               },
@@ -347,12 +317,10 @@ export function registerGatewayCli(program: Command) {
           colorize(
             rich,
             theme.muted,
-            `Found ${deduped.length} gateway(s) · domains: ${domains.join(", ")}`,
+            `Found ${deduped.length} gateway(s) · domains: local., ${WIDE_AREA_DISCOVERY_DOMAIN}`,
           ),
         );
-        if (deduped.length === 0) {
-          return;
-        }
+        if (deduped.length === 0) return;
 
         for (const beacon of deduped) {
           for (const line of renderBeaconLines(beacon, rich)) {

@@ -1,15 +1,14 @@
 import fs from "node:fs";
 import path from "node:path";
-<<<<<<< HEAD
 
 import { LEGACY_MANIFEST_KEY, LEGACY_PLUGIN_MANIFEST_FILENAME } from "../compat/legacy-names.js";
-=======
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { PluginConfigUiHint, PluginKind } from "./types.js";
-import { MANIFEST_KEY } from "../compat/legacy-names.js";
 
-export const PLUGIN_MANIFEST_FILENAME = "openclaw.plugin.json";
-export const PLUGIN_MANIFEST_FILENAMES = [PLUGIN_MANIFEST_FILENAME] as const;
+export const PLUGIN_MANIFEST_FILENAME = "moltbot.plugin.json";
+export const PLUGIN_MANIFEST_FILENAMES = [
+  PLUGIN_MANIFEST_FILENAME,
+  LEGACY_PLUGIN_MANIFEST_FILENAME,
+] as const;
 
 export type PluginManifest = {
   id: string;
@@ -29,9 +28,7 @@ export type PluginManifestLoadResult =
   | { ok: false; error: string; manifestPath: string };
 
 function normalizeStringList(value: unknown): string[] {
-  if (!Array.isArray(value)) {
-    return [];
-  }
+  if (!Array.isArray(value)) return [];
   return value.map((entry) => (typeof entry === "string" ? entry.trim() : "")).filter(Boolean);
 }
 
@@ -42,9 +39,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 export function resolvePluginManifestPath(rootDir: string): string {
   for (const filename of PLUGIN_MANIFEST_FILENAMES) {
     const candidate = path.join(rootDir, filename);
-    if (fs.existsSync(candidate)) {
-      return candidate;
-    }
+    if (fs.existsSync(candidate)) return candidate;
   }
   return path.join(rootDir, PLUGIN_MANIFEST_FILENAME);
 }
@@ -107,7 +102,7 @@ export function loadPluginManifest(rootDir: string): PluginManifestLoadResult {
   };
 }
 
-// package.json "openclaw" metadata (used for onboarding/catalog)
+// package.json "moltbot" metadata (used for onboarding/catalog)
 export type PluginPackageChannel = {
   id?: string;
   label?: string;
@@ -135,23 +130,23 @@ export type PluginPackageInstall = {
   defaultChoice?: "npm" | "local";
 };
 
-export type OpenClawPackageManifest = {
+export type MoltbotPackageManifest = {
   extensions?: string[];
   channel?: PluginPackageChannel;
   install?: PluginPackageInstall;
 };
 
-export type ManifestKey = typeof MANIFEST_KEY;
-
 export type PackageManifest = {
   name?: string;
   version?: string;
   description?: string;
-} & Partial<Record<ManifestKey, OpenClawPackageManifest>>;
+  moltbot?: MoltbotPackageManifest;
+  [LEGACY_MANIFEST_KEY]?: MoltbotPackageManifest;
+};
 
 export function getPackageManifestMetadata(
   manifest: PackageManifest | undefined,
-): OpenClawPackageManifest | undefined {
+): MoltbotPackageManifest | undefined {
   if (!manifest) return undefined;
-  return manifest[MANIFEST_KEY];
+  return manifest.moltbot ?? manifest[LEGACY_MANIFEST_KEY];
 }

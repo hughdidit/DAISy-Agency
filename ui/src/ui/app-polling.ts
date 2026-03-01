@@ -1,12 +1,7 @@
-import type { OpenClawApp } from "./app";
-import { loadDebug } from "./controllers/debug";
 import { loadLogs } from "./controllers/logs";
 import { loadNodes } from "./controllers/nodes";
-<<<<<<< HEAD
 import { loadDebug } from "./controllers/debug";
 import type { MoltbotApp } from "./app";
-=======
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 
 type PollingHost = {
   nodesPollInterval: number | null;
@@ -16,59 +11,43 @@ type PollingHost = {
 };
 
 export function startNodesPolling(host: PollingHost) {
-  if (host.nodesPollInterval != null) {
-    return;
-  }
+  if (host.nodesPollInterval != null) return;
   host.nodesPollInterval = window.setInterval(
-    () => void loadNodes(host as unknown as OpenClawApp, { quiet: true }),
+    () => void loadNodes(host as unknown as MoltbotApp, { quiet: true }),
     5000,
   );
 }
 
 export function stopNodesPolling(host: PollingHost) {
-  if (host.nodesPollInterval == null) {
-    return;
-  }
+  if (host.nodesPollInterval == null) return;
   clearInterval(host.nodesPollInterval);
   host.nodesPollInterval = null;
 }
 
 export function startLogsPolling(host: PollingHost) {
-  if (host.logsPollInterval != null) {
-    return;
-  }
+  if (host.logsPollInterval != null) return;
   host.logsPollInterval = window.setInterval(() => {
-<<<<<<< HEAD
-<<<<<<< HEAD
     if (host.tab !== "logs") return;
-    void loadLogs(host as unknown as OpenClawApp, { quiet: true });
+    void loadLogs(host as unknown as MoltbotApp, { quiet: true });
   }, 2000);
 }
 
 export function stopLogsPolling(host: PollingHost) {
-  if (host.logsPollInterval == null) {
-    return;
-  }
+  if (host.logsPollInterval == null) return;
   clearInterval(host.logsPollInterval);
   host.logsPollInterval = null;
 }
 
 export function startDebugPolling(host: PollingHost) {
-  if (host.debugPollInterval != null) {
-    return;
-  }
+  if (host.debugPollInterval != null) return;
   host.debugPollInterval = window.setInterval(() => {
-<<<<<<< HEAD
-<<<<<<< HEAD
     if (host.tab !== "debug") return;
-    void loadDebug(host as unknown as OpenClawApp);
+    void loadDebug(host as unknown as MoltbotApp);
   }, 3000);
 }
 
 export function stopDebugPolling(host: PollingHost) {
-  if (host.debugPollInterval == null) {
-    return;
-  }
+  if (host.debugPollInterval == null) return;
   clearInterval(host.debugPollInterval);
   host.debugPollInterval = null;
 }

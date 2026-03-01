@@ -1,16 +1,14 @@
-import type { OpenClawConfig } from "../../../config/config.js";
+import type { MoltbotConfig } from "../../../config/config.js";
 import type { RuntimeEnv } from "../../../runtime.js";
 import type { OnboardOptions } from "../../onboard-types.js";
 
 export function applyNonInteractiveSkillsConfig(params: {
-  nextConfig: OpenClawConfig;
+  nextConfig: MoltbotConfig;
   opts: OnboardOptions;
   runtime: RuntimeEnv;
 }) {
   const { nextConfig, opts, runtime } = params;
-  if (opts.skipSkills) {
-    return nextConfig;
-  }
+  if (opts.skipSkills) return nextConfig;
 
   const nodeManager = opts.nodeManager ?? "npm";
   if (!["npm", "pnpm", "bun"].includes(nodeManager)) {

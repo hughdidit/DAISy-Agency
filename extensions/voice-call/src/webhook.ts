@@ -1,19 +1,18 @@
 import { spawn } from "node:child_process";
 import http from "node:http";
 import { URL } from "node:url";
+
 import type { VoiceCallConfig } from "./config.js";
 import type { CoreConfig } from "./core-bridge.js";
 import type { CallManager } from "./manager.js";
 import type { Logger } from "./manager/context.js";
 import { defaultLogger } from "./manager/context.js";
 import type { MediaStreamConfig } from "./media-stream.js";
+import { MediaStreamHandler } from "./media-stream.js";
 import type { VoiceCallProvider } from "./providers/base.js";
+import { OpenAIRealtimeSTTProvider } from "./providers/stt-openai-realtime.js";
 import type { TwilioProvider } from "./providers/twilio.js";
 import type { NormalizedEvent, WebhookContext } from "./types.js";
-import { MediaStreamHandler } from "./media-stream.js";
-import { OpenAIRealtimeSTTProvider } from "./providers/stt-openai-realtime.js";
-
-const MAX_WEBHOOK_BODY_BYTES = 1024 * 1024;
 
 /**
  * HTTP server for receiving voice call webhooks from providers.
@@ -60,7 +59,8 @@ export class VoiceCallWebhookServer {
    * Initialize media streaming with OpenAI Realtime STT.
    */
   private initializeMediaStreaming(): void {
-    const apiKey = this.config.streaming?.openaiApiKey || process.env.OPENAI_API_KEY;
+    const apiKey =
+      this.config.streaming?.openaiApiKey || process.env.OPENAI_API_KEY;
 
     if (!apiKey) {
       this.logger.warn(
@@ -78,20 +78,6 @@ export class VoiceCallWebhookServer {
 
     const streamConfig: MediaStreamConfig = {
       sttProvider,
-      shouldAcceptStream: ({ callId, token }) => {
-        const call = this.manager.getCallByProviderCallId(callId);
-        if (!call) {
-          return false;
-        }
-        if (this.provider.name === "twilio") {
-          const twilio = this.provider as TwilioProvider;
-          if (!twilio.isValidStreamToken(callId, token)) {
-            console.warn(`[voice-call] Rejecting media stream: invalid token for ${callId}`);
-            return false;
-          }
-        }
-        return true;
-      },
       onTranscript: (providerCallId, transcript) => {
         this.logger.info(
           `[voice-call] Transcript for ${providerCallId}: ${transcript}`,
@@ -125,7 +111,8 @@ export class VoiceCallWebhookServer {
 
         // Auto-respond in conversation mode (inbound always, outbound if mode is conversation)
         const callMode = call.metadata?.mode as string | undefined;
-        const shouldRespond = call.direction === "inbound" || callMode === "conversation";
+        const shouldRespond =
+          call.direction === "inbound" || callMode === "conversation";
         if (shouldRespond) {
           this.handleInboundResponse(call.callId, transcript).catch(async (err) => {
             this.logger.warn(`[voice-call] Failed to auto-respond: ${err}`);
@@ -151,7 +138,10 @@ export class VoiceCallWebhookServer {
         );
         // Register stream with provider for TTS routing
         if (this.provider.name === "twilio") {
-          (this.provider as TwilioProvider).registerCallStream(callId, streamSid);
+          (this.provider as TwilioProvider).registerCallStream(
+            callId,
+            streamSid,
+          );
         }
 
         // Speak initial message if one was provided when call was initiated
@@ -193,7 +183,10 @@ export class VoiceCallWebhookServer {
       // Handle WebSocket upgrades for media streams
       if (this.mediaStreamHandler) {
         this.server.on("upgrade", (request, socket, head) => {
-          const url = new URL(request.url || "/", `http://${request.headers.host}`);
+          const url = new URL(
+            request.url || "/",
+            `http://${request.headers.host}`,
+          );
 
           if (url.pathname === streamPath) {
             this.logger.info("[voice-call] WebSocket upgrade for media stream");
@@ -260,17 +253,7 @@ export class VoiceCallWebhookServer {
     }
 
     // Read body
-    let body = "";
-    try {
-      body = await this.readBody(req, MAX_WEBHOOK_BODY_BYTES);
-    } catch (err) {
-      if (err instanceof Error && err.message === "PayloadTooLarge") {
-        res.statusCode = 413;
-        res.end("Payload Too Large");
-        return;
-      }
-      throw err;
-    }
+    const body = await this.readBody(req);
 
     // Build webhook context
     const ctx: WebhookContext = {
@@ -311,7 +294,9 @@ export class VoiceCallWebhookServer {
     res.statusCode = result.statusCode || 200;
 
     if (result.providerResponseHeaders) {
-      for (const [key, value] of Object.entries(result.providerResponseHeaders)) {
+      for (const [key, value] of Object.entries(
+        result.providerResponseHeaders,
+      )) {
         res.setHeader(key, value);
       }
     }
@@ -320,58 +305,14 @@ export class VoiceCallWebhookServer {
   }
 
   /**
-   * Read request body as string with timeout protection.
+   * Read request body as string.
    */
-  private readBody(req: http.IncomingMessage, maxBytes: number): Promise<string> {
+  private readBody(req: http.IncomingMessage): Promise<string> {
     return new Promise((resolve, reject) => {
-      let done = false;
-      const finish = (fn: () => void) => {
-        if (done) {
-          return;
-        }
-        done = true;
-        clearTimeout(timer);
-        fn();
-      };
-
-      const timer = setTimeout(() => {
-        finish(() => {
-          const err = new Error("Request body timeout");
-          req.destroy(err);
-          reject(err);
-        });
-      }, timeoutMs);
-
       const chunks: Buffer[] = [];
-      let totalBytes = 0;
-      req.on("data", (chunk: Buffer) => {
-        totalBytes += chunk.length;
-        if (totalBytes > maxBytes) {
-          req.destroy();
-          reject(new Error("PayloadTooLarge"));
-          return;
-        }
-        chunks.push(chunk);
-      });
+      req.on("data", (chunk) => chunks.push(chunk));
       req.on("end", () => resolve(Buffer.concat(chunks).toString("utf-8")));
       req.on("error", reject);
-=======
-      let totalBytes = 0;
-      req.on("data", (chunk: Buffer) => {
-        totalBytes += chunk.length;
-        if (totalBytes > maxBytes) {
-          finish(() => {
-            req.destroy();
-            reject(new Error("PayloadTooLarge"));
-          });
-          return;
-        }
-        chunks.push(chunk);
-      });
-      req.on("end", () => finish(() => resolve(Buffer.concat(chunks).toString("utf-8"))));
-      req.on("error", (err) => finish(() => reject(err)));
-      req.on("close", () => finish(() => reject(new Error("Connection closed"))));
->>>>>>> 1007d71f0 (fix: comprehensive BlueBubbles and channel cleanup (#11093))
     });
   }
 
@@ -477,9 +418,7 @@ function runTailscaleCommand(
 
 export async function getTailscaleSelfInfo(): Promise<TailscaleSelfInfo | null> {
   const { code, stdout } = await runTailscaleCommand(["status", "--json"]);
-  if (code !== 0) {
-    return null;
-  }
+  if (code !== 0) return null;
 
   try {
     const status = JSON.parse(stdout);
@@ -538,7 +477,9 @@ export async function cleanupTailscaleExposureRoute(opts: {
  * Setup Tailscale serve/funnel for the webhook server.
  * This is a helper that shells out to `tailscale serve` or `tailscale funnel`.
  */
-export async function setupTailscaleExposure(config: VoiceCallConfig): Promise<string | null> {
+export async function setupTailscaleExposure(
+  config: VoiceCallConfig,
+): Promise<string | null> {
   if (config.tailscale.mode === "off") {
     return null;
   }
@@ -557,7 +498,9 @@ export async function setupTailscaleExposure(config: VoiceCallConfig): Promise<s
 /**
  * Cleanup Tailscale serve/funnel.
  */
-export async function cleanupTailscaleExposure(config: VoiceCallConfig): Promise<void> {
+export async function cleanupTailscaleExposure(
+  config: VoiceCallConfig,
+): Promise<void> {
   if (config.tailscale.mode === "off") {
     return;
   }

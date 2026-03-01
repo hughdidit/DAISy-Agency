@@ -1,12 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
-<<<<<<< HEAD
 
 import type { ChannelGroupPolicy } from "../config/group-policy.js";
 import type { MoltbotConfig } from "../config/config.js";
-=======
-import type { OpenClawConfig } from "../config/config.js";
-import type { ChannelGroupPolicy } from "../config/group-policy.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { TelegramAccountConfig } from "../config/types.js";
 import type { RuntimeEnv } from "../runtime.js";
 import { registerTelegramNativeCommands } from "./bot-native-commands.js";
@@ -24,8 +19,8 @@ vi.mock("../plugins/commands.js", () => ({
 const deliverReplies = vi.hoisted(() => vi.fn(async () => {}));
 vi.mock("./bot/delivery.js", () => ({ deliverReplies }));
 
-vi.mock("../pairing/pairing-store.js", () => ({
-  readChannelAllowFromStore: vi.fn(async () => []),
+vi.mock("./pairing-store.js", () => ({
+  readTelegramAllowFromStore: vi.fn(async () => []),
 }));
 
 describe("registerTelegramNativeCommands (plugin auth)", () => {
@@ -52,7 +47,7 @@ describe("registerTelegramNativeCommands (plugin auth)", () => {
       },
     } as const;
 
-    const cfg = {} as OpenClawConfig;
+    const cfg = {} as MoltbotConfig;
     const telegramCfg = {} as TelegramAccountConfig;
     const resolveGroupPolicy = () =>
       ({

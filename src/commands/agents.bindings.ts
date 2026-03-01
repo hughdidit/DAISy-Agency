@@ -1,10 +1,10 @@
-import type { ChannelId } from "../channels/plugins/types.js";
-import type { OpenClawConfig } from "../config/config.js";
-import type { AgentBinding } from "../config/types.js";
-import type { ChannelChoice } from "./onboard-types.js";
 import { resolveChannelDefaultAccountId } from "../channels/plugins/helpers.js";
 import { getChannelPlugin, normalizeChannelId } from "../channels/plugins/index.js";
+import type { ChannelId } from "../channels/plugins/types.js";
+import type { MoltbotConfig } from "../config/config.js";
+import type { AgentBinding } from "../config/types.js";
 import { DEFAULT_ACCOUNT_ID, normalizeAgentId } from "../routing/session-key.js";
+import type { ChannelChoice } from "./onboard-types.js";
 
 function bindingMatchKey(match: AgentBinding["match"]) {
   const accountId = match.accountId?.trim() || DEFAULT_ACCOUNT_ID;
@@ -21,26 +21,18 @@ function bindingMatchKey(match: AgentBinding["match"]) {
 export function describeBinding(binding: AgentBinding) {
   const match = binding.match;
   const parts = [match.channel];
-  if (match.accountId) {
-    parts.push(`accountId=${match.accountId}`);
-  }
-  if (match.peer) {
-    parts.push(`peer=${match.peer.kind}:${match.peer.id}`);
-  }
-  if (match.guildId) {
-    parts.push(`guild=${match.guildId}`);
-  }
-  if (match.teamId) {
-    parts.push(`team=${match.teamId}`);
-  }
+  if (match.accountId) parts.push(`accountId=${match.accountId}`);
+  if (match.peer) parts.push(`peer=${match.peer.kind}:${match.peer.id}`);
+  if (match.guildId) parts.push(`guild=${match.guildId}`);
+  if (match.teamId) parts.push(`team=${match.teamId}`);
   return parts.join(" ");
 }
 
 export function applyAgentBindings(
-  cfg: OpenClawConfig,
+  cfg: MoltbotConfig,
   bindings: AgentBinding[],
 ): {
-  config: OpenClawConfig;
+  config: MoltbotConfig;
   added: AgentBinding[];
   skipped: AgentBinding[];
   conflicts: Array<{ binding: AgentBinding; existingAgentId: string }>;
@@ -89,18 +81,16 @@ export function applyAgentBindings(
   };
 }
 
-function resolveDefaultAccountId(cfg: OpenClawConfig, provider: ChannelId): string {
+function resolveDefaultAccountId(cfg: MoltbotConfig, provider: ChannelId): string {
   const plugin = getChannelPlugin(provider);
-  if (!plugin) {
-    return DEFAULT_ACCOUNT_ID;
-  }
+  if (!plugin) return DEFAULT_ACCOUNT_ID;
   return resolveChannelDefaultAccountId({ plugin, cfg });
 }
 
 export function buildChannelBindings(params: {
   agentId: string;
   selection: ChannelChoice[];
-  config: OpenClawConfig;
+  config: MoltbotConfig;
   accountIds?: Partial<Record<ChannelChoice, string>>;
 }): AgentBinding[] {
   const bindings: AgentBinding[] = [];
@@ -124,7 +114,7 @@ export function buildChannelBindings(params: {
 export function parseBindingSpecs(params: {
   agentId: string;
   specs?: string[];
-  config: OpenClawConfig;
+  config: MoltbotConfig;
 }): { bindings: AgentBinding[]; errors: string[] } {
   const bindings: AgentBinding[] = [];
   const errors: string[] = [];
@@ -132,9 +122,7 @@ export function parseBindingSpecs(params: {
   const agentId = normalizeAgentId(params.agentId);
   for (const raw of specs) {
     const trimmed = raw?.trim();
-    if (!trimmed) {
-      continue;
-    }
+    if (!trimmed) continue;
     const [channelRaw, accountRaw] = trimmed.split(":", 2);
     const channel = normalizeChannelId(channelRaw);
     if (!channel) {
@@ -153,9 +141,7 @@ export function parseBindingSpecs(params: {
       }
     }
     const match: AgentBinding["match"] = { channel };
-    if (accountId) {
-      match.accountId = accountId;
-    }
+    if (accountId) match.accountId = accountId;
     bindings.push({ agentId, match });
   }
   return { bindings, errors };

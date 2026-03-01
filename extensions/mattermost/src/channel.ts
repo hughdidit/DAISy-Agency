@@ -8,18 +8,15 @@ import {
   normalizeAccountId,
   setAccountEnabledInConfigSection,
   type ChannelPlugin,
-<<<<<<< HEAD
 } from "clawdbot/plugin-sdk";
 
 import { MattermostConfigSchema } from "./config-schema.js";
 import { resolveMattermostGroupRequireMention } from "./group-mentions.js";
-import { looksLikeMattermostTargetId, normalizeMattermostMessagingTarget } from "./normalize.js";
+import {
+  looksLikeMattermostTargetId,
+  normalizeMattermostMessagingTarget,
+} from "./normalize.js";
 import { mattermostOnboardingAdapter } from "./onboarding.js";
-=======
-} from "openclaw/plugin-sdk";
-import { MattermostConfigSchema } from "./config-schema.js";
-import { resolveMattermostGroupRequireMention } from "./group-mentions.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import {
   listMattermostAccountIds,
   resolveDefaultMattermostAccountId,
@@ -30,8 +27,6 @@ import { normalizeMattermostBaseUrl } from "./mattermost/client.js";
 import { monitorMattermostProvider } from "./mattermost/monitor.js";
 import { probeMattermost } from "./mattermost/probe.js";
 import { sendMessageMattermost } from "./mattermost/send.js";
-import { looksLikeMattermostTargetId, normalizeMattermostMessagingTarget } from "./normalize.js";
-import { mattermostOnboardingAdapter } from "./onboarding.js";
 import { getMattermostRuntime } from "./runtime.js";
 
 const meta = {
@@ -57,9 +52,7 @@ function normalizeAllowEntry(entry: string): string {
 
 function formatAllowEntry(entry: string): string {
   const trimmed = entry.trim();
-  if (!trimmed) {
-    return "";
-  }
+  if (!trimmed) return "";
   if (trimmed.startsWith("@")) {
     const username = trimmed.slice(1).trim();
     return username ? `@${username.toLowerCase()}` : "";
@@ -123,7 +116,9 @@ export const mattermostPlugin: ChannelPlugin<ResolvedMattermostAccount> = {
         String(entry),
       ),
     formatAllowFrom: ({ allowFrom }) =>
-      allowFrom.map((entry) => formatAllowEntry(String(entry))).filter(Boolean),
+      allowFrom
+        .map((entry) => formatAllowEntry(String(entry)))
+        .filter(Boolean),
   },
   security: {
     resolveDmPolicy: ({ cfg, accountId, account }) => {
@@ -144,9 +139,7 @@ export const mattermostPlugin: ChannelPlugin<ResolvedMattermostAccount> = {
     collectWarnings: ({ account, cfg }) => {
       const defaultGroupPolicy = cfg.channels?.defaults?.groupPolicy;
       const groupPolicy = account.config.groupPolicy ?? defaultGroupPolicy ?? "allowlist";
-      if (groupPolicy !== "open") {
-        return [];
-      }
+      if (groupPolicy !== "open") return [];
       return [
         `- Mattermost channels: groupPolicy="open" allows any member to trigger (mention-gated). Set channels.mattermost.groupPolicy="allowlist" + channels.mattermost.groupAllowFrom to restrict senders.`,
       ];

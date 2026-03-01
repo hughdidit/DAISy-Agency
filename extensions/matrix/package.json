@@ -1,44 +1,9 @@
 {
-<<<<<<< HEAD
   "name": "@moltbot/matrix",
   "version": "2026.1.27-beta.1",
-=======
-  "name": "@openclaw/matrix",
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-  "version": "2026.1.29",
->>>>>>> 62e4ad23d (chore: release 2026.1.29)
-=======
-  "version": "2026.2.2",
-=======
-  "version": "2026.2.3",
->>>>>>> f895c9fba (chore: sync plugin versions to 2026.2.3)
-=======
-  "version": "2026.2.6-2",
->>>>>>> ad4dd0422 (chore(release): 2026.2.6-2)
-=======
-  "version": "2026.2.6-3",
->>>>>>> 9f703a44d (chore(release): 2026.2.6-3)
-  "description": "OpenClaw Matrix channel plugin",
->>>>>>> 1c4db9159 (chore: prepare 2026.2.2 release)
   "type": "module",
-<<<<<<< HEAD
-  "description": "OpenClaw Matrix channel plugin",
-=======
-  "dependencies": {
-    "@matrix-org/matrix-sdk-crypto-nodejs": "^0.4.0",
-    "@vector-im/matrix-bot-sdk": "0.8.0-element.3",
-    "markdown-it": "14.1.0",
-    "music-metadata": "^11.11.2",
-    "zod": "^4.3.6"
-  },
-  "devDependencies": {
-    "openclaw": "workspace:*"
-  },
->>>>>>> 9e3ea2687 (chore: Update deps.)
-  "openclaw": {
+  "description": "Moltbot Matrix channel plugin",
+  "moltbot": {
     "extensions": [
       "./index.ts"
     ],
@@ -53,20 +18,19 @@
       "quickstartAllowFrom": true
     },
     "install": {
-      "npmSpec": "@openclaw/matrix",
+      "npmSpec": "@moltbot/matrix",
       "localPath": "extensions/matrix",
       "defaultChoice": "npm"
     }
-<<<<<<< HEAD
   },
   "dependencies": {
     "@matrix-org/matrix-sdk-crypto-nodejs": "^0.4.0",
-    "@vector-im/matrix-bot-sdk": "0.8.0-element.3",
     "markdown-it": "14.1.0",
-    "music-metadata": "^11.11.1",
+    "@vector-im/matrix-bot-sdk": "0.8.0-element.3",
+    "music-metadata": "^11.10.6",
     "zod": "^4.3.6"
   },
   "devDependencies": {
-    "openclaw": "workspace:*"
+    "moltbot": "workspace:*"
   }
 }

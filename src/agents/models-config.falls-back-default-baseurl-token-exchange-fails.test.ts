@@ -1,19 +1,14 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-<<<<<<< HEAD
 import { withTempHome as withTempHomeBase } from "../../test/helpers/temp-home.js";
 import type { MoltbotConfig } from "../config/config.js";
-=======
-import type { OpenClawConfig } from "../config/config.js";
-import { withTempHome as withTempHomeBase } from "../../test/helpers/temp-home.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 
 async function withTempHome<T>(fn: (home: string) => Promise<T>): Promise<T> {
-  return withTempHomeBase(fn, { prefix: "openclaw-models-" });
+  return withTempHomeBase(fn, { prefix: "moltbot-models-" });
 }
 
-const _MODELS_CONFIG: OpenClawConfig = {
+const _MODELS_CONFIG: MoltbotConfig = {
   models: {
     providers: {
       "custom-proxy": {
@@ -61,12 +56,12 @@ describe("models-config", () => {
           resolveCopilotApiToken: vi.fn().mockRejectedValue(new Error("boom")),
         }));
 
-        const { ensureOpenClawModelsJson } = await import("./models-config.js");
-        const { resolveOpenClawAgentDir } = await import("./agent-paths.js");
+        const { ensureMoltbotModelsJson } = await import("./models-config.js");
+        const { resolveMoltbotAgentDir } = await import("./agent-paths.js");
 
-        await ensureOpenClawModelsJson({ models: { providers: {} } });
+        await ensureMoltbotModelsJson({ models: { providers: {} } });
 
-        const agentDir = resolveOpenClawAgentDir();
+        const agentDir = resolveMoltbotAgentDir();
         const raw = await fs.readFile(path.join(agentDir, "models.json"), "utf8");
         const parsed = JSON.parse(raw) as {
           providers: Record<string, { baseUrl?: string }>;
@@ -120,9 +115,9 @@ describe("models-config", () => {
           }),
         }));
 
-        const { ensureOpenClawModelsJson } = await import("./models-config.js");
+        const { ensureMoltbotModelsJson } = await import("./models-config.js");
 
-        await ensureOpenClawModelsJson({ models: { providers: {} } }, agentDir);
+        await ensureMoltbotModelsJson({ models: { providers: {} } }, agentDir);
 
         const raw = await fs.readFile(path.join(agentDir, "models.json"), "utf8");
         const parsed = JSON.parse(raw) as {
@@ -131,21 +126,12 @@ describe("models-config", () => {
 
         expect(parsed.providers["github-copilot"]?.baseUrl).toBe("https://api.copilot.example");
       } finally {
-        if (previous === undefined) {
-          delete process.env.COPILOT_GITHUB_TOKEN;
-        } else {
-          process.env.COPILOT_GITHUB_TOKEN = previous;
-        }
-        if (previousGh === undefined) {
-          delete process.env.GH_TOKEN;
-        } else {
-          process.env.GH_TOKEN = previousGh;
-        }
-        if (previousGithub === undefined) {
-          delete process.env.GITHUB_TOKEN;
-        } else {
-          process.env.GITHUB_TOKEN = previousGithub;
-        }
+        if (previous === undefined) delete process.env.COPILOT_GITHUB_TOKEN;
+        else process.env.COPILOT_GITHUB_TOKEN = previous;
+        if (previousGh === undefined) delete process.env.GH_TOKEN;
+        else process.env.GH_TOKEN = previousGh;
+        if (previousGithub === undefined) delete process.env.GITHUB_TOKEN;
+        else process.env.GITHUB_TOKEN = previousGithub;
       }
     });
   });

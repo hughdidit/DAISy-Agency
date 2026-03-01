@@ -1,11 +1,6 @@
-<<<<<<< HEAD
 import { describe, expect, it, vi } from "vitest";
 
 import type { MSTeamsConfig } from "clawdbot/plugin-sdk";
-=======
-import type { MSTeamsConfig } from "openclaw/plugin-sdk";
-import { describe, expect, it, vi } from "vitest";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 
 const hostMockState = vi.hoisted(() => ({
   tokenError: null as Error | null,
@@ -15,9 +10,7 @@ vi.mock("@microsoft/agents-hosting", () => ({
   getAuthConfigWithDefaults: (cfg: unknown) => cfg,
   MsalTokenProvider: class {
     async getAccessToken() {
-      if (hostMockState.tokenError) {
-        throw hostMockState.tokenError;
-      }
+      if (hostMockState.tokenError) throw hostMockState.tokenError;
       return "token";
     }
   },

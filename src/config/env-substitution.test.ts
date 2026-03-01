@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+
 import { MissingEnvVarError, resolveConfigEnvVars } from "./env-substitution.js";
 
 describe("resolveConfigEnvVars", () => {
@@ -246,12 +247,12 @@ describe("resolveConfigEnvVars", () => {
       const config = {
         gateway: {
           auth: {
-            token: "${OPENCLAW_GATEWAY_TOKEN}",
+            token: "${CLAWDBOT_GATEWAY_TOKEN}",
           },
         },
       };
       const result = resolveConfigEnvVars(config, {
-        OPENCLAW_GATEWAY_TOKEN: "secret-token",
+        CLAWDBOT_GATEWAY_TOKEN: "secret-token",
       });
       expect(result).toEqual({
         gateway: {

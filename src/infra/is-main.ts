@@ -9,9 +9,7 @@ type IsMainModuleOptions = {
 };
 
 function normalizePathCandidate(candidate: string | undefined, cwd: string): string | undefined {
-  if (!candidate) {
-    return undefined;
-  }
+  if (!candidate) return undefined;
 
   const resolved = path.resolve(cwd, candidate);
   try {

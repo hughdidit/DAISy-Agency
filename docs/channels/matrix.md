@@ -2,12 +2,10 @@
 summary: "Matrix support status, capabilities, and configuration"
 read_when:
   - Working on Matrix channel features
-title: "Matrix"
 ---
-
 # Matrix (plugin)
 
-Matrix is an open, decentralized messaging protocol. OpenClaw connects as a Matrix **user**
+Matrix is an open, decentralized messaging protocol. Moltbot connects as a Matrix **user**
 on any homeserver, so you need a Matrix account for the bot. Once it is logged in, you can DM
 the bot directly or invite it to rooms (Matrix "groups"). Beeper is a valid client option too,
 but it requires E2EE to be enabled.
@@ -22,36 +20,29 @@ Matrix ships as a plugin and is not bundled with the core install.
 Install via CLI (npm registry):
 
 ```bash
-openclaw plugins install @openclaw/matrix
+moltbot plugins install @moltbot/matrix
 ```
 
 Local checkout (when running from a git repo):
 
 ```bash
-openclaw plugins install ./extensions/matrix
+moltbot plugins install ./extensions/matrix
 ```
 
 If you choose Matrix during configure/onboarding and a git checkout is detected,
-OpenClaw will offer the local install path automatically.
+Moltbot will offer the local install path automatically.
 
-Details: [Plugins](/tools/plugin)
+Details: [Plugins](/plugin)
 
 ## Setup
 
-<<<<<<< HEAD
 1) Install the Matrix plugin:
-   - From npm: `openclaw plugins install @openclaw/matrix`
-   - From a local checkout: `openclaw plugins install ./extensions/matrix`
+   - From npm: `moltbot plugins install @moltbot/matrix`
+   - From a local checkout: `moltbot plugins install ./extensions/matrix`
 2) Create a Matrix account on a homeserver:
-=======
-1. Install the Matrix plugin:
-   - From npm: `openclaw plugins install @openclaw/matrix`
-   - From a local checkout: `openclaw plugins install ./extensions/matrix`
-2. Create a Matrix account on a homeserver:
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
    - Browse hosting options at [https://matrix.org/ecosystem/hosting/](https://matrix.org/ecosystem/hosting/)
    - Or host it yourself.
-3. Get an access token for the bot account:
+3) Get an access token for the bot account:
    - Use the Matrix login API with `curl` at your home server:
 
    ```bash
@@ -69,33 +60,18 @@ Details: [Plugins](/tools/plugin)
    ```
 
    - Replace `matrix.example.org` with your homeserver URL.
-   - Or set `channels.matrix.userId` + `channels.matrix.password`: OpenClaw calls the same
-     login endpoint, stores the access token in `~/.openclaw/credentials/matrix/credentials.json`,
+   - Or set `channels.matrix.userId` + `channels.matrix.password`: Moltbot calls the same
+     login endpoint, stores the access token in `~/.clawdbot/credentials/matrix/credentials.json`,
      and reuses it on next start.
-
-4. Configure credentials:
+4) Configure credentials:
    - Env: `MATRIX_HOMESERVER`, `MATRIX_ACCESS_TOKEN` (or `MATRIX_USER_ID` + `MATRIX_PASSWORD`)
    - Or config: `channels.matrix.*`
    - If both are set, config takes precedence.
    - With access token: user ID is fetched automatically via `/whoami`.
    - When set, `channels.matrix.userId` should be the full Matrix ID (example: `@bot:example.org`).
-<<<<<<< HEAD
 5) Restart the gateway (or finish onboarding).
 6) Start a DM with the bot or invite it to a room from any Matrix client
    (Element, Beeper, etc.; see https://matrix.org/ecosystem/clients/). Beeper requires E2EE,
-=======
-5. Restart the gateway (or finish onboarding).
-6. Start a DM with the bot or invite it to a room from any Matrix client
-<<<<<<< HEAD
-<<<<<<< HEAD
-   (Element, Beeper, etc.; see [https://matrix.org/ecosystem/clients/](https://matrix.org/ecosystem/clients/)). Beeper requires E2EE,
->>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
-=======
-   (Element, Beeper, etc.; see https://matrix.org/ecosystem/clients/). Beeper requires E2EE,
->>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
-=======
-   (Element, Beeper, etc.; see [https://matrix.org/ecosystem/clients/](https://matrix.org/ecosystem/clients/)). Beeper requires E2EE,
->>>>>>> 578a6e27a (Docs: enable markdownlint autofixables except list numbering (#10476))
    so set `channels.matrix.encryption: true` and verify the device.
 
 Minimal config (access token, user ID auto-fetched):
@@ -107,9 +83,9 @@ Minimal config (access token, user ID auto-fetched):
       enabled: true,
       homeserver: "https://matrix.example.org",
       accessToken: "syt_***",
-      dm: { policy: "pairing" },
-    },
-  },
+      dm: { policy: "pairing" }
+    }
+  }
 }
 ```
 
@@ -123,9 +99,9 @@ E2EE config (end to end encryption enabled):
       homeserver: "https://matrix.example.org",
       accessToken: "syt_***",
       encryption: true,
-      dm: { policy: "pairing" },
-    },
-  },
+      dm: { policy: "pairing" }
+    }
+  }
 }
 ```
 
@@ -137,17 +113,17 @@ Enable with `channels.matrix.encryption: true`:
 
 - If the crypto module loads, encrypted rooms are decrypted automatically.
 - Outbound media is encrypted when sending to encrypted rooms.
-- On first connection, OpenClaw requests device verification from your other sessions.
+- On first connection, Moltbot requests device verification from your other sessions.
 - Verify the device in another Matrix client (Element, etc.) to enable key sharing.
 - If the crypto module cannot be loaded, E2EE is disabled and encrypted rooms will not decrypt;
-  OpenClaw logs a warning.
+  Moltbot logs a warning.
 - If you see missing crypto module errors (for example, `@matrix-org/matrix-sdk-crypto-nodejs-*`),
   allow build scripts for `@matrix-org/matrix-sdk-crypto-nodejs` and run
   `pnpm rebuild @matrix-org/matrix-sdk-crypto-nodejs` or fetch the binary with
   `node node_modules/@matrix-org/matrix-sdk-crypto-nodejs/download-lib.js`.
 
 Crypto state is stored per account + access token in
-`~/.openclaw/matrix/accounts/<account>/<homeserver>__<user>/<token-hash>/crypto/`
+`~/.clawdbot/matrix/accounts/<account>/<homeserver>__<user>/<token-hash>/crypto/`
 (SQLite database). Sync state lives alongside it in `bot-storage.json`.
 If the access token (device) changes, a new store is created and the bot must be
 re-verified for encrypted rooms.
@@ -166,15 +142,15 @@ Once verified, the bot can decrypt messages in encrypted rooms.
 
 - Default: `channels.matrix.dm.policy = "pairing"`. Unknown senders get a pairing code.
 - Approve via:
-  - `openclaw pairing list matrix`
-  - `openclaw pairing approve matrix <CODE>`
+  - `moltbot pairing list matrix`
+  - `moltbot pairing approve matrix <CODE>`
 - Public DMs: `channels.matrix.dm.policy="open"` plus `channels.matrix.dm.allowFrom=["*"]`.
-- `channels.matrix.dm.allowFrom` accepts full Matrix user IDs (example: `@user:server`). The wizard resolves display names to user IDs when directory search finds a single exact match.
+- `channels.matrix.dm.allowFrom` accepts user IDs or display names. The wizard resolves display names to user IDs when directory search is available.
 
 ## Rooms (groups)
 
 - Default: `channels.matrix.groupPolicy = "allowlist"` (mention-gated). Use `channels.defaults.groupPolicy` to override the default when unset.
-- Allowlist rooms with `channels.matrix.groups` (room IDs or aliases; names are resolved to IDs when directory search finds a single exact match):
+- Allowlist rooms with `channels.matrix.groups` (room IDs, aliases, or names):
 
 ```json5
 {
@@ -183,27 +159,20 @@ Once verified, the bot can decrypt messages in encrypted rooms.
       groupPolicy: "allowlist",
       groups: {
         "!roomId:example.org": { allow: true },
-        "#alias:example.org": { allow: true },
+        "#alias:example.org": { allow: true }
       },
-      groupAllowFrom: ["@owner:example.org"],
-    },
-  },
+      groupAllowFrom: ["@owner:example.org"]
+    }
+  }
 }
 ```
 
 - `requireMention: false` enables auto-reply in that room.
 - `groups."*"` can set defaults for mention gating across rooms.
-<<<<<<< HEAD
 - `groupAllowFrom` restricts which senders can trigger the bot in rooms (optional).
 - Per-room `users` allowlists can further restrict senders inside a specific room.
 - The configure wizard prompts for room allowlists (room IDs, aliases, or names) and resolves names when possible.
 - On startup, Moltbot resolves room/user names in allowlists to IDs and logs the mapping; unresolved entries are kept as typed.
-=======
-- `groupAllowFrom` restricts which senders can trigger the bot in rooms (full Matrix user IDs).
-- Per-room `users` allowlists can further restrict senders inside a specific room (use full Matrix user IDs).
-- The configure wizard prompts for room allowlists (room IDs, aliases, or names) and resolves names only on an exact, unique match.
-- On startup, OpenClaw resolves room/user names in allowlists to IDs and logs the mapping; unresolved entries are ignored for allowlist matching.
->>>>>>> 8f3bfbd1c (fix(matrix): harden allowlists)
 - Invites are auto-joined by default; control with `channels.matrix.autoJoin` and `channels.matrix.autoJoinAllowlist`.
 - To allow **no rooms**, set `channels.matrix.groupPolicy: "disabled"` (or keep an empty allowlist).
 - Legacy key: `channels.matrix.rooms` (same shape as `groups`).
@@ -218,43 +187,17 @@ Once verified, the bot can decrypt messages in encrypted rooms.
 
 ## Capabilities
 
-| Feature         | Status                                                                                |
-| --------------- | ------------------------------------------------------------------------------------- |
-| Direct messages | ✅ Supported                                                                          |
-| Rooms           | ✅ Supported                                                                          |
-| Threads         | ✅ Supported                                                                          |
-| Media           | ✅ Supported                                                                          |
-| E2EE            | ✅ Supported (crypto module required)                                                 |
-| Reactions       | ✅ Supported (send/read via tools)                                                    |
-| Polls           | ✅ Send supported; inbound poll starts are converted to text (responses/ends ignored) |
-| Location        | ✅ Supported (geo URI; altitude ignored)                                              |
-| Native commands | ✅ Supported                                                                          |
-
-## Troubleshooting
-
-Run this ladder first:
-
-```bash
-openclaw status
-openclaw gateway status
-openclaw logs --follow
-openclaw doctor
-openclaw channels status --probe
-```
-
-Then confirm DM pairing state if needed:
-
-```bash
-openclaw pairing list matrix
-```
-
-Common failures:
-
-- Logged in but room messages ignored: room blocked by `groupPolicy` or room allowlist.
-- DMs ignored: sender pending approval when `channels.matrix.dm.policy="pairing"`.
-- Encrypted rooms fail: crypto support or encryption settings mismatch.
-
-For triage flow: [/channels/troubleshooting](/channels/troubleshooting).
+| Feature | Status |
+|---------|--------|
+| Direct messages | ✅ Supported |
+| Rooms | ✅ Supported |
+| Threads | ✅ Supported |
+| Media | ✅ Supported |
+| E2EE | ✅ Supported (crypto module required) |
+| Reactions | ✅ Supported (send/read via tools) |
+| Polls | ✅ Send supported; inbound poll starts are converted to text (responses/ends ignored) |
+| Location | ✅ Supported (geo URI; altitude ignored) |
+| Native commands | ✅ Supported |
 
 ## Configuration reference (Matrix)
 
@@ -274,9 +217,9 @@ Provider options:
 - `channels.matrix.textChunkLimit`: outbound text chunk size (chars).
 - `channels.matrix.chunkMode`: `length` (default) or `newline` to split on blank lines (paragraph boundaries) before length chunking.
 - `channels.matrix.dm.policy`: `pairing | allowlist | open | disabled` (default: pairing).
-- `channels.matrix.dm.allowFrom`: DM allowlist (full Matrix user IDs). `open` requires `"*"`. The wizard resolves names to IDs when possible.
+- `channels.matrix.dm.allowFrom`: DM allowlist (user IDs or display names). `open` requires `"*"`. The wizard resolves names to IDs when possible.
 - `channels.matrix.groupPolicy`: `allowlist | open | disabled` (default: allowlist).
-- `channels.matrix.groupAllowFrom`: allowlisted senders for group messages (full Matrix user IDs).
+- `channels.matrix.groupAllowFrom`: allowlisted senders for group messages.
 - `channels.matrix.allowlistOnly`: force allowlist rules for DMs + rooms.
 - `channels.matrix.groups`: group allowlist + per-room settings map.
 - `channels.matrix.rooms`: legacy group allowlist/config.

@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+
 import { normalizeFingerprint } from "./fingerprint.js";
 
 describe("normalizeFingerprint", () => {

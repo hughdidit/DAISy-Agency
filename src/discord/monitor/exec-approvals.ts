@@ -1,20 +1,14 @@
 import { Button, type ButtonInteraction, type ComponentData } from "@buape/carbon";
 import { ButtonStyle, Routes } from "discord-api-types/v10";
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
 import { GatewayClient } from "../../gateway/client.js";
 import { GATEWAY_CLIENT_MODES, GATEWAY_CLIENT_NAMES } from "../../utils/message-channel.js";
-=======
-import type { OpenClawConfig } from "../../config/config.js";
-import type { DiscordExecApprovalConfig } from "../../config/types.discord.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { EventFrame } from "../../gateway/protocol/index.js";
 import type { ExecApprovalDecision } from "../../infra/exec-approvals.js";
-import type { RuntimeEnv } from "../../runtime.js";
-import { GatewayClient } from "../../gateway/client.js";
-import { logDebug, logError } from "../../logger.js";
-import { GATEWAY_CLIENT_MODES, GATEWAY_CLIENT_NAMES } from "../../utils/message-channel.js";
 import { createDiscordClient } from "../send.shared.js";
+import { logDebug, logError } from "../../logger.js";
+import type { DiscordExecApprovalConfig } from "../../config/types.discord.js";
+import type { RuntimeEnv } from "../../runtime.js";
 
 const EXEC_APPROVAL_KEY = "execapproval";
 
@@ -71,16 +65,12 @@ export function buildExecApprovalCustomId(
 export function parseExecApprovalData(
   data: ComponentData,
 ): { approvalId: string; action: ExecApprovalDecision } | null {
-  if (!data || typeof data !== "object") {
-    return null;
-  }
+  if (!data || typeof data !== "object") return null;
   const coerce = (value: unknown) =>
     typeof value === "string" || typeof value === "number" ? String(value) : "";
   const rawId = coerce(data.id);
   const rawAction = coerce(data.action);
-  if (!rawId || !rawAction) {
-    return null;
-  }
+  if (!rawId || !rawAction) return null;
   const action = rawAction as ExecApprovalDecision;
   if (action !== "allow-once" && action !== "allow-always" && action !== "deny") {
     return null;
@@ -197,7 +187,7 @@ export type DiscordExecApprovalHandlerOpts = {
   accountId: string;
   config: DiscordExecApprovalConfig;
   gatewayUrl?: string;
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   runtime?: RuntimeEnv;
   onResolve?: (id: string, decision: ExecApprovalDecision) => Promise<void>;
 };
@@ -215,29 +205,19 @@ export class DiscordExecApprovalHandler {
 
   shouldHandle(request: ExecApprovalRequest): boolean {
     const config = this.opts.config;
-    if (!config.enabled) {
-      return false;
-    }
-    if (!config.approvers || config.approvers.length === 0) {
-      return false;
-    }
+    if (!config.enabled) return false;
+    if (!config.approvers || config.approvers.length === 0) return false;
 
     // Check agent filter
     if (config.agentFilter?.length) {
-      if (!request.request.agentId) {
-        return false;
-      }
-      if (!config.agentFilter.includes(request.request.agentId)) {
-        return false;
-      }
+      if (!request.request.agentId) return false;
+      if (!config.agentFilter.includes(request.request.agentId)) return false;
     }
 
     // Check session filter (substring match)
     if (config.sessionFilter?.length) {
       const session = request.request.sessionKey;
-      if (!session) {
-        return false;
-      }
+      if (!session) return false;
       const matches = config.sessionFilter.some((p) => {
         try {
           return session.includes(p) || new RegExp(p).test(session);
@@ -245,18 +225,14 @@ export class DiscordExecApprovalHandler {
           return session.includes(p);
         }
       });
-      if (!matches) {
-        return false;
-      }
+      if (!matches) return false;
     }
 
     return true;
   }
 
   async start(): Promise<void> {
-    if (this.started) {
-      return;
-    }
+    if (this.started) return;
     this.started = true;
 
     const config = this.opts.config;
@@ -294,9 +270,7 @@ export class DiscordExecApprovalHandler {
   }
 
   async stop(): Promise<void> {
-    if (!this.started) {
-      return;
-    }
+    if (!this.started) return;
     this.started = false;
 
     // Clear all pending timeouts
@@ -323,9 +297,7 @@ export class DiscordExecApprovalHandler {
   }
 
   private async handleApprovalRequested(request: ExecApprovalRequest): Promise<void> {
-    if (!this.shouldHandle(request)) {
-      return;
-    }
+    if (!this.shouldHandle(request)) return;
 
     logDebug(`discord exec approvals: received request ${request.id}`);
 
@@ -422,9 +394,7 @@ export class DiscordExecApprovalHandler {
 
   private async handleApprovalResolved(resolved: ExecApprovalResolved): Promise<void> {
     const pending = this.pending.get(resolved.id);
-    if (!pending) {
-      return;
-    }
+    if (!pending) return;
 
     clearTimeout(pending.timeoutId);
     this.pending.delete(resolved.id);
@@ -432,9 +402,7 @@ export class DiscordExecApprovalHandler {
     const request = this.requestCache.get(resolved.id);
     this.requestCache.delete(resolved.id);
 
-    if (!request) {
-      return;
-    }
+    if (!request) return;
 
     logDebug(`discord exec approvals: resolved ${resolved.id} with ${resolved.decision}`);
 
@@ -447,18 +415,14 @@ export class DiscordExecApprovalHandler {
 
   private async handleApprovalTimeout(approvalId: string): Promise<void> {
     const pending = this.pending.get(approvalId);
-    if (!pending) {
-      return;
-    }
+    if (!pending) return;
 
     this.pending.delete(approvalId);
 
     const request = this.requestCache.get(approvalId);
     this.requestCache.delete(approvalId);
 
-    if (!request) {
-      return;
-    }
+    if (!request) return;
 
     logDebug(`discord exec approvals: timeout for ${approvalId}`);
 

@@ -1,10 +1,5 @@
-<<<<<<< HEAD
 import { resolveUserPath } from "../utils.js";
 import type { MoltbotConfig } from "./types.js";
-=======
-import type { OpenClawConfig } from "./types.js";
-import { resolveUserPath } from "../utils.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 
 const PATH_VALUE_RE = /^~(?=$|[\\/])/;
 
@@ -16,12 +11,8 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
 }
 
 function normalizeStringValue(key: string | undefined, value: string): string {
-  if (!PATH_VALUE_RE.test(value.trim())) {
-    return value;
-  }
-  if (!key) {
-    return value;
-  }
+  if (!PATH_VALUE_RE.test(value.trim())) return value;
+  if (!key) return value;
   if (PATH_KEY_RE.test(key) || PATH_LIST_KEYS.has(key)) {
     return resolveUserPath(value);
   }
@@ -29,9 +20,7 @@ function normalizeStringValue(key: string | undefined, value: string): string {
 }
 
 function normalizeAny(key: string | undefined, value: unknown): unknown {
-  if (typeof value === "string") {
-    return normalizeStringValue(key, value);
-  }
+  if (typeof value === "string") return normalizeStringValue(key, value);
 
   if (Array.isArray(value)) {
     const normalizeChildren = Boolean(key && PATH_LIST_KEYS.has(key));
@@ -39,25 +28,17 @@ function normalizeAny(key: string | undefined, value: unknown): unknown {
       if (typeof entry === "string") {
         return normalizeChildren ? normalizeStringValue(key, entry) : entry;
       }
-      if (Array.isArray(entry)) {
-        return normalizeAny(undefined, entry);
-      }
-      if (isPlainObject(entry)) {
-        return normalizeAny(undefined, entry);
-      }
+      if (Array.isArray(entry)) return normalizeAny(undefined, entry);
+      if (isPlainObject(entry)) return normalizeAny(undefined, entry);
       return entry;
     });
   }
 
-  if (!isPlainObject(value)) {
-    return value;
-  }
+  if (!isPlainObject(value)) return value;
 
   for (const [childKey, childValue] of Object.entries(value)) {
     const next = normalizeAny(childKey, childValue);
-    if (next !== childValue) {
-      value[childKey] = next;
-    }
+    if (next !== childValue) value[childKey] = next;
   }
 
   return value;
@@ -69,14 +50,8 @@ function normalizeAny(key: string | undefined, value: unknown): unknown {
  * Goal: accept `~/...` consistently across config file + env overrides, while
  * keeping the surface area small and predictable.
  */
-export function normalizeConfigPaths(cfg: OpenClawConfig): OpenClawConfig {
+export function normalizeConfigPaths(cfg: MoltbotConfig): MoltbotConfig {
   if (!cfg || typeof cfg !== "object") return cfg;
-=======
-export function normalizeConfigPaths(cfg: OpenClawConfig): OpenClawConfig {
-  if (!cfg || typeof cfg !== "object") {
-    return cfg;
-  }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
   normalizeAny(undefined, cfg);
   return cfg;
 }

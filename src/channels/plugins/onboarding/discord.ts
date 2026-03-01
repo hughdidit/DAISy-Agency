@@ -1,32 +1,27 @@
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../../../config/config.js";
 import type { DmPolicy } from "../../../config/types.js";
-=======
-import type { OpenClawConfig } from "../../../config/config.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { DiscordGuildEntry } from "../../../config/types.discord.js";
-import type { DmPolicy } from "../../../config/types.js";
-import type { WizardPrompter } from "../../../wizard/prompts.js";
-import type { ChannelOnboardingAdapter, ChannelOnboardingDmPolicy } from "../onboarding-types.js";
 import {
   listDiscordAccountIds,
   resolveDefaultDiscordAccountId,
   resolveDiscordAccount,
 } from "../../../discord/accounts.js";
 import { normalizeDiscordSlug } from "../../../discord/monitor/allow-list.js";
+import { resolveDiscordUserAllowlist } from "../../../discord/resolve-users.js";
 import {
   resolveDiscordChannelAllowlist,
   type DiscordChannelResolution,
 } from "../../../discord/resolve-channels.js";
-import { resolveDiscordUserAllowlist } from "../../../discord/resolve-users.js";
 import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "../../../routing/session-key.js";
 import { formatDocsLink } from "../../../terminal/links.js";
+import type { WizardPrompter } from "../../../wizard/prompts.js";
+import type { ChannelOnboardingAdapter, ChannelOnboardingDmPolicy } from "../onboarding-types.js";
 import { promptChannelAccessConfig } from "./channel-access.js";
 import { addWildcardAllowFrom, promptAccountId } from "./helpers.js";
 
 const channel = "discord" as const;
 
-function setDiscordDmPolicy(cfg: OpenClawConfig, dmPolicy: DmPolicy) {
+function setDiscordDmPolicy(cfg: MoltbotConfig, dmPolicy: DmPolicy) {
   const allowFrom =
     dmPolicy === "open" ? addWildcardAllowFrom(cfg.channels?.discord?.dm?.allowFrom) : undefined;
   return {
@@ -60,10 +55,10 @@ async function noteDiscordTokenHelp(prompter: WizardPrompter): Promise<void> {
 }
 
 function setDiscordGroupPolicy(
-  cfg: OpenClawConfig,
+  cfg: MoltbotConfig,
   accountId: string,
   groupPolicy: "open" | "allowlist" | "disabled",
-): OpenClawConfig {
+): MoltbotConfig {
   if (accountId === DEFAULT_ACCOUNT_ID) {
     return {
       ...cfg,
@@ -98,13 +93,13 @@ function setDiscordGroupPolicy(
 }
 
 function setDiscordGuildChannelAllowlist(
-  cfg: OpenClawConfig,
+  cfg: MoltbotConfig,
   accountId: string,
   entries: Array<{
     guildKey: string;
     channelKey?: string;
   }>,
-): OpenClawConfig {
+): MoltbotConfig {
   const baseGuilds =
     accountId === DEFAULT_ACCOUNT_ID
       ? (cfg.channels?.discord?.guilds ?? {})
@@ -154,7 +149,7 @@ function setDiscordGuildChannelAllowlist(
   };
 }
 
-function setDiscordAllowFrom(cfg: OpenClawConfig, allowFrom: string[]): OpenClawConfig {
+function setDiscordAllowFrom(cfg: MoltbotConfig, allowFrom: string[]): MoltbotConfig {
   return {
     ...cfg,
     channels: {
@@ -179,10 +174,10 @@ function parseDiscordAllowFromInput(raw: string): string[] {
 }
 
 async function promptDiscordAllowFrom(params: {
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   prompter: WizardPrompter;
   accountId?: string;
-}): Promise<OpenClawConfig> {
+}): Promise<MoltbotConfig> {
   const accountId =
     params.accountId && normalizeAccountId(params.accountId)
       ? (normalizeAccountId(params.accountId) ?? DEFAULT_ACCOUNT_ID)
@@ -206,17 +201,11 @@ async function promptDiscordAllowFrom(params: {
   const parseInputs = (value: string) => parseDiscordAllowFromInput(value);
   const parseId = (value: string) => {
     const trimmed = value.trim();
-    if (!trimmed) {
-      return null;
-    }
+    if (!trimmed) return null;
     const mention = trimmed.match(/^<@!?(\d+)>$/);
-    if (mention) {
-      return mention[1];
-    }
+    if (mention) return mention[1];
     const prefixed = trimmed.replace(/^(user:|discord:)/i, "");
-    if (/^\d+$/.test(prefixed)) {
-      return prefixed;
-    }
+    if (/^\d+$/.test(prefixed)) return prefixed;
     return null;
   };
 
@@ -398,9 +387,7 @@ export const discordOnboardingAdapter: ChannelOnboardingAdapter = {
       ([guildKey, value]) => {
         const channels = value?.channels ?? {};
         const channelKeys = Object.keys(channels);
-        if (channelKeys.length === 0) {
-          return [guildKey];
-        }
+        if (channelKeys.length === 0) return [guildKey];
         return channelKeys.map((channelKey) => `${guildKey}/${channelKey}`);
       },
     );
@@ -476,9 +463,7 @@ export const discordOnboardingAdapter: ChannelOnboardingAdapter = {
           const channelKey =
             entry.channelId ??
             (entry.channelName ? normalizeDiscordSlug(entry.channelName) : undefined);
-          if (!channelKey && guildKey === "*") {
-            continue;
-          }
+          if (!channelKey && guildKey === "*") continue;
           allowlistEntries.push({ guildKey, ...(channelKey ? { channelKey } : {}) });
         }
         next = setDiscordGroupPolicy(next, discordAccountId, "allowlist");

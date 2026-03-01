@@ -1,7 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
-import { createOpenClawTools } from "../agents/openclaw-tools.js";
+import { createMoltbotTools } from "../agents/moltbot-tools.js";
 import { resolveSessionTranscriptPath } from "../config/sessions.js";
 import { emitAgentEvent } from "../infra/agent-events.js";
 import {
@@ -19,25 +19,25 @@ let prevGatewayPort: string | undefined;
 let prevGatewayToken: string | undefined;
 
 beforeAll(async () => {
-  prevGatewayPort = process.env.OPENCLAW_GATEWAY_PORT;
-  prevGatewayToken = process.env.OPENCLAW_GATEWAY_TOKEN;
+  prevGatewayPort = process.env.CLAWDBOT_GATEWAY_PORT;
+  prevGatewayToken = process.env.CLAWDBOT_GATEWAY_TOKEN;
   gatewayPort = await getFreePort();
-  process.env.OPENCLAW_GATEWAY_PORT = String(gatewayPort);
-  process.env.OPENCLAW_GATEWAY_TOKEN = "test-token";
+  process.env.CLAWDBOT_GATEWAY_PORT = String(gatewayPort);
+  process.env.CLAWDBOT_GATEWAY_TOKEN = "test-token";
   server = await startGatewayServer(gatewayPort);
 });
 
 afterAll(async () => {
   await server.close();
   if (prevGatewayPort === undefined) {
-    delete process.env.OPENCLAW_GATEWAY_PORT;
+    delete process.env.CLAWDBOT_GATEWAY_PORT;
   } else {
-    process.env.OPENCLAW_GATEWAY_PORT = prevGatewayPort;
+    process.env.CLAWDBOT_GATEWAY_PORT = prevGatewayPort;
   }
   if (prevGatewayToken === undefined) {
-    delete process.env.OPENCLAW_GATEWAY_TOKEN;
+    delete process.env.CLAWDBOT_GATEWAY_TOKEN;
   } else {
-    process.env.OPENCLAW_GATEWAY_TOKEN = prevGatewayToken;
+    process.env.CLAWDBOT_GATEWAY_TOKEN = prevGatewayToken;
   }
 });
 
@@ -86,14 +86,8 @@ describe("sessions_send gateway loopback", () => {
       });
     });
 
-    const tool = createOpenClawTools().find((candidate) => candidate.name === "sessions_send");
+    const tool = createMoltbotTools().find((candidate) => candidate.name === "sessions_send");
     if (!tool) throw new Error("missing sessions_send tool");
-=======
-    const tool = createOpenClawTools().find((candidate) => candidate.name === "sessions_send");
-    if (!tool) {
-      throw new Error("missing sessions_send tool");
-    }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
 
     const result = await tool.execute("call-loopback", {
       sessionKey: "main",
@@ -157,14 +151,8 @@ describe("sessions_send label lookup", () => {
       timeoutMs: 5000,
     });
 
-    const tool = createOpenClawTools().find((candidate) => candidate.name === "sessions_send");
+    const tool = createMoltbotTools().find((candidate) => candidate.name === "sessions_send");
     if (!tool) throw new Error("missing sessions_send tool");
-=======
-    const tool = createOpenClawTools().find((candidate) => candidate.name === "sessions_send");
-    if (!tool) {
-      throw new Error("missing sessions_send tool");
-    }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
 
     // Send using label instead of sessionKey
     const result = await tool.execute("call-by-label", {
@@ -183,14 +171,8 @@ describe("sessions_send label lookup", () => {
   });
 
   it("returns error when label not found", { timeout: 60_000 }, async () => {
-    const tool = createOpenClawTools().find((candidate) => candidate.name === "sessions_send");
+    const tool = createMoltbotTools().find((candidate) => candidate.name === "sessions_send");
     if (!tool) throw new Error("missing sessions_send tool");
-=======
-    const tool = createOpenClawTools().find((candidate) => candidate.name === "sessions_send");
-    if (!tool) {
-      throw new Error("missing sessions_send tool");
-    }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
 
     const result = await tool.execute("call-missing-label", {
       label: "nonexistent-label",
@@ -203,14 +185,8 @@ describe("sessions_send label lookup", () => {
   });
 
   it("returns error when neither sessionKey nor label provided", { timeout: 60_000 }, async () => {
-    const tool = createOpenClawTools().find((candidate) => candidate.name === "sessions_send");
+    const tool = createMoltbotTools().find((candidate) => candidate.name === "sessions_send");
     if (!tool) throw new Error("missing sessions_send tool");
-=======
-    const tool = createOpenClawTools().find((candidate) => candidate.name === "sessions_send");
-    if (!tool) {
-      throw new Error("missing sessions_send tool");
-    }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
 
     const result = await tool.execute("call-no-key", {
       message: "hello",

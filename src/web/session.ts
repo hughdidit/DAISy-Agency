@@ -1,3 +1,5 @@
+import { randomUUID } from "node:crypto";
+import fsSync from "node:fs";
 import {
   DisconnectReason,
   fetchLatestBaileysVersion,
@@ -5,14 +7,13 @@ import {
   makeWASocket,
   useMultiFileAuthState,
 } from "@whiskeysockets/baileys";
-import { randomUUID } from "node:crypto";
-import fsSync from "node:fs";
 import qrcode from "qrcode-terminal";
-import { formatCliCommand } from "../cli/command-format.js";
 import { danger, success } from "../globals.js";
 import { getChildLogger, toPinoLikeLogger } from "../logging.js";
 import { ensureDir, resolveUserPath } from "../utils.js";
 import { VERSION } from "../version.js";
+import { formatCliCommand } from "../cli/command-format.js";
+
 import {
   maybeRestoreCredsFromBackup,
   resolveDefaultWebAuthDir,
@@ -45,13 +46,9 @@ function enqueueSaveCreds(
 
 function readCredsJsonRaw(filePath: string): string | null {
   try {
-    if (!fsSync.existsSync(filePath)) {
-      return null;
-    }
+    if (!fsSync.existsSync(filePath)) return null;
     const stats = fsSync.statSync(filePath);
-    if (!stats.isFile() || stats.size <= 1) {
-      return null;
-    }
+    if (!stats.isFile() || stats.size <= 1) return null;
     return fsSync.readFileSync(filePath, "utf-8");
   } catch {
     return null;
@@ -95,7 +92,7 @@ export async function createWaSocket(
   printQr: boolean,
   verbose: boolean,
   opts: { authDir?: string; onQr?: (qr: string) => void } = {},
-): Promise<ReturnType<typeof makeWASocket>> {
+) {
   const baseLogger = getChildLogger(
     { module: "baileys" },
     {
@@ -117,7 +114,7 @@ export async function createWaSocket(
     version,
     logger,
     printQRInTerminal: false,
-    browser: ["openclaw", "cli", VERSION],
+    browser: ["moltbot", "cli", VERSION],
     syncFullHistory: false,
     markOnlineOnConnect: false,
   });
@@ -140,7 +137,7 @@ export async function createWaSocket(
           if (status === DisconnectReason.loggedOut) {
             console.error(
               danger(
-                `WhatsApp session logged out. Run: ${formatCliCommand("openclaw channels login")}`,
+                `WhatsApp session logged out. Run: ${formatCliCommand("moltbot channels login")}`,
               ),
             );
           }
@@ -196,13 +193,11 @@ export function getStatusCode(err: unknown) {
 
 function safeStringify(value: unknown, limit = 800): string {
   try {
-    const seen = new WeakSet();
+    const seen = new WeakSet<object>();
     const raw = JSON.stringify(
       value,
       (_key, v) => {
-        if (typeof v === "bigint") {
-          return v.toString();
-        }
+        if (typeof v === "bigint") return v.toString();
         if (typeof v === "function") {
           const maybeName = (v as { name?: unknown }).name;
           const name =
@@ -210,18 +205,14 @@ function safeStringify(value: unknown, limit = 800): string {
           return `[Function ${name}]`;
         }
         if (typeof v === "object" && v) {
-          if (seen.has(v)) {
-            return "[Circular]";
-          }
+          if (seen.has(v)) return "[Circular]";
           seen.add(v);
         }
         return v;
       },
       2,
     );
-    if (!raw) {
-      return String(value);
-    }
+    if (!raw) return String(value);
     return raw.length > limit ? `${raw.slice(0, limit)}…` : raw;
   } catch {
     return String(value);
@@ -233,15 +224,11 @@ function extractBoomDetails(err: unknown): {
   error?: string;
   message?: string;
 } | null {
-  if (!err || typeof err !== "object") {
-    return null;
-  }
+  if (!err || typeof err !== "object") return null;
   const output = (err as { output?: unknown })?.output as
     | { statusCode?: unknown; payload?: unknown }
     | undefined;
-  if (!output || typeof output !== "object") {
-    return null;
-  }
+  if (!output || typeof output !== "object") return null;
   const payload = (output as { payload?: unknown }).payload as
     | { error?: unknown; message?: unknown; statusCode?: unknown }
     | undefined;
@@ -249,26 +236,18 @@ function extractBoomDetails(err: unknown): {
     typeof (output as { statusCode?: unknown }).statusCode === "number"
       ? ((output as { statusCode?: unknown }).statusCode as number)
       : typeof payload?.statusCode === "number"
-        ? payload.statusCode
+        ? (payload.statusCode as number)
         : undefined;
   const error = typeof payload?.error === "string" ? payload.error : undefined;
   const message = typeof payload?.message === "string" ? payload.message : undefined;
-  if (!statusCode && !error && !message) {
-    return null;
-  }
+  if (!statusCode && !error && !message) return null;
   return { statusCode, error, message };
 }
 
 export function formatError(err: unknown): string {
-  if (err instanceof Error) {
-    return err.message;
-  }
-  if (typeof err === "string") {
-    return err;
-  }
-  if (!err || typeof err !== "object") {
-    return String(err);
-  }
+  if (err instanceof Error) return err.message;
+  if (typeof err === "string") return err;
+  if (!err || typeof err !== "object") return String(err);
 
   // Baileys frequently wraps errors under `error` with a Boom-like shape.
   const boom =
@@ -292,22 +271,12 @@ export function formatError(err: unknown): string {
   const message = messageCandidates[0];
 
   const pieces: string[] = [];
-  if (typeof status === "number") {
-    pieces.push(`status=${status}`);
-  }
-  if (boom?.error) {
-    pieces.push(boom.error);
-  }
-  if (message) {
-    pieces.push(message);
-  }
-  if (codeText) {
-    pieces.push(`code=${codeText}`);
-  }
+  if (typeof status === "number") pieces.push(`status=${status}`);
+  if (boom?.error) pieces.push(boom.error);
+  if (message) pieces.push(message);
+  if (codeText) pieces.push(`code=${codeText}`);
 
-  if (pieces.length > 0) {
-    return pieces.join(" ");
-  }
+  if (pieces.length > 0) return pieces.join(" ");
   return safeStringify(err);
 }
 

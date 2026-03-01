@@ -3,12 +3,10 @@ summary: "Model authentication: OAuth, API keys, and setup-token"
 read_when:
   - Debugging model auth or OAuth expiry
   - Documenting authentication or credential storage
-title: "Authentication"
 ---
-
 # Authentication
 
-OpenClaw supports OAuth and API keys for model providers. For Anthropic
+Moltbot supports OAuth and API keys for model providers. For Anthropic
 accounts, we recommend using an **API key**. For Claude subscription access,
 use the long‑lived token created by `claude setup-token`.
 
@@ -19,29 +17,19 @@ layout.
 
 If you’re using Anthropic directly, use an API key.
 
-<<<<<<< HEAD
 1) Create an API key in the Anthropic Console.
-2) Put it on the **gateway host** (the machine running `openclaw gateway`).
+2) Put it on the **gateway host** (the machine running `moltbot gateway`).
 
 ```bash
 export ANTHROPIC_API_KEY="..."
-openclaw models status
+moltbot models status
 ```
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 3) If the Gateway runs under systemd/launchd, prefer putting the key in
 `~/.clawdbot/.env` so the daemon can read it:
-=======
-1. If the Gateway runs under systemd/launchd, prefer putting the key in
-=======
-3. If the Gateway runs under systemd/launchd, prefer putting the key in
->>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
-   `~/.openclaw/.env` so the daemon can read it:
->>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 
 ```bash
-cat >> ~/.openclaw/.env <<'EOF'
+cat >> ~/.clawdbot/.env <<'EOF'
 ANTHROPIC_API_KEY=...
 EOF
 ```
@@ -49,15 +37,15 @@ EOF
 Then restart the daemon (or restart your Gateway process) and re-check:
 
 ```bash
-openclaw models status
-openclaw doctor
+moltbot models status
+moltbot doctor
 ```
 
 If you’d rather not manage env vars yourself, the onboarding wizard can store
-API keys for daemon use: `openclaw onboard`.
+API keys for daemon use: `moltbot onboard`.
 
 See [Help](/help) for details on env inheritance (`env.shellEnv`,
-`~/.openclaw/.env`, systemd/launchd).
+`~/.clawdbot/.env`, systemd/launchd).
 
 ## Anthropic: setup-token (subscription auth)
 
@@ -68,16 +56,16 @@ subscription, the setup-token flow is also supported. Run it on the **gateway ho
 claude setup-token
 ```
 
-Then paste it into OpenClaw:
+Then paste it into Moltbot:
 
 ```bash
-openclaw models auth setup-token --provider anthropic
+moltbot models auth setup-token --provider anthropic
 ```
 
 If the token was created on another machine, paste it manually:
 
 ```bash
-openclaw models auth paste-token --provider anthropic
+moltbot models auth paste-token --provider anthropic
 ```
 
 If you see an Anthropic error like:
@@ -91,14 +79,14 @@ This credential is only authorized for use with Claude Code and cannot be used f
 Manual token entry (any provider; writes `auth-profiles.json` + updates config):
 
 ```bash
-openclaw models auth paste-token --provider anthropic
-openclaw models auth paste-token --provider openrouter
+moltbot models auth paste-token --provider anthropic
+moltbot models auth paste-token --provider openrouter
 ```
 
 Automation-friendly check (exit `1` when expired/missing, `2` when expiring):
 
 ```bash
-openclaw models status --check
+moltbot models status --check
 ```
 
 Optional ops scripts (systemd/Termux) are documented here:
@@ -109,8 +97,8 @@ Optional ops scripts (systemd/Termux) are documented here:
 ## Checking model auth status
 
 ```bash
-openclaw models status
-openclaw doctor
+moltbot models status
+moltbot doctor
 ```
 
 ## Controlling which credential is used
@@ -126,9 +114,9 @@ Use `/model` (or `/model list`) for a compact picker; use `/model status` for th
 Set an explicit auth profile order override for an agent (stored in that agent’s `auth-profiles.json`):
 
 ```bash
-openclaw models auth order get --provider anthropic
-openclaw models auth order set --provider anthropic anthropic:default
-openclaw models auth order clear --provider anthropic
+moltbot models auth order get --provider anthropic
+moltbot models auth order set --provider anthropic anthropic:default
+moltbot models auth order clear --provider anthropic
 ```
 
 Use `--agent <id>` to target a specific agent; omit it to use the configured default agent.
@@ -141,12 +129,12 @@ If the Anthropic token profile is missing, run `claude setup-token` on the
 **gateway host**, then re-check:
 
 ```bash
-openclaw models status
+moltbot models status
 ```
 
 ### Token expiring/expired
 
-Run `openclaw models status` to confirm which profile is expiring. If the profile
+Run `moltbot models status` to confirm which profile is expiring. If the profile
 is missing, rerun `claude setup-token` and paste the token again.
 
 ## Requirements

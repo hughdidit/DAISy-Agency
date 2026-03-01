@@ -1,11 +1,11 @@
-import { resolveChannelMediaMaxBytes, type OpenClawConfig, type PluginRuntime } from "openclaw/plugin-sdk";
+import { resolveChannelMediaMaxBytes, type MoltbotConfig, type PluginRuntime } from "clawdbot/plugin-sdk";
 import type { MSTeamsAccessTokenProvider } from "./attachments/types.js";
 import type {
   MSTeamsConversationStore,
   StoredConversationReference,
 } from "./conversation-store.js";
-import type { MSTeamsAdapter } from "./messenger.js";
 import { createMSTeamsConversationStoreFs } from "./conversation-store-fs.js";
+import type { MSTeamsAdapter } from "./messenger.js";
 import { getMSTeamsRuntime } from "./runtime.js";
 import { createMSTeamsAdapter, loadMSTeamsSdkWithAuth } from "./sdk.js";
 import { resolveMSTeamsCredentials } from "./token.js";
@@ -74,21 +74,17 @@ async function findConversationReference(recipient: {
 } | null> {
   if (recipient.type === "conversation") {
     const ref = await recipient.store.get(recipient.id);
-    if (ref) {
-      return { conversationId: recipient.id, ref };
-    }
+    if (ref) return { conversationId: recipient.id, ref };
     return null;
   }
 
   const found = await recipient.store.findByUserId(recipient.id);
-  if (!found) {
-    return null;
-  }
+  if (!found) return null;
   return { conversationId: found.conversationId, ref: found.reference };
 }
 
 export async function resolveMSTeamsSendContext(params: {
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   to: string;
 }): Promise<MSTeamsProactiveContext> {
   const msteamsCfg = params.cfg.channels?.msteams;

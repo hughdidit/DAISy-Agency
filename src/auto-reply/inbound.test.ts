@@ -1,16 +1,13 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+
 import { describe, expect, it, vi } from "vitest";
-<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../config/config.js";
-=======
-import type { OpenClawConfig } from "../config/config.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { GroupKeyResolution } from "../config/sessions.js";
 import { createInboundDebouncer } from "./inbound-debounce.js";
-import { resolveGroupRequireMention } from "./reply/groups.js";
+import { applyTemplate, type MsgContext, type TemplateContext } from "./templating.js";
 import { finalizeInboundContext } from "./reply/inbound-context.js";
 import {
   buildInboundDedupeKey,
@@ -19,13 +16,13 @@ import {
 } from "./reply/inbound-dedupe.js";
 import { formatInboundBodyWithSenderMeta } from "./reply/inbound-sender-meta.js";
 import { normalizeInboundTextNewlines } from "./reply/inbound-text.js";
+import { resolveGroupRequireMention } from "./reply/groups.js";
 import {
   buildMentionRegexes,
   matchesMentionPatterns,
   normalizeMentionText,
 } from "./reply/mentions.js";
 import { initSessionState } from "./reply/session.js";
-import { applyTemplate, type MsgContext, type TemplateContext } from "./templating.js";
 
 describe("applyTemplate", () => {
   it("renders primitive values", () => {
@@ -263,9 +260,9 @@ describe("createInboundDebouncer", () => {
 
 describe("initSessionState sender meta", () => {
   it("injects sender meta into BodyStripped for group chats", async () => {
-    const root = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-sender-meta-"));
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-sender-meta-"));
     const storePath = path.join(root, "sessions.json");
-    const cfg = { session: { store: storePath } } as OpenClawConfig;
+    const cfg = { session: { store: storePath } } as MoltbotConfig;
 
     const result = await initSessionState({
       ctx: {
@@ -284,9 +281,9 @@ describe("initSessionState sender meta", () => {
   });
 
   it("does not inject sender meta for direct chats", async () => {
-    const root = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-sender-meta-direct-"));
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-sender-meta-direct-"));
     const storePath = path.join(root, "sessions.json");
-    const cfg = { session: { store: storePath } } as OpenClawConfig;
+    const cfg = { session: { store: storePath } } as MoltbotConfig;
 
     const result = await initSessionState({
       ctx: {
@@ -308,22 +305,22 @@ describe("mention helpers", () => {
   it("builds regexes and skips invalid patterns", () => {
     const regexes = buildMentionRegexes({
       messages: {
-        groupChat: { mentionPatterns: ["\\bopenclaw\\b", "(invalid"] },
+        groupChat: { mentionPatterns: ["\\bclawd\\b", "(invalid"] },
       },
     });
     expect(regexes).toHaveLength(1);
-    expect(regexes[0]?.test("openclaw")).toBe(true);
+    expect(regexes[0]?.test("clawd")).toBe(true);
   });
 
   it("normalizes zero-width characters", () => {
-    expect(normalizeMentionText("open\u200bclaw")).toBe("openclaw");
+    expect(normalizeMentionText("cl\u200bawd")).toBe("clawd");
   });
 
   it("matches patterns case-insensitively", () => {
     const regexes = buildMentionRegexes({
-      messages: { groupChat: { mentionPatterns: ["\\bopenclaw\\b"] } },
+      messages: { groupChat: { mentionPatterns: ["\\bclawd\\b"] } },
     });
-    expect(matchesMentionPatterns("OPENCLAW: hi", regexes)).toBe(true);
+    expect(matchesMentionPatterns("CLAWD: hi", regexes)).toBe(true);
   });
 
   it("uses per-agent mention patterns when configured", () => {
@@ -350,7 +347,7 @@ describe("mention helpers", () => {
 
 describe("resolveGroupRequireMention", () => {
   it("respects Discord guild/channel requireMention settings", () => {
-    const cfg: OpenClawConfig = {
+    const cfg: MoltbotConfig = {
       channels: {
         discord: {
           guilds: {
@@ -380,7 +377,7 @@ describe("resolveGroupRequireMention", () => {
   });
 
   it("respects Slack channel requireMention settings", () => {
-    const cfg: OpenClawConfig = {
+    const cfg: MoltbotConfig = {
       channels: {
         slack: {
           channels: {

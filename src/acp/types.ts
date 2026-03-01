@@ -1,4 +1,5 @@
 import type { SessionId } from "@agentclientprotocol/sdk";
+
 import { VERSION } from "../version.js";
 
 export type AcpSession = {
@@ -23,7 +24,7 @@ export type AcpServerOptions = {
 };
 
 export const ACP_AGENT_INFO = {
-  name: "openclaw-acp",
-  title: "OpenClaw ACP Gateway",
+  name: "moltbot-acp",
+  title: "Moltbot ACP Gateway",
   version: VERSION,
 };

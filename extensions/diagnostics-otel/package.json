@@ -1,41 +1,13 @@
 {
-<<<<<<< HEAD
   "name": "@moltbot/diagnostics-otel",
   "version": "2026.1.27-beta.1",
-=======
-  "name": "@openclaw/diagnostics-otel",
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-  "version": "2026.1.29",
->>>>>>> 62e4ad23d (chore: release 2026.1.29)
-=======
-  "version": "2026.2.2",
-=======
-  "version": "2026.2.3",
->>>>>>> f895c9fba (chore: sync plugin versions to 2026.2.3)
-=======
-  "version": "2026.2.6-2",
->>>>>>> ad4dd0422 (chore(release): 2026.2.6-2)
-=======
-  "version": "2026.2.6-3",
->>>>>>> 9f703a44d (chore(release): 2026.2.6-3)
-  "description": "OpenClaw diagnostics OpenTelemetry exporter",
->>>>>>> 1c4db9159 (chore: prepare 2026.2.2 release)
   "type": "module",
-  "description": "OpenClaw diagnostics OpenTelemetry exporter",
-  "openclaw": {
+  "description": "Moltbot diagnostics OpenTelemetry exporter",
+  "moltbot": {
     "extensions": [
       "./index.ts"
     ]
   },
-=======
-  "name": "@openclaw/diagnostics-otel",
-  "version": "2026.1.30",
-  "description": "OpenClaw diagnostics OpenTelemetry exporter",
-  "type": "module",
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
   "dependencies": {
     "@opentelemetry/api": "^1.9.0",
     "@opentelemetry/api-logs": "^0.211.0",
@@ -48,16 +20,5 @@
     "@opentelemetry/sdk-node": "^0.211.0",
     "@opentelemetry/sdk-trace-base": "^2.5.0",
     "@opentelemetry/semantic-conventions": "^1.39.0"
-<<<<<<< HEAD
-=======
-  },
-  "devDependencies": {
-    "openclaw": "workspace:*"
-  },
-  "openclaw": {
-    "extensions": [
-      "./index.ts"
-    ]
->>>>>>> aa91f6e70 (chore: Add `openclaw` to `devDependencies` for all extensions so that types resolve.)
   }
 }

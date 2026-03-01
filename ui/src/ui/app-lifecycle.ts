@@ -1,14 +1,5 @@
-import type { Tab } from "./navigation.ts";
-import { connectGateway } from "./app-gateway.ts";
-import {
-  startLogsPolling,
-  startNodesPolling,
-  stopLogsPolling,
-  stopNodesPolling,
-  startDebugPolling,
-  stopDebugPolling,
-} from "./app-polling";
-import { observeTopbar, scheduleChatScroll, scheduleLogsScroll } from "./app-scroll";
+import type { Tab } from "./navigation";
+import { connectGateway } from "./app-gateway";
 import {
   applySettingsFromUrl,
   attachThemeListener,
@@ -17,12 +8,20 @@ import {
   syncTabWithLocation,
   syncThemeWithSettings,
 } from "./app-settings";
+import { observeTopbar, scheduleChatScroll, scheduleLogsScroll } from "./app-scroll";
+import {
+  startLogsPolling,
+  startNodesPolling,
+  stopLogsPolling,
+  stopNodesPolling,
+  startDebugPolling,
+  stopDebugPolling,
+} from "./app-polling";
 
 type LifecycleHost = {
   basePath: string;
   tab: Tab;
   chatHasAutoScrolled: boolean;
-  chatManualRefreshInFlight: boolean;
   chatLoading: boolean;
   chatMessages: unknown[];
   chatToolMessages: unknown[];
@@ -36,11 +35,20 @@ type LifecycleHost = {
 
 export function handleConnected(host: LifecycleHost) {
   host.basePath = inferBasePath();
-  applySettingsFromUrl(host as unknown as Parameters<typeof applySettingsFromUrl>[0]);
-  syncTabWithLocation(host as unknown as Parameters<typeof syncTabWithLocation>[0], true);
-  syncThemeWithSettings(host as unknown as Parameters<typeof syncThemeWithSettings>[0]);
-  attachThemeListener(host as unknown as Parameters<typeof attachThemeListener>[0]);
+  syncTabWithLocation(
+    host as unknown as Parameters<typeof syncTabWithLocation>[0],
+    true,
+  );
+  syncThemeWithSettings(
+    host as unknown as Parameters<typeof syncThemeWithSettings>[0],
+  );
+  attachThemeListener(
+    host as unknown as Parameters<typeof attachThemeListener>[0],
+  );
   window.addEventListener("popstate", host.popStateHandler);
+  applySettingsFromUrl(
+    host as unknown as Parameters<typeof applySettingsFromUrl>[0],
+  );
   connectGateway(host as unknown as Parameters<typeof connectGateway>[0]);
   startNodesPolling(host as unknown as Parameters<typeof startNodesPolling>[0]);
   if (host.tab === "logs") {
@@ -60,22 +68,17 @@ export function handleDisconnected(host: LifecycleHost) {
   stopNodesPolling(host as unknown as Parameters<typeof stopNodesPolling>[0]);
   stopLogsPolling(host as unknown as Parameters<typeof stopLogsPolling>[0]);
   stopDebugPolling(host as unknown as Parameters<typeof stopDebugPolling>[0]);
-  detachThemeListener(host as unknown as Parameters<typeof detachThemeListener>[0]);
+  detachThemeListener(
+    host as unknown as Parameters<typeof detachThemeListener>[0],
+  );
   host.topbarObserver?.disconnect();
   host.topbarObserver = null;
 }
 
-<<<<<<< HEAD
 export function handleUpdated(
   host: LifecycleHost,
   changed: Map<PropertyKey, unknown>,
 ) {
-=======
-export function handleUpdated(host: LifecycleHost, changed: Map<PropertyKey, unknown>) {
-  if (host.tab === "chat" && host.chatManualRefreshInFlight) {
-    return;
-  }
->>>>>>> bc475f017 (fix(ui): smooth chat refresh scroll and suppress new-messages badge flash)
   if (
     host.tab === "chat" &&
     (changed.has("chatMessages") ||
@@ -86,7 +89,9 @@ export function handleUpdated(host: LifecycleHost, changed: Map<PropertyKey, unk
   ) {
     const forcedByTab = changed.has("tab");
     const forcedByLoad =
-      changed.has("chatLoading") && changed.get("chatLoading") === true && !host.chatLoading;
+      changed.has("chatLoading") &&
+      changed.get("chatLoading") === true &&
+      host.chatLoading === false;
     scheduleChatScroll(
       host as unknown as Parameters<typeof scheduleChatScroll>[0],
       forcedByTab || forcedByLoad || !host.chatHasAutoScrolled,

@@ -1,6 +1,6 @@
-import { cancel, confirm, isCancel, multiselect } from "@clack/prompts";
 import path from "node:path";
-import type { RuntimeEnv } from "../runtime.js";
+import { cancel, confirm, isCancel, multiselect } from "@clack/prompts";
+
 import {
   isNixMode,
   loadConfig,
@@ -9,6 +9,7 @@ import {
   resolveStateDir,
 } from "../config/config.js";
 import { resolveGatewayService } from "../daemon/service.js";
+import type { RuntimeEnv } from "../runtime.js";
 import { stylePromptHint, stylePromptMessage, stylePromptTitle } from "../terminal/prompt-style.js";
 import { resolveHomeDir } from "../utils.js";
 import { collectWorkspaceDirs, isPathWithin, removePath } from "./cleanup-utils.js";
@@ -41,18 +42,10 @@ function buildScopeSelection(opts: UninstallOptions): {
 } {
   const hadExplicit = Boolean(opts.all || opts.service || opts.state || opts.workspace || opts.app);
   const scopes = new Set<UninstallScope>();
-  if (opts.all || opts.service) {
-    scopes.add("service");
-  }
-  if (opts.all || opts.state) {
-    scopes.add("state");
-  }
-  if (opts.all || opts.workspace) {
-    scopes.add("workspace");
-  }
-  if (opts.all || opts.app) {
-    scopes.add("app");
-  }
+  if (opts.all || opts.service) scopes.add("service");
+  if (opts.all || opts.state) scopes.add("state");
+  if (opts.all || opts.workspace) scopes.add("workspace");
+  if (opts.all || opts.app) scopes.add("app");
   return { scopes, hadExplicit };
 }
 
@@ -88,11 +81,10 @@ async function stopAndUninstallService(runtime: RuntimeEnv): Promise<boolean> {
 }
 
 async function removeMacApp(runtime: RuntimeEnv, dryRun?: boolean) {
-<<<<<<< HEAD
   if (process.platform !== "darwin") return;
-  await removePath("/Applications/OpenClaw.app", runtime, {
+  await removePath("/Applications/Moltbot.app", runtime, {
     dryRun,
-    label: "/Applications/OpenClaw.app",
+    label: "/Applications/Moltbot.app",
   });
 }
 
@@ -119,12 +111,12 @@ export async function uninstallCommand(runtime: RuntimeEnv, opts: UninstallOptio
           label: "Gateway service",
           hint: "launchd / systemd / schtasks",
         },
-        { value: "state", label: "State + config", hint: "~/.openclaw" },
+        { value: "state", label: "State + config", hint: "~/.clawdbot" },
         { value: "workspace", label: "Workspace", hint: "agent files" },
         {
           value: "app",
           label: "macOS app",
-          hint: "/Applications/OpenClaw.app",
+          hint: "/Applications/Moltbot.app",
         },
       ],
       initialValues: ["service", "state", "workspace"],
@@ -134,9 +126,7 @@ export async function uninstallCommand(runtime: RuntimeEnv, opts: UninstallOptio
       runtime.exit(0);
       return;
     }
-    for (const value of selection) {
-      scopes.add(value);
-    }
+    for (const value of selection) scopes.add(value);
   }
 
   if (scopes.size === 0) {

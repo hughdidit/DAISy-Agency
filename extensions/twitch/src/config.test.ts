@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+
 import { getAccountConfig } from "./config.js";
 
 describe("getAccountConfig", () => {

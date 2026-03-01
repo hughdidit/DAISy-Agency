@@ -4,6 +4,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import tls from "node:tls";
 import { promisify } from "node:util";
+
 import type { GatewayTlsConfig } from "../../config/types.gateway.js";
 import { CONFIG_DIR, ensureDir, resolveUserPath, shortenHomeInString } from "../../utils.js";
 import { normalizeFingerprint } from "./fingerprint.js";
@@ -55,7 +56,7 @@ async function generateSelfSignedCert(params: {
     "-out",
     params.certPath,
     "-subj",
-    "/CN=openclaw-gateway",
+    "/CN=moltbot-gateway",
   ]);
   await fs.chmod(params.keyPath, 0o600).catch(() => {});
   await fs.chmod(params.certPath, 0o600).catch(() => {});
@@ -68,9 +69,7 @@ export async function loadGatewayTlsRuntime(
   cfg: GatewayTlsConfig | undefined,
   log?: { info?: (msg: string) => void; warn?: (msg: string) => void },
 ): Promise<GatewayTlsRuntime> {
-  if (!cfg || cfg.enabled !== true) {
-    return { enabled: false, required: false };
-  }
+  if (!cfg || cfg.enabled !== true) return { enabled: false, required: false };
 
   const autoGenerate = cfg.autoGenerate !== false;
   const baseDir = path.join(CONFIG_DIR, "gateway", "tls");
@@ -134,7 +133,7 @@ export async function loadGatewayTlsRuntime(
         cert,
         key,
         ca,
-        minVersion: "TLSv1.3",
+        minVersion: "TLSv1.2",
       },
     };
   } catch (err) {

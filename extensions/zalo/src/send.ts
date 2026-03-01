@@ -1,19 +1,15 @@
-<<<<<<< HEAD
 import type { MoltbotConfig } from "clawdbot/plugin-sdk";
 
-=======
-import type { OpenClawConfig } from "openclaw/plugin-sdk";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { ZaloFetch } from "./api.js";
-import { resolveZaloAccount } from "./accounts.js";
 import { sendMessage, sendPhoto } from "./api.js";
+import { resolveZaloAccount } from "./accounts.js";
 import { resolveZaloProxyFetch } from "./proxy.js";
 import { resolveZaloToken } from "./token.js";
 
 export type ZaloSendOptions = {
   token?: string;
   accountId?: string;
-  cfg?: OpenClawConfig;
+  cfg?: MoltbotConfig;
   mediaUrl?: string;
   caption?: string;
   verbose?: boolean;
@@ -69,14 +65,10 @@ export async function sendMessageZalo(
   }
 
   try {
-    const response = await sendMessage(
-      token,
-      {
-        chat_id: chatId.trim(),
-        text: text.slice(0, 2000),
-      },
-      fetcher,
-    );
+    const response = await sendMessage(token, {
+      chat_id: chatId.trim(),
+      text: text.slice(0, 2000),
+    }, fetcher);
 
     if (response.ok && response.result) {
       return { ok: true, messageId: response.result.message_id };
@@ -108,15 +100,11 @@ export async function sendPhotoZalo(
   }
 
   try {
-    const response = await sendPhoto(
-      token,
-      {
-        chat_id: chatId.trim(),
-        photo: photoUrl.trim(),
-        caption: options.caption?.slice(0, 2000),
-      },
-      fetcher,
-    );
+    const response = await sendPhoto(token, {
+      chat_id: chatId.trim(),
+      photo: photoUrl.trim(),
+      caption: options.caption?.slice(0, 2000),
+    }, fetcher);
 
     if (response.ok && response.result) {
       return { ok: true, messageId: response.result.message_id };

@@ -1,4 +1,5 @@
 import chalk, { Chalk } from "chalk";
+
 import { LOBSTER_PALETTE } from "./palette.js";
 
 const hasForceColor =

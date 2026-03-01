@@ -1,14 +1,10 @@
-import type { ChannelCapabilities, ChannelPlugin } from "../../channels/plugins/types.js";
-import type { OpenClawConfig } from "../../config/config.js";
-import { resolveChannelDefaultAccountId } from "../../channels/plugins/helpers.js";
 import { getChannelPlugin, listChannelPlugins } from "../../channels/plugins/index.js";
+import { resolveChannelDefaultAccountId } from "../../channels/plugins/helpers.js";
+import type { ChannelCapabilities, ChannelPlugin } from "../../channels/plugins/types.js";
 import { fetchChannelPermissionsDiscord } from "../../discord/send.js";
 import { parseDiscordTarget } from "../../discord/targets.js";
 import { danger } from "../../globals.js";
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
-=======
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { defaultRuntime, type RuntimeEnv } from "../../runtime.js";
 import { fetchSlackScopes, type SlackScopesResult } from "../../slack/scopes.js";
 import { theme } from "../../terminal/theme.js";
@@ -71,64 +67,34 @@ const TEAMS_GRAPH_PERMISSION_HINTS: Record<string, string> = {
 
 function normalizeTimeout(raw: unknown, fallback = 10_000) {
   const value = typeof raw === "string" ? Number(raw) : Number(raw);
-  if (!Number.isFinite(value) || value <= 0) {
-    return fallback;
-  }
+  if (!Number.isFinite(value) || value <= 0) return fallback;
   return value;
 }
 
 function formatSupport(capabilities?: ChannelCapabilities) {
-  if (!capabilities) {
-    return "unknown";
-  }
+  if (!capabilities) return "unknown";
   const bits: string[] = [];
   if (capabilities.chatTypes?.length) {
     bits.push(`chatTypes=${capabilities.chatTypes.join(",")}`);
   }
-  if (capabilities.polls) {
-    bits.push("polls");
-  }
-  if (capabilities.reactions) {
-    bits.push("reactions");
-  }
-  if (capabilities.edit) {
-    bits.push("edit");
-  }
-  if (capabilities.unsend) {
-    bits.push("unsend");
-  }
-  if (capabilities.reply) {
-    bits.push("reply");
-  }
-  if (capabilities.effects) {
-    bits.push("effects");
-  }
-  if (capabilities.groupManagement) {
-    bits.push("groupManagement");
-  }
-  if (capabilities.threads) {
-    bits.push("threads");
-  }
-  if (capabilities.media) {
-    bits.push("media");
-  }
-  if (capabilities.nativeCommands) {
-    bits.push("nativeCommands");
-  }
-  if (capabilities.blockStreaming) {
-    bits.push("blockStreaming");
-  }
+  if (capabilities.polls) bits.push("polls");
+  if (capabilities.reactions) bits.push("reactions");
+  if (capabilities.edit) bits.push("edit");
+  if (capabilities.unsend) bits.push("unsend");
+  if (capabilities.reply) bits.push("reply");
+  if (capabilities.effects) bits.push("effects");
+  if (capabilities.groupManagement) bits.push("groupManagement");
+  if (capabilities.threads) bits.push("threads");
+  if (capabilities.media) bits.push("media");
+  if (capabilities.nativeCommands) bits.push("nativeCommands");
+  if (capabilities.blockStreaming) bits.push("blockStreaming");
   return bits.length ? bits.join(" ") : "none";
 }
 
 function summarizeDiscordTarget(raw?: string): DiscordTargetSummary | undefined {
-  if (!raw) {
-    return undefined;
-  }
+  if (!raw) return undefined;
   const target = parseDiscordTarget(raw, { defaultKind: "channel" });
-  if (!target) {
-    return { raw };
-  }
+  if (!target) return { raw };
   if (target.kind === "channel") {
     return {
       raw,
@@ -152,9 +118,7 @@ function formatDiscordIntents(intents?: {
   guildMembers?: string;
   presence?: string;
 }) {
-  if (!intents) {
-    return "unknown";
-  }
+  if (!intents) return "unknown";
   return [
     `messageContent=${intents.messageContent ?? "unknown"}`,
     `guildMembers=${intents.guildMembers ?? "unknown"}`,
@@ -164,9 +128,7 @@ function formatDiscordIntents(intents?: {
 
 function formatProbeLines(channelId: string, probe: unknown): string[] {
   const lines: string[] = [];
-  if (!probe || typeof probe !== "object") {
-    return lines;
-  }
+  if (!probe || typeof probe !== "object") return lines;
   const probeObj = probe as Record<string, unknown>;
 
   if (channelId === "discord") {
@@ -193,18 +155,10 @@ function formatProbeLines(channelId: string, probe: unknown): string[] {
       ?.canReadAllGroupMessages;
     const inlineQueries = (bot as { supportsInlineQueries?: boolean | null })
       ?.supportsInlineQueries;
-    if (typeof canJoinGroups === "boolean") {
-      flags.push(`joinGroups=${canJoinGroups}`);
-    }
-    if (typeof canReadAll === "boolean") {
-      flags.push(`readAllGroupMessages=${canReadAll}`);
-    }
-    if (typeof inlineQueries === "boolean") {
-      flags.push(`inlineQueries=${inlineQueries}`);
-    }
-    if (flags.length > 0) {
-      lines.push(`Flags: ${flags.join(" ")}`);
-    }
+    if (typeof canJoinGroups === "boolean") flags.push(`joinGroups=${canJoinGroups}`);
+    if (typeof canReadAll === "boolean") flags.push(`readAllGroupMessages=${canReadAll}`);
+    if (typeof inlineQueries === "boolean") flags.push(`inlineQueries=${inlineQueries}`);
+    if (flags.length > 0) lines.push(`Flags: ${flags.join(" ")}`);
     const webhook = probeObj.webhook as { url?: string | null } | undefined;
     if (webhook?.url !== undefined) {
       lines.push(`Webhook: ${webhook.url || "none"}`);
@@ -232,9 +186,7 @@ function formatProbeLines(channelId: string, probe: unknown): string[] {
 
   if (channelId === "msteams") {
     const appId = typeof probeObj.appId === "string" ? probeObj.appId.trim() : "";
-    if (appId) {
-      lines.push(`App: ${theme.accent(appId)}`);
-    }
+    if (appId) lines.push(`App: ${theme.accent(appId)}`);
     const graph = probeObj.graph as
       | { ok?: boolean; roles?: unknown; scopes?: unknown; error?: string }
       | undefined;
@@ -287,9 +239,7 @@ async function buildDiscordPermissions(params: {
   target?: string;
 }): Promise<{ target?: DiscordTargetSummary; report?: DiscordPermissionsReport }> {
   const target = summarizeDiscordTarget(params.target?.trim());
-  if (!target) {
-    return {};
-  }
+  if (!target) return {};
   if (target.kind !== "channel" || !target.channelId) {
     return {
       target,
@@ -341,7 +291,7 @@ async function buildDiscordPermissions(params: {
 
 async function resolveChannelReports(params: {
   plugin: ChannelPlugin;
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   timeoutMs: number;
   accountOverride?: string;
   target?: string;
@@ -445,9 +395,7 @@ export async function channelsCapabilitiesCommand(
   runtime: RuntimeEnv = defaultRuntime,
 ) {
   const cfg = await requireValidConfig(runtime);
-  if (!cfg) {
-    return;
-  }
+  if (!cfg) return;
   const timeoutMs = normalizeTimeout(opts.timeout, 10_000);
   const rawChannel = typeof opts.channel === "string" ? opts.channel.trim().toLowerCase() : "";
   const rawTarget = typeof opts.target === "string" ? opts.target.trim() : "";
@@ -469,9 +417,7 @@ export async function channelsCapabilitiesCommand(
       ? plugins
       : (() => {
           const plugin = getChannelPlugin(rawChannel);
-          if (!plugin) {
-            return null;
-          }
+          if (!plugin) return null;
           return [plugin];
         })();
 

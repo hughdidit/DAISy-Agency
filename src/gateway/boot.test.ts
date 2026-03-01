@@ -1,6 +1,7 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const agentCommand = vi.fn();
@@ -25,7 +26,7 @@ describe("runBootOnce", () => {
   });
 
   it("skips when BOOT.md is missing", async () => {
-    const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-boot-"));
+    const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-boot-"));
     await expect(runBootOnce({ cfg: {}, deps: makeDeps(), workspaceDir })).resolves.toEqual({
       status: "skipped",
       reason: "missing",
@@ -35,7 +36,7 @@ describe("runBootOnce", () => {
   });
 
   it("skips when BOOT.md is empty", async () => {
-    const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-boot-"));
+    const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-boot-"));
     await fs.writeFile(path.join(workspaceDir, "BOOT.md"), "   \n", "utf-8");
     await expect(runBootOnce({ cfg: {}, deps: makeDeps(), workspaceDir })).resolves.toEqual({
       status: "skipped",
@@ -46,7 +47,7 @@ describe("runBootOnce", () => {
   });
 
   it("runs agent command when BOOT.md exists", async () => {
-    const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-boot-"));
+    const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-boot-"));
     const content = "Say hello when you wake up.";
     await fs.writeFile(path.join(workspaceDir, "BOOT.md"), content, "utf-8");
 

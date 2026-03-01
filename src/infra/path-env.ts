@@ -1,10 +1,11 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { resolveBrewPathDirs } from "./brew.js";
 import { isTruthyEnvValue } from "./env.js";
 
-type EnsureOpenClawPathOpts = {
+import { resolveBrewPathDirs } from "./brew.js";
+
+type EnsureMoltbotPathOpts = {
   execPath?: string;
   cwd?: string;
   homeDir?: string;
@@ -47,7 +48,7 @@ function mergePath(params: { existing: string; prepend: string[] }): string {
   return merged.join(path.delimiter);
 }
 
-function candidateBinDirs(opts: EnsureOpenClawPathOpts): string[] {
+function candidateBinDirs(opts: EnsureMoltbotPathOpts): string[] {
   const execPath = opts.execPath ?? process.execPath;
   const cwd = opts.cwd ?? process.cwd();
   const homeDir = opts.homeDir ?? os.homedir();
@@ -55,25 +56,23 @@ function candidateBinDirs(opts: EnsureOpenClawPathOpts): string[] {
 
   const candidates: string[] = [];
 
-  // Bundled macOS app: `openclaw` lives next to the executable (process.execPath).
+  // Bundled macOS app: `moltbot` lives next to the executable (process.execPath).
   try {
     const execDir = path.dirname(execPath);
-    const siblingCli = path.join(execDir, "openclaw");
-    if (isExecutable(siblingCli)) candidates.push(execDir);
+    const siblingMoltbot = path.join(execDir, "moltbot");
+    if (isExecutable(siblingMoltbot)) candidates.push(execDir);
   } catch {
     // ignore
   }
 
-  // Project-local installs (best effort): if a `node_modules/.bin/openclaw` exists near cwd,
+  // Project-local installs (best effort): if a `node_modules/.bin/moltbot` exists near cwd,
   // include it. This helps when running under launchd or other minimal PATH environments.
   const localBinDir = path.join(cwd, "node_modules", ".bin");
-  if (isExecutable(path.join(localBinDir, "openclaw"))) candidates.push(localBinDir);
+  if (isExecutable(path.join(localBinDir, "moltbot"))) candidates.push(localBinDir);
 
   const miseDataDir = process.env.MISE_DATA_DIR ?? path.join(homeDir, ".local", "share", "mise");
   const miseShims = path.join(miseDataDir, "shims");
-  if (isDirectory(miseShims)) {
-    candidates.push(miseShims);
-  }
+  if (isDirectory(miseShims)) candidates.push(miseShims);
 
   candidates.push(...resolveBrewPathDirs({ homeDir }));
 
@@ -81,9 +80,7 @@ function candidateBinDirs(opts: EnsureOpenClawPathOpts): string[] {
   if (platform === "darwin") {
     candidates.push(path.join(homeDir, "Library", "pnpm"));
   }
-  if (process.env.XDG_BIN_HOME) {
-    candidates.push(process.env.XDG_BIN_HOME);
-  }
+  if (process.env.XDG_BIN_HOME) candidates.push(process.env.XDG_BIN_HOME);
   candidates.push(path.join(homeDir, ".local", "bin"));
   candidates.push(path.join(homeDir, ".local", "share", "pnpm"));
   candidates.push(path.join(homeDir, ".bun", "bin"));
@@ -94,23 +91,17 @@ function candidateBinDirs(opts: EnsureOpenClawPathOpts): string[] {
 }
 
 /**
- * Best-effort PATH bootstrap so skills that require the `openclaw` CLI can run
+ * Best-effort PATH bootstrap so skills that require the `moltbot` CLI can run
  * under launchd/minimal environments (and inside the macOS app bundle).
  */
-export function ensureOpenClawCliOnPath(opts: EnsureOpenClawPathOpts = {}) {
-  if (isTruthyEnvValue(process.env.OPENCLAW_PATH_BOOTSTRAPPED)) {
-    return;
-  }
-  process.env.OPENCLAW_PATH_BOOTSTRAPPED = "1";
+export function ensureMoltbotCliOnPath(opts: EnsureMoltbotPathOpts = {}) {
+  if (isTruthyEnvValue(process.env.CLAWDBOT_PATH_BOOTSTRAPPED)) return;
+  process.env.CLAWDBOT_PATH_BOOTSTRAPPED = "1";
 
   const existing = opts.pathEnv ?? process.env.PATH ?? "";
   const prepend = candidateBinDirs(opts);
-  if (prepend.length === 0) {
-    return;
-  }
+  if (prepend.length === 0) return;
 
   const merged = mergePath({ existing, prepend });
-  if (merged) {
-    process.env.PATH = merged;
-  }
+  if (merged) process.env.PATH = merged;
 }

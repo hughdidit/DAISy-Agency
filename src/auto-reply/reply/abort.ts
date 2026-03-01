@@ -1,36 +1,30 @@
-import type { OpenClawConfig } from "../../config/config.js";
-import type { FinalizedMsgContext, MsgContext } from "../templating.js";
 import { resolveSessionAgentId } from "../../agents/agent-scope.js";
 import { abortEmbeddedPiRun } from "../../agents/pi-embedded.js";
 import { listSubagentRunsForRequester } from "../../agents/subagent-registry.js";
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
-=======
-import {
-  resolveInternalSessionKey,
-  resolveMainSessionAlias,
-} from "../../agents/tools/sessions-helpers.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import {
   loadSessionStore,
   resolveStorePath,
   type SessionEntry,
   updateSessionStore,
 } from "../../config/sessions.js";
-import { logVerbose } from "../../globals.js";
 import { parseAgentSessionKey } from "../../routing/session-key.js";
 import { resolveCommandAuthorization } from "../command-auth.js";
 import { normalizeCommandBody } from "../commands-registry.js";
+import type { FinalizedMsgContext, MsgContext } from "../templating.js";
+import { logVerbose } from "../../globals.js";
 import { stripMentions, stripStructuralPrefixes } from "./mentions.js";
 import { clearSessionQueues } from "./queue.js";
+import {
+  resolveInternalSessionKey,
+  resolveMainSessionAlias,
+} from "../../agents/tools/sessions-helpers.js";
 
 const ABORT_TRIGGERS = new Set(["stop", "esc", "abort", "wait", "exit", "interrupt"]);
 const ABORT_MEMORY = new Map<string, boolean>();
 
 export function isAbortTrigger(text?: string): boolean {
-  if (!text) {
-    return false;
-  }
+  if (!text) return false;
   const normalized = text.trim().toLowerCase();
   return ABORT_TRIGGERS.has(normalized);
 }
@@ -55,62 +49,46 @@ function resolveSessionEntryForKey(
   store: Record<string, SessionEntry> | undefined,
   sessionKey: string | undefined,
 ) {
-  if (!store || !sessionKey) {
-    return {};
-  }
+  if (!store || !sessionKey) return {};
   const direct = store[sessionKey];
-  if (direct) {
-    return { entry: direct, key: sessionKey };
-  }
+  if (direct) return { entry: direct, key: sessionKey };
   return {};
 }
 
 function resolveAbortTargetKey(ctx: MsgContext): string | undefined {
   const target = ctx.CommandTargetSessionKey?.trim();
-  if (target) {
-    return target;
-  }
+  if (target) return target;
   const sessionKey = ctx.SessionKey?.trim();
   return sessionKey || undefined;
 }
 
 function normalizeRequesterSessionKey(
-  cfg: OpenClawConfig,
+  cfg: MoltbotConfig,
   key: string | undefined,
 ): string | undefined {
   const cleaned = key?.trim();
-  if (!cleaned) {
-    return undefined;
-  }
+  if (!cleaned) return undefined;
   const { mainKey, alias } = resolveMainSessionAlias(cfg);
   return resolveInternalSessionKey({ key: cleaned, alias, mainKey });
 }
 
 export function stopSubagentsForRequester(params: {
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   requesterSessionKey?: string;
 }): { stopped: number } {
   const requesterKey = normalizeRequesterSessionKey(params.cfg, params.requesterSessionKey);
-  if (!requesterKey) {
-    return { stopped: 0 };
-  }
+  if (!requesterKey) return { stopped: 0 };
   const runs = listSubagentRunsForRequester(requesterKey);
-  if (runs.length === 0) {
-    return { stopped: 0 };
-  }
+  if (runs.length === 0) return { stopped: 0 };
 
   const storeCache = new Map<string, Record<string, SessionEntry>>();
   const seenChildKeys = new Set<string>();
   let stopped = 0;
 
   for (const run of runs) {
-    if (run.endedAt) {
-      continue;
-    }
+    if (run.endedAt) continue;
     const childKey = run.childSessionKey?.trim();
-    if (!childKey || seenChildKeys.has(childKey)) {
-      continue;
-    }
+    if (!childKey || seenChildKeys.has(childKey)) continue;
     seenChildKeys.add(childKey);
 
     const cleared = clearSessionQueues([childKey]);
@@ -138,7 +116,7 @@ export function stopSubagentsForRequester(params: {
 
 export async function tryFastAbortFromMessage(params: {
   ctx: FinalizedMsgContext;
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
 }): Promise<{ handled: boolean; aborted: boolean; stoppedSubagents?: number }> {
   const { ctx, cfg } = params;
   const targetKey = resolveAbortTargetKey(ctx);
@@ -152,9 +130,7 @@ export async function tryFastAbortFromMessage(params: {
   const stripped = isGroup ? stripMentions(raw, ctx, cfg, agentId) : raw;
   const normalized = normalizeCommandBody(stripped);
   const abortRequested = normalized === "/stop" || isAbortTrigger(stripped);
-  if (!abortRequested) {
-    return { handled: false, aborted: false };
-  }
+  if (!abortRequested) return { handled: false, aborted: false };
 
   const commandAuthorized = ctx.CommandAuthorized;
   const auth = resolveCommandAuthorization({
@@ -162,9 +138,7 @@ export async function tryFastAbortFromMessage(params: {
     cfg,
     commandAuthorized,
   });
-  if (!auth.isAuthorizedSender) {
-    return { handled: false, aborted: false };
-  }
+  if (!auth.isAuthorizedSender) return { handled: false, aborted: false };
 
   const abortKey = targetKey ?? auth.from ?? auth.to;
   const requesterSessionKey = targetKey ?? ctx.SessionKey ?? abortKey;
@@ -187,9 +161,7 @@ export async function tryFastAbortFromMessage(params: {
       store[key] = entry;
       await updateSessionStore(storePath, (nextStore) => {
         const nextEntry = nextStore[key] ?? entry;
-        if (!nextEntry) {
-          return;
-        }
+        if (!nextEntry) return;
         nextEntry.abortedLastRun = true;
         nextEntry.updatedAt = Date.now();
         nextStore[key] = nextEntry;

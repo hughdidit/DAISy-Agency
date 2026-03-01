@@ -1,10 +1,6 @@
-import type { OpenClawConfig } from "openclaw/plugin-sdk";
 import crypto from "node:crypto";
 import path from "node:path";
-<<<<<<< HEAD
 import type { MoltbotConfig } from "clawdbot/plugin-sdk";
-=======
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { resolveBlueBubblesAccount } from "./accounts.js";
 import { resolveChatGuidForTarget } from "./send.js";
 import { parseBlueBubblesTarget, normalizeBlueBubblesHandle } from "./targets.js";
@@ -20,7 +16,7 @@ export type BlueBubblesAttachmentOpts = {
   password?: string;
   accountId?: string;
   timeoutMs?: number;
-  cfg?: OpenClawConfig;
+  cfg?: MoltbotConfig;
 };
 
 const DEFAULT_ATTACHMENT_MAX_BYTES = 8 * 1024 * 1024;
@@ -30,16 +26,12 @@ const AUDIO_MIME_CAF = new Set(["audio/x-caf", "audio/caf"]);
 function sanitizeFilename(input: string | undefined, fallback: string): string {
   const trimmed = input?.trim() ?? "";
   const base = trimmed ? path.basename(trimmed) : "";
-  const name = base || fallback;
-  // Strip characters that could enable multipart header injection (CWE-93)
-  return name.replace(/[\r\n"\\]/g, "_");
+  return base || fallback;
 }
 
 function ensureExtension(filename: string, extension: string, fallbackBase: string): string {
   const currentExt = path.extname(filename);
-  if (currentExt.toLowerCase() === extension) {
-    return filename;
-  }
+  if (currentExt.toLowerCase() === extension) return filename;
   const base = currentExt ? filename.slice(0, -currentExt.length) : filename;
   return `${base || fallbackBase}${extension}`;
 }
@@ -47,10 +39,8 @@ function ensureExtension(filename: string, extension: string, fallbackBase: stri
 function resolveVoiceInfo(filename: string, contentType?: string) {
   const normalizedType = contentType?.trim().toLowerCase();
   const extension = path.extname(filename).toLowerCase();
-  const isMp3 =
-    extension === ".mp3" || (normalizedType ? AUDIO_MIME_MP3.has(normalizedType) : false);
-  const isCaf =
-    extension === ".caf" || (normalizedType ? AUDIO_MIME_CAF.has(normalizedType) : false);
+  const isMp3 = extension === ".mp3" || (normalizedType ? AUDIO_MIME_MP3.has(normalizedType) : false);
+  const isCaf = extension === ".caf" || (normalizedType ? AUDIO_MIME_CAF.has(normalizedType) : false);
   const isAudio = isMp3 || isCaf || Boolean(normalizedType?.startsWith("audio/"));
   return { isAudio, isMp3, isCaf };
 }
@@ -62,12 +52,8 @@ function resolveAccount(params: BlueBubblesAttachmentOpts) {
   });
   const baseUrl = params.serverUrl?.trim() || account.config.serverUrl?.trim();
   const password = params.password?.trim() || account.config.password?.trim();
-  if (!baseUrl) {
-    throw new Error("BlueBubbles serverUrl is required");
-  }
-  if (!password) {
-    throw new Error("BlueBubbles password is required");
-  }
+  if (!baseUrl) throw new Error("BlueBubbles serverUrl is required");
+  if (!password) throw new Error("BlueBubbles password is required");
   return { baseUrl, password };
 }
 
@@ -76,9 +62,7 @@ export async function downloadBlueBubblesAttachment(
   opts: BlueBubblesAttachmentOpts & { maxBytes?: number } = {},
 ): Promise<{ buffer: Uint8Array; contentType?: string }> {
   const guid = attachment.guid?.trim();
-  if (!guid) {
-    throw new Error("BlueBubbles attachment guid is required");
-  }
+  if (!guid) throw new Error("BlueBubbles attachment guid is required");
   const { baseUrl, password } = resolveAccount(opts);
   const url = buildBlueBubblesApiUrl({
     baseUrl,
@@ -124,14 +108,9 @@ function resolveSendTarget(raw: string): BlueBubblesSendTarget {
 }
 
 function extractMessageId(payload: unknown): string {
-  if (!payload || typeof payload !== "object") {
-    return "unknown";
-  }
+  if (!payload || typeof payload !== "object") return "unknown";
   const record = payload as Record<string, unknown>;
-  const data =
-    record.data && typeof record.data === "object"
-      ? (record.data as Record<string, unknown>)
-      : null;
+  const data = record.data && typeof record.data === "object" ? (record.data as Record<string, unknown>) : null;
   const candidates = [
     record.messageId,
     record.guid,
@@ -141,12 +120,8 @@ function extractMessageId(payload: unknown): string {
     data?.id,
   ];
   for (const candidate of candidates) {
-    if (typeof candidate === "string" && candidate.trim()) {
-      return candidate.trim();
-    }
-    if (typeof candidate === "number" && Number.isFinite(candidate)) {
-      return String(candidate);
-    }
+    if (typeof candidate === "string" && candidate.trim()) return candidate.trim();
+    if (typeof candidate === "number" && Number.isFinite(candidate)) return String(candidate);
   }
   return "unknown";
 }
@@ -230,7 +205,9 @@ export async function sendBlueBubblesAttachment(params: {
   const addFile = (name: string, fileBuffer: Uint8Array, fileName: string, mimeType?: string) => {
     parts.push(encoder.encode(`--${boundary}\r\n`));
     parts.push(
-      encoder.encode(`Content-Disposition: form-data; name="${name}"; filename="${fileName}"\r\n`),
+      encoder.encode(
+        `Content-Disposition: form-data; name="${name}"; filename="${fileName}"\r\n`,
+      ),
     );
     parts.push(encoder.encode(`Content-Type: ${mimeType ?? "application/octet-stream"}\r\n\r\n`));
     parts.push(fileBuffer);
@@ -252,7 +229,10 @@ export async function sendBlueBubblesAttachment(params: {
   const trimmedReplyTo = replyToMessageGuid?.trim();
   if (trimmedReplyTo) {
     addField("selectedMessageGuid", trimmedReplyTo);
-    addField("partIndex", typeof replyToPartIndex === "number" ? String(replyToPartIndex) : "0");
+    addField(
+      "partIndex",
+      typeof replyToPartIndex === "number" ? String(replyToPartIndex) : "0",
+    );
   }
 
   // Add optional caption
@@ -288,15 +268,11 @@ export async function sendBlueBubblesAttachment(params: {
 
   if (!res.ok) {
     const errorText = await res.text();
-    throw new Error(
-      `BlueBubbles attachment send failed (${res.status}): ${errorText || "unknown"}`,
-    );
+    throw new Error(`BlueBubbles attachment send failed (${res.status}): ${errorText || "unknown"}`);
   }
 
   const responseBody = await res.text();
-  if (!responseBody) {
-    return { messageId: "ok" };
-  }
+  if (!responseBody) return { messageId: "ok" };
   try {
     const parsed = JSON.parse(responseBody) as unknown;
     return { messageId: extractMessageId(parsed) };

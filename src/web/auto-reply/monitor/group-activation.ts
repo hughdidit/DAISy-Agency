@@ -1,5 +1,5 @@
-import type { loadConfig } from "../../../config/config.js";
 import { normalizeGroupActivation } from "../../../auto-reply/group-activation.js";
+import type { loadConfig } from "../../../config/config.js";
 import {
   resolveChannelGroupPolicy,
   resolveChannelGroupRequireMention,
@@ -51,6 +51,6 @@ export function resolveGroupActivationFor(params: {
   const store = loadSessionStore(storePath);
   const entry = store[params.sessionKey];
   const requireMention = resolveGroupRequireMentionFor(params.cfg, params.conversationId);
-  const defaultActivation = !requireMention ? "always" : "mention";
+  const defaultActivation = requireMention === false ? "always" : "mention";
   return normalizeGroupActivation(entry?.groupActivation) ?? defaultActivation;
 }

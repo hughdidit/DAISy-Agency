@@ -1,4 +1,4 @@
-const DEFAULT_TAGLINE = "All your chats, one OpenClaw.";
+const DEFAULT_TAGLINE = "All your chats, one Moltbot.";
 
 const HOLIDAY_TAGLINES = {
   newYear:
@@ -64,7 +64,7 @@ const TAGLINES: string[] = [
   "Shell yeah—I'm here to pinch the toil and leave you the glory.",
   "If it's repetitive, I'll automate it; if it's hard, I'll bring jokes and a rollback plan.",
   "Because texting yourself reminders is so 2024.",
-  "Your inbox, your infra, your rules.",
+  "WhatsApp, but make it ✨engineering✨.",
   'Turning "I\'ll reply later" into "my bot replied instantly".',
   "The only crab in your contacts you actually want to hear from. 🦞",
   "Chat automation for people who peaked at IRC.",
@@ -72,16 +72,14 @@ const TAGLINES: string[] = [
   "IPC, but it's your phone.",
   "The UNIX philosophy meets your DMs.",
   "curl for conversations.",
-  "Less middlemen, more messages.",
-  "Ship fast, log faster.",
-  "End-to-end encrypted, drama-to-drama excluded.",
-  "The only bot that stays out of your training set.",
+  "WhatsApp Business, but without the business.",
+  "Meta wishes they shipped this fast.",
+  "End-to-end encrypted, Zuck-to-Zuck excluded.",
+  "The only bot Mark can't train on your DMs.",
   'WhatsApp automation without the "please accept our new privacy policy".',
   "Chat APIs that don't require a Senate hearing.",
-  "Meta wishes they shipped this fast.",
-  "Because the right answer is usually a script.",
-  "Your messages, your servers, your control.",
-  "OpenAI-compatible, not OpenAI-dependent.",
+  "Because Threads wasn't the answer either.",
+  "Your messages, your servers, Meta's tears.",
   "iMessage green bubble energy, but for everyone.",
   "Siri's competent cousin.",
   "Works on Android. Crazy concept, we know.",
@@ -127,9 +125,7 @@ const onSpecificDates =
   (date) => {
     const parts = utcParts(date);
     return dates.some(([year, month, day]) => {
-      if (parts.year !== year) {
-        return false;
-      }
+      if (parts.year !== year) return false;
       const start = Date.UTC(year, month, day);
       const current = Date.UTC(parts.year, parts.month, parts.day);
       return current >= start && current < start + durationDays * DAY_MS;
@@ -148,9 +144,7 @@ const inYearWindow =
   (date) => {
     const parts = utcParts(date);
     const window = windows.find((entry) => entry.year === parts.year);
-    if (!window) {
-      return false;
-    }
+    if (!window) return false;
     const start = Date.UTC(window.year, window.month, window.day);
     const current = Date.UTC(parts.year, parts.month, parts.day);
     return current >= start && current < start + window.duration * DAY_MS;
@@ -158,9 +152,7 @@ const inYearWindow =
 
 const isFourthThursdayOfNovember: HolidayRule = (date) => {
   const parts = utcParts(date);
-  if (parts.month !== 10) {
-    return false;
-  } // November
+  if (parts.month !== 10) return false; // November
   const firstDay = new Date(Date.UTC(parts.year, 10, 1)).getUTCDay();
   const offsetToThursday = (4 - firstDay + 7) % 7; // 4 = Thursday
   const fourthThursday = 1 + offsetToThursday + 21; // 1st + offset + 3 weeks
@@ -230,9 +222,7 @@ const HOLIDAY_RULES = new Map<string, HolidayRule>([
 
 function isTaglineActive(tagline: string, date: Date): boolean {
   const rule = HOLIDAY_RULES.get(tagline);
-  if (!rule) {
-    return true;
-  }
+  if (!rule) return true;
   return rule(date);
 }
 
@@ -243,9 +233,7 @@ export interface TaglineOptions {
 }
 
 export function activeTaglines(options: TaglineOptions = {}): string[] {
-  if (TAGLINES.length === 0) {
-    return [DEFAULT_TAGLINE];
-  }
+  if (TAGLINES.length === 0) return [DEFAULT_TAGLINE];
   const today = options.now ? options.now() : new Date();
   const filtered = TAGLINES.filter((tagline) => isTaglineActive(tagline, today));
   return filtered.length > 0 ? filtered : TAGLINES;
@@ -253,7 +241,7 @@ export function activeTaglines(options: TaglineOptions = {}): string[] {
 
 export function pickTagline(options: TaglineOptions = {}): string {
   const env = options.env ?? process.env;
-  const override = env?.OPENCLAW_TAGLINE_INDEX;
+  const override = env?.CLAWDBOT_TAGLINE_INDEX;
   if (override !== undefined) {
     const parsed = Number.parseInt(override, 10);
     if (!Number.isNaN(parsed) && parsed >= 0) {

@@ -1,11 +1,12 @@
 import { Type } from "@sinclair/typebox";
+
 import { NonEmptyString } from "./primitives.js";
 
 export const CronScheduleSchema = Type.Union([
   Type.Object(
     {
       kind: Type.Literal("at"),
-      at: NonEmptyString,
+      atMs: Type.Integer({ minimum: 0 }),
     },
     { additionalProperties: false },
   ),
@@ -42,14 +43,8 @@ export const CronPayloadSchema = Type.Union([
       model: Type.Optional(Type.String()),
       thinking: Type.Optional(Type.String()),
       timeoutSeconds: Type.Optional(Type.Integer({ minimum: 1 })),
-<<<<<<< HEAD
       deliver: Type.Optional(Type.Boolean()),
       channel: Type.Optional(Type.Union([Type.Literal("last"), NonEmptyString])),
-=======
-      allowUnsafeExternalContent: Type.Optional(Type.Boolean()),
-      deliver: Type.Optional(Type.Boolean()),
-      channel: Type.Optional(Type.String()),
->>>>>>> d90cac990 (fix: cron scheduler reliability, store hardening, and UX improvements (#10776))
       to: Type.Optional(Type.String()),
       bestEffortDeliver: Type.Optional(Type.Boolean()),
     },
@@ -72,14 +67,8 @@ export const CronPayloadPatchSchema = Type.Union([
       model: Type.Optional(Type.String()),
       thinking: Type.Optional(Type.String()),
       timeoutSeconds: Type.Optional(Type.Integer({ minimum: 1 })),
-<<<<<<< HEAD
       deliver: Type.Optional(Type.Boolean()),
       channel: Type.Optional(Type.Union([Type.Literal("last"), NonEmptyString])),
-=======
-      allowUnsafeExternalContent: Type.Optional(Type.Boolean()),
-      deliver: Type.Optional(Type.Boolean()),
-      channel: Type.Optional(Type.String()),
->>>>>>> d90cac990 (fix: cron scheduler reliability, store hardening, and UX improvements (#10776))
       to: Type.Optional(Type.String()),
       bestEffortDeliver: Type.Optional(Type.Boolean()),
     },
@@ -87,22 +76,11 @@ export const CronPayloadPatchSchema = Type.Union([
   ),
 ]);
 
-export const CronDeliverySchema = Type.Object(
+export const CronIsolationSchema = Type.Object(
   {
-    mode: Type.Union([Type.Literal("none"), Type.Literal("announce")]),
-    channel: Type.Optional(Type.Union([Type.Literal("last"), NonEmptyString])),
-    to: Type.Optional(Type.String()),
-    bestEffort: Type.Optional(Type.Boolean()),
-  },
-  { additionalProperties: false },
-);
-
-export const CronDeliveryPatchSchema = Type.Object(
-  {
-    mode: Type.Optional(Type.Union([Type.Literal("none"), Type.Literal("announce")])),
-    channel: Type.Optional(Type.Union([Type.Literal("last"), NonEmptyString])),
-    to: Type.Optional(Type.String()),
-    bestEffort: Type.Optional(Type.Boolean()),
+    postToMainPrefix: Type.Optional(Type.String()),
+    postToMainMode: Type.Optional(Type.Union([Type.Literal("summary"), Type.Literal("full")])),
+    postToMainMaxChars: Type.Optional(Type.Integer({ minimum: 0 })),
   },
   { additionalProperties: false },
 );
@@ -117,7 +95,6 @@ export const CronJobStateSchema = Type.Object(
     ),
     lastError: Type.Optional(Type.String()),
     lastDurationMs: Type.Optional(Type.Integer({ minimum: 0 })),
-    consecutiveErrors: Type.Optional(Type.Integer({ minimum: 0 })),
   },
   { additionalProperties: false },
 );
@@ -136,7 +113,7 @@ export const CronJobSchema = Type.Object(
     sessionTarget: Type.Union([Type.Literal("main"), Type.Literal("isolated")]),
     wakeMode: Type.Union([Type.Literal("next-heartbeat"), Type.Literal("now")]),
     payload: CronPayloadSchema,
-    delivery: Type.Optional(CronDeliverySchema),
+    isolation: Type.Optional(CronIsolationSchema),
     state: CronJobStateSchema,
   },
   { additionalProperties: false },
@@ -162,7 +139,7 @@ export const CronAddParamsSchema = Type.Object(
     sessionTarget: Type.Union([Type.Literal("main"), Type.Literal("isolated")]),
     wakeMode: Type.Union([Type.Literal("next-heartbeat"), Type.Literal("now")]),
     payload: CronPayloadSchema,
-    delivery: Type.Optional(CronDeliverySchema),
+    isolation: Type.Optional(CronIsolationSchema),
   },
   { additionalProperties: false },
 );
@@ -178,7 +155,7 @@ export const CronJobPatchSchema = Type.Object(
     sessionTarget: Type.Optional(Type.Union([Type.Literal("main"), Type.Literal("isolated")])),
     wakeMode: Type.Optional(Type.Union([Type.Literal("next-heartbeat"), Type.Literal("now")])),
     payload: Type.Optional(CronPayloadPatchSchema),
-    delivery: Type.Optional(CronDeliveryPatchSchema),
+    isolation: Type.Optional(CronIsolationSchema),
     state: Type.Optional(Type.Partial(CronJobStateSchema)),
   },
   { additionalProperties: false },
@@ -260,8 +237,6 @@ export const CronRunLogEntrySchema = Type.Object(
     ),
     error: Type.Optional(Type.String()),
     summary: Type.Optional(Type.String()),
-    sessionId: Type.Optional(NonEmptyString),
-    sessionKey: Type.Optional(NonEmptyString),
     runAtMs: Type.Optional(Type.Integer({ minimum: 0 })),
     durationMs: Type.Optional(Type.Integer({ minimum: 0 })),
     nextRunAtMs: Type.Optional(Type.Integer({ minimum: 0 })),

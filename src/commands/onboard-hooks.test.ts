@@ -1,14 +1,9 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
-<<<<<<< HEAD
 import { setupInternalHooks } from "./onboard-hooks.js";
 import type { MoltbotConfig } from "../config/config.js";
-=======
-import type { OpenClawConfig } from "../config/config.js";
-import type { HookStatusReport } from "../hooks/hooks-status.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { RuntimeEnv } from "../runtime.js";
 import type { WizardPrompter } from "../wizard/prompts.js";
-import { setupInternalHooks } from "./onboard-hooks.js";
+import type { HookStatusReport } from "../hooks/hooks-status.js";
 
 // Mock hook discovery modules
 vi.mock("../hooks/hooks-status.js", () => ({
@@ -47,12 +42,12 @@ describe("onboard-hooks", () => {
 
   const createMockHookReport = (eligible = true): HookStatusReport => ({
     workspaceDir: "/mock/workspace",
-    managedHooksDir: "/mock/.openclaw/hooks",
+    managedHooksDir: "/mock/.clawdbot/hooks",
     hooks: [
       {
         name: "session-memory",
         description: "Save session context to memory when /new command is issued",
-        source: "openclaw-bundled",
+        source: "moltbot-bundled",
         pluginId: undefined,
         filePath: "/mock/workspace/hooks/session-memory/HOOK.md",
         baseDir: "/mock/workspace/hooks/session-memory",
@@ -85,7 +80,7 @@ describe("onboard-hooks", () => {
       {
         name: "command-logger",
         description: "Log all command events to a centralized audit file",
-        source: "openclaw-bundled",
+        source: "moltbot-bundled",
         pluginId: undefined,
         filePath: "/mock/workspace/hooks/command-logger/HOOK.md",
         baseDir: "/mock/workspace/hooks/command-logger",
@@ -123,7 +118,7 @@ describe("onboard-hooks", () => {
       const { buildWorkspaceHookStatus } = await import("../hooks/hooks-status.js");
       vi.mocked(buildWorkspaceHookStatus).mockReturnValue(createMockHookReport());
 
-      const cfg: OpenClawConfig = {};
+      const cfg: MoltbotConfig = {};
       const prompter = createMockPrompter(["session-memory"]);
       const runtime = createMockRuntime();
 
@@ -156,7 +151,7 @@ describe("onboard-hooks", () => {
       const { buildWorkspaceHookStatus } = await import("../hooks/hooks-status.js");
       vi.mocked(buildWorkspaceHookStatus).mockReturnValue(createMockHookReport());
 
-      const cfg: OpenClawConfig = {};
+      const cfg: MoltbotConfig = {};
       const prompter = createMockPrompter(["__skip__"]);
       const runtime = createMockRuntime();
 
@@ -170,7 +165,7 @@ describe("onboard-hooks", () => {
       const { buildWorkspaceHookStatus } = await import("../hooks/hooks-status.js");
       vi.mocked(buildWorkspaceHookStatus).mockReturnValue(createMockHookReport(false));
 
-      const cfg: OpenClawConfig = {};
+      const cfg: MoltbotConfig = {};
       const prompter = createMockPrompter([]);
       const runtime = createMockRuntime();
 
@@ -188,7 +183,7 @@ describe("onboard-hooks", () => {
       const { buildWorkspaceHookStatus } = await import("../hooks/hooks-status.js");
       vi.mocked(buildWorkspaceHookStatus).mockReturnValue(createMockHookReport());
 
-      const cfg: OpenClawConfig = {
+      const cfg: MoltbotConfig = {
         hooks: {
           enabled: true,
           path: "/webhook",
@@ -213,7 +208,7 @@ describe("onboard-hooks", () => {
       const { buildWorkspaceHookStatus } = await import("../hooks/hooks-status.js");
       vi.mocked(buildWorkspaceHookStatus).mockReturnValue(createMockHookReport());
 
-      const cfg: OpenClawConfig = {
+      const cfg: MoltbotConfig = {
         agents: { defaults: { workspace: "/workspace" } },
       };
       const prompter = createMockPrompter(["__skip__"]);
@@ -229,7 +224,7 @@ describe("onboard-hooks", () => {
       const { buildWorkspaceHookStatus } = await import("../hooks/hooks-status.js");
       vi.mocked(buildWorkspaceHookStatus).mockReturnValue(createMockHookReport());
 
-      const cfg: OpenClawConfig = {};
+      const cfg: MoltbotConfig = {};
       const prompter = createMockPrompter(["session-memory"]);
       const runtime = createMockRuntime();
 
@@ -244,7 +239,7 @@ describe("onboard-hooks", () => {
 
       // Second note should confirm configuration
       expect(noteCalls[1][0]).toContain("Enabled 1 hook: session-memory");
-      expect(noteCalls[1][0]).toMatch(/(?:openclaw|openclaw)( --profile isolated)? hooks list/);
+      expect(noteCalls[1][0]).toMatch(/(?:moltbot|moltbot)( --profile isolated)? hooks list/);
     });
   });
 });

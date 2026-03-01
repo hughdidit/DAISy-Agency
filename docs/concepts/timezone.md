@@ -3,12 +3,11 @@ summary: "Timezone handling for agents, envelopes, and prompts"
 read_when:
   - You need to understand how timestamps are normalized for the model
   - Configuring the user timezone for system prompts
-title: "Timezones"
 ---
 
 # Timezones
 
-OpenClaw standardizes timestamps so the model sees a **single reference time**.
+Moltbot standardizes timestamps so the model sees a **single reference time**.
 
 ## Message envelopes (local by default)
 
@@ -28,9 +27,9 @@ You can override this with:
     defaults: {
       envelopeTimezone: "local", // "utc" | "local" | "user" | IANA timezone
       envelopeTimestamp: "on", // "on" | "off"
-      envelopeElapsed: "on", // "on" | "off"
-    },
-  },
+      envelopeElapsed: "on" // "on" | "off"
+    }
+  }
 }
 ```
 
@@ -73,16 +72,15 @@ Raw provider fields are preserved.
 ## User timezone for the system prompt
 
 Set `agents.defaults.userTimezone` to tell the model the user's local time zone. If it is
-unset, OpenClaw resolves the **host timezone at runtime** (no config write).
+unset, Moltbot resolves the **host timezone at runtime** (no config write).
 
 ```json5
 {
-  agents: { defaults: { userTimezone: "America/Chicago" } },
+  agents: { defaults: { userTimezone: "America/Chicago" } }
 }
 ```
 
 The system prompt includes:
-
 - `Current Date & Time` section with local time and timezone
 - `Time format: 12-hour` or `24-hour`
 

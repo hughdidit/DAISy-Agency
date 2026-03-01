@@ -1,13 +1,10 @@
-import type { PluginRuntime } from "openclaw/plugin-sdk";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+
 import { beforeEach, describe, expect, it } from "vitest";
-<<<<<<< HEAD
 
 import type { PluginRuntime } from "clawdbot/plugin-sdk";
-=======
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { StoredConversationReference } from "./conversation-store.js";
 import { createMSTeamsConversationStoreFs } from "./conversation-store-fs.js";
 import { setMSTeamsRuntime } from "./runtime.js";
@@ -15,16 +12,10 @@ import { setMSTeamsRuntime } from "./runtime.js";
 const runtimeStub = {
   state: {
     resolveStateDir: (env: NodeJS.ProcessEnv = process.env, homedir?: () => string) => {
-      const override =
-        env.OPENCLAW_STATE_DIR?.trim() || env.OPENCLAW_STATE_DIR?.trim();
+      const override = env.CLAWDBOT_STATE_DIR?.trim();
       if (override) return override;
-=======
-      if (override) {
-        return override;
-      }
->>>>>>> 230ca789e (chore: Lint extensions folder.)
       const resolvedHome = homedir ? homedir() : os.homedir();
-      return path.join(resolvedHome, ".openclaw");
+      return path.join(resolvedHome, ".clawdbot");
     },
   },
 } as unknown as PluginRuntime;
@@ -35,11 +26,11 @@ describe("msteams conversation store (fs)", () => {
   });
 
   it("filters and prunes expired entries (but keeps legacy ones)", async () => {
-    const stateDir = await fs.promises.mkdtemp(path.join(os.tmpdir(), "openclaw-msteams-store-"));
+    const stateDir = await fs.promises.mkdtemp(path.join(os.tmpdir(), "moltbot-msteams-store-"));
 
     const env: NodeJS.ProcessEnv = {
       ...process.env,
-      OPENCLAW_STATE_DIR: stateDir,
+      CLAWDBOT_STATE_DIR: stateDir,
     };
 
     const store = createMSTeamsConversationStoreFs({ env, ttlMs: 1_000 });
@@ -75,7 +66,7 @@ describe("msteams conversation store (fs)", () => {
     await fs.promises.writeFile(filePath, `${JSON.stringify(json, null, 2)}\n`);
 
     const list = await store.list();
-    const ids = list.map((e) => e.conversationId).toSorted();
+    const ids = list.map((e) => e.conversationId).sort();
     expect(ids).toEqual(["19:active@thread.tacv2", "19:legacy@thread.tacv2"]);
 
     expect(await store.get("19:old@thread.tacv2")).toBeNull();
@@ -88,7 +79,7 @@ describe("msteams conversation store (fs)", () => {
 
     const rawAfter = await fs.promises.readFile(filePath, "utf-8");
     const jsonAfter = JSON.parse(rawAfter) as typeof json;
-    expect(Object.keys(jsonAfter.conversations).toSorted()).toEqual([
+    expect(Object.keys(jsonAfter.conversations).sort()).toEqual([
       "19:active@thread.tacv2",
       "19:legacy@thread.tacv2",
       "19:new@thread.tacv2",

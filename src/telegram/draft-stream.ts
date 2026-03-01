@@ -1,5 +1,4 @@
 import type { Bot } from "grammy";
-import { buildTelegramThreadParams, type TelegramThreadSpec } from "./bot/helpers.js";
 
 const TELEGRAM_DRAFT_MAX_CHARS = 4096;
 const DEFAULT_THROTTLE_MS = 300;
@@ -15,7 +14,7 @@ export function createTelegramDraftStream(params: {
   chatId: number;
   draftId: number;
   maxChars?: number;
-  thread?: TelegramThreadSpec | null;
+  messageThreadId?: number;
   throttleMs?: number;
   log?: (message: string) => void;
   warn?: (message: string) => void;
@@ -25,7 +24,10 @@ export function createTelegramDraftStream(params: {
   const rawDraftId = Number.isFinite(params.draftId) ? Math.trunc(params.draftId) : 1;
   const draftId = rawDraftId === 0 ? 1 : Math.abs(rawDraftId);
   const chatId = params.chatId;
-  const threadParams = buildTelegramThreadParams(params.thread);
+  const threadParams =
+    typeof params.messageThreadId === "number"
+      ? { message_thread_id: Math.trunc(params.messageThreadId) }
+      : undefined;
 
   let lastSentText = "";
   let lastSentAt = 0;
@@ -35,13 +37,9 @@ export function createTelegramDraftStream(params: {
   let stopped = false;
 
   const sendDraft = async (text: string) => {
-    if (stopped) {
-      return;
-    }
+    if (stopped) return;
     const trimmed = text.trimEnd();
-    if (!trimmed) {
-      return;
-    }
+    if (!trimmed) return;
     if (trimmed.length > maxChars) {
       // Drafts are capped at 4096 chars. Stop streaming once we exceed the cap
       // so we don't keep sending failing updates or a truncated preview.
@@ -49,9 +47,7 @@ export function createTelegramDraftStream(params: {
       params.warn?.(`telegram draft stream stopped (draft length ${trimmed.length} > ${maxChars})`);
       return;
     }
-    if (trimmed === lastSentText) {
-      return;
-    }
+    if (trimmed === lastSentText) return;
     lastSentText = trimmed;
     lastSentAt = Date.now();
     try {
@@ -74,38 +70,22 @@ export function createTelegramDraftStream(params: {
       return;
     }
     const text = pendingText;
-<<<<<<< HEAD
     pendingText = "";
     if (!text.trim()) {
       if (pendingText) schedule();
-=======
-    const trimmed = text.trim();
-    if (!trimmed) {
-      if (pendingText === text) {
-        pendingText = "";
-      }
-      if (pendingText) {
-        schedule();
-      }
->>>>>>> a64d8d2d6 (fix: harden telegram streaming state)
       return;
     }
-    pendingText = "";
     inFlight = true;
     try {
       await sendDraft(text);
     } finally {
       inFlight = false;
     }
-    if (pendingText) {
-      schedule();
-    }
+    if (pendingText) schedule();
   };
 
   const schedule = () => {
-    if (timer) {
-      return;
-    }
+    if (timer) return;
     const delay = Math.max(0, throttleMs - (Date.now() - lastSentAt));
     timer = setTimeout(() => {
       void flush();
@@ -113,9 +93,7 @@ export function createTelegramDraftStream(params: {
   };
 
   const update = (text: string) => {
-    if (stopped) {
-      return;
-    }
+    if (stopped) return;
     pendingText = text;
     if (inFlight) {
       schedule();

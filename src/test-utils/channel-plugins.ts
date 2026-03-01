@@ -1,3 +1,4 @@
+import { imessageOutbound } from "../channels/plugins/outbound/imessage.js";
 import type {
   ChannelCapabilities,
   ChannelId,
@@ -5,7 +6,6 @@ import type {
   ChannelPlugin,
 } from "../channels/plugins/types.js";
 import type { PluginRegistry } from "../plugins/registry.js";
-import { imessageOutbound } from "../channels/plugins/outbound/imessage.js";
 import { normalizeIMessageHandle } from "../imessage/targets.js";
 
 export const createTestRegistry = (channels: PluginRegistry["channels"] = []): PluginRegistry => ({
@@ -45,9 +45,7 @@ export const createIMessageTestPlugin = (params?: {
     collectStatusIssues: (accounts) =>
       accounts.flatMap((account) => {
         const lastError = typeof account.lastError === "string" ? account.lastError.trim() : "";
-        if (!lastError) {
-          return [];
-        }
+        if (!lastError) return [];
         return [
           {
             channel: "imessage",
@@ -63,15 +61,11 @@ export const createIMessageTestPlugin = (params?: {
     targetResolver: {
       looksLikeId: (raw) => {
         const trimmed = raw.trim();
-        if (!trimmed) {
-          return false;
-        }
+        if (!trimmed) return false;
         if (/^(imessage:|sms:|auto:|chat_id:|chat_guid:|chat_identifier:)/i.test(trimmed)) {
           return true;
         }
-        if (trimmed.includes("@")) {
-          return true;
-        }
+        if (trimmed.includes("@")) return true;
         return /^\+?\d{3,}$/.test(trimmed);
       },
       hint: "<handle|chat_id:ID>",

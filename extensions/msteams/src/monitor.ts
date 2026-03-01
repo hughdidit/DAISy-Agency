@@ -2,25 +2,25 @@ import type { Request, Response } from "express";
 import {
   mergeAllowlist,
   summarizeMapping,
-  type OpenClawConfig,
+  type MoltbotConfig,
   type RuntimeEnv,
-} from "openclaw/plugin-sdk";
+} from "clawdbot/plugin-sdk";
 import type { MSTeamsConversationStore } from "./conversation-store.js";
-import type { MSTeamsAdapter } from "./messenger.js";
 import { createMSTeamsConversationStoreFs } from "./conversation-store-fs.js";
 import { formatUnknownError } from "./errors.js";
+import type { MSTeamsAdapter } from "./messenger.js";
 import { registerMSTeamsHandlers } from "./monitor-handler.js";
 import { createMSTeamsPollStoreFs, type MSTeamsPollStore } from "./polls.js";
 import {
   resolveMSTeamsChannelAllowlist,
   resolveMSTeamsUserAllowlist,
 } from "./resolve-allowlist.js";
-import { getMSTeamsRuntime } from "./runtime.js";
 import { createMSTeamsAdapter, loadMSTeamsSdkWithAuth } from "./sdk.js";
 import { resolveMSTeamsCredentials } from "./token.js";
+import { getMSTeamsRuntime } from "./runtime.js";
 
 export type MonitorMSTeamsOpts = {
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   runtime?: RuntimeEnv;
   abortSignal?: AbortSignal;
   conversationStore?: MSTeamsConversationStore;
@@ -70,9 +70,7 @@ export async function monitorMSTeamsProvider(
       .trim();
 
   const resolveAllowlistUsers = async (label: string, entries: string[]) => {
-    if (entries.length === 0) {
-      return { additions: [], unresolved: [] };
-    }
+    if (entries.length === 0) return { additions: [], unresolved: [] };
     const resolved = await resolveMSTeamsUserAllowlist({ cfg, entries });
     const additions: string[] = [];
     const unresolved: string[] = [];
@@ -92,9 +90,9 @@ export async function monitorMSTeamsProvider(
 
   try {
     const allowEntries =
-      allowFrom
-        ?.map((entry) => cleanAllowEntry(String(entry)))
-        .filter((entry) => entry && entry !== "*") ?? [];
+      allowFrom?.map((entry) => cleanAllowEntry(String(entry))).filter(
+        (entry) => entry && entry !== "*",
+      ) ?? [];
     if (allowEntries.length > 0) {
       const { additions } = await resolveAllowlistUsers("msteams users", allowEntries);
       allowFrom = mergeAllowlist({ existing: allowFrom, additions });
@@ -113,9 +111,7 @@ export async function monitorMSTeamsProvider(
     if (teamsConfig && Object.keys(teamsConfig).length > 0) {
       const entries: Array<{ input: string; teamKey: string; channelKey?: string }> = [];
       for (const [teamKey, teamCfg] of Object.entries(teamsConfig)) {
-        if (teamKey === "*") {
-          continue;
-        }
+        if (teamKey === "*") continue;
         const channels = teamCfg?.channels ?? {};
         const channelKeys = Object.keys(channels).filter((key) => key !== "*");
         if (channelKeys.length === 0) {
@@ -138,13 +134,11 @@ export async function monitorMSTeamsProvider(
         });
         const mapping: string[] = [];
         const unresolved: string[] = [];
-        const nextTeams = { ...teamsConfig };
+        const nextTeams = { ...(teamsConfig ?? {}) };
 
         resolved.forEach((entry, idx) => {
           const source = entries[idx];
-          if (!source) {
-            return;
-          }
+          if (!source) return;
           const sourceTeam = teamsConfig?.[source.teamKey] ?? {};
           if (!entry.resolved || !entry.teamId) {
             unresolved.push(entry.input);
@@ -157,8 +151,8 @@ export async function monitorMSTeamsProvider(
           );
           const existing = nextTeams[entry.teamId] ?? {};
           const mergedChannels = {
-            ...sourceTeam.channels,
-            ...existing.channels,
+            ...(sourceTeam.channels ?? {}),
+            ...(existing.channels ?? {}),
           };
           const mergedTeam = { ...sourceTeam, ...existing, channels: mergedChannels };
           nextTeams[entry.teamId] = mergedTeam;
@@ -171,7 +165,7 @@ export async function monitorMSTeamsProvider(
                   ...mergedChannels,
                   [entry.channelId]: {
                     ...sourceChannel,
-                    ...mergedChannels?.[entry.channelId],
+                    ...(mergedChannels?.[entry.channelId] ?? {}),
                   },
                 },
               };
@@ -245,8 +239,9 @@ export async function monitorMSTeamsProvider(
   // Set up the messages endpoint - use configured path and /api/messages as fallback
   const configuredPath = msteamsCfg.webhook?.path ?? "/api/messages";
   const messageHandler = (req: Request, res: Response) => {
+    type HandlerContext = Parameters<(typeof handler)["run"]>[0];
     void adapter
-      .process(req, res, (context: unknown) => handler.run(context))
+      .process(req, res, (context: unknown) => handler.run(context as HandlerContext))
       .catch((err: unknown) => {
         log.error("msteams webhook failed", { error: formatUnknownError(err) });
       });

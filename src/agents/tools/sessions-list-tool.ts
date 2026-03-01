@@ -1,9 +1,11 @@
-import { Type } from "@sinclair/typebox";
 import path from "node:path";
-import type { AnyAgentTool } from "./common.js";
+
+import { Type } from "@sinclair/typebox";
+
 import { loadConfig } from "../../config/config.js";
 import { callGateway } from "../../gateway/call.js";
 import { isSubagentSessionKey, resolveAgentIdFromSessionKey } from "../../routing/session-key.js";
+import type { AnyAgentTool } from "./common.js";
 import { jsonResult, readStringArrayParam } from "./common.js";
 import {
   createAgentToAgentPolicy,
@@ -77,7 +79,7 @@ export function createSessionsListTool(opts?: {
           : 0;
       const messageLimit = Math.min(messageLimitRaw, 20);
 
-      const list = await callGateway<{ sessions: Array<SessionListRow>; path: string }>({
+      const list = (await callGateway({
         method: "sessions.list",
         params: {
           limit,
@@ -86,7 +88,10 @@ export function createSessionsListTool(opts?: {
           includeUnknown: !restrictToSpawned,
           spawnedBy: restrictToSpawned ? requesterInternalKey : undefined,
         },
-      });
+      })) as {
+        path?: string;
+        sessions?: Array<Record<string, unknown>>;
+      };
 
       const sessions = Array.isArray(list?.sessions) ? list.sessions : [];
       const storePath = typeof list?.path === "string" ? list.path : undefined;
@@ -95,32 +100,20 @@ export function createSessionsListTool(opts?: {
       const rows: SessionListRow[] = [];
 
       for (const entry of sessions) {
-        if (!entry || typeof entry !== "object") {
-          continue;
-        }
+        if (!entry || typeof entry !== "object") continue;
         const key = typeof entry.key === "string" ? entry.key : "";
-        if (!key) {
-          continue;
-        }
+        if (!key) continue;
 
         const entryAgentId = resolveAgentIdFromSessionKey(key);
         const crossAgent = entryAgentId !== requesterAgentId;
-        if (crossAgent && !a2aPolicy.isAllowed(requesterAgentId, entryAgentId)) {
-          continue;
-        }
+        if (crossAgent && !a2aPolicy.isAllowed(requesterAgentId, entryAgentId)) continue;
 
-        if (key === "unknown") {
-          continue;
-        }
-        if (key === "global" && alias !== "global") {
-          continue;
-        }
+        if (key === "unknown") continue;
+        if (key === "global" && alias !== "global") continue;
 
         const gatewayKind = typeof entry.kind === "string" ? entry.kind : undefined;
         const kind = classifySessionKind({ key, gatewayKind, alias, mainKey });
-        if (allowedKinds && !allowedKinds.has(kind)) {
-          continue;
-        }
+        if (allowedKinds && !allowedKinds.has(kind)) continue;
 
         const displayKey = resolveDisplaySessionKey({
           key,
@@ -194,10 +187,10 @@ export function createSessionsListTool(opts?: {
             alias,
             mainKey,
           });
-          const history = await callGateway<{ messages: Array<unknown> }>({
+          const history = (await callGateway({
             method: "chat.history",
             params: { sessionKey: resolvedKey, limit: messageLimit },
-          });
+          })) as { messages?: unknown[] };
           const rawMessages = Array.isArray(history?.messages) ? history.messages : [];
           const filtered = stripToolMessages(rawMessages);
           row.messages = filtered.length > messageLimit ? filtered.slice(-messageLimit) : filtered;

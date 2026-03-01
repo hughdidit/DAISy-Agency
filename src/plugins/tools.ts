@@ -1,13 +1,8 @@
 import type { AnyAgentTool } from "../agents/tools/common.js";
-import type { OpenClawPluginToolContext } from "./types.js";
 import { normalizeToolName } from "../agents/tool-policy.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
-<<<<<<< HEAD
 import { loadMoltbotPlugins } from "./loader.js";
 import type { MoltbotPluginToolContext } from "./types.js";
-=======
-import { loadOpenClawPlugins } from "./loader.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 
 const log = createSubsystemLogger("plugins");
 
@@ -31,26 +26,20 @@ function isOptionalToolAllowed(params: {
   pluginId: string;
   allowlist: Set<string>;
 }): boolean {
-  if (params.allowlist.size === 0) {
-    return false;
-  }
+  if (params.allowlist.size === 0) return false;
   const toolName = normalizeToolName(params.toolName);
-  if (params.allowlist.has(toolName)) {
-    return true;
-  }
+  if (params.allowlist.has(toolName)) return true;
   const pluginKey = normalizeToolName(params.pluginId);
-  if (params.allowlist.has(pluginKey)) {
-    return true;
-  }
+  if (params.allowlist.has(pluginKey)) return true;
   return params.allowlist.has("group:plugins");
 }
 
 export function resolvePluginTools(params: {
-  context: OpenClawPluginToolContext;
+  context: MoltbotPluginToolContext;
   existingToolNames?: Set<string>;
   toolAllowlist?: string[];
 }): AnyAgentTool[] {
-  const registry = loadOpenClawPlugins({
+  const registry = loadMoltbotPlugins({
     config: params.context.config,
     workspaceDir: params.context.workspaceDir,
     logger: {
@@ -68,9 +57,7 @@ export function resolvePluginTools(params: {
   const blockedPlugins = new Set<string>();
 
   for (const entry of registry.tools) {
-    if (blockedPlugins.has(entry.pluginId)) {
-      continue;
-    }
+    if (blockedPlugins.has(entry.pluginId)) continue;
     const pluginIdKey = normalizeToolName(entry.pluginId);
     if (existingNormalized.has(pluginIdKey)) {
       const message = `plugin id conflicts with core tool name (${entry.pluginId})`;
@@ -91,9 +78,7 @@ export function resolvePluginTools(params: {
       log.error(`plugin tool failed (${entry.pluginId}): ${String(err)}`);
       continue;
     }
-    if (!resolved) {
-      continue;
-    }
+    if (!resolved) continue;
     const listRaw = Array.isArray(resolved) ? resolved : [resolved];
     const list = entry.optional
       ? listRaw.filter((tool) =>
@@ -104,9 +89,7 @@ export function resolvePluginTools(params: {
           }),
         )
       : listRaw;
-    if (list.length === 0) {
-      continue;
-    }
+    if (list.length === 0) continue;
     const nameSet = new Set<string>();
     for (const tool of list) {
       if (nameSet.has(tool.name) || existing.has(tool.name)) {

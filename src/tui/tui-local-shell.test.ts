@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
+
 import { createLocalShellRunner } from "./tui-local-shell.js";
 
 const createSelector = () => {

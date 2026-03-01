@@ -1,10 +1,6 @@
 import type { AgentToolResult } from "@mariozechner/pi-agent-core";
-<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../../config/config.js";
-=======
-import type { OpenClawConfig } from "../../config/config.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { resolveSlackAccount } from "../../slack/accounts.js";
 import {
   deleteSlackMessage,
@@ -53,24 +49,16 @@ function resolveThreadTsFromContext(
   context: SlackActionContext | undefined,
 ): string | undefined {
   // Agent explicitly provided threadTs - use it
-  if (explicitThreadTs) {
-    return explicitThreadTs;
-  }
+  if (explicitThreadTs) return explicitThreadTs;
   // No context or missing required fields
-  if (!context?.currentThreadTs || !context?.currentChannelId) {
-    return undefined;
-  }
+  if (!context?.currentThreadTs || !context?.currentChannelId) return undefined;
 
   const parsedTarget = parseSlackTarget(targetChannel, { defaultKind: "channel" });
-  if (!parsedTarget || parsedTarget.kind !== "channel") {
-    return undefined;
-  }
+  if (!parsedTarget || parsedTarget.kind !== "channel") return undefined;
   const normalizedTarget = parsedTarget.id;
 
   // Different channel - don't inject
-  if (normalizedTarget !== context.currentChannelId) {
-    return undefined;
-  }
+  if (normalizedTarget !== context.currentChannelId) return undefined;
 
   // Check replyToMode
   if (context.replyToMode === "all") {
@@ -85,7 +73,7 @@ function resolveThreadTsFromContext(
 
 export async function handleSlackAction(
   params: Record<string, unknown>,
-  cfg: OpenClawConfig,
+  cfg: MoltbotConfig,
   context?: SlackActionContext,
 ): Promise<AgentToolResult<unknown>> {
   const resolveChannelId = () =>
@@ -105,21 +93,15 @@ export async function handleSlackAction(
 
   // Choose the most appropriate token for Slack read/write operations.
   const getTokenForOperation = (operation: "read" | "write") => {
-    if (operation === "read") {
-      return userToken ?? botToken;
-    }
-    if (!allowUserWrites) {
-      return botToken;
-    }
+    if (operation === "read") return userToken ?? botToken;
+    if (!allowUserWrites) return botToken;
     return botToken ?? userToken;
   };
 
   const buildActionOpts = (operation: "read" | "write") => {
     const token = getTokenForOperation(operation);
     const tokenOverride = token && token !== botToken ? token : undefined;
-    if (!accountId && !tokenOverride) {
-      return undefined;
-    }
+    if (!accountId && !tokenOverride) return undefined;
     return {
       ...(accountId ? { accountId } : {}),
       ...(tokenOverride ? { token: tokenOverride } : {}),

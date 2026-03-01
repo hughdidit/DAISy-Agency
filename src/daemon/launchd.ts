@@ -2,7 +2,7 @@ import { execFile } from "node:child_process";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { promisify } from "node:util";
-import type { GatewayServiceRuntime } from "./service-runtime.js";
+
 import { colorize, isRich, theme } from "../terminal/theme.js";
 import {
   formatGatewayServiceDescription,
@@ -14,8 +14,9 @@ import {
   buildLaunchAgentPlist as buildLaunchAgentPlistImpl,
   readLaunchAgentProgramArgumentsFromFile,
 } from "./launchd-plist.js";
-import { resolveGatewayStateDir, resolveHomeDir } from "./paths.js";
 import { parseKeyValueOutput } from "./runtime-parse.js";
+import type { GatewayServiceRuntime } from "./service-runtime.js";
+import { resolveGatewayStateDir, resolveHomeDir } from "./paths.js";
 
 const execFileAsync = promisify(execFile);
 const toPosixPath = (value: string) => value.replace(/\\/g, "/");
@@ -26,9 +27,9 @@ const formatLine = (label: string, value: string) => {
 };
 
 function resolveLaunchAgentLabel(args?: { env?: Record<string, string | undefined> }): string {
-  const envLabel = args?.env?.OPENCLAW_LAUNCHD_LABEL?.trim();
+  const envLabel = args?.env?.CLAWDBOT_LAUNCHD_LABEL?.trim();
   if (envLabel) return envLabel;
-  return resolveGatewayLaunchAgentLabel(args?.env?.OPENCLAW_PROFILE);
+  return resolveGatewayLaunchAgentLabel(args?.env?.CLAWDBOT_PROFILE);
 }
 
 function resolveLaunchAgentPlistPathForLabel(
@@ -51,7 +52,7 @@ export function resolveGatewayLogPaths(env: Record<string, string | undefined>):
 } {
   const stateDir = resolveGatewayStateDir(env);
   const logDir = path.join(stateDir, "logs");
-  const prefix = env.OPENCLAW_LOG_PREFIX?.trim() || "gateway";
+  const prefix = env.CLAWDBOT_LOG_PREFIX?.trim() || "gateway";
   return {
     logDir,
     stdoutPath: path.join(logDir, `${prefix}.log`),
@@ -129,9 +130,7 @@ async function execLaunchctl(
 }
 
 function resolveGuiDomain(): string {
-  if (typeof process.getuid !== "function") {
-    return "gui/501";
-  }
+  if (typeof process.getuid !== "function") return "gui/501";
   return `gui/${process.getuid()}`;
 }
 
@@ -146,27 +145,19 @@ export function parseLaunchctlPrint(output: string): LaunchctlPrintInfo {
   const entries = parseKeyValueOutput(output, "=");
   const info: LaunchctlPrintInfo = {};
   const state = entries.state;
-  if (state) {
-    info.state = state;
-  }
+  if (state) info.state = state;
   const pidValue = entries.pid;
   if (pidValue) {
     const pid = Number.parseInt(pidValue, 10);
-    if (Number.isFinite(pid)) {
-      info.pid = pid;
-    }
+    if (Number.isFinite(pid)) info.pid = pid;
   }
   const exitStatusValue = entries["last exit status"];
   if (exitStatusValue) {
     const status = Number.parseInt(exitStatusValue, 10);
-    if (Number.isFinite(status)) {
-      info.lastExitStatus = status;
-    }
+    if (Number.isFinite(status)) info.lastExitStatus = status;
   }
   const exitReason = entries["last exit reason"];
-  if (exitReason) {
-    info.lastExitReason = exitReason;
-  }
+  if (exitReason) info.lastExitReason = exitReason;
   return info;
 }
 
@@ -184,9 +175,7 @@ export async function isLaunchAgentListed(args: {
 }): Promise<boolean> {
   const label = resolveLaunchAgentLabel({ env: args.env });
   const res = await execLaunchctl(["list"]);
-  if (res.code !== 0) {
-    return false;
-  }
+  if (res.code !== 0) return false;
   return res.stdout.split(/\r?\n/).some((line) => line.trim().split(/\s+/).at(-1) === label);
 }
 
@@ -259,7 +248,7 @@ export async function findLegacyLaunchAgents(
 ): Promise<LegacyLaunchAgent[]> {
   const domain = resolveGuiDomain();
   const results: LegacyLaunchAgent[] = [];
-  for (const label of resolveLegacyGatewayLaunchAgentLabels(env.OPENCLAW_PROFILE)) {
+  for (const label of resolveLegacyGatewayLaunchAgentLabels(env.CLAWDBOT_PROFILE)) {
     const plistPath = resolveLaunchAgentPlistPathForLabel(env, label);
     const res = await execLaunchctl(["print", `${domain}/${label}`]);
     const loaded = res.code === 0;
@@ -286,9 +275,7 @@ export async function uninstallLegacyLaunchAgents({
 }): Promise<LegacyLaunchAgent[]> {
   const domain = resolveGuiDomain();
   const agents = await findLegacyLaunchAgents(env);
-  if (agents.length === 0) {
-    return agents;
-  }
+  if (agents.length === 0) return agents;
 
   const home = resolveHomeDir(env);
   const trashDir = path.join(home, ".Trash");
@@ -353,7 +340,7 @@ export async function uninstallLaunchAgent({
 }
 
 function isLaunchctlNotLoaded(res: { stdout: string; stderr: string; code: number }): boolean {
-  const detail = (res.stderr || res.stdout).toLowerCase();
+  const detail = `${res.stderr || res.stdout}`.toLowerCase();
   return (
     detail.includes("no such process") ||
     detail.includes("could not find service") ||
@@ -397,7 +384,7 @@ export async function installLaunchAgent({
 
   const domain = resolveGuiDomain();
   const label = resolveLaunchAgentLabel({ env });
-  for (const legacyLabel of resolveLegacyGatewayLaunchAgentLabels(env.OPENCLAW_PROFILE)) {
+  for (const legacyLabel of resolveLegacyGatewayLaunchAgentLabels(env.CLAWDBOT_PROFILE)) {
     const legacyPlistPath = resolveLaunchAgentPlistPathForLabel(env, legacyLabel);
     await execLaunchctl(["bootout", domain, legacyPlistPath]);
     await execLaunchctl(["unload", legacyPlistPath]);
@@ -414,8 +401,8 @@ export async function installLaunchAgent({
   const serviceDescription =
     description ??
     formatGatewayServiceDescription({
-      profile: env.OPENCLAW_PROFILE,
-      version: environment?.OPENCLAW_SERVICE_VERSION ?? env.OPENCLAW_SERVICE_VERSION,
+      profile: env.CLAWDBOT_PROFILE,
+      version: environment?.CLAWDBOT_SERVICE_VERSION ?? env.CLAWDBOT_SERVICE_VERSION,
     });
   const plist = buildLaunchAgentPlist({
     label,

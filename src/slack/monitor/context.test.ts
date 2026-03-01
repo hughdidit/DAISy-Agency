@@ -1,16 +1,12 @@
 import type { App } from "@slack/bolt";
 import { describe, expect, it } from "vitest";
-<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../../config/config.js";
-=======
-import type { OpenClawConfig } from "../../config/config.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { RuntimeEnv } from "../../runtime.js";
 import { createSlackMonitorContext, normalizeSlackChannelType } from "./context.js";
 
 const baseParams = () => ({
-  cfg: {} as OpenClawConfig,
+  cfg: {} as MoltbotConfig,
   accountId: "default",
   botToken: "token",
   app: { client: {} } as App,
@@ -34,7 +30,7 @@ const baseParams = () => ({
   replyToMode: "off" as const,
   slashCommand: {
     enabled: false,
-    name: "openclaw",
+    name: "clawd",
     sessionPrefix: "slack:slash",
     ephemeral: true,
   },

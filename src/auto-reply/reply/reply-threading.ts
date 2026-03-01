@@ -1,26 +1,18 @@
-<<<<<<< HEAD
 import { getChannelDock } from "../../channels/dock.js";
 import { normalizeChannelId } from "../../channels/plugins/index.js";
 import type { MoltbotConfig } from "../../config/config.js";
-=======
-import type { OpenClawConfig } from "../../config/config.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { ReplyToMode } from "../../config/types.js";
 import type { OriginatingChannelType } from "../templating.js";
 import type { ReplyPayload } from "../types.js";
-import { getChannelDock } from "../../channels/dock.js";
-import { normalizeChannelId } from "../../channels/plugins/index.js";
 
 export function resolveReplyToMode(
-  cfg: OpenClawConfig,
+  cfg: MoltbotConfig,
   channel?: OriginatingChannelType,
   accountId?: string | null,
   chatType?: string | null,
 ): ReplyToMode {
   const provider = normalizeChannelId(channel);
-  if (!provider) {
-    return "all";
-  }
+  if (!provider) return "all";
   const resolved = getChannelDock(provider)?.threading?.resolveReplyToMode?.({
     cfg,
     accountId,
@@ -35,18 +27,12 @@ export function createReplyToModeFilter(
 ) {
   let hasThreaded = false;
   return (payload: ReplyPayload): ReplyPayload => {
-    if (!payload.replyToId) {
-      return payload;
-    }
+    if (!payload.replyToId) return payload;
     if (mode === "off") {
-      if (opts.allowTagsWhenOff && payload.replyToTag) {
-        return payload;
-      }
+      if (opts.allowTagsWhenOff && payload.replyToTag) return payload;
       return { ...payload, replyToId: undefined };
     }
-    if (mode === "all") {
-      return payload;
-    }
+    if (mode === "all") return payload;
     if (hasThreaded) {
       return { ...payload, replyToId: undefined };
     }

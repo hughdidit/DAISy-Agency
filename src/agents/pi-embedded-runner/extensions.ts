@@ -1,13 +1,10 @@
-import type { Api, Model } from "@mariozechner/pi-ai";
-import type { SessionManager } from "@mariozechner/pi-coding-agent";
-<<<<<<< HEAD
-
-import type { MoltbotConfig } from "../../config/config.js";
-=======
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import type { OpenClawConfig } from "../../config/config.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
+
+import type { Api, Model } from "@mariozechner/pi-ai";
+import type { SessionManager } from "@mariozechner/pi-coding-agent";
+
+import type { MoltbotConfig } from "../../config/config.js";
 import { resolveContextWindowInfo } from "../context-window-guard.js";
 import { DEFAULT_CONTEXT_TOKENS } from "../defaults.js";
 import { setCompactionSafeguardRuntime } from "../pi-extensions/compaction-safeguard-runtime.js";
@@ -26,7 +23,7 @@ function resolvePiExtensionPath(id: string): string {
 }
 
 function resolveContextWindowTokens(params: {
-  cfg: OpenClawConfig | undefined;
+  cfg: MoltbotConfig | undefined;
   provider: string;
   modelId: string;
   model: Model<Api> | undefined;
@@ -41,24 +38,18 @@ function resolveContextWindowTokens(params: {
 }
 
 function buildContextPruningExtension(params: {
-  cfg: OpenClawConfig | undefined;
+  cfg: MoltbotConfig | undefined;
   sessionManager: SessionManager;
   provider: string;
   modelId: string;
   model: Model<Api> | undefined;
 }): { additionalExtensionPaths?: string[] } {
   const raw = params.cfg?.agents?.defaults?.contextPruning;
-  if (raw?.mode !== "cache-ttl") {
-    return {};
-  }
-  if (!isCacheTtlEligibleProvider(params.provider, params.modelId)) {
-    return {};
-  }
+  if (raw?.mode !== "cache-ttl") return {};
+  if (!isCacheTtlEligibleProvider(params.provider, params.modelId)) return {};
 
   const settings = computeEffectiveSettings(raw);
-  if (!settings) {
-    return {};
-  }
+  if (!settings) return {};
 
   setContextPruningRuntime(params.sessionManager, {
     settings,
@@ -72,12 +63,12 @@ function buildContextPruningExtension(params: {
   };
 }
 
-function resolveCompactionMode(cfg?: OpenClawConfig): "default" | "safeguard" {
+function resolveCompactionMode(cfg?: MoltbotConfig): "default" | "safeguard" {
   return cfg?.agents?.defaults?.compaction?.mode === "safeguard" ? "safeguard" : "default";
 }
 
 export function buildEmbeddedExtensionPaths(params: {
-  cfg: OpenClawConfig | undefined;
+  cfg: MoltbotConfig | undefined;
   sessionManager: SessionManager;
   provider: string;
   modelId: string;
@@ -86,16 +77,8 @@ export function buildEmbeddedExtensionPaths(params: {
   const paths: string[] = [];
   if (resolveCompactionMode(params.cfg) === "safeguard") {
     const compactionCfg = params.cfg?.agents?.defaults?.compaction;
-    const contextWindowInfo = resolveContextWindowInfo({
-      cfg: params.cfg,
-      provider: params.provider,
-      modelId: params.modelId,
-      modelContextWindow: params.model?.contextWindow,
-      defaultTokens: DEFAULT_CONTEXT_TOKENS,
-    });
     setCompactionSafeguardRuntime(params.sessionManager, {
       maxHistoryShare: compactionCfg?.maxHistoryShare,
-      contextWindowTokens: contextWindowInfo.tokens,
     });
     paths.push(resolvePiExtensionPath("compaction-safeguard"));
   }

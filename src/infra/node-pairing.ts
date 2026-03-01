@@ -149,8 +149,8 @@ function newToken() {
 
 export async function listNodePairing(baseDir?: string): Promise<NodePairingList> {
   const state = await loadState(baseDir);
-  const pending = Object.values(state.pendingById).toSorted((a, b) => b.ts - a.ts);
-  const paired = Object.values(state.pairedByNodeId).toSorted(
+  const pending = Object.values(state.pendingById).sort((a, b) => b.ts - a.ts);
+  const paired = Object.values(state.pairedByNodeId).sort(
     (a, b) => b.approvedAtMs - a.approvedAtMs,
   );
   return { pending, paired };
@@ -216,9 +216,7 @@ export async function approveNodePairing(
   return await withLock(async () => {
     const state = await loadState(baseDir);
     const pending = state.pendingById[requestId];
-    if (!pending) {
-      return null;
-    }
+    if (!pending) return null;
 
     const now = Date.now();
     const existing = state.pairedByNodeId[pending.nodeId];
@@ -254,9 +252,7 @@ export async function rejectNodePairing(
   return await withLock(async () => {
     const state = await loadState(baseDir);
     const pending = state.pendingById[requestId];
-    if (!pending) {
-      return null;
-    }
+    if (!pending) return null;
     delete state.pendingById[requestId];
     await persistState(state, baseDir);
     return { requestId, nodeId: pending.nodeId };
@@ -271,9 +267,7 @@ export async function verifyNodeToken(
   const state = await loadState(baseDir);
   const normalized = normalizeNodeId(nodeId);
   const node = state.pairedByNodeId[normalized];
-  if (!node) {
-    return { ok: false };
-  }
+  if (!node) return { ok: false };
   return node.token === token ? { ok: true, node } : { ok: false };
 }
 
@@ -286,9 +280,7 @@ export async function updatePairedNodeMetadata(
     const state = await loadState(baseDir);
     const normalized = normalizeNodeId(nodeId);
     const existing = state.pairedByNodeId[normalized];
-    if (!existing) {
-      return;
-    }
+    if (!existing) return;
 
     const next: NodePairingPairedNode = {
       ...existing,
@@ -321,13 +313,9 @@ export async function renamePairedNode(
     const state = await loadState(baseDir);
     const normalized = normalizeNodeId(nodeId);
     const existing = state.pairedByNodeId[normalized];
-    if (!existing) {
-      return null;
-    }
+    if (!existing) return null;
     const trimmed = displayName.trim();
-    if (!trimmed) {
-      throw new Error("displayName required");
-    }
+    if (!trimmed) throw new Error("displayName required");
     const next: NodePairingPairedNode = { ...existing, displayName: trimmed };
     state.pairedByNodeId[normalized] = next;
     await persistState(state, baseDir);

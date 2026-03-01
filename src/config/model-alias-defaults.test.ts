@@ -1,11 +1,7 @@
 import { describe, expect, it } from "vitest";
-import type { OpenClawConfig } from "./types.js";
 import { DEFAULT_CONTEXT_TOKENS } from "../agents/defaults.js";
 import { applyModelDefaults } from "./defaults.js";
-<<<<<<< HEAD
 import type { MoltbotConfig } from "./types.js";
-=======
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 
 describe("applyModelDefaults", () => {
   it("adds default aliases when models are present", () => {
@@ -13,15 +9,15 @@ describe("applyModelDefaults", () => {
       agents: {
         defaults: {
           models: {
-            "anthropic/claude-opus-4-6": {},
+            "anthropic/claude-opus-4-5": {},
             "openai/gpt-5.2": {},
           },
         },
       },
-    } satisfies OpenClawConfig;
+    } satisfies MoltbotConfig;
     const next = applyModelDefaults(cfg);
 
-    expect(next.agents?.defaults?.models?.["anthropic/claude-opus-4-6"]?.alias).toBe("opus");
+    expect(next.agents?.defaults?.models?.["anthropic/claude-opus-4-5"]?.alias).toBe("opus");
     expect(next.agents?.defaults?.models?.["openai/gpt-5.2"]?.alias).toBe("gpt");
   });
 
@@ -34,7 +30,7 @@ describe("applyModelDefaults", () => {
           },
         },
       },
-    } satisfies OpenClawConfig;
+    } satisfies MoltbotConfig;
 
     const next = applyModelDefaults(cfg);
 
@@ -51,7 +47,7 @@ describe("applyModelDefaults", () => {
           },
         },
       },
-    } satisfies OpenClawConfig;
+    } satisfies MoltbotConfig;
 
     const next = applyModelDefaults(cfg);
 
@@ -73,7 +69,7 @@ describe("applyModelDefaults", () => {
           },
         },
       },
-    } satisfies OpenClawConfig;
+    } satisfies MoltbotConfig;
 
     const next = applyModelDefaults(cfg);
     const model = next.models?.providers?.myproxy?.models?.[0];

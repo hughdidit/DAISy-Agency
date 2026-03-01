@@ -1,24 +1,23 @@
 ---
-summary: "CLI reference for `openclaw logs` (tail gateway logs via RPC)"
+summary: "CLI reference for `moltbot logs` (tail gateway logs via RPC)"
 read_when:
   - You need to tail Gateway logs remotely (without SSH)
   - You want JSON log lines for tooling
-title: "logs"
 ---
 
-# `openclaw logs`
+# `moltbot logs`
 
 Tail Gateway file logs over RPC (works in remote mode).
 
 Related:
-
 - Logging overview: [Logging](/logging)
 
 ## Examples
 
 ```bash
-openclaw logs
-openclaw logs --follow
-openclaw logs --json
-openclaw logs --limit 500
+moltbot logs
+moltbot logs --follow
+moltbot logs --json
+moltbot logs --limit 500
 ```
+

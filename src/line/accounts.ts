@@ -1,5 +1,5 @@
 import fs from "node:fs";
-import type { OpenClawConfig } from "../config/config.js";
+import type { MoltbotConfig } from "../config/config.js";
 import type {
   LineConfig,
   LineAccountConfig,
@@ -10,9 +10,7 @@ import type {
 export const DEFAULT_ACCOUNT_ID = "default";
 
 function readFileIfExists(filePath: string | undefined): string | undefined {
-  if (!filePath) {
-    return undefined;
-  }
+  if (!filePath) return undefined;
   try {
     return fs.readFileSync(filePath, "utf-8").trim();
   } catch {
@@ -97,7 +95,7 @@ function resolveSecret(params: {
 }
 
 export function resolveLineAccount(params: {
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   accountId?: string;
 }): ResolvedLineAccount {
   const { cfg, accountId = DEFAULT_ACCOUNT_ID } = params;
@@ -140,7 +138,7 @@ export function resolveLineAccount(params: {
   };
 }
 
-export function listLineAccountIds(cfg: OpenClawConfig): string[] {
+export function listLineAccountIds(cfg: MoltbotConfig): string[] {
   const lineConfig = cfg.channels?.line as LineConfig | undefined;
   const accounts = lineConfig?.accounts;
   const ids = new Set<string>();
@@ -164,7 +162,7 @@ export function listLineAccountIds(cfg: OpenClawConfig): string[] {
   return Array.from(ids);
 }
 
-export function resolveDefaultLineAccountId(cfg: OpenClawConfig): string {
+export function resolveDefaultLineAccountId(cfg: MoltbotConfig): string {
   const ids = listLineAccountIds(cfg);
   if (ids.includes(DEFAULT_ACCOUNT_ID)) {
     return DEFAULT_ACCOUNT_ID;

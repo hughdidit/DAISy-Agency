@@ -1,42 +1,13 @@
 {
-<<<<<<< HEAD
   "name": "@moltbot/zalouser",
   "version": "2026.1.27-beta.1",
-=======
-  "name": "@openclaw/zalouser",
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-  "version": "2026.1.29",
->>>>>>> 62e4ad23d (chore: release 2026.1.29)
-=======
-  "version": "2026.2.2",
-=======
-  "version": "2026.2.3",
->>>>>>> f895c9fba (chore: sync plugin versions to 2026.2.3)
-=======
-  "version": "2026.2.6-2",
->>>>>>> ad4dd0422 (chore(release): 2026.2.6-2)
-=======
-  "version": "2026.2.6-3",
->>>>>>> 9f703a44d (chore(release): 2026.2.6-3)
-  "description": "OpenClaw Zalo Personal Account plugin via zca-cli",
->>>>>>> 1c4db9159 (chore: prepare 2026.2.2 release)
   "type": "module",
-  "description": "OpenClaw Zalo Personal Account plugin via zca-cli",
+  "description": "Moltbot Zalo Personal Account plugin via zca-cli",
   "dependencies": {
-<<<<<<< HEAD
-    "@sinclair/typebox": "0.34.47",
-    "openclaw": "workspace:*"
-=======
-    "@sinclair/typebox": "0.34.48"
->>>>>>> 28e1a65eb (chore: project hygiene — fix workspace:*, sandbox USER, dead config (#11289))
+    "moltbot": "workspace:*",
+    "@sinclair/typebox": "0.34.47"
   },
-  "devDependencies": {
-    "openclaw": "workspace:*"
-  },
-  "openclaw": {
+  "moltbot": {
     "extensions": [
       "./index.ts"
     ],
@@ -54,7 +25,7 @@
       "quickstartAllowFrom": true
     },
     "install": {
-      "npmSpec": "@openclaw/zalouser",
+      "npmSpec": "@moltbot/zalouser",
       "localPath": "extensions/zalouser",
       "defaultChoice": "npm"
     }

@@ -1,20 +1,14 @@
-import type { Command } from "commander";
 import fs from "node:fs";
 import path from "node:path";
-<<<<<<< HEAD
 import type { Command } from "commander";
 
 import { loadConfig, writeConfigFile } from "../config/config.js";
 import type { MoltbotConfig } from "../config/config.js";
-=======
-import type { OpenClawConfig } from "../config/config.js";
-import type { PluginRecord } from "../plugins/registry.js";
-import { loadConfig, writeConfigFile } from "../config/config.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { resolveArchiveKind } from "../infra/archive.js";
 import { installPluginFromNpmSpec, installPluginFromPath } from "../plugins/install.js";
 import { recordPluginInstall } from "../plugins/installs.js";
 import { applyExclusiveSlotSelection } from "../plugins/slots.js";
+import type { PluginRecord } from "../plugins/registry.js";
 import { buildPluginStatusReport } from "../plugins/status.js";
 import { updateNpmInstalledPlugins } from "../plugins/update.js";
 import { defaultRuntime } from "../runtime.js";
@@ -64,22 +58,18 @@ function formatPluginLine(plugin: PluginRecord, verbose = false): string {
     `  source: ${theme.muted(shortenHomeInString(plugin.source))}`,
     `  origin: ${plugin.origin}`,
   ];
-  if (plugin.version) {
-    parts.push(`  version: ${plugin.version}`);
-  }
+  if (plugin.version) parts.push(`  version: ${plugin.version}`);
   if (plugin.providerIds.length > 0) {
     parts.push(`  providers: ${plugin.providerIds.join(", ")}`);
   }
-  if (plugin.error) {
-    parts.push(theme.error(`  error: ${plugin.error}`));
-  }
+  if (plugin.error) parts.push(theme.error(`  error: ${plugin.error}`));
   return parts.join("\n");
 }
 
 function applySlotSelectionForPlugin(
-  config: OpenClawConfig,
+  config: MoltbotConfig,
   pluginId: string,
-): { config: OpenClawConfig; warnings: string[] } {
+): { config: MoltbotConfig; warnings: string[] } {
   const report = buildPluginStatusReport({ config });
   const plugin = report.plugins.find((entry) => entry.id === pluginId);
   if (!plugin) {
@@ -95,9 +85,7 @@ function applySlotSelectionForPlugin(
 }
 
 function logSlotWarnings(warnings: string[]) {
-  if (warnings.length === 0) {
-    return;
-  }
+  if (warnings.length === 0) return;
   for (const warning of warnings) {
     defaultRuntime.log(theme.warn(warning));
   }
@@ -106,11 +94,11 @@ function logSlotWarnings(warnings: string[]) {
 export function registerPluginsCli(program: Command) {
   const plugins = program
     .command("plugins")
-    .description("Manage OpenClaw plugins/extensions")
+    .description("Manage Moltbot plugins/extensions")
     .addHelpText(
       "after",
       () =>
-        `\n${theme.muted("Docs:")} ${formatDocsLink("/cli/plugins", "docs.openclaw.ai/cli/plugins")}\n`,
+        `\n${theme.muted("Docs:")} ${formatDocsLink("/cli/plugins", "docs.molt.bot/cli/plugins")}\n`,
     );
 
   plugins
@@ -212,16 +200,12 @@ export function registerPluginsCli(program: Command) {
       if (plugin.name && plugin.name !== plugin.id) {
         lines.push(theme.muted(`id: ${plugin.id}`));
       }
-      if (plugin.description) {
-        lines.push(plugin.description);
-      }
+      if (plugin.description) lines.push(plugin.description);
       lines.push("");
       lines.push(`${theme.muted("Status:")} ${plugin.status}`);
       lines.push(`${theme.muted("Source:")} ${shortenHomeInString(plugin.source)}`);
       lines.push(`${theme.muted("Origin:")} ${plugin.origin}`);
-      if (plugin.version) {
-        lines.push(`${theme.muted("Version:")} ${plugin.version}`);
-      }
+      if (plugin.version) lines.push(`${theme.muted("Version:")} ${plugin.version}`);
       if (plugin.toolNames.length > 0) {
         lines.push(`${theme.muted("Tools:")} ${plugin.toolNames.join(", ")}`);
       }
@@ -240,27 +224,18 @@ export function registerPluginsCli(program: Command) {
       if (plugin.services.length > 0) {
         lines.push(`${theme.muted("Services:")} ${plugin.services.join(", ")}`);
       }
-      if (plugin.error) {
-        lines.push(`${theme.error("Error:")} ${plugin.error}`);
-      }
+      if (plugin.error) lines.push(`${theme.error("Error:")} ${plugin.error}`);
       if (install) {
         lines.push("");
         lines.push(`${theme.muted("Install:")} ${install.source}`);
-        if (install.spec) {
-          lines.push(`${theme.muted("Spec:")} ${install.spec}`);
-        }
-        if (install.sourcePath) {
+        if (install.spec) lines.push(`${theme.muted("Spec:")} ${install.spec}`);
+        if (install.sourcePath)
           lines.push(`${theme.muted("Source path:")} ${shortenHomePath(install.sourcePath)}`);
-        }
-        if (install.installPath) {
+        if (install.installPath)
           lines.push(`${theme.muted("Install path:")} ${shortenHomePath(install.installPath)}`);
-        }
-        if (install.version) {
-          lines.push(`${theme.muted("Recorded version:")} ${install.version}`);
-        }
-        if (install.installedAt) {
+        if (install.version) lines.push(`${theme.muted("Recorded version:")} ${install.version}`);
+        if (install.installedAt)
           lines.push(`${theme.muted("Installed at:")} ${install.installedAt}`);
-        }
       }
       defaultRuntime.log(lines.join("\n"));
     });
@@ -271,7 +246,7 @@ export function registerPluginsCli(program: Command) {
     .argument("<id>", "Plugin id")
     .action(async (id: string) => {
       const cfg = loadConfig();
-      let next: OpenClawConfig = {
+      let next: MoltbotConfig = {
         ...cfg,
         plugins: {
           ...cfg.plugins,
@@ -333,7 +308,7 @@ export function registerPluginsCli(program: Command) {
             process.exit(1);
           }
 
-          let next: OpenClawConfig = {
+          let next: MoltbotConfig = {
             ...cfg,
             plugins: {
               ...cfg.plugins,
@@ -378,7 +353,7 @@ export function registerPluginsCli(program: Command) {
           process.exit(1);
         }
 
-        let next: OpenClawConfig = {
+        let next: MoltbotConfig = {
           ...cfg,
           plugins: {
             ...cfg.plugins,
@@ -442,7 +417,7 @@ export function registerPluginsCli(program: Command) {
         process.exit(1);
       }
 
-      let next: OpenClawConfig = {
+      let next: MoltbotConfig = {
         ...cfg,
         plugins: {
           ...cfg.plugins,
@@ -539,16 +514,14 @@ export function registerPluginsCli(program: Command) {
         }
       }
       if (diags.length > 0) {
-        if (lines.length > 0) {
-          lines.push("");
-        }
+        if (lines.length > 0) lines.push("");
         lines.push(theme.warn("Diagnostics:"));
         for (const diag of diags) {
           const target = diag.pluginId ? `${diag.pluginId}: ` : "";
           lines.push(`- ${target}${diag.message}`);
         }
       }
-      const docs = formatDocsLink("/plugin", "docs.openclaw.ai/plugin");
+      const docs = formatDocsLink("/plugin", "docs.molt.bot/plugin");
       lines.push("");
       lines.push(`${theme.muted("Docs:")} ${docs}`);
       defaultRuntime.log(lines.join("\n"));

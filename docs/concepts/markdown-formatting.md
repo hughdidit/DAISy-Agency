@@ -4,12 +4,10 @@ read_when:
   - You are changing markdown formatting or chunking for outbound channels
   - You are adding a new channel formatter or style mapping
   - You are debugging formatting regressions across channels
-title: "Markdown Formatting"
 ---
-
 # Markdown formatting
 
-OpenClaw formats outbound Markdown by converting it into a shared intermediate
+Moltbot formats outbound Markdown by converting it into a shared intermediate
 representation (IR) before rendering channel-specific output. The IR keeps the
 source text intact while carrying style/link spans so chunking and rendering can
 stay consistent across channels.
@@ -41,7 +39,7 @@ stay consistent across channels.
 Input Markdown:
 
 ```markdown
-Hello **world** — see [docs](https://docs.openclaw.ai).
+Hello **world** — see [docs](https://docs.molt.bot).
 ```
 
 IR (schematic):
@@ -49,17 +47,12 @@ IR (schematic):
 ```json
 {
   "text": "Hello world — see docs.",
-<<<<<<< HEAD
   "styles": [
     { "start": 6, "end": 11, "style": "bold" }
   ],
   "links": [
-    { "start": 19, "end": 23, "href": "https://docs.openclaw.ai" }
+    { "start": 19, "end": 23, "href": "https://docs.molt.bot" }
   ]
-=======
-  "styles": [{ "start": 6, "end": 11, "style": "bold" }],
-  "links": [{ "start": 19, "end": 23, "href": "https://docs.openclaw.ai" }]
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 }
 ```
 

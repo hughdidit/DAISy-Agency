@@ -1,11 +1,7 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
-<<<<<<< HEAD
 
-import type { OpenClawConfig, MarkdownTableMode } from "openclaw/plugin-sdk";
+import type { MoltbotConfig, MarkdownTableMode } from "clawdbot/plugin-sdk";
 
-=======
-import type { OpenClawConfig, MarkdownTableMode } from "openclaw/plugin-sdk";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { ResolvedZaloAccount } from "./accounts.js";
 import {
   ZaloApiError,
@@ -29,7 +25,7 @@ export type ZaloRuntimeEnv = {
 export type ZaloMonitorOptions = {
   token: string;
   account: ResolvedZaloAccount;
-  config: OpenClawConfig;
+  config: MoltbotConfig;
   runtime: ZaloRuntimeEnv;
   abortSignal: AbortSignal;
   useWebhook?: boolean;
@@ -56,9 +52,7 @@ function logVerbose(core: ZaloCoreRuntime, runtime: ZaloRuntimeEnv, message: str
 }
 
 function isSenderAllowed(senderId: string, allowFrom: string[]): boolean {
-  if (allowFrom.includes("*")) {
-    return true;
-  }
+  if (allowFrom.includes("*")) return true;
   const normalizedSenderId = senderId.toLowerCase();
   return allowFrom.some((entry) => {
     const normalized = entry.toLowerCase().replace(/^(zalo|zl):/i, "");
@@ -100,7 +94,7 @@ async function readJsonBody(req: IncomingMessage, maxBytes: number) {
 type WebhookTarget = {
   token: string;
   account: ResolvedZaloAccount;
-  config: OpenClawConfig;
+  config: MoltbotConfig;
   runtime: ZaloRuntimeEnv;
   core: ZaloCoreRuntime;
   secret: string;
@@ -114,9 +108,7 @@ const webhookTargets = new Map<string, WebhookTarget[]>();
 
 function normalizeWebhookPath(raw: string): string {
   const trimmed = raw.trim();
-  if (!trimmed) {
-    return "/";
-  }
+  if (!trimmed) return "/";
   const withSlash = trimmed.startsWith("/") ? trimmed : `/${trimmed}`;
   if (withSlash.length > 1 && withSlash.endsWith("/")) {
     return withSlash.slice(0, -1);
@@ -126,9 +118,7 @@ function normalizeWebhookPath(raw: string): string {
 
 function resolveWebhookPath(webhookPath?: string, webhookUrl?: string): string | null {
   const trimmedPath = webhookPath?.trim();
-  if (trimmedPath) {
-    return normalizeWebhookPath(trimmedPath);
-  }
+  if (trimmedPath) return normalizeWebhookPath(trimmedPath);
   if (webhookUrl?.trim()) {
     try {
       const parsed = new URL(webhookUrl);
@@ -147,7 +137,9 @@ export function registerZaloWebhookTarget(target: WebhookTarget): () => void {
   const next = [...existing, normalizedTarget];
   webhookTargets.set(key, next);
   return () => {
-    const updated = (webhookTargets.get(key) ?? []).filter((entry) => entry !== normalizedTarget);
+    const updated = (webhookTargets.get(key) ?? []).filter(
+      (entry) => entry !== normalizedTarget,
+    );
     if (updated.length > 0) {
       webhookTargets.set(key, updated);
     } else {
@@ -163,9 +155,7 @@ export async function handleZaloWebhookRequest(
   const url = new URL(req.url ?? "/", "http://localhost");
   const path = normalizeWebhookPath(url.pathname);
   const targets = webhookTargets.get(path);
-  if (!targets || targets.length === 0) {
-    return false;
-  }
+  if (!targets || targets.length === 0) return false;
 
   if (req.method !== "POST") {
     res.statusCode = 405;
@@ -191,11 +181,12 @@ export async function handleZaloWebhookRequest(
 
   // Zalo sends updates directly as { event_name, message, ... }, not wrapped in { ok, result }
   const raw = body.value;
-  const record = raw && typeof raw === "object" ? (raw as Record<string, unknown>) : null;
+  const record =
+    raw && typeof raw === "object" ? (raw as Record<string, unknown>) : null;
   const update: ZaloUpdate | undefined =
     record && record.ok === true && record.result
       ? (record.result as ZaloUpdate)
-      : ((record as ZaloUpdate | null) ?? undefined);
+      : (record as ZaloUpdate | null) ?? undefined;
 
   if (!update?.event_name) {
     res.statusCode = 400;
@@ -226,7 +217,7 @@ export async function handleZaloWebhookRequest(
 function startPollingLoop(params: {
   token: string;
   account: ResolvedZaloAccount;
-  config: OpenClawConfig;
+  config: MoltbotConfig;
   runtime: ZaloRuntimeEnv;
   core: ZaloCoreRuntime;
   abortSignal: AbortSignal;
@@ -250,9 +241,7 @@ function startPollingLoop(params: {
   const pollTimeout = 30;
 
   const poll = async () => {
-    if (isStopped() || abortSignal.aborted) {
-      return;
-    }
+    if (isStopped() || abortSignal.aborted) return;
 
     try {
       const response = await getUpdates(token, { timeout: pollTimeout }, fetcher);
@@ -291,7 +280,7 @@ async function processUpdate(
   update: ZaloUpdate,
   token: string,
   account: ResolvedZaloAccount,
-  config: OpenClawConfig,
+  config: MoltbotConfig,
   runtime: ZaloRuntimeEnv,
   core: ZaloCoreRuntime,
   mediaMaxMb: number,
@@ -299,13 +288,20 @@ async function processUpdate(
   fetcher?: ZaloFetch,
 ): Promise<void> {
   const { event_name, message } = update;
-  if (!message) {
-    return;
-  }
+  if (!message) return;
 
   switch (event_name) {
     case "message.text.received":
-      await handleTextMessage(message, token, account, config, runtime, core, statusSink, fetcher);
+      await handleTextMessage(
+        message,
+        token,
+        account,
+        config,
+        runtime,
+        core,
+        statusSink,
+        fetcher,
+      );
       break;
     case "message.image.received":
       await handleImageMessage(
@@ -335,16 +331,14 @@ async function handleTextMessage(
   message: ZaloMessage,
   token: string,
   account: ResolvedZaloAccount,
-  config: OpenClawConfig,
+  config: MoltbotConfig,
   runtime: ZaloRuntimeEnv,
   core: ZaloCoreRuntime,
   statusSink?: (patch: { lastInboundAt?: number; lastOutboundAt?: number }) => void,
   fetcher?: ZaloFetch,
 ): Promise<void> {
   const { text } = message;
-  if (!text?.trim()) {
-    return;
-  }
+  if (!text?.trim()) return;
 
   await processMessageWithPipeline({
     message,
@@ -365,7 +359,7 @@ async function handleImageMessage(
   message: ZaloMessage,
   token: string,
   account: ResolvedZaloAccount,
-  config: OpenClawConfig,
+  config: MoltbotConfig,
   runtime: ZaloRuntimeEnv,
   core: ZaloCoreRuntime,
   mediaMaxMb: number,
@@ -413,7 +407,7 @@ async function processMessageWithPipeline(params: {
   message: ZaloMessage;
   token: string;
   account: ResolvedZaloAccount;
-  config: OpenClawConfig;
+  config: MoltbotConfig;
   runtime: ZaloRuntimeEnv;
   core: ZaloCoreRuntime;
   text?: string;
@@ -445,7 +439,10 @@ async function processMessageWithPipeline(params: {
   const dmPolicy = account.config.dmPolicy ?? "pairing";
   const configAllowFrom = (account.config.allowFrom ?? []).map((v) => String(v));
   const rawBody = text?.trim() || (mediaPath ? "<media:image>" : "");
-  const shouldComputeAuth = core.channel.commands.shouldComputeCommandAuthorized(rawBody, config);
+  const shouldComputeAuth = core.channel.commands.shouldComputeCommandAuthorized(
+    rawBody,
+    config,
+  );
   const storeAllowFrom =
     !isGroup && (dmPolicy !== "open" || shouldComputeAuth)
       ? await core.channel.pairing.readAllowFromStore("zalo").catch(() => [])
@@ -456,9 +453,7 @@ async function processMessageWithPipeline(params: {
   const commandAuthorized = shouldComputeAuth
     ? core.channel.commands.resolveCommandAuthorizedFromAuthorizers({
         useAccessGroups,
-        authorizers: [
-          { configured: effectiveAllowFrom.length > 0, allowed: senderAllowedForCommands },
-        ],
+        authorizers: [{ configured: effectiveAllowFrom.length > 0, allowed: senderAllowedForCommands }],
       })
     : undefined;
 
@@ -589,18 +584,11 @@ async function processMessageWithPipeline(params: {
     channel: "zalo",
     accountId: account.accountId,
   });
-  const { onModelSelected, ...prefixOptions } = createReplyPrefixOptions({
-    cfg: config,
-    agentId: route.agentId,
-    channel: "zalo",
-    accountId: account.accountId,
-  });
 
   await core.channel.reply.dispatchReplyWithBufferedBlockDispatcher({
     ctx: ctxPayload,
     cfg: config,
     dispatcherOptions: {
-      ...prefixOptions,
       deliver: async (payload) => {
         await deliverZaloReply({
           payload,
@@ -619,9 +607,6 @@ async function processMessageWithPipeline(params: {
         runtime.error?.(`[${account.accountId}] Zalo ${info.kind} reply failed: ${String(err)}`);
       },
     },
-    replyOptions: {
-      onModelSelected,
-    },
   });
 }
 
@@ -631,7 +616,7 @@ async function deliverZaloReply(params: {
   chatId: string;
   runtime: ZaloRuntimeEnv;
   core: ZaloCoreRuntime;
-  config: OpenClawConfig;
+  config: MoltbotConfig;
   accountId?: string;
   statusSink?: (patch: { lastInboundAt?: number; lastOutboundAt?: number }) => void;
   fetcher?: ZaloFetch;
@@ -664,7 +649,11 @@ async function deliverZaloReply(params: {
 
   if (text) {
     const chunkMode = core.channel.text.resolveChunkMode(config, "zalo", accountId);
-    const chunks = core.channel.text.chunkMarkdownTextWithMode(text, ZALO_TEXT_LIMIT, chunkMode);
+    const chunks = core.channel.text.chunkMarkdownTextWithMode(
+      text,
+      ZALO_TEXT_LIMIT,
+      chunkMode,
+    );
     for (const chunk of chunks) {
       try {
         await sendMessage(token, { chat_id: chatId, text: chunk }, fetcher);
@@ -676,7 +665,9 @@ async function deliverZaloReply(params: {
   }
 }
 
-export async function monitorZaloProvider(options: ZaloMonitorOptions): Promise<ZaloMonitorResult> {
+export async function monitorZaloProvider(
+  options: ZaloMonitorOptions,
+): Promise<ZaloMonitorResult> {
   const {
     token,
     account,

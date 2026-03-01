@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import type {
   MessageEvent,
   TextEventMessage,
@@ -11,14 +10,6 @@ import { formatInboundEnvelope, resolveEnvelopeFormatOptions } from "../auto-rep
 import { finalizeInboundContext } from "../auto-reply/reply/inbound-context.js";
 import { formatLocationText, toLocationContext } from "../channels/location.js";
 import type { MoltbotConfig } from "../config/config.js";
-=======
-import type { MessageEvent, StickerEventMessage, EventSource, PostbackEvent } from "@line/bot-sdk";
-import type { OpenClawConfig } from "../config/config.js";
-import type { ResolvedLineAccount } from "./types.js";
-import { formatInboundEnvelope, resolveEnvelopeFormatOptions } from "../auto-reply/envelope.js";
-import { finalizeInboundContext } from "../auto-reply/reply/inbound-context.js";
-import { formatLocationText, toLocationContext } from "../channels/location.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import {
   readSessionUpdatedAt,
   recordSessionMetaFromInbound,
@@ -28,6 +19,7 @@ import {
 import { logVerbose, shouldLogVerbose } from "../globals.js";
 import { recordChannelActivity } from "../infra/channel-activity.js";
 import { resolveAgentRoute } from "../routing/resolve-route.js";
+import type { ResolvedLineAccount } from "./types.js";
 
 interface MediaRef {
   path: string;
@@ -37,7 +29,7 @@ interface MediaRef {
 interface BuildLineMessageContextParams {
   event: MessageEvent;
   allMedia: MediaRef[];
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   account: ResolvedLineAccount;
 }
 
@@ -110,10 +102,10 @@ function describeStickerKeywords(sticker: StickerEventMessage): string {
 
 function extractMessageText(message: MessageEvent["message"]): string {
   if (message.type === "text") {
-    return message.text;
+    return (message as TextEventMessage).text;
   }
   if (message.type === "location") {
-    const loc = message;
+    const loc = message as LocationEventMessage;
     return (
       formatLocationText({
         latitude: loc.latitude,
@@ -124,7 +116,7 @@ function extractMessageText(message: MessageEvent["message"]): string {
     );
   }
   if (message.type === "sticker") {
-    const sticker = message;
+    const sticker = message as StickerEventMessage;
     const packageName = STICKER_PACKAGES[sticker.packageId] ?? "sticker";
     const keywords = describeStickerKeywords(sticker);
 
@@ -230,7 +222,7 @@ export async function buildLineMessageContext(params: BuildLineMessageContextPar
   // Build location context if applicable
   let locationContext: ReturnType<typeof toLocationContext> | undefined;
   if (message.type === "location") {
-    const loc = message;
+    const loc = message as LocationEventMessage;
     locationContext = toLocationContext({
       latitude: loc.latitude,
       longitude: loc.longitude,
@@ -323,7 +315,7 @@ export async function buildLineMessageContext(params: BuildLineMessageContextPar
 
 export async function buildLinePostbackContext(params: {
   event: PostbackEvent;
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   account: ResolvedLineAccount;
 }) {
   const { event, cfg, account } = params;
@@ -350,9 +342,7 @@ export async function buildLinePostbackContext(params: {
 
   const timestamp = event.timestamp;
   const rawData = event.postback?.data?.trim() ?? "";
-  if (!rawData) {
-    return null;
-  }
+  if (!rawData) return null;
   let rawBody = rawData;
   if (rawData.includes("line.action=")) {
     const params = new URLSearchParams(rawData);

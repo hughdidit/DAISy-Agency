@@ -1,24 +1,21 @@
-import fs from "node:fs";
 import { createRequire } from "node:module";
+import fs from "node:fs";
 import path from "node:path";
+
 import { Logger as TsLogger } from "tslog";
-<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../config/types.js";
-=======
-import type { OpenClawConfig } from "../config/types.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { ConsoleStyle } from "./console.js";
-import { readLoggingConfig } from "./config.js";
 import { type LogLevel, levelToMinLevel, normalizeLogLevel } from "./levels.js";
+import { readLoggingConfig } from "./config.js";
 import { loggingState } from "./state.js";
 
 // Pin to /tmp so mac Debug UI and docs match; os.tmpdir() can be a per-user
 // randomized path on macOS which made the “Open log” button a no-op.
-export const DEFAULT_LOG_DIR = "/tmp/openclaw";
-export const DEFAULT_LOG_FILE = path.join(DEFAULT_LOG_DIR, "openclaw.log"); // legacy single-file path
+export const DEFAULT_LOG_DIR = "/tmp/moltbot";
+export const DEFAULT_LOG_FILE = path.join(DEFAULT_LOG_DIR, "moltbot.log"); // legacy single-file path
 
-const LOG_PREFIX = "openclaw";
+const LOG_PREFIX = "moltbot";
 const LOG_SUFFIX = ".log";
 const MAX_LOG_AGE_MS = 24 * 60 * 60 * 1000; // 24h
 
@@ -45,9 +42,7 @@ const externalTransports = new Set<LogTransport>();
 
 function attachExternalTransport(logger: TsLogger<LogObj>, transport: LogTransport): void {
   logger.attachTransport((logObj: LogObj) => {
-    if (!externalTransports.has(transport)) {
-      return;
-    }
+    if (!externalTransports.has(transport)) return;
     try {
       transport(logObj as LogTransportRecord);
     } catch {
@@ -57,12 +52,12 @@ function attachExternalTransport(logger: TsLogger<LogObj>, transport: LogTranspo
 }
 
 function resolveSettings(): ResolvedSettings {
-  let cfg: OpenClawConfig["logging"] | undefined =
+  let cfg: MoltbotConfig["logging"] | undefined =
     (loggingState.overrideSettings as LoggerSettings | null) ?? readLoggingConfig();
   if (!cfg) {
     try {
       const loaded = requireConfig("../config/config.js") as {
-        loadConfig?: () => OpenClawConfig;
+        loadConfig?: () => MoltbotConfig;
       };
       cfg = loaded.loadConfig?.().logging;
     } catch {
@@ -75,20 +70,14 @@ function resolveSettings(): ResolvedSettings {
 }
 
 function settingsChanged(a: ResolvedSettings | null, b: ResolvedSettings) {
-  if (!a) {
-    return true;
-  }
+  if (!a) return true;
   return a.level !== b.level || a.file !== b.file;
 }
 
 export function isFileLogLevelEnabled(level: LogLevel): boolean {
   const settings = (loggingState.cachedSettings as ResolvedSettings | null) ?? resolveSettings();
-  if (!loggingState.cachedSettings) {
-    loggingState.cachedSettings = settings;
-  }
-  if (settings.level === "silent") {
-    return false;
-  }
+  if (!loggingState.cachedSettings) loggingState.cachedSettings = settings;
+  if (settings.level === "silent") return false;
   return levelToMinLevel(level) <= levelToMinLevel(settings.level);
 }
 
@@ -99,7 +88,7 @@ function buildLogger(settings: ResolvedSettings): TsLogger<LogObj> {
     pruneOldRollingLogs(path.dirname(settings.file));
   }
   const logger = new TsLogger<LogObj>({
-    name: "openclaw",
+    name: "moltbot",
     minLevel: levelToMinLevel(settings.level),
     type: "hidden", // no ansi formatting
   });
@@ -234,12 +223,8 @@ function pruneOldRollingLogs(dir: string): void {
     const entries = fs.readdirSync(dir, { withFileTypes: true });
     const cutoff = Date.now() - MAX_LOG_AGE_MS;
     for (const entry of entries) {
-      if (!entry.isFile()) {
-        continue;
-      }
-      if (!entry.name.startsWith(`${LOG_PREFIX}-`) || !entry.name.endsWith(LOG_SUFFIX)) {
-        continue;
-      }
+      if (!entry.isFile()) continue;
+      if (!entry.name.startsWith(`${LOG_PREFIX}-`) || !entry.name.endsWith(LOG_SUFFIX)) continue;
       const fullPath = path.join(dir, entry.name);
       try {
         const stat = fs.statSync(fullPath);

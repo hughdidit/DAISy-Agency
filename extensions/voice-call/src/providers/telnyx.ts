@@ -1,4 +1,5 @@
 import crypto from "node:crypto";
+
 import type { TelnyxConfig } from "../config.js";
 import type {
   EndReason,
@@ -23,18 +24,12 @@ import type { VoiceCallProvider } from "./base.js";
  * Uses Telnyx Call Control API v2 for managing calls.
  * @see https://developers.telnyx.com/docs/api/v2/call-control
  */
-export interface TelnyxProviderOptions {
-  /** Allow unsigned webhooks when no public key is configured */
-  allowUnsignedWebhooks?: boolean;
-}
-
 export class TelnyxProvider implements VoiceCallProvider {
   readonly name = "telnyx" as const;
 
   private readonly apiKey: string;
   private readonly connectionId: string;
   private readonly publicKey: string | undefined;
-  private readonly options: TelnyxProviderOptions;
   private readonly baseUrl = "https://api.telnyx.com/v2";
 
   private readonly logger: Logger;
@@ -87,14 +82,8 @@ export class TelnyxProvider implements VoiceCallProvider {
    */
   verifyWebhook(ctx: WebhookContext): WebhookVerificationResult {
     if (!this.publicKey) {
-      if (this.options.allowUnsignedWebhooks) {
-        console.warn("[telnyx] Webhook verification skipped (no public key configured)");
-        return { ok: true, reason: "verification skipped (no public key configured)" };
-      }
-      return {
-        ok: false,
-        reason: "Missing telnyx.publicKey (configure to verify webhooks)",
-      };
+      // No public key configured, skip verification (not recommended for production)
+      return { ok: true };
     }
 
     const signature = ctx.headers["telnyx-signature-ed25519"];
@@ -177,7 +166,9 @@ export class TelnyxProvider implements VoiceCallProvider {
     let callId = "";
     if (data.payload?.client_state) {
       try {
-        callId = Buffer.from(data.payload.client_state, "base64").toString("utf8");
+        callId = Buffer.from(data.payload.client_state, "base64").toString(
+          "utf8",
+        );
       } catch {
         // Fallback if not valid Base64
         callId = data.payload.client_state;
@@ -326,10 +317,13 @@ export class TelnyxProvider implements VoiceCallProvider {
    * Start transcription (STT) via Telnyx.
    */
   async startListening(input: StartListeningInput): Promise<void> {
-    await this.apiRequest(`/calls/${input.providerCallId}/actions/transcription_start`, {
-      command_id: crypto.randomUUID(),
-      language: input.language || "en",
-    });
+    await this.apiRequest(
+      `/calls/${input.providerCallId}/actions/transcription_start`,
+      {
+        command_id: crypto.randomUUID(),
+        language: input.language || "en",
+      },
+    );
   }
 
   /**

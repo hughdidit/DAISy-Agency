@@ -1,74 +1,33 @@
-import type { OpenClawConfig } from "../config/config.js";
+import type { MoltbotConfig } from "../config/config.js";
 
 const DEFAULT_AGENT_TIMEOUT_SECONDS = 600;
-const MAX_SAFE_TIMEOUT_MS = 2_147_000_000;
 
 const normalizeNumber = (value: unknown): number | undefined =>
   typeof value === "number" && Number.isFinite(value) ? Math.floor(value) : undefined;
 
-export function resolveAgentTimeoutSeconds(cfg?: OpenClawConfig): number {
+export function resolveAgentTimeoutSeconds(cfg?: MoltbotConfig): number {
   const raw = normalizeNumber(cfg?.agents?.defaults?.timeoutSeconds);
   const seconds = raw ?? DEFAULT_AGENT_TIMEOUT_SECONDS;
   return Math.max(seconds, 1);
 }
 
 export function resolveAgentTimeoutMs(opts: {
-  cfg?: OpenClawConfig;
+  cfg?: MoltbotConfig;
   overrideMs?: number | null;
   overrideSeconds?: number | null;
   minMs?: number;
 }): number {
   const minMs = Math.max(normalizeNumber(opts.minMs) ?? 1, 1);
-<<<<<<< HEAD
   const defaultMs = resolveAgentTimeoutSeconds(opts.cfg) * 1000;
-  // Use a very large timeout value (30 days) to represent "no timeout"
-  // when explicitly set to 0. This avoids setTimeout issues with Infinity.
-  const NO_TIMEOUT_MS = 30 * 24 * 60 * 60 * 1000;
   const overrideMs = normalizeNumber(opts.overrideMs);
   if (overrideMs !== undefined) {
-    if (overrideMs === 0) {
-      return NO_TIMEOUT_MS;
-    }
-    if (overrideMs < 0) {
-      return defaultMs;
-    }
+    if (overrideMs <= 0) return defaultMs;
     return Math.max(overrideMs, minMs);
   }
   const overrideSeconds = normalizeNumber(opts.overrideSeconds);
   if (overrideSeconds !== undefined) {
-    if (overrideSeconds === 0) {
-      return NO_TIMEOUT_MS;
-    }
-    if (overrideSeconds < 0) {
-      return defaultMs;
-    }
+    if (overrideSeconds <= 0) return defaultMs;
     return Math.max(overrideSeconds * 1000, minMs);
-=======
-  const clampTimeoutMs = (valueMs: number) =>
-    Math.min(Math.max(valueMs, minMs), MAX_SAFE_TIMEOUT_MS);
-  const defaultMs = clampTimeoutMs(resolveAgentTimeoutSeconds(opts.cfg) * 1000);
-  // Use the maximum timer-safe timeout to represent "no timeout" when explicitly set to 0.
-  const NO_TIMEOUT_MS = MAX_SAFE_TIMEOUT_MS;
-  const overrideMs = normalizeNumber(opts.overrideMs);
-  if (overrideMs !== undefined) {
-    if (overrideMs === 0) {
-      return NO_TIMEOUT_MS;
-    }
-    if (overrideMs < 0) {
-      return defaultMs;
-    }
-    return clampTimeoutMs(overrideMs);
   }
-  const overrideSeconds = normalizeNumber(opts.overrideSeconds);
-  if (overrideSeconds !== undefined) {
-    if (overrideSeconds === 0) {
-      return NO_TIMEOUT_MS;
-    }
-    if (overrideSeconds < 0) {
-      return defaultMs;
-    }
-    return clampTimeoutMs(overrideSeconds * 1000);
->>>>>>> 191da1feb (fix: context overflow compaction and subagent announce improvements (#11664) (thanks @tyler6204))
-  }
-  return defaultMs;
+  return Math.max(defaultMs, minMs);
 }

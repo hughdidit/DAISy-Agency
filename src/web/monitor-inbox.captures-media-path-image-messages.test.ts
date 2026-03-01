@@ -70,7 +70,9 @@ import crypto from "node:crypto";
 import fsSync from "node:fs";
 import os from "node:os";
 import path from "node:path";
+
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
+
 import { resetLogger, setLoggerOverride } from "../logging.js";
 import { monitorWebInbox, resetWebInboundDedupe } from "./inbound.js";
 
@@ -86,7 +88,7 @@ describe("web monitor inbox", () => {
       created: true,
     });
     resetWebInboundDedupe();
-    authDir = fsSync.mkdtempSync(path.join(os.tmpdir(), "openclaw-auth-"));
+    authDir = fsSync.mkdtempSync(path.join(os.tmpdir(), "moltbot-auth-"));
   });
 
   afterEach(() => {
@@ -169,7 +171,7 @@ describe("web monitor inbox", () => {
   });
 
   it("logs inbound bodies to file", async () => {
-    const logPath = path.join(os.tmpdir(), `openclaw-log-test-${crypto.randomUUID()}.log`);
+    const logPath = path.join(os.tmpdir(), `moltbot-log-test-${crypto.randomUUID()}.log`);
     setLoggerOverride({ level: "trace", file: logPath });
 
     const onMessage = vi.fn();

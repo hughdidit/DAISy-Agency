@@ -2,26 +2,21 @@ import type {
   ChannelOutboundAdapter,
   ChannelPlugin,
   ChannelSetupInput,
-  OpenClawConfig,
-} from "openclaw/plugin-sdk";
+  MoltbotConfig,
+} from "clawdbot/plugin-sdk";
 import {
   applyAccountNameToChannelSection,
   DEFAULT_ACCOUNT_ID,
   normalizeAccountId,
-<<<<<<< HEAD
 } from "clawdbot/plugin-sdk";
 
 import { resolveTlonAccount, listTlonAccountIds } from "./types.js";
-=======
-} from "openclaw/plugin-sdk";
-import { tlonChannelConfigSchema } from "./config-schema.js";
-import { monitorTlonProvider } from "./monitor/index.js";
-import { tlonOnboardingAdapter } from "./onboarding.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { formatTargetHint, normalizeShip, parseTlonTarget } from "./targets.js";
-import { resolveTlonAccount, listTlonAccountIds } from "./types.js";
 import { ensureUrbitConnectPatched, Urbit } from "./urbit/http-api.js";
 import { buildMediaText, sendDm, sendGroupMessage } from "./urbit/send.js";
+import { monitorTlonProvider } from "./monitor/index.js";
+import { tlonChannelConfigSchema } from "./config-schema.js";
+import { tlonOnboardingAdapter } from "./onboarding.js";
 
 const TLON_CHANNEL_ID = "tlon" as const;
 
@@ -35,10 +30,10 @@ type TlonSetupInput = ChannelSetupInput & {
 };
 
 function applyTlonSetupConfig(params: {
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   accountId: string;
   input: TlonSetupInput;
-}): OpenClawConfig {
+}): MoltbotConfig {
   const { cfg, accountId, input } = params;
   const useDefault = accountId === DEFAULT_ACCOUNT_ID;
   const namedConfig = applyAccountNameToChannelSection({
@@ -84,9 +79,9 @@ function applyTlonSetupConfig(params: {
         accounts: {
           ...(base as { accounts?: Record<string, unknown> }).accounts,
           [accountId]: {
-            ...(base as { accounts?: Record<string, Record<string, unknown>> }).accounts?.[
+            ...((base as { accounts?: Record<string, Record<string, unknown>> }).accounts?.[
               accountId
-            ],
+            ] ?? {}),
             enabled: true,
             ...payload,
           },
@@ -113,7 +108,7 @@ const tlonOutbound: ChannelOutboundAdapter = {
     return { ok: true, to: parsed.nest };
   },
   sendText: async ({ cfg, to, text, accountId, replyToId, threadId }) => {
-    const account = resolveTlonAccount(cfg as OpenClawConfig, accountId ?? undefined);
+    const account = resolveTlonAccount(cfg as MoltbotConfig, accountId ?? undefined);
     if (!account.configured || !account.ship || !account.url || !account.code) {
       throw new Error("Tlon account not configured");
     }
@@ -193,8 +188,8 @@ export const tlonPlugin: ChannelPlugin = {
   reload: { configPrefixes: ["channels.tlon"] },
   configSchema: tlonChannelConfigSchema,
   config: {
-    listAccountIds: (cfg) => listTlonAccountIds(cfg as OpenClawConfig),
-    resolveAccount: (cfg, accountId) => resolveTlonAccount(cfg as OpenClawConfig, accountId ?? undefined),
+    listAccountIds: (cfg) => listTlonAccountIds(cfg as MoltbotConfig),
+    resolveAccount: (cfg, accountId) => resolveTlonAccount(cfg as MoltbotConfig, accountId ?? undefined),
     defaultAccountId: () => "default",
     setAccountEnabled: ({ cfg, accountId, enabled }) => {
       const useDefault = !accountId || accountId === "default";
@@ -204,34 +199,32 @@ export const tlonPlugin: ChannelPlugin = {
           channels: {
             ...cfg.channels,
             tlon: {
-              ...(cfg.channels?.tlon as Record<string, unknown>),
+              ...(cfg.channels?.tlon ?? {}),
               enabled,
             },
           },
-        } as OpenClawConfig;
+        } as MoltbotConfig;
       }
       return {
         ...cfg,
         channels: {
           ...cfg.channels,
           tlon: {
-            ...(cfg.channels?.tlon as Record<string, unknown>),
+            ...(cfg.channels?.tlon ?? {}),
             accounts: {
-              ...cfg.channels?.tlon?.accounts,
+              ...(cfg.channels?.tlon?.accounts ?? {}),
               [accountId]: {
-                ...cfg.channels?.tlon?.accounts?.[accountId],
+                ...(cfg.channels?.tlon?.accounts?.[accountId] ?? {}),
                 enabled,
               },
             },
           },
         },
-      } as OpenClawConfig;
+      } as MoltbotConfig;
     },
     deleteAccount: ({ cfg, accountId }) => {
       const useDefault = !accountId || accountId === "default";
       if (useDefault) {
-        // @ts-expect-error
-        // oxlint-disable-next-line no-unused-vars
         const { ship, code, url, name, ...rest } = cfg.channels?.tlon ?? {};
         return {
           ...cfg,
@@ -239,21 +232,19 @@ export const tlonPlugin: ChannelPlugin = {
             ...cfg.channels,
             tlon: rest,
           },
-        } as OpenClawConfig;
+        } as MoltbotConfig;
       }
-      // @ts-expect-error
-      // oxlint-disable-next-line no-unused-vars
       const { [accountId]: removed, ...remainingAccounts } = cfg.channels?.tlon?.accounts ?? {};
       return {
         ...cfg,
         channels: {
           ...cfg.channels,
           tlon: {
-            ...(cfg.channels?.tlon as Record<string, unknown>),
+            ...(cfg.channels?.tlon ?? {}),
             accounts: remainingAccounts,
           },
         },
-      } as OpenClawConfig;
+      } as MoltbotConfig;
     },
     isConfigured: (account) => account.configured,
     describeAccount: (account) => ({
@@ -269,31 +260,25 @@ export const tlonPlugin: ChannelPlugin = {
     resolveAccountId: ({ accountId }) => normalizeAccountId(accountId),
     applyAccountName: ({ cfg, accountId, name }) =>
       applyAccountNameToChannelSection({
-        cfg: cfg as OpenClawConfig,
+        cfg: cfg as MoltbotConfig,
         channelKey: "tlon",
         accountId,
         name,
       }),
     validateInput: ({ cfg, accountId, input }) => {
       const setupInput = input as TlonSetupInput;
-      const resolved = resolveTlonAccount(cfg as OpenClawConfig, accountId ?? undefined);
+      const resolved = resolveTlonAccount(cfg as MoltbotConfig, accountId ?? undefined);
       const ship = setupInput.ship?.trim() || resolved.ship;
       const url = setupInput.url?.trim() || resolved.url;
       const code = setupInput.code?.trim() || resolved.code;
-      if (!ship) {
-        return "Tlon requires --ship.";
-      }
-      if (!url) {
-        return "Tlon requires --url.";
-      }
-      if (!code) {
-        return "Tlon requires --code.";
-      }
+      if (!ship) return "Tlon requires --ship.";
+      if (!url) return "Tlon requires --url.";
+      if (!code) return "Tlon requires --code.";
       return null;
     },
     applyAccountConfig: ({ cfg, accountId, input }) =>
       applyTlonSetupConfig({
-        cfg: cfg as OpenClawConfig,
+        cfg: cfg as MoltbotConfig,
         accountId,
         input: input as TlonSetupInput,
       }),
@@ -301,12 +286,8 @@ export const tlonPlugin: ChannelPlugin = {
   messaging: {
     normalizeTarget: (target) => {
       const parsed = parseTlonTarget(target);
-      if (!parsed) {
-        return target.trim();
-      }
-      if (parsed.kind === "dm") {
-        return parsed.ship;
-      }
+      if (!parsed) return target.trim();
+      if (parsed.kind === "dm") return parsed.ship;
       return parsed.nest;
     },
     targetResolver: {
@@ -361,7 +342,7 @@ export const tlonPlugin: ChannelPlugin = {
         } finally {
           await api.delete();
         }
-      } catch (error) {
+      } catch (error: any) {
         return { ok: false, error: error?.message ?? String(error) };
       }
     },

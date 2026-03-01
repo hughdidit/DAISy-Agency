@@ -1,13 +1,10 @@
-import { type Api, getEnvApiKey, type Model } from "@mariozechner/pi-ai";
-<<<<<<< HEAD
-import type { MoltbotConfig } from "../config/config.js";
-=======
 import path from "node:path";
-import type { OpenClawConfig } from "../config/config.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
+
+import { type Api, getEnvApiKey, type Model } from "@mariozechner/pi-ai";
+import type { MoltbotConfig } from "../config/config.js";
 import type { ModelProviderAuthMode, ModelProviderConfig } from "../config/types.js";
-import { formatCliCommand } from "../cli/command-format.js";
 import { getShellEnvAppliedKeys } from "../infra/shell-env.js";
+import { formatCliCommand } from "../cli/command-format.js";
 import {
   type AuthProfileStore,
   ensureAuthProfileStore,
@@ -26,29 +23,29 @@ const AWS_SECRET_KEY_ENV = "AWS_SECRET_ACCESS_KEY";
 const AWS_PROFILE_ENV = "AWS_PROFILE";
 
 function resolveProviderConfig(
-  cfg: OpenClawConfig | undefined,
+  cfg: MoltbotConfig | undefined,
   provider: string,
 ): ModelProviderConfig | undefined {
   const providers = cfg?.models?.providers ?? {};
   const direct = providers[provider] as ModelProviderConfig | undefined;
-  if (direct) {
-    return direct;
-  }
+  if (direct) return direct;
   const normalized = normalizeProviderId(provider);
   if (normalized === provider) {
     const matched = Object.entries(providers).find(
       ([key]) => normalizeProviderId(key) === normalized,
     );
-    return matched?.[1];
+    return matched?.[1] as ModelProviderConfig | undefined;
   }
   return (
     (providers[normalized] as ModelProviderConfig | undefined) ??
-    Object.entries(providers).find(([key]) => normalizeProviderId(key) === normalized)?.[1]
+    (Object.entries(providers).find(([key]) => normalizeProviderId(key) === normalized)?.[1] as
+      | ModelProviderConfig
+      | undefined)
   );
 }
 
 export function getCustomProviderApiKey(
-  cfg: OpenClawConfig | undefined,
+  cfg: MoltbotConfig | undefined,
   provider: string,
 ): string | undefined {
   const entry = resolveProviderConfig(cfg, provider);
@@ -57,7 +54,7 @@ export function getCustomProviderApiKey(
 }
 
 function resolveProviderAuthOverride(
-  cfg: OpenClawConfig | undefined,
+  cfg: MoltbotConfig | undefined,
   provider: string,
 ): ModelProviderAuthMode | undefined {
   const entry = resolveProviderConfig(cfg, provider);
@@ -79,15 +76,11 @@ function resolveEnvSourceLabel(params: {
 }
 
 export function resolveAwsSdkEnvVarName(env: NodeJS.ProcessEnv = process.env): string | undefined {
-  if (env[AWS_BEARER_ENV]?.trim()) {
-    return AWS_BEARER_ENV;
-  }
+  if (env[AWS_BEARER_ENV]?.trim()) return AWS_BEARER_ENV;
   if (env[AWS_ACCESS_KEY_ENV]?.trim() && env[AWS_SECRET_KEY_ENV]?.trim()) {
     return AWS_ACCESS_KEY_ENV;
   }
-  if (env[AWS_PROFILE_ENV]?.trim()) {
-    return AWS_PROFILE_ENV;
-  }
+  if (env[AWS_PROFILE_ENV]?.trim()) return AWS_PROFILE_ENV;
   return undefined;
 }
 
@@ -135,7 +128,7 @@ export type ResolvedProviderAuth = {
 
 export async function resolveApiKeyForProvider(params: {
   provider: string;
-  cfg?: OpenClawConfig;
+  cfg?: MoltbotConfig;
   profileId?: string;
   preferredProfile?: string;
   store?: AuthProfileStore;
@@ -217,7 +210,7 @@ export async function resolveApiKeyForProvider(params: {
     const hasCodex = listProfilesForProvider(store, "openai-codex").length > 0;
     if (hasCodex) {
       throw new Error(
-        'No API key found for provider "openai". You are authenticated with OpenAI Codex OAuth. Use openai-codex/gpt-5.3-codex (OAuth) or set OPENAI_API_KEY to use openai/gpt-5.1-codex.',
+        'No API key found for provider "openai". You are authenticated with OpenAI Codex OAuth. Use openai-codex/gpt-5.2 (ChatGPT OAuth) or set OPENAI_API_KEY for openai/gpt-5.2.',
       );
     }
   }
@@ -228,7 +221,7 @@ export async function resolveApiKeyForProvider(params: {
     [
       `No API key found for provider "${provider}".`,
       `Auth store: ${authStorePath} (agentDir: ${resolvedAgentDir}).`,
-      `Configure auth for this agent (${formatCliCommand("openclaw agents add <id>")}) or copy auth-profiles.json from the main agentDir.`,
+      `Configure auth for this agent (${formatCliCommand("moltbot agents add <id>")}) or copy auth-profiles.json from the main agentDir.`,
     ].join(" "),
   );
 }
@@ -241,9 +234,7 @@ export function resolveEnvApiKey(provider: string): EnvApiKeyResult | null {
   const applied = new Set(getShellEnvAppliedKeys());
   const pick = (envVar: string): EnvApiKeyResult | null => {
     const value = process.env[envVar]?.trim();
-    if (!value) {
-      return null;
-    }
+    if (!value) return null;
     const source = applied.has(envVar) ? `shell env: ${envVar}` : `env: ${envVar}`;
     return { apiKey: value, source };
   };
@@ -266,9 +257,7 @@ export function resolveEnvApiKey(provider: string): EnvApiKeyResult | null {
 
   if (normalized === "google-vertex") {
     const envKey = getEnvApiKey(normalized);
-    if (!envKey) {
-      return null;
-    }
+    if (!envKey) return null;
     return { apiKey: envKey, source: "gcloud adc" };
   }
 
@@ -280,62 +269,38 @@ export function resolveEnvApiKey(provider: string): EnvApiKeyResult | null {
     return pick("QWEN_OAUTH_TOKEN") ?? pick("QWEN_PORTAL_API_KEY");
   }
 
-<<<<<<< HEAD
-=======
-  if (normalized === "minimax-portal") {
-    return pick("MINIMAX_OAUTH_TOKEN") ?? pick("MINIMAX_API_KEY");
-  }
-
-  if (normalized === "kimi-coding") {
-    return pick("KIMI_API_KEY") ?? pick("KIMICODE_API_KEY");
-  }
-
->>>>>>> 1287328b6 (feat: add MiniMax OAuth plugin (#4521) (thanks @Maosghoul))
   const envMap: Record<string, string> = {
     openai: "OPENAI_API_KEY",
     google: "GEMINI_API_KEY",
-    voyage: "VOYAGE_API_KEY",
     groq: "GROQ_API_KEY",
     deepgram: "DEEPGRAM_API_KEY",
     cerebras: "CEREBRAS_API_KEY",
     xai: "XAI_API_KEY",
     openrouter: "OPENROUTER_API_KEY",
     "vercel-ai-gateway": "AI_GATEWAY_API_KEY",
-    "cloudflare-ai-gateway": "CLOUDFLARE_AI_GATEWAY_API_KEY",
     moonshot: "MOONSHOT_API_KEY",
+    "kimi-code": "KIMICODE_API_KEY",
     minimax: "MINIMAX_API_KEY",
-    xiaomi: "XIAOMI_API_KEY",
     synthetic: "SYNTHETIC_API_KEY",
     venice: "VENICE_API_KEY",
     mistral: "MISTRAL_API_KEY",
     opencode: "OPENCODE_API_KEY",
-<<<<<<< HEAD
-    qianfan: "QIANFAN_API_KEY",
-=======
-    ollama: "OLLAMA_API_KEY",
->>>>>>> 34a58b839 (fix(ollama): add streaming config and fix OLLAMA_API_KEY env var support (#9870))
   };
   const envVar = envMap[normalized];
-  if (!envVar) {
-    return null;
-  }
+  if (!envVar) return null;
   return pick(envVar);
 }
 
 export function resolveModelAuthMode(
   provider?: string,
-  cfg?: OpenClawConfig,
+  cfg?: MoltbotConfig,
   store?: AuthProfileStore,
 ): ModelAuthMode | undefined {
   const resolved = provider?.trim();
-  if (!resolved) {
-    return undefined;
-  }
+  if (!resolved) return undefined;
 
   const authOverride = resolveProviderAuthOverride(cfg, resolved);
-  if (authOverride === "aws-sdk") {
-    return "aws-sdk";
-  }
+  if (authOverride === "aws-sdk") return "aws-sdk";
 
   const authStore = store ?? ensureAuthProfileStore();
   const profiles = listProfilesForProvider(authStore, resolved);
@@ -348,18 +313,10 @@ export function resolveModelAuthMode(
     const distinct = ["oauth", "token", "api_key"].filter((k) =>
       modes.has(k as "oauth" | "token" | "api_key"),
     );
-    if (distinct.length >= 2) {
-      return "mixed";
-    }
-    if (modes.has("oauth")) {
-      return "oauth";
-    }
-    if (modes.has("token")) {
-      return "token";
-    }
-    if (modes.has("api_key")) {
-      return "api-key";
-    }
+    if (distinct.length >= 2) return "mixed";
+    if (modes.has("oauth")) return "oauth";
+    if (modes.has("token")) return "token";
+    if (modes.has("api_key")) return "api-key";
   }
 
   if (authOverride === undefined && normalizeProviderId(resolved) === "amazon-bedrock") {
@@ -371,16 +328,14 @@ export function resolveModelAuthMode(
     return envKey.source.includes("OAUTH_TOKEN") ? "oauth" : "api-key";
   }
 
-  if (getCustomProviderApiKey(cfg, resolved)) {
-    return "api-key";
-  }
+  if (getCustomProviderApiKey(cfg, resolved)) return "api-key";
 
   return "unknown";
 }
 
 export async function getApiKeyForModel(params: {
   model: Model<Api>;
-  cfg?: OpenClawConfig;
+  cfg?: MoltbotConfig;
   profileId?: string;
   preferredProfile?: string;
   store?: AuthProfileStore;
@@ -398,8 +353,6 @@ export async function getApiKeyForModel(params: {
 
 export function requireApiKey(auth: ResolvedProviderAuth, provider: string): string {
   const key = auth.apiKey?.trim();
-  if (key) {
-    return key;
-  }
+  if (key) return key;
   throw new Error(`No API key resolved for provider "${provider}" (auth mode: ${auth.mode}).`);
 }

@@ -1,4 +1,4 @@
-import type { OpenClawConfig } from "../config/config.js";
+import type { MoltbotConfig } from "../config/config.js";
 
 export {
   hasBinary,
@@ -14,7 +14,7 @@ export {
   applySkillEnvOverridesFromSnapshot,
 } from "./skills/env-overrides.js";
 export type {
-  OpenClawSkillMetadata,
+  MoltbotSkillMetadata,
   SkillEligibilityContext,
   SkillCommandSpec,
   SkillEntry,
@@ -32,14 +32,14 @@ export {
   syncSkillsToWorkspace,
 } from "./skills/workspace.js";
 
-export function resolveSkillsInstallPreferences(config?: OpenClawConfig) {
+export function resolveSkillsInstallPreferences(config?: MoltbotConfig) {
   const raw = config?.skills?.install;
   const preferBrew = raw?.preferBrew ?? true;
   const managerRaw = typeof raw?.nodeManager === "string" ? raw.nodeManager.trim() : "";
   const manager = managerRaw.toLowerCase();
-  const nodeManager: SkillsInstallPreferences["nodeManager"] =
+  const nodeManager =
     manager === "pnpm" || manager === "yarn" || manager === "bun" || manager === "npm"
-      ? manager
+      ? (manager as "npm" | "pnpm" | "yarn" | "bun")
       : "npm";
   return { preferBrew, nodeManager };
 }

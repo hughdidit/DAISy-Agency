@@ -1,10 +1,5 @@
-<<<<<<< HEAD
 import { describe, expect, it } from "vitest";
 import type { MoltbotConfig } from "clawdbot/plugin-sdk";
-=======
-import type { OpenClawConfig } from "openclaw/plugin-sdk";
-import { describe, expect, it } from "vitest";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { twitchPlugin } from "./plugin.js";
 
 describe("twitchPlugin.status.buildAccountSnapshot", () => {
@@ -32,7 +27,7 @@ describe("twitchPlugin.status.buildAccountSnapshot", () => {
           },
         },
       },
-    } as OpenClawConfig;
+    } as MoltbotConfig;
 
     const snapshot = await twitchPlugin.status?.buildAccountSnapshot?.({
       account: secondary,

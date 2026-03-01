@@ -1,9 +1,10 @@
 import { describe, expect, it, vi } from "vitest";
+
 import type { ModelAliasIndex } from "../../agents/model-selection.js";
-import type { OpenClawConfig } from "../../config/config.js";
+import type { MoltbotConfig } from "../../config/config.js";
 import type { SessionEntry } from "../../config/sessions.js";
-import { handleDirectiveOnly } from "./directive-handling.impl.js";
 import { parseInlineDirectives } from "./directive-handling.js";
+import { handleDirectiveOnly } from "./directive-handling.impl.js";
 import {
   maybeHandleModelDirectiveInfo,
   resolveModelSelectionFromDirective,
@@ -32,17 +33,17 @@ function baseAliasIndex(): ModelAliasIndex {
   return { byAlias: new Map(), byKey: new Map() };
 }
 
-function baseConfig(): OpenClawConfig {
+function baseConfig(): MoltbotConfig {
   return {
     commands: { text: true },
     agents: { defaults: {} },
-  } as unknown as OpenClawConfig;
+  } as unknown as MoltbotConfig;
 }
 
 describe("/model chat UX", () => {
   it("shows summary for /model with no args", async () => {
     const directives = parseInlineDirectives("/model");
-    const cfg = { commands: { text: true } } as unknown as OpenClawConfig;
+    const cfg = { commands: { text: true } } as unknown as MoltbotConfig;
 
     const reply = await maybeHandleModelDirectiveInfo({
       directives,
@@ -65,7 +66,7 @@ describe("/model chat UX", () => {
 
   it("auto-applies closest match for typos", () => {
     const directives = parseInlineDirectives("/model anthropic/claud-opus-4-5");
-    const cfg = { commands: { text: true } } as unknown as OpenClawConfig;
+    const cfg = { commands: { text: true } } as unknown as MoltbotConfig;
 
     const resolved = resolveModelSelectionFromDirective({
       directives,

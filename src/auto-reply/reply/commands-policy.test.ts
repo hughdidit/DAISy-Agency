@@ -1,10 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
-<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../../config/config.js";
-=======
-import type { OpenClawConfig } from "../../config/config.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { MsgContext } from "../templating.js";
 import { buildCommandContext, handleCommands } from "./commands.js";
 import { parseInlineDirectives } from "./directive-handling.js";
@@ -60,7 +56,7 @@ vi.mock("../../agents/model-catalog.js", () => ({
   ]),
 }));
 
-function buildParams(commandBody: string, cfg: OpenClawConfig, ctxOverrides?: Partial<MsgContext>) {
+function buildParams(commandBody: string, cfg: MoltbotConfig, ctxOverrides?: Partial<MsgContext>) {
   const ctx = {
     Body: commandBody,
     CommandBody: commandBody,
@@ -105,7 +101,7 @@ describe("handleCommands /allowlist", () => {
     const cfg = {
       commands: { text: true },
       channels: { telegram: { allowFrom: ["123", "@Alice"] } },
-    } as OpenClawConfig;
+    } as MoltbotConfig;
     const params = buildParams("/allowlist list dm", cfg);
     const result = await handleCommands(params);
 
@@ -134,7 +130,7 @@ describe("handleCommands /allowlist", () => {
     const cfg = {
       commands: { text: true, config: true },
       channels: { telegram: { allowFrom: ["123"] } },
-    } as OpenClawConfig;
+    } as MoltbotConfig;
     const params = buildParams("/allowlist add dm 789", cfg);
     const result = await handleCommands(params);
 
@@ -156,9 +152,9 @@ describe("/models command", () => {
   const cfg = {
     commands: { text: true },
     agents: { defaults: { model: { primary: "anthropic/claude-opus-4-5" } } },
-  } as unknown as OpenClawConfig;
+  } as unknown as MoltbotConfig;
 
-  it.each(["discord", "whatsapp"])("lists providers on %s (text)", async (surface) => {
+  it.each(["telegram", "discord", "whatsapp"])("lists providers on %s", async (surface) => {
     const params = buildParams("/models", cfg, { Provider: surface, Surface: surface });
     const result = await handleCommands(params);
     expect(result.shouldContinue).toBe(false);
@@ -167,20 +163,8 @@ describe("/models command", () => {
     expect(result.reply?.text).toContain("Use: /models <provider>");
   });
 
-  it("lists providers on telegram (buttons)", async () => {
-    const params = buildParams("/models", cfg, { Provider: "telegram", Surface: "telegram" });
-    const result = await handleCommands(params);
-    expect(result.shouldContinue).toBe(false);
-    expect(result.reply?.text).toBe("Select a provider:");
-    const buttons = (result.reply?.channelData as { telegram?: { buttons?: unknown[][] } })
-      ?.telegram?.buttons;
-    expect(buttons).toBeDefined();
-    expect(buttons?.length).toBeGreaterThan(0);
-  });
-
   it("lists provider models with pagination hints", async () => {
-    // Use discord surface for text-based output tests
-    const params = buildParams("/models anthropic", cfg, { Surface: "discord" });
+    const params = buildParams("/models anthropic", cfg);
     const result = await handleCommands(params);
     expect(result.shouldContinue).toBe(false);
     expect(result.reply?.text).toContain("Models (anthropic)");
@@ -191,8 +175,7 @@ describe("/models command", () => {
   });
 
   it("ignores page argument when all flag is present", async () => {
-    // Use discord surface for text-based output tests
-    const params = buildParams("/models anthropic 3 all", cfg, { Surface: "discord" });
+    const params = buildParams("/models anthropic 3 all", cfg);
     const result = await handleCommands(params);
     expect(result.shouldContinue).toBe(false);
     expect(result.reply?.text).toContain("Models (anthropic)");
@@ -202,8 +185,7 @@ describe("/models command", () => {
   });
 
   it("errors on out-of-range pages", async () => {
-    // Use discord surface for text-based output tests
-    const params = buildParams("/models anthropic 4", cfg, { Surface: "discord" });
+    const params = buildParams("/models anthropic 4", cfg);
     const result = await handleCommands(params);
     expect(result.shouldContinue).toBe(false);
     expect(result.reply?.text).toContain("Page out of range");
@@ -230,18 +212,13 @@ describe("/models command", () => {
           imageModel: "visionpro/studio-v1",
         },
       },
-    } as unknown as OpenClawConfig;
+    } as unknown as MoltbotConfig;
 
-    // Use discord surface for text-based output tests
-    const providerList = await handleCommands(
-      buildParams("/models", customCfg, { Surface: "discord" }),
-    );
+    const providerList = await handleCommands(buildParams("/models", customCfg));
     expect(providerList.reply?.text).toContain("localai");
     expect(providerList.reply?.text).toContain("visionpro");
 
-    const result = await handleCommands(
-      buildParams("/models localai", customCfg, { Surface: "discord" }),
-    );
+    const result = await handleCommands(buildParams("/models localai", customCfg));
     expect(result.shouldContinue).toBe(false);
     expect(result.reply?.text).toContain("Models (localai)");
     expect(result.reply?.text).toContain("localai/ultra-chat");

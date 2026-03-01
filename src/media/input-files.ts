@@ -1,10 +1,10 @@
-import type { Dispatcher } from "undici";
+import { logWarn } from "../logger.js";
 import {
   closeDispatcher,
   createPinnedDispatcher,
   resolvePinnedHostname,
 } from "../infra/net/ssrf.js";
-import { logWarn } from "../logger.js";
+import type { Dispatcher } from "undici";
 
 type CanvasModule = typeof import("@napi-rs/canvas");
 type PdfJsModule = typeof import("pdfjs-dist/legacy/build/pdf.mjs");
@@ -112,10 +112,12 @@ export const DEFAULT_INPUT_PDF_MAX_PAGES = 4;
 export const DEFAULT_INPUT_PDF_MAX_PIXELS = 4_000_000;
 export const DEFAULT_INPUT_PDF_MIN_TEXT_CHARS = 200;
 
+function isRedirectStatus(status: number): boolean {
+  return status === 301 || status === 302 || status === 303 || status === 307 || status === 308;
+}
+
 export function normalizeMimeType(value: string | undefined): string | undefined {
-  if (!value) {
-    return undefined;
-  }
+  if (!value) return undefined;
   const [raw] = value.split(";");
   const normalized = raw?.trim().toLowerCase();
   return normalized || undefined;
@@ -125,9 +127,7 @@ export function parseContentType(value: string | undefined): {
   mimeType?: string;
   charset?: string;
 } {
-  if (!value) {
-    return {};
-  }
+  if (!value) return {};
   const parts = value.split(";").map((part) => part.trim());
   const mimeType = normalizeMimeType(parts[0]);
   const charset = parts
@@ -147,23 +147,25 @@ export async function fetchWithGuard(params: {
   timeoutMs: number;
   maxRedirects: number;
 }): Promise<InputFetchResult> {
-  const { response, release } = await fetchWithSsrFGuard({
-    url: params.url,
-    maxRedirects: params.maxRedirects,
-    timeoutMs: params.timeoutMs,
-    init: { headers: { "User-Agent": "OpenClaw-Gateway/1.0" } },
-  });
+  let currentUrl = params.url;
+  let redirectCount = 0;
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), params.timeoutMs);
 
   try {
-    if (!response.ok) {
-      throw new Error(`Failed to fetch: ${response.status} ${response.statusText}`);
-    }
+    while (true) {
+      const parsedUrl = new URL(currentUrl);
+      if (!["http:", "https:"].includes(parsedUrl.protocol)) {
+        throw new Error(`Invalid URL protocol: ${parsedUrl.protocol}. Only HTTP/HTTPS allowed.`);
+      }
+      const pinned = await resolvePinnedHostname(parsedUrl.hostname);
+      const dispatcher = createPinnedDispatcher(pinned);
 
-<<<<<<< HEAD
       try {
         const response = await fetch(parsedUrl, {
           signal: controller.signal,
-          headers: { "User-Agent": "OpenClaw-Gateway/1.0" },
+          headers: { "User-Agent": "Moltbot-Gateway/1.0" },
           redirect: "manual",
           dispatcher,
         } as RequestInit & { dispatcher: Dispatcher });
@@ -207,29 +209,10 @@ export async function fetchWithGuard(params: {
         return { buffer, mimeType, contentType };
       } finally {
         await closeDispatcher(dispatcher);
-=======
-    const contentLength = response.headers.get("content-length");
-    if (contentLength) {
-      const size = parseInt(contentLength, 10);
-      if (size > params.maxBytes) {
-        throw new Error(`Content too large: ${size} bytes (limit: ${params.maxBytes} bytes)`);
->>>>>>> 81c68f582 (fix: guard remote media fetches with SSRF checks)
       }
     }
-
-    const buffer = Buffer.from(await response.arrayBuffer());
-    if (buffer.byteLength > params.maxBytes) {
-      throw new Error(
-        `Content too large: ${buffer.byteLength} bytes (limit: ${params.maxBytes} bytes)`,
-      );
-    }
-
-    const contentType = response.headers.get("content-type") || undefined;
-    const parsed = parseContentType(contentType);
-    const mimeType = parsed.mimeType ?? "application/octet-stream";
-    return { buffer, mimeType, contentType };
   } finally {
-    await release();
+    clearTimeout(timeoutId);
   }
 }
 
@@ -243,9 +226,7 @@ function decodeTextContent(buffer: Buffer, charset: string | undefined): string 
 }
 
 function clampText(text: string, maxChars: number): string {
-  if (text.length <= maxChars) {
-    return text;
-  }
+  if (text.length <= maxChars) return text;
   return text.slice(0, maxChars);
 }
 
@@ -269,9 +250,7 @@ async function extractPdfContent(params: {
       .map((item) => ("str" in item ? String(item.str) : ""))
       .filter(Boolean)
       .join(" ");
-    if (pageText) {
-      textParts.push(pageText);
-    }
+    if (pageText) textParts.push(pageText);
   }
 
   const text = textParts.join("\n\n");

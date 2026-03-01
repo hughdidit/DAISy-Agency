@@ -1,16 +1,14 @@
 import {
-  createReplyPrefixOptions,
+  createReplyPrefixContext,
   createTypingCallbacks,
   logTypingFailure,
   resolveChannelMediaMaxBytes,
-  type OpenClawConfig,
+  type MoltbotConfig,
   type MSTeamsReplyStyle,
   type RuntimeEnv,
-} from "openclaw/plugin-sdk";
+} from "clawdbot/plugin-sdk";
 import type { MSTeamsAccessTokenProvider } from "./attachments/types.js";
 import type { StoredConversationReference } from "./conversation-store.js";
-import type { MSTeamsMonitorLogger } from "./monitor-types.js";
-import type { MSTeamsTurnContext } from "./sdk-types.js";
 import {
   classifyMSTeamsSendError,
   formatMSTeamsSendErrorHint,
@@ -21,12 +19,13 @@ import {
   renderReplyPayloadsToMessages,
   sendMSTeamsMessages,
 } from "./messenger.js";
+import type { MSTeamsMonitorLogger } from "./monitor-types.js";
+import type { MSTeamsTurnContext } from "./sdk-types.js";
 import { getMSTeamsRuntime } from "./runtime.js";
 
 export function createMSTeamsReplyDispatcher(params: {
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   agentId: string;
-  accountId?: string;
   runtime: RuntimeEnv;
   log: MSTeamsMonitorLogger;
   adapter: MSTeamsAdapter;
@@ -56,17 +55,16 @@ export function createMSTeamsReplyDispatcher(params: {
       });
     },
   });
-  const { onModelSelected, ...prefixOptions } = createReplyPrefixOptions({
+  const prefixContext = createReplyPrefixContext({
     cfg: params.cfg,
     agentId: params.agentId,
-    channel: "msteams",
-    accountId: params.accountId,
   });
   const chunkMode = core.channel.text.resolveChunkMode(params.cfg, "msteams");
 
   const { dispatcher, replyOptions, markDispatchIdle } =
     core.channel.reply.createReplyDispatcherWithTyping({
-      ...prefixOptions,
+      responsePrefix: prefixContext.responsePrefix,
+      responsePrefixContextProvider: prefixContext.responsePrefixContextProvider,
       humanDelay: core.channel.reply.resolveHumanDelayConfig(params.cfg, params.agentId),
       deliver: async (payload) => {
         const tableMode = core.channel.text.resolveMarkdownTableMode({
@@ -103,9 +101,7 @@ export function createMSTeamsReplyDispatcher(params: {
           sharePointSiteId: params.sharePointSiteId,
           mediaMaxBytes,
         });
-        if (ids.length > 0) {
-          params.onSentMessageIds?.(ids);
-        }
+        if (ids.length > 0) params.onSentMessageIds?.(ids);
       },
       onError: (err, info) => {
         const errMsg = formatUnknownError(err);
@@ -126,7 +122,7 @@ export function createMSTeamsReplyDispatcher(params: {
 
   return {
     dispatcher,
-    replyOptions: { ...replyOptions, onModelSelected },
+    replyOptions: { ...replyOptions, onModelSelected: prefixContext.onModelSelected },
     markDispatchIdle,
   };
 }

@@ -1,4 +1,5 @@
 import { createServer } from "node:http";
+
 import { afterEach, describe, expect, it } from "vitest";
 import { WebSocketServer } from "ws";
 import { rawDataToString } from "../infra/ws.js";
@@ -10,16 +11,12 @@ describe("cdp", () => {
 
   afterEach(async () => {
     await new Promise<void>((resolve) => {
-      if (!httpServer) {
-        return resolve();
-      }
+      if (!httpServer) return resolve();
       httpServer.close(() => resolve());
       httpServer = null;
     });
     await new Promise<void>((resolve) => {
-      if (!wsServer) {
-        return resolve();
-      }
+      if (!wsServer) return resolve();
       wsServer.close(() => resolve());
       wsServer = null;
     });
@@ -37,9 +34,7 @@ describe("cdp", () => {
           method?: string;
           params?: { url?: string };
         };
-        if (msg.method !== "Target.createTarget") {
-          return;
-        }
+        if (msg.method !== "Target.createTarget") return;
         socket.send(
           JSON.stringify({
             id: msg.id,

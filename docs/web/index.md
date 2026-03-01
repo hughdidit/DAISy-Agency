@@ -3,15 +3,13 @@ summary: "Gateway web surfaces: Control UI, bind modes, and security"
 read_when:
   - You want to access the Gateway over Tailscale
   - You want the browser Control UI and config editing
-title: "Web"
 ---
-
 # Web (Gateway)
 
 The Gateway serves a small **browser Control UI** (Vite + Lit) from the same port as the Gateway WebSocket:
 
 - default: `http://<host>:18789/`
-- optional prefix: set `gateway.controlUi.basePath` (e.g. `/openclaw`)
+- optional prefix: set `gateway.controlUi.basePath` (e.g. `/moltbot`)
 
 Capabilities live in [Control UI](/web/control-ui).
 This page focuses on bind modes, security, and web-facing surfaces.
@@ -29,12 +27,8 @@ You can control it via config:
 ```json5
 {
   gateway: {
-    controlUi: { enabled: true, basePath: "/openclaw" } // basePath optional
+    controlUi: { enabled: true, basePath: "/moltbot" } // basePath optional
   }
-=======
-    controlUi: { enabled: true, basePath: "/openclaw" }, // basePath optional
-  },
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 }
 ```
 
@@ -48,19 +42,18 @@ Keep the Gateway on loopback and let Tailscale Serve proxy it:
 {
   gateway: {
     bind: "loopback",
-    tailscale: { mode: "serve" },
-  },
+    tailscale: { mode: "serve" }
+  }
 }
 ```
 
 Then start the gateway:
 
 ```bash
-openclaw gateway
+moltbot gateway
 ```
 
 Open:
-
 - `https://<magicdns>/` (or your configured `gateway.controlUi.basePath`)
 
 ### Tailnet bind + token
@@ -70,19 +63,18 @@ Open:
   gateway: {
     bind: "tailnet",
     controlUi: { enabled: true },
-    auth: { mode: "token", token: "your-token" },
-  },
+    auth: { mode: "token", token: "your-token" }
+  }
 }
 ```
 
 Then start the gateway (token required for non-loopback binds):
 
 ```bash
-openclaw gateway
+moltbot gateway
 ```
 
 Open:
-
 - `http://<tailscale-ip>:18789/` (or your configured `gateway.controlUi.basePath`)
 
 ### Public internet (Funnel)
@@ -92,12 +84,8 @@ Open:
   gateway: {
     bind: "loopback",
     tailscale: { mode: "funnel" },
-    auth: { mode: "password" } // or OPENCLAW_GATEWAY_PASSWORD
+    auth: { mode: "password" } // or CLAWDBOT_GATEWAY_PASSWORD
   }
-=======
-    auth: { mode: "password" }, // or OPENCLAW_GATEWAY_PASSWORD
-  },
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 }
 ```
 
@@ -107,8 +95,6 @@ Open:
 - Non-loopback binds still **require** a shared token/password (`gateway.auth` or env).
 - The wizard generates a gateway token by default (even on loopback).
 - The UI sends `connect.params.auth.token` or `connect.params.auth.password`.
-- The Control UI sends anti-clickjacking headers and only accepts same-origin browser
-  websocket connections unless `gateway.controlUi.allowedOrigins` is set.
 - With Serve, Tailscale identity headers can satisfy auth when
   `gateway.auth.allowTailscale` is `true` (no token/password required). Set
   `gateway.auth.allowTailscale: false` to require explicit credentials. See

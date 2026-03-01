@@ -2,19 +2,17 @@
 summary: "Expose an OpenAI-compatible /v1/chat/completions HTTP endpoint from the Gateway"
 read_when:
   - Integrating tools that expect OpenAI Chat Completions
-title: "OpenAI Chat Completions"
 ---
-
 # OpenAI Chat Completions (HTTP)
 
-OpenClaw’s Gateway can serve a small OpenAI-compatible Chat Completions endpoint.
+Moltbot’s Gateway can serve a small OpenAI-compatible Chat Completions endpoint.
 
 This endpoint is **disabled by default**. Enable it in config first.
 
 - `POST /v1/chat/completions`
 - Same port as the Gateway (WS + HTTP multiplex): `http://<gateway-host>:<port>/v1/chat/completions`
 
-Under the hood, requests are executed as a normal Gateway agent run (same codepath as `openclaw agent`), so routing/permissions/config match your Gateway.
+Under the hood, requests are executed as a normal Gateway agent run (same codepath as `moltbot agent`), so routing/permissions/config match your Gateway.
 
 ## Authentication
 
@@ -23,22 +21,22 @@ Uses the Gateway auth configuration. Send a bearer token:
 - `Authorization: Bearer <token>`
 
 Notes:
-- When `gateway.auth.mode="token"`, use `gateway.auth.token` (or `OPENCLAW_GATEWAY_TOKEN`).
-- When `gateway.auth.mode="password"`, use `gateway.auth.password` (or `OPENCLAW_GATEWAY_PASSWORD`).
+- When `gateway.auth.mode="token"`, use `gateway.auth.token` (or `CLAWDBOT_GATEWAY_TOKEN`).
+- When `gateway.auth.mode="password"`, use `gateway.auth.password` (or `CLAWDBOT_GATEWAY_PASSWORD`).
 
 ## Choosing an agent
 
 No custom headers required: encode the agent id in the OpenAI `model` field:
 
-- `model: "openclaw:<agentId>"` (example: `"openclaw:main"`, `"openclaw:beta"`)
+- `model: "moltbot:<agentId>"` (example: `"moltbot:main"`, `"moltbot:beta"`)
 - `model: "agent:<agentId>"` (alias)
 
-Or target a specific OpenClaw agent by header:
+Or target a specific Moltbot agent by header:
 
-- `x-openclaw-agent-id: <agentId>` (default: `main`)
+- `x-moltbot-agent-id: <agentId>` (default: `main`)
 
 Advanced:
-- `x-openclaw-session-key: <sessionKey>` to fully control session routing.
+- `x-moltbot-session-key: <sessionKey>` to fully control session routing.
 
 ## Enabling the endpoint
 
@@ -49,10 +47,10 @@ Set `gateway.http.endpoints.chatCompletions.enabled` to `true`:
   gateway: {
     http: {
       endpoints: {
-        chatCompletions: { enabled: true },
-      },
-    },
-  },
+        chatCompletions: { enabled: true }
+      }
+    }
+  }
 }
 ```
 
@@ -65,10 +63,10 @@ Set `gateway.http.endpoints.chatCompletions.enabled` to `false`:
   gateway: {
     http: {
       endpoints: {
-        chatCompletions: { enabled: false },
-      },
-    },
-  },
+        chatCompletions: { enabled: false }
+      }
+    }
+  }
 }
 ```
 
@@ -89,27 +87,25 @@ Set `stream: true` to receive Server-Sent Events (SSE):
 ## Examples
 
 Non-streaming:
-
 ```bash
 curl -sS http://127.0.0.1:18789/v1/chat/completions \
   -H 'Authorization: Bearer YOUR_TOKEN' \
   -H 'Content-Type: application/json' \
-  -H 'x-openclaw-agent-id: main' \
+  -H 'x-moltbot-agent-id: main' \
   -d '{
-    "model": "openclaw",
+    "model": "moltbot",
     "messages": [{"role":"user","content":"hi"}]
   }'
 ```
 
 Streaming:
-
 ```bash
 curl -N http://127.0.0.1:18789/v1/chat/completions \
   -H 'Authorization: Bearer YOUR_TOKEN' \
   -H 'Content-Type: application/json' \
-  -H 'x-openclaw-agent-id: main' \
+  -H 'x-moltbot-agent-id: main' \
   -d '{
-    "model": "openclaw",
+    "model": "moltbot",
     "stream": true,
     "messages": [{"role":"user","content":"hi"}]
   }'

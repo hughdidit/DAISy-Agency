@@ -1,20 +1,13 @@
 import type { NormalizedUsage } from "../../agents/usage.js";
+import { getChannelDock } from "../../channels/dock.js";
 import type { ChannelId, ChannelThreadingToolContext } from "../../channels/plugins/types.js";
-<<<<<<< HEAD
 import { normalizeAnyChannelId, normalizeChannelId } from "../../channels/registry.js";
-import type { OpenClawConfig } from "../../config/config.js";
+import type { MoltbotConfig } from "../../config/config.js";
 import { isReasoningTagProvider } from "../../utils/provider-utils.js";
 import { estimateUsageCost, formatTokenCount, formatUsd } from "../../utils/usage-format.js";
-=======
-import type { OpenClawConfig } from "../../config/config.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { TemplateContext } from "../templating.js";
 import type { ReplyPayload } from "../types.js";
 import type { FollowupRun } from "./queue.js";
-import { getChannelDock } from "../../channels/dock.js";
-import { normalizeAnyChannelId, normalizeChannelId } from "../../channels/registry.js";
-import { isReasoningTagProvider } from "../../utils/provider-utils.js";
-import { estimateUsageCost, formatTokenCount, formatUsd } from "../../utils/usage-format.js";
 
 const BUN_FETCH_SOCKET_ERROR_RE = /socket connection was closed unexpectedly/i;
 
@@ -23,17 +16,13 @@ const BUN_FETCH_SOCKET_ERROR_RE = /socket connection was closed unexpectedly/i;
  */
 export function buildThreadingToolContext(params: {
   sessionCtx: TemplateContext;
-  config: OpenClawConfig | undefined;
+  config: MoltbotConfig | undefined;
   hasRepliedRef: { value: boolean } | undefined;
 }): ChannelThreadingToolContext {
   const { sessionCtx, config, hasRepliedRef } = params;
-  if (!config) {
-    return {};
-  }
+  if (!config) return {};
   const rawProvider = sessionCtx.Provider?.trim().toLowerCase();
-  if (!rawProvider) {
-    return {};
-  }
+  if (!rawProvider) return {};
   const provider = normalizeChannelId(rawProvider) ?? normalizeAnyChannelId(rawProvider);
   // Fallback for unrecognized/plugin channels (e.g., BlueBubbles before plugin registry init)
   const dock = provider ? getChannelDock(provider) : undefined;
@@ -89,14 +78,10 @@ export const formatResponseUsageLine = (params: {
   };
 }): string | null => {
   const usage = params.usage;
-  if (!usage) {
-    return null;
-  }
+  if (!usage) return null;
   const input = usage.input;
   const output = usage.output;
-  if (typeof input !== "number" && typeof output !== "number") {
-    return null;
-  }
+  if (typeof input !== "number" && typeof output !== "number") return null;
   const inputLabel = typeof input === "number" ? formatTokenCount(input) : "?";
   const outputLabel = typeof output === "number" ? formatTokenCount(output) : "?";
   const cost =
@@ -124,9 +109,7 @@ export const appendUsageLine = (payloads: ReplyPayload[], line: string): ReplyPa
       break;
     }
   }
-  if (index === -1) {
-    return [...payloads, { text: line }];
-  }
+  if (index === -1) return [...payloads, { text: line }];
   const existing = payloads[index];
   const existingText = existing.text ?? "";
   const separator = existingText.endsWith("\n") ? "" : "\n";

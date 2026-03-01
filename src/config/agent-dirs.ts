@@ -1,13 +1,9 @@
 import os from "node:os";
 import path from "node:path";
-import type { OpenClawConfig } from "./types.js";
 import { DEFAULT_AGENT_ID, normalizeAgentId } from "../routing/session-key.js";
 import { resolveUserPath } from "../utils.js";
 import { resolveStateDir } from "./paths.js";
-<<<<<<< HEAD
 import type { MoltbotConfig } from "./types.js";
-=======
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 
 export type DuplicateAgentDir = {
   agentDir: string;
@@ -32,7 +28,7 @@ function canonicalizeAgentDir(agentDir: string): string {
   return resolved;
 }
 
-function collectReferencedAgentIds(cfg: OpenClawConfig): string[] {
+function collectReferencedAgentIds(cfg: MoltbotConfig): string[] {
   const ids = new Set<string>();
 
   const agents = Array.isArray(cfg.agents?.list) ? cfg.agents?.list : [];
@@ -41,9 +37,7 @@ function collectReferencedAgentIds(cfg: OpenClawConfig): string[] {
   ids.add(normalizeAgentId(defaultAgentId));
 
   for (const entry of agents) {
-    if (entry?.id) {
-      ids.add(normalizeAgentId(entry.id));
-    }
+    if (entry?.id) ids.add(normalizeAgentId(entry.id));
   }
 
   const bindings = cfg.bindings;
@@ -60,7 +54,7 @@ function collectReferencedAgentIds(cfg: OpenClawConfig): string[] {
 }
 
 function resolveEffectiveAgentDir(
-  cfg: OpenClawConfig,
+  cfg: MoltbotConfig,
   agentId: string,
   deps?: { env?: NodeJS.ProcessEnv; homedir?: () => string },
 ): string {
@@ -69,15 +63,13 @@ function resolveEffectiveAgentDir(
     ? cfg.agents?.list.find((agent) => normalizeAgentId(agent.id) === id)?.agentDir
     : undefined;
   const trimmed = configured?.trim();
-  if (trimmed) {
-    return resolveUserPath(trimmed);
-  }
+  if (trimmed) return resolveUserPath(trimmed);
   const root = resolveStateDir(deps?.env ?? process.env, deps?.homedir ?? os.homedir);
   return path.join(root, "agents", id, "agent");
 }
 
 export function findDuplicateAgentDirs(
-  cfg: OpenClawConfig,
+  cfg: MoltbotConfig,
   deps?: { env?: NodeJS.ProcessEnv; homedir?: () => string },
 ): DuplicateAgentDir[] {
   const byDir = new Map<string, { agentDir: string; agentIds: string[] }>();

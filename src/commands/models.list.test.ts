@@ -1,45 +1,33 @@
 import { describe, expect, it, vi } from "vitest";
 
 const loadConfig = vi.fn();
-const ensureOpenClawModelsJson = vi.fn().mockResolvedValue(undefined);
-const resolveOpenClawAgentDir = vi.fn().mockReturnValue("/tmp/openclaw-agent");
+const ensureMoltbotModelsJson = vi.fn().mockResolvedValue(undefined);
+const resolveMoltbotAgentDir = vi.fn().mockReturnValue("/tmp/moltbot-agent");
 const ensureAuthProfileStore = vi.fn().mockReturnValue({ version: 1, profiles: {} });
 const listProfilesForProvider = vi.fn().mockReturnValue([]);
 const resolveAuthProfileDisplayLabel = vi.fn(({ profileId }: { profileId: string }) => profileId);
 const resolveAuthStorePathForDisplay = vi
   .fn()
-  .mockReturnValue("/tmp/openclaw-agent/auth-profiles.json");
+  .mockReturnValue("/tmp/moltbot-agent/auth-profiles.json");
 const resolveProfileUnusableUntilForDisplay = vi.fn().mockReturnValue(null);
 const resolveEnvApiKey = vi.fn().mockReturnValue(undefined);
 const resolveAwsSdkEnvVarName = vi.fn().mockReturnValue(undefined);
 const getCustomProviderApiKey = vi.fn().mockReturnValue(undefined);
-<<<<<<< HEAD
 const discoverAuthStorage = vi.fn().mockReturnValue({});
 const discoverModels = vi.fn();
-=======
-const modelRegistryState = {
-  models: [] as Array<Record<string, unknown>>,
-  available: [] as Array<Record<string, unknown>>,
-};
-const discoverAuthStorage = vi.fn().mockReturnValue({});
-const discoverModels = vi.fn().mockReturnValue({
-  getAll: () => modelRegistryState.models,
-  getAvailable: () => modelRegistryState.available,
-});
->>>>>>> d2a852b98 (fix: align embedded session setup with sdk)
 
 vi.mock("../config/config.js", () => ({
-  CONFIG_PATH: "/tmp/openclaw.json",
-  STATE_DIR: "/tmp/openclaw-state",
+  CONFIG_PATH: "/tmp/moltbot.json",
+  STATE_DIR: "/tmp/moltbot-state",
   loadConfig,
 }));
 
 vi.mock("../agents/models-config.js", () => ({
-  ensureOpenClawModelsJson,
+  ensureMoltbotModelsJson,
 }));
 
 vi.mock("../agents/agent-paths.js", () => ({
-  resolveOpenClawAgentDir,
+  resolveMoltbotAgentDir,
 }));
 
 vi.mock("../agents/auth-profiles.js", () => ({
@@ -56,11 +44,7 @@ vi.mock("../agents/model-auth.js", () => ({
   getCustomProviderApiKey,
 }));
 
-<<<<<<< HEAD
 vi.mock("@mariozechner/pi-coding-agent", () => ({
-=======
-vi.mock("../agents/pi-model-discovery.js", () => ({
->>>>>>> 08ed62852 (chore: update deps and pi model discovery)
   discoverAuthStorage,
   discoverModels,
 }));
@@ -115,8 +99,10 @@ describe("models list/status", () => {
       contextWindow: 128000,
     };
 
-    modelRegistryState.models = [model];
-    modelRegistryState.available = [model];
+    discoverModels.mockReturnValue({
+      getAll: () => [model],
+      getAvailable: () => [model],
+    });
 
     const { modelsListCommand } = await import("./models/list.js");
     await modelsListCommand({ json: true }, runtime);
@@ -141,8 +127,10 @@ describe("models list/status", () => {
       contextWindow: 128000,
     };
 
-    modelRegistryState.models = [model];
-    modelRegistryState.available = [model];
+    discoverModels.mockReturnValue({
+      getAll: () => [model],
+      getAvailable: () => [model],
+    });
 
     const { modelsListCommand } = await import("./models/list.js");
     await modelsListCommand({ plain: true }, runtime);
@@ -176,8 +164,10 @@ describe("models list/status", () => {
       },
     ];
 
-    modelRegistryState.models = models;
-    modelRegistryState.available = models;
+    discoverModels.mockReturnValue({
+      getAll: () => models,
+      getAvailable: () => models,
+    });
 
     const { modelsListCommand } = await import("./models/list.js");
     await modelsListCommand({ all: true, provider: "z.ai", json: true }, runtime);
@@ -213,8 +203,10 @@ describe("models list/status", () => {
       },
     ];
 
-    modelRegistryState.models = models;
-    modelRegistryState.available = models;
+    discoverModels.mockReturnValue({
+      getAll: () => models,
+      getAvailable: () => models,
+    });
 
     const { modelsListCommand } = await import("./models/list.js");
     await modelsListCommand({ all: true, provider: "Z.AI", json: true }, runtime);
@@ -250,8 +242,10 @@ describe("models list/status", () => {
       },
     ];
 
-    modelRegistryState.models = models;
-    modelRegistryState.available = models;
+    discoverModels.mockReturnValue({
+      getAll: () => models,
+      getAvailable: () => models,
+    });
 
     const { modelsListCommand } = await import("./models/list.js");
     await modelsListCommand({ all: true, provider: "z-ai", json: true }, runtime);
@@ -277,8 +271,10 @@ describe("models list/status", () => {
       contextWindow: 128000,
     };
 
-    modelRegistryState.models = [model];
-    modelRegistryState.available = [];
+    discoverModels.mockReturnValue({
+      getAll: () => [model],
+      getAvailable: () => [],
+    });
 
     const { modelsListCommand } = await import("./models/list.js");
     await modelsListCommand({ all: true, json: true }, runtime);

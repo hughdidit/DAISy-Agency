@@ -1,9 +1,8 @@
-import type { OpenClawConfig } from "../../config/config.js";
+import type { MoltbotConfig } from "../../config/config.js";
 import type { ExecAsk, ExecHost, ExecSecurity } from "../../infra/exec-approvals.js";
+import { extractModelDirective } from "../model.js";
 import type { MsgContext } from "../templating.js";
 import type { ElevatedLevel, ReasoningLevel, ThinkLevel, VerboseLevel } from "./directives.js";
-import type { QueueDropPolicy, QueueMode } from "./queue.js";
-import { extractModelDirective } from "../model.js";
 import {
   extractElevatedDirective,
   extractExecDirective,
@@ -13,6 +12,7 @@ import {
   extractVerboseDirective,
 } from "./directives.js";
 import { stripMentions, stripStructuralPrefixes } from "./mentions.js";
+import type { QueueDropPolicy, QueueMode } from "./queue.js";
 import { extractQueueDirective } from "./queue.js";
 
 export type InlineDirectives = {
@@ -193,7 +193,7 @@ export function isDirectiveOnly(params: {
   directives: InlineDirectives;
   cleanedBody: string;
   ctx: MsgContext;
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   agentId?: string;
   isGroup: boolean;
 }): boolean {
@@ -206,9 +206,8 @@ export function isDirectiveOnly(params: {
     !directives.hasExecDirective &&
     !directives.hasModelDirective &&
     !directives.hasQueueDirective
-  ) {
+  )
     return false;
-  }
   const stripped = stripStructuralPrefixes(cleanedBody ?? "");
   const noMentions = isGroup ? stripMentions(stripped, ctx, cfg, agentId) : stripped;
   return noMentions.length === 0;

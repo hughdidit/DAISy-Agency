@@ -34,9 +34,7 @@ export function htmlToMarkdown(html: string): { text: string; title?: string } {
     .replace(/<noscript[\s\S]*?<\/noscript>/gi, "");
   text = text.replace(/<a\s+[^>]*href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi, (_, href, body) => {
     const label = normalizeWhitespace(stripTags(body));
-    if (!label) {
-      return href;
-    }
+    if (!label) return href;
     return `[${label}](${href})`;
   });
   text = text.replace(/<h([1-6])[^>]*>([\s\S]*?)<\/h\1>/gi, (_, level, body) => {
@@ -74,9 +72,7 @@ export function truncateText(
   value: string,
   maxChars: number,
 ): { text: string; truncated: boolean } {
-  if (value.length <= maxChars) {
-    return { text: value, truncated: false };
-  }
+  if (value.length <= maxChars) return { text: value, truncated: false };
   return { text: value.slice(0, maxChars), truncated: true };
 }
 
@@ -106,9 +102,7 @@ export async function extractReadableContent(params: {
     }
     const reader = new Readability(document, { charThreshold: 0 });
     const parsed = reader.parse();
-    if (!parsed?.content) {
-      return fallback();
-    }
+    if (!parsed?.content) return fallback();
     const title = parsed.title || undefined;
     if (params.extractMode === "text") {
       const text = normalizeWhitespace(parsed.textContent ?? "");

@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
+
 import { createEditorSubmitHandler } from "./tui.js";
 
 describe("createEditorSubmitHandler", () => {

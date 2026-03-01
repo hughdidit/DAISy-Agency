@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+
 import { looksLikeSignalTargetId, normalizeSignalMessagingTarget } from "./signal.js";
 
 describe("signal target normalization", () => {

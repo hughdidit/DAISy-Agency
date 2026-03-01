@@ -1,14 +1,10 @@
 import { describe, expect, it } from "vitest";
-<<<<<<< HEAD
 
 import { MoltbotSchema } from "./zod-schema.js";
-=======
-import { OpenClawSchema } from "./zod-schema.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 
 describe("telegram custom commands schema", () => {
   it("normalizes custom commands", () => {
-    const res = OpenClawSchema.safeParse({
+    const res = MoltbotSchema.safeParse({
       channels: {
         telegram: {
           customCommands: [{ command: "/Backup", description: "  Git backup  " }],
@@ -17,9 +13,7 @@ describe("telegram custom commands schema", () => {
     });
 
     expect(res.success).toBe(true);
-    if (!res.success) {
-      return;
-    }
+    if (!res.success) return;
 
     expect(res.data.channels?.telegram?.customCommands).toEqual([
       { command: "backup", description: "Git backup" },
@@ -27,7 +21,7 @@ describe("telegram custom commands schema", () => {
   });
 
   it("rejects custom commands with invalid names", () => {
-    const res = OpenClawSchema.safeParse({
+    const res = MoltbotSchema.safeParse({
       channels: {
         telegram: {
           customCommands: [{ command: "Bad-Name", description: "Override status" }],
@@ -36,9 +30,7 @@ describe("telegram custom commands schema", () => {
     });
 
     expect(res.success).toBe(false);
-    if (res.success) {
-      return;
-    }
+    if (res.success) return;
 
     expect(
       res.error.issues.some(

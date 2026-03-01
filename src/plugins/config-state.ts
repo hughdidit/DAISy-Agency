@@ -1,11 +1,6 @@
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
 import { defaultSlotIdForKey } from "./slots.js";
-=======
-import type { OpenClawConfig } from "../config/config.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { PluginRecord } from "./registry.js";
-import { defaultSlotIdForKey } from "./slots.js";
 
 export type NormalizedPluginsConfig = {
   enabled: boolean;
@@ -18,30 +13,18 @@ export type NormalizedPluginsConfig = {
   entries: Record<string, { enabled?: boolean; config?: unknown }>;
 };
 
-export const BUNDLED_ENABLED_BY_DEFAULT = new Set<string>([
-  "device-pair",
-  "phone-control",
-  "talk-voice",
-]);
+export const BUNDLED_ENABLED_BY_DEFAULT = new Set<string>();
 
 const normalizeList = (value: unknown): string[] => {
-  if (!Array.isArray(value)) {
-    return [];
-  }
+  if (!Array.isArray(value)) return [];
   return value.map((entry) => (typeof entry === "string" ? entry.trim() : "")).filter(Boolean);
 };
 
 const normalizeSlotValue = (value: unknown): string | null | undefined => {
-  if (typeof value !== "string") {
-    return undefined;
-  }
+  if (typeof value !== "string") return undefined;
   const trimmed = value.trim();
-  if (!trimmed) {
-    return undefined;
-  }
-  if (trimmed.toLowerCase() === "none") {
-    return null;
-  }
+  if (!trimmed) return undefined;
+  if (trimmed.toLowerCase() === "none") return null;
   return trimmed;
 };
 
@@ -51,9 +34,7 @@ const normalizePluginEntries = (entries: unknown): NormalizedPluginsConfig["entr
   }
   const normalized: NormalizedPluginsConfig["entries"] = {};
   for (const [key, value] of Object.entries(entries)) {
-    if (!key.trim()) {
-      continue;
-    }
+    if (!key.trim()) continue;
     if (!value || typeof value !== "object" || Array.isArray(value)) {
       normalized[key] = {};
       continue;
@@ -68,7 +49,7 @@ const normalizePluginEntries = (entries: unknown): NormalizedPluginsConfig["entr
 };
 
 export const normalizePluginsConfig = (
-  config?: OpenClawConfig["plugins"],
+  config?: MoltbotConfig["plugins"],
 ): NormalizedPluginsConfig => {
   const memorySlot = normalizeSlotValue(config?.slots?.memory);
   return {
@@ -83,75 +64,6 @@ export const normalizePluginsConfig = (
   };
 };
 
-<<<<<<< HEAD
-=======
-const hasExplicitMemorySlot = (plugins?: MoltbotConfig["plugins"]) =>
-  Boolean(plugins?.slots && Object.prototype.hasOwnProperty.call(plugins.slots, "memory"));
-
-const hasExplicitMemoryEntry = (plugins?: MoltbotConfig["plugins"]) =>
-  Boolean(plugins?.entries && Object.prototype.hasOwnProperty.call(plugins.entries, "memory-core"));
-
-const hasExplicitPluginConfig = (plugins?: MoltbotConfig["plugins"]) => {
-  if (!plugins) return false;
-  if (typeof plugins.enabled === "boolean") return true;
-  if (Array.isArray(plugins.allow) && plugins.allow.length > 0) return true;
-  if (Array.isArray(plugins.deny) && plugins.deny.length > 0) return true;
-  if (plugins.load?.paths && Array.isArray(plugins.load.paths) && plugins.load.paths.length > 0)
-    return true;
-  if (plugins.slots && Object.keys(plugins.slots).length > 0) return true;
-  if (plugins.entries && Object.keys(plugins.entries).length > 0) return true;
-  return false;
-};
-
-export function applyTestPluginDefaults(
-  cfg: MoltbotConfig,
-  env: NodeJS.ProcessEnv = process.env,
-): MoltbotConfig {
-  if (!env.VITEST) return cfg;
-  const plugins = cfg.plugins;
-  const explicitConfig = hasExplicitPluginConfig(plugins);
-  if (explicitConfig) {
-    if (hasExplicitMemorySlot(plugins) || hasExplicitMemoryEntry(plugins)) {
-      return cfg;
-    }
-    return {
-      ...cfg,
-      plugins: {
-        ...plugins,
-        slots: {
-          ...plugins?.slots,
-          memory: "none",
-        },
-      },
-    };
-  }
-
-  return {
-    ...cfg,
-    plugins: {
-      ...plugins,
-      enabled: false,
-      slots: {
-        ...plugins?.slots,
-        memory: "none",
-      },
-    },
-  };
-}
-
-export function isTestDefaultMemorySlotDisabled(
-  cfg: MoltbotConfig,
-  env: NodeJS.ProcessEnv = process.env,
-): boolean {
-  if (!env.VITEST) return false;
-  const plugins = cfg.plugins;
-  if (hasExplicitMemorySlot(plugins) || hasExplicitMemoryEntry(plugins)) {
-    return false;
-  }
-  return true;
-}
-
->>>>>>> 06289b36d (fix(security): harden SSH target handling (#4001))
 export function resolveEnableState(
   id: string,
   origin: PluginRecord["origin"],
@@ -191,9 +103,7 @@ export function resolveMemorySlotDecision(params: {
   slot: string | null | undefined;
   selectedId: string | null;
 }): { enabled: boolean; reason?: string; selected?: boolean } {
-  if (params.kind !== "memory") {
-    return { enabled: true };
-  }
+  if (params.kind !== "memory") return { enabled: true };
   if (params.slot === null) {
     return { enabled: false, reason: "memory slot disabled" };
   }

@@ -1,26 +1,18 @@
 import fs from "node:fs";
-<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../config/config.js";
-=======
-import type { OpenClawConfig } from "../config/config.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { listAgentIds, resolveAgentWorkspaceDir } from "../agents/agent-scope.js";
-import { buildWorkspaceSkillCommandSpecs, type SkillCommandSpec } from "../agents/skills.js";
 import { getRemoteSkillEligibility } from "../infra/skills-remote.js";
+import { buildWorkspaceSkillCommandSpecs, type SkillCommandSpec } from "../agents/skills.js";
 import { listChatCommands } from "./commands-registry.js";
 
 function resolveReservedCommandNames(): Set<string> {
   const reserved = new Set<string>();
   for (const command of listChatCommands()) {
-    if (command.nativeName) {
-      reserved.add(command.nativeName.toLowerCase());
-    }
+    if (command.nativeName) reserved.add(command.nativeName.toLowerCase());
     for (const alias of command.textAliases) {
       const trimmed = alias.trim();
-      if (!trimmed.startsWith("/")) {
-        continue;
-      }
+      if (!trimmed.startsWith("/")) continue;
       reserved.add(trimmed.slice(1).toLowerCase());
     }
   }
@@ -29,7 +21,7 @@ function resolveReservedCommandNames(): Set<string> {
 
 export function listSkillCommandsForWorkspace(params: {
   workspaceDir: string;
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   skillFilter?: string[];
 }): SkillCommandSpec[] {
   return buildWorkspaceSkillCommandSpecs(params.workspaceDir, {
@@ -41,30 +33,15 @@ export function listSkillCommandsForWorkspace(params: {
 }
 
 export function listSkillCommandsForAgents(params: {
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   agentIds?: string[];
 }): SkillCommandSpec[] {
   const used = resolveReservedCommandNames();
   const entries: SkillCommandSpec[] = [];
   const agentIds = params.agentIds ?? listAgentIds(params.cfg);
-  // Track visited workspace dirs to avoid registering duplicate commands
-  // when multiple agents share the same workspace directory (#5717).
-  const visitedDirs = new Set<string>();
   for (const agentId of agentIds) {
     const workspaceDir = resolveAgentWorkspaceDir(params.cfg, agentId);
-<<<<<<< HEAD
     if (!fs.existsSync(workspaceDir)) continue;
-=======
-    if (!fs.existsSync(workspaceDir)) {
-      continue;
-    }
-    // Resolve to canonical path to handle symlinks and relative paths
-    const canonicalDir = fs.realpathSync(workspaceDir);
-    if (visitedDirs.has(canonicalDir)) {
-      continue;
-    }
-    visitedDirs.add(canonicalDir);
->>>>>>> 1007d71f0 (fix: comprehensive BlueBubbles and channel cleanup (#11093))
     const commands = buildWorkspaceSkillCommandSpecs(workspaceDir, {
       config: params.cfg,
       eligibility: { remote: getRemoteSkillEligibility() },
@@ -90,18 +67,12 @@ function findSkillCommand(
   rawName: string,
 ): SkillCommandSpec | undefined {
   const trimmed = rawName.trim();
-  if (!trimmed) {
-    return undefined;
-  }
+  if (!trimmed) return undefined;
   const lowered = trimmed.toLowerCase();
   const normalized = normalizeSkillCommandLookup(trimmed);
   return skillCommands.find((entry) => {
-    if (entry.name.toLowerCase() === lowered) {
-      return true;
-    }
-    if (entry.skillName.toLowerCase() === lowered) {
-      return true;
-    }
+    if (entry.name.toLowerCase() === lowered) return true;
+    if (entry.skillName.toLowerCase() === lowered) return true;
     return (
       normalizeSkillCommandLookup(entry.name) === normalized ||
       normalizeSkillCommandLookup(entry.skillName) === normalized
@@ -114,37 +85,23 @@ export function resolveSkillCommandInvocation(params: {
   skillCommands: SkillCommandSpec[];
 }): { command: SkillCommandSpec; args?: string } | null {
   const trimmed = params.commandBodyNormalized.trim();
-  if (!trimmed.startsWith("/")) {
-    return null;
-  }
+  if (!trimmed.startsWith("/")) return null;
   const match = trimmed.match(/^\/([^\s]+)(?:\s+([\s\S]+))?$/);
-  if (!match) {
-    return null;
-  }
+  if (!match) return null;
   const commandName = match[1]?.trim().toLowerCase();
-  if (!commandName) {
-    return null;
-  }
+  if (!commandName) return null;
   if (commandName === "skill") {
     const remainder = match[2]?.trim();
-    if (!remainder) {
-      return null;
-    }
+    if (!remainder) return null;
     const skillMatch = remainder.match(/^([^\s]+)(?:\s+([\s\S]+))?$/);
-    if (!skillMatch) {
-      return null;
-    }
+    if (!skillMatch) return null;
     const skillCommand = findSkillCommand(params.skillCommands, skillMatch[1] ?? "");
-    if (!skillCommand) {
-      return null;
-    }
+    if (!skillCommand) return null;
     const args = skillMatch[2]?.trim();
     return { command: skillCommand, args: args || undefined };
   }
   const command = params.skillCommands.find((entry) => entry.name.toLowerCase() === commandName);
-  if (!command) {
-    return null;
-  }
+  if (!command) return null;
   const args = match[2]?.trim();
   return { command, args: args || undefined };
 }

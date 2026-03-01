@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+
 import { resolveTelegramTargetChatType } from "./inline-buttons.js";
 
 describe("resolveTelegramTargetChatType", () => {

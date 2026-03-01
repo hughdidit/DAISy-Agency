@@ -16,7 +16,7 @@ const createEmptyRegistry = (): PluginRegistry => ({
   diagnostics: [],
 });
 
-const REGISTRY_STATE = Symbol.for("openclaw.pluginRegistryState");
+const REGISTRY_STATE = Symbol.for("moltbot.pluginRegistryState");
 
 type RegistryState = {
   registry: PluginRegistry | null;
@@ -33,7 +33,7 @@ const state: RegistryState = (() => {
       key: null,
     };
   }
-  return globalState[REGISTRY_STATE];
+  return globalState[REGISTRY_STATE] as RegistryState;
 })();
 
 export function setActivePluginRegistry(registry: PluginRegistry, cacheKey?: string) {

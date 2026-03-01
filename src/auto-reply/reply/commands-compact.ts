@@ -1,26 +1,22 @@
-import type { OpenClawConfig } from "../../config/config.js";
-import type { CommandHandler } from "./commands-types.js";
 import {
   abortEmbeddedPiRun,
   compactEmbeddedPiSession,
   isEmbeddedPiRunActive,
   waitForEmbeddedPiRunEnd,
 } from "../../agents/pi-embedded.js";
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
-=======
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { resolveSessionFilePath } from "../../config/sessions.js";
 import { logVerbose } from "../../globals.js";
 import { enqueueSystemEvent } from "../../infra/system-events.js";
 import { formatContextUsageShort, formatTokenCount } from "../status.js";
+import type { CommandHandler } from "./commands-types.js";
 import { stripMentions, stripStructuralPrefixes } from "./mentions.js";
 import { incrementCompactionCount } from "./session-updates.js";
 
 function extractCompactInstructions(params: {
   rawBody?: string;
   ctx: import("../templating.js").MsgContext;
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   agentId?: string;
   isGroup: boolean;
 }): string | undefined {
@@ -29,18 +25,12 @@ function extractCompactInstructions(params: {
     ? stripMentions(raw, params.ctx, params.cfg, params.agentId)
     : raw;
   const trimmed = stripped.trim();
-  if (!trimmed) {
-    return undefined;
-  }
+  if (!trimmed) return undefined;
   const lowered = trimmed.toLowerCase();
   const prefix = lowered.startsWith("/compact") ? "/compact" : null;
-  if (!prefix) {
-    return undefined;
-  }
+  if (!prefix) return undefined;
   let rest = trimmed.slice(prefix.length).trimStart();
-  if (rest.startsWith(":")) {
-    rest = rest.slice(1).trimStart();
-  }
+  if (rest.startsWith(":")) rest = rest.slice(1).trimStart();
   return rest.length ? rest : undefined;
 }
 
@@ -48,9 +38,7 @@ export const handleCompactCommand: CommandHandler = async (params) => {
   const compactRequested =
     params.command.commandBodyNormalized === "/compact" ||
     params.command.commandBodyNormalized.startsWith("/compact ");
-  if (!compactRequested) {
-    return null;
-  }
+  if (!compactRequested) return null;
   if (!params.command.isAuthorizedSender) {
     logVerbose(
       `Ignoring /compact from unauthorized sender: ${params.command.senderId || "<unknown>"}`,
@@ -96,7 +84,6 @@ export const handleCompactCommand: CommandHandler = async (params) => {
       defaultLevel: "off",
     },
     customInstructions,
-    senderIsOwner: params.command.senderIsOwner,
     ownerNumbers: params.command.ownerList.length > 0 ? params.command.ownerList : undefined,
   });
 

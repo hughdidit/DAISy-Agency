@@ -49,29 +49,21 @@ function isHttpUrl(value: string): boolean {
 
 function parseMattermostTarget(raw: string): MattermostTarget {
   const trimmed = raw.trim();
-  if (!trimmed) {
-    throw new Error("Recipient is required for Mattermost sends");
-  }
+  if (!trimmed) throw new Error("Recipient is required for Mattermost sends");
   const lower = trimmed.toLowerCase();
   if (lower.startsWith("channel:")) {
     const id = trimmed.slice("channel:".length).trim();
-    if (!id) {
-      throw new Error("Channel id is required for Mattermost sends");
-    }
+    if (!id) throw new Error("Channel id is required for Mattermost sends");
     return { kind: "channel", id };
   }
   if (lower.startsWith("user:")) {
     const id = trimmed.slice("user:".length).trim();
-    if (!id) {
-      throw new Error("User id is required for Mattermost sends");
-    }
+    if (!id) throw new Error("User id is required for Mattermost sends");
     return { kind: "user", id };
   }
   if (lower.startsWith("mattermost:")) {
     const id = trimmed.slice("mattermost:".length).trim();
-    if (!id) {
-      throw new Error("User id is required for Mattermost sends");
-    }
+    if (!id) throw new Error("User id is required for Mattermost sends");
     return { kind: "user", id };
   }
   if (trimmed.startsWith("@")) {
@@ -87,9 +79,7 @@ function parseMattermostTarget(raw: string): MattermostTarget {
 async function resolveBotUser(baseUrl: string, token: string): Promise<MattermostUser> {
   const key = cacheKey(baseUrl, token);
   const cached = botUserCache.get(key);
-  if (cached) {
-    return cached;
-  }
+  if (cached) return cached;
   const client = createMattermostClient({ baseUrl, botToken: token });
   const user = await fetchMattermostMe(client);
   botUserCache.set(key, user);
@@ -104,9 +94,7 @@ async function resolveUserIdByUsername(params: {
   const { baseUrl, token, username } = params;
   const key = `${cacheKey(baseUrl, token)}::${username.toLowerCase()}`;
   const cached = userByNameCache.get(key);
-  if (cached?.id) {
-    return cached.id;
-  }
+  if (cached?.id) return cached.id;
   const client = createMattermostClient({ baseUrl, botToken: token });
   const user = await fetchMattermostUserByUsername(client, username);
   userByNameCache.set(key, user);
@@ -118,9 +106,7 @@ async function resolveTargetChannelId(params: {
   baseUrl: string;
   token: string;
 }): Promise<string> {
-  if (params.target.kind === "channel") {
-    return params.target.id;
-  }
+  if (params.target.kind === "channel") return params.target.id;
   const userId = params.target.id
     ? params.target.id
     : await resolveUserIdByUsername({

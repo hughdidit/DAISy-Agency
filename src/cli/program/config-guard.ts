@@ -1,9 +1,9 @@
-import type { RuntimeEnv } from "../../runtime.js";
-import { loadAndMaybeMigrateDoctorConfig } from "../../commands/doctor-config-flow.js";
 import { readConfigFileSnapshot } from "../../config/config.js";
+import { loadAndMaybeMigrateDoctorConfig } from "../../commands/doctor-config-flow.js";
 import { colorize, isRich, theme } from "../../terminal/theme.js";
-import { shortenHomePath } from "../../utils.js";
+import type { RuntimeEnv } from "../../runtime.js";
 import { formatCliCommand } from "../command-format.js";
+import { shortenHomePath } from "../../utils.js";
 
 const ALLOWED_INVALID_COMMANDS = new Set(["doctor", "logs", "health", "help", "status"]);
 const ALLOWED_INVALID_GATEWAY_SUBCOMMANDS = new Set([
@@ -52,9 +52,7 @@ export async function ensureConfigReady(params: {
       : [];
 
   const invalid = snapshot.exists && !snapshot.valid;
-  if (!invalid) {
-    return;
-  }
+  if (!invalid) return;
 
   const rich = isRich();
   const muted = (value: string) => colorize(rich, theme.muted, value);
@@ -73,9 +71,7 @@ export async function ensureConfigReady(params: {
     params.runtime.error(legacyIssues.map((issue) => `  ${error(issue)}`).join("\n"));
   }
   params.runtime.error("");
-  params.runtime.error(
-    `${muted("Run:")} ${commandText(formatCliCommand("openclaw doctor --fix"))}`,
-  );
+  params.runtime.error(`${muted("Run:")} ${commandText(formatCliCommand("moltbot doctor --fix"))}`);
   if (!allowInvalid) {
     params.runtime.exit(1);
   }

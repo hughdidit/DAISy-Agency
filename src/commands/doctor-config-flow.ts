@@ -1,39 +1,20 @@
-<<<<<<< HEAD
 import fs from "node:fs";
 import path from "node:path";
-=======
-import fs from "node:fs/promises";
-import path from "node:path";
-
->>>>>>> a155e2f8a (fix: migrate legacy config)
 import type { ZodIssue } from "zod";
 
 import type { MoltbotConfig } from "../config/config.js";
-=======
-import type { ZodIssue } from "zod";
-import fs from "node:fs/promises";
-import path from "node:path";
-import type { OpenClawConfig } from "../config/config.js";
-import type { DoctorOptions } from "./doctor-prompter.js";
-import { formatCliCommand } from "../cli/command-format.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import {
-  OpenClawSchema,
+  MoltbotSchema,
   CONFIG_PATH,
   migrateLegacyConfig,
   readConfigFileSnapshot,
 } from "../config/config.js";
 import { applyPluginAutoEnable } from "../config/plugin-auto-enable.js";
+import { formatCliCommand } from "../cli/command-format.js";
 import { note } from "../terminal/note.js";
-<<<<<<< HEAD
 import { normalizeLegacyConfigValues } from "./doctor-legacy-config.js";
 import type { DoctorOptions } from "./doctor-prompter.js";
-=======
-import { resolveHomeDir } from "../utils.js";
-import { normalizeLegacyConfigValues } from "./doctor-legacy-config.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { autoMigrateLegacyStateDir } from "./doctor-state-migrations.js";
-import { resolveHomeDir } from "../utils.js";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return Boolean(value && typeof value === "object" && !Array.isArray(value));
@@ -53,9 +34,7 @@ function isUnrecognizedKeysIssue(issue: ZodIssue): issue is UnrecognizedKeysIssu
 }
 
 function formatPath(parts: Array<string | number>): string {
-  if (parts.length === 0) {
-    return "<root>";
-  }
+  if (parts.length === 0) return "<root>";
   let out = "";
   for (const part of parts) {
     if (typeof part === "number") {
@@ -71,55 +50,39 @@ function resolvePathTarget(root: unknown, path: Array<string | number>): unknown
   let current: unknown = root;
   for (const part of path) {
     if (typeof part === "number") {
-      if (!Array.isArray(current)) {
-        return null;
-      }
-      if (part < 0 || part >= current.length) {
-        return null;
-      }
+      if (!Array.isArray(current)) return null;
+      if (part < 0 || part >= current.length) return null;
       current = current[part];
       continue;
     }
-    if (!current || typeof current !== "object" || Array.isArray(current)) {
-      return null;
-    }
+    if (!current || typeof current !== "object" || Array.isArray(current)) return null;
     const record = current as Record<string, unknown>;
-    if (!(part in record)) {
-      return null;
-    }
+    if (!(part in record)) return null;
     current = record[part];
   }
   return current;
 }
 
-function stripUnknownConfigKeys(config: OpenClawConfig): {
-  config: OpenClawConfig;
+function stripUnknownConfigKeys(config: MoltbotConfig): {
+  config: MoltbotConfig;
   removed: string[];
 } {
-  const parsed = OpenClawSchema.safeParse(config);
+  const parsed = MoltbotSchema.safeParse(config);
   if (parsed.success) {
     return { config, removed: [] };
   }
 
-  const next = structuredClone(config) as OpenClawConfig;
+  const next = structuredClone(config) as MoltbotConfig;
   const removed: string[] = [];
   for (const issue of parsed.error.issues) {
-    if (!isUnrecognizedKeysIssue(issue)) {
-      continue;
-    }
+    if (!isUnrecognizedKeysIssue(issue)) continue;
     const path = normalizeIssuePath(issue.path);
     const target = resolvePathTarget(next, path);
-    if (!target || typeof target !== "object" || Array.isArray(target)) {
-      continue;
-    }
+    if (!target || typeof target !== "object" || Array.isArray(target)) continue;
     const record = target as Record<string, unknown>;
     for (const key of issue.keys) {
-      if (typeof key !== "string") {
-        continue;
-      }
-      if (!(key in record)) {
-        continue;
-      }
+      if (typeof key !== "string") continue;
+      if (!(key in record)) continue;
       delete record[key];
       removed.push(formatPath([...path, key]));
     }
@@ -128,23 +91,15 @@ function stripUnknownConfigKeys(config: OpenClawConfig): {
   return { config: next, removed };
 }
 
-function noteOpencodeProviderOverrides(cfg: OpenClawConfig) {
+function noteOpencodeProviderOverrides(cfg: MoltbotConfig) {
   const providers = cfg.models?.providers;
-  if (!providers) {
-    return;
-  }
+  if (!providers) return;
 
   // 2026-01-10: warn when OpenCode Zen overrides mask built-in routing/costs (8a194b4abc360c6098f157956bb9322576b44d51, 2d105d16f8a099276114173836d46b46cdfbdbae).
   const overrides: string[] = [];
-  if (providers.opencode) {
-    overrides.push("opencode");
-  }
-  if (providers["opencode-zen"]) {
-    overrides.push("opencode-zen");
-  }
-  if (overrides.length === 0) {
-    return;
-  }
+  if (providers.opencode) overrides.push("opencode");
+  if (providers["opencode-zen"]) overrides.push("opencode-zen");
+  if (overrides.length === 0) return;
 
   const lines = overrides.flatMap((id) => {
     const providerEntry = providers[id];
@@ -165,6 +120,25 @@ function noteOpencodeProviderOverrides(cfg: OpenClawConfig) {
   note(lines.join("\n"), "OpenCode Zen");
 }
 
+function hasExplicitConfigPath(env: NodeJS.ProcessEnv): boolean {
+  return Boolean(env.MOLTBOT_CONFIG_PATH?.trim() || env.CLAWDBOT_CONFIG_PATH?.trim());
+}
+
+function moveLegacyConfigFile(legacyPath: string, canonicalPath: string) {
+  fs.mkdirSync(path.dirname(canonicalPath), { recursive: true, mode: 0o700 });
+  try {
+    fs.renameSync(legacyPath, canonicalPath);
+  } catch {
+    fs.copyFileSync(legacyPath, canonicalPath);
+    fs.chmodSync(canonicalPath, 0o600);
+    try {
+      fs.unlinkSync(legacyPath);
+    } catch {
+      // Best-effort cleanup; we'll warn later if both files exist.
+    }
+  }
+}
+
 export async function loadAndMaybeMigrateDoctorConfig(params: {
   options: DoctorOptions;
   confirm: (p: { message: string; initialValue: boolean }) => Promise<boolean>;
@@ -178,15 +152,21 @@ export async function loadAndMaybeMigrateDoctorConfig(params: {
     note(stateDirResult.warnings.map((entry) => `- ${entry}`).join("\n"), "Doctor warnings");
   }
 
-  const legacyConfigChanges = await maybeMigrateLegacyConfig();
-  if (legacyConfigChanges.length > 0) {
-    note(legacyConfigChanges.map((entry) => `- ${entry}`).join("\n"), "Doctor changes");
-  }
-
   let snapshot = await readConfigFileSnapshot();
+  if (!hasExplicitConfigPath(process.env) && snapshot.exists) {
+    const basename = path.basename(snapshot.path);
+    if (basename === "clawdbot.json") {
+      const canonicalPath = path.join(path.dirname(snapshot.path), "moltbot.json");
+      if (!fs.existsSync(canonicalPath)) {
+        moveLegacyConfigFile(snapshot.path, canonicalPath);
+        note(`- Config: ${snapshot.path} → ${canonicalPath}`, "Doctor changes");
+        snapshot = await readConfigFileSnapshot();
+      }
+    }
+  }
   const baseCfg = snapshot.config ?? {};
-  let cfg: OpenClawConfig = baseCfg;
-  let candidate = structuredClone(baseCfg) as OpenClawConfig;
+  let cfg: MoltbotConfig = baseCfg;
+  let candidate = structuredClone(baseCfg) as MoltbotConfig;
   let pendingChanges = false;
   let shouldWriteConfig = false;
   const fixHints: string[] = [];
@@ -214,12 +194,10 @@ export async function loadAndMaybeMigrateDoctorConfig(params: {
     }
     if (shouldRepair) {
       // Legacy migration (2026-01-02, commit: 16420e5b) — normalize per-provider allowlists; move WhatsApp gating into channels.whatsapp.allowFrom.
-      if (migrated) {
-        cfg = migrated;
-      }
+      if (migrated) cfg = migrated;
     } else {
       fixHints.push(
-        `Run "${formatCliCommand("openclaw doctor --fix")}" to apply legacy migrations.`,
+        `Run "${formatCliCommand("moltbot doctor --fix")}" to apply legacy migrations.`,
       );
     }
   }
@@ -232,7 +210,7 @@ export async function loadAndMaybeMigrateDoctorConfig(params: {
     if (shouldRepair) {
       cfg = normalized.config;
     } else {
-      fixHints.push(`Run "${formatCliCommand("openclaw doctor --fix")}" to apply these changes.`);
+      fixHints.push(`Run "${formatCliCommand("moltbot doctor --fix")}" to apply these changes.`);
     }
   }
 
@@ -244,7 +222,7 @@ export async function loadAndMaybeMigrateDoctorConfig(params: {
     if (shouldRepair) {
       cfg = autoEnable.config;
     } else {
-      fixHints.push(`Run "${formatCliCommand("openclaw doctor --fix")}" to apply these changes.`);
+      fixHints.push(`Run "${formatCliCommand("moltbot doctor --fix")}" to apply these changes.`);
     }
   }
 
@@ -258,7 +236,7 @@ export async function loadAndMaybeMigrateDoctorConfig(params: {
       note(lines, "Doctor changes");
     } else {
       note(lines, "Unknown config keys");
-      fixHints.push('Run "openclaw doctor --fix" to remove these keys.');
+      fixHints.push('Run "moltbot doctor --fix" to remove these keys.');
     }
   }
 

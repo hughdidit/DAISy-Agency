@@ -1,15 +1,11 @@
 import fs from "node:fs/promises";
 import path from "node:path";
+
+import { SILENT_REPLY_TOKEN } from "../auto-reply/tokens.js";
 import type { CliDeps } from "../cli/deps.js";
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
 import { resolveMainSessionKey } from "../config/sessions/main-session.js";
-=======
-import type { OpenClawConfig } from "../config/config.js";
-import { SILENT_REPLY_TOKEN } from "../auto-reply/tokens.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { agentCommand } from "../commands/agent.js";
-import { resolveMainSessionKey } from "../config/sessions/main-session.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import { type RuntimeEnv, defaultRuntime } from "../runtime.js";
 
@@ -42,21 +38,17 @@ async function loadBootFile(
   try {
     const content = await fs.readFile(bootPath, "utf-8");
     const trimmed = content.trim();
-    if (!trimmed) {
-      return { status: "empty" };
-    }
+    if (!trimmed) return { status: "empty" };
     return { status: "ok", content: trimmed };
   } catch (err) {
     const anyErr = err as { code?: string };
-    if (anyErr.code === "ENOENT") {
-      return { status: "missing" };
-    }
+    if (anyErr.code === "ENOENT") return { status: "missing" };
     throw err;
   }
 }
 
 export async function runBootOnce(params: {
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   deps: CliDeps;
   workspaceDir: string;
 }): Promise<BootRunResult> {

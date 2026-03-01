@@ -1,4 +1,4 @@
-import type { OpenClawConfig } from "../config/config.js";
+import type { MoltbotConfig } from "../config/config.js";
 import {
   type AuthProfileCredential,
   type AuthProfileStore,
@@ -44,20 +44,12 @@ export function resolveAuthProfileSource(_profileId: string): AuthProfileSource 
 }
 
 export function formatRemainingShort(remainingMs?: number): string {
-  if (remainingMs === undefined || Number.isNaN(remainingMs)) {
-    return "unknown";
-  }
-  if (remainingMs <= 0) {
-    return "0m";
-  }
+  if (remainingMs === undefined || Number.isNaN(remainingMs)) return "unknown";
+  if (remainingMs <= 0) return "0m";
   const minutes = Math.max(1, Math.round(remainingMs / 60_000));
-  if (minutes < 60) {
-    return `${minutes}m`;
-  }
+  if (minutes < 60) return `${minutes}m`;
   const hours = Math.round(minutes / 60);
-  if (hours < 48) {
-    return `${hours}h`;
-  }
+  if (hours < 48) return `${hours}h`;
   const days = Math.round(hours / 24);
   return `${days}d`;
 }
@@ -84,7 +76,7 @@ function buildProfileHealth(params: {
   profileId: string;
   credential: AuthProfileCredential;
   store: AuthProfileStore;
-  cfg?: OpenClawConfig;
+  cfg?: MoltbotConfig;
   now: number;
   warnAfterMs: number;
 }): AuthProfileHealth {
@@ -131,16 +123,7 @@ function buildProfileHealth(params: {
     };
   }
 
-  const hasRefreshToken = typeof credential.refresh === "string" && credential.refresh.length > 0;
-  const { status: rawStatus, remainingMs } = resolveOAuthStatus(
-    credential.expires,
-    now,
-    warnAfterMs,
-  );
-  // OAuth credentials with a valid refresh token auto-renew on first API call,
-  // so don't warn about access token expiration.
-  const status =
-    hasRefreshToken && (rawStatus === "expired" || rawStatus === "expiring") ? "ok" : rawStatus;
+  const { status, remainingMs } = resolveOAuthStatus(credential.expires, now, warnAfterMs);
   return {
     profileId,
     provider: credential.provider,
@@ -155,7 +138,7 @@ function buildProfileHealth(params: {
 
 export function buildAuthHealthSummary(params: {
   store: AuthProfileStore;
-  cfg?: OpenClawConfig;
+  cfg?: MoltbotConfig;
   warnAfterMs?: number;
   providers?: string[];
 }): AuthHealthSummary {
@@ -177,7 +160,7 @@ export function buildAuthHealthSummary(params: {
         warnAfterMs,
       }),
     )
-    .toSorted((a, b) => {
+    .sort((a, b) => {
       if (a.provider !== b.provider) {
         return a.provider.localeCompare(b.provider);
       }
@@ -234,17 +217,17 @@ export function buildAuthHealthSummary(params: {
       provider.remainingMs = provider.expiresAt - now;
     }
 
-    const statuses = new Set(expirable.map((p) => p.status));
-    if (statuses.has("expired") || statuses.has("missing")) {
+    const statuses = expirable.map((p) => p.status);
+    if (statuses.includes("expired") || statuses.includes("missing")) {
       provider.status = "expired";
-    } else if (statuses.has("expiring")) {
+    } else if (statuses.includes("expiring")) {
       provider.status = "expiring";
     } else {
       provider.status = "ok";
     }
   }
 
-  const providers = Array.from(providersMap.values()).toSorted((a, b) =>
+  const providers = Array.from(providersMap.values()).sort((a, b) =>
     a.provider.localeCompare(b.provider),
   );
 

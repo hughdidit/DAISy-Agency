@@ -1,16 +1,13 @@
 import crypto from "node:crypto";
+
 import type { MsgContext } from "../../auto-reply/templating.js";
-import type { OpenClawConfig } from "../../config/config.js";
 import {
   normalizeThinkLevel,
   normalizeVerboseLevel,
   type ThinkLevel,
   type VerboseLevel,
 } from "../../auto-reply/thinking.js";
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
-=======
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import {
   evaluateSessionFreshness,
   loadSessionStore,
@@ -43,7 +40,7 @@ type SessionKeyResolution = {
 };
 
 export function resolveSessionKeyForRequest(opts: {
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   to?: string;
   sessionId?: string;
   sessionKey?: string;
@@ -77,16 +74,14 @@ export function resolveSessionKeyForRequest(opts: {
     const foundKey = Object.keys(sessionStore).find(
       (key) => sessionStore[key]?.sessionId === opts.sessionId,
     );
-    if (foundKey) {
-      sessionKey = foundKey;
-    }
+    if (foundKey) sessionKey = foundKey;
   }
 
   return { sessionKey, sessionStore, storePath };
 }
 
 export function resolveSession(opts: {
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   to?: string;
   sessionId?: string;
   sessionKey?: string;

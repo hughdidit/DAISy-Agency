@@ -1,33 +1,28 @@
 import type {
   ChannelOnboardingAdapter,
   ChannelOnboardingDmPolicy,
-  OpenClawConfig,
+  MoltbotConfig,
   DmPolicy,
   WizardPrompter,
-} from "openclaw/plugin-sdk";
+} from "clawdbot/plugin-sdk";
 import {
   DEFAULT_ACCOUNT_ID,
   addWildcardAllowFrom,
   formatDocsLink,
   normalizeAccountId,
   promptAccountId,
-} from "openclaw/plugin-sdk";
+} from "clawdbot/plugin-sdk";
 import {
   listBlueBubblesAccountIds,
   resolveBlueBubblesAccount,
   resolveDefaultBlueBubblesAccountId,
 } from "./accounts.js";
-<<<<<<< HEAD
 import { normalizeBlueBubblesServerUrl } from "./types.js";
 import { parseBlueBubblesAllowTarget, normalizeBlueBubblesHandle } from "./targets.js";
-=======
-import { parseBlueBubblesAllowTarget } from "./targets.js";
-import { normalizeBlueBubblesServerUrl } from "./types.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 
 const channel = "bluebubbles" as const;
 
-function setBlueBubblesDmPolicy(cfg: OpenClawConfig, dmPolicy: DmPolicy): OpenClawConfig {
+function setBlueBubblesDmPolicy(cfg: MoltbotConfig, dmPolicy: DmPolicy): MoltbotConfig {
   const allowFrom =
     dmPolicy === "open" ? addWildcardAllowFrom(cfg.channels?.bluebubbles?.allowFrom) : undefined;
   return {
@@ -44,10 +39,10 @@ function setBlueBubblesDmPolicy(cfg: OpenClawConfig, dmPolicy: DmPolicy): OpenCl
 }
 
 function setBlueBubblesAllowFrom(
-  cfg: OpenClawConfig,
+  cfg: MoltbotConfig,
   accountId: string,
   allowFrom: string[],
-): OpenClawConfig {
+): MoltbotConfig {
   if (accountId === DEFAULT_ACCOUNT_ID) {
     return {
       ...cfg,
@@ -86,10 +81,10 @@ function parseBlueBubblesAllowFromInput(raw: string): string[] {
 }
 
 async function promptBlueBubblesAllowFrom(params: {
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   prompter: WizardPrompter;
   accountId?: string;
-}): Promise<OpenClawConfig> {
+}): Promise<MoltbotConfig> {
   const accountId =
     params.accountId && normalizeAccountId(params.accountId)
       ? (normalizeAccountId(params.accountId) ?? DEFAULT_ACCOUNT_ID)
@@ -115,14 +110,10 @@ async function promptBlueBubblesAllowFrom(params: {
     initialValue: existing[0] ? String(existing[0]) : undefined,
     validate: (value) => {
       const raw = String(value ?? "").trim();
-      if (!raw) {
-        return "Required";
-      }
+      if (!raw) return "Required";
       const parts = parseBlueBubblesAllowFromInput(raw);
       for (const part of parts) {
-        if (part === "*") {
-          continue;
-        }
+        if (part === "*") continue;
         const parsed = parseBlueBubblesAllowTarget(part);
         if (parsed.kind === "handle" && !parsed.handle) {
           return `Invalid entry: ${part}`;
@@ -197,9 +188,7 @@ export const blueBubblesOnboardingAdapter: ChannelOnboardingAdapter = {
         placeholder: "http://192.168.1.100:1234",
         validate: (value) => {
           const trimmed = String(value ?? "").trim();
-          if (!trimmed) {
-            return "Required";
-          }
+          if (!trimmed) return "Required";
           try {
             const normalized = normalizeBlueBubblesServerUrl(trimmed);
             new URL(normalized);
@@ -222,9 +211,7 @@ export const blueBubblesOnboardingAdapter: ChannelOnboardingAdapter = {
           initialValue: serverUrl,
           validate: (value) => {
             const trimmed = String(value ?? "").trim();
-            if (!trimmed) {
-              return "Required";
-            }
+            if (!trimmed) return "Required";
             try {
               const normalized = normalizeBlueBubblesServerUrl(trimmed);
               new URL(normalized);
@@ -281,12 +268,8 @@ export const blueBubblesOnboardingAdapter: ChannelOnboardingAdapter = {
         initialValue: existingWebhookPath || "/bluebubbles-webhook",
         validate: (value) => {
           const trimmed = String(value ?? "").trim();
-          if (!trimmed) {
-            return "Required";
-          }
-          if (!trimmed.startsWith("/")) {
-            return "Path must start with /";
-          }
+          if (!trimmed) return "Required";
+          if (!trimmed.startsWith("/")) return "Path must start with /";
           return undefined;
         },
       });
@@ -335,7 +318,7 @@ export const blueBubblesOnboardingAdapter: ChannelOnboardingAdapter = {
       [
         "Configure the webhook URL in BlueBubbles Server:",
         "1. Open BlueBubbles Server → Settings → Webhooks",
-        "2. Add your OpenClaw gateway URL + webhook path",
+        "2. Add your Moltbot gateway URL + webhook path",
         "   Example: https://your-gateway-host:3000/bluebubbles-webhook",
         "3. Enable the webhook and save",
         "",

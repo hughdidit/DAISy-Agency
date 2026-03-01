@@ -1,10 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../config/config.js";
-=======
-import type { OpenClawConfig } from "../config/config.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { resolveTelegramReactionLevel } from "./reaction-level.js";
 
 describe("resolveTelegramReactionLevel", () => {
@@ -23,7 +19,7 @@ describe("resolveTelegramReactionLevel", () => {
   });
 
   it("defaults to minimal level when reactionLevel is not set", () => {
-    const cfg: OpenClawConfig = {
+    const cfg: MoltbotConfig = {
       channels: { telegram: {} },
     };
 
@@ -35,7 +31,7 @@ describe("resolveTelegramReactionLevel", () => {
   });
 
   it("returns off level with no reactions enabled", () => {
-    const cfg: OpenClawConfig = {
+    const cfg: MoltbotConfig = {
       channels: { telegram: { reactionLevel: "off" } },
     };
 
@@ -47,7 +43,7 @@ describe("resolveTelegramReactionLevel", () => {
   });
 
   it("returns ack level with only ackEnabled", () => {
-    const cfg: OpenClawConfig = {
+    const cfg: MoltbotConfig = {
       channels: { telegram: { reactionLevel: "ack" } },
     };
 
@@ -59,7 +55,7 @@ describe("resolveTelegramReactionLevel", () => {
   });
 
   it("returns minimal level with agent reactions enabled and minimal guidance", () => {
-    const cfg: OpenClawConfig = {
+    const cfg: MoltbotConfig = {
       channels: { telegram: { reactionLevel: "minimal" } },
     };
 
@@ -71,7 +67,7 @@ describe("resolveTelegramReactionLevel", () => {
   });
 
   it("returns extensive level with agent reactions enabled and extensive guidance", () => {
-    const cfg: OpenClawConfig = {
+    const cfg: MoltbotConfig = {
       channels: { telegram: { reactionLevel: "extensive" } },
     };
 
@@ -83,7 +79,7 @@ describe("resolveTelegramReactionLevel", () => {
   });
 
   it("resolves reaction level from a specific account", () => {
-    const cfg: OpenClawConfig = {
+    const cfg: MoltbotConfig = {
       channels: {
         telegram: {
           reactionLevel: "ack",
@@ -102,7 +98,7 @@ describe("resolveTelegramReactionLevel", () => {
   });
 
   it("falls back to global level when account has no reactionLevel", () => {
-    const cfg: OpenClawConfig = {
+    const cfg: MoltbotConfig = {
       channels: {
         telegram: {
           reactionLevel: "minimal",

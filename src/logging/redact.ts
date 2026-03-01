@@ -1,10 +1,6 @@
 import { createRequire } from "node:module";
-<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../config/config.js";
-=======
-import type { OpenClawConfig } from "../config/config.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 
 const requireConfig = createRequire(import.meta.url);
 
@@ -50,9 +46,7 @@ function normalizeMode(value?: string): RedactSensitiveMode {
 }
 
 function parsePattern(raw: string): RegExp | null {
-  if (!raw.trim()) {
-    return null;
-  }
+  if (!raw.trim()) return null;
   const match = raw.match(/^\/(.+)\/([gimsuy]*)$/);
   try {
     if (match) {
@@ -71,9 +65,7 @@ function resolvePatterns(value?: string[]): RegExp[] {
 }
 
 function maskToken(token: string): string {
-  if (token.length < DEFAULT_REDACT_MIN_LENGTH) {
-    return "***";
-  }
+  if (token.length < DEFAULT_REDACT_MIN_LENGTH) return "***";
   const start = token.slice(0, DEFAULT_REDACT_KEEP_START);
   const end = token.slice(-DEFAULT_REDACT_KEEP_END);
   return `${start}…${end}`;
@@ -81,22 +73,16 @@ function maskToken(token: string): string {
 
 function redactPemBlock(block: string): string {
   const lines = block.split(/\r?\n/).filter(Boolean);
-  if (lines.length < 2) {
-    return "***";
-  }
+  if (lines.length < 2) return "***";
   return `${lines[0]}\n…redacted…\n${lines[lines.length - 1]}`;
 }
 
 function redactMatch(match: string, groups: string[]): string {
-  if (match.includes("PRIVATE KEY-----")) {
-    return redactPemBlock(match);
-  }
+  if (match.includes("PRIVATE KEY-----")) return redactPemBlock(match);
   const token =
     groups.filter((value) => typeof value === "string" && value.length > 0).at(-1) ?? match;
   const masked = maskToken(token);
-  if (token === match) {
-    return masked;
-  }
+  if (token === match) return masked;
   return match.replace(token, masked);
 }
 
@@ -111,10 +97,10 @@ function redactText(text: string, patterns: RegExp[]): string {
 }
 
 function resolveConfigRedaction(): RedactOptions {
-  let cfg: OpenClawConfig["logging"] | undefined;
+  let cfg: MoltbotConfig["logging"] | undefined;
   try {
     const loaded = requireConfig("../config/config.js") as {
-      loadConfig?: () => OpenClawConfig;
+      loadConfig?: () => MoltbotConfig;
     };
     cfg = loaded.loadConfig?.().logging;
   } catch {
@@ -127,25 +113,17 @@ function resolveConfigRedaction(): RedactOptions {
 }
 
 export function redactSensitiveText(text: string, options?: RedactOptions): string {
-  if (!text) {
-    return text;
-  }
+  if (!text) return text;
   const resolved = options ?? resolveConfigRedaction();
-  if (normalizeMode(resolved.mode) === "off") {
-    return text;
-  }
+  if (normalizeMode(resolved.mode) === "off") return text;
   const patterns = resolvePatterns(resolved.patterns);
-  if (!patterns.length) {
-    return text;
-  }
+  if (!patterns.length) return text;
   return redactText(text, patterns);
 }
 
 export function redactToolDetail(detail: string): string {
   const resolved = resolveConfigRedaction();
-  if (normalizeMode(resolved.mode) !== "tools") {
-    return detail;
-  }
+  if (normalizeMode(resolved.mode) !== "tools") return detail;
   return redactSensitiveText(detail, resolved);
 }
 

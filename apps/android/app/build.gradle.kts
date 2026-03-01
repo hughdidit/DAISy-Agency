@@ -8,26 +8,21 @@ plugins {
 }
 
 android {
-  namespace = "ai.openclaw.android"
+  namespace = "bot.molt.android"
   compileSdk = 36
 
   sourceSets {
     getByName("main") {
-      assets.srcDir(file("../../shared/OpenClawKit/Sources/OpenClawKit/Resources"))
+      assets.srcDir(file("../../shared/MoltbotKit/Sources/MoltbotKit/Resources"))
     }
   }
 
   defaultConfig {
-    applicationId = "ai.openclaw.android"
+    applicationId = "bot.molt.android"
     minSdk = 31
     targetSdk = 36
-<<<<<<< HEAD
     versionCode = 202601260
     versionName = "2026.1.27-beta.1"
-=======
-    versionCode = 202602020
-    versionName = "2026.2.2"
->>>>>>> 1c4db9159 (chore: prepare 2026.2.2 release)
   }
 
   buildTypes {
@@ -70,7 +65,7 @@ androidComponents {
         val versionName = output.versionName.orNull ?: "0"
         val buildType = variant.buildType
 
-        val outputFileName = "openclaw-${versionName}-${buildType}.apk"
+        val outputFileName = "moltbot-${versionName}-${buildType}.apk"
         output.outputFileName = outputFileName
       }
   }

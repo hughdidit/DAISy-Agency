@@ -1,6 +1,6 @@
 import WebSocket from "ws";
+
 import { rawDataToString } from "../infra/ws.js";
-import { getChromeExtensionRelayAuthHeaders } from "./extension-relay.js";
 
 type CdpResponse = {
   id: number;
@@ -29,29 +29,18 @@ export function isLoopbackHost(host: string) {
 }
 
 export function getHeadersWithAuth(url: string, headers: Record<string, string> = {}) {
-  const relayHeaders = getChromeExtensionRelayAuthHeaders(url);
-  const mergedHeaders = { ...relayHeaders, ...headers };
   try {
     const parsed = new URL(url);
-<<<<<<< HEAD
     const hasAuthHeader = Object.keys(headers).some((key) => key.toLowerCase() === "authorization");
     if (hasAuthHeader) return headers;
-=======
-    const hasAuthHeader = Object.keys(mergedHeaders).some(
-      (key) => key.toLowerCase() === "authorization",
-    );
-    if (hasAuthHeader) {
-      return mergedHeaders;
-    }
->>>>>>> a1e89afcc (fix: secure chrome extension relay cdp)
     if (parsed.username || parsed.password) {
       const auth = Buffer.from(`${parsed.username}:${parsed.password}`).toString("base64");
-      return { ...mergedHeaders, Authorization: `Basic ${auth}` };
+      return { ...headers, Authorization: `Basic ${auth}` };
     }
   } catch {
     // ignore
   }
-  return mergedHeaders;
+  return headers;
 }
 
 export function appendCdpPath(cdpUrl: string, path: string): string {
@@ -76,9 +65,7 @@ function createCdpSender(ws: WebSocket) {
   };
 
   const closeWithError = (err: Error) => {
-    for (const [, p] of pending) {
-      p.reject(err);
-    }
+    for (const [, p] of pending) p.reject(err);
     pending.clear();
     try {
       ws.close();
@@ -90,13 +77,9 @@ function createCdpSender(ws: WebSocket) {
   ws.on("message", (data) => {
     try {
       const parsed = JSON.parse(rawDataToString(data)) as CdpResponse;
-      if (typeof parsed.id !== "number") {
-        return;
-      }
+      if (typeof parsed.id !== "number") return;
       const p = pending.get(parsed.id);
-      if (!p) {
-        return;
-      }
+      if (!p) return;
       pending.delete(parsed.id);
       if (parsed.error?.message) {
         p.reject(new Error(parsed.error.message));
@@ -121,9 +104,7 @@ export async function fetchJson<T>(url: string, timeoutMs = 1500, init?: Request
   try {
     const headers = getHeadersWithAuth(url, (init?.headers as Record<string, string>) || {});
     const res = await fetch(url, { ...init, headers, signal: ctrl.signal });
-    if (!res.ok) {
-      throw new Error(`HTTP ${res.status}`);
-    }
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
     return (await res.json()) as T;
   } finally {
     clearTimeout(t);
@@ -136,9 +117,7 @@ export async function fetchOk(url: string, timeoutMs = 1500, init?: RequestInit)
   try {
     const headers = getHeadersWithAuth(url, (init?.headers as Record<string, string>) || {});
     const res = await fetch(url, { ...init, headers, signal: ctrl.signal });
-    if (!res.ok) {
-      throw new Error(`HTTP ${res.status}`);
-    }
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
   } finally {
     clearTimeout(t);
   }

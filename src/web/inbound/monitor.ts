@@ -1,13 +1,12 @@
 import type { AnyMessageContent, proto, WAMessage } from "@whiskeysockets/baileys";
 import { DisconnectReason, isJidGroup } from "@whiskeysockets/baileys";
-import type { WebInboundMessage, WebListenerCloseReason } from "./types.js";
-import { createInboundDebouncer } from "../../auto-reply/inbound-debounce.js";
 import { formatLocationText } from "../../channels/location.js";
 import { logVerbose, shouldLogVerbose } from "../../globals.js";
 import { recordChannelActivity } from "../../infra/channel-activity.js";
 import { getChildLogger } from "../../logging/logger.js";
 import { createSubsystemLogger } from "../../logging/subsystem.js";
 import { saveMediaBuffer } from "../../media/store.js";
+import { createInboundDebouncer } from "../../auto-reply/inbound-debounce.js";
 import { jidToE164, resolveJidToE164 } from "../../utils.js";
 import { createWaSocket, getStatusCode, waitForWaConnection } from "../session.js";
 import { checkInboundAccessControl } from "./access-control.js";
@@ -21,6 +20,7 @@ import {
 } from "./extract.js";
 import { downloadInboundMedia } from "./media.js";
 import { createWebSendApi } from "./send-api.js";
+import type { WebInboundMessage, WebListenerCloseReason } from "./types.js";
 
 export async function monitorWebInbox(options: {
   verbose: boolean;
@@ -48,9 +48,7 @@ export async function monitorWebInbox(options: {
     onCloseResolve = resolve;
   });
   const resolveClose = (reason: WebListenerCloseReason) => {
-    if (!onCloseResolve) {
-      return;
-    }
+    if (!onCloseResolve) return;
     const resolver = onCloseResolve;
     onCloseResolve = null;
     resolver(reason);
@@ -58,9 +56,7 @@ export async function monitorWebInbox(options: {
 
   try {
     await sock.sendPresenceUpdate("available");
-    if (shouldLogVerbose()) {
-      logVerbose("Sent global 'available' presence on connect");
-    }
+    if (shouldLogVerbose()) logVerbose("Sent global 'available' presence on connect");
   } catch (err) {
     logVerbose(`Failed to send 'available' presence on connect: ${String(err)}`);
   }
@@ -74,27 +70,21 @@ export async function monitorWebInbox(options: {
         msg.chatType === "group"
           ? (msg.senderJid ?? msg.senderE164 ?? msg.senderName ?? msg.from)
           : msg.from;
-      if (!senderKey) {
-        return null;
-      }
+      if (!senderKey) return null;
       const conversationKey = msg.chatType === "group" ? msg.chatId : msg.from;
       return `${msg.accountId}:${conversationKey}:${senderKey}`;
     },
     shouldDebounce: options.shouldDebounce,
     onFlush: async (entries) => {
       const last = entries.at(-1);
-      if (!last) {
-        return;
-      }
+      if (!last) return;
       if (entries.length === 1) {
         await options.onMessage(last);
         return;
       }
       const mentioned = new Set<string>();
       for (const entry of entries) {
-        for (const jid of entry.mentionedJids ?? []) {
-          mentioned.add(jid);
-        }
+        for (const jid of entry.mentionedJids ?? []) mentioned.add(jid);
       }
       const combinedBody = entries
         .map((entry) => entry.body)
@@ -124,9 +114,7 @@ export async function monitorWebInbox(options: {
 
   const getGroupMeta = async (jid: string) => {
     const cached = groupMetaCache.get(jid);
-    if (cached && cached.expires > Date.now()) {
-      return cached;
-    }
+    if (cached && cached.expires > Date.now()) return cached;
     try {
       const meta = await sock.groupMetadata(jid);
       const participants =
@@ -152,9 +140,7 @@ export async function monitorWebInbox(options: {
   };
 
   const handleMessagesUpsert = async (upsert: { type?: string; messages?: Array<WAMessage> }) => {
-    if (upsert.type !== "notify" && upsert.type !== "append") {
-      return;
-    }
+    if (upsert.type !== "notify" && upsert.type !== "append") return;
     for (const msg of upsert.messages ?? []) {
       recordChannelActivity({
         channel: "whatsapp",
@@ -163,25 +149,17 @@ export async function monitorWebInbox(options: {
       });
       const id = msg.key?.id ?? undefined;
       const remoteJid = msg.key?.remoteJid;
-      if (!remoteJid) {
-        continue;
-      }
-      if (remoteJid.endsWith("@status") || remoteJid.endsWith("@broadcast")) {
-        continue;
-      }
+      if (!remoteJid) continue;
+      if (remoteJid.endsWith("@status") || remoteJid.endsWith("@broadcast")) continue;
 
       const group = isJidGroup(remoteJid) === true;
       if (id) {
         const dedupeKey = `${options.accountId}:${remoteJid}:${id}`;
-        if (isRecentInboundMessage(dedupeKey)) {
-          continue;
-        }
+        if (isRecentInboundMessage(dedupeKey)) continue;
       }
       const participantJid = msg.key?.participant ?? undefined;
       const from = group ? remoteJid : await resolveInboundJid(remoteJid);
-      if (!from) {
-        continue;
-      }
+      if (!from) continue;
       const senderE164 = group
         ? participantJid
           ? await resolveInboundJid(participantJid)
@@ -212,9 +190,7 @@ export async function monitorWebInbox(options: {
         sock: { sendMessage: (jid, content) => sock.sendMessage(jid, content) },
         remoteJid,
       });
-      if (!access.allowed) {
-        continue;
-      }
+      if (!access.allowed) continue;
 
       if (id && !access.isSelfChat && options.sendReadReceipts !== false) {
         const participant = msg.key?.participant;
@@ -233,9 +209,7 @@ export async function monitorWebInbox(options: {
       }
 
       // If this is history/offline catch-up, mark read above but skip auto-reply.
-      if (upsert.type === "append") {
-        continue;
-      }
+      if (upsert.type === "append") continue;
 
       const location = extractLocationData(msg.message ?? undefined);
       const locationText = location ? formatLocationText(location) : undefined;
@@ -245,9 +219,7 @@ export async function monitorWebInbox(options: {
       }
       if (!body) {
         body = extractMediaPlaceholder(msg.message ?? undefined);
-        if (!body) {
-          continue;
-        }
+        if (!body) continue;
       }
       const replyContext = describeReplyContext(msg.message as proto.IMessage | undefined);
 

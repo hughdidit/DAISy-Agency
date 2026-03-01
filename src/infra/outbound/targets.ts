@@ -1,22 +1,14 @@
-<<<<<<< HEAD
 import { getChannelPlugin, normalizeChannelId } from "../../channels/plugins/index.js";
 import { formatCliCommand } from "../../cli/command-format.js";
-<<<<<<< HEAD
 import type { ChannelId, ChannelOutboundTargetMode } from "../../channels/plugins/types.js";
 import type { MoltbotConfig } from "../../config/config.js";
-=======
-import type { ChannelOutboundTargetMode } from "../../channels/plugins/types.js";
-import type { OpenClawConfig } from "../../config/config.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { SessionEntry } from "../../config/sessions.js";
 import type { AgentDefaultsConfig } from "../../config/types.agent-defaults.js";
+import { deliveryContextFromSession } from "../../utils/delivery-context.js";
 import type {
   DeliverableMessageChannel,
   GatewayMessageChannel,
 } from "../../utils/message-channel.js";
-import { getChannelPlugin, normalizeChannelId } from "../../channels/plugins/index.js";
-import { formatCliCommand } from "../../cli/command-format.js";
-import { deliveryContextFromSession } from "../../utils/delivery-context.js";
 import {
   INTERNAL_MESSAGE_CHANNEL,
   isDeliverableMessageChannel,
@@ -127,7 +119,7 @@ export function resolveOutboundTarget(params: {
   channel: GatewayMessageChannel;
   to?: string;
   allowFrom?: string[];
-  cfg?: OpenClawConfig;
+  cfg?: MoltbotConfig;
   accountId?: string | null;
   mode?: ChannelOutboundTargetMode;
 }): OutboundTargetResolution {
@@ -135,12 +127,12 @@ export function resolveOutboundTarget(params: {
     return {
       ok: false,
       error: new Error(
-        `Delivering to WebChat is not supported via \`${formatCliCommand("openclaw agent")}\`; use WhatsApp/Telegram or run with --deliver=false.`,
+        `Delivering to WebChat is not supported via \`${formatCliCommand("moltbot agent")}\`; use WhatsApp/Telegram or run with --deliver=false.`,
       ),
     };
   }
 
-  const plugin = getChannelPlugin(params.channel);
+  const plugin = getChannelPlugin(params.channel as ChannelId);
   if (!plugin) {
     return {
       ok: false,
@@ -180,7 +172,7 @@ export function resolveOutboundTarget(params: {
 }
 
 export function resolveHeartbeatDeliveryTarget(params: {
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   entry?: SessionEntry;
   heartbeat?: AgentDefaultsConfig["heartbeat"];
 }): OutboundTarget {
@@ -192,9 +184,7 @@ export function resolveHeartbeatDeliveryTarget(params: {
     target = rawTarget;
   } else if (typeof rawTarget === "string") {
     const normalized = normalizeChannelId(rawTarget);
-    if (normalized) {
-      target = normalized;
-    }
+    if (normalized) target = normalized;
   }
 
   if (target === "none") {
@@ -215,37 +205,11 @@ export function resolveHeartbeatDeliveryTarget(params: {
     mode: "heartbeat",
   });
 
-  const heartbeatAccountId = heartbeat?.accountId?.trim();
-  // Use explicit accountId from heartbeat config if provided, otherwise fall back to session
-  let effectiveAccountId = heartbeatAccountId || resolvedTarget.accountId;
-
-  if (heartbeatAccountId && resolvedTarget.channel) {
-    const plugin = getChannelPlugin(resolvedTarget.channel);
-    const listAccountIds = plugin?.config.listAccountIds;
-    const accountIds = listAccountIds ? listAccountIds(cfg) : [];
-    if (accountIds.length > 0) {
-      const normalizedAccountId = normalizeAccountId(heartbeatAccountId);
-      const normalizedAccountIds = new Set(
-        accountIds.map((accountId) => normalizeAccountId(accountId)),
-      );
-      if (!normalizedAccountIds.has(normalizedAccountId)) {
-        return {
-          channel: "none",
-          reason: "unknown-account",
-          accountId: normalizedAccountId,
-          lastChannel: resolvedTarget.lastChannel,
-          lastAccountId: resolvedTarget.lastAccountId,
-        };
-      }
-      effectiveAccountId = normalizedAccountId;
-    }
-  }
-
   if (!resolvedTarget.channel || !resolvedTarget.to) {
     return {
       channel: "none",
       reason: "no-target",
-      accountId: effectiveAccountId,
+      accountId: resolvedTarget.accountId,
       lastChannel: resolvedTarget.lastChannel,
       lastAccountId: resolvedTarget.lastAccountId,
     };
@@ -255,27 +219,27 @@ export function resolveHeartbeatDeliveryTarget(params: {
     channel: resolvedTarget.channel,
     to: resolvedTarget.to,
     cfg,
-    accountId: effectiveAccountId,
+    accountId: resolvedTarget.accountId,
     mode: "heartbeat",
   });
   if (!resolved.ok) {
     return {
       channel: "none",
       reason: "no-target",
-      accountId: effectiveAccountId,
+      accountId: resolvedTarget.accountId,
       lastChannel: resolvedTarget.lastChannel,
       lastAccountId: resolvedTarget.lastAccountId,
     };
   }
 
   let reason: string | undefined;
-  const plugin = getChannelPlugin(resolvedTarget.channel);
+  const plugin = getChannelPlugin(resolvedTarget.channel as ChannelId);
   if (plugin?.config.resolveAllowFrom) {
     const explicit = resolveOutboundTarget({
       channel: resolvedTarget.channel,
       to: resolvedTarget.to,
       cfg,
-      accountId: effectiveAccountId,
+      accountId: resolvedTarget.accountId,
       mode: "explicit",
     });
     if (explicit.ok && explicit.to !== resolved.to) {
@@ -287,7 +251,7 @@ export function resolveHeartbeatDeliveryTarget(params: {
     channel: resolvedTarget.channel,
     to: resolved.to,
     reason,
-    accountId: effectiveAccountId,
+    accountId: resolvedTarget.accountId,
     lastChannel: resolvedTarget.lastChannel,
     lastAccountId: resolvedTarget.lastAccountId,
   };
@@ -315,33 +279,27 @@ function resolveHeartbeatSenderId(params: {
   }
   if (candidates.length > 0 && allowList.length > 0) {
     const matched = candidates.find((candidate) => allowList.includes(candidate));
-    if (matched) {
-      return matched;
-    }
+    if (matched) return matched;
   }
   if (candidates.length > 0 && allowList.length === 0) {
     return candidates[0];
   }
-  if (allowList.length > 0) {
-    return allowList[0];
-  }
+  if (allowList.length > 0) return allowList[0];
   return candidates[0] ?? "heartbeat";
 }
 
 export function resolveHeartbeatSenderContext(params: {
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   entry?: SessionEntry;
   delivery: OutboundTarget;
 }): HeartbeatSenderContext {
   const provider =
     params.delivery.channel !== "none" ? params.delivery.channel : params.delivery.lastChannel;
-  const accountId =
-    params.delivery.accountId ??
-    (provider === params.delivery.lastChannel ? params.delivery.lastAccountId : undefined);
   const allowFrom = provider
     ? (getChannelPlugin(provider)?.config.resolveAllowFrom?.({
         cfg: params.cfg,
-        accountId,
+        accountId:
+          provider === params.delivery.lastChannel ? params.delivery.lastAccountId : undefined,
       }) ?? [])
     : [];
 

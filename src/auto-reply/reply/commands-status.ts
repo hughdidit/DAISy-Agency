@@ -1,32 +1,22 @@
-import type { OpenClawConfig } from "../../config/config.js";
-import type { SessionEntry, SessionScope } from "../../config/sessions.js";
-import type { MediaUnderstandingDecision } from "../../media-understanding/types.js";
-import type { ElevatedLevel, ReasoningLevel, ThinkLevel, VerboseLevel } from "../thinking.js";
-import type { ReplyPayload } from "../types.js";
-import type { CommandContext } from "./commands-types.js";
 import {
   resolveAgentDir,
   resolveDefaultAgentId,
   resolveSessionAgentId,
 } from "../../agents/agent-scope.js";
+import { listSubagentRunsForRequester } from "../../agents/subagent-registry.js";
 import {
   ensureAuthProfileStore,
   resolveAuthProfileDisplayLabel,
   resolveAuthProfileOrder,
 } from "../../agents/auth-profiles.js";
 import { getCustomProviderApiKey, resolveEnvApiKey } from "../../agents/model-auth.js";
-import { normalizeProviderId } from "../../agents/model-selection.js";
-import { listSubagentRunsForRequester } from "../../agents/subagent-registry.js";
 import {
   resolveInternalSessionKey,
   resolveMainSessionAlias,
 } from "../../agents/tools/sessions-helpers.js";
-<<<<<<< HEAD
 import { normalizeProviderId } from "../../agents/model-selection.js";
-import type { OpenClawConfig } from "../../config/config.js";
+import type { MoltbotConfig } from "../../config/config.js";
 import type { SessionEntry, SessionScope } from "../../config/sessions.js";
-=======
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { logVerbose } from "../../globals.js";
 import {
   formatUsageWindowSummary,
@@ -35,14 +25,16 @@ import {
 } from "../../infra/provider-usage.js";
 import { normalizeGroupActivation } from "../group-activation.js";
 import { buildStatusMessage } from "../status.js";
+import type { ElevatedLevel, ReasoningLevel, ThinkLevel, VerboseLevel } from "../thinking.js";
+import type { ReplyPayload } from "../types.js";
+import type { CommandContext } from "./commands-types.js";
 import { getFollowupQueueDepth, resolveQueueSettings } from "./queue.js";
+import type { MediaUnderstandingDecision } from "../../media-understanding/types.js";
 import { resolveSubagentLabel } from "./subagents-utils.js";
 
 function formatApiKeySnippet(apiKey: string): string {
   const compact = apiKey.replace(/\s+/g, "");
-  if (!compact) {
-    return "unknown";
-  }
+  if (!compact) return "unknown";
   const edge = compact.length >= 12 ? 6 : 4;
   const head = compact.slice(0, edge);
   const tail = compact.slice(-edge);
@@ -51,14 +43,12 @@ function formatApiKeySnippet(apiKey: string): string {
 
 function resolveModelAuthLabel(
   provider?: string,
-  cfg?: OpenClawConfig,
+  cfg?: MoltbotConfig,
   sessionEntry?: SessionEntry,
   agentDir?: string,
 ): string | undefined {
   const resolved = provider?.trim();
-  if (!resolved) {
-    return undefined;
-  }
+  if (!resolved) return undefined;
 
   const providerKey = normalizeProviderId(resolved);
   const store = ensureAuthProfileStore(agentDir, {
@@ -86,7 +76,7 @@ function resolveModelAuthLabel(
       const snippet = formatApiKeySnippet(profile.token);
       return `token ${snippet}${label ? ` (${label})` : ""}`;
     }
-    const snippet = formatApiKeySnippet(profile.key ?? "");
+    const snippet = formatApiKeySnippet(profile.key);
     return `api-key ${snippet}${label ? ` (${label})` : ""}`;
   }
 
@@ -107,7 +97,7 @@ function resolveModelAuthLabel(
 }
 
 export async function buildStatusReply(params: {
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   command: CommandContext;
   sessionEntry?: SessionEntry;
   sessionKey: string;
@@ -171,9 +161,7 @@ export async function buildStatusReply(params: {
           maxWindows: 2,
           includeResets: true,
         });
-        if (summaryLine) {
-          usageLine = `📊 Usage: ${summaryLine}`;
-        }
+        if (summaryLine) usageLine = `📊 Usage: ${summaryLine}`;
       }
     } catch {
       usageLine = null;

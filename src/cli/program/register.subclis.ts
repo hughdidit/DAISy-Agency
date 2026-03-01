@@ -1,5 +1,5 @@
 import type { Command } from "commander";
-import type { OpenClawConfig } from "../../config/config.js";
+import type { MoltbotConfig } from "../../config/config.js";
 import { isTruthyEnvValue } from "../../infra/env.js";
 import { buildParseArgv, getPrimaryCommand, hasHelpOrVersion } from "../argv.js";
 import { resolveActionArgs } from "./helpers.js";
@@ -13,24 +13,16 @@ type SubCliEntry = {
 };
 
 const shouldRegisterPrimaryOnly = (argv: string[]) => {
-  if (isTruthyEnvValue(process.env.OPENCLAW_DISABLE_LAZY_SUBCOMMANDS)) return false;
+  if (isTruthyEnvValue(process.env.CLAWDBOT_DISABLE_LAZY_SUBCOMMANDS)) return false;
   if (hasHelpOrVersion(argv)) return false;
-=======
-  if (isTruthyEnvValue(process.env.OPENCLAW_DISABLE_LAZY_SUBCOMMANDS)) {
-    return false;
-  }
-  if (hasHelpOrVersion(argv)) {
-    return false;
-  }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
   return true;
 };
 
 const shouldEagerRegisterSubcommands = (_argv: string[]) => {
-  return isTruthyEnvValue(process.env.OPENCLAW_DISABLE_LAZY_SUBCOMMANDS);
+  return isTruthyEnvValue(process.env.CLAWDBOT_DISABLE_LAZY_SUBCOMMANDS);
 };
 
-const loadConfig = async (): Promise<OpenClawConfig> => {
+const loadConfig = async (): Promise<MoltbotConfig> => {
   const mod = await import("../../config/config.js");
   return mod.loadConfig();
 };
@@ -235,19 +227,7 @@ const entries: SubCliEntry[] = [
       mod.registerUpdateCli(program);
     },
   },
-  {
-    name: "completion",
-    description: "Generate shell completion script",
-    register: async (program) => {
-      const mod = await import("../completion-cli.js");
-      mod.registerCompletionCli(program);
-    },
-  },
 ];
-
-export function getSubCliEntries(): SubCliEntry[] {
-  return entries;
-}
 
 function removeCommand(program: Command, command: Command) {
   const commands = program.commands as Command[];
@@ -259,13 +239,9 @@ function removeCommand(program: Command, command: Command) {
 
 export async function registerSubCliByName(program: Command, name: string): Promise<boolean> {
   const entry = entries.find((candidate) => candidate.name === name);
-  if (!entry) {
-    return false;
-  }
+  if (!entry) return false;
   const existing = program.commands.find((cmd) => cmd.name() === entry.name);
-  if (existing) {
-    removeCommand(program, existing);
-  }
+  if (existing) removeCommand(program, existing);
   await entry.register(program);
   return true;
 }

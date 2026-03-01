@@ -1,4 +1,3 @@
-import type { OpenClawConfig } from "openclaw/plugin-sdk";
 import {
   formatDocsLink,
   promptAccountId,
@@ -6,17 +5,11 @@ import {
   normalizeAccountId,
   type ChannelOnboardingAdapter,
   type WizardPrompter,
-<<<<<<< HEAD
 } from "clawdbot/plugin-sdk";
 
 import { listTlonAccountIds, resolveTlonAccount } from "./types.js";
 import type { TlonResolvedAccount } from "./types.js";
 import type { MoltbotConfig } from "clawdbot/plugin-sdk";
-=======
-} from "openclaw/plugin-sdk";
-import type { TlonResolvedAccount } from "./types.js";
-import { listTlonAccountIds, resolveTlonAccount } from "./types.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 
 const channel = "tlon" as const;
 
@@ -25,7 +18,7 @@ function isConfigured(account: TlonResolvedAccount): boolean {
 }
 
 function applyAccountConfig(params: {
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   accountId: string;
   input: {
     name?: string;
@@ -36,7 +29,7 @@ function applyAccountConfig(params: {
     dmAllowlist?: string[];
     autoDiscoverChannels?: boolean;
   };
-}): OpenClawConfig {
+}): MoltbotConfig {
   const { cfg, accountId, input } = params;
   const useDefault = accountId === DEFAULT_ACCOUNT_ID;
   const base = cfg.channels?.tlon ?? {};
@@ -73,9 +66,7 @@ function applyAccountConfig(params: {
         accounts: {
           ...(base as { accounts?: Record<string, unknown> }).accounts,
           [accountId]: {
-            ...(base as { accounts?: Record<string, Record<string, unknown>> }).accounts?.[
-              accountId
-            ],
+            ...((base as { accounts?: Record<string, Record<string, unknown>> }).accounts?.[accountId] ?? {}),
             enabled: true,
             ...(input.name ? { name: input.name } : {}),
             ...(input.ship ? { ship: input.ship } : {}),

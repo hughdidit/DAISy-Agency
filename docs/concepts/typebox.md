@@ -2,9 +2,7 @@
 summary: "TypeBox schemas as the single source of truth for the gateway protocol"
 read_when:
   - Updating protocol schemas or codegen
-title: "TypeBox"
 ---
-
 # TypeBox as protocol source of truth
 
 Last updated: 2026-01-10
@@ -42,14 +40,14 @@ Client                    Gateway
 
 Common methods + events:
 
-| Category  | Examples                                                  | Notes                              |
-| --------- | --------------------------------------------------------- | ---------------------------------- |
-| Core      | `connect`, `health`, `status`                             | `connect` must be first            |
-| Messaging | `send`, `poll`, `agent`, `agent.wait`                     | side-effects need `idempotencyKey` |
-| Chat      | `chat.history`, `chat.send`, `chat.abort`, `chat.inject`  | WebChat uses these                 |
-| Sessions  | `sessions.list`, `sessions.patch`, `sessions.delete`      | session admin                      |
-| Nodes     | `node.list`, `node.invoke`, `node.pair.*`                 | Gateway WS + node actions          |
-| Events    | `tick`, `presence`, `agent`, `chat`, `health`, `shutdown` | server push                        |
+| Category | Examples | Notes |
+| --- | --- | --- |
+| Core | `connect`, `health`, `status` | `connect` must be first |
+| Messaging | `send`, `poll`, `agent`, `agent.wait` | side-effects need `idempotencyKey` |
+| Chat | `chat.history`, `chat.send`, `chat.abort`, `chat.inject` | WebChat uses these |
+| Sessions | `sessions.list`, `sessions.patch`, `sessions.delete` | session admin |
+| Nodes | `node.list`, `node.invoke`, `node.pair.*` | Gateway WS + node actions |
+| Events | `tick`, `presence`, `agent`, `chat`, `health`, `shutdown` | server push |
 
 Authoritative list lives in `src/gateway/server.ts` (`METHODS`, `EVENTS`).
 
@@ -60,7 +58,7 @@ Authoritative list lives in `src/gateway/server.ts` (`METHODS`, `EVENTS`).
 - Server handshake + method dispatch: `src/gateway/server.ts`
 - Node client: `src/gateway/client.ts`
 - Generated JSON Schema: `dist/protocol.schema.json`
-- Generated Swift models: `apps/macos/Sources/OpenClawProtocol/GatewayModels.swift`
+- Generated Swift models: `apps/macos/Sources/MoltbotProtocol/GatewayModels.swift`
 
 ## Current pipeline
 
@@ -93,7 +91,7 @@ Connect (first message):
     "minProtocol": 2,
     "maxProtocol": 2,
     "client": {
-      "id": "openclaw-macos",
+      "id": "moltbot-macos",
       "displayName": "macos",
       "version": "1.0.0",
       "platform": "macos 15.1",
@@ -116,12 +114,7 @@ Hello-ok response:
     "protocol": 2,
     "server": { "version": "dev", "connId": "ws-1" },
     "features": { "methods": ["health"], "events": ["tick"] },
-    "snapshot": {
-      "presence": [],
-      "health": {},
-      "stateVersion": { "presence": 0, "health": 0 },
-      "uptimeMs": 0
-    },
+    "snapshot": { "presence": [], "health": {}, "stateVersion": { "presence": 0, "health": 0 }, "uptimeMs": 0 },
     "policy": { "maxPayload": 1048576, "maxBufferedBytes": 1048576, "tickIntervalMs": 30000 }
   }
 }
@@ -153,24 +146,22 @@ import { WebSocket } from "ws";
 const ws = new WebSocket("ws://127.0.0.1:18789");
 
 ws.on("open", () => {
-  ws.send(
-    JSON.stringify({
-      type: "req",
-      id: "c1",
-      method: "connect",
-      params: {
-        minProtocol: 3,
-        maxProtocol: 3,
-        client: {
-          id: "cli",
-          displayName: "example",
-          version: "dev",
-          platform: "node",
-          mode: "cli",
-        },
-      },
-    }),
-  );
+  ws.send(JSON.stringify({
+    type: "req",
+    id: "c1",
+    method: "connect",
+    params: {
+      minProtocol: 3,
+      maxProtocol: 3,
+      client: {
+        id: "cli",
+        displayName: "example",
+        version: "dev",
+        platform: "node",
+        mode: "cli"
+      }
+    }
+  }));
 });
 
 ws.on("message", (data) => {
@@ -189,7 +180,7 @@ ws.on("message", (data) => {
 
 Example: add a new `system.echo` request that returns `{ ok: true, text }`.
 
-1. **Schema (source of truth)**
+1) **Schema (source of truth)**
 
 Add to `src/gateway/protocol/schema.ts`:
 
@@ -217,31 +208,16 @@ export type SystemEchoParams = Static<typeof SystemEchoParamsSchema>;
 export type SystemEchoResult = Static<typeof SystemEchoResultSchema>;
 ```
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 2) **Validation**
-=======
-1. **Validation**
->>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
-=======
-2. **Validation**
->>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 
 In `src/gateway/protocol/index.ts`, export an AJV validator:
 
 ```ts
-export const validateSystemEchoParams = ajv.compile<SystemEchoParams>(SystemEchoParamsSchema);
+export const validateSystemEchoParams =
+  ajv.compile<SystemEchoParams>(SystemEchoParamsSchema);
 ```
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 3) **Server behavior**
-=======
-1. **Server behavior**
->>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
-=======
-3. **Server behavior**
->>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 
 Add a handler in `src/gateway/server-methods/system.ts`:
 
@@ -257,29 +233,13 @@ export const systemHandlers: GatewayRequestHandlers = {
 Register it in `src/gateway/server-methods.ts` (already merges `systemHandlers`),
 then add `"system.echo"` to `METHODS` in `src/gateway/server.ts`.
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 4) **Regenerate**
-=======
-1. **Regenerate**
->>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
-=======
-4. **Regenerate**
->>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 
 ```bash
 pnpm protocol:check
 ```
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 5) **Tests + docs**
-=======
-1. **Tests + docs**
->>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
-=======
-5. **Tests + docs**
->>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 
 Add a server test in `src/gateway/server.*.test.ts` and note the method in docs.
 
@@ -312,22 +272,10 @@ Unknown frame types are preserved as raw payloads for forward compatibility.
 Generated JSON Schema is in the repo at `dist/protocol.schema.json`. The
 published raw file is typically available at:
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
 - https://raw.githubusercontent.com/moltbot/moltbot/main/dist/protocol.schema.json
-=======
-- [https://raw.githubusercontent.com/openclaw/openclaw/main/dist/protocol.schema.json](https://raw.githubusercontent.com/openclaw/openclaw/main/dist/protocol.schema.json)
->>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
-=======
-- https://raw.githubusercontent.com/openclaw/openclaw/main/dist/protocol.schema.json
->>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
-=======
-- [https://raw.githubusercontent.com/openclaw/openclaw/main/dist/protocol.schema.json](https://raw.githubusercontent.com/openclaw/openclaw/main/dist/protocol.schema.json)
->>>>>>> 578a6e27a (Docs: enable markdownlint autofixables except list numbering (#10476))
 
 ## When you change schemas
 
-1. Update the TypeBox schemas.
-2. Run `pnpm protocol:check`.
-3. Commit the regenerated schema + Swift models.
+1) Update the TypeBox schemas.
+2) Run `pnpm protocol:check`.
+3) Commit the regenerated schema + Swift models.

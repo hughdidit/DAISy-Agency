@@ -1,10 +1,12 @@
-import { CURRENT_SESSION_VERSION, SessionManager } from "@mariozechner/pi-coding-agent";
 import fs from "node:fs";
 import path from "node:path";
+
+import { CURRENT_SESSION_VERSION, SessionManager } from "@mariozechner/pi-coding-agent";
+
 import type { SessionEntry } from "./types.js";
-import { emitSessionTranscriptUpdate } from "../../sessions/transcript-events.js";
-import { resolveDefaultSessionStorePath, resolveSessionTranscriptPath } from "./paths.js";
 import { loadSessionStore, updateSessionStore } from "./store.js";
+import { resolveDefaultSessionStorePath, resolveSessionTranscriptPath } from "./paths.js";
+import { emitSessionTranscriptUpdate } from "../../sessions/transcript-events.js";
 
 function stripQuery(value: string): string {
   const noHash = value.split("#")[0] ?? value;
@@ -13,16 +15,12 @@ function stripQuery(value: string): string {
 
 function extractFileNameFromMediaUrl(value: string): string | null {
   const trimmed = value.trim();
-  if (!trimmed) {
-    return null;
-  }
+  if (!trimmed) return null;
   const cleaned = stripQuery(trimmed);
   try {
     const parsed = new URL(cleaned);
     const base = path.basename(parsed.pathname);
-    if (!base) {
-      return null;
-    }
+    if (!base) return null;
     try {
       return decodeURIComponent(base);
     } catch {
@@ -30,9 +28,7 @@ function extractFileNameFromMediaUrl(value: string): string | null {
     }
   } catch {
     const base = path.basename(cleaned);
-    if (!base || base === "/" || base === ".") {
-      return null;
-    }
+    if (!base || base === "/" || base === ".") return null;
     return base;
   }
 }
@@ -46,9 +42,7 @@ export function resolveMirroredTranscriptText(params: {
     const names = mediaUrls
       .map((url) => extractFileNameFromMediaUrl(url))
       .filter((name): name is string => Boolean(name && name.trim()));
-    if (names.length > 0) {
-      return names.join(", ");
-    }
+    if (names.length > 0) return names.join(", ");
     return "media";
   }
 
@@ -61,9 +55,7 @@ async function ensureSessionHeader(params: {
   sessionFile: string;
   sessionId: string;
 }): Promise<void> {
-  if (fs.existsSync(params.sessionFile)) {
-    return;
-  }
+  if (fs.existsSync(params.sessionFile)) return;
   await fs.promises.mkdir(path.dirname(params.sessionFile), { recursive: true });
   const header = {
     type: "session",
@@ -84,24 +76,18 @@ export async function appendAssistantMessageToSessionTranscript(params: {
   storePath?: string;
 }): Promise<{ ok: true; sessionFile: string } | { ok: false; reason: string }> {
   const sessionKey = params.sessionKey.trim();
-  if (!sessionKey) {
-    return { ok: false, reason: "missing sessionKey" };
-  }
+  if (!sessionKey) return { ok: false, reason: "missing sessionKey" };
 
   const mirrorText = resolveMirroredTranscriptText({
     text: params.text,
     mediaUrls: params.mediaUrls,
   });
-  if (!mirrorText) {
-    return { ok: false, reason: "empty text" };
-  }
+  if (!mirrorText) return { ok: false, reason: "empty text" };
 
   const storePath = params.storePath ?? resolveDefaultSessionStorePath(params.agentId);
   const store = loadSessionStore(storePath, { skipCache: true });
   const entry = store[sessionKey] as SessionEntry | undefined;
-  if (!entry?.sessionId) {
-    return { ok: false, reason: `unknown sessionKey: ${sessionKey}` };
-  }
+  if (!entry?.sessionId) return { ok: false, reason: `unknown sessionKey: ${sessionKey}` };
 
   const sessionFile =
     entry.sessionFile?.trim() || resolveSessionTranscriptPath(entry.sessionId, params.agentId);
@@ -113,7 +99,7 @@ export async function appendAssistantMessageToSessionTranscript(params: {
     role: "assistant",
     content: [{ type: "text", text: mirrorText }],
     api: "openai-responses",
-    provider: "openclaw",
+    provider: "moltbot",
     model: "delivery-mirror",
     usage: {
       input: 0,

@@ -1,4 +1,5 @@
 import { expect, test } from "vitest";
+
 import {
   BRACKETED_PASTE_END,
   BRACKETED_PASTE_START,

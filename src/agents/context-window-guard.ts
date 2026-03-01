@@ -1,4 +1,4 @@
-import type { OpenClawConfig } from "../config/config.js";
+import type { MoltbotConfig } from "../config/config.js";
 
 export const CONTEXT_WINDOW_HARD_MIN_TOKENS = 16_000;
 export const CONTEXT_WINDOW_WARN_BELOW_TOKENS = 32_000;
@@ -11,28 +11,21 @@ export type ContextWindowInfo = {
 };
 
 function normalizePositiveInt(value: unknown): number | null {
-  if (typeof value !== "number" || !Number.isFinite(value)) {
-    return null;
-  }
+  if (typeof value !== "number" || !Number.isFinite(value)) return null;
   const int = Math.floor(value);
   return int > 0 ? int : null;
 }
 
 export function resolveContextWindowInfo(params: {
-  cfg: OpenClawConfig | undefined;
+  cfg: MoltbotConfig | undefined;
   provider: string;
   modelId: string;
   modelContextWindow?: number;
   defaultTokens: number;
 }): ContextWindowInfo {
-<<<<<<< HEAD
   const fromModel = normalizePositiveInt(params.modelContextWindow);
-  if (fromModel) {
-    return { tokens: fromModel, source: "model" };
-  }
+  if (fromModel) return { tokens: fromModel, source: "model" };
 
-=======
->>>>>>> 0992c5a80 (fix: cap context window resolution (#6187) (thanks @iamEvanYT))
   const fromModelsConfig = (() => {
     const providers = params.cfg?.models?.providers as
       | Record<string, { models?: Array<{ id?: string; contextWindow?: number }> }>
@@ -42,30 +35,12 @@ export function resolveContextWindowInfo(params: {
     const match = models.find((m) => m?.id === params.modelId);
     return normalizePositiveInt(match?.contextWindow);
   })();
-<<<<<<< HEAD
   if (fromModelsConfig) return { tokens: fromModelsConfig, source: "modelsConfig" };
 
   const fromAgentConfig = normalizePositiveInt(params.cfg?.agents?.defaults?.contextTokens);
-  if (fromAgentConfig) {
-    return { tokens: fromAgentConfig, source: "agentContextTokens" };
-  }
+  if (fromAgentConfig) return { tokens: fromAgentConfig, source: "agentContextTokens" };
 
   return { tokens: Math.floor(params.defaultTokens), source: "default" };
-=======
-  const fromModel = normalizePositiveInt(params.modelContextWindow);
-  const baseInfo = fromModelsConfig
-    ? { tokens: fromModelsConfig, source: "modelsConfig" as const }
-    : fromModel
-      ? { tokens: fromModel, source: "model" as const }
-      : { tokens: Math.floor(params.defaultTokens), source: "default" as const };
-
-  const capTokens = normalizePositiveInt(params.cfg?.agents?.defaults?.contextTokens);
-  if (capTokens && capTokens < baseInfo.tokens) {
-    return { tokens: capTokens, source: "agentContextTokens" };
-  }
-
-  return baseInfo;
->>>>>>> 0992c5a80 (fix: cap context window resolution (#6187) (thanks @iamEvanYT))
 }
 
 export type ContextWindowGuardResult = ContextWindowInfo & {

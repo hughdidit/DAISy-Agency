@@ -1,34 +1,29 @@
-import type { ReplyPayload } from "../../auto-reply/types.js";
-import type { ChannelOutboundAdapter } from "../../channels/plugins/types.js";
-import type { OpenClawConfig } from "../../config/config.js";
-import type { sendMessageDiscord } from "../../discord/send.js";
-import type { sendMessageIMessage } from "../../imessage/send.js";
-import type { sendMessageSlack } from "../../slack/send.js";
-import type { sendMessageTelegram } from "../../telegram/send.js";
-import type { sendMessageWhatsApp } from "../../web/outbound.js";
-import type { NormalizedOutboundPayload } from "./payloads.js";
-import type { OutboundChannel } from "./targets.js";
 import {
   chunkByParagraph,
   chunkMarkdownTextWithMode,
   resolveChunkMode,
   resolveTextChunkLimit,
 } from "../../auto-reply/chunk.js";
+import type { ReplyPayload } from "../../auto-reply/types.js";
 import { resolveChannelMediaMaxBytes } from "../../channels/plugins/media-limits.js";
 import { loadChannelOutboundAdapter } from "../../channels/plugins/outbound/load.js";
-<<<<<<< HEAD
 import type { ChannelOutboundAdapter } from "../../channels/plugins/types.js";
 import type { MoltbotConfig } from "../../config/config.js";
-=======
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { resolveMarkdownTableMode } from "../../config/markdown-tables.js";
+import type { sendMessageDiscord } from "../../discord/send.js";
+import type { sendMessageIMessage } from "../../imessage/send.js";
+import { markdownToSignalTextChunks, type SignalTextStyleRange } from "../../signal/format.js";
+import { sendMessageSignal } from "../../signal/send.js";
+import type { sendMessageSlack } from "../../slack/send.js";
+import type { sendMessageTelegram } from "../../telegram/send.js";
+import type { sendMessageWhatsApp } from "../../web/outbound.js";
 import {
   appendAssistantMessageToSessionTranscript,
   resolveMirroredTranscriptText,
 } from "../../config/sessions.js";
-import { markdownToSignalTextChunks, type SignalTextStyleRange } from "../../signal/format.js";
-import { sendMessageSignal } from "../../signal/send.js";
+import type { NormalizedOutboundPayload } from "./payloads.js";
 import { normalizeReplyPayloadsForDelivery } from "./payloads.js";
+import type { OutboundChannel } from "./targets.js";
 
 export type { NormalizedOutboundPayload } from "./payloads.js";
 export { normalizeOutboundPayloads } from "./payloads.js";
@@ -87,7 +82,7 @@ function throwIfAborted(abortSignal?: AbortSignal): void {
 
 // Channel docking: outbound delivery delegates to plugin.outbound adapters.
 async function createChannelHandler(params: {
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   channel: Exclude<OutboundChannel, "none">;
   to: string;
   accountId?: string;
@@ -119,7 +114,7 @@ async function createChannelHandler(params: {
 
 function createPluginHandler(params: {
   outbound?: ChannelOutboundAdapter;
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   channel: Exclude<OutboundChannel, "none">;
   to: string;
   accountId?: string;
@@ -129,9 +124,7 @@ function createPluginHandler(params: {
   gifPlayback?: boolean;
 }): ChannelHandler | null {
   const outbound = params.outbound;
-  if (!outbound?.sendText || !outbound?.sendMedia) {
-    return null;
-  }
+  if (!outbound?.sendText || !outbound?.sendMedia) return null;
   const sendText = outbound.sendText;
   const sendMedia = outbound.sendMedia;
   const chunker = outbound.chunker ?? null;
@@ -182,7 +175,7 @@ function createPluginHandler(params: {
 }
 
 export async function deliverOutboundPayloads(params: {
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   channel: Exclude<OutboundChannel, "none">;
   to: string;
   accountId?: string;
@@ -251,14 +244,10 @@ export async function deliverOutboundPayloads(params: {
           ? chunkMarkdownTextWithMode(text, textLimit, "newline")
           : chunkByParagraph(text, textLimit);
 
-      if (!blockChunks.length && text) {
-        blockChunks.push(text);
-      }
+      if (!blockChunks.length && text) blockChunks.push(text);
       for (const blockChunk of blockChunks) {
         const chunks = handler.chunker(blockChunk, textLimit);
-        if (!chunks.length && blockChunk) {
-          chunks.push(blockChunk);
-        }
+        if (!chunks.length && blockChunk) chunks.push(blockChunk);
         for (const chunk of chunks) {
           throwIfAborted(abortSignal);
           results.push(await handler.sendText(chunk));
@@ -357,9 +346,7 @@ export async function deliverOutboundPayloads(params: {
         }
       }
     } catch (err) {
-      if (!params.bestEffort) {
-        throw err;
-      }
+      if (!params.bestEffort) throw err;
       params.onError?.(err, payloadSummary);
     }
   }

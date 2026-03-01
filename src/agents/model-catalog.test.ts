@@ -1,24 +1,20 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../config/config.js";
-=======
-import type { OpenClawConfig } from "../config/config.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import {
   __setModelCatalogImportForTest,
   loadModelCatalog,
   resetModelCatalogCacheForTest,
 } from "./model-catalog.js";
 
-type PiSdkModule = typeof import("./pi-model-discovery.js");
+type PiSdkModule = typeof import("@mariozechner/pi-coding-agent");
 
 vi.mock("./models-config.js", () => ({
-  ensureOpenClawModelsJson: vi.fn().mockResolvedValue({ agentDir: "/tmp", wrote: false }),
+  ensureMoltbotModelsJson: vi.fn().mockResolvedValue({ agentDir: "/tmp", wrote: false }),
 }));
 
 vi.mock("./agent-paths.js", () => ({
-  resolveOpenClawAgentDir: () => "/tmp/openclaw",
+  resolveMoltbotAgentDir: () => "/tmp/moltbot",
 }));
 
 describe("loadModelCatalog", () => {
@@ -42,16 +38,12 @@ describe("loadModelCatalog", () => {
         throw new Error("boom");
       }
       return {
-        AuthStorage: class {},
-        ModelRegistry: class {
-          getAll() {
-            return [{ id: "gpt-4.1", name: "GPT-4.1", provider: "openai" }];
-          }
-        },
+        discoverAuthStorage: () => ({}),
+        discoverModels: () => [{ id: "gpt-4.1", name: "GPT-4.1", provider: "openai" }],
       } as unknown as PiSdkModule;
     });
 
-    const cfg = {} as OpenClawConfig;
+    const cfg = {} as MoltbotConfig;
     const first = await loadModelCatalog({ config: cfg });
     expect(first).toEqual([]);
 
@@ -67,25 +59,23 @@ describe("loadModelCatalog", () => {
     __setModelCatalogImportForTest(
       async () =>
         ({
-          AuthStorage: class {},
-          ModelRegistry: class {
-            getAll() {
-              return [
-                { id: "gpt-4.1", name: "GPT-4.1", provider: "openai" },
-                {
-                  get id() {
-                    throw new Error("boom");
-                  },
-                  provider: "openai",
-                  name: "bad",
+          discoverAuthStorage: () => ({}),
+          discoverModels: () => ({
+            getAll: () => [
+              { id: "gpt-4.1", name: "GPT-4.1", provider: "openai" },
+              {
+                get id() {
+                  throw new Error("boom");
                 },
-              ];
-            }
-          },
+                provider: "openai",
+                name: "bad",
+              },
+            ],
+          }),
         }) as unknown as PiSdkModule,
     );
 
-    const result = await loadModelCatalog({ config: {} as OpenClawConfig });
+    const result = await loadModelCatalog({ config: {} as MoltbotConfig });
     expect(result).toEqual([{ id: "gpt-4.1", name: "GPT-4.1", provider: "openai" }]);
     expect(warnSpy).toHaveBeenCalledTimes(1);
   });

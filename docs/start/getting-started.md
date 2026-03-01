@@ -1,204 +1,100 @@
 ---
-summary: "Get OpenClaw installed and run your first chat in minutes."
+summary: "Beginner guide: from zero to first message (wizard, auth, channels, pairing)"
 read_when:
   - First time setup from zero
-  - You want the fastest path to a working chat
-title: "Getting Started"
+  - You want the fastest path from install → onboarding → first message
 ---
 
 # Getting Started
 
-Goal: go from zero to a first working chat with minimal setup.
+Goal: go from **zero** → **first working chat** (with sane defaults) as quickly as possible.
 
-<<<<<<< HEAD
 Fastest chat: open the Control UI (no channel setup needed). Run `moltbot dashboard`
 and chat in the browser, or open `http://127.0.0.1:18789/` on the gateway host.
-=======
-<Info>
-Fastest chat: open the Control UI (no channel setup needed). Run `openclaw dashboard`
-and chat in the browser, or open `http://127.0.0.1:18789/` on the
-<Tooltip headline="Gateway host" tip="The machine running the OpenClaw gateway service.">gateway host</Tooltip>.
->>>>>>> 675c26b2b (Docs: streamline start and install docs (#9648))
 Docs: [Dashboard](/web/dashboard) and [Control UI](/web/control-ui).
-</Info>
 
-<<<<<<< HEAD
 Recommended path: use the **CLI onboarding wizard** (`moltbot onboard`). It sets up:
-=======
-Recommended path: use the **CLI onboarding wizard** (`openclaw onboard`). It sets up:
-
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - model/auth (OAuth recommended)
 - gateway settings
 - channels (WhatsApp/Telegram/Discord/Mattermost (plugin)/...)
 - pairing defaults (secure DMs)
 - workspace bootstrap + skills
 - optional background service
-=======
-## Prereqs
 
-- Node 22 or newer
->>>>>>> 675c26b2b (Docs: streamline start and install docs (#9648))
+If you want the deeper reference pages, jump to: [Wizard](/start/wizard), [Setup](/start/setup), [Pairing](/start/pairing), [Security](/gateway/security).
 
-<Tip>
-Check your Node version with `node --version` if you are unsure.
-</Tip>
+Sandboxing note: `agents.defaults.sandbox.mode: "non-main"` uses `session.mainKey` (default `"main"`),
+so group/channel sessions are sandboxed. If you want the main agent to always
+run on host, set an explicit per-agent override:
 
-## Quick setup (CLI)
-
-<<<<<<< HEAD
 ```json
 {
   "routing": {
     "agents": {
       "main": {
-        "workspace": "~/.openclaw/workspace",
+        "workspace": "~/clawd",
         "sandbox": { "mode": "off" }
       }
     }
   }
 }
 ```
-=======
-<Steps>
-  <Step title="Install OpenClaw (recommended)">
-    <Tabs>
-      <Tab title="macOS/Linux">
-        ```bash
-        curl -fsSL https://openclaw.ai/install.sh | bash
-        ```
-      </Tab>
-      <Tab title="Windows (PowerShell)">
-        ```powershell
-        iwr -useb https://openclaw.ai/install.ps1 | iex
-        ```
-      </Tab>
-    </Tabs>
->>>>>>> 675c26b2b (Docs: streamline start and install docs (#9648))
 
-    <Note>
-    Other install methods and requirements: [Install](/install).
-    </Note>
+## 0) Prereqs
 
-<<<<<<< HEAD
 - Node `>=22`
 - `pnpm` (optional; recommended if you build from source)
 - **Recommended:** Brave Search API key for web search. Easiest path:
-  `openclaw configure --section web` (stores `tools.web.search.apiKey`).
+  `moltbot configure --section web` (stores `tools.web.search.apiKey`).
   See [Web tools](/tools/web).
-=======
-  </Step>
-  <Step title="Run the onboarding wizard">
-    ```bash
-    openclaw onboard --install-daemon
-    ```
->>>>>>> 675c26b2b (Docs: streamline start and install docs (#9648))
 
-    The wizard configures auth, gateway settings, and optional channels.
-    See [Onboarding Wizard](/start/wizard) for details.
+macOS: if you plan to build the apps, install Xcode / CLT. For the CLI + gateway only, Node is enough.
+Windows: use **WSL2** (Ubuntu recommended). WSL2 is strongly recommended; native Windows is untested, more problematic, and has poorer tool compatibility. Install WSL2 first, then run the Linux steps inside WSL. See [Windows (WSL2)](/platforms/windows).
 
-  </Step>
-  <Step title="Check the Gateway">
-    If you installed the service, it should already be running:
+## 1) Install the CLI (recommended)
 
-<<<<<<< HEAD
 ```bash
-<<<<<<< HEAD
 curl -fsSL https://molt.bot/install.sh | bash
-=======
-curl -fsSL https://openclaw.ai/install.sh | bash
->>>>>>> 7a2c4d3cf (fix(docs): use canonical openclaw.ai domain instead of openclaw.bot)
 ```
-=======
-    ```bash
-    openclaw gateway status
-    ```
->>>>>>> 675c26b2b (Docs: streamline start and install docs (#9648))
 
-  </Step>
-  <Step title="Open the Control UI">
-    ```bash
-    openclaw dashboard
-    ```
-  </Step>
-</Steps>
+Installer options (install method, non-interactive, from GitHub): [Install](/install).
 
-<Check>
-If the Control UI loads, your Gateway is ready for use.
-</Check>
+Windows (PowerShell):
 
-<<<<<<< HEAD
 ```powershell
-iwr -useb https://openclaw.ai/install.ps1 | iex
+iwr -useb https://molt.bot/install.ps1 | iex
 ```
-=======
-## Optional checks and extras
->>>>>>> 675c26b2b (Docs: streamline start and install docs (#9648))
 
-<AccordionGroup>
-  <Accordion title="Run the Gateway in the foreground">
-    Useful for quick tests or troubleshooting.
+Alternative (global install):
 
-<<<<<<< HEAD
 ```bash
-npm install -g openclaw@latest
+npm install -g moltbot@latest
 ```
 
 ```bash
-pnpm add -g openclaw@latest
+pnpm add -g moltbot@latest
 ```
-=======
-    ```bash
-    openclaw gateway --port 18789
-    ```
 
-  </Accordion>
-  <Accordion title="Send a test message">
-    Requires a configured channel.
->>>>>>> 675c26b2b (Docs: streamline start and install docs (#9648))
+## 2) Run the onboarding wizard (and install the service)
 
-    ```bash
-    openclaw message send --target +15555550123 --message "Hello from OpenClaw"
-    ```
-
-<<<<<<< HEAD
 ```bash
-openclaw onboard --install-daemon
+moltbot onboard --install-daemon
 ```
 
 What you’ll choose:
-
 - **Local vs Remote** gateway
 - **Auth**: OpenAI Code (Codex) subscription (OAuth) or API keys. For Anthropic we recommend an API key; `claude setup-token` is also supported.
 - **Providers**: WhatsApp QR login, Telegram/Discord bot tokens, Mattermost plugin tokens, etc.
 - **Daemon**: background install (launchd/systemd; WSL2 uses systemd)
   - **Runtime**: Node (recommended; required for WhatsApp/Telegram). Bun is **not recommended**.
 - **Gateway token**: the wizard generates one by default (even on loopback) and stores it in `gateway.auth.token`.
-=======
-  </Accordion>
-</AccordionGroup>
 
-## Go deeper
+Wizard doc: [Wizard](/start/wizard)
 
-<Columns>
-  <Card title="Onboarding Wizard (details)" href="/start/wizard">
-    Full CLI wizard reference and advanced options.
-  </Card>
-  <Card title="macOS app onboarding" href="/start/onboarding">
-    First run flow for the macOS app.
-  </Card>
-</Columns>
->>>>>>> 675c26b2b (Docs: streamline start and install docs (#9648))
+### Auth: where it lives (important)
 
-## What you will have
+- **Recommended Anthropic path:** set an API key (wizard can store it for service use). `claude setup-token` is also supported if you want to reuse Claude Code credentials.
 
-- A running Gateway
-- Auth configured
-- Control UI access or a connected channel
-
-## Next steps
-
-<<<<<<< HEAD
 - OAuth credentials (legacy import): `~/.clawdbot/credentials/oauth.json`
 - Auth profiles (OAuth + API keys): `~/.clawdbot/agents/<agentId>/agent/auth-profiles.json`
 
@@ -209,13 +105,13 @@ Headless/server tip: do OAuth on a normal machine first, then copy `oauth.json` 
 If you installed the service during onboarding, the Gateway should already be running:
 
 ```bash
-openclaw gateway status
+moltbot gateway status
 ```
 
 Manual run (foreground):
 
 ```bash
-openclaw gateway --port 18789 --verbose
+moltbot gateway --port 18789 --verbose
 ```
 
 Dashboard (local loopback): `http://127.0.0.1:18789/`
@@ -227,9 +123,9 @@ channels. If you use WhatsApp or Telegram, run the Gateway with **Node**.
 ## 3.5) Quick verify (2 min)
 
 ```bash
-openclaw status
-openclaw health
-openclaw security audit --deep
+moltbot status
+moltbot health
+moltbot security audit --deep
 ```
 
 ## 4) Pair + connect your first chat surface
@@ -237,7 +133,7 @@ openclaw security audit --deep
 ### WhatsApp (QR login)
 
 ```bash
-openclaw channels login
+moltbot channels login
 ```
 
 Scan via WhatsApp → Settings → Linked Devices.
@@ -247,7 +143,6 @@ WhatsApp doc: [WhatsApp](/channels/whatsapp)
 ### Telegram / Discord / others
 
 The wizard can write tokens/config for you. If you prefer manual config, start with:
-
 - Telegram: [Telegram](/channels/telegram)
 - Discord: [Discord](/channels/discord)
 - Mattermost (plugin): [Mattermost](/channels/mattermost)
@@ -260,32 +155,32 @@ Default posture: unknown DMs get a short code and messages are not processed unt
 If your first DM gets no reply, approve the pairing:
 
 ```bash
-openclaw pairing list whatsapp
-openclaw pairing approve whatsapp <code>
+moltbot pairing list whatsapp
+moltbot pairing approve whatsapp <code>
 ```
 
 Pairing doc: [Pairing](/start/pairing)
 
 ## From source (development)
 
-If you’re hacking on OpenClaw itself, run from source:
+If you’re hacking on Moltbot itself, run from source:
 
 ```bash
-git clone https://github.com/openclaw/openclaw.git
-cd openclaw
+git clone https://github.com/moltbot/moltbot.git
+cd moltbot
 pnpm install
 pnpm ui:build # auto-installs UI deps on first run
 pnpm build
-openclaw onboard --install-daemon
+moltbot onboard --install-daemon
 ```
 
-If you don’t have a global install yet, run the onboarding step via `pnpm openclaw ...` from the repo.
+If you don’t have a global install yet, run the onboarding step via `pnpm moltbot ...` from the repo.
 `pnpm build` also bundles A2UI assets; if you need to run just that step, use `pnpm canvas:a2ui:bundle`.
 
 Gateway (from this repo):
 
 ```bash
-node openclaw.mjs gateway --port 18789 --verbose
+node moltbot.mjs gateway --port 18789 --verbose
 ```
 
 ## 7) Verify end-to-end
@@ -293,13 +188,13 @@ node openclaw.mjs gateway --port 18789 --verbose
 In a new terminal, send a test message:
 
 ```bash
-openclaw message send --target +15555550123 --message "Hello from OpenClaw"
+moltbot message send --target +15555550123 --message "Hello from Moltbot"
 ```
 
-If `openclaw health` shows “no auth configured”, go back to the wizard and set OAuth/key auth — the agent won’t be able to respond without it.
+If `moltbot health` shows “no auth configured”, go back to the wizard and set OAuth/key auth — the agent won’t be able to respond without it.
 
-Tip: `openclaw status --all` is the best pasteable, read-only debug report.
-Health probes: `openclaw health` (or `openclaw status --deep`) asks the running gateway for a health snapshot.
+Tip: `moltbot status --all` is the best pasteable, read-only debug report.
+Health probes: `moltbot health` (or `moltbot status --deep`) asks the running gateway for a health snapshot.
 
 ## Next steps (optional, but great)
 
@@ -307,8 +202,3 @@ Health probes: `openclaw health` (or `openclaw status --deep`) asks the running 
 - iOS/Android nodes (Canvas/camera/voice): [Nodes](/nodes)
 - Remote access (SSH tunnel / Tailscale Serve): [Remote access](/gateway/remote) and [Tailscale](/gateway/tailscale)
 - Always-on / VPN setups: [Remote access](/gateway/remote), [exe.dev](/platforms/exe-dev), [Hetzner](/platforms/hetzner), [macOS remote](/platforms/mac/remote)
-=======
-- DM safety and approvals: [Pairing](/start/pairing)
-- Connect more channels: [Channels](/channels)
-- Advanced workflows and from source: [Setup](/start/setup)
->>>>>>> 675c26b2b (Docs: streamline start and install docs (#9648))

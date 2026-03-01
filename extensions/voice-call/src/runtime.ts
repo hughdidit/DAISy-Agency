@@ -1,7 +1,5 @@
-import type { VoiceCallConfig } from "./config.js";
 import type { CoreConfig } from "./core-bridge.js";
-import type { VoiceCallProvider } from "./providers/base.js";
-import type { TelephonyTtsRuntime } from "./telephony-tts.js";
+import type { VoiceCallConfig } from "./config.js";
 import { resolveVoiceCallConfig, validateProviderConfig } from "./config.js";
 import { CallManager } from "./manager.js";
 import type { Logger } from "./manager/context.js";
@@ -11,6 +9,7 @@ import { MockProvider } from "./providers/mock.js";
 import { PlivoProvider } from "./providers/plivo.js";
 import { TelnyxProvider } from "./providers/telnyx.js";
 import { TwilioProvider } from "./providers/twilio.js";
+import type { TelephonyTtsRuntime } from "./telephony-tts.js";
 import { createTelephonyTtsProvider } from "./telephony-tts.js";
 import { startTunnel, type TunnelResult } from "./tunnel.js";
 import {
@@ -30,9 +29,7 @@ export type VoiceCallRuntime = {
 };
 
 function isLoopbackBind(bind: string | undefined): boolean {
-  if (!bind) {
-    return false;
-  }
+  if (!bind) return false;
   return bind === "127.0.0.1" || bind === "::1" || bind === "localhost";
 }
 
@@ -40,13 +37,9 @@ function resolveProvider(config: VoiceCallConfig, logger?: Logger): VoiceCallPro
   const allowNgrokFreeTierLoopbackBypass =
     config.tunnel?.provider === "ngrok" &&
     isLoopbackBind(config.serve?.bind) &&
-<<<<<<< HEAD
     (config.tunnel?.allowNgrokFreeTierLoopbackBypass ||
       config.tunnel?.allowNgrokFreeTier ||
       false);
-=======
-    (config.tunnel?.allowNgrokFreeTierLoopbackBypass ?? false);
->>>>>>> a749db982 (fix: harden voice-call webhook verification)
 
   switch (config.provider) {
     case "telnyx":
@@ -65,14 +58,9 @@ function resolveProvider(config: VoiceCallConfig, logger?: Logger): VoiceCallPro
           allowNgrokFreeTierLoopbackBypass,
           publicUrl: config.publicUrl,
           skipVerification: config.skipSignatureVerification,
-<<<<<<< HEAD
           streamPath: config.streaming?.enabled
             ? config.streaming.streamPath
             : undefined,
-=======
-          streamPath: config.streaming?.enabled ? config.streaming.streamPath : undefined,
-          webhookSecurity: config.webhookSecurity,
->>>>>>> a749db982 (fix: harden voice-call webhook verification)
         },
         logger,
       );
@@ -86,14 +74,15 @@ function resolveProvider(config: VoiceCallConfig, logger?: Logger): VoiceCallPro
           publicUrl: config.publicUrl,
           skipVerification: config.skipSignatureVerification,
           ringTimeoutSec: Math.max(1, Math.floor(config.ringTimeoutMs / 1000)),
-          webhookSecurity: config.webhookSecurity,
         },
         logger,
       );
     case "mock":
       return new MockProvider();
     default:
-      throw new Error(`Unsupported voice-call provider: ${String(config.provider)}`);
+      throw new Error(
+        `Unsupported voice-call provider: ${String(config.provider)}`,
+      );
   }
 }
 
@@ -109,7 +98,9 @@ export async function createVoiceCallRuntime(params: {
   const config = resolveVoiceCallConfig(rawConfig);
 
   if (!config.enabled) {
-    throw new Error("Voice call disabled. Enable the plugin entry in config.");
+    throw new Error(
+      "Voice call disabled. Enable the plugin entry in config.",
+    );
   }
 
   const validation = validateProviderConfig(config);
@@ -145,7 +136,9 @@ export async function createVoiceCallRuntime(params: {
       publicUrl = tunnelResult?.publicUrl ?? null;
     } catch (err) {
       log.error(
-        `[voice-call] Tunnel setup failed: ${err instanceof Error ? err.message : String(err)}`,
+        `[voice-call] Tunnel setup failed: ${
+          err instanceof Error ? err.message : String(err)
+        }`,
       );
     }
   }

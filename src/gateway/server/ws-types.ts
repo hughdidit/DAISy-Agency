@@ -1,4 +1,5 @@
 import type { WebSocket } from "ws";
+
 import type { ConnectParams } from "../protocol/index.js";
 
 export type GatewayWsClient = {
@@ -6,5 +7,4 @@ export type GatewayWsClient = {
   connect: ConnectParams;
   connId: string;
   presenceKey?: string;
-  clientIp?: string;
 };

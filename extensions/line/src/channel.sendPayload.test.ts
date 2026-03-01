@@ -1,10 +1,5 @@
-<<<<<<< HEAD
 import { describe, expect, it, vi } from "vitest";
 import type { MoltbotConfig, PluginRuntime } from "clawdbot/plugin-sdk";
-=======
-import type { OpenClawConfig, PluginRuntime } from "openclaw/plugin-sdk";
-import { describe, expect, it, vi } from "vitest";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { linePlugin } from "./channel.js";
 import { setLineRuntime } from "./runtime.js";
 
@@ -38,7 +33,7 @@ function createRuntime(): { runtime: PluginRuntime; mocks: LineRuntimeMocks } {
   const sendMessageLine = vi.fn(async () => ({ messageId: "m-media", chatId: "c1" }));
   const chunkMarkdownText = vi.fn((text: string) => [text]);
   const resolveTextChunkLimit = vi.fn(() => 123);
-  const resolveLineAccount = vi.fn(({ cfg, accountId }: { cfg: OpenClawConfig; accountId?: string }) => {
+  const resolveLineAccount = vi.fn(({ cfg, accountId }: { cfg: MoltbotConfig; accountId?: string }) => {
     const resolved = accountId ?? "default";
     const lineConfig = (cfg.channels?.line ?? {}) as {
       accounts?: Record<string, Record<string, unknown>>;
@@ -50,21 +45,6 @@ function createRuntime(): { runtime: PluginRuntime; mocks: LineRuntimeMocks } {
       config: { ...lineConfig, ...accountConfig },
     };
   });
-=======
-  const resolveLineAccount = vi.fn(
-    ({ cfg, accountId }: { cfg: OpenClawConfig; accountId?: string }) => {
-      const resolved = accountId ?? "default";
-      const lineConfig = (cfg.channels?.line ?? {}) as {
-        accounts?: Record<string, Record<string, unknown>>;
-      };
-      const accountConfig = resolved !== "default" ? (lineConfig.accounts?.[resolved] ?? {}) : {};
-      return {
-        accountId: resolved,
-        config: { ...lineConfig, ...accountConfig },
-      };
-    },
-  );
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
   const runtime = {
     channel: {
@@ -110,7 +90,7 @@ describe("linePlugin outbound.sendPayload", () => {
   it("sends flex message without dropping text", async () => {
     const { runtime, mocks } = createRuntime();
     setLineRuntime(runtime);
-    const cfg = { channels: { line: {} } } as OpenClawConfig;
+    const cfg = { channels: { line: {} } } as MoltbotConfig;
 
     const payload = {
       text: "Now playing:",
@@ -141,7 +121,7 @@ describe("linePlugin outbound.sendPayload", () => {
   it("sends template message without dropping text", async () => {
     const { runtime, mocks } = createRuntime();
     setLineRuntime(runtime);
-    const cfg = { channels: { line: {} } } as OpenClawConfig;
+    const cfg = { channels: { line: {} } } as MoltbotConfig;
 
     const payload = {
       text: "Choose one:",
@@ -177,7 +157,7 @@ describe("linePlugin outbound.sendPayload", () => {
   it("attaches quick replies when no text chunks are present", async () => {
     const { runtime, mocks } = createRuntime();
     setLineRuntime(runtime);
-    const cfg = { channels: { line: {} } } as OpenClawConfig;
+    const cfg = { channels: { line: {} } } as MoltbotConfig;
 
     const payload = {
       channelData: {
@@ -217,7 +197,7 @@ describe("linePlugin outbound.sendPayload", () => {
   it("sends media before quick-reply text so buttons stay visible", async () => {
     const { runtime, mocks } = createRuntime();
     setLineRuntime(runtime);
-    const cfg = { channels: { line: {} } } as OpenClawConfig;
+    const cfg = { channels: { line: {} } } as MoltbotConfig;
 
     const payload = {
       text: "Hello",
@@ -255,7 +235,7 @@ describe("linePlugin outbound.sendPayload", () => {
   it("uses configured text chunk limit for payloads", async () => {
     const { runtime, mocks } = createRuntime();
     setLineRuntime(runtime);
-    const cfg = { channels: { line: { textChunkLimit: 123 } } } as OpenClawConfig;
+    const cfg = { channels: { line: { textChunkLimit: 123 } } } as MoltbotConfig;
 
     const payload = {
       text: "Hello world",
@@ -276,9 +256,12 @@ describe("linePlugin outbound.sendPayload", () => {
       cfg,
     });
 
-    expect(mocks.resolveTextChunkLimit).toHaveBeenCalledWith(cfg, "line", "primary", {
-      fallbackLimit: 5000,
-    });
+    expect(mocks.resolveTextChunkLimit).toHaveBeenCalledWith(
+      cfg,
+      "line",
+      "primary",
+      { fallbackLimit: 5000 },
+    );
     expect(mocks.chunkMarkdownText).toHaveBeenCalledWith("Hello world", 123);
   });
 });
@@ -312,7 +295,7 @@ describe("linePlugin groups.resolveRequireMention", () => {
           },
         },
       },
-    } as OpenClawConfig;
+    } as MoltbotConfig;
 
     const requireMention = linePlugin.groups.resolveRequireMention({
       cfg,

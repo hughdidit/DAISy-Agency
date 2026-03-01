@@ -1,6 +1,5 @@
 import path from "node:path";
-import type { BrowserRouteContext } from "../server-context.js";
-import type { BrowserRouteRegistrar } from "./types.js";
+
 import { ensureMediaDir, saveMediaBuffer } from "../../media/store.js";
 import { captureScreenshot, snapshotAria } from "../cdp.js";
 import {
@@ -13,6 +12,7 @@ import {
   DEFAULT_BROWSER_SCREENSHOT_MAX_SIDE,
   normalizeBrowserScreenshot,
 } from "../screenshot.js";
+import type { BrowserRouteContext } from "../server-context.js";
 import {
   getPwAiModule,
   handleRouteError,
@@ -21,6 +21,7 @@ import {
   resolveProfileContext,
 } from "./agent.shared.js";
 import { jsonError, toBoolean, toNumber, toStringOrEmpty } from "./utils.js";
+import type { BrowserRouteRegistrar } from "./types.js";
 
 export function registerBrowserAgentSnapshotRoutes(
   app: BrowserRouteRegistrar,
@@ -28,21 +29,15 @@ export function registerBrowserAgentSnapshotRoutes(
 ) {
   app.post("/navigate", async (req, res) => {
     const profileCtx = resolveProfileContext(req, res, ctx);
-    if (!profileCtx) {
-      return;
-    }
+    if (!profileCtx) return;
     const body = readBody(req);
     const url = toStringOrEmpty(body.url);
     const targetId = toStringOrEmpty(body.targetId) || undefined;
-    if (!url) {
-      return jsonError(res, 400, "url is required");
-    }
+    if (!url) return jsonError(res, 400, "url is required");
     try {
       const tab = await profileCtx.ensureTabAvailable(targetId);
       const pw = await requirePwAi(res, "navigate");
-      if (!pw) {
-        return;
-      }
+      if (!pw) return;
       const result = await pw.navigateViaPlaywright({
         cdpUrl: profileCtx.profile.cdpUrl,
         targetId: tab.targetId,
@@ -56,17 +51,13 @@ export function registerBrowserAgentSnapshotRoutes(
 
   app.post("/pdf", async (req, res) => {
     const profileCtx = resolveProfileContext(req, res, ctx);
-    if (!profileCtx) {
-      return;
-    }
+    if (!profileCtx) return;
     const body = readBody(req);
     const targetId = toStringOrEmpty(body.targetId) || undefined;
     try {
       const tab = await profileCtx.ensureTabAvailable(targetId);
       const pw = await requirePwAi(res, "pdf");
-      if (!pw) {
-        return;
-      }
+      if (!pw) return;
       const pdf = await pw.pdfViaPlaywright({
         cdpUrl: profileCtx.profile.cdpUrl,
         targetId: tab.targetId,
@@ -91,9 +82,7 @@ export function registerBrowserAgentSnapshotRoutes(
 
   app.post("/screenshot", async (req, res) => {
     const profileCtx = resolveProfileContext(req, res, ctx);
-    if (!profileCtx) {
-      return;
-    }
+    if (!profileCtx) return;
     const body = readBody(req);
     const targetId = toStringOrEmpty(body.targetId) || undefined;
     const fullPage = toBoolean(body.fullPage) ?? false;
@@ -112,9 +101,7 @@ export function registerBrowserAgentSnapshotRoutes(
         profileCtx.profile.driver === "extension" || !tab.wsUrl || Boolean(ref) || Boolean(element);
       if (shouldUsePlaywright) {
         const pw = await requirePwAi(res, "screenshot");
-        if (!pw) {
-          return;
-        }
+        if (!pw) return;
         const snap = await pw.takeScreenshotViaPlaywright({
           cdpUrl: profileCtx.profile.cdpUrl,
           targetId: tab.targetId,
@@ -157,9 +144,7 @@ export function registerBrowserAgentSnapshotRoutes(
 
   app.get("/snapshot", async (req, res) => {
     const profileCtx = resolveProfileContext(req, res, ctx);
-    if (!profileCtx) {
-      return;
-    }
+    if (!profileCtx) return;
     const targetId = typeof req.query.targetId === "string" ? req.query.targetId.trim() : "";
     const mode = req.query.mode === "efficient" ? "efficient" : undefined;
     const labels = toBoolean(req.query.labels) ?? undefined;
@@ -202,9 +187,7 @@ export function registerBrowserAgentSnapshotRoutes(
       }
       if (format === "ai") {
         const pw = await requirePwAi(res, "ai snapshot");
-        if (!pw) {
-          return;
-        }
+        if (!pw) return;
         const wantsRoleSnapshot =
           labels === true ||
           mode === "efficient" ||
@@ -299,9 +282,7 @@ export function registerBrowserAgentSnapshotRoutes(
               // Extension relay doesn't expose per-page WS URLs; run AX snapshot via Playwright CDP session.
               // Also covers cases where wsUrl is missing/unusable.
               return requirePwAi(res, "aria snapshot").then(async (pw) => {
-                if (!pw) {
-                  return null;
-                }
+                if (!pw) return null;
                 return await pw.snapshotAriaViaPlaywright({
                   cdpUrl: profileCtx.profile.cdpUrl,
                   targetId: tab.targetId,
@@ -312,9 +293,7 @@ export function registerBrowserAgentSnapshotRoutes(
           : snapshotAria({ wsUrl: tab.wsUrl ?? "", limit });
 
       const resolved = await Promise.resolve(snap);
-      if (!resolved) {
-        return;
-      }
+      if (!resolved) return;
       return res.json({
         ok: true,
         format,

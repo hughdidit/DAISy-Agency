@@ -1,30 +1,25 @@
 import { describe, expect, it } from "vitest";
-<<<<<<< HEAD
 
 import {
     handleChatEvent,
     type ChatEventPayload,
     type ChatState,
 } from "./chat";
-=======
-import { handleChatEvent, type ChatEventPayload, type ChatState } from "./chat";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 
 function createState(overrides: Partial<ChatState> = {}): ChatState {
   return {
-    chatAttachments: [],
-    chatLoading: false,
-    chatMessage: "",
-    chatMessages: [],
-    chatRunId: null,
-    chatSending: false,
-    chatStream: null,
-    chatStreamStartedAt: null,
-    chatThinkingLevel: null,
     client: null,
     connected: true,
-    lastError: null,
     sessionKey: "main",
+    chatLoading: false,
+    chatMessages: [],
+    chatThinkingLevel: null,
+    chatSending: false,
+    chatMessage: "",
+    chatRunId: null,
+    chatStream: null,
+    chatStreamStartedAt: null,
+    lastError: null,
     ...overrides,
   };
 }

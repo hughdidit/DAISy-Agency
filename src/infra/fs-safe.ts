@@ -1,6 +1,6 @@
+import { constants as fsConstants } from "node:fs";
 import type { Stats } from "node:fs";
 import type { FileHandle } from "node:fs/promises";
-import { constants as fsConstants } from "node:fs";
 import fs from "node:fs/promises";
 import path from "node:path";
 
@@ -104,9 +104,7 @@ export async function openFileWithinRoot(params: {
     return { handle, realPath, stat };
   } catch (err) {
     await handle.close().catch(() => {});
-    if (err instanceof SafeOpenError) {
-      throw err;
-    }
+    if (err instanceof SafeOpenError) throw err;
     if (isNotFoundError(err)) {
       throw new SafeOpenError("not-found", "file not found");
     }

@@ -1,23 +1,16 @@
-import type { AllowlistMatch, ChannelGroupContext, GroupPolicy, GroupToolPolicyConfig } from "openclaw/plugin-sdk";
+import type { AllowlistMatch, ChannelGroupContext, GroupPolicy, GroupToolPolicyConfig } from "clawdbot/plugin-sdk";
 import {
   buildChannelKeyCandidates,
   normalizeChannelSlug,
   resolveChannelEntryMatchWithFallback,
   resolveMentionGatingWithBypass,
   resolveNestedAllowlistDecision,
-<<<<<<< HEAD
 } from "clawdbot/plugin-sdk";
 
-=======
-} from "openclaw/plugin-sdk";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { NextcloudTalkRoomConfig } from "./types.js";
 
 function normalizeAllowEntry(raw: string): string {
-  return raw
-    .trim()
-    .toLowerCase()
-    .replace(/^(nextcloud-talk|nc-talk|nc):/i, "");
+  return raw.trim().toLowerCase().replace(/^(nextcloud-talk|nc-talk|nc):/i, "");
 }
 
 export function normalizeNextcloudTalkAllowlist(
@@ -29,17 +22,20 @@ export function normalizeNextcloudTalkAllowlist(
 export function resolveNextcloudTalkAllowlistMatch(params: {
   allowFrom: Array<string | number> | undefined;
   senderId: string;
-}): AllowlistMatch<"wildcard" | "id"> {
+  senderName?: string | null;
+}): AllowlistMatch<"wildcard" | "id" | "name"> {
   const allowFrom = normalizeNextcloudTalkAllowlist(params.allowFrom);
-  if (allowFrom.length === 0) {
-    return { allowed: false };
-  }
+  if (allowFrom.length === 0) return { allowed: false };
   if (allowFrom.includes("*")) {
     return { allowed: true, matchKey: "*", matchSource: "wildcard" };
   }
   const senderId = normalizeAllowEntry(params.senderId);
   if (allowFrom.includes(senderId)) {
     return { allowed: true, matchKey: senderId, matchSource: "id" };
+  }
+  const senderName = params.senderName ? normalizeAllowEntry(params.senderName) : "";
+  if (senderName && allowFrom.includes(senderName)) {
+    return { allowed: true, matchKey: senderName, matchSource: "name" };
   }
   return { allowed: false };
 }
@@ -93,13 +89,9 @@ export function resolveNextcloudTalkRoomMatch(params: {
 export function resolveNextcloudTalkGroupToolPolicy(
   params: ChannelGroupContext,
 ): GroupToolPolicyConfig | undefined {
-  const cfg = params.cfg as {
-    channels?: { "nextcloud-talk"?: { rooms?: Record<string, NextcloudTalkRoomConfig> } };
-  };
+  const cfg = params.cfg as { channels?: { "nextcloud-talk"?: { rooms?: Record<string, NextcloudTalkRoomConfig> } } };
   const roomToken = params.groupId?.trim();
-  if (!roomToken) {
-    return undefined;
-  }
+  if (!roomToken) return undefined;
   const roomName = params.groupChannel?.trim() || undefined;
   const match = resolveNextcloudTalkRoomMatch({
     rooms: cfg.channels?.["nextcloud-talk"]?.rooms,
@@ -127,6 +119,7 @@ export function resolveNextcloudTalkGroupAllow(params: {
   outerAllowFrom: Array<string | number> | undefined;
   innerAllowFrom: Array<string | number> | undefined;
   senderId: string;
+  senderName?: string | null;
 }): { allowed: boolean; outerMatch: AllowlistMatch; innerMatch: AllowlistMatch } {
   if (params.groupPolicy === "disabled") {
     return { allowed: false, outerMatch: { allowed: false }, innerMatch: { allowed: false } };
@@ -144,10 +137,12 @@ export function resolveNextcloudTalkGroupAllow(params: {
   const outerMatch = resolveNextcloudTalkAllowlistMatch({
     allowFrom: params.outerAllowFrom,
     senderId: params.senderId,
+    senderName: params.senderName,
   });
   const innerMatch = resolveNextcloudTalkAllowlistMatch({
     allowFrom: params.innerAllowFrom,
     senderId: params.senderId,
+    senderName: params.senderName,
   });
   const allowed = resolveNestedAllowlistDecision({
     outerConfigured: outerAllow.length > 0 || innerAllow.length > 0,

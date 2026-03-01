@@ -27,10 +27,10 @@ async function withTempHome<T>(fn: (home: string) => Promise<T>): Promise<T> {
     },
     {
       env: {
-        OPENCLAW_AGENT_DIR: (home) => path.join(home, ".openclaw", "agent"),
-        PI_CODING_AGENT_DIR: (home) => path.join(home, ".openclaw", "agent"),
+        CLAWDBOT_AGENT_DIR: (home) => path.join(home, ".clawdbot", "agent"),
+        PI_CODING_AGENT_DIR: (home) => path.join(home, ".clawdbot", "agent"),
       },
-      prefix: "openclaw-reply-",
+      prefix: "moltbot-reply-",
     },
   );
 }
@@ -82,16 +82,14 @@ describe("directive behavior", () => {
         },
         {
           onBlockReply: (payload) => {
-            if (payload.text) {
-              blockReplies.push(payload.text);
-            }
+            if (payload.text) blockReplies.push(payload.text);
           },
         },
         {
           agents: {
             defaults: {
               model: "anthropic/claude-opus-4-5",
-              workspace: path.join(home, "openclaw"),
+              workspace: path.join(home, "clawd"),
             },
           },
           channels: { whatsapp: { allowFrom: ["*"] } },
@@ -127,16 +125,14 @@ describe("directive behavior", () => {
         },
         {
           onBlockReply: (payload) => {
-            if (payload.text) {
-              blockReplies.push(payload.text);
-            }
+            if (payload.text) blockReplies.push(payload.text);
           },
         },
         {
           agents: {
             defaults: {
               model: "anthropic/claude-opus-4-5",
-              workspace: path.join(home, "openclaw"),
+              workspace: path.join(home, "clawd"),
             },
           },
           channels: { whatsapp: { allowFrom: ["*"] } },
@@ -153,16 +149,14 @@ describe("directive behavior", () => {
         },
         {
           onBlockReply: (payload) => {
-            if (payload.text) {
-              blockReplies.push(payload.text);
-            }
+            if (payload.text) blockReplies.push(payload.text);
           },
         },
         {
           agents: {
             defaults: {
               model: "anthropic/claude-opus-4-5",
-              workspace: path.join(home, "openclaw"),
+              workspace: path.join(home, "clawd"),
             },
           },
           channels: { whatsapp: { allowFrom: ["*"] } },
@@ -185,7 +179,7 @@ describe("directive behavior", () => {
           agents: {
             defaults: {
               model: "anthropic/claude-opus-4-5",
-              workspace: path.join(home, "openclaw"),
+              workspace: path.join(home, "clawd"),
             },
           },
           session: { store: path.join(home, "sessions.json") },
@@ -209,7 +203,7 @@ describe("directive behavior", () => {
           agents: {
             defaults: {
               model: "anthropic/claude-opus-4-5",
-              workspace: path.join(home, "openclaw"),
+              workspace: path.join(home, "clawd"),
             },
           },
           session: { store: storePath },
@@ -235,7 +229,7 @@ describe("directive behavior", () => {
           agents: {
             defaults: {
               model: "anthropic/claude-opus-4-5",
-              workspace: path.join(home, "openclaw"),
+              workspace: path.join(home, "clawd"),
               thinkingDefault: "high",
             },
           },
@@ -260,7 +254,7 @@ describe("directive behavior", () => {
           agents: {
             defaults: {
               model: "anthropic/claude-opus-4-5",
-              workspace: path.join(home, "openclaw"),
+              workspace: path.join(home, "clawd"),
             },
           },
           session: { store: path.join(home, "sessions.json") },

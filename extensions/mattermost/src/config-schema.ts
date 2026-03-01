@@ -1,15 +1,12 @@
+import { z } from "zod";
+
 import {
   BlockStreamingCoalesceSchema,
   DmPolicySchema,
   GroupPolicySchema,
   MarkdownConfigSchema,
   requireOpenAllowFrom,
-<<<<<<< HEAD
 } from "clawdbot/plugin-sdk";
-=======
-} from "openclaw/plugin-sdk";
-import { z } from "zod";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 
 const MattermostAccountSchemaBase = z
   .object({
@@ -31,7 +28,6 @@ const MattermostAccountSchemaBase = z
     chunkMode: z.enum(["length", "newline"]).optional(),
     blockStreaming: z.boolean().optional(),
     blockStreamingCoalesce: BlockStreamingCoalesceSchema.optional(),
-    responsePrefix: z.string().optional(),
   })
   .strict();
 

@@ -1,13 +1,10 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+
 import { describe, expect, it } from "vitest";
-<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../config/config.js";
-=======
-import type { OpenClawConfig } from "../config/config.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { resolveAgentAvatar } from "./identity-avatar.js";
 
 async function writeFile(filePath: string, contents = "avatar") {
@@ -17,12 +14,12 @@ async function writeFile(filePath: string, contents = "avatar") {
 
 describe("resolveAgentAvatar", () => {
   it("resolves local avatar from config when inside workspace", async () => {
-    const root = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-avatar-"));
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-avatar-"));
     const workspace = path.join(root, "work");
     const avatarPath = path.join(workspace, "avatars", "main.png");
     await writeFile(avatarPath);
 
-    const cfg: OpenClawConfig = {
+    const cfg: MoltbotConfig = {
       agents: {
         list: [
           {
@@ -44,13 +41,13 @@ describe("resolveAgentAvatar", () => {
   });
 
   it("rejects avatars outside the workspace", async () => {
-    const root = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-avatar-"));
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-avatar-"));
     const workspace = path.join(root, "work");
     await fs.mkdir(workspace, { recursive: true });
     const outsidePath = path.join(root, "outside.png");
     await writeFile(outsidePath);
 
-    const cfg: OpenClawConfig = {
+    const cfg: MoltbotConfig = {
       agents: {
         list: [
           {
@@ -70,7 +67,7 @@ describe("resolveAgentAvatar", () => {
   });
 
   it("falls back to IDENTITY.md when config has no avatar", async () => {
-    const root = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-avatar-"));
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-avatar-"));
     const workspace = path.join(root, "work");
     const avatarPath = path.join(workspace, "avatars", "fallback.png");
     await writeFile(avatarPath);
@@ -81,7 +78,7 @@ describe("resolveAgentAvatar", () => {
       "utf-8",
     );
 
-    const cfg: OpenClawConfig = {
+    const cfg: MoltbotConfig = {
       agents: {
         list: [{ id: "main", workspace }],
       },
@@ -97,7 +94,7 @@ describe("resolveAgentAvatar", () => {
   });
 
   it("accepts remote and data avatars", () => {
-    const cfg: OpenClawConfig = {
+    const cfg: MoltbotConfig = {
       agents: {
         list: [
           { id: "main", identity: { avatar: "https://example.com/avatar.png" } },

@@ -1,11 +1,7 @@
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
-=======
-import type { OpenClawConfig } from "../../config/config.js";
-import type { AuthProfileStore } from "./types.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { normalizeProviderId } from "../model-selection.js";
 import { listProfilesForProvider } from "./profiles.js";
+import type { AuthProfileStore } from "./types.js";
 import { isProfileInCooldown } from "./usage.js";
 
 function resolveProfileUnusableUntil(stats: {
@@ -15,14 +11,12 @@ function resolveProfileUnusableUntil(stats: {
   const values = [stats.cooldownUntil, stats.disabledUntil]
     .filter((value): value is number => typeof value === "number")
     .filter((value) => Number.isFinite(value) && value > 0);
-  if (values.length === 0) {
-    return null;
-  }
+  if (values.length === 0) return null;
   return Math.max(...values);
 }
 
 export function resolveAuthProfileOrder(params: {
-  cfg?: OpenClawConfig;
+  cfg?: MoltbotConfig;
   store: AuthProfileStore;
   provider: string;
   preferredProfile?: string;
@@ -32,25 +26,17 @@ export function resolveAuthProfileOrder(params: {
   const now = Date.now();
   const storedOrder = (() => {
     const order = store.order;
-    if (!order) {
-      return undefined;
-    }
+    if (!order) return undefined;
     for (const [key, value] of Object.entries(order)) {
-      if (normalizeProviderId(key) === providerKey) {
-        return value;
-      }
+      if (normalizeProviderId(key) === providerKey) return value;
     }
     return undefined;
   })();
   const configuredOrder = (() => {
     const order = cfg?.auth?.order;
-    if (!order) {
-      return undefined;
-    }
+    if (!order) return undefined;
     for (const [key, value] of Object.entries(order)) {
-      if (normalizeProviderId(key) === providerKey) {
-        return value;
-      }
+      if (normalizeProviderId(key) === providerKey) return value;
     }
     return undefined;
   })();
@@ -63,18 +49,12 @@ export function resolveAuthProfileOrder(params: {
   const baseOrder =
     explicitOrder ??
     (explicitProfiles.length > 0 ? explicitProfiles : listProfilesForProvider(store, providerKey));
-  if (baseOrder.length === 0) {
-    return [];
-  }
+  if (baseOrder.length === 0) return [];
 
   const filtered = baseOrder.filter((profileId) => {
     const cred = store.profiles[profileId];
-    if (!cred) {
-      return false;
-    }
-    if (normalizeProviderId(cred.provider) !== providerKey) {
-      return false;
-    }
+    if (!cred) return false;
+    if (normalizeProviderId(cred.provider) !== providerKey) return false;
     const profileConfig = cfg?.auth?.profiles?.[profileId];
     if (profileConfig) {
       if (normalizeProviderId(profileConfig.provider) !== providerKey) {
@@ -82,18 +62,12 @@ export function resolveAuthProfileOrder(params: {
       }
       if (profileConfig.mode !== cred.type) {
         const oauthCompatible = profileConfig.mode === "oauth" && cred.type === "token";
-        if (!oauthCompatible) {
-          return false;
-        }
+        if (!oauthCompatible) return false;
       }
     }
-    if (cred.type === "api_key") {
-      return Boolean(cred.key?.trim());
-    }
+    if (cred.type === "api_key") return Boolean(cred.key?.trim());
     if (cred.type === "token") {
-      if (!cred.token?.trim()) {
-        return false;
-      }
+      if (!cred.token?.trim()) return false;
       if (
         typeof cred.expires === "number" &&
         Number.isFinite(cred.expires) &&
@@ -111,9 +85,7 @@ export function resolveAuthProfileOrder(params: {
   });
   const deduped: string[] = [];
   for (const entry of filtered) {
-    if (!deduped.includes(entry)) {
-      deduped.push(entry);
-    }
+    if (!deduped.includes(entry)) deduped.push(entry);
   }
 
   // If user specified explicit order (store override or config), respect it
@@ -140,7 +112,7 @@ export function resolveAuthProfileOrder(params: {
     }
 
     const cooldownSorted = inCooldown
-      .toSorted((a, b) => a.cooldownUntil - b.cooldownUntil)
+      .sort((a, b) => a.cooldownUntil - b.cooldownUntil)
       .map((entry) => entry.profileId);
 
     const ordered = [...available, ...cooldownSorted];
@@ -191,11 +163,9 @@ function orderProfilesByMode(order: string[], store: AuthProfileStore): string[]
   // Primary sort: type preference (oauth > token > api_key).
   // Secondary sort: lastUsed (oldest first for round-robin within type).
   const sorted = scored
-    .toSorted((a, b) => {
+    .sort((a, b) => {
       // First by type (oauth > token > api_key)
-      if (a.typeScore !== b.typeScore) {
-        return a.typeScore - b.typeScore;
-      }
+      if (a.typeScore !== b.typeScore) return a.typeScore - b.typeScore;
       // Then by lastUsed (oldest first)
       return a.lastUsed - b.lastUsed;
     })
@@ -207,7 +177,7 @@ function orderProfilesByMode(order: string[], store: AuthProfileStore): string[]
       profileId,
       cooldownUntil: resolveProfileUnusableUntil(store.usageStats?.[profileId] ?? {}) ?? now,
     }))
-    .toSorted((a, b) => a.cooldownUntil - b.cooldownUntil)
+    .sort((a, b) => a.cooldownUntil - b.cooldownUntil)
     .map((entry) => entry.profileId);
 
   return [...sorted, ...cooldownSorted];

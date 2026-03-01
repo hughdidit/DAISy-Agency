@@ -22,11 +22,11 @@ export function resolveGatewayOptions(opts?: GatewayCallOptions) {
   const timeoutMs =
     typeof opts?.timeoutMs === "number" && Number.isFinite(opts.timeoutMs)
       ? Math.max(1, Math.floor(opts.timeoutMs))
-      : 30_000;
+      : 10_000;
   return { url, token, timeoutMs };
 }
 
-export async function callGatewayTool<T = Record<string, unknown>>(
+export async function callGatewayTool<T = unknown>(
   method: string,
   opts: GatewayCallOptions,
   params?: unknown,

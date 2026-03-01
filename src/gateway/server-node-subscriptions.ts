@@ -39,18 +39,14 @@ export function createNodeSubscriptionManager(): NodeSubscriptionManager {
   const subscribe = (nodeId: string, sessionKey: string) => {
     const normalizedNodeId = nodeId.trim();
     const normalizedSessionKey = sessionKey.trim();
-    if (!normalizedNodeId || !normalizedSessionKey) {
-      return;
-    }
+    if (!normalizedNodeId || !normalizedSessionKey) return;
 
     let nodeSet = nodeSubscriptions.get(normalizedNodeId);
     if (!nodeSet) {
       nodeSet = new Set<string>();
       nodeSubscriptions.set(normalizedNodeId, nodeSet);
     }
-    if (nodeSet.has(normalizedSessionKey)) {
-      return;
-    }
+    if (nodeSet.has(normalizedSessionKey)) return;
     nodeSet.add(normalizedSessionKey);
 
     let sessionSet = sessionSubscribers.get(normalizedSessionKey);
@@ -64,35 +60,25 @@ export function createNodeSubscriptionManager(): NodeSubscriptionManager {
   const unsubscribe = (nodeId: string, sessionKey: string) => {
     const normalizedNodeId = nodeId.trim();
     const normalizedSessionKey = sessionKey.trim();
-    if (!normalizedNodeId || !normalizedSessionKey) {
-      return;
-    }
+    if (!normalizedNodeId || !normalizedSessionKey) return;
 
     const nodeSet = nodeSubscriptions.get(normalizedNodeId);
     nodeSet?.delete(normalizedSessionKey);
-    if (nodeSet?.size === 0) {
-      nodeSubscriptions.delete(normalizedNodeId);
-    }
+    if (nodeSet?.size === 0) nodeSubscriptions.delete(normalizedNodeId);
 
     const sessionSet = sessionSubscribers.get(normalizedSessionKey);
     sessionSet?.delete(normalizedNodeId);
-    if (sessionSet?.size === 0) {
-      sessionSubscribers.delete(normalizedSessionKey);
-    }
+    if (sessionSet?.size === 0) sessionSubscribers.delete(normalizedSessionKey);
   };
 
   const unsubscribeAll = (nodeId: string) => {
     const normalizedNodeId = nodeId.trim();
     const nodeSet = nodeSubscriptions.get(normalizedNodeId);
-    if (!nodeSet) {
-      return;
-    }
+    if (!nodeSet) return;
     for (const sessionKey of nodeSet) {
       const sessionSet = sessionSubscribers.get(sessionKey);
       sessionSet?.delete(normalizedNodeId);
-      if (sessionSet?.size === 0) {
-        sessionSubscribers.delete(sessionKey);
-      }
+      if (sessionSet?.size === 0) sessionSubscribers.delete(sessionKey);
     }
     nodeSubscriptions.delete(normalizedNodeId);
   };
@@ -104,13 +90,9 @@ export function createNodeSubscriptionManager(): NodeSubscriptionManager {
     sendEvent?: NodeSendEventFn | null,
   ) => {
     const normalizedSessionKey = sessionKey.trim();
-    if (!normalizedSessionKey || !sendEvent) {
-      return;
-    }
+    if (!normalizedSessionKey || !sendEvent) return;
     const subs = sessionSubscribers.get(normalizedSessionKey);
-    if (!subs || subs.size === 0) {
-      return;
-    }
+    if (!subs || subs.size === 0) return;
 
     const payloadJSON = toPayloadJSON(payload);
     for (const nodeId of subs) {
@@ -123,9 +105,7 @@ export function createNodeSubscriptionManager(): NodeSubscriptionManager {
     payload: unknown,
     sendEvent?: NodeSendEventFn | null,
   ) => {
-    if (!sendEvent) {
-      return;
-    }
+    if (!sendEvent) return;
     const payloadJSON = toPayloadJSON(payload);
     for (const nodeId of nodeSubscriptions.keys()) {
       sendEvent({ nodeId, event, payloadJSON });
@@ -138,9 +118,7 @@ export function createNodeSubscriptionManager(): NodeSubscriptionManager {
     listConnected?: NodeListConnectedFn | null,
     sendEvent?: NodeSendEventFn | null,
   ) => {
-    if (!sendEvent || !listConnected) {
-      return;
-    }
+    if (!sendEvent || !listConnected) return;
     const payloadJSON = toPayloadJSON(payload);
     for (const node of listConnected()) {
       sendEvent({ nodeId: node.nodeId, event, payloadJSON });

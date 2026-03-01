@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
+
 import {
   assertSupportedRuntime,
   detectRuntime,
@@ -16,16 +17,13 @@ describe("runtime-guard", () => {
   });
 
   it("compares versions correctly", () => {
-    expect(isAtLeast({ major: 22, minor: 12, patch: 0 }, { major: 22, minor: 12, patch: 0 })).toBe(
+    expect(isAtLeast({ major: 22, minor: 0, patch: 0 }, { major: 22, minor: 0, patch: 0 })).toBe(
       true,
     );
-    expect(isAtLeast({ major: 22, minor: 13, patch: 0 }, { major: 22, minor: 12, patch: 0 })).toBe(
+    expect(isAtLeast({ major: 22, minor: 1, patch: 0 }, { major: 22, minor: 0, patch: 0 })).toBe(
       true,
     );
-    expect(isAtLeast({ major: 22, minor: 11, patch: 0 }, { major: 22, minor: 12, patch: 0 })).toBe(
-      false,
-    );
-    expect(isAtLeast({ major: 21, minor: 9, patch: 0 }, { major: 22, minor: 12, patch: 0 })).toBe(
+    expect(isAtLeast({ major: 21, minor: 9, patch: 0 }, { major: 22, minor: 0, patch: 0 })).toBe(
       false,
     );
   });
@@ -33,12 +31,11 @@ describe("runtime-guard", () => {
   it("validates runtime thresholds", () => {
     const nodeOk: RuntimeDetails = {
       kind: "node",
-      version: "22.12.0",
+      version: "22.0.0",
       execPath: "/usr/bin/node",
       pathEnv: "/usr/bin",
     };
-    const nodeOld: RuntimeDetails = { ...nodeOk, version: "22.11.0" };
-    const nodeTooOld: RuntimeDetails = { ...nodeOk, version: "21.9.0" };
+    const nodeOld: RuntimeDetails = { ...nodeOk, version: "21.9.0" };
     const unknown: RuntimeDetails = {
       kind: "unknown",
       version: null,
@@ -47,7 +44,6 @@ describe("runtime-guard", () => {
     };
     expect(runtimeSatisfies(nodeOk)).toBe(true);
     expect(runtimeSatisfies(nodeOld)).toBe(false);
-    expect(runtimeSatisfies(nodeTooOld)).toBe(false);
     expect(runtimeSatisfies(unknown)).toBe(false);
   });
 
@@ -78,7 +74,7 @@ describe("runtime-guard", () => {
     const details: RuntimeDetails = {
       ...detectRuntime(),
       kind: "node",
-      version: "22.12.0",
+      version: "22.0.0",
       execPath: "/usr/bin/node",
     };
     expect(() => assertSupportedRuntime(runtime, details)).not.toThrow();

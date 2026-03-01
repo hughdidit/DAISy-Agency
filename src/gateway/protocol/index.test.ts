@@ -1,5 +1,6 @@
-import type { ErrorObject } from "ajv";
 import { describe, expect, it } from "vitest";
+import type { ErrorObject } from "ajv";
+
 import { formatValidationErrors } from "./index.js";
 
 const makeError = (overrides: Partial<ErrorObject>): ErrorObject => ({

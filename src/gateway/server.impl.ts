@@ -1,13 +1,10 @@
-import type { CanvasHostServer } from "../canvas-host/server.js";
-import type { PluginServicesHandle } from "../plugins/services.js";
-import type { RuntimeEnv } from "../runtime.js";
-import type { startBrowserControlServerIfEnabled } from "./server-browser.js";
 import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../agents/agent-scope.js";
-import { registerSkillsChangeListener } from "../agents/skills/refresh.js";
 import { initSubagentRegistry } from "../agents/subagent-registry.js";
+import { registerSkillsChangeListener } from "../agents/skills/refresh.js";
+import type { CanvasHostServer } from "../canvas-host/server.js";
 import { type ChannelId, listChannelPlugins } from "../channels/plugins/index.js";
-import { formatCliCommand } from "../cli/command-format.js";
 import { createDefaultDeps } from "../cli/deps.js";
+import { formatCliCommand } from "../cli/command-format.js";
 import {
   CONFIG_PATH,
   isNixMode,
@@ -16,56 +13,27 @@ import {
   readConfigFileSnapshot,
   writeConfigFile,
 } from "../config/config.js";
-import { applyPluginAutoEnable } from "../config/plugin-auto-enable.js";
-import { clearAgentRunContext, onAgentEvent } from "../infra/agent-events.js";
 import { isDiagnosticsEnabled } from "../infra/diagnostic-events.js";
 import { logAcceptedEnvOption } from "../infra/env.js";
-import { createExecApprovalForwarder } from "../infra/exec-approval-forwarder.js";
+import { applyPluginAutoEnable } from "../config/plugin-auto-enable.js";
+import { clearAgentRunContext, onAgentEvent } from "../infra/agent-events.js";
 import { onHeartbeatEvent } from "../infra/heartbeat-events.js";
 import { startHeartbeatRunner } from "../infra/heartbeat-runner.js";
 import { getMachineDisplayName } from "../infra/machine-name.js";
-<<<<<<< HEAD
 import { ensureMoltbotCliOnPath } from "../infra/path-env.js";
-=======
-import { ensureOpenClawCliOnPath } from "../infra/path-env.js";
-import { setGatewaySigusr1RestartPolicy } from "../infra/restart.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import {
   primeRemoteSkillsCache,
   refreshRemoteBinsForConnectedNodes,
   setSkillsRemoteRegistry,
 } from "../infra/skills-remote.js";
 import { scheduleGatewayUpdateCheck } from "../infra/update-startup.js";
+import { setGatewaySigusr1RestartPolicy } from "../infra/restart.js";
 import { startDiagnosticHeartbeat, stopDiagnosticHeartbeat } from "../logging/diagnostic.js";
 import { createSubsystemLogger, runtimeForLogger } from "../logging/subsystem.js";
+import type { PluginServicesHandle } from "../plugins/services.js";
+import type { RuntimeEnv } from "../runtime.js";
 import { runOnboardingWizard } from "../wizard/onboarding.js";
 import { startGatewayConfigReloader } from "./config-reload.js";
-import { ExecApprovalManager } from "./exec-approval-manager.js";
-import { NodeRegistry } from "./node-registry.js";
-import { createChannelManager } from "./server-channels.js";
-import { createAgentEventHandler } from "./server-chat.js";
-import { createGatewayCloseHandler } from "./server-close.js";
-import { buildGatewayCronService } from "./server-cron.js";
-import { startGatewayDiscovery } from "./server-discovery-runtime.js";
-import { applyGatewayLaneConcurrency } from "./server-lanes.js";
-import { startGatewayMaintenanceTimers } from "./server-maintenance.js";
-import { GATEWAY_EVENTS, listGatewayMethods } from "./server-methods-list.js";
-import { coreGatewayHandlers } from "./server-methods.js";
-import { createExecApprovalHandlers } from "./server-methods/exec-approval.js";
-import { safeParseJson } from "./server-methods/nodes.helpers.js";
-import { hasConnectedMobileNode } from "./server-mobile-nodes.js";
-import { loadGatewayModelCatalog } from "./server-model-catalog.js";
-import { createNodeSubscriptionManager } from "./server-node-subscriptions.js";
-import { loadGatewayPlugins } from "./server-plugins.js";
-import { createGatewayReloadHandlers } from "./server-reload-handlers.js";
-import { resolveGatewayRuntimeConfig } from "./server-runtime-config.js";
-import { createGatewayRuntimeState } from "./server-runtime-state.js";
-import { resolveSessionKeyForRun } from "./server-session-key.js";
-import { logGatewayStartup } from "./server-startup-log.js";
-import { startGatewaySidecars } from "./server-startup.js";
-import { startGatewayTailscaleExposure } from "./server-tailscale.js";
-import { createWizardSessionTracker } from "./server-wizard-sessions.js";
-import { attachGatewayWsHandlers } from "./server-ws-runtime.js";
 import {
   getHealthCache,
   getHealthVersion,
@@ -73,11 +41,39 @@ import {
   incrementPresenceVersion,
   refreshGatewayHealthSnapshot,
 } from "./server/health-state.js";
+import { startGatewayDiscovery } from "./server-discovery-runtime.js";
+import { ExecApprovalManager } from "./exec-approval-manager.js";
+import { createExecApprovalHandlers } from "./server-methods/exec-approval.js";
+import { createExecApprovalForwarder } from "../infra/exec-approval-forwarder.js";
+import type { startBrowserControlServerIfEnabled } from "./server-browser.js";
+import { createChannelManager } from "./server-channels.js";
+import { createAgentEventHandler } from "./server-chat.js";
+import { createGatewayCloseHandler } from "./server-close.js";
+import { buildGatewayCronService } from "./server-cron.js";
+import { applyGatewayLaneConcurrency } from "./server-lanes.js";
+import { startGatewayMaintenanceTimers } from "./server-maintenance.js";
+import { coreGatewayHandlers } from "./server-methods.js";
+import { GATEWAY_EVENTS, listGatewayMethods } from "./server-methods-list.js";
+import { loadGatewayModelCatalog } from "./server-model-catalog.js";
+import { NodeRegistry } from "./node-registry.js";
+import { createNodeSubscriptionManager } from "./server-node-subscriptions.js";
+import { safeParseJson } from "./server-methods/nodes.helpers.js";
+import { loadGatewayPlugins } from "./server-plugins.js";
+import { createGatewayReloadHandlers } from "./server-reload-handlers.js";
+import { resolveGatewayRuntimeConfig } from "./server-runtime-config.js";
+import { createGatewayRuntimeState } from "./server-runtime-state.js";
+import { hasConnectedMobileNode } from "./server-mobile-nodes.js";
+import { resolveSessionKeyForRun } from "./server-session-key.js";
+import { startGatewaySidecars } from "./server-startup.js";
+import { logGatewayStartup } from "./server-startup-log.js";
+import { startGatewayTailscaleExposure } from "./server-tailscale.js";
 import { loadGatewayTlsRuntime } from "./server/tls.js";
+import { createWizardSessionTracker } from "./server-wizard-sessions.js";
+import { attachGatewayWsHandlers } from "./server-ws-runtime.js";
 
 export { __resetModelCatalogCacheForTest } from "./server-model-catalog.js";
 
-ensureOpenClawCliOnPath();
+ensureMoltbotCliOnPath();
 
 const log = createSubsystemLogger("gateway");
 const logCanvas = log.child("canvas");
@@ -91,7 +87,6 @@ const logReload = log.child("reload");
 const logHooks = log.child("hooks");
 const logPlugins = log.child("plugins");
 const logWsControl = log.child("ws");
-const gatewayRuntime = runtimeForLogger(log);
 const canvasRuntime = runtimeForLogger(logCanvas);
 
 export type GatewayServer = {
@@ -154,13 +149,13 @@ export async function startGatewayServer(
   opts: GatewayServerOptions = {},
 ): Promise<GatewayServer> {
   // Ensure all default port derivations (browser/canvas) see the actual runtime port.
-  process.env.OPENCLAW_GATEWAY_PORT = String(port);
+  process.env.CLAWDBOT_GATEWAY_PORT = String(port);
   logAcceptedEnvOption({
-    key: "OPENCLAW_RAW_STREAM",
+    key: "CLAWDBOT_RAW_STREAM",
     description: "raw stream logging enabled",
   });
   logAcceptedEnvOption({
-    key: "OPENCLAW_RAW_STREAM_PATH",
+    key: "CLAWDBOT_RAW_STREAM_PATH",
     description: "raw stream log path override",
   });
 
@@ -174,7 +169,7 @@ export async function startGatewayServer(
     const { config: migrated, changes } = migrateLegacyConfig(configSnapshot.parsed);
     if (!migrated) {
       throw new Error(
-        `Legacy config entries detected but auto-migration failed. Run "${formatCliCommand("openclaw doctor")}" to migrate.`,
+        `Legacy config entries detected but auto-migration failed. Run "${formatCliCommand("moltbot doctor")}" to migrate.`,
       );
     }
     await writeConfigFile(migrated);
@@ -196,7 +191,7 @@ export async function startGatewayServer(
             .join("\n")
         : "Unknown validation issue.";
     throw new Error(
-      `Invalid config at ${configSnapshot.path}.\n${issues}\nRun "${formatCliCommand("openclaw doctor")}" to repair, then retry.`,
+      `Invalid config at ${configSnapshot.path}.\n${issues}\nRun "${formatCliCommand("moltbot doctor")}" to repair, then retry.`,
     );
   }
 
@@ -258,45 +253,12 @@ export async function startGatewayServer(
     openResponsesEnabled,
     openResponsesConfig,
     controlUiBasePath,
-    controlUiRoot: controlUiRootOverride,
     resolvedAuth,
     tailscaleConfig,
     tailscaleMode,
   } = runtimeConfig;
   let hooksConfig = runtimeConfig.hooksConfig;
   const canvasHostEnabled = runtimeConfig.canvasHostEnabled;
-
-  let controlUiRootState: ControlUiRootState | undefined;
-  if (controlUiRootOverride) {
-    const resolvedOverride = resolveControlUiRootOverrideSync(controlUiRootOverride);
-    const resolvedOverridePath = path.resolve(controlUiRootOverride);
-    controlUiRootState = resolvedOverride
-      ? { kind: "resolved", path: resolvedOverride }
-      : { kind: "invalid", path: resolvedOverridePath };
-    if (!resolvedOverride) {
-      log.warn(`gateway: controlUi.root not found at ${resolvedOverridePath}`);
-    }
-  } else if (controlUiEnabled) {
-    let resolvedRoot = resolveControlUiRootSync({
-      moduleUrl: import.meta.url,
-      argv1: process.argv[1],
-      cwd: process.cwd(),
-    });
-    if (!resolvedRoot) {
-      const ensureResult = await ensureControlUiAssetsBuilt(gatewayRuntime);
-      if (!ensureResult.ok && ensureResult.message) {
-        log.warn(`gateway: ${ensureResult.message}`);
-      }
-      resolvedRoot = resolveControlUiRootSync({
-        moduleUrl: import.meta.url,
-        argv1: process.argv[1],
-        cwd: process.cwd(),
-      });
-    }
-    controlUiRootState = resolvedRoot
-      ? { kind: "resolved", path: resolvedRoot }
-      : { kind: "missing" };
-  }
 
   const wizardRunner = opts.wizardRunner ?? runOnboardingWizard;
   const { wizardSessions, findRunningWizard, purgeWizardSession } = createWizardSessionTracker();
@@ -315,7 +277,6 @@ export async function startGatewayServer(
     wss,
     clients,
     broadcast,
-    broadcastToConnIds,
     agentRunSeq,
     dedupe,
     chatRunState,
@@ -324,14 +285,12 @@ export async function startGatewayServer(
     addChatRun,
     removeChatRun,
     chatAbortControllers,
-    toolEventRecipients,
   } = await createGatewayRuntimeState({
     cfg: cfgAtStart,
     bindHost,
     port,
     controlUiEnabled,
     controlUiBasePath,
-    controlUiRoot: controlUiRootState,
     openAiChatCompletionsEnabled,
     openResponsesEnabled,
     openResponsesConfig,
@@ -392,7 +351,6 @@ export async function startGatewayServer(
       ? { enabled: true, fingerprintSha256: gatewayTls.fingerprintSha256 }
       : undefined,
     wideAreaDiscoveryEnabled: cfgAtStart.discovery?.wideArea?.enabled === true,
-    wideAreaDiscoveryDomain: cfgAtStart.discovery?.wideArea?.domain,
     tailscaleMode,
     mdnsMode: cfgAtStart.discovery?.mdns?.mode,
     logDiscovery,
@@ -407,12 +365,8 @@ export async function startGatewayServer(
   let skillsRefreshTimer: ReturnType<typeof setTimeout> | null = null;
   const skillsRefreshDelayMs = 30_000;
   const skillsChangeUnsub = registerSkillsChangeListener((event) => {
-    if (event.reason === "remote-node") {
-      return;
-    }
-    if (skillsRefreshTimer) {
-      clearTimeout(skillsRefreshTimer);
-    }
+    if (event.reason === "remote-node") return;
+    if (skillsRefreshTimer) clearTimeout(skillsRefreshTimer);
     skillsRefreshTimer = setTimeout(() => {
       skillsRefreshTimer = null;
       const latest = loadConfig();
@@ -440,13 +394,11 @@ export async function startGatewayServer(
   const agentUnsub = onAgentEvent(
     createAgentEventHandler({
       broadcast,
-      broadcastToConnIds,
       nodeSendToSession,
       agentRunSeq,
       chatRunState,
       resolveSessionKeyForRun,
       clearAgentRunContext,
-      toolEventRecipients,
     }),
   );
 
@@ -496,7 +448,6 @@ export async function startGatewayServer(
       incrementPresenceVersion,
       getHealthVersion,
       broadcast,
-      broadcastToConnIds,
       nodeSendToSession,
       nodeSendToAllSubscribed,
       nodeSubscribe,
@@ -511,7 +462,6 @@ export async function startGatewayServer(
       chatDeltaSentAt: chatRunState.deltaSentAt,
       addChatRun,
       removeChatRun,
-      registerToolEventRecipient: toolEventRecipients.add,
       dedupe,
       wizardSessions,
       findRunningWizard,

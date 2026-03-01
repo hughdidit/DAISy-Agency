@@ -1,9 +1,9 @@
 import { messagingApi } from "@line/bot-sdk";
-import type { LineSendResult } from "./types.js";
 import { loadConfig } from "../config/config.js";
 import { logVerbose } from "../globals.js";
 import { recordChannelActivity } from "../infra/channel-activity.js";
 import { resolveLineAccount } from "./accounts.js";
+import type { LineSendResult } from "./types.js";
 
 // Use the messaging API types directly
 type Message = messagingApi.Message;
@@ -35,9 +35,7 @@ function resolveToken(
   explicit: string | undefined,
   params: { accountId: string; channelAccessToken: string },
 ): string {
-  if (explicit?.trim()) {
-    return explicit.trim();
-  }
+  if (explicit?.trim()) return explicit.trim();
   if (!params.channelAccessToken) {
     throw new Error(
       `LINE channel access token missing for account "${params.accountId}" (set channels.line.channelAccessToken or LINE_CHANNEL_ACCESS_TOKEN).`,
@@ -48,9 +46,7 @@ function resolveToken(
 
 function normalizeTarget(to: string): string {
   const trimmed = to.trim();
-  if (!trimmed) {
-    throw new Error("Recipient is required for LINE sends");
-  }
+  if (!trimmed) throw new Error("Recipient is required for LINE sends");
 
   // Strip internal prefixes
   let normalized = trimmed
@@ -59,9 +55,7 @@ function normalizeTarget(to: string): string {
     .replace(/^line:user:/i, "")
     .replace(/^line:/i, "");
 
-  if (!normalized) {
-    throw new Error("Recipient is required for LINE sends");
-  }
+  if (!normalized) throw new Error("Recipient is required for LINE sends");
 
   return normalized;
 }
@@ -97,9 +91,7 @@ export function createLocationMessage(location: {
 }
 
 function logLineHttpError(err: unknown, context: string): void {
-  if (!err || typeof err !== "object") {
-    return;
-  }
+  if (!err || typeof err !== "object") return;
   const { status, statusText, body } = err as {
     status?: number;
     statusText?: string;

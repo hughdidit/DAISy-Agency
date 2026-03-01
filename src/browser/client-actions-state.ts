@@ -7,9 +7,7 @@ function buildProfileQuery(profile?: string): string {
 
 function withBaseUrl(baseUrl: string | undefined, path: string): string {
   const trimmed = baseUrl?.trim();
-  if (!trimmed) {
-    return path;
-  }
+  if (!trimmed) return path;
   return `${trimmed.replace(/\/$/, "")}${path}`;
 }
 
@@ -18,12 +16,8 @@ export async function browserCookies(
   opts: { targetId?: string; profile?: string } = {},
 ): Promise<{ ok: true; targetId: string; cookies: unknown[] }> {
   const q = new URLSearchParams();
-  if (opts.targetId) {
-    q.set("targetId", opts.targetId);
-  }
-  if (opts.profile) {
-    q.set("profile", opts.profile);
-  }
+  if (opts.targetId) q.set("targetId", opts.targetId);
+  if (opts.profile) q.set("profile", opts.profile);
   const suffix = q.toString() ? `?${q.toString()}` : "";
   return await fetchBrowserJson<{
     ok: true;
@@ -72,15 +66,9 @@ export async function browserStorageGet(
   },
 ): Promise<{ ok: true; targetId: string; values: Record<string, string> }> {
   const q = new URLSearchParams();
-  if (opts.targetId) {
-    q.set("targetId", opts.targetId);
-  }
-  if (opts.key) {
-    q.set("key", opts.key);
-  }
-  if (opts.profile) {
-    q.set("profile", opts.profile);
-  }
+  if (opts.targetId) q.set("targetId", opts.targetId);
+  if (opts.key) q.set("key", opts.key);
+  if (opts.profile) q.set("profile", opts.profile);
   const suffix = q.toString() ? `?${q.toString()}` : "";
   return await fetchBrowserJson<{
     ok: true;

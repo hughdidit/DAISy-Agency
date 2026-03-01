@@ -1,22 +1,16 @@
+import { resolveChannelDefaultAccountId } from "../channels/plugins/helpers.js";
+import { listChannelPlugins } from "../channels/plugins/index.js";
 import type { ChannelId } from "../channels/plugins/types.js";
-<<<<<<< HEAD
 import type { MoltbotConfig, GatewayBindMode } from "../config/config.js";
 import { readChannelAllowFromStore } from "../pairing/pairing-store.js";
 import { note } from "../terminal/note.js";
-=======
-import type { OpenClawConfig, GatewayBindMode } from "../config/config.js";
-import { resolveChannelDefaultAccountId } from "../channels/plugins/helpers.js";
-import { listChannelPlugins } from "../channels/plugins/index.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { formatCliCommand } from "../cli/command-format.js";
 import { resolveGatewayAuth } from "../gateway/auth.js";
 import { isLoopbackHost, resolveGatewayBindHost } from "../gateway/net.js";
-import { readChannelAllowFromStore } from "../pairing/pairing-store.js";
-import { note } from "../terminal/note.js";
 
-export async function noteSecurityWarnings(cfg: OpenClawConfig) {
+export async function noteSecurityWarnings(cfg: MoltbotConfig) {
   const warnings: string[] = [];
-  const auditHint = `- Run: ${formatCliCommand("openclaw security audit --deep")}`;
+  const auditHint = `- Run: ${formatCliCommand("moltbot security audit --deep")}`;
 
   // ===========================================
   // GATEWAY NETWORK EXPOSURE CHECK
@@ -54,19 +48,19 @@ export async function noteSecurityWarnings(cfg: OpenClawConfig) {
       const authFixLines =
         resolvedAuth.mode === "password"
           ? [
-              `  Fix: ${formatCliCommand("openclaw configure")} to set a password`,
-              `  Or switch to token: ${formatCliCommand("openclaw config set gateway.auth.mode token")}`,
+              `  Fix: ${formatCliCommand("moltbot configure")} to set a password`,
+              `  Or switch to token: ${formatCliCommand("moltbot config set gateway.auth.mode token")}`,
             ]
           : [
-              `  Fix: ${formatCliCommand("openclaw doctor --fix")} to generate a token`,
+              `  Fix: ${formatCliCommand("moltbot doctor --fix")} to generate a token`,
               `  Or set token directly: ${formatCliCommand(
-                "openclaw config set gateway.auth.mode token",
+                "moltbot config set gateway.auth.mode token",
               )}`,
             ];
       warnings.push(
         `- CRITICAL: Gateway bound to ${bindDescriptor} without authentication.`,
         `  Anyone on your network (or internet if port-forwarded) can fully control your agent.`,
-        `  Fix: ${formatCliCommand("openclaw config set gateway.bind loopback")}`,
+        `  Fix: ${formatCliCommand("moltbot config set gateway.bind loopback")}`,
         ...authFixLines,
       );
     } else {
@@ -136,9 +130,7 @@ export async function noteSecurityWarnings(cfg: OpenClawConfig) {
   };
 
   for (const plugin of listChannelPlugins()) {
-    if (!plugin.security) {
-      continue;
-    }
+    if (!plugin.security) continue;
     const accountIds = plugin.config.listAccountIds(cfg);
     const defaultAccountId = resolveChannelDefaultAccountId({
       plugin,
@@ -147,15 +139,11 @@ export async function noteSecurityWarnings(cfg: OpenClawConfig) {
     });
     const account = plugin.config.resolveAccount(cfg, defaultAccountId);
     const enabled = plugin.config.isEnabled ? plugin.config.isEnabled(account, cfg) : true;
-    if (!enabled) {
-      continue;
-    }
+    if (!enabled) continue;
     const configured = plugin.config.isConfigured
       ? await plugin.config.isConfigured(account, cfg)
       : true;
-    if (!configured) {
-      continue;
-    }
+    if (!configured) continue;
     const dmPolicy = plugin.security.resolveDmPolicy?.({
       cfg,
       accountId: defaultAccountId,
@@ -179,9 +167,7 @@ export async function noteSecurityWarnings(cfg: OpenClawConfig) {
         accountId: defaultAccountId,
         account,
       });
-      if (extra?.length) {
-        warnings.push(...extra);
-      }
+      if (extra?.length) warnings.push(...extra);
     }
   }
 

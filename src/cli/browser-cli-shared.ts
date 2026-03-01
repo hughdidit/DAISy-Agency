@@ -14,14 +14,10 @@ type BrowserRequestParams = {
 };
 
 function normalizeQuery(query: BrowserRequestParams["query"]): Record<string, string> | undefined {
-  if (!query) {
-    return undefined;
-  }
+  if (!query) return undefined;
   const out: Record<string, string> = {};
   for (const [key, value] of Object.entries(query)) {
-    if (value === undefined) {
-      continue;
-    }
+    if (value === undefined) continue;
     out[key] = String(value);
   }
   return Object.keys(out).length ? out : undefined;

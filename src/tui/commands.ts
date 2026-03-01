@@ -1,11 +1,7 @@
 import type { SlashCommand } from "@mariozechner/pi-tui";
-import type { OpenClawConfig } from "../config/types.js";
 import { listChatCommands, listChatCommandsForConfig } from "../auto-reply/commands-registry.js";
 import { formatThinkingLevels, listThinkingLevelLabels } from "../auto-reply/thinking.js";
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/types.js";
-=======
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 
 const VERBOSE_LEVELS = ["on", "off"];
 const REASONING_LEVELS = ["on", "off"];
@@ -19,7 +15,7 @@ export type ParsedCommand = {
 };
 
 export type SlashCommandOptions = {
-  cfg?: OpenClawConfig;
+  cfg?: MoltbotConfig;
   provider?: string;
   model?: string;
 };
@@ -30,9 +26,7 @@ const COMMAND_ALIASES: Record<string, string> = {
 
 export function parseCommand(input: string): ParsedCommand {
   const trimmed = input.replace(/^\//, "").trim();
-  if (!trimmed) {
-    return { name: "", args: "" };
-  }
+  if (!trimmed) return { name: "", args: "" };
   const [name, ...rest] = trimmed.split(/\s+/);
   const normalized = name.toLowerCase();
   return {
@@ -131,9 +125,7 @@ export function getSlashCommands(options: SlashCommandOptions = {}): SlashComman
     const aliases = command.textAliases.length > 0 ? command.textAliases : [`/${command.key}`];
     for (const alias of aliases) {
       const name = alias.replace(/^\//, "").trim();
-      if (!name || seen.has(name)) {
-        continue;
-      }
+      if (!name || seen.has(name)) continue;
       seen.add(name);
       commands.push({ name, description: command.description });
     }

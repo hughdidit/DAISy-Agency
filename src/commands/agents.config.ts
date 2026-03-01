@@ -1,19 +1,15 @@
-import type { AgentIdentityFile } from "../agents/identity-file.js";
-import type { OpenClawConfig } from "../config/config.js";
 import {
   resolveAgentDir,
   resolveAgentWorkspaceDir,
   resolveDefaultAgentId,
 } from "../agents/agent-scope.js";
+import type { AgentIdentityFile } from "../agents/identity-file.js";
 import {
   identityHasValues,
   loadAgentIdentityFromWorkspace,
   parseIdentityMarkdown as parseIdentityMarkdownFile,
 } from "../agents/identity-file.js";
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
-=======
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { normalizeAgentId } from "../routing/session-key.js";
 
 export type AgentSummary = {
@@ -32,15 +28,13 @@ export type AgentSummary = {
   isDefault: boolean;
 };
 
-type AgentEntry = NonNullable<NonNullable<OpenClawConfig["agents"]>["list"]>[number];
+type AgentEntry = NonNullable<NonNullable<MoltbotConfig["agents"]>["list"]>[number];
 
 export type AgentIdentity = AgentIdentityFile;
 
-export function listAgentEntries(cfg: OpenClawConfig): AgentEntry[] {
+export function listAgentEntries(cfg: MoltbotConfig): AgentEntry[] {
   const list = cfg.agents?.list;
-  if (!Array.isArray(list)) {
-    return [];
-  }
+  if (!Array.isArray(list)) return [];
   return list.filter((entry): entry is AgentEntry => Boolean(entry && typeof entry === "object"));
 }
 
@@ -49,14 +43,14 @@ export function findAgentEntryIndex(list: AgentEntry[], agentId: string): number
   return list.findIndex((entry) => normalizeAgentId(entry.id) === id);
 }
 
-function resolveAgentName(cfg: OpenClawConfig, agentId: string) {
+function resolveAgentName(cfg: MoltbotConfig, agentId: string) {
   const entry = listAgentEntries(cfg).find(
     (agent) => normalizeAgentId(agent.id) === normalizeAgentId(agentId),
   );
   return entry?.name?.trim() || undefined;
 }
 
-function resolveAgentModel(cfg: OpenClawConfig, agentId: string) {
+function resolveAgentModel(cfg: MoltbotConfig, agentId: string) {
   const entry = listAgentEntries(cfg).find(
     (agent) => normalizeAgentId(agent.id) === normalizeAgentId(agentId),
   );
@@ -66,15 +60,11 @@ function resolveAgentModel(cfg: OpenClawConfig, agentId: string) {
     }
     if (typeof entry.model === "object") {
       const primary = entry.model.primary?.trim();
-      if (primary) {
-        return primary;
-      }
+      if (primary) return primary;
     }
   }
   const raw = cfg.agents?.defaults?.model;
-  if (typeof raw === "string") {
-    return raw;
-  }
+  if (typeof raw === "string") return raw;
   return raw?.primary?.trim() || undefined;
 }
 
@@ -84,13 +74,11 @@ export function parseIdentityMarkdown(content: string): AgentIdentity {
 
 export function loadAgentIdentity(workspace: string): AgentIdentity | null {
   const parsed = loadAgentIdentityFromWorkspace(workspace);
-  if (!parsed) {
-    return null;
-  }
+  if (!parsed) return null;
   return identityHasValues(parsed) ? parsed : null;
 }
 
-export function buildAgentSummaries(cfg: OpenClawConfig): AgentSummary[] {
+export function buildAgentSummaries(cfg: MoltbotConfig): AgentSummary[] {
   const defaultAgentId = normalizeAgentId(resolveDefaultAgentId(cfg));
   const configuredAgents = listAgentEntries(cfg);
   const orderedIds =
@@ -134,7 +122,7 @@ export function buildAgentSummaries(cfg: OpenClawConfig): AgentSummary[] {
 }
 
 export function applyAgentConfig(
-  cfg: OpenClawConfig,
+  cfg: MoltbotConfig,
   params: {
     agentId: string;
     name?: string;
@@ -142,7 +130,7 @@ export function applyAgentConfig(
     agentDir?: string;
     model?: string;
   },
-): OpenClawConfig {
+): MoltbotConfig {
   const agentId = normalizeAgentId(params.agentId);
   const name = params.name?.trim();
   const list = listAgentEntries(cfg);
@@ -174,10 +162,10 @@ export function applyAgentConfig(
 }
 
 export function pruneAgentConfig(
-  cfg: OpenClawConfig,
+  cfg: MoltbotConfig,
   agentId: string,
 ): {
-  config: OpenClawConfig;
+  config: MoltbotConfig;
   removedBindings: number;
   removedAllow: number;
 } {

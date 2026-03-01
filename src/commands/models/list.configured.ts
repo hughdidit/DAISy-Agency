@@ -1,19 +1,14 @@
-import type { OpenClawConfig } from "../../config/config.js";
-import type { ConfiguredEntry } from "./list.types.js";
 import {
   buildModelAliasIndex,
   parseModelRef,
   resolveConfiguredModelRef,
   resolveModelRefFromString,
 } from "../../agents/model-selection.js";
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
 import type { ConfiguredEntry } from "./list.types.js";
-=======
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { DEFAULT_MODEL, DEFAULT_PROVIDER, modelKey } from "./shared.js";
 
-export function resolveConfiguredEntries(cfg: OpenClawConfig) {
+export function resolveConfiguredEntries(cfg: MoltbotConfig) {
   const resolvedDefault = resolveConfiguredModelRef({
     cfg,
     defaultProvider: DEFAULT_PROVIDER,
@@ -59,9 +54,7 @@ export function resolveConfiguredEntries(cfg: OpenClawConfig) {
       defaultProvider: DEFAULT_PROVIDER,
       aliasIndex,
     });
-    if (!resolved) {
-      return;
-    }
+    if (!resolved) return;
     addEntry(resolved.ref, `fallback#${idx + 1}`);
   });
 
@@ -71,9 +64,7 @@ export function resolveConfiguredEntries(cfg: OpenClawConfig) {
       defaultProvider: DEFAULT_PROVIDER,
       aliasIndex,
     });
-    if (resolved) {
-      addEntry(resolved.ref, "image");
-    }
+    if (resolved) addEntry(resolved.ref, "image");
   }
 
   imageFallbacks.forEach((raw, idx) => {
@@ -82,17 +73,13 @@ export function resolveConfiguredEntries(cfg: OpenClawConfig) {
       defaultProvider: DEFAULT_PROVIDER,
       aliasIndex,
     });
-    if (!resolved) {
-      return;
-    }
+    if (!resolved) return;
     addEntry(resolved.ref, `img-fallback#${idx + 1}`);
   });
 
   for (const key of Object.keys(cfg.agents?.defaults?.models ?? {})) {
     const parsed = parseModelRef(String(key ?? ""), DEFAULT_PROVIDER);
-    if (!parsed) {
-      continue;
-    }
+    if (!parsed) continue;
     addEntry(parsed, "configured");
   }
 

@@ -1,13 +1,8 @@
-import type { OpenClawConfig } from "../../config/config.js";
-import type { MsgContext } from "../templating.js";
 import { resolveAgentConfig } from "../../agents/agent-scope.js";
 import { getChannelDock } from "../../channels/dock.js";
 import { normalizeChannelId } from "../../channels/plugins/index.js";
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
 import type { MsgContext } from "../templating.js";
-=======
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 
 function escapeRegExp(text: string): string {
   return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -33,9 +28,7 @@ const BACKSPACE_CHAR = "\u0008";
 export const CURRENT_MESSAGE_MARKER = "[Current message - respond to this]";
 
 function normalizeMentionPattern(pattern: string): string {
-  if (!pattern.includes(BACKSPACE_CHAR)) {
-    return pattern;
-  }
+  if (!pattern.includes(BACKSPACE_CHAR)) return pattern;
   return pattern.split(BACKSPACE_CHAR).join("\\b");
 }
 
@@ -43,14 +36,8 @@ function normalizeMentionPatterns(patterns: string[]): string[] {
   return patterns.map(normalizeMentionPattern);
 }
 
-function resolveMentionPatterns(cfg: OpenClawConfig | undefined, agentId?: string): string[] {
+function resolveMentionPatterns(cfg: MoltbotConfig | undefined, agentId?: string): string[] {
   if (!cfg) return [];
-=======
-function resolveMentionPatterns(cfg: OpenClawConfig | undefined, agentId?: string): string[] {
-  if (!cfg) {
-    return [];
-  }
->>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
   const agentConfig = agentId ? resolveAgentConfig(cfg, agentId) : undefined;
   const agentGroupChat = agentConfig?.groupChat;
   if (agentGroupChat && Object.hasOwn(agentGroupChat, "mentionPatterns")) {
@@ -64,7 +51,7 @@ function resolveMentionPatterns(cfg: OpenClawConfig | undefined, agentId?: strin
   return derived.length > 0 ? derived : [];
 }
 
-export function buildMentionRegexes(cfg: OpenClawConfig | undefined, agentId?: string): RegExp[] {
+export function buildMentionRegexes(cfg: MoltbotConfig | undefined, agentId?: string): RegExp[] {
   const patterns = normalizeMentionPatterns(resolveMentionPatterns(cfg, agentId));
   return patterns
     .map((pattern) => {
@@ -82,13 +69,9 @@ export function normalizeMentionText(text: string): string {
 }
 
 export function matchesMentionPatterns(text: string, mentionRegexes: RegExp[]): boolean {
-  if (mentionRegexes.length === 0) {
-    return false;
-  }
+  if (mentionRegexes.length === 0) return false;
   const cleaned = normalizeMentionText(text ?? "");
-  if (!cleaned) {
-    return false;
-  }
+  if (!cleaned) return false;
   return mentionRegexes.some((re) => re.test(cleaned));
 }
 
@@ -107,12 +90,8 @@ export function matchesMentionWithExplicit(params: {
   const explicit = params.explicit?.isExplicitlyMentioned === true;
   const explicitAvailable = params.explicit?.canResolveExplicit === true;
   const hasAnyMention = params.explicit?.hasAnyMention === true;
-  if (hasAnyMention && explicitAvailable) {
-    return explicit || params.mentionRegexes.some((re) => re.test(cleaned));
-  }
-  if (!cleaned) {
-    return explicit;
-  }
+  if (hasAnyMention && explicitAvailable) return explicit;
+  if (!cleaned) return explicit;
   return explicit || params.mentionRegexes.some((re) => re.test(cleaned));
 }
 
@@ -134,7 +113,7 @@ export function stripStructuralPrefixes(text: string): string {
 export function stripMentions(
   text: string,
   ctx: MsgContext,
-  cfg: OpenClawConfig | undefined,
+  cfg: MoltbotConfig | undefined,
   agentId?: string,
 ): string {
   let result = text;

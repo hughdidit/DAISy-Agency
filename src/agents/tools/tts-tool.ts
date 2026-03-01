@@ -1,15 +1,10 @@
 import { Type } from "@sinclair/typebox";
-<<<<<<< HEAD
 
 import { loadConfig } from "../../config/config.js";
 import type { MoltbotConfig } from "../../config/config.js";
-=======
-import type { OpenClawConfig } from "../../config/config.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { GatewayMessageChannel } from "../../utils/message-channel.js";
-import type { AnyAgentTool } from "./common.js";
-import { loadConfig } from "../../config/config.js";
 import { textToSpeech } from "../../tts/tts.js";
+import type { AnyAgentTool } from "./common.js";
 import { readStringParam } from "./common.js";
 
 const TtsToolSchema = Type.Object({
@@ -20,7 +15,7 @@ const TtsToolSchema = Type.Object({
 });
 
 export function createTtsTool(opts?: {
-  config?: OpenClawConfig;
+  config?: MoltbotConfig;
   agentChannel?: GatewayMessageChannel;
 }): AnyAgentTool {
   return {
@@ -43,9 +38,7 @@ export function createTtsTool(opts?: {
       if (result.success && result.audioPath) {
         const lines: string[] = [];
         // Tag Telegram Opus output as a voice bubble instead of a file attachment.
-        if (result.voiceCompatible) {
-          lines.push("[[audio_as_voice]]");
-        }
+        if (result.voiceCompatible) lines.push("[[audio_as_voice]]");
         lines.push(`MEDIA:${result.audioPath}`);
         return {
           content: [{ type: "text", text: lines.join("\n") }],

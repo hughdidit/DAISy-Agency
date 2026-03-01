@@ -53,9 +53,7 @@ export function parseFenceSpans(buffer: string): FenceSpan[] {
       }
     }
 
-    if (nextNewline === -1) {
-      break;
-    }
+    if (nextNewline === -1) break;
     offset = nextNewline + 1;
   }
 

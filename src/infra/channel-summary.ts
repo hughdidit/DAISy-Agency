@@ -1,13 +1,8 @@
-import type { ChannelAccountSnapshot, ChannelPlugin } from "../channels/plugins/types.js";
-<<<<<<< HEAD
-import { type MoltbotConfig, loadConfig } from "../config/config.js";
-=======
 import { listChannelPlugins } from "../channels/plugins/index.js";
-import { type OpenClawConfig, loadConfig } from "../config/config.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
+import type { ChannelAccountSnapshot, ChannelPlugin } from "../channels/plugins/types.js";
+import { type MoltbotConfig, loadConfig } from "../config/config.js";
 import { DEFAULT_ACCOUNT_ID } from "../routing/session-key.js";
 import { theme } from "../terminal/theme.js";
-import { formatTimeAgo } from "./format-time/format-relative.ts";
 
 export type ChannelSummaryOptions = {
   colorize?: boolean;
@@ -29,9 +24,7 @@ type ChannelAccountEntry = {
 
 const formatAccountLabel = (params: { accountId: string; name?: string }) => {
   const base = params.accountId || DEFAULT_ACCOUNT_ID;
-  if (params.name?.trim()) {
-    return `${base} (${params.name.trim()})`;
-  }
+  if (params.name?.trim()) return `${base} (${params.name.trim()})`;
   return base;
 };
 
@@ -41,14 +34,12 @@ const accountLine = (label: string, details: string[]) =>
 const resolveAccountEnabled = (
   plugin: ChannelPlugin,
   account: unknown,
-  cfg: OpenClawConfig,
+  cfg: MoltbotConfig,
 ): boolean => {
   if (plugin.config.isEnabled) {
     return plugin.config.isEnabled(account, cfg);
   }
-  if (!account || typeof account !== "object") {
-    return true;
-  }
+  if (!account || typeof account !== "object") return true;
   const enabled = (account as { enabled?: boolean }).enabled;
   return enabled !== false;
 };
@@ -56,7 +47,7 @@ const resolveAccountEnabled = (
 const resolveAccountConfigured = async (
   plugin: ChannelPlugin,
   account: unknown,
-  cfg: OpenClawConfig,
+  cfg: MoltbotConfig,
 ): Promise<boolean> => {
   if (plugin.config.isConfigured) {
     return await plugin.config.isConfigured(account, cfg);
@@ -67,7 +58,7 @@ const resolveAccountConfigured = async (
 const buildAccountSnapshot = (params: {
   plugin: ChannelPlugin;
   account: unknown;
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   accountId: string;
   enabled: boolean;
   configured: boolean;
@@ -85,7 +76,7 @@ const buildAccountSnapshot = (params: {
 
 const formatAllowFrom = (params: {
   plugin: ChannelPlugin;
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   accountId?: string | null;
   allowFrom: Array<string | number>;
 }) => {
@@ -102,17 +93,13 @@ const formatAllowFrom = (params: {
 const buildAccountDetails = (params: {
   entry: ChannelAccountEntry;
   plugin: ChannelPlugin;
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   includeAllowFrom: boolean;
 }): string[] => {
   const details: string[] = [];
   const snapshot = params.entry.snapshot;
-  if (snapshot.enabled === false) {
-    details.push("disabled");
-  }
-  if (snapshot.dmPolicy) {
-    details.push(`dm:${snapshot.dmPolicy}`);
-  }
+  if (snapshot.enabled === false) details.push("disabled");
+  if (snapshot.dmPolicy) details.push(`dm:${snapshot.dmPolicy}`);
   if (snapshot.tokenSource && snapshot.tokenSource !== "none") {
     details.push(`token:${snapshot.tokenSource}`);
   }
@@ -122,18 +109,10 @@ const buildAccountDetails = (params: {
   if (snapshot.appTokenSource && snapshot.appTokenSource !== "none") {
     details.push(`app:${snapshot.appTokenSource}`);
   }
-  if (snapshot.baseUrl) {
-    details.push(snapshot.baseUrl);
-  }
-  if (snapshot.port != null) {
-    details.push(`port:${snapshot.port}`);
-  }
-  if (snapshot.cliPath) {
-    details.push(`cli:${snapshot.cliPath}`);
-  }
-  if (snapshot.dbPath) {
-    details.push(`db:${snapshot.dbPath}`);
-  }
+  if (snapshot.baseUrl) details.push(snapshot.baseUrl);
+  if (snapshot.port != null) details.push(`port:${snapshot.port}`);
+  if (snapshot.cliPath) details.push(`cli:${snapshot.cliPath}`);
+  if (snapshot.dbPath) details.push(`db:${snapshot.dbPath}`);
 
   if (params.includeAllowFrom && snapshot.allowFrom?.length) {
     const formatted = formatAllowFrom({
@@ -150,7 +129,7 @@ const buildAccountDetails = (params: {
 };
 
 export async function buildChannelSummary(
-  cfg?: OpenClawConfig,
+  cfg?: MoltbotConfig,
   options?: ChannelSummaryOptions,
 ): Promise<string[]> {
   const effective = cfg ?? loadConfig();
@@ -195,7 +174,7 @@ export async function buildChannelSummary(
         })
       : undefined;
 
-    const summaryRecord = summary;
+    const summaryRecord = summary as Record<string, unknown> | undefined;
     const linked =
       summaryRecord && typeof summaryRecord.linked === "boolean" ? summaryRecord.linked : null;
     const configured =
@@ -225,11 +204,9 @@ export async function buildChannelSummary(
     const authAgeMs =
       summaryRecord && typeof summaryRecord.authAgeMs === "number" ? summaryRecord.authAgeMs : null;
     const self = summaryRecord?.self as { e164?: string | null } | undefined;
-    if (self?.e164) {
-      line += ` ${self.e164}`;
-    }
+    if (self?.e164) line += ` ${self.e164}`;
     if (authAgeMs != null && authAgeMs >= 0) {
-      line += ` auth ${formatTimeAgo(authAgeMs)}`;
+      line += ` auth ${formatAge(authAgeMs)}`;
     }
 
     lines.push(tint(line, statusColor));
@@ -256,4 +233,15 @@ export async function buildChannelSummary(
   }
 
   return lines;
+}
+
+export function formatAge(ms: number): string {
+  if (ms < 0) return "unknown";
+  const minutes = Math.round(ms / 60_000);
+  if (minutes < 1) return "just now";
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.round(minutes / 60);
+  if (hours < 48) return `${hours}h ago`;
+  const days = Math.round(hours / 24);
+  return `${days}d ago`;
 }

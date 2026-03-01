@@ -1,15 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-<<<<<<< HEAD
 
 import { openUrl, resolveBrowserOpenCommand, resolveControlUiLinks } from "./onboard-helpers.js";
-=======
-import {
-  normalizeGatewayTokenInput,
-  openUrl,
-  resolveBrowserOpenCommand,
-  resolveControlUiLinks,
-} from "./onboard-helpers.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 
 const mocks = vi.hoisted(() => ({
   runCommandWithTimeout: vi.fn(async () => ({
@@ -110,20 +101,5 @@ describe("resolveControlUiLinks", () => {
     });
     expect(links.httpUrl).toBe("http://127.0.0.1:18789/");
     expect(links.wsUrl).toBe("ws://127.0.0.1:18789");
-  });
-});
-
-describe("normalizeGatewayTokenInput", () => {
-  it("returns empty string for undefined or null", () => {
-    expect(normalizeGatewayTokenInput(undefined)).toBe("");
-    expect(normalizeGatewayTokenInput(null)).toBe("");
-  });
-
-  it("trims string input", () => {
-    expect(normalizeGatewayTokenInput("  token  ")).toBe("token");
-  });
-
-  it("returns empty string for non-string input", () => {
-    expect(normalizeGatewayTokenInput(123)).toBe("");
   });
 });

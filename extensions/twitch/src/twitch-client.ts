@@ -1,10 +1,6 @@
-import type { OpenClawConfig } from "openclaw/plugin-sdk";
 import { RefreshingAuthProvider, StaticAuthProvider } from "@twurple/auth";
 import { ChatClient, LogLevel } from "@twurple/chat";
-<<<<<<< HEAD
 import type { MoltbotConfig } from "clawdbot/plugin-sdk";
-=======
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { ChannelLogSink, TwitchAccountConfig, TwitchChatMessage } from "./types.js";
 import { resolveTwitchToken } from "./token.js";
 import { normalizeToken } from "./utils/twitch.js";
@@ -80,7 +76,7 @@ export class TwitchClientManager {
    */
   async getClient(
     account: TwitchAccountConfig,
-    cfg?: OpenClawConfig,
+    cfg?: MoltbotConfig,
     accountId?: string,
   ): Promise<ChatClient> {
     const key = this.getAccountKey(account);
@@ -96,7 +92,7 @@ export class TwitchClientManager {
 
     if (!tokenResolution.token) {
       this.logger.error(
-        `Missing Twitch token for account ${account.username} (set channels.twitch.accounts.${account.username}.token or OPENCLAW_TWITCH_ACCESS_TOKEN for default)`,
+        `Missing Twitch token for account ${account.username} (set channels.twitch.accounts.${account.username}.token or CLAWDBOT_TWITCH_ACCESS_TOKEN for default)`,
       );
       throw new Error("Missing Twitch token");
     }
@@ -123,22 +119,22 @@ export class TwitchClientManager {
           log: (level, message) => {
             switch (level) {
               case LogLevel.CRITICAL:
-                this.logger.error(message);
+                this.logger.error(`${message}`);
                 break;
               case LogLevel.ERROR:
-                this.logger.error(message);
+                this.logger.error(`${message}`);
                 break;
               case LogLevel.WARNING:
-                this.logger.warn(message);
+                this.logger.warn(`${message}`);
                 break;
               case LogLevel.INFO:
-                this.logger.info(message);
+                this.logger.info(`${message}`);
                 break;
               case LogLevel.DEBUG:
-                this.logger.debug?.(message);
+                this.logger.debug?.(`${message}`);
                 break;
               case LogLevel.TRACE:
-                this.logger.debug?.(message);
+                this.logger.debug?.(`${message}`);
                 break;
             }
           },
@@ -240,7 +236,7 @@ export class TwitchClientManager {
     account: TwitchAccountConfig,
     channel: string,
     message: string,
-    cfg?: OpenClawConfig,
+    cfg?: MoltbotConfig,
     accountId?: string,
   ): Promise<{ ok: boolean; error?: string; messageId?: string }> {
     try {

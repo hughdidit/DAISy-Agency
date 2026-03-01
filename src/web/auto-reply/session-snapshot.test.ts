@@ -1,7 +1,9 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+
 import { describe, expect, it, vi } from "vitest";
+
 import { saveSessionStore } from "../../config/sessions.js";
 import { getSessionSnapshot } from "./session-snapshot.js";
 
@@ -10,7 +12,7 @@ describe("getSessionSnapshot", () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date(2026, 0, 18, 5, 0, 0));
     try {
-      const root = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-snapshot-"));
+      const root = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-snapshot-"));
       const storePath = path.join(root, "sessions.json");
       const sessionKey = "agent:main:whatsapp:dm:s1";
 

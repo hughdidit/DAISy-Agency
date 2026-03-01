@@ -1,8 +1,9 @@
 #!/usr/bin/env node
-import { AgentSideConnection, ndJsonStream } from "@agentclientprotocol/sdk";
 import { Readable, Writable } from "node:stream";
 import { fileURLToPath } from "node:url";
-import type { AcpServerOptions } from "./types.js";
+
+import { AgentSideConnection, ndJsonStream } from "@agentclientprotocol/sdk";
+
 import { loadConfig } from "../config/config.js";
 import { resolveGatewayAuth } from "../gateway/auth.js";
 import { buildGatewayConnectionDetails } from "../gateway/call.js";
@@ -10,6 +11,7 @@ import { GatewayClient } from "../gateway/client.js";
 import { isMainModule } from "../infra/is-main.js";
 import { GATEWAY_CLIENT_MODES, GATEWAY_CLIENT_NAMES } from "../utils/message-channel.js";
 import { AcpGatewayAgent } from "./translator.js";
+import type { AcpServerOptions } from "./types.js";
 
 export function serveAcpGateway(opts: AcpServerOptions = {}): void {
   const cfg = loadConfig();
@@ -25,12 +27,12 @@ export function serveAcpGateway(opts: AcpServerOptions = {}): void {
   const token =
     opts.gatewayToken ??
     (isRemoteMode ? remote?.token?.trim() : undefined) ??
-    process.env.OPENCLAW_GATEWAY_TOKEN ??
+    process.env.CLAWDBOT_GATEWAY_TOKEN ??
     auth.token;
   const password =
     opts.gatewayPassword ??
     (isRemoteMode ? remote?.password?.trim() : undefined) ??
-    process.env.OPENCLAW_GATEWAY_PASSWORD ??
+    process.env.CLAWDBOT_GATEWAY_PASSWORD ??
     auth.password;
 
   let agent: AcpGatewayAgent | null = null;
@@ -120,7 +122,7 @@ function parseArgs(args: string[]): AcpServerOptions {
 }
 
 function printHelp(): void {
-  console.log(`Usage: openclaw acp [options]
+  console.log(`Usage: moltbot acp [options]
 
 Gateway-backed ACP server for IDE integration.
 

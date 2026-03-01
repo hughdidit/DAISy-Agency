@@ -1,19 +1,14 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-<<<<<<< HEAD
 import { withTempHome as withTempHomeBase } from "../../test/helpers/temp-home.js";
 import type { MoltbotConfig } from "../config/config.js";
-=======
-import type { OpenClawConfig } from "../config/config.js";
-import { withTempHome as withTempHomeBase } from "../../test/helpers/temp-home.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 
 async function withTempHome<T>(fn: (home: string) => Promise<T>): Promise<T> {
-  return withTempHomeBase(fn, { prefix: "openclaw-models-" });
+  return withTempHomeBase(fn, { prefix: "moltbot-models-" });
 }
 
-const MODELS_CONFIG: OpenClawConfig = {
+const MODELS_CONFIG: MoltbotConfig = {
   models: {
     providers: {
       "custom-proxy": {
@@ -54,10 +49,10 @@ describe("models-config", () => {
       const prevKey = process.env.MINIMAX_API_KEY;
       process.env.MINIMAX_API_KEY = "sk-minimax-test";
       try {
-        const { ensureOpenClawModelsJson } = await import("./models-config.js");
-        const { resolveOpenClawAgentDir } = await import("./agent-paths.js");
+        const { ensureMoltbotModelsJson } = await import("./models-config.js");
+        const { resolveMoltbotAgentDir } = await import("./agent-paths.js");
 
-        const cfg: OpenClawConfig = {
+        const cfg: MoltbotConfig = {
           models: {
             providers: {
               minimax: {
@@ -79,9 +74,9 @@ describe("models-config", () => {
           },
         };
 
-        await ensureOpenClawModelsJson(cfg);
+        await ensureMoltbotModelsJson(cfg);
 
-        const modelPath = path.join(resolveOpenClawAgentDir(), "models.json");
+        const modelPath = path.join(resolveMoltbotAgentDir(), "models.json");
         const raw = await fs.readFile(modelPath, "utf8");
         const parsed = JSON.parse(raw) as {
           providers: Record<string, { apiKey?: string; models?: Array<{ id: string }> }>;
@@ -90,21 +85,18 @@ describe("models-config", () => {
         const ids = parsed.providers.minimax?.models?.map((model) => model.id);
         expect(ids).toContain("MiniMax-VL-01");
       } finally {
-        if (prevKey === undefined) {
-          delete process.env.MINIMAX_API_KEY;
-        } else {
-          process.env.MINIMAX_API_KEY = prevKey;
-        }
+        if (prevKey === undefined) delete process.env.MINIMAX_API_KEY;
+        else process.env.MINIMAX_API_KEY = prevKey;
       }
     });
   });
   it("merges providers by default", async () => {
     await withTempHome(async () => {
       vi.resetModules();
-      const { ensureOpenClawModelsJson } = await import("./models-config.js");
-      const { resolveOpenClawAgentDir } = await import("./agent-paths.js");
+      const { ensureMoltbotModelsJson } = await import("./models-config.js");
+      const { resolveMoltbotAgentDir } = await import("./agent-paths.js");
 
-      const agentDir = resolveOpenClawAgentDir();
+      const agentDir = resolveMoltbotAgentDir();
       await fs.mkdir(agentDir, { recursive: true });
       await fs.writeFile(
         path.join(agentDir, "models.json"),
@@ -136,7 +128,7 @@ describe("models-config", () => {
         "utf8",
       );
 
-      await ensureOpenClawModelsJson(MODELS_CONFIG);
+      await ensureMoltbotModelsJson(MODELS_CONFIG);
 
       const raw = await fs.readFile(path.join(agentDir, "models.json"), "utf8");
       const parsed = JSON.parse(raw) as {

@@ -1,38 +1,36 @@
 import { describe, expect, it, vi } from "vitest";
+
 import {
   applyConfigSnapshot,
   applyConfig,
   runUpdate,
   updateConfigFormValue,
   type ConfigState,
-} from "./config.ts";
+} from "./config";
 
 function createState(): ConfigState {
   return {
-    applySessionKey: "main",
     client: null,
-    configActiveSection: null,
-    configActiveSubsection: null,
-    configApplying: false,
-    configForm: null,
-    configFormDirty: false,
-    configFormMode: "form",
-    configFormOriginal: null,
-    configIssues: [],
+    connected: false,
+    applySessionKey: "main",
     configLoading: false,
     configRaw: "",
     configRawOriginal: "",
-    configSaving: false,
-    configSchema: null,
-    configSchemaLoading: false,
-    configSchemaVersion: null,
-    configSearchQuery: "",
-    configSnapshot: null,
-    configUiHints: {},
     configValid: null,
-    connected: false,
-    lastError: null,
+    configIssues: [],
+    configSaving: false,
+    configApplying: false,
     updateRunning: false,
+    configSnapshot: null,
+    configSchema: null,
+    configSchemaVersion: null,
+    configSchemaLoading: false,
+    configUiHints: {},
+    configForm: null,
+    configFormOriginal: null,
+    configFormDirty: false,
+    configFormMode: "form",
+    lastError: null,
   };
 }
 
@@ -48,11 +46,11 @@ describe("applyConfigSnapshot", () => {
       config: { gateway: { mode: "remote", port: 9999 } },
       valid: true,
       issues: [],
-      raw: '{\n  "gateway": { "mode": "remote", "port": 9999 }\n}\n',
+      raw: "{\n  \"gateway\": { \"mode\": \"remote\", \"port\": 9999 }\n}\n",
     });
 
     expect(state.configRaw).toBe(
-      '{\n  "gateway": {\n    "mode": "local",\n    "port": 18789\n  }\n}\n',
+      "{\n  \"gateway\": {\n    \"mode\": \"local\",\n    \"port\": 18789\n  }\n}\n",
     );
   });
 
@@ -131,7 +129,7 @@ describe("updateConfigFormValue", () => {
     updateConfigFormValue(state, ["gateway", "port"], 18789);
 
     expect(state.configRaw).toBe(
-      '{\n  "gateway": {\n    "mode": "local",\n    "port": 18789\n  }\n}\n',
+      "{\n  \"gateway\": {\n    \"mode\": \"local\",\n    \"port\": 18789\n  }\n}\n",
     );
   });
 });
@@ -144,7 +142,7 @@ describe("applyConfig", () => {
     state.client = { request } as unknown as ConfigState["client"];
     state.applySessionKey = "agent:main:whatsapp:dm:+15555550123";
     state.configFormMode = "raw";
-    state.configRaw = "{\n  agent: { workspace: \"~/openclaw\" }\n}\n";
+    state.configRaw = "{\n  agent: { workspace: \"~/clawd\" }\n}\n";
     state.configSnapshot = {
       hash: "hash-123",
     };
@@ -152,7 +150,7 @@ describe("applyConfig", () => {
     await applyConfig(state);
 
     expect(request).toHaveBeenCalledWith("config.apply", {
-      raw: "{\n  agent: { workspace: \"~/openclaw\" }\n}\n",
+      raw: "{\n  agent: { workspace: \"~/clawd\" }\n}\n",
       baseHash: "hash-123",
       sessionKey: "agent:main:whatsapp:dm:+15555550123",
     });

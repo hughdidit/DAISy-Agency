@@ -1,6 +1,6 @@
 import type { Command } from "commander";
-import { normalizeChannelId } from "../channels/plugins/index.js";
 import { listPairingChannels, notifyPairingApproved } from "../channels/plugins/pairing.js";
+import { normalizeChannelId } from "../channels/plugins/index.js";
 import { loadConfig } from "../config/config.js";
 import { resolvePairingIdLabel } from "../pairing/pairing-labels.js";
 import {
@@ -25,22 +25,18 @@ function parseChannel(raw: unknown, channels: PairingChannel[]): PairingChannel 
   )
     .trim()
     .toLowerCase();
-  if (!value) {
-    throw new Error("Channel required");
-  }
+  if (!value) throw new Error("Channel required");
 
   const normalized = normalizeChannelId(value);
   if (normalized) {
-    if (!channels.includes(normalized)) {
+    if (!channels.includes(normalized as PairingChannel)) {
       throw new Error(`Channel ${normalized} does not support pairing`);
     }
-    return normalized;
+    return normalized as PairingChannel;
   }
 
   // Allow extension channels: validate format but don't require registry
-  if (/^[a-z][a-z0-9_-]{0,63}$/.test(value)) {
-    return value as PairingChannel;
-  }
+  if (/^[a-z][a-z0-9_-]{0,63}$/.test(value)) return value as PairingChannel;
   throw new Error(`Invalid channel: ${value}`);
 }
 
@@ -57,7 +53,7 @@ export function registerPairingCli(program: Command) {
     .addHelpText(
       "after",
       () =>
-        `\n${theme.muted("Docs:")} ${formatDocsLink("/cli/pairing", "docs.openclaw.ai/cli/pairing")}\n`,
+        `\n${theme.muted("Docs:")} ${formatDocsLink("/cli/pairing", "docs.molt.bot/cli/pairing")}\n`,
     );
 
   pairing
@@ -119,12 +115,12 @@ export function registerPairingCli(program: Command) {
       const resolvedCode = opts.channel ? codeOrChannel : code;
       if (!opts.channel && !code) {
         throw new Error(
-          `Usage: ${formatCliCommand("openclaw pairing approve <channel> <code>")} (or: ${formatCliCommand("openclaw pairing approve --channel <channel> <code>")})`,
+          `Usage: ${formatCliCommand("moltbot pairing approve <channel> <code>")} (or: ${formatCliCommand("moltbot pairing approve --channel <channel> <code>")})`,
         );
       }
       if (opts.channel && code != null) {
         throw new Error(
-          `Too many arguments. Use: ${formatCliCommand("openclaw pairing approve --channel <channel> <code>")}`,
+          `Too many arguments. Use: ${formatCliCommand("moltbot pairing approve --channel <channel> <code>")}`,
         );
       }
       const channel = parseChannel(channelRaw, channels);
@@ -140,9 +136,7 @@ export function registerPairingCli(program: Command) {
         `${theme.success("Approved")} ${theme.muted(channel)} sender ${theme.command(approved.id)}.`,
       );
 
-      if (!opts.notify) {
-        return;
-      }
+      if (!opts.notify) return;
       await notifyApproved(channel, approved.id).catch((err) => {
         defaultRuntime.log(theme.warn(`Failed to notify requester: ${String(err)}`));
       });

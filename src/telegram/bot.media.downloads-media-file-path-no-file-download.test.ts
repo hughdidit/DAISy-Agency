@@ -1,6 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { resetInboundDedupe } from "../auto-reply/reply/inbound-dedupe.js";
-import * as ssrf from "../infra/net/ssrf.js";
 import { MEDIA_GROUP_TIMEOUT_MS } from "./bot-updates.js";
 
 const useSpy = vi.fn();
@@ -11,16 +10,6 @@ const sendChatActionSpy = vi.fn();
 const cacheStickerSpy = vi.fn();
 const getCachedStickerSpy = vi.fn();
 const describeStickerImageSpy = vi.fn();
-<<<<<<< HEAD
-=======
-const resolvePinnedHostname = ssrf.resolvePinnedHostname;
-const lookupMock = vi.fn();
-<<<<<<< HEAD
-let resolvePinnedHostnameSpy: ReturnType<typeof vi.spyOn> | null = null;
->>>>>>> 9bd64c8a1 (fix: expand SSRF guard coverage)
-=======
-let resolvePinnedHostnameSpy: ReturnType<typeof vi.spyOn> = null;
->>>>>>> 425003417 (fix: Remove `tsconfig.oxlint.json` AGAIN.)
 
 type ApiStub = {
   config: { use: (arg: unknown) => void };
@@ -37,19 +26,6 @@ const apiStub: ApiStub = {
 beforeEach(() => {
   vi.useRealTimers();
   resetInboundDedupe();
-<<<<<<< HEAD
-=======
-  lookupMock.mockResolvedValue([{ address: "93.184.216.34", family: 4 }]);
-  resolvePinnedHostnameSpy = vi
-    .spyOn(ssrf, "resolvePinnedHostname")
-    .mockImplementation((hostname) => resolvePinnedHostname(hostname, lookupMock));
-});
-
-afterEach(() => {
-  lookupMock.mockReset();
-  resolvePinnedHostnameSpy?.mockRestore();
-  resolvePinnedHostnameSpy = null;
->>>>>>> 9bd64c8a1 (fix: expand SSRF guard coverage)
 });
 
 vi.mock("grammy", () => ({
@@ -112,9 +88,9 @@ vi.mock("./sticker-cache.js", () => ({
   describeStickerImage: (...args: unknown[]) => describeStickerImageSpy(...args),
 }));
 
-vi.mock("../pairing/pairing-store.js", () => ({
-  readChannelAllowFromStore: vi.fn(async () => [] as string[]),
-  upsertChannelPairingRequest: vi.fn(async () => ({
+vi.mock("./pairing-store.js", () => ({
+  readTelegramAllowFromStore: vi.fn(async () => [] as string[]),
+  upsertTelegramPairingRequest: vi.fn(async () => ({
     code: "PAIRCODE",
     created: true,
   })),
@@ -130,7 +106,7 @@ vi.mock("../auto-reply/reply.js", () => {
 
 describe("telegram inbound media", () => {
   // Parallel vitest shards can make this suite slower than the standalone run.
-  const INBOUND_MEDIA_TEST_TIMEOUT_MS = process.platform === "win32" ? 120_000 : 90_000;
+  const INBOUND_MEDIA_TEST_TIMEOUT_MS = process.platform === "win32" ? 60_000 : 45_000;
 
   it(
     "downloads media via file_path (no file.download)",
@@ -175,19 +151,12 @@ describe("telegram inbound media", () => {
           photo: [{ file_id: "fid" }],
           date: 1736380800, // 2025-01-09T00:00:00Z
         },
-        me: { username: "openclaw_bot" },
+        me: { username: "moltbot_bot" },
         getFile: async () => ({ file_path: "photos/1.jpg" }),
       });
 
       expect(runtimeError).not.toHaveBeenCalled();
-<<<<<<< HEAD
       expect(fetchSpy).toHaveBeenCalledWith("https://api.telegram.org/file/bottok/photos/1.jpg");
-=======
-      expect(fetchSpy).toHaveBeenCalledWith(
-        "https://api.telegram.org/file/bottok/photos/1.jpg",
-        expect.objectContaining({ redirect: "manual" }),
-      );
->>>>>>> 9bd64c8a1 (fix: expand SSRF guard coverage)
       expect(replySpy).toHaveBeenCalledTimes(1);
       const payload = replySpy.mock.calls[0][0];
       expect(payload.Body).toContain("<media:image>");
@@ -237,19 +206,12 @@ describe("telegram inbound media", () => {
         chat: { id: 1234, type: "private" },
         photo: [{ file_id: "fid" }],
       },
-      me: { username: "openclaw_bot" },
+      me: { username: "moltbot_bot" },
       getFile: async () => ({ file_path: "photos/2.jpg" }),
     });
 
     expect(runtimeError).not.toHaveBeenCalled();
-<<<<<<< HEAD
     expect(proxyFetch).toHaveBeenCalledWith("https://api.telegram.org/file/bottok/photos/2.jpg");
-=======
-    expect(proxyFetch).toHaveBeenCalledWith(
-      "https://api.telegram.org/file/bottok/photos/2.jpg",
-      expect.objectContaining({ redirect: "manual" }),
-    );
->>>>>>> 9bd64c8a1 (fix: expand SSRF guard coverage)
 
     globalFetchSpy.mockRestore();
   });
@@ -287,7 +249,7 @@ describe("telegram inbound media", () => {
         chat: { id: 1234, type: "private" },
         photo: [{ file_id: "fid" }],
       },
-      me: { username: "openclaw_bot" },
+      me: { username: "moltbot_bot" },
       getFile: async () => ({}),
     });
 
@@ -357,7 +319,7 @@ describe("telegram media groups", () => {
           media_group_id: "album123",
           photo: [{ file_id: "photo1" }],
         },
-        me: { username: "openclaw_bot" },
+        me: { username: "moltbot_bot" },
         getFile: async () => ({ file_path: "photos/photo1.jpg" }),
       });
 
@@ -369,7 +331,7 @@ describe("telegram media groups", () => {
           media_group_id: "album123",
           photo: [{ file_id: "photo2" }],
         },
-        me: { username: "openclaw_bot" },
+        me: { username: "moltbot_bot" },
         getFile: async () => ({ file_path: "photos/photo2.jpg" }),
       });
 
@@ -423,7 +385,7 @@ describe("telegram media groups", () => {
           media_group_id: "albumA",
           photo: [{ file_id: "photoA1" }],
         },
-        me: { username: "openclaw_bot" },
+        me: { username: "moltbot_bot" },
         getFile: async () => ({ file_path: "photos/photoA1.jpg" }),
       });
 
@@ -436,7 +398,7 @@ describe("telegram media groups", () => {
           media_group_id: "albumB",
           photo: [{ file_id: "photoB1" }],
         },
-        me: { username: "openclaw_bot" },
+        me: { username: "moltbot_bot" },
         getFile: async () => ({ file_path: "photos/photoB1.jpg" }),
       });
 
@@ -515,17 +477,13 @@ describe("telegram stickers", () => {
           },
           date: 1736380800,
         },
-        me: { username: "openclaw_bot" },
+        me: { username: "moltbot_bot" },
         getFile: async () => ({ file_path: "stickers/sticker.webp" }),
       });
 
       expect(runtimeError).not.toHaveBeenCalled();
       expect(fetchSpy).toHaveBeenCalledWith(
         "https://api.telegram.org/file/bottok/stickers/sticker.webp",
-<<<<<<< HEAD
-=======
-        expect.objectContaining({ redirect: "manual" }),
->>>>>>> 9bd64c8a1 (fix: expand SSRF guard coverage)
       );
       expect(replySpy).toHaveBeenCalledTimes(1);
       const payload = replySpy.mock.calls[0][0];
@@ -600,7 +558,7 @@ describe("telegram stickers", () => {
           },
           date: 1736380800,
         },
-        me: { username: "openclaw_bot" },
+        me: { username: "moltbot_bot" },
         getFile: async () => ({ file_path: "stickers/sticker.webp" }),
       });
 
@@ -666,7 +624,7 @@ describe("telegram stickers", () => {
           },
           date: 1736380800,
         },
-        me: { username: "openclaw_bot" },
+        me: { username: "moltbot_bot" },
         getFile: async () => ({ file_path: "stickers/animated.tgs" }),
       });
 
@@ -726,7 +684,7 @@ describe("telegram stickers", () => {
           },
           date: 1736380800,
         },
-        me: { username: "openclaw_bot" },
+        me: { username: "moltbot_bot" },
         getFile: async () => ({ file_path: "stickers/video.webm" }),
       });
 
@@ -779,7 +737,7 @@ describe("telegram text fragments", () => {
           date: 1736380800,
           text: part1,
         },
-        me: { username: "openclaw_bot" },
+        me: { username: "moltbot_bot" },
         getFile: async () => ({}),
       });
 
@@ -790,7 +748,7 @@ describe("telegram text fragments", () => {
           date: 1736380801,
           text: part2,
         },
-        me: { username: "openclaw_bot" },
+        me: { username: "moltbot_bot" },
         getFile: async () => ({}),
       });
 

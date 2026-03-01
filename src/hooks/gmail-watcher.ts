@@ -6,22 +6,17 @@
  */
 
 import { type ChildProcess, spawn } from "node:child_process";
-<<<<<<< HEAD
 import { hasBinary } from "../agents/skills.js";
 import type { MoltbotConfig } from "../config/config.js";
-=======
-import type { OpenClawConfig } from "../config/config.js";
-import { hasBinary } from "../agents/skills.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import { runCommandWithTimeout } from "../process/exec.js";
-import { ensureTailscaleEndpoint } from "./gmail-setup-utils.js";
 import {
   buildGogWatchServeArgs,
   buildGogWatchStartArgs,
   type GmailHookRuntimeConfig,
   resolveGmailHookRuntimeConfig,
 } from "./gmail.js";
+import { ensureTailscaleEndpoint } from "./gmail-setup-utils.js";
 
 const log = createSubsystemLogger("gmail-watcher");
 
@@ -80,16 +75,12 @@ function spawnGogServe(cfg: GmailHookRuntimeConfig): ChildProcess {
 
   child.stdout?.on("data", (data: Buffer) => {
     const line = data.toString().trim();
-    if (line) {
-      log.info(`[gog] ${line}`);
-    }
+    if (line) log.info(`[gog] ${line}`);
   });
 
   child.stderr?.on("data", (data: Buffer) => {
     const line = data.toString().trim();
-    if (!line) {
-      return;
-    }
+    if (!line) return;
     if (isAddressInUseError(line)) {
       addressInUse = true;
     }
@@ -101,13 +92,11 @@ function spawnGogServe(cfg: GmailHookRuntimeConfig): ChildProcess {
   });
 
   child.on("exit", (code, signal) => {
-    if (shuttingDown) {
-      return;
-    }
+    if (shuttingDown) return;
     if (addressInUse) {
       log.warn(
         "gog serve failed to bind (address already in use); stopping restarts. " +
-          "Another watcher is likely running. Set OPENCLAW_SKIP_GMAIL_WATCHER=1 or stop the other process.",
+          "Another watcher is likely running. Set CLAWDBOT_SKIP_GMAIL_WATCHER=1 or stop the other process.",
       );
       watcherProcess = null;
       return;
@@ -115,9 +104,7 @@ function spawnGogServe(cfg: GmailHookRuntimeConfig): ChildProcess {
     log.warn(`gog exited (code=${code}, signal=${signal}); restarting in 5s`);
     watcherProcess = null;
     setTimeout(() => {
-      if (shuttingDown || !currentConfig) {
-        return;
-      }
+      if (shuttingDown || !currentConfig) return;
       watcherProcess = spawnGogServe(currentConfig);
     }, 5000);
   });
@@ -134,7 +121,7 @@ export type GmailWatcherStartResult = {
  * Start the Gmail watcher service.
  * Called automatically by the gateway if hooks.gmail is configured.
  */
-export async function startGmailWatcher(cfg: OpenClawConfig): Promise<GmailWatcherStartResult> {
+export async function startGmailWatcher(cfg: MoltbotConfig): Promise<GmailWatcherStartResult> {
   // Check if gmail hooks are configured
   if (!cfg.hooks?.enabled) {
     return { started: false, reason: "hooks not enabled" };
@@ -193,9 +180,7 @@ export async function startGmailWatcher(cfg: OpenClawConfig): Promise<GmailWatch
   // Set up renewal interval
   const renewMs = runtimeConfig.renewEveryMinutes * 60_000;
   renewInterval = setInterval(() => {
-    if (shuttingDown) {
-      return;
-    }
+    if (shuttingDown) return;
     void startGmailWatch(runtimeConfig);
   }, renewMs);
 

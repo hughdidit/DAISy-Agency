@@ -1,12 +1,7 @@
-<<<<<<< HEAD
 import type { ChannelGroupContext, GroupToolPolicyConfig } from "clawdbot/plugin-sdk";
 
 import { resolveMatrixRoomConfig } from "./matrix/monitor/rooms.js";
-=======
-import type { ChannelGroupContext, GroupToolPolicyConfig } from "openclaw/plugin-sdk";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { CoreConfig } from "./types.js";
-import { resolveMatrixRoomConfig } from "./matrix/monitor/rooms.js";
 
 export function resolveMatrixGroupRequireMention(params: ChannelGroupContext): boolean {
   const rawGroupId = params.groupId?.trim() ?? "";
@@ -31,15 +26,9 @@ export function resolveMatrixGroupRequireMention(params: ChannelGroupContext): b
     name: groupChannel || undefined,
   }).config;
   if (resolved) {
-    if (resolved.autoReply === true) {
-      return false;
-    }
-    if (resolved.autoReply === false) {
-      return true;
-    }
-    if (typeof resolved.requireMention === "boolean") {
-      return resolved.requireMention;
-    }
+    if (resolved.autoReply === true) return false;
+    if (resolved.autoReply === false) return true;
+    if (typeof resolved.requireMention === "boolean") return resolved.requireMention;
   }
   return true;
 }

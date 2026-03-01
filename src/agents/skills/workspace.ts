@@ -1,15 +1,24 @@
+import fs from "node:fs";
+import path from "node:path";
+
 import {
   formatSkillsForPrompt,
   loadSkillsFromDir,
   type Skill,
 } from "@mariozechner/pi-coding-agent";
-<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../../config/config.js";
-=======
-import fs from "node:fs";
-import path from "node:path";
-import type { OpenClawConfig } from "../../config/config.js";
+import { createSubsystemLogger } from "../../logging/subsystem.js";
+import { CONFIG_DIR, resolveUserPath } from "../../utils.js";
+import { resolveBundledSkillsDir } from "./bundled-dir.js";
+import { shouldIncludeSkill } from "./config.js";
+import {
+  parseFrontmatter,
+  resolveMoltbotMetadata,
+  resolveSkillInvocationPolicy,
+} from "./frontmatter.js";
+import { resolvePluginSkillDirs } from "./plugin-skills.js";
+import { serializeByKey } from "./serialize.js";
 import type {
   ParsedSkillFrontmatter,
   SkillEligibilityContext,
@@ -17,18 +26,6 @@ import type {
   SkillEntry,
   SkillSnapshot,
 } from "./types.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
-import { createSubsystemLogger } from "../../logging/subsystem.js";
-import { CONFIG_DIR, resolveUserPath } from "../../utils.js";
-import { resolveBundledSkillsDir } from "./bundled-dir.js";
-import { shouldIncludeSkill } from "./config.js";
-import {
-  parseFrontmatter,
-  resolveOpenClawMetadata,
-  resolveSkillInvocationPolicy,
-} from "./frontmatter.js";
-import { resolvePluginSkillDirs } from "./plugin-skills.js";
-import { serializeByKey } from "./serialize.js";
 
 const fsp = fs.promises;
 const skillsLogger = createSubsystemLogger("skills");
@@ -39,16 +36,14 @@ function debugSkillCommandOnce(
   message: string,
   meta?: Record<string, unknown>,
 ) {
-  if (skillCommandDebugOnce.has(messageKey)) {
-    return;
-  }
+  if (skillCommandDebugOnce.has(messageKey)) return;
   skillCommandDebugOnce.add(messageKey);
   skillsLogger.debug(message, meta);
 }
 
 function filterSkillEntries(
   entries: SkillEntry[],
-  config?: OpenClawConfig,
+  config?: MoltbotConfig,
   skillFilter?: string[],
   eligibility?: SkillEligibilityContext,
 ): SkillEntry[] {
@@ -84,18 +79,14 @@ function sanitizeSkillCommandName(raw: string): string {
 
 function resolveUniqueSkillCommandName(base: string, used: Set<string>): string {
   const normalizedBase = base.toLowerCase();
-  if (!used.has(normalizedBase)) {
-    return base;
-  }
+  if (!used.has(normalizedBase)) return base;
   for (let index = 2; index < 1000; index += 1) {
     const suffix = `_${index}`;
     const maxBaseLength = Math.max(1, SKILL_COMMAND_MAX_LENGTH - suffix.length);
     const trimmedBase = base.slice(0, maxBaseLength);
     const candidate = `${trimmedBase}${suffix}`;
     const candidateKey = candidate.toLowerCase();
-    if (!used.has(candidateKey)) {
-      return candidate;
-    }
+    if (!used.has(candidateKey)) return candidate;
   }
   const fallback = `${base.slice(0, Math.max(1, SKILL_COMMAND_MAX_LENGTH - 2))}_x`;
   return fallback;
@@ -104,16 +95,14 @@ function resolveUniqueSkillCommandName(base: string, used: Set<string>): string 
 function loadSkillEntries(
   workspaceDir: string,
   opts?: {
-    config?: OpenClawConfig;
+    config?: MoltbotConfig;
     managedSkillsDir?: string;
     bundledSkillsDir?: string;
   },
 ): SkillEntry[] {
   const loadSkills = (params: { dir: string; source: string }): Skill[] => {
     const loaded = loadSkillsFromDir(params);
-    if (Array.isArray(loaded)) {
-      return loaded;
-    }
+    if (Array.isArray(loaded)) return loaded;
     if (
       loaded &&
       typeof loaded === "object" &&
@@ -141,39 +130,31 @@ function loadSkillEntries(
   const bundledSkills = bundledSkillsDir
     ? loadSkills({
         dir: bundledSkillsDir,
-        source: "openclaw-bundled",
+        source: "moltbot-bundled",
       })
     : [];
   const extraSkills = mergedExtraDirs.flatMap((dir) => {
     const resolved = resolveUserPath(dir);
     return loadSkills({
       dir: resolved,
-      source: "openclaw-extra",
+      source: "moltbot-extra",
     });
   });
   const managedSkills = loadSkills({
     dir: managedSkillsDir,
-    source: "openclaw-managed",
+    source: "moltbot-managed",
   });
   const workspaceSkills = loadSkills({
     dir: workspaceSkillsDir,
-    source: "openclaw-workspace",
+    source: "moltbot-workspace",
   });
 
   const merged = new Map<string, Skill>();
   // Precedence: extra < bundled < managed < workspace
-  for (const skill of extraSkills) {
-    merged.set(skill.name, skill);
-  }
-  for (const skill of bundledSkills) {
-    merged.set(skill.name, skill);
-  }
-  for (const skill of managedSkills) {
-    merged.set(skill.name, skill);
-  }
-  for (const skill of workspaceSkills) {
-    merged.set(skill.name, skill);
-  }
+  for (const skill of extraSkills) merged.set(skill.name, skill);
+  for (const skill of bundledSkills) merged.set(skill.name, skill);
+  for (const skill of managedSkills) merged.set(skill.name, skill);
+  for (const skill of workspaceSkills) merged.set(skill.name, skill);
 
   const skillEntries: SkillEntry[] = Array.from(merged.values()).map((skill) => {
     let frontmatter: ParsedSkillFrontmatter = {};
@@ -186,7 +167,7 @@ function loadSkillEntries(
     return {
       skill,
       frontmatter,
-      metadata: resolveOpenClawMetadata(frontmatter),
+      metadata: resolveMoltbotMetadata(frontmatter),
       invocation: resolveSkillInvocationPolicy(frontmatter),
     };
   });
@@ -196,7 +177,7 @@ function loadSkillEntries(
 export function buildWorkspaceSkillSnapshot(
   workspaceDir: string,
   opts?: {
-    config?: OpenClawConfig;
+    config?: MoltbotConfig;
     managedSkillsDir?: string;
     bundledSkillsDir?: string;
     entries?: SkillEntry[];
@@ -233,7 +214,7 @@ export function buildWorkspaceSkillSnapshot(
 export function buildWorkspaceSkillsPrompt(
   workspaceDir: string,
   opts?: {
-    config?: OpenClawConfig;
+    config?: MoltbotConfig;
     managedSkillsDir?: string;
     bundledSkillsDir?: string;
     entries?: SkillEntry[];
@@ -261,13 +242,11 @@ export function buildWorkspaceSkillsPrompt(
 export function resolveSkillsPromptForRun(params: {
   skillsSnapshot?: SkillSnapshot;
   entries?: SkillEntry[];
-  config?: OpenClawConfig;
+  config?: MoltbotConfig;
   workspaceDir: string;
 }): string {
   const snapshotPrompt = params.skillsSnapshot?.prompt?.trim();
-  if (snapshotPrompt) {
-    return snapshotPrompt;
-  }
+  if (snapshotPrompt) return snapshotPrompt;
   if (params.entries && params.entries.length > 0) {
     const prompt = buildWorkspaceSkillsPrompt(params.workspaceDir, {
       entries: params.entries,
@@ -281,7 +260,7 @@ export function resolveSkillsPromptForRun(params: {
 export function loadWorkspaceSkillEntries(
   workspaceDir: string,
   opts?: {
-    config?: OpenClawConfig;
+    config?: MoltbotConfig;
     managedSkillsDir?: string;
     bundledSkillsDir?: string;
   },
@@ -292,15 +271,13 @@ export function loadWorkspaceSkillEntries(
 export async function syncSkillsToWorkspace(params: {
   sourceWorkspaceDir: string;
   targetWorkspaceDir: string;
-  config?: OpenClawConfig;
+  config?: MoltbotConfig;
   managedSkillsDir?: string;
   bundledSkillsDir?: string;
 }) {
   const sourceDir = resolveUserPath(params.sourceWorkspaceDir);
   const targetDir = resolveUserPath(params.targetWorkspaceDir);
-  if (sourceDir === targetDir) {
-    return;
-  }
+  if (sourceDir === targetDir) return;
 
   await serializeByKey(`syncSkills:${targetDir}`, async () => {
     const targetSkillsDir = path.join(targetDir, "skills");
@@ -331,7 +308,7 @@ export async function syncSkillsToWorkspace(params: {
 
 export function filterWorkspaceSkillEntries(
   entries: SkillEntry[],
-  config?: OpenClawConfig,
+  config?: MoltbotConfig,
 ): SkillEntry[] {
   return filterSkillEntries(entries, config);
 }
@@ -339,7 +316,7 @@ export function filterWorkspaceSkillEntries(
 export function buildWorkspaceSkillCommandSpecs(
   workspaceDir: string,
   opts?: {
-    config?: OpenClawConfig;
+    config?: MoltbotConfig;
     managedSkillsDir?: string;
     bundledSkillsDir?: string;
     entries?: SkillEntry[];
@@ -394,12 +371,8 @@ export function buildWorkspaceSkillCommandSpecs(
       )
         .trim()
         .toLowerCase();
-      if (!kindRaw) {
-        return undefined;
-      }
-      if (kindRaw !== "tool") {
-        return undefined;
-      }
+      if (!kindRaw) return undefined;
+      if (kindRaw !== "tool") return undefined;
 
       const toolName = (
         entry.frontmatter?.["command-tool"] ??

@@ -1,15 +1,9 @@
-<<<<<<< HEAD
 import { getChannelPlugin, normalizeChannelId } from "../../channels/plugins/index.js";
-<<<<<<< HEAD
 import type { ChannelId } from "../../channels/plugins/types.js";
 import type { MoltbotConfig } from "../../config/config.js";
-=======
-import type { OpenClawConfig } from "../../config/config.js";
-import type { PollInput } from "../../polls.js";
-import { getChannelPlugin, normalizeChannelId } from "../../channels/plugins/index.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { loadConfig } from "../../config/config.js";
 import { callGateway, randomIdempotencyKey } from "../../gateway/call.js";
+import type { PollInput } from "../../polls.js";
 import { normalizePollInput } from "../../polls.js";
 import {
   GATEWAY_CLIENT_MODES,
@@ -24,6 +18,7 @@ import {
   type OutboundSendDeps,
 } from "./deliver.js";
 import { normalizeReplyPayloadsForDelivery } from "./payloads.js";
+import type { OutboundChannel } from "./targets.js";
 import { resolveOutboundTarget } from "./targets.js";
 
 export type MessageGatewayOptions = {
@@ -46,7 +41,7 @@ type MessageSendParams = {
   dryRun?: boolean;
   bestEffort?: boolean;
   deps?: OutboundSendDeps;
-  cfg?: OpenClawConfig;
+  cfg?: MoltbotConfig;
   gateway?: MessageGatewayOptions;
   idempotencyKey?: string;
   mirror?: {
@@ -76,7 +71,7 @@ type MessagePollParams = {
   durationHours?: number;
   channel?: string;
   dryRun?: boolean;
-  cfg?: OpenClawConfig;
+  cfg?: MoltbotConfig;
   gateway?: MessageGatewayOptions;
   idempotencyKey?: string;
 };
@@ -121,7 +116,7 @@ export async function sendMessage(params: MessageSendParams): Promise<MessageSen
   if (!channel) {
     throw new Error(`Unknown channel: ${params.channel}`);
   }
-  const plugin = getChannelPlugin(channel);
+  const plugin = getChannelPlugin(channel as ChannelId);
   if (!plugin) {
     throw new Error(`Unknown channel: ${channel}`);
   }
@@ -154,7 +149,7 @@ export async function sendMessage(params: MessageSendParams): Promise<MessageSen
   }
 
   if (deliveryMode !== "gateway") {
-    const outboundChannel = channel;
+    const outboundChannel = channel as Exclude<OutboundChannel, "none">;
     const resolvedTarget = resolveOutboundTarget({
       channel: outboundChannel,
       to: params.to,
@@ -162,9 +157,7 @@ export async function sendMessage(params: MessageSendParams): Promise<MessageSen
       accountId: params.accountId,
       mode: "explicit",
     });
-    if (!resolvedTarget.ok) {
-      throw resolvedTarget.error;
-    }
+    if (!resolvedTarget.ok) throw resolvedTarget.error;
 
     const results = await deliverOutboundPayloads({
       cfg,
@@ -242,7 +235,7 @@ export async function sendPoll(params: MessagePollParams): Promise<MessagePollRe
     maxSelections: params.maxSelections,
     durationHours: params.durationHours,
   };
-  const plugin = getChannelPlugin(channel);
+  const plugin = getChannelPlugin(channel as ChannelId);
   const outbound = plugin?.outbound;
   if (!outbound?.sendPoll) {
     throw new Error(`Unsupported poll channel: ${channel}`);

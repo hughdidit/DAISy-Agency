@@ -1,14 +1,10 @@
 import crypto from "node:crypto";
-<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../../config/config.js";
-=======
-import type { OpenClawConfig } from "../../config/config.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { loadSessionStore, resolveStorePath, type SessionEntry } from "../../config/sessions.js";
 
 export function resolveCronSession(params: {
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   sessionKey: string;
   nowMs: number;
   agentId: string;
@@ -33,8 +29,6 @@ export function resolveCronSession(params: {
     lastChannel: entry?.lastChannel,
     lastTo: entry?.lastTo,
     lastAccountId: entry?.lastAccountId,
-    label: entry?.label,
-    displayName: entry?.displayName,
     skillsSnapshot: entry?.skillsSnapshot,
   };
   return { storePath, store, sessionEntry, systemSent, isNewSession: true };

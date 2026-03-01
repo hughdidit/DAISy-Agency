@@ -1,10 +1,5 @@
-<<<<<<< HEAD
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { MoltbotConfig, PluginRuntime } from "clawdbot/plugin-sdk";
-=======
-import type { OpenClawConfig, PluginRuntime } from "openclaw/plugin-sdk";
-import { beforeEach, describe, expect, it, vi } from "vitest";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { linePlugin } from "./channel.js";
 import { setLineRuntime } from "./runtime.js";
 
@@ -17,7 +12,7 @@ type LineRuntimeMocks = {
 
 function createRuntime(): { runtime: PluginRuntime; mocks: LineRuntimeMocks } {
   const writeConfigFile = vi.fn(async () => {});
-  const resolveLineAccount = vi.fn(({ cfg, accountId }: { cfg: OpenClawConfig; accountId?: string }) => {
+  const resolveLineAccount = vi.fn(({ cfg, accountId }: { cfg: MoltbotConfig; accountId?: string }) => {
     const lineConfig = (cfg.channels?.line ?? {}) as {
       tokenFile?: string;
       secretFile?: string;
@@ -35,29 +30,6 @@ function createRuntime(): { runtime: PluginRuntime; mocks: LineRuntimeMocks } {
       Boolean((entry as any).channelSecret) || Boolean((entry as any).secretFile);
     return { tokenSource: hasToken && hasSecret ? "config" : "none" };
   });
-=======
-  const resolveLineAccount = vi.fn(
-    ({ cfg, accountId }: { cfg: OpenClawConfig; accountId?: string }) => {
-      const lineConfig = (cfg.channels?.line ?? {}) as {
-        tokenFile?: string;
-        secretFile?: string;
-        channelAccessToken?: string;
-        channelSecret?: string;
-        accounts?: Record<string, Record<string, unknown>>;
-      };
-      const entry =
-        accountId && accountId !== DEFAULT_ACCOUNT_ID
-          ? (lineConfig.accounts?.[accountId] ?? {})
-          : lineConfig;
-      const hasToken =
-        // oxlint-disable-next-line typescript/no-explicit-any
-        Boolean((entry as any).channelAccessToken) || Boolean((entry as any).tokenFile);
-      // oxlint-disable-next-line typescript/no-explicit-any
-      const hasSecret = Boolean((entry as any).channelSecret) || Boolean((entry as any).secretFile);
-      return { tokenSource: hasToken && hasSecret ? "config" : "none" };
-    },
-  );
->>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
   const runtime = {
     config: { writeConfigFile },
@@ -76,7 +48,7 @@ describe("linePlugin gateway.logoutAccount", () => {
     const { runtime, mocks } = createRuntime();
     setLineRuntime(runtime);
 
-    const cfg: OpenClawConfig = {
+    const cfg: MoltbotConfig = {
       channels: {
         line: {
           tokenFile: "/tmp/token",
@@ -99,7 +71,7 @@ describe("linePlugin gateway.logoutAccount", () => {
     const { runtime, mocks } = createRuntime();
     setLineRuntime(runtime);
 
-    const cfg: OpenClawConfig = {
+    const cfg: MoltbotConfig = {
       channels: {
         line: {
           accounts: {

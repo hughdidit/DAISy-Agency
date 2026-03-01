@@ -1,22 +1,14 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+
 import { describe, expect, it } from "vitest";
+
 import { resolveControlUiDistIndexPath, resolveControlUiRepoRoot } from "./control-ui-assets.js";
-=======
-import {
-  resolveControlUiDistIndexHealth,
-  resolveControlUiDistIndexPath,
-  resolveControlUiDistIndexPathForRoot,
-  resolveControlUiRepoRoot,
-  resolveControlUiRootOverrideSync,
-  resolveControlUiRootSync,
-} from "./control-ui-assets.js";
->>>>>>> 5935c4d23 (fix(ui): fix web UI after tsdown migration and typing changes)
 
 describe("control UI assets helpers", () => {
   it("resolves repo root from src argv1", async () => {
-    const tmp = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-ui-"));
+    const tmp = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-ui-"));
     try {
       await fs.mkdir(path.join(tmp, "ui"), { recursive: true });
       await fs.writeFile(path.join(tmp, "ui", "vite.config.ts"), "export {};\n");
@@ -31,7 +23,7 @@ describe("control UI assets helpers", () => {
   });
 
   it("resolves repo root from dist argv1", async () => {
-    const tmp = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-ui-"));
+    const tmp = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-ui-"));
     try {
       await fs.mkdir(path.join(tmp, "ui"), { recursive: true });
       await fs.writeFile(path.join(tmp, "ui", "vite.config.ts"), "export {};\n");
@@ -45,91 +37,11 @@ describe("control UI assets helpers", () => {
     }
   });
 
-  it("resolves dist control-ui index path for dist argv1", async () => {
+  it("resolves dist control-ui index path for dist argv1", () => {
     const argv1 = path.resolve("/tmp", "pkg", "dist", "index.js");
     const distDir = path.dirname(argv1);
-    expect(await resolveControlUiDistIndexPath(argv1)).toBe(
+    expect(resolveControlUiDistIndexPath(argv1)).toBe(
       path.join(distDir, "control-ui", "index.html"),
     );
-  });
-
-  it("resolves dist control-ui index path from package root argv1", async () => {
-    const tmp = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-ui-"));
-    try {
-      await fs.writeFile(path.join(tmp, "package.json"), JSON.stringify({ name: "openclaw" }));
-      await fs.writeFile(path.join(tmp, "openclaw.mjs"), "export {};\n");
-      await fs.mkdir(path.join(tmp, "dist", "control-ui"), { recursive: true });
-      await fs.writeFile(path.join(tmp, "dist", "control-ui", "index.html"), "<html></html>\n");
-
-      expect(await resolveControlUiDistIndexPath(path.join(tmp, "openclaw.mjs"))).toBe(
-        path.join(tmp, "dist", "control-ui", "index.html"),
-      );
-    } finally {
-      await fs.rm(tmp, { recursive: true, force: true });
-    }
-  });
-
-  it("resolves dist control-ui index path from .bin argv1", async () => {
-    const tmp = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-ui-"));
-    try {
-      const binDir = path.join(tmp, "node_modules", ".bin");
-      const pkgRoot = path.join(tmp, "node_modules", "openclaw");
-      await fs.mkdir(binDir, { recursive: true });
-      await fs.mkdir(path.join(pkgRoot, "dist", "control-ui"), { recursive: true });
-      await fs.writeFile(path.join(binDir, "openclaw"), "#!/usr/bin/env node\n");
-      await fs.writeFile(path.join(pkgRoot, "package.json"), JSON.stringify({ name: "openclaw" }));
-      await fs.writeFile(path.join(pkgRoot, "dist", "control-ui", "index.html"), "<html></html>\n");
-
-      expect(await resolveControlUiDistIndexPath(path.join(binDir, "openclaw"))).toBe(
-        path.join(pkgRoot, "dist", "control-ui", "index.html"),
-      );
-    } finally {
-      await fs.rm(tmp, { recursive: true, force: true });
-    }
-  });
-
-  it("resolves via fallback when package root resolution fails but package name matches", async () => {
-    const tmp = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-ui-"));
-    try {
-      // Package named "openclaw" but resolveOpenClawPackageRoot failed for other reasons
-      await fs.writeFile(path.join(tmp, "package.json"), JSON.stringify({ name: "openclaw" }));
-      await fs.writeFile(path.join(tmp, "openclaw.mjs"), "export {};\n");
-      await fs.mkdir(path.join(tmp, "dist", "control-ui"), { recursive: true });
-      await fs.writeFile(path.join(tmp, "dist", "control-ui", "index.html"), "<html></html>\n");
-
-      expect(await resolveControlUiDistIndexPath(path.join(tmp, "openclaw.mjs"))).toBe(
-        path.join(tmp, "dist", "control-ui", "index.html"),
-      );
-    } finally {
-      await fs.rm(tmp, { recursive: true, force: true });
-    }
-  });
-
-  it("returns null when package name does not match openclaw", async () => {
-    const tmp = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-ui-"));
-    try {
-      // Package with different name should not be resolved
-      await fs.writeFile(path.join(tmp, "package.json"), JSON.stringify({ name: "malicious-pkg" }));
-      await fs.writeFile(path.join(tmp, "index.mjs"), "export {};\n");
-      await fs.mkdir(path.join(tmp, "dist", "control-ui"), { recursive: true });
-      await fs.writeFile(path.join(tmp, "dist", "control-ui", "index.html"), "<html></html>\n");
-
-      expect(await resolveControlUiDistIndexPath(path.join(tmp, "index.mjs"))).toBeNull();
-    } finally {
-      await fs.rm(tmp, { recursive: true, force: true });
-    }
-  });
-
-  it("returns null when no control-ui assets exist", async () => {
-    const tmp = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-ui-"));
-    try {
-      // Just a package.json, no dist/control-ui
-      await fs.writeFile(path.join(tmp, "package.json"), JSON.stringify({ name: "some-pkg" }));
-      await fs.writeFile(path.join(tmp, "index.mjs"), "export {};\n");
-
-      expect(await resolveControlUiDistIndexPath(path.join(tmp, "index.mjs"))).toBeNull();
-    } finally {
-      await fs.rm(tmp, { recursive: true, force: true });
-    }
   });
 });

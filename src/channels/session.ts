@@ -33,9 +33,7 @@ export async function recordInboundSession(params: {
   }).catch(params.onRecordError);
 
   const update = params.updateLastRoute;
-  if (!update) {
-    return;
-  }
+  if (!update) return;
   await updateLastRoute({
     storePath,
     sessionKey: update.sessionKey,

@@ -1,10 +1,11 @@
 process.env.NO_COLOR = "1";
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
+
 import type { ChannelPlugin } from "../../channels/plugins/types.js";
-import { getChannelPlugin, listChannelPlugins } from "../../channels/plugins/index.js";
-import { fetchSlackScopes } from "../../slack/scopes.js";
 import { channelsCapabilitiesCommand } from "./capabilities.js";
+import { fetchSlackScopes } from "../../slack/scopes.js";
+import { getChannelPlugin, listChannelPlugins } from "../../channels/plugins/index.js";
 
 const logs: string[] = [];
 const errors: string[] = [];
@@ -88,7 +89,7 @@ describe("channelsCapabilitiesCommand", () => {
         botToken: "xoxb-bot",
         config: { userToken: "xoxp-user" },
       },
-      probe: { ok: true, bot: { name: "openclaw" }, team: { name: "team" } },
+      probe: { ok: true, bot: { name: "moltbot" }, team: { name: "team" } },
     });
     vi.mocked(listChannelPlugins).mockReturnValue([plugin]);
     vi.mocked(getChannelPlugin).mockReturnValue(plugin);

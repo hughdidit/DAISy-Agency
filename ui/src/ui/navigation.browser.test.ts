@@ -1,17 +1,13 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-<<<<<<< HEAD
 
 import { MoltbotApp } from "./app";
-=======
-import { OpenClawApp } from "./app";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import "../styles.css";
 
-const originalConnect = OpenClawApp.prototype.connect;
+const originalConnect = MoltbotApp.prototype.connect;
 
 function mountApp(pathname: string) {
   window.history.replaceState({}, "", pathname);
-  const app = document.createElement("openclaw-app") as OpenClawApp;
+  const app = document.createElement("moltbot-app") as MoltbotApp;
   document.body.append(app);
   return app;
 }
@@ -23,17 +19,17 @@ function nextFrame() {
 }
 
 beforeEach(() => {
-  OpenClawApp.prototype.connect = () => {
+  MoltbotApp.prototype.connect = () => {
     // no-op: avoid real gateway WS connections in browser tests
   };
-  window.__OPENCLAW_CONTROL_UI_BASE_PATH__ = undefined;
+  window.__CLAWDBOT_CONTROL_UI_BASE_PATH__ = undefined;
   localStorage.clear();
   document.body.innerHTML = "";
 });
 
 afterEach(() => {
-  OpenClawApp.prototype.connect = originalConnect;
-  window.__OPENCLAW_CONTROL_UI_BASE_PATH__ = undefined;
+  MoltbotApp.prototype.connect = originalConnect;
+  window.__CLAWDBOT_CONTROL_UI_BASE_PATH__ = undefined;
   localStorage.clear();
   document.body.innerHTML = "";
 });
@@ -57,31 +53,35 @@ describe("control UI routing", () => {
   });
 
   it("infers nested base paths", async () => {
-    const app = mountApp("/apps/openclaw/cron");
+    const app = mountApp("/apps/moltbot/cron");
     await app.updateComplete;
 
-    expect(app.basePath).toBe("/apps/openclaw");
+    expect(app.basePath).toBe("/apps/moltbot");
     expect(app.tab).toBe("cron");
-    expect(window.location.pathname).toBe("/apps/openclaw/cron");
+    expect(window.location.pathname).toBe("/apps/moltbot/cron");
   });
 
   it("honors explicit base path overrides", async () => {
-    window.__OPENCLAW_CONTROL_UI_BASE_PATH__ = "/openclaw";
-    const app = mountApp("/openclaw/sessions");
+    window.__CLAWDBOT_CONTROL_UI_BASE_PATH__ = "/moltbot";
+    const app = mountApp("/moltbot/sessions");
     await app.updateComplete;
 
-    expect(app.basePath).toBe("/openclaw");
+    expect(app.basePath).toBe("/moltbot");
     expect(app.tab).toBe("sessions");
-    expect(window.location.pathname).toBe("/openclaw/sessions");
+    expect(window.location.pathname).toBe("/moltbot/sessions");
   });
 
   it("updates the URL when clicking nav items", async () => {
     const app = mountApp("/chat");
     await app.updateComplete;
 
-    const link = app.querySelector<HTMLAnchorElement>('a.nav-item[href="/channels"]');
+    const link = app.querySelector<HTMLAnchorElement>(
+      'a.nav-item[href="/channels"]',
+    );
     expect(link).not.toBeNull();
-    link?.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true, button: 0 }));
+    link?.dispatchEvent(
+      new MouseEvent("click", { bubbles: true, cancelable: true, button: 0 }),
+    );
 
     await app.updateComplete;
     expect(app.tab).toBe("channels");
@@ -94,13 +94,13 @@ describe("control UI routing", () => {
 
     expect(window.matchMedia("(max-width: 768px)").matches).toBe(true);
 
-    const split = app.querySelector(".chat-split-container");
+    const split = app.querySelector(".chat-split-container") as HTMLElement | null;
     expect(split).not.toBeNull();
     if (split) {
       expect(getComputedStyle(split).position).not.toBe("fixed");
     }
 
-    const chatMain = app.querySelector(".chat-main");
+    const chatMain = app.querySelector(".chat-main") as HTMLElement | null;
     expect(chatMain).not.toBeNull();
     if (chatMain) {
       expect(getComputedStyle(chatMain).display).not.toBe("none");
@@ -120,11 +120,9 @@ describe("control UI routing", () => {
     const app = mountApp("/chat");
     await app.updateComplete;
 
-    const initialContainer: HTMLElement | null = app.querySelector(".chat-thread");
+    const initialContainer = app.querySelector(".chat-thread") as HTMLElement | null;
     expect(initialContainer).not.toBeNull();
-    if (!initialContainer) {
-      return;
-    }
+    if (!initialContainer) return;
     initialContainer.style.maxHeight = "180px";
     initialContainer.style.overflow = "auto";
 
@@ -139,59 +137,46 @@ describe("control UI routing", () => {
       await nextFrame();
     }
 
-    const container = app.querySelector(".chat-thread");
+    const container = app.querySelector(".chat-thread") as HTMLElement | null;
     expect(container).not.toBeNull();
-    if (!container) {
-      return;
-    }
+    if (!container) return;
     const maxScroll = container.scrollHeight - container.clientHeight;
     expect(maxScroll).toBeGreaterThan(0);
     for (let i = 0; i < 10; i++) {
-      if (container.scrollTop === maxScroll) {
-        break;
-      }
+      if (container.scrollTop === maxScroll) break;
       await nextFrame();
     }
     expect(container.scrollTop).toBe(maxScroll);
   });
 
-  it("strips token URL params without importing them", async () => {
+  it("hydrates token from URL params and strips it", async () => {
     const app = mountApp("/ui/overview?token=abc123");
     await app.updateComplete;
 
-    expect(app.settings.token).toBe("");
+    expect(app.settings.token).toBe("abc123");
     expect(window.location.pathname).toBe("/ui/overview");
     expect(window.location.search).toBe("");
   });
 
-  it("strips password URL params without importing them", async () => {
+  it("hydrates password from URL params and strips it", async () => {
     const app = mountApp("/ui/overview?password=sekret");
     await app.updateComplete;
 
-    expect(app.password).toBe("");
+    expect(app.password).toBe("sekret");
     expect(window.location.pathname).toBe("/ui/overview");
     expect(window.location.search).toBe("");
   });
 
-  it("does not override stored settings from URL token params", async () => {
+  it("hydrates token from URL params even when settings already set", async () => {
     localStorage.setItem(
-      "openclaw.control.settings.v1",
+      "moltbot.control.settings.v1",
       JSON.stringify({ token: "existing-token" }),
     );
     const app = mountApp("/ui/overview?token=abc123");
     await app.updateComplete;
 
-    expect(app.settings.token).toBe("existing-token");
-    expect(window.location.pathname).toBe("/ui/overview");
-    expect(window.location.search).toBe("");
-  });
-
-  it("hydrates token from URL hash and strips it", async () => {
-    const app = mountApp("/ui/overview#token=abc123");
-    await app.updateComplete;
-
     expect(app.settings.token).toBe("abc123");
     expect(window.location.pathname).toBe("/ui/overview");
-    expect(window.location.hash).toBe("");
+    expect(window.location.search).toBe("");
   });
 });

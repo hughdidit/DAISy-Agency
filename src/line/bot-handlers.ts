@@ -8,13 +8,7 @@ import type {
   PostbackEvent,
   EventSource,
 } from "@line/bot-sdk";
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
-=======
-import type { OpenClawConfig } from "../config/config.js";
-import type { RuntimeEnv } from "../runtime.js";
-import type { LineGroupConfig, ResolvedLineAccount } from "./types.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { danger, logVerbose } from "../globals.js";
 import { resolvePairingIdLabel } from "../pairing/pairing-labels.js";
 import { buildPairingReply } from "../pairing/pairing-messages.js";
@@ -22,14 +16,16 @@ import {
   readChannelAllowFromStore,
   upsertChannelPairingRequest,
 } from "../pairing/pairing-store.js";
-import { firstDefined, isSenderAllowed, normalizeAllowFromWithStore } from "./bot-access.js";
+import type { RuntimeEnv } from "../runtime.js";
 import {
   buildLineMessageContext,
   buildLinePostbackContext,
   type LineInboundContext,
 } from "./bot-message-context.js";
+import { firstDefined, isSenderAllowed, normalizeAllowFromWithStore } from "./bot-access.js";
 import { downloadLineMedia } from "./download.js";
 import { pushMessageLine, replyMessageLine } from "./send.js";
+import type { LineGroupConfig, ResolvedLineAccount } from "./types.js";
 
 interface MediaRef {
   path: string;
@@ -37,7 +33,7 @@ interface MediaRef {
 }
 
 export interface LineHandlerContext {
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   account: ResolvedLineAccount;
   runtime: RuntimeEnv;
   mediaMaxBytes: number;
@@ -91,9 +87,7 @@ async function sendLinePairingReply(params: {
     channel: "line",
     id: senderId,
   });
-  if (!created) {
-    return;
-  }
+  if (!created) return;
   logVerbose(`line pairing request sender=${senderId}`);
   const idLabel = (() => {
     try {
@@ -225,9 +219,7 @@ async function handleMessageEvent(event: MessageEvent, context: LineHandlerConte
   const { cfg, account, runtime, mediaMaxBytes, processMessage } = context;
   const message = event.message;
 
-  if (!(await shouldProcessLineEvent(event, context))) {
-    return;
-  }
+  if (!(await shouldProcessLineEvent(event, context))) return;
 
   // Download media if applicable
   const allMedia: MediaRef[] = [];
@@ -298,18 +290,14 @@ async function handlePostbackEvent(
   const data = event.postback.data;
   logVerbose(`line: received postback: ${data}`);
 
-  if (!(await shouldProcessLineEvent(event, context))) {
-    return;
-  }
+  if (!(await shouldProcessLineEvent(event, context))) return;
 
   const postbackContext = await buildLinePostbackContext({
     event,
     cfg: context.cfg,
     account: context.account,
   });
-  if (!postbackContext) {
-    return;
-  }
+  if (!postbackContext) return;
 
   await context.processMessage(postbackContext);
 }

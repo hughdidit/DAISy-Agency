@@ -1,6 +1,7 @@
 import type { AgentEvent, AgentMessage } from "@mariozechner/pi-agent-core";
-import type { ReplyDirectiveParseResult } from "../auto-reply/reply/reply-directives.js";
+
 import type { ReasoningLevel } from "../auto-reply/thinking.js";
+import type { ReplyDirectiveParseResult } from "../auto-reply/reply/reply-directives.js";
 import type { InlineCodeState } from "../markdown/code-spans.js";
 import type { EmbeddedBlockChunker } from "./pi-embedded-block-chunker.js";
 import type { MessagingToolSend } from "./pi-embedded-messaging.js";
@@ -8,7 +9,6 @@ import type {
   BlockReplyChunking,
   SubscribeEmbeddedPiSessionParams,
 } from "./pi-embedded-subscribe.types.js";
-import type { NormalizedUsage } from "./usage.js";
 
 export type EmbeddedSubscribeLogger = {
   debug: (message: string) => void;
@@ -37,13 +37,7 @@ export type EmbeddedPiSubscribeState = {
   deltaBuffer: string;
   blockBuffer: string;
   blockState: { thinking: boolean; final: boolean; inlineCode: InlineCodeState };
-  partialBlockState: { thinking: boolean; final: boolean; inlineCode: InlineCodeState };
   lastStreamedAssistant?: string;
-<<<<<<< HEAD
-=======
-  lastStreamedAssistantCleaned?: string;
-  emittedAssistantUpdate: boolean;
->>>>>>> 38e6da1fe (TUI/Gateway: fix pi streaming + tool routing + model display + msg updating (#8432))
   lastStreamedReasoning?: string;
   lastBlockReplyText?: string;
   assistantMessageIndex: number;
@@ -88,10 +82,6 @@ export type EmbeddedPiSubscribeContext = {
     text: string,
     options?: { final?: boolean },
   ) => ReplyDirectiveParseResult | null;
-  consumePartialReplyDirectives: (
-    text: string,
-    options?: { final?: boolean },
-  ) => ReplyDirectiveParseResult | null;
   resetAssistantMessageState: (nextAssistantTextBaseline: number) => void;
   resetForCompactionRetry: () => void;
   finalizeAssistantTexts: (args: {
@@ -104,10 +94,6 @@ export type EmbeddedPiSubscribeContext = {
   noteCompactionRetry: () => void;
   resolveCompactionRetry: () => void;
   maybeResolveCompactionWait: () => void;
-  recordAssistantUsage: (usage: unknown) => void;
-  incrementCompactionCount: () => void;
-  getUsageTotals: () => NormalizedUsage | undefined;
-  getCompactionCount: () => number;
 };
 
 export type EmbeddedPiSubscribeEvent =

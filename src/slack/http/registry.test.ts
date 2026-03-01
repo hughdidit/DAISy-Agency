@@ -1,5 +1,6 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
 import { afterEach, describe, expect, it, vi } from "vitest";
+
 import {
   handleSlackHttpRequest,
   normalizeSlackWebhookPath,
@@ -22,9 +23,7 @@ describe("registerSlackHttpHandler", () => {
   const unregisters: Array<() => void> = [];
 
   afterEach(() => {
-    for (const unregister of unregisters.splice(0)) {
-      unregister();
-    }
+    for (const unregister of unregisters.splice(0)) unregister();
   });
 
   it("routes requests to a registered handler", async () => {

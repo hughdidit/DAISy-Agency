@@ -1,18 +1,18 @@
 import type { ModelAliasIndex } from "../../agents/model-selection.js";
-import type { OpenClawConfig } from "../../config/config.js";
+import type { MoltbotConfig } from "../../config/config.js";
 import type { SessionEntry } from "../../config/sessions.js";
 import type { MsgContext } from "../templating.js";
 import type { ReplyPayload } from "../types.js";
-import type { InlineDirectives } from "./directive-handling.parse.js";
-import type { ElevatedLevel, ReasoningLevel, ThinkLevel, VerboseLevel } from "./directives.js";
 import { handleDirectiveOnly } from "./directive-handling.impl.js";
+import type { InlineDirectives } from "./directive-handling.parse.js";
 import { isDirectiveOnly } from "./directive-handling.parse.js";
+import type { ElevatedLevel, ReasoningLevel, ThinkLevel, VerboseLevel } from "./directives.js";
 
 export async function applyInlineDirectivesFastLane(params: {
   directives: InlineDirectives;
   commandAuthorized: boolean;
   ctx: MsgContext;
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   agentId?: string;
   isGroup: boolean;
   sessionEntry: SessionEntry;
@@ -35,7 +35,7 @@ export async function applyInlineDirectivesFastLane(params: {
   model: string;
   initialModelLabel: string;
   formatModelSwitchEvent: (label: string, alias?: string) => string;
-  agentCfg?: NonNullable<OpenClawConfig["agents"]>["defaults"];
+  agentCfg?: NonNullable<MoltbotConfig["agents"]>["defaults"];
   modelState: {
     resolveDefaultThinkingLevel: () => Promise<ThinkLevel | undefined>;
     allowedModelKeys: Set<string>;

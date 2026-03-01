@@ -1,7 +1,3 @@
-import type { ChannelAccountSnapshot, ChannelPlugin } from "../../channels/plugins/types.js";
-import type { OpenClawConfig } from "../../config/config.js";
-import type { GatewayRequestContext, GatewayRequestHandlers } from "./types.js";
-import { buildChannelUiCatalog } from "../../channels/plugins/catalog.js";
 import { resolveChannelDefaultAccountId } from "../../channels/plugins/helpers.js";
 import {
   type ChannelId,
@@ -9,12 +5,10 @@ import {
   listChannelPlugins,
   normalizeChannelId,
 } from "../../channels/plugins/index.js";
+import { buildChannelUiCatalog } from "../../channels/plugins/catalog.js";
 import { buildChannelAccountSnapshot } from "../../channels/plugins/status.js";
-<<<<<<< HEAD
 import type { ChannelAccountSnapshot, ChannelPlugin } from "../../channels/plugins/types.js";
 import type { MoltbotConfig } from "../../config/config.js";
-=======
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { loadConfig, readConfigFileSnapshot } from "../../config/config.js";
 import { getChannelActivity } from "../../infra/channel-activity.js";
 import { DEFAULT_ACCOUNT_ID } from "../../routing/session-key.js";
@@ -27,6 +21,7 @@ import {
   validateChannelsStatusParams,
 } from "../protocol/index.js";
 import { formatForLog } from "../ws-log.js";
+import type { GatewayRequestContext, GatewayRequestHandlers } from "./types.js";
 
 type ChannelLogoutPayload = {
   channel: ChannelId;
@@ -38,7 +33,7 @@ type ChannelLogoutPayload = {
 export async function logoutChannelAccount(params: {
   channelId: ChannelId;
   accountId?: string | null;
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   context: GatewayRequestContext;
   plugin: ChannelPlugin;
 }): Promise<ChannelLogoutPayload> {
@@ -103,9 +98,7 @@ export const channelsHandlers: GatewayRequestHandlers = {
       const defaultRuntime = runtime.channels[channelId];
       const raw =
         accounts?.[accountId] ?? (accountId === defaultAccountId ? defaultRuntime : undefined);
-      if (!raw) {
-        return undefined;
-      }
+      if (!raw) return undefined;
       return raw;
     };
 
@@ -178,9 +171,7 @@ export const channelsHandlers: GatewayRequestHandlers = {
           probe: probeResult,
           audit: auditResult,
         });
-        if (lastProbeAt) {
-          snapshot.lastProbeAt = lastProbeAt;
-        }
+        if (lastProbeAt) snapshot.lastProbeAt = lastProbeAt;
         const activity = getChannelActivity({
           channel: channelId as never,
           accountId,

@@ -7,18 +7,14 @@ import {
   type ChannelOnboardingAdapter,
   type ChannelOnboardingDmPolicy,
   type WizardPrompter,
-<<<<<<< HEAD
 } from "clawdbot/plugin-sdk";
 
-=======
-} from "openclaw/plugin-sdk";
-import type { CoreConfig, DmPolicy } from "./types.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import {
   listNextcloudTalkAccountIds,
   resolveDefaultNextcloudTalkAccountId,
   resolveNextcloudTalkAccount,
 } from "./accounts.js";
+import type { CoreConfig, DmPolicy } from "./types.js";
 
 const channel = "nextcloud-talk" as const;
 
@@ -47,7 +43,7 @@ async function noteNextcloudTalkSecretHelp(prompter: WizardPrompter): Promise<vo
   await prompter.note(
     [
       "1) SSH into your Nextcloud server",
-      '2) Run: ./occ talk:bot:install "OpenClaw" "<shared-secret>" "<webhook-url>" --feature reaction',
+      '2) Run: ./occ talk:bot:install "Moltbot" "<shared-secret>" "<webhook-url>" --feature reaction',
       "3) Copy the shared secret you used in the command",
       "4) Enable the bot in your Nextcloud Talk room settings",
       "Tip: you can also set NEXTCLOUD_TALK_BOT_SECRET in your env.",
@@ -225,9 +221,7 @@ export const nextcloudTalkOnboardingAdapter: ChannelOnboardingAdapter = {
           message: "Enter Nextcloud instance URL (e.g., https://cloud.example.com)",
           validate: (value) => {
             const v = String(value ?? "").trim();
-            if (!v) {
-              return "Required";
-            }
+            if (!v) return "Required";
             if (!v.startsWith("http://") && !v.startsWith("https://")) {
               return "URL must start with http:// or https://";
             }
@@ -315,8 +309,7 @@ export const nextcloudTalkOnboardingAdapter: ChannelOnboardingAdapter = {
                 ...next.channels?.["nextcloud-talk"]?.accounts,
                 [accountId]: {
                   ...next.channels?.["nextcloud-talk"]?.accounts?.[accountId],
-                  enabled:
-                    next.channels?.["nextcloud-talk"]?.accounts?.[accountId]?.enabled ?? true,
+                  enabled: next.channels?.["nextcloud-talk"]?.accounts?.[accountId]?.enabled ?? true,
                   baseUrl,
                   ...(secret ? { botSecret: secret } : {}),
                 },

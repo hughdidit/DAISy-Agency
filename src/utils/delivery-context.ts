@@ -18,9 +18,7 @@ export type DeliveryContextSessionSource = {
 };
 
 export function normalizeDeliveryContext(context?: DeliveryContext): DeliveryContext | undefined {
-  if (!context) {
-    return undefined;
-  }
+  if (!context) return undefined;
   const channel =
     typeof context.channel === "string"
       ? (normalizeMessageChannel(context.channel) ?? context.channel.trim())
@@ -35,17 +33,13 @@ export function normalizeDeliveryContext(context?: DeliveryContext): DeliveryCon
         : undefined;
   const normalizedThreadId =
     typeof threadId === "string" ? (threadId ? threadId : undefined) : threadId;
-  if (!channel && !to && !accountId && normalizedThreadId == null) {
-    return undefined;
-  }
+  if (!channel && !to && !accountId && normalizedThreadId == null) return undefined;
   const normalized: DeliveryContext = {
     channel: channel || undefined,
     to: to || undefined,
     accountId,
   };
-  if (normalizedThreadId != null) {
-    normalized.threadId = normalizedThreadId;
-  }
+  if (normalizedThreadId != null) normalized.threadId = normalizedThreadId;
   return normalized;
 }
 
@@ -96,22 +90,10 @@ export function normalizeSessionDeliveryFields(source?: DeliveryContextSessionSo
 }
 
 export function deliveryContextFromSession(
-  entry?: DeliveryContextSessionSource & { origin?: { threadId?: string | number } },
+  entry?: DeliveryContextSessionSource,
 ): DeliveryContext | undefined {
   if (!entry) return undefined;
-<<<<<<< HEAD
   return normalizeSessionDeliveryFields(entry).deliveryContext;
-=======
-  const source: DeliveryContextSessionSource = {
-    channel: entry.channel,
-    lastChannel: entry.lastChannel,
-    lastTo: entry.lastTo,
-    lastAccountId: entry.lastAccountId,
-    lastThreadId: entry.lastThreadId ?? entry.deliveryContext?.threadId ?? entry.origin?.threadId,
-    deliveryContext: entry.deliveryContext,
-  };
-  return normalizeSessionDeliveryFields(source).deliveryContext;
->>>>>>> 310eed825 (fix: preserve delivery thread fallback (#4911) (thanks @yevhen))
 }
 
 export function mergeDeliveryContext(
@@ -120,9 +102,7 @@ export function mergeDeliveryContext(
 ): DeliveryContext | undefined {
   const normalizedPrimary = normalizeDeliveryContext(primary);
   const normalizedFallback = normalizeDeliveryContext(fallback);
-  if (!normalizedPrimary && !normalizedFallback) {
-    return undefined;
-  }
+  if (!normalizedPrimary && !normalizedFallback) return undefined;
   return normalizeDeliveryContext({
     channel: normalizedPrimary?.channel ?? normalizedFallback?.channel,
     to: normalizedPrimary?.to ?? normalizedFallback?.to,
@@ -133,9 +113,7 @@ export function mergeDeliveryContext(
 
 export function deliveryContextKey(context?: DeliveryContext): string | undefined {
   const normalized = normalizeDeliveryContext(context);
-  if (!normalized?.channel || !normalized?.to) {
-    return undefined;
-  }
+  if (!normalized?.channel || !normalized?.to) return undefined;
   const threadId =
     normalized.threadId != null && normalized.threadId !== "" ? String(normalized.threadId) : "";
   return `${normalized.channel}|${normalized.to}|${normalized.accountId ?? ""}|${threadId}`;

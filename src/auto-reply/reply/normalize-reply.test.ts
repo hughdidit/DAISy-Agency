@@ -1,9 +1,5 @@
 import { describe, expect, it } from "vitest";
-<<<<<<< HEAD
 
-=======
-import { SILENT_REPLY_TOKEN } from "../tokens.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { normalizeReplyPayload } from "./normalize-reply.js";
 
 // Keep channelData-only payloads so channel-specific replies survive normalization.
@@ -22,31 +18,5 @@ describe("normalizeReplyPayload", () => {
     expect(normalized).not.toBeNull();
     expect(normalized?.text).toBeUndefined();
     expect(normalized?.channelData).toEqual(payload.channelData);
-  });
-
-  it("records silent skips", () => {
-    const reasons: string[] = [];
-    const normalized = normalizeReplyPayload(
-      { text: SILENT_REPLY_TOKEN },
-      {
-        onSkip: (reason) => reasons.push(reason),
-      },
-    );
-
-    expect(normalized).toBeNull();
-    expect(reasons).toEqual(["silent"]);
-  });
-
-  it("records empty skips", () => {
-    const reasons: string[] = [];
-    const normalized = normalizeReplyPayload(
-      { text: "   " },
-      {
-        onSkip: (reason) => reasons.push(reason),
-      },
-    );
-
-    expect(normalized).toBeNull();
-    expect(reasons).toEqual(["empty"]);
   });
 });

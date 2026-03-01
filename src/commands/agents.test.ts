@@ -1,12 +1,9 @@
 import os from "node:os";
 import path from "node:path";
+
 import { describe, expect, it } from "vitest";
-<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../config/config.js";
-=======
-import type { OpenClawConfig } from "../config/config.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import {
   applyAgentBindings,
   applyAgentConfig,
@@ -16,7 +13,7 @@ import {
 
 describe("agents helpers", () => {
   it("buildAgentSummaries includes default + configured agents", () => {
-    const cfg: OpenClawConfig = {
+    const cfg: MoltbotConfig = {
       agents: {
         defaults: {
           workspace: "/main-ws",
@@ -48,7 +45,7 @@ describe("agents helpers", () => {
     const work = summaries.find((summary) => summary.id === "work");
 
     expect(main).toBeTruthy();
-    expect(main?.workspace).toBe(path.join(os.homedir(), ".openclaw", "workspace-main"));
+    expect(main?.workspace).toBe(path.join(os.homedir(), "clawd-main"));
     expect(main?.bindings).toBe(1);
     expect(main?.model).toBe("anthropic/claude");
     expect(main?.agentDir.endsWith(path.join("agents", "main", "agent"))).toBe(true);
@@ -62,7 +59,7 @@ describe("agents helpers", () => {
   });
 
   it("applyAgentConfig merges updates", () => {
-    const cfg: OpenClawConfig = {
+    const cfg: MoltbotConfig = {
       agents: {
         list: [{ id: "work", workspace: "/old-ws", model: "anthropic/claude" }],
       },
@@ -83,7 +80,7 @@ describe("agents helpers", () => {
   });
 
   it("applyAgentBindings skips duplicates and reports conflicts", () => {
-    const cfg: OpenClawConfig = {
+    const cfg: MoltbotConfig = {
       bindings: [
         {
           agentId: "main",
@@ -114,7 +111,7 @@ describe("agents helpers", () => {
   });
 
   it("pruneAgentConfig removes agent, bindings, and allowlist entries", () => {
-    const cfg: OpenClawConfig = {
+    const cfg: MoltbotConfig = {
       agents: {
         list: [
           { id: "work", default: true, workspace: "/work-ws" },

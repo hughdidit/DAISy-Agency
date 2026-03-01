@@ -1,14 +1,9 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-<<<<<<< HEAD
 
 import { resolveDefaultAgentWorkspaceDir } from "../agents/workspace.js";
 import type { MoltbotConfig } from "../config/config.js";
-=======
-import type { OpenClawConfig } from "../config/config.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { RuntimeEnv } from "../runtime.js";
-import { resolveDefaultAgentWorkspaceDir } from "../agents/workspace.js";
 import { resolveHomeDir, resolveUserPath, shortenHomeInString } from "../utils.js";
 
 export type RemovalResult = {
@@ -16,7 +11,7 @@ export type RemovalResult = {
   skipped?: boolean;
 };
 
-export function collectWorkspaceDirs(cfg: OpenClawConfig | undefined): string[] {
+export function collectWorkspaceDirs(cfg: MoltbotConfig | undefined): string[] {
   const dirs = new Set<string>();
   const defaults = cfg?.agents?.defaults;
   if (typeof defaults?.workspace === "string" && defaults.workspace.trim()) {
@@ -41,18 +36,12 @@ export function isPathWithin(child: string, parent: string): boolean {
 }
 
 function isUnsafeRemovalTarget(target: string): boolean {
-  if (!target.trim()) {
-    return true;
-  }
+  if (!target.trim()) return true;
   const resolved = path.resolve(target);
   const root = path.parse(resolved).root;
-  if (resolved === root) {
-    return true;
-  }
+  if (resolved === root) return true;
   const home = resolveHomeDir();
-  if (home && resolved === path.resolve(home)) {
-    return true;
-  }
+  if (home && resolved === path.resolve(home)) return true;
   return false;
 }
 
@@ -61,9 +50,7 @@ export async function removePath(
   runtime: RuntimeEnv,
   opts?: { dryRun?: boolean; label?: string },
 ): Promise<RemovalResult> {
-  if (!target?.trim()) {
-    return { ok: false, skipped: true };
-  }
+  if (!target?.trim()) return { ok: false, skipped: true };
   const resolved = path.resolve(target);
   const label = opts?.label ?? resolved;
   const displayLabel = shortenHomeInString(label);

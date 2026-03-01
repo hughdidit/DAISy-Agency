@@ -1,14 +1,9 @@
-import type { OpenClawConfig } from "../../config/config.js";
 import { setCliSessionId } from "../../agents/cli-session.js";
 import { lookupContextTokens } from "../../agents/context.js";
 import { DEFAULT_CONTEXT_TOKENS } from "../../agents/defaults.js";
 import { isCliProvider } from "../../agents/model-selection.js";
-<<<<<<< HEAD
 import { hasNonzeroUsage } from "../../agents/usage.js";
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
-=======
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { type SessionEntry, updateSessionStore } from "../../config/sessions.js";
 
 type RunResult = Awaited<
@@ -16,7 +11,7 @@ type RunResult = Awaited<
 >;
 
 export async function updateSessionStoreAfterAgentRun(params: {
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   contextTokensOverride?: number;
   sessionId: string;
   sessionKey: string;
@@ -42,7 +37,6 @@ export async function updateSessionStoreAfterAgentRun(params: {
   } = params;
 
   const usage = result.meta.agentMeta?.usage;
-  const compactionsThisRun = Math.max(0, result.meta.agentMeta?.compactionCount ?? 0);
   const modelUsed = result.meta.agentMeta?.model ?? fallbackModel ?? defaultModel;
   const providerUsed = result.meta.agentMeta?.provider ?? fallbackProvider ?? defaultProvider;
   const contextTokens =
@@ -62,24 +56,16 @@ export async function updateSessionStoreAfterAgentRun(params: {
   };
   if (isCliProvider(providerUsed, cfg)) {
     const cliSessionId = result.meta.agentMeta?.sessionId?.trim();
-    if (cliSessionId) {
-      setCliSessionId(next, providerUsed, cliSessionId);
-    }
+    if (cliSessionId) setCliSessionId(next, providerUsed, cliSessionId);
   }
   next.abortedLastRun = result.meta.aborted ?? false;
   if (hasNonzeroUsage(usage)) {
     const input = usage.input ?? 0;
     const output = usage.output ?? 0;
+    const promptTokens = input + (usage.cacheRead ?? 0) + (usage.cacheWrite ?? 0);
     next.inputTokens = input;
     next.outputTokens = output;
-    next.totalTokens =
-      deriveSessionTotalTokens({
-        usage,
-        contextTokens,
-      }) ?? input;
-  }
-  if (compactionsThisRun > 0) {
-    next.compactionCount = (entry.compactionCount ?? 0) + compactionsThisRun;
+    next.totalTokens = promptTokens > 0 ? promptTokens : (usage.total ?? input);
   }
   sessionStore[sessionKey] = next;
   await updateSessionStore(storePath, (store) => {

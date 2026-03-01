@@ -1,4 +1,3 @@
-import type { DiscordPluralKitConfig } from "../discord/pluralkit.js";
 import type {
   BlockStreamingCoalesceConfig,
   DmPolicy,
@@ -7,7 +6,6 @@ import type {
   OutboundRetryConfig,
   ReplyToMode,
 } from "./types.base.js";
-import type { DiscordPluralKitConfig } from "../discord/pluralkit.js";
 import type { ChannelHeartbeatVisibilityConfig } from "./types.channels.js";
 import type { DmConfig, ProviderCommandsConfig } from "./types.messages.js";
 import type { GroupToolPolicyBySenderConfig, GroupToolPolicyConfig } from "./types.tools.js";
@@ -39,8 +37,6 @@ export type DiscordGuildChannelConfig = {
   users?: Array<string | number>;
   /** Optional system prompt snippet for this channel. */
   systemPrompt?: string;
-  /** If false, omit thread starter context for this channel (default: true). */
-  includeThreadStarter?: boolean;
 };
 
 export type DiscordReactionNotificationMode = "off" | "own" | "all" | "allowlist";
@@ -76,8 +72,6 @@ export type DiscordActionConfig = {
   emojiUploads?: boolean;
   stickerUploads?: boolean;
   channels?: boolean;
-  /** Enable bot presence/activity changes (default: false). */
-  presence?: boolean;
 };
 
 export type DiscordIntentsConfig = {
@@ -156,10 +150,6 @@ export type DiscordAccountConfig = {
   execApprovals?: DiscordExecApprovalConfig;
   /** Privileged Gateway Intents (must also be enabled in Discord Developer Portal). */
   intents?: DiscordIntentsConfig;
-  /** PluralKit identity resolution for proxied messages. */
-  pluralkit?: DiscordPluralKitConfig;
-  /** Outbound response prefix override for this channel/account. */
-  responsePrefix?: string;
 };
 
 export type DiscordConfig = {

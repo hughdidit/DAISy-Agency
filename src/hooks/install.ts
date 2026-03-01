@@ -1,14 +1,10 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-<<<<<<< HEAD
 
-import { MANIFEST_KEY } from "../compat/legacy-names.js";
+import { LEGACY_MANIFEST_KEY } from "../compat/legacy-names.js";
 import { runCommandWithTimeout } from "../process/exec.js";
 import { CONFIG_DIR, resolveUserPath } from "../utils.js";
-=======
-import { MANIFEST_KEY } from "../compat/legacy-names.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import {
   extractArchive,
   fileExists,
@@ -16,8 +12,6 @@ import {
   resolveArchiveKind,
   resolvePackedRootDir,
 } from "../infra/archive.js";
-import { runCommandWithTimeout } from "../process/exec.js";
-import { CONFIG_DIR, resolveUserPath } from "../utils.js";
 import { parseFrontmatter } from "./frontmatter.js";
 
 export type HookInstallLogger = {
@@ -29,7 +23,9 @@ type HookPackageManifest = {
   name?: string;
   version?: string;
   dependencies?: Record<string, string>;
-} & Partial<Record<typeof MANIFEST_KEY, { hooks?: string[] }>>;
+  moltbot?: { hooks?: string[] };
+  [LEGACY_MANIFEST_KEY]?: { hooks?: string[] };
+};
 
 export type InstallHooksResult =
   | {
@@ -45,78 +41,29 @@ const defaultLogger: HookInstallLogger = {};
 
 function unscopedPackageName(name: string): string {
   const trimmed = name.trim();
-  if (!trimmed) {
-    return trimmed;
-  }
+  if (!trimmed) return trimmed;
   return trimmed.includes("/") ? (trimmed.split("/").pop() ?? trimmed) : trimmed;
 }
 
 function safeDirName(input: string): string {
   const trimmed = input.trim();
-<<<<<<< HEAD
   if (!trimmed) return trimmed;
   return trimmed.replaceAll("/", "__");
-=======
-  if (!trimmed) {
-    return trimmed;
-  }
-  return trimmed.replaceAll("/", "__").replaceAll("\\", "__");
-}
-
-function validateHookId(hookId: string): string | null {
-  if (!hookId) {
-    return "invalid hook name: missing";
-  }
-  if (hookId === "." || hookId === "..") {
-    return "invalid hook name: reserved path segment";
-  }
-  if (hookId.includes("/") || hookId.includes("\\")) {
-    return "invalid hook name: path separators not allowed";
-  }
-  return null;
->>>>>>> d03eca845 (fix: harden plugin and hook install paths)
 }
 
 export function resolveHookInstallDir(hookId: string, hooksDir?: string): string {
   const hooksBase = hooksDir ? resolveUserPath(hooksDir) : path.join(CONFIG_DIR, "hooks");
-  const hookIdError = validateHookId(hookId);
-  if (hookIdError) {
-    throw new Error(hookIdError);
-  }
-  const targetDirResult = resolveSafeInstallDir(hooksBase, hookId);
-  if (!targetDirResult.ok) {
-    throw new Error(targetDirResult.error);
-  }
-  return targetDirResult.path;
+  return path.join(hooksBase, safeDirName(hookId));
 }
 
-function resolveSafeInstallDir(
-  hooksDir: string,
-  hookId: string,
-): { ok: true; path: string } | { ok: false; error: string } {
-  const targetDir = path.join(hooksDir, safeDirName(hookId));
-  const resolvedBase = path.resolve(hooksDir);
-  const resolvedTarget = path.resolve(targetDir);
-  const relative = path.relative(resolvedBase, resolvedTarget);
-  if (
-    !relative ||
-    relative === ".." ||
-    relative.startsWith(`..${path.sep}`) ||
-    path.isAbsolute(relative)
-  ) {
-    return { ok: false, error: "invalid hook name: path traversal detected" };
-  }
-  return { ok: true, path: targetDir };
-}
-
-async function ensureOpenClawHooks(manifest: HookPackageManifest) {
-  const hooks = manifest[MANIFEST_KEY]?.hooks;
+async function ensureMoltbotHooks(manifest: HookPackageManifest) {
+  const hooks = manifest.moltbot?.hooks ?? manifest[LEGACY_MANIFEST_KEY]?.hooks;
   if (!Array.isArray(hooks)) {
-    throw new Error("package.json missing openclaw.hooks");
+    throw new Error("package.json missing moltbot.hooks");
   }
   const list = hooks.map((e) => (typeof e === "string" ? e.trim() : "")).filter(Boolean);
   if (list.length === 0) {
-    throw new Error("package.json openclaw.hooks is empty");
+    throw new Error("package.json moltbot.hooks is empty");
   }
   return list;
 }
@@ -175,17 +122,13 @@ async function installHookPackageFromDir(params: {
 
   let hookEntries: string[];
   try {
-    hookEntries = await ensureOpenClawHooks(manifest);
+    hookEntries = await ensureMoltbotHooks(manifest);
   } catch (err) {
     return { ok: false, error: String(err) };
   }
 
   const pkgName = typeof manifest.name === "string" ? manifest.name : "";
   const hookPackId = pkgName ? unscopedPackageName(pkgName) : path.basename(params.packageDir);
-  const hookIdError = validateHookId(hookPackId);
-  if (hookIdError) {
-    return { ok: false, error: hookIdError };
-  }
   if (params.expectedHookPackId && params.expectedHookPackId !== hookPackId) {
     return {
       ok: false,
@@ -198,11 +141,7 @@ async function installHookPackageFromDir(params: {
     : path.join(CONFIG_DIR, "hooks");
   await fs.mkdir(hooksDir, { recursive: true });
 
-  const targetDirResult = resolveSafeInstallDir(hooksDir, hookPackId);
-  if (!targetDirResult.ok) {
-    return { ok: false, error: targetDirResult.error };
-  }
-  const targetDir = targetDirResult.path;
+  const targetDir = resolveHookInstallDir(hookPackId, hooksDir);
   if (mode === "install" && (await fileExists(targetDir))) {
     return { ok: false, error: `hook pack already exists: ${targetDir} (delete it first)` };
   }
@@ -289,10 +228,6 @@ async function installHookFromDir(params: {
 
   await validateHookDir(params.hookDir);
   const hookName = await resolveHookNameFromDir(params.hookDir);
-  const hookIdError = validateHookId(hookName);
-  if (hookIdError) {
-    return { ok: false, error: hookIdError };
-  }
 
   if (params.expectedHookPackId && params.expectedHookPackId !== hookName) {
     return {
@@ -306,11 +241,7 @@ async function installHookFromDir(params: {
     : path.join(CONFIG_DIR, "hooks");
   await fs.mkdir(hooksDir, { recursive: true });
 
-  const targetDirResult = resolveSafeInstallDir(hooksDir, hookName);
-  if (!targetDirResult.ok) {
-    return { ok: false, error: targetDirResult.error };
-  }
-  const targetDir = targetDirResult.path;
+  const targetDir = resolveHookInstallDir(hookName, hooksDir);
   if (mode === "install" && (await fileExists(targetDir))) {
     return { ok: false, error: `hook already exists: ${targetDir} (delete it first)` };
   }
@@ -364,7 +295,7 @@ export async function installHooksFromArchive(params: {
     return { ok: false, error: `unsupported archive: ${archivePath}` };
   }
 
-  const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-hook-"));
+  const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-hook-"));
   const extractDir = path.join(tmpDir, "extract");
   await fs.mkdir(extractDir, { recursive: true });
 
@@ -420,11 +351,9 @@ export async function installHooksFromNpmSpec(params: {
   const dryRun = params.dryRun ?? false;
   const expectedHookPackId = params.expectedHookPackId;
   const spec = params.spec.trim();
-  if (!spec) {
-    return { ok: false, error: "missing npm spec" };
-  }
+  if (!spec) return { ok: false, error: "missing npm spec" };
 
-  const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-hook-pack-"));
+  const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-hook-pack-"));
   logger.info?.(`Downloading ${spec}…`);
   const res = await runCommandWithTimeout(["npm", "pack", spec], {
     timeoutMs: Math.max(timeoutMs, 300_000),

@@ -1,11 +1,4 @@
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
-=======
-import type { OpenClawConfig } from "../config/config.js";
-import type { RuntimeEnv } from "../runtime.js";
-import type { DoctorOptions, DoctorPrompter } from "./doctor-prompter.js";
-import { formatCliCommand } from "../cli/command-format.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { resolveGatewayPort } from "../config/config.js";
 import {
   resolveGatewayLaunchAgentLabel,
@@ -19,21 +12,24 @@ import {
   repairLaunchAgentBootstrap,
 } from "../daemon/launchd.js";
 import { resolveGatewayService } from "../daemon/service.js";
-import { renderSystemdUnavailableHints } from "../daemon/systemd-hints.js";
 import { isSystemdUserServiceAvailable } from "../daemon/systemd.js";
+import { renderSystemdUnavailableHints } from "../daemon/systemd-hints.js";
 import { formatPortDiagnostics, inspectPortUsage } from "../infra/ports.js";
 import { isWSL } from "../infra/wsl.js";
+import type { RuntimeEnv } from "../runtime.js";
+import { formatCliCommand } from "../cli/command-format.js";
 import { note } from "../terminal/note.js";
 import { sleep } from "../utils.js";
-import { buildGatewayInstallPlan, gatewayInstallErrorHint } from "./daemon-install-helpers.js";
 import {
   DEFAULT_GATEWAY_DAEMON_RUNTIME,
   GATEWAY_DAEMON_RUNTIME_OPTIONS,
   type GatewayDaemonRuntime,
 } from "./daemon-runtime.js";
+import { buildGatewayInstallPlan, gatewayInstallErrorHint } from "./daemon-install-helpers.js";
 import { buildGatewayRuntimeHints, formatGatewayRuntimeSummary } from "./doctor-format.js";
-import { formatHealthCheckFailure } from "./health-format.js";
+import type { DoctorOptions, DoctorPrompter } from "./doctor-prompter.js";
 import { healthCommand } from "./health.js";
+import { formatHealthCheckFailure } from "./health-format.js";
 
 async function maybeRepairLaunchAgentBootstrap(params: {
   env: Record<string, string | undefined>;
@@ -41,24 +37,16 @@ async function maybeRepairLaunchAgentBootstrap(params: {
   runtime: RuntimeEnv;
   prompter: DoctorPrompter;
 }): Promise<boolean> {
-  if (process.platform !== "darwin") {
-    return false;
-  }
+  if (process.platform !== "darwin") return false;
 
   const listed = await isLaunchAgentListed({ env: params.env });
-  if (!listed) {
-    return false;
-  }
+  if (!listed) return false;
 
   const loaded = await isLaunchAgentLoaded({ env: params.env });
-  if (loaded) {
-    return false;
-  }
+  if (loaded) return false;
 
   const plistExists = await launchAgentPlistExists(params.env);
-  if (!plistExists) {
-    return false;
-  }
+  if (!plistExists) return false;
 
   note("LaunchAgent is listed but not loaded in launchd.", `${params.title} LaunchAgent`);
 
@@ -66,9 +54,7 @@ async function maybeRepairLaunchAgentBootstrap(params: {
     message: `Repair ${params.title} LaunchAgent bootstrap now?`,
     initialValue: true,
   });
-  if (!shouldFix) {
-    return false;
-  }
+  if (!shouldFix) return false;
 
   params.runtime.log(`Bootstrapping ${params.title} LaunchAgent...`);
   const repair = await repairLaunchAgentBootstrap({ env: params.env });
@@ -90,16 +76,14 @@ async function maybeRepairLaunchAgentBootstrap(params: {
 }
 
 export async function maybeRepairGatewayDaemon(params: {
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   runtime: RuntimeEnv;
   prompter: DoctorPrompter;
   options: DoctorOptions;
   gatewayDetailsMessage: string;
   healthOk: boolean;
 }) {
-  if (params.healthOk) {
-    return;
-  }
+  if (params.healthOk) return;
 
   const service = resolveGatewayService();
   // systemd can throw in containers/WSL; treat as "not loaded" and fall back to hints.
@@ -122,10 +106,7 @@ export async function maybeRepairGatewayDaemon(params: {
       prompter: params.prompter,
     });
     await maybeRepairLaunchAgentBootstrap({
-      env: {
-        ...process.env,
-        OPENCLAW_LAUNCHD_LABEL: resolveNodeLaunchAgentLabel(),
-      },
+      env: { ...process.env, CLAWDBOT_LAUNCHD_LABEL: resolveNodeLaunchAgentLabel() },
       title: "Node",
       runtime: params.runtime,
       prompter: params.prompter,
@@ -145,9 +126,7 @@ export async function maybeRepairGatewayDaemon(params: {
       note(formatPortDiagnostics(diagnostics).join("\n"), "Gateway port");
     } else if (loaded && serviceRuntime?.status === "running") {
       const lastError = await readLastGatewayErrorLine(process.env);
-      if (lastError) {
-        note(`Last gateway error: ${lastError}`, "Gateway");
-      }
+      if (lastError) note(`Last gateway error: ${lastError}`, "Gateway");
     }
   }
 
@@ -179,7 +158,7 @@ export async function maybeRepairGatewayDaemon(params: {
         const { programArguments, workingDirectory, environment } = await buildGatewayInstallPlan({
           env: process.env,
           port,
-          token: params.cfg.gateway?.auth?.token ?? process.env.OPENCLAW_GATEWAY_TOKEN,
+          token: params.cfg.gateway?.auth?.token ?? process.env.CLAWDBOT_GATEWAY_TOKEN,
           runtime: daemonRuntime,
           warn: (message, title) => note(message, title),
           config: params.cfg,
@@ -208,9 +187,7 @@ export async function maybeRepairGatewayDaemon(params: {
   });
   if (summary || hints.length > 0) {
     const lines: string[] = [];
-    if (summary) {
-      lines.push(`Runtime: ${summary}`);
-    }
+    if (summary) lines.push(`Runtime: ${summary}`);
     lines.push(...hints);
     note(lines.join("\n"), "Gateway");
   }
@@ -230,9 +207,9 @@ export async function maybeRepairGatewayDaemon(params: {
   }
 
   if (process.platform === "darwin") {
-    const label = resolveGatewayLaunchAgentLabel(process.env.OPENCLAW_PROFILE);
+    const label = resolveGatewayLaunchAgentLabel(process.env.CLAWDBOT_PROFILE);
     note(
-      `LaunchAgent loaded; stopping requires "${formatCliCommand("openclaw gateway stop")}" or launchctl bootout gui/$UID/${label}.`,
+      `LaunchAgent loaded; stopping requires "${formatCliCommand("moltbot gateway stop")}" or launchctl bootout gui/$UID/${label}.`,
       "Gateway",
     );
   }

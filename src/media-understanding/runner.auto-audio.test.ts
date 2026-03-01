@@ -1,14 +1,11 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+
 import { describe, expect, it } from "vitest";
-<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../config/config.js";
-=======
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { MsgContext } from "../auto-reply/templating.js";
-import type { OpenClawConfig } from "../config/config.js";
 import {
   buildProviderRegistry,
   createMediaAttachmentCache,
@@ -20,7 +17,7 @@ describe("runCapability auto audio entries", () => {
   it("uses provider keys to auto-enable audio transcription", async () => {
     const originalPath = process.env.PATH;
     process.env.PATH = "/usr/bin:/bin";
-    const tmpPath = path.join(os.tmpdir(), `openclaw-auto-audio-${Date.now()}.wav`);
+    const tmpPath = path.join(os.tmpdir(), `moltbot-auto-audio-${Date.now()}.wav`);
     await fs.writeFile(tmpPath, Buffer.from("RIFF"));
     const ctx: MsgContext = { MediaPath: tmpPath, MediaType: "audio/wav" };
     const media = normalizeMediaAttachments(ctx);
@@ -47,7 +44,7 @@ describe("runCapability auto audio entries", () => {
           },
         },
       },
-    } as unknown as OpenClawConfig;
+    } as unknown as MoltbotConfig;
 
     try {
       const result = await runCapability({
@@ -71,7 +68,7 @@ describe("runCapability auto audio entries", () => {
   it("skips auto audio when disabled", async () => {
     const originalPath = process.env.PATH;
     process.env.PATH = "/usr/bin:/bin";
-    const tmpPath = path.join(os.tmpdir(), `openclaw-auto-audio-${Date.now()}.wav`);
+    const tmpPath = path.join(os.tmpdir(), `moltbot-auto-audio-${Date.now()}.wav`);
     await fs.writeFile(tmpPath, Buffer.from("RIFF"));
     const ctx: MsgContext = { MediaPath: tmpPath, MediaType: "audio/wav" };
     const media = normalizeMediaAttachments(ctx);
@@ -101,7 +98,7 @@ describe("runCapability auto audio entries", () => {
           },
         },
       },
-    } as unknown as OpenClawConfig;
+    } as unknown as MoltbotConfig;
 
     try {
       const result = await runCapability({

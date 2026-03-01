@@ -1,4 +1,5 @@
 import { type Message, MessageType } from "@buape/carbon";
+
 import { formatDiscordUserTag } from "./format.js";
 
 export function resolveDiscordSystemEvent(message: Message, location: string): string | null {

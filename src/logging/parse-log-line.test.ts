@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+
 import { parseLogLine } from "./parse-log-line.js";
 
 describe("parseLogLine", () => {

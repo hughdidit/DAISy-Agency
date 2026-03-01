@@ -1,6 +1,6 @@
-import { execFileSync } from "node:child_process";
 import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
+import { execFileSync } from "node:child_process";
 
 type ParsedArgs = {
   maxLines: number;
@@ -13,9 +13,7 @@ function parseArgs(argv: string[]): ParsedArgs {
     const arg = argv[index];
     if (arg === "--max") {
       const next = argv[index + 1];
-      if (!next || Number.isNaN(Number(next))) {
-        throw new Error("Missing/invalid --max value");
-      }
+      if (!next || Number.isNaN(Number(next))) throw new Error("Missing/invalid --max value");
       maxLines = Number(next);
       index++;
       continue;
@@ -45,9 +43,7 @@ async function countLines(filePath: string): Promise<number> {
 async function main() {
   // Makes `... | head` safe.
   process.stdout.on("error", (error: NodeJS.ErrnoException) => {
-    if (error.code === "EPIPE") {
-      process.exit(0);
-    }
+    if (error.code === "EPIPE") process.exit(0);
     throw error;
   });
 
@@ -62,11 +58,9 @@ async function main() {
 
   const offenders = results
     .filter((result) => result.lines > maxLines)
-    .toSorted((a, b) => b.lines - a.lines);
+    .sort((a, b) => b.lines - a.lines);
 
-  if (!offenders.length) {
-    return;
-  }
+  if (!offenders.length) return;
 
   // Minimal, grep-friendly output.
   for (const offender of offenders) {

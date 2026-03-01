@@ -1,10 +1,6 @@
 import type { AssistantMessage } from "@mariozechner/pi-ai";
-<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../../config/config.js";
-=======
-import type { OpenClawConfig } from "../../config/config.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { extractAssistantText } from "../pi-embedded-utils.js";
 
 export type ImageModelConfig = { primary?: string; fallbacks?: string[] };
@@ -16,9 +12,7 @@ export function decodeDataUrl(dataUrl: string): {
 } {
   const trimmed = dataUrl.trim();
   const match = /^data:([^;,]+);base64,([a-z0-9+/=\r\n]+)$/i.exec(trimmed);
-  if (!match) {
-    throw new Error("Invalid data URL (expected base64 data: URL).");
-  }
+  if (!match) throw new Error("Invalid data URL (expected base64 data: URL).");
   const mimeType = (match[1] ?? "").trim().toLowerCase();
   if (!mimeType.startsWith("image/")) {
     throw new Error(`Unsupported data URL type: ${mimeType || "unknown"}`);
@@ -49,13 +43,11 @@ export function coerceImageAssistantText(params: {
     throw new Error(`Image model failed (${params.provider}/${params.model}): ${errorMessage}`);
   }
   const text = extractAssistantText(params.message);
-  if (text.trim()) {
-    return text.trim();
-  }
+  if (text.trim()) return text.trim();
   throw new Error(`Image model returned no text (${params.provider}/${params.model}).`);
 }
 
-export function coerceImageModelConfig(cfg?: OpenClawConfig): ImageModelConfig {
+export function coerceImageModelConfig(cfg?: MoltbotConfig): ImageModelConfig {
   const imageModel = cfg?.agents?.defaults?.imageModel as
     | { primary?: string; fallbacks?: string[] }
     | string
@@ -69,7 +61,7 @@ export function coerceImageModelConfig(cfg?: OpenClawConfig): ImageModelConfig {
 }
 
 export function resolveProviderVisionModelFromConfig(params: {
-  cfg?: OpenClawConfig;
+  cfg?: MoltbotConfig;
   provider: string;
 }): string | null {
   const providerCfg = params.cfg?.models?.providers?.[params.provider] as unknown as

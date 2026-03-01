@@ -3,18 +3,14 @@
  */
 
 import type { SandboxBrowserInfo, SandboxContainerInfo } from "../agents/sandbox.js";
-import type { RuntimeEnv } from "../runtime.js";
 import { formatCliCommand } from "../cli/command-format.js";
+import type { RuntimeEnv } from "../runtime.js";
 import {
   formatAge,
   formatImageMatch,
   formatSimpleStatus,
   formatStatus,
 } from "./sandbox-formatters.js";
-=======
-import { formatDurationCompact } from "../infra/format-time/format-duration.ts";
-import { formatImageMatch, formatSimpleStatus, formatStatus } from "./sandbox-formatters.js";
->>>>>>> a1123dd9b (Centralize date/time formatting utilities (#11831))
 
 type DisplayConfig<T> = {
   emptyMessage: string;
@@ -44,12 +40,8 @@ export function displayContainers(containers: SandboxContainerInfo[], runtime: R
         rt.log(`  ${container.containerName}`);
         rt.log(`    Status:  ${formatStatus(container.running)}`);
         rt.log(`    Image:   ${container.image} ${formatImageMatch(container.imageMatch)}`);
-        rt.log(
-          `    Age:     ${formatDurationCompact(Date.now() - container.createdAtMs, { spaced: true }) ?? "0s"}`,
-        );
-        rt.log(
-          `    Idle:    ${formatDurationCompact(Date.now() - container.lastUsedAtMs, { spaced: true }) ?? "0s"}`,
-        );
+        rt.log(`    Age:     ${formatAge(Date.now() - container.createdAtMs)}`);
+        rt.log(`    Idle:    ${formatAge(Date.now() - container.lastUsedAtMs)}`);
         rt.log(`    Session: ${container.sessionKey}`);
         rt.log("");
       },
@@ -72,12 +64,8 @@ export function displayBrowsers(browsers: SandboxBrowserInfo[], runtime: Runtime
         if (browser.noVncPort) {
           rt.log(`    noVNC:   ${browser.noVncPort}`);
         }
-        rt.log(
-          `    Age:     ${formatDurationCompact(Date.now() - browser.createdAtMs, { spaced: true }) ?? "0s"}`,
-        );
-        rt.log(
-          `    Idle:    ${formatDurationCompact(Date.now() - browser.lastUsedAtMs, { spaced: true }) ?? "0s"}`,
-        );
+        rt.log(`    Age:     ${formatAge(Date.now() - browser.createdAtMs)}`);
+        rt.log(`    Idle:    ${formatAge(Date.now() - browser.lastUsedAtMs)}`);
         rt.log(`    Session: ${browser.sessionKey}`);
         rt.log("");
       },
@@ -102,7 +90,7 @@ export function displaySummary(
   if (mismatchCount > 0) {
     runtime.log(`\n⚠️  ${mismatchCount} container(s) with image mismatch detected.`);
     runtime.log(
-      `   Run '${formatCliCommand("openclaw sandbox recreate --all")}' to update all containers.`,
+      `   Run '${formatCliCommand("moltbot sandbox recreate --all")}' to update all containers.`,
     );
   }
 }

@@ -4,8 +4,9 @@ import { request } from "node:https";
 import os from "node:os";
 import path from "node:path";
 import { pipeline } from "node:stream/promises";
-import type { RuntimeEnv } from "../runtime.js";
+
 import { runCommandWithTimeout } from "../process/exec.js";
+import type { RuntimeEnv } from "../runtime.js";
 import { CONFIG_DIR } from "../utils.js";
 
 type ReleaseAsset = {
@@ -93,9 +94,7 @@ async function downloadToFile(url: string, dest: string, maxRedirects = 5): Prom
 async function findSignalCliBinary(root: string): Promise<string | null> {
   const candidates: string[] = [];
   const enqueue = async (dir: string, depth: number) => {
-    if (depth > 3) {
-      return;
-    }
+    if (depth > 3) return;
     const entries = await fs.readdir(dir, { withFileTypes: true }).catch(() => []);
     for (const entry of entries) {
       const full = path.join(dir, entry.name);
@@ -121,7 +120,7 @@ export async function installSignalCli(runtime: RuntimeEnv): Promise<SignalInsta
   const apiUrl = "https://api.github.com/repos/AsamK/signal-cli/releases/latest";
   const response = await fetch(apiUrl, {
     headers: {
-      "User-Agent": "openclaw",
+      "User-Agent": "moltbot",
       Accept: "application/vnd.github+json",
     },
   });
@@ -147,7 +146,7 @@ export async function installSignalCli(runtime: RuntimeEnv): Promise<SignalInsta
     };
   }
 
-  const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-signal-"));
+  const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-signal-"));
   const archivePath = path.join(tmpDir, assetName);
 
   runtime.log(`Downloading signal-cli ${version} (${assetName})…`);

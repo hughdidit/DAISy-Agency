@@ -1,5 +1,4 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
-import type { OpenClawConfig } from "../config/config.js";
 import {
   resolveLineAccount,
   listLineAccountIds,
@@ -7,10 +6,7 @@ import {
   normalizeAccountId,
   DEFAULT_ACCOUNT_ID,
 } from "./accounts.js";
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
-=======
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 
 describe("LINE accounts", () => {
   const originalEnv = { ...process.env };
@@ -27,7 +23,7 @@ describe("LINE accounts", () => {
 
   describe("resolveLineAccount", () => {
     it("resolves account from config", () => {
-      const cfg: OpenClawConfig = {
+      const cfg: MoltbotConfig = {
         channels: {
           line: {
             enabled: true,
@@ -52,7 +48,7 @@ describe("LINE accounts", () => {
       process.env.LINE_CHANNEL_ACCESS_TOKEN = "env-token";
       process.env.LINE_CHANNEL_SECRET = "env-secret";
 
-      const cfg: OpenClawConfig = {
+      const cfg: MoltbotConfig = {
         channels: {
           line: {
             enabled: true,
@@ -68,7 +64,7 @@ describe("LINE accounts", () => {
     });
 
     it("resolves named account", () => {
-      const cfg: OpenClawConfig = {
+      const cfg: MoltbotConfig = {
         channels: {
           line: {
             enabled: true,
@@ -94,7 +90,7 @@ describe("LINE accounts", () => {
     });
 
     it("returns empty token when not configured", () => {
-      const cfg: OpenClawConfig = {};
+      const cfg: MoltbotConfig = {};
 
       const account = resolveLineAccount({ cfg });
 
@@ -106,7 +102,7 @@ describe("LINE accounts", () => {
 
   describe("listLineAccountIds", () => {
     it("returns default account when configured at base level", () => {
-      const cfg: OpenClawConfig = {
+      const cfg: MoltbotConfig = {
         channels: {
           line: {
             channelAccessToken: "test-token",
@@ -120,7 +116,7 @@ describe("LINE accounts", () => {
     });
 
     it("returns named accounts", () => {
-      const cfg: OpenClawConfig = {
+      const cfg: MoltbotConfig = {
         channels: {
           line: {
             accounts: {
@@ -139,7 +135,7 @@ describe("LINE accounts", () => {
 
     it("returns default from env", () => {
       process.env.LINE_CHANNEL_ACCESS_TOKEN = "env-token";
-      const cfg: OpenClawConfig = {};
+      const cfg: MoltbotConfig = {};
 
       const ids = listLineAccountIds(cfg);
 
@@ -149,7 +145,7 @@ describe("LINE accounts", () => {
 
   describe("resolveDefaultLineAccountId", () => {
     it("returns default when configured", () => {
-      const cfg: OpenClawConfig = {
+      const cfg: MoltbotConfig = {
         channels: {
           line: {
             channelAccessToken: "test-token",
@@ -163,7 +159,7 @@ describe("LINE accounts", () => {
     });
 
     it("returns first named account when default not configured", () => {
-      const cfg: OpenClawConfig = {
+      const cfg: MoltbotConfig = {
         channels: {
           line: {
             accounts: {

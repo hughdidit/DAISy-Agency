@@ -1,17 +1,13 @@
-import type { OpenClawConfig } from "../config/config.js";
 import { resolveTextChunkLimit } from "../auto-reply/chunk.js";
 import { getChannelDock } from "../channels/dock.js";
-<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
-=======
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { normalizeAccountId } from "../routing/session-key.js";
 
 const DEFAULT_TELEGRAM_DRAFT_STREAM_MIN = 200;
 const DEFAULT_TELEGRAM_DRAFT_STREAM_MAX = 800;
 
 export function resolveTelegramDraftStreamingChunking(
-  cfg: OpenClawConfig | undefined,
+  cfg: MoltbotConfig | undefined,
   accountId?: string | null,
 ): {
   minChars: number;

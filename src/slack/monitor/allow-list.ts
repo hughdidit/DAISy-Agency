@@ -2,9 +2,7 @@ import type { AllowlistMatch } from "../../channels/allowlist-match.js";
 
 export function normalizeSlackSlug(raw?: string) {
   const trimmed = raw?.trim().toLowerCase() ?? "";
-  if (!trimmed) {
-    return "";
-  }
+  if (!trimmed) return "";
   const dashed = trimmed.replace(/\s+/g, "-");
   const cleaned = dashed.replace(/[^a-z0-9#@._+-]+/g, "-");
   return cleaned.replace(/-{2,}/g, "-").replace(/^[-.]+|[-.]+$/g, "");
@@ -28,9 +26,7 @@ export function resolveSlackAllowListMatch(params: {
   name?: string;
 }): SlackAllowListMatch {
   const allowList = params.allowList;
-  if (allowList.length === 0) {
-    return { allowed: false };
-  }
+  if (allowList.length === 0) return { allowed: false };
   if (allowList.includes("*")) {
     return { allowed: true, matchKey: "*", matchSource: "wildcard" };
   }
@@ -46,9 +42,7 @@ export function resolveSlackAllowListMatch(params: {
     { value: slug, source: "slug" },
   ];
   for (const candidate of candidates) {
-    if (!candidate.value) {
-      continue;
-    }
+    if (!candidate.value) continue;
     if (allowList.includes(candidate.value)) {
       return {
         allowed: true,
@@ -70,9 +64,7 @@ export function resolveSlackUserAllowed(params: {
   userName?: string;
 }) {
   const allowList = normalizeAllowListLower(params.allowList);
-  if (allowList.length === 0) {
-    return true;
-  }
+  if (allowList.length === 0) return true;
   return allowListMatches({
     allowList,
     id: params.userId,

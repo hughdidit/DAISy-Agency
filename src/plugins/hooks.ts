@@ -84,7 +84,7 @@ function getHooksForName<K extends PluginHookName>(
 ): PluginHookRegistration<K>[] {
   return (registry.typedHooks as PluginHookRegistration<K>[])
     .filter((h) => h.hookName === hookName)
-    .toSorted((a, b) => (b.priority ?? 0) - (a.priority ?? 0));
+    .sort((a, b) => (b.priority ?? 0) - (a.priority ?? 0));
 }
 
 /**
@@ -104,9 +104,7 @@ export function createHookRunner(registry: PluginRegistry, options: HookRunnerOp
     ctx: Parameters<NonNullable<PluginHookRegistration<K>["handler"]>>[1],
   ): Promise<void> {
     const hooks = getHooksForName(registry, hookName);
-    if (hooks.length === 0) {
-      return;
-    }
+    if (hooks.length === 0) return;
 
     logger?.debug?.(`[hooks] running ${hookName} (${hooks.length} handlers)`);
 
@@ -118,7 +116,7 @@ export function createHookRunner(registry: PluginRegistry, options: HookRunnerOp
         if (catchErrors) {
           logger?.error(msg);
         } else {
-          throw new Error(msg, { cause: err });
+          throw new Error(msg);
         }
       }
     });
@@ -137,9 +135,7 @@ export function createHookRunner(registry: PluginRegistry, options: HookRunnerOp
     mergeResults?: (accumulated: TResult | undefined, next: TResult) => TResult,
   ): Promise<TResult | undefined> {
     const hooks = getHooksForName(registry, hookName);
-    if (hooks.length === 0) {
-      return undefined;
-    }
+    if (hooks.length === 0) return undefined;
 
     logger?.debug?.(`[hooks] running ${hookName} (${hooks.length} handlers, sequential)`);
 
@@ -163,7 +159,7 @@ export function createHookRunner(registry: PluginRegistry, options: HookRunnerOp
         if (catchErrors) {
           logger?.error(msg);
         } else {
-          throw new Error(msg, { cause: err });
+          throw new Error(msg);
         }
       }
     }
@@ -327,22 +323,18 @@ export function createHookRunner(registry: PluginRegistry, options: HookRunnerOp
     ctx: PluginHookToolResultPersistContext,
   ): PluginHookToolResultPersistResult | undefined {
     const hooks = getHooksForName(registry, "tool_result_persist");
-    if (hooks.length === 0) {
-      return undefined;
-    }
+    if (hooks.length === 0) return undefined;
 
     let current = event.message;
 
     for (const hook of hooks) {
       try {
-        // oxlint-disable-next-line typescript/no-explicit-any
         const out = (hook.handler as any)({ ...event, message: current }, ctx) as
           | PluginHookToolResultPersistResult
           | void
           | Promise<unknown>;
 
         // Guard against accidental async handlers (this hook is sync-only).
-        // oxlint-disable-next-line typescript/no-explicit-any
         if (out && typeof (out as any).then === "function") {
           const msg =
             `[hooks] tool_result_persist handler from ${hook.pluginId} returned a Promise; ` +
@@ -355,15 +347,13 @@ export function createHookRunner(registry: PluginRegistry, options: HookRunnerOp
         }
 
         const next = (out as PluginHookToolResultPersistResult | undefined)?.message;
-        if (next) {
-          current = next;
-        }
+        if (next) current = next;
       } catch (err) {
         const msg = `[hooks] tool_result_persist handler from ${hook.pluginId} failed: ${String(err)}`;
         if (catchErrors) {
           logger?.error(msg);
         } else {
-          throw new Error(msg, { cause: err });
+          throw new Error(msg);
         }
       }
     }

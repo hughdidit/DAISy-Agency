@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
+
 import { waitForTransportReady } from "./transport-ready.js";
 
 describe("waitForTransportReady", () => {
@@ -14,9 +15,7 @@ describe("waitForTransportReady", () => {
       runtime,
       check: async () => {
         attempts += 1;
-        if (attempts > 4) {
-          return { ok: true };
-        }
+        if (attempts > 4) return { ok: true };
         return { ok: false, error: "not ready" };
       },
     });

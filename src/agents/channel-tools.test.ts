@@ -1,14 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../config/config.js";
-=======
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { ChannelPlugin } from "../channels/plugins/types.js";
-import type { OpenClawConfig } from "../config/config.js";
 import { setActivePluginRegistry } from "../plugins/runtime.js";
-import { defaultRuntime } from "../runtime.js";
 import { createTestRegistry } from "../test-utils/channel-plugins.js";
+import { defaultRuntime } from "../runtime.js";
 import { __testing, listAllChannelSupportedActions } from "./channel-tools.js";
 
 describe("channel tools", () => {
@@ -47,7 +43,7 @@ describe("channel tools", () => {
   });
 
   it("skips crashing plugins and logs once", () => {
-    const cfg = {} as OpenClawConfig;
+    const cfg = {} as MoltbotConfig;
     expect(listAllChannelSupportedActions({ cfg })).toEqual([]);
     expect(errorSpy).toHaveBeenCalledTimes(1);
 

@@ -272,9 +272,7 @@ class OpenAIRealtimeSTTSession implements RealtimeSTTSession {
   }
 
   sendAudio(muLawData: Buffer): void {
-    if (!this.connected) {
-      return;
-    }
+    if (!this.connected) return;
     this.sendEvent({
       type: "input_audio_buffer.append",
       audio: muLawData.toString("base64"),

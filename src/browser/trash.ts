@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+
 import { runExec } from "../process/exec.js";
 
 export async function movePathToTrash(targetPath: string): Promise<string> {

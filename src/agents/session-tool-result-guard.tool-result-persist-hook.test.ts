@@ -1,16 +1,13 @@
-import type { AgentMessage } from "@mariozechner/pi-agent-core";
-import { SessionManager } from "@mariozechner/pi-coding-agent";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+
+import type { AgentMessage } from "@mariozechner/pi-agent-core";
+import { SessionManager } from "@mariozechner/pi-coding-agent";
 import { describe, expect, it, afterEach } from "vitest";
-<<<<<<< HEAD
 
 import { loadMoltbotPlugins } from "../plugins/loader.js";
-=======
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { resetGlobalHookRunner } from "../plugins/hook-runner-global.js";
-import { loadOpenClawPlugins } from "../plugins/loader.js";
 import { guardSessionManager } from "./session-tool-result-guard-wrapper.js";
 
 const EMPTY_PLUGIN_SCHEMA = { type: "object", additionalProperties: false, properties: {} };
@@ -21,7 +18,7 @@ function writeTempPlugin(params: { dir: string; id: string; body: string }): str
   const file = path.join(pluginDir, `${params.id}.mjs`);
   fs.writeFileSync(file, params.body, "utf-8");
   fs.writeFileSync(
-    path.join(pluginDir, "openclaw.plugin.json"),
+    path.join(pluginDir, "moltbot.plugin.json"),
     JSON.stringify(
       {
         id: params.id,
@@ -57,7 +54,6 @@ describe("tool_result_persist hook", () => {
       isError: false,
       content: [{ type: "text", text: "ok" }],
       details: { big: "x".repeat(10_000) },
-      // oxlint-disable-next-line typescript/no-explicit-any
     } as any);
 
     const messages = sm
@@ -65,15 +61,14 @@ describe("tool_result_persist hook", () => {
       .filter((e) => e.type === "message")
       .map((e) => (e as { message: AgentMessage }).message);
 
-    // oxlint-disable-next-line typescript/no-explicit-any
     const toolResult = messages.find((m) => (m as any).role === "toolResult") as any;
     expect(toolResult).toBeTruthy();
     expect(toolResult.details).toBeTruthy();
   });
 
   it("composes transforms in priority order and allows stripping toolResult.details", () => {
-    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-toolpersist-"));
-    process.env.OPENCLAW_BUNDLED_PLUGINS_DIR = "/nonexistent/bundled/plugins";
+    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "moltbot-toolpersist-"));
+    process.env.CLAWDBOT_BUNDLED_PLUGINS_DIR = "/nonexistent/bundled/plugins";
 
     const pluginA = writeTempPlugin({
       dir: tmp,
@@ -99,7 +94,7 @@ describe("tool_result_persist hook", () => {
 } };`,
     });
 
-    loadOpenClawPlugins({
+    loadMoltbotPlugins({
       cache: false,
       workspaceDir: tmp,
       config: {
@@ -128,7 +123,6 @@ describe("tool_result_persist hook", () => {
       isError: false,
       content: [{ type: "text", text: "ok" }],
       details: { big: "x".repeat(10_000) },
-      // oxlint-disable-next-line typescript/no-explicit-any
     } as any);
 
     const messages = sm
@@ -136,7 +130,6 @@ describe("tool_result_persist hook", () => {
       .filter((e) => e.type === "message")
       .map((e) => (e as { message: AgentMessage }).message);
 
-    // oxlint-disable-next-line typescript/no-explicit-any
     const toolResult = messages.find((m) => (m as any).role === "toolResult") as any;
     expect(toolResult).toBeTruthy();
 

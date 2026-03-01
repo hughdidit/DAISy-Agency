@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+
 import { probeIMessage } from "./probe.js";
 
 const detectBinaryMock = vi.hoisted(() => vi.fn());

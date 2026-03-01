@@ -10,13 +10,9 @@
  * - Registry integration
  */
 
-import type { OpenClawConfig } from "openclaw/plugin-sdk";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { sendMessageTwitchInternal } from "./send.js";
-<<<<<<< HEAD
 import type { MoltbotConfig } from "clawdbot/plugin-sdk";
-=======
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 
 // Mock dependencies
 vi.mock("./config.js", () => ({
@@ -61,7 +57,7 @@ describe("send", () => {
         },
       },
     },
-  } as unknown as OpenClawConfig;
+  } as unknown as MoltbotConfig;
 
   beforeEach(() => {
     vi.clearAllMocks();

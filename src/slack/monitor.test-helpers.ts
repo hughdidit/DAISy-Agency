@@ -1,16 +1,8 @@
-import { Mock, vi } from "vitest";
+import { vi } from "vitest";
 
 type SlackHandler = (args: unknown) => Promise<void>;
 
-const slackTestState: {
-  config: Record<string, unknown>;
-  sendMock: Mock<(...args: unknown[]) => Promise<unknown>>;
-  replyMock: Mock<(...args: unknown[]) => unknown>;
-  updateLastRouteMock: Mock<(...args: unknown[]) => unknown>;
-  reactMock: Mock<(...args: unknown[]) => unknown>;
-  readAllowFromStoreMock: Mock<(...args: unknown[]) => Promise<unknown>>;
-  upsertPairingRequestMock: Mock<(...args: unknown[]) => Promise<unknown>>;
-} = vi.hoisted(() => ({
+const slackTestState = vi.hoisted(() => ({
   config: {} as Record<string, unknown>,
   sendMock: vi.fn(),
   replyMock: vi.fn(),
@@ -20,7 +12,7 @@ const slackTestState: {
   upsertPairingRequestMock: vi.fn(),
 }));
 
-export const getSlackTestState: () => void = () => slackTestState;
+export const getSlackTestState = () => slackTestState;
 
 export const getSlackHandlers = () =>
   (
@@ -36,9 +28,7 @@ export const flush = () => new Promise((resolve) => setTimeout(resolve, 0));
 
 export async function waitForSlackEvent(name: string) {
   for (let i = 0; i < 10; i += 1) {
-    if (getSlackHandlers()?.has(name)) {
-      return;
-    }
+    if (getSlackHandlers()?.has(name)) return;
     await flush();
   }
 }
@@ -104,7 +94,7 @@ vi.mock("../pairing/pairing-store.js", () => ({
 }));
 
 vi.mock("../config/sessions.js", () => ({
-  resolveStorePath: vi.fn(() => "/tmp/openclaw-sessions.json"),
+  resolveStorePath: vi.fn(() => "/tmp/moltbot-sessions.json"),
   updateLastRoute: (...args: unknown[]) => slackTestState.updateLastRouteMock(...args),
   resolveSessionKey: vi.fn(),
   readSessionUpdatedAt: vi.fn(() => undefined),

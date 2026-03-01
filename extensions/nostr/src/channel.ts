@@ -3,17 +3,9 @@ import {
   DEFAULT_ACCOUNT_ID,
   formatPairingApproveHint,
   type ChannelPlugin,
-<<<<<<< HEAD
 } from "clawdbot/plugin-sdk";
 
-=======
-} from "openclaw/plugin-sdk";
-import type { NostrProfile } from "./config-schema.js";
-import type { MetricEvent, MetricsSnapshot } from "./metrics.js";
-import type { ProfilePublishResult } from "./nostr-profile.js";
->>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { NostrConfigSchema } from "./config-schema.js";
-import { normalizePubkey, startNostrBus, type NostrBusHandle } from "./nostr-bus.js";
 import { getNostrRuntime } from "./runtime.js";
 import {
   listNostrAccountIds,
@@ -21,6 +13,10 @@ import {
   resolveNostrAccount,
   type ResolvedNostrAccount,
 } from "./types.js";
+import { normalizePubkey, startNostrBus, type NostrBusHandle } from "./nostr-bus.js";
+import type { MetricEvent, MetricsSnapshot } from "./metrics.js";
+import type { NostrProfile } from "./config-schema.js";
+import type { ProfilePublishResult } from "./nostr-profile.js";
 
 // Store active bus handles per account
 const activeBuses = new Map<string, NostrBusHandle>();
@@ -60,16 +56,14 @@ export const nostrPlugin: ChannelPlugin<ResolvedNostrAccount> = {
     }),
     resolveAllowFrom: ({ cfg, accountId }) =>
       (resolveNostrAccount({ cfg, accountId }).config.allowFrom ?? []).map((entry) =>
-        String(entry),
+        String(entry)
       ),
     formatAllowFrom: ({ allowFrom }) =>
       allowFrom
         .map((entry) => String(entry).trim())
         .filter(Boolean)
         .map((entry) => {
-          if (entry === "*") {
-            return "*";
-          }
+          if (entry === "*") return "*";
           try {
             return normalizePubkey(entry);
           } catch {
@@ -168,9 +162,7 @@ export const nostrPlugin: ChannelPlugin<ResolvedNostrAccount> = {
     collectStatusIssues: (accounts) =>
       accounts.flatMap((account) => {
         const lastError = typeof account.lastError === "string" ? account.lastError.trim() : "";
-        if (!lastError) {
-          return [];
-        }
+        if (!lastError) return [];
         return [
           {
             channel: "nostr",
@@ -211,9 +203,7 @@ export const nostrPlugin: ChannelPlugin<ResolvedNostrAccount> = {
         accountId: account.accountId,
         publicKey: account.publicKey,
       });
-      ctx.log?.info(
-        `[${account.accountId}] starting Nostr provider (pubkey: ${account.publicKey})`,
-      );
+      ctx.log?.info(`[${account.accountId}] starting Nostr provider (pubkey: ${account.publicKey})`);
 
       if (!account.configured) {
         throw new Error("Nostr private key not configured");
@@ -231,7 +221,7 @@ export const nostrPlugin: ChannelPlugin<ResolvedNostrAccount> = {
         onMessage: async (senderPubkey, text, reply) => {
           ctx.log?.debug(`[${account.accountId}] DM from ${senderPubkey}: ${text.slice(0, 50)}...`);
 
-          // Forward to OpenClaw's message pipeline
+          // Forward to moltbot's message pipeline
           await runtime.channel.reply.handleInboundMessage({
             channel: "nostr",
             accountId: account.accountId,
@@ -261,13 +251,9 @@ export const nostrPlugin: ChannelPlugin<ResolvedNostrAccount> = {
           if (event.name.startsWith("event.rejected.")) {
             ctx.log?.debug(`[${account.accountId}] Metric: ${event.name}`, event.labels);
           } else if (event.name === "relay.circuit_breaker.open") {
-            ctx.log?.warn(
-              `[${account.accountId}] Circuit breaker opened for relay: ${event.labels?.relay}`,
-            );
+            ctx.log?.warn(`[${account.accountId}] Circuit breaker opened for relay: ${event.labels?.relay}`);
           } else if (event.name === "relay.circuit_breaker.close") {
-            ctx.log?.info(
-              `[${account.accountId}] Circuit breaker closed for relay: ${event.labels?.relay}`,
-            );
+            ctx.log?.info(`[${account.accountId}] Circuit breaker closed for relay: ${event.labels?.relay}`);
           } else if (event.name === "relay.error") {
             ctx.log?.debug(`[${account.accountId}] Relay error: ${event.labels?.relay}`);
           }
@@ -283,9 +269,7 @@ export const nostrPlugin: ChannelPlugin<ResolvedNostrAccount> = {
       // Store the bus handle
       activeBuses.set(account.accountId, bus);
 
-      ctx.log?.info(
-        `[${account.accountId}] Nostr provider started, connected to ${account.relays.length} relay(s)`,
-      );
+      ctx.log?.info(`[${account.accountId}] Nostr provider started, connected to ${account.relays.length} relay(s)`);
 
       // Return cleanup function
       return {
@@ -304,9 +288,7 @@ export const nostrPlugin: ChannelPlugin<ResolvedNostrAccount> = {
  * Get metrics snapshot for a Nostr account.
  * Returns undefined if account is not running.
  */
-export function getNostrMetrics(
-  accountId: string = DEFAULT_ACCOUNT_ID,
-): MetricsSnapshot | undefined {
+export function getNostrMetrics(accountId: string = DEFAULT_ACCOUNT_ID): MetricsSnapshot | undefined {
   const bus = activeBuses.get(accountId);
   if (bus) {
     return bus.getMetrics();
@@ -331,7 +313,7 @@ export function getActiveNostrBuses(): Map<string, NostrBusHandle> {
  */
 export async function publishNostrProfile(
   accountId: string = DEFAULT_ACCOUNT_ID,
-  profile: NostrProfile,
+  profile: NostrProfile
 ): Promise<ProfilePublishResult> {
   const bus = activeBuses.get(accountId);
   if (!bus) {
@@ -345,7 +327,9 @@ export async function publishNostrProfile(
  * @param accountId - Account ID (defaults to "default")
  * @returns Profile publish state or null if account not running
  */
-export async function getNostrProfileState(accountId: string = DEFAULT_ACCOUNT_ID): Promise<{
+export async function getNostrProfileState(
+  accountId: string = DEFAULT_ACCOUNT_ID
+): Promise<{
   lastPublishedAt: number | null;
   lastPublishedEventId: string | null;
   lastPublishResults: Record<string, "ok" | "failed" | "timeout"> | null;

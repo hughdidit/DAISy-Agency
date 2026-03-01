@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
+
 import {
   removeAckReactionAfterReply,
   shouldAckReaction,
@@ -237,7 +238,7 @@ describe("removeAckReactionAfterReply", () => {
       remove,
       onError,
     });
-    await sleep(0);
+    await new Promise((resolve) => setTimeout(resolve, 0));
     expect(remove).toHaveBeenCalledTimes(1);
     expect(onError).not.toHaveBeenCalled();
   });
@@ -250,7 +251,7 @@ describe("removeAckReactionAfterReply", () => {
       ackReactionValue: "👀",
       remove,
     });
-    await sleep(0);
+    await new Promise((resolve) => setTimeout(resolve, 0));
     expect(remove).not.toHaveBeenCalled();
   });
 
@@ -262,7 +263,7 @@ describe("removeAckReactionAfterReply", () => {
       ackReactionValue: "👀",
       remove,
     });
-    await sleep(0);
+    await new Promise((resolve) => setTimeout(resolve, 0));
     expect(remove).not.toHaveBeenCalled();
   });
 });

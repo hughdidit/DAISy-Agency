@@ -39,9 +39,7 @@ async function waitForNonEmptyFile(pathname: string, timeoutMs = 2000) {
   const startedAt = process.hrtime.bigint();
   for (;;) {
     const raw = await fs.readFile(pathname, "utf-8").catch(() => "");
-    if (raw.trim().length > 0) {
-      return raw;
-    }
+    if (raw.trim().length > 0) return raw;
     const elapsedMs = Number(process.hrtime.bigint() - startedAt) / 1e6;
     if (elapsedMs >= timeoutMs) {
       throw new Error(`timeout waiting for file ${pathname}`);
@@ -52,9 +50,9 @@ async function waitForNonEmptyFile(pathname: string, timeoutMs = 2000) {
 
 describe("gateway server cron", () => {
   test("handles cron CRUD, normalization, and patch semantics", { timeout: 120_000 }, async () => {
-    const prevSkipCron = process.env.OPENCLAW_SKIP_CRON;
-    process.env.OPENCLAW_SKIP_CRON = "0";
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-gw-cron-"));
+    const prevSkipCron = process.env.CLAWDBOT_SKIP_CRON;
+    process.env.CLAWDBOT_SKIP_CRON = "0";
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-gw-cron-"));
     testState.cronStorePath = path.join(dir, "cron", "jobs.json");
     testState.sessionConfig = { mainKey: "primary" };
     testState.cronEnabled = false;
@@ -89,7 +87,7 @@ describe("gateway server cron", () => {
       const routeRes = await rpcReq(ws, "cron.add", {
         name: "route test",
         enabled: true,
-        schedule: { kind: "at", at: new Date(routeAtMs).toISOString() },
+        schedule: { kind: "at", atMs: routeAtMs },
         sessionTarget: "main",
         wakeMode: "next-heartbeat",
         payload: { kind: "systemEvent", text: "cron route check" },
@@ -108,7 +106,7 @@ describe("gateway server cron", () => {
       const wrappedRes = await rpcReq(ws, "cron.add", {
         data: {
           name: "wrapped",
-          schedule: { at: new Date(wrappedAtMs).toISOString() },
+          schedule: { atMs: wrappedAtMs },
           payload: { kind: "systemEvent", text: "hello" },
         },
       });
@@ -117,7 +115,7 @@ describe("gateway server cron", () => {
         | { schedule?: unknown; sessionTarget?: unknown; wakeMode?: unknown }
         | undefined;
       expect(wrappedPayload?.sessionTarget).toBe("main");
-      expect(wrappedPayload?.wakeMode).toBe("now");
+      expect(wrappedPayload?.wakeMode).toBe("next-heartbeat");
       expect((wrappedPayload?.schedule as { kind?: unknown } | undefined)?.kind).toBe("at");
 
       const patchRes = await rpcReq(ws, "cron.add", {
@@ -137,7 +135,7 @@ describe("gateway server cron", () => {
       const updateRes = await rpcReq(ws, "cron.update", {
         id: patchJobId,
         patch: {
-          schedule: { at: new Date(atMs).toISOString() },
+          schedule: { atMs },
           payload: { kind: "systemEvent", text: "updated" },
         },
       });
@@ -164,48 +162,28 @@ describe("gateway server cron", () => {
       const mergeUpdateRes = await rpcReq(ws, "cron.update", {
         id: mergeJobId,
         patch: {
-          delivery: { mode: "announce", channel: "telegram", to: "19098680" },
+          payload: { kind: "agentTurn", deliver: true, channel: "telegram", to: "19098680" },
         },
       });
       expect(mergeUpdateRes.ok).toBe(true);
       const merged = mergeUpdateRes.payload as
         | {
-            payload?: { kind?: unknown; message?: unknown; model?: unknown };
-            delivery?: { mode?: unknown; channel?: unknown; to?: unknown };
+            payload?: {
+              kind?: unknown;
+              message?: unknown;
+              model?: unknown;
+              deliver?: unknown;
+              channel?: unknown;
+              to?: unknown;
+            };
           }
         | undefined;
       expect(merged?.payload?.kind).toBe("agentTurn");
       expect(merged?.payload?.message).toBe("hello");
       expect(merged?.payload?.model).toBe("opus");
-      expect(merged?.delivery?.mode).toBe("announce");
-      expect(merged?.delivery?.channel).toBe("telegram");
-      expect(merged?.delivery?.to).toBe("19098680");
-
-      const legacyDeliveryPatchRes = await rpcReq(ws, "cron.update", {
-        id: mergeJobId,
-        patch: {
-          payload: {
-            kind: "agentTurn",
-            deliver: true,
-            channel: "signal",
-            to: "+15550001111",
-            bestEffortDeliver: true,
-          },
-        },
-      });
-      expect(legacyDeliveryPatchRes.ok).toBe(true);
-      const legacyDeliveryPatched = legacyDeliveryPatchRes.payload as
-        | {
-            payload?: { kind?: unknown; message?: unknown };
-            delivery?: { mode?: unknown; channel?: unknown; to?: unknown; bestEffort?: unknown };
-          }
-        | undefined;
-      expect(legacyDeliveryPatched?.payload?.kind).toBe("agentTurn");
-      expect(legacyDeliveryPatched?.payload?.message).toBe("hello");
-      expect(legacyDeliveryPatched?.delivery?.mode).toBe("announce");
-      expect(legacyDeliveryPatched?.delivery?.channel).toBe("signal");
-      expect(legacyDeliveryPatched?.delivery?.to).toBe("+15550001111");
-      expect(legacyDeliveryPatched?.delivery?.bestEffort).toBe(true);
+      expect(merged?.payload?.deliver).toBe(true);
+      expect(merged?.payload?.channel).toBe("telegram");
+      expect(merged?.payload?.to).toBe("19098680");
 
       const rejectRes = await rpcReq(ws, "cron.add", {
         name: "patch reject",
@@ -223,7 +201,7 @@ describe("gateway server cron", () => {
       const rejectUpdateRes = await rpcReq(ws, "cron.update", {
         id: rejectJobId,
         patch: {
-          payload: { kind: "agentTurn", message: "nope" },
+          payload: { kind: "agentTurn", deliver: true },
         },
       });
       expect(rejectUpdateRes.ok).toBe(false);
@@ -244,7 +222,7 @@ describe("gateway server cron", () => {
       const jobIdUpdateRes = await rpcReq(ws, "cron.update", {
         jobId,
         patch: {
-          schedule: { at: new Date(Date.now() + 2_000).toISOString() },
+          schedule: { atMs: Date.now() + 2_000 },
           payload: { kind: "systemEvent", text: "updated" },
         },
       });
@@ -278,17 +256,17 @@ describe("gateway server cron", () => {
       testState.sessionConfig = undefined;
       testState.cronEnabled = undefined;
       if (prevSkipCron === undefined) {
-        delete process.env.OPENCLAW_SKIP_CRON;
+        delete process.env.CLAWDBOT_SKIP_CRON;
       } else {
-        process.env.OPENCLAW_SKIP_CRON = prevSkipCron;
+        process.env.CLAWDBOT_SKIP_CRON = prevSkipCron;
       }
     }
   });
 
   test("writes cron run history and auto-runs due jobs", async () => {
-    const prevSkipCron = process.env.OPENCLAW_SKIP_CRON;
-    process.env.OPENCLAW_SKIP_CRON = "0";
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-gw-cron-log-"));
+    const prevSkipCron = process.env.CLAWDBOT_SKIP_CRON;
+    process.env.CLAWDBOT_SKIP_CRON = "0";
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-gw-cron-log-"));
     testState.cronStorePath = path.join(dir, "cron", "jobs.json");
     testState.cronEnabled = undefined;
     await fs.mkdir(path.dirname(testState.cronStorePath), { recursive: true });
@@ -302,7 +280,7 @@ describe("gateway server cron", () => {
       const addRes = await rpcReq(ws, "cron.add", {
         name: "log test",
         enabled: true,
-        schedule: { kind: "at", at: new Date(atMs).toISOString() },
+        schedule: { kind: "at", atMs },
         sessionTarget: "main",
         wakeMode: "next-heartbeat",
         payload: { kind: "systemEvent", text: "hello" },
@@ -351,7 +329,7 @@ describe("gateway server cron", () => {
       const autoRes = await rpcReq(ws, "cron.add", {
         name: "auto run test",
         enabled: true,
-        schedule: { kind: "at", at: new Date(Date.now() - 10).toISOString() },
+        schedule: { kind: "at", atMs: Date.now() - 10 },
         sessionTarget: "main",
         wakeMode: "next-heartbeat",
         payload: { kind: "systemEvent", text: "auto" },
@@ -375,9 +353,9 @@ describe("gateway server cron", () => {
       testState.cronStorePath = undefined;
       testState.cronEnabled = undefined;
       if (prevSkipCron === undefined) {
-        delete process.env.OPENCLAW_SKIP_CRON;
+        delete process.env.CLAWDBOT_SKIP_CRON;
       } else {
-        process.env.OPENCLAW_SKIP_CRON = prevSkipCron;
+        process.env.CLAWDBOT_SKIP_CRON = prevSkipCron;
       }
     }
   }, 45_000);
