@@ -137,6 +137,7 @@ export const cronHandlers: GatewayRequestHandlers = {
       return;
     }
     const job = await context.cron.add(jobCreate);
+    context.logGateway.info("cron: job created", { jobId: job.id, schedule: jobCreate.schedule });
     respond(true, job, undefined);
   },
   "cron.update": async ({ params, respond, context }) => {
@@ -183,6 +184,7 @@ export const cronHandlers: GatewayRequestHandlers = {
       }
     }
     const job = await context.cron.update(jobId, patch);
+    context.logGateway.info("cron: job updated", { jobId });
     respond(true, job, undefined);
   },
   "cron.remove": async ({ params, respond, context }) => {
@@ -208,6 +210,9 @@ export const cronHandlers: GatewayRequestHandlers = {
       return;
     }
     const result = await context.cron.remove(jobId);
+    if (result.removed) {
+      context.logGateway.info("cron: job removed", { jobId });
+    }
     respond(true, result, undefined);
   },
   "cron.run": async ({ params, respond, context }) => {
