@@ -2,7 +2,11 @@ import com.android.build.api.variant.impl.VariantOutputImpl
 
 plugins {
   id("com.android.application")
+<<<<<<< HEAD
   id("org.jetbrains.kotlin.android")
+=======
+  id("org.jlleitschuh.gradle.ktlint")
+>>>>>>> 7f9274b71 (chore(android): add kotlin lint/format tooling)
   id("org.jetbrains.kotlin.plugin.compose")
   id("org.jetbrains.kotlin.plugin.serialization")
 }
@@ -93,6 +97,15 @@ kotlin {
   compilerOptions {
     jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
     allWarningsAsErrors.set(true)
+  }
+}
+
+ktlint {
+  android.set(true)
+  ignoreFailures.set(false)
+  filter {
+    exclude("**/build/**")
+    exclude("**/*.kts")
   }
 }
 

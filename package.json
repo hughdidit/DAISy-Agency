@@ -143,7 +143,10 @@
     "dev": "node scripts/run-node.mjs",
 =======
     "android:assemble": "cd apps/android && ./gradlew :app:assembleDebug",
+    "android:format": "cd apps/android && ./gradlew :app:ktlintFormat :benchmark:ktlintFormat",
     "android:install": "cd apps/android && ./gradlew :app:installDebug",
+    "android:lint": "cd apps/android && ./gradlew :app:ktlintCheck :benchmark:ktlintCheck",
+    "android:lint:android": "cd apps/android && ./gradlew :app:lintDebug",
     "android:run": "cd apps/android && ./gradlew :app:installDebug && adb shell am start -n ai.openclaw.android/.MainActivity",
     "android:test": "cd apps/android && ./gradlew :app:testDebugUnitTest",
     "build": "pnpm canvas:a2ui:bundle && tsc -p tsconfig.json --noEmit false && node --import tsx scripts/canvas-a2ui-copy.ts && node --import tsx scripts/copy-hook-metadata.ts && node --import tsx scripts/write-build-info.ts",
