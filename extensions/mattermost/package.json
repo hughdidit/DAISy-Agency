@@ -1,26 +1,9 @@
 {
-  "name": "@openclaw/mattermost",
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-  "version": "2026.2.9",
-=======
-  "version": "2026.2.13",
-  "private": true,
->>>>>>> 67251e97b (fix(ci): sync extension versions to root release (#15199))
-=======
-  "version": "2026.2.21",
->>>>>>> bdfb97afa (chore: prep 2026.2.22 unreleased and publish new npm plugins)
-=======
-  "version": "2026.2.24",
->>>>>>> 955cc9029 (chore: sync plugin versions to 2026.2.24)
-=======
-  "version": "2026.2.25",
->>>>>>> 2652bb1d7 (Release: sync plugin versions to 2026.2.25)
-  "description": "OpenClaw Mattermost channel plugin",
+  "name": "@moltbot/mattermost",
+  "version": "2026.1.27-beta.1",
   "type": "module",
-  "openclaw": {
+  "description": "Moltbot Mattermost channel plugin",
+  "moltbot": {
     "extensions": [
       "./index.ts"
     ],
@@ -34,7 +17,7 @@
       "order": 65
     },
     "install": {
-      "npmSpec": "@openclaw/mattermost",
+      "npmSpec": "@moltbot/mattermost",
       "localPath": "extensions/mattermost",
       "defaultChoice": "npm"
     }

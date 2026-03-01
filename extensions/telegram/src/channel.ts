@@ -23,47 +23,13 @@ import {
   TelegramConfigSchema,
   type ChannelMessageActionAdapter,
   type ChannelPlugin,
-  type OpenClawConfig,
+  type MoltbotConfig,
   type ResolvedTelegramAccount,
-  type TelegramProbe,
-} from "openclaw/plugin-sdk";
+} from "clawdbot/plugin-sdk";
+
 import { getTelegramRuntime } from "./runtime.js";
 
 const meta = getChatChannelMeta("telegram");
-
-function findTelegramTokenOwnerAccountId(params: {
-  cfg: OpenClawConfig;
-  accountId: string;
-}): string | null {
-  const normalizedAccountId = normalizeAccountId(params.accountId);
-  const tokenOwners = new Map<string, string>();
-  for (const id of listTelegramAccountIds(params.cfg)) {
-    const account = resolveTelegramAccount({ cfg: params.cfg, accountId: id });
-    const token = account.token.trim();
-    if (!token) {
-      continue;
-    }
-    const ownerAccountId = tokenOwners.get(token);
-    if (!ownerAccountId) {
-      tokenOwners.set(token, account.accountId);
-      continue;
-    }
-    if (account.accountId === normalizedAccountId) {
-      return ownerAccountId;
-    }
-  }
-  return null;
-}
-
-function formatDuplicateTelegramTokenReason(params: {
-  accountId: string;
-  ownerAccountId: string;
-}): string {
-  return (
-    `Duplicate Telegram bot token: account "${params.accountId}" shares a token with ` +
-    `account "${params.ownerAccountId}". Keep one owner account per bot token.`
-  );
-}
 
 const telegramMessageActions: ChannelMessageActionAdapter = {
   listActions: (ctx) => getTelegramRuntime().channel.telegram.messageActions.listActions(ctx),
@@ -74,28 +40,22 @@ const telegramMessageActions: ChannelMessageActionAdapter = {
 };
 
 function parseReplyToMessageId(replyToId?: string | null) {
-  if (!replyToId) {
-    return undefined;
-  }
+  if (!replyToId) return undefined;
   const parsed = Number.parseInt(replyToId, 10);
   return Number.isFinite(parsed) ? parsed : undefined;
 }
 
 function parseThreadId(threadId?: string | number | null) {
-  if (threadId == null) {
-    return undefined;
-  }
+  if (threadId == null) return undefined;
   if (typeof threadId === "number") {
     return Number.isFinite(threadId) ? Math.trunc(threadId) : undefined;
   }
   const trimmed = threadId.trim();
-  if (!trimmed) {
-    return undefined;
-  }
+  if (!trimmed) return undefined;
   const parsed = Number.parseInt(trimmed, 10);
   return Number.isFinite(parsed) ? parsed : undefined;
 }
-export const telegramPlugin: ChannelPlugin<ResolvedTelegramAccount, TelegramProbe> = {
+export const telegramPlugin: ChannelPlugin<ResolvedTelegramAccount> = {
   id: "telegram",
   meta: {
     ...meta,
@@ -107,16 +67,10 @@ export const telegramPlugin: ChannelPlugin<ResolvedTelegramAccount, TelegramProb
     normalizeAllowEntry: (entry) => entry.replace(/^(telegram|tg):/i, ""),
     notifyApproval: async ({ cfg, id }) => {
       const { token } = getTelegramRuntime().channel.telegram.resolveTelegramToken(cfg);
-      if (!token) {
-        throw new Error("telegram token not configured");
-      }
-      await getTelegramRuntime().channel.telegram.sendMessageTelegram(
-        id,
-        PAIRING_APPROVED_MESSAGE,
-        {
-          token,
-        },
-      );
+      if (!token) throw new Error("telegram token not configured");
+      await getTelegramRuntime().channel.telegram.sendMessageTelegram(id, PAIRING_APPROVED_MESSAGE, {
+        token,
+      });
     },
   },
   capabilities: {
@@ -148,32 +102,12 @@ export const telegramPlugin: ChannelPlugin<ResolvedTelegramAccount, TelegramProb
         accountId,
         clearBaseFields: ["botToken", "tokenFile", "name"],
       }),
-    isConfigured: (account, cfg) => {
-      if (!account.token?.trim()) {
-        return false;
-      }
-      return !findTelegramTokenOwnerAccountId({ cfg, accountId: account.accountId });
-    },
-    unconfiguredReason: (account, cfg) => {
-      if (!account.token?.trim()) {
-        return "not configured";
-      }
-      const ownerAccountId = findTelegramTokenOwnerAccountId({ cfg, accountId: account.accountId });
-      if (!ownerAccountId) {
-        return "not configured";
-      }
-      return formatDuplicateTelegramTokenReason({
-        accountId: account.accountId,
-        ownerAccountId,
-      });
-    },
-    describeAccount: (account, cfg) => ({
+    isConfigured: (account) => Boolean(account.token?.trim()),
+    describeAccount: (account) => ({
       accountId: account.accountId,
       name: account.name,
       enabled: account.enabled,
-      configured:
-        Boolean(account.token?.trim()) &&
-        !findTelegramTokenOwnerAccountId({ cfg, accountId: account.accountId }),
+      configured: Boolean(account.token?.trim()),
       tokenSource: account.tokenSource,
     }),
     resolveAllowFrom: ({ cfg, accountId }) =>
@@ -206,9 +140,7 @@ export const telegramPlugin: ChannelPlugin<ResolvedTelegramAccount, TelegramProb
     collectWarnings: ({ account, cfg }) => {
       const defaultGroupPolicy = cfg.channels?.defaults?.groupPolicy;
       const groupPolicy = account.config.groupPolicy ?? defaultGroupPolicy ?? "allowlist";
-      if (groupPolicy !== "open") {
-        return [];
-      }
+      if (groupPolicy !== "open") return [];
       const groupAllowlistConfigured =
         account.config.groups && Object.keys(account.config.groups).length > 0;
       if (groupAllowlistConfigured) {
@@ -322,7 +254,8 @@ export const telegramPlugin: ChannelPlugin<ResolvedTelegramAccount, TelegramProb
     chunkerMode: "markdown",
     textChunkLimit: 4000,
     sendText: async ({ to, text, accountId, deps, replyToId, threadId }) => {
-      const send = deps?.sendTelegram ?? getTelegramRuntime().channel.telegram.sendMessageTelegram;
+      const send =
+        deps?.sendTelegram ?? getTelegramRuntime().channel.telegram.sendMessageTelegram;
       const replyToMessageId = parseReplyToMessageId(replyToId);
       const messageThreadId = parseThreadId(threadId);
       const result = await send(to, text, {
@@ -333,28 +266,14 @@ export const telegramPlugin: ChannelPlugin<ResolvedTelegramAccount, TelegramProb
       });
       return { channel: "telegram", ...result };
     },
-<<<<<<< HEAD
     sendMedia: async ({ to, text, mediaUrl, accountId, deps, replyToId, threadId }) => {
-=======
-    sendMedia: async ({
-      to,
-      text,
-      mediaUrl,
-      mediaLocalRoots,
-      accountId,
-      deps,
-      replyToId,
-      threadId,
-      silent,
-    }) => {
->>>>>>> 4adfe8002 (fix(extensions): preserve mediaLocalRoots in telegram/discord sendMedia)
-      const send = deps?.sendTelegram ?? getTelegramRuntime().channel.telegram.sendMessageTelegram;
+      const send =
+        deps?.sendTelegram ?? getTelegramRuntime().channel.telegram.sendMessageTelegram;
       const replyToMessageId = parseReplyToMessageId(replyToId);
       const messageThreadId = parseThreadId(threadId);
       const result = await send(to, text, {
         verbose: false,
         mediaUrl,
-        mediaLocalRoots,
         messageThreadId,
         replyToMessageId,
         accountId: accountId ?? undefined,
@@ -397,7 +316,11 @@ export const telegramPlugin: ChannelPlugin<ResolvedTelegramAccount, TelegramProb
       if (!groupIds.length && unresolvedGroups === 0 && !hasWildcardUnmentionedGroups) {
         return undefined;
       }
-      const botId = probe?.ok && probe.bot?.id != null ? probe.bot.id : null;
+      const botId =
+        (probe as { ok?: boolean; bot?: { id?: number } })?.ok &&
+        (probe as { bot?: { id?: number } }).bot?.id != null
+          ? (probe as { bot: { id: number } }).bot.id
+          : null;
       if (!botId) {
         return {
           ok: unresolvedGroups === 0 && !hasWildcardUnmentionedGroups,
@@ -418,24 +341,20 @@ export const telegramPlugin: ChannelPlugin<ResolvedTelegramAccount, TelegramProb
       return { ...audit, unresolvedGroups, hasWildcardUnmentionedGroups };
     },
     buildAccountSnapshot: ({ account, cfg, runtime, probe, audit }) => {
-      const ownerAccountId = findTelegramTokenOwnerAccountId({
-        cfg,
-        accountId: account.accountId,
-      });
-      const duplicateTokenReason = ownerAccountId
-        ? formatDuplicateTelegramTokenReason({
-            accountId: account.accountId,
-            ownerAccountId,
-          })
-        : null;
-      const configured = Boolean(account.token?.trim()) && !ownerAccountId;
+      const configured = Boolean(account.token?.trim());
       const groups =
         cfg.channels?.telegram?.accounts?.[account.accountId]?.groups ??
         cfg.channels?.telegram?.groups;
       const allowUnmentionedGroups =
-        groups?.["*"]?.requireMention === false ||
+        Boolean(
+          groups?.["*"] && (groups["*"] as { requireMention?: boolean }).requireMention === false,
+        ) ||
         Object.entries(groups ?? {}).some(
-          ([key, value]) => key !== "*" && value?.requireMention === false,
+          ([key, value]) =>
+            key !== "*" &&
+            Boolean(value) &&
+            typeof value === "object" &&
+            (value as { requireMention?: boolean }).requireMention === false,
         );
       return {
         accountId: account.accountId,
@@ -446,7 +365,7 @@ export const telegramPlugin: ChannelPlugin<ResolvedTelegramAccount, TelegramProb
         running: runtime?.running ?? false,
         lastStartAt: runtime?.lastStartAt ?? null,
         lastStopAt: runtime?.lastStopAt ?? null,
-        lastError: runtime?.lastError ?? duplicateTokenReason,
+        lastError: runtime?.lastError ?? null,
         mode: runtime?.mode ?? (account.config.webhookUrl ? "webhook" : "polling"),
         probe,
         audit,
@@ -459,18 +378,6 @@ export const telegramPlugin: ChannelPlugin<ResolvedTelegramAccount, TelegramProb
   gateway: {
     startAccount: async (ctx) => {
       const account = ctx.account;
-      const ownerAccountId = findTelegramTokenOwnerAccountId({
-        cfg: ctx.cfg,
-        accountId: account.accountId,
-      });
-      if (ownerAccountId) {
-        const reason = formatDuplicateTelegramTokenReason({
-          accountId: account.accountId,
-          ownerAccountId,
-        });
-        ctx.log?.error?.(`[${account.accountId}] ${reason}`);
-        throw new Error(reason);
-      }
       const token = account.token.trim();
       let telegramBotLabel = "";
       try {
@@ -480,9 +387,7 @@ export const telegramPlugin: ChannelPlugin<ResolvedTelegramAccount, TelegramProb
           account.config.proxy,
         );
         const username = probe.ok ? probe.bot?.username?.trim() : null;
-        if (username) {
-          telegramBotLabel = ` (@${username})`;
-        }
+        if (username) telegramBotLabel = ` (@${username})`;
       } catch (err) {
         if (getTelegramRuntime().logging.shouldLogVerbose()) {
           ctx.log?.debug?.(`[${account.accountId}] bot probe failed: ${String(err)}`);
@@ -503,7 +408,7 @@ export const telegramPlugin: ChannelPlugin<ResolvedTelegramAccount, TelegramProb
     },
     logoutAccount: async ({ accountId, cfg }) => {
       const envToken = process.env.TELEGRAM_BOT_TOKEN?.trim() ?? "";
-      const nextCfg = { ...cfg } as OpenClawConfig;
+      const nextCfg = { ...cfg } as MoltbotConfig;
       const nextTelegram = cfg.channels?.telegram ? { ...cfg.channels.telegram } : undefined;
       let cleared = false;
       let changed = false;

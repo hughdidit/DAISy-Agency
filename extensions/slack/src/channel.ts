@@ -29,7 +29,8 @@ import {
   type ChannelMessageActionName,
   type ChannelPlugin,
   type ResolvedSlackAccount,
-} from "openclaw/plugin-sdk";
+} from "clawdbot/plugin-sdk";
+
 import { getSlackRuntime } from "./runtime.js";
 
 const meta = getChatChannelMeta("slack");
@@ -42,12 +43,8 @@ function getTokenForOperation(
   const userToken = account.config.userToken?.trim() || undefined;
   const botToken = account.botToken?.trim();
   const allowUserWrites = account.config.userTokenReadOnly === false;
-  if (operation === "read") {
-    return userToken ?? botToken;
-  }
-  if (!allowUserWrites) {
-    return botToken;
-  }
+  if (operation === "read") return userToken ?? botToken;
+  if (!allowUserWrites) return botToken;
   return botToken ?? userToken;
 }
 
@@ -70,18 +67,11 @@ export const slackPlugin: ChannelPlugin<ResolvedSlackAccount> = {
       const botToken = account.botToken?.trim();
       const tokenOverride = token && token !== botToken ? token : undefined;
       if (tokenOverride) {
-        await getSlackRuntime().channel.slack.sendMessageSlack(
-          `user:${id}`,
-          PAIRING_APPROVED_MESSAGE,
-          {
-            token: tokenOverride,
-          },
-        );
+        await getSlackRuntime().channel.slack.sendMessageSlack(`user:${id}`, PAIRING_APPROVED_MESSAGE, {
+          token: tokenOverride,
+        });
       } else {
-        await getSlackRuntime().channel.slack.sendMessageSlack(
-          `user:${id}`,
-          PAIRING_APPROVED_MESSAGE,
-        );
+        await getSlackRuntime().channel.slack.sendMessageSlack(`user:${id}`, PAIRING_APPROVED_MESSAGE);
       }
     },
   },
@@ -233,25 +223,17 @@ export const slackPlugin: ChannelPlugin<ResolvedSlackAccount> = {
     },
   },
   actions: {
-<<<<<<< HEAD
     listActions: ({ cfg }) => {
       const accounts = listEnabledSlackAccounts(cfg).filter(
         (account) => account.botTokenSource !== "none",
       );
-      if (accounts.length === 0) {
-        return [];
-      }
+      if (accounts.length === 0) return [];
       const isActionEnabled = (key: string, defaultValue = true) => {
         for (const account of accounts) {
           const gate = createActionGate(
-            (account.actions ?? cfg.channels?.slack?.actions) as Record<
-              string,
-              boolean | undefined
-            >,
+            (account.actions ?? cfg.channels?.slack?.actions) as Record<string, boolean | undefined>,
           );
-          if (gate(key, defaultValue)) {
-            return true;
-          }
+          if (gate(key, defaultValue)) return true;
         }
         return false;
       };
@@ -271,23 +253,15 @@ export const slackPlugin: ChannelPlugin<ResolvedSlackAccount> = {
         actions.add("unpin");
         actions.add("list-pins");
       }
-      if (isActionEnabled("memberInfo")) {
-        actions.add("member-info");
-      }
-      if (isActionEnabled("emojiList")) {
-        actions.add("emoji-list");
-      }
+      if (isActionEnabled("memberInfo")) actions.add("member-info");
+      if (isActionEnabled("emojiList")) actions.add("emoji-list");
       return Array.from(actions);
     },
     extractToolSend: ({ args }) => {
       const action = typeof args.action === "string" ? args.action.trim() : "";
-      if (action !== "sendMessage") {
-        return null;
-      }
+      if (action !== "sendMessage") return null;
       const to = typeof args.to === "string" ? args.to : undefined;
-      if (!to) {
-        return null;
-      }
+      if (!to) return null;
       const accountId = typeof args.accountId === "string" ? args.accountId.trim() : undefined;
       return { to, accountId };
     },
@@ -435,18 +409,6 @@ export const slackPlugin: ChannelPlugin<ResolvedSlackAccount> = {
 
       throw new Error(`Action ${action} is not supported for provider ${meta.id}.`);
     },
-=======
-    listActions: ({ cfg }) => listSlackMessageActions(cfg),
-    extractToolSend: ({ args }) => extractSlackToolSend(args),
-    handleAction: async (ctx) =>
-      await handleSlackMessageAction({
-        providerId: meta.id,
-        ctx,
-        includeReadThreadId: true,
-        invoke: async (action, cfg, toolContext) =>
-          await getSlackRuntime().channel.slack.handleSlackAction(action, cfg, toolContext),
-      }),
->>>>>>> 9f7c1686b (fix(slack extension): preserve thread IDs for read + outbound delivery (#23836))
   },
   setup: {
     resolveAccountId: ({ accountId }) => normalizeAccountId(accountId),
@@ -523,30 +485,28 @@ export const slackPlugin: ChannelPlugin<ResolvedSlackAccount> = {
     deliveryMode: "direct",
     chunker: null,
     textChunkLimit: 4000,
-    sendText: async ({ to, text, accountId, deps, replyToId, threadId, cfg }) => {
+    sendText: async ({ to, text, accountId, deps, replyToId, cfg }) => {
       const send = deps?.sendSlack ?? getSlackRuntime().channel.slack.sendMessageSlack;
       const account = resolveSlackAccount({ cfg, accountId });
       const token = getTokenForOperation(account, "write");
       const botToken = account.botToken?.trim();
       const tokenOverride = token && token !== botToken ? token : undefined;
-      const threadTsValue = replyToId ?? threadId;
       const result = await send(to, text, {
-        threadTs: threadTsValue != null ? String(threadTsValue) : undefined,
+        threadTs: replyToId ?? undefined,
         accountId: accountId ?? undefined,
         ...(tokenOverride ? { token: tokenOverride } : {}),
       });
       return { channel: "slack", ...result };
     },
-    sendMedia: async ({ to, text, mediaUrl, accountId, deps, replyToId, threadId, cfg }) => {
+    sendMedia: async ({ to, text, mediaUrl, accountId, deps, replyToId, cfg }) => {
       const send = deps?.sendSlack ?? getSlackRuntime().channel.slack.sendMessageSlack;
       const account = resolveSlackAccount({ cfg, accountId });
       const token = getTokenForOperation(account, "write");
       const botToken = account.botToken?.trim();
       const tokenOverride = token && token !== botToken ? token : undefined;
-      const threadTsValue = replyToId ?? threadId;
       const result = await send(to, text, {
         mediaUrl,
-        threadTs: threadTsValue != null ? String(threadTsValue) : undefined,
+        threadTs: replyToId ?? undefined,
         accountId: accountId ?? undefined,
         ...(tokenOverride ? { token: tokenOverride } : {}),
       });
@@ -574,9 +534,7 @@ export const slackPlugin: ChannelPlugin<ResolvedSlackAccount> = {
     }),
     probeAccount: async ({ account, timeoutMs }) => {
       const token = account.botToken?.trim();
-      if (!token) {
-        return { ok: false, error: "missing token" };
-      }
+      if (!token) return { ok: false, error: "missing token" };
       return await getSlackRuntime().channel.slack.probeSlack(token, timeoutMs);
     },
     buildAccountSnapshot: ({ account, runtime, probe }) => {

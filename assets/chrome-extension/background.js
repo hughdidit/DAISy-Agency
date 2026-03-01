@@ -11,9 +11,6 @@ const BADGE = {
 let relayWs = null
 /** @type {Promise<void>|null} */
 let relayConnectPromise = null
-let relayGatewayToken = ''
-/** @type {string|null} */
-let relayConnectRequestId = null
 
 let debuggerListenersInstalled = false
 
@@ -70,13 +67,6 @@ async function ensureRelayConnection() {
 
     const ws = new WebSocket(wsUrl)
     relayWs = ws
-    relayGatewayToken = gatewayToken
-    // Bind message handler before open so an immediate first frame (for example
-    // gateway connect.challenge) cannot be missed.
-    ws.onmessage = (event) => {
-      if (ws !== relayWs) return
-      void whenReady(() => onRelayMessage(String(event.data || '')))
-    }
 
     await new Promise((resolve, reject) => {
       const t = setTimeout(() => reject(new Error('WebSocket connect timeout')), 5000)
@@ -94,7 +84,6 @@ async function ensureRelayConnection() {
       }
     })
 
-<<<<<<< HEAD
     ws.onmessage = (event) => void onRelayMessage(String(event.data || ''))
     ws.onclose = () => onRelayClosed('closed')
     ws.onerror = () => onRelayClosed('error')
@@ -103,17 +92,6 @@ async function ensureRelayConnection() {
       debuggerListenersInstalled = true
       chrome.debugger.onEvent.addListener(onDebuggerEvent)
       chrome.debugger.onDetach.addListener(onDebuggerDetach)
-=======
-    // Bind permanent handlers. Guard against stale socket: if this WS was
-    // replaced before its close fires, the handler is a no-op.
-    ws.onclose = () => {
-      if (ws !== relayWs) return
-      onRelayClosed('closed')
-    }
-    ws.onerror = () => {
-      if (ws !== relayWs) return
-      onRelayClosed('error')
->>>>>>> 65d5a9124 (fix(browser): land PR #22571 with safe extension handshake handling)
     }
   })()
 
@@ -126,12 +104,6 @@ async function ensureRelayConnection() {
 
 function onRelayClosed(reason) {
   relayWs = null
-<<<<<<< HEAD
-=======
-  relayGatewayToken = ''
-  relayConnectRequestId = null
-
->>>>>>> 65d5a9124 (fix(browser): land PR #22571 with safe extension handshake handling)
   for (const [id, p] of pending.entries()) {
     pending.delete(id)
     p.reject(new Error(`Relay disconnected (${reason})`))
@@ -142,7 +114,7 @@ function onRelayClosed(reason) {
     setBadge(tabId, 'connecting')
     void chrome.action.setTitle({
       tabId,
-      title: 'OpenClaw Browser Relay: disconnected (click to re-attach)',
+      title: 'Moltbot Browser Relay: disconnected (click to re-attach)',
     })
   }
   tabs.clear()
@@ -156,33 +128,6 @@ function sendToRelay(payload) {
     throw new Error('Relay not connected')
   }
   ws.send(JSON.stringify(payload))
-}
-
-function ensureGatewayHandshakeStarted(payload) {
-  if (relayConnectRequestId) return
-  const nonce = typeof payload?.nonce === 'string' ? payload.nonce.trim() : ''
-  relayConnectRequestId = `ext-connect-${Date.now()}-${Math.random().toString(16).slice(2, 8)}`
-  sendToRelay({
-    type: 'req',
-    id: relayConnectRequestId,
-    method: 'connect',
-    params: {
-      minProtocol: 3,
-      maxProtocol: 3,
-      client: {
-        id: 'chrome-relay-extension',
-        version: '1.0.0',
-        platform: 'chrome-extension',
-        mode: 'webchat',
-      },
-      role: 'operator',
-      scopes: ['operator.read', 'operator.write'],
-      caps: [],
-      commands: [],
-      nonce: nonce || undefined,
-      auth: relayGatewayToken ? { token: relayGatewayToken } : undefined,
-    },
-  })
 }
 
 async function maybeOpenHelpOnce() {
@@ -215,33 +160,6 @@ async function onRelayMessage(text) {
   try {
     msg = JSON.parse(text)
   } catch {
-    return
-  }
-
-  if (msg && msg.type === 'event' && msg.event === 'connect.challenge') {
-    try {
-      ensureGatewayHandshakeStarted(msg.payload)
-    } catch (err) {
-      console.warn('gateway connect handshake start failed', err instanceof Error ? err.message : String(err))
-      relayConnectRequestId = null
-      const ws = relayWs
-      if (ws && ws.readyState === WebSocket.OPEN) {
-        ws.close(1008, 'gateway connect failed')
-      }
-    }
-    return
-  }
-
-  if (msg && msg.type === 'res' && relayConnectRequestId && msg.id === relayConnectRequestId) {
-    relayConnectRequestId = null
-    if (!msg.ok) {
-      const detail = msg?.error?.message || msg?.error || 'gateway connect failed'
-      console.warn('gateway connect handshake rejected', String(detail))
-      const ws = relayWs
-      if (ws && ws.readyState === WebSocket.OPEN) {
-        ws.close(1008, 'gateway connect failed')
-      }
-    }
     return
   }
 
@@ -307,7 +225,7 @@ async function attachTab(tabId, opts = {}) {
   tabBySession.set(sessionId, tabId)
   void chrome.action.setTitle({
     tabId,
-    title: 'OpenClaw Browser Relay: attached (click to detach)',
+    title: 'Moltbot Browser Relay: attached (click to detach)',
   })
 
   if (!opts.skipAttachedEvent) {
@@ -360,7 +278,7 @@ async function detachTab(tabId, reason) {
   setBadge(tabId, 'off')
   void chrome.action.setTitle({
     tabId,
-    title: 'OpenClaw Browser Relay (click to attach/detach)',
+    title: 'Moltbot Browser Relay (click to attach/detach)',
   })
 }
 
@@ -379,7 +297,7 @@ async function connectOrToggleForActiveTab() {
   setBadge(tabId, 'connecting')
   void chrome.action.setTitle({
     tabId,
-    title: 'OpenClaw Browser Relay: connecting to local relay…',
+    title: 'Moltbot Browser Relay: connecting to local relay…',
   })
 
   try {
@@ -390,7 +308,7 @@ async function connectOrToggleForActiveTab() {
     setBadge(tabId, 'error')
     void chrome.action.setTitle({
       tabId,
-      title: 'OpenClaw Browser Relay: relay not running (open options for setup)',
+      title: 'Moltbot Browser Relay: relay not running (open options for setup)',
     })
     void maybeOpenHelpOnce()
     // Extra breadcrumbs in chrome://extensions service worker logs.

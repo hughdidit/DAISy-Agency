@@ -1,12 +1,8 @@
 import AppKit
-<<<<<<< HEAD
-=======
-import Observation
->>>>>>> 8f3310000 (refactor(macos): remove anthropic oauth onboarding flow)
-import OpenClawChatUI
-import OpenClawDiscovery
-import OpenClawIPC
 import Combine
+import MoltbotChatUI
+import MoltbotDiscovery
+import MoltbotIPC
 import Observation
 import SwiftUI
 
@@ -120,18 +116,30 @@ struct OnboardingView: View {
         Self.pageOrder(for: self.state.connectionMode, showOnboardingChat: self.showOnboardingChat)
     }
 
-    var pageCount: Int { self.pageOrder.count }
+    var pageCount: Int {
+        self.pageOrder.count
+    }
+
     var activePageIndex: Int {
         self.activePageIndex(for: self.currentPage)
     }
 
-    var buttonTitle: String { self.currentPage == self.pageCount - 1 ? "Finish" : "Next" }
-    var wizardPageOrderIndex: Int? { self.pageOrder.firstIndex(of: self.wizardPageIndex) }
+    var buttonTitle: String {
+        self.currentPage == self.pageCount - 1 ? "Finish" : "Next"
+    }
+
+    var wizardPageOrderIndex: Int? {
+        self.pageOrder.firstIndex(of: self.wizardPageIndex)
+    }
+
     var isWizardBlocking: Bool {
         self.activePageIndex == self.wizardPageIndex && !self.onboardingWizard.isComplete
     }
 
-    var canAdvance: Bool { !self.isWizardBlocking }
+    var canAdvance: Bool {
+        !self.isWizardBlocking
+    }
+
     var devLinkCommand: String {
         let version = GatewayEnvironment.expectedGatewayVersionString() ?? "latest"
         return "npm install -g openclaw@\(version)"

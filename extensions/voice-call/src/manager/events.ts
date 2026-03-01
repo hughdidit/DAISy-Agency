@@ -1,7 +1,8 @@
 import crypto from "node:crypto";
-import type { CallRecord, CallState, NormalizedEvent } from "../types.js";
-import type { CallManagerContext } from "./context.js";
-import { isAllowlistedCaller, normalizePhoneNumber } from "../allowlist.js";
+
+import type { CallId, CallRecord, CallState, NormalizedEvent } from "../types.js";
+import { TerminalStates } from "../types.js";
+import type { CallManagerContext, Logger } from "./context.js";
 import { findCall } from "./lookup.js";
 import { endCall } from "./outbound.js";
 import { addTranscriptEntry, transitionState } from "./state.js";
@@ -13,19 +14,16 @@ import {
   startMaxDurationTimer,
 } from "./timers.js";
 
-function shouldAcceptInbound(
-  config: CallManagerContext["config"],
-  from: string | undefined,
-): boolean {
+function shouldAcceptInbound(config: CallManagerContext["config"], from: string | undefined, logger: Logger): boolean {
   const { inboundPolicy: policy, allowFrom } = config;
 
   switch (policy) {
     case "disabled":
-      console.log("[voice-call] Inbound call rejected: policy is disabled");
+      logger.info("[voice-call] Inbound call rejected: policy is disabled");
       return false;
 
     case "open":
-      console.log("[voice-call] Inbound call accepted: policy is open");
+      logger.info("[voice-call] Inbound call accepted: policy is open");
       return true;
 
     case "allowlist":
@@ -37,7 +35,7 @@ function shouldAcceptInbound(
       }
       const allowed = isAllowlistedCaller(normalized, allowFrom);
       const status = allowed ? "accepted" : "rejected";
-      console.log(
+      logger.info(
         `[voice-call] Inbound call ${status}: ${from} ${allowed ? "is in" : "not in"} allowlist`,
       );
       return allowed;
@@ -76,21 +74,13 @@ function createInboundCall(params: {
   params.ctx.providerCallIdMap.set(params.providerCallId, callId);
   persistCallRecord(params.ctx.storePath, callRecord);
 
-  console.log(`[voice-call] Created inbound call record: ${callId} from ${params.from}`);
+  params.ctx.logger.info(`[voice-call] Created inbound call record: ${callId} from ${params.from}`);
   return callRecord;
 }
 
-<<<<<<< HEAD
-export function processEvent(ctx: CallManagerContext, event: NormalizedEvent): void {
-  if (ctx.processedEventIds.has(event.id)) {
-=======
-export function processEvent(ctx: EventContext, event: NormalizedEvent): void {
-  const dedupeKey = event.dedupeKey || event.id;
-  if (ctx.processedEventIds.has(dedupeKey)) {
->>>>>>> 1d28da55a (fix(voice-call): block Twilio webhook replay and stale transitions)
-    return;
-  }
-  ctx.processedEventIds.add(dedupeKey);
+export async function processEvent(ctx: CallManagerContext, event: NormalizedEvent): Promise<void> {
+  if (ctx.processedEventIds.has(event.id)) return;
+  ctx.processedEventIds.add(event.id);
 
   let call = findCall({
     activeCalls: ctx.activeCalls,
@@ -99,30 +89,17 @@ export function processEvent(ctx: EventContext, event: NormalizedEvent): void {
   });
 
   if (!call && event.direction === "inbound" && event.providerCallId) {
-    if (!shouldAcceptInbound(ctx.config, event.from)) {
-      const pid = event.providerCallId;
-      if (!ctx.provider) {
-        console.warn(
-          `[voice-call] Inbound call rejected by policy but no provider to hang up (providerCallId: ${pid}, from: ${event.from}); call will time out on provider side.`,
-        );
-        return;
-      }
-      if (ctx.rejectedProviderCallIds.has(pid)) {
-        return;
-      }
-      ctx.rejectedProviderCallIds.add(pid);
-      const callId = event.callId ?? pid;
-      console.log(`[voice-call] Rejecting inbound call by policy: ${pid}`);
-      void ctx.provider
-        .hangupCall({
-          callId,
-          providerCallId: pid,
+    if (!shouldAcceptInbound(ctx.config, event.from, ctx.logger)) {
+      // Reject: hang up via provider directly (no call record exists yet)
+      try {
+        await ctx.provider?.hangupCall({
+          callId: event.providerCallId,
+          providerCallId: event.providerCallId,
           reason: "hangup-bot",
-        })
-        .catch((err) => {
-          const message = err instanceof Error ? err.message : String(err);
-          console.warn(`[voice-call] Failed to reject inbound call ${pid}:`, message);
         });
+      } catch {
+        // Best-effort — call may have already ended
+      }
       return;
     }
 

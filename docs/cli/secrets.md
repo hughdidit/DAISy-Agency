@@ -1,9 +1,9 @@
 ---
-summary: "CLI reference for `openclaw secrets` (reload and migration operations)"
+summary: "CLI reference for `openclaw secrets` (reload, audit, configure, apply)"
 read_when:
   - Re-resolving secret refs at runtime
-  - Migrating plaintext secrets into file-backed refs
-  - Rolling back secrets migration backups
+  - Auditing plaintext residues and unresolved refs
+  - Configuring SecretRefs and applying one-way scrub changes
 title: "secrets"
 ---
 
@@ -53,18 +53,21 @@ Notes:
 - If resolution fails, gateway keeps last-known-good snapshot and returns an error (no partial activation).
 - JSON response includes `warningCount`.
 
-## Migrate plaintext secrets
+## Audit
 
-Dry-run by default:
+Scan OpenClaw state for:
+
+- plaintext secret storage
+- unresolved refs
+- precedence drift (`auth-profiles` shadowing config refs)
+- legacy residues (`auth.json`, OAuth out-of-scope notes)
 
 ```bash
-openclaw secrets migrate
-openclaw secrets migrate --json
+openclaw secrets audit
+openclaw secrets audit --check
+openclaw secrets audit --json
 ```
 
-<<<<<<< HEAD
-Apply changes:
-=======
 Exit behavior:
 
 - `--check` exits non-zero on findings.
@@ -83,15 +86,16 @@ Report shape highlights:
 ## Configure (interactive helper)
 
 Build provider + SecretRef changes interactively, run preflight, and optionally apply:
->>>>>>> 297cca056 (docs(cli): improve secrets command guide)
 
 ```bash
-openclaw secrets migrate --write
+openclaw secrets configure
+openclaw secrets configure --plan-out /tmp/openclaw-secrets-plan.json
+openclaw secrets configure --apply --yes
+openclaw secrets configure --providers-only
+openclaw secrets configure --skip-provider-setup
+openclaw secrets configure --json
 ```
 
-<<<<<<< HEAD
-Skip `.env` scrubbing:
-=======
 Flow:
 
 - Provider setup first (`add/edit/remove` for `secrets.providers` aliases).
@@ -123,15 +127,13 @@ Exec provider safety note:
 ## Apply a saved plan
 
 Apply or preflight a plan generated previously:
->>>>>>> 297cca056 (docs(cli): improve secrets command guide)
 
 ```bash
-openclaw secrets migrate --write --no-scrub-env
+openclaw secrets apply --from /tmp/openclaw-secrets-plan.json
+openclaw secrets apply --from /tmp/openclaw-secrets-plan.json --dry-run
+openclaw secrets apply --from /tmp/openclaw-secrets-plan.json --json
 ```
 
-<<<<<<< HEAD
-Rollback a previous migration:
-=======
 Plan contract details (allowed target paths, validation rules, and failure semantics):
 
 - [Secrets Apply Plan Contract](/gateway/secrets-plan-contract)
@@ -150,40 +152,12 @@ What `apply` may update:
 Safety comes from strict preflight + atomic-ish apply with best-effort in-memory restore on failure.
 
 ## Example
->>>>>>> 4380d74d4 (docs(secrets): add dedicated apply plan contract page)
 
 ```bash
-openclaw secrets migrate --rollback <backup-id>
+# Audit first, then configure, then confirm clean:
+openclaw secrets audit --check
+openclaw secrets configure
+openclaw secrets audit --check
 ```
 
-## Migration outputs
-
-- Dry-run: prints what would change.
-- Write mode: prints backup id and moved secret count.
-- Rollback: restores files from the selected backup manifest.
-
-Backups live under:
-
-- `~/.openclaw/backups/secrets-migrate/<backupId>/manifest.json`
-
-## Examples
-
-### Preview migration impact
-
-```bash
-openclaw secrets migrate --json | jq '{mode, changed, counters, changedFiles}'
-```
-
-### Apply migration and keep a machine-readable record
-
-```bash
-openclaw secrets migrate --write --json > /tmp/openclaw-secrets-migrate.json
-```
-
-### Force a reload after updating gateway env visibility
-
-```bash
-# Ensure OPENAI_API_KEY is visible to the running gateway process first,
-# then re-resolve refs:
-openclaw secrets reload
-```
+If `audit --check` still reports plaintext findings after a partial migration, verify you also migrated skill keys (`skills.entries.*.apiKey`) and any other reported target paths.

@@ -1,7 +1,8 @@
 import { Type } from "@sinclair/typebox";
 import { spawn } from "node:child_process";
 import path from "node:path";
-import type { OpenClawPluginApi } from "../../../src/plugins/types.js";
+
+import type { MoltbotPluginApi } from "../../../src/plugins/types.js";
 
 type LobsterEnvelope =
   | {
@@ -20,42 +21,18 @@ type LobsterEnvelope =
       error: { type?: string; message: string };
     };
 
-function normalizeForCwdSandbox(p: string): string {
-  const normalized = path.normalize(p);
-  return process.platform === "win32" ? normalized.toLowerCase() : normalized;
+function resolveExecutablePath(lobsterPathRaw: string | undefined) {
+  const lobsterPath = lobsterPathRaw?.trim() || "lobster";
+  if (lobsterPath !== "lobster" && !path.isAbsolute(lobsterPath)) {
+    throw new Error("lobsterPath must be an absolute path (or omit to use PATH)");
+  }
+  return lobsterPath;
 }
 
-function resolveCwd(cwdRaw: unknown): string {
-  if (typeof cwdRaw !== "string" || !cwdRaw.trim()) {
-    return process.cwd();
-  }
-  const cwd = cwdRaw.trim();
-  if (path.isAbsolute(cwd)) {
-    throw new Error("cwd must be a relative path");
-  }
-  const base = process.cwd();
-  const resolved = path.resolve(base, cwd);
-
-  const rel = path.relative(normalizeForCwdSandbox(base), normalizeForCwdSandbox(resolved));
-  if (rel === "" || rel === ".") {
-    return resolved;
-  }
-  if (rel.startsWith("..") || path.isAbsolute(rel)) {
-    throw new Error("cwd must stay within the gateway working directory");
-  }
-  return resolved;
-}
-
-function isWindowsSpawnErrorThatCanUseShell(err: unknown) {
-  if (!err || typeof err !== "object") {
-    return false;
-  }
+function isWindowsSpawnEINVAL(err: unknown) {
+  if (!err || typeof err !== "object") return false;
   const code = (err as { code?: unknown }).code;
-
-  // On Windows, spawning scripts discovered on PATH (e.g. lobster.cmd) can fail
-  // with EINVAL, and PATH discovery itself can fail with ENOENT when the binary
-  // is only available via PATHEXT/script wrappers.
-  return code === "EINVAL" || code === "ENOENT";
+  return code === "EINVAL";
 }
 
 async function runLobsterSubprocessOnce(
@@ -136,7 +113,6 @@ async function runLobsterSubprocessOnce(
   });
 }
 
-<<<<<<< HEAD
 async function runLobsterSubprocess(params: {
   execPath: string;
   argv: string[];
@@ -147,15 +123,13 @@ async function runLobsterSubprocess(params: {
   try {
     return await runLobsterSubprocessOnce(params, false);
   } catch (err) {
-    if (process.platform === "win32" && isWindowsSpawnErrorThatCanUseShell(err)) {
+    if (process.platform === "win32" && isWindowsSpawnEINVAL(err)) {
       return await runLobsterSubprocessOnce(params, true);
     }
     throw err;
   }
 }
 
-=======
->>>>>>> 29118995a (refactor(lobster): remove lobsterPath overrides)
 function parseEnvelope(stdout: string): LobsterEnvelope {
   const trimmed = stdout.trim();
 
@@ -194,34 +168,7 @@ function parseEnvelope(stdout: string): LobsterEnvelope {
   throw new Error("lobster returned invalid JSON envelope");
 }
 
-function buildLobsterArgv(action: string, params: Record<string, unknown>): string[] {
-  if (action === "run") {
-    const pipeline = typeof params.pipeline === "string" ? params.pipeline : "";
-    if (!pipeline.trim()) {
-      throw new Error("pipeline required");
-    }
-    const argv = ["run", "--mode", "tool", pipeline];
-    const argsJson = typeof params.argsJson === "string" ? params.argsJson : "";
-    if (argsJson.trim()) {
-      argv.push("--args-json", argsJson);
-    }
-    return argv;
-  }
-  if (action === "resume") {
-    const token = typeof params.token === "string" ? params.token : "";
-    if (!token.trim()) {
-      throw new Error("token required");
-    }
-    const approve = params.approve;
-    if (typeof approve !== "boolean") {
-      throw new Error("approve required");
-    }
-    return ["resume", "--token", token, "--approve", approve ? "yes" : "no"];
-  }
-  throw new Error(`Unknown action: ${action}`);
-}
-
-export function createLobsterTool(api: OpenClawPluginApi) {
+export function createLobsterTool(api: MoltbotPluginApi) {
   return {
     name: "lobster",
     description:
@@ -233,34 +180,48 @@ export function createLobsterTool(api: OpenClawPluginApi) {
       argsJson: Type.Optional(Type.String()),
       token: Type.Optional(Type.String()),
       approve: Type.Optional(Type.Boolean()),
-      cwd: Type.Optional(
-        Type.String({
-          description:
-            "Relative working directory (optional). Must stay within the gateway working directory.",
-        }),
-      ),
+      lobsterPath: Type.Optional(Type.String()),
+      cwd: Type.Optional(Type.String()),
       timeoutMs: Type.Optional(Type.Number()),
       maxStdoutBytes: Type.Optional(Type.Number()),
     }),
     async execute(_id: string, params: Record<string, unknown>) {
-      const action = typeof params.action === "string" ? params.action.trim() : "";
-      if (!action) {
-        throw new Error("action required");
-      }
+      const action = String(params.action || "").trim();
+      if (!action) throw new Error("action required");
 
-      const execPath = "lobster";
-      const cwd = resolveCwd(params.cwd);
+      const execPath = resolveExecutablePath(
+        typeof params.lobsterPath === "string" ? params.lobsterPath : undefined,
+      );
+      const cwd = typeof params.cwd === "string" && params.cwd.trim() ? params.cwd.trim() : process.cwd();
       const timeoutMs = typeof params.timeoutMs === "number" ? params.timeoutMs : 20_000;
-      const maxStdoutBytes =
-        typeof params.maxStdoutBytes === "number" ? params.maxStdoutBytes : 512_000;
+      const maxStdoutBytes = typeof params.maxStdoutBytes === "number" ? params.maxStdoutBytes : 512_000;
 
-      const argv = buildLobsterArgv(action, params);
+      const argv = (() => {
+        if (action === "run") {
+          const pipeline = typeof params.pipeline === "string" ? params.pipeline : "";
+          if (!pipeline.trim()) throw new Error("pipeline required");
+          const argv = ["run", "--mode", "tool", pipeline];
+          const argsJson = typeof params.argsJson === "string" ? params.argsJson : "";
+          if (argsJson.trim()) {
+            argv.push("--args-json", argsJson);
+          }
+          return argv;
+        }
+        if (action === "resume") {
+          const token = typeof params.token === "string" ? params.token : "";
+          if (!token.trim()) throw new Error("token required");
+          const approve = params.approve;
+          if (typeof approve !== "boolean") throw new Error("approve required");
+          return ["resume", "--token", token, "--approve", approve ? "yes" : "no"];
+        }
+        throw new Error(`Unknown action: ${action}`);
+      })();
 
       if (api.runtime?.version && api.logger?.debug) {
         api.logger.debug(`lobster plugin runtime=${api.runtime.version}`);
       }
 
-      const { stdout } = await runLobsterSubprocessOnce({
+      const { stdout } = await runLobsterSubprocess({
         execPath,
         argv,
         cwd,

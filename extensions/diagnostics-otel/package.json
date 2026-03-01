@@ -1,20 +1,13 @@
 {
-  "name": "@openclaw/diagnostics-otel",
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-  "version": "2026.2.9",
-=======
-  "version": "2026.2.13",
->>>>>>> 67251e97b (fix(ci): sync extension versions to root release (#15199))
-=======
-  "version": "2026.2.24",
->>>>>>> 955cc9029 (chore: sync plugin versions to 2026.2.24)
-=======
-  "version": "2026.2.25",
->>>>>>> 2652bb1d7 (Release: sync plugin versions to 2026.2.25)
-  "description": "OpenClaw diagnostics OpenTelemetry exporter",
+  "name": "@moltbot/diagnostics-otel",
+  "version": "2026.1.27-beta.1",
   "type": "module",
+  "description": "Moltbot diagnostics OpenTelemetry exporter",
+  "moltbot": {
+    "extensions": [
+      "./index.ts"
+    ]
+  },
   "dependencies": {
     "@opentelemetry/api": "^1.9.0",
     "@opentelemetry/api-logs": "^0.211.0",
@@ -27,10 +20,5 @@
     "@opentelemetry/sdk-node": "^0.211.0",
     "@opentelemetry/sdk-trace-base": "^2.5.0",
     "@opentelemetry/semantic-conventions": "^1.39.0"
-  },
-  "openclaw": {
-    "extensions": [
-      "./index.ts"
-    ]
   }
 }

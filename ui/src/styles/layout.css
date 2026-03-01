@@ -5,13 +5,8 @@
 .shell {
   --shell-pad: 16px;
   --shell-gap: 16px;
-<<<<<<< HEAD
   --shell-nav-width: 220px;
   --shell-topbar-height: 56px;
-=======
-  --shell-nav-width: 240px;
-  --shell-topbar-height: 62px;
->>>>>>> 26ab93f0e (revert(ui): remove recent UI dashboard/theme commits from main)
   --shell-focus-duration: 200ms;
   --shell-focus-ease: var(--ease-out);
   height: 100vh;
@@ -67,10 +62,7 @@
 
 .shell--chat-focus .content {
   padding-top: 0;
-}
-
-.shell--chat-focus .content > * + * {
-  margin-top: 0;
+  gap: 0;
 }
 
 /* ===========================================
@@ -85,11 +77,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-<<<<<<< HEAD
   gap: 16px;
-=======
-  gap: 12px;
->>>>>>> 26ab93f0e (revert(ui): remove recent UI dashboard/theme commits from main)
   padding: 0 20px;
   height: var(--shell-topbar-height);
   border-bottom: 1px solid var(--border);
@@ -122,13 +110,7 @@
 .brand {
   display: flex;
   align-items: center;
-<<<<<<< HEAD
   gap: 10px;
-=======
-  gap: 6px;
-  font-size: 0.82rem;
-  min-width: 0;
->>>>>>> 26ab93f0e (revert(ui): remove recent UI dashboard/theme commits from main)
 }
 
 .brand-logo {
@@ -173,69 +155,10 @@
   gap: 8px;
 }
 
-<<<<<<< HEAD
 .topbar-status .pill {
   padding: 6px 10px;
   gap: 6px;
   font-size: 12px;
-=======
-/* --- Center: Search / Command Palette Trigger --- */
-
-.topbar-search {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 12px;
-  min-width: 200px;
-  max-width: 340px;
-  flex: 1;
-  height: 34px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-full);
-  background: color-mix(in srgb, var(--secondary) 60%, transparent);
-  color: var(--muted);
-  font-size: 13px;
-  font-family: var(--font-body);
-  cursor: pointer;
-  transition:
-    border-color 180ms ease,
-    background 180ms ease,
-    box-shadow 180ms ease;
-  -webkit-appearance: none;
-  appearance: none;
-}
-
-.topbar-search:hover {
-  border-color: var(--border-strong);
-  background: color-mix(in srgb, var(--secondary) 85%, transparent);
-}
-
-.topbar-search:focus-visible {
-  outline: none;
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px var(--accent-subtle);
-}
-
-.topbar-search__label {
-  flex: 1;
-  text-align: left;
-  pointer-events: none;
-}
-
-.topbar-search__kbd {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1px 6px;
-  min-width: 22px;
-  height: 20px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  background: color-mix(in srgb, var(--bg) 70%, transparent);
-  color: var(--muted);
-  font-size: 11px;
-  font-family: var(--font-body);
->>>>>>> 26ab93f0e (revert(ui): remove recent UI dashboard/theme commits from main)
   font-weight: 500;
   height: 32px;
   box-sizing: border-box;
@@ -248,40 +171,7 @@
   margin-top: 0px;
 }
 
-<<<<<<< HEAD
 .topbar-status .statusDot {
-=======
-.topbar-divider {
-  width: 1px;
-  height: 20px;
-  background: var(--border);
-  flex-shrink: 0;
-}
-
-/* Connection indicator */
-
-.topbar-connection {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 10px;
-  border-radius: var(--radius-full);
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--danger);
-  background: var(--danger-subtle);
-  transition:
-    color 250ms ease,
-    background 250ms ease;
-}
-
-.topbar-connection--ok {
-  color: var(--ok);
-  background: var(--ok-subtle);
-}
-
-.topbar-connection__dot {
->>>>>>> 26ab93f0e (revert(ui): remove recent UI dashboard/theme commits from main)
   width: 6px;
   height: 6px;
 }
@@ -292,86 +182,17 @@
   --theme-pad: 3px;
 }
 
-<<<<<<< HEAD
 .topbar-status .theme-icon {
   width: 12px;
   height: 12px;
 }
 
-=======
-.topbar-connection__label {
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  line-height: 1;
-}
-
-/* Redact / stream-mode toggle */
-
-.topbar-redact {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  padding: 0;
-  border: 1px solid transparent;
-  border-radius: var(--radius);
-  background: none;
-  color: var(--muted);
-  cursor: pointer;
-  transition:
-    color 180ms ease,
-    background 180ms ease,
-    border-color 180ms ease;
-  flex-shrink: 0;
-}
-
-.topbar-redact svg {
-  width: 14px;
-  height: 14px;
-}
-
-.topbar-redact:hover {
-  color: var(--text);
-  background: color-mix(in srgb, var(--secondary) 80%, transparent);
-  border-color: var(--border);
-}
-
-.topbar-redact--active {
-  color: var(--warn);
-}
-
-.topbar-redact--active:hover {
-  color: var(--warn);
-  background: var(--warn-subtle);
-  border-color: color-mix(in srgb, var(--warn) 30%, transparent);
-}
-
-/* Topbar theme toggle sizing */
-
-.topbar-status .theme-toggle {
-  height: 30px;
-}
-
-.topbar-status .theme-btn svg {
-  width: 13px;
-  height: 13px;
-}
-
->>>>>>> 26ab93f0e (revert(ui): remove recent UI dashboard/theme commits from main)
 /* ===========================================
    Navigation Sidebar
    =========================================== */
 
-<<<<<<< HEAD
 .nav {
   grid-area: nav;
-=======
-.sidebar {
-  grid-area: nav;
-  display: flex;
-  flex-direction: column;
->>>>>>> 26ab93f0e (revert(ui): remove recent UI dashboard/theme commits from main)
   overflow-y: auto;
   overflow-x: hidden;
   padding: 16px 12px;
@@ -388,18 +209,13 @@
   display: none; /* Chrome/Safari */
 }
 
-<<<<<<< HEAD
 .shell--chat-focus .nav {
-=======
-.shell--chat-focus .sidebar {
->>>>>>> 26ab93f0e (revert(ui): remove recent UI dashboard/theme commits from main)
   width: 0;
   padding: 0;
   border-width: 0;
   overflow: hidden;
   pointer-events: none;
   opacity: 0;
-<<<<<<< HEAD
 }
 
 .nav--collapsed {
@@ -416,116 +232,6 @@
 .nav-collapse-toggle {
   width: 32px;
   height: 32px;
-=======
-}
-
-.sidebar--collapsed {
-  align-items: center;
-}
-
-.sidebar--collapsed .sidebar-header {
-  justify-content: center;
-  padding: 10px 8px;
-  min-height: 54px;
-}
-
-.sidebar--collapsed .nav-group__items {
-  padding: 4px 0;
-  align-items: center;
-}
-
-.sidebar--collapsed .nav-item {
-  margin: 0;
-  padding: 10px;
-  justify-content: center;
-  width: 44px;
-  height: 44px;
-}
-
-.sidebar--collapsed .nav-item__icon {
-  width: 22px;
-  height: 22px;
-  opacity: 0.85;
-}
-
-.sidebar--collapsed .nav-item__icon svg {
-  width: 22px;
-  height: 22px;
-  stroke-width: 1.75px;
-}
-
-.sidebar--collapsed .nav-item--active {
-  border-left: 0;
-}
-
-.sidebar--collapsed .sidebar-footer {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 8px 0;
-}
-
-.sidebar--collapsed .sidebar-footer .nav-item {
-  margin: 0;
-  padding: 10px;
-  width: 44px;
-  height: 44px;
-}
-
-/* Sidebar header (brand + collapse) */
-.sidebar-header {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  padding: 10px 8px;
-  gap: 0;
-  flex-shrink: 0;
-  min-height: 54px;
-}
-
-.sidebar-brand {
-  flex: 2;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  min-width: 0;
-
-  max-height: 28px;
-
-  padding-left: 10px;
-  padding-right: 10px;
-
-  @media (max-width: 1100px) {
-    padding-left: 0;
-    padding-right: 0;
-  }
-}
-
-.sidebar-brand__logo {
-  width: 28px;
-  height: 28px;
-  flex-shrink: 0;
-  object-fit: contain;
-}
-
-.sidebar-brand__title {
-  font-size: 15px;
-  font-weight: 700;
-  letter-spacing: -0.03em;
-  line-height: 1.1;
-  color: var(--text-strong);
-  white-space: nowrap;
-}
-
-.sidebar-collapse-btn {
-  flex: 1;
-  height: 32px;
-
-  @media (max-width: 1100px) {
-    height: 28px;
-  }
-
->>>>>>> 26ab93f0e (revert(ui): remove recent UI dashboard/theme commits from main)
   display: flex;
   align-items: center;
   justify-content: center;
@@ -700,86 +406,33 @@
   background: var(--accent-subtle);
 }
 
-<<<<<<< HEAD
 .nav-item.active .nav-item__icon {
-=======
-.nav-item--active .nav-item__icon {
->>>>>>> 26ab93f0e (revert(ui): remove recent UI dashboard/theme commits from main)
   opacity: 1;
   color: var(--accent);
 }
 
-<<<<<<< HEAD
-=======
-/* Sidebar footer — aligned with chat compose bar */
-.sidebar-footer {
-  padding: 14px 8px 6px;
-  border-top: 1px solid var(--border);
-  flex-shrink: 0;
-  margin-top: auto;
-}
-
-.sidebar-version {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 6px 10px;
-}
-
-.sidebar-version__text {
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--muted);
-  letter-spacing: 0.02em;
-}
-
-.sidebar-version__dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--muted);
-  opacity: 0.4;
-}
-
->>>>>>> 26ab93f0e (revert(ui): remove recent UI dashboard/theme commits from main)
 /* ===========================================
    Content Area
    =========================================== */
 
 .content {
   grid-area: content;
-<<<<<<< HEAD
   padding: 12px 16px 32px;
-=======
-  padding: 14px 18px 36px;
->>>>>>> 26ab93f0e (revert(ui): remove recent UI dashboard/theme commits from main)
-  display: block;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
   min-height: 0;
   overflow-y: auto;
   overflow-x: hidden;
 }
 
-.content > * + * {
-  margin-top: 24px;
-<<<<<<< HEAD
-}
-
 :root[data-theme="light"] .content {
   background: var(--bg-content);
-=======
->>>>>>> 26ab93f0e (revert(ui): remove recent UI dashboard/theme commits from main)
 }
 
 .content--chat {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
   overflow: hidden;
   padding-bottom: 0;
-}
-
-.content--chat > * + * {
-  margin-top: 0;
 }
 
 /* Content header */
@@ -788,11 +441,7 @@
   align-items: flex-end;
   justify-content: space-between;
   gap: 16px;
-<<<<<<< HEAD
   padding: 4px 8px;
-=======
-  padding: 4px 0;
->>>>>>> 26ab93f0e (revert(ui): remove recent UI dashboard/theme commits from main)
   overflow: hidden;
   transform-origin: top center;
   transition:
@@ -812,11 +461,7 @@
 }
 
 .page-title {
-<<<<<<< HEAD
   font-size: 26px;
-=======
-  font-size: 28px;
->>>>>>> 26ab93f0e (revert(ui): remove recent UI dashboard/theme commits from main)
   font-weight: 700;
   letter-spacing: -0.035em;
   line-height: 1.15;
@@ -825,11 +470,7 @@
 
 .page-sub {
   color: var(--muted);
-<<<<<<< HEAD
   font-size: 14px;
-=======
-  font-size: 15px;
->>>>>>> 26ab93f0e (revert(ui): remove recent UI dashboard/theme commits from main)
   font-weight: 400;
   margin-top: 6px;
   letter-spacing: -0.01em;
@@ -922,7 +563,6 @@
       "topbar"
       "nav"
       "content";
-<<<<<<< HEAD
   }
 
   .nav {
@@ -956,60 +596,6 @@
 
   .topbar-status {
     flex-wrap: wrap;
-=======
-  }
-
-  .sidebar {
-    position: static;
-    max-height: none;
-    display: flex;
-    flex-direction: row;
-    gap: 6px;
-    overflow-x: auto;
-    border-right: none;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .sidebar-header {
-    display: none;
-  }
-
-  .sidebar-footer {
-    display: none;
-  }
-
-  .sidebar-nav {
-    display: flex;
-    flex-direction: row;
-    gap: 6px;
-    padding: 10px 14px;
-    overflow-x: auto;
-  }
-
-  .nav-group {
-    grid-auto-flow: column;
-    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-    margin-bottom: 0;
-  }
-
-  .grid-cols-2,
-  .grid-cols-3 {
-    grid-template-columns: 1fr;
-  }
-
-  .topbar {
-    position: static;
-    padding: 12px 14px;
-    gap: 10px;
-  }
-
-  .topbar-search__kbd {
-    display: none;
-  }
-
-  .topbar-status {
-    flex-wrap: nowrap;
->>>>>>> 26ab93f0e (revert(ui): remove recent UI dashboard/theme commits from main)
   }
 
   .table-head,

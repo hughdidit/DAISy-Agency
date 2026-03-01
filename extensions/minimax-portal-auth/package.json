@@ -1,19 +1,7 @@
 {
   "name": "@openclaw/minimax-portal-auth",
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-  "version": "2026.2.9",
-=======
-  "version": "2026.2.13",
-=======
-  "version": "2026.2.24",
->>>>>>> 955cc9029 (chore: sync plugin versions to 2026.2.24)
-=======
-  "version": "2026.2.25",
->>>>>>> 2652bb1d7 (Release: sync plugin versions to 2026.2.25)
+  "version": "2026.2.27",
   "private": true,
->>>>>>> 67251e97b (fix(ci): sync extension versions to root release (#15199))
   "description": "OpenClaw MiniMax Portal OAuth provider plugin",
   "type": "module",
   "openclaw": {

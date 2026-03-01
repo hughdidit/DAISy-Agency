@@ -1,8 +1,7 @@
-import type { OpenClawConfig } from "openclaw/plugin-sdk";
 import crypto from "node:crypto";
 import path from "node:path";
+import type { MoltbotConfig } from "clawdbot/plugin-sdk";
 import { resolveBlueBubblesAccount } from "./accounts.js";
-import { getCachedBlueBubblesPrivateApiStatus } from "./probe.js";
 import { resolveChatGuidForTarget } from "./send.js";
 import { parseBlueBubblesTarget, normalizeBlueBubblesHandle } from "./targets.js";
 import {
@@ -17,7 +16,7 @@ export type BlueBubblesAttachmentOpts = {
   password?: string;
   accountId?: string;
   timeoutMs?: number;
-  cfg?: OpenClawConfig;
+  cfg?: MoltbotConfig;
 };
 
 const DEFAULT_ATTACHMENT_MAX_BYTES = 8 * 1024 * 1024;
@@ -27,16 +26,12 @@ const AUDIO_MIME_CAF = new Set(["audio/x-caf", "audio/caf"]);
 function sanitizeFilename(input: string | undefined, fallback: string): string {
   const trimmed = input?.trim() ?? "";
   const base = trimmed ? path.basename(trimmed) : "";
-  const name = base || fallback;
-  // Strip characters that could enable multipart header injection (CWE-93)
-  return name.replace(/[\r\n"\\]/g, "_");
+  return base || fallback;
 }
 
 function ensureExtension(filename: string, extension: string, fallbackBase: string): string {
   const currentExt = path.extname(filename);
-  if (currentExt.toLowerCase() === extension) {
-    return filename;
-  }
+  if (currentExt.toLowerCase() === extension) return filename;
   const base = currentExt ? filename.slice(0, -currentExt.length) : filename;
   return `${base || fallbackBase}${extension}`;
 }
@@ -44,48 +39,22 @@ function ensureExtension(filename: string, extension: string, fallbackBase: stri
 function resolveVoiceInfo(filename: string, contentType?: string) {
   const normalizedType = contentType?.trim().toLowerCase();
   const extension = path.extname(filename).toLowerCase();
-  const isMp3 =
-    extension === ".mp3" || (normalizedType ? AUDIO_MIME_MP3.has(normalizedType) : false);
-  const isCaf =
-    extension === ".caf" || (normalizedType ? AUDIO_MIME_CAF.has(normalizedType) : false);
+  const isMp3 = extension === ".mp3" || (normalizedType ? AUDIO_MIME_MP3.has(normalizedType) : false);
+  const isCaf = extension === ".caf" || (normalizedType ? AUDIO_MIME_CAF.has(normalizedType) : false);
   const isAudio = isMp3 || isCaf || Boolean(normalizedType?.startsWith("audio/"));
   return { isAudio, isMp3, isCaf };
 }
 
 function resolveAccount(params: BlueBubblesAttachmentOpts) {
-<<<<<<< HEAD
   const account = resolveBlueBubblesAccount({
     cfg: params.cfg ?? {},
     accountId: params.accountId,
   });
   const baseUrl = params.serverUrl?.trim() || account.config.serverUrl?.trim();
   const password = params.password?.trim() || account.config.password?.trim();
-  if (!baseUrl) {
-    throw new Error("BlueBubbles serverUrl is required");
-=======
-  return resolveBlueBubblesServerAccount(params);
-}
-
-function safeExtractHostname(url: string): string | undefined {
-  try {
-    const hostname = new URL(url).hostname.trim();
-    return hostname || undefined;
-  } catch {
-    return undefined;
-  }
-}
-
-type MediaFetchErrorCode = "max_bytes" | "http_error" | "fetch_failed";
-
-function readMediaFetchErrorCode(error: unknown): MediaFetchErrorCode | undefined {
-  if (!error || typeof error !== "object") {
-    return undefined;
->>>>>>> 7d9397099 (fix(bluebubbles): allow configured host for attachment SSRF guard)
-  }
-  if (!password) {
-    throw new Error("BlueBubbles password is required");
-  }
-  return { baseUrl, password, accountId: account.accountId };
+  if (!baseUrl) throw new Error("BlueBubbles serverUrl is required");
+  if (!password) throw new Error("BlueBubbles password is required");
+  return { baseUrl, password };
 }
 
 export async function downloadBlueBubblesAttachment(
@@ -93,53 +62,19 @@ export async function downloadBlueBubblesAttachment(
   opts: BlueBubblesAttachmentOpts & { maxBytes?: number } = {},
 ): Promise<{ buffer: Uint8Array; contentType?: string }> {
   const guid = attachment.guid?.trim();
-  if (!guid) {
-    throw new Error("BlueBubbles attachment guid is required");
-  }
+  if (!guid) throw new Error("BlueBubbles attachment guid is required");
   const { baseUrl, password } = resolveAccount(opts);
   const url = buildBlueBubblesApiUrl({
     baseUrl,
     path: `/api/v1/attachment/${encodeURIComponent(guid)}/download`,
     password,
   });
-<<<<<<< HEAD
   const res = await blueBubblesFetchWithTimeout(url, { method: "GET" }, opts.timeoutMs);
   if (!res.ok) {
     const errorText = await res.text().catch(() => "");
     throw new Error(
       `BlueBubbles attachment download failed (${res.status}): ${errorText || "unknown"}`,
     );
-=======
-  const maxBytes = typeof opts.maxBytes === "number" ? opts.maxBytes : DEFAULT_ATTACHMENT_MAX_BYTES;
-  const trustedHostname = safeExtractHostname(baseUrl);
-  try {
-    const fetched = await getBlueBubblesRuntime().channel.media.fetchRemoteMedia({
-      url,
-      filePathHint: attachment.transferName ?? attachment.guid ?? "attachment",
-      maxBytes,
-      ssrfPolicy: allowPrivateNetwork
-        ? { allowPrivateNetwork: true }
-        : trustedHostname
-          ? { allowedHostnames: [trustedHostname] }
-          : undefined,
-      fetchImpl: async (input, init) =>
-        await blueBubblesFetchWithTimeout(
-          resolveRequestUrl(input),
-          { ...init, method: init?.method ?? "GET" },
-          opts.timeoutMs,
-        ),
-    });
-    return {
-      buffer: new Uint8Array(fetched.buffer),
-      contentType: fetched.contentType ?? attachment.mimeType ?? undefined,
-    };
-  } catch (error) {
-    if (readMediaFetchErrorCode(error) === "max_bytes") {
-      throw new Error(`BlueBubbles attachment too large (limit ${maxBytes} bytes)`);
-    }
-    const text = error instanceof Error ? error.message : String(error);
-    throw new Error(`BlueBubbles attachment download failed: ${text}`);
->>>>>>> 7d9397099 (fix(bluebubbles): allow configured host for attachment SSRF guard)
   }
   const contentType = res.headers.get("content-type") ?? undefined;
   const buf = new Uint8Array(await res.arrayBuffer());
@@ -173,14 +108,9 @@ function resolveSendTarget(raw: string): BlueBubblesSendTarget {
 }
 
 function extractMessageId(payload: unknown): string {
-  if (!payload || typeof payload !== "object") {
-    return "unknown";
-  }
+  if (!payload || typeof payload !== "object") return "unknown";
   const record = payload as Record<string, unknown>;
-  const data =
-    record.data && typeof record.data === "object"
-      ? (record.data as Record<string, unknown>)
-      : null;
+  const data = record.data && typeof record.data === "object" ? (record.data as Record<string, unknown>) : null;
   const candidates = [
     record.messageId,
     record.guid,
@@ -190,12 +120,8 @@ function extractMessageId(payload: unknown): string {
     data?.id,
   ];
   for (const candidate of candidates) {
-    if (typeof candidate === "string" && candidate.trim()) {
-      return candidate.trim();
-    }
-    if (typeof candidate === "number" && Number.isFinite(candidate)) {
-      return String(candidate);
-    }
+    if (typeof candidate === "string" && candidate.trim()) return candidate.trim();
+    if (typeof candidate === "number" && Number.isFinite(candidate)) return String(candidate);
   }
   return "unknown";
 }
@@ -222,8 +148,7 @@ export async function sendBlueBubblesAttachment(params: {
   const fallbackName = wantsVoice ? "Audio Message" : "attachment";
   filename = sanitizeFilename(filename, fallbackName);
   contentType = contentType?.trim() || undefined;
-  const { baseUrl, password, accountId } = resolveAccount(opts);
-  const privateApiStatus = getCachedBlueBubblesPrivateApiStatus(accountId);
+  const { baseUrl, password } = resolveAccount(opts);
 
   // Validate voice memo format when requested (BlueBubbles converts MP3 -> CAF when isAudioMessage).
   const isAudioMessage = wantsVoice;
@@ -280,7 +205,9 @@ export async function sendBlueBubblesAttachment(params: {
   const addFile = (name: string, fileBuffer: Uint8Array, fileName: string, mimeType?: string) => {
     parts.push(encoder.encode(`--${boundary}\r\n`));
     parts.push(
-      encoder.encode(`Content-Disposition: form-data; name="${name}"; filename="${fileName}"\r\n`),
+      encoder.encode(
+        `Content-Disposition: form-data; name="${name}"; filename="${fileName}"\r\n`,
+      ),
     );
     parts.push(encoder.encode(`Content-Type: ${mimeType ?? "application/octet-stream"}\r\n\r\n`));
     parts.push(fileBuffer);
@@ -292,9 +219,7 @@ export async function sendBlueBubblesAttachment(params: {
   addField("chatGuid", chatGuid);
   addField("name", filename);
   addField("tempGuid", `temp-${Date.now()}-${crypto.randomUUID().slice(0, 8)}`);
-  if (privateApiStatus !== false) {
-    addField("method", "private-api");
-  }
+  addField("method", "private-api");
 
   // Add isAudioMessage flag for voice memos
   if (isAudioMessage) {
@@ -302,9 +227,12 @@ export async function sendBlueBubblesAttachment(params: {
   }
 
   const trimmedReplyTo = replyToMessageGuid?.trim();
-  if (trimmedReplyTo && privateApiStatus !== false) {
+  if (trimmedReplyTo) {
     addField("selectedMessageGuid", trimmedReplyTo);
-    addField("partIndex", typeof replyToPartIndex === "number" ? String(replyToPartIndex) : "0");
+    addField(
+      "partIndex",
+      typeof replyToPartIndex === "number" ? String(replyToPartIndex) : "0",
+    );
   }
 
   // Add optional caption
@@ -340,15 +268,11 @@ export async function sendBlueBubblesAttachment(params: {
 
   if (!res.ok) {
     const errorText = await res.text();
-    throw new Error(
-      `BlueBubbles attachment send failed (${res.status}): ${errorText || "unknown"}`,
-    );
+    throw new Error(`BlueBubbles attachment send failed (${res.status}): ${errorText || "unknown"}`);
   }
 
   const responseBody = await res.text();
-  if (!responseBody) {
-    return { messageId: "ok" };
-  }
+  if (!responseBody) return { messageId: "ok" };
   try {
     const parsed = JSON.parse(responseBody) as unknown;
     return { messageId: extractMessageId(parsed) };

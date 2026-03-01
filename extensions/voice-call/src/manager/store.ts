@@ -8,6 +8,7 @@ export function persistCallRecord(storePath: string, call: CallRecord): void {
   const line = `${JSON.stringify(call)}\n`;
   // Fire-and-forget async write to avoid blocking event loop.
   fsp.appendFile(logPath, line).catch((err) => {
+    // Log to stderr as a fallback — this is fire-and-forget.
     console.error("[voice-call] Failed to persist call record:", err);
   });
 }

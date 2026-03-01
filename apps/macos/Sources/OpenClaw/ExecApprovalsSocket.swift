@@ -1,8 +1,8 @@
 import AppKit
-import OpenClawKit
 import CryptoKit
 import Darwin
 import Foundation
+import OpenClawKit
 import OSLog
 
 struct ExecApprovalPromptRequest: Codable, Sendable {
@@ -38,7 +38,7 @@ private struct ExecHostSocketRequest: Codable {
     var requestJson: String
 }
 
-private struct ExecHostRequest: Codable {
+struct ExecHostRequest: Codable {
     var command: [String]
     var rawCommand: String?
     var cwd: String?
@@ -59,7 +59,7 @@ private struct ExecHostRunResult: Codable {
     var error: String?
 }
 
-private struct ExecHostError: Codable {
+struct ExecHostError: Codable, Error {
     var code: String
     var message: String
     var reason: String?
@@ -76,7 +76,9 @@ private struct ExecHostResponse: Codable {
 enum ExecApprovalsSocketClient {
     private struct TimeoutError: LocalizedError {
         var message: String
-        var errorDescription: String? { self.message }
+        var errorDescription: String? {
+            self.message
+        }
     }
 
     static func requestDecision(
@@ -242,6 +244,8 @@ enum ExecApprovalsPromptPresenter {
         stack.orientation = .vertical
         stack.spacing = 8
         stack.alignment = .leading
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        stack.widthAnchor.constraint(greaterThanOrEqualToConstant: 380).isActive = true
 
         let commandTitle = NSTextField(labelWithString: "Command")
         commandTitle.font = NSFont.boldSystemFont(ofSize: NSFont.systemFontSize)
@@ -258,16 +262,19 @@ enum ExecApprovalsPromptPresenter {
         commandText.textContainer?.lineFragmentPadding = 0
         commandText.textContainer?.widthTracksTextView = true
         commandText.isHorizontallyResizable = false
-        commandText.isVerticallyResizable = false
+        commandText.isVerticallyResizable = true
 
         let commandScroll = NSScrollView()
         commandScroll.borderType = .lineBorder
-        commandScroll.hasVerticalScroller = false
+        commandScroll.hasVerticalScroller = true
         commandScroll.hasHorizontalScroller = false
+        commandScroll.autohidesScrollers = true
         commandScroll.documentView = commandText
         commandScroll.translatesAutoresizingMaskIntoConstraints = false
+        commandScroll.widthAnchor.constraint(greaterThanOrEqualToConstant: 380).isActive = true
         commandScroll.widthAnchor.constraint(lessThanOrEqualToConstant: 440).isActive = true
         commandScroll.heightAnchor.constraint(greaterThanOrEqualToConstant: 56).isActive = true
+        commandScroll.heightAnchor.constraint(lessThanOrEqualToConstant: 120).isActive = true
         stack.addArrangedSubview(commandScroll)
 
         let contextTitle = NSTextField(labelWithString: "Context")
@@ -345,54 +352,29 @@ enum ExecApprovalsPromptPresenter {
 private enum ExecHostExecutor {
     private typealias ExecApprovalContext = ExecApprovalEvaluation
 
-    private static let blockedEnvKeys: Set<String> = [
-        "PATH",
-        "NODE_OPTIONS",
-        "PYTHONHOME",
-        "PYTHONPATH",
-        "PERL5LIB",
-        "PERL5OPT",
-        "RUBYOPT",
-    ]
-
-    private static let blockedEnvPrefixes: [String] = [
-        "DYLD_",
-        "LD_",
-    ]
-
     static func handle(_ request: ExecHostRequest) async -> ExecHostResponse {
-        let command = request.command.map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
-        guard !command.isEmpty else {
-            return self.errorResponse(
-                code: "INVALID_REQUEST",
-                message: "command required",
-                reason: "invalid")
+        let validatedRequest: ExecHostValidatedRequest
+        switch ExecHostRequestEvaluator.validateRequest(request) {
+        case let .success(request):
+            validatedRequest = request
+        case let .failure(error):
+            return self.errorResponse(error)
         }
 
-        let context = await self.buildContext(request: request, command: command)
-        if context.security == .deny {
-            return self.errorResponse(
-                code: "UNAVAILABLE",
-                message: "SYSTEM_RUN_DISABLED: security=deny",
-                reason: "security=deny")
-        }
+        let context = await self.buildContext(
+            request: request,
+            command: validatedRequest.command,
+            rawCommand: validatedRequest.displayCommand)
 
-        let approvalDecision = request.approvalDecision
-        if approvalDecision == .deny {
-            return self.errorResponse(
-                code: "UNAVAILABLE",
-                message: "SYSTEM_RUN_DENIED: user denied",
-                reason: "user-denied")
-        }
-
-        var approvedByAsk = approvalDecision != nil
-        if ExecApprovalHelpers.requiresAsk(
-            ask: context.ask,
-            security: context.security,
-            allowlistMatch: context.allowlistMatch,
-            skillAllow: context.skillAllow),
-            approvalDecision == nil
+        switch ExecHostRequestEvaluator.evaluate(
+            context: context,
+            approvalDecision: request.approvalDecision)
         {
+        case let .deny(error):
+            return self.errorResponse(error)
+        case .allow:
+            break
+        case .requiresPrompt:
             let decision = ExecApprovalsPromptPresenter.prompt(
                 ExecApprovalPromptRequest(
                     command: context.displayCommand,
@@ -404,32 +386,34 @@ private enum ExecHostExecutor {
                     resolvedPath: context.resolution?.resolvedPath,
                     sessionKey: request.sessionKey))
 
+            let followupDecision: ExecApprovalDecision
             switch decision {
             case .deny:
-                return self.errorResponse(
-                    code: "UNAVAILABLE",
-                    message: "SYSTEM_RUN_DENIED: user denied",
-                    reason: "user-denied")
+                followupDecision = .deny
             case .allowAlways:
-                approvedByAsk = true
+                followupDecision = .allowAlways
                 self.persistAllowlistEntry(decision: decision, context: context)
             case .allowOnce:
-                approvedByAsk = true
+                followupDecision = .allowOnce
+            }
+
+            switch ExecHostRequestEvaluator.evaluate(
+                context: context,
+                approvalDecision: followupDecision)
+            {
+            case let .deny(error):
+                return self.errorResponse(error)
+            case .allow:
+                break
+            case .requiresPrompt:
+                return self.errorResponse(
+                    code: "INVALID_REQUEST",
+                    message: "unexpected approval state",
+                    reason: "invalid")
             }
         }
 
-        self.persistAllowlistEntry(decision: approvalDecision, context: context)
-
-        if context.security == .allowlist,
-           !context.allowlistSatisfied,
-           !context.skillAllow,
-           !approvedByAsk
-        {
-            return self.errorResponse(
-                code: "UNAVAILABLE",
-                message: "SYSTEM_RUN_DENIED: allowlist miss",
-                reason: "allowlist-miss")
-        }
+        self.persistAllowlistEntry(decision: request.approvalDecision, context: context)
 
         if context.allowlistSatisfied {
             var seenPatterns = Set<String>()
@@ -453,16 +437,20 @@ private enum ExecHostExecutor {
         }
 
         return await self.runCommand(
-            command: command,
+            command: validatedRequest.command,
             cwd: request.cwd,
             env: context.env,
             timeoutMs: request.timeoutMs)
     }
 
-    private static func buildContext(request: ExecHostRequest, command: [String]) async -> ExecApprovalContext {
+    private static func buildContext(
+        request: ExecHostRequest,
+        command: [String],
+        rawCommand: String?) async -> ExecApprovalContext
+    {
         await ExecApprovalEvaluator.evaluate(
             command: command,
-            rawCommand: request.rawCommand,
+            rawCommand: rawCommand,
             cwd: request.cwd,
             envOverrides: request.env,
             agentId: request.agentId)
@@ -523,6 +511,17 @@ private enum ExecHostExecutor {
     }
 
     private static func errorResponse(
+        _ error: ExecHostError) -> ExecHostResponse
+    {
+        ExecHostResponse(
+            type: "response",
+            id: UUID().uuidString,
+            ok: false,
+            payload: nil,
+            error: error)
+    }
+
+    private static func errorResponse(
         code: String,
         message: String,
         reason: String?) -> ExecHostResponse
@@ -543,23 +542,6 @@ private enum ExecHostExecutor {
             payload: payload,
             error: nil)
     }
-<<<<<<< HEAD
-
-    private static func sanitizedEnv(_ overrides: [String: String]?) -> [String: String]? {
-        guard let overrides else { return nil }
-        var merged = ProcessInfo.processInfo.environment
-        for (rawKey, value) in overrides {
-            let key = rawKey.trimmingCharacters(in: .whitespacesAndNewlines)
-            guard !key.isEmpty else { continue }
-            let upper = key.uppercased()
-            if self.blockedEnvKeys.contains(upper) { continue }
-            if self.blockedEnvPrefixes.contains(where: { upper.hasPrefix($0) }) { continue }
-            merged[key] = value
-        }
-        return merged
-    }
-=======
->>>>>>> e371da38a (fix(macos): consolidate exec approval evaluation)
 }
 
 private final class ExecApprovalsSocketServer: @unchecked Sendable {

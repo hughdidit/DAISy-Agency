@@ -1,17 +1,9 @@
 {
-  "name": "@openclaw/google-antigravity-auth",
-<<<<<<< HEAD
-  "version": "2026.2.9",
-=======
-  "version": "2026.2.13",
-  "private": true,
->>>>>>> 67251e97b (fix(ci): sync extension versions to root release (#15199))
-  "description": "OpenClaw Google Antigravity OAuth provider plugin",
+  "name": "@moltbot/google-antigravity-auth",
+  "version": "2026.1.27-beta.1",
   "type": "module",
-  "devDependencies": {
-    "openclaw": "workspace:*"
-  },
-  "openclaw": {
+  "description": "Moltbot Google Antigravity OAuth provider plugin",
+  "moltbot": {
     "extensions": [
       "./index.ts"
     ]

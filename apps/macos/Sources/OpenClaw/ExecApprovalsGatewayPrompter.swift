@@ -1,7 +1,7 @@
-import OpenClawKit
-import OpenClawProtocol
 import CoreGraphics
 import Foundation
+import MoltbotKit
+import MoltbotProtocol
 import OSLog
 
 @MainActor

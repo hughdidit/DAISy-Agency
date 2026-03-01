@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>OpenClaw</string>
+	<string>Moltbot</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIconName</key>
@@ -19,70 +19,30 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-<<<<<<< HEAD
-<<<<<<< HEAD
-	<string>2026.2.9</string>
+	<string>2026.1.27-beta.1</string>
 	<key>CFBundleVersion</key>
-	<string>20260202</string>
-=======
-	<string>2026.2.25</string>
-	<key>CFBundleURLTypes</key>
-	<array>
-		<dict>
-			<key>CFBundleURLName</key>
-			<string>ai.openclaw.ios</string>
-			<key>CFBundleURLSchemes</key>
-			<array>
-				<string>openclaw</string>
-			</array>
-		</dict>
-	</array>
-	<key>CFBundleVersion</key>
-	<string>20260225</string>
->>>>>>> 480cc4b85 (chore: roll to 2026.2.25 unreleased)
+	<string>20260126</string>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsArbitraryLoadsInWebContent</key>
-=======
-	<string>2026.2.16</string>
-	<key>CFBundleVersion</key>
-	<string>20260216</string>
-	<key>NSAppTransportSecurity</key>
-	<dict>
-<<<<<<< HEAD
-		<key>NSAllowsLocalNetworking</key>
->>>>>>> 2e7fac223 (iOS: port talk redaction, accessibility, and ATS hardening (#18163))
-=======
-		<key>NSAllowsArbitraryLoadsInWebContent</key>
->>>>>>> 5a39e13c9 (fix(ios): restore missing location monitor merge files (#18260))
 		<true/>
 	</dict>
 	<key>NSBonjourServices</key>
 	<array>
-		<string>_openclaw-gw._tcp</string>
+		<string>_moltbot-gw._tcp</string>
 	</array>
 	<key>NSCameraUsageDescription</key>
-	<string>OpenClaw can capture photos or short video clips when requested via the gateway.</string>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>OpenClaw can read your photo library when you ask it to share recent photos.</string>
-	<key>NSContactsUsageDescription</key>
-	<string>OpenClaw can read and create contacts when requested via the gateway.</string>
+	<string>Moltbot can capture photos or short video clips when requested via the gateway.</string>
 	<key>NSLocalNetworkUsageDescription</key>
-	<string>OpenClaw discovers and connects to your OpenClaw gateway on the local network.</string>
+	<string>Moltbot discovers and connects to your Moltbot gateway on the local network.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>OpenClaw can share your location in the background when you enable Always.</string>
+	<string>Moltbot can share your location in the background when you enable Always.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>OpenClaw uses your location when you allow location sharing.</string>
-	<key>NSCalendarsFullAccessUsageDescription</key>
-	<string>OpenClaw can read and add calendar events when requested via the gateway.</string>
-	<key>NSRemindersFullAccessUsageDescription</key>
-	<string>OpenClaw can read and add reminders when requested via the gateway.</string>
-	<key>NSMotionUsageDescription</key>
-	<string>OpenClaw uses Motion &amp; Fitness data for activity and pedometer commands.</string>
+	<string>Moltbot uses your location when you allow location sharing.</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>OpenClaw needs microphone access for voice wake.</string>
+	<string>Moltbot needs microphone access for voice wake.</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
-	<string>OpenClaw uses on-device speech recognition for voice wake.</string>
+	<string>Moltbot uses on-device speech recognition for voice wake.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
@@ -91,7 +51,6 @@
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>audio</string>
-		<string>remote-notification</string>
 	</array>
 	<key>UILaunchScreen</key>
 	<dict/>

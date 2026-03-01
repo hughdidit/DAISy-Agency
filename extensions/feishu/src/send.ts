@@ -1,11 +1,12 @@
 import type { ClawdbotConfig } from "openclaw/plugin-sdk";
-import type { MentionTarget } from "./mention.js";
-import type { FeishuSendResult } from "./types.js";
 import { resolveFeishuAccount } from "./accounts.js";
 import { createFeishuClient } from "./client.js";
+import type { MentionTarget } from "./mention.js";
 import { buildMentionedMessage, buildMentionedCardContent } from "./mention.js";
 import { getFeishuRuntime } from "./runtime.js";
-import { resolveReceiveIdType, normalizeFeishuTarget } from "./targets.js";
+import { assertFeishuMessageApiSuccess, toFeishuSendResult } from "./send-result.js";
+import { resolveFeishuSendTarget } from "./send-target.js";
+import type { FeishuSendResult } from "./types.js";
 
 export type FeishuMessageInfo = {
   messageId: string;
@@ -72,6 +73,17 @@ export async function getMessageFeishu(params: {
       const parsed = JSON.parse(content);
       if (item.msg_type === "text" && parsed.text) {
         content = parsed.text;
+      } else if (item.msg_type === "interactive" && parsed.elements) {
+        // Extract text from interactive card
+        const texts: string[] = [];
+        for (const element of parsed.elements) {
+          if (element.tag === "div" && element.text?.content) {
+            texts.push(element.text.content);
+          } else if (element.tag === "markdown" && element.content) {
+            texts.push(element.content);
+          }
+        }
+        content = texts.join("\n") || "[Interactive Card]";
       }
     } catch {
       // Keep raw content if parsing fails
@@ -130,24 +142,8 @@ function buildFeishuPostMessagePayload(params: { messageText: string }): {
 export async function sendMessageFeishu(
   params: SendFeishuMessageParams,
 ): Promise<FeishuSendResult> {
-<<<<<<< HEAD
-  const { cfg, to, text, replyToMessageId, mentions, accountId } = params;
-  const account = resolveFeishuAccount({ cfg, accountId });
-  if (!account.configured) {
-    throw new Error(`Feishu account "${account.accountId}" not configured`);
-  }
-
-  const client = createFeishuClient(account);
-  const receiveId = normalizeFeishuTarget(to);
-  if (!receiveId) {
-    throw new Error(`Invalid Feishu target: ${to}`);
-  }
-
-  const receiveIdType = resolveReceiveIdType(receiveId);
-=======
   const { cfg, to, text, replyToMessageId, replyInThread, mentions, accountId } = params;
   const { client, receiveId, receiveIdType } = resolveFeishuSendTarget({ cfg, to, accountId });
->>>>>>> 89669a33b (feat(feishu): add replyInThread configuration for message replies (openclaw#27325) thanks @kcinzgg)
   const tableMode = getFeishuRuntime().channel.text.resolveMarkdownTableMode({
     cfg,
     channel: "feishu",
@@ -171,15 +167,8 @@ export async function sendMessageFeishu(
         ...(replyInThread ? { reply_in_thread: true } : {}),
       },
     });
-
-    if (response.code !== 0) {
-      throw new Error(`Feishu reply failed: ${response.msg || `code ${response.code}`}`);
-    }
-
-    return {
-      messageId: response.data?.message_id ?? "unknown",
-      chatId: receiveId,
-    };
+    assertFeishuMessageApiSuccess(response, "Feishu reply failed");
+    return toFeishuSendResult(response, receiveId);
   }
 
   const response = await client.im.message.create({
@@ -190,15 +179,8 @@ export async function sendMessageFeishu(
       msg_type: msgType,
     },
   });
-
-  if (response.code !== 0) {
-    throw new Error(`Feishu send failed: ${response.msg || `code ${response.code}`}`);
-  }
-
-  return {
-    messageId: response.data?.message_id ?? "unknown",
-    chatId: receiveId,
-  };
+  assertFeishuMessageApiSuccess(response, "Feishu send failed");
+  return toFeishuSendResult(response, receiveId);
 }
 
 export type SendFeishuCardParams = {
@@ -212,24 +194,8 @@ export type SendFeishuCardParams = {
 };
 
 export async function sendCardFeishu(params: SendFeishuCardParams): Promise<FeishuSendResult> {
-<<<<<<< HEAD
-  const { cfg, to, card, replyToMessageId, accountId } = params;
-  const account = resolveFeishuAccount({ cfg, accountId });
-  if (!account.configured) {
-    throw new Error(`Feishu account "${account.accountId}" not configured`);
-  }
-
-  const client = createFeishuClient(account);
-  const receiveId = normalizeFeishuTarget(to);
-  if (!receiveId) {
-    throw new Error(`Invalid Feishu target: ${to}`);
-  }
-
-  const receiveIdType = resolveReceiveIdType(receiveId);
-=======
   const { cfg, to, card, replyToMessageId, replyInThread, accountId } = params;
   const { client, receiveId, receiveIdType } = resolveFeishuSendTarget({ cfg, to, accountId });
->>>>>>> 89669a33b (feat(feishu): add replyInThread configuration for message replies (openclaw#27325) thanks @kcinzgg)
   const content = JSON.stringify(card);
 
   if (replyToMessageId) {
@@ -241,15 +207,8 @@ export async function sendCardFeishu(params: SendFeishuCardParams): Promise<Feis
         ...(replyInThread ? { reply_in_thread: true } : {}),
       },
     });
-
-    if (response.code !== 0) {
-      throw new Error(`Feishu card reply failed: ${response.msg || `code ${response.code}`}`);
-    }
-
-    return {
-      messageId: response.data?.message_id ?? "unknown",
-      chatId: receiveId,
-    };
+    assertFeishuMessageApiSuccess(response, "Feishu card reply failed");
+    return toFeishuSendResult(response, receiveId);
   }
 
   const response = await client.im.message.create({
@@ -260,15 +219,8 @@ export async function sendCardFeishu(params: SendFeishuCardParams): Promise<Feis
       msg_type: "interactive",
     },
   });
-
-  if (response.code !== 0) {
-    throw new Error(`Feishu card send failed: ${response.msg || `code ${response.code}`}`);
-  }
-
-  return {
-    messageId: response.data?.message_id ?? "unknown",
-    chatId: receiveId,
-  };
+  assertFeishuMessageApiSuccess(response, "Feishu card send failed");
+  return toFeishuSendResult(response, receiveId);
 }
 
 export async function updateCardFeishu(params: {
@@ -299,18 +251,22 @@ export async function updateCardFeishu(params: {
 /**
  * Build a Feishu interactive card with markdown content.
  * Cards render markdown properly (code blocks, tables, links, etc.)
+ * Uses schema 2.0 format for proper markdown rendering.
  */
 export function buildMarkdownCard(text: string): Record<string, unknown> {
   return {
+    schema: "2.0",
     config: {
       wide_screen_mode: true,
     },
-    elements: [
-      {
-        tag: "markdown",
-        content: text,
-      },
-    ],
+    body: {
+      elements: [
+        {
+          tag: "markdown",
+          content: text,
+        },
+      ],
+    },
   };
 }
 

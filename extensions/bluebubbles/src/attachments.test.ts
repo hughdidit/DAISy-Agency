@@ -1,7 +1,7 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
-import type { BlueBubblesAttachment } from "./types.js";
+
 import { downloadBlueBubblesAttachment, sendBlueBubblesAttachment } from "./attachments.js";
-import { getCachedBlueBubblesPrivateApiStatus } from "./probe.js";
+import type { BlueBubblesAttachment } from "./types.js";
 
 vi.mock("./accounts.js", () => ({
   resolveBlueBubblesAccount: vi.fn(({ cfg, accountId }) => {
@@ -15,18 +15,12 @@ vi.mock("./accounts.js", () => ({
   }),
 }));
 
-vi.mock("./probe.js", () => ({
-  getCachedBlueBubblesPrivateApiStatus: vi.fn().mockReturnValue(null),
-}));
-
 const mockFetch = vi.fn();
 
 describe("downloadBlueBubblesAttachment", () => {
   beforeEach(() => {
     vi.stubGlobal("fetch", mockFetch);
     mockFetch.mockReset();
-    vi.mocked(getCachedBlueBubblesPrivateApiStatus).mockReset();
-    vi.mocked(getCachedBlueBubblesPrivateApiStatus).mockReturnValue(null);
   });
 
   afterEach(() => {
@@ -243,78 +237,12 @@ describe("downloadBlueBubblesAttachment", () => {
     expect(calledUrl).toContain("password=config-password");
     expect(result.buffer).toEqual(new Uint8Array([1]));
   });
-<<<<<<< HEAD
-=======
-
-  it("passes ssrfPolicy with allowPrivateNetwork when config enables it", async () => {
-    const mockBuffer = new Uint8Array([1]);
-    mockFetch.mockResolvedValueOnce({
-      ok: true,
-      headers: new Headers(),
-      arrayBuffer: () => Promise.resolve(mockBuffer.buffer),
-    });
-
-    const attachment: BlueBubblesAttachment = { guid: "att-ssrf" };
-    await downloadBlueBubblesAttachment(attachment, {
-      cfg: {
-        channels: {
-          bluebubbles: {
-            serverUrl: "http://localhost:1234",
-            password: "test",
-            allowPrivateNetwork: true,
-          },
-        },
-      },
-    });
-
-    const fetchMediaArgs = fetchRemoteMediaMock.mock.calls[0][0] as Record<string, unknown>;
-    expect(fetchMediaArgs.ssrfPolicy).toEqual({ allowPrivateNetwork: true });
-  });
-
-  it("auto-allowlists serverUrl hostname when allowPrivateNetwork is not set", async () => {
-    const mockBuffer = new Uint8Array([1]);
-    mockFetch.mockResolvedValueOnce({
-      ok: true,
-      headers: new Headers(),
-      arrayBuffer: () => Promise.resolve(mockBuffer.buffer),
-    });
-
-    const attachment: BlueBubblesAttachment = { guid: "att-no-ssrf" };
-    await downloadBlueBubblesAttachment(attachment, {
-      serverUrl: "http://localhost:1234",
-      password: "test",
-    });
-
-    const fetchMediaArgs = fetchRemoteMediaMock.mock.calls[0][0] as Record<string, unknown>;
-    expect(fetchMediaArgs.ssrfPolicy).toEqual({ allowedHostnames: ["localhost"] });
-  });
-
-  it("auto-allowlists private IP serverUrl hostname when allowPrivateNetwork is not set", async () => {
-    const mockBuffer = new Uint8Array([1]);
-    mockFetch.mockResolvedValueOnce({
-      ok: true,
-      headers: new Headers(),
-      arrayBuffer: () => Promise.resolve(mockBuffer.buffer),
-    });
-
-    const attachment: BlueBubblesAttachment = { guid: "att-private-ip" };
-    await downloadBlueBubblesAttachment(attachment, {
-      serverUrl: "http://192.168.1.5:1234",
-      password: "test",
-    });
-
-    const fetchMediaArgs = fetchRemoteMediaMock.mock.calls[0][0] as Record<string, unknown>;
-    expect(fetchMediaArgs.ssrfPolicy).toEqual({ allowedHostnames: ["192.168.1.5"] });
-  });
->>>>>>> 7d9397099 (fix(bluebubbles): allow configured host for attachment SSRF guard)
 });
 
 describe("sendBlueBubblesAttachment", () => {
   beforeEach(() => {
     vi.stubGlobal("fetch", mockFetch);
     mockFetch.mockReset();
-    vi.mocked(getCachedBlueBubblesPrivateApiStatus).mockReset();
-    vi.mocked(getCachedBlueBubblesPrivateApiStatus).mockReturnValue(null);
   });
 
   afterEach(() => {
@@ -414,28 +342,5 @@ describe("sendBlueBubblesAttachment", () => {
     const bodyText = decodeBody(body);
     expect(bodyText).toContain('filename="evil.mp3"');
     expect(bodyText).toContain('name="evil.mp3"');
-  });
-
-  it("downgrades attachment reply threading when private API is disabled", async () => {
-    vi.mocked(getCachedBlueBubblesPrivateApiStatus).mockReturnValueOnce(false);
-    mockFetch.mockResolvedValueOnce({
-      ok: true,
-      text: () => Promise.resolve(JSON.stringify({ messageId: "msg-4" })),
-    });
-
-    await sendBlueBubblesAttachment({
-      to: "chat_guid:iMessage;-;+15551234567",
-      buffer: new Uint8Array([1, 2, 3]),
-      filename: "photo.jpg",
-      contentType: "image/jpeg",
-      replyToMessageGuid: "reply-guid-123",
-      opts: { serverUrl: "http://localhost:1234", password: "test" },
-    });
-
-    const body = mockFetch.mock.calls[0][1]?.body as Uint8Array;
-    const bodyText = decodeBody(body);
-    expect(bodyText).not.toContain('name="method"');
-    expect(bodyText).not.toContain('name="selectedMessageGuid"');
-    expect(bodyText).not.toContain('name="partIndex"');
   });
 });

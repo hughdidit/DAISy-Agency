@@ -58,6 +58,20 @@ const ChannelHeartbeatVisibilitySchema = z
   .optional();
 
 /**
+ * Dynamic agent creation configuration.
+ * When enabled, a new agent is created for each unique DM user.
+ */
+const DynamicAgentCreationSchema = z
+  .object({
+    enabled: z.boolean().optional(),
+    workspaceTemplate: z.string().optional(),
+    agentDirTemplate: z.string().optional(),
+    maxAgents: z.number().int().positive().optional(),
+  })
+  .strict()
+  .optional();
+
+/**
  * Feishu tools configuration.
  * Controls which tool categories are enabled.
  *
@@ -77,8 +91,6 @@ const FeishuToolsConfigSchema = z
   .strict()
   .optional();
 
-<<<<<<< HEAD
-=======
 /**
  * Group session scope for routing Feishu group messages.
  * - "group" (default): one session per group chat
@@ -101,9 +113,6 @@ const GroupSessionScopeSchema = z
 const TopicSessionModeSchema = z.enum(["disabled", "enabled"]).optional();
 const ReactionNotificationModeSchema = z.enum(["off", "own", "all"]).optional();
 
-<<<<<<< HEAD
->>>>>>> 36d69d05e (feat(feishu): support sender/topic-scoped group session routing (openclaw#17798) thanks @yfge)
-=======
 /**
  * Reply-in-thread mode for group chats.
  * - "disabled" (default): Bot replies are normal inline replies
@@ -114,7 +123,6 @@ const ReactionNotificationModeSchema = z.enum(["off", "own", "all"]).optional();
  */
 const ReplyInThreadSchema = z.enum(["disabled", "enabled"]).optional();
 
->>>>>>> 89669a33b (feat(feishu): add replyInThread configuration for message replies (openclaw#27325) thanks @kcinzgg)
 export const FeishuGroupSchema = z
   .object({
     requireMention: z.boolean().optional(),
@@ -123,16 +131,8 @@ export const FeishuGroupSchema = z
     enabled: z.boolean().optional(),
     allowFrom: z.array(z.union([z.string(), z.number()])).optional(),
     systemPrompt: z.string().optional(),
-<<<<<<< HEAD
-=======
     groupSessionScope: GroupSessionScopeSchema,
     topicSessionMode: TopicSessionModeSchema,
-<<<<<<< HEAD
->>>>>>> 36d69d05e (feat(feishu): support sender/topic-scoped group session routing (openclaw#17798) thanks @yfge)
-  })
-  .strict();
-
-=======
     replyInThread: ReplyInThreadSchema,
   })
   .strict();
@@ -167,7 +167,6 @@ const FeishuSharedConfigShape = {
   resolveSenderNames: z.boolean().optional(),
 };
 
->>>>>>> 89669a33b (feat(feishu): add replyInThread configuration for message replies (openclaw#27325) thanks @kcinzgg)
 /**
  * Per-account configuration.
  * All fields are optional - missing fields inherit from top-level config.
@@ -183,33 +182,9 @@ export const FeishuAccountConfigSchema = z
     domain: FeishuDomainSchema.optional(),
     connectionMode: FeishuConnectionModeSchema.optional(),
     webhookPath: z.string().optional(),
-<<<<<<< HEAD
-    webhookPort: z.number().int().positive().optional(),
-    capabilities: z.array(z.string()).optional(),
-    markdown: MarkdownConfigSchema,
-    configWrites: z.boolean().optional(),
-    dmPolicy: DmPolicySchema.optional(),
-    allowFrom: z.array(z.union([z.string(), z.number()])).optional(),
-    groupPolicy: GroupPolicySchema.optional(),
-    groupAllowFrom: z.array(z.union([z.string(), z.number()])).optional(),
-    requireMention: z.boolean().optional(),
-    groups: z.record(z.string(), FeishuGroupSchema.optional()).optional(),
-    historyLimit: z.number().int().min(0).optional(),
-    dmHistoryLimit: z.number().int().min(0).optional(),
-    dms: z.record(z.string(), DmConfigSchema).optional(),
-    textChunkLimit: z.number().int().positive().optional(),
-    chunkMode: z.enum(["length", "newline"]).optional(),
-    blockStreamingCoalesce: BlockStreamingCoalesceSchema,
-    mediaMaxMb: z.number().positive().optional(),
-    heartbeat: ChannelHeartbeatVisibilitySchema,
-    renderMode: RenderModeSchema,
-    streaming: StreamingModeSchema, // Enable streaming card mode (default: true)
-    tools: FeishuToolsConfigSchema,
-=======
     ...FeishuSharedConfigShape,
     groupSessionScope: GroupSessionScopeSchema,
     topicSessionMode: TopicSessionModeSchema,
->>>>>>> 36d69d05e (feat(feishu): support sender/topic-scoped group session routing (openclaw#17798) thanks @yfge)
   })
   .strict();
 
@@ -224,49 +199,55 @@ export const FeishuConfigSchema = z
     domain: FeishuDomainSchema.optional().default("feishu"),
     connectionMode: FeishuConnectionModeSchema.optional().default("websocket"),
     webhookPath: z.string().optional().default("/feishu/events"),
-    webhookPort: z.number().int().positive().optional(),
-    capabilities: z.array(z.string()).optional(),
-    markdown: MarkdownConfigSchema,
-    configWrites: z.boolean().optional(),
+    ...FeishuSharedConfigShape,
     dmPolicy: DmPolicySchema.optional().default("pairing"),
-<<<<<<< HEAD
-    allowFrom: z.array(z.union([z.string(), z.number()])).optional(),
-=======
     reactionNotifications: ReactionNotificationModeSchema.optional().default("own"),
->>>>>>> aef535510 (fix(feishu): add reactionNotifications mode gating (openclaw#29388) thanks @Takhoffman)
     groupPolicy: GroupPolicySchema.optional().default("allowlist"),
-    groupAllowFrom: z.array(z.union([z.string(), z.number()])).optional(),
     requireMention: z.boolean().optional().default(true),
-<<<<<<< HEAD
-    groups: z.record(z.string(), FeishuGroupSchema.optional()).optional(),
-    historyLimit: z.number().int().min(0).optional(),
-    dmHistoryLimit: z.number().int().min(0).optional(),
-    dms: z.record(z.string(), DmConfigSchema).optional(),
-    textChunkLimit: z.number().int().positive().optional(),
-    chunkMode: z.enum(["length", "newline"]).optional(),
-    blockStreamingCoalesce: BlockStreamingCoalesceSchema,
-    mediaMaxMb: z.number().positive().optional(),
-    heartbeat: ChannelHeartbeatVisibilitySchema,
-    renderMode: RenderModeSchema, // raw = plain text (default), card = interactive card with markdown
-    streaming: StreamingModeSchema, // Enable streaming card mode (default: true)
-    tools: FeishuToolsConfigSchema,
-=======
     groupSessionScope: GroupSessionScopeSchema,
     topicSessionMode: TopicSessionModeSchema,
     // Dynamic agent creation for DM users
     dynamicAgentCreation: DynamicAgentCreationSchema,
-<<<<<<< HEAD
->>>>>>> 36d69d05e (feat(feishu): support sender/topic-scoped group session routing (openclaw#17798) thanks @yfge)
-=======
     // Optimization flags
     typingIndicator: z.boolean().optional().default(true),
     resolveSenderNames: z.boolean().optional().default(true),
->>>>>>> 27882dc73 (feat(feishu): add quota optimization flags (openclaw#10513) thanks @BigUncle)
     // Multi-account configuration
     accounts: z.record(z.string(), FeishuAccountConfigSchema.optional()).optional(),
   })
   .strict()
   .superRefine((value, ctx) => {
+    const defaultConnectionMode = value.connectionMode ?? "websocket";
+    const defaultVerificationToken = value.verificationToken?.trim();
+    if (defaultConnectionMode === "webhook" && !defaultVerificationToken) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["verificationToken"],
+        message:
+          'channels.feishu.connectionMode="webhook" requires channels.feishu.verificationToken',
+      });
+    }
+
+    for (const [accountId, account] of Object.entries(value.accounts ?? {})) {
+      if (!account) {
+        continue;
+      }
+      const accountConnectionMode = account.connectionMode ?? defaultConnectionMode;
+      if (accountConnectionMode !== "webhook") {
+        continue;
+      }
+      const accountVerificationToken =
+        account.verificationToken?.trim() || defaultVerificationToken;
+      if (!accountVerificationToken) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["accounts", accountId, "verificationToken"],
+          message:
+            `channels.feishu.accounts.${accountId}.connectionMode="webhook" requires ` +
+            "a verificationToken (account-level or top-level)",
+        });
+      }
+    }
+
     if (value.dmPolicy === "open") {
       const allowFrom = value.allowFrom ?? [];
       const hasWildcard = allowFrom.some((entry) => String(entry).trim() === "*");

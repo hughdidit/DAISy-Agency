@@ -1,9 +1,7 @@
-import type { PluginRuntime } from "openclaw/plugin-sdk";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { setMSTeamsRuntime } from "./runtime.js";
 
-/** Mock DNS resolver that always returns a public IP (for anti-SSRF validation in tests). */
-const publicResolveFn = async () => ({ address: "13.107.136.10" });
+import type { PluginRuntime } from "clawdbot/plugin-sdk";
+import { setMSTeamsRuntime } from "./runtime.js";
 
 const detectMimeMock = vi.fn(async () => "image/png");
 const saveMediaBufferMock = vi.fn(async () => ({
@@ -118,14 +116,9 @@ describe("msteams attachments", () => {
         maxBytes: 1024 * 1024,
         allowHosts: ["x"],
         fetchFn: fetchMock as unknown as typeof fetch,
-        resolveFn: publicResolveFn,
       });
 
-<<<<<<< HEAD
       expect(fetchMock).toHaveBeenCalledWith("https://x/img");
-=======
-      expect(fetchMock).toHaveBeenCalled();
->>>>>>> 26644c4b8 (fix(msteams): add SSRF protection to attachment downloads via redirect and DNS validation (#23598))
       expect(saveMediaBufferMock).toHaveBeenCalled();
       expect(media).toHaveLength(1);
       expect(media[0]?.path).toBe("/tmp/saved.png");
@@ -150,14 +143,9 @@ describe("msteams attachments", () => {
         maxBytes: 1024 * 1024,
         allowHosts: ["x"],
         fetchFn: fetchMock as unknown as typeof fetch,
-        resolveFn: publicResolveFn,
       });
 
-<<<<<<< HEAD
       expect(fetchMock).toHaveBeenCalledWith("https://x/dl");
-=======
-      expect(fetchMock).toHaveBeenCalled();
->>>>>>> 26644c4b8 (fix(msteams): add SSRF protection to attachment downloads via redirect and DNS validation (#23598))
       expect(media).toHaveLength(1);
     });
 
@@ -180,14 +168,9 @@ describe("msteams attachments", () => {
         maxBytes: 1024 * 1024,
         allowHosts: ["x"],
         fetchFn: fetchMock as unknown as typeof fetch,
-        resolveFn: publicResolveFn,
       });
 
-<<<<<<< HEAD
       expect(fetchMock).toHaveBeenCalledWith("https://x/doc.pdf");
-=======
-      expect(fetchMock).toHaveBeenCalled();
->>>>>>> 26644c4b8 (fix(msteams): add SSRF protection to attachment downloads via redirect and DNS validation (#23598))
       expect(media).toHaveLength(1);
       expect(media[0]?.path).toBe("/tmp/saved.pdf");
       expect(media[0]?.placeholder).toBe("<media:document>");
@@ -212,15 +195,10 @@ describe("msteams attachments", () => {
         maxBytes: 1024 * 1024,
         allowHosts: ["x"],
         fetchFn: fetchMock as unknown as typeof fetch,
-        resolveFn: publicResolveFn,
       });
 
       expect(media).toHaveLength(1);
-<<<<<<< HEAD
       expect(fetchMock).toHaveBeenCalledWith("https://x/inline.png");
-=======
-      expect(fetchMock).toHaveBeenCalled();
->>>>>>> 26644c4b8 (fix(msteams): add SSRF protection to attachment downloads via redirect and DNS validation (#23598))
     });
 
     it("stores inline data:image base64 payloads", async () => {
@@ -264,49 +242,12 @@ describe("msteams attachments", () => {
         maxBytes: 1024 * 1024,
         tokenProvider: { getAccessToken: vi.fn(async () => "token") },
         allowHosts: ["x"],
-        authAllowHosts: ["x"],
         fetchFn: fetchMock as unknown as typeof fetch,
-        resolveFn: publicResolveFn,
       });
 
       expect(fetchMock).toHaveBeenCalled();
       expect(media).toHaveLength(1);
-    });
-
-    it("skips auth retries when the host is not in auth allowlist", async () => {
-      const { downloadMSTeamsAttachments } = await load();
-      const tokenProvider = { getAccessToken: vi.fn(async () => "token") };
-      const fetchMock = vi.fn(async (_url: string, opts?: RequestInit) => {
-        const hasAuth = Boolean(
-          opts &&
-          typeof opts === "object" &&
-          "headers" in opts &&
-          (opts.headers as Record<string, string>)?.Authorization,
-        );
-        if (!hasAuth) {
-          return new Response("forbidden", { status: 403 });
-        }
-        return new Response(Buffer.from("png"), {
-          status: 200,
-          headers: { "content-type": "image/png" },
-        });
-      });
-
-      const media = await downloadMSTeamsAttachments({
-        attachments: [
-          { contentType: "image/png", contentUrl: "https://attacker.azureedge.net/img" },
-        ],
-        maxBytes: 1024 * 1024,
-        tokenProvider,
-        allowHosts: ["azureedge.net"],
-        authAllowHosts: ["graph.microsoft.com"],
-        fetchFn: fetchMock as unknown as typeof fetch,
-        resolveFn: publicResolveFn,
-      });
-
-      expect(media).toHaveLength(0);
-      expect(fetchMock).toHaveBeenCalled();
-      expect(tokenProvider.getAccessToken).not.toHaveBeenCalled();
+      expect(fetchMock).toHaveBeenCalledTimes(2);
     });
 
     it("skips urls outside the allowlist", async () => {

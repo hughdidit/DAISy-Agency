@@ -1,24 +1,9 @@
 {
-  "name": "@openclaw/lobster",
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-  "version": "2026.2.9",
-=======
-  "version": "2026.2.13",
->>>>>>> 67251e97b (fix(ci): sync extension versions to root release (#15199))
-=======
-  "version": "2026.2.24",
->>>>>>> 955cc9029 (chore: sync plugin versions to 2026.2.24)
-=======
-  "version": "2026.2.25",
->>>>>>> 2652bb1d7 (Release: sync plugin versions to 2026.2.25)
-  "description": "Lobster workflow tool plugin (typed pipelines + resumable approvals)",
+  "name": "@moltbot/lobster",
+  "version": "2026.1.27-beta.1",
   "type": "module",
-  "devDependencies": {
-    "openclaw": "workspace:*"
-  },
-  "openclaw": {
+  "description": "Lobster workflow tool plugin (typed pipelines + resumable approvals)",
+  "moltbot": {
     "extensions": [
       "./index.ts"
     ]

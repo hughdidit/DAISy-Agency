@@ -4,12 +4,15 @@ import path from "node:path";
 import type { OpenClawConfig } from "../config/config.js";
 import { resolveControlUiRootSync } from "../infra/control-ui-assets.js";
 import { DEFAULT_ASSISTANT_IDENTITY, resolveAssistantIdentity } from "./assistant-identity.js";
+import { authorizeGatewayConnect, isLocalDirectRequest, type ResolvedGatewayAuth } from "./auth.js";
 import {
   buildControlUiAvatarUrl,
   CONTROL_UI_AVATAR_PREFIX,
   normalizeControlUiBasePath,
   resolveAssistantAvatarUrl,
 } from "./control-ui-shared.js";
+import { sendUnauthorized, setSecurityHeaders } from "./http-common.js";
+import { getBearerToken } from "./http-utils.js";
 
 const ROOT_PREFIX = "/";
 
@@ -17,7 +20,8 @@ export type ControlUiRequestOptions = {
   basePath?: string;
   config?: OpenClawConfig;
   agentId?: string;
-  root?: ControlUiRootState;
+  auth?: ResolvedGatewayAuth;
+  trustedProxies?: string[];
 };
 
 export type ControlUiRootState =
@@ -73,6 +77,7 @@ function applyControlUiSecurityHeaders(res: ServerResponse) {
 }
 
 function sendJson(res: ServerResponse, status: number, body: unknown) {
+  setSecurityHeaders(res);
   res.statusCode = status;
   res.setHeader("Content-Type", "application/json; charset=utf-8");
   res.setHeader("Cache-Control", "no-cache");
@@ -83,11 +88,16 @@ function isValidAgentId(agentId: string): boolean {
   return /^[a-z0-9][a-z0-9_-]{0,63}$/i.test(agentId);
 }
 
-export function handleControlUiAvatarRequest(
+export async function handleControlUiAvatarRequest(
   req: IncomingMessage,
   res: ServerResponse,
-  opts: { basePath?: string; resolveAvatar: (agentId: string) => ControlUiAvatarResolution },
-): boolean {
+  opts: {
+    basePath?: string;
+    resolveAvatar: (agentId: string) => ControlUiAvatarResolution;
+    auth?: ResolvedGatewayAuth;
+    trustedProxies?: string[];
+  },
+): Promise<boolean> {
   const urlRaw = req.url;
   if (!urlRaw) {
     return false;
@@ -107,6 +117,20 @@ export function handleControlUiAvatarRequest(
   }
 
   applyControlUiSecurityHeaders(res);
+
+  if (opts.auth && !isLocalDirectRequest(req, opts.trustedProxies)) {
+    const token = getBearerToken(req) ?? url.searchParams.get("token") ?? undefined;
+    const authResult = await authorizeGatewayConnect({
+      auth: opts.auth,
+      connectAuth: token ? { token, password: token } : null,
+      req,
+      trustedProxies: opts.trustedProxies,
+    });
+    if (!authResult.ok) {
+      sendUnauthorized(res);
+      return true;
+    }
+  }
 
   const agentIdParts = pathname.slice(pathWithBase.length).split("/").filter(Boolean);
   const agentId = agentIdParts[0] ?? "";
@@ -146,12 +170,14 @@ export function handleControlUiAvatarRequest(
 }
 
 function respondNotFound(res: ServerResponse) {
+  setSecurityHeaders(res);
   res.statusCode = 404;
   res.setHeader("Content-Type", "text/plain; charset=utf-8");
   res.end("Not Found");
 }
 
 function serveFile(res: ServerResponse, filePath: string) {
+  setSecurityHeaders(res);
   const ext = path.extname(filePath).toLowerCase();
   res.setHeader("Content-Type", contentTypeForExt(ext));
   // Static UI should never be cached aggressively while iterating; allow the
@@ -196,6 +222,7 @@ interface ServeIndexHtmlOpts {
 }
 
 function serveIndexHtml(res: ServerResponse, indexPath: string, opts: ServeIndexHtmlOpts) {
+  setSecurityHeaders(res);
   const { basePath, config, agentId } = opts;
   const identity = config
     ? resolveAssistantIdentity({ cfg: config, agentId })
@@ -236,11 +263,11 @@ function isSafeRelativePath(relPath: string) {
   return true;
 }
 
-export function handleControlUiHttpRequest(
+export async function handleControlUiHttpRequest(
   req: IncomingMessage,
   res: ServerResponse,
   opts?: ControlUiRequestOptions,
-): boolean {
+): Promise<boolean> {
   const urlRaw = req.url;
   if (!urlRaw) {
     return false;
@@ -277,34 +304,21 @@ export function handleControlUiHttpRequest(
     }
   }
 
-  applyControlUiSecurityHeaders(res);
-
-  const rootState = opts?.root;
-  if (rootState?.kind === "invalid") {
-    res.statusCode = 503;
-    res.setHeader("Content-Type", "text/plain; charset=utf-8");
-    res.end(
-      `Control UI assets not found at ${rootState.path}. Build them with \`pnpm ui:build\` (auto-installs UI deps), or update gateway.controlUi.root.`,
-    );
-    return true;
-  }
-  if (rootState?.kind === "missing") {
-    res.statusCode = 503;
-    res.setHeader("Content-Type", "text/plain; charset=utf-8");
-    res.end(
-      "Control UI assets not found. Build them with `pnpm ui:build` (auto-installs UI deps), or run `pnpm ui:dev` during development.",
-    );
-    return true;
+  if (opts?.auth && !isLocalDirectRequest(req, opts.trustedProxies)) {
+    const token = getBearerToken(req) ?? url.searchParams.get("token") ?? undefined;
+    const authResult = await authorizeGatewayConnect({
+      auth: opts.auth,
+      connectAuth: token ? { token, password: token } : null,
+      req,
+      trustedProxies: opts.trustedProxies,
+    });
+    if (!authResult.ok) {
+      sendUnauthorized(res);
+      return true;
+    }
   }
 
-  const root =
-    rootState?.kind === "resolved"
-      ? rootState.path
-      : resolveControlUiRootSync({
-          moduleUrl: import.meta.url,
-          argv1: process.argv[1],
-          cwd: process.cwd(),
-        });
+  const root = resolveControlUiRoot();
   if (!root) {
     res.statusCode = 503;
     res.setHeader("Content-Type", "text/plain; charset=utf-8");

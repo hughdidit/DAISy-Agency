@@ -1,32 +1,18 @@
 {
-  "name": "@openclaw/twitch",
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-  "version": "2026.2.9",
-=======
-  "version": "2026.2.13",
-  "private": true,
->>>>>>> 67251e97b (fix(ci): sync extension versions to root release (#15199))
-=======
-  "version": "2026.2.21",
->>>>>>> bdfb97afa (chore: prep 2026.2.22 unreleased and publish new npm plugins)
-=======
-  "version": "2026.2.24",
->>>>>>> 955cc9029 (chore: sync plugin versions to 2026.2.24)
-=======
-  "version": "2026.2.25",
->>>>>>> 2652bb1d7 (Release: sync plugin versions to 2026.2.25)
-  "description": "OpenClaw Twitch channel plugin",
+  "name": "@moltbot/twitch",
+  "version": "2026.1.27-beta.1",
+  "description": "Moltbot Twitch channel plugin",
   "type": "module",
   "dependencies": {
     "@twurple/api": "^8.0.3",
     "@twurple/auth": "^8.0.3",
     "@twurple/chat": "^8.0.3",
-    "zod": "^4.3.6"
+    "zod": "^4.3.5"
   },
-  "openclaw": {
+  "devDependencies": {
+    "moltbot": "workspace:*"
+  },
+  "moltbot": {
     "extensions": [
       "./index.ts"
     ]

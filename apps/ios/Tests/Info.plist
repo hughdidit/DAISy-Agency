@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>OpenClawTests</string>
+	<string>MoltbotTests</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -15,20 +15,10 @@
 	<key>CFBundleName</key>
 	<string>$(PRODUCT_NAME)</string>
 	<key>CFBundlePackageType</key>
-<<<<<<< HEAD
 	<string>BNDL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>2026.2.9</string>
+	<string>2026.1.27-beta.1</string>
 	<key>CFBundleVersion</key>
-	<string>20260202</string>
+	<string>20260126</string>
 </dict>
 </plist>
-=======
-			<string>BNDL</string>
-			<key>CFBundleShortVersionString</key>
-			<string>2026.2.25</string>
-			<key>CFBundleVersion</key>
-			<string>20260225</string>
-		</dict>
-	</plist>
->>>>>>> 480cc4b85 (chore: roll to 2026.2.25 unreleased)

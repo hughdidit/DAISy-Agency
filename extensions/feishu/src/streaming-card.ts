@@ -9,6 +9,13 @@ import type { FeishuDomain } from "./types.js";
 type Credentials = { appId: string; appSecret: string; domain?: FeishuDomain };
 type CardState = { cardId: string; messageId: string; sequence: number; currentText: string };
 
+/** Optional header for streaming cards (title bar with color template) */
+export type StreamingCardHeader = {
+  title: string;
+  /** Color template: blue, green, red, orange, purple, indigo, wathet, turquoise, yellow, grey, carmine, violet, lime */
+  template?: string;
+};
+
 // Token cache (keyed by domain + appId)
 const tokenCache = new Map<string, { token: string; expiresAt: number }>();
 
@@ -99,14 +106,19 @@ export class FeishuStreamingSession {
   async start(
     receiveId: string,
     receiveIdType: "open_id" | "user_id" | "union_id" | "email" | "chat_id" = "chat_id",
-    options?: { replyToMessageId?: string; replyInThread?: boolean },
+    options?: {
+      replyToMessageId?: string;
+      replyInThread?: boolean;
+      rootId?: string;
+      header?: StreamingCardHeader;
+    },
   ): Promise<void> {
     if (this.state) {
       return;
     }
 
     const apiBase = resolveApiBase(this.creds.domain);
-    const cardJson = {
+    const cardJson: Record<string, unknown> = {
       schema: "2.0",
       config: {
         streaming_mode: true,
@@ -117,6 +129,12 @@ export class FeishuStreamingSession {
         elements: [{ tag: "markdown", content: "⏳ Thinking...", element_id: "content" }],
       },
     };
+    if (options?.header) {
+      cardJson.header = {
+        title: { tag: "plain_text", content: options.header.title },
+        template: options.header.template ?? "blue",
+      };
+    }
 
     // Create card entity
     const { response: createRes, release: releaseCreate } = await fetchWithSsrFGuard({
@@ -144,9 +162,20 @@ export class FeishuStreamingSession {
     const cardId = createData.data.card_id;
     const cardContent = JSON.stringify({ type: "card", data: { card_id: cardId } });
 
-    // Send card message — reply into thread when configured
+    // Topic-group replies require root_id routing. Prefer create+root_id when available.
     let sendRes;
-    if (options?.replyToMessageId) {
+    if (options?.rootId) {
+      const createData = {
+        receive_id: receiveId,
+        msg_type: "interactive",
+        content: cardContent,
+        root_id: options.rootId,
+      };
+      sendRes = await this.client.im.message.create({
+        params: { receive_id_type: receiveIdType },
+        data: createData,
+      });
+    } else if (options?.replyToMessageId) {
       sendRes = await this.client.im.message.reply({
         path: { message_id: options.replyToMessageId },
         data: {
@@ -173,8 +202,6 @@ export class FeishuStreamingSession {
     this.log?.(`Started streaming: cardId=${cardId}, messageId=${sendRes.data.message_id}`);
   }
 
-<<<<<<< HEAD
-=======
   private async updateCardContent(text: string, onError?: (error: unknown) => void): Promise<void> {
     if (!this.state) {
       return;
@@ -204,7 +231,6 @@ export class FeishuStreamingSession {
       .catch((error) => onError?.(error));
   }
 
->>>>>>> 89669a33b (feat(feishu): add replyInThread configuration for message replies (openclaw#27325) thanks @kcinzgg)
   async update(text: string): Promise<void> {
     if (!this.state || this.closed) {
       return;
@@ -223,20 +249,7 @@ export class FeishuStreamingSession {
         return;
       }
       this.state.currentText = text;
-      this.state.sequence += 1;
-      const apiBase = resolveApiBase(this.creds.domain);
-      await fetch(`${apiBase}/cardkit/v1/cards/${this.state.cardId}/elements/content/content`, {
-        method: "PUT",
-        headers: {
-          Authorization: `Bearer ${await getToken(this.creds)}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          content: text,
-          sequence: this.state.sequence,
-          uuid: `s_${this.state.cardId}_${this.state.sequence}`,
-        }),
-      }).catch((e) => this.log?.(`Update failed: ${String(e)}`));
+      await this.updateCardContent(text, (e) => this.log?.(`Update failed: ${String(e)}`));
     });
     await this.queue;
   }
@@ -254,19 +267,7 @@ export class FeishuStreamingSession {
 
     // Only send final update if content differs from what's already displayed
     if (text && text !== this.state.currentText) {
-      this.state.sequence += 1;
-      await fetch(`${apiBase}/cardkit/v1/cards/${this.state.cardId}/elements/content/content`, {
-        method: "PUT",
-        headers: {
-          Authorization: `Bearer ${await getToken(this.creds)}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          content: text,
-          sequence: this.state.sequence,
-          uuid: `s_${this.state.cardId}_${this.state.sequence}`,
-        }),
-      }).catch(() => {});
+      await this.updateCardContent(text);
       this.state.currentText = text;
     }
 

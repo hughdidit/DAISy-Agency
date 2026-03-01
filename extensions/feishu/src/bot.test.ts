@@ -1,7 +1,7 @@
 import type { ClawdbotConfig, PluginRuntime, RuntimeEnv } from "openclaw/plugin-sdk";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { FeishuMessageEvent } from "./bot.js";
-import { handleFeishuMessage } from "./bot.js";
+import { buildFeishuAgentBody, handleFeishuMessage, toMessageResourceType } from "./bot.js";
 import { setFeishuRuntime } from "./runtime.js";
 
 const {
@@ -9,11 +9,8 @@ const {
   mockSendMessageFeishu,
   mockGetMessageFeishu,
   mockDownloadMessageResourceFeishu,
-<<<<<<< HEAD
-=======
   mockCreateFeishuClient,
   mockResolveAgentRoute,
->>>>>>> 36d69d05e (feat(feishu): support sender/topic-scoped group session routing (openclaw#17798) thanks @yfge)
 } = vi.hoisted(() => ({
   mockCreateFeishuReplyDispatcher: vi.fn(() => ({
     dispatcher: vi.fn(),
@@ -27,8 +24,6 @@ const {
     contentType: "video/mp4",
     fileName: "clip.mp4",
   }),
-<<<<<<< HEAD
-=======
   mockCreateFeishuClient: vi.fn(),
   mockResolveAgentRoute: vi.fn(() => ({
     agentId: "main",
@@ -36,7 +31,6 @@ const {
     sessionKey: "agent:main:feishu:dm:ou-attacker",
     matchedBy: "default",
   })),
->>>>>>> 36d69d05e (feat(feishu): support sender/topic-scoped group session routing (openclaw#17798) thanks @yfge)
 }));
 
 vi.mock("./reply-dispatcher.js", () => ({
@@ -50,6 +44,10 @@ vi.mock("./send.js", () => ({
 
 vi.mock("./media.js", () => ({
   downloadMessageResourceFeishu: mockDownloadMessageResourceFeishu,
+}));
+
+vi.mock("./client.js", () => ({
+  createFeishuClient: mockCreateFeishuClient,
 }));
 
 function createRuntimeEnv(): RuntimeEnv {
@@ -70,11 +68,53 @@ async function dispatchMessage(params: { cfg: ClawdbotConfig; event: FeishuMessa
   });
 }
 
+describe("buildFeishuAgentBody", () => {
+  it("builds message id, speaker, quoted content, mentions, and permission notice in order", () => {
+    const body = buildFeishuAgentBody({
+      ctx: {
+        content: "hello world",
+        senderName: "Sender Name",
+        senderOpenId: "ou-sender",
+        messageId: "msg-42",
+        mentionTargets: [{ openId: "ou-target", name: "Target User", key: "@_user_1" }],
+      },
+      quotedContent: "previous message",
+      permissionErrorForAgent: {
+        code: 99991672,
+        message: "permission denied",
+        grantUrl: "https://open.feishu.cn/app/cli_test",
+      },
+    });
+
+    expect(body).toBe(
+      '[message_id: msg-42]\nSender Name: [Replying to: "previous message"]\n\nhello world\n\n[System: Your reply will automatically @mention: Target User. Do not write @xxx yourself.]\n\n[System: The bot encountered a Feishu API permission error. Please inform the user about this issue and provide the permission grant URL for the admin to authorize. Permission grant URL: https://open.feishu.cn/app/cli_test]',
+    );
+  });
+});
+
 describe("handleFeishuMessage command authorization", () => {
   const mockFinalizeInboundContext = vi.fn((ctx: unknown) => ctx);
   const mockDispatchReplyFromConfig = vi
     .fn()
     .mockResolvedValue({ queuedFinal: false, counts: { final: 1 } });
+  const mockWithReplyDispatcher = vi.fn(
+    async ({
+      dispatcher,
+      run,
+      onSettled,
+    }: Parameters<PluginRuntime["channel"]["reply"]["withReplyDispatcher"]>[0]) => {
+      try {
+        return await run();
+      } finally {
+        dispatcher.markComplete();
+        try {
+          await dispatcher.waitForIdle();
+        } finally {
+          await onSettled?.();
+        }
+      }
+    },
+  );
   const mockResolveCommandAuthorizedFromAuthorizers = vi.fn(() => false);
   const mockShouldComputeCommandAuthorized = vi.fn(() => true);
   const mockReadAllowFromStore = vi.fn().mockResolvedValue([]);
@@ -87,8 +127,6 @@ describe("handleFeishuMessage command authorization", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-<<<<<<< HEAD
-=======
     mockResolveAgentRoute.mockReturnValue({
       agentId: "main",
       accountId: "default",
@@ -102,7 +140,6 @@ describe("handleFeishuMessage command authorization", () => {
         },
       },
     });
->>>>>>> 36d69d05e (feat(feishu): support sender/topic-scoped group session routing (openclaw#17798) thanks @yfge)
     setFeishuRuntime({
       system: {
         enqueueSystemEvent: vi.fn(),
@@ -116,6 +153,7 @@ describe("handleFeishuMessage command authorization", () => {
           formatAgentEnvelope: vi.fn((params: { body: string }) => params.body),
           finalizeInboundContext: mockFinalizeInboundContext,
           dispatchReplyFromConfig: mockDispatchReplyFromConfig,
+          withReplyDispatcher: mockWithReplyDispatcher,
         },
         commands: {
           shouldComputeCommandAuthorized: mockShouldComputeCommandAuthorized,
@@ -209,7 +247,10 @@ describe("handleFeishuMessage command authorization", () => {
 
     await dispatchMessage({ cfg, event });
 
-    expect(mockReadAllowFromStore).toHaveBeenCalledWith("feishu");
+    expect(mockReadAllowFromStore).toHaveBeenCalledWith({
+      channel: "feishu",
+      accountId: "default",
+    });
     expect(mockResolveCommandAuthorizedFromAuthorizers).not.toHaveBeenCalled();
     expect(mockFinalizeInboundContext).toHaveBeenCalledTimes(1);
     expect(mockDispatchReplyFromConfig).toHaveBeenCalledTimes(1);
@@ -246,6 +287,51 @@ describe("handleFeishuMessage command authorization", () => {
     expect(mockCreateFeishuClient).not.toHaveBeenCalled();
   });
 
+  it("propagates parent/root message ids into inbound context for reply reconstruction", async () => {
+    mockGetMessageFeishu.mockResolvedValueOnce({
+      messageId: "om_parent_001",
+      chatId: "oc-group",
+      content: "quoted content",
+      contentType: "text",
+    });
+
+    const cfg: ClawdbotConfig = {
+      channels: {
+        feishu: {
+          enabled: true,
+          dmPolicy: "open",
+        },
+      },
+    } as ClawdbotConfig;
+
+    const event: FeishuMessageEvent = {
+      sender: {
+        sender_id: {
+          open_id: "ou-replier",
+        },
+      },
+      message: {
+        message_id: "om_reply_001",
+        root_id: "om_root_001",
+        parent_id: "om_parent_001",
+        chat_id: "oc-dm",
+        chat_type: "p2p",
+        message_type: "text",
+        content: JSON.stringify({ text: "reply text" }),
+      },
+    };
+
+    await dispatchMessage({ cfg, event });
+
+    expect(mockFinalizeInboundContext).toHaveBeenCalledWith(
+      expect.objectContaining({
+        ReplyToId: "om_parent_001",
+        RootMessageId: "om_root_001",
+        ReplyToBody: "quoted content",
+      }),
+    );
+  });
+
   it("creates pairing request and drops unauthorized DMs in pairing mode", async () => {
     mockShouldComputeCommandAuthorized.mockReturnValue(false);
     mockReadAllowFromStore.mockResolvedValue([]);
@@ -279,6 +365,7 @@ describe("handleFeishuMessage command authorization", () => {
 
     expect(mockUpsertPairingRequest).toHaveBeenCalledWith({
       channel: "feishu",
+      accountId: "default",
       id: "ou-unapproved",
       meta: { name: undefined },
     });
@@ -512,6 +599,38 @@ describe("handleFeishuMessage command authorization", () => {
     expect(mockDispatchReplyFromConfig).not.toHaveBeenCalled();
   });
 
+  it("drops message when groupConfig.enabled is false", async () => {
+    const cfg: ClawdbotConfig = {
+      channels: {
+        feishu: {
+          groups: {
+            "oc-disabled-group": {
+              enabled: false,
+            },
+          },
+        },
+      },
+    } as ClawdbotConfig;
+
+    const event: FeishuMessageEvent = {
+      sender: {
+        sender_id: { open_id: "ou-sender" },
+      },
+      message: {
+        message_id: "msg-disabled-group",
+        chat_id: "oc-disabled-group",
+        chat_type: "group",
+        message_type: "text",
+        content: JSON.stringify({ text: "hello" }),
+      },
+    };
+
+    await dispatchMessage({ cfg, event });
+
+    expect(mockFinalizeInboundContext).not.toHaveBeenCalled();
+    expect(mockDispatchReplyFromConfig).not.toHaveBeenCalled();
+  });
+
   it("uses video file_key (not thumbnail image_key) for inbound video download", async () => {
     mockShouldComputeCommandAuthorized.mockReturnValue(false);
 
@@ -559,8 +678,6 @@ describe("handleFeishuMessage command authorization", () => {
       "clip.mp4",
     );
   });
-<<<<<<< HEAD
-=======
 
   it("uses media message_type file_key (not thumbnail image_key) for inbound mobile video download", async () => {
     mockShouldComputeCommandAuthorized.mockReturnValue(false);
@@ -999,9 +1116,6 @@ describe("handleFeishuMessage command authorization", () => {
       }),
     );
   });
-<<<<<<< HEAD
->>>>>>> 36d69d05e (feat(feishu): support sender/topic-scoped group session routing (openclaw#17798) thanks @yfge)
-=======
 
   it("uses message_id as topic root when group_topic + replyInThread and no root_id", async () => {
     mockShouldComputeCommandAuthorized.mockReturnValue(false);
@@ -1040,5 +1154,20 @@ describe("handleFeishuMessage command authorization", () => {
       }),
     );
   });
->>>>>>> 89669a33b (feat(feishu): add replyInThread configuration for message replies (openclaw#27325) thanks @kcinzgg)
+});
+
+describe("toMessageResourceType", () => {
+  it("maps image to image", () => {
+    expect(toMessageResourceType("image")).toBe("image");
+  });
+
+  it("maps audio to file", () => {
+    expect(toMessageResourceType("audio")).toBe("file");
+  });
+
+  it("maps video/file/sticker to file", () => {
+    expect(toMessageResourceType("video")).toBe("file");
+    expect(toMessageResourceType("file")).toBe("file");
+    expect(toMessageResourceType("sticker")).toBe("file");
+  });
 });

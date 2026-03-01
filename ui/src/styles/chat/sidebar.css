@@ -19,11 +19,7 @@
 .chat-sidebar {
   flex: 1;
   min-width: 300px;
-<<<<<<< HEAD
   border-left: 1px solid var(--border);
-=======
-  border-left: 1px solid color-mix(in srgb, var(--border) 90%, transparent);
->>>>>>> 26ab93f0e (revert(ui): remove recent UI dashboard/theme commits from main)
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -83,11 +79,7 @@
 
 .sidebar-markdown {
   font-size: 14px;
-<<<<<<< HEAD
   line-height: 1.5;
-=======
-  line-height: 1.6;
->>>>>>> 26ab93f0e (revert(ui): remove recent UI dashboard/theme commits from main)
 }
 
 .sidebar-markdown pre {

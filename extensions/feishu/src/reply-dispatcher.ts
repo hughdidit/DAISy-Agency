@@ -6,14 +6,10 @@ import {
   type ReplyPayload,
   type RuntimeEnv,
 } from "openclaw/plugin-sdk";
-import type { MentionTarget } from "./mention.js";
 import { resolveFeishuAccount } from "./accounts.js";
 import { createFeishuClient } from "./client.js";
-<<<<<<< HEAD
-=======
 import { sendMediaFeishu } from "./media.js";
 import type { MentionTarget } from "./mention.js";
->>>>>>> a509154be (Feishu: send media payloads as attachments (openclaw#28959) thanks @icesword0760)
 import { buildMentionedCardContent } from "./mention.js";
 import { getFeishuRuntime } from "./runtime.js";
 import { sendMarkdownCardFeishu, sendMessageFeishu } from "./send.js";
@@ -32,15 +28,28 @@ export type CreateFeishuReplyDispatcherParams = {
   runtime: RuntimeEnv;
   chatId: string;
   replyToMessageId?: string;
+  /** When true, preserve typing indicator on reply target but send messages without reply metadata */
+  skipReplyToInMessages?: boolean;
   replyInThread?: boolean;
+  rootId?: string;
   mentionTargets?: MentionTarget[];
   accountId?: string;
 };
 
 export function createFeishuReplyDispatcher(params: CreateFeishuReplyDispatcherParams) {
   const core = getFeishuRuntime();
-  const { cfg, agentId, chatId, replyToMessageId, replyInThread, mentionTargets, accountId } =
-    params;
+  const {
+    cfg,
+    agentId,
+    chatId,
+    replyToMessageId,
+    skipReplyToInMessages,
+    replyInThread,
+    rootId,
+    mentionTargets,
+    accountId,
+  } = params;
+  const sendReplyToMessageId = skipReplyToInMessages ? undefined : replyToMessageId;
   const account = resolveFeishuAccount({ cfg, accountId });
   const prefixContext = createReplyPrefixContext({ cfg, agentId });
 
@@ -84,18 +93,10 @@ export function createFeishuReplyDispatcher(params: CreateFeishuReplyDispatcherP
       }),
   });
 
-  const textChunkLimit = core.channel.text.resolveTextChunkLimit({
-    cfg,
-    channel: "feishu",
-    defaultLimit: 4000,
+  const textChunkLimit = core.channel.text.resolveTextChunkLimit(cfg, "feishu", accountId, {
+    fallbackLimit: 4000,
   });
   const chunkMode = core.channel.text.resolveChunkMode(cfg, "feishu");
-<<<<<<< HEAD
-  const tableMode = core.channel.text.resolveMarkdownTableMode({
-    cfg,
-    channel: "feishu",
-  });
-=======
   const tableMode = core.channel.text.resolveMarkdownTableMode({ cfg, channel: "feishu" });
   const renderMode = account.config?.renderMode ?? "auto";
   const streamingEnabled = account.config?.streaming !== false && renderMode !== "raw";
@@ -126,6 +127,7 @@ export function createFeishuReplyDispatcher(params: CreateFeishuReplyDispatcherP
         await streaming.start(chatId, resolveReceiveIdType(chatId), {
           replyToMessageId,
           replyInThread,
+          rootId,
         });
       } catch (error) {
         params.runtime.error?.(`feishu: streaming start failed: ${String(error)}`);
@@ -151,7 +153,6 @@ export function createFeishuReplyDispatcher(params: CreateFeishuReplyDispatcherP
     streamText = "";
     lastPartial = "";
   };
->>>>>>> 65be9ccf6 (feat(feishu): add streaming card support via Card Kit API (openclaw#10379) thanks @xzq-xu)
 
   const { dispatcher, replyOptions, markDispatchIdle } =
     core.channel.reply.createReplyDispatcherWithTyping({
@@ -201,7 +202,7 @@ export function createFeishuReplyDispatcher(params: CreateFeishuReplyDispatcherP
                   cfg,
                   to: chatId,
                   mediaUrl,
-                  replyToMessageId,
+                  replyToMessageId: sendReplyToMessageId,
                   replyInThread,
                   accountId,
                 });
@@ -221,7 +222,7 @@ export function createFeishuReplyDispatcher(params: CreateFeishuReplyDispatcherP
                 cfg,
                 to: chatId,
                 text: chunk,
-                replyToMessageId,
+                replyToMessageId: sendReplyToMessageId,
                 replyInThread,
                 mentions: first ? mentionTargets : undefined,
                 accountId,
@@ -239,7 +240,7 @@ export function createFeishuReplyDispatcher(params: CreateFeishuReplyDispatcherP
                 cfg,
                 to: chatId,
                 text: chunk,
-                replyToMessageId,
+                replyToMessageId: sendReplyToMessageId,
                 replyInThread,
                 mentions: first ? mentionTargets : undefined,
                 accountId,
@@ -255,7 +256,7 @@ export function createFeishuReplyDispatcher(params: CreateFeishuReplyDispatcherP
               cfg,
               to: chatId,
               mediaUrl,
-              replyToMessageId,
+              replyToMessageId: sendReplyToMessageId,
               replyInThread,
               accountId,
             });

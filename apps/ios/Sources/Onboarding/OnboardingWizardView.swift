@@ -45,6 +45,7 @@ private enum OnboardingStep: Int, CaseIterable {
 struct OnboardingWizardView: View {
     @Environment(NodeAppModel.self) private var appModel: NodeAppModel
     @Environment(GatewayConnectionController.self) private var gatewayController: GatewayConnectionController
+    @Environment(\.scenePhase) private var scenePhase
     @AppStorage("node.instanceId") private var instanceId: String = UUID().uuidString
     @AppStorage("gateway.discovery.domain") private var discoveryDomain: String = ""
     @AppStorage("onboarding.developerMode") private var developerModeEnabled: Bool = false
@@ -67,11 +68,8 @@ struct OnboardingWizardView: View {
     @State private var showQRScanner: Bool = false
     @State private var scannerError: String?
     @State private var selectedPhoto: PhotosPickerItem?
-<<<<<<< HEAD
-=======
     @State private var lastPairingAutoResumeAttemptAt: Date?
     private static let pairingAutoResumeTicker = Timer.publish(every: 2.0, on: .main, in: .common).autoconnect()
->>>>>>> 6e7f1a6a1 (iOS onboarding: prevent pairing flicker during auto-resume (#20310))
 
     let allowSkip: Bool
     let onClose: () -> Void
@@ -136,7 +134,10 @@ struct OnboardingWizardView: View {
                     Button("Done") {
                         UIApplication.shared.sendAction(
                             #selector(UIResponder.resignFirstResponder),
-                            to: nil, from: nil, for: nil)
+                            to: nil,
+                            from: nil,
+                            for: nil
+                        )
                     }
                 }
             }
@@ -283,8 +284,6 @@ struct OnboardingWizardView: View {
             }
             self.onClose()
         }
-<<<<<<< HEAD
-=======
         .onChange(of: self.scenePhase) { _, newValue in
             guard newValue == .active else { return }
             self.attemptAutomaticPairingResumeIfNeeded()
@@ -292,7 +291,6 @@ struct OnboardingWizardView: View {
         .onReceive(Self.pairingAutoResumeTicker) { _ in
             self.attemptAutomaticPairingResumeIfNeeded()
         }
->>>>>>> 6e7f1a6a1 (iOS onboarding: prevent pairing flicker during auto-resume (#20310))
     }
 
     @ViewBuilder
@@ -534,27 +532,38 @@ struct OnboardingWizardView: View {
 
             if self.issue.needsPairing {
                 Section {
-                    Button("Copy: openclaw devices list") {
-                        UIPasteboard.general.string = "openclaw devices list"
+                    Button {
+                        self.resumeAfterPairingApproval()
+                    } label: {
+                        Label("Resume After Approval", systemImage: "arrow.clockwise")
                     }
-
-                    if let id = self.issue.requestId {
-                        Button("Copy: openclaw devices approve \(id)") {
-                            UIPasteboard.general.string = "openclaw devices approve \(id)"
-                        }
-                    } else {
-                        Button("Copy: openclaw devices approve <requestId>") {
-                            UIPasteboard.general.string = "openclaw devices approve <requestId>"
-                        }
-                    }
+                    .disabled(self.connectingGatewayID != nil)
                 } header: {
                     Text("Pairing Approval")
                 } footer: {
-                    Text("Approve this device on the gateway, then tap \"Resume After Approval\" below.")
+                    let requestLine: String = {
+                        if let id = self.issue.requestId, !id.isEmpty {
+                            return "Request ID: \(id)"
+                        }
+                        return "Request ID: check `openclaw devices list`."
+                    }()
+                    Text(
+                        "Approve this device on the gateway.\n"
+                            + "1) `openclaw devices approve` (or `openclaw devices approve <requestId>`)\n"
+                            + "2) `/pair approve` in Telegram\n"
+                            + "\(requestLine)\n"
+                            + "OpenClaw will also retry automatically when you return to this app.")
                 }
             }
 
             Section {
+                Button {
+                    self.openQRScannerFromOnboarding()
+                } label: {
+                    Label("Scan QR Code Again", systemImage: "qrcode.viewfinder")
+                }
+                .disabled(self.connectingGatewayID != nil)
+
                 Button {
                     Task { await self.retryLastAttempt() }
                 } label: {
@@ -564,20 +573,6 @@ struct OnboardingWizardView: View {
                     } else {
                         Text("Retry Connection")
                     }
-                }
-                .disabled(self.connectingGatewayID != nil)
-
-                Button {
-                    self.resumeAfterPairingApproval()
-                } label: {
-                    Label("Resume After Approval", systemImage: "arrow.clockwise")
-                }
-                .disabled(self.connectingGatewayID != nil || !self.issue.needsPairing)
-
-                Button {
-                    self.openQRScannerFromOnboarding()
-                } label: {
-                    Label("Scan QR Code Again", systemImage: "qrcode.viewfinder")
                 }
                 .disabled(self.connectingGatewayID != nil)
             }
@@ -699,8 +694,6 @@ struct OnboardingWizardView: View {
         Task { await self.retryLastAttempt() }
     }
 
-<<<<<<< HEAD
-=======
     private func resumeAfterPairingApprovalInBackground() {
         // Keep the pairing issue sticky to avoid visual flicker while we probe for approval.
         self.appModel.gatewayAutoReconnectEnabled = true
@@ -723,12 +716,13 @@ struct OnboardingWizardView: View {
         self.resumeAfterPairingApprovalInBackground()
     }
 
->>>>>>> 6e7f1a6a1 (iOS onboarding: prevent pairing flicker during auto-resume (#20310))
     private func detectQRCode(from data: Data) -> String? {
         guard let ciImage = CIImage(data: data) else { return nil }
         let detector = CIDetector(
-            ofType: CIDetectorTypeQRCode, context: nil,
-            options: [CIDetectorAccuracy: CIDetectorAccuracyHigh])
+            ofType: CIDetectorTypeQRCode,
+            context: nil,
+            options: [CIDetectorAccuracy: CIDetectorAccuracyHigh]
+        )
         let features = detector?.features(in: ciImage) ?? []
         for feature in features {
             if let qr = feature as? CIQRCodeFeature, let message = qr.messageString {

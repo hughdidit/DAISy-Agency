@@ -12,6 +12,8 @@ coverage
 .worktrees/
 .DS_Store
 **/.DS_Store
+Thumbs.db
+**/Thumbs.db
 ui/src/ui/__screenshots__/
 ui/playwright-report/
 ui/test-results/
@@ -68,36 +70,24 @@ docs/.local/
 IDENTITY.md
 USER.md
 .tgz
+.githooks/
+error.log
+*.bak
 
 # local tooling
 .serena/
 
-# Agent credentials and memory (NEVER COMMIT)
-/memory/
-.agent/*.json
-!.agent/workflows/
-<<<<<<< HEAD
-local/
-=======
-/local/
-package-lock.json
+# Claude Code local (personal / machine-specific) settings
 .claude/settings.local.json
-.agents/
-.agents
-.agent/
+.claude/*.local.*
 
-# Local iOS signing overrides
-apps/ios/LocalSigning.xcconfig
-# Generated protocol schema (produced via pnpm protocol:gen)
-dist/protocol.schema.json
-.ant-colony/
 
-# Eclipse
-**/.project
-**/.classpath
-**/.settings/
-**/.gradle/
+# sensitive files
+*client_secret*.json
+*credentials*.json
+*.pem
+*.key
+secrets/
+.clawdbot/
+.var/
 
-# Synthing
-**/.stfolder/
->>>>>>> ad666c5f3 (Fixed Discord channel name (#24281))

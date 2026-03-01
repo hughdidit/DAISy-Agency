@@ -7,31 +7,25 @@ const repoRoot = path.dirname(fileURLToPath(import.meta.url));
 const isCI = process.env.CI === "true" || process.env.GITHUB_ACTIONS === "true";
 const isWindows = process.platform === "win32";
 const localWorkers = Math.max(4, Math.min(16, os.cpus().length));
-const ciWorkers = isWindows ? 2 : 3;
+const ciWorkers = isWindows ? 1 : 3;
 
 export default defineConfig({
   resolve: {
     alias: {
-      "openclaw/plugin-sdk": path.join(repoRoot, "src", "plugin-sdk", "index.ts"),
+      "clawdbot/plugin-sdk": path.join(repoRoot, "src", "plugin-sdk", "index.ts"),
     },
   },
   test: {
-    testTimeout: 120_000,
+    fileParallelism: false,
+    testTimeout: isWindows ? 180_000 : 120_000,
     hookTimeout: isWindows ? 180_000 : 120_000,
     pool: "forks",
     maxWorkers: isCI ? ciWorkers : localWorkers,
-<<<<<<< HEAD
-    include: ["src/**/*.test.ts", "extensions/**/*.test.ts", "test/format-error.test.ts"],
-=======
     include: [
       "src/**/*.test.ts",
       "extensions/**/*.test.ts",
-      "test/**/*.test.ts",
-      "ui/src/ui/views/agents-utils.test.ts",
-      "ui/src/ui/views/usage-render-details.test.ts",
-      "ui/src/ui/controllers/agents.test.ts",
+      "test/format-error.test.ts",
     ],
->>>>>>> 4d89548e5 (fix(ui): inherit default model fallbacks in agents overview (#25729))
     setupFiles: ["test/setup.ts"],
     exclude: [
       "dist/**",
@@ -39,7 +33,7 @@ export default defineConfig({
       "apps/macos/.build/**",
       "**/node_modules/**",
       "**/vendor/**",
-      "dist/OpenClaw.app/**",
+      "dist/Moltbot.app/**",
       "**/*.live.test.ts",
       "**/*.e2e.test.ts",
     ],

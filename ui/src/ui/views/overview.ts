@@ -1,15 +1,9 @@
 import { html } from "lit";
-<<<<<<< HEAD
-=======
-import { ConnectErrorDetailCodes } from "../../../../src/gateway/protocol/connect-error-details.js";
-import { t, i18n, SUPPORTED_LOCALES, type Locale } from "../../i18n/index.ts";
-import { buildExternalLinkRel, EXTERNAL_LINK_TARGET } from "../external-link.ts";
-import { formatRelativeTimestamp, formatDurationHuman } from "../format.ts";
->>>>>>> 84a88b2ac (feat(i18n): add German (de) locale (#28495))
-import type { GatewayHelloOk } from "../gateway.ts";
-import type { UiSettings } from "../storage.ts";
-import { formatRelativeTimestamp, formatDurationHuman } from "../format.ts";
-import { formatNextRun } from "../presenter.ts";
+
+import type { GatewayHelloOk } from "../gateway";
+import { formatAgo, formatDurationMs } from "../format";
+import { formatNextRun } from "../presenter";
+import type { UiSettings } from "../storage";
 
 export type OverviewProps = {
   connected: boolean;
@@ -33,31 +27,29 @@ export function renderOverview(props: OverviewProps) {
   const snapshot = props.hello?.snapshot as
     | { uptimeMs?: number; policy?: { tickIntervalMs?: number } }
     | undefined;
-  const uptime = snapshot?.uptimeMs ? formatDurationHuman(snapshot.uptimeMs) : "n/a";
-  const tick = snapshot?.policy?.tickIntervalMs ? `${snapshot.policy.tickIntervalMs}ms` : "n/a";
+  const uptime = snapshot?.uptimeMs ? formatDurationMs(snapshot.uptimeMs) : "n/a";
+  const tick = snapshot?.policy?.tickIntervalMs
+    ? `${snapshot.policy.tickIntervalMs}ms`
+    : "n/a";
   const authHint = (() => {
-    if (props.connected || !props.lastError) {
-      return null;
-    }
+    if (props.connected || !props.lastError) return null;
     const lower = props.lastError.toLowerCase();
     const authFailed = lower.includes("unauthorized") || lower.includes("connect failed");
-    if (!authFailed) {
-      return null;
-    }
+    if (!authFailed) return null;
     const hasToken = Boolean(props.settings.token.trim());
     const hasPassword = Boolean(props.password.trim());
     if (!hasToken && !hasPassword) {
       return html`
-        <div class="muted" style="margin-top: 8px">
+        <div class="muted" style="margin-top: 8px;">
           This gateway requires auth. Add a token or password, then click Connect.
-          <div style="margin-top: 6px">
-            <span class="mono">openclaw dashboard --no-open</span> → open the Control UI<br />
-            <span class="mono">openclaw doctor --generate-gateway-token</span> → set token
+          <div style="margin-top: 6px;">
+            <span class="mono">moltbot dashboard --no-open</span> → tokenized URL<br />
+            <span class="mono">moltbot doctor --generate-gateway-token</span> → set token
           </div>
-          <div style="margin-top: 6px">
+          <div style="margin-top: 6px;">
             <a
               class="session-link"
-              href="https://docs.openclaw.ai/web/dashboard"
+              href="https://docs.molt.bot/web/dashboard"
               target="_blank"
               rel="noreferrer"
               title="Control UI auth docs (opens in new tab)"
@@ -68,12 +60,14 @@ export function renderOverview(props: OverviewProps) {
       `;
     }
     return html`
-      <div class="muted" style="margin-top: 8px">
-        Auth failed. Update the token or password in Control UI settings, then click Connect.
-        <div style="margin-top: 6px">
+      <div class="muted" style="margin-top: 8px;">
+        Auth failed. Re-copy a tokenized URL with
+        <span class="mono">moltbot dashboard --no-open</span>, or update the token,
+        then click Connect.
+        <div style="margin-top: 6px;">
           <a
             class="session-link"
-            href="https://docs.openclaw.ai/web/dashboard"
+            href="https://docs.molt.bot/web/dashboard"
             target="_blank"
             rel="noreferrer"
             title="Control UI auth docs (opens in new tab)"
@@ -84,29 +78,25 @@ export function renderOverview(props: OverviewProps) {
     `;
   })();
   const insecureContextHint = (() => {
-    if (props.connected || !props.lastError) {
-      return null;
-    }
+    if (props.connected || !props.lastError) return null;
     const isSecureContext = typeof window !== "undefined" ? window.isSecureContext : true;
-    if (isSecureContext) {
-      return null;
-    }
+    if (isSecureContext !== false) return null;
     const lower = props.lastError.toLowerCase();
     if (!lower.includes("secure context") && !lower.includes("device identity required")) {
       return null;
     }
     return html`
-      <div class="muted" style="margin-top: 8px">
-        This page is HTTP, so the browser blocks device identity. Use HTTPS (Tailscale Serve) or open
-        <span class="mono">http://127.0.0.1:18789</span> on the gateway host.
-        <div style="margin-top: 6px">
+      <div class="muted" style="margin-top: 8px;">
+        This page is HTTP, so the browser blocks device identity. Use HTTPS (Tailscale Serve) or
+        open <span class="mono">http://127.0.0.1:18789</span> on the gateway host.
+        <div style="margin-top: 6px;">
           If you must stay on HTTP, set
           <span class="mono">gateway.controlUi.allowInsecureAuth: true</span> (token-only).
         </div>
-        <div style="margin-top: 6px">
+        <div style="margin-top: 6px;">
           <a
             class="session-link"
-            href="https://docs.openclaw.ai/gateway/tailscale"
+            href="https://docs.molt.bot/gateway/tailscale"
             target="_blank"
             rel="noreferrer"
             title="Tailscale Serve docs (opens in new tab)"
@@ -115,7 +105,7 @@ export function renderOverview(props: OverviewProps) {
           <span class="muted"> · </span>
           <a
             class="session-link"
-            href="https://docs.openclaw.ai/web/control-ui#insecure-http"
+            href="https://docs.molt.bot/web/control-ui#insecure-http"
             target="_blank"
             rel="noreferrer"
             title="Insecure HTTP docs (opens in new tab)"
@@ -151,7 +141,7 @@ export function renderOverview(props: OverviewProps) {
                 const v = (e.target as HTMLInputElement).value;
                 props.onSettingsChange({ ...props.settings, token: v });
               }}
-              placeholder="OPENCLAW_GATEWAY_TOKEN"
+              placeholder="CLAWDBOT_GATEWAY_TOKEN"
             />
           </label>
           <label class="field">
@@ -176,25 +166,6 @@ export function renderOverview(props: OverviewProps) {
               }}
             />
           </label>
-<<<<<<< HEAD
-=======
-          <label class="field">
-            <span>${t("overview.access.language")}</span>
-            <select
-              .value=${currentLocale}
-              @change=${(e: Event) => {
-                const v = (e.target as HTMLSelectElement).value as Locale;
-                void i18n.setLocale(v);
-                props.onSettingsChange({ ...props.settings, locale: v });
-              }}
-            >
-              ${SUPPORTED_LOCALES.map((loc) => {
-                const key = loc.replace(/-([a-zA-Z])/g, (_, c) => c.toUpperCase());
-                return html`<option value=${loc}>${t(`languages.${key}`)}</option>`;
-              })}
-            </select>
-          </label>
->>>>>>> 84a88b2ac (feat(i18n): add German (de) locale (#28495))
         </div>
         <div class="row" style="margin-top: 14px;">
           <button class="btn" @click=${() => props.onConnect()}>Connect</button>
@@ -224,27 +195,24 @@ export function renderOverview(props: OverviewProps) {
           <div class="stat">
             <div class="stat-label">Last Channels Refresh</div>
             <div class="stat-value">
-              ${props.lastChannelsRefresh ? formatRelativeTimestamp(props.lastChannelsRefresh) : "n/a"}
+              ${props.lastChannelsRefresh
+                ? formatAgo(props.lastChannelsRefresh)
+                : "n/a"}
             </div>
           </div>
         </div>
-        ${
-          props.lastError
-            ? html`<div class="callout danger" style="margin-top: 14px;">
+        ${props.lastError
+          ? html`<div class="callout danger" style="margin-top: 14px;">
               <div>${props.lastError}</div>
               ${authHint ?? ""}
               ${insecureContextHint ?? ""}
             </div>`
-            : html`
-                <div class="callout" style="margin-top: 14px">
-                  Use Channels to link WhatsApp, Telegram, Discord, Signal, or iMessage.
-                </div>
-              `
-        }
+          : html`<div class="callout" style="margin-top: 14px;">
+              Use Channels to link WhatsApp, Telegram, Discord, Signal, or iMessage.
+            </div>`}
       </div>
     </section>
 
-<<<<<<< HEAD
     <section class="grid grid-cols-3" style="margin-top: 18px;">
       <div class="card stat-card">
         <div class="stat-label">Instances</div>
@@ -259,50 +227,15 @@ export function renderOverview(props: OverviewProps) {
       <div class="card stat-card">
         <div class="stat-label">Cron</div>
         <div class="stat-value">
-          ${props.cronEnabled == null ? "n/a" : props.cronEnabled ? "Enabled" : "Disabled"}
+          ${props.cronEnabled == null
+            ? "n/a"
+            : props.cronEnabled
+              ? "Enabled"
+              : "Disabled"}
         </div>
         <div class="muted">Next wake ${formatNextRun(props.cronNext)}</div>
       </div>
     </section>
-=======
-    ${
-      props.streamMode
-        ? html`<div class="callout ov-stream-banner" style="margin-top: 18px;">
-          <span class="nav-item__icon">${icons.radio}</span>
-          ${t("overview.streamMode.active")}
-          <button class="btn btn--sm" style="margin-left: auto;" @click=${() => props.onToggleStreamMode()}>
-            ${t("overview.streamMode.disable")}
-          </button>
-        </div>`
-        : nothing
-    }
-
-    ${renderOverviewCards({
-      usageResult: props.usageResult,
-      sessionsResult: props.sessionsResult,
-      skillsReport: props.skillsReport,
-      cronJobs: props.cronJobs,
-      cronStatus: props.cronStatus,
-      presenceCount: props.presenceCount,
-      redacted: props.streamMode,
-      onNavigate: props.onNavigate,
-    })}
-
-    ${renderOverviewAttention({ items: props.attentionItems })}
-
-    <div class="ov-bottom-grid" style="margin-top: 18px;">
-      ${renderOverviewEventLog({
-        events: props.eventLog,
-        redacted: props.streamMode,
-      })}
-
-      ${renderOverviewLogTail({
-        lines: props.overviewLogLines,
-        redacted: props.streamMode,
-        onRefreshLogs: props.onRefreshLogs,
-      })}
-    </div>
->>>>>>> 26ab93f0e (revert(ui): remove recent UI dashboard/theme commits from main)
 
     <section class="card" style="margin-top: 18px;">
       <div class="card-title">Notes</div>

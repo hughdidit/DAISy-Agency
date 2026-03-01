@@ -1,26 +1,12 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-import { promises as fs } from "node:fs";
-import { basename } from "node:path";
-import { Readable } from "stream";
->>>>>>> 56fa05838 (feat(feishu): support Docx table create/write + image/file upload actions in feishu_doc (#20304))
-=======
 import { existsSync, promises as fs } from "node:fs";
 import { homedir } from "node:os";
 import { isAbsolute } from "node:path";
 import { basename } from "node:path";
->>>>>>> 0740fb83d (feat(feishu): add markdown tables, positional insert, color_text, and table ops (#29411))
 import type * as Lark from "@larksuiteoapi/node-sdk";
-import type { OpenClawPluginApi } from "openclaw/plugin-sdk";
 import { Type } from "@sinclair/typebox";
-import { Readable } from "stream";
+import type { OpenClawPluginApi } from "openclaw/plugin-sdk";
 import { listEnabledFeishuAccounts } from "./accounts.js";
-import { createFeishuClient } from "./client.js";
 import { FeishuDocSchema, type FeishuDocParams } from "./doc-schema.js";
-<<<<<<< HEAD
-import { resolveToolsConfig } from "./tools-config.js";
-=======
 import { BATCH_SIZE, insertBlocksInBatches } from "./docx-batch-insert.js";
 import { updateColorText } from "./docx-color-text.js";
 import {
@@ -37,7 +23,6 @@ import {
   resolveAnyEnabledFeishuToolsConfig,
   resolveFeishuToolAccount,
 } from "./tool-account.js";
->>>>>>> 0740fb83d (feat(feishu): add markdown tables, positional insert, color_text, and table ops (#29411))
 
 // ============ Helpers ============
 
@@ -126,6 +111,14 @@ async function convertMarkdown(client: Lark.Client, markdown: string) {
     blocks: res.data?.blocks ?? [],
     firstLevelBlockIds: res.data?.first_level_block_ids ?? [],
   };
+}
+
+function sortBlocksByFirstLevel(blocks: any[], firstLevelIds: string[]): any[] {
+  if (!firstLevelIds || firstLevelIds.length === 0) return blocks;
+  const sorted = firstLevelIds.map((id) => blocks.find((b) => b.block_id === id)).filter(Boolean);
+  const sortedIds = new Set(firstLevelIds);
+  const remaining = blocks.filter((b) => !sortedIds.has(b.block_id));
+  return [...sorted, ...remaining];
 }
 
 /* eslint-disable @typescript-eslint/no-explicit-any -- SDK block types */
@@ -392,12 +385,9 @@ async function uploadImageToDocx(
   return fileToken;
 }
 
-async function downloadImage(url: string): Promise<Buffer> {
-  const response = await fetch(url);
-  if (!response.ok) {
-    throw new Error(`Failed to download image: ${response.status} ${response.statusText}`);
-  }
-  return Buffer.from(await response.arrayBuffer());
+async function downloadImage(url: string, maxBytes: number): Promise<Buffer> {
+  const fetched = await getFeishuRuntime().channel.media.fetchRemoteMedia({ url, maxBytes });
+  return fetched.buffer;
 }
 
 async function resolveUploadInput(
@@ -542,6 +532,7 @@ async function processImages(
   docToken: string,
   markdown: string,
   insertedBlocks: any[],
+  maxBytes: number,
 ): Promise<number> {
   /* eslint-enable @typescript-eslint/no-explicit-any */
   const imageUrls = extractImageUrls(markdown);
@@ -557,7 +548,7 @@ async function processImages(
     const blockId = imageBlocks[i].block_id;
 
     try {
-      const buffer = await downloadImage(url);
+      const buffer = await downloadImage(url, maxBytes);
       const urlPath = new URL(url).pathname;
       const fileName = urlPath.split("/").pop() || `image_${i}.png`;
       const fileToken = await uploadImageToDocx(client, blockId, buffer, fileName, docToken);
@@ -807,16 +798,6 @@ async function createDoc(
   };
 }
 
-<<<<<<< HEAD
-async function writeDoc(client: Lark.Client, docToken: string, markdown: string) {
-  const deleted = await clearDocumentContent(client, docToken);
-
-<<<<<<< HEAD
-  const { blocks } = await convertMarkdown(client, markdown);
-=======
-  const blocks = await chunkedConvertMarkdown(client, markdown);
->>>>>>> 4dc55ea88 (fix(feishu): chunk large documents for write/append to avoid API 400 errors (#14402))
-=======
 async function writeDoc(
   client: Lark.Client,
   docToken: string,
@@ -827,20 +808,10 @@ async function writeDoc(
   const deleted = await clearDocumentContent(client, docToken);
   logger?.info?.("feishu_doc: Converting markdown...");
   const { blocks, firstLevelBlockIds } = await chunkedConvertMarkdown(client, markdown);
->>>>>>> 0740fb83d (feat(feishu): add markdown tables, positional insert, color_text, and table ops (#29411))
   if (blocks.length === 0) {
     return { success: true, blocks_deleted: deleted, blocks_added: 0, images_processed: 0 };
   }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-  const { children: inserted, skipped } = await insertBlocks(client, docToken, blocks);
-  const imagesProcessed = await processImages(client, docToken, markdown, inserted);
-=======
-  const { children: inserted, skipped } = await chunkedInsertBlocks(client, docToken, blocks);
-  const imagesProcessed = await processImages(client, docToken, markdown, inserted, maxBytes);
->>>>>>> 4dc55ea88 (fix(feishu): chunk large documents for write/append to avoid API 400 errors (#14402))
-=======
   logger?.info?.(`feishu_doc: Converted to ${blocks.length} blocks, inserting...`);
   const sortedBlocks = sortBlocksByFirstLevel(blocks, firstLevelBlockIds);
   const { children: inserted } =
@@ -849,7 +820,6 @@ async function writeDoc(
       : await insertBlocksWithDescendant(client, docToken, sortedBlocks, firstLevelBlockIds);
   const imagesProcessed = await processImages(client, docToken, markdown, inserted, maxBytes);
   logger?.info?.(`feishu_doc: Done (${blocks.length} blocks, ${imagesProcessed} images)`);
->>>>>>> 0740fb83d (feat(feishu): add markdown tables, positional insert, color_text, and table ops (#29411))
 
   return {
     success: true,
@@ -859,10 +829,6 @@ async function writeDoc(
   };
 }
 
-<<<<<<< HEAD
-async function appendDoc(client: Lark.Client, docToken: string, markdown: string) {
-  const { blocks } = await convertMarkdown(client, markdown);
-=======
 async function appendDoc(
   client: Lark.Client,
   docToken: string,
@@ -870,26 +836,12 @@ async function appendDoc(
   maxBytes: number,
   logger?: Logger,
 ) {
-<<<<<<< HEAD
-  const blocks = await chunkedConvertMarkdown(client, markdown);
->>>>>>> 4dc55ea88 (fix(feishu): chunk large documents for write/append to avoid API 400 errors (#14402))
-=======
   logger?.info?.("feishu_doc: Converting markdown...");
   const { blocks, firstLevelBlockIds } = await chunkedConvertMarkdown(client, markdown);
->>>>>>> 0740fb83d (feat(feishu): add markdown tables, positional insert, color_text, and table ops (#29411))
   if (blocks.length === 0) {
     throw new Error("Content is empty");
   }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-  const { children: inserted, skipped } = await insertBlocks(client, docToken, blocks);
-  const imagesProcessed = await processImages(client, docToken, markdown, inserted);
-=======
-  const { children: inserted, skipped } = await chunkedInsertBlocks(client, docToken, blocks);
-  const imagesProcessed = await processImages(client, docToken, markdown, inserted, maxBytes);
->>>>>>> 4dc55ea88 (fix(feishu): chunk large documents for write/append to avoid API 400 errors (#14402))
-=======
   logger?.info?.(`feishu_doc: Converted to ${blocks.length} blocks, inserting...`);
   const sortedBlocks = sortBlocksByFirstLevel(blocks, firstLevelBlockIds);
   const { children: inserted } =
@@ -898,7 +850,6 @@ async function appendDoc(
       : await insertBlocksWithDescendant(client, docToken, sortedBlocks, firstLevelBlockIds);
   const imagesProcessed = await processImages(client, docToken, markdown, inserted, maxBytes);
   logger?.info?.(`feishu_doc: Done (${blocks.length} blocks, ${imagesProcessed} images)`);
->>>>>>> 0740fb83d (feat(feishu): add markdown tables, positional insert, color_text, and table ops (#29411))
 
   return {
     success: true,
@@ -1277,49 +1228,27 @@ export function registerFeishuDocTools(api: OpenClawPluginApi) {
     return;
   }
 
-  // Use first account's config for tools configuration
-  const firstAccount = accounts[0];
-  const toolsCfg = resolveToolsConfig(firstAccount.config.tools);
+  // Register if enabled on any account; account routing is resolved per execution.
+  const toolsCfg = resolveAnyEnabledFeishuToolsConfig(accounts);
 
-  // Helper to get client for the default account
-  const getClient = () => createFeishuClient(firstAccount);
   const registered: string[] = [];
+  type FeishuDocExecuteParams = FeishuDocParams & { accountId?: string };
+
+  const getClient = (params: { accountId?: string } | undefined, defaultAccountId?: string) =>
+    createFeishuToolClient({ api, executeParams: params, defaultAccountId });
+
+  const getMediaMaxBytes = (
+    params: { accountId?: string } | undefined,
+    defaultAccountId?: string,
+  ) =>
+    (resolveFeishuToolAccount({ api, executeParams: params, defaultAccountId }).config
+      ?.mediaMaxMb ?? 30) *
+    1024 *
+    1024;
 
   // Main document tool with action-based dispatch
   if (toolsCfg.doc) {
     api.registerTool(
-<<<<<<< HEAD
-      {
-        name: "feishu_doc",
-        label: "Feishu Doc",
-        description:
-          "Feishu document operations. Actions: read, write, append, create, list_blocks, get_block, update_block, delete_block",
-        parameters: FeishuDocSchema,
-        async execute(_toolCallId, params) {
-          const p = params as FeishuDocParams;
-          try {
-            const client = getClient();
-            switch (p.action) {
-              case "read":
-                return json(await readDoc(client, p.doc_token));
-              case "write":
-                return json(await writeDoc(client, p.doc_token, p.content));
-              case "append":
-                return json(await appendDoc(client, p.doc_token, p.content));
-              case "create":
-                return json(await createDoc(client, p.title, p.folder_token));
-              case "list_blocks":
-                return json(await listBlocks(client, p.doc_token));
-              case "get_block":
-                return json(await getBlock(client, p.doc_token, p.block_id));
-              case "update_block":
-                return json(await updateBlock(client, p.doc_token, p.block_id, p.content));
-              case "delete_block":
-                return json(await deleteBlock(client, p.doc_token, p.block_id));
-              default:
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any -- exhaustive check fallback
-                return json({ error: `Unknown action: ${(p as any).action}` });
-=======
       (ctx) => {
         const defaultAccountId = ctx.agentAccountId;
         return {
@@ -1483,12 +1412,9 @@ export function registerFeishuDocTools(api: OpenClawPluginApi) {
               }
             } catch (err) {
               return json({ error: err instanceof Error ? err.message : String(err) });
->>>>>>> bf9585d05 (PR: Feishu Plugin - Auto-grant document permissions to requesting user (openclaw#28295) thanks @zhoulongchao77)
             }
-          } catch (err) {
-            return json({ error: err instanceof Error ? err.message : String(err) });
-          }
-        },
+          },
+        };
       },
       { name: "feishu_doc" },
     );
@@ -1498,7 +1424,7 @@ export function registerFeishuDocTools(api: OpenClawPluginApi) {
   // Keep feishu_app_scopes as independent tool
   if (toolsCfg.scopes) {
     api.registerTool(
-      {
+      (ctx) => ({
         name: "feishu_app_scopes",
         label: "Feishu App Scopes",
         description:
@@ -1506,13 +1432,13 @@ export function registerFeishuDocTools(api: OpenClawPluginApi) {
         parameters: Type.Object({}),
         async execute() {
           try {
-            const result = await listAppScopes(getClient());
+            const result = await listAppScopes(getClient(undefined, ctx.agentAccountId));
             return json(result);
           } catch (err) {
             return json({ error: err instanceof Error ? err.message : String(err) });
           }
         },
-      },
+      }),
       { name: "feishu_app_scopes" },
     );
     registered.push("feishu_app_scopes");

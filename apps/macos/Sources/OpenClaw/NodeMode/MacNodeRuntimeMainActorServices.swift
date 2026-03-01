@@ -1,6 +1,6 @@
-import OpenClawKit
 import CoreLocation
 import Foundation
+import MoltbotKit
 
 @MainActor
 protocol MacNodeRuntimeMainActorServices: Sendable {

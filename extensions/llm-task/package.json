@@ -1,25 +1,9 @@
 {
-  "name": "@openclaw/llm-task",
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-  "version": "2026.2.9",
-=======
-  "version": "2026.2.13",
-=======
-  "version": "2026.2.24",
->>>>>>> 955cc9029 (chore: sync plugin versions to 2026.2.24)
-=======
-  "version": "2026.2.25",
->>>>>>> 2652bb1d7 (Release: sync plugin versions to 2026.2.25)
-  "private": true,
->>>>>>> 67251e97b (fix(ci): sync extension versions to root release (#15199))
-  "description": "OpenClaw JSON-only LLM task plugin",
+  "name": "@moltbot/llm-task",
+  "version": "2026.1.27-beta.1",
   "type": "module",
-  "devDependencies": {
-    "openclaw": "workspace:*"
-  },
-  "openclaw": {
+  "description": "Moltbot JSON-only LLM task plugin",
+  "moltbot": {
     "extensions": [
       "./index.ts"
     ]

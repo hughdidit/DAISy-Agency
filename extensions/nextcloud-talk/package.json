@@ -1,21 +1,9 @@
 {
-  "name": "@openclaw/nextcloud-talk",
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-  "version": "2026.2.9",
-=======
-  "version": "2026.2.13",
->>>>>>> 67251e97b (fix(ci): sync extension versions to root release (#15199))
-=======
-  "version": "2026.2.24",
->>>>>>> 955cc9029 (chore: sync plugin versions to 2026.2.24)
-=======
-  "version": "2026.2.25",
->>>>>>> 2652bb1d7 (Release: sync plugin versions to 2026.2.25)
-  "description": "OpenClaw Nextcloud Talk channel plugin",
+  "name": "@moltbot/nextcloud-talk",
+  "version": "2026.1.27-beta.1",
   "type": "module",
-  "openclaw": {
+  "description": "Moltbot Nextcloud Talk channel plugin",
+  "moltbot": {
     "extensions": [
       "./index.ts"
     ],
@@ -34,7 +22,7 @@
       "quickstartAllowFrom": true
     },
     "install": {
-      "npmSpec": "@openclaw/nextcloud-talk",
+      "npmSpec": "@moltbot/nextcloud-talk",
       "localPath": "extensions/nextcloud-talk",
       "defaultChoice": "npm"
     }

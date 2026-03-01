@@ -3,10 +3,13 @@ import Foundation
 import OpenClawKit
 import UIKit
 
+typealias OpenClawCameraSnapResult = (format: String, base64: String, width: Int, height: Int)
+typealias OpenClawCameraClipResult = (format: String, base64: String, durationMs: Int, hasAudio: Bool)
+
 protocol CameraServicing: Sendable {
     func listDevices() async -> [CameraController.CameraDeviceInfo]
-    func snap(params: OpenClawCameraSnapParams) async throws -> (format: String, base64: String, width: Int, height: Int)
-    func clip(params: OpenClawCameraClipParams) async throws -> (format: String, base64: String, durationMs: Int, hasAudio: Bool)
+    func snap(params: OpenClawCameraSnapParams) async throws -> OpenClawCameraSnapResult
+    func clip(params: OpenClawCameraClipParams) async throws -> OpenClawCameraClipResult
 }
 
 protocol ScreenRecordingServicing: Sendable {
@@ -65,8 +68,6 @@ protocol MotionServicing: Sendable {
     func pedometer(params: OpenClawPedometerParams) async throws -> OpenClawPedometerPayload
 }
 
-<<<<<<< HEAD
-=======
 struct WatchMessagingStatus: Sendable, Equatable {
     var supported: Bool
     var paired: Bool
@@ -100,7 +101,6 @@ protocol WatchMessagingServicing: AnyObject, Sendable {
         params: OpenClawWatchNotifyParams) async throws -> WatchNotificationSendResult
 }
 
->>>>>>> 738b01162 (iOS/watch: add actionable watch approvals and quick replies (#21996))
 extension CameraController: CameraServicing {}
 extension ScreenRecordService: ScreenRecordingServicing {}
 extension LocationService: LocationServicing {}

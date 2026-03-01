@@ -1,11 +1,5 @@
-<<<<<<< HEAD
-import type { CoreConfig } from "../types.js";
-=======
-import { normalizeAccountId } from "openclaw/plugin-sdk";
-import type { CoreConfig } from "../../types.js";
->>>>>>> caf5d2dd7 (feat(matrix): Add multi-account support to Matrix channel)
-import type { MatrixActionClient, MatrixActionClientOpts } from "./types.js";
 import { getMatrixRuntime } from "../../runtime.js";
+import type { CoreConfig } from "../types.js";
 import { getActiveMatrixClient } from "../active-client.js";
 import {
   createMatrixClient,
@@ -13,6 +7,7 @@ import {
   resolveMatrixAuth,
   resolveSharedMatrixClient,
 } from "../client.js";
+import type { MatrixActionClient, MatrixActionClientOpts } from "./types.js";
 
 export function ensureNodeRuntime() {
   if (isBunRuntime()) {
@@ -24,27 +19,19 @@ export async function resolveActionClient(
   opts: MatrixActionClientOpts = {},
 ): Promise<MatrixActionClient> {
   ensureNodeRuntime();
-  if (opts.client) {
-    return { client: opts.client, stopOnDone: false };
-  }
-  // Normalize accountId early to ensure consistent keying across all lookups
-  const accountId = normalizeAccountId(opts.accountId);
-  const active = getActiveMatrixClient(accountId);
-  if (active) {
-    return { client: active, stopOnDone: false };
-  }
-  const shouldShareClient = Boolean(process.env.OPENCLAW_GATEWAY_PORT);
+  if (opts.client) return { client: opts.client, stopOnDone: false };
+  const active = getActiveMatrixClient();
+  if (active) return { client: active, stopOnDone: false };
+  const shouldShareClient = Boolean(process.env.CLAWDBOT_GATEWAY_PORT);
   if (shouldShareClient) {
     const client = await resolveSharedMatrixClient({
       cfg: getMatrixRuntime().config.loadConfig() as CoreConfig,
       timeoutMs: opts.timeoutMs,
-      accountId,
     });
     return { client, stopOnDone: false };
   }
   const auth = await resolveMatrixAuth({
     cfg: getMatrixRuntime().config.loadConfig() as CoreConfig,
-    accountId,
   });
   const client = await createMatrixClient({
     homeserver: auth.homeserver,
@@ -52,7 +39,6 @@ export async function resolveActionClient(
     accessToken: auth.accessToken,
     encryption: auth.encryption,
     localTimeoutMs: opts.timeoutMs,
-    accountId,
   });
   if (auth.encryption && client.crypto) {
     try {

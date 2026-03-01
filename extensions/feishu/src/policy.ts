@@ -1,13 +1,3 @@
-<<<<<<< HEAD
-import type { ChannelGroupContext, GroupToolPolicyConfig } from "openclaw/plugin-sdk";
-import type { FeishuConfig, FeishuGroupConfig } from "./types.js";
-
-export type FeishuAllowlistMatch = {
-  allowed: boolean;
-  matchKey?: string;
-  matchSource?: "wildcard" | "id" | "name";
-};
-=======
 import type {
   AllowlistMatch,
   ChannelGroupContext,
@@ -30,7 +20,6 @@ function normalizeFeishuAllowEntry(raw: string): string {
   const normalized = normalizeFeishuTarget(withoutProviderPrefix) ?? withoutProviderPrefix;
   return normalized.trim().toLowerCase();
 }
->>>>>>> 4ed87a667 (fix(feishu): enforce id-only allowlist matching)
 
 export function resolveFeishuAllowlistMatch(params: {
   allowFrom: Array<string | number>;
@@ -39,14 +28,8 @@ export function resolveFeishuAllowlistMatch(params: {
   senderName?: string | null;
 }): FeishuAllowlistMatch {
   const allowFrom = params.allowFrom
-<<<<<<< HEAD
-    .map((entry) => String(entry).trim().toLowerCase())
-    .filter(Boolean);
-
-=======
     .map((entry) => normalizeFeishuAllowEntry(String(entry)))
     .filter(Boolean);
->>>>>>> 4ed87a667 (fix(feishu): enforce id-only allowlist matching)
   if (allowFrom.length === 0) {
     return { allowed: false };
   }
@@ -54,16 +37,6 @@ export function resolveFeishuAllowlistMatch(params: {
     return { allowed: true, matchKey: "*", matchSource: "wildcard" };
   }
 
-<<<<<<< HEAD
-  const senderId = params.senderId.toLowerCase();
-  if (allowFrom.includes(senderId)) {
-    return { allowed: true, matchKey: senderId, matchSource: "id" };
-  }
-
-  const senderName = params.senderName?.toLowerCase();
-  if (senderName && allowFrom.includes(senderName)) {
-    return { allowed: true, matchKey: senderName, matchSource: "name" };
-=======
   // Feishu allowlists are ID-based; mutable display names must never grant access.
   const senderCandidates = [params.senderId, ...(params.senderIds ?? [])]
     .map((entry) => normalizeFeishuAllowEntry(String(entry ?? "")))
@@ -73,7 +46,6 @@ export function resolveFeishuAllowlistMatch(params: {
     if (allowFrom.includes(senderId)) {
       return { allowed: true, matchKey: senderId, matchSource: "id" };
     }
->>>>>>> 4ed87a667 (fix(feishu): enforce id-only allowlist matching)
   }
 
   return { allowed: false };

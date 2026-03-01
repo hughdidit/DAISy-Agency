@@ -1,26 +1,14 @@
 {
-  "name": "@openclaw/voice-call",
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-  "version": "2026.2.9",
-=======
-  "version": "2026.2.13",
->>>>>>> 67251e97b (fix(ci): sync extension versions to root release (#15199))
-=======
-  "version": "2026.2.24",
->>>>>>> 955cc9029 (chore: sync plugin versions to 2026.2.24)
-=======
-  "version": "2026.2.25",
->>>>>>> 2652bb1d7 (Release: sync plugin versions to 2026.2.25)
-  "description": "OpenClaw voice-call plugin",
+  "name": "@moltbot/voice-call",
+  "version": "2026.1.27-beta.1",
   "type": "module",
+  "description": "Moltbot voice-call plugin",
   "dependencies": {
-    "@sinclair/typebox": "0.34.48",
+    "@sinclair/typebox": "0.34.47",
     "ws": "^8.19.0",
     "zod": "^4.3.6"
   },
-  "openclaw": {
+  "moltbot": {
     "extensions": [
       "./index.ts"
     ]
