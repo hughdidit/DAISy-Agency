@@ -26,7 +26,18 @@ export function openVerifiedFileSync(params: {
   resolvedPath?: string;
   rejectPathSymlink?: boolean;
   maxBytes?: number;
+<<<<<<< HEAD
 }): SafeOpenSyncResult {
+=======
+  allowedType?: SafeOpenSyncAllowedType;
+  ioFs?: SafeOpenSyncFs;
+}): SafeOpenSyncResult {
+  const ioFs = params.ioFs ?? fs;
+  const allowedType = params.allowedType ?? "file";
+  const openReadFlags =
+    ioFs.constants.O_RDONLY |
+    (typeof ioFs.constants.O_NOFOLLOW === "number" ? ioFs.constants.O_NOFOLLOW : 0);
+>>>>>>> 3be1343e0 (fix: tighten sandbox mkdirp boundary checks (#30610) (thanks @glitch418x))
   let fd: number | null = null;
   try {
     if (params.rejectPathSymlink) {
@@ -36,18 +47,30 @@ export function openVerifiedFileSync(params: {
       }
     }
 
+<<<<<<< HEAD
     const realPath = params.resolvedPath ?? fs.realpathSync(params.filePath);
     const preOpenStat = fs.lstatSync(realPath);
     if (!preOpenStat.isFile()) {
+=======
+    const realPath = params.resolvedPath ?? ioFs.realpathSync(params.filePath);
+    const preOpenStat = ioFs.lstatSync(realPath);
+    if (!isAllowedType(preOpenStat, allowedType)) {
+>>>>>>> 3be1343e0 (fix: tighten sandbox mkdirp boundary checks (#30610) (thanks @glitch418x))
       return { ok: false, reason: "validation" };
     }
     if (params.maxBytes !== undefined && preOpenStat.size > params.maxBytes) {
       return { ok: false, reason: "validation" };
     }
 
+<<<<<<< HEAD
     fd = fs.openSync(realPath, OPEN_READ_FLAGS);
     const openedStat = fs.fstatSync(fd);
     if (!openedStat.isFile()) {
+=======
+    fd = ioFs.openSync(realPath, openReadFlags);
+    const openedStat = ioFs.fstatSync(fd);
+    if (!isAllowedType(openedStat, allowedType)) {
+>>>>>>> 3be1343e0 (fix: tighten sandbox mkdirp boundary checks (#30610) (thanks @glitch418x))
       return { ok: false, reason: "validation" };
     }
     if (params.maxBytes !== undefined && openedStat.size > params.maxBytes) {
@@ -71,3 +94,13 @@ export function openVerifiedFileSync(params: {
     }
   }
 }
+<<<<<<< HEAD
+=======
+
+function isAllowedType(stat: fs.Stats, allowedType: SafeOpenSyncAllowedType): boolean {
+  if (allowedType === "directory") {
+    return stat.isDirectory();
+  }
+  return stat.isFile();
+}
+>>>>>>> 3be1343e0 (fix: tighten sandbox mkdirp boundary checks (#30610) (thanks @glitch418x))

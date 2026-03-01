@@ -10,6 +10,17 @@ type RunCommandOptions = {
   signal?: AbortSignal;
 };
 
+<<<<<<< HEAD
+=======
+type PathSafetyOptions = {
+  action: string;
+  aliasPolicy?: PathAliasPolicy;
+  requireWritable?: boolean;
+  allowMissingTarget?: boolean;
+  allowedType?: SafeOpenSyncAllowedType;
+};
+
+>>>>>>> 3be1343e0 (fix: tighten sandbox mkdirp boundary checks (#30610) (thanks @glitch418x))
 export type SandboxResolvedPath = {
   hostPath: string;
   relativePath: string;
@@ -106,8 +117,18 @@ class SandboxFsBridgeImpl implements SandboxFsBridge {
   }
 
   async mkdirp(params: { filePath: string; cwd?: string; signal?: AbortSignal }): Promise<void> {
+<<<<<<< HEAD
     this.ensureWriteAccess("create directories");
     const target = this.resolvePath(params);
+=======
+    const target = this.resolveResolvedPath(params);
+    this.ensureWriteAccess(target, "create directories");
+    await this.assertPathSafety(target, {
+      action: "create directories",
+      requireWritable: true,
+      allowedType: "directory",
+    });
+>>>>>>> 3be1343e0 (fix: tighten sandbox mkdirp boundary checks (#30610) (thanks @glitch418x))
     await this.runCommand('set -eu; mkdir -p -- "$1"', {
       args: [target.containerPath],
       signal: params.signal,
@@ -216,7 +237,13 @@ class SandboxFsBridgeImpl implements SandboxFsBridge {
     await assertNoHostSymlinkEscape({
       absolutePath: target.hostPath,
       rootPath: lexicalMount.hostRoot,
+<<<<<<< HEAD
       allowFinalSymlink: options.allowFinalSymlink === true,
+=======
+      boundaryLabel: "sandbox mount root",
+      aliasPolicy: options.aliasPolicy,
+      allowedType: options.allowedType,
+>>>>>>> 3be1343e0 (fix: tighten sandbox mkdirp boundary checks (#30610) (thanks @glitch418x))
     });
 
     const canonicalContainerPath = await this.resolveCanonicalContainerPath({

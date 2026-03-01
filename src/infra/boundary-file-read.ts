@@ -28,6 +28,10 @@ export type OpenBoundaryFileSyncParams = {
   rootRealPath?: string;
   maxBytes?: number;
   rejectHardlinks?: boolean;
+<<<<<<< HEAD
+=======
+  allowedType?: SafeOpenSyncAllowedType;
+>>>>>>> 3be1343e0 (fix: tighten sandbox mkdirp boundary checks (#30610) (thanks @glitch418x))
   skipLexicalRootCheck?: boolean;
   ioFs?: BoundaryReadFs;
 };
@@ -74,6 +78,10 @@ export function openBoundaryFileSync(params: OpenBoundaryFileSyncParams): Bounda
     resolvedPath,
     rejectHardlinks: params.rejectHardlinks ?? true,
     maxBytes: params.maxBytes,
+<<<<<<< HEAD
+=======
+    allowedType: params.allowedType,
+>>>>>>> 3be1343e0 (fix: tighten sandbox mkdirp boundary checks (#30610) (thanks @glitch418x))
     ioFs,
   });
   if (!opened.ok) {
