@@ -1171,6 +1171,7 @@ Docs: https://docs.openclaw.ai
 >>>>>>> 5e73f3344 (fix(slack): keep thread session fork/history context after first turn (#23843))
 - Slack/Threading: respect `replyToMode` when Slack auto-populates top-level `thread_ts`, and ignore inline `replyToId` directive tags when `replyToMode` is `off` so thread forcing stays disabled unless explicitly configured. (#23839, #23320, #23513) Thanks @vincentkoc and @dorukardahan.
 - Slack/Extension: forward `message read` `threadId` to `readMessages` and use delivery-context `threadId` as outbound `thread_ts` fallback so extension replies/reads stay in the correct Slack thread. (#22216, #22485, #23836) Thanks @vincentkoc, @lan17 and @dorukardahan.
+<<<<<<< HEAD
 - Channels/Group policy: fail closed when `groupPolicy: "allowlist"` is set without explicit `groups`, honor account-level `groupPolicy` overrides, and enforce `groupPolicy: "disabled"` as a hard group block. (#22215) Thanks @etereo.
 - Sandbox/Media: map container workspace paths (`/workspace/...` and `file:///workspace/...`) back to the host sandbox root for outbound media validation, preventing false deny errors for sandbox-generated local media. (#23083) Thanks @echo931.
 - Sandbox/Docker: apply custom bind mounts after workspace mounts and prioritize bind-source resolution on overlapping paths, so explicit workspace binds are no longer ignored. (#22669) Thanks @tasaankaeris.
@@ -1178,6 +1179,12 @@ Docs: https://docs.openclaw.ai
 <<<<<<< HEAD
 =======
 - Security/Elevated: match `tools.elevated.allowFrom` against sender identities only (not recipient `ctx.To`), closing a recipient-token bypass for `/elevated` authorization. (#11022) Thanks @coygeek.
+=======
+- Slack/Upload: resolve bare user IDs (U-prefix) to DM channel IDs via `conversations.open`, and replace `files.uploadV2` with Slack’s external 3-step upload flow (`files.getUploadURLExternal` → presigned upload POST → `files.completeUploadExternal`) to avoid `missing_scope`/`invalid_arguments` upload failures in DM and threaded media replies.
+- Webchat/Chat: apply assistant `final` payload messages directly to chat state so sent turns render without waiting for a full history refresh cycle. (#14928) Thanks @BradGroux.
+- Webchat/Chat: for out-of-band final events (for example tool-call side runs), append provided final assistant payloads directly instead of forcing a transient history reset. (#11139) Thanks @AkshayNavle.
+- Webchat/Performance: reload `chat.history` after final events only when the final payload lacks a renderable assistant message, avoiding expensive full-history refreshes on normal turns. (#20588) Thanks @amzzzzzzz.
+>>>>>>> 2a409bbba (fix(slack): replace files.uploadV2 with 3-step upload flow to fix missing_scope error (#17558))
 - Webchat/Sessions: preserve external session routing metadata when internal `chat.send` turns run under `webchat`, so explicit channel-keyed sessions (for example Telegram) no longer get rewritten to `webchat` and misroute follow-up delivery. (#23258) Thanks @binary64.
 <<<<<<< HEAD
 >>>>>>> 8a83ca54a (fix(webchat): preserve session channel routing on internal turns (#23258))
