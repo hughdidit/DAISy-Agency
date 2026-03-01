@@ -350,7 +350,21 @@ export const OpenClawSchema = z
         store: z.string().optional(),
         maxConcurrentRuns: z.number().int().positive().optional(),
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+        retry: z
+          .object({
+            maxAttempts: z.number().int().min(0).max(10).optional(),
+            backoffMs: z.array(z.number().int().nonnegative()).min(1).max(10).optional(),
+            retryOn: z
+              .array(z.enum(["rate_limit", "network", "timeout", "server_error"]))
+              .min(1)
+              .optional(),
+          })
+          .strict()
+          .optional(),
+>>>>>>> ea3955cd7 (fix(cron): add retry policy for one-shot jobs on transient errors (#24355) (openclaw#24435) thanks @hugenshen)
         webhook: HttpUrlSchema.optional(),
         webhookToken: z.string().optional().register(sensitive),
         sessionRetention: z.union([z.string(), z.literal(false)]).optional(),
