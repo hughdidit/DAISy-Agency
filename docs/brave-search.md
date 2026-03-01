@@ -10,6 +10,11 @@ title: "Brave Search"
 
 Moltbot uses Brave Search as the default provider for `web_search`.
 
+## Enable web search
+
+Set `tools.web.search.enabled` to `true` and provide a Brave key either in config
+or via `BRAVE_API_KEY` in the Gateway environment.
+
 ## Get an API key
 
 <<<<<<< HEAD
@@ -37,6 +42,7 @@ Moltbot uses Brave Search as the default provider for `web_search`.
   tools: {
     web: {
       search: {
+        enabled: true,
         provider: "brave",
         apiKey: "BRAVE_API_KEY_HERE",
         maxResults: 5,

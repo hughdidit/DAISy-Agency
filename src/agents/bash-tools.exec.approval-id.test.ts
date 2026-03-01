@@ -78,6 +78,29 @@ describe("exec approvals", () => {
     expect(runId).toBe(approvalId);
   });
 
+  it("defaults ask to always when not configured", async () => {
+    const { callGatewayTool } = await import("./tools/gateway.js");
+    const calls: string[] = [];
+
+    vi.mocked(callGatewayTool).mockImplementation(async (method) => {
+      calls.push(method);
+      if (method === "exec.approval.request") {
+        return { decision: "deny" };
+      }
+      return { ok: true };
+    });
+
+    const { createExecTool } = await import("./bash-tools.exec.js");
+    const tool = createExecTool({
+      host: "node",
+      approvalRunningNoticeMs: 0,
+    });
+
+    const result = await tool.execute("call-default-ask", { command: "echo ok" });
+    expect(result.details.status).toBe("approval-pending");
+    expect(calls).toContain("exec.approval.request");
+  });
+
   it("skips approval when node allowlist is satisfied", async () => {
     const { callGatewayTool } = await import("./tools/gateway.js");
     const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-test-bin-"));

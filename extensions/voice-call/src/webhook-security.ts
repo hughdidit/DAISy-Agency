@@ -207,7 +207,7 @@ export function verifyTwilioWebhook(
     options?.allowNgrokFreeTierLoopbackBypass &&
     isLoopbackAddress(ctx.remoteAddress)
   ) {
-    console.warn(
+    console.warn( // standalone util — caller logs through provider logger
       "[voice-call] Twilio signature validation failed (ngrok free tier compatibility, loopback only)",
     );
     return {

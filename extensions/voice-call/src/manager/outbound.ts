@@ -70,7 +70,7 @@ export async function initiateCall(
     if (mode === "notify" && initialMessage) {
       const pollyVoice = mapVoiceToPolly(ctx.config.tts?.openai?.voice);
       inlineTwiml = generateNotifyTwiml(initialMessage, pollyVoice);
-      console.log(`[voice-call] Using inline TwiML for notify mode (voice: ${pollyVoice})`);
+      ctx.logger.info(`[voice-call] Using inline TwiML for notify mode (voice: ${pollyVoice})`);
     }
 
     const result = await ctx.provider.initiateCall({
@@ -145,7 +145,7 @@ export async function speakInitialMessage(
     providerCallId,
   });
   if (!call) {
-    console.warn(`[voice-call] speakInitialMessage: no call found for ${providerCallId}`);
+    ctx.logger.warn(`[voice-call] speakInitialMessage: no call found for ${providerCallId}`);
     return;
   }
 
@@ -153,7 +153,7 @@ export async function speakInitialMessage(
   const mode = (call.metadata?.mode as CallMode) ?? "conversation";
 
   if (!initialMessage) {
-    console.log(`[voice-call] speakInitialMessage: no initial message for ${call.callId}`);
+    ctx.logger.info(`[voice-call] speakInitialMessage: no initial message for ${call.callId}`);
     return;
   }
 
@@ -163,20 +163,20 @@ export async function speakInitialMessage(
     persistCallRecord(ctx.storePath, call);
   }
 
-  console.log(`[voice-call] Speaking initial message for call ${call.callId} (mode: ${mode})`);
+  ctx.logger.info(`[voice-call] Speaking initial message for call ${call.callId} (mode: ${mode})`);
   const result = await speak(ctx, call.callId, initialMessage);
   if (!result.success) {
-    console.warn(`[voice-call] Failed to speak initial message: ${result.error}`);
+    ctx.logger.warn(`[voice-call] Failed to speak initial message: ${result.error}`);
     return;
   }
 
   if (mode === "notify") {
     const delaySec = ctx.config.outbound.notifyHangupDelaySec;
-    console.log(`[voice-call] Notify mode: auto-hangup in ${delaySec}s for call ${call.callId}`);
+    ctx.logger.info(`[voice-call] Notify mode: auto-hangup in ${delaySec}s for call ${call.callId}`);
     setTimeout(async () => {
       const currentCall = ctx.activeCalls.get(call.callId);
       if (currentCall && !TerminalStates.has(currentCall.state)) {
-        console.log(`[voice-call] Notify mode: hanging up call ${call.callId}`);
+        ctx.logger.info(`[voice-call] Notify mode: hanging up call ${call.callId}`);
         await endCall(ctx, call.callId);
       }
     }, delaySec * 1000);

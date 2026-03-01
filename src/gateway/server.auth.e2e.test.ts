@@ -528,6 +528,38 @@ describe("gateway server auth/connect", () => {
     }
   });
 
+  test("defaults to operator.read when scopes omitted", async () => {
+    const { approveDevicePairing, getPairedDevice, listDevicePairing } =
+      await import("../infra/device-pairing.js");
+    const { loadOrCreateDeviceIdentity } = await import("../infra/device-identity.js");
+    const { server, ws, prevToken } = await startServerWithClient("secret");
+
+    // Connect WITHOUT specifying scopes — should default to operator.read
+    const res = await connectReq(ws, { token: "secret" });
+    if (!res.ok) {
+      const list = await listDevicePairing();
+      const pending = list.pending.at(0);
+      expect(pending?.requestId).toBeDefined();
+      if (pending?.requestId) {
+        await approveDevicePairing(pending.requestId);
+      }
+    }
+
+    const identity = loadOrCreateDeviceIdentity();
+    const paired = await getPairedDevice(identity.deviceId);
+    // Must be operator.read, NOT operator.admin
+    expect(paired?.scopes).toContain("operator.read");
+    expect(paired?.scopes).not.toContain("operator.admin");
+
+    ws.close();
+    await server.close();
+    if (prevToken === undefined) {
+      delete process.env.CLAWDBOT_GATEWAY_TOKEN;
+    } else {
+      process.env.CLAWDBOT_GATEWAY_TOKEN = prevToken;
+    }
+  });
+
   test("rejects revoked device token", async () => {
     const { loadOrCreateDeviceIdentity } = await import("../infra/device-identity.js");
     const { approveDevicePairing, getPairedDevice, listDevicePairing, revokeDeviceToken } =
