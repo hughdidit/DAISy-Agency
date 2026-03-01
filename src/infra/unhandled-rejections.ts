@@ -36,6 +36,29 @@ const TRANSIENT_NETWORK_CODES = new Set([
   "UND_ERR_BODY_TIMEOUT",
 ]);
 
+<<<<<<< HEAD
+=======
+const TRANSIENT_NETWORK_ERROR_NAMES = new Set([
+  "AbortError",
+  "ConnectTimeoutError",
+  "HeadersTimeoutError",
+  "BodyTimeoutError",
+  "TimeoutError",
+]);
+
+const TRANSIENT_NETWORK_MESSAGE_CODE_RE =
+  /\b(ECONNRESET|ECONNREFUSED|ENOTFOUND|ETIMEDOUT|ESOCKETTIMEDOUT|ECONNABORTED|EPIPE|EHOSTUNREACH|ENETUNREACH|EAI_AGAIN|UND_ERR_CONNECT_TIMEOUT|UND_ERR_DNS_RESOLVE_FAILED|UND_ERR_CONNECT|UND_ERR_SOCKET|UND_ERR_HEADERS_TIMEOUT|UND_ERR_BODY_TIMEOUT)\b/i;
+
+const TRANSIENT_NETWORK_MESSAGE_SNIPPETS = [
+  "getaddrinfo",
+  "socket hang up",
+  "client network socket disconnected before secure tls connection was established",
+  "network error",
+  "network is unreachable",
+  "temporary failure in name resolution",
+];
+
+>>>>>>> a54b85822 (Handle transient Slack request errors without crashing the gateway (openclaw#23787) thanks @graysurf)
 function getErrorCause(err: unknown): unknown {
   if (!err || typeof err !== "object") return undefined;
   return (err as { cause?: unknown }).cause;
