@@ -1,7 +1,7 @@
-import OpenClawKit
-import OpenClawProtocol
 import Darwin
 import Foundation
+import MoltbotKit
+import MoltbotProtocol
 
 struct WizardCliOptions {
     var url: String?

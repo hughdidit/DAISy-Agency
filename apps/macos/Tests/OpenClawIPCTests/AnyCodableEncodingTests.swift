@@ -1,8 +1,7 @@
-import OpenClawProtocol
 import Foundation
+import MoltbotProtocol
 import Testing
-
-@testable import OpenClaw
+@testable import Moltbot
 
 @Suite struct AnyCodableEncodingTests {
     @Test func encodesSwiftArrayAndDictionaryValues() throws {

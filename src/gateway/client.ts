@@ -199,7 +199,7 @@ export class GatewayClient {
         : undefined;
     const signedAtMs = Date.now();
     const nonce = this.connectNonce ?? undefined;
-    const scopes = this.opts.scopes ?? ["operator.admin"];
+    const scopes = this.opts.scopes ?? ["operator.read"];
     const device = (() => {
       if (!this.opts.deviceIdentity) {
         return undefined;

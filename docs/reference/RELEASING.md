@@ -46,17 +46,31 @@ When the operator says “release”, immediately do this preflight (no extra qu
 - [ ] `pnpm check`
 - [ ] `pnpm test` (or `pnpm test:coverage` if you need coverage output)
 - [ ] `pnpm release:check` (verifies npm pack contents)
-- [ ] `OPENCLAW_INSTALL_SMOKE_SKIP_NONROOT=1 pnpm test:install:smoke` (Docker install smoke test, fast path; required before release)
-  - If the immediate previous npm release is known broken, set `OPENCLAW_INSTALL_SMOKE_PREVIOUS=<last-good-version>` or `OPENCLAW_INSTALL_SMOKE_SKIP_PREVIOUS=1` for the preinstall step.
-- [ ] (Optional) Full installer smoke (adds non-root + CLI coverage): `pnpm test:install:smoke`
-- [ ] (Optional) Installer E2E (Docker, runs `curl -fsSL https://openclaw.ai/install.sh | bash`, onboards, then runs real tool calls):
+
+- [ ] (Optional) Installer E2E (Docker, runs `curl -fsSL https://molt.bot/install.sh | bash`, onboards, then runs real tool calls):
   - `pnpm test:install:e2e:openai` (requires `OPENAI_API_KEY`)
   - `pnpm test:install:e2e:anthropic` (requires `ANTHROPIC_API_KEY`)
   - `pnpm test:install:e2e` (requires both keys; runs both providers)
 - [ ] (Optional) Spot-check the web gateway if your changes affect send/receive paths.
 
-5. **macOS app (Sparkle)**
+## Deployment verification workflow
 
+Use the Verify workflow in GitHub Actions to run `scripts/verify.sh` after a deploy. It requires two inputs:
+- `environment` (the target environment)
+- `deployed_ref` (the git ref or artifact identifier you want verified)
+
+The workflow exports `VERIFY_ENV`, `DEPLOYED_REF`, and `DRY_RUN` so `verify.sh` can log the runtime context.
+
+`scripts/verify.sh` supports additional env vars to perform concrete checks:
+- `VERIFY_HEALTH_URL` (required for HTTP checks): endpoint to fetch and validate.
+  - Optional: `VERIFY_HTTP_TIMEOUT` (seconds, default 10).
+  - If the health payload includes fields like `commit`, `git_sha`, or `version`, the script compares them to `DEPLOYED_REF`.
+- `VERIFY_SSH_HOST` (required for SSH checks): host to run remote checks against.
+  - Optional: `VERIFY_SSH_USER` (SSH username).
+  - `VERIFY_SYSTEMD_SERVICE` to assert `systemctl is-active`.
+  - `VERIFY_DOCKER_CONTAINER` to assert a running container; if `DEPLOYED_REF` is set, the image tag is checked for it.
+
+5) **macOS app (Sparkle)**
 - [ ] Build + sign the macOS app, then zip it for distribution.
 - [ ] Generate the Sparkle appcast (HTML notes via [`scripts/make_appcast.sh`](https://github.com/openclaw/openclaw/blob/main/scripts/make_appcast.sh)) and update `appcast.xml`.
 - [ ] Keep the app zip (and optional dSYM zip) ready to attach to the GitHub release.

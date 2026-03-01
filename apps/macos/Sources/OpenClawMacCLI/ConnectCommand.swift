@@ -1,6 +1,6 @@
-import OpenClawKit
-import OpenClawProtocol
 import Foundation
+import MoltbotKit
+import MoltbotProtocol
 #if canImport(Darwin)
 import Darwin
 #endif

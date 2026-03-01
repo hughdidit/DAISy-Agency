@@ -64,6 +64,10 @@ docker run --read-only --cap-drop=ALL \
   openclaw/openclaw:latest
 ```
 
+## Security Reviews
+
+Security reviews are conducted before major deployments and archived in [`docs/security/reviews/`](docs/security/reviews/).
+
 ## Security Scanning
 
 This project uses `detect-secrets` for automated secret detection in CI/CD.

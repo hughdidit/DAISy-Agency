@@ -940,12 +940,15 @@ export function createExecTool(
       if (elevatedRequested && elevatedMode === "full") {
         security = "full";
       }
-      const configuredAsk = defaults?.ask ?? "on-miss";
+      const configuredAsk = defaults?.ask ?? "always";
       const requestedAsk = normalizeExecAsk(params.ask);
       let ask = maxAsk(configuredAsk, requestedAsk ?? configuredAsk);
       const bypassApprovals = elevatedRequested && elevatedMode === "full";
       if (bypassApprovals) {
         ask = "off";
+        warnings.push(
+          "elevated mode is 'full': command will execute with unrestricted security and no approval prompt",
+        );
       }
 
       const sandbox = host === "sandbox" ? defaults?.sandbox : undefined;

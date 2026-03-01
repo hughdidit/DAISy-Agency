@@ -8,16 +8,12 @@ pnpm-lock.yaml
 bun.lock
 bun.lockb
 coverage
-<<<<<<< HEAD
-=======
-__pycache__/
-*.pyc
-.tsbuildinfo
->>>>>>> 50b3d32d3 (CI: add code-size check for files crossing LOC threshold (#12810))
 .pnpm-store
 .worktrees/
 .DS_Store
 **/.DS_Store
+Thumbs.db
+**/Thumbs.db
 ui/src/ui/__screenshots__/
 ui/playwright-report/
 ui/test-results/
@@ -70,15 +66,28 @@ apps/ios/*.mobileprovision
 
 # Local untracked files
 .local/
+.vscode/
 IDENTITY.md
 USER.md
 .tgz
+.githooks/
+error.log
+*.bak
 
 # local tooling
 .serena/
 
-# Agent credentials and memory (NEVER COMMIT)
-/memory/
-.agent/*.json
-!.agent/workflows/
-local/
+# Claude Code local (personal / machine-specific) settings
+.claude/settings.local.json
+.claude/*.local.*
+
+
+# sensitive files
+*client_secret*.json
+*credentials*.json
+*.pem
+*.key
+secrets/
+.clawdbot/
+.var/
+

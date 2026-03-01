@@ -2,367 +2,101 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches:
+      - daisy/main
+      - daisy/dev
   pull_request:
-
+    branches:
+      - daisy/main
+      - daisy/dev
+  workflow_dispatch:
+    inputs:
+      run_ios:
+        description: Run iOS tests
+        type: boolean
+        default: false
 concurrency:
-  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
 
 jobs:
-  # Detect docs-only changes to skip heavy jobs (test, build, Windows, macOS, Android).
-  # Lint and format always run. Fail-safe: if detection fails, run everything.
-  docs-scope:
-    runs-on: blacksmith-16vcpu-ubuntu-2404
-    outputs:
-      docs_only: ${{ steps.check.outputs.docs_only }}
-      docs_changed: ${{ steps.check.outputs.docs_changed }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          submodules: false
-
-      - name: Detect docs-only changes
-        id: check
-        uses: ./.github/actions/detect-docs-changes
-
-  # Detect which heavy areas are touched so PRs can skip unrelated expensive jobs.
-  # Push to main keeps broad coverage.
-  changed-scope:
-    needs: [docs-scope]
-    if: needs.docs-scope.outputs.docs_only != 'true'
-    runs-on: blacksmith-16vcpu-ubuntu-2404
-    outputs:
-      run_node: ${{ steps.scope.outputs.run_node }}
-      run_macos: ${{ steps.scope.outputs.run_macos }}
-      run_android: ${{ steps.scope.outputs.run_android }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          submodules: false
-
-      - name: Detect changed scopes
-        id: scope
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          if [ "${{ github.event_name }}" = "push" ]; then
-            BASE="${{ github.event.before }}"
-          else
-            BASE="${{ github.event.pull_request.base.sha }}"
-          fi
-
-          CHANGED="$(git diff --name-only "$BASE" HEAD 2>/dev/null || echo "UNKNOWN")"
-          if [ "$CHANGED" = "UNKNOWN" ] || [ -z "$CHANGED" ]; then
-            # Fail-safe: run broad checks if detection fails.
-            echo "run_node=true" >> "$GITHUB_OUTPUT"
-            echo "run_macos=true" >> "$GITHUB_OUTPUT"
-            echo "run_android=true" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-
-          run_node=false
-          run_macos=false
-          run_android=false
-          has_non_docs=false
-          has_non_native_non_docs=false
-
-          while IFS= read -r path; do
-            [ -z "$path" ] && continue
-            case "$path" in
-              docs/*|*.md|*.mdx)
-                continue
-                ;;
-              *)
-                has_non_docs=true
-                ;;
-            esac
-
-            case "$path" in
-              # Generated protocol models are already covered by protocol:check and
-              # should not force the full native macOS lane.
-              apps/macos/Sources/OpenClawProtocol/*|apps/shared/OpenClawKit/Sources/OpenClawProtocol/*)
-                ;;
-              apps/macos/*|apps/ios/*|apps/shared/*|Swabble/*)
-                run_macos=true
-                ;;
-            esac
-
-            case "$path" in
-              apps/android/*|apps/shared/*)
-                run_android=true
-                ;;
-            esac
-
-            case "$path" in
-              src/*|test/*|extensions/*|packages/*|scripts/*|ui/*|.github/*|openclaw.mjs|package.json|pnpm-lock.yaml|pnpm-workspace.yaml|tsconfig*.json|vitest*.ts|tsdown.config.ts|.oxlintrc.json|.oxfmtrc.jsonc)
-                run_node=true
-                ;;
-            esac
-
-            case "$path" in
-              apps/android/*|apps/ios/*|apps/macos/*|apps/shared/*|Swabble/*|appcast.xml)
-                ;;
-              *)
-                has_non_native_non_docs=true
-                ;;
-            esac
-          done <<< "$CHANGED"
-
-          # If there are non-doc files outside native app trees, keep Node checks enabled.
-          if [ "$run_node" = false ] && [ "$has_non_docs" = true ] && [ "$has_non_native_non_docs" = true ]; then
-            run_node=true
-          fi
-
-          echo "run_node=${run_node}" >> "$GITHUB_OUTPUT"
-          echo "run_macos=${run_macos}" >> "$GITHUB_OUTPUT"
-          echo "run_android=${run_android}" >> "$GITHUB_OUTPUT"
-
-  # Build dist once for Node-relevant changes and share it with downstream jobs.
-  build-artifacts:
-    needs: [docs-scope, changed-scope, check]
-    if: needs.docs-scope.outputs.docs_only != 'true' && (github.event_name == 'push' || needs.changed-scope.outputs.run_node == 'true')
-    runs-on: blacksmith-16vcpu-ubuntu-2404
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          submodules: false
-
-      - name: Setup Node environment
-        uses: ./.github/actions/setup-node-env
-        with:
-          install-bun: "false"
-
-      - name: Build dist
-        run: pnpm build
-
-      - name: Upload dist artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: dist-build
-          path: dist/
-          retention-days: 1
-
-  # Validate npm pack contents after build (only on push to main, not PRs).
-  release-check:
-    needs: [docs-scope, build-artifacts]
-    if: github.event_name == 'push' && needs.docs-scope.outputs.docs_only != 'true'
-    runs-on: blacksmith-16vcpu-ubuntu-2404
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          submodules: false
-
-      - name: Setup Node environment
-        uses: ./.github/actions/setup-node-env
-        with:
-          install-bun: "false"
-
-      - name: Download dist artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: dist-build
-          path: dist/
-
-      - name: Check release contents
-        run: pnpm release:check
-
   checks:
-    needs: [docs-scope, changed-scope, check]
-    if: needs.docs-scope.outputs.docs_only != 'true' && (github.event_name == 'push' || needs.changed-scope.outputs.run_node == 'true')
-    runs-on: blacksmith-16vcpu-ubuntu-2404
+    name: Linux / ${{ matrix.task }}
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
         include:
-          - runtime: node
-            task: test
-            command: pnpm canvas:a2ui:bundle && pnpm test
-          - runtime: node
-            task: protocol
+          - task: lint
+            command: pnpm lint
+          - task: test
+            command: pnpm canvas:a2ui:bundle && pnpm test -- --no-file-parallelism
+          - task: build
+            command: pnpm build
+          - task: protocol
             command: pnpm protocol:check
-          - runtime: bun
-            task: test
-            command: pnpm canvas:a2ui:bundle && bunx vitest run --config vitest.unit.config.ts
+          - task: format
+            command: pnpm format
     steps:
-      - name: Skip bun lane on push
-        if: github.event_name == 'push' && matrix.runtime == 'bun'
-        run: echo "Skipping bun test lane on push events."
-
       - name: Checkout
-        if: github.event_name != 'push' || matrix.runtime != 'bun'
         uses: actions/checkout@v4
         with:
           submodules: false
 
-      - name: Setup Node environment
-        if: matrix.runtime != 'bun' || github.event_name != 'push'
-        uses: ./.github/actions/setup-node-env
-        with:
-          install-bun: "${{ matrix.runtime == 'bun' }}"
-
-      - name: Configure vitest JSON reports
-        if: (github.event_name != 'push' || matrix.runtime != 'bun') && matrix.task == 'test' && matrix.runtime == 'node'
-        run: echo "OPENCLAW_VITEST_REPORT_DIR=$RUNNER_TEMP/vitest-reports" >> "$GITHUB_ENV"
-
-      - name: Configure Node test resources
-        if: (github.event_name != 'push' || matrix.runtime != 'bun') && matrix.task == 'test' && matrix.runtime == 'node'
+      # pnpm must be on PATH before setup-node so cache: 'pnpm' can
+      # resolve the store path for cache keys.
+      - name: Setup pnpm (corepack)
         run: |
-          # `pnpm test` runs `scripts/test-parallel.mjs`, which spawns multiple Node processes.
-          # Default heap limits have been too low on Linux CI (V8 OOM near 4GB).
-          echo "OPENCLAW_TEST_WORKERS=2" >> "$GITHUB_ENV"
-          echo "OPENCLAW_TEST_MAX_OLD_SPACE_SIZE_MB=6144" >> "$GITHUB_ENV"
+          corepack enable
+          for attempt in 1 2 3; do
+            if corepack prepare pnpm@10.23.0 --activate; then
+              pnpm -v
+              break
+            fi
+            echo "corepack prepare failed (attempt $attempt/3). Retrying..."
+            sleep $((attempt * 5))
+          done
 
-      - name: Run ${{ matrix.task }} (${{ matrix.runtime }})
-        if: matrix.runtime != 'bun' || github.event_name != 'push'
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.14.0
+          cache: 'pnpm'
+
+      - name: Runtime versions
+        run: |
+          node -v
+          npm -v
+          pnpm -v
+
+      - name: Install dependencies
+        env:
+          CI: true
+        run: |
+          install_flags="--frozen-lockfile --ignore-scripts=false --config.engine-strict=false --config.enable-pre-post-scripts=true"
+          for attempt in 1 2 3; do
+            echo "pnpm install attempt ${attempt}/3"
+            if pnpm install ${install_flags}; then
+              echo "pnpm install succeeded on attempt ${attempt}/3"
+              break
+            fi
+            if [ "${attempt}" -eq 3 ]; then
+              echo "pnpm install failed after ${attempt}/3 attempts"
+              exit 1
+            fi
+            echo "pnpm install failed (attempt ${attempt}/3). Retrying..."
+            sleep $((attempt * 5))
+          done
+
+      - name: Run ${{ matrix.task }}
         run: ${{ matrix.command }}
-
-      - name: Summarize slowest tests
-        if: (github.event_name != 'push' || matrix.runtime != 'bun') && matrix.task == 'test' && matrix.runtime == 'node'
-        run: |
-          node scripts/vitest-slowest.mjs --dir "$OPENCLAW_VITEST_REPORT_DIR" --top 50 --out "$RUNNER_TEMP/vitest-slowest.md" > /dev/null
-          echo "Slowest test summary written to $RUNNER_TEMP/vitest-slowest.md"
-
-      - name: Upload vitest reports
-        if: (github.event_name != 'push' || matrix.runtime != 'bun') && matrix.task == 'test' && matrix.runtime == 'node'
-        uses: actions/upload-artifact@v4
-        with:
-          name: vitest-reports-${{ runner.os }}-${{ matrix.runtime }}
-          path: |
-            ${{ env.OPENCLAW_VITEST_REPORT_DIR }}
-            ${{ runner.temp }}/vitest-slowest.md
-
-  # Types, lint, and format check.
-  check:
-    name: "check"
-    needs: [docs-scope]
-    if: needs.docs-scope.outputs.docs_only != 'true'
-    runs-on: blacksmith-16vcpu-ubuntu-2404
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          submodules: false
-
-      - name: Setup Node environment
-        uses: ./.github/actions/setup-node-env
-        with:
-          install-bun: "false"
-
-      - name: Check types and lint and oxfmt
-        run: pnpm check
-
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-  # Validate docs (format, lint, broken links) only when docs files changed.
-=======
-
-=======
->>>>>>> 92ac6c95c (CI: format github workflow (#22497))
-=======
-      - name: Enforce safe external URL opening policy
-        run: pnpm lint:ui:no-raw-window-open
-
->>>>>>> e9750104b (ui: block svg data image opens and harden tests)
-  # Report-only dead-code scans. Runs after scope detection and stores machine-readable
-  # results as artifacts for later triage before we enable hard gates.
-  # Temporarily disabled in CI while we process initial findings.
-  deadcode:
-    name: dead-code report
-    needs: [docs-scope, changed-scope]
-    # if: needs.docs-scope.outputs.docs_only != 'true' && (github.event_name == 'push' || needs.changed-scope.outputs.run_node == 'true')
-    if: false
-    runs-on: blacksmith-16vcpu-ubuntu-2404
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - tool: knip
-            command: pnpm deadcode:report:ci:knip
-          - tool: ts-prune
-            command: pnpm deadcode:report:ci:ts-prune
-          - tool: ts-unused-exports
-            command: pnpm deadcode:report:ci:ts-unused
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          submodules: false
-
-      - name: Setup Node environment
-        uses: ./.github/actions/setup-node-env
-        with:
-          install-bun: "false"
-
-      - name: Run ${{ matrix.tool }} dead-code scan
-        run: ${{ matrix.command }}
-
-      - name: Upload dead-code results
-        uses: actions/upload-artifact@v4
-        with:
-          name: dead-code-${{ matrix.tool }}-${{ github.run_id }}
-          path: .artifacts/deadcode
-
-<<<<<<< HEAD
-  # Validate docs (spellcheck, format, lint, broken links) only when docs files changed.
->>>>>>> 3002be76e (docs: add custom spellcheck dictionary and fix docs typos (#22457))
-=======
-  # Validate docs (format, lint, broken links) only when docs files changed.
->>>>>>> d9844c6af (CI: remove docs spellcheck step (#22738))
-  check-docs:
-    needs: [docs-scope]
-    if: needs.docs-scope.outputs.docs_changed == 'true'
-    runs-on: blacksmith-16vcpu-ubuntu-2404
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          submodules: false
-
-      - name: Setup Node environment
-        uses: ./.github/actions/setup-node-env
-        with:
-          install-bun: "false"
-
-      - name: Check docs
-        run: pnpm check:docs
-
-  skills-python:
-    needs: [docs-scope, changed-scope]
-    if: needs.docs-scope.outputs.docs_only != 'true' && (github.event_name == 'push' || needs.changed-scope.outputs.run_node == 'true')
-    runs-on: blacksmith-16vcpu-ubuntu-2404
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          submodules: false
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-
-      - name: Install Python tooling
-        run: |
-          python -m pip install --upgrade pip
-          python -m pip install pytest ruff pyyaml
-
-      - name: Lint Python skill scripts
-        run: python -m ruff check skills
-
-      - name: Test skill Python scripts
-        run: python -m pytest -q skills
 
   secrets:
-    runs-on: blacksmith-16vcpu-ubuntu-2404
+    name: Secrets Scan
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -382,20 +116,15 @@ jobs:
       - name: Detect secrets
         run: |
           if ! detect-secrets scan --baseline .secrets.baseline; then
-            echo "::error::Secret scanning failed. See docs/gateway/security.md#secret-scanning-detect-secrets"
+            echo "::error::Secret scanning failed. See docs/gateway/security/index.md#secret-scanning-detect-secrets"
             exit 1
           fi
 
   checks-windows:
-    needs: [docs-scope, changed-scope, build-artifacts, check]
-    if: needs.docs-scope.outputs.docs_only != 'true' && (github.event_name == 'push' || needs.changed-scope.outputs.run_node == 'true')
-    runs-on: blacksmith-16vcpu-windows-2025
-    timeout-minutes: 45
+    name: Windows / ${{ matrix.runtime }} / ${{ matrix.task }}
+    runs-on: windows-latest
     env:
       NODE_OPTIONS: --max-old-space-size=4096
-      # Keep total concurrency predictable on the 16 vCPU runner:
-      # `scripts/test-parallel.mjs` runs some vitest suites in parallel processes.
-      OPENCLAW_TEST_WORKERS: 2
     defaults:
       run:
         shell: bash
@@ -405,23 +134,21 @@ jobs:
         include:
           - runtime: node
             task: lint
-            shard_index: 0
-            shard_count: 1
             command: pnpm lint
           - runtime: node
-            task: test
-            shard_index: 1
-            shard_count: 2
-            command: pnpm canvas:a2ui:bundle && pnpm test
+            task: test-unit
+            command: pnpm canvas:a2ui:bundle && pnpm vitest run --config vitest.unit.config.ts --no-file-parallelism --dangerouslyIgnoreUnhandledErrors
           - runtime: node
-            task: test
-            shard_index: 2
-            shard_count: 2
-            command: pnpm canvas:a2ui:bundle && pnpm test
+            task: test-extensions
+            command: pnpm canvas:a2ui:bundle && pnpm vitest run --config vitest.extensions.config.ts --no-file-parallelism --dangerouslyIgnoreUnhandledErrors
+          - runtime: node
+            task: test-gateway
+            command: pnpm canvas:a2ui:bundle && pnpm vitest run --config vitest.gateway.config.ts --no-file-parallelism --dangerouslyIgnoreUnhandledErrors
+          - runtime: node
+            task: build
+            command: pnpm build
           - runtime: node
             task: protocol
-            shard_index: 0
-            shard_count: 1
             command: pnpm protocol:check
     steps:
       - name: Checkout
@@ -429,50 +156,25 @@ jobs:
         with:
           submodules: false
 
-      - name: Try to exclude workspace from Windows Defender (best-effort)
-        shell: pwsh
+      # pnpm must be on PATH before setup-node so cache: 'pnpm' can
+      # resolve the store path for cache keys.
+      - name: Setup pnpm (corepack)
         run: |
-          $cmd = Get-Command Add-MpPreference -ErrorAction SilentlyContinue
-          if (-not $cmd) {
-            Write-Host "Add-MpPreference not available, skipping Defender exclusions."
-            exit 0
-          }
-
-          try {
-            # Defender sometimes intercepts process spawning (vitest workers). If this fails
-            # (eg hardened images), keep going and rely on worker limiting above.
-            Add-MpPreference -ExclusionPath "$env:GITHUB_WORKSPACE" -ErrorAction Stop
-            Add-MpPreference -ExclusionProcess "node.exe" -ErrorAction Stop
-            Write-Host "Defender exclusions applied."
-          } catch {
-            Write-Warning "Failed to apply Defender exclusions, continuing. $($_.Exception.Message)"
-          }
-
-      - name: Download dist artifact (lint lane)
-        if: matrix.task == 'lint'
-        uses: actions/download-artifact@v4
-        with:
-          name: dist-build
-          path: dist/
-
-      - name: Verify dist artifact (lint lane)
-        if: matrix.task == 'lint'
-        run: |
-          set -euo pipefail
-          test -s dist/index.js
-          test -s dist/plugin-sdk/index.js
+          corepack enable
+          for attempt in 1 2 3; do
+            if corepack prepare pnpm@10.23.0 --activate; then
+              pnpm -v
+              break
+            fi
+            echo "corepack prepare failed (attempt $attempt/3). Retrying..."
+            sleep $((attempt * 5))
+          done
 
       - name: Setup Node.js
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        uses: actions/setup-node@v4
         with:
-          node-version: 22.x
-          check-latest: true
-
-      - name: Setup pnpm + cache store
-        uses: ./.github/actions/setup-pnpm-store-cache
-        with:
-          pnpm-version: "10.23.0"
-          cache-key-suffix: "node22"
+          node-version: 22.14.0
+          cache: 'pnpm'
 
       - name: Runtime versions
         run: |
@@ -480,80 +182,145 @@ jobs:
           npm -v
           pnpm -v
 
-      - name: Capture node path
-        run: echo "NODE_BIN=$(dirname \"$(node -p \"process.execPath\")\")" >> "$GITHUB_ENV"
-
       - name: Install dependencies
         env:
           CI: true
         run: |
-          export PATH="$NODE_BIN:$PATH"
-          which node
-          node -v
-          pnpm -v
-          pnpm install --frozen-lockfile --ignore-scripts=false --config.engine-strict=false --config.enable-pre-post-scripts=true || pnpm install --frozen-lockfile --ignore-scripts=false --config.engine-strict=false --config.enable-pre-post-scripts=true
-
-      - name: Configure test shard (Windows)
-        if: matrix.task == 'test'
-        run: |
-          echo "OPENCLAW_TEST_SHARDS=${{ matrix.shard_count }}" >> "$GITHUB_ENV"
-          echo "OPENCLAW_TEST_SHARD_INDEX=${{ matrix.shard_index }}" >> "$GITHUB_ENV"
-
-      - name: Configure vitest JSON reports
-        if: matrix.task == 'test'
-        run: echo "OPENCLAW_VITEST_REPORT_DIR=$RUNNER_TEMP/vitest-reports" >> "$GITHUB_ENV"
+          install_flags="--frozen-lockfile --ignore-scripts=false --config.engine-strict=false --config.enable-pre-post-scripts=true"
+          for attempt in 1 2 3; do
+            echo "pnpm install attempt ${attempt}/3"
+            if pnpm install ${install_flags}; then
+              echo "pnpm install succeeded on attempt ${attempt}/3"
+              break
+            fi
+            if [ "${attempt}" -eq 3 ]; then
+              echo "pnpm install failed after ${attempt}/3 attempts"
+              exit 1
+            fi
+            echo "pnpm install failed (attempt ${attempt}/3). Retrying..."
+            sleep $((attempt * 5))
+          done
 
       - name: Run ${{ matrix.task }} (${{ matrix.runtime }})
         run: ${{ matrix.command }}
 
-      - name: Summarize slowest tests
-        if: matrix.task == 'test'
-        run: |
-          node scripts/vitest-slowest.mjs --dir "$OPENCLAW_VITEST_REPORT_DIR" --top 50 --out "$RUNNER_TEMP/vitest-slowest.md" > /dev/null
-          echo "Slowest test summary written to $RUNNER_TEMP/vitest-slowest.md"
-
-      - name: Upload vitest reports
-        if: matrix.task == 'test'
-        uses: actions/upload-artifact@v4
-        with:
-          name: vitest-reports-${{ runner.os }}-${{ matrix.runtime }}-shard${{ matrix.shard_index }}of${{ matrix.shard_count }}
-          path: |
-            ${{ env.OPENCLAW_VITEST_REPORT_DIR }}
-            ${{ runner.temp }}/vitest-slowest.md
-
-  # Consolidated macOS job: runs TS tests + Swift lint/build/test sequentially
-  # on a single runner. GitHub limits macOS concurrent jobs to 5 per org;
-  # running 4 separate jobs per PR (as before) starved the queue. One job
-  # per PR allows 5 PRs to run macOS checks simultaneously.
-  macos:
-    needs: [docs-scope, changed-scope, check]
-    if: github.event_name == 'pull_request' && needs.docs-scope.outputs.docs_only != 'true' && needs.changed-scope.outputs.run_macos == 'true'
+  checks-macos:
+    name: macOS / node / ${{ matrix.task }}
+    if: github.event_name == 'pull_request'
     runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - task: test
+            command: pnpm canvas:a2ui:bundle && pnpm test -- --no-file-parallelism
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           submodules: false
 
-      - name: Setup Node environment
-        uses: ./.github/actions/setup-node-env
-        with:
-          install-bun: "false"
+      # pnpm must be on PATH before setup-node so cache: 'pnpm' can
+      # resolve the store path for cache keys.
+      - name: Setup pnpm (corepack)
+        run: |
+          corepack enable
+          for attempt in 1 2 3; do
+            if corepack prepare pnpm@10.23.0 --activate; then
+              pnpm -v
+              break
+            fi
+            echo "corepack prepare failed (attempt $attempt/3). Retrying..."
+            sleep $((attempt * 5))
+          done
 
-      # --- Run all checks sequentially (fast gates first) ---
-      - name: TS tests (macOS)
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.14.0
+          cache: 'pnpm'
+
+      - name: Runtime versions
+        run: |
+          node -v
+          npm -v
+          pnpm -v
+
+      - name: Install dependencies
+        env:
+          CI: true
+        run: |
+          install_flags="--frozen-lockfile --ignore-scripts=false --config.engine-strict=false --config.enable-pre-post-scripts=true"
+          for attempt in 1 2 3; do
+            echo "pnpm install attempt ${attempt}/3"
+            if pnpm install ${install_flags}; then
+              echo "pnpm install succeeded on attempt ${attempt}/3"
+              break
+            fi
+            if [ "${attempt}" -eq 3 ]; then
+              echo "pnpm install failed after ${attempt}/3 attempts"
+              exit 1
+            fi
+            echo "pnpm install failed (attempt ${attempt}/3). Retrying..."
+            sleep $((attempt * 5))
+          done
+
+      - name: Run ${{ matrix.task }}
         env:
           NODE_OPTIONS: --max-old-space-size=4096
-        run: pnpm test
+        run: ${{ matrix.command }}
 
-      # --- Xcode/Swift setup ---
-      - name: Select Xcode 26.1
+  macos-app:
+    name: macOS App / ${{ matrix.task }}
+    if: github.event_name == 'pull_request'
+    runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - task: lint
+            command: |
+              swiftlint --config .swiftlint.yml
+              swiftformat --lint apps/macos/Sources --config .swiftformat
+          - task: build
+            command: |
+              set -euo pipefail
+              for attempt in 1 2 3; do
+                if swift build --package-path apps/macos --configuration release; then
+                  exit 0
+                fi
+                echo "swift build failed (attempt $attempt/3). Retrying…"
+                sleep $((attempt * 20))
+              done
+              exit 1
+          - task: test
+            command: |
+              set -euo pipefail
+              for attempt in 1 2 3; do
+                if swift test --package-path apps/macos --parallel --enable-code-coverage --show-codecov-path; then
+                  exit 0
+                fi
+                echo "swift test failed (attempt $attempt/3). Retrying…"
+                sleep $((attempt * 20))
+              done
+              exit 1
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: false
+
+      - name: Select latest stable Xcode
         run: |
-          sudo xcode-select -s /Applications/Xcode_26.1.app
+          LATEST=$(ls -d /Applications/Xcode_*.app 2>/dev/null | sort -V | tail -1)
+          if [ -n "$LATEST" ]; then
+            sudo xcode-select -s "$LATEST"
+          fi
           xcodebuild -version
 
       - name: Install XcodeGen / SwiftLint / SwiftFormat
-        run: brew install xcodegen swiftlint swiftformat
+        run: |
+          brew install xcodegen swiftlint swiftformat
 
       - name: Show toolchain
         run: |
@@ -561,45 +328,11 @@ jobs:
           xcodebuild -version
           swift --version
 
-      - name: Swift lint
-        run: |
-          swiftlint --config .swiftlint.yml
-          swiftformat --lint apps/macos/Sources --config .swiftformat
-
-      - name: Cache SwiftPM
-        uses: actions/cache@v4
-        with:
-          path: ~/Library/Caches/org.swift.swiftpm
-          key: ${{ runner.os }}-swiftpm-${{ hashFiles('apps/macos/Package.resolved') }}
-          restore-keys: |
-            ${{ runner.os }}-swiftpm-
-
-      - name: Swift build (release)
-        run: |
-          set -euo pipefail
-          for attempt in 1 2 3; do
-            if swift build --package-path apps/macos --configuration release; then
-              exit 0
-            fi
-            echo "swift build failed (attempt $attempt/3). Retrying…"
-            sleep $((attempt * 20))
-          done
-          exit 1
-
-      - name: Swift test
-        run: |
-          set -euo pipefail
-          for attempt in 1 2 3; do
-            if swift test --package-path apps/macos --parallel --enable-code-coverage --show-codecov-path; then
-              exit 0
-            fi
-            echo "swift test failed (attempt $attempt/3). Retrying…"
-            sleep $((attempt * 20))
-          done
-          exit 1
-
+      - name: Run ${{ matrix.task }}
+        run: ${{ matrix.command }}
   ios:
-    if: false # ignore iOS in CI for now
+    name: iOS
+    if: ${{ github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && inputs.run_ios) }}
     runs-on: macos-latest
     steps:
       - name: Checkout
@@ -607,9 +340,12 @@ jobs:
         with:
           submodules: false
 
-      - name: Select Xcode 26.1
+      - name: Select latest stable Xcode
         run: |
-          sudo xcode-select -s /Applications/Xcode_26.1.app
+          LATEST=$(ls -d /Applications/Xcode_*.app 2>/dev/null | sort -V | tail -1)
+          if [ -n "$LATEST" ]; then
+            sudo xcode-select -s "$LATEST"
+          fi
           xcodebuild -version
 
       - name: Install XcodeGen
@@ -632,7 +368,7 @@ jobs:
       - name: iOS tests
         run: |
           set -euo pipefail
-          RESULT_BUNDLE_PATH="$RUNNER_TEMP/Clawdis-iOS.xcresult"
+          RESULT_BUNDLE_PATH="$RUNNER_TEMP/Moltbot-iOS.xcresult"
           DEST_ID="$(
             python3 - <<'PY'
           import json
@@ -711,8 +447,8 @@ jobs:
           )"
           echo "Using iOS Simulator id: $DEST_ID"
           xcodebuild test \
-            -project apps/ios/Clawdis.xcodeproj \
-            -scheme Clawdis \
+            -project apps/ios/Moltbot.xcodeproj \
+            -scheme Moltbot \
             -destination "platform=iOS Simulator,id=$DEST_ID" \
             -resultBundlePath "$RESULT_BUNDLE_PATH" \
             -enableCodeCoverage YES
@@ -720,20 +456,20 @@ jobs:
       - name: iOS coverage summary
         run: |
           set -euo pipefail
-          RESULT_BUNDLE_PATH="$RUNNER_TEMP/Clawdis-iOS.xcresult"
+          RESULT_BUNDLE_PATH="$RUNNER_TEMP/Moltbot-iOS.xcresult"
           xcrun xccov view --report --only-targets "$RESULT_BUNDLE_PATH"
 
       - name: iOS coverage gate (43%)
         run: |
           set -euo pipefail
-          RESULT_BUNDLE_PATH="$RUNNER_TEMP/Clawdis-iOS.xcresult"
+          RESULT_BUNDLE_PATH="$RUNNER_TEMP/Moltbot-iOS.xcresult"
           RESULT_BUNDLE_PATH="$RESULT_BUNDLE_PATH" python3 - <<'PY'
           import json
           import os
           import subprocess
           import sys
 
-          target_name = "Clawdis.app"
+          target_name = "Moltbot.app"
           minimum = 0.43
 
           report = json.loads(
@@ -759,9 +495,8 @@ jobs:
           PY
 
   android:
-    needs: [docs-scope, changed-scope, check]
-    if: needs.docs-scope.outputs.docs_only != 'true' && (github.event_name == 'push' || needs.changed-scope.outputs.run_android == 'true')
-    runs-on: blacksmith-16vcpu-ubuntu-2404
+    name: Android / ${{ matrix.task }}
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
@@ -780,8 +515,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          # setup-android's sdkmanager currently crashes on JDK 21 in CI.
-          java-version: 17
+          java-version: 21
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3

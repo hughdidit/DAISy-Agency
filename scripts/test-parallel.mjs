@@ -1,7 +1,5 @@
 import { spawn } from "node:child_process";
-import fs from "node:fs";
 import os from "node:os";
-import path from "node:path";
 
 const pnpm = process.platform === "win32" ? "pnpm.cmd" : "pnpm";
 
@@ -25,41 +23,13 @@ const isCI = process.env.CI === "true" || process.env.GITHUB_ACTIONS === "true";
 const isMacOS = process.platform === "darwin" || process.env.RUNNER_OS === "macOS";
 const isWindows = process.platform === "win32" || process.env.RUNNER_OS === "Windows";
 const isWindowsCi = isCI && isWindows;
-const shardOverride = Number.parseInt(process.env.OPENCLAW_TEST_SHARDS ?? "", 10);
-const configuredShardCount =
-  Number.isFinite(shardOverride) && shardOverride > 1 ? shardOverride : null;
-const shardCount = configuredShardCount ?? (isWindowsCi ? 2 : 1);
-const shardIndexOverride = (() => {
-  const parsed = Number.parseInt(process.env.OPENCLAW_TEST_SHARD_INDEX ?? "", 10);
-  return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
-})();
-
-if (shardIndexOverride !== null && shardCount <= 1) {
-  console.error(
-    `[test-parallel] OPENCLAW_TEST_SHARD_INDEX=${String(
-      shardIndexOverride,
-    )} requires OPENCLAW_TEST_SHARDS>1.`,
-  );
-  process.exit(2);
-}
-
-if (shardIndexOverride !== null && shardIndexOverride > shardCount) {
-  console.error(
-    `[test-parallel] OPENCLAW_TEST_SHARD_INDEX=${String(
-      shardIndexOverride,
-    )} exceeds OPENCLAW_TEST_SHARDS=${String(shardCount)}.`,
-  );
-  process.exit(2);
-}
-const windowsCiArgs = isWindowsCi ? ["--dangerouslyIgnoreUnhandledErrors"] : [];
-const rawPassthroughArgs = process.argv.slice(2);
-const passthroughArgs =
-  rawPassthroughArgs[0] === "--" ? rawPassthroughArgs.slice(1) : rawPassthroughArgs;
-const overrideWorkers = Number.parseInt(process.env.OPENCLAW_TEST_WORKERS ?? "", 10);
-const resolvedOverride =
-  Number.isFinite(overrideWorkers) && overrideWorkers > 0 ? overrideWorkers : null;
-const parallelRuns = runs.filter((entry) => entry.name !== "gateway");
-const serialRuns = runs.filter((entry) => entry.name === "gateway");
+const shardOverride = Number.parseInt(process.env.CLAWDBOT_TEST_SHARDS ?? "", 10);
+const shardCount = isWindowsCi ? (Number.isFinite(shardOverride) && shardOverride > 1 ? shardOverride : 2) : 1;
+const windowsCiArgs = isWindowsCi ? ["--no-file-parallelism", "--dangerouslyIgnoreUnhandledErrors"] : [];
+const overrideWorkers = Number.parseInt(process.env.CLAWDBOT_TEST_WORKERS ?? "", 10);
+const resolvedOverride = Number.isFinite(overrideWorkers) && overrideWorkers > 0 ? overrideWorkers : null;
+const parallelRuns = isWindowsCi ? [] : runs.filter((entry) => entry.name !== "gateway");
+const serialRuns = isWindowsCi ? runs : runs.filter((entry) => entry.name === "gateway");
 const localWorkers = Math.max(4, Math.min(16, os.cpus().length));
 const parallelCount = Math.max(1, parallelRuns.length);
 const perRunWorkers = Math.max(1, Math.floor(localWorkers / parallelCount));
@@ -74,62 +44,11 @@ const WARNING_SUPPRESSION_FLAGS = [
   "--disable-warning=DEP0060",
 ];
 
-function resolveReportDir() {
-  const raw = process.env.OPENCLAW_VITEST_REPORT_DIR?.trim();
-  if (!raw) {
-    return null;
-  }
-  try {
-    fs.mkdirSync(raw, { recursive: true });
-  } catch {
-    return null;
-  }
-  return raw;
-}
-
-function buildReporterArgs(entry, extraArgs) {
-  const reportDir = resolveReportDir();
-  if (!reportDir) {
-    return [];
-  }
-
-  // Vitest supports both `--shard 1/2` and `--shard=1/2`. We use it in the
-  // split-arg form, so we need to read the next arg to avoid overwriting reports.
-  const shardIndex = extraArgs.findIndex((arg) => arg === "--shard");
-  const inlineShardArg = extraArgs.find(
-    (arg) => typeof arg === "string" && arg.startsWith("--shard="),
-  );
-  const shardValue =
-    shardIndex >= 0 && typeof extraArgs[shardIndex + 1] === "string"
-      ? extraArgs[shardIndex + 1]
-      : typeof inlineShardArg === "string"
-        ? inlineShardArg.slice("--shard=".length)
-        : "";
-  const shardSuffix = shardValue
-    ? `-shard${String(shardValue).replaceAll("/", "of").replaceAll(" ", "")}`
-    : "";
-
-  const outputFile = path.join(reportDir, `vitest-${entry.name}${shardSuffix}.json`);
-  return ["--reporter=default", "--reporter=json", "--outputFile", outputFile];
-}
-
 const runOnce = (entry, extraArgs = []) =>
   new Promise((resolve) => {
-<<<<<<< HEAD
-=======
-    const maxWorkers = maxWorkersForRun(entry.name);
-    const reporterArgs = buildReporterArgs(entry, extraArgs);
->>>>>>> 8fce7dc9b (perf(test): add vitest slowest report artifact)
     const args = maxWorkers
-      ? [
-          ...entry.args,
-          "--maxWorkers",
-          String(maxWorkers),
-          ...reporterArgs,
-          ...windowsCiArgs,
-          ...extraArgs,
-        ]
-      : [...entry.args, ...reporterArgs, ...windowsCiArgs, ...extraArgs];
+      ? [...entry.args, "--maxWorkers", String(maxWorkers), ...windowsCiArgs, ...extraArgs]
+      : [...entry.args, ...windowsCiArgs, ...extraArgs];
     const nodeOptions = process.env.NODE_OPTIONS ?? "";
     const nextNodeOptions = WARNING_SUPPRESSION_FLAGS.reduce(
       (acc, flag) => (acc.includes(flag) ? acc : `${acc} ${flag}`.trim()),
@@ -148,18 +67,11 @@ const runOnce = (entry, extraArgs = []) =>
   });
 
 const run = async (entry) => {
-  if (shardCount <= 1) {
-    return runOnce(entry);
-  }
-  if (shardIndexOverride !== null) {
-    return runOnce(entry, ["--shard", `${shardIndexOverride}/${shardCount}`]);
-  }
+  if (shardCount <= 1) return runOnce(entry);
   for (let shardIndex = 1; shardIndex <= shardCount; shardIndex += 1) {
     // eslint-disable-next-line no-await-in-loop
     const code = await runOnce(entry, ["--shard", `${shardIndex}/${shardCount}`]);
-    if (code !== 0) {
-      return code;
-    }
+    if (code !== 0) return code;
   }
   return 0;
 };
@@ -172,31 +84,6 @@ const shutdown = (signal) => {
 
 process.on("SIGINT", () => shutdown("SIGINT"));
 process.on("SIGTERM", () => shutdown("SIGTERM"));
-
-if (passthroughArgs.length > 0) {
-  const maxWorkers = maxWorkersForRun("unit");
-  const args = maxWorkers
-    ? ["vitest", "run", "--maxWorkers", String(maxWorkers), ...windowsCiArgs, ...passthroughArgs]
-    : ["vitest", "run", ...windowsCiArgs, ...passthroughArgs];
-  const nodeOptions = process.env.NODE_OPTIONS ?? "";
-  const nextNodeOptions = WARNING_SUPPRESSION_FLAGS.reduce(
-    (acc, flag) => (acc.includes(flag) ? acc : `${acc} ${flag}`.trim()),
-    nodeOptions,
-  );
-  const code = await new Promise((resolve) => {
-    const child = spawn(pnpm, args, {
-      stdio: "inherit",
-      env: { ...process.env, NODE_OPTIONS: nextNodeOptions },
-      shell: process.platform === "win32",
-    });
-    children.add(child);
-    child.on("exit", (exitCode, signal) => {
-      children.delete(child);
-      resolve(exitCode ?? (signal ? 1 : 0));
-    });
-  });
-  process.exit(Number(code) || 0);
-}
 
 const parallelCodes = await Promise.all(parallelRuns.map(run));
 const failedParallel = parallelCodes.find((code) => code !== 0);
