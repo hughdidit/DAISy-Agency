@@ -1,8 +1,27 @@
+<<<<<<< HEAD
 import type { GatewayBrowserClient, GatewayHelloOk } from "./gateway";
 import type { Tab } from "./navigation";
 import type { UiSettings } from "./storage";
 import type { ThemeMode } from "./theme";
 import type { ThemeTransitionContext } from "./theme-transition";
+=======
+import type { EventLogEntry } from "./app-events.ts";
+import type { CompactionStatus, FallbackStatus } from "./app-tool-stream.ts";
+import type {
+  CronFieldErrors,
+  CronJobsLastStatusFilter,
+  CronJobsScheduleKindFilter,
+} from "./controllers/cron.ts";
+import type { DevicePairingList } from "./controllers/devices.ts";
+import type { ExecApprovalRequest } from "./controllers/exec-approval.ts";
+import type { ExecApprovalsFile, ExecApprovalsSnapshot } from "./controllers/exec-approvals.ts";
+import type { SkillMessage } from "./controllers/skills.ts";
+import type { GatewayBrowserClient, GatewayHelloOk } from "./gateway.ts";
+import type { Tab } from "./navigation.ts";
+import type { UiSettings } from "./storage.ts";
+import type { ThemeTransitionContext } from "./theme-transition.ts";
+import type { ThemeMode } from "./theme.ts";
+>>>>>>> e3ba59dc7 (Control UI: add cron jobs schedule/status filters with reset (#9510))
 import type {
   AgentsListResult,
   ChannelsStatusSnapshot,
@@ -188,6 +207,19 @@ export type AppViewState = {
 >>>>>>> 26ab93f0e (revert(ui): remove recent UI dashboard/theme commits from main)
   cronLoading: boolean;
   cronJobs: CronJob[];
+<<<<<<< HEAD
+=======
+  cronJobsTotal: number;
+  cronJobsHasMore: boolean;
+  cronJobsNextOffset: number | null;
+  cronJobsLimit: number;
+  cronJobsQuery: string;
+  cronJobsEnabledFilter: CronJobsEnabledFilter;
+  cronJobsScheduleKindFilter: CronJobsScheduleKindFilter;
+  cronJobsLastStatusFilter: CronJobsLastStatusFilter;
+  cronJobsSortBy: CronJobsSortBy;
+  cronJobsSortDir: CronSortDir;
+>>>>>>> e3ba59dc7 (Control UI: add cron jobs schedule/status filters with reset (#9510))
   cronStatus: CronStatus | null;
   cronError: string | null;
   cronForm: CronFormState;

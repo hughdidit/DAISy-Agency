@@ -304,6 +304,21 @@ export class OpenClawApp extends LitElement {
 
   @state() cronLoading = false;
   @state() cronJobs: CronJob[] = [];
+<<<<<<< HEAD
+=======
+  @state() cronJobsTotal = 0;
+  @state() cronJobsHasMore = false;
+  @state() cronJobsNextOffset: number | null = null;
+  @state() cronJobsLimit = 50;
+  @state() cronJobsQuery = "";
+  @state() cronJobsEnabledFilter: import("./types.js").CronJobsEnabledFilter = "all";
+  @state() cronJobsScheduleKindFilter: import("./controllers/cron.js").CronJobsScheduleKindFilter =
+    "all";
+  @state() cronJobsLastStatusFilter: import("./controllers/cron.js").CronJobsLastStatusFilter =
+    "all";
+  @state() cronJobsSortBy: import("./types.js").CronJobsSortBy = "nextRunAtMs";
+  @state() cronJobsSortDir: import("./types.js").CronSortDir = "asc";
+>>>>>>> e3ba59dc7 (Control UI: add cron jobs schedule/status filters with reset (#9510))
   @state() cronStatus: CronStatus | null = null;
   @state() cronError: string | null = null;
   @state() cronForm: CronFormState = { ...DEFAULT_CRON_FORM };

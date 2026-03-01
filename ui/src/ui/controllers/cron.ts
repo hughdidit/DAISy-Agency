@@ -40,11 +40,27 @@ export type CronFieldKey =
 export type CronFieldErrors = Partial<Record<CronFieldKey, string>>;
 >>>>>>> 8c98cf05b (i18n: add zh-CN for cron page and validation errors (#29315))
 
+export type CronJobsScheduleKindFilter = "all" | "at" | "every" | "cron";
+export type CronJobsLastStatusFilter = "all" | "ok" | "error" | "skipped";
+
 export type CronState = {
   client: GatewayBrowserClient | null;
   connected: boolean;
   cronLoading: boolean;
   cronJobs: CronJob[];
+<<<<<<< HEAD
+=======
+  cronJobsTotal: number;
+  cronJobsHasMore: boolean;
+  cronJobsNextOffset: number | null;
+  cronJobsLimit: number;
+  cronJobsQuery: string;
+  cronJobsEnabledFilter: CronJobsEnabledFilter;
+  cronJobsScheduleKindFilter: CronJobsScheduleKindFilter;
+  cronJobsLastStatusFilter: CronJobsLastStatusFilter;
+  cronJobsSortBy: CronJobsSortBy;
+  cronJobsSortDir: CronSortDir;
+>>>>>>> e3ba59dc7 (Control UI: add cron jobs schedule/status filters with reset (#9510))
   cronStatus: CronStatus | null;
   cronError: string | null;
   cronForm: CronFormState;
@@ -167,6 +183,202 @@ export async function loadCronJobs(state: CronState) {
   }
 }
 
+<<<<<<< HEAD
+=======
+export async function loadMoreCronJobs(state: CronState) {
+  await loadCronJobsPage(state, { append: true });
+}
+
+export async function reloadCronJobs(state: CronState) {
+  await loadCronJobsPage(state, { append: false });
+}
+
+export function updateCronJobsFilter(
+  state: CronState,
+  patch: Partial<
+    Pick<
+      CronState,
+      | "cronJobsQuery"
+      | "cronJobsEnabledFilter"
+      | "cronJobsScheduleKindFilter"
+      | "cronJobsLastStatusFilter"
+      | "cronJobsSortBy"
+      | "cronJobsSortDir"
+    >
+  >,
+) {
+  if (typeof patch.cronJobsQuery === "string") {
+    state.cronJobsQuery = patch.cronJobsQuery;
+  }
+  if (patch.cronJobsEnabledFilter) {
+    state.cronJobsEnabledFilter = patch.cronJobsEnabledFilter;
+  }
+  if (patch.cronJobsScheduleKindFilter) {
+    state.cronJobsScheduleKindFilter = patch.cronJobsScheduleKindFilter;
+  }
+  if (patch.cronJobsLastStatusFilter) {
+    state.cronJobsLastStatusFilter = patch.cronJobsLastStatusFilter;
+  }
+  if (patch.cronJobsSortBy) {
+    state.cronJobsSortBy = patch.cronJobsSortBy;
+  }
+  if (patch.cronJobsSortDir) {
+    state.cronJobsSortDir = patch.cronJobsSortDir;
+  }
+}
+
+export function getVisibleCronJobs(
+  state: Pick<CronState, "cronJobs" | "cronJobsScheduleKindFilter" | "cronJobsLastStatusFilter">,
+): CronJob[] {
+  return state.cronJobs.filter((job) => {
+    if (
+      state.cronJobsScheduleKindFilter !== "all" &&
+      job.schedule.kind !== state.cronJobsScheduleKindFilter
+    ) {
+      return false;
+    }
+    if (
+      state.cronJobsLastStatusFilter !== "all" &&
+      job.state?.lastStatus !== state.cronJobsLastStatusFilter
+    ) {
+      return false;
+    }
+    return true;
+  });
+}
+
+function clearCronEditState(state: CronState) {
+  state.cronEditingJobId = null;
+}
+
+function resetCronFormToDefaults(state: CronState) {
+  state.cronForm = { ...DEFAULT_CRON_FORM };
+  state.cronFieldErrors = validateCronForm(state.cronForm);
+}
+
+function formatDateTimeLocal(input: string): string {
+  const ms = Date.parse(input);
+  if (!Number.isFinite(ms)) {
+    return "";
+  }
+  const date = new Date(ms);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  const hour = String(date.getHours()).padStart(2, "0");
+  const minute = String(date.getMinutes()).padStart(2, "0");
+  return `${year}-${month}-${day}T${hour}:${minute}`;
+}
+
+function parseEverySchedule(everyMs: number): Pick<CronFormState, "everyAmount" | "everyUnit"> {
+  if (everyMs % 86_400_000 === 0) {
+    return { everyAmount: String(Math.max(1, everyMs / 86_400_000)), everyUnit: "days" };
+  }
+  if (everyMs % 3_600_000 === 0) {
+    return { everyAmount: String(Math.max(1, everyMs / 3_600_000)), everyUnit: "hours" };
+  }
+  const minutes = Math.max(1, Math.ceil(everyMs / 60_000));
+  return { everyAmount: String(minutes), everyUnit: "minutes" };
+}
+
+function parseStaggerSchedule(
+  staggerMs?: number,
+): Pick<CronFormState, "scheduleExact" | "staggerAmount" | "staggerUnit"> {
+  if (staggerMs === 0) {
+    return { scheduleExact: true, staggerAmount: "", staggerUnit: "seconds" };
+  }
+  if (typeof staggerMs !== "number" || !Number.isFinite(staggerMs) || staggerMs < 0) {
+    return { scheduleExact: false, staggerAmount: "", staggerUnit: "seconds" };
+  }
+  if (staggerMs % 60_000 === 0) {
+    return {
+      scheduleExact: false,
+      staggerAmount: String(Math.max(1, staggerMs / 60_000)),
+      staggerUnit: "minutes",
+    };
+  }
+  return {
+    scheduleExact: false,
+    staggerAmount: String(Math.max(1, Math.ceil(staggerMs / 1_000))),
+    staggerUnit: "seconds",
+  };
+}
+
+function jobToForm(job: CronJob, prev: CronFormState): CronFormState {
+  const failureAlert = job.failureAlert;
+  const next: CronFormState = {
+    ...prev,
+    name: job.name,
+    description: job.description ?? "",
+    agentId: job.agentId ?? "",
+    clearAgent: false,
+    enabled: job.enabled,
+    deleteAfterRun: job.deleteAfterRun ?? false,
+    scheduleKind: job.schedule.kind,
+    scheduleAt: "",
+    everyAmount: prev.everyAmount,
+    everyUnit: prev.everyUnit,
+    cronExpr: prev.cronExpr,
+    cronTz: "",
+    scheduleExact: false,
+    staggerAmount: "",
+    staggerUnit: "seconds",
+    sessionTarget: job.sessionTarget,
+    wakeMode: job.wakeMode,
+    payloadKind: job.payload.kind,
+    payloadText: job.payload.kind === "systemEvent" ? job.payload.text : job.payload.message,
+    payloadModel: job.payload.kind === "agentTurn" ? (job.payload.model ?? "") : "",
+    payloadThinking: job.payload.kind === "agentTurn" ? (job.payload.thinking ?? "") : "",
+    deliveryMode: job.delivery?.mode ?? "none",
+    deliveryChannel: job.delivery?.channel ?? CRON_CHANNEL_LAST,
+    deliveryTo: job.delivery?.to ?? "",
+    deliveryBestEffort: job.delivery?.bestEffort ?? false,
+    failureAlertMode:
+      failureAlert === false
+        ? "disabled"
+        : failureAlert && typeof failureAlert === "object"
+          ? "custom"
+          : "inherit",
+    failureAlertAfter:
+      failureAlert && typeof failureAlert === "object" && typeof failureAlert.after === "number"
+        ? String(failureAlert.after)
+        : DEFAULT_CRON_FORM.failureAlertAfter,
+    failureAlertCooldownSeconds:
+      failureAlert &&
+      typeof failureAlert === "object" &&
+      typeof failureAlert.cooldownMs === "number"
+        ? String(Math.floor(failureAlert.cooldownMs / 1000))
+        : DEFAULT_CRON_FORM.failureAlertCooldownSeconds,
+    failureAlertChannel:
+      failureAlert && typeof failureAlert === "object"
+        ? (failureAlert.channel ?? CRON_CHANNEL_LAST)
+        : CRON_CHANNEL_LAST,
+    failureAlertTo: failureAlert && typeof failureAlert === "object" ? (failureAlert.to ?? "") : "",
+    timeoutSeconds:
+      job.payload.kind === "agentTurn" && typeof job.payload.timeoutSeconds === "number"
+        ? String(job.payload.timeoutSeconds)
+        : "",
+  };
+
+  if (job.schedule.kind === "at") {
+    next.scheduleAt = formatDateTimeLocal(job.schedule.at);
+  } else if (job.schedule.kind === "every") {
+    const parsed = parseEverySchedule(job.schedule.everyMs);
+    next.everyAmount = parsed.everyAmount;
+    next.everyUnit = parsed.everyUnit;
+  } else {
+    next.cronExpr = job.schedule.expr;
+    next.cronTz = job.schedule.tz ?? "";
+    const staggerFields = parseStaggerSchedule(job.schedule.staggerMs);
+    next.scheduleExact = staggerFields.scheduleExact;
+    next.staggerAmount = staggerFields.staggerAmount;
+    next.staggerUnit = staggerFields.staggerUnit;
+  }
+
+  return normalizeCronFormState(next);
+}
+
+>>>>>>> e3ba59dc7 (Control UI: add cron jobs schedule/status filters with reset (#9510))
 export function buildCronSchedule(form: CronFormState) {
   if (form.scheduleKind === "at") {
     const ms = Date.parse(form.scheduleAt);
