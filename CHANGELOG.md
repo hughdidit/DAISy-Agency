@@ -178,8 +178,12 @@ Docs: https://docs.openclaw.ai
 - Slack/HTTP mode startup: treat Slack HTTP accounts as configured when `botToken` + `signingSecret` are present (without requiring `appToken`) in channel config/runtime status so webhook mode is not silently skipped. (#30567)
 - Slack/Usage footer formatting: wrap session keys in inline code in full response-usage footers so Slack does not parse colon-delimited session segments as emoji shortcodes. (#30258) Thanks @pushkarsingh32.
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 4ba0a4d4f (fix(slack): wrap session key in backticks to prevent emoji shortcode parsing (openclaw#30266) thanks @pushkarsingh32)
 =======
+=======
+- Slack/Thread session isolation: route channel/group top-level messages into thread-scoped sessions (`:thread:<ts>`) and read inbound `previousTimestamp` from the resolved thread session key, preventing cross-thread context bleed and stale timestamp lookups. (#10686)
+>>>>>>> 11d34700c (fix(slack): use thread-level sessions for channels to prevent context mixing (#10686))
 - Slack/Socket Mode slash startup: treat `app.options()` registration as best-effort and fall back to static arg menus when listener registration fails, preventing Slack monitor startup crash loops on receiver init edge cases. (#21715)
 <<<<<<< HEAD
 >>>>>>> 3aad6c8bd (fix(slack): guard Socket Mode listeners access during startup (openclaw#28702) thanks @Glucksberg)
