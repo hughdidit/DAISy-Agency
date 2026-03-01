@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import { spawn } from "node:child_process";
+import { enableCompileCache } from "node:module";
 import process from "node:process";
 <<<<<<< HEAD
 
@@ -60,7 +61,17 @@ if (
   process.title = "openclaw";
   installProcessWarningFilter();
   normalizeEnv();
+<<<<<<< HEAD
 >>>>>>> edaa5ef7a (refactor(gateway): simplify restart flow and expand lock tests)
+=======
+  if (!isTruthyEnvValue(process.env.NODE_DISABLE_COMPILE_CACHE)) {
+    try {
+      enableCompileCache();
+    } catch {
+      // Best-effort only; never block startup.
+    }
+  }
+>>>>>>> 8c4071f36 (Entry: enable Node compile cache on startup)
 
 <<<<<<< HEAD
 if (process.argv.includes("--no-color")) {
