@@ -171,7 +171,11 @@ Docs: https://docs.openclaw.ai
 >>>>>>> 3aad6c8bd (fix(slack): guard Socket Mode listeners access during startup (openclaw#28702) thanks @Glucksberg)
 =======
 - Slack/Legacy streaming config: map boolean `channels.slack.streaming=false` to unified streaming mode `off` (with `nativeStreaming=false`) so legacy configs correctly disable draft preview/native streaming instead of defaulting to `partial`. (#25990) Thanks @chilu18.
+<<<<<<< HEAD
 >>>>>>> dfbdab5a2 (fix(slack): map legacy streaming=false to off (openclaw#26020) thanks @chilu18)
+=======
+- Slack/Socket reconnect reliability: reconnect Socket Mode after disconnect/start failures using bounded exponential backoff with abort-aware waits, while preserving clean shutdown behavior and adding disconnect/error helper tests. (#27232) Thanks @pandego.
+>>>>>>> 949faff5c (fix(slack): reconnect socket mode after disconnect (#27232))
 - Onboarding/Custom providers: raise default custom-provider model context window to the runtime hard minimum (16k) and auto-heal existing custom model entries below that threshold during reconfiguration, preventing immediate `Model context window too small (4096 tokens)` failures. (#21653) Thanks @r4jiv007.
 >>>>>>> a623c9c8d (Onboarding: enforce custom model context minimum)
 - Web UI/Assistant text: strip internal `<relevant-memories>...</relevant-memories>` scaffolding from rendered assistant messages (while preserving code-fence literals), preventing memory-context leakage in chat output for models that echo internal blocks. (#29851) Thanks @Valkster70.
