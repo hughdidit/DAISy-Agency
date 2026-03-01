@@ -117,6 +117,7 @@ export function derivePromptTokens(usage?: {
 export function deriveSessionTotalTokens(params: {
   usage?: {
     input?: number;
+    output?: number;
     total?: number;
     cacheRead?: number;
     cacheWrite?: number;
@@ -127,11 +128,14 @@ export function deriveSessionTotalTokens(params: {
   const promptOverride = params.promptTokens;
   const hasPromptOverride =
     typeof promptOverride === "number" && Number.isFinite(promptOverride) && promptOverride > 0;
+
   const usage = params.usage;
   if (!usage && !hasPromptOverride) {
     return undefined;
   }
-  const input = usage?.input ?? 0;
+
+  // NOTE: SessionEntry.totalTokens is used as a prompt/context snapshot.
+  // It intentionally excludes completion/output tokens.
   const promptTokens = hasPromptOverride
     ? promptOverride
     : derivePromptTokens({
@@ -139,14 +143,20 @@ export function deriveSessionTotalTokens(params: {
         cacheRead: usage?.cacheRead,
         cacheWrite: usage?.cacheWrite,
       });
-  let total = promptTokens ?? usage?.total ?? input;
-  if (!(total > 0)) {
+
+  if (!(typeof promptTokens === "number") || !Number.isFinite(promptTokens) || promptTokens <= 0) {
     return undefined;
   }
 
+<<<<<<< HEAD
   const contextTokens = params.contextTokens;
   if (typeof contextTokens === "number" && Number.isFinite(contextTokens) && contextTokens > 0) {
     total = Math.min(total, contextTokens);
   }
   return total;
+=======
+  // Keep this value unclamped; display layers are responsible for capping
+  // percentages for terminal output.
+  return promptTokens;
+>>>>>>> fcb685978 (fix(memoryFlush): correct context token accounting for flush gating (#5343))
 }

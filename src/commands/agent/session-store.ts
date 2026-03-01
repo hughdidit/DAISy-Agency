@@ -78,6 +78,7 @@ export async function updateSessionStoreAfterAgentRun(params: {
   if (hasNonzeroUsage(usage)) {
     const input = usage.input ?? 0;
     const output = usage.output ?? 0;
+<<<<<<< HEAD
     next.inputTokens = input;
     next.outputTokens = output;
     next.totalTokens =
@@ -88,10 +89,22 @@ export async function updateSessionStoreAfterAgentRun(params: {
       }) ?? input;
 <<<<<<< HEAD
 =======
+=======
+    const totalTokens = deriveSessionTotalTokens({
+      usage,
+      contextTokens,
+      promptTokens,
+    });
+>>>>>>> fcb685978 (fix(memoryFlush): correct context token accounting for flush gating (#5343))
     next.inputTokens = input;
     next.outputTokens = output;
-    next.totalTokens = totalTokens;
-    next.totalTokensFresh = true;
+    if (typeof totalTokens === "number" && Number.isFinite(totalTokens) && totalTokens > 0) {
+      next.totalTokens = totalTokens;
+      next.totalTokensFresh = true;
+    } else {
+      next.totalTokens = undefined;
+      next.totalTokensFresh = false;
+    }
     next.cacheRead = usage.cacheRead ?? 0;
     next.cacheWrite = usage.cacheWrite ?? 0;
 >>>>>>> f1e1cc4ee (feat: surface cached token counts in /status output (openclaw#21248) thanks @vishaltandale00)
