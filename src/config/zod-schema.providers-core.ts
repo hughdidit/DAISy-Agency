@@ -1,12 +1,5 @@
 import { z } from "zod";
-import { isSafeScpRemoteHost } from "../infra/scp-host.js";
-import {
-  normalizeTelegramCommandDescription,
-  normalizeTelegramCommandName,
-  resolveTelegramCustomCommands,
-} from "./telegram-custom-commands.js";
-import { ToolPolicySchema } from "./zod-schema.agent-runtime.js";
-import { ChannelHeartbeatVisibilitySchema } from "./zod-schema.channels.js";
+
 import {
   BlockStreamingChunkSchema,
   BlockStreamingCoalesceSchema,
@@ -19,9 +12,15 @@ import {
   ProviderCommandsSchema,
   ReplyToModeSchema,
   RetryConfigSchema,
-  TtsConfigSchema,
   requireOpenAllowFrom,
 } from "./zod-schema.core.js";
+import { ToolPolicySchema } from "./zod-schema.agent-runtime.js";
+import { ChannelHeartbeatVisibilitySchema } from "./zod-schema.channels.js";
+import {
+  normalizeTelegramCommandDescription,
+  normalizeTelegramCommandName,
+  resolveTelegramCustomCommands,
+} from "./telegram-custom-commands.js";
 
 const ToolPolicyBySenderSchema = z.record(z.string(), ToolPolicySchema).optional();
 
@@ -39,7 +38,6 @@ const TelegramCapabilitiesSchema = z.union([
 export const TelegramTopicSchema = z
   .object({
     requireMention: z.boolean().optional(),
-    groupPolicy: GroupPolicySchema.optional(),
     skills: z.array(z.string()).optional(),
     enabled: z.boolean().optional(),
     allowFrom: z.array(z.union([z.string(), z.number()])).optional(),
@@ -50,7 +48,6 @@ export const TelegramTopicSchema = z
 export const TelegramGroupSchema = z
   .object({
     requireMention: z.boolean().optional(),
-    groupPolicy: GroupPolicySchema.optional(),
     tools: ToolPolicySchema,
     toolsBySender: ToolPolicyBySenderSchema,
     skills: z.array(z.string()).optional(),
@@ -72,9 +69,7 @@ const validateTelegramCustomCommands = (
   value: { customCommands?: Array<{ command?: string; description?: string }> },
   ctx: z.RefinementCtx,
 ) => {
-  if (!value.customCommands || value.customCommands.length === 0) {
-    return;
-  }
+  if (!value.customCommands || value.customCommands.length === 0) return;
   const { issues } = resolveTelegramCustomCommands({
     commands: value.customCommands,
     checkReserved: false,
@@ -128,7 +123,6 @@ export const TelegramAccountSchemaBase = z
     webhookUrl: z.string().optional(),
     webhookSecret: z.string().optional(),
     webhookPath: z.string().optional(),
-    webhookHost: z.string().optional(),
     actions: z
       .object({
         reactions: z.boolean().optional(),
@@ -142,7 +136,6 @@ export const TelegramAccountSchemaBase = z
     reactionLevel: z.enum(["off", "ack", "minimal", "extensive"]).optional(),
     heartbeat: ChannelHeartbeatVisibilitySchema,
     linkPreview: z.boolean().optional(),
-    responsePrefix: z.string().optional(),
   })
   .strict();
 
@@ -170,43 +163,6 @@ export const TelegramConfigSchema = TelegramAccountSchemaBase.extend({
       'channels.telegram.dmPolicy="open" requires channels.telegram.allowFrom to include "*"',
   });
   validateTelegramCustomCommands(value, ctx);
-
-  const baseWebhookUrl = typeof value.webhookUrl === "string" ? value.webhookUrl.trim() : "";
-  const baseWebhookSecret =
-    typeof value.webhookSecret === "string" ? value.webhookSecret.trim() : "";
-  if (baseWebhookUrl && !baseWebhookSecret) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      message: "channels.telegram.webhookUrl requires channels.telegram.webhookSecret",
-      path: ["webhookSecret"],
-    });
-  }
-  if (!value.accounts) {
-    return;
-  }
-  for (const [accountId, account] of Object.entries(value.accounts)) {
-    if (!account) {
-      continue;
-    }
-    if (account.enabled === false) {
-      continue;
-    }
-    const accountWebhookUrl =
-      typeof account.webhookUrl === "string" ? account.webhookUrl.trim() : "";
-    if (!accountWebhookUrl) {
-      continue;
-    }
-    const accountSecret =
-      typeof account.webhookSecret === "string" ? account.webhookSecret.trim() : "";
-    if (!accountSecret && !baseWebhookSecret) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message:
-          "channels.telegram.accounts.*.webhookUrl requires channels.telegram.webhookSecret or channels.telegram.accounts.*.webhookSecret",
-        path: ["accounts", accountId, "webhookSecret"],
-      });
-    }
-  }
 });
 
 export const DiscordDmSchema = z
@@ -239,7 +195,6 @@ export const DiscordGuildChannelSchema = z
     enabled: z.boolean().optional(),
     users: z.array(z.union([z.string(), z.number()])).optional(),
     systemPrompt: z.string().optional(),
-    includeThreadStarter: z.boolean().optional(),
     autoThread: z.boolean().optional(),
   })
   .strict();
@@ -256,39 +211,6 @@ export const DiscordGuildSchema = z
   })
   .strict();
 
-<<<<<<< HEAD
-=======
-const DiscordUiSchema = z
-  .object({
-    components: z
-      .object({
-        accentColor: HexColorSchema.optional(),
-      })
-      .strict()
-      .optional(),
-  })
-  .strict()
-  .optional();
-
-const DiscordVoiceAutoJoinSchema = z
-  .object({
-    guildId: z.string().min(1),
-    channelId: z.string().min(1),
-  })
-  .strict();
-
-const DiscordVoiceSchema = z
-  .object({
-    enabled: z.boolean().optional(),
-    autoJoin: z.array(DiscordVoiceAutoJoinSchema).optional(),
-    daveEncryption: z.boolean().optional(),
-    decryptionFailureTolerance: z.number().int().min(0).optional(),
-    tts: TtsConfigSchema.optional(),
-  })
-  .strict()
-  .optional();
-
->>>>>>> 4ab946eeb (Discord VC: voice channels, transcription, and TTS (#18774))
 export const DiscordAccountSchema = z
   .object({
     name: z.string().optional(),
@@ -297,14 +219,8 @@ export const DiscordAccountSchema = z
     enabled: z.boolean().optional(),
     commands: ProviderCommandsSchema,
     configWrites: z.boolean().optional(),
-<<<<<<< HEAD
     token: z.string().optional(),
-=======
-    token: z.string().optional().register(sensitive),
-    proxy: z.string().optional(),
->>>>>>> 0cb69b0f2 (Discord: add gateway proxy support)
     allowBots: z.boolean().optional(),
-    dangerouslyAllowNameMatching: z.boolean().optional(),
     groupPolicy: GroupPolicySchema.optional().default("allowlist"),
     historyLimit: z.number().int().min(0).optional(),
     dmHistoryLimit: z.number().int().min(0).optional(),
@@ -336,7 +252,6 @@ export const DiscordAccountSchema = z
         events: z.boolean().optional(),
         moderation: z.boolean().optional(),
         channels: z.boolean().optional(),
-        presence: z.boolean().optional(),
       })
       .strict()
       .optional(),
@@ -350,27 +265,6 @@ export const DiscordAccountSchema = z
         approvers: z.array(z.union([z.string(), z.number()])).optional(),
         agentFilter: z.array(z.string()).optional(),
         sessionFilter: z.array(z.string()).optional(),
-<<<<<<< HEAD
-=======
-        cleanupAfterResolve: z.boolean().optional(),
-        target: z.enum(["dm", "channel", "both"]).optional(),
-      })
-      .strict()
-      .optional(),
-    ui: DiscordUiSchema,
-    slashCommand: z
-      .object({
-        ephemeral: z.boolean().optional(),
-      })
-      .strict()
-      .optional(),
-    threadBindings: z
-      .object({
-        enabled: z.boolean().optional(),
-        ttlHours: z.number().nonnegative().optional(),
-        spawnSubagentSessions: z.boolean().optional(),
-        spawnAcpSessions: z.boolean().optional(),
->>>>>>> a7d56e355 (feat: ACP thread-bound agents (#23580))
       })
       .strict()
       .optional(),
@@ -381,15 +275,6 @@ export const DiscordAccountSchema = z
       })
       .strict()
       .optional(),
-    voice: DiscordVoiceSchema,
-    pluralkit: z
-      .object({
-        enabled: z.boolean().optional(),
-        token: z.string().optional(),
-      })
-      .strict()
-      .optional(),
-    responsePrefix: z.string().optional(),
   })
   .strict();
 
@@ -432,7 +317,6 @@ export const GoogleChatAccountSchema = z
     enabled: z.boolean().optional(),
     configWrites: z.boolean().optional(),
     allowBots: z.boolean().optional(),
-    dangerouslyAllowNameMatching: z.boolean().optional(),
     requireMention: z.boolean().optional(),
     groupPolicy: GroupPolicySchema.optional().default("allowlist"),
     groupAllowFrom: z.array(z.union([z.string(), z.number()])).optional(),
@@ -461,7 +345,6 @@ export const GoogleChatAccountSchema = z
       .optional(),
     dm: GoogleChatDmSchema.optional(),
     typingIndicator: z.enum(["none", "message", "reaction"]).optional(),
-    responsePrefix: z.string().optional(),
   })
   .strict();
 
@@ -536,7 +419,6 @@ export const SlackAccountSchema = z
     userToken: z.string().optional(),
     userTokenReadOnly: z.boolean().optional().default(true),
     allowBots: z.boolean().optional(),
-    dangerouslyAllowNameMatching: z.boolean().optional(),
     requireMention: z.boolean().optional(),
     groupPolicy: GroupPolicySchema.optional().default("allowlist"),
     historyLimit: z.number().int().min(0).optional(),
@@ -577,7 +459,6 @@ export const SlackAccountSchema = z
     dm: SlackDmSchema.optional(),
     channels: z.record(z.string(), SlackChannelSchema.optional()).optional(),
     heartbeat: ChannelHeartbeatVisibilitySchema,
-    responsePrefix: z.string().optional(),
   })
   .strict();
 
@@ -595,20 +476,12 @@ export const SlackConfigSchema = SlackAccountSchema.extend({
       path: ["signingSecret"],
     });
   }
-  if (!value.accounts) {
-    return;
-  }
+  if (!value.accounts) return;
   for (const [accountId, account] of Object.entries(value.accounts)) {
-    if (!account) {
-      continue;
-    }
-    if (account.enabled === false) {
-      continue;
-    }
+    if (!account) continue;
+    if (account.enabled === false) continue;
     const accountMode = account.mode ?? baseMode;
-    if (accountMode !== "http") {
-      continue;
-    }
+    if (accountMode !== "http") continue;
     const accountSecret = account.signingSecret ?? value.signingSecret;
     if (!accountSecret) {
       ctx.addIssue({
@@ -661,7 +534,6 @@ export const SignalAccountSchemaBase = z
       .optional(),
     reactionLevel: z.enum(["off", "ack", "minimal", "extensive"]).optional(),
     heartbeat: ChannelHeartbeatVisibilitySchema,
-    responsePrefix: z.string().optional(),
   })
   .strict();
 
@@ -687,101 +559,6 @@ export const SignalConfigSchema = SignalAccountSchemaBase.extend({
   });
 });
 
-export const IrcGroupSchema = z
-  .object({
-    requireMention: z.boolean().optional(),
-    tools: ToolPolicySchema,
-    toolsBySender: ToolPolicyBySenderSchema,
-    skills: z.array(z.string()).optional(),
-    enabled: z.boolean().optional(),
-    allowFrom: z.array(z.union([z.string(), z.number()])).optional(),
-    systemPrompt: z.string().optional(),
-  })
-  .strict();
-
-export const IrcNickServSchema = z
-  .object({
-    enabled: z.boolean().optional(),
-    service: z.string().optional(),
-    password: z.string().optional(),
-    passwordFile: z.string().optional(),
-    register: z.boolean().optional(),
-    registerEmail: z.string().optional(),
-  })
-  .strict();
-
-export const IrcAccountSchemaBase = z
-  .object({
-    name: z.string().optional(),
-    capabilities: z.array(z.string()).optional(),
-    markdown: MarkdownConfigSchema,
-    enabled: z.boolean().optional(),
-    configWrites: z.boolean().optional(),
-    host: z.string().optional(),
-    port: z.number().int().min(1).max(65535).optional(),
-    tls: z.boolean().optional(),
-    nick: z.string().optional(),
-    username: z.string().optional(),
-    realname: z.string().optional(),
-    password: z.string().optional(),
-    passwordFile: z.string().optional(),
-    nickserv: IrcNickServSchema.optional(),
-    channels: z.array(z.string()).optional(),
-    dmPolicy: DmPolicySchema.optional().default("pairing"),
-    allowFrom: z.array(z.union([z.string(), z.number()])).optional(),
-    groupAllowFrom: z.array(z.union([z.string(), z.number()])).optional(),
-    groupPolicy: GroupPolicySchema.optional().default("allowlist"),
-    groups: z.record(z.string(), IrcGroupSchema.optional()).optional(),
-    mentionPatterns: z.array(z.string()).optional(),
-    historyLimit: z.number().int().min(0).optional(),
-    dmHistoryLimit: z.number().int().min(0).optional(),
-    dms: z.record(z.string(), DmConfigSchema.optional()).optional(),
-    textChunkLimit: z.number().int().positive().optional(),
-    chunkMode: z.enum(["length", "newline"]).optional(),
-    blockStreaming: z.boolean().optional(),
-    blockStreamingCoalesce: BlockStreamingCoalesceSchema.optional(),
-    mediaMaxMb: z.number().positive().optional(),
-    heartbeat: ChannelHeartbeatVisibilitySchema,
-    responsePrefix: z.string().optional(),
-  })
-  .strict();
-
-export const IrcAccountSchema = IrcAccountSchemaBase.superRefine((value, ctx) => {
-  requireOpenAllowFrom({
-    policy: value.dmPolicy,
-    allowFrom: value.allowFrom,
-    ctx,
-    path: ["allowFrom"],
-    message: 'channels.irc.dmPolicy="open" requires channels.irc.allowFrom to include "*"',
-  });
-  if (value.nickserv?.register && !value.nickserv.registerEmail?.trim()) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      path: ["nickserv", "registerEmail"],
-      message: "channels.irc.nickserv.register=true requires channels.irc.nickserv.registerEmail",
-    });
-  }
-});
-
-export const IrcConfigSchema = IrcAccountSchemaBase.extend({
-  accounts: z.record(z.string(), IrcAccountSchema.optional()).optional(),
-}).superRefine((value, ctx) => {
-  requireOpenAllowFrom({
-    policy: value.dmPolicy,
-    allowFrom: value.allowFrom,
-    ctx,
-    path: ["allowFrom"],
-    message: 'channels.irc.dmPolicy="open" requires channels.irc.allowFrom to include "*"',
-  });
-  if (value.nickserv?.register && !value.nickserv.registerEmail?.trim()) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      path: ["nickserv", "registerEmail"],
-      message: "channels.irc.nickserv.register=true requires channels.irc.nickserv.registerEmail",
-    });
-  }
-});
-
 export const IMessageAccountSchemaBase = z
   .object({
     name: z.string().optional(),
@@ -791,10 +568,7 @@ export const IMessageAccountSchemaBase = z
     configWrites: z.boolean().optional(),
     cliPath: ExecutableTokenSchema.optional(),
     dbPath: z.string().optional(),
-    remoteHost: z
-      .string()
-      .refine(isSafeScpRemoteHost, "expected SSH host or user@host (no spaces/options)")
-      .optional(),
+    remoteHost: z.string().optional(),
     service: z.union([z.literal("imessage"), z.literal("sms"), z.literal("auto")]).optional(),
     region: z.string().optional(),
     dmPolicy: DmPolicySchema.optional().default("pairing"),
@@ -824,7 +598,6 @@ export const IMessageAccountSchemaBase = z
       )
       .optional(),
     heartbeat: ChannelHeartbeatVisibilitySchema,
-    responsePrefix: z.string().optional(),
   })
   .strict();
 
@@ -904,7 +677,6 @@ export const BlueBubblesAccountSchemaBase = z
     blockStreamingCoalesce: BlockStreamingCoalesceSchema.optional(),
     groups: z.record(z.string(), BlueBubblesGroupConfigSchema.optional()).optional(),
     heartbeat: ChannelHeartbeatVisibilitySchema,
-    responsePrefix: z.string().optional(),
   })
   .strict();
 
@@ -955,7 +727,6 @@ export const MSTeamsConfigSchema = z
   .object({
     enabled: z.boolean().optional(),
     capabilities: z.array(z.string()).optional(),
-    dangerouslyAllowNameMatching: z.boolean().optional(),
     markdown: MarkdownConfigSchema,
     configWrites: z.boolean().optional(),
     appId: z.string().optional(),
@@ -976,7 +747,6 @@ export const MSTeamsConfigSchema = z
     chunkMode: z.enum(["length", "newline"]).optional(),
     blockStreamingCoalesce: BlockStreamingCoalesceSchema.optional(),
     mediaAllowHosts: z.array(z.string()).optional(),
-    mediaAuthAllowHosts: z.array(z.string()).optional(),
     requireMention: z.boolean().optional(),
     historyLimit: z.number().int().min(0).optional(),
     dmHistoryLimit: z.number().int().min(0).optional(),
@@ -988,7 +758,6 @@ export const MSTeamsConfigSchema = z
     /** SharePoint site ID for file uploads in group chats/channels (e.g., "contoso.sharepoint.com,guid1,guid2") */
     sharePointSiteId: z.string().optional(),
     heartbeat: ChannelHeartbeatVisibilitySchema,
-    responsePrefix: z.string().optional(),
   })
   .strict()
   .superRefine((value, ctx) => {

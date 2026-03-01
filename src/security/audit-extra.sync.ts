@@ -3,6 +3,7 @@ import {
   resolveSandboxConfigForAgent,
   resolveSandboxToolPolicyForAgent,
 } from "../agents/sandbox.js";
+import { isDangerousNetworkMode, normalizeNetworkMode } from "../agents/sandbox/network-mode.js";
 /**
  * Synchronous security audit collector functions.
  *
@@ -14,21 +15,18 @@ import { resolveToolProfilePolicy } from "../agents/tool-policy.js";
 import { resolveBrowserConfig } from "../browser/config.js";
 import { formatCliCommand } from "../cli/command-format.js";
 import type { OpenClawConfig } from "../config/config.js";
+import {
+  resolveAgentModelFallbackValues,
+  resolveAgentModelPrimaryValue,
+} from "../config/model-input.js";
 import type { AgentToolsConfig } from "../config/types.tools.js";
 import { resolveGatewayAuth } from "../gateway/auth.js";
-<<<<<<< HEAD
-import { resolveNodeCommandAllowlist } from "../gateway/node-command-policy.js";
-<<<<<<< HEAD
-=======
-=======
 import {
   DEFAULT_DANGEROUS_NODE_COMMANDS,
   resolveNodeCommandAllowlist,
 } from "../gateway/node-command-policy.js";
->>>>>>> 265da4dd2 (fix(security): harden gateway command/audit guardrails)
 import { inferParamBFromIdOrName } from "../shared/model-param-b.js";
 import { pickSandboxToolPolicy } from "./audit-tool-policy.js";
->>>>>>> d7079b557 (refactor(security): share sandbox tool policy picker)
 
 export type SecurityAuditFinding = {
   checkId: string;
@@ -89,6 +87,15 @@ function looksLikeEnvRef(value: string): boolean {
   return v.startsWith("${") && v.endsWith("}");
 }
 
+function isGatewayRemotelyExposed(cfg: OpenClawConfig): boolean {
+  const bind = typeof cfg.gateway?.bind === "string" ? cfg.gateway.bind : "loopback";
+  if (bind !== "loopback") {
+    return true;
+  }
+  const tailscaleMode = cfg.gateway?.tailscale?.mode ?? "off";
+  return tailscaleMode === "serve" || tailscaleMode === "funnel";
+}
+
 type ModelRef = { id: string; source: string };
 
 function addModel(models: ModelRef[], raw: unknown, source: string) {
@@ -104,12 +111,20 @@ function addModel(models: ModelRef[], raw: unknown, source: string) {
 
 function collectModels(cfg: OpenClawConfig): ModelRef[] {
   const out: ModelRef[] = [];
-  addModel(out, cfg.agents?.defaults?.model?.primary, "agents.defaults.model.primary");
-  for (const f of cfg.agents?.defaults?.model?.fallbacks ?? []) {
+  addModel(
+    out,
+    resolveAgentModelPrimaryValue(cfg.agents?.defaults?.model),
+    "agents.defaults.model.primary",
+  );
+  for (const f of resolveAgentModelFallbackValues(cfg.agents?.defaults?.model)) {
     addModel(out, f, "agents.defaults.model.fallbacks");
   }
-  addModel(out, cfg.agents?.defaults?.imageModel?.primary, "agents.defaults.imageModel.primary");
-  for (const f of cfg.agents?.defaults?.imageModel?.fallbacks ?? []) {
+  addModel(
+    out,
+    resolveAgentModelPrimaryValue(cfg.agents?.defaults?.imageModel),
+    "agents.defaults.imageModel.primary",
+  );
+  for (const f of resolveAgentModelFallbackValues(cfg.agents?.defaults?.imageModel)) {
     addModel(out, f, "agents.defaults.imageModel.fallbacks");
   }
 
@@ -145,26 +160,6 @@ const LEGACY_MODEL_PATTERNS: Array<{ id: string; re: RegExp; label: string }> = 
 const WEAK_TIER_MODEL_PATTERNS: Array<{ id: string; re: RegExp; label: string }> = [
   { id: "anthropic.haiku", re: /\bhaiku\b/i, label: "Haiku tier (smaller model)" },
 ];
-
-function inferParamBFromIdOrName(text: string): number | null {
-  const raw = text.toLowerCase();
-  const matches = raw.matchAll(/(?:^|[^a-z0-9])[a-z]?(\d+(?:\.\d+)?)b(?:[^a-z0-9]|$)/g);
-  let best: number | null = null;
-  for (const match of matches) {
-    const numRaw = match[1];
-    if (!numRaw) {
-      continue;
-    }
-    const value = Number(numRaw);
-    if (!Number.isFinite(value) || value <= 0) {
-      continue;
-    }
-    if (best === null || value > best) {
-      best = value;
-    }
-  }
-  return best;
-}
 
 function isGptModel(id: string): boolean {
   return /\bgpt-/i.test(id);
@@ -556,7 +551,10 @@ export function collectSecretsInConfigFindings(cfg: OpenClawConfig): SecurityAud
   return findings;
 }
 
-export function collectHooksHardeningFindings(cfg: OpenClawConfig): SecurityAuditFinding[] {
+export function collectHooksHardeningFindings(
+  cfg: OpenClawConfig,
+  env: NodeJS.ProcessEnv = process.env,
+): SecurityAuditFinding[] {
   const findings: SecurityAuditFinding[] = [];
   if (cfg.hooks?.enabled !== true) {
     return findings;
@@ -575,17 +573,24 @@ export function collectHooksHardeningFindings(cfg: OpenClawConfig): SecurityAudi
   const gatewayAuth = resolveGatewayAuth({
     authConfig: cfg.gateway?.auth,
     tailscaleMode: cfg.gateway?.tailscale?.mode ?? "off",
+    env,
   });
+  const openclawGatewayToken =
+    typeof env.OPENCLAW_GATEWAY_TOKEN === "string" && env.OPENCLAW_GATEWAY_TOKEN.trim()
+      ? env.OPENCLAW_GATEWAY_TOKEN.trim()
+      : null;
   const gatewayToken =
     gatewayAuth.mode === "token" &&
     typeof gatewayAuth.token === "string" &&
     gatewayAuth.token.trim()
       ? gatewayAuth.token.trim()
-      : null;
+      : openclawGatewayToken
+        ? openclawGatewayToken
+        : null;
   if (token && gatewayToken && token === gatewayToken) {
     findings.push({
       checkId: "hooks.token_reuse_gateway_token",
-      severity: "warn",
+      severity: "critical",
       title: "Hooks token reuses the Gateway token",
       detail:
         "hooks.token matches gateway.auth token; compromise of hooks expands blast radius to the Gateway API.",
@@ -603,6 +608,78 @@ export function collectHooksHardeningFindings(cfg: OpenClawConfig): SecurityAudi
       remediation: "Use a dedicated path like '/hooks'.",
     });
   }
+
+  const allowRequestSessionKey = cfg.hooks?.allowRequestSessionKey === true;
+  const defaultSessionKey =
+    typeof cfg.hooks?.defaultSessionKey === "string" ? cfg.hooks.defaultSessionKey.trim() : "";
+  const allowedPrefixes = Array.isArray(cfg.hooks?.allowedSessionKeyPrefixes)
+    ? cfg.hooks.allowedSessionKeyPrefixes
+        .map((prefix) => prefix.trim())
+        .filter((prefix) => prefix.length > 0)
+    : [];
+  const remoteExposure = isGatewayRemotelyExposed(cfg);
+
+  if (!defaultSessionKey) {
+    findings.push({
+      checkId: "hooks.default_session_key_unset",
+      severity: "warn",
+      title: "hooks.defaultSessionKey is not configured",
+      detail:
+        "Hook agent runs without explicit sessionKey use generated per-request keys. Set hooks.defaultSessionKey to keep hook ingress scoped to a known session.",
+      remediation: 'Set hooks.defaultSessionKey (for example, "hook:ingress").',
+    });
+  }
+
+  if (allowRequestSessionKey) {
+    findings.push({
+      checkId: "hooks.request_session_key_enabled",
+      severity: remoteExposure ? "critical" : "warn",
+      title: "External hook payloads may override sessionKey",
+      detail:
+        "hooks.allowRequestSessionKey=true allows `/hooks/agent` callers to choose the session key. Treat hook token holders as full-trust unless you also restrict prefixes.",
+      remediation:
+        "Set hooks.allowRequestSessionKey=false (recommended) or constrain hooks.allowedSessionKeyPrefixes.",
+    });
+  }
+
+  if (allowRequestSessionKey && allowedPrefixes.length === 0) {
+    findings.push({
+      checkId: "hooks.request_session_key_prefixes_missing",
+      severity: remoteExposure ? "critical" : "warn",
+      title: "Request sessionKey override is enabled without prefix restrictions",
+      detail:
+        "hooks.allowRequestSessionKey=true and hooks.allowedSessionKeyPrefixes is unset/empty, so request payloads can target arbitrary session key shapes.",
+      remediation:
+        'Set hooks.allowedSessionKeyPrefixes (for example, ["hook:"]) or disable request overrides.',
+    });
+  }
+
+  return findings;
+}
+
+export function collectGatewayHttpSessionKeyOverrideFindings(
+  cfg: OpenClawConfig,
+): SecurityAuditFinding[] {
+  const findings: SecurityAuditFinding[] = [];
+  const chatCompletionsEnabled = cfg.gateway?.http?.endpoints?.chatCompletions?.enabled === true;
+  const responsesEnabled = cfg.gateway?.http?.endpoints?.responses?.enabled === true;
+  if (!chatCompletionsEnabled && !responsesEnabled) {
+    return findings;
+  }
+
+  const enabledEndpoints = [
+    chatCompletionsEnabled ? "/v1/chat/completions" : null,
+    responsesEnabled ? "/v1/responses" : null,
+  ].filter((entry): entry is string => Boolean(entry));
+
+  findings.push({
+    checkId: "gateway.http.session_key_override_enabled",
+    severity: "info",
+    title: "HTTP API session-key override is enabled",
+    detail:
+      `${enabledEndpoints.join(", ")} accept x-openclaw-session-key for per-request session routing. ` +
+      "Treat API credential holders as trusted principals.",
+  });
 
   return findings;
 }
@@ -738,6 +815,9 @@ export function collectSandboxDangerousConfigFindings(cfg: OpenClawConfig): Secu
         });
         continue;
       }
+      if (blocked.kind !== "covers" && blocked.kind !== "targets") {
+        continue;
+      }
       const verb = blocked.kind === "covers" ? "covers" : "targets";
       findings.push({
         checkId: "sandbox.dangerous_bind_mount",
@@ -751,13 +831,21 @@ export function collectSandboxDangerousConfigFindings(cfg: OpenClawConfig): Secu
     }
 
     const network = typeof docker.network === "string" ? docker.network : undefined;
-    if (network && network.trim().toLowerCase() === "host") {
+    const normalizedNetwork = normalizeNetworkMode(network);
+    if (isDangerousNetworkMode(network)) {
+      const modeLabel = normalizedNetwork === "host" ? '"host"' : `"${network}"`;
+      const detail =
+        normalizedNetwork === "host"
+          ? `${source}.network is "host" which bypasses container network isolation entirely.`
+          : `${source}.network is ${modeLabel} which joins another container namespace and can bypass sandbox network isolation.`;
       findings.push({
         checkId: "sandbox.dangerous_network_mode",
         severity: "critical",
-        title: "Network host mode in sandbox config",
-        detail: `${source}.network is "host" which bypasses container network isolation entirely.`,
-        remediation: `Set ${source}.network to "bridge" or "none".`,
+        title: "Dangerous network mode in sandbox config",
+        detail,
+        remediation:
+          `Set ${source}.network to "bridge", "none", or a custom bridge network name.` +
+          ` Use ${source}.dangerouslyAllowContainerNamespaceJoin=true only as a break-glass override when you fully trust this runtime.`,
       });
     }
 

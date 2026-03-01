@@ -1,5 +1,5 @@
 ---
-summary: "Group chat behavior across surfaces (WhatsApp/Telegram/Discord/Slack/Signal/iMessage/Microsoft Teams)"
+summary: "Group chat behavior across surfaces (WhatsApp/Telegram/Discord/Slack/Signal/iMessage/Microsoft Teams/Zalo)"
 read_when:
   - Changing group chat behavior or mention gating
 title: "Groups"
@@ -7,7 +7,7 @@ title: "Groups"
 
 # Groups
 
-OpenClaw treats group chats consistently across surfaces: WhatsApp, Telegram, Discord, Slack, Signal, iMessage, Microsoft Teams.
+OpenClaw treats group chats consistently across surfaces: WhatsApp, Telegram, Discord, Slack, Signal, iMessage, Microsoft Teams, Zalo.
 
 ## Beginner intro (2 minutes)
 
@@ -105,7 +105,7 @@ Want “groups can only see folder X” instead of “no host access”? Keep `w
         docker: {
           binds: [
             // hostPath:containerPath:mode
-            "~/FriendsShared:/data:ro",
+            "/home/user/FriendsShared:/data:ro",
           ],
         },
       },
@@ -138,7 +138,7 @@ Control how group/room messages are handled per channel:
     },
     telegram: {
       groupPolicy: "disabled",
-      groupAllowFrom: ["123456789", "@username"],
+      groupAllowFrom: ["123456789"], // numeric Telegram user id (wizard can resolve @username)
     },
     signal: {
       groupPolicy: "disabled",
@@ -183,18 +183,15 @@ Control how group/room messages are handled per channel:
 Notes:
 
 - `groupPolicy` is separate from mention-gating (which requires @mentions).
-<<<<<<< HEAD
-- WhatsApp/Telegram/Signal/iMessage/Microsoft Teams: use `groupAllowFrom` (fallback: explicit `allowFrom`).
-=======
 - WhatsApp/Telegram/Signal/iMessage/Microsoft Teams/Zalo: use `groupAllowFrom` (fallback: explicit `allowFrom`).
 - DM pairing approvals (`*-allowFrom` store entries) apply to DM access only; group sender authorization stays explicit to group allowlists.
->>>>>>> 8bdda7a65 (fix(security): keep DM pairing allowlists out of group auth)
 - Discord: allowlist uses `channels.discord.guilds.<id>.channels`.
 - Slack: allowlist uses `channels.slack.channels`.
 - Matrix: allowlist uses `channels.matrix.groups` (room IDs, aliases, or names). Use `channels.matrix.groupAllowFrom` to restrict senders; per-room `users` allowlists are also supported.
 - Group DMs are controlled separately (`channels.discord.dm.*`, `channels.slack.dm.*`).
 - Telegram allowlist can match user IDs (`"123456789"`, `"telegram:123456789"`, `"tg:123456789"`) or usernames (`"@alice"` or `"alice"`); prefixes are case-insensitive.
 - Default is `groupPolicy: "allowlist"`; if your group allowlist is empty, group messages are blocked.
+- Runtime safety: when a provider block is completely missing (`channels.<provider>` absent), group policy falls back to a fail-closed mode (typically `allowlist`) instead of inheriting `channels.defaults.groupPolicy`.
 
 Quick mental model (evaluation order for group messages):
 

@@ -1,16 +1,10 @@
 import { describe, expect, test } from "vitest";
-<<<<<<< HEAD
-import type { ExecApprovalRecord } from "./exec-approval-manager.js";
-import { sanitizeSystemRunParamsForForwarding } from "./node-invoke-system-run-approval.js";
-import { buildSystemRunApprovalEnvBinding } from "./system-run-approval-env-binding.js";
-=======
 import {
   buildSystemRunApprovalBindingV1,
   buildSystemRunApprovalEnvBinding,
 } from "../infra/system-run-approval-binding.js";
 import { ExecApprovalManager, type ExecApprovalRecord } from "./exec-approval-manager.js";
 import { sanitizeSystemRunParamsForForwarding } from "./node-invoke-system-run-approval.js";
->>>>>>> 10481097f (refactor(security): enforce v1 node exec approval binding)
 
 describe("sanitizeSystemRunParamsForForwarding", () => {
   const now = Date.now();
@@ -33,6 +27,7 @@ describe("sanitizeSystemRunParamsForForwarding", () => {
       id: "approval-1",
       request: {
         host: "node",
+        nodeId: "node-1",
         command,
         commandArgv,
         systemRunBindingV1: buildSystemRunApprovalBindingV1({
@@ -57,9 +52,30 @@ describe("sanitizeSystemRunParamsForForwarding", () => {
   }
 
   function manager(record: ReturnType<typeof makeRecord>) {
+    let consumed = false;
     return {
       getSnapshot: () => record,
+      consumeAllowOnce: () => {
+        if (consumed || record.decision !== "allow-once") {
+          return false;
+        }
+        consumed = true;
+        record.decision = undefined;
+        return true;
+      },
     };
+  }
+
+  function expectAllowOnceForwardingResult(
+    result: ReturnType<typeof sanitizeSystemRunParamsForForwarding>,
+  ) {
+    expect(result.ok).toBe(true);
+    if (!result.ok) {
+      throw new Error("unreachable");
+    }
+    const params = result.params as Record<string, unknown>;
+    expect(params.approved).toBe(true);
+    expect(params.approvalDecision).toBe("allow-once");
   }
 
   test("rejects cmd.exe /c trailing-arg mismatch against rawCommand", () => {
@@ -71,6 +87,7 @@ describe("sanitizeSystemRunParamsForForwarding", () => {
         approved: true,
         approvalDecision: "allow-once",
       },
+      nodeId: "node-1",
       client,
       execApprovalManager: manager(makeRecord("echo")),
       nowMs: now,
@@ -92,6 +109,7 @@ describe("sanitizeSystemRunParamsForForwarding", () => {
         approved: true,
         approvalDecision: "allow-once",
       },
+      nodeId: "node-1",
       client,
       execApprovalManager: manager(
         makeRecord("echo SAFE&&whoami", undefined, [
@@ -105,15 +123,26 @@ describe("sanitizeSystemRunParamsForForwarding", () => {
       ),
       nowMs: now,
     });
-    expect(result.ok).toBe(true);
-    if (!result.ok) {
+    expectAllowOnceForwardingResult(result);
+  });
+
+  test("rejects env-assignment shell wrapper when approval command omits env prelude", () => {
+    const result = sanitizeSystemRunParamsForForwarding({
+      rawParams: {
+        command: ["/usr/bin/env", "BASH_ENV=/tmp/payload.sh", "bash", "-lc", "echo SAFE"],
+        runId: "approval-1",
+        approved: true,
+        approvalDecision: "allow-once",
+      },
+      nodeId: "node-1",
+      client,
+      execApprovalManager: manager(makeRecord("echo SAFE")),
+      nowMs: now,
+    });
+    expect(result.ok).toBe(false);
+    if (result.ok) {
       throw new Error("unreachable");
     }
-<<<<<<< HEAD
-    const params = result.params as Record<string, unknown>;
-    expect(params.approved).toBe(true);
-    expect(params.approvalDecision).toBe("allow-once");
-=======
     expect(result.message).toContain("approval id does not match request");
     expect(result.details?.code).toBe("APPROVAL_REQUEST_MISMATCH");
   });
@@ -268,7 +297,14 @@ describe("sanitizeSystemRunParamsForForwarding", () => {
 
   test("rejects env hash mismatch", () => {
     const record = makeRecord("git diff", ["git", "diff"]);
-    record.request.envHash = buildSystemRunApprovalEnvBinding({ SAFE: "1" }).envHash;
+    record.request.systemRunBindingV1 = {
+      version: 1,
+      argv: ["git", "diff"],
+      cwd: null,
+      agentId: null,
+      sessionKey: null,
+      envHash: buildSystemRunApprovalEnvBinding({ SAFE: "1" }).envHash,
+    };
     const result = sanitizeSystemRunParamsForForwarding({
       rawParams: {
         command: ["git", "diff"],
@@ -293,7 +329,14 @@ describe("sanitizeSystemRunParamsForForwarding", () => {
   test("accepts matching env hash with reordered keys", () => {
     const record = makeRecord("git diff", ["git", "diff"]);
     const binding = buildSystemRunApprovalEnvBinding({ SAFE_A: "1", SAFE_B: "2" });
-    record.request.envHash = binding.envHash;
+    record.request.systemRunBindingV1 = {
+      version: 1,
+      argv: ["git", "diff"],
+      cwd: null,
+      agentId: null,
+      sessionKey: null,
+      envHash: binding.envHash,
+    };
     const result = sanitizeSystemRunParamsForForwarding({
       rawParams: {
         command: ["git", "diff"],
@@ -414,6 +457,5 @@ describe("sanitizeSystemRunParamsForForwarding", () => {
     }
     expect(result.message).toContain("not valid for this node");
     expect(result.details?.code).toBe("APPROVAL_NODE_MISMATCH");
->>>>>>> 03e689fc8 (fix(security): bind system.run approvals to argv identity)
   });
 });

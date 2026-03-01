@@ -4,7 +4,6 @@ read_when:
   - Configuring exec approvals or allowlists
   - Implementing exec approval UX in the macOS app
   - Reviewing sandbox escape prompts and implications
-title: "Exec Approvals"
 ---
 
 # Exec approvals
@@ -21,18 +20,10 @@ resolved by the **ask fallback** (default: deny).
 ## Where it applies
 
 Exec approvals are enforced locally on the execution host:
-
-- **gateway host** → `openclaw` process on the gateway machine
+- **gateway host** → `moltbot` process on the gateway machine
 - **node host** → node runner (macOS companion app or headless node host)
 
-Trust model note:
-
-- Gateway-authenticated callers are trusted operators for that Gateway.
-- Paired nodes extend that trusted operator capability onto the node host.
-- Exec approvals reduce accidental execution risk, but are not a per-user auth boundary.
-
 macOS split:
-
 - **node host service** forwards `system.run` to the **macOS app** over local IPC.
 - **macOS app** enforces approvals + executes the command in UI context.
 
@@ -40,15 +31,14 @@ macOS split:
 
 Approvals live in a local JSON file on the execution host:
 
-`~/.openclaw/exec-approvals.json`
+`~/.clawdbot/exec-approvals.json`
 
 Example schema:
-
 ```json
 {
   "version": 1,
   "socket": {
-    "path": "~/.openclaw/exec-approvals.sock",
+    "path": "~/.clawdbot/exec-approvals.sock",
     "token": "base64url-token"
   },
   "defaults": {
@@ -80,21 +70,17 @@ Example schema:
 ## Policy knobs
 
 ### Security (`exec.security`)
-
 - **deny**: block all host exec requests.
 - **allowlist**: allow only allowlisted commands.
 - **full**: allow everything (equivalent to elevated).
 
 ### Ask (`exec.ask`)
-
 - **off**: never prompt.
 - **on-miss**: prompt only when allowlist does not match.
 - **always**: prompt on every command.
 
 ### Ask fallback (`askFallback`)
-
 If a prompt is required but no UI is reachable, fallback decides:
-
 - **deny**: block.
 - **allowlist**: allow only if allowlist matches.
 - **full**: allow.
@@ -107,13 +93,11 @@ Patterns should resolve to **binary paths** (basename-only entries are ignored).
 Legacy `agents.default` entries are migrated to `agents.main` on load.
 
 Examples:
-
-- `~/Projects/**/bin/peekaboo`
+- `~/Projects/**/bin/bird`
 - `~/.local/bin/*`
 - `/opt/homebrew/bin/rg`
 
 Each allowlist entry tracks:
-
 - **id** stable UUID used for UI identity (optional)
 - **last used** timestamp
 - **last used command**
@@ -125,78 +109,24 @@ When **Auto-allow skill CLIs** is enabled, executables referenced by known skill
 are treated as allowlisted on nodes (macOS node or headless node host). This uses
 `skills.bins` over the Gateway RPC to fetch the skill bin list. Disable this if you want strict manual allowlists.
 
-Important trust notes:
-
-- This is an **implicit convenience allowlist**, separate from manual path allowlist entries.
-- It is intended for trusted operator environments where Gateway and node are in the same trust boundary.
-- If you require strict explicit trust, keep `autoAllowSkills: false` and use manual path allowlist entries only.
-
 ## Safe bins (stdin-only)
 
 `tools.exec.safeBins` defines a small list of **stdin-only** binaries (for example `jq`)
 that can run in allowlist mode **without** explicit allowlist entries. Safe bins reject
 positional file args and path-like tokens, so they can only operate on the incoming stream.
-Validation is deterministic from argv shape only (no host filesystem existence checks), which
-prevents file-existence oracle behavior from allow/deny differences.
-File-oriented options are denied for default safe bins (for example `sort -o`, `sort --output`,
-<<<<<<< HEAD
-`sort --files0-from`, `wc --files0-from`, `jq -f/--from-file`, `grep -f/--file`).
-Safe bins also enforce explicit per-binary flag policy for options that break stdin-only
-behavior (for example `sort -o/--output` and grep recursive flags).
-=======
-`sort --files0-from`, `sort --compress-program`, `sort --random-source`,
-`sort --temporary-directory`/`-T`, `wc --files0-from`, `jq -f/--from-file`,
-`grep -f/--file`).
-Safe bins also enforce explicit per-binary flag policy for options that break stdin-only
-behavior (for example `sort -o/--output/--compress-program` and grep recursive flags).
-Long options are validated fail-closed in safe-bin mode: unknown flags and ambiguous
-abbreviations are rejected.
-Denied flags by safe-bin profile:
-
-<!-- SAFE_BIN_DENIED_FLAGS:START -->
-
-- `grep`: `--dereference-recursive`, `--directories`, `--exclude-from`, `--file`, `--recursive`, `-R`, `-d`, `-f`, `-r`
-- `jq`: `--argfile`, `--from-file`, `--library-path`, `--rawfile`, `--slurpfile`, `-L`, `-f`
-- `sort`: `--compress-program`, `--files0-from`, `--output`, `--random-source`, `--temporary-directory`, `-T`, `-o`
-- `wc`: `--files0-from`
-<!-- SAFE_BIN_DENIED_FLAGS:END -->
-
->>>>>>> 3b8e33037 (fix(security): harden safeBins long-option validation)
-Safe bins also force argv tokens to be treated as **literal text** at execution time (no globbing
-and no `$VARS` expansion) for stdin-only segments, so patterns like `*` or `$HOME/...` cannot be
-used to smuggle file reads.
-<<<<<<< HEAD
-Safe bins must also resolve from trusted binary directories (system defaults plus the gateway
-process `PATH` at startup). This blocks request-scoped PATH hijacking attempts.
-=======
-Safe bins must also resolve from trusted binary directories (system defaults plus optional
-`tools.exec.safeBinTrustedDirs`). `PATH` entries are never auto-trusted.
-Default trusted safe-bin directories are intentionally minimal: `/bin`, `/usr/bin`.
-If your safe-bin executable lives in package-manager/user paths (for example
-`/opt/homebrew/bin`, `/usr/local/bin`, `/opt/local/bin`, `/snap/bin`), add them explicitly
-to `tools.exec.safeBinTrustedDirs`.
->>>>>>> b67e600bf (fix(security): restrict default safe-bin trusted dirs)
 Shell chaining and redirections are not auto-allowed in allowlist mode.
 
 Shell chaining (`&&`, `||`, `;`) is allowed when every top-level segment satisfies the allowlist
 (including safe bins or skill auto-allow). Redirections remain unsupported in allowlist mode.
-Command substitution (`$()` / backticks) is rejected during allowlist parsing, including inside
-double quotes; use single quotes if you need literal `$()` text.
-On macOS companion-app approvals, raw shell text containing shell control or expansion syntax
-(`&&`, `||`, `;`, `|`, `` ` ``, `$`, `<`, `>`, `(`, `)`) is treated as an allowlist miss unless
-the shell binary itself is allowlisted.
-For shell wrappers (`bash|sh|zsh ... -c/-lc`), request-scoped env overrides are reduced to a
-small explicit allowlist (`TERM`, `LANG`, `LC_*`, `COLORTERM`, `NO_COLOR`, `FORCE_COLOR`).
-For allow-always decisions in allowlist mode, known dispatch wrappers
-(`env`, `nice`, `nohup`, `stdbuf`, `timeout`) persist inner executable paths instead of wrapper
-paths. If a wrapper cannot be safely unwrapped, no allowlist entry is persisted automatically.
 
-Default safe bins: `jq`, `cut`, `uniq`, `head`, `tail`, `tr`, `wc`.
+Default safe bins: `jq`, `grep`, `cut`, `sort`, `uniq`, `head`, `tail`, `tr`, `wc`.
 
-`grep` and `sort` are not in the default list. If you opt in, keep explicit allowlist entries for
-their non-stdin workflows.
-For `grep` in safe-bin mode, provide the pattern with `-e`/`--regexp`; positional pattern form is
-rejected so file operands cannot be smuggled as ambiguous positionals.
+## Command sanitization
+
+Command strings in approval requests are sanitized before broadcast and storage:
+control characters (below U+0020 except tab and newline), Unicode format/surrogate
+characters, and carriage returns are stripped. This prevents ANSI escape sequences
+or visual spoofing attacks from masking malicious content in the approval UI.
 
 ## Control UI editing
 
@@ -208,9 +138,9 @@ per pattern so you can keep the list tidy.
 The target selector chooses **Gateway** (local approvals) or a **Node**. Nodes
 must advertise `system.execApprovals.get/set` (macOS app or headless node host).
 If a node does not advertise exec approvals yet, edit its local
-`~/.openclaw/exec-approvals.json` directly.
+`~/.clawdbot/exec-approvals.json` directly.
 
-CLI: `openclaw approvals` supports gateway or node editing (see [Approvals CLI](/cli/approvals)).
+CLI: `moltbot approvals` supports gateway or node editing (see [Approvals CLI](/cli/approvals)).
 
 ## Approval flow
 
@@ -223,7 +153,6 @@ correlate later system events (`Exec finished` / `Exec denied`). If no decision 
 timeout, the request is treated as an approval timeout and surfaced as a denial reason.
 
 The confirmation dialog includes:
-
 - command + args
 - cwd
 - agent id
@@ -231,7 +160,6 @@ The confirmation dialog includes:
 - host + policy metadata
 
 Actions:
-
 - **Allow once** → run now
 - **Always allow** → add to allowlist + run
 - **Deny** → block
@@ -242,7 +170,6 @@ You can forward exec approval prompts to any chat channel (including plugin chan
 them with `/approve`. This uses the normal outbound delivery pipeline.
 
 Config:
-
 ```json5
 {
   approvals: {
@@ -253,15 +180,14 @@ Config:
       sessionFilter: ["discord"], // substring or regex
       targets: [
         { channel: "slack", to: "U12345678" },
-        { channel: "telegram", to: "123456789" },
-      ],
-    },
-  },
+        { channel: "telegram", to: "123456789" }
+      ]
+    }
+  }
 }
 ```
 
 Reply in chat:
-
 ```
 /approve <id> allow-once
 /approve <id> allow-always
@@ -269,7 +195,6 @@ Reply in chat:
 ```
 
 ### macOS IPC flow
-
 ```
 Gateway -> Node Service (WS)
                  |  IPC (UDS + token + HMAC + TTL)
@@ -278,7 +203,6 @@ Gateway -> Node Service (WS)
 ```
 
 Security notes:
-
 - Unix socket mode `0600`, token stored in `exec-approvals.json`.
 - Same-UID peer check.
 - Challenge/response (nonce + HMAC token + request hash) + short TTL.
@@ -286,7 +210,6 @@ Security notes:
 ## System events
 
 Exec lifecycle is surfaced as system messages:
-
 - `Exec running` (only if the command exceeds the running notice threshold)
 - `Exec finished`
 - `Exec denied`
@@ -305,7 +228,6 @@ Approval-gated execs reuse the approval id as the `runId` in these messages for 
   To hard-block host exec, set approvals security to `deny` or deny the `exec` tool via tool policy.
 
 Related:
-
 - [Exec tool](/tools/exec)
 - [Elevated mode](/tools/elevated)
 - [Skills](/tools/skills)

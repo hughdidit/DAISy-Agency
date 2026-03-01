@@ -1,13 +1,9 @@
 import { randomUUID } from "node:crypto";
-import type {
-  ExecApprovalDecision,
-  ExecApprovalRequestPayload as InfraExecApprovalRequestPayload,
-} from "../infra/exec-approvals.js";
 
-<<<<<<< HEAD
+import type { ExecApprovalDecision } from "../infra/exec-approvals.js";
+
 export type ExecApprovalRequestPayload = {
   command: string;
-  commandArgv?: string[] | null;
   cwd?: string | null;
   host?: string | null;
   security?: string | null;
@@ -16,12 +12,6 @@ export type ExecApprovalRequestPayload = {
   resolvedPath?: string | null;
   sessionKey?: string | null;
 };
-=======
-// Grace period to keep resolved entries for late awaitDecision calls
-const RESOLVED_ENTRY_GRACE_MS = 15_000;
-
-export type ExecApprovalRequestPayload = InfraExecApprovalRequestPayload;
->>>>>>> 92eb3dfc9 (refactor(security): unify exec approval request matching)
 
 export type ExecApprovalRecord = {
   id: string;
@@ -74,9 +64,7 @@ export class ExecApprovalManager {
 
   resolve(recordId: string, decision: ExecApprovalDecision, resolvedBy?: string | null): boolean {
     const pending = this.pending.get(recordId);
-    if (!pending) {
-      return false;
-    }
+    if (!pending) return false;
     clearTimeout(pending.timer);
     pending.record.resolvedAtMs = Date.now();
     pending.record.decision = decision;

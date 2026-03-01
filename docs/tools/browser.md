@@ -2,12 +2,12 @@
 summary: "Integrated browser control service + action commands"
 read_when:
   - Adding agent-controlled browser automation
-  - Debugging why openclaw is interfering with your own Chrome
+  - Debugging why daisy is interfering with your own Chrome
   - Implementing browser settings + lifecycle in the macOS app
 title: "Browser (OpenClaw-managed)"
 ---
 
-# Browser (openclaw-managed)
+# Browser (daisy-managed)
 
 OpenClaw can run a **dedicated Chrome/Brave/Edge/Chromium profile** that the agent controls.
 It is isolated from your personal browser and is managed through a small local
@@ -16,17 +16,17 @@ control service inside the Gateway (loopback only).
 Beginner view:
 
 - Think of it as a **separate, agent-only browser**.
-- The `openclaw` profile does **not** touch your personal browser profile.
+- The `daisy` profile does **not** touch your personal browser profile.
 - The agent can **open tabs, read pages, click, and type** in a safe lane.
 - The default `chrome` profile uses the **system default Chromium browser** via the
-  extension relay; switch to `openclaw` for the isolated managed browser.
+  extension relay; switch to `daisy` for the isolated managed browser.
 
 ## What you get
 
-- A separate browser profile named **openclaw** (orange accent by default).
+- A separate browser profile named **daisy** (orange accent by default).
 - Deterministic tab control (list/open/focus/close).
 - Agent actions (click/type/drag/select), snapshots, screenshots, PDFs.
-- Optional multi-profile support (`openclaw`, `work`, `remote`, ...).
+- Optional multi-profile support (`daisy`, `brave`, `edge`, `chrome`, `remote`, ...).
 
 This browser is **not** your daily driver. It is a safe, isolated surface for
 agent automation and verification.
@@ -34,22 +34,22 @@ agent automation and verification.
 ## Quick start
 
 ```bash
-openclaw browser --browser-profile openclaw status
-openclaw browser --browser-profile openclaw start
-openclaw browser --browser-profile openclaw open https://example.com
-openclaw browser --browser-profile openclaw snapshot
+moltbot browser --browser-profile daisy status
+moltbot browser --browser-profile daisy start
+moltbot browser --browser-profile daisy open https://example.com
+moltbot browser --browser-profile daisy snapshot
 ```
 
 If you get “Browser disabled”, enable it in config (see below) and restart the
 Gateway.
 
-## Profiles: `openclaw` vs `chrome`
+## Profiles: `daisy` vs `chrome`
 
-- `openclaw`: managed, isolated browser (no extension required).
-- `chrome`: extension relay to your **system browser** (requires the OpenClaw
+- `daisy`: managed, isolated browser (no extension required).
+- `chrome`: extension relay to your **system browser** (requires the Moltbot
   extension to be attached to a tab).
 
-Set `browser.defaultProfile: "openclaw"` if you want managed mode by default.
+Set `browser.defaultProfile: "daisy"` if you want managed mode by default.
 
 ## Configuration
 
@@ -75,11 +75,13 @@ Browser settings live in `~/.openclaw/openclaw.json`.
     attachOnly: false,
     executablePath: "/Applications/Brave Browser.app/Contents/MacOS/Brave Browser",
     profiles: {
-      openclaw: { cdpPort: 18800, color: "#FF4500" },
-      work: { cdpPort: 18801, color: "#0066CC" },
-      remote: { cdpUrl: "http://10.0.0.42:9222", color: "#00AA00" },
-    },
-  },
+      daisy: { cdpPort: 18800, color: "#FF4500" },
+      brave: { cdpPort: 18801, color: "#F76808" },
+      edge: { cdpPort: 18802, color: "#0078D4" },
+      chrome: { cdpPort: 18803, color: "#00AA00" },
+      remote: { cdpUrl: "http://10.0.0.42:9222", color: "#00AA00" }
+    }
+  }
 }
 ```
 
@@ -97,9 +99,25 @@ Notes:
 - `browser.ssrfPolicy.allowPrivateNetwork` remains supported as a legacy alias for compatibility.
 - `attachOnly: true` means “never launch a local browser; only attach if it is already running.”
 - `color` + per-profile `color` tint the browser UI so you can see which profile is active.
-- Default profile is `chrome` (extension relay). Use `defaultProfile: "openclaw"` for the managed browser.
+- Default profile is `chrome` (extension relay). Use `defaultProfile: "daisy"` for the managed browser.
 - Auto-detect order: system default browser if Chromium-based; otherwise Chrome → Brave → Edge → Chromium → Chrome Canary.
-- Local `openclaw` profiles auto-assign `cdpPort`/`cdpUrl` — set those only for remote CDP.
+- Local `daisy` profiles auto-assign `cdpPort`/`cdpUrl` — set those only for remote CDP.
+
+### Dedicated Brave/Edge/Chrome automation profiles
+
+If you want separate agent-controlled profiles for Brave, Edge, and Chrome, keep
+named profiles and switch the browser binary with `browser.executablePath`
+before starting each profile.
+
+Recommended profile names:
+- `daisy` (general automation)
+- `brave`
+- `edge`
+- `chrome`
+
+On Linux VPS hosts, use the attach-only workaround from
+[Browser troubleshooting](/tools/browser-linux-troubleshooting) when direct launch
+is constrained by snap/AppArmor.
 
 ## Use Brave (or another Chromium-based browser)
 
@@ -211,15 +229,13 @@ Remote CDP tips:
 
 ## Profiles (multi-browser)
 
-OpenClaw supports multiple named profiles (routing configs). Profiles can be:
-
-- **openclaw-managed**: a dedicated Chromium-based browser instance with its own user data directory + CDP port
+Moltbot supports multiple named profiles (routing configs). Profiles can be:
+- **daisy-managed**: a dedicated Chromium-based browser instance with its own user data directory + CDP port
 - **remote**: an explicit CDP URL (Chromium-based browser running elsewhere)
 - **extension relay**: your existing Chrome tab(s) via the local relay + Chrome extension
 
 Defaults:
-
-- The `openclaw` profile is auto-created if missing.
+- The `daisy` profile is auto-created if missing.
 - The `chrome` profile is built-in for the Chrome extension relay (points at `http://127.0.0.1:18792` by default).
 - Local CDP ports allocate from **18800–18899** by default.
 - Deleting a profile moves its local data directory to Trash.
@@ -228,7 +244,7 @@ All control endpoints accept `?profile=<name>`; the CLI uses `--browser-profile`
 
 ## Chrome extension relay (use your existing Chrome)
 
-OpenClaw can also drive **your existing Chrome tabs** (no separate “openclaw” Chrome instance) via a local CDP relay + a Chrome extension.
+Moltbot can also drive **your existing Chrome tabs** (no separate “daisy” Chrome instance) via a local CDP relay + a Chrome extension.
 
 Full guide: [Chrome extension](/tools/chrome-extension)
 
@@ -328,7 +344,7 @@ All endpoints accept `?profile=<name>`.
 
 Some features (navigate/act/AI snapshot/role snapshot, element screenshots, PDF) require
 Playwright. If Playwright isn’t installed, those endpoints return a clear 501
-error. ARIA snapshots and basic screenshots still work for openclaw-managed Chrome.
+error. ARIA snapshots and basic screenshots still work for daisy-managed Chrome.
 For the Chrome extension relay driver, ARIA snapshots and screenshots require Playwright.
 
 If you see `Playwright is not available in this gateway build`, install the full
@@ -556,8 +572,8 @@ These are useful for “make the site behave like X” workflows:
 
 ## Security & privacy
 
-- The openclaw browser profile may contain logged-in sessions; treat it as sensitive.
-- `browser act kind=evaluate` / `openclaw browser evaluate` and `wait --fn`
+- The daisy browser profile may contain logged-in sessions; treat it as sensitive.
+- `browser act kind=evaluate` / `moltbot browser evaluate` and `wait --fn`
   execute arbitrary JavaScript in the page context. Prompt injection can steer
   this. Disable it with `browser.evaluateEnabled=false` if you do not need it.
 - For logins and anti-bot notes (X/Twitter, etc.), see [Browser login + X/Twitter posting](/tools/browser-login).
@@ -595,7 +611,7 @@ How it maps:
 - `browser act` uses the snapshot `ref` IDs to click/type/drag/select.
 - `browser screenshot` captures pixels (full page or element).
 - `browser` accepts:
-  - `profile` to choose a named browser profile (openclaw, chrome, or remote CDP).
+  - `profile` to choose a named browser profile (daisy, chrome, or remote CDP).
   - `target` (`sandbox` | `host` | `node`) to select where the browser lives.
   - In sandboxed sessions, `target: "host"` requires `agents.defaults.sandbox.browser.allowHostControl=true`.
   - If `target` is omitted: sandboxed sessions default to `sandbox`, non-sandbox sessions default to `host`.

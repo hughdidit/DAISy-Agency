@@ -1,7 +1,5 @@
-import fs from "node:fs/promises";
 import type { BrowserFormField } from "../client-actions-core.js";
 import type { BrowserRouteContext } from "../server-context.js";
-import type { BrowserRouteRegistrar } from "./types.js";
 import {
   type ActKind,
   isActKind,
@@ -15,59 +13,16 @@ import {
   resolveProfileContext,
   SELECTOR_UNSUPPORTED_MESSAGE,
 } from "./agent.shared.js";
-import {
-  DEFAULT_DOWNLOAD_DIR,
-  DEFAULT_UPLOAD_DIR,
-<<<<<<< HEAD
-  resolvePathWithinRoot,
-  resolvePathsWithinRoot,
-=======
-  resolveWritablePathWithinRoot,
-  resolveExistingPathsWithinRoot,
->>>>>>> 496a76c03 (fix(security): harden browser trace/download temp path handling)
-} from "./path-output.js";
 import { jsonError, toBoolean, toNumber, toStringArray, toStringOrEmpty } from "./utils.js";
+import type { BrowserRouteRegistrar } from "./types.js";
 
-<<<<<<< HEAD
-=======
-async function resolveDownloadPathOrRespond(
-  res: BrowserResponse,
-  requestedPath: string,
-): Promise<string | null> {
-  const downloadPathResult = await resolveWritablePathWithinRoot({
-    rootDir: DEFAULT_DOWNLOAD_DIR,
-    requestedPath,
-    scopeLabel: "downloads directory",
-  });
-  if (!downloadPathResult.ok) {
-    res.status(400).json({ error: downloadPathResult.error });
-    return null;
-  }
-  return downloadPathResult.path;
-}
-
-function buildDownloadRequestBase(cdpUrl: string, targetId: string, timeoutMs: number | undefined) {
-  return {
-    cdpUrl,
-    targetId,
-    timeoutMs: timeoutMs ?? undefined,
-  };
-}
-
-function respondWithDownloadResult(res: BrowserResponse, targetId: string, result: unknown) {
-  res.json({ ok: true, targetId, download: result });
-}
-
->>>>>>> 496a76c03 (fix(security): harden browser trace/download temp path handling)
 export function registerBrowserAgentActRoutes(
   app: BrowserRouteRegistrar,
   ctx: BrowserRouteContext,
 ) {
   app.post("/act", async (req, res) => {
     const profileCtx = resolveProfileContext(req, res, ctx);
-    if (!profileCtx) {
-      return;
-    }
+    if (!profileCtx) return;
     const body = readBody(req);
     const kindRaw = toStringOrEmpty(body.kind);
     if (!isActKind(kindRaw)) {
@@ -83,24 +38,18 @@ export function registerBrowserAgentActRoutes(
       const tab = await profileCtx.ensureTabAvailable(targetId);
       const cdpUrl = profileCtx.profile.cdpUrl;
       const pw = await requirePwAi(res, `act:${kind}`);
-      if (!pw) {
-        return;
-      }
+      if (!pw) return;
       const evaluateEnabled = ctx.state().resolved.evaluateEnabled;
 
       switch (kind) {
         case "click": {
           const ref = toStringOrEmpty(body.ref);
-          if (!ref) {
-            return jsonError(res, 400, "ref is required");
-          }
+          if (!ref) return jsonError(res, 400, "ref is required");
           const doubleClick = toBoolean(body.doubleClick) ?? false;
           const timeoutMs = toNumber(body.timeoutMs);
           const buttonRaw = toStringOrEmpty(body.button) || "";
           const button = buttonRaw ? parseClickButton(buttonRaw) : undefined;
-          if (buttonRaw && !button) {
-            return jsonError(res, 400, "button must be left|right|middle");
-          }
+          if (buttonRaw && !button) return jsonError(res, 400, "button must be left|right|middle");
 
           const modifiersRaw = toStringArray(body.modifiers) ?? [];
           const parsedModifiers = parseClickModifiers(modifiersRaw);
@@ -114,26 +63,16 @@ export function registerBrowserAgentActRoutes(
             ref,
             doubleClick,
           };
-          if (button) {
-            clickRequest.button = button;
-          }
-          if (modifiers) {
-            clickRequest.modifiers = modifiers;
-          }
-          if (timeoutMs) {
-            clickRequest.timeoutMs = timeoutMs;
-          }
+          if (button) clickRequest.button = button;
+          if (modifiers) clickRequest.modifiers = modifiers;
+          if (timeoutMs) clickRequest.timeoutMs = timeoutMs;
           await pw.clickViaPlaywright(clickRequest);
           return res.json({ ok: true, targetId: tab.targetId, url: tab.url });
         }
         case "type": {
           const ref = toStringOrEmpty(body.ref);
-          if (!ref) {
-            return jsonError(res, 400, "ref is required");
-          }
-          if (typeof body.text !== "string") {
-            return jsonError(res, 400, "text is required");
-          }
+          if (!ref) return jsonError(res, 400, "ref is required");
+          if (typeof body.text !== "string") return jsonError(res, 400, "text is required");
           const text = body.text;
           const submit = toBoolean(body.submit) ?? false;
           const slowly = toBoolean(body.slowly) ?? false;
@@ -146,17 +85,13 @@ export function registerBrowserAgentActRoutes(
             submit,
             slowly,
           };
-          if (timeoutMs) {
-            typeRequest.timeoutMs = timeoutMs;
-          }
+          if (timeoutMs) typeRequest.timeoutMs = timeoutMs;
           await pw.typeViaPlaywright(typeRequest);
           return res.json({ ok: true, targetId: tab.targetId });
         }
         case "press": {
           const key = toStringOrEmpty(body.key);
-          if (!key) {
-            return jsonError(res, 400, "key is required");
-          }
+          if (!key) return jsonError(res, 400, "key is required");
           const delayMs = toNumber(body.delayMs);
           await pw.pressKeyViaPlaywright({
             cdpUrl,
@@ -168,9 +103,7 @@ export function registerBrowserAgentActRoutes(
         }
         case "hover": {
           const ref = toStringOrEmpty(body.ref);
-          if (!ref) {
-            return jsonError(res, 400, "ref is required");
-          }
+          if (!ref) return jsonError(res, 400, "ref is required");
           const timeoutMs = toNumber(body.timeoutMs);
           await pw.hoverViaPlaywright({
             cdpUrl,
@@ -182,27 +115,21 @@ export function registerBrowserAgentActRoutes(
         }
         case "scrollIntoView": {
           const ref = toStringOrEmpty(body.ref);
-          if (!ref) {
-            return jsonError(res, 400, "ref is required");
-          }
+          if (!ref) return jsonError(res, 400, "ref is required");
           const timeoutMs = toNumber(body.timeoutMs);
           const scrollRequest: Parameters<typeof pw.scrollIntoViewViaPlaywright>[0] = {
             cdpUrl,
             targetId: tab.targetId,
             ref,
           };
-          if (timeoutMs) {
-            scrollRequest.timeoutMs = timeoutMs;
-          }
+          if (timeoutMs) scrollRequest.timeoutMs = timeoutMs;
           await pw.scrollIntoViewViaPlaywright(scrollRequest);
           return res.json({ ok: true, targetId: tab.targetId });
         }
         case "drag": {
           const startRef = toStringOrEmpty(body.startRef);
           const endRef = toStringOrEmpty(body.endRef);
-          if (!startRef || !endRef) {
-            return jsonError(res, 400, "startRef and endRef are required");
-          }
+          if (!startRef || !endRef) return jsonError(res, 400, "startRef and endRef are required");
           const timeoutMs = toNumber(body.timeoutMs);
           await pw.dragViaPlaywright({
             cdpUrl,
@@ -216,9 +143,7 @@ export function registerBrowserAgentActRoutes(
         case "select": {
           const ref = toStringOrEmpty(body.ref);
           const values = toStringArray(body.values);
-          if (!ref || !values?.length) {
-            return jsonError(res, 400, "ref and values are required");
-          }
+          if (!ref || !values?.length) return jsonError(res, 400, "ref and values are required");
           const timeoutMs = toNumber(body.timeoutMs);
           await pw.selectOptionViaPlaywright({
             cdpUrl,
@@ -233,15 +158,11 @@ export function registerBrowserAgentActRoutes(
           const rawFields = Array.isArray(body.fields) ? body.fields : [];
           const fields = rawFields
             .map((field) => {
-              if (!field || typeof field !== "object") {
-                return null;
-              }
+              if (!field || typeof field !== "object") return null;
               const rec = field as Record<string, unknown>;
               const ref = toStringOrEmpty(rec.ref);
               const type = toStringOrEmpty(rec.type);
-              if (!ref || !type) {
-                return null;
-              }
+              if (!ref || !type) return null;
               const value =
                 typeof rec.value === "string" ||
                 typeof rec.value === "number" ||
@@ -253,9 +174,7 @@ export function registerBrowserAgentActRoutes(
               return parsed;
             })
             .filter((field): field is BrowserFormField => field !== null);
-          if (!fields.length) {
-            return jsonError(res, 400, "fields are required");
-          }
+          if (!fields.length) return jsonError(res, 400, "fields are required");
           const timeoutMs = toNumber(body.timeoutMs);
           await pw.fillFormViaPlaywright({
             cdpUrl,
@@ -268,9 +187,7 @@ export function registerBrowserAgentActRoutes(
         case "resize": {
           const width = toNumber(body.width);
           const height = toNumber(body.height);
-          if (!width || !height) {
-            return jsonError(res, 400, "width and height are required");
-          }
+          if (!width || !height) return jsonError(res, 400, "width and height are required");
           await pw.resizeViewportViaPlaywright({
             cdpUrl,
             targetId: tab.targetId,
@@ -290,7 +207,7 @@ export function registerBrowserAgentActRoutes(
             loadStateRaw === "load" ||
             loadStateRaw === "domcontentloaded" ||
             loadStateRaw === "networkidle"
-              ? loadStateRaw
+              ? (loadStateRaw as "load" | "domcontentloaded" | "networkidle")
               : undefined;
           const fn = toStringOrEmpty(body.fn) || undefined;
           const timeoutMs = toNumber(body.timeoutMs) ?? undefined;
@@ -300,7 +217,7 @@ export function registerBrowserAgentActRoutes(
               403,
               [
                 "wait --fn is disabled by config (browser.evaluateEnabled=false).",
-                "Docs: /gateway/configuration#browser-openclaw-managed-browser",
+                "Docs: /gateway/configuration#browser-clawd-managed-browser",
               ].join("\n"),
             );
           }
@@ -340,14 +257,12 @@ export function registerBrowserAgentActRoutes(
               403,
               [
                 "act:evaluate is disabled by config (browser.evaluateEnabled=false).",
-                "Docs: /gateway/configuration#browser-openclaw-managed-browser",
+                "Docs: /gateway/configuration#browser-clawd-managed-browser",
               ].join("\n"),
             );
           }
           const fn = toStringOrEmpty(body.fn);
-          if (!fn) {
-            return jsonError(res, 400, "fn is required");
-          }
+          if (!fn) return jsonError(res, 400, "fn is required");
           const ref = toStringOrEmpty(body.ref) || undefined;
           const result = await pw.evaluateViaPlaywright({
             cdpUrl,
@@ -377,9 +292,7 @@ export function registerBrowserAgentActRoutes(
 
   app.post("/hooks/file-chooser", async (req, res) => {
     const profileCtx = resolveProfileContext(req, res, ctx);
-    if (!profileCtx) {
-      return;
-    }
+    if (!profileCtx) return;
     const body = readBody(req);
     const targetId = toStringOrEmpty(body.targetId) || undefined;
     const ref = toStringOrEmpty(body.ref) || undefined;
@@ -387,26 +300,11 @@ export function registerBrowserAgentActRoutes(
     const element = toStringOrEmpty(body.element) || undefined;
     const paths = toStringArray(body.paths) ?? [];
     const timeoutMs = toNumber(body.timeoutMs);
-    if (!paths.length) {
-      return jsonError(res, 400, "paths are required");
-    }
+    if (!paths.length) return jsonError(res, 400, "paths are required");
     try {
-      const uploadPathsResult = resolvePathsWithinRoot({
-        rootDir: DEFAULT_UPLOAD_DIR,
-        requestedPaths: paths,
-        scopeLabel: `uploads directory (${DEFAULT_UPLOAD_DIR})`,
-      });
-      if (!uploadPathsResult.ok) {
-        res.status(400).json({ error: uploadPathsResult.error });
-        return;
-      }
-      const resolvedPaths = uploadPathsResult.paths;
-
       const tab = await profileCtx.ensureTabAvailable(targetId);
       const pw = await requirePwAi(res, "file chooser hook");
-      if (!pw) {
-        return;
-      }
+      if (!pw) return;
       if (inputRef || element) {
         if (ref) {
           return jsonError(res, 400, "ref cannot be combined with inputRef/element");
@@ -416,13 +314,13 @@ export function registerBrowserAgentActRoutes(
           targetId: tab.targetId,
           inputRef,
           element,
-          paths: resolvedPaths,
+          paths,
         });
       } else {
         await pw.armFileUploadViaPlaywright({
           cdpUrl: profileCtx.profile.cdpUrl,
           targetId: tab.targetId,
-          paths: resolvedPaths,
+          paths,
           timeoutMs: timeoutMs ?? undefined,
         });
         if (ref) {
@@ -441,23 +339,17 @@ export function registerBrowserAgentActRoutes(
 
   app.post("/hooks/dialog", async (req, res) => {
     const profileCtx = resolveProfileContext(req, res, ctx);
-    if (!profileCtx) {
-      return;
-    }
+    if (!profileCtx) return;
     const body = readBody(req);
     const targetId = toStringOrEmpty(body.targetId) || undefined;
     const accept = toBoolean(body.accept);
     const promptText = toStringOrEmpty(body.promptText) || undefined;
     const timeoutMs = toNumber(body.timeoutMs);
-    if (accept === undefined) {
-      return jsonError(res, 400, "accept is required");
-    }
+    if (accept === undefined) return jsonError(res, 400, "accept is required");
     try {
       const tab = await profileCtx.ensureTabAvailable(targetId);
       const pw = await requirePwAi(res, "dialog hook");
-      if (!pw) {
-        return;
-      }
+      if (!pw) return;
       await pw.armDialogViaPlaywright({
         cdpUrl: profileCtx.profile.cdpUrl,
         targetId: tab.targetId,
@@ -473,60 +365,19 @@ export function registerBrowserAgentActRoutes(
 
   app.post("/wait/download", async (req, res) => {
     const profileCtx = resolveProfileContext(req, res, ctx);
-    if (!profileCtx) {
-      return;
-    }
+    if (!profileCtx) return;
     const body = readBody(req);
     const targetId = toStringOrEmpty(body.targetId) || undefined;
-    const out = toStringOrEmpty(body.path) || "";
+    const out = toStringOrEmpty(body.path) || undefined;
     const timeoutMs = toNumber(body.timeoutMs);
-<<<<<<< HEAD
     try {
       const tab = await profileCtx.ensureTabAvailable(targetId);
       const pw = await requirePwAi(res, "wait for download");
-      if (!pw) {
-        return;
-      }
-      let downloadPath: string | undefined;
-      if (out.trim()) {
-        const downloadPathResult = resolvePathWithinRoot({
-          rootDir: DEFAULT_DOWNLOAD_DIR,
-          requestedPath: out,
-          scopeLabel: "downloads directory",
-=======
-
-    await withPlaywrightRouteContext({
-      req,
-      res,
-      ctx,
-      targetId,
-      feature: "wait for download",
-      run: async ({ cdpUrl, tab, pw }) => {
-        await fs.mkdir(DEFAULT_DOWNLOAD_DIR, { recursive: true });
-        let downloadPath: string | undefined;
-        if (out.trim()) {
-          const resolvedDownloadPath = await resolveDownloadPathOrRespond(res, out);
-          if (!resolvedDownloadPath) {
-            return;
-          }
-          downloadPath = resolvedDownloadPath;
-        }
-        const requestBase = buildDownloadRequestBase(cdpUrl, tab.targetId, timeoutMs);
-        const result = await pw.waitForDownloadViaPlaywright({
-          ...requestBase,
-          path: downloadPath,
->>>>>>> 496a76c03 (fix(security): harden browser trace/download temp path handling)
-        });
-        if (!downloadPathResult.ok) {
-          res.status(400).json({ error: downloadPathResult.error });
-          return;
-        }
-        downloadPath = downloadPathResult.path;
-      }
+      if (!pw) return;
       const result = await pw.waitForDownloadViaPlaywright({
         cdpUrl: profileCtx.profile.cdpUrl,
         targetId: tab.targetId,
-        path: downloadPath,
+        path: out,
         timeoutMs: timeoutMs ?? undefined,
       });
       res.json({ ok: true, targetId: tab.targetId, download: result });
@@ -537,92 +388,44 @@ export function registerBrowserAgentActRoutes(
 
   app.post("/download", async (req, res) => {
     const profileCtx = resolveProfileContext(req, res, ctx);
-    if (!profileCtx) {
-      return;
-    }
+    if (!profileCtx) return;
     const body = readBody(req);
     const targetId = toStringOrEmpty(body.targetId) || undefined;
     const ref = toStringOrEmpty(body.ref);
     const out = toStringOrEmpty(body.path);
     const timeoutMs = toNumber(body.timeoutMs);
-    if (!ref) {
-      return jsonError(res, 400, "ref is required");
-    }
-    if (!out) {
-      return jsonError(res, 400, "path is required");
-    }
-<<<<<<< HEAD
+    if (!ref) return jsonError(res, 400, "ref is required");
+    if (!out) return jsonError(res, 400, "path is required");
     try {
-      const downloadPathResult = resolvePathWithinRoot({
-        rootDir: DEFAULT_DOWNLOAD_DIR,
-        requestedPath: out,
-        scopeLabel: "downloads directory",
-      });
-      if (!downloadPathResult.ok) {
-        res.status(400).json({ error: downloadPathResult.error });
-        return;
-      }
       const tab = await profileCtx.ensureTabAvailable(targetId);
       const pw = await requirePwAi(res, "download");
-      if (!pw) {
-        return;
-      }
+      if (!pw) return;
       const result = await pw.downloadViaPlaywright({
         cdpUrl: profileCtx.profile.cdpUrl,
         targetId: tab.targetId,
         ref,
-        path: downloadPathResult.path,
+        path: out,
         timeoutMs: timeoutMs ?? undefined,
       });
       res.json({ ok: true, targetId: tab.targetId, download: result });
     } catch (err) {
       handleRouteError(ctx, res, err);
     }
-=======
-
-    await withPlaywrightRouteContext({
-      req,
-      res,
-      ctx,
-      targetId,
-      feature: "download",
-      run: async ({ cdpUrl, tab, pw }) => {
-        await fs.mkdir(DEFAULT_DOWNLOAD_DIR, { recursive: true });
-        const downloadPath = await resolveDownloadPathOrRespond(res, out);
-        if (!downloadPath) {
-          return;
-        }
-        const requestBase = buildDownloadRequestBase(cdpUrl, tab.targetId, timeoutMs);
-        const result = await pw.downloadViaPlaywright({
-          ...requestBase,
-          ref,
-          path: downloadPath,
-        });
-        respondWithDownloadResult(res, tab.targetId, result);
-      },
-    });
->>>>>>> 496a76c03 (fix(security): harden browser trace/download temp path handling)
   });
 
   app.post("/response/body", async (req, res) => {
     const profileCtx = resolveProfileContext(req, res, ctx);
-    if (!profileCtx) {
-      return;
-    }
+    if (!profileCtx) return;
     const body = readBody(req);
     const targetId = toStringOrEmpty(body.targetId) || undefined;
     const url = toStringOrEmpty(body.url);
     const timeoutMs = toNumber(body.timeoutMs);
     const maxChars = toNumber(body.maxChars);
-    if (!url) {
-      return jsonError(res, 400, "url is required");
-    }
+    if (!url) return jsonError(res, 400, "url is required");
     try {
       const tab = await profileCtx.ensureTabAvailable(targetId);
       const pw = await requirePwAi(res, "response body");
-      if (!pw) {
-        return;
-      }
+      if (!pw) return;
       const result = await pw.responseBodyViaPlaywright({
         cdpUrl: profileCtx.profile.cdpUrl,
         targetId: tab.targetId,
@@ -638,21 +441,15 @@ export function registerBrowserAgentActRoutes(
 
   app.post("/highlight", async (req, res) => {
     const profileCtx = resolveProfileContext(req, res, ctx);
-    if (!profileCtx) {
-      return;
-    }
+    if (!profileCtx) return;
     const body = readBody(req);
     const targetId = toStringOrEmpty(body.targetId) || undefined;
     const ref = toStringOrEmpty(body.ref);
-    if (!ref) {
-      return jsonError(res, 400, "ref is required");
-    }
+    if (!ref) return jsonError(res, 400, "ref is required");
     try {
       const tab = await profileCtx.ensureTabAvailable(targetId);
       const pw = await requirePwAi(res, "highlight");
-      if (!pw) {
-        return;
-      }
+      if (!pw) return;
       await pw.highlightViaPlaywright({
         cdpUrl: profileCtx.profile.cdpUrl,
         targetId: tab.targetId,

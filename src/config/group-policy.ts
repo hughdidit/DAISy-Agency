@@ -1,12 +1,7 @@
 import type { ChannelId } from "../channels/plugins/types.js";
-<<<<<<< HEAD
-=======
-import { resolveAccountEntry } from "../routing/account-lookup.js";
 import { normalizeAccountId } from "../routing/session-key.js";
->>>>>>> f97c0922e (fix(security): harden account-key handling against prototype pollution)
-import type { OpenClawConfig } from "./config.js";
+import type { MoltbotConfig } from "./config.js";
 import type { GroupToolPolicyBySenderConfig, GroupToolPolicyConfig } from "./types.tools.js";
-import { normalizeAccountId } from "../routing/session-key.js";
 
 export type GroupPolicyChannel = ChannelId;
 
@@ -25,29 +20,6 @@ export type ChannelGroupPolicy = {
 
 type ChannelGroups = Record<string, ChannelGroupConfig>;
 
-function resolveChannelGroupConfig(
-  groups: ChannelGroups | undefined,
-  groupId: string,
-  caseInsensitive = false,
-): ChannelGroupConfig | undefined {
-  if (!groups) {
-    return undefined;
-  }
-  const direct = groups[groupId];
-  if (direct) {
-    return direct;
-  }
-  if (!caseInsensitive) {
-    return undefined;
-  }
-  const target = groupId.toLowerCase();
-  const matchedKey = Object.keys(groups).find((key) => key !== "*" && key.toLowerCase() === target);
-  if (!matchedKey) {
-    return undefined;
-  }
-  return groups[matchedKey];
-}
-
 export type GroupToolPolicySender = {
   senderId?: string | null;
   senderName?: string | null;
@@ -55,138 +27,11 @@ export type GroupToolPolicySender = {
   senderE164?: string | null;
 };
 
-type SenderKeyType = "id" | "e164" | "username" | "name";
-
-const SENDER_KEY_TYPES: SenderKeyType[] = ["id", "e164", "username", "name"];
-const warnedLegacyToolsBySenderKeys = new Set<string>();
-
-type ParsedSenderPolicyKey =
-  | { kind: "wildcard" }
-  | { kind: "typed"; type: SenderKeyType; key: string };
-
-type SenderPolicyBuckets = Record<SenderKeyType, Map<string, GroupToolPolicyConfig>>;
-
-function normalizeSenderKey(
-  value: string,
-  options: {
-    stripLeadingAt?: boolean;
-  } = {},
-): string {
+function normalizeSenderKey(value: string): string {
   const trimmed = value.trim();
-  if (!trimmed) {
-    return "";
-  }
-  const withoutAt = options.stripLeadingAt && trimmed.startsWith("@") ? trimmed.slice(1) : trimmed;
+  if (!trimmed) return "";
+  const withoutAt = trimmed.startsWith("@") ? trimmed.slice(1) : trimmed;
   return withoutAt.toLowerCase();
-}
-
-function normalizeTypedSenderKey(value: string, type: SenderKeyType): string {
-  return normalizeSenderKey(value, {
-    stripLeadingAt: type === "username",
-  });
-}
-
-function normalizeLegacySenderKey(value: string): string {
-  return normalizeSenderKey(value, {
-    stripLeadingAt: true,
-  });
-}
-
-function parseTypedSenderKey(rawKey: string): { type: SenderKeyType; value: string } | undefined {
-  const lowered = rawKey.toLowerCase();
-  for (const type of SENDER_KEY_TYPES) {
-    const prefix = `${type}:`;
-    if (!lowered.startsWith(prefix)) {
-      continue;
-    }
-    return {
-      type,
-      value: rawKey.slice(prefix.length),
-    };
-  }
-  return undefined;
-}
-
-function warnLegacyToolsBySenderKey(rawKey: string) {
-  const trimmed = rawKey.trim();
-  if (!trimmed || warnedLegacyToolsBySenderKeys.has(trimmed)) {
-    return;
-  }
-  warnedLegacyToolsBySenderKeys.add(trimmed);
-  process.emitWarning(
-    `toolsBySender key "${trimmed}" is deprecated. Use explicit prefixes (id:, e164:, username:, name:). Legacy unprefixed keys are matched as id only.`,
-    {
-      type: "DeprecationWarning",
-      code: "OPENCLAW_TOOLS_BY_SENDER_UNTYPED_KEY",
-    },
-  );
-}
-
-function parseSenderPolicyKey(rawKey: string): ParsedSenderPolicyKey | undefined {
-  const trimmed = rawKey.trim();
-  if (!trimmed) {
-    return undefined;
-  }
-  if (trimmed === "*") {
-    return { kind: "wildcard" };
-  }
-  const typed = parseTypedSenderKey(trimmed);
-  if (typed) {
-    const key = normalizeTypedSenderKey(typed.value, typed.type);
-    if (!key) {
-      return undefined;
-    }
-    return {
-      kind: "typed",
-      type: typed.type,
-      key,
-    };
-  }
-
-  // Backward-compatible fallback: untyped keys now map to immutable sender IDs only.
-  warnLegacyToolsBySenderKey(trimmed);
-  const key = normalizeLegacySenderKey(trimmed);
-  if (!key) {
-    return undefined;
-  }
-  return {
-    kind: "typed",
-    type: "id",
-    key,
-  };
-}
-
-function createSenderPolicyBuckets(): SenderPolicyBuckets {
-  return {
-    id: new Map<string, GroupToolPolicyConfig>(),
-    e164: new Map<string, GroupToolPolicyConfig>(),
-    username: new Map<string, GroupToolPolicyConfig>(),
-    name: new Map<string, GroupToolPolicyConfig>(),
-  };
-}
-
-function normalizeCandidate(value: string | null | undefined, type: SenderKeyType): string {
-  const trimmed = value?.trim();
-  if (!trimmed) {
-    return "";
-  }
-  return normalizeTypedSenderKey(trimmed, type);
-}
-
-function normalizeSenderIdCandidates(value: string | null | undefined): string[] {
-  const trimmed = value?.trim();
-  if (!trimmed) {
-    return [];
-  }
-  const typed = normalizeTypedSenderKey(trimmed, "id");
-  const legacy = normalizeLegacySenderKey(trimmed);
-  if (!typed) {
-    return legacy ? [legacy] : [];
-  }
-  if (!legacy || legacy === typed) {
-    return [typed];
-  }
-  return [typed, legacy];
 }
 
 export function resolveToolsBySender(
@@ -195,66 +40,47 @@ export function resolveToolsBySender(
   } & GroupToolPolicySender,
 ): GroupToolPolicyConfig | undefined {
   const toolsBySender = params.toolsBySender;
-  if (!toolsBySender) {
-    return undefined;
-  }
+  if (!toolsBySender) return undefined;
   const entries = Object.entries(toolsBySender);
-  if (entries.length === 0) {
-    return undefined;
-  }
+  if (entries.length === 0) return undefined;
 
-  const buckets = createSenderPolicyBuckets();
+  const normalized = new Map<string, GroupToolPolicyConfig>();
   let wildcard: GroupToolPolicyConfig | undefined;
   for (const [rawKey, policy] of entries) {
-    if (!policy) {
-      continue;
-    }
-    const parsed = parseSenderPolicyKey(rawKey);
-    if (!parsed) {
-      continue;
-    }
-    if (parsed.kind === "wildcard") {
+    if (!policy) continue;
+    const key = normalizeSenderKey(rawKey);
+    if (!key) continue;
+    if (key === "*") {
       wildcard = policy;
       continue;
     }
-    const bucket = buckets[parsed.type];
-    if (!bucket.has(parsed.key)) {
-      bucket.set(parsed.key, policy);
+    if (!normalized.has(key)) {
+      normalized.set(key, policy);
     }
   }
 
-  for (const senderIdCandidate of normalizeSenderIdCandidates(params.senderId)) {
-    const match = buckets.id.get(senderIdCandidate);
-    if (match) {
-      return match;
-    }
-  }
-  const senderE164 = normalizeCandidate(params.senderE164, "e164");
-  if (senderE164) {
-    const match = buckets.e164.get(senderE164);
-    if (match) {
-      return match;
-    }
-  }
-  const senderUsername = normalizeCandidate(params.senderUsername, "username");
-  if (senderUsername) {
-    const match = buckets.username.get(senderUsername);
-    if (match) {
-      return match;
-    }
-  }
-  const senderName = normalizeCandidate(params.senderName, "name");
-  if (senderName) {
-    const match = buckets.name.get(senderName);
-    if (match) {
-      return match;
-    }
+  const candidates: string[] = [];
+  const pushCandidate = (value?: string | null) => {
+    const trimmed = value?.trim();
+    if (!trimmed) return;
+    candidates.push(trimmed);
+  };
+  pushCandidate(params.senderId);
+  pushCandidate(params.senderE164);
+  pushCandidate(params.senderUsername);
+  pushCandidate(params.senderName);
+
+  for (const candidate of candidates) {
+    const key = normalizeSenderKey(candidate);
+    if (!key) continue;
+    const match = normalized.get(key);
+    if (match) return match;
   }
   return wildcard;
 }
 
 function resolveChannelGroups(
-  cfg: OpenClawConfig,
+  cfg: MoltbotConfig,
   channel: GroupPolicyChannel,
   accountId?: string | null,
 ): ChannelGroups | undefined {
@@ -265,57 +91,34 @@ function resolveChannelGroups(
         groups?: ChannelGroups;
       }
     | undefined;
-  if (!channelConfig) {
-    return undefined;
-  }
-  const accountGroups = resolveAccountEntry(channelConfig.accounts, normalizedAccountId)?.groups;
+  if (!channelConfig) return undefined;
+  const accountGroups =
+    channelConfig.accounts?.[normalizedAccountId]?.groups ??
+    channelConfig.accounts?.[
+      Object.keys(channelConfig.accounts ?? {}).find(
+        (key) => key.toLowerCase() === normalizedAccountId.toLowerCase(),
+      ) ?? ""
+    ]?.groups;
   return accountGroups ?? channelConfig.groups;
 }
 
-<<<<<<< HEAD
-=======
-type ChannelGroupPolicyMode = "open" | "allowlist" | "disabled";
-
-function resolveChannelGroupPolicyMode(
-  cfg: OpenClawConfig,
-  channel: GroupPolicyChannel,
-  accountId?: string | null,
-): ChannelGroupPolicyMode | undefined {
-  const normalizedAccountId = normalizeAccountId(accountId);
-  const channelConfig = cfg.channels?.[channel] as
-    | {
-        groupPolicy?: ChannelGroupPolicyMode;
-        accounts?: Record<string, { groupPolicy?: ChannelGroupPolicyMode }>;
-      }
-    | undefined;
-  if (!channelConfig) {
-    return undefined;
-  }
-  const accountPolicy = resolveAccountEntry(
-    channelConfig.accounts,
-    normalizedAccountId,
-  )?.groupPolicy;
-  return accountPolicy ?? channelConfig.groupPolicy;
-}
-
->>>>>>> f97c0922e (fix(security): harden account-key handling against prototype pollution)
 export function resolveChannelGroupPolicy(params: {
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   channel: GroupPolicyChannel;
   groupId?: string | null;
   accountId?: string | null;
-  groupIdCaseInsensitive?: boolean;
 }): ChannelGroupPolicy {
   const { cfg, channel } = params;
   const groups = resolveChannelGroups(cfg, channel, params.accountId);
   const allowlistEnabled = Boolean(groups && Object.keys(groups).length > 0);
   const normalizedId = params.groupId?.trim();
-  const groupConfig = normalizedId
-    ? resolveChannelGroupConfig(groups, normalizedId, params.groupIdCaseInsensitive)
-    : undefined;
+  const groupConfig = normalizedId && groups ? groups[normalizedId] : undefined;
   const defaultConfig = groups?.["*"];
   const allowAll = allowlistEnabled && Boolean(groups && Object.hasOwn(groups, "*"));
-  const allowed = !allowlistEnabled || allowAll || Boolean(groupConfig);
+  const allowed =
+    !allowlistEnabled ||
+    allowAll ||
+    (normalizedId ? Boolean(groups && Object.hasOwn(groups, normalizedId)) : false);
   return {
     allowlistEnabled,
     allowed,
@@ -325,11 +128,10 @@ export function resolveChannelGroupPolicy(params: {
 }
 
 export function resolveChannelGroupRequireMention(params: {
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   channel: GroupPolicyChannel;
   groupId?: string | null;
   accountId?: string | null;
-  groupIdCaseInsensitive?: boolean;
   requireMentionOverride?: boolean;
   overrideOrder?: "before-config" | "after-config";
 }): boolean {
@@ -345,9 +147,7 @@ export function resolveChannelGroupRequireMention(params: {
   if (overrideOrder === "before-config" && typeof requireMentionOverride === "boolean") {
     return requireMentionOverride;
   }
-  if (typeof configMention === "boolean") {
-    return configMention;
-  }
+  if (typeof configMention === "boolean") return configMention;
   if (overrideOrder !== "before-config" && typeof requireMentionOverride === "boolean") {
     return requireMentionOverride;
   }
@@ -356,11 +156,10 @@ export function resolveChannelGroupRequireMention(params: {
 
 export function resolveChannelGroupToolsPolicy(
   params: {
-    cfg: OpenClawConfig;
+    cfg: MoltbotConfig;
     channel: GroupPolicyChannel;
     groupId?: string | null;
     accountId?: string | null;
-    groupIdCaseInsensitive?: boolean;
   } & GroupToolPolicySender,
 ): GroupToolPolicyConfig | undefined {
   const { groupConfig, defaultConfig } = resolveChannelGroupPolicy(params);
@@ -371,12 +170,8 @@ export function resolveChannelGroupToolsPolicy(
     senderUsername: params.senderUsername,
     senderE164: params.senderE164,
   });
-  if (groupSenderPolicy) {
-    return groupSenderPolicy;
-  }
-  if (groupConfig?.tools) {
-    return groupConfig.tools;
-  }
+  if (groupSenderPolicy) return groupSenderPolicy;
+  if (groupConfig?.tools) return groupConfig.tools;
   const defaultSenderPolicy = resolveToolsBySender({
     toolsBySender: defaultConfig?.toolsBySender,
     senderId: params.senderId,
@@ -384,11 +179,7 @@ export function resolveChannelGroupToolsPolicy(
     senderUsername: params.senderUsername,
     senderE164: params.senderE164,
   });
-  if (defaultSenderPolicy) {
-    return defaultSenderPolicy;
-  }
-  if (defaultConfig?.tools) {
-    return defaultConfig.tools;
-  }
+  if (defaultSenderPolicy) return defaultSenderPolicy;
+  if (defaultConfig?.tools) return defaultConfig.tools;
   return undefined;
 }

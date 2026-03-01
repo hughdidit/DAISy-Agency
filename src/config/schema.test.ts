@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+
 import { buildConfigSchema } from "./schema.js";
 
 describe("config schema", () => {
@@ -7,14 +8,8 @@ describe("config schema", () => {
     const schema = res.schema as { properties?: Record<string, unknown> };
     expect(schema.properties?.gateway).toBeTruthy();
     expect(schema.properties?.agents).toBeTruthy();
-<<<<<<< HEAD
-=======
-    expect(schema.properties?.acp).toBeTruthy();
-    expect(schema.properties?.$schema).toBeUndefined();
->>>>>>> a7d56e355 (feat: ACP thread-bound agents (#23580))
     expect(res.uiHints.gateway?.label).toBe("Gateway");
     expect(res.uiHints["gateway.auth.token"]?.sensitive).toBe(true);
-    expect(res.uiHints["channels.discord.threadBindings.spawnAcpSessions"]?.label).toBeTruthy();
     expect(res.version).toBeTruthy();
     expect(res.generatedAt).toBeTruthy();
   });

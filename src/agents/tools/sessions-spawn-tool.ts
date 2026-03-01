@@ -1,13 +1,7 @@
-import { Type } from "@sinclair/typebox";
 import crypto from "node:crypto";
-import type { GatewayMessageChannel } from "../../utils/message-channel.js";
-<<<<<<< HEAD
-=======
-import { ACP_SPAWN_MODES, spawnAcpDirect } from "../acp-spawn.js";
-import { optionalStringEnum } from "../schema/typebox.js";
-import { SUBAGENT_SPAWN_MODES, spawnSubagentDirect } from "../subagent-spawn.js";
->>>>>>> a7d56e355 (feat: ACP thread-bound agents (#23580))
-import type { AnyAgentTool } from "./common.js";
+
+import { Type } from "@sinclair/typebox";
+
 import { formatThinkingLevels, normalizeThinkLevel } from "../../auto-reply/thinking.js";
 import { loadConfig } from "../../config/config.js";
 import { callGateway } from "../../gateway/call.js";
@@ -17,11 +11,13 @@ import {
   parseAgentSessionKey,
 } from "../../routing/session-key.js";
 import { normalizeDeliveryContext } from "../../utils/delivery-context.js";
+import type { GatewayMessageChannel } from "../../utils/message-channel.js";
 import { resolveAgentConfig } from "../agent-scope.js";
 import { AGENT_LANE_SUBAGENT } from "../lanes.js";
 import { optionalStringEnum } from "../schema/typebox.js";
 import { buildSubagentSystemPrompt } from "../subagent-announce.js";
 import { registerSubagentRun } from "../subagent-registry.js";
+import type { AnyAgentTool } from "./common.js";
 import { jsonResult, readStringParam } from "./common.js";
 import {
   resolveDisplaySessionKey,
@@ -29,16 +25,12 @@ import {
   resolveMainSessionAlias,
 } from "./sessions-helpers.js";
 
-const SESSIONS_SPAWN_RUNTIMES = ["subagent", "acp"] as const;
-
 const SessionsSpawnToolSchema = Type.Object({
   task: Type.String(),
   label: Type.Optional(Type.String()),
-  runtime: optionalStringEnum(SESSIONS_SPAWN_RUNTIMES),
   agentId: Type.Optional(Type.String()),
   model: Type.Optional(Type.String()),
   thinking: Type.Optional(Type.String()),
-  cwd: Type.Optional(Type.String()),
   runTimeoutSeconds: Type.Optional(Type.Number({ minimum: 0 })),
   // Back-compat alias. Prefer runTimeoutSeconds.
   timeoutSeconds: Type.Optional(Type.Number({ minimum: 0 })),
@@ -46,17 +38,11 @@ const SessionsSpawnToolSchema = Type.Object({
 });
 
 function splitModelRef(ref?: string) {
-  if (!ref) {
-    return { provider: undefined, model: undefined };
-  }
+  if (!ref) return { provider: undefined, model: undefined };
   const trimmed = ref.trim();
-  if (!trimmed) {
-    return { provider: undefined, model: undefined };
-  }
+  if (!trimmed) return { provider: undefined, model: undefined };
   const [provider, model] = trimmed.split("/", 2);
-  if (model) {
-    return { provider, model };
-  }
+  if (model) return { provider, model };
   return { provider: undefined, model: trimmed };
 }
 
@@ -65,13 +51,9 @@ function normalizeModelSelection(value: unknown): string | undefined {
     const trimmed = value.trim();
     return trimmed || undefined;
   }
-  if (!value || typeof value !== "object") {
-    return undefined;
-  }
+  if (!value || typeof value !== "object") return undefined;
   const primary = (value as { primary?: unknown }).primary;
-  if (typeof primary === "string" && primary.trim()) {
-    return primary.trim();
-  }
+  if (typeof primary === "string" && primary.trim()) return primary.trim();
   return undefined;
 }
 
@@ -92,27 +74,19 @@ export function createSessionsSpawnTool(opts?: {
     label: "Sessions",
     name: "sessions_spawn",
     description:
-<<<<<<< HEAD
       "Spawn a background sub-agent run in an isolated session and announce the result back to the requester chat.",
-=======
-      'Spawn an isolated session (runtime="subagent" or runtime="acp"). mode="run" is one-shot and mode="session" is persistent/thread-bound.',
->>>>>>> a7d56e355 (feat: ACP thread-bound agents (#23580))
     parameters: SessionsSpawnToolSchema,
     execute: async (_toolCallId, args) => {
       const params = args as Record<string, unknown>;
       const task = readStringParam(params, "task", { required: true });
       const label = typeof params.label === "string" ? params.label.trim() : "";
-      const runtime = params.runtime === "acp" ? "acp" : "subagent";
       const requestedAgentId = readStringParam(params, "agentId");
       const modelOverride = readStringParam(params, "model");
       const thinkingOverrideRaw = readStringParam(params, "thinking");
-<<<<<<< HEAD
-=======
-      const cwd = readStringParam(params, "cwd");
-      const mode = params.mode === "run" || params.mode === "session" ? params.mode : undefined;
->>>>>>> a7d56e355 (feat: ACP thread-bound agents (#23580))
       const cleanup =
-        params.cleanup === "keep" || params.cleanup === "delete" ? params.cleanup : "keep";
+        params.cleanup === "keep" || params.cleanup === "delete"
+          ? (params.cleanup as "keep" | "delete")
+          : "keep";
       const requesterOrigin = normalizeDeliveryContext({
         channel: opts?.agentChannel,
         accountId: opts?.agentAccountId,
@@ -124,9 +98,7 @@ export function createSessionsSpawnTool(opts?: {
           typeof params.runTimeoutSeconds === "number" && Number.isFinite(params.runTimeoutSeconds)
             ? Math.max(0, Math.floor(params.runTimeoutSeconds))
             : undefined;
-        if (explicit !== undefined) {
-          return explicit;
-        }
+        if (explicit !== undefined) return explicit;
         const legacy =
           typeof params.timeoutSeconds === "number" && Number.isFinite(params.timeoutSeconds)
             ? Math.max(0, Math.floor(params.timeoutSeconds))
@@ -136,7 +108,6 @@ export function createSessionsSpawnTool(opts?: {
       let modelWarning: string | undefined;
       let modelApplied = false;
 
-<<<<<<< HEAD
       const cfg = loadConfig();
       const { mainKey, alias } = resolveMainSessionAlias(cfg);
       const requesterSessionKey = opts?.agentSessionKey;
@@ -193,67 +164,15 @@ export function createSessionsSpawnTool(opts?: {
         normalizeModelSelection(modelOverride) ??
         normalizeModelSelection(targetAgentConfig?.subagents?.model) ??
         normalizeModelSelection(cfg.agents?.defaults?.subagents?.model);
-=======
-      const result =
-        runtime === "acp"
-          ? await spawnAcpDirect(
-              {
-                task,
-                label: label || undefined,
-                agentId: requestedAgentId,
-                cwd,
-                mode: mode && ACP_SPAWN_MODES.includes(mode) ? mode : undefined,
-                thread,
-              },
-              {
-                agentSessionKey: opts?.agentSessionKey,
-                agentChannel: opts?.agentChannel,
-                agentAccountId: opts?.agentAccountId,
-                agentTo: opts?.agentTo,
-                agentThreadId: opts?.agentThreadId,
-              },
-            )
-          : await spawnSubagentDirect(
-              {
-                task,
-                label: label || undefined,
-                agentId: requestedAgentId,
-                model: modelOverride,
-                thinking: thinkingOverrideRaw,
-                runTimeoutSeconds,
-                thread,
-                mode,
-                cleanup,
-                expectsCompletionMessage: true,
-              },
-              {
-                agentSessionKey: opts?.agentSessionKey,
-                agentChannel: opts?.agentChannel,
-                agentAccountId: opts?.agentAccountId,
-                agentTo: opts?.agentTo,
-                agentThreadId: opts?.agentThreadId,
-                agentGroupId: opts?.agentGroupId,
-                agentGroupChannel: opts?.agentGroupChannel,
-                agentGroupSpace: opts?.agentGroupSpace,
-                requesterAgentIdOverride: opts?.requesterAgentIdOverride,
-              },
-            );
->>>>>>> a7d56e355 (feat: ACP thread-bound agents (#23580))
-
-      const resolvedThinkingDefaultRaw =
-        readStringParam(targetAgentConfig?.subagents ?? {}, "thinking") ??
-        readStringParam(cfg.agents?.defaults?.subagents ?? {}, "thinking");
-
       let thinkingOverride: string | undefined;
-      const thinkingCandidateRaw = thinkingOverrideRaw || resolvedThinkingDefaultRaw;
-      if (thinkingCandidateRaw) {
-        const normalized = normalizeThinkLevel(thinkingCandidateRaw);
+      if (thinkingOverrideRaw) {
+        const normalized = normalizeThinkLevel(thinkingOverrideRaw);
         if (!normalized) {
           const { provider, model } = splitModelRef(resolvedModel);
           const hint = formatThinkingLevels(provider, model);
           return jsonResult({
             status: "error",
-            error: `Invalid thinking level "${thinkingCandidateRaw}". Use one of: ${hint}.`,
+            error: `Invalid thinking level "${thinkingOverrideRaw}". Use one of: ${hint}.`,
           });
         }
         thinkingOverride = normalized;
@@ -281,26 +200,6 @@ export function createSessionsSpawnTool(opts?: {
           modelWarning = messageText;
         }
       }
-      if (thinkingOverride !== undefined) {
-        try {
-          await callGateway({
-            method: "sessions.patch",
-            params: {
-              key: childSessionKey,
-              thinkingLevel: thinkingOverride === "off" ? null : thinkingOverride,
-            },
-            timeoutMs: 10_000,
-          });
-        } catch (err) {
-          const messageText =
-            err instanceof Error ? err.message : typeof err === "string" ? err : "error";
-          return jsonResult({
-            status: "error",
-            error: messageText,
-            childSessionKey,
-          });
-        }
-      }
       const childSystemPrompt = buildSubagentSystemPrompt({
         requesterSessionKey,
         requesterOrigin,
@@ -312,16 +211,12 @@ export function createSessionsSpawnTool(opts?: {
       const childIdem = crypto.randomUUID();
       let childRunId: string = childIdem;
       try {
-        const response = await callGateway<{ runId: string }>({
+        const response = (await callGateway({
           method: "agent",
           params: {
             message: task,
             sessionKey: childSessionKey,
             channel: requesterOrigin?.channel,
-            to: requesterOrigin?.to ?? undefined,
-            accountId: requesterOrigin?.accountId ?? undefined,
-            threadId:
-              requesterOrigin?.threadId != null ? String(requesterOrigin.threadId) : undefined,
             idempotencyKey: childIdem,
             deliver: false,
             lane: AGENT_LANE_SUBAGENT,
@@ -335,7 +230,7 @@ export function createSessionsSpawnTool(opts?: {
             groupSpace: opts?.agentGroupSpace ?? undefined,
           },
           timeoutMs: 10_000,
-        });
+        })) as { runId?: string };
         if (typeof response?.runId === "string" && response.runId) {
           childRunId = response.runId;
         }

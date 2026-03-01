@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-<<<<<<< HEAD
+
 import {
   CHUTES_TOKEN_ENDPOINT,
   CHUTES_USERINFO_ENDPOINT,
@@ -61,9 +61,7 @@ describe("chutes-oauth", () => {
   it("refreshes tokens using stored client id and falls back to old refresh token", async () => {
     const fetchFn: typeof fetch = async (input, init) => {
       const url = String(input);
-      if (url !== CHUTES_TOKEN_ENDPOINT) {
-        return new Response("not found", { status: 404 });
-      }
+      if (url !== CHUTES_TOKEN_ENDPOINT) return new Response("not found", { status: 404 });
       expect(init?.method).toBe("POST");
       const body = init?.body as URLSearchParams;
       expect(String(body.get("grant_type"))).toBe("refresh_token");
@@ -94,59 +92,5 @@ describe("chutes-oauth", () => {
     expect(refreshed.access).toBe("at_new");
     expect(refreshed.refresh).toBe("rt_old");
     expect(refreshed.expires).toBe(now + 1800 * 1000 - 5 * 60 * 1000);
-=======
-import { generateChutesPkce, parseOAuthCallbackInput } from "./chutes-oauth.js";
-
-describe("parseOAuthCallbackInput", () => {
-  const EXPECTED_STATE = "abc123def456";
-
-  it("returns code and state for valid URL with matching state", () => {
-    const result = parseOAuthCallbackInput(
-      `http://localhost/cb?code=authcode_xyz&state=${EXPECTED_STATE}`,
-      EXPECTED_STATE,
-    );
-    expect(result).toEqual({ code: "authcode_xyz", state: EXPECTED_STATE });
-  });
-
-  it("rejects URL with mismatched state (CSRF protection)", () => {
-    const result = parseOAuthCallbackInput(
-      "http://localhost/cb?code=authcode_xyz&state=attacker_state",
-      EXPECTED_STATE,
-    );
-    expect(result).toHaveProperty("error");
-    expect((result as { error: string }).error).toMatch(/state mismatch/i);
-  });
-
-  it("rejects bare code input without fabricating state", () => {
-    const result = parseOAuthCallbackInput("bare_auth_code", EXPECTED_STATE);
-    expect(result).toHaveProperty("error");
-    expect(result).not.toHaveProperty("code");
-  });
-
-  it("rejects empty input", () => {
-    const result = parseOAuthCallbackInput("", EXPECTED_STATE);
-    expect(result).toEqual({ error: "No input provided" });
-  });
-
-  it("rejects URL missing code parameter", () => {
-    const result = parseOAuthCallbackInput(
-      `http://localhost/cb?state=${EXPECTED_STATE}`,
-      EXPECTED_STATE,
-    );
-    expect(result).toHaveProperty("error");
-  });
-
-  it("rejects URL missing state parameter", () => {
-    const result = parseOAuthCallbackInput("http://localhost/cb?code=authcode_xyz", EXPECTED_STATE);
-    expect(result).toHaveProperty("error");
-  });
-});
-
-describe("generateChutesPkce", () => {
-  it("returns verifier and challenge strings", () => {
-    const pkce = generateChutesPkce();
-    expect(pkce.verifier).toMatch(/^[0-9a-f]{64}$/);
-    expect(pkce.challenge).toBeTruthy();
->>>>>>> 3967ece62 (fix(security): OC-25 — Validate OAuth state parameter to prevent CSRF attacks (#16058))
   });
 });

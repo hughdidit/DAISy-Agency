@@ -1,41 +1,28 @@
 import type { AgentEvent } from "@mariozechner/pi-agent-core";
-import type { EmbeddedPiSubscribeContext } from "./pi-embedded-subscribe.handlers.types.js";
+
 import { emitAgentEvent } from "../infra/agent-events.js";
-import { getGlobalHookRunner } from "../plugins/hook-runner-global.js";
 import { normalizeTextForComparison } from "./pi-embedded-helpers.js";
 import { isMessagingTool, isMessagingToolSendAction } from "./pi-embedded-messaging.js";
+import type { EmbeddedPiSubscribeContext } from "./pi-embedded-subscribe.handlers.types.js";
 import {
-  extractMessagingToolSend,
   extractToolErrorMessage,
   extractToolResultText,
-  filterToolResultMediaUrls,
+  extractMessagingToolSend,
   isToolResultError,
   sanitizeToolResult,
 } from "./pi-embedded-subscribe.tools.js";
 import { inferToolMetaFromArgs } from "./pi-embedded-utils.js";
 import { normalizeToolName } from "./tool-policy.js";
 
-/** Track tool execution start times and args for after_tool_call hook */
-const toolStartData = new Map<string, { startTime: number; args: unknown }>();
 function extendExecMeta(toolName: string, args: unknown, meta?: string): string | undefined {
   const normalized = toolName.trim().toLowerCase();
-  if (normalized !== "exec" && normalized !== "bash") {
-    return meta;
-  }
-  if (!args || typeof args !== "object") {
-    return meta;
-  }
+  if (normalized !== "exec" && normalized !== "bash") return meta;
+  if (!args || typeof args !== "object") return meta;
   const record = args as Record<string, unknown>;
   const flags: string[] = [];
-  if (record.pty === true) {
-    flags.push("pty");
-  }
-  if (record.elevated === true) {
-    flags.push("elevated");
-  }
-  if (flags.length === 0) {
-    return meta;
-  }
+  if (record.pty === true) flags.push("pty");
+  if (record.elevated === true) flags.push("elevated");
+  if (flags.length === 0) return meta;
   const suffix = flags.join(" · ");
   return meta ? `${meta} · ${suffix}` : suffix;
 }
@@ -54,9 +41,6 @@ export async function handleToolExecutionStart(
   const toolName = normalizeToolName(rawToolName);
   const toolCallId = String(evt.toolCallId);
   const args = evt.args;
-
-  // Track start time and args for after_tool_call hook
-  toolStartData.set(toolCallId, { startTime: Date.now(), args });
 
   if (toolName === "read") {
     const record = args && typeof args === "object" ? (args as Record<string, unknown>) : {};
@@ -232,54 +216,5 @@ export function handleToolExecutionEnd(
     if (outputText) {
       ctx.emitToolOutput(toolName, meta, outputText);
     }
-  }
-
-<<<<<<< HEAD
-=======
-  // Deliver media from tool results when the verbose emitToolOutput path is off.
-  // When shouldEmitToolOutput() is true, emitToolOutput already delivers media
-  // via parseReplyDirectives (MEDIA: text extraction), so skip to avoid duplicates.
-  if (ctx.params.onToolResult && !isToolError && !ctx.shouldEmitToolOutput()) {
-    const mediaPaths = filterToolResultMediaUrls(toolName, extractToolResultMediaPaths(result));
-    if (mediaPaths.length > 0) {
-      try {
-        void ctx.params.onToolResult({ mediaUrls: mediaPaths });
-      } catch {
-        // ignore delivery failures
-      }
-    }
-  }
-
->>>>>>> c37843924 (Security: harden tool media paths)
-  // Run after_tool_call plugin hook (fire-and-forget)
-  const hookRunner = getGlobalHookRunner();
-  if (hookRunner?.hasHooks("after_tool_call")) {
-    const startData = toolStartData.get(toolCallId);
-    toolStartData.delete(toolCallId);
-    const durationMs = startData?.startTime != null ? Date.now() - startData.startTime : undefined;
-    const toolArgs = startData?.args;
-    void hookRunner
-      .runAfterToolCall(
-        {
-          toolName,
-          params: (toolArgs && typeof toolArgs === "object" ? toolArgs : {}) as Record<
-            string,
-            unknown
-          >,
-          result: sanitizedResult,
-          error: isToolError ? extractToolErrorMessage(sanitizedResult) : undefined,
-          durationMs,
-        },
-        {
-          toolName,
-          agentId: undefined,
-          sessionKey: undefined,
-        },
-      )
-      .catch((err) => {
-        ctx.log.warn(`after_tool_call hook failed: tool=${toolName} error=${String(err)}`);
-      });
-  } else {
-    toolStartData.delete(toolCallId);
   }
 }

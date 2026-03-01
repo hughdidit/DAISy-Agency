@@ -1,37 +1,37 @@
-import { createJiti } from "jiti";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import type { OpenClawConfig } from "../config/config.js";
+import { createJiti } from "jiti";
+
+import type { MoltbotConfig } from "../config/config.js";
 import type { GatewayRequestHandler } from "../gateway/server-methods/types.js";
-import type {
-  OpenClawPluginDefinition,
-  OpenClawPluginModule,
-  PluginDiagnostic,
-  PluginLogger,
-} from "./types.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
-import { isPathInsideWithRealpath } from "../security/scan-paths.js";
 import { resolveUserPath } from "../utils.js";
-import { clearPluginCommands } from "./commands.js";
+import { discoverMoltbotPlugins } from "./discovery.js";
+import { loadPluginManifestRegistry } from "./manifest-registry.js";
 import {
   normalizePluginsConfig,
   resolveEnableState,
   resolveMemorySlotDecision,
   type NormalizedPluginsConfig,
 } from "./config-state.js";
-import { discoverOpenClawPlugins } from "./discovery.js";
 import { initializeGlobalHookRunner } from "./hook-runner-global.js";
-import { loadPluginManifestRegistry } from "./manifest-registry.js";
+import { clearPluginCommands } from "./commands.js";
 import { createPluginRegistry, type PluginRecord, type PluginRegistry } from "./registry.js";
-import { setActivePluginRegistry } from "./runtime.js";
 import { createPluginRuntime } from "./runtime/index.js";
+import { setActivePluginRegistry } from "./runtime.js";
 import { validateJsonSchemaValue } from "./schema-validator.js";
+import type {
+  MoltbotPluginDefinition,
+  MoltbotPluginModule,
+  PluginDiagnostic,
+  PluginLogger,
+} from "./types.js";
 
 export type PluginLoadResult = PluginRegistry;
 
 export type PluginLoadOptions = {
-  config?: OpenClawConfig;
+  config?: MoltbotConfig;
   workspaceDir?: string;
   logger?: PluginLogger;
   coreGatewayHandlers?: Record<string, GatewayRequestHandler>;
@@ -43,51 +43,23 @@ const registryCache = new Map<string, PluginRegistry>();
 
 const defaultLogger = () => createSubsystemLogger("plugins");
 
-<<<<<<< HEAD
 const resolvePluginSdkAlias = (): string | null => {
-=======
-const resolvePluginSdkAliasFile = (params: {
-  srcFile: string;
-  distFile: string;
-  modulePath?: string;
-}): string | null => {
->>>>>>> a7d56e355 (feat: ACP thread-bound agents (#23580))
   try {
-    const modulePath = params.modulePath ?? fileURLToPath(import.meta.url);
-    const isProduction = process.env.NODE_ENV === "production";
-    const isTest = process.env.VITEST || process.env.NODE_ENV === "test";
-    const normalizedModulePath = modulePath.replace(/\\/g, "/");
-    const isDistRuntime = normalizedModulePath.includes("/dist/");
+    const modulePath = fileURLToPath(import.meta.url);
+    const isDistRuntime = modulePath.split(path.sep).includes("dist");
+    const preferDist = process.env.VITEST || process.env.NODE_ENV === "test" || isDistRuntime;
     let cursor = path.dirname(modulePath);
     for (let i = 0; i < 6; i += 1) {
-<<<<<<< HEAD
       const srcCandidate = path.join(cursor, "src", "plugin-sdk", "index.ts");
       const distCandidate = path.join(cursor, "dist", "plugin-sdk", "index.js");
-      const orderedCandidates = isProduction
-        ? isTest
-          ? [distCandidate, srcCandidate]
-          : [distCandidate]
-        : [srcCandidate, distCandidate];
-=======
-      const srcCandidate = path.join(cursor, "src", "plugin-sdk", params.srcFile);
-      const distCandidate = path.join(cursor, "dist", "plugin-sdk", params.distFile);
-      const orderedCandidates = isDistRuntime
+      const orderedCandidates = preferDist
         ? [distCandidate, srcCandidate]
-        : isProduction
-          ? isTest
-            ? [distCandidate, srcCandidate]
-            : [distCandidate]
-          : [srcCandidate, distCandidate];
->>>>>>> a7d56e355 (feat: ACP thread-bound agents (#23580))
+        : [srcCandidate, distCandidate];
       for (const candidate of orderedCandidates) {
-        if (fs.existsSync(candidate)) {
-          return candidate;
-        }
+        if (fs.existsSync(candidate)) return candidate;
       }
       const parent = path.dirname(cursor);
-      if (parent === cursor) {
-        break;
-      }
+      if (parent === cursor) break;
       cursor = parent;
     }
   } catch {
@@ -96,20 +68,6 @@ const resolvePluginSdkAliasFile = (params: {
   return null;
 };
 
-<<<<<<< HEAD
-=======
-const resolvePluginSdkAlias = (): string | null =>
-  resolvePluginSdkAliasFile({ srcFile: "index.ts", distFile: "index.js" });
-
-const resolvePluginSdkAccountIdAlias = (): string | null => {
-  return resolvePluginSdkAliasFile({ srcFile: "account-id.ts", distFile: "account-id.js" });
-};
-
-export const __testing = {
-  resolvePluginSdkAliasFile,
-};
-
->>>>>>> a7d56e355 (feat: ACP thread-bound agents (#23580))
 function buildCacheKey(params: {
   workspaceDir?: string;
   plugins: NormalizedPluginsConfig;
@@ -140,8 +98,8 @@ function validatePluginConfig(params: {
 }
 
 function resolvePluginModuleExport(moduleExport: unknown): {
-  definition?: OpenClawPluginDefinition;
-  register?: OpenClawPluginDefinition["register"];
+  definition?: MoltbotPluginDefinition;
+  register?: MoltbotPluginDefinition["register"];
 } {
   const resolved =
     moduleExport &&
@@ -151,11 +109,11 @@ function resolvePluginModuleExport(moduleExport: unknown): {
       : moduleExport;
   if (typeof resolved === "function") {
     return {
-      register: resolved as OpenClawPluginDefinition["register"],
+      register: resolved as MoltbotPluginDefinition["register"],
     };
   }
   if (resolved && typeof resolved === "object") {
-    const def = resolved as OpenClawPluginDefinition;
+    const def = resolved as MoltbotPluginDefinition;
     const register = def.register ?? def.activate;
     return { definition: def, register };
   }
@@ -203,7 +161,7 @@ function pushDiagnostics(diagnostics: PluginDiagnostic[], append: PluginDiagnost
   diagnostics.push(...append);
 }
 
-export function loadOpenClawPlugins(options: PluginLoadOptions = {}): PluginRegistry {
+export function loadMoltbotPlugins(options: PluginLoadOptions = {}): PluginRegistry {
   const cfg = options.config ?? {};
   const logger = options.logger ?? defaultLogger();
   const validateOnly = options.mode === "validate";
@@ -231,7 +189,7 @@ export function loadOpenClawPlugins(options: PluginLoadOptions = {}): PluginRegi
     coreGatewayHandlers: options.coreGatewayHandlers as Record<string, GatewayRequestHandler>,
   });
 
-  const discovery = discoverOpenClawPlugins({
+  const discovery = discoverMoltbotPlugins({
     workspaceDir: options.workspaceDir,
     extraPaths: normalized.loadPaths,
   });
@@ -250,7 +208,10 @@ export function loadOpenClawPlugins(options: PluginLoadOptions = {}): PluginRegi
     extensions: [".ts", ".tsx", ".mts", ".cts", ".mtsx", ".ctsx", ".js", ".mjs", ".cjs", ".json"],
     ...(pluginSdkAlias
       ? {
-          alias: { "openclaw/plugin-sdk": pluginSdkAlias },
+          alias: {
+            "clawdbot/plugin-sdk": pluginSdkAlias,
+            "moltbot/plugin-sdk": pluginSdkAlias,
+          },
         }
       : {}),
   });
@@ -328,27 +289,9 @@ export function loadOpenClawPlugins(options: PluginLoadOptions = {}): PluginRegi
       continue;
     }
 
-    if (
-      !isPathInsideWithRealpath(candidate.rootDir, candidate.source, {
-        requireRealpath: true,
-      })
-    ) {
-      record.status = "error";
-      record.error = "plugin entry path escapes plugin root";
-      registry.plugins.push(record);
-      seenIds.set(pluginId, candidate.origin);
-      registry.diagnostics.push({
-        level: "error",
-        pluginId: record.id,
-        source: record.source,
-        message: record.error,
-      });
-      continue;
-    }
-
-    let mod: OpenClawPluginModule | null = null;
+    let mod: MoltbotPluginModule | null = null;
     try {
-      mod = jiti(candidate.source) as OpenClawPluginModule;
+      mod = jiti(candidate.source) as MoltbotPluginModule;
     } catch (err) {
       logger.error(`[plugins] ${record.id} failed to load from ${record.source}: ${String(err)}`);
       record.status = "error";
@@ -465,7 +408,7 @@ export function loadOpenClawPlugins(options: PluginLoadOptions = {}): PluginRegi
 
     try {
       const result = register(api);
-      if (result && typeof result.then === "function") {
+      if (result && typeof (result as Promise<void>).then === "function") {
         registry.diagnostics.push({
           level: "warn",
           pluginId: record.id,

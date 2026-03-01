@@ -1,73 +1,8 @@
 import { describe, expect, it } from "vitest";
+
 import { authorizeGatewayConnect } from "./auth.js";
 
 describe("gateway auth", () => {
-<<<<<<< HEAD
-=======
-  it("resolves token/password from OPENCLAW gateway env vars", () => {
-    expect(
-      resolveGatewayAuth({
-        authConfig: {},
-        env: {
-          OPENCLAW_GATEWAY_TOKEN: "env-token",
-          OPENCLAW_GATEWAY_PASSWORD: "env-password",
-        } as NodeJS.ProcessEnv,
-      }),
-    ).toMatchObject({
-      mode: "password",
-      modeSource: "password",
-      token: "env-token",
-      password: "env-password",
-    });
-  });
-
-  it("does not resolve legacy CLAWDBOT gateway env vars", () => {
-    expect(
-      resolveGatewayAuth({
-        authConfig: {},
-        env: {
-          CLAWDBOT_GATEWAY_TOKEN: "legacy-token",
-          CLAWDBOT_GATEWAY_PASSWORD: "legacy-password",
-        } as NodeJS.ProcessEnv,
-      }),
-    ).toMatchObject({
-      mode: "token",
-      modeSource: "default",
-      token: undefined,
-      password: undefined,
-    });
-  });
-
-  it("resolves explicit auth mode none from config", () => {
-    expect(
-      resolveGatewayAuth({
-        authConfig: { mode: "none" },
-        env: {} as NodeJS.ProcessEnv,
-      }),
-    ).toMatchObject({
-      mode: "none",
-      modeSource: "config",
-      token: undefined,
-      password: undefined,
-    });
-  });
-
-  it("marks mode source as override when runtime mode override is provided", () => {
-    expect(
-      resolveGatewayAuth({
-        authConfig: { mode: "password", password: "config-password" },
-        authOverride: { mode: "token" },
-        env: {} as NodeJS.ProcessEnv,
-      }),
-    ).toMatchObject({
-      mode: "token",
-      modeSource: "override",
-      token: undefined,
-      password: "config-password",
-    });
-  });
-
->>>>>>> c5698caca (Security: default gateway auth bootstrap and explicit mode none (#20686))
   it("does not throw when req is missing socket", async () => {
     const res = await authorizeGatewayConnect({
       auth: { mode: "token", token: "secret", allowTailscale: false },
@@ -101,34 +36,6 @@ describe("gateway auth", () => {
     });
     expect(res.ok).toBe(false);
     expect(res.reason).toBe("token_missing_config");
-  });
-
-  it("allows explicit auth mode none", async () => {
-    const res = await authorizeGatewayConnect({
-      auth: { mode: "none", allowTailscale: false },
-      connectAuth: null,
-    });
-    expect(res.ok).toBe(true);
-    expect(res.method).toBe("none");
-  });
-
-  it("keeps none mode authoritative even when token is present", async () => {
-    const auth = resolveGatewayAuth({
-      authConfig: { mode: "none", token: "configured-token" },
-      env: {} as NodeJS.ProcessEnv,
-    });
-    expect(auth).toMatchObject({
-      mode: "none",
-      modeSource: "config",
-      token: "configured-token",
-    });
-
-    const res = await authorizeGatewayConnect({
-      auth,
-      connectAuth: null,
-    });
-    expect(res.ok).toBe(true);
-    expect(res.method).toBe("none");
   });
 
   it("reports missing and mismatched password reasons", async () => {

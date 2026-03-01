@@ -1,12 +1,3 @@
-import type { OpenClawConfig } from "../config/types.js";
-import type { GatewayDaemonRuntime } from "./daemon-runtime.js";
-import { formatCliCommand } from "../cli/command-format.js";
-<<<<<<< HEAD
-import { collectConfigEnvVars } from "../config/env-vars.js";
-=======
-import { collectConfigServiceEnvVars } from "../config/env-vars.js";
-import type { OpenClawConfig } from "../config/types.js";
->>>>>>> f202e7307 (refactor(security): centralize host env policy and harden env ingestion)
 import { resolveGatewayLaunchAgentLabel } from "../daemon/constants.js";
 import { resolveGatewayProgramArguments } from "../daemon/program-args.js";
 import {
@@ -15,6 +6,10 @@ import {
   resolveSystemNodeInfo,
 } from "../daemon/runtime-paths.js";
 import { buildServiceEnvironment } from "../daemon/service-env.js";
+import { formatCliCommand } from "../cli/command-format.js";
+import { collectConfigEnvVars } from "../config/env-vars.js";
+import type { MoltbotConfig } from "../config/types.js";
+import type { GatewayDaemonRuntime } from "./daemon-runtime.js";
 
 type WarnFn = (message: string, title?: string) => void;
 
@@ -39,7 +34,7 @@ export async function buildGatewayInstallPlan(params: {
   nodePath?: string;
   warn?: WarnFn;
   /** Full config to extract env vars from (env vars + inline env keys). */
-  config?: OpenClawConfig;
+  config?: MoltbotConfig;
 }): Promise<GatewayInstallPlan> {
   const devMode = params.devMode ?? resolveGatewayDevMode();
   const nodePath =
@@ -57,9 +52,7 @@ export async function buildGatewayInstallPlan(params: {
   if (params.runtime === "node") {
     const systemNode = await resolveSystemNodeInfo({ env: params.env });
     const warning = renderSystemNodeWarning(systemNode, programArguments[0]);
-    if (warning) {
-      params.warn?.(warning, "Gateway runtime");
-    }
+    if (warning) params.warn?.(warning, "Gateway runtime");
   }
   const serviceEnvironment = buildServiceEnvironment({
     env: params.env,
@@ -67,14 +60,14 @@ export async function buildGatewayInstallPlan(params: {
     token: params.token,
     launchdLabel:
       process.platform === "darwin"
-        ? resolveGatewayLaunchAgentLabel(params.env.OPENCLAW_PROFILE)
+        ? resolveGatewayLaunchAgentLabel(params.env.CLAWDBOT_PROFILE)
         : undefined,
   });
 
   // Merge config env vars into the service environment (vars + inline env keys).
   // Config env vars are added first so service-specific vars take precedence.
   const environment: Record<string, string | undefined> = {
-    ...collectConfigServiceEnvVars(params.config),
+    ...collectConfigEnvVars(params.config),
   };
   Object.assign(environment, serviceEnvironment);
 
@@ -84,5 +77,5 @@ export async function buildGatewayInstallPlan(params: {
 export function gatewayInstallErrorHint(platform = process.platform): string {
   return platform === "win32"
     ? "Tip: rerun from an elevated PowerShell (Start → type PowerShell → right-click → Run as administrator) or skip service install."
-    : `Tip: rerun \`${formatCliCommand("openclaw gateway install")}\` after fixing the error.`;
+    : `Tip: rerun \`${formatCliCommand("moltbot gateway install")}\` after fixing the error.`;
 }

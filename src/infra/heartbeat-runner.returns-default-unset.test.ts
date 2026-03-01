@@ -2,33 +2,30 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { OpenClawConfig } from "../config/config.js";
-import { telegramPlugin } from "../../extensions/telegram/src/channel.js";
-import { setTelegramRuntime } from "../../extensions/telegram/src/runtime.js";
-import { whatsappPlugin } from "../../extensions/whatsapp/src/channel.js";
-import { setWhatsAppRuntime } from "../../extensions/whatsapp/src/runtime.js";
 import { HEARTBEAT_PROMPT } from "../auto-reply/heartbeat.js";
 import * as replyModule from "../auto-reply/reply.js";
+import type { MoltbotConfig } from "../config/config.js";
 import {
   resolveAgentIdFromSessionKey,
   resolveAgentMainSessionKey,
   resolveMainSessionKey,
   resolveStorePath,
 } from "../config/sessions.js";
-import { setActivePluginRegistry } from "../plugins/runtime.js";
-import { createPluginRuntime } from "../plugins/runtime/index.js";
 import { buildAgentPeerSessionKey } from "../routing/session-key.js";
-import { createTestRegistry } from "../test-utils/channel-plugins.js";
 import {
   isHeartbeatEnabledForAgent,
   resolveHeartbeatIntervalMs,
   resolveHeartbeatPrompt,
   runHeartbeatOnce,
 } from "./heartbeat-runner.js";
-import {
-  resolveHeartbeatDeliveryTarget,
-  resolveHeartbeatSenderContext,
-} from "./outbound/targets.js";
+import { resolveHeartbeatDeliveryTarget } from "./outbound/targets.js";
+import { setActivePluginRegistry } from "../plugins/runtime.js";
+import { createPluginRuntime } from "../plugins/runtime/index.js";
+import { createTestRegistry } from "../test-utils/channel-plugins.js";
+import { telegramPlugin } from "../../extensions/telegram/src/channel.js";
+import { whatsappPlugin } from "../../extensions/whatsapp/src/channel.js";
+import { setTelegramRuntime } from "../../extensions/telegram/src/runtime.js";
+import { setWhatsAppRuntime } from "../../extensions/whatsapp/src/runtime.js";
 
 // Avoid pulling optional runtime deps during isolated runs.
 vi.mock("jiti", () => ({ createJiti: () => () => ({}) }));
@@ -93,25 +90,21 @@ describe("resolveHeartbeatIntervalMs", () => {
 });
 
 describe("resolveHeartbeatPrompt", () => {
-  it("uses default or trimmed override prompts", () => {
-    const cases = [
-      { cfg: {} as OpenClawConfig, expected: HEARTBEAT_PROMPT },
-      {
-        cfg: {
-          agents: { defaults: { heartbeat: { prompt: "  ping  " } } },
-        } as OpenClawConfig,
-        expected: "ping",
-      },
-    ] as const;
-    for (const testCase of cases) {
-      expect(resolveHeartbeatPrompt(testCase.cfg)).toBe(testCase.expected);
-    }
+  it("uses the default prompt when unset", () => {
+    expect(resolveHeartbeatPrompt({})).toBe(HEARTBEAT_PROMPT);
+  });
+
+  it("uses a trimmed override when configured", () => {
+    const cfg: MoltbotConfig = {
+      agents: { defaults: { heartbeat: { prompt: "  ping  " } } },
+    };
+    expect(resolveHeartbeatPrompt(cfg)).toBe("ping");
   });
 });
 
 describe("isHeartbeatEnabledForAgent", () => {
   it("enables only explicit heartbeat agents when configured", () => {
-    const cfg: OpenClawConfig = {
+    const cfg: MoltbotConfig = {
       agents: {
         defaults: { heartbeat: { every: "30m" } },
         list: [{ id: "main" }, { id: "ops", heartbeat: { every: "1h" } }],
@@ -122,7 +115,7 @@ describe("isHeartbeatEnabledForAgent", () => {
   });
 
   it("falls back to default agent when no explicit heartbeat entries", () => {
-    const cfg: OpenClawConfig = {
+    const cfg: MoltbotConfig = {
       agents: {
         defaults: { heartbeat: { every: "30m" } },
         list: [{ id: "main" }, { id: "ops" }],
@@ -140,7 +133,7 @@ describe("resolveHeartbeatDeliveryTarget", () => {
   };
 
   it("respects target none", () => {
-    const cfg: OpenClawConfig = {
+    const cfg: MoltbotConfig = {
       agents: { defaults: { heartbeat: { target: "none" } } },
     };
     expect(resolveHeartbeatDeliveryTarget({ cfg, entry: baseEntry })).toEqual({
@@ -153,7 +146,7 @@ describe("resolveHeartbeatDeliveryTarget", () => {
   });
 
   it("uses last route by default", () => {
-    const cfg: OpenClawConfig = {};
+    const cfg: MoltbotConfig = {};
     const entry = {
       ...baseEntry,
       lastChannel: "whatsapp" as const,
@@ -169,7 +162,7 @@ describe("resolveHeartbeatDeliveryTarget", () => {
   });
 
   it("normalizes explicit WhatsApp targets when allowFrom is '*'", () => {
-    const cfg: OpenClawConfig = {
+    const cfg: MoltbotConfig = {
       agents: {
         defaults: {
           heartbeat: { target: "whatsapp", to: "whatsapp:(555) 123" },
@@ -187,7 +180,7 @@ describe("resolveHeartbeatDeliveryTarget", () => {
   });
 
   it("skips when last route is webchat", () => {
-    const cfg: OpenClawConfig = {};
+    const cfg: MoltbotConfig = {};
     const entry = {
       ...baseEntry,
       lastChannel: "webchat" as const,
@@ -203,7 +196,7 @@ describe("resolveHeartbeatDeliveryTarget", () => {
   });
 
   it("applies allowFrom fallback for WhatsApp targets", () => {
-    const cfg: OpenClawConfig = {
+    const cfg: MoltbotConfig = {
       agents: { defaults: { heartbeat: { target: "whatsapp", to: "+1999" } } },
       channels: { whatsapp: { allowFrom: ["+1555", "+1666"] } },
     };
@@ -223,7 +216,7 @@ describe("resolveHeartbeatDeliveryTarget", () => {
   });
 
   it("keeps WhatsApp group targets even with allowFrom set", () => {
-    const cfg: OpenClawConfig = {
+    const cfg: MoltbotConfig = {
       channels: { whatsapp: { allowFrom: ["+1555"] } },
     };
     const entry = {
@@ -241,7 +234,7 @@ describe("resolveHeartbeatDeliveryTarget", () => {
   });
 
   it("normalizes prefixed WhatsApp group targets for heartbeat delivery", () => {
-    const cfg: OpenClawConfig = {
+    const cfg: MoltbotConfig = {
       channels: { whatsapp: { allowFrom: ["+1555"] } },
     };
     const entry = {
@@ -259,7 +252,7 @@ describe("resolveHeartbeatDeliveryTarget", () => {
   });
 
   it("keeps explicit telegram targets", () => {
-    const cfg: OpenClawConfig = {
+    const cfg: MoltbotConfig = {
       agents: { defaults: { heartbeat: { target: "telegram", to: "123" } } },
     };
     expect(resolveHeartbeatDeliveryTarget({ cfg, entry: baseEntry })).toEqual({
@@ -271,73 +264,8 @@ describe("resolveHeartbeatDeliveryTarget", () => {
     });
   });
 
-<<<<<<< HEAD
-  it("uses explicit heartbeat accountId when provided", () => {
-    const cfg: OpenClawConfig = {
-      agents: {
-        defaults: {
-          heartbeat: { target: "telegram", to: "123", accountId: "work" },
-=======
-  it("parses optional telegram :topic: threadId suffix", () => {
-    const cases = [
-      { to: "-100111:topic:42", expectedTo: "-100111", expectedThreadId: 42 },
-      { to: "-100111", expectedTo: "-100111", expectedThreadId: undefined },
-    ] as const;
-    for (const testCase of cases) {
-      const cfg: OpenClawConfig = {
-        agents: {
-          defaults: {
-            heartbeat: { target: "telegram", to: testCase.to },
-          },
-        },
-      };
-      const result = resolveHeartbeatDeliveryTarget({ cfg, entry: baseEntry });
-      expect(result.channel).toBe("telegram");
-      expect(result.to).toBe(testCase.expectedTo);
-      expect(result.threadId).toBe(testCase.expectedThreadId);
-    }
-  });
-
-  it("handles explicit heartbeat accountId allow/deny", () => {
-    const cases = [
-      {
-        accountId: "work",
-        expected: {
-          channel: "telegram",
-          to: "123",
-          accountId: "work",
-          lastChannel: undefined,
-          lastAccountId: undefined,
-        },
-      },
-      {
-        accountId: "missing",
-        expected: {
-          channel: "none",
-          reason: "unknown-account",
-          accountId: "missing",
-          lastChannel: undefined,
-          lastAccountId: undefined,
-        },
-      },
-    ] as const;
-
-    for (const testCase of cases) {
-      const cfg: OpenClawConfig = {
-        agents: {
-          defaults: {
-            heartbeat: { target: "telegram", to: "123", accountId: testCase.accountId },
-          },
->>>>>>> cc2ff6894 (test: optimize gateway infra memory and security coverage)
-        },
-        channels: { telegram: { accounts: { work: { botToken: "token" } } } },
-      };
-      expect(resolveHeartbeatDeliveryTarget({ cfg, entry: baseEntry })).toEqual(testCase.expected);
-    }
-  });
-
   it("prefers per-agent heartbeat overrides when provided", () => {
-    const cfg: OpenClawConfig = {
+    const cfg: MoltbotConfig = {
       agents: { defaults: { heartbeat: { target: "telegram", to: "123" } } },
     };
     const heartbeat = { target: "whatsapp", to: "+1555" } as const;
@@ -357,42 +285,9 @@ describe("resolveHeartbeatDeliveryTarget", () => {
   });
 });
 
-describe("resolveHeartbeatSenderContext", () => {
-  it("prefers delivery accountId for allowFrom resolution", () => {
-    const cfg: OpenClawConfig = {
-      channels: {
-        telegram: {
-          allowFrom: ["111"],
-          accounts: {
-            work: { allowFrom: ["222"], botToken: "token" },
-          },
-        },
-      },
-    };
-    const entry = {
-      sessionId: "sid",
-      updatedAt: Date.now(),
-      lastChannel: "telegram" as const,
-      lastTo: "111",
-      lastAccountId: "default",
-    };
-    const delivery = {
-      channel: "telegram" as const,
-      to: "999",
-      accountId: "work",
-      lastChannel: "telegram" as const,
-      lastAccountId: "default",
-    };
-
-    const ctx = resolveHeartbeatSenderContext({ cfg, entry, delivery });
-
-    expect(ctx.allowFrom).toEqual(["222"]);
-  });
-});
-
 describe("runHeartbeatOnce", () => {
   it("skips when agent heartbeat is not enabled", async () => {
-    const cfg: OpenClawConfig = {
+    const cfg: MoltbotConfig = {
       agents: {
         defaults: { heartbeat: { every: "30m" } },
         list: [{ id: "main" }, { id: "ops", heartbeat: { every: "1h" } }],
@@ -407,7 +302,7 @@ describe("runHeartbeatOnce", () => {
   });
 
   it("skips outside active hours", async () => {
-    const cfg: OpenClawConfig = {
+    const cfg: MoltbotConfig = {
       agents: {
         defaults: {
           userTimezone: "UTC",
@@ -431,11 +326,11 @@ describe("runHeartbeatOnce", () => {
   });
 
   it("uses the last non-empty payload for delivery", async () => {
-    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-hb-"));
+    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-hb-"));
     const storePath = path.join(tmpDir, "sessions.json");
     const replySpy = vi.spyOn(replyModule, "getReplyFromConfig");
     try {
-      const cfg: OpenClawConfig = {
+      const cfg: MoltbotConfig = {
         agents: {
           defaults: {
             workspace: tmpDir,
@@ -489,11 +384,11 @@ describe("runHeartbeatOnce", () => {
   });
 
   it("uses per-agent heartbeat overrides and session keys", async () => {
-    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-hb-"));
+    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-hb-"));
     const storePath = path.join(tmpDir, "sessions.json");
     const replySpy = vi.spyOn(replyModule, "getReplyFromConfig");
     try {
-      const cfg: OpenClawConfig = {
+      const cfg: MoltbotConfig = {
         agents: {
           defaults: {
             heartbeat: { every: "30m", prompt: "Default prompt" },
@@ -559,12 +454,12 @@ describe("runHeartbeatOnce", () => {
   });
 
   it("runs heartbeats in the explicit session key when configured", async () => {
-    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-hb-"));
+    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-hb-"));
     const storePath = path.join(tmpDir, "sessions.json");
     const replySpy = vi.spyOn(replyModule, "getReplyFromConfig");
     try {
       const groupId = "120363401234567890@g.us";
-      const cfg: OpenClawConfig = {
+      const cfg: MoltbotConfig = {
         agents: {
           defaults: {
             workspace: tmpDir,
@@ -642,11 +537,11 @@ describe("runHeartbeatOnce", () => {
   });
 
   it("suppresses duplicate heartbeat payloads within 24h", async () => {
-    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-hb-"));
+    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-hb-"));
     const storePath = path.join(tmpDir, "sessions.json");
     const replySpy = vi.spyOn(replyModule, "getReplyFromConfig");
     try {
-      const cfg: OpenClawConfig = {
+      const cfg: MoltbotConfig = {
         agents: {
           defaults: {
             workspace: tmpDir,
@@ -698,11 +593,11 @@ describe("runHeartbeatOnce", () => {
   });
 
   it("can include reasoning payloads when enabled", async () => {
-    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-hb-"));
+    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-hb-"));
     const storePath = path.join(tmpDir, "sessions.json");
     const replySpy = vi.spyOn(replyModule, "getReplyFromConfig");
     try {
-      const cfg: OpenClawConfig = {
+      const cfg: MoltbotConfig = {
         agents: {
           defaults: {
             workspace: tmpDir,
@@ -770,11 +665,11 @@ describe("runHeartbeatOnce", () => {
   });
 
   it("delivers reasoning even when the main heartbeat reply is HEARTBEAT_OK", async () => {
-    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-hb-"));
+    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-hb-"));
     const storePath = path.join(tmpDir, "sessions.json");
     const replySpy = vi.spyOn(replyModule, "getReplyFromConfig");
     try {
-      const cfg: OpenClawConfig = {
+      const cfg: MoltbotConfig = {
         agents: {
           defaults: {
             workspace: tmpDir,
@@ -841,11 +736,11 @@ describe("runHeartbeatOnce", () => {
   });
 
   it("loads the default agent session from templated stores", async () => {
-    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-hb-"));
+    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-hb-"));
     const storeTemplate = path.join(tmpDir, "agents", "{agentId}", "sessions.json");
     const replySpy = vi.spyOn(replyModule, "getReplyFromConfig");
     try {
-      const cfg: OpenClawConfig = {
+      const cfg: MoltbotConfig = {
         agents: {
           defaults: { workspace: tmpDir, heartbeat: { every: "5m" } },
           list: [{ id: "work", default: true }],
@@ -905,7 +800,7 @@ describe("runHeartbeatOnce", () => {
   });
 
   it("skips heartbeat when HEARTBEAT.md is effectively empty (saves API calls)", async () => {
-    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-hb-"));
+    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-hb-"));
     const storePath = path.join(tmpDir, "sessions.json");
     const workspaceDir = path.join(tmpDir, "workspace");
     const replySpy = vi.spyOn(replyModule, "getReplyFromConfig");
@@ -919,7 +814,7 @@ describe("runHeartbeatOnce", () => {
         "utf-8",
       );
 
-      const cfg: OpenClawConfig = {
+      const cfg: MoltbotConfig = {
         agents: {
           defaults: {
             workspace: workspaceDir,
@@ -977,7 +872,7 @@ describe("runHeartbeatOnce", () => {
   });
 
   it("runs heartbeat when HEARTBEAT.md has actionable content", async () => {
-    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-hb-"));
+    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-hb-"));
     const storePath = path.join(tmpDir, "sessions.json");
     const workspaceDir = path.join(tmpDir, "workspace");
     const replySpy = vi.spyOn(replyModule, "getReplyFromConfig");
@@ -991,7 +886,7 @@ describe("runHeartbeatOnce", () => {
         "utf-8",
       );
 
-      const cfg: OpenClawConfig = {
+      const cfg: MoltbotConfig = {
         agents: {
           defaults: {
             workspace: workspaceDir,
@@ -1047,7 +942,7 @@ describe("runHeartbeatOnce", () => {
   });
 
   it("runs heartbeat when HEARTBEAT.md does not exist (lets LLM decide)", async () => {
-    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-hb-"));
+    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-hb-"));
     const storePath = path.join(tmpDir, "sessions.json");
     const workspaceDir = path.join(tmpDir, "workspace");
     const replySpy = vi.spyOn(replyModule, "getReplyFromConfig");
@@ -1055,7 +950,7 @@ describe("runHeartbeatOnce", () => {
       await fs.mkdir(workspaceDir, { recursive: true });
       // Don't create HEARTBEAT.md - it doesn't exist
 
-      const cfg: OpenClawConfig = {
+      const cfg: MoltbotConfig = {
         agents: {
           defaults: {
             workspace: workspaceDir,

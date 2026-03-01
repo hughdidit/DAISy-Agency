@@ -7,30 +7,30 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 const tempDirs: string[] = [];
 
 function makeTempDir() {
-  const dir = path.join(os.tmpdir(), `openclaw-plugins-${randomUUID()}`);
+  const dir = path.join(os.tmpdir(), `moltbot-plugins-${randomUUID()}`);
   fs.mkdirSync(dir, { recursive: true });
   tempDirs.push(dir);
   return dir;
 }
 
 async function withStateDir<T>(stateDir: string, fn: () => Promise<T>) {
-  const prev = process.env.OPENCLAW_STATE_DIR;
-  const prevBundled = process.env.OPENCLAW_BUNDLED_PLUGINS_DIR;
-  process.env.OPENCLAW_STATE_DIR = stateDir;
-  process.env.OPENCLAW_BUNDLED_PLUGINS_DIR = "/nonexistent/bundled/plugins";
+  const prev = process.env.CLAWDBOT_STATE_DIR;
+  const prevBundled = process.env.CLAWDBOT_BUNDLED_PLUGINS_DIR;
+  process.env.CLAWDBOT_STATE_DIR = stateDir;
+  process.env.CLAWDBOT_BUNDLED_PLUGINS_DIR = "/nonexistent/bundled/plugins";
   vi.resetModules();
   try {
     return await fn();
   } finally {
     if (prev === undefined) {
-      delete process.env.OPENCLAW_STATE_DIR;
+      delete process.env.CLAWDBOT_STATE_DIR;
     } else {
-      process.env.OPENCLAW_STATE_DIR = prev;
+      process.env.CLAWDBOT_STATE_DIR = prev;
     }
     if (prevBundled === undefined) {
-      delete process.env.OPENCLAW_BUNDLED_PLUGINS_DIR;
+      delete process.env.CLAWDBOT_BUNDLED_PLUGINS_DIR;
     } else {
-      process.env.OPENCLAW_BUNDLED_PLUGINS_DIR = prevBundled;
+      process.env.CLAWDBOT_BUNDLED_PLUGINS_DIR = prevBundled;
     }
     vi.resetModules();
   }
@@ -46,7 +46,7 @@ afterEach(() => {
   }
 });
 
-describe("discoverOpenClawPlugins", () => {
+describe("discoverMoltbotPlugins", () => {
   it("discovers global and workspace extensions", async () => {
     const stateDir = makeTempDir();
     const workspaceDir = path.join(stateDir, "workspace");
@@ -55,13 +55,13 @@ describe("discoverOpenClawPlugins", () => {
     fs.mkdirSync(globalExt, { recursive: true });
     fs.writeFileSync(path.join(globalExt, "alpha.ts"), "export default function () {}", "utf-8");
 
-    const workspaceExt = path.join(workspaceDir, ".openclaw", "extensions");
+    const workspaceExt = path.join(workspaceDir, ".clawdbot", "extensions");
     fs.mkdirSync(workspaceExt, { recursive: true });
     fs.writeFileSync(path.join(workspaceExt, "beta.ts"), "export default function () {}", "utf-8");
 
     const { candidates } = await withStateDir(stateDir, async () => {
-      const { discoverOpenClawPlugins } = await import("./discovery.js");
-      return discoverOpenClawPlugins({ workspaceDir });
+      const { discoverMoltbotPlugins } = await import("./discovery.js");
+      return discoverMoltbotPlugins({ workspaceDir });
     });
 
     const ids = candidates.map((c) => c.idHint);
@@ -78,7 +78,7 @@ describe("discoverOpenClawPlugins", () => {
       path.join(globalExt, "package.json"),
       JSON.stringify({
         name: "pack",
-        openclaw: { extensions: ["./src/one.ts", "./src/two.ts"] },
+        moltbot: { extensions: ["./src/one.ts", "./src/two.ts"] },
       }),
       "utf-8",
     );
@@ -94,8 +94,8 @@ describe("discoverOpenClawPlugins", () => {
     );
 
     const { candidates } = await withStateDir(stateDir, async () => {
-      const { discoverOpenClawPlugins } = await import("./discovery.js");
-      return discoverOpenClawPlugins({});
+      const { discoverMoltbotPlugins } = await import("./discovery.js");
+      return discoverMoltbotPlugins({});
     });
 
     const ids = candidates.map((c) => c.idHint);
@@ -111,8 +111,8 @@ describe("discoverOpenClawPlugins", () => {
     fs.writeFileSync(
       path.join(globalExt, "package.json"),
       JSON.stringify({
-        name: "@openclaw/voice-call",
-        openclaw: { extensions: ["./src/index.ts"] },
+        name: "@moltbot/voice-call",
+        moltbot: { extensions: ["./src/index.ts"] },
       }),
       "utf-8",
     );
@@ -123,8 +123,8 @@ describe("discoverOpenClawPlugins", () => {
     );
 
     const { candidates } = await withStateDir(stateDir, async () => {
-      const { discoverOpenClawPlugins } = await import("./discovery.js");
-      return discoverOpenClawPlugins({});
+      const { discoverMoltbotPlugins } = await import("./discovery.js");
+      return discoverMoltbotPlugins({});
     });
 
     const ids = candidates.map((c) => c.idHint);
@@ -139,121 +139,19 @@ describe("discoverOpenClawPlugins", () => {
     fs.writeFileSync(
       path.join(packDir, "package.json"),
       JSON.stringify({
-        name: "@openclaw/demo-plugin-dir",
-        openclaw: { extensions: ["./index.js"] },
+        name: "@moltbot/demo-plugin-dir",
+        moltbot: { extensions: ["./index.js"] },
       }),
       "utf-8",
     );
     fs.writeFileSync(path.join(packDir, "index.js"), "module.exports = {}", "utf-8");
 
     const { candidates } = await withStateDir(stateDir, async () => {
-      const { discoverOpenClawPlugins } = await import("./discovery.js");
-      return discoverOpenClawPlugins({ extraPaths: [packDir] });
+      const { discoverMoltbotPlugins } = await import("./discovery.js");
+      return discoverMoltbotPlugins({ extraPaths: [packDir] });
     });
 
     const ids = candidates.map((c) => c.idHint);
     expect(ids).toContain("demo-plugin-dir");
   });
-<<<<<<< HEAD
-=======
-  it("blocks extension entries that escape package directory", async () => {
-    const stateDir = makeTempDir();
-    const globalExt = path.join(stateDir, "extensions", "escape-pack");
-    const outside = path.join(stateDir, "outside.js");
-    fs.mkdirSync(globalExt, { recursive: true });
-
-    fs.writeFileSync(
-      path.join(globalExt, "package.json"),
-      JSON.stringify({
-        name: "@openclaw/escape-pack",
-        openclaw: { extensions: ["../../outside.js"] },
-      }),
-      "utf-8",
-    );
-    fs.writeFileSync(outside, "export default function () {}", "utf-8");
-
-    const result = await withStateDir(stateDir, async () => {
-      return discoverOpenClawPlugins({});
-    });
-
-    expect(result.candidates).toHaveLength(0);
-    expect(
-      result.diagnostics.some((diag) => diag.message.includes("escapes package directory")),
-    ).toBe(true);
-  });
-
-  it("rejects package extension entries that escape via symlink", async () => {
-    const stateDir = makeTempDir();
-    const globalExt = path.join(stateDir, "extensions", "pack");
-    const outsideDir = path.join(stateDir, "outside");
-    const linkedDir = path.join(globalExt, "linked");
-    fs.mkdirSync(globalExt, { recursive: true });
-    fs.mkdirSync(outsideDir, { recursive: true });
-    fs.writeFileSync(path.join(outsideDir, "escape.ts"), "export default {}", "utf-8");
-    try {
-      fs.symlinkSync(outsideDir, linkedDir, process.platform === "win32" ? "junction" : "dir");
-    } catch {
-      return;
-    }
-
-    fs.writeFileSync(
-      path.join(globalExt, "package.json"),
-      JSON.stringify({
-        name: "@openclaw/pack",
-        openclaw: { extensions: ["./linked/escape.ts"] },
-      }),
-      "utf-8",
-    );
-
-    const { candidates, diagnostics } = await withStateDir(stateDir, async () => {
-      return discoverOpenClawPlugins({});
-    });
-
-    expect(candidates.some((candidate) => candidate.idHint === "pack")).toBe(false);
-    expect(diagnostics.some((entry) => entry.message.includes("escapes package directory"))).toBe(
-      true,
-    );
-  });
-
-  it.runIf(process.platform !== "win32")("blocks world-writable plugin paths", async () => {
-    const stateDir = makeTempDir();
-    const globalExt = path.join(stateDir, "extensions");
-    fs.mkdirSync(globalExt, { recursive: true });
-    const pluginPath = path.join(globalExt, "world-open.ts");
-    fs.writeFileSync(pluginPath, "export default function () {}", "utf-8");
-    fs.chmodSync(pluginPath, 0o777);
-
-    const result = await withStateDir(stateDir, async () => {
-      return discoverOpenClawPlugins({});
-    });
-
-    expect(result.candidates).toHaveLength(0);
-    expect(result.diagnostics.some((diag) => diag.message.includes("world-writable path"))).toBe(
-      true,
-    );
-  });
-
-  it.runIf(process.platform !== "win32" && typeof process.getuid === "function")(
-    "blocks suspicious ownership when uid mismatch is detected",
-    async () => {
-      const stateDir = makeTempDir();
-      const globalExt = path.join(stateDir, "extensions");
-      fs.mkdirSync(globalExt, { recursive: true });
-      fs.writeFileSync(
-        path.join(globalExt, "owner-mismatch.ts"),
-        "export default function () {}",
-        "utf-8",
-      );
-
-      const actualUid = (process as NodeJS.Process & { getuid: () => number }).getuid();
-      const result = await withStateDir(stateDir, async () => {
-        return discoverOpenClawPlugins({ ownershipUid: actualUid + 1 });
-      });
-      expect(result.candidates).toHaveLength(0);
-      expect(result.diagnostics.some((diag) => diag.message.includes("suspicious ownership"))).toBe(
-        true,
-      );
-    },
-  );
->>>>>>> 81b19aaa1 (fix(security): enforce plugin and hook path containment)
 });

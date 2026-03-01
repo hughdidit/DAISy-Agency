@@ -407,11 +407,8 @@ extension Request: Codable {
     }
 }
 
-// Shared transport settings
-public let controlSocketPath: String = {
-    let home = FileManager().homeDirectoryForCurrentUser
-    let preferred = home
-        .appendingPathComponent("Library/Application Support/OpenClaw/control.sock")
-        .path
-    return preferred
-}()
+/// Shared transport settings
+public let controlSocketPath = FileManager()
+    .homeDirectoryForCurrentUser
+    .appendingPathComponent("Library/Application Support/moltbot/control.sock")
+    .path

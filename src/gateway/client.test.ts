@@ -1,5 +1,5 @@
-import { createServer as createHttpsServer } from "node:https";
 import { createServer } from "node:net";
+import { createServer as createHttpsServer } from "node:https";
 import { afterEach, describe, expect, test } from "vitest";
 import { WebSocketServer } from "ws";
 import { rawDataToString } from "../infra/ws.js";
@@ -20,7 +20,6 @@ describe("GatewayClient", () => {
   let wss: WebSocketServer | null = null;
   let httpsServer: ReturnType<typeof createHttpsServer> | null = null;
 
-<<<<<<< HEAD
   afterEach(async () => {
     if (wss) {
       for (const client of wss.clients) {
@@ -35,110 +34,6 @@ describe("GatewayClient", () => {
       await new Promise<void>((resolve) => httpsServer?.close(() => resolve()));
       httpsServer = null;
     }
-=======
-vi.mock("../infra/device-auth-store.js", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("../infra/device-auth-store.js")>();
-  return {
-    ...actual,
-    clearDeviceAuthToken: (...args: unknown[]) => clearDeviceAuthTokenMock(...args),
-  };
-});
-
-vi.mock("../logger.js", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("../logger.js")>();
-  return {
-    ...actual,
-    logDebug: (...args: unknown[]) => logDebugMock(...args),
-  };
-});
-
-const { GatewayClient } = await import("./client.js");
-
-function getLatestWs(): MockWebSocket {
-  const ws = wsInstances.at(-1);
-  if (!ws) {
-    throw new Error("missing mock websocket instance");
-  }
-  return ws;
-}
-
-describe("GatewayClient security checks", () => {
-  beforeEach(() => {
-    wsInstances.length = 0;
-  });
-
-  it("blocks ws:// to non-loopback addresses (CWE-319)", () => {
-    const onConnectError = vi.fn();
-    const client = new GatewayClient({
-      url: "ws://remote.example.com:18789",
-      onConnectError,
-    });
-
-    client.start();
-
-    expect(onConnectError).toHaveBeenCalledWith(
-      expect.objectContaining({
-        message: expect.stringContaining("SECURITY ERROR"),
-      }),
-    );
-    expect(wsInstances.length).toBe(0); // No WebSocket created
-    client.stop();
-  });
-
-  it("handles malformed URLs gracefully without crashing", () => {
-    const onConnectError = vi.fn();
-    const client = new GatewayClient({
-      url: "not-a-valid-url",
-      onConnectError,
-    });
-
-    // Should not throw
-    expect(() => client.start()).not.toThrow();
-
-    expect(onConnectError).toHaveBeenCalledWith(
-      expect.objectContaining({
-        message: expect.stringContaining("SECURITY ERROR"),
-      }),
-    );
-    expect(wsInstances.length).toBe(0); // No WebSocket created
-    client.stop();
-  });
-
-  it("allows ws:// to loopback addresses", () => {
-    const onConnectError = vi.fn();
-    const client = new GatewayClient({
-      url: "ws://127.0.0.1:18789",
-      onConnectError,
-    });
-
-    client.start();
-
-    expect(onConnectError).not.toHaveBeenCalled();
-    expect(wsInstances.length).toBe(1); // WebSocket created
-    client.stop();
-  });
-
-  it("allows wss:// to any address", () => {
-    const onConnectError = vi.fn();
-    const client = new GatewayClient({
-      url: "wss://remote.example.com:18789",
-      onConnectError,
-    });
-
-    client.start();
-
-    expect(onConnectError).not.toHaveBeenCalled();
-    expect(wsInstances.length).toBe(1); // WebSocket created
-    client.stop();
-  });
-});
-
-describe("GatewayClient close handling", () => {
-  beforeEach(() => {
-    wsInstances.length = 0;
-    clearDeviceAuthTokenMock.mockReset();
-    logDebugMock.mockReset();
->>>>>>> 9edec67a1 (fix(security): block plaintext WebSocket connections to non-loopback addresses (#20803))
   });
 
   test("closes on missing ticks", async () => {
@@ -251,9 +146,7 @@ r1USnb+wUdA7Zoj/mQ==
     const error = await new Promise<Error>((resolve) => {
       let settled = false;
       const finish = (err: Error) => {
-        if (settled) {
-          return;
-        }
+        if (settled) return;
         settled = true;
         resolve(err);
       };

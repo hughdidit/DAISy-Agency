@@ -4,13 +4,9 @@ import { request } from "node:https";
 import os from "node:os";
 import path from "node:path";
 import { pipeline } from "node:stream/promises";
-import type { RuntimeEnv } from "../runtime.js";
-<<<<<<< HEAD
-=======
-import { extractArchive } from "../infra/archive.js";
-import { resolveBrewExecutable } from "../infra/brew.js";
->>>>>>> 3aa94afcf (fix(security): harden archive extraction (#16203))
+
 import { runCommandWithTimeout } from "../process/exec.js";
+import type { RuntimeEnv } from "../runtime.js";
 import { CONFIG_DIR } from "../utils.js";
 
 type ReleaseAsset = {
@@ -35,21 +31,7 @@ export type SignalInstallResult = {
   error?: string;
 };
 
-<<<<<<< HEAD
 function looksLikeArchive(name: string): boolean {
-=======
-/** @internal Exported for testing. */
-export async function extractSignalCliArchive(
-  archivePath: string,
-  installRoot: string,
-  timeoutMs: number,
-): Promise<void> {
-  await extractArchive({ archivePath, destDir: installRoot, timeoutMs });
-}
-
-/** @internal Exported for testing. */
-export function looksLikeArchive(name: string): boolean {
->>>>>>> 3aa94afcf (fix(security): harden archive extraction (#16203))
   return name.endsWith(".tar.gz") || name.endsWith(".tgz") || name.endsWith(".zip");
 }
 
@@ -112,9 +94,7 @@ async function downloadToFile(url: string, dest: string, maxRedirects = 5): Prom
 async function findSignalCliBinary(root: string): Promise<string | null> {
   const candidates: string[] = [];
   const enqueue = async (dir: string, depth: number) => {
-    if (depth > 3) {
-      return;
-    }
+    if (depth > 3) return;
     const entries = await fs.readdir(dir, { withFileTypes: true }).catch(() => []);
     for (const entry of entries) {
       const full = path.join(dir, entry.name);
@@ -140,7 +120,7 @@ export async function installSignalCli(runtime: RuntimeEnv): Promise<SignalInsta
   const apiUrl = "https://api.github.com/repos/AsamK/signal-cli/releases/latest";
   const response = await fetch(apiUrl, {
     headers: {
-      "User-Agent": "openclaw",
+      "User-Agent": "moltbot",
       Accept: "application/vnd.github+json",
     },
   });
@@ -166,7 +146,7 @@ export async function installSignalCli(runtime: RuntimeEnv): Promise<SignalInsta
     };
   }
 
-  const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-signal-"));
+  const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-signal-"));
   const archivePath = path.join(tmpDir, assetName);
 
   runtime.log(`Downloading signal-cli ${version} (${assetName})…`);
@@ -175,7 +155,6 @@ export async function installSignalCli(runtime: RuntimeEnv): Promise<SignalInsta
   const installRoot = path.join(CONFIG_DIR, "tools", "signal-cli", version);
   await fs.mkdir(installRoot, { recursive: true });
 
-<<<<<<< HEAD
   if (assetName.endsWith(".zip")) {
     await runCommandWithTimeout(["unzip", "-q", archivePath, "-d", installRoot], {
       timeoutMs: 60_000,
@@ -186,19 +165,6 @@ export async function installSignalCli(runtime: RuntimeEnv): Promise<SignalInsta
     });
   } else {
     return { ok: false, error: `Unsupported archive type: ${assetName}` };
-=======
-  if (!looksLikeArchive(asset.name.toLowerCase())) {
-    return { ok: false, error: `Unsupported archive type: ${asset.name}` };
->>>>>>> 3aa94afcf (fix(security): harden archive extraction (#16203))
-  }
-  try {
-    await extractSignalCliArchive(archivePath, installRoot, 60_000);
-  } catch (err) {
-    const message = err instanceof Error ? err.message : String(err);
-    return {
-      ok: false,
-      error: `Failed to extract ${asset.name}: ${message}`,
-    };
   }
 
   const cliPath = await findSignalCliBinary(installRoot);

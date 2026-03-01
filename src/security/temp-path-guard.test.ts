@@ -1,55 +1,30 @@
-<<<<<<< HEAD
-import fs from "node:fs/promises";
-import path from "node:path";
-=======
->>>>>>> 57b75678d (test(security): consolidate runtime guardrail scans)
 import { describe, expect, it } from "vitest";
 import { loadRuntimeSourceFilesForGuardrails } from "../test-utils/runtime-source-guardrail-scan.js";
 
-<<<<<<< HEAD
-const DYNAMIC_TMPDIR_JOIN_RE = /path\.join\(os\.tmpdir\(\),\s*`[^`]*\$\{[^`]*`/;
-const RUNTIME_ROOTS = ["src", "extensions"];
-=======
->>>>>>> 57b75678d (test(security): consolidate runtime guardrail scans)
 const SKIP_PATTERNS = [
   /\.test\.tsx?$/,
+  /\.test-helpers\.tsx?$/,
+  /\.test-utils\.tsx?$/,
+  /\.test-harness\.tsx?$/,
   /\.e2e\.tsx?$/,
   /\.d\.ts$/,
-<<<<<<< HEAD
-  /[\\/](?:__tests__|tests)[\\/]/,
-  /[\\/]test-helpers(?:\.[^\\/]+)?\.ts$/,
-=======
   /[\\/](?:__tests__|tests|test-utils)[\\/]/,
   /[\\/][^\\/]*test-helpers(?:\.[^\\/]+)?\.ts$/,
   /[\\/][^\\/]*test-utils(?:\.[^\\/]+)?\.ts$/,
   /[\\/][^\\/]*test-harness(?:\.[^\\/]+)?\.ts$/,
->>>>>>> 57b75678d (test(security): consolidate runtime guardrail scans)
 ];
+
+type QuoteChar = "'" | '"' | "`";
+
+type QuoteScanState = {
+  quote: QuoteChar | null;
+  escaped: boolean;
+};
 
 function shouldSkip(relativePath: string): boolean {
   return SKIP_PATTERNS.some((pattern) => pattern.test(relativePath));
 }
 
-<<<<<<< HEAD
-async function listTsFiles(dir: string): Promise<string[]> {
-  const entries = await fs.readdir(dir, { withFileTypes: true });
-  const out: string[] = [];
-  for (const entry of entries) {
-    if (entry.name === "node_modules" || entry.name === "dist" || entry.name.startsWith(".")) {
-      continue;
-    }
-    const fullPath = path.join(dir, entry.name);
-    if (entry.isDirectory()) {
-      out.push(...(await listTsFiles(fullPath)));
-      continue;
-    }
-    if (!entry.isFile()) {
-      continue;
-    }
-    if (fullPath.endsWith(".ts") || fullPath.endsWith(".tsx")) {
-      out.push(fullPath);
-    }
-=======
 function stripCommentsForScan(input: string): string {
   return input.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "$1");
 }
@@ -142,29 +117,10 @@ function splitTopLevelArguments(source: string): string[] {
   }
   if (current.trim()) {
     out.push(current.trim());
->>>>>>> 57b75678d (test(security): consolidate runtime guardrail scans)
   }
   return out;
 }
 
-<<<<<<< HEAD
-describe("temp path guard", () => {
-  it("blocks dynamic template path.join(os.tmpdir(), ...) in runtime source files", async () => {
-    const repoRoot = process.cwd();
-    const offenders: string[] = [];
-
-    for (const root of RUNTIME_ROOTS) {
-      const absRoot = path.join(repoRoot, root);
-      const files = await listTsFiles(absRoot);
-      for (const file of files) {
-        const relativePath = path.relative(repoRoot, file);
-        if (shouldSkip(relativePath)) {
-          continue;
-        }
-        const source = await fs.readFile(file, "utf-8");
-        if (DYNAMIC_TMPDIR_JOIN_RE.test(source)) {
-          offenders.push(relativePath);
-=======
 function beginQuotedSection(state: QuoteScanState, ch: string): boolean {
   if (ch !== "'" && ch !== '"' && ch !== "`") {
     return false;
@@ -285,7 +241,6 @@ describe("temp path guard", () => {
             continue;
           }
           weakRandomMatches.push(`${relativePath}:${idx + 1}`);
->>>>>>> 57b75678d (test(security): consolidate runtime guardrail scans)
         }
       }
     }

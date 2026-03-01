@@ -1,18 +1,19 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+
 import sharp from "sharp";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import * as ssrf from "../infra/net/ssrf.js";
+import { afterEach, describe, expect, it, vi } from "vitest";
+
 import { optimizeImageToPng } from "../media/image-ops.js";
-import { loadWebMedia, loadWebMediaRaw, optimizeImageToJpeg } from "./media.js";
+import { loadWebMedia, optimizeImageToJpeg } from "./media.js";
 
 const tmpFiles: string[] = [];
 
 async function writeTempFile(buffer: Buffer, ext: string): Promise<string> {
   const file = path.join(
     os.tmpdir(),
-    `openclaw-media-${Date.now()}-${Math.random().toString(16).slice(2)}${ext}`,
+    `moltbot-media-${Date.now()}-${Math.random().toString(16).slice(2)}${ext}`,
   );
   tmpFiles.push(file);
   await fs.writeFile(file, buffer);
@@ -32,42 +33,9 @@ function buildDeterministicBytes(length: number): Buffer {
 afterEach(async () => {
   await Promise.all(tmpFiles.map((file) => fs.rm(file, { force: true })));
   tmpFiles.length = 0;
-  vi.restoreAllMocks();
 });
 
 describe("web media loading", () => {
-<<<<<<< HEAD
-  beforeEach(() => {
-=======
-  beforeAll(() => {
-    // Ensure state dir is stable and not influenced by other tests that stub OPENCLAW_STATE_DIR.
-    // Also keep it outside the OpenClaw temp root so default localRoots doesn't accidentally make all state readable.
-    stateDirSnapshot = captureEnv(["OPENCLAW_STATE_DIR"]);
-    process.env.OPENCLAW_STATE_DIR = path.join(
-      path.parse(os.tmpdir()).root,
-      "var",
-      "lib",
-      "openclaw-media-state-test",
-    );
-  });
-
-  afterAll(() => {
-    stateDirSnapshot.restore();
-  });
-
-  beforeAll(() => {
->>>>>>> c37843924 (Security: harden tool media paths)
-    vi.spyOn(ssrf, "resolvePinnedHostname").mockImplementation(async (hostname) => {
-      const normalized = hostname.trim().toLowerCase().replace(/\.$/, "");
-      const addresses = ["93.184.216.34"];
-      return {
-        hostname: normalized,
-        addresses,
-        lookup: ssrf.createPinnedLookup({ hostname: normalized, addresses }),
-      };
-    });
-  });
-
   it("compresses large local images under the provided cap", async () => {
     const buffer = await sharp({
       create: {
@@ -140,22 +108,6 @@ describe("web media loading", () => {
     fetchMock.mockRestore();
   });
 
-  it("respects maxBytes for raw URL fetches", async () => {
-    const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValueOnce({
-      ok: true,
-      body: true,
-      arrayBuffer: async () => Buffer.alloc(2048).buffer,
-      headers: { get: () => "image/png" },
-      status: 200,
-    } as Response);
-
-    await expect(loadWebMediaRaw("https://example.com/too-big.png", 1024)).rejects.toThrow(
-      /exceeds maxBytes 1024/i,
-    );
-
-    fetchMock.mockRestore();
-  });
-
   it("uses content-disposition filename when available", async () => {
     const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValueOnce({
       ok: true,
@@ -166,9 +118,7 @@ describe("web media loading", () => {
           if (name === "content-disposition") {
             return 'attachment; filename="report.pdf"';
           }
-          if (name === "content-type") {
-            return "application/pdf";
-          }
+          if (name === "content-type") return "application/pdf";
           return null;
         },
       },

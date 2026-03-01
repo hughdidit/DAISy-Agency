@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>OpenClaw</string>
+	<string>Moltbot</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIconName</key>
@@ -17,119 +17,32 @@
 	<key>CFBundleName</key>
 	<string>$(PRODUCT_NAME)</string>
 	<key>CFBundlePackageType</key>
-<<<<<<< HEAD
-<<<<<<< HEAD
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-	<string>2026.2.6</string>
+	<string>2026.1.27-beta.1</string>
 	<key>CFBundleVersion</key>
-<<<<<<< HEAD
-<<<<<<< HEAD
-	<string>20260202</string>
-=======
-	<string>20260217</string>
->>>>>>> 9a2c39419 (chore(release): bump version to 2026.2.17)
-=======
-	<string>20260218</string>
->>>>>>> 4bf333883 (chore: bump version to 2026.2.18 unreleased)
-=======
-	<string>2026.2.19</string>
-=======
-	<string>2026.2.20</string>
->>>>>>> f66b23de7 (chore(release): bump versions to 2026.2.20)
-=======
-	<string>2026.2.21</string>
->>>>>>> 9231d7d30 (chore: bump version to 2026.2.21)
-=======
-	<string>2026.2.23</string>
->>>>>>> 558a0137b (chore(release): bump versions to 2026.2.23)
-=======
-	<string>2026.2.24</string>
->>>>>>> 2bad30b4d (chore(release): bump version to 2026.2.24)
-=======
-	<string>2026.2.26</string>
->>>>>>> caace61ba (chore: bump versions to 2026.2.26)
-=======
-	<string>2026.2.27</string>
->>>>>>> fe807e4be (chore(release): bump 2026.2.27 and split changelog)
-	<key>CFBundleURLTypes</key>
-	<array>
-		<dict>
-			<key>CFBundleURLName</key>
-			<string>ai.openclaw.ios</string>
-			<key>CFBundleURLSchemes</key>
-			<array>
-				<string>openclaw</string>
-			</array>
-		</dict>
-	</array>
-	<key>CFBundleVersion</key>
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-	<string>20260219</string>
->>>>>>> b0e55283d (chore: bump release metadata to 2026.2.19)
-=======
-	<string>20260220</string>
->>>>>>> f66b23de7 (chore(release): bump versions to 2026.2.20)
-=======
-	<string>20260223</string>
->>>>>>> 558a0137b (chore(release): bump versions to 2026.2.23)
-=======
-	<string>20260226</string>
->>>>>>> caace61ba (chore: bump versions to 2026.2.26)
-=======
-	<string>20260227</string>
->>>>>>> fe807e4be (chore(release): bump 2026.2.27 and split changelog)
+	<string>20260126</string>
 	<key>NSAppTransportSecurity</key>
 	<dict>
-=======
-		<string>APPL</string>
-		<key>CFBundleShortVersionString</key>
-		<string>2026.2.14</string>
-		<key>CFBundleVersion</key>
-		<string>20260214</string>
-		<key>NSAppTransportSecurity</key>
-		<dict>
->>>>>>> 1872d0c59 (chore: bump version to 2026.2.10)
 		<key>NSAllowsArbitraryLoadsInWebContent</key>
 		<true/>
-=======
-			<string>APPL</string>
-			<key>CFBundleShortVersionString</key>
-			<string>2026.2.16</string>
-			<key>CFBundleVersion</key>
-			<string>20260216</string>
-			<key>NSAppTransportSecurity</key>
-			<dict>
-			<key>NSAllowsArbitraryLoadsInWebContent</key>
-			<true/>
->>>>>>> 379b44558 (chore: bump version to 2026.2.15)
 	</dict>
 	<key>NSBonjourServices</key>
 	<array>
-		<string>_openclaw-gw._tcp</string>
+		<string>_moltbot-gw._tcp</string>
 	</array>
 	<key>NSCameraUsageDescription</key>
-	<string>OpenClaw can capture photos or short video clips when requested via the gateway.</string>
+	<string>Moltbot can capture photos or short video clips when requested via the gateway.</string>
 	<key>NSLocalNetworkUsageDescription</key>
-	<string>OpenClaw discovers and connects to your OpenClaw gateway on the local network.</string>
+	<string>Moltbot discovers and connects to your Moltbot gateway on the local network.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>OpenClaw can share your location in the background when you enable Always.</string>
+	<string>Moltbot can share your location in the background when you enable Always.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>OpenClaw uses your location when you allow location sharing.</string>
+	<string>Moltbot uses your location when you allow location sharing.</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>OpenClaw needs microphone access for voice wake.</string>
+	<string>Moltbot needs microphone access for voice wake.</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
-	<string>OpenClaw uses on-device speech recognition for voice wake.</string>
+	<string>Moltbot uses on-device speech recognition for voice wake.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

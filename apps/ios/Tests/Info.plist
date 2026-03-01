@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>OpenClawTests</string>
+	<string>MoltbotTests</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -15,41 +15,10 @@
 	<key>CFBundleName</key>
 	<string>$(PRODUCT_NAME)</string>
 	<key>CFBundlePackageType</key>
-<<<<<<< HEAD
-<<<<<<< HEAD
 	<string>BNDL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>2026.2.6</string>
+	<string>2026.1.27-beta.1</string>
 	<key>CFBundleVersion</key>
-	<string>20260202</string>
+	<string>20260126</string>
 </dict>
-=======
-		<string>BNDL</string>
-		<key>CFBundleShortVersionString</key>
-		<string>2026.2.14</string>
-		<key>CFBundleVersion</key>
-		<string>20260214</string>
-	</dict>
->>>>>>> 1872d0c59 (chore: bump version to 2026.2.10)
 </plist>
-=======
-			<string>BNDL</string>
-			<key>CFBundleShortVersionString</key>
-<<<<<<< HEAD
-<<<<<<< HEAD
-			<string>2026.2.24</string>
-			<key>CFBundleVersion</key>
-			<string>20260223</string>
-=======
-			<string>2026.2.26</string>
-			<key>CFBundleVersion</key>
-			<string>20260226</string>
->>>>>>> caace61ba (chore: bump versions to 2026.2.26)
-=======
-			<string>2026.2.27</string>
-			<key>CFBundleVersion</key>
-			<string>20260227</string>
->>>>>>> fe807e4be (chore(release): bump 2026.2.27 and split changelog)
-		</dict>
-	</plist>
->>>>>>> 379b44558 (chore: bump version to 2026.2.15)

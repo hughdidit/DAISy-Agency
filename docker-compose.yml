@@ -8,23 +8,35 @@ services:
       CLAUDE_AI_SESSION_KEY: ${CLAUDE_AI_SESSION_KEY}
       CLAUDE_WEB_SESSION_KEY: ${CLAUDE_WEB_SESSION_KEY}
       CLAUDE_WEB_COOKIE: ${CLAUDE_WEB_COOKIE}
+      DISCORD_BOT_TOKEN: ${DISCORD_BOT_TOKEN}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      CLAWDBOT_STATE_DIR: /home/node/.clawdbot
+      CLAWDBOT_GATEWAY_PORT: ${CLAWDBOT_GATEWAY_PORT}
+      CLAWDBOT_BRIDGE_PORT: ${CLAWDBOT_BRIDGE_PORT}
     volumes:
       - ${OPENCLAW_CONFIG_DIR}:/home/node/.openclaw
       - ${OPENCLAW_WORKSPACE_DIR}:/home/node/.openclaw/workspace
     ports:
-      - "${OPENCLAW_GATEWAY_PORT:-18789}:18789"
-      - "${OPENCLAW_BRIDGE_PORT:-18790}:18790"
+      - "${CLAWDBOT_GATEWAY_PORT}:${CLAWDBOT_GATEWAY_PORT}"
+      - "${CLAWDBOT_BRIDGE_PORT}:${CLAWDBOT_BRIDGE_PORT}"
     init: true
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "dist/index.js", "health", "--json", "--timeout", "10000"]
+      interval: 30s
+      timeout: 15s
+      retries: 3
+      start_period: 30s
     command:
       [
         "node",
         "dist/index.js",
         "gateway",
         "--bind",
-        "${OPENCLAW_GATEWAY_BIND:-lan}",
+        "${CLAWDBOT_GATEWAY_BIND:-loopback}",
         "--port",
-        "18789",
+        "${CLAWDBOT_GATEWAY_PORT}",
+        "--allow-unconfigured"
       ]
 
   openclaw-cli:

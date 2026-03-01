@@ -1,67 +1,9 @@
 {
-  "name": "@openclaw/matrix",
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-  "version": "2026.2.6-3",
-=======
-  "version": "2026.2.10",
->>>>>>> 1872d0c59 (chore: bump version to 2026.2.10)
-=======
-  "version": "2026.2.12",
->>>>>>> 7695b4842 (chore: bump version to 2026.2.12)
-=======
-  "version": "2026.2.14",
->>>>>>> 1ff15e60d (chore(release): bump versions to 2026.2.14)
-=======
-  "version": "2026.2.15",
->>>>>>> 379b44558 (chore: bump version to 2026.2.15)
-=======
-  "version": "2026.2.16",
->>>>>>> 39fa81dc9 (chore: bump version to 2026.2.16)
-=======
-  "version": "2026.2.17",
->>>>>>> 9a2c39419 (chore(release): bump version to 2026.2.17)
-=======
-  "version": "2026.2.18",
->>>>>>> 4bf333883 (chore: bump version to 2026.2.18 unreleased)
-=======
-  "version": "2026.2.19",
->>>>>>> b0e55283d (chore: bump release metadata to 2026.2.19)
-=======
-  "version": "2026.2.20",
->>>>>>> f66b23de7 (chore(release): bump versions to 2026.2.20)
-=======
-  "version": "2026.2.21",
->>>>>>> 9231d7d30 (chore: bump version to 2026.2.21)
-=======
-  "version": "2026.2.26",
->>>>>>> caace61ba (chore: bump versions to 2026.2.26)
-=======
-  "version": "2026.2.27",
->>>>>>> fe807e4be (chore(release): bump 2026.2.27 and split changelog)
-  "description": "OpenClaw Matrix channel plugin",
+  "name": "@moltbot/matrix",
+  "version": "2026.1.27-beta.1",
   "type": "module",
-  "dependencies": {
-    "@matrix-org/matrix-sdk-crypto-nodejs": "^0.4.0",
-    "@vector-im/matrix-bot-sdk": "0.8.0-element.3",
-    "markdown-it": "14.1.1",
-    "music-metadata": "^11.12.1",
-    "zod": "^4.3.6"
-  },
-  "devDependencies": {
-    "openclaw": "workspace:*"
-  },
-  "openclaw": {
+  "description": "Moltbot Matrix channel plugin",
+  "moltbot": {
     "extensions": [
       "./index.ts"
     ],
@@ -76,9 +18,19 @@
       "quickstartAllowFrom": true
     },
     "install": {
-      "npmSpec": "@openclaw/matrix",
+      "npmSpec": "@moltbot/matrix",
       "localPath": "extensions/matrix",
       "defaultChoice": "npm"
     }
+  },
+  "dependencies": {
+    "@matrix-org/matrix-sdk-crypto-nodejs": "^0.4.0",
+    "markdown-it": "14.1.0",
+    "@vector-im/matrix-bot-sdk": "0.8.0-element.3",
+    "music-metadata": "^11.10.6",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "moltbot": "workspace:*"
   }
 }

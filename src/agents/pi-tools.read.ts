@@ -1,19 +1,8 @@
-<<<<<<< HEAD
 import type { AgentToolResult } from "@mariozechner/pi-agent-core";
 import { createEditTool, createReadTool, createWriteTool } from "@mariozechner/pi-coding-agent";
-=======
-import fs from "node:fs/promises";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
-import type { AgentToolResult } from "@mariozechner/pi-agent-core";
-import { createEditTool, createReadTool, createWriteTool } from "@mariozechner/pi-coding-agent";
-import { SafeOpenError, openFileWithinRoot, writeFileWithinRoot } from "../infra/fs-safe.js";
+
 import { detectMime } from "../media/mime.js";
-import { sniffMimeFromBase64 } from "../media/sniff-mime-from-base64.js";
-import type { ImageSanitizationLimits } from "./image-sanitization.js";
->>>>>>> e3385a657 (fix(security): harden root file guards and host writes)
 import type { AnyAgentTool } from "./pi-tools.types.js";
-import { detectMime } from "../media/mime.js";
 import { assertSandboxPath } from "./sandbox-paths.js";
 import { sanitizeToolResultImages } from "./tool-images.js";
 
@@ -25,15 +14,11 @@ type TextContentBlock = Extract<ToolContentBlock, { type: "text" }>;
 
 async function sniffMimeFromBase64(base64: string): Promise<string | undefined> {
   const trimmed = base64.trim();
-  if (!trimmed) {
-    return undefined;
-  }
+  if (!trimmed) return undefined;
 
   const take = Math.min(256, trimmed.length);
   const sliceLen = take - (take % 4);
-  if (sliceLen < 8) {
-    return undefined;
-  }
+  if (sliceLen < 8) return undefined;
 
   try {
     const head = Buffer.from(trimmed.slice(0, sliceLen), "base64");
@@ -65,18 +50,14 @@ async function normalizeReadImageResult(
       typeof (b as { data?: unknown }).data === "string" &&
       typeof (b as { mimeType?: unknown }).mimeType === "string",
   );
-  if (!image) {
-    return result;
-  }
+  if (!image) return result;
 
   if (!image.data.trim()) {
     throw new Error(`read: image payload is empty (${filePath})`);
   }
 
   const sniffed = await sniffMimeFromBase64(image.data);
-  if (!sniffed) {
-    return result;
-  }
+  if (!sniffed) return result;
 
   if (!sniffed.startsWith("image/")) {
     throw new Error(
@@ -84,9 +65,7 @@ async function normalizeReadImageResult(
     );
   }
 
-  if (sniffed === image.mimeType) {
-    return result;
-  }
+  if (sniffed === image.mimeType) return result;
 
   const nextContent = content.map((block) => {
     if (block && typeof block === "object" && (block as { type?: unknown }).type === "image") {
@@ -137,9 +116,7 @@ export const CLAUDE_PARAM_GROUPS = {
 // Claude Code uses file_path/old_string/new_string while pi-coding-agent uses path/oldText/newText.
 // This prevents models trained on Claude Code from getting stuck in tool-call loops.
 export function normalizeToolParams(params: unknown): Record<string, unknown> | undefined {
-  if (!params || typeof params !== "object") {
-    return undefined;
-  }
+  if (!params || typeof params !== "object") return undefined;
   const record = params as Record<string, unknown>;
   const normalized = { ...record };
   // file_path → path (read, write, edit)
@@ -183,9 +160,7 @@ export function patchToolSchemaForClaudeCompatibility(tool: AnyAgentTool): AnyAg
   ];
 
   for (const { original, alias } of aliasPairs) {
-    if (!(original in properties)) {
-      continue;
-    }
+    if (!(original in properties)) continue;
     if (!(alias in properties)) {
       properties[alias] = properties[original];
       changed = true;
@@ -197,16 +172,14 @@ export function patchToolSchemaForClaudeCompatibility(tool: AnyAgentTool): AnyAg
     }
   }
 
-  if (!changed) {
-    return tool;
-  }
+  if (!changed) return tool;
 
   return {
     ...tool,
     parameters: {
       ...schema,
       properties,
-      required,
+      ...(required.length > 0 ? { required } : {}),
     },
   };
 }
@@ -222,16 +195,10 @@ export function assertRequiredParams(
 
   for (const group of groups) {
     const satisfied = group.keys.some((key) => {
-      if (!(key in record)) {
-        return false;
-      }
+      if (!(key in record)) return false;
       const value = record[key];
-      if (typeof value !== "string") {
-        return false;
-      }
-      if (group.allowEmpty) {
-        return true;
-      }
+      if (typeof value !== "string") return false;
+      if (group.allowEmpty) return true;
       return value.trim().length > 0;
     });
 
@@ -263,23 +230,6 @@ export function wrapToolParamNormalization(
   };
 }
 
-export function wrapToolWorkspaceRootGuard(tool: AnyAgentTool, root: string): AnyAgentTool {
-  return {
-    ...tool,
-    execute: async (toolCallId, args, signal, onUpdate) => {
-      const normalized = normalizeToolParams(args);
-      const record =
-        normalized ??
-        (args && typeof args === "object" ? (args as Record<string, unknown>) : undefined);
-      const filePath = record?.path;
-      if (typeof filePath === "string" && filePath.trim()) {
-        await assertSandboxPath({ filePath, cwd: root, root });
-      }
-      return tool.execute(toolCallId, normalized ?? args, signal, onUpdate);
-    },
-  };
-}
-
 function wrapSandboxPathGuard(tool: AnyAgentTool, root: string): AnyAgentTool {
   return {
     ...tool,
@@ -299,7 +249,7 @@ function wrapSandboxPathGuard(tool: AnyAgentTool, root: string): AnyAgentTool {
 
 export function createSandboxedReadTool(root: string) {
   const base = createReadTool(root) as unknown as AnyAgentTool;
-  return wrapSandboxPathGuard(createOpenClawReadTool(base), root);
+  return wrapSandboxPathGuard(createMoltbotReadTool(base), root);
 }
 
 export function createSandboxedWriteTool(root: string) {
@@ -307,33 +257,12 @@ export function createSandboxedWriteTool(root: string) {
   return wrapSandboxPathGuard(wrapToolParamNormalization(base, CLAUDE_PARAM_GROUPS.write), root);
 }
 
-<<<<<<< HEAD
 export function createSandboxedEditTool(root: string) {
   const base = createEditTool(root) as unknown as AnyAgentTool;
   return wrapSandboxPathGuard(wrapToolParamNormalization(base, CLAUDE_PARAM_GROUPS.edit), root);
 }
 
-export function createOpenClawReadTool(base: AnyAgentTool): AnyAgentTool {
-=======
-export function createHostWorkspaceWriteTool(root: string) {
-  const base = createWriteTool(root, {
-    operations: createHostWriteOperations(root),
-  }) as unknown as AnyAgentTool;
-  return wrapToolParamNormalization(base, CLAUDE_PARAM_GROUPS.write);
-}
-
-export function createHostWorkspaceEditTool(root: string) {
-  const base = createEditTool(root, {
-    operations: createHostEditOperations(root),
-  }) as unknown as AnyAgentTool;
-  return wrapToolParamNormalization(base, CLAUDE_PARAM_GROUPS.edit);
-}
-
-export function createOpenClawReadTool(
-  base: AnyAgentTool,
-  options?: OpenClawReadToolOptions,
-): AnyAgentTool {
->>>>>>> e3385a657 (fix(security): harden root file guards and host writes)
+export function createMoltbotReadTool(base: AnyAgentTool): AnyAgentTool {
   const patched = patchToolSchemaForClaudeCompatibility(base);
   return {
     ...patched,
@@ -343,144 +272,14 @@ export function createOpenClawReadTool(
         normalized ??
         (params && typeof params === "object" ? (params as Record<string, unknown>) : undefined);
       assertRequiredParams(record, CLAUDE_PARAM_GROUPS.read, base.name);
-      const result = await base.execute(toolCallId, normalized ?? params, signal);
+      const result = (await base.execute(
+        toolCallId,
+        normalized ?? params,
+        signal,
+      )) as AgentToolResult<unknown>;
       const filePath = typeof record?.path === "string" ? String(record.path) : "<unknown>";
       const normalizedResult = await normalizeReadImageResult(result, filePath);
       return sanitizeToolResultImages(normalizedResult, `read:${filePath}`);
     },
   };
 }
-<<<<<<< HEAD
-=======
-
-function createSandboxReadOperations(params: SandboxToolParams) {
-  return {
-    readFile: (absolutePath: string) =>
-      params.bridge.readFile({ filePath: absolutePath, cwd: params.root }),
-    access: async (absolutePath: string) => {
-      const stat = await params.bridge.stat({ filePath: absolutePath, cwd: params.root });
-      if (!stat) {
-        throw createFsAccessError("ENOENT", absolutePath);
-      }
-    },
-    detectImageMimeType: async (absolutePath: string) => {
-      const buffer = await params.bridge.readFile({ filePath: absolutePath, cwd: params.root });
-      const mime = await detectMime({ buffer, filePath: absolutePath });
-      return mime && mime.startsWith("image/") ? mime : undefined;
-    },
-  } as const;
-}
-
-function createSandboxWriteOperations(params: SandboxToolParams) {
-  return {
-    mkdir: async (dir: string) => {
-      await params.bridge.mkdirp({ filePath: dir, cwd: params.root });
-    },
-    writeFile: async (absolutePath: string, content: string) => {
-      await params.bridge.writeFile({ filePath: absolutePath, cwd: params.root, data: content });
-    },
-  } as const;
-}
-
-function createSandboxEditOperations(params: SandboxToolParams) {
-  return {
-    readFile: (absolutePath: string) =>
-      params.bridge.readFile({ filePath: absolutePath, cwd: params.root }),
-    writeFile: (absolutePath: string, content: string) =>
-      params.bridge.writeFile({ filePath: absolutePath, cwd: params.root, data: content }),
-    access: async (absolutePath: string) => {
-      const stat = await params.bridge.stat({ filePath: absolutePath, cwd: params.root });
-      if (!stat) {
-        throw createFsAccessError("ENOENT", absolutePath);
-      }
-    },
-  } as const;
-}
-
-function createHostWriteOperations(root: string) {
-  return {
-    mkdir: async (dir: string) => {
-      const relative = toRelativePathInRoot(root, dir, { allowRoot: true });
-      const resolved = relative ? path.resolve(root, relative) : path.resolve(root);
-      await assertSandboxPath({ filePath: resolved, cwd: root, root });
-      await fs.mkdir(resolved, { recursive: true });
-    },
-    writeFile: async (absolutePath: string, content: string) => {
-      const relative = toRelativePathInRoot(root, absolutePath);
-      await writeFileWithinRoot({
-        rootDir: root,
-        relativePath: relative,
-        data: content,
-        mkdir: true,
-      });
-    },
-  } as const;
-}
-
-function createHostEditOperations(root: string) {
-  return {
-    readFile: async (absolutePath: string) => {
-      const relative = toRelativePathInRoot(root, absolutePath);
-      const opened = await openFileWithinRoot({
-        rootDir: root,
-        relativePath: relative,
-      });
-      try {
-        return await opened.handle.readFile();
-      } finally {
-        await opened.handle.close().catch(() => {});
-      }
-    },
-    writeFile: async (absolutePath: string, content: string) => {
-      const relative = toRelativePathInRoot(root, absolutePath);
-      await writeFileWithinRoot({
-        rootDir: root,
-        relativePath: relative,
-        data: content,
-        mkdir: true,
-      });
-    },
-    access: async (absolutePath: string) => {
-      const relative = toRelativePathInRoot(root, absolutePath);
-      try {
-        const opened = await openFileWithinRoot({
-          rootDir: root,
-          relativePath: relative,
-        });
-        await opened.handle.close().catch(() => {});
-      } catch (error) {
-        if (error instanceof SafeOpenError && error.code === "not-found") {
-          throw createFsAccessError("ENOENT", absolutePath);
-        }
-        throw error;
-      }
-    },
-  } as const;
-}
-
-function toRelativePathInRoot(
-  root: string,
-  candidate: string,
-  options?: { allowRoot?: boolean },
-): string {
-  const rootResolved = path.resolve(root);
-  const resolved = path.resolve(candidate);
-  const relative = path.relative(rootResolved, resolved);
-  if (relative === "" || relative === ".") {
-    if (options?.allowRoot) {
-      return "";
-    }
-    throw new Error(`Path escapes workspace root: ${candidate}`);
-  }
-  if (relative.startsWith("..") || path.isAbsolute(relative)) {
-    throw new Error(`Path escapes workspace root: ${candidate}`);
-  }
-  return relative;
-}
-
-function createFsAccessError(code: string, filePath: string): NodeJS.ErrnoException {
-  const error = new Error(`Sandbox FS error (${code}): ${filePath}`) as NodeJS.ErrnoException;
-  error.code = code;
-  return error;
-}
->>>>>>> e3385a657 (fix(security): harden root file guards and host writes)

@@ -1,13 +1,9 @@
-import type { OpenClawConfig } from "../../config/config.js";
-import type { PollInput } from "../../polls.js";
 import { getChannelPlugin, normalizeChannelId } from "../../channels/plugins/index.js";
+import type { ChannelId } from "../../channels/plugins/types.js";
+import type { MoltbotConfig } from "../../config/config.js";
 import { loadConfig } from "../../config/config.js";
-<<<<<<< HEAD
 import { callGateway, randomIdempotencyKey } from "../../gateway/call.js";
-=======
-import { callGatewayLeastPrivilege, randomIdempotencyKey } from "../../gateway/call.js";
 import type { PollInput } from "../../polls.js";
->>>>>>> 2777d8ad9 (refactor(security): unify gateway scope authorization flows)
 import { normalizePollInput } from "../../polls.js";
 import {
   GATEWAY_CLIENT_MODES,
@@ -22,6 +18,7 @@ import {
   type OutboundSendDeps,
 } from "./deliver.js";
 import { normalizeReplyPayloadsForDelivery } from "./payloads.js";
+import type { OutboundChannel } from "./targets.js";
 import { resolveOutboundTarget } from "./targets.js";
 
 export type MessageGatewayOptions = {
@@ -44,7 +41,7 @@ type MessageSendParams = {
   dryRun?: boolean;
   bestEffort?: boolean;
   deps?: OutboundSendDeps;
-  cfg?: OpenClawConfig;
+  cfg?: MoltbotConfig;
   gateway?: MessageGatewayOptions;
   idempotencyKey?: string;
   mirror?: {
@@ -74,7 +71,7 @@ type MessagePollParams = {
   durationHours?: number;
   channel?: string;
   dryRun?: boolean;
-  cfg?: OpenClawConfig;
+  cfg?: MoltbotConfig;
   gateway?: MessageGatewayOptions;
   idempotencyKey?: string;
 };
@@ -98,15 +95,8 @@ export type MessagePollResult = {
 };
 
 function resolveGatewayOptions(opts?: MessageGatewayOptions) {
-  // Security: backend callers (tools/agents) must not accept user-controlled gateway URLs.
-  // Use config-derived gateway target only.
-  const url =
-    opts?.mode === GATEWAY_CLIENT_MODES.BACKEND ||
-    opts?.clientName === GATEWAY_CLIENT_NAMES.GATEWAY_CLIENT
-      ? undefined
-      : opts?.url;
   return {
-    url,
+    url: opts?.url,
     token: opts?.token,
     timeoutMs:
       typeof opts?.timeoutMs === "number" && Number.isFinite(opts.timeoutMs)
@@ -118,27 +108,6 @@ function resolveGatewayOptions(opts?: MessageGatewayOptions) {
   };
 }
 
-<<<<<<< HEAD
-=======
-async function callMessageGateway<T>(params: {
-  gateway?: MessageGatewayOptions;
-  method: string;
-  params: Record<string, unknown>;
-}): Promise<T> {
-  const gateway = resolveGatewayOptions(params.gateway);
-  return await callGatewayLeastPrivilege<T>({
-    url: gateway.url,
-    token: gateway.token,
-    method: params.method,
-    params: params.params,
-    timeoutMs: gateway.timeoutMs,
-    clientName: gateway.clientName,
-    clientDisplayName: gateway.clientDisplayName,
-    mode: gateway.mode,
-  });
-}
-
->>>>>>> 2777d8ad9 (refactor(security): unify gateway scope authorization flows)
 export async function sendMessage(params: MessageSendParams): Promise<MessageSendResult> {
   const cfg = params.cfg ?? loadConfig();
   const channel = params.channel?.trim()
@@ -147,7 +116,7 @@ export async function sendMessage(params: MessageSendParams): Promise<MessageSen
   if (!channel) {
     throw new Error(`Unknown channel: ${params.channel}`);
   }
-  const plugin = getChannelPlugin(channel);
+  const plugin = getChannelPlugin(channel as ChannelId);
   if (!plugin) {
     throw new Error(`Unknown channel: ${channel}`);
   }
@@ -180,7 +149,7 @@ export async function sendMessage(params: MessageSendParams): Promise<MessageSen
   }
 
   if (deliveryMode !== "gateway") {
-    const outboundChannel = channel;
+    const outboundChannel = channel as Exclude<OutboundChannel, "none">;
     const resolvedTarget = resolveOutboundTarget({
       channel: outboundChannel,
       to: params.to,
@@ -188,9 +157,7 @@ export async function sendMessage(params: MessageSendParams): Promise<MessageSen
       accountId: params.accountId,
       mode: "explicit",
     });
-    if (!resolvedTarget.ok) {
-      throw resolvedTarget.error;
-    }
+    if (!resolvedTarget.ok) throw resolvedTarget.error;
 
     const results = await deliverOutboundPayloads({
       cfg,
@@ -268,7 +235,7 @@ export async function sendPoll(params: MessagePollParams): Promise<MessagePollRe
     maxSelections: params.maxSelections,
     durationHours: params.durationHours,
   };
-  const plugin = getChannelPlugin(channel);
+  const plugin = getChannelPlugin(channel as ChannelId);
   const outbound = plugin?.outbound;
   if (!outbound?.sendPoll) {
     throw new Error(`Unsupported poll channel: ${channel}`);

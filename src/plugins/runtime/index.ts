@@ -1,9 +1,5 @@
 import { createRequire } from "node:module";
-import type { PluginRuntime } from "./types.js";
-import { resolveEffectiveMessagesConfig, resolveHumanDelayConfig } from "../../agents/identity.js";
-import { createMemoryGetTool, createMemorySearchTool } from "../../agents/tools/memory-tool.js";
-import { handleSlackAction } from "../../agents/tools/slack-actions.js";
-import { handleWhatsAppAction } from "../../agents/tools/whatsapp-actions.js";
+
 import {
   chunkByNewline,
   chunkMarkdownText,
@@ -20,16 +16,15 @@ import {
 } from "../../auto-reply/command-detection.js";
 import { shouldHandleTextCommands } from "../../auto-reply/commands-registry.js";
 import {
+  createInboundDebouncer,
+  resolveInboundDebounceMs,
+} from "../../auto-reply/inbound-debounce.js";
+import {
   formatAgentEnvelope,
   formatInboundEnvelope,
   resolveEnvelopeFormatOptions,
 } from "../../auto-reply/envelope.js";
-import {
-  createInboundDebouncer,
-  resolveInboundDebounceMs,
-} from "../../auto-reply/inbound-debounce.js";
 import { dispatchReplyFromConfig } from "../../auto-reply/reply/dispatch-from-config.js";
-import { finalizeInboundContext } from "../../auto-reply/reply/inbound-context.js";
 import {
   buildMentionRegexes,
   matchesMentionPatterns,
@@ -37,22 +32,26 @@ import {
 } from "../../auto-reply/reply/mentions.js";
 import { dispatchReplyWithBufferedBlockDispatcher } from "../../auto-reply/reply/provider-dispatcher.js";
 import { createReplyDispatcherWithTyping } from "../../auto-reply/reply/reply-dispatcher.js";
+import { finalizeInboundContext } from "../../auto-reply/reply/inbound-context.js";
+import { resolveEffectiveMessagesConfig, resolveHumanDelayConfig } from "../../agents/identity.js";
+import { createMemoryGetTool, createMemorySearchTool } from "../../agents/tools/memory-tool.js";
+import { handleSlackAction } from "../../agents/tools/slack-actions.js";
+import { handleWhatsAppAction } from "../../agents/tools/whatsapp-actions.js";
 import { removeAckReactionAfterReply, shouldAckReaction } from "../../channels/ack-reactions.js";
 import { resolveCommandAuthorizedFromAuthorizers } from "../../channels/command-gating.js";
+import { recordInboundSession } from "../../channels/session.js";
 import { discordMessageActions } from "../../channels/plugins/actions/discord.js";
 import { signalMessageActions } from "../../channels/plugins/actions/signal.js";
 import { telegramMessageActions } from "../../channels/plugins/actions/telegram.js";
 import { createWhatsAppLoginTool } from "../../channels/plugins/agent-tools/whatsapp-login.js";
-import { recordInboundSession } from "../../channels/session.js";
 import { monitorWebChannel } from "../../channels/web/index.js";
-import { registerMemoryCli } from "../../cli/memory-cli.js";
-import { loadConfig, writeConfigFile } from "../../config/config.js";
 import {
   resolveChannelGroupPolicy,
   resolveChannelGroupRequireMention,
 } from "../../config/group-policy.js";
 import { resolveMarkdownTableMode } from "../../config/markdown-tables.js";
 import { resolveStateDir } from "../../config/paths.js";
+import { loadConfig, writeConfigFile } from "../../config/config.js";
 import {
   readSessionUpdatedAt,
   recordSessionMetaFromInbound,
@@ -69,34 +68,15 @@ import { probeDiscord } from "../../discord/probe.js";
 import { resolveDiscordChannelAllowlist } from "../../discord/resolve-channels.js";
 import { resolveDiscordUserAllowlist } from "../../discord/resolve-users.js";
 import { sendMessageDiscord, sendPollDiscord } from "../../discord/send.js";
-import { shouldLogVerbose } from "../../globals.js";
+import { getChannelActivity, recordChannelActivity } from "../../infra/channel-activity.js";
+import { enqueueSystemEvent } from "../../infra/system-events.js";
 import { monitorIMessageProvider } from "../../imessage/monitor.js";
 import { probeIMessage } from "../../imessage/probe.js";
 import { sendMessageIMessage } from "../../imessage/send.js";
-import { getChannelActivity, recordChannelActivity } from "../../infra/channel-activity.js";
-import { enqueueSystemEvent } from "../../infra/system-events.js";
-import {
-  listLineAccountIds,
-  normalizeAccountId as normalizeLineAccountId,
-  resolveDefaultLineAccountId,
-  resolveLineAccount,
-} from "../../line/accounts.js";
-import { monitorLineProvider } from "../../line/monitor.js";
-import { probeLineBot } from "../../line/probe.js";
-import {
-  createQuickReplyItems,
-  pushMessageLine,
-  pushMessagesLine,
-  pushFlexMessage,
-  pushTemplateMessage,
-  pushLocationMessage,
-  pushTextMessageWithQuickReplies,
-  sendMessageLine,
-} from "../../line/send.js";
-import { buildTemplateMessageFromPayload } from "../../line/template-messages.js";
+import { shouldLogVerbose } from "../../globals.js";
+import { convertMarkdownTables } from "../../markdown/tables.js";
 import { getChildLogger } from "../../logging.js";
 import { normalizeLogLevel } from "../../logging/levels.js";
-import { convertMarkdownTables } from "../../markdown/tables.js";
 import { isVoiceCompatibleAudio } from "../../media/audio.js";
 import { mediaKindFromMime } from "../../media/constants.js";
 import { fetchRemoteMedia } from "../../media/fetch.js";
@@ -113,11 +93,11 @@ import { resolveAgentRoute } from "../../routing/resolve-route.js";
 import { monitorSignalProvider } from "../../signal/index.js";
 import { probeSignal } from "../../signal/probe.js";
 import { sendMessageSignal } from "../../signal/send.js";
+import { monitorSlackProvider } from "../../slack/index.js";
 import {
   listSlackDirectoryGroupsLive,
   listSlackDirectoryPeersLive,
 } from "../../slack/directory-live.js";
-import { monitorSlackProvider } from "../../slack/index.js";
 import { probeSlack } from "../../slack/probe.js";
 import { resolveSlackChannelAllowlist } from "../../slack/resolve-channels.js";
 import { resolveSlackUserAllowlist } from "../../slack/resolve-users.js";
@@ -130,7 +110,7 @@ import { monitorTelegramProvider } from "../../telegram/monitor.js";
 import { probeTelegram } from "../../telegram/probe.js";
 import { sendMessageTelegram } from "../../telegram/send.js";
 import { resolveTelegramToken } from "../../telegram/token.js";
-import { textToSpeechTelephony } from "../../tts/tts.js";
+import { loadWebMedia } from "../../web/media.js";
 import { getActiveWebListener } from "../../web/active-listener.js";
 import {
   getWebAuthAgeMs,
@@ -139,18 +119,38 @@ import {
   readWebSelfId,
   webAuthExists,
 } from "../../web/auth-store.js";
-import { startWebLoginWithQr, waitForWebLogin } from "../../web/login-qr.js";
 import { loginWeb } from "../../web/login.js";
-import { loadWebMedia } from "../../web/media.js";
+import { startWebLoginWithQr, waitForWebLogin } from "../../web/login-qr.js";
 import { sendMessageWhatsApp, sendPollWhatsApp } from "../../web/outbound.js";
+import { registerMemoryCli } from "../../cli/memory-cli.js";
 import { formatNativeDependencyHint } from "./native-deps.js";
+import { textToSpeechTelephony } from "../../tts/tts.js";
+import {
+  listLineAccountIds,
+  normalizeAccountId as normalizeLineAccountId,
+  resolveDefaultLineAccountId,
+  resolveLineAccount,
+} from "../../line/accounts.js";
+import { probeLineBot } from "../../line/probe.js";
+import {
+  createQuickReplyItems,
+  pushMessageLine,
+  pushMessagesLine,
+  pushFlexMessage,
+  pushTemplateMessage,
+  pushLocationMessage,
+  pushTextMessageWithQuickReplies,
+  sendMessageLine,
+} from "../../line/send.js";
+import { monitorLineProvider } from "../../line/monitor.js";
+import { buildTemplateMessageFromPayload } from "../../line/template-messages.js";
+
+import type { PluginRuntime } from "./types.js";
 
 let cachedVersion: string | null = null;
 
 function resolveVersion(): string {
-  if (cachedVersion) {
-    return cachedVersion;
-  }
+  if (cachedVersion) return cachedVersion;
   try {
     const require = createRequire(import.meta.url);
     const pkg = require("../../../package.json") as { version?: string };
@@ -162,112 +162,6 @@ function resolveVersion(): string {
   }
 }
 
-<<<<<<< HEAD
-=======
-const sendMessageWhatsAppLazy: PluginRuntime["channel"]["whatsapp"]["sendMessageWhatsApp"] = async (
-  ...args
-) => {
-  const { sendMessageWhatsApp } = await loadWebOutbound();
-  return sendMessageWhatsApp(...args);
-};
-
-const sendPollWhatsAppLazy: PluginRuntime["channel"]["whatsapp"]["sendPollWhatsApp"] = async (
-  ...args
-) => {
-  const { sendPollWhatsApp } = await loadWebOutbound();
-  return sendPollWhatsApp(...args);
-};
-
-const loginWebLazy: PluginRuntime["channel"]["whatsapp"]["loginWeb"] = async (...args) => {
-  const { loginWeb } = await loadWebLogin();
-  return loginWeb(...args);
-};
-
-const startWebLoginWithQrLazy: PluginRuntime["channel"]["whatsapp"]["startWebLoginWithQr"] = async (
-  ...args
-) => {
-  const { startWebLoginWithQr } = await loadWebLoginQr();
-  return startWebLoginWithQr(...args);
-};
-
-const waitForWebLoginLazy: PluginRuntime["channel"]["whatsapp"]["waitForWebLogin"] = async (
-  ...args
-) => {
-  const { waitForWebLogin } = await loadWebLoginQr();
-  return waitForWebLogin(...args);
-};
-
-const monitorWebChannelLazy: PluginRuntime["channel"]["whatsapp"]["monitorWebChannel"] = async (
-  ...args
-) => {
-  const { monitorWebChannel } = await loadWebChannel();
-  return monitorWebChannel(...args);
-};
-
-const handleWhatsAppActionLazy: PluginRuntime["channel"]["whatsapp"]["handleWhatsAppAction"] =
-  async (...args) => {
-    const { handleWhatsAppAction } = await loadWhatsAppActions();
-    return handleWhatsAppAction(...args);
-  };
-
-let webOutboundPromise: Promise<typeof import("../../web/outbound.js")> | null = null;
-let webLoginPromise: Promise<typeof import("../../web/login.js")> | null = null;
-let webLoginQrPromise: Promise<typeof import("../../web/login-qr.js")> | null = null;
-let webChannelPromise: Promise<typeof import("../../channels/web/index.js")> | null = null;
-let whatsappActionsPromise: Promise<
-  typeof import("../../agents/tools/whatsapp-actions.js")
-> | null = null;
-
-function loadWebOutbound() {
-  webOutboundPromise ??= import("../../web/outbound.js");
-  return webOutboundPromise;
-}
-
-function loadWebLogin() {
-  webLoginPromise ??= import("../../web/login.js");
-  return webLoginPromise;
-}
-
-function loadWebLoginQr() {
-  webLoginQrPromise ??= import("../../web/login-qr.js");
-  return webLoginQrPromise;
-}
-
-function loadWebChannel() {
-  webChannelPromise ??= import("../../channels/web/index.js");
-  return webChannelPromise;
-}
-
-function loadWhatsAppActions() {
-  whatsappActionsPromise ??= import("../../agents/tools/whatsapp-actions.js");
-  return whatsappActionsPromise;
-}
-
-<<<<<<< HEAD
-const RUNTIME_LEGACY_EXEC_DISABLED_ERROR =
-  "runtime.system.runCommandWithTimeout is disabled for security hardening. Use fixed-purpose runtime APIs instead.";
-
-function isLegacyPluginRuntimeExecEnabled(): boolean {
-  try {
-    return loadConfig().plugins?.runtime?.allowLegacyExec === true;
-  } catch {
-    // Fail closed if config is unreadable/invalid.
-    return false;
-  }
-}
-
-const runtimeCommandExecutionGuarded: PluginRuntime["system"]["runCommandWithTimeout"] = async (
-  ...args
-) => {
-  if (!isLegacyPluginRuntimeExecEnabled()) {
-    throw new Error(RUNTIME_LEGACY_EXEC_DISABLED_ERROR);
-  }
-  return await runCommandWithTimeout(...args);
-};
-
->>>>>>> 45db2aa0c (Security: disable plugin runtime command execution primitive (#20828))
-=======
->>>>>>> 2e421f32d (fix(security): restore trusted plugin runtime exec default)
 export function createPluginRuntime(): PluginRuntime {
   return {
     version: resolveVersion(),
@@ -275,42 +169,10 @@ export function createPluginRuntime(): PluginRuntime {
       loadConfig,
       writeConfigFile,
     },
-<<<<<<< HEAD
     system: {
       enqueueSystemEvent,
       runCommandWithTimeout,
       formatNativeDependencyHint,
-=======
-    reply: {
-      dispatchReplyWithBufferedBlockDispatcher,
-      createReplyDispatcherWithTyping,
-      resolveEffectiveMessagesConfig,
-      resolveHumanDelayConfig,
-      dispatchReplyFromConfig,
-      withReplyDispatcher,
-      finalizeInboundContext,
-      formatAgentEnvelope,
-      /** @deprecated Prefer `BodyForAgent` + structured user-context blocks (do not build plaintext envelopes for prompts). */
-      formatInboundEnvelope,
-      resolveEnvelopeFormatOptions,
-    },
-    routing: {
-      resolveAgentRoute,
-    },
-    pairing: {
-      buildPairingReply,
-      readAllowFromStore: ({ channel, accountId, env }) =>
-        readChannelAllowFromStore(channel, env, accountId),
-      upsertPairingRequest: ({ channel, id, accountId, meta, env, pairingAdapter }) =>
-        upsertChannelPairingRequest({
-          channel,
-          id,
-          accountId,
-          meta,
-          env,
-          pairingAdapter,
-        }),
->>>>>>> bce643a0b (refactor(security): enforce account-scoped pairing APIs)
     },
     media: {
       loadWebMedia,

@@ -1,12 +1,6 @@
+import type { Page } from "playwright-core";
+
 import { type AriaSnapshotNode, formatAriaSnapshot, type RawAXNode } from "./cdp.js";
-<<<<<<< HEAD
-=======
-import {
-  assertBrowserNavigationAllowed,
-  assertBrowserNavigationResultAllowed,
-  withBrowserNavigationPolicy,
-} from "./navigation-guard.js";
->>>>>>> 5eb72ab76 (fix(security): harden browser SSRF defaults and migrate legacy key)
 import {
   buildRoleSnapshotFromAiSnapshot,
   buildRoleSnapshotFromAriaSnapshot,
@@ -168,20 +162,13 @@ export async function navigateViaPlaywright(opts: {
   timeoutMs?: number;
 }): Promise<{ url: string }> {
   const url = String(opts.url ?? "").trim();
-  if (!url) {
-    throw new Error("url is required");
-  }
+  if (!url) throw new Error("url is required");
   const page = await getPageForTargetId(opts);
   ensurePageState(page);
   await page.goto(url, {
     timeout: Math.max(1000, Math.min(120_000, opts.timeoutMs ?? 20_000)),
   });
-  const finalUrl = page.url();
-  await assertBrowserNavigationResultAllowed({
-    url: finalUrl,
-    ...withBrowserNavigationPolicy(opts.ssrfPolicy),
-  });
-  return { url: finalUrl };
+  return { url: page.url() };
 }
 
 export async function resizeViewportViaPlaywright(opts: {
@@ -213,6 +200,6 @@ export async function pdfViaPlaywright(opts: {
 }): Promise<{ buffer: Buffer }> {
   const page = await getPageForTargetId(opts);
   ensurePageState(page);
-  const buffer = await page.pdf({ printBackground: true });
+  const buffer = await (page as Page).pdf({ printBackground: true });
   return { buffer };
 }

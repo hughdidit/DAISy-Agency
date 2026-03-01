@@ -1,8 +1,5 @@
+import crypto from "node:crypto";
 import fs from "node:fs";
-import type { TypingMode } from "../../config/types.js";
-import type { OriginatingChannelType, TemplateContext } from "../templating.js";
-import type { GetReplyOptions, ReplyPayload } from "../types.js";
-import type { TypingController } from "./typing.js";
 import { lookupContextTokens } from "../../agents/context.js";
 import { DEFAULT_CONTEXT_TOKENS } from "../../agents/defaults.js";
 import { resolveModelAuthMode } from "../../agents/model-auth.js";
@@ -17,15 +14,12 @@ import {
   updateSessionStore,
   updateSessionStoreEntry,
 } from "../../config/sessions.js";
-import { emitDiagnosticEvent, isDiagnosticsEnabled } from "../../infra/diagnostic-events.js";
-<<<<<<< HEAD
-=======
-import { generateSecureUuid } from "../../infra/secure-random.js";
-import { enqueueSystemEvent } from "../../infra/system-events.js";
->>>>>>> ae8d4a8ee (fix(security): harden channel token and id generation)
+import type { TypingMode } from "../../config/types.js";
 import { defaultRuntime } from "../../runtime.js";
 import { estimateUsageCost, resolveModelCostConfig } from "../../utils/usage-format.js";
+import type { OriginatingChannelType, TemplateContext } from "../templating.js";
 import { resolveResponseUsageMode, type VerboseLevel } from "../thinking.js";
+import type { GetReplyOptions, ReplyPayload } from "../types.js";
 import { runAgentTurnWithFallback } from "./agent-runner-execution.js";
 import {
   createShouldEmitToolOutput,
@@ -38,59 +32,17 @@ import { runMemoryFlushIfNeeded } from "./agent-runner-memory.js";
 import { buildReplyPayloads } from "./agent-runner-payloads.js";
 import { appendUsageLine, formatResponseUsageLine } from "./agent-runner-utils.js";
 import { createAudioAsVoiceBuffer, createBlockReplyPipeline } from "./block-reply-pipeline.js";
-import { resolveEffectiveBlockStreamingConfig } from "./block-streaming.js";
+import { resolveBlockStreamingCoalescing } from "./block-streaming.js";
 import { createFollowupRunner } from "./followup-runner.js";
-<<<<<<< HEAD
-=======
-import { resolveOriginMessageProvider, resolveOriginMessageTo } from "./origin-routing.js";
-import { readPostCompactionContext } from "./post-compaction-context.js";
-import { resolveActiveRunQueueAction } from "./queue-policy.js";
->>>>>>> 70a4f25ab (fix(security): remove post-compaction audit injection message (#28507))
 import { enqueueFollowupRun, type FollowupRun, type QueueSettings } from "./queue.js";
 import { createReplyToModeFilterForChannel, resolveReplyToMode } from "./reply-threading.js";
-import { incrementCompactionCount } from "./session-updates.js";
 import { persistSessionUsageUpdate } from "./session-usage.js";
+import { incrementCompactionCount } from "./session-updates.js";
+import type { TypingController } from "./typing.js";
 import { createTypingSignaler } from "./typing-mode.js";
+import { emitDiagnosticEvent, isDiagnosticsEnabled } from "../../infra/diagnostic-events.js";
 
 const BLOCK_REPLY_SEND_TIMEOUT_MS = 15_000;
-<<<<<<< HEAD
-=======
-const UNSCHEDULED_REMINDER_NOTE =
-  "Note: I did not schedule a reminder in this turn, so this will not trigger automatically.";
-const REMINDER_COMMITMENT_PATTERNS: RegExp[] = [
-  /\b(?:i\s*['’]?ll|i will)\s+(?:make sure to\s+)?(?:remember|remind|ping|follow up|follow-up|check back|circle back)\b/i,
-  /\b(?:i\s*['’]?ll|i will)\s+(?:set|create|schedule)\s+(?:a\s+)?reminder\b/i,
-];
-
-function hasUnbackedReminderCommitment(text: string): boolean {
-  const normalized = text.toLowerCase();
-  if (!normalized.trim()) {
-    return false;
-  }
-  if (normalized.includes(UNSCHEDULED_REMINDER_NOTE.toLowerCase())) {
-    return false;
-  }
-  return REMINDER_COMMITMENT_PATTERNS.some((pattern) => pattern.test(text));
-}
-
-function appendUnscheduledReminderNote(payloads: ReplyPayload[]): ReplyPayload[] {
-  let appended = false;
-  return payloads.map((payload) => {
-    if (appended || payload.isError || typeof payload.text !== "string") {
-      return payload;
-    }
-    if (!hasUnbackedReminderCommitment(payload.text)) {
-      return payload;
-    }
-    appended = true;
-    const trimmed = payload.text.trimEnd();
-    return {
-      ...payload,
-      text: `${trimmed}\n\n${UNSCHEDULED_REMINDER_NOTE}`,
-    };
-  });
-}
->>>>>>> 70a4f25ab (fix(security): remove post-compaction audit injection message (#28507))
 
 export async function runReplyAgent(params: {
   commandBody: string;
@@ -116,7 +68,6 @@ export async function runReplyAgent(params: {
     minChars: number;
     maxChars: number;
     breakPreference: "paragraph" | "newline" | "sentence";
-    flushOnParagraph?: boolean;
   };
   resolvedBlockStreamingBreak: "text_end" | "message_end";
   sessionCtx: TemplateContext;
@@ -190,12 +141,12 @@ export async function runReplyAgent(params: {
   const cfg = followupRun.run.config;
   const blockReplyCoalescing =
     blockStreamingEnabled && opts?.onBlockReply
-      ? resolveEffectiveBlockStreamingConfig({
+      ? resolveBlockStreamingCoalescing(
           cfg,
-          provider: sessionCtx.Provider,
-          accountId: sessionCtx.AccountId,
-          chunking: blockReplyChunking,
-        }).coalescing
+          sessionCtx.Provider,
+          sessionCtx.AccountId,
+          blockReplyChunking,
+        )
       : undefined;
   const blockReplyPipeline =
     blockStreamingEnabled && opts?.onBlockReply
@@ -285,15 +236,11 @@ export async function runReplyAgent(params: {
     buildLogMessage,
     cleanupTranscripts,
   }: SessionResetOptions): Promise<boolean> => {
-    if (!sessionKey || !activeSessionStore || !storePath) {
-      return false;
-    }
+    if (!sessionKey || !activeSessionStore || !storePath) return false;
     const prevEntry = activeSessionStore[sessionKey] ?? activeSessionEntry;
-    if (!prevEntry) {
-      return false;
-    }
+    if (!prevEntry) return false;
     const prevSessionId = cleanupTranscripts ? prevEntry.sessionId : undefined;
-    const nextSessionId = generateSecureUuid();
+    const nextSessionId = crypto.randomUUID();
     const nextEntry: SessionEntry = {
       ...prevEntry,
       sessionId: nextSessionId,
@@ -326,9 +273,7 @@ export async function runReplyAgent(params: {
     if (cleanupTranscripts && prevSessionId) {
       const transcriptCandidates = new Set<string>();
       const resolved = resolveSessionFilePath(prevSessionId, prevEntry, { agentId });
-      if (resolved) {
-        transcriptCandidates.add(resolved);
-      }
+      if (resolved) transcriptCandidates.add(resolved);
       transcriptCandidates.add(resolveSessionTranscriptPath(prevSessionId, agentId));
       for (const candidate of transcriptCandidates) {
         try {
@@ -446,9 +391,8 @@ export async function runReplyAgent(params: {
     // Drain any late tool/block deliveries before deciding there's "nothing to send".
     // Otherwise, a late typing trigger (e.g. from a tool callback) can outlive the run and
     // keep the typing indicator stuck.
-    if (payloadArray.length === 0) {
+    if (payloadArray.length === 0)
       return finalizeWithFollowup(undefined, queueKey, runFollowupTurn);
-    }
 
     const payloadResult = buildReplyPayloads({
       payloads: payloadArray,
@@ -469,9 +413,8 @@ export async function runReplyAgent(params: {
     const { replyPayloads } = payloadResult;
     didLogHeartbeatStrip = payloadResult.didLogHeartbeatStrip;
 
-    if (replyPayloads.length === 0) {
+    if (replyPayloads.length === 0)
       return finalizeWithFollowup(undefined, queueKey, runFollowupTurn);
-    }
 
     await signalTypingIfNeeded(replyPayloads, typingSignals);
 
@@ -534,9 +477,7 @@ export async function runReplyAgent(params: {
       if (formatted && responseUsageMode === "full" && sessionKey) {
         formatted = `${formatted} · session ${sessionKey}`;
       }
-      if (formatted) {
-        responseUsageLine = formatted;
-      }
+      if (formatted) responseUsageLine = formatted;
     }
 
     // If verbose is enabled and this is a new session, prepend a session hint.
@@ -549,24 +490,6 @@ export async function runReplyAgent(params: {
         sessionKey,
         storePath,
       });
-<<<<<<< HEAD
-=======
-
-      // Inject post-compaction workspace context for the next agent turn
-      if (sessionKey) {
-        const workspaceDir = process.cwd();
-        readPostCompactionContext(workspaceDir)
-          .then((contextContent) => {
-            if (contextContent) {
-              enqueueSystemEvent(contextContent, { sessionKey });
-            }
-          })
-          .catch(() => {
-            // Silent failure — post-compaction context is best-effort
-          });
-      }
-
->>>>>>> 70a4f25ab (fix(security): remove post-compaction audit injection message (#28507))
       if (verboseEnabled) {
         const suffix = typeof count === "number" ? ` (count ${count})` : "";
         finalPayloads = [{ text: `🧹 Auto-compaction complete${suffix}.` }, ...finalPayloads];

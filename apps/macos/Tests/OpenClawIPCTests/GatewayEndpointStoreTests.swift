@@ -176,12 +176,6 @@ import Testing
         #expect(host == "192.168.1.10")
     }
 
-<<<<<<< HEAD
-    @Test func normalizeGatewayUrlAddsDefaultPortForWs() {
-        let url = GatewayRemoteConfig.normalizeGatewayUrl("ws://gateway")
-        #expect(url?.port == 18789)
-        #expect(url?.absoluteString == "ws://gateway:18789")
-=======
     @Test func dashboardURLUsesLocalBasePathInLocalMode() throws {
         let config: GatewayConnection.Config = (
             url: try #require(URL(string: "ws://127.0.0.1:18789")),
@@ -238,6 +232,5 @@ import Testing
     @Test func normalizeGatewayUrlRejectsPrefixBypassLoopbackHost() {
         let url = GatewayRemoteConfig.normalizeGatewayUrl("ws://127.attacker.example")
         #expect(url == nil)
->>>>>>> 617e38cec (Security/macos: enforce wss for non-loopback direct gateway)
     }
 }

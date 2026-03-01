@@ -3,13 +3,6 @@ import os from "node:os";
 import path from "node:path";
 import { afterAll, beforeAll, beforeEach, describe, expect, test, vi } from "vitest";
 import { WebSocket } from "ws";
-import { DEFAULT_PROVIDER } from "../agents/defaults.js";
-<<<<<<< HEAD
-=======
-import { GATEWAY_CLIENT_IDS, GATEWAY_CLIENT_MODES } from "./protocol/client-info.js";
-import { startGatewayServerHarness, type GatewayServerHarness } from "./server.e2e-ws-harness.js";
-import { createToolSummaryPreviewTranscriptLines } from "./session-preview.test-helpers.js";
->>>>>>> 981d26648 (security(gateway): block webchat session mutators (#20800))
 import {
   connectOk,
   embeddedRunMock,
@@ -21,6 +14,7 @@ import {
   testState,
   writeSessionStore,
 } from "./test-helpers.js";
+import { DEFAULT_PROVIDER } from "../agents/defaults.js";
 
 const sessionCleanupMocks = vi.hoisted(() => ({
   clearSessionQueues: vi.fn(() => ({ followupCleared: 0, laneCleared: 0, keys: [] })),
@@ -54,19 +48,16 @@ let port = 0;
 let previousToken: string | undefined;
 
 beforeAll(async () => {
-  previousToken = process.env.OPENCLAW_GATEWAY_TOKEN;
-  delete process.env.OPENCLAW_GATEWAY_TOKEN;
+  previousToken = process.env.CLAWDBOT_GATEWAY_TOKEN;
+  delete process.env.CLAWDBOT_GATEWAY_TOKEN;
   port = await getFreePort();
   server = await startGatewayServer(port);
 });
 
 afterAll(async () => {
   await server.close();
-  if (previousToken === undefined) {
-    delete process.env.OPENCLAW_GATEWAY_TOKEN;
-  } else {
-    process.env.OPENCLAW_GATEWAY_TOKEN = previousToken;
-  }
+  if (previousToken === undefined) delete process.env.CLAWDBOT_GATEWAY_TOKEN;
+  else process.env.CLAWDBOT_GATEWAY_TOKEN = previousToken;
 });
 
 const openClient = async (opts?: Parameters<typeof connectOk>[1]) => {
@@ -83,7 +74,7 @@ describe("gateway server sessions", () => {
   });
 
   test("lists and patches session store via sessions.* RPC", async () => {
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-sessions-"));
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-sessions-"));
     const storePath = path.join(dir, "sessions.json");
     const now = Date.now();
     const recent = now - 30_000;
@@ -379,7 +370,7 @@ describe("gateway server sessions", () => {
   });
 
   test("sessions.preview returns transcript previews", async () => {
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-sessions-preview-"));
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-sessions-preview-"));
     const storePath = path.join(dir, "sessions.json");
     testState.sessionStorePath = storePath;
     const sessionId = "sess-preview";
@@ -424,7 +415,7 @@ describe("gateway server sessions", () => {
   });
 
   test("sessions.delete rejects main and aborts active runs", async () => {
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-sessions-"));
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-sessions-"));
     const storePath = path.join(dir, "sessions.json");
     testState.sessionStorePath = storePath;
 
@@ -473,54 +464,6 @@ describe("gateway server sessions", () => {
     );
     expect(embeddedRunMock.abortCalls).toEqual(["sess-active"]);
     expect(embeddedRunMock.waitCalls).toEqual(["sess-active"]);
-
-    ws.close();
-  });
-
-  test("webchat clients cannot patch or delete sessions", async () => {
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-sessions-webchat-"));
-    const storePath = path.join(dir, "sessions.json");
-    testState.sessionStorePath = storePath;
-
-    await writeSessionStore({
-      entries: {
-        main: {
-          sessionId: "sess-main",
-          updatedAt: Date.now(),
-        },
-        "discord:group:dev": {
-          sessionId: "sess-group",
-          updatedAt: Date.now(),
-        },
-      },
-    });
-
-    const ws = new WebSocket(`ws://127.0.0.1:${harness.port}`, {
-      headers: { origin: `http://127.0.0.1:${harness.port}` },
-    });
-    await new Promise<void>((resolve) => ws.once("open", resolve));
-    await connectOk(ws, {
-      client: {
-        id: GATEWAY_CLIENT_IDS.WEBCHAT_UI,
-        version: "1.0.0",
-        platform: "test",
-        mode: GATEWAY_CLIENT_MODES.UI,
-      },
-      scopes: ["operator.admin"],
-    });
-
-    const patched = await rpcReq(ws, "sessions.patch", {
-      key: "agent:main:discord:group:dev",
-      label: "should-fail",
-    });
-    expect(patched.ok).toBe(false);
-    expect(patched.error?.message ?? "").toMatch(/webchat clients cannot patch sessions/i);
-
-    const deleted = await rpcReq(ws, "sessions.delete", {
-      key: "agent:main:discord:group:dev",
-    });
-    expect(deleted.ok).toBe(false);
-    expect(deleted.error?.message ?? "").toMatch(/webchat clients cannot delete sessions/i);
 
     ws.close();
   });

@@ -1,11 +1,6 @@
-import type { OpenClawConfig } from "../config/config.js";
+import type { MoltbotConfig } from "../config/config.js";
 import type { IMessageAccountConfig } from "../config/types.js";
-<<<<<<< HEAD
 import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "../routing/session-key.js";
-=======
-import { resolveAccountEntry } from "../routing/account-lookup.js";
-import { normalizeAccountId } from "../routing/session-key.js";
->>>>>>> f97c0922e (fix(security): harden account-key handling against prototype pollution)
 
 export type ResolvedIMessageAccount = {
   accountId: string;
@@ -15,38 +10,34 @@ export type ResolvedIMessageAccount = {
   configured: boolean;
 };
 
-function listConfiguredAccountIds(cfg: OpenClawConfig): string[] {
+function listConfiguredAccountIds(cfg: MoltbotConfig): string[] {
   const accounts = cfg.channels?.imessage?.accounts;
-  if (!accounts || typeof accounts !== "object") {
-    return [];
-  }
+  if (!accounts || typeof accounts !== "object") return [];
   return Object.keys(accounts).filter(Boolean);
 }
 
-export function listIMessageAccountIds(cfg: OpenClawConfig): string[] {
+export function listIMessageAccountIds(cfg: MoltbotConfig): string[] {
   const ids = listConfiguredAccountIds(cfg);
-  if (ids.length === 0) {
-    return [DEFAULT_ACCOUNT_ID];
-  }
-  return ids.toSorted((a, b) => a.localeCompare(b));
+  if (ids.length === 0) return [DEFAULT_ACCOUNT_ID];
+  return ids.sort((a, b) => a.localeCompare(b));
 }
 
-export function resolveDefaultIMessageAccountId(cfg: OpenClawConfig): string {
+export function resolveDefaultIMessageAccountId(cfg: MoltbotConfig): string {
   const ids = listIMessageAccountIds(cfg);
-  if (ids.includes(DEFAULT_ACCOUNT_ID)) {
-    return DEFAULT_ACCOUNT_ID;
-  }
+  if (ids.includes(DEFAULT_ACCOUNT_ID)) return DEFAULT_ACCOUNT_ID;
   return ids[0] ?? DEFAULT_ACCOUNT_ID;
 }
 
 function resolveAccountConfig(
-  cfg: OpenClawConfig,
+  cfg: MoltbotConfig,
   accountId: string,
 ): IMessageAccountConfig | undefined {
-  return resolveAccountEntry(cfg.channels?.imessage?.accounts, accountId);
+  const accounts = cfg.channels?.imessage?.accounts;
+  if (!accounts || typeof accounts !== "object") return undefined;
+  return accounts[accountId] as IMessageAccountConfig | undefined;
 }
 
-function mergeIMessageAccountConfig(cfg: OpenClawConfig, accountId: string): IMessageAccountConfig {
+function mergeIMessageAccountConfig(cfg: MoltbotConfig, accountId: string): IMessageAccountConfig {
   const { accounts: _ignored, ...base } = (cfg.channels?.imessage ??
     {}) as IMessageAccountConfig & { accounts?: unknown };
   const account = resolveAccountConfig(cfg, accountId) ?? {};
@@ -54,7 +45,7 @@ function mergeIMessageAccountConfig(cfg: OpenClawConfig, accountId: string): IMe
 }
 
 export function resolveIMessageAccount(params: {
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   accountId?: string | null;
 }): ResolvedIMessageAccount {
   const accountId = normalizeAccountId(params.accountId);
@@ -84,7 +75,7 @@ export function resolveIMessageAccount(params: {
   };
 }
 
-export function listEnabledIMessageAccounts(cfg: OpenClawConfig): ResolvedIMessageAccount[] {
+export function listEnabledIMessageAccounts(cfg: MoltbotConfig): ResolvedIMessageAccount[] {
   return listIMessageAccountIds(cfg)
     .map((accountId) => resolveIMessageAccount({ cfg, accountId }))
     .filter((account) => account.enabled);

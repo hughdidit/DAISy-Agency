@@ -1,7 +1,9 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { MANIFEST_KEY } from "../compat/legacy-names.js";
+import { LEGACY_MANIFEST_KEY } from "../compat/legacy-names.js";
+import { runCommandWithTimeout } from "../process/exec.js";
+import { CONFIG_DIR, resolveUserPath } from "../utils.js";
 import {
   extractArchive,
   fileExists,
@@ -9,31 +11,6 @@ import {
   resolveArchiveKind,
   resolvePackedRootDir,
 } from "../infra/archive.js";
-<<<<<<< HEAD
-=======
-import { installPackageDir } from "../infra/install-package-dir.js";
-import {
-  resolveSafeInstallDir,
-  safeDirName,
-  unscopedPackageName,
-} from "../infra/install-safe-path.js";
-import {
-  type NpmIntegrityDrift,
-  type NpmSpecResolution,
-  packNpmSpecToArchive,
-  resolveArchiveSourcePath,
-  withTempDir,
-} from "../infra/install-source-utils.js";
->>>>>>> 5dc50b8a3 (fix(security): harden npm plugin and hook install integrity flow)
-import { validateRegistryNpmSpec } from "../infra/npm-registry-spec.js";
-import { runCommandWithTimeout } from "../process/exec.js";
-<<<<<<< HEAD
-import { scanDirectoryWithSummary } from "../security/skill-scanner.js";
-=======
-import { extensionUsesSkippedScannerPath, isPathInside } from "../security/scan-paths.js";
-import * as skillScanner from "../security/skill-scanner.js";
->>>>>>> b37346103 (refactor(security): share scan path helpers)
-import { CONFIG_DIR, resolveUserPath } from "../utils.js";
 
 type PluginInstallLogger = {
   info?: (message: string) => void;
@@ -44,7 +21,9 @@ type PackageManifest = {
   name?: string;
   version?: string;
   dependencies?: Record<string, string>;
-} & Partial<Record<typeof MANIFEST_KEY, { extensions?: string[] }>>;
+  moltbot?: { extensions?: string[] };
+  [LEGACY_MANIFEST_KEY]?: { extensions?: string[] };
+};
 
 export type InstallPluginResult =
   | {
@@ -54,61 +33,35 @@ export type InstallPluginResult =
       manifestName?: string;
       version?: string;
       extensions: string[];
-      npmResolution?: NpmSpecResolution;
-      integrityDrift?: NpmIntegrityDrift;
     }
   | { ok: false; error: string };
-
-export type PluginNpmIntegrityDriftParams = {
-  spec: string;
-  expectedIntegrity: string;
-  actualIntegrity: string;
-  resolution: NpmSpecResolution;
-};
 
 const defaultLogger: PluginInstallLogger = {};
 
 function unscopedPackageName(name: string): string {
   const trimmed = name.trim();
-  if (!trimmed) {
-    return trimmed;
-  }
+  if (!trimmed) return trimmed;
   return trimmed.includes("/") ? (trimmed.split("/").pop() ?? trimmed) : trimmed;
 }
 
 function safeDirName(input: string): string {
   const trimmed = input.trim();
-  if (!trimmed) {
-    return trimmed;
-  }
-  return trimmed.replaceAll("/", "__").replaceAll("\\", "__");
+  if (!trimmed) return trimmed;
+  return trimmed.replaceAll("/", "__");
 }
 
 function safeFileName(input: string): string {
   return safeDirName(input);
 }
 
-function validatePluginId(pluginId: string): string | null {
-  if (!pluginId) {
-    return "invalid plugin name: missing";
-  }
-  if (pluginId === "." || pluginId === "..") {
-    return "invalid plugin name: reserved path segment";
-  }
-  if (pluginId.includes("/") || pluginId.includes("\\")) {
-    return "invalid plugin name: path separators not allowed";
-  }
-  return null;
-}
-
-async function ensureOpenClawExtensions(manifest: PackageManifest) {
-  const extensions = manifest[MANIFEST_KEY]?.extensions;
+async function ensureMoltbotExtensions(manifest: PackageManifest) {
+  const extensions = manifest.moltbot?.extensions ?? manifest[LEGACY_MANIFEST_KEY]?.extensions;
   if (!Array.isArray(extensions)) {
-    throw new Error("package.json missing openclaw.extensions");
+    throw new Error("package.json missing moltbot.extensions");
   }
   const list = extensions.map((e) => (typeof e === "string" ? e.trim() : "")).filter(Boolean);
   if (list.length === 0) {
-    throw new Error("package.json openclaw.extensions is empty");
+    throw new Error("package.json moltbot.extensions is empty");
   }
   return list;
 }
@@ -117,34 +70,7 @@ export function resolvePluginInstallDir(pluginId: string, extensionsDir?: string
   const extensionsBase = extensionsDir
     ? resolveUserPath(extensionsDir)
     : path.join(CONFIG_DIR, "extensions");
-  const pluginIdError = validatePluginId(pluginId);
-  if (pluginIdError) {
-    throw new Error(pluginIdError);
-  }
-  const targetDirResult = resolveSafeInstallDir(extensionsBase, pluginId);
-  if (!targetDirResult.ok) {
-    throw new Error(targetDirResult.error);
-  }
-  return targetDirResult.path;
-}
-
-function resolveSafeInstallDir(
-  extensionsDir: string,
-  pluginId: string,
-): { ok: true; path: string } | { ok: false; error: string } {
-  const targetDir = path.join(extensionsDir, safeDirName(pluginId));
-  const resolvedBase = path.resolve(extensionsDir);
-  const resolvedTarget = path.resolve(targetDir);
-  const relative = path.relative(resolvedBase, resolvedTarget);
-  if (
-    !relative ||
-    relative === ".." ||
-    relative.startsWith(`..${path.sep}`) ||
-    path.isAbsolute(relative)
-  ) {
-    return { ok: false, error: "invalid plugin name: path traversal detected" };
-  }
-  return { ok: true, path: targetDir };
+  return path.join(extensionsBase, safeDirName(pluginId));
 }
 
 async function installPluginFromPackageDir(params: {
@@ -175,17 +101,13 @@ async function installPluginFromPackageDir(params: {
 
   let extensions: string[];
   try {
-    extensions = await ensureOpenClawExtensions(manifest);
+    extensions = await ensureMoltbotExtensions(manifest);
   } catch (err) {
     return { ok: false, error: String(err) };
   }
 
   const pkgName = typeof manifest.name === "string" ? manifest.name : "";
   const pluginId = pkgName ? unscopedPackageName(pkgName) : "plugin";
-  const pluginIdError = validatePluginId(pluginId);
-  if (pluginIdError) {
-    return { ok: false, error: pluginIdError };
-  }
   if (params.expectedPluginId && params.expectedPluginId !== pluginId) {
     return {
       ok: false,
@@ -193,56 +115,12 @@ async function installPluginFromPackageDir(params: {
     };
   }
 
-  const packageDir = path.resolve(params.packageDir);
-  const forcedScanEntries: string[] = [];
-  for (const entry of extensions) {
-    const resolvedEntry = path.resolve(packageDir, entry);
-    if (!isPathInside(packageDir, resolvedEntry)) {
-      logger.warn?.(`extension entry escapes plugin directory and will not be scanned: ${entry}`);
-      continue;
-    }
-    if (extensionUsesSkippedScannerPath(entry)) {
-      logger.warn?.(
-        `extension entry is in a hidden/node_modules path and will receive targeted scan coverage: ${entry}`,
-      );
-    }
-    forcedScanEntries.push(resolvedEntry);
-  }
-
-  // Scan plugin source for dangerous code patterns (warn-only; never blocks install)
-  try {
-    const scanSummary = await scanDirectoryWithSummary(params.packageDir, {
-      includeFiles: forcedScanEntries,
-    });
-    if (scanSummary.critical > 0) {
-      const criticalDetails = scanSummary.findings
-        .filter((f) => f.severity === "critical")
-        .map((f) => `${f.message} (${f.file}:${f.line})`)
-        .join("; ");
-      logger.warn?.(
-        `WARNING: Plugin "${pluginId}" contains dangerous code patterns: ${criticalDetails}`,
-      );
-    } else if (scanSummary.warn > 0) {
-      logger.warn?.(
-        `Plugin "${pluginId}" has ${scanSummary.warn} suspicious code pattern(s). Run "openclaw security audit --deep" for details.`,
-      );
-    }
-  } catch (err) {
-    logger.warn?.(
-      `Plugin "${pluginId}" code safety scan failed (${String(err)}). Installation continues; run "openclaw security audit --deep" after install.`,
-    );
-  }
-
   const extensionsDir = params.extensionsDir
     ? resolveUserPath(params.extensionsDir)
     : path.join(CONFIG_DIR, "extensions");
   await fs.mkdir(extensionsDir, { recursive: true });
 
-  const targetDirResult = resolveSafeInstallDir(extensionsDir, pluginId);
-  if (!targetDirResult.ok) {
-    return { ok: false, error: targetDirResult.error };
-  }
-  const targetDir = targetDirResult.path;
+  const targetDir = path.join(extensionsDir, safeDirName(pluginId));
 
   if (mode === "install" && (await fileExists(targetDir))) {
     return {
@@ -280,10 +158,6 @@ async function installPluginFromPackageDir(params: {
 
   for (const entry of extensions) {
     const resolvedEntry = path.resolve(targetDir, entry);
-    if (!isPathInside(targetDir, resolvedEntry)) {
-      logger.warn?.(`extension entry escapes plugin directory: ${entry}`);
-      continue;
-    }
     if (!(await fileExists(resolvedEntry))) {
       logger.warn?.(`extension entry not found: ${entry}`);
     }
@@ -345,42 +219,38 @@ export async function installPluginFromArchive(params: {
     return { ok: false, error: `unsupported archive: ${archivePath}` };
   }
 
-  const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-plugin-"));
+  const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-plugin-"));
+  const extractDir = path.join(tmpDir, "extract");
+  await fs.mkdir(extractDir, { recursive: true });
+
+  logger.info?.(`Extracting ${archivePath}…`);
   try {
-    const extractDir = path.join(tmpDir, "extract");
-    await fs.mkdir(extractDir, { recursive: true });
-
-    logger.info?.(`Extracting ${archivePath}…`);
-    try {
-      await extractArchive({
-        archivePath,
-        destDir: extractDir,
-        timeoutMs,
-        logger,
-      });
-    } catch (err) {
-      return { ok: false, error: `failed to extract archive: ${String(err)}` };
-    }
-
-    let packageDir = "";
-    try {
-      packageDir = await resolvePackedRootDir(extractDir);
-    } catch (err) {
-      return { ok: false, error: String(err) };
-    }
-
-    return await installPluginFromPackageDir({
-      packageDir,
-      extensionsDir: params.extensionsDir,
+    await extractArchive({
+      archivePath,
+      destDir: extractDir,
       timeoutMs,
       logger,
-      mode,
-      dryRun: params.dryRun,
-      expectedPluginId: params.expectedPluginId,
     });
-  } finally {
-    await fs.rm(tmpDir, { recursive: true, force: true }).catch(() => undefined);
+  } catch (err) {
+    return { ok: false, error: `failed to extract archive: ${String(err)}` };
   }
+
+  let packageDir = "";
+  try {
+    packageDir = await resolvePackedRootDir(extractDir);
+  } catch (err) {
+    return { ok: false, error: String(err) };
+  }
+
+  return await installPluginFromPackageDir({
+    packageDir,
+    extensionsDir: params.extensionsDir,
+    timeoutMs,
+    logger,
+    mode,
+    dryRun: params.dryRun,
+    expectedPluginId: params.expectedPluginId,
+  });
 }
 
 export async function installPluginFromDir(params: {
@@ -435,10 +305,6 @@ export async function installPluginFromFile(params: {
 
   const base = path.basename(filePath, path.extname(filePath));
   const pluginId = base || "plugin";
-  const pluginIdError = validatePluginId(pluginId);
-  if (pluginIdError) {
-    return { ok: false, error: pluginIdError };
-  }
   const targetFile = path.join(extensionsDir, `${safeFileName(pluginId)}${path.extname(filePath)}`);
 
   if (mode === "install" && (await fileExists(targetFile))) {
@@ -477,8 +343,6 @@ export async function installPluginFromNpmSpec(params: {
   mode?: "install" | "update";
   dryRun?: boolean;
   expectedPluginId?: string;
-  expectedIntegrity?: string;
-  onIntegrityDrift?: (params: PluginNpmIntegrityDriftParams) => boolean | Promise<boolean>;
 }): Promise<InstallPluginResult> {
   const logger = params.logger ?? defaultLogger;
   const timeoutMs = params.timeoutMs ?? 120_000;
@@ -486,106 +350,41 @@ export async function installPluginFromNpmSpec(params: {
   const dryRun = params.dryRun ?? false;
   const expectedPluginId = params.expectedPluginId;
   const spec = params.spec.trim();
-  const specError = validateRegistryNpmSpec(spec);
-  if (specError) {
-    return { ok: false, error: specError };
-  }
+  if (!spec) return { ok: false, error: "missing npm spec" };
 
-  const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-npm-pack-"));
-  try {
-    logger.info?.(`Downloading ${spec}…`);
-    const res = await runCommandWithTimeout(["npm", "pack", spec, "--ignore-scripts"], {
-      timeoutMs: Math.max(timeoutMs, 300_000),
-      cwd: tmpDir,
-      env: {
-        COREPACK_ENABLE_DOWNLOAD_PROMPT: "0",
-        NPM_CONFIG_IGNORE_SCRIPTS: "true",
-      },
-    });
-    if (res.code !== 0) {
-      return {
-        ok: false,
-        error: `npm pack failed: ${res.stderr.trim() || res.stdout.trim()}`,
-      };
-    }
-
-<<<<<<< HEAD
-    const packed = (res.stdout || "")
-      .split("\n")
-      .map((l) => l.trim())
-      .filter(Boolean)
-      .pop();
-    if (!packed) {
-      return { ok: false, error: "npm pack produced no archive" };
-    }
-
-    const archivePath = path.join(tmpDir, packed);
-    return await installPluginFromArchive({
-      archivePath,
-=======
-    const npmResolution: NpmSpecResolution = {
-      ...packedResult.metadata,
-      resolvedAt: new Date().toISOString(),
-    };
-
-    let integrityDrift: NpmIntegrityDrift | undefined;
-    if (
-      params.expectedIntegrity &&
-      npmResolution.integrity &&
-      params.expectedIntegrity !== npmResolution.integrity
-    ) {
-      integrityDrift = {
-        expectedIntegrity: params.expectedIntegrity,
-        actualIntegrity: npmResolution.integrity,
-      };
-      const driftPayload: PluginNpmIntegrityDriftParams = {
-        spec,
-        expectedIntegrity: integrityDrift.expectedIntegrity,
-        actualIntegrity: integrityDrift.actualIntegrity,
-        resolution: npmResolution,
-      };
-      let proceed = true;
-      if (params.onIntegrityDrift) {
-        proceed = await params.onIntegrityDrift(driftPayload);
-      } else {
-        logger.warn?.(
-          `Integrity drift detected for ${driftPayload.resolution.resolvedSpec ?? driftPayload.spec}: expected ${driftPayload.expectedIntegrity}, got ${driftPayload.actualIntegrity}`,
-        );
-      }
-      if (!proceed) {
-        return {
-          ok: false,
-          error: `aborted: npm package integrity drift detected for ${driftPayload.resolution.resolvedSpec ?? driftPayload.spec}`,
-        };
-      }
-    }
-
-    const installResult = await installPluginFromArchive({
-      archivePath: packedResult.archivePath,
->>>>>>> 5dc50b8a3 (fix(security): harden npm plugin and hook install integrity flow)
-      extensionsDir: params.extensionsDir,
-      timeoutMs,
-      logger,
-      mode,
-      dryRun,
-      expectedPluginId,
-    });
-<<<<<<< HEAD
-  } finally {
-    await fs.rm(tmpDir, { recursive: true, force: true }).catch(() => undefined);
-  }
-=======
-    if (!installResult.ok) {
-      return installResult;
-    }
-
-    return {
-      ...installResult,
-      npmResolution,
-      integrityDrift,
-    };
+  const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-npm-pack-"));
+  logger.info?.(`Downloading ${spec}…`);
+  const res = await runCommandWithTimeout(["npm", "pack", spec], {
+    timeoutMs: Math.max(timeoutMs, 300_000),
+    cwd: tmpDir,
+    env: { COREPACK_ENABLE_DOWNLOAD_PROMPT: "0" },
   });
->>>>>>> 5dc50b8a3 (fix(security): harden npm plugin and hook install integrity flow)
+  if (res.code !== 0) {
+    return {
+      ok: false,
+      error: `npm pack failed: ${res.stderr.trim() || res.stdout.trim()}`,
+    };
+  }
+
+  const packed = (res.stdout || "")
+    .split("\n")
+    .map((l) => l.trim())
+    .filter(Boolean)
+    .pop();
+  if (!packed) {
+    return { ok: false, error: "npm pack produced no archive" };
+  }
+
+  const archivePath = path.join(tmpDir, packed);
+  return await installPluginFromArchive({
+    archivePath,
+    extensionsDir: params.extensionsDir,
+    timeoutMs,
+    logger,
+    mode,
+    dryRun,
+    expectedPluginId,
+  });
 }
 
 export async function installPluginFromPath(params: {

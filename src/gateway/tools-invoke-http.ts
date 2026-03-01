@@ -1,5 +1,6 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
-import { createOpenClawTools } from "../agents/openclaw-tools.js";
+
+import { createMoltbotTools } from "../agents/moltbot-tools.js";
 import {
   filterToolsByPolicy,
   resolveEffectiveToolPolicy,
@@ -17,12 +18,12 @@ import {
 import { loadConfig } from "../config/config.js";
 import { resolveMainSessionKey } from "../config/sessions.js";
 import { logWarn } from "../logger.js";
-import { isTestDefaultMemorySlotDisabled } from "../plugins/config-state.js";
 import { getPluginToolMeta } from "../plugins/tools.js";
 import { isSubagentSessionKey } from "../routing/session-key.js";
-import { DEFAULT_GATEWAY_HTTP_TOOL_DENY } from "../security/dangerous-tools.js";
 import { normalizeMessageChannel } from "../utils/message-channel.js";
+
 import { authorizeGatewayConnect, type ResolvedGatewayAuth } from "./auth.js";
+import { getBearerToken, getHeader } from "./http-utils.js";
 import {
   readJsonBodyOrError,
   sendInvalidRequest,
@@ -30,10 +31,8 @@ import {
   sendMethodNotAllowed,
   sendUnauthorized,
 } from "./http-common.js";
-import { getBearerToken, getHeader } from "./http-utils.js";
 
 const DEFAULT_BODY_BYTES = 2 * 1024 * 1024;
-const MEMORY_TOOL_NAMES = new Set(["memory_search", "memory_get"]);
 
 type ToolsInvokeBody = {
   tool?: unknown;
@@ -44,34 +43,8 @@ type ToolsInvokeBody = {
 };
 
 function resolveSessionKeyFromBody(body: ToolsInvokeBody): string | undefined {
-  if (typeof body.sessionKey === "string" && body.sessionKey.trim()) {
-    return body.sessionKey.trim();
-  }
+  if (typeof body.sessionKey === "string" && body.sessionKey.trim()) return body.sessionKey.trim();
   return undefined;
-}
-
-function resolveMemoryToolDisableReasons(cfg: ReturnType<typeof loadConfig>): string[] {
-  if (!process.env.VITEST) {
-    return [];
-  }
-  const reasons: string[] = [];
-  const plugins = cfg.plugins;
-  const slotRaw = plugins?.slots?.memory;
-  const slotDisabled =
-    slotRaw === null || (typeof slotRaw === "string" && slotRaw.trim().toLowerCase() === "none");
-  const pluginsDisabled = plugins?.enabled === false;
-  const defaultDisabled = isTestDefaultMemorySlotDisabled(cfg);
-
-  if (pluginsDisabled) {
-    reasons.push("plugins.enabled=false");
-  }
-  if (slotDisabled) {
-    reasons.push(slotRaw === null ? "plugins.slots.memory=null" : 'plugins.slots.memory="none"');
-  }
-  if (!pluginsDisabled && !slotDisabled && defaultDisabled) {
-    reasons.push("memory plugin disabled by test default");
-  }
-  return reasons;
 }
 
 function mergeActionIntoArgsIfSupported(params: {
@@ -80,12 +53,8 @@ function mergeActionIntoArgsIfSupported(params: {
   args: Record<string, unknown>;
 }): Record<string, unknown> {
   const { toolSchema, action, args } = params;
-  if (!action) {
-    return args;
-  }
-  if (args.action !== undefined) {
-    return args;
-  }
+  if (!action) return args;
+  if (args.action !== undefined) return args;
   // TypeBox schemas are plain objects; many tools define an `action` property.
   const schemaObj = toolSchema as { properties?: Record<string, unknown> } | null;
   const hasAction = Boolean(
@@ -94,53 +63,17 @@ function mergeActionIntoArgsIfSupported(params: {
     schemaObj.properties &&
     "action" in schemaObj.properties,
   );
-  if (!hasAction) {
-    return args;
-  }
+  if (!hasAction) return args;
   return { ...args, action };
 }
 
-<<<<<<< HEAD
-=======
-function getErrorMessage(err: unknown): string {
-  if (err instanceof Error) {
-    return err.message || String(err);
-  }
-  if (typeof err === "string") {
-    return err;
-  }
-  return String(err);
-}
-
-function resolveToolInputErrorStatus(err: unknown): number | null {
-  if (err instanceof ToolInputError) {
-    const status = (err as { status?: unknown }).status;
-    return typeof status === "number" ? status : 400;
-  }
-  if (typeof err !== "object" || err === null || !("name" in err)) {
-    return null;
-  }
-  const name = (err as { name?: unknown }).name;
-  if (name !== "ToolInputError" && name !== "ToolAuthorizationError") {
-    return null;
-  }
-  const status = (err as { status?: unknown }).status;
-  if (typeof status === "number") {
-    return status;
-  }
-  return name === "ToolAuthorizationError" ? 403 : 400;
-}
-
->>>>>>> 10b8839a8 (fix(security): centralize WhatsApp outbound auth and return 403 tool auth errors)
 export async function handleToolsInvokeHttpRequest(
   req: IncomingMessage,
   res: ServerResponse,
   opts: { auth: ResolvedGatewayAuth; maxBodyBytes?: number; trustedProxies?: string[] },
 ): Promise<boolean> {
   const url = new URL(req.url ?? "/", `http://${req.headers.host ?? "localhost"}`);
-  if (url.pathname !== "/tools/invoke") {
-    return false;
-  }
+  if (url.pathname !== "/tools/invoke") return false;
 
   if (req.method !== "POST") {
     sendMethodNotAllowed(res, "POST");
@@ -161,9 +94,7 @@ export async function handleToolsInvokeHttpRequest(
   }
 
   const bodyUnknown = await readJsonBodyOrError(req, res, opts.maxBodyBytes ?? DEFAULT_BODY_BYTES);
-  if (bodyUnknown === undefined) {
-    return true;
-  }
+  if (bodyUnknown === undefined) return true;
   const body = (bodyUnknown ?? {}) as ToolsInvokeBody;
 
   const toolName = typeof body.tool === "string" ? body.tool.trim() : "";
@@ -172,40 +103,22 @@ export async function handleToolsInvokeHttpRequest(
     return true;
   }
 
-  if (process.env.VITEST && MEMORY_TOOL_NAMES.has(toolName)) {
-    const reasons = resolveMemoryToolDisableReasons(cfg);
-    if (reasons.length > 0) {
-      const suffix = reasons.length > 0 ? ` (${reasons.join(", ")})` : "";
-      sendJson(res, 400, {
-        ok: false,
-        error: {
-          type: "invalid_request",
-          message:
-            `memory tools are disabled in tests${suffix}. ` +
-            'Enable by setting plugins.slots.memory="memory-core" (and ensure plugins.enabled is not false).',
-        },
-      });
-      return true;
-    }
-  }
-
   const action = typeof body.action === "string" ? body.action.trim() : undefined;
 
   const argsRaw = body.args;
-  const args =
+  const args = (
     argsRaw && typeof argsRaw === "object" && !Array.isArray(argsRaw)
       ? (argsRaw as Record<string, unknown>)
-      : {};
+      : {}
+  ) as Record<string, unknown>;
 
   const rawSessionKey = resolveSessionKeyFromBody(body);
   const sessionKey =
     !rawSessionKey || rawSessionKey === "main" ? resolveMainSessionKey(cfg) : rawSessionKey;
 
   // Resolve message channel/account hints (optional headers) for policy inheritance.
-  const messageChannel = normalizeMessageChannel(
-    getHeader(req, "x-openclaw-message-channel") ?? "",
-  );
-  const accountId = getHeader(req, "x-openclaw-account-id")?.trim() || undefined;
+  const messageChannel = normalizeMessageChannel(getHeader(req, "x-moltbot-message-channel") ?? "");
+  const accountId = getHeader(req, "x-moltbot-account-id")?.trim() || undefined;
 
   const {
     agentId,
@@ -222,9 +135,7 @@ export async function handleToolsInvokeHttpRequest(
   const providerProfilePolicy = resolveToolProfilePolicy(providerProfile);
 
   const mergeAlsoAllow = (policy: typeof profilePolicy, alsoAllow?: string[]) => {
-    if (!policy?.allow || !Array.isArray(alsoAllow) || alsoAllow.length === 0) {
-      return policy;
-    }
+    if (!policy?.allow || !Array.isArray(alsoAllow) || alsoAllow.length === 0) return policy;
     return { ...policy, allow: Array.from(new Set([...policy.allow, ...alsoAllow])) };
   };
 
@@ -244,7 +155,7 @@ export async function handleToolsInvokeHttpRequest(
     : undefined;
 
   // Build tool list (core + plugin tools).
-  const allTools = createOpenClawTools({
+  const allTools = createMoltbotTools({
     agentSessionKey: sessionKey,
     agentChannel: messageChannel ?? undefined,
     agentAccountId: accountId,
@@ -263,14 +174,12 @@ export async function handleToolsInvokeHttpRequest(
 
   const coreToolNames = new Set(
     allTools
-      // oxlint-disable-next-line typescript/no-explicit-any
       .filter((tool) => !getPluginToolMeta(tool as any))
       .map((tool) => normalizeToolName(tool.name))
       .filter(Boolean),
   );
   const pluginGroups = buildPluginToolGroups({
     tools: allTools,
-    // oxlint-disable-next-line typescript/no-explicit-any
     toolMeta: (tool) => getPluginToolMeta(tool as any),
   });
   const resolvePolicy = (policy: typeof profilePolicy, label: string) => {
@@ -330,15 +239,7 @@ export async function handleToolsInvokeHttpRequest(
     ? filterToolsByPolicy(groupFiltered, subagentPolicyExpanded)
     : groupFiltered;
 
-  // Gateway HTTP-specific deny list — applies to ALL sessions via HTTP.
-  const gatewayToolsCfg = cfg.gateway?.tools;
-  const gatewayDenyNames = DEFAULT_GATEWAY_HTTP_TOOL_DENY
-    .filter((name) => !gatewayToolsCfg?.allow?.includes(name))
-    .concat(Array.isArray(gatewayToolsCfg?.deny) ? gatewayToolsCfg.deny : []);
-  const gatewayDenySet = new Set(gatewayDenyNames);
-  const gatewayFiltered = subagentFiltered.filter((t) => !gatewayDenySet.has(t.name));
-
-  const tool = gatewayFiltered.find((t) => t.name === toolName);
+  const tool = subagentFiltered.find((t) => t.name === toolName);
   if (!tool) {
     sendJson(res, 404, {
       ok: false,
@@ -349,30 +250,16 @@ export async function handleToolsInvokeHttpRequest(
 
   try {
     const toolArgs = mergeActionIntoArgsIfSupported({
-      // oxlint-disable-next-line typescript/no-explicit-any
       toolSchema: (tool as any).parameters,
       action,
       args,
     });
-    // oxlint-disable-next-line typescript/no-explicit-any
     const result = await (tool as any).execute?.(`http-${Date.now()}`, toolArgs);
     sendJson(res, 200, { ok: true, result });
   } catch (err) {
-<<<<<<< HEAD
-=======
-    const inputStatus = resolveToolInputErrorStatus(err);
-    if (inputStatus !== null) {
-      sendJson(res, inputStatus, {
-        ok: false,
-        error: { type: "tool_error", message: getErrorMessage(err) || "invalid tool arguments" },
-      });
-      return true;
-    }
->>>>>>> 10b8839a8 (fix(security): centralize WhatsApp outbound auth and return 403 tool auth errors)
-    logWarn(`tools-invoke: tool execution failed: ${String(err)}`);
     sendJson(res, 400, {
       ok: false,
-      error: { type: "tool_error", message: "tool execution failed" },
+      error: { type: "tool_error", message: err instanceof Error ? err.message : String(err) },
     });
   }
 

@@ -1,24 +1,20 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
 import { readJsonBody } from "./hooks.js";
 
-/**
- * Apply baseline security headers that are safe for all response types (API JSON,
- * HTML pages, static assets, SSE streams). Headers that restrict framing or set a
- * Content-Security-Policy are intentionally omitted here because some handlers
- * (canvas host, A2UI) serve content that may be loaded inside frames.
- */
-export function setDefaultSecurityHeaders(res: ServerResponse) {
+export function setSecurityHeaders(res: ServerResponse) {
   res.setHeader("X-Content-Type-Options", "nosniff");
-  res.setHeader("Referrer-Policy", "no-referrer");
+  res.setHeader("X-Frame-Options", "DENY");
 }
 
 export function sendJson(res: ServerResponse, status: number, body: unknown) {
+  setSecurityHeaders(res);
   res.statusCode = status;
   res.setHeader("Content-Type", "application/json; charset=utf-8");
   res.end(JSON.stringify(body));
 }
 
 export function sendText(res: ServerResponse, status: number, body: string) {
+  setSecurityHeaders(res);
   res.statusCode = status;
   res.setHeader("Content-Type", "text/plain; charset=utf-8");
   res.end(body);
@@ -71,6 +67,7 @@ export function writeDone(res: ServerResponse) {
 }
 
 export function setSseHeaders(res: ServerResponse) {
+  setSecurityHeaders(res);
   res.statusCode = 200;
   res.setHeader("Content-Type", "text/event-stream; charset=utf-8");
   res.setHeader("Cache-Control", "no-cache");

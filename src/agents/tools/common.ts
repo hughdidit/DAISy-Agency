@@ -1,12 +1,12 @@
-import type { AgentTool, AgentToolResult } from "@mariozechner/pi-agent-core";
 import fs from "node:fs/promises";
+
+import type { AgentTool, AgentToolResult } from "@mariozechner/pi-agent-core";
+
 import { detectMime } from "../../media/mime.js";
 import { sanitizeToolResultImages } from "../tool-images.js";
 
-// oxlint-disable-next-line typescript/no-explicit-any
-export type AnyAgentTool = AgentTool<any, unknown> & {
-  ownerOnly?: boolean;
-};
+// biome-ignore lint/suspicious/noExplicitAny: TypeBox schema type from pi-agent-core uses a different module instance.
+export type AnyAgentTool = AgentTool<any, unknown>;
 
 export type StringParamOptions = {
   required?: boolean;
@@ -20,40 +20,12 @@ export type ActionGate<T extends Record<string, boolean | undefined>> = (
   defaultValue?: boolean,
 ) => boolean;
 
-<<<<<<< HEAD
-=======
-export const OWNER_ONLY_TOOL_ERROR = "Tool restricted to owner senders.";
-
-export class ToolInputError extends Error {
-  readonly status: number = 400;
-
-  constructor(message: string) {
-    super(message);
-    this.name = "ToolInputError";
-  }
-}
-
-<<<<<<< HEAD
->>>>>>> 2777d8ad9 (refactor(security): unify gateway scope authorization flows)
-=======
-export class ToolAuthorizationError extends ToolInputError {
-  override readonly status = 403;
-
-  constructor(message: string) {
-    super(message);
-    this.name = "ToolAuthorizationError";
-  }
-}
-
->>>>>>> 10b8839a8 (fix(security): centralize WhatsApp outbound auth and return 403 tool auth errors)
 export function createActionGate<T extends Record<string, boolean | undefined>>(
   actions: T | undefined,
 ): ActionGate<T> {
   return (key, defaultValue = true) => {
     const value = actions?.[key];
-    if (value === undefined) {
-      return defaultValue;
-    }
+    if (value === undefined) return defaultValue;
     return value !== false;
   };
 }
@@ -76,16 +48,12 @@ export function readStringParam(
   const { required = false, trim = true, label = key, allowEmpty = false } = options;
   const raw = params[key];
   if (typeof raw !== "string") {
-    if (required) {
-      throw new Error(`${label} required`);
-    }
+    if (required) throw new Error(`${label} required`);
     return undefined;
   }
   const value = trim ? raw.trim() : raw;
   if (!value && !allowEmpty) {
-    if (required) {
-      throw new Error(`${label} required`);
-    }
+    if (required) throw new Error(`${label} required`);
     return undefined;
   }
   return value;
@@ -103,13 +71,9 @@ export function readStringOrNumberParam(
   }
   if (typeof raw === "string") {
     const value = raw.trim();
-    if (value) {
-      return value;
-    }
+    if (value) return value;
   }
-  if (required) {
-    throw new Error(`${label} required`);
-  }
+  if (required) throw new Error(`${label} required`);
   return undefined;
 }
 
@@ -127,15 +91,11 @@ export function readNumberParam(
     const trimmed = raw.trim();
     if (trimmed) {
       const parsed = Number.parseFloat(trimmed);
-      if (Number.isFinite(parsed)) {
-        value = parsed;
-      }
+      if (Number.isFinite(parsed)) value = parsed;
     }
   }
   if (value === undefined) {
-    if (required) {
-      throw new Error(`${label} required`);
-    }
+    if (required) throw new Error(`${label} required`);
     return undefined;
   }
   return integer ? Math.trunc(value) : value;
@@ -164,9 +124,7 @@ export function readStringArrayParam(
       .map((entry) => entry.trim())
       .filter(Boolean);
     if (values.length === 0) {
-      if (required) {
-        throw new Error(`${label} required`);
-      }
+      if (required) throw new Error(`${label} required`);
       return undefined;
     }
     return values;
@@ -174,16 +132,12 @@ export function readStringArrayParam(
   if (typeof raw === "string") {
     const value = raw.trim();
     if (!value) {
-      if (required) {
-        throw new Error(`${label} required`);
-      }
+      if (required) throw new Error(`${label} required`);
       return undefined;
     }
     return [value];
   }
-  if (required) {
-    throw new Error(`${label} required`);
-  }
+  if (required) throw new Error(`${label} required`);
   return undefined;
 }
 
@@ -223,21 +177,6 @@ export function jsonResult(payload: unknown): AgentToolResult<unknown> {
       },
     ],
     details: payload,
-  };
-}
-
-export function wrapOwnerOnlyToolExecution(
-  tool: AnyAgentTool,
-  senderIsOwner: boolean,
-): AnyAgentTool {
-  if (tool.ownerOnly !== true || senderIsOwner || !tool.execute) {
-    return tool;
-  }
-  return {
-    ...tool,
-    execute: async () => {
-      throw new Error(OWNER_ONLY_TOOL_ERROR);
-    },
   };
 }
 

@@ -1,126 +1,30 @@
 import { execFileSync } from "node:child_process";
-import fs from "node:fs";
-import os from "node:os";
-import path from "node:path";
+
 import { isTruthyEnvValue } from "./env.js";
-import { sanitizeHostExecEnv } from "./host-env-security.js";
 
 const DEFAULT_TIMEOUT_MS = 15_000;
 const DEFAULT_MAX_BUFFER_BYTES = 2 * 1024 * 1024;
-const DEFAULT_SHELL = "/bin/sh";
 let lastAppliedKeys: string[] = [];
 let cachedShellPath: string | null | undefined;
-let cachedEtcShells: Set<string> | null | undefined;
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
-function resolveShellExecEnv(env: NodeJS.ProcessEnv): NodeJS.ProcessEnv {
-  const execEnv = sanitizeHostExecEnv({ baseEnv: env });
-
-  // Startup-file resolution must stay pinned to the real user home.
-  const home = os.homedir().trim();
-  if (home) {
-    execEnv.HOME = home;
-  } else {
-    delete execEnv.HOME;
-  }
-
-  // Avoid zsh startup-file redirection via env poisoning.
-  delete execEnv.ZDOTDIR;
-  return execEnv;
-}
-
->>>>>>> 9363c320d (fix(security): harden shell env fallback startup env handling)
-function resolveTimeoutMs(timeoutMs: number | undefined): number {
-  if (typeof timeoutMs !== "number" || !Number.isFinite(timeoutMs)) {
-    return DEFAULT_TIMEOUT_MS;
-  }
-  return Math.max(0, timeoutMs);
-}
-
-function readEtcShells(): Set<string> | null {
-  if (cachedEtcShells !== undefined) {
-    return cachedEtcShells;
-  }
-  try {
-    const raw = fs.readFileSync("/etc/shells", "utf8");
-    const entries = raw
-      .split(/\r?\n/)
-      .map((line) => line.trim())
-      .filter((line) => line.length > 0 && !line.startsWith("#") && path.isAbsolute(line));
-    cachedEtcShells = new Set(entries);
-  } catch {
-    cachedEtcShells = null;
-  }
-  return cachedEtcShells;
-}
-
-function isTrustedShellPath(shell: string): boolean {
-  if (!path.isAbsolute(shell)) {
-    return false;
-  }
-  const normalized = path.normalize(shell);
-  if (normalized !== shell) {
-    return false;
-  }
-
-  // Primary trust anchor: shell registered in /etc/shells.
-  const registeredShells = readEtcShells();
-  return registeredShells?.has(shell) === true;
-}
-
->>>>>>> 25e89cc86 (fix(security): harden shell env fallback)
 function resolveShell(env: NodeJS.ProcessEnv): string {
   const shell = env.SHELL?.trim();
-  if (shell && isTrustedShellPath(shell)) {
-    return shell;
-  }
-  return DEFAULT_SHELL;
+  return shell && shell.length > 0 ? shell : "/bin/sh";
 }
 
 function parseShellEnv(stdout: Buffer): Map<string, string> {
   const shellEnv = new Map<string, string>();
   const parts = stdout.toString("utf8").split("\0");
   for (const part of parts) {
-    if (!part) {
-      continue;
-    }
+    if (!part) continue;
     const eq = part.indexOf("=");
-    if (eq <= 0) {
-      continue;
-    }
+    if (eq <= 0) continue;
     const key = part.slice(0, eq);
     const value = part.slice(eq + 1);
-    if (!key) {
-      continue;
-    }
+    if (!key) continue;
     shellEnv.set(key, value);
   }
   return shellEnv;
-}
-
-type LoginShellEnvProbeResult =
-  | { ok: true; shellEnv: Map<string, string> }
-  | { ok: false; error: string };
-
-function probeLoginShellEnv(params: {
-  env: NodeJS.ProcessEnv;
-  timeoutMs?: number;
-  exec?: typeof execFileSync;
-}): LoginShellEnvProbeResult {
-  const exec = params.exec ?? execFileSync;
-  const timeoutMs = resolveTimeoutMs(params.timeoutMs);
-  const shell = resolveShell(params.env);
-  const execEnv = resolveShellExecEnv(params.env);
-
-  try {
-    const stdout = execLoginShellEnvZero({ shell, env: execEnv, exec, timeoutMs });
-    return { ok: true, shellEnv: parseShellEnv(stdout) };
-  } catch (err) {
-    return { ok: false, error: err instanceof Error ? err.message : String(err) };
-  }
 }
 
 export type ShellEnvFallbackResult =
@@ -139,6 +43,7 @@ export type ShellEnvFallbackOptions = {
 
 export function loadShellEnvFallback(opts: ShellEnvFallbackOptions): ShellEnvFallbackResult {
   const logger = opts.logger ?? console;
+  const exec = opts.exec ?? execFileSync;
 
   if (!opts.enabled) {
     lastAppliedKeys = [];
@@ -151,18 +56,15 @@ export function loadShellEnvFallback(opts: ShellEnvFallbackOptions): ShellEnvFal
     return { ok: true, applied: [], skippedReason: "already-has-keys" };
   }
 
-<<<<<<< HEAD
   const timeoutMs =
     typeof opts.timeoutMs === "number" && Number.isFinite(opts.timeoutMs)
       ? Math.max(0, opts.timeoutMs)
       : DEFAULT_TIMEOUT_MS;
 
   const shell = resolveShell(opts.env);
-  const execEnv = resolveShellExecEnv(opts.env);
 
   let stdout: Buffer;
   try {
-<<<<<<< HEAD
     stdout = exec(shell, ["-l", "-c", "env -0"], {
       encoding: "buffer",
       timeout: timeoutMs,
@@ -170,34 +72,20 @@ export function loadShellEnvFallback(opts: ShellEnvFallbackOptions): ShellEnvFal
       env: opts.env,
       stdio: ["ignore", "pipe", "pipe"],
     });
-=======
-    stdout = execLoginShellEnvZero({ shell, env: execEnv, exec, timeoutMs });
->>>>>>> 9363c320d (fix(security): harden shell env fallback startup env handling)
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
-    logger.warn(`[openclaw] shell env fallback failed: ${msg}`);
-=======
-  const probe = probeLoginShellEnv({
-    env: opts.env,
-    timeoutMs: opts.timeoutMs,
-    exec: opts.exec,
-  });
-  if (!probe.ok) {
-    logger.warn(`[openclaw] shell env fallback failed: ${probe.error}`);
->>>>>>> 204d9fb40 (refactor(security): dedupe shell env probe and add path regression test)
+    logger.warn(`[moltbot] shell env fallback failed: ${msg}`);
     lastAppliedKeys = [];
-    return { ok: false, error: probe.error, applied: [] };
+    return { ok: false, error: msg, applied: [] };
   }
+
+  const shellEnv = parseShellEnv(stdout);
 
   const applied: string[] = [];
   for (const key of opts.expectedKeys) {
-    if (opts.env[key]?.trim()) {
-      continue;
-    }
-    const value = probe.shellEnv.get(key);
-    if (!value?.trim()) {
-      continue;
-    }
+    if (opts.env[key]?.trim()) continue;
+    const value = shellEnv.get(key);
+    if (!value?.trim()) continue;
     opts.env[key] = value;
     applied.push(key);
   }
@@ -207,22 +95,18 @@ export function loadShellEnvFallback(opts: ShellEnvFallbackOptions): ShellEnvFal
 }
 
 export function shouldEnableShellEnvFallback(env: NodeJS.ProcessEnv): boolean {
-  return isTruthyEnvValue(env.OPENCLAW_LOAD_SHELL_ENV);
+  return isTruthyEnvValue(env.CLAWDBOT_LOAD_SHELL_ENV);
 }
 
 export function shouldDeferShellEnvFallback(env: NodeJS.ProcessEnv): boolean {
-  return isTruthyEnvValue(env.OPENCLAW_DEFER_SHELL_ENV_FALLBACK);
+  return isTruthyEnvValue(env.CLAWDBOT_DEFER_SHELL_ENV_FALLBACK);
 }
 
 export function resolveShellEnvFallbackTimeoutMs(env: NodeJS.ProcessEnv): number {
-  const raw = env.OPENCLAW_SHELL_ENV_TIMEOUT_MS?.trim();
-  if (!raw) {
-    return DEFAULT_TIMEOUT_MS;
-  }
+  const raw = env.CLAWDBOT_SHELL_ENV_TIMEOUT_MS?.trim();
+  if (!raw) return DEFAULT_TIMEOUT_MS;
   const parsed = Number.parseInt(raw, 10);
-  if (!Number.isFinite(parsed)) {
-    return DEFAULT_TIMEOUT_MS;
-  }
+  if (!Number.isFinite(parsed)) return DEFAULT_TIMEOUT_MS;
   return Math.max(0, parsed);
 }
 
@@ -231,26 +115,21 @@ export function getShellPathFromLoginShell(opts: {
   timeoutMs?: number;
   exec?: typeof execFileSync;
 }): string | null {
-  if (cachedShellPath !== undefined) {
-    return cachedShellPath;
-  }
+  if (cachedShellPath !== undefined) return cachedShellPath;
   if (process.platform === "win32") {
     cachedShellPath = null;
     return cachedShellPath;
   }
 
-<<<<<<< HEAD
   const exec = opts.exec ?? execFileSync;
   const timeoutMs =
     typeof opts.timeoutMs === "number" && Number.isFinite(opts.timeoutMs)
       ? Math.max(0, opts.timeoutMs)
       : DEFAULT_TIMEOUT_MS;
   const shell = resolveShell(opts.env);
-  const execEnv = resolveShellExecEnv(opts.env);
 
   let stdout: Buffer;
   try {
-<<<<<<< HEAD
     stdout = exec(shell, ["-l", "-c", "env -0"], {
       encoding: "buffer",
       timeout: timeoutMs,
@@ -258,30 +137,19 @@ export function getShellPathFromLoginShell(opts: {
       env: opts.env,
       stdio: ["ignore", "pipe", "pipe"],
     });
-=======
-    stdout = execLoginShellEnvZero({ shell, env: execEnv, exec, timeoutMs });
->>>>>>> 9363c320d (fix(security): harden shell env fallback startup env handling)
   } catch {
-=======
-  const probe = probeLoginShellEnv({
-    env: opts.env,
-    timeoutMs: opts.timeoutMs,
-    exec: opts.exec,
-  });
-  if (!probe.ok) {
->>>>>>> 204d9fb40 (refactor(security): dedupe shell env probe and add path regression test)
     cachedShellPath = null;
     return cachedShellPath;
   }
 
-  const shellPath = probe.shellEnv.get("PATH")?.trim();
+  const shellEnv = parseShellEnv(stdout);
+  const shellPath = shellEnv.get("PATH")?.trim();
   cachedShellPath = shellPath && shellPath.length > 0 ? shellPath : null;
   return cachedShellPath;
 }
 
 export function resetShellPathCacheForTests(): void {
   cachedShellPath = undefined;
-  cachedEtcShells = undefined;
 }
 
 export function getShellEnvAppliedKeys(): string[] {

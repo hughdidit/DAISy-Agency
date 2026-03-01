@@ -3,29 +3,14 @@
  *
  * These functions perform I/O (filesystem, config reads) to detect security issues.
  */
-import JSON5 from "json5";
 import fs from "node:fs/promises";
 import path from "node:path";
-import type { SandboxToolPolicy } from "../agents/sandbox/types.js";
-import type { OpenClawConfig, ConfigFileSnapshot } from "../config/config.js";
-import type { AgentToolsConfig } from "../config/types.tools.js";
-<<<<<<< HEAD
-import type { ExecFn } from "./windows-acl.js";
-import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../agents/agent-scope.js";
-=======
-import type { SkillScanFinding } from "./skill-scanner.js";
-import type { ExecFn } from "./windows-acl.js";
 import { resolveDefaultAgentId } from "../agents/agent-scope.js";
->>>>>>> 5dc50b8a3 (fix(security): harden npm plugin and hook install integrity flow)
 import { isToolAllowedByPolicies } from "../agents/pi-tools.policy.js";
 import {
   resolveSandboxConfigForAgent,
   resolveSandboxToolPolicyForAgent,
 } from "../agents/sandbox.js";
-<<<<<<< HEAD
-import { loadWorkspaceSkillEntries } from "../agents/skills.js";
-import { resolveToolProfilePolicy } from "../agents/tool-policy.js";
-=======
 import { SANDBOX_BROWSER_SECURITY_HASH_EPOCH } from "../agents/sandbox/constants.js";
 import { execDockerRaw, type ExecDockerRawResult } from "../agents/sandbox/docker.js";
 import type { SandboxToolPolicy } from "../agents/sandbox/types.js";
@@ -33,12 +18,13 @@ import { loadWorkspaceSkillEntries } from "../agents/skills.js";
 import { resolveToolProfilePolicy } from "../agents/tool-policy.js";
 import { listAgentWorkspaceDirs } from "../agents/workspace-dirs.js";
 import { formatCliCommand } from "../cli/command-format.js";
->>>>>>> 1835dec20 (fix(security): force sandbox browser hash migration and audit stale labels)
 import { MANIFEST_KEY } from "../compat/legacy-names.js";
 import { resolveNativeSkillsEnabled } from "../config/commands.js";
+import type { OpenClawConfig, ConfigFileSnapshot } from "../config/config.js";
 import { createConfigIO } from "../config/config.js";
-import { INCLUDE_KEY, MAX_INCLUDE_DEPTH } from "../config/includes.js";
+import { collectIncludePathsRecursive } from "../config/includes-scan.js";
 import { resolveOAuthDir } from "../config/paths.js";
+import type { AgentToolsConfig } from "../config/types.tools.js";
 import { normalizePluginsConfig } from "../plugins/config-state.js";
 import { normalizeAgentId } from "../routing/session-key.js";
 import {
@@ -47,19 +33,11 @@ import {
   inspectPathPermissions,
   safeStat,
 } from "./audit-fs.js";
-<<<<<<< HEAD
-<<<<<<< HEAD
-import { scanDirectoryWithSummary, type SkillScanFinding } from "./skill-scanner.js";
-=======
-=======
 import { pickSandboxToolPolicy } from "./audit-tool-policy.js";
->>>>>>> d7079b557 (refactor(security): share sandbox tool policy picker)
 import { extensionUsesSkippedScannerPath, isPathInside } from "./scan-paths.js";
+import type { SkillScanFinding } from "./skill-scanner.js";
 import * as skillScanner from "./skill-scanner.js";
-<<<<<<< HEAD
->>>>>>> b37346103 (refactor(security): share scan path helpers)
-=======
->>>>>>> 5dc50b8a3 (fix(security): harden npm plugin and hook install integrity flow)
+import type { ExecFn } from "./windows-acl.js";
 
 export type SecurityAuditFinding = {
   checkId: string;
@@ -95,107 +73,6 @@ function expandTilde(p: string, env: NodeJS.ProcessEnv): string | null {
   return null;
 }
 
-<<<<<<< HEAD
-function resolveIncludePath(baseConfigPath: string, includePath: string): string {
-  return path.normalize(
-    path.isAbsolute(includePath)
-      ? includePath
-      : path.resolve(path.dirname(baseConfigPath), includePath),
-  );
-}
-
-function listDirectIncludes(parsed: unknown): string[] {
-  const out: string[] = [];
-  const visit = (value: unknown) => {
-    if (!value) {
-      return;
-    }
-    if (Array.isArray(value)) {
-      for (const item of value) {
-        visit(item);
-      }
-      return;
-    }
-    if (typeof value !== "object") {
-      return;
-    }
-    const rec = value as Record<string, unknown>;
-    const includeVal = rec[INCLUDE_KEY];
-    if (typeof includeVal === "string") {
-      out.push(includeVal);
-    } else if (Array.isArray(includeVal)) {
-      for (const item of includeVal) {
-        if (typeof item === "string") {
-          out.push(item);
-        }
-      }
-    }
-    for (const v of Object.values(rec)) {
-      visit(v);
-    }
-  };
-  visit(parsed);
-  return out;
-}
-
-async function collectIncludePathsRecursive(params: {
-  configPath: string;
-  parsed: unknown;
-}): Promise<string[]> {
-  const visited = new Set<string>();
-  const result: string[] = [];
-
-  const walk = async (basePath: string, parsed: unknown, depth: number): Promise<void> => {
-    if (depth > MAX_INCLUDE_DEPTH) {
-      return;
-    }
-    for (const raw of listDirectIncludes(parsed)) {
-      const resolved = resolveIncludePath(basePath, raw);
-      if (visited.has(resolved)) {
-        continue;
-      }
-      visited.add(resolved);
-      result.push(resolved);
-      const rawText = await fs.readFile(resolved, "utf-8").catch(() => null);
-      if (!rawText) {
-        continue;
-      }
-      const nestedParsed = (() => {
-        try {
-          return JSON5.parse(rawText);
-        } catch {
-          return null;
-        }
-      })();
-      if (nestedParsed) {
-        // eslint-disable-next-line no-await-in-loop
-        await walk(resolved, nestedParsed, depth + 1);
-      }
-    }
-  };
-
-  await walk(params.configPath, params.parsed, 0);
-  return result;
-}
-
-function isPathInside(basePath: string, candidatePath: string): boolean {
-  const base = path.resolve(basePath);
-  const candidate = path.resolve(candidatePath);
-  const rel = path.relative(base, candidate);
-  return rel === "" || (!rel.startsWith(`..${path.sep}`) && rel !== ".." && !path.isAbsolute(rel));
-}
-
-function extensionUsesSkippedScannerPath(entry: string): boolean {
-  const segments = entry.split(/[\\/]+/).filter(Boolean);
-  return segments.some(
-    (segment) =>
-      segment === "node_modules" ||
-      (segment.startsWith(".") && segment !== "." && segment !== ".."),
-  );
-}
-
-=======
->>>>>>> b37346103 (refactor(security): share scan path helpers)
 async function readPluginManifestExtensions(pluginPath: string): Promise<string[]> {
   const manifestPath = path.join(pluginPath, "package.json");
   const raw = await fs.readFile(manifestPath, "utf-8").catch(() => "");
@@ -211,20 +88,6 @@ async function readPluginManifestExtensions(pluginPath: string): Promise<string[
     return [];
   }
   return extensions.map((entry) => (typeof entry === "string" ? entry.trim() : "")).filter(Boolean);
-}
-
-function listWorkspaceDirs(cfg: OpenClawConfig): string[] {
-  const dirs = new Set<string>();
-  const list = cfg.agents?.list;
-  if (Array.isArray(list)) {
-    for (const entry of list) {
-      if (entry && typeof entry === "object" && typeof entry.id === "string") {
-        dirs.add(resolveAgentWorkspaceDir(cfg, entry.id));
-      }
-    }
-  }
-  dirs.add(resolveAgentWorkspaceDir(cfg, resolveDefaultAgentId(cfg)));
-  return [...dirs];
 }
 
 function formatCodeSafetyDetails(findings: SkillScanFinding[], rootDir: string): string {
@@ -443,6 +306,49 @@ async function readSandboxBrowserHashLabels(params: {
   }
 }
 
+function parsePublishedHostFromDockerPortLine(line: string): string | null {
+  const trimmed = line.trim();
+  const rhs = trimmed.includes("->") ? (trimmed.split("->").at(-1)?.trim() ?? "") : trimmed;
+  if (!rhs) {
+    return null;
+  }
+  const bracketHost = rhs.match(/^\[([^\]]+)\]:\d+$/);
+  if (bracketHost?.[1]) {
+    return bracketHost[1];
+  }
+  const hostPort = rhs.match(/^([^:]+):\d+$/);
+  if (hostPort?.[1]) {
+    return hostPort[1];
+  }
+  return null;
+}
+
+function isLoopbackPublishHost(host: string): boolean {
+  const normalized = host.trim().toLowerCase();
+  return normalized === "127.0.0.1" || normalized === "::1" || normalized === "localhost";
+}
+
+async function readSandboxBrowserPortMappings(params: {
+  containerName: string;
+  execDockerRawFn: ExecDockerRawFn;
+}): Promise<string[] | null> {
+  try {
+    const result = await params.execDockerRawFn(["port", params.containerName], {
+      allowFailure: true,
+    });
+    if (result.code !== 0) {
+      return null;
+    }
+    return result.stdout
+      .toString("utf8")
+      .split(/\r?\n/)
+      .map((entry) => entry.trim())
+      .filter(Boolean);
+  } catch {
+    return null;
+  }
+}
+
 export async function collectSandboxBrowserHashLabelFindings(params?: {
   execDockerRawFn?: ExecDockerRawFn;
 }): Promise<SecurityAuditFinding[]> {
@@ -455,6 +361,7 @@ export async function collectSandboxBrowserHashLabelFindings(params?: {
 
   const missingHash: string[] = [];
   const staleEpoch: string[] = [];
+  const nonLoopbackPublished: string[] = [];
 
   for (const containerName of containers) {
     const labels = await readSandboxBrowserHashLabels({ containerName, execDockerRawFn: execFn });
@@ -466,6 +373,20 @@ export async function collectSandboxBrowserHashLabelFindings(params?: {
     }
     if (labels.epoch !== SANDBOX_BROWSER_SECURITY_HASH_EPOCH) {
       staleEpoch.push(containerName);
+    }
+    const portMappings = await readSandboxBrowserPortMappings({
+      containerName,
+      execDockerRawFn: execFn,
+    });
+    if (!portMappings?.length) {
+      continue;
+    }
+    const exposedMappings = portMappings.filter((line) => {
+      const host = parsePublishedHostFromDockerPortLine(line);
+      return Boolean(host && !isLoopbackPublishHost(host));
+    });
+    if (exposedMappings.length > 0) {
+      nonLoopbackPublished.push(`${containerName} (${exposedMappings.join("; ")})`);
     }
   }
 
@@ -490,6 +411,20 @@ export async function collectSandboxBrowserHashLabelFindings(params?: {
         `Containers: ${staleEpoch.join(", ")}. ` +
         `Expected openclaw.browserConfigEpoch=${SANDBOX_BROWSER_SECURITY_HASH_EPOCH}.`,
       remediation: `${formatCliCommand("openclaw sandbox recreate --browser --all")} (add --force to skip prompt).`,
+    });
+  }
+
+  if (nonLoopbackPublished.length > 0) {
+    findings.push({
+      checkId: "sandbox.browser_container.non_loopback_publish",
+      severity: "critical",
+      title: "Sandbox browser container publishes ports on non-loopback interfaces",
+      detail:
+        `Containers: ${nonLoopbackPublished.join(", ")}. ` +
+        "Sandbox browser observer/control ports should stay loopback-only to avoid unintended remote access.",
+      remediation:
+        `${formatCliCommand("openclaw sandbox recreate --browser --all")} (add --force to skip prompt), ` +
+        "then verify published ports are bound to 127.0.0.1.",
     });
   }
 
@@ -1081,19 +1016,21 @@ export async function collectPluginsCodeSafetyFindings(params: {
       });
     }
 
-    const summary = await scanDirectoryWithSummary(pluginPath, {
-      includeFiles: forcedScanEntries,
-    }).catch((err) => {
-      findings.push({
-        checkId: "plugins.code_safety.scan_failed",
-        severity: "warn",
-        title: `Plugin "${pluginName}" code scan failed`,
-        detail: `Static code scan could not complete: ${String(err)}`,
-        remediation:
-          "Check file permissions and plugin layout, then rerun `openclaw security audit --deep`.",
+    const summary = await skillScanner
+      .scanDirectoryWithSummary(pluginPath, {
+        includeFiles: forcedScanEntries,
+      })
+      .catch((err) => {
+        findings.push({
+          checkId: "plugins.code_safety.scan_failed",
+          severity: "warn",
+          title: `Plugin "${pluginName}" code scan failed`,
+          detail: `Static code scan could not complete: ${String(err)}`,
+          remediation:
+            "Check file permissions and plugin layout, then rerun `openclaw security audit --deep`.",
+        });
+        return null;
       });
-      return null;
-    });
     if (!summary) {
       continue;
     }
@@ -1134,7 +1071,7 @@ export async function collectInstalledSkillsCodeSafetyFindings(params: {
   const findings: SecurityAuditFinding[] = [];
   const pluginExtensionsDir = path.join(params.stateDir, "extensions");
   const scannedSkillDirs = new Set<string>();
-  const workspaceDirs = listWorkspaceDirs(params.cfg);
+  const workspaceDirs = listAgentWorkspaceDirs(params.cfg);
 
   for (const workspaceDir of workspaceDirs) {
     const entries = loadWorkspaceSkillEntries(workspaceDir, { config: params.cfg });
@@ -1154,7 +1091,7 @@ export async function collectInstalledSkillsCodeSafetyFindings(params: {
       scannedSkillDirs.add(skillDir);
 
       const skillName = entry.skill.name;
-      const summary = await scanDirectoryWithSummary(skillDir).catch((err) => {
+      const summary = await skillScanner.scanDirectoryWithSummary(skillDir).catch((err) => {
         findings.push({
           checkId: "skills.code_safety.scan_failed",
           severity: "warn",

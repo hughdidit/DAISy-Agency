@@ -1,54 +1,6 @@
 {
   "name": "@openclaw/feishu",
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-  "version": "2026.2.6-3",
-=======
-  "version": "2026.2.10",
->>>>>>> 1872d0c59 (chore: bump version to 2026.2.10)
-=======
-  "version": "2026.2.12",
->>>>>>> 7695b4842 (chore: bump version to 2026.2.12)
-=======
-  "version": "2026.2.14",
->>>>>>> 1ff15e60d (chore(release): bump versions to 2026.2.14)
-=======
-  "version": "2026.2.15",
->>>>>>> 379b44558 (chore: bump version to 2026.2.15)
-=======
-  "version": "2026.2.16",
->>>>>>> 39fa81dc9 (chore: bump version to 2026.2.16)
-=======
-  "version": "2026.2.17",
->>>>>>> 9a2c39419 (chore(release): bump version to 2026.2.17)
-=======
-  "version": "2026.2.18",
->>>>>>> 4bf333883 (chore: bump version to 2026.2.18 unreleased)
-=======
-  "version": "2026.2.19",
->>>>>>> b0e55283d (chore: bump release metadata to 2026.2.19)
-=======
-  "version": "2026.2.20",
->>>>>>> f66b23de7 (chore(release): bump versions to 2026.2.20)
-=======
-  "version": "2026.2.21",
->>>>>>> 9231d7d30 (chore: bump version to 2026.2.21)
-=======
-  "version": "2026.2.26",
->>>>>>> caace61ba (chore: bump versions to 2026.2.26)
-=======
   "version": "2026.2.27",
->>>>>>> fe807e4be (chore(release): bump 2026.2.27 and split changelog)
   "description": "OpenClaw Feishu/Lark channel plugin (community maintained by @m1heng)",
   "type": "module",
   "dependencies": {
@@ -56,9 +8,6 @@
     "@sinclair/typebox": "0.34.48",
     "https-proxy-agent": "^7.0.6",
     "zod": "^4.3.6"
-  },
-  "devDependencies": {
-    "openclaw": "workspace:*"
   },
   "openclaw": {
     "extensions": [

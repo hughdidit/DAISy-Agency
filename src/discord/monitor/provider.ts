@@ -1,49 +1,24 @@
-<<<<<<< HEAD
+import { inspect } from "node:util";
 import { Client } from "@buape/carbon";
 import { GatewayIntents, GatewayPlugin } from "@buape/carbon/gateway";
-=======
-import { inspect } from "node:util";
-import {
-  Client,
-  ReadyListener,
-  type BaseMessageInteractiveComponent,
-  type Modal,
-} from "@buape/carbon";
-import { GatewayCloseCodes, type GatewayPlugin } from "@buape/carbon/gateway";
-import { VoicePlugin } from "@buape/carbon/voice";
->>>>>>> 4ab946eeb (Discord VC: voice channels, transcription, and TTS (#18774))
 import { Routes } from "discord-api-types/v10";
-import { HttpsProxyAgent } from "https-proxy-agent";
-import { inspect } from "node:util";
-import WebSocket from "ws";
-import type { HistoryEntry } from "../../auto-reply/reply/history.js";
-import type { OpenClawConfig, ReplyToMode } from "../../config/config.js";
-import type { DiscordAccountConfig } from "../../config/types.js";
-import type { RuntimeEnv } from "../../runtime.js";
 import { resolveTextChunkLimit } from "../../auto-reply/chunk.js";
 import { listNativeCommandSpecsForConfig } from "../../auto-reply/commands-registry.js";
 import { listSkillCommandsForAgents } from "../../auto-reply/skill-commands.js";
+import type { HistoryEntry } from "../../auto-reply/reply/history.js";
 import { mergeAllowlist, summarizeMapping } from "../../channels/allowlists/resolve-utils.js";
 import {
   isNativeCommandsExplicitlyDisabled,
   resolveNativeCommandsEnabled,
   resolveNativeSkillsEnabled,
 } from "../../config/commands.js";
+import type { MoltbotConfig, ReplyToMode } from "../../config/config.js";
 import { loadConfig } from "../../config/config.js";
-<<<<<<< HEAD
-=======
-import { isDangerousNameMatchingEnabled } from "../../config/dangerous-name-matching.js";
-import {
-  GROUP_POLICY_BLOCKED_LABEL,
-  resolveOpenProviderRuntimeGroupPolicy,
-  resolveDefaultGroupPolicy,
-  warnMissingProviderGroupPolicyFallbackOnce,
-} from "../../config/runtime-group-policy.js";
->>>>>>> 161d9841d (refactor(security): unify dangerous name matching handling)
 import { danger, logVerbose, shouldLogVerbose, warn } from "../../globals.js";
 import { formatErrorMessage } from "../../infra/errors.js";
 import { createDiscordRetryRunner } from "../../infra/retry-policy.js";
 import { createSubsystemLogger } from "../../logging/subsystem.js";
+import type { RuntimeEnv } from "../../runtime.js";
 import { resolveDiscordAccount } from "../accounts.js";
 import { attachDiscordGatewayLogging } from "../gateway-logging.js";
 import { getDiscordGatewayEmitter, waitForDiscordGatewayStop } from "../monitor.gateway.js";
@@ -51,24 +26,6 @@ import { fetchDiscordApplicationId } from "../probe.js";
 import { resolveDiscordChannelAllowlist } from "../resolve-channels.js";
 import { resolveDiscordUserAllowlist } from "../resolve-users.js";
 import { normalizeDiscordToken } from "../token.js";
-<<<<<<< HEAD
-=======
-import { createDiscordVoiceCommand } from "../voice/command.js";
-import { DiscordVoiceManager, DiscordVoiceReadyListener } from "../voice/manager.js";
-import {
-  createAgentComponentButton,
-  createAgentSelectMenu,
-  createDiscordComponentButton,
-  createDiscordComponentChannelSelect,
-  createDiscordComponentMentionableSelect,
-  createDiscordComponentModal,
-  createDiscordComponentRoleSelect,
-  createDiscordComponentStringSelect,
-  createDiscordComponentUserSelect,
-} from "./agent-components.js";
->>>>>>> 4ab946eeb (Discord VC: voice channels, transcription, and TTS (#18774))
-import { createExecApprovalButton, DiscordExecApprovalHandler } from "./exec-approvals.js";
-import { registerGateway, unregisterGateway } from "./gateway-registry.js";
 import {
   DiscordMessageListener,
   DiscordPresenceListener,
@@ -81,26 +38,12 @@ import {
   createDiscordCommandArgFallbackButton,
   createDiscordNativeCommand,
 } from "./native-command.js";
-<<<<<<< HEAD
-=======
-import { resolveDiscordPresenceUpdate } from "./presence.js";
-import { resolveDiscordAllowlistConfig } from "./provider.allowlist.js";
-import { runDiscordGatewayLifecycle } from "./provider.lifecycle.js";
-import { resolveDiscordRestFetch } from "./rest-fetch.js";
-import {
-  createNoopThreadBindingManager,
-  createThreadBindingManager,
-  resolveThreadBindingSessionTtlMs,
-  resolveThreadBindingsEnabled,
-  reconcileAcpThreadBindingsOnStartup,
-} from "./thread-bindings.js";
-import { formatThreadBindingTtlLabel } from "./thread-bindings.messages.js";
->>>>>>> a7d56e355 (feat: ACP thread-bound agents (#23580))
+import { createExecApprovalButton, DiscordExecApprovalHandler } from "./exec-approvals.js";
 
 export type MonitorDiscordOpts = {
   token?: string;
   accountId?: string;
-  config?: OpenClawConfig;
+  config?: MoltbotConfig;
   runtime?: RuntimeEnv;
   abortSignal?: AbortSignal;
   mediaMaxMb?: number;
@@ -108,106 +51,27 @@ export type MonitorDiscordOpts = {
   replyToMode?: ReplyToMode;
 };
 
-function createDiscordGatewayPlugin(params: {
-  discordConfig: DiscordAccountConfig;
-  runtime: RuntimeEnv;
-}): GatewayPlugin {
-  const intents = resolveDiscordGatewayIntents(params.discordConfig?.intents);
-  const proxy = params.discordConfig?.proxy?.trim();
-  const options = {
-    reconnect: { maxAttempts: Number.POSITIVE_INFINITY },
-    intents,
-    autoInteractions: true,
-  };
-
-  if (!proxy) {
-    return new GatewayPlugin(options);
-  }
-
-  let agent: HttpsProxyAgent | undefined;
-  try {
-    agent = new HttpsProxyAgent(proxy);
-  } catch (err) {
-    params.runtime.error?.(danger(`discord: invalid gateway proxy: ${String(err)}`));
-    return new GatewayPlugin(options);
-  }
-
-  params.runtime.log?.("discord: gateway proxy enabled");
-
-  class ProxyGatewayPlugin extends GatewayPlugin {
-    #proxyAgent: HttpsProxyAgent;
-
-    constructor(proxyAgent: HttpsProxyAgent) {
-      super(options);
-      this.#proxyAgent = proxyAgent;
-    }
-
-    createWebSocket(url?: string) {
-      if (!url) {
-        throw new Error("Gateway URL is required");
-      }
-      return new WebSocket(url, { agent: this.#proxyAgent });
-    }
-  }
-
-  return new ProxyGatewayPlugin(agent);
-}
-
 function summarizeAllowList(list?: Array<string | number>) {
-  if (!list || list.length === 0) {
-    return "any";
-  }
+  if (!list || list.length === 0) return "any";
   const sample = list.slice(0, 4).map((entry) => String(entry));
   const suffix = list.length > sample.length ? ` (+${list.length - sample.length})` : "";
   return `${sample.join(", ")}${suffix}`;
 }
 
 function summarizeGuilds(entries?: Record<string, unknown>) {
-  if (!entries || Object.keys(entries).length === 0) {
-    return "any";
-  }
+  if (!entries || Object.keys(entries).length === 0) return "any";
   const keys = Object.keys(entries);
   const sample = keys.slice(0, 4);
   const suffix = keys.length > sample.length ? ` (+${keys.length - sample.length})` : "";
   return `${sample.join(", ")}${suffix}`;
 }
 
-<<<<<<< HEAD
-=======
-function formatThreadBindingSessionTtlLabel(ttlMs: number): string {
-  const label = formatThreadBindingTtlLabel(ttlMs);
-  return label === "disabled" ? "off" : label;
-}
-
-function dedupeSkillCommandsForDiscord(
-  skillCommands: ReturnType<typeof listSkillCommandsForAgents>,
-) {
-  const seen = new Set<string>();
-  const deduped: ReturnType<typeof listSkillCommandsForAgents> = [];
-  for (const command of skillCommands) {
-    const key = command.skillName.trim().toLowerCase();
-    if (!key) {
-      deduped.push(command);
-      continue;
-    }
-    if (seen.has(key)) {
-      continue;
-    }
-    seen.add(key);
-    deduped.push(command);
-  }
-  return deduped;
-}
-
->>>>>>> a7d56e355 (feat: ACP thread-bound agents (#23580))
 async function deployDiscordCommands(params: {
   client: Client;
   runtime: RuntimeEnv;
   enabled: boolean;
 }) {
-  if (!params.enabled) {
-    return;
-  }
+  if (!params.enabled) return;
   const runWithRetry = createDiscordRetryRunner({ verbose: shouldLogVerbose() });
   try {
     await runWithRetry(() => params.client.handleDeployRequest(), "command deploy");
@@ -220,16 +84,12 @@ async function deployDiscordCommands(params: {
 }
 
 function formatDiscordDeployErrorDetails(err: unknown): string {
-  if (!err || typeof err !== "object") {
-    return "";
-  }
+  if (!err || typeof err !== "object") return "";
   const status = (err as { status?: unknown }).status;
   const discordCode = (err as { discordCode?: unknown }).discordCode;
   const rawBody = (err as { rawBody?: unknown }).rawBody;
   const details: string[] = [];
-  if (typeof status === "number") {
-    details.push(`status=${status}`);
-  }
+  if (typeof status === "number") details.push(`status=${status}`);
   if (typeof discordCode === "number" || typeof discordCode === "string") {
     details.push(`code=${discordCode}`);
   }
@@ -338,16 +198,13 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
   const useAccessGroups = cfg.commands?.useAccessGroups !== false;
   const sessionPrefix = "discord:slash";
   const ephemeralDefault = true;
-  const voiceEnabled = discordCfg.voice?.enabled !== false;
 
   if (token) {
     if (guildEntries && Object.keys(guildEntries).length > 0) {
       try {
         const entries: Array<{ input: string; guildKey: string; channelKey?: string }> = [];
         for (const [guildKey, guildCfg] of Object.entries(guildEntries)) {
-          if (guildKey === "*") {
-            continue;
-          }
+          if (guildKey === "*") continue;
           const channels = guildCfg?.channels ?? {};
           const channelKeys = Object.keys(channels).filter((key) => key !== "*");
           if (channelKeys.length === 0) {
@@ -372,9 +229,7 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
           const unresolved: string[] = [];
           for (const entry of resolved) {
             const source = entries.find((item) => item.input === entry.input);
-            if (!source) {
-              continue;
-            }
+            if (!source) continue;
             const sourceGuild = guildEntries?.[source.guildKey] ?? {};
             if (!entry.resolved || !entry.guildId) {
               unresolved.push(entry.input);
@@ -446,32 +301,22 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
     if (guildEntries && Object.keys(guildEntries).length > 0) {
       const userEntries = new Set<string>();
       for (const guild of Object.values(guildEntries)) {
-        if (!guild || typeof guild !== "object") {
-          continue;
-        }
+        if (!guild || typeof guild !== "object") continue;
         const users = (guild as { users?: Array<string | number> }).users;
         if (Array.isArray(users)) {
           for (const entry of users) {
             const trimmed = String(entry).trim();
-            if (trimmed && trimmed !== "*") {
-              userEntries.add(trimmed);
-            }
+            if (trimmed && trimmed !== "*") userEntries.add(trimmed);
           }
         }
         const channels = (guild as { channels?: Record<string, unknown> }).channels ?? {};
         for (const channel of Object.values(channels)) {
-          if (!channel || typeof channel !== "object") {
-            continue;
-          }
+          if (!channel || typeof channel !== "object") continue;
           const channelUsers = (channel as { users?: Array<string | number> }).users;
-          if (!Array.isArray(channelUsers)) {
-            continue;
-          }
+          if (!Array.isArray(channelUsers)) continue;
           for (const entry of channelUsers) {
             const trimmed = String(entry).trim();
-            if (trimmed && trimmed !== "*") {
-              userEntries.add(trimmed);
-            }
+            if (trimmed && trimmed !== "*") userEntries.add(trimmed);
           }
         }
       }
@@ -492,9 +337,7 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
 
           const nextGuilds = { ...guildEntries };
           for (const [guildKey, guildConfig] of Object.entries(guildEntries ?? {})) {
-            if (!guildConfig || typeof guildConfig !== "object") {
-              continue;
-            }
+            if (!guildConfig || typeof guildConfig !== "object") continue;
             const nextGuild = { ...guildConfig } as Record<string, unknown>;
             const users = (guildConfig as { users?: Array<string | number> }).users;
             if (Array.isArray(users) && users.length > 0) {
@@ -502,9 +345,7 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
               for (const entry of users) {
                 const trimmed = String(entry).trim();
                 const resolved = resolvedMap.get(trimmed);
-                if (resolved?.resolved && resolved.id) {
-                  additions.push(resolved.id);
-                }
+                if (resolved?.resolved && resolved.id) additions.push(resolved.id);
               }
               nextGuild.users = mergeAllowlist({ existing: users, additions });
             }
@@ -512,20 +353,14 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
             if (channels && typeof channels === "object") {
               const nextChannels: Record<string, unknown> = { ...channels };
               for (const [channelKey, channelConfig] of Object.entries(channels)) {
-                if (!channelConfig || typeof channelConfig !== "object") {
-                  continue;
-                }
+                if (!channelConfig || typeof channelConfig !== "object") continue;
                 const channelUsers = (channelConfig as { users?: Array<string | number> }).users;
-                if (!Array.isArray(channelUsers) || channelUsers.length === 0) {
-                  continue;
-                }
+                if (!Array.isArray(channelUsers) || channelUsers.length === 0) continue;
                 const additions: string[] = [];
                 for (const entry of channelUsers) {
                   const trimmed = String(entry).trim();
                   const resolved = resolvedMap.get(trimmed);
-                  if (resolved?.resolved && resolved.id) {
-                    additions.push(resolved.id);
-                  }
+                  if (resolved?.resolved && resolved.id) additions.push(resolved.id);
                 }
                 nextChannels[channelKey] = {
                   ...channelConfig,
@@ -581,204 +416,9 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
       ),
     );
   }
-  const voiceManagerRef: { current: DiscordVoiceManager | null } = { current: null };
-<<<<<<< HEAD
   const commands = commandSpecs.map((spec) =>
     createDiscordNativeCommand({
       command: spec,
-=======
-  const threadBindings = threadBindingsEnabled
-    ? createThreadBindingManager({
-        accountId: account.accountId,
-        token,
-        sessionTtlMs: threadBindingSessionTtlMs,
-      })
-    : createNoopThreadBindingManager(account.accountId);
-  if (threadBindingsEnabled) {
-    const reconciliation = reconcileAcpThreadBindingsOnStartup({
-      cfg,
-      accountId: account.accountId,
-      sendFarewell: false,
-    });
-    if (reconciliation.removed > 0) {
-      logVerbose(
-        `discord: removed ${reconciliation.removed}/${reconciliation.checked} stale ACP thread bindings on startup for account ${account.accountId}`,
-      );
-    }
-  }
-  let lifecycleStarted = false;
-  let releaseEarlyGatewayErrorGuard = () => {};
-  try {
-    const commands: BaseCommand[] = commandSpecs.map((spec) =>
-      createDiscordNativeCommand({
-        command: spec,
-        cfg,
-        discordConfig: discordCfg,
-        accountId: account.accountId,
-        sessionPrefix,
-        ephemeralDefault,
-        threadBindings,
-      }),
-    );
-    if (nativeEnabled && voiceEnabled) {
-      commands.push(
-        createDiscordVoiceCommand({
-          cfg,
-          discordConfig: discordCfg,
-          accountId: account.accountId,
-          groupPolicy,
-          useAccessGroups,
-          getManager: () => voiceManagerRef.current,
-          ephemeralDefault,
-        }),
-      );
-    }
-
-    // Initialize exec approvals handler if enabled
-    const execApprovalsConfig = discordCfg.execApprovals ?? {};
-    const execApprovalsHandler = execApprovalsConfig.enabled
-      ? new DiscordExecApprovalHandler({
-          token,
-          accountId: account.accountId,
-          config: execApprovalsConfig,
-          cfg,
-          runtime,
-        })
-      : null;
-
-    const agentComponentsConfig = discordCfg.agentComponents ?? {};
-    const agentComponentsEnabled = agentComponentsConfig.enabled ?? true;
-
-    const components: BaseMessageInteractiveComponent[] = [
-      createDiscordCommandArgFallbackButton({
-        cfg,
-        discordConfig: discordCfg,
-        accountId: account.accountId,
-        sessionPrefix,
-        threadBindings,
-      }),
-      createDiscordModelPickerFallbackButton({
-        cfg,
-        discordConfig: discordCfg,
-        accountId: account.accountId,
-        sessionPrefix,
-        threadBindings,
-      }),
-      createDiscordModelPickerFallbackSelect({
-        cfg,
-        discordConfig: discordCfg,
-        accountId: account.accountId,
-        sessionPrefix,
-        threadBindings,
-      }),
-    ];
-    const modals: Modal[] = [];
-
-    if (execApprovalsHandler) {
-      components.push(createExecApprovalButton({ handler: execApprovalsHandler }));
-    }
-
-    if (agentComponentsEnabled) {
-      const componentContext = {
-        cfg,
-        discordConfig: discordCfg,
-        accountId: account.accountId,
-        guildEntries,
-        allowFrom,
-        dmPolicy,
-        runtime,
-        token,
-      };
-      components.push(createAgentComponentButton(componentContext));
-      components.push(createAgentSelectMenu(componentContext));
-      components.push(createDiscordComponentButton(componentContext));
-      components.push(createDiscordComponentStringSelect(componentContext));
-      components.push(createDiscordComponentUserSelect(componentContext));
-      components.push(createDiscordComponentRoleSelect(componentContext));
-      components.push(createDiscordComponentMentionableSelect(componentContext));
-      components.push(createDiscordComponentChannelSelect(componentContext));
-      modals.push(createDiscordComponentModal(componentContext));
-    }
-
-    class DiscordStatusReadyListener extends ReadyListener {
-      async handle(_data: unknown, client: Client) {
-        const gateway = client.getPlugin<GatewayPlugin>("gateway");
-        if (!gateway) {
-          return;
-        }
-
-        const presence = resolveDiscordPresenceUpdate(discordCfg);
-        if (!presence) {
-          return;
-        }
-
-        gateway.updatePresence(presence);
-      }
-    }
-
-    const clientPlugins: Plugin[] = [
-      createDiscordGatewayPlugin({ discordConfig: discordCfg, runtime }),
-    ];
-    if (voiceEnabled) {
-      clientPlugins.push(new VoicePlugin());
-    }
-    const client = new Client(
-      {
-        baseUrl: "http://localhost",
-        deploySecret: "a",
-        clientId: applicationId,
-        publicKey: "a",
-        token,
-        autoDeploy: false,
-      },
-      {
-        commands,
-        listeners: [new DiscordStatusReadyListener()],
-        components,
-        modals,
-      },
-      clientPlugins,
-    );
-    const earlyGatewayErrorGuard = attachEarlyGatewayErrorGuard(client);
-    releaseEarlyGatewayErrorGuard = earlyGatewayErrorGuard.release;
-
-    await deployDiscordCommands({ client, runtime, enabled: nativeEnabled });
-
-    const logger = createSubsystemLogger("discord/monitor");
-    const guildHistories = new Map<string, HistoryEntry[]>();
-    let botUserId: string | undefined;
-    let voiceManager: DiscordVoiceManager | null = null;
-
-    if (nativeDisabledExplicit) {
-      await clearDiscordNativeCommands({
-        client,
-        applicationId,
-        runtime,
-      });
-    }
-
-    try {
-      const botUser = await client.fetchUser("@me");
-      botUserId = botUser?.id;
-    } catch (err) {
-      runtime.error?.(danger(`discord: failed to fetch bot identity: ${String(err)}`));
-    }
-
-    if (voiceEnabled) {
-      voiceManager = new DiscordVoiceManager({
-        client,
-        cfg,
-        discordConfig: discordCfg,
-        accountId: account.accountId,
-        runtime,
-        botUserId,
-      });
-      voiceManagerRef.current = voiceManager;
-      registerDiscordListener(client.listeners, new DiscordVoiceReadyListener(voiceManager));
-    }
-
-    const messageHandler = createDiscordMessageHandler({
->>>>>>> a7d56e355 (feat: ACP thread-bound agents (#23580))
       cfg,
       discordConfig: discordCfg,
       accountId: account.accountId,
@@ -786,19 +426,6 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
       ephemeralDefault,
     }),
   );
-  if (nativeEnabled && voiceEnabled) {
-    commands.push(
-      createDiscordVoiceCommand({
-        cfg,
-        discordConfig: discordCfg,
-        accountId: account.accountId,
-        groupPolicy,
-        useAccessGroups,
-        getManager: () => voiceManagerRef.current,
-        ephemeralDefault,
-      }),
-    );
-  }
 
   // Initialize exec approvals handler if enabled
   const execApprovalsConfig = discordCfg.execApprovals ?? {};
@@ -825,51 +452,6 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
     components.push(createExecApprovalButton({ handler: execApprovalsHandler }));
   }
 
-<<<<<<< HEAD
-=======
-  if (agentComponentsEnabled) {
-    const componentContext = {
-      cfg,
-      discordConfig: discordCfg,
-      accountId: account.accountId,
-      guildEntries,
-      allowFrom,
-      dmPolicy,
-      runtime,
-      token,
-    };
-    components.push(createAgentComponentButton(componentContext));
-    components.push(createAgentSelectMenu(componentContext));
-    components.push(createDiscordComponentButton(componentContext));
-    components.push(createDiscordComponentStringSelect(componentContext));
-    components.push(createDiscordComponentUserSelect(componentContext));
-    components.push(createDiscordComponentRoleSelect(componentContext));
-    components.push(createDiscordComponentMentionableSelect(componentContext));
-    components.push(createDiscordComponentChannelSelect(componentContext));
-    modals.push(createDiscordComponentModal(componentContext));
-  }
-
-  class DiscordStatusReadyListener extends ReadyListener {
-    async handle(_data: unknown, client: Client) {
-      const gateway = client.getPlugin<GatewayPlugin>("gateway");
-      if (!gateway) {
-        return;
-      }
-
-      const presence = resolveDiscordPresenceUpdate(discordCfg);
-      if (!presence) {
-        return;
-      }
-
-      gateway.updatePresence(presence);
-    }
-  }
-
-  const clientPlugins = [createDiscordGatewayPlugin({ discordConfig: discordCfg, runtime })];
-  if (voiceEnabled) {
-    clientPlugins.push(new VoicePlugin());
-  }
->>>>>>> 4ab946eeb (Discord VC: voice channels, transcription, and TTS (#18774))
   const client = new Client(
     {
       baseUrl: "http://localhost",
@@ -884,8 +466,6 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
       listeners: [],
       components,
     },
-<<<<<<< HEAD
-<<<<<<< HEAD
     [
       new GatewayPlugin({
         reconnect: {
@@ -895,12 +475,6 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
         autoInteractions: true,
       }),
     ],
-=======
-    [createDiscordGatewayPlugin({ discordConfig: discordCfg, runtime })],
->>>>>>> 0cb69b0f2 (Discord: add gateway proxy support)
-=======
-    clientPlugins,
->>>>>>> 4ab946eeb (Discord VC: voice channels, transcription, and TTS (#18774))
   );
 
   await deployDiscordCommands({ client, runtime, enabled: nativeEnabled });
@@ -908,7 +482,6 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
   const logger = createSubsystemLogger("discord/monitor");
   const guildHistories = new Map<string, HistoryEntry[]>();
   let botUserId: string | undefined;
-  let voiceManager: DiscordVoiceManager | null = null;
 
   if (nativeDisabledExplicit) {
     await clearDiscordNativeCommands({
@@ -925,20 +498,6 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
     runtime.error?.(danger(`discord: failed to fetch bot identity: ${String(err)}`));
   }
 
-  if (voiceEnabled) {
-    voiceManager = new DiscordVoiceManager({
-      client,
-      cfg,
-      discordConfig: discordCfg,
-      accountId: account.accountId,
-      runtime,
-      botUserId,
-    });
-    voiceManagerRef.current = voiceManager;
-    registerDiscordListener(client.listeners, new DiscordVoiceReadyListener(voiceManager));
-  }
-
-<<<<<<< HEAD
   const messageHandler = createDiscordMessageHandler({
     cfg,
     discordConfig: discordCfg,
@@ -957,33 +516,6 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
     allowFrom,
     guildEntries,
   });
-=======
-    registerDiscordListener(client.listeners, new DiscordMessageListener(messageHandler, logger));
-    registerDiscordListener(
-      client.listeners,
-      new DiscordReactionListener({
-        cfg,
-        accountId: account.accountId,
-        runtime,
-        botUserId,
-        allowNameMatching: isDangerousNameMatchingEnabled(discordCfg),
-        guildEntries,
-        logger,
-      }),
-    );
-    registerDiscordListener(
-      client.listeners,
-      new DiscordReactionRemoveListener({
-        cfg,
-        accountId: account.accountId,
-        runtime,
-        botUserId,
-        allowNameMatching: isDangerousNameMatchingEnabled(discordCfg),
-        guildEntries,
-        logger,
-      }),
-    );
->>>>>>> cfa44ea6b (fix(security): make allowFrom id-only by default with dangerous name opt-in (#24907))
 
   registerDiscordListener(client.listeners, new DiscordMessageListener(messageHandler, logger));
   registerDiscordListener(
@@ -1025,9 +557,6 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
   }
 
   const gateway = client.getPlugin<GatewayPlugin>("gateway");
-  if (gateway) {
-    registerGateway(account.accountId, gateway);
-  }
   const gatewayEmitter = getDiscordGatewayEmitter(gateway);
   const stopGatewayLogging = attachDiscordGatewayLogging({
     emitter: gatewayEmitter,
@@ -1035,9 +564,7 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
   });
   const abortSignal = opts.abortSignal;
   const onAbort = () => {
-    if (!gateway) {
-      return;
-    }
+    if (!gateway) return;
     // Carbon emits an error when maxAttempts is 0; keep a one-shot listener to avoid
     // an unhandled error after we tear down listeners during abort.
     gatewayEmitter?.once("error", () => {});
@@ -1054,12 +581,8 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
   let helloTimeoutId: ReturnType<typeof setTimeout> | undefined;
   const onGatewayDebug = (msg: unknown) => {
     const message = String(msg);
-    if (!message.includes("WebSocket connection opened")) {
-      return;
-    }
-    if (helloTimeoutId) {
-      clearTimeout(helloTimeoutId);
-    }
+    if (!message.includes("WebSocket connection opened")) return;
+    if (helloTimeoutId) clearTimeout(helloTimeoutId);
     helloTimeoutId = setTimeout(() => {
       if (!gateway?.isConnected) {
         runtime.log?.(
@@ -1094,17 +617,10 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
       },
     });
   } finally {
-    unregisterGateway(account.accountId);
     stopGatewayLogging();
-    if (helloTimeoutId) {
-      clearTimeout(helloTimeoutId);
-    }
+    if (helloTimeoutId) clearTimeout(helloTimeoutId);
     gatewayEmitter?.removeListener("debug", onGatewayDebug);
     abortSignal?.removeEventListener("abort", onAbort);
-    if (voiceManager) {
-      await voiceManager.destroy();
-      voiceManagerRef.current = null;
-    }
     if (execApprovalsHandler) {
       await execApprovalsHandler.stop();
     }

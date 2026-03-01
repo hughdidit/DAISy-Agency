@@ -1,13 +1,5 @@
 import fs from "node:fs";
-import type { OpenClawConfig } from "../config/config.js";
-<<<<<<< HEAD
-=======
-import {
-  DEFAULT_ACCOUNT_ID,
-  normalizeAccountId as normalizeSharedAccountId,
-} from "../routing/account-id.js";
-import { resolveAccountEntry } from "../routing/account-lookup.js";
->>>>>>> f97c0922e (fix(security): harden account-key handling against prototype pollution)
+import type { MoltbotConfig } from "../config/config.js";
 import type {
   LineConfig,
   LineAccountConfig,
@@ -18,9 +10,7 @@ import type {
 export const DEFAULT_ACCOUNT_ID = "default";
 
 function readFileIfExists(filePath: string | undefined): string | undefined {
-  if (!filePath) {
-    return undefined;
-  }
+  if (!filePath) return undefined;
   try {
     return fs.readFileSync(filePath, "utf-8").trim();
   } catch {
@@ -105,15 +95,13 @@ function resolveSecret(params: {
 }
 
 export function resolveLineAccount(params: {
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   accountId?: string;
 }): ResolvedLineAccount {
-  const cfg = params.cfg;
-  const accountId = normalizeSharedAccountId(params.accountId);
+  const { cfg, accountId = DEFAULT_ACCOUNT_ID } = params;
   const lineConfig = cfg.channels?.line as LineConfig | undefined;
   const accounts = lineConfig?.accounts;
-  const accountConfig =
-    accountId !== DEFAULT_ACCOUNT_ID ? resolveAccountEntry(accounts, accountId) : undefined;
+  const accountConfig = accountId !== DEFAULT_ACCOUNT_ID ? accounts?.[accountId] : undefined;
 
   const { token, tokenSource } = resolveToken({
     accountId,
@@ -150,7 +138,7 @@ export function resolveLineAccount(params: {
   };
 }
 
-export function listLineAccountIds(cfg: OpenClawConfig): string[] {
+export function listLineAccountIds(cfg: MoltbotConfig): string[] {
   const lineConfig = cfg.channels?.line as LineConfig | undefined;
   const accounts = lineConfig?.accounts;
   const ids = new Set<string>();
@@ -174,7 +162,7 @@ export function listLineAccountIds(cfg: OpenClawConfig): string[] {
   return Array.from(ids);
 }
 
-export function resolveDefaultLineAccountId(cfg: OpenClawConfig): string {
+export function resolveDefaultLineAccountId(cfg: MoltbotConfig): string {
   const ids = listLineAccountIds(cfg);
   if (ids.includes(DEFAULT_ACCOUNT_ID)) {
     return DEFAULT_ACCOUNT_ID;

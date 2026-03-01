@@ -1,4 +1,3 @@
-import type { DiscordPluralKitConfig } from "../discord/pluralkit.js";
 import type {
   BlockStreamingCoalesceConfig,
   DmPolicy,
@@ -10,7 +9,6 @@ import type {
 import type { ChannelHeartbeatVisibilityConfig } from "./types.channels.js";
 import type { DmConfig, ProviderCommandsConfig } from "./types.messages.js";
 import type { GroupToolPolicyBySenderConfig, GroupToolPolicyConfig } from "./types.tools.js";
-import type { TtsConfig } from "./types.tts.js";
 
 export type DiscordDmConfig = {
   /** If false, ignore all incoming Discord DMs. Default: true. */
@@ -39,8 +37,6 @@ export type DiscordGuildChannelConfig = {
   users?: Array<string | number>;
   /** Optional system prompt snippet for this channel. */
   systemPrompt?: string;
-  /** If false, omit thread starter context for this channel (default: true). */
-  includeThreadStarter?: boolean;
 };
 
 export type DiscordReactionNotificationMode = "off" | "own" | "all" | "allowlist";
@@ -76,8 +72,6 @@ export type DiscordActionConfig = {
   emojiUploads?: boolean;
   stickerUploads?: boolean;
   channels?: boolean;
-  /** Enable bot presence/activity changes (default: false). */
-  presence?: boolean;
 };
 
 export type DiscordIntentsConfig = {
@@ -85,26 +79,6 @@ export type DiscordIntentsConfig = {
   presence?: boolean;
   /** Enable Guild Members privileged intent (requires Portal opt-in). Default: false. */
   guildMembers?: boolean;
-};
-
-export type DiscordVoiceAutoJoinConfig = {
-  /** Guild ID that owns the voice channel. */
-  guildId: string;
-  /** Voice channel ID to join. */
-  channelId: string;
-};
-
-export type DiscordVoiceConfig = {
-  /** Enable Discord voice channel conversations (default: true). */
-  enabled?: boolean;
-  /** Voice channels to auto-join on startup. */
-  autoJoin?: DiscordVoiceAutoJoinConfig[];
-  /** Enable/disable DAVE end-to-end encryption (default: true; Discord may require this). */
-  daveEncryption?: boolean;
-  /** Consecutive decrypt failures before DAVE session reinitialization (default: 24). */
-  decryptionFailureTolerance?: number;
-  /** Optional TTS overrides for Discord voice output. */
-  tts?: TtsConfig;
 };
 
 export type DiscordExecApprovalConfig = {
@@ -116,58 +90,6 @@ export type DiscordExecApprovalConfig = {
   agentFilter?: string[];
   /** Only forward approvals matching these session key patterns (substring or regex). */
   sessionFilter?: string[];
-<<<<<<< HEAD
-=======
-  /** Delete approval DMs after approval, denial, or timeout. Default: false. */
-  cleanupAfterResolve?: boolean;
-  /** Where to send approval prompts. "dm" sends to approver DMs (default), "channel" sends to the
-   *  originating Discord channel, "both" sends to both. When target is "channel" or "both", buttons
-   *  are only usable by configured approvers; other users receive an ephemeral denial. */
-  target?: "dm" | "channel" | "both";
-};
-
-export type DiscordAgentComponentsConfig = {
-  /** Enable agent-controlled interactive components (buttons, select menus). Default: true. */
-  enabled?: boolean;
-};
-
-export type DiscordUiComponentsConfig = {
-  /** Accent color used by Discord component containers (hex). */
-  accentColor?: string;
-};
-
-export type DiscordUiConfig = {
-  components?: DiscordUiComponentsConfig;
-};
-
-export type DiscordThreadBindingsConfig = {
-  /**
-   * Enable Discord thread binding features (/focus, thread-bound delivery, and
-   * thread-bound subagent session flows). Overrides session.threadBindings.enabled
-   * when set.
-   */
-  enabled?: boolean;
-  /**
-   * Auto-unfocus TTL for thread-bound sessions in hours.
-   * Set to 0 to disable TTL. Default: 24.
-   */
-  ttlHours?: number;
-  /**
-   * Allow `sessions_spawn({ thread: true })` to auto-create + bind Discord
-   * threads for subagent sessions. Default: false (opt-in).
-   */
-  spawnSubagentSessions?: boolean;
-  /**
-   * Allow `/acp spawn` to auto-create + bind Discord threads for ACP
-   * sessions. Default: false (opt-in).
-   */
-  spawnAcpSessions?: boolean;
-};
-
-export type DiscordSlashCommandConfig = {
-  /** Reply ephemerally (default: true). */
-  ephemeral?: boolean;
->>>>>>> a7d56e355 (feat: ACP thread-bound agents (#23580))
 };
 
 export type DiscordAccountConfig = {
@@ -184,15 +106,8 @@ export type DiscordAccountConfig = {
   /** If false, do not start this Discord account. Default: true. */
   enabled?: boolean;
   token?: string;
-  /** HTTP(S) proxy URL for Discord gateway WebSocket connections. */
-  proxy?: string;
   /** Allow bot-authored messages to trigger replies (default: false). */
   allowBots?: boolean;
-  /**
-   * Break-glass override: allow mutable identity matching (names/tags/slugs) in allowlists.
-   * Default behavior is ID-only matching.
-   */
-  dangerouslyAllowNameMatching?: boolean;
   /**
    * Controls how guild channel messages are handled:
    * - "open": guild channels bypass allowlists; mention-gating applies
@@ -235,12 +150,6 @@ export type DiscordAccountConfig = {
   execApprovals?: DiscordExecApprovalConfig;
   /** Privileged Gateway Intents (must also be enabled in Discord Developer Portal). */
   intents?: DiscordIntentsConfig;
-  /** Voice channel conversation settings. */
-  voice?: DiscordVoiceConfig;
-  /** PluralKit identity resolution for proxied messages. */
-  pluralkit?: DiscordPluralKitConfig;
-  /** Outbound response prefix override for this channel/account. */
-  responsePrefix?: string;
 };
 
 export type DiscordConfig = {

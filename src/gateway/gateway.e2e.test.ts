@@ -2,19 +2,16 @@ import { randomUUID } from "node:crypto";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-<<<<<<< HEAD
+
 import { describe, expect, it } from "vitest";
-=======
-import { beforeAll, describe, expect, it } from "vitest";
-import { captureEnv } from "../test-utils/env.js";
->>>>>>> cc2ff6894 (test: optimize gateway infra memory and security coverage)
-import { startGatewayServer } from "./server.js";
+
 import {
   connectDeviceAuthReq,
   connectGatewayClient,
   getFreeGatewayPort,
 } from "./test-helpers.e2e.js";
 import { installOpenAiResponsesMock } from "./test-helpers.openai-mock.js";
+import { startGatewayServer } from "./server.js";
 
 function extractPayloadText(result: unknown): string {
   const record = result as Record<string, unknown>;
@@ -25,53 +22,46 @@ function extractPayloadText(result: unknown): string {
   return texts.join("\n").trim();
 }
 
-let writeConfigFile: typeof import("../config/config.js").writeConfigFile;
-let resolveConfigPath: typeof import("../config/config.js").resolveConfigPath;
-
 describe("gateway e2e", () => {
-  beforeAll(async () => {
-    ({ writeConfigFile, resolveConfigPath } = await import("../config/config.js"));
-  });
-
   it(
     "runs a mock OpenAI tool call end-to-end via gateway agent loop",
     { timeout: 90_000 },
     async () => {
       const prev = {
         home: process.env.HOME,
-        configPath: process.env.OPENCLAW_CONFIG_PATH,
-        token: process.env.OPENCLAW_GATEWAY_TOKEN,
-        skipChannels: process.env.OPENCLAW_SKIP_CHANNELS,
-        skipGmail: process.env.OPENCLAW_SKIP_GMAIL_WATCHER,
-        skipCron: process.env.OPENCLAW_SKIP_CRON,
-        skipCanvas: process.env.OPENCLAW_SKIP_CANVAS_HOST,
-        skipBrowser: process.env.OPENCLAW_SKIP_BROWSER_CONTROL_SERVER,
+        configPath: process.env.CLAWDBOT_CONFIG_PATH,
+        token: process.env.CLAWDBOT_GATEWAY_TOKEN,
+        skipChannels: process.env.CLAWDBOT_SKIP_CHANNELS,
+        skipGmail: process.env.CLAWDBOT_SKIP_GMAIL_WATCHER,
+        skipCron: process.env.CLAWDBOT_SKIP_CRON,
+        skipCanvas: process.env.CLAWDBOT_SKIP_CANVAS_HOST,
+        skipBrowser: process.env.CLAWDBOT_SKIP_BROWSER_CONTROL_SERVER,
       };
 
       const { baseUrl: openaiBaseUrl, restore } = installOpenAiResponsesMock();
 
-      const tempHome = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-gw-mock-home-"));
+      const tempHome = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-gw-mock-home-"));
       process.env.HOME = tempHome;
-      process.env.OPENCLAW_SKIP_CHANNELS = "1";
-      process.env.OPENCLAW_SKIP_GMAIL_WATCHER = "1";
-      process.env.OPENCLAW_SKIP_CRON = "1";
-      process.env.OPENCLAW_SKIP_CANVAS_HOST = "1";
-      process.env.OPENCLAW_SKIP_BROWSER_CONTROL_SERVER = "1";
+      process.env.CLAWDBOT_SKIP_CHANNELS = "1";
+      process.env.CLAWDBOT_SKIP_GMAIL_WATCHER = "1";
+      process.env.CLAWDBOT_SKIP_CRON = "1";
+      process.env.CLAWDBOT_SKIP_CANVAS_HOST = "1";
+      process.env.CLAWDBOT_SKIP_BROWSER_CONTROL_SERVER = "1";
 
       const token = `test-${randomUUID()}`;
-      process.env.OPENCLAW_GATEWAY_TOKEN = token;
+      process.env.CLAWDBOT_GATEWAY_TOKEN = token;
 
-      const workspaceDir = path.join(tempHome, "openclaw");
+      const workspaceDir = path.join(tempHome, "clawd");
       await fs.mkdir(workspaceDir, { recursive: true });
 
       const nonceA = randomUUID();
       const nonceB = randomUUID();
-      const toolProbePath = path.join(workspaceDir, `.openclaw-tool-probe.${nonceA}.txt`);
+      const toolProbePath = path.join(workspaceDir, `.clawdbot-tool-probe.${nonceA}.txt`);
       await fs.writeFile(toolProbePath, `nonceA=${nonceA}\nnonceB=${nonceB}\n`);
 
-      const configDir = path.join(tempHome, ".openclaw");
+      const configDir = path.join(tempHome, ".clawdbot");
       await fs.mkdir(configDir, { recursive: true });
-      const configPath = path.join(configDir, "openclaw.json");
+      const configPath = path.join(configDir, "moltbot.json");
 
       const cfg = {
         agents: { defaults: { workspace: workspaceDir } },
@@ -101,7 +91,7 @@ describe("gateway e2e", () => {
       };
 
       await fs.writeFile(configPath, `${JSON.stringify(cfg, null, 2)}\n`);
-      process.env.OPENCLAW_CONFIG_PATH = configPath;
+      process.env.CLAWDBOT_CONFIG_PATH = configPath;
 
       const port = await getFreeGatewayPort();
       const server = await startGatewayServer(port, {
@@ -119,7 +109,7 @@ describe("gateway e2e", () => {
       try {
         const sessionKey = "agent:dev:mock-openai";
 
-        await client.request("sessions.patch", {
+        await client.request<Record<string, unknown>>("sessions.patch", {
           key: sessionKey,
           model: "openai/gpt-5.2",
         });
@@ -151,13 +141,13 @@ describe("gateway e2e", () => {
         await fs.rm(tempHome, { recursive: true, force: true });
         restore();
         process.env.HOME = prev.home;
-        process.env.OPENCLAW_CONFIG_PATH = prev.configPath;
-        process.env.OPENCLAW_GATEWAY_TOKEN = prev.token;
-        process.env.OPENCLAW_SKIP_CHANNELS = prev.skipChannels;
-        process.env.OPENCLAW_SKIP_GMAIL_WATCHER = prev.skipGmail;
-        process.env.OPENCLAW_SKIP_CRON = prev.skipCron;
-        process.env.OPENCLAW_SKIP_CANVAS_HOST = prev.skipCanvas;
-        process.env.OPENCLAW_SKIP_BROWSER_CONTROL_SERVER = prev.skipBrowser;
+        process.env.CLAWDBOT_CONFIG_PATH = prev.configPath;
+        process.env.CLAWDBOT_GATEWAY_TOKEN = prev.token;
+        process.env.CLAWDBOT_SKIP_CHANNELS = prev.skipChannels;
+        process.env.CLAWDBOT_SKIP_GMAIL_WATCHER = prev.skipGmail;
+        process.env.CLAWDBOT_SKIP_CRON = prev.skipCron;
+        process.env.CLAWDBOT_SKIP_CANVAS_HOST = prev.skipCanvas;
+        process.env.CLAWDBOT_SKIP_BROWSER_CONTROL_SERVER = prev.skipBrowser;
       }
     },
   );
@@ -165,27 +155,27 @@ describe("gateway e2e", () => {
   it("runs wizard over ws and writes auth token config", { timeout: 90_000 }, async () => {
     const prev = {
       home: process.env.HOME,
-      stateDir: process.env.OPENCLAW_STATE_DIR,
-      configPath: process.env.OPENCLAW_CONFIG_PATH,
-      token: process.env.OPENCLAW_GATEWAY_TOKEN,
-      skipChannels: process.env.OPENCLAW_SKIP_CHANNELS,
-      skipGmail: process.env.OPENCLAW_SKIP_GMAIL_WATCHER,
-      skipCron: process.env.OPENCLAW_SKIP_CRON,
-      skipCanvas: process.env.OPENCLAW_SKIP_CANVAS_HOST,
-      skipBrowser: process.env.OPENCLAW_SKIP_BROWSER_CONTROL_SERVER,
+      stateDir: process.env.CLAWDBOT_STATE_DIR,
+      configPath: process.env.CLAWDBOT_CONFIG_PATH,
+      token: process.env.CLAWDBOT_GATEWAY_TOKEN,
+      skipChannels: process.env.CLAWDBOT_SKIP_CHANNELS,
+      skipGmail: process.env.CLAWDBOT_SKIP_GMAIL_WATCHER,
+      skipCron: process.env.CLAWDBOT_SKIP_CRON,
+      skipCanvas: process.env.CLAWDBOT_SKIP_CANVAS_HOST,
+      skipBrowser: process.env.CLAWDBOT_SKIP_BROWSER_CONTROL_SERVER,
     };
 
-    process.env.OPENCLAW_SKIP_CHANNELS = "1";
-    process.env.OPENCLAW_SKIP_GMAIL_WATCHER = "1";
-    process.env.OPENCLAW_SKIP_CRON = "1";
-    process.env.OPENCLAW_SKIP_CANVAS_HOST = "1";
-    process.env.OPENCLAW_SKIP_BROWSER_CONTROL_SERVER = "1";
-    delete process.env.OPENCLAW_GATEWAY_TOKEN;
+    process.env.CLAWDBOT_SKIP_CHANNELS = "1";
+    process.env.CLAWDBOT_SKIP_GMAIL_WATCHER = "1";
+    process.env.CLAWDBOT_SKIP_CRON = "1";
+    process.env.CLAWDBOT_SKIP_CANVAS_HOST = "1";
+    process.env.CLAWDBOT_SKIP_BROWSER_CONTROL_SERVER = "1";
+    delete process.env.CLAWDBOT_GATEWAY_TOKEN;
 
-    const tempHome = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-wizard-home-"));
+    const tempHome = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-wizard-home-"));
     process.env.HOME = tempHome;
-    delete process.env.OPENCLAW_STATE_DIR;
-    delete process.env.OPENCLAW_CONFIG_PATH;
+    delete process.env.CLAWDBOT_STATE_DIR;
+    delete process.env.CLAWDBOT_CONFIG_PATH;
 
     const wizardToken = `wiz-${randomUUID()}`;
     const port = await getFreeGatewayPort();
@@ -197,6 +187,7 @@ describe("gateway e2e", () => {
         await prompter.intro("Wizard E2E");
         await prompter.note("write token");
         const token = await prompter.text({ message: "token" });
+        const { writeConfigFile } = await import("../config/config.js");
         await writeConfigFile({
           gateway: { auth: { mode: "token", token: String(token) } },
         });
@@ -228,13 +219,9 @@ describe("gateway e2e", () => {
       let didSendToken = false;
       while (!next.done) {
         const step = next.step;
-        if (!step) {
-          throw new Error("wizard missing step");
-        }
+        if (!step) throw new Error("wizard missing step");
         const value = step.type === "text" ? wizardToken : null;
-        if (step.type === "text") {
-          didSendToken = true;
-        }
+        if (step.type === "text") didSendToken = true;
         next = await client.request("wizard.next", {
           sessionId,
           answer: { stepId: step.id, value },
@@ -244,6 +231,7 @@ describe("gateway e2e", () => {
       expect(didSendToken).toBe(true);
       expect(next.status).toBe("done");
 
+      const { resolveConfigPath } = await import("../config/config.js");
       const parsed = JSON.parse(await fs.readFile(resolveConfigPath(), "utf8"));
       const token = (parsed as Record<string, unknown>)?.gateway as
         | Record<string, unknown>
@@ -275,14 +263,14 @@ describe("gateway e2e", () => {
       await server2.close({ reason: "wizard auth verify" });
       await fs.rm(tempHome, { recursive: true, force: true });
       process.env.HOME = prev.home;
-      process.env.OPENCLAW_STATE_DIR = prev.stateDir;
-      process.env.OPENCLAW_CONFIG_PATH = prev.configPath;
-      process.env.OPENCLAW_GATEWAY_TOKEN = prev.token;
-      process.env.OPENCLAW_SKIP_CHANNELS = prev.skipChannels;
-      process.env.OPENCLAW_SKIP_GMAIL_WATCHER = prev.skipGmail;
-      process.env.OPENCLAW_SKIP_CRON = prev.skipCron;
-      process.env.OPENCLAW_SKIP_CANVAS_HOST = prev.skipCanvas;
-      process.env.OPENCLAW_SKIP_BROWSER_CONTROL_SERVER = prev.skipBrowser;
+      process.env.CLAWDBOT_STATE_DIR = prev.stateDir;
+      process.env.CLAWDBOT_CONFIG_PATH = prev.configPath;
+      process.env.CLAWDBOT_GATEWAY_TOKEN = prev.token;
+      process.env.CLAWDBOT_SKIP_CHANNELS = prev.skipChannels;
+      process.env.CLAWDBOT_SKIP_GMAIL_WATCHER = prev.skipGmail;
+      process.env.CLAWDBOT_SKIP_CRON = prev.skipCron;
+      process.env.CLAWDBOT_SKIP_CANVAS_HOST = prev.skipCanvas;
+      process.env.CLAWDBOT_SKIP_BROWSER_CONTROL_SERVER = prev.skipBrowser;
     }
   });
 });

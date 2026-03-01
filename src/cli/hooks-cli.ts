@@ -1,32 +1,31 @@
-import type { Command } from "commander";
 import fs from "node:fs";
 import fsp from "node:fs/promises";
 import path from "node:path";
-import type { OpenClawConfig } from "../config/config.js";
-import type { HookEntry } from "../hooks/types.js";
+import type { Command } from "commander";
 import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../agents/agent-scope.js";
-import { loadConfig, writeConfigFile } from "../config/io.js";
+import type { MoltbotConfig } from "../config/config.js";
+import { resolveArchiveKind } from "../infra/archive.js";
 import {
   buildWorkspaceHookStatus,
   type HookStatusEntry,
   type HookStatusReport,
 } from "../hooks/hooks-status.js";
+import type { HookEntry } from "../hooks/types.js";
+import { loadWorkspaceHookEntries } from "../hooks/workspace.js";
+import { loadConfig, writeConfigFile } from "../config/io.js";
 import {
   installHooksFromNpmSpec,
   installHooksFromPath,
   resolveHookInstallDir,
 } from "../hooks/install.js";
 import { recordHookInstall } from "../hooks/installs.js";
-import { loadWorkspaceHookEntries } from "../hooks/workspace.js";
-import { resolveArchiveKind } from "../infra/archive.js";
 import { buildPluginStatusReport } from "../plugins/status.js";
 import { defaultRuntime } from "../runtime.js";
 import { formatDocsLink } from "../terminal/links.js";
 import { renderTable } from "../terminal/table.js";
 import { theme } from "../terminal/theme.js";
-import { resolveUserPath, shortenHomePath } from "../utils.js";
 import { formatCliCommand } from "./command-format.js";
-import { promptYesNo } from "./prompt.js";
+import { resolveUserPath, shortenHomePath } from "../utils.js";
 
 export type HooksListOptions = {
   json?: boolean;
@@ -58,7 +57,7 @@ function mergeHookEntries(pluginEntries: HookEntry[], workspaceEntries: HookEntr
   return Array.from(merged.values());
 }
 
-function buildHooksReport(config: OpenClawConfig): HookStatusReport {
+function buildHooksReport(config: MoltbotConfig): HookStatusReport {
   const workspaceDir = resolveAgentWorkspaceDir(config, resolveDefaultAgentId(config));
   const workspaceEntries = loadWorkspaceHookEntries(workspaceDir, { config });
   const pluginReport = buildPluginStatusReport({ config, workspaceDir });
@@ -68,12 +67,8 @@ function buildHooksReport(config: OpenClawConfig): HookStatusReport {
 }
 
 function formatHookStatus(hook: HookStatusEntry): string {
-  if (hook.eligible) {
-    return theme.success("✓ ready");
-  }
-  if (hook.disabled) {
-    return theme.warn("⏸ disabled");
-  }
+  if (hook.eligible) return theme.success("✓ ready");
+  if (hook.disabled) return theme.warn("⏸ disabled");
   return theme.error("✗ missing");
 }
 
@@ -83,9 +78,7 @@ function formatHookName(hook: HookStatusEntry): string {
 }
 
 function formatHookSource(hook: HookStatusEntry): string {
-  if (!hook.managedByPlugin) {
-    return hook.source;
-  }
+  if (!hook.managedByPlugin) return hook.source;
   return `plugin:${hook.pluginId ?? "unknown"}`;
 }
 
@@ -148,7 +141,7 @@ export function formatHooksList(report: HookStatusReport, opts: HooksListOptions
 
   if (hooks.length === 0) {
     const message = opts.eligible
-      ? `No eligible hooks found. Run \`${formatCliCommand("openclaw hooks list")}\` to see all hooks.`
+      ? `No eligible hooks found. Run \`${formatCliCommand("moltbot hooks list")}\` to see all hooks.`
       : "No hooks found.";
     return message;
   }
@@ -204,7 +197,7 @@ export function formatHookInfo(
     if (opts.json) {
       return JSON.stringify({ error: "not found", hook: hookName }, null, 2);
     }
-    return `Hook "${hookName}" not found. Run \`${formatCliCommand("openclaw hooks list")}\` to see available hooks.`;
+    return `Hook "${hookName}" not found. Run \`${formatCliCommand("moltbot hooks list")}\` to see available hooks.`;
   }
 
   if (opts.json) {
@@ -333,24 +326,13 @@ export function formatHooksCheck(report: HookStatusReport, opts: HooksCheckOptio
     lines.push(theme.heading("Hooks not ready:"));
     for (const hook of notEligible) {
       const reasons = [];
-      if (hook.disabled) {
-        reasons.push("disabled");
-      }
-      if (hook.missing.bins.length > 0) {
-        reasons.push(`bins: ${hook.missing.bins.join(", ")}`);
-      }
-      if (hook.missing.anyBins.length > 0) {
+      if (hook.disabled) reasons.push("disabled");
+      if (hook.missing.bins.length > 0) reasons.push(`bins: ${hook.missing.bins.join(", ")}`);
+      if (hook.missing.anyBins.length > 0)
         reasons.push(`anyBins: ${hook.missing.anyBins.join(", ")}`);
-      }
-      if (hook.missing.env.length > 0) {
-        reasons.push(`env: ${hook.missing.env.join(", ")}`);
-      }
-      if (hook.missing.config.length > 0) {
-        reasons.push(`config: ${hook.missing.config.join(", ")}`);
-      }
-      if (hook.missing.os.length > 0) {
-        reasons.push(`os: ${hook.missing.os.join(", ")}`);
-      }
+      if (hook.missing.env.length > 0) reasons.push(`env: ${hook.missing.env.join(", ")}`);
+      if (hook.missing.config.length > 0) reasons.push(`config: ${hook.missing.config.join(", ")}`);
+      if (hook.missing.os.length > 0) reasons.push(`os: ${hook.missing.os.join(", ")}`);
       lines.push(`  ${hook.emoji ?? "🔗"} ${hook.name} - ${reasons.join("; ")}`);
     }
   }
@@ -442,7 +424,7 @@ export function registerHooksCli(program: Command): void {
     .addHelpText(
       "after",
       () =>
-        `\n${theme.muted("Docs:")} ${formatDocsLink("/cli/hooks", "docs.openclaw.ai/cli/hooks")}\n`,
+        `\n${theme.muted("Docs:")} ${formatDocsLink("/cli/hooks", "docs.molt.bot/cli/hooks")}\n`,
     );
 
   hooks
@@ -531,8 +513,7 @@ export function registerHooksCli(program: Command): void {
     .description("Install a hook pack (path, archive, or npm spec)")
     .argument("<path-or-spec>", "Path to a hook pack or npm package spec")
     .option("-l, --link", "Link a local path instead of copying", false)
-    .option("--pin", "Record npm installs as exact resolved <name>@<version>", false)
-    .action(async (raw: string, opts: { link?: boolean; pin?: boolean }) => {
+    .action(async (raw: string, opts: { link?: boolean }) => {
       const resolved = resolveUserPath(raw);
       const cfg = loadConfig();
 
@@ -552,7 +533,7 @@ export function registerHooksCli(program: Command): void {
             process.exit(1);
           }
 
-          let next: OpenClawConfig = {
+          let next: MoltbotConfig = {
             ...cfg,
             hooks: {
               ...cfg.hooks,
@@ -613,7 +594,7 @@ export function registerHooksCli(program: Command): void {
           process.exit(1);
         }
 
-        let next: OpenClawConfig = {
+        let next: MoltbotConfig = {
           ...cfg,
           hooks: {
             ...cfg.hooks,
@@ -693,8 +674,7 @@ export function registerHooksCli(program: Command): void {
         process.exit(1);
       }
 
-<<<<<<< HEAD
-      let next: OpenClawConfig = {
+      let next: MoltbotConfig = {
         ...cfg,
         hooks: {
           ...cfg.hooks,
@@ -725,32 +705,14 @@ export function registerHooksCli(program: Command): void {
             },
           },
         };
-=======
-      let next = enableInternalHookEntries(cfg, result.hooks);
-      const resolvedSpec = result.npmResolution?.resolvedSpec;
-      const recordSpec = opts.pin && resolvedSpec ? resolvedSpec : raw;
-      if (opts.pin && !resolvedSpec) {
-        defaultRuntime.log(
-          theme.warn("Could not resolve exact npm version for --pin; storing original npm spec."),
-        );
-      }
-      if (opts.pin && resolvedSpec) {
-        defaultRuntime.log(`Pinned npm install record to ${resolvedSpec}.`);
->>>>>>> 5dc50b8a3 (fix(security): harden npm plugin and hook install integrity flow)
       }
 
       next = recordHookInstall(next, {
         hookId: result.hookPackId,
         source: "npm",
-        spec: recordSpec,
+        spec: raw,
         installPath: result.targetDir,
         version: result.version,
-        resolvedName: result.npmResolution?.name,
-        resolvedVersion: result.npmResolution?.version,
-        resolvedSpec: result.npmResolution?.resolvedSpec,
-        integrity: result.npmResolution?.integrity,
-        shasum: result.npmResolution?.shasum,
-        resolvedAt: result.npmResolution?.resolvedAt,
         hooks: result.hooks,
       });
       await writeConfigFile(next);
@@ -792,13 +754,7 @@ export function registerHooksCli(program: Command): void {
           continue;
         }
 
-        let installPath: string;
-        try {
-          installPath = record.installPath ?? resolveHookInstallDir(hookId);
-        } catch (err) {
-          defaultRuntime.log(theme.error(`Invalid install path for "${hookId}": ${String(err)}`));
-          continue;
-        }
+        const installPath = record.installPath ?? resolveHookInstallDir(hookId);
         const currentVersion = await readInstalledPackageVersion(installPath);
 
         if (opts.dryRun) {
@@ -807,26 +763,10 @@ export function registerHooksCli(program: Command): void {
             mode: "update",
             dryRun: true,
             expectedHookPackId: hookId,
-<<<<<<< HEAD
             logger: {
               info: (msg) => defaultRuntime.log(msg),
               warn: (msg) => defaultRuntime.log(theme.warn(msg)),
             },
-=======
-            expectedIntegrity: record.integrity,
-            onIntegrityDrift: async (drift) => {
-              const specLabel = drift.resolution.resolvedSpec ?? drift.spec;
-              defaultRuntime.log(
-                theme.warn(
-                  `Integrity drift detected for "${hookId}" (${specLabel})` +
-                    `\nExpected: ${drift.expectedIntegrity}` +
-                    `\nActual:   ${drift.actualIntegrity}`,
-                ),
-              );
-              return true;
-            },
-            logger: createInstallLogger(),
->>>>>>> 5dc50b8a3 (fix(security): harden npm plugin and hook install integrity flow)
           });
           if (!probe.ok) {
             defaultRuntime.log(theme.error(`Failed to check ${hookId}: ${probe.error}`));
@@ -847,26 +787,10 @@ export function registerHooksCli(program: Command): void {
           spec: record.spec,
           mode: "update",
           expectedHookPackId: hookId,
-<<<<<<< HEAD
           logger: {
             info: (msg) => defaultRuntime.log(msg),
             warn: (msg) => defaultRuntime.log(theme.warn(msg)),
           },
-=======
-          expectedIntegrity: record.integrity,
-          onIntegrityDrift: async (drift) => {
-            const specLabel = drift.resolution.resolvedSpec ?? drift.spec;
-            defaultRuntime.log(
-              theme.warn(
-                `Integrity drift detected for "${hookId}" (${specLabel})` +
-                  `\nExpected: ${drift.expectedIntegrity}` +
-                  `\nActual:   ${drift.actualIntegrity}`,
-              ),
-            );
-            return await promptYesNo(`Continue updating "${hookId}" with this artifact?`);
-          },
-          logger: createInstallLogger(),
->>>>>>> 5dc50b8a3 (fix(security): harden npm plugin and hook install integrity flow)
         });
         if (!result.ok) {
           defaultRuntime.log(theme.error(`Failed to update ${hookId}: ${result.error}`));
@@ -880,12 +804,6 @@ export function registerHooksCli(program: Command): void {
           spec: record.spec,
           installPath: result.targetDir,
           version: nextVersion,
-          resolvedName: result.npmResolution?.name,
-          resolvedVersion: result.npmResolution?.version,
-          resolvedSpec: result.npmResolution?.resolvedSpec,
-          integrity: result.npmResolution?.integrity,
-          shasum: result.npmResolution?.shasum,
-          resolvedAt: result.npmResolution?.resolvedAt,
           hooks: result.hooks,
         });
         updatedCount += 1;

@@ -1,20 +1,16 @@
-import type { APIChannel, APIGuild, APIGuildMember, APIRole } from "discord-api-types/v10";
 import { RequestClient } from "@buape/carbon";
+import type { APIChannel, APIGuild, APIGuildMember, APIRole } from "discord-api-types/v10";
 import { ChannelType, PermissionFlagsBits, Routes } from "discord-api-types/v10";
-<<<<<<< HEAD
-import type { RetryConfig } from "../infra/retry.js";
-import type { DiscordPermissionsSummary, DiscordReactOpts } from "./send.types.js";
+
 import { loadConfig } from "../config/config.js";
+import type { RetryConfig } from "../infra/retry.js";
 import { resolveDiscordAccount } from "./accounts.js";
-import { normalizeDiscordToken } from "./token.js";
-=======
 import type { DiscordPermissionsSummary, DiscordReactOpts } from "./send.types.js";
-import { resolveDiscordRest } from "./client.js";
->>>>>>> 775816035 (fix(security): enforce trusted sender auth for discord moderation)
+import { normalizeDiscordToken } from "./token.js";
 
 const PERMISSION_ENTRIES = Object.entries(PermissionFlagsBits).filter(
   ([, value]) => typeof value === "bigint",
-);
+) as Array<[string, bigint]>;
 
 type DiscordClientOpts = {
   token?: string;
@@ -26,9 +22,7 @@ type DiscordClientOpts = {
 
 function resolveToken(params: { explicit?: string; accountId: string; fallbackToken?: string }) {
   const explicit = normalizeDiscordToken(params.explicit);
-  if (explicit) {
-    return explicit;
-  }
+  if (explicit) return explicit;
   const fallback = normalizeDiscordToken(params.fallbackToken);
   if (!fallback) {
     throw new Error(
@@ -54,36 +48,21 @@ function resolveDiscordRest(opts: DiscordClientOpts) {
 }
 
 function addPermissionBits(base: bigint, add?: string) {
-  if (!add) {
-    return base;
-  }
+  if (!add) return base;
   return base | BigInt(add);
 }
 
 function removePermissionBits(base: bigint, deny?: string) {
-  if (!deny) {
-    return base;
-  }
+  if (!deny) return base;
   return base & ~BigInt(deny);
 }
 
 function bitfieldToPermissions(bitfield: bigint) {
   return PERMISSION_ENTRIES.filter(([, value]) => (bitfield & value) === value)
     .map(([name]) => name)
-    .toSorted();
+    .sort();
 }
 
-<<<<<<< HEAD
-=======
-function hasAdministrator(bitfield: bigint) {
-  return (bitfield & ADMINISTRATOR_BIT) === ADMINISTRATOR_BIT;
-}
-
-function hasPermissionBit(bitfield: bigint, permission: bigint) {
-  return (bitfield & permission) === permission;
-}
-
->>>>>>> 775816035 (fix(security): enforce trusted sender auth for discord moderation)
 export function isThreadChannelType(channelType?: number) {
   return (
     channelType === ChannelType.GuildNewsThread ||
@@ -99,82 +78,6 @@ async function fetchBotUserId(rest: RequestClient) {
   }
   return me.id;
 }
-
-/**
- * Fetch guild-level permissions for a user. This does not include channel-specific overwrites.
- */
-export async function fetchMemberGuildPermissionsDiscord(
-  guildId: string,
-  userId: string,
-  opts: DiscordReactOpts = {},
-): Promise<bigint | null> {
-  const rest = resolveDiscordRest(opts);
-  try {
-    const [guild, member] = await Promise.all([
-      rest.get(Routes.guild(guildId)) as Promise<APIGuild>,
-      rest.get(Routes.guildMember(guildId, userId)) as Promise<APIGuildMember>,
-    ]);
-    const rolesById = new Map<string, APIRole>((guild.roles ?? []).map((role) => [role.id, role]));
-    const everyoneRole = rolesById.get(guildId);
-    let permissions = 0n;
-    if (everyoneRole?.permissions) {
-      permissions = addPermissionBits(permissions, everyoneRole.permissions);
-    }
-    for (const roleId of member.roles ?? []) {
-      const role = rolesById.get(roleId);
-      if (role?.permissions) {
-        permissions = addPermissionBits(permissions, role.permissions);
-      }
-    }
-    return permissions;
-  } catch {
-    // Not a guild member, guild not found, or API failure.
-    return null;
-  }
-}
-
-/**
- * Returns true when the user has ADMINISTRATOR or any required permission bit.
- */
-export async function hasAnyGuildPermissionDiscord(
-  guildId: string,
-  userId: string,
-  requiredPermissions: bigint[],
-  opts: DiscordReactOpts = {},
-): Promise<boolean> {
-  const permissions = await fetchMemberGuildPermissionsDiscord(guildId, userId, opts);
-  if (permissions === null) {
-    return false;
-  }
-  if (hasAdministrator(permissions)) {
-    return true;
-  }
-  return requiredPermissions.some((permission) => hasPermissionBit(permissions, permission));
-}
-
-/**
- * Returns true when the user has ADMINISTRATOR or all required permission bits.
- */
-export async function hasAllGuildPermissionsDiscord(
-  guildId: string,
-  userId: string,
-  requiredPermissions: bigint[],
-  opts: DiscordReactOpts = {},
-): Promise<boolean> {
-  const permissions = await fetchMemberGuildPermissionsDiscord(guildId, userId, opts);
-  if (permissions === null) {
-    return false;
-  }
-  if (hasAdministrator(permissions)) {
-    return true;
-  }
-  return requiredPermissions.every((permission) => hasPermissionBit(permissions, permission));
-}
-
-/**
- * @deprecated Prefer hasAnyGuildPermissionDiscord or hasAllGuildPermissionsDiscord for clarity.
- */
-export const hasGuildPermissionDiscord = hasAnyGuildPermissionDiscord;
 
 export async function fetchChannelPermissionsDiscord(
   channelId: string,

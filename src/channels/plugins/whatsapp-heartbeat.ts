@@ -1,22 +1,15 @@
-import type { OpenClawConfig } from "../../config/config.js";
+import { normalizeChatChannelId } from "../../channels/registry.js";
+import type { MoltbotConfig } from "../../config/config.js";
 import { loadSessionStore, resolveStorePath } from "../../config/sessions.js";
-<<<<<<< HEAD
-=======
-import { readChannelAllowFromStoreSync } from "../../pairing/pairing-store.js";
-import { DEFAULT_ACCOUNT_ID } from "../../routing/session-key.js";
->>>>>>> bce643a0b (refactor(security): enforce account-scoped pairing APIs)
 import { normalizeE164 } from "../../utils.js";
-import { normalizeChatChannelId } from "../registry.js";
 
 type HeartbeatRecipientsResult = { recipients: string[]; source: string };
 type HeartbeatRecipientsOpts = { to?: string; all?: boolean };
 
-function getSessionRecipients(cfg: OpenClawConfig) {
+function getSessionRecipients(cfg: MoltbotConfig) {
   const sessionCfg = cfg.session;
   const scope = sessionCfg?.scope ?? "per-sender";
-  if (scope === "global") {
-    return [];
-  }
+  if (scope === "global") return [];
   const storePath = resolveStorePath(cfg.session?.store);
   const store = loadSessionStore(storePath);
   const isGroupKey = (key: string) =>
@@ -34,21 +27,19 @@ function getSessionRecipients(cfg: OpenClawConfig) {
       updatedAt: entry?.updatedAt ?? 0,
     }))
     .filter(({ to }) => to.length > 1)
-    .toSorted((a, b) => b.updatedAt - a.updatedAt);
+    .sort((a, b) => b.updatedAt - a.updatedAt);
 
   // Dedupe while preserving recency ordering.
   const seen = new Set<string>();
   return recipients.filter((r) => {
-    if (seen.has(r.to)) {
-      return false;
-    }
+    if (seen.has(r.to)) return false;
     seen.add(r.to);
     return true;
   });
 }
 
 export function resolveWhatsAppHeartbeatRecipients(
-  cfg: OpenClawConfig,
+  cfg: MoltbotConfig,
   opts: HeartbeatRecipientsOpts = {},
 ): HeartbeatRecipientsResult {
   if (opts.to) {
@@ -60,14 +51,6 @@ export function resolveWhatsAppHeartbeatRecipients(
     Array.isArray(cfg.channels?.whatsapp?.allowFrom) && cfg.channels.whatsapp.allowFrom.length > 0
       ? cfg.channels.whatsapp.allowFrom.filter((v) => v !== "*").map(normalizeE164)
       : [];
-<<<<<<< HEAD
-=======
-  const storeAllowFrom = readChannelAllowFromStoreSync(
-    "whatsapp",
-    process.env,
-    DEFAULT_ACCOUNT_ID,
-  ).map(normalizeE164);
->>>>>>> bce643a0b (refactor(security): enforce account-scoped pairing APIs)
 
   const unique = (list: string[]) => [...new Set(list.filter(Boolean))];
 

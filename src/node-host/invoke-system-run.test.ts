@@ -21,6 +21,30 @@ describe("formatSystemRunAllowlistMissMessage", () => {
 });
 
 describe("handleSystemRunInvoke mac app exec host routing", () => {
+  function buildNestedEnvShellCommand(params: { depth: number; payload: string }): string[] {
+    return [...Array(params.depth).fill("/usr/bin/env"), "/bin/sh", "-c", params.payload];
+  }
+
+  async function withTempApprovalsHome<T>(params: {
+    approvals: Parameters<typeof saveExecApprovals>[0];
+    run: (ctx: { tempHome: string }) => Promise<T>;
+  }): Promise<T> {
+    const tempHome = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-exec-approvals-"));
+    const previousOpenClawHome = process.env.OPENCLAW_HOME;
+    process.env.OPENCLAW_HOME = tempHome;
+    saveExecApprovals(params.approvals);
+    try {
+      return await params.run({ tempHome });
+    } finally {
+      if (previousOpenClawHome === undefined) {
+        delete process.env.OPENCLAW_HOME;
+      } else {
+        process.env.OPENCLAW_HOME = previousOpenClawHome;
+      }
+      fs.rmSync(tempHome, { recursive: true, force: true });
+    }
+  }
+
   async function runSystemInvoke(params: {
     preferMacAppExecHost: boolean;
     runViaResponse?: ExecHostResponse | null;
@@ -123,9 +147,6 @@ describe("handleSystemRunInvoke mac app exec host routing", () => {
     );
   });
 
-<<<<<<< HEAD
-  it("runs canonical argv in allowlist mode for transparent env wrappers", async () => {
-=======
   it("forwards canonical cmdText to mac app exec host for positional-argv shell wrappers", async () => {
     const { runViaMacAppExecHost } = await runSystemInvoke({
       preferMacAppExecHost: true,
@@ -153,12 +174,24 @@ describe("handleSystemRunInvoke mac app exec host routing", () => {
   });
 
   it("handles transparent env wrappers in allowlist mode", async () => {
->>>>>>> 55cf92578 (fix(security): harden system.run companion command binding)
     const { runCommand, sendInvokeResult } = await runSystemInvoke({
       preferMacAppExecHost: false,
       security: "allowlist",
       command: ["env", "tr", "a", "b"],
     });
+    if (process.platform === "win32") {
+      expect(runCommand).not.toHaveBeenCalled();
+      expect(sendInvokeResult).toHaveBeenCalledWith(
+        expect.objectContaining({
+          ok: false,
+          error: expect.objectContaining({
+            message: expect.stringContaining("allowlist miss"),
+          }),
+        }),
+      );
+      return;
+    }
+
     expect(runCommand).toHaveBeenCalledWith(["tr", "a", "b"], undefined, undefined, undefined);
     expect(sendInvokeResult).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -184,8 +217,6 @@ describe("handleSystemRunInvoke mac app exec host routing", () => {
     );
   });
 
-<<<<<<< HEAD
-=======
   it.runIf(process.platform !== "win32")(
     "denies approval-based execution when cwd is a symlink",
     async () => {
@@ -283,7 +314,6 @@ describe("handleSystemRunInvoke mac app exec host routing", () => {
       fs.rmSync(tmp, { recursive: true, force: true });
     }
   });
->>>>>>> f789f880c (fix(security): harden approval-bound node exec cwd handling)
   it("denies ./sh wrapper spoof in allowlist on-miss mode before execution", async () => {
     const marker = path.join(os.tmpdir(), `openclaw-wrapper-spoof-${process.pid}-${Date.now()}`);
     const runCommand = vi.fn(async () => {
@@ -346,26 +376,8 @@ describe("handleSystemRunInvoke mac app exec host routing", () => {
       // no-op
     }
   });
-<<<<<<< HEAD
-=======
 
   it("denies ./skill-bin even when autoAllowSkills trust entry exists", async () => {
-    const tempHome = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-skill-path-spoof-"));
-    const previousOpenClawHome = process.env.OPENCLAW_HOME;
-    const skillBinPath = path.join(tempHome, "skill-bin");
-    fs.writeFileSync(skillBinPath, "#!/bin/sh\necho should-not-run\n", { mode: 0o755 });
-    fs.chmodSync(skillBinPath, 0o755);
-    process.env.OPENCLAW_HOME = tempHome;
-    saveExecApprovals({
-      version: 1,
-      defaults: {
-        security: "allowlist",
-        ask: "on-miss",
-        askFallback: "deny",
-        autoAllowSkills: true,
-      },
-      agents: {},
-    });
     const runCommand = vi.fn(async () => ({
       success: true,
       stdout: "local-ok",
@@ -378,39 +390,47 @@ describe("handleSystemRunInvoke mac app exec host routing", () => {
     const sendInvokeResult = vi.fn(async () => {});
     const sendNodeEvent = vi.fn(async () => {});
 
-    try {
-      await handleSystemRunInvoke({
-        client: {} as never,
-        params: {
-          command: ["./skill-bin", "--help"],
-          cwd: tempHome,
-          sessionKey: "agent:main:main",
+    await withTempApprovalsHome({
+      approvals: {
+        version: 1,
+        defaults: {
+          security: "allowlist",
+          ask: "on-miss",
+          askFallback: "deny",
+          autoAllowSkills: true,
         },
-        skillBins: {
-          current: async () => [{ name: "skill-bin", resolvedPath: skillBinPath }],
-        },
-        execHostEnforced: false,
-        execHostFallbackAllowed: true,
-        resolveExecSecurity: () => "allowlist",
-        resolveExecAsk: () => "on-miss",
-        isCmdExeInvocation: () => false,
-        sanitizeEnv: () => undefined,
-        runCommand,
-        runViaMacAppExecHost: vi.fn(async () => null),
-        sendNodeEvent,
-        buildExecEventPayload: (payload) => payload,
-        sendInvokeResult,
-        sendExecFinishedEvent: vi.fn(async () => {}),
-        preferMacAppExecHost: false,
-      });
-    } finally {
-      if (previousOpenClawHome === undefined) {
-        delete process.env.OPENCLAW_HOME;
-      } else {
-        process.env.OPENCLAW_HOME = previousOpenClawHome;
-      }
-      fs.rmSync(tempHome, { recursive: true, force: true });
-    }
+        agents: {},
+      },
+      run: async ({ tempHome }) => {
+        const skillBinPath = path.join(tempHome, "skill-bin");
+        fs.writeFileSync(skillBinPath, "#!/bin/sh\necho should-not-run\n", { mode: 0o755 });
+        fs.chmodSync(skillBinPath, 0o755);
+        await handleSystemRunInvoke({
+          client: {} as never,
+          params: {
+            command: ["./skill-bin", "--help"],
+            cwd: tempHome,
+            sessionKey: "agent:main:main",
+          },
+          skillBins: {
+            current: async () => [{ name: "skill-bin", resolvedPath: skillBinPath }],
+          },
+          execHostEnforced: false,
+          execHostFallbackAllowed: true,
+          resolveExecSecurity: () => "allowlist",
+          resolveExecAsk: () => "on-miss",
+          isCmdExeInvocation: () => false,
+          sanitizeEnv: () => undefined,
+          runCommand,
+          runViaMacAppExecHost: vi.fn(async () => null),
+          sendNodeEvent,
+          buildExecEventPayload: (payload) => payload,
+          sendInvokeResult,
+          sendExecFinishedEvent: vi.fn(async () => {}),
+          preferMacAppExecHost: false,
+        });
+      },
+    });
 
     expect(runCommand).not.toHaveBeenCalled();
     expect(sendNodeEvent).toHaveBeenCalledWith(
@@ -444,9 +464,6 @@ describe("handleSystemRunInvoke mac app exec host routing", () => {
       }),
     );
   });
-<<<<<<< HEAD
->>>>>>> ffd63b7a2 (fix(security): trust resolved skill-bin paths in allowlist auto-allow)
-=======
 
   it("denies semicolon-chained shell payloads in allowlist mode without explicit approval", async () => {
     const payloads = ["openclaw status; id", "openclaw status; cat /etc/passwd"];
@@ -477,82 +494,59 @@ describe("handleSystemRunInvoke mac app exec host routing", () => {
     if (process.platform === "win32") {
       return;
     }
-    const tempHome = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-env-depth-overflow-"));
-    const previousOpenClawHome = process.env.OPENCLAW_HOME;
-    const marker = path.join(tempHome, "pwned.txt");
-    process.env.OPENCLAW_HOME = tempHome;
-    saveExecApprovals({
-      version: 1,
-      defaults: {
-        security: "allowlist",
-        ask: "on-miss",
-        askFallback: "deny",
-      },
-      agents: {
-        main: {
-          allowlist: [{ pattern: "/usr/bin/env" }],
-        },
-      },
-    });
     const runCommand = vi.fn(async () => {
-      fs.writeFileSync(marker, "executed");
-      return {
-        success: true,
-        stdout: "local-ok",
-        stderr: "",
-        timedOut: false,
-        truncated: false,
-        exitCode: 0,
-        error: null,
-      };
+      throw new Error("runCommand should not be called for nested env depth overflow");
     });
     const sendInvokeResult = vi.fn(async () => {});
     const sendNodeEvent = vi.fn(async () => {});
 
-    try {
-      await handleSystemRunInvoke({
-        client: {} as never,
-        params: {
-          command: [
-            "/usr/bin/env",
-            "/usr/bin/env",
-            "/usr/bin/env",
-            "/usr/bin/env",
-            "/usr/bin/env",
-            "/bin/sh",
-            "-c",
-            `echo PWNED > ${marker}`,
-          ],
-          sessionKey: "agent:main:main",
+    await withTempApprovalsHome({
+      approvals: {
+        version: 1,
+        defaults: {
+          security: "allowlist",
+          ask: "on-miss",
+          askFallback: "deny",
         },
-        skillBins: {
-          current: async () => [],
+        agents: {
+          main: {
+            allowlist: [{ pattern: "/usr/bin/env" }],
+          },
         },
-        execHostEnforced: false,
-        execHostFallbackAllowed: true,
-        resolveExecSecurity: () => "allowlist",
-        resolveExecAsk: () => "on-miss",
-        isCmdExeInvocation: () => false,
-        sanitizeEnv: () => undefined,
-        runCommand,
-        runViaMacAppExecHost: vi.fn(async () => null),
-        sendNodeEvent,
-        buildExecEventPayload: (payload) => payload,
-        sendInvokeResult,
-        sendExecFinishedEvent: vi.fn(async () => {}),
-        preferMacAppExecHost: false,
-      });
-    } finally {
-      if (previousOpenClawHome === undefined) {
-        delete process.env.OPENCLAW_HOME;
-      } else {
-        process.env.OPENCLAW_HOME = previousOpenClawHome;
-      }
-      fs.rmSync(tempHome, { recursive: true, force: true });
-    }
+      },
+      run: async ({ tempHome }) => {
+        const marker = path.join(tempHome, "pwned.txt");
+        await handleSystemRunInvoke({
+          client: {} as never,
+          params: {
+            command: buildNestedEnvShellCommand({
+              depth: 5,
+              payload: `echo PWNED > ${marker}`,
+            }),
+            sessionKey: "agent:main:main",
+          },
+          skillBins: {
+            current: async () => [],
+          },
+          execHostEnforced: false,
+          execHostFallbackAllowed: true,
+          resolveExecSecurity: () => "allowlist",
+          resolveExecAsk: () => "on-miss",
+          isCmdExeInvocation: () => false,
+          sanitizeEnv: () => undefined,
+          runCommand,
+          runViaMacAppExecHost: vi.fn(async () => null),
+          sendNodeEvent,
+          buildExecEventPayload: (payload) => payload,
+          sendInvokeResult,
+          sendExecFinishedEvent: vi.fn(async () => {}),
+          preferMacAppExecHost: false,
+        });
+        expect(fs.existsSync(marker)).toBe(false);
+      },
+    });
 
     expect(runCommand).not.toHaveBeenCalled();
-    expect(fs.existsSync(marker)).toBe(false);
     expect(sendNodeEvent).toHaveBeenCalledWith(
       expect.anything(),
       "exec.denied",
@@ -567,5 +561,4 @@ describe("handleSystemRunInvoke mac app exec host routing", () => {
       }),
     );
   });
->>>>>>> 57c9a1818 (fix(security): block env depth-overflow approval bypass)
 });

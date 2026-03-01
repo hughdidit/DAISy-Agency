@@ -1,11 +1,13 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+
 import { afterEach, describe, expect, it, vi } from "vitest";
+
 import type { RuntimeEnv } from "../runtime.js";
 import type { WizardPrompter } from "../wizard/prompts.js";
-import type { AuthChoice } from "./onboard-types.js";
 import { applyAuthChoice, resolvePreferredProviderForAuthChoice } from "./auth-choice.js";
+import type { AuthChoice } from "./onboard-types.js";
 
 vi.mock("../providers/github-copilot-auth.js", () => ({
   githubCopilotLoginCommand: vi.fn(async () => {}),
@@ -16,42 +18,21 @@ vi.mock("../plugins/providers.js", () => ({
   resolvePluginProviders,
 }));
 
-<<<<<<< HEAD
 const noopAsync = async () => {};
 const noop = () => {};
 const authProfilePathFor = (agentDir: string) => path.join(agentDir, "auth-profiles.json");
 const requireAgentDir = () => {
-  const agentDir = process.env.OPENCLAW_AGENT_DIR;
-  if (!agentDir) {
-    throw new Error("OPENCLAW_AGENT_DIR not set");
-  }
+  const agentDir = process.env.CLAWDBOT_AGENT_DIR;
+  if (!agentDir) throw new Error("CLAWDBOT_AGENT_DIR not set");
   return agentDir;
-=======
-const detectZaiEndpoint = vi.hoisted(() => vi.fn<DetectZaiEndpoint>(async () => null));
-vi.mock("./zai-endpoint-detect.js", () => ({
-  detectZaiEndpoint,
-}));
-
-type StoredAuthProfile = {
-  key?: string;
-  keyRef?: { source: string; provider: string; id: string };
-  access?: string;
-  refresh?: string;
-  provider?: string;
-  type?: string;
-  email?: string;
-  metadata?: Record<string, string>;
->>>>>>> 4e7a833a2 (feat(security): add provider-based external secrets management)
 };
 
 describe("applyAuthChoice", () => {
-  const previousStateDir = process.env.OPENCLAW_STATE_DIR;
-  const previousAgentDir = process.env.OPENCLAW_AGENT_DIR;
+  const previousStateDir = process.env.CLAWDBOT_STATE_DIR;
+  const previousAgentDir = process.env.CLAWDBOT_AGENT_DIR;
   const previousPiAgentDir = process.env.PI_CODING_AGENT_DIR;
-  const previousAnthropicKey = process.env.ANTHROPIC_API_KEY;
   const previousOpenrouterKey = process.env.OPENROUTER_API_KEY;
   const previousAiGatewayKey = process.env.AI_GATEWAY_API_KEY;
-  const previousCloudflareGatewayKey = process.env.CLOUDFLARE_AI_GATEWAY_API_KEY;
   const previousSshTty = process.env.SSH_TTY;
   const previousChutesClientId = process.env.CHUTES_CLIENT_ID;
   let tempStateDir: string | null = null;
@@ -64,24 +45,19 @@ describe("applyAuthChoice", () => {
       tempStateDir = null;
     }
     if (previousStateDir === undefined) {
-      delete process.env.OPENCLAW_STATE_DIR;
+      delete process.env.CLAWDBOT_STATE_DIR;
     } else {
-      process.env.OPENCLAW_STATE_DIR = previousStateDir;
+      process.env.CLAWDBOT_STATE_DIR = previousStateDir;
     }
     if (previousAgentDir === undefined) {
-      delete process.env.OPENCLAW_AGENT_DIR;
+      delete process.env.CLAWDBOT_AGENT_DIR;
     } else {
-      process.env.OPENCLAW_AGENT_DIR = previousAgentDir;
+      process.env.CLAWDBOT_AGENT_DIR = previousAgentDir;
     }
     if (previousPiAgentDir === undefined) {
       delete process.env.PI_CODING_AGENT_DIR;
     } else {
       process.env.PI_CODING_AGENT_DIR = previousPiAgentDir;
-    }
-    if (previousAnthropicKey === undefined) {
-      delete process.env.ANTHROPIC_API_KEY;
-    } else {
-      process.env.ANTHROPIC_API_KEY = previousAnthropicKey;
     }
     if (previousOpenrouterKey === undefined) {
       delete process.env.OPENROUTER_API_KEY;
@@ -92,11 +68,6 @@ describe("applyAuthChoice", () => {
       delete process.env.AI_GATEWAY_API_KEY;
     } else {
       process.env.AI_GATEWAY_API_KEY = previousAiGatewayKey;
-    }
-    if (previousCloudflareGatewayKey === undefined) {
-      delete process.env.CLOUDFLARE_AI_GATEWAY_API_KEY;
-    } else {
-      process.env.CLOUDFLARE_AI_GATEWAY_API_KEY = previousCloudflareGatewayKey;
     }
     if (previousSshTty === undefined) {
       delete process.env.SSH_TTY;
@@ -111,10 +82,10 @@ describe("applyAuthChoice", () => {
   });
 
   it("prompts and writes MiniMax API key when selecting minimax-api", async () => {
-    tempStateDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-auth-"));
-    process.env.OPENCLAW_STATE_DIR = tempStateDir;
-    process.env.OPENCLAW_AGENT_DIR = path.join(tempStateDir, "agent");
-    process.env.PI_CODING_AGENT_DIR = process.env.OPENCLAW_AGENT_DIR;
+    tempStateDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-auth-"));
+    process.env.CLAWDBOT_STATE_DIR = tempStateDir;
+    process.env.CLAWDBOT_AGENT_DIR = path.join(tempStateDir, "agent");
+    process.env.PI_CODING_AGENT_DIR = process.env.CLAWDBOT_AGENT_DIR;
 
     const text = vi.fn().mockResolvedValue("sk-minimax-test");
     const select: WizardPrompter["select"] = vi.fn(
@@ -163,12 +134,11 @@ describe("applyAuthChoice", () => {
     expect(parsed.profiles?.["minimax:default"]?.key).toBe("sk-minimax-test");
   });
 
-<<<<<<< HEAD
   it("prompts and writes Synthetic API key when selecting synthetic-api-key", async () => {
-    tempStateDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-auth-"));
-    process.env.OPENCLAW_STATE_DIR = tempStateDir;
-    process.env.OPENCLAW_AGENT_DIR = path.join(tempStateDir, "agent");
-    process.env.PI_CODING_AGENT_DIR = process.env.OPENCLAW_AGENT_DIR;
+    tempStateDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-auth-"));
+    process.env.CLAWDBOT_STATE_DIR = tempStateDir;
+    process.env.CLAWDBOT_AGENT_DIR = path.join(tempStateDir, "agent");
+    process.env.PI_CODING_AGENT_DIR = process.env.CLAWDBOT_AGENT_DIR;
 
     const text = vi.fn().mockResolvedValue("sk-synthetic-test");
     const select: WizardPrompter["select"] = vi.fn(
@@ -179,146 +149,6 @@ describe("applyAuthChoice", () => {
       intro: vi.fn(noopAsync),
       outro: vi.fn(noopAsync),
       note: vi.fn(noopAsync),
-=======
-  it("uses existing env API keys for selected providers", async () => {
-    const scenarios: Array<{
-      authChoice: "synthetic-api-key" | "openrouter-api-key" | "ai-gateway-api-key";
-      envKey: "SYNTHETIC_API_KEY" | "OPENROUTER_API_KEY" | "AI_GATEWAY_API_KEY";
-      envValue: string;
-      profileId: string;
-      provider: string;
-      opts?: { secretInputMode?: "ref" };
-      expectEnvPrompt: boolean;
-      expectedTextCalls: number;
-      expectedKey?: string;
-      expectedKeyRef?: { source: "env"; provider: string; id: string };
-      expectedModel?: string;
-      expectedModelPrefix?: string;
-    }> = [
-      {
-        authChoice: "synthetic-api-key",
-        envKey: "SYNTHETIC_API_KEY",
-        envValue: "sk-synthetic-env",
-        profileId: "synthetic:default",
-        provider: "synthetic",
-        expectEnvPrompt: true,
-        expectedTextCalls: 0,
-        expectedKey: "sk-synthetic-env",
-        expectedModelPrefix: "synthetic/",
-      },
-      {
-        authChoice: "openrouter-api-key",
-        envKey: "OPENROUTER_API_KEY",
-        envValue: "sk-openrouter-test",
-        profileId: "openrouter:default",
-        provider: "openrouter",
-        expectEnvPrompt: true,
-        expectedTextCalls: 0,
-        expectedKey: "sk-openrouter-test",
-        expectedModel: "openrouter/auto",
-      },
-      {
-        authChoice: "ai-gateway-api-key",
-        envKey: "AI_GATEWAY_API_KEY",
-        envValue: "gateway-test-key",
-        profileId: "vercel-ai-gateway:default",
-        provider: "vercel-ai-gateway",
-        expectEnvPrompt: true,
-        expectedTextCalls: 0,
-        expectedKey: "gateway-test-key",
-        expectedModel: "vercel-ai-gateway/anthropic/claude-opus-4.6",
-      },
-      {
-        authChoice: "ai-gateway-api-key",
-        envKey: "AI_GATEWAY_API_KEY",
-        envValue: "gateway-ref-key",
-        profileId: "vercel-ai-gateway:default",
-        provider: "vercel-ai-gateway",
-        opts: { secretInputMode: "ref" },
-        expectEnvPrompt: false,
-        expectedTextCalls: 1,
-        expectedKeyRef: { source: "env", provider: "default", id: "AI_GATEWAY_API_KEY" },
-        expectedModel: "vercel-ai-gateway/anthropic/claude-opus-4.6",
-      },
-    ];
-    for (const scenario of scenarios) {
-      await setupTempState();
-      delete process.env.SYNTHETIC_API_KEY;
-      delete process.env.OPENROUTER_API_KEY;
-      delete process.env.AI_GATEWAY_API_KEY;
-      process.env[scenario.envKey] = scenario.envValue;
-
-      const text = vi.fn();
-      const confirm = vi.fn(async () => true);
-      const { prompter, runtime } = createApiKeyPromptHarness({ text, confirm });
-
-      const result = await applyAuthChoice({
-        authChoice: scenario.authChoice,
-        config: {},
-        prompter,
-        runtime,
-        setDefaultModel: true,
-        opts: scenario.opts,
-      });
-
-      if (scenario.expectEnvPrompt) {
-        expect(confirm).toHaveBeenCalledWith(
-          expect.objectContaining({
-            message: expect.stringContaining(scenario.envKey),
-          }),
-        );
-      } else {
-        expect(confirm).not.toHaveBeenCalled();
-      }
-      expect(text).toHaveBeenCalledTimes(scenario.expectedTextCalls);
-      expect(result.config.auth?.profiles?.[scenario.profileId]).toMatchObject({
-        provider: scenario.provider,
-        mode: "api_key",
-      });
-      if (scenario.expectedModel) {
-        expect(resolveAgentModelPrimaryValue(result.config.agents?.defaults?.model)).toBe(
-          scenario.expectedModel,
-        );
-      }
-      if (scenario.expectedModelPrefix) {
-        expect(
-          resolveAgentModelPrimaryValue(result.config.agents?.defaults?.model)?.startsWith(
-            scenario.expectedModelPrefix,
-          ),
-        ).toBe(true);
-      }
-      const profile = await readAuthProfile(scenario.profileId);
-      if (scenario.expectedKeyRef) {
-        expect(profile?.keyRef).toEqual(scenario.expectedKeyRef);
-        expect(profile?.key).toBeUndefined();
-      } else {
-        expect(profile?.key).toBe(scenario.expectedKey);
-        expect(profile?.keyRef).toBeUndefined();
-      }
-    }
-  });
-
-  it("retries ref setup when provider preflight fails and can switch to env ref", async () => {
-    await setupTempState();
-    process.env.OPENAI_API_KEY = "sk-openai-env";
-
-    const selectValues: Array<"provider" | "env" | "filemain"> = ["provider", "filemain", "env"];
-    const select = vi.fn(async (params: Parameters<WizardPrompter["select"]>[0]) => {
-      const next = selectValues[0];
-      if (next && params.options.some((option) => option.value === next)) {
-        selectValues.shift();
-        return next as never;
-      }
-      return (params.options[0]?.value ?? "env") as never;
-    });
-    const text = vi
-      .fn<WizardPrompter["text"]>()
-      .mockResolvedValueOnce("/providers/openai/apiKey")
-      .mockResolvedValueOnce("OPENAI_API_KEY");
-    const note = vi.fn(async () => undefined);
-
-    const prompter = createPrompter({
->>>>>>> 4e7a833a2 (feat(security): add provider-based external secrets management)
       select,
       multiselect,
       text,
@@ -334,23 +164,8 @@ describe("applyAuthChoice", () => {
     };
 
     const result = await applyAuthChoice({
-<<<<<<< HEAD
       authChoice: "synthetic-api-key",
       config: {},
-=======
-      authChoice: "openai-api-key",
-      config: {
-        secrets: {
-          providers: {
-            filemain: {
-              source: "file",
-              path: "/tmp/openclaw-missing-secrets.json",
-              mode: "jsonPointer",
-            },
-          },
-        },
-      },
->>>>>>> 4e7a833a2 (feat(security): add provider-based external secrets management)
       prompter,
       runtime,
       setDefaultModel: true,
@@ -363,7 +178,6 @@ describe("applyAuthChoice", () => {
       provider: "synthetic",
       mode: "api_key",
     });
-<<<<<<< HEAD
 
     const authProfilePath = authProfilePathFor(requireAgentDir());
     const raw = await fs.readFile(authProfilePath, "utf8");
@@ -371,80 +185,13 @@ describe("applyAuthChoice", () => {
       profiles?: Record<string, { key?: string }>;
     };
     expect(parsed.profiles?.["synthetic:default"]?.key).toBe("sk-synthetic-test");
-=======
-    expect(note).toHaveBeenCalledWith(
-      expect.stringContaining("Could not validate provider reference"),
-      "Reference check failed",
-    );
-    expect(note).toHaveBeenCalledWith(
-      expect.stringContaining("Validated environment variable OPENAI_API_KEY."),
-      "Reference validated",
-    );
-    expect(await readAuthProfile("openai:default")).toMatchObject({
-      keyRef: { source: "env", provider: "default", id: "OPENAI_API_KEY" },
-    });
->>>>>>> 4e7a833a2 (feat(security): add provider-based external secrets management)
-  });
-
-  it("does not override the global default model when selecting xai-api-key without setDefaultModel", async () => {
-    tempStateDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-auth-"));
-    process.env.OPENCLAW_STATE_DIR = tempStateDir;
-    process.env.OPENCLAW_AGENT_DIR = path.join(tempStateDir, "agent");
-    process.env.PI_CODING_AGENT_DIR = process.env.OPENCLAW_AGENT_DIR;
-
-    const text = vi.fn().mockResolvedValue("sk-xai-test");
-    const select: WizardPrompter["select"] = vi.fn(
-      async (params) => params.options[0]?.value as never,
-    );
-    const multiselect: WizardPrompter["multiselect"] = vi.fn(async () => []);
-    const prompter: WizardPrompter = {
-      intro: vi.fn(noopAsync),
-      outro: vi.fn(noopAsync),
-      note: vi.fn(noopAsync),
-      select,
-      multiselect,
-      text,
-      confirm: vi.fn(async () => false),
-      progress: vi.fn(() => ({ update: noop, stop: noop })),
-    };
-    const runtime: RuntimeEnv = {
-      log: vi.fn(),
-      error: vi.fn(),
-      exit: vi.fn((code: number) => {
-        throw new Error(`exit:${code}`);
-      }),
-    };
-
-    const result = await applyAuthChoice({
-      authChoice: "xai-api-key",
-      config: { agents: { defaults: { model: { primary: "openai/gpt-4o-mini" } } } },
-      prompter,
-      runtime,
-      setDefaultModel: false,
-      agentId: "agent-1",
-    });
-
-    expect(text).toHaveBeenCalledWith(expect.objectContaining({ message: "Enter xAI API key" }));
-    expect(result.config.auth?.profiles?.["xai:default"]).toMatchObject({
-      provider: "xai",
-      mode: "api_key",
-    });
-    expect(result.config.agents?.defaults?.model?.primary).toBe("openai/gpt-4o-mini");
-    expect(result.agentModelOverride).toBe("xai/grok-4");
-
-    const authProfilePath = authProfilePathFor(requireAgentDir());
-    const raw = await fs.readFile(authProfilePath, "utf8");
-    const parsed = JSON.parse(raw) as {
-      profiles?: Record<string, { key?: string }>;
-    };
-    expect(parsed.profiles?.["xai:default"]?.key).toBe("sk-xai-test");
   });
 
   it("sets default model when selecting github-copilot", async () => {
-    tempStateDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-auth-"));
-    process.env.OPENCLAW_STATE_DIR = tempStateDir;
-    process.env.OPENCLAW_AGENT_DIR = path.join(tempStateDir, "agent");
-    process.env.PI_CODING_AGENT_DIR = process.env.OPENCLAW_AGENT_DIR;
+    tempStateDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-auth-"));
+    process.env.CLAWDBOT_STATE_DIR = tempStateDir;
+    process.env.CLAWDBOT_AGENT_DIR = path.join(tempStateDir, "agent");
+    process.env.PI_CODING_AGENT_DIR = process.env.CLAWDBOT_AGENT_DIR;
 
     const prompter: WizardPrompter = {
       intro: vi.fn(noopAsync),
@@ -484,10 +231,10 @@ describe("applyAuthChoice", () => {
   });
 
   it("does not override the default model when selecting opencode-zen without setDefaultModel", async () => {
-    tempStateDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-auth-"));
-    process.env.OPENCLAW_STATE_DIR = tempStateDir;
-    process.env.OPENCLAW_AGENT_DIR = path.join(tempStateDir, "agent");
-    process.env.PI_CODING_AGENT_DIR = process.env.OPENCLAW_AGENT_DIR;
+    tempStateDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-auth-"));
+    process.env.CLAWDBOT_STATE_DIR = tempStateDir;
+    process.env.CLAWDBOT_AGENT_DIR = path.join(tempStateDir, "agent");
+    process.env.PI_CODING_AGENT_DIR = process.env.CLAWDBOT_AGENT_DIR;
 
     const text = vi.fn().mockResolvedValue("sk-opencode-zen-test");
     const select: WizardPrompter["select"] = vi.fn(
@@ -531,110 +278,14 @@ describe("applyAuthChoice", () => {
     );
     expect(result.config.agents?.defaults?.model?.primary).toBe("anthropic/claude-opus-4-5");
     expect(result.config.models?.providers?.["opencode-zen"]).toBeUndefined();
-    expect(result.agentModelOverride).toBe("opencode/claude-opus-4-6");
-  });
-
-  it("does not persist literal 'undefined' when Anthropic API key prompt returns undefined", async () => {
-    tempStateDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-auth-"));
-    process.env.OPENCLAW_STATE_DIR = tempStateDir;
-    process.env.OPENCLAW_AGENT_DIR = path.join(tempStateDir, "agent");
-    process.env.PI_CODING_AGENT_DIR = process.env.OPENCLAW_AGENT_DIR;
-    delete process.env.ANTHROPIC_API_KEY;
-
-    const text = vi.fn(async () => undefined as unknown as string);
-    const prompter: WizardPrompter = {
-      intro: vi.fn(noopAsync),
-      outro: vi.fn(noopAsync),
-      note: vi.fn(noopAsync),
-      select: vi.fn(async () => "" as never),
-      multiselect: vi.fn(async () => []),
-      text,
-      confirm: vi.fn(async () => false),
-      progress: vi.fn(() => ({ update: noop, stop: noop })),
-    };
-    const runtime: RuntimeEnv = {
-      log: vi.fn(),
-      error: vi.fn(),
-      exit: vi.fn((code: number) => {
-        throw new Error(`exit:${code}`);
-      }),
-    };
-
-    const result = await applyAuthChoice({
-      authChoice: "apiKey",
-      config: {},
-      prompter,
-      runtime,
-      setDefaultModel: false,
-    });
-
-    expect(result.config.auth?.profiles?.["anthropic:default"]).toMatchObject({
-      provider: "anthropic",
-      mode: "api_key",
-    });
-
-    const authProfilePath = authProfilePathFor(requireAgentDir());
-    const raw = await fs.readFile(authProfilePath, "utf8");
-    const parsed = JSON.parse(raw) as {
-      profiles?: Record<string, { key?: string }>;
-    };
-    expect(parsed.profiles?.["anthropic:default"]?.key).toBe("");
-    expect(parsed.profiles?.["anthropic:default"]?.key).not.toBe("undefined");
-  });
-
-  it("does not persist literal 'undefined' when OpenRouter API key prompt returns undefined", async () => {
-    tempStateDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-auth-"));
-    process.env.OPENCLAW_STATE_DIR = tempStateDir;
-    process.env.OPENCLAW_AGENT_DIR = path.join(tempStateDir, "agent");
-    process.env.PI_CODING_AGENT_DIR = process.env.OPENCLAW_AGENT_DIR;
-    delete process.env.OPENROUTER_API_KEY;
-
-    const text = vi.fn(async () => undefined as unknown as string);
-    const prompter: WizardPrompter = {
-      intro: vi.fn(noopAsync),
-      outro: vi.fn(noopAsync),
-      note: vi.fn(noopAsync),
-      select: vi.fn(async () => "" as never),
-      multiselect: vi.fn(async () => []),
-      text,
-      confirm: vi.fn(async () => false),
-      progress: vi.fn(() => ({ update: noop, stop: noop })),
-    };
-    const runtime: RuntimeEnv = {
-      log: vi.fn(),
-      error: vi.fn(),
-      exit: vi.fn((code: number) => {
-        throw new Error(`exit:${code}`);
-      }),
-    };
-
-    const result = await applyAuthChoice({
-      authChoice: "openrouter-api-key",
-      config: {},
-      prompter,
-      runtime,
-      setDefaultModel: false,
-    });
-
-    expect(result.config.auth?.profiles?.["openrouter:default"]).toMatchObject({
-      provider: "openrouter",
-      mode: "api_key",
-    });
-
-    const authProfilePath = authProfilePathFor(requireAgentDir());
-    const raw = await fs.readFile(authProfilePath, "utf8");
-    const parsed = JSON.parse(raw) as {
-      profiles?: Record<string, { key?: string }>;
-    };
-    expect(parsed.profiles?.["openrouter:default"]?.key).toBe("");
-    expect(parsed.profiles?.["openrouter:default"]?.key).not.toBe("undefined");
+    expect(result.agentModelOverride).toBe("opencode/claude-opus-4-5");
   });
 
   it("uses existing OPENROUTER_API_KEY when selecting openrouter-api-key", async () => {
-    tempStateDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-auth-"));
-    process.env.OPENCLAW_STATE_DIR = tempStateDir;
-    process.env.OPENCLAW_AGENT_DIR = path.join(tempStateDir, "agent");
-    process.env.PI_CODING_AGENT_DIR = process.env.OPENCLAW_AGENT_DIR;
+    tempStateDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-auth-"));
+    process.env.CLAWDBOT_STATE_DIR = tempStateDir;
+    process.env.CLAWDBOT_AGENT_DIR = path.join(tempStateDir, "agent");
+    process.env.PI_CODING_AGENT_DIR = process.env.CLAWDBOT_AGENT_DIR;
     process.env.OPENROUTER_API_KEY = "sk-openrouter-test";
 
     const text = vi.fn();
@@ -691,82 +342,12 @@ describe("applyAuthChoice", () => {
     delete process.env.OPENROUTER_API_KEY;
   });
 
-<<<<<<< HEAD
   it("uses existing AI_GATEWAY_API_KEY when selecting ai-gateway-api-key", async () => {
-    tempStateDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-auth-"));
-    process.env.OPENCLAW_STATE_DIR = tempStateDir;
-    process.env.OPENCLAW_AGENT_DIR = path.join(tempStateDir, "agent");
-    process.env.PI_CODING_AGENT_DIR = process.env.OPENCLAW_AGENT_DIR;
+    tempStateDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-auth-"));
+    process.env.CLAWDBOT_STATE_DIR = tempStateDir;
+    process.env.CLAWDBOT_AGENT_DIR = path.join(tempStateDir, "agent");
+    process.env.PI_CODING_AGENT_DIR = process.env.CLAWDBOT_AGENT_DIR;
     process.env.AI_GATEWAY_API_KEY = "gateway-test-key";
-=======
-  it("configures cloudflare ai gateway via env key and explicit opts", async () => {
-    const scenarios: Array<{
-      envGatewayKey?: string;
-      textValues: string[];
-      confirmValue: boolean;
-      opts?: {
-        secretInputMode?: "ref";
-        cloudflareAiGatewayAccountId?: string;
-        cloudflareAiGatewayGatewayId?: string;
-        cloudflareAiGatewayApiKey?: string;
-      };
-      expectEnvPrompt: boolean;
-      expectedTextCalls: number;
-      expectedKey?: string;
-      expectedKeyRef?: { source: string; provider: string; id: string };
-      expectedMetadata: { accountId: string; gatewayId: string };
-    }> = [
-      {
-        envGatewayKey: "cf-gateway-test-key",
-        textValues: ["cf-account-id", "cf-gateway-id"],
-        confirmValue: true,
-        expectEnvPrompt: true,
-        expectedTextCalls: 2,
-        expectedKey: "cf-gateway-test-key",
-        expectedMetadata: {
-          accountId: "cf-account-id",
-          gatewayId: "cf-gateway-id",
-        },
-      },
-      {
-        envGatewayKey: "cf-gateway-ref-key",
-        textValues: ["cf-account-id-ref", "cf-gateway-id-ref"],
-        confirmValue: true,
-        opts: {
-          secretInputMode: "ref",
-        },
-        expectEnvPrompt: false,
-        expectedTextCalls: 3,
-        expectedKeyRef: { source: "env", provider: "default", id: "CLOUDFLARE_AI_GATEWAY_API_KEY" },
-        expectedMetadata: {
-          accountId: "cf-account-id-ref",
-          gatewayId: "cf-gateway-id-ref",
-        },
-      },
-      {
-        textValues: [],
-        confirmValue: false,
-        opts: {
-          cloudflareAiGatewayAccountId: "acc-direct",
-          cloudflareAiGatewayGatewayId: "gw-direct",
-          cloudflareAiGatewayApiKey: "cf-direct-key",
-        },
-        expectEnvPrompt: false,
-        expectedTextCalls: 0,
-        expectedKey: "cf-direct-key",
-        expectedMetadata: {
-          accountId: "acc-direct",
-          gatewayId: "gw-direct",
-        },
-      },
-    ];
-    for (const scenario of scenarios) {
-      await setupTempState();
-      delete process.env.CLOUDFLARE_AI_GATEWAY_API_KEY;
-      if (scenario.envGatewayKey) {
-        process.env.CLOUDFLARE_AI_GATEWAY_API_KEY = scenario.envGatewayKey;
-      }
->>>>>>> 4e7a833a2 (feat(security): add provider-based external secrets management)
 
     const text = vi.fn();
     const select: WizardPrompter["select"] = vi.fn(
@@ -811,7 +392,7 @@ describe("applyAuthChoice", () => {
       mode: "api_key",
     });
     expect(result.config.agents?.defaults?.model?.primary).toBe(
-      "vercel-ai-gateway/anthropic/claude-opus-4.6",
+      "vercel-ai-gateway/anthropic/claude-opus-4.5",
     );
 
     const authProfilePath = authProfilePathFor(requireAgentDir());
@@ -824,81 +405,11 @@ describe("applyAuthChoice", () => {
     delete process.env.AI_GATEWAY_API_KEY;
   });
 
-  it("uses existing CLOUDFLARE_AI_GATEWAY_API_KEY when selecting cloudflare-ai-gateway-api-key", async () => {
-    tempStateDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-auth-"));
-    process.env.OPENCLAW_STATE_DIR = tempStateDir;
-    process.env.OPENCLAW_AGENT_DIR = path.join(tempStateDir, "agent");
-    process.env.PI_CODING_AGENT_DIR = process.env.OPENCLAW_AGENT_DIR;
-    process.env.CLOUDFLARE_AI_GATEWAY_API_KEY = "cf-gateway-test-key";
-
-    const text = vi
-      .fn()
-      .mockResolvedValueOnce("cf-account-id")
-      .mockResolvedValueOnce("cf-gateway-id");
-    const select: WizardPrompter["select"] = vi.fn(
-      async (params) => params.options[0]?.value as never,
-    );
-    const multiselect: WizardPrompter["multiselect"] = vi.fn(async () => []);
-    const confirm = vi.fn(async () => true);
-    const prompter: WizardPrompter = {
-      intro: vi.fn(noopAsync),
-      outro: vi.fn(noopAsync),
-      note: vi.fn(noopAsync),
-      select,
-      multiselect,
-      text,
-      confirm,
-      progress: vi.fn(() => ({ update: noop, stop: noop })),
-    };
-    const runtime: RuntimeEnv = {
-      log: vi.fn(),
-      error: vi.fn(),
-      exit: vi.fn((code: number) => {
-        throw new Error(`exit:${code}`);
-      }),
-    };
-
-    const result = await applyAuthChoice({
-      authChoice: "cloudflare-ai-gateway-api-key",
-      config: {},
-      prompter,
-      runtime,
-      setDefaultModel: true,
-    });
-
-    expect(confirm).toHaveBeenCalledWith(
-      expect.objectContaining({
-        message: expect.stringContaining("CLOUDFLARE_AI_GATEWAY_API_KEY"),
-      }),
-    );
-    expect(text).toHaveBeenCalledTimes(2);
-    expect(result.config.auth?.profiles?.["cloudflare-ai-gateway:default"]).toMatchObject({
-      provider: "cloudflare-ai-gateway",
-      mode: "api_key",
-    });
-    expect(result.config.agents?.defaults?.model?.primary).toBe(
-      "cloudflare-ai-gateway/claude-sonnet-4-5",
-    );
-
-    const authProfilePath = authProfilePathFor(requireAgentDir());
-    const raw = await fs.readFile(authProfilePath, "utf8");
-    const parsed = JSON.parse(raw) as {
-      profiles?: Record<string, { key?: string; metadata?: Record<string, string> }>;
-    };
-    expect(parsed.profiles?.["cloudflare-ai-gateway:default"]?.key).toBe("cf-gateway-test-key");
-    expect(parsed.profiles?.["cloudflare-ai-gateway:default"]?.metadata).toEqual({
-      accountId: "cf-account-id",
-      gatewayId: "cf-gateway-id",
-    });
-
-    delete process.env.CLOUDFLARE_AI_GATEWAY_API_KEY;
-  });
-
   it("writes Chutes OAuth credentials when selecting chutes (remote/manual)", async () => {
-    tempStateDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-auth-"));
-    process.env.OPENCLAW_STATE_DIR = tempStateDir;
-    process.env.OPENCLAW_AGENT_DIR = path.join(tempStateDir, "agent");
-    process.env.PI_CODING_AGENT_DIR = process.env.OPENCLAW_AGENT_DIR;
+    tempStateDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-auth-"));
+    process.env.CLAWDBOT_STATE_DIR = tempStateDir;
+    process.env.CLAWDBOT_AGENT_DIR = path.join(tempStateDir, "agent");
+    process.env.PI_CODING_AGENT_DIR = process.env.CLAWDBOT_AGENT_DIR;
     process.env.SSH_TTY = "1";
     process.env.CHUTES_CLIENT_ID = "cid_test";
 
@@ -982,10 +493,10 @@ describe("applyAuthChoice", () => {
   });
 
   it("writes Qwen credentials when selecting qwen-portal", async () => {
-    tempStateDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-auth-"));
-    process.env.OPENCLAW_STATE_DIR = tempStateDir;
-    process.env.OPENCLAW_AGENT_DIR = path.join(tempStateDir, "agent");
-    process.env.PI_CODING_AGENT_DIR = process.env.OPENCLAW_AGENT_DIR;
+    tempStateDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-auth-"));
+    process.env.CLAWDBOT_STATE_DIR = tempStateDir;
+    process.env.CLAWDBOT_AGENT_DIR = path.join(tempStateDir, "agent");
+    process.env.PI_CODING_AGENT_DIR = process.env.CLAWDBOT_AGENT_DIR;
 
     resolvePluginProviders.mockReturnValue([
       {
@@ -1071,101 +582,6 @@ describe("applyAuthChoice", () => {
     };
     expect(parsed.profiles?.["qwen-portal:default"]).toMatchObject({
       provider: "qwen-portal",
-      access: "access",
-      refresh: "refresh",
-    });
-  });
-
-  it("writes MiniMax credentials when selecting minimax-portal", async () => {
-    tempStateDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-auth-"));
-    process.env.OPENCLAW_STATE_DIR = tempStateDir;
-    process.env.OPENCLAW_AGENT_DIR = path.join(tempStateDir, "agent");
-    process.env.PI_CODING_AGENT_DIR = process.env.OPENCLAW_AGENT_DIR;
-
-    resolvePluginProviders.mockReturnValue([
-      {
-        id: "minimax-portal",
-        label: "MiniMax",
-        auth: [
-          {
-            id: "oauth",
-            label: "MiniMax OAuth (Global)",
-            kind: "device_code",
-            run: vi.fn(async () => ({
-              profiles: [
-                {
-                  profileId: "minimax-portal:default",
-                  credential: {
-                    type: "oauth",
-                    provider: "minimax-portal",
-                    access: "access",
-                    refresh: "refresh",
-                    expires: Date.now() + 60 * 60 * 1000,
-                  },
-                },
-              ],
-              configPatch: {
-                models: {
-                  providers: {
-                    "minimax-portal": {
-                      baseUrl: "https://api.minimax.io/anthropic",
-                      apiKey: "minimax-oauth",
-                      api: "anthropic-messages",
-                      models: [],
-                    },
-                  },
-                },
-              },
-              defaultModel: "minimax-portal/MiniMax-M2.1",
-            })),
-          },
-        ],
-      },
-    ]);
-
-    const prompter: WizardPrompter = {
-      intro: vi.fn(noopAsync),
-      outro: vi.fn(noopAsync),
-      note: vi.fn(noopAsync),
-      select: vi.fn(async () => "oauth" as never),
-      multiselect: vi.fn(async () => []),
-      text: vi.fn(async () => ""),
-      confirm: vi.fn(async () => false),
-      progress: vi.fn(() => ({ update: noop, stop: noop })),
-    };
-    const runtime: RuntimeEnv = {
-      log: vi.fn(),
-      error: vi.fn(),
-      exit: vi.fn((code: number) => {
-        throw new Error(`exit:${code}`);
-      }),
-    };
-
-    const result = await applyAuthChoice({
-      authChoice: "minimax-portal",
-      config: {},
-      prompter,
-      runtime,
-      setDefaultModel: true,
-    });
-
-    expect(result.config.auth?.profiles?.["minimax-portal:default"]).toMatchObject({
-      provider: "minimax-portal",
-      mode: "oauth",
-    });
-    expect(result.config.agents?.defaults?.model?.primary).toBe("minimax-portal/MiniMax-M2.1");
-    expect(result.config.models?.providers?.["minimax-portal"]).toMatchObject({
-      baseUrl: "https://api.minimax.io/anthropic",
-      apiKey: "minimax-oauth",
-    });
-
-    const authProfilePath = authProfilePathFor(requireAgentDir());
-    const raw = await fs.readFile(authProfilePath, "utf8");
-    const parsed = JSON.parse(raw) as {
-      profiles?: Record<string, { access?: string; refresh?: string; provider?: string }>;
-    };
-    expect(parsed.profiles?.["minimax-portal:default"]).toMatchObject({
-      provider: "minimax-portal",
       access: "access",
       refresh: "refresh",
     });

@@ -1,22 +1,9 @@
 import type { Command } from "commander";
-import { DEFAULT_UPLOAD_DIR, resolvePathsWithinRoot } from "../../browser/paths.js";
 import { danger } from "../../globals.js";
 import { defaultRuntime } from "../../runtime.js";
-import { shortenHomePath } from "../../utils.js";
 import { callBrowserRequest, type BrowserParentOpts } from "../browser-cli-shared.js";
 import { resolveBrowserActionContext } from "./shared.js";
-
-function normalizeUploadPaths(paths: string[]): string[] {
-  const result = resolvePathsWithinRoot({
-    rootDir: DEFAULT_UPLOAD_DIR,
-    requestedPaths: paths,
-    scopeLabel: `uploads directory (${DEFAULT_UPLOAD_DIR})`,
-  });
-  if (!result.ok) {
-    throw new Error(result.error);
-  }
-  return result.paths;
-}
+import { shortenHomePath } from "../../utils.js";
 
 export function registerBrowserFilesAndDownloadsCommands(
   browser: Command,
@@ -25,10 +12,7 @@ export function registerBrowserFilesAndDownloadsCommands(
   browser
     .command("upload")
     .description("Arm file upload for the next file chooser")
-    .argument(
-      "<paths...>",
-      "File paths to upload (must be within OpenClaw temp uploads dir, e.g. /tmp/openclaw/uploads/file.pdf)",
-    )
+    .argument("<paths...>", "File paths to upload")
     .option("--ref <ref>", "Ref id from snapshot to click after arming")
     .option("--input-ref <ref>", "Ref id for <input type=file> to set directly")
     .option("--element <selector>", "CSS selector for <input type=file>")
@@ -41,7 +25,6 @@ export function registerBrowserFilesAndDownloadsCommands(
     .action(async (paths: string[], opts, cmd) => {
       const { parent, profile } = resolveBrowserActionContext(cmd, parentOpts);
       try {
-        const normalizedPaths = normalizeUploadPaths(paths);
         const timeoutMs = Number.isFinite(opts.timeoutMs) ? opts.timeoutMs : undefined;
         const result = await callBrowserRequest<{ download: { path: string } }>(
           parent,
@@ -50,7 +33,7 @@ export function registerBrowserFilesAndDownloadsCommands(
             path: "/hooks/file-chooser",
             query: profile ? { profile } : undefined,
             body: {
-              paths: normalizedPaths,
+              paths,
               ref: opts.ref?.trim() || undefined,
               inputRef: opts.inputRef?.trim() || undefined,
               element: opts.element?.trim() || undefined,
@@ -74,14 +57,7 @@ export function registerBrowserFilesAndDownloadsCommands(
   browser
     .command("waitfordownload")
     .description("Wait for the next download (and save it)")
-<<<<<<< HEAD
-    .argument("[path]", "Save path (default: /tmp/openclaw/downloads/...)")
-=======
-    .argument(
-      "[path]",
-      "Save path within openclaw temp downloads dir (default: /tmp/openclaw/downloads/...; fallback: os.tmpdir()/openclaw/downloads/...)",
-    )
->>>>>>> 7f0489e47 (Security/Browser: constrain trace and download output paths to OpenClaw temp roots (#15652))
+    .argument("[path]", "Save path (default: /tmp/moltbot/downloads/...)")
     .option("--target-id <id>", "CDP target id (or unique prefix)")
     .option(
       "--timeout-ms <ms>",
@@ -121,10 +97,7 @@ export function registerBrowserFilesAndDownloadsCommands(
     .command("download")
     .description("Click a ref and save the resulting download")
     .argument("<ref>", "Ref id from snapshot to click")
-    .argument(
-      "<path>",
-      "Save path within openclaw temp downloads dir (e.g. report.pdf or /tmp/openclaw/downloads/report.pdf)",
-    )
+    .argument("<path>", "Save path")
     .option("--target-id <id>", "CDP target id (or unique prefix)")
     .option(
       "--timeout-ms <ms>",

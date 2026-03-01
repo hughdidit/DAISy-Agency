@@ -8,98 +8,21 @@ plugins {
 }
 
 android {
-  namespace = "ai.openclaw.android"
+  namespace = "bot.molt.android"
   compileSdk = 36
 
   sourceSets {
     getByName("main") {
-      assets.srcDir(file("../../shared/OpenClawKit/Sources/OpenClawKit/Resources"))
+      assets.srcDir(file("../../shared/MoltbotKit/Sources/MoltbotKit/Resources"))
     }
   }
 
   defaultConfig {
-    applicationId = "ai.openclaw.android"
+    applicationId = "bot.molt.android"
     minSdk = 31
     targetSdk = 36
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-    versionCode = 202602030
-<<<<<<< HEAD
-    versionName = "2026.2.6"
-=======
-    versionName = "2026.2.10"
->>>>>>> 1872d0c59 (chore: bump version to 2026.2.10)
-=======
-    versionCode = 202602120
-    versionName = "2026.2.12"
->>>>>>> 7695b4842 (chore: bump version to 2026.2.12)
-=======
-    versionCode = 202602130
-    versionName = "2026.2.13"
->>>>>>> 63bb1e02b (chore(release): bump version to 2026.2.13)
-=======
-    versionCode = 202602140
-    versionName = "2026.2.14"
-=======
-    versionCode = 202602150
-    versionName = "2026.2.15"
->>>>>>> 379b44558 (chore: bump version to 2026.2.15)
-=======
-    versionCode = 202602160
-    versionName = "2026.2.16"
->>>>>>> 39fa81dc9 (chore: bump version to 2026.2.16)
-=======
-    versionCode = 202602170
-    versionName = "2026.2.17"
->>>>>>> 9a2c39419 (chore(release): bump version to 2026.2.17)
-=======
-    versionCode = 202602180
-    versionName = "2026.2.18"
->>>>>>> 4bf333883 (chore: bump version to 2026.2.18 unreleased)
-=======
-    versionCode = 202602190
-    versionName = "2026.2.19"
->>>>>>> b0e55283d (chore: bump release metadata to 2026.2.19)
-=======
-    versionCode = 202602200
-    versionName = "2026.2.20"
->>>>>>> f66b23de7 (chore(release): bump versions to 2026.2.20)
-=======
-    versionCode = 202602210
-    versionName = "2026.2.21"
->>>>>>> 9231d7d30 (chore: bump version to 2026.2.21)
-=======
-    versionCode = 202602230
-<<<<<<< HEAD
-    versionName = "2026.2.23"
->>>>>>> 558a0137b (chore(release): bump versions to 2026.2.23)
-=======
-    versionName = "2026.2.24"
->>>>>>> 2bad30b4d (chore(release): bump version to 2026.2.24)
-=======
-    versionCode = 202602260
-    versionName = "2026.2.26"
->>>>>>> caace61ba (chore: bump versions to 2026.2.26)
-=======
-    versionCode = 202602270
-    versionName = "2026.2.27"
->>>>>>> fe807e4be (chore(release): bump 2026.2.27 and split changelog)
-    ndk {
-      // Support all major ABIs — native libs are tiny (~47 KB per ABI)
-      abiFilters += listOf("armeabi-v7a", "arm64-v8a", "x86", "x86_64")
-    }
->>>>>>> 1ff15e60d (chore(release): bump versions to 2026.2.14)
+    versionCode = 202601260
+    versionName = "2026.1.27-beta.1"
   }
 
   buildTypes {
@@ -142,7 +65,7 @@ androidComponents {
         val versionName = output.versionName.orNull ?: "0"
         val buildType = variant.buildType
 
-        val outputFileName = "openclaw-${versionName}-${buildType}.apk"
+        val outputFileName = "moltbot-${versionName}-${buildType}.apk"
         output.outputFileName = outputFileName
       }
   }
@@ -155,7 +78,7 @@ kotlin {
 }
 
 dependencies {
-  val composeBom = platform("androidx.compose:compose-bom:2026.02.00")
+  val composeBom = platform("androidx.compose:compose-bom:2025.12.00")
   implementation(composeBom)
   androidTestImplementation(composeBom)
 
@@ -168,7 +91,7 @@ dependencies {
   implementation("androidx.compose.ui:ui-tooling-preview")
   implementation("androidx.compose.material3:material3")
   implementation("androidx.compose.material:material-icons-extended")
-  implementation("androidx.navigation:navigation-compose:2.9.7")
+  implementation("androidx.navigation:navigation-compose:2.9.6")
 
   debugImplementation("androidx.compose.ui:ui-tooling")
 
@@ -176,7 +99,7 @@ dependencies {
   implementation("com.google.android.material:material:1.13.0")
 
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2")
-  implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.10.0")
+  implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
 
   implementation("androidx.security:security-crypto:1.1.0")
   implementation("androidx.exifinterface:exifinterface:1.4.2")
@@ -194,9 +117,9 @@ dependencies {
 
   testImplementation("junit:junit:4.13.2")
   testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.2")
-  testImplementation("io.kotest:kotest-runner-junit5-jvm:6.1.3")
-  testImplementation("io.kotest:kotest-assertions-core-jvm:6.1.3")
-  testImplementation("org.robolectric:robolectric:4.16.1")
+  testImplementation("io.kotest:kotest-runner-junit5-jvm:6.0.7")
+  testImplementation("io.kotest:kotest-assertions-core-jvm:6.0.7")
+  testImplementation("org.robolectric:robolectric:4.16")
   testRuntimeOnly("org.junit.vintage:junit-vintage-engine:6.0.2")
 }
 

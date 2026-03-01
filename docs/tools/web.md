@@ -4,12 +4,11 @@ read_when:
   - You want to enable web_search or web_fetch
   - You need Brave Search API key setup
   - You want to use Perplexity Sonar for web search
-title: "Web Tools"
 ---
 
 # Web tools
 
-OpenClaw ships two lightweight web tools:
+Moltbot ships two lightweight web tools:
 
 - `web_search` — Search the web via Brave Search API (default) or Perplexity Sonar (direct or via OpenRouter).
 - `web_fetch` — HTTP fetch + readable extraction (HTML → markdown/text).
@@ -29,10 +28,10 @@ These are **not** browser automation. For JS-heavy sites or logins, use the
 
 ## Choosing a search provider
 
-| Provider            | Pros                                         | Cons                                     | API Key                                      |
-| ------------------- | -------------------------------------------- | ---------------------------------------- | -------------------------------------------- |
-| **Brave** (default) | Fast, structured results, free tier          | Traditional search results               | `BRAVE_API_KEY`                              |
-| **Perplexity**      | AI-synthesized answers, citations, real-time | Requires Perplexity or OpenRouter access | `OPENROUTER_API_KEY` or `PERPLEXITY_API_KEY` |
+| Provider | Pros | Cons | API Key |
+|----------|------|------|---------|
+| **Brave** (default) | Fast, structured results, free tier | Traditional search results | `BRAVE_API_KEY` |
+| **Perplexity** | AI-synthesized answers, citations, real-time | Requires Perplexity or OpenRouter access | `OPENROUTER_API_KEY` or `PERPLEXITY_API_KEY` |
 
 See [Brave Search setup](/brave-search) and [Perplexity Sonar](/perplexity) for provider-specific details.
 
@@ -43,10 +42,10 @@ Set the provider in config:
   tools: {
     web: {
       search: {
-        provider: "brave", // or "perplexity"
-      },
-    },
-  },
+        provider: "brave"  // or "perplexity"
+      }
+    }
+  }
 }
 ```
 
@@ -61,31 +60,31 @@ Example: switch to Perplexity Sonar (direct API):
         perplexity: {
           apiKey: "pplx-...",
           baseUrl: "https://api.perplexity.ai",
-          model: "perplexity/sonar-pro",
-        },
-      },
-    },
-  },
+          model: "perplexity/sonar-pro"
+        }
+      }
+    }
+  }
 }
 ```
 
 ## Getting a Brave API key
 
-1. Create a Brave Search API account at [https://brave.com/search/api/](https://brave.com/search/api/)
-2. In the dashboard, choose the **Data for Search** plan (not “Data for AI”) and generate an API key.
-3. Run `openclaw configure --section web` to store the key in config (recommended), or set `BRAVE_API_KEY` in your environment.
+1) Create a Brave Search API account at https://brave.com/search/api/
+2) In the dashboard, choose the **Data for Search** plan (not “Data for AI”) and generate an API key.
+3) Run `moltbot configure --section web` to store the key in config (recommended), or set `BRAVE_API_KEY` in your environment.
 
 Brave provides a free tier plus paid plans; check the Brave API portal for the
 current limits and pricing.
 
 ### Where to set the key (recommended)
 
-**Recommended:** run `openclaw configure --section web`. It stores the key in
-`~/.openclaw/openclaw.json` under `tools.web.search.apiKey`.
+**Recommended:** run `moltbot configure --section web`. It stores the key in
+`~/.clawdbot/moltbot.json` under `tools.web.search.apiKey`.
 
 **Environment alternative:** set `BRAVE_API_KEY` in the Gateway process
-environment. For a gateway install, put it in `~/.openclaw/.env` (or your
-service environment). See [Env vars](/help/faq#how-does-openclaw-load-environment-variables).
+environment. For a gateway install, put it in `~/.clawdbot/.env` (or your
+service environment). See [Env vars](/help/faq#how-does-moltbot-load-environment-variables).
 
 ## Using Perplexity (direct or via OpenRouter)
 
@@ -95,9 +94,9 @@ crypto/prepaid).
 
 ### Getting an OpenRouter API key
 
-1. Create an account at [https://openrouter.ai/](https://openrouter.ai/)
-2. Add credits (supports crypto, prepaid, or credit card)
-3. Generate an API key in your account settings
+1) Create an account at https://openrouter.ai/
+2) Add credits (supports crypto, prepaid, or credit card)
+3) Generate an API key in your account settings
 
 ### Setting up Perplexity search
 
@@ -114,18 +113,18 @@ crypto/prepaid).
           // Base URL (key-aware default if omitted)
           baseUrl: "https://openrouter.ai/api/v1",
           // Model (defaults to perplexity/sonar-pro)
-          model: "perplexity/sonar-pro",
-        },
-      },
-    },
-  },
+          model: "perplexity/sonar-pro"
+        }
+      }
+    }
+  }
 }
 ```
 
 **Environment alternative:** set `OPENROUTER_API_KEY` or `PERPLEXITY_API_KEY` in the Gateway
-environment. For a gateway install, put it in `~/.openclaw/.env`.
+environment. For a gateway install, put it in `~/.clawdbot/.env`.
 
-If no base URL is set, OpenClaw chooses a default based on the API key source:
+If no base URL is set, Moltbot chooses a default based on the API key source:
 
 - `PERPLEXITY_API_KEY` or `pplx-...` → `https://api.perplexity.ai`
 - `OPENROUTER_API_KEY` or `sk-or-...` → `https://openrouter.ai/api/v1`
@@ -133,58 +132,12 @@ If no base URL is set, OpenClaw chooses a default based on the API key source:
 
 ### Available Perplexity models
 
-| Model                            | Description                          | Best for          |
-| -------------------------------- | ------------------------------------ | ----------------- |
-| `perplexity/sonar`               | Fast Q&A with web search             | Quick lookups     |
+| Model | Description | Best for |
+|-------|-------------|----------|
+| `perplexity/sonar` | Fast Q&A with web search | Quick lookups |
 | `perplexity/sonar-pro` (default) | Multi-step reasoning with web search | Complex questions |
-| `perplexity/sonar-reasoning-pro` | Chain-of-thought analysis            | Deep research     |
+| `perplexity/sonar-reasoning-pro` | Chain-of-thought analysis | Deep research |
 
-<<<<<<< HEAD
-=======
-## Using Gemini (Google Search grounding)
-
-Gemini models support built-in [Google Search grounding](https://ai.google.dev/gemini-api/docs/grounding),
-which returns AI-synthesized answers backed by live Google Search results with citations.
-
-### Getting a Gemini API key
-
-1. Go to [Google AI Studio](https://aistudio.google.com/apikey)
-2. Create an API key
-3. Set `GEMINI_API_KEY` in the Gateway environment, or configure `tools.web.search.gemini.apiKey`
-
-### Setting up Gemini search
-
-```json5
-{
-  tools: {
-    web: {
-      search: {
-        provider: "gemini",
-        gemini: {
-          // API key (optional if GEMINI_API_KEY is set)
-          apiKey: "AIza...",
-          // Model (defaults to "gemini-2.5-flash")
-          model: "gemini-2.5-flash",
-        },
-      },
-    },
-  },
-}
-```
-
-**Environment alternative:** set `GEMINI_API_KEY` in the Gateway environment.
-For a gateway install, put it in `~/.openclaw/.env`.
-
-### Notes
-
-- Citation URLs from Gemini grounding are automatically resolved from Google's
-  redirect URLs to direct URLs.
-- Redirect resolution uses the SSRF guard path (HEAD + redirect checks + http/https validation) before returning the final citation URL.
-- This redirect resolver follows the trusted-network model (private/internal networks allowed by default) to match Gateway operator trust assumptions.
-- The default model (`gemini-2.5-flash`) is fast and cost-effective.
-  Any Gemini model that supports grounding can be used.
-
->>>>>>> 5eb72ab76 (fix(security): harden browser SSRF defaults and migrate legacy key)
 ## web_search
 
 Search the web using your configured provider.
@@ -207,10 +160,10 @@ Search the web using your configured provider.
         apiKey: "BRAVE_API_KEY_HERE", // optional if BRAVE_API_KEY is set
         maxResults: 5,
         timeoutSeconds: 30,
-        cacheTtlMinutes: 15,
-      },
-    },
-  },
+        cacheTtlMinutes: 15
+      }
+    }
+  }
 }
 ```
 
@@ -231,7 +184,7 @@ await web_search({
   query: "TV online schauen",
   count: 10,
   country: "DE",
-  search_lang: "de",
+  search_lang: "de"
 });
 
 // French search with French UI
@@ -239,13 +192,13 @@ await web_search({
   query: "actualités",
   country: "FR",
   search_lang: "fr",
-  ui_lang: "fr",
+  ui_lang: "fr"
 });
 
 // Recent results (past week)
 await web_search({
   query: "TMBG interview",
-  freshness: "pw",
+  freshness: "pw"
 });
 ```
 
@@ -253,12 +206,12 @@ await web_search({
 
 Fetch a URL and extract readable content.
 
-### web_fetch requirements
+### Requirements
 
 - `tools.web.fetch.enabled` must not be `false` (default: enabled)
 - Optional Firecrawl fallback: set `tools.web.fetch.firecrawl.apiKey` or `FIRECRAWL_API_KEY`.
 
-### web_fetch config
+### Config
 
 ```json5
 {
@@ -267,7 +220,6 @@ Fetch a URL and extract readable content.
       fetch: {
         enabled: true,
         maxChars: 50000,
-        maxCharsCap: 50000,
         timeoutSeconds: 30,
         cacheTtlMinutes: 15,
         maxRedirects: 3,
@@ -279,27 +231,25 @@ Fetch a URL and extract readable content.
           baseUrl: "https://api.firecrawl.dev",
           onlyMainContent: true,
           maxAgeMs: 86400000, // ms (1 day)
-          timeoutSeconds: 60,
-        },
-      },
-    },
-  },
+          timeoutSeconds: 60
+        }
+      }
+    }
+  }
 }
 ```
 
-### web_fetch tool parameters
+### Tool parameters
 
 - `url` (required, http/https only)
 - `extractMode` (`markdown` | `text`)
 - `maxChars` (truncate long pages)
 
 Notes:
-
 - `web_fetch` uses Readability (main-content extraction) first, then Firecrawl (if configured). If both fail, the tool returns an error.
 - Firecrawl requests use bot-circumvention mode and cache results by default.
 - `web_fetch` sends a Chrome-like User-Agent and `Accept-Language` by default; override `userAgent` if needed.
 - `web_fetch` blocks private/internal hostnames and re-checks redirects (limit with `maxRedirects`).
-- `maxChars` is clamped to `tools.web.fetch.maxCharsCap`.
 - `web_fetch` is best-effort extraction; some sites will need the browser tool.
 - See [Firecrawl](/tools/firecrawl) for key setup and service details.
 - Responses are cached (default 15 minutes) to reduce repeated fetches.

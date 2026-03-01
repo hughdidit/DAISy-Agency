@@ -1,47 +1,30 @@
-import type { ChannelId } from "../../channels/plugins/types.js";
-import type { OpenClawConfig } from "../../config/config.js";
-import type { CommandHandler } from "./commands-types.js";
-import { getChannelDock } from "../../channels/dock.js";
-import { resolveChannelConfigWrites } from "../../channels/plugins/config-writes.js";
-import { listPairingChannels } from "../../channels/plugins/pairing.js";
-import { normalizeChannelId } from "../../channels/registry.js";
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-import { isCommandFlagEnabled } from "../../config/commands.js";
-=======
->>>>>>> 08e020881 (refactor(security): unify command gating and blocked-key guards)
-import type { OpenClawConfig } from "../../config/config.js";
->>>>>>> fbb79d401 (fix(security): harden runtime command override gating)
 import {
   readConfigFileSnapshot,
   validateConfigObjectWithPlugins,
   writeConfigFile,
 } from "../../config/config.js";
+import { resolveChannelConfigWrites } from "../../channels/plugins/config-writes.js";
+import { getChannelDock } from "../../channels/dock.js";
+import { normalizeChannelId } from "../../channels/registry.js";
+import { listPairingChannels } from "../../channels/plugins/pairing.js";
+import { logVerbose } from "../../globals.js";
+import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "../../routing/session-key.js";
 import { resolveDiscordAccount } from "../../discord/accounts.js";
-import { resolveDiscordUserAllowlist } from "../../discord/resolve-users.js";
 import { resolveIMessageAccount } from "../../imessage/accounts.js";
-import { isBlockedObjectKey } from "../../infra/prototype-keys.js";
+import { resolveSignalAccount } from "../../signal/accounts.js";
+import { resolveSlackAccount } from "../../slack/accounts.js";
+import { resolveTelegramAccount } from "../../telegram/accounts.js";
+import { resolveWhatsAppAccount } from "../../web/accounts.js";
+import { resolveSlackUserAllowlist } from "../../slack/resolve-users.js";
+import { resolveDiscordUserAllowlist } from "../../discord/resolve-users.js";
 import {
   addChannelAllowFromStoreEntry,
   readChannelAllowFromStore,
   removeChannelAllowFromStoreEntry,
 } from "../../pairing/pairing-store.js";
-import {
-  DEFAULT_ACCOUNT_ID,
-  normalizeAccountId,
-  normalizeOptionalAccountId,
-} from "../../routing/session-key.js";
-import { resolveSignalAccount } from "../../signal/accounts.js";
-import { resolveSlackAccount } from "../../slack/accounts.js";
-import { resolveSlackUserAllowlist } from "../../slack/resolve-users.js";
-import { resolveTelegramAccount } from "../../telegram/accounts.js";
-import { resolveWhatsAppAccount } from "../../web/accounts.js";
-<<<<<<< HEAD
-=======
-import { rejectUnauthorizedCommand, requireCommandFlagEnabled } from "./command-gates.js";
+import type { MoltbotConfig } from "../../config/config.js";
+import type { ChannelId } from "../../channels/plugins/types.js";
 import type { CommandHandler } from "./commands-types.js";
->>>>>>> 08e020881 (refactor(security): unify command gating and blocked-key guards)
 
 type AllowlistScope = "dm" | "group" | "all";
 type AllowlistAction = "list" | "add" | "remove";
@@ -71,13 +54,9 @@ const SCOPES = new Set<AllowlistScope>(["dm", "group", "all"]);
 
 function parseAllowlistCommand(raw: string): AllowlistCommand | null {
   const trimmed = raw.trim();
-  if (!trimmed.toLowerCase().startsWith("/allowlist")) {
-    return null;
-  }
+  if (!trimmed.toLowerCase().startsWith("/allowlist")) return null;
   const rest = trimmed.slice("/allowlist".length).trim();
-  if (!rest) {
-    return { action: "list", scope: "dm" };
-  }
+  if (!rest) return { action: "list", scope: "dm" };
 
   const tokens = rest.split(/\s+/);
   let action: AllowlistAction = "list";
@@ -128,15 +107,11 @@ function parseAllowlistCommand(raw: string): AllowlistCommand | null {
       const key = kv[0]?.trim().toLowerCase();
       const value = kv[1]?.trim();
       if (key === "channel") {
-        if (value) {
-          channel = value;
-        }
+        if (value) channel = value;
         continue;
       }
       if (key === "account") {
-        if (value) {
-          account = value;
-        }
+        if (value) account = value;
         continue;
       }
       if (key === "scope" && value && SCOPES.has(value.toLowerCase() as AllowlistScope)) {
@@ -159,7 +134,7 @@ function parseAllowlistCommand(raw: string): AllowlistCommand | null {
 }
 
 function normalizeAllowFrom(params: {
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   channelId: ChannelId;
   accountId?: string | null;
   values: Array<string | number>;
@@ -176,9 +151,7 @@ function normalizeAllowFrom(params: {
 }
 
 function formatEntryList(entries: string[], resolved?: Map<string, string>): string {
-  if (entries.length === 0) {
-    return "(none)";
-  }
+  if (entries.length === 0) return "(none)";
   return entries
     .map((entry) => {
       const name = resolved?.get(entry);
@@ -195,22 +168,13 @@ function resolveAccountTarget(
   const channels = (parsed.channels ??= {}) as Record<string, unknown>;
   const channel = (channels[channelId] ??= {}) as Record<string, unknown>;
   const normalizedAccountId = normalizeAccountId(accountId);
-  if (isBlockedObjectKey(normalizedAccountId)) {
-    return { target: channel, pathPrefix: `channels.${channelId}`, accountId: DEFAULT_ACCOUNT_ID };
-  }
   const hasAccounts = Boolean(channel.accounts && typeof channel.accounts === "object");
   const useAccount = normalizedAccountId !== DEFAULT_ACCOUNT_ID || hasAccounts;
   if (!useAccount) {
     return { target: channel, pathPrefix: `channels.${channelId}`, accountId: normalizedAccountId };
   }
   const accounts = (channel.accounts ??= {}) as Record<string, unknown>;
-  const existingAccount = Object.hasOwn(accounts, normalizedAccountId)
-    ? accounts[normalizedAccountId]
-    : undefined;
-  if (!existingAccount || typeof existingAccount !== "object") {
-    accounts[normalizedAccountId] = {};
-  }
-  const account = accounts[normalizedAccountId] as Record<string, unknown>;
+  const account = (accounts[normalizedAccountId] ??= {}) as Record<string, unknown>;
   return {
     target: account,
     pathPrefix: `channels.${channelId}.accounts.${normalizedAccountId}`,
@@ -221,9 +185,7 @@ function resolveAccountTarget(
 function getNestedValue(root: Record<string, unknown>, path: string[]): unknown {
   let current: unknown = root;
   for (const key of path) {
-    if (!current || typeof current !== "object") {
-      return undefined;
-    }
+    if (!current || typeof current !== "object") return undefined;
     current = (current as Record<string, unknown>)[key];
   }
   return current;
@@ -245,9 +207,7 @@ function ensureNestedObject(
 }
 
 function setNestedValue(root: Record<string, unknown>, path: string[], value: unknown) {
-  if (path.length === 0) {
-    return;
-  }
+  if (path.length === 0) return;
   if (path.length === 1) {
     root[path[0]] = value;
     return;
@@ -257,17 +217,13 @@ function setNestedValue(root: Record<string, unknown>, path: string[], value: un
 }
 
 function deleteNestedValue(root: Record<string, unknown>, path: string[]) {
-  if (path.length === 0) {
-    return;
-  }
+  if (path.length === 0) return;
   if (path.length === 1) {
     delete root[path[0]];
     return;
   }
   const parent = getNestedValue(root, path.slice(0, -1));
-  if (!parent || typeof parent !== "object") {
-    return;
-  }
+  if (!parent || typeof parent !== "object") return;
   delete (parent as Record<string, unknown>)[path[path.length - 1]];
 }
 
@@ -275,13 +231,9 @@ function resolveChannelAllowFromPaths(
   channelId: ChannelId,
   scope: AllowlistScope,
 ): string[] | null {
-  if (scope === "all") {
-    return null;
-  }
+  if (scope === "all") return null;
   if (scope === "dm") {
-    if (channelId === "slack" || channelId === "discord") {
-      return ["dm", "allowFrom"];
-    }
+    if (channelId === "slack" || channelId === "discord") return ["dm", "allowFrom"];
     if (
       channelId === "telegram" ||
       channelId === "whatsapp" ||
@@ -307,59 +259,49 @@ function resolveChannelAllowFromPaths(
 }
 
 async function resolveSlackNames(params: {
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   accountId?: string | null;
   entries: string[];
 }) {
   const account = resolveSlackAccount({ cfg: params.cfg, accountId: params.accountId });
   const token = account.config.userToken?.trim() || account.botToken?.trim();
-  if (!token) {
-    return new Map<string, string>();
-  }
+  if (!token) return new Map<string, string>();
   const resolved = await resolveSlackUserAllowlist({ token, entries: params.entries });
   const map = new Map<string, string>();
   for (const entry of resolved) {
-    if (entry.resolved && entry.name) {
-      map.set(entry.input, entry.name);
-    }
+    if (entry.resolved && entry.name) map.set(entry.input, entry.name);
   }
   return map;
 }
 
 async function resolveDiscordNames(params: {
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   accountId?: string | null;
   entries: string[];
 }) {
   const account = resolveDiscordAccount({ cfg: params.cfg, accountId: params.accountId });
   const token = account.token?.trim();
-  if (!token) {
-    return new Map<string, string>();
-  }
+  if (!token) return new Map<string, string>();
   const resolved = await resolveDiscordUserAllowlist({ token, entries: params.entries });
   const map = new Map<string, string>();
   for (const entry of resolved) {
-    if (entry.resolved && entry.name) {
-      map.set(entry.input, entry.name);
-    }
+    if (entry.resolved && entry.name) map.set(entry.input, entry.name);
   }
   return map;
 }
 
 export const handleAllowlistCommand: CommandHandler = async (params, allowTextCommands) => {
-  if (!allowTextCommands) {
-    return null;
-  }
+  if (!allowTextCommands) return null;
   const parsed = parseAllowlistCommand(params.command.commandBodyNormalized);
-  if (!parsed) {
-    return null;
-  }
+  if (!parsed) return null;
   if (parsed.action === "error") {
     return { shouldContinue: false, reply: { text: `⚠️ ${parsed.message}` } };
   }
-  const unauthorized = rejectUnauthorizedCommand(params, "/allowlist");
-  if (unauthorized) {
-    return unauthorized;
+  if (!params.command.isAuthorizedSender) {
+    logVerbose(
+      `Ignoring /allowlist from unauthorized sender: ${params.command.senderId || "<unknown>"}`,
+    );
+    return { shouldContinue: false };
   }
 
   const channelId =
@@ -372,14 +314,6 @@ export const handleAllowlistCommand: CommandHandler = async (params, allowTextCo
       reply: { text: "⚠️ Unknown channel. Add channel=<id> to the command." },
     };
   }
-  if (parsed.account?.trim() && !normalizeOptionalAccountId(parsed.account)) {
-    return {
-      shouldContinue: false,
-      reply: {
-        text: "⚠️ Invalid account id. Reserved keys (__proto__, constructor, prototype) are blocked.",
-      },
-    };
-  }
   const accountId = normalizeAccountId(parsed.account ?? params.ctx.AccountId);
   const scope = parsed.scope;
 
@@ -387,7 +321,7 @@ export const handleAllowlistCommand: CommandHandler = async (params, allowTextCo
     const pairingChannels = listPairingChannels();
     const supportsStore = pairingChannels.includes(channelId);
     const storeAllowFrom = supportsStore
-      ? await readChannelAllowFromStore(channelId, process.env, accountId).catch(() => [])
+      ? await readChannelAllowFromStore(channelId).catch(() => [])
       : [];
 
     let dmAllowFrom: string[] = [];
@@ -510,12 +444,8 @@ export const handleAllowlistCommand: CommandHandler = async (params, allowTextCo
 
     const lines: string[] = ["🧾 Allowlist"];
     lines.push(`Channel: ${channelId}${accountId ? ` (account ${accountId})` : ""}`);
-    if (dmPolicy) {
-      lines.push(`DM policy: ${dmPolicy}`);
-    }
-    if (groupPolicy) {
-      lines.push(`Group policy: ${groupPolicy}`);
-    }
+    if (dmPolicy) lines.push(`DM policy: ${dmPolicy}`);
+    if (groupPolicy) lines.push(`Group policy: ${groupPolicy}`);
 
     const showDm = scope === "dm" || scope === "all";
     const showGroup = scope === "group" || scope === "all";
@@ -552,13 +482,11 @@ export const handleAllowlistCommand: CommandHandler = async (params, allowTextCo
     return { shouldContinue: false, reply: { text: lines.join("\n") } };
   }
 
-  const disabled = requireCommandFlagEnabled(params.cfg, {
-    label: "/allowlist edits",
-    configKey: "config",
-    disabledVerb: "are",
-  });
-  if (disabled) {
-    return disabled;
+  if (params.cfg.commands?.config !== true) {
+    return {
+      shouldContinue: false,
+      reply: { text: "⚠️ /allowlist edits are disabled. Set commands.config=true to enable." },
+    };
   }
 
   const shouldUpdateConfig = parsed.target !== "store";

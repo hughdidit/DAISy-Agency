@@ -1,10 +1,11 @@
 import { describe, expect, test } from "vitest";
-import type { OpenClawConfig } from "../config/config.js";
+
+import type { MoltbotConfig } from "../config/config.js";
 import { resolveAgentRoute } from "./resolve-route.js";
 
 describe("resolveAgentRoute", () => {
   test("defaults to main/default when no bindings exist", () => {
-    const cfg: OpenClawConfig = {};
+    const cfg: MoltbotConfig = {};
     const route = resolveAgentRoute({
       cfg,
       channel: "whatsapp",
@@ -17,9 +18,8 @@ describe("resolveAgentRoute", () => {
     expect(route.matchedBy).toBe("default");
   });
 
-<<<<<<< HEAD
   test("dmScope=per-peer isolates DM sessions by sender id", () => {
-    const cfg: OpenClawConfig = {
+    const cfg: MoltbotConfig = {
       session: { dmScope: "per-peer" },
     };
     const route = resolveAgentRoute({
@@ -32,7 +32,7 @@ describe("resolveAgentRoute", () => {
   });
 
   test("dmScope=per-channel-peer isolates DM sessions per channel and sender", () => {
-    const cfg: OpenClawConfig = {
+    const cfg: MoltbotConfig = {
       session: { dmScope: "per-channel-peer" },
     };
     const route = resolveAgentRoute({
@@ -45,7 +45,7 @@ describe("resolveAgentRoute", () => {
   });
 
   test("identityLinks collapses per-peer DM sessions across providers", () => {
-    const cfg: OpenClawConfig = {
+    const cfg: MoltbotConfig = {
       session: {
         dmScope: "per-peer",
         identityLinks: {
@@ -60,39 +60,16 @@ describe("resolveAgentRoute", () => {
       peer: { kind: "dm", id: "111111111" },
     });
     expect(route.sessionKey).toBe("agent:main:dm:alice");
-=======
-  test("dmScope controls direct-message session key isolation", () => {
-    const cases = [
-      { dmScope: "per-peer" as const, expected: "agent:main:direct:+15551234567" },
-      {
-        dmScope: "per-channel-peer" as const,
-        expected: "agent:main:whatsapp:direct:+15551234567",
-      },
-    ];
-    for (const testCase of cases) {
-      const cfg: OpenClawConfig = {
-        session: { dmScope: testCase.dmScope },
-      };
-      const route = resolveAgentRoute({
-        cfg,
-        channel: "whatsapp",
-        accountId: null,
-        peer: { kind: "direct", id: "+15551234567" },
-      });
-      expect(route.sessionKey).toBe(testCase.expected);
-    }
->>>>>>> cc2ff6894 (test: optimize gateway infra memory and security coverage)
   });
 
-  test("identityLinks applies to direct-message scopes", () => {
-    const cases = [
-      {
-        dmScope: "per-peer" as const,
-        channel: "telegram",
-        peerId: "111111111",
-        expected: "agent:main:direct:alice",
+  test("identityLinks applies to per-channel-peer DM sessions", () => {
+    const cfg: MoltbotConfig = {
+      session: {
+        dmScope: "per-channel-peer",
+        identityLinks: {
+          alice: ["telegram:111111111", "discord:222222222222222222"],
+        },
       },
-<<<<<<< HEAD
     };
     const route = resolveAgentRoute({
       cfg,
@@ -101,36 +78,10 @@ describe("resolveAgentRoute", () => {
       peer: { kind: "dm", id: "222222222222222222" },
     });
     expect(route.sessionKey).toBe("agent:main:discord:dm:alice");
-=======
-      {
-        dmScope: "per-channel-peer" as const,
-        channel: "discord",
-        peerId: "222222222222222222",
-        expected: "agent:main:discord:direct:alice",
-      },
-    ];
-    for (const testCase of cases) {
-      const cfg: OpenClawConfig = {
-        session: {
-          dmScope: testCase.dmScope,
-          identityLinks: {
-            alice: ["telegram:111111111", "discord:222222222222222222"],
-          },
-        },
-      };
-      const route = resolveAgentRoute({
-        cfg,
-        channel: testCase.channel,
-        accountId: null,
-        peer: { kind: "direct", id: testCase.peerId },
-      });
-      expect(route.sessionKey).toBe(testCase.expected);
-    }
->>>>>>> cc2ff6894 (test: optimize gateway infra memory and security coverage)
   });
 
   test("peer binding wins over account binding", () => {
-    const cfg: OpenClawConfig = {
+    const cfg: MoltbotConfig = {
       bindings: [
         {
           agentId: "a",
@@ -158,7 +109,7 @@ describe("resolveAgentRoute", () => {
   });
 
   test("discord channel peer binding wins over guild binding", () => {
-    const cfg: OpenClawConfig = {
+    const cfg: MoltbotConfig = {
       bindings: [
         {
           agentId: "chan",
@@ -191,7 +142,7 @@ describe("resolveAgentRoute", () => {
   });
 
   test("guild binding wins over account binding when peer not bound", () => {
-    const cfg: OpenClawConfig = {
+    const cfg: MoltbotConfig = {
       bindings: [
         {
           agentId: "guild",
@@ -219,7 +170,7 @@ describe("resolveAgentRoute", () => {
   });
 
   test("missing accountId in binding matches default account only", () => {
-    const cfg: OpenClawConfig = {
+    const cfg: MoltbotConfig = {
       bindings: [{ agentId: "defaultAcct", match: { channel: "whatsapp" } }],
     };
 
@@ -242,7 +193,7 @@ describe("resolveAgentRoute", () => {
   });
 
   test("accountId=* matches any account as a channel fallback", () => {
-    const cfg: OpenClawConfig = {
+    const cfg: MoltbotConfig = {
       bindings: [
         {
           agentId: "any",
@@ -261,9 +212,9 @@ describe("resolveAgentRoute", () => {
   });
 
   test("defaultAgentId is used when no binding matches", () => {
-    const cfg: OpenClawConfig = {
+    const cfg: MoltbotConfig = {
       agents: {
-        list: [{ id: "home", default: true, workspace: "~/openclaw-home" }],
+        list: [{ id: "home", default: true, workspace: "~/clawd-home" }],
       },
     };
     const route = resolveAgentRoute({
@@ -278,7 +229,7 @@ describe("resolveAgentRoute", () => {
 });
 
 test("dmScope=per-account-channel-peer isolates DM sessions per account, channel and sender", () => {
-  const cfg: OpenClawConfig = {
+  const cfg: MoltbotConfig = {
     session: { dmScope: "per-account-channel-peer" },
   };
   const route = resolveAgentRoute({
@@ -291,7 +242,7 @@ test("dmScope=per-account-channel-peer isolates DM sessions per account, channel
 });
 
 test("dmScope=per-account-channel-peer uses default accountId when not provided", () => {
-  const cfg: OpenClawConfig = {
+  const cfg: MoltbotConfig = {
     session: { dmScope: "per-account-channel-peer" },
   };
   const route = resolveAgentRoute({
@@ -301,161 +252,4 @@ test("dmScope=per-account-channel-peer uses default accountId when not provided"
     peer: { kind: "dm", id: "7550356539" },
   });
   expect(route.sessionKey).toBe("agent:main:telegram:default:dm:7550356539");
-});
-
-describe("parentPeer binding inheritance (thread support)", () => {
-  test("thread inherits binding from parent channel when no direct match", () => {
-    const cfg: MoltbotConfig = {
-      bindings: [
-        {
-          agentId: "adecco",
-          match: {
-            channel: "discord",
-            peer: { kind: "channel", id: "parent-channel-123" },
-          },
-        },
-      ],
-    };
-    const route = resolveAgentRoute({
-      cfg,
-      channel: "discord",
-      peer: { kind: "channel", id: "thread-456" },
-      parentPeer: { kind: "channel", id: "parent-channel-123" },
-    });
-    expect(route.agentId).toBe("adecco");
-    expect(route.matchedBy).toBe("binding.peer.parent");
-  });
-
-  test("direct peer binding wins over parent peer binding", () => {
-    const cfg: MoltbotConfig = {
-      bindings: [
-        {
-          agentId: "thread-agent",
-          match: {
-            channel: "discord",
-            peer: { kind: "channel", id: "thread-456" },
-          },
-        },
-        {
-          agentId: "parent-agent",
-          match: {
-            channel: "discord",
-            peer: { kind: "channel", id: "parent-channel-123" },
-          },
-        },
-      ],
-    };
-    const route = resolveAgentRoute({
-      cfg,
-      channel: "discord",
-      peer: { kind: "channel", id: "thread-456" },
-      parentPeer: { kind: "channel", id: "parent-channel-123" },
-    });
-    expect(route.agentId).toBe("thread-agent");
-    expect(route.matchedBy).toBe("binding.peer");
-  });
-
-  test("parent peer binding wins over guild binding", () => {
-    const cfg: MoltbotConfig = {
-      bindings: [
-        {
-          agentId: "parent-agent",
-          match: {
-            channel: "discord",
-            peer: { kind: "channel", id: "parent-channel-123" },
-          },
-        },
-        {
-          agentId: "guild-agent",
-          match: {
-            channel: "discord",
-            guildId: "guild-789",
-          },
-        },
-      ],
-    };
-    const route = resolveAgentRoute({
-      cfg,
-      channel: "discord",
-      peer: { kind: "channel", id: "thread-456" },
-      parentPeer: { kind: "channel", id: "parent-channel-123" },
-      guildId: "guild-789",
-    });
-    expect(route.agentId).toBe("parent-agent");
-    expect(route.matchedBy).toBe("binding.peer.parent");
-  });
-
-  test("falls back to guild binding when no parent peer match", () => {
-    const cfg: MoltbotConfig = {
-      bindings: [
-        {
-          agentId: "other-parent-agent",
-          match: {
-            channel: "discord",
-            peer: { kind: "channel", id: "other-parent-999" },
-          },
-        },
-        {
-          agentId: "guild-agent",
-          match: {
-            channel: "discord",
-            guildId: "guild-789",
-          },
-        },
-      ],
-    };
-    const route = resolveAgentRoute({
-      cfg,
-      channel: "discord",
-      peer: { kind: "channel", id: "thread-456" },
-      parentPeer: { kind: "channel", id: "parent-channel-123" },
-      guildId: "guild-789",
-    });
-    expect(route.agentId).toBe("guild-agent");
-    expect(route.matchedBy).toBe("binding.guild");
-  });
-
-  test("parentPeer with empty id is ignored", () => {
-    const cfg: MoltbotConfig = {
-      bindings: [
-        {
-          agentId: "parent-agent",
-          match: {
-            channel: "discord",
-            peer: { kind: "channel", id: "parent-channel-123" },
-          },
-        },
-      ],
-    };
-    const route = resolveAgentRoute({
-      cfg,
-      channel: "discord",
-      peer: { kind: "channel", id: "thread-456" },
-      parentPeer: { kind: "channel", id: "" },
-    });
-    expect(route.agentId).toBe("main");
-    expect(route.matchedBy).toBe("default");
-  });
-
-  test("null parentPeer is handled gracefully", () => {
-    const cfg: MoltbotConfig = {
-      bindings: [
-        {
-          agentId: "parent-agent",
-          match: {
-            channel: "discord",
-            peer: { kind: "channel", id: "parent-channel-123" },
-          },
-        },
-      ],
-    };
-    const route = resolveAgentRoute({
-      cfg,
-      channel: "discord",
-      peer: { kind: "channel", id: "thread-456" },
-      parentPeer: null,
-    });
-    expect(route.agentId).toBe("main");
-    expect(route.matchedBy).toBe("default");
-  });
 });

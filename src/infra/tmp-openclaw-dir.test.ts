@@ -2,8 +2,6 @@ import path from "node:path";
 import { describe, expect, it, vi } from "vitest";
 import { POSIX_OPENCLAW_TMP_DIR, resolvePreferredOpenClawTmpDir } from "./tmp-openclaw-dir.js";
 
-<<<<<<< HEAD
-=======
 type TmpDirOptions = NonNullable<Parameters<typeof resolvePreferredOpenClawTmpDir>[0]>;
 
 function fallbackTmp(uid = 501) {
@@ -29,12 +27,16 @@ function resolveWithMocks(params: {
   lstatSync: NonNullable<TmpDirOptions["lstatSync"]>;
   fallbackLstatSync?: NonNullable<TmpDirOptions["lstatSync"]>;
   accessSync?: NonNullable<TmpDirOptions["accessSync"]>;
+  chmodSync?: NonNullable<TmpDirOptions["chmodSync"]>;
+  warn?: NonNullable<TmpDirOptions["warn"]>;
   uid?: number;
   tmpdirPath?: string;
 }) {
   const uid = params.uid ?? 501;
   const fallbackPath = fallbackTmp(uid);
   const accessSync = params.accessSync ?? vi.fn();
+  const chmodSync = params.chmodSync ?? vi.fn();
+  const warn = params.warn ?? vi.fn();
   const wrappedLstatSync = vi.fn((target: string) => {
     if (target === POSIX_OPENCLAW_TMP_DIR) {
       return params.lstatSync(target);
@@ -52,35 +54,25 @@ function resolveWithMocks(params: {
   const tmpdir = vi.fn(() => params.tmpdirPath ?? "/var/fallback");
   const resolved = resolvePreferredOpenClawTmpDir({
     accessSync,
+    chmodSync,
     lstatSync: wrappedLstatSync,
     mkdirSync,
     getuid,
     tmpdir,
+    warn,
   });
   return { resolved, accessSync, lstatSync: wrappedLstatSync, mkdirSync, tmpdir };
 }
 
->>>>>>> 496a76c03 (fix(security): harden browser trace/download temp path handling)
 describe("resolvePreferredOpenClawTmpDir", () => {
   it("prefers /tmp/openclaw when it already exists and is writable", () => {
-    const accessSync = vi.fn();
-    const lstatSync = vi.fn(() => ({
+    const lstatSync: NonNullable<TmpDirOptions["lstatSync"]> = vi.fn(() => ({
       isDirectory: () => true,
       isSymbolicLink: () => false,
       uid: 501,
       mode: 0o40700,
     }));
-    const mkdirSync = vi.fn();
-    const getuid = vi.fn(() => 501);
-    const tmpdir = vi.fn(() => "/var/fallback");
-
-    const resolved = resolvePreferredOpenClawTmpDir({
-      accessSync,
-      lstatSync,
-      mkdirSync,
-      getuid,
-      tmpdir,
-    });
+    const { resolved, accessSync, tmpdir } = resolveWithMocks({ lstatSync });
 
     expect(lstatSync).toHaveBeenCalledTimes(1);
     expect(accessSync).toHaveBeenCalledTimes(1);
@@ -89,44 +81,15 @@ describe("resolvePreferredOpenClawTmpDir", () => {
   });
 
   it("prefers /tmp/openclaw when it does not exist but /tmp is writable", () => {
-<<<<<<< HEAD
-    const accessSync = vi.fn();
-    const lstatSync = vi.fn(() => {
-      const err = new Error("missing") as Error & { code?: string };
-      err.code = "ENOENT";
-      throw err;
-    });
-    const mkdirSync = vi.fn();
-    const getuid = vi.fn(() => 501);
-    const tmpdir = vi.fn(() => "/var/fallback");
-
-    // second lstat call (after mkdir) should succeed
-    lstatSync.mockImplementationOnce(() => {
-      const err = new Error("missing") as Error & { code?: string };
-      err.code = "ENOENT";
-      throw err;
-    });
-    lstatSync.mockImplementationOnce(() => ({
-      isDirectory: () => true,
-      isSymbolicLink: () => false,
-      uid: 501,
-      mode: 0o40700,
-    }));
-=======
     const lstatSyncMock = vi
       .fn<NonNullable<TmpDirOptions["lstatSync"]>>()
       .mockImplementationOnce(() => {
         throw nodeErrorWithCode("ENOENT");
       })
       .mockImplementationOnce(() => secureDirStat(501));
->>>>>>> 496a76c03 (fix(security): harden browser trace/download temp path handling)
 
-    const resolved = resolvePreferredOpenClawTmpDir({
-      accessSync,
-      lstatSync,
-      mkdirSync,
-      getuid,
-      tmpdir,
+    const { resolved, accessSync, mkdirSync, tmpdir } = resolveWithMocks({
+      lstatSync: lstatSyncMock,
     });
 
     expect(resolved).toBe(POSIX_OPENCLAW_TMP_DIR);
@@ -136,32 +99,16 @@ describe("resolvePreferredOpenClawTmpDir", () => {
   });
 
   it("falls back to os.tmpdir()/openclaw when /tmp/openclaw is not a directory", () => {
-    const accessSync = vi.fn();
     const lstatSync = vi.fn(() => ({
       isDirectory: () => false,
       isSymbolicLink: () => false,
       uid: 501,
       mode: 0o100644,
-    }));
-    const mkdirSync = vi.fn();
-    const getuid = vi.fn(() => 501);
-    const tmpdir = vi.fn(() => "/var/fallback");
+    })) as unknown as ReturnType<typeof vi.fn> & NonNullable<TmpDirOptions["lstatSync"]>;
+    const { resolved, tmpdir } = resolveWithMocks({ lstatSync });
 
-<<<<<<< HEAD
-    const resolved = resolvePreferredOpenClawTmpDir({
-      accessSync,
-      lstatSync,
-      mkdirSync,
-      getuid,
-      tmpdir,
-    });
-
-    expect(resolved).toBe(path.join("/var/fallback", "openclaw-501"));
-    expect(tmpdir).toHaveBeenCalledTimes(1);
-=======
     expect(resolved).toBe(fallbackTmp());
     expect(tmpdir).toHaveBeenCalled();
->>>>>>> 496a76c03 (fix(security): harden browser trace/download temp path handling)
   });
 
   it("falls back to os.tmpdir()/openclaw when /tmp is not writable", () => {
@@ -173,109 +120,52 @@ describe("resolvePreferredOpenClawTmpDir", () => {
     const lstatSync = vi.fn(() => {
       throw nodeErrorWithCode("ENOENT");
     });
-    const mkdirSync = vi.fn();
-    const getuid = vi.fn(() => 501);
-    const tmpdir = vi.fn(() => "/var/fallback");
-
-    const resolved = resolvePreferredOpenClawTmpDir({
+    const { resolved, tmpdir } = resolveWithMocks({
       accessSync,
       lstatSync,
-      mkdirSync,
-      getuid,
-      tmpdir,
     });
 
-<<<<<<< HEAD
-    expect(resolved).toBe(path.join("/var/fallback", "openclaw-501"));
-    expect(tmpdir).toHaveBeenCalledTimes(1);
-=======
     expect(resolved).toBe(fallbackTmp());
     expect(tmpdir).toHaveBeenCalled();
->>>>>>> 496a76c03 (fix(security): harden browser trace/download temp path handling)
   });
 
   it("falls back when /tmp/openclaw is a symlink", () => {
-    const accessSync = vi.fn();
     const lstatSync = vi.fn(() => ({
       isDirectory: () => true,
       isSymbolicLink: () => true,
       uid: 501,
       mode: 0o120777,
     }));
-    const mkdirSync = vi.fn();
-    const getuid = vi.fn(() => 501);
-    const tmpdir = vi.fn(() => "/var/fallback");
 
-    const resolved = resolvePreferredOpenClawTmpDir({
-      accessSync,
-      lstatSync,
-      mkdirSync,
-      getuid,
-      tmpdir,
-    });
+    const { resolved, tmpdir } = resolveWithMocks({ lstatSync });
 
-<<<<<<< HEAD
-    expect(resolved).toBe(path.join("/var/fallback", "openclaw-501"));
-    expect(tmpdir).toHaveBeenCalledTimes(1);
-=======
     expect(resolved).toBe(fallbackTmp());
     expect(tmpdir).toHaveBeenCalled();
->>>>>>> 496a76c03 (fix(security): harden browser trace/download temp path handling)
   });
 
   it("falls back when /tmp/openclaw is not owned by the current user", () => {
-    const accessSync = vi.fn();
     const lstatSync = vi.fn(() => ({
       isDirectory: () => true,
       isSymbolicLink: () => false,
       uid: 0,
       mode: 0o40700,
     }));
-    const mkdirSync = vi.fn();
-    const getuid = vi.fn(() => 501);
-    const tmpdir = vi.fn(() => "/var/fallback");
 
-    const resolved = resolvePreferredOpenClawTmpDir({
-      accessSync,
-      lstatSync,
-      mkdirSync,
-      getuid,
-      tmpdir,
-    });
+    const { resolved, tmpdir } = resolveWithMocks({ lstatSync });
 
-<<<<<<< HEAD
-    expect(resolved).toBe(path.join("/var/fallback", "openclaw-501"));
-    expect(tmpdir).toHaveBeenCalledTimes(1);
-=======
     expect(resolved).toBe(fallbackTmp());
     expect(tmpdir).toHaveBeenCalled();
->>>>>>> 496a76c03 (fix(security): harden browser trace/download temp path handling)
   });
 
   it("falls back when /tmp/openclaw is group/other writable", () => {
-    const accessSync = vi.fn();
     const lstatSync = vi.fn(() => ({
       isDirectory: () => true,
       isSymbolicLink: () => false,
       uid: 501,
       mode: 0o40777,
     }));
-    const mkdirSync = vi.fn();
-    const getuid = vi.fn(() => 501);
-    const tmpdir = vi.fn(() => "/var/fallback");
+    const { resolved, tmpdir } = resolveWithMocks({ lstatSync });
 
-<<<<<<< HEAD
-    const resolved = resolvePreferredOpenClawTmpDir({
-      accessSync,
-      lstatSync,
-      mkdirSync,
-      getuid,
-      tmpdir,
-    });
-
-    expect(resolved).toBe(path.join("/var/fallback", "openclaw-501"));
-    expect(tmpdir).toHaveBeenCalledTimes(1);
-=======
     expect(resolved).toBe(fallbackTmp());
     expect(tmpdir).toHaveBeenCalled();
   });
@@ -323,6 +213,96 @@ describe("resolvePreferredOpenClawTmpDir", () => {
 
     expect(resolved).toBe(fallbackTmp());
     expect(mkdirSync).toHaveBeenCalledWith(fallbackTmp(), { recursive: true, mode: 0o700 });
->>>>>>> 496a76c03 (fix(security): harden browser trace/download temp path handling)
+  });
+
+  it("repairs fallback directory permissions after create when umask makes it group-writable", () => {
+    const fallbackPath = fallbackTmp();
+    let fallbackMode = 0o40775;
+    const lstatSync = vi.fn<NonNullable<TmpDirOptions["lstatSync"]>>(() => {
+      throw nodeErrorWithCode("ENOENT");
+    });
+    const fallbackLstatSync = vi
+      .fn<NonNullable<TmpDirOptions["lstatSync"]>>()
+      .mockImplementationOnce(() => {
+        throw nodeErrorWithCode("ENOENT");
+      })
+      .mockImplementation(() => ({
+        isDirectory: () => true,
+        isSymbolicLink: () => false,
+        uid: 501,
+        mode: fallbackMode,
+      }));
+    const chmodSync = vi.fn((target: string, mode: number) => {
+      if (target === fallbackPath && mode === 0o700) {
+        fallbackMode = 0o40700;
+      }
+    });
+
+    const resolved = resolvePreferredOpenClawTmpDir({
+      accessSync: vi.fn((target: string) => {
+        if (target === "/tmp") {
+          throw new Error("read-only");
+        }
+      }),
+      lstatSync: vi.fn((target: string) => {
+        if (target === POSIX_OPENCLAW_TMP_DIR) {
+          return lstatSync(target);
+        }
+        if (target === fallbackPath) {
+          return fallbackLstatSync(target);
+        }
+        return secureDirStat(501);
+      }),
+      mkdirSync: vi.fn(),
+      chmodSync,
+      getuid: vi.fn(() => 501),
+      tmpdir: vi.fn(() => "/var/fallback"),
+      warn: vi.fn(),
+    });
+
+    expect(resolved).toBe(fallbackPath);
+    expect(chmodSync).toHaveBeenCalledWith(fallbackPath, 0o700);
+  });
+
+  it("repairs existing fallback directory when permissions are too broad", () => {
+    const fallbackPath = fallbackTmp();
+    let fallbackMode = 0o40775;
+    const chmodSync = vi.fn((target: string, mode: number) => {
+      if (target === fallbackPath && mode === 0o700) {
+        fallbackMode = 0o40700;
+      }
+    });
+    const warn = vi.fn();
+
+    const resolved = resolvePreferredOpenClawTmpDir({
+      accessSync: vi.fn((target: string) => {
+        if (target === "/tmp") {
+          throw new Error("read-only");
+        }
+      }),
+      lstatSync: vi.fn((target: string) => {
+        if (target === POSIX_OPENCLAW_TMP_DIR) {
+          throw nodeErrorWithCode("ENOENT");
+        }
+        if (target === fallbackPath) {
+          return {
+            isDirectory: () => true,
+            isSymbolicLink: () => false,
+            uid: 501,
+            mode: fallbackMode,
+          };
+        }
+        return secureDirStat(501);
+      }),
+      mkdirSync: vi.fn(),
+      chmodSync,
+      getuid: vi.fn(() => 501),
+      tmpdir: vi.fn(() => "/var/fallback"),
+      warn,
+    });
+
+    expect(resolved).toBe(fallbackPath);
+    expect(chmodSync).toHaveBeenCalledWith(fallbackPath, 0o700);
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining("tightened permissions on temp dir"));
   });
 });

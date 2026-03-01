@@ -1,11 +1,5 @@
 import { z } from "zod";
-<<<<<<< HEAD
-=======
-import { parseByteSize } from "../cli/parse-bytes.js";
-import { parseDurationMs } from "../cli/parse-duration.js";
-import { ElevatedAllowFromSchema } from "./zod-schema.agent-runtime.js";
-import { createAllowDenyChannelRulesSchema } from "./zod-schema.allowdeny.js";
->>>>>>> c20d519e0 (feat(security): migrate sha1 hashes to sha256 for synthetic ids (#7343) (#22528))
+
 import {
   GroupChatSchema,
   InboundDebounceSchema,
@@ -13,38 +7,12 @@ import {
   QueueSchema,
   TtsConfigSchema,
 } from "./zod-schema.core.js";
-import { sensitive } from "./zod-schema.sensitive.js";
 
 const SessionResetConfigSchema = z
   .object({
     mode: z.union([z.literal("daily"), z.literal("idle")]).optional(),
     atHour: z.number().int().min(0).max(23).optional(),
     idleMinutes: z.number().int().positive().optional(),
-  })
-  .strict();
-
-export const SessionSendPolicySchema = z
-  .object({
-    default: z.union([z.literal("allow"), z.literal("deny")]).optional(),
-    rules: z
-      .array(
-        z
-          .object({
-            action: z.union([z.literal("allow"), z.literal("deny")]),
-            match: z
-              .object({
-                channel: z.string().optional(),
-                chatType: z
-                  .union([z.literal("direct"), z.literal("group"), z.literal("channel")])
-                  .optional(),
-                keyPrefix: z.string().optional(),
-              })
-              .strict()
-              .optional(),
-          })
-          .strict(),
-      )
-      .optional(),
   })
   .strict();
 
@@ -83,7 +51,31 @@ export const SessionSchema = z
       ])
       .optional(),
     mainKey: z.string().optional(),
-    sendPolicy: SessionSendPolicySchema.optional(),
+    sendPolicy: z
+      .object({
+        default: z.union([z.literal("allow"), z.literal("deny")]).optional(),
+        rules: z
+          .array(
+            z
+              .object({
+                action: z.union([z.literal("allow"), z.literal("deny")]),
+                match: z
+                  .object({
+                    channel: z.string().optional(),
+                    chatType: z
+                      .union([z.literal("direct"), z.literal("group"), z.literal("channel")])
+                      .optional(),
+                    keyPrefix: z.string().optional(),
+                  })
+                  .strict()
+                  .optional(),
+              })
+              .strict(),
+          )
+          .optional(),
+      })
+      .strict()
+      .optional(),
     agentToAgent: z
       .object({
         maxPingPongTurns: z.number().int().min(0).max(5).optional(),
@@ -120,7 +112,6 @@ export const CommandsSchema = z
     debug: z.boolean().optional(),
     restart: z.boolean().optional(),
     useAccessGroups: z.boolean().optional(),
-    ownerAllowFrom: z.array(z.union([z.string(), z.number()])).optional(),
   })
   .strict()
   .optional()

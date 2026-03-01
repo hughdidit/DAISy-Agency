@@ -1,13 +1,8 @@
-import type { IncomingMessage } from "node:http";
 import { randomUUID } from "node:crypto";
-import type { ChannelId } from "../channels/plugins/types.js";
-import type { OpenClawConfig } from "../config/config.js";
+import type { IncomingMessage } from "node:http";
 import { listChannelPlugins } from "../channels/plugins/index.js";
-<<<<<<< HEAD
-=======
-import { readJsonBodyWithLimit, requestBodyErrorToText } from "../infra/http-body.js";
-import { normalizeAgentId } from "../routing/session-key.js";
->>>>>>> 3cbcba10c (fix(security): enforce bounded webhook body handling)
+import type { ChannelId } from "../channels/plugins/types.js";
+import type { MoltbotConfig } from "../config/config.js";
 import { normalizeMessageChannel } from "../utils/message-channel.js";
 import { type HookMappingResolved, resolveHookMappings } from "./hooks-mapping.js";
 
@@ -21,10 +16,8 @@ export type HooksConfigResolved = {
   mappings: HookMappingResolved[];
 };
 
-export function resolveHooksConfig(cfg: OpenClawConfig): HooksConfigResolved | null {
-  if (cfg.hooks?.enabled !== true) {
-    return null;
-  }
+export function resolveHooksConfig(cfg: MoltbotConfig): HooksConfigResolved | null {
+  if (cfg.hooks?.enabled !== true) return null;
   const token = cfg.hooks?.token?.trim();
   if (!token) {
     throw new Error("hooks.enabled requires hooks.token");
@@ -48,43 +41,66 @@ export function resolveHooksConfig(cfg: OpenClawConfig): HooksConfigResolved | n
   };
 }
 
-export function extractHookToken(req: IncomingMessage): string | undefined {
+export type HookTokenResult = {
+  token: string | undefined;
+  fromQuery: boolean;
+};
+
+export function extractHookToken(req: IncomingMessage, url: URL): HookTokenResult {
   const auth =
     typeof req.headers.authorization === "string" ? req.headers.authorization.trim() : "";
   if (auth.toLowerCase().startsWith("bearer ")) {
     const token = auth.slice(7).trim();
-    if (token) {
-      return token;
-    }
+    if (token) return { token, fromQuery: false };
   }
   const headerToken =
-    typeof req.headers["x-openclaw-token"] === "string"
-      ? req.headers["x-openclaw-token"].trim()
-      : "";
-  if (headerToken) {
-    return headerToken;
-  }
-  return undefined;
+    typeof req.headers["x-moltbot-token"] === "string" ? req.headers["x-moltbot-token"].trim() : "";
+  if (headerToken) return { token: headerToken, fromQuery: false };
+  const queryToken = url.searchParams.get("token");
+  if (queryToken) return { token: queryToken.trim(), fromQuery: true };
+  return { token: undefined, fromQuery: false };
 }
 
 export async function readJsonBody(
   req: IncomingMessage,
   maxBytes: number,
 ): Promise<{ ok: true; value: unknown } | { ok: false; error: string }> {
-  const result = await readJsonBodyWithLimit(req, { maxBytes, emptyObjectOnEmpty: true });
-  if (result.ok) {
-    return result;
-  }
-  if (result.code === "PAYLOAD_TOO_LARGE") {
-    return { ok: false, error: "payload too large" };
-  }
-  if (result.code === "REQUEST_BODY_TIMEOUT") {
-    return { ok: false, error: "request body timeout" };
-  }
-  if (result.code === "CONNECTION_CLOSED") {
-    return { ok: false, error: requestBodyErrorToText("CONNECTION_CLOSED") };
-  }
-  return { ok: false, error: result.error };
+  return await new Promise((resolve) => {
+    let done = false;
+    let total = 0;
+    const chunks: Buffer[] = [];
+    req.on("data", (chunk: Buffer) => {
+      if (done) return;
+      total += chunk.length;
+      if (total > maxBytes) {
+        done = true;
+        resolve({ ok: false, error: "payload too large" });
+        req.destroy();
+        return;
+      }
+      chunks.push(chunk);
+    });
+    req.on("end", () => {
+      if (done) return;
+      done = true;
+      const raw = Buffer.concat(chunks).toString("utf-8").trim();
+      if (!raw) {
+        resolve({ ok: true, value: {} });
+        return;
+      }
+      try {
+        const parsed = JSON.parse(raw) as unknown;
+        resolve({ ok: true, value: parsed });
+      } catch (err) {
+        resolve({ ok: false, error: String(err) });
+      }
+    });
+    req.on("error", (err) => {
+      if (done) return;
+      done = true;
+      resolve({ ok: false, error: String(err) });
+    });
+  });
 }
 
 export function normalizeHookHeaders(req: IncomingMessage) {
@@ -105,9 +121,7 @@ export function normalizeWakePayload(
   | { ok: true; value: { text: string; mode: "now" | "next-heartbeat" } }
   | { ok: false; error: string } {
   const text = typeof payload.text === "string" ? payload.text.trim() : "";
-  if (!text) {
-    return { ok: false, error: "text required" };
-  }
+  if (!text) return { ok: false, error: "text required" };
   const mode = payload.mode === "next-heartbeat" ? "next-heartbeat" : "now";
   return { ok: true, value: { text, mode } };
 }
@@ -133,16 +147,10 @@ const getHookChannelSet = () => new Set<string>(listHookChannelValues());
 export const getHookChannelError = () => `channel must be ${listHookChannelValues().join("|")}`;
 
 export function resolveHookChannel(raw: unknown): HookMessageChannel | null {
-  if (raw === undefined) {
-    return "last";
-  }
-  if (typeof raw !== "string") {
-    return null;
-  }
+  if (raw === undefined) return "last";
+  if (typeof raw !== "string") return null;
   const normalized = normalizeMessageChannel(raw);
-  if (!normalized || !getHookChannelSet().has(normalized)) {
-    return null;
-  }
+  if (!normalized || !getHookChannelSet().has(normalized)) return null;
   return normalized as HookMessageChannel;
 }
 
@@ -160,9 +168,7 @@ export function normalizeAgentPayload(
     }
   | { ok: false; error: string } {
   const message = typeof payload.message === "string" ? payload.message.trim() : "";
-  if (!message) {
-    return { ok: false, error: "message required" };
-  }
+  if (!message) return { ok: false, error: "message required" };
   const nameRaw = payload.name;
   const name = typeof nameRaw === "string" && nameRaw.trim() ? nameRaw.trim() : "Hook";
   const wakeMode = payload.wakeMode === "next-heartbeat" ? "next-heartbeat" : "now";
@@ -173,9 +179,7 @@ export function normalizeAgentPayload(
       ? sessionKeyRaw.trim()
       : `hook:${idFactory()}`;
   const channel = resolveHookChannel(payload.channel);
-  if (!channel) {
-    return { ok: false, error: getHookChannelError() };
-  }
+  if (!channel) return { ok: false, error: getHookChannelError() };
   const toRaw = payload.to;
   const to = typeof toRaw === "string" && toRaw.trim() ? toRaw.trim() : undefined;
   const modelRaw = payload.model;

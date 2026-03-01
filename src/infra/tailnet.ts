@@ -1,36 +1,27 @@
 import os from "node:os";
-import { isIpInCidr } from "../shared/net/ip.js";
 
 export type TailnetAddresses = {
   ipv4: string[];
   ipv6: string[];
 };
 
-<<<<<<< HEAD
 function isTailnetIPv4(address: string): boolean {
   const parts = address.split(".");
-  if (parts.length !== 4) {
-    return false;
-  }
+  if (parts.length !== 4) return false;
   const octets = parts.map((p) => Number.parseInt(p, 10));
-  if (octets.some((n) => !Number.isFinite(n) || n < 0 || n > 255)) {
-    return false;
-  }
-=======
-const TAILNET_IPV4_CIDR = "100.64.0.0/10";
-const TAILNET_IPV6_CIDR = "fd7a:115c:a1e0::/48";
->>>>>>> f14ebd743 (refactor(security): unify local-host and tailnet CIDR checks)
+  if (octets.some((n) => !Number.isFinite(n) || n < 0 || n > 255)) return false;
 
-export function isTailnetIPv4(address: string): boolean {
   // Tailscale IPv4 range: 100.64.0.0/10
   // https://tailscale.com/kb/1015/100.x-addresses
-  return isIpInCidr(address, TAILNET_IPV4_CIDR);
+  const [a, b] = octets;
+  return a === 100 && b >= 64 && b <= 127;
 }
 
 function isTailnetIPv6(address: string): boolean {
   // Tailscale IPv6 ULA prefix: fd7a:115c:a1e0::/48
   // (stable across tailnets; nodes get per-device suffixes)
-  return isIpInCidr(address, TAILNET_IPV6_CIDR);
+  const normalized = address.trim().toLowerCase();
+  return normalized.startsWith("fd7a:115c:a1e0:");
 }
 
 export function listTailnetAddresses(): TailnetAddresses {
@@ -39,23 +30,13 @@ export function listTailnetAddresses(): TailnetAddresses {
 
   const ifaces = os.networkInterfaces();
   for (const entries of Object.values(ifaces)) {
-    if (!entries) {
-      continue;
-    }
+    if (!entries) continue;
     for (const e of entries) {
-      if (!e || e.internal) {
-        continue;
-      }
+      if (!e || e.internal) continue;
       const address = e.address?.trim();
-      if (!address) {
-        continue;
-      }
-      if (isTailnetIPv4(address)) {
-        ipv4.push(address);
-      }
-      if (isTailnetIPv6(address)) {
-        ipv6.push(address);
-      }
+      if (!address) continue;
+      if (isTailnetIPv4(address)) ipv4.push(address);
+      if (isTailnetIPv6(address)) ipv6.push(address);
     }
   }
 

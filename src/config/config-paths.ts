@@ -1,10 +1,6 @@
-<<<<<<< HEAD
-=======
-import { isPlainObject } from "../utils.js";
-import { isBlockedObjectKey } from "./prototype-keys.js";
-
->>>>>>> 08e020881 (refactor(security): unify command gating and blocked-key guards)
 type PathNode = Record<string, unknown>;
+
+const BLOCKED_KEYS = new Set(["__proto__", "prototype", "constructor"]);
 
 export function parseConfigPath(raw: string): {
   ok: boolean;
@@ -25,7 +21,7 @@ export function parseConfigPath(raw: string): {
       error: "Invalid path. Use dot notation (e.g. foo.bar).",
     };
   }
-  if (parts.some((part) => isBlockedObjectKey(part))) {
+  if (parts.some((part) => BLOCKED_KEYS.has(part))) {
     return { ok: false, error: "Invalid path segment." };
   }
   return { ok: true, path: parts };
@@ -50,16 +46,12 @@ export function unsetConfigValueAtPath(root: PathNode, path: string[]): boolean 
   for (let idx = 0; idx < path.length - 1; idx += 1) {
     const key = path[idx];
     const next = cursor[key];
-    if (!isPlainObject(next)) {
-      return false;
-    }
+    if (!isPlainObject(next)) return false;
     stack.push({ node: cursor, key });
     cursor = next;
   }
   const leafKey = path[path.length - 1];
-  if (!(leafKey in cursor)) {
-    return false;
-  }
+  if (!(leafKey in cursor)) return false;
   delete cursor[leafKey];
   for (let idx = stack.length - 1; idx >= 0; idx -= 1) {
     const { node, key } = stack[idx];
@@ -76,9 +68,7 @@ export function unsetConfigValueAtPath(root: PathNode, path: string[]): boolean 
 export function getConfigValueAtPath(root: PathNode, path: string[]): unknown {
   let cursor: unknown = root;
   for (const key of path) {
-    if (!isPlainObject(cursor)) {
-      return undefined;
-    }
+    if (!isPlainObject(cursor)) return undefined;
     cursor = cursor[key];
   }
   return cursor;

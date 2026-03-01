@@ -1,10 +1,9 @@
 import { mergeDmAllowFromSources, resolveGroupAllowFromSources } from "../channels/allow-from.js";
+import { resolveControlCommandGate } from "../channels/command-gating.js";
 import type { ChannelId } from "../channels/plugins/types.js";
 import { readChannelAllowFromStore } from "../pairing/pairing-store.js";
 import { normalizeStringEntries } from "../shared/string-normalization.js";
 
-<<<<<<< HEAD
-=======
 export function resolveEffectiveAllowFromLists(params: {
   allowFrom?: Array<string | number> | null;
   groupAllowFrom?: Array<string | number> | null;
@@ -37,8 +36,6 @@ export function resolveEffectiveAllowFromLists(params: {
 }
 
 export type DmGroupAccessDecision = "allow" | "block" | "pairing";
-<<<<<<< HEAD
-=======
 export const DM_GROUP_ACCESS_REASON = {
   GROUP_POLICY_ALLOWED: "group_policy_allowed",
   GROUP_POLICY_DISABLED: "group_policy_disabled",
@@ -69,7 +66,6 @@ export async function readStoreAllowFromForDmPolicy(params: {
       readChannelAllowFromStore(provider, process.env, accountId));
   return await readStore(params.provider, params.accountId).catch(() => []);
 }
->>>>>>> bce643a0b (refactor(security): enforce account-scoped pairing APIs)
 
 export function resolveDmGroupAccessDecision(params: {
   isGroup: boolean;
@@ -80,6 +76,7 @@ export function resolveDmGroupAccessDecision(params: {
   isSenderAllowed: (allowFrom: string[]) => boolean;
 }): {
   decision: DmGroupAccessDecision;
+  reasonCode: DmGroupAccessReasonCode;
   reason: string;
 } {
   const dmPolicy = params.dmPolicy ?? "pairing";
@@ -89,32 +86,68 @@ export function resolveDmGroupAccessDecision(params: {
 
   if (params.isGroup) {
     if (groupPolicy === "disabled") {
-      return { decision: "block", reason: "groupPolicy=disabled" };
+      return {
+        decision: "block",
+        reasonCode: DM_GROUP_ACCESS_REASON.GROUP_POLICY_DISABLED,
+        reason: "groupPolicy=disabled",
+      };
     }
     if (groupPolicy === "allowlist") {
       if (effectiveGroupAllowFrom.length === 0) {
-        return { decision: "block", reason: "groupPolicy=allowlist (empty allowlist)" };
+        return {
+          decision: "block",
+          reasonCode: DM_GROUP_ACCESS_REASON.GROUP_POLICY_EMPTY_ALLOWLIST,
+          reason: "groupPolicy=allowlist (empty allowlist)",
+        };
       }
       if (!params.isSenderAllowed(effectiveGroupAllowFrom)) {
-        return { decision: "block", reason: "groupPolicy=allowlist (not allowlisted)" };
+        return {
+          decision: "block",
+          reasonCode: DM_GROUP_ACCESS_REASON.GROUP_POLICY_NOT_ALLOWLISTED,
+          reason: "groupPolicy=allowlist (not allowlisted)",
+        };
       }
     }
-    return { decision: "allow", reason: `groupPolicy=${groupPolicy}` };
+    return {
+      decision: "allow",
+      reasonCode: DM_GROUP_ACCESS_REASON.GROUP_POLICY_ALLOWED,
+      reason: `groupPolicy=${groupPolicy}`,
+    };
   }
 
   if (dmPolicy === "disabled") {
-    return { decision: "block", reason: "dmPolicy=disabled" };
+    return {
+      decision: "block",
+      reasonCode: DM_GROUP_ACCESS_REASON.DM_POLICY_DISABLED,
+      reason: "dmPolicy=disabled",
+    };
   }
   if (dmPolicy === "open") {
-    return { decision: "allow", reason: "dmPolicy=open" };
+    return {
+      decision: "allow",
+      reasonCode: DM_GROUP_ACCESS_REASON.DM_POLICY_OPEN,
+      reason: "dmPolicy=open",
+    };
   }
   if (params.isSenderAllowed(effectiveAllowFrom)) {
-    return { decision: "allow", reason: `dmPolicy=${dmPolicy} (allowlisted)` };
+    return {
+      decision: "allow",
+      reasonCode: DM_GROUP_ACCESS_REASON.DM_POLICY_ALLOWLISTED,
+      reason: `dmPolicy=${dmPolicy} (allowlisted)`,
+    };
   }
   if (dmPolicy === "pairing") {
-    return { decision: "pairing", reason: "dmPolicy=pairing (not allowlisted)" };
+    return {
+      decision: "pairing",
+      reasonCode: DM_GROUP_ACCESS_REASON.DM_POLICY_PAIRING_REQUIRED,
+      reason: "dmPolicy=pairing (not allowlisted)",
+    };
   }
-  return { decision: "block", reason: `dmPolicy=${dmPolicy} (not allowlisted)` };
+  return {
+    decision: "block",
+    reasonCode: DM_GROUP_ACCESS_REASON.DM_POLICY_NOT_ALLOWLISTED,
+    reason: `dmPolicy=${dmPolicy} (not allowlisted)`,
+  };
 }
 
 export function resolveDmGroupAccessWithLists(params: {
@@ -128,6 +161,7 @@ export function resolveDmGroupAccessWithLists(params: {
   isSenderAllowed: (allowFrom: string[]) => boolean;
 }): {
   decision: DmGroupAccessDecision;
+  reasonCode: DmGroupAccessReasonCode;
   reason: string;
   effectiveAllowFrom: string[];
   effectiveGroupAllowFrom: string[];
@@ -154,7 +188,79 @@ export function resolveDmGroupAccessWithLists(params: {
   };
 }
 
->>>>>>> 8bdda7a65 (fix(security): keep DM pairing allowlists out of group auth)
+export function resolveDmGroupAccessWithCommandGate(params: {
+  isGroup: boolean;
+  dmPolicy?: string | null;
+  groupPolicy?: string | null;
+  allowFrom?: Array<string | number> | null;
+  groupAllowFrom?: Array<string | number> | null;
+  storeAllowFrom?: Array<string | number> | null;
+  groupAllowFromFallbackToAllowFrom?: boolean | null;
+  isSenderAllowed: (allowFrom: string[]) => boolean;
+  command?: {
+    useAccessGroups: boolean;
+    allowTextCommands: boolean;
+    hasControlCommand: boolean;
+  };
+}): {
+  decision: DmGroupAccessDecision;
+  reason: string;
+  effectiveAllowFrom: string[];
+  effectiveGroupAllowFrom: string[];
+  commandAuthorized: boolean;
+  shouldBlockControlCommand: boolean;
+} {
+  const access = resolveDmGroupAccessWithLists({
+    isGroup: params.isGroup,
+    dmPolicy: params.dmPolicy,
+    groupPolicy: params.groupPolicy,
+    allowFrom: params.allowFrom,
+    groupAllowFrom: params.groupAllowFrom,
+    storeAllowFrom: params.storeAllowFrom,
+    groupAllowFromFallbackToAllowFrom: params.groupAllowFromFallbackToAllowFrom,
+    isSenderAllowed: params.isSenderAllowed,
+  });
+
+  const configuredAllowFrom = normalizeStringEntries(params.allowFrom ?? []);
+  const configuredGroupAllowFrom = normalizeStringEntries(
+    resolveGroupAllowFromSources({
+      allowFrom: configuredAllowFrom,
+      groupAllowFrom: normalizeStringEntries(params.groupAllowFrom ?? []),
+      fallbackToAllowFrom: params.groupAllowFromFallbackToAllowFrom ?? undefined,
+    }),
+  );
+  // Group command authorization must not inherit DM pairing-store approvals.
+  const commandDmAllowFrom = params.isGroup ? configuredAllowFrom : access.effectiveAllowFrom;
+  const commandGroupAllowFrom = params.isGroup
+    ? configuredGroupAllowFrom
+    : access.effectiveGroupAllowFrom;
+  const ownerAllowedForCommands = params.isSenderAllowed(commandDmAllowFrom);
+  const groupAllowedForCommands = params.isSenderAllowed(commandGroupAllowFrom);
+  const commandGate = params.command
+    ? resolveControlCommandGate({
+        useAccessGroups: params.command.useAccessGroups,
+        authorizers: [
+          {
+            configured: commandDmAllowFrom.length > 0,
+            allowed: ownerAllowedForCommands,
+          },
+          {
+            configured: commandGroupAllowFrom.length > 0,
+            allowed: groupAllowedForCommands,
+          },
+        ],
+        allowTextCommands: params.command.allowTextCommands,
+        hasControlCommand: params.command.hasControlCommand,
+      })
+    : { commandAuthorized: false, shouldBlock: false };
+
+  return {
+    ...access,
+    commandAuthorized: commandGate.commandAuthorized,
+    shouldBlockControlCommand: params.isGroup && commandGate.shouldBlock,
+  };
+}
+
 export async function resolveDmAllowState(params: {
   provider: ChannelId;
   accountId: string;
@@ -171,17 +277,11 @@ export async function resolveDmAllowState(params: {
     Array.isArray(params.allowFrom) ? params.allowFrom : undefined,
   );
   const hasWildcard = configAllowFrom.includes("*");
-<<<<<<< HEAD
-  const storeAllowFrom = await (params.readStore ?? readChannelAllowFromStore)(
-    params.provider,
-  ).catch(() => []);
-=======
   const storeAllowFrom = await readStoreAllowFromForDmPolicy({
     provider: params.provider,
     accountId: params.accountId,
     readStore: params.readStore,
   });
->>>>>>> bce643a0b (refactor(security): enforce account-scoped pairing APIs)
   const normalizeEntry = params.normalizeEntry ?? ((value: string) => value);
   const normalizedCfg = configAllowFrom
     .filter((value) => value !== "*")

@@ -1,13 +1,8 @@
-import fs from "node:fs";
 import path from "node:path";
-<<<<<<< HEAD
 import { pathToFileURL } from "node:url";
-=======
+
 import { CONFIG_PATH, type HookMappingConfig, type HooksConfig } from "../config/config.js";
-import { importFileModule, resolveFunctionModuleExport } from "../hooks/module-loader.js";
->>>>>>> 9f97555b5 (refactor(security): unify hook rate-limit and hook module loading)
 import type { HookMessageChannel } from "./hooks.js";
-import { CONFIG_PATH, type HookMappingConfig, type HooksConfig } from "../config/config.js";
 
 export type HookMappingResolved = {
   id: string;
@@ -105,21 +100,14 @@ type HookTransformFn = (
   ctx: HookMappingContext,
 ) => HookTransformResult | Promise<HookTransformResult>;
 
-export function resolveHookMappings(
-  hooks?: HooksConfig,
-  opts?: { configDir?: string },
-): HookMappingResolved[] {
+export function resolveHookMappings(hooks?: HooksConfig): HookMappingResolved[] {
   const presets = hooks?.presets ?? [];
   const gmailAllowUnsafe = hooks?.gmail?.allowUnsafeExternalContent;
   const mappings: HookMappingConfig[] = [];
-  if (hooks?.mappings) {
-    mappings.push(...hooks.mappings);
-  }
+  if (hooks?.mappings) mappings.push(...hooks.mappings);
   for (const preset of presets) {
     const presetMappings = hookPresetMappings[preset];
-    if (!presetMappings) {
-      continue;
-    }
+    if (!presetMappings) continue;
     if (preset === "gmail" && typeof gmailAllowUnsafe === "boolean") {
       mappings.push(
         ...presetMappings.map((mapping) => ({
@@ -131,17 +119,12 @@ export function resolveHookMappings(
     }
     mappings.push(...presetMappings);
   }
-  if (mappings.length === 0) {
-    return [];
-  }
+  if (mappings.length === 0) return [];
 
-  const configDir = path.resolve(opts?.configDir ?? path.dirname(CONFIG_PATH));
-  const transformsRootDir = path.join(configDir, "hooks", "transforms");
-  const transformsDir = resolveOptionalContainedPath(
-    transformsRootDir,
-    hooks?.transformsDir,
-    "Hook transformsDir",
-  );
+  const configDir = path.dirname(CONFIG_PATH);
+  const transformsDir = hooks?.transformsDir
+    ? resolvePath(configDir, hooks.transformsDir)
+    : configDir;
 
   return mappings.map((mapping, index) => normalizeHookMapping(mapping, index, transformsDir));
 }
@@ -150,18 +133,12 @@ export async function applyHookMappings(
   mappings: HookMappingResolved[],
   ctx: HookMappingContext,
 ): Promise<HookMappingResult | null> {
-  if (mappings.length === 0) {
-    return null;
-  }
+  if (mappings.length === 0) return null;
   for (const mapping of mappings) {
-    if (!mappingMatches(mapping, ctx)) {
-      continue;
-    }
+    if (!mappingMatches(mapping, ctx)) continue;
 
     const base = buildActionFromMapping(mapping, ctx);
-    if (!base.ok) {
-      return base;
-    }
+    if (!base.ok) return base;
 
     let override: HookTransformResult = null;
     if (mapping.transform) {
@@ -172,13 +149,9 @@ export async function applyHookMappings(
       }
     }
 
-    if (!base.action) {
-      return { ok: true, action: null, skipped: true };
-    }
+    if (!base.action) return { ok: true, action: null, skipped: true };
     const merged = mergeAction(base.action, override, mapping.action);
-    if (!merged.ok) {
-      return merged;
-    }
+    if (!merged.ok) return merged;
     return merged;
   }
   return null;
@@ -196,7 +169,7 @@ function normalizeHookMapping(
   const wakeMode = mapping.wakeMode ?? "now";
   const transform = mapping.transform
     ? {
-        modulePath: resolveContainedPath(transformsDir, mapping.transform.module, "Hook transform"),
+        modulePath: resolvePath(transformsDir, mapping.transform.module),
         exportName: mapping.transform.export?.trim() || undefined,
       }
     : undefined;
@@ -224,15 +197,11 @@ function normalizeHookMapping(
 
 function mappingMatches(mapping: HookMappingResolved, ctx: HookMappingContext) {
   if (mapping.matchPath) {
-    if (mapping.matchPath !== normalizeMatchPath(ctx.path)) {
-      return false;
-    }
+    if (mapping.matchPath !== normalizeMatchPath(ctx.path)) return false;
   }
   if (mapping.matchSource) {
     const source = typeof ctx.payload.source === "string" ? ctx.payload.source : undefined;
-    if (!source || source !== mapping.matchSource) {
-      return false;
-    }
+    if (!source || source !== mapping.matchSource) return false;
   }
   return true;
 }
@@ -280,7 +249,7 @@ function mergeAction(
   if (!override) {
     return validateAction(base);
   }
-  const kind = override.kind ?? base.kind ?? defaultAction;
+  const kind = (override.kind ?? base.kind ?? defaultAction) as "wake" | "agent";
   if (kind === "wake") {
     const baseWake = base.kind === "wake" ? base : undefined;
     const text = typeof override.text === "string" ? override.text : (baseWake?.text ?? "");
@@ -326,145 +295,55 @@ function validateAction(action: HookAction): HookMappingResult {
 
 async function loadTransform(transform: HookMappingTransformResolved): Promise<HookTransformFn> {
   const cached = transformCache.get(transform.modulePath);
-  if (cached) {
-    return cached;
-  }
-  const mod = await importFileModule({ modulePath: transform.modulePath });
+  if (cached) return cached;
+  const url = pathToFileURL(transform.modulePath).href;
+  const mod = (await import(url)) as Record<string, unknown>;
   const fn = resolveTransformFn(mod, transform.exportName);
   transformCache.set(transform.modulePath, fn);
   return fn;
 }
 
 function resolveTransformFn(mod: Record<string, unknown>, exportName?: string): HookTransformFn {
-  const candidate = resolveFunctionModuleExport<HookTransformFn>({
-    mod,
-    exportName,
-    fallbackExportNames: ["default", "transform"],
-  });
-  if (!candidate) {
+  const candidate = exportName ? mod[exportName] : (mod.default ?? mod.transform);
+  if (typeof candidate !== "function") {
     throw new Error("hook transform module must export a function");
   }
-  return candidate;
+  return candidate as HookTransformFn;
 }
 
 function resolvePath(baseDir: string, target: string): string {
-  if (!target) {
-    return path.resolve(baseDir);
-  }
-  return path.isAbsolute(target) ? path.resolve(target) : path.resolve(baseDir, target);
-}
-
-function escapesBase(baseDir: string, candidate: string): boolean {
-  const relative = path.relative(baseDir, candidate);
-  return relative === ".." || relative.startsWith(`..${path.sep}`) || path.isAbsolute(relative);
-}
-
-function safeRealpathSync(candidate: string): string | null {
-  try {
-    const nativeRealpath = fs.realpathSync.native as ((path: string) => string) | undefined;
-    return nativeRealpath ? nativeRealpath(candidate) : fs.realpathSync(candidate);
-  } catch {
-    return null;
-  }
-}
-
-function resolveExistingAncestor(candidate: string): string | null {
-  let current = path.resolve(candidate);
-  while (true) {
-    if (fs.existsSync(current)) {
-      return current;
-    }
-    const parent = path.dirname(current);
-    if (parent === current) {
-      return null;
-    }
-    current = parent;
-  }
-}
-
-function resolveContainedPath(baseDir: string, target: string, label: string): string {
-  const base = path.resolve(baseDir);
-  const trimmed = target?.trim();
-  if (!trimmed) {
-    throw new Error(`${label} module path is required`);
-  }
-  const resolved = resolvePath(base, trimmed);
-  if (escapesBase(base, resolved)) {
-    throw new Error(`${label} module path must be within ${base}: ${target}`);
-  }
-
-  // Block symlink escapes for existing path segments while preserving current
-  // behavior for not-yet-created files.
-  const baseRealpath = safeRealpathSync(base);
-  const existingAncestor = resolveExistingAncestor(resolved);
-  const existingAncestorRealpath = existingAncestor ? safeRealpathSync(existingAncestor) : null;
-  if (
-    baseRealpath &&
-    existingAncestorRealpath &&
-    escapesBase(baseRealpath, existingAncestorRealpath)
-  ) {
-    throw new Error(`${label} module path must be within ${base}: ${target}`);
-  }
-  return resolved;
-}
-
-function resolveOptionalContainedPath(
-  baseDir: string,
-  target: string | undefined,
-  label: string,
-): string {
-  const trimmed = target?.trim();
-  if (!trimmed) {
-    return path.resolve(baseDir);
-  }
-  return resolveContainedPath(baseDir, trimmed, label);
+  if (!target) return baseDir;
+  if (path.isAbsolute(target)) return target;
+  return path.join(baseDir, target);
 }
 
 function normalizeMatchPath(raw?: string): string | undefined {
-  if (!raw) {
-    return undefined;
-  }
+  if (!raw) return undefined;
   const trimmed = raw.trim();
-  if (!trimmed) {
-    return undefined;
-  }
+  if (!trimmed) return undefined;
   return trimmed.replace(/^\/+/, "").replace(/\/+$/, "");
 }
 
 function renderOptional(value: string | undefined, ctx: HookMappingContext) {
-  if (!value) {
-    return undefined;
-  }
+  if (!value) return undefined;
   const rendered = renderTemplate(value, ctx).trim();
   return rendered ? rendered : undefined;
 }
 
 function renderTemplate(template: string, ctx: HookMappingContext) {
-  if (!template) {
-    return "";
-  }
+  if (!template) return "";
   return template.replace(/\{\{\s*([^}]+)\s*\}\}/g, (_, expr: string) => {
     const value = resolveTemplateExpr(expr.trim(), ctx);
-    if (value === undefined || value === null) {
-      return "";
-    }
-    if (typeof value === "string") {
-      return value;
-    }
-    if (typeof value === "number" || typeof value === "boolean") {
-      return String(value);
-    }
+    if (value === undefined || value === null) return "";
+    if (typeof value === "string") return value;
+    if (typeof value === "number" || typeof value === "boolean") return String(value);
     return JSON.stringify(value);
   });
 }
 
 function resolveTemplateExpr(expr: string, ctx: HookMappingContext) {
-  if (expr === "path") {
-    return ctx.path;
-  }
-  if (expr === "now") {
-    return new Date().toISOString();
-  }
+  if (expr === "path") return ctx.path;
+  if (expr === "now") return new Date().toISOString();
   if (expr.startsWith("headers.")) {
     return getByPath(ctx.headers, expr.slice("headers.".length));
   }
@@ -480,15 +359,8 @@ function resolveTemplateExpr(expr: string, ctx: HookMappingContext) {
   return getByPath(ctx.payload, expr);
 }
 
-// Block traversal into prototype-chain properties on attacker-controlled
-// webhook payloads.  Mirrors the same blocklist used by config-paths.ts
-// for config path traversal.
-const BLOCKED_PATH_KEYS = new Set(["__proto__", "prototype", "constructor"]);
-
 function getByPath(input: Record<string, unknown>, pathExpr: string): unknown {
-  if (!pathExpr) {
-    return undefined;
-  }
+  if (!pathExpr) return undefined;
   const parts: Array<string | number> = [];
   const re = /([^.[\]]+)|(\[(\d+)\])/g;
   let match = re.exec(pathExpr);
@@ -502,22 +374,13 @@ function getByPath(input: Record<string, unknown>, pathExpr: string): unknown {
   }
   let current: unknown = input;
   for (const part of parts) {
-    if (current === null || current === undefined) {
-      return undefined;
-    }
+    if (current === null || current === undefined) return undefined;
     if (typeof part === "number") {
-      if (!Array.isArray(current)) {
-        return undefined;
-      }
+      if (!Array.isArray(current)) return undefined;
       current = current[part] as unknown;
       continue;
     }
-    if (BLOCKED_PATH_KEYS.has(part)) {
-      return undefined;
-    }
-    if (typeof current !== "object") {
-      return undefined;
-    }
+    if (typeof current !== "object") return undefined;
     current = (current as Record<string, unknown>)[part];
   }
   return current;

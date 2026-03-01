@@ -1,23 +1,7 @@
-import type { ExecApprovalForwarder } from "../../infra/exec-approval-forwarder.js";
-<<<<<<< HEAD
+import { sanitizeBinaryOutput } from "../../agents/shell-utils.js";
 import type { ExecApprovalDecision } from "../../infra/exec-approvals.js";
-=======
-import {
-  DEFAULT_EXEC_APPROVAL_TIMEOUT_MS,
-  type ExecApprovalDecision,
-} from "../../infra/exec-approvals.js";
-<<<<<<< HEAD
-import { buildSystemRunApprovalBindingV1 } from "../../infra/system-run-approval-binding.js";
->>>>>>> 10481097f (refactor(security): enforce v1 node exec approval binding)
-=======
-import {
-  buildSystemRunApprovalBindingV1,
-  normalizeSystemRunApprovalPlanV2,
-} from "../../infra/system-run-approval-binding.js";
-import { formatExecCommand } from "../../infra/system-run-command.js";
->>>>>>> 78a7ff2d5 (fix(security): harden node exec approvals against symlink rebind)
+import type { ExecApprovalForwarder } from "../../infra/exec-approval-forwarder.js";
 import type { ExecApprovalManager } from "../exec-approval-manager.js";
-import type { GatewayRequestHandlers } from "./types.js";
 import {
   ErrorCodes,
   errorShape,
@@ -25,14 +9,7 @@ import {
   validateExecApprovalRequestParams,
   validateExecApprovalResolveParams,
 } from "../protocol/index.js";
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-import { buildSystemRunApprovalEnvBinding } from "../system-run-approval-env-binding.js";
-=======
->>>>>>> 10481097f (refactor(security): enforce v1 node exec approval binding)
 import type { GatewayRequestHandlers } from "./types.js";
->>>>>>> 9a4b2266c (fix(security): bind node system.run approvals to env)
 
 export function createExecApprovalHandlers(
   manager: ExecApprovalManager,
@@ -56,91 +33,17 @@ export function createExecApprovalHandlers(
       const p = params as {
         id?: string;
         command: string;
-        commandArgv?: string[];
-        env?: Record<string, string>;
         cwd?: string;
-<<<<<<< HEAD
-=======
-        systemRunPlanV2?: unknown;
-        nodeId?: string;
->>>>>>> 78a7ff2d5 (fix(security): harden node exec approvals against symlink rebind)
         host?: string;
         security?: string;
         ask?: string;
         agentId?: string;
         resolvedPath?: string;
         sessionKey?: string;
-        turnSourceChannel?: string;
-        turnSourceTo?: string;
-        turnSourceAccountId?: string;
-        turnSourceThreadId?: string | number;
         timeoutMs?: number;
       };
       const timeoutMs = typeof p.timeoutMs === "number" ? p.timeoutMs : 120_000;
       const explicitId = typeof p.id === "string" && p.id.trim().length > 0 ? p.id.trim() : null;
-<<<<<<< HEAD
-=======
-      const host = typeof p.host === "string" ? p.host.trim() : "";
-      const nodeId = typeof p.nodeId === "string" ? p.nodeId.trim() : "";
-      const commandArgv = Array.isArray(p.commandArgv)
-        ? p.commandArgv.map((entry) => String(entry))
-        : undefined;
-<<<<<<< HEAD
-<<<<<<< HEAD
-      const envBinding = buildSystemRunApprovalEnvBinding(p.env);
-=======
->>>>>>> 10481097f (refactor(security): enforce v1 node exec approval binding)
-=======
-      const systemRunPlanV2 =
-        host === "node" ? normalizeSystemRunApprovalPlanV2(p.systemRunPlanV2) : null;
-      const effectiveCommandArgv = systemRunPlanV2?.argv ?? commandArgv;
-      const effectiveCwd = systemRunPlanV2?.cwd ?? p.cwd;
-      const effectiveAgentId = systemRunPlanV2?.agentId ?? p.agentId;
-      const effectiveSessionKey = systemRunPlanV2?.sessionKey ?? p.sessionKey;
-      const effectiveCommandText = (() => {
-        if (!systemRunPlanV2) {
-          return p.command;
-        }
-        return systemRunPlanV2.rawCommand ?? formatExecCommand(systemRunPlanV2.argv);
-      })();
->>>>>>> 78a7ff2d5 (fix(security): harden node exec approvals against symlink rebind)
-      if (host === "node" && !nodeId) {
-        respond(
-          false,
-          undefined,
-          errorShape(ErrorCodes.INVALID_REQUEST, "nodeId is required for host=node"),
-        );
-        return;
-      }
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 03e689fc8 (fix(security): bind system.run approvals to argv identity)
-=======
-      if (host === "node" && (!Array.isArray(commandArgv) || commandArgv.length === 0)) {
-=======
-      if (
-        host === "node" &&
-        (!Array.isArray(effectiveCommandArgv) || effectiveCommandArgv.length === 0)
-      ) {
->>>>>>> 78a7ff2d5 (fix(security): harden node exec approvals against symlink rebind)
-        respond(
-          false,
-          undefined,
-          errorShape(ErrorCodes.INVALID_REQUEST, "commandArgv is required for host=node"),
-        );
-        return;
-      }
-      const systemRunBindingV1 =
-        host === "node"
-          ? buildSystemRunApprovalBindingV1({
-              argv: effectiveCommandArgv,
-              cwd: effectiveCwd,
-              agentId: effectiveAgentId,
-              sessionKey: effectiveSessionKey,
-              env: p.env,
-            })
-          : null;
->>>>>>> 10481097f (refactor(security): enforce v1 node exec approval binding)
       if (explicitId && manager.getSnapshot(explicitId)) {
         respond(
           false,
@@ -150,34 +53,14 @@ export function createExecApprovalHandlers(
         return;
       }
       const request = {
-<<<<<<< HEAD
-        command: p.command,
-        commandArgv,
-        envHash: envBinding.envHash,
-        envKeys: envBinding.envKeys.length > 0 ? envBinding.envKeys : undefined,
+        command: sanitizeBinaryOutput(p.command).replace(/\r/g, ""),
         cwd: p.cwd ?? null,
         host: p.host ?? null,
-=======
-        command: effectiveCommandText,
-        commandArgv: effectiveCommandArgv,
-        envKeys: systemRunBindingV1?.envKeys?.length ? systemRunBindingV1.envKeys : undefined,
-        systemRunBindingV1: systemRunBindingV1?.binding ?? null,
-        systemRunPlanV2: systemRunPlanV2,
-        cwd: effectiveCwd ?? null,
-        nodeId: host === "node" ? nodeId : null,
-        host: host || null,
->>>>>>> 78a7ff2d5 (fix(security): harden node exec approvals against symlink rebind)
         security: p.security ?? null,
         ask: p.ask ?? null,
-        agentId: effectiveAgentId ?? null,
+        agentId: p.agentId ?? null,
         resolvedPath: p.resolvedPath ?? null,
-        sessionKey: effectiveSessionKey ?? null,
-        turnSourceChannel:
-          typeof p.turnSourceChannel === "string" ? p.turnSourceChannel.trim() || null : null,
-        turnSourceTo: typeof p.turnSourceTo === "string" ? p.turnSourceTo.trim() || null : null,
-        turnSourceAccountId:
-          typeof p.turnSourceAccountId === "string" ? p.turnSourceAccountId.trim() || null : null,
-        turnSourceThreadId: p.turnSourceThreadId ?? null,
+        sessionKey: p.sessionKey ?? null,
       };
       const record = manager.create(request, timeoutMs, explicitId);
       const decisionPromise = manager.waitForDecision(record, timeoutMs);

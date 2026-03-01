@@ -1,20 +1,15 @@
-import JSZip from "jszip";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+import JSZip from "jszip";
 import * as tar from "tar";
-<<<<<<< HEAD
 import { afterEach, describe, expect, it } from "vitest";
-=======
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import type { ArchiveSecurityError } from "./archive.js";
->>>>>>> ed960ba4e (refactor(security): centralize path guard helpers)
 import { extractArchive, resolveArchiveKind, resolvePackedRootDir } from "./archive.js";
 
 const tempDirs: string[] = [];
 
 async function makeTempDir() {
-  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-archive-"));
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-archive-"));
   tempDirs.push(dir);
   return dir;
 }
@@ -54,49 +49,6 @@ describe("archive utils", () => {
     expect(content).toBe("hi");
   });
 
-  it("rejects zip path traversal (zip slip)", async () => {
-    const workDir = await makeTempDir();
-    const archivePath = path.join(workDir, "bundle.zip");
-    const extractDir = path.join(workDir, "a");
-
-    const zip = new JSZip();
-    zip.file("../b/evil.txt", "pwnd");
-    await fs.writeFile(archivePath, await zip.generateAsync({ type: "nodebuffer" }));
-
-    await fs.mkdir(extractDir, { recursive: true });
-    await expect(
-      extractArchive({ archivePath, destDir: extractDir, timeoutMs: 5_000 }),
-    ).rejects.toThrow(/(escapes destination|absolute)/i);
-  });
-
-  it("rejects zip entries that traverse pre-existing destination symlinks", async () => {
-    const workDir = await makeTempDir();
-    const archivePath = path.join(workDir, "bundle.zip");
-    const extractDir = path.join(workDir, "extract");
-    const outsideDir = path.join(workDir, "outside");
-
-    await fs.mkdir(extractDir, { recursive: true });
-    await fs.mkdir(outsideDir, { recursive: true });
-    await fs.symlink(outsideDir, path.join(extractDir, "escape"));
-
-    const zip = new JSZip();
-    zip.file("escape/pwn.txt", "owned");
-    await fs.writeFile(archivePath, await zip.generateAsync({ type: "nodebuffer" }));
-
-    await expect(
-      extractArchive({ archivePath, destDir: extractDir, timeoutMs: 5_000 }),
-    ).rejects.toMatchObject({
-      code: "destination-symlink-traversal",
-    } satisfies Partial<ArchiveSecurityError>);
-
-    const outsideFile = path.join(outsideDir, "pwn.txt");
-    const outsideExists = await fs
-      .stat(outsideFile)
-      .then(() => true)
-      .catch(() => false);
-    expect(outsideExists).toBe(false);
-  });
-
   it("extracts tar archives", async () => {
     const workDir = await makeTempDir();
     const archivePath = path.join(workDir, "bundle.tar");
@@ -112,21 +64,5 @@ describe("archive utils", () => {
     const rootDir = await resolvePackedRootDir(extractDir);
     const content = await fs.readFile(path.join(rootDir, "hello.txt"), "utf-8");
     expect(content).toBe("yo");
-  });
-
-  it("rejects tar path traversal (zip slip)", async () => {
-    const workDir = await makeTempDir();
-    const archivePath = path.join(workDir, "bundle.tar");
-    const extractDir = path.join(workDir, "extract");
-    const insideDir = path.join(workDir, "inside");
-    await fs.mkdir(insideDir, { recursive: true });
-    await fs.writeFile(path.join(workDir, "outside.txt"), "pwnd");
-
-    await tar.c({ cwd: insideDir, file: archivePath }, ["../outside.txt"]);
-
-    await fs.mkdir(extractDir, { recursive: true });
-    await expect(
-      extractArchive({ archivePath, destDir: extractDir, timeoutMs: 5_000 }),
-    ).rejects.toThrow(/escapes destination/i);
   });
 });

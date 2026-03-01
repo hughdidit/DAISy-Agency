@@ -1,22 +1,23 @@
 import {
+  GROUP_POLICY_BLOCKED_LABEL,
+  createScopedPairingAccess,
+  createNormalizedOutboundDeliverer,
   createReplyPrefixOptions,
+  formatTextWithAttachmentLinks,
   logInboundDrop,
   isDangerousNameMatchingEnabled,
+  readStoreAllowFromForDmPolicy,
   resolveControlCommandGate,
-<<<<<<< HEAD
-=======
   resolveOutboundMediaUrls,
   resolveAllowlistProviderRuntimeGroupPolicy,
   resolveDefaultGroupPolicy,
   resolveEffectiveAllowFromLists,
   warnMissingProviderGroupPolicyFallbackOnce,
   type OutboundReplyPayload,
->>>>>>> 892a9c24b (refactor(security): centralize channel allowlist auth policy)
   type OpenClawConfig,
   type RuntimeEnv,
 } from "openclaw/plugin-sdk";
 import type { ResolvedIrcAccount } from "./accounts.js";
-import type { CoreConfig, IrcInboundMessage } from "./types.js";
 import { normalizeIrcAllowlist, resolveIrcAllowlistMatch } from "./normalize.js";
 import {
   resolveIrcMentionGate,
@@ -27,6 +28,7 @@ import {
 } from "./policy.js";
 import { getIrcRuntime } from "./runtime.js";
 import { sendMessageIrc } from "./send.js";
+import type { CoreConfig, IrcInboundMessage } from "./types.js";
 
 const CHANNEL_ID = "irc" as const;
 
@@ -53,31 +55,19 @@ function resolveIrcEffectiveAllowlists(params: {
 }
 
 async function deliverIrcReply(params: {
-  payload: { text?: string; mediaUrls?: string[]; mediaUrl?: string; replyToId?: string };
+  payload: OutboundReplyPayload;
   target: string;
   accountId: string;
   sendReply?: (target: string, text: string, replyToId?: string) => Promise<void>;
   statusSink?: (patch: { lastOutboundAt?: number }) => void;
 }) {
-  const text = params.payload.text ?? "";
-  const mediaList = params.payload.mediaUrls?.length
-    ? params.payload.mediaUrls
-    : params.payload.mediaUrl
-      ? [params.payload.mediaUrl]
-      : [];
-
-  if (!text.trim() && mediaList.length === 0) {
+  const combined = formatTextWithAttachmentLinks(
+    params.payload.text,
+    resolveOutboundMediaUrls(params.payload),
+  );
+  if (!combined) {
     return;
   }
-
-  const mediaBlock = mediaList.length
-    ? mediaList.map((url) => `Attachment: ${url}`).join("\n")
-    : "";
-  const combined = text.trim()
-    ? mediaBlock
-      ? `${text.trim()}\n\n${mediaBlock}`
-      : text.trim()
-    : mediaBlock;
 
   if (params.sendReply) {
     await params.sendReply(params.target, combined, params.payload.replyToId);
@@ -101,6 +91,11 @@ export async function handleIrcInbound(params: {
 }): Promise<void> {
   const { message, account, config, runtime, connectedNick, statusSink } = params;
   const core = getIrcRuntime();
+  const pairing = createScopedPairingAccess({
+    core,
+    channel: CHANNEL_ID,
+    accountId: account.accountId,
+  });
 
   const rawBody = message.text?.trim() ?? "";
   if (!rawBody) {
@@ -115,12 +110,29 @@ export async function handleIrcInbound(params: {
   const allowNameMatching = isDangerousNameMatchingEnabled(account.config);
 
   const dmPolicy = account.config.dmPolicy ?? "pairing";
-  const defaultGroupPolicy = config.channels?.defaults?.groupPolicy;
-  const groupPolicy = account.config.groupPolicy ?? defaultGroupPolicy ?? "allowlist";
+  const defaultGroupPolicy = resolveDefaultGroupPolicy(config);
+  const { groupPolicy, providerMissingFallbackApplied } =
+    resolveAllowlistProviderRuntimeGroupPolicy({
+      providerConfigPresent: config.channels?.irc !== undefined,
+      groupPolicy: account.config.groupPolicy,
+      defaultGroupPolicy,
+    });
+  warnMissingProviderGroupPolicyFallbackOnce({
+    providerMissingFallbackApplied,
+    providerKey: "irc",
+    accountId: account.accountId,
+    blockedLabel: GROUP_POLICY_BLOCKED_LABEL.channel,
+    log: (message) => runtime.log?.(message),
+  });
 
   const configAllowFrom = normalizeIrcAllowlist(account.config.allowFrom);
   const configGroupAllowFrom = normalizeIrcAllowlist(account.config.groupAllowFrom);
-  const storeAllowFrom = await core.channel.pairing.readAllowFromStore(CHANNEL_ID).catch(() => []);
+  const storeAllowFrom = await readStoreAllowFromForDmPolicy({
+    provider: CHANNEL_ID,
+    accountId: account.accountId,
+    dmPolicy,
+    readStore: pairing.readStoreForDmPolicy,
+  });
   const storeAllowList = normalizeIrcAllowlist(storeAllowFrom);
 
   const groupMatch = resolveIrcGroupMatch({
@@ -197,8 +209,7 @@ export async function handleIrcInbound(params: {
       }).allowed;
       if (!dmAllowed) {
         if (dmPolicy === "pairing") {
-          const { code, created } = await core.channel.pairing.upsertPairingRequest({
-            channel: CHANNEL_ID,
+          const { code, created } = await pairing.upsertPairingRequest({
             id: senderDisplay.toLowerCase(),
             meta: { name: message.senderNick || undefined },
           });
@@ -336,26 +347,22 @@ export async function handleIrcInbound(params: {
     channel: CHANNEL_ID,
     accountId: account.accountId,
   });
+  const deliverReply = createNormalizedOutboundDeliverer(async (payload) => {
+    await deliverIrcReply({
+      payload,
+      target: peerId,
+      accountId: account.accountId,
+      sendReply: params.sendReply,
+      statusSink,
+    });
+  });
 
   await core.channel.reply.dispatchReplyWithBufferedBlockDispatcher({
     ctx: ctxPayload,
     cfg: config as OpenClawConfig,
     dispatcherOptions: {
       ...prefixOptions,
-      deliver: async (payload) => {
-        await deliverIrcReply({
-          payload: payload as {
-            text?: string;
-            mediaUrls?: string[];
-            mediaUrl?: string;
-            replyToId?: string;
-          },
-          target: peerId,
-          accountId: account.accountId,
-          sendReply: params.sendReply,
-          statusSink,
-        });
-      },
+      deliver: deliverReply,
       onError: (err, info) => {
         runtime.error?.(`irc ${info.kind} reply failed: ${String(err)}`);
       },

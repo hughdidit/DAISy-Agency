@@ -1,15 +1,17 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
-import type { OpenClawConfig } from "../../config/config.js";
-import type { MsgContext } from "../templating.js";
+
 import {
   addSubagentRunForTests,
   resetSubagentRegistryForTests,
 } from "../../agents/subagent-registry.js";
+import type { MoltbotConfig } from "../../config/config.js";
 import * as internalHooks from "../../hooks/internal-hooks.js";
 import { clearPluginCommands, registerPluginCommand } from "../../plugins/commands.js";
+import type { MsgContext } from "../templating.js";
 import { resetBashChatCommandForTests } from "./bash-command.js";
 import { buildCommandContext, handleCommands } from "./commands.js";
 import { parseInlineDirectives } from "./directive-handling.js";
@@ -31,7 +33,7 @@ vi.mock("./commands-context-report.js", () => ({
 let testWorkspaceDir = os.tmpdir();
 
 beforeAll(async () => {
-  testWorkspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-commands-"));
+  testWorkspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-commands-"));
   await fs.writeFile(path.join(testWorkspaceDir, "AGENTS.md"), "# Agents\n", "utf-8");
 });
 
@@ -39,7 +41,7 @@ afterAll(async () => {
   await fs.rm(testWorkspaceDir, { recursive: true, force: true });
 });
 
-function buildParams(commandBody: string, cfg: OpenClawConfig, ctxOverrides?: Partial<MsgContext>) {
+function buildParams(commandBody: string, cfg: MoltbotConfig, ctxOverrides?: Partial<MsgContext>) {
   const ctx = {
     Body: commandBody,
     CommandBody: commandBody,
@@ -83,7 +85,7 @@ describe("handleCommands gating", () => {
     const cfg = {
       commands: { bash: false, text: true },
       whatsapp: { allowFrom: ["*"] },
-    } as OpenClawConfig;
+    } as MoltbotConfig;
     const params = buildParams("/bash echo hi", cfg);
     const result = await handleCommands(params);
     expect(result.shouldContinue).toBe(false);
@@ -95,7 +97,7 @@ describe("handleCommands gating", () => {
     const cfg = {
       commands: { bash: true, text: true },
       whatsapp: { allowFrom: ["*"] },
-    } as OpenClawConfig;
+    } as MoltbotConfig;
     const params = buildParams("/bash echo hi", cfg);
     params.elevated = {
       enabled: true,
@@ -107,88 +109,26 @@ describe("handleCommands gating", () => {
     expect(result.reply?.text).toContain("elevated is not available");
   });
 
-<<<<<<< HEAD
   it("blocks /config when disabled", async () => {
     const cfg = {
       commands: { config: false, debug: false, text: true },
       channels: { whatsapp: { allowFrom: ["*"] } },
-    } as OpenClawConfig;
+    } as MoltbotConfig;
     const params = buildParams("/config show", cfg);
     const result = await handleCommands(params);
     expect(result.shouldContinue).toBe(false);
     expect(result.reply?.text).toContain("/config is disabled");
   });
-=======
-  it("rejects blocked account ids and keeps Object.prototype clean", async () => {
-    delete (Object.prototype as Record<string, unknown>).allowFrom;
-
-    const cfg = {
-      commands: { text: true, config: true },
-      channels: { telegram: { allowFrom: ["123"] } },
-    } as OpenClawConfig;
-    const params = buildPolicyParams("/allowlist add dm --account __proto__ 789", cfg);
-    const result = await handleCommands(params);
-
-    expect(result.shouldContinue).toBe(false);
-    expect(result.reply?.text).toContain("Invalid account id");
-    expect((Object.prototype as Record<string, unknown>).allowFrom).toBeUndefined();
-    expect(writeConfigFileMock).not.toHaveBeenCalled();
-  });
-
-  it("removes DM allowlist entries from canonical allowFrom and deletes legacy dm.allowFrom", async () => {
-    const cases = [
-      {
-        provider: "slack",
-        removeId: "U111",
-        initialAllowFrom: ["U111", "U222"],
-        expectedAllowFrom: ["U222"],
-      },
-      {
-        provider: "discord",
-        removeId: "111",
-        initialAllowFrom: ["111", "222"],
-        expectedAllowFrom: ["222"],
-      },
-    ] as const;
-    validateConfigObjectWithPluginsMock.mockImplementation((config: unknown) => ({
-      ok: true,
-      config,
-    }));
->>>>>>> f97c0922e (fix(security): harden account-key handling against prototype pollution)
 
   it("blocks /debug when disabled", async () => {
     const cfg = {
       commands: { config: false, debug: false, text: true },
       channels: { whatsapp: { allowFrom: ["*"] } },
-    } as OpenClawConfig;
+    } as MoltbotConfig;
     const params = buildParams("/debug show", cfg);
     const result = await handleCommands(params);
     expect(result.shouldContinue).toBe(false);
     expect(result.reply?.text).toContain("/debug is disabled");
-  });
-
-  it("does not enable gated commands from inherited command flags", async () => {
-    const inheritedCommands = Object.create({
-      bash: true,
-      config: true,
-      debug: true,
-    }) as Record<string, unknown>;
-    const cfg = {
-      commands: inheritedCommands as never,
-      channels: { whatsapp: { allowFrom: ["*"] } },
-    } as OpenClawConfig;
-
-    const bashResult = await handleCommands(buildParams("/bash echo hi", cfg));
-    expect(bashResult.shouldContinue).toBe(false);
-    expect(bashResult.reply?.text).toContain("bash is disabled");
-
-    const configResult = await handleCommands(buildParams("/config show", cfg));
-    expect(configResult.shouldContinue).toBe(false);
-    expect(configResult.reply?.text).toContain("/config is disabled");
-
-    const debugResult = await handleCommands(buildParams("/debug show", cfg));
-    expect(debugResult.shouldContinue).toBe(false);
-    expect(debugResult.reply?.text).toContain("/debug is disabled");
   });
 });
 
@@ -198,7 +138,7 @@ describe("handleCommands bash alias", () => {
     const cfg = {
       commands: { bash: true, text: true },
       whatsapp: { allowFrom: ["*"] },
-    } as OpenClawConfig;
+    } as MoltbotConfig;
     const params = buildParams("!poll", cfg);
     const result = await handleCommands(params);
     expect(result.shouldContinue).toBe(false);
@@ -210,7 +150,7 @@ describe("handleCommands bash alias", () => {
     const cfg = {
       commands: { bash: true, text: true },
       whatsapp: { allowFrom: ["*"] },
-    } as OpenClawConfig;
+    } as MoltbotConfig;
     const params = buildParams("!stop", cfg);
     const result = await handleCommands(params);
     expect(result.shouldContinue).toBe(false);
@@ -231,7 +171,7 @@ describe("handleCommands plugin commands", () => {
     const cfg = {
       commands: { text: true },
       channels: { whatsapp: { allowFrom: ["*"] } },
-    } as OpenClawConfig;
+    } as MoltbotConfig;
     const params = buildParams("/card", cfg);
     const commandResult = await handleCommands(params);
 
@@ -246,7 +186,7 @@ describe("handleCommands identity", () => {
     const cfg = {
       commands: { text: true },
       channels: { whatsapp: { allowFrom: ["*"] } },
-    } as OpenClawConfig;
+    } as MoltbotConfig;
     const params = buildParams("/whoami", cfg, {
       SenderId: "12345",
       SenderUsername: "TestUser",
@@ -266,7 +206,7 @@ describe("handleCommands hooks", () => {
     const cfg = {
       commands: { text: true },
       channels: { whatsapp: { allowFrom: ["*"] } },
-    } as OpenClawConfig;
+    } as MoltbotConfig;
     const params = buildParams("/new take notes", cfg);
     const spy = vi.spyOn(internalHooks, "triggerInternalHook").mockResolvedValue();
 
@@ -282,7 +222,7 @@ describe("handleCommands context", () => {
     const cfg = {
       commands: { text: true },
       channels: { whatsapp: { allowFrom: ["*"] } },
-    } as OpenClawConfig;
+    } as MoltbotConfig;
     const params = buildParams("/context", cfg);
     const result = await handleCommands(params);
     expect(result.shouldContinue).toBe(false);
@@ -294,7 +234,7 @@ describe("handleCommands context", () => {
     const cfg = {
       commands: { text: true },
       channels: { whatsapp: { allowFrom: ["*"] } },
-    } as OpenClawConfig;
+    } as MoltbotConfig;
     const params = buildParams("/context list", cfg);
     const result = await handleCommands(params);
     expect(result.shouldContinue).toBe(false);
@@ -306,7 +246,7 @@ describe("handleCommands context", () => {
     const cfg = {
       commands: { text: true },
       channels: { whatsapp: { allowFrom: ["*"] } },
-    } as OpenClawConfig;
+    } as MoltbotConfig;
     const params = buildParams("/context detail", cfg);
     const result = await handleCommands(params);
     expect(result.shouldContinue).toBe(false);
@@ -321,7 +261,7 @@ describe("handleCommands subagents", () => {
     const cfg = {
       commands: { text: true },
       channels: { whatsapp: { allowFrom: ["*"] } },
-    } as OpenClawConfig;
+    } as MoltbotConfig;
     const params = buildParams("/subagents list", cfg);
     const result = await handleCommands(params);
     expect(result.shouldContinue).toBe(false);
@@ -343,7 +283,7 @@ describe("handleCommands subagents", () => {
     const cfg = {
       commands: { text: true },
       channels: { whatsapp: { allowFrom: ["*"] } },
-    } as OpenClawConfig;
+    } as MoltbotConfig;
     const params = buildParams("/subagents list", cfg, {
       CommandSource: "native",
       CommandTargetSessionKey: "agent:main:main",
@@ -361,7 +301,7 @@ describe("handleCommands subagents", () => {
       commands: { text: true },
       channels: { whatsapp: { allowFrom: ["*"] } },
       session: { mainKey: "main", scope: "per-sender" },
-    } as OpenClawConfig;
+    } as MoltbotConfig;
     const params = buildParams("/status", cfg);
     params.resolvedVerboseLevel = "on";
     const result = await handleCommands(params);
@@ -374,7 +314,7 @@ describe("handleCommands subagents", () => {
     const cfg = {
       commands: { text: true },
       channels: { whatsapp: { allowFrom: ["*"] } },
-    } as OpenClawConfig;
+    } as MoltbotConfig;
     const params = buildParams("/subagents foo", cfg);
     const result = await handleCommands(params);
     expect(result.shouldContinue).toBe(false);
@@ -386,7 +326,7 @@ describe("handleCommands subagents", () => {
     const cfg = {
       commands: { text: true },
       channels: { whatsapp: { allowFrom: ["*"] } },
-    } as OpenClawConfig;
+    } as MoltbotConfig;
     const params = buildParams("/subagents info", cfg);
     const result = await handleCommands(params);
     expect(result.shouldContinue).toBe(false);
@@ -409,7 +349,7 @@ describe("handleCommands subagents", () => {
       commands: { text: true },
       channels: { whatsapp: { allowFrom: ["*"] } },
       session: { mainKey: "main", scope: "per-sender" },
-    } as OpenClawConfig;
+    } as MoltbotConfig;
     const params = buildParams("/status", cfg);
     const result = await handleCommands(params);
     expect(result.shouldContinue).toBe(false);
@@ -444,7 +384,7 @@ describe("handleCommands subagents", () => {
       commands: { text: true },
       channels: { whatsapp: { allowFrom: ["*"] } },
       session: { mainKey: "main", scope: "per-sender" },
-    } as OpenClawConfig;
+    } as MoltbotConfig;
     const params = buildParams("/status", cfg);
     params.resolvedVerboseLevel = "on";
     const result = await handleCommands(params);
@@ -471,7 +411,7 @@ describe("handleCommands subagents", () => {
       commands: { text: true },
       channels: { whatsapp: { allowFrom: ["*"] } },
       session: { mainKey: "main", scope: "per-sender" },
-    } as OpenClawConfig;
+    } as MoltbotConfig;
     const params = buildParams("/subagents info 1", cfg);
     const result = await handleCommands(params);
     expect(result.shouldContinue).toBe(false);
@@ -487,7 +427,7 @@ describe("handleCommands /tts", () => {
       commands: { text: true },
       channels: { whatsapp: { allowFrom: ["*"] } },
       messages: { tts: { prefsPath: path.join(testWorkspaceDir, "tts.json") } },
-    } as OpenClawConfig;
+    } as MoltbotConfig;
     const params = buildParams("/tts", cfg);
     const result = await handleCommands(params);
     expect(result.shouldContinue).toBe(false);

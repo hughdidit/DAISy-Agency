@@ -1,25 +1,14 @@
 import { Button, type ButtonInteraction, type ComponentData } from "@buape/carbon";
 import { ButtonStyle, Routes } from "discord-api-types/v10";
-import type { OpenClawConfig } from "../../config/config.js";
-import type { DiscordExecApprovalConfig } from "../../config/types.discord.js";
+import type { MoltbotConfig } from "../../config/config.js";
+import { GatewayClient } from "../../gateway/client.js";
+import { GATEWAY_CLIENT_MODES, GATEWAY_CLIENT_NAMES } from "../../utils/message-channel.js";
 import type { EventFrame } from "../../gateway/protocol/index.js";
 import type { ExecApprovalDecision } from "../../infra/exec-approvals.js";
-import type { RuntimeEnv } from "../../runtime.js";
-<<<<<<< HEAD
-import { GatewayClient } from "../../gateway/client.js";
-import { logDebug, logError } from "../../logger.js";
-import { GATEWAY_CLIENT_MODES, GATEWAY_CLIENT_NAMES } from "../../utils/message-channel.js";
 import { createDiscordClient } from "../send.shared.js";
-=======
-import { compileSafeRegex } from "../../security/safe-regex.js";
-import {
-  GATEWAY_CLIENT_MODES,
-  GATEWAY_CLIENT_NAMES,
-  normalizeMessageChannel,
-} from "../../utils/message-channel.js";
-import { createDiscordClient, stripUndefinedFields } from "../send.shared.js";
-import { DiscordUiContainer } from "../ui.js";
->>>>>>> a2dfe9879 (fix(security): harden regex compilation for filters and redaction)
+import { logDebug, logError } from "../../logger.js";
+import type { DiscordExecApprovalConfig } from "../../config/types.discord.js";
+import type { RuntimeEnv } from "../../runtime.js";
 
 const EXEC_APPROVAL_KEY = "execapproval";
 
@@ -76,16 +65,12 @@ export function buildExecApprovalCustomId(
 export function parseExecApprovalData(
   data: ComponentData,
 ): { approvalId: string; action: ExecApprovalDecision } | null {
-  if (!data || typeof data !== "object") {
-    return null;
-  }
+  if (!data || typeof data !== "object") return null;
   const coerce = (value: unknown) =>
     typeof value === "string" || typeof value === "number" ? String(value) : "";
   const rawId = coerce(data.id);
   const rawAction = coerce(data.action);
-  if (!rawId || !rawAction) {
-    return null;
-  }
+  if (!rawId || !rawAction) return null;
   const action = rawAction as ExecApprovalDecision;
   if (action !== "allow-once" && action !== "allow-always" && action !== "deny") {
     return null;
@@ -96,154 +81,11 @@ export function parseExecApprovalData(
   };
 }
 
-<<<<<<< HEAD
 function formatExecApprovalEmbed(request: ExecApprovalRequest) {
   const commandText = request.request.command;
   const commandPreview =
     commandText.length > 1000 ? `${commandText.slice(0, 1000)}...` : commandText;
   const expiresIn = Math.max(0, Math.round((request.expiresAtMs - Date.now()) / 1000));
-=======
-type ExecApprovalContainerParams = {
-  cfg: OpenClawConfig;
-  accountId: string;
-  title: string;
-  description?: string;
-  commandPreview: string;
-  metadataLines?: string[];
-  actionRow?: Row<Button>;
-  footer?: string;
-  accentColor?: string;
-};
-
-class ExecApprovalContainer extends DiscordUiContainer {
-  constructor(params: ExecApprovalContainerParams) {
-    const components: Array<TextDisplay | Separator | Row<Button>> = [
-      new TextDisplay(`## ${params.title}`),
-    ];
-    if (params.description) {
-      components.push(new TextDisplay(params.description));
-    }
-    components.push(new Separator({ divider: true, spacing: "small" }));
-    components.push(new TextDisplay(`### Command\n\`\`\`\n${params.commandPreview}\n\`\`\``));
-    if (params.metadataLines?.length) {
-      components.push(new TextDisplay(params.metadataLines.join("\n")));
-    }
-    if (params.actionRow) {
-      components.push(params.actionRow);
-    }
-    if (params.footer) {
-      components.push(new Separator({ divider: false, spacing: "small" }));
-      components.push(new TextDisplay(`-# ${params.footer}`));
-    }
-    super({
-      cfg: params.cfg,
-      accountId: params.accountId,
-      components,
-      accentColor: params.accentColor,
-    });
-  }
-}
-
-class ExecApprovalActionButton extends Button {
-  customId: string;
-  label: string;
-  style: ButtonStyle;
-
-  constructor(params: {
-    approvalId: string;
-    action: ExecApprovalDecision;
-    label: string;
-    style: ButtonStyle;
-  }) {
-    super();
-    this.customId = buildExecApprovalCustomId(params.approvalId, params.action);
-    this.label = params.label;
-    this.style = params.style;
-  }
-}
-
-class ExecApprovalActionRow extends Row<Button> {
-  constructor(approvalId: string) {
-    super([
-      new ExecApprovalActionButton({
-        approvalId,
-        action: "allow-once",
-        label: "Allow once",
-        style: ButtonStyle.Success,
-      }),
-      new ExecApprovalActionButton({
-        approvalId,
-        action: "allow-always",
-        label: "Always allow",
-        style: ButtonStyle.Primary,
-      }),
-      new ExecApprovalActionButton({
-        approvalId,
-        action: "deny",
-        label: "Deny",
-        style: ButtonStyle.Danger,
-      }),
-    ]);
-  }
-}
-
-function resolveExecApprovalAccountId(params: {
-  cfg: OpenClawConfig;
-  request: ExecApprovalRequest;
-}): string | null {
-  const sessionKey = params.request.request.sessionKey?.trim();
-  if (!sessionKey) {
-    return null;
-  }
-  try {
-    const agentId = resolveAgentIdFromSessionKey(sessionKey);
-    const storePath = resolveStorePath(params.cfg.session?.store, { agentId });
-    const store = loadSessionStore(storePath);
-    const entry = store[sessionKey];
-    const channel = normalizeMessageChannel(entry?.origin?.provider ?? entry?.lastChannel);
-    if (channel && channel !== "discord") {
-      return null;
-    }
-    const accountId = entry?.origin?.accountId ?? entry?.lastAccountId;
-    return accountId?.trim() || null;
-  } catch {
-    return null;
-  }
-}
-
-function buildExecApprovalMetadataLines(request: ExecApprovalRequest): string[] {
-  const lines: string[] = [];
-  if (request.request.cwd) {
-    lines.push(`- Working Directory: ${request.request.cwd}`);
-  }
-  if (request.request.host) {
-    lines.push(`- Host: ${request.request.host}`);
-  }
-  if (Array.isArray(request.request.envKeys) && request.request.envKeys.length > 0) {
-    lines.push(`- Env Overrides: ${request.request.envKeys.join(", ")}`);
-  }
-  if (request.request.agentId) {
-    lines.push(`- Agent: ${request.request.agentId}`);
-  }
-  return lines;
-}
-
-function buildExecApprovalPayload(container: DiscordUiContainer): MessagePayloadObject {
-  const components: TopLevelComponents[] = [container];
-  return { components };
-}
-
-function createExecApprovalRequestContainer(params: {
-  request: ExecApprovalRequest;
-  cfg: OpenClawConfig;
-  accountId: string;
-  actionRow?: Row<Button>;
-}): ExecApprovalContainer {
-  const commandText = params.request.request.command;
-  const commandRaw = commandText.length > 1000 ? `${commandText.slice(0, 1000)}...` : commandText;
-  const commandPreview = commandRaw.replace(/`/g, "\u200b`");
-  const expiresAtSeconds = Math.max(0, Math.floor(params.request.expiresAtMs / 1000));
->>>>>>> ee6d0bd32 (fix(security): escape backticks in exec-approval command previews (#20854))
 
   const fields: Array<{ name: string; value: string; inline: boolean }> = [
     {
@@ -287,7 +129,6 @@ function createExecApprovalRequestContainer(params: {
   };
 }
 
-<<<<<<< HEAD
 function formatResolvedEmbed(
   request: ExecApprovalRequest,
   decision: ExecApprovalDecision,
@@ -295,18 +136,6 @@ function formatResolvedEmbed(
 ) {
   const commandText = request.request.command;
   const commandPreview = commandText.length > 500 ? `${commandText.slice(0, 500)}...` : commandText;
-=======
-function createResolvedContainer(params: {
-  request: ExecApprovalRequest;
-  decision: ExecApprovalDecision;
-  resolvedBy?: string | null;
-  cfg: OpenClawConfig;
-  accountId: string;
-}): ExecApprovalContainer {
-  const commandText = params.request.request.command;
-  const commandRaw = commandText.length > 500 ? `${commandText.slice(0, 500)}...` : commandText;
-  const commandPreview = commandRaw.replace(/`/g, "\u200b`");
->>>>>>> ee6d0bd32 (fix(security): escape backticks in exec-approval command previews (#20854))
 
   const decisionLabel =
     decision === "allow-once"
@@ -333,20 +162,9 @@ function createResolvedContainer(params: {
   };
 }
 
-<<<<<<< HEAD
 function formatExpiredEmbed(request: ExecApprovalRequest) {
   const commandText = request.request.command;
   const commandPreview = commandText.length > 500 ? `${commandText.slice(0, 500)}...` : commandText;
-=======
-function createExpiredContainer(params: {
-  request: ExecApprovalRequest;
-  cfg: OpenClawConfig;
-  accountId: string;
-}): ExecApprovalContainer {
-  const commandText = params.request.request.command;
-  const commandRaw = commandText.length > 500 ? `${commandText.slice(0, 500)}...` : commandText;
-  const commandPreview = commandRaw.replace(/`/g, "\u200b`");
->>>>>>> ee6d0bd32 (fix(security): escape backticks in exec-approval command previews (#20854))
 
   return {
     title: "Exec Approval: Expired",
@@ -369,7 +187,7 @@ export type DiscordExecApprovalHandlerOpts = {
   accountId: string;
   config: DiscordExecApprovalConfig;
   gatewayUrl?: string;
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   runtime?: RuntimeEnv;
   onResolve?: (id: string, decision: ExecApprovalDecision) => Promise<void>;
 };
@@ -387,48 +205,34 @@ export class DiscordExecApprovalHandler {
 
   shouldHandle(request: ExecApprovalRequest): boolean {
     const config = this.opts.config;
-    if (!config.enabled) {
-      return false;
-    }
-    if (!config.approvers || config.approvers.length === 0) {
-      return false;
-    }
+    if (!config.enabled) return false;
+    if (!config.approvers || config.approvers.length === 0) return false;
 
     // Check agent filter
     if (config.agentFilter?.length) {
-      if (!request.request.agentId) {
-        return false;
-      }
-      if (!config.agentFilter.includes(request.request.agentId)) {
-        return false;
-      }
+      if (!request.request.agentId) return false;
+      if (!config.agentFilter.includes(request.request.agentId)) return false;
     }
 
     // Check session filter (substring match)
     if (config.sessionFilter?.length) {
       const session = request.request.sessionKey;
-      if (!session) {
-        return false;
-      }
+      if (!session) return false;
       const matches = config.sessionFilter.some((p) => {
-        if (session.includes(p)) {
-          return true;
+        try {
+          return session.includes(p) || new RegExp(p).test(session);
+        } catch {
+          return session.includes(p);
         }
-        const regex = compileSafeRegex(p);
-        return regex ? regex.test(session) : false;
       });
-      if (!matches) {
-        return false;
-      }
+      if (!matches) return false;
     }
 
     return true;
   }
 
   async start(): Promise<void> {
-    if (this.started) {
-      return;
-    }
+    if (this.started) return;
     this.started = true;
 
     const config = this.opts.config;
@@ -466,9 +270,7 @@ export class DiscordExecApprovalHandler {
   }
 
   async stop(): Promise<void> {
-    if (!this.started) {
-      return;
-    }
+    if (!this.started) return;
     this.started = false;
 
     // Clear all pending timeouts
@@ -495,9 +297,7 @@ export class DiscordExecApprovalHandler {
   }
 
   private async handleApprovalRequested(request: ExecApprovalRequest): Promise<void> {
-    if (!this.shouldHandle(request)) {
-      return;
-    }
+    if (!this.shouldHandle(request)) return;
 
     logDebug(`discord exec approvals: received request ${request.id}`);
 
@@ -594,9 +394,7 @@ export class DiscordExecApprovalHandler {
 
   private async handleApprovalResolved(resolved: ExecApprovalResolved): Promise<void> {
     const pending = this.pending.get(resolved.id);
-    if (!pending) {
-      return;
-    }
+    if (!pending) return;
 
     clearTimeout(pending.timeoutId);
     this.pending.delete(resolved.id);
@@ -604,9 +402,7 @@ export class DiscordExecApprovalHandler {
     const request = this.requestCache.get(resolved.id);
     this.requestCache.delete(resolved.id);
 
-    if (!request) {
-      return;
-    }
+    if (!request) return;
 
     logDebug(`discord exec approvals: resolved ${resolved.id} with ${resolved.decision}`);
 
@@ -619,18 +415,14 @@ export class DiscordExecApprovalHandler {
 
   private async handleApprovalTimeout(approvalId: string): Promise<void> {
     const pending = this.pending.get(approvalId);
-    if (!pending) {
-      return;
-    }
+    if (!pending) return;
 
     this.pending.delete(approvalId);
 
     const request = this.requestCache.get(approvalId);
     this.requestCache.delete(approvalId);
 
-    if (!request) {
-      return;
-    }
+    if (!request) return;
 
     logDebug(`discord exec approvals: timeout for ${approvalId}`);
 

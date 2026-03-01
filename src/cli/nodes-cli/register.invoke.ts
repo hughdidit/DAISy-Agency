@@ -1,29 +1,23 @@
-import type { Command } from "commander";
 import path from "node:path";
-import type { NodesRpcOpts } from "./types.js";
-import { resolveAgentConfig, resolveDefaultAgentId } from "../../agents/agent-scope.js";
-import { loadConfig } from "../../config/config.js";
+import type { Command } from "commander";
 import { randomIdempotencyKey } from "../../gateway/call.js";
-import {
-  type ExecApprovalsFile,
-  type ExecAsk,
-  type ExecSecurity,
-  type SystemRunApprovalPlanV2,
-  maxAsk,
-  minSecurity,
-  resolveExecApprovalsFromFile,
-} from "../../infra/exec-approvals.js";
-import { buildNodeShellCommand } from "../../infra/node-shell.js";
-<<<<<<< HEAD
-=======
-import { applyPathPrepend } from "../../infra/path-prepend.js";
-import { normalizeSystemRunApprovalPlanV2 } from "../../infra/system-run-approval-binding.js";
->>>>>>> 78a7ff2d5 (fix(security): harden node exec approvals against symlink rebind)
 import { defaultRuntime } from "../../runtime.js";
 import { parseEnvPairs, parseTimeoutMs } from "../nodes-run.js";
 import { getNodesTheme, runNodesCommand } from "./cli-utils.js";
 import { parseNodeList } from "./format.js";
 import { callGatewayCli, nodesCallOpts, resolveNodeId, unauthorizedHintForMessage } from "./rpc.js";
+import type { NodesRpcOpts } from "./types.js";
+import { loadConfig } from "../../config/config.js";
+import { resolveAgentConfig, resolveDefaultAgentId } from "../../agents/agent-scope.js";
+import {
+  type ExecApprovalsFile,
+  type ExecAsk,
+  type ExecSecurity,
+  maxAsk,
+  minSecurity,
+  resolveExecApprovalsFromFile,
+} from "../../infra/exec-approvals.js";
+import { buildNodeShellCommand } from "../../infra/node-shell.js";
 
 type NodesRunOpts = NodesRpcOpts & {
   node?: string;
@@ -47,22 +41,6 @@ type ExecDefaults = {
   safeBins?: string[];
 };
 
-function parsePreparedRunPlan(payload: unknown): {
-  cmdText: string;
-  plan: SystemRunApprovalPlanV2;
-} {
-  if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
-    throw new Error("invalid system.run.prepare response");
-  }
-  const raw = payload as { cmdText?: unknown; plan?: unknown };
-  const cmdText = typeof raw.cmdText === "string" ? raw.cmdText.trim() : "";
-  const plan = normalizeSystemRunApprovalPlanV2(raw.plan);
-  if (!cmdText || !plan) {
-    throw new Error("invalid system.run.prepare response");
-  }
-  return { cmdText, plan };
-}
-
 function normalizeExecSecurity(value?: string | null): ExecSecurity | null {
   const normalized = value?.trim().toLowerCase();
   if (normalized === "deny" || normalized === "allowlist" || normalized === "full") {
@@ -80,9 +58,7 @@ function normalizeExecAsk(value?: string | null): ExecAsk | null {
 }
 
 function mergePathPrepend(existing: string | undefined, prepend: string[]) {
-  if (prepend.length === 0) {
-    return existing;
-  }
+  if (prepend.length === 0) return existing;
   const partsExisting = (existing ?? "")
     .split(path.delimiter)
     .map((part) => part.trim())
@@ -90,9 +66,7 @@ function mergePathPrepend(existing: string | undefined, prepend: string[]) {
   const merged: string[] = [];
   const seen = new Set<string>();
   for (const part of [...prepend, ...partsExisting]) {
-    if (seen.has(part)) {
-      continue;
-    }
+    if (seen.has(part)) continue;
     seen.add(part);
     merged.push(part);
   }
@@ -104,16 +78,10 @@ function applyPathPrepend(
   prepend: string[] | undefined,
   options?: { requireExisting?: boolean },
 ) {
-  if (!Array.isArray(prepend) || prepend.length === 0) {
-    return;
-  }
-  if (options?.requireExisting && !env.PATH) {
-    return;
-  }
+  if (!Array.isArray(prepend) || prepend.length === 0) return;
+  if (options?.requireExisting && !env.PATH) return;
   const merged = mergePathPrepend(env.PATH, prepend);
-  if (merged) {
-    env.PATH = merged;
-  }
+  if (merged) env.PATH = merged;
 }
 
 function resolveExecDefaults(
@@ -144,7 +112,7 @@ function resolveExecDefaults(
 
 async function resolveNodePlatform(opts: NodesRpcOpts, nodeId: string): Promise<string | null> {
   try {
-    const res = await callGatewayCli("node.list", opts, {});
+    const res = (await callGatewayCli("node.list", opts, {})) as unknown;
     const nodes = parseNodeList(res);
     const match = nodes.find((node) => node.nodeId === nodeId);
     return typeof match?.platform === "string" ? match.platform : null;
@@ -250,20 +218,6 @@ export function registerNodesInvokeCommands(nodes: Command) {
             applyPathPrepend(nodeEnv, execDefaults?.pathPrepend, { requireExisting: true });
           }
 
-          const prepareResponse = (await callGatewayCli("node.invoke", opts, {
-            nodeId,
-            command: "system.run.prepare",
-            params: {
-              command: argv,
-              rawCommand,
-              cwd: opts.cwd,
-              agentId,
-            },
-            idempotencyKey: `prepare-${randomIdempotencyKey()}`,
-          })) as { payload?: unknown } | null;
-          const prepared = parsePreparedRunPlan(prepareResponse?.payload);
-          const approvalPlan = prepared.plan;
-
           let approvedByAsk = false;
           let approvalDecision: "allow-once" | "allow-always" | null = null;
           const configuredSecurity = normalizeExecSecurity(execDefaults?.security) ?? "allowlist";
@@ -306,7 +260,6 @@ export function registerNodesInvokeCommands(nodes: Command) {
 
           const requiresAsk = hostAsk === "always" || hostAsk === "on-miss";
           if (requiresAsk) {
-<<<<<<< HEAD
             const decisionResult = (await callGatewayCli("exec.approval.request", opts, {
               command: rawCommand ?? argv.join(" "),
               cwd: opts.cwd,
@@ -318,39 +271,6 @@ export function registerNodesInvokeCommands(nodes: Command) {
               sessionKey: undefined,
               timeoutMs: 120_000,
             })) as { decision?: string } | null;
-=======
-            approvalId = crypto.randomUUID();
-            const approvalTimeoutMs = DEFAULT_EXEC_APPROVAL_TIMEOUT_MS;
-            // The CLI transport timeout (opts.timeout) must be longer than the
-            // gateway-side approval wait so the connection stays alive while the
-            // user decides.  Without this override the default 35 s transport
-            // timeout races — and always loses — against the 120 s approval
-            // timeout, causing "gateway timeout after 35000ms" (#12098).
-            const transportTimeoutMs = Math.max(
-              parseTimeoutMs(opts.timeout) ?? 0,
-              approvalTimeoutMs + 10_000,
-            );
-            const decisionResult = (await callGatewayCli(
-              "exec.approval.request",
-              opts,
-              {
-                id: approvalId,
-                command: prepared.cmdText,
-                commandArgv: approvalPlan.argv,
-                systemRunPlanV2: approvalPlan,
-                cwd: approvalPlan.cwd,
-                nodeId,
-                host: "node",
-                security: hostSecurity,
-                ask: hostAsk,
-                agentId: approvalPlan.agentId ?? agentId,
-                resolvedPath: undefined,
-                sessionKey: approvalPlan.sessionKey ?? undefined,
-                timeoutMs: approvalTimeoutMs,
-              },
-              { transportTimeoutMs },
-            )) as { decision?: string } | null;
->>>>>>> f789f880c (fix(security): harden approval-bound node exec cwd handling)
             const decision =
               decisionResult && typeof decisionResult === "object"
                 ? (decisionResult.decision ?? null)
@@ -382,21 +302,19 @@ export function registerNodesInvokeCommands(nodes: Command) {
             nodeId,
             command: "system.run",
             params: {
-              command: approvalPlan.argv,
-              rawCommand: approvalPlan.rawCommand,
-              cwd: approvalPlan.cwd,
+              command: argv,
+              cwd: opts.cwd,
               env: nodeEnv,
               timeoutMs,
               needsScreenRecording: opts.needsScreenRecording === true,
             },
             idempotencyKey: String(opts.idempotencyKey ?? randomIdempotencyKey()),
           };
-          if (approvalPlan.agentId ?? agentId) {
-            (invokeParams.params as Record<string, unknown>).agentId =
-              approvalPlan.agentId ?? agentId;
+          if (agentId) {
+            (invokeParams.params as Record<string, unknown>).agentId = agentId;
           }
-          if (approvalPlan.sessionKey) {
-            (invokeParams.params as Record<string, unknown>).sessionKey = approvalPlan.sessionKey;
+          if (rawCommand) {
+            (invokeParams.params as Record<string, unknown>).rawCommand = rawCommand;
           }
           (invokeParams.params as Record<string, unknown>).approved = approvedByAsk;
           if (approvalDecision) {
@@ -406,7 +324,7 @@ export function registerNodesInvokeCommands(nodes: Command) {
             invokeParams.timeoutMs = invokeTimeout;
           }
 
-          const result = await callGatewayCli("node.invoke", opts, invokeParams);
+          const result = (await callGatewayCli("node.invoke", opts, invokeParams)) as unknown;
           if (opts.json) {
             defaultRuntime.log(JSON.stringify(result, null, 2));
             return;
@@ -423,12 +341,8 @@ export function registerNodesInvokeCommands(nodes: Command) {
           const timedOut = payload?.timedOut === true;
           const success = payload?.success === true;
 
-          if (stdout) {
-            process.stdout.write(stdout);
-          }
-          if (stderr) {
-            process.stderr.write(stderr);
-          }
+          if (stdout) process.stdout.write(stdout);
+          if (stderr) process.stderr.write(stderr);
           if (timedOut) {
             const { error } = getNodesTheme();
             defaultRuntime.error(error("run timed out"));

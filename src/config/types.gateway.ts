@@ -15,8 +15,6 @@ export type GatewayTlsConfig = {
 
 export type WideAreaDiscoveryConfig = {
   enabled?: boolean;
-  /** Optional unicast DNS-SD domain (e.g. "openclaw.internal"). */
-  domain?: string;
 };
 
 export type MdnsDiscoveryMode = "off" | "minimal" | "full";
@@ -38,7 +36,7 @@ export type DiscoveryConfig = {
 
 export type CanvasHostConfig = {
   enabled?: boolean;
-  /** Directory to serve (default: ~/.openclaw/workspace/canvas). */
+  /** Directory to serve (default: ~/clawd/canvas). */
   root?: string;
   /** HTTP port to listen on (default: 18793). */
   port?: number;
@@ -64,51 +62,18 @@ export type TalkConfig = {
 export type GatewayControlUiConfig = {
   /** If false, the Gateway will not serve the Control UI (default /). */
   enabled?: boolean;
-  /** Optional base path prefix for the Control UI (e.g. "/openclaw"). */
+  /** Optional base path prefix for the Control UI (e.g. "/moltbot"). */
   basePath?: string;
-  /** Optional filesystem root for Control UI assets (defaults to dist/control-ui). */
-  root?: string;
-  /** Allowed browser origins for Control UI/WebChat websocket connections. */
-  allowedOrigins?: string[];
   /** Allow token-only auth over insecure HTTP (default: false). */
   allowInsecureAuth?: boolean;
   /** DANGEROUS: Disable device identity checks for the Control UI (default: false). */
   dangerouslyDisableDeviceAuth?: boolean;
 };
 
-<<<<<<< HEAD
 export type GatewayAuthMode = "token" | "password";
-=======
-export type GatewayAuthMode = "none" | "token" | "password" | "trusted-proxy";
-
-/**
- * Configuration for trusted reverse proxy authentication.
- * Used when Clawdbot runs behind an identity-aware proxy (Pomerium, Caddy + OAuth, etc.)
- * that handles authentication and passes user identity via headers.
- */
-export type GatewayTrustedProxyConfig = {
-  /**
-   * Header name containing the authenticated user identity (required).
-   * Common values: "x-forwarded-user", "x-remote-user", "x-pomerium-claim-email"
-   */
-  userHeader: string;
-  /**
-   * Additional headers that MUST be present for the request to be trusted.
-   * Use this to verify the request actually came through the proxy.
-   * Example: ["x-forwarded-proto", "x-forwarded-host"]
-   */
-  requiredHeaders?: string[];
-  /**
-   * Optional allowlist of user identities that can access the gateway.
-   * If empty or omitted, all authenticated users from the proxy are allowed.
-   * Example: ["nick@example.com", "admin@company.org"]
-   */
-  allowUsers?: string[];
-};
->>>>>>> c5698caca (Security: default gateway auth bootstrap and explicit mode none (#20686))
 
 export type GatewayAuthConfig = {
-  /** Authentication mode for Gateway connections. Defaults to token when unset. */
+  /** Authentication mode for Gateway connections. Defaults to token when set. */
   mode?: GatewayAuthMode;
   /** Shared token for token mode (stored locally for CLI auth). */
   token?: string;
@@ -240,13 +205,6 @@ export type GatewayNodesConfig = {
   denyCommands?: string[];
 };
 
-export type GatewayToolsConfig = {
-  /** Tools to deny via gateway HTTP /tools/invoke (extends defaults). */
-  deny?: string[];
-  /** Tools to explicitly allow (removes from default deny list). */
-  allow?: string[];
-};
-
 export type GatewayConfig = {
   /** Single multiplexed port for Gateway WS + HTTP (default: 18789). */
   port?: number;
@@ -281,6 +239,4 @@ export type GatewayConfig = {
    * `x-real-ip`) to determine the client IP for local pairing and HTTP checks.
    */
   trustedProxies?: string[];
-  /** Tool access restrictions for HTTP /tools/invoke endpoint. */
-  tools?: GatewayToolsConfig;
 };

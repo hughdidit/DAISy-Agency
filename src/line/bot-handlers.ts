@@ -8,9 +8,7 @@ import type {
   PostbackEvent,
   EventSource,
 } from "@line/bot-sdk";
-import type { OpenClawConfig } from "../config/config.js";
-import type { RuntimeEnv } from "../runtime.js";
-import type { LineGroupConfig, ResolvedLineAccount } from "./types.js";
+import type { MoltbotConfig } from "../config/config.js";
 import { danger, logVerbose } from "../globals.js";
 import { resolvePairingIdLabel } from "../pairing/pairing-labels.js";
 import { buildPairingReply } from "../pairing/pairing-messages.js";
@@ -18,24 +16,16 @@ import {
   readChannelAllowFromStore,
   upsertChannelPairingRequest,
 } from "../pairing/pairing-store.js";
-<<<<<<< HEAD
-import { firstDefined, isSenderAllowed, normalizeAllowFromWithStore } from "./bot-access.js";
-=======
 import type { RuntimeEnv } from "../runtime.js";
-import {
-  firstDefined,
-  isSenderAllowed,
-  normalizeAllowFrom,
-  normalizeDmAllowFromWithStore,
-} from "./bot-access.js";
->>>>>>> 8bdda7a65 (fix(security): keep DM pairing allowlists out of group auth)
 import {
   buildLineMessageContext,
   buildLinePostbackContext,
   type LineInboundContext,
 } from "./bot-message-context.js";
+import { firstDefined, isSenderAllowed, normalizeAllowFromWithStore } from "./bot-access.js";
 import { downloadLineMedia } from "./download.js";
 import { pushMessageLine, replyMessageLine } from "./send.js";
+import type { LineGroupConfig, ResolvedLineAccount } from "./types.js";
 
 interface MediaRef {
   path: string;
@@ -43,7 +33,7 @@ interface MediaRef {
 }
 
 export interface LineHandlerContext {
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   account: ResolvedLineAccount;
   runtime: RuntimeEnv;
   mediaMaxBytes: number;
@@ -96,11 +86,8 @@ async function sendLinePairingReply(params: {
   const { code, created } = await upsertChannelPairingRequest({
     channel: "line",
     id: senderId,
-    accountId: context.account.accountId,
   });
-  if (!created) {
-    return;
-  }
+  if (!created) return;
   logVerbose(`line pairing request sender=${senderId}`);
   const idLabel = (() => {
     try {
@@ -143,12 +130,8 @@ async function shouldProcessLineEvent(
   const { userId, groupId, roomId, isGroup } = getSourceInfo(event.source);
   const senderId = userId ?? "";
 
-  const storeAllowFrom = await readChannelAllowFromStore(
-    "line",
-    process.env,
-    account.accountId,
-  ).catch(() => []);
-  const effectiveDmAllow = normalizeDmAllowFromWithStore({
+  const storeAllowFrom = await readChannelAllowFromStore("line").catch(() => []);
+  const effectiveDmAllow = normalizeAllowFromWithStore({
     allowFrom: account.config.allowFrom,
     storeAllowFrom,
   });
@@ -162,27 +145,9 @@ async function shouldProcessLineEvent(
     account.config.groupAllowFrom,
     fallbackGroupAllowFrom,
   );
-<<<<<<< HEAD
   const effectiveGroupAllow = normalizeAllowFromWithStore({
     allowFrom: groupAllowFrom,
     storeAllowFrom,
-=======
-  // Group authorization stays explicit to group allowlists and must not
-  // inherit DM pairing-store identities.
-  const effectiveGroupAllow = normalizeAllowFrom(groupAllowFrom);
-  const defaultGroupPolicy = resolveDefaultGroupPolicy(cfg);
-  const { groupPolicy, providerMissingFallbackApplied } =
-    resolveAllowlistProviderRuntimeGroupPolicy({
-      providerConfigPresent: cfg.channels?.line !== undefined,
-      groupPolicy: account.config.groupPolicy,
-      defaultGroupPolicy,
-    });
-  warnMissingProviderGroupPolicyFallbackOnce({
-    providerMissingFallbackApplied,
-    providerKey: "line",
-    accountId: account.accountId,
-    log: (message) => logVerbose(message),
->>>>>>> 8bdda7a65 (fix(security): keep DM pairing allowlists out of group auth)
   });
   const dmPolicy = account.config.dmPolicy ?? "pairing";
   const defaultGroupPolicy = cfg.channels?.defaults?.groupPolicy;
@@ -254,9 +219,7 @@ async function handleMessageEvent(event: MessageEvent, context: LineHandlerConte
   const { cfg, account, runtime, mediaMaxBytes, processMessage } = context;
   const message = event.message;
 
-  if (!(await shouldProcessLineEvent(event, context))) {
-    return;
-  }
+  if (!(await shouldProcessLineEvent(event, context))) return;
 
   // Download media if applicable
   const allMedia: MediaRef[] = [];
@@ -327,18 +290,14 @@ async function handlePostbackEvent(
   const data = event.postback.data;
   logVerbose(`line: received postback: ${data}`);
 
-  if (!(await shouldProcessLineEvent(event, context))) {
-    return;
-  }
+  if (!(await shouldProcessLineEvent(event, context))) return;
 
   const postbackContext = await buildLinePostbackContext({
     event,
     cfg: context.cfg,
     account: context.account,
   });
-  if (!postbackContext) {
-    return;
-  }
+  if (!postbackContext) return;
 
   await context.processMessage(postbackContext);
 }

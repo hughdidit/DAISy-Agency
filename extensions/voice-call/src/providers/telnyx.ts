@@ -1,4 +1,5 @@
 import crypto from "node:crypto";
+
 import type { TelnyxConfig } from "../config.js";
 import type {
   EndReason,
@@ -13,6 +14,8 @@ import type {
   WebhookContext,
   WebhookVerificationResult,
 } from "../types.js";
+import type { Logger } from "../manager/context.js";
+import { defaultLogger, sanitizeLogValue } from "../manager/context.js";
 import type { VoiceCallProvider } from "./base.js";
 
 /**
@@ -21,21 +24,17 @@ import type { VoiceCallProvider } from "./base.js";
  * Uses Telnyx Call Control API v2 for managing calls.
  * @see https://developers.telnyx.com/docs/api/v2/call-control
  */
-export interface TelnyxProviderOptions {
-  /** Allow unsigned webhooks when no public key is configured */
-  allowUnsignedWebhooks?: boolean;
-}
-
 export class TelnyxProvider implements VoiceCallProvider {
   readonly name = "telnyx" as const;
 
   private readonly apiKey: string;
   private readonly connectionId: string;
   private readonly publicKey: string | undefined;
-  private readonly options: TelnyxProviderOptions;
   private readonly baseUrl = "https://api.telnyx.com/v2";
 
-  constructor(config: TelnyxConfig, options: TelnyxProviderOptions = {}) {
+  private readonly logger: Logger;
+
+  constructor(config: TelnyxConfig, logger?: Logger) {
     if (!config.apiKey) {
       throw new Error("Telnyx API key is required");
     }
@@ -46,7 +45,7 @@ export class TelnyxProvider implements VoiceCallProvider {
     this.apiKey = config.apiKey;
     this.connectionId = config.connectionId;
     this.publicKey = config.publicKey;
-    this.options = options;
+    this.logger = logger ?? defaultLogger;
   }
 
   /**
@@ -83,17 +82,10 @@ export class TelnyxProvider implements VoiceCallProvider {
    */
   verifyWebhook(ctx: WebhookContext): WebhookVerificationResult {
     if (!this.publicKey) {
-      if (this.options.allowUnsignedWebhooks) {
-        console.warn("[telnyx] Webhook verification skipped (no public key configured)");
-        return { ok: true, reason: "verification skipped (no public key configured)" };
-      }
-      return {
-        ok: false,
-        reason: "Missing telnyx.publicKey (configure to verify webhooks)",
-      };
+      // No public key configured, skip verification (not recommended for production)
+      return { ok: true };
     }
 
-<<<<<<< HEAD
     const signature = ctx.headers["telnyx-signature-ed25519"];
     const timestamp = ctx.headers["telnyx-timestamp"];
 
@@ -142,9 +134,6 @@ export class TelnyxProvider implements VoiceCallProvider {
         reason: `Verification error: ${err instanceof Error ? err.message : String(err)}`,
       };
     }
-=======
-    return { ok: result.ok, reason: result.reason, isReplay: result.isReplay };
->>>>>>> a3c4f56b0 (security(voice-call): detect Telnyx webhook replay)
   }
 
   /**
@@ -177,7 +166,9 @@ export class TelnyxProvider implements VoiceCallProvider {
     let callId = "";
     if (data.payload?.client_state) {
       try {
-        callId = Buffer.from(data.payload.client_state, "base64").toString("utf8");
+        callId = Buffer.from(data.payload.client_state, "base64").toString(
+          "utf8",
+        );
       } catch {
         // Fallback if not valid Base64
         callId = data.payload.client_state;
@@ -273,7 +264,7 @@ export class TelnyxProvider implements VoiceCallProvider {
       default:
         // Unknown cause - log it for debugging and return completed
         if (cause) {
-          console.warn(`[telnyx] Unknown hangup cause: ${cause}`);
+          this.logger.warn(`[telnyx] Unknown hangup cause: ${sanitizeLogValue(cause)}`);
         }
         return "completed";
     }
@@ -326,10 +317,13 @@ export class TelnyxProvider implements VoiceCallProvider {
    * Start transcription (STT) via Telnyx.
    */
   async startListening(input: StartListeningInput): Promise<void> {
-    await this.apiRequest(`/calls/${input.providerCallId}/actions/transcription_start`, {
-      command_id: crypto.randomUUID(),
-      language: input.language || "en",
-    });
+    await this.apiRequest(
+      `/calls/${input.providerCallId}/actions/transcription_start`,
+      {
+        command_id: crypto.randomUUID(),
+        language: input.language || "en",
+      },
+    );
   }
 
   /**

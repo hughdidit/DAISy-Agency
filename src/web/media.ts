@@ -1,9 +1,10 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import type { SsrFPolicy } from "../infra/net/ssrf.js";
+
 import { logVerbose, shouldLogVerbose } from "../globals.js";
 import { type MediaKind, maxBytesForKind, mediaKindFromMime } from "../media/constants.js";
+import { resolveUserPath } from "../utils.js";
 import { fetchRemoteMedia } from "../media/fetch.js";
 import {
   convertHeicToJpeg,
@@ -12,7 +13,6 @@ import {
   resizeToJpeg,
 } from "../media/image-ops.js";
 import { detectMime, extensionForMime } from "../media/mime.js";
-import { resolveUserPath } from "../utils.js";
 
 export type WebMediaResult = {
   buffer: Buffer;
@@ -24,94 +24,8 @@ export type WebMediaResult = {
 type WebMediaOptions = {
   maxBytes?: number;
   optimizeImages?: boolean;
-  ssrfPolicy?: SsrFPolicy;
 };
 
-<<<<<<< HEAD
-=======
-export type LocalMediaAccessErrorCode =
-  | "path-not-allowed"
-  | "invalid-root"
-  | "invalid-file-url"
-  | "unsafe-bypass"
-  | "not-found"
-  | "invalid-path"
-  | "not-file";
-
-export class LocalMediaAccessError extends Error {
-  code: LocalMediaAccessErrorCode;
-
-  constructor(code: LocalMediaAccessErrorCode, message: string, options?: ErrorOptions) {
-    super(message, options);
-    this.code = code;
-    this.name = "LocalMediaAccessError";
-  }
-}
-
-export function getDefaultLocalRoots(): readonly string[] {
-  return getDefaultMediaLocalRoots();
-}
-
-async function assertLocalMediaAllowed(
-  mediaPath: string,
-  localRoots: readonly string[] | "any" | undefined,
-): Promise<void> {
-  if (localRoots === "any") {
-    return;
-  }
-  const roots = localRoots ?? getDefaultLocalRoots();
-  // Resolve symlinks so a symlink under /tmp pointing to /etc/passwd is caught.
-  let resolved: string;
-  try {
-    resolved = await fs.realpath(mediaPath);
-  } catch {
-    resolved = path.resolve(mediaPath);
-  }
-
-  // Hardening: the default allowlist includes the OpenClaw temp dir, and tests/CI may
-  // override the state dir into tmp. Avoid accidentally allowing per-agent
-  // `workspace-*` state roots via the temp-root prefix match; require explicit
-  // localRoots for those.
-  if (localRoots === undefined) {
-    const workspaceRoot = roots.find((root) => path.basename(root) === "workspace");
-    if (workspaceRoot) {
-      const stateDir = path.dirname(workspaceRoot);
-      const rel = path.relative(stateDir, resolved);
-      if (rel && !rel.startsWith("..") && !path.isAbsolute(rel)) {
-        const firstSegment = rel.split(path.sep)[0] ?? "";
-        if (firstSegment.startsWith("workspace-")) {
-          throw new LocalMediaAccessError(
-            "path-not-allowed",
-            `Local media path is not under an allowed directory: ${mediaPath}`,
-          );
-        }
-      }
-    }
-  }
-  for (const root of roots) {
-    let resolvedRoot: string;
-    try {
-      resolvedRoot = await fs.realpath(root);
-    } catch {
-      resolvedRoot = path.resolve(root);
-    }
-    if (resolvedRoot === path.parse(resolvedRoot).root) {
-      throw new LocalMediaAccessError(
-        "invalid-root",
-        `Invalid localRoots entry (refuses filesystem root): ${root}. Pass a narrower directory.`,
-      );
-    }
-    if (resolved === resolvedRoot || resolved.startsWith(resolvedRoot + path.sep)) {
-      return;
-    }
-  }
-  throw new LocalMediaAccessError(
-    "path-not-allowed",
-    `Local media path is not under an allowed directory: ${mediaPath}`,
-  );
-}
-
->>>>>>> c37843924 (Security: harden tool media paths)
 const HEIC_MIME_RE = /^image\/hei[cf]$/i;
 const HEIC_EXT_RE = /\.(heic|heif)$/i;
 const MB = 1024 * 1024;
@@ -129,23 +43,15 @@ function formatCapReduce(label: string, cap: number, size: number): string {
 }
 
 function isHeicSource(opts: { contentType?: string; fileName?: string }): boolean {
-  if (opts.contentType && HEIC_MIME_RE.test(opts.contentType.trim())) {
-    return true;
-  }
-  if (opts.fileName && HEIC_EXT_RE.test(opts.fileName.trim())) {
-    return true;
-  }
+  if (opts.contentType && HEIC_MIME_RE.test(opts.contentType.trim())) return true;
+  if (opts.fileName && HEIC_EXT_RE.test(opts.fileName.trim())) return true;
   return false;
 }
 
 function toJpegFileName(fileName?: string): string | undefined {
-  if (!fileName) {
-    return undefined;
-  }
+  if (!fileName) return undefined;
   const trimmed = fileName.trim();
-  if (!trimmed) {
-    return fileName;
-  }
+  if (!trimmed) return fileName;
   const parsed = path.parse(trimmed);
   if (!parsed.ext || HEIC_EXT_RE.test(parsed.ext)) {
     return path.format({ dir: parsed.dir, name: parsed.name || trimmed, ext: ".jpg" });
@@ -163,12 +69,8 @@ type OptimizedImage = {
 };
 
 function logOptimizedImage(params: { originalSize: number; optimized: OptimizedImage }): void {
-  if (!shouldLogVerbose()) {
-    return;
-  }
-  if (params.optimized.optimizedSize >= params.originalSize) {
-    return;
-  }
+  if (!shouldLogVerbose()) return;
+  if (params.optimized.optimizedSize >= params.originalSize) return;
   if (params.optimized.format === "png") {
     logVerbose(
       `Optimized PNG (preserving alpha) from ${formatMb(params.originalSize)}MB to ${formatMb(params.optimized.optimizedSize)}MB (side≤${params.optimized.resizeSide}px)`,
@@ -209,7 +111,7 @@ async function loadWebMediaInternal(
   mediaUrl: string,
   options: WebMediaOptions = {},
 ): Promise<WebMediaResult> {
-  const { maxBytes, optimizeImages = true, ssrfPolicy } = options;
+  const { maxBytes, optimizeImages = true } = options;
   // Use fileURLToPath for proper handling of file:// URLs (handles file://localhost/path, etc.)
   if (mediaUrl.startsWith("file://")) {
     try {
@@ -287,16 +189,7 @@ async function loadWebMediaInternal(
   };
 
   if (/^https?:\/\//i.test(mediaUrl)) {
-    // Enforce a download cap during fetch to avoid unbounded memory usage.
-    // For optimized images, allow fetching larger payloads before compression.
-    const defaultFetchCap = maxBytesForKind("unknown");
-    const fetchCap =
-      maxBytes === undefined
-        ? defaultFetchCap
-        : optimizeImages
-          ? Math.max(maxBytes, defaultFetchCap)
-          : maxBytes;
-    const fetched = await fetchRemoteMedia({ url: mediaUrl, maxBytes: fetchCap, ssrfPolicy });
+    const fetched = await fetchRemoteMedia({ url: mediaUrl });
     const { buffer, contentType, fileName } = fetched;
     const kind = mediaKindFromMime(contentType);
     return await clampAndFinalize({ buffer, contentType, kind, fileName });
@@ -314,9 +207,7 @@ async function loadWebMediaInternal(
   let fileName = path.basename(mediaUrl) || undefined;
   if (fileName && !path.extname(fileName) && mime) {
     const ext = extensionForMime(mime);
-    if (ext) {
-      fileName = `${fileName}${ext}`;
-    }
+    if (ext) fileName = `${fileName}${ext}`;
   }
   return await clampAndFinalize({
     buffer: data,
@@ -326,27 +217,20 @@ async function loadWebMediaInternal(
   });
 }
 
-export async function loadWebMedia(
-  mediaUrl: string,
-  maxBytes?: number,
-  options?: { ssrfPolicy?: SsrFPolicy },
-): Promise<WebMediaResult> {
+export async function loadWebMedia(mediaUrl: string, maxBytes?: number): Promise<WebMediaResult> {
   return await loadWebMediaInternal(mediaUrl, {
     maxBytes,
     optimizeImages: true,
-    ssrfPolicy: options?.ssrfPolicy,
   });
 }
 
 export async function loadWebMediaRaw(
   mediaUrl: string,
   maxBytes?: number,
-  options?: { ssrfPolicy?: SsrFPolicy },
 ): Promise<WebMediaResult> {
   return await loadWebMediaInternal(mediaUrl, {
     maxBytes,
     optimizeImages: false,
-    ssrfPolicy: options?.ssrfPolicy,
   });
 }
 
@@ -366,7 +250,7 @@ export async function optimizeImageToJpeg(
     try {
       source = await convertHeicToJpeg(buffer);
     } catch (err) {
-      throw new Error(`HEIC image conversion failed: ${String(err)}`, { cause: err });
+      throw new Error(`HEIC image conversion failed: ${String(err)}`);
     }
   }
   const sides = [2048, 1536, 1280, 1024, 800];

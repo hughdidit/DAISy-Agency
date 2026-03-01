@@ -1,11 +1,6 @@
 import { randomUUID } from "node:crypto";
 import fs from "node:fs";
-<<<<<<< HEAD
-import type { GatewayRequestHandlers } from "./types.js";
-=======
-import { getAcpSessionManager } from "../../acp/control-plane/manager.js";
->>>>>>> a7d56e355 (feat: ACP thread-bound agents (#23580))
-import { resolveDefaultAgentId } from "../../agents/agent-scope.js";
+
 import { abortEmbeddedPiRun, waitForEmbeddedPiRunEnd } from "../../agents/pi-embedded.js";
 import { stopSubagentsForRequester } from "../../auto-reply/reply/abort.js";
 import { clearSessionQueues } from "../../auto-reply/reply/queue.js";
@@ -17,19 +12,6 @@ import {
   type SessionEntry,
   updateSessionStore,
 } from "../../config/sessions.js";
-<<<<<<< HEAD
-import { normalizeAgentId, parseAgentSessionKey } from "../../routing/session-key.js";
-=======
-import { unbindThreadBindingsBySessionKey } from "../../discord/monitor/thread-bindings.js";
-import { logVerbose } from "../../globals.js";
-import { createInternalHookEvent, triggerInternalHook } from "../../hooks/internal-hooks.js";
-import { getGlobalHookRunner } from "../../plugins/hook-runner-global.js";
-import {
-  isSubagentSessionKey,
-  normalizeAgentId,
-  parseAgentSessionKey,
-} from "../../routing/session-key.js";
->>>>>>> a7d56e355 (feat: ACP thread-bound agents (#23580))
 import {
   ErrorCodes,
   errorShape,
@@ -49,7 +31,6 @@ import {
   loadSessionEntry,
   readSessionPreviewItemsFromTranscript,
   resolveGatewaySessionStoreTarget,
-  resolveSessionModelRef,
   resolveSessionTranscriptCandidates,
   type SessionsPatchResult,
   type SessionsPreviewEntry,
@@ -57,82 +38,7 @@ import {
 } from "../session-utils.js";
 import { applySessionsPatchToStore } from "../sessions-patch.js";
 import { resolveSessionKeyFromResolveParams } from "../sessions-resolve.js";
-
-const ACP_RUNTIME_CLEANUP_TIMEOUT_MS = 15_000;
-
-async function runAcpCleanupStep(params: {
-  op: () => Promise<void>;
-}): Promise<{ status: "ok" } | { status: "timeout" } | { status: "error"; error: unknown }> {
-  let timer: NodeJS.Timeout | undefined;
-  const timeoutPromise = new Promise<{ status: "timeout" }>((resolve) => {
-    timer = setTimeout(() => resolve({ status: "timeout" }), ACP_RUNTIME_CLEANUP_TIMEOUT_MS);
-  });
-  const opPromise = params
-    .op()
-    .then(() => ({ status: "ok" as const }))
-    .catch((error: unknown) => ({ status: "error" as const, error }));
-  const outcome = await Promise.race([opPromise, timeoutPromise]);
-  if (timer) {
-    clearTimeout(timer);
-  }
-  return outcome;
-}
-
-async function closeAcpRuntimeForSession(params: {
-  cfg: ReturnType<typeof loadConfig>;
-  sessionKey: string;
-  entry?: SessionEntry;
-  reason: "session-reset" | "session-delete";
-}) {
-  if (!params.entry?.acp) {
-    return undefined;
-  }
-  const acpManager = getAcpSessionManager();
-  const cancelOutcome = await runAcpCleanupStep({
-    op: async () => {
-      await acpManager.cancelSession({
-        cfg: params.cfg,
-        sessionKey: params.sessionKey,
-        reason: params.reason,
-      });
-    },
-  });
-  if (cancelOutcome.status === "timeout") {
-    return errorShape(
-      ErrorCodes.UNAVAILABLE,
-      `Session ${params.sessionKey} is still active; try again in a moment.`,
-    );
-  }
-  if (cancelOutcome.status === "error") {
-    logVerbose(
-      `sessions.${params.reason}: ACP cancel failed for ${params.sessionKey}: ${String(cancelOutcome.error)}`,
-    );
-  }
-
-  const closeOutcome = await runAcpCleanupStep({
-    op: async () => {
-      await acpManager.closeSession({
-        cfg: params.cfg,
-        sessionKey: params.sessionKey,
-        reason: params.reason,
-        requireAcpSession: false,
-        allowBackendUnavailable: true,
-      });
-    },
-  });
-  if (closeOutcome.status === "timeout") {
-    return errorShape(
-      ErrorCodes.UNAVAILABLE,
-      `Session ${params.sessionKey} is still active; try again in a moment.`,
-    );
-  }
-  if (closeOutcome.status === "error") {
-    logVerbose(
-      `sessions.${params.reason}: ACP runtime close failed for ${params.sessionKey}: ${String(closeOutcome.error)}`,
-    );
-  }
-  return undefined;
-}
+import type { GatewayRequestHandlers } from "./types.js";
 
 export const sessionsHandlers: GatewayRequestHandlers = {
   "sessions.list": ({ params, respond }) => {
@@ -147,7 +53,7 @@ export const sessionsHandlers: GatewayRequestHandlers = {
       );
       return;
     }
-    const p = params;
+    const p = params as import("../protocol/index.js").SessionsListParams;
     const cfg = loadConfig();
     const { storePath, store } = loadCombinedSessionStoreForGateway(cfg);
     const result = listSessionsFromStore({
@@ -172,7 +78,7 @@ export const sessionsHandlers: GatewayRequestHandlers = {
       );
       return;
     }
-    const p = params;
+    const p = params as import("../protocol/index.js").SessionsPreviewParams;
     const keysRaw = Array.isArray(p.keys) ? p.keys : [];
     const keys = keysRaw
       .map((key) => String(key ?? "").trim())
@@ -238,7 +144,7 @@ export const sessionsHandlers: GatewayRequestHandlers = {
       );
       return;
     }
-    const p = params;
+    const p = params as import("../protocol/index.js").SessionsResolveParams;
     const cfg = loadConfig();
 
     const resolved = resolveSessionKeyFromResolveParams({ cfg, p });
@@ -248,7 +154,6 @@ export const sessionsHandlers: GatewayRequestHandlers = {
     }
     respond(true, { ok: true, key: resolved.key }, undefined);
   },
-<<<<<<< HEAD
   "sessions.patch": async ({ params, respond, context }) => {
     if (!validateSessionsPatchParams(params)) {
       respond(
@@ -259,27 +164,12 @@ export const sessionsHandlers: GatewayRequestHandlers = {
           `invalid sessions.patch params: ${formatValidationErrors(validateSessionsPatchParams.errors)}`,
         ),
       );
-=======
-  "sessions.patch": async ({ params, respond, context, client, isWebchatConnect }) => {
-    if (!assertValidParams(params, validateSessionsPatchParams, "sessions.patch", respond)) {
->>>>>>> 981d26648 (security(gateway): block webchat session mutators (#20800))
       return;
     }
-    const p = params;
+    const p = params as import("../protocol/index.js").SessionsPatchParams;
     const key = String(p.key ?? "").trim();
     if (!key) {
       respond(false, undefined, errorShape(ErrorCodes.INVALID_REQUEST, "key required"));
-      return;
-    }
-    if (client?.connect && isWebchatConnect(client.connect)) {
-      respond(
-        false,
-        undefined,
-        errorShape(
-          ErrorCodes.INVALID_REQUEST,
-          "webchat clients cannot patch sessions; use chat.send for session-scoped updates",
-        ),
-      );
       return;
     }
 
@@ -305,18 +195,11 @@ export const sessionsHandlers: GatewayRequestHandlers = {
       respond(false, undefined, applied.error);
       return;
     }
-    const parsed = parseAgentSessionKey(target.canonicalKey ?? key);
-    const agentId = normalizeAgentId(parsed?.agentId ?? resolveDefaultAgentId(cfg));
-    const resolved = resolveSessionModelRef(cfg, applied.entry, agentId);
     const result: SessionsPatchResult = {
       ok: true,
       path: storePath,
       key: target.canonicalKey,
       entry: applied.entry,
-      resolved: {
-        modelProvider: resolved.provider,
-        model: resolved.model,
-      },
     };
     respond(true, result, undefined);
   },
@@ -332,53 +215,16 @@ export const sessionsHandlers: GatewayRequestHandlers = {
       );
       return;
     }
-    const p = params;
+    const p = params as import("../protocol/index.js").SessionsResetParams;
     const key = String(p.key ?? "").trim();
     if (!key) {
       respond(false, undefined, errorShape(ErrorCodes.INVALID_REQUEST, "key required"));
       return;
     }
 
-<<<<<<< HEAD
     const cfg = loadConfig();
     const target = resolveGatewaySessionStoreTarget({ cfg, key });
     const storePath = target.storePath;
-=======
-    const { cfg, target, storePath } = resolveGatewaySessionTargetFromKey(key);
-    const { entry, legacyKey, canonicalKey } = loadSessionEntry(key);
-    const hadExistingEntry = Boolean(entry);
-    const commandReason = p.reason === "new" ? "new" : "reset";
-    const hookEvent = createInternalHookEvent(
-      "command",
-      commandReason,
-      target.canonicalKey ?? key,
-      {
-        sessionEntry: entry,
-        previousSessionEntry: entry,
-        commandSource: "gateway:sessions.reset",
-        cfg,
-      },
-    );
-    await triggerInternalHook(hookEvent);
-    const sessionId = entry?.sessionId;
-    const cleanupError = await ensureSessionRuntimeCleanup({ cfg, key, target, sessionId });
-    if (cleanupError) {
-      respond(false, undefined, cleanupError);
-      return;
-    }
-    const acpCleanupError = await closeAcpRuntimeForSession({
-      cfg,
-      sessionKey: legacyKey ?? canonicalKey ?? target.canonicalKey ?? key,
-      entry,
-      reason: "session-reset",
-    });
-    if (acpCleanupError) {
-      respond(false, undefined, acpCleanupError);
-      return;
-    }
-    let oldSessionId: string | undefined;
-    let oldSessionFile: string | undefined;
->>>>>>> a7d56e355 (feat: ACP thread-bound agents (#23580))
     const next = await updateSessionStore(storePath, (store) => {
       const primaryKey = target.storeKeys[0] ?? key;
       const existingKey = target.storeKeys.find((candidate) => store[candidate]);
@@ -415,7 +261,6 @@ export const sessionsHandlers: GatewayRequestHandlers = {
     });
     respond(true, { ok: true, key: target.canonicalKey, entry: next }, undefined);
   },
-<<<<<<< HEAD
   "sessions.delete": async ({ params, respond }) => {
     if (!validateSessionsDeleteParams(params)) {
       respond(
@@ -426,27 +271,12 @@ export const sessionsHandlers: GatewayRequestHandlers = {
           `invalid sessions.delete params: ${formatValidationErrors(validateSessionsDeleteParams.errors)}`,
         ),
       );
-=======
-  "sessions.delete": async ({ params, respond, client, isWebchatConnect }) => {
-    if (!assertValidParams(params, validateSessionsDeleteParams, "sessions.delete", respond)) {
->>>>>>> 981d26648 (security(gateway): block webchat session mutators (#20800))
       return;
     }
-    const p = params;
+    const p = params as import("../protocol/index.js").SessionsDeleteParams;
     const key = String(p.key ?? "").trim();
     if (!key) {
       respond(false, undefined, errorShape(ErrorCodes.INVALID_REQUEST, "key required"));
-      return;
-    }
-    if (client?.connect && isWebchatConnect(client.connect)) {
-      respond(
-        false,
-        undefined,
-        errorShape(
-          ErrorCodes.INVALID_REQUEST,
-          "webchat clients cannot delete sessions; use chat.send for session-scoped updates",
-        ),
-      );
       return;
     }
 
@@ -464,20 +294,13 @@ export const sessionsHandlers: GatewayRequestHandlers = {
 
     const deleteTranscript = typeof p.deleteTranscript === "boolean" ? p.deleteTranscript : true;
 
-<<<<<<< HEAD
     const storePath = target.storePath;
     const { entry } = loadSessionEntry(key);
-=======
-    const { entry, legacyKey, canonicalKey } = loadSessionEntry(key);
->>>>>>> a7d56e355 (feat: ACP thread-bound agents (#23580))
     const sessionId = entry?.sessionId;
     const existed = Boolean(entry);
     const queueKeys = new Set<string>(target.storeKeys);
     queueKeys.add(target.canonicalKey);
-    if (sessionId) {
-      queueKeys.add(sessionId);
-    }
-<<<<<<< HEAD
+    if (sessionId) queueKeys.add(sessionId);
     clearSessionQueues([...queueKeys]);
     stopSubagentsForRequester({ cfg, requesterSessionKey: target.canonicalKey });
     if (sessionId) {
@@ -502,25 +325,7 @@ export const sessionsHandlers: GatewayRequestHandlers = {
         store[primaryKey] = store[existingKey];
         delete store[existingKey];
       }
-      if (store[primaryKey]) {
-=======
-    const acpCleanupError = await closeAcpRuntimeForSession({
-      cfg,
-      sessionKey: legacyKey ?? canonicalKey ?? target.canonicalKey ?? key,
-      entry,
-      reason: "session-delete",
-    });
-    if (acpCleanupError) {
-      respond(false, undefined, acpCleanupError);
-      return;
-    }
-    const deleted = await updateSessionStore(storePath, (store) => {
-      const { primaryKey } = migrateAndPruneSessionStoreKey({ cfg, key, store });
-      const hadEntry = Boolean(store[primaryKey]);
-      if (hadEntry) {
->>>>>>> a7d56e355 (feat: ACP thread-bound agents (#23580))
-        delete store[primaryKey];
-      }
+      if (store[primaryKey]) delete store[primaryKey];
     });
 
     const archived: string[] = [];
@@ -531,9 +336,7 @@ export const sessionsHandlers: GatewayRequestHandlers = {
         entry?.sessionFile,
         target.agentId,
       )) {
-        if (!fs.existsSync(candidate)) {
-          continue;
-        }
+        if (!fs.existsSync(candidate)) continue;
         try {
           archived.push(archiveFileOnDisk(candidate, "deleted"));
         } catch {
@@ -556,7 +359,7 @@ export const sessionsHandlers: GatewayRequestHandlers = {
       );
       return;
     }
-    const p = params;
+    const p = params as import("../protocol/index.js").SessionsCompactParams;
     const key = String(p.key ?? "").trim();
     if (!key) {
       respond(false, undefined, errorShape(ErrorCodes.INVALID_REQUEST, "key required"));
@@ -635,17 +438,12 @@ export const sessionsHandlers: GatewayRequestHandlers = {
 
     const archived = archiveFileOnDisk(filePath, "bak");
     const keptLines = lines.slice(-maxLines);
-    fs.writeFileSync(filePath, `${keptLines.join("\n")}\n`, {
-      encoding: "utf-8",
-      mode: 0o600,
-    });
+    fs.writeFileSync(filePath, `${keptLines.join("\n")}\n`, "utf-8");
 
     await updateSessionStore(storePath, (store) => {
       const entryKey = compactTarget.primaryKey;
       const entryToUpdate = store[entryKey];
-      if (!entryToUpdate) {
-        return;
-      }
+      if (!entryToUpdate) return;
       delete entryToUpdate.inputTokens;
       delete entryToUpdate.outputTokens;
       delete entryToUpdate.totalTokens;

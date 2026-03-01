@@ -1,13 +1,11 @@
 export type SecurityPathCanonicalization = {
-<<<<<<< HEAD
-  path: string;
-=======
   canonicalPath: string;
   candidates: string[];
->>>>>>> 08e335748 (refactor: share gateway security path canonicalization)
   malformedEncoding: boolean;
   rawNormalizedPath: string;
 };
+
+const MAX_PATH_DECODE_PASSES = 3;
 
 function normalizePathSeparators(pathname: string): string {
   const collapsed = pathname.replace(/\/{2,}/g, "/");
@@ -21,27 +19,6 @@ function normalizeProtectedPrefix(prefix: string): string {
   return normalizePathSeparators(prefix.toLowerCase()) || "/";
 }
 
-<<<<<<< HEAD
-function prefixMatch(pathname: string, prefix: string): boolean {
-  return (
-    pathname === prefix ||
-    pathname.startsWith(`${prefix}/`) ||
-    // Fail closed when malformed %-encoding follows the protected prefix.
-    pathname.startsWith(`${prefix}%`)
-  );
-}
-
-export function canonicalizePathForSecurity(pathname: string): SecurityPathCanonicalization {
-  let decoded = pathname;
-  let malformedEncoding = false;
-  try {
-    decoded = decodeURIComponent(pathname);
-  } catch {
-    malformedEncoding = true;
-  }
-  return {
-    path: normalizePathSeparators(decoded.toLowerCase()) || "/",
-=======
 function resolveDotSegments(pathname: string): string {
   try {
     return new URL(pathname, "http://localhost").pathname;
@@ -110,7 +87,6 @@ export function canonicalizePathForSecurity(pathname: string): SecurityPathCanon
   return {
     canonicalPath: candidates[candidates.length - 1] ?? "/",
     candidates,
->>>>>>> 08e335748 (refactor: share gateway security path canonicalization)
     malformedEncoding,
     rawNormalizedPath: normalizePathSeparators(pathname.toLowerCase()) || "/",
   };
@@ -130,17 +106,12 @@ function getNormalizedPrefixes(prefixes: readonly string[]): readonly string[] {
 
 export function isPathProtectedByPrefixes(pathname: string, prefixes: readonly string[]): boolean {
   const canonical = canonicalizePathForSecurity(pathname);
-<<<<<<< HEAD
-  const normalizedPrefixes = prefixes.map(normalizeProtectedPrefix);
-  if (normalizedPrefixes.some((prefix) => prefixMatch(canonical.path, prefix))) {
-=======
   const normalizedPrefixes = getNormalizedPrefixes(prefixes);
   if (
     canonical.candidates.some((candidate) =>
       normalizedPrefixes.some((prefix) => prefixMatch(candidate, prefix)),
     )
   ) {
->>>>>>> 08e335748 (refactor: share gateway security path canonicalization)
     return true;
   }
   if (!canonical.malformedEncoding) {

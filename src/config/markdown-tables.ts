@@ -1,13 +1,7 @@
-<<<<<<< HEAD
-=======
 import { normalizeChannelId } from "../channels/plugins/index.js";
-import { resolveAccountEntry } from "../routing/account-lookup.js";
 import { normalizeAccountId } from "../routing/session-key.js";
->>>>>>> f97c0922e (fix(security): harden account-key handling against prototype pollution)
-import type { OpenClawConfig } from "./config.js";
+import type { MoltbotConfig } from "./config.js";
 import type { MarkdownTableMode } from "./types.base.js";
-import { normalizeChannelId } from "../channels/plugins/index.js";
-import { normalizeAccountId } from "../routing/session-key.js";
 
 type MarkdownConfigEntry = {
   markdown?: {
@@ -31,32 +25,32 @@ function resolveMarkdownModeFromSection(
   section: MarkdownConfigSection | undefined,
   accountId?: string | null,
 ): MarkdownTableMode | undefined {
-  if (!section) {
-    return undefined;
-  }
+  if (!section) return undefined;
   const normalizedAccountId = normalizeAccountId(accountId);
   const accounts = section.accounts;
   if (accounts && typeof accounts === "object") {
-    const match = resolveAccountEntry(accounts, normalizedAccountId);
+    const direct = accounts[normalizedAccountId];
+    const directMode = direct?.markdown?.tables;
+    if (isMarkdownTableMode(directMode)) return directMode;
+    const matchKey = Object.keys(accounts).find(
+      (key) => key.toLowerCase() === normalizedAccountId.toLowerCase(),
+    );
+    const match = matchKey ? accounts[matchKey] : undefined;
     const matchMode = match?.markdown?.tables;
-    if (isMarkdownTableMode(matchMode)) {
-      return matchMode;
-    }
+    if (isMarkdownTableMode(matchMode)) return matchMode;
   }
   const sectionMode = section.markdown?.tables;
   return isMarkdownTableMode(sectionMode) ? sectionMode : undefined;
 }
 
 export function resolveMarkdownTableMode(params: {
-  cfg?: Partial<OpenClawConfig>;
+  cfg?: Partial<MoltbotConfig>;
   channel?: string | null;
   accountId?: string | null;
 }): MarkdownTableMode {
   const channel = normalizeChannelId(params.channel);
   const defaultMode = channel ? (DEFAULT_TABLE_MODES.get(channel) ?? "code") : "code";
-  if (!channel || !params.cfg) {
-    return defaultMode;
-  }
+  if (!channel || !params.cfg) return defaultMode;
   const channelsConfig = params.cfg.channels as Record<string, unknown> | undefined;
   const section = (channelsConfig?.[channel] ??
     (params.cfg as Record<string, unknown> | undefined)?.[channel]) as

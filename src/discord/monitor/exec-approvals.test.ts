@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
-import type { DiscordExecApprovalConfig } from "../../config/types.discord.js";
 import {
   buildExecApprovalCustomId,
   parseExecApprovalData,
   type ExecApprovalRequest,
   DiscordExecApprovalHandler,
 } from "./exec-approvals.js";
+import type { DiscordExecApprovalConfig } from "../../config/types.discord.js";
 
 describe("buildExecApprovalCustomId", () => {
   it("encodes approval id and action", () => {
@@ -49,9 +49,7 @@ describe("parseExecApprovalData", () => {
   });
 
   it("rejects null/undefined input", () => {
-    // oxlint-disable-next-line typescript/no-explicit-any
     expect(parseExecApprovalData(null as any)).toBeNull();
-    // oxlint-disable-next-line typescript/no-explicit-any
     expect(parseExecApprovalData(undefined as any)).toBeNull();
   });
 
@@ -166,33 +164,6 @@ describe("DiscordExecApprovalHandler.shouldHandle", () => {
     );
   });
 
-<<<<<<< HEAD
-=======
-  it("rejects unsafe nested-repetition regex in session filter", () => {
-    const handler = createHandler({
-      enabled: true,
-      approvers: ["123"],
-      sessionFilter: ["(a+)+$"],
-    });
-    expect(handler.shouldHandle(createRequest({ sessionKey: `${"a".repeat(28)}!` }))).toBe(false);
-  });
-
-  it("filters by discord account when session store includes account", () => {
-    writeStore({
-      "agent:test-agent:discord:channel:999888777": {
-        sessionId: "sess",
-        updatedAt: Date.now(),
-        origin: { provider: "discord", accountId: "secondary" },
-        lastAccountId: "secondary",
-      },
-    });
-    const handler = createHandler({ enabled: true, approvers: ["123"] }, "default");
-    expect(handler.shouldHandle(createRequest())).toBe(false);
-    const matching = createHandler({ enabled: true, approvers: ["123"] }, "secondary");
-    expect(matching.shouldHandle(createRequest())).toBe(true);
-  });
-
->>>>>>> a2dfe9879 (fix(security): harden regex compilation for filters and redaction)
   it("combines agent and session filters", () => {
     const handler = createHandler({
       enabled: true,

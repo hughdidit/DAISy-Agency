@@ -1,5 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { resolveDmAllowState } from "./dm-policy-shared.js";
+import {
+  DM_GROUP_ACCESS_REASON,
+  readStoreAllowFromForDmPolicy,
+  resolveDmAllowState,
+  resolveDmGroupAccessWithCommandGate,
+  resolveDmGroupAccessDecision,
+  resolveDmGroupAccessWithLists,
+  resolveEffectiveAllowFromLists,
+} from "./dm-policy-shared.js";
 
 describe("security/dm-policy-shared", () => {
   it("normalizes config + store allow entries and counts distinct senders", async () => {
@@ -30,10 +38,6 @@ describe("security/dm-policy-shared", () => {
     expect(state.allowCount).toBe(0);
     expect(state.isMultiUserDm).toBe(false);
   });
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
 
   it("skips pairing-store reads when dmPolicy is allowlist", async () => {
     let called = false;
@@ -64,7 +68,6 @@ describe("security/dm-policy-shared", () => {
     expect(called).toBe(false);
     expect(storeAllowFrom).toEqual([]);
   });
->>>>>>> bce643a0b (refactor(security): enforce account-scoped pairing APIs)
 
   it("builds effective DM/group allowlists from config + pairing store", () => {
     const lists = resolveEffectiveAllowFromLists({
@@ -130,9 +133,90 @@ describe("security/dm-policy-shared", () => {
       isSenderAllowed: (allowFrom) => allowFrom.includes("paired-user"),
     });
     expect(resolved.decision).toBe("allow");
+    expect(resolved.reasonCode).toBe(DM_GROUP_ACCESS_REASON.DM_POLICY_ALLOWLISTED);
     expect(resolved.reason).toBe("dmPolicy=pairing (allowlisted)");
     expect(resolved.effectiveAllowFrom).toEqual(["owner", "paired-user"]);
     expect(resolved.effectiveGroupAllowFrom).toEqual(["group:room"]);
+  });
+
+  it("resolves command gate with dm/group parity for groups", () => {
+    const resolved = resolveDmGroupAccessWithCommandGate({
+      isGroup: true,
+      dmPolicy: "pairing",
+      groupPolicy: "allowlist",
+      allowFrom: ["owner"],
+      groupAllowFrom: ["group-owner"],
+      storeAllowFrom: ["paired-user"],
+      isSenderAllowed: (allowFrom) => allowFrom.includes("paired-user"),
+      command: {
+        useAccessGroups: true,
+        allowTextCommands: true,
+        hasControlCommand: true,
+      },
+    });
+    expect(resolved.decision).toBe("block");
+    expect(resolved.reason).toBe("groupPolicy=allowlist (not allowlisted)");
+    expect(resolved.commandAuthorized).toBe(false);
+    expect(resolved.shouldBlockControlCommand).toBe(true);
+  });
+
+  it("keeps configured dm allowlist usable for group command auth", () => {
+    const resolved = resolveDmGroupAccessWithCommandGate({
+      isGroup: true,
+      dmPolicy: "pairing",
+      groupPolicy: "open",
+      allowFrom: ["owner"],
+      groupAllowFrom: [],
+      storeAllowFrom: ["paired-user"],
+      isSenderAllowed: (allowFrom) => allowFrom.includes("owner"),
+      command: {
+        useAccessGroups: true,
+        allowTextCommands: true,
+        hasControlCommand: true,
+      },
+    });
+    expect(resolved.commandAuthorized).toBe(true);
+    expect(resolved.shouldBlockControlCommand).toBe(false);
+  });
+
+  it("treats dm command authorization as dm access result", () => {
+    const resolved = resolveDmGroupAccessWithCommandGate({
+      isGroup: false,
+      dmPolicy: "pairing",
+      groupPolicy: "allowlist",
+      allowFrom: ["owner"],
+      groupAllowFrom: ["group-owner"],
+      storeAllowFrom: ["paired-user"],
+      isSenderAllowed: (allowFrom) => allowFrom.includes("paired-user"),
+      command: {
+        useAccessGroups: true,
+        allowTextCommands: true,
+        hasControlCommand: true,
+      },
+    });
+    expect(resolved.decision).toBe("allow");
+    expect(resolved.commandAuthorized).toBe(true);
+    expect(resolved.shouldBlockControlCommand).toBe(false);
+  });
+
+  it("does not auto-authorize dm commands in open mode without explicit allowlists", () => {
+    const resolved = resolveDmGroupAccessWithCommandGate({
+      isGroup: false,
+      dmPolicy: "open",
+      groupPolicy: "allowlist",
+      allowFrom: [],
+      groupAllowFrom: [],
+      storeAllowFrom: [],
+      isSenderAllowed: () => false,
+      command: {
+        useAccessGroups: true,
+        allowTextCommands: true,
+        hasControlCommand: true,
+      },
+    });
+    expect(resolved.decision).toBe("allow");
+    expect(resolved.commandAuthorized).toBe(false);
+    expect(resolved.shouldBlockControlCommand).toBe(false);
   });
 
   it("keeps allowlist mode strict in shared resolver (no pairing-store fallback)", () => {
@@ -146,6 +230,7 @@ describe("security/dm-policy-shared", () => {
       isSenderAllowed: () => false,
     });
     expect(resolved.decision).toBe("block");
+    expect(resolved.reasonCode).toBe(DM_GROUP_ACCESS_REASON.DM_POLICY_NOT_ALLOWLISTED);
     expect(resolved.reason).toBe("dmPolicy=allowlist (not allowlisted)");
     expect(resolved.effectiveAllowFrom).toEqual(["owner"]);
   });
@@ -269,6 +354,7 @@ describe("security/dm-policy-shared", () => {
       });
       expect(decision).toEqual({
         decision: "block",
+        reasonCode: DM_GROUP_ACCESS_REASON.DM_POLICY_NOT_ALLOWLISTED,
         reason: "dmPolicy=allowlist (not allowlisted)",
       });
     });
@@ -284,6 +370,7 @@ describe("security/dm-policy-shared", () => {
       });
       expect(decision).toEqual({
         decision: "pairing",
+        reasonCode: DM_GROUP_ACCESS_REASON.DM_POLICY_PAIRING_REQUIRED,
         reason: "dmPolicy=pairing (not allowlisted)",
       });
     });
@@ -311,9 +398,9 @@ describe("security/dm-policy-shared", () => {
       });
       expect(decision).toEqual({
         decision: "block",
+        reasonCode: DM_GROUP_ACCESS_REASON.GROUP_POLICY_NOT_ALLOWLISTED,
         reason: "groupPolicy=allowlist (not allowlisted)",
       });
     });
   }
->>>>>>> 8bdda7a65 (fix(security): keep DM pairing allowlists out of group auth)
 });

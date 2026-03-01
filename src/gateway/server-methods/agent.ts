@@ -1,10 +1,8 @@
 import { randomUUID } from "node:crypto";
-import type { GatewayRequestHandlers } from "./types.js";
-import { listAgentIds } from "../../agents/agent-scope.js";
 import { agentCommand } from "../../commands/agent.js";
+import { listAgentIds } from "../../agents/agent-scope.js";
 import { loadConfig } from "../../config/config.js";
 import {
-  mergeSessionEntry,
   resolveAgentIdFromSessionKey,
   resolveExplicitAgentSessionKey,
   resolveAgentMainSessionKey,
@@ -16,7 +14,6 @@ import {
   resolveAgentDeliveryPlan,
   resolveAgentOutboundTarget,
 } from "../../infra/outbound/agent-delivery.js";
-import { normalizeAgentId } from "../../routing/session-key.js";
 import { defaultRuntime } from "../../runtime.js";
 import { resolveSendPolicy } from "../../sessions/send-policy.js";
 import { normalizeSessionDeliveryFields } from "../../utils/delivery-context.js";
@@ -26,11 +23,11 @@ import {
   isGatewayMessageChannel,
   normalizeMessageChannel,
 } from "../../utils/message-channel.js";
-import { resolveAssistantIdentity } from "../assistant-identity.js";
+import { normalizeAgentId } from "../../routing/session-key.js";
 import { parseMessageWithAttachments } from "../chat-attachments.js";
-import { resolveAssistantAvatarUrl } from "../control-ui-shared.js";
-import { GATEWAY_CLIENT_CAPS, hasGatewayClientCap } from "../protocol/client-info.js";
 import {
+  type AgentIdentityParams,
+  type AgentWaitParams,
   ErrorCodes,
   errorShape,
   formatValidationErrors,
@@ -40,12 +37,14 @@ import {
 } from "../protocol/index.js";
 import { loadSessionEntry } from "../session-utils.js";
 import { formatForLog } from "../ws-log.js";
+import { resolveAssistantIdentity } from "../assistant-identity.js";
+import { resolveAssistantAvatarUrl } from "../control-ui-shared.js";
 import { waitForAgentJob } from "./agent-job.js";
-import { injectTimestamp, timestampOptsFromConfig } from "./agent-timestamp.js";
+import type { GatewayRequestHandlers } from "./types.js";
 
 export const agentHandlers: GatewayRequestHandlers = {
-  agent: async ({ params, respond, context, client }) => {
-    const p = params;
+  agent: async ({ params, respond, context }) => {
+    const p = params as Record<string, unknown>;
     if (!validateAgentParams(p)) {
       respond(
         false,
@@ -139,13 +138,6 @@ export const agentHandlers: GatewayRequestHandlers = {
         return;
       }
     }
-
-    // Inject timestamp into messages that don't already have one.
-    // Channel messages (Discord, Telegram, etc.) get timestamps via envelope
-    // formatting in a separate code path — they never reach this handler.
-    // See: https://github.com/moltbot/moltbot/issues/3658
-    message = injectTimestamp(message, timestampOptsFromConfig(cfg));
-
     const isKnownGatewayChannel = (value: string): boolean => isGatewayMessageChannel(value);
     const channelHints = [request.channel, request.replyChannel]
       .filter((value): value is string => typeof value === "string")
@@ -238,7 +230,7 @@ export const agentHandlers: GatewayRequestHandlers = {
       resolvedGroupChannel = resolvedGroupChannel || inheritedGroup?.groupChannel;
       resolvedGroupSpace = resolvedGroupSpace || inheritedGroup?.groupSpace;
       const deliveryFields = normalizeSessionDeliveryFields(entry);
-      const nextEntryPatch: SessionEntry = {
+      const nextEntry: SessionEntry = {
         sessionId,
         updatedAt: now,
         thinkingLevel: entry?.thinkingLevel,
@@ -262,7 +254,7 @@ export const agentHandlers: GatewayRequestHandlers = {
         cliSessionIds: entry?.cliSessionIds,
         claudeCliSessionId: entry?.claudeCliSessionId,
       };
-      sessionEntry = mergeSessionEntry(entry, nextEntryPatch);
+      sessionEntry = nextEntry;
       const sendPolicy = resolveSendPolicy({
         cfg,
         entry,
@@ -283,27 +275,9 @@ export const agentHandlers: GatewayRequestHandlers = {
       const agentId = resolveAgentIdFromSessionKey(canonicalSessionKey);
       const mainSessionKey = resolveAgentMainSessionKey({ cfg, agentId });
       if (storePath) {
-<<<<<<< HEAD
         await updateSessionStore(storePath, (store) => {
           store[canonicalSessionKey] = nextEntry;
-=======
-        const persisted = await updateSessionStore(storePath, (store) => {
-          const target = resolveGatewaySessionStoreTarget({
-            cfg,
-            key: requestedSessionKey,
-            store,
-          });
-          pruneLegacyStoreKeys({
-            store,
-            canonicalKey: target.canonicalKey,
-            candidates: target.storeKeys,
-          });
-          const merged = mergeSessionEntry(store[canonicalSessionKey], nextEntryPatch);
-          store[canonicalSessionKey] = merged;
-          return merged;
->>>>>>> a7d56e355 (feat: ACP thread-bound agents (#23580))
         });
-        sessionEntry = persisted;
       }
       if (canonicalSessionKey === mainSessionKey || canonicalSessionKey === "global") {
         context.addChatRun(idem, {
@@ -316,14 +290,6 @@ export const agentHandlers: GatewayRequestHandlers = {
     }
 
     const runId = idem;
-    const connId = typeof client?.connId === "string" ? client.connId : undefined;
-    const wantsToolEvents = hasGatewayClientCap(
-      client?.connect?.caps,
-      GATEWAY_CLIENT_CAPS.TOOL_EVENTS,
-    );
-    if (connId && wantsToolEvents) {
-      context.registerToolEventRecipient(runId, connId);
-    }
 
     const wantsDelivery = request.deliver === true;
     const explicitTo =
@@ -464,7 +430,7 @@ export const agentHandlers: GatewayRequestHandlers = {
       );
       return;
     }
-    const p = params;
+    const p = params as AgentIdentityParams;
     const agentIdRaw = typeof p.agentId === "string" ? p.agentId.trim() : "";
     const sessionKeyRaw = typeof p.sessionKey === "string" ? p.sessionKey.trim() : "";
     let agentId = agentIdRaw ? normalizeAgentId(agentIdRaw) : undefined;
@@ -505,7 +471,7 @@ export const agentHandlers: GatewayRequestHandlers = {
       );
       return;
     }
-    const p = params;
+    const p = params as AgentWaitParams;
     const runId = p.runId.trim();
     const timeoutMs =
       typeof p.timeoutMs === "number" && Number.isFinite(p.timeoutMs)

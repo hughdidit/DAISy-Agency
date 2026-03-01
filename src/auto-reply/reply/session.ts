@@ -1,12 +1,11 @@
-import { CURRENT_SESSION_VERSION, SessionManager } from "@mariozechner/pi-coding-agent";
 import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
-import type { OpenClawConfig } from "../../config/config.js";
-import type { TtsAutoMode } from "../../config/types.tts.js";
-import type { MsgContext, TemplateContext } from "../templating.js";
+
+import { CURRENT_SESSION_VERSION, SessionManager } from "@mariozechner/pi-coding-agent";
 import { resolveSessionAgentId } from "../../agents/agent-scope.js";
-import { normalizeChatType } from "../../channels/chat-type.js";
+import type { MoltbotConfig } from "../../config/config.js";
+import type { TtsAutoMode } from "../../config/types.tts.js";
 import {
   DEFAULT_RESET_TRIGGERS,
   deriveSessionMetaPatch,
@@ -26,17 +25,14 @@ import {
   type SessionScope,
   updateSessionStore,
 } from "../../config/sessions.js";
-<<<<<<< HEAD
-=======
-import { deliverSessionMaintenanceWarning } from "../../infra/session-maintenance-warning.js";
-import { getGlobalHookRunner } from "../../plugins/hook-runner-global.js";
->>>>>>> 2655041f6 (fix: wire 9 unwired plugin hooks to core code (openclaw#14882) thanks @shtse8)
 import { normalizeMainKey } from "../../routing/session-key.js";
-import { normalizeSessionDeliveryFields } from "../../utils/delivery-context.js";
 import { resolveCommandAuthorization } from "../command-auth.js";
+import type { MsgContext, TemplateContext } from "../templating.js";
+import { normalizeChatType } from "../../channels/chat-type.js";
+import { stripMentions, stripStructuralPrefixes } from "./mentions.js";
 import { formatInboundBodyWithSenderMeta } from "./inbound-sender-meta.js";
 import { normalizeInboundTextNewlines } from "./inbound-text.js";
-import { stripMentions, stripStructuralPrefixes } from "./mentions.js";
+import { normalizeSessionDeliveryFields } from "../../utils/delivery-context.js";
 
 export type SessionInitResult = {
   sessionCtx: TemplateContext;
@@ -64,18 +60,14 @@ function forkSessionFromParent(params: {
     params.parentEntry.sessionId,
     params.parentEntry,
   );
-  if (!parentSessionFile || !fs.existsSync(parentSessionFile)) {
-    return null;
-  }
+  if (!parentSessionFile || !fs.existsSync(parentSessionFile)) return null;
   try {
     const manager = SessionManager.open(parentSessionFile);
     const leafId = manager.getLeafId();
     if (leafId) {
       const sessionFile = manager.createBranchedSession(leafId) ?? manager.getSessionFile();
       const sessionId = manager.getSessionId();
-      if (sessionFile && sessionId) {
-        return { sessionId, sessionFile };
-      }
+      if (sessionFile && sessionId) return { sessionId, sessionFile };
     }
     const sessionId = crypto.randomUUID();
     const timestamp = new Date().toISOString();
@@ -89,10 +81,7 @@ function forkSessionFromParent(params: {
       cwd: manager.getCwd(),
       parentSession: parentSessionFile,
     };
-    fs.writeFileSync(sessionFile, `${JSON.stringify(header)}\n`, {
-      encoding: "utf-8",
-      mode: 0o600,
-    });
+    fs.writeFileSync(sessionFile, `${JSON.stringify(header)}\n`, "utf-8");
     return { sessionId, sessionFile };
   } catch {
     return null;
@@ -101,7 +90,7 @@ function forkSessionFromParent(params: {
 
 export async function initSessionState(params: {
   ctx: MsgContext;
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   commandAuthorized: boolean;
 }): Promise<SessionInitResult> {
   const { ctx, cfg, commandAuthorized } = params;
@@ -176,12 +165,8 @@ export async function initSessionState(params: {
   const strippedForResetLower = strippedForReset.toLowerCase();
 
   for (const trigger of resetTriggers) {
-    if (!trigger) {
-      continue;
-    }
-    if (!resetAuthorized) {
-      break;
-    }
+    if (!trigger) continue;
+    if (!resetAuthorized) break;
     const triggerLower = trigger.toLowerCase();
     if (trimmedBodyLower === triggerLower || strippedForResetLower === triggerLower) {
       isNewSession = true;
@@ -250,9 +235,10 @@ export async function initSessionState(params: {
   const baseEntry = !isNewSession && freshEntry ? entry : undefined;
   // Track the originating channel/to for announce routing (subagent announce-back).
   const lastChannelRaw = (ctx.OriginatingChannel as string | undefined) || baseEntry?.lastChannel;
-  const lastToRaw = ctx.OriginatingTo || ctx.To || baseEntry?.lastTo;
-  const lastAccountIdRaw = ctx.AccountId || baseEntry?.lastAccountId;
-  const lastThreadIdRaw = ctx.MessageThreadId || baseEntry?.lastThreadId;
+  const lastToRaw = (ctx.OriginatingTo as string | undefined) || ctx.To || baseEntry?.lastTo;
+  const lastAccountIdRaw = (ctx.AccountId as string | undefined) || baseEntry?.lastAccountId;
+  const lastThreadIdRaw =
+    (ctx.MessageThreadId as string | number | undefined) || baseEntry?.lastThreadId;
   const deliveryFields = normalizeSessionDeliveryFields({
     deliveryContext: {
       channel: lastChannelRaw,
@@ -321,10 +307,6 @@ export async function initSessionState(params: {
     parentSessionKey !== sessionKey &&
     sessionStore[parentSessionKey]
   ) {
-    console.warn(
-      `[session-init] forking from parent session: parentKey=${parentSessionKey} → sessionKey=${sessionKey} ` +
-        `parentTokens=${sessionStore[parentSessionKey].totalTokens ?? "?"}`,
-    );
     const forked = forkSessionFromParent({
       parentEntry: sessionStore[parentSessionKey],
     });
@@ -332,7 +314,6 @@ export async function initSessionState(params: {
       sessionId = forked.sessionId;
       sessionEntry.sessionId = forked.sessionId;
       sessionEntry.sessionFile = forked.sessionFile;
-      console.warn(`[session-init] forked session created: file=${forked.sessionFile}`);
     }
   }
   if (!sessionEntry.sessionFile) {
@@ -346,12 +327,6 @@ export async function initSessionState(params: {
     sessionEntry.compactionCount = 0;
     sessionEntry.memoryFlushCompactionCount = undefined;
     sessionEntry.memoryFlushAt = undefined;
-    // Clear stale token metrics from previous session so /status doesn't
-    // display the old session's context usage after /new or /reset.
-    sessionEntry.totalTokens = undefined;
-    sessionEntry.inputTokens = undefined;
-    sessionEntry.outputTokens = undefined;
-    sessionEntry.contextTokens = undefined;
   }
   // Preserve per-session overrides while resetting compaction state on /new.
   sessionStore[sessionKey] = { ...sessionStore[sessionKey], ...sessionEntry };
@@ -379,46 +354,6 @@ export async function initSessionState(params: {
     SessionId: sessionId,
     IsNewSession: isNewSession ? "true" : "false",
   };
-
-  // Run session plugin hooks (fire-and-forget)
-  const hookRunner = getGlobalHookRunner();
-  if (hookRunner && isNewSession) {
-    const effectiveSessionId = sessionId ?? "";
-
-    // If replacing an existing session, fire session_end for the old one
-    if (previousSessionEntry?.sessionId && previousSessionEntry.sessionId !== effectiveSessionId) {
-      if (hookRunner.hasHooks("session_end")) {
-        void hookRunner
-          .runSessionEnd(
-            {
-              sessionId: previousSessionEntry.sessionId,
-              messageCount: 0,
-            },
-            {
-              sessionId: previousSessionEntry.sessionId,
-              agentId: resolveSessionAgentId({ sessionKey, config: cfg }),
-            },
-          )
-          .catch(() => {});
-      }
-    }
-
-    // Fire session_start for the new session
-    if (hookRunner.hasHooks("session_start")) {
-      void hookRunner
-        .runSessionStart(
-          {
-            sessionId: effectiveSessionId,
-            resumedFrom: previousSessionEntry?.sessionId,
-          },
-          {
-            sessionId: effectiveSessionId,
-            agentId: resolveSessionAgentId({ sessionKey, config: cfg }),
-          },
-        )
-        .catch(() => {});
-    }
-  }
 
   return {
     sessionCtx,

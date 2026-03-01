@@ -1,11 +1,3 @@
-<<<<<<< HEAD
-import type { CliDeps } from "../cli/deps.js";
-import type { loadConfig } from "../config/config.js";
-import type { loadOpenClawPlugins } from "../plugins/loader.js";
-=======
-import { getAcpSessionManager } from "../acp/control-plane/manager.js";
-import { ACP_SESSION_IDENTITY_RENDERER_VERSION } from "../acp/runtime/session-identifiers.js";
->>>>>>> a7d56e355 (feat: ACP thread-bound agents (#23580))
 import { DEFAULT_MODEL, DEFAULT_PROVIDER } from "../agents/defaults.js";
 import { loadModelCatalog } from "../agents/model-catalog.js";
 import {
@@ -13,6 +5,9 @@ import {
   resolveConfiguredModelRef,
   resolveHooksGmailModel,
 } from "../agents/model-selection.js";
+import type { CliDeps } from "../cli/deps.js";
+import type { loadConfig } from "../config/config.js";
+import { isTruthyEnvValue } from "../infra/env.js";
 import { startGmailWatcher } from "../hooks/gmail-watcher.js";
 import {
   clearInternalHooks,
@@ -20,7 +15,7 @@ import {
   triggerInternalHook,
 } from "../hooks/internal-hooks.js";
 import { loadInternalHooks } from "../hooks/loader.js";
-import { isTruthyEnvValue } from "../infra/env.js";
+import type { loadMoltbotPlugins } from "../plugins/loader.js";
 import { type PluginServicesHandle, startPluginServices } from "../plugins/services.js";
 import { startBrowserControlServerIfEnabled } from "./server-browser.js";
 import {
@@ -30,7 +25,7 @@ import {
 
 export async function startGatewaySidecars(params: {
   cfg: ReturnType<typeof loadConfig>;
-  pluginRegistry: ReturnType<typeof loadOpenClawPlugins>;
+  pluginRegistry: ReturnType<typeof loadMoltbotPlugins>;
   defaultWorkspaceDir: string;
   deps: CliDeps;
   startChannels: () => Promise<void>;
@@ -43,7 +38,7 @@ export async function startGatewaySidecars(params: {
   logChannels: { info: (msg: string) => void; error: (msg: string) => void };
   logBrowser: { error: (msg: string) => void };
 }) {
-  // Start OpenClaw browser control server (unless disabled via config).
+  // Start clawd browser control server (unless disabled via config).
   let browserControl: Awaited<ReturnType<typeof startBrowserControlServerIfEnabled>> = null;
   try {
     browserControl = await startBrowserControlServerIfEnabled();
@@ -52,7 +47,7 @@ export async function startGatewaySidecars(params: {
   }
 
   // Start Gmail watcher if configured (hooks.gmail.account).
-  if (!isTruthyEnvValue(process.env.OPENCLAW_SKIP_GMAIL_WATCHER)) {
+  if (!isTruthyEnvValue(process.env.CLAWDBOT_SKIP_GMAIL_WATCHER)) {
     try {
       const gmailResult = await startGmailWatcher(params.cfg);
       if (gmailResult.started) {
@@ -117,10 +112,10 @@ export async function startGatewaySidecars(params: {
   }
 
   // Launch configured channels so gateway replies via the surface the message came from.
-  // Tests can opt out via OPENCLAW_SKIP_CHANNELS (or legacy OPENCLAW_SKIP_PROVIDERS).
+  // Tests can opt out via CLAWDBOT_SKIP_CHANNELS (or legacy CLAWDBOT_SKIP_PROVIDERS).
   const skipChannels =
-    isTruthyEnvValue(process.env.OPENCLAW_SKIP_CHANNELS) ||
-    isTruthyEnvValue(process.env.OPENCLAW_SKIP_PROVIDERS);
+    isTruthyEnvValue(process.env.CLAWDBOT_SKIP_CHANNELS) ||
+    isTruthyEnvValue(process.env.CLAWDBOT_SKIP_PROVIDERS);
   if (!skipChannels) {
     try {
       await params.startChannels();
@@ -129,7 +124,7 @@ export async function startGatewaySidecars(params: {
     }
   } else {
     params.logChannels.info(
-      "skipping channel start (OPENCLAW_SKIP_CHANNELS=1 or OPENCLAW_SKIP_PROVIDERS=1)",
+      "skipping channel start (CLAWDBOT_SKIP_CHANNELS=1 or CLAWDBOT_SKIP_PROVIDERS=1)",
     );
   }
 
@@ -155,29 +150,6 @@ export async function startGatewaySidecars(params: {
     params.log.warn(`plugin services failed to start: ${String(err)}`);
   }
 
-<<<<<<< HEAD
-=======
-  if (params.cfg.acp?.enabled) {
-    void getAcpSessionManager()
-      .reconcilePendingSessionIdentities({ cfg: params.cfg })
-      .then((result) => {
-        if (result.checked === 0) {
-          return;
-        }
-        params.log.warn(
-          `acp startup identity reconcile (renderer=${ACP_SESSION_IDENTITY_RENDERER_VERSION}): checked=${result.checked} resolved=${result.resolved} failed=${result.failed}`,
-        );
-      })
-      .catch((err) => {
-        params.log.warn(`acp startup identity reconcile failed: ${String(err)}`);
-      });
-  }
-
-  void startGatewayMemoryBackend({ cfg: params.cfg, log: params.log }).catch((err) => {
-    params.log.warn(`qmd memory startup initialization failed: ${String(err)}`);
-  });
-
->>>>>>> a7d56e355 (feat: ACP thread-bound agents (#23580))
   if (shouldWakeFromRestartSentinel()) {
     setTimeout(() => {
       void scheduleRestartSentinelWake({ deps: params.deps });

@@ -1,22 +1,8 @@
-<<<<<<< HEAD
-import type { AgentTool } from "@mariozechner/pi-agent-core";
-import { Type } from "@sinclair/typebox";
-<<<<<<< HEAD
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-=======
-=======
-import syncFs from "node:fs";
-import fs from "node:fs/promises";
-import path from "node:path";
 import type { AgentTool } from "@mariozechner/pi-agent-core";
 import { Type } from "@sinclair/typebox";
-import { openBoundaryFile, type BoundaryFileOpenResult } from "../infra/boundary-file-read.js";
-import { writeFileWithinRoot } from "../infra/fs-safe.js";
->>>>>>> e3385a657 (fix(security): harden root file guards and host writes)
-import { PATH_ALIAS_POLICIES, type PathAliasPolicy } from "../infra/path-alias-guards.js";
->>>>>>> de61e9c97 (refactor(security): unify path alias guard policies)
 import { applyUpdateHunk } from "./apply-patch-update.js";
 import { assertSandboxPath } from "./sandbox-paths.js";
 
@@ -29,6 +15,7 @@ const MOVE_TO_MARKER = "*** Move to: ";
 const EOF_MARKER = "*** End of File";
 const CHANGE_CONTEXT_MARKER = "@@ ";
 const EMPTY_CHANGE_CONTEXT_MARKER = "@@";
+const UNICODE_SPACES = /[\u00A0\u2000-\u200A\u202F\u205F\u3000]/g;
 
 type AddFileHunk = {
   kind: "add";
@@ -74,13 +61,7 @@ export type ApplyPatchToolDetails = {
 
 type ApplyPatchOptions = {
   cwd: string;
-<<<<<<< HEAD
   sandboxRoot?: string;
-=======
-  sandbox?: SandboxApplyPatchConfig;
-  /** Restrict patch paths to the workspace root (cwd). Default: true. Set false to opt out. */
-  workspaceOnly?: boolean;
->>>>>>> 5e7c3250c (fix(security): add optional workspace-only path guards for fs tools)
   signal?: AbortSignal;
 };
 
@@ -91,23 +72,11 @@ const applyPatchSchema = Type.Object({
 });
 
 export function createApplyPatchTool(
-<<<<<<< HEAD
   options: { cwd?: string; sandboxRoot?: string } = {},
-  // oxlint-disable-next-line typescript/no-explicit-any
+  // biome-ignore lint/suspicious/noExplicitAny: TypeBox schema type from pi-agent-core uses a different module instance.
 ): AgentTool<any, ApplyPatchToolDetails> {
   const cwd = options.cwd ?? process.cwd();
   const sandboxRoot = options.sandboxRoot;
-=======
-  options: { cwd?: string; sandbox?: SandboxApplyPatchConfig; workspaceOnly?: boolean } = {},
-): AgentTool<typeof applyPatchSchema, ApplyPatchToolDetails> {
-  const cwd = options.cwd ?? process.cwd();
-  const sandbox = options.sandbox;
-<<<<<<< HEAD
-  const workspaceOnly = options.workspaceOnly === true;
->>>>>>> 5e7c3250c (fix(security): add optional workspace-only path guards for fs tools)
-=======
-  const workspaceOnly = options.workspaceOnly !== false;
->>>>>>> 4a44da7d9 (fix(security): default apply_patch workspace containment)
 
   return {
     name: "apply_patch",
@@ -129,12 +98,7 @@ export function createApplyPatchTool(
 
       const result = await applyPatch(input, {
         cwd,
-<<<<<<< HEAD
         sandboxRoot,
-=======
-        sandbox,
-        workspaceOnly,
->>>>>>> 5e7c3250c (fix(security): add optional workspace-only path guards for fs tools)
         signal,
       });
 
@@ -182,21 +146,8 @@ export async function applyPatch(
     }
 
     if (hunk.kind === "delete") {
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
       const target = await resolvePatchPath(hunk.path, options);
       await fs.rm(target.resolved);
-=======
-      const target = await resolvePatchPath(hunk.path, options, "unlink");
-=======
-      const target = await resolvePatchPath(hunk.path, options);
->>>>>>> 4a44da7d9 (fix(security): default apply_patch workspace containment)
-=======
-      const target = await resolvePatchPath(hunk.path, options, PATH_ALIAS_POLICIES.unlinkTarget);
->>>>>>> de61e9c97 (refactor(security): unify path alias guard policies)
-      await fileOps.remove(target.resolved);
->>>>>>> 5e7c3250c (fix(security): add optional workspace-only path guards for fs tools)
       recordSummary(summary, seen, "deleted", target.display);
       continue;
     }
@@ -232,102 +183,28 @@ function recordSummary(
   bucket: keyof ApplyPatchSummary,
   value: string,
 ) {
-  if (seen[bucket].has(value)) {
-    return;
-  }
+  if (seen[bucket].has(value)) return;
   seen[bucket].add(value);
   summary[bucket].push(value);
 }
 
 function formatSummary(summary: ApplyPatchSummary): string {
   const lines = ["Success. Updated the following files:"];
-  for (const file of summary.added) {
-    lines.push(`A ${file}`);
-  }
-  for (const file of summary.modified) {
-    lines.push(`M ${file}`);
-  }
-  for (const file of summary.deleted) {
-    lines.push(`D ${file}`);
-  }
+  for (const file of summary.added) lines.push(`A ${file}`);
+  for (const file of summary.modified) lines.push(`M ${file}`);
+  for (const file of summary.deleted) lines.push(`D ${file}`);
   return lines.join("\n");
 }
 
-<<<<<<< HEAD
 async function ensureDir(filePath: string) {
-=======
-type PatchFileOps = {
-  readFile: (filePath: string) => Promise<string>;
-  writeFile: (filePath: string, content: string) => Promise<void>;
-  remove: (filePath: string) => Promise<void>;
-  mkdirp: (dir: string) => Promise<void>;
-};
-
-function resolvePatchFileOps(options: ApplyPatchOptions): PatchFileOps {
-  if (options.sandbox) {
-    const { root, bridge } = options.sandbox;
-    return {
-      readFile: async (filePath) => {
-        const buf = await bridge.readFile({ filePath, cwd: root });
-        return buf.toString("utf8");
-      },
-      writeFile: (filePath, content) => bridge.writeFile({ filePath, cwd: root, data: content }),
-      remove: (filePath) => bridge.remove({ filePath, cwd: root, force: false }),
-      mkdirp: (dir) => bridge.mkdirp({ filePath: dir, cwd: root }),
-    };
-  }
-  const workspaceOnly = options.workspaceOnly !== false;
-  return {
-    readFile: async (filePath) => {
-      if (!workspaceOnly) {
-        return await fs.readFile(filePath, "utf8");
-      }
-      const opened = await openBoundaryFile({
-        absolutePath: filePath,
-        rootPath: options.cwd,
-        boundaryLabel: "workspace root",
-      });
-      assertBoundaryRead(opened, filePath);
-      try {
-        return syncFs.readFileSync(opened.fd, "utf8");
-      } finally {
-        syncFs.closeSync(opened.fd);
-      }
-    },
-    writeFile: async (filePath, content) => {
-      if (!workspaceOnly) {
-        await fs.writeFile(filePath, content, "utf8");
-        return;
-      }
-      const relative = toRelativeWorkspacePath(options.cwd, filePath);
-      await writeFileWithinRoot({
-        rootDir: options.cwd,
-        relativePath: relative,
-        data: content,
-        encoding: "utf8",
-      });
-    },
-    remove: (filePath) => fs.rm(filePath),
-    mkdirp: (dir) => fs.mkdir(dir, { recursive: true }).then(() => {}),
-  };
-}
-
-async function ensureDir(filePath: string, ops: PatchFileOps) {
->>>>>>> e3385a657 (fix(security): harden root file guards and host writes)
   const parent = path.dirname(filePath);
-  if (!parent || parent === ".") {
-    return;
-  }
+  if (!parent || parent === ".") return;
   await fs.mkdir(parent, { recursive: true });
 }
 
 async function resolvePatchPath(
   filePath: string,
   options: ApplyPatchOptions,
-<<<<<<< HEAD
-=======
-  aliasPolicy: PathAliasPolicy = PATH_ALIAS_POLICIES.strict,
->>>>>>> de61e9c97 (refactor(security): unify path alias guard policies)
 ): Promise<{ resolved: string; display: string }> {
   if (options.sandboxRoot) {
     const resolved = await assertSandboxPath({
@@ -335,51 +212,18 @@ async function resolvePatchPath(
       cwd: options.cwd,
       root: options.sandboxRoot,
     });
-<<<<<<< HEAD
-=======
-    if (options.workspaceOnly !== false) {
-      await assertSandboxPath({
-        filePath: resolved.hostPath,
-        cwd: options.cwd,
-        root: options.cwd,
-        allowFinalSymlinkForUnlink: aliasPolicy.allowFinalSymlinkForUnlink,
-        allowFinalHardlinkForUnlink: aliasPolicy.allowFinalHardlinkForUnlink,
-      });
-    }
->>>>>>> 04d91d031 (fix(security): block workspace hardlink alias escapes)
     return {
       resolved: resolved.resolved,
       display: resolved.relative || resolved.resolved,
     };
   }
 
-  const workspaceOnly = options.workspaceOnly !== false;
-  const resolved = workspaceOnly
-    ? (
-        await assertSandboxPath({
-          filePath,
-          cwd: options.cwd,
-          root: options.cwd,
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-          allowFinalSymlink: purpose === "unlink",
-          allowFinalHardlink: purpose === "unlink",
->>>>>>> 04d91d031 (fix(security): block workspace hardlink alias escapes)
-=======
-          allowFinalSymlinkForUnlink: aliasPolicy.allowFinalSymlinkForUnlink,
-          allowFinalHardlinkForUnlink: aliasPolicy.allowFinalHardlinkForUnlink,
->>>>>>> de61e9c97 (refactor(security): unify path alias guard policies)
-        })
-      ).resolved
-    : resolvePathFromCwd(filePath, options.cwd);
+  const resolved = resolvePathFromCwd(filePath, options.cwd);
   return {
     resolved,
     display: toDisplayPath(resolved, options.cwd),
   };
 }
-
-const UNICODE_SPACES = /[\u00A0\u2000-\u200A\u202F\u205F\u3000]/g;
 
 function normalizeUnicodeSpaces(value: string): string {
   return value.replace(UNICODE_SPACES, " ");
@@ -387,52 +231,21 @@ function normalizeUnicodeSpaces(value: string): string {
 
 function expandPath(filePath: string): string {
   const normalized = normalizeUnicodeSpaces(filePath);
-  if (normalized === "~") {
-    return os.homedir();
-  }
-  if (normalized.startsWith("~/")) {
-    return os.homedir() + normalized.slice(1);
-  }
+  if (normalized === "~") return os.homedir();
+  if (normalized.startsWith("~/")) return os.homedir() + normalized.slice(1);
   return normalized;
 }
 
 function resolvePathFromCwd(filePath: string, cwd: string): string {
   const expanded = expandPath(filePath);
-  if (path.isAbsolute(expanded)) {
-    return path.normalize(expanded);
-  }
+  if (path.isAbsolute(expanded)) return path.normalize(expanded);
   return path.resolve(cwd, expanded);
-}
-
-function toRelativeWorkspacePath(workspaceRoot: string, absolutePath: string): string {
-  const rootResolved = path.resolve(workspaceRoot);
-  const resolved = path.resolve(absolutePath);
-  const relative = path.relative(rootResolved, resolved);
-  if (!relative || relative === "." || relative.startsWith("..") || path.isAbsolute(relative)) {
-    throw new Error(`Path escapes sandbox root (${workspaceRoot}): ${absolutePath}`);
-  }
-  return relative;
-}
-
-function assertBoundaryRead(
-  opened: BoundaryFileOpenResult,
-  targetPath: string,
-): asserts opened is Extract<BoundaryFileOpenResult, { ok: true }> {
-  if (opened.ok) {
-    return;
-  }
-  const reason = opened.reason === "validation" ? "unsafe path" : "path not found";
-  throw new Error(`Failed boundary read for ${targetPath} (${reason})`);
 }
 
 function toDisplayPath(resolved: string, cwd: string): string {
   const relative = path.relative(cwd, resolved);
-  if (!relative || relative === "") {
-    return path.basename(resolved);
-  }
-  if (relative.startsWith("..") || path.isAbsolute(relative)) {
-    return resolved;
-  }
+  if (!relative || relative === "") return path.basename(resolved);
+  if (relative.startsWith("..") || path.isAbsolute(relative)) return resolved;
   return relative;
 }
 
@@ -462,9 +275,7 @@ function parsePatchText(input: string): { hunks: Hunk[]; patch: string } {
 
 function checkPatchBoundariesLenient(lines: string[]): string[] {
   const strictError = checkPatchBoundariesStrict(lines);
-  if (!strictError) {
-    return lines;
-  }
+  if (!strictError) return lines;
 
   if (lines.length < 4) {
     throw new Error(strictError);
@@ -474,9 +285,7 @@ function checkPatchBoundariesLenient(lines: string[]): string[] {
   if ((first === "<<EOF" || first === "<<'EOF'" || first === '<<"EOF"') && last.endsWith("EOF")) {
     const inner = lines.slice(1, lines.length - 1);
     const innerError = checkPatchBoundariesStrict(inner);
-    if (!innerError) {
-      return inner;
-    }
+    if (!innerError) return inner;
     throw new Error(innerError);
   }
 

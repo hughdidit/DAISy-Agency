@@ -3,9 +3,7 @@ summary: "Slash commands: text vs native, config, and supported commands"
 read_when:
   - Using or configuring chat commands
   - Debugging command routing or permissions
-title: "Slash Commands"
 ---
-
 # Slash commands
 
 Commands are handled by the Gateway. Most commands must be sent as a **standalone** message that starts with `/`.
@@ -37,8 +35,8 @@ They run immediately, are stripped before the model sees the message, and the re
     config: false,
     debug: false,
     restart: false,
-    useAccessGroups: true,
-  },
+    useAccessGroups: true
+  }
 }
 ```
 
@@ -53,14 +51,13 @@ They run immediately, are stripped before the model sees the message, and the re
   - Set `channels.discord.commands.nativeSkills`, `channels.telegram.commands.nativeSkills`, or `channels.slack.commands.nativeSkills` to override per provider (bool or `"auto"`).
 - `commands.bash` (default `false`) enables `! <cmd>` to run host shell commands (`/bash <cmd>` is an alias; requires `tools.elevated` allowlists).
 - `commands.bashForegroundMs` (default `2000`) controls how long bash waits before switching to background mode (`0` backgrounds immediately).
-- `commands.config` (default `false`) enables `/config` (reads/writes `openclaw.json`).
+- `commands.config` (default `false`) enables `/config` (reads/writes `moltbot.json`).
 - `commands.debug` (default `false`) enables `/debug` (runtime-only overrides).
 - `commands.useAccessGroups` (default `true`) enforces allowlists/policies for commands.
 
 ## Command list
 
 Text + native (when enabled):
-
 - `/help`
 - `/commands`
 - `/skill <name> [input]` (run a skill by name)
@@ -69,19 +66,7 @@ Text + native (when enabled):
 - `/approve <id> allow-once|allow-always|deny` (resolve exec approval prompts)
 - `/context [list|detail|json]` (explain “context”; `detail` shows per-file + per-tool + per-skill + system prompt size)
 - `/whoami` (show your sender id; alias: `/id`)
-<<<<<<< HEAD
 - `/subagents list|stop|log|info|send` (inspect, stop, log, or message sub-agent runs for the current session)
-=======
-- `/session ttl <duration|off>` (manage session-level settings, such as TTL)
-- `/subagents list|kill|log|info|send|steer|spawn` (inspect, control, or spawn sub-agent runs for the current session)
-- `/acp spawn|cancel|steer|close|status|set-mode|set|cwd|permissions|timeout|model|reset-options|doctor|install|sessions` (inspect and control ACP runtime sessions)
-- `/agents` (list thread-bound agents for this session)
-- `/focus <target>` (Discord: bind this thread, or a new thread, to a session/subagent target)
-- `/unfocus` (Discord: remove the current thread binding)
-- `/kill <id|#|all>` (immediately abort one or all running sub-agents for this session; no confirmation message)
-- `/steer <id|#> <message>` (steer a running sub-agent immediately: in-run when possible, otherwise abort current work and restart on the steer message)
-- `/tell <id|#> <message>` (alias for `/steer`)
->>>>>>> a7d56e355 (feat: ACP thread-bound agents (#23580))
 - `/config show|get|set|unset` (persist config to disk, owner-only; requires `commands.config: true`)
 - `/debug show|set|unset|reset` (runtime overrides, owner-only; requires `commands.debug: true`)
 - `/usage off|tokens|full|cost` (per-response usage footer or local cost summary)
@@ -105,30 +90,18 @@ Text + native (when enabled):
 - `/bash <command>` (host-only; alias for `! <command>`; requires `commands.bash: true` + `tools.elevated` allowlists)
 
 Text-only:
-
 - `/compact [instructions]` (see [/concepts/compaction](/concepts/compaction))
 - `! <command>` (host-only; one at a time; use `!poll` + `!stop` for long-running jobs)
 - `!poll` (check output / status; accepts optional `sessionId`; `/bash poll` also works)
 - `!stop` (stop the running bash job; accepts optional `sessionId`; `/bash stop` also works)
 
 Notes:
-
 - Commands accept an optional `:` between the command and args (e.g. `/think: high`, `/send: on`, `/help:`).
 - `/new <model>` accepts a model alias, `provider/model`, or a provider name (fuzzy match); if no match, the text is treated as the message body.
-- For full provider usage breakdown, use `openclaw status --usage`.
+- For full provider usage breakdown, use `moltbot status --usage`.
 - `/allowlist add|remove` requires `commands.config=true` and honors channel `configWrites`.
-- `/usage` controls the per-response usage footer; `/usage cost` prints a local cost summary from OpenClaw session logs.
-<<<<<<< HEAD
+- `/usage` controls the per-response usage footer; `/usage cost` prints a local cost summary from Moltbot session logs.
 - `/restart` is disabled by default; set `commands.restart: true` to enable it.
-=======
-- `/restart` is enabled by default; set `commands.restart: false` to disable it.
-- Discord-only native command: `/vc join|leave|status` controls voice channels (requires `channels.discord.voice` and native commands; not available as text).
-<<<<<<< HEAD
->>>>>>> 4ab946eeb (Discord VC: voice channels, transcription, and TTS (#18774))
-=======
-- Discord thread-binding commands (`/focus`, `/unfocus`, `/agents`, `/session ttl`) require effective thread bindings to be enabled (`session.threadBindings.enabled` and/or `channels.discord.threadBindings.enabled`).
-- ACP command reference and runtime behavior: [ACP Agents](/tools/acp-agents).
->>>>>>> a7d56e355 (feat: ACP thread-bound agents (#23580))
 - `/verbose` is meant for debugging and extra visibility; keep it **off** in normal use.
 - `/reasoning` (and `/verbose`) are risky in group settings: they may reveal internal reasoning or tool output you did not intend to expose. Prefer leaving them off, especially in group chats.
 - **Fast path:** command-only messages from allowlisted senders are handled immediately (bypass queue + model).
@@ -166,7 +139,6 @@ Examples:
 ```
 
 Notes:
-
 - `/model` and `/model list` show a compact, numbered picker (model family + available providers).
 - `/model <#>` selects from that picker (and prefers the current provider when possible).
 - `/model status` shows the detailed view, including configured provider endpoint (`baseUrl`) and API mode (`api`) when available.
@@ -179,20 +151,19 @@ Examples:
 
 ```
 /debug show
-/debug set messages.responsePrefix="[openclaw]"
+/debug set messages.responsePrefix="[moltbot]"
 /debug set channels.whatsapp.allowFrom=["+1555","+4477"]
 /debug unset messages.responsePrefix
 /debug reset
 ```
 
 Notes:
-
-- Overrides apply immediately to new config reads, but do **not** write to `openclaw.json`.
+- Overrides apply immediately to new config reads, but do **not** write to `moltbot.json`.
 - Use `/debug reset` to clear all overrides and return to the on-disk config.
 
 ## Config updates
 
-`/config` writes to your on-disk config (`openclaw.json`). Owner-only. Disabled by default; enable with `commands.config: true`.
+`/config` writes to your on-disk config (`moltbot.json`). Owner-only. Disabled by default; enable with `commands.config: true`.
 
 Examples:
 
@@ -200,12 +171,11 @@ Examples:
 /config show
 /config show messages.responsePrefix
 /config get messages.responsePrefix
-/config set messages.responsePrefix="[openclaw]"
+/config set messages.responsePrefix="[moltbot]"
 /config unset messages.responsePrefix
 ```
 
 Notes:
-
 - Config is validated before write; invalid changes are rejected.
 - `/config` updates persist across restarts.
 
@@ -217,4 +187,4 @@ Notes:
   - Slack: `agent:<agentId>:slack:slash:<userId>` (prefix configurable via `channels.slack.slashCommand.sessionPrefix`)
   - Telegram: `telegram:slash:<userId>` (targets the chat session via `CommandTargetSessionKey`)
 - **`/stop`** targets the active chat session so it can abort the current run.
-- **Slack:** `channels.slack.slashCommand` is still supported for a single `/openclaw`-style command. If you enable `commands.native`, you must create one Slack slash command per built-in command (same names as `/help`). Command argument menus for Slack are delivered as ephemeral Block Kit buttons.
+- **Slack:** `channels.slack.slashCommand` is still supported for a single `/clawd`-style command. If you enable `commands.native`, you must create one Slack slash command per built-in command (same names as `/help`). Command argument menus for Slack are delivered as ephemeral Block Kit buttons.

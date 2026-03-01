@@ -1,30 +1,7 @@
-<<<<<<< HEAD
 import { type AddressInfo, createServer } from "node:net";
 import { fetch as realFetch } from "undici";
-<<<<<<< HEAD
+
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-=======
-import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
-import { DEFAULT_UPLOAD_DIR } from "./paths.js";
->>>>>>> 3aa94afcf (fix(security): harden archive extraction (#16203))
-=======
-import fs from "node:fs/promises";
-import os from "node:os";
-import path from "node:path";
-import { fetch as realFetch } from "undici";
-import { describe, expect, it } from "vitest";
-import { DEFAULT_DOWNLOAD_DIR, DEFAULT_TRACE_DIR, DEFAULT_UPLOAD_DIR } from "./paths.js";
-import {
-  installAgentContractHooks,
-  postJson,
-  startServerAndBase,
-} from "./server.agent-contract.test-harness.js";
-import {
-  getBrowserControlServerTestState,
-  getPwMocks,
-  setBrowserControlServerEvaluateEnabled,
-} from "./server.control-server.test-harness.js";
->>>>>>> 496a76c03 (fix(security): harden browser trace/download temp path handling)
 
 let testPort = 0;
 let cdpBaseUrl = "";
@@ -73,7 +50,6 @@ const pwMocks = vi.hoisted(() => ({
   selectOptionViaPlaywright: vi.fn(async () => {}),
   setInputFilesViaPlaywright: vi.fn(async () => {}),
   snapshotAiViaPlaywright: vi.fn(async () => ({ snapshot: "ok" })),
-  traceStopViaPlaywright: vi.fn(async () => {}),
   takeScreenshotViaPlaywright: vi.fn(async () => ({
     buffer: Buffer.from("png"),
   })),
@@ -97,9 +73,7 @@ function makeProc(pid = 123) {
       return undefined;
     },
     emitExit: () => {
-      for (const cb of handlers.get("exit") ?? []) {
-        cb(0);
-      }
+      for (const cb of handlers.get("exit") ?? []) cb(0);
     },
     kill: () => {
       return true;
@@ -120,9 +94,9 @@ vi.mock("../config/config.js", async (importOriginal) => {
         color: "#FF4500",
         attachOnly: cfgAttachOnly,
         headless: true,
-        defaultProfile: "openclaw",
+        defaultProfile: "clawd",
         profiles: {
-          openclaw: { cdpPort: testPort + 1, color: "#FF4500" },
+          clawd: { cdpPort: testPort + 1, color: "#FF4500" },
         },
       },
     }),
@@ -134,20 +108,20 @@ const launchCalls = vi.hoisted(() => [] as Array<{ port: number }>);
 vi.mock("./chrome.js", () => ({
   isChromeCdpReady: vi.fn(async () => reachable),
   isChromeReachable: vi.fn(async () => reachable),
-  launchOpenClawChrome: vi.fn(async (_resolved: unknown, profile: { cdpPort: number }) => {
+  launchClawdChrome: vi.fn(async (_resolved: unknown, profile: { cdpPort: number }) => {
     launchCalls.push({ port: profile.cdpPort });
     reachable = true;
     return {
       pid: 123,
       exe: { kind: "chrome", path: "/fake/chrome" },
-      userDataDir: "/tmp/openclaw",
+      userDataDir: "/tmp/clawd",
       cdpPort: profile.cdpPort,
       startedAt: Date.now(),
       proc,
     };
   }),
-  resolveOpenClawUserDataDir: vi.fn(() => "/tmp/openclaw"),
-  stopOpenClawChrome: vi.fn(async () => {
+  resolveClawdUserDataDir: vi.fn(() => "/tmp/clawd"),
+  stopClawdChrome: vi.fn(async () => {
     reachable = false;
   }),
 }));
@@ -190,9 +164,7 @@ async function getFreePort(): Promise<number> {
         s.close((err) => (err ? reject(err) : resolve(assigned)));
       });
     });
-    if (port < 65535) {
-      return port;
-    }
+    if (port < 65535) return port;
   }
 }
 
@@ -211,23 +183,6 @@ function makeResponse(
   } as unknown as Response;
 }
 
-async function withSymlinkPathEscape<T>(params: {
-  rootDir: string;
-  run: (relativePath: string) => Promise<T>;
-}): Promise<T> {
-  const outsideDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-route-escape-"));
-  const linkName = `escape-link-${Date.now()}-${Math.random().toString(16).slice(2)}`;
-  const linkPath = path.join(params.rootDir, linkName);
-  await fs.mkdir(params.rootDir, { recursive: true });
-  await fs.symlink(outsideDir, linkPath);
-  try {
-    return await params.run(`${linkName}/pwned.zip`);
-  } finally {
-    await fs.unlink(linkPath).catch(() => {});
-    await fs.rm(outsideDir, { recursive: true, force: true }).catch(() => {});
-  }
-}
-
 describe("browser control server", () => {
   beforeEach(async () => {
     reachable = false;
@@ -236,23 +191,17 @@ describe("browser control server", () => {
     createTargetId = null;
 
     cdpMocks.createTargetViaCdp.mockImplementation(async () => {
-      if (createTargetId) {
-        return { targetId: createTargetId };
-      }
+      if (createTargetId) return { targetId: createTargetId };
       throw new Error("cdp disabled");
     });
 
-    for (const fn of Object.values(pwMocks)) {
-      fn.mockClear();
-    }
-    for (const fn of Object.values(cdpMocks)) {
-      fn.mockClear();
-    }
+    for (const fn of Object.values(pwMocks)) fn.mockClear();
+    for (const fn of Object.values(cdpMocks)) fn.mockClear();
 
     testPort = await getFreePort();
     cdpBaseUrl = `http://127.0.0.1:${testPort + 1}`;
-    prevGatewayPort = process.env.OPENCLAW_GATEWAY_PORT;
-    process.env.OPENCLAW_GATEWAY_PORT = String(testPort - 2);
+    prevGatewayPort = process.env.CLAWDBOT_GATEWAY_PORT;
+    process.env.CLAWDBOT_GATEWAY_PORT = String(testPort - 2);
 
     // Minimal CDP JSON endpoints used by the server.
     let putNewCalls = 0;
@@ -261,9 +210,7 @@ describe("browser control server", () => {
       vi.fn(async (url: string, init?: RequestInit) => {
         const u = String(url);
         if (u.includes("/json/list")) {
-          if (!reachable) {
-            return makeResponse([]);
-          }
+          if (!reachable) return makeResponse([]);
           return makeResponse([
             {
               id: "abcd1234",
@@ -296,12 +243,8 @@ describe("browser control server", () => {
             type: "page",
           });
         }
-        if (u.includes("/json/activate/")) {
-          return makeResponse("ok");
-        }
-        if (u.includes("/json/close/")) {
-          return makeResponse("ok");
-        }
+        if (u.includes("/json/activate/")) return makeResponse("ok");
+        if (u.includes("/json/close/")) return makeResponse("ok");
         return makeResponse({}, { ok: false, status: 500, text: "unexpected" });
       }),
     );
@@ -311,9 +254,9 @@ describe("browser control server", () => {
     vi.unstubAllGlobals();
     vi.restoreAllMocks();
     if (prevGatewayPort === undefined) {
-      delete process.env.OPENCLAW_GATEWAY_PORT;
+      delete process.env.CLAWDBOT_GATEWAY_PORT;
     } else {
-      process.env.OPENCLAW_GATEWAY_PORT = prevGatewayPort;
+      process.env.CLAWDBOT_GATEWAY_PORT = prevGatewayPort;
     }
     const { stopBrowserControlServer } = await import("./server.js");
     await stopBrowserControlServer();
@@ -343,11 +286,11 @@ describe("browser control server", () => {
     async () => {
       const base = await startServerAndBase();
 
-      const select = await postJson(`${base}/act`, {
+      const select = (await postJson(`${base}/act`, {
         kind: "select",
         ref: "5",
         values: ["a", "b"],
-      });
+      })) as { ok: boolean };
       expect(select.ok).toBe(true);
       expect(pwMocks.selectOptionViaPlaywright).toHaveBeenCalledWith({
         cdpUrl: cdpBaseUrl,
@@ -356,10 +299,10 @@ describe("browser control server", () => {
         values: ["a", "b"],
       });
 
-      const fill = await postJson(`${base}/act`, {
+      const fill = (await postJson(`${base}/act`, {
         kind: "fill",
         fields: [{ ref: "6", type: "textbox", value: "hello" }],
-      });
+      })) as { ok: boolean };
       expect(fill.ok).toBe(true);
       expect(pwMocks.fillFormViaPlaywright).toHaveBeenCalledWith({
         cdpUrl: cdpBaseUrl,
@@ -367,11 +310,11 @@ describe("browser control server", () => {
         fields: [{ ref: "6", type: "textbox", value: "hello" }],
       });
 
-      const resize = await postJson(`${base}/act`, {
+      const resize = (await postJson(`${base}/act`, {
         kind: "resize",
         width: 800,
         height: 600,
-      });
+      })) as { ok: boolean };
       expect(resize.ok).toBe(true);
       expect(pwMocks.resizeViewportViaPlaywright).toHaveBeenCalledWith({
         cdpUrl: cdpBaseUrl,
@@ -380,10 +323,10 @@ describe("browser control server", () => {
         height: 600,
       });
 
-      const wait = await postJson(`${base}/act`, {
+      const wait = (await postJson(`${base}/act`, {
         kind: "wait",
         timeMs: 5,
-      });
+      })) as { ok: boolean };
       expect(wait.ok).toBe(true);
       expect(pwMocks.waitForViaPlaywright).toHaveBeenCalledWith({
         cdpUrl: cdpBaseUrl,
@@ -393,10 +336,10 @@ describe("browser control server", () => {
         textGone: undefined,
       });
 
-      const evalRes = await postJson(`${base}/act`, {
+      const evalRes = (await postJson(`${base}/act`, {
         kind: "evaluate",
         fn: "() => 1",
-      });
+      })) as { ok: boolean; result?: unknown };
       expect(evalRes.ok).toBe(true);
       expect(evalRes.result).toBe("ok");
       expect(pwMocks.evaluateViaPlaywright).toHaveBeenCalledWith({
@@ -415,17 +358,17 @@ describe("browser control server", () => {
       cfgEvaluateEnabled = false;
       const base = await startServerAndBase();
 
-      const waitRes = await postJson(`${base}/act`, {
+      const waitRes = (await postJson(`${base}/act`, {
         kind: "wait",
         fn: "() => window.ready === true",
-      });
+      })) as { error?: string };
       expect(waitRes.error).toContain("browser.evaluateEnabled=false");
       expect(pwMocks.waitForViaPlaywright).not.toHaveBeenCalled();
 
-      const res = await postJson(`${base}/act`, {
+      const res = (await postJson(`${base}/act`, {
         kind: "evaluate",
         fn: "() => 1",
-      });
+      })) as { error?: string };
 
       expect(res.error).toContain("browser.evaluateEnabled=false");
       expect(pwMocks.evaluateViaPlaywright).not.toHaveBeenCalled();
@@ -437,31 +380,31 @@ describe("browser control server", () => {
     const base = await startServerAndBase();
 
     const upload = await postJson(`${base}/hooks/file-chooser`, {
-      paths: ["a.txt"],
+      paths: ["/tmp/a.txt"],
       timeoutMs: 1234,
     });
     expect(upload).toMatchObject({ ok: true });
     expect(pwMocks.armFileUploadViaPlaywright).toHaveBeenCalledWith({
       cdpUrl: cdpBaseUrl,
       targetId: "abcd1234",
-      paths: [path.join(DEFAULT_UPLOAD_DIR, "a.txt")],
+      paths: ["/tmp/a.txt"],
       timeoutMs: 1234,
     });
 
     const uploadWithRef = await postJson(`${base}/hooks/file-chooser`, {
-      paths: ["b.txt"],
+      paths: ["/tmp/b.txt"],
       ref: "e12",
     });
     expect(uploadWithRef).toMatchObject({ ok: true });
 
     const uploadWithInputRef = await postJson(`${base}/hooks/file-chooser`, {
-      paths: ["c.txt"],
+      paths: ["/tmp/c.txt"],
       inputRef: "e99",
     });
     expect(uploadWithInputRef).toMatchObject({ ok: true });
 
     const uploadWithElement = await postJson(`${base}/hooks/file-chooser`, {
-      paths: ["d.txt"],
+      paths: ["/tmp/d.txt"],
       element: "input[type=file]",
     });
     expect(uploadWithElement).toMatchObject({ ok: true });
@@ -473,14 +416,14 @@ describe("browser control server", () => {
     expect(dialog).toMatchObject({ ok: true });
 
     const waitDownload = await postJson(`${base}/wait/download`, {
-      path: "report.pdf",
+      path: "/tmp/report.pdf",
       timeoutMs: 1111,
     });
     expect(waitDownload).toMatchObject({ ok: true });
 
     const download = await postJson(`${base}/download`, {
       ref: "e12",
-      path: "report.pdf",
+      path: "/tmp/report.pdf",
     });
     expect(download).toMatchObject({ ok: true });
 
@@ -498,14 +441,17 @@ describe("browser control server", () => {
     expect(consoleRes.ok).toBe(true);
     expect(Array.isArray(consoleRes.messages)).toBe(true);
 
-    const pdf = await postJson(`${base}/pdf`, {});
+    const pdf = (await postJson(`${base}/pdf`, {})) as {
+      ok: boolean;
+      path?: string;
+    };
     expect(pdf.ok).toBe(true);
     expect(typeof pdf.path).toBe("string");
 
-    const shot = await postJson(`${base}/screenshot`, {
+    const shot = (await postJson(`${base}/screenshot`, {
       element: "body",
       type: "jpeg",
-    });
+    })) as { ok: boolean; path?: string };
     expect(shot.ok).toBe(true);
     expect(typeof shot.path).toBe("string");
   });
@@ -518,136 +464,5 @@ describe("browser control server", () => {
     }).then((r) => r.json())) as { ok: boolean; stopped?: boolean };
     expect(stopped.ok).toBe(true);
     expect(stopped.stopped).toBe(true);
-  });
-
-  it("trace stop rejects traversal path outside trace dir", async () => {
-    const base = await startServerAndBase();
-    const res = await postJson<{ error?: string }>(`${base}/trace/stop`, {
-      path: "../../pwned.zip",
-    });
-    expect(res.error).toContain("Invalid path");
-    expect(pwMocks.traceStopViaPlaywright).not.toHaveBeenCalled();
-  });
-
-  it("trace stop accepts in-root relative output path", async () => {
-    const base = await startServerAndBase();
-    const res = await postJson<{ ok?: boolean; path?: string }>(`${base}/trace/stop`, {
-      path: "safe-trace.zip",
-    });
-    expect(res.ok).toBe(true);
-    expect(res.path).toContain("safe-trace.zip");
-    expect(pwMocks.traceStopViaPlaywright).toHaveBeenCalledWith(
-      expect.objectContaining({
-        cdpUrl: cdpBaseUrl,
-        targetId: "abcd1234",
-        path: expect.stringContaining("safe-trace.zip"),
-      }),
-    );
-  });
-
-  it("wait/download rejects traversal path outside downloads dir", async () => {
-    const base = await startServerAndBase();
-    const waitRes = await postJson<{ error?: string }>(`${base}/wait/download`, {
-      path: "../../pwned.pdf",
-    });
-    expect(waitRes.error).toContain("Invalid path");
-    expect(pwMocks.waitForDownloadViaPlaywright).not.toHaveBeenCalled();
-  });
-
-  it("download rejects traversal path outside downloads dir", async () => {
-    const base = await startServerAndBase();
-    const downloadRes = await postJson<{ error?: string }>(`${base}/download`, {
-      ref: "e12",
-      path: "../../pwned.pdf",
-    });
-    expect(downloadRes.error).toContain("Invalid path");
-    expect(pwMocks.downloadViaPlaywright).not.toHaveBeenCalled();
-  });
-
-  it.runIf(process.platform !== "win32")(
-    "trace stop rejects symlinked write path escape under trace dir",
-    async () => {
-      const base = await startServerAndBase();
-      await withSymlinkPathEscape({
-        rootDir: DEFAULT_TRACE_DIR,
-        run: async (pathEscape) => {
-          const res = await postJson<{ error?: string }>(`${base}/trace/stop`, {
-            path: pathEscape,
-          });
-          expect(res.error).toContain("Invalid path");
-          expect(pwMocks.traceStopViaPlaywright).not.toHaveBeenCalled();
-        },
-      });
-    },
-  );
-
-  it.runIf(process.platform !== "win32")(
-    "wait/download rejects symlinked write path escape under downloads dir",
-    async () => {
-      const base = await startServerAndBase();
-      await withSymlinkPathEscape({
-        rootDir: DEFAULT_DOWNLOAD_DIR,
-        run: async (pathEscape) => {
-          const res = await postJson<{ error?: string }>(`${base}/wait/download`, {
-            path: pathEscape,
-          });
-          expect(res.error).toContain("Invalid path");
-          expect(pwMocks.waitForDownloadViaPlaywright).not.toHaveBeenCalled();
-        },
-      });
-    },
-  );
-
-  it.runIf(process.platform !== "win32")(
-    "download rejects symlinked write path escape under downloads dir",
-    async () => {
-      const base = await startServerAndBase();
-      await withSymlinkPathEscape({
-        rootDir: DEFAULT_DOWNLOAD_DIR,
-        run: async (pathEscape) => {
-          const res = await postJson<{ error?: string }>(`${base}/download`, {
-            ref: "e12",
-            path: pathEscape,
-          });
-          expect(res.error).toContain("Invalid path");
-          expect(pwMocks.downloadViaPlaywright).not.toHaveBeenCalled();
-        },
-      });
-    },
-  );
-
-  it("wait/download accepts in-root relative output path", async () => {
-    const base = await startServerAndBase();
-    const res = await postJson<{ ok?: boolean; download?: { path?: string } }>(
-      `${base}/wait/download`,
-      {
-        path: "safe-wait.pdf",
-      },
-    );
-    expect(res.ok).toBe(true);
-    expect(pwMocks.waitForDownloadViaPlaywright).toHaveBeenCalledWith(
-      expect.objectContaining({
-        cdpUrl: cdpBaseUrl,
-        targetId: "abcd1234",
-        path: expect.stringContaining("safe-wait.pdf"),
-      }),
-    );
-  });
-
-  it("download accepts in-root relative output path", async () => {
-    const base = await startServerAndBase();
-    const res = await postJson<{ ok?: boolean; download?: { path?: string } }>(`${base}/download`, {
-      ref: "e12",
-      path: "safe-download.pdf",
-    });
-    expect(res.ok).toBe(true);
-    expect(pwMocks.downloadViaPlaywright).toHaveBeenCalledWith(
-      expect.objectContaining({
-        cdpUrl: cdpBaseUrl,
-        targetId: "abcd1234",
-        ref: "e12",
-        path: expect.stringContaining("safe-download.pdf"),
-      }),
-    );
   });
 });

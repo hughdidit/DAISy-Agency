@@ -1,7 +1,8 @@
+import crypto from "node:crypto";
+
 import type { AgentToolResult } from "@mariozechner/pi-agent-core";
 import { Type } from "@sinclair/typebox";
-import crypto from "node:crypto";
-import type { OpenClawConfig } from "../../config/config.js";
+
 import {
   type CameraFacing,
   cameraTempPath,
@@ -16,13 +17,8 @@ import {
   writeScreenRecordToFile,
 } from "../../cli/nodes-screen.js";
 import { parseDurationMs } from "../../cli/parse-duration.js";
-<<<<<<< HEAD
-=======
-import type { OpenClawConfig } from "../../config/config.js";
-import { formatExecCommand } from "../../infra/system-run-command.js";
->>>>>>> 03e689fc8 (fix(security): bind system.run approvals to argv identity)
+import type { MoltbotConfig } from "../../config/config.js";
 import { imageMimeFromFormat } from "../../media/mime.js";
-import type { GatewayMessageChannel } from "../../utils/message-channel.js";
 import { resolveSessionAgentId } from "../agent-scope.js";
 import { optionalStringEnum, stringEnum } from "../schema/typebox.js";
 import { sanitizeToolResultImages } from "../tool-images.js";
@@ -43,7 +39,6 @@ const NODES_TOOL_ACTIONS = [
   "screen_record",
   "location_get",
   "run",
-  "invoke",
 ] as const;
 
 const NOTIFY_PRIORITIES = ["passive", "active", "timeSensitive"] as const;
@@ -91,24 +86,13 @@ const NodesToolSchema = Type.Object({
   commandTimeoutMs: Type.Optional(Type.Number()),
   invokeTimeoutMs: Type.Optional(Type.Number()),
   needsScreenRecording: Type.Optional(Type.Boolean()),
-  // invoke
-  invokeCommand: Type.Optional(Type.String()),
-  invokeParamsJson: Type.Optional(Type.String()),
 });
 
 export function createNodesTool(options?: {
   agentSessionKey?: string;
-  agentChannel?: GatewayMessageChannel;
-  agentAccountId?: string;
-  currentChannelId?: string;
-  currentThreadTs?: string | number;
-  config?: OpenClawConfig;
+  config?: MoltbotConfig;
 }): AnyAgentTool {
   const sessionKey = options?.agentSessionKey?.trim() || undefined;
-  const turnSourceChannel = options?.agentChannel?.trim() || undefined;
-  const turnSourceTo = options?.currentChannelId?.trim() || undefined;
-  const turnSourceAccountId = options?.agentAccountId?.trim() || undefined;
-  const turnSourceThreadId = options?.currentThreadTs;
   const agentId = resolveSessionAgentId({
     sessionKey: options?.agentSessionKey,
     config: options?.config,
@@ -117,7 +101,7 @@ export function createNodesTool(options?: {
     label: "Nodes",
     name: "nodes",
     description:
-      "Discover and control paired nodes (status/describe/pairing/notify/camera/screen/location/run/invoke).",
+      "Discover and control paired nodes (status/describe/pairing/notify/camera/screen/location/run).",
     parameters: NodesToolSchema,
     execute: async (_toolCallId, args) => {
       const params = args as Record<string, unknown>;
@@ -215,7 +199,7 @@ export function createNodesTool(options?: {
             const details: Array<Record<string, unknown>> = [];
 
             for (const facing of facings) {
-              const raw = await callGatewayTool<{ payload: unknown }>("node.invoke", gatewayOpts, {
+              const raw = (await callGatewayTool("node.invoke", gatewayOpts, {
                 nodeId,
                 command: "camera.snap",
                 params: {
@@ -227,7 +211,7 @@ export function createNodesTool(options?: {
                   deviceId,
                 },
                 idempotencyKey: crypto.randomUUID(),
-              });
+              })) as { payload?: unknown };
               const payload = parseCameraSnapPayload(raw?.payload);
               const normalizedFormat = payload.format.toLowerCase();
               if (
@@ -266,12 +250,12 @@ export function createNodesTool(options?: {
           case "camera_list": {
             const node = readStringParam(params, "node", { required: true });
             const nodeId = await resolveNodeId(gatewayOpts, node);
-            const raw = await callGatewayTool<{ payload: unknown }>("node.invoke", gatewayOpts, {
+            const raw = (await callGatewayTool("node.invoke", gatewayOpts, {
               nodeId,
               command: "camera.list",
               params: {},
               idempotencyKey: crypto.randomUUID(),
-            });
+            })) as { payload?: unknown };
             const payload =
               raw && typeof raw.payload === "object" && raw.payload !== null ? raw.payload : {};
             return jsonResult(payload);
@@ -296,7 +280,7 @@ export function createNodesTool(options?: {
               typeof params.deviceId === "string" && params.deviceId.trim()
                 ? params.deviceId.trim()
                 : undefined;
-            const raw = await callGatewayTool<{ payload: unknown }>("node.invoke", gatewayOpts, {
+            const raw = (await callGatewayTool("node.invoke", gatewayOpts, {
               nodeId,
               command: "camera.clip",
               params: {
@@ -307,7 +291,7 @@ export function createNodesTool(options?: {
                 deviceId,
               },
               idempotencyKey: crypto.randomUUID(),
-            });
+            })) as { payload?: unknown };
             const payload = parseCameraClipPayload(raw?.payload);
             const filePath = cameraTempPath({
               kind: "clip",
@@ -342,7 +326,7 @@ export function createNodesTool(options?: {
                 : 0;
             const includeAudio =
               typeof params.includeAudio === "boolean" ? params.includeAudio : true;
-            const raw = await callGatewayTool<{ payload: unknown }>("node.invoke", gatewayOpts, {
+            const raw = (await callGatewayTool("node.invoke", gatewayOpts, {
               nodeId,
               command: "screen.record",
               params: {
@@ -353,7 +337,7 @@ export function createNodesTool(options?: {
                 includeAudio,
               },
               idempotencyKey: crypto.randomUUID(),
-            });
+            })) as { payload?: unknown };
             const payload = parseScreenRecordPayload(raw?.payload);
             const filePath =
               typeof params.outPath === "string" && params.outPath.trim()
@@ -389,7 +373,7 @@ export function createNodesTool(options?: {
               Number.isFinite(params.locationTimeoutMs)
                 ? params.locationTimeoutMs
                 : undefined;
-            const raw = await callGatewayTool<{ payload: unknown }>("node.invoke", gatewayOpts, {
+            const raw = (await callGatewayTool("node.invoke", gatewayOpts, {
               nodeId,
               command: "location.get",
               params: {
@@ -398,7 +382,7 @@ export function createNodesTool(options?: {
                 timeoutMs: locationTimeoutMs,
               },
               idempotencyKey: crypto.randomUUID(),
-            });
+            })) as { payload?: unknown };
             return jsonResult(raw?.payload ?? {});
           }
           case "run": {
@@ -439,80 +423,7 @@ export function createNodesTool(options?: {
               typeof params.needsScreenRecording === "boolean"
                 ? params.needsScreenRecording
                 : undefined;
-<<<<<<< HEAD
-            const raw = await callGatewayTool<{ payload: unknown }>("node.invoke", gatewayOpts, {
-=======
-            const runParams = {
-              command,
-              cwd,
-              env,
-              timeoutMs: commandTimeoutMs,
-              needsScreenRecording,
-              agentId,
-              sessionKey,
-            };
-
-            // First attempt without approval flags.
-            try {
-              const raw = await callGatewayTool<{ payload?: unknown }>("node.invoke", gatewayOpts, {
-                nodeId,
-                command: "system.run",
-                params: runParams,
-                timeoutMs: invokeTimeoutMs,
-                idempotencyKey: crypto.randomUUID(),
-              });
-              return jsonResult(raw?.payload ?? {});
-            } catch (firstErr) {
-              const msg = firstErr instanceof Error ? firstErr.message : String(firstErr);
-              if (!msg.includes("SYSTEM_RUN_DENIED: approval required")) {
-                throw firstErr;
-              }
-            }
-
-            // Node requires approval – create a pending approval request on
-            // the gateway and wait for the user to approve/deny via the UI.
-            const APPROVAL_TIMEOUT_MS = 120_000;
-            const cmdText = formatExecCommand(command);
-            const approvalId = crypto.randomUUID();
-            const approvalResult = await callGatewayTool(
-              "exec.approval.request",
-              { ...gatewayOpts, timeoutMs: APPROVAL_TIMEOUT_MS + 5_000 },
-              {
-                id: approvalId,
-                command: cmdText,
-                commandArgv: command,
-                cwd,
-                nodeId,
-                host: "node",
-                agentId,
-                sessionKey,
-                turnSourceChannel,
-                turnSourceTo,
-                turnSourceAccountId,
-                turnSourceThreadId,
-                timeoutMs: APPROVAL_TIMEOUT_MS,
-              },
-            );
-            const decisionRaw =
-              approvalResult && typeof approvalResult === "object"
-                ? (approvalResult as { decision?: unknown }).decision
-                : undefined;
-            const approvalDecision =
-              decisionRaw === "allow-once" || decisionRaw === "allow-always" ? decisionRaw : null;
-
-            if (!approvalDecision) {
-              if (decisionRaw === "deny") {
-                throw new Error("exec denied: user denied");
-              }
-              if (decisionRaw === undefined || decisionRaw === null) {
-                throw new Error("exec denied: approval timed out");
-              }
-              throw new Error("exec denied: invalid approval decision");
-            }
-
-            // Retry with the approval decision.
-            const raw = await callGatewayTool<{ payload?: unknown }>("node.invoke", gatewayOpts, {
->>>>>>> 03e689fc8 (fix(security): bind system.run approvals to argv identity)
+            const raw = (await callGatewayTool("node.invoke", gatewayOpts, {
               nodeId,
               command: "system.run",
               params: {
@@ -526,35 +437,8 @@ export function createNodesTool(options?: {
               },
               timeoutMs: invokeTimeoutMs,
               idempotencyKey: crypto.randomUUID(),
-            });
+            })) as { payload?: unknown };
             return jsonResult(raw?.payload ?? {});
-          }
-          case "invoke": {
-            const node = readStringParam(params, "node", { required: true });
-            const nodeId = await resolveNodeId(gatewayOpts, node);
-            const invokeCommand = readStringParam(params, "invokeCommand", { required: true });
-            const invokeParamsJson =
-              typeof params.invokeParamsJson === "string" ? params.invokeParamsJson.trim() : "";
-            let invokeParams: unknown = {};
-            if (invokeParamsJson) {
-              try {
-                invokeParams = JSON.parse(invokeParamsJson);
-              } catch (err) {
-                const message = err instanceof Error ? err.message : String(err);
-                throw new Error(`invokeParamsJson must be valid JSON: ${message}`, {
-                  cause: err,
-                });
-              }
-            }
-            const invokeTimeoutMs = parseTimeoutMs(params.invokeTimeoutMs);
-            const raw = await callGatewayTool("node.invoke", gatewayOpts, {
-              nodeId,
-              command: invokeCommand,
-              params: invokeParams,
-              timeoutMs: invokeTimeoutMs,
-              idempotencyKey: crypto.randomUUID(),
-            });
-            return jsonResult(raw ?? {});
           }
           default:
             throw new Error(`Unknown action: ${action}`);
@@ -570,7 +454,6 @@ export function createNodesTool(options?: {
         const message = err instanceof Error ? err.message : String(err);
         throw new Error(
           `agent=${agentLabel} node=${nodeLabel} gateway=${gatewayLabel} action=${action}: ${message}`,
-          { cause: err },
         );
       }
     },

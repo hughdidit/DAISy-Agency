@@ -1,5 +1,5 @@
-import OpenClawProtocol
 import Foundation
+import MoltbotProtocol
 import Testing
 @testable import OpenClaw
 

@@ -1,13 +1,10 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
 import { describe, expect, test, vi } from "vitest";
+import type { createSubsystemLogger } from "../logging/subsystem.js";
 import type { ResolvedGatewayAuth } from "./auth.js";
-<<<<<<< HEAD
-import { createGatewayHttpServer } from "./server-http.js";
-=======
 import type { HooksConfigResolved } from "./hooks.js";
 import { canonicalizePathVariant } from "./security-path.js";
 import { createGatewayHttpServer, createHooksRequestHandler } from "./server-http.js";
->>>>>>> 08e335748 (refactor: share gateway security path canonicalization)
 import { withTempConfig } from "./test-temp-config.js";
 
 function createRequest(params: {
@@ -71,8 +68,6 @@ async function dispatchRequest(
   await new Promise((resolve) => setImmediate(resolve));
 }
 
-<<<<<<< HEAD
-=======
 function createHooksConfig(): HooksConfigResolved {
   return {
     basePath: "/hooks",
@@ -93,26 +88,9 @@ function createHooksConfig(): HooksConfigResolved {
 }
 
 function canonicalizePluginPath(pathname: string): string {
-<<<<<<< HEAD
-  let decoded = pathname;
-  try {
-    decoded = decodeURIComponent(pathname);
-  } catch {
-    decoded = pathname;
-  }
-  const collapsed = decoded.toLowerCase().replace(/\/{2,}/g, "/");
-  if (collapsed.length <= 1) {
-    return collapsed;
-  }
-  return collapsed.replace(/\/+$/, "");
-=======
   return canonicalizePathVariant(pathname);
->>>>>>> 08e335748 (refactor: share gateway security path canonicalization)
 }
 
-<<<<<<< HEAD
->>>>>>> 0ed675b1d (fix(security): harden canonical auth matching for plugin channel routes)
-=======
 type RouteVariant = {
   label: string;
   path: string;
@@ -122,6 +100,15 @@ const CANONICAL_UNAUTH_VARIANTS: RouteVariant[] = [
   { label: "case-variant", path: "/API/channels/nostr/default/profile" },
   { label: "encoded-slash", path: "/api/channels%2Fnostr%2Fdefault%2Fprofile" },
   { label: "encoded-segment", path: "/api/%63hannels/nostr/default/profile" },
+  { label: "dot-traversal-encoded-slash", path: "/api/foo/..%2fchannels/nostr/default/profile" },
+  {
+    label: "dot-traversal-encoded-dotdot-slash",
+    path: "/api/foo/%2e%2e%2fchannels/nostr/default/profile",
+  },
+  {
+    label: "dot-traversal-double-encoded",
+    path: "/api/foo/%252e%252e%252fchannels/nostr/default/profile",
+  },
   { label: "duplicate-slashes", path: "/api/channels//nostr/default/profile" },
   { label: "trailing-slash", path: "/api/channels/nostr/default/profile/" },
   { label: "malformed-short-percent", path: "/api/channels%2" },
@@ -132,12 +119,23 @@ const CANONICAL_AUTH_VARIANTS: RouteVariant[] = [
   { label: "auth-case-variant", path: "/API/channels/nostr/default/profile" },
   { label: "auth-encoded-segment", path: "/api/%63hannels/nostr/default/profile" },
   { label: "auth-duplicate-trailing-slash", path: "/api/channels//nostr/default/profile/" },
+  {
+    label: "auth-dot-traversal-encoded-slash",
+    path: "/api/foo/..%2fchannels/nostr/default/profile",
+  },
+  {
+    label: "auth-dot-traversal-double-encoded",
+    path: "/api/foo/%252e%252e%252fchannels/nostr/default/profile",
+  },
 ];
 
 function buildChannelPathFuzzCorpus(): RouteVariant[] {
   const variants = [
     "/api/channels/nostr/default/profile",
     "/API/channels/nostr/default/profile",
+    "/api/foo/..%2fchannels/nostr/default/profile",
+    "/api/foo/%2e%2e%2fchannels/nostr/default/profile",
+    "/api/foo/%252e%252e%252fchannels/nostr/default/profile",
     "/api/channels//nostr/default/profile/",
     "/api/channels%2Fnostr%2Fdefault%2Fprofile",
     "/api/channels%252Fnostr%252Fdefault%252Fprofile",
@@ -182,7 +180,6 @@ async function expectAuthorizedVariants(params: {
   }
 }
 
->>>>>>> 6632fd1ea (refactor(security): extract protected-route path policy helpers)
 describe("gateway plugin HTTP auth boundary", () => {
   test("applies default security headers and optional strict transport security", async () => {
     const resolvedAuth: ResolvedGatewayAuth = {
@@ -338,8 +335,6 @@ describe("gateway plugin HTTP auth boundary", () => {
       },
     });
   });
-<<<<<<< HEAD
-=======
 
   test("requires gateway auth for canonicalized /api/channels variants", async () => {
     const resolvedAuth: ResolvedGatewayAuth = {
@@ -534,5 +529,4 @@ describe("gateway plugin HTTP auth boundary", () => {
       },
     });
   });
->>>>>>> da0ba1b73 (fix(security): harden channel auth path checks and exec approval routing)
 });

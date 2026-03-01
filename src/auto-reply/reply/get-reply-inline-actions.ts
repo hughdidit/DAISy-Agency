@@ -1,37 +1,21 @@
-import type { SkillCommandSpec } from "../../agents/skills.js";
-<<<<<<< HEAD
-=======
-import { applyOwnerOnlyToolPolicy } from "../../agents/tool-policy.js";
 import { getChannelDock } from "../../channels/dock.js";
->>>>>>> 3d7ad1cfc (fix(security): centralize owner-only tool gating and scope maps)
-import type { OpenClawConfig } from "../../config/config.js";
+import type { SkillCommandSpec } from "../../agents/skills.js";
+import type { MoltbotConfig } from "../../config/config.js";
 import type { SessionEntry } from "../../config/sessions.js";
-<<<<<<< HEAD
-=======
-import { logVerbose } from "../../globals.js";
-import { generateSecureToken } from "../../infra/secure-random.js";
-import { resolveGatewayMessageChannel } from "../../utils/message-channel.js";
-import {
-  listReservedChatSlashCommandNames,
-  listSkillCommandsForWorkspace,
-  resolveSkillCommandInvocation,
-} from "../skill-commands.js";
->>>>>>> 6c2e99977 (refactor(security): unify secure id paths and guard weak patterns)
 import type { MsgContext, TemplateContext } from "../templating.js";
 import type { ElevatedLevel, ReasoningLevel, ThinkLevel, VerboseLevel } from "../thinking.js";
 import type { GetReplyOptions, ReplyPayload } from "../types.js";
-import type { InlineDirectives } from "./directive-handling.js";
-import type { createModelSelectionState } from "./model-selection.js";
-import type { TypingController } from "./typing.js";
-import { createOpenClawTools } from "../../agents/openclaw-tools.js";
-import { getChannelDock } from "../../channels/dock.js";
-import { logVerbose } from "../../globals.js";
-import { resolveGatewayMessageChannel } from "../../utils/message-channel.js";
-import { listSkillCommandsForWorkspace, resolveSkillCommandInvocation } from "../skill-commands.js";
 import { getAbortMemory } from "./abort.js";
 import { buildStatusReply, handleCommands } from "./commands.js";
+import type { InlineDirectives } from "./directive-handling.js";
 import { isDirectiveOnly } from "./directive-handling.js";
+import type { createModelSelectionState } from "./model-selection.js";
 import { extractInlineSimpleCommand } from "./reply-inline.js";
+import type { TypingController } from "./typing.js";
+import { listSkillCommandsForWorkspace, resolveSkillCommandInvocation } from "../skill-commands.js";
+import { logVerbose } from "../../globals.js";
+import { createMoltbotTools } from "../../agents/moltbot-tools.js";
+import { resolveGatewayMessageChannel } from "../../utils/message-channel.js";
 
 export type InlineActionResult =
   | { kind: "reply"; reply: ReplyPayload | ReplyPayload[] | undefined }
@@ -41,25 +25,18 @@ export type InlineActionResult =
       abortedLastRun: boolean;
     };
 
-// oxlint-disable-next-line typescript/no-explicit-any
 function extractTextFromToolResult(result: any): string | null {
-  if (!result || typeof result !== "object") {
-    return null;
-  }
+  if (!result || typeof result !== "object") return null;
   const content = (result as { content?: unknown }).content;
   if (typeof content === "string") {
     const trimmed = content.trim();
     return trimmed ? trimmed : null;
   }
-  if (!Array.isArray(content)) {
-    return null;
-  }
+  if (!Array.isArray(content)) return null;
 
   const parts: string[] = [];
   for (const block of content) {
-    if (!block || typeof block !== "object") {
-      continue;
-    }
+    if (!block || typeof block !== "object") continue;
     const rec = block as { type?: unknown; text?: unknown };
     if (rec.type === "text" && typeof rec.text === "string") {
       parts.push(rec.text);
@@ -73,7 +50,7 @@ function extractTextFromToolResult(result: any): string | null {
 export async function handleInlineActions(params: {
   ctx: MsgContext;
   sessionCtx: TemplateContext;
-  cfg: OpenClawConfig;
+  cfg: MoltbotConfig;
   agentId: string;
   agentDir?: string;
   sessionEntry?: SessionEntry;
@@ -187,7 +164,7 @@ export async function handleInlineActions(params: {
         resolveGatewayMessageChannel(ctx.Provider) ??
         undefined;
 
-      const tools = createOpenClawTools({
+      const tools = createMoltbotTools({
         agentSessionKey: sessionKey,
         agentChannel: channel,
         agentAccountId: (ctx as { AccountId?: string }).AccountId,
@@ -197,21 +174,19 @@ export async function handleInlineActions(params: {
         workspaceDir,
         config: cfg,
       });
-      const authorizedTools = applyOwnerOnlyToolPolicy(tools, command.senderIsOwner);
 
-      const tool = authorizedTools.find((candidate) => candidate.name === dispatch.toolName);
+      const tool = tools.find((candidate) => candidate.name === dispatch.toolName);
       if (!tool) {
         typing.cleanup();
         return { kind: "reply", reply: { text: `❌ Tool not available: ${dispatch.toolName}` } };
       }
 
-      const toolCallId = `cmd_${generateSecureToken(8)}`;
+      const toolCallId = `cmd_${Date.now()}_${Math.random().toString(16).slice(2)}`;
       try {
         const result = await tool.execute(toolCallId, {
           command: rawArgs,
           commandName: skillInvocation.command.name,
           skillName: skillInvocation.command.skillName,
-          // oxlint-disable-next-line typescript/no-explicit-any
         } as any);
         const text = extractTextFromToolResult(result) ?? "✅ Done.";
         typing.cleanup();
@@ -237,12 +212,8 @@ export async function handleInlineActions(params: {
   }
 
   const sendInlineReply = async (reply?: ReplyPayload) => {
-    if (!reply) {
-      return;
-    }
-    if (!opts?.onBlockReply) {
-      return;
-    }
+    if (!reply) return;
+    if (!opts?.onBlockReply) return;
     await opts.onBlockReply(reply);
   };
 

@@ -1,17 +1,9 @@
-import type { OpenClawConfig } from "../../config/config.js";
-import type {
-  SandboxBrowserConfig,
-  SandboxConfig,
-  SandboxDockerConfig,
-  SandboxPruneConfig,
-  SandboxScope,
-} from "./types.js";
+import type { MoltbotConfig } from "../../config/config.js";
 import { resolveAgentConfig } from "../agent-scope.js";
 import {
   DEFAULT_SANDBOX_BROWSER_AUTOSTART_TIMEOUT_MS,
   DEFAULT_SANDBOX_BROWSER_CDP_PORT,
   DEFAULT_SANDBOX_BROWSER_IMAGE,
-  DEFAULT_SANDBOX_BROWSER_NETWORK,
   DEFAULT_SANDBOX_BROWSER_NOVNC_PORT,
   DEFAULT_SANDBOX_BROWSER_PREFIX,
   DEFAULT_SANDBOX_BROWSER_VNC_PORT,
@@ -23,8 +15,6 @@ import {
   DEFAULT_SANDBOX_WORKSPACE_ROOT,
 } from "./constants.js";
 import { resolveSandboxToolPolicyForAgent } from "./tool-policy.js";
-<<<<<<< HEAD
-=======
 import type {
   SandboxBrowserConfig,
   SandboxConfig,
@@ -33,30 +23,11 @@ import type {
   SandboxScope,
 } from "./types.js";
 
-export function resolveSandboxBrowserDockerCreateConfig(params: {
-  docker: SandboxDockerConfig;
-  browser: SandboxBrowserConfig;
-}): SandboxDockerConfig {
-  const browserNetwork = params.browser.network.trim();
-  const base: SandboxDockerConfig = {
-    ...params.docker,
-    // Browser container needs network access for Chrome, downloads, etc.
-    network: browserNetwork || DEFAULT_SANDBOX_BROWSER_NETWORK,
-    // For hashing and consistency, treat browser image as the docker image even though we
-    // pass it separately as the final `docker create` argument.
-    image: params.browser.image,
-  };
-  return params.browser.binds !== undefined ? { ...base, binds: params.browser.binds } : base;
-}
->>>>>>> f48698a50 (fix(security): harden sandbox browser network defaults)
-
 export function resolveSandboxScope(params: {
   scope?: SandboxScope;
   perSession?: boolean;
 }): SandboxScope {
-  if (params.scope) {
-    return params.scope;
-  }
+  if (params.scope) return params.scope;
   if (typeof params.perSession === "boolean") {
     return params.perSession ? "session" : "shared";
   }
@@ -122,9 +93,7 @@ export function resolveSandboxBrowserConfig(params: {
       agentBrowser?.containerPrefix ??
       globalBrowser?.containerPrefix ??
       DEFAULT_SANDBOX_BROWSER_PREFIX,
-    network: agentBrowser?.network ?? globalBrowser?.network ?? DEFAULT_SANDBOX_BROWSER_NETWORK,
     cdpPort: agentBrowser?.cdpPort ?? globalBrowser?.cdpPort ?? DEFAULT_SANDBOX_BROWSER_CDP_PORT,
-    cdpSourceRange: agentBrowser?.cdpSourceRange ?? globalBrowser?.cdpSourceRange,
     vncPort: agentBrowser?.vncPort ?? globalBrowser?.vncPort ?? DEFAULT_SANDBOX_BROWSER_VNC_PORT,
     noVncPort:
       agentBrowser?.noVncPort ?? globalBrowser?.noVncPort ?? DEFAULT_SANDBOX_BROWSER_NOVNC_PORT,
@@ -152,10 +121,7 @@ export function resolveSandboxPruneConfig(params: {
   };
 }
 
-export function resolveSandboxConfigForAgent(
-  cfg?: OpenClawConfig,
-  agentId?: string,
-): SandboxConfig {
+export function resolveSandboxConfigForAgent(cfg?: MoltbotConfig, agentId?: string): SandboxConfig {
   const agent = cfg?.agents?.defaults?.sandbox;
 
   // Agent-specific sandbox config overrides global

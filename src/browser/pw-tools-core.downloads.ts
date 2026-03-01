@@ -1,7 +1,9 @@
-import type { Page } from "playwright-core";
 import crypto from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
+
+import type { Page } from "playwright-core";
+
 import {
   ensurePageState,
   getPageForTargetId,
@@ -17,44 +19,10 @@ import {
   toAIFriendlyError,
 } from "./pw-tools-core.shared.js";
 
-function sanitizeDownloadFileName(fileName: string): string {
-  const trimmed = String(fileName ?? "").trim();
-  if (!trimmed) {
-    return "download.bin";
-  }
-
-  // `suggestedFilename()` is untrusted (influenced by remote servers). Force a basename so
-  // path separators/traversal can't escape the downloads dir on any platform.
-  let base = path.posix.basename(trimmed);
-  base = path.win32.basename(base);
-  let cleaned = "";
-  for (let i = 0; i < base.length; i++) {
-    const code = base.charCodeAt(i);
-    if (code < 0x20 || code === 0x7f) {
-      continue;
-    }
-    cleaned += base[i];
-  }
-  base = cleaned.trim();
-
-  if (!base || base === "." || base === "..") {
-    return "download.bin";
-  }
-  if (base.length > 200) {
-    base = base.slice(0, 200);
-  }
-  return base;
-}
-
 function buildTempDownloadPath(fileName: string): string {
   const id = crypto.randomUUID();
-<<<<<<< HEAD
   const safeName = fileName.trim() ? fileName.trim() : "download.bin";
-  return path.join("/tmp/openclaw/downloads", `${id}-${safeName}`);
-=======
-  const safeName = sanitizeDownloadFileName(fileName);
-  return path.join(resolvePreferredOpenClawTmpDir(), "downloads", `${id}-${safeName}`);
->>>>>>> 3aa94afcf (fix(security): harden archive extraction (#16203))
+  return path.join("/tmp/moltbot/downloads", `${id}-${safeName}`);
 }
 
 function createPageDownloadWaiter(page: Page, timeoutMs: number) {
@@ -63,9 +31,7 @@ function createPageDownloadWaiter(page: Page, timeoutMs: number) {
   let handler: ((download: unknown) => void) | undefined;
 
   const cleanup = () => {
-    if (timer) {
-      clearTimeout(timer);
-    }
+    if (timer) clearTimeout(timer);
     timer = undefined;
     if (handler) {
       page.off("download", handler as never);
@@ -75,9 +41,7 @@ function createPageDownloadWaiter(page: Page, timeoutMs: number) {
 
   const promise = new Promise<unknown>((resolve, reject) => {
     handler = (download: unknown) => {
-      if (done) {
-        return;
-      }
+      if (done) return;
       done = true;
       cleanup();
       resolve(download);
@@ -85,9 +49,7 @@ function createPageDownloadWaiter(page: Page, timeoutMs: number) {
 
     page.on("download", handler as never);
     timer = setTimeout(() => {
-      if (done) {
-        return;
-      }
+      if (done) return;
       done = true;
       cleanup();
       reject(new Error("Timeout waiting for download"));
@@ -97,9 +59,7 @@ function createPageDownloadWaiter(page: Page, timeoutMs: number) {
   return {
     promise,
     cancel: () => {
-      if (done) {
-        return;
-      }
+      if (done) return;
       done = true;
       cleanup();
     },
@@ -122,9 +82,7 @@ export async function armFileUploadViaPlaywright(opts: {
   void page
     .waitForEvent("filechooser", { timeout })
     .then(async (fileChooser) => {
-      if (state.armIdUpload !== armId) {
-        return;
-      }
+      if (state.armIdUpload !== armId) return;
       if (!opts.paths?.length) {
         // Playwright removed `FileChooser.cancel()`; best-effort close the chooser instead.
         try {
@@ -172,14 +130,9 @@ export async function armDialogViaPlaywright(opts: {
   void page
     .waitForEvent("dialog", { timeout })
     .then(async (dialog) => {
-      if (state.armIdDialog !== armId) {
-        return;
-      }
-      if (opts.accept) {
-        await dialog.accept(opts.promptText);
-      } else {
-        await dialog.dismiss();
-      }
+      if (state.armIdDialog !== armId) return;
+      if (opts.accept) await dialog.accept(opts.promptText);
+      else await dialog.dismiss();
     })
     .catch(() => {
       // Ignore timeouts; the dialog may never appear.
@@ -246,9 +199,7 @@ export async function downloadViaPlaywright(opts: {
 
   const ref = requireRef(opts.ref);
   const outPath = String(opts.path ?? "").trim();
-  if (!outPath) {
-    throw new Error("path is required");
-  }
+  if (!outPath) throw new Error("path is required");
 
   state.armIdDownload = bumpDownloadArmId();
   const armId = state.armIdDownload;

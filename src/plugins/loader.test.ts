@@ -2,23 +2,18 @@ import { randomUUID } from "node:crypto";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-<<<<<<< HEAD
 import { afterEach, describe, expect, it } from "vitest";
-import { loadOpenClawPlugins } from "./loader.js";
-=======
-import { afterAll, afterEach, describe, expect, it } from "vitest";
-import { withEnv } from "../test-utils/env.js";
-import { __testing, loadOpenClawPlugins } from "./loader.js";
->>>>>>> a7d56e355 (feat: ACP thread-bound agents (#23580))
+
+import { loadMoltbotPlugins } from "./loader.js";
 
 type TempPlugin = { dir: string; file: string; id: string };
 
 const tempDirs: string[] = [];
-const prevBundledDir = process.env.OPENCLAW_BUNDLED_PLUGINS_DIR;
+const prevBundledDir = process.env.CLAWDBOT_BUNDLED_PLUGINS_DIR;
 const EMPTY_PLUGIN_SCHEMA = { type: "object", additionalProperties: false, properties: {} };
 
 function makeTempDir() {
-  const dir = path.join(os.tmpdir(), `openclaw-plugin-${randomUUID()}`);
+  const dir = path.join(os.tmpdir(), `moltbot-plugin-${randomUUID()}`);
   fs.mkdirSync(dir, { recursive: true });
   tempDirs.push(dir);
   return dir;
@@ -35,7 +30,7 @@ function writePlugin(params: {
   const file = path.join(dir, filename);
   fs.writeFileSync(file, params.body, "utf-8");
   fs.writeFileSync(
-    path.join(dir, "openclaw.plugin.json"),
+    path.join(dir, "moltbot.plugin.json"),
     JSON.stringify(
       {
         id: params.id,
@@ -58,13 +53,13 @@ afterEach(() => {
     }
   }
   if (prevBundledDir === undefined) {
-    delete process.env.OPENCLAW_BUNDLED_PLUGINS_DIR;
+    delete process.env.CLAWDBOT_BUNDLED_PLUGINS_DIR;
   } else {
-    process.env.OPENCLAW_BUNDLED_PLUGINS_DIR = prevBundledDir;
+    process.env.CLAWDBOT_BUNDLED_PLUGINS_DIR = prevBundledDir;
   }
 });
 
-describe("loadOpenClawPlugins", () => {
+describe("loadMoltbotPlugins", () => {
   it("disables bundled plugins by default", () => {
     const bundledDir = makeTempDir();
     writePlugin({
@@ -73,9 +68,9 @@ describe("loadOpenClawPlugins", () => {
       dir: bundledDir,
       filename: "bundled.ts",
     });
-    process.env.OPENCLAW_BUNDLED_PLUGINS_DIR = bundledDir;
+    process.env.CLAWDBOT_BUNDLED_PLUGINS_DIR = bundledDir;
 
-    const registry = loadOpenClawPlugins({
+    const registry = loadMoltbotPlugins({
       cache: false,
       config: {
         plugins: {
@@ -87,7 +82,7 @@ describe("loadOpenClawPlugins", () => {
     const bundled = registry.plugins.find((entry) => entry.id === "bundled");
     expect(bundled?.status).toBe("disabled");
 
-    const enabledRegistry = loadOpenClawPlugins({
+    const enabledRegistry = loadMoltbotPlugins({
       cache: false,
       config: {
         plugins: {
@@ -130,9 +125,9 @@ describe("loadOpenClawPlugins", () => {
       dir: bundledDir,
       filename: "telegram.ts",
     });
-    process.env.OPENCLAW_BUNDLED_PLUGINS_DIR = bundledDir;
+    process.env.CLAWDBOT_BUNDLED_PLUGINS_DIR = bundledDir;
 
-    const registry = loadOpenClawPlugins({
+    const registry = loadMoltbotPlugins({
       cache: false,
       config: {
         plugins: {
@@ -157,9 +152,9 @@ describe("loadOpenClawPlugins", () => {
       dir: bundledDir,
       filename: "memory-core.ts",
     });
-    process.env.OPENCLAW_BUNDLED_PLUGINS_DIR = bundledDir;
+    process.env.CLAWDBOT_BUNDLED_PLUGINS_DIR = bundledDir;
 
-    const registry = loadOpenClawPlugins({
+    const registry = loadMoltbotPlugins({
       cache: false,
       config: {
         plugins: {
@@ -182,10 +177,10 @@ describe("loadOpenClawPlugins", () => {
     fs.writeFileSync(
       path.join(pluginDir, "package.json"),
       JSON.stringify({
-        name: "@openclaw/memory-core",
+        name: "@moltbot/memory-core",
         version: "1.2.3",
         description: "Memory plugin package",
-        openclaw: { extensions: ["./index.ts"] },
+        moltbot: { extensions: ["./index.ts"] },
       }),
       "utf-8",
     );
@@ -196,9 +191,9 @@ describe("loadOpenClawPlugins", () => {
       filename: "index.ts",
     });
 
-    process.env.OPENCLAW_BUNDLED_PLUGINS_DIR = bundledDir;
+    process.env.CLAWDBOT_BUNDLED_PLUGINS_DIR = bundledDir;
 
-    const registry = loadOpenClawPlugins({
+    const registry = loadMoltbotPlugins({
       cache: false,
       config: {
         plugins: {
@@ -216,13 +211,13 @@ describe("loadOpenClawPlugins", () => {
     expect(memory?.version).toBe("1.2.3");
   });
   it("loads plugins from config paths", () => {
-    process.env.OPENCLAW_BUNDLED_PLUGINS_DIR = "/nonexistent/bundled/plugins";
+    process.env.CLAWDBOT_BUNDLED_PLUGINS_DIR = "/nonexistent/bundled/plugins";
     const plugin = writePlugin({
       id: "allowed",
       body: `export default { id: "allowed", register(api) { api.registerGatewayMethod("allowed.ping", ({ respond }) => respond(true, { ok: true })); } };`,
     });
 
-    const registry = loadOpenClawPlugins({
+    const registry = loadMoltbotPlugins({
       cache: false,
       workspaceDir: plugin.dir,
       config: {
@@ -239,13 +234,13 @@ describe("loadOpenClawPlugins", () => {
   });
 
   it("denylist disables plugins even if allowed", () => {
-    process.env.OPENCLAW_BUNDLED_PLUGINS_DIR = "/nonexistent/bundled/plugins";
+    process.env.CLAWDBOT_BUNDLED_PLUGINS_DIR = "/nonexistent/bundled/plugins";
     const plugin = writePlugin({
       id: "blocked",
       body: `export default { id: "blocked", register() {} };`,
     });
 
-    const registry = loadOpenClawPlugins({
+    const registry = loadMoltbotPlugins({
       cache: false,
       workspaceDir: plugin.dir,
       config: {
@@ -262,13 +257,13 @@ describe("loadOpenClawPlugins", () => {
   });
 
   it("fails fast on invalid plugin config", () => {
-    process.env.OPENCLAW_BUNDLED_PLUGINS_DIR = "/nonexistent/bundled/plugins";
+    process.env.CLAWDBOT_BUNDLED_PLUGINS_DIR = "/nonexistent/bundled/plugins";
     const plugin = writePlugin({
       id: "configurable",
       body: `export default { id: "configurable", register() {} };`,
     });
 
-    const registry = loadOpenClawPlugins({
+    const registry = loadMoltbotPlugins({
       cache: false,
       workspaceDir: plugin.dir,
       config: {
@@ -289,7 +284,7 @@ describe("loadOpenClawPlugins", () => {
   });
 
   it("registers channel plugins", () => {
-    process.env.OPENCLAW_BUNDLED_PLUGINS_DIR = "/nonexistent/bundled/plugins";
+    process.env.CLAWDBOT_BUNDLED_PLUGINS_DIR = "/nonexistent/bundled/plugins";
     const plugin = writePlugin({
       id: "channel-demo",
       body: `export default { id: "channel-demo", register(api) {
@@ -314,7 +309,7 @@ describe("loadOpenClawPlugins", () => {
 } };`,
     });
 
-    const registry = loadOpenClawPlugins({
+    const registry = loadMoltbotPlugins({
       cache: false,
       workspaceDir: plugin.dir,
       config: {
@@ -330,7 +325,7 @@ describe("loadOpenClawPlugins", () => {
   });
 
   it("registers http handlers", () => {
-    process.env.OPENCLAW_BUNDLED_PLUGINS_DIR = "/nonexistent/bundled/plugins";
+    process.env.CLAWDBOT_BUNDLED_PLUGINS_DIR = "/nonexistent/bundled/plugins";
     const plugin = writePlugin({
       id: "http-demo",
       body: `export default { id: "http-demo", register(api) {
@@ -338,7 +333,7 @@ describe("loadOpenClawPlugins", () => {
 } };`,
     });
 
-    const registry = loadOpenClawPlugins({
+    const registry = loadMoltbotPlugins({
       cache: false,
       workspaceDir: plugin.dir,
       config: {
@@ -356,7 +351,7 @@ describe("loadOpenClawPlugins", () => {
   });
 
   it("registers http routes", () => {
-    process.env.OPENCLAW_BUNDLED_PLUGINS_DIR = "/nonexistent/bundled/plugins";
+    process.env.CLAWDBOT_BUNDLED_PLUGINS_DIR = "/nonexistent/bundled/plugins";
     const plugin = writePlugin({
       id: "http-route-demo",
       body: `export default { id: "http-route-demo", register(api) {
@@ -364,7 +359,7 @@ describe("loadOpenClawPlugins", () => {
 } };`,
     });
 
-    const registry = loadOpenClawPlugins({
+    const registry = loadMoltbotPlugins({
       cache: false,
       workspaceDir: plugin.dir,
       config: {
@@ -383,13 +378,13 @@ describe("loadOpenClawPlugins", () => {
   });
 
   it("respects explicit disable in config", () => {
-    process.env.OPENCLAW_BUNDLED_PLUGINS_DIR = "/nonexistent/bundled/plugins";
+    process.env.CLAWDBOT_BUNDLED_PLUGINS_DIR = "/nonexistent/bundled/plugins";
     const plugin = writePlugin({
       id: "config-disable",
       body: `export default { id: "config-disable", register() {} };`,
     });
 
-    const registry = loadOpenClawPlugins({
+    const registry = loadMoltbotPlugins({
       cache: false,
       config: {
         plugins: {
@@ -406,7 +401,7 @@ describe("loadOpenClawPlugins", () => {
   });
 
   it("enforces memory slot selection", () => {
-    process.env.OPENCLAW_BUNDLED_PLUGINS_DIR = "/nonexistent/bundled/plugins";
+    process.env.CLAWDBOT_BUNDLED_PLUGINS_DIR = "/nonexistent/bundled/plugins";
     const memoryA = writePlugin({
       id: "memory-a",
       body: `export default { id: "memory-a", kind: "memory", register() {} };`,
@@ -416,7 +411,7 @@ describe("loadOpenClawPlugins", () => {
       body: `export default { id: "memory-b", kind: "memory", register() {} };`,
     });
 
-    const registry = loadOpenClawPlugins({
+    const registry = loadMoltbotPlugins({
       cache: false,
       config: {
         plugins: {
@@ -433,13 +428,13 @@ describe("loadOpenClawPlugins", () => {
   });
 
   it("disables memory plugins when slot is none", () => {
-    process.env.OPENCLAW_BUNDLED_PLUGINS_DIR = "/nonexistent/bundled/plugins";
+    process.env.CLAWDBOT_BUNDLED_PLUGINS_DIR = "/nonexistent/bundled/plugins";
     const memory = writePlugin({
       id: "memory-off",
       body: `export default { id: "memory-off", kind: "memory", register() {} };`,
     });
 
-    const registry = loadOpenClawPlugins({
+    const registry = loadMoltbotPlugins({
       cache: false,
       config: {
         plugins: {
@@ -461,14 +456,14 @@ describe("loadOpenClawPlugins", () => {
       dir: bundledDir,
       filename: "shadow.js",
     });
-    process.env.OPENCLAW_BUNDLED_PLUGINS_DIR = bundledDir;
+    process.env.CLAWDBOT_BUNDLED_PLUGINS_DIR = bundledDir;
 
     const override = writePlugin({
       id: "shadow",
       body: `export default { id: "shadow", register() {} };`,
     });
 
-    const registry = loadOpenClawPlugins({
+    const registry = loadMoltbotPlugins({
       cache: false,
       config: {
         plugins: {
@@ -486,161 +481,4 @@ describe("loadOpenClawPlugins", () => {
     expect(loaded?.origin).toBe("config");
     expect(overridden?.origin).toBe("bundled");
   });
-<<<<<<< HEAD
-=======
-  it("warns when plugins.allow is empty and non-bundled plugins are discoverable", () => {
-    process.env.OPENCLAW_BUNDLED_PLUGINS_DIR = "/nonexistent/bundled/plugins";
-    const plugin = writePlugin({
-      id: "warn-open-allow",
-      body: `export default { id: "warn-open-allow", register() {} };`,
-    });
-    const warnings: string[] = [];
-    loadOpenClawPlugins({
-      cache: false,
-      logger: {
-        info: () => {},
-        warn: (msg) => warnings.push(msg),
-        error: () => {},
-      },
-      config: {
-        plugins: {
-          load: { paths: [plugin.file] },
-        },
-      },
-    });
-    expect(
-      warnings.some((msg) => msg.includes("plugins.allow is empty") && msg.includes(plugin.id)),
-    ).toBe(true);
-  });
-
-  it("warns when loaded non-bundled plugin has no install/load-path provenance", () => {
-    process.env.OPENCLAW_BUNDLED_PLUGINS_DIR = "/nonexistent/bundled/plugins";
-    const prevStateDir = process.env.OPENCLAW_STATE_DIR;
-    const stateDir = makeTempDir();
-    process.env.OPENCLAW_STATE_DIR = stateDir;
-    try {
-      const globalDir = path.join(stateDir, "extensions", "rogue");
-      fs.mkdirSync(globalDir, { recursive: true });
-      writePlugin({
-        id: "rogue",
-        body: `export default { id: "rogue", register() {} };`,
-        dir: globalDir,
-        filename: "index.js",
-      });
-
-      const warnings: string[] = [];
-      const registry = loadOpenClawPlugins({
-        cache: false,
-        logger: {
-          info: () => {},
-          warn: (msg) => warnings.push(msg),
-          error: () => {},
-        },
-        config: {
-          plugins: {
-            allow: ["rogue"],
-          },
-        },
-      });
-
-      const rogue = registry.plugins.find((entry) => entry.id === "rogue");
-      expect(rogue?.status).toBe("loaded");
-      expect(
-        warnings.some(
-          (msg) =>
-            msg.includes("rogue") && msg.includes("loaded without install/load-path provenance"),
-        ),
-      ).toBe(true);
-    } finally {
-      if (prevStateDir === undefined) {
-        delete process.env.OPENCLAW_STATE_DIR;
-      } else {
-        process.env.OPENCLAW_STATE_DIR = prevStateDir;
-      }
-    }
-  });
-
-  it("rejects plugin entry files that escape plugin root via symlink", () => {
-    process.env.OPENCLAW_BUNDLED_PLUGINS_DIR = "/nonexistent/bundled/plugins";
-    const pluginDir = makeTempDir();
-    const outsideDir = makeTempDir();
-    const outsideEntry = path.join(outsideDir, "outside.js");
-    const linkedEntry = path.join(pluginDir, "entry.js");
-    fs.writeFileSync(
-      outsideEntry,
-      'export default { id: "symlinked", register() { throw new Error("should not run"); } };',
-      "utf-8",
-    );
-    fs.writeFileSync(
-      path.join(pluginDir, "openclaw.plugin.json"),
-      JSON.stringify(
-        {
-          id: "symlinked",
-          configSchema: EMPTY_PLUGIN_SCHEMA,
-        },
-        null,
-        2,
-      ),
-      "utf-8",
-    );
-    try {
-      fs.symlinkSync(outsideEntry, linkedEntry);
-    } catch {
-      return;
-    }
-
-    const registry = loadOpenClawPlugins({
-      cache: false,
-      config: {
-        plugins: {
-          load: { paths: [linkedEntry] },
-          allow: ["symlinked"],
-        },
-      },
-    });
-
-    const record = registry.plugins.find((entry) => entry.id === "symlinked");
-    expect(record?.status).not.toBe("loaded");
-    expect(registry.diagnostics.some((entry) => entry.message.includes("escapes"))).toBe(true);
-  });
-<<<<<<< HEAD
->>>>>>> 81b19aaa1 (fix(security): enforce plugin and hook path containment)
-=======
-
-  it("prefers dist plugin-sdk alias when loader runs from dist", () => {
-    const root = makeTempDir();
-    const srcFile = path.join(root, "src", "plugin-sdk", "index.ts");
-    const distFile = path.join(root, "dist", "plugin-sdk", "index.js");
-    fs.mkdirSync(path.dirname(srcFile), { recursive: true });
-    fs.mkdirSync(path.dirname(distFile), { recursive: true });
-    fs.writeFileSync(srcFile, "export {};\n", "utf-8");
-    fs.writeFileSync(distFile, "export {};\n", "utf-8");
-
-    const resolved = __testing.resolvePluginSdkAliasFile({
-      srcFile: "index.ts",
-      distFile: "index.js",
-      modulePath: path.join(root, "dist", "plugins", "loader.js"),
-    });
-    expect(resolved).toBe(distFile);
-  });
-
-  it("prefers src plugin-sdk alias when loader runs from src in non-production", () => {
-    const root = makeTempDir();
-    const srcFile = path.join(root, "src", "plugin-sdk", "index.ts");
-    const distFile = path.join(root, "dist", "plugin-sdk", "index.js");
-    fs.mkdirSync(path.dirname(srcFile), { recursive: true });
-    fs.mkdirSync(path.dirname(distFile), { recursive: true });
-    fs.writeFileSync(srcFile, "export {};\n", "utf-8");
-    fs.writeFileSync(distFile, "export {};\n", "utf-8");
-
-    const resolved = withEnv({ NODE_ENV: undefined }, () =>
-      __testing.resolvePluginSdkAliasFile({
-        srcFile: "index.ts",
-        distFile: "index.js",
-        modulePath: path.join(root, "src", "plugins", "loader.ts"),
-      }),
-    );
-    expect(resolved).toBe(srcFile);
-  });
->>>>>>> a7d56e355 (feat: ACP thread-bound agents (#23580))
 });

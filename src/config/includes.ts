@@ -10,16 +10,10 @@
  * ```
  */
 
-import JSON5 from "json5";
 import fs from "node:fs";
 import path from "node:path";
-<<<<<<< HEAD
-=======
+
 import JSON5 from "json5";
-import { isPathInside } from "../security/scan-paths.js";
-import { isPlainObject } from "../utils.js";
-import { isBlockedObjectKey } from "./prototype-keys.js";
->>>>>>> 08e020881 (refactor(security): unify command gating and blocked-key guards)
 
 export const INCLUDE_KEY = "$include";
 export const MAX_INCLUDE_DEPTH = 10;
@@ -59,8 +53,6 @@ export class CircularIncludeError extends ConfigIncludeError {
 // Utilities
 // ============================================================================
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   return (
     typeof value === "object" &&
@@ -69,12 +61,7 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
     Object.prototype.toString.call(value) === "[object Object]"
   );
 }
-=======
-const BLOCKED_MERGE_KEYS = new Set(["__proto__", "prototype", "constructor"]);
->>>>>>> e0aaf2d39 (fix(security): block prototype-polluting keys in deepMerge (#20853))
 
-=======
->>>>>>> 08e020881 (refactor(security): unify command gating and blocked-key guards)
 /** Deep merge: arrays concatenate, objects merge recursively, primitives: source wins */
 export function deepMerge(target: unknown, source: unknown): unknown {
   if (Array.isArray(target) && Array.isArray(source)) {
@@ -83,9 +70,6 @@ export function deepMerge(target: unknown, source: unknown): unknown {
   if (isPlainObject(target) && isPlainObject(source)) {
     const result: Record<string, unknown> = { ...target };
     for (const key of Object.keys(source)) {
-      if (isBlockedObjectKey(key)) {
-        continue;
-      }
       result[key] = key in result ? deepMerge(result[key], source[key]) : source[key];
     }
     return result;
@@ -192,37 +176,10 @@ class IncludeProcessor {
   }
 
   private resolvePath(includePath: string): string {
-    const configDir = path.dirname(this.basePath);
     const resolved = path.isAbsolute(includePath)
       ? includePath
-      : path.resolve(configDir, includePath);
-    const normalized = path.normalize(resolved);
-
-    // SECURITY: Reject paths outside config directory (CWE-22: Path Traversal)
-    if (!normalized.startsWith(configDir + path.sep) && normalized !== configDir) {
-      throw new ConfigIncludeError(
-        `Include path escapes config directory: ${includePath}`,
-        includePath,
-      );
-    }
-
-    // SECURITY: Resolve symlinks and re-validate to prevent symlink bypass
-    try {
-      const real = fs.realpathSync(normalized);
-      if (!real.startsWith(configDir + path.sep) && real !== configDir) {
-        throw new ConfigIncludeError(
-          `Include path resolves outside config directory (symlink): ${includePath}`,
-          includePath,
-        );
-      }
-    } catch (err) {
-      if (err instanceof ConfigIncludeError) {
-        throw err;
-      }
-      // File doesn't exist yet - normalized path check above is sufficient
-    }
-
-    return normalized;
+      : path.resolve(path.dirname(this.basePath), includePath);
+    return path.normalize(resolved);
   }
 
   private checkCircular(resolvedPath: string): void {

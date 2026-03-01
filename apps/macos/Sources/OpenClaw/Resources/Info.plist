@@ -15,73 +15,9 @@
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>CFBundleShortVersionString</key>
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-    <string>2026.2.6</string>
-=======
-    <string>2026.2.10</string>
->>>>>>> 1872d0c59 (chore: bump version to 2026.2.10)
-=======
-    <string>2026.2.12</string>
->>>>>>> 7695b4842 (chore: bump version to 2026.2.12)
-=======
-    <string>2026.2.13</string>
->>>>>>> 63bb1e02b (chore(release): bump version to 2026.2.13)
-=======
-    <string>2026.2.14</string>
->>>>>>> 1ff15e60d (chore(release): bump versions to 2026.2.14)
-=======
-    <string>2026.2.15</string>
->>>>>>> 379b44558 (chore: bump version to 2026.2.15)
-=======
-    <string>2026.2.16</string>
->>>>>>> 39fa81dc9 (chore: bump version to 2026.2.16)
-=======
-    <string>2026.2.17</string>
->>>>>>> 9a2c39419 (chore(release): bump version to 2026.2.17)
-=======
-    <string>2026.2.18</string>
->>>>>>> 4bf333883 (chore: bump version to 2026.2.18 unreleased)
-=======
-    <string>2026.2.19</string>
->>>>>>> b0e55283d (chore: bump release metadata to 2026.2.19)
-=======
-    <string>2026.2.20</string>
->>>>>>> f66b23de7 (chore(release): bump versions to 2026.2.20)
-=======
-    <string>2026.2.21</string>
->>>>>>> 9231d7d30 (chore: bump version to 2026.2.21)
-=======
-    <string>2026.2.23</string>
->>>>>>> 558a0137b (chore(release): bump versions to 2026.2.23)
-=======
-    <string>2026.2.24</string>
->>>>>>> 2bad30b4d (chore(release): bump version to 2026.2.24)
-    <key>CFBundleVersion</key>
-    <string>202602230</string>
-=======
-    <string>2026.2.26</string>
-    <key>CFBundleVersion</key>
-    <string>202602260</string>
->>>>>>> caace61ba (chore: bump versions to 2026.2.26)
-=======
     <string>2026.2.27</string>
     <key>CFBundleVersion</key>
     <string>202602270</string>
->>>>>>> fe807e4be (chore(release): bump 2026.2.27 and split changelog)
     <key>CFBundleIconFile</key>
     <string>OpenClaw</string>
     <key>CFBundleURLTypes</key>
