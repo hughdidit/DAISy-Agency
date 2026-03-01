@@ -188,7 +188,15 @@ function resolveSlackMediaMimetype(
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+function looksLikeHtmlBuffer(buffer: Buffer): boolean {
+  const head = buffer.subarray(0, 512).toString("utf-8").replace(/^\s+/, "").toLowerCase();
+  return head.startsWith("<!doctype html") || head.startsWith("<html");
+}
+
+>>>>>>> e0571399a (fix(slack): reject HTML responses when downloading media (#4665))
 export type SlackMediaResult = {
   path: string;
   contentType?: string;
@@ -327,6 +335,20 @@ export async function resolveSlackMedia(params: {
         if (fetched.buffer.byteLength > params.maxBytes) {
           return null;
         }
+
+        // Guard against auth/login HTML pages returned instead of binary media.
+        // Allow user-provided HTML files through.
+        const fileMime = file.mimetype?.toLowerCase();
+        const fileName = file.name?.toLowerCase() ?? "";
+        const isExpectedHtml =
+          fileMime === "text/html" || fileName.endsWith(".html") || fileName.endsWith(".htm");
+        if (!isExpectedHtml) {
+          const detectedMime = fetched.contentType?.split(";")[0]?.trim().toLowerCase();
+          if (detectedMime === "text/html" || looksLikeHtmlBuffer(fetched.buffer)) {
+            return null;
+          }
+        }
+
         const effectiveMime = resolveSlackMediaMimetype(file, fetched.contentType);
         const saved = await saveMediaBuffer(
           fetched.buffer,
@@ -384,8 +406,10 @@ export async function resolveSlackAttachmentContent(params: {
     const imageUrl = resolveForwardedAttachmentImageUrl(att);
     if (imageUrl) {
       try {
+        const fetchImpl = createSlackMediaFetch(params.token);
         const fetched = await fetchRemoteMedia({
           url: imageUrl,
+          fetchImpl,
           maxBytes: params.maxBytes,
         });
         if (fetched.buffer.byteLength <= params.maxBytes) {
