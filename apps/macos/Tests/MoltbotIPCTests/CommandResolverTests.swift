@@ -24,7 +24,11 @@ import Testing
         try FileManager().setAttributes([.posixPermissions: 0o755], ofItemAtPath: path.path)
     }
 
+<<<<<<< HEAD:apps/macos/Tests/MoltbotIPCTests/CommandResolverTests.swift
     @Test func prefersMoltbotBinary() throws {
+=======
+    @Test func prefersOpenClawBinary() throws {
+>>>>>>> 7b3f506e6 (style(swift): apply swiftformat and swiftlint fixes):apps/macos/Tests/OpenClawIPCTests/CommandResolverTests.swift
         let defaults = self.makeDefaults()
         defaults.set(AppState.ConnectionMode.local.rawValue, forKey: connectionModeKey)
 
@@ -66,6 +70,51 @@ import Testing
         }
     }
 
+<<<<<<< HEAD:apps/macos/Tests/MoltbotIPCTests/CommandResolverTests.swift
+=======
+    @Test func prefersOpenClawBinaryOverPnpm() throws {
+        let defaults = self.makeDefaults()
+        defaults.set(AppState.ConnectionMode.local.rawValue, forKey: connectionModeKey)
+
+        let tmp = try makeTempDir()
+        CommandResolver.setProjectRoot(tmp.path)
+
+        let binDir = tmp.appendingPathComponent("bin")
+        let openclawPath = binDir.appendingPathComponent("openclaw")
+        let pnpmPath = binDir.appendingPathComponent("pnpm")
+        try self.makeExec(at: openclawPath)
+        try self.makeExec(at: pnpmPath)
+
+        let cmd = CommandResolver.openclawCommand(
+            subcommand: "rpc",
+            defaults: defaults,
+            configRoot: [:],
+            searchPaths: [binDir.path])
+
+        #expect(cmd.prefix(2).elementsEqual([openclawPath.path, "rpc"]))
+    }
+
+    @Test func usesOpenClawBinaryWithoutNodeRuntime() throws {
+        let defaults = self.makeDefaults()
+        defaults.set(AppState.ConnectionMode.local.rawValue, forKey: connectionModeKey)
+
+        let tmp = try makeTempDir()
+        CommandResolver.setProjectRoot(tmp.path)
+
+        let binDir = tmp.appendingPathComponent("bin")
+        let openclawPath = binDir.appendingPathComponent("openclaw")
+        try self.makeExec(at: openclawPath)
+
+        let cmd = CommandResolver.openclawCommand(
+            subcommand: "gateway",
+            defaults: defaults,
+            configRoot: [:],
+            searchPaths: [binDir.path])
+
+        #expect(cmd.prefix(2).elementsEqual([openclawPath.path, "gateway"]))
+    }
+
+>>>>>>> 7b3f506e6 (style(swift): apply swiftformat and swiftlint fixes):apps/macos/Tests/OpenClawIPCTests/CommandResolverTests.swift
     @Test func fallsBackToPnpm() throws {
         let defaults = self.makeDefaults()
         defaults.set(AppState.ConnectionMode.local.rawValue, forKey: connectionModeKey)

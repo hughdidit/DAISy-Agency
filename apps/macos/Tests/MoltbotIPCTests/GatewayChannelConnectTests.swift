@@ -1,5 +1,9 @@
 import Foundation
+<<<<<<< HEAD:apps/macos/Tests/MoltbotIPCTests/GatewayChannelConnectTests.swift
 import MoltbotKit
+=======
+import OpenClawKit
+>>>>>>> 7b3f506e6 (style(swift): apply swiftformat and swiftlint fixes):apps/macos/Tests/OpenClawIPCTests/GatewayChannelConnectTests.swift
 import os
 import Testing
 @testable import Moltbot
@@ -66,7 +70,6 @@ import Testing
             // Tests only need the handshake receive; keep the loop idle.
             self.pendingReceiveHandler.withLock { $0 = completionHandler }
         }
-
     }
 
     private final class FakeWebSocketSession: WebSocketSessioning, @unchecked Sendable {

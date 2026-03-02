@@ -1,6 +1,10 @@
 import CoreLocation
 import Foundation
+<<<<<<< HEAD:apps/macos/Tests/MoltbotIPCTests/MacNodeRuntimeTests.swift
 import MoltbotKit
+=======
+import OpenClawKit
+>>>>>>> 7b3f506e6 (style(swift): apply swiftformat and swiftlint fixes):apps/macos/Tests/OpenClawIPCTests/MacNodeRuntimeTests.swift
 import Testing
 @testable import Moltbot
 

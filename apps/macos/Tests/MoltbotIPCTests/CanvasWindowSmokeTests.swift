@@ -1,6 +1,10 @@
 import AppKit
 import Foundation
+<<<<<<< HEAD:apps/macos/Tests/MoltbotIPCTests/CanvasWindowSmokeTests.swift
 import MoltbotIPC
+=======
+import OpenClawIPC
+>>>>>>> 7b3f506e6 (style(swift): apply swiftformat and swiftlint fixes):apps/macos/Tests/OpenClawIPCTests/CanvasWindowSmokeTests.swift
 import Testing
 @testable import Moltbot
 

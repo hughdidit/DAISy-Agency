@@ -1,6 +1,10 @@
 import AppKit
 import Foundation
+<<<<<<< HEAD:apps/macos/Tests/MoltbotIPCTests/WebChatSwiftUISmokeTests.swift
 import MoltbotChatUI
+=======
+import OpenClawChatUI
+>>>>>>> 7b3f506e6 (style(swift): apply swiftformat and swiftlint fixes):apps/macos/Tests/OpenClawIPCTests/WebChatSwiftUISmokeTests.swift
 import Testing
 @testable import Moltbot
 

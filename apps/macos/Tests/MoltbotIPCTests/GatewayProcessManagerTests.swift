@@ -1,5 +1,9 @@
 import Foundation
+<<<<<<< HEAD:apps/macos/Tests/MoltbotIPCTests/GatewayProcessManagerTests.swift
 import MoltbotKit
+=======
+import OpenClawKit
+>>>>>>> 7b3f506e6 (style(swift): apply swiftformat and swiftlint fixes):apps/macos/Tests/OpenClawIPCTests/GatewayProcessManagerTests.swift
 import os
 import Testing
 @testable import Moltbot
@@ -69,7 +73,6 @@ struct GatewayProcessManagerTests {
         {
             self.pendingReceiveHandler.withLock { $0 = completionHandler }
         }
-
     }
 
     private final class FakeWebSocketSession: WebSocketSessioning, @unchecked Sendable {

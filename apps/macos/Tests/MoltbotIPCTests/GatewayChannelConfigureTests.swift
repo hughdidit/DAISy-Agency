@@ -1,5 +1,9 @@
 import Foundation
+<<<<<<< HEAD:apps/macos/Tests/MoltbotIPCTests/GatewayChannelConfigureTests.swift
 import MoltbotKit
+=======
+import OpenClawKit
+>>>>>>> 7b3f506e6 (style(swift): apply swiftformat and swiftlint fixes):apps/macos/Tests/OpenClawIPCTests/GatewayChannelConfigureTests.swift
 import os
 import Testing
 @testable import Moltbot
@@ -85,7 +89,6 @@ import Testing
             let handler = self.pendingReceiveHandler.withLock { $0 }
             handler?(Result<URLSessionWebSocketTask.Message, Error>.success(.data(data)))
         }
-
     }
 
     private final class FakeWebSocketSession: WebSocketSessioning, @unchecked Sendable {
