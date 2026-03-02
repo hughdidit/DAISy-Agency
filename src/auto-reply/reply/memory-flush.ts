@@ -8,12 +8,16 @@ import { DEFAULT_PI_COMPACTION_RESERVE_TOKENS_FLOOR } from "../../agents/pi-sett
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
 import type { SessionEntry } from "../../config/sessions.js";
 =======
 =======
 import { parseByteSize } from "../../cli/parse-bytes.js";
 >>>>>>> d729ab215 (fix(session): harden usage accounting and memory flush recovery)
+=======
+import { parseNonNegativeByteSize } from "../../config/byte-size.js";
+>>>>>>> fbd832d64 (refactor(config): share byte-size parsing for memory flush)
 import type { OpenClawConfig } from "../../config/config.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
@@ -101,6 +105,7 @@ const normalizeNonNegativeInt = (value: unknown): number | null => {
 };
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 export function resolveMemoryFlushSettings(cfg?: MoltbotConfig): MemoryFlushSettings | null {
 =======
 const normalizeOptionalByteSize = (value: unknown): number | null => {
@@ -123,6 +128,8 @@ const normalizeOptionalByteSize = (value: unknown): number | null => {
   return null;
 };
 
+=======
+>>>>>>> fbd832d64 (refactor(config): share byte-size parsing for memory flush)
 export function resolveMemoryFlushSettings(cfg?: OpenClawConfig): MemoryFlushSettings | null {
 >>>>>>> d729ab215 (fix(session): harden usage accounting and memory flush recovery)
   const defaults = cfg?.agents?.defaults?.compaction?.memoryFlush;
@@ -133,7 +140,7 @@ export function resolveMemoryFlushSettings(cfg?: OpenClawConfig): MemoryFlushSet
   const softThresholdTokens =
     normalizeNonNegativeInt(defaults?.softThresholdTokens) ?? DEFAULT_MEMORY_FLUSH_SOFT_TOKENS;
   const forceFlushTranscriptBytes =
-    normalizeOptionalByteSize(defaults?.forceFlushTranscriptBytes) ??
+    parseNonNegativeByteSize(defaults?.forceFlushTranscriptBytes) ??
     DEFAULT_MEMORY_FLUSH_FORCE_TRANSCRIPT_BYTES;
   const prompt = defaults?.prompt?.trim() || DEFAULT_MEMORY_FLUSH_PROMPT;
   const systemPrompt = defaults?.systemPrompt?.trim() || DEFAULT_MEMORY_FLUSH_SYSTEM_PROMPT;
