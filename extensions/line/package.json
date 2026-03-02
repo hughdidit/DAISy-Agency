@@ -23,8 +23,5 @@
       "defaultChoice": "npm"
     }
   },
-  "devDependencies": {
-    "moltbot": "workspace:*"
-  },
   "deprecated": "Package namespace migration pending: @moltbot -> @openclaw (future release)"
 }
