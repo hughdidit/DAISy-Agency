@@ -26,9 +26,8 @@
       "defaultChoice": "npm"
     }
   },
+  "deprecated": "Package namespace migration pending: @moltbot -> @openclaw (future release)",
   "dependencies": {
-    "moltbot": "workspace:*",
-    "undici": "7.19.0"
-  },
-  "deprecated": "Package namespace migration pending: @moltbot -> @openclaw (future release)"
+    "undici": "7.22.0"
+  }
 }

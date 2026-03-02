@@ -23,9 +23,8 @@
       "defaultChoice": "npm"
     }
   },
+  "deprecated": "Package namespace migration pending: @moltbot -> @openclaw (future release)",
   "dependencies": {
-    "@urbit/aura": "^3.0.0",
-    "@urbit/http-api": "^3.0.0"
-  },
-  "deprecated": "Package namespace migration pending: @moltbot -> @openclaw (future release)"
+    "@urbit/aura": "^3.0.0"
+  }
 }

@@ -8,11 +8,8 @@
       "./index.ts"
     ]
   },
-  "peerDependencies": {
-    "moltbot": ">=2026.1.26"
-  },
-  "devDependencies": {
-    "moltbot": "workspace:*"
-  },
-  "deprecated": "Package namespace migration pending: @moltbot -> @openclaw (future release)"
+  "deprecated": "Package namespace migration pending: @moltbot -> @openclaw (future release)",
+  "dependencies": {
+    "openclaw": ">=2026.1.26"
+  }
 }

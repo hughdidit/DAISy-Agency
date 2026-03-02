@@ -27,14 +27,9 @@
       "defaultChoice": "npm"
     }
   },
+  "deprecated": "Package namespace migration pending: @moltbot -> @openclaw (future release)",
   "dependencies": {
-    "google-auth-library": "^10.5.0"
-  },
-  "devDependencies": {
-    "moltbot": "workspace:*"
-  },
-  "peerDependencies": {
-    "moltbot": ">=2026.1.26"
-  },
-  "deprecated": "Package namespace migration pending: @moltbot -> @openclaw (future release)"
+    "google-auth-library": "^10.6.1",
+    "openclaw": ">=2026.1.26"
+  }
 }
