@@ -49,7 +49,10 @@ jobs:
             sys.exit(1)
           PY
 
-      # rhysd/actionlint has no @v1 major-version alias -- pin to an explicit tag
-      # to avoid startup_failure (GitHub cannot resolve a non-existent ref).
+      # rhysd/actionlint is a Go binary — it has no action.yml and cannot be used
+      # with `uses:`. Download the binary via the official script instead.
       - name: Run actionlint
-        uses: rhysd/actionlint@v1.7.11
+        shell: bash
+        run: |
+          bash <(curl -s https://raw.githubusercontent.com/rhysd/actionlint/main/scripts/download-actionlint.bash) 1.7.11
+          ./actionlint -color
