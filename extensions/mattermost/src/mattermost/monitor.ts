@@ -134,11 +134,32 @@ function isSystemPost(post: MattermostPost): boolean {
   return Boolean(type);
 }
 
+<<<<<<< HEAD
 function channelKind(channelType?: string | null): "dm" | "group" | "channel" {
   if (!channelType) return "channel";
   const normalized = channelType.trim().toUpperCase();
   if (normalized === "D") return "dm";
   if (normalized === "G") return "group";
+=======
+export function mapMattermostChannelTypeToChatType(channelType?: string | null): ChatType {
+  if (!channelType) {
+    return "channel";
+  }
+  // Mattermost channel types: D=direct, G=group DM, O=public channel, P=private channel.
+  const normalized = channelType.trim().toUpperCase();
+  if (normalized === "D") {
+    return "direct";
+  }
+  if (normalized === "G") {
+    return "group";
+  }
+  if (normalized === "P") {
+    // Private channels are invitation-restricted spaces; route as "group" so
+    // groupPolicy / groupAllowFrom can gate access separately from open public
+    // channels (type "O"), and the From prefix becomes mattermost:group:<id>.
+    return "group";
+  }
+>>>>>>> 355b4c62b (fix(mattermost): land #30891 route private channels as group (@BlueBirdBack))
   return "channel";
 }
 
@@ -379,7 +400,7 @@ export async function monitorMattermostProvider(opts: MonitorMattermostOpts = {}
 
     const channelInfo = await resolveChannelInfo(channelId);
     const channelType = payload.data?.channel_type ?? channelInfo?.type ?? undefined;
-    const kind = channelKind(channelType);
+    const kind = mapMattermostChannelTypeToChatType(channelType);
     const chatType = channelChatType(kind);
 
     const senderName =
@@ -776,8 +797,132 @@ export async function monitorMattermostProvider(opts: MonitorMattermostOpts = {}
         onReplyStart: typingCallbacks.onReplyStart,
       });
 
+<<<<<<< HEAD
     await core.channel.reply.dispatchReplyFromConfig({
       ctx: ctxPayload,
+=======
+    await core.channel.reply.withReplyDispatcher({
+      dispatcher,
+      onSettled: () => {
+        markDispatchIdle();
+      },
+      run: () =>
+        core.channel.reply.dispatchReplyFromConfig({
+          ctx: ctxPayload,
+          cfg,
+          dispatcher,
+          replyOptions: {
+            ...replyOptions,
+            disableBlockStreaming:
+              typeof account.blockStreaming === "boolean" ? !account.blockStreaming : undefined,
+            onModelSelected,
+          },
+        }),
+    });
+    if (historyKey) {
+      clearHistoryEntriesIfEnabled({
+        historyMap: channelHistories,
+        historyKey,
+        limit: historyLimit,
+      });
+    }
+  };
+
+  const handleReactionEvent = async (payload: MattermostEventPayload) => {
+    const reactionData = payload.data?.reaction;
+    if (!reactionData) {
+      return;
+    }
+    let reaction: MattermostReaction | null = null;
+    if (typeof reactionData === "string") {
+      try {
+        reaction = JSON.parse(reactionData) as MattermostReaction;
+      } catch {
+        return;
+      }
+    } else if (typeof reactionData === "object") {
+      reaction = reactionData as MattermostReaction;
+    }
+    if (!reaction) {
+      return;
+    }
+
+    const userId = reaction.user_id?.trim();
+    const postId = reaction.post_id?.trim();
+    const emojiName = reaction.emoji_name?.trim();
+    if (!userId || !postId || !emojiName) {
+      return;
+    }
+
+    // Skip reactions from the bot itself
+    if (userId === botUserId) {
+      return;
+    }
+
+    const isRemoved = payload.event === "reaction_removed";
+    const action = isRemoved ? "removed" : "added";
+
+    const senderInfo = await resolveUserInfo(userId);
+    const senderName = senderInfo?.username?.trim() || userId;
+
+    // Resolve the channel from broadcast or post to route to the correct agent session
+    const channelId = payload.broadcast?.channel_id;
+    if (!channelId) {
+      // Without a channel id we cannot verify DM/group policies — drop to be safe
+      logVerboseMessage(
+        `mattermost: drop reaction (no channel_id in broadcast, cannot enforce policy)`,
+      );
+      return;
+    }
+    const channelInfo = await resolveChannelInfo(channelId);
+    if (!channelInfo?.type) {
+      // Cannot determine channel type — drop to avoid policy bypass
+      logVerboseMessage(`mattermost: drop reaction (cannot resolve channel type for ${channelId})`);
+      return;
+    }
+    const kind = mapMattermostChannelTypeToChatType(channelInfo.type);
+
+    // Enforce DM/group policy and allowlist checks (same as normal messages)
+    const dmPolicy = account.config.dmPolicy ?? "pairing";
+    const storeAllowFrom = normalizeMattermostAllowList(
+      await readStoreAllowFromForDmPolicy({
+        provider: "mattermost",
+        accountId: account.accountId,
+        dmPolicy,
+        readStore: pairing.readStoreForDmPolicy,
+      }),
+    );
+    const reactionAccess = resolveDmGroupAccessWithLists({
+      isGroup: kind !== "direct",
+      dmPolicy,
+      groupPolicy,
+      allowFrom: normalizeMattermostAllowList(account.config.allowFrom ?? []),
+      groupAllowFrom: normalizeMattermostAllowList(account.config.groupAllowFrom ?? []),
+      storeAllowFrom,
+      isSenderAllowed: (allowFrom) =>
+        isMattermostSenderAllowed({
+          senderId: userId,
+          senderName,
+          allowFrom,
+          allowNameMatching,
+        }),
+    });
+    if (reactionAccess.decision !== "allow") {
+      if (kind === "direct") {
+        logVerboseMessage(
+          `mattermost: drop reaction (dmPolicy=${dmPolicy} sender=${userId} reason=${reactionAccess.reason})`,
+        );
+      } else {
+        logVerboseMessage(
+          `mattermost: drop reaction (groupPolicy=${groupPolicy} sender=${userId} reason=${reactionAccess.reason} channel=${channelId})`,
+        );
+      }
+      return;
+    }
+
+    const teamId = channelInfo?.team_id ?? undefined;
+    const route = core.channel.routing.resolveAgentRoute({
+>>>>>>> 355b4c62b (fix(mattermost): land #30891 route private channels as group (@BlueBirdBack))
       cfg,
       dispatcher,
       replyOptions: {
