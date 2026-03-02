@@ -65,14 +65,45 @@ export function buildAgentSelectCustomId(componentId: string): string {
 
 /**
  * Parse agent component data from Carbon's parsed ComponentData
- * Carbon parses "key:componentId=xxx" into { componentId: "xxx" }
+ * Supports both legacy { componentId } and Components v2 { cid } payloads.
  */
+function readParsedComponentId(data: ComponentData): unknown {
+  if (!data || typeof data !== "object") {
+    return undefined;
+  }
+  return "cid" in data
+    ? (data as Record<string, unknown>).cid
+    : (data as Record<string, unknown>).componentId;
+}
+
 function parseAgentComponentData(data: ComponentData): {
   componentId: string;
 } | null {
+<<<<<<< HEAD
   if (!data || typeof data !== "object") {
     return null;
   }
+=======
+  const raw = readParsedComponentId(data);
+
+  const decodeSafe = (value: string): string => {
+    // `cid` values may be raw (not URI-encoded). Guard against malformed % sequences.
+    // Only attempt decoding when it looks like it contains percent-encoding.
+    if (!value.includes("%")) {
+      return value;
+    }
+    // If it has a % but not a valid %XX sequence, skip decode.
+    if (!/%[0-9A-Fa-f]{2}/.test(value)) {
+      return value;
+    }
+    try {
+      return decodeURIComponent(value);
+    } catch {
+      return value;
+    }
+  };
+
+>>>>>>> c869ca4bb (fix: harden discord agent cid parsing (#29013) (thanks @Jacky1n7))
   const componentId =
     typeof data.componentId === "string"
       ? decodeURIComponent(data.componentId)
@@ -183,6 +214,729 @@ async function ensureDmComponentAuthorized(params: {
   return false;
 }
 
+<<<<<<< HEAD
+=======
+async function resolveInteractionContextWithDmAuth(params: {
+  ctx: AgentComponentContext;
+  interaction: AgentComponentInteraction;
+  label: string;
+  componentLabel: string;
+  defer?: boolean;
+}): Promise<ComponentInteractionContext | null> {
+  const interactionCtx = await resolveComponentInteractionContext({
+    interaction: params.interaction,
+    label: params.label,
+    defer: params.defer,
+  });
+  if (!interactionCtx) {
+    return null;
+  }
+  if (interactionCtx.isDirectMessage) {
+    const authorized = await ensureDmComponentAuthorized({
+      ctx: params.ctx,
+      interaction: params.interaction,
+      user: interactionCtx.user,
+      componentLabel: params.componentLabel,
+      replyOpts: interactionCtx.replyOpts,
+    });
+    if (!authorized) {
+      return null;
+    }
+  }
+  return interactionCtx;
+}
+
+function normalizeComponentId(value: unknown): string | undefined {
+  if (typeof value === "string") {
+    const trimmed = value.trim();
+    return trimmed ? trimmed : undefined;
+  }
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return String(value);
+  }
+  return undefined;
+}
+
+function parseDiscordComponentData(
+  data: ComponentData,
+  customId?: string,
+): { componentId: string; modalId?: string } | null {
+  if (!data || typeof data !== "object") {
+    return null;
+  }
+  const rawComponentId = readParsedComponentId(data);
+  const rawModalId =
+    "mid" in data ? (data as { mid?: unknown }).mid : (data as { modalId?: unknown }).modalId;
+  let componentId = normalizeComponentId(rawComponentId);
+  let modalId = normalizeComponentId(rawModalId);
+  if (!componentId && customId) {
+    const parsed = parseDiscordComponentCustomId(customId);
+    if (parsed) {
+      componentId = parsed.componentId;
+      modalId = parsed.modalId;
+    }
+  }
+  if (!componentId) {
+    return null;
+  }
+  return { componentId, modalId };
+}
+
+function parseDiscordModalId(data: ComponentData, customId?: string): string | null {
+  if (data && typeof data === "object") {
+    const rawModalId =
+      "mid" in data ? (data as { mid?: unknown }).mid : (data as { modalId?: unknown }).modalId;
+    const modalId = normalizeComponentId(rawModalId);
+    if (modalId) {
+      return modalId;
+    }
+  }
+  if (customId) {
+    return parseDiscordModalCustomId(customId);
+  }
+  return null;
+}
+
+function resolveInteractionCustomId(interaction: AgentComponentInteraction): string | undefined {
+  if (!interaction?.rawData || typeof interaction.rawData !== "object") {
+    return undefined;
+  }
+  if (!("data" in interaction.rawData)) {
+    return undefined;
+  }
+  const data = (interaction.rawData as { data?: { custom_id?: unknown } }).data;
+  const customId = data?.custom_id;
+  if (typeof customId !== "string") {
+    return undefined;
+  }
+  const trimmed = customId.trim();
+  return trimmed ? trimmed : undefined;
+}
+
+function mapOptionLabels(
+  options: Array<{ value: string; label: string }> | undefined,
+  values: string[],
+) {
+  if (!options || options.length === 0) {
+    return values;
+  }
+  const map = new Map(options.map((option) => [option.value, option.label]));
+  return values.map((value) => map.get(value) ?? value);
+}
+
+function mapSelectValues(entry: DiscordComponentEntry, values: string[]): string[] {
+  if (entry.selectType === "string") {
+    return mapOptionLabels(entry.options, values);
+  }
+  if (entry.selectType === "user") {
+    return values.map((value) => `user:${value}`);
+  }
+  if (entry.selectType === "role") {
+    return values.map((value) => `role:${value}`);
+  }
+  if (entry.selectType === "mentionable") {
+    return values.map((value) => `mentionable:${value}`);
+  }
+  if (entry.selectType === "channel") {
+    return values.map((value) => `channel:${value}`);
+  }
+  return values;
+}
+
+function resolveModalFieldValues(
+  field: DiscordModalEntry["fields"][number],
+  interaction: ModalInteraction,
+): string[] {
+  const fields = interaction.fields;
+  const optionLabels = field.options?.map((option) => ({
+    value: option.value,
+    label: option.label,
+  }));
+  const required = field.required === true;
+  try {
+    switch (field.type) {
+      case "text": {
+        const value = required ? fields.getText(field.id, true) : fields.getText(field.id);
+        return value ? [value] : [];
+      }
+      case "select":
+      case "checkbox":
+      case "radio": {
+        const values = required
+          ? fields.getStringSelect(field.id, true)
+          : (fields.getStringSelect(field.id) ?? []);
+        return mapOptionLabels(optionLabels, values);
+      }
+      case "role-select": {
+        try {
+          const roles = required
+            ? fields.getRoleSelect(field.id, true)
+            : (fields.getRoleSelect(field.id) ?? []);
+          return roles.map((role) => role.name ?? role.id);
+        } catch {
+          const values = required
+            ? fields.getStringSelect(field.id, true)
+            : (fields.getStringSelect(field.id) ?? []);
+          return values;
+        }
+      }
+      case "user-select": {
+        const users = required
+          ? fields.getUserSelect(field.id, true)
+          : (fields.getUserSelect(field.id) ?? []);
+        return users.map((user) => formatDiscordUserTag(user));
+      }
+      default:
+        return [];
+    }
+  } catch (err) {
+    logError(`agent modal: failed to read field ${field.id}: ${String(err)}`);
+    return [];
+  }
+}
+
+function formatModalSubmissionText(
+  entry: DiscordModalEntry,
+  interaction: ModalInteraction,
+): string {
+  const lines: string[] = [`Form "${entry.title}" submitted.`];
+  for (const field of entry.fields) {
+    const values = resolveModalFieldValues(field, interaction);
+    if (values.length === 0) {
+      continue;
+    }
+    lines.push(`- ${field.label}: ${values.join(", ")}`);
+  }
+  if (lines.length === 1) {
+    lines.push("- (no values)");
+  }
+  return lines.join("\n");
+}
+
+function resolveComponentCommandAuthorized(params: {
+  ctx: AgentComponentContext;
+  interactionCtx: ComponentInteractionContext;
+  channelConfig: ReturnType<typeof resolveDiscordChannelConfigWithFallback>;
+  guildInfo: ReturnType<typeof resolveDiscordGuildEntry>;
+  allowNameMatching: boolean;
+}): boolean {
+  const { ctx, interactionCtx, channelConfig, guildInfo } = params;
+  if (interactionCtx.isDirectMessage) {
+    return true;
+  }
+
+  const ownerAllowList = normalizeDiscordAllowList(ctx.allowFrom, ["discord:", "user:", "pk:"]);
+  const ownerOk = ownerAllowList
+    ? resolveDiscordAllowListMatch({
+        allowList: ownerAllowList,
+        candidate: {
+          id: interactionCtx.user.id,
+          name: interactionCtx.user.username,
+          tag: formatDiscordUserTag(interactionCtx.user),
+        },
+        allowNameMatching: params.allowNameMatching,
+      }).allowed
+    : false;
+
+  const { hasAccessRestrictions, memberAllowed } = resolveDiscordMemberAccessState({
+    channelConfig,
+    guildInfo,
+    memberRoleIds: interactionCtx.memberRoleIds,
+    sender: {
+      id: interactionCtx.user.id,
+      name: interactionCtx.user.username,
+      tag: formatDiscordUserTag(interactionCtx.user),
+    },
+    allowNameMatching: params.allowNameMatching,
+  });
+  const useAccessGroups = ctx.cfg.commands?.useAccessGroups !== false;
+  const authorizers = useAccessGroups
+    ? [
+        { configured: ownerAllowList != null, allowed: ownerOk },
+        { configured: hasAccessRestrictions, allowed: memberAllowed },
+      ]
+    : [{ configured: hasAccessRestrictions, allowed: memberAllowed }];
+
+  return resolveCommandAuthorizedFromAuthorizers({
+    useAccessGroups,
+    authorizers,
+    modeWhenAccessGroupsOff: "configured",
+  });
+}
+
+async function dispatchDiscordComponentEvent(params: {
+  ctx: AgentComponentContext;
+  interaction: AgentComponentInteraction;
+  interactionCtx: ComponentInteractionContext;
+  channelCtx: DiscordChannelContext;
+  guildInfo: ReturnType<typeof resolveDiscordGuildEntry>;
+  eventText: string;
+  replyToId?: string;
+  routeOverrides?: { sessionKey?: string; agentId?: string; accountId?: string };
+}): Promise<void> {
+  const { ctx, interaction, interactionCtx, channelCtx, guildInfo, eventText } = params;
+  const runtime = ctx.runtime ?? createNonExitingRuntime();
+  const route = resolveAgentRoute({
+    cfg: ctx.cfg,
+    channel: "discord",
+    accountId: ctx.accountId,
+    guildId: interactionCtx.rawGuildId,
+    memberRoleIds: interactionCtx.memberRoleIds,
+    peer: {
+      kind: interactionCtx.isDirectMessage ? "direct" : "channel",
+      id: interactionCtx.isDirectMessage ? interactionCtx.userId : interactionCtx.channelId,
+    },
+    parentPeer: channelCtx.parentId ? { kind: "channel", id: channelCtx.parentId } : undefined,
+  });
+  const sessionKey = params.routeOverrides?.sessionKey ?? route.sessionKey;
+  const agentId = params.routeOverrides?.agentId ?? route.agentId;
+  const accountId = params.routeOverrides?.accountId ?? route.accountId;
+
+  const fromLabel = interactionCtx.isDirectMessage
+    ? buildDirectLabel(interactionCtx.user)
+    : buildGuildLabel({
+        guild: interaction.guild ?? undefined,
+        channelName: channelCtx.channelName ?? interactionCtx.channelId,
+        channelId: interactionCtx.channelId,
+      });
+  const senderName = interactionCtx.user.globalName ?? interactionCtx.user.username;
+  const senderUsername = interactionCtx.user.username;
+  const senderTag = formatDiscordUserTag(interactionCtx.user);
+  const groupChannel =
+    !interactionCtx.isDirectMessage && channelCtx.channelSlug
+      ? `#${channelCtx.channelSlug}`
+      : undefined;
+  const groupSubject = interactionCtx.isDirectMessage ? undefined : groupChannel;
+  const channelConfig = resolveDiscordChannelConfigWithFallback({
+    guildInfo,
+    channelId: interactionCtx.channelId,
+    channelName: channelCtx.channelName,
+    channelSlug: channelCtx.channelSlug,
+    parentId: channelCtx.parentId,
+    parentName: channelCtx.parentName,
+    parentSlug: channelCtx.parentSlug,
+    scope: channelCtx.isThread ? "thread" : "channel",
+  });
+  const allowNameMatching = isDangerousNameMatchingEnabled(ctx.discordConfig);
+  const groupSystemPrompt = channelConfig?.systemPrompt?.trim() || undefined;
+  const ownerAllowFrom = resolveDiscordOwnerAllowFrom({
+    channelConfig,
+    guildInfo,
+    sender: { id: interactionCtx.user.id, name: interactionCtx.user.username, tag: senderTag },
+    allowNameMatching,
+  });
+  const commandAuthorized = resolveComponentCommandAuthorized({
+    ctx,
+    interactionCtx,
+    channelConfig,
+    guildInfo,
+    allowNameMatching,
+  });
+  const storePath = resolveStorePath(ctx.cfg.session?.store, { agentId });
+  const envelopeOptions = resolveEnvelopeFormatOptions(ctx.cfg);
+  const previousTimestamp = readSessionUpdatedAt({
+    storePath,
+    sessionKey,
+  });
+  const timestamp = Date.now();
+  const combinedBody = formatInboundEnvelope({
+    channel: "Discord",
+    from: fromLabel,
+    timestamp,
+    body: eventText,
+    chatType: interactionCtx.isDirectMessage ? "direct" : "channel",
+    senderLabel: senderName,
+    previousTimestamp,
+    envelope: envelopeOptions,
+  });
+
+  const ctxPayload = finalizeInboundContext({
+    Body: combinedBody,
+    BodyForAgent: eventText,
+    RawBody: eventText,
+    CommandBody: eventText,
+    From: interactionCtx.isDirectMessage
+      ? `discord:${interactionCtx.userId}`
+      : `discord:channel:${interactionCtx.channelId}`,
+    To: `channel:${interactionCtx.channelId}`,
+    SessionKey: sessionKey,
+    AccountId: accountId,
+    ChatType: interactionCtx.isDirectMessage ? "direct" : "channel",
+    ConversationLabel: fromLabel,
+    SenderName: senderName,
+    SenderId: interactionCtx.userId,
+    SenderUsername: senderUsername,
+    SenderTag: senderTag,
+    GroupSubject: groupSubject,
+    GroupChannel: groupChannel,
+    GroupSystemPrompt: interactionCtx.isDirectMessage ? undefined : groupSystemPrompt,
+    GroupSpace: guildInfo?.id ?? guildInfo?.slug ?? interactionCtx.rawGuildId ?? undefined,
+    OwnerAllowFrom: ownerAllowFrom,
+    Provider: "discord" as const,
+    Surface: "discord" as const,
+    WasMentioned: true,
+    CommandAuthorized: commandAuthorized,
+    CommandSource: "text" as const,
+    MessageSid: interaction.rawData.id,
+    Timestamp: timestamp,
+    OriginatingChannel: "discord" as const,
+    OriginatingTo: `channel:${interactionCtx.channelId}`,
+  });
+
+  await recordInboundSession({
+    storePath,
+    sessionKey: ctxPayload.SessionKey ?? sessionKey,
+    ctx: ctxPayload,
+    updateLastRoute: interactionCtx.isDirectMessage
+      ? {
+          sessionKey: route.mainSessionKey,
+          channel: "discord",
+          to: `user:${interactionCtx.userId}`,
+          accountId,
+        }
+      : undefined,
+    onRecordError: (err) => {
+      logVerbose(`discord: failed updating component session meta: ${String(err)}`);
+    },
+  });
+
+  const deliverTarget = `channel:${interactionCtx.channelId}`;
+  const typingChannelId = interactionCtx.channelId;
+  const { onModelSelected, ...prefixOptions } = createReplyPrefixOptions({
+    cfg: ctx.cfg,
+    agentId,
+    channel: "discord",
+    accountId,
+  });
+  const tableMode = resolveMarkdownTableMode({
+    cfg: ctx.cfg,
+    channel: "discord",
+    accountId,
+  });
+  const textLimit = resolveTextChunkLimit(ctx.cfg, "discord", accountId, {
+    fallbackLimit: 2000,
+  });
+  const token = ctx.token ?? "";
+  const replyToMode =
+    ctx.discordConfig?.replyToMode ?? ctx.cfg.channels?.discord?.replyToMode ?? "off";
+  const replyReference = createReplyReferencePlanner({
+    replyToMode,
+    startId: params.replyToId,
+  });
+
+  await dispatchReplyWithBufferedBlockDispatcher({
+    ctx: ctxPayload,
+    cfg: ctx.cfg,
+    replyOptions: { onModelSelected },
+    dispatcherOptions: {
+      ...prefixOptions,
+      humanDelay: resolveHumanDelayConfig(ctx.cfg, agentId),
+      deliver: async (payload) => {
+        const replyToId = replyReference.use();
+        await deliverDiscordReply({
+          replies: [payload],
+          target: deliverTarget,
+          token,
+          accountId,
+          rest: interaction.client.rest,
+          runtime,
+          replyToId,
+          replyToMode,
+          textLimit,
+          maxLinesPerMessage: ctx.discordConfig?.maxLinesPerMessage,
+          tableMode,
+          chunkMode: resolveChunkMode(ctx.cfg, "discord", accountId),
+        });
+        replyReference.markSent();
+      },
+      onReplyStart: async () => {
+        try {
+          await sendTyping({ client: interaction.client, channelId: typingChannelId });
+        } catch (err) {
+          logVerbose(`discord: typing failed for component reply: ${String(err)}`);
+        }
+      },
+      onError: (err) => {
+        logError(`discord component dispatch failed: ${String(err)}`);
+      },
+    },
+  });
+}
+
+async function handleDiscordComponentEvent(params: {
+  ctx: AgentComponentContext;
+  interaction: AgentComponentMessageInteraction;
+  data: ComponentData;
+  componentLabel: string;
+  values?: string[];
+  label: string;
+}): Promise<void> {
+  const parsed = parseDiscordComponentData(
+    params.data,
+    resolveInteractionCustomId(params.interaction),
+  );
+  if (!parsed) {
+    logError(`${params.label}: failed to parse component data`);
+    try {
+      await params.interaction.reply({
+        content: "This component is no longer valid.",
+        ephemeral: true,
+      });
+    } catch {
+      // Interaction may have expired
+    }
+    return;
+  }
+
+  const entry = resolveDiscordComponentEntry({ id: parsed.componentId, consume: false });
+  if (!entry) {
+    try {
+      await params.interaction.reply({
+        content: "This component has expired.",
+        ephemeral: true,
+      });
+    } catch {
+      // Interaction may have expired
+    }
+    return;
+  }
+
+  const interactionCtx = await resolveInteractionContextWithDmAuth({
+    ctx: params.ctx,
+    interaction: params.interaction,
+    label: params.label,
+    componentLabel: params.componentLabel,
+  });
+  if (!interactionCtx) {
+    return;
+  }
+  const { channelId, user, replyOpts, rawGuildId, memberRoleIds } = interactionCtx;
+  const guildInfo = resolveDiscordGuildEntry({
+    guild: params.interaction.guild ?? undefined,
+    guildEntries: params.ctx.guildEntries,
+  });
+  const channelCtx = resolveDiscordChannelContext(params.interaction);
+  const unauthorizedReply = `You are not authorized to use this ${params.componentLabel}.`;
+  const memberAllowed = await ensureGuildComponentMemberAllowed({
+    interaction: params.interaction,
+    guildInfo,
+    channelId,
+    rawGuildId,
+    channelCtx,
+    memberRoleIds,
+    user,
+    replyOpts,
+    componentLabel: params.componentLabel,
+    unauthorizedReply,
+    allowNameMatching: isDangerousNameMatchingEnabled(params.ctx.discordConfig),
+  });
+  if (!memberAllowed) {
+    return;
+  }
+
+  const componentAllowed = await ensureComponentUserAllowed({
+    entry,
+    interaction: params.interaction,
+    user,
+    replyOpts,
+    componentLabel: params.componentLabel,
+    unauthorizedReply,
+    allowNameMatching: isDangerousNameMatchingEnabled(params.ctx.discordConfig),
+  });
+  if (!componentAllowed) {
+    return;
+  }
+
+  const consumed = resolveDiscordComponentEntry({
+    id: parsed.componentId,
+    consume: !entry.reusable,
+  });
+  if (!consumed) {
+    try {
+      await params.interaction.reply({
+        content: "This component has expired.",
+        ephemeral: true,
+      });
+    } catch {
+      // Interaction may have expired
+    }
+    return;
+  }
+
+  if (consumed.kind === "modal-trigger") {
+    try {
+      await params.interaction.reply({
+        content: "This form is no longer available.",
+        ephemeral: true,
+      });
+    } catch {
+      // Interaction may have expired
+    }
+    return;
+  }
+
+  const values = params.values ? mapSelectValues(consumed, params.values) : undefined;
+  const eventText = formatDiscordComponentEventText({
+    kind: consumed.kind === "select" ? "select" : "button",
+    label: consumed.label,
+    values,
+  });
+
+  try {
+    await params.interaction.reply({ content: "✓", ...replyOpts });
+  } catch (err) {
+    logError(`${params.label}: failed to acknowledge interaction: ${String(err)}`);
+  }
+
+  await dispatchDiscordComponentEvent({
+    ctx: params.ctx,
+    interaction: params.interaction,
+    interactionCtx,
+    channelCtx,
+    guildInfo,
+    eventText,
+    replyToId: consumed.messageId ?? params.interaction.message?.id,
+    routeOverrides: {
+      sessionKey: consumed.sessionKey,
+      agentId: consumed.agentId,
+      accountId: consumed.accountId,
+    },
+  });
+}
+
+async function handleDiscordModalTrigger(params: {
+  ctx: AgentComponentContext;
+  interaction: ButtonInteraction;
+  data: ComponentData;
+  label: string;
+}): Promise<void> {
+  const parsed = parseDiscordComponentData(
+    params.data,
+    resolveInteractionCustomId(params.interaction),
+  );
+  if (!parsed) {
+    logError(`${params.label}: failed to parse modal trigger data`);
+    try {
+      await params.interaction.reply({
+        content: "This button is no longer valid.",
+        ephemeral: true,
+      });
+    } catch {
+      // Interaction may have expired
+    }
+    return;
+  }
+  const entry = resolveDiscordComponentEntry({ id: parsed.componentId, consume: false });
+  if (!entry || entry.kind !== "modal-trigger") {
+    try {
+      await params.interaction.reply({
+        content: "This button has expired.",
+        ephemeral: true,
+      });
+    } catch {
+      // Interaction may have expired
+    }
+    return;
+  }
+
+  const modalId = entry.modalId ?? parsed.modalId;
+  if (!modalId) {
+    try {
+      await params.interaction.reply({
+        content: "This form is no longer available.",
+        ephemeral: true,
+      });
+    } catch {
+      // Interaction may have expired
+    }
+    return;
+  }
+
+  const interactionCtx = await resolveInteractionContextWithDmAuth({
+    ctx: params.ctx,
+    interaction: params.interaction,
+    label: params.label,
+    componentLabel: "form",
+    defer: false,
+  });
+  if (!interactionCtx) {
+    return;
+  }
+  const { channelId, user, replyOpts, rawGuildId, memberRoleIds } = interactionCtx;
+  const guildInfo = resolveDiscordGuildEntry({
+    guild: params.interaction.guild ?? undefined,
+    guildEntries: params.ctx.guildEntries,
+  });
+  const channelCtx = resolveDiscordChannelContext(params.interaction);
+  const unauthorizedReply = "You are not authorized to use this form.";
+  const memberAllowed = await ensureGuildComponentMemberAllowed({
+    interaction: params.interaction,
+    guildInfo,
+    channelId,
+    rawGuildId,
+    channelCtx,
+    memberRoleIds,
+    user,
+    replyOpts,
+    componentLabel: "form",
+    unauthorizedReply,
+    allowNameMatching: isDangerousNameMatchingEnabled(params.ctx.discordConfig),
+  });
+  if (!memberAllowed) {
+    return;
+  }
+
+  const componentAllowed = await ensureComponentUserAllowed({
+    entry,
+    interaction: params.interaction,
+    user,
+    replyOpts,
+    componentLabel: "form",
+    unauthorizedReply,
+    allowNameMatching: isDangerousNameMatchingEnabled(params.ctx.discordConfig),
+  });
+  if (!componentAllowed) {
+    return;
+  }
+
+  const consumed = resolveDiscordComponentEntry({
+    id: parsed.componentId,
+    consume: !entry.reusable,
+  });
+  if (!consumed) {
+    try {
+      await params.interaction.reply({
+        content: "This form has expired.",
+        ephemeral: true,
+      });
+    } catch {
+      // Interaction may have expired
+    }
+    return;
+  }
+
+  const resolvedModalId = consumed.modalId ?? modalId;
+  const modalEntry = resolveDiscordModalEntry({ id: resolvedModalId, consume: false });
+  if (!modalEntry) {
+    try {
+      await params.interaction.reply({
+        content: "This form has expired.",
+        ephemeral: true,
+      });
+    } catch {
+      // Interaction may have expired
+    }
+    return;
+  }
+
+  try {
+    await params.interaction.showModal(createDiscordFormModal(modalEntry));
+  } catch (err) {
+    logError(`${params.label}: failed to show modal: ${String(err)}`);
+  }
+}
+
+>>>>>>> c869ca4bb (fix: harden discord agent cid parsing (#29013) (thanks @Jacky1n7))
 export class AgentComponentButton extends Button {
   label = AGENT_BUTTON_KEY;
   customId = `${AGENT_BUTTON_KEY}:seed=1`;
