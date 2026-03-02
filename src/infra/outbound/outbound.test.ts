@@ -989,6 +989,7 @@ describe("resolveOutboundSessionRoute", () => {
       channel: string;
       target: string;
       replyToId?: string;
+      threadId?: string;
       expected: {
         sessionKey: string;
         from?: string;
@@ -1029,6 +1030,20 @@ describe("resolveOutboundSessionRoute", () => {
         target: "@alice",
         expected: {
           sessionKey: "agent:main:telegram:direct:@alice",
+          chatType: "direct",
+        },
+      },
+      {
+        name: "Telegram DM scoped threadId fallback",
+        cfg: perChannelPeerCfg,
+        channel: "telegram",
+        target: "12345",
+        threadId: "12345:99",
+        expected: {
+          sessionKey: "agent:main:telegram:direct:12345",
+          from: "telegram:12345",
+          to: "telegram:12345",
+          threadId: 99,
           chatType: "direct",
         },
       },
@@ -1116,6 +1131,7 @@ describe("resolveOutboundSessionRoute", () => {
         agentId: "main",
         target: testCase.target,
         replyToId: testCase.replyToId,
+        threadId: testCase.threadId,
       });
       expect(route?.sessionKey, testCase.name).toBe(testCase.expected.sessionKey);
       if (testCase.expected.from !== undefined) {

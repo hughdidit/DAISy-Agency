@@ -112,9 +112,17 @@ function mergeTelegramAccountConfig(cfg: MoltbotConfig, accountId: string): Tele
   const { accounts: _ignored, ...base } = (cfg.channels?.telegram ??
 =======
 function mergeTelegramAccountConfig(cfg: OpenClawConfig, accountId: string): TelegramAccountConfig {
+<<<<<<< HEAD
   const { accounts: _ignored, groups: channelGroups, ...base } = (cfg.channels?.telegram ??
 >>>>>>> 3b2ed8fe6 (fix(telegram): prevent channel-level groups from leaking to all accounts in multi-account setups)
     {}) as TelegramAccountConfig & { accounts?: unknown };
+=======
+  const {
+    accounts: _ignored,
+    groups: channelGroups,
+    ...base
+  } = (cfg.channels?.telegram ?? {}) as TelegramAccountConfig & { accounts?: unknown };
+>>>>>>> f64d25bd3 (fix(telegram): scope DM topic thread keys by chat id (#31064))
   const account = resolveAccountConfig(cfg, accountId) ?? {};
 
   // In multi-account setups, channel-level `groups` must NOT be inherited by
