@@ -26,5 +26,6 @@
       "localPath": "extensions/nextcloud-talk",
       "defaultChoice": "npm"
     }
-  }
+  },
+  "deprecated": "Package namespace migration pending: @moltbot -> @openclaw (future release)"
 }

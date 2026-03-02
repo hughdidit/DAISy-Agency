@@ -25,9 +25,13 @@
   },
   "dependencies": {
     "@matrix-org/matrix-sdk-crypto-nodejs": "^0.4.0",
-    "markdown-it": "14.1.1",
+    "markdown-it": "14.1.0",
     "@vector-im/matrix-bot-sdk": "0.8.0-element.3",
-    "music-metadata": "^11.12.1",
+    "music-metadata": "^11.10.6",
     "zod": "^4.3.6"
-  }
+  },
+  "devDependencies": {
+    "moltbot": "workspace:*"
+  },
+  "deprecated": "Package namespace migration pending: @moltbot -> @openclaw (future release)"
 }

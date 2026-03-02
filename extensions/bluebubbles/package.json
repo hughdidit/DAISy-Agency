@@ -29,5 +29,6 @@
       "localPath": "extensions/bluebubbles",
       "defaultChoice": "npm"
     }
-  }
+  },
+  "deprecated": "Package namespace migration pending: @moltbot -> @openclaw (future release)"
 }

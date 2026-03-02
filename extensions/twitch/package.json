@@ -7,11 +7,15 @@
     "@twurple/api": "^8.0.3",
     "@twurple/auth": "^8.0.3",
     "@twurple/chat": "^8.0.3",
-    "zod": "^4.3.6"
+    "zod": "^4.3.5"
+  },
+  "devDependencies": {
+    "moltbot": "workspace:*"
   },
   "moltbot": {
     "extensions": [
       "./index.ts"
     ]
-  }
+  },
+  "deprecated": "Package namespace migration pending: @moltbot -> @openclaw (future release)"
 }

@@ -32,5 +32,6 @@
     "moltbot": "workspace:*",
     "express": "^5.2.1",
     "proper-lockfile": "^4.1.2"
-  }
+  },
+  "deprecated": "Package namespace migration pending: @moltbot -> @openclaw (future release)"
 }

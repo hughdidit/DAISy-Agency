@@ -4,7 +4,8 @@
   "type": "module",
   "description": "Moltbot Zalo Personal Account plugin via zca-cli",
   "dependencies": {
-    "@sinclair/typebox": "0.34.48"
+    "moltbot": "workspace:*",
+    "@sinclair/typebox": "0.34.47"
   },
   "moltbot": {
     "extensions": [
@@ -28,5 +29,6 @@
       "localPath": "extensions/zalouser",
       "defaultChoice": "npm"
     }
-  }
+  },
+  "deprecated": "Package namespace migration pending: @moltbot -> @openclaw (future release)"
 }
