@@ -49,5 +49,7 @@ jobs:
             sys.exit(1)
           PY
 
+      # rhysd/actionlint has no @v1 major-version alias -- pin to an explicit tag
+      # to avoid startup_failure (GitHub cannot resolve a non-existent ref).
       - name: Run actionlint
-        uses: rhysd/actionlint@v1
+        uses: rhysd/actionlint@v1.7.11
