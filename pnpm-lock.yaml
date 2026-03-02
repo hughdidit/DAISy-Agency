@@ -442,14 +442,11 @@ importers:
         specifier: ^1.2.3
         version: 1.2.3
       '@microsoft/agents-hosting-extensions-teams':
-        specifier: ^1.2.2
-        version: 1.2.2
+        specifier: ^1.2.3
+        version: 1.2.3
       express:
         specifier: ^5.2.1
         version: 5.2.1
-      moltbot:
-        specifier: workspace:*
-        version: link:../..
       proper-lockfile:
         specifier: ^4.1.2
         version: 4.1.2
