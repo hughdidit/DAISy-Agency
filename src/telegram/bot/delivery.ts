@@ -421,7 +421,7 @@ export async function deliverReplies(params: {
                   replyMarkup,
                 });
               }
-              if (replyToMessageIdForPayload && !hasReplied) {
+              if (replyToMessageId && !hasReplied) {
                 hasReplied = true;
               }
 >>>>>>> 60f8e832e (fix(telegram): handle sendVoice caption-too-long by resending without caption)

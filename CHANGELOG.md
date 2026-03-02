@@ -58,6 +58,7 @@ Docs: https://docs.openclaw.ai
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 =======
@@ -66,6 +67,9 @@ Docs: https://docs.openclaw.ai
 =======
 =======
 =======
+=======
+- Model directives/Auth profiles: split `/model` profile suffixes at the first `@` after the last slash so email-based auth profile IDs (for example OAuth profile IDs) resolve correctly. Landed from contributor PR #30932 by @haosenwang1018. Thanks @haosenwang1018.
+>>>>>>> e4e5d9c98 (fix(model): land #30932 auth-profile @ parsing for /model (@haosenwang1018))
 - Windows/Plugin install: avoid `spawn EINVAL` on Windows npm/npx invocations by resolving to `node` + npm CLI scripts instead of spawning `.cmd` directly. Landed from contributor PR #31147 by @codertony. Thanks @codertony.
 <<<<<<< HEAD
 >>>>>>> a1a8ec687 (fix(windows): land #31147 plugin install spawn EINVAL (@codertony))
