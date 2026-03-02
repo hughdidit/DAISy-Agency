@@ -38,8 +38,17 @@ import path from "node:path";
 import { sameFileIdentity } from "./file-identity.js";
 import { expandHomePrefix } from "./home-dir.js";
 import { assertNoPathAliasEscape } from "./path-alias-guards.js";
+<<<<<<< HEAD
 import { isNotFoundPathError, isPathInside, isSymlinkOpenError } from "./path-guards.js";
 >>>>>>> 645d96395 (feat: expand ~ (tilde) to home directory in file tools (read/write/edit) (openclaw#29779) thanks @Glucksberg)
+=======
+import {
+  hasNodeErrorCode,
+  isNotFoundPathError,
+  isPathInside,
+  isSymlinkOpenError,
+} from "./path-guards.js";
+>>>>>>> 6398a0ba8 (fix(infra): avoid EISDIR leak to messaging when Read targets directory (Closes #31186))
 
 export type SafeOpenErrorCode =
   | "invalid-path"
@@ -126,7 +135,24 @@ async function openVerifiedLocalFile(
     rejectHardlinks?: boolean;
   },
 ): Promise<SafeOpenResult> {
+<<<<<<< HEAD
 >>>>>>> 645d96395 (feat: expand ~ (tilde) to home directory in file tools (read/write/edit) (openclaw#29779) thanks @Glucksberg)
+=======
+  // Reject directories before opening so we never surface EISDIR to callers (e.g. tool
+  // results that get sent to messaging channels). See openclaw/openclaw#31186.
+  try {
+    const preStat = await fs.lstat(filePath);
+    if (preStat.isDirectory()) {
+      throw new SafeOpenError("not-file", "not a file");
+    }
+  } catch (err) {
+    if (err instanceof SafeOpenError) {
+      throw err;
+    }
+    // ENOENT and other lstat errors: fall through and let fs.open handle.
+  }
+
+>>>>>>> 6398a0ba8 (fix(infra): avoid EISDIR leak to messaging when Read targets directory (Closes #31186))
   let handle: FileHandle;
   try {
     handle = await fs.open(filePath, OPEN_READ_FLAGS);
@@ -136,6 +162,10 @@ async function openVerifiedLocalFile(
     }
     if (isSymlinkOpenError(err)) {
       throw new SafeOpenError("symlink", "symlink open blocked", { cause: err });
+    }
+    // Defensive: if open still throws EISDIR (e.g. race), sanitize so it never leaks.
+    if (hasNodeErrorCode(err, "EISDIR")) {
+      throw new SafeOpenError("not-file", "not a file");
     }
     throw err;
   }
