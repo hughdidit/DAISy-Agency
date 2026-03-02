@@ -50,6 +50,7 @@ export function computeNextRunAtMs(schedule: CronSchedule, nowMs: number): numbe
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   const next = cron.nextRun(new Date(nowMs));
   return next ? next.getTime() : undefined;
 =======
@@ -112,20 +113,42 @@ export function computeNextRunAtMs(schedule: CronSchedule, nowMs: number): numbe
   return Number.isFinite(nextMs) ? nextMs : undefined;
 >>>>>>> de6cc05e7 (fix(cron): prevent spin loop when job completes within firing second (#17821))
 =======
+=======
+  let next = cron.nextRun(new Date(nowMs));
+  if (!next) {
+    return undefined;
+  }
+  let nextMs = next.getTime();
+>>>>>>> 4691aab01 (fix(cron): guard against year-rollback in croner nextRun (#30777))
   if (!Number.isFinite(nextMs)) {
     return undefined;
   }
-  if (nextMs > nowMs) {
-    return nextMs;
-  }
 
-  // Guard against same-second rescheduling loops: if croner returns
-  // "now" (or an earlier instant), retry from the next whole second.
-  const nextSecondMs = Math.floor(nowMs / 1000) * 1000 + 1000;
-  const retry = cron.nextRun(new Date(nextSecondMs));
-  if (!retry) {
+  // Workaround for croner year-rollback bug: some timezone/date combinations
+  // (e.g. Asia/Shanghai) cause nextRun to return a timestamp in a past year.
+  // Retry from a later reference point when the returned time is not in the
+  // future.
+  if (nextMs <= nowMs) {
+    const nextSecondMs = Math.floor(nowMs / 1000) * 1000 + 1000;
+    const retry = cron.nextRun(new Date(nextSecondMs));
+    if (retry) {
+      const retryMs = retry.getTime();
+      if (Number.isFinite(retryMs) && retryMs > nowMs) {
+        return retryMs;
+      }
+    }
+    // Still in the past — try from start of tomorrow (UTC) as a broader reset.
+    const tomorrowMs = new Date(nowMs).setUTCHours(24, 0, 0, 0);
+    const retry2 = cron.nextRun(new Date(tomorrowMs));
+    if (retry2) {
+      const retry2Ms = retry2.getTime();
+      if (Number.isFinite(retry2Ms) && retry2Ms > nowMs) {
+        return retry2Ms;
+      }
+    }
     return undefined;
   }
+<<<<<<< HEAD
   const retryMs = retry.getTime();
 <<<<<<< HEAD
   return Number.isFinite(retryMs) ? retryMs : undefined;
@@ -133,4 +156,8 @@ export function computeNextRunAtMs(schedule: CronSchedule, nowMs: number): numbe
 =======
   return Number.isFinite(retryMs) && retryMs > nowMs ? retryMs : undefined;
 >>>>>>> b3d0e0cb4 (fix(cron): preserve overrides and harden next-run calculation)
+=======
+
+  return nextMs;
+>>>>>>> 4691aab01 (fix(cron): guard against year-rollback in croner nextRun (#30777))
 }
