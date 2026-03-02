@@ -245,10 +245,6 @@ export function computeJobNextRunAtMs(job: CronJob, nowMs: number): number | und
   }
 >>>>>>> 9cf445e37 (fix(cron): restore interval cadence after restart)
   if (job.schedule.kind === "at") {
-    // One-shot jobs stay due until they successfully finish.
-    if (job.state.lastStatus === "ok" && job.state.lastRunAtMs) {
-      return undefined;
-    }
     // Handle both canonical `at` (string) and legacy `atMs` (number) fields.
     // The store migration should convert atMs→at, but be defensive in case
     // the migration hasn't run yet or was bypassed.
@@ -261,7 +257,19 @@ export function computeJobNextRunAtMs(job: CronJob, nowMs: number): number | und
           : typeof schedule.at === "string"
             ? parseAbsoluteTimeMs(schedule.at)
             : null;
+<<<<<<< HEAD
     return atMs !== null ? atMs : undefined;
+=======
+    // One-shot jobs stay due until they successfully finish, but if the
+    // schedule was updated to a time after the last run, re-arm the job.
+    if (job.state.lastStatus === "ok" && job.state.lastRunAtMs) {
+      if (atMs !== null && Number.isFinite(atMs) && atMs > job.state.lastRunAtMs) {
+        return atMs;
+      }
+      return undefined;
+    }
+    return atMs !== null && Number.isFinite(atMs) ? atMs : undefined;
+>>>>>>> 08c35eb13 (fix(cron): re-arm one-shot at-jobs when rescheduled after completion (openclaw#28915) thanks @Glucksberg)
   }
   const next = computeStaggeredCronNextRunAtMs(job, nowMs);
   if (next === undefined && job.schedule.kind === "cron") {
