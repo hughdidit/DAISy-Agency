@@ -821,7 +821,7 @@ function createSandboxEditOperations(params: SandboxToolParams) {
 }
 
 function createHostWriteOperations(root: string, options?: { workspaceOnly?: boolean }) {
-  const workspaceOnly = options?.workspaceOnly !== false;
+  const workspaceOnly = options?.workspaceOnly ?? false;
 
   if (!workspaceOnly) {
     // When workspaceOnly is false, allow writes anywhere on the host
@@ -839,7 +839,7 @@ function createHostWriteOperations(root: string, options?: { workspaceOnly?: boo
     } as const;
   }
 
-  // When workspaceOnly is true (default), enforce workspace boundary
+  // When workspaceOnly is true, enforce workspace boundary
   return {
     mkdir: async (dir: string) => {
       const relative = toRelativePathInRoot(root, dir, { allowRoot: true });
@@ -860,7 +860,7 @@ function createHostWriteOperations(root: string, options?: { workspaceOnly?: boo
 }
 
 function createHostEditOperations(root: string, options?: { workspaceOnly?: boolean }) {
-  const workspaceOnly = options?.workspaceOnly !== false;
+  const workspaceOnly = options?.workspaceOnly ?? false;
 
   if (!workspaceOnly) {
     // When workspaceOnly is false, allow edits anywhere on the host
@@ -882,7 +882,7 @@ function createHostEditOperations(root: string, options?: { workspaceOnly?: bool
     } as const;
   }
 
-  // When workspaceOnly is true (default), enforce workspace boundary
+  // When workspaceOnly is true, enforce workspace boundary
   return {
     readFile: async (absolutePath: string) => {
       const relative = toRelativePathInRoot(root, absolutePath);
