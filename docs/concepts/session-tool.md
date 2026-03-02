@@ -151,6 +151,7 @@ Parameters:
 - `model?` (optional; overrides the sub-agent model; invalid values error)
 - `runTimeoutSeconds?` (default 0; when set, aborts the sub-agent run after N seconds)
 - `cleanup?` (`delete|keep`, default `keep`)
+- `sandbox?` (`inherit|require`, default `inherit`; `require` rejects spawn unless the target child runtime is sandboxed)
 
 Allowlist:
 

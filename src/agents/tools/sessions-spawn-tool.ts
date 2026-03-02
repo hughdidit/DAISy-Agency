@@ -58,6 +58,12 @@ import type { AnyAgentTool } from "./common.js";
 >>>>>>> 5a31da8ee (chore: format imports in gateway and session tools)
 import { jsonResult, readStringParam } from "./common.js";
 
+<<<<<<< HEAD
+=======
+const SESSIONS_SPAWN_RUNTIMES = ["subagent", "acp"] as const;
+const SESSIONS_SPAWN_SANDBOX_MODES = ["inherit", "require"] as const;
+
+>>>>>>> bfeadb80b (feat(agents): add sessions_spawn sandbox require mode)
 const SessionsSpawnToolSchema = Type.Object({
   task: Type.String(),
   label: Type.Optional(Type.String()),
@@ -70,6 +76,7 @@ const SessionsSpawnToolSchema = Type.Object({
   thread: Type.Optional(Type.Boolean()),
   mode: optionalStringEnum(SUBAGENT_SPAWN_MODES),
   cleanup: optionalStringEnum(["delete", "keep"] as const),
+  sandbox: optionalStringEnum(SESSIONS_SPAWN_SANDBOX_MODES),
 });
 
 export function createSessionsSpawnTool(opts?: {
@@ -101,6 +108,7 @@ export function createSessionsSpawnTool(opts?: {
       const mode = params.mode === "run" || params.mode === "session" ? params.mode : undefined;
       const cleanup =
         params.cleanup === "keep" || params.cleanup === "delete" ? params.cleanup : "keep";
+      const sandbox = params.sandbox === "require" ? "require" : "inherit";
       // Back-compat: older callers used timeoutSeconds for this tool.
       const timeoutSecondsCandidate =
         typeof params.runTimeoutSeconds === "number"
@@ -114,6 +122,7 @@ export function createSessionsSpawnTool(opts?: {
           : undefined;
       const thread = params.thread === true;
 
+<<<<<<< HEAD
       const result = await spawnSubagentDirect(
         {
           task,
@@ -139,6 +148,53 @@ export function createSessionsSpawnTool(opts?: {
           requesterAgentIdOverride: opts?.requesterAgentIdOverride,
         },
       );
+=======
+      const result =
+        runtime === "acp"
+          ? await spawnAcpDirect(
+              {
+                task,
+                label: label || undefined,
+                agentId: requestedAgentId,
+                cwd,
+                mode: mode && ACP_SPAWN_MODES.includes(mode) ? mode : undefined,
+                thread,
+              },
+              {
+                agentSessionKey: opts?.agentSessionKey,
+                agentChannel: opts?.agentChannel,
+                agentAccountId: opts?.agentAccountId,
+                agentTo: opts?.agentTo,
+                agentThreadId: opts?.agentThreadId,
+              },
+            )
+          : await spawnSubagentDirect(
+              {
+                task,
+                label: label || undefined,
+                agentId: requestedAgentId,
+                model: modelOverride,
+                thinking: thinkingOverrideRaw,
+                runTimeoutSeconds,
+                thread,
+                mode,
+                cleanup,
+                sandbox,
+                expectsCompletionMessage: true,
+              },
+              {
+                agentSessionKey: opts?.agentSessionKey,
+                agentChannel: opts?.agentChannel,
+                agentAccountId: opts?.agentAccountId,
+                agentTo: opts?.agentTo,
+                agentThreadId: opts?.agentThreadId,
+                agentGroupId: opts?.agentGroupId,
+                agentGroupChannel: opts?.agentGroupChannel,
+                agentGroupSpace: opts?.agentGroupSpace,
+                requesterAgentIdOverride: opts?.requesterAgentIdOverride,
+              },
+            );
+>>>>>>> bfeadb80b (feat(agents): add sessions_spawn sandbox require mode)
 
 <<<<<<< HEAD
       const resolvedThinkingDefaultRaw =

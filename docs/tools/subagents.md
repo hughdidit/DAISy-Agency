@@ -98,6 +98,7 @@ Tool params:
 - `thinking?` (optional; overrides thinking level for the sub-agent run)
 - `runTimeoutSeconds?` (default `0`; when set, the sub-agent run is aborted after N seconds)
 - `cleanup?` (`delete|keep`, default `keep`)
+- `sandbox?` (`inherit|require`, default `inherit`; `require` rejects spawn unless target child runtime is sandboxed)
 
 <<<<<<< HEAD
 =======
