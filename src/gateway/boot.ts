@@ -220,6 +220,7 @@ export async function runBootOnce(params: {
         message,
         sessionKey,
         deliver: false,
+        senderIsOwner: true,
       },
       bootRuntime,
       params.deps,

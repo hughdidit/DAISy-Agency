@@ -729,6 +729,20 @@ injected by Tailscale.
 HTTP API endpoints (for example `/v1/*`, `/tools/invoke`, and `/api/channels/*`)
 still require token/password auth.
 
+<<<<<<< HEAD
+=======
+Important boundary note:
+
+- Gateway HTTP bearer auth is effectively all-or-nothing operator access.
+- Treat credentials that can call `/v1/chat/completions`, `/v1/responses`, `/tools/invoke`, or `/api/channels/*` as full-access operator secrets for that gateway.
+- Do not share these credentials with untrusted callers; prefer separate gateways per trust boundary.
+
+**Trust assumption:** tokenless Serve auth assumes the gateway host is trusted.
+Do not treat this as protection against hostile same-host processes. If untrusted
+local code may run on the gateway host, disable `gateway.auth.allowTailscale`
+and require token/password auth.
+
+>>>>>>> 58659b931 (fix(gateway): enforce owner boundary for agent runs)
 **Security rule:** do not forward these headers from your own reverse proxy. If
 you terminate TLS or proxy in front of the gateway, disable
 `gateway.auth.allowTailscale` and use token/password auth instead.

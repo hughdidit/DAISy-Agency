@@ -54,6 +54,12 @@ import {
 } from "../../utils/message-channel.js";
 import { normalizeAgentId } from "../../routing/session-key.js";
 import { parseMessageWithAttachments } from "../chat-attachments.js";
+<<<<<<< HEAD
+=======
+import { resolveAssistantAvatarUrl } from "../control-ui-shared.js";
+import { ADMIN_SCOPE } from "../method-scopes.js";
+import { GATEWAY_CLIENT_CAPS, hasGatewayClientCap } from "../protocol/client-info.js";
+>>>>>>> 58659b931 (fix(gateway): enforce owner boundary for agent runs)
 import {
   ErrorCodes,
   errorShape,
@@ -84,6 +90,11 @@ import { sessionsHandlers } from "./sessions.js";
 import type { GatewayRequestHandlerOptions, GatewayRequestHandlers } from "./types.js";
 
 const RESET_COMMAND_RE = /^\/(new|reset)(?:\s+([\s\S]*))?$/i;
+
+function resolveSenderIsOwnerFromClient(client: GatewayRequestHandlerOptions["client"]): boolean {
+  const scopes = Array.isArray(client?.connect?.scopes) ? client.connect.scopes : [];
+  return scopes.includes(ADMIN_SCOPE);
+}
 
 function isGatewayErrorShape(value: unknown): value is { code: string; message: string } {
   if (!value || typeof value !== "object") {
@@ -229,6 +240,7 @@ export const agentHandlers: GatewayRequestHandlers = {
       label?: string;
       spawnedBy?: string;
     };
+    const senderIsOwner = resolveSenderIsOwnerFromClient(client);
     const cfg = loadConfig();
     const idem = request.idempotencyKey;
     const groupIdRaw = typeof request.groupId === "string" ? request.groupId.trim() : "";
@@ -626,7 +638,11 @@ export const agentHandlers: GatewayRequestHandlers = {
 =======
         internalEvents: request.internalEvents,
         inputProvenance,
+<<<<<<< HEAD
 >>>>>>> 4c43fccb3 (feat(agents): use structured internal completion events)
+=======
+        senderIsOwner,
+>>>>>>> 58659b931 (fix(gateway): enforce owner boundary for agent runs)
       },
       defaultRuntime,
       context.deps,
