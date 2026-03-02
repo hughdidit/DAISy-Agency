@@ -88,12 +88,16 @@
     "@opentelemetry/sdk-metrics": "^2.5.1",
     "@opentelemetry/sdk-node": "^0.212.0",
     "@opentelemetry/sdk-trace-base": "^2.5.1",
+<<<<<<< HEAD
     "@opentelemetry/semantic-conventions": "^1.39.0"
 <<<<<<< HEAD
 =======
   },
   "devDependencies": {
     "openclaw": "workspace:*"
+=======
+    "@opentelemetry/semantic-conventions": "^1.40.0"
+>>>>>>> 6fc0787bf (chore(deps): bump workspace dependencies)
   },
   "openclaw": {
     "extensions": [
