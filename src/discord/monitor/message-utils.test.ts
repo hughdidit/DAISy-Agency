@@ -276,6 +276,168 @@ describe("resolveMediaList", () => {
       expect.objectContaining({ fetchImpl: proxyFetch }),
     );
   });
+<<<<<<< HEAD
+=======
+
+  it("keeps attachment metadata when download fails", async () => {
+    const attachment = {
+      id: "att-main-fallback",
+      url: "https://cdn.discordapp.com/attachments/1/main-fallback.png",
+      filename: "main-fallback.png",
+      content_type: "image/png",
+    };
+    fetchRemoteMedia.mockRejectedValueOnce(new Error("blocked by ssrf guard"));
+
+    const result = await resolveMediaList(
+      asMessage({
+        attachments: [attachment],
+      }),
+      512,
+    );
+
+    expect(saveMediaBuffer).not.toHaveBeenCalled();
+    expect(result).toEqual([
+      {
+        path: attachment.url,
+        contentType: "image/png",
+        placeholder: "<media:image>",
+      },
+    ]);
+  });
+
+  it("falls back to URL when saveMediaBuffer fails", async () => {
+    const attachment = {
+      id: "att-save-fail",
+      url: "https://cdn.discordapp.com/attachments/1/photo.png",
+      filename: "photo.png",
+      content_type: "image/png",
+    };
+    fetchRemoteMedia.mockResolvedValueOnce({
+      buffer: Buffer.from("image"),
+      contentType: "image/png",
+    });
+    saveMediaBuffer.mockRejectedValueOnce(new Error("disk full"));
+
+    const result = await resolveMediaList(
+      asMessage({
+        attachments: [attachment],
+      }),
+      512,
+    );
+
+    expect(fetchRemoteMedia).toHaveBeenCalledTimes(1);
+    expect(saveMediaBuffer).toHaveBeenCalledTimes(1);
+    expect(result).toEqual([
+      {
+        path: attachment.url,
+        contentType: "image/png",
+        placeholder: "<media:image>",
+      },
+    ]);
+  });
+
+  it("preserves downloaded attachments alongside failed ones", async () => {
+    const goodAttachment = {
+      id: "att-good",
+      url: "https://cdn.discordapp.com/attachments/1/good.png",
+      filename: "good.png",
+      content_type: "image/png",
+    };
+    const badAttachment = {
+      id: "att-bad",
+      url: "https://cdn.discordapp.com/attachments/1/bad.pdf",
+      filename: "bad.pdf",
+      content_type: "application/pdf",
+    };
+
+    fetchRemoteMedia
+      .mockResolvedValueOnce({
+        buffer: Buffer.from("image"),
+        contentType: "image/png",
+      })
+      .mockRejectedValueOnce(new Error("network timeout"));
+    saveMediaBuffer.mockResolvedValueOnce({
+      path: "/tmp/good.png",
+      contentType: "image/png",
+    });
+
+    const result = await resolveMediaList(
+      asMessage({
+        attachments: [goodAttachment, badAttachment],
+      }),
+      512,
+    );
+
+    expect(result).toEqual([
+      {
+        path: "/tmp/good.png",
+        contentType: "image/png",
+        placeholder: "<media:image>",
+      },
+      {
+        path: badAttachment.url,
+        contentType: "application/pdf",
+        placeholder: "<media:document>",
+      },
+    ]);
+  });
+
+  it("keeps sticker metadata when sticker download fails", async () => {
+    const sticker = {
+      id: "sticker-fallback",
+      name: "fallback",
+      format_type: StickerFormatType.PNG,
+    };
+    fetchRemoteMedia.mockRejectedValueOnce(new Error("blocked by ssrf guard"));
+
+    const result = await resolveMediaList(
+      asMessage({
+        stickers: [sticker],
+      }),
+      512,
+    );
+
+    expect(saveMediaBuffer).not.toHaveBeenCalled();
+    expect(result).toEqual([
+      {
+        path: "https://media.discordapp.net/stickers/sticker-fallback.png",
+        contentType: "image/png",
+        placeholder: "<media:sticker>",
+      },
+    ]);
+  });
+});
+
+describe("Discord media SSRF policy", () => {
+  beforeEach(() => {
+    fetchRemoteMedia.mockClear();
+    saveMediaBuffer.mockClear();
+  });
+
+  it("passes ssrfPolicy with Discord CDN allowedHostnames and allowRfc2544BenchmarkRange", async () => {
+    fetchRemoteMedia.mockResolvedValueOnce({
+      buffer: Buffer.from("img"),
+      contentType: "image/png",
+    });
+    saveMediaBuffer.mockResolvedValueOnce({
+      path: "/tmp/a.png",
+      contentType: "image/png",
+    });
+
+    await resolveMediaList(
+      asMessage({
+        attachments: [{ id: "a1", url: "https://cdn.discordapp.com/a.png", filename: "a.png" }],
+      }),
+      1024,
+    );
+
+    const policy = fetchRemoteMedia.mock.calls[0][0].ssrfPolicy;
+    expect(policy).toEqual({
+      allowedHostnames: ["cdn.discordapp.com", "media.discordapp.net"],
+      allowRfc2544BenchmarkRange: true,
+    });
+  });
+>>>>>>> 25b731c34 (fix: harden discord media fallback regressions (#28906) (thanks @Sid-Qin))
 });
 
 describe("resolveDiscordMessageText", () => {
