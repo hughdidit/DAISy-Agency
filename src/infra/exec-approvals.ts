@@ -13,9 +13,13 @@ export type ExecSecurity = "deny" | "allowlist" | "full";
 export type ExecAsk = "off" | "on-miss" | "always";
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 export type SystemRunApprovalBindingV1 = {
   version: 1;
+=======
+export type SystemRunApprovalBinding = {
+>>>>>>> 155118751 (refactor!: remove versioned system-run approval contract)
   argv: string[];
   cwd: string | null;
   agentId: string | null;
@@ -23,6 +27,17 @@ export type SystemRunApprovalBindingV1 = {
   envHash: string | null;
 };
 
+<<<<<<< HEAD
+=======
+export type SystemRunApprovalPlan = {
+  argv: string[];
+  cwd: string | null;
+  rawCommand: string | null;
+  agentId: string | null;
+  sessionKey: string | null;
+};
+
+>>>>>>> 155118751 (refactor!: remove versioned system-run approval contract)
 export type ExecApprovalRequestPayload = {
   command: string;
   commandArgv?: string[];
@@ -30,7 +45,12 @@ export type ExecApprovalRequestPayload = {
   envHash?: string | null;
   // Optional UI-safe env key preview for approval prompts.
   envKeys?: string[];
+<<<<<<< HEAD
   systemRunBindingV1?: SystemRunApprovalBindingV1 | null;
+=======
+  systemRunBinding?: SystemRunApprovalBinding | null;
+  systemRunPlan?: SystemRunApprovalPlan | null;
+>>>>>>> 155118751 (refactor!: remove versioned system-run approval contract)
   cwd?: string | null;
   nodeId?: string | null;
   host?: string | null;

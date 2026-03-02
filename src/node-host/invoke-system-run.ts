@@ -203,7 +203,7 @@ async function sendSystemRunDenied(
 }
 
 export { formatSystemRunAllowlistMissMessage } from "./exec-policy.js";
-export { buildSystemRunApprovalPlanV2 } from "./invoke-system-run-plan.js";
+export { buildSystemRunApprovalPlan } from "./invoke-system-run-plan.js";
 
 async function parseSystemRunPhase(
   opts: HandleSystemRunInvokeOptions,
@@ -404,6 +404,22 @@ async function evaluateSystemRunPolicyPhase(
     return null;
   }
 
+<<<<<<< HEAD
+=======
+  const hardenedPaths = hardenApprovedExecutionPaths({
+    approvedByAsk: policy.approvedByAsk,
+    argv: parsed.argv,
+    cwd: parsed.cwd,
+  });
+  if (!hardenedPaths.ok) {
+    await sendSystemRunDenied(opts, parsed.execution, {
+      reason: "approval-required",
+      message: hardenedPaths.message,
+    });
+    return null;
+  }
+
+>>>>>>> 155118751 (refactor!: remove versioned system-run approval contract)
   const plannedAllowlistArgv = resolvePlannedAllowlistArgv({
     security,
     shellCommand: parsed.shellCommand,

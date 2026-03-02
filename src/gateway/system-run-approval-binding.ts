@@ -1,9 +1,14 @@
 import crypto from "node:crypto";
+<<<<<<< HEAD:src/gateway/system-run-approval-binding.ts
 import type {
   ExecApprovalRequestPayload,
   SystemRunApprovalBindingV1,
 } from "../infra/exec-approvals.js";
 import { normalizeEnvVarKey } from "../infra/host-env-security.js";
+=======
+import type { SystemRunApprovalBinding, SystemRunApprovalPlan } from "./exec-approvals.js";
+import { normalizeEnvVarKey } from "./host-env-security.js";
+>>>>>>> 155118751 (refactor!: remove versioned system-run approval contract):src/infra/system-run-approval-binding.ts
 
 type NormalizedSystemRunEnvEntry = [key: string, value: string];
 
@@ -19,6 +24,27 @@ function normalizeStringArray(value: unknown): string[] {
   return Array.isArray(value) ? value.map((entry) => String(entry)) : [];
 }
 
+<<<<<<< HEAD:src/gateway/system-run-approval-binding.ts
+=======
+export function normalizeSystemRunApprovalPlan(value: unknown): SystemRunApprovalPlan | null {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    return null;
+  }
+  const candidate = value as Record<string, unknown>;
+  const argv = normalizeStringArray(candidate.argv);
+  if (argv.length === 0) {
+    return null;
+  }
+  return {
+    argv,
+    cwd: normalizeString(candidate.cwd),
+    rawCommand: normalizeString(candidate.rawCommand),
+    agentId: normalizeString(candidate.agentId),
+    sessionKey: normalizeString(candidate.sessionKey),
+  };
+}
+
+>>>>>>> 155118751 (refactor!: remove versioned system-run approval contract):src/infra/system-run-approval-binding.ts
 function normalizeSystemRunEnvEntries(env: unknown): NormalizedSystemRunEnvEntry[] {
   if (!env || typeof env !== "object" || Array.isArray(env)) {
     return [];
@@ -56,17 +82,16 @@ export function buildSystemRunApprovalEnvBinding(env: unknown): {
   };
 }
 
-export function buildSystemRunApprovalBindingV1(params: {
+export function buildSystemRunApprovalBinding(params: {
   argv: unknown;
   cwd?: unknown;
   agentId?: unknown;
   sessionKey?: unknown;
   env?: unknown;
-}): { binding: SystemRunApprovalBindingV1; envKeys: string[] } {
+}): { binding: SystemRunApprovalBinding; envKeys: string[] } {
   const envBinding = buildSystemRunApprovalEnvBinding(params.env);
   return {
     binding: {
-      version: 1,
       argv: normalizeStringArray(params.argv),
       cwd: normalizeString(params.cwd),
       agentId: normalizeString(params.agentId),
@@ -150,17 +175,11 @@ export function matchSystemRunApprovalEnvHash(params: {
   return { ok: true };
 }
 
-export function matchSystemRunApprovalBindingV1(params: {
-  expected: SystemRunApprovalBindingV1;
-  actual: SystemRunApprovalBindingV1;
+export function matchSystemRunApprovalBinding(params: {
+  expected: SystemRunApprovalBinding;
+  actual: SystemRunApprovalBinding;
   actualEnvKeys: string[];
 }): SystemRunApprovalMatchResult {
-  if (params.expected.version !== 1 || params.actual.version !== 1) {
-    return requestMismatch({
-      expectedVersion: params.expected.version,
-      actualVersion: params.actual.version,
-    });
-  }
   if (!argvMatches(params.expected.argv, params.actual.argv)) {
     return requestMismatch();
   }
@@ -180,6 +199,7 @@ export function matchSystemRunApprovalBindingV1(params: {
   });
 }
 
+<<<<<<< HEAD:src/gateway/system-run-approval-binding.ts
 export function matchLegacySystemRunApprovalBinding(params: {
   request: Pick<
     ExecApprovalRequestPayload,
@@ -216,6 +236,13 @@ export function matchLegacySystemRunApprovalBinding(params: {
     expectedEnvHash: readExpectedEnvHash(params.request),
     actualEnvHash: actualEnvBinding.envHash,
     actualEnvKeys: actualEnvBinding.envKeys,
+=======
+export function missingSystemRunApprovalBinding(params: {
+  actualEnvKeys: string[];
+}): SystemRunApprovalMatchResult {
+  return requestMismatch({
+    envKeys: params.actualEnvKeys,
+>>>>>>> 155118751 (refactor!: remove versioned system-run approval contract):src/infra/system-run-approval-binding.ts
   });
 }
 

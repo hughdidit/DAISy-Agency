@@ -1,8 +1,14 @@
 import type { ExecApprovalRequestPayload } from "../infra/exec-approvals.js";
 import {
+<<<<<<< HEAD
   buildSystemRunApprovalBindingV1,
   matchLegacySystemRunApprovalBinding,
   matchSystemRunApprovalBindingV1,
+=======
+  buildSystemRunApprovalBinding,
+  missingSystemRunApprovalBinding,
+  matchSystemRunApprovalBinding,
+>>>>>>> 155118751 (refactor!: remove versioned system-run approval contract)
   type SystemRunApprovalMatchResult,
 } from "./system-run-approval-binding.js";
 
@@ -34,7 +40,7 @@ export function evaluateSystemRunApprovalMatch(params: {
     return requestMismatch();
   }
 
-  const actualBinding = buildSystemRunApprovalBindingV1({
+  const actualBinding = buildSystemRunApprovalBinding({
     argv: params.argv,
     cwd: params.binding.cwd,
     agentId: params.binding.agentId,
@@ -42,6 +48,7 @@ export function evaluateSystemRunApprovalMatch(params: {
     env: params.binding.env,
   });
 
+<<<<<<< HEAD
   const expectedBinding = params.request.systemRunBindingV1;
   if (expectedBinding) {
     return matchSystemRunApprovalBindingV1({
@@ -56,5 +63,17 @@ export function evaluateSystemRunApprovalMatch(params: {
     cmdText: params.cmdText,
     argv: params.argv,
     binding: params.binding,
+=======
+  const expectedBinding = params.request.systemRunBinding;
+  if (!expectedBinding) {
+    return missingSystemRunApprovalBinding({
+      actualEnvKeys: actualBinding.envKeys,
+    });
+  }
+  return matchSystemRunApprovalBinding({
+    expected: expectedBinding,
+    actual: actualBinding.binding,
+    actualEnvKeys: actualBinding.envKeys,
+>>>>>>> 155118751 (refactor!: remove versioned system-run approval contract)
   });
 }

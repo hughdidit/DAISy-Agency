@@ -81,6 +81,7 @@ import { parseDurationMs } from "../../cli/parse-duration.js";
 import type { MoltbotConfig } from "../../config/config.js";
 =======
 import type { OpenClawConfig } from "../../config/config.js";
+<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> dee013426 (style: reformat dedupe-touched files)
@@ -99,6 +100,10 @@ import type { OpenClawConfig } from "../../config/config.js";
 =======
 import type { OpenClawConfig } from "../../config/config.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
+=======
+import { parsePreparedSystemRunPayload } from "../../infra/system-run-approval-context.js";
+import { formatExecCommand } from "../../infra/system-run-command.js";
+>>>>>>> 155118751 (refactor!: remove versioned system-run approval contract)
 import { imageMimeFromFormat } from "../../media/mime.js";
 import { resolveSessionAgentId } from "../agent-scope.js";
 import { resolveImageSanitizationLimits } from "../image-sanitization.js";
@@ -601,14 +606,36 @@ export function createNodesTool(options?: {
               typeof params.needsScreenRecording === "boolean"
                 ? params.needsScreenRecording
                 : undefined;
+            const prepareRaw = await callGatewayTool<{ payload?: unknown }>(
+              "node.invoke",
+              gatewayOpts,
+              {
+                nodeId,
+                command: "system.run.prepare",
+                params: {
+                  command,
+                  rawCommand: formatExecCommand(command),
+                  cwd,
+                  agentId,
+                  sessionKey,
+                },
+                timeoutMs: invokeTimeoutMs,
+                idempotencyKey: crypto.randomUUID(),
+              },
+            );
+            const prepared = parsePreparedSystemRunPayload(prepareRaw?.payload);
+            if (!prepared) {
+              throw new Error("invalid system.run.prepare response");
+            }
             const runParams = {
-              command,
-              cwd,
+              command: prepared.plan.argv,
+              rawCommand: prepared.plan.rawCommand ?? prepared.cmdText,
+              cwd: prepared.plan.cwd ?? cwd,
               env,
               timeoutMs: commandTimeoutMs,
               needsScreenRecording,
-              agentId,
-              sessionKey,
+              agentId: prepared.plan.agentId ?? agentId,
+              sessionKey: prepared.plan.sessionKey ?? sessionKey,
             };
 
             // First attempt without approval flags.
@@ -631,19 +658,37 @@ export function createNodesTool(options?: {
             // Node requires approval – create a pending approval request on
             // the gateway and wait for the user to approve/deny via the UI.
             const APPROVAL_TIMEOUT_MS = 120_000;
+<<<<<<< HEAD
             const cmdText = command.join(" ");
+=======
+>>>>>>> 155118751 (refactor!: remove versioned system-run approval contract)
             const approvalId = crypto.randomUUID();
             const approvalResult = await callGatewayTool(
               "exec.approval.request",
               { ...gatewayOpts, timeoutMs: APPROVAL_TIMEOUT_MS + 5_000 },
               {
                 id: approvalId,
+<<<<<<< HEAD
                 command: cmdText,
                 cwd,
                 nodeId,
                 host: "node",
                 agentId,
                 sessionKey,
+=======
+                command: prepared.cmdText,
+                commandArgv: prepared.plan.argv,
+                systemRunPlan: prepared.plan,
+                cwd: prepared.plan.cwd ?? cwd,
+                nodeId,
+                host: "node",
+                agentId: prepared.plan.agentId ?? agentId,
+                sessionKey: prepared.plan.sessionKey ?? sessionKey,
+                turnSourceChannel,
+                turnSourceTo,
+                turnSourceAccountId,
+                turnSourceThreadId,
+>>>>>>> 155118751 (refactor!: remove versioned system-run approval contract)
                 timeoutMs: APPROVAL_TIMEOUT_MS,
               },
             );

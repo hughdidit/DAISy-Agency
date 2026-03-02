@@ -9,6 +9,7 @@ export const DEFAULT_SAFE_BINS = ["jq", "cut", "uniq", "head", "tail", "tr", "wc
 export type CommandResolution = {
   rawExecutable: string;
   resolvedPath?: string;
+  resolvedRealPath?: string;
   executableName: string;
 };
 
@@ -82,6 +83,17 @@ function resolveExecutablePath(rawExecutable: string, cwd?: string, env?: NodeJS
   return undefined;
 }
 
+function tryResolveRealpath(filePath: string | undefined): string | undefined {
+  if (!filePath) {
+    return undefined;
+  }
+  try {
+    return fs.realpathSync(filePath);
+  } catch {
+    return undefined;
+  }
+}
+
 export function resolveCommandResolution(
   command: string,
   cwd?: string,
@@ -92,8 +104,21 @@ export function resolveCommandResolution(
     return null;
   }
   const resolvedPath = resolveExecutablePath(rawExecutable, cwd, env);
+  const resolvedRealPath = tryResolveRealpath(resolvedPath);
   const executableName = resolvedPath ? path.basename(resolvedPath) : rawExecutable;
+<<<<<<< HEAD
   return { rawExecutable, resolvedPath, executableName };
+=======
+  return {
+    rawExecutable,
+    resolvedPath,
+    resolvedRealPath,
+    executableName,
+    effectiveArgv: [rawExecutable],
+    wrapperChain: [],
+    policyBlocked: false,
+  };
+>>>>>>> 155118751 (refactor!: remove versioned system-run approval contract)
 }
 
 export function resolveCommandResolutionFromArgv(
@@ -107,8 +132,22 @@ export function resolveCommandResolutionFromArgv(
     return null;
   }
   const resolvedPath = resolveExecutablePath(rawExecutable, cwd, env);
+  const resolvedRealPath = tryResolveRealpath(resolvedPath);
   const executableName = resolvedPath ? path.basename(resolvedPath) : rawExecutable;
+<<<<<<< HEAD
   return { rawExecutable, resolvedPath, executableName };
+=======
+  return {
+    rawExecutable,
+    resolvedPath,
+    resolvedRealPath,
+    executableName,
+    effectiveArgv,
+    wrapperChain: plan.wrappers,
+    policyBlocked: plan.policyBlocked,
+    blockedWrapper: plan.blockedWrapper,
+  };
+>>>>>>> 155118751 (refactor!: remove versioned system-run approval contract)
 }
 
 function normalizeMatchTarget(value: string): string {

@@ -798,9 +798,36 @@ function renderQuotedArgv(argv: string[]): string {
   return argv.map((token) => shellEscapeSingleArg(token)).join(" ");
 }
 
+<<<<<<< HEAD
 function renderSafeBinSegmentArgv(segment: ExecCommandSegment): string {
   if (segment.argv.length === 0) {
     return "";
+=======
+export function resolvePlannedSegmentArgv(segment: ExecCommandSegment): string[] | null {
+  if (segment.resolution?.policyBlocked === true) {
+    return null;
+  }
+  const baseArgv =
+    segment.resolution?.effectiveArgv && segment.resolution.effectiveArgv.length > 0
+      ? segment.resolution.effectiveArgv
+      : segment.argv;
+  if (baseArgv.length === 0) {
+    return null;
+  }
+  const argv = [...baseArgv];
+  const resolvedExecutable =
+    segment.resolution?.resolvedRealPath?.trim() ?? segment.resolution?.resolvedPath?.trim() ?? "";
+  if (resolvedExecutable) {
+    argv[0] = resolvedExecutable;
+  }
+  return argv;
+}
+
+function renderSafeBinSegmentArgv(segment: ExecCommandSegment): string | null {
+  const argv = resolvePlannedSegmentArgv(segment);
+  if (!argv || argv.length === 0) {
+    return null;
+>>>>>>> 155118751 (refactor!: remove versioned system-run approval contract)
   }
   const resolvedExecutable = segment.resolution?.resolvedPath?.trim();
   const argv = resolvedExecutable ? [resolvedExecutable, ...segment.argv.slice(1)] : segment.argv;

@@ -28,6 +28,37 @@ const callGateway = vi.fn(async (opts: NodeInvokeCall) => {
     };
   }
   if (opts.method === "node.invoke") {
+<<<<<<< HEAD
+=======
+    const command = opts.params?.command;
+    if (command === "system.run.prepare") {
+      const params = (opts.params?.params ?? {}) as {
+        command?: unknown[];
+        rawCommand?: unknown;
+        cwd?: unknown;
+        agentId?: unknown;
+      };
+      const argv = Array.isArray(params.command)
+        ? params.command.map((entry) => String(entry))
+        : [];
+      const rawCommand =
+        typeof params.rawCommand === "string" && params.rawCommand.trim().length > 0
+          ? params.rawCommand
+          : null;
+      return {
+        payload: {
+          cmdText: rawCommand ?? argv.join(" "),
+          plan: {
+            argv,
+            cwd: typeof params.cwd === "string" ? params.cwd : null,
+            rawCommand,
+            agentId: typeof params.agentId === "string" ? params.agentId : null,
+            sessionKey: null,
+          },
+        },
+      };
+    }
+>>>>>>> 155118751 (refactor!: remove versioned system-run approval contract)
     return {
       payload: {
         stdout: "",
@@ -140,6 +171,18 @@ describe("nodes-cli coverage", () => {
       runId: expect.any(String),
     });
     expect(invoke?.params?.timeoutMs).toBe(5000);
+<<<<<<< HEAD
+=======
+    const approval = getApprovalRequestCall();
+    expect(approval?.params?.["commandArgv"]).toEqual(["echo", "hi"]);
+    expect(approval?.params?.["systemRunPlan"]).toEqual({
+      argv: ["echo", "hi"],
+      cwd: "/tmp",
+      rawCommand: null,
+      agentId: "main",
+      sessionKey: null,
+    });
+>>>>>>> 155118751 (refactor!: remove versioned system-run approval contract)
   });
 
   it("invokes system.run with raw command", async () => {
@@ -165,6 +208,18 @@ describe("nodes-cli coverage", () => {
       approvalDecision: "allow-once",
       runId: expect.any(String),
     });
+<<<<<<< HEAD
+=======
+    const approval = getApprovalRequestCall();
+    expect(approval?.params?.["commandArgv"]).toEqual(["/bin/sh", "-lc", "echo hi"]);
+    expect(approval?.params?.["systemRunPlan"]).toEqual({
+      argv: ["/bin/sh", "-lc", "echo hi"],
+      cwd: null,
+      rawCommand: "echo hi",
+      agentId: "main",
+      sessionKey: null,
+    });
+>>>>>>> 155118751 (refactor!: remove versioned system-run approval contract)
   });
 
   it("invokes system.notify with provided fields", async () => {

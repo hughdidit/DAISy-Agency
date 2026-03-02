@@ -35,8 +35,12 @@ import { getTrustedSafeBinDirs } from "../infra/exec-safe-bin-trust.js";
 import { validateSystemRunCommandConsistency } from "../infra/system-run-command.js";
 import { runBrowserProxyCommand } from "./invoke-browser.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import { handleSystemRunInvoke } from "./invoke-system-run.js";
+=======
+import { buildSystemRunApprovalPlan, handleSystemRunInvoke } from "./invoke-system-run.js";
+>>>>>>> 155118751 (refactor!: remove versioned system-run approval contract)
 import type {
   ExecEventPayload,
   RunResult,
@@ -501,6 +505,33 @@ export async function handleInvoke(
     return;
   }
 
+<<<<<<< HEAD
+=======
+  if (command === "system.run.prepare") {
+    try {
+      const params = decodeParams<{
+        command?: unknown;
+        rawCommand?: unknown;
+        cwd?: unknown;
+        agentId?: unknown;
+        sessionKey?: unknown;
+      }>(frame.paramsJSON);
+      const prepared = buildSystemRunApprovalPlan(params);
+      if (!prepared.ok) {
+        await sendErrorResult(client, frame, "INVALID_REQUEST", prepared.message);
+        return;
+      }
+      await sendJsonPayloadResult(client, frame, {
+        cmdText: prepared.cmdText,
+        plan: prepared.plan,
+      });
+    } catch (err) {
+      await sendInvalidRequestResult(client, frame, err);
+    }
+    return;
+  }
+
+>>>>>>> 155118751 (refactor!: remove versioned system-run approval contract)
   if (command !== "system.run") {
     await sendErrorResult(client, frame, "UNAVAILABLE", "command not supported");
     return;

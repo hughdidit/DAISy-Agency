@@ -1,4 +1,8 @@
 import { describe, expect, test } from "vitest";
+<<<<<<< HEAD
+=======
+import { buildSystemRunApprovalBinding } from "../infra/system-run-approval-binding.js";
+>>>>>>> 155118751 (refactor!: remove versioned system-run approval contract)
 import { evaluateSystemRunApprovalMatch } from "./node-invoke-system-run-approval-match.js";
 import {
   buildSystemRunApprovalBindingV1,
@@ -54,7 +58,7 @@ describe("evaluateSystemRunApprovalMatch", () => {
       request: {
         host: "node",
         command: "echo SAFE",
-        systemRunBindingV1: buildSystemRunApprovalBindingV1({
+        systemRunBinding: buildSystemRunApprovalBinding({
           argv: ["echo", "SAFE"],
           cwd: null,
           agentId: null,
@@ -77,7 +81,7 @@ describe("evaluateSystemRunApprovalMatch", () => {
       request: {
         host: "node",
         command: "echo SAFE",
-        systemRunBindingV1: buildSystemRunApprovalBindingV1({
+        systemRunBinding: buildSystemRunApprovalBinding({
           argv: ["echo SAFE"],
           cwd: null,
           agentId: null,
@@ -104,7 +108,16 @@ describe("evaluateSystemRunApprovalMatch", () => {
       request: {
         host: "node",
         command: "git diff",
+<<<<<<< HEAD
         commandArgv: ["git", "diff"],
+=======
+        systemRunBinding: buildSystemRunApprovalBinding({
+          argv: ["git", "diff"],
+          cwd: null,
+          agentId: null,
+          sessionKey: null,
+        }).binding,
+>>>>>>> 155118751 (refactor!: remove versioned system-run approval contract)
       },
       binding: {
         cwd: null,
@@ -131,8 +144,18 @@ describe("evaluateSystemRunApprovalMatch", () => {
       request: {
         host: "node",
         command: "git diff",
+<<<<<<< HEAD
         commandArgv: ["git", "diff"],
         envHash: envBinding.envHash,
+=======
+        systemRunBinding: buildSystemRunApprovalBinding({
+          argv: ["git", "diff"],
+          cwd: null,
+          agentId: null,
+          sessionKey: null,
+          env: { SAFE_A: "1", SAFE_B: "2" },
+        }).binding,
+>>>>>>> 155118751 (refactor!: remove versioned system-run approval contract)
       },
       binding: {
         cwd: null,
@@ -174,7 +197,7 @@ describe("evaluateSystemRunApprovalMatch", () => {
         // Intentionally stale legacy fields; v1 should be authoritative.
         command: "echo STALE",
         commandArgv: ["echo STALE"],
-        systemRunBindingV1: buildSystemRunApprovalBindingV1({
+        systemRunBinding: buildSystemRunApprovalBinding({
           argv: ["echo", "SAFE"],
           cwd: null,
           agentId: null,

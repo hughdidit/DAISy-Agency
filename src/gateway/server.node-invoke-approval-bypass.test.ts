@@ -78,6 +78,17 @@ async function requestAllowOnceApproval(
   const requestP = rpcReq(ws, "exec.approval.request", {
     id: approvalId,
     command,
+<<<<<<< HEAD
+=======
+    commandArgv,
+    systemRunPlan: {
+      argv: commandArgv,
+      cwd: null,
+      rawCommand: command,
+      agentId: null,
+      sessionKey: null,
+    },
+>>>>>>> 155118751 (refactor!: remove versioned system-run approval contract)
     nodeId,
     cwd: null,
     host: "node",

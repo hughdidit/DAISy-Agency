@@ -296,7 +296,7 @@ export function sanitizeSystemRunParamsForForwarding(opts: {
       sessionKey: normalizeString(p.sessionKey) ?? null,
 =======
   const runtimeContext = resolveSystemRunApprovalRuntimeContext({
-    planV2: snapshot.request.systemRunPlanV2 ?? null,
+    plan: snapshot.request.systemRunPlan ?? null,
     command: p.command,
     rawCommand: p.rawCommand,
     cwd: p.cwd,
@@ -310,8 +310,8 @@ export function sanitizeSystemRunParamsForForwarding(opts: {
       details: runtimeContext.details,
     };
   }
-  if (runtimeContext.planV2) {
-    next.command = [...runtimeContext.planV2.argv];
+  if (runtimeContext.plan) {
+    next.command = [...runtimeContext.plan.argv];
     if (runtimeContext.rawCommand) {
       next.rawCommand = runtimeContext.rawCommand;
     } else {

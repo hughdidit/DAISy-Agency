@@ -13,8 +13,12 @@ import {
 } from "../infra/exec-approvals.js";
 import { buildNodeShellCommand } from "../infra/node-shell.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { requestExecApprovalDecisionForHost } from "./bash-tools.exec-approval-request.js";
 =======
+=======
+import { parsePreparedSystemRunPayload } from "../infra/system-run-approval-context.js";
+>>>>>>> 155118751 (refactor!: remove versioned system-run approval contract)
 import { logInfo } from "../logger.js";
 import {
   registerExecApprovalRequestForHost,
@@ -94,6 +98,31 @@ export async function executeNodeHostCommand(
     );
   }
   const argv = buildNodeShellCommand(params.command, nodeInfo?.platform);
+  const prepareRaw = await callGatewayTool<{ payload?: unknown }>(
+    "node.invoke",
+    { timeoutMs: 15_000 },
+    {
+      nodeId,
+      command: "system.run.prepare",
+      params: {
+        command: argv,
+        rawCommand: params.command,
+        cwd: params.workdir,
+        agentId: params.agentId,
+        sessionKey: params.sessionKey,
+      },
+      idempotencyKey: crypto.randomUUID(),
+    },
+  );
+  const prepared = parsePreparedSystemRunPayload(prepareRaw?.payload);
+  if (!prepared) {
+    throw new Error("invalid system.run.prepare response");
+  }
+  const runArgv = prepared.plan.argv;
+  const runRawCommand = prepared.plan.rawCommand ?? prepared.cmdText;
+  const runCwd = prepared.plan.cwd ?? params.workdir;
+  const runAgentId = prepared.plan.agentId ?? params.agentId;
+  const runSessionKey = prepared.plan.sessionKey ?? params.sessionKey;
 
   const nodeEnv = params.requestedEnv ? { ...params.requestedEnv } : undefined;
   const baseAllowlistEval = evaluateShellAllowlist({
@@ -161,13 +190,13 @@ export async function executeNodeHostCommand(
       nodeId,
       command: "system.run",
       params: {
-        command: argv,
-        rawCommand: params.command,
-        cwd: params.workdir,
+        command: runArgv,
+        rawCommand: runRawCommand,
+        cwd: runCwd,
         env: nodeEnv,
         timeoutMs: typeof params.timeoutSec === "number" ? params.timeoutSec * 1000 : undefined,
-        agentId: params.agentId,
-        sessionKey: params.sessionKey,
+        agentId: runAgentId,
+        sessionKey: runSessionKey,
         approved: approvedByAsk,
         approvalDecision: approvalDecision ?? undefined,
         runId: runId ?? undefined,
@@ -188,14 +217,31 @@ export async function executeNodeHostCommand(
       // Register first so the returned approval ID is actionable immediately.
       const registration = await registerExecApprovalRequestForHost({
         approvalId,
+<<<<<<< HEAD
         command: params.command,
         workdir: params.workdir,
+=======
+        command: prepared.cmdText,
+        commandArgv: prepared.plan.argv,
+        systemRunPlan: prepared.plan,
+        env: nodeEnv,
+        workdir: runCwd,
+>>>>>>> 155118751 (refactor!: remove versioned system-run approval contract)
         host: "node",
         nodeId,
         security: hostSecurity,
         ask: hostAsk,
+<<<<<<< HEAD
         agentId: params.agentId,
         sessionKey: params.sessionKey,
+=======
+        agentId: runAgentId,
+        sessionKey: runSessionKey,
+        turnSourceChannel: params.turnSourceChannel,
+        turnSourceTo: params.turnSourceTo,
+        turnSourceAccountId: params.turnSourceAccountId,
+        turnSourceThreadId: params.turnSourceThreadId,
+>>>>>>> 155118751 (refactor!: remove versioned system-run approval contract)
       });
       expiresAtMs = registration.expiresAtMs;
       preResolvedDecision = registration.finalDecision;

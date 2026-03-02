@@ -1,4 +1,4 @@
-import type { ExecAsk, ExecSecurity } from "../infra/exec-approvals.js";
+import type { ExecAsk, ExecSecurity, SystemRunApprovalPlan } from "../infra/exec-approvals.js";
 import {
   DEFAULT_APPROVAL_REQUEST_TIMEOUT_MS,
   DEFAULT_APPROVAL_TIMEOUT_MS,
@@ -8,6 +8,12 @@ import { callGatewayTool } from "./tools/gateway.js";
 export type RequestExecApprovalDecisionParams = {
   id: string;
   command: string;
+<<<<<<< HEAD
+=======
+  commandArgv?: string[];
+  systemRunPlan?: SystemRunApprovalPlan;
+  env?: Record<string, string>;
+>>>>>>> 155118751 (refactor!: remove versioned system-run approval contract)
   cwd: string;
   nodeId?: string;
   host: "gateway" | "node";
@@ -22,6 +28,7 @@ type ExecApprovalRequestToolParams = {
   id: string;
   command: string;
   commandArgv?: string[];
+  systemRunPlan?: SystemRunApprovalPlan;
   env?: Record<string, string>;
   cwd: string;
   nodeId?: string;
@@ -46,6 +53,7 @@ function buildExecApprovalRequestToolParams(
     id: params.id,
     command: params.command,
     commandArgv: params.commandArgv,
+    systemRunPlan: params.systemRunPlan,
     env: params.env,
     cwd: params.cwd,
     nodeId: params.nodeId,
@@ -166,6 +174,12 @@ export async function requestExecApprovalDecision(
 export async function requestExecApprovalDecisionForHost(params: {
   approvalId: string;
   command: string;
+<<<<<<< HEAD
+=======
+  commandArgv?: string[];
+  systemRunPlan?: SystemRunApprovalPlan;
+  env?: Record<string, string>;
+>>>>>>> 155118751 (refactor!: remove versioned system-run approval contract)
   workdir: string;
   host: "gateway" | "node";
   nodeId?: string;
@@ -178,6 +192,12 @@ export async function requestExecApprovalDecisionForHost(params: {
   return await requestExecApprovalDecision({
     id: params.approvalId,
     command: params.command,
+<<<<<<< HEAD
+=======
+    commandArgv: params.commandArgv,
+    systemRunPlan: params.systemRunPlan,
+    env: params.env,
+>>>>>>> 155118751 (refactor!: remove versioned system-run approval contract)
     cwd: params.workdir,
     nodeId: params.nodeId,
     host: params.host,
@@ -192,6 +212,12 @@ export async function requestExecApprovalDecisionForHost(params: {
 export async function registerExecApprovalRequestForHost(params: {
   approvalId: string;
   command: string;
+<<<<<<< HEAD
+=======
+  commandArgv?: string[];
+  systemRunPlan?: SystemRunApprovalPlan;
+  env?: Record<string, string>;
+>>>>>>> 155118751 (refactor!: remove versioned system-run approval contract)
   workdir: string;
   host: "gateway" | "node";
   nodeId?: string;
@@ -204,6 +230,12 @@ export async function registerExecApprovalRequestForHost(params: {
   return await registerExecApprovalRequest({
     id: params.approvalId,
     command: params.command,
+<<<<<<< HEAD
+=======
+    commandArgv: params.commandArgv,
+    systemRunPlan: params.systemRunPlan,
+    env: params.env,
+>>>>>>> 155118751 (refactor!: remove versioned system-run approval contract)
     cwd: params.workdir,
     nodeId: params.nodeId,
     host: params.host,

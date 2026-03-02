@@ -29,8 +29,12 @@ import {
   type ExecApprovalDecision,
 } from "../../infra/exec-approvals.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import { buildSystemRunApprovalBindingV1 } from "../../infra/system-run-approval-binding.js";
+=======
+import { buildSystemRunApprovalBinding } from "../../infra/system-run-approval-binding.js";
+>>>>>>> 155118751 (refactor!: remove versioned system-run approval contract)
 import { resolveSystemRunApprovalRequestContext } from "../../infra/system-run-approval-context.js";
 >>>>>>> 4e690e09c (refactor(gateway): centralize system.run approval context and errors)
 import type { ExecApprovalManager } from "../exec-approval-manager.js";
@@ -78,6 +82,10 @@ export function createExecApprovalHandlers(
         id?: string;
         command: string;
         cwd?: string;
+<<<<<<< HEAD
+=======
+        systemRunPlan?: unknown;
+>>>>>>> 155118751 (refactor!: remove versioned system-run approval contract)
         nodeId?: string;
         host?: string;
         security?: string;
@@ -119,7 +127,7 @@ export function createExecApprovalHandlers(
         host,
         command: p.command,
         commandArgv: p.commandArgv,
-        systemRunPlanV2: p.systemRunPlanV2,
+        systemRunPlan: p.systemRunPlan,
         cwd: p.cwd,
         agentId: p.agentId,
         sessionKey: p.sessionKey,
@@ -138,6 +146,38 @@ export function createExecApprovalHandlers(
         );
         return;
       }
+<<<<<<< HEAD
+=======
+      if (host === "node" && !approvalContext.plan) {
+        respond(
+          false,
+          undefined,
+          errorShape(ErrorCodes.INVALID_REQUEST, "systemRunPlan is required for host=node"),
+        );
+        return;
+      }
+      if (
+        host === "node" &&
+        (!Array.isArray(effectiveCommandArgv) || effectiveCommandArgv.length === 0)
+      ) {
+        respond(
+          false,
+          undefined,
+          errorShape(ErrorCodes.INVALID_REQUEST, "commandArgv is required for host=node"),
+        );
+        return;
+      }
+      const systemRunBinding =
+        host === "node"
+          ? buildSystemRunApprovalBinding({
+              argv: effectiveCommandArgv,
+              cwd: effectiveCwd,
+              agentId: effectiveAgentId,
+              sessionKey: effectiveSessionKey,
+              env: p.env,
+            })
+          : null;
+>>>>>>> 155118751 (refactor!: remove versioned system-run approval contract)
       if (explicitId && manager.getSnapshot(explicitId)) {
         respond(
           false,
@@ -147,6 +187,7 @@ export function createExecApprovalHandlers(
         return;
       }
       const request = {
+<<<<<<< HEAD
 <<<<<<< HEAD
         command: sanitizeBinaryOutput(p.command).replace(/\r/g, ""),
 =======
@@ -159,6 +200,13 @@ export function createExecApprovalHandlers(
         cwd: p.cwd ?? null,
 =======
         systemRunPlanV2: approvalContext.planV2,
+=======
+        command: effectiveCommandText,
+        commandArgv: effectiveCommandArgv,
+        envKeys: systemRunBinding?.envKeys?.length ? systemRunBinding.envKeys : undefined,
+        systemRunBinding: systemRunBinding?.binding ?? null,
+        systemRunPlan: approvalContext.plan,
+>>>>>>> 155118751 (refactor!: remove versioned system-run approval contract)
         cwd: effectiveCwd ?? null,
 >>>>>>> 4e690e09c (refactor(gateway): centralize system.run approval context and errors)
         nodeId: host === "node" ? nodeId : null,
