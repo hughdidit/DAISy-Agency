@@ -98,10 +98,8 @@ import type { AnyAgentTool } from "./common.js";
 import type { AnyAgentTool } from "./common.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { jsonResult, readNumberParam, readStringParam } from "./common.js";
-import {
-  WEB_TOOLS_TRUSTED_NETWORK_SSRF_POLICY,
-  withWebToolsNetworkGuard,
-} from "./web-guarded-fetch.js";
+import { withTrustedWebToolsEndpoint } from "./web-guarded-fetch.js";
+import { resolveCitationRedirectUrl } from "./web-search-citation-redirect.js";
 import {
   CacheEntry,
   DEFAULT_CACHE_TTL_MINUTES,
@@ -695,12 +693,11 @@ async function withTrustedWebSearchEndpoint<T>(
   },
   run: (response: Response) => Promise<T>,
 ): Promise<T> {
-  return withWebToolsNetworkGuard(
+  return withTrustedWebToolsEndpoint(
     {
       url: params.url,
       init: params.init,
       timeoutSeconds: params.timeoutSeconds,
-      policy: WEB_TOOLS_TRUSTED_NETWORK_SSRF_POLICY,
     },
     async ({ response }) => run(response),
   );
@@ -854,7 +851,7 @@ async function runGeminiSearch(params: {
         const batch = rawCitations.slice(i, i + MAX_CONCURRENT_REDIRECTS);
         const resolved = await Promise.all(
           batch.map(async (citation) => {
-            const resolvedUrl = await resolveRedirectUrl(citation.url);
+            const resolvedUrl = await resolveCitationRedirectUrl(citation.url);
             return { ...citation, url: resolvedUrl };
           }),
         );
@@ -867,6 +864,7 @@ async function runGeminiSearch(params: {
 >>>>>>> b74be2577 (refactor(web): unify proxy-guarded fetch path for web tools)
 }
 
+<<<<<<< HEAD
 const REDIRECT_TIMEOUT_MS = 5000;
 
 /**
@@ -898,6 +896,8 @@ async function resolveRedirectUrl(url: string): Promise<string> {
   }
 }
 
+=======
+>>>>>>> e7cd4bf1b (refactor(web): split trusted and strict web tool fetch paths)
 function resolveSearchCount(value: unknown, fallback: number): number {
   const parsed = typeof value === "number" && Number.isFinite(value) ? value : fallback;
   const clamped = Math.max(1, Math.min(MAX_SEARCH_COUNT, Math.floor(parsed)));
@@ -1822,4 +1822,8 @@ export const __testing = {
   resolveKimiModel,
   resolveKimiBaseUrl,
   extractKimiCitations,
+<<<<<<< HEAD
+=======
+  resolveRedirectUrl: resolveCitationRedirectUrl,
+>>>>>>> e7cd4bf1b (refactor(web): split trusted and strict web tool fetch paths)
 } as const;
