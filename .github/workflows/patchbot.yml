@@ -6,10 +6,10 @@ on:
     branches: [daisy/dev]
   pull_request_review:
     types: [submitted]
-    branches: [daisy/dev]
+    # branches: [daisy/dev] -- removed: 'branches' filter is not valid for pull_request_review
   check_suite:
     types: [completed]
-    branches: [daisy/dev]
+    # branches: [daisy/dev] -- removed: 'branches' filter is not valid for check_suite
   workflow_run:
     workflows: ["Deploy staging on release"]
     types: [completed]
