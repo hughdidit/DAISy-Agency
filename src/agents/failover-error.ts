@@ -55,6 +55,13 @@ export function resolveFailoverStatus(reason: FailoverReason): number | undefine
       return 408;
     case "format":
       return 400;
+<<<<<<< HEAD
+=======
+    case "model_not_found":
+      return 404;
+    case "session_expired":
+      return 410; // Gone - session no longer exists
+>>>>>>> ed86252aa (fix: handle CLI session expired errors gracefully instead of crashing gateway (#31090))
     default:
       return undefined;
   }

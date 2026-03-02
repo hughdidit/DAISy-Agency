@@ -1,3 +1,12 @@
+<<<<<<< HEAD
+=======
+import { getAcpSessionManager } from "../acp/control-plane/manager.js";
+import { resolveAcpAgentPolicyError, resolveAcpDispatchPolicyError } from "../acp/policy.js";
+import { toAcpRuntimeError } from "../acp/runtime/errors.js";
+import { createSubsystemLogger } from "../logging/subsystem.js";
+
+const log = createSubsystemLogger("commands/agent");
+>>>>>>> ed86252aa (fix: handle CLI session expired errors gracefully instead of crashing gateway (#31090))
 import {
   listAgentIds,
   resolveAgentDir,
@@ -7,14 +16,25 @@ import {
 } from "../agents/agent-scope.js";
 import { ensureAuthProfileStore } from "../agents/auth-profiles.js";
 import { runCliAgent } from "../agents/cli-runner.js";
-import { getCliSessionId } from "../agents/cli-session.js";
+import { getCliSessionId, setCliSessionId } from "../agents/cli-session.js";
 import { DEFAULT_MODEL, DEFAULT_PROVIDER } from "../agents/defaults.js";
+<<<<<<< HEAD
+=======
+import { FailoverError } from "../agents/failover-error.js";
+import { formatAgentInternalEventsForPrompt } from "../agents/internal-events.js";
+import { AGENT_LANE_SUBAGENT } from "../agents/lanes.js";
+>>>>>>> ed86252aa (fix: handle CLI session expired errors gracefully instead of crashing gateway (#31090))
 import { loadModelCatalog } from "../agents/model-catalog.js";
 import { runWithModelFallback } from "../agents/model-fallback.js";
 import {
   buildAllowedModelSet,
   isCliProvider,
   modelKey,
+<<<<<<< HEAD
+=======
+  normalizeModelRef,
+  normalizeProviderId,
+>>>>>>> ed86252aa (fix: handle CLI session expired errors gracefully instead of crashing gateway (#31090))
   resolveConfiguredModelRef,
   resolveThinkingDefault,
 } from "../agents/model-selection.js";
@@ -58,7 +78,264 @@ import { resolveAgentRunContext } from "./agent/run-context.js";
 import { resolveSession } from "./agent/session.js";
 import { updateSessionStoreAfterAgentRun } from "./agent/session-store.js";
 import type { AgentCommandOpts } from "./agent/types.js";
+<<<<<<< HEAD
 import { normalizeAgentId } from "../routing/session-key.js";
+=======
+
+type PersistSessionEntryParams = {
+  sessionStore: Record<string, SessionEntry>;
+  sessionKey: string;
+  storePath: string;
+  entry: SessionEntry;
+};
+
+type OverrideFieldClearedByDelete =
+  | "providerOverride"
+  | "modelOverride"
+  | "authProfileOverride"
+  | "authProfileOverrideSource"
+  | "authProfileOverrideCompactionCount"
+  | "fallbackNoticeSelectedModel"
+  | "fallbackNoticeActiveModel"
+  | "fallbackNoticeReason"
+  | "claudeCliSessionId";
+
+const OVERRIDE_FIELDS_CLEARED_BY_DELETE: OverrideFieldClearedByDelete[] = [
+  "providerOverride",
+  "modelOverride",
+  "authProfileOverride",
+  "authProfileOverrideSource",
+  "authProfileOverrideCompactionCount",
+  "fallbackNoticeSelectedModel",
+  "fallbackNoticeActiveModel",
+  "fallbackNoticeReason",
+  "claudeCliSessionId",
+];
+
+async function persistSessionEntry(params: PersistSessionEntryParams): Promise<void> {
+  const persisted = await updateSessionStore(params.storePath, (store) => {
+    const merged = mergeSessionEntry(store[params.sessionKey], params.entry);
+    // Preserve explicit `delete` clears done by session override helpers.
+    for (const field of OVERRIDE_FIELDS_CLEARED_BY_DELETE) {
+      if (!Object.hasOwn(params.entry, field)) {
+        Reflect.deleteProperty(merged, field);
+      }
+    }
+    store[params.sessionKey] = merged;
+    return merged;
+  });
+  params.sessionStore[params.sessionKey] = persisted;
+}
+
+function resolveFallbackRetryPrompt(params: { body: string; isFallbackRetry: boolean }): string {
+  if (!params.isFallbackRetry) {
+    return params.body;
+  }
+  return "Continue where you left off. The previous model attempt failed or timed out.";
+}
+
+function prependInternalEventContext(
+  body: string,
+  events: AgentCommandOpts["internalEvents"],
+): string {
+  if (body.includes("OpenClaw runtime context (internal):")) {
+    return body;
+  }
+  const renderedEvents = formatAgentInternalEventsForPrompt(events);
+  if (!renderedEvents) {
+    return body;
+  }
+  return [renderedEvents, body].filter(Boolean).join("\n\n");
+}
+
+function runAgentAttempt(params: {
+  providerOverride: string;
+  modelOverride: string;
+  cfg: ReturnType<typeof loadConfig>;
+  sessionEntry: SessionEntry | undefined;
+  sessionId: string;
+  sessionKey: string | undefined;
+  sessionAgentId: string;
+  sessionFile: string;
+  workspaceDir: string;
+  body: string;
+  isFallbackRetry: boolean;
+  resolvedThinkLevel: ThinkLevel;
+  timeoutMs: number;
+  runId: string;
+  opts: AgentCommandOpts;
+  runContext: ReturnType<typeof resolveAgentRunContext>;
+  spawnedBy: string | undefined;
+  messageChannel: ReturnType<typeof resolveMessageChannel>;
+  skillsSnapshot: ReturnType<typeof buildWorkspaceSkillSnapshot> | undefined;
+  resolvedVerboseLevel: VerboseLevel | undefined;
+  agentDir: string;
+  onAgentEvent: (evt: { stream: string; data?: Record<string, unknown> }) => void;
+  primaryProvider: string;
+  sessionStore?: Record<string, SessionEntry>;
+  storePath?: string;
+}) {
+  const senderIsOwner = params.opts.senderIsOwner ?? true;
+  const effectivePrompt = resolveFallbackRetryPrompt({
+    body: params.body,
+    isFallbackRetry: params.isFallbackRetry,
+  });
+  if (isCliProvider(params.providerOverride, params.cfg)) {
+    const cliSessionId = getCliSessionId(params.sessionEntry, params.providerOverride);
+    return runCliAgent({
+      sessionId: params.sessionId,
+      sessionKey: params.sessionKey,
+      agentId: params.sessionAgentId,
+      sessionFile: params.sessionFile,
+      workspaceDir: params.workspaceDir,
+      config: params.cfg,
+      prompt: effectivePrompt,
+      provider: params.providerOverride,
+      model: params.modelOverride,
+      thinkLevel: params.resolvedThinkLevel,
+      timeoutMs: params.timeoutMs,
+      runId: params.runId,
+      extraSystemPrompt: params.opts.extraSystemPrompt,
+      cliSessionId,
+      images: params.isFallbackRetry ? undefined : params.opts.images,
+      streamParams: params.opts.streamParams,
+    }).catch(async (err) => {
+      // Handle CLI session expired error
+      if (
+        err instanceof FailoverError &&
+        err.reason === "session_expired" &&
+        cliSessionId &&
+        params.sessionKey &&
+        params.sessionStore &&
+        params.storePath
+      ) {
+        log.warn(
+          `CLI session expired, clearing from session store: provider=${params.providerOverride} sessionKey=${params.sessionKey}`,
+        );
+
+        // Clear the expired session ID from the session store
+        const entry = params.sessionStore[params.sessionKey];
+        if (entry) {
+          const updatedEntry = { ...entry };
+          if (params.providerOverride === "claude-cli") {
+            delete updatedEntry.claudeCliSessionId;
+          }
+          if (updatedEntry.cliSessionIds) {
+            const normalizedProvider = normalizeProviderId(params.providerOverride);
+            const newCliSessionIds = { ...updatedEntry.cliSessionIds };
+            delete newCliSessionIds[normalizedProvider];
+            updatedEntry.cliSessionIds = newCliSessionIds;
+          }
+          updatedEntry.updatedAt = Date.now();
+
+          await persistSessionEntry({
+            sessionStore: params.sessionStore,
+            sessionKey: params.sessionKey,
+            storePath: params.storePath,
+            entry: updatedEntry,
+          });
+
+          // Update the session entry reference
+          params.sessionEntry = updatedEntry;
+        }
+
+        // Retry with no session ID (will create a new session)
+        return runCliAgent({
+          sessionId: params.sessionId,
+          sessionKey: params.sessionKey,
+          agentId: params.sessionAgentId,
+          sessionFile: params.sessionFile,
+          workspaceDir: params.workspaceDir,
+          config: params.cfg,
+          prompt: effectivePrompt,
+          provider: params.providerOverride,
+          model: params.modelOverride,
+          thinkLevel: params.resolvedThinkLevel,
+          timeoutMs: params.timeoutMs,
+          runId: params.runId,
+          extraSystemPrompt: params.opts.extraSystemPrompt,
+          cliSessionId: undefined, // No session ID to force new session
+          images: params.isFallbackRetry ? undefined : params.opts.images,
+          streamParams: params.opts.streamParams,
+        }).then(async (result) => {
+          // Update session store with new CLI session ID if available
+          if (
+            result.meta.agentMeta?.sessionId &&
+            params.sessionKey &&
+            params.sessionStore &&
+            params.storePath
+          ) {
+            const entry = params.sessionStore[params.sessionKey];
+            if (entry) {
+              const updatedEntry = { ...entry };
+              setCliSessionId(
+                updatedEntry,
+                params.providerOverride,
+                result.meta.agentMeta.sessionId,
+              );
+              updatedEntry.updatedAt = Date.now();
+
+              await persistSessionEntry({
+                sessionStore: params.sessionStore,
+                sessionKey: params.sessionKey,
+                storePath: params.storePath,
+                entry: updatedEntry,
+              });
+            }
+          }
+          return result;
+        });
+      }
+      throw err;
+    });
+  }
+
+  const authProfileId =
+    params.providerOverride === params.primaryProvider
+      ? params.sessionEntry?.authProfileOverride
+      : undefined;
+  return runEmbeddedPiAgent({
+    sessionId: params.sessionId,
+    sessionKey: params.sessionKey,
+    agentId: params.sessionAgentId,
+    messageChannel: params.messageChannel,
+    agentAccountId: params.runContext.accountId,
+    messageTo: params.opts.replyTo ?? params.opts.to,
+    messageThreadId: params.opts.threadId,
+    groupId: params.runContext.groupId,
+    groupChannel: params.runContext.groupChannel,
+    groupSpace: params.runContext.groupSpace,
+    spawnedBy: params.spawnedBy,
+    currentChannelId: params.runContext.currentChannelId,
+    currentThreadTs: params.runContext.currentThreadTs,
+    replyToMode: params.runContext.replyToMode,
+    hasRepliedRef: params.runContext.hasRepliedRef,
+    senderIsOwner,
+    sessionFile: params.sessionFile,
+    workspaceDir: params.workspaceDir,
+    config: params.cfg,
+    skillsSnapshot: params.skillsSnapshot,
+    prompt: effectivePrompt,
+    images: params.isFallbackRetry ? undefined : params.opts.images,
+    clientTools: params.opts.clientTools,
+    provider: params.providerOverride,
+    model: params.modelOverride,
+    authProfileId,
+    authProfileIdSource: authProfileId ? params.sessionEntry?.authProfileOverrideSource : undefined,
+    thinkLevel: params.resolvedThinkLevel,
+    verboseLevel: params.resolvedVerboseLevel,
+    timeoutMs: params.timeoutMs,
+    runId: params.runId,
+    lane: params.opts.lane,
+    abortSignal: params.opts.abortSignal,
+    extraSystemPrompt: params.opts.extraSystemPrompt,
+    inputProvenance: params.opts.inputProvenance,
+    streamParams: params.opts.streamParams,
+    agentDir: params.agentDir,
+    onAgentEvent: params.onAgentEvent,
+  });
+}
+>>>>>>> ed86252aa (fix: handle CLI session expired errors gracefully instead of crashing gateway (#31090))
 
 export async function agentCommand(
   opts: AgentCommandOpts,
@@ -463,6 +740,12 @@ export async function agentCommand(
             inputProvenance: opts.inputProvenance,
             streamParams: opts.streamParams,
             agentDir,
+<<<<<<< HEAD
+=======
+            primaryProvider: provider,
+            sessionStore,
+            storePath,
+>>>>>>> ed86252aa (fix: handle CLI session expired errors gracefully instead of crashing gateway (#31090))
             onAgentEvent: (evt) => {
               // Track lifecycle end for fallback emission below.
               if (

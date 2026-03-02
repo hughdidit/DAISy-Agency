@@ -37,6 +37,11 @@ export type AuthProfileFailureReason =
   | "rate_limit"
   | "billing"
   | "timeout"
+<<<<<<< HEAD
+=======
+  | "model_not_found"
+  | "session_expired"
+>>>>>>> ed86252aa (fix: handle CLI session expired errors gracefully instead of crashing gateway (#31090))
   | "unknown";
 
 /** Per-profile usage statistics for round-robin and cooldown tracking */

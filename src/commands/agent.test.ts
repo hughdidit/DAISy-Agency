@@ -4,6 +4,7 @@ import path from "node:path";
 import { beforeEach, describe, expect, it, type MockInstance, vi } from "vitest";
 
 import { withTempHome as withTempHomeBase } from "../../test/helpers/temp-home.js";
+<<<<<<< HEAD
 
 vi.mock("../agents/pi-embedded.js", () => ({
   abortEmbeddedPiRun: vi.fn().mockReturnValue(false),
@@ -14,7 +15,13 @@ vi.mock("../agents/model-catalog.js", () => ({
   loadModelCatalog: vi.fn(),
 }));
 
+=======
+import "../cron/isolated-agent.mocks.js";
+import * as cliRunnerModule from "../agents/cli-runner.js";
+import { FailoverError } from "../agents/failover-error.js";
+>>>>>>> ed86252aa (fix: handle CLI session expired errors gracefully instead of crashing gateway (#31090))
 import { loadModelCatalog } from "../agents/model-catalog.js";
+import * as modelSelectionModule from "../agents/model-selection.js";
 import { runEmbeddedPiAgent } from "../agents/pi-embedded.js";
 import type { MoltbotConfig } from "../config/config.js";
 import * as configModule from "../config/config.js";
@@ -73,6 +80,7 @@ beforeEach(() => {
     },
   });
   vi.mocked(loadModelCatalog).mockResolvedValue([]);
+  vi.mocked(modelSelectionModule.isCliProvider).mockImplementation(() => false);
 });
 
 describe("agentCommand", () => {
@@ -246,6 +254,66 @@ describe("agentCommand", () => {
       expect(callArgs?.sessionKey).toBe("agent:ops:main");
       expect(callArgs?.sessionFile).toContain(`${path.sep}agents${path.sep}ops${path.sep}sessions`);
     });
+  });
+
+  it("clears stale Claude CLI legacy session IDs before retrying after session expiration", async () => {
+    vi.mocked(modelSelectionModule.isCliProvider).mockImplementation(
+      (provider) => provider.trim().toLowerCase() === "claude-cli",
+    );
+    try {
+      await withTempHome(async (home) => {
+        const store = path.join(home, "sessions.json");
+        const sessionKey = "agent:main:subagent:cli-expired";
+        writeSessionStoreSeed(store, {
+          [sessionKey]: {
+            sessionId: "session-cli-123",
+            updatedAt: Date.now(),
+            providerOverride: "claude-cli",
+            modelOverride: "opus",
+            cliSessionIds: { "claude-cli": "stale-cli-session" },
+            claudeCliSessionId: "stale-legacy-session",
+          },
+        });
+        mockConfig(home, store, {
+          model: { primary: "claude-cli/opus", fallbacks: [] },
+          models: { "claude-cli/opus": {} },
+        });
+        runCliAgentSpy
+          .mockRejectedValueOnce(
+            new FailoverError("session expired", {
+              reason: "session_expired",
+              provider: "claude-cli",
+              model: "opus",
+              status: 410,
+            }),
+          )
+          .mockRejectedValue(new Error("retry failed"));
+
+        await expect(agentCommand({ message: "hi", sessionKey }, runtime)).rejects.toThrow(
+          "retry failed",
+        );
+
+        expect(runCliAgentSpy).toHaveBeenCalledTimes(2);
+        const firstCall = runCliAgentSpy.mock.calls[0]?.[0] as
+          | { cliSessionId?: string }
+          | undefined;
+        const secondCall = runCliAgentSpy.mock.calls[1]?.[0] as
+          | { cliSessionId?: string }
+          | undefined;
+        expect(firstCall?.cliSessionId).toBe("stale-cli-session");
+        expect(secondCall?.cliSessionId).toBeUndefined();
+
+        const saved = JSON.parse(fs.readFileSync(store, "utf-8")) as Record<
+          string,
+          { cliSessionIds?: Record<string, string>; claudeCliSessionId?: string }
+        >;
+        const entry = saved[sessionKey];
+        expect(entry?.cliSessionIds?.["claude-cli"]).toBeUndefined();
+        expect(entry?.claudeCliSessionId).toBeUndefined();
+      });
+    } finally {
+      vi.mocked(modelSelectionModule.isCliProvider).mockImplementation(() => false);
+    }
   });
 
   it("rejects unknown agent overrides", async () => {

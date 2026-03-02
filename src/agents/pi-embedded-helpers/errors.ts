@@ -657,6 +657,7 @@ export function isAuthAssistantError(msg: AssistantMessage | undefined): boolean
   return isAuthErrorMessage(msg.errorMessage ?? "");
 }
 
+<<<<<<< HEAD
 export function classifyFailoverReason(raw: string): FailoverReason | null {
   if (isImageDimensionErrorMessage(raw)) return null;
   if (isImageSizeError(raw)) return null;
@@ -666,6 +667,101 @@ export function classifyFailoverReason(raw: string): FailoverReason | null {
   if (isBillingErrorMessage(raw)) return "billing";
   if (isTimeoutErrorMessage(raw)) return "timeout";
   if (isAuthErrorMessage(raw)) return "auth";
+=======
+export function isModelNotFoundErrorMessage(raw: string): boolean {
+  if (!raw) {
+    return false;
+  }
+  const lower = raw.toLowerCase();
+
+  // Direct pattern matches from OpenClaw internals and common providers.
+  if (
+    lower.includes("unknown model") ||
+    lower.includes("model not found") ||
+    lower.includes("model_not_found") ||
+    lower.includes("not_found_error") ||
+    (lower.includes("does not exist") && lower.includes("model")) ||
+    (lower.includes("invalid model") && !lower.includes("invalid model reference"))
+  ) {
+    return true;
+  }
+
+  // Google Gemini: "models/X is not found for api version"
+  if (/models\/[^\s]+ is not found/i.test(raw)) {
+    return true;
+  }
+
+  // JSON error payloads: {"status": "NOT_FOUND"} or {"code": 404} combined with not-found text.
+  if (/\b404\b/.test(raw) && /not[-_ ]?found/i.test(raw)) {
+    return true;
+  }
+
+  return false;
+}
+
+function isCliSessionExpiredErrorMessage(raw: string): boolean {
+  if (!raw) {
+    return false;
+  }
+  const lower = raw.toLowerCase();
+  return (
+    lower.includes("session not found") ||
+    lower.includes("session does not exist") ||
+    lower.includes("session expired") ||
+    lower.includes("session invalid") ||
+    lower.includes("conversation not found") ||
+    lower.includes("conversation does not exist") ||
+    lower.includes("conversation expired") ||
+    lower.includes("conversation invalid") ||
+    lower.includes("no such session") ||
+    lower.includes("invalid session") ||
+    lower.includes("session id not found") ||
+    lower.includes("conversation id not found")
+  );
+}
+
+export function classifyFailoverReason(raw: string): FailoverReason | null {
+  if (isImageDimensionErrorMessage(raw)) {
+    return null;
+  }
+  if (isImageSizeError(raw)) {
+    return null;
+  }
+  if (isCliSessionExpiredErrorMessage(raw)) {
+    return "session_expired";
+  }
+  if (isModelNotFoundErrorMessage(raw)) {
+    return "model_not_found";
+  }
+  if (isTransientHttpError(raw)) {
+    // Treat transient 5xx provider failures as retryable transport issues.
+    return "timeout";
+  }
+  if (isJsonApiInternalServerError(raw)) {
+    return "timeout";
+  }
+  if (isRateLimitErrorMessage(raw)) {
+    return "rate_limit";
+  }
+  if (isOverloadedErrorMessage(raw)) {
+    return "rate_limit";
+  }
+  if (isCloudCodeAssistFormatError(raw)) {
+    return "format";
+  }
+  if (isBillingErrorMessage(raw)) {
+    return "billing";
+  }
+  if (isTimeoutErrorMessage(raw)) {
+    return "timeout";
+  }
+  if (isAuthPermanentErrorMessage(raw)) {
+    return "auth_permanent";
+  }
+  if (isAuthErrorMessage(raw)) {
+    return "auth";
+  }
+>>>>>>> ed86252aa (fix: handle CLI session expired errors gracefully instead of crashing gateway (#31090))
   return null;
 }
 
