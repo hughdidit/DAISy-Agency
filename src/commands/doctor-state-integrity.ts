@@ -178,8 +178,9 @@ function findOtherStateDirs(stateDir: string): string[] {
 function isPathUnderRoot(targetPath: string, rootPath: string): boolean {
   const normalizedTarget = path.resolve(targetPath);
   const normalizedRoot = path.resolve(rootPath);
-  if (normalizedRoot === path.sep) {
-    return normalizedTarget.startsWith(path.sep);
+  const rootToken = path.parse(normalizedRoot).root;
+  if (normalizedRoot === rootToken) {
+    return normalizedTarget.startsWith(rootToken);
   }
   return (
     normalizedTarget === normalizedRoot ||
@@ -276,19 +277,37 @@ function parseLinuxMountInfo(rawMountInfo: string): LinuxMountInfoEntry[] {
   return entries;
 }
 
+function isPathUnderRootWithPathOps(
+  targetPath: string,
+  rootPath: string,
+  pathOps: Pick<typeof path, "resolve" | "sep" | "parse">,
+): boolean {
+  const normalizedTarget = pathOps.resolve(targetPath);
+  const normalizedRoot = pathOps.resolve(rootPath);
+  const rootToken = pathOps.parse(normalizedRoot).root;
+  if (normalizedRoot === rootToken) {
+    return normalizedTarget.startsWith(rootToken);
+  }
+  return (
+    normalizedTarget === normalizedRoot ||
+    normalizedTarget.startsWith(`${normalizedRoot}${pathOps.sep}`)
+  );
+}
+
 function findLinuxMountInfoEntryForPath(
   targetPath: string,
   entries: LinuxMountInfoEntry[],
+  pathOps: Pick<typeof path, "resolve" | "sep" | "parse">,
 ): LinuxMountInfoEntry | null {
-  const normalizedTarget = path.resolve(targetPath);
+  const normalizedTarget = pathOps.resolve(targetPath);
   let bestMatch: LinuxMountInfoEntry | null = null;
   for (const entry of entries) {
-    if (!isPathUnderRoot(normalizedTarget, entry.mountPoint)) {
+    if (!isPathUnderRootWithPathOps(normalizedTarget, entry.mountPoint, pathOps)) {
       continue;
     }
     if (
       !bestMatch ||
-      path.resolve(entry.mountPoint).length > path.resolve(bestMatch.mountPoint).length
+      pathOps.resolve(entry.mountPoint).length > pathOps.resolve(bestMatch.mountPoint).length
     ) {
       bestMatch = entry;
     }
@@ -296,8 +315,8 @@ function findLinuxMountInfoEntryForPath(
   return bestMatch;
 }
 
-function isMmcDevicePath(devicePath: string): boolean {
-  const name = path.basename(devicePath);
+function isMmcDevicePath(devicePath: string, pathOps: Pick<typeof path, "basename">): boolean {
+  const name = pathOps.basename(devicePath);
   return /^mmcblk\d+(?:p\d+)?$/.test(name);
 }
 
@@ -322,9 +341,10 @@ export function detectLinuxSdBackedStateDir(
   if (platform !== "linux") {
     return null;
   }
+  const linuxPath = path.posix;
 
   const resolveRealPath = deps?.resolveRealPath ?? tryResolveRealPath;
-  const resolvedStatePath = resolveRealPath(stateDir) ?? path.resolve(stateDir);
+  const resolvedStatePath = resolveRealPath(stateDir) ?? linuxPath.resolve(stateDir);
   const mountInfo = deps?.mountInfo ?? tryReadLinuxMountInfo();
   if (!mountInfo) {
     return null;
@@ -333,6 +353,7 @@ export function detectLinuxSdBackedStateDir(
   const mountEntry = findLinuxMountInfoEntryForPath(
     resolvedStatePath,
     parseLinuxMountInfo(mountInfo),
+    linuxPath,
   );
   if (!mountEntry) {
     return null;
@@ -344,16 +365,16 @@ export function detectLinuxSdBackedStateDir(
       mountEntry.source,
     );
     if (resolvedDevicePath) {
-      sourceCandidates.push(path.resolve(resolvedDevicePath));
+      sourceCandidates.push(linuxPath.resolve(resolvedDevicePath));
     }
   }
-  if (!sourceCandidates.some(isMmcDevicePath)) {
+  if (!sourceCandidates.some((candidate) => isMmcDevicePath(candidate, linuxPath))) {
     return null;
   }
 
   return {
-    path: path.resolve(resolvedStatePath),
-    mountPoint: path.resolve(mountEntry.mountPoint),
+    path: linuxPath.resolve(resolvedStatePath),
+    mountPoint: linuxPath.resolve(mountEntry.mountPoint),
     fsType: mountEntry.fsType,
     source: mountEntry.source,
   };
