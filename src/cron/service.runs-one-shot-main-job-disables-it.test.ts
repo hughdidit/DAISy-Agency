@@ -576,6 +576,7 @@ describe("CronService", () => {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   it("passes agentId to runHeartbeatOnce for main-session wakeMode now jobs", async () => {
 =======
@@ -587,38 +588,23 @@ describe("CronService", () => {
 =======
   it("passes agentId and preserves scoped session for wakeMode now main jobs", async () => {
 >>>>>>> 2050fd753 (Cron: preserve session scope for main-target reminders)
+=======
+  it("rejects sessionTarget main for non-default agents at creation time", async () => {
+>>>>>>> 313a655d1 (fix(cron): reject sessionTarget "main" for non-default agents at creation time (openclaw#30217) thanks @liaosvcaf)
     const runHeartbeatOnce = vi.fn(async () => ({ status: "ran" as const, durationMs: 1 }));
 
-    const { store, cron, enqueueSystemEvent, requestHeartbeatNow } =
-      await createWakeModeNowMainHarness({
-        runHeartbeatOnce,
-        // Perf: avoid advancing fake timers by 2+ minutes for the busy-heartbeat fallback.
-        wakeNowHeartbeatBusyMaxWaitMs: 1,
-        wakeNowHeartbeatBusyRetryDelayMs: 2,
-      });
-
-    const sessionKey = "agent:ops:discord:channel:alerts";
-    const job = await addWakeModeNowMainSystemEventJob(cron, {
-      name: "wakeMode now with agent",
-      agentId: "ops",
-      sessionKey,
+    const { store, cron } = await createWakeModeNowMainHarness({
+      runHeartbeatOnce,
+      wakeNowHeartbeatBusyMaxWaitMs: 1,
+      wakeNowHeartbeatBusyRetryDelayMs: 2,
     });
 
-    await cron.run(job.id, "force");
-
-    expect(runHeartbeatOnce).toHaveBeenCalledTimes(1);
-    expect(runHeartbeatOnce).toHaveBeenCalledWith(
-      expect.objectContaining({
-        reason: `cron:${job.id}`,
+    await expect(
+      addWakeModeNowMainSystemEventJob(cron, {
+        name: "wakeMode now with agent",
         agentId: "ops",
-        sessionKey,
       }),
-    );
-    expect(requestHeartbeatNow).not.toHaveBeenCalled();
-    expect(enqueueSystemEvent).toHaveBeenCalledWith(
-      "hello",
-      expect.objectContaining({ agentId: "ops", sessionKey }),
-    );
+    ).rejects.toThrow('cron: sessionTarget "main" is only valid for the default agent');
 
     cron.stop();
     await store.cleanup();

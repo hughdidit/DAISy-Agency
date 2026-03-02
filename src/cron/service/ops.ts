@@ -321,9 +321,13 @@ export async function update(state: CronServiceState, id: string, patch: CronJob
     await ensureLoaded(state);
     const job = findJobOrThrow(state, id);
     const now = state.deps.nowMs();
+<<<<<<< HEAD
     applyJobPatch(job, patch);
 <<<<<<< HEAD
 =======
+=======
+    applyJobPatch(job, patch, { defaultAgentId: state.deps.defaultAgentId });
+>>>>>>> 313a655d1 (fix(cron): reject sessionTarget "main" for non-default agents at creation time (openclaw#30217) thanks @liaosvcaf)
     if (job.schedule.kind === "every") {
       const anchor = job.schedule.anchorMs;
       if (typeof anchor !== "number" || !Number.isFinite(anchor)) {
