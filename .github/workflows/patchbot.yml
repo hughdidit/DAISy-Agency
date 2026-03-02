@@ -6,9 +6,15 @@ on:
     branches: [daisy/dev]
   pull_request_review:
     types: [submitted]
+    # TODO(actionlint): 'branches' filter is not valid for pull_request_review events.
+    # Remove this filter and add a job-level condition instead:
+    # if: github.base_ref == 'daisy/dev'
     branches: [daisy/dev]
   check_suite:
     types: [completed]
+    # TODO(actionlint): 'branches' filter is not valid for check_suite events.
+    # Remove this filter and add a job-level condition instead:
+    # if: github.ref == 'refs/heads/daisy/dev'
     branches: [daisy/dev]
   workflow_run:
     workflows: ["Deploy staging on release"]

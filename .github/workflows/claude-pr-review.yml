@@ -23,6 +23,11 @@ jobs:
     # - AND the comment contains '@claude' and 'review'
     # - AND the commenter is trusted (OWNER/MEMBER/COLLABORATOR)
     # - AND the commenter is not a bot
+    # TODO(actionlint): toLower() is not a valid GitHub Actions expression function.
+    # GHA has no built-in case-conversion. Fix: replace with case-sensitive
+    # contains(github.event.comment.body, 'review'), or check multiple cases:
+    # contains(body,'review') || contains(body,'Review') || contains(body,'REVIEW')
+    # Ref: https://docs.github.com/actions/writing-workflows/choosing-what-your-workflow-does/evaluate-expressions-in-workflows-and-actions#functions
     if: >
       (
         github.event_name == 'issue_comment' &&

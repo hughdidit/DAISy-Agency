@@ -111,6 +111,12 @@ jobs:
 
       - name: Validate required config
         env:
+          # TODO(actionlint): GCP_WORKLOAD_IDENTITY_PROVIDER, GCP_SERVICE_ACCOUNT,
+          # GCP_PROJECT_ID, GCP_ZONE, GCE_INSTANCE_NAME, DEPLOY_DIR are defined in
+          # repo Settings -> Secrets but are not declared as workflow secrets: inputs.
+          # Fix: add .github/actionlint.yaml listing them, or migrate to a reusable
+          # workflow with an explicit secrets: block, or append
+          # `# actionlint:ignore:expression` to each flagged line.
           # Infrastructure (secrets, with vars fallback for migration)
           GCP_WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER || vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
           GCP_SERVICE_ACCOUNT: ${{ secrets.GCP_SERVICE_ACCOUNT || vars.GCP_SERVICE_ACCOUNT }}
@@ -176,6 +182,12 @@ jobs:
           DEPLOY_ENV: ${{ inputs.environment }}
           DRY_RUN: ${{ inputs.dry_run }}
           IMAGE_REF_OVERRIDE: ${{ inputs.image_ref }}
+          # TODO(actionlint): GCP_WORKLOAD_IDENTITY_PROVIDER, GCP_SERVICE_ACCOUNT,
+          # GCP_PROJECT_ID, GCP_ZONE, GCE_INSTANCE_NAME, DEPLOY_DIR are defined in
+          # repo Settings -> Secrets but are not declared as workflow secrets: inputs.
+          # Fix: add .github/actionlint.yaml listing them, or migrate to a reusable
+          # workflow with an explicit secrets: block, or append
+          # `# actionlint:ignore:expression` to each flagged line.
           # Infrastructure (secrets, with vars fallback for migration)
           GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID || vars.GCP_PROJECT_ID }}
           GCP_ZONE: ${{ secrets.GCP_ZONE || vars.GCP_ZONE }}
