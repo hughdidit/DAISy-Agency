@@ -150,6 +150,21 @@ describe("buildGatewayReloadPlan", () => {
     expect(plan.noopPaths).toContain("gateway.remote.url");
   });
 
+<<<<<<< HEAD
+=======
+  it("treats secrets config changes as no-op for gateway restart planning", () => {
+    const plan = buildGatewayReloadPlan(["secrets.providers.default.path"]);
+    expect(plan.restartGateway).toBe(false);
+    expect(plan.noopPaths).toContain("secrets.providers.default.path");
+  });
+
+  it("treats diagnostics.stuckSessionWarnMs as no-op for gateway restart planning", () => {
+    const plan = buildGatewayReloadPlan(["diagnostics.stuckSessionWarnMs"]);
+    expect(plan.restartGateway).toBe(false);
+    expect(plan.noopPaths).toContain("diagnostics.stuckSessionWarnMs");
+  });
+
+>>>>>>> 68832f203 (refactor(diagnostics): hot-reload stuck warning threshold)
   it("defaults unknown paths to restart", () => {
     const plan = buildGatewayReloadPlan(["unknownField"]);
     expect(plan.restartGateway).toBe(true);
