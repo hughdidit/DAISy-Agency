@@ -118,6 +118,7 @@ import type { StickerMetadata, TelegramContext } from "./types.js";
 const PARSE_ERR_RE = /can't parse entities|parse entities|find end of the entity/i;
 const EMPTY_TEXT_ERR_RE = /message text is empty/i;
 const VOICE_FORBIDDEN_RE = /VOICE_MESSAGES_FORBIDDEN/;
+const CAPTION_TOO_LONG_RE = /caption is too long/i;
 const FILE_TOO_BIG_RE = /file is too big/i;
 <<<<<<< HEAD
 =======
@@ -324,8 +325,6 @@ export async function deliverReplies(params: {
             });
           } catch (voiceErr) {
             // Fall back to text if voice messages are forbidden in this chat.
-            // This happens when the recipient has Telegram Premium privacy settings
-            // that block voice messages (Settings > Privacy > Voice Messages).
             if (isVoiceMessagesForbidden(voiceErr)) {
               const fallbackText = reply.text;
               if (!fallbackText || !fallbackText.trim()) {
@@ -359,8 +358,43 @@ export async function deliverReplies(params: {
                 hasReplied = true;
               }
               markDelivered();
+<<<<<<< HEAD
 >>>>>>> 087dca8fa (fix(subagent): harden read-tool overflow guards and sticky reply threading (#19508))
               // Skip this media item; continue with next.
+=======
+              continue;
+            }
+            if (isCaptionTooLong(voiceErr)) {
+              logVerbose(
+                "telegram sendVoice caption too long; resending voice without caption + text separately",
+              );
+              const noCaptionParams = { ...mediaParams };
+              delete noCaptionParams.caption;
+              delete noCaptionParams.parse_mode;
+              await withTelegramApiErrorLogging({
+                operation: "sendVoice",
+                runtime,
+                fn: () => bot.api.sendVoice(chatId, file, { ...noCaptionParams }),
+              });
+              markDelivered();
+              const fallbackText = reply.text;
+              if (fallbackText?.trim()) {
+                await sendTelegramVoiceFallbackText({
+                  bot,
+                  chatId,
+                  runtime,
+                  text: fallbackText,
+                  chunkText,
+                  replyToId: undefined,
+                  thread,
+                  linkPreview,
+                  replyMarkup,
+                });
+              }
+              if (replyToMessageIdForPayload && !hasReplied) {
+                hasReplied = true;
+              }
+>>>>>>> 60f8e832e (fix(telegram): handle sendVoice caption-too-long by resending without caption)
               continue;
             }
             throw voiceErr;
@@ -582,6 +616,13 @@ function isVoiceMessagesForbidden(err: unknown): boolean {
     return VOICE_FORBIDDEN_RE.test(err.description);
   }
   return VOICE_FORBIDDEN_RE.test(formatErrorMessage(err));
+}
+
+function isCaptionTooLong(err: unknown): boolean {
+  if (err instanceof GrammyError) {
+    return CAPTION_TOO_LONG_RE.test(err.description);
+  }
+  return CAPTION_TOO_LONG_RE.test(formatErrorMessage(err));
 }
 
 /**
