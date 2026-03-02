@@ -32,6 +32,22 @@ import {
   type ZaloMessage,
   type ZaloUpdate,
 } from "./api.js";
+<<<<<<< HEAD
+=======
+import {
+  evaluateZaloGroupAccess,
+  isZaloSenderAllowed,
+  resolveZaloRuntimeGroupPolicy,
+} from "./group-access.js";
+import {
+  clearZaloWebhookSecurityStateForTest,
+  getZaloWebhookRateLimitStateSizeForTest,
+  getZaloWebhookStatusCounterSizeForTest,
+  handleZaloWebhookRequest as handleZaloWebhookRequestInternal,
+  registerZaloWebhookTarget as registerZaloWebhookTargetInternal,
+  type ZaloWebhookTarget,
+} from "./monitor.webhook.js";
+>>>>>>> 43cad8268 (fix(security): harden webhook memory guards across channels)
 import { resolveZaloProxyFetch } from "./proxy.js";
 import { getZaloRuntime } from "./runtime.js";
 
@@ -224,6 +240,12 @@ export function registerZaloWebhookTarget(target: WebhookTarget): () => void {
     }
   };
 }
+
+export {
+  clearZaloWebhookSecurityStateForTest,
+  getZaloWebhookRateLimitStateSizeForTest,
+  getZaloWebhookStatusCounterSizeForTest,
+};
 
 export async function handleZaloWebhookRequest(
   req: IncomingMessage,

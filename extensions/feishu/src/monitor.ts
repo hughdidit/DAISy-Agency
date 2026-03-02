@@ -2,6 +2,8 @@ import * as Lark from "@larksuiteoapi/node-sdk";
 import * as http from "http";
 import {
   type ClawdbotConfig,
+  createBoundedCounter,
+  createFixedWindowRateLimiter,
   type RuntimeEnv,
   type HistoryEntry,
   installRequestBodyLimitGuard,
@@ -29,9 +31,46 @@ const FEISHU_WEBHOOK_RATE_LIMIT_WINDOW_MS = 60_000;
 const FEISHU_WEBHOOK_RATE_LIMIT_MAX_REQUESTS = 120;
 const FEISHU_WEBHOOK_RATE_LIMIT_MAX_TRACKED_KEYS = 4_096;
 const FEISHU_WEBHOOK_COUNTER_LOG_EVERY = 25;
+<<<<<<< HEAD
 const feishuWebhookRateLimits = new Map<string, { count: number; windowStartMs: number }>();
 const feishuWebhookStatusCounters = new Map<string, number>();
 let lastWebhookRateLimitCleanupMs = 0;
+=======
+const FEISHU_WEBHOOK_COUNTER_MAX_TRACKED_KEYS = 4_096;
+const FEISHU_WEBHOOK_COUNTER_TTL_MS = 6 * 60 * 60_000;
+const FEISHU_REACTION_VERIFY_TIMEOUT_MS = 1_500;
+
+export type FeishuReactionCreatedEvent = {
+  message_id: string;
+  chat_id?: string;
+  chat_type?: "p2p" | "group";
+  reaction_type?: { emoji_type?: string };
+  operator_type?: string;
+  user_id?: { open_id?: string };
+  action_time?: string;
+};
+
+type ResolveReactionSyntheticEventParams = {
+  cfg: ClawdbotConfig;
+  accountId: string;
+  event: FeishuReactionCreatedEvent;
+  botOpenId?: string;
+  fetchMessage?: typeof getMessageFeishu;
+  verificationTimeoutMs?: number;
+  logger?: (message: string) => void;
+  uuid?: () => string;
+};
+
+const feishuWebhookRateLimiter = createFixedWindowRateLimiter({
+  windowMs: FEISHU_WEBHOOK_RATE_LIMIT_WINDOW_MS,
+  maxRequests: FEISHU_WEBHOOK_RATE_LIMIT_MAX_REQUESTS,
+  maxTrackedKeys: FEISHU_WEBHOOK_RATE_LIMIT_MAX_TRACKED_KEYS,
+});
+const feishuWebhookStatusCounters = createBoundedCounter({
+  maxTrackedKeys: FEISHU_WEBHOOK_COUNTER_MAX_TRACKED_KEYS,
+  ttlMs: FEISHU_WEBHOOK_COUNTER_TTL_MS,
+});
+>>>>>>> 43cad8268 (fix(security): harden webhook memory guards across channels)
 
 function isJsonContentType(value: string | string[] | undefined): boolean {
   const first = Array.isArray(value) ? value[0] : value;
@@ -42,55 +81,17 @@ function isJsonContentType(value: string | string[] | undefined): boolean {
   return mediaType === "application/json" || Boolean(mediaType?.endsWith("+json"));
 }
 
-function trimWebhookRateLimitState(): void {
-  while (feishuWebhookRateLimits.size > FEISHU_WEBHOOK_RATE_LIMIT_MAX_TRACKED_KEYS) {
-    const oldestKey = feishuWebhookRateLimits.keys().next().value;
-    if (typeof oldestKey !== "string") {
-      break;
-    }
-    feishuWebhookRateLimits.delete(oldestKey);
-  }
-}
-
-function maybePruneWebhookRateLimitState(nowMs: number): void {
-  if (
-    feishuWebhookRateLimits.size === 0 ||
-    nowMs - lastWebhookRateLimitCleanupMs < FEISHU_WEBHOOK_RATE_LIMIT_WINDOW_MS
-  ) {
-    return;
-  }
-  lastWebhookRateLimitCleanupMs = nowMs;
-  for (const [key, state] of feishuWebhookRateLimits) {
-    if (nowMs - state.windowStartMs >= FEISHU_WEBHOOK_RATE_LIMIT_WINDOW_MS) {
-      feishuWebhookRateLimits.delete(key);
-    }
-  }
-}
-
 export function clearFeishuWebhookRateLimitStateForTest(): void {
-  feishuWebhookRateLimits.clear();
-  lastWebhookRateLimitCleanupMs = 0;
+  feishuWebhookRateLimiter.clear();
+  feishuWebhookStatusCounters.clear();
 }
 
 export function getFeishuWebhookRateLimitStateSizeForTest(): number {
-  return feishuWebhookRateLimits.size;
+  return feishuWebhookRateLimiter.size();
 }
 
 export function isWebhookRateLimitedForTest(key: string, nowMs: number): boolean {
-  maybePruneWebhookRateLimitState(nowMs);
-
-  const state = feishuWebhookRateLimits.get(key);
-  if (!state || nowMs - state.windowStartMs >= FEISHU_WEBHOOK_RATE_LIMIT_WINDOW_MS) {
-    feishuWebhookRateLimits.set(key, { count: 1, windowStartMs: nowMs });
-    trimWebhookRateLimitState();
-    return false;
-  }
-
-  state.count += 1;
-  if (state.count > FEISHU_WEBHOOK_RATE_LIMIT_MAX_REQUESTS) {
-    return true;
-  }
-  return false;
+  return feishuWebhookRateLimiter.isRateLimited(key, nowMs);
 }
 
 function isWebhookRateLimited(key: string, nowMs: number): boolean {
@@ -107,8 +108,7 @@ function recordWebhookStatus(
     return;
   }
   const key = `${accountId}:${path}:${statusCode}`;
-  const next = (feishuWebhookStatusCounters.get(key) ?? 0) + 1;
-  feishuWebhookStatusCounters.set(key, next);
+  const next = feishuWebhookStatusCounters.increment(key);
   if (next === 1 || next % FEISHU_WEBHOOK_COUNTER_LOG_EVERY === 0) {
     const log = runtime?.log ?? console.log;
     log(`feishu[${accountId}]: webhook anomaly path=${path} status=${statusCode} count=${next}`);

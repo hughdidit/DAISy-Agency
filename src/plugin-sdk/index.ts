@@ -239,6 +239,8 @@ export {
   readRequestBodyWithLimit,
   requestBodyErrorToText,
 } from "../infra/http-body.js";
+export { createBoundedCounter, createFixedWindowRateLimiter } from "./webhook-memory-guards.js";
+export type { BoundedCounter, FixedWindowRateLimiter } from "./webhook-memory-guards.js";
 
 export { fetchWithSsrFGuard } from "../infra/net/fetch-guard.js";
 export { SsrFBlockedError, isBlockedHostname, isPrivateIpAddress } from "../infra/net/ssrf.js";
