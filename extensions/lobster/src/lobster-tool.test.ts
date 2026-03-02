@@ -29,9 +29,13 @@ const spawnState = vi.hoisted(() => ({
 }));
 >>>>>>> 5e496a151 (perf(test): mock lobster subprocess)
 
-vi.mock("node:child_process", () => ({
-  spawn: (...args: unknown[]) => spawnState.spawn(...args),
-}));
+vi.mock("node:child_process", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("node:child_process")>();
+  return {
+    ...actual,
+    spawn: (...args: unknown[]) => spawnState.spawn(...args),
+  };
+});
 
 let createLobsterTool: typeof import("./lobster-tool.js").createLobsterTool;
 
