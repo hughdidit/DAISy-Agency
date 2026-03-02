@@ -201,6 +201,7 @@ describe("Feishu webhook security hardening", () => {
     isWebhookRateLimitedForTest("/feishu-rate-limit-stale:fresh", now + 60_001);
     expect(getFeishuWebhookRateLimitStateSizeForTest()).toBe(1);
   });
+<<<<<<< HEAD
 
   it("starts account probes sequentially to avoid startup bursts", async () => {
     let inFlight = 0;
@@ -274,4 +275,6 @@ describe("Feishu webhook security hardening", () => {
     }
   });
 >>>>>>> abc7b6fbe (Feishu: skip duplicate bot-info retries after preflight)
+=======
+>>>>>>> f46bd2e0c (refactor(feishu): split monitor startup and transport concerns)
 });

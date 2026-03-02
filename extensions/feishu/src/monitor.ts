@@ -3,6 +3,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { ClawdbotConfig, RuntimeEnv, HistoryEntry } from "openclaw/plugin-sdk";
 import * as Lark from "@larksuiteoapi/node-sdk";
 import * as http from "http";
@@ -49,6 +50,22 @@ import { handleFeishuCardAction, type FeishuCardActionEvent } from "./card-actio
 import { createFeishuWSClient, createEventDispatcher } from "./client.js";
 import { probeFeishu } from "./probe.js";
 import type { ResolvedFeishuAccount } from "./types.js";
+=======
+import type { ClawdbotConfig, RuntimeEnv } from "openclaw/plugin-sdk";
+import { listEnabledFeishuAccounts, resolveFeishuAccount } from "./accounts.js";
+import {
+  monitorSingleAccount,
+  resolveReactionSyntheticEvent,
+  type FeishuReactionCreatedEvent,
+} from "./monitor.account.js";
+import { fetchBotOpenIdForMonitor } from "./monitor.startup.js";
+import {
+  clearFeishuWebhookRateLimitStateForTest,
+  getFeishuWebhookRateLimitStateSizeForTest,
+  isWebhookRateLimitedForTest,
+  stopFeishuMonitorState,
+} from "./monitor.state.js";
+>>>>>>> f46bd2e0c (refactor(feishu): split monitor startup and transport concerns)
 
 export type MonitorFeishuOpts = {
   config?: ClawdbotConfig;
@@ -57,6 +74,7 @@ export type MonitorFeishuOpts = {
   accountId?: string;
 };
 
+<<<<<<< HEAD
 // Per-account WebSocket clients, HTTP servers, and bot info
 const wsClients = new Map<string, Lark.WSClient>();
 const httpServers = new Map<string, http.Server>();
@@ -359,6 +377,16 @@ async function monitorWebhook({
 /**
  * Main entry: start monitoring for all enabled accounts.
  */
+=======
+export {
+  clearFeishuWebhookRateLimitStateForTest,
+  getFeishuWebhookRateLimitStateSizeForTest,
+  isWebhookRateLimitedForTest,
+  resolveReactionSyntheticEvent,
+};
+export type { FeishuReactionCreatedEvent };
+
+>>>>>>> f46bd2e0c (refactor(feishu): split monitor startup and transport concerns)
 export async function monitorFeishuProvider(opts: MonitorFeishuOpts = {}): Promise<void> {
   const cfg = opts.config;
   if (!cfg) {
@@ -367,7 +395,6 @@ export async function monitorFeishuProvider(opts: MonitorFeishuOpts = {}): Promi
 
   const log = opts.runtime?.log ?? console.log;
 
-  // If accountId is specified, only monitor that account
   if (opts.accountId) {
     const account = resolveFeishuAccount({ cfg, accountId: opts.accountId });
     if (!account.enabled || !account.configured) {
@@ -381,7 +408,6 @@ export async function monitorFeishuProvider(opts: MonitorFeishuOpts = {}): Promi
     });
   }
 
-  // Otherwise, start all enabled accounts
   const accounts = listEnabledFeishuAccounts(cfg);
   if (accounts.length === 0) {
     throw new Error("No enabled Feishu accounts configured");
@@ -391,14 +417,37 @@ export async function monitorFeishuProvider(opts: MonitorFeishuOpts = {}): Promi
     `feishu: starting ${accounts.length} account(s): ${accounts.map((a) => a.accountId).join(", ")}`,
   );
 
+<<<<<<< HEAD
   // Start all accounts in parallel
   await Promise.all(
     accounts.map((account) =>
+=======
+  const monitorPromises: Promise<void>[] = [];
+  for (const account of accounts) {
+    if (opts.abortSignal?.aborted) {
+      log("feishu: abort signal received during startup preflight; stopping startup");
+      break;
+    }
+
+    // Probe sequentially so large multi-account startups do not burst Feishu's bot-info endpoint.
+    const botOpenId = await fetchBotOpenIdForMonitor(account, {
+      runtime: opts.runtime,
+      abortSignal: opts.abortSignal,
+    });
+
+    if (opts.abortSignal?.aborted) {
+      log("feishu: abort signal received during startup preflight; stopping startup");
+      break;
+    }
+
+    monitorPromises.push(
+>>>>>>> f46bd2e0c (refactor(feishu): split monitor startup and transport concerns)
       monitorSingleAccount({
         cfg,
         account,
         runtime: opts.runtime,
         abortSignal: opts.abortSignal,
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
         botOpenId,
@@ -407,26 +456,16 @@ export async function monitorFeishuProvider(opts: MonitorFeishuOpts = {}): Promi
       }),
     ),
   );
+=======
+        botOpenIdSource: { kind: "prefetched", botOpenId },
+      }),
+    );
+  }
+
+  await Promise.all(monitorPromises);
+>>>>>>> f46bd2e0c (refactor(feishu): split monitor startup and transport concerns)
 }
 
-/**
- * Stop monitoring for a specific account or all accounts.
- */
 export function stopFeishuMonitor(accountId?: string): void {
-  if (accountId) {
-    wsClients.delete(accountId);
-    const server = httpServers.get(accountId);
-    if (server) {
-      server.close();
-      httpServers.delete(accountId);
-    }
-    botOpenIds.delete(accountId);
-  } else {
-    wsClients.clear();
-    for (const server of httpServers.values()) {
-      server.close();
-    }
-    httpServers.clear();
-    botOpenIds.clear();
-  }
+  stopFeishuMonitorState(accountId);
 }
