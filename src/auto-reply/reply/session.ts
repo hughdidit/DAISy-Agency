@@ -84,12 +84,21 @@ import { archiveSessionTranscripts } from "../../gateway/session-utils.fs.js";
 import { deliverSessionMaintenanceWarning } from "../../infra/session-maintenance-warning.js";
 import { createSubsystemLogger } from "../../logging/subsystem.js";
 import { getGlobalHookRunner } from "../../plugins/hook-runner-global.js";
+<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { normalizeMainKey } from "../../routing/session-key.js";
 <<<<<<< HEAD
 =======
+=======
+import { buildAgentMainSessionKey, normalizeMainKey } from "../../routing/session-key.js";
+>>>>>>> 412eabc42 (fix(session): retire stale dm main route after dmScope migration (#31010))
 import { parseAgentSessionKey } from "../../sessions/session-key-utils.js";
-import { normalizeSessionDeliveryFields } from "../../utils/delivery-context.js";
+import {
+  deliveryContextFromSession,
+  deliveryContextKey,
+  normalizeDeliveryContext,
+  normalizeSessionDeliveryFields,
+} from "../../utils/delivery-context.js";
 import {
   INTERNAL_MESSAGE_CHANNEL,
   isDeliverableMessageChannel,
@@ -195,12 +204,78 @@ export type SessionInitResult = {
  */
 const DEFAULT_PARENT_FORK_MAX_TOKENS = 100_000;
 
+type LegacyMainDeliveryRetirement = {
+  key: string;
+  entry: SessionEntry;
+};
+
 function resolveParentForkMaxTokens(cfg: OpenClawConfig): number {
   const configured = cfg.session?.parentForkMaxTokens;
   if (typeof configured === "number" && Number.isFinite(configured) && configured >= 0) {
     return Math.floor(configured);
   }
   return DEFAULT_PARENT_FORK_MAX_TOKENS;
+}
+
+function maybeRetireLegacyMainDeliveryRoute(params: {
+  sessionCfg: OpenClawConfig["session"] | undefined;
+  sessionKey: string;
+  sessionStore: Record<string, SessionEntry>;
+  agentId: string;
+  mainKey: string;
+  isGroup: boolean;
+  ctx: MsgContext;
+}): LegacyMainDeliveryRetirement | undefined {
+  const dmScope = params.sessionCfg?.dmScope ?? "main";
+  if (dmScope === "main" || params.isGroup) {
+    return undefined;
+  }
+  const canonicalMainSessionKey = buildAgentMainSessionKey({
+    agentId: params.agentId,
+    mainKey: params.mainKey,
+  }).toLowerCase();
+  if (params.sessionKey === canonicalMainSessionKey) {
+    return undefined;
+  }
+  const legacyMain = params.sessionStore[canonicalMainSessionKey];
+  if (!legacyMain) {
+    return undefined;
+  }
+  const legacyRouteKey = deliveryContextKey(deliveryContextFromSession(legacyMain));
+  if (!legacyRouteKey) {
+    return undefined;
+  }
+  const activeDirectRouteKey = deliveryContextKey(
+    normalizeDeliveryContext({
+      channel: params.ctx.OriginatingChannel as string | undefined,
+      to: params.ctx.OriginatingTo || params.ctx.To,
+      accountId: params.ctx.AccountId,
+      threadId: params.ctx.MessageThreadId,
+    }),
+  );
+  if (!activeDirectRouteKey || activeDirectRouteKey !== legacyRouteKey) {
+    return undefined;
+  }
+  if (
+    legacyMain.deliveryContext === undefined &&
+    legacyMain.lastChannel === undefined &&
+    legacyMain.lastTo === undefined &&
+    legacyMain.lastAccountId === undefined &&
+    legacyMain.lastThreadId === undefined
+  ) {
+    return undefined;
+  }
+  return {
+    key: canonicalMainSessionKey,
+    entry: {
+      ...legacyMain,
+      deliveryContext: undefined,
+      lastChannel: undefined,
+      lastTo: undefined,
+      lastAccountId: undefined,
+      lastThreadId: undefined,
+    },
+  };
 }
 
 function forkSessionFromParent(params: {
@@ -353,6 +428,18 @@ export async function initSessionState(params: {
   }
 
   sessionKey = resolveSessionKey(sessionScope, sessionCtxForState, mainKey);
+  const retiredLegacyMainDelivery = maybeRetireLegacyMainDeliveryRoute({
+    sessionCfg,
+    sessionKey,
+    sessionStore,
+    agentId,
+    mainKey,
+    isGroup,
+    ctx,
+  });
+  if (retiredLegacyMainDelivery) {
+    sessionStore[retiredLegacyMainDelivery.key] = retiredLegacyMainDelivery.entry;
+  }
   const entry = sessionStore[sessionKey];
   const previousSessionEntry = resetTriggered && entry ? { ...entry } : undefined;
   const now = Date.now();
@@ -575,10 +662,44 @@ export async function initSessionState(params: {
   }
   // Preserve per-session overrides while resetting compaction state on /new.
   sessionStore[sessionKey] = { ...sessionStore[sessionKey], ...sessionEntry };
+<<<<<<< HEAD
   await updateSessionStore(storePath, (store) => {
     // Preserve per-session overrides while resetting compaction state on /new.
     store[sessionKey] = { ...store[sessionKey], ...sessionEntry };
   });
+=======
+  await updateSessionStore(
+    storePath,
+    (store) => {
+      // Preserve per-session overrides while resetting compaction state on /new.
+      store[sessionKey] = { ...store[sessionKey], ...sessionEntry };
+      if (retiredLegacyMainDelivery) {
+        store[retiredLegacyMainDelivery.key] = retiredLegacyMainDelivery.entry;
+      }
+    },
+    {
+      activeSessionKey: sessionKey,
+      onWarn: (warning) =>
+        deliverSessionMaintenanceWarning({
+          cfg,
+          sessionKey,
+          entry: sessionEntry,
+          warning,
+        }),
+    },
+  );
+
+  // Archive old transcript so it doesn't accumulate on disk (#14869).
+  if (previousSessionEntry?.sessionId) {
+    archiveSessionTranscripts({
+      sessionId: previousSessionEntry.sessionId,
+      storePath,
+      sessionFile: previousSessionEntry.sessionFile,
+      agentId,
+      reason: "reset",
+    });
+  }
+>>>>>>> 412eabc42 (fix(session): retire stale dm main route after dmScope migration (#31010))
 
   const sessionCtx: TemplateContext = {
     ...ctx,
