@@ -19,12 +19,12 @@ import type { RuntimeEnv } from "../runtime.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { resolveGatewayPort } from "../config/config.js";
 import {
-  appendAllowedOrigin,
-  buildTailnetHttpsOrigin,
+  maybeAddTailnetOriginToControlUiAllowedOrigins,
   TAILSCALE_DOCS_LINES,
   TAILSCALE_EXPOSURE_OPTIONS,
   TAILSCALE_MISSING_BIN_NOTE_LINES,
 } from "../gateway/gateway-config-prompts.shared.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 import { findTailscaleBinary } from "../infra/tailscale.js";
 <<<<<<< HEAD
@@ -36,6 +36,9 @@ import { findTailscaleBinary } from "../infra/tailscale.js";
 =======
 import { findTailscaleBinary, getTailnetHostname } from "../infra/tailscale.js";
 >>>>>>> 53d10f868 (fix(gateway): land access/auth/config migration cluster)
+=======
+import { findTailscaleBinary } from "../infra/tailscale.js";
+>>>>>>> cef5fae0a (refactor(gateway): dedupe origin seeding and plugin route auth matching)
 import type { RuntimeEnv } from "../runtime.js";
 =======
 =======
@@ -343,27 +346,11 @@ export async function promptGatewayConfig(
     },
   };
 
-  // Auto-add Tailscale origin to controlUi.allowedOrigins so the Control UI
-  // is accessible via the Tailscale hostname without manual config.
-  if (tailscaleMode === "serve" || tailscaleMode === "funnel") {
-    const tsOrigin = await getTailnetHostname(undefined, tailscaleBin ?? undefined)
-      .then((host) => buildTailnetHttpsOrigin(host))
-      .catch(() => null);
-    if (tsOrigin) {
-      const existing = next.gateway?.controlUi?.allowedOrigins ?? [];
-      const updatedOrigins = appendAllowedOrigin(existing, tsOrigin);
-      next = {
-        ...next,
-        gateway: {
-          ...next.gateway,
-          controlUi: {
-            ...next.gateway?.controlUi,
-            allowedOrigins: updatedOrigins,
-          },
-        },
-      };
-    }
-  }
+  next = await maybeAddTailnetOriginToControlUiAllowedOrigins({
+    config: next,
+    tailscaleMode,
+    tailscaleBin,
+  });
 
   return { config: next, port, token: gatewayToken };
 }

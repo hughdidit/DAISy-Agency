@@ -47,6 +47,7 @@ import type { TlsOptions } from "node:tls";
 import type { WebSocketServer } from "ws";
 >>>>>>> 758ea3c5a (style: apply oxfmt import ordering for check)
 import { resolveAgentAvatar } from "../agents/identity-avatar.js";
+<<<<<<< HEAD
 import {
   A2UI_PATH,
   CANVAS_HOST_PATH,
@@ -107,11 +108,15 @@ import type { AuthRateLimiter } from "./auth-rate-limit.js";
 import type { AuthRateLimiter } from "./auth-rate-limit.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 =======
+=======
+import { CANVAS_WS_PATH, handleA2uiHttpRequest } from "../canvas-host/a2ui.js";
+>>>>>>> cef5fae0a (refactor(gateway): dedupe origin seeding and plugin route auth matching)
 import type { CanvasHostHandler } from "../canvas-host/server.js";
 import { loadConfig } from "../config/config.js";
 import type { createSubsystemLogger } from "../logging/subsystem.js";
 import { safeEqualSecret } from "../security/secret-equal.js";
 import { handleSlackHttpRequest } from "../slack/http/index.js";
+<<<<<<< HEAD
 import type { AuthRateLimiter } from "./auth-rate-limit.js";
 >>>>>>> 758ea3c5a (style: apply oxfmt import ordering for check)
 import {
@@ -125,6 +130,16 @@ import {
 =======
 import { CANVAS_CAPABILITY_TTL_MS, normalizeCanvasScopedUrl } from "./canvas-capability.js";
 >>>>>>> c45f3c5b0 (fix(gateway): harden canvas auth with session capabilities)
+=======
+import {
+  AUTH_RATE_LIMIT_SCOPE_HOOK_AUTH,
+  createAuthRateLimiter,
+  normalizeRateLimitClientIp,
+  type AuthRateLimiter,
+} from "./auth-rate-limit.js";
+import { type GatewayAuthResult, type ResolvedGatewayAuth } from "./auth.js";
+import { normalizeCanvasScopedUrl } from "./canvas-capability.js";
+>>>>>>> cef5fae0a (refactor(gateway): dedupe origin seeding and plugin route auth matching)
 import {
   handleControlUiAvatarRequest,
   handleControlUiHttpRequest,
@@ -166,6 +181,7 @@ import { resolveGatewayClientIp } from "./net.js";
 >>>>>>> a459e237e (fix(gateway): require auth for canvas host and a2ui assets (#9518) (thanks @coygeek))
 =======
 import { sendGatewayAuthFailure, setDefaultSecurityHeaders } from "./http-common.js";
+<<<<<<< HEAD
 import { getBearerToken } from "./http-utils.js";
 >>>>>>> c45f3c5b0 (fix(gateway): harden canvas auth with session capabilities)
 import { handleOpenAiHttpRequest } from "./openai-http.js";
@@ -174,6 +190,16 @@ import { handleOpenResponsesHttpRequest } from "./openresponses-http.js";
 =======
 import { GATEWAY_CLIENT_MODES, normalizeGatewayClientMode } from "./protocol/client-info.js";
 >>>>>>> 758ea3c5a (style: apply oxfmt import ordering for check)
+=======
+import { handleOpenAiHttpRequest } from "./openai-http.js";
+import { handleOpenResponsesHttpRequest } from "./openresponses-http.js";
+import { isProtectedPluginRoutePath } from "./security-path.js";
+import {
+  authorizeCanvasRequest,
+  enforcePluginRouteGatewayAuth,
+  isCanvasPath,
+} from "./server/http-auth.js";
+>>>>>>> cef5fae0a (refactor(gateway): dedupe origin seeding and plugin route auth matching)
 import type { GatewayWsClient } from "./server/ws-types.js";
 import { handleToolsInvokeHttpRequest } from "./tools-invoke-http.js";
 
@@ -191,6 +217,7 @@ function sendJson(res: ServerResponse, status: number, body: unknown) {
   res.end(JSON.stringify(body));
 }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
 function isCanvasPath(pathname: string): boolean {
@@ -330,6 +357,8 @@ async function enforcePluginRouteGatewayAuth(params: {
 }
 
 >>>>>>> 53d10f868 (fix(gateway): land access/auth/config migration cluster)
+=======
+>>>>>>> cef5fae0a (refactor(gateway): dedupe origin seeding and plugin route auth matching)
 function writeUpgradeAuthFailure(
   socket: { write: (chunk: string) => void },
   auth: GatewayAuthResult,

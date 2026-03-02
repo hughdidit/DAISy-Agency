@@ -43,10 +43,13 @@ import { resolveGatewayListenHosts } from "./net.js";
 =======
 import { isLoopbackHost, resolveGatewayListenHosts } from "./net.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> a288f3066 (fix(gateway): warn on non-loopback bind at startup (land #25397, thanks @let5sne))
 =======
 import { isProtectedPluginRoutePath } from "./security-path.js";
 >>>>>>> 53d10f868 (fix(gateway): land access/auth/config migration cluster)
+=======
+>>>>>>> cef5fae0a (refactor(gateway): dedupe origin seeding and plugin route auth matching)
 import {
   createGatewayBroadcaster,
   type GatewayBroadcastFn,
@@ -100,7 +103,7 @@ import type { GatewayTlsRuntime } from "./server/tls.js";
 =======
 import {
   createGatewayPluginRequestHandler,
-  isRegisteredPluginHttpRoutePath,
+  shouldEnforceGatewayAuthForPluginPath,
 } from "./server/plugins-http.js";
 >>>>>>> 53d10f868 (fix(gateway): land access/auth/config migration cluster)
 import type { GatewayTlsRuntime } from "./server/tls.js";
@@ -214,10 +217,7 @@ export async function createGatewayRuntimeState(params: {
     log: params.logPlugins,
   });
   const shouldEnforcePluginGatewayAuth = (requestPath: string): boolean => {
-    if (isProtectedPluginRoutePath(requestPath)) {
-      return true;
-    }
-    return isRegisteredPluginHttpRoutePath(params.pluginRegistry, requestPath);
+    return shouldEnforceGatewayAuthForPluginPath(params.pluginRegistry, requestPath);
   };
 
   const bindHosts = await resolveGatewayListenHosts(params.bindHost);
