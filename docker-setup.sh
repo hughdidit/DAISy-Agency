@@ -89,6 +89,14 @@ ensure_control_ui_allowed_origins() {
   echo "Set gateway.controlUi.allowedOrigins to $allowed_origin_json for non-loopback bind."
 }
 
+sync_gateway_mode_and_bind() {
+  docker compose "${COMPOSE_ARGS[@]}" run --rm openclaw-cli \
+    config set gateway.mode local >/dev/null
+  docker compose "${COMPOSE_ARGS[@]}" run --rm openclaw-cli \
+    config set gateway.bind "$OPENCLAW_GATEWAY_BIND" >/dev/null
+  echo "Pinned gateway.mode=local and gateway.bind=$OPENCLAW_GATEWAY_BIND for Docker setup."
+}
+
 contains_disallowed_chars() {
   local value="$1"
   [[ "$value" == *$'\n'* || "$value" == *$'\r'* || "$value" == *$'\t'* ]]
@@ -313,6 +321,7 @@ docker build \
 
 echo ""
 echo "==> Onboarding (interactive)"
+<<<<<<< HEAD
 echo "When prompted:"
 echo "  - Gateway bind: lan"
 echo "  - Gateway auth: token"
@@ -321,6 +330,20 @@ echo "  - Tailscale exposure: Off"
 echo "  - Install Gateway daemon: No"
 echo ""
 docker compose "${COMPOSE_ARGS[@]}" run --rm moltbot-cli onboard --no-install-daemon
+=======
+echo "Docker setup pins Gateway mode to local."
+echo "Gateway runtime bind comes from OPENCLAW_GATEWAY_BIND (default: lan)."
+echo "Current runtime bind: $OPENCLAW_GATEWAY_BIND"
+echo "Gateway token: $OPENCLAW_GATEWAY_TOKEN"
+echo "Tailscale exposure: Off (use host-level tailnet/Tailscale setup separately)."
+echo "Install Gateway daemon: No (managed by Docker Compose)"
+echo ""
+docker compose "${COMPOSE_ARGS[@]}" run --rm openclaw-cli onboard --mode local --no-install-daemon
+
+echo ""
+echo "==> Docker gateway defaults"
+sync_gateway_mode_and_bind
+>>>>>>> feefedfb8 (fix: allow docker cli container to connect to gateway (#12504))
 
 echo ""
 echo "==> Control UI origin allowlist"
