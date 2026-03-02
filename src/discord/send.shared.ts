@@ -62,6 +62,7 @@ import { loadConfig } from "../config/config.js";
 =======
 import { loadConfig } from "../config/config.js";
 import type { RetryRunner } from "../infra/retry-policy.js";
+<<<<<<< HEAD
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 import type { RetryRunner } from "../infra/retry-policy.js";
@@ -71,6 +72,9 @@ import { loadConfig } from "../config/config.js";
 import { loadConfig } from "../config/config.js";
 import type { RetryRunner } from "../infra/retry-policy.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
+=======
+import { buildOutboundMediaLoadOptions } from "../media/load-options.js";
+>>>>>>> e1f3ded03 (refactor: split telegram delivery and unify media/frontmatter/i18n pipelines)
 import { normalizePollDurationHours, normalizePollInput, type PollInput } from "../polls.js";
 import { loadWebMedia } from "../web/media.js";
 import { resolveDiscordAccount } from "./accounts.js";
@@ -479,7 +483,11 @@ async function sendDiscordMedia(
   chunkMode?: ChunkMode,
   silent?: boolean,
 ) {
+<<<<<<< HEAD
   const media = await loadWebMedia(mediaUrl);
+=======
+  const media = await loadWebMedia(mediaUrl, buildOutboundMediaLoadOptions({ mediaLocalRoots }));
+>>>>>>> e1f3ded03 (refactor: split telegram delivery and unify media/frontmatter/i18n pipelines)
   const chunks = text ? buildDiscordTextChunks(text, { maxLinesPerMessage, chunkMode }) : [];
   const caption = chunks[0] ?? "";
   const messageReference = replyTo ? { message_id: replyTo, fail_if_not_exists: false } : undefined;

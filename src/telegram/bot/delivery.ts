@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { type Bot, GrammyError, InputFile } from "grammy";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -1315,3 +1316,7 @@ async function sendTelegramText(
     throw err;
   }
 }
+=======
+export { deliverReplies } from "./delivery.replies.js";
+export { resolveMedia } from "./delivery.resolve-media.js";
+>>>>>>> e1f3ded03 (refactor: split telegram delivery and unify media/frontmatter/i18n pipelines)
