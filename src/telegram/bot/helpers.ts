@@ -36,6 +36,7 @@ import { formatLocationText, type NormalizedLocation } from "../../channels/loca
 =======
 import { formatLocationText, type NormalizedLocation } from "../../channels/location.js";
 import { resolveTelegramPreviewStreamMode } from "../../config/discord-preview-streaming.js";
+<<<<<<< HEAD
 import type { TelegramGroupConfig, TelegramTopicConfig } from "../../config/types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
@@ -47,6 +48,13 @@ import { formatLocationText, type NormalizedLocation } from "../../channels/loca
 import { formatLocationText, type NormalizedLocation } from "../../channels/location.js";
 import type { TelegramGroupConfig, TelegramTopicConfig } from "../../config/types.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
+=======
+import type {
+  TelegramDirectConfig,
+  TelegramGroupConfig,
+  TelegramTopicConfig,
+} from "../../config/types.js";
+>>>>>>> c13b35b83 (feat(telegram): improve DM topics support (#30579) (thanks @kesor))
 import { readChannelAllowFromStore } from "../../pairing/pairing-store.js";
 import {
   firstDefined,
@@ -65,22 +73,28 @@ export type TelegramThreadSpec = {
 export async function resolveTelegramGroupAllowFromContext(params: {
   chatId: string | number;
   accountId?: string;
+  isGroup?: boolean;
   isForum?: boolean;
   messageThreadId?: number | null;
   groupAllowFrom?: Array<string | number>;
   resolveTelegramGroupConfig: (
     chatId: string | number,
     messageThreadId?: number,
-  ) => { groupConfig?: TelegramGroupConfig; topicConfig?: TelegramTopicConfig };
+  ) => {
+    groupConfig?: TelegramGroupConfig | TelegramDirectConfig;
+    topicConfig?: TelegramTopicConfig;
+  };
 }): Promise<{
   resolvedThreadId?: number;
+  dmThreadId?: number;
   storeAllowFrom: string[];
-  groupConfig?: TelegramGroupConfig;
+  groupConfig?: TelegramGroupConfig | TelegramDirectConfig;
   topicConfig?: TelegramTopicConfig;
   groupAllowOverride?: Array<string | number>;
   effectiveGroupAllow: NormalizedAllowFrom;
   hasGroupAllowOverride: boolean;
 }> {
+<<<<<<< HEAD
   const resolvedThreadId = resolveTelegramForumThreadId({
     isForum: params.isForum,
     messageThreadId: params.messageThreadId,
@@ -90,9 +104,24 @@ export async function resolveTelegramGroupAllowFromContext(params: {
     process.env,
     params.accountId,
   ).catch(() => []);
+=======
+  const accountId = normalizeAccountId(params.accountId);
+  // Use resolveTelegramThreadSpec to handle both forum groups AND DM topics
+  const threadSpec = resolveTelegramThreadSpec({
+    isGroup: params.isGroup ?? false,
+    isForum: params.isForum,
+    messageThreadId: params.messageThreadId,
+  });
+  const resolvedThreadId = threadSpec.scope === "forum" ? threadSpec.id : undefined;
+  const dmThreadId = threadSpec.scope === "dm" ? threadSpec.id : undefined;
+  const threadIdForConfig = resolvedThreadId ?? dmThreadId;
+  const storeAllowFrom = await readChannelAllowFromStore("telegram", process.env, accountId).catch(
+    () => [],
+  );
+>>>>>>> c13b35b83 (feat(telegram): improve DM topics support (#30579) (thanks @kesor))
   const { groupConfig, topicConfig } = params.resolveTelegramGroupConfig(
     params.chatId,
-    resolvedThreadId,
+    threadIdForConfig,
   );
   const groupAllowOverride = firstDefined(topicConfig?.allowFrom, groupConfig?.allowFrom);
   const effectiveGroupAllow = normalizeAllowFromWithStore({
@@ -102,6 +131,7 @@ export async function resolveTelegramGroupAllowFromContext(params: {
   const hasGroupAllowOverride = typeof groupAllowOverride !== "undefined";
   return {
     resolvedThreadId,
+    dmThreadId,
     storeAllowFrom,
     groupConfig,
     topicConfig,
