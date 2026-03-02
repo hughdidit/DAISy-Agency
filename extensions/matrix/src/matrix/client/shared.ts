@@ -106,26 +106,31 @@ async function ensureSharedClientStarted(params: {
     // resolveSharedMatrixClient() calls know to retry.
     const startPromiseInner = client.start();
     let settled = false;
+    let startError: unknown = undefined;
     startPromiseInner.catch((err: unknown) => {
       settled = true;
+      startError = err;
       params.state.started = false;
 >>>>>>> 235ed71e9 (fix: handle late client.start() failures via single catch handler)
       LogService.error("MatrixClientLite", "client.start() error:", err);
     });
     // Give the sync loop a moment to initialize before marking ready
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    await new Promise((resolve) => setTimeout(resolve, 2000));
     if (settled) {
-      throw new Error("Matrix client.start() failed during initialization");
+      throw startError;
     }
 <<<<<<< HEAD
 >>>>>>> 8884f99c9 (fix: address review feedback — handle start failure, remove placeholder URL)
 =======
     params.state.started = true;
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 4f9daf982 (fix: propagate client.start() errors to caller instead of swallowing)
 =======
 
 >>>>>>> 235ed71e9 (fix: handle late client.start() failures via single catch handler)
+=======
+>>>>>>> 84d0a794e (fix: harden matrix startup errors + add regressions (#31023) (thanks @efe-arv))
   })();
   try {
     await sharedClientStartPromise;

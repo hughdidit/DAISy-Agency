@@ -42,6 +42,11 @@ export type MonitorMatrixOpts = {
 };
 
 const DEFAULT_MEDIA_MAX_MB = 20;
+export const DEFAULT_STARTUP_GRACE_MS = 5000;
+
+export function isConfiguredMatrixRoomEntry(entry: string): boolean {
+  return entry.startsWith("!") || (entry.startsWith("#") && entry.includes(":"));
+}
 
 export async function monitorMatrixProvider(opts: MonitorMatrixOpts = {}): Promise<void> {
   if (isBunRuntime()) {
@@ -126,7 +131,11 @@ export async function monitorMatrixProvider(opts: MonitorMatrixOpts = {}): Promi
       const trimmed = entry.trim();
       if (!trimmed) continue;
       const cleaned = normalizeRoomEntry(trimmed);
+<<<<<<< HEAD
       if (cleaned.startsWith("!") && cleaned.includes(":")) {
+=======
+      if (isConfiguredMatrixRoomEntry(cleaned)) {
+>>>>>>> 84d0a794e (fix: harden matrix startup errors + add regressions (#31023) (thanks @efe-arv))
         if (!nextRooms[cleaned]) {
           nextRooms[cleaned] = roomsConfig[entry];
         }
@@ -226,7 +235,11 @@ export async function monitorMatrixProvider(opts: MonitorMatrixOpts = {}): Promi
   const mediaMaxMb = opts.mediaMaxMb ?? cfg.channels?.matrix?.mediaMaxMb ?? DEFAULT_MEDIA_MAX_MB;
   const mediaMaxBytes = Math.max(1, mediaMaxMb) * 1024 * 1024;
   const startupMs = Date.now();
+<<<<<<< HEAD
   const startupGraceMs = 0;
+=======
+  const startupGraceMs = DEFAULT_STARTUP_GRACE_MS;
+>>>>>>> 84d0a794e (fix: harden matrix startup errors + add regressions (#31023) (thanks @efe-arv))
   const directTracker = createDirectRoomTracker(client, { log: logVerboseMessage });
   registerMatrixAutoJoin({ client, cfg, runtime });
   const warnedEncryptedRooms = new Set<string>();
