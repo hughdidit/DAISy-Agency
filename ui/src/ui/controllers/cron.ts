@@ -470,9 +470,43 @@ export async function addCronJob(state: CronState) {
   state.cronBusy = true;
   state.cronError = null;
   try {
+<<<<<<< HEAD
     const schedule = buildCronSchedule(state.cronForm);
     const payload = buildCronPayload(state.cronForm);
     const agentId = state.cronForm.agentId.trim();
+=======
+    const form = normalizeCronFormState(state.cronForm);
+    if (form !== state.cronForm) {
+      state.cronForm = form;
+    }
+    const fieldErrors = validateCronForm(form);
+    state.cronFieldErrors = fieldErrors;
+    if (hasCronFormErrors(fieldErrors)) {
+      return;
+    }
+
+    const schedule = buildCronSchedule(form);
+    const payload = buildCronPayload(form);
+    const selectedDeliveryMode = form.deliveryMode;
+    const delivery =
+      selectedDeliveryMode === "none"
+        ? state.cronEditingJobId
+          ? { mode: "none" as const }
+          : undefined
+        : selectedDeliveryMode
+          ? {
+              mode: selectedDeliveryMode,
+              channel:
+                selectedDeliveryMode === "announce"
+                  ? form.deliveryChannel.trim() || "last"
+                  : undefined,
+              to: form.deliveryTo.trim() || undefined,
+              bestEffort: form.deliveryBestEffort,
+            }
+          : undefined;
+    const failureAlert = buildFailureAlert(form);
+    const agentId = form.clearAgent ? null : form.agentId.trim();
+>>>>>>> 9670ccfc4 (Control UI/Cron: persist delivery mode none on edit (openclaw#31114) thanks @liuxiaopai-ai)
     const job = {
       name: state.cronForm.name.trim(),
       description: state.cronForm.description.trim() || undefined,
