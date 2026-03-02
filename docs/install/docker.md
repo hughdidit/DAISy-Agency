@@ -32,6 +32,12 @@ Sandboxing details: [Sandboxing](/gateway/sandboxing)
 
 ### Quick start (recommended)
 
+<Note>
+Docker defaults here assume bind modes (`lan`/`loopback`), not host aliases. Use bind
+mode values in `gateway.bind` (for example `lan` or `loopback`), not host aliases like
+`0.0.0.0` or `localhost`.
+</Note>
+
 From repo root:
 
 ```bash
@@ -351,6 +357,34 @@ scripts/e2e/onboard-docker.sh
 pnpm test:docker:qr
 ```
 
+<<<<<<< HEAD
+=======
+### LAN vs loopback (Docker Compose)
+
+`docker-setup.sh` defaults `OPENCLAW_GATEWAY_BIND=lan` so host access to
+`http://127.0.0.1:18789` works with Docker port publishing.
+
+- `lan` (default): host browser + host CLI can reach the published gateway port.
+- `loopback`: only processes inside the container network namespace can reach
+  the gateway directly; host-published port access may fail.
+
+The setup script also pins `gateway.mode=local` after onboarding so Docker CLI
+commands default to local loopback targeting.
+
+Legacy config note: use bind mode values in `gateway.bind` (`lan` / `loopback` /
+`custom` / `tailnet` / `auto`), not host aliases (`0.0.0.0`, `127.0.0.1`,
+`localhost`, `::`, `::1`).
+
+If you see `Gateway target: ws://172.x.x.x:18789` or repeated `pairing required`
+errors from Docker CLI commands, run:
+
+```bash
+docker compose run --rm openclaw-cli config set gateway.mode local
+docker compose run --rm openclaw-cli config set gateway.bind lan
+docker compose run --rm openclaw-cli devices list --url ws://127.0.0.1:18789
+```
+
+>>>>>>> 61ef76edb (docs(gateway): document Docker bridge networking and loopback bind caveat (#28001))
 ### Notes
 
 - Gateway bind defaults to `lan` for container use.
