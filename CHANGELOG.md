@@ -213,7 +213,11 @@ Docs: https://docs.openclaw.ai
 - Telegram/Empty final replies: skip outbound send for null/undefined final text payloads without media so Telegram typing indicators do not linger on `text must be non-empty` errors. Landed from contributor PR #30969 by @haosenwang1018. Thanks @haosenwang1018.
 >>>>>>> a779c2ca6 (fix(telegram): skip nullish final text sends (land #30969 by @haosenwang1018))
 - Routing/Binding peer-kind parity: treat `peer.kind` `group` and `channel` as equivalent for binding scope matching (while keeping `direct` separate) so Slack/public channel bindings do not silently fall through. Landed from contributor PR #31135 by @Sid-Qin. Thanks @Sid-Qin.
+<<<<<<< HEAD
 >>>>>>> 70ee256ae (fix(routing): treat group/channel peer.kind as equivalent (land #31135 by @Sid-Qin))
+=======
+- Cron/Store EBUSY fallback: retry `rename` on `EBUSY` and use `copyFile` fallback on Windows when replacing cron store files so busy-file contention no longer causes false write failures. (#16932) Thanks @sudhanva-chakra.
+>>>>>>> a5f0a9240 (fix(cron): retry rename on EBUSY and fall back to copyFile on Windows)
 - Agents/FS workspace default: honor documented host file-tool default `tools.fs.workspaceOnly=false` when unset so host `write`/`edit` calls are not incorrectly workspace-restricted unless explicitly enabled. Landed from contributor PR #31128 by @SaucePackets. Thanks @SaucePackets.
 <<<<<<< HEAD
 >>>>>>> 65e13c7b6 (fix(fs): honor unset tools.fs.workspaceOnly default (land #31128 by @SaucePackets))
