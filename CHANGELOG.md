@@ -186,7 +186,11 @@ Docs: https://docs.openclaw.ai
 >>>>>>> ede944371 (fix(telegram): land #31067 first-chunk voice-fallback reply refs (@xdanger))
 =======
 - Feishu/Typing replay suppression: skip typing indicators for stale replayed inbound messages after compaction using message-age checks with second/millisecond timestamp normalization, preventing old-message reaction floods while preserving typing for fresh messages. Landed from contributor PR #30709 by @arkyu2077. Thanks @arkyu2077.
+<<<<<<< HEAD
 >>>>>>> 41537e930 (fix(channels): add optional defaultAccount routing)
+=======
+
+>>>>>>> d17f4432b (chore: fix gate formatting and raw-fetch allowlist lines)
 ## Unreleased
 
 <<<<<<< HEAD
