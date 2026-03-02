@@ -284,9 +284,13 @@ Docs: https://docs.openclaw.ai
 - Cron/Isolated sessions list: persist the intended pre-run model/provider on isolated cron session entries so `sessions_list` reflects payload/session model overrides even when runs fail before post-run telemetry persistence. (#21279) Thanks @altaywtf.
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 98e30dc2a (fix(cron): handle sessions list cron model override (openclaw#21279) thanks @altaywtf)
 =======
 =======
+=======
+- Cron tool/update flat params: recover top-level update patch fields when models omit the `patch` wrapper, and allow flattened update keys through tool input schema validation so `cron.update` no longer fails with `patch required` for valid flat payloads. (#23221)
+>>>>>>> 757e09fe4 (fix(cron): recover flat patch params for update action and fix schema (openclaw#23221) thanks @charojo)
 - Agents/Message tool scoping: include other configured channels in scoped `message` tool action enum + description so isolated/cron runs can discover and invoke cross-channel actions without schema validation failures. Landed from contributor PR #20840 by @altaywtf. Thanks @altaywtf.
 >>>>>>> 13bb80df9 (fix(agents): land #20840 cross-channel message-tool actions from @altaywtf)
 - Web UI/Chat sessions: add a cron-session visibility toggle in the session selector, fix cron-key detection across `cron:*` and `agent:*:cron:*` formats, and localize the new control labels/tooltips. (#26976) Thanks @ianderrington.
