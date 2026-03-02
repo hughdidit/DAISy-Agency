@@ -236,5 +236,33 @@ describe("signal createSignalEventHandler inbound contract", () => {
     expect(capture.ctx).toBeUndefined();
     expect(dispatchInboundMessageMock).not.toHaveBeenCalled();
   });
+<<<<<<< HEAD
 >>>>>>> 654f63e8f (fix(signal): prevent sentTranscript sync messages from bypassing loop protection (#31093))
+=======
+
+  it("drops sync envelopes when syncMessage is present but null", async () => {
+    const handler = createSignalEventHandler(
+      createBaseSignalEventHandlerDeps({
+        cfg: {
+          messages: { inbound: { debounceMs: 0 } },
+          channels: { signal: { dmPolicy: "open", allowFrom: ["*"] } },
+        },
+        historyLimit: 0,
+      }),
+    );
+
+    await handler(
+      createSignalReceiveEvent({
+        syncMessage: null,
+        dataMessage: {
+          message: "replayed sentTranscript envelope",
+          attachments: [],
+        },
+      }),
+    );
+
+    expect(capture.ctx).toBeUndefined();
+    expect(dispatchInboundMessageMock).not.toHaveBeenCalled();
+  });
+>>>>>>> 08f8aea32 (fix(signal): land #31138 syncMessage presence filtering (@Sid-Qin))
 });
