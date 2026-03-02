@@ -13,6 +13,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   "version": "2026.1.29",
 >>>>>>> 62e4ad23d (chore: release 2026.1.29)
 =======
@@ -42,6 +43,9 @@
 =======
   "version": "2026.2.26",
 >>>>>>> bc5070805 (chore(release): cut 2026.2.26)
+=======
+  "version": "2026.3.1-beta.1",
+>>>>>>> 92ad89da0 (build: prepare 2026.3.1-beta.1 release)
   "description": "Multi-channel AI gateway with extensible messaging integrations",
   "keywords": [],
   "license": "MIT",
