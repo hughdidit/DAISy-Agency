@@ -146,6 +146,7 @@ Status: beta.
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 - Security/Plugin channel HTTP auth: normalize protected `/api/channels` path checks against canonicalized request paths (case + percent-decoding) so unauthenticated alternate-path variants cannot bypass gateway auth.
 =======
@@ -154,6 +155,34 @@ Status: beta.
 =======
 =======
 =======
+=======
+- Agents/Model fallback: classify additional network transport errors (`ECONNREFUSED`, `ENETUNREACH`, `EHOSTUNREACH`, `ENETRESET`, `EAI_AGAIN`) as failover-worthy so fallback chains advance when primary providers are unreachable. Landed from contributor PR #19077 by @ayanesakura. Thanks @ayanesakura.
+- Agents/Copilot token refresh: refresh GitHub Copilot runtime API tokens after auth-expiry failures and re-run with the renewed token so long-running embedded/subagent turns do not fail on mid-session 401 expiry. Landed from contributor PR #8805 by @Arthur742Ramos. Thanks @Arthur742Ramos.
+- Discord/Allowlist diagnostics: add debug logs for guild/channel allowlist drops so operators can quickly identify ignored inbound messages and required allowlist entries. Landed from contributor PR #30966 by @haosenwang1018. Thanks @haosenwang1018.
+- Discord/Ack reactions: add Discord-account-level `ackReactionScope` override and support explicit `off`/`none` values in shared config schemas to disable ack reactions per account. Landed from contributor PR #30400 by @BlueBirdBack. Thanks @BlueBirdBack.
+- Discord/Forum thread tags: support `appliedTags` on Discord thread-create actions and map to `applied_tags` for forum/media starter posts, with targeted thread-creation regression coverage. Landed from contributor PR #30358 by @pushkarsingh32. Thanks @pushkarsingh32.
+- Discord/Application ID fallback: parse bot application IDs from token prefixes without numeric precision loss and use token fallback only on transport/timeout failures when probing `/oauth2/applications/@me`. Landed from contributor PR #29695 by @dhananjai1729. Thanks @dhananjai1729.
+- Discord/EventQueue timeout config: expose per-account `channels.discord.accounts.<id>.eventQueue.listenerTimeout` (and related queue options) so long-running handlers can avoid Carbon listener timeout drops. Landed from contributor PR #28945 by @Glucksberg. Thanks @Glucksberg.
+- CLI/Cron run exit code: return exit code `0` only when `cron run` reports `{ ok: true, ran: true }`, and `1` for non-run/error outcomes so scripting/debugging reflects actual execution status. Landed from contributor PR #31121 by @Sid-Qin. Thanks @Sid-Qin.
+- Nodes/Screen recording guardrails: cap `nodes` tool `screen_record` `durationMs` to 5 minutes at both schema-validation and runtime invocation layers to prevent long-running blocking captures from unbounded durations. Landed from contributor PR #31106 by @BlueBirdBack. Thanks @BlueBirdBack.
+- Telegram/Empty final replies: skip outbound send for null/undefined final text payloads without media so Telegram typing indicators do not linger on `text must be non-empty` errors. Landed from contributor PR #30969 by @haosenwang1018. Thanks @haosenwang1018.
+- Telegram/Proxy dispatcher preservation: preserve proxy-aware global undici dispatcher behavior in Telegram network workarounds so proxy-backed Telegram + model traffic is not broken by dispatcher replacement. Landed from contributor PR #30367 by @Phineas1500. Thanks @Phineas1500.
+- Telegram/Group allowlist ordering: evaluate chat allowlist before sender allowlist enforcement so explicitly allowlisted groups are not fail-closed by empty sender allowlists. Landed from contributor PR #30680 by @openperf. Thanks @openperf.
+- Telegram/Multi-account group isolation: prevent channel-level `groups` config from leaking across Telegram accounts in multi-account setups, avoiding cross-account group routing drops. Landed from contributor PR #30677 by @YUJIE2002. Thanks @YUJIE2002.
+- Telegram/Voice caption overflow fallback: recover from `sendVoice` caption length errors by re-sending voice without caption and delivering text separately so replies are not lost. Landed from contributor PR #31131 by @Sid-Qin. Thanks @Sid-Qin.
+- Routing/Binding peer-kind parity: treat `peer.kind` `group` and `channel` as equivalent for binding scope matching (while keeping `direct` separate) so Slack/public channel bindings do not silently fall through. Landed from contributor PR #31135 by @Sid-Qin. Thanks @Sid-Qin.
+- Cron/Store EBUSY fallback: retry `rename` on `EBUSY` and use `copyFile` fallback on Windows when replacing cron store files so busy-file contention no longer causes false write failures. (#16932) Thanks @sudhanva-chakra.
+- Agents/FS workspace default: honor documented host file-tool default `tools.fs.workspaceOnly=false` when unset so host `write`/`edit` calls are not incorrectly workspace-restricted unless explicitly enabled. Landed from contributor PR #31128 by @SaucePackets. Thanks @SaucePackets.
+- Cron/Timer hot-loop guard: enforce a minimum timer re-arm delay when stale past-due jobs would otherwise trigger repeated `setTimeout(0)` loops, preventing event-loop saturation and log-flood behavior. (#29853) Thanks @FlamesCN.
+- Gateway/CLI session recovery: handle expired CLI session IDs gracefully by clearing stale session state and retrying without crashing gateway runs. Landed from contributor PR #31090 by @frankekn. Thanks @frankekn.
+- Slack/Subagent completion delivery: stop forcing bound conversation IDs into `threadId` so Slack completion announces do not send invalid `thread_ts` for DMs/top-level channels. Landed from contributor PR #31105 by @stakeswky. Thanks @stakeswky.
+- Signal/Loop protection: evaluate own-account detection before sync-message filtering (including UUID-only `accountUuid` configs) so `sentTranscript` sync events cannot bypass loop protection and self-reply loops. Landed from contributor PR #31093 by @kevinWangSheng. Thanks @kevinWangSheng.
+- Gateway/Control UI origins: support wildcard `"*"` in `gateway.controlUi.allowedOrigins` for trusted remote access setups. Landed from contributor PR #31088 by @frankekn. Thanks @frankekn.
+- Cron/Isolated CLI timeout ratio: avoid reusing persisted CLI session IDs on fresh isolated cron runs so the fresh watchdog profile is used and jobs do not abort at roughly one-third of configured `timeoutSeconds`. (#30140) Thanks @ningding97.
+- Cron/Session target guardrail: reject creating or patching `sessionTarget: "main"` cron jobs when `agentId` is not the default agent, preventing invalid cross-agent main-session bindings at write time. (#30217) Thanks @liaosvcaf.
+- Security/Audit: flag `gateway.controlUi.allowedOrigins=["*"]` as a high-risk configuration (severity based on bind exposure), and add a Feishu doc-tool warning that `owner_open_id` on `feishu_doc` create can grant document permissions.
+- Slack/download-file scoping: thread/channel-aware `download-file` actions now propagate optional scope context and reject downloads when Slack metadata definitively shows the file is outside the requested channel/thread, while preserving legacy behavior when share metadata is unavailable.
+>>>>>>> 00d2df46c (docs(changelog): note security audit and slack download scope hardening)
 - Security/Sandbox media reads: eliminate sandbox media TOCTOU symlink-retarget escapes by enforcing root-scoped boundary-safe reads at attachment/image load time and consolidating shared safe-read helpers across sandbox media callsites. This ships in the next npm release. Thanks @tdjackey for reporting.
 - Security/Subagents sandbox inheritance: block sandboxed sessions from spawning cross-agent subagents that would run unsandboxed, preventing runtime sandbox downgrade via `sessions_spawn agentId`. Thanks @tdjackey for reporting.
 - Security/Workspace safe writes: harden `writeFileWithinRoot` against symlink-retarget TOCTOU races by opening existing files without truncation, creating missing files with exclusive create, deferring truncation until post-open identity+boundary validation, and removing out-of-root create artifacts on blocked races; added regression tests for truncate/create race paths. This ships in the next npm release (`2026.3.1`). Thanks @tdjackey for reporting.
