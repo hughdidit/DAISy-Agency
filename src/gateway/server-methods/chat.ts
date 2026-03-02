@@ -729,6 +729,7 @@ export const chatHandlers: GatewayRequestHandlers = {
     }
     let thinkingLevel = entry?.thinkingLevel;
     if (!thinkingLevel) {
+<<<<<<< HEAD
       const configured = cfg.agents?.defaults?.thinkingDefault;
       if (configured) {
         thinkingLevel = configured;
@@ -742,6 +743,17 @@ export const chatHandlers: GatewayRequestHandlers = {
           catalog,
         });
       }
+=======
+      const sessionAgentId = resolveSessionAgentId({ sessionKey, config: cfg });
+      const { provider, model } = resolveSessionModelRef(cfg, entry, sessionAgentId);
+      const catalog = await context.loadGatewayModelCatalog();
+      thinkingLevel = resolveThinkingDefault({
+        cfg,
+        provider,
+        model,
+        catalog,
+      });
+>>>>>>> 0f2dce048 (fix(agents): prioritize per-model thinking defaults (#30439))
     }
     respond(true, {
       sessionKey,

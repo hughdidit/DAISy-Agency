@@ -14,6 +14,7 @@ import {
   modelKey,
   resolveAllowedModelRef,
   resolveConfiguredModelRef,
+  resolveThinkingDefault,
   resolveModelRefFromString,
 } from "./model-selection.js";
 import type { MoltbotConfig } from "../config/config.js";
@@ -487,6 +488,39 @@ describe("model-selection", () => {
         defaultModel: "gpt-4",
       });
       expect(result).toEqual({ provider: "openai", model: "gpt-4" });
+    });
+  });
+
+  describe("resolveThinkingDefault", () => {
+    it("prefers per-model params.thinking over global thinkingDefault", () => {
+      const cfg = {
+        agents: {
+          defaults: {
+            thinkingDefault: "low",
+            models: {
+              "anthropic/claude-opus-4-6": {
+                params: { thinking: "high" },
+              },
+            },
+          },
+        },
+      } as OpenClawConfig;
+
+      expect(
+        resolveThinkingDefault({
+          cfg,
+          provider: "anthropic",
+          model: "claude-opus-4-6",
+          catalog: [
+            {
+              provider: "anthropic",
+              id: "claude-opus-4-6",
+              name: "Claude Opus 4.6",
+              reasoning: true,
+            },
+          ],
+        }),
+      ).toBe("high");
     });
   });
 });

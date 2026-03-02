@@ -471,12 +471,16 @@ export async function agentCommand(
       });
     }
 
+<<<<<<< HEAD
 >>>>>>> 712e23172 (fix(agent): forward resolved outbound session context for delivery)
     let resolvedThinkLevel =
       thinkOnce ??
       thinkOverride ??
       persistedThinking ??
       (agentCfg?.thinkingDefault as ThinkLevel | undefined);
+=======
+    let resolvedThinkLevel = thinkOnce ?? thinkOverride ?? persistedThinking;
+>>>>>>> 0f2dce048 (fix(agents): prioritize per-model thinking defaults (#30439))
     const resolvedVerboseLevel =
       verboseOverride ?? persistedVerbose ?? (agentCfg?.verboseDefault as VerboseLevel | undefined);
 
