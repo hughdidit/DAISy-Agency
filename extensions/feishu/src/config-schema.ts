@@ -1,3 +1,4 @@
+import { normalizeAccountId } from "openclaw/plugin-sdk/account-id";
 import { z } from "zod";
 export { z };
 
@@ -218,6 +219,7 @@ export const FeishuAccountConfigSchema = z
 export const FeishuConfigSchema = z
   .object({
     enabled: z.boolean().optional(),
+    defaultAccount: z.string().optional(),
     // Top-level credentials (backward compatible for single-account mode)
     appId: z.string().optional(),
     appSecret: z.string().optional(),
@@ -266,6 +268,53 @@ export const FeishuConfigSchema = z
   })
   .strict()
   .superRefine((value, ctx) => {
+<<<<<<< HEAD
+=======
+    const defaultAccount = value.defaultAccount?.trim();
+    if (defaultAccount && value.accounts && Object.keys(value.accounts).length > 0) {
+      const normalizedDefaultAccount = normalizeAccountId(defaultAccount);
+      if (!Object.prototype.hasOwnProperty.call(value.accounts, normalizedDefaultAccount)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["defaultAccount"],
+          message: `channels.feishu.defaultAccount="${defaultAccount}" does not match a configured account key`,
+        });
+      }
+    }
+
+    const defaultConnectionMode = value.connectionMode ?? "websocket";
+    const defaultVerificationToken = value.verificationToken?.trim();
+    if (defaultConnectionMode === "webhook" && !defaultVerificationToken) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["verificationToken"],
+        message:
+          'channels.feishu.connectionMode="webhook" requires channels.feishu.verificationToken',
+      });
+    }
+
+    for (const [accountId, account] of Object.entries(value.accounts ?? {})) {
+      if (!account) {
+        continue;
+      }
+      const accountConnectionMode = account.connectionMode ?? defaultConnectionMode;
+      if (accountConnectionMode !== "webhook") {
+        continue;
+      }
+      const accountVerificationToken =
+        account.verificationToken?.trim() || defaultVerificationToken;
+      if (!accountVerificationToken) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["accounts", accountId, "verificationToken"],
+          message:
+            `channels.feishu.accounts.${accountId}.connectionMode="webhook" requires ` +
+            "a verificationToken (account-level or top-level)",
+        });
+      }
+    }
+
+>>>>>>> 6ea3a47da (fix(feishu): harden routing, parsing, and media delivery)
     if (value.dmPolicy === "open") {
       const allowFrom = value.allowFrom ?? [];
       const hasWildcard = allowFrom.some((entry) => String(entry).trim() === "*");
