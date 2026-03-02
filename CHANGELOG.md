@@ -182,6 +182,7 @@ Docs: https://docs.openclaw.ai
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 =======
@@ -204,6 +205,9 @@ Docs: https://docs.openclaw.ai
 =======
 =======
 =======
+=======
+- CLI/Cron run exit code: return exit code `0` only when `cron run` reports `{ ok: true, ran: true }`, and `1` for non-run/error outcomes so scripting/debugging reflects actual execution status. Landed from contributor PR #31121 by @Sid-Qin. Thanks @Sid-Qin.
+>>>>>>> ffe1937b9 (fix(cli): set cron run exit code from run outcome (land #31121 by @Sid-Qin))
 - Nodes/Screen recording guardrails: cap `nodes` tool `screen_record` `durationMs` to 5 minutes at both schema-validation and runtime invocation layers to prevent long-running blocking captures from unbounded durations. Landed from contributor PR #31106 by @BlueBirdBack. Thanks @BlueBirdBack.
 >>>>>>> e70fc5eb6 (fix(nodes): cap screen_record duration to 5 minutes (land #31106 by @BlueBirdBack))
 - Telegram/Empty final replies: skip outbound send for null/undefined final text payloads without media so Telegram typing indicators do not linger on `text must be non-empty` errors. Landed from contributor PR #30969 by @haosenwang1018. Thanks @haosenwang1018.
