@@ -4,8 +4,16 @@ import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "clawdbot/plugin-sdk";
 
 =======
 import type { OpenClawConfig } from "openclaw/plugin-sdk";
+<<<<<<< HEAD
 import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "openclaw/plugin-sdk/account-id";
 >>>>>>> 6543ce717 (perf(test): avoid plugin-sdk barrel imports)
+=======
+import {
+  DEFAULT_ACCOUNT_ID,
+  normalizeAccountId,
+  normalizeOptionalAccountId,
+} from "openclaw/plugin-sdk/account-id";
+>>>>>>> 41537e930 (fix(channels): add optional defaultAccount routing)
 import type { MattermostAccountConfig, MattermostChatMode } from "../types.js";
 import { normalizeMattermostBaseUrl } from "./client.js";
 
@@ -58,7 +66,17 @@ export function listMattermostAccountIds(cfg: OpenClawConfig): string[] {
 export function resolveDefaultMattermostAccountId(cfg: MoltbotConfig): string {
 =======
 export function resolveDefaultMattermostAccountId(cfg: OpenClawConfig): string {
+<<<<<<< HEAD
 >>>>>>> ca19745fa (Revert "channels: migrate extension account listing to factory")
+=======
+  const preferred = normalizeOptionalAccountId(cfg.channels?.mattermost?.defaultAccount);
+  if (
+    preferred &&
+    listMattermostAccountIds(cfg).some((accountId) => normalizeAccountId(accountId) === preferred)
+  ) {
+    return preferred;
+  }
+>>>>>>> 41537e930 (fix(channels): add optional defaultAccount routing)
   const ids = listMattermostAccountIds(cfg);
   if (ids.includes(DEFAULT_ACCOUNT_ID)) {
     return DEFAULT_ACCOUNT_ID;
@@ -89,8 +107,14 @@ function mergeMattermostAccountConfig(
   cfg: MoltbotConfig,
   accountId: string,
 ): MattermostAccountConfig {
-  const { accounts: _ignored, ...base } = (cfg.channels?.mattermost ??
-    {}) as MattermostAccountConfig & { accounts?: unknown };
+  const {
+    accounts: _ignored,
+    defaultAccount: _ignoredDefaultAccount,
+    ...base
+  } = (cfg.channels?.mattermost ?? {}) as MattermostAccountConfig & {
+    accounts?: unknown;
+    defaultAccount?: unknown;
+  };
   const account = resolveAccountConfig(cfg, accountId) ?? {};
   return { ...base, ...account };
 }

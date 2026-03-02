@@ -153,22 +153,56 @@ describe("LINE accounts", () => {
 >>>>>>> 242e8f5c4 (test: remove low-signal line account listing coverage)
   describe("resolveDefaultLineAccountId", () => {
 <<<<<<< HEAD
+<<<<<<< HEAD
     it("returns default when configured", () => {
       const cfg: MoltbotConfig = {
         channels: {
           line: {
             channelAccessToken: "test-token",
+=======
+    it("prefers channels.line.defaultAccount when configured", () => {
+      const cfg: OpenClawConfig = {
+        channels: {
+          line: {
+            defaultAccount: "business",
+            accounts: {
+              business: { enabled: true },
+              support: { enabled: true },
+            },
+>>>>>>> 41537e930 (fix(channels): add optional defaultAccount routing)
           },
         },
       };
 
       const id = resolveDefaultLineAccountId(cfg);
+<<<<<<< HEAD
 
       expect(id).toBe(DEFAULT_ACCOUNT_ID);
     });
 
 =======
 >>>>>>> 4c46c23ca (test: remove redundant default line account id case)
+=======
+      expect(id).toBe("business");
+    });
+
+    it("normalizes channels.line.defaultAccount before lookup", () => {
+      const cfg: OpenClawConfig = {
+        channels: {
+          line: {
+            defaultAccount: "Business Ops",
+            accounts: {
+              "business-ops": { enabled: true },
+            },
+          },
+        },
+      };
+
+      const id = resolveDefaultLineAccountId(cfg);
+      expect(id).toBe("business-ops");
+    });
+
+>>>>>>> 41537e930 (fix(channels): add optional defaultAccount routing)
     it("returns first named account when default not configured", () => {
       const cfg: MoltbotConfig = {
         channels: {
@@ -182,6 +216,22 @@ describe("LINE accounts", () => {
 
       const id = resolveDefaultLineAccountId(cfg);
 
+      expect(id).toBe("business");
+    });
+
+    it("falls back when channels.line.defaultAccount is missing", () => {
+      const cfg: OpenClawConfig = {
+        channels: {
+          line: {
+            defaultAccount: "missing",
+            accounts: {
+              business: { enabled: true },
+            },
+          },
+        },
+      };
+
+      const id = resolveDefaultLineAccountId(cfg);
       expect(id).toBe("business");
     });
   });

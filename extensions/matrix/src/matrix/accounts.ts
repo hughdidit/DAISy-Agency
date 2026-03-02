@@ -1,12 +1,40 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "clawdbot/plugin-sdk";
 =======
 import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "openclaw/plugin-sdk/account-id";
 >>>>>>> 6543ce717 (perf(test): avoid plugin-sdk barrel imports)
+=======
+import {
+  DEFAULT_ACCOUNT_ID,
+  normalizeAccountId,
+  normalizeOptionalAccountId,
+} from "openclaw/plugin-sdk/account-id";
+>>>>>>> 41537e930 (fix(channels): add optional defaultAccount routing)
 import type { CoreConfig, MatrixConfig } from "../types.js";
 import { resolveMatrixConfig } from "./client.js";
 import { credentialsMatchConfig, loadMatrixCredentials } from "./credentials.js";
 
+<<<<<<< HEAD
+=======
+/** Merge account config with top-level defaults, preserving nested objects. */
+function mergeAccountConfig(base: MatrixConfig, account: MatrixConfig): MatrixConfig {
+  const merged = { ...base, ...account };
+  // Deep-merge known nested objects so partial overrides inherit base fields
+  for (const key of ["dm", "actions"] as const) {
+    const b = base[key];
+    const o = account[key];
+    if (typeof b === "object" && b != null && typeof o === "object" && o != null) {
+      (merged as Record<string, unknown>)[key] = { ...b, ...o };
+    }
+  }
+  // Don't propagate the accounts map into the merged per-account config
+  delete (merged as Record<string, unknown>).accounts;
+  delete (merged as Record<string, unknown>).defaultAccount;
+  return merged;
+}
+
+>>>>>>> 41537e930 (fix(channels): add optional defaultAccount routing)
 export type ResolvedMatrixAccount = {
   accountId: string;
   enabled: boolean;
@@ -22,6 +50,13 @@ export function listMatrixAccountIds(_cfg: CoreConfig): string[] {
 }
 
 export function resolveDefaultMatrixAccountId(cfg: CoreConfig): string {
+  const preferred = normalizeOptionalAccountId(cfg.channels?.matrix?.defaultAccount);
+  if (
+    preferred &&
+    listMatrixAccountIds(cfg).some((accountId) => normalizeAccountId(accountId) === preferred)
+  ) {
+    return preferred;
+  }
   const ids = listMatrixAccountIds(cfg);
   if (ids.includes(DEFAULT_ACCOUNT_ID)) {
     return DEFAULT_ACCOUNT_ID;

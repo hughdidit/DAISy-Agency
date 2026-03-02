@@ -4,8 +4,16 @@ import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "clawdbot/plugin-sdk";
 
 =======
 import type { OpenClawConfig } from "openclaw/plugin-sdk";
+<<<<<<< HEAD
 import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "openclaw/plugin-sdk/account-id";
 >>>>>>> 6543ce717 (perf(test): avoid plugin-sdk barrel imports)
+=======
+import {
+  DEFAULT_ACCOUNT_ID,
+  normalizeAccountId,
+  normalizeOptionalAccountId,
+} from "openclaw/plugin-sdk/account-id";
+>>>>>>> 41537e930 (fix(channels): add optional defaultAccount routing)
 import type { GoogleChatAccountConfig } from "./types.config.js";
 
 export type GoogleChatCredentialSource = "file" | "inline" | "env" | "none";
@@ -70,8 +78,12 @@ export function resolveDefaultGoogleChatAccountId(cfg: MoltbotConfig): string {
 =======
 export function resolveDefaultGoogleChatAccountId(cfg: OpenClawConfig): string {
   const channel = cfg.channels?.["googlechat"];
-  if (channel?.defaultAccount?.trim()) {
-    return channel.defaultAccount.trim();
+  const preferred = normalizeOptionalAccountId(channel?.defaultAccount);
+  if (
+    preferred &&
+    listGoogleChatAccountIds(cfg).some((accountId) => normalizeAccountId(accountId) === preferred)
+  ) {
+    return preferred;
   }
 >>>>>>> 230ca789e (chore: Lint extensions folder.)
   const ids = listGoogleChatAccountIds(cfg);

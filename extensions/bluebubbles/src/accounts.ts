@@ -5,6 +5,7 @@ import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "clawdbot/plugin-sdk";
 import type { OpenClawConfig } from "openclaw/plugin-sdk";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "openclaw/plugin-sdk/account-id";
 >>>>>>> 6543ce717 (perf(test): avoid plugin-sdk barrel imports)
 =======
@@ -14,6 +15,13 @@ import { normalizeAccountId } from "openclaw/plugin-sdk/account-id";
 =======
 import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "openclaw/plugin-sdk/account-id";
 >>>>>>> ca19745fa (Revert "channels: migrate extension account listing to factory")
+=======
+import {
+  DEFAULT_ACCOUNT_ID,
+  normalizeAccountId,
+  normalizeOptionalAccountId,
+} from "openclaw/plugin-sdk/account-id";
+>>>>>>> 41537e930 (fix(channels): add optional defaultAccount routing)
 import { normalizeBlueBubblesServerUrl, type BlueBubblesAccountConfig } from "./types.js";
 
 export type ResolvedBlueBubblesAccount = {
@@ -54,7 +62,17 @@ export function listBlueBubblesAccountIds(cfg: OpenClawConfig): string[] {
 export function resolveDefaultBlueBubblesAccountId(cfg: MoltbotConfig): string {
 =======
 export function resolveDefaultBlueBubblesAccountId(cfg: OpenClawConfig): string {
+<<<<<<< HEAD
 >>>>>>> ca19745fa (Revert "channels: migrate extension account listing to factory")
+=======
+  const preferred = normalizeOptionalAccountId(cfg.channels?.bluebubbles?.defaultAccount);
+  if (
+    preferred &&
+    listBlueBubblesAccountIds(cfg).some((accountId) => normalizeAccountId(accountId) === preferred)
+  ) {
+    return preferred;
+  }
+>>>>>>> 41537e930 (fix(channels): add optional defaultAccount routing)
   const ids = listBlueBubblesAccountIds(cfg);
   if (ids.includes(DEFAULT_ACCOUNT_ID)) {
     return DEFAULT_ACCOUNT_ID;
@@ -87,8 +105,9 @@ function mergeBlueBubblesAccountConfig(
 ): BlueBubblesAccountConfig {
   const base = (cfg.channels?.bluebubbles ?? {}) as BlueBubblesAccountConfig & {
     accounts?: unknown;
+    defaultAccount?: unknown;
   };
-  const { accounts: _ignored, ...rest } = base;
+  const { accounts: _ignored, defaultAccount: _ignoredDefaultAccount, ...rest } = base;
   const account = resolveAccountConfig(cfg, accountId) ?? {};
   const chunkMode = account.chunkMode ?? rest.chunkMode ?? "length";
   return { ...rest, ...account, chunkMode };

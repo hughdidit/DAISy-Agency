@@ -115,6 +115,7 @@ WhatsApp runs through the gateway's web channel (Baileys Web). It starts automat
 ```
 
 - Outbound commands default to account `default` if present; otherwise the first configured account id (sorted).
+- Optional `channels.whatsapp.defaultAccount` overrides that fallback default account selection when it matches a configured account id.
 - Legacy single-account Baileys auth dir is migrated by `openclaw doctor` into `whatsapp/default`.
 - Per-account override: `channels.whatsapp.accounts.<id>.sendReadReceipts`.
 
@@ -172,6 +173,7 @@ WhatsApp runs through the gateway's web channel (Baileys Web). It starts automat
 ```
 
 - Bot token: `channels.telegram.botToken` or `channels.telegram.tokenFile`, with `TELEGRAM_BOT_TOKEN` as fallback for the default account.
+- Optional `channels.telegram.defaultAccount` overrides default account selection when it matches a configured account id.
 - `configWrites: false` blocks Telegram-initiated config writes (supergroup ID migrations, `/config set|unset`).
 - Telegram stream previews use `sendMessage` + `editMessageText` (works in direct and group chats).
 - Retry policy: see [Retry policy](/concepts/retry).
@@ -275,6 +277,7 @@ WhatsApp runs through the gateway's web channel (Baileys Web). It starts automat
 ```
 
 - Token: `channels.discord.token`, with `DISCORD_BOT_TOKEN` as fallback for the default account.
+- Optional `channels.discord.defaultAccount` overrides default account selection when it matches a configured account id.
 - Use `user:<id>` (DM) or `channel:<id>` (guild channel) for delivery targets; bare numeric IDs are rejected.
 - Guild slugs are lowercase with spaces replaced by `-`; channel keys use the slugged name (no `#`). Prefer guild IDs.
 - Bot-authored messages are ignored by default. `allowBots: true` enables them (own messages still filtered).
@@ -391,6 +394,7 @@ WhatsApp runs through the gateway's web channel (Baileys Web). It starts automat
 - **Socket mode** requires both `botToken` and `appToken` (`SLACK_BOT_TOKEN` + `SLACK_APP_TOKEN` for default account env fallback).
 - **HTTP mode** requires `botToken` plus `signingSecret` (at root or per-account).
 - `configWrites: false` blocks Slack-initiated config writes.
+- Optional `channels.slack.defaultAccount` overrides default account selection when it matches a configured account id.
 - `channels.slack.streaming` is the canonical stream mode key. Legacy `streamMode` and boolean `streaming` values are auto-migrated.
 - Use `user:<id>` (DM) or `channel:<id>` for delivery targets.
 
@@ -429,6 +433,13 @@ Mattermost ships as a plugin: `openclaw plugins install @openclaw/mattermost`.
 
 Chat modes: `oncall` (respond on @-mention, default), `onmessage` (every message), `onchar` (messages starting with trigger prefix).
 
+<<<<<<< HEAD
+=======
+- `channels.mattermost.configWrites`: allow or deny Mattermost-initiated config writes.
+- `channels.mattermost.requireMention`: require `@mention` before replying in channels.
+- Optional `channels.mattermost.defaultAccount` overrides default account selection when it matches a configured account id.
+
+>>>>>>> 41537e930 (fix(channels): add optional defaultAccount routing)
 ### Signal
 
 ```json5
@@ -445,6 +456,34 @@ Chat modes: `oncall` (respond on @-mention, default), `onmessage` (every message
 
 **Reaction notification modes:** `off`, `own` (default), `all`, `allowlist` (from `reactionAllowlist`).
 
+<<<<<<< HEAD
+=======
+- `channels.signal.account`: pin channel startup to a specific Signal account identity.
+- `channels.signal.configWrites`: allow or deny Signal-initiated config writes.
+- Optional `channels.signal.defaultAccount` overrides default account selection when it matches a configured account id.
+
+### BlueBubbles
+
+BlueBubbles is the recommended iMessage path (plugin-backed, configured under `channels.bluebubbles`).
+
+```json5
+{
+  channels: {
+    bluebubbles: {
+      enabled: true,
+      dmPolicy: "pairing",
+      // serverUrl, password, webhookPath, group controls, and advanced actions:
+      // see /channels/bluebubbles
+    },
+  },
+}
+```
+
+- Core key paths covered here: `channels.bluebubbles`, `channels.bluebubbles.dmPolicy`.
+- Optional `channels.bluebubbles.defaultAccount` overrides default account selection when it matches a configured account id.
+- Full BlueBubbles channel configuration is documented in [BlueBubbles](/channels/bluebubbles).
+
+>>>>>>> 41537e930 (fix(channels): add optional defaultAccount routing)
 ### iMessage
 
 OpenClaw spawns `imsg rpc` (JSON-RPC over stdio). No daemon or port required.
@@ -469,6 +508,8 @@ OpenClaw spawns `imsg rpc` (JSON-RPC over stdio). No daemon or port required.
 }
 ```
 
+- Optional `channels.imessage.defaultAccount` overrides default account selection when it matches a configured account id.
+
 - Requires Full Disk Access to the Messages DB.
 - Prefer `chat_id:<id>` targets. Use `imsg chats --limit 20` to list chats.
 - `cliPath` can point to an SSH wrapper; set `remoteHost` for SCP attachment fetching.
@@ -482,6 +523,56 @@ exec ssh -T gateway-host imsg "$@"
 
 </Accordion>
 
+<<<<<<< HEAD
+=======
+### Microsoft Teams
+
+Microsoft Teams is extension-backed and configured under `channels.msteams`.
+
+```json5
+{
+  channels: {
+    msteams: {
+      enabled: true,
+      configWrites: true,
+      // appId, appPassword, tenantId, webhook, team/channel policies:
+      // see /channels/msteams
+    },
+  },
+}
+```
+
+- Core key paths covered here: `channels.msteams`, `channels.msteams.configWrites`.
+- Full Teams config (credentials, webhook, DM/group policy, per-team/per-channel overrides) is documented in [Microsoft Teams](/channels/msteams).
+
+### IRC
+
+IRC is extension-backed and configured under `channels.irc`.
+
+```json5
+{
+  channels: {
+    irc: {
+      enabled: true,
+      dmPolicy: "pairing",
+      configWrites: true,
+      nickserv: {
+        enabled: true,
+        service: "NickServ",
+        password: "${IRC_NICKSERV_PASSWORD}",
+        register: false,
+        registerEmail: "bot@example.com",
+      },
+    },
+  },
+}
+```
+
+- Core key paths covered here: `channels.irc`, `channels.irc.dmPolicy`, `channels.irc.configWrites`, `channels.irc.nickserv.*`.
+- Optional `channels.irc.defaultAccount` overrides default account selection when it matches a configured account id.
+- Full IRC channel configuration (host/port/TLS/channels/allowlists/mention gating) is documented in [IRC](/channels/irc).
+
+>>>>>>> 41537e930 (fix(channels): add optional defaultAccount routing)
 ### Multi-account (all channels)
 
 Run multiple accounts per channel (each with its own `accountId`):

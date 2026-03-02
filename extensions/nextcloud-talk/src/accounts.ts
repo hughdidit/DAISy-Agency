@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "clawdbot/plugin-sdk";
 
@@ -10,6 +11,13 @@ import { DEFAULT_ACCOUNT_ID, isTruthyEnvValue, normalizeAccountId } from "opencl
 =======
 import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "openclaw/plugin-sdk/account-id";
 >>>>>>> 6543ce717 (perf(test): avoid plugin-sdk barrel imports)
+=======
+import {
+  DEFAULT_ACCOUNT_ID,
+  normalizeAccountId,
+  normalizeOptionalAccountId,
+} from "openclaw/plugin-sdk/account-id";
+>>>>>>> 41537e930 (fix(channels): add optional defaultAccount routing)
 import type { CoreConfig, NextcloudTalkAccountConfig } from "./types.js";
 
 function isTruthyEnvValue(value?: string): boolean {
@@ -58,6 +66,15 @@ export function listNextcloudTalkAccountIds(cfg: CoreConfig): string[] {
 }
 
 export function resolveDefaultNextcloudTalkAccountId(cfg: CoreConfig): string {
+  const preferred = normalizeOptionalAccountId(cfg.channels?.["nextcloud-talk"]?.defaultAccount);
+  if (
+    preferred &&
+    listNextcloudTalkAccountIds(cfg).some(
+      (accountId) => normalizeAccountId(accountId) === preferred,
+    )
+  ) {
+    return preferred;
+  }
   const ids = listNextcloudTalkAccountIds(cfg);
   if (ids.includes(DEFAULT_ACCOUNT_ID)) {
     return DEFAULT_ACCOUNT_ID;
@@ -86,8 +103,14 @@ function mergeNextcloudTalkAccountConfig(
   cfg: CoreConfig,
   accountId: string,
 ): NextcloudTalkAccountConfig {
-  const { accounts: _ignored, ...base } = (cfg.channels?.["nextcloud-talk"] ??
-    {}) as NextcloudTalkAccountConfig & { accounts?: unknown };
+  const {
+    accounts: _ignored,
+    defaultAccount: _ignoredDefaultAccount,
+    ...base
+  } = (cfg.channels?.["nextcloud-talk"] ?? {}) as NextcloudTalkAccountConfig & {
+    accounts?: unknown;
+    defaultAccount?: unknown;
+  };
   const account = resolveAccountConfig(cfg, accountId) ?? {};
   return { ...base, ...account };
 }

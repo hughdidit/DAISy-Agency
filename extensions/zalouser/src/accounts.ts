@@ -3,7 +3,11 @@ import type { MoltbotConfig } from "clawdbot/plugin-sdk";
 import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "clawdbot/plugin-sdk";
 =======
 import type { OpenClawConfig } from "openclaw/plugin-sdk";
-import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "openclaw/plugin-sdk/account-id";
+import {
+  DEFAULT_ACCOUNT_ID,
+  normalizeAccountId,
+  normalizeOptionalAccountId,
+} from "openclaw/plugin-sdk/account-id";
 import type { ResolvedZalouserAccount, ZalouserAccountConfig, ZalouserConfig } from "./types.js";
 import { runZca, parseJsonOutput } from "./zca.js";
 >>>>>>> 6543ce717 (perf(test): avoid plugin-sdk barrel imports)
@@ -29,8 +33,12 @@ export function listZalouserAccountIds(cfg: MoltbotConfig): string[] {
 
 export function resolveDefaultZalouserAccountId(cfg: MoltbotConfig): string {
   const zalouserConfig = cfg.channels?.zalouser as ZalouserConfig | undefined;
-  if (zalouserConfig?.defaultAccount?.trim()) {
-    return zalouserConfig.defaultAccount.trim();
+  const preferred = normalizeOptionalAccountId(zalouserConfig?.defaultAccount);
+  if (
+    preferred &&
+    listZalouserAccountIds(cfg).some((accountId) => normalizeAccountId(accountId) === preferred)
+  ) {
+    return preferred;
   }
   const ids = listZalouserAccountIds(cfg);
   if (ids.includes(DEFAULT_ACCOUNT_ID)) {

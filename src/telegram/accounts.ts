@@ -16,7 +16,11 @@ import type { TelegramAccountConfig, TelegramActionConfig } from "../config/type
 import { isTruthyEnvValue } from "../infra/env.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import { listBoundAccountIds, resolveDefaultAgentBoundAccountId } from "../routing/bindings.js";
-import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "../routing/session-key.js";
+import {
+  DEFAULT_ACCOUNT_ID,
+  normalizeAccountId,
+  normalizeOptionalAccountId,
+} from "../routing/session-key.js";
 import { resolveTelegramToken } from "./token.js";
 
 const log = createSubsystemLogger("telegram/accounts");
@@ -83,6 +87,13 @@ export function resolveDefaultTelegramAccountId(cfg: MoltbotConfig): string {
   if (boundDefault) {
     return boundDefault;
   }
+  const preferred = normalizeOptionalAccountId(cfg.channels?.telegram?.defaultAccount);
+  if (
+    preferred &&
+    listTelegramAccountIds(cfg).some((accountId) => normalizeAccountId(accountId) === preferred)
+  ) {
+    return preferred;
+  }
   const ids = listTelegramAccountIds(cfg);
   if (ids.includes(DEFAULT_ACCOUNT_ID)) {
     return DEFAULT_ACCOUNT_ID;
@@ -119,10 +130,18 @@ function mergeTelegramAccountConfig(cfg: OpenClawConfig, accountId: string): Tel
 =======
   const {
     accounts: _ignored,
+    defaultAccount: _ignoredDefaultAccount,
     groups: channelGroups,
     ...base
+<<<<<<< HEAD
   } = (cfg.channels?.telegram ?? {}) as TelegramAccountConfig & { accounts?: unknown };
 >>>>>>> f64d25bd3 (fix(telegram): scope DM topic thread keys by chat id (#31064))
+=======
+  } = (cfg.channels?.telegram ?? {}) as TelegramAccountConfig & {
+    accounts?: unknown;
+    defaultAccount?: unknown;
+  };
+>>>>>>> 41537e930 (fix(channels): add optional defaultAccount routing)
   const account = resolveAccountConfig(cfg, accountId) ?? {};
 
   // In multi-account setups, channel-level `groups` must NOT be inherited by

@@ -4,6 +4,7 @@ import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "clawdbot/plugin-sdk";
 
 =======
 import type { OpenClawConfig } from "openclaw/plugin-sdk";
+<<<<<<< HEAD
 import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "openclaw/plugin-sdk/account-id";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -26,6 +27,13 @@ import { resolveZaloToken } from "./token.js";
 import type { ResolvedZaloAccount, ZaloAccountConfig, ZaloConfig } from "./types.js";
 =======
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
+=======
+import {
+  DEFAULT_ACCOUNT_ID,
+  normalizeAccountId,
+  normalizeOptionalAccountId,
+} from "openclaw/plugin-sdk/account-id";
+>>>>>>> 41537e930 (fix(channels): add optional defaultAccount routing)
 import { resolveZaloToken } from "./token.js";
 import type { ResolvedZaloAccount, ZaloAccountConfig, ZaloConfig } from "./types.js";
 
@@ -69,8 +77,12 @@ export const listZaloAccountIds = listAccountIds;
 
 export function resolveDefaultZaloAccountId(cfg: MoltbotConfig): string {
   const zaloConfig = cfg.channels?.zalo as ZaloConfig | undefined;
-  if (zaloConfig?.defaultAccount?.trim()) {
-    return zaloConfig.defaultAccount.trim();
+  const preferred = normalizeOptionalAccountId(zaloConfig?.defaultAccount);
+  if (
+    preferred &&
+    listZaloAccountIds(cfg).some((accountId) => normalizeAccountId(accountId) === preferred)
+  ) {
+    return preferred;
   }
   const ids = listZaloAccountIds(cfg);
   if (ids.includes(DEFAULT_ACCOUNT_ID)) {
