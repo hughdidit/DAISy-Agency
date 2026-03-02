@@ -501,7 +501,7 @@ export async function startGatewayServer(
 >>>>>>> b50c4c2c4 (Gateway: add eager secrets runtime snapshot activation)
   const diagnosticsEnabled = isDiagnosticsEnabled(cfgAtStart);
   if (diagnosticsEnabled) {
-    startDiagnosticHeartbeat();
+    startDiagnosticHeartbeat(cfgAtStart);
   }
 <<<<<<< HEAD
   setGatewaySigusr1RestartPolicy({ allowExternal: cfgAtStart.commands?.restart === true });
