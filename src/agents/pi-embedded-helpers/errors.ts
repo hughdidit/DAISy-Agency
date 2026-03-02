@@ -72,6 +72,11 @@ function isReasoningConstraintErrorMessage(raw: string): boolean {
   );
 }
 
+function hasRateLimitTpmHint(raw: string): boolean {
+  const lower = raw.toLowerCase();
+  return /\btpm\b/i.test(lower) || lower.includes("tokens per minute");
+}
+
 export function isContextOverflowError(errorMessage?: string): boolean {
   if (!errorMessage) {
     return false;
@@ -81,7 +86,7 @@ export function isContextOverflowError(errorMessage?: string): boolean {
 =======
 
   // Groq uses 413 for TPM (tokens per minute) limits, which is a rate limit, not context overflow.
-  if (lower.includes("tpm") || lower.includes("tokens per minute")) {
+  if (hasRateLimitTpmHint(errorMessage)) {
     return false;
   }
 
@@ -144,8 +149,7 @@ export function isLikelyContextOverflowError(errorMessage?: string): boolean {
 =======
 
   // Groq uses 413 for TPM (tokens per minute) limits, which is a rate limit, not context overflow.
-  const lower = errorMessage.toLowerCase();
-  if (lower.includes("tpm") || lower.includes("tokens per minute")) {
+  if (hasRateLimitTpmHint(errorMessage)) {
     return false;
   }
 
@@ -691,6 +695,17 @@ const ERROR_PATTERNS = {
     "quota exceeded",
     "resource_exhausted",
     "usage limit",
+<<<<<<< HEAD
+=======
+    /\btpm\b/i,
+    "tokens per minute",
+  ],
+  overloaded: [
+    /overloaded_error|"type"\s*:\s*"overloaded_error"/i,
+    "overloaded",
+    "service unavailable",
+    "high demand",
+>>>>>>> 250f9e15f (fix(agents): land #31007 from @HOYALIM)
   ],
   overloaded: [/overloaded_error|"type"\s*:\s*"overloaded_error"/i, "overloaded"],
   timeout: [
