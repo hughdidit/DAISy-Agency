@@ -64,6 +64,10 @@ const { createTelegramBotErrors } = vi.hoisted(() => ({
   createTelegramBotErrors: [] as unknown[],
 }));
 
+const { createdBotStops } = vi.hoisted(() => ({
+  createdBotStops: [] as Array<ReturnType<typeof vi.fn<() => void>>>,
+}));
+
 const { computeBackoff, sleepWithAbort } = vi.hoisted(() => ({
   computeBackoff: vi.fn(() => 0),
   sleepWithAbort: vi.fn(async () => undefined),
@@ -113,6 +117,8 @@ vi.mock("./bot.js", () => ({
     if (nextError) {
       throw nextError;
     }
+    const stop = vi.fn<() => void>();
+    createdBotStops.push(stop);
     handlers.message = async (ctx: MockCtx) => {
       const chatId = ctx.message.chat.id;
       const isGroup = ctx.message.chat.type !== "private";
@@ -130,7 +136,7 @@ vi.mock("./bot.js", () => ({
       api,
       me: { username: "mybot" },
       init: initSpy,
-      stop: vi.fn(),
+      stop,
       start: vi.fn(),
     };
   },
@@ -193,8 +199,12 @@ describe("monitorTelegramProvider (grammY)", () => {
 =======
     createTelegramBotErrors.length = 0;
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 81384daeb (fix(telegram): harden polling retry setup and teardown order)
 =======
+=======
+    createdBotStops.length = 0;
+>>>>>>> 042d06a19 (Telegram: stop bot on polling teardown)
     consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
   });
 
@@ -397,6 +407,22 @@ describe("monitorTelegramProvider (grammY)", () => {
     expect(computeBackoff).toHaveBeenCalled();
     expect(sleepWithAbort).toHaveBeenCalled();
     expect(runSpy).toHaveBeenCalledTimes(2);
+  });
+
+  it("stops bot instance when polling cycle exits", async () => {
+    const abort = new AbortController();
+    runSpy.mockImplementationOnce(() =>
+      makeRunnerStub({
+        task: async () => {
+          abort.abort();
+        },
+      }),
+    );
+
+    await monitorTelegramProvider({ token: "tok", abortSignal: abort.signal });
+
+    expect(createdBotStops.length).toBe(1);
+    expect(createdBotStops[0]).toHaveBeenCalledTimes(1);
   });
 
   it("surfaces non-recoverable errors", async () => {
