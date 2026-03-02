@@ -911,6 +911,29 @@ function resolveFallbackSession(
   };
 }
 
+type OutboundSessionResolver = (
+  params: ResolveOutboundSessionRouteParams,
+) => OutboundSessionRoute | null | Promise<OutboundSessionRoute | null>;
+
+const OUTBOUND_SESSION_RESOLVERS: Partial<Record<ChannelId, OutboundSessionResolver>> = {
+  slack: resolveSlackSession,
+  discord: resolveDiscordSession,
+  telegram: resolveTelegramSession,
+  whatsapp: resolveWhatsAppSession,
+  signal: resolveSignalSession,
+  imessage: resolveIMessageSession,
+  matrix: resolveMatrixSession,
+  msteams: resolveMSTeamsSession,
+  mattermost: resolveMattermostSession,
+  bluebubbles: resolveBlueBubblesSession,
+  "nextcloud-talk": resolveNextcloudTalkSession,
+  zalo: resolveZaloSession,
+  zalouser: resolveZalouserSession,
+  nostr: resolveNostrSession,
+  tlon: resolveTlonSession,
+  feishu: resolveFeishuSession,
+};
+
 export async function resolveOutboundSessionRoute(
   params: ResolveOutboundSessionRouteParams,
 ): Promise<OutboundSessionRoute | null> {
@@ -918,6 +941,7 @@ export async function resolveOutboundSessionRoute(
   if (!target) {
     return null;
   }
+<<<<<<< HEAD
   switch (params.channel) {
     case "slack":
       return await resolveSlackSession({ ...params, target });
@@ -951,7 +975,14 @@ export async function resolveOutboundSessionRoute(
       return resolveTlonSession({ ...params, target });
     default:
       return resolveFallbackSession({ ...params, target });
+=======
+  const nextParams = { ...params, target };
+  const resolver = OUTBOUND_SESSION_RESOLVERS[params.channel];
+  if (!resolver) {
+    return resolveFallbackSession(nextParams);
+>>>>>>> 493ebb915 (refactor: simplify telegram delivery and outbound session resolver flow)
   }
+  return await resolver(nextParams);
 }
 
 export async function ensureOutboundSessionEntry(params: {
