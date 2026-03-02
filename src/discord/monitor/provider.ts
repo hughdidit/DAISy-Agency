@@ -199,6 +199,7 @@ import { resolveDiscordAllowlistConfig } from "./provider.allowlist.js";
 import { runDiscordGatewayLifecycle } from "./provider.lifecycle.js";
 import { resolveDiscordRestFetch } from "./rest-fetch.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { createNoopThreadBindingManager, createThreadBindingManager } from "./thread-bindings.js";
 <<<<<<< HEAD
 >>>>>>> 8178ea472 (feat: thread-bound subagents on Discord (#21805))
@@ -206,6 +207,9 @@ import { createNoopThreadBindingManager, createThreadBindingManager } from "./th
 import { formatThreadBindingTtlLabel } from "./thread-bindings.messages.js";
 >>>>>>> 296b19e41 (test: dedupe gateway browser discord and channel coverage)
 =======
+=======
+import type { DiscordMonitorStatusSink } from "./status.js";
+>>>>>>> 0c0f55692 (fix(discord): unify reconnect watchdog and land #31025/#30530)
 import {
   createNoopThreadBindingManager,
   createThreadBindingManager,
@@ -223,6 +227,7 @@ export type MonitorDiscordOpts = {
   mediaMaxMb?: number;
   historyLimit?: number;
   replyToMode?: ReplyToMode;
+  setStatus?: DiscordMonitorStatusSink;
 };
 
 <<<<<<< HEAD
@@ -1088,8 +1093,17 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
       guildEntries,
       threadBindings,
     });
+    const trackInboundEvent = opts.setStatus
+      ? () => {
+          const at = Date.now();
+          opts.setStatus?.({ lastEventAt: at, lastInboundAt: at });
+        }
+      : undefined;
 
-    registerDiscordListener(client.listeners, new DiscordMessageListener(messageHandler, logger));
+    registerDiscordListener(
+      client.listeners,
+      new DiscordMessageListener(messageHandler, logger, trackInboundEvent),
+    );
     registerDiscordListener(
       client.listeners,
       new DiscordReactionListener({
@@ -1099,6 +1113,7 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
         botUserId,
         guildEntries,
         logger,
+        onEvent: trackInboundEvent,
       }),
     );
     registerDiscordListener(
@@ -1110,6 +1125,7 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
         botUserId,
         guildEntries,
         logger,
+        onEvent: trackInboundEvent,
       }),
     );
 
@@ -1129,6 +1145,7 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
       client,
       runtime,
       abortSignal: opts.abortSignal,
+      statusSink: opts.setStatus,
       isDisallowedIntentsError: isDiscordDisallowedIntentsError,
       voiceManager,
       voiceManagerRef,

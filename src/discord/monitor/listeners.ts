@@ -71,6 +71,7 @@ type DiscordReactionListenerParams = {
   botUserId?: string;
   guildEntries?: Record<string, import("./allow-list.js").DiscordGuildEntryResolved>;
   logger: Logger;
+  onEvent?: () => void;
 };
 
 const DISCORD_SLOW_LISTENER_THRESHOLD_MS = 30_000;
@@ -140,11 +141,13 @@ export class DiscordMessageListener extends MessageCreateListener {
   constructor(
     private handler: DiscordMessageHandler,
     private logger?: Logger,
+    private onEvent?: () => void,
   ) {
     super();
   }
 
   async handle(data: DiscordMessageEvent, client: Client) {
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
     const startedAt = Date.now();
@@ -163,6 +166,9 @@ export class DiscordMessageListener extends MessageCreateListener {
         logger.error(danger(`discord handler failed: ${String(err)}`));
       },
 =======
+=======
+    this.onEvent?.();
+>>>>>>> 0c0f55692 (fix(discord): unify reconnect watchdog and land #31025/#30530)
     // Release Carbon's dispatch lane immediately, but keep our message handler
     // serialized to avoid unbounded parallel model/IO work on traffic bursts.
     this.messageQueue = this.messageQueue
@@ -193,6 +199,7 @@ export class DiscordReactionListener extends MessageReactionAddListener {
   }
 
   async handle(data: DiscordReactionEvent, client: Client) {
+    this.params.onEvent?.();
     await runDiscordReactionHandler({
       data,
       client,
@@ -210,6 +217,7 @@ export class DiscordReactionRemoveListener extends MessageReactionRemoveListener
   }
 
   async handle(data: DiscordReactionEvent, client: Client) {
+    this.params.onEvent?.();
     await runDiscordReactionHandler({
       data,
       client,
