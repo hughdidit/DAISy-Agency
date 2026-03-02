@@ -252,6 +252,10 @@ Docs: https://docs.openclaw.ai
 - Issues/triage labeling: consolidate bug intake to a single bug issue form with required bug-type classification (regression/crash/behavior), auto-apply matching subtype labels from issue form content, and retire the separate regression template to reduce misfiled issue types and improve queue filtering. Thanks @vincentkoc.
 >>>>>>> a54b85822 (Handle transient Slack request errors without crashing the gateway (openclaw#23787) thanks @graysurf)
 - Android/Onboarding + voice reliability: request per-toggle onboarding permissions, update pairing guidance to `openclaw devices list/approve`, restore assistant speech playback in mic capture flow, cancel superseded in-flight speech (mute + per-reply token rotation), and keep `talk.config` loads retryable after transient failures. (#29796) Thanks @obviyus.
+<<<<<<< HEAD
+=======
+- Feishu/Startup probes: serialize multi-account bot-info probes during monitor startup so large Feishu account sets do not burst `/open-apis/bot/v3/info`, bound startup probe latency/abort handling to avoid head-of-line stalls, and avoid triggering rate limits. (#26685, #29941) Thanks @bmendonca3.
+>>>>>>> 3fc19ed7d (fix: harden feishu startup probe sequencing (#29941) (thanks @bmendonca3))
 - FS/Sandbox workspace boundaries: add a dedicated `outside-workspace` safe-open error code for root-escape checks, and propagate specific outside-workspace messages across edit/browser/media consumers instead of generic not-found/invalid-path fallbacks. (#29715) Thanks @YuzuruS.
 - Config/Doctor group allowlist diagnostics: align `groupPolicy: "allowlist"` warnings with per-channel runtime semantics by excluding Google Chat sender-list checks and by warning when no-fallback channels (for example iMessage) omit `groupAllowFrom`, with regression coverage. (#28477) Thanks @tonydehnke.
 - Onboarding/Custom providers: use Azure OpenAI-specific verification auth/payload shape (`api-key`, deployment-path chat completions payload) when probing Azure endpoints so valid Azure custom-provider setup no longer fails preflight. (#29421) Thanks @kunalk16.
