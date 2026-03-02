@@ -291,7 +291,128 @@ function resolveAnnounceOrigin(
 >>>>>>> fe57bea08 (Subagents: restore announce chain + fix nested retry/drop regressions (#22223))
   // actually on and must take priority over the session entry, which may carry
   // stale lastChannel / lastTo values from a previous channel interaction.
+<<<<<<< HEAD
   return mergeDeliveryContext(requesterOrigin, deliveryContextFromSession(entry));
+=======
+  const entryForMerge =
+    normalizedRequester?.to &&
+    normalizedRequester.threadId == null &&
+    normalizedEntry?.threadId != null
+      ? (() => {
+          const { threadId: _ignore, ...rest } = normalizedEntry;
+          return rest;
+        })()
+      : normalizedEntry;
+  return mergeDeliveryContext(normalizedRequester, entryForMerge);
+}
+
+async function resolveSubagentCompletionOrigin(params: {
+  childSessionKey: string;
+  requesterSessionKey: string;
+  requesterOrigin?: DeliveryContext;
+  childRunId?: string;
+  spawnMode?: SpawnSubagentMode;
+  expectsCompletionMessage: boolean;
+}): Promise<{
+  origin?: DeliveryContext;
+  routeMode: "bound" | "fallback" | "hook";
+}> {
+  const requesterOrigin = normalizeDeliveryContext(params.requesterOrigin);
+  const requesterConversation = (() => {
+    const channel = requesterOrigin?.channel?.trim().toLowerCase();
+    const to = requesterOrigin?.to?.trim();
+    const accountId = normalizeAccountId(requesterOrigin?.accountId);
+    const threadId =
+      requesterOrigin?.threadId != null && requesterOrigin.threadId !== ""
+        ? String(requesterOrigin.threadId).trim()
+        : undefined;
+    const conversationId =
+      threadId || (to?.startsWith("channel:") ? to.slice("channel:".length) : "");
+    if (!channel || !conversationId) {
+      return undefined;
+    }
+    const ref: ConversationRef = {
+      channel,
+      accountId,
+      conversationId,
+    };
+    return ref;
+  })();
+  const route = createBoundDeliveryRouter().resolveDestination({
+    eventKind: "task_completion",
+    targetSessionKey: params.childSessionKey,
+    requester: requesterConversation,
+    failClosed: false,
+  });
+  if (route.mode === "bound" && route.binding) {
+    const boundOrigin: DeliveryContext = {
+      channel: route.binding.conversation.channel,
+      accountId: route.binding.conversation.accountId,
+      to: `channel:${route.binding.conversation.conversationId}`,
+      // `conversationId` identifies the target conversation (channel/DM/thread),
+      // but it is not always a thread identifier. Passing it as `threadId` breaks
+      // Slack DM/top-level delivery by forcing an invalid thread_ts. Preserve only
+      // explicit requester thread hints for channels that actually use threading.
+      threadId:
+        requesterOrigin?.threadId != null && requesterOrigin.threadId !== ""
+          ? String(requesterOrigin.threadId)
+          : undefined,
+    };
+    return {
+      // Bound target is authoritative; requester hints fill only missing fields.
+      origin: mergeDeliveryContext(boundOrigin, requesterOrigin),
+      routeMode: "bound",
+    };
+  }
+
+  const hookRunner = getGlobalHookRunner();
+  if (!hookRunner?.hasHooks("subagent_delivery_target")) {
+    return {
+      origin: requesterOrigin,
+      routeMode: "fallback",
+    };
+  }
+  try {
+    const result = await hookRunner.runSubagentDeliveryTarget(
+      {
+        childSessionKey: params.childSessionKey,
+        requesterSessionKey: params.requesterSessionKey,
+        requesterOrigin,
+        childRunId: params.childRunId,
+        spawnMode: params.spawnMode,
+        expectsCompletionMessage: params.expectsCompletionMessage,
+      },
+      {
+        runId: params.childRunId,
+        childSessionKey: params.childSessionKey,
+        requesterSessionKey: params.requesterSessionKey,
+      },
+    );
+    const hookOrigin = normalizeDeliveryContext(result?.origin);
+    if (!hookOrigin) {
+      return {
+        origin: requesterOrigin,
+        routeMode: "fallback",
+      };
+    }
+    if (hookOrigin.channel && !isDeliverableMessageChannel(hookOrigin.channel)) {
+      return {
+        origin: requesterOrigin,
+        routeMode: "fallback",
+      };
+    }
+    // Hook-provided origin should override requester defaults when present.
+    return {
+      origin: mergeDeliveryContext(hookOrigin, requesterOrigin),
+      routeMode: "hook",
+    };
+  } catch {
+    return {
+      origin: requesterOrigin,
+      routeMode: "fallback",
+    };
+  }
+>>>>>>> 6a1eedf10 (fix: deliver subagent completion announces to Slack without invalid thread_ts (#31105))
 }
 
 async function sendAnnounce(item: AnnounceQueueItem) {
