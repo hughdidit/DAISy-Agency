@@ -444,7 +444,15 @@ function warnAboutUntrackedLoadedPlugins(params: {
   }
 }
 
+<<<<<<< HEAD
 >>>>>>> 3561442a9 (fix(plugins): harden discovery trust checks)
+=======
+function activatePluginRegistry(registry: PluginRegistry, cacheKey: string): void {
+  setActivePluginRegistry(registry, cacheKey);
+  initializeGlobalHookRunner(registry);
+}
+
+>>>>>>> c0bf42f2a (refactor: centralize delivery/path/media/version lifecycle)
 export function loadOpenClawPlugins(options: PluginLoadOptions = {}): PluginRegistry {
   // Test env: default-disable plugins unless explicitly configured.
   // This keeps unit/gateway suites fast and avoids loading heavyweight plugin deps by accident.
@@ -461,7 +469,7 @@ export function loadOpenClawPlugins(options: PluginLoadOptions = {}): PluginRegi
   if (cacheEnabled) {
     const cached = registryCache.get(cacheKey);
     if (cached) {
-      setActivePluginRegistry(cached, cacheKey);
+      activatePluginRegistry(cached, cacheKey);
       return cached;
     }
   }
@@ -828,8 +836,7 @@ export function loadOpenClawPlugins(options: PluginLoadOptions = {}): PluginRegi
   if (cacheEnabled) {
     registryCache.set(cacheKey, registry);
   }
-  setActivePluginRegistry(registry, cacheKey);
-  initializeGlobalHookRunner(registry);
+  activatePluginRegistry(registry, cacheKey);
   return registry;
 }
 

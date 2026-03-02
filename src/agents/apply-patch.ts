@@ -3,7 +3,8 @@ import path from "node:path";
 import type { AgentTool } from "@mariozechner/pi-agent-core";
 import { Type } from "@sinclair/typebox";
 import { applyUpdateHunk } from "./apply-patch-update.js";
-import { assertSandboxPath, resolveSandboxInputPath } from "./sandbox-paths.js";
+import { toRelativeSandboxPath, resolvePathFromInput } from "./path-policy.js";
+import { assertSandboxPath } from "./sandbox-paths.js";
 import type { SandboxFsBridge } from "./sandbox/fs-bridge.js";
 
 const BEGIN_PATCH_MARKER = "*** Begin Patch";
@@ -214,7 +215,67 @@ function formatSummary(summary: ApplyPatchSummary): string {
   return lines.join("\n");
 }
 
+<<<<<<< HEAD
 async function ensureDir(filePath: string) {
+=======
+type PatchFileOps = {
+  readFile: (filePath: string) => Promise<string>;
+  writeFile: (filePath: string, content: string) => Promise<void>;
+  remove: (filePath: string) => Promise<void>;
+  mkdirp: (dir: string) => Promise<void>;
+};
+
+function resolvePatchFileOps(options: ApplyPatchOptions): PatchFileOps {
+  if (options.sandbox) {
+    const { root, bridge } = options.sandbox;
+    return {
+      readFile: async (filePath) => {
+        const buf = await bridge.readFile({ filePath, cwd: root });
+        return buf.toString("utf8");
+      },
+      writeFile: (filePath, content) => bridge.writeFile({ filePath, cwd: root, data: content }),
+      remove: (filePath) => bridge.remove({ filePath, cwd: root, force: false }),
+      mkdirp: (dir) => bridge.mkdirp({ filePath: dir, cwd: root }),
+    };
+  }
+  const workspaceOnly = options.workspaceOnly !== false;
+  return {
+    readFile: async (filePath) => {
+      if (!workspaceOnly) {
+        return await fs.readFile(filePath, "utf8");
+      }
+      const opened = await openBoundaryFile({
+        absolutePath: filePath,
+        rootPath: options.cwd,
+        boundaryLabel: "workspace root",
+      });
+      assertBoundaryRead(opened, filePath);
+      try {
+        return syncFs.readFileSync(opened.fd, "utf8");
+      } finally {
+        syncFs.closeSync(opened.fd);
+      }
+    },
+    writeFile: async (filePath, content) => {
+      if (!workspaceOnly) {
+        await fs.writeFile(filePath, content, "utf8");
+        return;
+      }
+      const relative = toRelativeSandboxPath(options.cwd, filePath);
+      await writeFileWithinRoot({
+        rootDir: options.cwd,
+        relativePath: relative,
+        data: content,
+        encoding: "utf8",
+      });
+    },
+    remove: (filePath) => fs.rm(filePath),
+    mkdirp: (dir) => fs.mkdir(dir, { recursive: true }).then(() => {}),
+  };
+}
+
+async function ensureDir(filePath: string, ops: PatchFileOps) {
+>>>>>>> c0bf42f2a (refactor: centralize delivery/path/media/version lifecycle)
   const parent = path.dirname(filePath);
   if (!parent || parent === ".") {
     return;
@@ -252,14 +313,19 @@ async function resolvePatchPath(
           allowFinalSymlink: purpose === "unlink",
         })
       ).resolved
+<<<<<<< HEAD
     : resolvePathFromCwd(filePath, options.cwd);
 >>>>>>> 914b9d1e7 (fix(agents): block workspaceOnly apply_patch delete symlink escape)
+=======
+    : resolvePathFromInput(filePath, options.cwd);
+>>>>>>> c0bf42f2a (refactor: centralize delivery/path/media/version lifecycle)
   return {
     resolved,
     display: toDisplayPath(resolved, options.cwd),
   };
 }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 function normalizeUnicodeSpaces(value: string): string {
   return value.replace(UNICODE_SPACES, " ");
@@ -280,6 +346,17 @@ function expandPath(filePath: string): string {
 >>>>>>> 9032a5098 (refactor: reuse sandbox path expansion in apply-patch)
 function resolvePathFromCwd(filePath: string, cwd: string): string {
   return path.normalize(resolveSandboxInputPath(filePath, cwd));
+=======
+function assertBoundaryRead(
+  opened: BoundaryFileOpenResult,
+  targetPath: string,
+): asserts opened is Extract<BoundaryFileOpenResult, { ok: true }> {
+  if (opened.ok) {
+    return;
+  }
+  const reason = opened.reason === "validation" ? "unsafe path" : "path not found";
+  throw new Error(`Failed boundary read for ${targetPath} (${reason})`);
+>>>>>>> c0bf42f2a (refactor: centralize delivery/path/media/version lifecycle)
 }
 
 function toDisplayPath(resolved: string, cwd: string): string {
