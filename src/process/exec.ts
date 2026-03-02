@@ -1,5 +1,7 @@
 import { execFile, spawn } from "node:child_process";
+import fs from "node:fs";
 import path from "node:path";
+import process from "node:process";
 import { promisify } from "node:util";
 
 import { danger, shouldLogVerbose } from "../globals.js";
@@ -9,16 +11,50 @@ import { resolveCommandStdio } from "./spawn-utils.js";
 const execFileAsync = promisify(execFile);
 
 /**
+ * On Windows, Node 18.20.2+ (CVE-2024-27980) rejects spawning .cmd/.bat directly
+ * without shell, causing EINVAL. Resolve npm/npx to node + cli script so we
+ * spawn node.exe instead of npm.cmd.
+ */
+function resolveNpmArgvForWindows(argv: string[]): string[] | null {
+  if (process.platform !== "win32" || argv.length === 0) {
+    return null;
+  }
+  const basename = path
+    .basename(argv[0])
+    .toLowerCase()
+    .replace(/\.(cmd|exe|bat)$/, "");
+  const cliName = basename === "npx" ? "npx-cli.js" : basename === "npm" ? "npm-cli.js" : null;
+  if (!cliName) {
+    return null;
+  }
+  const nodeDir = path.dirname(process.execPath);
+  const cliPath = path.join(nodeDir, "node_modules", "npm", "bin", cliName);
+  if (!fs.existsSync(cliPath)) {
+    return null;
+  }
+  return [process.execPath, cliPath, ...argv.slice(1)];
+}
+
+/**
  * Resolves a command for Windows compatibility.
- * On Windows, non-.exe commands (like npm, pnpm) require their .cmd extension.
+ * On Windows, non-.exe commands (like pnpm, yarn) are resolved to .cmd; npm/npx
+ * are handled by resolveNpmArgvForWindows to avoid spawn EINVAL (no direct .cmd).
  */
 function resolveCommand(command: string): string {
   if (process.platform !== "win32") {
     return command;
   }
   const basename = path.basename(command).toLowerCase();
+<<<<<<< HEAD
   // Common npm-related commands that need .cmd extension on Windows
   const cmdCommands = ["npm", "pnpm", "yarn", "npx"];
+=======
+  const ext = path.extname(basename);
+  if (ext) {
+    return command;
+  }
+  const cmdCommands = ["pnpm", "yarn"];
+>>>>>>> a1a8ec687 (fix(windows): land #31147 plugin install spawn EINVAL (@codertony))
   if (cmdCommands.includes(basename)) {
     return `${command}.cmd`;
   }
@@ -41,7 +77,23 @@ export async function runExec(
           encoding: "utf8" as const,
         };
   try {
-    const { stdout, stderr } = await execFileAsync(resolveCommand(command), args, options);
+    const argv = [command, ...args];
+    let execCommand: string;
+    let execArgs: string[];
+    if (process.platform === "win32") {
+      const resolved = resolveNpmArgvForWindows(argv);
+      if (resolved) {
+        execCommand = resolved[0] ?? "";
+        execArgs = resolved.slice(1);
+      } else {
+        execCommand = resolveCommand(command);
+        execArgs = args;
+      }
+    } else {
+      execCommand = resolveCommand(command);
+      execArgs = args;
+    }
+    const { stdout, stderr } = await execFileAsync(execCommand, execArgs, options);
     if (shouldLogVerbose()) {
       if (stdout.trim()) {
         logDebug(stdout.trim());
@@ -113,10 +165,16 @@ export async function runCommandWithTimeout(
   }
 
   const stdio = resolveCommandStdio({ hasInput, preferInherit: true });
+<<<<<<< HEAD
   const resolvedCommand = resolveCommand(argv[0] ?? "");
   const commandExt = path.extname(resolvedCommand).toLowerCase();
   const useShell = process.platform === "win32" && commandExt !== ".exe";
   const child = spawn(resolvedCommand, argv.slice(1), {
+=======
+  const finalArgv = process.platform === "win32" ? (resolveNpmArgvForWindows(argv) ?? argv) : argv;
+  const resolvedCommand = finalArgv !== argv ? (finalArgv[0] ?? "") : resolveCommand(argv[0] ?? "");
+  const child = spawn(resolvedCommand, finalArgv.slice(1), {
+>>>>>>> a1a8ec687 (fix(windows): land #31147 plugin install spawn EINVAL (@codertony))
     stdio,
     cwd,
     env: resolvedEnv,
