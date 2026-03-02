@@ -36,7 +36,19 @@ import type { AnyAgentTool } from "./common.js";
 =======
 import { ensureOpenClawModelsJson } from "../models-config.js";
 import { discoverAuthStorage, discoverModels } from "../pi-model-discovery.js";
+<<<<<<< HEAD
 >>>>>>> 29d783958 (fix: execute sandboxed file ops inside containers (#4026))
+=======
+import {
+  createSandboxBridgeReadFile,
+  resolveSandboxedBridgeMediaPath,
+  type SandboxedBridgeMediaPathConfig,
+} from "../sandbox-media-paths.js";
+import type { SandboxFsBridge } from "../sandbox/fs-bridge.js";
+import type { ToolFsPolicy } from "../tool-fs-policy.js";
+import { normalizeWorkspaceDir } from "../workspace-dir.js";
+import type { AnyAgentTool } from "./common.js";
+>>>>>>> c823a8530 (fix: harden sandbox media reads against TOCTOU escapes)
 import {
   coerceImageAssistantText,
   coerceImageModelConfig,
@@ -417,9 +429,110 @@ export function createImageTool(options?: {
         options?.sandbox && options?.sandbox.root.trim()
           ? { root: options.sandbox.root.trim(), bridge: options.sandbox.bridge }
           : null;
+<<<<<<< HEAD
       const isUrl = isHttpUrl;
       if (sandboxConfig && isUrl) {
         throw new Error("Sandboxed image tool does not allow remote URLs.");
+=======
+
+      // MARK: - Load and resolve each image
+      const loadedImages: Array<{
+        base64: string;
+        mimeType: string;
+        resolvedImage: string;
+        rewrittenFrom?: string;
+      }> = [];
+
+      for (const imageRawInput of imageInputs) {
+        const trimmed = imageRawInput.trim();
+        const imageRaw = trimmed.startsWith("@") ? trimmed.slice(1).trim() : trimmed;
+        if (!imageRaw) {
+          throw new Error("image required (empty string in array)");
+        }
+
+        // The tool accepts file paths, file/data URLs, or http(s) URLs. In some
+        // agent/model contexts, images can be referenced as pseudo-URIs like
+        // `image:0` (e.g. "first image in the prompt"). We don't have access to a
+        // shared image registry here, so fail gracefully instead of attempting to
+        // `fs.readFile("image:0")` and producing a noisy ENOENT.
+        const looksLikeWindowsDrivePath = /^[a-zA-Z]:[\\/]/.test(imageRaw);
+        const hasScheme = /^[a-z][a-z0-9+.-]*:/i.test(imageRaw);
+        const isFileUrl = /^file:/i.test(imageRaw);
+        const isHttpUrl = /^https?:\/\//i.test(imageRaw);
+        const isDataUrl = /^data:/i.test(imageRaw);
+        if (hasScheme && !looksLikeWindowsDrivePath && !isFileUrl && !isHttpUrl && !isDataUrl) {
+          return {
+            content: [
+              {
+                type: "text",
+                text: `Unsupported image reference: ${imageRawInput}. Use a file path, a file:// URL, a data: URL, or an http(s) URL.`,
+              },
+            ],
+            details: {
+              error: "unsupported_image_reference",
+              image: imageRawInput,
+            },
+          };
+        }
+
+        if (sandboxConfig && isHttpUrl) {
+          throw new Error("Sandboxed image tool does not allow remote URLs.");
+        }
+
+        const resolvedImage = (() => {
+          if (sandboxConfig) {
+            return imageRaw;
+          }
+          if (imageRaw.startsWith("~")) {
+            return resolveUserPath(imageRaw);
+          }
+          return imageRaw;
+        })();
+        const resolvedPathInfo: { resolved: string; rewrittenFrom?: string } = isDataUrl
+          ? { resolved: "" }
+          : sandboxConfig
+            ? await resolveSandboxedBridgeMediaPath({
+                sandbox: sandboxConfig,
+                mediaPath: resolvedImage,
+                inboundFallbackDir: "media/inbound",
+              })
+            : {
+                resolved: resolvedImage.startsWith("file://")
+                  ? resolvedImage.slice("file://".length)
+                  : resolvedImage,
+              };
+        const resolvedPath = isDataUrl ? null : resolvedPathInfo.resolved;
+
+        const media = isDataUrl
+          ? decodeDataUrl(resolvedImage)
+          : sandboxConfig
+            ? await loadWebMedia(resolvedPath ?? resolvedImage, {
+                maxBytes,
+                sandboxValidated: true,
+                readFile: createSandboxBridgeReadFile({ sandbox: sandboxConfig }),
+              })
+            : await loadWebMedia(resolvedPath ?? resolvedImage, {
+                maxBytes,
+                localRoots,
+              });
+        if (media.kind !== "image") {
+          throw new Error(`Unsupported media type: ${media.kind}`);
+        }
+
+        const mimeType =
+          ("contentType" in media && media.contentType) ||
+          ("mimeType" in media && media.mimeType) ||
+          "image/png";
+        const base64 = media.buffer.toString("base64");
+        loadedImages.push({
+          base64,
+          mimeType,
+          resolvedImage,
+          ...(resolvedPathInfo.rewrittenFrom
+            ? { rewrittenFrom: resolvedPathInfo.rewrittenFrom }
+            : {}),
+        });
+>>>>>>> c823a8530 (fix: harden sandbox media reads against TOCTOU escapes)
       }
 
       const resolvedImage = (() => {

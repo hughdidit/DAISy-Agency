@@ -2,6 +2,10 @@ import fs from "node:fs/promises";
 import type { Server } from "node:http";
 import express, { type Express } from "express";
 import { danger } from "../globals.js";
+<<<<<<< HEAD
+=======
+import { SafeOpenError, readFileWithinRoot } from "../infra/fs-safe.js";
+>>>>>>> c823a8530 (fix: harden sandbox media reads against TOCTOU escapes)
 import { defaultRuntime, type RuntimeEnv } from "../runtime.js";
 import { SafeOpenError, openFileWithinRoot } from "../infra/fs-safe.js";
 import { detectMime } from "./mime.js";
@@ -33,23 +37,20 @@ export function attachMediaRoutes(
       return;
     }
     try {
-      const { handle, realPath, stat } = await openFileWithinRoot({
+      const {
+        buffer: data,
+        realPath,
+        stat,
+      } = await readFileWithinRoot({
         rootDir: mediaDir,
         relativePath: id,
+        maxBytes: MAX_MEDIA_BYTES,
       });
-      if (stat.size > MAX_MEDIA_BYTES) {
-        await handle.close().catch(() => {});
-        res.status(413).send("too large");
-        return;
-      }
       if (Date.now() - stat.mtimeMs > ttlMs) {
-        await handle.close().catch(() => {});
         await fs.rm(realPath).catch(() => {});
         res.status(410).send("expired");
         return;
       }
-      const data = await handle.readFile();
-      await handle.close().catch(() => {});
       const mime = await detectMime({ buffer: data, filePath: realPath });
       if (mime) res.type(mime);
       res.send(data);
@@ -71,6 +72,10 @@ export function attachMediaRoutes(
         }
         if (err.code === "not-found") {
           res.status(404).send("not found");
+          return;
+        }
+        if (err.code === "too-large") {
+          res.status(413).send("too large");
           return;
         }
       }

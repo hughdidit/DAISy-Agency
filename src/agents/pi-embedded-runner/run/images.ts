@@ -20,6 +20,13 @@ import type { ImageContent } from "@mariozechner/pi-ai";
 import { resolveUserPath } from "../../../utils.js";
 import { loadWebMedia } from "../../../web/media.js";
 import type { ImageSanitizationLimits } from "../../image-sanitization.js";
+<<<<<<< HEAD
+=======
+import {
+  createSandboxBridgeReadFile,
+  resolveSandboxedBridgeMediaPath,
+} from "../../sandbox-media-paths.js";
+>>>>>>> c823a8530 (fix: harden sandbox media reads against TOCTOU escapes)
 import { assertSandboxPath } from "../../sandbox-paths.js";
 import type { SandboxFsBridge } from "../../sandbox/fs-bridge.js";
 >>>>>>> 6dcc052bb (fix: stabilize model catalog and pi discovery auth storage compatibility)
@@ -230,8 +237,13 @@ export async function loadImageFromRef(
     const media = options?.sandbox
       ? await loadWebMedia(targetPath, {
           maxBytes: options.maxBytes,
+<<<<<<< HEAD
           readFile: (filePath) =>
             options.sandbox!.bridge.readFile({ filePath, cwd: options.sandbox!.root }),
+=======
+          sandboxValidated: true,
+          readFile: createSandboxBridgeReadFile({ sandbox: options.sandbox }),
+>>>>>>> c823a8530 (fix: harden sandbox media reads against TOCTOU escapes)
         })
       : await loadWebMedia(targetPath, options?.maxBytes);
 

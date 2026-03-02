@@ -1,4 +1,3 @@
-import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { assertMediaNotDataUrl, resolveSandboxedMediaSource } from "../../agents/sandbox-paths.js";
@@ -9,6 +8,7 @@ import type {
   ChannelThreadingToolContext,
 } from "../../channels/plugins/types.js";
 import type { OpenClawConfig } from "../../config/config.js";
+import { createRootScopedReadFile } from "../../infra/fs-safe.js";
 import { extensionForMime } from "../../media/mime.js";
 import { parseSlackTarget } from "../../slack/targets.js";
 import { parseTelegramTarget } from "../../telegram/targets.js";
@@ -169,6 +169,65 @@ function normalizeBase64Payload(params: { base64?: string; contentType?: string 
   };
 }
 
+<<<<<<< HEAD
+=======
+export type AttachmentMediaPolicy =
+  | {
+      mode: "sandbox";
+      sandboxRoot: string;
+    }
+  | {
+      mode: "host";
+      localRoots?: readonly string[];
+    };
+
+export function resolveAttachmentMediaPolicy(params: {
+  sandboxRoot?: string;
+  mediaLocalRoots?: readonly string[];
+}): AttachmentMediaPolicy {
+  const sandboxRoot = params.sandboxRoot?.trim();
+  if (sandboxRoot) {
+    return {
+      mode: "sandbox",
+      sandboxRoot,
+    };
+  }
+  return {
+    mode: "host",
+    localRoots: params.mediaLocalRoots,
+  };
+}
+
+function buildAttachmentMediaLoadOptions(params: {
+  policy: AttachmentMediaPolicy;
+  maxBytes?: number;
+}):
+  | {
+      maxBytes?: number;
+      sandboxValidated: true;
+      readFile: (filePath: string) => Promise<Buffer>;
+    }
+  | {
+      maxBytes?: number;
+      localRoots?: readonly string[];
+    } {
+  if (params.policy.mode === "sandbox") {
+    const readSandboxFile = createRootScopedReadFile({
+      rootDir: params.policy.sandboxRoot.trim(),
+    });
+    return {
+      maxBytes: params.maxBytes,
+      sandboxValidated: true,
+      readFile: readSandboxFile,
+    };
+  }
+  return {
+    maxBytes: params.maxBytes,
+    localRoots: params.policy.localRoots,
+  };
+}
+
+>>>>>>> c823a8530 (fix: harden sandbox media reads against TOCTOU escapes)
 async function hydrateAttachmentPayload(params: {
   cfg: OpenClawConfig;
   channel: ChannelId;
