@@ -136,6 +136,7 @@ Parameters:
 
 Allowlist:
 - `agents.list[].subagents.allowAgents`: list of agent ids allowed via `agentId` (`["*"]` to allow any). Default: only the requester agent.
+- Sandbox inheritance guard: if the requester session is sandboxed, `sessions_spawn` rejects targets that would run unsandboxed.
 
 Discovery:
 - Use `agents_list` to discover which agent ids are allowed for `sessions_spawn`.
