@@ -20,7 +20,12 @@ import type { ReplyPayload } from "../types.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { sanitizeUserFacingText } from "../../agents/pi-embedded-helpers.js";
 import { stripHeartbeatToken } from "../heartbeat.js";
-import { HEARTBEAT_TOKEN, isSilentReplyText, SILENT_REPLY_TOKEN } from "../tokens.js";
+import {
+  HEARTBEAT_TOKEN,
+  isSilentReplyText,
+  SILENT_REPLY_TOKEN,
+  stripSilentToken,
+} from "../tokens.js";
 import type { ReplyPayload } from "../types.js";
 import { hasLineDirectives, parseLineDirectives } from "./line-directives.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -55,6 +60,16 @@ export function normalizeReplyPayload(
   if (text && isSilentReplyText(text, silentToken)) {
     if (!hasMedia && !hasChannelData) return null;
     text = "";
+  }
+  // Strip NO_REPLY from mixed-content messages (e.g. "😄 NO_REPLY") so the
+  // token never leaks to end users.  If stripping leaves nothing, treat it as
+  // silent just like the exact-match path above.  (#30916, #30955)
+  if (text && text.includes(silentToken) && !isSilentReplyText(text, silentToken)) {
+    text = stripSilentToken(text, silentToken);
+    if (!text && !hasMedia && !hasChannelData) {
+      opts.onSkip?.("silent");
+      return null;
+    }
   }
   if (text && !trimmed) {
     // Keep empty text when media exists so media-only replies still send.
