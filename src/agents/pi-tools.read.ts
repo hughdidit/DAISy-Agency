@@ -906,7 +906,17 @@ function createHostEditOperations(root: string, options?: { workspaceOnly?: bool
       });
     },
     access: async (absolutePath: string) => {
-      const relative = toRelativePathInRoot(root, absolutePath);
+      let relative: string;
+      try {
+        relative = toRelativePathInRoot(root, absolutePath);
+      } catch {
+        // Path escapes workspace root.  Don't throw here – the upstream
+        // library replaces any `access` error with a misleading "File not
+        // found" message.  By returning silently the subsequent `readFile`
+        // call will throw the same "Path escapes workspace root" error
+        // through a code-path that propagates the original message.
+        return;
+      }
       try {
         const opened = await openFileWithinRoot({
           rootDir: root,
@@ -917,6 +927,14 @@ function createHostEditOperations(root: string, options?: { workspaceOnly?: bool
         if (error instanceof SafeOpenError && error.code === "not-found") {
           throw createFsAccessError("ENOENT", absolutePath);
         }
+<<<<<<< HEAD
+=======
+        if (error instanceof SafeOpenError && error.code === "outside-workspace") {
+          // Don't throw here – see the comment above about the upstream
+          // library swallowing access errors as "File not found".
+          return;
+        }
+>>>>>>> da80e22d8 (fix(tools): land #31015 from @haosenwang1018)
         throw error;
       }
     },

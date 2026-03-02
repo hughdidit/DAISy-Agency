@@ -54,10 +54,21 @@ Docs: https://docs.openclaw.ai
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 =======
 =======
+=======
+- Tools/Edit workspace boundary errors: preserve the real `Path escapes workspace root` failure path instead of surfacing a misleading access/file-not-found error when editing outside workspace roots. Landed from contributor PR #31015 by @haosenwang1018. Thanks @haosenwang1018.
+- Sandbox/mkdirp boundary checks: allow directory-safe boundary validation for existing in-boundary subdirectories, preventing false `cannot create directories` failures in sandbox write mode. (#30610) Thanks @glitch418x.
+- Android/Voice screen TTS: stream assistant speech via ElevenLabs WebSocket in Talk Mode, stop cleanly on speaker mute/barge-in, and ignore stale out-of-order stream events. (#29521) Thanks @gregmousseau.
+- Web UI/Cron: include configured agent model defaults/fallbacks in cron model suggestions so scheduled-job model autocomplete reflects configured models. (#29709) Thanks @Sid-Qin.
+- Cron/Delivery: disable the agent messaging tool when `delivery.mode` is `"none"` so cron output is not sent to Telegram or other channels. (#21808) Thanks @lailoo.
+- CLI/Cron: clarify `cron list` output by renaming `Agent` to `Agent ID` and adding a `Model` column for isolated agent-turn jobs. (#26259) Thanks @openperf.
+- Feishu/Reply media attachments: send Feishu reply `mediaUrl`/`mediaUrls` payloads as attachments alongside text/streamed replies in the reply dispatcher, including legacy fallback when `mediaUrls` is empty. (#28959) Thanks @icesword0760.
+- Slack/User-token resolution: normalize Slack account user-token sourcing through resolved account metadata (`SLACK_USER_TOKEN` env + config) so monitor reads, Slack actions, directory lookups, onboarding allow-from resolution, and capabilities probing consistently use the effective user token. (#28103) Thanks @Glucksberg.
+>>>>>>> da80e22d8 (fix(tools): land #31015 from @haosenwang1018)
 - Agents/Sessions list transcript paths: handle missing/non-string/relative `sessions.list.path` values and per-agent `{agentId}` templates when deriving `transcriptPath`, so cross-agent session listings resolve to concrete agent session files instead of workspace-relative paths. (#24775) Thanks @martinfrancois.
 - Android/Voice screen TTS: stream assistant speech via ElevenLabs WebSocket in Talk Mode, stop cleanly on speaker mute/barge-in, and ignore stale out-of-order stream events. (#29521) Thanks @gregmousseau.
 >>>>>>> 53d6e07a6 (fix(sessions): set transcriptPath to agent sessions directory (openclaw#24775) thanks @martinfrancois)
