@@ -293,6 +293,7 @@ Docs: https://docs.openclaw.ai
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 =======
@@ -300,6 +301,9 @@ Docs: https://docs.openclaw.ai
 =======
 =======
 =======
+=======
+- Feishu/Multi-account + reply reliability: add `channels.feishu.defaultAccount` outbound routing support with schema validation, prevent inbound preview text from leaking into prompt system events, keep quoted-message extraction text-first (post/interactive/file placeholders instead of raw JSON), route Feishu video sends as `msg_type: "file"`, and avoid websocket event blocking by using non-blocking event handling in monitor dispatch. Landed from contributor PRs #31209, #29610, #30432, #30331, and #29501. Thanks @stakeswky, @hclsys, @bmendonca3, @patrick-yingxi-pan, and @zwffff.
+>>>>>>> 22666034a (docs(changelog): credit feishu fix contributors)
 - Google Chat/Thread replies: set `messageReplyOption=REPLY_MESSAGE_FALLBACK_TO_NEW_THREAD` on threaded sends so replies attach to existing threads instead of silently failing thread placement. Landed from contributor PR #30965 by @novan. Thanks @novan.
 >>>>>>> cdbed3c9b (fix(googlechat): land #30965 thread reply option support (@novan))
 - Mattermost/Private channel policy routing: map Mattermost private channel type `P` to group chat type so `groupPolicy`/`groupAllowFrom` gates apply correctly instead of being treated as open public channels. Landed from contributor PR #30891 by @BlueBirdBack. Thanks @BlueBirdBack.
