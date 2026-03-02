@@ -33,11 +33,15 @@ import type { DmPolicy, TelegramGroupConfig, TelegramTopicConfig } from "../conf
 import { logVerbose, shouldLogVerbose } from "../globals.js";
 import { recordChannelActivity } from "../infra/channel-activity.js";
 import { resolveAgentRoute } from "../routing/resolve-route.js";
+<<<<<<< HEAD
 import { resolveThreadSessionKeys } from "../routing/session-key.js";
 import { shouldAckReaction as shouldAckReactionGate } from "../channels/ack-reactions.js";
 import { resolveMentionGatingWithBypass } from "../channels/mention-gating.js";
 import { resolveControlCommandGate } from "../channels/command-gating.js";
 import { logInboundDrop } from "../channels/logging.js";
+=======
+import { DEFAULT_ACCOUNT_ID, resolveThreadSessionKeys } from "../routing/session-key.js";
+>>>>>>> b0c7f1ebe (fix: harden sessions_spawn delivery params and telegram account routing (#31000, #31110))
 import { withTelegramApiErrorLogging } from "./api-logging.js";
 import {
   buildGroupLabel,
@@ -193,6 +197,17 @@ export const buildTelegramMessageContext = async ({
       id: peerId,
     },
   });
+  // Fail closed for named Telegram accounts when route resolution falls back to
+  // default-agent routing. This prevents cross-account DM/session contamination.
+  if (route.accountId !== DEFAULT_ACCOUNT_ID && route.matchedBy === "default") {
+    logInboundDrop({
+      log: logVerbose,
+      channel: "telegram",
+      reason: "non-default account requires explicit binding",
+      target: route.accountId,
+    });
+    return null;
+  }
   const baseSessionKey = route.sessionKey;
   // DMs: use raw messageThreadId for thread sessions (not forum topic ids)
   const dmThreadId = threadSpec.scope === "dm" ? threadSpec.id : undefined;
