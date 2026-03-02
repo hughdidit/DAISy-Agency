@@ -93,4 +93,82 @@ describe("registerMatrixMonitorEvents", () => {
     });
     expect(sendReadReceiptMatrixMock).not.toHaveBeenCalled();
   });
+<<<<<<< HEAD
+=======
+
+  it("caches self user id across messages", async () => {
+    const { getUserId, roomMessageHandler } = createHarness();
+    const first = { event_id: "$e3", sender: "@alice:example.org" } as MatrixRawEvent;
+    const second = { event_id: "$e4", sender: "@bob:example.org" } as MatrixRawEvent;
+
+    roomMessageHandler("!room:example.org", first);
+    roomMessageHandler("!room:example.org", second);
+
+    await vi.waitFor(() => {
+      expect(sendReadReceiptMatrixMock).toHaveBeenCalledTimes(2);
+    });
+    expect(getUserId).toHaveBeenCalledTimes(1);
+  });
+
+  it("logs and continues when sending read receipt fails", async () => {
+    sendReadReceiptMatrixMock.mockRejectedValueOnce(new Error("network boom"));
+    const { roomMessageHandler, onRoomMessage, logVerboseMessage } = createHarness();
+    const event = { event_id: "$e5", sender: "@alice:example.org" } as MatrixRawEvent;
+
+    roomMessageHandler("!room:example.org", event);
+
+    await vi.waitFor(() => {
+      expect(onRoomMessage).toHaveBeenCalledWith("!room:example.org", event);
+      expect(logVerboseMessage).toHaveBeenCalledWith(
+        expect.stringContaining("matrix: early read receipt failed"),
+      );
+    });
+  });
+
+  it("skips read receipts if self-user lookup fails", async () => {
+    const { roomMessageHandler, onRoomMessage, getUserId } = createHarness({
+      getUserId: vi.fn().mockRejectedValue(new Error("cannot resolve self")),
+    });
+    const event = { event_id: "$e6", sender: "@alice:example.org" } as MatrixRawEvent;
+
+    roomMessageHandler("!room:example.org", event);
+
+    await vi.waitFor(() => {
+      expect(onRoomMessage).toHaveBeenCalledWith("!room:example.org", event);
+    });
+    expect(getUserId).toHaveBeenCalledTimes(1);
+    expect(sendReadReceiptMatrixMock).not.toHaveBeenCalled();
+  });
+
+  it("skips duplicate listener registration for the same client", () => {
+    const handlers = new Map<string, (...args: unknown[]) => void>();
+    const onMock = vi.fn((event: string, handler: (...args: unknown[]) => void) => {
+      handlers.set(event, handler);
+    });
+    const client = {
+      on: onMock,
+      getUserId: vi.fn().mockResolvedValue("@bot:example.org"),
+      crypto: undefined,
+    } as unknown as MatrixClient;
+    const params = {
+      client,
+      auth: { encryption: false } as MatrixAuth,
+      logVerboseMessage: vi.fn(),
+      warnedEncryptedRooms: new Set<string>(),
+      warnedCryptoMissingRooms: new Set<string>(),
+      logger: { warn: vi.fn() } as unknown as RuntimeLogger,
+      formatNativeDependencyHint: (() =>
+        "") as PluginRuntime["system"]["formatNativeDependencyHint"],
+      onRoomMessage: vi.fn(),
+    };
+    registerMatrixMonitorEvents(params);
+    const initialCallCount = onMock.mock.calls.length;
+    registerMatrixMonitorEvents(params);
+
+    expect(onMock).toHaveBeenCalledTimes(initialCallCount);
+    expect(params.logVerboseMessage).toHaveBeenCalledWith(
+      "matrix: skipping duplicate listener registration for client",
+    );
+  });
+>>>>>>> dc816b84e (refactor(matrix): unify startup + split monitor config flow)
 });

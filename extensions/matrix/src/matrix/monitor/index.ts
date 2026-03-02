@@ -42,7 +42,7 @@ import type { CoreConfig, ReplyToMode } from "../../types.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { resolveMatrixTargets } from "../../resolve-targets.js";
 import { getMatrixRuntime } from "../../runtime.js";
-import type { CoreConfig, ReplyToMode } from "../../types.js";
+import type { CoreConfig, MatrixConfig, MatrixRoomConfig, ReplyToMode } from "../../types.js";
 import { resolveMatrixAccount } from "../accounts.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { setActiveMatrixClient } from "../active-client.js";
@@ -71,6 +71,194 @@ export type MonitorMatrixOpts = {
 
 const DEFAULT_MEDIA_MAX_MB = 20;
 
+function normalizeMatrixUserEntry(raw: string): string {
+  return raw
+    .replace(/^matrix:/i, "")
+    .replace(/^user:/i, "")
+    .trim();
+}
+
+function normalizeMatrixRoomEntry(raw: string): string {
+  return raw
+    .replace(/^matrix:/i, "")
+    .replace(/^(room|channel):/i, "")
+    .trim();
+}
+
+function isMatrixUserId(value: string): boolean {
+  return value.startsWith("@") && value.includes(":");
+}
+
+async function resolveMatrixUserAllowlist(params: {
+  cfg: CoreConfig;
+  runtime: RuntimeEnv;
+  label: string;
+  list?: Array<string | number>;
+}): Promise<string[]> {
+  let allowList = params.list ?? [];
+  if (allowList.length === 0) {
+    return allowList.map(String);
+  }
+  const entries = allowList
+    .map((entry) => normalizeMatrixUserEntry(String(entry)))
+    .filter((entry) => entry && entry !== "*");
+  if (entries.length === 0) {
+    return allowList.map(String);
+  }
+  const mapping: string[] = [];
+  const unresolved: string[] = [];
+  const additions: string[] = [];
+  const pending: string[] = [];
+  for (const entry of entries) {
+    if (isMatrixUserId(entry)) {
+      additions.push(normalizeMatrixUserId(entry));
+      continue;
+    }
+    pending.push(entry);
+  }
+  if (pending.length > 0) {
+    const resolved = await resolveMatrixTargets({
+      cfg: params.cfg,
+      inputs: pending,
+      kind: "user",
+      runtime: params.runtime,
+    });
+    for (const entry of resolved) {
+      if (entry.resolved && entry.id) {
+        const normalizedId = normalizeMatrixUserId(entry.id);
+        additions.push(normalizedId);
+        mapping.push(`${entry.input}→${normalizedId}`);
+      } else {
+        unresolved.push(entry.input);
+      }
+    }
+  }
+  allowList = mergeAllowlist({ existing: allowList, additions });
+  summarizeMapping(params.label, mapping, unresolved, params.runtime);
+  if (unresolved.length > 0) {
+    params.runtime.log?.(
+      `${params.label} entries must be full Matrix IDs (example: @user:server). Unresolved entries are ignored.`,
+    );
+  }
+  return allowList.map(String);
+}
+
+async function resolveMatrixRoomsConfig(params: {
+  cfg: CoreConfig;
+  runtime: RuntimeEnv;
+  roomsConfig?: Record<string, MatrixRoomConfig>;
+}): Promise<Record<string, MatrixRoomConfig> | undefined> {
+  let roomsConfig = params.roomsConfig;
+  if (!roomsConfig || Object.keys(roomsConfig).length === 0) {
+    return roomsConfig;
+  }
+  const mapping: string[] = [];
+  const unresolved: string[] = [];
+  const nextRooms: Record<string, MatrixRoomConfig> = {};
+  if (roomsConfig["*"]) {
+    nextRooms["*"] = roomsConfig["*"];
+  }
+  const pending: Array<{ input: string; query: string; config: MatrixRoomConfig }> = [];
+  for (const [entry, roomConfig] of Object.entries(roomsConfig)) {
+    if (entry === "*") {
+      continue;
+    }
+    const trimmed = entry.trim();
+    if (!trimmed) {
+      continue;
+    }
+    const cleaned = normalizeMatrixRoomEntry(trimmed);
+    if (isConfiguredMatrixRoomEntry(cleaned)) {
+      if (!nextRooms[cleaned]) {
+        nextRooms[cleaned] = roomConfig;
+      }
+      if (cleaned !== entry) {
+        mapping.push(`${entry}→${cleaned}`);
+      }
+      continue;
+    }
+    pending.push({ input: entry, query: trimmed, config: roomConfig });
+  }
+  if (pending.length > 0) {
+    const resolved = await resolveMatrixTargets({
+      cfg: params.cfg,
+      inputs: pending.map((entry) => entry.query),
+      kind: "group",
+      runtime: params.runtime,
+    });
+    resolved.forEach((entry, index) => {
+      const source = pending[index];
+      if (!source) {
+        return;
+      }
+      if (entry.resolved && entry.id) {
+        if (!nextRooms[entry.id]) {
+          nextRooms[entry.id] = source.config;
+        }
+        mapping.push(`${source.input}→${entry.id}`);
+      } else {
+        unresolved.push(source.input);
+      }
+    });
+  }
+  roomsConfig = nextRooms;
+  summarizeMapping("matrix rooms", mapping, unresolved, params.runtime);
+  if (unresolved.length > 0) {
+    params.runtime.log?.(
+      "matrix rooms must be room IDs or aliases (example: !room:server or #alias:server). Unresolved entries are ignored.",
+    );
+  }
+  if (Object.keys(roomsConfig).length === 0) {
+    return roomsConfig;
+  }
+  const nextRoomsWithUsers = { ...roomsConfig };
+  for (const [roomKey, roomConfig] of Object.entries(roomsConfig)) {
+    const users = roomConfig?.users ?? [];
+    if (users.length === 0) {
+      continue;
+    }
+    const resolvedUsers = await resolveMatrixUserAllowlist({
+      cfg: params.cfg,
+      runtime: params.runtime,
+      label: `matrix room users (${roomKey})`,
+      list: users,
+    });
+    if (resolvedUsers !== users) {
+      nextRoomsWithUsers[roomKey] = { ...roomConfig, users: resolvedUsers };
+    }
+  }
+  return nextRoomsWithUsers;
+}
+
+async function resolveMatrixMonitorConfig(params: {
+  cfg: CoreConfig;
+  runtime: RuntimeEnv;
+  accountConfig: MatrixConfig;
+}): Promise<{
+  allowFrom: string[];
+  groupAllowFrom: string[];
+  roomsConfig?: Record<string, MatrixRoomConfig>;
+}> {
+  const allowFrom = await resolveMatrixUserAllowlist({
+    cfg: params.cfg,
+    runtime: params.runtime,
+    label: "matrix dm allowlist",
+    list: params.accountConfig.dm?.allowFrom ?? [],
+  });
+  const groupAllowFrom = await resolveMatrixUserAllowlist({
+    cfg: params.cfg,
+    runtime: params.runtime,
+    label: "matrix group allowlist",
+    list: params.accountConfig.groupAllowFrom ?? [],
+  });
+  const roomsConfig = await resolveMatrixRoomsConfig({
+    cfg: params.cfg,
+    runtime: params.runtime,
+    roomsConfig: params.accountConfig.groups ?? params.accountConfig.rooms,
+  });
+  return { allowFrom, groupAllowFrom, roomsConfig };
+}
+
 export async function monitorMatrixProvider(opts: MonitorMatrixOpts = {}): Promise<void> {
   if (isBunRuntime()) {
     throw new Error("Matrix provider requires Node (bun runtime not supported)");
@@ -94,6 +282,7 @@ export async function monitorMatrixProvider(opts: MonitorMatrixOpts = {}): Promi
     logger.debug?.(message);
   };
 
+<<<<<<< HEAD
   const normalizeUserEntry = (raw: string) =>
     raw
       .replace(/^matrix:/i, "")
@@ -255,6 +444,17 @@ export async function monitorMatrixProvider(opts: MonitorMatrixOpts = {}): Promi
     roomsConfig = nextRooms;
     summarizeMapping("matrix rooms", mapping, unresolved, runtime);
   }
+=======
+  // Resolve account-specific config for multi-account support
+  const account = resolveMatrixAccount({ cfg, accountId: opts.accountId });
+  const accountConfig = account.config;
+  const allowlistOnly = accountConfig.allowlistOnly === true;
+  const { allowFrom, groupAllowFrom, roomsConfig } = await resolveMatrixMonitorConfig({
+    cfg,
+    runtime,
+    accountConfig,
+  });
+>>>>>>> dc816b84e (refactor(matrix): unify startup + split monitor config flow)
 
   cfg = {
     ...cfg,
@@ -322,8 +522,16 @@ export async function monitorMatrixProvider(opts: MonitorMatrixOpts = {}): Promi
   const mediaMaxMb = opts.mediaMaxMb ?? cfg.channels?.matrix?.mediaMaxMb ?? DEFAULT_MEDIA_MAX_MB;
   const mediaMaxBytes = Math.max(1, mediaMaxMb) * 1024 * 1024;
   const startupMs = Date.now();
+<<<<<<< HEAD
   const startupGraceMs = 5000; // 5s grace for slow homeservers (e.g. Conduit filter M_NOT_FOUND retry)
   const directTracker = createDirectRoomTracker(client, { log: logVerboseMessage });
+=======
+  const startupGraceMs = DEFAULT_STARTUP_GRACE_MS;
+  const directTracker = createDirectRoomTracker(client, {
+    log: logVerboseMessage,
+    includeMemberCountInLogs: core.logging.shouldLogVerbose(),
+  });
+>>>>>>> dc816b84e (refactor(matrix): unify startup + split monitor config flow)
   registerMatrixAutoJoin({ client, cfg, runtime });
   const warnedEncryptedRooms = new Set<string>();
   const warnedCryptoMissingRooms = new Set<string>();
