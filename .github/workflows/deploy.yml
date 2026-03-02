@@ -118,15 +118,10 @@ jobs:
           # workflow with an explicit secrets: block, or append
           # `# actionlint:ignore:expression` to each flagged line.
           # Infrastructure (secrets, with vars fallback for migration)
-          # actionlint:ignore:expression
           GCP_WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER || vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
-          # actionlint:ignore:expression
           GCP_SERVICE_ACCOUNT: ${{ secrets.GCP_SERVICE_ACCOUNT || vars.GCP_SERVICE_ACCOUNT }}
-          # actionlint:ignore:expression
           GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID || vars.GCP_PROJECT_ID }}
-          # actionlint:ignore:expression
           GCP_ZONE: ${{ secrets.GCP_ZONE || vars.GCP_ZONE }}
-          # actionlint:ignore:expression
           GCE_INSTANCE_NAME: ${{ secrets.GCE_INSTANCE_NAME || vars.GCE_INSTANCE_NAME }}
           # Variables (non-sensitive config — short values that would cause log masking issues as secrets)
           CLAWDBOT_GATEWAY_PORT: ${{ vars.CLAWDBOT_GATEWAY_PORT }}
@@ -160,9 +155,7 @@ jobs:
       - name: Authenticate to Google Cloud (WIF)
         uses: google-github-actions/auth@6fc4af4b145ae7821d527454aa9bd537d1f2dc5f  # v2.1.7
         with:
-          # actionlint:ignore:expression
           workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER || vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
-          # actionlint:ignore:expression
           service_account: ${{ secrets.GCP_SERVICE_ACCOUNT || vars.GCP_SERVICE_ACCOUNT }}
 
       - name: Install Google Cloud SDK
@@ -196,13 +189,9 @@ jobs:
           # workflow with an explicit secrets: block, or append
           # `# actionlint:ignore:expression` to each flagged line.
           # Infrastructure (secrets, with vars fallback for migration)
-          # actionlint:ignore:expression
           GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID || vars.GCP_PROJECT_ID }}
-          # actionlint:ignore:expression
           GCP_ZONE: ${{ secrets.GCP_ZONE || vars.GCP_ZONE }}
-          # actionlint:ignore:expression
           GCE_INSTANCE_NAME: ${{ secrets.GCE_INSTANCE_NAME || vars.GCE_INSTANCE_NAME }}
-          # actionlint:ignore:expression
           DEPLOY_DIR: ${{ secrets.DEPLOY_DIR || vars.DEPLOY_DIR }}
           # Variables (non-sensitive config — short values that would cause log masking issues as secrets)
           CLAWDBOT_GATEWAY_PORT: ${{ vars.CLAWDBOT_GATEWAY_PORT }}
@@ -227,11 +216,8 @@ jobs:
       - name: Deploy summary
         if: ${{ inputs.dry_run != true }}
         env:
-          # actionlint:ignore:expression
           GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID || vars.GCP_PROJECT_ID }}
-          # actionlint:ignore:expression
           GCP_ZONE: ${{ secrets.GCP_ZONE || vars.GCP_ZONE }}
-          # actionlint:ignore:expression
           GCE_INSTANCE_NAME: ${{ secrets.GCE_INSTANCE_NAME || vars.GCE_INSTANCE_NAME }}
           CLAWDBOT_GATEWAY_PORT: ${{ vars.CLAWDBOT_GATEWAY_PORT }}
         run: |
