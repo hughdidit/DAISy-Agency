@@ -93,6 +93,7 @@ describe("runHeartbeatOnce – heartbeat model override", () => {
   async function runDefaultsHeartbeat(params: {
     model?: string;
     suppressToolErrorWarnings?: boolean;
+    lightContext?: boolean;
   }) {
     return withHeartbeatFixture(async ({ tmpDir, storePath, seedSession }) => {
       const cfg: OpenClawConfig = {
@@ -104,6 +105,7 @@ describe("runHeartbeatOnce – heartbeat model override", () => {
               target: "whatsapp",
               model: params.model,
               suppressToolErrorWarnings: params.suppressToolErrorWarnings,
+              lightContext: params.lightContext,
             },
           },
         },
@@ -146,6 +148,16 @@ describe("runHeartbeatOnce – heartbeat model override", () => {
       expect.objectContaining({
         isHeartbeat: true,
         suppressToolErrorWarnings: true,
+      }),
+    );
+  });
+
+  it("passes bootstrapContextMode when heartbeat lightContext is enabled", async () => {
+    const replyOpts = await runDefaultsHeartbeat({ lightContext: true });
+    expect(replyOpts).toEqual(
+      expect.objectContaining({
+        isHeartbeat: true,
+        bootstrapContextMode: "lightweight",
       }),
     );
   });
