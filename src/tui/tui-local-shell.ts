@@ -109,7 +109,7 @@ export function createLocalShellRunner(deps: LocalShellDeps) {
       const child = spawnCommand(cmd, {
         shell: true,
         cwd: getCwd(),
-        env,
+        env: { ...env, OPENCLAW_SHELL: "tui-local" },
       });
 
       let stdout = "";

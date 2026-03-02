@@ -387,9 +387,18 @@ export async function runExecProcess(opts: {
 }): Promise<ExecProcessHandle> {
   const startedAt = Date.now();
   const sessionId = createSessionSlug();
+<<<<<<< HEAD
   let child: ChildProcessWithoutNullStreams | null = null;
   let pty: PtyHandle | null = null;
   let stdin: SessionStdin | undefined;
+=======
+  const execCommand = opts.execCommand ?? opts.command;
+  const supervisor = getProcessSupervisor();
+  const shellRuntimeEnv: Record<string, string> = {
+    ...opts.env,
+    OPENCLAW_SHELL: "exec",
+  };
+>>>>>>> b7615e0ce (Exec/ACP: inject OPENCLAW_SHELL into child shell env (#31271))
 
   const spawnFallbacks = [
     {
@@ -664,12 +673,78 @@ export async function runExecProcess(opts: {
     }
   };
 
+<<<<<<< HEAD
   if (pty) {
     const cursorResponse = buildCursorPositionResponse();
     pty.onData((data) => {
       const raw = data.toString();
       const { cleaned, requests } = stripDsrRequests(raw);
       if (requests > 0) {
+=======
+  const timeoutMs =
+    typeof opts.timeoutSec === "number" && opts.timeoutSec > 0
+      ? Math.floor(opts.timeoutSec * 1000)
+      : undefined;
+
+  const spawnSpec:
+    | {
+        mode: "child";
+        argv: string[];
+        env: NodeJS.ProcessEnv;
+        stdinMode: "pipe-open" | "pipe-closed";
+      }
+    | {
+        mode: "pty";
+        ptyCommand: string;
+        childFallbackArgv: string[];
+        env: NodeJS.ProcessEnv;
+        stdinMode: "pipe-open";
+      } = (() => {
+    if (opts.sandbox) {
+      return {
+        mode: "child" as const,
+        argv: [
+          "docker",
+          ...buildDockerExecArgs({
+            containerName: opts.sandbox.containerName,
+            command: execCommand,
+            workdir: opts.containerWorkdir ?? opts.sandbox.containerWorkdir,
+            env: shellRuntimeEnv,
+            tty: opts.usePty,
+          }),
+        ],
+        env: process.env,
+        stdinMode: opts.usePty ? ("pipe-open" as const) : ("pipe-closed" as const),
+      };
+    }
+    const { shell, args: shellArgs } = getShellConfig();
+    const childArgv = [shell, ...shellArgs, execCommand];
+    if (opts.usePty) {
+      return {
+        mode: "pty" as const,
+        ptyCommand: execCommand,
+        childFallbackArgv: childArgv,
+        env: shellRuntimeEnv,
+        stdinMode: "pipe-open" as const,
+      };
+    }
+    return {
+      mode: "child" as const,
+      argv: childArgv,
+      env: shellRuntimeEnv,
+      stdinMode: "pipe-closed" as const,
+    };
+  })();
+
+  let managedRun: ManagedRun | null = null;
+  let usingPty = spawnSpec.mode === "pty";
+  const cursorResponse = buildCursorPositionResponse();
+
+  const onSupervisorStdout = (chunk: string) => {
+    if (usingPty) {
+      const { cleaned, requests } = stripDsrRequests(chunk);
+      if (requests > 0 && managedRun?.stdin) {
+>>>>>>> b7615e0ce (Exec/ACP: inject OPENCLAW_SHELL into child shell env (#31271))
         for (let i = 0; i < requests; i += 1) {
           pty.write(cursorResponse);
         }

@@ -167,6 +167,16 @@ Learn more about session keys at [/concepts/session](/concepts/session).
 - `--no-prefix-cwd`: do not prefix prompts with the working directory.
 - `--verbose, -v`: verbose logging to stderr.
 
+<<<<<<< HEAD
+=======
+Security note:
+
+- `--token` and `--password` can be visible in local process listings on some systems.
+- Prefer `--token-file`/`--password-file` or environment variables (`OPENCLAW_GATEWAY_TOKEN`, `OPENCLAW_GATEWAY_PASSWORD`).
+- ACP runtime backend child processes receive `OPENCLAW_SHELL=acp`, which can be used for context-specific shell/profile rules.
+- `openclaw acp client` sets `OPENCLAW_SHELL=acp-client` on the spawned bridge process.
+
+>>>>>>> b7615e0ce (Exec/ACP: inject OPENCLAW_SHELL into child shell env (#31271))
 ### `acp client` options
 
 - `--cwd <dir>`: working directory for the ACP session.

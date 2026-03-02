@@ -427,6 +427,34 @@ function buildServerArgs(opts: AcpClientOptions): string[] {
   return args;
 }
 
+<<<<<<< HEAD
+=======
+export function resolveAcpClientSpawnEnv(
+  baseEnv: NodeJS.ProcessEnv = process.env,
+): NodeJS.ProcessEnv {
+  return { ...baseEnv, OPENCLAW_SHELL: "acp-client" };
+}
+
+function resolveSelfEntryPath(): string | null {
+  // Prefer a path relative to the built module location (dist/acp/client.js -> dist/entry.js).
+  try {
+    const here = fileURLToPath(import.meta.url);
+    const candidate = path.resolve(path.dirname(here), "..", "entry.js");
+    if (fs.existsSync(candidate)) {
+      return candidate;
+    }
+  } catch {
+    // ignore
+  }
+
+  const argv1 = process.argv[1]?.trim();
+  if (argv1) {
+    return path.isAbsolute(argv1) ? argv1 : path.resolve(process.cwd(), argv1);
+  }
+  return null;
+}
+
+>>>>>>> b7615e0ce (Exec/ACP: inject OPENCLAW_SHELL into child shell env (#31271))
 function printSessionUpdate(notification: SessionNotification): void {
   const update = notification.update;
   if (!("sessionUpdate" in update)) {
@@ -476,6 +504,7 @@ export async function createAcpClient(opts: AcpClientOptions = {}): Promise<AcpC
   const agent = spawn(serverCommand, serverArgs, {
     stdio: ["pipe", "pipe", "inherit"],
     cwd,
+    env: resolveAcpClientSpawnEnv(),
   });
 
   if (!agent.stdin || !agent.stdout) {
