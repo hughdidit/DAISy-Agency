@@ -1080,5 +1080,56 @@ describe("handleFeishuMessage command authorization", () => {
       }),
     );
   });
+<<<<<<< HEAD
 >>>>>>> 89669a33b (feat(feishu): add replyInThread configuration for message replies (openclaw#27325) thanks @kcinzgg)
+=======
+
+  it("does not dispatch twice for the same image message_id (concurrent dedupe)", async () => {
+    mockShouldComputeCommandAuthorized.mockReturnValue(false);
+
+    const cfg: ClawdbotConfig = {
+      channels: {
+        feishu: {
+          dmPolicy: "open",
+        },
+      },
+    } as ClawdbotConfig;
+
+    const event: FeishuMessageEvent = {
+      sender: {
+        sender_id: {
+          open_id: "ou-image-dedup",
+        },
+      },
+      message: {
+        message_id: "msg-image-dedup",
+        chat_id: "oc-dm",
+        chat_type: "p2p",
+        message_type: "image",
+        content: JSON.stringify({
+          image_key: "img_dedup_payload",
+        }),
+      },
+    };
+
+    await Promise.all([dispatchMessage({ cfg, event }), dispatchMessage({ cfg, event })]);
+    expect(mockDispatchReplyFromConfig).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("toMessageResourceType", () => {
+  it("maps image to image", () => {
+    expect(toMessageResourceType("image")).toBe("image");
+  });
+
+  it("maps audio to file", () => {
+    expect(toMessageResourceType("audio")).toBe("file");
+  });
+
+  it("maps video/file/sticker to file", () => {
+    expect(toMessageResourceType("video")).toBe("file");
+    expect(toMessageResourceType("file")).toBe("file");
+    expect(toMessageResourceType("sticker")).toBe("file");
+  });
+>>>>>>> 2a252a14c (fix(feishu): harden target routing, dedupe, and reply fallback)
 });
