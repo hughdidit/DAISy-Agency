@@ -303,6 +303,33 @@ async function authorizeCanvasRequest(params: {
   return lastAuthFailure ?? { ok: false, reason: "unauthorized" };
 }
 
+<<<<<<< HEAD
+=======
+async function enforcePluginRouteGatewayAuth(params: {
+  req: IncomingMessage;
+  res: ServerResponse;
+  auth: ResolvedGatewayAuth;
+  trustedProxies: string[];
+  allowRealIpFallback: boolean;
+  rateLimiter?: AuthRateLimiter;
+}): Promise<boolean> {
+  const token = getBearerToken(params.req);
+  const authResult = await authorizeHttpGatewayConnect({
+    auth: params.auth,
+    connectAuth: token ? { token, password: token } : null,
+    req: params.req,
+    trustedProxies: params.trustedProxies,
+    allowRealIpFallback: params.allowRealIpFallback,
+    rateLimiter: params.rateLimiter,
+  });
+  if (!authResult.ok) {
+    sendGatewayAuthFailure(params.res, authResult);
+    return false;
+  }
+  return true;
+}
+
+>>>>>>> 53d10f868 (fix(gateway): land access/auth/config migration cluster)
 function writeUpgradeAuthFailure(
   socket: { write: (chunk: string) => void },
   auth: GatewayAuthResult,
@@ -624,6 +651,7 @@ export function createGatewayHttpServer(opts: {
   strictTransportSecurityHeader?: string;
   handleHooksRequest: HooksRequestHandler;
   handlePluginRequest?: HooksRequestHandler;
+  shouldEnforcePluginGatewayAuth?: (requestPath: string) => boolean;
   resolvedAuth: ResolvedGatewayAuth;
   /** Optional rate limiter for auth brute-force protection. */
   rateLimiter?: AuthRateLimiter;
@@ -641,6 +669,7 @@ export function createGatewayHttpServer(opts: {
     strictTransportSecurityHeader,
     handleHooksRequest,
     handlePluginRequest,
+    shouldEnforcePluginGatewayAuth,
     resolvedAuth,
     rateLimiter,
   } = opts;
@@ -701,6 +730,7 @@ export function createGatewayHttpServer(opts: {
         return;
       }
 <<<<<<< HEAD
+<<<<<<< HEAD
       if (handlePluginRequest && (await handlePluginRequest(req, res))) {
         return;
 =======
@@ -728,6 +758,8 @@ export function createGatewayHttpServer(opts: {
         }
 >>>>>>> 30b6eccae (feat(gateway): add auth rate-limiting & brute-force protection (#15035))
       }
+=======
+>>>>>>> 53d10f868 (fix(gateway): land access/auth/config migration cluster)
       if (openResponsesEnabled) {
         if (
           await handleOpenResponsesHttpRequest(req, res, {
@@ -804,6 +836,25 @@ export function createGatewayHttpServer(opts: {
 >>>>>>> 5935c4d23 (fix(ui): fix web UI after tsdown migration and typing changes)
           })
         ) {
+          return;
+        }
+      }
+      // Plugins run last so built-in gateway routes keep precedence on overlapping paths.
+      if (handlePluginRequest) {
+        if ((shouldEnforcePluginGatewayAuth ?? isProtectedPluginRoutePath)(requestPath)) {
+          const pluginAuthOk = await enforcePluginRouteGatewayAuth({
+            req,
+            res,
+            auth: resolvedAuth,
+            trustedProxies,
+            allowRealIpFallback,
+            rateLimiter,
+          });
+          if (!pluginAuthOk) {
+            return;
+          }
+        }
+        if (await handlePluginRequest(req, res)) {
           return;
         }
       }

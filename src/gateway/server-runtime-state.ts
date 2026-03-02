@@ -42,7 +42,11 @@ import { type CanvasHostHandler, createCanvasHostHandler } from "../canvas-host/
 import { resolveGatewayListenHosts } from "./net.js";
 =======
 import { isLoopbackHost, resolveGatewayListenHosts } from "./net.js";
+<<<<<<< HEAD
 >>>>>>> a288f3066 (fix(gateway): warn on non-loopback bind at startup (land #25397, thanks @let5sne))
+=======
+import { isProtectedPluginRoutePath } from "./security-path.js";
+>>>>>>> 53d10f868 (fix(gateway): land access/auth/config migration cluster)
 import {
   createGatewayBroadcaster,
   type GatewayBroadcastFn,
@@ -76,6 +80,7 @@ import type { DedupeEntry } from "./server-shared.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { createGatewayHooksRequestHandler } from "./server/hooks.js";
 import { listenGatewayHttpServer } from "./server/http-listen.js";
+<<<<<<< HEAD
 import { resolveGatewayListenHosts } from "./net.js";
 import { createGatewayPluginRequestHandler } from "./server/plugins-http.js";
 <<<<<<< HEAD
@@ -92,6 +97,12 @@ import type { DedupeEntry } from "./server-shared.js";
 import type { PluginRegistry } from "../plugins/registry.js";
 import type { GatewayTlsRuntime } from "./server/tls.js";
 =======
+=======
+import {
+  createGatewayPluginRequestHandler,
+  isRegisteredPluginHttpRoutePath,
+} from "./server/plugins-http.js";
+>>>>>>> 53d10f868 (fix(gateway): land access/auth/config migration cluster)
 import type { GatewayTlsRuntime } from "./server/tls.js";
 import type { GatewayWsClient } from "./server/ws-types.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -202,6 +213,12 @@ export async function createGatewayRuntimeState(params: {
     registry: params.pluginRegistry,
     log: params.logPlugins,
   });
+  const shouldEnforcePluginGatewayAuth = (requestPath: string): boolean => {
+    if (isProtectedPluginRoutePath(requestPath)) {
+      return true;
+    }
+    return isRegisteredPluginHttpRoutePath(params.pluginRegistry, requestPath);
+  };
 
   const bindHosts = await resolveGatewayListenHosts(params.bindHost);
   if (!isLoopbackHost(params.bindHost)) {
@@ -225,6 +242,7 @@ export async function createGatewayRuntimeState(params: {
       strictTransportSecurityHeader: params.strictTransportSecurityHeader,
       handleHooksRequest,
       handlePluginRequest,
+      shouldEnforcePluginGatewayAuth,
       resolvedAuth: params.resolvedAuth,
       rateLimiter: params.rateLimiter,
       tlsOptions: params.gatewayTls?.enabled ? params.gatewayTls.tlsOptions : undefined,

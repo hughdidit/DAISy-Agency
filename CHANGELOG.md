@@ -218,6 +218,7 @@ Docs: https://docs.openclaw.ai
 - Web UI/Cron jobs: add schedule-kind and last-run-status filters to the Jobs list, with reset control and client-side filtering over loaded results. (#9510) Thanks @guxu11.
 - Web UI/Control UI WebSocket defaults: include normalized `gateway.controlUi.basePath` (or inferred nested route base path) in the default `gatewayUrl` so first-load dashboard connections work behind path-based reverse proxies. (#30228) Thanks @gittb.
 - Gateway/Control UI API routing: when `gateway.controlUi.basePath` is unset (default), stop serving Control UI SPA HTML for `/api` and `/api/*` so API paths fall through to normal gateway handlers/404 responses instead of `index.html`. (#30333) Fixes #30295. thanks @Sid-Qin.
+<<<<<<< HEAD
 >>>>>>> c1428e8df (fix(gateway): prevent /api/* routes from returning SPA HTML when basePath is empty (#30333))
 - Cron/One-shot reliability: retry transient one-shot failures with bounded backoff and configurable retry policy before disabling. (#24435) Thanks .
 >>>>>>> ea3955cd7 (fix(cron): add retry policy for one-shot jobs on transient errors (#24355) (openclaw#24435) thanks @hugenshen)
@@ -228,6 +229,16 @@ Docs: https://docs.openclaw.ai
 <<<<<<< HEAD
 >>>>>>> 5b49cc412 (fix(cron): notify user when cron job is auto-disabled after repeated errors (openclaw#29098) thanks @ningding97)
 =======
+=======
+- Cron/One-shot reliability: retry transient one-shot failures with bounded backoff and configurable retry policy before disabling. (#24435) Thanks @hugenshen.
+- Gateway/Cron auditability: add gateway info logs for successful cron create, update, and remove operations. (#25090) Thanks @MoerAI.
+- Gateway/Tailscale onboarding origin allowlist: auto-add the detected Tailnet HTTPS origin during interactive configure/onboarding flows (including IPv6-safe origin formatting and binary-path reuse), so Tailscale serve/funnel Control UI access works without manual `allowedOrigins` edits. Landed from contributor PR #28960 by @Glucksberg. Thanks @Glucksberg.
+- Gateway/Upgrade migration for Control UI origins: seed `gateway.controlUi.allowedOrigins` on startup for legacy non-loopback configs (`lan`/`tailnet`/`custom`) when origins are missing or blank, preventing post-upgrade crash loops while preserving explicit existing policy. Landed from contributor PR #29394 by @synchronic1. Thanks @synchronic1.
+- Gateway/Plugin HTTP auth hardening: require gateway auth for protected plugin paths and explicit `registerHttpRoute` paths (while preserving wildcard-handler behavior for signature-auth webhooks), and run plugin handlers after built-in handlers for deterministic route precedence. Landed from contributor PR #29198 by @Mariana-Codebase. Thanks @Mariana-Codebase.
+- Gateway/Config patch guard: reject `config.patch` updates that set non-loopback `gateway.bind` while `gateway.tailscale.mode` is `serve`/`funnel`, preventing restart crash loops from invalid bind/tailscale combinations. Landed from contributor PR #30910 by @liuxiaopai-ai. Thanks @liuxiaopai-ai.
+- Cron/Schedule errors: notify users when a job is auto-disabled after repeated schedule computation failures. (#29098) Thanks @ningding97.
+- Cron/Schedule errors: notify users when a job is auto-disabled after repeated schedule computation failures. (#29098) Thanks @ningding97.
+>>>>>>> 53d10f868 (fix(gateway): land access/auth/config migration cluster)
 - File tools/tilde paths: expand `~/...` against the user home directory before workspace-root checks in host file read/write/edit paths, while preserving root-boundary enforcement so outside-root targets remain blocked. (#29779) Thanks @Glucksberg.
 <<<<<<< HEAD
 >>>>>>> 645d96395 (feat: expand ~ (tilde) to home directory in file tools (read/write/edit) (openclaw#29779) thanks @Glucksberg)

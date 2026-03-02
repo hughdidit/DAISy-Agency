@@ -94,11 +94,13 @@ import {
 import type { GatewayAuthChoice } from "../commands/onboard-types.js";
 import type { GatewayBindMode, GatewayTailscaleMode, OpenClawConfig } from "../config/config.js";
 import {
+  appendAllowedOrigin,
+  buildTailnetHttpsOrigin,
   TAILSCALE_DOCS_LINES,
   TAILSCALE_EXPOSURE_OPTIONS,
   TAILSCALE_MISSING_BIN_NOTE_LINES,
 } from "../gateway/gateway-config-prompts.shared.js";
-import { findTailscaleBinary } from "../infra/tailscale.js";
+import { findTailscaleBinary, getTailnetHostname } from "../infra/tailscale.js";
 import type { RuntimeEnv } from "../runtime.js";
 import { validateIPv4AddressInput } from "../shared/net/ipv4.js";
 <<<<<<< HEAD
@@ -229,8 +231,10 @@ export async function configureGatewayForOnboarding(
         });
 
   // Detect Tailscale binary before proceeding with serve/funnel setup.
+  // Persist the path so getTailnetHostname can reuse it for origin injection.
+  let tailscaleBin: string | null = null;
   if (tailscaleMode !== "off") {
-    const tailscaleBin = await findTailscaleBinary();
+    tailscaleBin = await findTailscaleBinary();
     if (!tailscaleBin) {
       await prompter.note(TAILSCALE_MISSING_BIN_NOTE_LINES.join("\n"), "Tailscale Warning");
     }
@@ -350,6 +354,28 @@ export async function configureGatewayForOnboarding(
         },
       },
     };
+  }
+
+  // Auto-add Tailscale origin to controlUi.allowedOrigins so the Control UI
+  // is accessible via the Tailscale hostname without manual config.
+  if (tailscaleMode === "serve" || tailscaleMode === "funnel") {
+    const tsOrigin = await getTailnetHostname(undefined, tailscaleBin ?? undefined)
+      .then((host) => buildTailnetHttpsOrigin(host))
+      .catch(() => null);
+    if (tsOrigin) {
+      const existing = nextConfig.gateway?.controlUi?.allowedOrigins ?? [];
+      const updatedOrigins = appendAllowedOrigin(existing, tsOrigin);
+      nextConfig = {
+        ...nextConfig,
+        gateway: {
+          ...nextConfig.gateway,
+          controlUi: {
+            ...nextConfig.gateway?.controlUi,
+            allowedOrigins: updatedOrigins,
+          },
+        },
+      };
+    }
   }
 
   // If this is a new gateway setup (no existing gateway settings), start with a

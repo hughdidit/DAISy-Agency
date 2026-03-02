@@ -19,10 +19,13 @@ import type { RuntimeEnv } from "../runtime.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { resolveGatewayPort } from "../config/config.js";
 import {
+  appendAllowedOrigin,
+  buildTailnetHttpsOrigin,
   TAILSCALE_DOCS_LINES,
   TAILSCALE_EXPOSURE_OPTIONS,
   TAILSCALE_MISSING_BIN_NOTE_LINES,
 } from "../gateway/gateway-config-prompts.shared.js";
+<<<<<<< HEAD
 import { findTailscaleBinary } from "../infra/tailscale.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -30,6 +33,9 @@ import { findTailscaleBinary } from "../infra/tailscale.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+=======
+import { findTailscaleBinary, getTailnetHostname } from "../infra/tailscale.js";
+>>>>>>> 53d10f868 (fix(gateway): land access/auth/config migration cluster)
 import type { RuntimeEnv } from "../runtime.js";
 =======
 =======
@@ -154,8 +160,10 @@ export async function promptGatewayConfig(
   );
 
   // Detect Tailscale binary before proceeding with serve/funnel setup.
+  // Persist the path so getTailnetHostname can reuse it for origin injection.
+  let tailscaleBin: string | null = null;
   if (tailscaleMode !== "off") {
-    const tailscaleBin = await findTailscaleBinary();
+    tailscaleBin = await findTailscaleBinary();
     if (!tailscaleBin) {
       note(TAILSCALE_MISSING_BIN_NOTE_LINES.join("\n"), "Tailscale Warning");
     }
@@ -334,6 +342,28 @@ export async function promptGatewayConfig(
       },
     },
   };
+
+  // Auto-add Tailscale origin to controlUi.allowedOrigins so the Control UI
+  // is accessible via the Tailscale hostname without manual config.
+  if (tailscaleMode === "serve" || tailscaleMode === "funnel") {
+    const tsOrigin = await getTailnetHostname(undefined, tailscaleBin ?? undefined)
+      .then((host) => buildTailnetHttpsOrigin(host))
+      .catch(() => null);
+    if (tsOrigin) {
+      const existing = next.gateway?.controlUi?.allowedOrigins ?? [];
+      const updatedOrigins = appendAllowedOrigin(existing, tsOrigin);
+      next = {
+        ...next,
+        gateway: {
+          ...next.gateway,
+          controlUi: {
+            ...next.gateway?.controlUi,
+            allowedOrigins: updatedOrigins,
+          },
+        },
+      };
+    }
+  }
 
   return { config: next, port, token: gatewayToken };
 }

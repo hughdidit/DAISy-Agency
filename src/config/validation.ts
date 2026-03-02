@@ -26,6 +26,17 @@ import {
 } from "../plugins/config-state.js";
 import { loadPluginManifestRegistry } from "../plugins/manifest-registry.js";
 import { validateJsonSchemaValue } from "../plugins/schema-validator.js";
+<<<<<<< HEAD
+=======
+import {
+  hasAvatarUriScheme,
+  isAvatarDataUrl,
+  isAvatarHttpUrl,
+  isPathWithinRoot,
+  isWindowsAbsolutePath,
+} from "../shared/avatar-policy.js";
+import { isCanonicalDottedDecimalIPv4, isLoopbackIpAddress } from "../shared/net/ip.js";
+>>>>>>> 53d10f868 (fix(gateway): land access/auth/config migration cluster)
 import { isRecord } from "../utils.js";
 import { findDuplicateAgentDirs, formatDuplicateAgentDirError } from "./agent-dirs.js";
 import { applyAgentDefaults, applyModelDefaults, applySessionDefaults } from "./defaults.js";
@@ -122,6 +133,33 @@ function validateIdentityAvatar(config: MoltbotConfig): ConfigValidationIssue[] 
   return issues;
 }
 
+function validateGatewayTailscaleBind(config: OpenClawConfig): ConfigValidationIssue[] {
+  const tailscaleMode = config.gateway?.tailscale?.mode ?? "off";
+  if (tailscaleMode !== "serve" && tailscaleMode !== "funnel") {
+    return [];
+  }
+  const bindMode = config.gateway?.bind ?? "loopback";
+  if (bindMode === "loopback") {
+    return [];
+  }
+  const customBindHost = config.gateway?.customBindHost;
+  if (
+    bindMode === "custom" &&
+    isCanonicalDottedDecimalIPv4(customBindHost) &&
+    isLoopbackIpAddress(customBindHost)
+  ) {
+    return [];
+  }
+  return [
+    {
+      path: "gateway.bind",
+      message:
+        `gateway.bind must resolve to loopback when gateway.tailscale.mode=${tailscaleMode} ` +
+        '(use gateway.bind="loopback" or gateway.bind="custom" with gateway.customBindHost="127.0.0.1")',
+    },
+  ];
+}
+
 /**
  * Validates config without applying runtime defaults.
  * Use this when you need the raw validated config (e.g., for writing back to file).
@@ -164,6 +202,10 @@ export function validateConfigObjectRaw(
   const avatarIssues = validateIdentityAvatar(validated.data as MoltbotConfig);
   if (avatarIssues.length > 0) {
     return { ok: false, issues: avatarIssues };
+  }
+  const gatewayTailscaleBindIssues = validateGatewayTailscaleBind(validated.data as OpenClawConfig);
+  if (gatewayTailscaleBindIssues.length > 0) {
+    return { ok: false, issues: gatewayTailscaleBindIssues };
   }
   return {
     ok: true,

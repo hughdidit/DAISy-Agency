@@ -5,9 +5,16 @@ import { describe, expect, it, vi } from "vitest";
 =======
 import { makeMockHttpResponse } from "../test-http-response.js";
 import { createTestRegistry } from "./__tests__/test-utils.js";
+<<<<<<< HEAD
 >>>>>>> 93ca0ed54 (refactor(channels): dedupe transport and gateway test scaffolds)
 import { createGatewayPluginRequestHandler } from "./plugins-http.js";
 import { createTestRegistry } from "./__tests__/test-utils.js";
+=======
+import {
+  createGatewayPluginRequestHandler,
+  isRegisteredPluginHttpRoutePath,
+} from "./plugins-http.js";
+>>>>>>> 53d10f868 (fix(gateway): land access/auth/config migration cluster)
 
 describe("createGatewayPluginRequestHandler", () => {
   it("returns false when no handlers are registered", async () => {
@@ -100,5 +107,38 @@ describe("createGatewayPluginRequestHandler", () => {
     expect(res.statusCode).toBe(500);
     expect(setHeader).toHaveBeenCalledWith("Content-Type", "text/plain; charset=utf-8");
     expect(end).toHaveBeenCalledWith("Internal Server Error");
+  });
+});
+
+describe("plugin HTTP registry helpers", () => {
+  it("detects registered route paths", () => {
+    const registry = createTestRegistry({
+      httpRoutes: [
+        {
+          pluginId: "route",
+          path: "/demo",
+          handler: () => {},
+          source: "route",
+        },
+      ],
+    });
+    expect(isRegisteredPluginHttpRoutePath(registry, "/demo")).toBe(true);
+    expect(isRegisteredPluginHttpRoutePath(registry, "/missing")).toBe(false);
+  });
+
+  it("matches canonicalized variants of registered route paths", () => {
+    const registry = createTestRegistry({
+      httpRoutes: [
+        {
+          pluginId: "route",
+          path: "/api/demo",
+          handler: () => {},
+          source: "route",
+        },
+      ],
+    });
+    expect(isRegisteredPluginHttpRoutePath(registry, "/api//demo")).toBe(true);
+    expect(isRegisteredPluginHttpRoutePath(registry, "/API/demo")).toBe(true);
+    expect(isRegisteredPluginHttpRoutePath(registry, "/api/%2564emo")).toBe(true);
   });
 });
