@@ -69,7 +69,11 @@ import {
 } from "../../sessions/input-provenance.js";
 import { resolveImageSanitizationLimits } from "../image-sanitization.js";
 import {
+<<<<<<< HEAD
 >>>>>>> b05e89e5e (fix(agents): make image sanitization dimension configurable)
+=======
+  downgradeOpenAIFunctionCallReasoningPairs,
+>>>>>>> 92199ac12 (fix(agents): unblock gpt-5.3-codex API-key routing and replay (#31083))
   downgradeOpenAIReasoningBlocks,
   isCompactionFailureError,
   isGoogleModelApi,
@@ -648,7 +652,9 @@ export async function sanitizeSessionHistory(params: {
       : repairedTools;
 =======
   const sanitizedOpenAI = isOpenAIResponsesApi
-    ? downgradeOpenAIReasoningBlocks(sanitizedCompactionUsage)
+    ? downgradeOpenAIFunctionCallReasoningPairs(
+        downgradeOpenAIReasoningBlocks(sanitizedCompactionUsage),
+      )
     : sanitizedCompactionUsage;
 >>>>>>> 6bf5e76be (Agents: drop stale pre-compaction usage snapshots)
 
