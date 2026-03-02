@@ -67,7 +67,11 @@ Docs: https://docs.openclaw.ai
 =======
 =======
 - Windows/Plugin install: avoid `spawn EINVAL` on Windows npm/npx invocations by resolving to `node` + npm CLI scripts instead of spawning `.cmd` directly. Landed from contributor PR #31147 by @codertony. Thanks @codertony.
+<<<<<<< HEAD
 >>>>>>> a1a8ec687 (fix(windows): land #31147 plugin install spawn EINVAL (@codertony))
+=======
+- LINE/Voice transcription: classify M4A voice media as `audio/mp4` (not `video/mp4`) by checking the MPEG-4 `ftyp` major brand (`M4A ` / `M4B `), restoring voice transcription for LINE voice messages. Landed from contributor PR #31151 by @scoootscooob. Thanks @scoootscooob.
+>>>>>>> 1da7906a5 (fix(line): land #31151 M4A voice MIME detection (@scoootscooob))
 - Agents/Thinking fallback: when providers reject unsupported thinking levels without enumerating alternatives, retry with `think=off` to avoid hard failure during model/provider fallback chains. Landed from contributor PR #31002 by @yfge. Thanks @yfge.
 >>>>>>> 81ca309ee (fix(agents): land #31002 from @yfge)
 - Agents/Failover reason classification: avoid false rate-limit classification from incidental `tpm` substrings by matching TPM as a standalone token/phrase and keeping auth-context errors on the auth path. Landed from contributor PR #31007 by @HOYALIM. Thanks @HOYALIM.
