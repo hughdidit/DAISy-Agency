@@ -387,8 +387,12 @@ Interactive configuration wizard (models, channels, skills, gateway).
 Non-interactive config helpers (get/set/unset). Running `moltbot config` with no
 =======
 
+<<<<<<< HEAD
 Non-interactive config helpers (get/set/unset). Running `openclaw config` with no
 >>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
+=======
+Non-interactive config helpers (get/set/unset/file). Running `openclaw config` with no
+>>>>>>> 96ffbb5aa (CLI: add config path subcommand to print active config file path (#26256))
 subcommand launches the wizard.
 
 Subcommands:
@@ -396,6 +400,7 @@ Subcommands:
 - `config get <path>`: print a config value (dot/bracket path).
 - `config set <path> <value>`: set a value (JSON5 or raw string).
 - `config unset <path>`: remove a value.
+- `config file`: print the active config file path.
 
 ### `doctor`
 
