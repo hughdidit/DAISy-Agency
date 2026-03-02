@@ -159,7 +159,11 @@ final class VoiceWakeManager: NSObject {
 
         let micOk = await Self.requestMicrophonePermission()
         guard micOk else {
+<<<<<<< HEAD
             self.statusText = "Microphone permission denied"
+=======
+            self.statusText = Self.microphonePermissionMessage(kind: "Microphone")
+>>>>>>> 0a1eac6b0 (fix(ios): eliminate voice wake and xcode build warnings)
             self.isListening = false
             return
         }
@@ -364,10 +368,39 @@ final class VoiceWakeManager: NSObject {
     }
 
     private nonisolated static func requestMicrophonePermission() async -> Bool {
+<<<<<<< HEAD
         await withCheckedContinuation(isolation: nil) { cont in
             AVAudioApplication.requestRecordPermission { ok in
                 cont.resume(returning: ok)
             }
+=======
+        switch AVAudioApplication.shared.recordPermission {
+        case .granted:
+            return true
+        case .denied:
+            return false
+        case .undetermined:
+            break
+        @unknown default:
+            return false
+        }
+
+        return await self.requestPermissionWithTimeout { completion in
+            AVAudioApplication.requestRecordPermission(completionHandler: completion)
+        }
+    }
+
+    private nonisolated static func microphonePermissionMessage(kind: String) -> String {
+        switch AVAudioApplication.shared.recordPermission {
+        case .denied:
+            return "\(kind) permission denied"
+        case .undetermined:
+            return "\(kind) permission not granted"
+        case .granted:
+            return "\(kind) permission denied"
+        @unknown default:
+            return "\(kind) permission denied"
+>>>>>>> 0a1eac6b0 (fix(ios): eliminate voice wake and xcode build warnings)
         }
     }
 
@@ -378,6 +411,66 @@ final class VoiceWakeManager: NSObject {
             }
         }
     }
+<<<<<<< HEAD
+=======
+
+    private nonisolated static func requestPermissionWithTimeout(
+        _ operation: @escaping @Sendable (@escaping @Sendable (Bool) -> Void) -> Void) async -> Bool
+    {
+        do {
+            return try await AsyncTimeout.withTimeout(
+                seconds: 8,
+                onTimeout: { NSError(domain: "VoiceWake", code: 6, userInfo: [
+                    NSLocalizedDescriptionKey: "permission request timed out",
+                ]) },
+                operation: {
+                    await withCheckedContinuation(isolation: nil) { cont in
+                        Task { @MainActor in
+                            operation { ok in
+                                cont.resume(returning: ok)
+                            }
+                        }
+                    }
+                })
+        } catch {
+            return false
+        }
+    }
+
+    private static func permissionMessage(
+        kind: String,
+        status: AVAudioSession.RecordPermission) -> String
+    {
+        switch status {
+        case .denied:
+            return "\(kind) permission denied"
+        case .undetermined:
+            return "\(kind) permission not granted"
+        case .granted:
+            return "\(kind) permission denied"
+        @unknown default:
+            return "\(kind) permission denied"
+        }
+    }
+
+    private static func permissionMessage(
+        kind: String,
+        status: SFSpeechRecognizerAuthorizationStatus) -> String
+    {
+        switch status {
+        case .denied:
+            return "\(kind) permission denied"
+        case .restricted:
+            return "\(kind) permission restricted"
+        case .notDetermined:
+            return "\(kind) permission not granted"
+        case .authorized:
+            return "\(kind) permission denied"
+        @unknown default:
+            return "\(kind) permission denied"
+        }
+    }
+>>>>>>> 0a1eac6b0 (fix(ios): eliminate voice wake and xcode build warnings)
 }
 
 #if DEBUG
