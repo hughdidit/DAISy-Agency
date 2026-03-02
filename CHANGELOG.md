@@ -215,7 +215,11 @@ Docs: https://docs.openclaw.ai
 - Routing/Binding peer-kind parity: treat `peer.kind` `group` and `channel` as equivalent for binding scope matching (while keeping `direct` separate) so Slack/public channel bindings do not silently fall through. Landed from contributor PR #31135 by @Sid-Qin. Thanks @Sid-Qin.
 >>>>>>> 70ee256ae (fix(routing): treat group/channel peer.kind as equivalent (land #31135 by @Sid-Qin))
 - Agents/FS workspace default: honor documented host file-tool default `tools.fs.workspaceOnly=false` when unset so host `write`/`edit` calls are not incorrectly workspace-restricted unless explicitly enabled. Landed from contributor PR #31128 by @SaucePackets. Thanks @SaucePackets.
+<<<<<<< HEAD
 >>>>>>> 65e13c7b6 (fix(fs): honor unset tools.fs.workspaceOnly default (land #31128 by @SaucePackets))
+=======
+- Cron/Timer hot-loop guard: enforce a minimum timer re-arm delay when stale past-due jobs would otherwise trigger repeated `setTimeout(0)` loops, preventing event-loop saturation and log-flood behavior. (#29853) Thanks @FlamesCN.
+>>>>>>> aaa7de45f (fix(cron): prevent armTimer tight loop when job has stuck runningAtMs (openclaw#29853) thanks @FlamesCN)
 - Gateway/CLI session recovery: handle expired CLI session IDs gracefully by clearing stale session state and retrying without crashing gateway runs. Landed from contributor PR #31090 by @frankekn. Thanks @frankekn.
 - Slack/Subagent completion delivery: stop forcing bound conversation IDs into `threadId` so Slack completion announces do not send invalid `thread_ts` for DMs/top-level channels. Landed from contributor PR #31105 by @stakeswky. Thanks @stakeswky.
 - Signal/Loop protection: evaluate own-account detection before sync-message filtering (including UUID-only `accountUuid` configs) so `sentTranscript` sync events cannot bypass loop protection and self-reply loops. Landed from contributor PR #31093 by @kevinWangSheng. Thanks @kevinWangSheng.
