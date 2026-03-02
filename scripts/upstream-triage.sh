@@ -36,6 +36,7 @@ RUN_TS="$(date +%Y-%m-%d-%H%M)"  # single timestamp for the entire run
 REPORT_DIR="docs/upstream-candidates"
 REPORT_FILE=""
 MIRROR_REF="origin/main"   # upstream mirror on fork
+RELEASE_TAG=""             # stable release tag to pin origin/main to (apply mode)
 
 # =============================================================================
 # Usage
@@ -50,7 +51,8 @@ and optionally create cherry-pick topic branches.
 
 Options:
   --base-ref REF        Fork branch (default: daisy/dev)
-  --upstream-ref REF    Upstream ref (default: upstream/main)
+  --upstream-ref REF    Upstream ref (default: upstream/main; unused in scan after release-pin)
+  --release-tag TAG     Stable release tag to pin origin/main to (apply mode; auto-detected if omitted)
   --ai-triage           Classify commits using Claude CLI
   --apply               Create cherry-pick topic branches
   --open-pr             Open PRs for topic branches (requires --apply)
@@ -74,6 +76,10 @@ while [[ "${1:-}" == --* ]]; do
       ;;
     --upstream-ref)
       UPSTREAM_REF="${2:?--upstream-ref requires a value}"
+      shift 2
+      ;;
+    --release-tag)
+      RELEASE_TAG="${2:?--release-tag requires a value}"
       shift 2
       ;;
     --ai-triage)
@@ -150,16 +156,12 @@ if ! git remote get-url upstream &>/dev/null; then
   err "  git remote add upstream https://github.com/moltbot/moltbot.git"
   exit 1
 fi
-git fetch upstream --quiet
+git fetch upstream --tags --quiet
 git fetch origin --quiet
 
 # Verify refs exist
 if ! git rev-parse --verify "${BASE_REF}" &>/dev/null; then
   err "Base ref '${BASE_REF}' not found"
-  exit 1
-fi
-if ! git rev-parse --verify "${UPSTREAM_REF}" &>/dev/null; then
-  err "Upstream ref '${UPSTREAM_REF}' not found"
   exit 1
 fi
 if ! git rev-parse --verify "${MIRROR_REF}" &>/dev/null; then
@@ -168,39 +170,58 @@ if ! git rev-parse --verify "${MIRROR_REF}" &>/dev/null; then
 fi
 
 # =============================================================================
-# Record scan base (apply mode syncs origin/main after cherry-picks)
+# Apply mode: auto-detect release tag and pin origin/main
 # =============================================================================
 
-SCAN_BASE="${MIRROR_REF}"
+if [[ "${APPLY}" == "true" && -z "${RELEASE_TAG}" ]]; then
+  # git tag --list only sees already-fetched tags; fetch --tags was done above
+  RELEASE_TAG="$(git tag --list --sort=-v:refname \
+    | grep -E '^v[0-9]{4}\.[0-9]+\.[0-9]+$' \
+    | head -1)"
+  [[ -z "${RELEASE_TAG}" ]] && { err "Cannot auto-detect stable release tag."; exit 1; }
+  log "Auto-detected latest stable release: ${RELEASE_TAG}"
+fi
 
 if [[ "${APPLY}" == "true" ]]; then
-  # Validate upstream remote points to the expected repository
   UPSTREAM_URL="$(git remote get-url upstream 2>/dev/null)"
   if [[ "${UPSTREAM_URL}" != *"moltbot/moltbot"* ]]; then
-    err "Upstream remote URL '${UPSTREAM_URL}' does not match expected moltbot/moltbot."
-    err "Refusing to sync origin/main from an unexpected upstream."
+    err "Upstream remote '${UPSTREAM_URL}' does not match expected moltbot/moltbot."
     exit 1
   fi
 
-  # Verify fast-forward is possible (mirror must be ancestor of upstream)
-  if ! git merge-base --is-ancestor "${MIRROR_REF}" "${UPSTREAM_REF}"; then
-    err "origin/main is not an ancestor of upstream/main — cannot fast-forward."
-    err "This likely means origin/main has diverged. Manual intervention required."
+  RELEASE_SHA="$(git rev-parse "refs/tags/${RELEASE_TAG}^{commit}" 2>/dev/null)" || {
+    err "Tag '${RELEASE_TAG}' not found. Ensure 'git fetch upstream --tags' succeeded."
     exit 1
+  }
+
+  MIRROR_SHA="$(git rev-parse "${MIRROR_REF}")"
+  if [[ "${MIRROR_SHA}" == "${RELEASE_SHA}" ]]; then
+    log "origin/main is already at ${RELEASE_TAG} (${RELEASE_SHA:0:8}) — nothing to do."
+    exit 0
   fi
 
-  log "Scan base: ${MIRROR_REF} (will sync to ${UPSTREAM_REF} after cherry-picks)"
+  log "Pinning origin/main to ${RELEASE_TAG} (${RELEASE_SHA:0:8})..."
+
+  if ! git push origin "${RELEASE_SHA}:refs/heads/main" --force --quiet 2>/dev/null; then
+    warn "git push failed; trying GitHub API..."
+    _repo="${GITHUB_REPOSITORY:-$(gh repo view --json nameWithOwner --jq '.nameWithOwner')}"
+    gh api "repos/${_repo}/git/refs/heads/main" \
+      -X PATCH -f sha="${RELEASE_SHA}" -f force=true --silent || {
+      err "Failed to update origin/main to ${RELEASE_TAG}"; exit 1
+    }
+  fi
+  log "origin/main pinned to ${RELEASE_TAG} (${RELEASE_SHA:0:8})"
 fi
 
 # =============================================================================
 # Collect upstream-only commits
 # =============================================================================
 
-log "Collecting commits in ${UPSTREAM_REF} not in ${SCAN_BASE}..."
+log "Collecting commits in ${MIRROR_REF} (${RELEASE_TAG:-pinned}) not yet in ${BASE_REF}..."
 
 # Format: SHA␟subject␟author␟date (fields separated by ASCII Unit Separator %x1f)
 # --reverse gives oldest-first (chronological) for clean cherry-picking
-COMMITS="$(git log --reverse --format='%H%x1f%s%x1f%an%x1f%ai' "${SCAN_BASE}..${UPSTREAM_REF}" --)"
+COMMITS="$(git log --reverse --format='%H%x1f%s%x1f%an%x1f%ai' "${BASE_REF}..${MIRROR_REF}" --)"
 
 if [[ -z "${COMMITS}" ]]; then
   log "No new upstream commits found. Mirror is up to date with upstream."
@@ -496,7 +517,7 @@ if [[ "${APPLY}" != "true" ]]; then
     echo "**PR target:** \`${BASE_REF}\`  "
     echo "**Upstream mirror:** \`${MIRROR_REF}\`  "
     echo "**Upstream:** \`${UPSTREAM_REF}\`  "
-    echo "**Scan range:** \`${SCAN_BASE}..${UPSTREAM_REF}\`  "
+    echo "**Scan range:** \`${BASE_REF}..${MIRROR_REF}\` (release: \`${RELEASE_TAG:-manual}\`)  "
     echo "**Commits scanned:** ${TOTAL_PROCESSED}  "
     if [[ "${AI_TRIAGE}" == "true" ]]; then
       echo "**AI triage:** enabled  "
@@ -735,22 +756,6 @@ EOPR
       warn "  Failed to create PR for ${branch_name}: ${pr_url}"
     fi
   done
-fi
-
-# =============================================================================
-# --apply: Advance origin/main to upstream/main
-# =============================================================================
-# Sync happens AFTER cherry-picks and PRs so that a mid-run failure doesn't
-# advance the bookmark past unprocessed commits. On rerun, the same scan
-# range is used and branches are recreated.
-
-if [[ "${APPLY}" == "true" ]]; then
-  log "Advancing origin/main to ${UPSTREAM_REF}..."
-  if push_ref "${UPSTREAM_REF}:refs/heads/main"; then
-    log "  origin/main synced to $(git rev-parse "${UPSTREAM_REF}" | head -c 8)"
-  else
-    warn "Failed to advance origin/main — next run will re-scan these commits"
-  fi
 fi
 
 # =============================================================================

@@ -17,6 +17,10 @@ on:
         description: "Use Claude CLI for semantic classification"
         type: boolean
         default: false
+      release_tag:
+        description: "Stable release tag to pin origin/main to (e.g. v2026.3.1). Leave blank to auto-detect latest."
+        type: string
+        default: ""
 
 # --------------------------------------------------------------------------
 # Job: report — read-only scan, artifact upload, issue creation
@@ -42,7 +46,7 @@ jobs:
       - name: Fetch upstream
         run: |
           git remote add upstream https://github.com/moltbot/moltbot.git || true
-          git fetch upstream --quiet
+          git fetch upstream --tags --quiet
 
       - name: Install Claude CLI
         if: github.event_name == 'workflow_dispatch' && inputs.ai_triage
@@ -68,6 +72,9 @@ jobs:
             if [[ "${{ inputs.ai_triage }}" == "true" ]]; then
               ARGS+=("--ai-triage")
             fi
+            TAG_ARG=""
+            [[ -n "${{ inputs.release_tag }}" ]] && TAG_ARG="--release-tag ${{ inputs.release_tag }}"
+            [[ -n "${TAG_ARG}" ]] && ARGS+=(${TAG_ARG})
           fi
 
           echo "Running: scripts/upstream-triage.sh ${ARGS[*]}"
@@ -134,7 +141,7 @@ jobs:
       - name: Fetch upstream
         run: |
           git remote add upstream https://github.com/moltbot/moltbot.git || true
-          git fetch upstream --quiet
+          git fetch upstream --tags --quiet
 
       - name: Install Claude CLI
         if: inputs.ai_triage
@@ -161,6 +168,9 @@ jobs:
           if [[ "${{ inputs.open_pr }}" == "true" ]]; then
             ARGS+=("--open-pr")
           fi
+          TAG_ARG=""
+          [[ -n "${{ inputs.release_tag }}" ]] && TAG_ARG="--release-tag ${{ inputs.release_tag }}"
+          [[ -n "${TAG_ARG}" ]] && ARGS+=(${TAG_ARG})
 
           echo "Running: scripts/upstream-triage.sh ${ARGS[*]}"
           scripts/upstream-triage.sh "${ARGS[@]}"
