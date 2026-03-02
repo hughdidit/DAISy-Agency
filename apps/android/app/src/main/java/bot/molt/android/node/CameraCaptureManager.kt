@@ -265,6 +265,61 @@ class CameraCaptureManager(private val context: Context) {
   }
 
   private fun Context.mainExecutor(): Executor = ContextCompat.getMainExecutor(this)
+<<<<<<< HEAD:apps/android/app/src/main/java/bot/molt/android/node/CameraCaptureManager.kt
+=======
+
+  private fun resolveCameraSelector(
+    provider: ProcessCameraProvider,
+    facing: String,
+    deviceId: String?,
+  ): CameraSelector {
+    if (deviceId.isNullOrEmpty()) {
+      return if (facing == "front") CameraSelector.DEFAULT_FRONT_CAMERA else CameraSelector.DEFAULT_BACK_CAMERA
+    }
+    val availableIds = provider.availableCameraInfos.mapNotNull { cameraIdOrNull(it) }.toSet()
+    if (!availableIds.contains(deviceId)) {
+      throw IllegalStateException("INVALID_REQUEST: unknown camera deviceId '$deviceId'")
+    }
+    return CameraSelector.Builder()
+      .addCameraFilter { infos -> infos.filter { cameraIdOrNull(it) == deviceId } }
+      .build()
+  }
+
+  @SuppressLint("UnsafeOptInUsageError")
+  private fun cameraDeviceInfoOrNull(info: CameraInfo): CameraDeviceInfo? {
+    val cameraId = cameraIdOrNull(info) ?: return null
+    val lensFacing =
+      runCatching {
+        Camera2CameraInfo.from(info).getCameraCharacteristic(CameraCharacteristics.LENS_FACING)
+      }.getOrNull()
+    val position =
+      when (lensFacing) {
+        CameraCharacteristics.LENS_FACING_FRONT -> "front"
+        CameraCharacteristics.LENS_FACING_BACK -> "back"
+        CameraCharacteristics.LENS_FACING_EXTERNAL -> "external"
+        else -> "unspecified"
+      }
+    val deviceType =
+      if (lensFacing == CameraCharacteristics.LENS_FACING_EXTERNAL) "external" else "builtIn"
+    val name =
+      when (position) {
+        "front" -> "Front Camera"
+        "back" -> "Back Camera"
+        "external" -> "External Camera"
+        else -> "Camera $cameraId"
+      }
+    return CameraDeviceInfo(
+      id = cameraId,
+      name = name,
+      position = position,
+      deviceType = deviceType,
+    )
+  }
+
+  @SuppressLint("UnsafeOptInUsageError")
+  private fun cameraIdOrNull(info: CameraInfo): String? =
+    runCatching { Camera2CameraInfo.from(info).cameraId }.getOrNull()
+>>>>>>> fa9148400 (fix(android): align lint gates and photo permission handling):apps/android/app/src/main/java/ai/openclaw/android/node/CameraCaptureManager.kt
 }
 
 private suspend fun Context.cameraProvider(): ProcessCameraProvider =

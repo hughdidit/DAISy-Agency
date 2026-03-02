@@ -70,10 +70,23 @@ android {
     }
   }
 
+<<<<<<< HEAD
   lint {
     disable += setOf("IconLauncherShape")
     warningsAsErrors = true
   }
+=======
+    lint {
+        disable +=
+            setOf(
+                "AndroidGradlePluginVersion",
+                "GradleDependency",
+                "IconLauncherShape",
+                "NewerVersionAvailable",
+            )
+        warningsAsErrors = true
+    }
+>>>>>>> fa9148400 (fix(android): align lint gates and photo permission handling)
 
   testOptions {
     unitTests.isIncludeAndroidResources = true

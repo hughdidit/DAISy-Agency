@@ -20,9 +20,16 @@ import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
 import android.util.Log
 import androidx.core.content.ContextCompat
+<<<<<<< HEAD:apps/android/app/src/main/java/bot/molt/android/voice/TalkModeManager.kt
 import bot.molt.android.gateway.GatewaySession
 import bot.molt.android.isCanonicalMainSessionKey
 import bot.molt.android.normalizeMainKey
+=======
+import ai.openclaw.android.gateway.GatewaySession
+import ai.openclaw.android.isCanonicalMainSessionKey
+import ai.openclaw.android.normalizeMainKey
+import java.io.File
+>>>>>>> fa9148400 (fix(android): align lint gates and photo permission handling):apps/android/app/src/main/java/ai/openclaw/android/voice/TalkModeManager.kt
 import java.net.HttpURLConnection
 import java.net.URL
 import java.util.UUID
@@ -777,6 +784,45 @@ class TalkModeManager(
     systemTtsPending = null
     systemTtsPendingId = null
     _isSpeaking.value = false
+<<<<<<< HEAD:apps/android/app/src/main/java/bot/molt/android/voice/TalkModeManager.kt
+=======
+    abandonAudioFocus()
+  }
+
+  private fun shouldAllowSpeechInterrupt(): Boolean {
+    return !finalizeInFlight
+  }
+
+  private fun clearListenWatchdog() {
+    listenWatchdogJob?.cancel()
+    listenWatchdogJob = null
+  }
+
+  private fun requestAudioFocusForTts(): Boolean {
+    val am = context.getSystemService(Context.AUDIO_SERVICE) as? AudioManager ?: return true
+    val req = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK)
+      .setAudioAttributes(
+        AudioAttributes.Builder()
+          .setUsage(AudioAttributes.USAGE_MEDIA)
+          .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
+          .build()
+      )
+      .setOnAudioFocusChangeListener(audioFocusListener)
+      .build()
+    audioFocusRequest = req
+    val result = am.requestAudioFocus(req)
+    Log.d(tag, "audio focus request result=$result")
+    return result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED || result == AudioManager.AUDIOFOCUS_REQUEST_DELAYED
+  }
+
+  private fun abandonAudioFocus() {
+    val am = context.getSystemService(Context.AUDIO_SERVICE) as? AudioManager ?: return
+    audioFocusRequest?.let {
+      am.abandonAudioFocusRequest(it)
+      Log.d(tag, "audio focus abandoned")
+    }
+    audioFocusRequest = null
+>>>>>>> fa9148400 (fix(android): align lint gates and photo permission handling):apps/android/app/src/main/java/ai/openclaw/android/voice/TalkModeManager.kt
   }
 
   private fun cleanupPlayer() {
