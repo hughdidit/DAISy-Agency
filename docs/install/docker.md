@@ -39,16 +39,29 @@ From repo root:
 ```
 
 This script:
+<<<<<<< HEAD
 - builds the gateway image
+=======
+
+- builds the gateway image locally (or pulls a remote image if `OPENCLAW_IMAGE` is set)
+>>>>>>> 601d1ccd2 (Docs(Docker): clarify official GHCR image usage and setup flow (#31180))
 - runs the onboarding wizard
 - prints optional provider setup hints
 - starts the gateway via Docker Compose
 - generates a gateway token and writes it to `.env`
 
 Optional env vars:
+<<<<<<< HEAD
 - `CLAWDBOT_DOCKER_APT_PACKAGES` — install extra apt packages during build
 - `CLAWDBOT_EXTRA_MOUNTS` — add extra host bind mounts
 - `CLAWDBOT_HOME_VOLUME` — persist `/home/node` in a named volume
+=======
+
+- `OPENCLAW_IMAGE` — use a remote image instead of building locally (e.g. `ghcr.io/openclaw/openclaw:latest`)
+- `OPENCLAW_DOCKER_APT_PACKAGES` — install extra apt packages during build
+- `OPENCLAW_EXTRA_MOUNTS` — add extra host bind mounts
+- `OPENCLAW_HOME_VOLUME` — persist `/home/node` in a named volume
+>>>>>>> 601d1ccd2 (Docs(Docker): clarify official GHCR image usage and setup flow (#31180))
 
 After it finishes:
 - Open `http://127.0.0.1:18789/` in your browser.
@@ -60,6 +73,58 @@ It writes config/workspace on the host:
 
 Running on a VPS? See [Hetzner (Docker VPS)](/install/hetzner).
 
+<<<<<<< HEAD
+=======
+### Use a remote image (skip local build)
+
+Official pre-built images are published at:
+
+- [GitHub Container Registry package](https://github.com/openclaw/openclaw/pkgs/container/openclaw)
+
+Use image name `ghcr.io/openclaw/openclaw` (not similarly named Docker Hub
+images).
+
+Common tags:
+
+- `main` — latest build from `main`
+- `<version>` — release tag builds (for example `2026.2.26`)
+- `latest` — latest stable release tag
+
+By default the setup script builds the image from source. To pull a pre-built
+image instead, set `OPENCLAW_IMAGE` before running the script:
+
+```bash
+export OPENCLAW_IMAGE="ghcr.io/openclaw/openclaw:latest"
+./docker-setup.sh
+```
+
+The script detects that `OPENCLAW_IMAGE` is not the default `openclaw:local` and
+runs `docker pull` instead of `docker build`. Everything else (onboarding,
+gateway start, token generation) works the same way.
+
+`docker-setup.sh` still runs from the repository root because it uses the local
+`docker-compose.yml` and helper files. `OPENCLAW_IMAGE` skips local image build
+time; it does not replace the compose/setup workflow.
+
+### Shell Helpers (optional)
+
+For easier day-to-day Docker management, install `ClawDock`:
+
+```bash
+mkdir -p ~/.clawdock && curl -sL https://raw.githubusercontent.com/openclaw/openclaw/main/scripts/shell-helpers/clawdock-helpers.sh -o ~/.clawdock/clawdock-helpers.sh
+```
+
+**Add to your shell config (zsh):**
+
+```bash
+echo 'source ~/.clawdock/clawdock-helpers.sh' >> ~/.zshrc && source ~/.zshrc
+```
+
+Then use `clawdock-start`, `clawdock-stop`, `clawdock-dashboard`, etc. Run `clawdock-help` for all commands.
+
+See [`ClawDock` Helper README](https://github.com/openclaw/openclaw/blob/main/scripts/shell-helpers/README.md) for details.
+
+>>>>>>> 601d1ccd2 (Docs(Docker): clarify official GHCR image usage and setup flow (#31180))
 ### Manual flow (compose)
 
 ```bash
