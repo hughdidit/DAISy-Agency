@@ -616,7 +616,7 @@ if [[ "${APPLY}" == "true" ]]; then
     log "  Branch: ${branch_name} (${count} commits)"
     BRANCH_NAMES["${cat}"]="${branch_name}"
 
-    git checkout -b "${branch_name}" "${MIRROR_REF}" --quiet
+    git checkout -b "${branch_name}" "${BASE_REF}" --quiet
 
     # Cherry-pick commits (already in chronological order from --reverse log)
     shas=()
