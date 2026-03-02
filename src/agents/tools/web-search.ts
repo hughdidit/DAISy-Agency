@@ -433,6 +433,7 @@ const REDIRECT_TIMEOUT_MS = 5000;
  */
 async function resolveRedirectUrl(url: string): Promise<string> {
   try {
+<<<<<<< HEAD
     const { finalUrl, release } = await fetchWithSsrFGuard({
       url,
       init: { method: "HEAD" },
@@ -444,6 +445,16 @@ async function resolveRedirectUrl(url: string): Promise<string> {
     } finally {
       await release();
     }
+=======
+    return await withWebToolsNetworkGuard(
+      {
+        url,
+        init: { method: "HEAD" },
+        timeoutMs: REDIRECT_TIMEOUT_MS,
+      },
+      async ({ finalUrl }) => finalUrl || url,
+    );
+>>>>>>> 085c23ce5 (fix(security): block private-network web_search citation redirects)
   } catch {
     return url;
   }
