@@ -55,4 +55,7 @@ jobs:
         shell: bash
         run: |
           bash <(curl -s https://raw.githubusercontent.com/rhysd/actionlint/main/scripts/download-actionlint.bash) 1.7.11
-          ./actionlint -color
+          # -ignore suppresses false-positives for known infrastructure secrets
+          # (GCP/GCE/DEPLOY_DIR) that exist in repo settings but can't be declared
+          # in this workflow's secrets: block (only reusable workflows support that).
+          ./actionlint -color -ignore 'property "(gcp_workload_identity_provider|gcp_service_account|gcp_project_id|gcp_zone|gce_instance_name|deploy_dir)" is not defined'
