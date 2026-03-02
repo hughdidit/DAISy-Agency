@@ -219,6 +219,7 @@ function sendJson(res: ServerResponse, status: number, body: unknown) {
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 function isCanvasPath(pathname: string): boolean {
   return (
@@ -359,6 +360,45 @@ async function enforcePluginRouteGatewayAuth(params: {
 >>>>>>> 53d10f868 (fix(gateway): land access/auth/config migration cluster)
 =======
 >>>>>>> cef5fae0a (refactor(gateway): dedupe origin seeding and plugin route auth matching)
+=======
+const GATEWAY_PROBE_STATUS_BY_PATH = new Map<string, "live" | "ready">([
+  ["/health", "live"],
+  ["/healthz", "live"],
+  ["/ready", "ready"],
+  ["/readyz", "ready"],
+]);
+
+function handleGatewayProbeRequest(
+  req: IncomingMessage,
+  res: ServerResponse,
+  requestPath: string,
+): boolean {
+  const status = GATEWAY_PROBE_STATUS_BY_PATH.get(requestPath);
+  if (!status) {
+    return false;
+  }
+
+  const method = (req.method ?? "GET").toUpperCase();
+  if (method !== "GET" && method !== "HEAD") {
+    res.statusCode = 405;
+    res.setHeader("Allow", "GET, HEAD");
+    res.setHeader("Content-Type", "text/plain; charset=utf-8");
+    res.end("Method Not Allowed");
+    return true;
+  }
+
+  res.statusCode = 200;
+  res.setHeader("Content-Type", "application/json; charset=utf-8");
+  res.setHeader("Cache-Control", "no-store");
+  if (method === "HEAD") {
+    res.end();
+    return true;
+  }
+  res.end(JSON.stringify({ ok: true, status }));
+  return true;
+}
+
+>>>>>>> eeb72097b (Gateway: add healthz/readyz probe endpoints for container checks (#31272))
 function writeUpgradeAuthFailure(
   socket: { write: (chunk: string) => void },
   auth: GatewayAuthResult,
@@ -887,6 +927,9 @@ export function createGatewayHttpServer(opts: {
         if (await handlePluginRequest(req, res)) {
           return;
         }
+      }
+      if (handleGatewayProbeRequest(req, res, requestPath)) {
+        return;
       }
 
       res.statusCode = 404;
