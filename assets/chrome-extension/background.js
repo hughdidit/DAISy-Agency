@@ -127,7 +127,7 @@ function onRelayClosed(reason) {
     setBadge(tabId, 'connecting')
     void chrome.action.setTitle({
       tabId,
-      title: 'Moltbot Browser Relay: disconnected (click to re-attach)',
+      title: 'OpenClaw Browser Relay: disconnected (click to re-attach)',
     })
   }
   tabs.clear()
@@ -292,7 +292,7 @@ async function attachTab(tabId, opts = {}) {
   tabBySession.set(sessionId, tabId)
   void chrome.action.setTitle({
     tabId,
-    title: 'Moltbot Browser Relay: attached (click to detach)',
+    title: 'OpenClaw Browser Relay: attached (click to detach)',
   })
 
   if (!opts.skipAttachedEvent) {
@@ -345,7 +345,7 @@ async function detachTab(tabId, reason) {
   setBadge(tabId, 'off')
   void chrome.action.setTitle({
     tabId,
-    title: 'Moltbot Browser Relay (click to attach/detach)',
+    title: 'OpenClaw Browser Relay (click to attach/detach)',
   })
 }
 
@@ -364,7 +364,7 @@ async function connectOrToggleForActiveTab() {
   setBadge(tabId, 'connecting')
   void chrome.action.setTitle({
     tabId,
-    title: 'Moltbot Browser Relay: connecting to local relay…',
+    title: 'OpenClaw Browser Relay: connecting to local relay…',
   })
 
   try {
@@ -375,7 +375,7 @@ async function connectOrToggleForActiveTab() {
     setBadge(tabId, 'error')
     void chrome.action.setTitle({
       tabId,
-      title: 'Moltbot Browser Relay: relay not running (open options for setup)',
+      title: 'OpenClaw Browser Relay: relay not running (open options for setup)',
     })
     void maybeOpenHelpOnce()
     // Extra breadcrumbs in chrome://extensions service worker logs.

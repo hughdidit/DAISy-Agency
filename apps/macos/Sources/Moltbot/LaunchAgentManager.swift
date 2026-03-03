@@ -2,12 +2,12 @@ import Foundation
 
 enum LaunchAgentManager {
     private static let legacyLaunchdLabels = [
-        "com.steipete.clawdbot",
-        "com.clawdbot.mac",
+        "com.steipete.openclaw",
+        "com.openclaw.mac",
     ]
     private static var plistURL: URL {
         FileManager().homeDirectoryForCurrentUser
-            .appendingPathComponent("Library/LaunchAgents/bot.molt.mac.plist")
+            .appendingPathComponent("Library/LaunchAgents/ai.openclaw.mac.plist")
     }
 
     private static var legacyPlistURLs: [URL] {
@@ -49,10 +49,10 @@ enum LaunchAgentManager {
         <plist version="1.0">
         <dict>
           <key>Label</key>
-          <string>bot.molt.mac</string>
+          <string>ai.openclaw.mac</string>
           <key>ProgramArguments</key>
           <array>
-            <string>\(bundlePath)/Contents/MacOS/Moltbot</string>
+            <string>\(bundlePath)/Contents/MacOS/OpenClaw</string>
           </array>
           <key>WorkingDirectory</key>
           <string>\(FileManager().homeDirectoryForCurrentUser.path)</string>

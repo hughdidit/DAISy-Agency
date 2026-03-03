@@ -1,6 +1,6 @@
 import AppKit
 
-let canvasWindowLogger = Logger(subsystem: "bot.molt", category: "Canvas")
+let canvasWindowLogger = Logger(subsystem: "ai.openclaw", category: "Canvas")
 
 enum CanvasLayout {
     static let panelSize = NSSize(width: 520, height: 680)

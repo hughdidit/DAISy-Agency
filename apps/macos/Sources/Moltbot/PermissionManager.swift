@@ -4,7 +4,7 @@ import AVFoundation
 import CoreGraphics
 import CoreLocation
 import Foundation
-import MoltbotIPC
+import OpenClawIPC
 import Observation
 import Speech
 import UserNotifications
@@ -373,14 +373,14 @@ final class LocationPermissionRequester: NSObject, CLLocationManagerDelegate {
 }
 
 enum AppleScriptPermission {
-    private static let logger = Logger(subsystem: "bot.molt", category: "AppleScriptPermission")
+    private static let logger = Logger(subsystem: "ai.openclaw", category: "AppleScriptPermission")
 
     /// Sends a benign AppleScript to Terminal to verify Automation permission.
     @MainActor
     static func isAuthorized() -> Bool {
         let script = """
         tell application "Terminal"
-            return "moltbot-ok"
+            return "openclaw-ok"
         end tell
         """
 

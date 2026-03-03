@@ -56,5 +56,5 @@ Windows 的原生配套应用同样在规划中；推荐通过 WSL2 使用 Gatew
 
 服务目标取决于操作系统：
 
-- macOS：LaunchAgent（`bot.molt.gateway` 或 `bot.molt.<profile>`；旧版 `com.openclaw.*`）
+- macOS：LaunchAgent（`ai.openclaw.gateway` 或 `ai.openclaw.<profile>`；旧版 `com.openclaw.*`）
 - Linux/WSL2：systemd 用户服务（`openclaw-gateway[-<profile>].service`）

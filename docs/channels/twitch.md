@@ -1,11 +1,11 @@
 ---
 summary: "Twitch chat bot configuration and setup"
 read_when:
-  - Setting up Twitch chat integration for Moltbot
+  - Setting up Twitch chat integration for OpenClaw
 ---
 # Twitch (plugin)
 
-Twitch chat support via IRC connection. Moltbot connects as a Twitch user (bot account) to receive and send messages in channels.
+Twitch chat support via IRC connection. OpenClaw connects as a Twitch user (bot account) to receive and send messages in channels.
 
 ## Plugin required
 
@@ -14,13 +14,13 @@ Twitch ships as a plugin and is not bundled with the core install.
 Install via CLI (npm registry):
 
 ```bash
-moltbot plugins install @moltbot/twitch
+openclaw plugins install @openclaw/twitch
 ```
 
 Local checkout (when running from a git repo):
 
 ```bash
-moltbot plugins install ./extensions/twitch
+openclaw plugins install ./extensions/twitch
 ```
 
 Details: [Plugins](/plugin)
@@ -36,7 +36,7 @@ Details: [Plugins](/plugin)
 <<<<<<< HEAD
 3) Find your Twitch user ID: https://www.streamweasels.com/tools/convert-twitch-username-to-user-id/
 4) Configure the token:
-   - Env: `CLAWDBOT_TWITCH_ACCESS_TOKEN=...` (default account only)
+   - Env: `OPENCLAW_TWITCH_ACCESS_TOKEN=...` (default account only)
 =======
 3. Find your Twitch user ID: [https://www.streamweasels.com/tools/convert-twitch-username-to-user-id/](https://www.streamweasels.com/tools/convert-twitch-username-to-user-id/)
 >>>>>>> 578a6e27a (Docs: enable markdownlint autofixables except list numbering (#10476))
@@ -56,8 +56,8 @@ Minimal config:
   channels: {
     twitch: {
       enabled: true,
-      username: "moltbot",              // Bot's Twitch account
-      accessToken: "oauth:abc123...",    // OAuth Access Token (or use CLAWDBOT_TWITCH_ACCESS_TOKEN env var)
+      username: "openclaw",              // Bot's Twitch account
+      accessToken: "oauth:abc123...",    // OAuth Access Token (or use OPENCLAW_TWITCH_ACCESS_TOKEN env var)
       clientId: "xyz789...",             // Client ID from Token Generator
       channel: "vevisk",                 // Which Twitch channel's chat to join (required)
       allowFrom: ["123456789"]           // (recommended) Your Twitch user ID only - get it from https://www.streamweasels.com/tools/convert-twitch-username-to-user-id/
@@ -88,7 +88,7 @@ No manual app registration needed. Tokens expire after several hours.
 
 **Env var (default account only):**
 ```bash
-CLAWDBOT_TWITCH_ACCESS_TOKEN=oauth:abc123...
+OPENCLAW_TWITCH_ACCESS_TOKEN=oauth:abc123...
 ```
 
 **Or config:**
@@ -97,7 +97,7 @@ CLAWDBOT_TWITCH_ACCESS_TOKEN=oauth:abc123...
   channels: {
     twitch: {
       enabled: true,
-      username: "moltbot",
+      username: "openclaw",
       accessToken: "oauth:abc123...",
       clientId: "xyz789...",
       channel: "vevisk"
@@ -160,13 +160,13 @@ Example (one bot account in two channels):
     twitch: {
       accounts: {
         channel1: {
-          username: "moltbot",
+          username: "openclaw",
           accessToken: "oauth:abc123...",
           clientId: "xyz789...",
           channel: "vevisk"
         },
         channel2: {
-          username: "moltbot",
+          username: "openclaw",
           accessToken: "oauth:def456...",
           clientId: "uvw012...",
           channel: "secondchannel"
@@ -256,8 +256,8 @@ By default, `requireMention` is `true`. To disable and respond to all messages:
 First, run diagnostic commands:
 
 ```bash
-moltbot doctor
-moltbot channels status --probe
+openclaw doctor
+openclaw channels status --probe
 ```
 
 ### Bot doesn't respond to messages
@@ -317,7 +317,7 @@ Full example:
   channels: {
     twitch: {
       enabled: true,
-      username: "moltbot",
+      username: "openclaw",
       accessToken: "oauth:abc123...",
       clientId: "xyz789...",
       channel: "vevisk",

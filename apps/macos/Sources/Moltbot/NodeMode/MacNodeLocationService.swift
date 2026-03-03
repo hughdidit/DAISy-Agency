@@ -1,6 +1,6 @@
 import CoreLocation
 import Foundation
-import MoltbotKit
+import OpenClawKit
 
 @MainActor
 final class MacNodeLocationService: NSObject, CLLocationManagerDelegate {
@@ -30,7 +30,7 @@ final class MacNodeLocationService: NSObject, CLLocationManagerDelegate {
     }
 
     func currentLocation(
-        desiredAccuracy: MoltbotLocationAccuracy,
+        desiredAccuracy: OpenClawLocationAccuracy,
         maxAgeMs: Int?,
         timeoutMs: Int?) async throws -> CLLocation
     {
@@ -103,7 +103,7 @@ final class MacNodeLocationService: NSObject, CLLocationManagerDelegate {
         }
     }
 
-    private static func accuracyValue(_ accuracy: MoltbotLocationAccuracy) -> CLLocationAccuracy {
+    private static func accuracyValue(_ accuracy: OpenClawLocationAccuracy) -> CLLocationAccuracy {
         switch accuracy {
         case .coarse:
             kCLLocationAccuracyKilometer

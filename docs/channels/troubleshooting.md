@@ -14,8 +14,8 @@ Use this page when a channel connects but behavior is wrong.
 Run these in order first:
 
 ```bash
-moltbot doctor
-moltbot channels status --probe
+openclaw doctor
+openclaw channels status --probe
 ```
 
 Healthy baseline:

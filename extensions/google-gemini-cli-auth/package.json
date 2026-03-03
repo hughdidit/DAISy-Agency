@@ -1,5 +1,5 @@
 {
-  "name": "@moltbot/google-gemini-cli-auth",
+  "name": "@openclaw/google-gemini-cli-auth",
   "version": "2026.1.27-beta.1",
 =======
   "version": "2026.2.2",
@@ -28,8 +28,8 @@
   "description": "OpenClaw Gemini CLI OAuth provider plugin",
 >>>>>>> 1c4db9159 (chore: prepare 2026.2.2 release)
   "type": "module",
-  "description": "Moltbot Gemini CLI OAuth provider plugin",
-  "moltbot": {
+  "description": "OpenClaw Gemini CLI OAuth provider plugin",
+  "openclaw": {
     "extensions": [
       "./index.ts"
     ]

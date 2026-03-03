@@ -1,24 +1,24 @@
 services:
-  moltbot-gateway:
-    image: ${CLAWDBOT_IMAGE:-moltbot:local}
+  openclaw-gateway:
+    image: ${OPENCLAW_IMAGE:-openclaw:local}
     environment:
       HOME: /home/node
       TERM: xterm-256color
-      CLAWDBOT_GATEWAY_TOKEN: ${CLAWDBOT_GATEWAY_TOKEN}
+      OPENCLAW_GATEWAY_TOKEN: ${OPENCLAW_GATEWAY_TOKEN}
       CLAUDE_AI_SESSION_KEY: ${CLAUDE_AI_SESSION_KEY}
       CLAUDE_WEB_SESSION_KEY: ${CLAUDE_WEB_SESSION_KEY}
       CLAUDE_WEB_COOKIE: ${CLAUDE_WEB_COOKIE}
       DISCORD_BOT_TOKEN: ${DISCORD_BOT_TOKEN}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
-      CLAWDBOT_STATE_DIR: /home/node/.clawdbot
-      CLAWDBOT_GATEWAY_PORT: ${CLAWDBOT_GATEWAY_PORT}
-      CLAWDBOT_BRIDGE_PORT: ${CLAWDBOT_BRIDGE_PORT}
+      OPENCLAW_STATE_DIR: /home/node/.openclaw
+      OPENCLAW_GATEWAY_PORT: ${OPENCLAW_GATEWAY_PORT}
+      OPENCLAW_BRIDGE_PORT: ${OPENCLAW_BRIDGE_PORT}
     volumes:
-      - ${CLAWDBOT_CONFIG_DIR}:/home/node/.clawdbot
-      - ${CLAWDBOT_WORKSPACE_DIR}:/home/node/clawd
+      - ${OPENCLAW_CONFIG_DIR}:/home/node/.openclaw
+      - ${OPENCLAW_WORKSPACE_DIR}:/home/node/clawd
     ports:
-      - "${CLAWDBOT_GATEWAY_PORT}:${CLAWDBOT_GATEWAY_PORT}"
-      - "${CLAWDBOT_BRIDGE_PORT}:${CLAWDBOT_BRIDGE_PORT}"
+      - "${OPENCLAW_GATEWAY_PORT}:${OPENCLAW_GATEWAY_PORT}"
+      - "${OPENCLAW_BRIDGE_PORT}:${OPENCLAW_BRIDGE_PORT}"
     init: true
     restart: unless-stopped
     healthcheck:
@@ -33,18 +33,18 @@ services:
         "dist/index.js",
         "gateway",
         "--bind",
-        "${CLAWDBOT_GATEWAY_BIND:-loopback}",
+        "${OPENCLAW_GATEWAY_BIND:-loopback}",
         "--port",
 <<<<<<< HEAD
-        "${CLAWDBOT_GATEWAY_PORT}",
+        "${OPENCLAW_GATEWAY_PORT}",
         "--allow-unconfigured"
 =======
         "18789",
 >>>>>>> 443ee26af (chore: oxfmt fixes)
       ]
 
-  moltbot-cli:
-    image: ${CLAWDBOT_IMAGE:-moltbot:local}
+  openclaw-cli:
+    image: ${OPENCLAW_IMAGE:-openclaw:local}
     environment:
       HOME: /home/node
       TERM: xterm-256color
@@ -53,8 +53,8 @@ services:
       CLAUDE_WEB_SESSION_KEY: ${CLAUDE_WEB_SESSION_KEY}
       CLAUDE_WEB_COOKIE: ${CLAUDE_WEB_COOKIE}
     volumes:
-      - ${CLAWDBOT_CONFIG_DIR}:/home/node/.clawdbot
-      - ${CLAWDBOT_WORKSPACE_DIR}:/home/node/clawd
+      - ${OPENCLAW_CONFIG_DIR}:/home/node/.openclaw
+      - ${OPENCLAW_WORKSPACE_DIR}:/home/node/clawd
     stdin_open: true
     tty: true
     init: true

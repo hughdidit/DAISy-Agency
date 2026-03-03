@@ -1,7 +1,7 @@
 ---
-summary: "Install Moltbot (recommended installer, global install, or from source)"
+summary: "Install OpenClaw (recommended installer, global install, or from source)"
 read_when:
-  - Installing Moltbot
+  - Installing OpenClaw
   - You want to install from GitHub
 title: "Install Overview"
 ---
@@ -26,7 +26,7 @@ iwr -useb https://molt.bot/install.ps1 | iex
 Next step (if you skipped onboarding):
 
 ```bash
-moltbot onboard --install-daemon
+openclaw onboard --install-daemon
 ```
 =======
 Already followed [Getting Started](/start/getting-started)? You're all set — this page is for alternative install methods, platform-specific instructions, and maintenance.
@@ -44,7 +44,7 @@ On Windows, we strongly recommend running OpenClaw under [WSL2](https://learn.mi
 
 ## Install methods
 
-Installs `moltbot` globally via npm and runs onboarding.
+Installs `openclaw` globally via npm and runs onboarding.
 
 ```bash
 <<<<<<< HEAD
@@ -114,14 +114,14 @@ curl -fsSL https://molt.bot/install.sh | bash -s -- --no-onboard
     If you already have Node 22+ and prefer to manage the install yourself:
 
 ```bash
-npm install -g moltbot@latest
+npm install -g openclaw@latest
 ```
 
         <Accordion title="sharp build errors?">
           If you have libvips installed globally (common on macOS via Homebrew) and `sharp` fails, force prebuilt binaries:
 
 ```bash
-SHARP_IGNORE_GLOBAL_LIBVIPS=1 npm install -g moltbot@latest
+SHARP_IGNORE_GLOBAL_LIBVIPS=1 npm install -g openclaw@latest
 ```
 
           If you see `sharp: Please add node-gyp to your dependencies`, either install build tooling (macOS: Xcode CLT + `npm install -g node-gyp`) or use the env var above.
@@ -142,7 +142,7 @@ SHARP_IGNORE_GLOBAL_LIBVIPS=1 npm install -g moltbot@latest
 
 ```bash
 <<<<<<< HEAD
-pnpm add -g moltbot@latest
+pnpm add -g openclaw@latest
 ```
 
 pnpm requires explicit approval for packages with build scripts. After the first install shows the "Ignored build scripts" warning, run `pnpm approve-builds -g` and select the listed packages, then re-run the install so postinstall scripts execute.
@@ -158,7 +158,7 @@ pnpm requires explicit approval for packages with build scripts. After the first
         Clone the [OpenClaw repo](https://github.com/openclaw/openclaw) and build:
 
 ```bash
-moltbot onboard --install-daemon
+openclaw onboard --install-daemon
 ```
 
         ```bash
@@ -166,15 +166,15 @@ moltbot onboard --install-daemon
         ```
 
 ```bash
-git clone https://github.com/moltbot/moltbot.git
-cd moltbot
+git clone https://github.com/moltai/openclawbot.git
+cd openclaw
 pnpm install
 pnpm ui:build # auto-installs UI deps on first run
 pnpm build
-moltbot onboard --install-daemon
+openclaw onboard --install-daemon
 ```
 
-Tip: if you don’t have a global install yet, run repo commands via `pnpm moltbot ...`.
+Tip: if you don’t have a global install yet, run repo commands via `pnpm openclaw ...`.
 
   </Accordion>
 </AccordionGroup>
@@ -198,16 +198,16 @@ Tip: if you don’t have a global install yet, run repo commands via `pnpm moltb
 
 ## After install
 
-- Run onboarding: `moltbot onboard --install-daemon`
-- Quick check: `moltbot doctor`
-- Check gateway health: `moltbot status` + `moltbot health`
-- Open the dashboard: `moltbot dashboard`
+- Run onboarding: `openclaw onboard --install-daemon`
+- Quick check: `openclaw doctor`
+- Check gateway health: `openclaw status` + `openclaw health`
+- Open the dashboard: `openclaw dashboard`
 
 ## Install method: npm vs git (installer)
 
 The installer supports two methods:
 
-- `npm` (default): `npm install -g moltbot@latest`
+- `npm` (default): `npm install -g openclaw@latest`
 - `git`: clone/build from GitHub and run from a source checkout
 
 ### CLI flags
@@ -232,7 +232,7 @@ openclaw dashboard      # open the browser UI
 ## Troubleshooting: `openclaw` not found
 
 - `--install-method npm|git`
-- `--git-dir <path>` (default: `~/moltbot`)
+- `--git-dir <path>` (default: `~/openclaw`)
 - `--no-git-update` (skip `git pull` when using an existing checkout)
 - `--no-prompt` (disable prompts; required in CI/automation)
 - `--dry-run` (print what would happen; make no changes)
@@ -242,15 +242,15 @@ openclaw dashboard      # open the browser UI
 
 Equivalent env vars (useful for automation):
 
-- `CLAWDBOT_INSTALL_METHOD=git|npm`
-- `CLAWDBOT_GIT_DIR=...`
-- `CLAWDBOT_GIT_UPDATE=0|1`
-- `CLAWDBOT_NO_PROMPT=1`
-- `CLAWDBOT_DRY_RUN=1`
-- `CLAWDBOT_NO_ONBOARD=1`
+- `OPENCLAW_INSTALL_METHOD=git|npm`
+- `OPENCLAW_GIT_DIR=...`
+- `OPENCLAW_GIT_UPDATE=0|1`
+- `OPENCLAW_NO_PROMPT=1`
+- `OPENCLAW_DRY_RUN=1`
+- `OPENCLAW_NO_ONBOARD=1`
 - `SHARP_IGNORE_GLOBAL_LIBVIPS=0|1` (default: `1`; avoids `sharp` building against system libvips)
 
-## Troubleshooting: `moltbot` not found (PATH)
+## Troubleshooting: `openclaw` not found (PATH)
 
 Quick diagnosis:
 
@@ -261,7 +261,7 @@ npm prefix -g
 echo "$PATH"
 ```
 
-If `$(npm prefix -g)/bin` (macOS/Linux) or `$(npm prefix -g)` (Windows) is **not** present inside `echo "$PATH"`, your shell can’t find global npm binaries (including `moltbot`).
+If `$(npm prefix -g)/bin` (macOS/Linux) or `$(npm prefix -g)` (Windows) is **not** present inside `echo "$PATH"`, your shell can’t find global npm binaries (including `openclaw`).
 
 Fix — add it to your shell startup file (`~/.zshrc` or `~/.bashrc`):
 

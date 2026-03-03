@@ -172,7 +172,7 @@ openclaw logs --follow
 
 如果使用服务管理：
 
-- macOS launchd（应用捆绑的 LaunchAgent）：`launchctl kickstart -k gui/$UID/bot.molt.gateway`（使用 `bot.molt.<profile>`；旧版 `com.openclaw.*` 仍可用）
+- macOS launchd（应用捆绑的 LaunchAgent）：`launchctl kickstart -k gui/$UID/ai.openclaw.gateway`（使用 `ai.openclaw.<profile>`；旧版 `com.openclaw.*` 仍可用）
 - Linux systemd 用户服务：`systemctl --user restart openclaw-gateway[-<profile>].service`
 - Windows（WSL2）：`systemctl --user restart openclaw-gateway[-<profile>].service`
   - `launchctl`/`systemctl` 仅在服务已安装时有效；否则请运行 `openclaw gateway install`。

@@ -4,7 +4,7 @@ import {
   mergeAllowlist,
   summarizeMapping,
   type RuntimeEnv,
-} from "clawdbot/plugin-sdk";
+} from "openclaw/plugin-sdk";
 import type { CoreConfig, ReplyToMode } from "../../types.js";
 import { resolveMatrixTargets } from "../../resolve-targets.js";
 import { getMatrixRuntime } from "../../runtime.js";

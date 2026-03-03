@@ -74,12 +74,12 @@ STATE_DISK="${STATE_DISK:-/dev/sdb}"
 # Disk label for persistent fstab mounting (survives device renaming)
 STATE_DISK_LABEL="${STATE_DISK_LABEL:-daisy-state}"
 STATE_MOUNT="${STATE_MOUNT:-/var/lib/daisy}"
-CLAWDBOT_HOME="${CLAWDBOT_HOME:-/var/lib/clawdbot/home}"
-CONFIG_DIR="${CONFIG_DIR:-$CLAWDBOT_HOME/.clawdbot}"
-WORKSPACE_DIR="${WORKSPACE_DIR:-$CLAWDBOT_HOME/clawd}"
+OPENCLAW_HOME="${OPENCLAW_HOME:-/var/lib/openclaw/home}"
+CONFIG_DIR="${CONFIG_DIR:-$OPENCLAW_HOME/.openclaw}"
+WORKSPACE_DIR="${WORKSPACE_DIR:-$OPENCLAW_HOME/clawd}"
 # DEPLOY_DIR is where docker-compose.yml and .env live (separate from state)
 DEPLOY_DIR="${DEPLOY_DIR:-/opt/DAISy}"
-CLAWDBOT_USER="${CLAWDBOT_USER:-clawdbot}"
+OPENCLAW_USER="${OPENCLAW_USER:-openclaw}"
 
 # =============================================================================
 # Helper functions
@@ -145,8 +145,8 @@ confirm "This will FORMAT $STATE_DISK and clear production state. Continue?" || 
 log ""
 log "=== Phase 1: Stop Services ==="
 
-log "Stopping moltbot-gateway systemd service (if exists)..."
-systemctl stop moltbot-gateway 2>/dev/null || log "  (service not found or not running)"
+log "Stopping openclaw-gateway systemd service (if exists)..."
+systemctl stop openclaw-gateway 2>/dev/null || log "  (service not found or not running)"
 
 log "Stopping Docker containers..."
 cd "$DEPLOY_DIR"
@@ -219,13 +219,13 @@ mount "$STATE_DISK" "$STATE_MOUNT"
 log "Creating subdirectories for config and workspace..."
 mkdir -p "$STATE_MOUNT/config"
 mkdir -p "$STATE_MOUNT/workspace"
-chown -R "$CLAWDBOT_USER:$CLAWDBOT_USER" "$STATE_MOUNT"
+chown -R "$OPENCLAW_USER:$OPENCLAW_USER" "$STATE_MOUNT"
 
 # Ensure bind mount target directories exist
 log "Ensuring bind mount target directories exist..."
 mkdir -p "$CONFIG_DIR"
 mkdir -p "$WORKSPACE_DIR"
-chown "$CLAWDBOT_USER:$CLAWDBOT_USER" "$CONFIG_DIR" "$WORKSPACE_DIR"
+chown "$OPENCLAW_USER:$OPENCLAW_USER" "$CONFIG_DIR" "$WORKSPACE_DIR"
 
 # Remove existing fstab entries for these mounts (by path or label)
 # Using grep -Fv for fixed-string matching (safe with special regex chars in paths)
@@ -314,7 +314,7 @@ hostnamectl set-hostname "$STAGING_HOSTNAME"
 
 # Update /etc/hosts (only replace hostname entries, not comments)
 log "Updating /etc/hosts..."
-sed -i -E "s/^([0-9.]+[[:space:]]+)clawdbot-gw-1([[:space:]]|$)/\1$STAGING_HOSTNAME\2/" /etc/hosts 2>/dev/null || true
+sed -i -E "s/^([0-9.]+[[:space:]]+)openclaw-gw-1([[:space:]]|$)/\1$STAGING_HOSTNAME\2/" /etc/hosts 2>/dev/null || true
 
 # Create staging environment marker
 log "Creating staging environment marker..."

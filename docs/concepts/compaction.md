@@ -1,5 +1,5 @@
 ---
-summary: "Context window + compaction: how Moltbot keeps sessions under model limits"
+summary: "Context window + compaction: how OpenClaw keeps sessions under model limits"
 read_when:
   - You want to understand auto-compaction and /compact
   - You are debugging long sessions hitting context limits
@@ -7,7 +7,7 @@ title: "Compaction"
 ---
 # Context Window & Compaction
 
-Every model has a **context window** (max tokens it can see). Long-running chats accumulate messages and tool results; once the window is tight, Moltbot **compacts** older history to stay within limits.
+Every model has a **context window** (max tokens it can see). Long-running chats accumulate messages and tool results; once the window is tight, OpenClaw **compacts** older history to stay within limits.
 
 ## What compaction is
 Compaction **summarizes older conversation** into a compact summary entry and keeps recent messages intact. The summary is stored in the session history, so future requests use:
@@ -20,13 +20,13 @@ Compaction **persists** in the session’s JSONL history.
 See [Compaction config & modes](/concepts/compaction) for the `agents.defaults.compaction` settings.
 
 ## Auto-compaction (default on)
-When a session nears or exceeds the model’s context window, Moltbot triggers auto-compaction and may retry the original request using the compacted context.
+When a session nears or exceeds the model’s context window, OpenClaw triggers auto-compaction and may retry the original request using the compacted context.
 
 You’ll see:
 - `🧹 Auto-compaction complete` in verbose mode
 - `/status` showing `🧹 Compactions: <count>`
 
-Before compaction, Moltbot can run a **silent memory flush** turn to store
+Before compaction, OpenClaw can run a **silent memory flush** turn to store
 durable notes to disk. See [Memory](/concepts/memory) for details and config.
 
 ## Manual compaction
@@ -36,7 +36,7 @@ Use `/compact` (optionally with instructions) to force a compaction pass:
 ```
 
 ## Context window source
-Context window is model-specific. Moltbot uses the model definition from the configured provider catalog to determine limits.
+Context window is model-specific. OpenClaw uses the model definition from the configured provider catalog to determine limits.
 
 ## Compaction vs pruning
 - **Compaction**: summarises and **persists** in JSONL.

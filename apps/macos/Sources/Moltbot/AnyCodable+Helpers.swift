@@ -1,10 +1,10 @@
 import Foundation
-import MoltbotKit
-import MoltbotProtocol
+import OpenClawKit
+import OpenClawProtocol
 
-// Prefer the MoltbotKit wrapper to keep gateway request payloads consistent.
-typealias AnyCodable = MoltbotKit.AnyCodable
-typealias InstanceIdentity = MoltbotKit.InstanceIdentity
+// Prefer the OpenClawKit wrapper to keep gateway request payloads consistent.
+typealias AnyCodable = OpenClawKit.AnyCodable
+typealias InstanceIdentity = OpenClawKit.InstanceIdentity
 
 extension AnyCodable {
     var stringValue: String? {
@@ -43,7 +43,7 @@ extension AnyCodable {
     }
 }
 
-extension MoltbotProtocol.AnyCodable {
+extension OpenClawProtocol.AnyCodable {
     var stringValue: String? {
         self.value as? String
     }
@@ -60,19 +60,19 @@ extension MoltbotProtocol.AnyCodable {
         self.value as? Double
     }
 
-    var dictionaryValue: [String: MoltbotProtocol.AnyCodable]? {
-        self.value as? [String: MoltbotProtocol.AnyCodable]
+    var dictionaryValue: [String: OpenClawProtocol.AnyCodable]? {
+        self.value as? [String: OpenClawProtocol.AnyCodable]
     }
 
-    var arrayValue: [MoltbotProtocol.AnyCodable]? {
-        self.value as? [MoltbotProtocol.AnyCodable]
+    var arrayValue: [OpenClawProtocol.AnyCodable]? {
+        self.value as? [OpenClawProtocol.AnyCodable]
     }
 
     var foundationValue: Any {
         switch self.value {
-        case let dict as [String: MoltbotProtocol.AnyCodable]:
+        case let dict as [String: OpenClawProtocol.AnyCodable]:
             dict.mapValues { $0.foundationValue }
-        case let array as [MoltbotProtocol.AnyCodable]:
+        case let array as [OpenClawProtocol.AnyCodable]:
             array.map(\.foundationValue)
         default:
             self.value

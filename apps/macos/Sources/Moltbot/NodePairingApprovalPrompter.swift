@@ -1,9 +1,9 @@
 import AppKit
 import Foundation
-import MoltbotDiscovery
-import MoltbotIPC
-import MoltbotKit
-import MoltbotProtocol
+import OpenClawDiscovery
+import OpenClawIPC
+import OpenClawKit
+import OpenClawProtocol
 import Observation
 import OSLog
 import UserNotifications
@@ -22,7 +22,7 @@ enum NodePairingReconcilePolicy {
 final class NodePairingApprovalPrompter {
     static let shared = NodePairingApprovalPrompter()
 
-    private let logger = Logger(subsystem: "bot.molt", category: "node-pairing")
+    private let logger = Logger(subsystem: "ai.openclaw", category: "node-pairing")
     private var task: Task<Void, Never>?
     private var reconcileTask: Task<Void, Never>?
     private var reconcileOnceTask: Task<Void, Never>?

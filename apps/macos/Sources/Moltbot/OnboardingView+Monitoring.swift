@@ -1,5 +1,5 @@
 import Foundation
-import MoltbotIPC
+import OpenClawIPC
 
 extension OnboardingView {
     @MainActor
@@ -87,7 +87,7 @@ extension OnboardingView {
                 return
             }
             let command = desc.command.trimmingCharacters(in: .whitespacesAndNewlines)
-            let expectedTokens = ["node", "moltbot", "tsx", "pnpm", "bun"]
+            let expectedTokens = ["node", "openclaw", "tsx", "pnpm", "bun"]
             let lower = command.lowercased()
             let expected = expectedTokens.contains { lower.contains($0) }
             self.localGatewayProbe = LocalGatewayProbe(
@@ -99,9 +99,9 @@ extension OnboardingView {
     }
 
     func refreshAnthropicOAuthStatus() {
-        _ = MoltbotOAuthStore.importLegacyAnthropicOAuthIfNeeded()
+        _ = OpenClawOAuthStore.importLegacyAnthropicOAuthIfNeeded()
         let previous = self.anthropicAuthDetectedStatus
-        let status = MoltbotOAuthStore.anthropicOAuthStatus()
+        let status = OpenClawOAuthStore.anthropicOAuthStatus()
         self.anthropicAuthDetectedStatus = status
         self.anthropicAuthConnected = status.isConnected
 
@@ -126,7 +126,7 @@ extension OnboardingView {
         self.anthropicAuthVerificationFailed = false
         defer { self.anthropicAuthVerifying = false }
 
-        guard let refresh = MoltbotOAuthStore.loadAnthropicOAuthRefreshToken(), !refresh.isEmpty else {
+        guard let refresh = OpenClawOAuthStore.loadAnthropicOAuthRefreshToken(), !refresh.isEmpty else {
             self.anthropicAuthStatus = "OAuth verification failed: missing refresh token."
             self.anthropicAuthVerificationFailed = true
             return
@@ -134,7 +134,7 @@ extension OnboardingView {
 
         do {
             let updated = try await AnthropicOAuth.refresh(refreshToken: refresh)
-            try MoltbotOAuthStore.saveAnthropicOAuth(updated)
+            try OpenClawOAuthStore.saveAnthropicOAuth(updated)
             self.refreshAnthropicOAuthStatus()
             self.anthropicAuthVerified = true
             self.anthropicAuthVerifiedAt = Date()

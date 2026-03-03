@@ -1,14 +1,14 @@
 import AppKit
 import Foundation
-import MoltbotIPC
-import MoltbotKit
+import OpenClawIPC
+import OpenClawKit
 import OSLog
 
 @MainActor
 final class CanvasManager {
     static let shared = CanvasManager()
 
-    private static let logger = Logger(subsystem: "bot.molt", category: "CanvasManager")
+    private static let logger = Logger(subsystem: "ai.openclaw", category: "CanvasManager")
 
     private var panelController: CanvasWindowController?
     private var panelSessionKey: String?
@@ -26,7 +26,7 @@ final class CanvasManager {
 
     private nonisolated static let canvasRoot: URL = {
         let base = FileManager().urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
-        return base.appendingPathComponent("Moltbot/canvas", isDirectory: true)
+        return base.appendingPathComponent("OpenClaw/canvas", isDirectory: true)
     }()
 
     func show(sessionKey: String, path: String? = nil, placement: CanvasPlacement? = nil) throws -> String {
@@ -231,7 +231,7 @@ final class CanvasManager {
     private static func resolveA2UIHostUrl(from raw: String?) -> String? {
         let trimmed = raw?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         guard !trimmed.isEmpty, let base = URL(string: trimmed) else { return nil }
-        return base.appendingPathComponent("__moltbot__/a2ui/").absoluteString + "?platform=macos"
+        return base.appendingPathComponent("__openclaw__/a2ui/").absoluteString + "?platform=macos"
     }
 
     // MARK: - Anchoring

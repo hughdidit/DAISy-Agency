@@ -1,6 +1,6 @@
 # Canvas Skill
 
-Display HTML content on connected Moltbot nodes (Mac app, iOS, Android).
+Display HTML content on connected OpenClaw nodes (Mac app, iOS, Android).
 
 ## Overview
 
@@ -55,7 +55,7 @@ This is why localhost URLs don't work - the node receives the Tailscale hostname
 
 ## Configuration
 
-In `~/.clawdbot/moltbot.json`:
+In `~/.clawdai/openclawbot.json`:
 
 ```json
 {
@@ -102,13 +102,13 @@ HTML
 
 Check how your gateway is bound:
 ```bash
-cat ~/.clawdbot/moltbot.json | jq '.gateway.bind'
+cat ~/.clawdai/openclawbot.json | jq '.gateway.bind'
 ```
 
 Then construct the URL:
 <<<<<<< HEAD
-- **loopback**: `http://127.0.0.1:18793/__moltbot__/canvas/<file>.html`
-- **lan/tailnet/auto**: `http://<hostname>:18793/__moltbot__/canvas/<file>.html`
+- **loopback**: `http://127.0.0.1:18793/__openclaw__/canvas/<file>.html`
+- **lan/tailnet/auto**: `http://<hostname>:18793/__openclaw__/canvas/<file>.html`
 - **loopback**: `http://127.0.0.1:18793/__openclaw__/canvas/<file>.html`
 - **lan/tailnet/auto**: `http://<hostname>:18793/__openclaw__/canvas/<file>.html`
 >>>>>>> 701d43892 (docs(skills): update canvas URL prefix to /__openclaw__/ (#4729))
@@ -121,7 +121,7 @@ tailscale status --json | jq -r '.Self.DNSName' | sed 's/\.$//'
 ### 3. Find connected nodes
 
 ```bash
-moltbot nodes list
+openclaw nodes list
 ```
 
 Look for Mac/iOS/Android nodes with canvas capability.
@@ -152,7 +152,7 @@ canvas action:hide node:<node-id>
 **Cause:** URL mismatch between server bind and node expectation.
 
 **Debug steps:**
-1. Check server bind: `cat ~/.clawdbot/moltbot.json | jq '.gateway.bind'`
+1. Check server bind: `cat ~/.clawdai/openclawbot.json | jq '.gateway.bind'`
 2. Check what port canvas is on: `lsof -i :18793`
 3. Test URL directly: `curl http://<hostname>:18793/__openclaw__/canvas/<file>.html`
 
@@ -164,7 +164,7 @@ Always specify `node:<node-id>` parameter.
 
 ### "node not connected" error
 
-Node is offline. Use `moltbot nodes list` to find online nodes.
+Node is offline. Use `openclaw nodes list` to find online nodes.
 
 ### Content not updating
 

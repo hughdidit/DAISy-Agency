@@ -1,4 +1,4 @@
-import MoltbotDiscovery
+import OpenClawDiscovery
 import SwiftUI
 
 #if DEBUG
@@ -14,7 +14,7 @@ extension OnboardingView {
             tailnetDns: "gateway.ts.net",
             sshPort: 2222,
             gatewayPort: 18789,
-            cliPath: "/usr/local/bin/moltbot",
+            cliPath: "/usr/local/bin/openclaw",
             stableID: "gateway-1",
             debugID: "gateway-1",
             isLocal: false)
@@ -28,14 +28,14 @@ extension OnboardingView {
         view.localGatewayProbe = LocalGatewayProbe(
             port: GatewayEnvironment.gatewayPort(),
             pid: 123,
-            command: "moltbot-gateway",
+            command: "openclaw-gateway",
             expected: true)
         view.showAdvancedConnection = true
         view.preferredGatewayID = gateway.stableID
         view.cliInstalled = true
-        view.cliInstallLocation = "/usr/local/bin/moltbot"
+        view.cliInstallLocation = "/usr/local/bin/openclaw"
         view.cliStatus = "Installed"
-        view.workspacePath = "/tmp/moltbot"
+        view.workspacePath = "/tmp/openclaw"
         view.workspaceStatus = "Saved workspace"
         view.state.connectionMode = .local
         _ = view.welcomePage()

@@ -1,4 +1,4 @@
-# iOS App Priorities (OpenClaw / Moltbot)
+# iOS App Priorities (OpenClaw / OpenClaw)
 
 This report is based on repo code + docs in `/Users/mariano/Coding/openclaw`, with focus on:
 - iOS Swift sources under `apps/ios/Sources`

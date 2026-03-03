@@ -1,7 +1,7 @@
 import CoreLocation
-import MoltbotIPC
+import OpenClawIPC
 import Testing
-@testable import Moltbot
+@testable import OpenClaw
 
 @Suite(.serialized)
 @MainActor

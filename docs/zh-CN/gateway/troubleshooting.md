@@ -629,7 +629,7 @@ schema，但此修复尚未包含在最新发布版中（截至
 **修复 1：重置 TCC 缓存**
 
 ```bash
-tccutil reset All bot.molt.mac.debug
+tccutil reset All ai.openclaw.mac.debug
 ```
 
 **修复 2：强制使用新 Bundle ID**
@@ -645,7 +645,7 @@ tccutil reset All bot.molt.mac.debug
 ```bash
 openclaw gateway status
 openclaw gateway stop
-# 或：launchctl bootout gui/$UID/bot.molt.gateway（替换为 bot.molt.<profile>；旧版 com.openclaw.* 仍可用）
+# 或：launchctl bootout gui/$UID/ai.openclaw.gateway（替换为 ai.openclaw.<profile>；旧版 com.openclaw.* 仍可用）
 ```
 
 **修复 2：端口被占用（查找监听者）**

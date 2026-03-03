@@ -1,5 +1,5 @@
 {
-  "name": "@moltbot/memory-lancedb",
+  "name": "@openclaw/memory-lancedb",
   "version": "2026.1.27-beta.1",
 =======
   "version": "2026.2.2",
@@ -28,13 +28,13 @@
   "description": "OpenClaw LanceDB-backed long-term memory plugin with auto-recall/capture",
 >>>>>>> 1c4db9159 (chore: prepare 2026.2.2 release)
   "type": "module",
-  "description": "Moltbot LanceDB-backed long-term memory plugin with auto-recall/capture",
+  "description": "OpenClaw LanceDB-backed long-term memory plugin with auto-recall/capture",
   "dependencies": {
     "@lancedb/lancedb": "^0.23.0",
     "@sinclair/typebox": "0.34.47",
     "openai": "^6.16.0"
   },
-  "moltbot": {
+  "openclaw": {
     "extensions": [
       "./index.ts"
     ]

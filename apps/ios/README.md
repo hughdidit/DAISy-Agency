@@ -1,4 +1,4 @@
-# Clawdbot (iOS)
+# OpenClaw (iOS)
 
 This is an **alpha** iOS app that connects to an OpenClaw Gateway as a `role: node`.
 
@@ -58,10 +58,10 @@ pnpm ios:build
 ```bash
 cd apps/ios
 xcodegen generate
-open Clawdbot.xcodeproj
+open OpenClaw.xcodeproj
 ```
 
 ## Shared packages
-- `../shared/MoltbotKit` — shared types/constants used by iOS (and later macOS bridge + gateway routing).
+- `../shared/OpenClawKit` — shared types/constants used by iOS (and later macOS bridge + gateway routing).
 
 - `apps/shared/OpenClawKit` contains the shared transport/types used by the iOS app.

@@ -23,7 +23,7 @@ The staging VM is created by:
 |  | - OS            |  |   +-- workspace/          |   |
 |  | - Docker        |  |                           |   |
 |  | - App binaries  |  | Bind mounts:              |   |
-|  +-----------------+  |   config/ -> .clawdbot/   |   |
+|  +-----------------+  |   config/ -> .openclaw/   |   |
 |                       |   workspace/ -> clawd/    |   |
 |                       +---------------------------+   |
 |                                                       |
@@ -77,7 +77,7 @@ export STAGING_INSTANCE="my-staging-vm"
 |----------|---------|-------------|
 | `GCP_PROJECT_ID` | **(required)** | GCP project ID |
 | `GCP_ZONE` | `us-west1-b` | Zone for staging VM |
-| `PROD_BOOT_DISK` | `clawdbot-gw-1` | Production boot disk to clone |
+| `PROD_BOOT_DISK` | `openclaw-gw-1` | Production boot disk to clone |
 | `STAGING_INSTANCE` | `daisy-staging-1` | Staging VM name |
 | `STAGING_MACHINE_TYPE` | `n2-standard-8` | Machine type |
 | `STAGING_STATE_DISK_SIZE` | `200GB` | State disk size |
@@ -155,7 +155,7 @@ The scrub script will:
 The easiest way to set up the deployment directory and start services is via the GitHub Actions workflow:
 
 1. **Add app secrets** to the `staging` environment in GitHub:
-   - `CLAWDBOT_GATEWAY_TOKEN` - Generate with `openssl rand -hex 32`
+   - `OPENCLAW_GATEWAY_TOKEN` - Generate with `openssl rand -hex 32`
    - `CLAUDE_AI_SESSION_KEY` - From [Anthropic Console](https://console.anthropic.com/settings/keys)
    - `CLAUDE_WEB_SESSION_KEY` - Optional, for usage monitoring (see below)
    - `CLAUDE_WEB_COOKIE` - Optional, for usage monitoring (see below)
@@ -198,7 +198,7 @@ sudo chown "$(whoami):$(whoami)" /opt/DAISy
 
 #### Staging Secrets Checklist
 
-- [ ] `CLAWDBOT_GATEWAY_TOKEN` - Generate new random token
+- [ ] `OPENCLAW_GATEWAY_TOKEN` - Generate new random token
 - [ ] `CLAUDE_AI_SESSION_KEY` - Anthropic API key
 - [ ] Discord bot token - **Use staging bot, NOT production**
 - [ ] Discord allowlist - **Staging-only channels/users**

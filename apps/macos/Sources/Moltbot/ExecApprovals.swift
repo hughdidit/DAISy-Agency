@@ -195,7 +195,7 @@ struct ExecApprovalsResolvedDefaults {
 }
 
 enum ExecApprovalsStore {
-    private static let logger = Logger(subsystem: "bot.molt", category: "exec-approvals")
+    private static let logger = Logger(subsystem: "ai.openclaw", category: "exec-approvals")
     private static let defaultAgentId = "main"
     private static let defaultSecurity: ExecSecurity = .deny
     private static let defaultAsk: ExecAsk = .onMiss
@@ -203,11 +203,11 @@ enum ExecApprovalsStore {
     private static let defaultAutoAllowSkills = false
 
     static func fileURL() -> URL {
-        MoltbotPaths.stateDirURL.appendingPathComponent("exec-approvals.json")
+        OpenClawPaths.stateDirURL.appendingPathComponent("exec-approvals.json")
     }
 
     static func socketPath() -> String {
-        MoltbotPaths.stateDirURL.appendingPathComponent("exec-approvals.sock").path
+        OpenClawPaths.stateDirURL.appendingPathComponent("exec-approvals.sock").path
     }
 
     static func normalizeIncoming(_ file: ExecApprovalsFile) -> ExecApprovalsFile {

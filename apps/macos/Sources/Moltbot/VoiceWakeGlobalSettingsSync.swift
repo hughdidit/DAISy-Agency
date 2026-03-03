@@ -1,12 +1,12 @@
 import Foundation
-import MoltbotKit
+import OpenClawKit
 import OSLog
 
 @MainActor
 final class VoiceWakeGlobalSettingsSync {
     static let shared = VoiceWakeGlobalSettingsSync()
 
-    private let logger = Logger(subsystem: "bot.molt", category: "voicewake.sync")
+    private let logger = Logger(subsystem: "ai.openclaw", category: "voicewake.sync")
     private var task: Task<Void, Never>?
 
     private struct VoiceWakePayload: Codable, Equatable {

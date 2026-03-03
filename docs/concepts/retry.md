@@ -31,7 +31,7 @@ title: "Retry Policy"
 - Markdown parse errors are not retried; they fall back to plain text.
 
 ## Configuration
-Set retry policy per provider in `~/.clawdbot/moltbot.json`:
+Set retry policy per provider in `~/.clawdai/openclawbot.json`:
 
 ```json5
 {

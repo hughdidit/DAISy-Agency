@@ -1,10 +1,10 @@
 import AppKit
 import Foundation
-import MoltbotKit
+import OpenClawKit
 import OSLog
 import Security
 
-private let deepLinkLogger = Logger(subsystem: "bot.molt", category: "DeepLink")
+private let deepLinkLogger = Logger(subsystem: "ai.openclaw", category: "DeepLink")
 
 enum DeepLinkAgentPolicy {
     static let maxMessageChars = 20_000
@@ -60,7 +60,7 @@ final class DeepLinkHandler {
             return
         }
         guard !AppStateStore.shared.isPaused else {
-            self.presentAlert(title: "Moltbot is paused", message: "Unpause Moltbot to run agent actions.")
+            self.presentAlert(title: "OpenClaw is paused", message: "Unpause OpenClaw to run agent actions.")
             return
         }
 
@@ -97,7 +97,7 @@ final class DeepLinkHandler {
             let urlPreview = urlText.count > 500 ? "\(urlText.prefix(500))…" : urlText
             let body =
                 "Run the agent with this message?\n\n\(trimmed)\n\nURL:\n\(originalURL.absoluteString)"
-            guard self.confirm(title: "Run Moltbot agent?", message: body) else { return }
+            guard self.confirm(title: "Run OpenClaw agent?", message: body) else { return }
         }
 
         if AppStateStore.shared.connectionMode == .local {

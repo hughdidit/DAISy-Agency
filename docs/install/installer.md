@@ -9,7 +9,7 @@ title: "Installer Internals"
 
 # Installer internals
 
-Moltbot ships two installer scripts (served from `molt.bot`):
+OpenClaw ships two installer scripts (served from `molt.bot`):
 
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -54,7 +54,7 @@ curl -fsSL https://molt.bot/install.sh | bash -s -- --help
 ```
 
 <<<<<<< HEAD
-If the installer completes but `moltbot` is not found in a new terminal, it’s usually a Node/npm PATH issue. See: [Install](/install#nodejs--npm-path-sanity).
+If the installer completes but `openclaw` is not found in a new terminal, it’s usually a Node/npm PATH issue. See: [Install](/install#nodejs--npm-path-sanity).
 
   </Tab>
   <Tab title="install.ps1">
@@ -122,12 +122,12 @@ Recommended for most interactive installs on macOS/Linux/WSL.
 - Detect OS (macOS / Linux / WSL).
 - Ensure Node.js **22+** (macOS via Homebrew; Linux via NodeSource).
 - Choose install method:
-  - `npm` (default): `npm install -g moltbot@latest`
+  - `npm` (default): `npm install -g openclaw@latest`
   - `git`: clone/build a source checkout and install a wrapper script
 <<<<<<< HEAD
 - On Linux: avoid global npm permission errors by switching npm’s prefix to `~/.npm-global` when needed.
-- If upgrading an existing install: runs `moltbot doctor --non-interactive` (best effort).
-- For git installs: runs `moltbot doctor --non-interactive` after install/update (best effort).
+- If upgrading an existing install: runs `openclaw doctor --non-interactive` (best effort).
+- For git installs: runs `openclaw doctor --non-interactive` after install/update (best effort).
 - Mitigates `sharp` native install gotchas by defaulting `SHARP_IGNORE_GLOBAL_LIBVIPS=1` (avoids building against system libvips).
 
 If you *want* `sharp` to link against a globally-installed libvips (or you’re debugging), set:
@@ -147,7 +147,7 @@ If no TTY is available and no install method is set, it defaults to `npm` and wa
 The script exits with code `2` for invalid method selection or invalid `--install-method` values.
 
 <<<<<<< HEAD
-If you run the installer while **already inside a Moltbot source checkout** (detected via `package.json` + `pnpm-workspace.yaml`), it prompts:
+If you run the installer while **already inside a OpenClaw source checkout** (detected via `package.json` + `pnpm-workspace.yaml`), it prompts:
 =======
 ### Examples (install.sh)
 >>>>>>> 5163833be (docs: fix markdownlint fragments + headings)
@@ -175,7 +175,7 @@ If you run the installer while **already inside a Moltbot source checkout** (det
   </Tab>
 </Tabs>
 
-In non-interactive contexts (no TTY / `--no-prompt`), you must pass `--install-method git|npm` (or set `CLAWDBOT_INSTALL_METHOD`), otherwise the script exits with code `2`.
+In non-interactive contexts (no TTY / `--no-prompt`), you must pass `--install-method git|npm` (or set `OPENCLAW_INSTALL_METHOD`), otherwise the script exits with code `2`.
 
 | Flag                            | Description                                                |
 | ------------------------------- | ---------------------------------------------------------- |
@@ -224,7 +224,7 @@ Designed for environments where you want everything under a local prefix (defaul
 
 <<<<<<< HEAD
 <<<<<<< HEAD
-This script installs `moltbot` into a prefix (default: `~/.clawdbot`) and also installs a dedicated Node runtime under that prefix, so it can work on machines where you don’t want to touch the system Node/npm.
+This script installs `openclaw` into a prefix (default: `~/.openclaw`) and also installs a dedicated Node runtime under that prefix, so it can work on machines where you don’t want to touch the system Node/npm.
 =======
 ### Flow
 >>>>>>> 991cf4d7f (Docs: revamp installer internals for readability and accuracy (#10499))
@@ -284,9 +284,9 @@ curl -fsSL https://molt.bot/install-cli.sh | bash -s -- --help
 
 - Ensure Node.js **22+** (winget/Chocolatey/Scoop or manual).
 - Choose install method:
-  - `npm` (default): `npm install -g moltbot@latest`
+  - `npm` (default): `npm install -g openclaw@latest`
   - `git`: clone/build a source checkout and install a wrapper script
-- Runs `moltbot doctor --non-interactive` on upgrades and git installs (best effort).
+- Runs `openclaw doctor --non-interactive` on upgrades and git installs (best effort).
 
   </Accordion>
 
@@ -299,13 +299,13 @@ iwr -useb https://molt.bot/install.ps1 | iex -InstallMethod git
 ```
 
 ```powershell
-iwr -useb https://molt.bot/install.ps1 | iex -InstallMethod git -GitDir "C:\\moltbot"
+iwr -useb https://molt.bot/install.ps1 | iex -InstallMethod git -GitDir "C:\\openclaw"
 ```
 
 ---
 
-- `CLAWDBOT_INSTALL_METHOD=git|npm`
-- `CLAWDBOT_GIT_DIR=...`
+- `OPENCLAW_INSTALL_METHOD=git|npm`
+- `OPENCLAW_GIT_DIR=...`
 
 ### Flow (install.ps1)
 
@@ -328,5 +328,5 @@ iwr -useb https://molt.bot/install.ps1 | iex -InstallMethod git -GitDir "C:\\mol
 ### Examples (install.ps1)
 
 - **npm error spawn git / ENOENT**: install Git for Windows and reopen PowerShell, then rerun the installer.
-- **"moltbot" is not recognized**: your npm global bin folder is not on PATH. Most systems use
+- **"openclaw" is not recognized**: your npm global bin folder is not on PATH. Most systems use
   `%AppData%\\npm`. You can also run `npm config get prefix` and add `\\bin` to PATH, then reopen PowerShell.

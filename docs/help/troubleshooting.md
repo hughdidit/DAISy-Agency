@@ -15,17 +15,17 @@ If you only have 2 minutes, use this page as a triage front door.
 Run this exact ladder in order:
 
 ```bash
-moltbot status
-moltbot status --all
-moltbot gateway probe
-moltbot logs --follow
-moltbot doctor
+openclaw status
+openclaw status --all
+openclaw gateway probe
+openclaw logs --follow
+openclaw doctor
 ```
 
 Good output in one line:
 
 ```bash
-moltbot status --deep
+openclaw status --deep
 ```
 
 <AccordionGroup>
@@ -38,7 +38,7 @@ moltbot status --deep
     openclaw logs --follow
     ```
 
-### `moltbot: command not found`
+### `openclaw: command not found`
 
     - `Runtime: running`
     - `RPC probe: ok`
@@ -70,7 +70,7 @@ curl -fsSL https://molt.bot/install.sh | bash -s -- --verbose
 curl -fsSL https://molt.bot/install.sh | bash -s -- --beta --verbose
 ```
 
-You can also set `CLAWDBOT_VERBOSE=1` instead of the flag.
+You can also set `OPENCLAW_VERBOSE=1` instead of the flag.
 =======
   <Accordion title="Dashboard or Control UI will not connect">
     ```bash
@@ -128,7 +128,7 @@ Disable Advanced Security or add `docs.molt.bot` to the allowlist, then retry.
     - [/gateway/background-process](/gateway/background-process)
     - [/gateway/configuration](/gateway/configuration)
 
-- Check the allowlist: `moltbot config get agents.defaults.models`
+- Check the allowlist: `openclaw config get agents.defaults.models`
 - Add the model you want (or clear the allowlist) and retry `/model`
 - Use `/models` to browse the allowed providers/models
 
@@ -144,7 +144,7 @@ Disable Advanced Security or add `docs.molt.bot` to the allowlist, then retry.
     Good output looks like:
 
 ```bash
-moltbot status --all
+openclaw status --all
 ```
 
-If you can, include the relevant log tail from `moltbot logs --follow`.
+If you can, include the relevant log tail from `openclaw logs --follow`.

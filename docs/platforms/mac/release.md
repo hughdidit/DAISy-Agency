@@ -1,12 +1,12 @@
 ---
-summary: "Moltbot macOS release checklist (Sparkle feed, packaging, signing)"
+summary: "OpenClaw macOS release checklist (Sparkle feed, packaging, signing)"
 read_when:
-  - Cutting or validating a Moltbot macOS release
+  - Cutting or validating a OpenClaw macOS release
   - Updating the Sparkle appcast or feed assets
 title: "macOS Release"
 ---
 
-# Moltbot macOS release (Sparkle)
+# OpenClaw macOS release (Sparkle)
 
 This app now ships Sparkle auto-updates. Release builds must be Developer ID–signed, zipped, and published with a signed appcast entry.
 
@@ -14,10 +14,10 @@ This app now ships Sparkle auto-updates. Release builds must be Developer ID–s
 - Developer ID Application cert installed (example: `Developer ID Application: <Developer Name> (<TEAMID>)`).
 - Sparkle private key path set in the environment as `SPARKLE_PRIVATE_KEY_FILE` (path to your Sparkle ed25519 private key; public key baked into Info.plist). If it is missing, check `~/.profile`.
 - Notary credentials (keychain profile or API key) for `xcrun notarytool` if you want Gatekeeper-safe DMG/zip distribution.
-  - We use a Keychain profile named `moltbot-notary`, created from App Store Connect API key env vars in your shell profile:
+  - We use a Keychain profile named `openclaw-notary`, created from App Store Connect API key env vars in your shell profile:
     - `APP_STORE_CONNECT_API_KEY_P8`, `APP_STORE_CONNECT_KEY_ID`, `APP_STORE_CONNECT_ISSUER_ID`
-    - `echo "$APP_STORE_CONNECT_API_KEY_P8" | sed 's/\\n/\n/g' > /tmp/moltbot-notary.p8`
-    - `xcrun notarytool store-credentials "moltbot-notary" --key /tmp/moltbot-notary.p8 --key-id "$APP_STORE_CONNECT_KEY_ID" --issuer "$APP_STORE_CONNECT_ISSUER_ID"`
+    - `echo "$APP_STORE_CONNECT_API_KEY_P8" | sed 's/\\n/\n/g' > /tmp/openclaw-notary.p8`
+    - `xcrun notarytool store-credentials "openclaw-notary" --key /tmp/openclaw-notary.p8 --key-id "$APP_STORE_CONNECT_KEY_ID" --issuer "$APP_STORE_CONNECT_ISSUER_ID"`
 - `pnpm` deps installed (`pnpm install --config.node-linker=hoisted`).
 - Sparkle tools are fetched automatically via SwiftPM at `apps/macos/.build/artifacts/sparkle/Sparkle/bin/` (`sign_update`, `generate_appcast`, etc.).
 
@@ -32,7 +32,7 @@ Notes:
 ```bash
 # From repo root; set release IDs so Sparkle feed is enabled.
 # APP_BUILD must be numeric + monotonic for Sparkle compare.
-BUNDLE_ID=bot.molt.mac \
+BUNDLE_ID=ai.openclaw.mac \
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -56,10 +56,10 @@ scripts/package-mac-app.sh
 # Zip for distribution (includes resource forks for Sparkle delta support)
 <<<<<<< HEAD
 <<<<<<< HEAD
-ditto -c -k --sequesterRsrc --keepParent dist/Moltbot.app dist/Moltbot-2026.1.27-beta.1.zip
+ditto -c -k --sequesterRsrc --keepParent dist/OpenClaw.app dist/OpenClaw-2026.1.27-beta.1.zip
 
 # Optional: also build a styled DMG for humans (drag to /Applications)
-scripts/create-dmg.sh dist/Moltbot.app dist/Moltbot-2026.1.27-beta.1.dmg
+scripts/create-dmg.sh dist/OpenClaw.app dist/OpenClaw-2026.1.27-beta.1.dmg
 =======
 ditto -c -k --sequesterRsrc --keepParent dist/OpenClaw.app dist/OpenClaw-2026.2.9.zip
 
@@ -75,10 +75,10 @@ scripts/create-dmg.sh dist/OpenClaw.app dist/OpenClaw-2026.2.25.dmg
 
 # Recommended: build + notarize/staple zip + DMG
 # First, create a keychain profile once:
-#   xcrun notarytool store-credentials "moltbot-notary" \
+#   xcrun notarytool store-credentials "openclaw-notary" \
 #     --apple-id "<apple-id>" --team-id "<team-id>" --password "<app-specific-password>"
-NOTARIZE=1 NOTARYTOOL_PROFILE=moltbot-notary \
-BUNDLE_ID=bot.molt.mac \
+NOTARIZE=1 NOTARYTOOL_PROFILE=openclaw-notary \
+BUNDLE_ID=ai.openclaw.mac \
 <<<<<<< HEAD
 <<<<<<< HEAD
 APP_VERSION=2026.1.27-beta.1 \
@@ -96,7 +96,7 @@ scripts/package-mac-dist.sh
 # Optional: ship dSYM alongside the release
 <<<<<<< HEAD
 <<<<<<< HEAD
-ditto -c -k --keepParent apps/macos/.build/release/Moltbot.app.dSYM dist/Moltbot-2026.1.27-beta.1.dSYM.zip
+ditto -c -k --keepParent apps/macos/.build/release/OpenClaw.app.dSYM dist/OpenClaw-2026.1.27-beta.1.dSYM.zip
 =======
 ditto -c -k --keepParent apps/macos/.build/release/OpenClaw.app.dSYM dist/OpenClaw-2026.2.9.dSYM.zip
 >>>>>>> fb8c653f5 (chore(release): 2026.2.9)
@@ -110,7 +110,7 @@ Use the release note generator so Sparkle renders formatted HTML notes:
 ```bash
 <<<<<<< HEAD
 <<<<<<< HEAD
-SPARKLE_PRIVATE_KEY_FILE=/path/to/ed25519-private-key scripts/make_appcast.sh dist/Moltbot-2026.1.27-beta.1.zip https://raw.githubusercontent.com/moltbot/moltbot/main/appcast.xml
+SPARKLE_PRIVATE_KEY_FILE=/path/to/ed25519-private-key scripts/make_appcast.sh dist/OpenClaw-2026.1.27-beta.1.zip https://raw.githubusercontent.com/moltai/openclawbot/main/appcast.xml
 =======
 SPARKLE_PRIVATE_KEY_FILE=/path/to/ed25519-private-key scripts/make_appcast.sh dist/OpenClaw-2026.2.9.zip https://raw.githubusercontent.com/openclaw/openclaw/main/appcast.xml
 >>>>>>> fb8c653f5 (chore(release): 2026.2.9)
@@ -118,19 +118,19 @@ SPARKLE_PRIVATE_KEY_FILE=/path/to/ed25519-private-key scripts/make_appcast.sh di
 SPARKLE_PRIVATE_KEY_FILE=/path/to/ed25519-private-key scripts/make_appcast.sh dist/OpenClaw-2026.2.25.zip https://raw.githubusercontent.com/openclaw/openclaw/main/appcast.xml
 >>>>>>> 480cc4b85 (chore: roll to 2026.2.25 unreleased)
 ```
-Generates HTML release notes from `CHANGELOG.md` (via [`scripts/changelog-to-html.sh`](https://github.com/moltbot/moltbot/blob/main/scripts/changelog-to-html.sh)) and embeds them in the appcast entry.
+Generates HTML release notes from `CHANGELOG.md` (via [`scripts/changelog-to-html.sh`](https://github.com/moltai/openclawbot/blob/main/scripts/changelog-to-html.sh)) and embeds them in the appcast entry.
 Commit the updated `appcast.xml` alongside the release assets (zip + dSYM) when publishing.
 
 ## Publish & verify
-- Upload `Moltbot-2026.1.27-beta.1.zip` (and `Moltbot-2026.1.27-beta.1.dSYM.zip`) to the GitHub release for tag `v2026.1.27-beta.1`.
-- Ensure the raw appcast URL matches the baked feed: `https://raw.githubusercontent.com/moltbot/moltbot/main/appcast.xml`.
+- Upload `OpenClaw-2026.1.27-beta.1.zip` (and `OpenClaw-2026.1.27-beta.1.dSYM.zip`) to the GitHub release for tag `v2026.1.27-beta.1`.
+- Ensure the raw appcast URL matches the baked feed: `https://raw.githubusercontent.com/moltai/openclawbot/main/appcast.xml`.
 =======
 - Upload `OpenClaw-2026.2.25.zip` (and `OpenClaw-2026.2.25.dSYM.zip`) to the GitHub release for tag `v2026.2.25`.
 >>>>>>> 480cc4b85 (chore: roll to 2026.2.25 unreleased)
 - Ensure the raw appcast URL matches the baked feed: `https://raw.githubusercontent.com/openclaw/openclaw/main/appcast.xml`.
 >>>>>>> 1c4db9159 (chore: prepare 2026.2.2 release)
 - Sanity checks:
-  - `curl -I https://raw.githubusercontent.com/moltbot/moltbot/main/appcast.xml` returns 200.
+  - `curl -I https://raw.githubusercontent.com/moltai/openclawbot/main/appcast.xml` returns 200.
   - `curl -I <enclosure url>` returns 200 after assets upload.
   - On a previous public build, run “Check for Updates…” from the About tab and verify Sparkle installs the new build cleanly.
 

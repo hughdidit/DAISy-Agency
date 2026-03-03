@@ -1,5 +1,5 @@
 import Foundation
-import MoltbotDiscovery
+import OpenClawDiscovery
 
 struct DiscoveryOptions {
     var timeoutMs: Int = 2000
@@ -58,10 +58,10 @@ func runDiscover(_ args: [String]) async {
     let opts = DiscoveryOptions.parse(args)
     if opts.help {
         print("""
-        moltbot-mac discover
+        openclaw-mac discover
 
         Usage:
-          moltbot-mac discover [--timeout <ms>] [--json] [--include-local]
+          openclaw-mac discover [--timeout <ms>] [--json] [--include-local]
 
         Options:
           --timeout <ms>     Discovery window in milliseconds (default: 2000)

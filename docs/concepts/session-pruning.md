@@ -22,7 +22,7 @@ Session pruning trims **old tool results** from the in-memory context right befo
 - **OAuth or setup-token** profiles: enable `cache-ttl` pruning and set heartbeat to `1h`.
 <<<<<<< HEAD
 - **API key** profiles: enable `cache-ttl` pruning, set heartbeat to `30m`, and default `cacheControlTtl` to `1h` on Anthropic models.
-- If you set any of these values explicitly, Moltbot does **not** override them.
+- If you set any of these values explicitly, OpenClaw does **not** override them.
 - **API key** profiles: enable `cache-ttl` pruning, set heartbeat to `30m`, and default `cacheRetention: "short"` on Anthropic models.
 - If you set any of these values explicitly, OpenClaw does **not** override them.
 >>>>>>> 7a8a39a14 (docs: document cacheRetention parameter (#6270))

@@ -1,15 +1,15 @@
 ---
-summary: "Moltbot on DigitalOcean (simple paid VPS option)"
+summary: "OpenClaw on DigitalOcean (simple paid VPS option)"
 read_when:
-  - Setting up Moltbot on DigitalOcean
-  - Looking for cheap VPS hosting for Moltbot
+  - Setting up OpenClaw on DigitalOcean
+  - Looking for cheap VPS hosting for OpenClaw
 ---
 
-# Moltbot on DigitalOcean
+# OpenClaw on DigitalOcean
 
 ## Goal
 
-Run a persistent Moltbot Gateway on DigitalOcean for **$6/month** (or $4/mo with reserved pricing).
+Run a persistent OpenClaw Gateway on DigitalOcean for **$6/month** (or $4/mo with reserved pricing).
 
 If you want a $0/month option and don’t mind ARM + provider-specific setup, see the [Oracle Cloud guide](/platforms/oracle).
 
@@ -58,7 +58,7 @@ Use a clean base image (Ubuntu 24.04 LTS). Avoid third-party Marketplace 1-click
 ssh root@YOUR_DROPLET_IP
 ```
 
-## 3) Install Moltbot
+## 3) Install OpenClaw
 
 ```bash
 # Update system
@@ -68,17 +68,17 @@ apt update && apt upgrade -y
 curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
 apt install -y nodejs
 
-# Install Moltbot
+# Install OpenClaw
 curl -fsSL https://molt.bot/install.sh | bash
 
 # Verify
-moltbot --version
+openclaw --version
 ```
 
 ## 4) Run Onboarding
 
 ```bash
-moltbot onboard --install-daemon
+openclaw onboard --install-daemon
 ```
 
 The wizard will walk you through:
@@ -91,13 +91,13 @@ The wizard will walk you through:
 
 ```bash
 # Check status
-moltbot status
+openclaw status
 
 # Check service
-systemctl --user status moltbot-gateway.service
+systemctl --user status openclaw-gateway.service
 
 # View logs
-journalctl --user -u moltbot-gateway.service -f
+journalctl --user -u openclaw-gateway.service -f
 ```
 
 ## 6) Access the Dashboard
@@ -119,8 +119,8 @@ curl -fsSL https://tailscale.com/install.sh | sh
 tailscale up
 
 # Configure Gateway to use Tailscale Serve
-moltbot config set gateway.tailscale.mode serve
-moltbot gateway restart
+openclaw config set gateway.tailscale.mode serve
+openclaw gateway restart
 ```
 
 Open: `https://<magicdns>/`
@@ -131,8 +131,8 @@ Notes:
 
 **Option C: Tailnet bind (no Serve)**
 ```bash
-moltbot config set gateway.bind tailnet
-moltbot gateway restart
+openclaw config set gateway.bind tailnet
+openclaw gateway restart
 ```
 
 Open: `http://<tailscale-ip>:18789` (token required).
@@ -141,13 +141,13 @@ Open: `http://<tailscale-ip>:18789` (token required).
 
 ### Telegram
 ```bash
-moltbot pairing list telegram
-moltbot pairing approve telegram <CODE>
+openclaw pairing list telegram
+openclaw pairing approve telegram <CODE>
 ```
 
 ### WhatsApp
 ```bash
-moltbot channels login whatsapp
+openclaw channels login whatsapp
 # Scan QR code
 ```
 
@@ -184,12 +184,12 @@ htop
 ## Persistence
 
 All state lives in:
-- `~/.clawdbot/` — config, credentials, session data
+- `~/.openclaw/` — config, credentials, session data
 - `~/clawd/` — workspace (SOUL.md, memory, etc.)
 
 These survive reboots. Back them up periodically:
 ```bash
-tar -czvf moltbot-backup.tar.gz ~/.clawdbot ~/clawd
+tar -czvf openclaw-backup.tar.gz ~/.openclaw ~/clawd
 ```
 
 ---
@@ -217,9 +217,9 @@ For the full setup guide, see [Oracle Cloud](/platforms/oracle). For signup tips
 
 ### Gateway won't start
 ```bash
-moltbot gateway status
-moltbot doctor --non-interactive
-journalctl -u moltbot --no-pager -n 50
+openclaw gateway status
+openclaw doctor --non-interactive
+journalctl -u openclaw --no-pager -n 50
 ```
 
 ### Port already in use

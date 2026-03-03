@@ -1,10 +1,10 @@
 ---
 name: tmux
 description: Remote-control tmux sessions for interactive CLIs by sending keystrokes and scraping pane output.
-metadata: {"moltbot":{"emoji":"🧵","os":["darwin","linux"],"requires":{"bins":["tmux"]}}}
+metadata: {"openclaw":{"emoji":"🧵","os":["darwin","linux"],"requires":{"bins":["tmux"]}}}
 ---
 
-# tmux Skill (Moltbot)
+# tmux Skill (OpenClaw)
 
 Control tmux sessions by sending keystrokes and reading output. Essential for managing Claude Code sessions.
 
@@ -40,10 +40,10 @@ Control tmux sessions by sending keystrokes and reading output. Essential for ma
 ### List Sessions
 
 ```bash
-SOCKET_DIR="${CLAWDBOT_TMUX_SOCKET_DIR:-${TMPDIR:-/tmp}/moltbot-tmux-sockets}"
+SOCKET_DIR="${OPENCLAW_TMUX_SOCKET_DIR:-${TMPDIR:-/tmp}/openclaw-tmux-sockets}"
 mkdir -p "$SOCKET_DIR"
-SOCKET="$SOCKET_DIR/moltbot.sock"
-SESSION=moltbot-python
+SOCKET="$SOCKET_DIR/openclaw.sock"
+SESSION=openclaw-python
 
 tmux -S "$SOCKET" new -d -s "$SESSION" -n shell
 tmux -S "$SOCKET" send-keys -t "$SESSION":0.0 -- 'PYTHON_BASIC_REPL=1 python3 -q' Enter
@@ -60,8 +60,8 @@ To monitor:
 
 ## Socket convention
 
-- Use `CLAWDBOT_TMUX_SOCKET_DIR` (default `${TMPDIR:-/tmp}/moltbot-tmux-sockets`).
-- Default socket path: `"$CLAWDBOT_TMUX_SOCKET_DIR/moltbot.sock"`.
+- Use `OPENCLAW_TMUX_SOCKET_DIR` (default `${TMPDIR:-/tmp}/openclaw-tmux-sockets`).
+- Default socket path: `"$OPENCLAW_TMUX_SOCKET_DIR/openclaw.sock"`.
 
 ## Targeting panes and naming
 
@@ -72,7 +72,7 @@ To monitor:
 ## Finding sessions
 
 - List sessions on your socket: `{baseDir}/scripts/find-sessions.sh -S "$SOCKET"`.
-- Scan all sockets: `{baseDir}/scripts/find-sessions.sh --all` (uses `CLAWDBOT_TMUX_SOCKET_DIR`).
+- Scan all sockets: `{baseDir}/scripts/find-sessions.sh --all` (uses `OPENCLAW_TMUX_SOCKET_DIR`).
 
 ## Sending input safely
 

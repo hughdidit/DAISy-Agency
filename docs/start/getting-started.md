@@ -10,12 +10,12 @@ title: "Getting Started"
 
 Goal: go from zero to a first working chat with minimal setup.
 
-Fastest chat: open the Control UI (no channel setup needed). Run `moltbot dashboard`
+Fastest chat: open the Control UI (no channel setup needed). Run `openclaw dashboard`
 and chat in the browser, or open `http://127.0.0.1:18789/` on the gateway host.
 Docs: [Dashboard](/web/dashboard) and [Control UI](/web/control-ui).
 </Info>
 
-Recommended path: use the **CLI onboarding wizard** (`moltbot onboard`). It sets up:
+Recommended path: use the **CLI onboarding wizard** (`openclaw onboard`). It sets up:
 - model/auth (OAuth recommended)
 - gateway settings
 - channels (WhatsApp/Telegram/Discord/Mattermost (plugin)/...)
@@ -49,7 +49,7 @@ Check your Node version with `node --version` if you are unsure.
 - Node `>=22`
 - `pnpm` (optional; recommended if you build from source)
 - **Recommended:** Brave Search API key for web search. Easiest path:
-  `moltbot configure --section web` (stores `tools.web.search.apiKey`).
+  `openclaw configure --section web` (stores `tools.web.search.apiKey`).
   See [Web tools](/tools/web).
 
     The wizard configures auth, gateway settings, and optional channels.
@@ -90,11 +90,11 @@ iwr -useb https://molt.bot/install.ps1 | iex
     Useful for quick tests or troubleshooting.
 
 ```bash
-npm install -g moltbot@latest
+npm install -g openclaw@latest
 ```
 
 ```bash
-pnpm add -g moltbot@latest
+pnpm add -g openclaw@latest
 ```
 
     ```bash
@@ -102,7 +102,7 @@ pnpm add -g moltbot@latest
     ```
 
 ```bash
-moltbot onboard --install-daemon
+openclaw onboard --install-daemon
 ```
 
 What you’ll choose:
@@ -121,8 +121,8 @@ What you’ll choose:
 
 ## Next steps
 
-- OAuth credentials (legacy import): `~/.clawdbot/credentials/oauth.json`
-- Auth profiles (OAuth + API keys): `~/.clawdbot/agents/<agentId>/agent/auth-profiles.json`
+- OAuth credentials (legacy import): `~/.openclaw/credentials/oauth.json`
+- Auth profiles (OAuth + API keys): `~/.openclaw/agents/<agentId>/agent/auth-profiles.json`
 
 Headless/server tip: do OAuth on a normal machine first, then copy `oauth.json` to the gateway host.
 
@@ -131,13 +131,13 @@ Headless/server tip: do OAuth on a normal machine first, then copy `oauth.json` 
 If you installed the service during onboarding, the Gateway should already be running:
 
 ```bash
-moltbot gateway status
+openclaw gateway status
 ```
 
 Manual run (foreground):
 
 ```bash
-moltbot gateway --port 18789 --verbose
+openclaw gateway --port 18789 --verbose
 ```
 
 Dashboard (local loopback): `http://127.0.0.1:18789/`
@@ -149,9 +149,9 @@ channels. If you use WhatsApp or Telegram, run the Gateway with **Node**.
 ## 3.5) Quick verify (2 min)
 
 ```bash
-moltbot status
-moltbot health
-moltbot security audit --deep
+openclaw status
+openclaw health
+openclaw security audit --deep
 ```
 
 ## 4) Pair + connect your first chat surface
@@ -159,7 +159,7 @@ moltbot security audit --deep
 ### WhatsApp (QR login)
 
 ```bash
-moltbot channels login
+openclaw channels login
 ```
 
 Scan via WhatsApp → Settings → Linked Devices.
@@ -181,32 +181,32 @@ Default posture: unknown DMs get a short code and messages are not processed unt
 If your first DM gets no reply, approve the pairing:
 
 ```bash
-moltbot pairing list whatsapp
-moltbot pairing approve whatsapp <code>
+openclaw pairing list whatsapp
+openclaw pairing approve whatsapp <code>
 ```
 
 Pairing doc: [Pairing](/start/pairing)
 
 ## From source (development)
 
-If you’re hacking on Moltbot itself, run from source:
+If you’re hacking on OpenClaw itself, run from source:
 
 ```bash
-git clone https://github.com/moltbot/moltbot.git
-cd moltbot
+git clone https://github.com/moltai/openclawbot.git
+cd openclaw
 pnpm install
 pnpm ui:build # auto-installs UI deps on first run
 pnpm build
-moltbot onboard --install-daemon
+openclaw onboard --install-daemon
 ```
 
-If you don’t have a global install yet, run the onboarding step via `pnpm moltbot ...` from the repo.
+If you don’t have a global install yet, run the onboarding step via `pnpm openclaw ...` from the repo.
 `pnpm build` also bundles A2UI assets; if you need to run just that step, use `pnpm canvas:a2ui:bundle`.
 
 Gateway (from this repo):
 
 ```bash
-node moltbot.mjs gateway --port 18789 --verbose
+node openclaw.mjs gateway --port 18789 --verbose
 ```
 
 ## 7) Verify end-to-end
@@ -214,13 +214,13 @@ node moltbot.mjs gateway --port 18789 --verbose
 In a new terminal, send a test message:
 
 ```bash
-moltbot message send --target +15555550123 --message "Hello from Moltbot"
+openclaw message send --target +15555550123 --message "Hello from OpenClaw"
 ```
 
-If `moltbot health` shows “no auth configured”, go back to the wizard and set OAuth/key auth — the agent won’t be able to respond without it.
+If `openclaw health` shows “no auth configured”, go back to the wizard and set OAuth/key auth — the agent won’t be able to respond without it.
 
-Tip: `moltbot status --all` is the best pasteable, read-only debug report.
-Health probes: `moltbot health` (or `moltbot status --deep`) asks the running gateway for a health snapshot.
+Tip: `openclaw status --all` is the best pasteable, read-only debug report.
+Health probes: `openclaw health` (or `openclaw status --deep`) asks the running gateway for a health snapshot.
 
 ## Next steps (optional, but great)
 

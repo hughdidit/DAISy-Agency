@@ -1,12 +1,12 @@
 import AppKit
 import Foundation
-import MoltbotProtocol
+import OpenClawProtocol
 import Testing
-@testable import Moltbot
+@testable import OpenClaw
 
 @Suite(.serialized)
 struct LowCoverageHelperTests {
-    private typealias ProtoAnyCodable = MoltbotProtocol.AnyCodable
+    private typealias ProtoAnyCodable = OpenClawProtocol.AnyCodable
 
     @Test func anyCodableHelperAccessors() throws {
         let payload: [String: ProtoAnyCodable] = [

@@ -53,7 +53,7 @@
 >>>>>>> 1c4db9159 (chore: prepare 2026.2.2 release)
 
 ### Changes
-- Version alignment with core Moltbot release numbers.
+- Version alignment with core OpenClaw release numbers.
 
 =======
 >>>>>>> 95c14d9b5 (docs: prune low-signal changelog entries)
@@ -74,5 +74,5 @@
 ### Improvements
 
 - Added proper configuration schema with Zod validation
-- Added plugin descriptor (moltbot.plugin.json)
+- Added plugin descriptor (openclaw.plugin.json)
 - Added comprehensive README and documentation

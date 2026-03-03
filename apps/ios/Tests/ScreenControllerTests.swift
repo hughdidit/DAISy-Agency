@@ -1,6 +1,6 @@
 import Testing
 import WebKit
-@testable import Moltbot
+@testable import OpenClaw
 
 @MainActor
 private func mountScreen(_ screen: ScreenController) throws -> (ScreenWebViewCoordinator, WKWebView) {

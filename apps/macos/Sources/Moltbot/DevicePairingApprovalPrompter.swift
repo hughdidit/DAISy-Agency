@@ -1,7 +1,7 @@
 import AppKit
 import Foundation
-import MoltbotKit
-import MoltbotProtocol
+import OpenClawKit
+import OpenClawProtocol
 import Observation
 import OSLog
 
@@ -10,7 +10,7 @@ import OSLog
 final class DevicePairingApprovalPrompter {
     static let shared = DevicePairingApprovalPrompter()
 
-    private let logger = Logger(subsystem: "bot.molt", category: "device-pairing")
+    private let logger = Logger(subsystem: "ai.openclaw", category: "device-pairing")
     private var task: Task<Void, Never>?
     private var isStopping = false
     private var isPresenting = false

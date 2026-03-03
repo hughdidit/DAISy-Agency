@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { PluginRuntime } from "clawdbot/plugin-sdk";
+import type { PluginRuntime } from "openclaw/plugin-sdk";
 import { setMSTeamsRuntime } from "./runtime.js";
 
 /** Mock DNS resolver that always returns a public IP (for anti-SSRF validation in tests). */

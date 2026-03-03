@@ -10,7 +10,7 @@ title: "Control UI"
 The Control UI is a small **Vite + Lit** single-page app served by the Gateway:
 
 - default: `http://<host>:18789/`
-- optional prefix: set `gateway.controlUi.basePath` (e.g. `/moltbot`)
+- optional prefix: set `gateway.controlUi.basePath` (e.g. `/openclaw`)
 
 It speaks **directly to the Gateway WebSocket** on the same port.
 
@@ -20,7 +20,7 @@ If the Gateway is running on the same computer, open:
 
 - [http://127.0.0.1:18789/](http://127.0.0.1:18789/) (or [http://localhost:18789/](http://localhost:18789/))
 
-If the page fails to load, start the Gateway first: `moltbot gateway`.
+If the page fails to load, start the Gateway first: `openclaw gateway`.
 
 Auth is supplied during the WebSocket handshake via:
 - `connect.params.auth.token`
@@ -68,7 +68,7 @@ you revoke it with `openclaw devices revoke --device <id> --role <role>`. See
 - Skills: status, enable/disable, install, API key updates (`skills.*`)
 - Nodes: list + caps (`node.list`)
 - Exec approvals: edit gateway or node allowlists + ask policy for `exec host=gateway/node` (`exec.approvals.*`)
-- Config: view/edit `~/.clawdbot/moltbot.json` (`config.get`, `config.set`)
+- Config: view/edit `~/.clawdai/openclawbot.json` (`config.get`, `config.set`)
 - Config: apply + restart with validation (`config.apply`) and wake the last active session
 - Config writes include a base-hash guard to prevent clobbering concurrent edits
 - Config schema + form rendering (`config.schema`, including plugin + channel schemas); Raw JSON editor remains available
@@ -93,14 +93,14 @@ you revoke it with `openclaw devices revoke --device <id> --role <role>`. See
 Keep the Gateway on loopback and let Tailscale Serve proxy it with HTTPS:
 
 ```bash
-moltbot gateway --tailscale serve
+openclaw gateway --tailscale serve
 ```
 
 Open:
 - `https://<magicdns>/` (or your configured `gateway.controlUi.basePath`)
 
 By default, Serve requests can authenticate via Tailscale identity headers
-(`tailscale-user-login`) when `gateway.auth.allowTailscale` is `true`. Moltbot
+(`tailscale-user-login`) when `gateway.auth.allowTailscale` is `true`. OpenClaw
 verifies the identity by resolving the `x-forwarded-for` address with
 `tailscale whois` and matching it to the header, and only accepts these when the
 request hits loopback with Tailscale’s `x-forwarded-*` headers. Set
@@ -112,7 +112,7 @@ code may run on that host, require token/password auth.
 ### Bind to tailnet + token
 
 ```bash
-moltbot gateway --bind tailnet --token "$(openssl rand -hex 32)"
+openclaw gateway --bind tailnet --token "$(openssl rand -hex 32)"
 ```
 
 Then open:
@@ -124,7 +124,7 @@ Paste the token into the UI settings (sent as `connect.params.auth.token`).
 
 If you open the dashboard over plain HTTP (`http://<lan-ip>` or `http://<tailscale-ip>`),
 the browser runs in a **non-secure context** and blocks WebCrypto. By default,
-Moltbot **blocks** Control UI connections without device identity.
+OpenClaw **blocks** Control UI connections without device identity.
 
 **Recommended fix:** use HTTPS (Tailscale Serve) or open the UI locally:
 - `https://<magicdns>/` (Serve)
@@ -158,7 +158,7 @@ pnpm ui:build # auto-installs UI deps on first run
 Optional absolute base (when you want fixed asset URLs):
 
 ```bash
-CLAWDBOT_CONTROL_UI_BASE_PATH=/moltbot/ pnpm ui:build
+OPENCLAW_CONTROL_UI_BASE_PATH=/openclaw/ pnpm ui:build
 ```
 
 For local development (separate dev server):

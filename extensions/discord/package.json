@@ -1,5 +1,5 @@
 {
-  "name": "@moltbot/discord",
+  "name": "@openclaw/discord",
   "version": "2026.1.27-beta.1",
 =======
   "version": "2026.2.2",
@@ -27,8 +27,8 @@
   "description": "OpenClaw Discord channel plugin",
 >>>>>>> 1c4db9159 (chore: prepare 2026.2.2 release)
   "type": "module",
-  "description": "Moltbot Discord channel plugin",
-  "moltbot": {
+  "description": "OpenClaw Discord channel plugin",
+  "openclaw": {
     "extensions": [
       "./index.ts"
     ]

@@ -131,7 +131,7 @@ export function buildServiceEnvironment(params: {
   launchdLabel?: string;
 }): Record<string, string | undefined> {
   const { env, port, token, launchdLabel } = params;
-  const profile = env.CLAWDBOT_PROFILE;
+  const profile = env.OPENCLAW_PROFILE;
   const resolvedLaunchdLabel =
     launchdLabel ||
     (process.platform === "darwin" ? resolveGatewayLaunchAgentLabel(profile) : undefined);
@@ -139,16 +139,16 @@ export function buildServiceEnvironment(params: {
   return {
     HOME: env.HOME,
     PATH: buildMinimalServicePath({ env }),
-    CLAWDBOT_PROFILE: profile,
-    CLAWDBOT_STATE_DIR: env.CLAWDBOT_STATE_DIR,
-    CLAWDBOT_CONFIG_PATH: env.CLAWDBOT_CONFIG_PATH,
-    CLAWDBOT_GATEWAY_PORT: String(port),
-    CLAWDBOT_GATEWAY_TOKEN: token,
-    CLAWDBOT_LAUNCHD_LABEL: resolvedLaunchdLabel,
-    CLAWDBOT_SYSTEMD_UNIT: systemdUnit,
-    CLAWDBOT_SERVICE_MARKER: GATEWAY_SERVICE_MARKER,
-    CLAWDBOT_SERVICE_KIND: GATEWAY_SERVICE_KIND,
-    CLAWDBOT_SERVICE_VERSION: VERSION,
+    OPENCLAW_PROFILE: profile,
+    OPENCLAW_STATE_DIR: env.OPENCLAW_STATE_DIR,
+    OPENCLAW_CONFIG_PATH: env.OPENCLAW_CONFIG_PATH,
+    OPENCLAW_GATEWAY_PORT: String(port),
+    OPENCLAW_GATEWAY_TOKEN: token,
+    OPENCLAW_LAUNCHD_LABEL: resolvedLaunchdLabel,
+    OPENCLAW_SYSTEMD_UNIT: systemdUnit,
+    OPENCLAW_SERVICE_MARKER: GATEWAY_SERVICE_MARKER,
+    OPENCLAW_SERVICE_KIND: GATEWAY_SERVICE_KIND,
+    OPENCLAW_SERVICE_VERSION: VERSION,
   };
 }
 
@@ -159,15 +159,15 @@ export function buildNodeServiceEnvironment(params: {
   return {
     HOME: env.HOME,
     PATH: buildMinimalServicePath({ env }),
-    CLAWDBOT_STATE_DIR: env.CLAWDBOT_STATE_DIR,
-    CLAWDBOT_CONFIG_PATH: env.CLAWDBOT_CONFIG_PATH,
-    CLAWDBOT_LAUNCHD_LABEL: resolveNodeLaunchAgentLabel(),
-    CLAWDBOT_SYSTEMD_UNIT: resolveNodeSystemdServiceName(),
-    CLAWDBOT_WINDOWS_TASK_NAME: resolveNodeWindowsTaskName(),
-    CLAWDBOT_TASK_SCRIPT_NAME: NODE_WINDOWS_TASK_SCRIPT_NAME,
-    CLAWDBOT_LOG_PREFIX: "node",
-    CLAWDBOT_SERVICE_MARKER: NODE_SERVICE_MARKER,
-    CLAWDBOT_SERVICE_KIND: NODE_SERVICE_KIND,
-    CLAWDBOT_SERVICE_VERSION: VERSION,
+    OPENCLAW_STATE_DIR: env.OPENCLAW_STATE_DIR,
+    OPENCLAW_CONFIG_PATH: env.OPENCLAW_CONFIG_PATH,
+    OPENCLAW_LAUNCHD_LABEL: resolveNodeLaunchAgentLabel(),
+    OPENCLAW_SYSTEMD_UNIT: resolveNodeSystemdServiceName(),
+    OPENCLAW_WINDOWS_TASK_NAME: resolveNodeWindowsTaskName(),
+    OPENCLAW_TASK_SCRIPT_NAME: NODE_WINDOWS_TASK_SCRIPT_NAME,
+    OPENCLAW_LOG_PREFIX: "node",
+    OPENCLAW_SERVICE_MARKER: NODE_SERVICE_MARKER,
+    OPENCLAW_SERVICE_KIND: NODE_SERVICE_KIND,
+    OPENCLAW_SERVICE_VERSION: VERSION,
   };
 }

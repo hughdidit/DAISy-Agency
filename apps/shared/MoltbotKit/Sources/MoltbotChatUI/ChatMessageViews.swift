@@ -1,4 +1,4 @@
-import MoltbotKit
+import OpenClawKit
 import Foundation
 import SwiftUI
 
@@ -135,8 +135,8 @@ private struct ChatBubbleShape: InsettableShape {
 
 @MainActor
 struct ChatMessageBubble: View {
-    let message: MoltbotChatMessage
-    let style: MoltbotChatView.Style
+    let message: OpenClawChatMessage
+    let style: OpenClawChatView.Style
     let markdownVariant: ChatMarkdownVariant
     let userAccent: Color?
 
@@ -157,15 +157,15 @@ struct ChatMessageBubble: View {
 
 @MainActor
 private struct ChatMessageBody: View {
-    let message: MoltbotChatMessage
+    let message: OpenClawChatMessage
     let isUser: Bool
-    let style: MoltbotChatView.Style
+    let style: OpenClawChatView.Style
     let markdownVariant: ChatMarkdownVariant
     let userAccent: Color?
 
     var body: some View {
         let text = self.primaryText
-        let textColor = self.isUser ? MoltbotChatTheme.userText : MoltbotChatTheme.assistantText
+        let textColor = self.isUser ? OpenClawChatTheme.userText : OpenClawChatTheme.assistantText
 
         VStack(alignment: .leading, spacing: 10) {
             if self.isToolResultMessage {
@@ -234,7 +234,7 @@ private struct ChatMessageBody: View {
         return parts.joined(separator: "\n").trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
-    private var inlineAttachments: [MoltbotChatMessageContent] {
+    private var inlineAttachments: [OpenClawChatMessageContent] {
         self.message.content.filter { content in
             switch content.type ?? "text" {
             case "file", "attachment":
@@ -245,7 +245,7 @@ private struct ChatMessageBody: View {
         }
     }
 
-    private var toolCalls: [MoltbotChatMessageContent] {
+    private var toolCalls: [OpenClawChatMessageContent] {
         self.message.content.filter { content in
             let kind = (content.type ?? "").lowercased()
             if ["toolcall", "tool_call", "tooluse", "tool_use"].contains(kind) {
@@ -255,7 +255,7 @@ private struct ChatMessageBody: View {
         }
     }
 
-    private var inlineToolResults: [MoltbotChatMessageContent] {
+    private var inlineToolResults: [OpenClawChatMessageContent] {
         self.message.content.filter { content in
             let kind = (content.type ?? "").lowercased()
             return kind == "toolresult" || kind == "tool_result"
@@ -278,12 +278,12 @@ private struct ChatMessageBody: View {
 
     private var bubbleFillColor: Color {
         if self.isUser {
-            return self.userAccent ?? MoltbotChatTheme.userBubble
+            return self.userAccent ?? OpenClawChatTheme.userBubble
         }
         if self.style == .onboarding {
-            return MoltbotChatTheme.onboardingAssistantBubble
+            return OpenClawChatTheme.onboardingAssistantBubble
         }
-        return MoltbotChatTheme.assistantBubble
+        return OpenClawChatTheme.assistantBubble
     }
 
     private var bubbleBackground: AnyShapeStyle {
@@ -295,7 +295,7 @@ private struct ChatMessageBody: View {
             return Color.white.opacity(0.12)
         }
         if self.style == .onboarding {
-            return MoltbotChatTheme.onboardingAssistantBorder
+            return OpenClawChatTheme.onboardingAssistantBorder
         }
         return Color.white.opacity(0.08)
     }
@@ -341,7 +341,7 @@ private struct ChatMessageBody: View {
 }
 
 private struct AttachmentRow: View {
-    let att: MoltbotChatMessageContent
+    let att: OpenClawChatMessageContent
     let isUser: Bool
 
     var body: some View {
@@ -350,7 +350,7 @@ private struct AttachmentRow: View {
             Text(self.att.fileName ?? "Attachment")
                 .font(.footnote)
                 .lineLimit(1)
-                .foregroundStyle(self.isUser ? MoltbotChatTheme.userText : MoltbotChatTheme.assistantText)
+                .foregroundStyle(self.isUser ? OpenClawChatTheme.userText : OpenClawChatTheme.assistantText)
             Spacer()
         }
         .padding(10)
@@ -360,7 +360,7 @@ private struct AttachmentRow: View {
 }
 
 private struct ToolCallCard: View {
-    let content: MoltbotChatMessageContent
+    let content: OpenClawChatMessageContent
     let isUser: Bool
 
     var body: some View {
@@ -381,7 +381,7 @@ private struct ToolCallCard: View {
         .padding(10)
         .background(
             RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .fill(MoltbotChatTheme.subtleCard)
+                .fill(OpenClawChatTheme.subtleCard)
                 .overlay(
                     RoundedRectangle(cornerRadius: 12, style: .continuous)
                         .strokeBorder(Color.white.opacity(0.08), lineWidth: 1)))
@@ -417,7 +417,7 @@ private struct ToolResultCard: View {
 
             Text(self.displayText)
                 .font(.footnote.monospaced())
-                .foregroundStyle(self.isUser ? MoltbotChatTheme.userText : MoltbotChatTheme.assistantText)
+                .foregroundStyle(self.isUser ? OpenClawChatTheme.userText : OpenClawChatTheme.assistantText)
                 .lineLimit(self.expanded ? nil : Self.previewLineLimit)
 
             if self.shouldShowToggle {
@@ -436,7 +436,7 @@ private struct ToolResultCard: View {
         .padding(10)
         .background(
             RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .fill(MoltbotChatTheme.subtleCard)
+                .fill(OpenClawChatTheme.subtleCard)
                 .overlay(
                     RoundedRectangle(cornerRadius: 12, style: .continuous)
                         .strokeBorder(Color.white.opacity(0.08), lineWidth: 1)))
@@ -464,7 +464,7 @@ private struct ToolResultCard: View {
 
 @MainActor
 struct ChatTypingIndicatorBubble: View {
-    let style: MoltbotChatView.Style
+    let style: OpenClawChatView.Style
 
     var body: some View {
         HStack(spacing: 10) {
@@ -480,7 +480,7 @@ struct ChatTypingIndicatorBubble: View {
         .padding(.horizontal, self.style == .standard ? 12 : 14)
         .background(
             RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .fill(MoltbotChatTheme.assistantBubble))
+                .fill(OpenClawChatTheme.assistantBubble))
         .overlay(
             RoundedRectangle(cornerRadius: 16, style: .continuous)
                 .strokeBorder(Color.white.opacity(0.08), lineWidth: 1))
@@ -507,7 +507,7 @@ struct ChatStreamingAssistantBubble: View {
         .padding(12)
         .background(
             RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .fill(MoltbotChatTheme.assistantBubble))
+                .fill(OpenClawChatTheme.assistantBubble))
         .overlay(
             RoundedRectangle(cornerRadius: 16, style: .continuous)
                 .strokeBorder(Color.white.opacity(0.08), lineWidth: 1))
@@ -518,7 +518,7 @@ struct ChatStreamingAssistantBubble: View {
 
 @MainActor
 struct ChatPendingToolsBubble: View {
-    let toolCalls: [MoltbotChatPendingToolCall]
+    let toolCalls: [OpenClawChatPendingToolCall]
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -551,7 +551,7 @@ struct ChatPendingToolsBubble: View {
         .padding(12)
         .background(
             RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .fill(MoltbotChatTheme.assistantBubble))
+                .fill(OpenClawChatTheme.assistantBubble))
         .overlay(
             RoundedRectangle(cornerRadius: 16, style: .continuous)
                 .strokeBorder(Color.white.opacity(0.08), lineWidth: 1))
@@ -620,7 +620,7 @@ private struct ChatAssistantTextBody: View {
                     context: .assistant,
                     variant: self.markdownVariant,
                     font: font,
-                    textColor: MoltbotChatTheme.assistantText)
+                    textColor: OpenClawChatTheme.assistantText)
             }
         }
     }

@@ -1,5 +1,5 @@
 {
-  "name": "@moltbot/lobster",
+  "name": "@openclaw/lobster",
   "version": "2026.1.27-beta.1",
 =======
   "version": "2026.2.2",
@@ -28,7 +28,7 @@
 >>>>>>> 1c4db9159 (chore: prepare 2026.2.2 release)
   "type": "module",
   "description": "Lobster workflow tool plugin (typed pipelines + resumable approvals)",
-  "moltbot": {
+  "openclaw": {
     "extensions": [
       "./index.ts"
     ]

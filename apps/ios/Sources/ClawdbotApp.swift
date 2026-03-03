@@ -42,7 +42,7 @@ final class OpenClawAppDelegate: NSObject, UIApplicationDelegate {
 }
 
 @main
-struct MoltbotApp: App {
+struct OpenClawApp: App {
     @State private var appModel: NodeAppModel
     @State private var gatewayController: GatewayConnectionController
     @UIApplicationDelegateAdaptor(OpenClawAppDelegate.self) private var appDelegate

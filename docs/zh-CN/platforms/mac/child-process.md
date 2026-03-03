@@ -20,18 +20,18 @@ macOS 应用默认**通过 launchd 管理 Gateway网关**，不会将 Gateway网
 
 ## 默认行为（launchd）
 
-- 应用安装一个标签为 `bot.molt.gateway` 的用户级 LaunchAgent（使用 `--profile`/`OPENCLAW_PROFILE` 时为 `bot.molt.<profile>`；兼容旧版 `com.openclaw.*`）。
+- 应用安装一个标签为 `ai.openclaw.gateway` 的用户级 LaunchAgent（使用 `--profile`/`OPENCLAW_PROFILE` 时为 `ai.openclaw.<profile>`；兼容旧版 `com.openclaw.*`）。
 - 当启用本地模式时，应用会确保 LaunchAgent 已加载，并在需要时启动 Gateway网关。
 - 日志写入 launchd Gateway网关日志路径（可在调试设置中查看）。
 
 常用命令：
 
 ```bash
-launchctl kickstart -k gui/$UID/bot.molt.gateway
-launchctl bootout gui/$UID/bot.molt.gateway
+launchctl kickstart -k gui/$UID/ai.openclaw.gateway
+launchctl bootout gui/$UID/ai.openclaw.gateway
 ```
 
-运行命名配置文件时，请将标签替换为 `bot.molt.<profile>`。
+运行命名配置文件时，请将标签替换为 `ai.openclaw.<profile>`。
 
 ## 未签名的开发构建
 

@@ -70,7 +70,7 @@ function normalizeUrl(raw: string, schemeFallback: "ws" | "wss"): string | null 
 
 function resolveGatewayPort(cfg: OpenClawPluginApi["config"]): number {
   const envRaw =
-    process.env.OPENCLAW_GATEWAY_PORT?.trim() || process.env.CLAWDBOT_GATEWAY_PORT?.trim();
+    process.env.OPENCLAW_GATEWAY_PORT?.trim() || process.env.OPENCLAW_GATEWAY_PORT?.trim();
   if (envRaw) {
     const parsed = Number.parseInt(envRaw, 10);
     if (Number.isFinite(parsed) && parsed > 0) {
@@ -216,11 +216,11 @@ function resolveAuth(cfg: OpenClawPluginApi["config"]): ResolveAuthResult {
   const mode = cfg.gateway?.auth?.mode;
   const token =
     process.env.OPENCLAW_GATEWAY_TOKEN?.trim() ||
-    process.env.CLAWDBOT_GATEWAY_TOKEN?.trim() ||
+    process.env.OPENCLAW_GATEWAY_TOKEN?.trim() ||
     cfg.gateway?.auth?.token?.trim();
   const password =
     process.env.OPENCLAW_GATEWAY_PASSWORD?.trim() ||
-    process.env.CLAWDBOT_GATEWAY_PASSWORD?.trim() ||
+    process.env.OPENCLAW_GATEWAY_PASSWORD?.trim() ||
     cfg.gateway?.auth?.password?.trim();
 
   if (mode === "password") {

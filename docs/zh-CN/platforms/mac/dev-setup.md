@@ -90,7 +90,7 @@ xcrun swift --version
 
 1. 重置 TCC 权限：
    ```bash
-   tccutil reset All bot.molt.mac.debug
+   tccutil reset All ai.openclaw.mac.debug
    ```
 2. 如果仍然无效，在 [`scripts/package-mac-app.sh`](https://github.com/openclaw/openclaw/blob/main/scripts/package-mac-app.sh) 中临时更改 `BUNDLE_ID`，以强制 macOS 使用"全新状态"。
 

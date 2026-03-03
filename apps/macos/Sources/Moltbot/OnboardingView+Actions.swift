@@ -1,7 +1,7 @@
 import AppKit
 import Foundation
-import MoltbotDiscovery
-import MoltbotIPC
+import OpenClawDiscovery
+import OpenClawIPC
 import SwiftUI
 
 extension OnboardingView {
@@ -35,7 +35,7 @@ extension OnboardingView {
                 user: user,
                 host: host,
                 port: gateway.sshPort)
-            MoltbotConfigFile.setRemoteGatewayUrl(host: host, port: gateway.gatewayPort)
+            OpenClawConfigFile.setRemoteGatewayUrl(host: host, port: gateway.gatewayPort)
         }
         self.state.remoteCliPath = gateway.cliPath ?? ""
 
@@ -47,7 +47,7 @@ extension OnboardingView {
         SettingsTabRouter.request(tab)
         self.openSettings()
         DispatchQueue.main.async {
-            NotificationCenter.default.post(name: .moltbotSelectSettingsTab, object: tab)
+            NotificationCenter.default.post(name: .openclawSelectSettingsTab, object: tab)
         }
     }
 
@@ -67,7 +67,7 @@ extension OnboardingView {
     }
 
     func finish() {
-        UserDefaults.standard.set(true, forKey: "moltbot.onboardingSeen")
+        UserDefaults.standard.set(true, forKey: "openclaw.onboardingSeen")
         UserDefaults.standard.set(currentOnboardingVersion, forKey: onboardingVersionKey)
         OnboardingController.shared.close()
     }
@@ -113,9 +113,9 @@ extension OnboardingView {
                 code: parsed.code,
                 state: parsed.state,
                 verifier: pkce.verifier)
-            try MoltbotOAuthStore.saveAnthropicOAuth(creds)
+            try OpenClawOAuthStore.saveAnthropicOAuth(creds)
             self.refreshAnthropicOAuthStatus()
-            self.anthropicAuthStatus = "Connected. Moltbot can now use Claude."
+            self.anthropicAuthStatus = "Connected. OpenClaw can now use Claude."
         } catch {
             self.anthropicAuthStatus = "OAuth failed: \(error.localizedDescription)"
         }

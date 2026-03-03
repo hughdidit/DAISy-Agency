@@ -1,5 +1,5 @@
 {
-  "name": "@moltbot/matrix",
+  "name": "@openclaw/matrix",
   "version": "2026.1.27-beta.1",
 =======
   "version": "2026.2.2",
@@ -27,8 +27,8 @@
   "description": "OpenClaw Matrix channel plugin",
 >>>>>>> 1c4db9159 (chore: prepare 2026.2.2 release)
   "type": "module",
-  "description": "Moltbot Matrix channel plugin",
-  "moltbot": {
+  "description": "OpenClaw Matrix channel plugin",
+  "openclaw": {
     "extensions": [
       "./index.ts"
     ],
@@ -43,7 +43,7 @@
       "quickstartAllowFrom": true
     },
     "install": {
-      "npmSpec": "@moltbot/matrix",
+      "npmSpec": "@openclaw/matrix",
       "localPath": "extensions/matrix",
       "defaultChoice": "npm"
     }
@@ -56,6 +56,6 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
-    "moltbot": "workspace:*"
+    "openclaw": "workspace:*"
   }
 }

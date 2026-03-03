@@ -1,5 +1,5 @@
 ---
-summary: "Model providers (LLMs) supported by Moltbot"
+summary: "Model providers (LLMs) supported by OpenClaw"
 read_when:
   - You want to choose a model provider
   - You need a quick overview of supported LLM backends
@@ -7,7 +7,7 @@ title: "Model Providers"
 ---
 # Model Providers
 
-Moltbot can use many LLM providers. Pick a provider, authenticate, then set the
+OpenClaw can use many LLM providers. Pick a provider, authenticate, then set the
 default model as `provider/model`.
 
 Looking for chat channel docs (WhatsApp/Telegram/Discord/Slack/Mattermost (plugin)/etc.)? See [Channels](/channels).
@@ -23,7 +23,7 @@ See [Venice AI](/providers/venice).
 
 ## Quick start
 
-1) Authenticate with the provider (usually via `moltbot onboard`).
+1) Authenticate with the provider (usually via `openclaw onboard`).
 2) Set the default model:
 
 ```json5

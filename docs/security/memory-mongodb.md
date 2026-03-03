@@ -1,6 +1,6 @@
 # Security: MongoDB Atlas Memory Extension
 
-This document covers security considerations for the `@moltbot/memory-mongodb` extension.
+This document covers security considerations for the `@openclaw/memory-mongodb` extension.
 
 ## Credential Management
 

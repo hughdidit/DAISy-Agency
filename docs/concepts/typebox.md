@@ -59,7 +59,7 @@ Authoritative list lives in `src/gateway/server.ts` (`METHODS`, `EVENTS`).
 - Server handshake + method dispatch: `src/gateway/server.ts`
 - Node client: `src/gateway/client.ts`
 - Generated JSON Schema: `dist/protocol.schema.json`
-- Generated Swift models: `apps/macos/Sources/MoltbotProtocol/GatewayModels.swift`
+- Generated Swift models: `apps/macos/Sources/OpenClawProtocol/GatewayModels.swift`
 
 ## Current pipeline
 
@@ -92,7 +92,7 @@ Connect (first message):
     "minProtocol": 2,
     "maxProtocol": 2,
     "client": {
-      "id": "moltbot-macos",
+      "id": "openclaw-macos",
       "displayName": "macos",
       "version": "1.0.0",
       "platform": "macos 15.1",
@@ -291,7 +291,7 @@ published raw file is typically available at:
 
 <<<<<<< HEAD
 <<<<<<< HEAD
-- https://raw.githubusercontent.com/moltbot/moltbot/main/dist/protocol.schema.json
+- https://raw.githubusercontent.com/moltai/openclawbot/main/dist/protocol.schema.json
 =======
 - https://raw.githubusercontent.com/openclaw/openclaw/main/dist/protocol.schema.json
 >>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)

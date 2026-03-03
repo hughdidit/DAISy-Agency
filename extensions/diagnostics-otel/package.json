@@ -1,5 +1,5 @@
 {
-  "name": "@moltbot/diagnostics-otel",
+  "name": "@openclaw/diagnostics-otel",
   "version": "2026.1.27-beta.1",
 =======
   "version": "2026.2.2",
@@ -27,8 +27,8 @@
   "description": "OpenClaw diagnostics OpenTelemetry exporter",
 >>>>>>> 1c4db9159 (chore: prepare 2026.2.2 release)
   "type": "module",
-  "description": "Moltbot diagnostics OpenTelemetry exporter",
-  "moltbot": {
+  "description": "OpenClaw diagnostics OpenTelemetry exporter",
+  "openclaw": {
     "extensions": [
       "./index.ts"
     ]

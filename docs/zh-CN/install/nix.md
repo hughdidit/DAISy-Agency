@@ -65,7 +65,7 @@ OPENCLAW_NIX_MODE=1
 通过 defaults 启用 Nix 模式：
 
 ```bash
-defaults write bot.molt.mac openclaw.nixMode -bool true
+defaults write ai.openclaw.mac openclaw.nixMode -bool true
 ```
 
 ### 配置 + 状态路径
