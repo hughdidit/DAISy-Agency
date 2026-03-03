@@ -45,7 +45,19 @@ class Embeddings {
       model: this.model,
       input: text,
     });
-    return response.data[0]?.embedding ?? [];
+    const embedding = response.data?.[0]?.embedding;
+    if (!embedding) {
+      throw new Error(`VoyageAI did not return an embedding for model "${this.model}".`);
+    }
+
+    const expectedDims = vectorDimsForModel(this.model);
+    if (typeof expectedDims === "number" && expectedDims > 0 && embedding.length !== expectedDims) {
+      throw new Error(
+        `VoyageAI embedding dimension mismatch for model "${this.model}": expected ${expectedDims}, got ${embedding.length}.`,
+      );
+    }
+
+    return embedding;
   }
 }
 
