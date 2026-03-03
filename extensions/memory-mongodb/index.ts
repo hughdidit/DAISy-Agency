@@ -27,7 +27,7 @@ import {
 } from "./mongodb-provider.js";
 
 // ============================================================================
-// VoyageAI Embeddings
+// Voyage AI Embeddings
 // ============================================================================
 
 class Embeddings {
@@ -109,7 +109,7 @@ const memoryPlugin = {
 
   register(api: MoltbotPluginApi) {
     const cfg = memoryConfigSchema.parse(api.pluginConfig);
-    const vectorDim = vectorDimsForModel(cfg.embedding.model ?? "text-embedding-3-small");
+    const vectorDim = vectorDimsForModel(cfg.embedding.model ?? "voyage-3");
     const db = new MongoMemoryDB(
       cfg.connectionUri,
       cfg.databaseName,
